@@ -1,4 +1,4 @@
-import { Box, ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui';
+import { ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
@@ -25,22 +25,22 @@ export function AccountDeviceMenuRow(
         />
       }
       caption={
-        <Box sx={{ gap: 0.5 }}>
+        <div class="box gap-0.5">
           <AccountDeviceListCaptionText
             deviceId={props.deviceId}
             variant="caption"
             numberOfLines={1}
-            sx={{ color: 'textSecondary' }}
+            class="text-text-secondary"
           />
           <AccountDeviceSessionCaptionText deviceId={props.deviceId} />
-        </Box>
+        </div>
       }
       leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
       trailing={
-        <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+        <div class="box flex-row items-center gap-2">
           <AccountDeviceCurrentBadge deviceId={props.deviceId} />
           <ChevronRightIcon size={20} color="icon" />
-        </Box>
+        </div>
       }
       onClick={() => props.onOpenDevice(props.deviceId)}
     />

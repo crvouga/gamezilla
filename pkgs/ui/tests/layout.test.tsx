@@ -28,14 +28,15 @@ describe('layout primitives', () => {
         <Card data-testid="card" elevation={2} />
       </>
     ));
-    expect(cssOf(screen.getByTestId('c'))).toContain('justify-content:center');
-    expect(cssOf(screen.getByTestId('s'))).toContain('flex-grow:1');
+    expect(screen.getByTestId('c').className).toMatch(/items-center/);
+    expect(screen.getByTestId('c').className).toMatch(/justify-center/);
+    expect(screen.getByTestId('s').className).toMatch(/flex-1/);
     const divider = screen.getByTestId('d');
     expect(divider).toHaveAttribute('role', 'separator');
-    expect(cssOf(divider)).toContain('border-left-width:1px');
-    const card = cssOf(screen.getByTestId('card'));
-    expect(card).toContain('border-radius:14px');
-    expect(card).toContain('background-color:var(--ui-elevation-2)');
+    expect(divider.className).toMatch(/border-l/);
+    const card = screen.getByTestId('card');
+    expect(card.className).toMatch(/rounded-\[14px\]/);
+    expect(card.className).toMatch(/bg-elevation-2/);
   });
 });
 

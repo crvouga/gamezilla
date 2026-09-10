@@ -1,6 +1,5 @@
 import { asLocalized } from '@pkgs/i18n';
 import {
-  Box,
   CodeEditor,
   type CodeSelection,
   type CodeToken,
@@ -30,7 +29,7 @@ export function SqlCellEditor(props: {
   readonly run: (andNext: boolean) => Promise<void>;
 }): JSX.Element {
   return (
-    <Box sx={{ px: 1, pb: 1 }}>
+    <div class="box px-1 pb-1">
       <CodeEditor
         value={props.sql()}
         onChangeText={(v) => {
@@ -75,7 +74,7 @@ export function SqlCellEditor(props: {
           );
         })()}
       />
-    </Box>
+    </div>
   );
 }
 

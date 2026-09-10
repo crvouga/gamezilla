@@ -1,6 +1,5 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
-import { Box, Clickable } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
 import type { UserSearchResult } from './user-search-types';
@@ -16,29 +15,30 @@ export function UserSearchResultRow(
   props: UserSearchResultRowProps
 ): JSX.Element {
   const body = () => (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        py: 2,
-      }}
-    >
+    <div class="box flex-row items-center gap-2 py-2">
       <UserProfileAvatar profileId={props.user.userId} size={44} />
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+      <div class="box flex-1 min-w-[0]">
         <UserUsername
           profileId={props.user.userId}
           variant="bodyBold"
           numberOfLines={1}
         />
-      </Box>
+      </div>
       {props.trailing}
-    </Box>
+    </div>
   );
 
   return (
     <Show when={props.onPress} fallback={body()}>
-      {(onPress) => <Clickable onClick={() => onPress()()}>{body()}</Clickable>}
+      {(onPress) => (
+        <button
+          class="clickable clickableTint"
+          type="button"
+          onClick={() => onPress()()}
+        >
+          {body()}
+        </button>
+      )}
     </Show>
   );
 }

@@ -1,7 +1,7 @@
 /**
  * JSON snapshot preview pane for headless / topology dumps.
  */
-import { Box, ScrollView, Text } from '@pkgs/ui';
+import { ScrollView } from '@pkgs/ui';
 import {
   createEffect,
   createMemo,
@@ -76,23 +76,26 @@ export function JsonPane(props: {
   return (
     <Switch
       fallback={
-        <ScrollView frameSx={paneSx} sx={{ padding: 12 }}>
-          <Text
-            sx={{ fontFamily: 'monospace', fontSize: 12, color: 'text' }}
-            label={text() ?? 'Loading...'}
-          />
+        <ScrollView style={paneSx} contentClass="p-[12px]">
+          <p class="text [font-family:monospace] text-[12px] text-text">
+            {text() ?? 'Loading...'}
+          </p>
         </ScrollView>
       }
     >
       <Match when={file() == null}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>No JSON snapshot on this frame.</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            No JSON snapshot on this frame.
+          </p>
+        </div>
       </Match>
       <Match when={error() != null}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>{error()}</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            {error()}
+          </p>
+        </div>
       </Match>
     </Switch>
   );

@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `ResponsiveSurface` -- overlay that uses a bottom sheet on compact layouts
  * and a centered modal on wide ones ({@link useLayoutMode}). Pass
@@ -20,7 +21,6 @@ import type { ComponentDataSet } from '../../component-id';
 import { OnColorReset, useLayoutMode } from '../../theme';
 import type { ModalSize } from '../../theme/modal-size';
 import { useBottomSheetHost } from '../bottom-sheet-host';
-import { Box } from '../box';
 import {
   CONTENT_EDGE_PADDING_STEP,
   ContentEdgePaddingProvider,
@@ -91,9 +91,12 @@ function SurfaceChrome(props: ResponsiveSurfaceProps): JSX.Element {
         />
         <Show when={props.bodyHeight} fallback={props.children}>
           {(bodyHeight) => (
-            <Box sx={{ height: bodyHeight(), overflow: 'hidden' }}>
+            <div
+              class="box overflow-hidden"
+              style={{ height: cssPx(bodyHeight()) }}
+            >
               {props.children}
-            </Box>
+            </div>
           )}
         </Show>
       </OnColorReset>
@@ -113,15 +116,26 @@ function SurfaceScrollBody(props: {
   return (
     <Show
       when={props.scroll}
-      fallback={<Box sx={SURFACE_PADDING_SX}>{props.children}</Box>}
+      fallback={
+        <div class="box" style={SURFACE_PADDING_SX}>
+          {props.children}
+        </div>
+      }
     >
       <ScrollView
         flushEdge={false}
-        frameSx={[
-          { minHeight: 0, flexShrink: 1 },
-          props.maxHeight !== undefined && { maxHeight: props.maxHeight },
-        ]}
-        sx={SURFACE_PADDING_SX}
+        class="min-h-0 shrink"
+        style={
+          props.maxHeight !== undefined
+            ? { 'max-height': `${props.maxHeight}px` }
+            : undefined
+        }
+        contentStyle={{
+          'padding-left': 'var(--ui-space-4)',
+          'padding-right': 'var(--ui-space-4)',
+          'padding-top': 'var(--ui-space-4)',
+          'padding-bottom': 'var(--ui-space-6)',
+        }}
       >
         {props.children}
       </ScrollView>

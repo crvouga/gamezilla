@@ -7,13 +7,11 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { isSoundId, type SoundId, Sounds } from '@pkgs/sounds';
 import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import {
-  Box,
   Button,
   ModalBody,
   ModalFooter,
   type MutationStateTransition,
   ResponsiveSurface,
-  Text,
   useMutationButton,
   useRouter,
 } from '@pkgs/ui';
@@ -183,16 +181,12 @@ export function FriendRequestDecisionModal({
       size="medium"
     >
       <ModalBody>
-        <Box sx={{ alignItems: 'center', gap: 2 }}>
+        <div class="box items-center gap-2">
           <Show when={profile().userId.length > 0}>
             <FriendProfileAvatar profile={profile()} size={64} />
           </Show>
-          <Text
-            variant="bodyBold"
-            label={interaction.title}
-            sx={{ textAlign: 'center' }}
-          />
-        </Box>
+          <p class="text textBodyBold text-center">{interaction.title}</p>
+        </div>
       </ModalBody>
       <ModalFooter>
         <AcceptButton

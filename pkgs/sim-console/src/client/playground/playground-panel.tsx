@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import { Match, Show, Switch } from 'solid-js';
 import {
   coerceDebuggerView,
@@ -23,16 +22,16 @@ import { SolidActorHost } from './solid-actor-host';
 
 const panelSx = {
   flex: 1,
-  minWidth: 0,
-  minHeight: 0,
+  'min-width': 0,
+  'min-height': 0,
   overflow: 'hidden',
   background: 'surface',
-  flexDirection: 'column',
+  'flex-direction': 'column',
 } as const;
 
 const uiBodySx = {
   flex: 1,
-  minHeight: 0,
+  'min-height': 0,
   overflow: 'hidden',
   position: 'relative',
   background: 'surface',
@@ -40,8 +39,8 @@ const uiBodySx = {
 
 const fillSx = {
   flex: 1,
-  minHeight: 0,
-  minWidth: 0,
+  'min-height': 0,
+  'min-width': 0,
 } as const;
 
 function hiddenWhen(active: boolean) {
@@ -104,13 +103,13 @@ export function ClientPlaygroundPanel(props: {
   void props.reloadToken;
 
   return (
-    <Box sx={panelSx} dataSet={{ debuggerClient: props.actor.address }}>
-      <Box sx={uiBodySx}>
+    <div class="box" style={panelSx} data-debuggerClient={props.actor.address}>
+      <div class="box" style={uiBodySx}>
         <Show when={productKey()} keyed>
           {(_key: string) => <ActorView actor={props.actor} />}
         </Show>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -126,8 +125,8 @@ export function ServerPlaygroundPanel(props: {
   const pane = () => resolvePane(props.pane, 'server');
   const tab = () => pane().view;
   return (
-    <Box sx={panelSx}>
-      <Box sx={hiddenWhen(tab() === 'db')}>
+    <div class="box" style={panelSx}>
+      <div class="box" style={hiddenWhen(tab() === 'db')}>
         <SqlNotebookPane
           sqlClient={props.node.sqlClient}
           nodeId={props.node.id}
@@ -137,14 +136,14 @@ export function ServerPlaygroundPanel(props: {
             props.session.subscribeDomainWake(listener)
           }
         />
-      </Box>
-      <Box sx={hiddenWhen(tab() === 'events')}>
+      </div>
+      <div class="box" style={hiddenWhen(tab() === 'events')}>
         <PlaygroundLogsPane logs={props.node.logs} />
-      </Box>
-      <Box sx={hiddenWhen(tab() === 'commands')}>
+      </div>
+      <div class="box" style={hiddenWhen(tab() === 'commands')}>
         <PlaygroundCommandsPane session={props.session} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -156,17 +155,17 @@ export function PubSubPlaygroundPanel(props: {
   const pane = () => resolvePane(props.pane, 'events');
   const tab = () => pane().view;
   return (
-    <Box sx={panelSx}>
-      <Box sx={hiddenWhen(tab() === 'events')}>
+    <div class="box" style={panelSx}>
+      <div class="box" style={hiddenWhen(tab() === 'events')}>
         <PlaygroundLogsPane logs={props.pubsub.logs} />
-      </Box>
-      <Box sx={hiddenWhen(tab() === 'topics')}>
+      </div>
+      <div class="box" style={hiddenWhen(tab() === 'topics')}>
         <PlaygroundPubSubTopicsPane
           pubsub={props.pubsub}
           subscribe={props.session.subscribe}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -178,17 +177,17 @@ export function RoomPlaygroundPanel(props: {
   const pane = () => resolvePane(props.pane, 'room');
   const tab = () => pane().view;
   return (
-    <Box sx={panelSx}>
-      <Box sx={hiddenWhen(tab() === 'db')}>
+    <div class="box" style={panelSx}>
+      <div class="box" style={hiddenWhen(tab() === 'db')}>
         <PlaygroundRoomDbPane
           room={props.room}
           subscribe={props.session.subscribe}
         />
-      </Box>
-      <Box sx={hiddenWhen(tab() === 'events')}>
+      </div>
+      <div class="box" style={hiddenWhen(tab() === 'events')}>
         <PlaygroundLogsPane logs={props.room.logs} />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 

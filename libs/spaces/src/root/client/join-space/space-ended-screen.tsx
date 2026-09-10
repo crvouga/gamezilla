@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
-import { Box, ScreenBase, useBreadcrumbNav } from '@pkgs/ui';
+import { ScreenBase, useBreadcrumbNav } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { SpaceTitleText } from '../../../root/client/space-title-text';
 import { SpaceJoinEndedState } from './space-join-ended-state';
@@ -24,10 +24,10 @@ export function SpaceEndedScreen(props: SpaceEndedScreenProps): JSX.Element {
           ),
         },
       ]}
-      content={({ sx }) => (
-        <Box sx={sx} dataSet={{ testid: Handles.spaceEnded }}>
+      content={({ bodyClass }) => (
+        <div class={`box ${bodyClass}`} data-testid={Handles.spaceEnded}>
           <SpaceJoinEndedState spaceId={props.spaceId} />
-        </Box>
+        </div>
       )}
     />
   );

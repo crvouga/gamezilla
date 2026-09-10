@@ -9,7 +9,6 @@
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   ErrorState,
   FadeSwitch,
   LoadingState,
@@ -220,8 +219,11 @@ function SignInErrorContent(props: {
 
 function StateArea(props: { children: JSX.Element }): JSX.Element {
   return (
-    <Box sx={{ justifyContent: 'center', minHeight: STATE_AREA_MIN_HEIGHT }}>
+    <div
+      class="box justify-center"
+      style={{ 'min-height': `${STATE_AREA_MIN_HEIGHT}px` }}
+    >
       {props.children}
-    </Box>
+    </div>
   );
 }

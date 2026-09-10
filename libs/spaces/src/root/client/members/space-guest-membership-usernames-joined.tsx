@@ -1,4 +1,4 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { For, Show } from 'solid-js';
 
@@ -8,7 +8,7 @@ import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 export type SpaceGuestMembershipUsernamesJoinedProps = {
   spaceId: string;
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -26,7 +26,7 @@ export function SpaceGuestMembershipUsernamesJoined(
     <Show when={membershipIds().length > 0}>
       <Text
         variant={props.variant}
-        sx={props.sx}
+        class={props.class}
         numberOfLines={props.numberOfLines}
       >
         <For each={membershipIds()}>

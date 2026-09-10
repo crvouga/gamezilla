@@ -1,29 +1,17 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
-import { Center } from './center';
 
 export default function CenterExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Center sx={{ height: 120, background: 'surface', borderRadius: 8 }}>
-        <Text variant="body" label="Centered content" />
-      </Center>
+      <div class="box items-center justify-center h-[120px] bg-surface rounded-lg">
+        <p class="text">{'Centered content'}</p>
+      </div>
 
-      <Center
-        sx={{
-          height: 120,
-          background: 'tint',
-          borderRadius: 12,
-        }}
-      >
-        <Text
-          variant="bodyBold"
-          sx={{ color: 'onPrimary' }}
-          label="Centered on tint"
-        />
-      </Center>
+      <div class="box items-center justify-center h-[120px] bg-tint rounded-xl">
+        <p class="text textBodyBold text-on-primary">{'Centered on tint'}</p>
+      </div>
     </ExampleRoot>
   );
 }

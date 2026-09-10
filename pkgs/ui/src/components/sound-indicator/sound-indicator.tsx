@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `SoundIndicator` -- compact circular badge that visualises the current
  * audio state with a speaker / speaker-slash icon. Three states:
@@ -19,9 +20,8 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { resolveColor, useThemeTokens } from '../../theme';
-import { Box } from '../box';
 import { Volume2Icon, VolumeXIcon } from '../icons';
 import { AnimatedSpeakerWaves } from './animated-speaker-waves';
 
@@ -63,20 +63,16 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
     return t`Sound on`;
   };
   return (
-    <Box
-      as="span"
+    <span
+      class="box inline-flex rounded-[9999px] items-center justify-center"
+      {...dataAttrs({ component: 'SoundIndicator', ...props.dataSet })}
+      style={{
+        'background-color': props.backgroundColor ?? 'surface',
+        padding: cssPx(Math.round(size() * PADDING_RATIO)),
+      }}
       role="status"
       aria-label={stateLabel()}
       data-state={props.state}
-      dataSet={{ component: 'SoundIndicator', ...props.dataSet }}
-      sx={{
-        display: 'inline-flex',
-        backgroundColor: props.backgroundColor ?? 'surface',
-        borderRadius: 'full',
-        padding: Math.round(size() * PADDING_RATIO),
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
     >
       <Show
         when={props.state === 'playing'}
@@ -91,6 +87,6 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
       >
         <AnimatedSpeakerWaves size={size()} color={iconColor()} />
       </Show>
-    </Box>
+    </span>
   );
 }

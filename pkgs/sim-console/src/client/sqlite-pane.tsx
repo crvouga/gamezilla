@@ -1,4 +1,3 @@
-import { Box, Text } from '@pkgs/ui';
 import { Match, Switch } from 'solid-js';
 
 import type { FlatFrame } from './frames';
@@ -24,16 +23,18 @@ export function SqlitePane(props: {
   return (
     <Switch>
       <Match when={file() == null}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
             No SQLite dump for node `{props.nodeId ?? '—'}` on this frame.
-          </Text>
-        </Box>
+          </p>
+        </div>
       </Match>
       <Match when={true}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>SQLite pane requires web (`{file()}`).</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            SQLite pane requires web (`{file()}`).
+          </p>
+        </div>
       </Match>
     </Switch>
   );

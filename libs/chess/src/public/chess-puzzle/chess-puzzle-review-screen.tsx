@@ -4,7 +4,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { Box, EmptyState, MainMenuScreenHeader } from '@pkgs/ui';
+import { EmptyState, MainMenuScreenHeader } from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import {
@@ -57,9 +57,9 @@ function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
   const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch', gap: 4, p: 4, pb: 8 }}
-      dataSet={{ screen: 'chess-stats-review' }}
+    <div
+      class="box flex-1 min-h-[0] self-stretch gap-4 p-4 pb-8"
+      data-screen="chess-stats-review"
     >
       <MainMenuScreenHeader
         title={<ReviewTitle entry={entry()} />}
@@ -82,7 +82,7 @@ function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
       >
         <ChessPuzzleReviewBoard fen={entity.fen} moves={entity.movesStr} />
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -98,7 +98,7 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
   };
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, alignSelf: 'stretch' }}>
+    <div class="box flex-1 min-h-[0] self-stretch">
       <DefineBackButton onPress={backToStats} />
       <Show
         when={puzzleId() !== null}
@@ -111,6 +111,6 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
       >
         <ChessPuzzleReviewBody puzzleId={puzzleId()!} />
       </Show>
-    </Box>
+    </div>
   );
 }

@@ -45,28 +45,25 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
   const segments = createMemo(() =>
     highlightSegments(props.text, props.ranges)
   );
+  const lineProps = (): Pick<HighlightedTextProps, 'numberOfLines'> =>
+    props.numberOfLines !== undefined
+      ? { numberOfLines: props.numberOfLines }
+      : {};
   return (
     <Show
       when={props.ranges.length > 0}
       fallback={
-        <Text
-          variant={variant()}
-          numberOfLines={props.numberOfLines}
-          label={props.text}
-        />
+        <Text variant={variant()} {...lineProps()}>
+          {props.text}
+        </Text>
       }
     >
-      <Text
-        variant={variant()}
-        numberOfLines={props.numberOfLines}
-        sx={{ flexShrink: 1 }}
-      >
+      <Text variant={variant()} class="shrink" {...lineProps()}>
         <For each={segments()}>
           {(segment) => (
-            <Text
-              variant={segment.bold ? boldVariant() : variant()}
-              label={segment.text}
-            />
+            <Text variant={segment.bold ? boldVariant() : variant()}>
+              {segment.text}
+            </Text>
           )}
         </For>
       </Text>

@@ -7,9 +7,7 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type PickerSectionProps = {
   label: JSX.Element;
@@ -21,22 +19,17 @@ export type PickerSectionProps = {
 
 export function PickerSection(props: PickerSectionProps): JSX.Element {
   return (
-    <Box
-      as="section"
-      sx={{ gap: 2, py: 1 }}
-      dataSet={{ component: 'PickerSection', ...props.dataSet }}
+    <section
+      class="box gap-2 py-1"
+      {...dataAttrs({ component: 'PickerSection', ...props.dataSet })}
     >
-      <Text variant="label" label={props.label} />
+      <label class="text textLabel">{props.label}</label>
       <Show
         when={props.description !== undefined && props.description !== null}
       >
-        <Text
-          variant="caption"
-          sx={{ opacity: 0.75 }}
-          label={props.description}
-        />
+        <p class="text textCaption opacity-75">{props.description}</p>
       </Show>
       {props.children}
-    </Box>
+    </section>
   );
 }

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, ScreenBase, useBreadcrumbNav } from '@pkgs/ui';
+import { ScreenBase, useBreadcrumbNav } from '@pkgs/ui';
 
 import { ClientConfigEntityCard } from './client-config-entity-card';
 
@@ -15,10 +15,10 @@ export function ClientConfigScreen() {
         { name: <Trans>Client config</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box gap-5 ${bodyClass}`}>
           <ClientConfigEntityCard />
-        </Box>
+        </div>
       )}
     />
   );

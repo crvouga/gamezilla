@@ -6,10 +6,7 @@
 
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { createSignal, For, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { TextInput } from '../text-input';
 import { arraysEqualAsSets } from './arrays-equal-as-sets';
 
@@ -62,25 +59,21 @@ export function toggleSwatch(value: readonly string[], hex: string): string[] {
 
 function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint [padding-left:12px;padding-right:12px] [padding-top:8px;padding-bottom:8px] rounded-[8px] border bg-surface"
+      data-component="SwatchRandom"
+      type="button"
+      style={{ 'border-color': props.isRandom ? 'tint' : 'border' }}
       onClick={() => props.onClick()}
       aria-pressed={props.isRandom}
-      dataSet={{ component: 'SwatchRandom' }}
-      sx={{
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: props.isRandom ? 'tint' : 'border',
-        backgroundColor: 'surface',
-      }}
     >
-      <Text
-        variant="caption"
-        sx={{ fontWeight: props.isRandom ? '600' : '400', color: 'text' }}
-        label={<Trans>Random</Trans>}
-      />
-    </Clickable>
+      <p
+        class="text textCaption text-text"
+        style={{ 'font-weight': props.isRandom ? '600' : '400' }}
+      >
+        {<Trans>Random</Trans>}
+      </p>
+    </button>
   );
 }
 
@@ -94,26 +87,24 @@ function DefaultSwatch(props: {
   const isTrans = (): boolean =>
     props.hex.toLowerCase() === props.transparentToken.toLowerCase();
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint w-[36px] h-[36px] rounded-[18px] [border-width:2px] overflow-hidden"
+      data-component="Swatch"
+      data-hex={props.hex}
+      type="button"
+      style={{
+        'border-color': props.active ? 'tint' : 'border',
+        'background-color': isTrans() ? 'transparent' : `#${props.hex}`,
+      }}
       onClick={() => props.onClick()}
       role="checkbox"
       aria-checked={props.active}
       aria-label={isTrans() ? t`Transparent` : t`Color ${props.hex}`}
-      dataSet={{ component: 'Swatch', hex: props.hex }}
-      sx={{
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        borderWidth: 2,
-        borderColor: props.active ? 'tint' : 'border',
-        backgroundColor: isTrans() ? 'transparent' : `#${props.hex}`,
-        overflow: 'hidden',
-      }}
     >
       <Show when={isTrans()}>
-        <Box sx={{ flex: 1, backgroundColor: 'border', opacity: 0.35 }} />
+        <div class="box flex-1 bg-border opacity-35" />
       </Show>
-    </Clickable>
+    </button>
   );
 }
 
@@ -157,14 +148,12 @@ function CustomHexInput(props: {
     setHexDraft('');
   };
   return (
-    <Box sx={{ gap: 1 }}>
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.8 }}
-        label={<Trans>Add hex (6 chars, no #)</Trans>}
-      />
-      <Box sx={{ flexDirection: 'row', gap: 2, alignItems: 'flex-end' }}>
-        <Box sx={{ flex: 1 }}>
+    <div class="box gap-1">
+      <p class="text textCaption opacity-80">
+        {<Trans>Add hex (6 chars, no #)</Trans>}
+      </p>
+      <div class="box flex-row gap-2 items-end">
+        <div class="box flex-1">
           <TextInput
             value={hexDraft()}
             onChangeText={setHexDraft}
@@ -175,20 +164,17 @@ function CustomHexInput(props: {
             autocorrect="off"
             maxLength={6}
           />
-        </Box>
-        <Clickable
+        </div>
+        <button
+          class="clickable clickableTint [padding-top:8px;padding-bottom:8px] [padding-left:12px;padding-right:12px]"
+          data-component="SwatchAddHex"
+          type="button"
           onClick={addHex}
-          dataSet={{ component: 'SwatchAddHex' }}
-          sx={{ paddingVertical: 8, paddingHorizontal: 12 }}
         >
-          <Text
-            variant="label"
-            sx={{ color: 'tint' }}
-            label={<Trans>Add</Trans>}
-          />
-        </Clickable>
-      </Box>
-    </Box>
+          <label class="text textLabel text-tint">{<Trans>Add</Trans>}</label>
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -208,20 +194,12 @@ export function MultiSelectSwatchGrid(
       props.defaultPalette.map((v) => v.toLowerCase())
     );
   return (
-    <Box
-      sx={{ gap: 2, py: 2 }}
-      dataSet={{ component: 'MultiSelectSwatchGrid', ...props.dataSet }}
+    <div
+      class="box gap-2 py-2"
+      {...dataAttrs({ component: 'MultiSelectSwatchGrid', ...props.dataSet })}
     >
-      <Text variant="label" label={props.label} />
-      <Box
-        role="group"
-        sx={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: 2,
-          alignItems: 'center',
-        }}
-      >
+      <label class="text textLabel">{props.label}</label>
+      <div class="box flex-row flex-wrap gap-2 items-center" role="group">
         <Show when={props.defaultPalette}>
           {(palette) => (
             <RandomChip
@@ -250,7 +228,7 @@ export function MultiSelectSwatchGrid(
             />
           )}
         </For>
-      </Box>
+      </div>
       <Show when={props.allowCustomEntry !== false}>
         <CustomHexInput
           value={props.value}
@@ -258,6 +236,6 @@ export function MultiSelectSwatchGrid(
           validateCustom={validate()}
         />
       </Show>
-    </Box>
+    </div>
   );
 }

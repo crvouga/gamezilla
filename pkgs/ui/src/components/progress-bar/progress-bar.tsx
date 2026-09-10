@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `ProgressBar` -- determinate or indeterminate progress indicator.
  *
@@ -14,9 +15,8 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { resolveColor, useThemeTokens } from '../../theme';
-import { Box } from '../box';
 
 export type ProgressBarProps = {
   /** Value between 0 and 1. Ignored when `indeterminate` is true. */
@@ -49,32 +49,26 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
   const widthPct = (): string =>
     indeterminate() ? INDETERMINATE_FILL : `${value() * 100}%`;
   return (
-    <Box
+    <div
+      class="box bg-outline overflow-hidden"
+      {...dataAttrs({ component: 'ProgressBar', ...props.dataSet })}
+      style={{ 'border-radius': cssPx(height() / 2), height: cssPx(height()) }}
       role="progressbar"
       aria-label={props.label}
       aria-valuemin={0}
       aria-valuemax={1}
       aria-valuenow={indeterminate() ? undefined : value()}
       aria-busy={indeterminate() ? true : undefined}
-      dataSet={{ component: 'ProgressBar', ...props.dataSet }}
-      sx={{
-        height: height(),
-        borderRadius: height() / 2,
-        backgroundColor: 'outline',
-        overflow: 'hidden',
-      }}
     >
-      <Box
-        sx={{
-          height: height(),
+      <div
+        class="box [transition-property:width] [transition-duration:var(--ui-duration-normal)] [transition-timing-function:var(--ui-easing-standard)]"
+        style={{
+          'border-radius': cssPx(height() / 2),
+          'background-color': fillColor(),
+          height: cssPx(height()),
           width: widthPct(),
-          borderRadius: height() / 2,
-          backgroundColor: fillColor(),
-          transitionProperty: 'width',
-          transitionDuration: 'var(--ui-duration-normal)',
-          transitionTimingFunction: 'var(--ui-easing-standard)',
         }}
       />
-    </Box>
+    </div>
   );
 }

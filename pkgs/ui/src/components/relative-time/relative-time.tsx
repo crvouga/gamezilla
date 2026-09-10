@@ -17,14 +17,28 @@ import {
   type JSX,
   on,
   onCleanup,
+  splitProps,
 } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
-import { Text, type TextVariant } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { joinClass } from '../box/box';
+import type { TextVariant } from '../text';
 import {
   RELATIVE_TIME_TICK_MS,
   relativeTimeParts,
 } from './relative-time-format';
+
+const VARIANT_CLASS: Record<TextVariant, string | undefined> = {
+  body: undefined,
+  bodyBold: 'textBodyBold',
+  caption: 'textCaption',
+  label: 'textLabel',
+  title: 'textTitle',
+  subtitle: 'textSubtitle',
+  heading: 'textHeading',
+  navigationTitle: 'textNavigationTitle',
+  link: 'textLink',
+  mono: 'textMono',
+};
 
 /** `clock.now()` sampled on mount, on every `restart` change, and every tick. */
 function createLiveNow(restart: Accessor<unknown>): Accessor<number> {
@@ -76,32 +90,43 @@ export function useRelativeTimeLabel(at: Accessor<string>): Accessor<string> {
   };
 }
 
-export type RelativeTimeProps = {
+export type RelativeTimeProps = Omit<
+  JSX.HTMLAttributes<HTMLTimeElement>,
+  'children'
+> & {
   /** ISO timestamp (or any `Date.parse`-able string). */
   at: string;
   variant?: TextVariant | undefined;
-  sx?: SxInput | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
 export function RelativeTime(props: RelativeTimeProps): JSX.Element {
   const label = useRelativeTimeLabel(() => props.at);
-  let host: HTMLElement | undefined;
-  // `<time datetime>` is not part of the generic `Text` attribute surface.
+  const [local, rest] = splitProps(props, [
+    'at',
+    'variant',
+    'class',
+    'dataSet',
+  ]);
+  let host: HTMLTimeElement | undefined;
   createEffect(() => {
-    host?.setAttribute('datetime', props.at);
+    host?.setAttribute('datetime', local.at);
   });
   return (
-    <Text
-      as="time"
+    <time
+      class={joinClass(
+        'text',
+        VARIANT_CLASS[local.variant ?? 'caption'],
+        local.class
+      )}
+      {...dataAttrs({ component: 'RelativeTime', ...local.dataSet })}
       ref={(el) => {
         host = el;
       }}
-      variant={props.variant ?? 'caption'}
-      label={label()}
-      sx={props.sx}
-      dataSet={{ component: 'RelativeTime', ...props.dataSet }}
-    />
+      {...rest}
+    >
+      {label()}
+    </time>
   );
 }

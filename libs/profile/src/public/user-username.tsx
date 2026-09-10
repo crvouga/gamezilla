@@ -1,9 +1,4 @@
-import {
-  type ComponentDataSet,
-  type SxProps,
-  Text,
-  type TextVariant,
-} from '@pkgs/ui';
+import { type ComponentDataSet, Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 
@@ -13,7 +8,7 @@ export type UserUsernameProps = {
   /** Profile entity id (account or install id). `null` renders nothing. */
   profileId: string | null;
   variant?: TextVariant | undefined;
-  sx?: SxProps | undefined;
+  class?: string | undefined;
   numberOfLines?: number | undefined;
   /** When true, prefix with `@`. Default true. */
   withAt?: boolean | undefined;
@@ -34,7 +29,7 @@ export function UserUsername(props: UserUsernameProps): JSX.Element {
           profileId={id}
           withAt={props.withAt ?? true}
           variant={props.variant}
-          sx={props.sx}
+          class={props.class}
           numberOfLines={props.numberOfLines}
           dataSet={props.dataSet}
         />
@@ -47,7 +42,7 @@ function UserUsernameInner(props: {
   profileId: string;
   withAt: boolean;
   variant?: TextVariant | undefined;
-  sx?: SxProps | undefined;
+  class?: string | undefined;
   numberOfLines?: number | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
@@ -63,7 +58,7 @@ function UserUsernameInner(props: {
   return (
     <Text
       variant={props.variant}
-      sx={props.sx}
+      class={props.class}
       numberOfLines={props.numberOfLines}
       dataSet={props.dataSet}
       label={label()}

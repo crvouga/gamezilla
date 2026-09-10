@@ -4,7 +4,6 @@ import { createSignal, type JSX } from 'solid-js';
 import { Avatar } from '../avatar';
 import { ExampleRoot } from '../explorer/example-root';
 import { ShuffleIcon } from '../icons';
-import { Text } from '../text';
 import { AvatarHero } from './avatar-hero';
 
 const SAMPLE_SVG = `
@@ -32,11 +31,7 @@ export default function AvatarHeroExample(): JSX.Element {
       >
         <Avatar svg={SAMPLE_SVG} size={160} />
       </AvatarHero>
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.75 }}
-        label={`Shuffles: ${n()}`}
-      />
+      <p class="text textCaption opacity-75">{`Shuffles: ${n()}`}</p>
     </ExampleRoot>
   );
 }

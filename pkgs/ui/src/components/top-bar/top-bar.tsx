@@ -11,11 +11,10 @@ import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import {
   getTopBarContentHeight,
-  type SxProps,
   TOP_BAR_CONTENT_HEIGHT_MOBILE,
   useThemeLayout,
 } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import styles from '../hosts.module.css';
 
 export const TOP_BAR_CONTENT_HEIGHT = TOP_BAR_CONTENT_HEIGHT_MOBILE;
@@ -39,26 +38,19 @@ export type TopBarProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const ALIGN_MAP: Record<
-  TopBarCenterAlign,
-  'flex-start' | 'center' | 'flex-end'
-> = {
-  start: 'flex-start',
-  center: 'center',
-  end: 'flex-end',
+const ALIGN_CLASS: Record<TopBarCenterAlign, string> = {
+  start: 'justify-start',
+  center: 'justify-center',
+  end: 'justify-end',
 };
 
 // Side slots / overlay are pointer-transparent via the `.boxNone` class (its
 // `> *` rule re-enables children) rather than inline `pointer-events:none`,
 // which children would inherit.
-const SIDE_SLOT_SX: SxProps = {
-  flex: 1,
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: 2,
-  minWidth: 0,
-  zIndex: 3,
-};
+const SIDE_SLOT_CLASS = joinClass(
+  styles['boxNone'],
+  'flex-1 flex-row items-center gap-2 min-w-0 z-[3]'
+);
 
 type SlotsProps = Pick<
   TopBarProps,
@@ -69,42 +61,20 @@ function FlexLayout(props: SlotsProps): JSX.Element {
   return (
     <>
       <Show when={props.leading !== undefined}>
-        <Box
-          sx={{
-            flexShrink: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 2,
-          }}
-        >
-          {props.leading}
-        </Box>
+        <Box class="shrink-0 flex-row items-center gap-2">{props.leading}</Box>
       </Show>
       <Show when={props.center !== undefined && props.center !== null}>
         <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: ALIGN_MAP[props.centerAlign ?? 'start'],
-          }}
+          class={joinClass(
+            'flex-1 min-w-0 flex-row items-center',
+            ALIGN_CLASS[props.centerAlign ?? 'start']
+          )}
         >
           {props.center}
         </Box>
       </Show>
       <Show when={props.trailing !== undefined && props.trailing !== null}>
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            alignSelf: 'stretch',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 2,
-          }}
-        >
+        <Box class="flex-1 min-w-0 self-stretch flex-row items-center justify-end gap-2">
           {props.trailing}
         </Box>
       </Show>
@@ -114,40 +84,20 @@ function FlexLayout(props: SlotsProps): JSX.Element {
 
 function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
   return (
-    <Box
-      sx={{
-        position: 'relative',
-        flex: 1,
-        minWidth: 0,
-        alignSelf: 'stretch',
-        flexDirection: 'row',
-        alignItems: 'center',
-      }}
-    >
-      <Box
-        class={styles['boxNone']}
-        sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-start' }}
-      >
+    <Box class="relative flex-1 min-w-0 self-stretch flex-row items-center">
+      <Box class={joinClass(SIDE_SLOT_CLASS, 'justify-start')}>
         {props.leading}
       </Box>
-      <Box
-        class={styles['boxNone']}
-        sx={{ ...SIDE_SLOT_SX, justifyContent: 'flex-end' }}
-      >
+      <Box class={joinClass(SIDE_SLOT_CLASS, 'justify-end')}>
         {props.trailing}
       </Box>
       <Box
-        class={styles['boxNone']}
-        sx={{
-          position: 'absolute',
-          inset: 0,
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 2,
-        }}
+        class={joinClass(
+          styles['boxNone'],
+          'absolute inset-0 flex-row items-center justify-center z-[2]'
+        )}
       >
-        <Box sx={{ minWidth: 0 }}>{props.center}</Box>
+        <Box class="min-w-0">{props.center}</Box>
       </Box>
     </Box>
   );
@@ -164,24 +114,17 @@ export function TopBar(props: TopBarProps): JSX.Element {
   return (
     <Box
       as="header"
+      class={joinClass(
+        'bg-surface border-b border-solid border-border',
+        (props.safeAreaTop ?? true) && styles['safeTop']
+      )}
       dataSet={{ component: 'TopBar', ...props.dataSet }}
-      class={(props.safeAreaTop ?? true) ? styles['safeTop'] : undefined}
-      sx={{
-        background: 'surface',
-        borderBottomWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-      }}
     >
       <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          px: 3,
-          height: contentHeight(),
-          minHeight: contentHeight(),
-          width: '100%',
+        class="flex-row items-center gap-2 px-3 w-full"
+        style={{
+          height: `${contentHeight()}px`,
+          'min-height': `${contentHeight()}px`,
         }}
       >
         <Show when={useAbsoluteCenter()} fallback={<FlexLayout {...props} />}>

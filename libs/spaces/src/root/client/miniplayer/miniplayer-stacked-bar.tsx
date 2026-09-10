@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/solid/macro';
-import { AvatarGroup, Box, Clickable, Text } from '@pkgs/ui';
+import { AvatarGroup, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, For } from 'solid-js';
 
@@ -28,15 +28,14 @@ function StackPeek(props: {
   const bottom = (props.index + 1) * PEEK_OFFSET;
   return (
     <SpaceCardGradientBox
-      sx={{
-        position: 'absolute',
-        left: inset,
-        right: inset,
-        bottom,
-        height: FRONT_HEIGHT,
-        borderRadius: props.borderRadius,
+      class="absolute pointer-events-none"
+      style={{
+        left: `${inset}px`,
+        right: `${inset}px`,
+        bottom: `${bottom}px`,
+        height: `${FRONT_HEIGHT}px`,
+        'border-radius': `${props.borderRadius}px`,
         opacity: 0.55 - props.index * 0.15,
-        pointerEvents: 'none',
       }}
     >
       {null}
@@ -74,46 +73,34 @@ export function MiniplayerStackedBar(
   );
 
   return (
-    <Box sx={{ paddingTop: stackPad() }}>
-      <Box sx={{ position: 'relative', minHeight: FRONT_HEIGHT }}>
+    <div class="box" style={{ 'padding-top': `${stackPad()}px` }}>
+      <div class="box relative" style={{ 'min-height': `${FRONT_HEIGHT}px` }}>
         <For each={peekIndexes()}>
           {(index) => (
             <StackPeek index={index} borderRadius={props.borderRadius} />
           )}
         </For>
-        <Clickable
+        <button
+          class="clickable clickableTint relative z-1"
+          type="button"
           onClick={props.onPressOpenPicker}
           role="button"
           aria-label={t`Show your live spaces`}
-          sx={{
-            position: 'relative',
-            zIndex: 1,
-          }}
         >
           <SpaceCardGradientBox
-            sx={{
-              borderRadius: props.borderRadius,
-              overflow: 'hidden',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-              minHeight: FRONT_HEIGHT,
-              px: 3,
-            }}
+            class="overflow-hidden flex-row items-center gap-2 min-h-[72px] px-3"
+            style={{ 'border-radius': `${props.borderRadius}px` }}
           >
             <StackedHostAvatars spaceIds={props.spaceIds} />
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Text
-                variant="bodyBold"
-                numberOfLines={1}
-                sx={{ color: 'onPrimary' }}
-                label={t`${count()} live spaces`}
-              />
-            </Box>
+            <div class="box flex-1 min-w-[0]">
+              <Text variant="bodyBold" class="line-clamp-1 text-on-primary">
+                {t`${count()} live spaces`}
+              </Text>
+            </div>
             <MiniplayerLiveBadge />
           </SpaceCardGradientBox>
-        </Clickable>
-      </Box>
-    </Box>
+        </button>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Box, Clickable, ScrollView, Text } from '@pkgs/ui';
+import { ScrollView } from '@pkgs/ui';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 import {
@@ -27,12 +27,12 @@ export function Timeline(props: {
     <Show
       when={props.frames.length > 0}
       fallback={
-        <Text sx={{ ...railSx, color: 'textSecondary', padding: 10 }}>
+        <p class="text text-text-secondary p-[10px]" style={railSx}>
           No frames.
-        </Text>
+        </p>
       }
     >
-      <Box sx={timelineColumnSx}>
+      <div class="box" style={timelineColumnSx}>
         <FrameScrubber
           mode={props.mode ?? 'continuous'}
           frameCount={props.frames.length}
@@ -40,11 +40,11 @@ export function Timeline(props: {
           onSelect={props.onSelect}
         />
         <ScrollView
+          style={railSx}
+          contentStyle={chipRowSx}
           ref={scroll.onScroller}
           horizontal
           hideScrollbar
-          frameSx={railSx}
-          sx={chipRowSx}
           aria-label="Frames"
           onScroll={(e) => {
             scroll.onScrollX(e.currentTarget.scrollLeft);
@@ -63,7 +63,7 @@ export function Timeline(props: {
             )}
           </For>
         </ScrollView>
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -99,16 +99,17 @@ function FrameScrubber(props: {
   };
 
   return (
-    <Box
+    <div
+      class="box"
+      style={{
+        ...(scrubHitSx ?? {}),
+        cursor: scrub.scrubbing ? 'grabbing' : 'grab',
+      }}
       aria-label="Frame scrubber"
       role="slider"
       aria-valuemin={1}
       aria-valuemax={props.frameCount}
       aria-valuenow={props.selectedIndex + 1}
-      sx={{
-        ...scrubHitSx,
-        cursor: scrub.scrubbing ? 'grabbing' : 'grab',
-      }}
       ref={onTrackRef}
       onPointerDown={scrub.onPointerDown}
       onPointerMove={scrub.onPointerMove}
@@ -116,23 +117,23 @@ function FrameScrubber(props: {
       onPointerCancel={scrub.onPointerCancel}
       onLostPointerCapture={scrub.onLostPointerCapture}
     >
-      <Box sx={scrubTrackSx}>
-        <Box sx={{ ...scrubFillSx, width: `${fraction() * 100}%` }} />
-      </Box>
+      <div class="box" style={scrubTrackSx}>
+        <div
+          class="box"
+          style={{ ...(scrubFillSx ?? {}), width: `${fraction() * 100}%` }}
+        />
+      </div>
       <Show when={props.mode === 'discrete'}>
         <DiscreteTicks
           frameCount={props.frameCount}
           trackWidth={trackWidth()}
         />
       </Show>
-      <Box
-        sx={{
-          ...scrubThumbSx,
-          pointerEvents: 'none',
-          left: `${thumbLeft()}px`,
-        }}
+      <div
+        class="box pointer-events-none"
+        style={{ ...(scrubThumbSx ?? {}), left: `${thumbLeft()}px` }}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -144,18 +145,19 @@ function DiscreteTicks(props: {
   const ticks = () => scrubTickFractions(props.frameCount);
   return (
     <Show when={props.trackWidth > 0 && props.frameCount > 0}>
-      <Box sx={{ ...ticksLayerSx, pointerEvents: 'none' }}>
+      <div class="box pointer-events-none" style={ticksLayerSx}>
         <For each={ticks()}>
           {(fraction) => (
-            <Box
-              sx={{
-                ...scrubTickSx,
+            <div
+              class="box"
+              style={{
+                ...(scrubTickSx ?? {}),
                 left: `${fraction * travel() + THUMB_SIZE / 2 - TICK_WIDTH / 2}px`,
               }}
             />
           )}
         </For>
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -169,19 +171,14 @@ function FrameChip(props: {
   readonly onLayout: (index: number, x: number, width: number) => void;
 }) {
   return (
-    <Clickable
-      aria-selected={props.selected}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        paddingVertical: 4,
-        paddingHorizontal: 8,
+    <button
+      class="clickable clickableTint flex-row items-center gap-1 [padding-top:4px;padding-bottom:4px] [padding-left:8px;padding-right:8px] border rounded-[10px]"
+      style={{
         background: props.selected ? 'tintSubtle' : 'background',
-        borderWidth: 1,
-        borderColor: props.selected ? 'tint' : 'border',
-        borderRadius: 'md',
+        'border-color': props.selected ? 'tint' : 'border',
       }}
+      type="button"
+      aria-selected={props.selected}
       ref={(el) => {
         props.onLayout(props.index, el.offsetLeft, el.offsetWidth);
       }}
@@ -189,28 +186,22 @@ function FrameChip(props: {
         props.onSelect(props.index);
       }}
     >
-      <Text
-        sx={{
-          fontWeight: '600',
-          fontSize: 11,
-          color: props.selected ? 'tint' : 'textSecondary',
-        }}
-        label={String(props.index + 1)}
-      />
-      <Text
-        numberOfLines={1}
-        sx={{
-          fontSize: 11,
-          maxWidth: 160,
-          color: props.selected ? 'text' : 'textSecondary',
-        }}
-        label={props.title}
-      />
-      <Text
-        sx={{ fontSize: 10, color: 'textSecondary' }}
-        label={formatMs(props.durationMs)}
-      />
-    </Clickable>
+      <p
+        class="text font-semibold text-[11px]"
+        style={{ color: props.selected ? 'tint' : 'textSecondary' }}
+      >
+        {String(props.index + 1)}
+      </p>
+      <p
+        class="text line-clamp-1 text-[11px] max-w-[160px]"
+        style={{ color: props.selected ? 'text' : 'textSecondary' }}
+      >
+        {props.title}
+      </p>
+      <p class="text text-[10px] text-text-secondary">
+        {formatMs(props.durationMs)}
+      </p>
+    </button>
   );
 }
 
@@ -262,72 +253,72 @@ function useTimelineScroll(selectedIndex: () => number): {
 }
 
 const timelineColumnSx = {
-  flexDirection: 'column',
-  gap: 1,
-  flexGrow: 0,
+  'flex-direction': 'column',
+  gap: '4px',
+  'flex-grow': 0,
 } as const;
 
 const scrubHitSx = {
-  height: SCRUB_HIT_HEIGHT,
-  justifyContent: 'center',
+  height: `${SCRUB_HIT_HEIGHT}px`,
+  'justify-content': 'center',
   position: 'relative',
-  marginTop: 4,
-  marginBottom: 2,
-  userSelect: 'none',
+  'margin-top': '16px',
+  'margin-bottom': '8px',
+  'user-select': 'none',
   cursor: 'grab',
 } as const;
 
 const scrubTrackSx = {
-  height: 4,
-  borderRadius: 2,
+  height: '4px',
+  'border-radius': '2px',
   background: 'outline',
   overflow: 'hidden',
 } as const;
 
 const scrubFillSx = {
-  height: 4,
-  borderRadius: 2,
+  height: '4px',
+  'border-radius': '2px',
   background: 'tint',
 } as const;
 
 const scrubThumbSx = {
   position: 'absolute',
-  top: (SCRUB_HIT_HEIGHT - THUMB_SIZE) / 2,
-  width: THUMB_SIZE,
-  height: THUMB_SIZE,
-  borderRadius: THUMB_SIZE / 2,
+  top: `${(SCRUB_HIT_HEIGHT - THUMB_SIZE) / 2}px`,
+  width: `${THUMB_SIZE}px`,
+  height: `${THUMB_SIZE}px`,
+  'border-radius': `${THUMB_SIZE / 2}px`,
   background: 'tint',
-  borderWidth: 2,
-  borderColor: 'surface',
+  'border-width': '2px',
+  'border-color': 'surface',
 } as const;
 
 const ticksLayerSx = {
   position: 'absolute',
-  left: 0,
-  right: 0,
-  top: 0,
-  bottom: 0,
+  left: '0',
+  right: '0',
+  top: '0',
+  bottom: '0',
 } as const;
 
 const scrubTickSx = {
   position: 'absolute',
-  top: (SCRUB_HIT_HEIGHT - TICK_HEIGHT) / 2,
-  width: TICK_WIDTH,
-  height: TICK_HEIGHT,
-  borderRadius: 1,
+  top: `${(SCRUB_HIT_HEIGHT - TICK_HEIGHT) / 2}px`,
+  width: `${TICK_WIDTH}px`,
+  height: `${TICK_HEIGHT}px`,
+  'border-radius': '1px',
   background: 'border',
 } as const;
 
 const railSx = {
-  paddingTop: 6,
-  paddingBottom: 8,
+  'padding-top': '24px',
+  'padding-bottom': '32px',
   background: 'surface',
-  minHeight: 36,
-  flexGrow: 0,
+  'min-height': '36px',
+  'flex-grow': 0,
 } as const;
 
 const chipRowSx = {
-  flexDirection: 'row',
-  gap: 1,
-  alignItems: 'center',
+  'flex-direction': 'row',
+  gap: '4px',
+  'align-items': 'center',
 } as const;

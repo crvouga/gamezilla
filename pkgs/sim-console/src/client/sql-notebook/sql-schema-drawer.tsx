@@ -1,4 +1,4 @@
-import { Box, Clickable, Collapsible, Text } from '@pkgs/ui';
+import { Collapsible } from '@pkgs/ui';
 import { For, type JSX, Show } from 'solid-js';
 
 import type { SchemaIndex } from './use-schema-index';
@@ -10,28 +10,18 @@ export function SqlSchemaDrawer(props: {
 }): JSX.Element {
   const { schema, onInsertTable, onInsertColumn } = props;
   return (
-    <Box
-      sx={{
-        borderTopWidth: 1,
-        borderColor: 'outline',
-        background: 'surface',
-        maxHeight: 220,
-        overflow: 'hidden',
-      }}
-    >
+    <div class="box border-t border-outline bg-surface max-h-[220px] overflow-hidden">
       <Collapsible title="Schema" defaultOpen={false}>
-        <Box sx={{ px: 2, pb: 2, gap: 1, maxHeight: 180, overflow: 'scroll' }}>
+        <div class="box px-2 pb-2 gap-1 max-h-[180px] overflow-scroll">
           <Show when={schema.status() === 'loading'}>
-            <Text
-              sx={{ color: 'textSecondary', fontSize: 12 }}
-              label="Loading schema…"
-            />
+            <p class="text text-text-secondary text-[12px]">
+              {'Loading schema…'}
+            </p>
           </Show>
           <Show when={schema.status() === 'error'}>
-            <Text
-              sx={{ color: 'destructive', fontSize: 12 }}
-              label={schema.error() ?? 'Schema error'}
-            />
+            <p class="text text-destructive text-[12px]">
+              {schema.error() ?? 'Schema error'}
+            </p>
           </Show>
           <For each={schema.tables()}>
             {(t) => (
@@ -47,14 +37,13 @@ export function SqlSchemaDrawer(props: {
           <Show
             when={schema.status() === 'ready' && schema.tables().length === 0}
           >
-            <Text
-              sx={{ color: 'textSecondary', fontSize: 12 }}
-              label="No tables yet."
-            />
+            <p class="text text-text-secondary text-[12px]">
+              {'No tables yet.'}
+            </p>
           </Show>
-        </Box>
+        </div>
       </Collapsible>
-    </Box>
+    </div>
   );
 }
 
@@ -66,34 +55,32 @@ function TableBlock(props: {
   readonly onInsertColumn: (column: string) => void;
 }): JSX.Element {
   return (
-    <Box sx={{ gap: 0.5 }}>
-      <Clickable
+    <div class="box gap-0.5">
+      <button
+        class="clickable clickableTint flex-row items-center gap-2 py-0.5"
+        type="button"
         onClick={() => props.onInsertTable(props.name)}
-        sx={{ flexDirection: 'row', alignItems: 'center', gap: 2, py: 0.5 }}
       >
-        <Text
-          variant="mono"
-          sx={{ fontSize: 12, color: 'tint', fontWeight: '600' }}
-          label={props.name}
-        />
-        <Text
-          sx={{ fontSize: 10, color: 'textSecondary' }}
-          label={props.type}
-        />
-      </Clickable>
-      <Box sx={{ pl: 3, gap: 0.5 }}>
+        <code class="text textMono text-[12px] text-tint font-semibold">
+          {props.name}
+        </code>
+        <p class="text text-[10px] text-text-secondary">{props.type}</p>
+      </button>
+      <div class="box pl-3 gap-0.5">
         <For each={props.columns()}>
           {(col) => (
-            <Clickable onClick={() => props.onInsertColumn(col)}>
-              <Text
-                variant="mono"
-                sx={{ fontSize: 11, color: 'textSecondary' }}
-                label={col}
-              />
-            </Clickable>
+            <button
+              class="clickable clickableTint"
+              type="button"
+              onClick={() => props.onInsertColumn(col)}
+            >
+              <code class="text textMono text-[11px] text-text-secondary">
+                {col}
+              </code>
+            </button>
           )}
         </For>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

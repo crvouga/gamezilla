@@ -2,7 +2,6 @@
 import { createSignal, For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
 import { Chip } from './chip';
 
 const tags = ['Solid', 'TypeScript', 'Vite', 'Design System', 'UI'];
@@ -24,8 +23,8 @@ export default function ChipExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <Stack spacing={3}>
-          <Stack direction="horizontal" spacing={2} wrap>
+        <div class="box flex-col gap-3">
+          <div class="box flex-row gap-2 flex-wrap">
             <For each={tags}>
               {(tag) => (
                 <Chip
@@ -35,14 +34,14 @@ export default function ChipExample(): JSX.Element {
                 />
               )}
             </For>
-          </Stack>
+          </div>
 
-          <Stack direction="horizontal" spacing={2}>
+          <div class="box flex-row gap-2">
             <Chip label="Unselected" />
             <Chip label="Selected" selected />
             <Chip label="Disabled" disabled />
-          </Stack>
-        </Stack>
+          </div>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

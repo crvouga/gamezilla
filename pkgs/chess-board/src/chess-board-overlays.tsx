@@ -11,7 +11,6 @@ import type {
   BoardOrientation,
   BoardTheme,
 } from '@pkgs/chess-board-core/types';
-import { Box } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -44,9 +43,9 @@ export function ChessBoardOverlays(args: {
           />
         )}
       </Show>
-      <Box
-        class={styles['probe']}
-        dataSet={{ testid: chessBoardProbeTestId(args.boardTestId()) }}
+      <div
+        class={`box ${styles['probe']}`}
+        data-testid={chessBoardProbeTestId(args.boardTestId())}
         aria-hidden="true"
       >
         {JSON.stringify(
@@ -56,7 +55,7 @@ export function ChessBoardOverlays(args: {
             orientation: args.ctrl.orientation(),
           })
         )}
-      </Box>
+      </div>
     </>
   );
 }

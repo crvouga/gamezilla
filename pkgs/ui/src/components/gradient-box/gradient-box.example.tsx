@@ -1,38 +1,31 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { GradientBox } from './gradient-box';
 
 export default function GradientBoxExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text variant="heading" sx={{ fontSize: 'lg' }} label="GradientBox" />
+      <h3 class="text textHeading text-lg">{'GradientBox'}</h3>
 
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Default horizontal gradient uses theme tintHover → tintActive."
-      />
+      <p class="text textCaption text-text-secondary">
+        {'Default horizontal gradient uses theme tintHover → tintActive.'}
+      </p>
 
-      <GradientBox
-        sx={{ p: 4, borderRadius: 16, minHeight: 88, justifyContent: 'center' }}
-      >
-        <Text variant="bodyBold" label="Primary gradient card" />
-        <Text
-          variant="caption"
-          sx={{ mt: 1 }}
-          label="Auto contrast-safe text — no hardcoded color"
-        />
+      <GradientBox class="p-4 rounded-[16px] min-h-[88px] justify-center">
+        <p class="text textBodyBold">{'Primary gradient card'}</p>
+        <p class="text textCaption mt-1">
+          {'Auto contrast-safe text — no hardcoded color'}
+        </p>
       </GradientBox>
 
       <GradientBox
+        class="p-4 rounded-[12px]"
         colors={['#4F46E5', '#7C3AED', '#DB2777']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        sx={{ p: 4, borderRadius: 12 }}
       >
-        <Text variant="bodyBold" label="Custom stops (diagonal)" />
+        <p class="text textBodyBold">{'Custom stops (diagonal)'}</p>
       </GradientBox>
     </ExampleRoot>
   );

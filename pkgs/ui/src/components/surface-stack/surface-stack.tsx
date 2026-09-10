@@ -18,8 +18,6 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { Box } from '../box';
-import styles from '../hosts.module.css';
 import {
   createHostFrame,
   type PortalHostFrame,
@@ -59,19 +57,19 @@ export function SurfaceStackProvider(
   };
   return (
     <SurfaceStackContext.Provider value={api}>
-      <Box
+      <div
+        class="box flex-1 relative overflow-hidden"
+        data-component="SurfaceStackRoot"
         ref={setRoot}
-        sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}
-        dataSet={{ component: 'SurfaceStackRoot' }}
       >
         {props.children}
-        <Box
+        <div
+          class="box absolute inset-0"
+          data-component="SurfaceStackHost"
+          style={{ 'z-index': SURFACE_STACK_BASE }}
           ref={setHost}
-          class={styles['boxNone']}
-          sx={{ absoluteFill: true, zIndex: SURFACE_STACK_BASE }}
-          dataSet={{ component: 'SurfaceStackHost' }}
         />
-      </Box>
+      </div>
     </SurfaceStackContext.Provider>
   );
 }
@@ -165,13 +163,14 @@ export function SurfaceStackSlot(props: SurfaceStackSlotProps): JSX.Element {
     <Show when={props.visible && api.host()}>
       {(host) => (
         <Portal mount={host()}>
-          <Box
-            class={styles['boxNone']}
-            sx={{ absoluteFill: true, zIndex: slot.zIndex() }}
-            dataSet={{ component: 'SurfaceStackLayer', surface: props.id }}
+          <div
+            class="box absolute inset-0"
+            data-component="SurfaceStackLayer"
+            data-surface={props.id}
+            style={{ 'z-index': slot.zIndex() }}
           >
             {props.children}
-          </Box>
+          </div>
         </Portal>
       )}
     </Show>

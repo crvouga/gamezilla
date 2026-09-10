@@ -5,14 +5,14 @@
  * `var(--ui-color-*)` references, so a scheme switch never recompiles styles.
  */
 
-import type { ColorTokenName, ColorTokens } from './colors';
+import type { ColorTokenName, ColorTokens } from '../src/theme/colors';
 import type {
   BorderRadiusKey,
   ElevationLevel,
   ElevationStyle,
   fontSize,
   lineHeight,
-} from './scale';
+} from '../src/theme/scale';
 
 export type SxColor = ColorTokenName | (string & {});
 

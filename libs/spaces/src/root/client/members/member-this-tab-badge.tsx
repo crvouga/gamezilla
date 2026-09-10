@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -17,11 +16,9 @@ export function MemberThisTabBadge(
   const isThisTab = useMemberIsThisTab(props.spaceId, props.profileId);
   return (
     <Show when={isThisTab()}>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={<Trans>This tab</Trans>}
-      />
+      <p class="text textCaption text-text-secondary">
+        {<Trans>This tab</Trans>}
+      </p>
     </Show>
   );
 }

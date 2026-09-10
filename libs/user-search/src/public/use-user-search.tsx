@@ -2,7 +2,7 @@ import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
-import { EmptyState, Text, UsersIcon } from '@pkgs/ui';
+import { EmptyState, UsersIcon } from '@pkgs/ui';
 import {
   type Accessor,
   createEffect,
@@ -106,15 +106,13 @@ export function UserSearchQueryHint(props: {
         trimmed().length < USER_SEARCH_MIN_LENGTH
       }
     >
-      <Text
-        variant="caption"
-        sx={{ px: 1 }}
-        label={
+      <p class="text textCaption px-1">
+        {
           <Trans>
             Keep typing — at least {USER_SEARCH_MIN_LENGTH} characters
           </Trans>
         }
-      />
+      </p>
     </Show>
   );
 }

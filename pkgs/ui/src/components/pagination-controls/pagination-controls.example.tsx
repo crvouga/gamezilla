@@ -2,8 +2,6 @@
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { PaginationControls } from './pagination-controls';
 
 const PAGE_COUNT = 12;
@@ -14,22 +12,17 @@ export default function PaginationControlsExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <Stack spacing={3}>
-          <Text
-            variant="label"
-            label="Circular Start / Prev / window / Next / End (12 pages)"
-          />
+        <div class="box flex-col gap-3">
+          <label class="text textLabel">
+            {'Circular Start / Prev / window / Next / End (12 pages)'}
+          </label>
           <PaginationControls
             pageIndex={pageIndex()}
             pageCount={PAGE_COUNT}
             onPageChange={setPageIndex}
           />
-          <Text
-            variant="caption"
-            sx={{ opacity: 0.75 }}
-            label={`Page ${pageIndex() + 1} of ${PAGE_COUNT}`}
-          />
-        </Stack>
+          <p class="text textCaption opacity-75">{`Page ${pageIndex() + 1} of ${PAGE_COUNT}`}</p>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

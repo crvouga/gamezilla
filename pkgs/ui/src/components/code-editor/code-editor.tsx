@@ -20,9 +20,9 @@ import {
   Show,
   splitProps,
 } from 'solid-js';
-import { componentDataAttrs } from '../../component-id';
-import { type SxProps, spacingScale, useThemeTokens } from '../../theme';
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
+import { colorVar, spacingScale, useThemeTokens } from '../../theme';
+import { joinClass } from '../box/box';
 import { useDocumentShortcuts } from '../keyboard-shortcuts';
 import styles from './code-editor.module.css';
 import {
@@ -52,19 +52,22 @@ const TOKEN_CLASS: Record<CodeTokenKind, string | undefined> = {
   plain: styles['tokPlain'],
 };
 
-function layerSx(mono: string): SxProps {
+function layerStyle(mono: string): JSX.CSSProperties {
+  const pad = spacingScale(CODE_EDITOR_PAD);
   return {
-    px: CODE_EDITOR_PAD,
-    py: CODE_EDITOR_PAD,
-    fontFamily: mono,
-    fontSize: CODE_EDITOR_FONT_SIZE,
-    lineHeight: CODE_EDITOR_LINE_HEIGHT,
+    'padding-left': `${pad}px`,
+    'padding-right': `${pad}px`,
+    'padding-top': `${pad}px`,
+    'padding-bottom': `${pad}px`,
+    'font-family': mono,
+    'font-size': `${CODE_EDITOR_FONT_SIZE}px`,
+    'line-height': `${CODE_EDITOR_LINE_HEIGHT}px`,
   };
 }
 
 function HighlightMirror(props: {
   segments: readonly HighlightSegment[];
-  style: string | undefined;
+  style: JSX.CSSProperties;
 }): JSX.Element {
   return (
     <pre
@@ -95,7 +98,7 @@ type FieldProps = Pick<
   | 'aria-label'
   | 'ref'
 > & {
-  style: string | undefined;
+  style: JSX.CSSProperties;
   onFocusChange: (focused: boolean) => void;
 };
 
@@ -126,7 +129,7 @@ function EditorField(props: FieldProps): JSX.Element {
       onClick={(event) => emitSelection(event.currentTarget)}
       onFocus={() => props.onFocusChange(true)}
       onBlur={() => props.onFocusChange(false)}
-      {...componentDataAttrs('CodeEditorField', undefined)}
+      data-component="CodeEditorField"
     />
   );
 }
@@ -153,8 +156,7 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
       props.minLines ?? CODE_EDITOR_DEFAULT_MIN_LINES,
       spacingScale(CODE_EDITOR_PAD)
     );
-  const layerStyle = (): string | undefined =>
-    tokens.css(layerSx(tokens.fonts.mono)) || undefined;
+  const layer = (): JSX.CSSProperties => layerStyle(tokens.fonts.mono);
 
   useDocumentShortcuts({
     enabled: () => focused() && props.onKeyDown !== undefined,
@@ -162,31 +164,23 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
   });
 
   return (
-    <Box
-      sx={[{ gap: 1 }, props.sx]}
-      dataSet={{ component: 'CodeEditor', ...props.dataSet }}
+    <div
+      class={joinClass('box gap-1', props.class)}
+      {...dataAttrs({ component: 'CodeEditor', ...props.dataSet })}
+      style={props.style}
     >
-      <Box
-        sx={{
-          position: 'relative',
-          minHeight: height(),
-          height: height(),
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: focused() ? 'tint' : 'outline',
-          borderRadius: 'md',
-          backgroundColor: 'surfaceMuted',
-          overflow: 'hidden',
+      <div
+        class="box relative border border-solid rounded-[10px] bg-surface-muted overflow-hidden"
+        style={{
+          'border-color': focused() ? colorVar('tint') : colorVar('outline'),
+          'min-height': `${height()}px`,
+          height: `${height()}px`,
         }}
       >
-        <HighlightMirror segments={segments()} style={layerStyle()} />
-        <EditorField
-          {...field}
-          style={layerStyle()}
-          onFocusChange={setFocused}
-        />
-      </Box>
+        <HighlightMirror segments={segments()} style={layer()} />
+        <EditorField {...field} style={layer()} onFocusChange={setFocused} />
+      </div>
       <Show when={props.trailing}>{props.trailing}</Show>
-    </Box>
+    </div>
   );
 }

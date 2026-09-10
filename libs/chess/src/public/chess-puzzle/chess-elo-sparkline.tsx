@@ -1,4 +1,4 @@
-import { Box, useTheme } from '@pkgs/ui';
+import { dataAttrs, useTheme } from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 const SPARKLINE_HEIGHT = 48;
@@ -30,11 +30,11 @@ export function ChessEloSparkline(props: ChessEloSparklineProps): JSX.Element {
 
   return (
     <Show when={points().length > 0}>
-      <Box
-        dataSet={
+      <div
+        class="box self-stretch items-center"
+        {...dataAttrs(
           props.testID !== undefined ? { testid: props.testID } : undefined
-        }
-        sx={{ alignSelf: 'stretch', alignItems: 'center' }}
+        )}
       >
         <svg width={SPARKLINE_WIDTH} height={SPARKLINE_HEIGHT}>
           <polyline
@@ -46,7 +46,7 @@ export function ChessEloSparkline(props: ChessEloSparklineProps): JSX.Element {
             stroke-linecap="round"
           />
         </svg>
-      </Box>
+      </div>
     </Show>
   );
 }

@@ -1,4 +1,3 @@
-import { Box, type SxInput } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { FriendActionPills } from '../../public/friend-action-pills/friend-action-pills';
 import type {
@@ -8,22 +7,8 @@ import type {
 import { FriendProfileHeader } from './friend-profile-header';
 import { FriendUserDangerModals } from './friend-user-danger-modals';
 
-export function FriendUserScreenContent({
-  sx,
-  profile,
-  userId,
-  status,
-  incomingRequestId,
-  outgoingRequestId,
-  onChanged,
-  removeOpen,
-  blockOpen,
-  onCloseRemove,
-  onCloseBlock,
-  onRemove,
-  onBlock,
-}: {
-  sx: SxInput;
+export function FriendUserScreenContent(props: {
+  class?: string | undefined;
   profile: FriendProfile;
   userId: string;
   status: FriendshipStatus;
@@ -38,26 +23,26 @@ export function FriendUserScreenContent({
   onBlock: () => Promise<void>;
 }): JSX.Element {
   return (
-    <Box sx={[sx, { alignItems: 'center', gap: 4, paddingTop: 8 }]}>
-      <FriendProfileHeader profile={profile} />
-      <Box sx={{ alignSelf: 'stretch' }}>
+    <div class={`box items-center gap-4 pt-[8px] ${props.class ?? ''}`.trim()}>
+      <FriendProfileHeader profile={props.profile} />
+      <div class="box self-stretch">
         <FriendActionPills
-          userId={userId}
-          username={profile.username}
-          status={status}
-          incomingRequestId={incomingRequestId}
-          outgoingRequestId={outgoingRequestId}
-          onChanged={onChanged}
+          userId={props.userId}
+          username={props.profile.username}
+          status={props.status}
+          incomingRequestId={props.incomingRequestId}
+          outgoingRequestId={props.outgoingRequestId}
+          onChanged={props.onChanged}
         />
-      </Box>
+      </div>
       <FriendUserDangerModals
-        removeOpen={removeOpen}
-        blockOpen={blockOpen}
-        onCloseRemove={onCloseRemove}
-        onCloseBlock={onCloseBlock}
-        onRemove={onRemove}
-        onBlock={onBlock}
+        removeOpen={props.removeOpen}
+        blockOpen={props.blockOpen}
+        onCloseRemove={props.onCloseRemove}
+        onCloseBlock={props.onCloseBlock}
+        onRemove={props.onRemove}
+        onBlock={props.onBlock}
       />
-    </Box>
+    </div>
   );
 }

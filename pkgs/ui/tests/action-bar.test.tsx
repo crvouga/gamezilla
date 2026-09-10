@@ -177,11 +177,11 @@ describe('BottomActionBar', () => {
     ));
     const bar = mustQuery('[data-component="BottomActionBar"]');
     expect(cssOf(bar)).toContain('min-height:56px');
-    expect(cssOf(bar)).toContain('border-top-width:1px');
+    expect(bar.className).toMatch(/border-t/);
 
     const hintBtn = screen.getByRole('button', { name: 'Hint' });
     expect(hintBtn).toHaveAttribute('aria-pressed', 'true');
-    expect(cssOf(hintBtn)).toContain('min-height:44px');
+    expect(hintBtn.className).toMatch(/min-h-\[44px\]/);
     fireEvent.click(hintBtn);
     expect(hint).toHaveBeenCalledTimes(1);
 
@@ -199,6 +199,6 @@ describe('BottomActionBar', () => {
       />
     ));
     const bar = mustQuery('[data-component="BottomActionBar"]');
-    expect(cssOf(bar)).not.toContain('border-top-width');
+    expect(bar.className).not.toMatch(/border-t/);
   });
 });

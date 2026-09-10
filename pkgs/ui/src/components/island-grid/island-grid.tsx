@@ -5,9 +5,9 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { cssGap } from '../../css/css-px';
 import { ISLAND_GAP_STEP, useLayoutMode } from '../../theme';
-import { Box } from '../box';
 
 export type IslandGridColumns = 2 | 3;
 
@@ -23,20 +23,21 @@ const COMPACT_GAP_STEP = 3;
 export function IslandGrid(props: IslandGridProps): JSX.Element {
   const mode = useLayoutMode();
   return (
-    <Box
-      sx={
+    <div
+      class="box"
+      {...dataAttrs({ component: 'IslandGrid', ...props.dataSet })}
+      style={
         mode() === 'wide'
           ? {
               display: 'grid',
-              gridTemplateColumns: `repeat(${props.columns}, minmax(0, 1fr))`,
-              gap: ISLAND_GAP_STEP,
-              alignItems: 'stretch',
+              'grid-template-columns': `repeat(${props.columns}, minmax(0, 1fr))`,
+              gap: cssGap(ISLAND_GAP_STEP),
+              'align-items': 'stretch',
             }
-          : { gap: COMPACT_GAP_STEP }
+          : { gap: cssGap(COMPACT_GAP_STEP) }
       }
-      dataSet={{ component: 'IslandGrid', ...props.dataSet }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Box, Clickable, useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { SpaceLiveBadge } from './space-live-badge';
@@ -18,11 +18,15 @@ export function FriendLiveSpaceBadge(
   return (
     <Show when={spaceId()} keyed>
       {(space) => (
-        <Clickable onClick={() => openSpaceDetail(router, space)}>
-          <Box sx={{ px: 1 }}>
+        <button
+          class="clickable clickableTint"
+          type="button"
+          onClick={() => openSpaceDetail(router, space)}
+        >
+          <div class="box px-1">
             <SpaceLiveBadge spaceId={space} />
-          </Box>
-        </Clickable>
+          </div>
+        </button>
       )}
     </Show>
   );

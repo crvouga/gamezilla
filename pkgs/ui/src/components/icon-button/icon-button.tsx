@@ -29,12 +29,7 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { type JSX, Show, untrack } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import {
-  OnColorProvider,
-  resolveColor,
-  type SxProps,
-  useThemeTokens,
-} from '../../theme';
+import { OnColorProvider, resolveColor, useThemeTokens } from '../../theme';
 import { Box } from '../box';
 import { Clickable } from '../clickable';
 import { Tooltip, useTooltipTrigger } from '../tooltip';
@@ -94,47 +89,47 @@ function resolveAriaLabel(
   return undefined;
 }
 
-function hitBoxSx(size: number, disabled: boolean): SxProps {
+function hitBoxClass(): string {
+  return 'items-center justify-center rounded-[9999px] bg-transparent';
+}
+
+function hitBoxStyle(size: number, disabled: boolean): JSX.CSSProperties {
   const hit = Math.max(size, ICON_BUTTON_MIN_HIT_TARGET);
   return {
-    minWidth: hit,
-    minHeight: hit,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 'full',
-    backgroundColor: 'transparent',
+    'min-width': `${hit}px`,
+    'min-height': `${hit}px`,
     opacity: disabled ? 0.5 : 1,
   };
 }
 
-function discSx(args: {
+function discClass(): string {
+  return 'items-center justify-center';
+}
+
+function discStyle(args: {
   size: number;
   bg: string;
   isAvatar: boolean;
   borderColor: string;
-}): SxProps {
+}): JSX.CSSProperties {
   const radius = args.size / 2;
   // Avatar ring uses padding (not borderWidth) so the disc stays exactly
   // `size` tall — borderWidth inflated the box next to icon siblings.
   if (args.isAvatar) {
     return {
-      height: args.size,
-      minWidth: args.size,
-      padding: ICON_BUTTON_AVATAR_BORDER_WIDTH,
-      borderRadius: radius,
-      backgroundColor: args.borderColor,
-      alignItems: 'center',
-      justifyContent: 'center',
+      height: `${args.size}px`,
+      'min-width': `${args.size}px`,
+      padding: `${ICON_BUTTON_AVATAR_BORDER_WIDTH}px`,
+      'border-radius': `${radius}px`,
+      'background-color': args.borderColor,
       overflow: 'hidden',
     };
   }
   return {
-    height: args.size,
-    width: args.size,
-    borderRadius: radius,
-    backgroundColor: args.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
+    height: `${args.size}px`,
+    width: `${args.size}px`,
+    'border-radius': `${radius}px`,
+    'background-color': args.bg,
   };
 }
 
@@ -176,16 +171,18 @@ function IconButtonFace(
           ? tooltip.id
           : undefined
       }
+      class={hitBoxClass()}
+      style={hitBoxStyle(size(), props.disabled === true)}
       dataSet={{
         component: 'IconButton',
         variant: props.variant ?? 'icon',
         ...props.dataSet,
       }}
-      sx={hitBoxSx(size(), props.disabled === true)}
     >
       <Box
         dataSet={{ component: 'IconButtonDisc' }}
-        sx={discSx({
+        class={discClass()}
+        style={discStyle({
           size: size(),
           bg: bg(),
           isAvatar: isAvatar(),

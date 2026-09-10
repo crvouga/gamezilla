@@ -1,10 +1,8 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
-import { Box } from '../box';
 import { Card } from '../card';
 import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { CatalogDetail } from './catalog-detail';
 import type { CatalogItem } from './catalog-item';
 import { CatalogList } from './catalog-list';
@@ -23,37 +21,30 @@ export default function CatalogExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Index (search + grouped list)"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Index (search + grouped list)'}
+      </label>
       <Card elevation={0}>
-        <Box sx={{ height: 320 }}>
+        <div class="box h-[320px]">
           <CatalogList items={DEMO_ITEMS} onSelect={setSelectedId} />
-        </Box>
+        </div>
       </Card>
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Detail (prev / next bottom bar)"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Detail (prev / next bottom bar)'}
+      </label>
       <Card elevation={0}>
-        <Box sx={{ height: 240 }}>
+        <div class="box h-[240px]">
           <CatalogDetail
             items={DEMO_ITEMS}
             currentId={currentId()}
             onNavigate={setSelectedId}
           >
-            <Text
-              variant="body"
-              label={`Selected: ${currentId()}. Use the arrows to move.`}
-            />
+            <p class="text">{`Selected: ${currentId()}. Use the arrows to move.`}</p>
           </CatalogDetail>
-        </Box>
+        </div>
       </Card>
     </ExampleRoot>
   );

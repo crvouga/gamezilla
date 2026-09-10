@@ -19,12 +19,10 @@
 
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Button } from '../button';
 import { CircleCheckIcon, type IconComponent } from '../icons';
 import { StateBlock, type StateBlockVariant } from '../state-block';
-import { Text } from '../text';
 
 export type SuccessStateAction = {
   label: JSX.Element;
@@ -54,14 +52,17 @@ function SuccessAction(props: {
   return (
     <Show when={props.action}>
       {(action) => (
-        <Box sx={props.compact ? { mt: 1, alignItems: 'flex-start' } : {}}>
+        <div
+          class="box"
+          classList={{ 'mt-1': props.compact, 'items-start': props.compact }}
+        >
           <Button
             title={action().label}
             intent="primary"
             size="sm"
             onClick={() => action().onClick()}
           />
-        </Box>
+        </div>
       )}
     </Show>
   );
@@ -79,17 +80,11 @@ function SuccessStateFill(props: SuccessStateProps): JSX.Element {
         size={ICON_SIZE_FILL}
         color="success"
       />
-      <Text
-        variant="bodyBold"
-        sx={{ color: 'success', textAlign: 'center' }}
-        label={props.title}
-      />
+      <p class="text textBodyBold text-success text-center">{props.title}</p>
       <Show when={props.body !== undefined && props.body !== null}>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
-          label={props.body}
-        />
+        <p class="text textCaption text-text-secondary text-center">
+          {props.body}
+        </p>
       </Show>
       <SuccessAction action={props.action} compact={false} />
     </StateBlock>
@@ -98,43 +93,26 @@ function SuccessStateFill(props: SuccessStateProps): JSX.Element {
 
 function SuccessStateCompact(props: SuccessStateProps): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-row items-start gap-3 p-3 border border-success bg-success-surface rounded-[10px]"
+      {...dataAttrs({ component: 'SuccessState', ...props.dataSet })}
       role="status"
-      dataSet={{ component: 'SuccessState', ...props.dataSet }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        gap: 3,
-        p: 3,
-        borderWidth: 1,
-        borderColor: 'success',
-        backgroundColor: 'successSurface',
-        borderRadius: 'md',
-      }}
     >
-      <Box sx={{ pt: 0.5 }}>
+      <div class="box pt-0.5">
         <Dynamic
           component={props.icon ?? CircleCheckIcon}
           size={ICON_SIZE_COMPACT}
           color="success"
         />
-      </Box>
-      <Box sx={{ flex: 1, gap: 1 }}>
-        <Text
-          variant="bodyBold"
-          sx={{ color: 'success' }}
-          label={props.title}
-        />
+      </div>
+      <div class="box flex-1 gap-1">
+        <p class="text textBodyBold text-success">{props.title}</p>
         <Show when={props.body !== undefined && props.body !== null}>
-          <Text
-            variant="caption"
-            sx={{ color: 'success' }}
-            label={props.body}
-          />
+          <p class="text textCaption text-success">{props.body}</p>
         </Show>
         <SuccessAction action={props.action} compact />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 

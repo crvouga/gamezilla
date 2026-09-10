@@ -4,9 +4,7 @@
  * copied text in local state instead of touching the clipboard.
  */
 import { createSignal, type JSX, Show } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { JsonView } from './json-view';
 
 const SAMPLE_PAYLOAD = {
@@ -67,10 +65,10 @@ const CIRCULAR = buildCircularPayload();
 
 function Section(props: { title: string; children: JSX.Element }): JSX.Element {
   return (
-    <Box sx={{ gap: 1 }}>
-      <Text variant="label" label={props.title} />
+    <div class="box gap-1">
+      <label class="text textLabel">{props.title}</label>
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -82,11 +80,11 @@ export default function JsonViewExample(): JSX.Element {
   };
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Inspect any JS value as a collapsible JSON tree. Type-aware coloring; per-row and toolbar copy."
-      />
+      <p class="text textCaption text-text-secondary">
+        {
+          'Inspect any JS value as a collapsible JSON tree. Type-aware coloring; per-row and toolbar copy.'
+        }
+      </p>
 
       <Section title="Object payload (depth 1, default)">
         <JsonView label="payload" value={SAMPLE_PAYLOAD} copy={copy} />
@@ -129,12 +127,7 @@ export default function JsonViewExample(): JSX.Element {
 
       <Show when={lastCopied()}>
         {(text) => (
-          <Text
-            variant="caption"
-            numberOfLines={2}
-            sx={{ color: 'textSecondary' }}
-            label={`Last copied: ${text()}`}
-          />
+          <p class="text textCaption line-clamp-2 text-text-secondary">{`Last copied: ${text()}`}</p>
         )}
       </Show>
     </ExampleRoot>

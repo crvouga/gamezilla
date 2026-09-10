@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Box, Button, Text, useMutationButton } from '@pkgs/ui';
+import { Button, useMutationButton } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 function spaceShareUrl(spaceId: string): string {
@@ -26,9 +26,9 @@ export function SpaceShareLinkSection(props: {
     },
   });
   return (
-    <Box sx={{ gap: 2 }}>
-      <Text variant="label" label={<Trans>Link</Trans>} />
+    <div class="box gap-2">
+      <label class="text textLabel">{<Trans>Link</Trans>}</label>
       <Button {...copyButton.buttonProps} />
-    </Box>
+    </div>
   );
 }

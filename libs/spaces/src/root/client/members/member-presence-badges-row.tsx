@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { MemberHostBadge } from './member-host-badge';
@@ -16,14 +15,7 @@ export function MemberPresenceBadgesRow(
   props: MemberPresenceBadgesRowProps
 ): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 1,
-        alignItems: 'center',
-      }}
-    >
+    <div class="box flex-row flex-wrap gap-1 items-center">
       <MemberSessionCountBadge
         spaceId={props.spaceId}
         profileId={props.profileId}
@@ -31,6 +23,6 @@ export function MemberPresenceBadgesRow(
       <MemberYouBadge profileId={props.profileId} />
       <MemberThisTabBadge spaceId={props.spaceId} profileId={props.profileId} />
       <MemberHostBadge spaceId={props.spaceId} profileId={props.profileId} />
-    </Box>
+    </div>
   );
 }

@@ -2,7 +2,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   BellIcon,
-  Box,
   Button,
   CheckIcon,
   EmptyState,
@@ -83,21 +82,14 @@ function NotificationsScreenBody(props: {
     inbox.interactions.some((item) => item.isUnread);
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, gap: 2 }}>
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 3,
-        }}
-      >
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+    <div class="box flex-1 min-h-[0] gap-2">
+      <div class="box flex-row items-center justify-between gap-3">
+        <div class="box flex-1 min-w-[0]">
           <NotificationsFilterBar
             filter={inbox.filter}
             onFilterChange={inbox.setFilter}
           />
-        </Box>
+        </div>
         <Show when={hasUnread()}>
           <Button
             variant="ghost"
@@ -107,14 +99,14 @@ function NotificationsScreenBody(props: {
             {...markAllRead.buttonProps}
           />
         </Show>
-      </Box>
+      </div>
       <NotificationsList
         sections={inbox.sections}
         isLoading={inbox.isLoading}
         filter={inbox.filter}
         actions={inboxActions}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -128,11 +120,11 @@ export function NotificationsScreen(
       screenId="notifications"
       breadcrumbs={[{ name: t`Notifications` }]}
       content={(body) => (
-        <Box sx={body.sx}>
+        <div class={`box ${body.bodyClass}`}>
           <NotificationsSignedInGate>
             <NotificationsScreenBody initialFilter={props.initialFilter} />
           </NotificationsSignedInGate>
-        </Box>
+        </div>
       )}
     />
   );

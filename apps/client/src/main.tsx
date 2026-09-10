@@ -9,6 +9,8 @@
 import { render } from 'solid-js/web';
 
 import '@pkgs/tailwind/tailwind.css';
+import '@pkgs/ui/tokens.css';
+import '@pkgs/ui/base.css';
 import { createClient } from './shell/create-client';
 import { wallClientEnv } from './shell/wall-client-env';
 

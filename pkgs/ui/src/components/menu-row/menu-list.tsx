@@ -4,8 +4,7 @@
  *
  * Cancels the nearest shell's horizontal edge padding via
  * `useContentEdgePaddingStep` so rows span the full content width. Pass
- * `sx` to forward a screen body `sx` (e.g. `{ flex: 1 }` on non-scroll
- * bodies).
+ * `class` / `style` to forward screen-body layout (e.g. `flex-1`).
  *
  * @example
  * ```tsx
@@ -24,7 +23,7 @@ import {
   Show,
 } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
+import { spacingScale } from '../../theme';
 import { Box } from '../box';
 import {
   CONTENT_EDGE_PADDING_STEP,
@@ -34,8 +33,10 @@ import { MENU_ROW_PX_STEP } from './menu-row';
 
 export type MenuListProps = {
   children: JSX.Element;
-  /** Forward a screen body `sx` (e.g. `{ flex: 1 }`). */
-  sx?: SxInput | undefined;
+  /** Extra classes on the menu host (e.g. `flex-1`). */
+  class?: string | undefined;
+  /** Inline styles on the menu host. */
+  style?: JSX.CSSProperties | undefined;
   /** Hairline separators between rows. Defaults to `true`. */
   separator?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -54,10 +55,16 @@ export function MenuList(props: MenuListProps): JSX.Element {
       .filter((node) => node !== null && node !== undefined && node !== false)
   );
   const separator = () => props.separator ?? true;
+  const edgeBleed = (): JSX.CSSProperties | undefined => {
+    if (edgeStep === 0) return undefined;
+    const mx = `-${spacingScale(edgeStep)}px`;
+    return { 'margin-left': mx, 'margin-right': mx };
+  };
   return (
     <Box
       role="menu"
-      sx={[props.sx, edgeStep !== 0 ? { mx: -edgeStep } : false]}
+      class={props.class}
+      style={{ ...edgeBleed(), ...props.style }}
       dataSet={{ component: 'MenuList', ...props.dataSet }}
     >
       <For each={rows()}>
@@ -67,10 +74,10 @@ export function MenuList(props: MenuListProps): JSX.Element {
             <Show when={separator() && index() < rows().length - 1}>
               <Box
                 aria-hidden="true"
-                sx={{
-                  borderBottomWidth: 'hairline',
-                  borderColor: 'border',
-                  mx: SEPARATOR_INSET_STEP,
+                class="border-b border-border"
+                style={{
+                  'margin-left': `${spacingScale(SEPARATOR_INSET_STEP)}px`,
+                  'margin-right': `${spacingScale(SEPARATOR_INSET_STEP)}px`,
                 }}
               />
             </Show>

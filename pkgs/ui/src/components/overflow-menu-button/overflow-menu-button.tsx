@@ -24,9 +24,7 @@
 
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { FloatingMenu } from '../floating-menu';
 import { IconButton } from '../icon-button';
 import { EllipsisIcon, type IconComponent, MenuIcon } from '../icons';
@@ -201,16 +199,17 @@ function TriggerFace(props: {
         </IconButton>
       }
     >
-      <Clickable
+      <button
+        class="clickable clickableTint rounded-[9999px] overflow-hidden"
+        {...dataAttrs(props.dataSet)}
+        type="button"
         onClick={props.onOpen}
         aria-label={props['aria-label']}
         aria-haspopup="menu"
         aria-expanded={props.menu.open()}
-        dataSet={props.dataSet}
-        sx={{ borderRadius: 'full', overflow: 'hidden' }}
       >
         {props.trigger}
-      </Clickable>
+      </button>
     </Show>
   );
 }
@@ -228,7 +227,11 @@ export function OverflowMenuButton(
   const renderMenu = () => props.renderMenu ?? renderDefaultOverflowMenu;
   return (
     <Show when={props.actions.length > 0}>
-      <Box ref={menu.setTrigger} dataSet={{ component: 'OverflowMenuButton' }}>
+      <div
+        class="box"
+        data-component="OverflowMenuButton"
+        ref={menu.setTrigger}
+      >
         <TriggerFace
           menu={menu}
           size={props.size ?? 40}
@@ -239,7 +242,7 @@ export function OverflowMenuButton(
           onOpen={onOpen}
           dataSet={props.dataSet}
         />
-      </Box>
+      </div>
       {renderMenu()({
         get open() {
           return menu.open();

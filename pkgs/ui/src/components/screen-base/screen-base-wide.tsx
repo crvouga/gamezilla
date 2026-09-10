@@ -7,18 +7,13 @@
  */
 
 import { createMemo, type JSX, Show } from 'solid-js';
-import {
-  ISLAND_GAP_STEP,
-  ISLAND_PADDING_STEP,
-  useActionBarChrome,
-} from '../../theme';
+import { dataAttrs } from '../../component-id';
+import { ISLAND_GAP_STEP, useActionBarChrome } from '../../theme';
 import { ActionBar } from '../action-bar';
-import { Box } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 import { Island } from '../island';
 import { ScreenTitleProvider } from '../screen-title';
 import { ScrollView } from '../scroll-view';
-import { Spacer } from '../spacer';
 import {
   buildBodyContentProps,
   hasScreenBaseActions,
@@ -49,14 +44,13 @@ function WidePageHeader(
     partitionScreenBaseActions(props.actions ?? [])
   );
   return (
-    <Box
-      as="header"
-      dataSet={{ component: 'ScreenBaseHeader' }}
-      sx={{ flexDirection: 'row', alignItems: 'center', gap: 3, flexShrink: 0 }}
+    <header
+      class="box flex-row items-center gap-3 shrink-0"
+      data-component="ScreenBaseHeader"
     >
       {props.leading}
       <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
-      <Spacer />
+      <div class="box flex-1" aria-hidden="true" />
       <Show when={hasScreenBaseActions(partition())}>
         <ActionBar
           items={partition().iconItems}
@@ -72,24 +66,18 @@ function WidePageHeader(
       <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
         {(primary) => <ScreenBasePrimaryButton render={primary()} />}
       </Show>
-    </Box>
+    </header>
   );
 }
 
 function WidePinnedFooter(props: { children: JSX.Element }): JSX.Element {
   return (
-    <Box
-      dataSet={{ component: 'ScreenFooter' }}
-      sx={{
-        borderColor: 'border',
-        borderTopWidth: 1,
-        borderStyle: 'solid',
-        pt: 3,
-        mt: 3,
-      }}
+    <div
+      class="box border-border border-t border-solid pt-3 mt-3"
+      data-component="ScreenFooter"
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -102,9 +90,9 @@ function WideBodyContent(props: BodyProps): JSX.Element {
       </Show>
       <Show when={props.bottomBar}>
         {(bottomBar) => (
-          <Box sx={{ mt: 3 }} dataSet={{ component: 'ScreenBottomBar' }}>
+          <div class="box mt-3" data-component="ScreenBottomBar">
             {bottomBar()}
-          </Box>
+          </div>
         )}
       </Show>
     </>
@@ -116,23 +104,23 @@ function WideIslandBody(props: BodyProps): JSX.Element {
     <Show
       when={props.scroll}
       fallback={
-        <Island sx={{ flex: 1, minHeight: 0 }}>
-          <Box sx={{ flex: 1, minHeight: 0 }}>
+        <Island class="flex-1 min-h-[0]">
+          <div class="box flex-1 min-h-[0]">
             <WideBodyContent {...props} />
-          </Box>
+          </div>
         </Island>
       }
     >
-      <Island sx={{ flex: 1, minHeight: 0, p: 0 }}>
+      <Island class="flex-1 min-h-[0] p-0">
         <ScrollView
           // The island has `p: 0`; the scroller owns the padding itself, so it
           // must not also cancel the island's edge step.
           flushEdge={false}
-          frameSx={{ flex: 1 }}
-          sx={{
-            flexGrow: 1,
-            p: ISLAND_PADDING_STEP,
-            paddingBottom: SCREEN_SCROLL_BOTTOM_PADDING,
+          class="flex-1"
+          contentStyle={{
+            'flex-grow': 1,
+            padding: 'var(--ui-space-5)',
+            'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
           }}
           dataSet={{ component: 'ScreenBodyScroll' }}
         >
@@ -153,15 +141,25 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
     <Show
       when={props.scroll}
       fallback={
-        <Box sx={{ flex: 1, minHeight: 0, gap: ISLAND_GAP_STEP }}>{inner}</Box>
+        <div
+          class="box flex-1 min-h-[0]"
+          style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
+        >
+          {inner}
+        </div>
       }
     >
       <ScrollView
-        frameSx={{ flex: 1 }}
-        sx={{ flexGrow: 1, paddingBottom: SCREEN_SCROLL_BOTTOM_PADDING }}
+        class="flex-1"
+        contentStyle={{
+          'flex-grow': 1,
+          'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
+        }}
         dataSet={{ component: 'ScreenBodyScroll' }}
       >
-        <Box sx={{ gap: ISLAND_GAP_STEP }}>{inner}</Box>
+        <div class="box" style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}>
+          {inner}
+        </div>
       </ScrollView>
     </Show>
   );
@@ -193,18 +191,19 @@ function WideShell(
     </Show>
   );
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, gap: ISLAND_GAP_STEP }}
-      dataSet={{
+    <div
+      class="box flex-1 min-h-[0]"
+      {...dataAttrs({
         component: 'ScreenBase',
         mode: 'wide',
         ...props.dataSet,
         screen: props.screenId,
-      }}
+      })}
+      style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
     >
       <WidePageHeader {...props} />
       {body()}
-    </Box>
+    </div>
   );
 }
 

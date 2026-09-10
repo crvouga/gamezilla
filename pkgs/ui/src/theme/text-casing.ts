@@ -8,7 +8,7 @@
  * `Https://Api.Example.Com`).
  */
 
-import type { SxProps } from './sx-props';
+import type { JSX } from 'solid-js';
 
 export type TextCasing = 'none' | 'lowercase' | 'uppercase' | 'capitalize';
 
@@ -20,8 +20,8 @@ export type TextCasing = 'none' | 'lowercase' | 'uppercase' | 'capitalize';
  */
 export const defaultTextCasing: TextCasing = 'none';
 
-export function textCasingToStyle(casing: TextCasing): SxProps {
+export function textCasingToStyle(casing: TextCasing): JSX.CSSProperties {
   return {
-    textTransform: casing === 'none' ? 'none' : casing,
+    'text-transform': casing === 'none' ? 'none' : casing,
   };
 }

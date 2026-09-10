@@ -1,36 +1,30 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { Divider } from './divider';
 
 export default function DividerExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Box sx={{ gap: 1 }}>
-        <Text variant="label" label="Horizontal" />
-        <Stack spacing={3}>
-          <Text variant="body" label="Item above" />
+      <div class="box gap-1">
+        <label class="text textLabel">{'Horizontal'}</label>
+        <div class="box flex-col gap-3">
+          <p class="text">{'Item above'}</p>
           <Divider />
-          <Text variant="body" label="Item below" />
-        </Stack>
-      </Box>
+          <p class="text">{'Item below'}</p>
+        </div>
+      </div>
 
-      <Box sx={{ gap: 1 }}>
-        <Text variant="label" label="Vertical (inside horizontal stack)" />
-        <Stack
-          direction="horizontal"
-          spacing={3}
-          align="center"
-          sx={{ height: 40 }}
-        >
-          <Text variant="body" label="Left" />
+      <div class="box gap-1">
+        <label class="text textLabel">
+          {'Vertical (inside horizontal stack)'}
+        </label>
+        <div class="box flex-row gap-3 items-center h-[40px]">
+          <p class="text">{'Left'}</p>
           <Divider orientation="vertical" />
-          <Text variant="body" label="Right" />
-        </Stack>
-      </Box>
+          <p class="text">{'Right'}</p>
+        </div>
+      </div>
     </ExampleRoot>
   );
 }

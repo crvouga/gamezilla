@@ -1,4 +1,4 @@
-import { Box } from '@pkgs/ui';
+import { dataAttrs } from '@pkgs/ui';
 import { createEffect, type JSX, onCleanup } from 'solid-js';
 
 /** Stable web `id` for {@link DebuggerColumns} — used for outside-pointer hit tests. */
@@ -16,9 +16,9 @@ export function DebuggerColumns(props: {
 }): JSX.Element {
   useOutsideClientPanelsPointerDown(() => props.onOutsidePointerDown?.());
   return (
-    <Box id={DEBUGGER_CLIENT_PANELS_NATIVE_ID} sx={rowSx}>
+    <div class="box" style={rowSx} id={DEBUGGER_CLIENT_PANELS_NATIVE_ID}>
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -28,15 +28,16 @@ export function DebuggerColumn(props: {
   readonly onActivate?: () => void;
 }): JSX.Element {
   return (
-    <Box
-      sx={props.focused ? colFocusedSx : colSx}
+    <div
+      class="box"
+      style={props.focused ? colFocusedSx : colSx}
+      {...dataAttrs({ debuggerColumnFocused: '1' })}
       {...(props.onActivate !== undefined
         ? { onPointerDown: props.onActivate }
         : {})}
-      {...(props.focused ? { dataSet: { debuggerColumnFocused: '1' } } : {})}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 
@@ -63,31 +64,31 @@ function useOutsideClientPanelsPointerDown(onOutside?: () => void): void {
 
 const rowSx = {
   flex: 1,
-  minHeight: 0,
-  minWidth: 0,
-  flexDirection: 'row',
-  alignItems: 'stretch',
+  'min-height': 0,
+  'min-width': 0,
+  'flex-direction': 'row',
+  'align-items': 'stretch',
   overflow: 'hidden',
 } as const;
 
 const colBaseSx = {
   flex: 1,
   flexBasis: 0,
-  minWidth: 0,
-  minHeight: 0,
+  'min-width': 0,
+  'min-height': 0,
   overflow: 'hidden',
   borderTopWidth: 'hairline',
   borderRightWidth: 'hairline',
-  borderBottomWidth: 'hairline',
+  'border-bottom-width': '1px',
   borderLeftWidth: 'hairline',
 } as const;
 
 const colSx = {
   ...colBaseSx,
-  borderColor: 'border',
+  'border-color': 'border',
 } as const;
 
 const colFocusedSx = {
   ...colBaseSx,
-  borderColor: 'tint',
+  'border-color': 'tint',
 } as const;

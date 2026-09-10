@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import { For, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { StatusDot, type StatusDotStatus } from './status-dot';
 
 const ROWS: readonly { status: StatusDotStatus; label: string }[] = [
@@ -15,21 +13,21 @@ const ROWS: readonly { status: StatusDotStatus; label: string }[] = [
 export default function StatusDotExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Stack spacing={3}>
+      <div class="box flex-col gap-3">
         <For each={ROWS}>
           {(row) => (
-            <Stack direction="horizontal" spacing={2} align="center">
+            <div class="box flex-row gap-2 items-center">
               <StatusDot status={row.status} />
-              <Text variant="label" label={row.label} />
-            </Stack>
+              <label class="text textLabel">{row.label}</label>
+            </div>
           )}
         </For>
 
-        <Stack direction="horizontal" spacing={2} align="center">
+        <div class="box flex-row gap-2 items-center">
           <StatusDot status="online" size={16} />
-          <Text variant="label" label="Large (16px)" />
-        </Stack>
-      </Stack>
+          <label class="text textLabel">{'Large (16px)'}</label>
+        </div>
+      </div>
     </ExampleRoot>
   );
 }

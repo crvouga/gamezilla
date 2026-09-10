@@ -153,7 +153,7 @@ describe('SolidDomDriver', () => {
           ref={(el) => {
             host = el;
           }}
-          sx={{ width: '100%', height: '100%' }}
+          class="w-full h-full"
           dataSet={{ testid: 'frame' }}
         />
       );
@@ -170,7 +170,7 @@ describe('SolidDomDriver', () => {
     const points: string[] = [];
     driver = customDriver(() => (
       <Box
-        sx={{ width: 200, height: 100 }}
+        style={{ width: '200px', height: '100px' }}
         dataSet={{ testid: 'board' }}
         onPointerDown={(e) => points.push(`down:${e.clientX},${e.clientY}`)}
         onPointerUp={(e) => points.push(`up:${e.clientX},${e.clientY}`)}

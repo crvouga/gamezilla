@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, StatusDot, Text } from '@pkgs/ui';
+import { StatusDot } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -15,23 +15,12 @@ function SpaceStatusPill(props: {
   readonly showDot: boolean;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        backgroundColor: 'onTintScrim',
-        borderRadius: 'full',
-        px: 2,
-        py: 1,
-        alignSelf: 'flex-start',
-      }}
-    >
+    <div class="box flex-row items-center gap-1 bg-on-tint-scrim rounded-[9999px] px-2 py-1 self-start">
       <Show when={props.showDot}>
         <StatusDot status="online" size={8} />
       </Show>
-      <Text variant="caption" sx={{ color: 'onPrimary' }} label={props.label} />
-    </Box>
+      <p class="text textCaption text-on-primary">{props.label}</p>
+    </div>
   );
 }
 

@@ -1,4 +1,4 @@
-import { Box, useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { DefineBackButton } from '../../public/nav/spaces-nav-context';
 import { closeSpaceDetail } from '../../public/space-routes';
@@ -39,15 +39,15 @@ export function SpaceDetailInitialLoading(
   };
 
   return (
-    <Box sx={{ flex: 1, background: 'background' }}>
-      <Box sx={{ flex: 1, minHeight: 0 }}>
+    <div class="box flex-1 bg-background">
+      <div class="box flex-1 min-h-[0]">
         <SpaceSessionUiProvider value={sessionUi}>
           <DefineBackButton onPress={onPressBack} />
           <SpaceActiveLayout>
-            <Box sx={{ flex: 1 }} />
+            <div class="box flex-1" />
           </SpaceActiveLayout>
         </SpaceSessionUiProvider>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { Plural } from '@lingui/solid/macro';
-import { Box, ChevronRightIcon, Clickable, Text, useTheme } from '@pkgs/ui';
+import { ChevronRightIcon, useTheme } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
 import { FriendsProfileRoute } from './friends-profile-routes';
@@ -15,28 +15,19 @@ export function ProfileFriendsStats(): JSX.Element {
   const count = friends.length;
 
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint self-stretch flex-row items-center justify-between gap-3 py-1 rounded-[10px]"
+      data-testid={Handles.profileFriendsStats}
+      type="button"
       onClick={() => navigate(FriendsProfileRoute.Friends)}
-      sx={{
-        alignSelf: 'stretch',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 3,
-        py: 1,
-        borderRadius: 'md',
-      }}
-      dataSet={{ testid: Handles.profileFriendsStats }}
     >
-      <Box sx={{ flexDirection: 'row', alignItems: 'baseline', gap: 2 }}>
-        <Text variant="heading" label={String(count)} />
-        <Text
-          variant="body"
-          sx={{ color: 'textSecondary' }}
-          label={<Plural value={count} one="friend" other="friends" />}
-        />
-      </Box>
+      <div class="box flex-row items-baseline gap-2">
+        <h3 class="text textHeading">{String(count)}</h3>
+        <p class="text text-text-secondary">
+          {<Plural value={count} one="friend" other="friends" />}
+        </p>
+      </div>
       <ChevronRightIcon size={CHEVRON_SIZE} color={theme.colors.icon} />
-    </Clickable>
+    </button>
   );
 }

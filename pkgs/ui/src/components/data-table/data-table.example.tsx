@@ -4,7 +4,6 @@ import { Card } from '../card';
 import { ExampleRoot } from '../explorer/example-root';
 import { IconButton } from '../icon-button';
 import { Trash2Icon } from '../icons';
-import { Text } from '../text';
 import { createMemoryPageLoader } from './create-memory-page-loader';
 import { DataTable } from './data-table';
 import type { DataTableColumn, DataTableOrderDir } from './data-table-types';
@@ -97,12 +96,11 @@ export default function DataTableExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Text
-        variant="label"
-        label="Loader-driven table (120 rows, multi-select, quiet row actions)"
-      />
-      <Text variant="caption" sx={{ opacity: 0.75 }} label={summary()} />
-      <Card elevation={0} sx={{ height: 360, overflow: 'hidden', p: 0 }}>
+      <label class="text textLabel">
+        {'Loader-driven table (120 rows, multi-select, quiet row actions)'}
+      </label>
+      <p class="text textCaption opacity-75">{summary()}</p>
+      <Card class="h-[360px] overflow-hidden p-0" elevation={0}>
         <DataTable<DemoRow>
           columns={columns}
           loadPage={loadPage}

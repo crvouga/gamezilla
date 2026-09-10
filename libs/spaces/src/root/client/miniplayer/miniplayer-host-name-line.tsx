@@ -14,7 +14,7 @@ export function MiniplayerHostNameLine(
     <SpaceHostNameText
       spaceId={props.spaceId}
       variant="caption"
-      sx={{ flexShrink: 1 }}
+      class="shrink"
       numberOfLines={1}
     />
   );

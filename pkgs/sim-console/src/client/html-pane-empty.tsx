@@ -1,10 +1,4 @@
-import {
-  Box,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  MonitorIcon,
-} from '@pkgs/ui';
+import { EmptyState, ErrorState, LoadingState, MonitorIcon } from '@pkgs/ui';
 import { Match, Switch } from 'solid-js';
 import { paneSx } from './tokens';
 
@@ -16,7 +10,7 @@ export function HtmlPaneEmpty(props: {
 }) {
   const node = () => (props.nodeId?.trim() ? props.nodeId : 'this client');
   return (
-    <Box sx={{ ...paneSx, alignItems: 'center', justifyContent: 'center' }}>
+    <div class="box items-center justify-center" style={paneSx}>
       <Switch>
         <Match when={props.kind === 'loading'}>
           <LoadingState caption="Loading snapshot..." />
@@ -42,6 +36,6 @@ export function HtmlPaneEmpty(props: {
           />
         </Match>
       </Switch>
-    </Box>
+    </div>
   );
 }

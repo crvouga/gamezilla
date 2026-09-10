@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * Option list for {@link Combobox}: a windowed {@link VirtualList} exposed as
  * `role="listbox"` whose rows are `role="option"` buttons with
@@ -6,10 +7,8 @@
  */
 
 import { createEffect, type JSX, on, Show } from 'solid-js';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { dataAttrs } from '../../component-id';
 import { CheckIcon } from '../icons';
-import { Text } from '../text';
 import { VirtualList, type VirtualListViewport } from '../virtual-list';
 import { isValueSelected } from './combobox-selection';
 import type {
@@ -50,37 +49,27 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
   onPick: () => void;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint w-[100%] flex-row items-center gap-3 [padding-top:12px;padding-bottom:12px] [padding-left:16px;padding-right:16px] text-left"
+      {...dataAttrs({ component: 'ComboboxOption', ...props.option.dataSet })}
+      type="button"
+      style={{
+        'background-color': props.highlighted ? 'tintHighlight' : 'transparent',
+        'min-height': cssPx(COMBOBOX_OPTION_MIN_HEIGHT),
+      }}
       id={props.id}
       role="option"
       aria-selected={props.selected}
       onClick={() => props.onPick()}
-      dataSet={{ component: 'ComboboxOption', ...props.option.dataSet }}
-      sx={{
-        width: '100%',
-        minHeight: COMBOBOX_OPTION_MIN_HEIGHT,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        textAlign: 'left',
-        backgroundColor: props.highlighted ? 'tintHighlight' : 'transparent',
-      }}
     >
       <Show when={props.option.preview !== undefined}>
-        <Box sx={{ flexShrink: 0 }}>{props.option.preview}</Box>
+        <div class="box shrink-0">{props.option.preview}</div>
       </Show>
-      <Text
-        variant="body"
-        numberOfLines={1}
-        sx={{ flex: 1, minWidth: 0 }}
-        label={props.option.label}
-      />
+      <p class="text line-clamp-1 flex-1 min-w-[0]">{props.option.label}</p>
       <Show when={props.selected}>
         <CheckIcon size={18} color="tint" />
       </Show>
-    </Clickable>
+    </button>
   );
 }
 
@@ -123,19 +112,16 @@ export function ComboboxList<T extends ComboboxValue>(
     const render = props.renderOption;
     if (render !== undefined) {
       return (
-        <Box
+        <div
+          class="box"
+          {...dataAttrs({ component: 'ComboboxOption', ...option.dataSet })}
+          classList={{ 'bg-tint-highlight': props.highlightedIndex === index }}
           id={comboboxOptionId(props.listboxId, index)}
           role="option"
           aria-selected={selected}
-          sx={
-            props.highlightedIndex === index
-              ? { backgroundColor: 'tintHighlight' }
-              : undefined
-          }
-          dataSet={{ component: 'ComboboxOption', ...option.dataSet }}
         >
           {render(option, selected, onPick)}
-        </Box>
+        </div>
       );
     }
     return (
@@ -162,8 +148,7 @@ export function ComboboxList<T extends ComboboxValue>(
       renderItem={renderRow}
       estimateSize={COMBOBOX_OPTION_ESTIMATE}
       fixedViewport={props.viewport}
-      frameSx={{ maxHeight: COMBOBOX_LIST_MAX_HEIGHT }}
-      sx={{ px: 0 }}
+      style={{ 'max-height': `${COMBOBOX_LIST_MAX_HEIGHT}px` }}
       dataSet={{ component: 'ComboboxList' }}
     />
   );

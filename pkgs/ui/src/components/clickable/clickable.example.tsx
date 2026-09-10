@@ -2,70 +2,52 @@
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
-import { Text } from '../text';
-import { Clickable } from './clickable';
 
 export default function ClickableExample(): JSX.Element {
   const [count, setCount] = createSignal(0);
 
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Hover (desktop pointer) + press apply a token-driven tint overlay by default."
-      />
+      <p class="text textCaption text-text-secondary">
+        {
+          'Hover (desktop pointer) + press apply a token-driven tint overlay by default.'
+        }
+      </p>
 
       <SchemePreview>
-        <Stack spacing={3}>
-          <Clickable
-            sx={{ p: 4, background: 'surface', borderRadius: 10 }}
+        <div class="box flex-col gap-3">
+          <button
+            class="clickable clickableTint p-4 bg-surface rounded-[10px]"
+            type="button"
             onClick={() => setCount((c) => c + 1)}
           >
-            <Text
-              variant="body"
-              label={`Tint feedback · click count: ${count()}`}
-            />
-          </Clickable>
+            <p class="text">{`Tint feedback · click count: ${count()}`}</p>
+          </button>
 
-          <Clickable
-            sx={{ p: 4, background: 'surface', borderRadius: 10 }}
-            feedback="opacity"
+          <button
+            class="clickable clickableOpacity p-4 bg-surface rounded-[10px]"
+            type="button"
             onClick={() => setCount(0)}
           >
-            <Text variant="body" label="Opacity feedback (legacy)" />
-          </Clickable>
+            <p class="text">{'Opacity feedback (legacy)'}</p>
+          </button>
 
-          <Clickable
-            sx={{ p: 4, background: 'tintSubtle', borderRadius: 10 }}
-            feedback="none"
+          <button
+            class="clickable p-4 bg-tint-subtle rounded-[10px]"
+            type="button"
             onClick={() => undefined}
           >
-            <Text
-              variant="body"
-              sx={{ color: 'tint' }}
-              label="No feedback (caller handles state)"
-            />
-          </Clickable>
+            <p class="text text-tint">{'No feedback (caller handles state)'}</p>
+          </button>
 
-          <Clickable
-            sx={{
-              p: 4,
-              borderWidth: 1,
-              borderStyle: 'solid',
-              borderColor: 'border',
-              borderRadius: 10,
-            }}
+          <button
+            class="clickable clickableTint p-4 border border-solid border-border rounded-[10px]"
+            type="button"
             disabled
           >
-            <Text
-              variant="body"
-              sx={{ color: 'disabled' }}
-              label="Disabled clickable"
-            />
-          </Clickable>
-        </Stack>
+            <p class="text text-disabled">{'Disabled clickable'}</p>
+          </button>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

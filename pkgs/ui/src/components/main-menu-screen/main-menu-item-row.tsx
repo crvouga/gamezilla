@@ -1,17 +1,15 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * One card row of `MainMenuScreen`: title, optional caption, and a trailing
  * chevron / selection check. Interactive rows are `Clickable`s.
  */
 
 import { createMemo, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useThemeTokens } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
 import { GradientBox } from '../gradient-box';
 import { ChevronRightIcon, CircleCheckIcon } from '../icons';
-import { Text } from '../text';
 import { resolveNeutralGradient } from './main-menu-gradient';
 
 export type MainMenuItem = {
@@ -32,12 +30,12 @@ const MENU_ITEM_MIN_HEIGHT = 84;
 
 function DefaultTrailing(props: { selected: boolean }): JSX.Element {
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+    <div class="box flex-row items-center gap-2">
       <Show when={props.selected}>
         <CircleCheckIcon size={20} color="tint" />
       </Show>
       <ChevronRightIcon size={20} color="icon" />
-    </Box>
+    </div>
   );
 }
 
@@ -71,61 +69,41 @@ function ItemBody(props: {
   const captionInTrailing = (): boolean =>
     disabled() && props.item.caption !== undefined;
   return (
-    <Box
-      sx={{
-        py: 4,
-        px: 4,
-        minHeight: MENU_ITEM_MIN_HEIGHT,
-        justifyContent: 'center',
+    <div
+      class="box py-4 px-4 justify-center rounded-[14px] border border-solid border-border bg-surface-elevated overflow-hidden"
+      style={{
+        'min-height': cssPx(MENU_ITEM_MIN_HEIGHT),
         opacity: disabled() ? 0.5 : 1,
-        borderRadius: 'lg',
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        backgroundColor: 'surfaceElevated',
-        overflow: 'hidden',
       }}
     >
       <GradientBox
+        class="absolute inset-[0] pointer-events-none"
         aria-hidden="true"
         colors={[gradient().top, gradient().bottom]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
-        sx={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
       />
-      <Box
-        sx={{
-          position: 'relative',
-          zIndex: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 3,
-        }}
-      >
-        <Box sx={{ flex: 1, gap: 1, alignItems: 'flex-start' }}>
-          <Text variant="bodyBold" label={props.item.title} />
+      <div class="box relative z-1 flex-row items-center gap-3">
+        <div class="box flex-1 gap-1 items-start">
+          <p class="text textBodyBold">{props.item.title}</p>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={props.item.caption}
-            />
+            <p class="text textCaption text-text-secondary">
+              {props.item.caption}
+            </p>
           </Show>
-        </Box>
+        </div>
         <Show
           when={captionInTrailing()}
           fallback={
             <ItemTrailing item={props.item} interactive={props.interactive} />
           }
         >
-          <Text
-            variant="caption"
-            sx={{ color: 'textSecondary', fontStyle: 'italic' }}
-            label={props.item.caption}
-          />
+          <p class="text textCaption text-text-secondary italic">
+            {props.item.caption}
+          </p>
         </Show>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }
 
@@ -136,21 +114,25 @@ export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
     <Show
       when={props.item.onClick}
       fallback={
-        <Box dataSet={{ component: 'MainMenuItem', ...props.item.dataSet }}>
+        <div
+          class="box"
+          {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
+        >
           <ItemBody item={props.item} interactive={false} />
-        </Box>
+        </div>
       }
     >
       {(onClick) => (
-        <Clickable
+        <button
+          class="clickable clickableTint rounded-[14px] items-stretch"
+          {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
+          type="button"
           onClick={() => onClick()()}
           disabled={props.item.disabled === true}
           aria-pressed={props.item.selected === true ? true : undefined}
-          sx={{ borderRadius: 'lg', alignItems: 'stretch' }}
-          dataSet={{ component: 'MainMenuItem', ...props.item.dataSet }}
         >
           <ItemBody item={props.item} interactive={interactive()} />
-        </Clickable>
+        </button>
       )}
     </Show>
   );

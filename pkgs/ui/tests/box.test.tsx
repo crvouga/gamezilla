@@ -2,17 +2,15 @@
 import { Box, Stack, Text } from '@pkgs/ui';
 import { screen } from '@solidjs/testing-library';
 import { describe, expect, test } from 'vitest';
-import { cssOf, renderUi } from './support/render';
+import { renderUi } from './support/render';
 
 describe('Box', () => {
-  test('compiles sx to inline CSS with token variables', () => {
-    renderUi(() => (
-      <Box data-testid="box" sx={{ p: 2, background: 'surface' }} />
-    ));
+  test('applies layout classes and data-component', () => {
+    renderUi(() => <Box data-testid="box" class="p-2 bg-surface" />);
     const el = screen.getByTestId('box');
     expect(el.tagName).toBe('DIV');
-    expect(cssOf(el)).toContain('padding:8px');
-    expect(cssOf(el)).toContain('background-color:var(--ui-color-surface)');
+    expect(el.className).toMatch(/p-2/);
+    expect(el.className).toMatch(/bg-surface/);
     expect(el).toHaveAttribute('data-component', 'Box');
   });
 
@@ -39,13 +37,10 @@ describe('Stack', () => {
         <Text label="b" />
       </Stack>
     ));
-    const style = cssOf(screen.getByTestId('stack'));
-    expect(style).toContain('flex-direction:row');
-    expect(style).toContain('gap:12px');
-    expect(style).toContain('align-items:center');
-    expect(screen.getByTestId('stack')).toHaveAttribute(
-      'data-component',
-      'Stack'
-    );
+    const el = screen.getByTestId('stack');
+    expect(el.className).toMatch(/flex-row/);
+    expect(el.className).toMatch(/gap-3/);
+    expect(el.className).toMatch(/items-center/);
+    expect(el).toHaveAttribute('data-component', 'Stack');
   });
 });

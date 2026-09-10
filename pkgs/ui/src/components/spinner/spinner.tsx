@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `Spinner` -- themed loading indicator.
  *
@@ -19,9 +20,8 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { resolveColor, useThemeTokens } from '../../theme';
-import { Box } from '../box';
 import styles from './spinner.module.css';
 import { useSharedSpinnerDelay } from './spinner-context';
 
@@ -89,24 +89,21 @@ export function Spinner(props: SpinnerProps): JSX.Element {
   const stroke = (): string =>
     resolveColor(props.color ?? 'tint', tokens.colors) ?? tokens.colors.tint;
   return (
-    <Box
+    <div
+      class={styles['spin']}
+      {...dataAttrs({ component: 'Spinner', ...props.dataSet })}
+      style={{
+        color: stroke(),
+        ...((delay !== undefined && { 'animation-delay': delay }) ?? {}),
+        width: cssPx(geo().diameter),
+        height: cssPx(geo().diameter),
+      }}
       role={props.decorative === true ? undefined : 'status'}
       aria-label={
         props.decorative === true ? undefined : (props.label ?? t`Loading…`)
       }
       aria-live={props.decorative === true ? undefined : 'polite'}
       aria-hidden={props.decorative === true ? true : undefined}
-      class={styles['spin']}
-      dataSet={{ component: 'Spinner', ...props.dataSet }}
-      sx={[
-        {
-          width: geo().diameter,
-          height: geo().diameter,
-          // The arc inherits `currentColor`, so token vars work on SVG strokes.
-          color: stroke(),
-        },
-        delay !== undefined && { animationDelay: delay },
-      ]}
     >
       <svg
         width={geo().diameter}
@@ -134,6 +131,6 @@ export function Spinner(props: SpinnerProps): JSX.Element {
           fill="none"
         />
       </svg>
-    </Box>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -14,11 +13,7 @@ export function MemberYouBadge(props: MemberYouBadgeProps): JSX.Element {
   const isYou = useMemberIsYou(props.profileId);
   return (
     <Show when={isYou()}>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={<Trans>You</Trans>}
-      />
+      <p class="text textCaption text-text-secondary">{<Trans>You</Trans>}</p>
     </Show>
   );
 }

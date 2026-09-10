@@ -2,8 +2,7 @@
 /** `SectionCard` -- bordered, collapsible section. */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Collapsible } from '../collapsible';
 
 export type SectionCardProps = {
@@ -15,21 +14,13 @@ export type SectionCardProps = {
 
 export function SectionCard(props: SectionCardProps): JSX.Element {
   return (
-    <Box
-      dataSet={{ component: 'SectionCard', ...props.dataSet }}
-      sx={{
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        borderRadius: 'md',
-        overflow: 'hidden',
-        mb: 2,
-        px: 3,
-      }}
+    <div
+      class="box border border-solid border-border rounded-[10px] overflow-hidden mb-2 px-3"
+      {...dataAttrs({ component: 'SectionCard', ...props.dataSet })}
     >
       <Collapsible title={props.title} defaultOpen={props.defaultOpen}>
-        <Box sx={{ pb: 3 }}>{props.children}</Box>
+        <div class="box pb-3">{props.children}</div>
       </Collapsible>
-    </Box>
+    </div>
   );
 }

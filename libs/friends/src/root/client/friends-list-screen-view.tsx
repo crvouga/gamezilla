@@ -1,7 +1,6 @@
 import { FriendLiveSpaceBadge } from '@libs/spaces/public/friend-live-space-badge';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   EmptyState,
   LoadingState,
   ScreenBase,
@@ -54,8 +53,8 @@ function FriendsListBody(): JSX.Element {
         { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
         { name: <Trans>Friends</Trans> },
       ]}
-      content={({ sx }) => (
-        <Box sx={sx}>
+      content={({ bodyClass }) => (
+        <div class={`box ${bodyClass}`}>
           <ScreenBodyVirtualList
             items={friendsState.friends}
             keyExtractor={(item) => item.userId}
@@ -72,7 +71,7 @@ function FriendsListBody(): JSX.Element {
               />
             )}
           />
-        </Box>
+        </div>
       )}
     />
   );

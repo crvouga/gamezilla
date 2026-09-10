@@ -6,7 +6,7 @@ import {
   isLeaderLostError,
   runWebOpfsRecoveryAndReload,
 } from '@pkgs/sql-client-sqlite-web';
-import { Center, ErrorState } from '@pkgs/ui';
+import { ErrorState } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { reloadApp } from '../boot/reload-app';
@@ -69,9 +69,9 @@ export function LocalDatabaseBootErrorScreen(props: {
   };
 
   return (
-    <Center
-      sx={{ flex: 1, background: 'background' }}
-      dataSet={{ component: 'LocalDatabaseBootErrorScreen' }}
+    <div
+      class="box items-center justify-center flex-1 bg-background"
+      data-component="LocalDatabaseBootErrorScreen"
     >
       <ErrorState
         title={
@@ -91,6 +91,6 @@ export function LocalDatabaseBootErrorScreen(props: {
           onClick: onRetry,
         }}
       />
-    </Center>
+    </div>
   );
 }

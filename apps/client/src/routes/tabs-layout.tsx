@@ -7,7 +7,7 @@
  */
 
 import { SpaceMiniplayer } from '@libs/spaces/root/client/miniplayer/space-miniplayer';
-import { Box, useLayoutMode, usePathname, useRouter } from '@pkgs/ui';
+import { useLayoutMode, usePathname, useRouter } from '@pkgs/ui';
 import type { RouteSectionProps } from '@solidjs/router';
 import { type JSX, Show } from 'solid-js';
 
@@ -18,8 +18,8 @@ export function TabsLayout(props: RouteSectionProps): JSX.Element {
   const pathname = usePathname();
   const router = useRouter();
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }} dataSet={{ component: 'TabsLayout' }}>
-      <Box sx={{ flex: 1, minHeight: 0 }}>{props.children}</Box>
+    <div class="box flex-1 min-h-[0]" data-component="TabsLayout">
+      <div class="box flex-1 min-h-[0]">{props.children}</div>
       <SpaceMiniplayer />
       <Show when={mode() === 'compact'}>
         <AppTabBar
@@ -29,6 +29,6 @@ export function TabsLayout(props: RouteSectionProps): JSX.Element {
           }}
         />
       </Show>
-    </Box>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `Avatar` -- circular avatar primitive.
  *
@@ -25,11 +26,9 @@
 
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { bestOnColor, resolveColor, useThemeTokens } from '../../theme';
-import { Box } from '../box';
 import type { IconComponent } from '../icons';
-import { Text } from '../text';
 import styles from './avatar.module.css';
 import { svgToDataUri } from './svg-data-uri';
 
@@ -80,20 +79,14 @@ export function Avatar(props: AvatarProps): JSX.Element {
     return bestOnColor(raw).fg;
   });
   return (
-    <Box
-      as="span"
-      dataSet={{ component: 'Avatar', ...props.dataSet }}
-      sx={{
-        display: 'inline-flex',
-        width: size(),
-        height: size(),
-        borderRadius: 'full',
-        borderWidth: AVATAR_BORDER_WIDTH,
-        borderColor: 'border',
-        overflow: 'hidden',
-        backgroundColor: background(),
-        alignItems: 'center',
-        justifyContent: 'center',
+    <span
+      class="box inline-flex rounded-[9999px] border-border overflow-hidden items-center justify-center"
+      {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
+      style={{
+        'background-color': background(),
+        width: cssPx(size()),
+        height: cssPx(size()),
+        'border-width': cssPx(AVATAR_BORDER_WIDTH),
       }}
     >
       <Switch>
@@ -122,14 +115,15 @@ export function Avatar(props: AvatarProps): JSX.Element {
         </Match>
         <Match when={isNonEmpty(props.initials) ? props.initials : undefined}>
           {(initials) => (
-            <Text
-              sx={{
+            <p
+              class="text font-bold"
+              style={{
                 color: foreground(),
-                fontSize: Math.round(size() * 0.4),
-                fontWeight: 'bold',
+                'font-size': `${Math.round(size() * 0.4)}px`,
               }}
-              label={initials().slice(0, 2)}
-            />
+            >
+              {initials().slice(0, 2)}
+            </p>
           )}
         </Match>
         <Match when={props.icon}>
@@ -142,6 +136,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
           )}
         </Match>
       </Switch>
-    </Box>
+    </span>
   );
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * Rectangular ActionBar control: icon/avatar + under-caption as one button.
  *
@@ -8,10 +9,7 @@
  */
 
 import { type JSX, untrack } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 const MIN_HIT_TARGET = 44;
 
@@ -19,12 +17,9 @@ export function ActionBarInlineCaption(props: {
   caption: JSX.Element;
 }): JSX.Element {
   return (
-    <Text
-      variant="caption"
-      numberOfLines={1}
-      sx={{ color: 'textSecondary', textAlign: 'center', width: '100%' }}
-      label={props.caption}
-    />
+    <p class="text textCaption line-clamp-1 text-text-secondary text-center w-[100%]">
+      {props.caption}
+    </p>
   );
 }
 
@@ -59,35 +54,28 @@ export function ActionBarLabeledControl(
     untrack(() => props.onClick)();
   };
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint rounded-[10px] items-center justify-center py-0.5 gap-0.5"
+      {...dataAttrs({ component: 'ActionBarLabeledControl', ...props.dataSet })}
+      type="button"
+      style={{
+        'min-width': cssPx(Math.max(props.slotWidth, MIN_HIT_TARGET)),
+        'min-height': cssPx(MIN_HIT_TARGET),
+        width: cssPx(props.slotWidth),
+        'max-width': cssPx(Math.max(props.slotWidth, MIN_HIT_TARGET)),
+        opacity: props.disabled === true ? 0.5 : 1,
+      }}
       onClick={onClick}
       disabled={props.disabled === true}
       aria-label={resolveActionA11yLabel(props.label, props['aria-label'])}
-      dataSet={{ component: 'ActionBarLabeledControl', ...props.dataSet }}
-      sx={{
-        borderRadius: 'md',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: Math.max(props.slotWidth, MIN_HIT_TARGET),
-        minHeight: MIN_HIT_TARGET,
-        width: props.slotWidth,
-        maxWidth: Math.max(props.slotWidth, MIN_HIT_TARGET),
-        opacity: props.disabled === true ? 0.5 : 1,
-        py: 0.5,
-        gap: 0.5,
-      }}
     >
-      <Box
-        sx={{
-          height: props.buttonSize,
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
+      <div
+        class="box w-[100%] items-center justify-center"
+        style={{ height: cssPx(props.buttonSize) }}
       >
         {props.children}
-      </Box>
+      </div>
       <ActionBarInlineCaption caption={props.caption} />
-    </Clickable>
+    </button>
   );
 }

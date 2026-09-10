@@ -1,10 +1,9 @@
 /** @jsxImportSource solid-js */
+
 import type { JSX } from 'solid-js';
-import { Box } from '../box';
+import { cssPx } from '../../css/css-px';
 import { ExampleRoot } from '../explorer/example-root';
 import { MenuIcon, SettingsIcon, UserIcon } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import {
   type OverflowMenuAction,
   OverflowMenuButton,
@@ -29,30 +28,22 @@ const DEMO_ACTIONS: readonly OverflowMenuAction[] = [
 
 function AvatarDisc(props: { size: number; iconSize: number }): JSX.Element {
   return (
-    <Box
-      sx={{
-        width: props.size,
-        height: props.size,
-        borderRadius: 'full',
-        background: 'tint',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+    <div
+      class="box rounded-[9999px] bg-tint items-center justify-center"
+      style={{ width: cssPx(props.size), height: cssPx(props.size) }}
     >
       <UserIcon size={props.iconSize} color="onPrimary" />
-    </Box>
+    </div>
   );
 }
 
 export default function OverflowMenuButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Default IconButton trigger and custom avatar trigger."
-      />
-      <Stack direction="horizontal" spacing={4} align="center">
+      <p class="text textCaption text-text-secondary">
+        {'Default IconButton trigger and custom avatar trigger.'}
+      </p>
+      <div class="box flex-row gap-4 items-center">
         <OverflowMenuButton
           actions={DEMO_ACTIONS}
           header={{ title: 'More' }}
@@ -69,7 +60,7 @@ export default function OverflowMenuButtonExample(): JSX.Element {
           aria-label="Account menu"
           trigger={<AvatarDisc size={32} iconSize={16} />}
         />
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }

@@ -15,16 +15,13 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
-import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { joinClass } from '../box/box';
 import { ChevronRightIcon, CopyIcon, type IconComponent } from '../icons';
 import { ScrollView } from '../scroll-view';
-import { Text } from '../text';
 import styles from './json-view.module.css';
 import {
   classifyValue,
@@ -62,8 +59,8 @@ export type JsonViewProps = {
   copy?: JsonViewCopy | undefined;
   /** Cap on inner scroll height (px). When omitted the tree grows naturally. */
   maxHeight?: number | undefined;
-  /** Outer wrapper sx shorthand. */
-  sx?: SxInput | undefined;
+  class?: string | undefined;
+  style?: JSX.CSSProperties | string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -100,75 +97,79 @@ function createJsonExpansion(args: {
 
 function JsonViewLabel(props: { label: JSX.Element }): JSX.Element {
   return (
-    <Box
-      sx={{
-        paddingHorizontal: 3,
-        paddingTop: 2,
-        paddingBottom: 1,
-        borderBottomWidth: 1,
-        borderColor: 'border',
-      }}
-    >
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={props.label}
-      />
-    </Box>
+    <div class="box px-[3px] pt-[2px] pb-px border-b border-border">
+      <p class="text textCaption text-text-secondary">{props.label}</p>
+    </div>
   );
 }
 
 export function JsonView(props: JsonViewProps): JSX.Element {
-  const initialExpandDepth = () => props.initialExpandDepth ?? 1;
-  const expandAllMaxDepth = () => props.expandAllMaxDepth ?? 8;
+  const [local] = splitProps(props, [
+    'value',
+    'initialExpandDepth',
+    'expandAllMaxDepth',
+    'label',
+    'hideToolbar',
+    'hideRowCopy',
+    'copy',
+    'maxHeight',
+    'class',
+    'style',
+    'dataSet',
+  ]);
+  const initialExpandDepth = () => local.initialExpandDepth ?? 1;
+  const expandAllMaxDepth = () => local.expandAllMaxDepth ?? 8;
   const exp = createJsonExpansion({
-    value: () => props.value,
+    value: () => local.value,
     initialExpandDepth,
     expandAllMaxDepth,
   });
   const rootIsContainer = createMemo(() =>
-    isContainer(classifyValue(props.value))
+    isContainer(classifyValue(local.value))
   );
-  const rowCopy = () => (props.hideRowCopy === true ? undefined : props.copy);
+  const rowCopy = () => (local.hideRowCopy === true ? undefined : local.copy);
 
   return (
-    <Box
-      dataSet={{ component: 'JsonView', ...props.dataSet }}
-      sx={[
-        {
-          background: 'surfaceMuted',
-          borderWidth: 1,
-          borderColor: 'border',
-          borderRadius: 'md',
-        },
-        props.sx,
-      ]}
+    <div
+      class={joinClass(
+        'box bg-surface-muted border border-border rounded-[10px]',
+        local.class
+      )}
+      style={local.style}
+      {...dataAttrs({ component: 'JsonView', ...local.dataSet })}
     >
-      <Show when={props.label !== undefined}>
-        <JsonViewLabel label={props.label} />
+      <Show when={local.label !== undefined}>
+        <JsonViewLabel label={local.label} />
       </Show>
-      <Show when={props.hideToolbar !== true}>
+      <Show when={local.hideToolbar !== true}>
         <JsonViewToolbar
           rootIsContainer={rootIsContainer()}
           onExpandAll={exp.expandAll}
           onCollapseAll={exp.collapseAll}
           onReset={exp.reset}
-          copy={props.copy}
-          value={props.value}
+          copy={local.copy}
+          value={local.value}
         />
       </Show>
       <ScrollView
         role="tree"
         flushEdge={false}
-        frameSx={[
-          { background: 'surface' },
-          props.maxHeight !== undefined && { maxHeight: props.maxHeight },
-        ]}
-        sx={{ paddingVertical: 2, paddingHorizontal: 3 }}
+        style={{
+          background: 'var(--ui-color-surface)',
+          ...(local.maxHeight !== undefined
+            ? { 'max-height': `${local.maxHeight}px` }
+            : {}),
+        }}
+        contentStyle={{
+          'padding-top': 'var(--ui-space-2)',
+          'padding-bottom': 'var(--ui-space-2)',
+          'padding-left': 'var(--ui-space-3)',
+          'padding-right': 'var(--ui-space-3)',
+        }}
       >
         <JsonViewNode
           nodeKey={null}
-          value={props.value}
+          value={local.value}
           path={ROOT_PATH}
           depth={0}
           isExpanded={exp.isExpanded}
@@ -176,7 +177,7 @@ export function JsonView(props: JsonViewProps): JSX.Element {
           copy={rowCopy()}
         />
       </ScrollView>
-    </Box>
+    </div>
   );
 }
 
@@ -190,18 +191,9 @@ function JsonViewToolbar(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <Box
+    <div
+      class="box flex-row items-center gap-1 px-2 py-1 border-b border-border flex-wrap"
       role="toolbar"
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        paddingHorizontal: 2,
-        paddingVertical: 1,
-        borderBottomWidth: 1,
-        borderColor: 'border',
-        flexWrap: 'wrap',
-      }}
     >
       <ToolbarButton
         label={t`Expand all`}
@@ -221,7 +213,7 @@ function JsonViewToolbar(props: {
         onClick={props.onReset}
         disabled={!props.rootIsContainer}
       />
-      <Box sx={{ flex: 1 }} />
+      <div class="box flex-1" />
       <Show when={props.copy}>
         {(copy) => (
           <ToolbarButton
@@ -233,7 +225,7 @@ function JsonViewToolbar(props: {
           />
         )}
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -245,29 +237,26 @@ function ToolbarButton(props: {
   disabled?: boolean | undefined;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-[44px] rounded-[6px]"
+      type="button"
+      style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}
       disabled={props.disabled ?? false}
-      feedback="opacity"
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        px: 2,
-        py: 1,
-        minHeight: 44,
-        borderRadius: 6,
-        opacity: props.disabled ? 0.4 : 1,
-      }}
     >
       <Show when={props.icon}>
         {(icon) => (
-          <Box class={props.iconRotated ? styles['rotated'] : undefined}>
+          <div
+            class="box"
+            classList={{
+              [styles['rotated'] ?? '']: props.iconRotated === true,
+            }}
+          >
             <Dynamic component={icon()} size={10} />
-          </Box>
+          </div>
         )}
       </Show>
-      <Text variant="caption" sx={{ color: 'tint' }} label={props.label} />
-    </Clickable>
+      <p class="text textCaption text-tint">{props.label}</p>
+    </button>
   );
 }

@@ -1,7 +1,6 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useClipboard } from '@pkgs/device/solid';
 import {
-  Box,
   CopyToClipboardField,
   EmptyState,
   MenuSection,
@@ -53,7 +52,7 @@ export function AccountDevicesCard(
           />
         }
       >
-        <Box sx={{ gap: 5 }}>
+        <div class="box gap-5">
           <MenuSection
             title={<Trans>Devices</Trans>}
             footer={<Trans>Tap a device for details.</Trans>}
@@ -73,7 +72,7 @@ export function AccountDevicesCard(
             value={props.accountId ?? ''}
             copy={(text) => clipboard.writeText(text)}
           />
-        </Box>
+        </div>
       </Show>
     </Show>
   );

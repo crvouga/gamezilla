@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { ChipGroup, type ChipGroupOption } from './chip-group';
 
 type Intensity = 'off' | 'mid' | 'high';
@@ -23,11 +22,7 @@ export default function ChipGroupExample(): JSX.Element {
         selected={value()}
         onSelect={setValue}
       />
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.75 }}
-        label={`Selected: ${value()}`}
-      />
+      <p class="text textCaption opacity-75">{`Selected: ${value()}`}</p>
     </ExampleRoot>
   );
 }

@@ -1,7 +1,6 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { NumberStepper } from './number-stepper';
 
 export default function NumberStepperExample(): JSX.Element {
@@ -16,7 +15,7 @@ export default function NumberStepperExample(): JSX.Element {
         min={0}
         max={20}
       />
-      <Text variant="caption" sx={{ opacity: 0.75 }} label={`Value: ${n()}`} />
+      <p class="text textCaption opacity-75">{`Value: ${n()}`}</p>
     </ExampleRoot>
   );
 }

@@ -1,4 +1,3 @@
-import { Box, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { useSimConsoleLayout } from './debugger/use-sim-console-layout';
@@ -21,20 +20,22 @@ export function ReportHeader(props: {
   const showMeta = () =>
     !layout.compactChrome && props.meta != null && props.meta !== '';
   return (
-    <Box sx={appHeaderSx}>
+    <div class="box" style={appHeaderSx}>
       {props.leading}
       {props.badge}
-      <Box sx={appHeaderMiddleSx}>
+      <div class="box" style={appHeaderMiddleSx}>
         {props.title}
         {showMeta() ? (
-          <Text sx={[metaSx, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>
+          <p class="text line-clamp-1 shrink min-w-[0]" style={metaSx}>
             {props.meta}
-          </Text>
+          </p>
         ) : null}
-      </Box>
+      </div>
       {props.end != null ? (
-        <Box sx={[appHeaderTrailingSx, { flexShrink: 0 }]}>{props.end}</Box>
+        <div class="box shrink-0" style={appHeaderTrailingSx}>
+          {props.end}
+        </div>
       ) : null}
-    </Box>
+    </div>
   );
 }

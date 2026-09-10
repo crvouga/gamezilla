@@ -3,7 +3,7 @@
 
 import { DEFAULT_CHESS_BOARD_TEST_ID } from '@pkgs/chess-board-core/probe';
 import type { Square } from '@pkgs/chess-board-core/types';
-import { Box } from '@pkgs/ui';
+import { dataAttrs } from '@pkgs/ui';
 import { createMemo, type JSX } from 'solid-js';
 import styles from './chess-board.module.css';
 import type { BoardController } from './chess-board-controller';
@@ -83,25 +83,21 @@ export function ChessBoardView(args: {
     args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
   const sizeSx = () =>
     args.props.size === undefined
-      ? { width: '100%' as const, aspectRatio: 1 as const }
-      : { width: args.props.size, height: args.props.size };
+      ? { width: '100%' as const, 'aspect-ratio': 1 as const }
+      : {
+          width: `${args.props.size}px`,
+          height: `${args.props.size}px`,
+        };
   return (
-    <Box
-      ref={args.ctrl.setHost}
-      class={styles['root']}
-      sx={{
-        ...sizeSx(),
-        position: 'relative',
-        borderWidth: 2,
-        borderStyle: 'solid',
-        borderColor: args.ctrl.theme().border,
-        overflow: 'hidden',
-      }}
-      dataSet={{
+    <div
+      class={`box relative [border-width:2px] border-solid overflow-hidden ${styles['root']}`}
+      style={{ ...(sizeSx() ?? {}), 'border-color': args.ctrl.theme().border }}
+      {...dataAttrs({
         component: 'ChessBoard',
         testid: boardTestId(),
         ...args.props.dataSet,
-      }}
+      })}
+      ref={args.ctrl.setHost}
       onPointerDown={args.ctrl.onPointerDown}
       onPointerMove={args.ctrl.onPointerMove}
       onPointerUp={args.ctrl.onPointerUp}
@@ -117,6 +113,6 @@ export function ChessBoardView(args: {
         ctrl={args.ctrl}
         boardTestId={boardTestId}
       />
-    </Box>
+    </div>
   );
 }

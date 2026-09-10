@@ -2,25 +2,21 @@
 /**
  * Icon adapter over `lucide-solid`. Every icon in the design system is a
  * `createIcon(LucideX)` so consumers get theme-aware color defaults (on-color
- * context → `icon` token) and the `sx` layout box.
+ * context → `icon` token) and a layout box via `class` / `style`.
  */
 
 import type { Component, JSX } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import {
-  resolveColor,
-  type SxInput,
-  useOnColor,
-  useThemeTokens,
-} from '../../theme';
-import { Box } from '../box';
+import { resolveColor, useOnColor, useThemeTokens } from '../../theme';
+import { Box, joinClass } from '../box';
 
 export type IconProps = {
   size?: number | undefined;
   /** Color token name or CSS color. When omitted, inherits on-color context or theme `icon`. */
   color?: string | undefined;
   strokeWidth?: number | undefined;
-  sx?: SxInput | undefined;
+  class?: string | undefined;
+  style?: JSX.CSSProperties | undefined;
   /** Accessible name; omitted icons are `aria-hidden` (decorative). */
   label?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
@@ -52,15 +48,11 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
         role={props.label === undefined ? undefined : 'img'}
         aria-label={props.label}
         aria-hidden={props.label === undefined ? true : undefined}
-        sx={[
-          {
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          },
-          props.sx,
-        ]}
+        class={joinClass(
+          'inline-flex items-center justify-center shrink-0',
+          props.class
+        )}
+        style={props.style}
         {...componentDataAttrs('Icon', props.dataSet)}
       >
         <LucideIcon

@@ -52,10 +52,10 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
     <Show when={props.visible}>
       <SurfaceStackSlot id={surfaceId()} visible>
         <Motion
+          class="absolute inset-0 flex-1"
           duration="fast"
           property="opacity"
-          enterSx={ENTER_SX}
-          sx={{ absoluteFill: true, flex: 1 }}
+          enterStyle={ENTER_SX}
           dataSet={{ component: 'ModalRoot', ...props.dataSet }}
         >
           <OnColorReset>

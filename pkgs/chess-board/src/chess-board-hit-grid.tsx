@@ -13,7 +13,6 @@ import type {
   RankChar,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { Box } from '@pkgs/ui';
 import { For, type JSX } from 'solid-js';
 
 import styles from './chess-board.module.css';
@@ -35,7 +34,7 @@ export type ChessBoardHitGridProps = {
 
 export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
   return (
-    <Box class={styles['grid']} sx={{ position: 'absolute', inset: 0 }}>
+    <div class={`box absolute inset-[0] ${styles['grid']}`}>
       <For each={[...BOARD_SQUARES]}>
         {(square) => {
           const own = () =>
@@ -52,6 +51,6 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
           );
         }}
       </For>
-    </Box>
+    </div>
   );
 }

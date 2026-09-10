@@ -9,11 +9,9 @@ import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import { ErrorState } from '../error-state';
 import { LoadingState } from '../loading-state';
 import { ModalButton, ModalFooter } from '../modal/modal-parts';
-import { Text } from '../text';
 import type { VirtualListViewport } from '../virtual-list';
 import type { ComboboxKeyEvent } from './combobox-key-nav';
 import { ComboboxList, comboboxOptionId } from './combobox-list';
@@ -51,13 +49,11 @@ function ComboboxEmpty(props: {
 }): JSX.Element {
   return (
     <Show when={props.message !== undefined && props.message !== null}>
-      <Box sx={{ paddingVertical: 8 }} role="status">
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary', textAlign: 'center' }}
-          label={props.message}
-        />
-      </Box>
+      <div class="box [padding-top:8px;padding-bottom:8px]" role="status">
+        <p class="text textCaption text-text-secondary text-center">
+          {props.message}
+        </p>
+      </div>
     </Show>
   );
 }
@@ -73,7 +69,7 @@ function ComboboxOptions<T extends ComboboxValue>(
       when={!props.loading}
       fallback={<LoadingState size="small" variant="compact" />}
     >
-      <Box sx={{ gap: 2 }}>
+      <div class="box gap-2">
         <Show when={hasError()}>
           <ErrorState
             variant="compact"
@@ -98,7 +94,7 @@ function ComboboxOptions<T extends ComboboxValue>(
             viewport={props.viewport}
           />
         </Show>
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -112,7 +108,7 @@ export function ComboboxBody<T extends ComboboxValue>(
       ? comboboxOptionId(props.listboxId, props.highlightedIndex)
       : undefined;
   return (
-    <Box sx={{ gap: 2 }}>
+    <div class="box gap-2">
       <ComboboxSearch
         value={props.query}
         onChangeText={props.setQuery}
@@ -128,6 +124,6 @@ export function ComboboxBody<T extends ComboboxValue>(
           <ModalButton label={t`Done`} onClick={() => props.onDone()} />
         </ModalFooter>
       </Show>
-    </Box>
+    </div>
   );
 }

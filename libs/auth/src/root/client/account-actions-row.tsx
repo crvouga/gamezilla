@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
-import { Box, Button, LogInIcon, LogOutIcon } from '@pkgs/ui';
+import { Button, LogInIcon, LogOutIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -20,7 +20,7 @@ export function AccountActionsRow(): JSX.Element {
   const { open: openSignOutConfirm } = useSignOutModal();
 
   return (
-    <Box sx={{ alignSelf: 'stretch' }}>
+    <div class="box self-stretch">
       <Show
         when={isSignedIn()}
         fallback={
@@ -45,6 +45,6 @@ export function AccountActionsRow(): JSX.Element {
           dataSet={{ testid: Handles.accountSignOut }}
         />
       </Show>
-    </Box>
+    </div>
   );
 }

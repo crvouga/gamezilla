@@ -1,4 +1,4 @@
-import { Box, CONTENT_EDGE_PADDING_STEP, Text } from '@pkgs/ui';
+import { CONTENT_EDGE_PADDING_STEP } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
@@ -29,58 +29,37 @@ export function ActiveSpaceSheetRow(
   props: ActiveSpaceSheetRowProps
 ): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        minHeight: 72,
-        borderBottomWidth: 'hairline',
-        borderColor: 'border',
-      }}
-    >
+    <div class="box flex-row items-center gap-3 min-h-[72px] border-b border-border">
       <MiniplayerOpenSpacePressable
         spaceId={props.spaceId}
         onAfterOpen={props.onOpen}
       >
-        <Box
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 3,
-            flex: 1,
-            minWidth: 0,
-            pl: ROW_EDGE_PADDING_STEP,
-            py: 3,
-            alignSelf: 'stretch',
-          }}
+        <div
+          class="box flex-row items-center gap-3 flex-1 min-w-[0] py-3 self-stretch"
+          style={{ 'padding-left': `${ROW_EDGE_PADDING_STEP * 4}px` }}
         >
           <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
-          <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
+          <div class="box flex-1 min-w-[0] gap-0.5">
             <MiniplayerSpaceTitle spaceId={props.spaceId} />
-            <Box
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 1.5,
-                minWidth: 0,
-              }}
-            >
+            <div class="box flex-row items-center gap-1.5 min-w-[0]">
               <MiniplayerHostNameLine spaceId={props.spaceId} />
-              <Text variant="caption" label="·" />
+              <p class="text textCaption">{'·'}</p>
               <MiniplayerMemberCountText spaceId={props.spaceId} />
-            </Box>
-          </Box>
-        </Box>
+            </div>
+          </div>
+        </div>
         <MiniplayerLiveBadge />
       </MiniplayerOpenSpacePressable>
-      <Box sx={{ pr: ROW_EDGE_PADDING_STEP, pl: 1 }}>
+      <div
+        class="box pl-1"
+        style={{ 'padding-right': `${ROW_EDGE_PADDING_STEP * 4}px` }}
+      >
         <SpaceEndOrLeaveButton
           spaceId={props.spaceId}
           requestEndSpace={props.requestEndSpace}
           requestLeaveSpace={props.requestLeaveSpace}
         />
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

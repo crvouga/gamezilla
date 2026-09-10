@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `AppHeaderIsland` -- wide-only top chrome: logo | pill tabs | trailing.
  * Mounted via `AppFrame` `header`; not used on compact layouts. The trailing
@@ -14,15 +15,13 @@
 
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
+import { dataAttrs } from '../../component-id';
 import {
   getTopBarContentHeight,
   ISLAND_RADIUS,
   useThemeLayout,
 } from '../../theme';
 import { useAppFrameGlobalTrailing } from '../app-frame';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
 import type {
   AppHeaderIslandItem,
   AppHeaderIslandProps,
@@ -36,33 +35,34 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
   const color = (): 'text' | 'textSecondary' =>
     props.item.active ? 'text' : 'textSecondary';
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-[9999px]"
+      {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
+      type="button"
+      style={{
+        'background-color': props.item.active ? 'surface' : 'transparent',
+        'min-height': cssPx(PILL_MIN_HEIGHT),
+      }}
       role="tab"
       aria-selected={props.item.active}
       aria-label={props.item.label}
       onClick={() => props.item.onClick()}
-      dataSet={{ component: 'AppHeaderIslandTab', ...props.item.dataSet }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1.5,
-        px: 3,
-        minHeight: PILL_MIN_HEIGHT,
-        borderRadius: 'full',
-        backgroundColor: props.item.active ? 'surface' : 'transparent',
-      }}
     >
       <Dynamic
         component={props.item.icon}
         size={PILL_ICON_SIZE}
         color={color()}
       />
-      <Text
-        variant="label"
-        sx={{ color: color(), fontWeight: props.item.active ? '600' : '500' }}
-        label={props.item.label}
-      />
-    </Clickable>
+      <label
+        class="text textLabel"
+        style={{
+          color: color(),
+          'font-weight': props.item.active ? '600' : '500',
+        }}
+      >
+        {props.item.label}
+      </label>
+    </button>
   );
 }
 
@@ -70,19 +70,12 @@ function HeaderPillGroup(props: {
   items: readonly AppHeaderIslandItem[];
 }): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-row items-center gap-1 p-1 rounded-[9999px] bg-surface-muted"
       role="tablist"
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        p: 1,
-        borderRadius: 'full',
-        backgroundColor: 'surfaceMuted',
-      }}
     >
       <For each={props.items}>{(item) => <HeaderPill item={item} />}</For>
-    </Box>
+    </div>
   );
 }
 
@@ -93,57 +86,30 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
     getTopBarContentHeight(layout.breakpoint());
   const trailing = (): JSX.Element => props.trailing ?? globalTrailing();
   return (
-    <Box
-      as="header"
-      dataSet={{ component: 'AppHeaderIsland', ...props.dataSet }}
-      sx={{
-        backgroundColor: 'surfaceElevated',
-        borderRadius: ISLAND_RADIUS,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        elevation: 1,
-        overflow: 'hidden',
-      }}
+    <header
+      class="box bg-surface-elevated border border-solid border-border overflow-hidden"
+      {...dataAttrs({ component: 'AppHeaderIsland', ...props.dataSet })}
+      style={{ 'border-radius': ISLAND_RADIUS }}
     >
-      <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          px: 3,
-          height: contentHeight(),
-          minHeight: contentHeight(),
+      <div
+        class="box flex-row items-center gap-2 px-3"
+        style={{
+          height: cssPx(contentHeight()),
+          'min-height': cssPx(contentHeight()),
         }}
       >
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-          }}
-        >
+        <div class="box flex-1 min-w-[0] flex-row items-center justify-start">
           {props.leading}
-        </Box>
+        </div>
         <Show when={(props.items?.length ?? 0) > 0}>
-          <Box sx={{ flexShrink: 0 }}>
+          <div class="box shrink-0">
             <HeaderPillGroup items={props.items ?? []} />
-          </Box>
+          </div>
         </Show>
-        <Box
-          sx={{
-            flex: 1,
-            minWidth: 0,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-          }}
-        >
+        <div class="box flex-1 min-w-[0] flex-row items-center justify-end">
           {trailing()}
-        </Box>
-      </Box>
-    </Box>
+        </div>
+      </div>
+    </header>
   );
 }

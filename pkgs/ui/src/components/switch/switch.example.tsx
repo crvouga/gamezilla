@@ -2,7 +2,6 @@
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
 import { Switch } from './switch';
 
 export default function SwitchExample(): JSX.Element {
@@ -13,11 +12,11 @@ export default function SwitchExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <Stack spacing={3}>
+        <div class="box flex-col gap-3">
           <Switch label="Notifications" value={a()} onValueChange={setA} />
           <Switch label="Dark mode (on)" value={b()} onValueChange={setB} />
           <Switch label="Disabled" value={c()} onValueChange={setC} disabled />
-        </Stack>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

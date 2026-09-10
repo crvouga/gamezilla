@@ -1,5 +1,5 @@
 import { useTimers } from '@pkgs/clock/solid';
-import { Box, EmptyState, ScrollView, Text } from '@pkgs/ui';
+import { EmptyState, ScrollView } from '@pkgs/ui';
 import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 
 import type { PlaygroundPubSubNode } from '../../shared/ports';
@@ -30,51 +30,25 @@ export function PlaygroundPubSubTopicsPane(props: {
     <Show
       when={stats().length > 0}
       fallback={
-        <Box sx={{ flex: 1, minHeight: 0, padding: 8 }}>
+        <div class="box flex-1 min-h-[0] p-[8px]">
           <EmptyState
             variant="compact"
             title="No topics"
             body="Subscribed topics across pubsub peers will appear here."
           />
-        </Box>
+        </div>
       }
     >
-      <ScrollView
-        frameSx={{ flex: 1, minHeight: 0 }}
-        sx={{ padding: 6, gap: 1 }}
-      >
+      <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-1">
         <For each={stats()}>
           {(row) => (
-            <Box
-              sx={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 2,
-                paddingVertical: 1.5,
-                borderBottomWidth: 1,
-                borderColor: 'border',
-              }}
-            >
-              <Text
-                sx={{
-                  flex: 1,
-                  color: 'text',
-                  fontSize: 12,
-                  fontFamily: 'mono',
-                }}
-                label={row.topic}
-              />
-              <Text
-                variant="caption"
-                label={`${row.subscriberCount} sub`}
-                sx={{ color: 'textSecondary' }}
-              />
-              <Text
-                variant="caption"
-                label={`${row.instanceCount} peer`}
-                sx={{ color: 'textSecondary' }}
-              />
-            </Box>
+            <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px] border-b border-border">
+              <p class="text flex-1 text-text text-[12px] [font-family:mono]">
+                {row.topic}
+              </p>
+              <p class="text textCaption text-text-secondary">{`${row.subscriberCount} sub`}</p>
+              <p class="text textCaption text-text-secondary">{`${row.instanceCount} peer`}</p>
+            </div>
           )}
         </For>
       </ScrollView>

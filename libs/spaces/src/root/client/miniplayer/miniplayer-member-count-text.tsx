@@ -1,5 +1,4 @@
 import { useLingui } from '@lingui/solid/macro';
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 
@@ -16,5 +15,5 @@ export function MiniplayerMemberCountText(
   const { t } = useLingui();
   const count = useSpaceMemberCount(props.spaceId);
   const label = createMemo(() => t`${count()} people here`);
-  return <Text variant="caption" numberOfLines={1} label={label()} />;
+  return <p class="text textCaption line-clamp-1">{label()}</p>;
 }

@@ -2,7 +2,6 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import {
-  Box,
   Combobox,
   ModalBody,
   ModalButton,
@@ -10,7 +9,6 @@ import {
   NumberStepper,
   ResponsiveSurface,
   SegmentedControl,
-  Text,
 } from '@pkgs/ui';
 import { createEffect, createMemo, type JSX } from 'solid-js';
 
@@ -58,18 +56,17 @@ function PuzzleFeedModeSection(props: {
     { key: 'custom', label: t`Custom` },
   ];
   return (
-    <Box sx={{ gap: 2 }}>
-      <Text variant="label" label={t`Difficulty mode`} />
+    <div class="box gap-2">
+      <label class="text textLabel">{t`Difficulty mode`}</label>
       <SegmentedControl
         segments={modeSegments}
         selected={props.config.mode}
         onSelect={props.onSelectMode}
       />
-      <Text
-        variant="caption"
-        label={feedModeCaption(props.config.mode, props.profileCaption)}
-      />
-    </Box>
+      <p class="text textCaption">
+        {feedModeCaption(props.config.mode, props.profileCaption)}
+      </p>
+    </div>
   );
 }
 
@@ -87,18 +84,15 @@ function PuzzleFeedHistorySection(props: {
     { key: 'failed', label: t`Failed` },
   ];
   return (
-    <Box sx={{ gap: 2 }}>
-      <Text variant="label" label={t`Play history`} />
+    <div class="box gap-2">
+      <label class="text textLabel">{t`Play history`}</label>
       <SegmentedControl
         segments={segments}
         selected={props.historyFilter}
         onSelect={props.onSelect}
       />
-      <Text
-        variant="caption"
-        label={t`Filter by puzzles you have never seen, already seen, or failed.`}
-      />
-    </Box>
+      <p class="text textCaption">{t`Filter by puzzles you have never seen, already seen, or failed.`}</p>
+    </div>
   );
 }
 
@@ -136,7 +130,7 @@ function PuzzleFeedRatingSection(props: {
 }): JSX.Element {
   if (props.config.mode === 'auto') {
     return (
-      <Box sx={{ gap: 2 }}>
+      <div class="box gap-2">
         <NumberStepper
           label={t`Rating offset`}
           value={props.config.autoOffset}
@@ -145,11 +139,10 @@ function PuzzleFeedRatingSection(props: {
           max={PUZZLE_FEED_AUTO_OFFSET_MAX}
           step={PUZZLE_FEED_AUTO_OFFSET_STEP}
         />
-        <Text
-          variant="caption"
-          label={<Trans>Target rating: {props.targetRating}</Trans>}
-        />
-      </Box>
+        <p class="text textCaption">
+          {<Trans>Target rating: {props.targetRating}</Trans>}
+        </p>
+      </div>
     );
   }
   return (
@@ -235,19 +228,18 @@ export function ChessPuzzleFeedSettingsModal(
       presentation="modal"
     >
       <ModalBody>
-        <Box sx={{ gap: 4 }}>
-          <Text
-            variant="caption"
-            label={
+        <div class="box gap-4">
+          <p class="text textCaption">
+            {
               <Trans>
                 {pool.matched} matching · {pool.total} local puzzles
               </Trans>
             }
-          />
-          <Box sx={{ gap: 1 }}>
-            <Text variant="label" label={t`Your rating`} />
-            <Text variant="bodyBold" label={profileCaption} />
-          </Box>
+          </p>
+          <div class="box gap-1">
+            <label class="text textLabel">{t`Your rating`}</label>
+            <p class="text textBodyBold">{profileCaption}</p>
+          </div>
           <PuzzleFeedModeSection
             config={config()}
             profileCaption={profileCaption}
@@ -267,7 +259,7 @@ export function ChessPuzzleFeedSettingsModal(
             themes={config().themes}
             onChange={onChangeThemes}
           />
-        </Box>
+        </div>
       </ModalBody>
       <ModalFooter>
         <ModalButton label={t`Done`} onClick={onDone} />

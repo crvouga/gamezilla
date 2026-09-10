@@ -1,6 +1,6 @@
 import { useTimers } from '@pkgs/clock/solid';
 import type { AttributionHit, ParticipantColor } from '@pkgs/collab';
-import { Box, type ComponentDataSet, componentDataAttrs } from '@pkgs/ui';
+import { type ComponentDataSet, componentDataAttrs } from '@pkgs/ui';
 import {
   createEffect,
   createSignal,
@@ -42,27 +42,24 @@ export function AttributionHighlight(
     return typeof value === 'string' ? value : value.css;
   };
   return (
-    <Box
+    <div
+      class="box relative"
       {...componentDataAttrs('AttributionHighlight', props.dataSet)}
-      sx={{ position: 'relative' }}
     >
       {props.children}
       <Show when={color()}>
         {(ringColor) => (
-          <Box
-            sx={{
-              pointerEvents: 'none',
-              absoluteFill: true,
-              borderRadius: props.borderRadius ?? 8,
-              borderWidth: props.borderWidth ?? 2,
-              borderColor: ringColor(),
+          <div
+            class="box pointer-events-none absolute inset-0 [transition-property:opacity] [transition-duration:1.2s]"
+            style={{
+              'border-radius': `${props.borderRadius ?? 8}px`,
+              'border-color': ringColor(),
+              'border-width': `${props.borderWidth ?? 2}px`,
               opacity: ringOn() ? 1 : 0,
-              transitionProperty: 'opacity',
-              transitionDuration: '1.2s',
             }}
           />
         )}
       </Show>
-    </Box>
+    </div>
   );
 }

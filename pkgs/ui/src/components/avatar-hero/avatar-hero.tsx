@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `AvatarHero` -- centered large avatar stage with optional corner action.
  *
@@ -8,10 +9,7 @@
 
 import type { LocalizedString } from '@pkgs/i18n';
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Center } from '../center';
-import { Clickable } from '../clickable';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type AvatarHeroAction = {
   onClick: () => void;
@@ -37,44 +35,42 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
   const slotSize = () => props.size + ACTION_INSET * 2;
 
   return (
-    <Center
-      dataSet={{ component: 'AvatarHero', ...props.dataSet }}
-      sx={{ py: 2, minHeight: slotSize() + 16 }}
+    <div
+      class="box items-center justify-center py-2"
+      {...dataAttrs({ component: 'AvatarHero', ...props.dataSet })}
+      style={{ 'min-height': cssPx(slotSize() + 16) }}
     >
-      <Box sx={{ width: slotSize(), height: slotSize() }}>
-        <Center
-          sx={{ width: props.size, height: props.size, alignSelf: 'center' }}
+      <div
+        class="box"
+        style={{ width: cssPx(slotSize()), height: cssPx(slotSize()) }}
+      >
+        <div
+          class="box items-center justify-center self-center"
+          style={{ width: cssPx(props.size), height: cssPx(props.size) }}
         >
           {props.children}
-        </Center>
+        </div>
         <Show when={props.action}>
           {(action) => (
-            <Clickable
+            <button
+              class="clickable clickableTint absolute right-[0] bottom-[0] rounded-[9999px] border border-border bg-surface items-center justify-center"
+              type="button"
+              style={{
+                width: cssPx(ACTION_SIZE),
+                height: cssPx(ACTION_SIZE),
+                'min-width': cssPx(ACTION_SIZE),
+                'min-height': cssPx(ACTION_SIZE),
+                opacity: action().disabled === true ? 0.5 : 1,
+              }}
               aria-label={action().label}
               disabled={action().disabled === true}
               onClick={() => action().onClick()}
-              sx={{
-                position: 'absolute',
-                right: 0,
-                bottom: 0,
-                width: ACTION_SIZE,
-                height: ACTION_SIZE,
-                minWidth: ACTION_SIZE,
-                minHeight: ACTION_SIZE,
-                borderRadius: 'full',
-                borderWidth: 1,
-                borderColor: 'border',
-                backgroundColor: 'surface',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: action().disabled === true ? 0.5 : 1,
-              }}
             >
               {action().icon}
-            </Clickable>
+            </button>
           )}
         </Show>
-      </Box>
-    </Center>
+      </div>
+    </div>
   );
 }

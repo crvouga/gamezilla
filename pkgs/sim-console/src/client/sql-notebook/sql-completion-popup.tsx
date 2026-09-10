@@ -1,4 +1,4 @@
-import { Badge, Box, Clickable, Text } from '@pkgs/ui';
+import { Badge } from '@pkgs/ui';
 import type { Accessor } from 'solid-js';
 import { For, type JSX } from 'solid-js';
 
@@ -11,16 +11,9 @@ export function SqlCompletionPopup(props: {
   readonly onHover: (index: number) => void;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        borderWidth: 1,
-        borderColor: 'outline',
-        borderRadius: 'md',
-        background: 'surface',
-        maxHeight: 180,
-        overflow: 'hidden',
-      }}
-      dataSet={{ component: 'SqlCompletionPopup' }}
+    <div
+      class="box border border-outline rounded-[10px] bg-surface max-h-[180px] overflow-hidden"
+      data-component="SqlCompletionPopup"
     >
       <For each={props.result.candidates}>
         {(candidate, index) => (
@@ -32,7 +25,7 @@ export function SqlCompletionPopup(props: {
           />
         )}
       </For>
-    </Box>
+    </div>
   );
 }
 
@@ -44,24 +37,17 @@ function CompletionRow(props: {
 }): JSX.Element {
   const { candidate, selected, onPress, onHover } = props;
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint flex-row items-center gap-2 px-2 py-1"
+      style={{ background: selected ? 'tintSubtle' : 'transparent' }}
+      type="button"
       onClick={onPress}
       onMouseEnter={onHover}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        px: 2,
-        py: 1,
-        background: selected ? 'tintSubtle' : 'transparent',
-      }}
     >
-      <Text
-        variant="mono"
-        sx={{ flex: 1, fontSize: 12, color: 'text' }}
-        label={candidate.label}
-      />
+      <code class="text textMono flex-1 text-[12px] text-text">
+        {candidate.label}
+      </code>
       <Badge label={candidate.kind} intent="neutral" size="sm" />
-    </Clickable>
+    </button>
   );
 }

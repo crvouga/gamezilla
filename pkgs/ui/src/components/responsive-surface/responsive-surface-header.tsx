@@ -6,10 +6,8 @@
 
 import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
 import { CloseIconButton } from '../close-icon-button';
 import { useModalTitleId } from '../modal/modal-title-id';
-import { Text } from '../text';
 
 export type ResponsiveSurfaceHeaderProps = {
   /** When omitted, the row is close-only (X top-right). */
@@ -29,29 +27,20 @@ export function ResponsiveSurfaceHeader(
   const titleId = useModalTitleId();
   const hasTitle = (): boolean => hasSurfaceTitle(props.title);
   return (
-    <Box
-      dataSet={{ component: 'ResponsiveSurfaceHeader' }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: hasTitle() ? 'space-between' : 'flex-end',
-        mb: 3,
-        gap: 2,
-      }}
+    <div
+      class="box flex-row items-center mb-3 gap-2"
+      data-component="ResponsiveSurfaceHeader"
+      style={{ 'justify-content': hasTitle() ? 'space-between' : 'flex-end' }}
     >
       <Show when={hasTitle()}>
-        <Text
-          id={titleId}
-          variant="subtitle"
-          label={props.title}
-          numberOfLines={1}
-          sx={{ flex: 1, mr: 2 }}
-        />
+        <h2 class="text textSubtitle line-clamp-1 flex-1 mr-2" id={titleId}>
+          {props.title}
+        </h2>
       </Show>
       <CloseIconButton
         onClick={() => props.onClose()}
         dataSet={props.closeDataSet}
       />
-    </Box>
+    </div>
   );
 }

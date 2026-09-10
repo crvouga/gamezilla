@@ -3,7 +3,6 @@ import { useTimers } from '@pkgs/clock/solid';
 import type { JSX } from 'solid-js';
 import { useMutationButton } from '../button/use-mutation-button';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
 import { FloatingActionButton } from './floating-action-button';
 
 const DEMO_MS = 900;
@@ -34,16 +33,16 @@ function FabDemo(): JSX.Element {
   });
 
   return (
-    <Stack direction="horizontal" spacing={4} align="center">
+    <div class="box flex-row gap-4 items-center">
       <FloatingActionButton {...succeed.fabProps} />
       <FloatingActionButton {...fail.fabProps} />
-    </Stack>
+    </div>
   );
 }
 
 export default function FloatingActionButtonExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ minHeight: 200 }}>
+    <ExampleRoot class="min-h-[200px]">
       <FabDemo />
     </ExampleRoot>
   );

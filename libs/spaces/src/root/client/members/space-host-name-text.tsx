@@ -1,5 +1,5 @@
 import { UserUsername } from '@libs/profile/public/user-username';
-import type { SxProps, TextVariant } from '@pkgs/ui';
+import type { TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
@@ -7,7 +7,7 @@ import { useSpaceHostMembershipDisplay } from './use-space-host-membership-displ
 export type SpaceHostNameTextProps = {
   spaceId: string;
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -18,7 +18,7 @@ export function SpaceHostNameText(props: SpaceHostNameTextProps): JSX.Element {
       profileId={host()?.profileId ?? null}
       withAt={false}
       variant={props.variant}
-      sx={props.sx}
+      class={props.class}
       numberOfLines={props.numberOfLines}
     />
   );

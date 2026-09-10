@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `MainMenuScreen` -- centered, card-based main menu: optional
  * title / subtitle / helper, a vertical stack of card rows, and an optional
@@ -18,9 +19,7 @@
  */
 
 import { For, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
-import { Text } from '../text';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { type MainMenuItem, MainMenuItemRow } from './main-menu-item-row';
 import { MainMenuScreenHeader } from './main-menu-screen-header';
 
@@ -51,38 +50,29 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
     ...(props.screenId !== undefined ? { screen: props.screenId } : {}),
   });
   return (
-    <Box
-      dataSet={dataSet()}
-      sx={{
-        px: 4,
-        pb: 8,
-        pt: 4,
-        gap: 4,
-        alignSelf: 'center',
-        width: '100%',
-        maxWidth: MAIN_MENU_SCREEN_MAX_WIDTH,
-      }}
+    <div
+      class="box px-4 pb-8 pt-4 gap-4 self-center w-[100%]"
+      {...dataAttrs(dataSet())}
+      style={{ 'max-width': cssPx(MAIN_MENU_SCREEN_MAX_WIDTH) }}
     >
       <MainMenuScreenHeader title={props.title} subtitle={props.subtitle} />
       <Show when={props.helper}>
-        <Text
-          variant="body"
-          sx={{ color: 'textSecondary', textAlign: 'center', opacity: 0.75 }}
-          label={props.helper}
-        />
+        <p class="text text-text-secondary text-center opacity-75">
+          {props.helper}
+        </p>
       </Show>
-      <Box role="list" sx={{ alignSelf: 'stretch', gap: 2 }}>
+      <div class="box self-stretch gap-2" role="list">
         <For each={props.items}>
           {(item) => (
-            <Box role="listitem">
+            <div class="box" role="listitem">
               <MainMenuItemRow item={item} />
-            </Box>
+            </div>
           )}
         </For>
-      </Box>
+      </div>
       <Show when={props.footer}>
-        <Box sx={{ mt: 2 }}>{props.footer}</Box>
+        <div class="box mt-2">{props.footer}</div>
       </Show>
-    </Box>
+    </div>
   );
 }

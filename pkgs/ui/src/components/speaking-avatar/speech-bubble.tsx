@@ -21,9 +21,7 @@
 
 import { type JSX, Show } from 'solid-js';
 import { useThemeTokens } from '../../theme';
-import { Box } from '../box';
-import { Text } from '../text';
-import styles from './speaking-avatar.module.css';
+import { joinClass } from '../box/box';
 import { TypingDots } from './typing-dots';
 
 const TAIL_SIZE = 12;
@@ -62,49 +60,55 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
   return (
     <Show when={{ text: props.text }} keyed>
       {(_keyed) => (
-        <Box
-          class={styles['bubbleEnter']}
+        <div
+          class={joinClass('box', 'flex-1 flex-row items-center')}
           data-component="SpeechBubble"
-          sx={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}
         >
-          <Box
-            aria-hidden="true"
-            sx={{
-              width: TAIL_SIZE,
-              height: TAIL_SIZE,
-              backgroundColor: 'surfaceElevated',
-              transform: [{ rotate: '45deg' }],
-              marginRight: -TAIL_SIZE / 2,
+          <div
+            class="box bg-surface-elevated [transform:rotate(45deg)]"
+            style={{
+              width: `${TAIL_SIZE}px`,
+              height: `${TAIL_SIZE}px`,
+              'margin-right': `${-TAIL_SIZE / 2}px`,
             }}
+            aria-hidden="true"
           />
-          <Box
-            sx={{
-              flex: 1,
-              backgroundColor: 'surfaceElevated',
-              borderRadius: 'md',
-              paddingVertical: BUBBLE_PADDING_VERTICAL,
-              paddingHorizontal: BUBBLE_PADDING_HORIZONTAL,
-              height: bubbleHeight(),
-              justifyContent: 'center',
-              ...(lift.boxShadow ? { boxShadow: lift.boxShadow } : {}),
+          <div
+            class="box flex-1 bg-surface-elevated rounded-[10px] justify-center"
+            style={{
+              ...(lift.boxShadow ? { 'box-shadow': lift.boxShadow } : {}),
+              ...(lift.backgroundColor
+                ? { 'background-color': lift.backgroundColor }
+                : {}),
+              'padding-top': `${BUBBLE_PADDING_VERTICAL}px`,
+              'padding-bottom': `${BUBBLE_PADDING_VERTICAL}px`,
+              'padding-left': `${BUBBLE_PADDING_HORIZONTAL}px`,
+              'padding-right': `${BUBBLE_PADDING_HORIZONTAL}px`,
+              height: `${bubbleHeight()}px`,
             }}
           >
             {props.header}
             <Show
               when={props.loading === true}
               fallback={
-                <Text
-                  variant="bodyBold"
-                  numberOfLines={lines()}
-                  sx={{ color: 'text', lineHeight: BUBBLE_LINE_HEIGHT }}
-                  label={props.text}
-                />
+                <p
+                  class="text textBodyBold text-text"
+                  style={{
+                    'line-height': `${BUBBLE_LINE_HEIGHT}px`,
+                    display: '-webkit-box',
+                    '-webkit-box-orient': 'vertical',
+                    '-webkit-line-clamp': lines(),
+                    overflow: 'hidden',
+                  }}
+                >
+                  {props.text}
+                </p>
               }
             >
               <TypingDots color="textSecondary" height={BUBBLE_LINE_HEIGHT} />
             </Show>
-          </Box>
-        </Box>
+          </div>
+        </div>
       )}
     </Show>
   );

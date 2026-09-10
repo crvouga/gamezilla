@@ -1,4 +1,4 @@
-import { Box, Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
+import { Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
 import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
 
 import type { SimConsolePorts } from '../shared/ports';
@@ -28,7 +28,7 @@ const DEFAULT_REPORTS_PUBLIC_BASE = '/reports';
 
 const sectionFillSx = {
   flex: 1,
-  minHeight: 0,
+  'min-height': 0,
   background: 'background',
 } as const;
 
@@ -108,25 +108,31 @@ export function SimConsoleApp(props: {
           ? { store: props.ports.notebookStore }
           : {})}
       >
-        <Box sx={appShellSx}>
+        <div class="box" style={appShellSx}>
           <TabStrip
             aria-label="Console sections"
             items={[...SECTIONS]}
             selectedId={props.section}
             onSelect={(id) => props.onSectionChange(id as ConsoleSection)}
           />
-          <Box sx={{ flex: 1, minHeight: 0, background: 'background' }}>
+          <div class="box flex-1 min-h-[0] bg-background">
             {reportsVisited() ? (
-              <Box sx={sectionVisibilitySx(props.section === 'reports')}>
+              <div
+                class="box"
+                style={sectionVisibilitySx(props.section === 'reports')}
+              >
                 <ReportsSection
                   api={api()}
                   nav={props.reports}
                   onNav={props.onReportsNav}
                 />
-              </Box>
+              </div>
             ) : null}
             {playgroundPinned() ? (
-              <Box sx={sectionVisibilitySx(props.section === 'playground')}>
+              <div
+                class="box"
+                style={sectionVisibilitySx(props.section === 'playground')}
+              >
                 <PlaygroundScreen
                   state={session.state}
                   kind={props.kind}
@@ -137,10 +143,10 @@ export function SimConsoleApp(props: {
                   onPanePatch={props.onPanePatch}
                   onReload={session.reboot}
                 />
-              </Box>
+              </div>
             ) : null}
-          </Box>
-        </Box>
+          </div>
+        </div>
       </NotebookStoreProvider>
     </ClientLayoutPreferenceProvider>
   );

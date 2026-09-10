@@ -11,7 +11,6 @@ import {
   ON_DARK,
   OnColorProvider,
   type OnColorSet,
-  type SxInput,
   useThemeTokens,
 } from '../../theme';
 import { joinClass } from '../box/box';
@@ -20,10 +19,8 @@ import { type GradientPoint, linearGradientCss } from './gradient-css';
 
 export type GradientBoxProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
-  'style' | 'children'
+  'children'
 > & {
-  /** Utility-first style shorthand (padding, radius, flex — not solid fills). */
-  sx?: SxInput | undefined;
   /** At least two colors. Defaults to the theme primary gradient. */
   colors?: readonly [string, string, ...string[]] | undefined;
   /** Normalized 0–1; default horizontal left → right. */
@@ -36,35 +33,42 @@ export type GradientBoxProps = Omit<
   onColor?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
-  class?: string | undefined;
   children?: JSX.Element | undefined;
 };
 
 const DEFAULT_START: GradientPoint = { x: 0, y: 0.5 };
 const DEFAULT_END: GradientPoint = { x: 1, y: 0.5 };
 
+const BACKGROUND_IMAGE_PREFIX = 'background-image:';
+
 export function GradientBox(props: GradientBoxProps): JSX.Element {
   const tokens = useThemeTokens();
   const [local, rest] = splitProps(props, [
-    'sx',
     'colors',
     'start',
     'end',
     'onColor',
     'dataSet',
     'class',
+    'style',
     'children',
   ]);
   const colors = (): readonly string[] =>
     local.colors ?? [tokens.colors.tintHover, tokens.colors.tintActive];
-  const style = createMemo(() => {
-    const base = tokens.css(local.sx);
-    const gradient = linearGradientCss(
+  const style = createMemo((): JSX.CSSProperties | string => {
+    const gradientDecl = linearGradientCss(
       colors(),
       local.start ?? DEFAULT_START,
       local.end ?? DEFAULT_END
     );
-    return base === '' ? gradient : `${base}${gradient}`;
+    if (local.style === undefined || local.style === '') return gradientDecl;
+    if (typeof local.style === 'string') {
+      return `${local.style};${gradientDecl}`;
+    }
+    const image = gradientDecl.startsWith(BACKGROUND_IMAGE_PREFIX)
+      ? gradientDecl.slice(BACKGROUND_IMAGE_PREFIX.length)
+      : gradientDecl;
+    return { ...local.style, 'background-image': image };
   });
   const onColor = createMemo(
     (): OnColorSet =>

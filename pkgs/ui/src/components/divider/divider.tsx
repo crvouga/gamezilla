@@ -2,8 +2,7 @@
 /** `Divider` -- 1px separator line, horizontal or vertical. */
 
 import { type JSX, splitProps } from 'solid-js';
-import type { SxProps } from '../../theme';
-import { Box, type BoxProps } from '../box';
+import { Box, type BoxProps, joinClass } from '../box';
 
 export type DividerProps = BoxProps & {
   /** Orientation. Defaults to `"horizontal"`. */
@@ -11,16 +10,17 @@ export type DividerProps = BoxProps & {
 };
 
 export function Divider(props: DividerProps): JSX.Element {
-  const [local, rest] = splitProps(props, ['orientation', 'sx', 'dataSet']);
-  const lineSx = (): SxProps =>
-    (local.orientation ?? 'horizontal') === 'horizontal'
-      ? { width: '100%', borderBottomWidth: 'hairline' }
-      : { height: '100%', borderLeftWidth: 1 };
+  const [local, rest] = splitProps(props, ['orientation', 'class', 'dataSet']);
+  const horizontal = (local.orientation ?? 'horizontal') === 'horizontal';
   return (
     <Box
       role="separator"
       aria-orientation={local.orientation ?? 'horizontal'}
-      sx={[lineSx(), { borderColor: 'border', borderStyle: 'solid' }, local.sx]}
+      class={joinClass(
+        'border-border border-solid',
+        horizontal ? 'w-full border-b' : 'h-full border-l',
+        local.class
+      )}
       dataSet={{ component: 'Divider', ...local.dataSet }}
       {...rest}
     />

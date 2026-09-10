@@ -10,8 +10,6 @@ import {
   PaintbrushIcon,
   WifiIcon,
 } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { CommandPalette } from './command-palette';
 import { CommandRegistryProvider } from './command-registry-context';
 import { RegisterCommand } from './register-command';
@@ -98,20 +96,18 @@ export default function CommandPaletteExample(): JSX.Element {
     <CommandRegistryProvider enableDefaultShortcuts={false}>
       <DemoCommands onIncrement={() => setCount((c) => c + 1)} />
       <ExampleRoot>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label="Open via the button below. In the app shell use ⌘K / ⌘⇧P (global shortcuts are disabled in this isolated example)."
-        />
-        <Stack spacing={2}>
-          <Text variant="bodyBold" label={`Counter: ${count()}`} />
+        <p class="text textCaption text-text-secondary">
+          {
+            'Open via the button below. In the app shell use ⌘K / ⌘⇧P (global shortcuts are disabled in this isolated example).'
+          }
+        </p>
+        <div class="box flex-col gap-2">
+          <p class="text textBodyBold">{`Counter: ${count()}`}</p>
           <OpenPaletteButton />
-        </Stack>
-        <Text
-          variant="caption"
-          sx={{ color: 'textSecondary' }}
-          label="↑ ↓ navigate · Enter run · Esc close · Tab next"
-        />
+        </div>
+        <p class="text textCaption text-text-secondary">
+          {'↑ ↓ navigate · Enter run · Esc close · Tab next'}
+        </p>
       </ExampleRoot>
       <CommandPalette />
     </CommandRegistryProvider>

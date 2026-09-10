@@ -11,10 +11,8 @@
  */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { resolveColor, useThemeTokens } from '../../theme';
-import { Box } from '../box';
-import { Text } from '../text';
 
 export type AppLogoProps = {
   /** Pixel size of the mark (the wordmark scales proportionally). Defaults to 28. */
@@ -36,26 +34,22 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
     resolveColor(props.color, tokens.colors) ?? tokens.colors.tint;
   const fontSize = () => Math.round(size() * WORDMARK_HEIGHT_RATIO);
   return (
-    <Box
-      dataSet={{ component: 'AppLogo', ...props.dataSet }}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Math.max(1, Math.round(size() * 0.25) / 4),
-      }}
+    <div
+      class="box flex-row items-center"
+      {...dataAttrs({ component: 'AppLogo', ...props.dataSet })}
+      style={{ gap: `${Math.max(1, Math.round(size() * 0.25) / 4) * 4}px` }}
     >
-      <Text
-        as="h1"
-        sx={{
+      <h1
+        class="text font-extrabold tracking-[-0.5px]"
+        style={{
           color: fill(),
-          fontFamily: tokens.fonts.rounded,
-          fontSize: fontSize(),
-          fontWeight: '800',
-          letterSpacing: -0.5,
-          lineHeight: Math.round(fontSize() * 1.1),
+          'font-size': `${fontSize()}px`,
+          'line-height': `${Math.round(fontSize() * 1.1)}px`,
+          'font-family': tokens.fonts.rounded,
         }}
-        label="gamezilla"
-      />
-    </Box>
+      >
+        {'gamezilla'}
+      </h1>
+    </div>
   );
 }

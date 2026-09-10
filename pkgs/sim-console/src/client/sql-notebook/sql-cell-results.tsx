@@ -1,11 +1,9 @@
 import { asLocalized } from '@pkgs/i18n';
 import {
-  Box,
   createMemoryPageLoader,
   DataTable,
   type DataTableColumn,
   OverflowMenuButton,
-  Text,
 } from '@pkgs/ui';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
@@ -22,16 +20,13 @@ export function SqlCellResults(props: {
     <Show
       when={props.error() == null}
       fallback={
-        <Box sx={{ px: 2, py: 1 }}>
-          <Text
-            sx={{ color: 'destructive', fontSize: 12 }}
-            label={props.error()}
-          />
-        </Box>
+        <div class="box px-2 py-1">
+          <p class="text text-destructive text-[12px]">{props.error()}</p>
+        </div>
       }
     >
       <Show when={props.results().length > 0}>
-        <Box sx={{ gap: 1, borderTopWidth: 1, borderColor: 'outline' }}>
+        <div class="box gap-1 border-t border-outline">
           <ResultsHeader
             results={props.results}
             durationMs={props.durationMs}
@@ -41,7 +36,7 @@ export function SqlCellResults(props: {
           <Show when={!collapsed()}>
             <ResultsList results={props.results} />
           </Show>
-        </Box>
+        </div>
       </Show>
     </Show>
   );
@@ -55,19 +50,8 @@ function ResultsHeader(props: {
 }): JSX.Element {
   const status = () => summarize(props.results(), props.durationMs());
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        px: 2,
-        py: 0.5,
-      }}
-    >
-      <Text
-        sx={{ flex: 1, fontSize: 11, color: 'textSecondary' }}
-        label={status()}
-      />
+    <div class="box flex-row items-center gap-1 px-2 py-0.5">
+      <p class="text flex-1 text-[11px] text-text-secondary">{status()}</p>
       <OverflowMenuButton
         size={24}
         header={{ title: 'Results' }}
@@ -95,7 +79,7 @@ function ResultsHeader(props: {
           },
         ]}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -118,12 +102,9 @@ function StatementResult(props: {
   const { result, index } = props;
   if (result.kind === 'changes') {
     return (
-      <Box sx={{ px: 2, py: 1 }}>
-        <Text
-          sx={{ fontSize: 12, color: 'success' }}
-          label={`#${index + 1} · ${result.changes} change${result.changes === 1 ? '' : 's'}`}
-        />
-      </Box>
+      <div class="box px-2 py-1">
+        <p class="text text-[12px] text-success">{`#${index + 1} · ${result.changes} change${result.changes === 1 ? '' : 's'}`}</p>
+      </div>
     );
   }
   return <RowsResult result={result} index={index} />;
@@ -138,18 +119,13 @@ function RowsResult(props: {
   const loadPage = createMemo(() => createMemoryPageLoader(() => result.rows));
   const note = result.truncated ? ` (truncated at ${result.rows.length})` : '';
   return (
-    <Box sx={{ gap: 0.5, minHeight: 0 }}>
-      <Text
-        sx={{ px: 2, fontSize: 11, color: 'textSecondary' }}
-        label={`#${index + 1} · ${result.rows.length} row${result.rows.length === 1 ? '' : 's'}${note}`}
-      />
+    <div class="box gap-0.5 min-h-[0]">
+      <p class="text px-2 text-[11px] text-text-secondary">{`#${index + 1} · ${result.rows.length} row${result.rows.length === 1 ? '' : 's'}${note}`}</p>
       {result.columns.length === 0 ? (
-        <Text
-          sx={{ px: 2, py: 1, fontSize: 12, color: 'textSecondary' }}
-          label="0 rows"
-        />
+        <p class="text px-2 py-1 text-[12px] text-text-secondary">{'0 rows'}</p>
       ) : (
         <DataTable
+          class="border-0 rounded-none max-h-[240px]"
           columns={columns()}
           loadPage={loadPage()}
           getRowId={(_row, i) => `${index}-${i}`}
@@ -157,10 +133,9 @@ function RowsResult(props: {
           pageSize={50}
           emptyTitle="0 rows"
           density="compact"
-          sx={{ borderWidth: 0, borderRadius: 'none', maxHeight: 240 }}
         />
       )}
-    </Box>
+    </div>
   );
 }
 

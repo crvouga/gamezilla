@@ -1,6 +1,6 @@
 import { useClock } from '@pkgs/clock/solid';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { Box, ErrorState, LoadingState, ScrollView } from '@pkgs/ui';
+import { ErrorState, LoadingState, ScrollView } from '@pkgs/ui';
 import { useCreateId } from '@pkgs/uuid/solid';
 import {
   type Accessor,
@@ -75,17 +75,17 @@ export function SqlNotebookPane(props: {
   };
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }}>
+    <div class="box flex-1 min-h-[0]">
       <Switch>
         <Match when={state().status === 'loading'}>
-          <Box sx={fillSx}>
+          <div class="box" style={fillSx}>
             <LoadingState variant="compact" caption="Loading notebook…" />
-          </Box>
+          </div>
         </Match>
         <Match when={errorMessage() != null}>
-          <Box sx={fillSx}>
+          <div class="box" style={fillSx}>
             <ErrorState title="Notebook error" body={errorMessage() ?? ''} />
-          </Box>
+          </div>
         </Match>
       </Switch>
       <Show when={readyDoc()}>
@@ -103,15 +103,15 @@ export function SqlNotebookPane(props: {
           />
         )}
       </Show>
-    </Box>
+    </div>
   );
 }
 
 const fillSx = {
   flex: 1,
-  minHeight: 0,
-  padding: 8,
-  gap: 2,
+  'min-height': 0,
+  padding: '32px',
+  gap: '8px',
 } as const;
 
 function ReadyNotebook(props: {
@@ -157,9 +157,9 @@ function ReadyNotebook(props: {
   });
 
   return (
-    <Box
-      sx={{ flex: 1, minHeight: 0, minWidth: 0 }}
-      dataSet={{ component: 'SqlNotebookPane' }}
+    <div
+      class="box flex-1 min-h-[0] min-w-[0]"
+      data-component="SqlNotebookPane"
     >
       <SqlNotebookToolbar dialect={props.dialect} {...actions.toolbar} />
       <NotebookCells
@@ -176,7 +176,7 @@ function ReadyNotebook(props: {
         insertApi={insertApi}
       />
       <SqlSchemaDrawer schema={props.schema} {...actions.schema} />
-    </Box>
+    </div>
   );
 }
 
@@ -261,7 +261,7 @@ function NotebookCells(props: {
 }): JSX.Element {
   const cellIds = createMemo(() => props.doc().cells.map((c) => c.id));
   return (
-    <ScrollView sx={{ gap: 2, padding: 2 }} frameSx={{ flex: 1, minHeight: 0 }}>
+    <ScrollView class="flex-1 min-h-[0]" contentClass="gap-2 p-[2px]">
       <For each={cellIds()}>
         {(id) => {
           const cell = () =>

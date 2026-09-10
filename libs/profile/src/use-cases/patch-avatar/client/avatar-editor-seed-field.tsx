@@ -2,7 +2,6 @@ import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
 import {
-  Box,
   CircleCheckIcon,
   CopyIcon,
   IconButton,
@@ -36,8 +35,8 @@ export function AvatarEditorSeedField(props: {
 
   return (
     <PickerSection label={<Trans>Seed</Trans>}>
-      <Box sx={{ flexDirection: 'row', gap: 2, alignItems: 'flex-end' }}>
-        <Box sx={{ flex: 1 }}>
+      <div class="box flex-row gap-2 items-end">
+        <div class="box flex-1">
           <TextInput
             value={props.seed}
             onChangeText={props.onSeedChange}
@@ -47,7 +46,7 @@ export function AvatarEditorSeedField(props: {
             disabled={props.disabled === true}
             dataSet={{ testid: Handles.profileAvatarSeed }}
           />
-        </Box>
+        </div>
         <IconButton
           size={44}
           background="surface"
@@ -66,7 +65,7 @@ export function AvatarEditorSeedField(props: {
         >
           {copied() ? <CircleCheckIcon size={20} /> : <CopyIcon size={20} />}
         </IconButton>
-      </Box>
+      </div>
     </PickerSection>
   );
 }

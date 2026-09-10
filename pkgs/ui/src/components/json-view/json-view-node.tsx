@@ -11,12 +11,9 @@
 import { useLingui } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
-import type { ColorTokenName } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { type ColorTokenName, colorVar } from '../../theme';
+import { joinClass } from '../box/box';
 import { ChevronRightIcon, CopyIcon } from '../icons';
-import { Text } from '../text';
-import styles from './json-view.module.css';
 import {
   classifyValue,
   containerBrackets,
@@ -70,7 +67,11 @@ export function JsonViewNode(props: JsonViewNodeProps): JSX.Element {
   const expandable = () => isContainer(kind());
   const expanded = () => expandable() && props.isExpanded(props.path);
   return (
-    <Box role="treeitem" aria-expanded={expandable() ? expanded() : undefined}>
+    <div
+      class="box"
+      role="treeitem"
+      aria-expanded={expandable() ? expanded() : undefined}
+    >
       <NodeRow
         nodeKey={props.nodeKey}
         value={props.value}
@@ -94,8 +95,21 @@ export function JsonViewNode(props: JsonViewNodeProps): JSX.Element {
           copy={props.copy}
         />
       </Show>
-    </Box>
+    </div>
   );
+}
+
+function rowStyle(depth: number): JSX.CSSProperties {
+  return {
+    'flex-direction': 'row',
+    'align-items': 'flex-start',
+    'padding-top': `${ROW_PAD_Y}px`,
+    'padding-bottom': `${ROW_PAD_Y}px`,
+    'padding-left': `${depth * INDENT_PX}px`,
+    gap: '4px',
+    'flex-grow': 1,
+    'min-width': 0,
+  };
 }
 
 function NodeRow(props: {
@@ -108,15 +122,6 @@ function NodeRow(props: {
   onToggle: () => void;
   copy: JsonViewCopy | undefined;
 }): JSX.Element {
-  const rowSx = () => ({
-    flexDirection: 'row' as const,
-    alignItems: 'flex-start' as const,
-    paddingVertical: ROW_PAD_Y,
-    paddingLeft: props.depth * INDENT_PX,
-    gap: 1,
-    flexGrow: 1,
-    minWidth: 0,
-  });
   const content = () => (
     <>
       <Chevron expandable={props.expandable} expanded={props.expanded} />
@@ -130,24 +135,29 @@ function NodeRow(props: {
     </>
   );
   return (
-    <Box sx={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+    <div class="box flex-row items-start">
       <Show
         when={props.expandable}
-        fallback={<Box sx={rowSx()}>{content()}</Box>}
+        fallback={
+          <div class="box" style={rowStyle(props.depth)}>
+            {content()}
+          </div>
+        }
       >
-        <Clickable
+        <button
+          class="clickable text-left"
+          type="button"
+          style={rowStyle(props.depth)}
           onClick={() => props.onToggle()}
           aria-expanded={props.expanded}
-          feedback="none"
-          sx={[rowSx(), { textAlign: 'left' }]}
         >
           {content()}
-        </Clickable>
+        </button>
       </Show>
       <Show when={props.copy}>
         {(copy) => <CopyValueButton value={props.value} copy={copy()} />}
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -162,7 +172,7 @@ function NodeChildren(props: {
 }): JSX.Element {
   const entries = createMemo(() => entriesOf(props.value, props.kind));
   return (
-    <Box role="group">
+    <div class="box" role="group">
       <For each={entries()}>
         {([childKey, childValue]) => (
           <JsonViewNode
@@ -176,19 +186,19 @@ function NodeChildren(props: {
           />
         )}
       </For>
-      <Box
-        sx={{
-          paddingLeft: (props.depth + 1) * INDENT_PX,
-          paddingVertical: ROW_PAD_Y,
+      <div
+        class="box"
+        style={{
+          'padding-left': `${(props.depth + 1) * INDENT_PX}px`,
+          'padding-top': `${ROW_PAD_Y}px`,
+          'padding-bottom': `${ROW_PAD_Y}px`,
         }}
       >
-        <Text
-          variant="mono"
-          sx={{ color: 'textSecondary' }}
-          label={containerBrackets(props.kind).close}
-        />
-      </Box>
-    </Box>
+        <code class="text textMono text-text-secondary">
+          {containerBrackets(props.kind).close}
+        </code>
+      </div>
+    </div>
   );
 }
 
@@ -197,19 +207,16 @@ function Chevron(props: {
   expanded: boolean;
 }): JSX.Element {
   return (
-    <Show when={props.expandable} fallback={<Box sx={{ width: 14 }} />}>
-      <Box
-        class={styles['chevron']}
+    <Show when={props.expandable} fallback={<div class="box w-[14px]" />}>
+      <div
+        class={joinClass(
+          'box w-[14px] h-[18px] items-center justify-center',
+          props.expanded && '[transform:rotate(90deg)]'
+        )}
         data-expanded={props.expanded ? 'true' : 'false'}
-        sx={{
-          width: 14,
-          height: 18,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
       >
         <ChevronRightIcon size={10} />
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -224,7 +231,7 @@ function KeyLabel(props: { nodeKey: string | number | null }): JSX.Element {
   };
   return (
     <Show when={props.nodeKey !== null}>
-      <Text variant="mono" sx={{ color: 'text' }} label={label()} />
+      <code class="text textMono text-text">{label()}</code>
     </Show>
   );
 }
@@ -240,46 +247,33 @@ function ValueOrSummary(props: {
     <Show
       when={props.expandable}
       fallback={
-        <Text
-          variant="mono"
-          sx={{ color: VALUE_COLORS[props.kind], flex: 1, minWidth: 0 }}
-          label={formatLeafPreview(props.value, props.kind)}
-        />
+        <code
+          class="text textMono flex-1 min-w-0"
+          style={{ color: colorVar(VALUE_COLORS[props.kind]) }}
+        >
+          {formatLeafPreview(props.value, props.kind)}
+        </code>
       }
     >
       <Show
         when={props.expanded}
         fallback={
-          <Box
-            sx={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              flex: 1,
-              gap: 2,
-              flexWrap: 'wrap',
-            }}
-          >
-            <Text
-              variant="mono"
-              sx={{ color: 'textSecondary' }}
-              label={`${brackets().open}${brackets().close}`}
-            />
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={formatContainerSummary(
+          <div class="box flex-row items-center flex-1 gap-2 flex-wrap">
+            <code class="text textMono text-text-secondary">
+              {`${brackets().open}${brackets().close}`}
+            </code>
+            <p class="text textCaption text-text-secondary">
+              {formatContainerSummary(
                 containerCount(props.value, props.kind),
                 props.kind
               )}
-            />
-          </Box>
+            </p>
+          </div>
         }
       >
-        <Text
-          variant="mono"
-          sx={{ color: 'textSecondary', flex: 1 }}
-          label={brackets().open}
-        />
+        <code class="text textMono text-text-secondary flex-1">
+          {brackets().open}
+        </code>
       </Show>
     </Show>
   );
@@ -291,22 +285,15 @@ function CopyValueButton(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <Clickable
+    <button
+      class="clickable clickableOpacity w-[22px] h-[22px] items-center justify-center opacity-[0.55] shrink-0"
+      type="button"
       aria-label={t`Copy value`}
       onClick={() => {
         void props.copy(stringifyForCopy(props.value));
       }}
-      feedback="opacity"
-      sx={{
-        width: 22,
-        height: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: 0.55,
-        flexShrink: 0,
-      }}
     >
       <CopyIcon size={12} />
-    </Clickable>
+    </button>
   );
 }

@@ -8,11 +8,10 @@
 
 import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { dataAttrs } from '../../component-id';
+import { colorVar } from '../../theme';
 import { CheckIcon } from '../icons';
 import { ScrollView } from '../scroll-view';
-import { Text } from '../text';
 import {
   isTypeAheadKey,
   nextPickerOptionIndex,
@@ -36,7 +35,6 @@ export type PickerOptionsProps<T extends PickerValue> = {
   value: T;
   onPick: (next: T) => void;
   renderOption: PickerRenderOption<T> | undefined;
-  /** Move focus to the selected (or first enabled) option on mount. */
   /** Move focus to the selected (or first enabled) option on mount. */
   focusOnMount: boolean;
   /** Accessible name for the listbox. */
@@ -106,51 +104,36 @@ function DefaultOptionRow<T extends PickerValue>(props: {
 }): JSX.Element {
   const disabled = (): boolean => props.option.disabled === true;
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left"
+      {...dataAttrs({ component: 'PickerOption', ...props.option.dataSet })}
+      type="button"
+      style={{
+        'background-color': props.selected
+          ? colorVar('tintSubtle')
+          : 'transparent',
+        'min-height': `${PICKER_OPTION_MIN_HEIGHT}px`,
+        opacity: disabled() ? 0.4 : 1,
+      }}
       role="option"
       aria-selected={props.selected}
       disabled={disabled()}
       onClick={() => props.onPick()}
-      dataSet={{ component: 'PickerOption', ...props.option.dataSet }}
-      sx={{
-        width: '100%',
-        minHeight: PICKER_OPTION_MIN_HEIGHT,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        textAlign: 'left',
-        opacity: disabled() ? 0.4 : 1,
-        backgroundColor: props.selected ? 'tintSubtle' : 'transparent',
-      }}
     >
       <Show when={props.option.preview !== undefined}>
-        <Box sx={{ flexShrink: 0 }}>{props.option.preview}</Box>
+        <div class="box shrink-0">{props.option.preview}</div>
       </Show>
-      <Text
-        variant="body"
-        numberOfLines={1}
-        sx={{ flex: 1, minWidth: 0 }}
-        label={props.option.label}
-      />
+      <p class="text line-clamp-1 flex-1 min-w-0">{props.option.label}</p>
       <Show when={props.selected}>
         <CheckIcon size={18} color="tint" />
       </Show>
-    </Clickable>
+    </button>
   );
 }
 
 function OptionSeparator(): JSX.Element {
   return (
-    <Box
-      aria-hidden="true"
-      sx={{
-        borderBottomWidth: 'hairline',
-        borderColor: 'border',
-        marginLeft: 16,
-      }}
-    />
+    <div class="box border-b border-border ml-[16px]" aria-hidden="true" />
   );
 }
 
@@ -162,20 +145,21 @@ function CustomOptionRow<T extends PickerValue>(props: {
   render: PickerRenderOption<T>;
 }): JSX.Element {
   return (
-    <Box
+    <div
+      class="box min-w-0"
+      {...dataAttrs({ component: 'PickerOption', ...props.option.dataSet })}
+      style={
+        props.selected && props.option.disabled !== true
+          ? { 'background-color': colorVar('tintSubtle') }
+          : undefined
+      }
       role="option"
       tabIndex={-1}
       aria-selected={props.selected}
       aria-disabled={props.option.disabled === true ? true : undefined}
-      dataSet={{ component: 'PickerOption', ...props.option.dataSet }}
-      sx={[
-        { minWidth: 0 },
-        props.selected &&
-          props.option.disabled !== true && { backgroundColor: 'tintSubtle' },
-      ]}
     >
       {props.render(props.option, props.selected, props.onPick)}
-    </Box>
+    </div>
   );
 }
 
@@ -206,11 +190,10 @@ export function PickerOptions<T extends PickerValue>(
     }
   });
   return (
-    <ScrollView
-      frameSx={{ maxHeight: PICKER_OPTIONS_MAX_HEIGHT }}
-      sx={{ px: 0 }}
-    >
-      <Box
+    <ScrollView style={{ 'max-height': `${PICKER_OPTIONS_MAX_HEIGHT}px` }}>
+      <div
+        class="box"
+        data-component="PickerOptions"
         ref={(el) => {
           hostEl = el;
         }}
@@ -218,7 +201,6 @@ export function PickerOptions<T extends PickerValue>(
         id={props.id}
         aria-label={props.label}
         onKeyDown={(ev) => onKeyDown(ev.currentTarget, ev)}
-        dataSet={{ component: 'PickerOptions' }}
       >
         <For each={props.options}>
           {(option, index) => (
@@ -248,7 +230,7 @@ export function PickerOptions<T extends PickerValue>(
             </>
           )}
         </For>
-      </Box>
+      </div>
     </ScrollView>
   );
 }

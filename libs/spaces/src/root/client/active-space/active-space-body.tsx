@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { GamesMainMenu } from '../module/games-main-menu';
@@ -44,11 +43,11 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
 
   return (
     <SpaceSessionUiProvider value={sessionUi}>
-      <Box sx={{ flex: 1, minHeight: 0 }}>
+      <div class="box flex-1 min-h-[0]">
         <SpaceActiveLayout>
           <GamesMainMenu />
         </SpaceActiveLayout>
-      </Box>
+      </div>
     </SpaceSessionUiProvider>
   );
 }

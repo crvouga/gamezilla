@@ -2,7 +2,6 @@ import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   AvatarHero,
-  Box,
   Combobox,
   type ComboboxOption,
   ConfirmationModal,
@@ -11,7 +10,6 @@ import {
   PickerSection,
   ScreenBase,
   Skeleton,
-  Text,
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
@@ -159,16 +157,12 @@ function TraitCombobox(props: {
       label: t`Random`,
       searchText: t`Random`,
       preview: (
-        <Box
-          sx={{
-            width: PREVIEW_SIZE,
-            height: PREVIEW_SIZE,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+        <div
+          class="box items-center justify-center"
+          style={{ width: `${PREVIEW_SIZE}px`, height: `${PREVIEW_SIZE}px` }}
         >
-          <Text variant="caption" label={<Trans>?</Trans>} />
-        </Box>
+          <p class="text textCaption">{<Trans>?</Trans>}</p>
+        </div>
       ),
     };
     const variants = props.field.values.map((variant) => ({
@@ -273,7 +267,7 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
   }));
 
   return (
-    <Box sx={{ gap: 2, pb: 4 }}>
+    <div class="box gap-2 pb-4">
       <AvatarHero size={HERO_SIZE}>
         <AvatarPreviewSlot
           ready={props.editor.ready}
@@ -282,7 +276,7 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
         />
       </AvatarHero>
       <Show when={props.editor.ready}>
-        <Box sx={{ gap: 2 }}>
+        <div class="box gap-2">
           <AvatarEditorSeedField
             seed={props.editor.effectiveSeed}
             onSeedChange={props.editor.setSeed}
@@ -290,9 +284,9 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
             onCopy={props.editor.copySeed}
           />
           <StyleAndTraits editor={props.editor} seed={seed()} />
-        </Box>
+        </div>
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -337,10 +331,10 @@ export function AvatarEditorScreen(): JSX.Element {
             }}
           />
         }
-        content={({ sx }) => (
-          <Box sx={sx}>
+        content={({ bodyClass }) => (
+          <div class={`box ${bodyClass}`}>
             <EditorContent editor={editor} />
-          </Box>
+          </div>
         )}
       />
     </>

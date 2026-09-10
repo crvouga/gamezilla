@@ -7,8 +7,8 @@
 
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
+import { spacingScale } from '../../theme';
+import { Box, joinClass } from '../box';
 import { type IconComponent, XIcon } from '../icons';
 import { Spinner } from '../spinner';
 import { Text } from '../text';
@@ -92,13 +92,12 @@ export function coalesceButtonLabel(
   return label;
 }
 
-function rowSx(size: ButtonSizeSpec): SxProps {
-  return {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: size.iconGap,
-  };
+function rowClass(): string {
+  return 'flex-row items-center justify-center';
+}
+
+function rowStyle(size: ButtonSizeSpec): JSX.CSSProperties {
+  return { gap: `${spacingScale(size.iconGap)}px` };
 }
 
 export function ButtonLabelText(props: {
@@ -109,13 +108,12 @@ export function ButtonLabelText(props: {
   return (
     <Text
       variant="bodyBold"
-      sx={{
+      class="tracking-[0.1px] whitespace-nowrap"
+      style={{
         color: props.foregroundColor,
-        fontSize: props.size.text.fontSize,
-        lineHeight: props.size.text.lineHeight,
-        fontWeight: props.size.text.fontWeight,
-        letterSpacing: 0.1,
-        whiteSpace: 'nowrap',
+        'font-size': `${props.size.text.fontSize}px`,
+        'line-height': `${props.size.text.lineHeight}px`,
+        'font-weight': props.size.text.fontWeight,
       }}
       label={props.label}
     />
@@ -125,11 +123,8 @@ export function ButtonLabelText(props: {
 function IconSlot(props: { size: ButtonSizeSpec; children: JSX.Element }) {
   return (
     <Box
-      sx={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: props.size.iconSize,
-      }}
+      class="items-center justify-center"
+      style={{ height: `${props.size.iconSize}px` }}
     >
       {props.children}
     </Box>
@@ -243,14 +238,18 @@ function ButtonFeedbackFace(props: ButtonContentProps): JSX.Element {
  */
 function ButtonFeedbackWidthLock(props: ButtonContentProps): JSX.Element {
   return (
-    <Box sx={[{ position: 'relative' }, rowSx(props.size)]}>
+    <Box class={joinClass('relative', rowClass())} style={rowStyle(props.size)}>
       <Box
+        class={joinClass(rowClass(), 'opacity-0 pointer-events-none')}
+        style={rowStyle(props.size)}
         aria-hidden="true"
-        sx={[rowSx(props.size), { opacity: 0, pointerEvents: 'none' }]}
       >
         <ButtonIdleContent {...props} />
       </Box>
-      <Box sx={[{ absoluteFill: true }, rowSx(props.size)]}>
+      <Box
+        class={joinClass('absolute inset-0', rowClass())}
+        style={rowStyle(props.size)}
+      >
         <ButtonFeedbackFace {...props} />
       </Box>
     </Box>

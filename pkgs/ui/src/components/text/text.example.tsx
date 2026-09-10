@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import { For, type JSX } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from './text';
 
 const variants = [
   'body',
@@ -19,28 +17,36 @@ const variants = [
 
 export default function TextExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ gap: 3 }}>
+    <ExampleRoot class="gap-3">
       <For each={variants}>
         {(v) => (
-          <Box sx={{ gap: 0.5 }}>
-            <Text variant="caption" label={v} />
-            <Text
-              variant={v}
-              label="The quick brown fox jumps over the lazy dog"
-            />
-          </Box>
+          <div class="box gap-0.5">
+            <p class="text textCaption">{v}</p>
+            <p
+              class="text"
+              classList={{
+                textBodyBold: (v ?? 'body') === 'bodyBold',
+                textCaption: (v ?? 'body') === 'caption',
+                textLabel: (v ?? 'body') === 'label',
+                textTitle: (v ?? 'body') === 'title',
+                textSubtitle: (v ?? 'body') === 'subtitle',
+                textHeading: (v ?? 'body') === 'heading',
+                textNavigationTitle: (v ?? 'body') === 'navigationTitle',
+                textLink: (v ?? 'body') === 'link',
+                textMono: (v ?? 'body') === 'mono',
+              }}
+            >
+              {'The quick brown fox jumps over the lazy dog'}
+            </p>
+          </div>
         )}
       </For>
-      <Text
-        variant="body"
-        sx={{ color: 'textSecondary' }}
-        label="Custom sx color override"
-      />
-      <Box sx={{ gap: 0.5 }}>
-        <Text variant="caption" label="Empty string (reserves line height)" />
-        <Text variant="body" label="" />
-        <Text variant="body" label="Filled after load" />
-      </Box>
+      <p class="text text-text-secondary">{'Custom color override'}</p>
+      <div class="box gap-0.5">
+        <p class="text textCaption">{'Empty string (reserves line height)'}</p>
+        <p class="text">{''}</p>
+        <p class="text">{'Filled after load'}</p>
+      </div>
     </ExampleRoot>
   );
 }

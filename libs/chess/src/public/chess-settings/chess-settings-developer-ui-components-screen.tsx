@@ -1,6 +1,6 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
-import { Box, ExplorerList } from '@pkgs/ui';
+import { ExplorerList } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import {
@@ -29,9 +29,9 @@ export function ChessSettingsDeveloperUiComponentsScreen(): JSX.Element {
   };
 
   return (
-    <Box sx={{ alignSelf: 'stretch', flex: 1 }}>
+    <div class="box self-stretch flex-1">
       <DefineBackButton onPress={back} />
       <ExplorerList onSelect={onSelect} entries={CHESS_COMPONENT_ENTRIES} />
-    </Box>
+    </div>
   );
 }

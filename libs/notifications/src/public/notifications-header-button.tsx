@@ -3,7 +3,6 @@ import { useLingui } from '@lingui/solid/macro';
 import {
   Badge,
   BellIcon,
-  Box,
   IconButton,
   type IconProps,
   useRouter,
@@ -33,14 +32,14 @@ export function NotificationsTabIcon(
 ): JSX.Element {
   const unreadCount = useNotificationsUnreadCount();
   return (
-    <Box sx={{ position: 'relative' }}>
+    <div class="box relative">
       <BellIcon color={props.color} size={props.size ?? 24} />
       <Show when={unreadCount() > 0}>
-        <Box sx={{ position: 'absolute', top: -4, right: -8 }}>
+        <div class="box absolute top-[-4px] right-[-8px]">
           <UnreadCountBadge count={unreadCount()} />
-        </Box>
+        </div>
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -49,7 +48,7 @@ export function NotificationsHeaderButton(): JSX.Element {
   const router = useRouter();
   const unreadCount = useNotificationsUnreadCount();
   return (
-    <Box sx={{ position: 'relative' }}>
+    <div class="box relative">
       <IconButton
         label={t`Notifications`}
         onClick={() => router.push(notificationsPath())}
@@ -57,11 +56,11 @@ export function NotificationsHeaderButton(): JSX.Element {
         <BellIcon size={20} />
       </IconButton>
       <Show when={unreadCount() > 0}>
-        <Box sx={{ position: 'absolute', top: -2, right: -2 }}>
+        <div class="box absolute top-[-2px] right-[-2px]">
           <UnreadCountBadge count={unreadCount()} />
-        </Box>
+        </div>
       </Show>
-    </Box>
+    </div>
   );
 }
 

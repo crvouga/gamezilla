@@ -9,7 +9,7 @@
 
 import { useLingui } from '@lingui/solid/macro';
 import { createUniqueId, type JSX, Show } from 'solid-js';
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
 import { ResponsiveSurface } from '../responsive-surface';
 import { ComboboxBody } from './combobox-body';
 import { ComboboxLabel, ComboboxTrigger } from './combobox-trigger';
@@ -43,7 +43,10 @@ export function Combobox<T extends ComboboxValue = string>(
   const name = (): string | undefined =>
     accessibleName(props['aria-label'], props.label);
   return (
-    <Box dataSet={{ component: 'Combobox', ...props.dataSet }}>
+    <div
+      class="box"
+      {...dataAttrs({ component: 'Combobox', ...props.dataSet })}
+    >
       <Show when={props.label !== undefined}>
         <ComboboxLabel label={props.label} />
       </Show>
@@ -90,6 +93,6 @@ export function Combobox<T extends ComboboxValue = string>(
           viewport={props.listViewport}
         />
       </ResponsiveSurface>
-    </Box>
+    </div>
   );
 }

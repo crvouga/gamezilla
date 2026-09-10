@@ -9,7 +9,8 @@
  */
 
 import { createContext, type JSX, untrack, useContext } from 'solid-js';
-import type { SxProps } from '../../theme';
+import { spacingScale } from '../../theme/scale';
+import styles from './content-edge-padding.module.css';
 
 /** Spacing-scale step (`1` = 4px → 16px) for screen/surface horizontal insets. */
 export const CONTENT_EDGE_PADDING_STEP = 4;
@@ -58,31 +59,42 @@ export function useContentEdgePaddingStep(): number | null {
 }
 
 export type FlushEdgeStyles = {
-  contentSx: SxProps | undefined;
-  wrapperSx: SxProps | undefined;
+  contentClass?: string | undefined;
+  contentStyle?: JSX.CSSProperties | undefined;
+  wrapperClass?: string | undefined;
 };
 
-/** Content + wrapper `sx` so a scroller bleeds under shell edge padding. */
+/** Content + wrapper classes so a scroller bleeds under shell edge padding. */
 export function resolveFlushEdgeStyles(
   edge: ContentEdgePadding | null,
   flushEdge: boolean
 ): FlushEdgeStyles {
   if (!flushEdge || edge === null) {
-    return { contentSx: undefined, wrapperSx: undefined };
+    return {};
   }
   const { horizontalStep, bottomStep } = edge;
   if (horizontalStep === 0 && bottomStep === 0) {
-    return { contentSx: undefined, wrapperSx: undefined };
+    return {};
   }
   return {
-    contentSx: {
-      ...(horizontalStep !== 0 ? { px: horizontalStep } : {}),
-      ...(bottomStep !== 0 ? { pb: bottomStep } : {}),
-    },
-    wrapperSx: {
-      minHeight: 0,
-      ...(horizontalStep !== 0 ? { mx: -horizontalStep } : {}),
-      ...(bottomStep !== 0 ? { mb: -bottomStep } : {}),
-    },
+    contentClass: styles['content'],
+    contentStyle: {
+      '--ui-flush-edge-x': `${spacingScale(horizontalStep)}px`,
+      '--ui-flush-edge-b': `${spacingScale(bottomStep)}px`,
+    } as JSX.CSSProperties,
+    wrapperClass: styles['wrapper'],
   };
+}
+
+/** True when the frame requests flex fill via a `flex-1` utility class. */
+export function requestsFlexFill(
+  className: string | undefined,
+  classList: Record<string, boolean | undefined> | undefined
+): boolean {
+  if (className !== undefined) {
+    for (const part of className.split(/\s+/)) {
+      if (part === 'flex-1') return true;
+    }
+  }
+  return classList?.['flex-1'] === true;
 }

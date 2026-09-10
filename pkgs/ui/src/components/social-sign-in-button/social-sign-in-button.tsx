@@ -23,7 +23,6 @@
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
 import { Box } from '../box';
 import { BrandIcon } from '../brand-icon';
 import { Clickable } from '../clickable';
@@ -91,22 +90,24 @@ export function socialShapeRadius(shape: SocialSignInButtonShape): number {
   return shape === 'pill' ? PILL_RADIUS : RECTANGULAR_RADIUS;
 }
 
-function buttonSx(args: {
+function buttonClass(): string {
+  return 'flex-row items-center justify-center';
+}
+
+function buttonStyle(args: {
   palette: SocialThemePalette;
   shape: SocialSignInButtonShape;
   isDisabled: boolean;
-}): SxProps {
+}): JSX.CSSProperties {
   return {
-    height: SOCIAL_BUTTON_HEIGHT,
-    borderRadius: socialShapeRadius(args.shape),
-    paddingLeft: PADDING_LEFT,
-    paddingRight: PADDING_RIGHT,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: args.palette.fill,
-    borderWidth: args.palette.stroke !== null ? STROKE_WIDTH : 0,
-    borderColor: args.palette.stroke ?? 'transparent',
+    height: `${SOCIAL_BUTTON_HEIGHT}px`,
+    'border-radius': `${socialShapeRadius(args.shape)}px`,
+    'padding-left': `${PADDING_LEFT}px`,
+    'padding-right': `${PADDING_RIGHT}px`,
+    'background-color': args.palette.fill,
+    'border-width': `${args.palette.stroke !== null ? STROKE_WIDTH : 0}px`,
+    'border-style': 'solid',
+    'border-color': args.palette.stroke ?? 'transparent',
     opacity: args.isDisabled ? 0.5 : 1,
   };
 }
@@ -118,12 +119,11 @@ function LeadingSlot(props: {
 }): JSX.Element {
   return (
     <Box
-      sx={{
-        width: ICON_SIZE,
-        height: ICON_SIZE,
-        marginRight: ICON_GAP,
-        alignItems: 'center',
-        justifyContent: 'center',
+      class="items-center justify-center"
+      style={{
+        width: `${ICON_SIZE}px`,
+        height: `${ICON_SIZE}px`,
+        'margin-right': `${ICON_GAP}px`,
       }}
     >
       <Show
@@ -154,32 +154,33 @@ export function SocialSignInButton(
 
   return (
     <Clickable
+      feedback="opacity"
       onClick={() => props.onClick()}
       disabled={isDisabled()}
       aria-label={defaultLabel()}
       aria-busy={loading() ? true : undefined}
       aria-describedby={props['aria-describedby']}
-      feedback="opacity"
+      class={buttonClass()}
+      style={buttonStyle({
+        palette: palette(),
+        shape: props.shape ?? 'rectangular',
+        isDisabled: isDisabled(),
+      })}
       dataSet={{
         component: 'SocialSignInButton',
         provider: props.provider,
         ...props.dataSet,
       }}
-      sx={buttonSx({
-        palette: palette(),
-        shape: props.shape ?? 'rectangular',
-        isDisabled: isDisabled(),
-      })}
     >
       <LeadingSlot spec={spec()} palette={palette()} loading={loading()} />
       <Text
-        sx={{
-          fontFamily: FONT_FAMILY,
-          fontSize: FONT_SIZE,
-          lineHeight: LINE_HEIGHT,
-          fontWeight: FONT_WEIGHT,
+        class="whitespace-nowrap"
+        style={{
+          'font-size': `${FONT_SIZE}px`,
+          'line-height': `${LINE_HEIGHT}px`,
+          'font-weight': FONT_WEIGHT,
           color: palette().font,
-          whiteSpace: 'nowrap',
+          'font-family': FONT_FAMILY,
         }}
         label={visibleLabel()}
       />

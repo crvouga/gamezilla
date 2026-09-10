@@ -7,19 +7,17 @@ import { cssOf, renderUi } from './support/render';
 describe('Text', () => {
   test('applies variant typography and the text color variable', () => {
     renderUi(() => <Text data-testid="t" variant="heading" label="Hi" />);
-    const style = cssOf(screen.getByTestId('t'));
-    expect(style).toContain('font-size:24px');
-    expect(style).toContain('font-weight:800');
-    expect(style).toContain('color:var(--ui-color-text)');
-    expect(screen.getByTestId('t')).toHaveTextContent('Hi');
+    const el = screen.getByTestId('t');
+    expect(el.className).toMatch(/textHeading/);
+    expect(cssOf(el)).toContain('color:var(--ui-color-text)');
+    expect(el).toHaveTextContent('Hi');
   });
 
-  test('sx color wins over the variant color', () => {
+  test('class color wins over the variant color', () => {
     renderUi(() => (
-      <Text data-testid="t" sx={{ color: 'destructive' }} label="Err" />
+      <Text data-testid="t" class="text-destructive" label="Err" />
     ));
-    const style = cssOf(screen.getByTestId('t'));
-    expect(style).toContain('color:var(--ui-color-destructive)');
+    expect(screen.getByTestId('t').className).toMatch(/text-destructive/);
   });
 
   test('reads the on-color context on colored surfaces', () => {

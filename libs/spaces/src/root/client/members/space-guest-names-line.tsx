@@ -1,4 +1,4 @@
-import type { SxProps, TextVariant } from '@pkgs/ui';
+import type { TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -9,7 +9,7 @@ import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 export type SpaceGuestNamesLineProps = {
   spaceId: string;
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -27,7 +27,7 @@ export function SpaceGuestNamesLine(
       fallback={
         <NoGuestsText
           {...(props.variant !== undefined ? { variant: props.variant } : {})}
-          {...(props.sx !== undefined ? { sx: props.sx } : {})}
+          {...(props.class !== undefined ? { class: props.class } : {})}
           {...(props.numberOfLines !== undefined
             ? { numberOfLines: props.numberOfLines }
             : {})}
@@ -37,7 +37,7 @@ export function SpaceGuestNamesLine(
       <SpaceGuestMembershipUsernamesJoined
         spaceId={props.spaceId}
         {...(props.variant !== undefined ? { variant: props.variant } : {})}
-        {...(props.sx !== undefined ? { sx: props.sx } : {})}
+        {...(props.class !== undefined ? { class: props.class } : {})}
         {...(props.numberOfLines !== undefined
           ? { numberOfLines: props.numberOfLines }
           : {})}

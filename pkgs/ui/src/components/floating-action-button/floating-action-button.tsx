@@ -13,10 +13,10 @@ import type { ComponentDataSet } from '../../component-id';
 import {
   OnColorProvider,
   type OnColorSet,
-  type SxProps,
+  spacingScale,
   useThemeTokens,
 } from '../../theme';
-import { Box } from '../box';
+import { Box, joinClass } from '../box';
 import {
   type ButtonFace,
   type ButtonFeedback,
@@ -81,13 +81,8 @@ function FabLabelText(props: {
   return (
     <Text
       variant="bodyBold"
-      sx={{
-        color: props.foregroundColor,
-        fontSize: 15,
-        lineHeight: 20,
-        fontWeight: '600',
-        whiteSpace: 'nowrap',
-      }}
+      class="text-[15px] leading-[20px] font-semibold whitespace-nowrap"
+      style={{ color: props.foregroundColor }}
       label={props.label}
     />
   );
@@ -139,24 +134,32 @@ function FabContent(props: {
   );
 }
 
-function fabContainerSx(extended: boolean, face: ButtonFace): SxProps {
+function fabContainerClass(extended: boolean): string {
+  return joinClass(
+    'items-center justify-center flex-row overflow-hidden rounded-[9999px]',
+    !extended && 'w-[56px]'
+  );
+}
+
+function fabContainerStyle(
+  extended: boolean,
+  face: ButtonFace
+): JSX.CSSProperties {
   return {
-    height: FAB_SIZE,
-    minHeight: FAB_SIZE,
-    borderRadius: 'full',
-    backgroundColor: face.backgroundColor,
-    borderColor: face.borderColor,
-    borderWidth: face.borderWidth,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    overflow: 'hidden',
-    elevation: 2,
-    transitionProperty: 'background-color, border-color',
-    transitionDuration: 'var(--ui-duration-fast)',
+    height: `${FAB_SIZE}px`,
+    'min-height': `${FAB_SIZE}px`,
+    'background-color': face.backgroundColor,
+    'border-color': face.borderColor,
+    'border-width': `${face.borderWidth}px`,
+    'border-style': 'solid',
+    'transition-property': 'background-color, border-color',
+    'transition-duration': 'var(--ui-duration-fast)',
     ...(extended
-      ? { paddingHorizontal: FAB_HORIZONTAL_PADDING }
-      : { width: FAB_SIZE }),
+      ? {
+          'padding-left': `${FAB_HORIZONTAL_PADDING}px`,
+          'padding-right': `${FAB_HORIZONTAL_PADDING}px`,
+        }
+      : {}),
   };
 }
 
@@ -193,22 +196,18 @@ export function FloatingActionButton(
       disabled={render().nonInteractive}
       aria-busy={render().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
+      class={fabContainerClass(extended())}
+      style={fabContainerStyle(extended(), render().face)}
       dataSet={{
         component: 'FloatingActionButton',
         phase: render().phase,
         ...props.dataSet,
       }}
-      sx={fabContainerSx(extended(), render().face)}
     >
       <OnColorProvider value={onColor}>
         <Box
-          sx={{
-            position: 'relative',
-            zIndex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: FAB_CONTENT_GAP,
-          }}
+          class="relative z-[1] flex-row items-center"
+          style={{ gap: `${spacingScale(FAB_CONTENT_GAP)}px` }}
         >
           <FabContent
             phase={render().phase}

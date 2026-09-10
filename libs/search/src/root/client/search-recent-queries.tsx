@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Box, Button, HistoryIcon, MenuList, MenuRow, Text } from '@pkgs/ui';
+import { Button, HistoryIcon, MenuList, MenuRow } from '@pkgs/ui';
 import { For, type JSX, Show } from 'solid-js';
 
 const ROW_ICON_SIZE = 18;
@@ -12,20 +12,11 @@ export function SearchRecentQueries(props: {
   const { t } = useLingui();
   return (
     <Show when={props.queries.length > 0}>
-      <Box sx={{ gap: 1 }}>
-        <Box
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            minHeight: 32,
-          }}
-        >
-          <Text
-            variant="label"
-            sx={{ color: 'textSecondary' }}
-            label={<Trans>Recent</Trans>}
-          />
+      <div class="box gap-1">
+        <div class="box flex-row items-center justify-between min-h-[32px]">
+          <label class="text textLabel text-text-secondary">
+            {<Trans>Recent</Trans>}
+          </label>
           <Button
             title={t`Clear`}
             intent="neutral"
@@ -33,7 +24,7 @@ export function SearchRecentQueries(props: {
             size="sm"
             onClick={props.onClear}
           />
-        </Box>
+        </div>
         <MenuList>
           <For each={props.queries}>
             {(query) => (
@@ -47,7 +38,7 @@ export function SearchRecentQueries(props: {
             )}
           </For>
         </MenuList>
-      </Box>
+      </div>
     </Show>
   );
 }

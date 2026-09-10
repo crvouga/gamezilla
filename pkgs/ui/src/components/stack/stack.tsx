@@ -12,12 +12,15 @@
  */
 
 import { type JSX, splitProps } from 'solid-js';
-import type { SxAlign, SxInput, SxJustify, SxProps } from '../../theme';
-import { Box, type BoxProps } from '../box';
+import { dataAttrs } from '../../component-id';
+import { type DivBoxProps, joinClass } from '../box';
+import type { SxAlign, SxJustify } from './layout-align';
+
+export type { SxAlign, SxJustify } from './layout-align';
 
 export type StackDirection = 'horizontal' | 'vertical';
 
-export type StackProps = BoxProps & {
+export type StackProps = DivBoxProps & {
   /** Layout axis. Defaults to `"vertical"`. */
   direction?: StackDirection | undefined;
   /** Gap between children in spacing-scale units. */
@@ -30,21 +33,37 @@ export type StackProps = BoxProps & {
   wrap?: boolean | undefined;
 };
 
-export function stackLayoutSx(args: {
+const ALIGN_CLASS: Record<SxAlign, string> = {
+  'flex-start': 'items-start',
+  'flex-end': 'items-end',
+  center: 'items-center',
+  stretch: 'items-stretch',
+  baseline: 'items-baseline',
+};
+
+const JUSTIFY_CLASS: Record<SxJustify, string> = {
+  'flex-start': 'justify-start',
+  'flex-end': 'justify-end',
+  center: 'justify-center',
+  'space-between': 'justify-between',
+  'space-around': 'justify-around',
+  'space-evenly': 'justify-evenly',
+};
+
+export function stackLayoutClass(args: {
   direction: StackDirection;
   spacing: number | undefined;
   align: SxAlign | undefined;
   justify: SxJustify | undefined;
   wrap: boolean | undefined;
-}): SxProps {
-  const sx: SxProps = {
-    flexDirection: args.direction === 'horizontal' ? 'row' : 'column',
-  };
-  if (args.spacing !== undefined) sx.gap = args.spacing;
-  if (args.align) sx.alignItems = args.align;
-  if (args.justify) sx.justifyContent = args.justify;
-  if (args.wrap) sx.flexWrap = 'wrap';
-  return sx;
+}): string {
+  return joinClass(
+    args.direction === 'horizontal' ? 'flex-row' : 'flex-col',
+    args.spacing !== undefined ? `gap-${args.spacing}` : undefined,
+    args.align !== undefined ? ALIGN_CLASS[args.align] : undefined,
+    args.justify !== undefined ? JUSTIFY_CLASS[args.justify] : undefined,
+    args.wrap ? 'flex-wrap' : undefined
+  );
 }
 
 export function Stack(props: StackProps): JSX.Element {
@@ -54,24 +73,25 @@ export function Stack(props: StackProps): JSX.Element {
     'align',
     'justify',
     'wrap',
-    'sx',
+    'class',
     'dataSet',
+    'children',
   ]);
-  const sx = (): SxInput => [
-    stackLayoutSx({
+  const layout = () =>
+    stackLayoutClass({
       direction: local.direction ?? 'vertical',
       spacing: local.spacing,
       align: local.align,
       justify: local.justify,
       wrap: local.wrap,
-    }),
-    local.sx,
-  ];
+    });
   return (
-    <Box
-      sx={sx()}
-      dataSet={{ component: 'Stack', ...local.dataSet }}
+    <div
+      class={joinClass('box', layout(), local.class)}
+      {...dataAttrs({ component: 'Stack', ...local.dataSet })}
       {...rest}
-    />
+    >
+      {local.children}
+    </div>
   );
 }

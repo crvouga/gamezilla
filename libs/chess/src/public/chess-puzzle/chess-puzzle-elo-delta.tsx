@@ -1,4 +1,4 @@
-import { Text, useTheme } from '@pkgs/ui';
+import { useTheme } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
@@ -27,16 +27,12 @@ export function ChessPuzzleEloDelta(
 
   return (
     <>
-      <Text
-        variant="heading"
-        sx={{ color: 'text', textAlign: 'center' }}
-        label={String(props.displayRating)}
-      />
-      <Text
-        variant="bodyBold"
-        sx={{ color: deltaColor, textAlign: 'center' }}
-        label={formatSignedDelta(props.delta)}
-      />
+      <h3 class="text textHeading text-text text-center">
+        {String(props.displayRating)}
+      </h3>
+      <p class="text textBodyBold text-center" style={{ color: deltaColor }}>
+        {formatSignedDelta(props.delta)}
+      </p>
     </>
   );
 }

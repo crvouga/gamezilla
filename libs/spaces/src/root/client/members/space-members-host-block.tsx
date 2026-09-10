@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -16,22 +15,18 @@ export function SpaceMembersHostBlock(
 ): JSX.Element {
   const host = useSpaceHostMembershipDisplay(props.spaceId);
   return (
-    <Box sx={{ gap: 1 }}>
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary', px: 2 }}
-        label={<Trans>Host</Trans>}
-      />
-      <Box sx={{ gap: 0 }}>
+    <div class="box gap-1">
+      <label class="text textLabel text-text-secondary px-2">
+        {<Trans>Host</Trans>}
+      </label>
+      <div class="box gap-0">
         <Show
           when={host()}
           keyed
           fallback={
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary', px: 2 }}
-              label={<Trans>No host listed</Trans>}
-            />
+            <p class="text textCaption text-text-secondary px-2">
+              {<Trans>No host listed</Trans>}
+            </p>
           }
         >
           {(entry) => (
@@ -43,7 +38,7 @@ export function SpaceMembersHostBlock(
             />
           )}
         </Show>
-      </Box>
-    </Box>
+      </div>
+    </div>
   );
 }

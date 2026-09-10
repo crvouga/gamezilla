@@ -1,4 +1,3 @@
-import { Text } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
 
 import { uciToSquares } from '../chess-puzzle-fsm';
@@ -38,29 +37,29 @@ export function ChessPuzzleE2EHints(
   if (!E2E_ENABLED) return <></>;
   const resolved = (): string | null => resolveSolutionUci(props);
   const uci = (): string | null => (props.interactive() ? resolved() : null);
-  const sx = {
+  const hintStyle = {
     position: 'absolute' as const,
-    width: 1,
-    height: 1,
+    width: '1px',
+    height: '1px',
     opacity: 0.01,
   };
   return (
     <>
-      <Text
-        dataSet={{ testid: 'chess-puzzle-board-orientation' }}
-        sx={sx}
-        label={props.orientation()}
-      />
-      <Text
-        dataSet={{ testid: 'chess-puzzle-expected-uci' }}
-        sx={sx}
-        label={uci() ?? ''}
-      />
-      <Text
-        dataSet={{ testid: 'chess-puzzle-e2e-debug' }}
-        sx={sx}
-        label={`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}`}
-      />
+      <p
+        class="text"
+        style={hintStyle}
+        data-testid="chess-puzzle-board-orientation"
+      >
+        {props.orientation()}
+      </p>
+      <p class="text" style={hintStyle} data-testid="chess-puzzle-expected-uci">
+        {uci() ?? ''}
+      </p>
+      <p
+        class="text"
+        style={hintStyle}
+        data-testid="chess-puzzle-e2e-debug"
+      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}`}</p>
     </>
   );
 }

@@ -6,10 +6,7 @@
 import { useLingui } from '@lingui/solid/macro';
 import { createMemo, For, type JSX, Show } from 'solid-js';
 
-import { Box } from '../box';
-import { Clickable } from '../clickable';
 import { EmptyState } from '../empty-state';
-import { Text } from '../text';
 import { type CatalogItem, groupCatalogItems } from './catalog-item';
 
 export type CatalogListRowsProps = {
@@ -50,25 +47,20 @@ function CatalogGroupBlock(props: {
   onSelect: (id: string) => void;
 }): JSX.Element {
   return (
-    <Box as="section" sx={{ gap: 1, mb: 4 }}>
+    <section class="box gap-1 mb-4">
       <Show when={props.category !== null}>
-        <Text
-          as="h3"
-          variant="label"
-          sx={{ color: 'textSecondary' }}
-          label={props.category}
-        />
+        <h3 class="text textLabel text-text-secondary">{props.category}</h3>
       </Show>
-      <Box as="ul" role="list" sx={{ gap: 1 }}>
+      <ul class="box gap-1" role="list">
         <For each={props.items}>
           {(item) => (
-            <Box as="li">
+            <li class="box">
               <CatalogRow item={item} onSelect={props.onSelect} />
-            </Box>
+            </li>
           )}
         </For>
-      </Box>
-    </Box>
+      </ul>
+    </section>
   );
 }
 
@@ -77,22 +69,15 @@ function CatalogRow(props: {
   onSelect: (id: string) => void;
 }): JSX.Element {
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint py-3 px-4 min-h-[44px] bg-surface rounded-[10px] flex-row justify-between items-center text-left"
+      type="button"
       onClick={() => props.onSelect(props.item.id)}
-      sx={{
-        py: 3,
-        px: 4,
-        minHeight: 44,
-        background: 'surface',
-        borderRadius: 'md',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        textAlign: 'left',
-      }}
     >
-      <Text variant="body" label={props.item.label} />
-      <Text variant="caption" aria-hidden="true" label="›" />
-    </Clickable>
+      <p class="text">{props.item.label}</p>
+      <p class="text textCaption" aria-hidden="true">
+        {'›'}
+      </p>
+    </button>
   );
 }

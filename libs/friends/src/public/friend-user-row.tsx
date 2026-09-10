@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids';
-import { Box, Clickable, Text } from '@pkgs/ui';
+import { dataAttrs } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -27,20 +27,13 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       : undefined;
 
   const body = (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        py: 2,
-      }}
-    >
+    <div class="box flex-row items-center gap-2 py-2">
       <FriendProfileAvatar profile={props.profile} size={44} />
-      <Box sx={{ flex: 1, minWidth: 0, gap: 0.5 }}>
-        <Text variant="bodyBold" label={title} numberOfLines={1} />
-      </Box>
+      <div class="box flex-1 min-w-[0] gap-0.5">
+        <p class="text textBodyBold line-clamp-1">{title}</p>
+      </div>
       {props.trailing}
-    </Box>
+    </div>
   );
 
   return (
@@ -48,16 +41,22 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       when={props.onPress !== undefined}
       fallback={
         <Show when={rowTestID} keyed fallback={body}>
-          {(testID) => <Box dataSet={{ testid: testID }}>{body}</Box>}
+          {(testID) => (
+            <div class="box" data-testid={testID}>
+              {body}
+            </div>
+          )}
         </Show>
       }
     >
-      <Clickable
+      <button
+        class="clickable clickableTint"
+        {...(rowTestID !== undefined ? dataAttrs({ testid: rowTestID }) : {})}
+        type="button"
         onClick={() => props.onPress?.()}
-        {...(rowTestID !== undefined ? { dataSet: { testid: rowTestID } } : {})}
       >
         {body}
-      </Clickable>
+      </button>
     </Show>
   );
 }

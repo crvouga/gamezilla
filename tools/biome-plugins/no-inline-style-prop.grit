@@ -1,17 +1,29 @@
 language js
 
 or {
-  `<$name style={$value} />` as $el where {
-    register_diagnostic(span=$el, message="Do not pass style= — inline style is allowed only inside @pkgs/ui host components; use sx elsewhere.", severity="error")
+  `<$name sx={$value} />` as $el where {
+    register_diagnostic(span=$el, message="Do not pass sx= — the Sx abstraction is removed; use Solid class / classList / style.", severity="error")
   },
-  `<$name style={$value}>$children</$name>` as $el where {
-    register_diagnostic(span=$el, message="Do not pass style= — inline style is allowed only inside @pkgs/ui host components; use sx elsewhere.", severity="error")
+  `<$name sx={$value}>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not pass sx= — the Sx abstraction is removed; use Solid class / classList / style.", severity="error")
+  },
+  `<$name frameSx={$value} />` as $el where {
+    register_diagnostic(span=$el, message="Do not pass frameSx= — use class / classList / style on the scroll frame (and contentClass on the content).", severity="error")
+  },
+  `<$name frameSx={$value}>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not pass frameSx= — use class / classList / style on the scroll frame (and contentClass on the content).", severity="error")
+  },
+  `<$name fieldSx={$value} />` as $el where {
+    register_diagnostic(span=$el, message="Do not pass fieldSx= — use fieldClass / fieldStyle.", severity="error")
+  },
+  `<$name fieldSx={$value}>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not pass fieldSx= — use fieldClass / fieldStyle.", severity="error")
   },
   `<$name contentContainerStyle={$value} />` as $el where {
-    register_diagnostic(span=$el, message="Do not pass contentContainerStyle= — use frameSx on @pkgs/ui scroll/list hosts.", severity="error")
+    register_diagnostic(span=$el, message="Do not pass contentContainerStyle= — use contentClass / contentStyle on @pkgs/ui scroll/list hosts.", severity="error")
   },
   `<$name contentContainerStyle={$value}>$children</$name>` as $el where {
-    register_diagnostic(span=$el, message="Do not pass contentContainerStyle= — use frameSx on @pkgs/ui scroll/list hosts.", severity="error")
+    register_diagnostic(span=$el, message="Do not pass contentContainerStyle= — use contentClass / contentStyle on @pkgs/ui scroll/list hosts.", severity="error")
   },
   `<$name columnWrapperStyle={$value} />` as $el where {
     register_diagnostic(span=$el, message="Do not pass columnWrapperStyle= — use @pkgs/ui hosts.", severity="error")

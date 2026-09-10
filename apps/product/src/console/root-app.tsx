@@ -4,7 +4,6 @@ import { ClockProvider } from '@pkgs/clock/solid';
 import { HttpClientProvider } from '@pkgs/http-client/solid';
 import { SimConsoleApp, type SimConsolePorts } from '@pkgs/sim-console/client';
 import {
-  Box,
   DismissibleBannerPortalProvider,
   OverlayPortalProvider,
   SurfaceStackProvider,
@@ -58,9 +57,9 @@ function ConsoleShell(props: { readonly ports: SimConsolePorts }): JSX.Element {
         <OverlayPortalProvider>
           <SurfaceStackProvider>
             <DismissibleBannerPortalProvider>
-              <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>
+              <div class="box flex-1 min-h-[0] min-w-[0]">
                 <ConsoleBody ports={props.ports} />
-              </Box>
+              </div>
             </DismissibleBannerPortalProvider>
           </SurfaceStackProvider>
         </OverlayPortalProvider>

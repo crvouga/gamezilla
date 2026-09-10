@@ -5,9 +5,7 @@
  */
 
 import { createMemo, For, type JSX, Show } from 'solid-js';
-import { Box } from '../box';
 import { isMacPlatform } from '../keyboard-shortcuts';
-import { Text } from '../text';
 
 const STATIC_TOKEN_MAP: Readonly<Record<string, string>> = {
   shift: '⇧',
@@ -56,38 +54,19 @@ export function CommandPaletteKbd(props: CommandPaletteKbdProps): JSX.Element {
   const parts = createMemo(() => shortcutTokens(props.shortcut));
   return (
     <Show when={parts().length > 0}>
-      <Box
-        as="span"
+      <span
+        class="box flex-row items-center gap-1 shrink-0"
+        data-component="CommandPaletteKbd"
         aria-label={parts().join(' ')}
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 1,
-          flexShrink: 0,
-        }}
-        dataSet={{ component: 'CommandPaletteKbd' }}
       >
         <For each={parts()}>
           {(part) => (
-            <Box
-              sx={{
-                px: 1.5,
-                py: 0.5,
-                borderRadius: 'xs',
-                borderWidth: 1,
-                borderColor: 'border',
-                backgroundColor: 'surfaceMuted',
-              }}
-            >
-              <Text
-                variant="caption"
-                sx={{ color: 'textSecondary' }}
-                label={part}
-              />
-            </Box>
+            <div class="box px-1.5 py-0.5 rounded-[4px] border border-border bg-surface-muted">
+              <p class="text textCaption text-text-secondary">{part}</p>
+            </div>
           )}
         </For>
-      </Box>
+      </span>
     </Show>
   );
 }

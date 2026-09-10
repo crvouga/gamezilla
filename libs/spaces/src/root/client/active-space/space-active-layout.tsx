@@ -1,6 +1,5 @@
 import {
   AppHeaderIsland,
-  Box,
   ISLAND_GAP_STEP,
   ISLAND_SIDE_RAIL_WIDTH,
   Island,
@@ -34,7 +33,7 @@ function SpaceChromeTitle(props: {
   readonly variant: 'subtitle' | 'navigationTitle';
 }): JSX.Element {
   return (
-    <Box sx={{ flexShrink: 1, minWidth: 0 }}>
+    <div class="box shrink min-w-[0]">
       <SpaceTitleAttribution spaceId={props.spaceId}>
         <SpaceTitleText
           spaceId={props.spaceId}
@@ -42,7 +41,7 @@ function SpaceChromeTitle(props: {
           numberOfLines={1}
         />
       </SpaceTitleAttribution>
-    </Box>
+    </div>
   );
 }
 
@@ -54,28 +53,20 @@ function SpaceChromeTitle(props: {
 function SpaceTrailingWithGlobal(): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minWidth: 0,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-      }}
-    >
-      <Box sx={{ flex: 1, minWidth: 0 }}>
+    <div class="box flex-1 min-w-[0] flex-row items-center gap-2">
+      <div class="box flex-1 min-w-[0]">
         <SpaceChromeTrailingActionBar />
-      </Box>
+      </div>
       {globalTrailing()}
-    </Box>
+    </div>
   );
 }
 
 function SpaceHeaderEventLog(props: { readonly spaceId: string }): JSX.Element {
   return (
-    <Box sx={{ flex: 1, minWidth: 0 }}>
+    <div class="box flex-1 min-w-[0]">
       <SpaceEventLogChrome spaceId={props.spaceId} />
-    </Box>
+    </div>
   );
 }
 
@@ -89,23 +80,21 @@ function SpaceActiveWideBody(props: ParentProps): JSX.Element {
     <Show
       when={extras() !== null}
       fallback={
-        <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{props.children}</Box>
+        <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
       }
     >
-      <Box
-        sx={{
-          flex: 1,
-          minHeight: 0,
-          flexDirection: 'row',
-          alignItems: 'stretch',
-          gap: ISLAND_GAP_STEP,
-        }}
+      <div
+        class="box flex-1 min-h-[0] flex-row items-stretch"
+        style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
       >
-        <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{props.children}</Box>
-        <Island sx={{ width: ISLAND_SIDE_RAIL_WIDTH, minHeight: 0, p: 0 }}>
-          <Box sx={{ flex: 1, minHeight: 0 }}>{extras()}</Box>
+        <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+        <Island
+          class="min-h-[0] p-0"
+          style={{ width: `${ISLAND_SIDE_RAIL_WIDTH}px` }}
+        >
+          <div class="box flex-1 min-h-[0]">{extras()}</div>
         </Island>
-      </Box>
+      </div>
     </Show>
   );
 }
@@ -116,29 +105,27 @@ function SpaceActiveLayoutWide(props: {
 }): JSX.Element {
   return (
     <SpaceSideRailProvider>
-      <Box sx={{ flex: 1, minHeight: 0, gap: ISLAND_GAP_STEP }}>
+      <div
+        class="box flex-1 min-h-[0]"
+        style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
+      >
         <AppHeaderIsland
           leading={
-            <Box
-              sx={{
-                flex: 1,
-                minWidth: 0,
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4,
-              }}
-            >
+            <div class="box flex-1 min-w-[0] flex-row items-center gap-4">
               <SpaceChromeLeadingActionBar />
-              <Box sx={{ maxWidth: WIDE_TITLE_MAX_WIDTH, minWidth: 0 }}>
+              <div
+                class="box min-w-[0]"
+                style={{ 'max-width': `${WIDE_TITLE_MAX_WIDTH}px` }}
+              >
                 <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
-              </Box>
+              </div>
               <SpaceHeaderEventLog spaceId={props.spaceId} />
-            </Box>
+            </div>
           }
           trailing={<SpaceTrailingWithGlobal />}
         />
         <SpaceActiveWideBody>{props.children}</SpaceActiveWideBody>
-      </Box>
+      </div>
     </SpaceSideRailProvider>
   );
 }
@@ -148,30 +135,22 @@ function SpaceActiveLayoutCompact(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <Box sx={{ flex: 1, minHeight: 0 }}>
+    <div class="box flex-1 min-h-[0]">
       <TopBar
         leading={<SpaceChromeLeadingActionBar />}
         center={
-          <Box
-            sx={{
-              flex: 1,
-              minWidth: 0,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-            }}
-          >
+          <div class="box flex-1 min-w-[0] flex-row items-center gap-2">
             <SpaceChromeTitle
               spaceId={props.spaceId}
               variant="navigationTitle"
             />
             <SpaceHeaderEventLog spaceId={props.spaceId} />
-          </Box>
+          </div>
         }
         trailing={<SpaceTrailingWithGlobal />}
       />
-      <Box sx={{ flex: 1, minHeight: 0, minWidth: 0 }}>{props.children}</Box>
-    </Box>
+      <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+    </div>
   );
 }
 

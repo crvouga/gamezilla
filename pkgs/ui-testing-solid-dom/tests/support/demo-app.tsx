@@ -87,7 +87,7 @@ function LoginScreen(props: { onLogin: (email: string) => void }): JSX.Element {
       breadcrumbs={[{ name: 'Sign in' }]}
       scroll
       content={() => (
-        <Box sx={{ gap: 3 }} dataSet={{ testid: 'login-form' }}>
+        <Box class="gap-3" dataSet={{ testid: 'login-form' }}>
           <TextInput
             label="Email"
             value={email()}

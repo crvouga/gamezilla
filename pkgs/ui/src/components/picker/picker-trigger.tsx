@@ -7,11 +7,9 @@
 
 import type { LocalizedString } from '@pkgs/i18n/localized-string';
 import { type JSX, Show } from 'solid-js';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
-import { Clickable } from '../clickable';
+import { colorVar } from '../../theme';
+import { joinClass } from '../box/box';
 import { ChevronDownIcon } from '../icons';
-import { Text } from '../text';
 import type { PickerOption, PickerSize, PickerValue } from './picker-types';
 
 /** Minimum pointer target for the default-size trigger. */
@@ -31,34 +29,16 @@ export type PickerTriggerProps<T extends PickerValue> = {
 
 export function PickerLabel(props: { label: JSX.Element }): JSX.Element {
   return (
-    <Text
-      variant="caption"
-      sx={{ mb: 0.5, color: 'textSecondary' }}
-      label={props.label}
-    />
+    <p class="text textCaption mb-0.5 text-text-secondary">{props.label}</p>
   );
 }
 
-function triggerSx(compact: boolean, disabled: boolean): SxProps {
-  return {
-    borderRadius: 'md',
-    flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: 0,
-    width: '100%',
-    ...(compact ? { height: PICKER_TRIGGER_COMPACT_HEIGHT } : {}),
-    minHeight: compact
-      ? PICKER_TRIGGER_COMPACT_HEIGHT
-      : PICKER_TRIGGER_MIN_HEIGHT,
-    paddingHorizontal: compact ? 8 : 12,
-    paddingVertical: compact ? 0 : 10,
-    borderWidth: 1,
-    borderColor: 'outline',
-    backgroundColor: 'surfaceMuted',
-    gap: compact ? 1.5 : 2.5,
-    opacity: disabled ? 0.4 : 1,
-    textAlign: 'left',
-  };
+function triggerClass(compact: boolean): string {
+  return joinClass(
+    'clickable clickableTint flex-row items-center min-w-0 w-full text-left',
+    'rounded-[10px] border border-solid border-outline bg-surface-muted',
+    compact ? 'h-8 gap-1.5 px-2' : 'min-h-11 gap-2.5 px-3 py-2.5'
+  );
 }
 
 export function PickerTrigger<T extends PickerValue>(
@@ -67,33 +47,39 @@ export function PickerTrigger<T extends PickerValue>(
   const compact = (): boolean => props.size === 'sm';
   const hasSelection = (): boolean => props.selected !== undefined;
   return (
-    <Clickable
+    <button
+      class={triggerClass(compact())}
+      data-component="PickerTrigger"
+      type="button"
+      style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-haspopup="listbox"
       aria-expanded={props.open}
       aria-label={props['aria-label']}
-      dataSet={{ component: 'PickerTrigger' }}
-      sx={triggerSx(compact(), props.disabled)}
     >
       <Show when={props.selected?.preview !== undefined}>
-        <Box sx={{ flexShrink: 0 }}>{props.selected?.preview}</Box>
+        <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
-      <Text
-        variant={compact() ? 'caption' : 'label'}
-        numberOfLines={1}
-        sx={[
-          {
-            flex: 1,
-            minWidth: 0,
-            flexShrink: 1,
-            color: hasSelection() ? 'text' : 'textSecondary',
-          },
-          compact() && { fontSize: 12, lineHeight: 16, fontWeight: '500' },
-        ]}
-        label={props.selected?.label ?? props.placeholder}
-      />
+      <p
+        class={joinClass(
+          'text line-clamp-1 flex-1 min-w-0 shrink',
+          compact() ? 'textCaption' : 'textLabel'
+        )}
+        style={{
+          color: hasSelection() ? colorVar('text') : colorVar('textSecondary'),
+          ...(compact()
+            ? {
+                'font-size': '12px',
+                'line-height': '16px',
+                'font-weight': '500',
+              }
+            : {}),
+        }}
+      >
+        {props.selected?.label ?? props.placeholder}
+      </p>
       <ChevronDownIcon size={compact() ? 14 : 18} color="textSecondary" />
-    </Clickable>
+    </button>
   );
 }

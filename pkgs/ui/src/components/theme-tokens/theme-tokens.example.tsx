@@ -1,4 +1,5 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /**
  * `ThemeTokens` -- visual inventory of every design-system token: color
  * swatches (per scheme), radius, spacing, elevation, and motion previews.
@@ -15,10 +16,8 @@ import {
   type ElevationLevel,
   spacing,
 } from '../../theme/scale';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Text } from '../text';
 
 type ColorGroup = {
   title: string;
@@ -86,7 +85,7 @@ const EASINGS = Object.entries(easing);
 
 export default function ThemeTokensExample(): JSX.Element {
   return (
-    <ExampleRoot sx={{ gap: 5 }}>
+    <ExampleRoot class="gap-5">
       <SectionTitle title="Colors" />
       <SchemePreview>
         <ColorGroups />
@@ -116,35 +115,27 @@ export default function ThemeTokensExample(): JSX.Element {
 }
 
 function SectionTitle(props: { title: string }): JSX.Element {
-  return (
-    <Text
-      variant="title"
-      sx={{ mt: 4, mb: 2, color: 'text' }}
-      label={props.title}
-    />
-  );
+  return <h1 class="text textTitle mt-4 mb-2 text-text">{props.title}</h1>;
 }
 
 function ColorGroups(): JSX.Element {
   return (
-    <Box sx={{ gap: 4 }}>
+    <div class="box gap-4">
       <For each={COLOR_GROUPS}>
         {(group) => (
-          <Box sx={{ gap: 1.5 }}>
-            <Text
-              variant="label"
-              sx={{ color: 'textSecondary' }}
-              label={group.title}
-            />
-            <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
+          <div class="box gap-1.5">
+            <label class="text textLabel text-text-secondary">
+              {group.title}
+            </label>
+            <div class="box flex-row flex-wrap gap-2">
               <For each={group.tokens}>
                 {(token) => <ColorSwatch token={token} />}
               </For>
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
       </For>
-    </Box>
+    </div>
   );
 }
 
@@ -152,40 +143,23 @@ function ColorSwatch(props: { token: keyof ColorTokens }): JSX.Element {
   const theme = useThemeTokens();
   const value = () => theme.colors[props.token];
   return (
-    <Box
-      sx={{
-        width: 132,
-        borderRadius: 'md',
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        overflow: 'hidden',
-      }}
-    >
-      <Box sx={{ height: 56, backgroundColor: value() }} />
-      <Box sx={{ px: 2, py: 1, background: 'surface' }}>
-        <Text
-          variant="caption"
-          numberOfLines={1}
-          sx={{ color: 'text' }}
-          label={props.token}
-        />
-        <Text
-          variant="caption"
-          numberOfLines={1}
-          sx={{ color: 'textSecondary' }}
-          label={value()}
-        />
-      </Box>
-    </Box>
+    <div class="box w-[132px] rounded-[10px] border border-solid border-border overflow-hidden">
+      <div class="box h-[56px]" style={{ 'background-color': value() }} />
+      <div class="box px-2 py-1 bg-surface">
+        <p class="text textCaption line-clamp-1 text-text">{props.token}</p>
+        <p class="text textCaption line-clamp-1 text-text-secondary">
+          {value()}
+        </p>
+      </div>
+    </div>
   );
 }
 
 function RadiusRow(): JSX.Element {
   return (
-    <Box sx={{ flexDirection: 'row', gap: 3, flexWrap: 'wrap' }}>
+    <div class="box flex-row gap-3 flex-wrap">
       <For each={RADIUS_KEYS}>{(k) => <RadiusSample radiusKey={k} />}</For>
-    </Box>
+    </div>
   );
 }
 
@@ -193,132 +167,78 @@ function RadiusSample(props: { radiusKey: BorderRadiusKey }): JSX.Element {
   const value = () => borderRadius[props.radiusKey];
   const display = () => (value() === 9999 ? 'full' : `${value()}px`);
   return (
-    <Box sx={{ alignItems: 'center', gap: 1 }}>
-      <Box
-        sx={{
-          width: 64,
-          height: 64,
-          borderRadius: value(),
-          backgroundColor: 'tintSubtle',
-          borderWidth: 1,
-          borderStyle: 'solid',
-          borderColor: 'tint',
+    <div class="box items-center gap-1">
+      <div
+        class="box w-[64px] h-[64px] bg-tint-subtle border border-solid border-tint"
+        style={{
+          'border-radius': value() === 9999 ? '9999px' : cssPx(value()),
         }}
       />
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={props.radiusKey}
-      />
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={display()}
-      />
-    </Box>
+      <p class="text textCaption text-text-secondary">{props.radiusKey}</p>
+      <p class="text textCaption text-text-secondary">{display()}</p>
+    </div>
   );
 }
 
 function SpacingRow(): JSX.Element {
   return (
-    <Box sx={{ gap: 1.5 }}>
+    <div class="box gap-1.5">
       <For each={SPACING_ENTRIES}>
         {(entry) => (
-          <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary', width: 32 }}
-              label={entry.key}
+          <div class="box flex-row items-center gap-2">
+            <p class="text textCaption text-text-secondary w-[32px]">
+              {entry.key}
+            </p>
+            <div
+              class="box h-[10px] bg-tint rounded-[4px]"
+              style={{ width: cssPx(Math.max(entry.value, 1)) }}
             />
-            <Box
-              sx={{
-                height: 10,
-                width: Math.max(entry.value, 1),
-                backgroundColor: 'tint',
-                borderRadius: 'xs',
-              }}
-            />
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={`${entry.value}px`}
-            />
-          </Box>
+            <p class="text textCaption text-text-secondary">{`${entry.value}px`}</p>
+          </div>
         )}
       </For>
-    </Box>
+    </div>
   );
 }
 
 function ElevationRow(): JSX.Element {
   return (
-    <Box sx={{ flexDirection: 'row', gap: 3, flexWrap: 'wrap' }}>
+    <div class="box flex-row gap-3 flex-wrap">
       <For each={ELEVATION_LEVELS}>
         {(level) => (
-          <Box sx={{ alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{
-                width: 88,
-                height: 64,
-                backgroundColor: 'surfaceElevated',
-                borderRadius: 'md',
-                elevation: level,
-              }}
+          <div class="box items-center gap-1">
+            <div
+              class={`box w-[88px] h-[64px] rounded-[10px] bg-elevation-${level}`}
             />
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={`level ${level}`}
-            />
-          </Box>
+            <p class="text textCaption text-text-secondary">{`level ${level}`}</p>
+          </div>
         )}
       </For>
-    </Box>
+    </div>
   );
 }
 
 function MotionRow(): JSX.Element {
   return (
-    <Box sx={{ gap: 2 }}>
-      <Text variant="label" sx={{ color: 'textSecondary' }} label="Durations" />
+    <div class="box gap-2">
+      <label class="text textLabel text-text-secondary">{'Durations'}</label>
       <For each={DURATIONS}>
         {([k, v]) => (
-          <Box sx={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-            <Text
-              variant="caption"
-              sx={{ color: 'text', width: 80 }}
-              label={k}
-            />
-            <Text
-              variant="caption"
-              sx={{ color: 'textSecondary' }}
-              label={`${v}ms`}
-            />
-          </Box>
+          <div class="box flex-row items-center gap-2">
+            <p class="text textCaption text-text w-[80px]">{k}</p>
+            <p class="text textCaption text-text-secondary">{`${v}ms`}</p>
+          </div>
         )}
       </For>
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary', mt: 2 }}
-        label="Easings"
-      />
+      <label class="text textLabel text-text-secondary mt-2">{'Easings'}</label>
       <For each={EASINGS}>
         {([k, v]) => (
-          <Box sx={{ flexDirection: 'row', gap: 2 }}>
-            <Text
-              variant="caption"
-              sx={{ color: 'text', width: 80 }}
-              label={k}
-            />
-            <Text
-              variant="caption"
-              numberOfLines={1}
-              sx={{ color: 'textSecondary' }}
-              label={v}
-            />
-          </Box>
+          <div class="box flex-row gap-2">
+            <p class="text textCaption text-text w-[80px]">{k}</p>
+            <p class="text textCaption line-clamp-1 text-text-secondary">{v}</p>
+          </div>
         )}
       </For>
-    </Box>
+    </div>
   );
 }

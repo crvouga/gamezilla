@@ -3,7 +3,7 @@ import { FriendUserRow } from '@libs/friends/public/friend-user-row';
 import { useFriendRequestIdsForUser } from '@libs/friends/public/use-friend-request-ids';
 import { useFriendshipStatus } from '@libs/friends/public/use-friendship-status';
 import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
-import { Box, useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 export function SearchUserResultRow(props: {
@@ -27,7 +27,7 @@ export function SearchUserResultRow(props: {
         })
       }
       trailing={
-        <Box sx={{ flexShrink: 1, minWidth: 0 }}>
+        <div class="box shrink min-w-[0]">
           <FriendActionPills
             userId={props.user.userId}
             username={props.user.username}
@@ -35,7 +35,7 @@ export function SearchUserResultRow(props: {
             incomingRequestId={requestIds.incomingRequestId}
             outgoingRequestId={requestIds.outgoingRequestId}
           />
-        </Box>
+        </div>
       }
     />
   );

@@ -1,4 +1,3 @@
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 import { useDeviceColumn } from '../use-device-column';
@@ -14,14 +13,7 @@ export function AccountDeviceUserAgentBlock(
   const userAgent = useDeviceColumn(props.deviceId, 'userAgent');
   return (
     <Show when={userAgent()}>
-      {(ua) => (
-        <Text
-          variant="caption"
-          numberOfLines={6}
-          sx={{ userSelect: 'text' }}
-          label={ua()}
-        />
-      )}
+      {(ua) => <p class="text textCaption line-clamp-6 select-text">{ua()}</p>}
     </Show>
   );
 }

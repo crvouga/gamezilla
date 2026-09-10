@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 import { useLingui } from '@lingui/solid/macro';
-import { Box, LoadingState } from '@pkgs/ui';
+import { LoadingState } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 /**
@@ -11,17 +11,11 @@ import type { JSX } from 'solid-js';
 export function BootLoadingShell(): JSX.Element {
   const { t } = useLingui();
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'background',
-      }}
-      dataSet={{ component: 'BootLoadingShell' }}
+    <div
+      class="box flex-1 min-h-[0] items-center justify-center bg-background"
+      data-component="BootLoadingShell"
     >
       <LoadingState size="large" caption={t`Starting…`} />
-    </Box>
+    </div>
   );
 }

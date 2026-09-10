@@ -6,8 +6,6 @@
  */
 
 import type { JSX } from 'solid-js';
-import { Box } from '../box';
-import { Text } from '../text';
 
 export type CommandPaletteSectionProps = {
   title: string;
@@ -18,17 +16,15 @@ export function CommandPaletteSection(
   props: CommandPaletteSectionProps
 ): JSX.Element {
   return (
-    <Box
+    <div
+      class="box px-3 pt-2 pb-1 bg-background"
+      data-component="CommandPaletteSection"
       id={props.id}
       role="presentation"
-      sx={{ px: 3, pt: 2, pb: 1, backgroundColor: 'background' }}
-      dataSet={{ component: 'CommandPaletteSection' }}
     >
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary', letterSpacing: 0.5 }}
-        label={props.title}
-      />
-    </Box>
+      <label class="text textLabel text-text-secondary tracking-[0.5px]">
+        {props.title}
+      </label>
+    </div>
   );
 }

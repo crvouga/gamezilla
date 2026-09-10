@@ -2,8 +2,6 @@ import { useMutationClient } from '@libs/auth/public/mutation-client-provider';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  type BodyContentProps,
-  Box,
   FormActionsFooter,
   ScreenBase,
   TextInput,
@@ -41,13 +39,13 @@ function useSyncedUsername(row: Accessor<ProfileRow | null>) {
 }
 
 function ProfileHandleScreenBody(props: {
-  sx: BodyContentProps['sx'];
+  class?: string | undefined;
   value: Accessor<string>;
   setValue: (v: string) => void;
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <Box sx={props.sx}>
+    <div class={`box ${props.class ?? ''}`.trim()}>
       <TextInput
         label={<Trans>Username</Trans>}
         aria-label={t`Username`}
@@ -58,7 +56,7 @@ function ProfileHandleScreenBody(props: {
         autocorrect="off"
         dataSet={{ testid: Handles.profileUsernameInput }}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -144,8 +142,12 @@ export function ProfileHandleScreen(): JSX.Element {
           }}
         />
       }
-      content={({ sx }) => (
-        <ProfileHandleScreenBody sx={sx} value={value} setValue={setValue} />
+      content={({ bodyClass }) => (
+        <ProfileHandleScreenBody
+          class={bodyClass}
+          value={value}
+          setValue={setValue}
+        />
       )}
     />
   );

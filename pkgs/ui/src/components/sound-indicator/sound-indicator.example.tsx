@@ -1,10 +1,7 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
-import { Clickable } from '../clickable';
 import { ExampleRoot } from '../explorer/example-root';
 import { SegmentedControl } from '../segmented-control';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { SoundIndicator, type SoundIndicatorState } from './sound-indicator';
 
 const STATE_SEGMENTS: readonly {
@@ -25,30 +22,29 @@ const LIGHT_OVERRIDES = {
 function StaticRows(): JSX.Element {
   return (
     <>
-      <Text
-        variant="caption"
-        label="All three states (theme-resolved colors)"
-      />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">
+        {'All three states (theme-resolved colors)'}
+      </p>
+      <div class="box flex-row gap-3 items-center">
         <SoundIndicator state="idle" />
         <SoundIndicator state="playing" />
         <SoundIndicator state="muted" />
-      </Stack>
+      </div>
 
-      <Text variant="caption" label="Sizes (playing)" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'Sizes (playing)'}</p>
+      <div class="box flex-row gap-3 items-center">
         <SoundIndicator state="playing" size={12} />
         <SoundIndicator state="playing" size={16} />
         <SoundIndicator state="playing" size={24} />
         <SoundIndicator state="playing" size={32} />
-      </Stack>
+      </div>
 
-      <Text variant="caption" label="Always-light callout (color overrides)" />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <p class="text textCaption">{'Always-light callout (color overrides)'}</p>
+      <div class="box flex-row gap-3 items-center">
         <SoundIndicator state="idle" {...LIGHT_OVERRIDES} />
         <SoundIndicator state="playing" {...LIGHT_OVERRIDES} />
         <SoundIndicator state="muted" {...LIGHT_OVERRIDES} />
-      </Stack>
+      </div>
     </>
   );
 }
@@ -60,25 +56,26 @@ export default function SoundIndicatorExample(): JSX.Element {
     <ExampleRoot>
       <StaticRows />
 
-      <Text variant="caption" label="Live state switcher" />
+      <p class="text textCaption">{'Live state switcher'}</p>
       <SegmentedControl<SoundIndicatorState>
         segments={STATE_SEGMENTS}
         selected={state()}
         onSelect={setState}
       />
-      <Stack direction="horizontal" spacing={3} align="center">
+      <div class="box flex-row gap-3 items-center">
         <SoundIndicator state={state()} size={20} />
-        <Text variant="body" label={`state="${state()}"`} />
-      </Stack>
+        <p class="text">{`state="${state()}"`}</p>
+      </div>
 
-      <Text variant="caption" label="Click to toggle mute" />
-      <Clickable
+      <p class="text textCaption">{'Click to toggle mute'}</p>
+      <button
+        class="clickable clickableTint self-start min-w-[44px] min-h-[44px]"
+        type="button"
         onClick={() => setTappedMuted((m) => !m)}
         aria-label={tappedMuted() ? 'Unmute' : 'Mute'}
-        sx={{ alignSelf: 'flex-start', minWidth: 44, minHeight: 44 }}
       >
         <SoundIndicator state={tappedMuted() ? 'muted' : 'playing'} size={20} />
-      </Clickable>
+      </button>
     </ExampleRoot>
   );
 }

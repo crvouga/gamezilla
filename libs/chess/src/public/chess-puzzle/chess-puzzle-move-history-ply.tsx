@@ -1,4 +1,3 @@
-import { Box, Clickable, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
@@ -18,11 +17,9 @@ function MoveNumberLabel(props: {
     ? `${props.moveNumber}...`
     : `${props.moveNumber}.`;
   return (
-    <Text
-      variant="caption"
-      label={label}
-      sx={{ color: 'textSecondary', fontWeight: '600', pr: 1 }}
-    />
+    <p class="text textCaption text-text-secondary font-semibold pr-1">
+      {label}
+    </p>
   );
 }
 
@@ -43,30 +40,27 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
     props.onSeek(props.ply.solveIdxAfter);
   };
   return (
-    <Clickable
-      dataSet={{ testid: `chess-puzzle-move-ply-${props.ply.plyIndex}` }}
+    <button
+      class="clickable px-1.5 py-0.5 rounded-[4px]"
+      style={{ background: props.selected ? 'successSurface' : 'transparent' }}
+      data-testid={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
+      type="button"
       disabled={!props.interactive || props.selected}
-      feedback="none"
       onClick={handlePress}
-      sx={{
-        px: 1.5,
-        py: 0.5,
-        borderRadius: 4,
-        background: props.selected ? 'successSurface' : 'transparent',
-      }}
       role="button"
       aria-pressed={props.selected}
       aria-label={props.ply.san}
     >
-      <Text
-        variant="mono"
-        label={props.ply.san}
-        sx={{
+      <code
+        class="text textMono"
+        style={{
           color: props.selected ? 'success' : 'text',
-          fontWeight: props.selected ? '700' : '600',
+          'font-weight': props.selected ? '700' : '600',
         }}
-      />
-    </Clickable>
+      >
+        {props.ply.san}
+      </code>
+    </button>
   );
 }
 
@@ -79,15 +73,9 @@ export function HistoryPlyCluster(props: {
 }): JSX.Element {
   const prefix = moveNumberPrefix(props.ply);
   return (
-    <Box
+    <div
+      class="box flex-row items-center gap-1 shrink-0 grow-0"
       ref={props.selectedRef}
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        flexShrink: 0,
-        flexGrow: 0,
-      }}
     >
       {prefix !== null ? (
         <MoveNumberLabel
@@ -101,6 +89,6 @@ export function HistoryPlyCluster(props: {
         interactive={props.interactive}
         onSeek={props.onSeek}
       />
-    </Box>
+    </div>
   );
 }

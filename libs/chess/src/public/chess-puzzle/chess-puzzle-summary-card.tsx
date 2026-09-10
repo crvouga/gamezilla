@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
-import { Box, Text } from '@pkgs/ui';
 import {
   type Accessor,
   createEffect,
@@ -24,25 +23,19 @@ function StreakBadge(props: { streak: number }): JSX.Element {
   });
 
   return (
-    <Box
-      sx={{
-        transform: [{ scale: shown() ? 1 : 0.85 }],
+    <div
+      class="box [transition-property:transform,_opacity] [transition-duration:var(--ui-duration-slow)] [transition-timing-function:var(--ui-easing-standard)]"
+      style={{
+        transform: `scale(${shown() ? 1 : 0.85})`,
         opacity: shown() ? 1 : 0.85,
-        transitionProperty: 'transform, opacity',
-        transitionDuration: 'var(--ui-duration-slow)',
-        transitionTimingFunction: 'var(--ui-easing-standard)',
       }}
     >
-      <Box
-        sx={{ px: 3, py: 1, borderRadius: 999, background: 'successSurface' }}
-      >
-        <Text
-          variant="bodyBold"
-          sx={{ color: 'success' }}
-          label={<Trans>{props.streak} puzzle streak</Trans>}
-        />
-      </Box>
-    </Box>
+      <div class="box px-3 py-1 rounded-[999px] bg-success-surface">
+        <p class="text textBodyBold text-success">
+          {<Trans>{props.streak} puzzle streak</Trans>}
+        </p>
+      </div>
+    </div>
   );
 }
 
@@ -50,14 +43,12 @@ function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
   const streak = props.completion.streak;
   const puzzleRating = props.completion.puzzleRating;
   return (
-    <Box sx={{ gap: 2, alignItems: 'center' }}>
+    <div class="box gap-2 items-center">
       {streak > 1 ? <StreakBadge streak={streak} /> : null}
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={<Trans>Puzzle rating {puzzleRating}</Trans>}
-      />
-    </Box>
+      <p class="text textCaption text-text-secondary">
+        {<Trans>Puzzle rating {puzzleRating}</Trans>}
+      </p>
+    </div>
   );
 }
 
@@ -79,32 +70,16 @@ export function ChessPuzzleSummaryCard(
   const scale = (): number => props.deltaPulse?.() ?? 1;
 
   return (
-    <Box
-      sx={{
-        gap: 3,
-        p: 4,
-        borderRadius: 8,
-        alignSelf: 'stretch',
-        background: 'surfaceElevated',
-        borderWidth: 1,
-        borderColor: 'border',
-      }}
-    >
-      <Text
-        variant="heading"
-        sx={{
-          color: isSolved ? 'success' : 'text',
-          textAlign: 'center',
-        }}
-        label={outcomeLabel(props.completion.outcome)}
-      />
-      <Box
-        sx={{
-          transform: [{ scale: scale() }],
-          transitionProperty: 'transform',
-          transitionDuration: 'var(--ui-duration-fast)',
-          transitionTimingFunction: 'var(--ui-easing-standard)',
-        }}
+    <div class="box gap-3 p-4 rounded-[8px] self-stretch bg-surface-elevated border border-border">
+      <h3
+        class="text textHeading text-center"
+        style={{ color: isSolved ? 'success' : 'text' }}
+      >
+        {outcomeLabel(props.completion.outcome)}
+      </h3>
+      <div
+        class="box [transition-property:transform] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
+        style={{ transform: `scale(${scale()})` }}
       >
         <ChessPuzzleEloDelta
           ratingBefore={props.completion.ratingBefore}
@@ -112,8 +87,8 @@ export function ChessPuzzleSummaryCard(
           delta={props.completion.delta}
           displayRating={props.displayRating}
         />
-      </Box>
+      </div>
       <SummaryMeta completion={props.completion} />
-    </Box>
+    </div>
   );
 }

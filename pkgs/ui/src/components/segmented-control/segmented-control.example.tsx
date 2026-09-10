@@ -1,8 +1,6 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { SegmentedControl } from './segmented-control';
 
 export default function SegmentedControlExample(): JSX.Element {
@@ -11,7 +9,7 @@ export default function SegmentedControlExample(): JSX.Element {
 
   return (
     <ExampleRoot>
-      <Stack spacing={4}>
+      <div class="box flex-col gap-4">
         <SegmentedControl
           segments={[
             { key: 'playground', label: 'Playground' },
@@ -22,7 +20,7 @@ export default function SegmentedControlExample(): JSX.Element {
           onSelect={setMode}
         />
 
-        <Text variant="caption" label={`Selected: ${mode()}`} />
+        <p class="text textCaption">{`Selected: ${mode()}`}</p>
 
         <SegmentedControl
           segments={[
@@ -34,8 +32,8 @@ export default function SegmentedControlExample(): JSX.Element {
           onSelect={setSize}
         />
 
-        <Text variant="caption" label={`Selected: ${size()}`} />
-      </Stack>
+        <p class="text textCaption">{`Selected: ${size()}`}</p>
+      </div>
     </ExampleRoot>
   );
 }

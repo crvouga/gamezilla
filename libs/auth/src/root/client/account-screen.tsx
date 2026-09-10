@@ -1,6 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   MenuRow,
   MenuSection,
   ScreenBase,
@@ -31,8 +30,8 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
         { name: <Trans>Account</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           {props.identity}
           <MenuSection title={<Trans>Security</Trans>}>
             <MenuRow
@@ -45,7 +44,7 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
             />
           </MenuSection>
           <AccountActionsRow />
-        </Box>
+        </div>
       )}
     />
   );

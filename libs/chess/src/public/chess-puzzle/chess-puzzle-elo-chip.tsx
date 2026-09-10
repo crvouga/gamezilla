@@ -1,5 +1,5 @@
 import { useTimers } from '@pkgs/clock/solid';
-import { Box, motion, Text } from '@pkgs/ui';
+import { dataAttrs, motion, Text } from '@pkgs/ui';
 import { createEffect, createSignal, type JSX, onCleanup } from 'solid-js';
 
 const PULSE_SCALE = 1.14;
@@ -28,31 +28,24 @@ export function ChessPuzzleEloChip(
   });
 
   return (
-    <Box
-      sx={{
-        transform: [{ scale: scale() }],
-        transitionProperty: 'transform',
-        transitionDuration: 'var(--ui-duration-fast)',
-        transitionTimingFunction: 'var(--ui-easing-standard)',
-      }}
+    <div
+      class="box [transition-property:transform] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
+      style={{ transform: `scale(${scale()})` }}
     >
-      <Box
-        dataSet={
+      <div
+        class="box px-2 py-1 rounded-[6px]"
+        style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
+        {...dataAttrs(
           props.testID !== undefined ? { testid: props.testID } : undefined
-        }
-        sx={{
-          px: 2,
-          py: 1,
-          borderRadius: 6,
-          background: isPrimary() ? 'tintMuted' : 'surfaceMuted',
-        }}
+        )}
       >
         <Text
           variant={isPrimary() ? 'bodyBold' : 'caption'}
-          sx={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
-          label={String(props.elo)}
-        />
-      </Box>
-    </Box>
+          style={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
+        >
+          {String(props.elo)}
+        </Text>
+      </div>
+    </div>
   );
 }

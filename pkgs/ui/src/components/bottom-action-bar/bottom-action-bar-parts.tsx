@@ -6,10 +6,8 @@
 
 import type { JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
-import { Box } from '../box';
+import { dataAttrs } from '../../component-id';
 import { Button } from '../button';
-import { Clickable } from '../clickable';
-import { Text } from '../text';
 import type {
   BottomActionBarActionItem,
   BottomActionBarButtonItem,
@@ -31,23 +29,18 @@ export function BottomActionBarAction(props: {
     props.item['aria-label'] ??
     (typeof props.item.label === 'string' ? props.item.label : undefined);
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint flex-1 rounded-[10px] items-center justify-center min-w-[0] min-h-[44px] py-1 gap-0.5"
+      {...dataAttrs({
+        component: 'BottomActionBarAction',
+        ...props.item.dataSet,
+      })}
+      type="button"
+      style={{ opacity: disabled() ? 0.5 : 1 }}
       onClick={() => props.item.onClick()}
       disabled={disabled()}
       aria-label={ariaLabel()}
       aria-pressed={props.item.selected === undefined ? undefined : selected()}
-      dataSet={{ component: 'BottomActionBarAction', ...props.item.dataSet }}
-      sx={{
-        flex: 1,
-        borderRadius: 'md',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minWidth: 0,
-        minHeight: 44,
-        opacity: disabled() ? 0.5 : 1,
-        py: 1,
-        gap: 0.5,
-      }}
     >
       <Dynamic
         component={props.item.icon}
@@ -55,20 +48,13 @@ export function BottomActionBarAction(props: {
         strokeWidth={ICON_STROKE_WIDTH}
         color={iconColor()}
       />
-      <Text
-        variant="caption"
-        numberOfLines={1}
-        sx={{
-          color: captionColor(),
-          textAlign: 'center',
-          fontWeight: '700',
-          width: '100%',
-          fontSize: 13,
-          lineHeight: 18,
-        }}
-        label={props.item.label}
-      />
-    </Clickable>
+      <p
+        class="text textCaption line-clamp-1 text-center font-bold w-[100%] text-[13px] leading-[18px]"
+        style={{ color: captionColor() }}
+      >
+        {props.item.label}
+      </p>
+    </button>
   );
 }
 
@@ -77,14 +63,10 @@ export function BottomActionBarButton(props: {
   item: BottomActionBarButtonItem;
 }): JSX.Element {
   return (
-    <Box
-      dataSet={{ component: 'BottomActionBarButton' }}
-      sx={{
-        flex: props.item.flex ?? 1,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        minWidth: 0,
-      }}
+    <div
+      class="box items-stretch justify-center min-w-[0]"
+      data-component="BottomActionBarButton"
+      style={{ flex: props.item.flex ?? 1 }}
     >
       <Button
         title={props.item.title}
@@ -100,6 +82,6 @@ export function BottomActionBarButton(props: {
         // the matched node, and a wrapper Box would swallow the click.
         dataSet={props.item.dataSet}
       />
-    </Box>
+    </div>
   );
 }

@@ -1,5 +1,4 @@
 import {
-  Box,
   CommandPalette,
   CommandRegistryProvider,
   ErrorState,
@@ -67,7 +66,7 @@ export function PlaygroundScreen(props: {
   return (
     <Switch>
       <Match when={props.state.status === 'error'}>
-        <Box sx={centerSx}>
+        <div class="box" style={centerSx}>
           <ErrorState
             title="Failed to boot playground"
             body={props.state.status === 'error' ? props.state.error : ''}
@@ -75,12 +74,12 @@ export function PlaygroundScreen(props: {
               ? { retry: { label: 'Reload', onClick: props.onReload } }
               : {})}
           />
-        </Box>
+        </div>
       </Match>
       <Match when={readyState() === null}>
-        <Box sx={centerSx}>
+        <div class="box" style={centerSx}>
           <LoadingState caption="Booting playground…" />
-        </Box>
+        </div>
       </Match>
       <Match when={readyState()}>
         {(state) => (
@@ -207,14 +206,7 @@ function ReadyPlaygroundScreen(props: {
     props.onFocusedClientIdChange(null);
   };
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minHeight: 0,
-        background: 'background',
-        overflow: 'hidden',
-      }}
-    >
+    <div class="box flex-1 min-h-[0] bg-background overflow-hidden">
       <PlaygroundPaletteRegistrations commands={paletteCommands()} />
       <PlaygroundDebuggerShell
         session={props.session}
@@ -234,7 +226,7 @@ function ReadyPlaygroundScreen(props: {
         onFocusedClientIdChange={props.onFocusedClientIdChange}
         clearClientFocus={clearClientFocus}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -344,8 +336,8 @@ function PlaygroundPaletteRegistrations(props: {
 
 const centerSx = {
   flex: 1,
-  alignItems: 'center',
-  justifyContent: 'center',
+  'align-items': 'center',
+  'justify-content': 'center',
   background: 'background',
-  padding: 4,
+  padding: '16px',
 } as const;

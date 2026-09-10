@@ -6,7 +6,7 @@ import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
 import { asLocalized } from '@pkgs/i18n';
 import { useNamedRoomRoster } from '@pkgs/room/solid';
-import { Badge, ResponsiveSurface, ScrollView, Stack } from '@pkgs/ui';
+import { Badge, ResponsiveSurface, ScrollView } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import { useSpaceRoomClientId } from '../../../public/room/space-room-context';
@@ -71,7 +71,7 @@ export function SpaceMembersListModal(
       onClose={props.onClose}
       title={<Trans>People in this space</Trans>}
     >
-      <ScrollView frameSx={{ maxHeight: 420 }} sx={{ px: 0 }}>
+      <ScrollView class="max-h-[420px]" contentClass="px-0">
         <Show
           when={titledRows().length > 0}
           fallback={<Trans>No one connected yet</Trans>}
@@ -97,7 +97,7 @@ function SpaceMemberBadges(props: {
 }): JSX.Element {
   const role = useMemberRole(props.spaceId, props.memberId);
   return (
-    <Stack direction="horizontal" spacing={1} align="center">
+    <div class="box flex-row gap-1 items-center">
       <Show when={role() === 'host'}>
         <Badge
           label={<Trans>Host</Trans>}
@@ -123,6 +123,6 @@ function SpaceMemberBadges(props: {
         />
       </Show>
       <UserUsername profileId={props.memberId} />
-    </Stack>
+    </div>
   );
 }

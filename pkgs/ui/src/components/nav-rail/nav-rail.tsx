@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
+import { cssPx } from '../../css/css-px';
 /** `NavRail` -- fixed-width side column with pinned header / footer slots. */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export const NAV_RAIL_DEFAULT_WIDTH = 276;
 
@@ -21,22 +21,14 @@ export type NavRailProps = {
 
 export function NavRail(props: NavRailProps): JSX.Element {
   return (
-    <Box
-      as="nav"
-      dataSet={{ component: 'NavRail', ...props.dataSet }}
-      sx={{
-        width: props.width ?? NAV_RAIL_DEFAULT_WIDTH,
-        minHeight: 0,
-        flexDirection: 'column',
-        borderRightWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        background: 'surface',
-      }}
+    <nav
+      class="box min-h-[0] flex-col border-r border-solid border-border bg-surface"
+      {...dataAttrs({ component: 'NavRail', ...props.dataSet })}
+      style={{ width: cssPx(props.width ?? NAV_RAIL_DEFAULT_WIDTH) }}
     >
       {props.header}
-      <Box sx={{ flex: 1, minHeight: 0 }}>{props.children}</Box>
+      <div class="box flex-1 min-h-[0]">{props.children}</div>
       {props.footer}
-    </Box>
+    </nav>
   );
 }

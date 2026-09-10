@@ -1,4 +1,3 @@
-import { Box, Text } from '@pkgs/ui';
 import { For, type JSX, Match, Switch } from 'solid-js';
 import type { DebuggerViewId } from '../shared/debugger-views';
 import type { ReportApiClient } from './api-client';
@@ -129,18 +128,22 @@ function ReportClientPane(props: {
         </DebuggerColumns>
       </Match>
       <Match when={visibleInstances().length === 0}>
-        <Box sx={paneSx}>
-          <Text sx={emptySx}>No client nodes for this frame.</Text>
-        </Box>
+        <div class="box" style={paneSx}>
+          <p class="text" style={emptySx}>
+            No client nodes for this frame.
+          </p>
+        </div>
       </Match>
       <Match when={true}>
         <DebuggerColumns>
           <For each={visibleInstances()}>
             {(node) => (
               <DebuggerColumn>
-                <Box sx={columnSx}>
-                  <Text sx={columnLabelSx}>{node.id}</Text>
-                  <Box sx={previewSx}>
+                <div class="box" style={columnSx}>
+                  <p class="text" style={columnLabelSx}>
+                    {node.id}
+                  </p>
+                  <div class="box" style={previewSx}>
                     <HtmlPane
                       api={props.api}
                       bucketId={props.bucketId}
@@ -154,8 +157,8 @@ function ReportClientPane(props: {
                       nodeId={node.id}
                       node={node}
                     />
-                  </Box>
-                </Box>
+                  </div>
+                </div>
               </DebuggerColumn>
             )}
           </For>
@@ -178,23 +181,25 @@ function visibleReportClients(
 
 const columnSx = {
   flex: 1,
-  flexDirection: 'column',
-  minHeight: 0,
-  minWidth: 0,
+  'flex-direction': 'column',
+  'min-height': 0,
+  'min-width': 0,
 } as const;
 
 const previewSx = {
   flex: 1,
-  minHeight: 0,
-  minWidth: 0,
+  'min-height': 0,
+  'min-width': 0,
 } as const;
 
 const columnLabelSx = {
-  paddingHorizontal: 10,
-  paddingVertical: 6,
-  fontSize: 12,
-  fontWeight: '600',
+  'padding-left': '40px',
+  'padding-right': '40px',
+  'padding-top': '24px',
+  'padding-bottom': '24px',
+  'font-size': '12px',
+  'font-weight': '600',
   color: 'textSecondary',
-  borderBottomWidth: 'hairline',
-  borderBottomColor: 'border',
+  'border-bottom-width': '1px',
+  'border-bottom-color': 'border',
 } as const;

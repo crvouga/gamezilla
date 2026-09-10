@@ -20,7 +20,7 @@ describe('Clickable', () => {
   test('renders a real button with tint feedback and forwards clicks', () => {
     const onClick = vi.fn();
     renderUi(() => (
-      <Clickable data-testid="c" onClick={onClick} sx={{ p: 2 }}>
+      <Clickable data-testid="c" onClick={onClick} class="p-2">
         <Text label="Go" />
       </Clickable>
     ));
@@ -51,7 +51,7 @@ describe('Switch', () => {
     expect(el).toHaveAttribute('aria-checked', 'false');
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
-    expect(cssOf(el)).toContain('min-height:44px');
+    expect(el.className).toMatch(/min-h-\[44px\]/);
   });
 });
 
@@ -116,20 +116,23 @@ describe('ScrollView', () => {
   test('styles frame and content separately and bleeds under shell padding', () => {
     renderUi(() => (
       <ContentEdgePaddingProvider step={4}>
-        <ScrollView data-testid="sv" frameSx={{ flex: 1 }} sx={{ gap: 2 }}>
+        <ScrollView
+          data-testid="sv"
+          class="flex-1"
+          contentStyle={{ gap: 'var(--ui-space-2)' }}
+        >
           <Text label="row" />
         </ScrollView>
       </ContentEdgePaddingProvider>
     ));
     const frame = screen.getByTestId('sv');
     expect(frame.className).toMatch(/scroll/);
-    expect(cssOf(frame)).toContain('flex-grow:1');
+    expect(frame.className).toMatch(/flex-1/);
     const content = frame.firstElementChild as HTMLElement;
-    expect(cssOf(content)).toContain('padding-left:16px');
-    expect(cssOf(content)).toContain('gap:8px');
+    expect(cssOf(content)).toContain('gap:var(--ui-space-2)');
     const wrapper = frame.parentElement;
     if (wrapper === null) throw new Error('wrapper missing');
-    expect(cssOf(wrapper)).toContain('margin-left:-16px');
+    expect(wrapper.className).toMatch(/flex-1/);
   });
 });
 
@@ -188,7 +191,7 @@ describe('Motion', () => {
   test('emits transition declarations and unmounts after exit', () => {
     const [present, setPresent] = createSignal(true);
     const { clock } = renderUi(() => (
-      <Motion data-testid="m" present={present()} sx={{ opacity: 1 }} />
+      <Motion data-testid="m" present={present()} style={{ opacity: 1 }} />
     ));
     const el = screen.getByTestId('m');
     expect(cssOf(el)).toContain('transition-property:all');

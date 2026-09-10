@@ -1,10 +1,8 @@
 import {
   BackIconButton,
-  Box,
   ChevronLeftIcon,
   ChevronRightIcon,
   IconButton,
-  Text,
 } from '@pkgs/ui';
 import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 
@@ -86,7 +84,7 @@ export function TestPage(props: {
   });
 
   return (
-    <Box sx={appShellSx}>
+    <div class="box" style={appShellSx}>
       <ReportDebuggerShell
         data={props.data}
         nav={props.nav}
@@ -102,7 +100,7 @@ export function TestPage(props: {
         frame={frame()}
         reportView={reportView()}
       />
-    </Box>
+    </div>
   );
 }
 
@@ -179,12 +177,9 @@ function ReportTestHeader(props: ReportDebuggerShellProps) {
         />
       }
       title={
-        <Text
-          variant="navigationTitle"
-          numberOfLines={1}
-          sx={testTitleSx}
-          label={props.data.meta.testId}
-        />
+        <h2 class="text textNavigationTitle line-clamp-1" style={testTitleSx}>
+          {props.data.meta.testId}
+        </h2>
       }
       meta={`${props.data.meta.status} · ${props.frames.length} frames · seed ${props.data.meta.seed}`}
       end={
@@ -258,8 +253,8 @@ function goToNeighborTest(args: {
 }
 
 const testTitleSx = {
-  flexShrink: 1,
-  minWidth: 0,
+  'flex-shrink': 1,
+  'min-width': 0,
 } as const;
 
 function useTopology(args: {

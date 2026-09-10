@@ -3,7 +3,6 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Stack } from '../stack';
 import { TextInput } from './text-input';
 
 export default function TextInputExample(): JSX.Element {
@@ -14,7 +13,7 @@ export default function TextInputExample(): JSX.Element {
   return (
     <ExampleRoot>
       <SchemePreview>
-        <Stack spacing={3}>
+        <div class="box flex-col gap-3">
           <TextInput
             label={<Trans>Name</Trans>}
             placeholder={t`John Doe`}
@@ -47,7 +46,7 @@ export default function TextInputExample(): JSX.Element {
             onChangeText={() => undefined}
             disabled
           />
-        </Stack>
+        </div>
       </SchemePreview>
     </ExampleRoot>
   );

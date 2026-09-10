@@ -23,13 +23,12 @@ import {
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import type { ComponentDataSet } from '../../component-id';
-import { type SxProps, useThemeTokens } from '../../theme';
-import { Box } from '../box';
+import { useThemeTokens } from '../../theme';
+import { joinClass } from '../box/box';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
 import { XIcon } from '../icons';
 import { Motion } from '../motion';
-import { Text } from '../text';
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
 
@@ -42,13 +41,6 @@ type PortalApi = {
 
 const DismissibleBannerPortalContext = createContext<PortalApi | null>(null);
 
-/** Full-size overlay host; absoluteFill so nested roots (playground) can clip. */
-const HOST_SX: SxProps = {
-  absoluteFill: true,
-  zIndex: 999_999,
-  pointerEvents: 'none',
-};
-
 export type DismissibleBannerPortalProviderProps = {
   children: JSX.Element;
 };
@@ -59,14 +51,15 @@ export function DismissibleBannerPortalProvider(
   const [host, setHost] = createSignal<HTMLElement | null>(null);
   return (
     <DismissibleBannerPortalContext.Provider value={{ host }}>
-      <Box sx={{ flex: 1, position: 'relative' }}>
+      <div class="box flex-1 relative">
         {props.children}
-        <Box
+        <div
+          class="box absolute inset-0 pointer-events-none"
+          style={{ 'z-index': 999_999 }}
+          data-component="DismissibleBannerPortalHost"
           ref={setHost}
-          sx={HOST_SX}
-          dataSet={{ component: 'DismissibleBannerPortalHost' }}
         />
-      </Box>
+      </div>
     </DismissibleBannerPortalContext.Provider>
   );
 }
@@ -99,22 +92,13 @@ function DismissibleBannerPromptBody(props: {
   onActionClick: (() => void) | undefined;
 }): JSX.Element {
   return (
-    <Box
-      sx={{
-        flex: 1,
-        minWidth: 0,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 3,
-        flexWrap: 'wrap',
-      }}
-    >
-      <Box sx={{ flex: 1, minWidth: 120, gap: 1 }}>
-        <Text variant="bodyBold" label={props.title} />
+    <div class="box flex-1 min-w-[0] flex-row items-center gap-3 flex-wrap">
+      <div class="box flex-1 min-w-[120px] gap-1">
+        <p class="text textBodyBold">{props.title}</p>
         <Show when={props.subtitle !== undefined && props.subtitle !== null}>
-          <Text variant="caption" label={props.subtitle} />
+          <p class="text textCaption">{props.subtitle}</p>
         </Show>
-      </Box>
+      </div>
       <Show
         when={
           props.actionLabel !== undefined &&
@@ -127,22 +111,20 @@ function DismissibleBannerPromptBody(props: {
           onClick={() => props.onActionClick?.()}
         />
       </Show>
-    </Box>
+    </div>
   );
 }
 
-function edgeSx(position: DismissibleBannerPosition): SxProps {
+function edgeClass(position: DismissibleBannerPosition): string {
   return position === 'top'
-    ? {
-        paddingTop: 'calc(env(safe-area-inset-top, 0px) + 12px)',
-        pb: 3,
-        borderBottomWidth: 1,
-      }
-    : {
-        paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 12px)',
-        pt: 3,
-        borderTopWidth: 1,
-      };
+    ? 'pb-3 border-b border-solid border-border'
+    : 'pt-3 border-t border-solid border-border';
+}
+
+function edgeStyle(position: DismissibleBannerPosition): JSX.CSSProperties {
+  return position === 'top'
+    ? { 'padding-top': 'calc(env(safe-area-inset-top, 0px) + 12px)' }
+    : { 'padding-bottom': 'calc(env(safe-area-inset-bottom, 0px) + 12px)' };
 }
 
 function DismissibleBannerFrame(
@@ -153,19 +135,12 @@ function DismissibleBannerFrame(
 ): JSX.Element {
   const { t } = useLingui();
   return (
-    <Box
-      sx={[
-        {
-          px: 4,
-          backgroundColor: 'surface',
-          borderColor: 'border',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 3,
-          pointerEvents: 'auto',
-        },
-        edgeSx(props.position),
-      ]}
+    <div
+      class={joinClass(
+        'box px-4 bg-surface flex-row items-center gap-3 pointer-events-auto',
+        edgeClass(props.position)
+      )}
+      style={edgeStyle(props.position)}
     >
       <DismissibleBannerPromptBody
         title={props.title}
@@ -183,7 +158,7 @@ function DismissibleBannerFrame(
       >
         <XIcon size={20} color="icon" />
       </IconButton>
-    </Box>
+    </div>
   );
 }
 
@@ -240,8 +215,8 @@ export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
     if (portal === null && props.visible) throw new Error(MISSING_PORTAL_MSG);
   });
 
-  const offscreen = (): SxProps => ({
-    transform: [{ translateY: sign() * DISMISSIBLE_BANNER_SLIDE_PX }],
+  const offscreen = (): JSX.CSSProperties => ({
+    transform: `translateY(${sign() * DISMISSIBLE_BANNER_SLIDE_PX}px)`,
     opacity: 0,
   });
 
@@ -250,22 +225,20 @@ export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
       {(host) => (
         <Portal mount={host()}>
           <Motion
+            class="absolute z-[9999] left-0 right-0"
+            style={position() === 'top' ? { top: 0 } : { bottom: 0 }}
             present={presence.present()}
             duration="fast"
             easing="accelerate"
             property="transform, opacity"
-            enterSx={{ opacity: 1, transform: [{ translateY: 0 }] }}
-            exitSx={offscreen()}
+            enterStyle={{ opacity: 1, transform: 'translateY(0)' }}
+            exitStyle={offscreen()}
             role="status"
             dataSet={{
               component: 'DismissibleBanner',
               position: position(),
               ...props.dataSet,
             }}
-            sx={[
-              { position: 'absolute', zIndex: 9999, left: 0, right: 0 },
-              position() === 'top' ? { top: 0 } : { bottom: 0 },
-            ]}
           >
             <DismissibleBannerFrame
               {...props}

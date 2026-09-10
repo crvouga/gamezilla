@@ -3,9 +3,9 @@
  * `SchemePreview` -- side-by-side preview of children in both color schemes.
  *
  * Colors are CSS variables scoped by the `data-theme` attribute
- * (`tokens.css`), so each pane simply re-scopes the token set for its subtree
- * with `data-theme="light"` / `data-theme="dark"`. No nested `ThemeProvider`
- * is mounted — that would also flip the document-level scheme.
+ * (generated token stylesheet), so each pane simply re-scopes the token set
+ * for its subtree with `data-theme="light"` / `data-theme="dark"`. No nested
+ * `ThemeProvider` is mounted — that would also flip the document-level scheme.
  *
  * Note: `palette()` / `colorScheme()` readers inside the panes still see the
  * ambient theme; only CSS-variable-driven styling follows the pane scheme.
@@ -15,8 +15,6 @@
 
 import type { JSX } from 'solid-js';
 import type { ColorScheme } from '../../theme';
-import { Box } from '../box';
-import { Text } from '../text';
 
 export type SchemePreviewProps = {
   children: JSX.Element;
@@ -24,17 +22,14 @@ export type SchemePreviewProps = {
 
 export function SchemePreview(props: SchemePreviewProps): JSX.Element {
   return (
-    <Box
-      sx={{ flexDirection: 'column', gap: 4 }}
-      dataSet={{ component: 'SchemePreview' }}
-    >
+    <div class="box flex-col gap-4" data-component="SchemePreview">
       <SchemePane label="Light" scheme="light">
         {props.children}
       </SchemePane>
       <SchemePane label="Dark" scheme="dark">
         {props.children}
       </SchemePane>
-    </Box>
+    </div>
   );
 }
 
@@ -44,27 +39,16 @@ function SchemePane(props: {
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-1 p-4 gap-3 bg-background border border-solid border-border rounded-[14px] text-text"
+      data-component="SchemePane"
+      data-scheme={props.scheme}
       data-theme={props.scheme}
-      dataSet={{ component: 'SchemePane', scheme: props.scheme }}
-      sx={{
-        flex: 1,
-        p: 4,
-        gap: 3,
-        background: 'background',
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        borderRadius: 'lg',
-        color: 'text',
-      }}
     >
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={props.label.toUpperCase()}
-      />
+      <p class="text textCaption text-text-secondary">
+        {props.label.toUpperCase()}
+      </p>
       {props.children}
-    </Box>
+    </div>
   );
 }

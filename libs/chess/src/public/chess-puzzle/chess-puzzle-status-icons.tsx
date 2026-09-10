@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, Spinner, type SxProps, useTheme } from '@pkgs/ui';
+import { Spinner, useTheme } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
@@ -12,32 +12,32 @@ const SIZE = 22;
 const PIECE_WHITE = '#ffffff';
 const PIECE_BLACK = '#1a1a1a';
 
-const ROOT_SX: SxProps = {
-  width: SIZE,
-  height: SIZE,
-  alignItems: 'center',
-  justifyContent: 'center',
+const ROOT_STYLE: JSX.CSSProperties = {
+  width: `${SIZE}px`,
+  height: `${SIZE}px`,
+  'align-items': 'center',
+  'justify-content': 'center',
 };
 
-const WHITE_SQUARE_SX: SxProps = {
-  width: 14,
-  height: 14,
-  borderWidth: 1.5,
-  borderColor: PIECE_WHITE,
+const WHITE_SQUARE_STYLE: JSX.CSSProperties = {
+  width: '14px',
+  height: '14px',
+  'border-width': '1.5px',
+  'border-color': PIECE_WHITE,
 };
 
-const BLACK_SQUARE_SX: SxProps = {
-  width: 14,
-  height: 14,
-  backgroundColor: PIECE_BLACK,
+const BLACK_SQUARE_STYLE: JSX.CSSProperties = {
+  width: '14px',
+  height: '14px',
+  'background-color': PIECE_BLACK,
 };
 
-const CENTER_DOT_SX: SxProps = {
+const CENTER_DOT_STYLE: JSX.CSSProperties = {
   position: 'absolute',
-  width: 6,
-  height: 6,
-  borderRadius: 3,
-  backgroundColor: PIECE_BLACK,
+  width: '6px',
+  height: '6px',
+  'border-radius': '3px',
+  'background-color': PIECE_BLACK,
 };
 
 function outcomeColors(
@@ -66,30 +66,30 @@ export function ChessPuzzleStatusIcon(props: {
   const theme = useTheme();
   if (props.kind === 'loading') {
     return (
-      <Box sx={ROOT_SX}>
+      <div class="box" style={ROOT_STYLE}>
         <Spinner size="small" />
-      </Box>
+      </div>
     );
   }
   if (props.kind === 'whiteToMove') {
     return (
-      <Box sx={ROOT_SX}>
-        <Box sx={WHITE_SQUARE_SX} />
-        <Box sx={CENTER_DOT_SX} />
-      </Box>
+      <div class="box" style={ROOT_STYLE}>
+        <div class="box" style={WHITE_SQUARE_STYLE} />
+        <div class="box" style={CENTER_DOT_STYLE} />
+      </div>
     );
   }
   if (props.kind === 'blackToMove') {
     return (
-      <Box sx={ROOT_SX}>
-        <Box sx={BLACK_SQUARE_SX} />
-      </Box>
+      <div class="box" style={ROOT_STYLE}>
+        <div class="box" style={BLACK_SQUARE_STYLE} />
+      </div>
     );
   }
   const { bg, fg } = outcomeColors(theme, props.kind);
   return (
-    <Box sx={ROOT_SX}>
+    <div class="box" style={ROOT_STYLE}>
       <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={outcomeMark(props.kind)} />
-    </Box>
+    </div>
   );
 }

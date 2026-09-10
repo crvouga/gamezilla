@@ -1,4 +1,3 @@
-import { Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -19,11 +18,7 @@ export function MemberSessionCountBadge(
   const count = useMemberSessionCount(props.spaceId, props.profileId);
   return (
     <Show when={count() > 1}>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={`·${String(count())}`}
-      />
+      <p class="text textCaption text-text-secondary">{`·${String(count())}`}</p>
     </Show>
   );
 }

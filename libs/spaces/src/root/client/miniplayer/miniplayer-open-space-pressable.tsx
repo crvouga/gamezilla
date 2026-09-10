@@ -1,5 +1,5 @@
 import { useLingui } from '@lingui/solid/macro';
-import { Clickable, useRouter } from '@pkgs/ui';
+import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { openSpaceDetail } from '../../../public/space-routes';
@@ -18,23 +18,17 @@ export function MiniplayerOpenSpacePressable(
   const router = useRouter();
   const { t } = useLingui();
   return (
-    <Clickable
+    <button
+      class="clickable clickableTint flex-1 self-stretch flex-row items-center gap-2 min-w-[0]"
+      type="button"
       onClick={() => {
         openSpaceDetail(router, props.spaceId);
         props.onAfterOpen?.();
       }}
       role="button"
       aria-label={t`Tap to return to your space`}
-      sx={{
-        flex: 1,
-        alignSelf: 'stretch',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 2,
-        minWidth: 0,
-      }}
     >
       {props.children}
-    </Clickable>
+    </button>
   );
 }

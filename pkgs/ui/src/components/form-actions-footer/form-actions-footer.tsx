@@ -25,8 +25,7 @@
  */
 
 import { type JSX, Show, untrack } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Button, type ButtonIntent, useMutationButton } from '../button';
 
 export type FormSubmitAction = {
@@ -96,9 +95,9 @@ export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
   });
 
   return (
-    <Box
-      sx={{ flexDirection: 'row', gap: 2 }}
-      dataSet={{ component: 'FormActionsFooter', ...props.dataSet }}
+    <div
+      class="box flex-row gap-2"
+      {...dataAttrs({ component: 'FormActionsFooter', ...props.dataSet })}
     >
       <Show when={cancel}>
         {(cancel) => (
@@ -120,6 +119,6 @@ export function FormActionsFooter(props: FormActionsFooterProps): JSX.Element {
         flex={1}
         dataSet={{ component: 'FormSubmitButton', ...submit.dataSet }}
       />
-    </Box>
+    </div>
   );
 }

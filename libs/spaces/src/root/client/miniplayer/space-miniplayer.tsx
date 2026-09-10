@@ -1,5 +1,5 @@
 import { useSyncEngine } from '@pkgs/sync-engine/solid';
-import { Box, ISLAND_GAP_STEP, useLayoutMode } from '@pkgs/ui';
+import { ISLAND_GAP_STEP, useLayoutMode } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createEffect, createMemo, createSignal, Show } from 'solid-js';
 import { SPACE_CARD_BORDER_RADIUS } from '../card/space-card-gradient';
@@ -28,12 +28,17 @@ function MiniplayerFrameBox(props: {
     <Show
       when={props.frame.maxWidth}
       keyed
-      fallback={<Box>{props.children}</Box>}
+      fallback={<div class="box">{props.children}</div>}
     >
       {(maxWidth) => (
-        <Box sx={{ alignItems: 'center', pt: ISLAND_GAP_STEP }}>
-          <Box sx={{ width: '100%', maxWidth }}>{props.children}</Box>
-        </Box>
+        <div
+          class="box items-center"
+          style={{ 'padding-top': `${ISLAND_GAP_STEP * 4}px` }}
+        >
+          <div class="box w-[100%]" style={{ 'max-width': `${maxWidth}px` }}>
+            {props.children}
+          </div>
+        </div>
       )}
     </Show>
   );

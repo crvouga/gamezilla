@@ -1,5 +1,5 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Box, MenuRow, MenuSection, Text } from '@pkgs/ui';
+import { MenuRow, MenuSection } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { useClientConfig } from '../../public/use-client-config';
 
@@ -25,7 +25,7 @@ export function ClientConfigEntityCard(): JSX.Element {
     );
 
   return (
-    <Box sx={{ gap: 5 }}>
+    <div class="box gap-5">
       <MenuSection
         title={<Trans>Sign-in</Trans>}
         footer={
@@ -71,26 +71,14 @@ export function ClientConfigEntityCard(): JSX.Element {
           value={state.config.observability_backend}
         />
       </MenuSection>
-      <Box sx={{ gap: 2 }}>
-        <Text
-          variant="label"
-          sx={{ color: 'textSecondary' }}
-          label={<Trans>Snapshot (JSON)</Trans>}
-        />
-        <Box
-          sx={{
-            backgroundColor: 'surfaceMuted',
-            borderRadius: 'md',
-            p: 3,
-          }}
-        >
-          <Text
-            variant="mono"
-            sx={{ userSelect: 'text' }}
-            label={jsonPreview()}
-          />
-        </Box>
-      </Box>
-    </Box>
+      <div class="box gap-2">
+        <label class="text textLabel text-text-secondary">
+          {<Trans>Snapshot (JSON)</Trans>}
+        </label>
+        <div class="box bg-surface-muted rounded-[10px] p-3">
+          <code class="text textMono select-text">{jsonPreview()}</code>
+        </div>
+      </div>
+    </div>
   );
 }

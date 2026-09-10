@@ -1,7 +1,7 @@
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Box, EmptyState, ScreenBase, UsersIcon } from '@pkgs/ui';
+import { EmptyState, ScreenBase, UsersIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -21,8 +21,8 @@ export function FriendsSignedInGate({
         <ScreenBase
           screenId="friends-signed-in-gate"
           breadcrumbs={[{ name: <Trans>Friends</Trans> }]}
-          content={({ sx }) => (
-            <Box sx={sx}>
+          content={({ bodyClass }) => (
+            <div class={`box ${bodyClass}`}>
               <EmptyState
                 icon={UsersIcon}
                 title={<Trans>Sign in to add friends</Trans>}
@@ -33,7 +33,7 @@ export function FriendsSignedInGate({
                 }
                 action={{ label: t`Sign in`, onClick: openSignInModal }}
               />
-            </Box>
+            </div>
           )}
         />
       }

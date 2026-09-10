@@ -2,8 +2,6 @@
 import type { JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import { UserIcon } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { IconButton, iconButtonAvatarContentSize } from './icon-button';
 
 const AVATAR_BUTTON_SIZE = 40;
@@ -11,19 +9,17 @@ const AVATAR_BUTTON_SIZE = 40;
 export default function IconButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label="Hover or focus to see tooltips."
-      />
+      <p class="text textCaption text-text-secondary">
+        {'Hover or focus to see tooltips.'}
+      </p>
 
-      <Stack direction="horizontal" spacing={3} align="center">
+      <div class="box flex-row gap-3 items-center">
         <IconButton
           label="Close"
           onClick={() => undefined}
           background="surface"
         >
-          <Text variant="body" label="✕" />
+          <p class="text">{'✕'}</p>
         </IconButton>
 
         <IconButton
@@ -32,7 +28,7 @@ export default function IconButtonExample(): JSX.Element {
           size={48}
           background="tint"
         >
-          <Text variant="bodyBold" label="+" />
+          <p class="text textBodyBold">{'+'}</p>
         </IconButton>
 
         <IconButton
@@ -41,7 +37,7 @@ export default function IconButtonExample(): JSX.Element {
           size={32}
           background="destructive"
         >
-          <Text sx={{ fontSize: 'xs' }} label="🗑" />
+          <p class="text text-xs">{'🗑'}</p>
         </IconButton>
 
         <IconButton
@@ -50,7 +46,7 @@ export default function IconButtonExample(): JSX.Element {
           onClick={() => undefined}
           background="surface"
         >
-          <Text variant="body" label="⚙" />
+          <p class="text">{'⚙'}</p>
         </IconButton>
 
         <IconButton
@@ -61,7 +57,7 @@ export default function IconButtonExample(): JSX.Element {
         >
           <UserIcon size={iconButtonAvatarContentSize(AVATAR_BUTTON_SIZE)} />
         </IconButton>
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }

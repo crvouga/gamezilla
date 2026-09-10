@@ -1,47 +1,37 @@
 /** @jsxImportSource solid-js */
 import type { JSX } from 'solid-js';
-import { Box } from '../box';
 import { Card } from '../card';
 import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
-import { Text } from '../text';
 import { LoadingState } from './loading-state';
 
 export default function LoadingStateExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Fill (default)"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Fill (default)'}
+      </label>
       <SchemePreview>
-        <Box sx={{ height: 240 }}>
+        <div class="box h-[240px]">
           <LoadingState size="large" />
-        </Box>
+        </div>
       </SchemePreview>
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="With caption"
-      />
+      <label class="text textLabel text-text-secondary">{'With caption'}</label>
       <SchemePreview>
-        <Box sx={{ height: 240 }}>
+        <div class="box h-[240px]">
           <LoadingState caption="Loading workspace…" />
-        </Box>
+        </div>
       </SchemePreview>
 
       <Divider />
 
-      <Text
-        variant="label"
-        sx={{ color: 'textSecondary' }}
-        label="Compact (inside a card)"
-      />
+      <label class="text textLabel text-text-secondary">
+        {'Compact (inside a card)'}
+      </label>
       <SchemePreview>
         <Card elevation={1}>
           <LoadingState

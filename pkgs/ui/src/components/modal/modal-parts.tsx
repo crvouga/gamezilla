@@ -5,10 +5,8 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Button, type ButtonIntent, type ButtonVariant } from '../button';
-import { Text } from '../text';
 import { useModalTitleId } from './modal-title-id';
 
 export type ModalHeaderProps = {
@@ -21,12 +19,14 @@ export type ModalHeaderProps = {
 export function ModalHeader(props: ModalHeaderProps): JSX.Element {
   const titleId = useModalTitleId();
   return (
-    <Box
-      dataSet={{ component: 'ModalHeader', ...props.dataSet }}
-      sx={{ mb: 3 }}
+    <div
+      class="box mb-3"
+      {...dataAttrs({ component: 'ModalHeader', ...props.dataSet })}
     >
-      <Text id={titleId} variant="subtitle" label={props.title} />
-    </Box>
+      <h2 class="text textSubtitle" id={titleId}>
+        {props.title}
+      </h2>
+    </div>
   );
 }
 
@@ -42,11 +42,14 @@ export function ModalBody(props: ModalBodyProps): JSX.Element {
   const hasMessage = (): boolean =>
     props.message !== undefined && props.message !== null;
   return (
-    <Box dataSet={{ component: 'ModalBody', ...props.dataSet }} sx={{ mb: 4 }}>
+    <div
+      class="box mb-4"
+      {...dataAttrs({ component: 'ModalBody', ...props.dataSet })}
+    >
       <Show when={hasMessage()} fallback={props.children}>
-        <Text variant="body" label={props.message} />
+        <p class="text">{props.message}</p>
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -62,12 +65,12 @@ export type ModalFooterProps = {
  */
 export function ModalFooter(props: ModalFooterProps): JSX.Element {
   return (
-    <Box
-      dataSet={{ component: 'ModalFooter', ...props.dataSet }}
-      sx={{ flexDirection: 'column', alignItems: 'stretch', gap: 2, mt: 2 }}
+    <div
+      class="box flex-col items-stretch gap-2 mt-2"
+      {...dataAttrs({ component: 'ModalFooter', ...props.dataSet })}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }
 

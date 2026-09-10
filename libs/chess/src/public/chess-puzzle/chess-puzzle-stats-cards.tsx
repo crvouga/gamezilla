@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, Text } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import type { ChessPuzzleStats } from '../chess-puzzle-stats';
@@ -11,22 +10,10 @@ type StatTileProps = {
 
 function StatTile(props: StatTileProps): JSX.Element {
   return (
-    <Box
-      sx={{
-        flex: 1,
-        gap: 1,
-        p: 3,
-        borderRadius: 8,
-        background: 'surfaceMuted',
-      }}
-    >
-      <Text
-        variant="caption"
-        sx={{ color: 'textSecondary' }}
-        label={props.label}
-      />
-      <Text variant="bodyBold" sx={{ color: 'text' }} label={props.value} />
-    </Box>
+    <div class="box flex-1 gap-1 p-3 rounded-[8px] bg-surface-muted">
+      <p class="text textCaption text-text-secondary">{props.label}</p>
+      <p class="text textBodyBold text-text">{props.value}</p>
+    </div>
   );
 }
 
@@ -38,7 +25,7 @@ export function ChessPuzzleStatsCards(
   props: ChessPuzzleStatsCardsProps
 ): JSX.Element {
   return (
-    <Box sx={{ flexDirection: 'row', flexWrap: 'wrap', gap: 2 }}>
+    <div class="box flex-row flex-wrap gap-2">
       <StatTile
         label={<Trans>Played</Trans>}
         value={String(props.stats.totalPlayed)}
@@ -59,6 +46,6 @@ export function ChessPuzzleStatsCards(
         label={<Trans>Current streak</Trans>}
         value={String(props.stats.currentStreak)}
       />
-    </Box>
+    </div>
   );
 }

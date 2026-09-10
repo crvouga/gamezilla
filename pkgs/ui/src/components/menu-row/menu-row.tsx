@@ -22,8 +22,8 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import { type JSX, Show } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxProps } from '../../theme';
-import { Box } from '../box';
+import { spacingScale } from '../../theme';
+import { Box, joinClass } from '../box';
 import { Clickable } from '../clickable';
 import { ChevronRightIcon } from '../icons';
 import { Text } from '../text';
@@ -90,17 +90,12 @@ function MenuRowTrailing(props: {
       fallback={end()}
     >
       <Box
-        sx={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 2,
-          maxWidth: MENU_ROW_VALUE_MAX_WIDTH,
-        }}
+        class="flex-row items-center gap-2"
+        style={{ 'max-width': MENU_ROW_VALUE_MAX_WIDTH }}
       >
         <Text
-          variant="body"
+          class="text-text-secondary text-right shrink"
           numberOfLines={1}
-          sx={{ color: 'textSecondary', textAlign: 'right', flexShrink: 1 }}
           label={props.value}
         />
         {end()}
@@ -115,24 +110,25 @@ function MenuRowBody(
   const selected = () => props.selected === true;
   return (
     <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        px: MENU_ROW_PX_STEP,
-        py: 3,
-        gap: 3,
-        minHeight: MENU_ROW_MIN_HEIGHT,
+      class="flex-row items-center py-3 gap-3"
+      style={{
+        'padding-left': `${spacingScale(MENU_ROW_PX_STEP)}px`,
+        'padding-right': `${spacingScale(MENU_ROW_PX_STEP)}px`,
+        'min-height': `${MENU_ROW_MIN_HEIGHT}px`,
       }}
     >
       <Show when={props.leading !== undefined}>
-        <Box sx={{ minWidth: MENU_ROW_LEADING_WIDTH, alignItems: 'center' }}>
+        <Box
+          class="items-center"
+          style={{ 'min-width': `${MENU_ROW_LEADING_WIDTH}px` }}
+        >
           {props.leading}
         </Box>
       </Show>
-      <Box sx={{ flex: 1, minWidth: 0, gap: 0.5, alignItems: 'flex-start' }}>
+      <Box class="flex-1 min-w-0 gap-0.5 items-start">
         <Text
           variant="bodyBold"
-          sx={selected() ? { color: 'tint' } : undefined}
+          class={selected() ? 'text-tint' : undefined}
           label={props.title}
         />
         <Show when={props.caption}>
@@ -149,17 +145,18 @@ function MenuRowBody(
   );
 }
 
+function rowClass(selected: boolean): string {
+  return joinClass('rounded-[10px]', selected && 'bg-tint-subtle');
+}
+
 export function MenuRow(props: MenuRowProps): JSX.Element {
-  const rowSx = (): SxProps => ({
-    borderRadius: 'md',
-    ...(props.selected === true ? { backgroundColor: 'tintSubtle' } : {}),
-  });
+  const selected = () => props.selected === true;
   return (
     <Show
       when={props.onClick}
       fallback={
         <Box
-          sx={rowSx()}
+          class={rowClass(selected())}
           aria-label={props['aria-label']}
           dataSet={{ component: 'MenuRow', ...props.dataSet }}
         >
@@ -174,7 +171,8 @@ export function MenuRow(props: MenuRowProps): JSX.Element {
           disabled={props.disabled === true}
           aria-label={props['aria-label']}
           aria-current={props.selected === true ? true : undefined}
-          sx={[rowSx(), { opacity: props.disabled === true ? 0.5 : 1 }]}
+          class={rowClass(selected())}
+          style={{ opacity: props.disabled === true ? 0.5 : 1 }}
           dataSet={{ component: 'MenuRow', ...props.dataSet }}
         >
           <MenuRowBody {...props} interactive />

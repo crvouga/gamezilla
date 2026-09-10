@@ -1,6 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
 import {
-  Box,
   EmptyState,
   ScreenBase,
   SmartphoneIcon,
@@ -34,8 +33,8 @@ export function AccountDeviceDetailScreen(): JSX.Element {
         { name: <Trans>Device</Trans> },
       ]}
       scroll
-      content={({ sx }) => (
-        <Box sx={[sx, { gap: 5 }]}>
+      content={({ bodyClass }) => (
+        <div class={`box ${`${bodyClass}`} gap-5`}>
           <Show
             when={deviceId()}
             fallback={
@@ -53,7 +52,7 @@ export function AccountDeviceDetailScreen(): JSX.Element {
               </>
             )}
           </Show>
-        </Box>
+        </div>
       )}
     />
   );

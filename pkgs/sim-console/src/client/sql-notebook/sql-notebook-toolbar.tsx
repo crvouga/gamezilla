@@ -1,12 +1,5 @@
 import { asLocalized } from '@pkgs/i18n';
-import {
-  Box,
-  IconButton,
-  OverflowMenuButton,
-  PlayIcon,
-  PlusIcon,
-  Text,
-} from '@pkgs/ui';
+import { IconButton, OverflowMenuButton, PlayIcon, PlusIcon } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
 
 import type { SqlDialect } from './sql-dialect';
@@ -28,22 +21,8 @@ export function SqlNotebookToolbar(props: {
     onExport,
   } = props;
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        px: 2,
-        py: 1,
-        borderBottomWidth: 1,
-        borderColor: 'outline',
-        background: 'surface',
-      }}
-    >
-      <Text
-        sx={{ fontSize: 11, color: 'textSecondary', flex: 1 }}
-        label={`SQL notebook · ${dialect()} · debug writes bypass sync mutations`}
-      />
+    <div class="box flex-row items-center gap-1 px-2 py-1 border-b border-outline bg-surface">
+      <p class="text text-[11px] text-text-secondary flex-1">{`SQL notebook · ${dialect()} · debug writes bypass sync mutations`}</p>
       <IconButton label="Run all" size={28} tooltip="hover" onClick={onRunAll}>
         <PlayIcon size={14} />
       </IconButton>
@@ -78,6 +57,6 @@ export function SqlNotebookToolbar(props: {
           },
         ]}
       />
-    </Box>
+    </div>
   );
 }

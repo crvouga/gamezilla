@@ -10,7 +10,6 @@ import {
 } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
-  Box,
   EmptyState,
   LoadingState,
   ScreenBase,
@@ -92,7 +91,7 @@ function SearchScreenBody(): JSX.Element {
     state.signedIn && trimmed().length >= USER_SEARCH_MIN_LENGTH;
 
   return (
-    <Box sx={{ flex: 1, minHeight: 0, gap: 4 }}>
+    <div class="box flex-1 min-h-[0] gap-4">
       <TextInput
         value={query()}
         onChangeText={setQuery}
@@ -127,7 +126,7 @@ function SearchScreenBody(): JSX.Element {
           results={state.results}
         />
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -138,10 +137,10 @@ export function SearchScreen(): JSX.Element {
     <ScreenBase
       screenId="search"
       breadcrumbs={[{ name: t`Search` }]}
-      content={({ sx }) => (
-        <Box sx={sx}>
+      content={({ bodyClass }) => (
+        <div class={`box ${bodyClass}`}>
           <SearchScreenBody />
-        </Box>
+        </div>
       )}
     />
   );

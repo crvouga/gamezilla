@@ -1,4 +1,4 @@
-import { type SxProps, Text, type TextVariant } from '@pkgs/ui';
+import { Text, type TextVariant } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { useSpaceDisplayTitle } from '../use-space-display-title';
@@ -6,7 +6,7 @@ import { useSpaceDisplayTitle } from '../use-space-display-title';
 export type SpaceHostFallbackTitleProps = {
   spaceId: string;
   variant?: TextVariant;
-  sx?: SxProps;
+  class?: string;
   numberOfLines?: number;
 };
 
@@ -21,7 +21,7 @@ export function SpaceHostFallbackTitle(
   return (
     <Text
       variant={props.variant}
-      sx={props.sx}
+      class={props.class}
       numberOfLines={props.numberOfLines}
       label={label()}
     />

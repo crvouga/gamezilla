@@ -31,7 +31,7 @@ export function ActiveSpacesSheet(props: ActiveSpacesSheetProps): JSX.Element {
       title={<Trans>Your live spaces</Trans>}
       stackId="active-spaces-sheet"
     >
-      <ScrollView frameSx={{ maxHeight: 420 }} sx={{ px: 0 }}>
+      <ScrollView class="max-h-[420px]" contentClass="px-0">
         <For each={props.spaceIds}>
           {(spaceId) => (
             <ActiveSpaceSheetRow

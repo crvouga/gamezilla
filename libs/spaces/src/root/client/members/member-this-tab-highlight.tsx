@@ -1,4 +1,3 @@
-import { Box } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import { useMemberIsThisTab } from './use-member-is-this-tab';
@@ -20,14 +19,15 @@ export function MemberThisTabHighlight(
 ): JSX.Element {
   const isThisTab = useMemberIsThisTab(props.spaceId, props.profileId);
   return (
-    <Box
-      sx={{
-        borderRadius: props.borderRadius,
-        borderWidth: isThisTab() ? 2 : 0,
-        borderColor: isThisTab() ? 'primary' : 'transparent',
+    <div
+      class="box"
+      style={{
+        'border-radius': `${props.borderRadius}px`,
+        'border-color': isThisTab() ? 'primary' : 'transparent',
+        'border-width': `${isThisTab() ? 2 : 0}px`,
       }}
     >
       {props.children}
-    </Box>
+    </div>
   );
 }

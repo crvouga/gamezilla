@@ -19,8 +19,7 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import {
   buildOverflowMenuContent,
   OVERFLOW_MENU_DEFAULT_WIDTH,
@@ -90,13 +89,9 @@ function ActionBarItemsRow(props: {
     props.onOpenMenu?.();
   };
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: props.bar.resolved().gap / 4,
-        minWidth: 0,
-      }}
+    <div
+      class="box flex-row items-center min-w-[0]"
+      style={{ gap: `${(props.bar.resolved().gap / 4) * 4}px` }}
     >
       <ActionBarTextItems actions={props.bar.layout().inlineText} />
       <ActionBarIconItems
@@ -117,7 +112,7 @@ function ActionBarItemsRow(props: {
           dataSet={props.overflowDataSet}
         />
       </Show>
-    </Box>
+    </div>
   );
 }
 
@@ -180,24 +175,22 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
 
   return (
     <Show when={bar.hasContent()}>
-      <Box
-        ref={bar.setContainer}
-        dataSet={{ component: 'ActionBar', ...props.dataSet }}
-        sx={[
-          bar.measures() && {
+      <div
+        class="box flex-row items-center"
+        {...dataAttrs({ component: 'ActionBar', ...props.dataSet })}
+        style={{
+          ...((bar.measures() && {
             flex: 1,
-            minWidth: 0,
+            'min-width': 0,
             alignSelf: 'stretch',
             width: '100%',
-          },
-          {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent:
-              bar.resolved().align === 'start' ? 'flex-start' : 'flex-end',
-            gap: bar.resolved().gap / 4,
-          },
-        ]}
+          }) ??
+            {}),
+          'justify-content':
+            bar.resolved().align === 'start' ? 'flex-start' : 'flex-end',
+          gap: `${(bar.resolved().gap / 4) * 4}px`,
+        }}
+        ref={bar.setContainer}
       >
         <ActionBarItemsRow
           bar={bar}
@@ -207,14 +200,16 @@ export function ActionBar(props: ActionBarProps): JSX.Element {
           onOpenMenu={props.onOpenMenu}
         />
         <Show when={hasEndSlot()}>
-          <Box ref={bar.setEndSlot}>{props.endSlot}</Box>
+          <div class="box" ref={bar.setEndSlot}>
+            {props.endSlot}
+          </div>
         </Show>
         <ActionBarMenu
           bar={bar}
           header={props.overflowMenuHeader}
           renderMenu={props.renderMenu}
         />
-      </Box>
+      </div>
     </Show>
   );
 }

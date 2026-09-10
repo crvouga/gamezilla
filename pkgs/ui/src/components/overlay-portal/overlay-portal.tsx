@@ -20,8 +20,6 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import { Box } from '../box';
-import styles from '../hosts.module.css';
 import {
   createHostFrame,
   type PortalHostFrame,
@@ -56,19 +54,19 @@ export function OverlayPortalProvider(
   const api: OverlayPortalApi = { host, frame: createHostFrame(root) };
   return (
     <OverlayPortalContext.Provider value={api}>
-      <Box
+      <div
+        class="box flex-1 relative overflow-hidden"
+        data-component="OverlayPortalRoot"
         ref={setRoot}
-        sx={{ flex: 1, position: 'relative', overflow: 'hidden' }}
-        dataSet={{ component: 'OverlayPortalRoot' }}
       >
         {props.children}
-        <Box
+        <div
+          class="box absolute inset-0"
+          data-component="OverlayPortalHost"
+          style={{ 'z-index': OVERLAY_PORTAL_Z_INDEX }}
           ref={setHost}
-          class={styles['boxNone']}
-          sx={{ absoluteFill: true, zIndex: OVERLAY_PORTAL_Z_INDEX }}
-          dataSet={{ component: 'OverlayPortalHost' }}
         />
-      </Box>
+      </div>
     </OverlayPortalContext.Provider>
   );
 }

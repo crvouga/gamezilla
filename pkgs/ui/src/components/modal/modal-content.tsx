@@ -9,11 +9,11 @@
  * Width is controlled only via {@link ModalSize} buckets (see
  * {@link resolveModalLayoutWidth}), clamped to the layout width. The card
  * uses `width: 100%` with `maxWidth` so it shrinks on narrow viewports.
- * Never pass a custom width through `sx`.
+ * Never pass a custom width through `style`.
  */
 
 import { type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useThemeLayout } from '../../theme';
 import {
   MODAL_CONTENT_MARGIN_STEP,
@@ -22,7 +22,6 @@ import {
   resolveModalLayoutWidth,
 } from '../../theme/modal-size';
 import { spacing } from '../../theme/scale';
-import { Box } from '../box';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 
 /** Spacing-scale step for default {@link ModalContent} padding (`p: 5` → 20px). */
@@ -70,28 +69,20 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
       marginPx
     );
   const maxHeightPx = useModalContentMaxHeight(() => props.maxHeight);
+  const padPx = spacing[MODAL_CONTENT_PADDING_STEP];
   return (
-    <Box
-      dataSet={{
+    <div
+      class="box rounded-[20px] w-full self-center overflow-hidden bg-surface-overlay border border-border"
+      {...dataAttrs({
         component: 'ModalContent',
         size: props.size ?? 'medium',
         ...props.dataSet,
+      })}
+      style={{
+        ...(padded() ? { padding: `${padPx}px` } : {}),
+        'max-width': `${maxWidthPx()}px`,
+        'max-height': `${maxHeightPx()}px`,
       }}
-      sx={[
-        padded() && { p: MODAL_CONTENT_PADDING_STEP },
-        {
-          borderRadius: 'xl',
-          width: '100%',
-          maxWidth: maxWidthPx(),
-          alignSelf: 'center',
-          maxHeight: maxHeightPx(),
-          overflow: 'hidden',
-          backgroundColor: 'surfaceOverlay',
-          borderWidth: 1,
-          borderColor: 'border',
-          elevation: 4,
-        },
-      ]}
     >
       <Show when={padded()} fallback={props.children}>
         <ContentEdgePaddingProvider
@@ -101,6 +92,6 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
           {props.children}
         </ContentEdgePaddingProvider>
       </Show>
-    </Box>
+    </div>
   );
 }

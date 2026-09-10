@@ -1,19 +1,13 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
-import { Text } from '../text';
 import { Picker, type PickerOption } from './index';
 
 function Swatch(props: { color: string }): JSX.Element {
   return (
-    <Box
-      sx={{
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: props.color,
-      }}
+    <div
+      class="box w-[28px] h-[28px] rounded-[14px]"
+      style={{ 'background-color': props.color }}
     />
   );
 }
@@ -39,11 +33,7 @@ export default function PickerExample(): JSX.Element {
         value={v()}
         onValueChange={setV}
       />
-      <Text
-        variant="caption"
-        sx={{ opacity: 0.75 }}
-        label={`Selected: ${v()}`}
-      />
+      <p class="text textCaption opacity-75">{`Selected: ${v()}`}</p>
     </ExampleRoot>
   );
 }

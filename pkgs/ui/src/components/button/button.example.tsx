@@ -6,8 +6,6 @@ import { Divider } from '../divider';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { ChevronRightIcon } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { Button } from './button';
 import {
   type ButtonIntent,
@@ -30,7 +28,7 @@ function ButtonRow(props: {
   const iconColor = () =>
     buttonForegroundColor(theme.colors, props.intent, false, variant());
   return (
-    <Stack spacing={2}>
+    <div class="box flex-col gap-2">
       <Button title="Default" intent={props.intent} variant={variant()} />
       <Button
         title="With icon"
@@ -54,13 +52,13 @@ function ButtonRow(props: {
           timers.setTimeout(() => setLoading(false), LOAD_DEMO_MS);
         }}
       />
-    </Stack>
+    </div>
   );
 }
 
 function SectionLabel(props: { label: string }): JSX.Element {
   return (
-    <Text variant="label" sx={{ color: 'textSecondary' }} label={props.label} />
+    <label class="text textLabel text-text-secondary">{props.label}</label>
   );
 }
 
@@ -110,10 +108,10 @@ function FeedbackBlock(): JSX.Element {
     <>
       <SectionLabel label="Feedback (loading → success / error)" />
       <SchemePreview>
-        <Stack spacing={2}>
+        <div class="box flex-col gap-2">
           <Button {...succeed.buttonProps} />
           <Button intent="primary" {...fail.buttonProps} />
-        </Stack>
+        </div>
       </SchemePreview>
     </>
   );
@@ -124,11 +122,11 @@ function SizesBlock(): JSX.Element {
     <>
       <SectionLabel label="Sizes" />
       <SchemePreview>
-        <Stack spacing={2}>
+        <div class="box flex-col gap-2">
           <Button title="Small" size="sm" />
           <Button title="Medium" size="md" />
           <Button title="Large" size="lg" />
-        </Stack>
+        </div>
       </SchemePreview>
     </>
   );

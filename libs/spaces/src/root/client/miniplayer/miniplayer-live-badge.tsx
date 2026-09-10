@@ -1,27 +1,13 @@
 import { Trans } from '@lingui/solid/macro';
-import { Box, borderRadius, StatusDot, Text } from '@pkgs/ui';
+import { StatusDot } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 /** Static "Live" pill (no props — miniplayer entries are always live). */
 export function MiniplayerLiveBadge(): JSX.Element {
   return (
-    <Box
-      sx={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 1,
-        backgroundColor: 'onTintScrim',
-        borderRadius: borderRadius.full,
-        px: 2,
-        py: 0.5,
-      }}
-    >
+    <div class="box flex-row items-center gap-1 bg-on-tint-scrim px-2 py-0.5 rounded-full">
       <StatusDot status="online" size={6} />
-      <Text
-        variant="caption"
-        sx={{ color: 'onPrimary' }}
-        label={<Trans>Live</Trans>}
-      />
-    </Box>
+      <p class="text textCaption text-on-primary">{<Trans>Live</Trans>}</p>
+    </div>
   );
 }

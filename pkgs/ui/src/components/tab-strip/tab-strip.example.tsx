@@ -1,6 +1,5 @@
 /** @jsxImportSource solid-js */
 import { createSignal, type JSX } from 'solid-js';
-import { Box } from '../box';
 import { ExampleRoot } from '../explorer/example-root';
 import {
   DatabaseIcon,
@@ -11,18 +10,16 @@ import {
   ScrollTextIcon,
   TerminalIcon,
 } from '../icons';
-import { Stack } from '../stack';
-import { Text } from '../text';
 import { TabStrip } from './tab-strip';
 import type { TabStripItem } from './tab-strip-types';
 
 export default function TabStripExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <Stack spacing={0}>
+      <div class="box flex-col gap-0">
         <NestedChromeDemo />
         <ClosableOverflowDemo />
-      </Stack>
+      </div>
     </ExampleRoot>
   );
 }
@@ -33,11 +30,9 @@ function NestedChromeDemo(): JSX.Element {
   const [view, setView] = createSignal('ui');
   return (
     <>
-      <Text
-        variant="caption"
-        label="Nested chrome (folder tabs merge into the panel below)"
-        sx={{ padding: 12, color: 'textSecondary' }}
-      />
+      <p class="text textCaption p-[12px] text-text-secondary">
+        {'Nested chrome (folder tabs merge into the panel below)'}
+      </p>
       <DemoFrame>
         <TabStrip
           aria-label="Apps"
@@ -67,13 +62,9 @@ function NestedChromeDemo(): JSX.Element {
           selectedId={view()}
           onSelect={setView}
         />
-        <Box sx={{ padding: 16, minHeight: 72 }}>
-          <Text
-            variant="body"
-            label={`${app()} / ${section()} / ${view()}`}
-            sx={{ color: 'textSecondary' }}
-          />
-        </Box>
+        <div class="box p-[16px] min-h-[72px]">
+          <p class="text text-text-secondary">{`${app()} / ${section()} / ${view()}`}</p>
+        </div>
       </DemoFrame>
     </>
   );
@@ -116,11 +107,9 @@ function ClosableOverflowDemo(): JSX.Element {
       : `Table: ${tables()} · Draft: ${draftId()}`;
   return (
     <>
-      <Text
-        variant="caption"
-        label="Overflow + closable drafts (hover close on inactive)"
-        sx={{ padding: 12, paddingTop: 20, color: 'textSecondary' }}
-      />
+      <p class="text textCaption p-[12px] pt-[20px] text-text-secondary">
+        {'Overflow + closable drafts (hover close on inactive)'}
+      </p>
       <DemoFrame>
         <TabStrip
           aria-label="Tables"
@@ -135,13 +124,9 @@ function ClosableOverflowDemo(): JSX.Element {
           onSelect={setDraftId}
           onAdd={addDraft}
         />
-        <Box sx={{ padding: 16, minHeight: 56 }}>
-          <Text
-            variant="caption"
-            label={summary()}
-            sx={{ color: 'textSecondary' }}
-          />
-        </Box>
+        <div class="box p-[16px] min-h-[56px]">
+          <p class="text textCaption text-text-secondary">{summary()}</p>
+        </div>
       </DemoFrame>
     </>
   );
@@ -149,17 +134,8 @@ function ClosableOverflowDemo(): JSX.Element {
 
 function DemoFrame(props: { readonly children: JSX.Element }): JSX.Element {
   return (
-    <Box
-      sx={{
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'border',
-        borderRadius: 'md',
-        overflow: 'hidden',
-        background: 'background',
-      }}
-    >
+    <div class="box border border-solid border-border rounded-[10px] overflow-hidden bg-background">
       {props.children}
-    </Box>
+    </div>
   );
 }

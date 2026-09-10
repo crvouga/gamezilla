@@ -1,4 +1,4 @@
-import { Box, EmptyState } from '@pkgs/ui';
+import { EmptyState } from '@pkgs/ui';
 import { For, type JSX, Show } from 'solid-js';
 import {
   coerceDebuggerView,
@@ -24,8 +24,8 @@ import {
 
 const kindFillSx = {
   flex: 1,
-  minWidth: 0,
-  minHeight: 0,
+  'min-width': 0,
+  'min-height': 0,
 } as const;
 
 function kindVisibilitySx(active: boolean) {
@@ -128,7 +128,7 @@ export function PlaygroundKindPane(props: {
 
   return (
     <>
-      <Box sx={kindVisibilitySx(props.kind === 'client')}>
+      <div class="box" style={kindVisibilitySx(props.kind === 'client')}>
         <ClientLiveColumns
           session={props.session}
           clients={props.clients}
@@ -145,8 +145,8 @@ export function PlaygroundKindPane(props: {
             ? { clientColumnShell: props.clientColumnShell }
             : {})}
         />
-      </Box>
-      <Box sx={kindVisibilitySx(props.kind === 'server')}>
+      </div>
+      <div class="box" style={kindVisibilitySx(props.kind === 'server')}>
         <ServerPlaygroundPanel
           session={props.session}
           node={props.session.server}
@@ -155,15 +155,15 @@ export function PlaygroundKindPane(props: {
             props.onPanePatch(serverPaneKey(), patch, mode)
           }
         />
-      </Box>
-      <Box sx={kindVisibilitySx(props.kind === 'events')}>
+      </div>
+      <div class="box" style={kindVisibilitySx(props.kind === 'events')}>
         <PubSubPlaygroundPanel
           session={props.session}
           pubsub={props.session.pubsub}
           pane={resolvePlaygroundPane(props.panes, eventsPaneKey(), 'events')}
         />
-      </Box>
-      <Box sx={kindVisibilitySx(props.kind === 'room')}>
+      </div>
+      <div class="box" style={kindVisibilitySx(props.kind === 'room')}>
         <Show
           when={room()}
           fallback={<EmptyKind body="No room instances in this session." />}
@@ -176,7 +176,7 @@ export function PlaygroundKindPane(props: {
             />
           )}
         </Show>
-      </Box>
+      </div>
     </>
   );
 }
@@ -274,17 +274,12 @@ function ClientLiveColumns(props: {
               <Show
                 when={layout.multiClientColumns}
                 fallback={
-                  <Box
-                    sx={{
-                      flex: 1,
-                      minWidth: 0,
-                      minHeight: 0,
-                      flexDirection: 'column',
-                      display: visible() ? 'flex' : 'none',
-                    }}
+                  <div
+                    class="box flex-1 min-w-[0] min-h-[0] flex-col"
+                    style={{ display: visible() ? 'flex' : 'none' }}
                   >
                     {body()}
-                  </Box>
+                  </div>
                 }
               >
                 {body()}
@@ -299,20 +294,12 @@ function ClientLiveColumns(props: {
 
 function EmptyKind(props: { readonly body: string }) {
   return (
-    <Box
-      sx={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'background',
-        padding: 4,
-      }}
-    >
+    <div class="box flex-1 items-center justify-center bg-background p-[4px]">
       <EmptyState
         variant="compact"
         title="Nothing selected"
         body={props.body}
       />
-    </Box>
+    </div>
   );
 }

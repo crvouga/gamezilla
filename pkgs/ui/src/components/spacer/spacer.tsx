@@ -1,21 +1,19 @@
 /** @jsxImportSource solid-js */
-/** `Spacer` -- flex-grow filler that pushes siblings apart. */
+/** `Spacer` -- expands to fill remaining space in a flex row or column. */
 
 import type { JSX } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
-import { Box } from '../box';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 
 export type SpacerProps = {
-  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
 
 export function Spacer(props: SpacerProps): JSX.Element {
   return (
-    <Box
+    <div
+      class="box flex-1"
+      {...dataAttrs({ component: 'Spacer', ...props.dataSet })}
       aria-hidden="true"
-      sx={{ flex: 1 }}
-      dataSet={{ component: 'Spacer', ...props.dataSet }}
     />
   );
 }

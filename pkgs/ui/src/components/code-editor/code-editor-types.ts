@@ -1,7 +1,6 @@
 import type { LocalizedString } from '@pkgs/i18n';
 import type { JSX } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
-import type { SxInput } from '../../theme';
 import type { WebKeyboardEventLike } from '../keyboard-shortcuts';
 
 export type CodeTokenKind =
@@ -46,8 +45,10 @@ export type CodeEditorProps = {
   /** Defaults to `true`; `false` renders a read-only textarea. */
   readonly editable?: boolean | undefined;
   readonly 'aria-label'?: LocalizedString | undefined;
-  /** Utility-first styles for the outer wrapper. */
-  readonly sx?: SxInput | undefined;
+  /** Extra classes on the outer wrapper. */
+  readonly class?: string | undefined;
+  /** Inline styles on the outer wrapper. */
+  readonly style?: JSX.CSSProperties | string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   readonly dataSet?: ComponentDataSet | undefined;
   /** Slot rendered under the editor frame (hints, toolbars). */
