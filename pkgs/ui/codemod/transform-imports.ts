@@ -90,13 +90,15 @@ export function pruneImports(
       edits.push({ start: stmt.getStart(), end, text: '' });
       continue;
     }
-    const names = kept.map((el) =>
-      el.propertyName === undefined
-        ? el.name.text
-        : `${el.propertyName.text} as ${el.name.text}`
-    );
+    const names = kept.map((el) => {
+      const rename =
+        el.propertyName === undefined
+          ? el.name.text
+          : `${el.propertyName.text} as ${el.name.text}`;
+      return el.isTypeOnly === true ? `type ${rename}` : rename;
+    });
     edits.push({
-      start: clause.namedBindings.getStart(),
+      start: clause.getStart(),
       end: clause.namedBindings.end,
       text: `{ ${names.join(', ')} }`,
     });
@@ -175,17 +177,22 @@ function ensureNamedImport(
     );
     const missing = wanted.filter((w) => !have.has(w));
     if (missing.length === 0) return text;
+    // `import type { A }` + a runtime value → per-element `type` modifiers so
+    // the value binding is not erased (TS1361).
+    const typeOnly = clause.isTypeOnly === true;
     const names = [
-      ...clause.namedBindings.elements.map((el) =>
-        el.propertyName === undefined
-          ? el.name.text
-          : `${el.propertyName.text} as ${el.name.text}`
-      ),
+      ...clause.namedBindings.elements.map((el) => {
+        const rename =
+          el.propertyName === undefined
+            ? el.name.text
+            : `${el.propertyName.text} as ${el.name.text}`;
+        return typeOnly && el.isTypeOnly !== true ? `type ${rename}` : rename;
+      }),
       ...missing,
     ];
     return applyEdits(text, [
       {
-        start: clause.namedBindings.getStart(),
+        start: clause.getStart(),
         end: clause.namedBindings.end,
         text: `{ ${names.join(', ')} }`,
       },

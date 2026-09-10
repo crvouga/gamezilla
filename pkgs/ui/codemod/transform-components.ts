@@ -108,10 +108,13 @@ function readFeedback(
 
 function feedbackClassList(expr: string): readonly ClassListEntry[] {
   return [
-    { className: 'clickableOpacity', when: `(${expr}) === "opacity"` },
+    {
+      className: 'clickableOpacity',
+      when: `String(${expr}) === "opacity"`,
+    },
     {
       className: 'clickableTint',
-      when: `(${expr}) !== "opacity" && (${expr}) !== "none"`,
+      when: `String(${expr}) !== "opacity" && String(${expr}) !== "none"`,
     },
   ];
 }

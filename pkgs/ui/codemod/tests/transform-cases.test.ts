@@ -109,8 +109,15 @@ describe('Box Tier B', () => {
       `export const A = (p: { c: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
     expect(result.text).toContain('class="box p-1"');
-    expect(result.text).toContain('classList={{ [p.c]: !!(p.c) }}');
+    expect(result.text).toContain("classList={{ [(p.c) ?? '']: true }}");
     expect(result.text).not.toContain('cn(');
+  });
+  test('optional dynamic class expression compiles (no TS2872/2464)', () => {
+    const result = run(
+      `export const A = (p: { c?: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
+    );
+    expect(result.text).toContain("classList={{ [(p.c) ?? '']: true }}");
+    expect(result.text).not.toContain('!!(p.c)');
   });
   test('dynamic px pair fans out to two exact declarations', () => {
     const result = run(
@@ -243,6 +250,8 @@ describe('Clickable', () => {
     expect(result.text).toContain('classList={{');
     expect(result.text).toContain('"clickableOpacity"');
     expect(result.text).toContain('"clickableTint"');
+    // Narrow union compared via String() so TS2367 does not fire.
+    expect(result.text).toContain('String(p.f) === "opacity"');
     expect(result.text).not.toContain('cn(');
   });
   test('unknown feedback defaults to tint', () => {
@@ -325,9 +334,22 @@ describe('Text', () => {
     expect(result.text).toContain('<p class="text"');
     expect(result.text).toContain('classList={{');
     expect(result.text).toContain('"textHeading"');
+    // Comparisons are stringified so narrow literal unions still overlap.
+    expect(result.text).toContain('"textHeading": String(p.v) === "heading"');
     expect(result.text).not.toContain('cn(');
     expect(result.text).not.toContain('TEXT_VARIANT_CLASS');
     expect(result.text).not.toContain('TODO(sx-codemod)');
+  });
+  test('ternary variant interpolates without unreachable ?? (TS2869/2367)', () => {
+    const result = transformFile(
+      't.tsx',
+      `${text}export const A = (p: { f: boolean }) => <Text variant={p.f ? 'subtitle' : 'bodyBold'} label="x" />;`
+    );
+    expect(result.manual).toEqual([]);
+    expect(result.text).toContain(
+      'String(p.f ? \'subtitle\' : \'bodyBold\') === "subtitle"'
+    );
+    expect(result.text).not.toContain('p.f ? \'subtitle\' : \'bodyBold\' ??');
   });
 });
 
@@ -573,8 +595,10 @@ export const A = () => <Box sx={{ p: 2 }} />;`
 export const A = (p: { open: boolean }) => <Box class={joinClass('a', p.open && 'b')} sx={{ p: 1 }} />;`
     );
     expect(result.parseError).toBe(undefined);
-    expect(result.text).toContain('classList={{');
-    expect(result.text).toContain("['a']");
+    // Literal helper args fold into the static `class`; the conditional arg
+    // becomes a boolean `classList` toggle (Solid's supported shape).
+    expect(result.text).toContain('class="box p-1 a"');
+    expect(result.text).toContain('classList={{ "b": !!(p.open) }}');
     expect(result.text).not.toContain('joinClass');
     expect(result.text).not.toContain('cn(');
   });
@@ -589,8 +613,8 @@ export const A = (p: { muted: boolean }) => (
     );
     expect(result.parseError).toBe(undefined);
     expect(result.text).not.toContain('joinClass');
-    expect(result.text).toContain('class="text"');
-    expect(result.text).toContain("['line-clamp-1']");
+    expect(result.text).toContain('class="text line-clamp-1"');
+    expect(result.text).toContain('classList={{ "text-muted": !!(p.muted) }}');
   });
 
   test('literal joinClass args already emitted statically are not duplicated', () => {
@@ -604,5 +628,33 @@ export const A = (p: { open: boolean }) => <Box class={joinClass('box', 'p-1', p
     expect(result.text).toContain('class="box p-1"');
     expect(result.text).not.toContain("['box']");
     expect(result.text).not.toContain("['p-1']");
+  });
+
+  test('ternary joinClass arg becomes two boolean toggles', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Box, joinClass } from '@pkgs/ui';
+export const A = (p: { on: boolean }) => <Box class={joinClass('base', p.on ? 'on' : 'off')} sx={{ p: 1 }} />;`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).toContain('class="box p-1 base"');
+    expect(result.text).toContain('"on": !!(p.on)');
+    expect(result.text).toContain('"off": !(p.on)');
+    // No TS2872 / TS2464-prone computed keys.
+    expect(result.text).not.toContain("[p.on ? 'on' : 'off']");
+  });
+
+  test('helper returning a class string uses an empty-safe computed key', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Box, joinClass } from '@pkgs/ui';
+declare function rowClass(): string;
+export const A = () => <Box class={joinClass(rowClass())} sx={{ p: 1 }} />;`
+    );
+    expect(result.parseError).toBe(undefined);
+    // `[(expr) ?? '']: true` is the only shape that type-checks for a
+    // possibly-empty string and still toggles the runtime class.
+    expect(result.text).toContain("classList={{ [(rowClass()) ?? '']: true }}");
+    expect(result.text).not.toContain('!!(rowClass())');
   });
 });

@@ -3,6 +3,7 @@
  * `classList` entries so converted tags never retain helper calls.
  */
 
+import ts from 'typescript';
 import { splitTopLevel } from './split-top-level';
 import type { ClassListEntry, ExistingClass } from './transform-node';
 
@@ -26,10 +27,84 @@ function quoteAttr(value: string): string {
   return `"${value.replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"`;
 }
 
+/** A single `class` / helper-arg expression, classified for emission. */
+type ClassArg =
+  | { readonly kind: 'static'; readonly value: string }
+  | { readonly kind: 'ternary'; readonly whenTrue: string; readonly whenFalse: string; readonly condition: string }
+  | { readonly kind: 'toggle'; readonly className: string; readonly condition: string }
+  /** Computed key from a possibly-empty string expression. */
+  | { readonly kind: 'dynamic'; readonly expr: string };
+
+/** Parse one arg text (helper arg / `class` expression) into a ClassArg. */
+function classifyClassArg(text: string): ClassArg {
+  const trimmed = text.trim();
+  const file = ts.createSourceFile(
+    'class-arg.tsx',
+    `(${trimmed})`,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX
+  );
+  const stmt = file.statements[0];
+  if (stmt === undefined || !ts.isExpressionStatement(stmt)) {
+    return { kind: 'dynamic', expr: trimmed };
+  }
+  let expr = stmt.expression;
+  while (ts.isParenthesizedExpression(expr)) expr = expr.expression;
+  const literal = stringLiteralOf(expr);
+  if (literal !== undefined) return { kind: 'static', value: literal };
+  if (ts.isConditionalExpression(expr)) {
+    const whenTrue = stringLiteralOf(unwrap(expr.whenTrue));
+    const whenFalse = stringLiteralOf(unwrap(expr.whenFalse));
+    if (whenTrue !== undefined) {
+      return {
+        kind: 'ternary',
+        whenTrue,
+        whenFalse: whenFalse ?? '',
+        condition: expr.condition.getText(file),
+      };
+    }
+  }
+  if (
+    ts.isBinaryExpression(expr) &&
+    expr.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken
+  ) {
+    const className = stringLiteralOf(unwrap(expr.right));
+    if (className !== undefined) {
+      return {
+        kind: 'toggle',
+        className,
+        condition: expr.left.getText(file),
+      };
+    }
+  }
+  return { kind: 'dynamic', expr: trimmed };
+}
+
+function unwrap(expr: ts.Expression): ts.Expression {
+  let node = expr;
+  while (ts.isParenthesizedExpression(node)) node = node.expression;
+  return node;
+}
+
+function stringLiteralOf(expr: ts.Expression): string | undefined {
+  if (ts.isStringLiteral(expr)) return expr.text;
+  if (ts.isNoSubstitutionTemplateLiteral(expr)) return expr.text;
+  return undefined;
+}
+
 /**
  * Solid `class` (static) + optional `classList` (conditional / dynamic).
  * Existing `class={joinClass(...)}` / `cn(...)` / … calls are peeled into
- * per-arg `classList` entries so banned helpers never appear in output.
+ * static classes / per-arg `classList` entries so banned helpers never appear.
+ *
+ * Emission rules (Solid's `classList` only accepts string keys + boolean
+ * values):
+ * - string literals fold into the static `class` attribute (deduped);
+ * - `cond && 'x'` / `cond ? 'x' : 'y'` become `'x': !!cond` toggles;
+ * - any other string-valued expression becomes a computed key
+ *   `[(expr) ?? '']: true` (empty keys are skipped by Solid at runtime),
+ *   which keeps type-checking valid for `string | undefined` unions.
  */
 export function classAttrs(
   classes: readonly string[],
@@ -41,28 +116,43 @@ export function classAttrs(
   if (existing.kind === 'literal' && existing.value !== '') {
     merged.push(existing.value);
   }
-  const deduped = merged.filter((c, i) => merged.indexOf(c) === i);
   const entries = [...classList];
   if (existing.kind === 'expr') {
     const peeled = peelClassHelperCall(existing.exprText);
-    if (peeled !== undefined) {
-      for (const arg of peeled) {
-        // A literal already emitted as a static class must not repeat in
-        // classList (it would be toggled on unconditionally).
-        const literal = arg.match(/^'([^']*)'$|^"([^"]*)"$/);
-        const literalClass = literal?.[1] ?? literal?.[2];
-        if (literalClass !== undefined && deduped.includes(literalClass)) {
-          continue;
-        }
-        entries.push({ keyExpr: arg, when: `!!(${arg})` });
+    const args = peeled ?? [existing.exprText];
+    for (const arg of args) {
+      const classified = classifyClassArg(arg);
+      if (classified.kind === 'static') {
+        merged.push(classified.value);
+        continue;
       }
-    } else {
-      entries.push({
-        keyExpr: existing.exprText,
-        when: `!!(${existing.exprText})`,
-      });
+      if (classified.kind === 'ternary') {
+        entries.push({
+          className: classified.whenTrue,
+          when: `!!(${classified.condition})`,
+        });
+        const falseClass = classified.whenFalse.trim();
+        if (falseClass !== '') {
+          entries.push({
+            className: falseClass,
+            when: `!(${classified.condition})`,
+          });
+        }
+        continue;
+      }
+      if (classified.kind === 'toggle') {
+        entries.push({
+          className: classified.className,
+          when: `!!(${classified.condition})`,
+        });
+        continue;
+      }
+      entries.push({ keyExpr: `(${classified.expr}) ?? ''`, when: 'true' });
     }
   }
+  const deduped = merged.filter(
+    (c, i) => c.trim() !== '' && merged.indexOf(c) === i
+  );
   const out: string[] = [];
   if (deduped.length > 0 || options?.allowEmpty !== true) {
     out.push(`class=${quoteAttr(deduped.join(' '))}`);

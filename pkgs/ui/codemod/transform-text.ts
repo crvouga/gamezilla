@@ -112,7 +112,11 @@ function resolveTextVariant(
   };
 }
 
-/** Every non-body variant class toggled from a dynamic variant expression. */
+/**
+ * Every non-body variant class toggled from a dynamic variant expression.
+ * `String(...)` avoids TS2367 (narrow-union comparisons) and `?? "body"`
+ * (TS2869 unreachable) — `body` has no class, so an unmatched value is a no-op.
+ */
 function variantClassList(expr: string): readonly ClassListEntry[] {
   const out: ClassListEntry[] = [];
   for (const name of Object.keys(TEXT_VARIANT_HOST)) {
@@ -120,7 +124,7 @@ function variantClassList(expr: string): readonly ClassListEntry[] {
     if (host?.className === undefined) continue;
     out.push({
       className: host.className,
-      when: `(${expr} ?? "body") === ${JSON.stringify(name)}`,
+      when: `String(${expr}) === ${JSON.stringify(name)}`,
     });
   }
   return out;
