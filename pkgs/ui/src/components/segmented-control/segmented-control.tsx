@@ -64,11 +64,7 @@ function SegmentButton<K extends string>(props: {
     <button
       class="clickable rounded-[6px] flex-1 items-center [padding-top:8px;padding-bottom:8px] [padding-left:14px;padding-right:14px] bg-transparent relative z-1"
       classList={{
-        clickableOpacity:
-          String(props.isActive ? 'none' : 'tint') === 'opacity',
-        clickableTint:
-          String(props.isActive ? 'none' : 'tint') !== 'opacity' &&
-          String(props.isActive ? 'none' : 'tint') !== 'none',
+        clickableTint: !props.isActive,
       }}
       data-component="Segment"
       data-key={props.segment.key}

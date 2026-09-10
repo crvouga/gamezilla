@@ -32,7 +32,7 @@ function Screen(
       content={({ bodyClass }) => (
         <div
           class="box"
-          classList={{ [String(bodyClass)]: true }}
+          classList={{ [bodyClass]: true }}
           data-testid="content"
         >
           {local.body ?? <p class="text">{'body'}</p>}

@@ -40,7 +40,7 @@ export function BottomActionBar(props: BottomActionBarProps): JSX.Element {
     <div
       class="box flex-row items-center self-stretch gap-2 px-3"
       classList={{
-        'bg-surface border-t border-solid border-border': !!elevated(),
+        'bg-surface border-t border-solid border-border': elevated(),
       }}
       {...dataAttrs({ component: 'BottomActionBar', ...props.dataSet })}
       style={{ 'min-height': `${BOTTOM_ACTION_BAR_MIN_HEIGHT}px` }}

@@ -59,15 +59,15 @@ function HeaderLine(props: {
       <p
         class="text line-clamp-1"
         classList={{
-          textBodyBold: String(props.variant) === 'bodyBold',
-          textCaption: String(props.variant) === 'caption',
-          textLabel: String(props.variant) === 'label',
-          textTitle: String(props.variant) === 'title',
-          textSubtitle: String(props.variant) === 'subtitle',
-          textHeading: String(props.variant) === 'heading',
-          textNavigationTitle: String(props.variant) === 'navigationTitle',
-          textLink: String(props.variant) === 'link',
-          textMono: String(props.variant) === 'mono',
+          textBodyBold: props.variant === 'bodyBold',
+          textCaption: props.variant === 'caption',
+          textLabel: props.variant === 'label',
+          textTitle: props.variant === 'title',
+          textSubtitle: props.variant === 'subtitle',
+          textHeading: props.variant === 'heading',
+          textNavigationTitle: props.variant === 'navigationTitle',
+          textLink: props.variant === 'link',
+          textMono: props.variant === 'mono',
           'text-text-secondary': props.muted === true,
         }}
       >

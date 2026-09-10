@@ -65,7 +65,7 @@ function FlexLayout(props: SlotsProps): JSX.Element {
         <div
           class="box flex-1 min-w-0 flex-row items-center"
           classList={{
-            [String(ALIGN_CLASS[props.centerAlign ?? 'start'])]: true,
+            [ALIGN_CLASS[props.centerAlign ?? 'start']]: true,
           }}
         >
           {props.center}

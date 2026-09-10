@@ -1289,10 +1289,6 @@ msgstr "Observability"
 msgid "Off"
 msgstr "Off"
 
-#: apps/client/src/chrome/offline-indicator.tsx
-msgid "Offline"
-msgstr "Offline"
-
 #: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/screens/more/performance-screen.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
@@ -2222,8 +2218,8 @@ msgid "you@example.com"
 msgstr "you@example.com"
 
 #: apps/client/src/chrome/offline-indicator.tsx
-msgid "Your changes are saved locally and will sync when you are back online."
-msgstr "Your changes are saved locally and will sync when you are back online."
+msgid "Your changes are saved locally and will sync when the connection is healthy again."
+msgstr "Your changes are saved locally and will sync when the connection is healthy again."
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Your full name"

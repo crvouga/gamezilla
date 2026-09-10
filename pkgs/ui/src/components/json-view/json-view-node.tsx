@@ -210,7 +210,7 @@ function Chevron(props: {
     <Show when={props.expandable} fallback={<div class="box w-[14px]" />}>
       <div
         class="box w-[14px] h-[18px] items-center justify-center"
-        classList={{ '[transform:rotate(90deg)]': !!props.expanded }}
+        classList={{ '[transform:rotate(90deg)]': props.expanded }}
         data-expanded={props.expanded ? 'true' : 'false'}
       >
         <ChevronRightIcon size={10} />

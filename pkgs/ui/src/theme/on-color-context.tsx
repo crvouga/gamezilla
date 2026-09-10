@@ -42,14 +42,14 @@ function onColorCssVars(set: OnColorSet | null): JSX.CSSProperties {
       '--ui-on-fg': 'var(--ui-color-text)',
       '--ui-on-fg-muted': 'var(--ui-color-text-secondary)',
       '--ui-on-icon': 'var(--ui-color-icon)',
-    } as JSX.CSSProperties;
+    };
   }
   return {
     display: 'contents',
     '--ui-on-fg': set.fg,
     '--ui-on-fg-muted': set.fgMuted,
     '--ui-on-icon': set.icon,
-  } as JSX.CSSProperties;
+  };
 }
 
 /**

@@ -87,11 +87,11 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     return hostEl;
   };
   useTrapLifecycle(props, host);
-  const layoutClass =
+  const layoutClass = () =>
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
     <div
-      class={`box ${layoutClass}${props.class ? ` ${props.class}` : ''}`}
+      class={`box ${layoutClass()}${props.class ? ` ${props.class}` : ''}`}
       data-component="FocusTrap"
       ref={(el) => {
         hostEl = el;

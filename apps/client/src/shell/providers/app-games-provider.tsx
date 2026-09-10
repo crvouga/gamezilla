@@ -34,8 +34,8 @@ export function AppGamesProvider(props: {
   const onSpaceRoute = createMemo(() =>
     location.pathname.startsWith('/space/')
   );
-  const [plugins] = createResource(onSpaceRoute, async (load) => {
-    if (!load) return null;
+  // Source falsy → resource idle (fetcher not called). Truthy → always load.
+  const [plugins] = createResource(onSpaceRoute, async () => {
     const mod = await import('@libs/games/game-plugins.client');
     return {
       games: mod.GAME_DEFINITIONS,

@@ -56,15 +56,15 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
         <p
           class="text"
           classList={{
-            textBodyBold: String(variant()) === 'bodyBold',
-            textCaption: String(variant()) === 'caption',
-            textLabel: String(variant()) === 'label',
-            textTitle: String(variant()) === 'title',
-            textSubtitle: String(variant()) === 'subtitle',
-            textHeading: String(variant()) === 'heading',
-            textNavigationTitle: String(variant()) === 'navigationTitle',
-            textLink: String(variant()) === 'link',
-            textMono: String(variant()) === 'mono',
+            textBodyBold: variant() === 'bodyBold',
+            textCaption: variant() === 'caption',
+            textLabel: variant() === 'label',
+            textTitle: variant() === 'title',
+            textSubtitle: variant() === 'subtitle',
+            textHeading: variant() === 'heading',
+            textNavigationTitle: variant() === 'navigationTitle',
+            textLink: variant() === 'link',
+            textMono: variant() === 'mono',
           }}
           {...lineProps()}
         >
@@ -75,15 +75,15 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
       <p
         class="text shrink"
         classList={{
-          textBodyBold: String(variant()) === 'bodyBold',
-          textCaption: String(variant()) === 'caption',
-          textLabel: String(variant()) === 'label',
-          textTitle: String(variant()) === 'title',
-          textSubtitle: String(variant()) === 'subtitle',
-          textHeading: String(variant()) === 'heading',
-          textNavigationTitle: String(variant()) === 'navigationTitle',
-          textLink: String(variant()) === 'link',
-          textMono: String(variant()) === 'mono',
+          textBodyBold: variant() === 'bodyBold',
+          textCaption: variant() === 'caption',
+          textLabel: variant() === 'label',
+          textTitle: variant() === 'title',
+          textSubtitle: variant() === 'subtitle',
+          textHeading: variant() === 'heading',
+          textNavigationTitle: variant() === 'navigationTitle',
+          textLink: variant() === 'link',
+          textMono: variant() === 'mono',
         }}
         {...lineProps()}
       >
@@ -93,28 +93,22 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
               class="text"
               classList={{
                 textBodyBold:
-                  String(segment.bold ? boldVariant() : variant()) ===
-                  'bodyBold',
+                  (segment.bold ? boldVariant() : variant()) === 'bodyBold',
                 textCaption:
-                  String(segment.bold ? boldVariant() : variant()) ===
-                  'caption',
+                  (segment.bold ? boldVariant() : variant()) === 'caption',
                 textLabel:
-                  String(segment.bold ? boldVariant() : variant()) === 'label',
+                  (segment.bold ? boldVariant() : variant()) === 'label',
                 textTitle:
-                  String(segment.bold ? boldVariant() : variant()) === 'title',
+                  (segment.bold ? boldVariant() : variant()) === 'title',
                 textSubtitle:
-                  String(segment.bold ? boldVariant() : variant()) ===
-                  'subtitle',
+                  (segment.bold ? boldVariant() : variant()) === 'subtitle',
                 textHeading:
-                  String(segment.bold ? boldVariant() : variant()) ===
-                  'heading',
+                  (segment.bold ? boldVariant() : variant()) === 'heading',
                 textNavigationTitle:
-                  String(segment.bold ? boldVariant() : variant()) ===
+                  (segment.bold ? boldVariant() : variant()) ===
                   'navigationTitle',
-                textLink:
-                  String(segment.bold ? boldVariant() : variant()) === 'link',
-                textMono:
-                  String(segment.bold ? boldVariant() : variant()) === 'mono',
+                textLink: (segment.bold ? boldVariant() : variant()) === 'link',
+                textMono: (segment.bold ? boldVariant() : variant()) === 'mono',
               }}
             >
               {segment.text}

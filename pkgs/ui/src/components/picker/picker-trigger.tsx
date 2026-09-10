@@ -64,7 +64,7 @@ export function PickerTrigger<T extends PickerValue>(
       </Show>
       <p
         class="text line-clamp-1 flex-1 min-w-0 shrink"
-        classList={{ textCaption: !!compact(), textLabel: !compact() }}
+        classList={{ textCaption: compact(), textLabel: !compact() }}
         style={{
           color: hasSelection() ? colorVar('text') : colorVar('textSecondary'),
           ...(compact()
