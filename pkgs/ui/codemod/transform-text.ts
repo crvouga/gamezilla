@@ -135,10 +135,7 @@ function readNumberOfLines(
   peeledExpr: string | undefined
 ): { extras: readonly ExtraEntry[]; styleExtras: readonly string[] } {
   if (peeledExpr !== undefined) {
-    return {
-      extras: [],
-      styleExtras: [`{ lineClamp: ${peeledExpr} }`],
-    };
+    return { extras: [], styleExtras: [lineClampStyle(peeledExpr)] };
   }
   const attr = getJsxAttr(element, 'numberOfLines');
   if (attr === undefined) return { extras: [], styleExtras: [] };
@@ -153,8 +150,20 @@ function readNumberOfLines(
   }
   return {
     extras: [],
-    styleExtras: [`{ lineClamp: ${expr.getText()} }`],
+    styleExtras: [lineClampStyle(expr.getText())],
   };
+}
+
+/**
+ * Solid `style` object for a dynamic `numberOfLines`. Uses dash-case CSS keys
+ * (Solid's `CSSProperties` rejects camelCase `lineClamp`) and the
+ * `-webkit-line-clamp` box so the clamp actually renders.
+ */
+function lineClampStyle(expr: string): string {
+  return (
+    `{ display: '-webkit-box', '-webkit-box-orient': 'vertical', ` +
+    `'-webkit-line-clamp': ${expr}, overflow: 'hidden' }`
+  );
 }
 
 function readLabelAsChildren(

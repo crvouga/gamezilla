@@ -295,6 +295,26 @@ describe('Text', () => {
     );
     expect(result.text).toContain('line-clamp-2');
   });
+  test('dynamic numberOfLines emits dash-case webkit clamp style (no camelCase lineClamp)', () => {
+    const result = transformFile(
+      't.tsx',
+      `${text}export const A = (p: { n: number }) => <Text numberOfLines={p.n} label="x" />;`
+    );
+    expect(result.text).not.toContain('lineClamp');
+    expect(result.text).toContain("'-webkit-line-clamp': p.n");
+    expect(result.text).toContain("display: '-webkit-box'");
+    expect(result.text).toContain("'-webkit-box-orient': 'vertical'");
+    expect(result.text).toContain("overflow: 'hidden'");
+  });
+  test('spread numberOfLines expr keeps spread, no camelCase lineClamp emission', () => {
+    const result = transformFile(
+      't.tsx',
+      `${text}export const A = (p: { n: number | undefined }) => <Text {...p} label="x" />;`
+    );
+    expect(result.text).not.toContain('lineClamp');
+    expect(result.text).not.toContain("'-webkit-line-clamp'");
+    expect(result.text).toContain('<p class="text" {...p}>');
+  });
   test('static variant maps to a semantic host + global class', () => {
     const result = transformFile(
       't.tsx',
