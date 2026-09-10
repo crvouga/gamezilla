@@ -3,7 +3,7 @@
  * Run: bun codemod/tests/show-transform.ts <path-substring> [...]
  */
 
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { runCodemod } from '../run-codemod';
 

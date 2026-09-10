@@ -23,7 +23,7 @@ export function stripComments(text: string): string {
   const scanner = ts.createScanner(
     ts.ScriptTarget.Latest,
     /* skipTrivia */ false,
-    ts.ScriptKind.TSX,
+    ts.LanguageVariant.Standard,
     text
   );
   const chars = text.split('');
