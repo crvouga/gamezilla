@@ -216,7 +216,9 @@ async function main(): Promise<number> {
     return 1;
   }
   if (args.write) {
-    logPhase('preflight gates enabled: typecheck and lint before commit');
+    logPhase(
+      'preflight: parse / stability / completeness gates run in-memory before any write'
+    );
   }
   logPhase('scanning for .ts/.tsx files…');
   const root = findRepoRoot();
