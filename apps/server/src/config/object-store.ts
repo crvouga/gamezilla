@@ -33,7 +33,7 @@ export type CreateApiObjectStoreOptions = {
   readonly now: () => number;
   /**
    * When true, missing S3 secrets throw instead of falling back to in-memory.
-   * Use for durable stores (playground snapshots); leave unset for API caches.
+   * Use for durable stores (product-simulator snapshots); leave unset for API caches.
    */
   readonly requireCredentials?: boolean;
 };

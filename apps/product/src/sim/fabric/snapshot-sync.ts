@@ -1,5 +1,5 @@
 /**
- * Keep playground snapshot SQL dumps consistent across server + clients.
+ * Keep product-simulator snapshot SQL dumps consistent across server + clients.
  */
 
 import type { Client } from '@apps/client/shell/create-client';
@@ -54,7 +54,7 @@ function wakeAllUploads(ctx: DrainCtx): void {
  * Drain client mutation queues so server + client SQL dumps agree (otherwise
  * hydrate after load overwrites restored client usernames with a stale server).
  */
-export async function awaitPlaygroundMutationDrain(
+export async function awaitProductSimulatorMutationDrain(
   ctx: DrainCtx,
   clientIds: readonly string[]
 ): Promise<void> {

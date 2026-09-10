@@ -1,7 +1,7 @@
 // @io-wall-ok — composition-root wall FS for web public WASM assets
 /**
  * Copies SQLite WASM builds into `apps/product/public/generated/` so the
- * web playground can load them as native ESM (import.meta.url works)
+ * web product-simulator can load them as native ESM (import.meta.url works)
  * instead of through a classic-script bundle (which cannot).
  */
 import {

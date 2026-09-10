@@ -3,8 +3,8 @@
  *
  * URL search keys:
  * - section
- * - playground: kind, instance, cv (id:view,…); legacy trailing `:table` ignored
- * - reports: bucket, run, test, frame, node, rview
+ * - simulator: kind, instance, cv (id:view,…); legacy trailing `:table` ignored
+ * - tests: bucket, run, test, frame, node, rview
  *
  * Defaults are omitted from the built search. Legacy `host=console` is
  * ignored. Legacy top-level `view` applies to the focused instance (or the
@@ -26,7 +26,7 @@ import {
   type SimChromeKind,
 } from '@pkgs/sim-console/shared/sim-node';
 
-export type ConsoleSection = 'reports' | 'playground';
+export type ConsoleSection = 'tests' | 'simulator';
 export type ConsoleKind = SimChromeKind;
 export type ConsoleView = DebuggerViewId;
 
@@ -34,7 +34,7 @@ export type PaneNav = {
   readonly view: ConsoleView;
 };
 
-export type PlaygroundNav = {
+export type SimulatorNav = {
   readonly kind: ConsoleKind;
   readonly instance: string;
   readonly panes: Readonly<Record<string, PaneNav>>;
@@ -42,15 +42,15 @@ export type PlaygroundNav = {
 
 export type ConsoleNavState = {
   readonly section: ConsoleSection;
-  readonly playground: PlaygroundNav;
-  readonly reports: ReportNavState;
+  readonly simulator: SimulatorNav;
+  readonly tests: ReportNavState;
 };
 
 export type PaneNavPatch = {
   readonly view?: string;
 };
 
-export type PlaygroundNavPatch = {
+export type SimulatorNavPatch = {
   readonly kind?: ConsoleKind;
   readonly instance?: string;
   readonly panes?: Readonly<Record<string, PaneNavPatch>>;
@@ -60,30 +60,29 @@ export type PlaygroundNavPatch = {
 
 export type ConsoleNavPatch = {
   readonly section?: ConsoleSection;
-  readonly playground?: PlaygroundNavPatch;
-  readonly reports?: ReportNavPatch;
+  readonly simulator?: SimulatorNavPatch;
+  readonly tests?: ReportNavPatch;
   /**
-   * Flat legacy patches — applied onto `playground` so older callers still
-   * work during the transition.
+   * Flat legacy patches — applied onto `simulator`.
    */
   readonly kind?: ConsoleKind;
   readonly instance?: string;
   readonly view?: string;
 };
 
-export const DEFAULT_PLAYGROUND_NAV: PlaygroundNav = {
+export const DEFAULT_SIMULATOR_NAV: SimulatorNav = {
   kind: 'client',
   instance: '',
   panes: {},
 };
 
 export const DEFAULT_CONSOLE_NAV: ConsoleNavState = {
-  section: 'reports',
-  playground: DEFAULT_PLAYGROUND_NAV,
-  reports: DEFAULT_REPORT_NAV,
+  section: 'tests',
+  simulator: DEFAULT_SIMULATOR_NAV,
+  tests: DEFAULT_REPORT_NAV,
 };
 
-const SECTIONS = new Set<string>(['reports', 'playground']);
+const SECTIONS = new Set<string>(['tests', 'simulator']);
 
 const CHROME_KEYS = [
   'host',
@@ -131,15 +130,15 @@ export function singletonPaneKey(kind: ConsoleKind): string | null {
 }
 
 export function resolvePaneNav(
-  playground: PlaygroundNav,
+  simulator: SimulatorNav,
   paneId: string,
-  kind: ConsoleKind = playground.kind
+  kind: ConsoleKind = simulator.kind
 ): PaneNav {
-  const direct = playground.panes[paneId];
+  const direct = simulator.panes[paneId];
   if (direct !== undefined) return coercePaneForKind(kind, direct);
   const singleton = singletonPaneKey(kind);
   if (singleton !== null && singleton !== paneId) {
-    const byKind = playground.panes[singleton];
+    const byKind = simulator.panes[singleton];
     if (byKind !== undefined) return coercePaneForKind(kind, byKind);
   }
   return { view: defaultViewForKind(kind) };
@@ -149,18 +148,18 @@ export function applyConsoleNavPatch(
   current: ConsoleNavState,
   patch: ConsoleNavPatch
 ): ConsoleNavState {
-  const playgroundPatch: PlaygroundNavPatch = {
-    ...(patch.playground ?? {}),
+  const simulatorPatch: SimulatorNavPatch = {
+    ...(patch.simulator ?? {}),
     ...(patch.kind !== undefined ? { kind: patch.kind } : {}),
     ...(patch.instance !== undefined ? { instance: patch.instance } : {}),
     ...(patch.view !== undefined
       ? {
           pane: {
             id: focusedPaneId(
-              patch.kind ?? patch.playground?.kind ?? current.playground.kind,
+              patch.kind ?? patch.simulator?.kind ?? current.simulator.kind,
               patch.instance !== undefined
                 ? patch.instance
-                : (patch.playground?.instance ?? current.playground.instance)
+                : (patch.simulator?.instance ?? current.simulator.instance)
             ),
             patch: { view: patch.view },
           },
@@ -169,11 +168,11 @@ export function applyConsoleNavPatch(
   };
   return {
     section: patch.section ?? current.section,
-    playground: applyPlaygroundPatch(current.playground, playgroundPatch),
-    reports:
-      patch.reports !== undefined
-        ? navigateReport(current.reports, patch.reports)
-        : current.reports,
+    simulator: applySimulatorNavPatch(current.simulator, simulatorPatch),
+    tests:
+      patch.tests !== undefined
+        ? navigateReport(current.tests, patch.tests)
+        : current.tests,
   };
 }
 
@@ -206,12 +205,12 @@ export function parseConsoleNav(search: string): ConsoleNavState {
   }
   return {
     section,
-    playground: {
+    simulator: {
       kind,
       instance,
       panes,
     },
-    reports: parseReportsFromParams(params),
+    tests: parseReportsFromParams(params),
   };
 }
 
@@ -228,17 +227,17 @@ export function buildConsoleSearch(
   );
   for (const key of CHROME_KEYS) params.delete(key);
 
-  if (state.section !== 'reports') params.set('section', state.section);
+  if (state.section !== 'tests') params.set('section', state.section);
 
-  const { playground, reports } = state;
-  if (playground.kind !== 'client') params.set('kind', playground.kind);
-  if (playground.instance.length > 0) {
-    params.set('instance', playground.instance);
+  const { simulator, tests } = state;
+  if (simulator.kind !== 'client') params.set('kind', simulator.kind);
+  if (simulator.instance.length > 0) {
+    params.set('instance', simulator.instance);
   }
-  const cv = buildPaneMap(playground);
+  const cv = buildPaneMap(simulator);
   if (cv.length > 0) params.set('cv', cv);
 
-  writeReportsParams(params, reports);
+  writeReportsParams(params, tests);
 
   const qs = params.toString();
   return qs ? `?${qs}` : '';
@@ -250,12 +249,12 @@ export function consoleNavEqual(
 ): boolean {
   return (
     a.section === b.section &&
-    playgroundEqual(a.playground, b.playground) &&
-    reportsEqual(a.reports, b.reports)
+    simulatorEqual(a.simulator, b.simulator) &&
+    reportsEqual(a.tests, b.tests)
   );
 }
 
-function playgroundEqual(a: PlaygroundNav, b: PlaygroundNav): boolean {
+function simulatorEqual(a: SimulatorNav, b: SimulatorNav): boolean {
   if (a.kind !== b.kind || a.instance !== b.instance) return false;
   const aKeys = Object.keys(a.panes).sort();
   const bKeys = Object.keys(b.panes).sort();
@@ -281,10 +280,10 @@ function reportsEqual(a: ReportNavState, b: ReportNavState): boolean {
   );
 }
 
-function applyPlaygroundPatch(
-  current: PlaygroundNav,
-  patch: PlaygroundNavPatch
-): PlaygroundNav {
+function applySimulatorNavPatch(
+  current: SimulatorNav,
+  patch: SimulatorNavPatch
+): SimulatorNav {
   const kind = patch.kind ?? current.kind;
   const instanceRaw =
     patch.instance !== undefined ? patch.instance : current.instance;
@@ -327,9 +326,7 @@ function focusedPaneId(kind: ConsoleKind, instance: string): string {
 }
 
 function parseSection(raw: string | null): ConsoleSection {
-  return raw !== null && SECTIONS.has(raw)
-    ? (raw as ConsoleSection)
-    : 'reports';
+  return raw !== null && SECTIONS.has(raw) ? (raw as ConsoleSection) : 'tests';
 }
 
 function normalizeInstance(kind: ConsoleKind, raw: string): string {
@@ -395,14 +392,14 @@ function coerceLooseView(
   return coerceView(impliedPaneKind(paneId, chromeKind), viewRaw);
 }
 
-function buildPaneMap(playground: PlaygroundNav): string {
+function buildPaneMap(simulator: SimulatorNav): string {
   const entries: string[] = [];
-  const keys = Object.keys(playground.panes).sort();
+  const keys = Object.keys(simulator.panes).sort();
   for (const id of keys) {
-    const pane = playground.panes[id]!;
+    const pane = simulator.panes[id]!;
     // Mirror parse coercion: a pane whose view equals its implied-kind
     // default is dropped on parse, so omit it here too.
-    if (pane.view === defaultViewForKind(impliedPaneKind(id, playground.kind)))
+    if (pane.view === defaultViewForKind(impliedPaneKind(id, simulator.kind)))
       continue;
     entries.push(`${encodeURIComponent(id)}:${encodeURIComponent(pane.view)}`);
   }

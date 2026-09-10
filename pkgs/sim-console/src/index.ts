@@ -14,7 +14,7 @@ export {
   isLatestRunId,
   LATEST_RUN_ID,
   mintRunId,
-  PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
+  PRODUCT_SIMULATOR_SNAPSHOT_OBJECTS_PATH,
   type ReportFrame,
   type ReportSnapshotBlob,
   type ReportStep,

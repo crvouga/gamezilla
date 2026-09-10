@@ -52,7 +52,7 @@ export class InMemoryRoomStorage implements RoomStorage {
     };
   }
 
-  /** Full topic export including dedup entries (for playground snapshots). */
+  /** Full topic export including dedup entries (for product-simulator snapshots). */
   exportTopic(topic: string): RoomStorageTopicSnapshot | null {
     const s = this.topics.get(topic);
     if (s === undefined) return null;

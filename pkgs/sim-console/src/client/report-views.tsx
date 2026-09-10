@@ -89,7 +89,7 @@ export function ReportViews(props: {
             <p class="text" style={emptySx}>
               {props.data.buckets.length === 0
                 ? 'Waiting for report bucket…'
-                : 'Opening latest reports…'}
+                : 'Opening latest tests…'}
             </p>
           </div>
         </div>
@@ -99,7 +99,7 @@ export function ReportViews(props: {
           <div class="box" style={appBodyFrameSx}>
             <p class="text" style={emptySx}>
               No report dump yet. Run `@apps/product` to write the latest
-              results into `apps/product/public/reports`.
+              results into `apps/product/public/product-tests`.
             </p>
           </div>
         </div>

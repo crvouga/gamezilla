@@ -1,4 +1,4 @@
 .cache/
 public/generated/
-public/reports/**
-!public/reports/.gitkeep
+public/product-tests/**
+!public/product-tests/.gitkeep

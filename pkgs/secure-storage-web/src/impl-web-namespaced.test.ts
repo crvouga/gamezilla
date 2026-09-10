@@ -1,5 +1,5 @@
 /**
- * Mirrors playground `dumpPlaygroundClientDurable` / restore: namespaced web
+ * Mirrors product-simulator `dumpProductSimulatorClientDurable` / restore: namespaced web
  * secure storage + namespaced Kv must round-trip through a localStorage dump
  * (session-scoped keys via sessionStorage).
  */
@@ -80,7 +80,7 @@ function restoreClientDurable(
   }
 }
 
-describe('namespaced web durable dump (playground clientKv)', () => {
+describe('namespaced web durable dump (product-simulator clientKv)', () => {
   const previousLocal = globalThis.localStorage;
   const previousSession = globalThis.sessionStorage;
   let local: Storage;

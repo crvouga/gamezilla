@@ -98,7 +98,7 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 ## Local development
 
-**Manual work is the product console.** `bun run dev` starts **only `@apps/product`** (Reports + Playground; default SQL fabric is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product web app is separate (`bun run dev:client` → `@apps/client`).
+**Manual work is the product console.** `bun run dev` starts **only `@apps/product`** (Tests + Simulator; default SQL fabric is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product web app is separate (`bun run dev:client` → `@apps/client`).
 
 Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
@@ -107,9 +107,9 @@ Representativeness of production is **port contract matrices** (postgres-mem / s
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + B2 (+ Railway EMQX) only.
 
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
-- **`bun run dev`** — `@apps/product` (Reports + Playground). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
+- **`bun run dev`** — `@apps/product` (Tests + Simulator). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
 - **`bun run dev:client`** — `@apps/client` product app only (no console chrome).
-- **Sign-in in the playground** — Dev social against the in-process sim API.
+- **Sign-in in the simulator** — Dev social against the in-process sim API.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
 - **`bun db:migrate`** — migrates `DATABASE_URL` (CI / after booting embedded Postgres). Not part of daily `bun dev`.
 - **`bun run db:wipe:dev`** — secrets env `dev` only; destructive on the resolved non-prod URL.
@@ -143,7 +143,7 @@ Workspace packages live under three top-level tier directories with matching npm
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`) plus the composition hub `product` (shared System + hosts, `bun dev` Reports + Playground, `openSim` / scenarios). |
+| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`) plus the composition hub `product` (shared System + hosts, `bun dev` Tests + Simulator, `openSim` / scenarios). |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
@@ -191,7 +191,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@apps/product` — shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`), plus the console (`bun dev` Reports + Playground) and the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@apps/product` — shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`), plus the console (`bun dev` Tests + Simulator) and the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
@@ -238,7 +238,7 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
-- `@apps/product` composes product apps (sim fabric / hosts, playground, system worlds, test harness). libs/pkgs must not import `@apps/*`.
+- `@apps/product` composes product apps (sim fabric / hosts, product-simulator, system worlds, test harness). libs/pkgs must not import `@apps/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/`.

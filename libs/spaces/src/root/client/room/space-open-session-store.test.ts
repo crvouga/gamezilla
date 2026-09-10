@@ -48,7 +48,7 @@ describe('space-open-session-store', () => {
     expect(a).not.toBe(b);
   });
 
-  it('isolates clientIds across install ids (playground multi-actor)', () => {
+  it('isolates clientIds across install ids (product-simulator multi-actor)', () => {
     const alice = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'alice-device'

@@ -1,5 +1,5 @@
 /**
- * Sole engine selection point for sim SQL (playground + `@apps/product`).
+ * Sole engine selection point for sim SQL (product-simulator + `@apps/product`).
  * Product libs / createServer never import engines — only this fabric.
  *
  * Always postgres-mem server + sqlite-mem clients. Embedded Postgres is

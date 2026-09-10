@@ -4,7 +4,7 @@ import {
   buildConsoleSearch,
   coerceView,
   DEFAULT_CONSOLE_NAV,
-  DEFAULT_PLAYGROUND_NAV,
+  DEFAULT_SIMULATOR_NAV,
   parseConsoleNav,
   resolvePaneNav,
 } from '@apps/product/console-nav/console-nav';
@@ -15,17 +15,17 @@ describe('parseConsoleNav', () => {
     expect(parseConsoleNav('?')).toEqual(DEFAULT_CONSOLE_NAV);
   });
 
-  test('parses playground chrome into nested slice', () => {
+  test('parses simulator chrome into nested slice', () => {
     expect(
-      parseConsoleNav('?section=playground&kind=server&view=commands')
+      parseConsoleNav('?section=simulator&kind=server&view=commands')
     ).toEqual({
-      section: 'playground',
-      playground: {
+      section: 'simulator',
+      simulator: {
         kind: 'server',
         instance: '',
         panes: { server: { view: 'commands' } },
       },
-      reports: DEFAULT_CONSOLE_NAV.reports,
+      tests: DEFAULT_CONSOLE_NAV.tests,
     });
   });
 
@@ -33,53 +33,53 @@ describe('parseConsoleNav', () => {
     // Legacy client `db`/`logs` panes coerce to client's only view (`ui`),
     // drop out of the pane map as defaults, and no longer seed the instance.
     expect(parseConsoleNav('?kind=client&cv=alice:db,bob:logs')).toEqual({
-      section: 'reports',
-      playground: {
+      section: 'tests',
+      simulator: {
         kind: 'client',
         instance: '',
         panes: {},
       },
-      reports: DEFAULT_CONSOLE_NAV.reports,
+      tests: DEFAULT_CONSOLE_NAV.tests,
     });
   });
 
   test('cv with legacy table segment is ignored', () => {
     const state = parseConsoleNav(
-      '?section=playground&cv=alice:db:auth_devices,bob:ui'
+      '?section=simulator&cv=alice:db:auth_devices,bob:ui'
     );
     // Chrome kind defaults to client: both entries coerce to client's only
     // view (`ui`) and drop out of the pane map as defaults.
-    expect(state.playground.panes).toEqual({});
+    expect(state.simulator.panes).toEqual({});
   });
 
   test('instance query wins over first cv id', () => {
     expect(parseConsoleNav('?kind=client&instance=bob&cv=alice:db')).toEqual({
-      section: 'reports',
-      playground: {
+      section: 'tests',
+      simulator: {
         kind: 'client',
         instance: 'bob',
         // Legacy client `db` pane coerces to `ui` (client's only view) and
         // drops out of the pane map as a default.
         panes: {},
       },
-      reports: DEFAULT_CONSOLE_NAV.reports,
+      tests: DEFAULT_CONSOLE_NAV.tests,
     });
   });
 
   test('aliases html/sqlite/logs views', () => {
     expect(
-      resolvePaneNav(parseConsoleNav('?kind=client&view=html').playground, '')
+      resolvePaneNav(parseConsoleNav('?kind=client&view=html').simulator, '')
         .view
     ).toBe('ui');
     expect(
       resolvePaneNav(
-        parseConsoleNav('?kind=server&view=sqlite').playground,
+        parseConsoleNav('?kind=server&view=sqlite').simulator,
         'server'
       ).view
     ).toBe('db');
     expect(
       resolvePaneNav(
-        parseConsoleNav('?kind=events&view=logs').playground,
+        parseConsoleNav('?kind=events&view=logs').simulator,
         'events'
       ).view
     ).toBe('events');
@@ -89,35 +89,35 @@ describe('parseConsoleNav', () => {
     // Client nodes only have a `ui` view now: legacy `alice:db` / `bob:logs`
     // coerce to `ui` and are omitted as defaults.
     const client = parseConsoleNav('?kind=client&cv=alice:db,bob:logs');
-    expect(client.playground.panes).toEqual({});
+    expect(client.simulator.panes).toEqual({});
     // Under room chrome the implied kind for non-singleton panes is room, so
     // a legal non-default room view survives; instance seeds from first id.
     const room = parseConsoleNav('?kind=room&cv=alice:events');
-    expect(room.playground.panes['alice']).toEqual({ view: 'events' });
-    expect(room.playground.instance).toBe('alice');
+    expect(room.simulator.panes['alice']).toEqual({ view: 'events' });
+    expect(room.simulator.instance).toBe('alice');
   });
 
   test('ignores unknown enum values', () => {
     expect(parseConsoleNav('?section=x&kind=y&view=z')).toEqual({
-      section: 'reports',
-      playground: DEFAULT_PLAYGROUND_NAV,
-      reports: DEFAULT_CONSOLE_NAV.reports,
+      section: 'tests',
+      simulator: DEFAULT_SIMULATOR_NAV,
+      tests: DEFAULT_CONSOLE_NAV.tests,
     });
   });
 
   test('coerces illegal view for kind to default (omitted from panes)', () => {
     expect(parseConsoleNav('?kind=server&view=ui')).toEqual({
-      section: 'reports',
-      playground: {
+      section: 'tests',
+      simulator: {
         kind: 'server',
         instance: '',
         panes: {},
       },
-      reports: DEFAULT_CONSOLE_NAV.reports,
+      tests: DEFAULT_CONSOLE_NAV.tests,
     });
     expect(
       resolvePaneNav(
-        parseConsoleNav('?kind=server&view=ui').playground,
+        parseConsoleNav('?kind=server&view=ui').simulator,
         'server'
       ).view
     ).toBe('db');
@@ -125,11 +125,11 @@ describe('parseConsoleNav', () => {
 
   test('parses reports slice independently', () => {
     const state = parseConsoleNav(
-      '?section=playground&kind=server&bucket=local&run=latest&test=auth&frame=3&node=alice&rview=ui'
+      '?section=simulator&kind=server&bucket=local&run=latest&test=auth&frame=3&node=alice&rview=ui'
     );
-    expect(state.section).toBe('playground');
-    expect(state.playground.kind).toBe('server');
-    expect(state.reports).toEqual({
+    expect(state.section).toBe('simulator');
+    expect(state.simulator.kind).toBe('server');
+    expect(state.tests).toEqual({
       bucketId: 'local',
       runId: 'latest',
       testId: 'auth',
@@ -141,10 +141,10 @@ describe('parseConsoleNav', () => {
 
   test('preserves unrelated query keys on round-trip', () => {
     const state = parseConsoleNav(
-      '?section=playground&kind=pubsub&view=topics&resetDb=1'
+      '?section=simulator&kind=pubsub&view=topics&resetDb=1'
     );
     expect(buildConsoleSearch(state, '?resetDb=1&junk=2')).toBe(
-      '?resetDb=1&junk=2&section=playground&kind=events&cv=events%3Atopics'
+      '?resetDb=1&junk=2&section=simulator&kind=events&cv=events%3Atopics'
     );
   });
 
@@ -158,10 +158,10 @@ describe('parseConsoleNav', () => {
   });
 
   test('ignores legacy host query', () => {
-    expect(parseConsoleNav('?host=console&section=playground')).toEqual({
-      section: 'playground',
-      playground: DEFAULT_PLAYGROUND_NAV,
-      reports: DEFAULT_CONSOLE_NAV.reports,
+    expect(parseConsoleNav('?host=console&section=simulator')).toEqual({
+      section: 'simulator',
+      simulator: DEFAULT_SIMULATOR_NAV,
+      tests: DEFAULT_CONSOLE_NAV.tests,
     });
   });
 });
@@ -174,9 +174,9 @@ describe('buildConsoleSearch', () => {
   test('omits default section/kind with empty panes', () => {
     expect(
       buildConsoleSearch({
-        section: 'reports',
-        playground: DEFAULT_PLAYGROUND_NAV,
-        reports: DEFAULT_CONSOLE_NAV.reports,
+        section: 'tests',
+        simulator: DEFAULT_SIMULATOR_NAV,
+        tests: DEFAULT_CONSOLE_NAV.tests,
       })
     ).toBe('');
   });
@@ -185,20 +185,20 @@ describe('buildConsoleSearch', () => {
     expect(
       buildConsoleSearch(
         DEFAULT_CONSOLE_NAV,
-        '?host=console&section=playground&cv=alice:db&instance=bob&bucket=local&x=1'
+        '?host=console&section=simulator&cv=alice:db&instance=bob&bucket=local&x=1'
       )
     ).toBe('?x=1');
   });
 
-  test('round-trips reports without clobbering playground', () => {
+  test('round-trips reports without clobbering simulator', () => {
     const state = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
-      section: 'reports',
-      playground: {
+      section: 'tests',
+      simulator: {
         kind: 'server',
         instance: '',
         panes: { server: { view: 'commands' } },
       },
-      reports: {
+      tests: {
         bucketId: 'local',
         runId: 'latest',
         testId: 'space-end',
@@ -221,31 +221,31 @@ describe('coerceView / applyConsoleNavPatch', () => {
   });
 
   test('legacy kind=api/pubsub map to server/events', () => {
-    expect(parseConsoleNav('?kind=api&view=commands').playground).toEqual({
+    expect(parseConsoleNav('?kind=api&view=commands').simulator).toEqual({
       kind: 'server',
       instance: '',
       panes: { server: { view: 'commands' } },
     });
-    expect(parseConsoleNav('?kind=pubsub&view=topics').playground).toEqual({
+    expect(parseConsoleNav('?kind=pubsub&view=topics').simulator).toEqual({
       kind: 'events',
       instance: '',
       panes: { events: { view: 'topics' } },
     });
     expect(
       buildConsoleSearch({
-        section: 'playground',
-        playground: {
+        section: 'simulator',
+        simulator: {
           kind: 'server',
           instance: '',
           panes: { server: { view: 'commands' } },
         },
-        reports: DEFAULT_CONSOLE_NAV.reports,
+        tests: DEFAULT_CONSOLE_NAV.tests,
       })
-    ).toBe('?section=playground&kind=server&cv=server%3Acommands');
+    ).toBe('?section=simulator&kind=server&cv=server%3Acommands');
   });
 
   test('legacy kind=actor maps to room', () => {
-    expect(parseConsoleNav('?kind=actor').playground).toEqual({
+    expect(parseConsoleNav('?kind=actor').simulator).toEqual({
       kind: 'room',
       instance: '',
       panes: {},
@@ -255,58 +255,58 @@ describe('coerceView / applyConsoleNavPatch', () => {
   test('kind change clears singleton instance and keeps panes', () => {
     const next = applyConsoleNavPatch(
       {
-        section: 'playground',
-        playground: {
+        section: 'simulator',
+        simulator: {
           kind: 'client',
           instance: 'alice',
           panes: { alice: { view: 'ui' } },
         },
-        reports: DEFAULT_CONSOLE_NAV.reports,
+        tests: DEFAULT_CONSOLE_NAV.tests,
       },
       { kind: 'server' }
     );
-    expect(next.playground).toEqual({
+    expect(next.simulator).toEqual({
       kind: 'server',
       instance: '',
       panes: { alice: { view: 'ui' } },
     });
-    expect(resolvePaneNav(next.playground, 'server').view).toBe('db');
+    expect(resolvePaneNav(next.simulator, 'server').view).toBe('db');
   });
 
   test('explicit view wins when legal for new kind', () => {
     const next = applyConsoleNavPatch(
       {
-        section: 'playground',
-        playground: {
+        section: 'simulator',
+        simulator: {
           kind: 'client',
           instance: '',
           panes: {},
         },
-        reports: DEFAULT_CONSOLE_NAV.reports,
+        tests: DEFAULT_CONSOLE_NAV.tests,
       },
       { kind: 'server', view: 'logs' }
     );
-    expect(resolvePaneNav(next.playground, 'server').view).toBe('events');
+    expect(resolvePaneNav(next.simulator, 'server').view).toBe('events');
   });
 
   test('pane patch updates only that node', () => {
     const next = applyConsoleNavPatch(
       {
-        section: 'playground',
-        playground: {
+        section: 'simulator',
+        simulator: {
           kind: 'server',
           instance: '',
           panes: {},
         },
-        reports: DEFAULT_CONSOLE_NAV.reports,
+        tests: DEFAULT_CONSOLE_NAV.tests,
       },
       {
-        playground: {
+        simulator: {
           pane: { id: 'server', patch: { view: 'db' } },
         },
       }
     );
-    expect(resolvePaneNav(next.playground, 'server').view).toBe('db');
+    expect(resolvePaneNav(next.simulator, 'server').view).toBe('db');
   });
 
   test('client panes coerce to the ui default (no db/events tabs)', () => {
@@ -320,17 +320,17 @@ describe('coerceView / applyConsoleNavPatch', () => {
     ).toBe('ui');
   });
 
-  test('section change leaves playground and reports intact', () => {
+  test('section change leaves simulator and tests intact', () => {
     const current = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
-      playground: {
+      simulator: {
         kind: 'server',
         panes: { server: { view: 'commands' } },
       },
-      reports: { bucketId: 'local', testId: 'demo' },
+      tests: { bucketId: 'local', testId: 'demo' },
     });
-    const next = applyConsoleNavPatch(current, { section: 'playground' });
-    expect(next.section).toBe('playground');
-    expect(next.playground).toEqual(current.playground);
-    expect(next.reports).toEqual(current.reports);
+    const next = applyConsoleNavPatch(current, { section: 'simulator' });
+    expect(next.section).toBe('simulator');
+    expect(next.simulator).toEqual(current.simulator);
+    expect(next.tests).toEqual(current.tests);
   });
 });

@@ -3,20 +3,20 @@
  * Single folder-shaped tab cell for `TabStrip`.
  *
  * Layout is identical for active / inactive: same border box, height, padding,
- * font weight, and reserved separator / close slots. Visual differences are
- * color / opacity / an out-of-flow hairline cover only. The tab and its close
- * control are sibling `<button>`s inside one chrome shell (buttons cannot
- * nest in HTML).
+ * and reserved separator / close slots. Visual differences are color / weight /
+ * an out-of-flow hairline cover only. The tab and its close control are sibling
+ * `<button>`s inside one chrome shell (buttons cannot nest in HTML).
  */
 
 import { useLingui } from '@lingui/solid/macro';
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { XIcon } from '../icons';
+import styles from './tab-strip.module.css';
 import type { TabStripItem } from './tab-strip-types';
 
 export const TAB_MIN_HEIGHT = 32;
-export const TAB_MIN_WIDTH = 88;
+export const TAB_MIN_WIDTH = 80;
 export const TAB_MAX_WIDTH = 220;
 
 export type TabStripTabProps = {
@@ -31,16 +31,18 @@ export type TabStripTabProps = {
   readonly tabId?: string | undefined;
 };
 
-function shellChromeClass(active: boolean): string {
+function shellClass(active: boolean): string {
   return [
-    'relative shrink-0 flex-row items-center rounded-tl-[10px] rounded-tr-[10px] border border-solid border-b-transparent',
-    active ? 'border-border bg-background z-[1]' : 'border-transparent z-0',
+    styles['shell'],
+    'box relative shrink-0 flex-row items-center rounded-tl-[8px] rounded-tr-[8px] border border-solid border-b-transparent',
+    active ? 'border-outline bg-background z-[1]' : 'border-transparent z-0',
+    active ? styles['shellActive'] : '',
   ]
     .filter(Boolean)
     .join(' ');
 }
 
-function shellChromeStyle(closable: boolean): JSX.CSSProperties {
+function shellStyle(closable: boolean): JSX.CSSProperties {
   return {
     height: `${TAB_MIN_HEIGHT}px`,
     'min-width': `${TAB_MIN_WIDTH}px`,
@@ -52,8 +54,10 @@ function shellChromeStyle(closable: boolean): JSX.CSSProperties {
 export function TabStripTab(props: TabStripTabProps): JSX.Element {
   const { t } = useLingui();
   const closable = (): boolean => props.item.onClose !== undefined;
-  const fgClass = (): string =>
-    props.active ? 'text-text' : 'text-text-secondary';
+  const labelClass = (): string =>
+    props.active
+      ? 'text textLabel line-clamp-1 shrink font-semibold leading-[18px] text-text pointer-events-none'
+      : 'text textLabel line-clamp-1 shrink font-medium leading-[18px] text-text-secondary pointer-events-none';
   return (
     <div
       class="box flex-row items-center shrink-0"
@@ -64,30 +68,21 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
     >
       <Show when={props.reserveSeparatorBefore}>
         <div
-          class="box w-px h-[14px] mx-0.5 shrink-0 bg-border"
+          class="box w-px h-4 mx-0.5 shrink-0 bg-border"
           style={{ opacity: props.separatorVisible ? 1 : 0 }}
           aria-hidden="true"
         />
       </Show>
-      <div
-        class={`box ${shellChromeClass(props.active)}`}
-        style={shellChromeStyle(closable())}
-      >
+      <div class={shellClass(props.active)} style={shellStyle(closable())}>
         <button
-          class="clickable flex-1 min-w-0 flex-row items-center gap-1.5 pl-[5px] rounded-tl-[10px] rounded-tr-[10px] overflow-hidden bg-transparent"
-          classList={{
-            clickableOpacity:
-              String(props.active ? 'none' : 'tint') === 'opacity',
-            clickableTint:
-              String(props.active ? 'none' : 'tint') !== 'opacity' &&
-              String(props.active ? 'none' : 'tint') !== 'none',
-          }}
+          class="clickable flex-1 min-w-0 flex-row items-center gap-1.5 pl-2.5 rounded-tl-[8px] rounded-tr-[8px] overflow-hidden bg-transparent"
+          classList={{ clickableTint: !props.active }}
           data-component="TabStripTab"
           data-id={props.item.id}
           type="button"
           style={{
             height: `${TAB_MIN_HEIGHT - 2}px`,
-            'padding-right': `${closable() ? 2 : 5}px`,
+            'padding-right': `${closable() ? 2 : 10}px`,
           }}
           id={props.tabId}
           role="tab"
@@ -97,24 +92,18 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         >
           <Show when={props.item.icon}>
             {(icon) => (
-              <div class="box w-[14px] h-[14px] items-center justify-center shrink-0">
-                <Dynamic
-                  component={icon()}
-                  size={14}
-                  color={props.active ? 'tint' : 'textSecondary'}
-                />
-              </div>
+              <Dynamic
+                component={icon()}
+                size={15}
+                color={props.active ? 'tabIconSelected' : 'tabIconDefault'}
+              />
             )}
           </Show>
-          <label
-            class={`text textLabel line-clamp-1 shrink font-semibold leading-[18px] ${fgClass()}`}
-          >
-            {props.item.label}
-          </label>
+          <span class={labelClass()}>{props.item.label}</span>
         </button>
         <Show when={closable()}>
           <button
-            class="clickable clickableTint rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px]"
+            class={`clickable clickableTint rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px] ${styles['close'] ?? ''}`}
             data-component="TabStripClose"
             data-id={props.item.id}
             type="button"

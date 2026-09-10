@@ -5,8 +5,8 @@ runtimes on that System:
 
 | Host name | Factory | Command | UI | SQL / HTTP |
 | --- | --- | --- | --- | --- |
-| `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in playground) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
-| `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); playground embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
+| `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
+| `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
 helper over `product.run({ seed, runtime })` (plus snapshot restore + reporter).
@@ -14,7 +14,7 @@ Host name is `in-process` unless `SIM_MODE=real` / `{ mode: 'real' }` (then
 `bun-webview`). Standing properties (`noErrorBoundary`) are registered with
 `product.property`.
 
-Playground (`@apps/product`) also calls `product.run` only — default
+ProductSimulator (`@apps/product`) also calls `product.run` only — default
 `runtime: 'in-process'`; optional `bun-webview` when a localhost web sidecar is up.
 Neither console nor test opens a Session / `createSim` outside `@apps/product/sim`.
 
@@ -48,7 +48,7 @@ throws `ActionNotEnabled`.
 `SIM_MODE=real` uses **postgres-embedded** (+ MinIO/EMQX) outside this fabric.
 
 Engine selection lives in `@apps/product/sim` (`getSimSqlEngines` / fabric) — not in
-product libs. Playground web may still load SQLite WASM from
+product libs. ProductSimulator web may still load SQLite WASM from
 `apps/product/public/generated/` (`bun run --filter @apps/product bundle:sim-sql-wasm`;
 wired into `predev` / `setup`). Seed with `bun run --filter @apps/product seed:sim-db`.
 
@@ -82,7 +82,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 - **`bun-webview`** — wall time. Default: model network + seed SQL.
   `listenSimHttpServer` binds Hono on `127.0.0.1:8787` and enforces createSimNet
   crash/partition (actor id via `x-sim-actor`). Tests drive `Bun.WebView`;
-  playground embeds the web origin URL. `SIM_MODE=real` boots sidecars via
+  product-simulator embeds the web origin URL. `SIM_MODE=real` boots sidecars via
   `ensureMaxFidelityStack` (real Postgres + MinIO/EMQX), serves web web
   (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
@@ -90,7 +90,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 **Reports** (`SIM_REPORT`):
 
 - Default: off (`SIM_REPORT=0`) for speed; leaves any existing dump under
-  `apps/product/public/reports` in place (header shows the run's `updatedAt`
+  `apps/product/public/product-tests` in place (header shows the run's `updatedAt`
   timestamp so age is obvious).
 - Set `SIM_REPORT=1` (or `bun test:sim:report`) to wipe + rewrite HTML frames.
 

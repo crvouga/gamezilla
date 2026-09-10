@@ -21,7 +21,7 @@ export type DebuggerInstance = {
 
 export type DebuggerShellProps = {
   readonly header?: JSX.Element;
-  /** Kind-strip trailing chrome (e.g. playground snapshot controls). */
+  /** Kind-strip trailing chrome (e.g. product-simulator snapshot controls). */
   readonly kindTrailing?: JSX.Element;
   /**
    * Kind tabs. Default: client/server/events/room. Pass `[]` (or one item)
@@ -32,7 +32,7 @@ export type DebuggerShellProps = {
   readonly unifiedNodes?: readonly TabStripItem[];
   readonly selectedNode?: string;
   readonly onNodeChange?: (id: string) => void;
-  /** When false, hide the frame player (playground). Default true. */
+  /** When false, hide the frame player (product-simulator). Default true. */
   readonly showPlayer?: boolean;
   /** Fires on pointer-down on player / tab chrome (not the pane body). */
   readonly onChromePointerDown?: () => void;
@@ -83,7 +83,7 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
         ) : null}
         {props.unifiedNodes !== undefined ? (
           <TabStrip
-            aria-label="Playground nodes"
+            aria-label="ProductSimulator nodes"
             items={[...props.unifiedNodes]}
             selectedId={props.selectedNode ?? null}
             onSelect={(id) => props.onNodeChange?.(id)}

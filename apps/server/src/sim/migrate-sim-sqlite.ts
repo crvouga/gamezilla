@@ -1,5 +1,5 @@
 /**
- * Portable SQLite migrate for product UI sims / in-process playground.
+ * Portable SQLite migrate for product UI sims / in-process product-simulator.
  * Composes package-owned migrations — no inline DDL.
  */
 

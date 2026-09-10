@@ -1,4 +1,4 @@
-import { Gamepad2Icon, ListChecksIcon, TabStrip } from '@pkgs/ui';
+import { FlaskConicalIcon, MonitorPlayIcon, TabStrip } from '@pkgs/ui';
 import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
 
 import type { SimConsolePorts } from '../shared/ports';
@@ -8,23 +8,23 @@ import { createReportApiClient } from './api-client';
 import { ClientLayoutPreferenceProvider } from './debugger/client-layout-preference';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { createObjectStoreReportApiClient } from './object-store-report-api';
-import { PlaygroundScreen } from './playground/playground-screen';
-import { usePlaygroundSession } from './playground/use-playground-session';
+import { ProductSimulatorScreen } from './product-simulator/product-simulator-screen';
+import { useProductSimulatorSession } from './product-simulator/use-product-simulator-session';
 import { ReportViews } from './report-views';
 import type { ReportNavState } from './router';
 import { NotebookStoreProvider } from './sql-notebook/notebook-store-context';
 import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
-export type ConsoleSection = 'reports' | 'playground';
+export type ConsoleSection = 'tests' | 'simulator';
 
 const SECTIONS = [
-  { id: 'reports', label: 'Reports', icon: ListChecksIcon },
-  { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
+  { id: 'tests', label: 'Tests', icon: FlaskConicalIcon },
+  { id: 'simulator', label: 'Simulator', icon: MonitorPlayIcon },
 ] as const;
 
 const DEFAULT_BASE_PATH = '/sim-console';
-const DEFAULT_REPORTS_PUBLIC_BASE = '/reports';
+const DEFAULT_PRODUCT_TESTS_PUBLIC_BASE = '/product-tests';
 
 const sectionFillClass = 'box flex-1 min-h-[0] bg-background';
 
@@ -39,7 +39,7 @@ function sectionVisibilityStyle(active: boolean): JSX.CSSProperties {
  * Root console screen. Injects everything product-specific through `ports`
  * so `@pkgs/sim-console` never imports apps/libs/test.
  *
- * Section / playground / reports nav are controlled by the host so they can
+ * Section / simulator / tests nav are controlled by the host so they can
  * sync to browser history.
  */
 export function SimConsoleApp(props: {
@@ -48,7 +48,7 @@ export function SimConsoleApp(props: {
   readonly kind: SimChromeKind;
   readonly instance: string;
   readonly panes: Readonly<Record<string, PaneNavValue>>;
-  readonly reports: ReportNavState;
+  readonly tests: ReportNavState;
   readonly onSectionChange: (section: ConsoleSection) => void;
   readonly onKindChange: (kind: SimChromeKind) => void;
   readonly onInstanceChange: (instance: string) => void;
@@ -57,25 +57,25 @@ export function SimConsoleApp(props: {
     patch: PaneNavPatch,
     mode?: 'push' | 'replace'
   ) => void;
-  readonly onReportsNav: (
+  readonly onTestsNav: (
     next: ReportNavState,
     mode?: 'push' | 'replace'
   ) => void;
 }): JSX.Element {
-  // Keep the playground session alive across Reports ↔ Playground; dispose only
+  // Keep the simulator session alive across Tests ↔ Simulator; dispose only
   // when this console root unmounts (live state is lost; snapshots remain).
-  const [playgroundPinned, setPlaygroundPinned] = createSignal(false);
-  const [reportsVisited, setReportsVisited] = createSignal(
-    props.section === 'reports'
+  const [simulatorPinned, setSimulatorPinned] = createSignal(false);
+  const [testsVisited, setTestsVisited] = createSignal(
+    props.section === 'tests'
   );
 
   const api = createMemo((): ReportApiClient => {
     const ports = props.ports;
-    if (ports.reportsStore) {
+    if (ports.productTestsStore) {
       return createObjectStoreReportApiClient({
-        store: ports.reportsStore,
+        store: ports.productTestsStore,
         publicBaseUrl:
-          ports.reportsPublicBaseUrl ?? DEFAULT_REPORTS_PUBLIC_BASE,
+          ports.productTestsPublicBaseUrl ?? DEFAULT_PRODUCT_TESTS_PUBLIC_BASE,
         fetch: (input, init) => ports.fetch(input, init),
         timers: ports.timers,
       });
@@ -87,13 +87,13 @@ export function SimConsoleApp(props: {
   });
 
   createEffect(() => {
-    if (props.section === 'playground') setPlaygroundPinned(true);
-    if (props.section === 'reports') setReportsVisited(true);
+    if (props.section === 'simulator') setSimulatorPinned(true);
+    if (props.section === 'tests') setTestsVisited(true);
   });
 
-  const session = usePlaygroundSession(
-    (opts) => props.ports.bootPlayground(opts),
-    playgroundPinned
+  const session = useProductSimulatorSession(
+    (opts) => props.ports.bootProductSimulator(opts),
+    simulatorPinned
   );
 
   return (
@@ -111,24 +111,24 @@ export function SimConsoleApp(props: {
             onSelect={(id) => props.onSectionChange(id as ConsoleSection)}
           />
           <div class="box flex-1 min-h-[0] bg-background">
-            {reportsVisited() ? (
+            {testsVisited() ? (
               <div
                 class={sectionFillClass}
-                style={sectionVisibilityStyle(props.section === 'reports')}
+                style={sectionVisibilityStyle(props.section === 'tests')}
               >
-                <ReportsSection
+                <TestsSection
                   api={api()}
-                  nav={props.reports}
-                  onNav={props.onReportsNav}
+                  nav={props.tests}
+                  onNav={props.onTestsNav}
                 />
               </div>
             ) : null}
-            {playgroundPinned() ? (
+            {simulatorPinned() ? (
               <div
                 class={sectionFillClass}
-                style={sectionVisibilityStyle(props.section === 'playground')}
+                style={sectionVisibilityStyle(props.section === 'simulator')}
               >
-                <PlaygroundScreen
+                <ProductSimulatorScreen
                   state={session.state}
                   kind={props.kind}
                   instance={props.instance}
@@ -147,7 +147,7 @@ export function SimConsoleApp(props: {
   );
 }
 
-function ReportsSection(props: {
+function TestsSection(props: {
   readonly api: ReportApiClient;
   readonly nav: ReportNavState;
   readonly onNav: (next: ReportNavState, mode?: 'push' | 'replace') => void;

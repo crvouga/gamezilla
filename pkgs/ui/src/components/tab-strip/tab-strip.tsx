@@ -46,8 +46,9 @@ export type TabStripProps = {
 
 const tabsContentStyle = {
   'flex-direction': 'row',
-  'align-items': 'center',
-  gap: '6px',
+  'align-items': 'flex-end',
+  gap: '2px',
+  height: '100%',
 } as const;
 
 /** Roving arrow-key navigation inside the tablist (WAI-ARIA tabs pattern). */
@@ -105,17 +106,22 @@ export function TabStrip(props: TabStripProps): JSX.Element {
 
   return (
     <div
-      class="box grow-0 shrink-0 flex-row items-center gap-2 px-1 pt-0.5 pb-0 border-b border-border bg-surface-muted"
+      class="box grow-0 shrink-0 flex-row items-end gap-2 px-1.5 pt-1 pb-0 border-b border-border bg-surface-muted"
       {...dataAttrs({ component: 'TabStrip', ...props.dataSet })}
-      style={{ 'min-height': `${TAB_MIN_HEIGHT + 4}px` }}
+      style={{ height: `${TAB_MIN_HEIGHT + 4}px` }}
     >
       <Show when={props.leading !== undefined && props.leading !== null}>
-        <div class="box shrink-0 px-0.5 self-center">{props.leading}</div>
+        <div
+          class="box shrink-0 px-0.5 self-end justify-center"
+          style={{ height: `${TAB_MIN_HEIGHT}px` }}
+        >
+          {props.leading}
+        </div>
       </Show>
       <ScrollView
         horizontal
         hideScrollbar
-        class="flex-1 min-w-0"
+        class="flex-1 min-w-0 self-stretch"
         contentStyle={tabsContentStyle}
         role="tablist"
         aria-label={props['aria-label']}
@@ -147,20 +153,23 @@ export function TabStrip(props: TabStripProps): JSX.Element {
         </Index>
       </ScrollView>
       <Show when={props.trailing !== undefined && props.trailing !== null}>
-        <div class="box shrink-0 self-stretch -mt-0.5 justify-center pl-1">
+        <div
+          class="box shrink-0 self-end justify-center pl-1"
+          style={{ height: `${TAB_MIN_HEIGHT}px` }}
+        >
           {props.trailing}
         </div>
       </Show>
       <Show when={showStandaloneAdd()}>
         <button
-          class="clickable clickableTint px-1 py-0.5 items-center justify-center rounded-tl-[10px] rounded-tr-[10px] overflow-hidden self-center"
+          class="clickable clickableTint px-1.5 py-0.5 items-center justify-center rounded-tl-[8px] rounded-tr-[8px] overflow-hidden self-end"
           data-component="TabStripAdd"
           type="button"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}
           aria-label={t`Add tab`}
           onClick={() => props.onAdd?.()}
         >
-          <PlusIcon size={16} color="textSecondary" />
+          <PlusIcon size={15} color="textSecondary" />
         </button>
       </Show>
     </div>

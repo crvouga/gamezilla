@@ -20,6 +20,7 @@ import {
   Database,
   DoorOpen,
   Ellipsis,
+  FlaskConical,
   Gamepad2,
   Gauge,
   Heart,
@@ -33,6 +34,7 @@ import {
   Mail,
   Menu,
   Monitor,
+  MonitorPlay,
   Moon,
   Paintbrush,
   Pause,
@@ -72,7 +74,9 @@ import { createIcon } from './create-icon';
 export { createIcon, type IconComponent, type IconProps } from './create-icon';
 
 export const HouseIcon = createIcon(House);
+export const FlaskConicalIcon = createIcon(FlaskConical);
 export const Gamepad2Icon = createIcon(Gamepad2);
+export const MonitorPlayIcon = createIcon(MonitorPlay);
 export const UserIcon = createIcon(User);
 export const PlusIcon = createIcon(Plus);
 export const RotateCcwIcon = createIcon(RotateCcw);

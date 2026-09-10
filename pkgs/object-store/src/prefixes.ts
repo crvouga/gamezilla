@@ -2,7 +2,7 @@
 export const ObjectStorePrefix = {
   ttsAudio: 'tts-audio/',
   simConsole: 'sim-console/',
-  playgroundSnapshots: 'playground-snapshots/',
+  productSimulatorSnapshots: 'product-simulator-snapshots/',
 } as const;
 
 /** Normalizes a root namespace slug to a wire-key prefix with trailing slash. */

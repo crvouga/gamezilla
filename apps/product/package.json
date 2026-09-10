@@ -31,10 +31,10 @@
       "./src/console/console-nav/*.tsx",
       "./src/console/console-nav/*/index.ts"
     ],
-    "./playground/*": [
-      "./src/console/playground/*.ts",
-      "./src/console/playground/*.tsx",
-      "./src/console/playground/*/index.ts"
+    "./product-simulator/*": [
+      "./src/console/product-simulator/*.ts",
+      "./src/console/product-simulator/*.tsx",
+      "./src/console/product-simulator/*/index.ts"
     ],
     "./test/*": [
       "./src/test/*.ts",
@@ -70,7 +70,7 @@
     "seed:sim-db": "bun scripts/build-sim-seed.ts",
     "setup": "bun run bundle:sim-sql-wasm && bun run --filter @pkgs/sql-client-sqlite-web build:web-workers",
     "tc": "tsc --noEmit -p tsconfig.json",
-    "test": "bun test src/console/console-nav src/console/playground/playground-snapshot-prune.test.ts && NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests",
+    "test": "bun test src/console/console-nav src/console/product-simulator/product-simulator-snapshot-prune.test.ts && NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests",
     "test:auth": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/auth-login-logout.test.tsx tests/auth-oauth-port.test.ts",
     "test:chess": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/chess-puzzle-play.test.tsx",
     "test:friends": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/friends-request-accept.test.tsx",

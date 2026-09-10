@@ -13,7 +13,7 @@ export default function ClientEventsRoute(): JSX.Element {
         <p class="text">
           {
             <Trans>
-              Client events are available in the embedded playground.
+              Client events are available in the embedded product-simulator.
             </Trans>
           }
         </p>

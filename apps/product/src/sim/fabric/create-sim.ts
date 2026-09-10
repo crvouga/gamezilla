@@ -56,7 +56,7 @@ function hasWebLocalStorage(): boolean {
 export type CreateSimOptions = {
   /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
-  /** Real-mode host injects embedded Postgres; playground uses sqlBackend server SQL. */
+  /** Real-mode host injects embedded Postgres; product-simulator uses sqlBackend server SQL. */
   readonly serverSql?: SimSql;
   /**
    * Post-migrate server seed bytes (PGMM). When set (and
@@ -451,7 +451,7 @@ function createSimHandle(kernel: SimKernel): Sim {
 }
 
 /**
- * Playground + openSim fabric. Production never calls this.
+ * ProductSimulator + openSim fabric. Production never calls this.
  * Caller opens a {@link Session} (`virtualTimeRuntime` / `realTimeRuntime` / product host).
  *
  * Bumps the client durable epoch so each sim gets a fresh

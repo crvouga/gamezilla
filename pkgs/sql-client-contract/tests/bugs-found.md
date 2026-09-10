@@ -3,7 +3,7 @@
 ## BUG-1: `Number(bigint)` / Postgres int8 rows (fixed)
 
 - **Property / pin:** `bug-bigint-int8.pbt` / `wire-safety.pbt` / portable contract
-- **Symptom:** Web playground hydrate logged `Cannot convert BigInt to number`
+- **Symptom:** Web product-simulator hydrate logged `Cannot convert BigInt to number`
   when postgres-mem returned `bigint` for domain `integer` (physical
   `bigint`) columns. The engine rejects `Number(bigint)` / `JSON.stringify(bigint)`.
 - **Fix:** `normalizePgInt8Value` converts via decimal text (engine-safe);
@@ -16,7 +16,7 @@
 
 - **Property / pin:** `bug-bigint-mix.pbt` / sync-engine
   `allocate-topic-push-seq`
-- **Symptom:** Playground `/api/query` 500 with V8
+- **Symptom:** Product-simulator `/api/query` 500 with V8
   `Cannot mix BigInt and other types, use explicit conversions` (Bun:
   `Invalid mix of BigInt and other type in addition`) during
   `ON CONFLICT … SET n = n + 1` on physical `bigint` columns

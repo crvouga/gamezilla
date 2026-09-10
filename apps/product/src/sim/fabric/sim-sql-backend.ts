@@ -10,7 +10,7 @@ export type SimSqlRuntime = 'browser' | 'node';
 export const DEFAULT_SIM_SQL_BACKEND: SimSqlBackend = 'mem';
 
 export function resolveSimSqlRuntime(): SimSqlRuntime {
-  // Real browser playground (no bun:test): WASM clients if ever needed.
+  // Real browser product-simulator (no bun:test): WASM clients if ever needed.
   if (
     typeof window !== 'undefined' &&
     typeof document !== 'undefined' &&

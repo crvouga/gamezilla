@@ -1,5 +1,5 @@
 /**
- * Tabs vs columns preference for multi-client playground / reports chrome.
+ * Tabs vs columns preference for multi-client product-simulator / tests chrome.
  * Session-local state shared via context across layout consumers.
  */
 

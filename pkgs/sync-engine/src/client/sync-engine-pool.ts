@@ -152,7 +152,7 @@ export function createSyncEnginePool(
       for (const engine of engines) {
         // Soft-stop sync first, then close SQLite — same order as
         // deactivatePrevious. Web OPFS is single-session; leaving handles
-        // open blocks the next open (Console playground, tab remount).
+        // open blocks the next open (Console product-simulator, tab remount).
         await engine.disconnect();
         await engine.db.disconnect();
       }

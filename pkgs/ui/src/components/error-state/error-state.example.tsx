@@ -17,7 +17,7 @@ export default function ErrorStateExample(): JSX.Element {
       <SchemePreview>
         <div class="box h-[280px]">
           <ErrorState
-            title="Playground failed to start"
+            title="Simulator failed to start"
             body="UnknownDatabaseError: cannot open snapshot at /tmp/db.sqlite"
             retry={{ label: 'Try again', onClick: () => undefined }}
           />
@@ -41,7 +41,7 @@ export default function ErrorStateExample(): JSX.Element {
       <SchemePreview>
         <div class="box h-[280px]">
           <ErrorState
-            title="Failed to boot playground"
+            title="Failed to boot simulator"
             body="no such table-valued function: pragma_table_info"
             copy={() => Promise.resolve()}
           />

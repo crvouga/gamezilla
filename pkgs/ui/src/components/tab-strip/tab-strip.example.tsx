@@ -3,9 +3,9 @@ import { createSignal, type JSX } from 'solid-js';
 import { ExampleRoot } from '../explorer/example-root';
 import {
   DatabaseIcon,
-  Gamepad2Icon,
+  FlaskConicalIcon,
   HouseIcon,
-  ListChecksIcon,
+  MonitorPlayIcon,
   PaintbrushIcon,
   ScrollTextIcon,
   TerminalIcon,
@@ -26,7 +26,7 @@ export default function TabStripExample(): JSX.Element {
 
 function NestedChromeDemo(): JSX.Element {
   const [app, setApp] = createSignal('console');
-  const [section, setSection] = createSignal('playground');
+  const [section, setSection] = createSignal('simulator');
   const [view, setView] = createSignal('ui');
   return (
     <>
@@ -46,8 +46,8 @@ function NestedChromeDemo(): JSX.Element {
         <TabStrip
           aria-label="Console sections"
           items={[
-            { id: 'reports', label: 'Reports', icon: ListChecksIcon },
-            { id: 'playground', label: 'Playground', icon: Gamepad2Icon },
+            { id: 'tests', label: 'Tests', icon: FlaskConicalIcon },
+            { id: 'simulator', label: 'Simulator', icon: MonitorPlayIcon },
           ]}
           selectedId={section()}
           onSelect={setSection}

@@ -1,5 +1,5 @@
 /**
- * Shared debugger view ids (playground + reports).
+ * Shared debugger view ids (simulator + tests).
  * Persisted report aliases: html → ui, sqlite → db, logs → events.
  */
 

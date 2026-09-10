@@ -1,4 +1,4 @@
-/** Playground web bundle — the console mounts `live.App` into the browser document itself. */
+/** ProductSimulator web bundle — the console mounts `live.App` into the browser document itself. */
 
 type MultiAppSolidDomSessionFactory =
   typeof import('@pkgs/ui-testing-solid-dom')['createMultiAppSolidDomSession'];

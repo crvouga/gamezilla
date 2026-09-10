@@ -1,8 +1,8 @@
 // @io-wall-ok — process entry: Bun.serve + wall Node-FS report + snapshot stores.
 /**
  * Local report console for `@apps/product` `dev`. Serves
- * `<repo>/.cache/sim-console-data` so Jest UI sims (`openSim`) show up in Reports.
- * Playground snapshots use the same Node-FS root under `playground-snapshots/`.
+ * `<repo>/.cache/sim-console-data` so Jest UI sims (`openSim`) show up in Tests.
+ * ProductSimulator snapshots use the same Node-FS root under `product-simulator-snapshots/`.
  */
 import { join } from 'node:path';
 
@@ -51,7 +51,7 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
     fs: wallNodeFs(),
     layout: 'sidecar',
   });
-  const snapshotStore = store.withPrefix(ObjectStorePrefix.playgroundSnapshots);
+  const snapshotStore = store.withPrefix(ObjectStorePrefix.productSimulatorSnapshots);
 
   const { app, stop: stopApp } = createSimConsoleApp({
     buckets: [{ id: 'local', label: 'Local', store }],
@@ -59,7 +59,7 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
     now: () => wallClock.now(),
     convertSqliteDumpToSqlm: ({ bytes, nowMs }) =>
       bunSqliteDumpToSqlm(bytes, nowMs),
-    playgroundSnapshotStore: snapshotStore,
+    productSimulatorSnapshotStore: snapshotStore,
   });
 
   const server = Bun.serve({
@@ -78,7 +78,7 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
     `[sim-console] local reports http://127.0.0.1:${String(DEFAULT_REPORT_SERVER_PORT)} ← ${dataDir}\n`
   );
   process.stdout.write(
-    `[sim-console] playground snapshots → ${join(dataDir, ObjectStorePrefix.playgroundSnapshots.replace(/\/$/, ''))}\n`
+    `[sim-console] product-simulator snapshots → ${join(dataDir, ObjectStorePrefix.productSimulatorSnapshots.replace(/\/$/, ''))}\n`
   );
 
   return {

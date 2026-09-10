@@ -13,21 +13,21 @@ import { createSerializedRunFor } from '../setup/sim-wait-pump';
 import { loadSolidDomSessionFactory } from './in-process-dom';
 import { type ProductExtra, SIM_START_MS } from './ports';
 
-// @io-wall-ok — host factory; wallClock only when skipSeed (playground).
+// @io-wall-ok — host factory; wallClock only when skipSeed (product-simulator).
 
 export type InProcessRuntimeOptions = {
   /**
    * Attach a `MultiAppSolidDomSession` (happy-dom) for bun:test scenarios.
-   * Default: true when `SIM_WITH_DOM=1` or bun:test, else false (playground).
+   * Default: true when `SIM_WITH_DOM=1` or bun:test, else false (product-simulator).
    */
   readonly withDom?: boolean;
-  /** Override start time (playground uses wallClock.now()). */
+  /** Override start time (product-simulator uses wallClock.now()). */
   readonly startTime?: number;
   /** Inject server SQL. */
   readonly serverSql?: SimSql;
   /**
    * Open + migrate a fresh server DB instead of cloning the sim seed.
-   * Default: true outside bun:test (playground).
+   * Default: true outside bun:test (product-simulator).
    */
   readonly skipSeed?: boolean;
 };

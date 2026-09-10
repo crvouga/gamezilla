@@ -9,7 +9,7 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { resolveSimConsoleReportsDir } from '@pkgs/sim-console/local-data-dir';
+import { resolveSimConsoleProductTestsDir } from '@pkgs/sim-console/local-data-dir';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import { wallPathExists } from '@pkgs/sim-console/wall-path-exists';
 import type { Driver } from '@pkgs/ui-testing';
@@ -24,7 +24,7 @@ import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
 
 const reportFs = wallNodeFs();
-const reportDataDir = resolveSimConsoleReportsDir(
+const reportDataDir = resolveSimConsoleProductTestsDir(
   process.cwd(),
   wallPathExists
 );

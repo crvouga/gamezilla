@@ -33,17 +33,17 @@ function ConsoleBody(props: { readonly ports: SimConsolePorts }): JSX.Element {
     <SimConsoleApp
       ports={props.ports}
       section={nav.state.section}
-      kind={nav.state.playground.kind}
-      instance={nav.state.playground.instance}
-      panes={nav.state.playground.panes}
-      reports={nav.state.reports}
+      kind={nav.state.simulator.kind}
+      instance={nav.state.simulator.instance}
+      panes={nav.state.simulator.panes}
+      tests={nav.state.tests}
       onSectionChange={(section) => nav.patch({ section })}
-      onKindChange={(kind) => nav.patch({ playground: { kind } })}
-      onInstanceChange={(instance) => nav.patch({ playground: { instance } })}
+      onKindChange={(kind) => nav.patch({ simulator: { kind } })}
+      onInstanceChange={(instance) => nav.patch({ simulator: { instance } })}
       onPanePatch={(id, patch, mode = 'push') =>
-        nav.patch({ playground: { pane: { id, patch } } }, mode)
+        nav.patch({ simulator: { pane: { id, patch } } }, mode)
       }
-      onReportsNav={(reports, mode = 'push') => nav.patch({ reports }, mode)}
+      onTestsNav={(tests, mode = 'push') => nav.patch({ tests }, mode)}
     />
   );
 }

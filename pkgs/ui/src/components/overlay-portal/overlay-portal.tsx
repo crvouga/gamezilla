@@ -38,7 +38,7 @@ const OverlayPortalContext = createContext<OverlayPortalApi | null>(null);
 
 /**
  * Absolute fill above app chrome (not viewport-fixed) so hosts clip inside
- * nested roots (playground panels). Banners are in-flow layout slots, not
+ * nested roots (product-simulator panels). Banners are in-flow layout slots, not
  * stacked above this host.
  */
 export const OVERLAY_PORTAL_Z_INDEX = 1_000_000;

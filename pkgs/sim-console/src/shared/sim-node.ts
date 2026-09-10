@@ -1,5 +1,5 @@
 /**
- * System-aligned node kinds for console chrome (playground + reports).
+ * System-aligned node kinds for console chrome (simulator + tests).
  * Addresses are `kind` or `kind:instanceId` (`client:alice`, `room:<topic>`).
  */
 
@@ -13,7 +13,7 @@ export const SIM_NODE_KINDS = [
 
 export type SimNodeKind = (typeof SIM_NODE_KINDS)[number];
 
-/** Playground kind tabs (DB is a pane under Server, not its own tab). */
+/** ProductSimulator kind tabs (DB is a pane under Server, not its own tab). */
 export const SIM_CHROME_KINDS = ['client', 'server', 'events', 'room'] as const;
 
 export type SimChromeKind = (typeof SIM_CHROME_KINDS)[number];

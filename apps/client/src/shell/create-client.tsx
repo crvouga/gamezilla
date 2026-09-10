@@ -24,7 +24,7 @@ import {
 } from './sync/sync-engine-pool';
 
 export type ClientAppProps = {
-  /** Multi-App playground / tests: in-memory router, no document shortcuts. */
+  /** Multi-App product-simulator / tests: in-memory router, no document shortcuts. */
   readonly embedded?: boolean | undefined;
   /** Embedded only: externally owned history (tests drive navigation). */
   readonly history?: MemoryHistory | undefined;

@@ -12,10 +12,10 @@ import { cssPx } from '../../css/css-px';
  * ```tsx
  * <SegmentedControl
  *   segments={[
- *     { key: 'playground', label: 'Playground' },
+ *     { key: 'simulator', label: 'Simulator' },
  *     { key: 'docs', label: 'Docs' },
  *   ]}
- *   selected="playground"
+ *   selected="simulator"
  *   onSelect={setMode}
  * />
  * ```

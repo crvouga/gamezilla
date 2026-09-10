@@ -1,5 +1,5 @@
 /**
- * In-process multi-topic room host for sim / playground.
+ * In-process multi-topic room host for sim / product-simulator.
  * Clients share one {@link RoomServer} per `space:<id>` topic via
  * {@link LoopbackRoomTransport} — no browser WebSocket / Durable Object.
  */

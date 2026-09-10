@@ -1,5 +1,5 @@
 /**
- * Postgres migrate for product UI sims / in-process playground server DB.
+ * Postgres migrate for product UI sims / in-process product-simulator server DB.
  * Uses {@link PostgresMigrationRunner} with advisory-lock + PL/pgSQL compat
  * skipped (postgres-mem has no PL/pgSQL; JSON1 shims install at SqlClient open).
  */

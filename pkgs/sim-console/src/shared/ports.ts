@@ -15,32 +15,32 @@ export type {
   SimCheckpointSqlFormat,
 } from './sim-checkpoint';
 
-export type PlaygroundLogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type ProductSimulatorLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-export type PlaygroundLogEntry = {
+export type ProductSimulatorLogEntry = {
   readonly at: number;
-  readonly level: PlaygroundLogLevel;
+  readonly level: ProductSimulatorLogLevel;
   readonly msg: string;
   readonly context?: Record<string, unknown>;
 };
 
-export type PlaygroundLogBuffer = {
+export type ProductSimulatorLogBuffer = {
   readonly subscribe: (listener: () => void) => () => void;
-  readonly snapshot: () => readonly PlaygroundLogEntry[];
-  readonly append: (entry: PlaygroundLogEntry) => void;
+  readonly snapshot: () => readonly ProductSimulatorLogEntry[];
+  readonly append: (entry: ProductSimulatorLogEntry) => void;
 };
 
-export type PlaygroundNode = {
+export type ProductSimulatorNode = {
   readonly id: string;
   readonly address: string;
-  readonly logs: PlaygroundLogBuffer;
+  readonly logs: ProductSimulatorLogBuffer;
 };
 
-export type PlaygroundSqlNode = PlaygroundNode & {
+export type ProductSimulatorSqlNode = ProductSimulatorNode & {
   readonly sqlClient: SqlClient;
 };
 
-export type PlaygroundActorView =
+export type ProductSimulatorActorView =
   | {
       /** Solid product `App`; the console hosts it in a DOM element (web only). */
       readonly kind: 'solid';
@@ -51,11 +51,11 @@ export type PlaygroundActorView =
       readonly url: string;
     };
 
-export type PlaygroundActor = PlaygroundSqlNode & {
-  readonly view: PlaygroundActorView;
+export type ProductSimulatorActor = ProductSimulatorSqlNode & {
+  readonly view: ProductSimulatorActorView;
 };
 
-export type PlaygroundRoomSnapshot = {
+export type ProductSimulatorRoomSnapshot = {
   readonly topic: string;
   readonly committedState: unknown;
   readonly roster: readonly {
@@ -67,21 +67,21 @@ export type PlaygroundRoomSnapshot = {
   readonly dedupSize: number;
 };
 
-export type PlaygroundRoomNode = PlaygroundNode & {
-  inspect(): PlaygroundRoomSnapshot | null;
+export type ProductSimulatorRoomNode = ProductSimulatorNode & {
+  inspect(): ProductSimulatorRoomSnapshot | null;
 };
 
-export type PlaygroundPubSubTopicStat = {
+export type ProductSimulatorPubSubTopicStat = {
   readonly topic: string;
   readonly subscriberCount: number;
   readonly instanceCount: number;
 };
 
-export type PlaygroundPubSubNode = PlaygroundNode & {
-  listTopicStats(): readonly PlaygroundPubSubTopicStat[];
+export type ProductSimulatorPubSubNode = ProductSimulatorNode & {
+  listTopicStats(): readonly ProductSimulatorPubSubTopicStat[];
 };
 
-export type PlaygroundCommandContext = {
+export type ProductSimulatorCommandContext = {
   readonly serverSql: SqlClient;
   readonly now: () => number;
   readonly createId: () => string;
@@ -93,14 +93,14 @@ export type PlaygroundCommandContext = {
   }) => Promise<void>;
 };
 
-export type PlaygroundCommand = {
+export type ProductSimulatorCommand = {
   readonly id: string;
   readonly label: string;
-  run(ctx: PlaygroundCommandContext): Promise<void>;
+  run(ctx: ProductSimulatorCommandContext): Promise<void>;
 };
 
 /** Searchable command-palette entries (faults, clock, snapshots). */
-export type PlaygroundPaletteCommand = {
+export type ProductSimulatorPaletteCommand = {
   readonly id: string;
   readonly title: string;
   readonly subtitle?: string;
@@ -109,7 +109,7 @@ export type PlaygroundPaletteCommand = {
   run(): void | Promise<void>;
 };
 
-export type PlaygroundSnapshotInfo = {
+export type ProductSimulatorSnapshotInfo = {
   readonly id: string;
   readonly label: string;
   readonly createdAtMs: number;
@@ -119,7 +119,7 @@ export type PlaygroundSnapshotInfo = {
   readonly totalBytes?: number;
 };
 
-export type PlaygroundSnapshotManifest = {
+export type ProductSimulatorSnapshotManifest = {
   readonly version: 2;
   readonly localSchemaVersion: number;
   readonly id: string;
@@ -142,34 +142,34 @@ export type PlaygroundSnapshotManifest = {
   };
 };
 
-export type PlaygroundClock = {
+export type ProductSimulatorClock = {
   readonly now: () => number;
   readonly advance: (ms: number) => void;
   readonly reset: (ms: number) => void;
 };
 
-export type PlaygroundSession = {
-  readonly clock: PlaygroundClock;
+export type ProductSimulatorSession = {
+  readonly clock: ProductSimulatorClock;
   crash(id: string): void;
   restart(id: string): void;
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
-  readonly clients: ReadonlyMap<string, PlaygroundActor>;
-  readonly server: PlaygroundSqlNode;
-  readonly pubsub: PlaygroundPubSubNode;
-  readonly rooms: ReadonlyMap<string, PlaygroundRoomNode>;
+  readonly clients: ReadonlyMap<string, ProductSimulatorActor>;
+  readonly server: ProductSimulatorSqlNode;
+  readonly pubsub: ProductSimulatorPubSubNode;
+  readonly rooms: ReadonlyMap<string, ProductSimulatorRoomNode>;
   readonly revision: number;
   readonly snapshotEpoch: number;
   readonly snapshotRestoring: boolean;
   subscribe(listener: () => void): () => void;
-  addClient(id?: string): Promise<PlaygroundActor>;
+  addClient(id?: string): Promise<ProductSimulatorActor>;
   removeClient(id: string): Promise<void>;
-  listCommands(): readonly PlaygroundCommand[];
+  listCommands(): readonly ProductSimulatorCommand[];
   runCommand(id: string): Promise<void>;
-  listPaletteCommands(): readonly PlaygroundPaletteCommand[];
+  listPaletteCommands(): readonly ProductSimulatorPaletteCommand[];
   refreshSnapshotPaletteCommands(): Promise<void>;
-  listSnapshots(): Promise<readonly PlaygroundSnapshotInfo[]>;
-  saveSnapshot(label?: string): Promise<PlaygroundSnapshotInfo>;
+  listSnapshots(): Promise<readonly ProductSimulatorSnapshotInfo[]>;
+  saveSnapshot(label?: string): Promise<ProductSimulatorSnapshotInfo>;
   loadSnapshot(id: string): Promise<void>;
   deleteSnapshot(id: string): Promise<void>;
   deleteSnapshots(ids: readonly string[]): Promise<void>;
@@ -184,14 +184,14 @@ export type PlaygroundSession = {
   dispose(): Promise<void>;
 };
 
-export type BootPlaygroundOptions = {
+export type BootProductSimulatorOptions = {
   readonly skipSnapshotLoad?: boolean;
 };
 
 export type SimConsolePorts = {
-  readonly bootPlayground: (
-    opts?: BootPlaygroundOptions
-  ) => Promise<PlaygroundSession>;
+  readonly bootProductSimulator: (
+    opts?: BootProductSimulatorOptions
+  ) => Promise<ProductSimulatorSession>;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly fetch: (
@@ -199,12 +199,12 @@ export type SimConsolePorts = {
     init?: RequestInit
   ) => Promise<Response>;
   /**
-   * Static / ObjectStore-backed report artifacts (`public/reports`).
+   * Static / ObjectStore-backed report artifacts (`public/product-tests`).
    * When set, the console reads reports client-side with no report server.
    */
-  readonly reportsStore?: ObjectStore;
-  /** Public URL base for report assets (default `/reports`). */
-  readonly reportsPublicBaseUrl?: string;
+  readonly productTestsStore?: ObjectStore;
+  /** Public URL base for report assets (default `/product-tests`). */
+  readonly productTestsPublicBaseUrl?: string;
   /**
    * Durable store for per-node SQL notebooks (OPFS / filesystem). When omitted,
    * notebooks fall back to an in-memory ObjectStore (lost on reload).

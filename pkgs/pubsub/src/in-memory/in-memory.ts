@@ -148,7 +148,7 @@ export class InMemoryPubSub implements PubSub {
     return [...this.handlers.keys()];
   }
 
-  /** Test / playground hook: subscriber counts per topic. */
+  /** Test / product-simulator hook: subscriber counts per topic. */
   topicStatsForTest(): readonly {
     readonly topic: Topic;
     readonly subscriberCount: number;

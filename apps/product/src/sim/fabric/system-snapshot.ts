@@ -22,13 +22,13 @@ import {
   resetSimClock,
 } from './checkpoint-state';
 import {
-  dumpPlaygroundClientDurable,
-  restorePlaygroundClientDurable,
+  dumpProductSimulatorClientDurable,
+  restoreProductSimulatorClientDurable,
 } from './client-durable';
 import { type Sim, simClientNamespace } from './create-sim';
 import { openFreshSimClientSql, type SimSql } from './sim-sql';
 import {
-  awaitPlaygroundMutationDrain,
+  awaitProductSimulatorMutationDrain,
   reconcileServerProfilesFromClients,
 } from './snapshot-sync';
 
@@ -103,7 +103,7 @@ export async function captureSystemSnapshot(
 ): Promise<SimSystemSnapshot> {
   const clientIds = [...ctx.clientIds];
   const roomTopics = [...ctx.sim.roomNode.listTopics()];
-  await awaitPlaygroundMutationDrain(drainCtx(ctx), clientIds);
+  await awaitProductSimulatorMutationDrain(drainCtx(ctx), clientIds);
 
   const server = await dumpData(ctx.sim.serverSql.sqlClient);
   const clients: Record<string, SimSystemSnapshotClientSlice> = {};
@@ -112,7 +112,7 @@ export async function captureSystemSnapshot(
     const handle = await ensureClientSqlHandle(ctx, clientId);
     clients[clientId] = {
       tables: await dumpData(handle.sqlClient),
-      kv: dumpPlaygroundClientDurable(simClientNamespace(clientId)),
+      kv: dumpProductSimulatorClientDurable(simClientNamespace(clientId)),
     };
   }
 
@@ -190,7 +190,7 @@ export async function restoreSystemSnapshot(
   for (const clientId of snapshot.clientIds) {
     const slice = snapshot.clients[clientId];
     if (slice === undefined) continue;
-    restorePlaygroundClientDurable(simClientNamespace(clientId), {
+    restoreProductSimulatorClientDurable(simClientNamespace(clientId), {
       ...slice.kv,
     });
     const handle = await ensureClientSqlHandle(ctx, clientId);

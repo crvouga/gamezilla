@@ -1,5 +1,5 @@
 /**
- * Namespaced web durable dumps for playground client checkpoints.
+ * Namespaced web durable dumps for product-simulator client checkpoints.
  */
 
 import { clearNamespacedAuthClientStorage } from '@pkgs/auth/client';
@@ -29,7 +29,7 @@ function dumpStoragePrefix(
 }
 
 /** Auth + secure + kv under `namespace.` (localStorage + sessionStorage). */
-export function dumpPlaygroundClientDurable(
+export function dumpProductSimulatorClientDurable(
   namespace: string
 ): Record<string, string> {
   return {
@@ -38,18 +38,18 @@ export function dumpPlaygroundClientDurable(
   };
 }
 
-/** Drop all namespaced web durable keys for a playground client actor. */
-export function clearPlaygroundClientDurable(namespace: string): void {
+/** Drop all namespaced web durable keys for a product-simulator client actor. */
+export function clearProductSimulatorClientDurable(namespace: string): void {
   clearNamespacedKvWeb(namespace);
   clearNamespacedAuthClientStorage(namespace);
   clearNamespacedWebSecureStorage(namespace);
 }
 
-export function restorePlaygroundClientDurable(
+export function restoreProductSimulatorClientDurable(
   namespace: string,
   entries: Record<string, string>
 ): void {
-  clearPlaygroundClientDurable(namespace);
+  clearProductSimulatorClientDurable(namespace);
   const ls = globalThis.localStorage;
   const ss = globalThis.sessionStorage;
   for (const [rel, value] of Object.entries(entries)) {

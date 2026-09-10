@@ -53,7 +53,7 @@ const ENTRY_BASENAMES = new Set([
   'serve-harness.ts',
   'example-root.tsx',
   'app.tsx',
-  'boot-playground.ts',
+  'boot-product-simulator.ts',
   'root-app.tsx',
   'main.tsx',
 ]);

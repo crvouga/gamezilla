@@ -227,7 +227,7 @@ function buildEngine(
     timers: args.timers,
     createId: args.createId,
     enableMutationUpload: isOwner,
-    // Injected openSqlClient marks sim/playground — use the short reconcile
+    // Injected openSqlClient marks sim/product-simulator — use the short reconcile
     // safety net so missed OOB notifies heal inside DST wait budgets.
     ...(args.openSqlClient !== undefined ? { reconcileIntervalMs: 500 } : {}),
     ...(args.waitUntilAvailable !== undefined
@@ -242,7 +242,7 @@ function buildEngine(
 export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
-  // Injected openSqlClient = sim/playground isolated DB — never share OPFS, so
+  // Injected openSqlClient = sim/product-simulator isolated DB — never share OPFS, so
   // skip Web Locks (a prior engine's unreleased lock would make reload a
   // permanent non-owner with no upload/push).
   const syncLease =

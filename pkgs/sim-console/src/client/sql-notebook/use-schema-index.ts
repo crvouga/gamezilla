@@ -9,7 +9,7 @@ import {
 } from 'solid-js';
 
 import {
-  listPlaygroundTables,
+  listProductSimulatorTables,
   loadColumnNames,
   type SchemaRow,
 } from './sql-schema-query';
@@ -52,7 +52,7 @@ export function useSchemaIndex(args: {
     setStatus((prev) => (prev === 'ready' ? prev : 'loading'));
     void (async () => {
       try {
-        const nextTables = await listPlaygroundTables(sqlClient);
+        const nextTables = await listProductSimulatorTables(sqlClient);
         const cols: Record<string, readonly string[]> = {};
         for (const t of nextTables) {
           cols[t.name] = await loadColumnNames(sqlClient, t.name);

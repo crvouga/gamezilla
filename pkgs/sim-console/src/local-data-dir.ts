@@ -9,9 +9,10 @@ export const LOCAL_REPORT_DATA_DIRNAME = '.cache/sim-console-data';
 
 /**
  * Static assets directory for the latest sim test report dump
- * (`@apps/product` `public/reports`).
+ * (`@apps/product` `public/product-tests`).
  */
-export const SIM_CONSOLE_REPORTS_DIRNAME = 'apps/product/public/reports';
+export const SIM_CONSOLE_PRODUCT_TESTS_DIRNAME =
+  'apps/product/public/product-tests';
 
 export type PathExists = (absolutePath: string) => boolean;
 
@@ -47,15 +48,15 @@ export function resolveLocalReportDataDir(
 }
 
 /**
- * Absolute path to `<repo>/apps/product/public/reports` for the static-bundle
+ * Absolute path to `<repo>/apps/product/public/product-tests` for the static-bundle
  * report dump consumed by the console client.
  */
-export function resolveSimConsoleReportsDir(
+export function resolveSimConsoleProductTestsDir(
   startDir: string,
   exists: PathExists
 ): string {
   const root = findMonorepoRoot(startDir, exists) ?? resolve(startDir);
-  return join(root, SIM_CONSOLE_REPORTS_DIRNAME);
+  return join(root, SIM_CONSOLE_PRODUCT_TESTS_DIRNAME);
 }
 
 /** Repo-relative POSIX path, or null when outside the monorepo / invalid. */

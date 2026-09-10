@@ -108,6 +108,6 @@ export const DEFAULT_MAX_FRAMES_PER_STEP = 1;
 export const DEFAULT_PUBLISH_THROTTLE_MS = 250;
 export const DEFAULT_REPORT_SERVER_PORT = 7789;
 
-/** Bun local report server path for playground snapshot ObjectStore HTTP proxy. */
-export const PLAYGROUND_SNAPSHOT_OBJECTS_PATH =
-  '/api/playground-snapshots/objects';
+/** Bun local report server path for product-simulator snapshot ObjectStore HTTP proxy. */
+export const PRODUCT_SIMULATOR_SNAPSHOT_OBJECTS_PATH =
+  '/api/product-simulator-snapshots/objects';

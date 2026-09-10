@@ -1,5 +1,5 @@
 /**
- * ReportApiClient backed by a read-only ObjectStore (static `public/reports`).
+ * ReportApiClient backed by a read-only ObjectStore (static `public/product-tests`).
  * Polls instead of SSE so the console needs no report server.
  */
 
@@ -31,7 +31,7 @@ const POLL_MS = 1_500;
 
 export type CreateObjectStoreReportApiClientOptions = {
   readonly store: ObjectStore;
-  /** Public URL base for frame assets, e.g. `/reports` (no trailing slash). */
+  /** Public URL base for frame assets, e.g. `/product-tests` (no trailing slash). */
   readonly publicBaseUrl: string;
   readonly fetch: ReportApiClient['fetch'];
   readonly timers: Timers;

@@ -1,6 +1,6 @@
 /**
  * {@link SqlClient} backed by `@crvouga/postgres-mem` — pure TypeScript
- * in-memory PostgreSQL for hermetic sim / playground server DBs.
+ * in-memory PostgreSQL for hermetic sim / product-simulator server DBs.
  *
  * Prefer this over sqlite-mem for the **server** half of product sims so
  * dialect matches production Postgres. Clients stay on sqlite-mem.

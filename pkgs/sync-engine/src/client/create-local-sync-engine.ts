@@ -340,7 +340,7 @@ function notifyLocalMutation(
 async function connectState(state: LocalEngineState): Promise<void> {
   if (state.connected) {
     state.uploadQueue.wake();
-    // Identity may have switched while this engine stayed open (playground
+    // Identity may have switched while this engine stayed open (product-simulator
     // fixed DB name). Remake entryChannel topics before waking queries.
     state.refreshTopics?.();
     state.runtime.wakeAll();

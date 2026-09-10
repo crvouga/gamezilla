@@ -1,5 +1,5 @@
 /**
- * In-memory SQLite WASM {@link SqlClient} for browser sim clients (playground).
+ * In-memory SQLite WASM {@link SqlClient} for browser sim clients (product-simulator).
  *
  * Uses `@sqlite.org/sqlite-wasm` Memory VFS (`:memory:`) so Alice/Bob can
  * coexist without OPFS locks. Not for product web OPFS paths.

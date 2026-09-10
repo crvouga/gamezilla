@@ -8,7 +8,7 @@ export type SchemaRow = {
   readonly type: string;
 };
 
-export async function listPlaygroundTables(
+export async function listProductSimulatorTables(
   sqlClient: SqlClient
 ): Promise<readonly SchemaRow[]> {
   if (isPostgresSqlClient(sqlClient)) {
@@ -59,7 +59,7 @@ export async function loadColumnNames(
   }
 }
 
-export function formatPlaygroundDbCell(value: unknown): string {
+export function formatProductSimulatorDbCell(value: unknown): string {
   if (value == null) return 'NULL';
   if (typeof value === 'string') return value;
   if (

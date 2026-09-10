@@ -12,6 +12,6 @@ export {
   type SimConsoleAppHandle,
 } from './create-sim-console-app';
 export {
-  handlePlaygroundSnapshotObjectRequest,
-  PLAYGROUND_SNAPSHOT_OBJECTS_PATH,
-} from './playground-snapshot-object-routes';
+  handleProductSimulatorSnapshotObjectRequest,
+  PRODUCT_SIMULATOR_SNAPSHOT_OBJECTS_PATH,
+} from './product-simulator-snapshot-object-routes';

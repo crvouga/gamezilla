@@ -63,7 +63,7 @@ by game modules in product.
    injects composed game modules, reads `useRoomSnapshot` / selectors.
 2. **Offline-first open** — `RoomClient.open` hydrates local storage and attaches
    transport even when connect fails; UI can dispatch while disconnected.
-3. **Playgrounds / widgets** — `@pkgs/room-widgets` and tests use
+3. **Simulators / widgets** — `@pkgs/room-widgets` and tests use
    `@pkgs/room-sim` (`openLoopbackRoom`, `TestCounterModule`) for in-process
    multi-client demos without a Worker.
 4. **Authoring a game** — implement `RoomModule` (`initialState` / `handle` /

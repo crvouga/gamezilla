@@ -28,7 +28,7 @@ const DURABLE_TABLES = new Set<string>(FRAMEWORK_DURABLE_TABLE_NAMES);
 
 /**
  * Target `PRAGMA user_version` after migrate.
- * Playground snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
+ * Product-simulator snapshots store this to refuse restores after SCHEMA_EPOCH bumps.
  */
 export function getLocalSchemaTargetVersion(
   schemaEpoch: number = SCHEMA_EPOCH

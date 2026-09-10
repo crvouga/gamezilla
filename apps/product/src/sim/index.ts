@@ -5,7 +5,7 @@
  * actions, reads). Hosts are registered runtimes: `in-process`, `bun-webview`.
  *
  * Isomorphism: fabric + `in-process` + system/actions must run under web
- * (playground). Node-only seed / HTTP helpers live under `setup/` and
+ * (product-simulator). Node-only seed / HTTP helpers live under `setup/` and
  * `hosts/localhost-http` (`.web.ts` stubs) and are dynamic-imported from tests.
  */
 

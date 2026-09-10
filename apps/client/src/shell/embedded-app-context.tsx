@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * Whether this product App is one of several mounted in a single page
- * (multi-App playground). Embedded Apps use an in-memory router and leave
+ * (multi-App product-simulator). Embedded Apps use an in-memory router and leave
  * document-level shortcuts / PWA prompts to the host.
  */
 

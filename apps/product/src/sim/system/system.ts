@@ -44,8 +44,8 @@ function canSeedFromNodeFs(): boolean {
 async function maybeSeedSimChessPuzzles(sqlClient: {
   readonly query: unknown;
 }): Promise<void> {
-  // Playground / web: Node fixtures + `__dirname` are unavailable.
-  // Console seeds puzzles via playground command palette instead.
+  // ProductSimulator / web: Node fixtures + `__dirname` are unavailable.
+  // Console seeds puzzles via product-simulator command palette instead.
   if (!canSeedFromNodeFs()) return;
   const { seedSimChessPuzzles } = await import(
     '../setup/seed-sim-chess-puzzles'

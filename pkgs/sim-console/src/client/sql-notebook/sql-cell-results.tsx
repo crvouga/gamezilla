@@ -8,7 +8,7 @@ import {
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
 import type { SqlStatementResult } from './run-sql-cell';
-import { formatPlaygroundDbCell } from './sql-schema-query';
+import { formatProductSimulatorDbCell } from './sql-schema-query';
 
 export function SqlCellResults(props: {
   readonly results: () => readonly SqlStatementResult[];
@@ -147,7 +147,7 @@ function buildColumns(
     header: col,
     width: 120,
     sortable: true,
-    getValue: (row) => formatPlaygroundDbCell(row[col]),
+    getValue: (row) => formatProductSimulatorDbCell(row[col]),
   }));
 }
 
@@ -180,7 +180,7 @@ function resultsToCsv(results: readonly SqlStatementResult[]): string {
     blocks.push(cols.map(csvEscape).join(','));
     for (const row of r.rows) {
       blocks.push(
-        cols.map((c) => csvEscape(formatPlaygroundDbCell(row[c]))).join(',')
+        cols.map((c) => csvEscape(formatProductSimulatorDbCell(row[c]))).join(',')
       );
     }
   }

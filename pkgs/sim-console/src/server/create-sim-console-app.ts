@@ -8,7 +8,7 @@ import {
   handleApi,
 } from './api-routes';
 import { type BucketWatcher, startBucketWatcher } from './bucket-watcher';
-import { handlePlaygroundSnapshotObjectRequest } from './playground-snapshot-object-routes';
+import { handleProductSimulatorSnapshotObjectRequest } from './product-simulator-snapshot-object-routes';
 import { SseHub } from './sse-hub';
 import type { ReportBucket } from './types';
 
@@ -25,11 +25,11 @@ export type CreateSimConsoleAppOptions = {
    */
   readonly convertSqliteDumpToSqlm?: ConvertSqliteDumpToSqlm;
   /**
-   * Optional playground snapshot ObjectStore (Node-FS locally). Pass `null`
+   * Optional product-simulator snapshot ObjectStore (Node-FS locally). Pass `null`
    * when unavailable so the HTTP proxy returns 503 instead of a silent miss.
-   * Omit when this host does not serve playground snapshots.
+   * Omit when this host does not serve product-simulator snapshots.
    */
-  readonly playgroundSnapshotStore?: ObjectStore | null;
+  readonly productSimulatorSnapshotStore?: ObjectStore | null;
 };
 
 export type SimConsoleAppHandle = {
@@ -68,7 +68,7 @@ export function createSimConsoleApp(
     convertSqliteDumpToSqlm: options.convertSqliteDumpToSqlm,
   };
 
-  const snapshotStore = options.playgroundSnapshotStore;
+  const snapshotStore = options.productSimulatorSnapshotStore;
   const serveSnapshots = snapshotStore !== undefined;
 
   const app = new Hono();
@@ -93,7 +93,7 @@ export function createSimConsoleApp(
               headers: c.req.raw.headers,
               body: await c.req.arrayBuffer(),
             });
-      const snapRes = await handlePlaygroundSnapshotObjectRequest(
+      const snapRes = await handleProductSimulatorSnapshotObjectRequest(
         snapReq,
         snapshotStore
       );

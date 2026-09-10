@@ -7,13 +7,13 @@ export const SIM_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
  * UI adapter for a registered product host.
  * - `solid-dom` — in-process Solid App rendered into a DOM (happy-dom in
  *   bun:test via `MultiAppSolidDomSession`; the live browser document in the
- *   playground, where the console mounts `live.App` itself)
+ *   product-simulator, where the console mounts `live.App` itself)
  * - `bun-webview` — Bun.WebView per actor against localhost web + API
  */
 export type ProductUi =
   | {
       readonly kind: 'solid-dom';
-      /** Present in bun:test (happy-dom); omitted in the playground. */
+      /** Present in bun:test (happy-dom); omitted in the product-simulator. */
       readonly session?: MultiAppSolidDomSession;
       readonly runFor: (durationMs: number) => Promise<void>;
     }

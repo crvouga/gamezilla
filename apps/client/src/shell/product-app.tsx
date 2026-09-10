@@ -3,7 +3,7 @@
  * Product client root — `ClientEnvProvider` is applied by `createClient`.
  * Rendered as the router `root`, so `props.children` is the route outlet.
  * Production and sims mount the same component; embedded hosts (multi-App
- * playground) get a `MemoryRouter` from `createClient` instead of the URL.
+ * product-simulator) get a `MemoryRouter` from `createClient` instead of the URL.
  */
 
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
@@ -20,7 +20,7 @@ import { AppProviders } from './providers/app-providers';
 import { RootErrorBoundary } from './root-error-boundary';
 
 export type ProductAppProps = {
-  /** Multi-App playground: in-memory router, no document-level shortcuts. */
+  /** Multi-App product-simulator: in-memory router, no document-level shortcuts. */
   readonly embedded: boolean;
   /** Router outlet. */
   readonly children: JSX.Element;

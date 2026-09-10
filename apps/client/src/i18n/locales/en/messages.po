@@ -379,8 +379,8 @@ msgid "Client events"
 msgstr "Client events"
 
 #: apps/client/src/routes/stubs/client-events.tsx
-msgid "Client events are available in the embedded playground."
-msgstr "Client events are available in the embedded playground."
+msgid "Client events are available in the embedded product-simulator."
+msgstr "Client events are available in the embedded product-simulator."
 
 #: apps/client/src/routes/stubs/client-sql.tsx
 msgid "Client SQL"

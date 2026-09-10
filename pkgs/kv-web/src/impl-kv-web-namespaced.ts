@@ -23,7 +23,7 @@ function requireLocalStorage(): Storage {
 
 /**
  * Web {@link Kv} that stores rows under `namespace.${keyword}` in localStorage
- * so multiple in-process actors (playground Alice/Bob) do not share KV state.
+ * so multiple in-process actors (product-simulator Alice/Bob) do not share KV state.
  */
 export class KvImplWebNamespaced implements Kv {
   private chain: Promise<void> = Promise.resolve();

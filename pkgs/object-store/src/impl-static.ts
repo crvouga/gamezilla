@@ -21,8 +21,8 @@ export type ObjectStoreStaticFetch = (
 
 export type CreateStaticObjectStoreOptions = {
   /**
-   * Base URL without trailing slash, e.g. `/reports` or
-   * `http://localhost:5173/reports`.
+   * Base URL without trailing slash, e.g. `/product-tests` or
+   * `http://localhost:5173/product-tests`.
    */
   readonly baseUrl: string;
   readonly fetch: ObjectStoreStaticFetch;

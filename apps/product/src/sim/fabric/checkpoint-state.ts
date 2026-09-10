@@ -13,8 +13,8 @@ import type {
   SimCheckpointRoomDump,
 } from '@pkgs/sim-console/client';
 import {
-  dumpPlaygroundClientDurable,
-  restorePlaygroundClientDurable,
+  dumpProductSimulatorClientDurable,
+  restoreProductSimulatorClientDurable,
 } from './client-durable';
 import { type Sim, simClientNamespace } from './create-sim';
 import { openFreshSimClientSql, type SimSql } from './sim-sql';
@@ -88,7 +88,7 @@ export async function collectSqlAndKv(
     if (handle !== undefined) {
       clientSql[clientId] = await handle.exportBytes();
     }
-    clientKv[clientId] = dumpPlaygroundClientDurable(
+    clientKv[clientId] = dumpProductSimulatorClientDurable(
       simClientNamespace(clientId)
     );
   }
@@ -177,7 +177,7 @@ export function restoreCheckpointKv(checkpoint: SimCheckpoint): void {
   for (const id of checkpoint.clientIds) {
     const kv = checkpoint.clientKv[id];
     if (kv === undefined) continue;
-    restorePlaygroundClientDurable(simClientNamespace(id), { ...kv });
+    restoreProductSimulatorClientDurable(simClientNamespace(id), { ...kv });
   }
 }
 

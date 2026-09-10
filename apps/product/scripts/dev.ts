@@ -1,5 +1,5 @@
 // @io-wall-ok
-/** Vite dev server for the Solid console (reports + playground). */
+/** Vite dev server for the Solid console (tests + simulator). */
 import { join } from 'node:path';
 import { run } from '@pkgs/os';
 

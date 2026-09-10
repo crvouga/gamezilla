@@ -9,11 +9,12 @@ import type { ConsoleEnv } from './root-app';
 /** Wall services for the console, never for the actors' in-process HTTP. */
 export function wallConsoleEnv(): ConsoleEnv {
   const http = createGlobalHttpClient();
-  const reportsBase = import.meta.env.VITE_REPORTS_PUBLIC_BASE_URL?.trim();
-  const publicBase = reportsBase || '/reports';
-  const staticReports = !import.meta.env.DEV || Boolean(reportsBase);
+  const productTestsBase =
+    import.meta.env.VITE_PRODUCT_TESTS_PUBLIC_BASE_URL?.trim();
+  const publicBase = productTestsBase || '/product-tests';
+  const staticProductTests = !import.meta.env.DEV || Boolean(productTestsBase);
   const snapshotStore = createBrowserObjectStore({
-    baseDir: 'playground-snapshots',
+    baseDir: 'product-simulator-snapshots',
   });
   return {
     i18n,
@@ -23,22 +24,22 @@ export function wallConsoleEnv(): ConsoleEnv {
       clock: wallClock,
       timers: wallTimers,
       fetch: http.fetch,
-      async bootPlayground(options) {
-        const { bootPlaygroundSession } = await import(
-          './playground/boot-playground'
+      async bootProductSimulator(options) {
+        const { bootProductSimulatorSession } = await import(
+          './product-simulator/boot-product-simulator'
         );
-        return bootPlaygroundSession(
+        return bootProductSimulatorSession(
           { clock: wallClock, timers: wallTimers, snapshotStore },
           options
         );
       },
-      ...(staticReports
+      ...(staticProductTests
         ? {
-            reportsStore: createStaticObjectStore({
+            productTestsStore: createStaticObjectStore({
               baseUrl: publicBase,
               fetch: http.fetch,
             }),
-            reportsPublicBaseUrl: publicBase,
+            productTestsPublicBaseUrl: publicBase,
           }
         : {}),
       notebookStore: createBrowserObjectStore({ baseDir: 'sql-notebooks' }),

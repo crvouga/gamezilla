@@ -81,7 +81,7 @@ type LinkedSubjectRow = {
 
 /**
  * Resolve the preferred username for this apply. The client handoff is
- * process-global, so in multi-actor hosts (sims, multi-app playground) one
+ * process-global, so in multi-actor hosts (sims, multi-app product-simulator) one
  * actor's ensure can observe another actor's pending value. The server replay
  * is authoritative and deterministic instead:
  * - anonymous bootstraps, and accounts with no auth record yet, never consume

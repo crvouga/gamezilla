@@ -250,7 +250,7 @@
       "@apps/product/console-nav/*": [
         "./apps/product/src/console/console-nav/*"
       ],
-      "@apps/product/playground/*": ["./apps/product/src/console/playground/*"],
+      "@apps/product/product-simulator/*": ["./apps/product/src/console/product-simulator/*"],
       "@apps/product/test-setup/*": ["./apps/product/src/test/setup/*"],
       "@apps/product/test-fixtures/*": ["./apps/product/src/test/fixtures/*"],
       "@apps/product/test-snapshots/*": ["./apps/product/src/test/snapshots/*"]
