@@ -30,9 +30,14 @@ function quoteAttr(value: string): string {
 /** A single `class` / helper-arg expression, classified for emission. */
 type ClassArg =
   | { readonly kind: 'static'; readonly value: string }
-  | { readonly kind: 'ternary'; readonly whenTrue: string; readonly whenFalse: string; readonly condition: string }
+  | {
+      readonly kind: 'ternary';
+      readonly whenTrue: string;
+      readonly whenFalse: string;
+      readonly condition: string;
+    }
   | { readonly kind: 'toggle'; readonly className: string; readonly condition: string }
-  /** Computed key from a possibly-empty string expression. */
+  /** Any other string-ish expression; emitted as `[String(expr)]: true`. */
   | { readonly kind: 'dynamic'; readonly expr: string };
 
 /** Parse one arg text (helper arg / `class` expression) into a ClassArg. */
@@ -56,11 +61,13 @@ function classifyClassArg(text: string): ClassArg {
   if (ts.isConditionalExpression(expr)) {
     const whenTrue = stringLiteralOf(unwrap(expr.whenTrue));
     const whenFalse = stringLiteralOf(unwrap(expr.whenFalse));
-    if (whenTrue !== undefined) {
+    // Both branches must be literals to split into two toggles; otherwise
+    // fall through to the String(...) dynamic path.
+    if (whenTrue !== undefined && whenFalse !== undefined) {
       return {
         kind: 'ternary',
         whenTrue,
-        whenFalse: whenFalse ?? '',
+        whenFalse,
         condition: expr.condition.getText(file),
       };
     }
@@ -103,8 +110,8 @@ function stringLiteralOf(expr: ts.Expression): string | undefined {
  * - string literals fold into the static `class` attribute (deduped);
  * - `cond && 'x'` / `cond ? 'x' : 'y'` become `'x': !!cond` toggles;
  * - any other string-valued expression becomes a computed key
- *   `[(expr) ?? '']: true` (empty keys are skipped by Solid at runtime),
- *   which keeps type-checking valid for `string | undefined` unions.
+ *   `[String(expr)]: true` (Solid skips empty keys), which keeps
+ *   type-checking valid for `string | undefined | false` unions.
  */
 export function classAttrs(
   classes: readonly string[],
@@ -131,13 +138,10 @@ export function classAttrs(
           className: classified.whenTrue,
           when: `!!(${classified.condition})`,
         });
-        const falseClass = classified.whenFalse.trim();
-        if (falseClass !== '') {
-          entries.push({
-            className: falseClass,
-            when: `!(${classified.condition})`,
-          });
-        }
+        entries.push({
+          className: classified.whenFalse,
+          when: `!(${classified.condition})`,
+        });
         continue;
       }
       if (classified.kind === 'toggle') {
@@ -147,7 +151,7 @@ export function classAttrs(
         });
         continue;
       }
-      entries.push({ keyExpr: `(${classified.expr}) ?? ''`, when: 'true' });
+      entries.push({ keyExpr: `String(${classified.expr})`, when: 'true' });
     }
   }
   const deduped = merged.filter(

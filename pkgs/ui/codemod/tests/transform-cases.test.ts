@@ -109,14 +109,14 @@ describe('Box Tier B', () => {
       `export const A = (p: { c: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
     expect(result.text).toContain('class="box p-1"');
-    expect(result.text).toContain("classList={{ [(p.c) ?? '']: true }}");
+    expect(result.text).toContain('classList={{ [String(p.c)]: true }}');
     expect(result.text).not.toContain('cn(');
   });
   test('optional dynamic class expression compiles (no TS2872/2464)', () => {
     const result = run(
       `export const A = (p: { c?: string }) => <Box sx={{ p: 1 }} class={p.c} />;`
     );
-    expect(result.text).toContain("classList={{ [(p.c) ?? '']: true }}");
+    expect(result.text).toContain('classList={{ [String(p.c)]: true }}');
     expect(result.text).not.toContain('!!(p.c)');
   });
   test('dynamic px pair fans out to two exact declarations', () => {
@@ -652,9 +652,9 @@ declare function rowClass(): string;
 export const A = () => <Box class={joinClass(rowClass())} sx={{ p: 1 }} />;`
     );
     expect(result.parseError).toBe(undefined);
-    // `[(expr) ?? '']: true` is the only shape that type-checks for a
+    // `[String(expr)]: true` is the only shape that type-checks for a
     // possibly-empty string and still toggles the runtime class.
-    expect(result.text).toContain("classList={{ [(rowClass()) ?? '']: true }}");
+    expect(result.text).toContain('classList={{ [String(rowClass())]: true }}');
     expect(result.text).not.toContain('!!(rowClass())');
   });
 });
