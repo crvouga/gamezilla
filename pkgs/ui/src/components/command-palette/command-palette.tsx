@@ -20,7 +20,6 @@ import {
 } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import { MODAL_CONTENT_MARGIN_STEP } from '../../theme/modal-size';
-import styles from '../hosts.module.css';
 import { ModalContent } from '../modal/modal-content';
 import { ModalRoot } from '../modal/modal-root';
 import { ProgressBar } from '../progress-bar';
@@ -179,7 +178,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
         />
         <div
           class="box absolute inset-0 items-center justify-start"
-          classList={{ [styles['boxNone'] ?? '']: true }}
+          classList={{ boxNone: true }}
           style={{
             'padding-top': `${TOP_INSET_STEP * 4}px`,
             'padding-left': `${MODAL_CONTENT_MARGIN_STEP * 4}px`,

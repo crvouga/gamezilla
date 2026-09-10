@@ -15,6 +15,7 @@ import { ChevronDownIcon, XIcon } from '../icons';
 import { ComboboxChips } from './combobox-chips';
 import type { ComboboxOption, ComboboxValue } from './combobox-types';
 
+
 /** Minimum pointer target for the opener button. */
 export const COMBOBOX_TRIGGER_MIN_HEIGHT = 44;
 
@@ -51,8 +52,9 @@ function SingleSummary<T extends ComboboxValue>(props: {
       </Show>
       <label
         class="text textLabel line-clamp-1 flex-1 min-w-[0]"
-        style={{
-          color: props.selected !== undefined ? 'text' : 'textSecondary',
+        classList={{
+          'text-text': props.selected !== undefined,
+          'text-text-secondary': props.selected === undefined,
         }}
       >
         {props.selected?.label ?? props.placeholder}

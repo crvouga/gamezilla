@@ -81,9 +81,9 @@ function ListItemContent(props: {
     <div class="box flex-row items-center py-3 px-4 gap-3 min-h-[44px]">
       {props.leading}
       <div class="box flex-1 min-w-0 items-start">
-        <p class="text">{props.title}</p>
+        <p class="text text-text">{props.title}</p>
         <Show when={props.subtitle}>
-          <p class="text textCaption">{props.subtitle}</p>
+          <p class="text textCaption text-text-secondary">{props.subtitle}</p>
         </Show>
       </div>
       {props.trailing}

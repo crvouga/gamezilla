@@ -7,7 +7,6 @@
 
 import { type JSX, Show } from 'solid-js';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
-import styles from '../hosts.module.css';
 import { ScreenLargeTitle, type ScreenTitleScrollProps } from '../screen-title';
 import { ScrollView } from '../scroll-view';
 import {
@@ -79,7 +78,7 @@ function PinnedFooter(props: {
   return (
     <div
       class="box bg-surface border-border border-t border-solid"
-      classList={{ [styles['safeBottom'] ?? '']: props.safeBottom }}
+      classList={{ safeBottom: props.safeBottom }}
       data-component="ScreenFooter"
     >
       <div
@@ -118,11 +117,7 @@ function FloatingActionHost(props: {
 /** Zero-height spacer that pads scroll content by the bottom safe-area inset. */
 function SafeBottomSpacer(): JSX.Element {
   return (
-    <div
-      class="box"
-      classList={{ [styles['safeBottom'] ?? '']: true }}
-      aria-hidden="true"
-    />
+    <div class="box" classList={{ safeBottom: true }} aria-hidden="true" />
   );
 }
 
@@ -151,7 +146,7 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
       fallback={
         <div
           class="box flex-1 min-h-0"
-          classList={{ [styles['safeBottom'] ?? '']: needsSafeBottom() }}
+          classList={{ safeBottom: needsSafeBottom() }}
         >
           {inner}
         </div>
@@ -192,7 +187,7 @@ export function ScreenBaseCompactBody(
         {(bottomBar) => (
           <div
             class="box bg-surface"
-            classList={{ [styles['safeBottom'] ?? '']: true }}
+            classList={{ safeBottom: true }}
             data-component="ScreenBottomBar"
           >
             {bottomBar()}

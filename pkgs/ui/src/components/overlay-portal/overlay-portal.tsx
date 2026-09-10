@@ -20,7 +20,6 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import styles from '../hosts.module.css';
 import {
   createHostFrame,
   type PortalHostFrame,
@@ -63,7 +62,7 @@ export function OverlayPortalProvider(
         {props.children}
         <div
           class="box absolute inset-0"
-          classList={{ [styles['boxNone'] ?? '']: true }}
+          classList={{ boxNone: true }}
           data-component="OverlayPortalHost"
           style={{ 'z-index': OVERLAY_PORTAL_Z_INDEX }}
           ref={setHost}

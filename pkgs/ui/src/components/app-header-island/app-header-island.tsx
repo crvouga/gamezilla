@@ -37,12 +37,13 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
   return (
     <button
       class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-[9999px]"
+      classList={{
+        'bg-surface': props.item.active,
+        'bg-transparent': !props.item.active,
+      }}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
       type="button"
-      style={{
-        'background-color': props.item.active ? 'surface' : 'transparent',
-        'min-height': cssPx(PILL_MIN_HEIGHT),
-      }}
+      style={{ 'min-height': cssPx(PILL_MIN_HEIGHT) }}
       role="tab"
       aria-selected={props.item.active}
       aria-label={props.item.label}
@@ -55,9 +56,11 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
       />
       <label
         class="text textLabel"
-        style={{
-          color: color(),
-          'font-weight': props.item.active ? '600' : '500',
+        classList={{
+          'text-text': props.item.active,
+          'text-text-secondary': !props.item.active,
+          'font-semibold': props.item.active,
+          'font-medium': !props.item.active,
         }}
       >
         {props.item.label}

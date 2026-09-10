@@ -81,7 +81,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
         </Show>
       </div>
       <Show when={props.label !== undefined}>
-        <p class="text">{props.label}</p>
+        <p class="text text-text">{props.label}</p>
       </Show>
     </button>
   );

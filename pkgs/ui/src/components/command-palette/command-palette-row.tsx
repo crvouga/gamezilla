@@ -69,12 +69,13 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
     normalizeShortcut(props.command.shortcut)?.keys;
   return (
     <button
-      class="clickable clickableTint py-2 px-3 gap-1 text-left [border-left-width:3px]"
+      class="clickable clickableTint py-2 px-3 gap-1 text-left [border-left-width:3px] border-l-transparent"
+      classList={{
+        'bg-tint-subtle border-l-tint': props.selected,
+      }}
       data-component="CommandPaletteRow"
       type="button"
       style={{
-        'background-color': props.selected ? 'tintSubtle' : 'transparent',
-        'border-left-color': props.selected ? 'tint' : 'transparent',
         'min-height': cssPx(COMMAND_PALETTE_ROW_MIN_HEIGHT),
         opacity: enabled() ? 1 : 0.45,
       }}

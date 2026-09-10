@@ -154,7 +154,7 @@ function convertSpacer(
   });
 }
 
-/** Card → div + `.card` (elevation / border defaults live in base.css later). */
+/** Card → div + `.card` (elevation / border defaults live in hosts.css later). */
 function convertCard(
   element: ts.JsxOpeningLikeElement,
   source: ts.SourceFile

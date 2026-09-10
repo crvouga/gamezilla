@@ -7,6 +7,7 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { createSignal, For, type JSX, Show } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar } from '../../theme';
 import { TextInput } from '../text-input';
 import { arraysEqualAsSets } from './arrays-equal-as-sets';
 
@@ -63,7 +64,9 @@ function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
       class="clickable clickableTint [padding-left:12px;padding-right:12px] [padding-top:8px;padding-bottom:8px] rounded-[8px] border bg-surface"
       data-component="SwatchRandom"
       type="button"
-      style={{ 'border-color': props.isRandom ? 'tint' : 'border' }}
+      style={{
+        'border-color': props.isRandom ? colorVar('tint') : colorVar('border'),
+      }}
       onClick={() => props.onClick()}
       aria-pressed={props.isRandom}
     >
@@ -93,7 +96,7 @@ function DefaultSwatch(props: {
       data-hex={props.hex}
       type="button"
       style={{
-        'border-color': props.active ? 'tint' : 'border',
+        'border-color': props.active ? colorVar('tint') : colorVar('border'),
         'background-color': isTrans() ? 'transparent' : `#${props.hex}`,
       }}
       onClick={() => props.onClick()}

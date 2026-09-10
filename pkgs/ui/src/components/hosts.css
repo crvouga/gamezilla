@@ -1,11 +1,10 @@
-/* Host base classes for migrated HTML (replicas of hosts.module.css).
+/* Host class resets for design-system HTML (`box`, `text`, `clickable`, …).
  *
- * MUST live in `@layer components` so Tailwind `@layer utilities`
- * (`flex-row`, `p-4`, `items-center`, …) can override defaults like
- * `flex-direction: column` / `padding: 0`. Unlayered CSS beats layered
- * utilities in the cascade — that was the post-migration layout break.
+ * Lives in `@layer components` so Tailwind `@layer utilities` (`flex-row`,
+ * `p-4`, …) can override defaults like `flex-direction: column` / `padding: 0`.
+ * Unlayered rules beat layered utilities in the cascade.
  *
- * Import once from the app entry. Keep in sync with hosts.module.css.
+ * Import once from the app entry: `import '@pkgs/ui/base.css'`.
  */
 
 @layer components {
@@ -37,7 +36,11 @@
     font-size: var(--ui-font-size-base);
     line-height: 26px;
     font-weight: 400;
-    color: var(--ui-on-fg, var(--ui-color-text));
+    /* Theme foreground — do not route through `--ui-on-fg` here. That var is
+       set by OnColorProvider for icon/JS consumers; when it was applied to
+       `.text` via fallback, invalid or light-scheme concrete values painted
+       dark labels on dark surfaces after the sx→class migration. */
+    color: var(--ui-color-text);
   }
 
   .textBodyBold {
@@ -47,7 +50,7 @@
   .textCaption {
     font-size: var(--ui-font-size-xs);
     line-height: 18px;
-    color: var(--ui-on-fg-muted, var(--ui-color-text-secondary));
+    color: var(--ui-color-text-secondary);
   }
 
   .textLabel {
@@ -143,6 +146,7 @@
     outline-offset: 2px;
   }
 
+  /* Tint feedback: overlay layered above children. */
   .clickableTint::after {
     content: "";
     position: absolute;
@@ -209,5 +213,67 @@
 
   .scrollContentHorizontal {
     flex-direction: row;
+  }
+
+  .input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    appearance: none;
+    outline: none;
+    font: inherit;
+    color: var(--ui-color-text);
+    background: var(--ui-color-surface);
+    border: 1px solid var(--ui-color-outline);
+    border-radius: var(--ui-radius-md);
+    transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  .input::placeholder {
+    color: var(--ui-color-text-secondary);
+  }
+
+  .input:focus-visible {
+    border-color: var(--ui-color-tint);
+    box-shadow: 0 0 0 1px var(--ui-color-tint);
+  }
+
+  .inputError,
+  .inputError:focus-visible {
+    border-color: var(--ui-color-destructive);
+    box-shadow: none;
+  }
+
+  .inputTextarea {
+    resize: vertical;
+  }
+
+  .switchTrack {
+    transition: background-color var(--ui-duration-fast)
+      var(--ui-easing-standard);
+  }
+
+  .switchThumb {
+    transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+
+  /* Safe-area insets (notch / home indicator). Classes because happy-dom and
+     some inline-style sanitizers drop `env()` values. */
+  .safeTop {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safeBottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* RN `pointerEvents="box-none"`: the layer is transparent to the pointer but
+     its direct children are interactive again. */
+  .boxNone {
+    pointer-events: none;
+  }
+
+  .boxNone > * {
+    pointer-events: auto;
   }
 }

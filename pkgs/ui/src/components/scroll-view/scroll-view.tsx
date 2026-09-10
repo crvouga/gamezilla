@@ -15,7 +15,6 @@ import {
   resolveFlushEdgeStyles,
   useContentEdgePadding,
 } from '../content-edge-padding';
-import styles from '../hosts.module.css';
 
 export type ScrollViewProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
@@ -61,17 +60,17 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
   const flexFill = () => requestsFlexFill(local.class, local.classList);
   const scrollerClass = () =>
     [
-      styles['scroll'],
-      local.horizontal ? styles['scrollHorizontal'] : undefined,
-      local.hideScrollbar ? styles['scrollHideBar'] : undefined,
+      'scroll',
+      local.horizontal ? 'scrollHorizontal' : undefined,
+      local.hideScrollbar ? 'scrollHideBar' : undefined,
       local.class,
     ]
       .filter(Boolean)
       .join(' ');
   const contentClass = () =>
     [
-      styles['scrollContent'],
-      local.horizontal ? styles['scrollContentHorizontal'] : undefined,
+      'scrollContent',
+      local.horizontal ? 'scrollContentHorizontal' : undefined,
       flush().contentClass,
       local.contentClass,
     ]

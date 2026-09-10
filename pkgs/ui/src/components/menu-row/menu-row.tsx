@@ -122,13 +122,13 @@ function MenuRowBody(
       </Show>
       <div class="box flex-1 min-w-0 gap-0.5 items-start">
         <p
-          class="text textBodyBold"
+          class="text textBodyBold text-text"
           classList={{ 'text-tint': selected() }}
         >
           {props.title}
         </p>
         <Show when={props.caption}>
-          <p class="text textCaption">{props.caption}</p>
+          <p class="text textCaption text-text-secondary">{props.caption}</p>
         </Show>
       </div>
       <MenuRowTrailing

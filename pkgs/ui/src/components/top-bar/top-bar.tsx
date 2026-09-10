@@ -14,7 +14,6 @@ import {
   TOP_BAR_CONTENT_HEIGHT_MOBILE,
   useThemeLayout,
 } from '../../theme';
-import styles from '../hosts.module.css';
 
 export const TOP_BAR_CONTENT_HEIGHT = TOP_BAR_CONTENT_HEIGHT_MOBILE;
 
@@ -46,12 +45,8 @@ const ALIGN_CLASS: Record<TopBarCenterAlign, string> = {
 // Side slots / overlay are pointer-transparent via the `.boxNone` class (its
 // `> *` rule re-enables children) rather than inline `pointer-events:none`,
 // which children would inherit.
-const SIDE_SLOT_CLASS = [
-  styles['boxNone'],
-  'flex-1 flex-row items-center gap-2 min-w-0 z-[3]',
-]
-  .filter(Boolean)
-  .join(' ');
+const SIDE_SLOT_CLASS =
+  'boxNone flex-1 flex-row items-center gap-2 min-w-0 z-[3]';
 
 type SlotsProps = Pick<
   TopBarProps,
@@ -92,7 +87,7 @@ function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
       <div class={`box justify-end ${SIDE_SLOT_CLASS}`}>{props.trailing}</div>
       <div
         class="box absolute inset-0 flex-row items-center justify-center z-[2]"
-        classList={{ [styles['boxNone'] ?? '']: true }}
+        classList={{ boxNone: true }}
       >
         <div class="box min-w-0">{props.center}</div>
       </div>
@@ -112,7 +107,7 @@ export function TopBar(props: TopBarProps): JSX.Element {
     <header
       class="box bg-surface border-b border-solid border-border"
       classList={{
-        [styles['safeTop'] ?? '']: props.safeAreaTop !== false,
+        safeTop: props.safeAreaTop !== false,
       }}
       {...dataAttrs({ component: 'TopBar', ...props.dataSet })}
     >

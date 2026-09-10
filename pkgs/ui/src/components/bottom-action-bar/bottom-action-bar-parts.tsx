@@ -13,6 +13,7 @@ import type {
   BottomActionBarButtonItem,
 } from './bottom-action-bar-types';
 
+
 const ICON_SIZE = 24;
 const ICON_STROKE_WIDTH = 2.75;
 
@@ -24,7 +25,6 @@ export function BottomActionBarAction(props: {
   const selected = (): boolean => props.item.selected === true;
   const iconColor = (): string =>
     selected() ? 'tint' : disabled() ? 'textSecondary' : 'icon';
-  const captionColor = (): string => (selected() ? 'tint' : 'textSecondary');
   const ariaLabel = (): string | undefined =>
     props.item['aria-label'] ??
     (typeof props.item.label === 'string' ? props.item.label : undefined);
@@ -50,7 +50,10 @@ export function BottomActionBarAction(props: {
       />
       <p
         class="text textCaption line-clamp-1 text-center font-bold w-[100%] text-[13px] leading-[18px]"
-        style={{ color: captionColor() }}
+        classList={{
+          'text-tint': selected(),
+          'text-text-secondary': !selected(),
+        }}
       >
         {props.item.label}
       </p>

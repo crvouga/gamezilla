@@ -51,12 +51,10 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
   return (
     <button
       class="clickable clickableTint w-[100%] flex-row items-center gap-3 [padding-top:12px;padding-bottom:12px] [padding-left:16px;padding-right:16px] text-left"
+      classList={{ 'bg-tint-highlight': props.highlighted }}
       {...dataAttrs({ component: 'ComboboxOption', ...props.option.dataSet })}
       type="button"
-      style={{
-        'background-color': props.highlighted ? 'tintHighlight' : 'transparent',
-        'min-height': cssPx(COMBOBOX_OPTION_MIN_HEIGHT),
-      }}
+      style={{ 'min-height': cssPx(COMBOBOX_OPTION_MIN_HEIGHT) }}
       id={props.id}
       role="option"
       aria-selected={props.selected}

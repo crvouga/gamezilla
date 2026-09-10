@@ -1,6 +1,6 @@
 /**
- * Text typography variant names (CSS classes live in `hosts.module.css` /
- * `base.css` as `textBodyBold`, `textCaption`, …).
+ * Text typography variant names (CSS classes live in `hosts.css` as
+ * `textBodyBold`, `textCaption`, … — imported via `@pkgs/ui/base.css`).
  *
  * The former `<Text>` host was peeled to HTML (`<p>` / `<span>` / …) by the
  * migrate-to-tailwind codemod; only the variant union remains as a shared type.

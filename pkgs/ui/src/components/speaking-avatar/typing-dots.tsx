@@ -6,6 +6,7 @@ import { cssPx } from '../../css/css-px';
  */
 
 import { For, type JSX } from 'solid-js';
+import { resolveColor, useThemeTokens } from '../../theme';
 import styles from './speaking-avatar.module.css';
 
 const DOT_SIZE = 6;
@@ -22,6 +23,9 @@ export type TypingDotsProps = {
 const DOT_CLASSES = [styles['dot1'], styles['dot2'], styles['dot3']];
 
 export function TypingDots(props: TypingDotsProps): JSX.Element {
+  const tokens = useThemeTokens();
+  const fill = (): string =>
+    resolveColor(props.color, tokens.colors) ?? props.color;
   return (
     <div
       class="box flex-row items-center"
@@ -42,7 +46,7 @@ export function TypingDots(props: TypingDotsProps): JSX.Element {
               [String(dotClass)]: true,
             }}
             style={{
-              'background-color': props.color,
+              'background-color': fill(),
               width: cssPx(DOT_SIZE),
               height: cssPx(DOT_SIZE),
             }}

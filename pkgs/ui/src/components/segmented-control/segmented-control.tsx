@@ -80,9 +80,11 @@ function SegmentButton<K extends string>(props: {
     >
       <label
         class="text textLabel whitespace-nowrap"
-        style={{
-          color: props.isActive ? 'text' : 'textSecondary',
-          'font-weight': props.isActive ? '600' : '500',
+        classList={{
+          'text-text': props.isActive,
+          'text-text-secondary': !props.isActive,
+          'font-semibold': props.isActive,
+          'font-medium': !props.isActive,
         }}
       >
         {props.segment.label}

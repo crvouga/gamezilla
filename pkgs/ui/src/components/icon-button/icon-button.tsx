@@ -142,10 +142,20 @@ function IconButtonFace(
   const size = (): number => props.size ?? 40;
   const isAvatar = (): boolean => props.variant === 'avatar';
   const hasBackground = (): boolean => props.background !== undefined;
-  const bg = (): string =>
+  /** CSS var for the painted disc (tracks live scheme flips). */
+  const bgCss = (): string =>
     props.background === undefined
       ? 'transparent'
       : (resolveColor(props.background, tokens.colors) ?? props.background);
+  /**
+   * Concrete palette color for contrast math. `var(--ui-*)` is unparseable, so
+   * feeding it to {@link OnColorProvider} would fall back to ON_DARK and leave
+   * light-on-light icons when the fill is a light tint.
+   */
+  const bgContrast = (): string =>
+    props.background === undefined
+      ? 'transparent'
+      : (resolveColor(props.background, tokens.palette()) ?? 'transparent');
 
   const handleClick = (): void => {
     // Event handlers have no Solid owner — untrack prop reads so parent
@@ -185,13 +195,18 @@ function IconButtonFace(
         data-component="IconButtonDisc"
         style={discStyle({
           size: size(),
-          bg: bg(),
+          bg: bgCss(),
           isAvatar: isAvatar(),
           borderColor: tokens.colors.border,
         })}
       >
         <Show when={hasBackground() && !isAvatar()} fallback={props.children}>
-          <OnColorProvider background={bg()}>{props.children}</OnColorProvider>
+          <OnColorProvider
+            background={bgContrast()}
+            backdrop={tokens.palette().background}
+          >
+            {props.children}
+          </OnColorProvider>
         </Show>
       </div>
     </button>

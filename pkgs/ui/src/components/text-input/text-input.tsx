@@ -15,7 +15,6 @@ import {
   dataAttrs,
 } from '../../component-id';
 import { spacingScale } from '../../theme';
-import styles from '../hosts.module.css';
 
 export type TextInputProps = Omit<
   JSX.InputHTMLAttributes<HTMLInputElement>,
@@ -137,9 +136,9 @@ function Field(
       component={props.multiline ? 'textarea' : 'input'}
       ref={props.ref}
       class={[
-        styles['input'],
-        props.hasError ? styles['inputError'] : undefined,
-        props.multiline ? styles['inputTextarea'] : undefined,
+        'input',
+        props.hasError ? 'inputError' : undefined,
+        props.multiline ? 'inputTextarea' : undefined,
         props.fieldClass,
       ]
         .filter(Boolean)

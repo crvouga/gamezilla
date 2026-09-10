@@ -12,6 +12,8 @@ body,
 
 body {
   overflow: hidden;
+  /* Avoid white flash before ThemeProvider paints (console chrome is dark). */
+  background: var(--ui-color-background, #101014);
 }
 
 #root {

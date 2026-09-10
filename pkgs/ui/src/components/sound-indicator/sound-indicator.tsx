@@ -57,6 +57,9 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
       : (props.color ?? 'text');
     return resolveColor(wanted, tokens.colors) ?? wanted;
   };
+  const backgroundColor = (): string =>
+    resolveColor(props.backgroundColor ?? 'surface', tokens.colors) ??
+    tokens.colors.surface;
   const stateLabel = (): string => {
     if (props.state === 'muted') return t`Sound off`;
     if (props.state === 'playing') return t`Playing`;
@@ -67,7 +70,7 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
       class="box inline-flex rounded-[9999px] items-center justify-center"
       {...dataAttrs({ component: 'SoundIndicator', ...props.dataSet })}
       style={{
-        'background-color': props.backgroundColor ?? 'surface',
+        'background-color': backgroundColor(),
         padding: cssPx(Math.round(size() * PADDING_RATIO)),
       }}
       role="status"

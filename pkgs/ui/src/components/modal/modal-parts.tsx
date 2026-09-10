@@ -23,7 +23,7 @@ export function ModalHeader(props: ModalHeaderProps): JSX.Element {
       class="box mb-3"
       {...dataAttrs({ component: 'ModalHeader', ...props.dataSet })}
     >
-      <h2 class="text textSubtitle" id={titleId}>
+      <h2 class="text textSubtitle text-text" id={titleId}>
         {props.title}
       </h2>
     </div>
@@ -47,7 +47,7 @@ export function ModalBody(props: ModalBodyProps): JSX.Element {
       {...dataAttrs({ component: 'ModalBody', ...props.dataSet })}
     >
       <Show when={hasMessage()} fallback={props.children}>
-        <p class="text">{props.message}</p>
+        <p class="text text-text">{props.message}</p>
       </Show>
     </div>
   );

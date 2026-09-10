@@ -18,7 +18,6 @@ import {
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import styles from '../hosts.module.css';
 import {
   createHostFrame,
   type PortalHostFrame,
@@ -66,7 +65,7 @@ export function SurfaceStackProvider(
         {props.children}
         <div
           class="box absolute inset-0"
-          classList={{ [styles['boxNone'] ?? '']: true }}
+          classList={{ boxNone: true }}
           data-component="SurfaceStackHost"
           style={{ 'z-index': SURFACE_STACK_BASE }}
           ref={setHost}
@@ -167,7 +166,7 @@ export function SurfaceStackSlot(props: SurfaceStackSlotProps): JSX.Element {
         <Portal mount={host()}>
           <div
             class="box absolute inset-0"
-            classList={{ [styles['boxNone'] ?? '']: true }}
+            classList={{ boxNone: true }}
             data-component="SurfaceStackLayer"
             data-surface={props.id}
             style={{ 'z-index': slot.zIndex() }}

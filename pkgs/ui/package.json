@@ -9,7 +9,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./tokens.css": "./src/theme/tokens.css",
-    "./base.css": "./codemod/base.css",
+    "./base.css": "./src/components/hosts.css",
     "./theme.css": "./codemod/theme.css",
     "./*": [
       "./src/*.ts",

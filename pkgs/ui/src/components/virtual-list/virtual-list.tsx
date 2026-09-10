@@ -20,7 +20,6 @@ import {
   resolveFlushEdgeStyles,
   useContentEdgePadding,
 } from '../content-edge-padding';
-import styles from '../hosts.module.css';
 import { useTestViewport } from './test-viewport';
 import type { VirtualListViewport } from './virtual-list-types';
 
@@ -228,18 +227,14 @@ export function VirtualList<ItemT>(
         scroller = el;
         local.ref?.(el);
       }}
-      class={[styles['scroll'], local.class].filter(Boolean).join(' ')}
+      class={['scroll', local.class].filter(Boolean).join(' ')}
       classList={local.classList}
       style={fixedScrollerStyle(fixedHeight, local.style)}
       {...componentDataAttrs('VirtualList', local.dataSet)}
       {...rest}
     >
       <div
-        class={[
-          styles['scrollContent'],
-          flush().contentClass,
-          local.contentClass,
-        ]
+        class={['scrollContent', flush().contentClass, local.contentClass]
           .filter(Boolean)
           .join(' ')}
         classList={local.contentClassList}
