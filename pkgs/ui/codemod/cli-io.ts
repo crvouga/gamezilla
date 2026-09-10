@@ -34,6 +34,7 @@ import { invariant } from './tiger';
 export type CliArgs = {
   readonly globs: readonly string[];
   readonly write: boolean;
+  readonly dryRun: boolean;
 };
 
 const CONFLICT = 'sx-codemod: --write and --dry-run conflict — pick one';
@@ -65,7 +66,7 @@ export function parseArgs(argv: readonly string[]): CliArgs {
   }
   if (write && dryRun) throw new Error(CONFLICT);
   if (globs.length === 0) globs.push(...DEFAULT_GLOBS);
-  return { globs, write };
+  return { globs, write, dryRun };
 }
 
 function logPhase(message: string): void {

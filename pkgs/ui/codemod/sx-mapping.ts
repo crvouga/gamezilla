@@ -21,6 +21,7 @@ import {
   isGridProp,
   isLogicalInsetProp,
   isRadiusProp,
+  logicalInsetCssProp,
   mapAbsoluteFillStatic,
   mapArbitraryStatic,
   mapBoxShadowStatic,
@@ -55,6 +56,8 @@ import {
   mapDirectLayoutStatic,
   mapRawLengthStatic,
   mapRawPairStatic,
+  rawLengthCssProp,
+  rawPairCssProps,
 } from './sx-map-layout';
 import {
   isScaledProp,
@@ -258,6 +261,28 @@ function isRawDynamicProp(prop: string): boolean {
   );
 }
 
+/** One dynamic raw prop → its exact dash-case CSS declaration(s). */
+function rawDynamicStyle(prop: string): DynamicStyle {
+  if (prop in RAW_DYNAMIC_CSS) {
+    return {
+      kind: 'style',
+      cssProps: [RAW_DYNAMIC_CSS[prop] ?? prop],
+      wrap: 'px-number-or-string',
+    };
+  }
+  if (isRawPairProp(prop)) {
+    return { kind: 'style', cssProps: rawPairCssProps(prop), wrap: 'px-number-or-string' };
+  }
+  if (isLogicalInsetProp(prop)) {
+    return { kind: 'style', cssProps: [logicalInsetCssProp(prop)], wrap: 'px-number-or-string' };
+  }
+  return {
+    kind: 'style',
+    cssProps: [rawLengthCssProp(prop)],
+    wrap: 'px-number-or-string',
+  };
+}
+
 const EFFECT_DYNAMIC = new Set([
   'pointerEvents',
   'boxShadow',
@@ -273,13 +298,7 @@ export function mapDynamicProp(prop: string): DynamicStyle {
   if (isColorProp(prop)) return mapColorDynamic(prop);
   if (TEXT_DYNAMIC.has(prop)) return mapTextDynamic(prop);
   if (isDirectLayoutProp(prop)) return mapDirectLayoutDynamic(prop);
-  if (isRawDynamicProp(prop)) {
-    return {
-      kind: 'style',
-      cssProps: [RAW_DYNAMIC_CSS[prop] ?? prop],
-      wrap: 'px-number-or-string',
-    };
-  }
+  if (isRawDynamicProp(prop)) return rawDynamicStyle(prop);
   if (isRadiusProp(prop)) {
     return { kind: 'bail', reason: `${prop} dynamic may be a radius key` };
   }

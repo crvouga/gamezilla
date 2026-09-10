@@ -21,6 +21,12 @@ export function isBareSpacingValue(n: number): boolean {
   return Number.isFinite(n) && Math.round(n * 4) === n * 4;
 }
 
+/** Guarantee dash-case CSS keys for dynamic style splices. */
+export function dashCase(prop: string): string {
+  if (prop.startsWith('-') || prop.includes('-')) return prop;
+  return prop.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
+}
+
 const SCALED_PREFIX: Readonly<Record<string, string>> = {
   p: 'p',
   px: 'px',

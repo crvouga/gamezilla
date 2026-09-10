@@ -28,6 +28,7 @@ import {
 import {
   applyEdits,
   ensureRuntimeImports,
+  fileNameOf,
   parse,
   pruneImports,
   type SpanEdit,
@@ -265,7 +266,9 @@ function checkConvertedTag(
     const hasStyleSurface =
       tag.includes('class=') ||
       /[A-Za-z]Class=/.test(tag) ||
+      /[A-Za-z]ClassList=/.test(tag) ||
       /[A-Za-z]Style=/.test(tag) ||
+      /[A-Za-z]StyleList=/.test(tag) ||
       tag.includes('style=');
     invariant(hasStyleSurface, 'converted host lost style attrs');
   } else {
@@ -382,7 +385,8 @@ function finalizeFile(args: {
   removedLocals: readonly string[];
 }): FileResult {
   const { path, text, next, converted, removedLocals } = args;
-  if (syntaxErrors(parse(next)) > 0) {
+  const fileName = fileNameOf(path);
+  if (syntaxErrors(parse(next, fileName)) > 0) {
     return {
       text,
       changed: false,
@@ -392,11 +396,12 @@ function finalizeFile(args: {
     };
   }
   const withRuntime = ensureRuntimeImports(next, path);
-  const pruned = pruneImports(withRuntime, [
-    ...removedLocals,
-    ...CLASS_HELPER_NAMES,
-  ]);
-  if (syntaxErrors(parse(pruned)) > 0) {
+  const pruned = pruneImports(
+    withRuntime,
+    [...removedLocals, ...CLASS_HELPER_NAMES],
+    fileName
+  );
+  if (syntaxErrors(parse(pruned, fileName)) > 0) {
     return {
       text,
       changed: false,
@@ -418,6 +423,7 @@ function finalizeFile(args: {
 }
 
 type PassAccum = {
+  fileName: string;
   text: string;
   converted: ConvertedNode[];
   removedLocals: string[];
@@ -425,7 +431,7 @@ type PassAccum = {
 
 /** Convert leaf nodes only; returns whether any conversion edits applied. */
 function convertLeavesPass(accum: PassAccum): boolean {
-  const source = parse(accum.text);
+  const source = parse(accum.text, accum.fileName);
   if (syntaxErrors(source) > 0) return false;
   const nodes = collectNodes(source, resolveBindings(source));
   const leaves = nodes.filter((n) => isLeafNode(n, nodes));
@@ -465,7 +471,8 @@ export function transformFile(path: string, text: string): FileResult {
 }
 
 function transformFileInner(path: string, text: string): FileResult {
-  const source = parse(text);
+  const fileName = fileNameOf(path);
+  const source = parse(text, fileName);
   if (syntaxErrors(source) > 0) {
     return {
       text,
@@ -476,13 +483,14 @@ function transformFileInner(path: string, text: string): FileResult {
     };
   }
   const accum: PassAccum = {
+    fileName,
     text,
     converted: [],
     removedLocals: [],
   };
   for (let pass = 0; pass < MAX_CONVERT_PASSES; pass++) {
     if (!convertLeavesPass(accum)) break;
-    if (syntaxErrors(parse(accum.text)) > 0) {
+    if (syntaxErrors(parse(accum.text, fileName)) > 0) {
       return {
         text,
         changed: false,
@@ -492,7 +500,7 @@ function transformFileInner(path: string, text: string): FileResult {
       };
     }
   }
-  const afterConvert = parse(accum.text);
+  const afterConvert = parse(accum.text, fileName);
   if (syntaxErrors(afterConvert) > 0) {
     return {
       text,

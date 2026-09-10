@@ -123,31 +123,18 @@ describe('Box Tier B', () => {
 });
 
 describe('Box conversion edge cases', () => {
-  test.fails(
-    'identifier sx must not emit style={sx-typed} (type-aware rewrite pending)',
-    () => {
-      const result = run(
-        `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
-      );
-      expect(result.parseError).toBe(undefined);
-      expect(result.text).not.toContain('style={p.sx}');
-      expect(result.text).not.toContain('cn');
-      expect(result.text).not.toContain('sxStyle');
-      expect(result.text).not.toContain('TODO(sx-codemod)');
-      expect(result.text).not.toContain('<Box');
-    }
-  );
-
-  test('identifier sx currently still emits Solid style passthrough', () => {
+  test('identifier sx is safely normalized to a style object spread', () => {
     const result = run(
       `export const A = (p: { sx: never }) => <Box sx={p.sx} />;`
     );
+    expect(result.parseError).toBe(undefined);
     expect(result.converted).toEqual([
       { line: 2, component: 'Box', tier: 'B' },
     ]);
     expect(result.manual).toEqual([]);
     expect(result.text).toContain('class="box"');
-    expect(result.text).toContain('style={p.sx}');
+    expect(result.text).toContain('style={{ ...((p.sx) ?? {}) }}');
+    expect(result.text).not.toContain('style={p.sx}');
     expect(result.text).not.toContain('cn');
     expect(result.text).not.toContain('sxStyle');
     expect(result.text).not.toContain('TODO(sx-codemod)');
@@ -566,7 +553,7 @@ export const A = () => <Box sx={{ p: 2 }} />;`
       `export const A = (p: { x: number }) => <Box sx={{ notARealProp: p.x }} />;`
     );
     expect(result.converted[0]?.tier).toBe('B');
-    expect(result.text).toContain('notARealProp');
+    expect(result.text).toContain('"not-a-real-prop"');
     expect(result.text).toContain('style={{');
     expect(result.text).not.toContain('cn');
     expect(result.text).not.toContain('sxStyle');

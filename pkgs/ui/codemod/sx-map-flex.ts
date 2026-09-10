@@ -227,7 +227,7 @@ export function mapOutlineStatic(
 }
 
 /** Dynamics for exact-safe props splice verbatim. `flex` bails: the Yoga
- * `0 → 0 1 auto` rule cannot be reproduced with a verbatim splice. */
+   * `0 → 0 1 auto` rule cannot be reproduced with a verbatim splice. */
 export function mapLayoutDynamic(prop: string): DynamicStyle {
   if (prop === 'flex') {
     return { kind: 'bail', reason: 'flex dynamic needs the Yoga rule' };
@@ -241,6 +241,10 @@ export function mapLayoutDynamic(prop: string): DynamicStyle {
           ? 'opacity'
           : prop === 'zIndex'
             ? 'z-index'
-            : prop;
+            : prop === 'cursor'
+              ? 'cursor'
+              : prop === 'aspectRatio'
+                ? 'aspect-ratio'
+                : prop;
   return { kind: 'style', cssProps: [cssProp], wrap: 'raw' };
 }

@@ -16,7 +16,7 @@
 
 import { borderRadius } from '../src/theme/scale';
 import type { DynamicStyle, StaticMapping } from './mapping-types';
-import { px } from './sx-map-scale';
+import { dashCase, px } from './sx-map-scale';
 
 const RADIUS_SIDE: Readonly<Record<string, string>> = {
   borderRadius: 'rounded',
@@ -213,6 +213,11 @@ export function isLogicalInsetProp(prop: string): boolean {
   return prop in LOGICAL_INSET;
 }
 
+/** Dynamic logical insets splice into these dash-case CSS properties. */
+export function logicalInsetCssProp(prop: string): string {
+  return LOGICAL_INSET[prop]?.[1] ?? prop;
+}
+
 export function mapLogicalInsetStatic(
   prop: string,
   value: string | number | boolean | null
@@ -248,14 +253,14 @@ export function mapEffectDynamic(prop: string): DynamicStyle {
   if (prop === 'outlineWidth' || prop === 'outlineOffset') {
     return {
       kind: 'style',
-      cssProps: [ARBITRARY_PROP[prop] ?? prop],
+      cssProps: [ARBITRARY_PROP[prop] ?? dashCase(prop)],
       wrap: 'px-number-or-string',
     };
   }
   if (prop in ARBITRARY_PROP) {
     return {
       kind: 'style',
-      cssProps: [ARBITRARY_PROP[prop] ?? prop],
+      cssProps: [ARBITRARY_PROP[prop] ?? dashCase(prop)],
       wrap: 'raw',
     };
   }

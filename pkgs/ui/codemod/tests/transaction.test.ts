@@ -93,6 +93,7 @@ describe('cli arg guards', () => {
         'pkgs/ui-testing-solid-dom',
       ],
       write: false,
+      dryRun: false,
     });
   });
   test('--write enables the commit path', () => {

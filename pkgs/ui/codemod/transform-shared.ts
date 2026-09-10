@@ -137,8 +137,18 @@ export function readSxConversion(
   return {
     ...conversion,
     tier: 'B',
-    styleExprs: [...conversion.styleExprs, ...peeledSx],
+    styleExprs: [
+      ...conversion.styleExprs,
+      ...peeledSx.map((expr) => normalizeStyleExpr(expr)),
+    ],
   };
+}
+
+/** Preserve an opaque sx object as an object spread, not as a style prop value. */
+function normalizeStyleExpr(expr: string): string {
+  const trimmed = expr.trim();
+  if (trimmed.startsWith('{') && trimmed.endsWith('}')) return trimmed;
+  return `{ ...(${trimmed} ?? {}) }`;
 }
 
 export function dataSetFields(

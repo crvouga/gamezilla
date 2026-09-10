@@ -133,6 +133,7 @@ export function mapDirectLayoutDynamic(prop: string): DynamicStyle {
   return { kind: 'style', cssProps: [cssProp], wrap: 'raw' };
 }
 
+/** Tailwind prefix per raw-length prop (`width` → `w`). */
 const RAW_LENGTH: Readonly<Record<string, string>> = {
   padding: 'p',
   paddingTop: 'pt',
@@ -160,8 +161,41 @@ const RAW_LENGTH: Readonly<Record<string, string>> = {
   letterSpacingRaw: 'tracking',
 };
 
+/** Exact dash-case CSS property per raw-length prop (dash-case gate parity). */
+const RAW_LENGTH_CSS: Readonly<Record<string, string>> = {
+  padding: 'padding',
+  paddingTop: 'padding-top',
+  paddingBottom: 'padding-bottom',
+  paddingLeft: 'padding-left',
+  paddingRight: 'padding-right',
+  margin: 'margin',
+  marginTop: 'margin-top',
+  marginBottom: 'margin-bottom',
+  marginLeft: 'margin-left',
+  marginRight: 'margin-right',
+  top: 'top',
+  right: 'right',
+  bottom: 'bottom',
+  left: 'left',
+  start: 'inset-inline-start',
+  end: 'inset-inline-end',
+  width: 'width',
+  height: 'height',
+  minWidth: 'min-width',
+  maxWidth: 'max-width',
+  minHeight: 'min-height',
+  maxHeight: 'max-height',
+  flexBasis: 'flex-basis',
+  letterSpacingRaw: 'letter-spacing',
+};
+
 export function isRawLengthProp(prop: string): boolean {
   return prop in RAW_LENGTH;
+}
+
+/** Dynamic raw lengths splice into these dash-case CSS properties. */
+export function rawLengthCssProp(prop: string): string {
+  return RAW_LENGTH_CSS[prop] ?? prop;
 }
 
 export function mapRawLengthStatic(
@@ -193,6 +227,11 @@ const RAW_PAIRS: Readonly<Record<string, readonly [string, string]>> = {
 
 export function isRawPairProp(prop: string): boolean {
   return prop in RAW_PAIRS;
+}
+
+/** Dynamic raw pairs splice into these dash-case CSS properties. */
+export function rawPairCssProps(prop: string): readonly string[] {
+  return RAW_PAIRS[prop] ?? [prop];
 }
 
 export function mapRawPairStatic(

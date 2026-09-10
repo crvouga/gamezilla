@@ -11,6 +11,7 @@ import { CSS_VAR_COLORS, cssVarElevation } from '../src/theme/css-vars';
 import { sxToCss } from '../src/theme/sx-to-css';
 import type { DynamicWrap, StaticValue } from './mapping-types';
 import { compileStaticTransform } from './sx-map-effect';
+import { dashCase } from './sx-map-scale';
 import { mapDynamicProp, mapSxRecord } from './sx-mapping';
 import {
   attrExpression,
@@ -133,7 +134,9 @@ function dropsLikeRuntime(prop: string, value: StaticValue): boolean {
 }
 
 function runtimeObj(prop: string, exprText: string): string {
-  return `{ ${prop}: ${exprText} }`;
+  // Keys are dash-case CSS property names, quoted — camelCase sx props
+  // (`paddingHorizontal`-style) must not leak into the style binding.
+  return `{ ${JSON.stringify(dashCase(prop))}: ${exprText} }`;
 }
 
 function entryRawText(entry: ObjectEntry, source: ts.SourceFile): string {
@@ -273,6 +276,7 @@ export function convertSxParts(
   source: ts.SourceFile
 ): NodeConversion {
   const staticEntries: ObjectEntry[] = [];
+  const branches: ClassListEntry[] = [];
   const dynamicTail: string[] = [];
   let sawUnknown = false;
   for (const part of parts) {
@@ -284,10 +288,9 @@ export function convertSxParts(
     sawUnknown = true;
     const expanded = expandConditionalSx(part.exprText);
     if (expanded !== undefined) {
-      dynamicTail.push(
-        `{ ${expanded.classes.map((c) => JSON.stringify(c)).join(', ')}: ` +
-          `!!(${expanded.branch}) }`
-      );
+      for (const className of expanded.classes) {
+        branches.push({ className, when: `!!(${expanded.branch})` });
+      }
       continue;
     }
     if (part.exprText !== 'false' && part.exprText !== 'undefined') {
@@ -295,14 +298,10 @@ export function convertSxParts(
     }
   }
   const base = convertSxEntries(staticEntries, source);
-  const classList: ClassListEntry[] = [...base.classList];
+  const classList: ClassListEntry[] = [...branches];
   const styles: StyleEntry[] = [...base.styles];
   const styleExprs: string[] = [...base.styleExprs];
   for (const chunk of dynamicTail) {
-    if (isClassListMapText(chunk)) {
-      classList.push(...parseClassListText(chunk));
-      continue;
-    }
     // Unknown after static: the overrides become inline style so runtime
     // last-wins still holds (inline declarations beat classes).
     styleExprs.push(chunk);
@@ -323,59 +322,6 @@ export function convertSxParts(
     dropAttrs: ['sx'],
     extraAttrs: [],
   };
-}
-
-/** Recognize a classList chunk the expander produced (`{ 'm-1': !!(c) }`). */
-function isClassListMapText(chunk: string): boolean {
-  return chunk.startsWith('{ ') && chunk.endsWith(': !!((') === false
-    ? /^.*: !!\(.*\)$/.test(chunk)
-    : false;
-}
-
-/** Parse back the classList text the expander emitted. */
-function parseClassListText(chunk: string): readonly ClassListEntry[] {
-  const inner = chunk.slice(2, -2).trim();
-  const entries: ClassListEntry[] = [];
-  for (const part of splitTopLevelCommas(inner)) {
-    const m = /^(.*):\s*!!\((.*)\)$/.exec(part.trim());
-    if (m === null) continue;
-    const key = (m[1] ?? '').trim();
-    const when = (m[2] ?? '').trim();
-    if (key.startsWith('"') && key.endsWith('"')) {
-      entries.push({ className: JSON.parse(key) as string, when });
-    } else {
-      entries.push({ keyExpr: key, when });
-    }
-  }
-  return entries;
-}
-
-/** Split on top-level commas (bracket/paren/quote aware). */
-function splitTopLevelCommas(text: string): readonly string[] {
-  const out: string[] = [];
-  let depth = 0;
-  let start = 0;
-  let quote: '"' | "'" | '`' | undefined;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (quote !== undefined) {
-      if (ch === '\\') i += 1;
-      else if (ch === quote) quote = undefined;
-      continue;
-    }
-    if (ch === '"' || ch === "'" || ch === '`') {
-      quote = ch;
-      continue;
-    }
-    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
-    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
-    else if (ch === ',' && depth === 0) {
-      out.push(text.slice(start, i));
-      start = i + 1;
-    }
-  }
-  out.push(text.slice(start));
-  return out.filter((s) => s.trim().length > 0);
 }
 
 type ExpandedConditional = {
@@ -438,41 +384,6 @@ function asConditionalWithEmptyElse(
     return { condition: expr.left, whenTrue: expr.right };
   }
   return undefined;
-}
-
-/**
- * `cond ? { m: 1 } : null` → classList entries. Only static object true-branch
- * with empty/null/undefined/false false-branch.
- */
-function peelConditionalSxClasses(
-  exprText: string
-): { readonly when: string; readonly classes: readonly string[] } | undefined {
-  const wrapped = `(${exprText})`;
-  const file = ts.createSourceFile(
-    'peel.tsx',
-    wrapped,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX
-  );
-  const stmt = file.statements[0];
-  if (stmt === undefined || !ts.isExpressionStatement(stmt)) return undefined;
-  let expr = stmt.expression;
-  if (ts.isParenthesizedExpression(expr)) expr = expr.expression;
-  if (!ts.isConditionalExpression(expr)) return undefined;
-  if (!isEmptySxBranch(expr.whenFalse)) return undefined;
-  if (!ts.isObjectLiteralExpression(expr.whenTrue)) return undefined;
-  const entries = readObjectEntriesFromLiteral(expr.whenTrue);
-  if (entries === undefined) return undefined;
-  const converted = convertSxEntries(entries, file);
-  if (converted.styleExprs.length > 0 || converted.styles.length > 0) {
-    return undefined;
-  }
-  if (converted.classes.length === 0) return undefined;
-  return {
-    when: expr.condition.getText(file),
-    classes: converted.classes,
-  };
 }
 
 function isEmptySxBranch(expr: ts.Expression): boolean {

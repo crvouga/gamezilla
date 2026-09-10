@@ -16,13 +16,20 @@ export type SpanEdit = {
   readonly text: string;
 };
 
-export function parse(text: string): ts.SourceFile {
+/**
+ * Parse with the right script kind: `.ts` files may contain TSX-invalid
+ * constructs (e.g. generic arrow functions `async <T>(…) => …`), which read
+ * as JSX under `ScriptKind.TSX` and would false-positive "does not parse".
+ */
+export function parse(text: string, fileName = 'file.tsx'): ts.SourceFile {
   return ts.createSourceFile(
-    'file.tsx',
+    fileName,
     text,
     ts.ScriptTarget.Latest,
     true,
-    ts.ScriptKind.TSX
+    fileName.endsWith('.ts') && !fileName.endsWith('.d.ts')
+      ? ts.ScriptKind.TS
+      : ts.ScriptKind.TSX
   );
 }
 
@@ -55,10 +62,14 @@ export function applyEdits(text: string, edits: readonly SpanEdit[]): string {
 }
 
 /** Remove import specifiers whose local names no longer occur. */
-export function pruneImports(text: string, removed: readonly string[]): string {
+export function pruneImports(
+  text: string,
+  removed: readonly string[],
+  fileName = 'file.tsx'
+): string {
   if (removed.length === 0) return text;
   for (const name of removed) nonEmptyString(name, 'pruned import name');
-  const source = parse(text);
+  const source = parse(text, fileName);
   const edits: SpanEdit[] = [];
   for (const stmt of source.statements) {
     if (!ts.isImportDeclaration(stmt)) continue;
@@ -110,12 +121,16 @@ function stillUsed(
 export function ensureRuntimeImports(text: string, filePath = ''): string {
   const needsDataAttrs = /\bdataAttrs\(/.test(text);
   if (!needsDataAttrs) return text;
+  const fileName = fileNameOf(filePath);
   if (isPkgsUiSrc(filePath)) {
-    return ensureNamedImport(text, relModule(filePath, 'component-id'), [
-      'dataAttrs',
-    ]);
+    return ensureNamedImport(
+      text,
+      relModule(filePath, 'component-id'),
+      ['dataAttrs'],
+      fileName
+    );
   }
-  return ensureNamedImport(text, '@pkgs/ui', ['dataAttrs']);
+  return ensureNamedImport(text, '@pkgs/ui', ['dataAttrs'], fileName);
 }
 
 function isPkgsUiSrc(filePath: string): boolean {
@@ -133,13 +148,20 @@ function relModule(filePath: string, targetFromSrc: string): string {
   return `${prefix}${targetFromSrc}`;
 }
 
+/** Base file name for parse-kind selection (`'file.tsx'` when unknown). */
+export function fileNameOf(filePath: string): string {
+  if (filePath === '') return 'file.tsx';
+  return filePath.replace(/\\/g, '/').split('/').pop() ?? 'file.tsx';
+}
+
 function ensureNamedImport(
   text: string,
   modulePath: string,
-  wanted: readonly string[]
+  wanted: readonly string[],
+  fileName = 'file.tsx'
 ): string {
   if (wanted.length === 0) return text;
-  const source = parse(text);
+  const source = parse(text, fileName);
   for (const stmt of source.statements) {
     if (!ts.isImportDeclaration(stmt)) continue;
     const module = stmt.moduleSpecifier;
