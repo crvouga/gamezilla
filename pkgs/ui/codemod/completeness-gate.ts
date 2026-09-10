@@ -48,6 +48,19 @@ export function stripComments(text: string): string {
 const THEME_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]theme(?:[/\\]|$)/;
 
 /**
+ * `@pkgs/ui`'s own sources are the design system: its components legitimately
+ * compose `Box` / `Text` / `Stack` and use `joinClass` internally, and its
+ * test suite asserts on those primitives. Only *consumer* call sites carry
+ * `sx=`, so the transform and the gate both leave these trees untouched.
+ */
+const DESIGN_SYSTEM_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\](?:src|tests)(?:[/\\]|$)/;
+
+/** True for `@pkgs/ui` implementation + test trees (never migrated). */
+export function isDesignSystemPath(path: string): boolean {
+  return DESIGN_SYSTEM_PATH.test(path);
+}
+
+/**
  * `@pkgs/ui`'s own component sources are the design system itself: they
  * legitimately compose `Box` / `Text` / `Stack` and use internal helpers like
  * `joinClass`. Primitive-usage checks skip them (they are the definition of
@@ -55,9 +68,7 @@ const THEME_PATH = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]theme(?:[/\\]|$)/;
  */
 const UI_INTERNALS = /(?:^|[/\\])pkgs[/\\]ui[/\\]src[/\\]components(?:[/\\]|$)/;
 
-const SX_ATTR = /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;
-
-const PURGED_TAG = /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
+const SX_ATTR = /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/;const PURGED_TAG = /<(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
 
 const PURGED_IMPORT_NAMES =
   /\b(?:Box|Stack|Center|Spacer|Card|Divider|Clickable|Text)\b/;
@@ -83,7 +94,7 @@ function isThemePath(path: string): boolean {
 }
 
 function isUiInternalsPath(path: string): boolean {
-  return UI_INTERNALS.test(path);
+  return UI_INTERNALS.test(path) || isDesignSystemPath(path);
 }
 
 function hit(path: string, kind: string, detail: string): GateHit {

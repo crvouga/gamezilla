@@ -40,7 +40,15 @@ export type CliArgs = {
 
 const CONFLICT = 'sx-codemod: --write and --dry-run conflict — pick one';
 
-/** Default scan roots (every tree with sx usage, incl. .ts const files). */
+/**
+ * Default scan roots (every tree with sx usage, incl. .ts const files).
+ *
+ * `pkgs/ui/src` / `pkgs/ui/tests` stay in the scan (the corpus gate wants
+ * broad coverage) but the transform itself is a no-op on them: they are the
+ * design system, whose components legitimately compose `Box` / `Text` /
+ * `Stack` and use `joinClass` internally, and whose tests assert on those
+ * primitives. Only consumer call sites carry `sx=`.
+ */
 export const DEFAULT_GLOBS: readonly string[] = [
   'apps/client/src',
   'apps/product',
