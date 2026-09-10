@@ -4,7 +4,11 @@
  */
 
 import ts from 'typescript';
-import { isConvertibleExport } from './transform-kinds';
+import {
+  isConvertibleExport,
+  isHostConvertible,
+  isPeelConvertible,
+} from './transform-kinds';
 
 /** Module-tail → export name for relative imports inside `@pkgs/ui`. */
 export const PRIMITIVE_MODULE_EXPORT: Readonly<Record<string, string>> = {
@@ -204,6 +208,31 @@ export function carriesSx(element: ts.JsxOpeningLikeElement): boolean {
   );
 }
 
+/**
+ * Convertible primitives always collect. Hosts only when they still carry
+ * sx-family attrs (or sx-shaped spreads) — a converted host blocks leaf-first
+ * parent conversion for no reason, and a plain `<LoadingState />` must never
+ * make its convertible parent a non-leaf.
+ */
+export function shouldCollectNode(
+  exportName: string,
+  element: ts.JsxOpeningLikeElement
+): boolean {
+  if (isPeelConvertible(exportName)) return true;
+  if (isHostConvertible(exportName)) return carriesSxFamily(element);
+  return false;
+}
+
+/** True when the element still has an sx-family attr or sx-shaped spread. */
+function carriesSxFamily(element: ts.JsxOpeningLikeElement): boolean {
+  if (carriesSx(element)) return true;
+  return element.attributes.properties.some(
+    (p) =>
+      ts.isJsxSpreadAttribute(p) &&
+      /\b(?:sx|frameSx|enterSx|exitSx|fieldSx)\s*:/.test(p.getText())
+  );
+}
+
 export function collectNodes(
   source: ts.SourceFile,
   bindings: Map<string, string>
@@ -231,7 +260,8 @@ function pushSelfClosing(
   if (
     exportName === undefined ||
     name === undefined ||
-    isShadowedAt(node, name)
+    isShadowedAt(node, name) ||
+    !shouldCollectNode(exportName, node)
   ) {
     return;
   }
@@ -254,7 +284,8 @@ function pushElement(
   if (
     exportName === undefined ||
     name === undefined ||
-    isShadowedAt(node, name)
+    isShadowedAt(node, name) ||
+    !shouldCollectNode(exportName, node.openingElement)
   ) {
     return;
   }

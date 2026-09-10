@@ -47,6 +47,13 @@ export function classAttrs(
     const peeled = peelClassHelperCall(existing.exprText);
     if (peeled !== undefined) {
       for (const arg of peeled) {
+        // A literal already emitted as a static class must not repeat in
+        // classList (it would be toggled on unconditionally).
+        const literal = arg.match(/^'([^']*)'$|^"([^"]*)"$/);
+        const literalClass = literal?.[1] ?? literal?.[2];
+        if (literalClass !== undefined && deduped.includes(literalClass)) {
+          continue;
+        }
         entries.push({ keyExpr: arg, when: `!!(${arg})` });
       }
     } else {

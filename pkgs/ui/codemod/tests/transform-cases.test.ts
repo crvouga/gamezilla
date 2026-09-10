@@ -578,4 +578,31 @@ export const A = (p: { open: boolean }) => <Box class={joinClass('a', p.open && 
     expect(result.text).not.toContain('joinClass');
     expect(result.text).not.toContain('cn(');
   });
+
+  test('Text class={joinClass(...)} is dropped and peeled (no helper leak)', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Text, joinClass } from '@pkgs/ui';
+export const A = (p: { muted: boolean }) => (
+  <Text class={joinClass('line-clamp-1', p.muted && 'text-muted')} label="x" />
+);`
+    );
+    expect(result.parseError).toBe(undefined);
+    expect(result.text).not.toContain('joinClass');
+    expect(result.text).toContain('class="text"');
+    expect(result.text).toContain("['line-clamp-1']");
+  });
+
+  test('literal joinClass args already emitted statically are not duplicated', () => {
+    const result = transformFile(
+      't.tsx',
+      `import { Box, joinClass } from '@pkgs/ui';
+export const A = (p: { open: boolean }) => <Box class={joinClass('box', 'p-1', p.open && 'c')} sx={{ p: 1 }} />;`
+    );
+    expect(result.parseError).toBe(undefined);
+    // `box` / `p-1` are generated from `sx`; the literals must dedupe.
+    expect(result.text).toContain('class="box p-1"');
+    expect(result.text).not.toContain("['box']");
+    expect(result.text).not.toContain("['p-1']");
+  });
 });

@@ -55,7 +55,7 @@ export function convertText(
     baseClass: 'text',
     extraClasses: variant.extraClasses,
     extraAttrs: [],
-    dropAttrs: ['as', 'dataSet', 'label', 'numberOfLines', 'variant'],
+    dropAttrs: ['as', 'class', 'dataSet', 'label', 'numberOfLines', 'variant'],
     dataAttrs: data.dataAttrs,
     dataAttrExprs: data.dataAttrExprs,
     dataAttrsSpread: data.dataAttrsSpread,

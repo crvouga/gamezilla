@@ -3,6 +3,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { describe, expect, test } from 'vitest';
+import { stripComments } from '../completeness-gate';
 import { runCodemod } from '../run-codemod';
 
 const ROOT = resolve(process.cwd(), '..', '..');
@@ -50,14 +51,18 @@ describe('strict migration gates', () => {
     expect(result.outputs).toHaveLength(Object.keys(inputs).length);
     for (const output of result.outputs) {
       if (!output.changed) continue;
-      expect(output.nextText).not.toContain('TODO(sx-codemod)');
-      expect(output.nextText).not.toMatch(/<Text\b/);
-      const jsxAttrs = output.nextText.match(/<[A-Za-z][^>]*>/g) ?? [];
+      // The fixture source has already been migrated, so a `changed` output is
+      // the codemod re-touching it. Assert on live code only — JSDoc examples
+      // legitimately mention `<Text …>`.
+      const code = stripComments(output.nextText);
+      expect(code).not.toContain('TODO(sx-codemod)');
+      expect(code).not.toMatch(/<Text\b/);
+      const jsxAttrs = code.match(/<[A-Za-z][^>]*>/g) ?? [];
       const forbiddenAttrs = jsxAttrs.filter((tag) =>
         /\b(?:sx|frameSx|fieldSx|enterSx|exitSx)\s*=/.test(tag)
       );
       expect(forbiddenAttrs, output.path).toEqual([]);
-      expect(output.nextText).not.toMatch(/\bSx(?:Input|Props)\b/);
+      expect(code).not.toMatch(/\bSx(?:Input|Props)\b/);
     }
   }, 120000);
 
