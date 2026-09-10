@@ -11,7 +11,6 @@
  */
 
 import ts from 'typescript';
-import { isDesignSystemPath } from './completeness-gate';
 import { splitTopLevel } from './split-top-level';
 import { invariant, nonEmptyString } from './tiger';
 import { CLASS_HELPER_NAMES, classAttrs } from './transform-class-peel';
@@ -38,6 +37,7 @@ import {
   syntaxErrors,
 } from './transform-imports';
 import type { ExistingClass } from './transform-node';
+import { purgeClassHelpers } from './transform-purge-helpers';
 import type { PrefixedSlot } from './transform-shared';
 
 export type ConvertedNode = {
@@ -444,9 +444,6 @@ export function transformFile(path: string, text: string): FileResult {
 }
 
 function transformFileInner(path: string, text: string): FileResult {
-  if (isDesignSystemPath(path)) {
-    return { text, changed: false, converted: [], manual: [] };
-  }
   const fileName =
     path.endsWith('.tsx') || path.endsWith('.ts')
       ? fileNameOf(path)
@@ -498,13 +495,16 @@ function transformFileInner(path: string, text: string): FileResult {
       parseError: 'nested conversion did not fixpoint — left untouched',
     };
   }
-  if (accum.converted.length === 0) {
+  // Peel leftover `class={joinClass(...)}` on hosts/intrinsics and rewrite
+  // non-attribute helper calls so banned names never survive a pass.
+  const purged = purgeClassHelpers(path, accum.text);
+  if (accum.converted.length === 0 && purged === text) {
     return { text, changed: false, converted: [], manual: [] };
   }
   return finalizeFile({
     path,
     text,
-    next: accum.text,
+    next: purged,
     converted: accum.converted,
     removedLocals: accum.removedLocals,
   });
