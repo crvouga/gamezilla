@@ -71,7 +71,9 @@ function SnapshotOptionRow(props: {
 }) {
   const body = (
     <div class="box flex-1 min-w-[0] [padding-top:12px;padding-bottom:12px] gap-0.5">
-      <p class="text text-text">{formatSnapshotTitle(props.snap.createdAtMs)}</p>
+      <p class="text text-text">
+        {formatSnapshotTitle(props.snap.createdAtMs)}
+      </p>
       <SnapshotRowMeta snap={props.snap} nowMs={props.nowMs} />
     </div>
   );
@@ -352,9 +354,7 @@ function ClientLayoutToggle(props: {
       <IconButton
         label="Tab clients"
         size={ICON_SIZE}
-        {...(props.preference === 'tabs'
-          ? { background: 'tintSubtle' }
-          : {})}
+        {...(props.preference === 'tabs' ? { background: 'tintSubtle' } : {})}
         onClick={() => {
           props.onSelect('tabs');
         }}

@@ -120,7 +120,10 @@ export function refreshRoomMap(
   let changed = false;
   for (const topic of topics) {
     if (!maps.rooms.has(topic)) {
-      maps.rooms.set(topic, makeProductSimulatorRoomNode(topic, roomNode, roomLogs));
+      maps.rooms.set(
+        topic,
+        makeProductSimulatorRoomNode(topic, roomNode, roomLogs)
+      );
       changed = true;
     }
   }

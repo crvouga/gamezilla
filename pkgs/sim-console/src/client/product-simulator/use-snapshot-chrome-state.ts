@@ -28,7 +28,9 @@ function snapByIdMap(
   return map;
 }
 
-function useCheckedSnapshotIds(snaps: () => readonly ProductSimulatorSnapshotInfo[]) {
+function useCheckedSnapshotIds(
+  snaps: () => readonly ProductSimulatorSnapshotInfo[]
+) {
   const [checkedIds, setCheckedIds] = createSignal<ReadonlySet<string>>(
     new Set<string>()
   );
@@ -69,7 +71,9 @@ function useCheckedSnapshotIds(snaps: () => readonly ProductSimulatorSnapshotInf
   };
 }
 
-function useSelectedSnapshotId(snaps: () => readonly ProductSimulatorSnapshotInfo[]) {
+function useSelectedSnapshotId(
+  snaps: () => readonly ProductSimulatorSnapshotInfo[]
+) {
   const [selectedId, setSelectedId] = createSignal<string | null>(null);
 
   createEffect(() => {

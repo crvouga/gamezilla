@@ -150,7 +150,11 @@ export function ProductSimulatorKindPane(props: {
         <ServerProductSimulatorPanel
           session={props.session}
           node={props.session.server}
-          pane={resolveProductSimulatorPane(props.panes, serverPaneKey(), 'server')}
+          pane={resolveProductSimulatorPane(
+            props.panes,
+            serverPaneKey(),
+            'server'
+          )}
           onPanePatch={(patch, mode) =>
             props.onPanePatch(serverPaneKey(), patch, mode)
           }
@@ -160,7 +164,11 @@ export function ProductSimulatorKindPane(props: {
         <PubSubProductSimulatorPanel
           session={props.session}
           pubsub={props.session.pubsub}
-          pane={resolveProductSimulatorPane(props.panes, eventsPaneKey(), 'events')}
+          pane={resolveProductSimulatorPane(
+            props.panes,
+            eventsPaneKey(),
+            'events'
+          )}
         />
       </div>
       <div class="box" style={kindVisibilitySx(props.kind === 'room')}>
@@ -172,7 +180,11 @@ export function ProductSimulatorKindPane(props: {
             <RoomProductSimulatorPanel
               session={props.session}
               room={resolvedRoom()}
-              pane={resolveProductSimulatorPane(props.panes, roomPaneKey(), 'room')}
+              pane={resolveProductSimulatorPane(
+                props.panes,
+                roomPaneKey(),
+                'room'
+              )}
             />
           )}
         </Show>
@@ -253,7 +265,11 @@ function ClientLiveColumns(props: {
                 session={props.session}
                 snapshotEpoch={props.snapshotEpoch}
                 reloadToken={props.session.revision}
-                pane={resolveProductSimulatorPane(props.panes, actor.id, 'client')}
+                pane={resolveProductSimulatorPane(
+                  props.panes,
+                  actor.id,
+                  'client'
+                )}
                 onPanePatch={(patch, mode) =>
                   props.onPanePatch(actor.id, patch, mode)
                 }

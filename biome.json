@@ -418,6 +418,20 @@
       ]
     },
     {
+      "path": "./tools/biome-plugins/no-heavy-client-imports.grit",
+      "includes": [
+        "**/apps/client/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/src/sim/**"
+      ]
+    },
+    {
+      "path": "./tools/biome-plugins/no-eager-games-shell-imports.grit",
+      "includes": ["**/apps/client/src/shell/**/*.{ts,tsx}"]
+    },
+    {
       "path": "./tools/biome-plugins/no-zod-in-pkgs.grit",
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",

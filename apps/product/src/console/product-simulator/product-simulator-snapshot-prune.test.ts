@@ -37,7 +37,9 @@ describe('toSnapshotInfo', () => {
       4096
     );
     expect(info.totalBytes).toBe(4096);
-    expect(productSimulatorSnapshotInfoSchema.safeParse(info).success).toBe(true);
+    expect(productSimulatorSnapshotInfoSchema.safeParse(info).success).toBe(
+      true
+    );
   });
 
   test('omits totalBytes when not provided', () => {

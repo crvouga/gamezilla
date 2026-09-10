@@ -6,8 +6,12 @@ import type {
 } from '../../shared/ports';
 
 /** List + mutate ObjectStore product-simulator snapshots (busy/error included). */
-export function useProductSimulatorSnapshots(session: () => ProductSimulatorSession) {
-  const [snaps, setSnaps] = createSignal<readonly ProductSimulatorSnapshotInfo[]>([]);
+export function useProductSimulatorSnapshots(
+  session: () => ProductSimulatorSession
+) {
+  const [snaps, setSnaps] = createSignal<
+    readonly ProductSimulatorSnapshotInfo[]
+  >([]);
   const [busy, setBusy] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
 

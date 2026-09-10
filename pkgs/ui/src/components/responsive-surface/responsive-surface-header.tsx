@@ -33,7 +33,10 @@ export function ResponsiveSurfaceHeader(
       style={{ 'justify-content': hasTitle() ? 'space-between' : 'flex-end' }}
     >
       <Show when={hasTitle()}>
-        <h2 class="text textSubtitle line-clamp-1 flex-1 mr-2 text-text" id={titleId}>
+        <h2
+          class="text textSubtitle line-clamp-1 flex-1 mr-2 text-text"
+          id={titleId}
+        >
           {props.title}
         </h2>
       </Show>

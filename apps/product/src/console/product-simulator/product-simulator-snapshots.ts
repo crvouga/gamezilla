@@ -337,7 +337,10 @@ export async function loadProductSimulatorSnapshot(
   if (text === null) {
     throw new Error(`snapshot '${snapshotId}' not found`);
   }
-  const manifest = parseJsonWithSchema(text, productSimulatorSnapshotManifestSchema);
+  const manifest = parseJsonWithSchema(
+    text,
+    productSimulatorSnapshotManifestSchema
+  );
   if (manifest === null) {
     throw new Error(`snapshot '${snapshotId}' has an invalid manifest`);
   }

@@ -3,8 +3,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
   ChevronDownIcon,
   type CodeSelection,
-  colorVar,
   CopyIcon,
+  colorVar,
   IconButton,
   PlayIcon,
   PlusIcon,
@@ -87,7 +87,9 @@ export function SqlCell(props: SqlCellRenderProps): JSX.Element {
     <div
       class="box border rounded-[10px] overflow-hidden bg-surface"
       style={{
-        'border-color': props.focused() ? colorVar('tint') : colorVar('outline'),
+        'border-color': props.focused()
+          ? colorVar('tint')
+          : colorVar('outline'),
       }}
       data-component="SqlCell"
     >

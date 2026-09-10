@@ -104,6 +104,88 @@ function stringLiteralOf(expr: ts.Expression): string | undefined {
   return undefined;
 }
 
+type PeeledClassParts = {
+  readonly staticClasses: string[];
+  readonly entries: ClassListEntry[];
+  readonly dynamicExprs: string[];
+};
+
+function applyClassifiedArg(
+  classified: ClassArg,
+  parts: PeeledClassParts
+): void {
+  if (classified.kind === 'static') {
+    parts.staticClasses.push(classified.value);
+    return;
+  }
+  if (classified.kind === 'ternary') {
+    parts.entries.push({
+      className: classified.whenTrue,
+      when: `!!(${classified.condition})`,
+    });
+    parts.entries.push({
+      className: classified.whenFalse,
+      when: `!(${classified.condition})`,
+    });
+    return;
+  }
+  if (classified.kind === 'toggle') {
+    parts.entries.push({
+      className: classified.className,
+      when: `!!(${classified.condition})`,
+    });
+    return;
+  }
+  parts.dynamicExprs.push(classified.expr);
+}
+
+function peelExistingClass(
+  existing: ExistingClass,
+  classList: readonly ClassListEntry[]
+): PeeledClassParts {
+  const parts: PeeledClassParts = {
+    staticClasses: [],
+    entries: [...classList],
+    dynamicExprs: [],
+  };
+  if (existing.kind === 'literal' && existing.value !== '') {
+    parts.staticClasses.push(existing.value);
+  }
+  if (existing.kind !== 'expr') return parts;
+  const peeled = peelClassHelperCall(existing.exprText);
+  for (const arg of peeled ?? [existing.exprText]) {
+    applyClassifiedArg(classifyClassArg(arg), parts);
+  }
+  return parts;
+}
+
+function emitClassAttr(
+  deduped: readonly string[],
+  dynamicExprs: readonly string[],
+  allowEmpty: boolean
+): string | undefined {
+  if (dynamicExprs.length === 0) {
+    if (deduped.length === 0 && allowEmpty) return undefined;
+    return `class=${quoteAttr(deduped.join(' '))}`;
+  }
+  if (deduped.length === 0 && dynamicExprs.length === 1) {
+    return `class={${dynamicExprs[0]}}`;
+  }
+  const parts = [
+    ...(deduped.length > 0 ? [JSON.stringify(deduped.join(' '))] : []),
+    ...dynamicExprs,
+  ];
+  return `class={[${parts.join(', ')}].filter(Boolean).join(' ')}`;
+}
+
+function emitClassListAttr(entries: readonly ClassListEntry[]): string {
+  const parts = entries.map((e) => {
+    if ('keyExpr' in e) return `[${e.keyExpr}]: ${e.when}`;
+    return `${JSON.stringify(e.className)}: ${e.when}`;
+  });
+  return `classList={{ ${parts.join(', ')} }}`;
+}
+
 /**
  * Solid `class` (static + dynamic exprs) + optional `classList` (toggles).
  * Existing `class={joinClass(...)}` / `cn(...)` / … calls are peeled into
@@ -121,65 +203,21 @@ export function classAttrs(
   classList: readonly ClassListEntry[],
   options?: { readonly allowEmpty?: boolean | undefined }
 ): string[] {
-  const merged = [...classes];
-  if (existing.kind === 'literal' && existing.value !== '') {
-    merged.push(existing.value);
-  }
-  const entries = [...classList];
-  const dynamicExprs: string[] = [];
-  if (existing.kind === 'expr') {
-    const peeled = peelClassHelperCall(existing.exprText);
-    const args = peeled ?? [existing.exprText];
-    for (const arg of args) {
-      const classified = classifyClassArg(arg);
-      if (classified.kind === 'static') {
-        merged.push(classified.value);
-        continue;
-      }
-      if (classified.kind === 'ternary') {
-        entries.push({
-          className: classified.whenTrue,
-          when: `!!(${classified.condition})`,
-        });
-        entries.push({
-          className: classified.whenFalse,
-          when: `!(${classified.condition})`,
-        });
-        continue;
-      }
-      if (classified.kind === 'toggle') {
-        entries.push({
-          className: classified.className,
-          when: `!!(${classified.condition})`,
-        });
-        continue;
-      }
-      dynamicExprs.push(classified.expr);
-    }
-  }
+  const peeled = peelExistingClass(existing, classList);
+  const merged = [...classes, ...peeled.staticClasses];
   const deduped = merged.filter(
     (c, i) => c.trim() !== '' && merged.indexOf(c) === i
   );
   const out: string[] = [];
-  if (dynamicExprs.length === 0) {
-    if (deduped.length > 0 || options?.allowEmpty !== true) {
-      out.push(`class=${quoteAttr(deduped.join(' '))}`);
-    }
-  } else if (deduped.length === 0 && dynamicExprs.length === 1) {
-    out.push(`class={${dynamicExprs[0]}}`);
-  } else {
-    const parts = [
-      ...(deduped.length > 0 ? [JSON.stringify(deduped.join(' '))] : []),
-      ...dynamicExprs,
-    ];
-    out.push(`class={[${parts.join(', ')}].filter(Boolean).join(' ')}`);
+  const classAttr = emitClassAttr(
+    deduped,
+    peeled.dynamicExprs,
+    options?.allowEmpty === true
+  );
+  if (classAttr !== undefined) out.push(classAttr);
+  if (peeled.entries.length > 0) {
+    out.push(emitClassListAttr(peeled.entries));
   }
-  if (entries.length === 0) return out;
-  const parts = entries.map((e) => {
-    if ('keyExpr' in e) return `[${e.keyExpr}]: ${e.when}`;
-    return `${JSON.stringify(e.className)}: ${e.when}`;
-  });
-  out.push(`classList={{ ${parts.join(', ')} }}`);
   return out;
 }
 

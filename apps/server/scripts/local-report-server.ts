@@ -52,7 +52,9 @@ export async function startLocalReportConsole(): Promise<LocalReportConsoleHandl
     fs: wallNodeFs(),
     layout: 'sidecar',
   });
-  const snapshotStore = store.withPrefix(ObjectStorePrefix.productSimulatorSnapshots);
+  const snapshotStore = store.withPrefix(
+    ObjectStorePrefix.productSimulatorSnapshots
+  );
 
   const { app, stop: stopApp } = createSimConsoleApp({
     buckets: [{ id: 'local', label: 'Local', store }],

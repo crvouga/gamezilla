@@ -114,7 +114,10 @@ export const productSimulatorPostgresMemDumpSchema = z.object({
 });
 
 /** Namespaced client KV dump (`dumpNamespacedKvWeb`). */
-export const productSimulatorClientKvDumpSchema = z.record(z.string(), z.string());
+export const productSimulatorClientKvDumpSchema = z.record(
+  z.string(),
+  z.string()
+);
 
 export type ProductSimulatorSnapshotIndex = z.infer<
   typeof productSimulatorSnapshotIndexSchema

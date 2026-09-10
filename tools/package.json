@@ -9,7 +9,7 @@
     "check:static": "bun run scripts/check-static.ts",
     "install:cli": "bun run scripts/install-cli.ts",
     "lint": "bunx biome check --error-on-warnings .",
-    "test": "bun test --pass-with-no-tests scripts/sims"
+    "test": "bun test --pass-with-no-tests scripts/sims scripts/*.test.ts"
   },
   "dependencies": {
     "@clack/prompts": "catalog:",

@@ -13,7 +13,6 @@ import type {
   BottomActionBarButtonItem,
 } from './bottom-action-bar-types';
 
-
 const ICON_SIZE = 24;
 const ICON_STROKE_WIDTH = 2.75;
 

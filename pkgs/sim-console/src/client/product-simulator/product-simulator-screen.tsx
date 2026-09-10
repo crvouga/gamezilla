@@ -227,9 +227,7 @@ function ReadyProductSimulatorScreen(props: {
         instanceId={instanceId}
         unifiedNodes={unifiedNodes}
         selectedNode={selectedNode}
-        onUnifiedNodeChange={(id) =>
-          selectUnifiedNode(props, clients(), id)
-        }
+        onUnifiedNodeChange={(id) => selectUnifiedNode(props, clients(), id)}
         views={views}
         shellPane={shellPane}
         shellPaneKey={shellPaneKey}

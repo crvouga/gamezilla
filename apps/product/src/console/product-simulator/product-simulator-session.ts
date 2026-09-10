@@ -259,7 +259,10 @@ function clearLiveClientDurables(clientIds: Iterable<string>): void {
 
 async function deleteStickySnapshot(store: ObjectStore): Promise<void> {
   try {
-    await deleteProductSimulatorSnapshot(store, PRODUCT_SIMULATOR_STICKY_SNAPSHOT_ID);
+    await deleteProductSimulatorSnapshot(
+      store,
+      PRODUCT_SIMULATOR_STICKY_SNAPSHOT_ID
+    );
   } catch {
     // Missing or store down — wipe still proceeds.
   }
@@ -298,7 +301,8 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductSimulatorSession {
     addClient: (id) => spawnClient(buildArgs, maps, id),
     removeClient: (id) => removeClient(buildArgs.sim, maps, id),
     listCommands: () => commands,
-    runCommand: (id) => runProductSimulatorCommand(buildArgs, maps, commands, id),
+    runCommand: (id) =>
+      runProductSimulatorCommand(buildArgs, maps, commands, id),
     captureCheckpoint: (label) => captureCheckpoint(api.snapshotCtx(), label),
     restoreCheckpoint: (cp) => restoreCheckpoint(api.snapshotCtx(), cp),
     subscribeDomainWake(listener) {
@@ -352,7 +356,10 @@ async function bootClients(
         for (const s of compatible) {
           if (s.createdAtMs > newest.createdAtMs) newest = s;
         }
-        await loadProductSimulatorSnapshot(makeSnapshotCtx(args, maps)(), newest.id);
+        await loadProductSimulatorSnapshot(
+          makeSnapshotCtx(args, maps)(),
+          newest.id
+        );
       }
       const cmds = await buildSnapshotLoadCommands(session);
       setSnapshotLoads(cmds);
@@ -392,7 +399,9 @@ export async function buildProductSimulatorSession(
 
   const commands = createProductSimulatorChessCommands();
   let snapshotLoadCommands: ProductSimulatorPaletteCommand[] = [];
-  const sessionRef: { current: ProductSimulatorSession | null } = { current: null };
+  const sessionRef: { current: ProductSimulatorSession | null } = {
+    current: null,
+  };
   let stopAutosave = (): void => {};
 
   const snapshotCtx = makeSnapshotCtx(args, maps);

@@ -180,7 +180,9 @@ function resultsToCsv(results: readonly SqlStatementResult[]): string {
     blocks.push(cols.map(csvEscape).join(','));
     for (const row of r.rows) {
       blocks.push(
-        cols.map((c) => csvEscape(formatProductSimulatorDbCell(row[c]))).join(',')
+        cols
+          .map((c) => csvEscape(formatProductSimulatorDbCell(row[c])))
+          .join(',')
       );
     }
   }

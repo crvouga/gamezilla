@@ -245,10 +245,7 @@ function ButtonFeedbackWidthLock(props: ButtonContentProps): JSX.Element {
       >
         <ButtonIdleContent {...props} />
       </div>
-      <div
-        class={`absolute inset-0 ${row()}`}
-        style={rowStyle(props.size)}
-      >
+      <div class={`absolute inset-0 ${row()}`} style={rowStyle(props.size)}>
         <ButtonFeedbackFace {...props} />
       </div>
     </div>

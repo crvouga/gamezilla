@@ -398,13 +398,60 @@
       "inputs": [
         "dist/.vite/manifest.json",
         "dist/assets/**/*.js",
-        "../../tools/scripts/bundle-budget.ts"
+        "dist/assets/**/*.css",
+        "dist/index.html",
+        "dist/sw.js",
+        "perf-budget.json",
+        "../../tools/scripts/bundle-budget.ts",
+        "../../tools/scripts/bundle-budget-lazy.ts",
+        "../../tools/scripts/bundle-budget-manifest.ts",
+        "../../tools/scripts/perf-budget.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "@apps/client#check:lighthouse": {
+      "dependsOn": ["@apps/client#build"],
+      "cache": false,
+      "env": ["CHROME_PATH", "PUPPETEER_EXECUTABLE_PATH", "GITHUB_ACTIONS"],
+      "inputs": [
+        "dist/**",
+        "perf-budget.json",
+        "lighthouserc.json",
+        "../../tools/scripts/lighthouse-ci.ts",
+        "../../tools/scripts/lighthouse-report.ts",
+        "../../tools/scripts/lighthouse-api-stub.ts",
+        "../../tools/scripts/perf-budget.ts"
+      ],
+      "outputs": [".lighthouseci/**"],
+      "outputLogs": "new-only"
+    },
+    "@apps/client#check:critical-path": {
+      "inputs": [
+        "src/**/*.{ts,tsx}",
+        "index.html",
+        "public/**",
+        "src/assets/**",
+        "perf-budget.json",
+        "../../tsconfig.base.json",
+        "../../tools/scripts/client-critical-path-imports.ts",
+        "../../tools/scripts/check-index-html-scripts.ts",
+        "../../tools/scripts/check-client-image-budgets.ts",
+        "../../tools/scripts/perf-budget.ts",
+        "../../libs/**/*.{ts,tsx}",
+        "../../pkgs/**/*.{ts,tsx}"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
     "//#check": {
-      "dependsOn": ["//#lint:biome", "//#lint:vocab", "tc", "test"],
+      "dependsOn": [
+        "//#lint:biome",
+        "//#lint:vocab",
+        "@apps/client#check:critical-path",
+        "tc",
+        "test"
+      ],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -422,7 +469,8 @@
         "test:contract",
         "test:e2e",
         "@libs/billing#billing:check",
-        "@tools#check:static"
+        "@tools#check:static",
+        "@apps/client#check:lighthouse"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -518,6 +566,7 @@
       "dependsOn": [
         "//#lint:biome",
         "//#lint:vocab",
+        "@apps/client#check:critical-path",
         "//#lint:eslint",
         "tc",
         "test",
@@ -533,6 +582,7 @@
         "@tools#check:static",
         "@apps/server#check:api",
         "@apps/client#check:bundle-budget",
+        "@apps/client#check:lighthouse",
         "@libs/secrets#check",
         "@tools#install:cli",
         "@libs/billing#billing:sync"

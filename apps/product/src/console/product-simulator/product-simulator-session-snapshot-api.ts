@@ -109,7 +109,9 @@ export function snapshotSessionMethods(
     },
     async purgeIncompatibleSnapshots() {
       const n =
-        await purgeIncompatibleProductSimulatorSnapshotsFromStore(snapshotStore);
+        await purgeIncompatibleProductSimulatorSnapshotsFromStore(
+          snapshotStore
+        );
       await refreshSnapshotLoads(live(), setSnapshotLoads, notify);
       return n;
     },

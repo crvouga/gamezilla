@@ -1,4 +1,7 @@
-import type { ProductSimulatorLogBuffer, ProductSimulatorLogEntry } from './ports';
+import type {
+  ProductSimulatorLogBuffer,
+  ProductSimulatorLogEntry,
+} from './ports';
 
 const DEFAULT_CAPACITY = 500;
 

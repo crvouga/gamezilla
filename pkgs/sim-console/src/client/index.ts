@@ -1,4 +1,3 @@
-export { createProductSimulatorLogBuffer } from '../shared/product-simulator-log-buffer';
 export type {
   BootProductSimulatorOptions,
   ProductSimulatorActor,
@@ -19,6 +18,7 @@ export type {
   SimCheckpointRoomDump,
   SimConsolePorts,
 } from '../shared/ports';
+export { createProductSimulatorLogBuffer } from '../shared/product-simulator-log-buffer';
 export type {
   SimChromeKind,
   SimChromeKind as ProductSimulatorKindId,

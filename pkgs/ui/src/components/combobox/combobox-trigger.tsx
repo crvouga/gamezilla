@@ -15,7 +15,6 @@ import { ChevronDownIcon, XIcon } from '../icons';
 import { ComboboxChips } from './combobox-chips';
 import type { ComboboxOption, ComboboxValue } from './combobox-types';
 
-
 /** Minimum pointer target for the opener button. */
 export const COMBOBOX_TRIGGER_MIN_HEIGHT = 44;
 

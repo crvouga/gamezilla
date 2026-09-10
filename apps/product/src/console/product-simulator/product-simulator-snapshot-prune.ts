@@ -101,7 +101,10 @@ async function isSqliteMemBlob(
   if (obj === null) return false;
   const bytes = await readBody(obj.body);
   if (bytes.byteLength === 0) return false;
-  if (parseJsonBytesWithSchema(bytes, productSimulatorSqliteMemDumpSchema) !== null) {
+  if (
+    parseJsonBytesWithSchema(bytes, productSimulatorSqliteMemDumpSchema) !==
+    null
+  ) {
     return true;
   }
   // Real SQLite serialize / WASM export — opaque image
@@ -117,7 +120,8 @@ async function isServerSqlBlob(
   const bytes = await readBody(obj.body);
   if (bytes.byteLength === 0) return false;
   if (
-    parseJsonBytesWithSchema(bytes, productSimulatorPostgresMemDumpSchema) !== null
+    parseJsonBytesWithSchema(bytes, productSimulatorPostgresMemDumpSchema) !==
+    null
   ) {
     return true;
   }
@@ -132,7 +136,10 @@ async function isStructurallyValidSnapshot(
 ): Promise<boolean> {
   const text = await readText(store, `snapshots/${info.id}/manifest.json`);
   if (text === null) return false;
-  const manifest = parseJsonWithSchema(text, productSimulatorSnapshotManifestSchema);
+  const manifest = parseJsonWithSchema(
+    text,
+    productSimulatorSnapshotManifestSchema
+  );
   if (manifest === null || manifest.id !== info.id) return false;
   if (!(await isServerSqlBlob(store, manifest.keys.serverSql))) return false;
   for (const clientId of manifest.clientIds) {
@@ -186,7 +193,9 @@ export function toSnapshotInfo(
   };
 }
 
-async function readIndex(store: ObjectStore): Promise<ProductSimulatorSnapshotIndex> {
+async function readIndex(
+  store: ObjectStore
+): Promise<ProductSimulatorSnapshotIndex> {
   const text = await readText(store, INDEX_KEY);
   if (text === null) return { snapshots: [] };
   return (
@@ -203,7 +212,10 @@ async function infoFromManifest(
 ): Promise<ProductSimulatorSnapshotInfo | null> {
   const text = await readText(store, `snapshots/${id}/manifest.json`);
   if (text === null) return null;
-  const manifest = parseJsonWithSchema(text, productSimulatorSnapshotManifestSchema);
+  const manifest = parseJsonWithSchema(
+    text,
+    productSimulatorSnapshotManifestSchema
+  );
   if (manifest === null || manifest.id !== id) return null;
   if (!(await isStructurallyValidSnapshot(store, { id }))) return null;
   const totalBytes =

@@ -1,0 +1,40 @@
+language js
+
+or {
+  `import $_ from $source` where {
+    $source <: or {
+      `'lodash'`,
+      `"lodash"`,
+      `'lodash-es'`,
+      `"lodash-es"`
+    },
+    register_diagnostic(span=$source, message="low-end Android budget: do not import lodash — use a per-method import or a small local helper.", severity="error")
+  },
+  `import $_ from $source` where {
+    $source <: or {
+      `'moment'`,
+      `"moment"`,
+      `'moment/$rest'`,
+      `"moment/$rest"`
+    },
+    register_diagnostic(span=$source, message="low-end Android budget: do not import moment — use injected Clock / Timers or a tiny date helper.", severity="error")
+  },
+  `import $_ from $source` where {
+    $source <: or {
+      `'jquery'`,
+      `"jquery"`,
+      `'jquery/$rest'`,
+      `"jquery/$rest"`
+    },
+    register_diagnostic(span=$source, message="low-end Android budget: do not import jquery.", severity="error")
+  },
+  `import $_ from $source` where {
+    $source <: or {
+      `'rxjs'`,
+      `"rxjs"`,
+      `'rxjs/$rest'`,
+      `"rxjs/$rest"`
+    },
+    register_diagnostic(span=$source, message="low-end Android budget: do not import rxjs.", severity="error")
+  }
+}

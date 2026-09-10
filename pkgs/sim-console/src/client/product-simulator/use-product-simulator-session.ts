@@ -23,7 +23,9 @@ type BootOutcome =
   | null;
 
 async function bootSession(args: {
-  readonly boot: (opts?: BootProductSimulatorOptions) => Promise<ProductSimulatorSession>;
+  readonly boot: (
+    opts?: BootProductSimulatorOptions
+  ) => Promise<ProductSimulatorSession>;
   readonly skip: boolean;
   readonly isCancelled: () => boolean;
 }): Promise<BootOutcome> {
@@ -44,7 +46,9 @@ async function bootSession(args: {
 
 /** Serialize teardown and boot so SQLite handles never overlap. */
 export function useProductSimulatorSession(
-  bootProductSimulator: (opts?: BootProductSimulatorOptions) => Promise<ProductSimulatorSession>,
+  bootProductSimulator: (
+    opts?: BootProductSimulatorOptions
+  ) => Promise<ProductSimulatorSession>,
   active: Accessor<boolean>
 ): UseProductSimulatorSessionResult {
   const [state, setState] = createSignal<ProductSimulatorSessionState>({

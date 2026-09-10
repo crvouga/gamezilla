@@ -30,7 +30,9 @@ function decodeObjectKey(pathname: string): string | null {
   if (!pathname.startsWith(`${PRODUCT_SIMULATOR_SNAPSHOT_OBJECTS_PATH}/`)) {
     return null;
   }
-  const raw = pathname.slice(PRODUCT_SIMULATOR_SNAPSHOT_OBJECTS_PATH.length + 1);
+  const raw = pathname.slice(
+    PRODUCT_SIMULATOR_SNAPSHOT_OBJECTS_PATH.length + 1
+  );
   if (raw.length === 0) return null;
   try {
     return raw

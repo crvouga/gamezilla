@@ -1,10 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
- * Boot paint latch: the product navigator paints only once web fonts and the
- * identity-scoped local SQLite engine are ready. Never waits on network
- * first-sync. Fonts come from CSS `@font-face` (`styles/base.css`);
- * `document.fonts.ready` marks the latch (immediately when the Font Loading
- * API is absent, e.g. happy-dom).
+ * Boot paint latch: the product navigator paints only once fonts (system stack
+ * / `document.fonts.ready`) and the identity-scoped local SQLite engine are
+ * ready. Never waits on network first-sync. Prefer no webfonts on the critical
+ * path (see docs/low-end-android-perf.md).
  *
  * The RN latch also waited on the Skia chess canvas warm-up; the chess board
  * port owns that preload when its screen lands.
