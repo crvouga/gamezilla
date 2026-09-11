@@ -17,15 +17,12 @@ export const PRODUCT_CONFIG = {
      */
     roomWorker: 'gamezilla-room-production',
     /**
-     * Assets-only production Worker. Top-level `name` in `apps/client/wrangler.toml`
-     * is `gamezilla-client`; `wrangler deploy --env production` publishes as this.
+     * Assets-only production Worker (super-app). Top-level `name` in
+     * `apps/product/wrangler.toml` is `gamezilla-client`; `wrangler deploy
+     * --env production` publishes as this. Serves `/` (wall client) and
+     * `/console` (Tests + Simulator).
      */
     clientWorker: 'gamezilla-client-production',
-    /**
-     * Assets-only Console Worker. Top-level `name` in `apps/product/wrangler.toml`
-     * is `gamezilla-console`; `wrangler deploy --env production` publishes as this.
-     */
-    consoleWorker: 'gamezilla-console-production',
   },
 
   postgres: {

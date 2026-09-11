@@ -90,7 +90,7 @@ Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs
 
 The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
 
-1. **One GitHub Actions job runs `bun run deploy`.** The turbo graph includes the full check leaf set (same as flattened `bun check:full`: `//#lint:biome`, `tc`, `test`, `@apps/client#check:critical-path`, `@apps/client#check:lighthouse`, `@apps/server#build`, `@apps/room-server#build`, `//#ci:syncpack`, `//#ci:depcruise`, `//#ci:audit`, `//#ci:i18n`, `//#lint:eslint`, `test:contract`, `test:e2e`, billing catalog checks, `@tools#check:static`, `@libs/secrets#check`) plus live `@apps/server#check:api`, client bundle-budget, provision/migrate/deploy/smoke/OTA. Local `bun check` is the fast half only; `bun check:full` is the offline CD gate without shipping. **Never put `//#check` or `//#check:full` in `deploy.dependsOn`** — Turbo would execute the root script and recurse. **Never use unscoped `build` in `check` / `check:full`** — only `@apps/server#build` and `@apps/room-server#build` (no-op); the production web bundle is built once inside `@apps/client#deploy`. `@libs/secrets#check` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`, set by `turbo-ci-run`). PRs and main use the same `bun run deploy` command; `SECRETS_ENV` (OIDC-injected in CI) controls dry-run vs apply. The deploy job uses `ubuntu-latest-8-cores` (32 GB) with `NODE_OPTIONS=--max-old-space-size=8192` for the bundler.
+1. **One GitHub Actions job runs `bun run deploy`.** The turbo graph includes the full check leaf set (same as flattened `bun check:full`: `//#lint:biome`, `tc`, `test`, `@apps/client#check:critical-path`, `@apps/client#check:lighthouse`, `@apps/server#build`, `@apps/room-server#build`, `//#ci:syncpack`, `//#ci:depcruise`, `//#ci:audit`, `//#ci:i18n`, `//#lint:eslint`, `test:contract`, `test:e2e`, billing catalog checks, `@tools#check:static`, `@libs/secrets#check`) plus live `@apps/server#check:api`, client bundle-budget, provision/migrate/deploy/smoke/OTA. Local `bun check` is the fast half only; `bun check:full` is the offline CD gate without shipping. **Never put `//#check` or `//#check:full` in `deploy.dependsOn`** — Turbo would execute the root script and recurse. **Never use unscoped `build` in `check` / `check:full`** — only `@apps/server#build` and `@apps/room-server#build` (no-op); the production web bundle is built once inside `@apps/product#deploy`. `@libs/secrets#check` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`, set by `turbo-ci-run`). PRs and main use the same `bun run deploy` command; `SECRETS_ENV` (OIDC-injected in CI) controls dry-run vs apply. The deploy job uses `ubuntu-latest-8-cores` (32 GB) with `NODE_OPTIONS=--max-old-space-size=8192` for the bundler.
 2. **Non-Turbo tasks are folded into package turbo tasks.** `@tools#check:static` runs actionlint + gitleaks (Turbo-cached; vocab is covered by `//#lint:vocab`). `@apps/server#check:api` boots wrangler preview and probes `/api/health` on `deploy` (not in `bun check` / `bun check:full`).
 3. **The production deploy is one atomic `deploy` job.** Checkout + setup + secrets-auth, then `bun run deploy` (same command locally). Turbo runs the full check graph, then provision/migrate/deploy/smoke/OTA. `SECRETS_ENV=prd` applies; anything else dry-runs remotes.
 
@@ -98,7 +98,7 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 ## Local development
 
-**Manual work is the product console.** `bun run dev` starts **only `@apps/product`** (Tests + Simulator; default SQL fabric is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. The product web app is separate (`bun run dev:client` → `@apps/client`).
+**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Tests + Simulator at `/console`; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients; reports on port 7789). It does **not** start Wrangler, real Postgres, MinIO, or EMQX. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
 Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
@@ -107,8 +107,8 @@ Representativeness of production is **port contract matrices** (postgres-mem / s
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + Cloudflare R2 (+ Railway EMQX) only.
 
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
-- **`bun run dev`** — `@apps/product` (Tests + Simulator). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
-- **`bun run dev:client`** — `@apps/client` product app only (no console chrome).
+- **`bun run dev`** — `@apps/product` super-app (`/` = real client, `/console` = Tests + Simulator). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
+- **`bun run dev:client`** — `@apps/client` standalone only (no product console).
 - **Sign-in in the simulator** — Dev social against the in-process sim API.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
 - **`bun db:migrate`** — migrates `DATABASE_URL` (CI / after booting embedded Postgres). Not part of daily `bun dev`.
@@ -143,7 +143,7 @@ Workspace packages live under three top-level tier directories with matching npm
 
 | Tier | Path    | Scope    | Contains                                                           |
 | ---- | ------- | -------- | ------------------------------------------------------------------ |
-| Apps | `apps/` | `@apps/` | Deployed product surfaces (`client`, `server`, `room-server`) plus the composition hub `product` (shared System + hosts, `bun dev` Tests + Simulator, `openSim` / scenarios). |
+| Apps | `apps/` | `@apps/` | Deployed product surfaces (`server`, `room-server`) plus the composition hub `product` (www super-app: wall client + Tests/Simulator, shared System + hosts, `openSim` / scenarios). `@apps/client` remains a standalone library/app for local `dev:client` (not deployed). |
 | Libs | `libs/` | `@libs/` | Product-flavored reusable code (`chess`, `auth`, `spaces`, …).     |
 | Pkgs | `pkgs/` | `@pkgs/` | Agnostic utilities, framework, CLIs, dev infra, runnable examples. |
 
@@ -191,7 +191,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@apps/product` — shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`), plus the console (`bun dev` Tests + Simulator) and the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@apps/product` — www super-app (`/` wall client, `/console` Tests + Simulator), shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`), plus the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 

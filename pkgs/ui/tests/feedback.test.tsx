@@ -2,6 +2,7 @@
 import {
   DismissibleBanner,
   DismissibleBannerPortalProvider,
+  InFlowBanner,
 } from '@pkgs/ui/components/dismissible-top-banner';
 import { EmptyState } from '@pkgs/ui/components/empty-state';
 import { ErrorState } from '@pkgs/ui/components/error-state';
@@ -211,6 +212,28 @@ describe('Tooltip', () => {
     expect(bubble.className).toMatch(/end/);
     expect(bubble.className).toMatch(/bottom/);
     expect(bubble.className).not.toMatch(/center/);
+  });
+});
+
+describe('InFlowBanner', () => {
+  test('portals custom chrome into the in-flow host', () => {
+    renderUi(() => (
+      <DismissibleBannerPortalProvider>
+        <p data-testid="body">{'body'}</p>
+        <InFlowBanner>
+          <div data-testid="custom-banner">{'perf'}</div>
+        </InFlowBanner>
+      </DismissibleBannerPortalProvider>
+    ));
+    const banner = screen.getByTestId('custom-banner');
+    const host = banner.closest(
+      '[data-component="DismissibleBannerPortalHost"]'
+    );
+    if (host === null) throw new Error('banner not in portal host');
+    expect(host.getAttribute('data-position')).toBe('top');
+    expect(host.compareDocumentPosition(screen.getByTestId('body'))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
   });
 });
 

@@ -540,10 +540,6 @@
       "cache": false,
       "dependsOn": ["@apps/room-server#deploy"]
     },
-    "@apps/client#deploy": {
-      "cache": false,
-      "dependsOn": ["@apps/server#deploy"]
-    },
     "@apps/product#deploy": {
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
@@ -554,11 +550,7 @@
     },
     "@apps/server#smoke": {
       "cache": false,
-      "dependsOn": [
-        "@apps/client#deploy",
-        "@apps/product#deploy",
-        "@libs/billing#billing:sync"
-      ]
+      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"]
     },
     "deploy": {
       "cache": false,

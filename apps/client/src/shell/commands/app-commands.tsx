@@ -12,12 +12,15 @@
 import { useLingui } from '@lingui/solid/macro';
 import {
   type Command,
+  FlaskConicalIcon,
   PaintbrushIcon,
   useRegisterCommands,
   useRouter,
   useThemePreference,
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
+
+import { useEmbeddedApp } from '../embedded-app-context';
 
 const NAV_TARGETS: readonly {
   readonly href: string;
@@ -37,11 +40,15 @@ const NAV_TARGETS: readonly {
   { href: '/ui', title: 'UI explorer' },
 ];
 
+/** Super-app Tests + Simulator chrome (`apps/product`); not an in-app route. */
+const CONSOLE_PATH = '/console';
+
 function NavigationCommands(): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
-  useRegisterCommands(() =>
-    NAV_TARGETS.map(
+  const embedded = useEmbeddedApp();
+  useRegisterCommands(() => [
+    ...NAV_TARGETS.map(
       (node): Command => ({
         id: `nav:${node.href}`,
         title: t`Go to ${node.title}`,
@@ -50,8 +57,20 @@ function NavigationCommands(): JSX.Element {
           router.push(node.href);
         },
       })
-    )
-  );
+    ),
+    {
+      id: `nav:${CONSOLE_PATH}`,
+      title: t`Go to Console`,
+      category: t`Navigation`,
+      icon: FlaskConicalIcon,
+      keywords: [t`tests`, t`simulator`, t`dev`],
+      // Embedded simulator panels share the page with the console host.
+      visible: !embedded,
+      run: () => {
+        window.location.assign(CONSOLE_PATH);
+      },
+    },
+  ]);
   return null;
 }
 

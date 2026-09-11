@@ -8,9 +8,10 @@
  * mark the paint latch through `document.fonts.ready`; the RN suspense root is
  * not needed (Solid `lazy` routes suspend inside the router outlet).
  *
- * `PerfRoot` (perf HUD preference + sampler + overlay) mounts inside the
- * theme so the `/more/performance` toggle and the palette commands share one
- * preference.
+ * `PerfRoot` (perf HUD preference + sampler) mounts inside the theme so the
+ * `/more/performance` toggle and the palette commands share one preference.
+ * The HUD banner itself mounts in `AppUiProvider` via the in-flow banner
+ * portal so it pushes content instead of covering it.
  */
 
 import { I18nProvider } from '@lingui/solid';

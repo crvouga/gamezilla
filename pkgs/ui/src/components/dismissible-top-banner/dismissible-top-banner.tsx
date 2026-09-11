@@ -1,12 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
- * Dismissible banner anchored to the top or bottom edge. Renders into
- * {@link DismissibleBannerPortalProvider}'s in-flow host slots via
- * `solid-js/web` `Portal` (mount the provider once at app root, inside the
- * theme root). Banners participate in layout — they push app content rather
- * than covering it.
+ * In-flow top/bottom banners. Mount {@link DismissibleBannerPortalProvider}
+ * once at the app root (inside the theme root); banners portal into its host
+ * slots and push app content rather than covering it.
  *
- * Mount and dismiss are instant (no slide animation) for low-end Android.
+ * Use {@link InFlowBanner} for custom banner chrome (e.g. perf HUD) and
+ * {@link DismissibleBanner} for the standard dismissible sheet. Mount and
+ * dismiss are instant (no slide animation) for low-end Android.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -72,7 +72,40 @@ export function DismissibleBannerPortalProvider(
 }
 
 const MISSING_PORTAL_MSG =
-  'DismissibleBanner requires DismissibleBannerPortalProvider at the app root. Wrap your app inside the theme root with <DismissibleBannerPortalProvider>…</DismissibleBannerPortalProvider>.';
+  'In-flow banners require DismissibleBannerPortalProvider at the app root. Wrap your app inside the theme root with <DismissibleBannerPortalProvider>…</DismissibleBannerPortalProvider>.';
+
+export type InFlowBannerProps = {
+  children: JSX.Element;
+  /** Edge host to mount into. Default `top`. */
+  position?: DismissibleBannerPosition | undefined;
+  /** When false, nothing is rendered (missing portal is ignored). Default true. */
+  visible?: boolean | undefined;
+};
+
+/** Portal arbitrary chrome into an in-flow banner host (pushes app content). */
+export function InFlowBanner(props: InFlowBannerProps): JSX.Element {
+  const portal = useContext(DismissibleBannerPortalContext);
+  const position = (): DismissibleBannerPosition => props.position ?? 'top';
+  const visible = (): boolean => props.visible ?? true;
+
+  createEffect(() => {
+    if (portal === null && visible()) throw new Error(MISSING_PORTAL_MSG);
+  });
+
+  return (
+    <Show when={portal?.host(position())}>
+      {(host) => (
+        <Portal mount={host()}>
+          <Show when={visible()}>
+            <div class="box w-full overflow-hidden shrink-0">
+              {props.children}
+            </div>
+          </Show>
+        </Portal>
+      )}
+    </Show>
+  );
+}
 
 export type DismissibleBannerProps = {
   visible: boolean;
@@ -181,39 +214,27 @@ function DismissibleBannerFrame(
 }
 
 export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
-  const portal = useContext(DismissibleBannerPortalContext);
   const position = (): DismissibleBannerPosition => props.position ?? 'top';
   const tone = (): DismissibleBannerTone => props.tone ?? 'paper';
 
-  // A visible banner without a host is a wiring bug; a hidden one is inert.
-  createEffect(() => {
-    if (portal === null && props.visible) throw new Error(MISSING_PORTAL_MSG);
-  });
-
   return (
-    <Show when={portal?.host(position())}>
-      {(host) => (
-        <Portal mount={host()}>
-          <Show when={props.visible}>
-            <div
-              class="box w-full overflow-hidden"
-              role="status"
-              {...dataAttrs({
-                component: 'DismissibleBanner',
-                position: position(),
-                ...props.dataSet,
-              })}
-            >
-              <DismissibleBannerFrame
-                {...props}
-                position={position()}
-                tone={tone()}
-                dismiss={() => props.onDismiss()}
-              />
-            </div>
-          </Show>
-        </Portal>
-      )}
-    </Show>
+    <InFlowBanner position={position()} visible={props.visible}>
+      <div
+        class="box w-full"
+        role="status"
+        {...dataAttrs({
+          component: 'DismissibleBanner',
+          position: position(),
+          ...props.dataSet,
+        })}
+      >
+        <DismissibleBannerFrame
+          {...props}
+          position={position()}
+          tone={tone()}
+          dismiss={() => props.onDismiss()}
+        />
+      </div>
+    </InFlowBanner>
   );
 }

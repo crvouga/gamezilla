@@ -18,6 +18,7 @@
       "!**/*.lock",
       "!apps/client/src/i18n/locales/*/messages.ts",
       "!apps/client/public/sql-workers/**/*.js",
+      "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
       "!pkgs/emqx-server/src/railway/railway-graphql/graphql-env.d.ts",
@@ -73,6 +74,7 @@
       "!**/lingui.config.*",
       "!**/*.html",
       "!apps/client/public/sql-workers/**/*.js",
+      "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/babel-plugins/**"
     ],

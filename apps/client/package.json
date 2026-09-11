@@ -32,6 +32,11 @@
       "./src/chrome/*.ts",
       "./src/chrome/*.tsx",
       "./src/chrome/*/index.ts"
+    ],
+    "./config/*": [
+      "./src/config/*.ts",
+      "./src/config/*.tsx",
+      "./src/config/*/index.ts"
     ]
   },
   "scripts": {
@@ -44,7 +49,6 @@
     "check:production-compression": "bun run ../../tools/scripts/check-production-compression.ts",
     "check:production-dist": "bun run scripts/production-bundle-guard-cli.ts check-dist",
     "check:production-env": "bun run scripts/production-bundle-guard-cli.ts check-env",
-    "deploy": "bun run scripts/deploy.ts",
     "predev": "bun run --cwd ../.. i18n:compile",
     "dev": "bun run scripts/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",

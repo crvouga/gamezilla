@@ -32,6 +32,7 @@ import {
 import { type JSX, Show } from 'solid-js';
 import { AppCommands } from '../commands/app-commands';
 import { useEmbeddedApp } from '../embedded-app-context';
+import { PerfHudOverlay } from '../perf/perf-hud-overlay';
 import { PwaUpdatePromptBanner } from '../pwa/update-prompt';
 
 function AppCommandRegistry(props: {
@@ -72,6 +73,7 @@ export function AppUiProvider(props: {
       <SurfaceStackProvider>
         <DismissibleBannerPortalProvider>
           <OfflineIndicator />
+          <PerfHudOverlay />
           <AppCommandRegistry>{props.children}</AppCommandRegistry>
         </DismissibleBannerPortalProvider>
       </SurfaceStackProvider>

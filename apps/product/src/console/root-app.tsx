@@ -37,7 +37,13 @@ function ConsoleBody(props: { readonly ports: SimConsolePorts }): JSX.Element {
       instance={nav.state.simulator.instance}
       panes={nav.state.simulator.panes}
       tests={nav.state.tests}
-      onSectionChange={(section) => nav.patch({ section })}
+      onSectionChange={(section) => {
+        if (section === 'app') {
+          window.location.assign('/');
+          return;
+        }
+        nav.patch({ section });
+      }}
       onKindChange={(kind) => nav.patch({ simulator: { kind } })}
       onInstanceChange={(instance) => nav.patch({ simulator: { instance } })}
       onPanePatch={(id, patch, mode = 'push') =>

@@ -5,4 +5,6 @@ export {
   type DismissibleBannerPosition,
   type DismissibleBannerProps,
   type DismissibleBannerTone,
+  InFlowBanner,
+  type InFlowBannerProps,
 } from './dismissible-top-banner';

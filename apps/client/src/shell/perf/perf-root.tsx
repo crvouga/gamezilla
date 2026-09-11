@@ -1,14 +1,14 @@
 /** @jsxImportSource solid-js */
 /**
- * Wires preference + sampler + HUD overlay under the app shell. The sampler
- * defaults to the browser wall adapter on the injected timers; tests and
- * sims pass their own.
+ * Wires preference + sampler under the app shell. The HUD banner mounts
+ * inside `DismissibleBannerPortalProvider` (`AppUiProvider`) so it stays
+ * in-flow. The sampler defaults to the browser wall adapter on the injected
+ * timers; tests and sims pass their own.
  */
 
 import { useTimers } from '@pkgs/clock/solid';
 import { type JSX, untrack } from 'solid-js';
 
-import { PerfHudOverlay } from './perf-hud-overlay';
 import {
   PerfHudPreferenceProvider,
   usePerfHudPreference,
@@ -25,7 +25,6 @@ function PerfHudGate(props: {
   return (
     <PerfSamplerProvider sampler={props.sampler} active={enabled}>
       {props.children}
-      <PerfHudOverlay />
     </PerfSamplerProvider>
   );
 }

@@ -131,6 +131,7 @@
         "@apps/server": "workspace:*",
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
+        "@libs/client-config": "workspace:*",
         "@libs/db": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/notifications": "workspace:*",
@@ -209,6 +210,7 @@
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plugin-solid": "catalog:",
+        "workbox-build": "catalog:",
       },
     },
     "apps/room-server": {

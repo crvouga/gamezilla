@@ -1,4 +1,9 @@
-import { FlaskConicalIcon, MonitorPlayIcon, TabStrip } from '@pkgs/ui';
+import {
+  FlaskConicalIcon,
+  Gamepad2Icon,
+  MonitorPlayIcon,
+  TabStrip,
+} from '@pkgs/ui';
 import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
 
 import type { SimConsolePorts } from '../shared/ports';
@@ -16,9 +21,11 @@ import { NotebookStoreProvider } from './sql-notebook/notebook-store-context';
 import { appShellSx } from './tokens';
 import { useReportData } from './use-report-data';
 
-export type ConsoleSection = 'tests' | 'simulator';
+/** Chrome sections. `app` navigates to `/` (host handles; not a console view). */
+export type ConsoleSection = 'app' | 'tests' | 'simulator';
 
 const SECTIONS = [
+  { id: 'app', label: 'App', icon: Gamepad2Icon },
   { id: 'tests', label: 'Tests', icon: FlaskConicalIcon },
   { id: 'simulator', label: 'Simulator', icon: MonitorPlayIcon },
 ] as const;

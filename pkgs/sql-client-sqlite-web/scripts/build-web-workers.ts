@@ -24,6 +24,7 @@ const sqlHostSharedOptions = (): esbuild.BuildOptions => ({
 /** Every `sql-workers/` directory the built assets are published into. */
 export const sqlWorkerDirs = [
   join(pkgRoot, '../../apps/client/public/sql-workers'),
+  join(pkgRoot, '../../apps/product/public/sql-workers'),
   join(pkgRoot, 'e2e/public/sql-workers'),
 ];
 

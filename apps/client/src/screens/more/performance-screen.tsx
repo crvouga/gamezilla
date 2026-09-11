@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
- * `/more/performance` — toggles the perf HUD overlay (`PerfRoot`) and shows
- * the live sampler metrics while it is on.
+ * `/more/performance` — toggles the perf HUD top banner (`PerfRoot`) and
+ * shows the live sampler metrics while it is on.
  */
 
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -55,7 +55,7 @@ export function PerformanceSettingsScreen(): JSX.Element {
           <MenuSection
             footer={
               <Trans>
-                Shows a live FPS / INP overlay. Useful for diagnosing jank on
+                Shows a live FPS / INP top banner. Useful for diagnosing jank on
                 low-end devices. Off by default.
               </Trans>
             }
