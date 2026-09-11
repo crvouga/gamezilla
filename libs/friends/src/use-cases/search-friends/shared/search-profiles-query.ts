@@ -34,12 +34,11 @@ export const searchProfiles = defineQuery({
   name: 'searchProfiles',
   params: z.object({
     query: z.string().min(1).max(64),
-    limit: z.number().int().min(1).max(USER_SEARCH_MAX_RESULTS).optional(),
   }),
   sampleParams: { query: 'a' },
   limit: USER_SEARCH_MAX_RESULTS,
   entryChannel: false,
-  async run(ctx, { query, limit }) {
+  async run(ctx, { query }) {
     const viewerId = ctx.env.actorId;
     if (viewerId.length === 0) {
       return { profile: [] };
@@ -47,34 +46,21 @@ export const searchProfiles = defineQuery({
     if (isRateLimited(viewerId, ctx.env.now().getTime())) {
       return { profile: [] };
     }
-    const boundedLimit = Math.min(
-      Math.max(limit ?? USER_SEARCH_MAX_RESULTS, 1),
-      USER_SEARCH_MAX_RESULTS
-    );
     const likeQuery = `${query.trim().toLowerCase()}%`;
     const rows = await ctx.db.query(sql`
       SELECT
-        p.id,
-        p.created_at,
-        p.username,
-        p.avatar_config,
-        p.username_changed_at,
-        p.deleted_at
-      FROM profile AS p
-      WHERE p.id <> ${viewerId}
-        AND NOT EXISTS (
-          SELECT 1
-          FROM friends_blocks AS b
-          WHERE b.deleted_at IS NULL
-            AND (
-              (b.blocker_id = ${viewerId} AND b.blocked_id = p.id)
-              OR (b.blocker_id = p.id AND b.blocked_id = ${viewerId})
-            )
-        )
-        AND p.username <> ''
-        AND lower(p.username) LIKE ${likeQuery}
-      ORDER BY lower(p.username) ASC
-      LIMIT ${boundedLimit}
+        id,
+        created_at,
+        username,
+        avatar_config,
+        username_changed_at,
+        username_norm,
+        deleted_at
+      FROM profile
+      WHERE id <> ${viewerId}
+        AND username_norm <> ''
+        AND username_norm LIKE ${likeQuery}
+      ORDER BY username_norm ASC
     `);
     return { profile: rows };
   },

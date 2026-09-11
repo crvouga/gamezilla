@@ -41,14 +41,14 @@ function findKingSquare(
   return null;
 }
 
-function useSpokenLastMove(ctrl: BoardController): Accessor<string> {
+function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
   const [liveMessage, setLiveMessage] = createSignal('');
   createEffect(
     on(
-      () => ctrl.model.game().lastMove,
+      () => getCtrl().model.game().lastMove,
       (move) => {
         if (move === null) return;
-        const g = ctrl.model.game();
+        const g = getCtrl().model.game();
         const piece = g.position[indexFromSquare(move.to)];
         setLiveMessage(
           speakMove({
@@ -84,7 +84,7 @@ function BoardBody(args: {
   const game = () => args.ctrl.model.game();
   const ix = () => args.ctrl.model.interaction();
   const premove = () => ix().premove;
-  const liveMessage = useSpokenLastMove(args.ctrl);
+  const liveMessage = useSpokenLastMove(() => args.ctrl);
   return (
     <>
       <ChessBoardLiveRegion message={liveMessage} />

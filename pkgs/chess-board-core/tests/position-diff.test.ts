@@ -2,8 +2,8 @@ import { describe, expect, test } from 'bun:test';
 import { planPositionDiff } from '@pkgs/chess-board-core/animation/position-diff';
 import { ChessGame } from '@pkgs/chess-board-core/game';
 import {
-  createPieceRowsTracker,
   type ChessPieceRow,
+  createPieceRowsTracker,
 } from '@pkgs/chess-board-core/piece-rows';
 import type { Move, Square } from '@pkgs/chess-board-core/types';
 

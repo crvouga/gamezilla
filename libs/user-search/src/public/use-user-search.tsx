@@ -48,8 +48,8 @@ function searchHitsSql(myId: string, query: string): Sql<SearchHitRow> {
     FROM profile AS p
     WHERE p.id <> ${myId}
       AND p.deleted_at IS NULL
-      AND p.username <> ''
-      AND lower(p.username) LIKE ${likeQuery}
+      AND p.username_norm <> ''
+      AND p.username_norm LIKE ${likeQuery}
       AND NOT EXISTS (
         SELECT 1
         FROM friends_blocks AS b
@@ -59,7 +59,7 @@ function searchHitsSql(myId: string, query: string): Sql<SearchHitRow> {
             OR (b.blocker_id = p.id AND b.blocked_id = ${myId})
           )
       )
-    ORDER BY lower(p.username) ASC
+    ORDER BY p.username_norm ASC
     LIMIT ${USER_SEARCH_MAX_RESULTS}
   `;
 }

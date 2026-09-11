@@ -766,10 +766,6 @@ msgstr "End space?"
 msgid "Ending space…"
 msgstr "Ending space…"
 
-#: libs/spaces/src/root/client/space-users/space-share-add-people.tsx
-msgid "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
-msgstr "Enter at least {USER_SEARCH_MIN_LENGTH} characters"
-
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Error state"
 msgstr "Error state"
@@ -972,10 +968,6 @@ msgstr "Joining…"
 #: pkgs/ui/src/components/relative-time/relative-time.tsx
 msgid "just now"
 msgstr "just now"
-
-#: libs/user-search/src/public/use-user-search.tsx
-msgid "Keep typing — at least {USER_SEARCH_MIN_LENGTH} characters"
-msgstr "Keep typing — at least {USER_SEARCH_MIN_LENGTH} characters"
 
 #: apps/client/src/screens/more/sync-screen.tsx
 msgid "Last error"

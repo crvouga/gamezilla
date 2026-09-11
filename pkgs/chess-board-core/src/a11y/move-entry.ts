@@ -13,14 +13,20 @@ export type MoveEntryCandidate = {
 
 export type MoveEntryResult =
   | { readonly kind: 'exact'; readonly move: MoveEntryCandidate }
-  | { readonly kind: 'ambiguous'; readonly matches: readonly MoveEntryCandidate[] }
+  | {
+      readonly kind: 'ambiguous';
+      readonly matches: readonly MoveEntryCandidate[];
+    }
   | { readonly kind: 'none' };
 
 const UCI_RE = /^([a-h][1-8])([a-h][1-8])([qrbn])?$/i;
 
 /** Normalize user text: trim, lower, strip separators. */
 export function normalizeMoveEntry(text: string): string {
-  return text.trim().toLowerCase().replace(/[\s\-_]+/g, '');
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/[\s\-_]+/g, '');
 }
 
 /**

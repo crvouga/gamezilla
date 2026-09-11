@@ -22,10 +22,7 @@ export function castleDropTargets(leg: CastleLeg): readonly Square[] {
  * If `to` is the rook square for this leg, rewrite the king destination to the
  * standard king landing square (`kingTo`).
  */
-export function normalizeCastleDrop(
-  leg: CastleLeg,
-  to: Square
-): Square | null {
+export function normalizeCastleDrop(leg: CastleLeg, to: Square): Square | null {
   if (to === leg.kingTo) return leg.kingTo;
   if (to === leg.rookFrom) return leg.kingTo;
   return null;

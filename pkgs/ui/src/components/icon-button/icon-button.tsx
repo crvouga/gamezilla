@@ -31,11 +31,7 @@ import { useTimers } from '@pkgs/clock/solid';
 import { type JSX, Show, untrack } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorProvider, resolveColor, useThemeTokens } from '../../theme';
-import {
-  Tooltip,
-  type TooltipPlacement,
-  useTooltipTrigger,
-} from '../tooltip';
+import { Tooltip, type TooltipPlacement, useTooltipTrigger } from '../tooltip';
 
 export type IconButtonVariant = 'icon' | 'avatar';
 

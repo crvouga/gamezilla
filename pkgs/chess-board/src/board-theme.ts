@@ -113,9 +113,7 @@ export function mergeBoardTheme(
 }
 
 /** Host CSS custom properties for square / overlay / chrome colors. */
-export function boardThemeToCssVars(
-  theme: BoardTheme
-): Record<string, string> {
+export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
   return {
     '--chess-sq-light': theme.lightSquare,
     '--chess-sq-dark': theme.darkSquare,

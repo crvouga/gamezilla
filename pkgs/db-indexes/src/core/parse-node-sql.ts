@@ -107,7 +107,7 @@ function emptyPred(): PredAccum {
   return { equality: [], range: [], orBranches: [], partial: null };
 }
 
-const RANGE_OPS = new Set(['>', '>=', '<', '<=', 'BETWEEN']);
+const RANGE_OPS = new Set(['>', '>=', '<', '<=', 'BETWEEN', 'LIKE', 'ILIKE']);
 
 function recordComparison(op: string, o: AstNode, acc: PredAccum): void {
   const leftCol = columnRef(o['left']);

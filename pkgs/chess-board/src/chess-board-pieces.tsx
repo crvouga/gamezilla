@@ -16,8 +16,8 @@ import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 
 import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
 import styles from './chess-board.module.css';
-import type { DragGhostController } from './drag-ghost-controller';
 import { bumpChessBoardRender } from './dev/render-counts';
+import type { DragGhostController } from './drag-ghost-controller';
 import { PIECE_IMAGE_URIS } from './piece-images';
 
 export type ChessBoardPiecesProps = {

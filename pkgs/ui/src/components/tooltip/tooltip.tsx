@@ -55,9 +55,7 @@ function tooltipSide(placement: TooltipPlacement): 'top' | 'bottom' {
   return placement.startsWith('top') ? 'top' : 'bottom';
 }
 
-function tooltipAlign(
-  placement: TooltipPlacement
-): 'start' | 'center' | 'end' {
+function tooltipAlign(placement: TooltipPlacement): 'start' | 'center' | 'end' {
   if (placement.endsWith('-start')) return 'start';
   if (placement.endsWith('-end')) return 'end';
   return 'center';

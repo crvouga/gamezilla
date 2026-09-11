@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
+import { ChessGame } from '@pkgs/chess-board-core/game';
+import { atomicExplosionSquares } from '@pkgs/chess-board-core/variants/atomic-explode';
 import {
   castleDropTargets,
   normalizeCastleDrop,
 } from '@pkgs/chess-board-core/variants/castling-dests';
-import { atomicExplosionSquares } from '@pkgs/chess-board-core/variants/atomic-explode';
-import { ChessGame } from '@pkgs/chess-board-core/game';
 
 describe('castleDropTargets', () => {
   test('includes king landing and rook square', () => {

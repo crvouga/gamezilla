@@ -25,8 +25,7 @@ export function speakMove(args: {
   readonly inCheck: boolean;
   readonly isCheckmate: boolean;
 }): string {
-  const name =
-    args.piece !== null ? pieceName(args.piece.type) : 'Piece';
+  const name = args.piece !== null ? pieceName(args.piece.type) : 'Piece';
   const capture =
     args.move.captured !== undefined
       ? ` takes ${args.move.to}`
@@ -52,7 +51,8 @@ export function describePosition(position: Position, turn: 'w' | 'b'): string {
   for (let i = 0; i < 64; i += 1) {
     const p = position[i];
     if (p === null || p === undefined) continue;
-    const sq = `${String.fromCharCode(97 + (i % 8))}${String.fromCharCode(49 + Math.floor(i / 8))}` as Square;
+    const sq =
+      `${String.fromCharCode(97 + (i % 8))}${String.fromCharCode(49 + Math.floor(i / 8))}` as Square;
     parts.push(
       `${p.color === 'w' ? 'White' : 'Black'} ${pieceName(p.type)} on ${sq}`
     );

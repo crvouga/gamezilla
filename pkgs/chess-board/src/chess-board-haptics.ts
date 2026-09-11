@@ -11,9 +11,12 @@ export type Haptics = {
 export function createBoardHaptics(enabled: () => boolean): Haptics {
   const vibrate = (pattern: number | number[]): void => {
     if (!enabled()) return;
-    const nav = globalThis.navigator;
-    if (nav === undefined || typeof nav.vibrate !== 'function') return;
-    nav.vibrate(pattern);
+    const vibrateFn = Reflect.get(globalThis.navigator, 'vibrate');
+    if (typeof vibrateFn !== 'function') return;
+    (vibrateFn as (this: Navigator, p: number | number[]) => boolean).call(
+      globalThis.navigator,
+      pattern
+    );
   };
   return {
     light: () => vibrate(8),

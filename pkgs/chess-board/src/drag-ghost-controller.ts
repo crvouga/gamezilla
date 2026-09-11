@@ -16,12 +16,7 @@ export type FrameCanceller = (id: number) => void;
 
 export type DragGhostController = {
   setElement(el: SVGElement | HTMLElement | null): void;
-  begin(args: {
-    code: PieceCode;
-    x: number;
-    y: number;
-    touch: boolean;
-  }): void;
+  begin(args: { code: PieceCode; x: number; y: number; touch: boolean }): void;
   /** rAF-batched; mutates transform only (no object alloc after begin). */
   moveTo(x: number, y: number): void;
   end(): void;

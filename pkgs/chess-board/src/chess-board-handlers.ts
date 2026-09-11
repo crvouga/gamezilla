@@ -12,14 +12,11 @@ import type {
 import type { Accessor, Setter } from 'solid-js';
 
 import { pxToUnits } from './board-units';
+import { brushFromModifiers, type UserShapes } from './chess-board-user-shapes';
 import type { ChessBoardModel } from './create-chess-board-model';
 import type { DragGhostController } from './drag-ghost-controller';
 import { isArrowKey, moveCursor } from './keyboard-nav';
 import type { PointerSession } from './pointer-session';
-import {
-  brushFromModifiers,
-  type UserShapes,
-} from './chess-board-user-shapes';
 
 function squareFromRect(args: {
   event: { clientX: number; clientY: number };
@@ -212,7 +209,11 @@ function createKeyPart(
       if (sq === null) return;
       args.userArrows.begin(
         sq,
-        brushFromModifiers(event.shiftKey, event.altKey, event.ctrlKey || event.metaKey)
+        brushFromModifiers(
+          event.shiftKey,
+          event.altKey,
+          event.ctrlKey || event.metaKey
+        )
       );
     },
   };

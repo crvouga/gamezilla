@@ -29,7 +29,7 @@ import {
   OverlayPortalProvider,
   SurfaceStackProvider,
 } from '@pkgs/ui';
-import { type JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { AppCommands } from '../commands/app-commands';
 import { useEmbeddedApp } from '../embedded-app-context';
 import { PwaUpdatePromptBanner } from '../pwa/update-prompt';
@@ -41,24 +41,26 @@ function AppCommandRegistry(props: {
   // Embedded: inherit the host column `KeyboardShortcutScope` (must create
   // the registry under that ancestor — do not pre-build JSX then wrap).
   // Standalone: always-active scope so nested hosts can still opt out.
-  if (embedded) {
-    return (
-      <CommandRegistryProvider enableDefaultShortcuts>
-        <AppCommands />
-        <CommandPalette />
-        {props.children}
-      </CommandRegistryProvider>
-    );
-  }
   return (
-    <KeyboardShortcutScope active>
+    <Show
+      when={embedded}
+      fallback={
+        <KeyboardShortcutScope active>
+          <CommandRegistryProvider enableDefaultShortcuts>
+            <AppCommands />
+            <CommandPalette />
+            {props.children}
+            <PwaUpdatePromptBanner />
+          </CommandRegistryProvider>
+        </KeyboardShortcutScope>
+      }
+    >
       <CommandRegistryProvider enableDefaultShortcuts>
         <AppCommands />
         <CommandPalette />
         {props.children}
-        <PwaUpdatePromptBanner />
       </CommandRegistryProvider>
-    </KeyboardShortcutScope>
+    </Show>
   );
 }
 

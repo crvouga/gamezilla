@@ -137,7 +137,9 @@ export function createPointerSession(
     },
     move(clientX, clientY) {
       if (state.kind !== 'press' || !state.owns) return false;
-      if (dist(state.startX, state.startY, clientX, clientY) < state.threshold) {
+      if (
+        dist(state.startX, state.startY, clientX, clientY) < state.threshold
+      ) {
         return false;
       }
       return promoteToDrag();

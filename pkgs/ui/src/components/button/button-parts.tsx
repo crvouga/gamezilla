@@ -103,14 +103,6 @@ function iconSidePad(size: ButtonSizeSpec): number {
   return size.iconSize + spacingScale(size.iconGap);
 }
 
-function hasLeadingIcon(props: ButtonContentProps): boolean {
-  return props.icon !== undefined || props.startIcon !== undefined;
-}
-
-function hasTrailingIcon(props: ButtonContentProps): boolean {
-  return props.endIcon !== undefined;
-}
-
 export function ButtonLabelText(props: {
   label: JSX.Element;
   size: ButtonSizeSpec;
@@ -203,13 +195,16 @@ function SizedLeadingIcon(props: ButtonContentProps): JSX.Element {
 }
 
 function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
-  const padded = (): boolean => hasLeadingIcon(props) || hasTrailingIcon(props);
+  const hasLeading = (): boolean =>
+    props.icon !== undefined || props.startIcon !== undefined;
+  const hasTrailing = (): boolean => props.endIcon !== undefined;
+  const padded = (): boolean => hasLeading() || hasTrailing();
   return (
     <CenteredLabelRow
       size={props.size}
       padded={padded()}
       leading={
-        <Show when={hasLeadingIcon(props)}>
+        <Show when={hasLeading()}>
           <IconRail side="start" size={props.size}>
             <SizedLeadingIcon {...props} />
             <Show when={props.startIcon !== undefined}>
@@ -219,7 +214,7 @@ function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
         </Show>
       }
       trailing={
-        <Show when={hasTrailingIcon(props)}>
+        <Show when={hasTrailing()}>
           <IconRail side="end" size={props.size}>
             <IconSlot size={props.size}>{props.endIcon}</IconSlot>
           </IconRail>

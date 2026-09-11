@@ -14,7 +14,7 @@ import type { ChessBoardProps } from './chess-board-types';
 import { ChessBoardView } from './chess-board-view';
 import type { SmartChessBoardProps } from './smart-chess-board-types';
 
-export type { ChessBoardProps, ChessBoardMovable } from './chess-board-types';
+export type { ChessBoardMovable, ChessBoardProps } from './chess-board-types';
 
 /**
  * Controlled board host. Interaction is enabled only when `movable` is set;

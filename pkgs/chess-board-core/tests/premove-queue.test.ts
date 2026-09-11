@@ -45,9 +45,7 @@ describe('createPremoveQueue', () => {
 
   test('stores promotion on queued premoves', () => {
     const q = createPremoveQueue();
-    expect(
-      q.enqueue({ from: 'e7', to: 'e8', promotion: 'n' })
-    ).toBe(true);
+    expect(q.enqueue({ from: 'e7', to: 'e8', promotion: 'n' })).toBe(true);
     expect(q.list()[0]?.promotion).toBe('n');
   });
 });

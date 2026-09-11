@@ -119,8 +119,8 @@ function SurfaceBody(props: {
 }
 
 /** True when the surface owns a body ScrollView (header stays pinned). */
-function surfaceScrolls(props: ResponsiveSurfaceProps): boolean {
-  return props.bodyHeight === undefined && (props.scroll ?? true);
+function surfaceScrolls(surface: ResponsiveSurfaceProps): boolean {
+  return surface.bodyHeight === undefined && (surface.scroll ?? true);
 }
 
 /**
@@ -137,8 +137,7 @@ function SurfaceChrome(props: {
   surface: ResponsiveSurfaceProps;
   maxHeight: number | undefined;
 }): JSX.Element {
-  const surface = props.surface;
-  const scroll = (): boolean => surfaceScrolls(surface);
+  const scroll = (): boolean => surfaceScrolls(props.surface);
   const shellStyle = (): JSX.CSSProperties => {
     const style: JSX.CSSProperties = {};
     if (props.maxHeight !== undefined) {
@@ -153,10 +152,10 @@ function SurfaceChrome(props: {
   };
   const header = (): JSX.Element => (
     <ResponsiveSurfaceHeader
-      title={surface.title}
-      onClose={surface.onClose}
-      closable={surface.closable}
-      closeDataSet={surface.closeDataSet}
+      title={props.surface.title}
+      onClose={props.surface.onClose}
+      closable={props.surface.closable}
+      closeDataSet={props.surface.closeDataSet}
     />
   );
   return (
@@ -177,12 +176,13 @@ function SurfaceChrome(props: {
               <>
                 {header()}
                 <SurfaceBody
-                  bodyHeight={surface.bodyHeight}
+                  bodyHeight={props.surface.bodyHeight}
                   fill={
-                    surface.bodyHeight !== undefined || surface.scroll === false
+                    props.surface.bodyHeight !== undefined ||
+                    props.surface.scroll === false
                   }
                 >
-                  {surface.children}
+                  {props.surface.children}
                 </SurfaceBody>
               </>
             }
@@ -203,7 +203,7 @@ function SurfaceChrome(props: {
                 'padding-bottom': 'var(--ui-space-6)',
               }}
             >
-              {surface.children}
+              {props.surface.children}
             </ScrollView>
           </Show>
         </div>

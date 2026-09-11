@@ -327,9 +327,7 @@ describe('shortcuts', () => {
     await user.keyboard(`{${MOD}>}k{/${MOD}}`);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Go to Spaces' })).toBeTruthy();
-    expect(
-      screen.queryByRole('option', { name: 'Use dark theme' })
-    ).toBeNull();
+    expect(screen.queryByRole('option', { name: 'Use dark theme' })).toBeNull();
   });
 });
 

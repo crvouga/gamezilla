@@ -4,8 +4,8 @@
  */
 
 import {
-  brushFromModifiers,
   type BoardShape,
+  brushFromModifiers,
   type ShapeBrush,
   toggleShape,
 } from '@pkgs/chess-board-core/shapes/board-shapes';

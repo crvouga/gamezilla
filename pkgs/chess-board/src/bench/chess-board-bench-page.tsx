@@ -6,7 +6,7 @@
 
 import type { Clock, Timers } from '@pkgs/clock';
 import { useClock, useTimers } from '@pkgs/clock/solid';
-import { type JSX, createSignal, For, Show } from 'solid-js';
+import { createSignal, For, type JSX, Show } from 'solid-js';
 
 import { SmartChessBoard } from '../smart-chess-board';
 import {
@@ -32,7 +32,9 @@ const DRAG_SIM_WORK = 64 * 100;
 function runDragSim(clock: Clock, pushLine: PushLine): void {
   const measure = measureSync(
     () => {
-      void DRAG_SIM_WORK;
+      let acc = 0;
+      for (let i = 0; i < DRAG_SIM_WORK; i += 1) acc += i;
+      return acc;
     },
     120,
     clock.now
@@ -93,16 +95,16 @@ function BenchToolbar(props: {
 }): JSX.Element {
   return (
     <div class="flex flex-wrap gap-2">
-      <button type="button" onClick={props.onDragSim}>
+      <button type="button" onClick={() => props.onDragSim()}>
         Run drag sim
       </button>
-      <button type="button" onClick={props.onScrub}>
+      <button type="button" onClick={() => props.onScrub()}>
         Scrub 200 plies
       </button>
-      <button type="button" onClick={props.onMountTwenty}>
+      <button type="button" onClick={() => props.onMountTwenty()}>
         Mount 20 boards
       </button>
-      <button type="button" onClick={props.onReset}>
+      <button type="button" onClick={() => props.onReset()}>
         Reset
       </button>
     </div>

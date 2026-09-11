@@ -5,7 +5,7 @@
  */
 
 import type { PieceCode } from '@pkgs/chess-board-core/types';
-import { type JSX, For } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 
 import { PIECE_IMAGE_URIS } from './piece-images';
 

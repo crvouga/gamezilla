@@ -64,9 +64,8 @@ describe('createDragGhostController', () => {
   it('cancelFrame is called on end while a frame is pending', () => {
     const cancel = vi.fn();
     let id = 0;
-    const schedule = (cb: FrameRequestCallback) => {
+    const schedule = (_cb: FrameRequestCallback) => {
       id += 1;
-      void cb;
       return id;
     };
     const ghost = createDragGhostController(schedule, cancel);

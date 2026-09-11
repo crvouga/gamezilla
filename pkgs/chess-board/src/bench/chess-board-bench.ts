@@ -113,9 +113,9 @@ export function generatePlyFens(count: number): string[] {
       i = 0;
       continue;
     }
-    const uci = FIXED_UCI[i]!;
+    const uci = FIXED_UCI.at(i);
     i += 1;
-    if (!tryApplyUci(game, uci)) {
+    if (uci === undefined || !tryApplyUci(game, uci)) {
       game.reset();
       i = 0;
     }

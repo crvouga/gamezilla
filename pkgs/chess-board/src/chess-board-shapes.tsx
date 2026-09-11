@@ -5,15 +5,14 @@
 
 import type { BoardShape } from '@pkgs/chess-board-core/shapes/board-shapes';
 import type {
+  BoardArrow,
   BoardOrientation,
   BoardTheme,
 } from '@pkgs/chess-board-core/types';
 import { For, type JSX, Show } from 'solid-js';
-
 import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
 import styles from './chess-board.module.css';
 import { ChessBoardArrows } from './chess-board-arrows';
-import type { BoardArrow } from '@pkgs/chess-board-core/types';
 
 export type ChessBoardShapesProps = {
   readonly orientation: BoardOrientation;

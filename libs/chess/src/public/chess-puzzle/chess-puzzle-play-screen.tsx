@@ -1,6 +1,6 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
 import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
+import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
 import { SpeakingAvatar, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, type JSX, Show } from 'solid-js';
 

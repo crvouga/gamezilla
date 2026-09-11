@@ -3,7 +3,12 @@
  * {@link isChessBoardDevInstrumentation} is true at counter creation time.
  */
 
-export type RenderLayer = 'squares' | 'pieces' | 'arrows' | 'feedback' | 'ghost';
+export type RenderLayer =
+  | 'squares'
+  | 'pieces'
+  | 'arrows'
+  | 'feedback'
+  | 'ghost';
 
 const LAYERS: readonly RenderLayer[] = [
   'squares',
@@ -33,9 +38,9 @@ export function createRenderCounter(enabled: boolean): RenderCounter {
   const counts = emptyCounts();
   if (!enabled) {
     return {
-      bump() {},
+      bump: (_layer: RenderLayer) => undefined,
       snapshot: () => counts,
-      reset() {},
+      reset: () => undefined,
     };
   }
   return {

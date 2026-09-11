@@ -24,9 +24,7 @@ import {
   createBoardHandlers,
 } from './chess-board-handlers';
 import { createChessBoardSounds } from './chess-board-sounds';
-import {
-  createUserShapes,
-} from './chess-board-user-shapes';
+import { createUserShapes } from './chess-board-user-shapes';
 import {
   type ChessBoardModel,
   createChessBoardModel,

@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { describePosition, speakMove } from '@pkgs/chess-board-core/a11y/speak-move';
 import { resolveMoveEntry } from '@pkgs/chess-board-core/a11y/move-entry';
+import {
+  describePosition,
+  speakMove,
+} from '@pkgs/chess-board-core/a11y/speak-move';
 import { ChessGame } from '@pkgs/chess-board-core/game';
 
 describe('speakMove', () => {
@@ -57,9 +60,11 @@ describe('resolveMoveEntry', () => {
   });
   test('none and ambiguous', () => {
     expect(resolveMoveEntry('a2a3', cands).kind).toBe('none');
-    expect(resolveMoveEntry('N', [
-      { from: 'g1', to: 'f3', san: 'Nf3' },
-      { from: 'b1', to: 'c3', san: 'Nc3' },
-    ]).kind).toBe('none');
+    expect(
+      resolveMoveEntry('N', [
+        { from: 'g1', to: 'f3', san: 'Nf3' },
+        { from: 'b1', to: 'c3', san: 'Nc3' },
+      ]).kind
+    ).toBe('none');
   });
 });
