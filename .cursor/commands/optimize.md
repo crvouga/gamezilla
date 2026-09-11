@@ -1,52 +1,60 @@
-# /optimize — performant across the full device/runtime spectrum
+# /optimize — performant across the full device/runtime matrix
 
 ## When to run
 
 Trigger whenever UI, shell chrome, overlays, or client runtime feel slow,
-animated, or indirect. Goal: **no jank anywhere in the target spectrum** —
-fast, instant, and responsive from the cheapest supported phone up to the
-best.
+animated, or indirect. Goal: **no jank anywhere we ship** — fast, instant,
+and responsive from the cheapest supported phone up to the best, in both
+the browser and the Capacitor-wrapped app.
 
-## Target spectrum (read first)
+## Target matrix (read first)
 
-This command optimizes for **two different failure modes at two different
-ends of the spectrum**, not one platform with a "good enough" bar:
+We ship on **two independent axes**, not one platform with a bar:
 
-- **Floor — low-end Android mobile web.** Android Go / ~2 GB class, Slow
-  3G–4G common in emerging markets. Failure mode: raw CPU/GPU/network
-  starvation. Fixing this is mostly about *doing less work* — fewer
-  reflows, less compositor churn, less JS on the main thread.
-- **Ceiling — high-end iOS via Capacitor.** Modern iPhone hardware, so raw
-  CPU/GPU is not the constraint. Failure mode is different in kind, not
-  just less severe:
-  - **WebKit, not Blink.** Compositing, `backdrop-filter`,
-    `position: sticky`/`fixed`, and shadow/filter rendering behave
-    differently in WKWebView than in Chrome. A fix tuned for Blink's
-    compositor isn't automatically correct for WebKit.
-  - **JavaScriptCore, not V8.** Different JIT warmup and GC behavior. Code
-    shaped around V8-specific costs may target the wrong thing here.
-  - **Native bridge overhead.** Capacitor plugin calls (haptics, storage,
-    status bar, etc.) cross a JS↔native bridge that plain mobile web never
-    pays for. Frequent small bridge calls on hot paths (scroll, drag,
-    per-frame handlers) can jank a Capacitor build even when the identical
-    DOM/JS is smooth in Chrome.
-  - **Different cold-start shape.** Capacitor typically bundles the shell
-    locally, so startup looks like parse + hydrate rather than network +
-    parse. Network/LCP budgets stop being the binding constraint there;
-    startup jank shows up in bridge init and plugin registration instead.
+- **Device tier:** low-end Android Go class (~2 GB RAM, Slow 3G–4G) up to
+  high-end recent iPhone.
+- **Runtime:** mobile web browser, and Capacitor-wrapped native app —
+  on both Android and iOS.
 
-**Being snappy on the floor does not imply being snappy on the ceiling,
-and vice versa.** A fix must not silently trade one for the other — e.g.
-don't add a per-tap Capacitor plugin call to work around a Blink-only
-layout quirk, and don't add compositor-heavy CSS to smooth over something
-that was actually a WebKit bridge-call problem.
+That's four shipped combinations, and they compound rather than
+substitute for each other:
+
+- **The true floor is low-end Android *through Capacitor*** — weak
+  CPU/GPU/network **and** native bridge overhead stacked together. This is
+  worse than low-end Android web alone and should be the actual reference
+  target for "does this feel instant," not an edge case.
+- **High-end iOS Capacitor** is a different failure mode, not a lesser
+  one: hardware isn't the constraint, but WebKit compositing, JavaScriptCore
+  JIT/GC behavior, and bridge-call cost per-call (not per-CPU-cycle) are.
+- **iOS web (Safari)** shares WebKit's engine quirks with iOS Capacitor
+  minus the bridge overhead — don't assume "fixed for Capacitor" already
+  covers it, or vice versa.
+- **Android web** is the CPU/network-bound baseline everything else builds
+  on.
+
+Concretely, on the Capacitor runtime:
+- **Native bridge overhead.** Plugin calls (haptics, storage, status bar,
+  etc.) cross a JS↔native bridge that plain mobile web never pays for.
+  Frequent small calls on hot paths (scroll, drag, per-frame handlers) can
+  jank a Capacitor build even when the identical DOM/JS is smooth in a
+  browser — and it's worst when it lands on the weak-CPU end of the device
+  axis.
+- **Different cold-start shape.** The shell is typically bundled locally,
+  so startup looks like parse + hydrate rather than network + parse.
+  Network/LCP budgets stop being the binding constraint there; startup
+  jank shows up in bridge init and plugin registration instead.
+
+A fix must not silently trade one cell of this matrix for another — e.g.
+don't add a per-tap plugin call to work around a Blink-only layout quirk,
+and don't add compositor-heavy CSS to smooth over what was actually a
+bridge-call problem.
 
 Byte / LCP / critical-path budgets live in
 [`docs/low-end-android-perf.md`](docs/low-end-android-perf.md) and
 [`apps/client/perf-budget.json`](apps/client/perf-budget.json). This
-command is about **runtime jank and interaction cost** on both ends of the
-spectrum, not bundle size — leave those docs and the budget file alone
-(see constraints below).
+command is about **runtime jank and interaction cost** across the matrix,
+not bundle size — leave those docs and the budget file alone (see
+constraints below).
 
 ## Non-negotiable constraints
 
@@ -64,15 +72,19 @@ before touching it:
 
 > Is this signaling real async state the user is actively waiting on (a
 > mutation in flight, an opponent's move landing), or is it a genuine
-> native capability (haptic feedback on a real action)?
+> native capability (haptic feedback on a confirmed action)?
 
 - **Yes → keep it.** Mutation spinners, core game-move transforms, and
-  intentional native-feature calls (e.g. haptics on a confirmed move) are
-  load-bearing.
+  intentional native-feature calls are load-bearing.
 - **No → it's decorative. Remove it.** Celebration scales, typing-dot
   loops, overlay enter/exit motion, ambient pulses, count-ups, sliding
   indicators, and any bridge call that fires just for polish are
   decorative even if they look nice.
+
+**Whatever survives this test still has to respect
+`prefers-reduced-motion`.** Removing decorative motion doesn't remove the
+need to check that what's left honors the user's OS-level preference —
+verify it's actually wired up, don't assume it is.
 
 ## Design principles
 
@@ -87,23 +99,31 @@ before touching it:
 - **Cheap on both engines, not just one.** Prefer CSS/DOM approaches that
   are inexpensive on both Blink and WebKit over ones tuned to a single
   engine's fast path. When in doubt, treat WebKit as the pickier engine.
+- **Least main-thread work, not just least visible motion.** A kept
+  transition is still expensive if it fires on every re-render of a
+  component that shouldn't have re-rendered in the first place — re-render
+  discipline is as much a jank source as CSS.
 - **Evidence over taste.** If removing an effect doesn't hurt understanding
   or async signaling, remove it — don't keep something just because it's
   polished.
 
-## Platform-specific risks to check
+## Cross-cutting risks beyond motion
 
-Beyond the shared audit patterns below, check these separately because
-they only bite on one end of the spectrum:
+Check these separately — they won't show up as CSS/animation hits, and
+several bite hardest exactly at the worst-case cell (low-end Android ×
+Capacitor):
 
-| Risk | Hits mainly | Why |
+| Risk | Hits hardest at | Why |
 |---|---|---|
-| `backdrop-filter`, heavy `filter:`, large blurred layers | High-end iOS Capacitor | Expensive to composite in WebKit even on fast hardware |
-| `position: sticky`/`fixed` inside scroll containers or transformed ancestors | Both, differently | Known Blink/WebKit divergence in repaint behavior |
-| Frequent `@capacitor/*` plugin calls in scroll/drag/per-frame handlers | High-end iOS Capacitor | Each call crosses the native bridge; cost is per-call, not per-CPU-cycle |
+| `backdrop-filter`, heavy `filter:`, large blurred layers | High-end iOS Capacitor / iOS web | Expensive to composite in WebKit even on fast hardware |
+| `position: sticky`/`fixed` inside scroll containers or transformed ancestors | Both engines, differently | Known Blink/WebKit divergence in repaint behavior |
+| Frequent native plugin calls in scroll/drag/per-frame handlers | Any Capacitor build, worst on low-end Android | Bridge cost is per-call, not per-CPU-cycle, and stacks on a weak CPU |
+| Unmemoized re-renders, wide context fan-out, prop-drilled callbacks recreated each render | Low-end Android, any runtime | No CPU headroom to absorb wasted render work |
+| Heavy synchronous compute on the interaction path (e.g. move validation/engine analysis run inline) | Low-end Android × Capacitor | Blocks the main thread directly; a Web Worker candidate |
 | Heavy main-thread JS on tap/scroll (large sync loops, unthrottled listeners) | Low-end Android | Weak CPU has no headroom to hide it |
 | Layout thrash (`getBoundingClientRect`, `ResizeObserver`, auto-flip on open) | Both | Forces synchronous layout regardless of engine |
-| Large eagerly-loaded assets/JS on cold start | Low-end Android (network), Capacitor (parse/hydrate) | Different bottleneck, same symptom: slow first paint |
+| Retained listeners/subscriptions without cleanup, unbounded image memory across mount/unmount | ~2 GB-class devices | Backgrounded/evicted under memory pressure, not just slow |
+| Large eagerly-loaded assets/JS on cold start | Low-end Android (network) / Capacitor (parse/hydrate) | Different bottleneck, same symptom: slow first paint |
 
 ## Out of scope
 
@@ -111,8 +131,10 @@ they only bite on one end of the spectrum:
 - Non-visual business logic.
 - Fully native code paths outside the WebView (Swift/Kotlin native
   screens, App Store/Play Store concerns) — this command covers the web
-  content running inside both mobile web and the Capacitor shell, not the
+  content running in both the browser and the Capacitor shell, not the
   native shell itself.
+- Third-party scripts/tags — flag as a jank source if noticed, don't
+  attempt to fix or remove them here.
 - Anything outside the given scope (or the default hot spots below, if no
   scope was given) — note similar jank elsewhere as a remaining risk in the
   summary rather than opportunistically fixing it.
@@ -127,8 +149,8 @@ is broad:
 
 - Shell chrome / tabs / miniplayer — `apps/client`, `libs/spaces`
 - Tooltips, floating menus, modals, sheets, banners — `@pkgs/ui`
-- Chess board / celebration decorative motion — `@pkgs/chess-board`,
-  `@libs/chess`
+- Chess board, move validation/engine calls, celebration motion —
+  `@pkgs/chess-board`, `@libs/chess`
 - Any native-bridge / Capacitor plugin call sites touched by the above
 
 ### 2. Audit
@@ -144,19 +166,27 @@ load-bearing test:
 | JS-driven visuals | `setInterval`, count-up logic, sliding pill/indicator position state |
 | Always-on cost | `will-change`, multi-layer `box-shadow`, shimmer/skeleton loaders |
 | Cross-engine cost | `backdrop-filter`, heavy `filter:`, `position: sticky` in scroll containers |
-| Bridge cost | `@capacitor/*` (or other native plugin) calls inside scroll/drag/frame handlers |
+| Bridge cost | native plugin calls (e.g. `@capacitor/*`) inside scroll/drag/frame handlers |
+| Re-render cost | components re-rendering on unrelated state, wide context providers, callbacks/objects recreated inline on every render (profile with the React DevTools profiler — this category isn't reliably greppable) |
+| Sync compute | move validation / engine / analysis calls made inline on the interaction path instead of via a worker |
+| Memory | `addEventListener`/subscriptions without matching cleanup in effect teardown; large images retained in state/refs past need |
 
-Then check the platform-specific risk table above for anything the shared
-patterns wouldn't catch.
+Then cross-reference the risk table above for anything the shared patterns
+wouldn't catch.
 
 ### 3. Apply fixes
 
 Rewrite toward static placement props, instant show/hide, and lean mount
-paths. Prefer fixes that are cheap on both Blink and WebKit; if a fix must
-trade one platform for the other, say so explicitly in the summary rather
-than silently picking one. Update tests that asserted enter timing or
+paths. Memoize components/values on the interaction path where re-renders
+were wasted work. Move genuinely heavy synchronous compute off the main
+thread (Web Worker) where feasible rather than just trimming it. Clean up
+listeners/subscriptions on unmount. Prefer fixes that are cheap on both
+Blink and WebKit and don't add bridge calls to fix a CSS problem or vice
+versa; if a fix must trade one cell of the matrix for another, say so
+explicitly in the summary. Update tests that asserted enter timing or
 shift math. Leave Spinner, other genuine async signals, and intentional
-native-feature calls untouched.
+native-feature calls untouched — but confirm they still honor
+`prefers-reduced-motion`.
 
 ### 4. Verify
 
@@ -170,11 +200,14 @@ bun run --filter <package> test
 Repeat for each `@pkgs/*`, `@libs/*`, or `@apps/*` package actually
 touched — not just one.
 
-For runtime changes, note in the summary whether verification was actually
-exercised on both ends of the spectrum (CPU/network-throttled Chrome for
-the Android floor; a WKWebView/Capacitor build via Safari's remote
-inspector for the iOS ceiling) or only reasoned about — don't claim
-verification you didn't do.
+**Known limitation:** typecheck/tests confirm nothing broke, not that
+jank actually improved — capture a before/after Performance-panel trace
+for main-thread-heavy fixes when feasible. DevTools CPU throttling also
+understates real Android Go thermal throttling after sustained use, and
+simulated throttling can't reproduce Capacitor bridge-call cost at all —
+prefer a real low-end Android device and a real Capacitor/WKWebView build
+(via Safari's remote inspector) over simulation when either is available.
+State plainly which of these you actually did versus only reasoned about.
 
 ### 5. Summarize
 
@@ -182,10 +215,11 @@ End with:
 
 - What became instant / static / direct (1–3 bullets)
 - Packages touched
-- Checks run, and which platform(s) they actually covered
-- Any remaining jank risk you didn't fix, tagged by which end of the
-  spectrum it affects (low-end Android, high-end iOS Capacitor, or both),
-  including anything flagged as out-of-scope in step 1
+- Checks run, and which matrix cell(s) — device tier × runtime — they
+  actually covered (real device/build vs. simulated)
+- Any remaining jank, memory, or re-render risk you didn't fix, tagged by
+  which matrix cell(s) it affects, including anything flagged as
+  out-of-scope in step 1 (third-party scripts, etc.)
 
 ## Failure / stop template
 
