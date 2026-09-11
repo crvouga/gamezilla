@@ -646,6 +646,7 @@ msgstr "dev"
 msgid "Dev OAuth"
 msgstr "Dev OAuth"
 
+#: apps/client/src/shell/commands/app-commands.tsx
 #: libs/chess/src/public/chess-settings/chess-settings-developer-screen.tsx
 #: libs/chess/src/public/chess-settings/chess-settings-screen.tsx
 msgid "Developer"
@@ -842,6 +843,10 @@ msgstr "Follows your device appearance"
 msgid "Forward"
 msgstr "Forward"
 
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "fps"
+msgstr "fps"
+
 #: apps/client/src/screens/more/performance-screen.tsx
 msgid "Frames per second"
 msgstr "Frames per second"
@@ -920,6 +925,10 @@ msgstr "Has ever synced"
 msgid "Has synced"
 msgstr "Has synced"
 
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "Hide performance monitor"
+msgstr "Hide performance monitor"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 msgid "Hint"
 msgstr "Hint"
@@ -932,6 +941,10 @@ msgstr "Hint"
 msgid "Host"
 msgstr "Host"
 
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "hud"
+msgstr "hud"
+
 #. placeholder {0}: props.label
 #: pkgs/ui/src/components/number-stepper/number-stepper.tsx
 msgid "Increase {0}"
@@ -940,6 +953,10 @@ msgstr "Increase {0}"
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Infrastructure"
 msgstr "Infrastructure"
+
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "inp"
+msgstr "inp"
 
 #: libs/auth/src/root/client/account-screen.tsx
 msgid "Installs signed into this account"
@@ -952,6 +969,10 @@ msgstr "Interaction to next paint"
 #: pkgs/ui/src/components/catalog/catalog-detail.tsx
 msgid "Item not found"
 msgstr "Item not found"
+
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "jank"
+msgstr "jank"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "John Doe"
@@ -1334,6 +1355,10 @@ msgstr "People in this space"
 msgid "People with access"
 msgstr "People with access"
 
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "perf"
+msgstr "perf"
+
 #: apps/client/src/screens/more/performance-screen.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
 msgid "Performance"
@@ -1679,6 +1704,10 @@ msgstr "Share"
 #: libs/spaces/src/root/client/space-users/space-share-sheet.tsx
 msgid "Share space"
 msgstr "Share space"
+
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "Show performance monitor"
+msgstr "Show performance monitor"
 
 #: libs/spaces/src/root/client/miniplayer/miniplayer-stacked-bar.tsx
 msgid "Show your live spaces"

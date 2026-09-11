@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
- * App-wide command palette commands available in the shell: navigation and
- * appearance. Space / UI-components / performance / wipe-local-database /
- * account commands join with their screen ports (they read lib contexts that
- * are still UI-bound).
+ * App-wide command palette commands available in the shell: navigation,
+ * appearance, and the performance HUD toggle. Space / UI-components /
+ * wipe-local-database / account commands join with their screen ports (they
+ * read lib contexts that are still UI-bound).
  *
  * The RN dev menu (`command-palette-dev-menu.web.tsx`) is a no-op on web —
  * the palette opens via `mod+k` / `mod+shift+p` from `CommandRegistryProvider`.
@@ -13,6 +13,7 @@ import { useLingui } from '@lingui/solid/macro';
 import {
   type Command,
   FlaskConicalIcon,
+  GaugeIcon,
   PaintbrushIcon,
   useRegisterCommands,
   useRouter,
@@ -21,6 +22,7 @@ import {
 import type { JSX } from 'solid-js';
 
 import { useEmbeddedApp } from '../embedded-app-context';
+import { usePerfHudPreference } from '../perf/perf-hud-preference';
 
 const NAV_TARGETS: readonly {
   readonly href: string;
@@ -32,6 +34,7 @@ const NAV_TARGETS: readonly {
   { href: '/profile', title: 'Profile' },
   { href: '/more', title: 'Settings' },
   { href: '/more/theme', title: 'Theme' },
+  { href: '/more/performance', title: 'Performance' },
   { href: '/more/about', title: 'About' },
   { href: '/more/account', title: 'Account' },
   { href: '/more/sync', title: 'Sync' },
@@ -106,11 +109,38 @@ function AppearanceCommands(): JSX.Element {
   return null;
 }
 
+function PerformanceCommands(): JSX.Element {
+  const { t } = useLingui();
+  const { enabled, setEnabled } = usePerfHudPreference();
+  useRegisterCommands(() => [
+    {
+      id: 'perf-hud-show',
+      title: t`Show performance monitor`,
+      category: t`Developer`,
+      icon: GaugeIcon,
+      keywords: [t`fps`, t`inp`, t`jank`, t`hud`, t`perf`],
+      visible: !enabled(),
+      run: () => setEnabled(true),
+    },
+    {
+      id: 'perf-hud-hide',
+      title: t`Hide performance monitor`,
+      category: t`Developer`,
+      icon: GaugeIcon,
+      keywords: [t`fps`, t`inp`, t`jank`, t`hud`, t`perf`],
+      visible: enabled(),
+      run: () => setEnabled(false),
+    },
+  ]);
+  return null;
+}
+
 export function AppCommands(): JSX.Element {
   return (
     <>
       <NavigationCommands />
       <AppearanceCommands />
+      <PerformanceCommands />
     </>
   );
 }
