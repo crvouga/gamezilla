@@ -7,7 +7,6 @@
   animation-duration: 900ms;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
-  will-change: transform;
 }
 
 @keyframes ui-spinner-rotate {

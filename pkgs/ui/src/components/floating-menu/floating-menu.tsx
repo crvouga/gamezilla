@@ -157,9 +157,6 @@ function FloatingMenuPanel(props: {
       <OnColorReset>
         <div
           class="box rounded-[14px] border border-border py-2 bg-surface-overlay"
-          style={{
-            'box-shadow': '0 12px 40px var(--ui-color-shadow-color)',
-          }}
           ref={(el) => {
             hostEl = el;
           }}

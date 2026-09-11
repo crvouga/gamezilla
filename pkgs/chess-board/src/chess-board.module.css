@@ -55,18 +55,6 @@
   transition: transform var(--chess-move-ms, 150ms) var(--ui-easing-standard);
 }
 
-.pieceDragging {
-  /* Lift only while dragging — not always-on will-change. */
-  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.35));
-  transform-box: fill-box;
-  transform-origin: center;
-}
-
-.pieceDragging image {
-  transform: scale(1.08);
-  transform-origin: center;
-}
-
 .dragOriginGhost {
   pointer-events: none;
 }

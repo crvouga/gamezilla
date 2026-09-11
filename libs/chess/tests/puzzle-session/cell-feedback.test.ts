@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import {
-  deriveChessPuzzleCellFeedback,
-  deriveChessPuzzleCellHighlights,
-} from '@libs/chess/public/puzzle-session';
+import { deriveChessPuzzleCellFeedback } from '@libs/chess/public/puzzle-session';
 
 describe('deriveChessPuzzleCellFeedback', () => {
   const none = {
@@ -11,8 +8,6 @@ describe('deriveChessPuzzleCellFeedback', () => {
     wrongFromSquare: null,
     wrongToSquare: null,
     expectedFromSquare: null,
-    showSolvedCrownOn: null,
-    lastCorrectToSquare: null,
   };
 
   test('empty when nothing to show', () => {
@@ -44,42 +39,5 @@ describe('deriveChessPuzzleCellFeedback', () => {
         expectedFromSquare: 'g1',
       })
     ).toEqual({});
-  });
-
-  test('crown wins over star on the same square', () => {
-    expect(
-      deriveChessPuzzleCellFeedback({
-        ...none,
-        status: 'solved',
-        lastCorrectToSquare: 'h7',
-        showSolvedCrownOn: 'h7',
-      })
-    ).toEqual({ h7: { kind: 'crown' } });
-  });
-});
-
-describe('deriveChessPuzzleCellHighlights', () => {
-  test('rings the last correct target', () => {
-    expect(
-      deriveChessPuzzleCellHighlights({
-        status: 'solving',
-        lastCorrectToSquare: 'd4',
-        solvedKingSquare: null,
-        successColor: '#0f0',
-      })
-    ).toEqual({ d4: { color: '#0f0', ring: true, opacity: 0.75 } });
-  });
-
-  test('king ring only once solved', () => {
-    const args = {
-      status: 'solving' as const,
-      lastCorrectToSquare: null,
-      solvedKingSquare: 'e8' as const,
-      successColor: '#0f0',
-    };
-    expect(deriveChessPuzzleCellHighlights(args)).toEqual({});
-    expect(
-      deriveChessPuzzleCellHighlights({ ...args, status: 'solved' })
-    ).toEqual({ e8: { color: '#0f0', ring: true, opacity: 0.9 } });
   });
 });

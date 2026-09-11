@@ -103,11 +103,6 @@ msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgid "chess.puzzleStatus.solvedMark"
 msgstr "★"
 
-#. js-lingui-explicit-id
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-icons.tsx
-msgid "chess.puzzleStatus.correctMark"
-msgstr "✓"
-
 #: pkgs/chess-board/src/chess-board-promotion.tsx
 msgid "✕"
 msgstr "✕"
@@ -508,10 +503,6 @@ msgstr "Copy value"
 #: libs/spaces/src/root/client/space-users/space-share-link-section.tsx
 msgid "Copying…"
 msgstr "Copying…"
-
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
-msgid "Correct"
-msgstr "Correct"
 
 #: apps/client/src/shell/sync/boot-error-screen.tsx
 msgid "Could not start local database"

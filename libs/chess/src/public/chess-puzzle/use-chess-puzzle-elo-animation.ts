@@ -8,7 +8,6 @@ export function useChessPuzzleEloAnimation(args: {
   ratingAfter: number;
   animationKey: string;
   enabled: boolean;
-  onRatingStep?: (rating: number) => void;
   onComplete?: () => void;
 }): { displayRating: Accessor<number> } {
   const [displayRating, setDisplayRating] = createSignal(args.ratingBefore);
@@ -21,7 +20,6 @@ export function useChessPuzzleEloAnimation(args: {
     }
     const ratingAfter = args.ratingAfter;
     setDisplayRating(ratingAfter);
-    args.onRatingStep?.(ratingAfter);
     args.onComplete?.();
   });
 

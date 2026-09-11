@@ -1,4 +1,4 @@
-import type { BoardArrow, Square } from '@pkgs/chess-board/chess-board-types';
+import type { BoardArrow } from '@pkgs/chess-board/chess-board-types';
 import { type Accessor, createMemo } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -14,15 +14,12 @@ export function usePuzzlePlayerVisual(args: {
   themes: Accessor<readonly string[]>;
   layoutKey: Accessor<number>;
   orientation: Accessor<'white' | 'black'>;
-  showCorrectFlash: Accessor<boolean>;
   displayFen: Accessor<string | null>;
   totalTokens: Accessor<number>;
   wrongFromSquare: Accessor<string | null>;
   wrongToSquare: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
   expectedToSquare: Accessor<string | null>;
-  solvedCrownSquare: Accessor<Square | null>;
-  lastCorrectToSquare: Accessor<Square | null>;
   hintStage: Accessor<HintStage>;
   atFrontier: Accessor<boolean>;
   rating: Accessor<number>;
@@ -42,7 +39,6 @@ export function usePuzzlePlayerVisual(args: {
     themes: args.themes,
     layoutKey: args.layoutKey,
     orientation: args.orientation,
-    showCorrectFlash: args.showCorrectFlash,
     displayFen: args.displayFen,
     totalTokens: args.totalTokens,
     wrongFromSquare: args.wrongFromSquare,
@@ -54,9 +50,6 @@ export function usePuzzlePlayerVisual(args: {
     wrongFromSquare: args.wrongFromSquare,
     wrongToSquare: args.wrongToSquare,
     expectedFromSquare: args.expectedFromSquare,
-    solvedCrownSquare: args.solvedCrownSquare,
-    lastCorrectToSquare: args.lastCorrectToSquare,
-    displayFen: args.displayFen,
   });
   const arrows = createMemo(() =>
     solutionArrows({

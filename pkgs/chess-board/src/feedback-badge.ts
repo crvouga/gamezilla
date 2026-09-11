@@ -16,8 +16,6 @@ import type { BoardOrientation } from './chess-board-types';
 export const GLYPH_PATHS_100: Partial<Record<CellFeedbackKind, string>> = {
   check: 'M18 54 L42 78 L84 26',
   cross: 'M22 22 L78 78 M78 22 L22 78',
-  star: 'M50 10 L61 38 L92 40 L67 60 L75 90 L50 73 L25 90 L33 60 L8 40 L39 38 Z',
-  crown: 'M14 30 L28 56 L42 22 L58 22 L72 56 L86 30 L82 80 L18 80 Z',
   dot: 'M50 50 m-26 0 a26 26 0 1 0 52 0 a26 26 0 1 0 -52 0',
 };
 

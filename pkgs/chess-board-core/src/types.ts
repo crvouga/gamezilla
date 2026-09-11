@@ -50,8 +50,6 @@ export type CellFeedbackKind =
   | 'doubleExclam'
   | 'question'
   | 'questionExclam'
-  | 'star'
-  | 'crown'
   | 'dot';
 
 export type CellFeedbackCorner =

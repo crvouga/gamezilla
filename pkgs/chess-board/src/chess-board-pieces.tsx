@@ -98,17 +98,14 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
             return pieceTransform(row.square, props.orientation);
           };
           const className = () => {
-            const parts: string[] = [];
-            if (dragging() && at() !== null) {
-              parts.push(styles['pieceDragging'] ?? '');
-            } else if (
-              props.animated() &&
-              props.snapSquare() !== row.square &&
-              !dragging()
+            if (
+              dragging() ||
+              !props.animated() ||
+              props.snapSquare() === row.square
             ) {
-              parts.push(styles['pieceAnimated'] ?? '');
+              return '';
             }
-            return parts.filter((p) => p.length > 0).join(' ');
+            return styles['pieceAnimated'] ?? '';
           };
           return (
             <>

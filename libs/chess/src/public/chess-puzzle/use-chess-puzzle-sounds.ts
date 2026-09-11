@@ -7,7 +7,6 @@ import {
 
 const PUZZLE_SOUND_KEYS = [
   'solved',
-  'eloTick',
   'correctMove',
   'eloCompleteGain',
   'eloCompleteLoss',
@@ -17,7 +16,6 @@ type PuzzleSoundKey = (typeof PUZZLE_SOUND_KEYS)[number];
 
 export function useChessPuzzleSounds(): {
   playSolved: () => void;
-  playEloTick: () => void;
   playEloCompleteGain: () => void;
   playEloCompleteLoss: () => void;
   playCorrectMove: () => void;
@@ -27,7 +25,6 @@ export function useChessPuzzleSounds(): {
     ReturnType<typeof createAudioPlayer>
   > = {
     solved: createAudioPlayer(chessSoundUrls.puzzleCheckmate),
-    eloTick: createAudioPlayer(chessSoundUrls.puzzleEloTick),
     correctMove: createAudioPlayer(chessSoundUrls.puzzleCorrectMove),
     eloCompleteGain: createAudioPlayer(chessSoundUrls.promote),
     eloCompleteLoss: createAudioPlayer(chessSoundUrls.puzzleEloCompleteLoss),
@@ -41,7 +38,6 @@ export function useChessPuzzleSounds(): {
 
   return {
     playSolved: () => handles.solved.play(),
-    playEloTick: () => handles.eloTick.play(),
     playEloCompleteGain: () => handles.eloCompleteGain.play(),
     playEloCompleteLoss: () => handles.eloCompleteLoss.play(),
     playCorrectMove: () => handles.correctMove.play(),

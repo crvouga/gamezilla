@@ -18,8 +18,6 @@ function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
       return <Trans>White to move</Trans>;
     case 'blackToMove':
       return <Trans>Black to move</Trans>;
-    case 'correct':
-      return <Trans>Correct</Trans>;
     case 'wrong':
       return <Trans>Wrong</Trans>;
     case 'solved':

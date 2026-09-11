@@ -1,9 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
-import { useClock } from '@pkgs/clock/solid';
 import { ResponsiveSurface } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
 
-import { shouldPlayEloTick } from '../../shared/puzzle-session/elo-tick';
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleEloAnimation } from './use-chess-puzzle-elo-animation';
@@ -14,11 +12,6 @@ function useCelebrationEloFeedback(args: {
   onDisplayEloChange: (rating: number) => void;
 }): { displayRating: Accessor<number> } {
   const feedback = useChessPuzzleFeedback();
-  const clock = useClock();
-  const lastTickAtRef: { current: number } = { current: 0 };
-  const lastTickRatingRef: { current: number } = {
-    current: args.completion.ratingBefore,
-  };
   const completionKey = `${args.completion.outcome}-${args.completion.ratingAfter}`;
 
   return useChessPuzzleEloAnimation({
@@ -26,22 +19,6 @@ function useCelebrationEloFeedback(args: {
     ratingAfter: args.completion.ratingAfter,
     animationKey: completionKey,
     enabled: true,
-    onRatingStep: (rating) => {
-      args.onDisplayEloChange(rating);
-      const now = clock.now();
-      if (
-        shouldPlayEloTick({
-          nextRating: rating,
-          prevDisplayedRating: lastTickRatingRef.current,
-          lastTickAtMs: lastTickAtRef.current,
-          nowMs: now,
-        })
-      ) {
-        lastTickAtRef.current = now;
-        lastTickRatingRef.current = rating;
-        feedback.onEloTick();
-      }
-    },
     onComplete: () => {
       args.onDisplayEloChange(args.completion.ratingAfter);
       feedback.onEloComplete(args.completion.delta);

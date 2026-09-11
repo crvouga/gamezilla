@@ -8,15 +8,28 @@ describe('chessPuzzleStatusKindFromState', () => {
       chessPuzzleStatusKindFromState({
         status: 'loading',
         orientation: 'white',
-        showCorrectFlash: false,
       })
     ).toBe('loading');
     expect(
       chessPuzzleStatusKindFromState({
         status: 'loading',
         orientation: 'black',
-        showCorrectFlash: true,
       })
     ).toBe('loading');
+  });
+
+  test('maps solving to turn kind from orientation', () => {
+    expect(
+      chessPuzzleStatusKindFromState({
+        status: 'solving',
+        orientation: 'white',
+      })
+    ).toBe('whiteToMove');
+    expect(
+      chessPuzzleStatusKindFromState({
+        status: 'solving',
+        orientation: 'black',
+      })
+    ).toBe('blackToMove');
   });
 });

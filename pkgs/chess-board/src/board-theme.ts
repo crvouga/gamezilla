@@ -23,8 +23,6 @@ function defaultFeedbackPalette(
       doubleExclam: '#3a8cff',
       question: '#c882ff',
       questionExclam: '#ffd64a',
-      star: '#ffd64a',
-      crown: '#ffd64a',
       dot: '#cfd2db',
     };
   }
@@ -35,8 +33,6 @@ function defaultFeedbackPalette(
     doubleExclam: '#1565d8',
     question: '#7e3ad0',
     questionExclam: '#caa30a',
-    star: '#d4a017',
-    crown: '#b8860b',
     dot: '#3a3d4a',
   };
 }
