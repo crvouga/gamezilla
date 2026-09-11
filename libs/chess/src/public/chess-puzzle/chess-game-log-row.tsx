@@ -62,11 +62,11 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
     >
       <div class="box flex-row items-center gap-2 p-3 rounded-[8px] bg-surface-muted">
         <Icon size={18} color={solved ? 'success' : 'destructive'} />
-        <div class="box flex-1 gap-1">
-          <p class="text textBodyBold text-text">
+        <div class="box flex-1 min-w-[0] gap-1">
+          <p class="text textBodyBold line-clamp-1 text-text">
             {<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
           </p>
-          <p class="text textCaption text-text-secondary">
+          <p class="text textCaption line-clamp-1 text-text-secondary">
             {
               <GameLogCaption
                 puzzleId={props.entry.puzzleId}
@@ -75,7 +75,7 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
             }
           </p>
         </div>
-        <p class="text textBodyBold" style={{ color: deltaColor }}>
+        <p class="text textBodyBold shrink-0" style={{ color: deltaColor }}>
           {formatSignedDelta(props.entry.delta)}
         </p>
         <ChevronRightIcon size={20} color="icon" />

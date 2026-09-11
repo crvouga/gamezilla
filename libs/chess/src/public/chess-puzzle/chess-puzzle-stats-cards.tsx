@@ -10,9 +10,11 @@ type StatTileProps = {
 
 function StatTile(props: StatTileProps): JSX.Element {
   return (
-    <div class="box flex-1 gap-1 p-3 rounded-[8px] bg-surface-muted">
-      <p class="text textCaption text-text-secondary">{props.label}</p>
-      <p class="text textBodyBold text-text">{props.value}</p>
+    <div class="box min-w-[0] gap-1 p-3 rounded-[8px] bg-surface-muted">
+      <p class="text textCaption line-clamp-1 text-text-secondary">
+        {props.label}
+      </p>
+      <p class="text textBodyBold line-clamp-1 text-text">{props.value}</p>
     </div>
   );
 }
@@ -25,7 +27,13 @@ export function ChessPuzzleStatsCards(
   props: ChessPuzzleStatsCardsProps
 ): JSX.Element {
   return (
-    <div class="box flex-row flex-wrap gap-2">
+    <div
+      class="box gap-2"
+      style={{
+        display: 'grid',
+        'grid-template-columns': 'repeat(2, minmax(0, 1fr))',
+      }}
+    >
       <StatTile
         label={<Trans>Played</Trans>}
         value={String(props.stats.totalPlayed)}

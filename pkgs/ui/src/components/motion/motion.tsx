@@ -34,7 +34,8 @@ export type MotionProps = DivBoxProps & {
   /**
    * Presence: when it flips to `false` the box plays `exitStyle` and unmounts
    * after the transition; when `true` it mounts and plays from `enterStyle`.
-   * Omit for an always-mounted transitioning box.
+   * Omit for an always-mounted transitioning box (no enter/exit — only the
+   * reactive `style` / `class` transitions).
    */
   present?: boolean | undefined;
   /** Starting style for the enter transition. Defaults to a fade + 16px lift. */
@@ -57,13 +58,19 @@ type Presence = {
   onTransitionEnd: () => void;
 };
 
+function initialMotionPhase(present: boolean | undefined): MotionPhase {
+  if (present === undefined) return 'shown';
+  if (present === false) return 'gone';
+  return 'entering';
+}
+
 function createPresence(
   present: () => boolean | undefined,
   durationMs: () => number,
   timers: Timers
 ): Presence {
   const [phase, setPhase] = createSignal<MotionPhase>(
-    present() === false ? 'gone' : 'entering'
+    initialMotionPhase(present())
   );
   let handle: unknown;
   const clear = (): void => {

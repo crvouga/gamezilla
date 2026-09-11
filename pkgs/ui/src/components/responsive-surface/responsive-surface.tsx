@@ -41,6 +41,11 @@ export type { ResponsiveSurfacePresentation } from './should-use-mobile-sheet';
 export type ResponsiveSurfaceProps = {
   visible: boolean;
   onClose: () => void;
+  /**
+   * When `true` (default), show the close icon and dismiss on backdrop /
+   * Escape. When `false`, the surface stays until the app closes it.
+   */
+  closable?: boolean | undefined;
   /** Optional title row above `children`; also names the dialog. */
   title?: JSX.Element | undefined;
   /** Centered modal width bucket on wide layouts. Default `medium`. */
@@ -87,6 +92,7 @@ function SurfaceChrome(props: ResponsiveSurfaceProps): JSX.Element {
         <ResponsiveSurfaceHeader
           title={props.title}
           onClose={props.onClose}
+          closable={props.closable}
           closeDataSet={props.closeDataSet}
         />
         <Show when={props.bodyHeight} fallback={props.children}>
@@ -145,15 +151,20 @@ function SurfaceScrollBody(props: {
 
 function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
   const maxHeight = useModalContentMaxHeight(() => props.maxHeight);
+  const closable = (): boolean => props.closable ?? true;
+  const requestClose = (): void => {
+    if (closable()) props.onClose();
+  };
   return (
     <ModalRoot
       visible={props.visible}
-      onRequestClose={props.onClose}
+      onRequestClose={requestClose}
       stackId={props.stackId}
       label={props.label}
     >
       <ModalBackdrop
-        onClick={props.onClose}
+        onClick={requestClose}
+        dismissOnBackdrop={closable()}
         dataSet={{ component: 'ResponsiveSurface', ...props.dataSet }}
       >
         <ModalContent
@@ -175,11 +186,15 @@ function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
 
 function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
   const host = useBottomSheetHost();
+  const closable = (): boolean => props.closable ?? true;
+  const requestClose = (): void => {
+    if (closable()) props.onClose();
+  };
   return (
     <Dynamic
       component={host.Sheet}
       open={props.visible}
-      onClose={props.onClose}
+      onClose={requestClose}
       stackId={props.stackId}
       label={props.label}
       dataSet={{ component: 'ResponsiveSurface', ...props.dataSet }}

@@ -1,7 +1,13 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
 import { SpaceSideRailExtras } from '@libs/spaces/public/space-event-log-placement';
 import { Island, useLayoutMode } from '@pkgs/ui';
-import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  createSignal,
+  type JSX,
+  Show,
+} from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import { ChessPuzzleActionBar } from './chess-puzzle-action-bar';
@@ -14,6 +20,16 @@ import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
 const noopElo = (): void => {};
+
+function completionKey(completion: PuzzleCompletion): string {
+  return [
+    completion.outcome,
+    completion.ratingBefore,
+    completion.ratingAfter,
+    completion.puzzleRating,
+    completion.streak,
+  ].join(':');
+}
 
 export type PuzzlePlayLayoutProps = {
   backToRoot: () => void;
@@ -63,18 +79,7 @@ function buildSlots(
     ),
     assistant: p.assistant,
     board: (
-      <ChessPuzzleBoardFrame
-        overlay={
-          <Show when={p.completion()}>
-            {(completion) => (
-              <ChessPuzzleCelebrationOverlay
-                completion={completion()}
-                onDisplayEloChange={noopElo}
-              />
-            )}
-          </Show>
-        }
-      >
+      <ChessPuzzleBoardFrame>
         {(size) => p.boardSlot(size)}
       </ChessPuzzleBoardFrame>
     ),
@@ -96,16 +101,49 @@ function buildSlots(
   };
 }
 
+function CelebrationLayer(props: {
+  completion: Accessor<PuzzleCompletion | null>;
+}): JSX.Element {
+  const [dismissedKey, setDismissedKey] = createSignal<string | null>(null);
+  const completion = createMemo(() => props.completion());
+  const visible = createMemo(() => {
+    const current = completion();
+    if (current === null) return false;
+    return dismissedKey() !== completionKey(current);
+  });
+  return (
+    <Show when={completion()}>
+      {(current) => (
+        <ChessPuzzleCelebrationOverlay
+          completion={current()}
+          visible={visible()}
+          onClose={() => setDismissedKey(completionKey(current()))}
+          onDisplayEloChange={noopElo}
+        />
+      )}
+    </Show>
+  );
+}
+
+/**
+ * Compact: chrome stacked flush (no gaps). Board + timeline pack against the
+ * action bar; leftover height sits under the coach instead of splitting around
+ * the board.
+ */
 function PuzzlePlayCompact(props: { slots: PuzzlePlaySlots }): JSX.Element {
   return (
-    <div class="box flex-1 min-h-[0] gap-4 pt-4">
-      {props.slots.feedBar}
-      {props.slots.assistant}
-      {props.slots.board}
-      <div class="box self-stretch gap-2">
-        {props.slots.timeline}
-        {props.slots.actions}
+    <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
+      <div class="box shrink-0 min-w-[0] max-h-[30%] overflow-hidden">
+        {props.slots.feedBar}
+        <div class="box shrink min-w-[0] overflow-hidden">
+          {props.slots.assistant}
+        </div>
       </div>
+      <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden justify-end">
+        {props.slots.board}
+        {props.slots.timeline}
+      </div>
+      <div class="box self-stretch shrink-0">{props.slots.actions}</div>
     </div>
   );
 }
@@ -114,16 +152,17 @@ function PuzzlePlayWide(props: { slots: PuzzlePlaySlots }): JSX.Element {
   return (
     <>
       <SpaceSideRailExtras>
-        <div class="box flex-1 min-h-[0]">
+        <div class="box flex-1 min-h-[0] min-w-[0]">
           {props.slots.feedBar}
-          <div class="box px-3 pb-3">{props.slots.assistant}</div>
-          <div class="box flex-1 min-h-[0] px-3 pb-3">
-            {props.slots.timeline}
-          </div>
-          {props.slots.actions}
+          <div class="box shrink min-w-[0]">{props.slots.assistant}</div>
+          <div class="box shrink-0">{props.slots.timeline}</div>
+          <div class="box flex-1 min-h-[0]" aria-hidden="true" />
+          <div class="box shrink-0">{props.slots.actions}</div>
         </div>
       </SpaceSideRailExtras>
-      <Island class="flex-1 min-w-[0] min-h-[0]">{props.slots.board}</Island>
+      <Island class="flex-1 min-w-[0] min-h-[0] overflow-hidden">
+        {props.slots.board}
+      </Island>
     </>
   );
 }
@@ -140,7 +179,7 @@ export function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): JSX.Element {
   const slots = buildSlots(p, openFeedSettings);
   return (
     <div
-      class="box flex-1 min-h-[0] self-stretch"
+      class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden"
       data-testid="chess-puzzle-play-screen"
       data-screen="chess-puzzle-play"
     >
@@ -151,6 +190,7 @@ export function PuzzlePlayLayout(p: PuzzlePlayLayoutProps): JSX.Element {
       ) : (
         <PuzzlePlayCompact slots={slots} />
       )}
+      <CelebrationLayer completion={p.completion} />
       {p.e2eHints}
       <ChessPuzzleFeedSettingsModal
         visible={feedSettingsOpen()}

@@ -21,7 +21,6 @@ import {
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import type { DivBoxProps } from '../box';
 import { CircleCheckIcon, CopyIcon } from '../icons';
-import { Motion } from '../motion';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
 const ICON_SIZE = 22;
@@ -116,13 +115,11 @@ export function CopyToClipboardField(
             {local.value}
           </p>
         </div>
-        <Motion
-          class="items-center justify-center"
+        <div
+          class="box items-center justify-center [transition-property:transform,_color] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
           style={{
             transform: `scale(${copied() ? 1.1 : 1})`,
           }}
-          duration="fast"
-          property="transform, color"
         >
           <Show
             when={copied()}
@@ -130,7 +127,7 @@ export function CopyToClipboardField(
           >
             <CircleCheckIcon size={ICON_SIZE} color="tint" />
           </Show>
-        </Motion>
+        </div>
       </button>
       <div class="box min-h-[18px]" role="status" aria-live="polite">
         <Show

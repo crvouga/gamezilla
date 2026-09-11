@@ -1,6 +1,7 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import { ScrollView } from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import {
@@ -44,7 +45,7 @@ function themesSummary(themes: readonly string[]): string {
 }
 
 function FeedBarSep(): JSX.Element {
-  return <p class="text textCaption text-text-secondary">{'·'}</p>;
+  return <p class="text textCaption shrink-0 text-text-secondary">{'·'}</p>;
 }
 
 export function ChessPuzzleFeedBar(
@@ -71,21 +72,24 @@ export function ChessPuzzleFeedBar(
     props.puzzleId !== undefined && props.puzzleId.length > 0
       ? props.puzzleId
       : '—';
-  const muted = { color: 'textSecondary' } as const;
 
   return (
     <button
-      class="clickable clickableTint self-stretch"
+      class="clickable clickableTint self-stretch min-w-[0] shrink"
       data-testid="chess-puzzle-feed-summary"
       type="button"
       onClick={props.onOpenFeedSettings}
       role="button"
     >
-      <div
-        class="box flex-row items-center justify-start gap-2 px-3 py-2 self-stretch flex-wrap"
-        data-testid="chess-puzzle-board-elo-bar"
+      <ScrollView
+        horizontal
+        flushEdge={false}
+        hideScrollbar
+        class="self-stretch min-w-[0]"
+        contentClass="box flex-row items-center justify-start gap-2 px-3 py-1"
+        dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
       >
-        <p class="text textCaption" style={muted}>
+        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
           {idLabel}
         </p>
         <Show when={showPuzzleRating()}>
@@ -97,26 +101,26 @@ export function ChessPuzzleFeedBar(
           />
         </Show>
         <FeedBarSep />
-        <p class="text textCaption" style={muted}>
+        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
           {feedLabel()}
         </p>
         <FeedBarSep />
-        <p class="text textCaption" style={muted}>
+        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
           {historyFilterLabel(config().historyFilter)}
         </p>
         <FeedBarSep />
-        <p class="text textCaption" style={muted}>
+        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
           {themesSummary(config().themes)}
         </p>
         <FeedBarSep />
-        <p class="text textCaption" style={muted}>
+        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
           {
             <Trans>
               {pool.matched} / {pool.total}
             </Trans>
           }
         </p>
-      </div>
+      </ScrollView>
     </button>
   );
 }

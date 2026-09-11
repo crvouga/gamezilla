@@ -52,31 +52,20 @@ function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
   );
 }
 
-function outcomeLabel(outcome: PuzzleCompletion['outcome']): JSX.Element {
-  if (outcome === 'solved') return <Trans>Puzzle solved!</Trans>;
-  return <Trans>Puzzle abandoned</Trans>;
-}
-
 export type ChessPuzzleSummaryCardProps = {
   completion: PuzzleCompletion;
   displayRating: number;
   deltaPulse?: Accessor<number>;
 };
 
+/** Body for the celebration modal (title lives on {@link ResponsiveSurface}). */
 export function ChessPuzzleSummaryCard(
   props: ChessPuzzleSummaryCardProps
 ): JSX.Element {
-  const isSolved = props.completion.outcome === 'solved';
   const scale = (): number => props.deltaPulse?.() ?? 1;
 
   return (
-    <div class="box gap-3 p-4 rounded-[8px] self-stretch bg-surface-elevated border border-border">
-      <h3
-        class="text textHeading text-center"
-        style={{ color: isSolved ? 'success' : 'text' }}
-      >
-        {outcomeLabel(props.completion.outcome)}
-      </h3>
+    <div class="box gap-3 items-center self-stretch min-w-[0]">
       <div
         class="box [transition-property:transform] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
         style={{ transform: `scale(${scale()})` }}

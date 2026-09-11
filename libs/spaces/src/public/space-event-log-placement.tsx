@@ -1,7 +1,6 @@
 /**
  * Wide active-space body may host an optional side rail for game chrome.
- * The event log lives in the space header; games inject extras into the rail
- * via {@link SpaceSideRailExtras}.
+ * Games inject extras into the rail via {@link SpaceSideRailExtras}.
  */
 
 import {

@@ -4,7 +4,12 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { Trans } from '@lingui/solid/macro';
-import { EmptyState, MainMenuScreenHeader } from '@pkgs/ui';
+import {
+  EmptyState,
+  MAIN_MENU_SCREEN_MAX_WIDTH,
+  MainMenuScreenHeader,
+  ScrollView,
+} from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
 
 import {
@@ -57,32 +62,38 @@ function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
   const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
 
   return (
-    <div
-      class="box flex-1 min-h-[0] self-stretch gap-4 p-4 pb-8"
-      data-screen="chess-stats-review"
+    <ScrollView
+      contentClass="box flex-1 self-stretch"
+      dataSet={{ screen: 'chess-stats-review' }}
     >
-      <MainMenuScreenHeader
-        title={<ReviewTitle entry={entry()} />}
-        subtitle={
-          <ReviewSubtitle puzzleId={props.puzzleId} rating={entity.rating} />
-        }
-      />
-      <Show
-        when={hasPuzzle()}
-        fallback={
-          <EmptyState
-            title={<Trans>Puzzle unavailable</Trans>}
-            body={
-              <Trans>
-                This puzzle is not in your local feed yet. Try again after sync.
-              </Trans>
-            }
-          />
-        }
+      <div
+        class="box gap-4 p-4 pb-8 self-center w-[100%] min-w-[0]"
+        style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
       >
-        <ChessPuzzleReviewBoard fen={entity.fen} moves={entity.movesStr} />
-      </Show>
-    </div>
+        <MainMenuScreenHeader
+          title={<ReviewTitle entry={entry()} />}
+          subtitle={
+            <ReviewSubtitle puzzleId={props.puzzleId} rating={entity.rating} />
+          }
+        />
+        <Show
+          when={hasPuzzle()}
+          fallback={
+            <EmptyState
+              title={<Trans>Puzzle unavailable</Trans>}
+              body={
+                <Trans>
+                  This puzzle is not in your local feed yet. Try again after
+                  sync.
+                </Trans>
+              }
+            />
+          }
+        >
+          <ChessPuzzleReviewBoard fen={entity.fen} moves={entity.movesStr} />
+        </Show>
+      </div>
+    </ScrollView>
   );
 }
 
@@ -98,7 +109,7 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
   };
 
   return (
-    <div class="box flex-1 min-h-[0] self-stretch">
+    <div class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden">
       <DefineBackButton onPress={backToStats} />
       <Show
         when={puzzleId() !== null}

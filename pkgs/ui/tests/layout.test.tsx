@@ -104,6 +104,31 @@ describe('TopBar + NavRail', () => {
     expect(screen.getByText('R')).toBeInTheDocument();
   });
 
+  test('flex center/trailing share the row with a trailing max-width cap', () => {
+    renderUi(
+      () => (
+        <TopBar
+          dataSet={{ testid: 'tb-flex' }}
+          leading={<p class="text">{'L'}</p>}
+          center={<TopBarTitle label="A very long navigation title" />}
+          trailing={<p class="text">{'R'}</p>}
+          centerPosition="flex"
+        />
+      ),
+      { width: 320 }
+    );
+    const bar = screen.getByTestId('tb-flex');
+    const row = bar.firstElementChild;
+    if (row === null) throw new Error('missing row');
+    const trailing = row.lastElementChild;
+    if (trailing === null) throw new Error('missing trailing');
+    expect(trailing.className).toMatch(/max-w-\[50%\]/);
+    expect(trailing.className).toMatch(/min-w-0/);
+    expect(screen.getByRole('heading', { level: 1 }).className).toMatch(
+      /line-clamp-1/
+    );
+  });
+
   test('NavRail pins header/footer around a growing body', () => {
     renderUi(() => (
       <NavRail

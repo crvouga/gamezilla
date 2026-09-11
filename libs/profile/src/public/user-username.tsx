@@ -57,7 +57,7 @@ function UserUsernameInner(props: {
   });
   return (
     <p
-      class="text"
+      class="text min-w-[0]"
       classList={{
         textBodyBold: String(props.variant) === 'bodyBold',
         textCaption: String(props.variant) === 'caption',
@@ -68,14 +68,19 @@ function UserUsernameInner(props: {
         textNavigationTitle: String(props.variant) === 'navigationTitle',
         textLink: String(props.variant) === 'link',
         textMono: String(props.variant) === 'mono',
+        'line-clamp-1': props.numberOfLines === 1,
         [String(props.class)]: true,
       }}
-      style={{
-        display: '-webkit-box',
-        '-webkit-box-orient': 'vertical',
-        '-webkit-line-clamp': props.numberOfLines,
-        overflow: 'hidden',
-      }}
+      style={
+        props.numberOfLines !== undefined && props.numberOfLines > 1
+          ? {
+              display: '-webkit-box',
+              '-webkit-box-orient': 'vertical',
+              '-webkit-line-clamp': props.numberOfLines,
+              overflow: 'hidden',
+            }
+          : undefined
+      }
       {...dataAttrs(props.dataSet)}
     >
       {label()}

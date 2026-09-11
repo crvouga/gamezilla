@@ -1,10 +1,10 @@
+import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock/solid';
-import { useTheme } from '@pkgs/ui';
+import { ResponsiveSurface } from '@pkgs/ui';
 import { type Accessor, createEffect, type JSX } from 'solid-js';
 
 import { shouldPlayEloTick } from '../../shared/puzzle-session/elo-tick';
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
-import { useCelebrationOverlayAnimation } from './use-celebration-overlay-animation';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleEloAnimation } from './use-chess-puzzle-elo-animation';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
@@ -61,8 +61,21 @@ function useCelebrationEloFeedback(args: {
   return anim;
 }
 
+function celebrationTitle(outcome: PuzzleCompletion['outcome']): JSX.Element {
+  if (outcome === 'solved') {
+    return (
+      <span class="text-success">
+        <Trans>Puzzle solved!</Trans>
+      </span>
+    );
+  }
+  return <Trans>Puzzle abandoned</Trans>;
+}
+
 export type ChessPuzzleCelebrationOverlayProps = {
   completion: PuzzleCompletion;
+  visible: boolean;
+  onClose: () => void;
   onDisplayEloChange: (rating: number) => void;
   onEloCompletePulse?: () => void;
 };
@@ -70,9 +83,6 @@ export type ChessPuzzleCelebrationOverlayProps = {
 export function ChessPuzzleCelebrationOverlay(
   props: ChessPuzzleCelebrationOverlayProps
 ): JSX.Element {
-  const theme = useTheme();
-  const completionKey = `${props.completion.outcome}-${props.completion.ratingAfter}`;
-  const overlayAnim = useCelebrationOverlayAnimation(completionKey);
   const eloAnim = useCelebrationEloFeedback({
     completion: props.completion,
     onDisplayEloChange: props.onDisplayEloChange,
@@ -82,32 +92,20 @@ export function ChessPuzzleCelebrationOverlay(
   });
 
   return (
-    <div class="box absolute inset-[0] justify-center items-center [padding-left:12px;padding-right:12px]">
-      <div
-        class="box absolute inset-[0] bg-[rgba(0,0,0,0.55)] [transition-property:opacity] [transition-duration:var(--ui-duration-fast)] pointer-events-none"
-        style={{ opacity: overlayAnim.scrimOpacity() }}
+    <ResponsiveSurface
+      visible={props.visible}
+      onClose={props.onClose}
+      title={celebrationTitle(props.completion.outcome)}
+      presentation="modal"
+      size="small"
+      closeDataSet={{ testid: 'chess-puzzle-summary-close' }}
+      dataSet={{ testid: 'chess-puzzle-summary' }}
+    >
+      <ChessPuzzleSummaryCard
+        completion={props.completion}
+        displayRating={eloAnim.displayRating()}
+        deltaPulse={eloAnim.completePulse}
       />
-      <div
-        class="box absolute inset-[0] [transition-property:opacity] [transition-duration:var(--ui-duration-slower)] [transition-timing-function:var(--ui-easing-inOut)] pointer-events-none"
-        style={{
-          'background-color': theme.colors.successSurface,
-          opacity: overlayAnim.vignetteOpacity(),
-        }}
-      />
-      <div
-        class="box self-stretch [transition-property:opacity,_transform] [transition-duration:var(--ui-duration-slow)] [transition-timing-function:var(--ui-easing-decelerate)]"
-        style={{
-          transform: `scale(${overlayAnim.cardScale()})`,
-          opacity: overlayAnim.cardOpacity(),
-        }}
-        data-testid="chess-puzzle-summary"
-      >
-        <ChessPuzzleSummaryCard
-          completion={props.completion}
-          displayRating={eloAnim.displayRating()}
-          deltaPulse={eloAnim.completePulse}
-        />
-      </div>
-    </div>
+    </ResponsiveSurface>
   );
 }

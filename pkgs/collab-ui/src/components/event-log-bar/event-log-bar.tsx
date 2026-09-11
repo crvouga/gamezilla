@@ -88,22 +88,22 @@ export function EventLogBar(props: EventLogBarProps): JSX.Element {
   };
   return (
     <button
-      class="clickable clickableTint"
+      class="clickable clickableTint flex-1 min-w-[0] shrink self-stretch"
       type="button"
       {...componentDataAttrs('EventLogBar', props.dataSet)}
       onClick={props.onPress}
       disabled={props.onPress === undefined}
     >
-      <div class="box min-w-[0] py-0.5">
-        <div class="box flex-row gap-1.5 items-center min-h-[20px]">
+      <div class="box min-w-[0] py-0.5 self-stretch">
+        <div class="box flex-row gap-1.5 items-center min-h-[20px] min-w-[0]">
           <Show when={line()}>
             {(latest) => <EventLogBarIdentity line={latest()} bar={props} />}
           </Show>
           <div class="box flex-1 min-w-[0]">
             <FadeSwitch stateKey={stateKey()}>
-              <div class="box flex-row gap-1 items-center">
+              <div class="box flex-row gap-1 items-center min-w-[0]">
                 {line()?.actor ? props.renderActorLabel?.(line()!.actor) : null}
-                <p class="text textCaption line-clamp-1 text-text-secondary shrink">
+                <p class="text textCaption line-clamp-1 text-text-secondary min-w-[0] shrink">
                   {body()}
                 </p>
               </div>
@@ -111,11 +111,13 @@ export function EventLogBar(props: EventLogBarProps): JSX.Element {
           </div>
           <Show when={timeLabel()}>
             {(label) => (
-              <p class="text textCaption text-text-secondary">{label()}</p>
+              <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
+                {label()}
+              </p>
             )}
           </Show>
           <Show when={(props.unreadCount ?? 0) > 0}>
-            <p class="text textCaption text-tint">
+            <p class="text textCaption shrink-0 text-tint">
               {props.copy.unreadLabel(props.unreadCount ?? 0)}
             </p>
           </Show>

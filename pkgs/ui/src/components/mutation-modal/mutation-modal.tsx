@@ -180,6 +180,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
     <ResponsiveSurface
       visible={props.visible}
       onClose={surfaceClose}
+      closable={lifecycle.phase() !== 'loading'}
       title={props.title}
       presentation="modal"
       stackId={props.stackId}

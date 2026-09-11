@@ -27,8 +27,13 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    min-width: 0;
     white-space: pre-wrap;
+    /* Prefer wrap at spaces; only break mid-word when a single token cannot
+       fit. Headings override to `normal` so tight flex children truncate
+       (line-clamp) instead of letter-wrapping ("P u z z l e"). */
     overflow-wrap: break-word;
+    word-break: normal;
     text-decoration: none;
     font-family:
       system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -69,6 +74,7 @@
     font-size: var(--ui-font-size-4xl);
     line-height: 44px;
     font-weight: 800;
+    overflow-wrap: normal;
   }
 
   .textSubtitle {
@@ -78,6 +84,7 @@
     font-size: var(--ui-font-size-xl);
     line-height: 28px;
     font-weight: 800;
+    overflow-wrap: normal;
   }
 
   .textHeading {
@@ -87,6 +94,7 @@
     font-size: var(--ui-font-size-2xl);
     line-height: 34px;
     font-weight: 800;
+    overflow-wrap: normal;
   }
 
   .textNavigationTitle {
@@ -96,6 +104,7 @@
     font-size: var(--ui-font-size-lg);
     line-height: 24px;
     font-weight: 600;
+    overflow-wrap: normal;
   }
 
   .textLink {

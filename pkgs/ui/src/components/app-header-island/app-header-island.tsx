@@ -109,7 +109,7 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
             <HeaderPillGroup items={props.items ?? []} />
           </div>
         </Show>
-        <div class="box flex-1 min-w-[0] flex-row items-center justify-end">
+        <div class="box flex-1 min-w-[0] max-w-[45%] flex-row items-center justify-end">
           {trailing()}
         </div>
       </div>

@@ -85,7 +85,9 @@ function ProfileScreenContent(props: {
             : null}
           {props.friendsActions !== undefined &&
           props.friendsActions !== null ? (
-            <div class="box flex-row gap-2">{props.friendsActions}</div>
+            <div class="box flex-row flex-wrap gap-2 min-w-[0]">
+              {props.friendsActions}
+            </div>
           ) : null}
         </div>
       </Island>

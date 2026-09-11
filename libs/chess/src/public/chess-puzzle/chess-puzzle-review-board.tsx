@@ -12,7 +12,10 @@ export function ChessPuzzleReviewBoard(props: {
 }): JSX.Element {
   const model = usePuzzleReviewBoard(props.fen, props.moves);
   return (
-    <div class="box flex-1 min-h-[0] self-stretch gap-2">
+    <div
+      class="box self-stretch gap-2 min-w-[0]"
+      style={{ height: 'min(70vh, 480px)' }}
+    >
       <ChessPuzzleBoardFrame>
         {(size) => (
           <Show

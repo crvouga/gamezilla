@@ -201,6 +201,16 @@ describe('GradientBox', () => {
 });
 
 describe('Motion', () => {
+  test('omitting present mounts without an entrance style', () => {
+    renderUi(() => (
+      <Motion data-testid="m" style={{ opacity: 1, transform: 'scale(1)' }} />
+    ));
+    const el = screen.getByTestId('m');
+    expect(cssOf(el)).toContain('transition-property:all');
+    expect(cssOf(el)).not.toContain('translateY(16px)');
+    expect(cssOf(el)).toContain('transform:scale(1)');
+  });
+
   test('emits transition declarations and unmounts after exit', () => {
     const [present, setPresent] = createSignal(true);
     const { clock } = renderUi(() => (

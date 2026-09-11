@@ -27,12 +27,16 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       : undefined;
 
   const body = (
-    <div class="box flex-row items-center gap-2 py-2">
-      <FriendProfileAvatar profile={props.profile} size={44} />
-      <div class="box flex-1 min-w-[0] gap-0.5">
-        <p class="text textBodyBold line-clamp-1">{title}</p>
+    <div class="box gap-2 py-2 min-w-[0]">
+      <div class="box flex-row items-center gap-2 min-w-[0]">
+        <FriendProfileAvatar profile={props.profile} size={44} />
+        <div class="box flex-1 min-w-[0] gap-0.5">
+          <p class="text textBodyBold line-clamp-1">{title}</p>
+        </div>
       </div>
-      {props.trailing}
+      <Show when={props.trailing !== undefined}>
+        <div class="box min-w-[0] self-stretch">{props.trailing}</div>
+      </Show>
     </div>
   );
 
@@ -42,7 +46,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       fallback={
         <Show when={rowTestID} keyed fallback={body}>
           {(testID) => (
-            <div class="box" data-testid={testID}>
+            <div class="box min-w-[0]" data-testid={testID}>
               {body}
             </div>
           )}
@@ -50,7 +54,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       }
     >
       <button
-        class="clickable clickableTint"
+        class="clickable clickableTint min-w-[0] self-stretch"
         {...(rowTestID !== undefined ? dataAttrs({ testid: rowTestID }) : {})}
         type="button"
         onClick={() => props.onPress?.()}
