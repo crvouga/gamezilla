@@ -61,6 +61,10 @@ function schemeBlock(scheme: ColorScheme): string {
     const bg = elevation(level).backgroundColor ?? 'transparent';
     lines.push(`  --ui-elevation-${level}: ${bg};`);
   }
+  // Default on-color cascade for icons/text outside an OnColorProvider.
+  lines.push('  --ui-on-fg: var(--ui-color-text);');
+  lines.push('  --ui-on-fg-muted: var(--ui-color-text-secondary);');
+  lines.push('  --ui-on-icon: var(--ui-color-icon);');
   lines.push(`  color-scheme: ${scheme};`);
   return `[data-theme="${scheme}"] {\n${lines.join('\n')}\n}`;
 }

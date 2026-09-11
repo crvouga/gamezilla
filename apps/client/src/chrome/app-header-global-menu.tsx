@@ -1,13 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
  * Global dropdown mounted as `AppFrameChromeProvider` `globalTrailing` so
- * every top bar shares it. Rows: Settings, connectivity (→ Sync), Server
- * status, Theme, Sound, UI explorer (dev bundles only).
- *
- * Deferred: the identity header (`@username`, avatar trigger) joins with the
- * auth / profile screen ports (`useMyProfileId`, `MyProfileAvatar` are
- * UI-bound). The trigger is the plain user glyph until then; the header shows
- * guest / signed-in from the local identity, and the Account row opens auth.
+ * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
+ * Theme, Sound. Header shows `@username` + email when signed in (bridged
+ * from the sync tree via {@link useGlobalMenuIdentity}).
  */
 
 import { Handles } from '@libs/test-ids';
@@ -16,10 +12,10 @@ import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
   type OverflowMenuAction,
   OverflowMenuButton,
+  type OverflowMenuHeader,
   PaintbrushIcon,
   ServerIcon,
   SettingsIcon,
-  SquareStackIcon,
   StatusDot,
   type StatusDotStatus,
   UserIcon,
@@ -31,11 +27,12 @@ import {
 import type { JSX } from 'solid-js';
 
 import { useLocalIdentity } from '../shell/identity/identity-context';
+import { useGlobalMenuIdentity } from './global-menu-identity-context';
 import { createConnectivity } from './use-connectivity';
 
 const CONNECTIVITY_DOT_SIZE = 14;
 
-function connectivityTitle(
+function connectivityStatusLabel(
   t: ReturnType<typeof useLingui>['t'],
   status: StatusDotStatus
 ): string {
@@ -74,8 +71,9 @@ function useGlobalMenuActions(): () => readonly OverflowMenuAction[] {
     },
     {
       id: 'connectivity',
-      label: connectivityTitle(t, connectivity.status()),
-      'aria-label': connectivityTitle(t, connectivity.status()),
+      label: t`Connectivity`,
+      subtitle: connectivityStatusLabel(t, connectivity.status()),
+      'aria-label': connectivityStatusLabel(t, connectivity.status()),
       leading: (
         <StatusDot
           status={connectivity.status()}
@@ -113,30 +111,39 @@ function useGlobalMenuActions(): () => readonly OverflowMenuAction[] {
       icon: muted() ? VolumeXIcon : Volume2Icon,
       onClick: go('/more/sound'),
     },
-    ...(import.meta.env.DEV
-      ? [
-          {
-            id: 'ui-explorer',
-            label: t`UI explorer`,
-            icon: SquareStackIcon,
-            onClick: go('/ui'),
-          },
-        ]
-      : []),
   ];
+}
+
+function useGlobalMenuHeader(): () => OverflowMenuHeader {
+  const { t } = useLingui();
+  const identity = useLocalIdentity();
+  const menuIdentity = useGlobalMenuIdentity();
+  return () => {
+    if (!identity.isSignedIn()) {
+      return { title: t`Guest`, subtitle: t`Playing as guest` };
+    }
+    const { username, email } = menuIdentity();
+    if (username !== null && username.length > 0) {
+      return {
+        title: `@${username}`,
+        subtitle: email ?? undefined,
+      };
+    }
+    if (email !== null && email.length > 0) {
+      return { title: email };
+    }
+    return { title: t`Account` };
+  };
 }
 
 export function AppHeaderGlobalMenu(): JSX.Element {
   const { t } = useLingui();
-  const identity = useLocalIdentity();
   const actions = useGlobalMenuActions();
+  const header = useGlobalMenuHeader();
   return (
     <OverflowMenuButton
       actions={actions()}
-      header={{
-        title: identity.isSignedIn() ? t`Signed in` : t`Guest`,
-        subtitle: identity.isSignedIn() ? undefined : t`Playing as guest`,
-      }}
+      header={header()}
       icon={UserIcon}
       aria-label={t`Account menu`}
       dataSet={{ testid: Handles.statusCurrentUser }}

@@ -7,9 +7,7 @@ import type {
   GameDefinition,
 } from '../../../shared/space/game';
 import { composeSpaceRoomModule } from '../../../shared/space/load-game-plugins';
-import { createSpaceEventLogRouter } from '../../../shared/space/space-log/space-log-router';
 import { GamesRegistryProvider } from './games-registry-context';
-import { SpaceEventLogRouterProvider } from './space-event-log-router-context';
 import {
   SpaceModuleProvider,
   type SpaceRoomModule,
@@ -36,15 +34,12 @@ export function GamesBootstrapFromPlugins(
     games,
     clock.now
   );
-  const eventLogRouter = createSpaceEventLogRouter(games);
 
   return (
     <SpaceModuleProvider value={spaceRoomModule}>
-      <SpaceEventLogRouterProvider value={eventLogRouter}>
-        <GamesRegistryProvider value={clients}>
-          {props.children}
-        </GamesRegistryProvider>
-      </SpaceEventLogRouterProvider>
+      <GamesRegistryProvider value={clients}>
+        {props.children}
+      </GamesRegistryProvider>
     </SpaceModuleProvider>
   );
 }

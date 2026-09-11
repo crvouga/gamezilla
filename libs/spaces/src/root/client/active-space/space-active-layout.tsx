@@ -20,7 +20,6 @@ import {
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
 import { useSpaceSessionUi } from './space-session-ui-context';
-import { SpaceTitleAttribution } from './space-title-attribution';
 
 export type SpaceActiveLayoutProps = ParentProps;
 
@@ -30,13 +29,11 @@ function SpaceChromeTitle(props: {
 }): JSX.Element {
   return (
     <div class="box shrink min-w-[0]">
-      <SpaceTitleAttribution spaceId={props.spaceId}>
-        <SpaceTitleText
-          spaceId={props.spaceId}
-          variant={props.variant}
-          numberOfLines={1}
-        />
-      </SpaceTitleAttribution>
+      <SpaceTitleText
+        spaceId={props.spaceId}
+        variant={props.variant}
+        numberOfLines={1}
+      />
     </div>
   );
 }

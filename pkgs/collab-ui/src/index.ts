@@ -1,18 +1,4 @@
 export {
-  AttributionHighlight,
-  type AttributionHighlightProps,
-} from './components/attribution-highlight';
-export {
-  EventLogBar,
-  type EventLogBarCopy,
-  type EventLogBarProps,
-} from './components/event-log-bar';
-export {
-  EventLogSurface,
-  type EventLogSurfaceCopy,
-  type EventLogSurfaceProps,
-} from './components/event-log-surface';
-export {
   ParticipantColorRing,
   type ParticipantColorRingProps,
 } from './components/participant-color-ring';

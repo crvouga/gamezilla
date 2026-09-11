@@ -19,11 +19,13 @@ function Surface(props: {
   onClose: () => void;
   presentation?: 'responsive' | 'modal';
   visible?: boolean;
+  closable?: boolean;
 }): JSX.Element {
   return (
     <ResponsiveSurface
       visible={props.visible ?? true}
       onClose={props.onClose}
+      closable={props.closable}
       title="Filters"
       presentation={props.presentation}
       closeDataSet={{ testid: 'close' }}
@@ -113,6 +115,21 @@ describe('ResponsiveSurface', () => {
     );
     expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
     expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
+  });
+
+  test('closable=false hides the close icon and ignores backdrop dismiss', () => {
+    const onClose = vi.fn();
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <Surface onClose={onClose} presentation="modal" closable={false} />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 800 }
+    );
+    expect(screen.queryByTestId('close')).toBeNull();
+    fireEvent.click(mustQuery('[data-component="ModalScrim"]'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   test('passthrough host falls back to the modal path; web host is the default', () => {

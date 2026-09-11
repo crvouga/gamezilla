@@ -74,6 +74,7 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
     <ResponsiveSurface
       visible={props.visible}
       onClose={handleClose}
+      closable={!submitting()}
       title={props.title}
       presentation="modal"
       dataSet={{ component: 'ConfirmationModal', ...props.dataSet }}

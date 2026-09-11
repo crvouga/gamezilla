@@ -1,17 +1,21 @@
 /** @jsxImportSource solid-js */
 /**
  * Icon adapter over `lucide-solid`. Every icon in the design system is a
- * `createIcon(LucideX)` so consumers get theme-aware color defaults (on-color
- * context → `icon` token) and a layout box via `class` / `style`.
+ * `createIcon(LucideX)` so consumers get theme-aware color defaults.
+ *
+ * Default stroke is the CSS var `--ui-on-icon` (set by {@link OnColorProvider}),
+ * not a JS context read. That way icons created as JSX outside a colored
+ * surface (e.g. `Button` `endIcon={<ChevronRightIcon />}`) still pick up the
+ * surface foreground when inserted — matching the label color.
  */
 
 import type { Component, JSX } from 'solid-js';
 import { type ComponentDataSet, componentDataAttrs } from '../../component-id';
-import { resolveColor, useOnColor, useThemeTokens } from '../../theme';
+import { resolveColor, useThemeTokens } from '../../theme';
 
 export type IconProps = {
   size?: number | undefined;
-  /** Color token name or CSS color. When omitted, inherits on-color context or theme `icon`. */
+  /** Color token name or CSS color. When omitted, uses `var(--ui-on-icon)`. */
   color?: string | undefined;
   strokeWidth?: number | undefined;
   class?: string | undefined;
@@ -25,6 +29,8 @@ export type IconComponent = Component<IconProps>;
 
 const DEFAULT_SIZE = 24;
 const DEFAULT_STROKE_WIDTH = 2;
+/** Cascade-friendly default; {@link OnColorProvider} overrides per surface. */
+const DEFAULT_ICON_COLOR = 'var(--ui-on-icon)';
 
 type LucideIconLike = Component<{
   size?: number | string;
@@ -36,11 +42,10 @@ type LucideIconLike = Component<{
 export function createIcon(LucideIcon: LucideIconLike): IconComponent {
   return function Icon(props: IconProps): JSX.Element {
     const tokens = useThemeTokens();
-    const onColor = useOnColor();
-    const color = (): string =>
-      (props.color !== undefined
-        ? resolveColor(props.color, tokens.colors)
-        : undefined) ?? onColor().icon;
+    const color = (): string => {
+      if (props.color === undefined) return DEFAULT_ICON_COLOR;
+      return resolveColor(props.color, tokens.colors) ?? DEFAULT_ICON_COLOR;
+    };
     return (
       <span
         class="box inline-flex items-center justify-center shrink-0"
