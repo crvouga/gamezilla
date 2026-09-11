@@ -4,13 +4,13 @@
  */
 
 import type {
+  BoardOrientation,
   CellFeedback,
   CellFeedbackCorner,
   CellFeedbackKind,
   Square,
 } from '@pkgs/chess-board-core/types';
 import { CELL_UNITS, squareOrigin } from './board-units';
-import type { BoardOrientation } from './chess-board-types';
 
 /** Vector glyph paths authored in a 100×100 box; scaled into the badge. */
 export const GLYPH_PATHS_100: Partial<Record<CellFeedbackKind, string>> = {

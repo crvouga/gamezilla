@@ -1,13 +1,9 @@
 import { Handles } from '@libs/test-ids';
 import {
-  UserSearchQueryHint,
   UserSearchSignInPrompt,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search/public/use-user-search';
-import {
-  USER_SEARCH_MIN_LENGTH,
-  type UserSearchResult,
-} from '@libs/user-search/public/user-search-types';
+import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   EmptyState,
@@ -89,10 +85,8 @@ function SearchScreenBody(): JSX.Element {
   const state = useDebouncedUserSearchEffect(query, recordSearch);
   const trimmed = () => query().trim();
   const showRecent = () => trimmed().length === 0;
-  const showSignInPrompt = () =>
-    !state.signedIn && trimmed().length >= USER_SEARCH_MIN_LENGTH;
-  const showResults = () =>
-    state.signedIn && trimmed().length >= USER_SEARCH_MIN_LENGTH;
+  const showSignInPrompt = () => !state.signedIn && trimmed().length > 0;
+  const showResults = () => state.signedIn && trimmed().length > 0;
 
   return (
     <div class="box flex-1 min-h-[0] gap-4">
@@ -119,7 +113,6 @@ function SearchScreenBody(): JSX.Element {
           onClear={clear}
         />
       </Show>
-      <UserSearchQueryHint query={query()} signedIn={state.signedIn} />
       <Show when={showSignInPrompt()}>
         <UserSearchSignInPrompt />
       </Show>

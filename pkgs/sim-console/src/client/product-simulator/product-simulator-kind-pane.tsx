@@ -1,5 +1,5 @@
 import { EmptyState } from '@pkgs/ui';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX, type ParentComponent, Show } from 'solid-js';
 import {
   coerceDebuggerView,
   type DebuggerViewId,
@@ -21,6 +21,15 @@ import {
   RoomProductSimulatorPanel,
   ServerProductSimulatorPanel,
 } from './product-simulator-panel';
+
+export type ProductSimulatorClientColumnShellProps = {
+  readonly actor: ProductSimulatorActor;
+  readonly focused: boolean;
+  readonly onActivate: () => void;
+};
+
+export type ProductSimulatorClientColumnShell =
+  ParentComponent<ProductSimulatorClientColumnShellProps>;
 
 const kindFillSx = {
   flex: 1,
@@ -109,12 +118,7 @@ export function ProductSimulatorKindPane(props: {
     mode?: 'push' | 'replace'
   ) => void;
   readonly onClientColumnsOutsidePointerDown?: () => void;
-  readonly clientColumnShell?: (args: {
-    readonly actor: ProductSimulatorActor;
-    readonly focused: boolean;
-    readonly onActivate: () => void;
-    readonly children: JSX.Element;
-  }) => JSX.Element;
+  readonly clientColumnShell?: ProductSimulatorClientColumnShell;
 }): JSX.Element {
   const room = () => resolveRoom(props.session, props.instanceId);
   const serverPaneKey = () =>
@@ -230,12 +234,7 @@ function ClientLiveColumns(props: {
     mode?: 'push' | 'replace'
   ) => void;
   readonly onOutsidePointerDown?: () => void;
-  readonly clientColumnShell?: (args: {
-    readonly actor: ProductSimulatorActor;
-    readonly focused: boolean;
-    readonly onActivate: () => void;
-    readonly children: JSX.Element;
-  }) => JSX.Element;
+  readonly clientColumnShell?: ProductSimulatorClientColumnShell;
 }): JSX.Element {
   const layout = useSimConsoleLayout();
   return (
@@ -259,32 +258,34 @@ function ClientLiveColumns(props: {
               layout.multiClientColumns
                 ? props.focusedClientId === actor.id
                 : selected();
-            const panel = (
-              <ClientProductSimulatorPanel
-                actor={actor}
-                session={props.session}
-                snapshotEpoch={props.snapshotEpoch}
-                reloadToken={props.session.revision}
-                pane={resolveProductSimulatorPane(
-                  props.panes,
-                  actor.id,
-                  'client'
-                )}
-                onPanePatch={(patch, mode) =>
-                  props.onPanePatch(actor.id, patch, mode)
-                }
-              />
-            );
+            // Panel must be written as JSX children of the shell (not a
+            // pre-built element) so it mounts under `KeyboardShortcutScope`.
+            const Shell = props.clientColumnShell;
             const body = () =>
-              props.clientColumnShell !== undefined ? (
-                props.clientColumnShell({
-                  actor,
-                  focused: focused(),
-                  onActivate: () => props.onFocusedClientIdChange(actor.id),
-                  children: panel,
-                })
+              Shell !== undefined ? (
+                <Shell
+                  actor={actor}
+                  focused={focused()}
+                  onActivate={() => props.onFocusedClientIdChange(actor.id)}
+                >
+                  <ClientLiveColumnPanel
+                    actor={actor}
+                    session={props.session}
+                    snapshotEpoch={props.snapshotEpoch}
+                    panes={props.panes}
+                    onPanePatch={props.onPanePatch}
+                  />
+                </Shell>
               ) : (
-                <DebuggerColumn>{panel}</DebuggerColumn>
+                <DebuggerColumn>
+                  <ClientLiveColumnPanel
+                    actor={actor}
+                    session={props.session}
+                    snapshotEpoch={props.snapshotEpoch}
+                    panes={props.panes}
+                    onPanePatch={props.onPanePatch}
+                  />
+                </DebuggerColumn>
               );
             return (
               <Show
@@ -317,5 +318,30 @@ function EmptyKind(props: { readonly body: string }) {
         body={props.body}
       />
     </div>
+  );
+}
+
+function ClientLiveColumnPanel(props: {
+  readonly actor: ProductSimulatorActor;
+  readonly session: ProductSimulatorSession;
+  readonly snapshotEpoch: number;
+  readonly panes: Readonly<Record<string, PaneNavValue>>;
+  readonly onPanePatch: (
+    id: string,
+    patch: PaneNavPatch,
+    mode?: 'push' | 'replace'
+  ) => void;
+}): JSX.Element {
+  return (
+    <ClientProductSimulatorPanel
+      actor={props.actor}
+      session={props.session}
+      snapshotEpoch={props.snapshotEpoch}
+      reloadToken={props.session.revision}
+      pane={resolveProductSimulatorPane(props.panes, props.actor.id, 'client')}
+      onPanePatch={(patch, mode) =>
+        props.onPanePatch(props.actor.id, patch, mode)
+      }
+    />
   );
 }

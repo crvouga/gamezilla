@@ -1,5 +1,6 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
+import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import { SpeakingAvatar, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
@@ -36,9 +37,7 @@ function PuzzleBoardSlot(props: {
   status: Accessor<SolveStatus>;
   atFrontier: Accessor<boolean>;
   opponentAnimating: Accessor<boolean>;
-  onMove: (
-    m: Parameters<NonNullable<Parameters<typeof ChessBoard>[0]['onMove']>>[0]
-  ) => void;
+  onMove: (m: Move) => void;
   cellFeedback: PuzzlePlayerChromeModel['cellFeedback'];
   cellHighlights: PuzzlePlayerChromeModel['cellHighlights'];
   arrows: PuzzlePlayerChromeModel['arrows'];
@@ -48,7 +47,7 @@ function PuzzleBoardSlot(props: {
       when={props.displayFen() !== null && props.displayFen()!.length > 0}
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
-      <ChessBoard
+      <SmartChessBoard
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}

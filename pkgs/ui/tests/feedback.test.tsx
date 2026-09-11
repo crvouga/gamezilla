@@ -200,6 +200,18 @@ describe('Tooltip', () => {
     fireEvent.focusOut(screen.getByRole('button', { name: '?' }));
     expect(bubble).toHaveAttribute('aria-hidden', 'true');
   });
+
+  test('pins horizontally via static placement (no JS shift)', () => {
+    renderUi(() => (
+      <Tooltip label="Account menu" placement="bottom-end">
+        <button type="button">me</button>
+      </Tooltip>
+    ));
+    const bubble = screen.getByRole('tooltip', { hidden: true });
+    expect(bubble.className).toMatch(/end/);
+    expect(bubble.className).toMatch(/bottom/);
+    expect(bubble.className).not.toMatch(/center/);
+  });
 });
 
 describe('DismissibleBanner', () => {

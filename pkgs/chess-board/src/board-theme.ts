@@ -111,3 +111,32 @@ export function mergeBoardTheme(
     promotion: { ...derivedPromotion, ...override.promotion },
   };
 }
+
+/** Host CSS custom properties for square / overlay / chrome colors. */
+export function boardThemeToCssVars(
+  theme: BoardTheme
+): Record<string, string> {
+  return {
+    '--chess-sq-light': theme.lightSquare,
+    '--chess-sq-dark': theme.darkSquare,
+    '--chess-border': theme.border,
+    '--chess-last-move': theme.lastMove,
+    '--chess-selected': theme.selected,
+    '--chess-check': theme.check,
+    '--chess-legal-dot': theme.legalMoveDot,
+    '--chess-legal-ring': theme.legalMoveCaptureRing,
+    '--chess-coords': theme.coordinates,
+    '--chess-feedback-check': theme.feedback.check,
+    '--chess-feedback-cross': theme.feedback.cross,
+    '--chess-feedback-exclamation': theme.feedback.exclamation,
+    '--chess-feedback-double-exclam': theme.feedback.doubleExclam,
+    '--chess-feedback-question': theme.feedback.question,
+    '--chess-feedback-question-exclam': theme.feedback.questionExclam,
+    '--chess-feedback-dot': theme.feedback.dot,
+    '--chess-arrow-primary': theme.arrows.primary,
+    '--chess-arrow-secondary': theme.arrows.secondary,
+    '--chess-arrow-alt': theme.arrows.alt,
+    '--chess-arrow-danger': theme.arrows.danger,
+    '--chess-arrow-muted': theme.arrows.muted,
+  };
+}

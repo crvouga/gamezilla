@@ -53,7 +53,11 @@ function AppTabButton(props: {
       />
       <p
         class="text textCaption line-clamp-1"
-        style={{ 'font-size': `${TAB_LABEL_FONT_SIZE}px`, color: color() }}
+        classList={{
+          'text-tint': props.active,
+          'text-tab-icon-default': !props.active,
+        }}
+        style={{ 'font-size': `${TAB_LABEL_FONT_SIZE}px` }}
       >
         {props.tab.label}
       </p>

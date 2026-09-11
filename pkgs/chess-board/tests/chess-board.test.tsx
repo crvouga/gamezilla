@@ -1,5 +1,5 @@
 /** @jsxImportSource solid-js */
-import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import {
   chessBoardProbeTestId,
   chessBoardSquareTestId,
@@ -50,14 +50,14 @@ function noopAudio(): AudioPlaybackPort {
   };
 }
 
-describe('ChessBoard', () => {
+describe('SmartChessBoard', () => {
   it('mounts squares and a probe', () => {
     const { clock, timers } = createSimClock();
     renderWithI18n(() => (
       <ClockProvider clock={clock} timers={timers}>
         <ThemeProvider colorScheme="light">
           <AudioPlaybackProvider value={noopAudio()}>
-            <ChessBoard size={320} animations={false} />
+            <SmartChessBoard size={320} animations={false} />
           </AudioPlaybackProvider>
         </ThemeProvider>
       </ClockProvider>

@@ -31,7 +31,11 @@ import { useTimers } from '@pkgs/clock/solid';
 import { type JSX, Show, untrack } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorProvider, resolveColor, useThemeTokens } from '../../theme';
-import { Tooltip, useTooltipTrigger } from '../tooltip';
+import {
+  Tooltip,
+  type TooltipPlacement,
+  useTooltipTrigger,
+} from '../tooltip';
 
 export type IconButtonVariant = 'icon' | 'avatar';
 
@@ -65,6 +69,8 @@ export type IconButtonProps = {
    * `'none'` = no tooltip (label still used for a11y).
    */
   tooltip?: IconButtonTooltipMode | undefined;
+  /** Static tooltip placement. Defaults to centered `bottom`. */
+  tooltipPlacement?: TooltipPlacement | undefined;
   /** Visual disc diameter in pixels. Defaults to 40. */
   size?: number | undefined;
   /** Color token or raw color for the background. */
@@ -220,7 +226,11 @@ export function IconButton(props: IconButtonProps): JSX.Element {
       when={tooltipMode() !== 'none'}
       fallback={<IconButtonFace {...props} tooltipMode="none" />}
     >
-      <Tooltip label={props.label} enableFocus={tooltipMode() === 'default'}>
+      <Tooltip
+        label={props.label}
+        enableFocus={tooltipMode() === 'default'}
+        placement={props.tooltipPlacement}
+      >
         <IconButtonFace {...props} tooltipMode={tooltipMode()} />
       </Tooltip>
     </Show>

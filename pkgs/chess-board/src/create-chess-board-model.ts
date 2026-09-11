@@ -5,6 +5,7 @@
  * SFX, and derives stable piece rows + the capture ghost for the pieces layer.
  */
 
+import { chessGameRules } from '@pkgs/chess-board-core/board-rules';
 import {
   type CaptureGhost,
   captureGhostForTransition,
@@ -152,7 +153,7 @@ export function createChessBoardModel(
   };
 
   const actions = new BoardInteraction(
-    args.game,
+    chessGameRules(args.game),
     {
       onApplied: (result) => {
         playMove(result.move, result);

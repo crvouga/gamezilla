@@ -211,7 +211,7 @@ bun run --filter @pkgs/sync-engine test
         ┌───────────────────┼───────────────────┐
         ▼                   ▼                   ▼
    Realtime host       billing/etc            REST exceptions
-   (shared play)       (external)            search / vendors
+   (shared play)       (external)            vendors / external
 ```
 
 **Wire path layering:** the package Hono app mounts `POST /query` and
@@ -220,7 +220,7 @@ bun run --filter @pkgs/sync-engine test
 the same routes at different layers.
 
 **Absolute REST exceptions** (do not casually grow — see host `AGENTS.md`):
-cross-user search and billing/external APIs. Identity bootstrap writes are
+billing/external APIs. Identity bootstrap writes are
 **mutations**, not REST.
 
 ---

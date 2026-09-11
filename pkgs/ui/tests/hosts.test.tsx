@@ -145,6 +145,7 @@ describe('ScrollView', () => {
     const wrapper = frame.parentElement;
     if (wrapper === null) throw new Error('wrapper missing');
     expect(wrapper.className).toMatch(/flex-1/);
+    expect(wrapper.className).toMatch(/min-h-0/);
   });
 });
 

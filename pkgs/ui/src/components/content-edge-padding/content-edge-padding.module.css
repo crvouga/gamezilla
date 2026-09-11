@@ -1,5 +1,10 @@
-/* Flush-edge bleed: CSS vars set on the wrapper so content inherits them. */
+/* Flush-edge bleed: CSS vars set on the wrapper so content inherits them.
+ * Flex column + min-height:0 so a nested `.scroll.flex-1` receives the
+ * constrained height and becomes the scrollport (not the outer overflow:hidden
+ * clipper). */
 .wrapper {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   margin-left: calc(-1 * var(--ui-flush-edge-x, 0px));
   margin-right: calc(-1 * var(--ui-flush-edge-x, 0px));

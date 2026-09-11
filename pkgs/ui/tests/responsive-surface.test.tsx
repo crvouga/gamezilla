@@ -133,7 +133,7 @@ describe('ResponsiveSurface', () => {
     expect(screen.getByText('Surface body')).toBeInTheDocument();
   });
 
-  test('default scroll wraps chrome in a ScrollView for form panels', () => {
+  test('default scroll pins the header and scrolls only the body', () => {
     renderUi(
       () => (
         <SurfaceStackProvider>
@@ -142,7 +142,80 @@ describe('ResponsiveSurface', () => {
       ),
       { width: 400, height: 600 }
     );
-    expect(mustQuery('[data-component="ScrollView"]')).toBeInTheDocument();
+    const scrollContent = mustQuery('[data-component="ScrollViewContent"]');
+    expect(scrollContent).toBeInTheDocument();
+    expect(scrollContent).toHaveTextContent('Surface body');
+    expect(scrollContent).not.toHaveTextContent('Filters');
+    const header = mustQuery('[data-component="ResponsiveSurfaceHeader"]');
+    expect(header).toHaveTextContent('Filters');
+    expect(scrollContent.contains(header)).toBe(false);
+    const chrome = mustQuery('[data-component="ResponsiveSurfaceChrome"]');
+    expect(chrome.contains(header)).toBe(true);
+    // Scrollbar is flush: chrome has no edge padding; padding is on content.
+    expect(chrome.className).not.toMatch(/\bpx-4\b/);
+    expect(chrome.className).not.toMatch(/\bpb-6\b/);
+    expect(
+      mustQuery('[data-component="ResponsiveSurfaceHeaderPad"]').className
+    ).toMatch(/\bpx-4\b/);
+    expect(cssOf(scrollContent)).toContain('padding-left:var(--ui-space-4)');
+    expect(cssOf(scrollContent)).toContain('padding-right:var(--ui-space-4)');
+    expect(cssOf(scrollContent)).toContain('padding-bottom:var(--ui-space-6)');
+    expect(cssOf(chrome)).toContain('display:grid');
+    expect(cssOf(chrome)).toContain('grid-template-rows:autominmax(0,1fr)');
+    expect(cssOf(chrome)).toMatch(/max-height:\d+px/);
+    const scroller = mustQuery('[data-component="ScrollView"]');
+    expect(chrome.contains(scroller)).toBe(true);
+    expect(scroller.contains(header)).toBe(false);
+    expect(cssOf(scroller)).toContain('height:100%');
+  });
+
+  test('overflowing body keeps header outside the scrollport', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <ResponsiveSurface
+            visible
+            onClose={() => {}}
+            title="Filters"
+            presentation="modal"
+          >
+            <div data-testid="tall-body" style={{ height: '2000px' }}>
+              Tall body
+            </div>
+          </ResponsiveSurface>
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 360 }
+    );
+    const header = mustQuery('[data-component="ResponsiveSurfaceHeader"]');
+    const scroller = mustQuery('[data-component="ScrollView"]');
+    const scrollContent = mustQuery('[data-component="ScrollViewContent"]');
+    expect(scroller.contains(header)).toBe(false);
+    expect(scrollContent).toHaveTextContent('Tall body');
+    expect(scrollContent).not.toHaveTextContent('Filters');
+    // Grid + height:100% is what makes overflow:auto engage in the browser.
+    expect(
+      cssOf(mustQuery('[data-component="ResponsiveSurfaceChrome"]'))
+    ).toContain('minmax(0,1fr)');
+    expect(cssOf(scroller)).toContain('height:100%');
+    expect(cssOf(scrollContent)).toContain('padding-left:var(--ui-space-4)');
+  });
+
+  test('scroll={false} keeps shell edge padding for nested flush scrollers', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <Surface onClose={() => {}} presentation="modal" scroll={false} />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 600 }
+    );
+    const chrome = mustQuery('[data-component="ResponsiveSurfaceChrome"]');
+    expect(chrome.className).toMatch(/\bpx-4\b/);
+    expect(chrome.className).toMatch(/\bpb-6\b/);
+    expect(
+      document.querySelector('[data-component="ResponsiveSurfaceHeaderPad"]')
+    ).toBeNull();
   });
 
   test('closable=false hides the close icon and ignores backdrop dismiss', () => {

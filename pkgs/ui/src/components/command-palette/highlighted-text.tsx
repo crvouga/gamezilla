@@ -39,16 +39,27 @@ export function highlightSegments(
   return segments;
 }
 
+function variantClassList(variant: TextVariant): Record<string, boolean> {
+  return {
+    textBodyBold: variant === 'bodyBold',
+    textCaption: variant === 'caption',
+    textLabel: variant === 'label',
+    textTitle: variant === 'title',
+    textSubtitle: variant === 'subtitle',
+    textHeading: variant === 'heading',
+    textNavigationTitle: variant === 'navigationTitle',
+    textLink: variant === 'link',
+    textMono: variant === 'mono',
+  };
+}
+
 export function HighlightedText(props: HighlightedTextProps): JSX.Element {
   const variant = (): TextVariant => props.variant ?? 'body';
   const boldVariant = (): TextVariant => props.boldVariant ?? 'bodyBold';
   const segments = createMemo(() =>
     highlightSegments(props.text, props.ranges)
   );
-  const lineProps = (): Pick<HighlightedTextProps, 'numberOfLines'> =>
-    props.numberOfLines !== undefined
-      ? { numberOfLines: props.numberOfLines }
-      : {};
+  const clampOne = (): boolean => props.numberOfLines === 1;
   return (
     <Show
       when={props.ranges.length > 0}
@@ -56,63 +67,30 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
         <p
           class="text"
           classList={{
-            textBodyBold: variant() === 'bodyBold',
-            textCaption: variant() === 'caption',
-            textLabel: variant() === 'label',
-            textTitle: variant() === 'title',
-            textSubtitle: variant() === 'subtitle',
-            textHeading: variant() === 'heading',
-            textNavigationTitle: variant() === 'navigationTitle',
-            textLink: variant() === 'link',
-            textMono: variant() === 'mono',
+            ...variantClassList(variant()),
+            'line-clamp-1': clampOne(),
           }}
-          {...lineProps()}
         >
           {props.text}
         </p>
       }
     >
       <p
-        class="text shrink"
+        class="text shrink min-w-0"
         classList={{
-          textBodyBold: variant() === 'bodyBold',
-          textCaption: variant() === 'caption',
-          textLabel: variant() === 'label',
-          textTitle: variant() === 'title',
-          textSubtitle: variant() === 'subtitle',
-          textHeading: variant() === 'heading',
-          textNavigationTitle: variant() === 'navigationTitle',
-          textLink: variant() === 'link',
-          textMono: variant() === 'mono',
+          ...variantClassList(variant()),
+          'line-clamp-1': clampOne(),
         }}
-        {...lineProps()}
       >
         <For each={segments()}>
           {(segment) => (
-            <p
-              class="text"
-              classList={{
-                textBodyBold:
-                  (segment.bold ? boldVariant() : variant()) === 'bodyBold',
-                textCaption:
-                  (segment.bold ? boldVariant() : variant()) === 'caption',
-                textLabel:
-                  (segment.bold ? boldVariant() : variant()) === 'label',
-                textTitle:
-                  (segment.bold ? boldVariant() : variant()) === 'title',
-                textSubtitle:
-                  (segment.bold ? boldVariant() : variant()) === 'subtitle',
-                textHeading:
-                  (segment.bold ? boldVariant() : variant()) === 'heading',
-                textNavigationTitle:
-                  (segment.bold ? boldVariant() : variant()) ===
-                  'navigationTitle',
-                textLink: (segment.bold ? boldVariant() : variant()) === 'link',
-                textMono: (segment.bold ? boldVariant() : variant()) === 'mono',
-              }}
+            <span
+              classList={variantClassList(
+                segment.bold ? boldVariant() : variant()
+              )}
             >
               {segment.text}
-            </p>
+            </span>
           )}
         </For>
       </p>

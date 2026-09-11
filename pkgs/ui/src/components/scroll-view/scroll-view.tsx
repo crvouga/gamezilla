@@ -97,7 +97,11 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
     <Show when={flush().wrapperClass} fallback={scroller}>
       {(wrapperClass) => (
         <div
-          class={[wrapperClass(), flexFill() ? 'flex-1' : undefined]
+          class={[
+            wrapperClass(),
+            // Fill a flex parent and pass that definite height to `.scroll`.
+            flexFill() ? 'flex-1 min-h-0' : undefined,
+          ]
             .filter(Boolean)
             .join(' ')}
           style={flush().contentStyle}

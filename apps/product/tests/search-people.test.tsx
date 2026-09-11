@@ -1,6 +1,6 @@
 /**
  * People search must settle: Typing a username must not leave the UI on an
- * eternal "Searching…" spinner (debounce + POST /friends/search).
+ * eternal "Searching…" spinner (debounce + searchProfiles sync query).
  */
 
 import { describe, test } from 'bun:test';

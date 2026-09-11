@@ -14,6 +14,10 @@
  * Deferred lib providers (each with its screen port): `EndSpaceModalProvider`
  * / `LeaveSpaceModalProvider` / space rooms / notifications — mounted from
  * `sync-engine-ready-tree.tsx` so mutation hubs stay off the shell entry.
+ *
+ * Embedded hosts (simulator panels) omit an inner `KeyboardShortcutScope` so
+ * the host column scope gates document shortcuts; standalone apps keep an
+ * always-active scope.
  */
 
 import { OfflineIndicator } from '@apps/client/chrome/offline-indicator';
@@ -25,7 +29,7 @@ import {
   OverlayPortalProvider,
   SurfaceStackProvider,
 } from '@pkgs/ui';
-import { type JSX, Show } from 'solid-js';
+import { type JSX } from 'solid-js';
 import { AppCommands } from '../commands/app-commands';
 import { useEmbeddedApp } from '../embedded-app-context';
 import { PwaUpdatePromptBanner } from '../pwa/update-prompt';
@@ -34,15 +38,25 @@ function AppCommandRegistry(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const embedded = useEmbeddedApp();
-  return (
-    <KeyboardShortcutScope active={!embedded}>
-      <CommandRegistryProvider enableDefaultShortcuts={!embedded}>
+  // Embedded: inherit the host column `KeyboardShortcutScope` (must create
+  // the registry under that ancestor — do not pre-build JSX then wrap).
+  // Standalone: always-active scope so nested hosts can still opt out.
+  if (embedded) {
+    return (
+      <CommandRegistryProvider enableDefaultShortcuts>
         <AppCommands />
         <CommandPalette />
         {props.children}
-        <Show when={!embedded}>
-          <PwaUpdatePromptBanner />
-        </Show>
+      </CommandRegistryProvider>
+    );
+  }
+  return (
+    <KeyboardShortcutScope active>
+      <CommandRegistryProvider enableDefaultShortcuts>
+        <AppCommands />
+        <CommandPalette />
+        {props.children}
+        <PwaUpdatePromptBanner />
       </CommandRegistryProvider>
     </KeyboardShortcutScope>
   );

@@ -205,7 +205,6 @@ export function CommandRegistryProvider(
     storageKey: props.storageKey,
     historyLimit: props.historyLimit,
     openShortcuts: props.openShortcuts ?? DEFAULT_OPEN_SHORTCUTS,
-    enableDefaultShortcuts: props.enableDefaultShortcuts ?? true,
   }));
   const store = new CommandRegistryStore();
   const historyStore = new HistoryStore({
@@ -216,7 +215,8 @@ export function CommandRegistryProvider(
   void historyStore.hydrate();
   const value = createContextValue({ store, historyStore });
 
-  const shortcutsEnabled = (): boolean => config.enableDefaultShortcuts;
+  // Reactive: hosts (simulator) gate shortcuts on focus without remounting.
+  const shortcutsEnabled = (): boolean => props.enableDefaultShortcuts ?? true;
   useRegistryDocumentShortcuts({
     enabled: shortcutsEnabled,
     openShortcuts: config.openShortcuts,

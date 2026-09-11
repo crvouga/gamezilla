@@ -143,6 +143,7 @@ export function AppHeaderGlobalMenu(): JSX.Element {
   return (
     <OverflowMenuButton
       placement="bottom-end"
+      tooltipPlacement="bottom-end"
       actions={actions()}
       header={header()}
       icon={UserIcon}

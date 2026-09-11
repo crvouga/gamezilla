@@ -1,4 +1,4 @@
-import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import {
   createEffect,
   createSignal,
@@ -41,7 +41,7 @@ export default function ChessBoardExample(): JSX.Element {
         {'Interactive Solid chess board.'}
       </p>
       <Show when={size() > 0}>
-        <ChessBoard
+        <SmartChessBoard
           fen={SAMPLE_FEN}
           size={size()}
           interactive

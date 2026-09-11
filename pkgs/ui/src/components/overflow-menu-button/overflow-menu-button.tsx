@@ -28,6 +28,7 @@ import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { FloatingMenu, type FloatingMenuPlacement } from '../floating-menu';
 import { IconButton } from '../icon-button';
 import { EllipsisIcon, type IconComponent, MenuIcon } from '../icons';
+import type { TooltipPlacement } from '../tooltip';
 import {
   type AnchoredMenuController,
   useAnchoredMenu,
@@ -114,6 +115,11 @@ export type OverflowMenuButtonProps = {
   width?: number | undefined;
   /** Static menu placement. Defaults to `bottom-end`. */
   placement?: FloatingMenuPlacement | undefined;
+  /**
+   * Static tooltip placement on the default IconButton trigger. Defaults to
+   * the menu `placement` so edge chrome (e.g. trailing account) does not clip.
+   */
+  tooltipPlacement?: TooltipPlacement | undefined;
   /** Overrides the default {@link FloatingMenu} dropdown. */
   renderMenu?: ((menu: OverflowMenuRenderProps) => JSX.Element) | undefined;
   /** Notified when the trigger is clicked (after the menu opens). */
@@ -178,6 +184,7 @@ function TriggerFace(props: {
   icon: IconComponent;
   trigger: JSX.Element | undefined;
   'aria-label': string;
+  tooltipPlacement: TooltipPlacement;
   onOpen: () => void;
   dataSet: ComponentDataSet | undefined;
 }): JSX.Element {
@@ -193,6 +200,7 @@ function TriggerFace(props: {
           aria-label={props['aria-label']}
           aria-haspopup="menu"
           aria-expanded={props.menu.open()}
+          tooltipPlacement={props.tooltipPlacement}
           dataSet={props.dataSet}
         >
           <Dynamic
@@ -243,6 +251,9 @@ export function OverflowMenuButton(
           icon={props.icon ?? MenuIcon}
           trigger={props.trigger}
           aria-label={props['aria-label']}
+          tooltipPlacement={
+            props.tooltipPlacement ?? props.placement ?? 'bottom-end'
+          }
           onOpen={onOpen}
           dataSet={props.dataSet}
         />

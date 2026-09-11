@@ -26,6 +26,7 @@ import type {
 import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn } from '../debugger/debugger-columns';
 import { DebuggerShell } from '../debugger/debugger-shell';
+import { useSimConsoleLayout } from '../debugger/use-sim-console-layout';
 import {
   type DebuggerChromeNav,
   debuggerInstanceTabItem,
@@ -34,6 +35,7 @@ import {
 } from '../debugger-chrome';
 import { ProductSimulatorAppearanceCommands } from './product-simulator-appearance-commands';
 import {
+  type ProductSimulatorClientColumnShellProps,
   ProductSimulatorKindPane,
   productSimulatorInstancesForKind,
   productSimulatorPaneKey,
@@ -109,6 +111,7 @@ function FocusedProductSimulatorScreen(props: {
   readonly session: ProductSimulatorSession;
   readonly chrome: DebuggerChromeNav;
 }) {
+  const layout = useSimConsoleLayout();
   const [focusedClientId, setFocusedClientId] = createSignal<string | null>(
     null
   );
@@ -117,10 +120,17 @@ function FocusedProductSimulatorScreen(props: {
     if (props.chrome.kind !== 'client') setFocusedClientId(null);
   });
 
+  // Simulator registry owns shortcuts when no client panel does: non-client
+  // chrome, or column layout with no focused column. Tab layout always hands
+  // shortcuts to the visible client via the column `KeyboardShortcutScope`.
+  // Gate with reactive `enableDefaultShortcuts` (not a tree-wide scope) so the
+  // chrome search button can still `palette.open()` while a client is focused.
+  const simShortcutsActive = (): boolean =>
+    props.chrome.kind !== 'client' ||
+    (layout.multiClientColumns && focusedClientId() === null);
+
   return (
-    <CommandRegistryProvider
-      enableDefaultShortcuts={focusedClientId() === null}
-    >
+    <CommandRegistryProvider enableDefaultShortcuts={simShortcutsActive()}>
       <ProductSimulatorAppearanceCommands />
       <ReadyProductSimulatorScreen
         session={props.session}
@@ -133,16 +143,14 @@ function FocusedProductSimulatorScreen(props: {
   );
 }
 
-function productSimulatorClientColumnShell(args: {
-  readonly actor: ProductSimulatorActor;
-  readonly focused: boolean;
-  readonly onActivate: () => void;
-  readonly children: JSX.Element;
-}) {
+function ProductSimulatorClientColumnShell(
+  props: ProductSimulatorClientColumnShellProps & { children?: JSX.Element }
+): JSX.Element {
+  void props.actor;
   return (
-    <DebuggerColumn focused={args.focused} onActivate={args.onActivate}>
-      <KeyboardShortcutScope active={args.focused}>
-        {args.children}
+    <DebuggerColumn focused={props.focused} onActivate={props.onActivate}>
+      <KeyboardShortcutScope active={props.focused}>
+        {props.children}
       </KeyboardShortcutScope>
     </DebuggerColumn>
   );
@@ -294,7 +302,7 @@ function ProductSimulatorDebuggerShell(props: {
         onFocusedClientIdChange={props.onFocusedClientIdChange}
         onPanePatch={props.chrome.onPanePatch}
         onClientColumnsOutsidePointerDown={props.clearClientFocus}
-        clientColumnShell={productSimulatorClientColumnShell}
+        clientColumnShell={ProductSimulatorClientColumnShell}
       />
     </DebuggerShell>
   );

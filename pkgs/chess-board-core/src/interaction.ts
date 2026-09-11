@@ -1,5 +1,15 @@
-import type { ChessGame, TryMoveOk } from './game';
+/**
+ * Framework-free tap / drag / promotion / premove state machine over a
+ * {@link BoardRulesPort} (live {@link ChessGame} or controlled dests).
+ */
+
+import type { BoardRulesPort } from './board-rules';
+import type { TryMoveOk } from './game';
 import { indexFromSquare } from './geometry';
+import {
+  createPremoveController,
+  type PremoveController,
+} from './premove/premove-controller';
 import type { Move, PieceColor, Square } from './types';
 
 export type PendingPromotion = {
@@ -19,7 +29,10 @@ export type BoardInteractionSnapshot = {
   readonly selected: Square | null;
   readonly dragFrom: Square | null;
   readonly pendingPromotion: PendingPromotion | null;
+  /** Head of the premove queue (first to flush). */
   readonly premove: BoardPremmove | null;
+  /** Full premove queue (multi-premove). */
+  readonly premves: readonly BoardPremmove[];
   /** Legal destinations for `selected ?? dragFrom` (empty otherwise). */
   readonly legalTargets: readonly Square[];
 };
@@ -41,11 +54,8 @@ export type BoardInteractionHooks = {
 const EMPTY_TARGETS: readonly Square[] = Object.freeze([]);
 
 /**
- * Framework-free tap / drag / promotion / premove state machine over
- * {@link ChessGame}.
- *
- * Tap semantics: tapping one of the side-to-move's pieces selects it; tapping
- * the selection again clears it; tapping anything else attempts the move.
+ * Tap semantics: tapping one of the mover's pieces selects it; tapping the
+ * selection again clears it; tapping anything else attempts the move.
  * When premoves are enabled and it is the opponent's turn, the same gestures
  * on your pieces queue a single premove that {@link flushPremmove} applies
  * once it is your turn.
@@ -56,18 +66,22 @@ export class BoardInteraction {
   private premovesEnabled = false;
   private autoPromoteQueen = false;
   private playerColor: PieceColor | null = null;
+  private readonly premoveCtl: PremoveController;
 
   constructor(
-    private readonly game: ChessGame,
+    private readonly rules: BoardRulesPort,
     private readonly hooks: BoardInteractionHooks = {},
-    interactive = true
+    interactive = true,
+    premoveMax = 5
   ) {
+    this.premoveCtl = createPremoveController(premoveMax);
     this.snapshot = {
       interactive,
       selected: null,
       dragFrom: null,
       pendingPromotion: null,
       premove: null,
+      premves: [],
       legalTargets: EMPTY_TARGETS,
     };
   }
@@ -85,8 +99,21 @@ export class BoardInteraction {
     if (this.premovesEnabled === enabled) return;
     this.premovesEnabled = enabled;
     if (!enabled && this.snapshot.premove !== null) {
-      this.publish({ premove: null });
+      this.premoveCtl.clear();
+      this.publishPremoves();
     }
+  }
+
+  setPremoveMax(max: number): void {
+    this.premoveCtl.queue.setMax(max);
+    this.publishPremoves();
+  }
+
+  private publishPremoves(): void {
+    this.publish({
+      premove: this.premoveCtl.current(),
+      premves: this.premoveCtl.all(),
+    });
   }
 
   /** Color that queues premoves (usually the seated / oriented side). */
@@ -108,27 +135,23 @@ export class BoardInteraction {
   }
 
   private targetsFrom(origin: Square): readonly Square[] {
-    if (this.ownsPiece(origin)) return this.game.legalMovesFrom(origin);
+    if (this.ownsPiece(origin)) return this.rules.legalTargetsFrom(origin);
     if (this.isPremovable(origin)) {
-      return this.game.premoveTargetsFrom(origin);
+      return this.rules.premoveTargetsFrom(origin);
     }
     return EMPTY_TARGETS;
   }
 
   private ownsPiece(square: Square): boolean {
-    const { position, turn } = this.game.getSnapshot();
-    return position[indexFromSquare(square)]?.color === turn;
+    return this.rules.ownsMovable(square);
   }
 
-  /** Your piece while the opponent is to move (premove candidate). */
   private isPremovable(square: Square): boolean {
-    if (!this.premovesEnabled) return false;
-    const player = this.playerColor;
-    if (player === null) return false;
-    const { position, turn } = this.game.getSnapshot();
-    if (turn === player) return false;
-    const piece = position[indexFromSquare(square)];
-    return piece !== null && piece !== undefined && piece.color === player;
+    return this.rules.isPremovable(
+      square,
+      this.playerColor,
+      this.premovesEnabled
+    );
   }
 
   setInteractive(interactive: boolean): void {
@@ -137,36 +160,40 @@ export class BoardInteraction {
       this.publish({ interactive });
       return;
     }
+    this.premoveCtl.clear();
     this.publish({
       interactive,
       selected: null,
       dragFrom: null,
       pendingPromotion: null,
       premove: null,
+      premves: [],
     });
   }
 
   /** Drop everything transient (parent reset / FEN swap). */
   clear(opts?: { readonly retainPremmove?: boolean }): void {
+    if (opts?.retainPremmove !== true) this.premoveCtl.clear();
     this.publish({
       selected: null,
       dragFrom: null,
       pendingPromotion: null,
-      ...(opts?.retainPremmove === true ? {} : { premove: null }),
+      premove: this.premoveCtl.current(),
+      premves: this.premoveCtl.all(),
     });
   }
 
   tap(square: Square): void {
     const { interactive, selected, premove } = this.snapshot;
     if (!interactive) return;
-    // Click away clears a queued premove when not selecting/moving.
     if (
       selected === null &&
       premove !== null &&
       !this.ownsPiece(square) &&
       !this.isPremovable(square)
     ) {
-      this.publish({ premove: null });
+      this.premoveCtl.clear();
+      this.publishPremoves();
       return;
     }
     if (selected === null) {
@@ -184,13 +211,11 @@ export class BoardInteraction {
     this.drop(selected, square);
   }
 
-  /** True when `square` can start a drag (own turn piece or premovable). */
   canDrag(square: Square): boolean {
     if (!this.snapshot.interactive) return false;
     return this.ownsPiece(square) || this.isPremovable(square);
   }
 
-  /** Start dragging `square`; false when it cannot be dragged. */
   beginDrag(square: Square): boolean {
     if (!this.canDrag(square)) return false;
     this.publish({ dragFrom: square, selected: null });
@@ -202,22 +227,27 @@ export class BoardInteraction {
     this.publish({ dragFrom: null });
   }
 
-  /** Attempt `from → to`; promotions park until picked; premoves queue. */
   drop(from: Square, to: Square): DropOutcome {
     if (this.isPremovable(from) && !this.ownsPiece(from)) {
       const premove: BoardPremmove = { from, to };
-      this.publish({ dragFrom: null, premove, selected: null });
+      this.premoveCtl.enqueue(premove);
+      this.publish({
+        dragFrom: null,
+        selected: null,
+        premove: this.premoveCtl.current(),
+        premves: this.premoveCtl.all(),
+      });
       return { kind: 'premove', premove };
     }
-    if (this.game.moveRequiresPromotion(from, to)) {
+    if (this.rules.moveRequiresPromotion(from, to)) {
       if (this.autoPromoteQueen) {
         return this.applyMove({ from, to, promotion: 'q' });
       }
-      const { position, turn } = this.game.getSnapshot();
+      const position = this.rules.getPosition();
       const pending: PendingPromotion = {
         from,
         to,
-        color: position[indexFromSquare(from)]?.color ?? turn,
+        color: position[indexFromSquare(from)]?.color ?? this.rules.getTurn(),
       };
       this.publish({ dragFrom: null, pendingPromotion: pending });
       return { kind: 'promotion', pending };
@@ -226,26 +256,27 @@ export class BoardInteraction {
   }
 
   private applyMove(move: Move): DropOutcome {
-    const result = this.game.tryMove(move);
+    const result = this.rules.tryMove(move);
     if (!result.ok) {
       this.publish({ dragFrom: null });
       this.hooks.onIllegal?.(move.from, move.to);
       return { kind: 'illegal' };
     }
-    this.publish({ dragFrom: null, pendingPromotion: null, premove: null });
+    this.publish({
+      dragFrom: null,
+      pendingPromotion: null,
+      premove: this.premoveCtl.current(),
+      premves: this.premoveCtl.all(),
+    });
     this.hooks.onApplied?.(result);
     return { kind: 'applied', result };
   }
 
-  /**
-   * When it becomes the side-to-move for a queued premove, try to apply it.
-   * Clears the queue whether the move succeeds or not.
-   */
   flushPremmove(): DropOutcome | null {
-    const queued = this.snapshot.premove;
+    const queued = this.premoveCtl.shift();
+    this.publishPremoves();
     if (queued === null) return null;
     if (!this.ownsPiece(queued.from)) return null;
-    this.publish({ premove: null });
     if (queued.promotion !== undefined) {
       return this.applyMove({
         from: queued.from,
@@ -260,7 +291,7 @@ export class BoardInteraction {
     const pending = this.snapshot.pendingPromotion;
     if (pending === null) return false;
     this.publish({ pendingPromotion: null });
-    const result = this.game.tryMove({
+    const result = this.rules.tryMove({
       from: pending.from,
       to: pending.to,
       promotion,

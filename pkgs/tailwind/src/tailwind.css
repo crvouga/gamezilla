@@ -13,5 +13,11 @@
 @source "../../../pkgs";
 
 /* The repo themes with `[data-theme]` (see `@pkgs/ui` tokens.css), not
-   `prefers-color-scheme`, so route `dark:` through the same attribute. */
+   `prefers-color-scheme`, so route `dark:` through the same attribute.
+
+   Nested ThemeProviders (console vs simulator client) isolate via host
+   `data-theme` + CSS variables (`bg-background`, `text-text`, …). Prefer those
+   under nested themes: this `dark:` matcher still matches any dark ancestor
+   (Tailwind 4.3 does not hoist `@scope … to ([data-theme])` in custom
+   variants). Product sources do not use `dark:` today. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

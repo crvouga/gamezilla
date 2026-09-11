@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { chessGameRules } from '@pkgs/chess-board-core/board-rules';
 import { ChessGame } from '@pkgs/chess-board-core/game';
 import {
   BoardInteraction,
@@ -14,7 +15,11 @@ function setup(fen?: string, interactive = true) {
     onPromotionCancel: () => events.push('promotion-cancel'),
   };
   const game = new ChessGame(fen);
-  const interaction = new BoardInteraction(game, hooks, interactive);
+  const interaction = new BoardInteraction(
+    chessGameRules(game),
+    hooks,
+    interactive
+  );
   return { game, interaction, events };
 }
 

@@ -1,5 +1,6 @@
 import type { ComponentEntry } from '@pkgs/ui';
 
+import { ChessBoardBenchPage } from '@pkgs/chess-board/bench/chess-board-bench-page';
 import ChessBoardExample from './chess-board-example';
 
 export const CHESS_COMPONENT_ENTRIES: readonly ComponentEntry[] = [
@@ -8,5 +9,11 @@ export const CHESS_COMPONENT_ENTRIES: readonly ComponentEntry[] = [
     title: 'ChessBoard',
     group: 'Games',
     Example: ChessBoardExample,
+  },
+  {
+    id: 'chess-board-bench',
+    title: 'ChessBoard bench',
+    group: 'Games',
+    Example: ChessBoardBenchPage,
   },
 ];

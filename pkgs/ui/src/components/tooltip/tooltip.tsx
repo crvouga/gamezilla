@@ -5,9 +5,8 @@
  * Shows on pointer hover when {@link useHoverCapable} is true and on keyboard
  * focus of the wrapped control (any device). The bubble stays mounted while
  * hidden so `aria-describedby` on the control always resolves. Position is
- * static via the `placement` prop (`top` | `bottom`); no measurement or
- * enter animation. Controls inside read {@link useTooltipTrigger} for
- * `show` / `hide` / `id`.
+ * static via the `placement` prop; no measurement or enter animation.
+ * Controls inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
  */
 
 import {
@@ -26,13 +25,22 @@ import {
   releaseActiveTooltip,
 } from './tooltip-coordinator';
 
-export type TooltipPlacement = 'top' | 'bottom';
+/** Static CSS placement — no measurement or auto-flip. Bare `top`/`bottom`
+ *  center on the trigger; `*-start` / `*-end` pin to that edge. */
+export type TooltipPlacement =
+  | 'top'
+  | 'bottom'
+  | 'top-start'
+  | 'top-end'
+  | 'bottom-start'
+  | 'bottom-end';
 
 export const TOOLTIP_MAX_WIDTH = 240;
 
 export type TooltipProps = {
   label: JSX.Element;
   children: JSX.Element;
+  /** Static placement. Defaults to centered `bottom`. */
   placement?: TooltipPlacement | undefined;
   /**
    * When true, keyboard `:focus-visible` also shows the bubble. Defaults to
@@ -42,6 +50,18 @@ export type TooltipProps = {
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
+
+function tooltipSide(placement: TooltipPlacement): 'top' | 'bottom' {
+  return placement.startsWith('top') ? 'top' : 'bottom';
+}
+
+function tooltipAlign(
+  placement: TooltipPlacement
+): 'start' | 'center' | 'end' {
+  if (placement.endsWith('-start')) return 'start';
+  if (placement.endsWith('-end')) return 'end';
+  return 'center';
+}
 
 export type TooltipController = {
   show: () => void;
@@ -99,8 +119,12 @@ function TooltipAnchor(props: {
         class="box bg-surface-elevated rounded-[6px] px-2 py-1 w-max"
         classList={{
           [styles['bubble'] ?? '']: true,
-          [styles['top'] ?? '']: props.placement() === 'top',
-          [styles['bottom'] ?? '']: props.placement() !== 'top',
+          [styles['top'] ?? '']: tooltipSide(props.placement()) === 'top',
+          [styles['bottom'] ?? '']: tooltipSide(props.placement()) === 'bottom',
+          [styles['start'] ?? '']: tooltipAlign(props.placement()) === 'start',
+          [styles['center'] ?? '']:
+            tooltipAlign(props.placement()) === 'center',
+          [styles['end'] ?? '']: tooltipAlign(props.placement()) === 'end',
           [styles['open'] ?? '']: props.controller.visible(),
         }}
         {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}

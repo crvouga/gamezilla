@@ -1,10 +1,8 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import {
-  UserSearchQueryHint,
   UserSearchSignInPrompt,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search/public/use-user-search';
-import { USER_SEARCH_MIN_LENGTH } from '@libs/user-search/public/user-search-types';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Combobox, type ComboboxOption } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -40,10 +38,7 @@ export function SpaceShareAddPeople(props: {
 
   const emptyMessage = createMemo(() => {
     const trimmed = query().trim();
-    if (trimmed.length > 0 && trimmed.length < USER_SEARCH_MIN_LENGTH) {
-      return <Trans>Enter at least {USER_SEARCH_MIN_LENGTH} characters</Trans>;
-    }
-    if (trimmed.length >= USER_SEARCH_MIN_LENGTH && !search.searching) {
+    if (trimmed.length > 0 && !search.searching) {
       return <Trans>No people found</Trans>;
     }
     return undefined;
@@ -73,7 +68,6 @@ export function SpaceShareAddPeople(props: {
           loading={search.searching}
           emptyMessage={emptyMessage()}
         />
-        <UserSearchQueryHint query={query()} signedIn={search.signedIn} />
       </div>
     </Show>
   );
