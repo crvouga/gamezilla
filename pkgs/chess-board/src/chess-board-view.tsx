@@ -1,12 +1,17 @@
 /** @jsxImportSource solid-js */
 /** Presentational shell for {@link ChessBoard}. */
 
+import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
+import { pieceCode } from '@pkgs/chess-board-core/piece-svgs';
 import { DEFAULT_CHESS_BOARD_TEST_ID } from '@pkgs/chess-board-core/probe';
-import type { Square } from '@pkgs/chess-board-core/types';
+import type { PieceCode, Square } from '@pkgs/chess-board-core/types';
 import { dataAttrs } from '@pkgs/ui';
 import { createMemo, type JSX } from 'solid-js';
 import styles from './chess-board.module.css';
-import type { BoardController } from './chess-board-controller';
+import {
+  type BoardController,
+  MOVE_DURATION_MS,
+} from './chess-board-controller';
 import { ChessBoardHitGrid } from './chess-board-hit-grid';
 import { ChessBoardLayers } from './chess-board-layers';
 import { ChessBoardOverlays } from './chess-board-overlays';
@@ -36,6 +41,14 @@ function BoardBody(args: {
   });
   const game = () => args.ctrl.model.game();
   const ix = () => args.ctrl.model.interaction();
+  const premove = () => ix().premove;
+  const premoveCode = (): PieceCode | null => {
+    const p = premove();
+    if (p === null) return null;
+    const piece = game().position[indexFromSquare(p.from)];
+    if (piece === null || piece === undefined) return null;
+    return pieceCode(piece.color, piece.type);
+  };
   return (
     <>
       <ChessBoardLayers
@@ -58,6 +71,9 @@ function BoardBody(args: {
         dragAt={args.ctrl.dragAt}
         animated={args.ctrl.animated}
         arrows={args.ctrl.arrows()}
+        premoveFrom={premove()?.from ?? null}
+        premoveTo={premove()?.to ?? null}
+        premoveCode={premoveCode()}
       />
       <ChessBoardHitGrid
         boardTestId={args.boardTestId()}
@@ -89,7 +105,11 @@ export function ChessBoardView(args: {
             width: `${args.props.size}px`,
             height: `${args.props.size}px`,
           };
-    return { ...size, 'border-color': args.ctrl.theme().border };
+    return {
+      ...size,
+      'border-color': args.ctrl.theme().border,
+      '--chess-move-ms': `${MOVE_DURATION_MS}ms`,
+    };
   };
   return (
     // The board is a keyboard-managed game surface (`role="application"`):

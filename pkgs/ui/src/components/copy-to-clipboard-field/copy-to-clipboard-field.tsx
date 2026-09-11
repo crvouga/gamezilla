@@ -2,9 +2,9 @@
 /**
  * Read-only "text field" that copies `value` to the clipboard when clicked.
  * The clipboard sink is injected (`copy` prop) — never a bare
- * `navigator.clipboard`. Copy / check icons swap with a CSS transition on
- * success; the optional helper line shows "Copied" feedback then resets on
- * the injected timers.
+ * `navigator.clipboard`. Copy / check icons swap instantly on success; the
+ * optional helper line shows "Copied" feedback then resets on the injected
+ * timers.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -115,12 +115,7 @@ export function CopyToClipboardField(
             {local.value}
           </p>
         </div>
-        <div
-          class="box items-center justify-center [transition-property:transform,_color] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
-          style={{
-            transform: `scale(${copied() ? 1.1 : 1})`,
-          }}
-        >
+        <div class="box items-center justify-center">
           <Show
             when={copied()}
             fallback={<CopyIcon size={ICON_SIZE} color="icon" />}

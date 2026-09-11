@@ -20,7 +20,10 @@ export function FriendsSignedInGate({
       fallback={
         <ScreenBase
           screenId="friends-signed-in-gate"
-          breadcrumbs={[{ name: <Trans>Friends</Trans> }]}
+          breadcrumbs={[
+            { name: <Trans>Profile</Trans>, href: '/profile' },
+            { name: <Trans>Friends</Trans> },
+          ]}
           content={({ bodyClass }) => (
             <div class={`box ${bodyClass}`}>
               <EmptyState

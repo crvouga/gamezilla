@@ -151,8 +151,6 @@ function fabContainerStyle(
     'border-color': face.borderColor,
     'border-width': `${face.borderWidth}px`,
     'border-style': 'solid',
-    'transition-property': 'background-color, border-color',
-    'transition-duration': 'var(--ui-duration-fast)',
     ...(extended
       ? {
           'padding-left': `${FAB_HORIZONTAL_PADDING}px`,

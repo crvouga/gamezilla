@@ -53,7 +53,11 @@ function SearchResults(props: {
         <ScreenBodyVirtualList
           items={props.results}
           keyExtractor={(user) => user.userId}
-          estimateSize={72}
+          estimateSize={60}
+          contentStyle={{
+            'padding-left': '0',
+            'padding-right': '0',
+          }}
           renderItem={(user) => <SearchUserResultRow user={user} />}
         />
       </Match>

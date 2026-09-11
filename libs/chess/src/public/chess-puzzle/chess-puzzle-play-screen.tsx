@@ -49,7 +49,6 @@ function PuzzleBoardSlot(props: {
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
       <ChessBoard
-        controlled
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}

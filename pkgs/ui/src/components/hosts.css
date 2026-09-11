@@ -163,8 +163,7 @@
     border-radius: inherit;
     pointer-events: none;
     background: transparent;
-    transition: background-color var(--ui-duration-fast)
-      var(--ui-easing-standard);
+    transition: background-color 0ms;
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -178,7 +177,7 @@
   }
 
   .clickableOpacity {
-    transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
+    transition: opacity 0ms;
   }
 
   .clickableOpacity:not(:disabled):active {
@@ -235,7 +234,7 @@
     background: var(--ui-color-surface);
     border: 1px solid var(--ui-color-outline);
     border-radius: var(--ui-radius-md);
-    transition: border-color var(--ui-duration-fast) var(--ui-easing-standard);
+    transition: border-color 0ms;
   }
 
   .input::placeholder {
@@ -258,12 +257,11 @@
   }
 
   .switchTrack {
-    transition: background-color var(--ui-duration-fast)
-      var(--ui-easing-standard);
+    transition: background-color 0ms;
   }
 
   .switchThumb {
-    transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+    transition: transform 0ms;
   }
 
   /* Safe-area insets (notch / home indicator). Classes because happy-dom and

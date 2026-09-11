@@ -4,9 +4,11 @@ import { cssPx } from '../../css/css-px';
  * `MainMenuScreen` -- centered, card-based main menu: optional
  * title / subtitle / helper, a vertical stack of card rows, and an optional
  * footer. Content is capped at {@link MAIN_MENU_SCREEN_MAX_WIDTH} for visual
- * consistency across all space menus. Presentational; parents own selection
- * and navigation state. Back navigation belongs in the host's nav chrome
- * (`ScreenBase` breadcrumbs), not inside the menu.
+ * consistency across all space menus. Fills the parent and scrolls when the
+ * card list exceeds the available height (compact / short viewports).
+ * Presentational; parents own selection and navigation state. Back navigation
+ * belongs in the host's nav chrome (`ScreenBase` breadcrumbs), not inside the
+ * menu.
  *
  * @example
  * ```tsx
@@ -19,7 +21,8 @@ import { cssPx } from '../../css/css-px';
  */
 
 import { For, type JSX, Show } from 'solid-js';
-import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import type { ComponentDataSet } from '../../component-id';
+import { ScrollView } from '../scroll-view';
 import { type MainMenuItem, MainMenuItemRow } from './main-menu-item-row';
 import { MainMenuScreenHeader } from './main-menu-screen-header';
 
@@ -50,10 +53,11 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
     ...(props.screenId !== undefined ? { screen: props.screenId } : {}),
   });
   return (
-    <div
-      class="box px-4 pb-8 pt-4 gap-4 self-center w-[100%]"
-      {...dataAttrs(dataSet())}
-      style={{ 'max-width': cssPx(MAIN_MENU_SCREEN_MAX_WIDTH) }}
+    <ScrollView
+      class="flex-1 self-stretch w-[100%]"
+      dataSet={dataSet()}
+      contentClass="box px-4 pb-8 pt-4 gap-4 self-center w-[100%]"
+      contentStyle={{ 'max-width': cssPx(MAIN_MENU_SCREEN_MAX_WIDTH) }}
     >
       <MainMenuScreenHeader title={props.title} subtitle={props.subtitle} />
       <Show when={props.helper}>
@@ -73,6 +77,6 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
       <Show when={props.footer}>
         <div class="box mt-2">{props.footer}</div>
       </Show>
-    </div>
+    </ScrollView>
   );
 }

@@ -5,9 +5,8 @@ import { cssPx } from '../../css/css-px';
  * audio state with a speaker / speaker-slash icon. Three states:
  *
  *   - `'idle'`    -> static speaker glyph. Audio is on, nothing playing.
- *   - `'playing'` -> speaker with rippling wave arcs (CSS keyframes, off
- *                    under `prefers-reduced-motion`).
- *   - `'muted'`   -> speaker-slash glyph, no animation. Audio is off.
+ *   - `'playing'` -> speaker with static wave arcs.
+ *   - `'muted'`   -> speaker-slash glyph. Audio is off.
  *
  * Purely presentational: it does **not** own the tap target -- callers wrap
  * it in a `Clickable` and own positioning. Exposes `role="status"` with an
@@ -32,7 +31,7 @@ const DEFAULT_SIZE = 16;
 export type SoundIndicatorState = 'idle' | 'playing' | 'muted';
 
 export type SoundIndicatorProps = {
-  /** Current audio state. Drives icon swap and the playing pulse. */
+  /** Current audio state. Drives icon swap and wave visibility. */
   state: SoundIndicatorState;
   /** Icon size in px. The badge wraps the icon with proportional padding. Defaults to `16`. */
   size?: number | undefined;

@@ -1,68 +1,36 @@
-import { useTimers } from '@pkgs/clock/solid';
-import { dataAttrs, motion } from '@pkgs/ui';
-import { createEffect, createSignal, type JSX, onCleanup } from 'solid-js';
-
-const PULSE_SCALE = 1.14;
+import { dataAttrs } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
 
 export type ChessPuzzleEloChipProps = {
   elo: number;
   variant?: 'primary' | 'muted';
   testID?: string;
-  pulseNonce?: number;
 };
 
 export function ChessPuzzleEloChip(
   props: ChessPuzzleEloChipProps
 ): JSX.Element {
-  const timers = useTimers();
   const isPrimary = () =>
     props.variant === undefined || props.variant === 'primary';
-  const [scale, setScale] = createSignal(1);
-
-  createEffect(() => {
-    const nonce = props.pulseNonce ?? 0;
-    if (nonce === 0) return;
-    setScale(PULSE_SCALE);
-    const id = timers.setTimeout(() => setScale(1), motion.duration.fast);
-    onCleanup(() => timers.clearTimeout(id));
-  });
 
   return (
     <div
-      class="box [transition-property:transform] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
-      style={{ transform: `scale(${scale()})` }}
+      class="box px-2 py-1 rounded-[6px]"
+      style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
+      {...dataAttrs(
+        props.testID !== undefined ? { testid: props.testID } : undefined
+      )}
     >
-      <div
-        class="box px-2 py-1 rounded-[6px]"
-        style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
-        {...dataAttrs(
-          props.testID !== undefined ? { testid: props.testID } : undefined
-        )}
+      <p
+        class="text"
+        classList={{
+          textBodyBold: isPrimary(),
+          textCaption: !isPrimary(),
+        }}
+        style={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
       >
-        <p
-          class="text"
-          classList={{
-            textBodyBold:
-              String(isPrimary() ? 'bodyBold' : 'caption') === 'bodyBold',
-            textCaption:
-              String(isPrimary() ? 'bodyBold' : 'caption') === 'caption',
-            textLabel: String(isPrimary() ? 'bodyBold' : 'caption') === 'label',
-            textTitle: String(isPrimary() ? 'bodyBold' : 'caption') === 'title',
-            textSubtitle:
-              String(isPrimary() ? 'bodyBold' : 'caption') === 'subtitle',
-            textHeading:
-              String(isPrimary() ? 'bodyBold' : 'caption') === 'heading',
-            textNavigationTitle:
-              String(isPrimary() ? 'bodyBold' : 'caption') ===
-              'navigationTitle',
-            textLink: String(isPrimary() ? 'bodyBold' : 'caption') === 'link',
-            textMono: String(isPrimary() ? 'bodyBold' : 'caption') === 'mono',
-          }}
-          style={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
-        >
-          {String(props.elo)}
-        </p>
-      </div>
+        {String(props.elo)}
+      </p>
     </div>
   );
 }

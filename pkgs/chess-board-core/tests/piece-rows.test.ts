@@ -82,8 +82,10 @@ describe('createPieceRowsTracker', () => {
     const tracker = createPieceRowsTracker('t');
     const c = new Chess('r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1');
     const rows0 = tracker.next(positionFromChess(c), null);
-    const kingId = rowAt(rows0, 'e1')?.id;
-    const rookId = rowAt(rows0, 'h1')?.id;
+    const kingRow = rowAt(rows0, 'e1');
+    const rookRow = rowAt(rows0, 'h1');
+    const kingId = kingRow?.id;
+    const rookId = rookRow?.id;
     expect(kingId).toBeDefined();
     expect(rows0.every((r) => r.id.startsWith('t-'))).toBe(true);
 
@@ -91,7 +93,9 @@ describe('createPieceRowsTracker', () => {
     const rows1 = tracker.next(positionFromChess(c), null);
     expect(rowAt(rows1, 'g1')?.id).toBe(kingId as string);
     expect(rowAt(rows1, 'f1')?.id).toBe(rookId as string);
-    expect(rows1.some((r) => r.fadeIn)).toBe(false);
+    // Object identity survives so Solid `<For>` keeps the same DOM node.
+    expect(rowAt(rows1, 'g1')).toBe(kingRow);
+    expect(rowAt(rows1, 'f1')).toBe(rookRow);
   });
 
   test('same position returns the cached rows', () => {
@@ -103,16 +107,31 @@ describe('createPieceRowsTracker', () => {
     expect(tracker.current()).toBe(a);
   });
 
-  test('promotion spawns a fresh id with fadeIn', () => {
+  test('simple ply reuses the mover row object', () => {
+    const tracker = createPieceRowsTracker();
+    const c = new Chess();
+    const rows0 = tracker.next(positionFromChess(c), null);
+    const pawnRow = rowAt(rows0, 'e2');
+    expect(pawnRow).toBeDefined();
+    c.move('e4');
+    const rows1 = tracker.next(positionFromChess(c), { from: 'e2', to: 'e4' });
+    const moved = rowAt(rows1, 'e4');
+    expect(moved).toBe(pawnRow);
+    expect(moved?.square).toBe('e4');
+  });
+
+  test('promotion reuses the mover id and object', () => {
     const tracker = createPieceRowsTracker();
     const c = new Chess('8/P6k/8/8/8/8/8/K7 w - - 0 1');
     const rows0 = tracker.next(positionFromChess(c), null);
-    const pawnId = rowAt(rows0, 'a7')?.id;
+    const pawnRow = rowAt(rows0, 'a7');
+    const pawnId = pawnRow?.id;
     c.move('a8=Q');
     const rows1 = tracker.next(positionFromChess(c), null);
     const queen = rowAt(rows1, 'a8');
     // Mover id is reused for the landing square (queen slides in as the pawn).
     expect(queen?.id).toBe(pawnId as string);
+    expect(queen).toBe(pawnRow);
     expect(queen?.code).toBe('wq');
   });
 
@@ -121,6 +140,7 @@ describe('createPieceRowsTracker', () => {
     const c = new Chess();
     const rows0 = tracker.next(positionFromChess(c), null);
     const e1 = rowAt(rows0, 'e1')?.id;
+    const g1 = rowAt(rows0, 'g1')?.id;
     // Jump three plies: not inferable as one move → rematch path.
     c.move('e4');
     c.move('e5');
@@ -128,7 +148,6 @@ describe('createPieceRowsTracker', () => {
     const rows1 = tracker.next(positionFromChess(c), null);
     expect(rowAt(rows1, 'e1')?.id).toBe(e1 as string);
     // The knight that left g1 keeps its id via code fallback.
-    const g1 = rowAt(rows0, 'g1')?.id;
     expect(rowAt(rows1, 'f3')?.id).toBe(g1 as string);
     expect(rows1).toHaveLength(32);
   });

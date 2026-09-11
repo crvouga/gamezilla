@@ -44,7 +44,7 @@ export function Switch(props: SwitchProps): JSX.Element {
         onClick={() => props.onValueChange(!props.value)}
       >
         <div
-          class="flex flex-row items-center rounded-[9999px] shrink-0 self-center [transition-property:background-color] [transition-duration:var(--ui-duration-fast)]"
+          class="flex flex-row items-center rounded-[9999px] shrink-0 self-center"
           classList={{
             'bg-tint': props.value,
             'bg-disabled': !props.value,
@@ -57,11 +57,10 @@ export function Switch(props: SwitchProps): JSX.Element {
           }}
         >
           <div
-            class="rounded-[9999px] shrink-0 self-center bg-on-primary [transition-property:transform] [transition-duration:var(--ui-duration-fast)]"
+            class="rounded-[9999px] shrink-0 self-center bg-on-primary"
             style={{
               width: `${THUMB}px`,
               height: `${THUMB}px`,
-              'box-shadow': '0 1px 2px hsla(0, 0%, 0%, 0.25)',
               transform: `translateX(${props.value ? THUMB_TRAVEL : 0}px)`,
             }}
           />

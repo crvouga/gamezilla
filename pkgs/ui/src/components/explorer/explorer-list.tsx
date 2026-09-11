@@ -14,7 +14,7 @@ import { createMemo, type JSX, untrack } from 'solid-js';
 import type { ComponentDataSet } from '../../component-id';
 import { type Href, useRouter } from '../../navigation';
 import { CatalogList } from '../catalog';
-import { ScreenBase } from '../screen-base';
+import { ScreenBase, type ScreenBaseBreadcrumb } from '../screen-base';
 import {
   type ComponentEntry,
   componentRegistry,
@@ -29,7 +29,13 @@ export type ExplorerListProps = {
   hrefFor?: ((id: string) => Href) | undefined;
   /** Caller-owned entries (defaults to the built-in registry). */
   entries?: readonly ComponentEntry[] | undefined;
-  /** Screen title (last breadcrumb). Defaults to "Components". */
+  /**
+   * Full breadcrumb trail. When omitted, defaults to a single
+   * {@link title} crumb (no Back). Apps should pass a navigable parent so
+   * the compact header can leave this child screen.
+   */
+  breadcrumbs?: readonly ScreenBaseBreadcrumb[] | undefined;
+  /** Screen title (last breadcrumb when `breadcrumbs` is omitted). Defaults to "Components". */
   title?: JSX.Element | undefined;
   /** `data-screen` identifier. Defaults to `ui-explorer`. */
   screenId?: string | undefined;
@@ -59,10 +65,13 @@ export function ExplorerList(props: ExplorerListProps): JSX.Element {
   const items = createMemo(() =>
     toCatalogItems(props.entries ?? registryEntries(componentRegistry))
   );
+  const breadcrumbs = (): readonly ScreenBaseBreadcrumb[] =>
+    props.breadcrumbs ?? [{ name: props.title ?? t`Components` }];
+
   return (
     <ScreenBase
       screenId={props.screenId ?? 'ui-explorer'}
-      breadcrumbs={[{ name: props.title ?? t`Components` }]}
+      breadcrumbs={breadcrumbs()}
       dataSet={{ component: 'ExplorerList', ...props.dataSet }}
       content={() => (
         <CatalogList

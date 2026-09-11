@@ -3,30 +3,24 @@
  * CSS bottom sheet -- the web {@link BottomSheetHost}.
  *
  * Registers in the surface stack ({@link SurfaceStackSlot}) so it layers by
- * open order with modals, pins to the bottom of the stack layer, and slides
- * up through {@link Motion}. A scrim backdrop dismisses on click; the
+ * open order with modals, pins to the bottom of the stack layer, and mounts
+ * instantly (no slide/fade). A scrim backdrop dismisses on click; the
  * {@link FocusTrap} (`layout="sheet"`) provides `role="dialog"`, Tab
  * containment, focus restore, and Escape while the sheet is on top. The drag
  * handle is purely decorative (no gesture support on the web).
  */
 
 import { createUniqueId, type JSX, Show } from 'solid-js';
+import { dataAttrs } from '../../component-id';
 import { cssPx } from '../../css/css-px';
 import { OnColorReset, useThemeLayout } from '../../theme';
 import { FocusTrap } from '../focus-trap';
 import { ModalTitleIdProvider } from '../modal/modal-title-id';
-import { Motion } from '../motion';
 import { SurfaceStackSlot, useIsTopSurface } from '../surface-stack';
 import type { BottomSheetHost, BottomSheetHostSheetProps } from './types';
 
 /** Content-hugging sheets never exceed this share of the layout height. */
 export const BOTTOM_SHEET_MAX_HEIGHT_RATIO = 0.9;
-
-const SHEET_ENTER_STYLE: JSX.CSSProperties = {
-  opacity: 0,
-  transform: 'translateY(48px)',
-};
-const SCRIM_ENTER_STYLE: JSX.CSSProperties = { opacity: 0 };
 
 function DragHandle(): JSX.Element {
   return (
@@ -52,29 +46,25 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
   return (
     <Show when={props.open}>
       <SurfaceStackSlot id={surfaceId()} visible>
-        <Motion
-          class="absolute inset-0 bg-scrim"
+        <div
+          class="box absolute inset-0 bg-scrim"
           aria-hidden="true"
-          duration="fast"
-          property="opacity"
-          enterStyle={SCRIM_ENTER_STYLE}
           onClick={() => props.onClose()}
-          dataSet={{ component: 'BottomSheetScrim' }}
+          {...dataAttrs({ component: 'BottomSheetScrim' })}
         />
-        <Motion
-          class="absolute left-0 right-0 bottom-0 bg-surface rounded-tl-[20px] rounded-tr-[20px] border border-border overflow-hidden"
+        <div
+          class="box absolute left-0 right-0 bottom-0 bg-surface rounded-tl-[20px] rounded-tr-[20px] border border-border overflow-hidden"
           style={{
             ...(props.height !== undefined
               ? { height: cssPx(props.height) }
               : {}),
             'max-height': cssPx(maxHeight()),
           }}
-          enterStyle={SHEET_ENTER_STYLE}
-          dataSet={{
+          {...dataAttrs({
             component: 'BottomSheet',
             surface: 'sheet',
             ...props.dataSet,
-          }}
+          })}
         >
           <DragHandle />
           <OnColorReset>
@@ -91,7 +81,7 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
               </FocusTrap>
             </ModalTitleIdProvider>
           </OnColorReset>
-        </Motion>
+        </div>
       </SurfaceStackSlot>
     </Show>
   );

@@ -1,10 +1,10 @@
 /* Close affordance: hidden on inactive tabs until hover / focus-within;
-   always visible on the active tab and on touch-only devices. */
+   always visible on the active tab and on touch-only devices. Instant
+   opacity toggles (no transition) for low-end Android. */
 
 .close {
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
 }
 
 .shell:hover .close,
@@ -19,10 +19,4 @@
     opacity: 1;
     pointer-events: auto;
   }
-}
-
-.shell {
-  transition:
-    background-color var(--ui-duration-fast) var(--ui-easing-standard),
-    border-color var(--ui-duration-fast) var(--ui-easing-standard);
 }

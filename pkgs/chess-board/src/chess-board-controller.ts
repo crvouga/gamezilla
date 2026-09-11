@@ -33,7 +33,8 @@ import {
 import { defaultCursorSquare } from './keyboard-nav';
 import { createPointerSession, type PointerSession } from './pointer-session';
 
-export const MOVE_DURATION_MS = 200;
+/** Piece slide / capture ghost / delayed capture SFX. Keep CSS `--chess-move-ms` in sync. */
+export const MOVE_DURATION_MS = 150;
 
 export type BoardController = BoardHandlers & {
   readonly model: ChessBoardModel;
@@ -54,30 +55,37 @@ export type BoardController = BoardHandlers & {
 /** Matches `@pkgs/ui-testing-solid-dom` `ELEMENT_LAYOUT_EVENT` (no dep edge). */
 const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
 
-function useBoardPx(el: Accessor<HTMLElement | undefined>): Accessor<number> {
-  const [px, setPx] = createSignal(0);
+/**
+ * Host width in px. When the parent passes a fixed `size` prop, trust that
+ * (no ResizeObserver). Fill-width mode observes the host.
+ */
+function useBoardPx(
+  el: Accessor<HTMLElement | undefined>,
+  sizeProp: Accessor<number | undefined>
+): Accessor<number> {
+  const [measured, setMeasured] = createSignal(0);
   createEffect(() => {
+    if (sizeProp() !== undefined) return;
     const node = el();
     if (node === undefined) return;
-    const read = (): void => {
-      const width = node.getBoundingClientRect().width;
-      if (width > 0) setPx(width);
+    const apply = (width: number): void => {
+      if (width > 0) setMeasured(width);
     };
     const ro = new ResizeObserver((entries) => {
-      const width = entries[0]?.contentRect.width ?? 0;
-      if (width > 0) setPx(width);
-      else read();
+      apply(entries[0]?.contentRect.width ?? 0);
     });
     ro.observe(node);
-    read();
-    // Headless drivers synthesize getBoundingClientRect after mount; re-read.
-    node.addEventListener(ELEMENT_LAYOUT_EVENT, read);
+    apply(node.getBoundingClientRect().width);
+    const onLayout = (): void => {
+      apply(node.getBoundingClientRect().width);
+    };
+    node.addEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
     onCleanup(() => {
       ro.disconnect();
-      node.removeEventListener(ELEMENT_LAYOUT_EVENT, read);
+      node.removeEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
     });
   });
-  return px;
+  return () => sizeProp() ?? measured();
 }
 
 export function createBoardController(args: {
@@ -87,7 +95,7 @@ export function createBoardController(args: {
 }): BoardController {
   const props = args.props;
   const [host, setHost] = createSignal<HTMLElement | undefined>();
-  const boardPx = useBoardPx(host);
+  const boardPx = useBoardPx(host, () => props.size);
   const [cursor, setCursor] = createSignal(
     defaultCursorSquare(props.orientation ?? 'white')
   );
@@ -117,9 +125,15 @@ export function createBoardController(args: {
     onMove: (m) => props.onMove?.(m),
     sounds: createChessBoardSounds(),
     timers: args.timers,
+    premoves: () => props.premoves === true,
+    autoPromoteQueen: () => props.autoPromoteQueen === true,
+    playerColor: () =>
+      props.premoves === true ? (orientation() === 'white' ? 'w' : 'b') : null,
   });
   const session = createPointerSession(model.actions);
-  const userArrows = createUserArrows();
+  const userArrows = createUserArrows({
+    onChange: (arrows) => props.onUserArrowsChange?.(arrows),
+  });
   const arrows = createMemo(() => [
     ...(props.arrows ?? []),
     ...userArrows.arrows(),

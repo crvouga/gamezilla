@@ -6,7 +6,7 @@ import { cssPx } from '../../css/css-px';
  * A row of segments (`role="radiogroup"` / `role="radio"`); exactly one is
  * selected at a time. The active indicator is a CSS-positioned pill sized as
  * a fraction of the track (`width: calc(100% / n)`, `left` offset by index)
- * and slides with a CSS transition -- no measurement.
+ * and snaps instantly — no measurement or transition.
  *
  * @example
  * ```tsx
@@ -40,7 +40,8 @@ export type SegmentedControlProps<K extends string = string> = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-const CONTAINER_PADDING = 3;
+/** Inset between track edge and the selected pill (and segment row). */
+const CONTAINER_PADDING = 4;
 const SEGMENT_GAP = 2;
 
 /** CSS geometry for the sliding indicator (pure; exported for tests). */
@@ -62,7 +63,7 @@ function SegmentButton<K extends string>(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable rounded-[6px] flex-1 items-center [padding-top:8px;padding-bottom:8px] [padding-left:14px;padding-right:14px] bg-transparent relative z-1"
+      class="clickable rounded-[6px] flex-1 items-center py-3 px-3.5 bg-transparent relative z-1"
       classList={{
         clickableTint: !props.isActive,
       }}
@@ -112,7 +113,7 @@ export function SegmentedControl<K extends string = string>(
     >
       <Show when={props.segments.length > 0}>
         <div
-          class="box absolute rounded-[6px] bg-surface-elevated border border-border pointer-events-none [transition-property:left,_width] [transition-duration:var(--ui-duration-normal)] [transition-timing-function:var(--ui-easing-standard)]"
+          class="box absolute rounded-[6px] bg-surface-elevated border border-border pointer-events-none"
           data-component="SegmentIndicator"
           style={{
             top: cssPx(CONTAINER_PADDING),

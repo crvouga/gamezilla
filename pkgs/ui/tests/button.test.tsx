@@ -94,13 +94,14 @@ describe('Button', () => {
     expect(end.querySelector('svg')?.getAttribute('stroke')).toBe(
       'var(--ui-on-icon)'
     );
-    const onIcon = [...screen.getByRole('button', { name: 'Next' }).querySelectorAll('div')]
+    const onIcon = [
+      ...screen.getByRole('button', { name: 'Next' }).querySelectorAll('div'),
+    ]
       .map((el) => el.style.getPropertyValue('--ui-on-icon'))
       .find((value) => value.length > 0);
     expect(onIcon).toBe('var(--ui-color-on-success)');
   });
 });
-
 
 function MutationHarness(props: {
   operation: () => Promise<void>;

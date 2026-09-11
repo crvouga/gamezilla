@@ -14,14 +14,14 @@ export type ProfileFieldKey = keyof typeof ProfileField;
 
 /**
  * Profile column for `profileId`. Uses {@link createQuery} (same display/cache
- * path as other account UI).
+ * path as other account UI). Pass an accessor so the id stays reactive.
  */
 export function useProfileColumn(
-  profileId: string,
+  profileId: Accessor<string>,
   field: ProfileFieldKey
 ): Accessor<string | null> {
   const column = ProfileField[field];
-  const { rows } = createQuery(() => profileRowByIdSql(profileId));
+  const { rows } = createQuery(() => profileRowByIdSql(profileId()));
   return createMemo(() => {
     const row = rows()[0] ?? null;
     if (row === null) return null;

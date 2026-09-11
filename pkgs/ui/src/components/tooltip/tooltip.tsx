@@ -4,15 +4,14 @@
  *
  * Shows on pointer hover when {@link useHoverCapable} is true and on keyboard
  * focus of the wrapped control (any device). The bubble stays mounted while
- * hidden so `aria-describedby` on the control always resolves. When shown, a
- * horizontal shift keeps the centered bubble inside the overlay host (or
- * window fallback). Controls inside read {@link useTooltipTrigger} for
+ * hidden so `aria-describedby` on the control always resolves. Position is
+ * static via the `placement` prop (`top` | `bottom`); no measurement or
+ * enter animation. Controls inside read {@link useTooltipTrigger} for
  * `show` / `hide` / `id`.
  */
 
 import {
   createContext,
-  createEffect,
   createSignal,
   createUniqueId,
   type JSX,
@@ -21,14 +20,11 @@ import {
 } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { useHoverCapable } from '../../theme';
-import { useOverlayPortalHostFrame } from '../overlay-portal';
-import { measureHostFrame } from '../portal-host-frame';
 import styles from './tooltip.module.css';
 import {
   claimActiveTooltip,
   releaseActiveTooltip,
 } from './tooltip-coordinator';
-import { computeTooltipShiftX } from './tooltip-position';
 
 export type TooltipPlacement = 'top' | 'bottom';
 
@@ -62,40 +58,6 @@ export function useTooltipTrigger(): TooltipController | null {
   return useContext(TooltipContext);
 }
 
-function useTooltipEdgeShift(
-  visible: () => boolean,
-  anchor: () => HTMLElement | undefined,
-  bubble: () => HTMLElement | undefined
-): () => number {
-  const hostFrame = useOverlayPortalHostFrame();
-  const [shiftX, setShiftX] = createSignal(0);
-
-  createEffect(() => {
-    if (!visible()) {
-      setShiftX(0);
-      return;
-    }
-    const anchorEl = anchor();
-    const bubbleEl = bubble();
-    const frame = hostFrame();
-    if (anchorEl === undefined || bubbleEl === undefined || frame.width <= 0) {
-      setShiftX(0);
-      return;
-    }
-    const anchorRect = measureHostFrame(anchorEl);
-    setShiftX(
-      computeTooltipShiftX({
-        anchorX: anchorRect.x - frame.x,
-        anchorWidth: anchorRect.width,
-        bubbleWidth: bubbleEl.offsetWidth,
-        viewportWidth: frame.width,
-      })
-    );
-  });
-
-  return shiftX;
-}
-
 function TooltipAnchor(props: {
   controller: TooltipController;
   enableFocus: boolean | undefined;
@@ -105,20 +67,12 @@ function TooltipAnchor(props: {
   children: JSX.Element;
 }): JSX.Element {
   const hoverCapable = useHoverCapable();
-  const [anchorEl, setAnchorEl] = createSignal<HTMLElement>();
-  const [bubbleEl, setBubbleEl] = createSignal<HTMLElement>();
-  const shiftX = useTooltipEdgeShift(
-    props.controller.visible,
-    anchorEl,
-    bubbleEl
-  );
 
   return (
     <div
       class="box"
       classList={{ [styles['anchor'] ?? '']: true }}
       role="presentation"
-      ref={setAnchorEl}
       onMouseEnter={() => {
         if (hoverCapable()) props.controller.show();
       }}
@@ -152,12 +106,10 @@ function TooltipAnchor(props: {
         {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
         style={{
           'max-width': `${TOOLTIP_MAX_WIDTH}px`,
-          '--tooltip-shift-x': `${shiftX()}px`,
         }}
         id={props.controller.id}
         role="tooltip"
         aria-hidden={props.controller.visible() ? undefined : true}
-        ref={setBubbleEl}
       >
         <p class="text textCaption line-clamp-2 text-text text-center">
           {props.label}

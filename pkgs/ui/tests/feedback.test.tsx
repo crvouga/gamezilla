@@ -206,7 +206,7 @@ describe('DismissibleBanner', () => {
   test('renders into the in-flow portal host, dismisses, and fires the action', () => {
     const onDismiss = vi.fn();
     const onAction = vi.fn();
-    const { clock } = renderUi(() => (
+    renderUi(() => (
       <DismissibleBannerPortalProvider>
         <p data-testid="body">{'body'}</p>
         <DismissibleBanner
@@ -235,7 +235,6 @@ describe('DismissibleBanner', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
     expect(onAction).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
-    clock.advance(1000);
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 

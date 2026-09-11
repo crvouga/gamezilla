@@ -32,6 +32,8 @@ export type ChessBoardSquaresProps = {
   readonly highlightLastMove: boolean;
   readonly highlightLegalMoves: boolean;
   readonly checkSquare: Square | null;
+  readonly premoveFrom: Square | null;
+  readonly premoveTo: Square | null;
 };
 
 function LegalMarker(props: {
@@ -50,7 +52,7 @@ function LegalMarker(props: {
         <circle
           cx={cx()}
           cy={cy()}
-          r={CELL_UNITS * 0.14}
+          r={CELL_UNITS * 0.15}
           fill={props.theme.legalMoveDot}
         />
       }
@@ -58,10 +60,10 @@ function LegalMarker(props: {
       <circle
         cx={cx()}
         cy={cy()}
-        r={CELL_UNITS * 0.42}
+        r={CELL_UNITS * 0.44}
         fill="none"
         stroke={props.theme.legalMoveCaptureRing}
-        stroke-width={CELL_UNITS * 0.1}
+        stroke-width={CELL_UNITS * 0.11}
       />
     </Show>
   );
@@ -86,6 +88,8 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
             highlight={props.cellHighlights?.[square]}
             showCoordinates={props.showCoordinates}
             highlightLastMove={props.highlightLastMove}
+            premoveFrom={props.premoveFrom}
+            premoveTo={props.premoveTo}
           />
         )}
       </For>

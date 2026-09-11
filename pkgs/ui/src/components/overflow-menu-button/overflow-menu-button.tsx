@@ -25,7 +25,7 @@
 import { type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import { FloatingMenu } from '../floating-menu';
+import { FloatingMenu, type FloatingMenuPlacement } from '../floating-menu';
 import { IconButton } from '../icon-button';
 import { EllipsisIcon, type IconComponent, MenuIcon } from '../icons';
 import {
@@ -89,6 +89,7 @@ export type OverflowMenuRenderProps = {
   anchor: HTMLElement | null;
   width: number;
   content: OverflowMenuContent;
+  placement: FloatingMenuPlacement;
 };
 
 export type OverflowMenuButtonProps = {
@@ -111,6 +112,8 @@ export type OverflowMenuButtonProps = {
   'aria-label': string;
   /** Width of the dropdown panel in px. */
   width?: number | undefined;
+  /** Static menu placement. Defaults to `bottom-end`. */
+  placement?: FloatingMenuPlacement | undefined;
   /** Overrides the default {@link FloatingMenu} dropdown. */
   renderMenu?: ((menu: OverflowMenuRenderProps) => JSX.Element) | undefined;
   /** Notified when the trigger is clicked (after the menu opens). */
@@ -162,6 +165,7 @@ export function renderDefaultOverflowMenu(
       onClose={menu.onClose}
       anchor={menu.anchor}
       width={menu.width}
+      placement={menu.placement}
       content={menu.content}
     />
   );
@@ -256,6 +260,9 @@ export function OverflowMenuButton(
         },
         get content() {
           return content();
+        },
+        get placement() {
+          return props.placement ?? 'bottom-end';
         },
       })}
     </Show>

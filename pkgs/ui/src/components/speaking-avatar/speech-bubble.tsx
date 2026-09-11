@@ -9,10 +9,6 @@
  *   - `loading=true` -> three-dot "typing" indicator (`./typing-dots.tsx`).
  *   - `loading=false` -> the full message rendered as `Text`.
  *
- * Entrance animation: the whole bubble (tail + surface together) slides in
- * from the left and fades in whenever `text` changes (CSS keyframes; the
- * bubble is keyed on `text` so the animation restarts per message).
- *
  * Layout-shift lockdown: the bubble has a *fixed* height derived from
  * `numberOfLines * BUBBLE_LINE_HEIGHT + 2 * BUBBLE_PADDING_VERTICAL` and the
  * inner `Text` clamps to `numberOfLines`, so messages of any length cannot
@@ -20,7 +16,6 @@
  */
 
 import { type JSX, Show } from 'solid-js';
-import { useThemeTokens } from '../../theme';
 import { TypingDots } from './typing-dots';
 
 const TAIL_SIZE = 12;
@@ -46,13 +41,11 @@ export type SpeechBubbleProps = {
 };
 
 export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
-  const tokens = useThemeTokens();
   const lines = () => props.numberOfLines ?? DEFAULT_NUMBER_OF_LINES;
   const bubbleHeight = () =>
     lines() * BUBBLE_LINE_HEIGHT +
     2 * BUBBLE_PADDING_VERTICAL +
     (props.header !== undefined ? SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT : 0);
-  const lift = tokens.elevation(2);
 
   // Keyed on the message so the CSS entrance restarts per message (a fresh
   // wrapper object per text value; `loading` swaps stay inside the bubble).
@@ -64,7 +57,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
           data-component="SpeechBubble"
         >
           <div
-            class="box bg-surface-elevated [transform:rotate(45deg)]"
+            class="box bg-surface-muted [transform:rotate(45deg)]"
             style={{
               width: `${TAIL_SIZE}px`,
               height: `${TAIL_SIZE}px`,
@@ -73,12 +66,8 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
             aria-hidden="true"
           />
           <div
-            class="box flex-1 bg-surface-elevated rounded-[10px] justify-center"
+            class="box flex-1 bg-surface-muted rounded-[10px] justify-center border border-solid border-border"
             style={{
-              ...(lift.boxShadow ? { 'box-shadow': lift.boxShadow } : {}),
-              ...(lift.backgroundColor
-                ? { 'background-color': lift.backgroundColor }
-                : {}),
               'padding-top': `${BUBBLE_PADDING_VERTICAL}px`,
               'padding-bottom': `${BUBBLE_PADDING_VERTICAL}px`,
               'padding-left': `${BUBBLE_PADDING_HORIZONTAL}px`,

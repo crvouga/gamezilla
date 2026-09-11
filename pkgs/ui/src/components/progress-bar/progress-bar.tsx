@@ -4,8 +4,8 @@ import { cssPx } from '../../css/css-px';
  * `ProgressBar` -- determinate or indeterminate progress indicator.
  *
  * Exposes `role="progressbar"` with `aria-valuenow` (omitted while
- * indeterminate, per WAI-ARIA). The fill width animates with a CSS
- * transition; indeterminate shows a static partial fill.
+ * indeterminate, per WAI-ARIA). The fill width snaps instantly;
+ * indeterminate shows a static partial fill.
  *
  * @example
  * ```tsx
@@ -61,7 +61,7 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element {
       aria-busy={indeterminate() ? true : undefined}
     >
       <div
-        class="box [transition-property:width] [transition-duration:var(--ui-duration-normal)] [transition-timing-function:var(--ui-easing-standard)]"
+        class="box"
         style={{
           'border-radius': cssPx(height() / 2),
           'background-color': fillColor(),

@@ -23,7 +23,6 @@ export function ChessPuzzleReviewBoard(props: {
             fallback={<ChessPuzzleBoardLoadingState size={size} />}
           >
             <ChessBoard
-              controlled
               dataSet={{ testid: 'chess-puzzle-review-board' }}
               size={size}
               fen={model.displayFen()}

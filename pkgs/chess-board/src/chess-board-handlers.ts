@@ -12,16 +12,15 @@ import type { ChessBoardModel } from './create-chess-board-model';
 import { isArrowKey, moveCursor } from './keyboard-nav';
 import type { PointerSession } from './pointer-session';
 
-function squareAt(args: {
+function squareFromRect(args: {
   event: { clientX: number; clientY: number };
-  host: HTMLElement;
+  rect: DOMRect;
   boardPx: number;
   orientation: BoardOrientation;
 }): Square | null {
-  const rect = args.host.getBoundingClientRect();
   return xyToSquare(
-    args.event.clientX - rect.left,
-    args.event.clientY - rect.top,
+    args.event.clientX - args.rect.left,
+    args.event.clientY - args.rect.top,
     args.boardPx,
     args.orientation
   );
@@ -55,46 +54,79 @@ function createPointerPart(
   BoardHandlers,
   'onPointerDown' | 'onPointerMove' | 'onPointerUp' | 'onPointerCancel'
 > {
+  let cachedRect: DOMRect | null = null;
+  let rectRo: ResizeObserver | null = null;
+
+  const clearRectCache = (): void => {
+    cachedRect = null;
+    if (rectRo !== null) {
+      rectRo.disconnect();
+      rectRo = null;
+    }
+  };
+
+  const ensureRect = (node: HTMLElement): DOMRect => {
+    if (cachedRect !== null) return cachedRect;
+    cachedRect = node.getBoundingClientRect();
+    rectRo = new ResizeObserver(() => {
+      cachedRect = node.getBoundingClientRect();
+    });
+    rectRo.observe(node);
+    return cachedRect;
+  };
+
   const at = (event: { clientX: number; clientY: number }): Square | null => {
     const node = args.host();
     if (node === undefined) return null;
-    return squareAt({
+    return squareFromRect({
       event,
-      host: node,
+      rect: ensureRect(node),
       boardPx: args.boardPx(),
       orientation: args.orientation(),
     });
   };
+
+  const setDragUnits = (event: { clientX: number; clientY: number }): void => {
+    const node = args.host();
+    if (node === undefined) return;
+    const rect = ensureRect(node);
+    const px = args.boardPx();
+    args.setDragAt({
+      x: pxToUnits(event.clientX - rect.left, px),
+      y: pxToUnits(event.clientY - rect.top, px),
+    });
+  };
+
   return {
     onPointerDown(event) {
       const node = args.host();
       if (node === undefined || event.button !== 0) return;
       if (args.enableUserArrows()) args.userArrows.clear();
       node.setPointerCapture(event.pointerId);
+      clearRectCache();
+      ensureRect(node);
       const sq = at(event);
-      args.session.down(sq);
+      args.session.down(sq, event.clientX, event.clientY);
       if (sq !== null) args.setCursor(sq);
     },
     onPointerMove(event) {
-      if (args.session.state().kind !== 'drag') return;
-      const node = args.host();
-      if (node === undefined) return;
-      const rect = node.getBoundingClientRect();
-      const px = args.boardPx();
-      args.setDragAt({
-        x: pxToUnits(event.clientX - rect.left, px),
-        y: pxToUnits(event.clientY - rect.top, px),
-      });
+      const before = args.session.state().kind;
+      const promoted = args.session.move(event.clientX, event.clientY);
+      const kind = args.session.state().kind;
+      if (kind !== 'drag') return;
+      if (promoted || before === 'drag') setDragUnits(event);
     },
     onPointerUp(event) {
       if (event.button === 2 && args.enableUserArrows()) {
         args.userArrows.end(at(event));
+        clearRectCache();
         return;
       }
       const sq = at(event);
       const before = args.session.state();
       args.session.up(sq);
       args.setDragAt(null);
+      clearRectCache();
       if (before.kind === 'drag' && sq !== null && sq !== before.from) {
         args.model.markSnap(sq);
       }
@@ -102,6 +134,7 @@ function createPointerPart(
     onPointerCancel() {
       args.session.cancel();
       args.setDragAt(null);
+      clearRectCache();
     },
   };
 }
@@ -128,9 +161,10 @@ function createKeyPart(
       event.preventDefault();
       const node = args.host();
       if (node === undefined) return;
-      const sq = squareAt({
+      const rect = node.getBoundingClientRect();
+      const sq = squareFromRect({
         event,
-        host: node,
+        rect,
         boardPx: args.boardPx(),
         orientation: args.orientation(),
       });

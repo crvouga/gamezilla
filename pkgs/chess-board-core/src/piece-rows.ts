@@ -4,7 +4,8 @@
  *
  * {@link createPieceRowsTracker} is the stateful entry point: feed it each
  * new position (+ the move that produced it when known) and it returns rows
- * whose `id`s survive moves, captures, castling, promotions and resets.
+ * whose `id`s (and object identity) survive moves, captures, castling,
+ * promotions and resets — Solid `<For>` reconciles by reference.
  */
 
 import { squareFromIndex } from './geometry';
@@ -17,8 +18,6 @@ export type ChessPieceRow = {
   id: string;
   square: Square;
   code: PieceCode;
-  /** True once for newly spawned pieces (promotion / fresh id). */
-  fadeIn?: boolean;
 };
 
 type IdAllocator = () => string;
@@ -40,6 +39,22 @@ function scanRows(pos: Position, allocId: IdAllocator): ChessPieceRow[] {
   return rows;
 }
 
+/** Reuse the prior row object when the id survives; allocate only for new ids. */
+function adoptRow(
+  prevById: Map<string, ChessPieceRow>,
+  id: string,
+  square: Square,
+  code: PieceCode
+): ChessPieceRow {
+  const existing = prevById.get(id);
+  if (existing !== undefined) {
+    existing.square = square;
+    existing.code = code;
+    return existing;
+  }
+  return { id, square, code };
+}
+
 type ResolvePieceArgs = {
   sq: Square;
   code: PieceCode;
@@ -49,25 +64,18 @@ type ResolvePieceArgs = {
   allocId: IdAllocator;
 };
 
-function resolvePieceId(args: ResolvePieceArgs): {
-  id: string;
-  fadeIn: boolean;
-} {
+function resolvePieceId(args: ResolvePieceArgs): string {
   const { sq, code, active, lastMove, mover, allocId } = args;
   if (mover && sq === lastMove.to) {
-    return { id: mover.id, fadeIn: false };
+    return mover.id;
   }
   const castle = lastMove.castle;
   if (castle && sq === castle.rookTo) {
     const rook = active.find((r) => r.square === castle.rookFrom);
-    return rook
-      ? { id: rook.id, fadeIn: false }
-      : { id: allocId(), fadeIn: true };
+    return rook ? rook.id : allocId();
   }
   const same = active.find((r) => r.square === sq && r.code === code);
-  return same
-    ? { id: same.id, fadeIn: false }
-    : { id: allocId(), fadeIn: true };
+  return same ? same.id : allocId();
 }
 
 function buildNextRows(
@@ -76,6 +84,7 @@ function buildNextRows(
   lastMove: Move,
   allocId: IdAllocator
 ): ChessPieceRow[] {
+  const prevById = new Map(active.map((r) => [r.id, r]));
   const mover = active.find((r) => r.square === lastMove.from);
   const next: ChessPieceRow[] = [];
   for (let i = 0; i < 64; i++) {
@@ -84,7 +93,7 @@ function buildNextRows(
     const sq = squareFromIndex(i);
     const code = pieceCode(p.color, p.type);
     if (!code) continue;
-    const { id, fadeIn } = resolvePieceId({
+    const id = resolvePieceId({
       sq,
       code,
       active,
@@ -92,7 +101,7 @@ function buildNextRows(
       mover,
       allocId,
     });
-    next.push({ id, square: sq, code, ...(fadeIn ? { fadeIn: true } : {}) });
+    next.push(adoptRow(prevById, id, sq, code));
   }
   return next;
 }
@@ -117,7 +126,8 @@ type Unmatched = { square: Square; code: PieceCode };
 function claimSquareMatches(
   position: Position,
   bySquareCode: Map<string, ChessPieceRow>,
-  usedIds: Set<string>
+  usedIds: Set<string>,
+  prevById: Map<string, ChessPieceRow>
 ): { matched: ChessPieceRow[]; unmatched: Unmatched[] } {
   const matched: ChessPieceRow[] = [];
   const unmatched: Unmatched[] = [];
@@ -130,7 +140,7 @@ function claimSquareMatches(
     const hit = bySquareCode.get(`${square}:${code}`);
     if (hit && !usedIds.has(hit.id)) {
       usedIds.add(hit.id);
-      matched.push({ id: hit.id, square, code });
+      matched.push(adoptRow(prevById, hit.id, square, code));
     } else {
       unmatched.push({ square, code });
     }
@@ -140,22 +150,24 @@ function claimSquareMatches(
 
 function claimCodeFallback(
   unmatched: readonly Unmatched[],
-  byCode: Map<PieceCode, ChessPieceRow[]>,
-  usedIds: Set<string>,
-  allocId: IdAllocator
+  ctx: {
+    byCode: Map<PieceCode, ChessPieceRow[]>;
+    usedIds: Set<string>;
+    allocId: IdAllocator;
+    prevById: Map<string, ChessPieceRow>;
+  }
 ): ChessPieceRow[] {
   const out: ChessPieceRow[] = [];
   for (const row of unmatched) {
-    const hit = byCode.get(row.code)?.find((r) => !usedIds.has(r.id));
+    const hit = ctx.byCode.get(row.code)?.find((r) => !ctx.usedIds.has(r.id));
     if (hit) {
-      usedIds.add(hit.id);
-      out.push({ id: hit.id, square: row.square, code: row.code });
+      ctx.usedIds.add(hit.id);
+      out.push(adoptRow(ctx.prevById, hit.id, row.square, row.code));
     } else {
       out.push({
-        id: allocId(),
+        id: ctx.allocId(),
         square: row.square,
         code: row.code,
-        fadeIn: true,
       });
     }
   }
@@ -171,16 +183,18 @@ export function rematchRows(
   position: Position,
   allocId: IdAllocator
 ): ChessPieceRow[] {
+  const prevById = new Map(prevRows.map((r) => [r.id, r]));
   const { bySquareCode, byCode } = indexPrevRows(prevRows);
   const usedIds = new Set<string>();
   const { matched, unmatched } = claimSquareMatches(
     position,
     bySquareCode,
-    usedIds
+    usedIds,
+    prevById
   );
   return [
     ...matched,
-    ...claimCodeFallback(unmatched, byCode, usedIds, allocId),
+    ...claimCodeFallback(unmatched, { byCode, usedIds, allocId, prevById }),
   ];
 }
 

@@ -30,6 +30,8 @@ export type SquareCellProps = {
   readonly highlight: CellHighlight | undefined;
   readonly showCoordinates: boolean;
   readonly highlightLastMove: boolean;
+  readonly premoveFrom: Square | null;
+  readonly premoveTo: Square | null;
 };
 
 export type SquareFillInput = {
@@ -39,11 +41,26 @@ export type SquareFillInput = {
   readonly selected: Square | null;
   readonly checkSquare: Square | null;
   readonly highlightLastMove: boolean;
+  readonly premoveFrom: Square | null;
+  readonly premoveTo: Square | null;
 };
 
 export function squareFill(cell: SquareFillInput): string {
-  const { square, theme, lastMove, selected, checkSquare, highlightLastMove } =
-    cell;
+  const {
+    square,
+    theme,
+    lastMove,
+    selected,
+    checkSquare,
+    highlightLastMove,
+    premoveFrom,
+    premoveTo,
+  } = cell;
+  if (selected === square) return theme.selected;
+  if (checkSquare === square) return theme.check;
+  if (premoveFrom === square || premoveTo === square) {
+    return theme.lastMove;
+  }
   if (
     highlightLastMove &&
     lastMove !== null &&
@@ -51,8 +68,6 @@ export function squareFill(cell: SquareFillInput): string {
   ) {
     return theme.lastMove;
   }
-  if (selected === square) return theme.selected;
-  if (checkSquare === square) return theme.check;
   return isLightSquare(square) ? theme.lightSquare : theme.darkSquare;
 }
 
@@ -109,6 +124,8 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
       selected: props.selected,
       checkSquare: props.checkSquare,
       highlightLastMove: props.highlightLastMove,
+      premoveFrom: props.premoveFrom,
+      premoveTo: props.premoveTo,
     });
   return (
     <g>

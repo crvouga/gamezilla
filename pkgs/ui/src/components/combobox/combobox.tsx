@@ -5,6 +5,8 @@
  *
  * Always presents as a centered modal: comboboxes are often nested inside
  * another surface, and a stacked modal keeps focus / Escape ownership simple.
+ * The surface uses `scroll={false}` so only the option list scrolls; header
+ * and search stay pinned.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -70,6 +72,7 @@ export function Combobox<T extends ComboboxValue = string>(
         title={resolveSurfaceTitle(props.surfaceTitle, props.label, t`Choose`)}
         label={name()}
         presentation="modal"
+        scroll={false}
       >
         <ComboboxBody
           query={c.query()}

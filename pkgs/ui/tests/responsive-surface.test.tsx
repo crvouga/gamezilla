@@ -20,6 +20,7 @@ function Surface(props: {
   presentation?: 'responsive' | 'modal';
   visible?: boolean;
   closable?: boolean;
+  scroll?: boolean;
 }): JSX.Element {
   return (
     <ResponsiveSurface
@@ -28,6 +29,7 @@ function Surface(props: {
       closable={props.closable}
       title="Filters"
       presentation={props.presentation}
+      scroll={props.scroll}
       closeDataSet={{ testid: 'close' }}
     >
       <p class="text">{'Surface body'}</p>
@@ -115,6 +117,32 @@ describe('ResponsiveSurface', () => {
     );
     expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
     expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
+  });
+
+  test('scroll={false} keeps the surface fixed without a chrome ScrollView', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <Surface onClose={() => {}} presentation="modal" scroll={false} />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 600 }
+    );
+    expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
+    expect(document.querySelector('[data-component="ScrollView"]')).toBeNull();
+    expect(screen.getByText('Surface body')).toBeInTheDocument();
+  });
+
+  test('default scroll wraps chrome in a ScrollView for form panels', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <Surface onClose={() => {}} presentation="modal" />
+        </SurfaceStackProvider>
+      ),
+      { width: 400, height: 600 }
+    );
+    expect(mustQuery('[data-component="ScrollView"]')).toBeInTheDocument();
   });
 
   test('closable=false hides the close icon and ignores backdrop dismiss', () => {

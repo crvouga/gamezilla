@@ -93,6 +93,34 @@ describe('ExplorerList', () => {
     fireEvent.click(screen.getByRole('button', { name: /Gamma/ }));
     expect(onSelect).toHaveBeenCalledWith('gamma');
   });
+
+  test('shows Back when a navigable parent crumb is provided', () => {
+    renderUi(
+      () => (
+        <ExplorerList
+          entries={DEMO_ENTRIES}
+          onSelect={() => {}}
+          breadcrumbs={[
+            { name: 'Settings', onClick: () => {} },
+            { name: 'Components' },
+          ]}
+        />
+      ),
+      { width: 390, height: 800 }
+    );
+    expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+  });
+
+  test('hides Back with the default single-crumb trail', () => {
+    renderUi(
+      () => <ExplorerList entries={DEMO_ENTRIES} onSelect={() => {}} />,
+      {
+        width: 390,
+        height: 800,
+      }
+    );
+    expect(screen.queryByRole('button', { name: 'Back' })).toBeNull();
+  });
 });
 
 describe('ExplorerDetail', () => {

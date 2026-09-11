@@ -36,7 +36,7 @@ function UserProfileAvatarInner(props: {
   size: number;
   vividBackdrop: boolean;
 }): JSX.Element {
-  const raw = useProfileColumn(props.profileId, 'avatarConfig');
+  const raw = useProfileColumn(() => props.profileId, 'avatarConfig');
   const avatarConfig = createMemo(() => parseAvatarConfig(raw()));
   return (
     <DeviceAvatar

@@ -118,10 +118,7 @@ function SpaceActiveLayoutCompact(props: {
       <TopBar
         leading={<SpaceChromeLeadingActionBar />}
         center={
-          <SpaceChromeTitle
-            spaceId={props.spaceId}
-            variant="navigationTitle"
-          />
+          <SpaceChromeTitle spaceId={props.spaceId} variant="navigationTitle" />
         }
         trailing={<SpaceTrailingWithGlobal />}
         centerPosition="flex"

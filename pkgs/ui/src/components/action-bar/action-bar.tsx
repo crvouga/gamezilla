@@ -132,6 +132,7 @@ function ActionBarMenu(props: {
       return props.bar.menu.anchor();
     },
     width: OVERFLOW_MENU_DEFAULT_WIDTH,
+    placement: 'bottom-end',
     get content() {
       return buildOverflowMenuContent(
         props.bar.layout().overflowActions,

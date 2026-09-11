@@ -26,7 +26,10 @@ describe('MainMenuScreen', () => {
     ));
     const root = mustQuery('[data-component="MainMenuScreen"]');
     expect(root.getAttribute('data-screen')).toBe('games');
-    expect(cssOf(root)).toContain(`max-width:${MAIN_MENU_SCREEN_MAX_WIDTH}px`);
+    const content = mustQuery('[data-component="ScrollViewContent"]');
+    expect(cssOf(content)).toContain(
+      `max-width:${MAIN_MENU_SCREEN_MAX_WIDTH}px`
+    );
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Games');
     expect(screen.getByText('Pick one')).toBeTruthy();
     expect(screen.getByText('Tap a game to start')).toBeTruthy();

@@ -35,7 +35,7 @@ function PublishIdentity(props: {
 function PublishFromProfile(props: {
   readonly profileId: string;
 }): JSX.Element {
-  const username = useProfileColumn(props.profileId, 'username');
+  const username = useProfileColumn(() => props.profileId, 'username');
   return <PublishIdentity username={username} />;
 }
 

@@ -23,7 +23,12 @@ import {
   type ChessPieceRow,
   createPieceRowsTracker,
 } from '@pkgs/chess-board-core/piece-rows';
-import type { Move, Position, Square } from '@pkgs/chess-board-core/types';
+import type {
+  Move,
+  PieceColor,
+  Position,
+  Square,
+} from '@pkgs/chess-board-core/types';
 import type { Timers } from '@pkgs/clock/types';
 import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
 import {
@@ -47,6 +52,10 @@ export type ChessBoardModelArgs = {
   readonly onMove: (move: Move) => void;
   readonly sounds: ChessMoveSoundPlayer;
   readonly timers: Timers;
+  readonly premoves: Accessor<boolean>;
+  readonly autoPromoteQueen: Accessor<boolean>;
+  /** Seated color for premove ownership (from board orientation). */
+  readonly playerColor: Accessor<PieceColor | null>;
 };
 
 export type ChessBoardModel = {
@@ -76,15 +85,18 @@ function createExternalFenSync(
       const wasInSync = prevFenProp === undefined || localFen === prevFenProp;
       const result = args.game.applyExternalFen(fen);
       prevFenProp = fen;
-      interaction.clear();
+      // Keep a queued premove across opponent plies so flushPremmove can run.
+      interaction.clear({ retainPremmove: true });
       if (result === null) return;
       // A single-ply external change while in sync is an opponent / canned
       // reply: keep its last-move highlight and play SFX. Optimistic desync
       // repairs (wrong-move revert) stay silent and unhighlighted.
       if (result.moved !== null && wasInSync) {
         playMove(result.moved, result);
+        interaction.flushPremmove();
         return;
       }
+      interaction.clear();
       args.game.clearLastMove();
     })
   );
@@ -151,11 +163,25 @@ export function createChessBoardModel(
     args.interactive()
   );
   createEffect(() => actions.setInteractive(args.interactive()));
+  createEffect(() => actions.setPremovesEnabled(args.premoves()));
+  createEffect(() => actions.setAutoPromoteQueen(args.autoPromoteQueen()));
+  createEffect(() => actions.setPlayerColor(args.playerColor()));
 
   const game = createSubscriptionSignal(args.game);
   const interaction = createSubscriptionSignal(actions);
 
   createExternalFenSync(args, actions, playMove);
+
+  // Local apply flips the turn — flush if a premove was queued somehow.
+  createEffect(
+    on(
+      () => game().turn,
+      () => {
+        actions.flushPremmove();
+      },
+      { defer: true }
+    )
+  );
 
   const tracker = createPieceRowsTracker();
   const rows = createMemo(() => {

@@ -65,8 +65,6 @@ export type CellFeedback = {
   kind: CellFeedbackKind;
   /** Override default palette color (theme.feedback.<kind> by default). */
   color?: string;
-  /** Pulse loop while present. */
-  pulse?: boolean;
   /** 0..1, default 1. */
   opacity?: number;
   /** Default `'topRight'`. */

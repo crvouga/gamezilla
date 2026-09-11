@@ -76,12 +76,8 @@ export function ActionBarIconButton(
     );
   };
 
-  // Press-feedback scale only — not a mount entrance.
   const glyph = (): JSX.Element => (
-    <div
-      class="box items-center justify-center [transition-property:transform,_color] [transition-duration:var(--ui-duration-fast)] [transition-timing-function:var(--ui-easing-standard)]"
-      style={{ transform: `scale(${success() ? 1.1 : 1})` }}
-    >
+    <div class="box items-center justify-center">
       <Dynamic
         component={presentation().icon}
         size={Math.round(props.buttonSize * 0.55)}

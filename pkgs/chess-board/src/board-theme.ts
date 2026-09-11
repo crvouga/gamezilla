@@ -77,19 +77,20 @@ function defaultPromotionPalette(squares: {
   };
 }
 
+/** Chess.com-adjacent cream / olive board; last-move olive wash. */
 export function defaultBoardTheme(scheme: BoardColorScheme): BoardTheme {
   const lightSquare = '#f0d9b5';
   const darkSquare = '#b58863';
   return {
     lightSquare,
     darkSquare,
-    border: '#8a6a3d',
+    border: '#7a6248',
     lastMove: '#cdd26a',
-    selected: '#f7ec74',
-    legalMoveDot: 'rgba(20,85,30,0.5)',
-    legalMoveCaptureRing: 'rgba(20,85,30,0.75)',
-    check: '#d64545',
-    coordinates: scheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
+    selected: '#f6eb79',
+    legalMoveDot: 'rgba(26, 90, 36, 0.42)',
+    legalMoveCaptureRing: 'rgba(26, 90, 36, 0.72)',
+    check: '#e45c5c',
+    coordinates: scheme === 'dark' ? '#f0e0c4' : '#4a3220',
     feedback: defaultFeedbackPalette(scheme),
     arrows: defaultArrowPalette(scheme),
     promotion: defaultPromotionPalette({ lightSquare, darkSquare }),

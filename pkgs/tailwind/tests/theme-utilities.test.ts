@@ -3,16 +3,25 @@
  * compiled inside the Tailwind entry. A separate Vite CSS import of theme.css
  * leaves raw `@theme` in the browser and generates nothing — menus/modals then
  * render with transparent backgrounds.
+ *
+ * Invokes the workspace `@tailwindcss/cli` binary directly. `bunx @tailwindcss/cli`
+ * can hang indefinitely on cold resolve under disk pressure; the local package
+ * path finishes the monorepo compile in ~2s.
  */
 
 import { describe, expect, test } from 'bun:test';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const PKG_ROOT = resolve(import.meta.dir, '..');
 const REPO_ROOT = resolve(PKG_ROOT, '../..');
 const ENTRY = resolve(PKG_ROOT, 'src/tailwind.css');
+const CLI = join(
+  dirname(fileURLToPath(import.meta.resolve('@tailwindcss/cli/package.json'))),
+  'dist/index.mjs'
+);
 
 describe('token color utilities', () => {
   test('compiling the Tailwind entry emits bg-surface-overlay', async () => {
@@ -20,17 +29,7 @@ describe('token color utilities', () => {
     const out = join(scratch, 'out.css');
     try {
       const proc = Bun.spawn(
-        [
-          'bunx',
-          '--bun',
-          '@tailwindcss/cli',
-          '-i',
-          ENTRY,
-          '-o',
-          out,
-          '--cwd',
-          REPO_ROOT,
-        ],
+        ['bun', CLI, '-i', ENTRY, '-o', out, '--cwd', REPO_ROOT],
         { cwd: REPO_ROOT, stdout: 'pipe', stderr: 'pipe' }
       );
       const code = await proc.exited;

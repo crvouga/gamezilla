@@ -1,5 +1,4 @@
 export {
-  DISMISSIBLE_BANNER_SLIDE_PX,
   DismissibleBanner,
   DismissibleBannerPortalProvider,
   type DismissibleBannerPortalProviderProps,

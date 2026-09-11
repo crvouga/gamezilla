@@ -94,10 +94,6 @@ msgstr "{label} · hosted by {username}"
 msgid "{mins}m ago"
 msgstr "{mins}m ago"
 
-#: libs/spaces/src/root/client/active-space/space-event-log-chrome.tsx
-msgid "{n} new"
-msgstr "{n} new"
-
 #: pkgs/ui/src/components/command-palette/command-palette-hint.tsx
 msgid "↑ ↓ navigate · ↵ run · Esc close · Tab next"
 msgstr "↑ ↓ navigate · ↵ run · Esc close · Tab next"
@@ -427,6 +423,7 @@ msgstr "Committed"
 msgid "Component not found"
 msgstr "Component not found"
 
+#: apps/client/src/routes/stubs/ui-explorer.tsx
 #: pkgs/ui/src/components/explorer/explorer-detail.tsx
 #: pkgs/ui/src/components/explorer/explorer-list.tsx
 msgid "Components"
@@ -453,14 +450,14 @@ msgstr "Connected"
 msgid "Connecting"
 msgstr "Connecting"
 
-#: libs/spaces/src/root/client/active-space/space-event-log-chrome.tsx
-msgid "Connecting…"
-msgstr "Connecting…"
-
 #: apps/client/src/screens/more/settings-screen.tsx
 #: apps/client/src/screens/more/sync-screen.tsx
 msgid "Connection"
 msgstr "Connection"
+
+#: apps/client/src/chrome/app-header-global-menu.tsx
+msgid "Connectivity"
+msgstr "Connectivity"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
 msgid "Continue with dev IDP"
@@ -882,7 +879,6 @@ msgid "Full commit"
 msgstr "Full commit"
 
 #: libs/chess/src/public/chess-puzzle/chess-stats-screen.tsx
-#: libs/spaces/src/root/client/active-space/space-event-log-chrome.tsx
 msgid "Game log"
 msgstr "Game log"
 
@@ -981,10 +977,6 @@ msgstr "Joined"
 #: libs/spaces/src/root/client/join-space/space-join-button.tsx
 msgid "Joining…"
 msgstr "Joining…"
-
-#: libs/spaces/src/root/client/active-space/space-event-log-chrome.tsx
-msgid "Joins, leaves, and game play will show up here."
-msgstr "Joins, leaves, and game play will show up here."
 
 #: pkgs/ui/src/components/relative-time/relative-time.tsx
 msgid "just now"
@@ -1146,7 +1138,6 @@ msgstr "New version available — reload to update"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 #: pkgs/ui/src/components/catalog/catalog-detail-nav.tsx
-#: pkgs/ui/src/components/horizontal-picker/horizontal-picker-arrows.tsx
 #: pkgs/ui/src/components/pagination-controls/pagination-controls.tsx
 msgid "Next"
 msgstr "Next"
@@ -1162,10 +1153,6 @@ msgstr "No"
 #: libs/auth/src/root/client/account-device/account-device-session-caption-text.tsx
 msgid "No active session"
 msgstr "No active session"
-
-#: libs/spaces/src/root/client/active-space/space-event-log-chrome.tsx
-msgid "No activity yet"
-msgstr "No activity yet"
 
 #: pkgs/ui/src/components/catalog/catalog-detail.tsx
 msgid "No catalog entry for \"{id}\"."
@@ -1423,7 +1410,6 @@ msgid "Preferences and developer tools"
 msgstr "Preferences and developer tools"
 
 #: pkgs/ui/src/components/catalog/catalog-detail-nav.tsx
-#: pkgs/ui/src/components/horizontal-picker/horizontal-picker-arrows.tsx
 #: pkgs/ui/src/components/pagination-controls/pagination-controls.tsx
 msgid "Previous"
 msgstr "Previous"
@@ -1439,6 +1425,7 @@ msgstr "Production"
 #: apps/client/src/routes/app-tabs.tsx
 #: libs/friends/src/root/client/friend-user-screen-view.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
+#: libs/friends/src/root/client/friends-signed-in-gate.tsx
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/root/client/profile-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
@@ -1450,7 +1437,7 @@ msgstr "Profile"
 msgid "Puzzle"
 msgstr "Puzzle"
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-summary-card.tsx
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
 msgid "Puzzle abandoned"
 msgstr "Puzzle abandoned"
 
@@ -1466,7 +1453,7 @@ msgstr "Puzzle rating {puzzleRating}"
 msgid "Puzzle review"
 msgstr "Puzzle review"
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-summary-card.tsx
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
 msgid "Puzzle solved!"
 msgstr "Puzzle solved!"
 
@@ -1499,10 +1486,6 @@ msgstr "Ready"
 #: libs/search/src/root/client/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
-
-#: libs/spaces/src/root/client/active-space/space-event-log-chrome.tsx
-msgid "Reconnecting…"
-msgstr "Reconnecting…"
 
 #: apps/client/src/shell/pwa/update-prompt.tsx
 msgid "Reload"
@@ -1679,7 +1662,10 @@ msgid "Sessions"
 msgstr "Sessions"
 
 #: apps/client/src/chrome/app-header-global-menu.tsx
+#: apps/client/src/routes/stubs/client-events.tsx
+#: apps/client/src/routes/stubs/client-sql.tsx
 #: apps/client/src/routes/stubs/more-server-status.tsx
+#: apps/client/src/routes/stubs/ui-explorer.tsx
 #: apps/client/src/screens/more/about-screen.tsx
 #: apps/client/src/screens/more/performance-screen.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
@@ -1793,7 +1779,6 @@ msgstr "Sign-in was cancelled or didn't finish."
 msgid "Sign-out failed"
 msgstr "Sign-out failed"
 
-#: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 msgid "Signed in"
@@ -1884,6 +1869,9 @@ msgid "Space renamed"
 msgstr "Space renamed"
 
 #: apps/client/src/routes/app-tabs.tsx
+#: apps/client/src/routes/stubs/client-events.tsx
+#: apps/client/src/routes/stubs/client-sql.tsx
+#: apps/client/src/routes/stubs/ui-explorer.tsx
 #: apps/client/src/screens/more/about-screen.tsx
 #: apps/client/src/screens/more/performance-screen.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
@@ -2083,10 +2071,6 @@ msgstr "UI components"
 #: libs/chess/src/public/chess-settings/chess-settings-developer-screen.tsx
 msgid "UI Components"
 msgstr "UI Components"
-
-#: apps/client/src/chrome/app-header-global-menu.tsx
-msgid "UI explorer"
-msgstr "UI explorer"
 
 #: libs/chess/src/public/chess-settings/chess-settings-screen.tsx
 msgid "UI explorer, debug tools."

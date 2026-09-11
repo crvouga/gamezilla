@@ -3,7 +3,6 @@ import {
   Collapsible,
   ScreenLargeTitle,
   ScreenTitleProvider,
-  SectionCard,
   useRequiredScreenTitleContext,
   useScreenTitleScroll,
 } from '@pkgs/ui';
@@ -13,7 +12,7 @@ import type { JSX } from 'solid-js';
 import { describe, expect, test } from 'vitest';
 import { renderUi } from './support/render';
 
-describe('Collapsible / SectionCard', () => {
+describe('Collapsible', () => {
   test('toggles body and aria-expanded', async () => {
     const user = userEvent.setup();
     renderUi(() => (
@@ -27,16 +26,6 @@ describe('Collapsible / SectionCard', () => {
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('hidden body')).toBeInTheDocument();
-  });
-
-  test('SectionCard opens by default when asked', () => {
-    renderUi(() => (
-      <SectionCard title="Section" defaultOpen dataSet={{ testid: 'sc' }}>
-        <p class="text">{'content'}</p>
-      </SectionCard>
-    ));
-    expect(screen.getByText('content')).toBeInTheDocument();
-    expect(screen.getByTestId('sc').className).toMatch(/border-border/);
   });
 });
 

@@ -19,7 +19,7 @@ describe('deriveChessPuzzleCellFeedback', () => {
     expect(deriveChessPuzzleCellFeedback(none)).toEqual({});
   });
 
-  test('wrong move: pulsing cross on origin, plain cross on target', () => {
+  test('wrong move: cross on origin and target', () => {
     expect(
       deriveChessPuzzleCellFeedback({
         ...none,
@@ -28,7 +28,7 @@ describe('deriveChessPuzzleCellFeedback', () => {
         wrongToSquare: 'e5',
       })
     ).toEqual({
-      e2: { kind: 'cross', pulse: true },
+      e2: { kind: 'cross' },
       e5: { kind: 'cross' },
     });
   });
@@ -36,7 +36,7 @@ describe('deriveChessPuzzleCellFeedback', () => {
   test('hint dot only while solving', () => {
     expect(
       deriveChessPuzzleCellFeedback({ ...none, expectedFromSquare: 'g1' })
-    ).toEqual({ g1: { kind: 'dot', pulse: true, corner: 'center' } });
+    ).toEqual({ g1: { kind: 'dot', corner: 'center' } });
     expect(
       deriveChessPuzzleCellFeedback({
         ...none,

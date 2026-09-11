@@ -56,7 +56,7 @@
   --ui-color-tint: hsla(221, 83%, 53%, 1);
   --ui-color-tint-hover: hsla(224, 76%, 48%, 1);
   --ui-color-tint-active: hsla(226, 71%, 40%, 1);
-  --ui-color-tint-subtle: hsla(221, 83%, 53%, 0.10);
+  --ui-color-tint-subtle: hsla(221, 83%, 53%, 0.1);
   --ui-color-tint-muted: hsla(221, 83%, 53%, 0.18);
   --ui-color-tint-highlight: hsla(221, 83%, 53%, 0.12);
   --ui-color-on-primary: hsla(0, 0%, 100%, 1);
@@ -74,16 +74,16 @@
   --ui-color-tab-icon-selected: hsla(221, 83%, 53%, 1);
   --ui-color-destructive: hsla(0, 72%, 51%, 1);
   --ui-color-destructive-active: hsla(0, 72%, 44%, 1);
-  --ui-color-destructive-surface: hsla(0, 72%, 51%, 0.10);
+  --ui-color-destructive-surface: hsla(0, 72%, 51%, 0.1);
   --ui-color-success: hsla(142, 72%, 29%, 1);
-  --ui-color-success-surface: hsla(142, 72%, 29%, 0.10);
+  --ui-color-success-surface: hsla(142, 72%, 29%, 0.1);
   --ui-color-warning: hsla(32, 95%, 44%, 1);
   --ui-color-warning-surface: hsla(32, 95%, 44%, 0.14);
   --ui-color-info: hsla(201, 98%, 36%, 1);
-  --ui-color-info-surface: hsla(201, 98%, 36%, 0.10);
+  --ui-color-info-surface: hsla(201, 98%, 36%, 0.1);
   --ui-color-disabled: hsla(240, 5%, 90%, 1);
   --ui-color-scrim: hsla(240, 10%, 4%, 0.45);
-  --ui-color-shadow-color: hsla(240, 10%, 4%, 0.10);
+  --ui-color-shadow-color: hsla(240, 10%, 4%, 0.1);
   --ui-elevation-1: transparent;
   --ui-elevation-2: transparent;
   --ui-elevation-3: transparent;
@@ -116,7 +116,7 @@
   --ui-color-on-success: hsla(240, 10%, 4%, 1);
   --ui-color-on-warning: hsla(240, 10%, 4%, 1);
   --ui-color-on-info: hsla(240, 10%, 4%, 1);
-  --ui-color-on-tint-scrim: hsla(0, 0%, 0%, 0.40);
+  --ui-color-on-tint-scrim: hsla(0, 0%, 0%, 0.4);
   --ui-color-interactive-hover: hsla(0, 0%, 98%, 0.06);
   --ui-color-interactive-press: hsla(0, 0%, 98%, 0.12);
   --ui-color-border: hsla(0, 0%, 98%, 0.08);
@@ -146,4 +146,3 @@
   --ui-on-icon: var(--ui-color-icon);
   color-scheme: dark;
 }
-

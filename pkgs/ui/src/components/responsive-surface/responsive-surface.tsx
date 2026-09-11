@@ -8,9 +8,13 @@ import { cssPx } from '../../css/css-px';
  * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
  * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset via
  * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView}s sit flush
- * with the surface edges. Surfaces without a fixed `bodyHeight` wrap their
- * chrome in a {@link ScrollView} capped to the viewport so short panels can
- * scroll instead of clipping.
+ * with the surface edges.
+ *
+ * Default `scroll` wraps chrome in a {@link ScrollView} capped to the
+ * viewport so short panels (forms) can scroll instead of clipping. Pass
+ * `scroll={false}` when children own an internal list scroller (combobox /
+ * picker) so the surface stays fixed and only the list scrolls. A fixed
+ * `bodyHeight` also disables surface scroll.
  *
  * The sheet comes from {@link useBottomSheetHost} (web CSS sheet by default).
  */
@@ -58,9 +62,16 @@ export type ResponsiveSurfaceProps = {
    * Fixed pixel height for the body region (everything below the title). Use
    * when the body's content can swap between payloads of varying height so
    * the surface keeps a stable shape. Overflowing children are clipped; they
-   * should provide their own internal scroll.
+   * should provide their own internal scroll. Implies `scroll={false}`.
    */
   bodyHeight?: number | undefined;
+  /**
+   * When `true` (default), the surface chrome scrolls as a whole under a
+   * viewport max-height. When `false`, the surface is a fixed flex column
+   * (overflow clipped); nest a list scroller in `children` instead. Never
+   * nest a surface scroll with an inner list scroll.
+   */
+  scroll?: boolean | undefined;
   /**
    * Stable id for the surface stack. Use for surfaces that remount while
    * overlays stay open so they restore under the overlay instead of stealing
@@ -76,11 +87,33 @@ export type ResponsiveSurfaceProps = {
   children?: JSX.Element | undefined;
 };
 
-const SURFACE_PADDING_SX = {
-  px: CONTENT_EDGE_PADDING_STEP,
-  pt: CONTENT_EDGE_PADDING_STEP,
-  pb: SURFACE_BOTTOM_PADDING_STEP,
-} as const;
+function SurfaceBody(props: {
+  bodyHeight: number | undefined;
+  fill: boolean;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.bodyHeight}
+      fallback={
+        <Show when={props.fill} fallback={props.children}>
+          <div class="box flex-1 min-h-0 shrink overflow-hidden">
+            {props.children}
+          </div>
+        </Show>
+      }
+    >
+      {(bodyHeight) => (
+        <div
+          class="box overflow-hidden"
+          style={{ height: cssPx(bodyHeight()) }}
+        >
+          {props.children}
+        </div>
+      )}
+    </Show>
+  );
+}
 
 function SurfaceChrome(props: ResponsiveSurfaceProps): JSX.Element {
   return (
@@ -95,35 +128,38 @@ function SurfaceChrome(props: ResponsiveSurfaceProps): JSX.Element {
           closable={props.closable}
           closeDataSet={props.closeDataSet}
         />
-        <Show when={props.bodyHeight} fallback={props.children}>
-          {(bodyHeight) => (
-            <div
-              class="box overflow-hidden"
-              style={{ height: cssPx(bodyHeight()) }}
-            >
-              {props.children}
-            </div>
-          )}
-        </Show>
+        <SurfaceBody
+          bodyHeight={props.bodyHeight}
+          fill={props.bodyHeight !== undefined || props.scroll === false}
+        >
+          {props.children}
+        </SurfaceBody>
       </OnColorReset>
     </ContentEdgePaddingProvider>
   );
 }
 
 /**
- * Fixed-height bodies (inspectors) own their own scroll. Otherwise wrap so
- * short viewports can scroll -- the shell only clips via `maxHeight`.
+ * Whole-surface scroll for form-like panels. Nested-list surfaces pass
+ * `scroll={false}` so only the list scrolls under a pinned header.
  */
 function SurfaceScrollBody(props: {
   scroll: boolean;
   maxHeight: number | undefined;
   children: JSX.Element;
 }): JSX.Element {
+  const maxHeightStyle = (): JSX.CSSProperties | undefined =>
+    props.maxHeight !== undefined
+      ? { 'max-height': `${props.maxHeight}px` }
+      : undefined;
   return (
     <Show
       when={props.scroll}
       fallback={
-        <div class="box" style={SURFACE_PADDING_SX}>
+        <div
+          class="box px-4 pt-4 pb-6 overflow-hidden min-h-0 shrink"
+          style={maxHeightStyle()}
+        >
           {props.children}
         </div>
       }
@@ -131,11 +167,7 @@ function SurfaceScrollBody(props: {
       <ScrollView
         flushEdge={false}
         class="min-h-0 shrink"
-        style={
-          props.maxHeight !== undefined
-            ? { 'max-height': `${props.maxHeight}px` }
-            : undefined
-        }
+        style={maxHeightStyle()}
         contentStyle={{
           'padding-left': 'var(--ui-space-4)',
           'padding-right': 'var(--ui-space-4)',
@@ -173,7 +205,7 @@ function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
           maxHeight={props.maxHeight}
         >
           <SurfaceScrollBody
-            scroll={props.bodyHeight === undefined}
+            scroll={props.bodyHeight === undefined && (props.scroll ?? true)}
             maxHeight={maxHeight()}
           >
             <SurfaceChrome {...props} />
@@ -200,7 +232,7 @@ function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
       dataSet={{ component: 'ResponsiveSurface', ...props.dataSet }}
     >
       <SurfaceScrollBody
-        scroll={props.bodyHeight === undefined}
+        scroll={props.bodyHeight === undefined && (props.scroll ?? true)}
         maxHeight={undefined}
       >
         <SurfaceChrome {...props} />

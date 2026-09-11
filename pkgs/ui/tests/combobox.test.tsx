@@ -84,6 +84,9 @@ describe('Combobox (single)', () => {
     const trigger = openSurface('Colour');
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByRole('dialog', { name: 'Colour' })).toBeInTheDocument();
+    // Surface chrome is fixed; only ComboboxList (VirtualList) scrolls.
+    expect(document.querySelector('[data-component="ScrollView"]')).toBeNull();
+    expect(mustQuery('[data-component="ComboboxList"]')).toBeInTheDocument();
     const search = screen.getByRole('searchbox', { name: 'Search…' });
     expect(search).toHaveFocus();
     const listbox = screen.getByRole('listbox', { name: 'Colour' });

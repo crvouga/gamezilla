@@ -37,14 +37,13 @@ export type {
 } from '@pkgs/chess-board-core/types';
 
 export type ChessBoardProps = {
-  fen?: string | undefined;
   /**
-   * Parent owns the position: `fen` (and optional `fenSyncKey`) re-sync the
-   * local rules instance whenever they change. Moves still apply locally
-   * (optimistically) so the piece slides at once; the parent confirms by
-   * updating `fen`, or rejects by bumping `fenSyncKey` with the same FEN.
+   * Position FEN. When provided with optional `fenSyncKey`, re-syncs the local
+   * rules instance on change. Moves still apply locally (optimistically) so
+   * the piece slides at once; the parent confirms by updating `fen`, or
+   * rejects by bumping `fenSyncKey` with the same FEN.
    */
-  controlled?: boolean | undefined;
+  fen?: string | undefined;
   /** Bumps to re-apply the current `fen` when the string is unchanged (e.g. wrong puzzle try). */
   fenSyncKey?: number | undefined;
   onMove?: ((m: Move) => void) | undefined;
@@ -77,4 +76,11 @@ export type ChessBoardProps = {
    * Default true. `prefers-reduced-motion` disables the slide regardless.
    */
   animations?: boolean | undefined;
+  /**
+   * Queue one move while the opponent is to move; applied when it becomes
+   * your turn (if still legal). Default false.
+   */
+  premoves?: boolean | undefined;
+  /** Skip the promotion picker and promote to queen. Default false. */
+  autoPromoteQueen?: boolean | undefined;
 };

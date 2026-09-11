@@ -12,7 +12,7 @@ import type {
   BoardTheme,
 } from '@pkgs/chess-board-core/types';
 import type { Accessor, JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 import { BOARD_UNITS } from './board-units';
 import styles from './chess-board.module.css';
@@ -25,6 +25,15 @@ export function ChessBoardOverlays(args: {
   readonly size: number | undefined;
 }): JSX.Element {
   const pending = () => args.ctrl.model.interaction().pendingPromotion;
+  const probeJson = createMemo(() =>
+    JSON.stringify(
+      buildChessBoardProbe({
+        fen: args.ctrl.model.game().fen,
+        size: (args.ctrl.boardPx() || args.size) ?? 0,
+        orientation: args.ctrl.orientation(),
+      })
+    )
+  );
   return (
     <>
       <Show when={pending()}>
@@ -48,13 +57,7 @@ export function ChessBoardOverlays(args: {
         data-testid={chessBoardProbeTestId(args.boardTestId())}
         aria-hidden="true"
       >
-        {JSON.stringify(
-          buildChessBoardProbe({
-            fen: args.ctrl.model.game().fen,
-            size: (args.ctrl.boardPx() || args.size) ?? 0,
-            orientation: args.ctrl.orientation(),
-          })
-        )}
+        {probeJson()}
       </div>
     </>
   );

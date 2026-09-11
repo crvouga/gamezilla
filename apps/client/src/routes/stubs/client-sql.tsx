@@ -19,7 +19,11 @@ export default function ClientSqlRoute(): JSX.Element {
     >
       <ScreenBase
         screenId="client-sql"
-        breadcrumbs={[{ name: <Trans>Client SQL</Trans> }]}
+        breadcrumbs={[
+          { name: <Trans>Spaces</Trans>, href: '/' },
+          { name: <Trans>Settings</Trans>, href: '/more' },
+          { name: <Trans>Client SQL</Trans> },
+        ]}
         content={() => (
           <SqlNotebookPane sqlClient={sqlClient} nodeId="client" />
         )}

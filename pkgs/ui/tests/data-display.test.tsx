@@ -6,10 +6,7 @@ import { Badge } from '@pkgs/ui/components/badge';
 import { List, ListItem } from '@pkgs/ui/components/list';
 import { MenuList, MenuRow, MenuSection } from '@pkgs/ui/components/menu-row';
 import { PaginationControls } from '@pkgs/ui/components/pagination-controls';
-import {
-  RelativeTime,
-  useRelativeTimeLabel,
-} from '@pkgs/ui/components/relative-time';
+import { useRelativeTimeLabel } from '@pkgs/ui/components/relative-time';
 import { SoundIndicator } from '@pkgs/ui/components/sound-indicator';
 import { SpeakingAvatar } from '@pkgs/ui/components/speaking-avatar';
 import { StatusDot } from '@pkgs/ui/components/status-dot';
@@ -193,20 +190,8 @@ describe('SpeakingAvatar', () => {
   });
 });
 
-describe('RelativeTime', () => {
-  test('renders <time datetime> and ticks with injected timers', () => {
-    const at = new Date(0).toISOString();
-    const { clock } = renderUi(() => <RelativeTime at={at} />);
-    const el = byComponent('RelativeTime');
-    expect(el.tagName).toBe('TIME');
-    expect(el).toHaveAttribute('datetime', at);
-    expect(el).toHaveTextContent('just now');
-    clock.advance(5 * 60_000);
-    // The label only re-evaluates on the injected interval tick.
-    expect(el).toHaveTextContent('5m ago');
-  });
-
-  test('useRelativeTimeLabel buckets hours and days', () => {
+describe('useRelativeTimeLabel', () => {
+  test('buckets hours and days', () => {
     const [at, setAt] = createSignal(new Date(0).toISOString());
     const { clock } = renderUi(() => {
       const label = useRelativeTimeLabel(at);

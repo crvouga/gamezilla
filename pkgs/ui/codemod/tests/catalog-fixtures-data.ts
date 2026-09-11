@@ -622,22 +622,17 @@ export const CATALOG_FIXTURES: readonly CatalogFixture[] = [
     `import { ScreenBodyScrollView } from '@pkgs/ui';\nexport const A = () => <ScreenBodyScrollView sx={{ p: 1 }} />;`
   ),
   t(
-    'E.motion-sx',
+    'E.host-enter',
     'E',
-    `import { Motion } from '@pkgs/ui';\nexport const A = () => <Motion sx={{ opacity: 1 }}>x</Motion>;`
+    `import { Island } from '@pkgs/ui';\nexport const A = () => <Island enterSx={{ opacity: 0 }}>x</Island>;`
   ),
   t(
-    'E.motion-enter',
+    'E.host-exit',
     'E',
-    `import { Motion } from '@pkgs/ui';\nexport const A = () => <Motion enterSx={{ opacity: 0 }}>x</Motion>;`
+    `import { Island } from '@pkgs/ui';\nexport const A = () => <Island exitSx={{ opacity: 0 }}>x</Island>;`
   ),
   t(
-    'E.motion-exit',
-    'E',
-    `import { Motion } from '@pkgs/ui';\nexport const A = () => <Motion exitSx={{ opacity: 0 }}>x</Motion>;`
-  ),
-  t(
-    'E.motion-default-enter',
+    'E.sx-input-type',
     'E',
     `import type { SxInput } from '@pkgs/ui';\nconst DEFAULT_ENTER: SxInput = { opacity: 0 };\nexport const A = DEFAULT_ENTER;`
   ),

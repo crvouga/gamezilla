@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
  * Piece layer: stable-id rows slide via CSS `transform`; the capture ghost
- * fades at the vacated square; the dragged piece follows the pointer in
- * board units.
+ * fades at the vacated square; the dragged piece follows the pointer with a
+ * lift scale, and a faint origin ghost stays on the from-square.
  */
 
 import type { CaptureGhost } from '@pkgs/chess-board-core/capture-ghost';
@@ -27,6 +27,8 @@ export type ChessBoardPiecesProps = {
   /** Pointer position in board units, or null when not dragging. */
   readonly dragAt: Accessor<{ x: number; y: number } | null>;
   readonly animated: Accessor<boolean>;
+  readonly premoveTo: Square | null;
+  readonly premoveCode: PieceCode | null;
 };
 
 function pieceTransform(square: Square, orientation: BoardOrientation): string {
@@ -60,8 +62,27 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
     >
       <Show when={props.captureGhost()}>
         {(ghost) => (
-          <g transform={pieceTransform(ghost().square, props.orientation)}>
-            <PieceImage code={ghost().code} opacity={0.45} />
+          <g
+            class={styles['captureGhost']}
+            transform={pieceTransform(ghost().square, props.orientation)}
+          >
+            <PieceImage code={ghost().code} />
+          </g>
+        )}
+      </Show>
+      <Show
+        when={
+          props.premoveTo !== null && props.premoveCode !== null
+            ? { to: props.premoveTo, code: props.premoveCode }
+            : null
+        }
+      >
+        {(premove) => (
+          <g
+            class={styles['premoveGhost']}
+            transform={pieceTransform(premove().to, props.orientation)}
+          >
+            <PieceImage code={premove().code} opacity={0.4} />
           </g>
         )}
       </Show>
@@ -77,23 +98,32 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
             return pieceTransform(row.square, props.orientation);
           };
           const className = () => {
-            const parts = [styles['piece']];
-            if (
+            const parts: string[] = [];
+            if (dragging() && at() !== null) {
+              parts.push(styles['pieceDragging'] ?? '');
+            } else if (
               props.animated() &&
               props.snapSquare() !== row.square &&
               !dragging()
             ) {
-              parts.push(styles['pieceAnimated']);
+              parts.push(styles['pieceAnimated'] ?? '');
             }
-            if (row.fadeIn === true && props.animated()) {
-              parts.push(styles['pieceFadeIn']);
-            }
-            return parts.join(' ');
+            return parts.filter((p) => p.length > 0).join(' ');
           };
           return (
-            <g transform={transform()} class={className()}>
-              <PieceImage code={row.code} />
-            </g>
+            <>
+              <Show when={dragging() && at() !== null}>
+                <g
+                  class={styles['dragOriginGhost']}
+                  transform={pieceTransform(row.square, props.orientation)}
+                >
+                  <PieceImage code={row.code} opacity={0.35} />
+                </g>
+              </Show>
+              <g transform={transform()} class={className()}>
+                <PieceImage code={row.code} />
+              </g>
+            </>
           );
         }}
       </For>

@@ -1,7 +1,6 @@
 /* Tooltip bubble: CSS-positioned relative to its anchor wrapper. Hidden
    bubbles stay mounted (visibility:hidden) so `aria-describedby` always
-   resolves. `--tooltip-shift-x` nudges the centered bubble in from the
-   host edges when JS measures a collision. */
+   resolves. Placement is static via top/bottom classes — no JS shift. */
 
 .anchor {
   position: relative;
@@ -10,36 +9,24 @@
 }
 
 .bubble {
-  --tooltip-shift-x: 0px;
   position: absolute;
   left: 50%;
   z-index: 1000001;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition-property: opacity, transform, visibility;
-  transition-duration: var(--ui-duration-fast);
-  transition-timing-function: var(--ui-easing-standard);
+  transform: translateX(-50%);
 }
 
 .bottom {
   top: calc(100% + 6px);
-  transform: translate(calc(-50% + var(--tooltip-shift-x)), -4px);
 }
 
 .top {
   bottom: calc(100% + 6px);
-  transform: translate(calc(-50% + var(--tooltip-shift-x)), 4px);
 }
 
 .open {
   opacity: 1;
   visibility: visible;
-  transform: translate(calc(-50% + var(--tooltip-shift-x)), 0);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .bubble {
-    transition-duration: 0ms;
-  }
 }

@@ -1,5 +1,5 @@
 /**
- * Framework-free relative-time bucketing for {@link RelativeTime}.
+ * Framework-free relative-time bucketing for {@link useRelativeTimeLabel}.
  *
  * Returns structured parts so the component can localise them with Lingui
  * (`just now`, `{n}m ago`, `{n}h ago`, `{n}d ago`).

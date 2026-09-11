@@ -12,6 +12,7 @@ import type {
   CellFeedback,
   CellHighlight,
   Move,
+  PieceCode,
   Position,
   Square,
 } from '@pkgs/chess-board-core/types';
@@ -42,6 +43,9 @@ export type ChessBoardLayersProps = {
   readonly dragAt: Accessor<{ x: number; y: number } | null>;
   readonly animated: Accessor<boolean>;
   readonly arrows: readonly BoardArrow[];
+  readonly premoveFrom: Square | null;
+  readonly premoveTo: Square | null;
+  readonly premoveCode: PieceCode | null;
 };
 
 export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
@@ -59,6 +63,8 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
         highlightLastMove={props.highlightLastMove}
         highlightLegalMoves={props.highlightLegalMoves}
         checkSquare={props.checkSquare}
+        premoveFrom={props.premoveFrom}
+        premoveTo={props.premoveTo}
       />
       <ChessBoardPieces
         orientation={props.orientation}
@@ -68,6 +74,8 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
         dragFrom={props.dragFrom}
         dragAt={props.dragAt}
         animated={props.animated}
+        premoveTo={props.premoveTo}
+        premoveCode={props.premoveCode}
       />
       <ChessBoardArrows
         orientation={props.orientation}

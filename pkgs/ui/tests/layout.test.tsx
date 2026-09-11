@@ -4,7 +4,6 @@ import {
   AppFrameChromeProvider,
   Island,
   IslandGrid,
-  NavRail,
   TopBar,
   TopBarTitle,
   useSetAppFrameHeader,
@@ -77,7 +76,7 @@ describe('Island + IslandGrid', () => {
   });
 });
 
-describe('TopBar + NavRail', () => {
+describe('TopBar', () => {
   test('slots, safe-area padding and breakpoint height', () => {
     renderUi(
       () => (
@@ -127,23 +126,6 @@ describe('TopBar + NavRail', () => {
     expect(screen.getByRole('heading', { level: 1 }).className).toMatch(
       /line-clamp-1/
     );
-  });
-
-  test('NavRail pins header/footer around a growing body', () => {
-    renderUi(() => (
-      <NavRail
-        dataSet={{ testid: 'rail' }}
-        width={200}
-        header={<p class="text">{'head'}</p>}
-        footer={<p class="text">{'foot'}</p>}
-      >
-        <p class="text">{'body'}</p>
-      </NavRail>
-    ));
-    const rail = screen.getByTestId('rail');
-    expect(rail.tagName).toBe('NAV');
-    expect(cssOf(rail)).toContain('width:200px');
-    expect(rail.children).toHaveLength(3);
   });
 });
 

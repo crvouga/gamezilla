@@ -6,38 +6,28 @@
  * theme root). Banners participate in layout — they push app content rather
  * than covering it.
  *
- * Enter is instant (matches RN: snap in); dismiss slides the banner off its
- * edge with a CSS transition (`Motion`) and then calls `onDismiss`. Timing
- * uses the injected `Timers`, so the exit is deterministic in tests.
+ * Mount and dismiss are instant (no slide animation) for low-end Android.
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { useTimers } from '@pkgs/clock/solid';
 import {
   createContext,
   createEffect,
   createSignal,
   type JSX,
-  on,
-  onCleanup,
   Show,
   useContext,
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
-import type { ComponentDataSet } from '../../component-id';
-import { useThemeTokens } from '../../theme';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
 import { XIcon } from '../icons';
-import { Motion } from '../motion';
 
 export type DismissibleBannerPosition = 'top' | 'bottom';
 
 /** Surface tint for the banner sheet. */
 export type DismissibleBannerTone = 'paper' | 'warning' | 'info';
-
-/** Slide distance when the banner's own height is unknown. */
-export const DISMISSIBLE_BANNER_SLIDE_PX = 120;
 
 type PortalApi = {
   host: (position: DismissibleBannerPosition) => HTMLElement | null;
@@ -86,7 +76,7 @@ const MISSING_PORTAL_MSG =
 
 export type DismissibleBannerProps = {
   visible: boolean;
-  /** Called after the dismiss control's exit animation finishes. */
+  /** Called when the dismiss control is pressed (instant). */
   onDismiss: () => void;
   /** Primary prompt line. */
   title: JSX.Element;
@@ -96,7 +86,7 @@ export type DismissibleBannerProps = {
   actionLabel?: JSX.Element | undefined;
   /** Handler for {@link actionLabel}. */
   onActionClick?: (() => void) | undefined;
-  /** Edge the banner attaches to; also controls slide direction and safe-area padding. */
+  /** Edge the banner attaches to; also controls safe-area padding. */
   position?: DismissibleBannerPosition | undefined;
   /** Sheet background. Defaults to elevated paper (`surface-overlay`). */
   tone?: DismissibleBannerTone | undefined;
@@ -190,91 +180,38 @@ function DismissibleBannerFrame(
   );
 }
 
-/**
- * Presence machine: `visible` shows instantly; dismissing (or `visible`
- * flipping false) plays the slide-out, then `onDismiss` fires once the exit
- * duration elapses on the injected timers.
- */
-function useBannerPresence(
-  props: DismissibleBannerProps,
-  exitMs: () => number
-): { present: () => boolean; dismiss: () => void } {
-  const timers = useTimers();
-  const [dismissing, setDismissing] = createSignal(false);
-  let handle: unknown;
-  const clear = (): void => {
-    if (handle !== undefined) timers.clearTimeout(handle);
-    handle = undefined;
-  };
-  onCleanup(clear);
-  createEffect(
-    on(
-      () => props.visible,
-      (visible) => {
-        if (visible) {
-          clear();
-          setDismissing(false);
-        }
-      },
-      { defer: true }
-    )
-  );
-  const dismiss = (): void => {
-    if (dismissing()) return;
-    setDismissing(true);
-    clear();
-    handle = timers.setTimeout(() => {
-      handle = undefined;
-      props.onDismiss();
-    }, exitMs());
-  };
-  return { present: () => props.visible && !dismissing(), dismiss };
-}
-
 export function DismissibleBanner(props: DismissibleBannerProps): JSX.Element {
   const portal = useContext(DismissibleBannerPortalContext);
-  const tokens = useThemeTokens();
   const position = (): DismissibleBannerPosition => props.position ?? 'top';
   const tone = (): DismissibleBannerTone => props.tone ?? 'paper';
-  const sign = (): number => (position() === 'top' ? -1 : 1);
-  const presence = useBannerPresence(props, () => tokens.motion.duration.fast);
 
   // A visible banner without a host is a wiring bug; a hidden one is inert.
   createEffect(() => {
     if (portal === null && props.visible) throw new Error(MISSING_PORTAL_MSG);
   });
 
-  const offscreen = (): JSX.CSSProperties => ({
-    transform: `translateY(${sign() * DISMISSIBLE_BANNER_SLIDE_PX}px)`,
-    opacity: 0,
-  });
-
   return (
     <Show when={portal?.host(position())}>
       {(host) => (
         <Portal mount={host()}>
-          <Motion
-            class="w-full overflow-hidden"
-            present={presence.present()}
-            duration="fast"
-            easing="accelerate"
-            property="transform, opacity"
-            enterStyle={{ opacity: 1, transform: 'translateY(0)' }}
-            exitStyle={offscreen()}
-            role="status"
-            dataSet={{
-              component: 'DismissibleBanner',
-              position: position(),
-              ...props.dataSet,
-            }}
-          >
-            <DismissibleBannerFrame
-              {...props}
-              position={position()}
-              tone={tone()}
-              dismiss={presence.dismiss}
-            />
-          </Motion>
+          <Show when={props.visible}>
+            <div
+              class="box w-full overflow-hidden"
+              role="status"
+              {...dataAttrs({
+                component: 'DismissibleBanner',
+                position: position(),
+                ...props.dataSet,
+              })}
+            >
+              <DismissibleBannerFrame
+                {...props}
+                position={position()}
+                tone={tone()}
+                dismiss={() => props.onDismiss()}
+              />
+            </div>
+          </Show>
         </Portal>
       )}
     </Show>

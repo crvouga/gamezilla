@@ -155,7 +155,69 @@ describe('BoardInteraction promotion flow', () => {
       selected: null,
       dragFrom: null,
       pendingPromotion: null,
+      premove: null,
       legalTargets: [],
     });
+  });
+});
+
+describe('BoardInteraction premoves', () => {
+  test('queues a premove on your piece while the opponent is to move', () => {
+    const { game, interaction } = setup();
+    interaction.setPremovesEnabled(true);
+    interaction.setPlayerColor('w');
+    interaction.tap('e2');
+    interaction.tap('e4');
+    expect(game.getSnapshot().turn).toBe('b');
+    expect(interaction.canDrag('d2')).toBe(true);
+    interaction.drop('d2', 'd4');
+    expect(interaction.getSnapshot().premove).toEqual({
+      from: 'd2',
+      to: 'd4',
+    });
+    expect(game.getSnapshot().turn).toBe('b');
+  });
+
+  test('flushPremmove applies when it becomes your turn', () => {
+    const { game, interaction, events } = setup();
+    interaction.setPremovesEnabled(true);
+    interaction.setPlayerColor('w');
+    interaction.tap('e2');
+    interaction.tap('e4');
+    interaction.drop('d2', 'd4');
+    game.tryMove({ from: 'e7', to: 'e5' });
+    const outcome = interaction.flushPremmove();
+    expect(outcome?.kind).toBe('applied');
+    expect(game.getSnapshot().lastMove?.to).toBe('d4');
+    expect(interaction.getSnapshot().premove).toBeNull();
+    expect(events).toContain('applied:d2d4');
+  });
+
+  test('flushPremmove reports illegal and clears the queue', () => {
+    const { game, interaction, events } = setup();
+    interaction.setPremovesEnabled(true);
+    interaction.setPlayerColor('w');
+    interaction.tap('e2');
+    interaction.tap('e4');
+    // Knight cannot jump to e3 (occupied by own pawn after e4… e3 empty actually).
+    // Nb1-b5 is never legal.
+    interaction.drop('b1', 'b5');
+    game.tryMove({ from: 'e7', to: 'e5' });
+    const outcome = interaction.flushPremmove();
+    expect(outcome?.kind).toBe('illegal');
+    expect(interaction.getSnapshot().premove).toBeNull();
+    expect(events.some((e) => e.startsWith('illegal:'))).toBe(true);
+  });
+});
+
+describe('BoardInteraction autoPromoteQueen', () => {
+  test('applies queen without parking pendingPromotion', () => {
+    const { game, interaction, events } = setup('8/P7/8/8/8/8/8/k6K w - - 0 1');
+    interaction.setAutoPromoteQueen(true);
+    const outcome = interaction.drop('a7', 'a8');
+    expect(outcome.kind).toBe('applied');
+    expect(interaction.getSnapshot().pendingPromotion).toBeNull();
+    expect(game.getSnapshot().fen.includes('Q')).toBe(true);
+    expect(events).toEqual(['applied:a7a8']);
   });
 });

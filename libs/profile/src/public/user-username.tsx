@@ -46,7 +46,7 @@ function UserUsernameInner(props: {
   numberOfLines?: number | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
-  const username = useProfileColumn(props.profileId, 'username');
+  const username = useProfileColumn(() => props.profileId, 'username');
   const label = createMemo(() => {
     const value = username();
     return value === null || value.length === 0

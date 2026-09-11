@@ -108,8 +108,6 @@ function buttonStyle(args: {
     'padding-bottom': `${spacingScale(args.s.py)}px`,
     'min-height': `${args.s.minHeight}px`,
     gap: `${spacingScale(args.s.iconGap)}px`,
-    'transition-property': 'background-color, border-color, color',
-    'transition-duration': 'var(--ui-duration-fast)',
   };
 }
 

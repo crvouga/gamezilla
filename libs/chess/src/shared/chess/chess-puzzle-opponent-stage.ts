@@ -2,8 +2,8 @@ import { fenAtSolveIdx } from './chess-puzzle-step';
 
 export const PUZZLE_OPENING_PREVIEW_MS = 450;
 export const PUZZLE_REPLY_PREVIEW_MS = 280;
-/** Keep in sync with `@pkgs/chess-board` `CHESS_PIECE_MOVE_MS` (do not import it). */
-export const PUZZLE_PIECE_MOVE_MS = 200;
+/** Keep in sync with `@pkgs/chess-board` `MOVE_DURATION_MS` (do not import it). */
+export const PUZZLE_PIECE_MOVE_MS = 150;
 export const PUZZLE_OPPONENT_UNLOCK_BUFFER_MS = 80;
 
 export type OpponentStagePlan =

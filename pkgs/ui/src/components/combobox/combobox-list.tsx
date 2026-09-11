@@ -146,6 +146,7 @@ export function ComboboxList<T extends ComboboxValue>(
       renderItem={renderRow}
       estimateSize={COMBOBOX_OPTION_ESTIMATE}
       fixedViewport={props.viewport}
+      class="flex-1 min-h-0"
       style={{ 'max-height': `${COMBOBOX_LIST_MAX_HEIGHT}px` }}
       dataSet={{ component: 'ComboboxList' }}
     />

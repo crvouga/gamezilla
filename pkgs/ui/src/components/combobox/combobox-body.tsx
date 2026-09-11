@@ -69,7 +69,7 @@ function ComboboxOptions<T extends ComboboxValue>(
       when={!props.loading}
       fallback={<LoadingState size="small" variant="compact" />}
     >
-      <div class="box gap-2">
+      <div class="box gap-2 flex-1 min-h-0 shrink">
         <Show when={hasError()}>
           <ErrorState
             variant="compact"
@@ -108,7 +108,7 @@ export function ComboboxBody<T extends ComboboxValue>(
       ? comboboxOptionId(props.listboxId, props.highlightedIndex)
       : undefined;
   return (
-    <div class="box gap-2">
+    <div class="box gap-2 flex-1 min-h-0 shrink overflow-hidden">
       <ComboboxSearch
         value={props.query}
         onChangeText={props.setQuery}

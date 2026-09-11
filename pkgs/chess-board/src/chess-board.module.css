@@ -51,51 +51,43 @@
   border-radius: 2px;
 }
 
-.piece {
-  will-change: transform;
-}
-
 .pieceAnimated {
-  transition: transform var(--ui-duration-normal) var(--ui-easing-standard);
+  transition: transform var(--chess-move-ms, 150ms) var(--ui-easing-standard);
 }
 
-.pieceFadeIn {
-  animation: chessPieceFadeIn var(--ui-duration-normal)
-    var(--ui-easing-decelerate);
-}
-
-@keyframes chessPieceFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.pulse {
+.pieceDragging {
+  /* Lift only while dragging — not always-on will-change. */
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.35));
   transform-box: fill-box;
   transform-origin: center;
-  animation: chessBadgePulse 1.2s var(--ui-easing-inOut) infinite;
 }
 
-@keyframes chessBadgePulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.18);
-  }
+.pieceDragging image {
+  transform: scale(1.08);
+  transform-origin: center;
+}
+
+.dragOriginGhost {
+  pointer-events: none;
+}
+
+.captureGhost {
+  pointer-events: none;
+  opacity: 0.45;
+  transition: opacity var(--chess-move-ms, 150ms) var(--ui-easing-standard);
+}
+
+.premoveGhost {
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pieceAnimated {
     transition: none;
   }
-  .pieceFadeIn,
-  .pulse {
-    animation: none;
+
+  .captureGhost {
+    transition: none;
   }
 }
 

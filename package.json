@@ -135,6 +135,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@sqlite.org/sqlite-wasm": "3.53.0-build1",
     "@standard-schema/spec": "^1.1.0",
+    "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/solid-virtual": "^3.13.37",
     "@testing-library/dom": "^10.4.0",

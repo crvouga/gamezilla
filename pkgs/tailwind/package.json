@@ -24,6 +24,7 @@
     "tailwindcss": "catalog:"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

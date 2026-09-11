@@ -35,8 +35,6 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
               class="box inline-flex"
               style={{
                 transform: isOpen() ? 'rotate(90deg)' : 'rotate(0deg)',
-                'transition-property': 'transform',
-                'transition-duration': 'var(--ui-duration-fast)',
               }}
             >
               <ChevronRightIcon size={16} />

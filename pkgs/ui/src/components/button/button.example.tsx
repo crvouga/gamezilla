@@ -5,7 +5,7 @@ import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { ChevronRightIcon } from '../icons';
 import { Button } from './button';
-import { type ButtonIntent, type ButtonVariant } from './button-face';
+import type { ButtonIntent, ButtonVariant } from './button-face';
 import { useMutationButton } from './use-mutation-button';
 
 const LOAD_DEMO_MS = 2000;
