@@ -20,6 +20,7 @@ import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
 import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
+import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createLogger } from '@pkgs/logger';

@@ -40,6 +40,7 @@ function stubBabelRegexpPlugins(): void {
   } as unknown as NodeModule;
 }
 
+stubBabelRegexpPlugins();
 const { generateSW } = require('workbox-build') as {
   generateSW: typeof import('workbox-build').generateSW;
 };
