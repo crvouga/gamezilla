@@ -14,10 +14,10 @@ export type { NotificationsClientDeps } from './notifications-actions';
 export {
   NotificationsHeaderButton,
   NotificationsTabBadge,
-  NotificationsTabIcon,
 } from './notifications-header-button';
 export { NotificationsProviderRegistry } from './notifications-provider-registry';
 export { notificationsPath, openNotifications } from './notifications-routes';
+export { NotificationsTabIcon } from './notifications-tab-icon';
 export { useNotifications } from './use-notifications';
 export { useNotificationsActions } from './use-notifications-actions';
 export { useNotificationsUnreadCount } from './use-notifications-unread-count';

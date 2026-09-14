@@ -3,7 +3,7 @@
  * Shared tab spec for the compact bottom tab bar and the wide header island.
  */
 
-import { NotificationsTabIcon } from '@libs/notifications/public';
+import { NotificationsTabIcon } from '@libs/notifications/public/notifications-tab-icon';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import {
