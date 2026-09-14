@@ -13,9 +13,21 @@ export type UserArrows = {
   readonly clear: () => void;
 };
 
-export function createUserArrows(): UserArrows {
+export function createUserArrows(args?: {
+  readonly onChange?: ((arrows: readonly BoardArrow[]) => void) | undefined;
+}): UserArrows {
   const [arrows, setArrows] = createSignal<readonly BoardArrow[]>([]);
   let from: Square | null = null;
+
+  const commit = (
+    update: (prev: readonly BoardArrow[]) => readonly BoardArrow[]
+  ): void => {
+    setArrows((prev) => {
+      const next = update(prev);
+      args?.onChange?.(next);
+      return next;
+    });
+  };
 
   return {
     arrows,
@@ -26,7 +38,7 @@ export function createUserArrows(): UserArrows {
       const origin = from;
       from = null;
       if (origin === null || to === null || to === origin) return;
-      setArrows((prev) => {
+      commit((prev) => {
         const id = `${origin}-${to}`;
         if (prev.some((a) => a.id === id)) {
           return prev.filter((a) => a.id !== id);
@@ -36,7 +48,8 @@ export function createUserArrows(): UserArrows {
     },
     clear() {
       from = null;
-      setArrows([]);
+      if (arrows().length === 0) return;
+      commit(() => []);
     },
   };
 }

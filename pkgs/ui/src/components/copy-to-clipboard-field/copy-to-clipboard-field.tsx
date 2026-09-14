@@ -2,9 +2,9 @@
 /**
  * Read-only "text field" that copies `value` to the clipboard when clicked.
  * The clipboard sink is injected (`copy` prop) — never a bare
- * `navigator.clipboard`. Copy / check icons swap with a CSS transition on
- * success; the optional helper line shows "Copied" feedback then resets on
- * the injected timers.
+ * `navigator.clipboard`. Copy / check icons swap instantly on success; the
+ * optional helper line shows "Copied" feedback then resets on the injected
+ * timers.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -21,7 +21,6 @@ import {
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import type { DivBoxProps } from '../box';
 import { CircleCheckIcon, CopyIcon } from '../icons';
-import { Motion } from '../motion';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
 const ICON_SIZE = 22;
@@ -116,21 +115,14 @@ export function CopyToClipboardField(
             {local.value}
           </p>
         </div>
-        <Motion
-          class="items-center justify-center"
-          style={{
-            transform: `scale(${copied() ? 1.1 : 1})`,
-          }}
-          duration="fast"
-          property="transform, color"
-        >
+        <div class="box items-center justify-center">
           <Show
             when={copied()}
             fallback={<CopyIcon size={ICON_SIZE} color="icon" />}
           >
             <CircleCheckIcon size={ICON_SIZE} color="tint" />
           </Show>
-        </Motion>
+        </div>
       </button>
       <div class="box min-h-[18px]" role="status" aria-live="polite">
         <Show

@@ -30,7 +30,7 @@ function httpEndpoints(outputs: DeployOutputs): readonly HttpEndpointCheck[] {
     },
     {
       label: 'Console',
-      url: outputs.console_url,
+      url: `${outputs.client_url}/console`,
     },
     {
       label: 'API /api/health',
@@ -204,7 +204,7 @@ async function checkDns(outputs: DeployOutputs): Promise<void> {
     return;
   }
 
-  for (const sub of ['www', 'api', 'console', 'emqx']) {
+  for (const sub of ['www', 'api', 'emqx']) {
     const host = `${sub}.${domain}`;
 
     const localRecords = await lookupViaDefaultResolver(host);

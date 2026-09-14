@@ -1,6 +1,6 @@
 import { useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
@@ -17,17 +17,24 @@ export function FriendActionPillsForStatus(props: {
     await fn();
     props.onChanged?.();
   };
-  const pills = renderFriendActionPillsForStatus({
-    status: props.status,
-    mutations: props.mutations,
-    wrap,
-    t,
-    username: props.username,
+
+  // Re-render pills whenever status (or username) changes. A one-shot
+  // Show fallback stayed on "Add Friend" after send succeeded because
+  // none → pending_outgoing keeps `when={blocked_by_them}` false.
+  const view = createMemo(() => {
+    const status = props.status;
+    const pills = renderFriendActionPillsForStatus({
+      status,
+      mutations: props.mutations,
+      wrap,
+      t,
+      username: props.username,
+    });
+    if (status === 'blocked_by_them') {
+      return <div class="box self-stretch">{pills}</div>;
+    }
+    return pills;
   });
 
-  return (
-    <Show when={props.status === 'blocked_by_them'} fallback={pills}>
-      <div class="box self-stretch">{pills}</div>
-    </Show>
-  );
+  return <>{view()}</>;
 }

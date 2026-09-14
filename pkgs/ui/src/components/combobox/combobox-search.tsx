@@ -31,7 +31,7 @@ export function ComboboxSearch(props: ComboboxSearchProps): JSX.Element {
     if (props.focusOnMount ?? true) inputEl?.focus();
   });
   return (
-    <div class="box pb-2">
+    <div class="box shrink-0 pb-2">
       <TextInput
         ref={(el) => {
           inputEl = el;

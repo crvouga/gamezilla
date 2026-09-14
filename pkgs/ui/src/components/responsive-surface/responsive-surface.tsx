@@ -8,9 +8,16 @@ import { cssPx } from '../../css/css-px';
  * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
  * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset via
  * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView}s sit flush
- * with the surface edges. Surfaces without a fixed `bodyHeight` wrap their
- * chrome in a {@link ScrollView} capped to the viewport so short panels can
- * scroll instead of clipping.
+ * with the surface edges.
+ *
+ * Default `scroll` pins the title/close header and scrolls only the body.
+ * The chrome shell is a CSS grid (`auto` header + `minmax(0, 1fr)` body) with
+ * a viewport `max-height`, so the body {@link ScrollView} gets a definite
+ * height and `overflow: auto` engages. Body edge padding lives on the
+ * scrollable content (scrollbar flush to the modal frame); the header keeps
+ * its own inset. Pass `scroll={false}` when children own an internal list
+ * scroller (combobox / picker). A fixed `bodyHeight` also disables surface
+ * scroll.
  *
  * The sheet comes from {@link useBottomSheetHost} (web CSS sheet by default).
  */
@@ -41,6 +48,11 @@ export type { ResponsiveSurfacePresentation } from './should-use-mobile-sheet';
 export type ResponsiveSurfaceProps = {
   visible: boolean;
   onClose: () => void;
+  /**
+   * When `true` (default), show the close icon and dismiss on backdrop /
+   * Escape. When `false`, the surface stays until the app closes it.
+   */
+  closable?: boolean | undefined;
   /** Optional title row above `children`; also names the dialog. */
   title?: JSX.Element | undefined;
   /** Centered modal width bucket on wide layouts. Default `medium`. */
@@ -53,9 +65,16 @@ export type ResponsiveSurfaceProps = {
    * Fixed pixel height for the body region (everything below the title). Use
    * when the body's content can swap between payloads of varying height so
    * the surface keeps a stable shape. Overflowing children are clipped; they
-   * should provide their own internal scroll.
+   * should provide their own internal scroll. Implies `scroll={false}`.
    */
   bodyHeight?: number | undefined;
+  /**
+   * When `true` (default), the body scrolls under a pinned header. When
+   * `false`, the surface is a fixed flex column (overflow clipped); nest a
+   * list scroller in `children` instead. Never nest a surface scroll with an
+   * inner list scroll.
+   */
+  scroll?: boolean | undefined;
   /**
    * Stable id for the surface stack. Use for surfaces that remount while
    * overlays stay open so they restore under the overlay instead of stealing
@@ -71,89 +90,144 @@ export type ResponsiveSurfaceProps = {
   children?: JSX.Element | undefined;
 };
 
-const SURFACE_PADDING_SX = {
-  px: CONTENT_EDGE_PADDING_STEP,
-  pt: CONTENT_EDGE_PADDING_STEP,
-  pb: SURFACE_BOTTOM_PADDING_STEP,
-} as const;
+function SurfaceBody(props: {
+  bodyHeight: number | undefined;
+  fill: boolean;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.bodyHeight}
+      fallback={
+        <Show when={props.fill} fallback={props.children}>
+          <div class="box flex-1 min-h-0 shrink overflow-hidden">
+            {props.children}
+          </div>
+        </Show>
+      }
+    >
+      {(bodyHeight) => (
+        <div
+          class="box overflow-hidden"
+          style={{ height: cssPx(bodyHeight()) }}
+        >
+          {props.children}
+        </div>
+      )}
+    </Show>
+  );
+}
 
-function SurfaceChrome(props: ResponsiveSurfaceProps): JSX.Element {
+/** True when the surface owns a body ScrollView (header stays pinned). */
+function surfaceScrolls(surface: ResponsiveSurfaceProps): boolean {
+  return surface.bodyHeight === undefined && (surface.scroll ?? true);
+}
+
+/**
+ * Pinned header + scrollable (or fixed) body.
+ *
+ * When scrolling, the shell is a two-row grid (`auto` / `minmax(0, 1fr)`)
+ * capped by `maxHeight` (desktop) or by filling a height-clamped sheet
+ * parent (`grow` + `min-h-0`). The body {@link ScrollView} is edge-to-edge
+ * so the scrollbar tracks the modal frame; horizontal + bottom padding live
+ * on {@link ScrollView} content. The header keeps its own inset so title/close
+ * stay aligned with body copy.
+ */
+function SurfaceChrome(props: {
+  surface: ResponsiveSurfaceProps;
+  maxHeight: number | undefined;
+}): JSX.Element {
+  const scroll = (): boolean => surfaceScrolls(props.surface);
+  const shellStyle = (): JSX.CSSProperties => {
+    const style: JSX.CSSProperties = {};
+    if (props.maxHeight !== undefined) {
+      style['max-height'] = `${props.maxHeight}px`;
+    }
+    if (scroll()) {
+      // Override `.box { display:flex }` — grid is the reliable scrollport host.
+      style.display = 'grid';
+      style['grid-template-rows'] = 'auto minmax(0, 1fr)';
+    }
+    return style;
+  };
+  const header = (): JSX.Element => (
+    <ResponsiveSurfaceHeader
+      title={props.surface.title}
+      onClose={props.surface.onClose}
+      closable={props.surface.closable}
+      closeDataSet={props.surface.closeDataSet}
+    />
+  );
   return (
     <ContentEdgePaddingProvider
       step={CONTENT_EDGE_PADDING_STEP}
       bottomStep={SURFACE_BOTTOM_PADDING_STEP}
     >
       <OnColorReset>
-        <ResponsiveSurfaceHeader
-          title={props.title}
-          onClose={props.onClose}
-          closeDataSet={props.closeDataSet}
-        />
-        <Show when={props.bodyHeight} fallback={props.children}>
-          {(bodyHeight) => (
+        <div
+          class="box grow shrink min-h-0 overflow-hidden w-full"
+          classList={{ 'px-4 pt-4 pb-6': !scroll() }}
+          data-component="ResponsiveSurfaceChrome"
+          style={shellStyle()}
+        >
+          <Show
+            when={scroll()}
+            fallback={
+              <>
+                {header()}
+                <SurfaceBody
+                  bodyHeight={props.surface.bodyHeight}
+                  fill={
+                    props.surface.bodyHeight !== undefined ||
+                    props.surface.scroll === false
+                  }
+                >
+                  {props.surface.children}
+                </SurfaceBody>
+              </>
+            }
+          >
             <div
-              class="box overflow-hidden"
-              style={{ height: cssPx(bodyHeight()) }}
+              class="box px-4 pt-4"
+              data-component="ResponsiveSurfaceHeaderPad"
             >
-              {props.children}
+              {header()}
             </div>
-          )}
-        </Show>
+            <ScrollView
+              flushEdge={false}
+              class="min-h-0"
+              style={{ height: '100%', 'min-height': 0 }}
+              contentStyle={{
+                'padding-left': 'var(--ui-space-4)',
+                'padding-right': 'var(--ui-space-4)',
+                'padding-bottom': 'var(--ui-space-6)',
+              }}
+            >
+              {props.surface.children}
+            </ScrollView>
+          </Show>
+        </div>
       </OnColorReset>
     </ContentEdgePaddingProvider>
   );
 }
 
-/**
- * Fixed-height bodies (inspectors) own their own scroll. Otherwise wrap so
- * short viewports can scroll -- the shell only clips via `maxHeight`.
- */
-function SurfaceScrollBody(props: {
-  scroll: boolean;
-  maxHeight: number | undefined;
-  children: JSX.Element;
-}): JSX.Element {
-  return (
-    <Show
-      when={props.scroll}
-      fallback={
-        <div class="box" style={SURFACE_PADDING_SX}>
-          {props.children}
-        </div>
-      }
-    >
-      <ScrollView
-        flushEdge={false}
-        class="min-h-0 shrink"
-        style={
-          props.maxHeight !== undefined
-            ? { 'max-height': `${props.maxHeight}px` }
-            : undefined
-        }
-        contentStyle={{
-          'padding-left': 'var(--ui-space-4)',
-          'padding-right': 'var(--ui-space-4)',
-          'padding-top': 'var(--ui-space-4)',
-          'padding-bottom': 'var(--ui-space-6)',
-        }}
-      >
-        {props.children}
-      </ScrollView>
-    </Show>
-  );
-}
-
 function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
   const maxHeight = useModalContentMaxHeight(() => props.maxHeight);
+  const closable = (): boolean => props.closable ?? true;
+  const requestClose = (): void => {
+    if (closable()) props.onClose();
+  };
   return (
     <ModalRoot
       visible={props.visible}
-      onRequestClose={props.onClose}
+      onRequestClose={requestClose}
       stackId={props.stackId}
       label={props.label}
     >
       <ModalBackdrop
-        onClick={props.onClose}
+        onClick={requestClose}
+        dismissOnBackdrop={closable()}
         dataSet={{ component: 'ResponsiveSurface', ...props.dataSet }}
       >
         <ModalContent
@@ -161,12 +235,7 @@ function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
           padded={false}
           maxHeight={props.maxHeight}
         >
-          <SurfaceScrollBody
-            scroll={props.bodyHeight === undefined}
-            maxHeight={maxHeight()}
-          >
-            <SurfaceChrome {...props} />
-          </SurfaceScrollBody>
+          <SurfaceChrome surface={props} maxHeight={maxHeight()} />
         </ModalContent>
       </ModalBackdrop>
     </ModalRoot>
@@ -175,21 +244,21 @@ function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
 
 function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
   const host = useBottomSheetHost();
+  const closable = (): boolean => props.closable ?? true;
+  const requestClose = (): void => {
+    if (closable()) props.onClose();
+  };
   return (
     <Dynamic
       component={host.Sheet}
       open={props.visible}
-      onClose={props.onClose}
+      onClose={requestClose}
       stackId={props.stackId}
       label={props.label}
       dataSet={{ component: 'ResponsiveSurface', ...props.dataSet }}
     >
-      <SurfaceScrollBody
-        scroll={props.bodyHeight === undefined}
-        maxHeight={undefined}
-      >
-        <SurfaceChrome {...props} />
-      </SurfaceScrollBody>
+      {/* Sheet/FocusTrap clamp height; chrome fills and grids the body. */}
+      <SurfaceChrome surface={props} maxHeight={undefined} />
     </Dynamic>
   );
 }

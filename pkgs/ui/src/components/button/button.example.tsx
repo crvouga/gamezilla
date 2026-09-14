@@ -1,16 +1,11 @@
 /** @jsxImportSource solid-js */
 import { useTimers } from '@pkgs/clock/solid';
 import { createSignal, type JSX } from 'solid-js';
-import { useThemeTokens } from '../../theme';
 import { ExampleRoot } from '../explorer/example-root';
 import { SchemePreview } from '../explorer/scheme-preview';
 import { ChevronRightIcon } from '../icons';
 import { Button } from './button';
-import {
-  type ButtonIntent,
-  type ButtonVariant,
-  buttonForegroundColor,
-} from './button-face';
+import type { ButtonIntent, ButtonVariant } from './button-face';
 import { useMutationButton } from './use-mutation-button';
 
 const LOAD_DEMO_MS = 2000;
@@ -20,12 +15,9 @@ function ButtonRow(props: {
   intent: ButtonIntent;
   variant?: ButtonVariant | undefined;
 }): JSX.Element {
-  const theme = useThemeTokens();
   const timers = useTimers();
   const [loading, setLoading] = createSignal(false);
   const variant = () => props.variant ?? 'solid';
-  const iconColor = () =>
-    buttonForegroundColor(theme.colors, props.intent, false, variant());
   return (
     <div class="box flex-col gap-2">
       <Button title="Default" intent={props.intent} variant={variant()} />
@@ -33,7 +25,7 @@ function ButtonRow(props: {
         title="With icon"
         intent={props.intent}
         variant={variant()}
-        endIcon={<ChevronRightIcon color={iconColor()} />}
+        endIcon={<ChevronRightIcon />}
       />
       <Button
         title="Disabled"

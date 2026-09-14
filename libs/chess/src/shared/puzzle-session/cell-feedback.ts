@@ -6,22 +6,13 @@ export function deriveChessPuzzleCellFeedback(args: {
   wrongFromSquare: string | null;
   wrongToSquare: string | null;
   expectedFromSquare: string | null;
-  showSolvedCrownOn: Square | null;
-  lastCorrectToSquare: Square | null;
 }): Partial<Record<Square, CellFeedback>> {
-  const {
-    status,
-    wrongFromSquare,
-    wrongToSquare,
-    expectedFromSquare,
-    showSolvedCrownOn,
-    lastCorrectToSquare,
-  } = args;
+  const { status, wrongFromSquare, wrongToSquare, expectedFromSquare } = args;
 
   const out: Partial<Record<Square, CellFeedback>> = {};
 
   if (wrongFromSquare !== null) {
-    out[wrongFromSquare as Square] = { kind: 'cross', pulse: true };
+    out[wrongFromSquare as Square] = { kind: 'cross' };
   }
   if (wrongToSquare !== null) {
     out[wrongToSquare as Square] = { kind: 'cross' };
@@ -30,17 +21,8 @@ export function deriveChessPuzzleCellFeedback(args: {
   if (status === 'solving' && expectedFromSquare !== null) {
     out[expectedFromSquare as Square] = {
       kind: 'dot',
-      pulse: true,
       corner: 'center',
     };
-  }
-
-  if (lastCorrectToSquare !== null) {
-    out[lastCorrectToSquare] = { kind: 'star', pulse: true };
-  }
-
-  if (showSolvedCrownOn !== null) {
-    out[showSolvedCrownOn] = { kind: 'crown' };
   }
 
   return out;

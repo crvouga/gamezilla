@@ -14,13 +14,13 @@ import {
  * (local-first), not IdP `useSession`.
  */
 export function useDeviceLatestSessionExpiresAt(
-  deviceId: string
+  deviceId: Accessor<string>
 ): Accessor<string | null> {
   const currentDeviceId = useMyDeviceId();
   const hasSession = useHasAuthSession();
   const expiresItem = createSecureStorageItem(SESSION_EXPIRES_AT_KEY);
   return createMemo(() => {
-    if (deviceId !== currentDeviceId() || !hasSession()) {
+    if (deviceId() !== currentDeviceId() || !hasSession()) {
       return null;
     }
     const value = expiresItem.value();

@@ -23,18 +23,14 @@ function usePillSounds(
   };
 }
 
-export function ConfirmDeletePills({
-  onConfirm,
-  onDelete,
-  confirmTestID,
-}: {
+export function ConfirmDeletePills(props: {
   onConfirm: () => Promise<void>;
   onDelete: () => Promise<void>;
   confirmTestID?: string;
 }): JSX.Element {
   const { t } = useLingui();
   const confirm = useMutationButton({
-    operation: onConfirm,
+    operation: () => props.onConfirm(),
     labels: {
       idle: <Trans>Confirm</Trans>,
       loading: t`Confirming…`,
@@ -44,7 +40,7 @@ export function ConfirmDeletePills({
     successHoldMs: 0,
   });
   const del = useMutationButton({
-    operation: onDelete,
+    operation: () => props.onDelete(),
     labels: {
       idle: <Trans>Delete</Trans>,
       loading: t`Deleting…`,
@@ -59,8 +55,8 @@ export function ConfirmDeletePills({
         <Button
           variant="solid"
           {...confirm.buttonProps}
-          {...(confirmTestID !== undefined
-            ? { dataSet: { testid: confirmTestID } }
+          {...(props.confirmTestID !== undefined
+            ? { dataSet: { testid: props.confirmTestID } }
             : {})}
         />
       </div>
@@ -71,17 +67,7 @@ export function ConfirmDeletePills({
   );
 }
 
-export function SingleActionPill({
-  operation,
-  idle,
-  loading,
-  success,
-  error,
-  variant = 'solid',
-  disabled = false,
-  sounds,
-  testID,
-}: {
+export function SingleActionPill(props: {
   operation: () => Promise<void>;
   idle: JSX.Element;
   loading: string;
@@ -92,19 +78,37 @@ export function SingleActionPill({
   sounds?: { success?: SoundId; error?: SoundId };
   testID?: string;
 }): JSX.Element {
-  const onPhaseChange = usePillSounds(() => sounds ?? {});
+  const onPhaseChange = usePillSounds(() => props.sounds ?? {});
+  const labels = {
+    get idle() {
+      return props.idle;
+    },
+    get loading() {
+      return props.loading;
+    },
+    get success() {
+      return props.success;
+    },
+    get error() {
+      return props.error;
+    },
+  };
   const mutation = useMutationButton({
-    operation,
-    labels: { idle, loading, success, error },
+    operation: () => props.operation(),
+    labels,
     successHoldMs: 0,
-    disabled,
+    get disabled() {
+      return props.disabled ?? false;
+    },
     onPhaseChange,
   });
   return (
     <Button
-      variant={variant}
+      variant={props.variant ?? 'solid'}
       {...mutation.buttonProps}
-      {...(testID !== undefined ? { dataSet: { testid: testID } } : {})}
+      {...(props.testID !== undefined
+        ? { dataSet: { testid: props.testID } }
+        : {})}
     />
   );
 }

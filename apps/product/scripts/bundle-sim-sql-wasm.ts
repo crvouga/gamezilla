@@ -27,7 +27,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const consoleRoot = join(__dirname, '..');
 const monorepoRoot = join(consoleRoot, '../..');
 const sqlClientRequire = createRequire(
-  join(monorepoRoot, 'pkgs/sql-client/package.json')
+  join(monorepoRoot, 'pkgs/sql-client-sqlite/package.json')
 );
 
 function needsCopy(sourcePath: string, destPath: string): boolean {

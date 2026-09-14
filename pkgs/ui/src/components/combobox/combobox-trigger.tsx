@@ -86,7 +86,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         />
       </Show>
       <button
-        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-2.5 [padding-left:12px;padding-right:12px] [padding-top:10px;padding-bottom:10px] rounded-[10px] text-left"
+        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
         style={{ 'min-height': cssPx(COMBOBOX_TRIGGER_MIN_HEIGHT) }}

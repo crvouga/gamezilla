@@ -1,19 +1,16 @@
 /** @jsxImportSource solid-js */
 /**
- * Production-capable performance HUD chip (FPS / INP / long tasks). Tap to
- * expand the secondary metrics; "Hide" turns the preference off.
+ * Production-capable performance HUD as a thin top banner (FPS / INP / long
+ * tasks). Portals into the in-flow banner host so it pushes app content.
+ * Tap to expand secondary metrics; "Hide" turns the preference off.
  */
 
+import { InFlowBanner } from '@pkgs/ui';
 import { createSignal, type JSX, Show } from 'solid-js';
 
 import { usePerfHudPreference } from './perf-hud-preference';
 import { createPerfSnapshot } from './perf-sampler-context';
 import type { PerfSnapshot } from './types';
-
-const HUD_TOP = 48;
-const HUD_RIGHT = 8;
-const HUD_MAX_WIDTH = 220;
-const HUD_Z_INDEX = 9999;
 
 function fpsColor(fps: number): string {
   if (fps >= 58) return '#22c55e';
@@ -21,18 +18,18 @@ function fpsColor(fps: number): string {
   return '#ef4444';
 }
 
-function MetricLine(props: {
+function MetricChip(props: {
   readonly label: string;
   readonly value: string;
   readonly color?: string | undefined;
 }): JSX.Element {
   return (
-    <div class="box flex-row gap-1 items-baseline">
-      <p class="text text-[10px] text-[rgba(255,255,255,0.65)] font-semibold">
+    <div class="box flex-row gap-1 items-baseline shrink-0">
+      <p class="text text-[10px] text-[rgba(255,255,255,0.55)] font-semibold uppercase tracking-wide">
         {props.label}
       </p>
       <p
-        class="text text-[11px] font-bold"
+        class="text text-[11px] font-bold tabular-nums"
         style={{ color: props.color ?? '#fff' }}
       >
         {props.value}
@@ -48,13 +45,15 @@ function ExpandedMetrics(props: {
   const heapLabel = () =>
     props.snap.heapMb === null ? '—' : `${String(props.snap.heapMb)}MB`;
   return (
-    <div class="box gap-0.5 mt-1">
-      <MetricLine label="slow%" value={String(props.snap.slowFramePct)} />
-      <MetricLine label="LTn" value={String(props.snap.longTaskCount)} />
-      <MetricLine label="heap" value={heapLabel()} />
+    <div class="box gap-1 px-3 pb-2 border-t border-[rgba(255,255,255,0.1)]">
+      <div class="box flex-row flex-wrap gap-x-3 gap-y-0.5 pt-1.5">
+        <MetricChip label="slow%" value={String(props.snap.slowFramePct)} />
+        <MetricChip label="LTn" value={String(props.snap.longTaskCount)} />
+        <MetricChip label="heap" value={heapLabel()} />
+      </div>
       <Show when={props.snap.longestScript}>
         {(script) => (
-          <p class="text line-clamp-3 text-[9px] text-[rgba(255,255,255,0.8)] mt-0.5">
+          <p class="text line-clamp-2 text-[9px] text-[rgba(255,255,255,0.8)]">
             {script()}
           </p>
         )}
@@ -67,7 +66,7 @@ function ExpandedMetrics(props: {
         )}
       </Show>
       <button
-        class="clickable clickableTint mt-1 py-0.5"
+        class="clickable clickableTint self-start py-0.5"
         data-testid="perf-hud-hide"
         type="button"
         onClick={() => props.onHide()}
@@ -90,39 +89,32 @@ export function PerfHudOverlay(): JSX.Element {
     snap().maxLongTaskMs === 0 ? '—' : `${String(snap().maxLongTaskMs)}ms`;
 
   return (
-    <Show when={enabled()}>
+    <InFlowBanner position="top" visible={enabled()}>
       <div
-        class="box absolute"
-        style={{
-          top: `${HUD_TOP}px`,
-          right: `${HUD_RIGHT}px`,
-          'z-index': HUD_Z_INDEX,
-          'max-width': `${HUD_MAX_WIDTH}px`,
-        }}
+        class="box bg-[rgba(0,0,0,0.85)] border-b border-[rgba(255,255,255,0.12)]"
+        style={{ 'padding-top': 'env(safe-area-inset-top, 0px)' }}
         data-component="PerfHudOverlay"
         data-testid="perf-hud"
       >
-        <div class="box bg-[rgba(0,0,0,0.78)] rounded-[8px] px-2 py-1.5 gap-0.5 border border-[rgba(255,255,255,0.15)]">
-          <button
-            class="clickable gap-0.5 items-stretch"
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            aria-label="Performance monitor"
-            aria-expanded={expanded()}
-          >
-            <MetricLine
-              label="FPS"
-              value={String(snap().fps)}
-              color={fpsColor(snap().fps)}
-            />
-            <MetricLine label="INP" value={inpLabel()} />
-            <MetricLine label="maxLT" value={maxLtLabel()} />
-          </button>
-          <Show when={expanded()}>
-            <ExpandedMetrics snap={snap()} onHide={() => setEnabled(false)} />
-          </Show>
-        </div>
+        <button
+          class="clickable flex-row items-center gap-3 px-3 py-1 w-full"
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          aria-label="Performance monitor"
+          aria-expanded={expanded()}
+        >
+          <MetricChip
+            label="FPS"
+            value={String(snap().fps)}
+            color={fpsColor(snap().fps)}
+          />
+          <MetricChip label="INP" value={inpLabel()} />
+          <MetricChip label="maxLT" value={maxLtLabel()} />
+        </button>
+        <Show when={expanded()}>
+          <ExpandedMetrics snap={snap()} onHide={() => setEnabled(false)} />
+        </Show>
       </div>
-    </Show>
+    </InFlowBanner>
   );
 }

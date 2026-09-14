@@ -1,4 +1,4 @@
-import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import { type JSX, Show } from 'solid-js';
 
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
@@ -12,15 +12,17 @@ export function ChessPuzzleReviewBoard(props: {
 }): JSX.Element {
   const model = usePuzzleReviewBoard(props.fen, props.moves);
   return (
-    <div class="box flex-1 min-h-[0] self-stretch gap-2">
+    <div
+      class="box self-stretch gap-2 min-w-[0]"
+      style={{ height: 'min(70vh, 480px)' }}
+    >
       <ChessPuzzleBoardFrame>
         {(size) => (
           <Show
             when={model.ready()}
             fallback={<ChessPuzzleBoardLoadingState size={size} />}
           >
-            <ChessBoard
-              controlled
+            <SmartChessBoard
               dataSet={{ testid: 'chess-puzzle-review-board' }}
               size={size}
               fen={model.displayFen()}

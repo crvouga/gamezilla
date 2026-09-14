@@ -6,5 +6,5 @@ import type { JSX, ParentProps } from 'solid-js';
  * (per-account SQLite files isolate data).
  */
 export function AuthSyncBridge(props: ParentProps): JSX.Element {
-  return props.children;
+  return <>{props.children}</>;
 }

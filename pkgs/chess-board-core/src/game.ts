@@ -148,6 +148,27 @@ export class ChessGame {
     return [...targets].filter(isSquare);
   }
 
+  /**
+   * Destinations for a premove: flips the side-to-move in a temp engine so
+   * your pieces show targets while the opponent is to move.
+   */
+  premoveTargetsFrom(from: Square): readonly Square[] {
+    const parts = this.chess.fen().split(' ');
+    if (parts.length < 2) return [];
+    parts[1] = parts[1] === 'w' ? 'b' : 'w';
+    try {
+      const tmp = new Chess(parts.join(' '));
+      const moves = tmp.moves({
+        square: from as unknown as ChessSquare,
+        verbose: true,
+      }) as ChessJsMove[];
+      const targets = new Set(moves.map((m) => String(m.to)));
+      return [...targets].filter(isSquare);
+    } catch {
+      return [];
+    }
+  }
+
   moveRequiresPromotion(from: Square, to: Square): boolean {
     const piece = this.chess.get(from as unknown as ChessSquare);
     if (!piece || piece.type !== 'p') return false;

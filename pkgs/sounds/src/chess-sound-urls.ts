@@ -18,10 +18,6 @@ export const chessSoundUrls = {
     '../assets/gameplay/chess/game-over-checkmate.mp3',
     import.meta.url
   ).href,
-  puzzleEloTick: new URL(
-    '../assets/gameplay/chess/navigation_forward-selection-minimal.mp3',
-    import.meta.url
-  ).href,
   puzzleCorrectMove: new URL(
     '../assets/gameplay/chess/move-1.mp3',
     import.meta.url

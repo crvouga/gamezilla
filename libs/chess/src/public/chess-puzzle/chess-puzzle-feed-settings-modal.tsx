@@ -170,9 +170,12 @@ export function ChessPuzzleFeedSettingsModal(
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   const [config, setConfig] = useChessPuzzleFeedConfig();
   const pool = useChessPuzzleFeedPoolStats();
-  const profileCaption = profileRating > 0 ? String(profileRating) : '—';
+  const profileCaption = profileRating() > 0 ? String(profileRating()) : '—';
   const targetRating = createMemo(() =>
-    resolveEffectivePuzzleRating({ config: config(), profileRating })
+    resolveEffectivePuzzleRating({
+      config: config(),
+      profileRating: profileRating(),
+    })
   );
   const openFingerprintRef: { current: string | null } = { current: null };
 
@@ -232,7 +235,7 @@ export function ChessPuzzleFeedSettingsModal(
           <p class="text textCaption">
             {
               <Trans>
-                {pool.matched} matching · {pool.total} local puzzles
+                {pool.matched()} matching · {pool.total()} local puzzles
               </Trans>
             }
           </p>

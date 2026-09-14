@@ -4,11 +4,12 @@
  *
  * Colors are CSS variables scoped by the `data-theme` attribute
  * (generated token stylesheet), so each pane simply re-scopes the token set
- * for its subtree with `data-theme="light"` / `data-theme="dark"`. No nested
- * `ThemeProvider` is mounted — that would also flip the document-level scheme.
+ * for its subtree with `data-theme="light"` / `data-theme="dark"`.
  *
- * Note: `palette()` / `colorScheme()` readers inside the panes still see the
- * ambient theme; only CSS-variable-driven styling follows the pane scheme.
+ * Nested `ThemeProvider`s are safe for full isolation (only the outermost
+ * mirrors `<html data-theme>`). This preview stays attribute-only on purpose:
+ * both panes share the ambient JS `palette()` / `colorScheme()` context so the
+ * same children can be shown in both schemes without mounting two providers.
  *
  * Panes stack vertically for mobile-first readability.
  */

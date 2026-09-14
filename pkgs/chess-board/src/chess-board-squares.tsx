@@ -1,13 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
- * SVG square fills + interaction markers (last move, selection, check, legal
- * targets, cell highlights) and optional edge coordinates.
+ * Square overlays (last move, selection, check, legal targets, cell highlights)
+ * and optional edge coordinates. Base checker is {@link ChessBoardBackground}.
  */
 
 import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import type {
   BoardOrientation,
-  BoardTheme,
   CellHighlight,
   Move,
   Position,
@@ -19,10 +18,10 @@ import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
 import styles from './chess-board.module.css';
 import { BOARD_SQUARES } from './chess-board-hit-grid';
 import { SquareCell } from './chess-board-square-cell';
+import { bumpChessBoardRender } from './dev/render-counts';
 
 export type ChessBoardSquaresProps = {
   readonly orientation: BoardOrientation;
-  readonly theme: BoardTheme;
   readonly position: Position;
   readonly lastMove: Move | null;
   readonly selected: Square | null;
@@ -32,12 +31,13 @@ export type ChessBoardSquaresProps = {
   readonly highlightLastMove: boolean;
   readonly highlightLegalMoves: boolean;
   readonly checkSquare: Square | null;
+  readonly premoveFrom: Square | null;
+  readonly premoveTo: Square | null;
 };
 
 function LegalMarker(props: {
   readonly square: Square;
   readonly orientation: BoardOrientation;
-  readonly theme: BoardTheme;
   readonly occupied: boolean;
 }): JSX.Element {
   const origin = () => squareOrigin(props.square, props.orientation);
@@ -50,24 +50,25 @@ function LegalMarker(props: {
         <circle
           cx={cx()}
           cy={cy()}
-          r={CELL_UNITS * 0.14}
-          fill={props.theme.legalMoveDot}
+          r={CELL_UNITS * 0.15}
+          fill="var(--chess-legal-dot)"
         />
       }
     >
       <circle
         cx={cx()}
         cy={cy()}
-        r={CELL_UNITS * 0.42}
+        r={CELL_UNITS * 0.44}
         fill="none"
-        stroke={props.theme.legalMoveCaptureRing}
-        stroke-width={CELL_UNITS * 0.1}
+        stroke="var(--chess-legal-ring)"
+        stroke-width={CELL_UNITS * 0.11}
       />
     </Show>
   );
 }
 
 export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
+  bumpChessBoardRender('squares');
   return (
     <svg
       class={`${styles['layer']} ${styles['svgLayer']}`}
@@ -79,13 +80,14 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
           <SquareCell
             square={square}
             orientation={props.orientation}
-            theme={props.theme}
             lastMove={props.lastMove}
             selected={props.selected}
             checkSquare={props.checkSquare}
             highlight={props.cellHighlights?.[square]}
             showCoordinates={props.showCoordinates}
             highlightLastMove={props.highlightLastMove}
+            premoveFrom={props.premoveFrom}
+            premoveTo={props.premoveTo}
           />
         )}
       </For>
@@ -95,7 +97,6 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
             <LegalMarker
               square={square}
               orientation={props.orientation}
-              theme={props.theme}
               occupied={props.position[indexFromSquare(square)] !== null}
             />
           )}

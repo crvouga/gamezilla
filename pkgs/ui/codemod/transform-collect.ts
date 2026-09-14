@@ -22,7 +22,6 @@ export const PRIMITIVE_MODULE_EXPORT: Readonly<Record<string, string>> = {
   divider: 'Divider',
   'scroll-view': 'ScrollView',
   'virtual-list': 'VirtualList',
-  motion: 'Motion',
   island: 'Island',
   'gradient-box': 'GradientBox',
 };

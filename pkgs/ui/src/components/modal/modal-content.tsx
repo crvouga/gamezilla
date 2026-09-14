@@ -83,7 +83,6 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
           ...(padded() ? { padding: `${padPx}px` } : {}),
           'max-width': `${maxWidthPx()}px`,
           'max-height': `${maxHeightPx()}px`,
-          'box-shadow': '0 12px 40px var(--ui-color-shadow-color)',
         }}
       >
         <Show when={padded()} fallback={props.children}>

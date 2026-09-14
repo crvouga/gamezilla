@@ -1,16 +1,32 @@
 /** @jsxImportSource solid-js */
 /** Presentational shell for {@link ChessBoard}. */
 
+import { speakMove } from '@pkgs/chess-board-core/a11y/speak-move';
+import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
+import { pieceCode } from '@pkgs/chess-board-core/piece-svgs';
 import { DEFAULT_CHESS_BOARD_TEST_ID } from '@pkgs/chess-board-core/probe';
-import type { Square } from '@pkgs/chess-board-core/types';
+import type { PieceCode, Square } from '@pkgs/chess-board-core/types';
 import { dataAttrs } from '@pkgs/ui';
-import { createMemo, type JSX } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  on,
+} from 'solid-js';
+
+import { boardThemeToCssVars } from './board-theme';
 import styles from './chess-board.module.css';
-import type { BoardController } from './chess-board-controller';
+import {
+  type BoardController,
+  MOVE_DURATION_MS,
+} from './chess-board-controller';
 import { ChessBoardHitGrid } from './chess-board-hit-grid';
 import { ChessBoardLayers } from './chess-board-layers';
+import { ChessBoardLiveRegion } from './chess-board-live-region';
 import { ChessBoardOverlays } from './chess-board-overlays';
-import type { ChessBoardProps } from './chess-board-types';
+import type { SmartChessBoardProps } from './smart-chess-board-types';
 
 function findKingSquare(
   position: readonly ({ color: 'w' | 'b'; type: string } | null)[],
@@ -25,8 +41,39 @@ function findKingSquare(
   return null;
 }
 
+function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
+  const [liveMessage, setLiveMessage] = createSignal('');
+  createEffect(
+    on(
+      () => getCtrl().model.game().lastMove,
+      (move) => {
+        if (move === null) return;
+        const g = getCtrl().model.game();
+        const piece = g.position[indexFromSquare(move.to)];
+        setLiveMessage(
+          speakMove({
+            move,
+            piece: piece ?? null,
+            inCheck: g.inCheck,
+            isCheckmate: g.isCheckmate,
+          })
+        );
+      }
+    )
+  );
+  return liveMessage;
+}
+
+function premovePieceCode(ctrl: BoardController): PieceCode | null {
+  const p = ctrl.model.interaction().premove;
+  if (p === null) return null;
+  const piece = ctrl.model.game().position[indexFromSquare(p.from)];
+  if (piece === null || piece === undefined) return null;
+  return pieceCode(piece.color, piece.type);
+}
+
 function BoardBody(args: {
-  readonly props: ChessBoardProps;
+  readonly props: SmartChessBoardProps;
   readonly ctrl: BoardController;
   readonly boardTestId: () => string;
 }): JSX.Element {
@@ -36,8 +83,11 @@ function BoardBody(args: {
   });
   const game = () => args.ctrl.model.game();
   const ix = () => args.ctrl.model.interaction();
+  const premove = () => ix().premove;
+  const liveMessage = useSpokenLastMove(() => args.ctrl);
   return (
     <>
+      <ChessBoardLiveRegion message={liveMessage} />
       <ChessBoardLayers
         orientation={args.ctrl.orientation()}
         theme={args.ctrl.theme()}
@@ -55,9 +105,13 @@ function BoardBody(args: {
         captureGhost={args.ctrl.model.captureGhost}
         snapSquare={args.ctrl.model.snapSquare}
         dragFrom={() => ix().dragFrom}
-        dragAt={args.ctrl.dragAt}
+        dragGhost={args.ctrl.ghost}
         animated={args.ctrl.animated}
         arrows={args.ctrl.arrows()}
+        shapes={args.ctrl.shapes()}
+        premoveFrom={premove()?.from ?? null}
+        premoveTo={premove()?.to ?? null}
+        premoveCode={premovePieceCode(args.ctrl)}
       />
       <ChessBoardHitGrid
         boardTestId={args.boardTestId()}
@@ -76,20 +130,26 @@ function BoardBody(args: {
 }
 
 export function ChessBoardView(args: {
-  readonly props: ChessBoardProps;
+  readonly props: SmartChessBoardProps;
   readonly ctrl: BoardController;
 }): JSX.Element {
   const boardTestId = () =>
     args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
   const hostStyle = () => {
+    const px = args.ctrl.boardPx();
     const size =
       args.props.size === undefined
         ? { width: '100%' as const, 'aspect-ratio': 1 as const }
         : {
-            width: `${args.props.size}px`,
-            height: `${args.props.size}px`,
+            width: `${px}px`,
+            height: `${px}px`,
           };
-    return { ...size, 'border-color': args.ctrl.theme().border };
+    return {
+      ...size,
+      ...boardThemeToCssVars(args.ctrl.theme()),
+      'border-color': 'var(--chess-border)',
+      '--chess-move-ms': `${MOVE_DURATION_MS}ms`,
+    };
   };
   return (
     // The board is a keyboard-managed game surface (`role="application"`):

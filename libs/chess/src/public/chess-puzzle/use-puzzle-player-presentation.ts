@@ -14,7 +14,6 @@ export function usePuzzlePlayerPresentation(args: {
   themes: Accessor<readonly string[]>;
   layoutKey: Accessor<number>;
   orientation: Accessor<'white' | 'black'>;
-  showCorrectFlash: Accessor<boolean>;
   displayFen: Accessor<string | null>;
   totalTokens: Accessor<number>;
   wrongFromSquare: Accessor<string | null>;
@@ -44,7 +43,6 @@ export function usePuzzlePlayerPresentation(args: {
     chessPuzzleStatusKindFromState({
       status: args.status(),
       orientation: args.orientation(),
-      showCorrectFlash: args.showCorrectFlash(),
     })
   );
 

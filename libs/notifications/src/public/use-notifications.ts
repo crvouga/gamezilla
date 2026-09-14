@@ -1,6 +1,11 @@
 import { useClock } from '@pkgs/clock/solid';
 import { createQuery } from '@pkgs/sync-engine/solid';
-import { createEffect, createMemo, createSignal } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 import type {
   Notification,
   NotificationFilter,
@@ -13,10 +18,10 @@ import { buildNotificationSections } from './notifications-sections';
 export function useNotifications(options?: {
   readonly filter?: NotificationFilter | undefined;
 }): {
-  readonly interactions: readonly Notification[];
-  readonly sections: ReturnType<typeof buildNotificationSections>;
-  readonly isLoading: boolean;
-  readonly filter: NotificationFilter;
+  readonly interactions: Accessor<readonly Notification[]>;
+  readonly sections: Accessor<ReturnType<typeof buildNotificationSections>>;
+  readonly isLoading: Accessor<boolean>;
+  readonly filter: Accessor<NotificationFilter>;
   readonly setFilter: (filter: NotificationFilter) => void;
 } {
   const shell = useNotificationsShell();
@@ -41,18 +46,10 @@ export function useNotifications(options?: {
     buildNotificationSections(interactions(), clock.now)
   );
   return {
-    get interactions() {
-      return interactions();
-    },
-    get sections() {
-      return sections();
-    },
-    get isLoading() {
-      return isLoading();
-    },
-    get filter() {
-      return filter();
-    },
+    interactions,
+    sections,
+    isLoading,
+    filter,
     setFilter,
   };
 }

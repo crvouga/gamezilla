@@ -12,7 +12,10 @@ import {
   useCommandRegistry,
   useRegisterCommands,
 } from '@pkgs/ui/components/command-palette';
-import { isMacPlatform } from '@pkgs/ui/components/keyboard-shortcuts';
+import {
+  isMacPlatform,
+  KeyboardShortcutScope,
+} from '@pkgs/ui/components/keyboard-shortcuts';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
@@ -213,6 +216,36 @@ describe('CommandPalette', () => {
     await Promise.resolve();
     expect(screen.queryByRole('dialog')).toBeNull();
   });
+
+  test('fuzzy highlights render as inline spans under one line-clamped host', async () => {
+    const user = userEvent.setup();
+    const commands: Command[] = [
+      {
+        id: 'light',
+        title: 'Use light theme',
+        category: 'Appearance',
+        run: () => {},
+      },
+      {
+        id: 'system',
+        title: 'Use system theme',
+        category: 'Appearance',
+        run: () => {},
+      },
+    ];
+    renderUi(() => <Shell commands={commands} />, { width: 1200 });
+    openPalette();
+    await user.type(screen.getByRole('combobox'), 'theme');
+    const option = screen.getByRole('option', { name: /Use ligh/ });
+    const host = option.querySelector('p.text');
+    expect(host).not.toBeNull();
+    expect(host?.classList.contains('line-clamp-1')).toBe(true);
+    expect(host?.querySelectorAll('p').length).toBe(0);
+    const spans = [...(host?.querySelectorAll('span') ?? [])];
+    expect(spans.length).toBeGreaterThan(1);
+    expect(spans.map((s) => s.textContent).join('')).toBe('Use light theme');
+    expect(spans.some((s) => s.classList.contains('textBodyBold'))).toBe(true);
+  });
 });
 
 describe('shortcuts', () => {
@@ -248,6 +281,53 @@ describe('shortcuts', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
     await user.keyboard(`{${MOD}>}j{/${MOD}}`);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  test('nested KeyboardShortcutScope routes mod+k to the active panel registry', async () => {
+    const user = userEvent.setup();
+    const [panelActive, setPanelActive] = createSignal(false);
+    renderUi(
+      () => (
+        <KeyboardShortcutScope active={!panelActive()}>
+          <SurfaceStackProvider>
+            <CommandRegistryProvider>
+              <RegisterCommand
+                id="sim-theme"
+                title="Use dark theme"
+                run={() => {}}
+              />
+              <CommandPalette />
+              <KeyboardShortcutScope active={panelActive()}>
+                <SurfaceStackProvider>
+                  <CommandRegistryProvider>
+                    <RegisterCommand
+                      id="panel-nav"
+                      title="Go to Spaces"
+                      run={() => {}}
+                    />
+                    <CommandPalette />
+                  </CommandRegistryProvider>
+                </SurfaceStackProvider>
+              </KeyboardShortcutScope>
+            </CommandRegistryProvider>
+          </SurfaceStackProvider>
+        </KeyboardShortcutScope>
+      ),
+      { width: 1200 }
+    );
+
+    await user.keyboard(`{${MOD}>}k{/${MOD}}`);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Use dark theme' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Go to Spaces' })).toBeNull();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    setPanelActive(true);
+    await user.keyboard(`{${MOD}>}k{/${MOD}}`);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Go to Spaces' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Use dark theme' })).toBeNull();
   });
 });
 

@@ -6,6 +6,7 @@ export type {
   ProductSimulatorLogBuffer,
   ProductSimulatorLogEntry,
   ProductSimulatorLogLevel,
+  ProductSimulatorMemoryHistory,
   ProductSimulatorNode,
   ProductSimulatorPaletteCommand,
   ProductSimulatorPubSubNode,

@@ -27,9 +27,9 @@ import {
 import {
   deleteSecretIn,
   ensureSeedInAllEnvsSecrets,
-  exportSecretsMap,
+  exportSecretsMapLive,
   fetchSecretFrom,
-  listSecretNames,
+  listSecretNamesLive,
   loadSecretsIntoEnv,
   setSecret,
   setSecretIn,
@@ -45,7 +45,7 @@ async function migrateTurboCacheInAllEnvs(): Promise<void> {
   const active = activeSecretsEnv();
 
   for (const env of SECRETS_ENVS) {
-    const stored = await exportSecretsMap(env);
+    const stored = await exportSecretsMapLive(env);
     const current = (stored.get('TURBO_CACHE') ?? '').trim();
     if (current.length === 0 || current.includes('remote:')) continue;
 
@@ -70,7 +70,7 @@ async function migrateTurboTeamToLocalInAllEnvs(): Promise<void> {
   const next = 'local';
 
   for (const env of SECRETS_ENVS) {
-    const stored = await exportSecretsMap(env);
+    const stored = await exportSecretsMapLive(env);
     const current = (stored.get('TURBO_TEAM') ?? '').trim();
     if (current.length === 0 || current === next) continue;
     // Only rewrite the known Vercel slug; leave other custom slugs alone.
@@ -101,7 +101,7 @@ async function migrateAuthSecretRenameInAllEnvs(): Promise<void> {
   const legacyName = 'BETTER_AUTH_SECRET';
 
   for (const env of SECRETS_ENVS) {
-    const stored = await exportSecretsMap(env);
+    const stored = await exportSecretsMapLive(env);
     const current = (stored.get('AUTH_SECRET') ?? '').trim();
     if (current.length > 0) continue;
 
@@ -157,7 +157,7 @@ async function seedSecrets(): Promise<void> {
   }
 
   for (const env of SECRETS_ENVS) {
-    const stored = await exportSecretsMap(env);
+    const stored = await exportSecretsMapLive(env);
     try {
       const seeded = await seedObjectStoreS3ForEnv(env, stored);
       if (env === active) applySeededS3ToEnv(seeded);
@@ -187,7 +187,7 @@ async function seedSecrets(): Promise<void> {
   await migrateTurboCacheInAllEnvs();
   await migrateTurboTeamToLocalInAllEnvs();
 
-  const storedActive = new Map(await exportSecretsMap(active));
+  const storedActive = new Map(await exportSecretsMapLive(active));
   for (const entry of getSeedableSecrets()) {
     if (entry.name.startsWith('S3_')) {
       continue;
@@ -225,7 +225,7 @@ async function seedSecrets(): Promise<void> {
 
 async function validateSecrets(): Promise<void> {
   const active = activeSecretsEnv();
-  const secrets = await exportSecretsMap(active);
+  const secrets = await exportSecretsMapLive(active);
   let validationFailed = false;
 
   for (const entry of SECRETS) {
@@ -301,7 +301,7 @@ async function purgeOrphansInEnv(
 ): Promise<void> {
   let actual: ReadonlyArray<string>;
   try {
-    actual = await listSecretNames(env);
+    actual = await listSecretNamesLive(env);
   } catch (e) {
     warn(`Orphan purge (${env})`, e instanceof Error ? e.message : String(e));
     return;

@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids';
 import { dataAttrs } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 import type { FriendProfile } from '../shared/friendship/friends-types';
 import { FriendProfileAvatar } from './friend-profile-avatar';
@@ -19,44 +19,65 @@ function usernameLabel(profile: FriendProfile): string {
   return profile.userId.slice(0, 8);
 }
 
-export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
-  const title = usernameLabel(props.profile);
-  const rowTestID =
-    props.friendsListHandle && props.profile.username.length > 0
-      ? Handles.friendsListRow(props.profile.username)
-      : undefined;
-
-  const body = (
-    <div class="box flex-row items-center gap-2 py-2">
+function FriendUserRowIdentity(props: {
+  readonly profile: FriendProfile;
+}): JSX.Element {
+  return (
+    <>
       <FriendProfileAvatar profile={props.profile} size={44} />
       <div class="box flex-1 min-w-[0] gap-0.5">
-        <p class="text textBodyBold line-clamp-1">{title}</p>
+        <p class="text textBodyBold line-clamp-1">
+          {usernameLabel(props.profile)}
+        </p>
       </div>
-      {props.trailing}
-    </div>
+    </>
+  );
+}
+
+export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
+  const rowTestID = createMemo(() =>
+    props.friendsListHandle === true && props.profile.username.length > 0
+      ? Handles.friendsListRow(props.profile.username)
+      : undefined
+  );
+
+  const rowAttrs = () => {
+    const id = rowTestID();
+    return id !== undefined ? dataAttrs({ testid: id }) : {};
+  };
+
+  const trailing = () => (
+    <Show when={props.trailing !== undefined}>
+      <div class="box shrink-0">{props.trailing}</div>
+    </Show>
   );
 
   return (
     <Show
       when={props.onPress !== undefined}
       fallback={
-        <Show when={rowTestID} keyed fallback={body}>
-          {(testID) => (
-            <div class="box" data-testid={testID}>
-              {body}
-            </div>
-          )}
-        </Show>
+        <div
+          class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch"
+          {...rowAttrs()}
+        >
+          <FriendUserRowIdentity profile={props.profile} />
+          {trailing()}
+        </div>
       }
     >
-      <button
-        class="clickable clickableTint"
-        {...(rowTestID !== undefined ? dataAttrs({ testid: rowTestID }) : {})}
-        type="button"
-        onClick={() => props.onPress?.()}
+      <div
+        class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch"
+        {...rowAttrs()}
       >
-        {body}
-      </button>
+        <button
+          class="clickable clickableTint box flex-1 flex-row items-center gap-2 min-w-[0]"
+          type="button"
+          onClick={() => props.onPress?.()}
+        >
+          <FriendUserRowIdentity profile={props.profile} />
+        </button>
+        {trailing()}
+      </div>
     </Show>
   );
 }

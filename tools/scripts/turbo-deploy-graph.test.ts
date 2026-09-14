@@ -163,7 +163,7 @@ describe('turbo deploy graph invariants', () => {
     const deps = turbo.tasks?.['@apps/server#smoke']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
     expect(deps as string[]).toContain('@apps/product#deploy');
-    expect(deps as string[]).toContain('@apps/client#deploy');
+    expect(deps as string[]).not.toContain('@apps/client#deploy');
   });
 
   test('secrets provision runs after install:cli (avoid infisical race)', () => {

@@ -54,6 +54,7 @@ export function SpaceGuestMembershipUsernamesJoined(
                 {...(props.variant !== undefined
                   ? { variant: props.variant }
                   : {})}
+                {...(props.class !== undefined ? { class: props.class } : {})}
               />
             </>
           )}

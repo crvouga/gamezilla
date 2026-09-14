@@ -1,6 +1,6 @@
 import { sql } from '@pkgs/sql';
 import { createQuery } from '@pkgs/sync-engine/solid';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 type SpaceIdRow = { readonly id: string };
 
@@ -8,8 +8,8 @@ type SpaceIdRow = { readonly id: string };
  * Ids of every live (non-ended) space, ordered newest-first.
  */
 export function useLiveSpaceIds(): {
-  readonly spaceIds: readonly string[];
-  readonly isLoading: boolean;
+  readonly spaceIds: Accessor<readonly string[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const query = createQuery(
     () =>
@@ -22,11 +22,7 @@ export function useLiveSpaceIds(): {
   );
   const spaceIds = createMemo(() => query.rows().map((r) => r.id));
   return {
-    get spaceIds() {
-      return spaceIds();
-    },
-    get isLoading() {
-      return query.isLoading();
-    },
+    spaceIds,
+    isLoading: query.isLoading,
   };
 }

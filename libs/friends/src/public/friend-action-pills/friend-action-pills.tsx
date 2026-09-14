@@ -16,10 +16,7 @@ export type {
   FriendActionPillsProps,
 } from './friend-action-types';
 
-export function FriendActionPills({
-  onChanged,
-  ...ctx
-}: FriendActionPillsProps): JSX.Element {
+export function FriendActionPills(props: FriendActionPillsProps): JSX.Element {
   const sendFriendRequest = useSendFriendRequest();
   const acceptFriendRequest = useAcceptFriendRequest();
   const declineFriendRequest = useDeclineFriendRequest();
@@ -27,22 +24,25 @@ export function FriendActionPills({
   const unblockUser = useUnblockUser();
 
   const addFriend = async () => {
-    await sendFriendRequest(ctx.userId);
+    await sendFriendRequest(props.userId);
   };
   const confirmRequest = async () => {
-    if (ctx.incomingRequestId === null) return;
-    await acceptFriendRequest(ctx.incomingRequestId);
+    const requestId = props.incomingRequestId;
+    if (requestId === null) return;
+    await acceptFriendRequest(requestId);
   };
   const deleteRequest = async () => {
-    if (ctx.incomingRequestId === null) return;
-    await declineFriendRequest(ctx.incomingRequestId);
+    const requestId = props.incomingRequestId;
+    if (requestId === null) return;
+    await declineFriendRequest(requestId);
   };
   const cancelRequest = async () => {
-    if (ctx.outgoingRequestId === null) return;
-    await cancelFriendRequest(ctx.outgoingRequestId);
+    const requestId = props.outgoingRequestId;
+    if (requestId === null) return;
+    await cancelFriendRequest(requestId);
   };
   const unblock = async () => {
-    await unblockUser(ctx.userId);
+    await unblockUser(props.userId);
   };
 
   const mutations: FriendActionMutations = {
@@ -55,10 +55,10 @@ export function FriendActionPills({
 
   return (
     <FriendActionPillsForStatus
-      status={ctx.status}
+      status={props.status}
       mutations={mutations}
-      onChanged={onChanged}
-      {...(ctx.username !== undefined ? { username: ctx.username } : {})}
+      onChanged={props.onChanged}
+      {...(props.username !== undefined ? { username: props.username } : {})}
     />
   );
 }

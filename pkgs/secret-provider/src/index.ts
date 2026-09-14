@@ -10,6 +10,23 @@ export {
 } from './create-configured-secret-store';
 export type { CreateSecretAdminStoreOptions } from './create-secret-admin-store';
 export { createSecretAdminStore } from './create-secret-admin-store';
+export type {
+  SecretsCacheEnv,
+  SecretsCacheMeta,
+} from './local-secrets-cache';
+export {
+  isSecretsCacheStale,
+  mergeSecretsIntoEnv,
+  parseInfisicalExportJson,
+  readSecretsCacheFingerprint,
+  readSecretsCacheMap,
+  readSecretsCacheMeta,
+  SECRETS_CACHE_PREFIX,
+  SECRETS_CACHE_TTL_MS,
+  writeSecretsCacheFingerprint,
+  writeSecretsCacheMap,
+  writeSecretsCacheMeta,
+} from './local-secrets-cache';
 export type { ReconcileCiSecretsAuthOptions } from './reconcile-ci-secrets-auth';
 export {
   reconcileCiSecretsAuth,

@@ -36,10 +36,10 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
 
   createEffect(() => {
     if (!synced() || myId().length === 0 || spaceId.length === 0) return;
-    if (!session.isOpen) return;
+    if (!session.isOpen()) return;
     if (announcedSpaceRef.current === spaceId) return;
 
-    if (session.joinAnnounced) {
+    if (session.joinAnnounced()) {
       announcedSpaceRef.current = spaceId;
       dispatchJoinAnnounce(dispatch, myId());
       return;

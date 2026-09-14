@@ -44,7 +44,6 @@ function FeedbackMark(props: {
   const text = () => TEXT_GLYPH[props.badge.feedback.kind];
   return (
     <g
-      class={props.badge.feedback.pulse === true ? styles['pulse'] : undefined}
       opacity={opacity()}
       transform={`translate(${fmtUnits(props.badge.cx)} ${fmtUnits(props.badge.cy)})`}
     >

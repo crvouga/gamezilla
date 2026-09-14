@@ -22,7 +22,6 @@ import MutationModalExample from '../mutation-modal/mutation-modal.example';
 import PaginationControlsExample from '../pagination-controls/pagination-controls.example';
 import ProgressBarExample from '../progress-bar/progress-bar.example';
 import ResponsiveSurfaceExample from '../responsive-surface/responsive-surface.example';
-import SectionCardExample from '../section-card/section-card.example';
 import SkeletonExample from '../skeleton/skeleton.example';
 import SoundIndicatorExample from '../sound-indicator/sound-indicator.example';
 import SpeakingAvatarExample from '../speaking-avatar/speaking-avatar.example';
@@ -71,7 +70,6 @@ export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('success-state', 'SuccessState', FEEDBACK, SuccessStateExample),
 
   entry('collapsible', 'Collapsible', DISCLOSURE, CollapsibleExample),
-  entry('section-card', 'SectionCard', DISCLOSURE, SectionCardExample),
 
   entry('modal', 'Modal', OVERLAY, ModalExample),
   entry('mutation-modal', 'MutationModal', OVERLAY, MutationModalExample),

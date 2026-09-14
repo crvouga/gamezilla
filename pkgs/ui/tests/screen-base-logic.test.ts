@@ -97,6 +97,17 @@ describe('breadcrumb helpers', () => {
       deriveHeaderLayout([{ name: 'Static' }, { name: 'Current' }]).showBack
     ).toBe(false);
   });
+
+  test('Settings → Components trail shows Back to Settings (UI explorer)', () => {
+    const layout = deriveHeaderLayout([
+      { name: 'Spaces', href: '/' },
+      { name: 'Settings', href: '/more' },
+      { name: 'Components' },
+    ]);
+    expect(layout.title).toBe('Components');
+    expect(layout.showBack).toBe(true);
+    expect(layout.backCrumb).toEqual({ name: 'Settings', href: '/more' });
+  });
 });
 
 describe('body helpers', () => {

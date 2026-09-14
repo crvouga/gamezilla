@@ -1,9 +1,10 @@
 export {
-  DISMISSIBLE_BANNER_SLIDE_PX,
   DismissibleBanner,
   DismissibleBannerPortalProvider,
   type DismissibleBannerPortalProviderProps,
   type DismissibleBannerPosition,
   type DismissibleBannerProps,
   type DismissibleBannerTone,
+  InFlowBanner,
+  type InFlowBannerProps,
 } from './dismissible-top-banner';

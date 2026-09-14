@@ -6,8 +6,13 @@
 
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
+import {
+  readSecretsCacheMap,
+  type SecretsCacheEnv,
+} from '@pkgs/secret-provider/local-secrets-cache';
 import type { SecretAdminStore } from '@pkgs/secret-store';
 import { REPO_ROOT } from '../paths';
+import { activeSecretsEnv, isSecretsEnv } from './secret';
 
 let adminStorePromise: Promise<SecretAdminStore> | null = null;
 
@@ -61,14 +66,44 @@ export async function setSecretIn(
   await (await getAdminStore()).setSecret(name, value, env);
 }
 
-export async function exportSecretsMap(
+async function readCachedSecretsMap(
+  env: string
+): Promise<ReadonlyMap<string, string> | null> {
+  if (!isSecretsEnv(env)) return null;
+  const store = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
+  return readSecretsCacheMap(store, env as SecretsCacheEnv);
+}
+
+/** Always hit Infisical admin CLI (ignore local `.cache/secrets`). */
+export async function exportSecretsMapLive(
   envOverride?: string
 ): Promise<ReadonlyMap<string, string>> {
   return (await getAdminStore()).exportSecrets(envOverride);
 }
 
+/**
+ * Export secrets for an env. Prefers `.cache/secrets/<env>.json` when present
+ * so check/fingerprint stay offline-first after `secrets:pull`.
+ * Use {@link exportSecretsMapLive} for provision/seed writes.
+ */
+export async function exportSecretsMap(
+  envOverride?: string
+): Promise<ReadonlyMap<string, string>> {
+  const env = envOverride ?? activeSecretsEnv();
+  const cached = await readCachedSecretsMap(env);
+  if (cached !== null) return cached;
+  return exportSecretsMapLive(envOverride);
+}
+
 export async function listSecretNames(
   envOverride?: string
 ): Promise<ReadonlyArray<string>> {
-  return (await getAdminStore()).listSecretNames(envOverride);
+  return [...(await exportSecretsMap(envOverride)).keys()];
+}
+
+/** Live Infisical names (ignore local cache) — for provision orphan purge. */
+export async function listSecretNamesLive(
+  envOverride?: string
+): Promise<ReadonlyArray<string>> {
+  return [...(await exportSecretsMapLive(envOverride)).keys()];
 }

@@ -6,7 +6,6 @@ import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
 import { BillingApp } from '@libs/billing/root/server/billing-app';
 import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
-import { FriendsApp } from '@libs/friends/root/server/create-friends-app';
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
@@ -277,7 +276,6 @@ function createServerRouter(args: {
         secretsEnv,
       })
     )
-    .route('/', new FriendsApp(env.clock).build())
     .route(
       '/',
       new AuthApiRoutes(env.clock, env.createId, (userId) =>

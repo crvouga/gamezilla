@@ -23,7 +23,11 @@ export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
   return (
     <Show when={membershipIds().length > 0}>
       <div class="box mt-3 gap-1.5">
-        <SpaceGuestCountText spaceId={props.spaceId} variant="caption" />
+        <SpaceGuestCountText
+          spaceId={props.spaceId}
+          variant="caption"
+          class="text-on-primary"
+        />
         <SpaceGuestAvatarGroup
           spaceId={props.spaceId}
           size={AVATAR_SIZE}
@@ -33,6 +37,7 @@ export function SpaceGuestSection(props: SpaceGuestSectionProps): JSX.Element {
         <SpaceGuestNamesLine
           spaceId={props.spaceId}
           variant="caption"
+          class="text-on-primary"
           numberOfLines={1}
         />
       </div>

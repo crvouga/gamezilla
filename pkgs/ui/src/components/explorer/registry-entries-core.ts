@@ -18,7 +18,6 @@ import CopyToClipboardFieldExample from '../copy-to-clipboard-field/copy-to-clip
 import FloatingActionButtonExample from '../floating-action-button/floating-action-button.example';
 import FormActionsFooterExample from '../form-actions-footer/form-actions-footer.example';
 import GradientBoxExample from '../gradient-box/gradient-box.example';
-import HorizontalPickerExample from '../horizontal-picker/horizontal-picker.example';
 import IconButtonExample from '../icon-button/icon-button.example';
 import IslandExample from '../island/island.example';
 import IslandGridExample from '../island-grid/island-grid.example';
@@ -110,12 +109,6 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
   ),
   entry('tab-strip', 'TabStrip', INPUTS, TabStripExample),
   entry('picker', 'Picker', INPUTS, PickerExample),
-  entry(
-    'horizontal-picker',
-    'HorizontalPicker',
-    INPUTS,
-    HorizontalPickerExample
-  ),
   entry('picker-section', 'PickerSection', INPUTS, PickerSectionExample),
   entry('chip-group', 'ChipGroup', INPUTS, ChipGroupExample),
   entry('number-stepper', 'NumberStepper', INPUTS, NumberStepperExample),

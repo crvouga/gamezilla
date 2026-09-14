@@ -3,6 +3,9 @@ import type { ConsoleNavState } from './console-nav';
 
 export type ConsoleNavHistoryMode = 'push' | 'replace';
 
+/** Console chrome always lives under `/console` (App is `/`). */
+export const CONSOLE_PATH = '/console';
+
 export function readConsoleNavSearch(): string {
   return window.location.search;
 }
@@ -12,7 +15,7 @@ export function writeConsoleNavUrl(
   state: ConsoleNavState,
   mode: ConsoleNavHistoryMode
 ): void {
-  const url = `${window.location.pathname}${search}${window.location.hash}`;
+  const url = `${CONSOLE_PATH}${search}${window.location.hash}`;
   const historyState = { ...window.history.state, consoleNav: state };
   if (mode === 'replace') window.history.replaceState(historyState, '', url);
   else window.history.pushState(historyState, '', url);

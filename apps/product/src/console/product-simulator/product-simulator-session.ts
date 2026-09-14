@@ -3,6 +3,7 @@
  */
 
 import type { Client } from '@apps/client/shell/create-client';
+import { readEmbeddedHref } from '@apps/client/shell/embedded-href';
 import {
   captureCheckpoint,
   restoreCheckpoint,
@@ -42,11 +43,13 @@ import type { Topic } from '@pkgs/pubsub/interface';
 import {
   createProductSimulatorLogBuffer,
   type ProductSimulatorActor,
+  type ProductSimulatorMemoryHistory,
   type ProductSimulatorPaletteCommand,
   type ProductSimulatorSession,
   type ProductSimulatorSqlNode,
 } from '@pkgs/sim-console/client';
 import { notifyChannels } from '@pkgs/sync-engine/server';
+import { createMemoryHistory } from '@solidjs/router';
 
 const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
 
@@ -93,6 +96,7 @@ function liveToActor(args: {
   live: Client;
   logs: ReturnType<typeof createProductSimulatorLogBuffer>;
   sqlClient: ProductSimulatorActor['sqlClient'];
+  history: ProductSimulatorMemoryHistory;
   actorWebOrigin?: string;
 }): ProductSimulatorActor {
   return {
@@ -103,8 +107,19 @@ function liveToActor(args: {
     view:
       args.actorWebOrigin !== undefined
         ? { kind: 'url', url: args.actorWebOrigin }
-        : { kind: 'solid', App: args.live.App },
+        : { kind: 'solid', App: args.live.App, history: args.history },
   };
+}
+
+async function createSeededMemoryHistory(
+  live: Client
+): Promise<ProductSimulatorMemoryHistory> {
+  const history = createMemoryHistory();
+  const saved = await readEmbeddedHref(live.env.kv);
+  if (saved !== null && saved !== history.get()) {
+    history.set({ value: saved, replace: true });
+  }
+  return history;
 }
 
 async function exportProductSimulatorSqlBytes(
@@ -192,11 +207,13 @@ async function spawnClient(
     throw new Error(`simulator client '${instanceId}' SQL missing`);
   }
   maps.lives.set(instanceId, live);
+  const history = await createSeededMemoryHistory(live);
   const actor = liveToActor({
     id: instanceId,
     live,
     logs: actorLogs,
     sqlClient: handle.sqlClient,
+    history,
     ...(args.actorWebOrigin !== undefined
       ? { actorWebOrigin: args.actorWebOrigin }
       : {}),

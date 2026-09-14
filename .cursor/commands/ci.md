@@ -1,8 +1,10 @@
 # CI & Deploy
 
-Run this workflow after every change. Goal: code is formatted, every check in
-the codebase passes, changes are committed, and the app is deployed to dev and
-then prod. Nothing is committed or deployed while any check fails.
+Run this workflow once per logical unit of work (a completed fix, feature, or
+review pass) — not after every individual keystroke or file save. Goal: code
+is formatted, every check in the codebase passes, changes are committed, and
+the app is deployed to dev and then prod. Nothing is committed or deployed
+while any check fails or has not actually been run on the current tree.
 
 ## Core rules (read first)
 
@@ -14,19 +16,37 @@ then prod. Nothing is committed or deployed while any check fails.
   stop and report it instead of changing it.
 - **Run steps individually**, not as one long `&&` chain. You need to know
   exactly which step failed and see its full output. Do not use `clear`.
-- **Never deploy or commit with a failing or unrun check.** "It passed
-  earlier" does not count — the full check suite must pass on the exact code
-  being committed and deployed.
-- **Keep going until green.** Continue fixing, debugging, formatting, and
-  re-running the failing step until the full workflow is green. Do not stop
-  because the same error has recurred or because several attempts have been
-  made. Re-read the complete output after each failure, form a new root-cause
-  hypothesis, and make another genuine fix attempt. Stop only when a required
-  human decision, credential, unavailable service, or genuinely incorrect check
-  blocks progress; then use the failure summary below. Do not deploy while
-  blocked.
+- **Never deploy or commit with a failing, unrun, or unverified check.** "It
+  passed earlier" does not count — the full check suite must pass, and the
+  deploy must be verified, on the exact code being committed and deployed.
+- **Keep going until green — but escalate if you're stuck, not just
+  repeating.** Continue fixing, debugging, formatting, and re-running the
+  failing step. The distinction that matters: each retry should test a *new*
+  root-cause hypothesis. Looping through several different hypotheses is
+  progress — keep going. Re-running the same fix, or making changes with no
+  hypothesis for why they'd help, is thrashing — stop after 3 consecutive
+  attempts of that and report. Valid reasons to stop: a required human
+  decision, a missing credential, an unavailable service, a genuinely
+  incorrect check, or thrashing as just defined. Do not deploy while blocked.
 
 ## Workflow
+
+### 0. Pre-flight
+
+```sh
+git status
+git branch --show-current
+```
+
+- If the working tree has pending changes you didn't make and can't explain,
+  stop and report — don't fold them into this run or assume they're safe to
+  include.
+- Confirm you're on the branch this repo expects commits on before making any.
+  If this repo requires a PR rather than direct commits to that branch, stop
+  before step 3 and open one instead of committing directly.
+- If dependencies look stale (lockfile newer than `node_modules`, or a fresh
+  clone), install now (`bun install`) rather than letting it surface later as
+  a confusing check failure.
 
 ### 1. Format
 
@@ -68,6 +88,13 @@ Only after step 2 passes on the current working tree:
 git add -A
 git status          # review what is being committed
 git diff --staged   # sanity-check the diff matches the intended change
+```
+
+- If `git status` shows no staged changes at this point, there's nothing new
+  to commit — skip straight to reporting that (don't create an empty commit,
+  and don't proceed to deploy stale code as if something changed).
+
+```sh
 git commit -m "<type>(<scope>): <summary>"
 ```
 
@@ -89,10 +116,16 @@ and cannot explain, stop and report instead of committing them.
 bun deploy:dev
 ```
 
-- If the dev deploy fails, treat it like a failing check: diagnose the root
-  cause, fix, and return to **step 1**. Do not retry the deploy blindly and do
-  not touch prod.
-- If the dev deploy succeeds, then and only then:
+- If the dev deploy fails (non-zero exit), treat it like a failing check:
+  diagnose the root cause, fix, and return to **step 1**. Do not retry the
+  deploy blindly and do not touch prod.
+- **A zero exit code means the deploy command finished, not that the app is
+  healthy.** Before promoting to prod, verify dev actually works — hit its
+  health-check endpoint, run the smoke-test suite, or check logs for startup
+  errors, whatever this repo already has for that. If no such verification
+  step exists yet, say so explicitly in the final summary rather than silently
+  treating "deploy exited 0" as "verified."
+- Only once verification passes:
 
 ```sh
 bun deploy:prd
@@ -109,14 +142,16 @@ When everything is deployed, print `✅ Deployed` and end with a short summary:
 
 - What changed (1–3 bullets)
 - The commit hash and message
-- Which environments were deployed (dev, prod)
-- Any flaky tests, warnings, or follow-ups a human should look at
+- Which environments were deployed (dev, prod) and how dev was verified
+- Any flaky tests, warnings, thrashing you escalated on, or follow-ups a human
+  should look at
 
 ## Failure summary template (when stopping without deploying)
 
 ```
 ❌ Not deployed.
 Failing step: <fmt | check:full | deploy:dev | deploy:prd>
+Working tree: <clean | had unrelated changes | uncommitted changes present>
 Error: <exact key error output>
 Attempts: <what you tried, in order>
 Hypothesis: <most likely root cause>

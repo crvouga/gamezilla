@@ -226,7 +226,9 @@ async function ensureSecretsFingerprint(
   taskArgs: readonly string[]
 ): Promise<void> {
   if (!needsSecretsFingerprint(taskArgs)) return;
-  console.log('turbo-ci-run: computing secrets fingerprint (Infisical)…');
+  console.log(
+    'turbo-ci-run: computing secrets fingerprint (local cache or Infisical)…'
+  );
   env[CHECK_SECRETS_FINGERPRINT_ENV] = await computeCheckSecretsFingerprint();
   console.log('turbo-ci-run: secrets fingerprint ready.');
 }
@@ -244,7 +246,7 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   if (hasRemote) return;
   console.warn(
     'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM missing; using local cache only. ' +
-      'Run `infisical login` so local warms upload to the self-hosted Turbo remote cache.'
+      'Run `bun run secrets:pull` so local warms upload to the self-hosted Turbo remote cache.'
   );
 }
 
@@ -255,14 +257,14 @@ function applyOfflineTaskArgs(
   if (hasRemote) return [...taskArgs];
   if (taskArgs.includes(DEPLOY_TASK)) {
     console.error(
-      'turbo-ci-run: deploy requires TURBO_TOKEN and TURBO_TEAM from Infisical. ' +
-        'Run `infisical login` then retry via secrets-run.'
+      'turbo-ci-run: deploy requires TURBO_TOKEN and TURBO_TEAM. ' +
+        'Run `bun run secrets:pull` then retry via secrets-run.'
     );
     process.exit(1);
   }
   if (!taskArgs.includes(SECRETS_CHECK_TASK)) return [...taskArgs];
   console.warn(
-    'turbo-ci-run: skipping @libs/secrets#check (Infisical unavailable).'
+    'turbo-ci-run: skipping @libs/secrets#check (no Turbo remote creds; run `bun run secrets:pull`).'
   );
   return taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK);
 }

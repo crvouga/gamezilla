@@ -14,7 +14,6 @@ import {
 } from '../../../shared/space/games';
 import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
 import { useCurrentSpaceRole } from '../use-current-space-role';
-import { GamesMenuAttribution } from './games-menu-attribution';
 import { useGamesRegistry } from './games-registry-context';
 
 function buildSpaceGameMenuItems(
@@ -57,19 +56,17 @@ function GameListMenu(props: {
   );
 
   return (
-    <GamesMenuAttribution>
-      <MainMenuScreen
-        screenId="games-main-menu"
-        title={<Trans>Games</Trans>}
-        subtitle={<Trans>Pick a game to play.</Trans>}
-        helper={
-          !isHost() ? (
-            <Trans>The host picks the game for this space.</Trans>
-          ) : undefined
-        }
-        items={items()}
-      />
-    </GamesMenuAttribution>
+    <MainMenuScreen
+      screenId="games-main-menu"
+      title={<Trans>Games</Trans>}
+      subtitle={<Trans>Pick a game to play.</Trans>}
+      helper={
+        !isHost() ? (
+          <Trans>The host picks the game for this space.</Trans>
+        ) : undefined
+      }
+      items={items()}
+    />
   );
 }
 

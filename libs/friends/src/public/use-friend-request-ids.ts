@@ -1,3 +1,4 @@
+import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
 
 import {
@@ -5,31 +6,31 @@ import {
   useOutgoingFriendRequests,
 } from '../use-cases/list-friend-requests/client/use-friend-requests';
 
-export function useFriendRequestIdsForUser(targetUserId: string): {
-  readonly incomingRequestId: string | null;
-  readonly outgoingRequestId: string | null;
+export function useFriendRequestIdsForUser(targetUserId: Accessor<string>): {
+  readonly incomingRequestId: Accessor<string | null>;
+  readonly outgoingRequestId: Accessor<string | null>;
 } {
   const { requests: incoming } = useIncomingFriendRequests();
   const { requests: outgoing } = useOutgoingFriendRequests();
 
   const ids = createMemo(() => {
-    if (targetUserId.length === 0) {
+    const target = targetUserId();
+    if (target.length === 0) {
       return { incomingRequestId: null, outgoingRequestId: null };
     }
-    const incomingMatch = incoming.find((r) => r.fromUserId === targetUserId);
-    const outgoingMatch = outgoing.find((r) => r.toUserId === targetUserId);
+    const incomingMatch = incoming().find((r) => r.fromUserId === target);
+    const outgoingMatch = outgoing().find((r) => r.toUserId === target);
     return {
       incomingRequestId: incomingMatch?.id ?? null,
       outgoingRequestId: outgoingMatch?.id ?? null,
     };
   });
 
+  const incomingRequestId = createMemo(() => ids().incomingRequestId);
+  const outgoingRequestId = createMemo(() => ids().outgoingRequestId);
+
   return {
-    get incomingRequestId() {
-      return ids().incomingRequestId;
-    },
-    get outgoingRequestId() {
-      return ids().outgoingRequestId;
-    },
+    incomingRequestId,
+    outgoingRequestId,
   };
 }

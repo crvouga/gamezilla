@@ -61,11 +61,11 @@ function deviceRowByIdSql(deviceId: string) {
 }
 
 export function useDeviceColumn(
-  deviceId: string,
+  deviceId: Accessor<string>,
   field: DeviceFieldKey
 ): Accessor<string | null> {
   const column = DeviceField[field];
-  const { rows } = createQuery(() => deviceRowByIdSql(deviceId));
+  const { rows } = createQuery(() => deviceRowByIdSql(deviceId()));
   return createMemo(() => {
     const row = rows()[0] ?? null;
     const value = row?.[column];

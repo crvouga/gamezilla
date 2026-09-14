@@ -63,8 +63,8 @@ export function useChessPuzzleInteractionWrites(args: {
       solveIdx: args.solveIdx(),
       interactions: args.interactions(),
       terminalKind,
-      profileRating: profile.profileRating,
-      profileRd: profile.profileRd,
+      profileRating: profile.profileRating(),
+      profileRd: profile.profileRd(),
       clock,
     });
   };

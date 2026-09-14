@@ -19,14 +19,9 @@ import {
   SpaceChromeLeadingActionBar,
   SpaceChromeTrailingActionBar,
 } from './space-chrome-action-bar';
-import { SpaceEventLogChrome } from './space-event-log-chrome';
 import { useSpaceSessionUi } from './space-session-ui-context';
-import { SpaceTitleAttribution } from './space-title-attribution';
 
 export type SpaceActiveLayoutProps = ParentProps;
-
-/** Title never eats the whole header row; the event log needs its share. */
-const WIDE_TITLE_MAX_WIDTH = 280;
 
 function SpaceChromeTitle(props: {
   readonly spaceId: string;
@@ -34,13 +29,11 @@ function SpaceChromeTitle(props: {
 }): JSX.Element {
   return (
     <div class="box shrink min-w-[0]">
-      <SpaceTitleAttribution spaceId={props.spaceId}>
-        <SpaceTitleText
-          spaceId={props.spaceId}
-          variant={props.variant}
-          numberOfLines={1}
-        />
-      </SpaceTitleAttribution>
+      <SpaceTitleText
+        spaceId={props.spaceId}
+        variant={props.variant}
+        numberOfLines={1}
+      />
     </div>
   );
 }
@@ -62,17 +55,9 @@ function SpaceTrailingWithGlobal(): JSX.Element {
   );
 }
 
-function SpaceHeaderEventLog(props: { readonly spaceId: string }): JSX.Element {
-  return (
-    <div class="box flex-1 min-w-[0]">
-      <SpaceEventLogChrome spaceId={props.spaceId} />
-    </div>
-  );
-}
-
 /**
- * Wide body: game canvas, plus optional extras rail (games chrome via
- * {@link SpaceSideRailExtras}). Event log lives in the header island.
+ * Wide body: game canvas, plus optional extras rail (game chrome via
+ * {@link SpaceSideRailExtras}).
  */
 function SpaceActiveWideBody(props: ParentProps): JSX.Element {
   const extras = useSpaceSideRailExtras();
@@ -113,13 +98,7 @@ function SpaceActiveLayoutWide(props: {
           leading={
             <div class="box flex-1 min-w-[0] flex-row items-center gap-4">
               <SpaceChromeLeadingActionBar />
-              <div
-                class="box min-w-[0]"
-                style={{ 'max-width': `${WIDE_TITLE_MAX_WIDTH}px` }}
-              >
-                <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
-              </div>
-              <SpaceHeaderEventLog spaceId={props.spaceId} />
+              <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
             </div>
           }
           trailing={<SpaceTrailingWithGlobal />}
@@ -139,17 +118,14 @@ function SpaceActiveLayoutCompact(props: {
       <TopBar
         leading={<SpaceChromeLeadingActionBar />}
         center={
-          <div class="box flex-1 min-w-[0] flex-row items-center gap-2">
-            <SpaceChromeTitle
-              spaceId={props.spaceId}
-              variant="navigationTitle"
-            />
-            <SpaceHeaderEventLog spaceId={props.spaceId} />
-          </div>
+          <SpaceChromeTitle spaceId={props.spaceId} variant="navigationTitle" />
         }
         trailing={<SpaceTrailingWithGlobal />}
+        centerPosition="flex"
       />
-      <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+      <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
+        {props.children}
+      </div>
     </div>
   );
 }
@@ -161,14 +137,14 @@ function HideAppFrameHeaderWhileWide(): null {
 }
 
 /**
- * Unified active-space chrome: exit + back, event log, members / manage
- * actions, then the game body.
+ * Unified active-space chrome: exit + back, members / manage actions, then
+ * the game body.
  *
  * Wide: suppress the AppFrame tab island and paint space chrome as the single
- * top island (nav · title · event log · actions · avatar); body is the game
- * canvas plus an optional extras rail.
- * Compact: TopBar nests the same chrome (nav · title · event log · actions ·
- * avatar), then the full-bleed body.
+ * top island (nav · title · actions · avatar); body is the game canvas plus an
+ * optional extras rail.
+ * Compact: TopBar nests the same chrome (nav · title · actions · avatar), then
+ * the full-bleed body.
  */
 export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const sessionUi = useSpaceSessionUi();

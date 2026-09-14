@@ -23,8 +23,6 @@ function defaultFeedbackPalette(
       doubleExclam: '#3a8cff',
       question: '#c882ff',
       questionExclam: '#ffd64a',
-      star: '#ffd64a',
-      crown: '#ffd64a',
       dot: '#cfd2db',
     };
   }
@@ -35,8 +33,6 @@ function defaultFeedbackPalette(
     doubleExclam: '#1565d8',
     question: '#7e3ad0',
     questionExclam: '#caa30a',
-    star: '#d4a017',
-    crown: '#b8860b',
     dot: '#3a3d4a',
   };
 }
@@ -77,19 +73,20 @@ function defaultPromotionPalette(squares: {
   };
 }
 
+/** Chess.com-adjacent cream / olive board; last-move olive wash. */
 export function defaultBoardTheme(scheme: BoardColorScheme): BoardTheme {
   const lightSquare = '#f0d9b5';
   const darkSquare = '#b58863';
   return {
     lightSquare,
     darkSquare,
-    border: '#8a6a3d',
+    border: '#7a6248',
     lastMove: '#cdd26a',
-    selected: '#f7ec74',
-    legalMoveDot: 'rgba(20,85,30,0.5)',
-    legalMoveCaptureRing: 'rgba(20,85,30,0.75)',
-    check: '#d64545',
-    coordinates: scheme === 'dark' ? '#e8d6b4' : '#5a3b1c',
+    selected: '#f6eb79',
+    legalMoveDot: 'rgba(26, 90, 36, 0.42)',
+    legalMoveCaptureRing: 'rgba(26, 90, 36, 0.72)',
+    check: '#e45c5c',
+    coordinates: scheme === 'dark' ? '#f0e0c4' : '#4a3220',
     feedback: defaultFeedbackPalette(scheme),
     arrows: defaultArrowPalette(scheme),
     promotion: defaultPromotionPalette({ lightSquare, darkSquare }),
@@ -112,5 +109,32 @@ export function mergeBoardTheme(
     feedback: { ...base.feedback, ...override.feedback },
     arrows: { ...base.arrows, ...override.arrows },
     promotion: { ...derivedPromotion, ...override.promotion },
+  };
+}
+
+/** Host CSS custom properties for square / overlay / chrome colors. */
+export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
+  return {
+    '--chess-sq-light': theme.lightSquare,
+    '--chess-sq-dark': theme.darkSquare,
+    '--chess-border': theme.border,
+    '--chess-last-move': theme.lastMove,
+    '--chess-selected': theme.selected,
+    '--chess-check': theme.check,
+    '--chess-legal-dot': theme.legalMoveDot,
+    '--chess-legal-ring': theme.legalMoveCaptureRing,
+    '--chess-coords': theme.coordinates,
+    '--chess-feedback-check': theme.feedback.check,
+    '--chess-feedback-cross': theme.feedback.cross,
+    '--chess-feedback-exclamation': theme.feedback.exclamation,
+    '--chess-feedback-double-exclam': theme.feedback.doubleExclam,
+    '--chess-feedback-question': theme.feedback.question,
+    '--chess-feedback-question-exclam': theme.feedback.questionExclam,
+    '--chess-feedback-dot': theme.feedback.dot,
+    '--chess-arrow-primary': theme.arrows.primary,
+    '--chess-arrow-secondary': theme.arrows.secondary,
+    '--chess-arrow-alt': theme.arrows.alt,
+    '--chess-arrow-danger': theme.arrows.danger,
+    '--chess-arrow-muted': theme.arrows.muted,
   };
 }

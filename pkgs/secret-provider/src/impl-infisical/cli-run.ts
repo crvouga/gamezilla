@@ -3,8 +3,22 @@ import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { which } from '@pkgs/os/command';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import {
+  isSecretsCacheStale,
+  mergeSecretsIntoEnv,
+  readSecretsCacheMap,
+  readSecretsCacheMeta,
+  type SecretsCacheEnv,
+  writeSecretsCacheMap,
+  writeSecretsCacheMeta,
+} from '../local-secrets-cache';
+import { chmodLocalSecretsCacheFiles } from '../wall-chmod-local-secrets-cache';
 import { INFISICAL_CLI_BIN } from './defaults';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
+import {
+  canFetchInfisicalSecrets,
+  exportInfisicalSecretsMap,
+} from './export-secrets';
 import { resolveInfisicalEndpoint } from './resolve-endpoint';
 
 function prepareChildEnv(): NodeJS.ProcessEnv {
@@ -35,37 +49,6 @@ function infisicalProjectArgs(args: {
   ];
 }
 
-/**
- * True when the Infisical CLI can fetch secrets for this project/env.
- * Used so a later `infisical run` child failure is not mistaken for
- * Infisical auth/network failure (and re-run without secrets).
- */
-function canFetchInfisicalSecrets(args: {
-  readonly repoRoot: string;
-  readonly workspaceId: string;
-  readonly env: string;
-  readonly domain: string;
-}): boolean {
-  const result = spawnSync(
-    INFISICAL_CLI_BIN,
-    ['export', ...infisicalProjectArgs(args), '--format=json'],
-    {
-      cwd: args.repoRoot,
-      env: infisicalCliEnv(),
-      encoding: 'utf8',
-      maxBuffer: 10 * 1024 * 1024,
-    }
-  );
-  if (result.error !== undefined || result.status !== 0) return false;
-  const raw = (result.stdout ?? '').trim();
-  if (raw.length === 0) return false;
-  try {
-    return Array.isArray(JSON.parse(raw));
-  } catch {
-    return false;
-  }
-}
-
 function runWithInfisicalCli(args: {
   readonly repoRoot: string;
   readonly workspaceId: string;
@@ -92,8 +75,11 @@ function runWithInfisicalCli(args: {
   return result.status ?? 1;
 }
 
-function runWithInjectedEnv(repoRoot: string, childArgs: string[]): number {
-  const childEnv = prepareChildEnv();
+function runWithEnv(
+  repoRoot: string,
+  childArgs: string[],
+  childEnv: NodeJS.ProcessEnv
+): number {
   const [cmd, ...args] = childArgs;
   if (cmd === undefined) {
     console.error('secrets-run: missing command');
@@ -116,6 +102,10 @@ function runWithInjectedEnv(repoRoot: string, childArgs: string[]): number {
   return result.status ?? 1;
 }
 
+function runWithInjectedEnv(repoRoot: string, childArgs: string[]): number {
+  return runWithEnv(repoRoot, childArgs, prepareChildEnv());
+}
+
 /** Env vars the CI secrets-auth action injects before this runner. */
 const INJECTED_SECRET_MARKERS = [
   'DATABASE_URL',
@@ -130,19 +120,184 @@ function hasInjectedSecrets(): boolean {
   });
 }
 
+function asCacheEnv(env: string): SecretsCacheEnv | null {
+  if (env === 'dev' || env === 'prd') return env;
+  return null;
+}
+
+async function runFromDevCache(args: {
+  readonly repoRoot: string;
+  readonly configStore: ObjectStore;
+  readonly childArgs: string[];
+  readonly nowMs: number;
+}): Promise<number | null> {
+  const cached = await readSecretsCacheMap(args.configStore, 'dev');
+  if (cached === null) return null;
+
+  const meta = await readSecretsCacheMeta(args.configStore);
+  if (meta !== null && isSecretsCacheStale(meta, args.nowMs)) {
+    process.stderr.write(
+      'secrets-run: local secrets cache is older than 24h; ' +
+        'run `bun run secrets:pull` to refresh. Continuing offline.\n'
+    );
+  } else {
+    process.stderr.write(
+      'secrets-run: using local secrets cache (.cache/secrets/dev.json); ' +
+        'skipping Infisical.\n'
+    );
+  }
+
+  return runWithEnv(
+    args.repoRoot,
+    args.childArgs,
+    mergeSecretsIntoEnv(prepareChildEnv(), cached)
+  );
+}
+
+async function bootstrapDevCache(args: {
+  readonly repoRoot: string;
+  readonly configStore: ObjectStore;
+  readonly childArgs: string[];
+  readonly workspaceId: string;
+  readonly domain: string;
+  readonly nowIso: string;
+}): Promise<number | null> {
+  if (!which(INFISICAL_CLI_BIN)) return null;
+
+  const baseCoords = {
+    repoRoot: args.repoRoot,
+    workspaceId: args.workspaceId,
+    domain: args.domain,
+  };
+
+  if (
+    !canFetchInfisicalSecrets({ ...baseCoords, env: 'dev' }) ||
+    !canFetchInfisicalSecrets({ ...baseCoords, env: 'prd' })
+  ) {
+    return null;
+  }
+
+  process.stderr.write(
+    'secrets-run: no local secrets cache; bootstrapping from Infisical…\n'
+  );
+
+  const envs: SecretsCacheEnv[] = ['dev', 'prd'];
+  const maps = new Map<SecretsCacheEnv, ReadonlyMap<string, string>>();
+  for (const env of envs) {
+    const map = exportInfisicalSecretsMap({ ...baseCoords, env });
+    await writeSecretsCacheMap(args.configStore, env, map);
+    maps.set(env, map);
+  }
+  await writeSecretsCacheMeta(args.configStore, {
+    pulledAt: args.nowIso,
+    projectId: args.workspaceId,
+    envs,
+  });
+  chmodLocalSecretsCacheFiles(args.repoRoot);
+
+  const devMap = maps.get('dev');
+  if (devMap === undefined) return null;
+
+  process.stderr.write(
+    'secrets-run: wrote .cache/secrets/; using cached dev secrets.\n'
+  );
+  return runWithEnv(
+    args.repoRoot,
+    args.childArgs,
+    mergeSecretsIntoEnv(prepareChildEnv(), devMap)
+  );
+}
+
 export type RunWithInfisicalSecretsOptions = {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
   readonly childArgs: readonly string[];
+  /** Injected wall clock (ms) for cache stale checks. */
+  readonly nowMs: number;
+  /** Injected wall clock ISO for cache meta `pulledAt`. */
+  readonly nowIso: string;
 };
 
+function runCiInjected(repoRoot: string, childArgs: string[]): number {
+  if (!hasInjectedSecrets()) {
+    console.error(
+      'secrets-run: CI expected secrets in the environment ' +
+        `(secrets-auth action). Missing markers: ` +
+        `${INJECTED_SECRET_MARKERS.join(', ')}. ` +
+        'Ensure the secrets environment is populated (dashboard or `bun run infra provision`).'
+    );
+    return 1;
+  }
+  return runWithInjectedEnv(repoRoot, childArgs);
+}
+
+async function runDevOfflineFirst(args: {
+  readonly repoRoot: string;
+  readonly configStore: ObjectStore;
+  readonly childArgs: string[];
+  readonly workspaceId: string;
+  readonly domain: string;
+  readonly nowMs: number;
+  readonly nowIso: string;
+}): Promise<number> {
+  const fromCache = await runFromDevCache({
+    repoRoot: args.repoRoot,
+    configStore: args.configStore,
+    childArgs: args.childArgs,
+    nowMs: args.nowMs,
+  });
+  if (fromCache !== null) return fromCache;
+
+  const bootstrapped = await bootstrapDevCache({
+    repoRoot: args.repoRoot,
+    configStore: args.configStore,
+    childArgs: args.childArgs,
+    workspaceId: args.workspaceId,
+    domain: args.domain,
+    nowIso: args.nowIso,
+  });
+  if (bootstrapped !== null) return bootstrapped;
+
+  process.stderr.write(
+    'secrets-run: Infisical unavailable and no local cache; ' +
+      'falling back to local/injected env. Run `bun run secrets:pull` when online.\n'
+  );
+  return runWithInjectedEnv(args.repoRoot, args.childArgs);
+}
+
+function runPrdInfisicalFirst(args: {
+  readonly repoRoot: string;
+  readonly env: string;
+  readonly workspaceId: string;
+  readonly domain: string;
+  readonly childArgs: string[];
+}): number {
+  if (hasInjectedSecrets() || !which(INFISICAL_CLI_BIN)) {
+    return runWithInjectedEnv(args.repoRoot, args.childArgs);
+  }
+  const coords = {
+    repoRoot: args.repoRoot,
+    workspaceId: args.workspaceId,
+    env: args.env,
+    domain: args.domain,
+  };
+  if (!canFetchInfisicalSecrets(coords)) {
+    console.error(
+      'secrets-run: Infisical unavailable (login/network/project). ' +
+        'Run `infisical login` or use LOCAL_SECRETS=1 with injected env.'
+    );
+    return 1;
+  }
+  return runWithInfisicalCli({ ...coords, childArgs: args.childArgs });
+}
+
 /**
- * Run a command with secrets injected (CI env or Infisical CLI locally).
+ * Run a command with secrets injected (CI env, local cache, or Infisical CLI).
  */
 export async function runWithInfisicalSecrets(
   options: RunWithInfisicalSecretsOptions
 ): Promise<number> {
-  const { repoRoot, childArgs } = options;
+  const { repoRoot, childArgs, nowMs, nowIso } = options;
   if (childArgs.length === 0) {
     console.error(
       'usage: bun run tools/scripts/secrets-run.ts -- <command> [args…]\n' +
@@ -154,11 +309,12 @@ export async function runWithInfisicalSecrets(
   const scope = await resolveSecretsScope(options.configStore);
   await ensureInfisicalCliConfig(options.configStore, scope);
   const endpoint = resolveInfisicalEndpoint(scope);
+  const args = [...childArgs];
 
   process.stderr.write(
     `secrets-run: projectId=${scope.projectId} env=${scope.env} endpoint=${endpoint}\n`
   );
-  if (scope.env === 'prd' && !childArgs.some((a) => a.includes('infra'))) {
+  if (scope.env === 'prd' && !args.some((a) => a.includes('infra'))) {
     process.stderr.write(
       'secrets-run: warning — SECRETS_ENV=prd injects production secrets; use only for `bun run infra` / deploy.\n'
     );
@@ -166,56 +322,35 @@ export async function runWithInfisicalSecrets(
 
   const isCi =
     process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true';
-  const args = [...childArgs];
+  if (isCi) return runCiInjected(repoRoot, args);
+
   const forceLocal =
     process.env['LOCAL_SECRETS']?.trim() === '1' ||
     process.env['LOCAL_SECRETS']?.trim().toLowerCase() === 'true';
-
-  if (isCi) {
-    if (!hasInjectedSecrets()) {
-      console.error(
-        'secrets-run: CI expected secrets in the environment ' +
-          `(secrets-auth action, env=${scope.env}). Missing markers: ` +
-          `${INJECTED_SECRET_MARKERS.join(', ')}. ` +
-          'Ensure the secrets environment is populated (dashboard or `bun run infra provision`).'
-      );
-      return 1;
-    }
-    return runWithInjectedEnv(repoRoot, args);
-  }
-
-  if (forceLocal || hasInjectedSecrets() || !which(INFISICAL_CLI_BIN)) {
-    if (forceLocal) {
-      process.stderr.write(
-        'secrets-run: LOCAL_SECRETS=1 — skipping Infisical; using process env / local setup seeds.\n'
-      );
-    }
-    return runWithInjectedEnv(repoRoot, args);
-  }
-
-  const coords = {
-    repoRoot,
-    workspaceId: scope.projectId,
-    env: scope.env,
-    domain: endpoint,
-  };
-
-  if (!canFetchInfisicalSecrets(coords)) {
-    // Local `dev` must stay self-contained when Infisical login/network fails.
-    if (scope.env === 'dev') {
-      process.stderr.write(
-        'secrets-run: Infisical unavailable; falling back to local/injected env for SECRETS_ENV=dev.\n'
-      );
-      return runWithInjectedEnv(repoRoot, args);
-    }
-    console.error(
-      'secrets-run: Infisical unavailable (login/network/project). ' +
-        'Run `infisical login` or use LOCAL_SECRETS=1 with injected env.'
+  if (forceLocal) {
+    process.stderr.write(
+      'secrets-run: LOCAL_SECRETS=1 — skipping Infisical; using process env / local setup seeds.\n'
     );
-    return 1;
+    return runWithInjectedEnv(repoRoot, args);
   }
 
-  // Child non-zero exits must not trigger a second run without secrets —
-  // that masked real failures and dropped TURBO_TOKEN/TURBO_TEAM.
-  return runWithInfisicalCli({ ...coords, childArgs: args });
+  if (asCacheEnv(scope.env) === 'dev') {
+    return runDevOfflineFirst({
+      repoRoot,
+      configStore: options.configStore,
+      childArgs: args,
+      workspaceId: scope.projectId,
+      domain: endpoint,
+      nowMs,
+      nowIso,
+    });
+  }
+
+  return runPrdInfisicalFirst({
+    repoRoot,
+    env: scope.env,
+    workspaceId: scope.projectId,
+    domain: endpoint,
+    childArgs: args,
+  });
 }

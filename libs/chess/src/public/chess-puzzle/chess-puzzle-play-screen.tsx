@@ -1,6 +1,7 @@
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import { SpeakingAvatar } from '@pkgs/ui';
+import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
+import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
+import { SpeakingAvatar, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, type JSX, Show } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -18,8 +19,15 @@ import {
 
 const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
 const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
+const COMPACT_AVATAR_SIZE = 56;
+const WIDE_AVATAR_SIZE = 80;
 
 const noop = (): void => {};
+
+function usePuzzleAvatarSize(): () => number {
+  const mode = useLayoutMode();
+  return () => (mode() === 'wide' ? WIDE_AVATAR_SIZE : COMPACT_AVATAR_SIZE);
+}
 
 function PuzzleBoardSlot(props: {
   size: number;
@@ -29,9 +37,7 @@ function PuzzleBoardSlot(props: {
   status: Accessor<SolveStatus>;
   atFrontier: Accessor<boolean>;
   opponentAnimating: Accessor<boolean>;
-  onMove: (
-    m: Parameters<NonNullable<Parameters<typeof ChessBoard>[0]['onMove']>>[0]
-  ) => void;
+  onMove: (m: Move) => void;
   cellFeedback: PuzzlePlayerChromeModel['cellFeedback'];
   cellHighlights: PuzzlePlayerChromeModel['cellHighlights'];
   arrows: PuzzlePlayerChromeModel['arrows'];
@@ -41,8 +47,7 @@ function PuzzleBoardSlot(props: {
       when={props.displayFen() !== null && props.displayFen()!.length > 0}
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
-      <ChessBoard
-        controlled
+      <SmartChessBoard
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}
@@ -70,6 +75,7 @@ function PuzzlePlayerChrome(props: {
   onFeedConfigApplied: () => void;
 }): JSX.Element {
   const p = props.model;
+  const avatarSize = usePuzzleAvatarSize();
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
@@ -80,6 +86,7 @@ function PuzzlePlayerChrome(props: {
           assistant={p.assistant()}
           header={<ChessPuzzleStatusHeader kind={p.statusKind()} />}
           numberOfLines={2}
+          avatarSize={avatarSize()}
         />
       }
       boardSlot={(size) => (
@@ -157,6 +164,7 @@ function PuzzlePlayLoadingShell(props: {
   e2eLoadingStatus: JSX.Element;
   onFeedConfigApplied: () => void;
 }): JSX.Element {
+  const avatarSize = usePuzzleAvatarSize();
   return (
     <PuzzlePlayLayout
       backToRoot={props.backToChessRoot}
@@ -167,6 +175,7 @@ function PuzzlePlayLoadingShell(props: {
           bubbleResolving
           header={<ChessPuzzleStatusHeader kind="loading" />}
           numberOfLines={2}
+          avatarSize={avatarSize()}
         />
       }
       boardSlot={(size) => <ChessPuzzleBoardLoadingState size={size} />}

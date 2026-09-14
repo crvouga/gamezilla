@@ -8,7 +8,11 @@ export default function ClientEventsRoute(): JSX.Element {
   return (
     <ScreenBase
       screenId="client-events"
-      breadcrumbs={[{ name: <Trans>Client events</Trans> }]}
+      breadcrumbs={[
+        { name: <Trans>Spaces</Trans>, href: '/' },
+        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Client events</Trans> },
+      ]}
       content={() => (
         <p class="text">
           {

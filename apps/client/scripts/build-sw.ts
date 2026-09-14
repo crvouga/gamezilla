@@ -52,10 +52,23 @@ const distDir = resolve(__dirname, '..', 'dist');
 const { count, size, warnings } = await generateSW({
   swDest: join(distDir, 'sw.js'),
   globDirectory: distDir,
-  /** The offline shell includes the main chunk and SQL WASM assets. */
-  maximumFileSizeToCacheInBytes: 16 * 1024 * 1024,
+  /**
+   * Offline shell: HTML/JS/CSS/WASM/fonts/icons only. Cap at 1 MiB so DiceBear,
+   * mutation hubs, and CanvasKit stay out of first-install precache.
+   * Apple splash PNGs are device-specific (runtime image cache), not precache.
+   */
+  maximumFileSizeToCacheInBytes: 1024 * 1024,
   globPatterns: [
-    '**/*.{html,js,css,wasm,ttf,woff2,png,jpg,jpeg,svg,ico,webmanifest,json}',
+    '**/*.{html,js,css,wasm,ttf,woff2,svg,ico,webmanifest,json}',
+  ],
+  globIgnores: [
+    '**/apple-splash-*.png',
+    '**/generated/**',
+    '**/*dicebear*.js',
+    '**/*with-framework-mutations*.js',
+    '**/*game-plugins*.js',
+    '**/*create-local-sync-engine*.js',
+    '**/*.map',
   ],
   navigateFallback: '/index.html',
   // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).

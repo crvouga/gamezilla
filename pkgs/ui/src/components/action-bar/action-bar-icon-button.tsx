@@ -10,7 +10,6 @@ import { createSignal, type JSX, onCleanup, Show, untrack } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { IconButton } from '../icon-button';
 import { CircleCheckIcon, type IconComponent } from '../icons';
-import { Motion } from '../motion';
 import { ActionBarLabeledControl } from './action-bar-labeled-control';
 import type { ActionBarIconItem } from './action-bar-logic';
 
@@ -78,17 +77,13 @@ export function ActionBarIconButton(
   };
 
   const glyph = (): JSX.Element => (
-    <Motion
-      style={{ transform: `scale(${success() ? 1.1 : 1})` }}
-      duration="fast"
-      property="transform, color"
-    >
+    <div class="box items-center justify-center">
       <Dynamic
         component={presentation().icon}
         size={Math.round(props.buttonSize * 0.55)}
         color={presentation().color}
       />
-    </Motion>
+    </div>
   );
 
   return (

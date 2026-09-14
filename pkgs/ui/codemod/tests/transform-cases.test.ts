@@ -476,18 +476,18 @@ describe('behavior hosts and safety', () => {
     expect(result.text).not.toContain('frameSx');
   });
 
-  test('Motion enterSx becomes enterClass', () => {
+  test('host enterSx becomes enterClass', () => {
     const result = transformFile(
       't.tsx',
-      `import { Motion } from '@pkgs/ui';\nexport const A = () => <Motion enterSx={{ opacity: 0 }} sx={{ p: 1 }}>x</Motion>;`
+      `import { Island } from '@pkgs/ui';\nexport const A = () => <Island enterSx={{ opacity: 0 }} sx={{ p: 1 }}>x</Island>;`
     );
     expect(result.parseError).toBe(undefined);
-    expect(result.converted[0]?.component).toBe('Motion');
-    expect(result.text).toContain('<Motion');
+    expect(result.converted[0]?.component).toBe('Island');
+    expect(result.text).toContain('<Island');
     expect(result.text).toContain('class="p-1"');
     expect(result.text).toContain('enterClass="opacity-0"');
     expect(result.text).not.toContain('enterSx');
-    expect(result.text).toContain(`import { Motion } from '@pkgs/ui';`);
+    expect(result.text).toContain(`import { Island } from '@pkgs/ui';`);
   });
 
   test('ScrollView without sx is silently untouched', () => {

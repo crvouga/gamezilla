@@ -11,10 +11,9 @@ import { useCurrentSpaceIds } from '../use-current-space-ids';
 export function useSpaceMiniplayerVisibleSpaceIds(): Accessor<string[]> {
   const current = useCurrentSpaceIds();
   return createMemo(() => {
-    const { entries, isLoading } = current;
-    if (isLoading || entries.length === 0) {
+    if (current.isLoading() || current.entries().length === 0) {
       return [];
     }
-    return entries.map((e) => e.spaceId);
+    return current.entries().map((e) => e.spaceId);
   });
 }

@@ -10,12 +10,13 @@
  * not block the frame itself (see docs/low-end-android-perf.md).
  */
 
+import { EmbeddedHrefPersistence } from '@apps/client/shell/embedded-href-persistence';
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
 import { AppFrame, AppFrameChromeProvider, AppRouterProvider } from '@pkgs/ui';
-import { type JSX, onCleanup, onMount } from 'solid-js';
-
+import { type JSX, onCleanup, onMount, Show } from 'solid-js';
 import { AppHeaderGlobalMenu } from '../chrome/app-header-global-menu';
 import { AppHeaderIslandHost } from '../chrome/app-header-island';
+import { GlobalMenuIdentityRoot } from '../chrome/global-menu-identity-context';
 import { BootPaintGate } from './boot/boot-paint-gate';
 import { useClientEnv } from './client-env-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
@@ -45,14 +46,23 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
       <RootErrorBoundary>
         <AppRouterProvider>
           <AppProvidersOuter embedded={props.embedded}>
+            <Show when={props.embedded}>
+              <EmbeddedHrefPersistence />
+            </Show>
             <SyncStatusRoot>
-              <AppFrameChromeProvider globalTrailing={<AppHeaderGlobalMenu />}>
-                <BootPaintGate>
-                  <AppFrame header={<AppHeaderIslandHost />}>
-                    <AppProvidersSession>{props.children}</AppProvidersSession>
-                  </AppFrame>
-                </BootPaintGate>
-              </AppFrameChromeProvider>
+              <GlobalMenuIdentityRoot>
+                <AppFrameChromeProvider
+                  globalTrailing={<AppHeaderGlobalMenu />}
+                >
+                  <BootPaintGate>
+                    <AppFrame header={<AppHeaderIslandHost />}>
+                      <AppProvidersSession>
+                        {props.children}
+                      </AppProvidersSession>
+                    </AppFrame>
+                  </BootPaintGate>
+                </AppFrameChromeProvider>
+              </GlobalMenuIdentityRoot>
             </SyncStatusRoot>
           </AppProvidersOuter>
         </AppRouterProvider>

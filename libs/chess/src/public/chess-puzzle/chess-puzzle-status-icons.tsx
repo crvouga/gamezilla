@@ -42,18 +42,14 @@ const CENTER_DOT_STYLE: JSX.CSSProperties = {
 
 function outcomeColors(
   theme: ReturnType<typeof useTheme>,
-  kind: 'correct' | 'wrong' | 'solved'
+  kind: 'wrong' | 'solved'
 ): { bg: string; fg: string } {
   const c = theme.colors;
-  if (kind === 'correct') return { bg: c.success, fg: c.onSuccess };
   if (kind === 'wrong') return { bg: c.destructive, fg: c.onDestructive };
   return { bg: c.warning, fg: c.onWarning };
 }
 
-function outcomeMark(kind: 'correct' | 'wrong' | 'solved'): JSX.Element {
-  if (kind === 'correct') {
-    return <Trans id="chess.puzzleStatus.correctMark">✓</Trans>;
-  }
+function outcomeMark(kind: 'wrong' | 'solved'): JSX.Element {
   if (kind === 'wrong') {
     return <Trans id="chess.puzzleStatus.wrongMark">✕</Trans>;
   }

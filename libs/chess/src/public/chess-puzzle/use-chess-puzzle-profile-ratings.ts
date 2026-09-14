@@ -1,13 +1,16 @@
 import { sql } from '@pkgs/sql';
 import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
-import type { Accessor } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 type PuzzleProfileRatingsRow = {
   readonly rating: number | null;
   readonly rating_deviation: number | null;
 };
 
-export function useChessPuzzleProfileRatings(myId: Accessor<string>) {
+export function useChessPuzzleProfileRatings(myId: Accessor<string>): {
+  readonly profileRating: Accessor<number>;
+  readonly profileRd: Accessor<number>;
+} {
   const { paintReady } = useSyncEngine();
   const { rows } = createQuery(() =>
     paintReady() && myId().length > 0
@@ -24,11 +27,11 @@ export function useChessPuzzleProfileRatings(myId: Accessor<string>) {
         `
   );
   return {
-    get profileRating() {
-      return paintReady() ? (rows()[0]?.rating ?? 0) : 0;
-    },
-    get profileRd() {
-      return paintReady() ? (rows()[0]?.rating_deviation ?? 0) : 0;
-    },
+    profileRating: createMemo(() =>
+      paintReady() ? (rows()[0]?.rating ?? 0) : 0
+    ),
+    profileRd: createMemo(() =>
+      paintReady() ? (rows()[0]?.rating_deviation ?? 0) : 0
+    ),
   };
 }

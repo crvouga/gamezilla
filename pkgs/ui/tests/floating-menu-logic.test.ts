@@ -11,7 +11,7 @@ const viewport = { width: 1000, height: 800 };
 const insets = { top: 0, bottom: 0 };
 
 describe('computeFloatingMenuPosition', () => {
-  test('opens below the anchor, right-aligned to it', () => {
+  test('opens below the anchor, right-aligned (bottom-end)', () => {
     expect(
       computeFloatingMenuPosition({
         anchor: { x: 500, y: 20, width: 40, height: 40 },
@@ -19,11 +19,35 @@ describe('computeFloatingMenuPosition', () => {
         menuWidth: 260,
         insets,
         viewport,
+        placement: 'bottom-end',
       })
     ).toEqual({ top: 66, left: 280 });
   });
 
-  test('flips above when there is no room below and clamps to the edges', () => {
+  test('honors bottom-start and top-end without flipping', () => {
+    expect(
+      computeFloatingMenuPosition({
+        anchor: { x: 100, y: 20, width: 40, height: 40 },
+        menuHeight: 200,
+        menuWidth: 260,
+        insets,
+        viewport,
+        placement: 'bottom-start',
+      })
+    ).toEqual({ top: 66, left: 100 });
+    expect(
+      computeFloatingMenuPosition({
+        anchor: { x: 500, y: 700, width: 40, height: 40 },
+        menuHeight: 200,
+        menuWidth: 260,
+        insets,
+        viewport,
+        placement: 'top-end',
+      })
+    ).toEqual({ top: 494, left: 280 });
+  });
+
+  test('clamps to edges when placement would overflow', () => {
     expect(
       computeFloatingMenuPosition({
         anchor: { x: 10, y: 700, width: 40, height: 40 },
@@ -31,8 +55,9 @@ describe('computeFloatingMenuPosition', () => {
         menuWidth: 260,
         insets: { top: 20, bottom: 30 },
         viewport,
+        placement: 'bottom-end',
       })
-    ).toEqual({ top: 494, left: 8 });
+    ).toEqual({ top: 562, left: 8 });
     // Far right anchor clamps to viewport - width - margin.
     expect(
       computeFloatingMenuPosition({
@@ -42,6 +67,7 @@ describe('computeFloatingMenuPosition', () => {
         insets,
         viewport,
         gap: 0,
+        placement: 'bottom-end',
       })
     ).toEqual({ top: 40, left: 732 });
   });
@@ -54,6 +80,7 @@ describe('computeFloatingMenuPosition', () => {
         menuWidth: 100,
         insets: { top: 44, bottom: 0 },
         viewport,
+        placement: 'top-end',
       }).top
     ).toBe(52);
   });

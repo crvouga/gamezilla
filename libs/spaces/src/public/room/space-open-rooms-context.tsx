@@ -64,17 +64,17 @@ export function SpaceOpenRoomsProvider(props: {
   const sessions = useOpenSpaceSessionIds();
   const [stableIds, setStableIds] = createSignal<readonly string[]>([]);
   createEffect(() => {
-    if (!sessions.isLoading) setStableIds(sessions.spaceIds);
+    if (!sessions.isLoading()) setStableIds(sessions.spaceIds());
   });
   // While the open-session query is loading, keep prior ids mounted and also
   // include any ids already present in `spaceIds` so an optimistic create
   // cannot unmount a brand-new room slot (which stuck the event log on
   // "Connecting…" / "Reconnecting…" with no WebSocket).
   const mountedIds = createMemo(() => {
-    if (sessions.isLoading) {
-      return Array.from(new Set([...stableIds(), ...sessions.spaceIds]));
+    if (sessions.isLoading()) {
+      return Array.from(new Set([...stableIds(), ...sessions.spaceIds()]));
     }
-    return sessions.spaceIds;
+    return sessions.spaceIds();
   });
 
   return (

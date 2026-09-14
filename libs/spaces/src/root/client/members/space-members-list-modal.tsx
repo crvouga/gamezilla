@@ -70,6 +70,7 @@ export function SpaceMembersListModal(
       visible={props.visible}
       onClose={props.onClose}
       title={<Trans>People in this space</Trans>}
+      scroll={false}
     >
       <ScrollView class="max-h-[420px]" contentClass="px-0">
         <Show

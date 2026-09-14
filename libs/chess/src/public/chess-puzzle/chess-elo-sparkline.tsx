@@ -31,12 +31,17 @@ export function ChessEloSparkline(props: ChessEloSparklineProps): JSX.Element {
   return (
     <Show when={points().length > 0}>
       <div
-        class="box self-stretch items-center"
+        class="box self-stretch items-center w-[100%] max-w-[280px]"
         {...dataAttrs(
           props.testID !== undefined ? { testid: props.testID } : undefined
         )}
       >
-        <svg width={SPARKLINE_WIDTH} height={SPARKLINE_HEIGHT}>
+        <svg
+          viewBox={`0 0 ${SPARKLINE_WIDTH} ${SPARKLINE_HEIGHT}`}
+          width="100%"
+          height={SPARKLINE_HEIGHT}
+          preserveAspectRatio="none"
+        >
           <polyline
             points={points()}
             fill="none"

@@ -157,22 +157,31 @@ export async function recordPushApplied(
   const prev = await readLastPushSeq(db, topic, clock);
   if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return;
   const ts = managedUpdatedAtIso(clock.now);
+  const id = topicRowId(topic);
+  // Same sqlite-mem rowid-allocation workaround as touchScopeMeta: UPDATE
+  // first, then INSERT with an explicit MAX(rowid)+1.
+  const updated = await db.run(sql`
+    UPDATE sync_engine_push_applied SET
+      last_push_seq = ${pushSeq},
+      updated_at = ${ts},
+      deleted_at = NULL
+    WHERE id = ${id}
+  `);
+  if (updated.changes > 0) return;
+
   await db.run(sql`
     INSERT INTO sync_engine_push_applied (
-      id, topic, last_push_seq, created_at, updated_at, deleted_at
+      rowid, id, topic, last_push_seq, created_at, updated_at, deleted_at
     )
     VALUES (
-      ${topicRowId(topic)},
+      (SELECT COALESCE(MAX(rowid), 0) + 1 FROM sync_engine_push_applied),
+      ${id},
       ${topic},
       ${pushSeq},
       ${ts},
       ${ts},
       ${null}
     )
-    ON CONFLICT (id) DO UPDATE SET
-      last_push_seq = excluded.last_push_seq,
-      updated_at = excluded.updated_at,
-      deleted_at = NULL
   `);
 }
 

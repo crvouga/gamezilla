@@ -355,6 +355,27 @@
         "apps/product/src/test/**/*.{ts,tsx}",
         "apps/product/tests/**/*.{ts,tsx}",
         "libs/chess/src/public/chess-main-menu-view.tsx",
+        "libs/friends/src/public/**/*.{ts,tsx}",
+        "libs/friends/src/root/**/*.{ts,tsx}",
+        "libs/friends/src/use-cases/**/*.{ts,tsx}",
+        "libs/spaces/src/public/**/*.{ts,tsx}",
+        "libs/spaces/src/root/**/*.{ts,tsx}",
+        "libs/spaces/src/use-cases/**/*.{ts,tsx}",
+        "libs/auth/src/public/**/*.{ts,tsx}",
+        "libs/auth/src/root/**/*.{ts,tsx}",
+        "libs/auth/src/use-cases/**/*.{ts,tsx}",
+        "libs/profile/src/public/**/*.{ts,tsx}",
+        "libs/profile/src/root/**/*.{ts,tsx}",
+        "libs/profile/src/use-cases/**/*.{ts,tsx}",
+        "libs/notifications/src/public/**/*.{ts,tsx}",
+        "libs/notifications/src/root/**/*.{ts,tsx}",
+        "libs/search/src/public/**/*.{ts,tsx}",
+        "libs/search/src/root/**/*.{ts,tsx}",
+        "libs/user-search/src/public/**/*.{ts,tsx}",
+        "libs/client-config/src/public/**/*.{ts,tsx}",
+        "libs/client-config/src/root/**/*.{ts,tsx}",
+        "libs/chess/src/public/**/*.{ts,tsx}",
+        "libs/chess/src/root/**/*.{ts,tsx}",
         "pkgs/async/src/solid.ts",
         "pkgs/async/tests/solid.test.tsx",
         "pkgs/chess-board/src/**/*.{ts,tsx}",
@@ -416,7 +437,6 @@
       "inputs": [
         "dist/**",
         "perf-budget.json",
-        "lighthouserc.json",
         "../../tools/scripts/lighthouse-ci.ts",
         "../../tools/scripts/lighthouse-report.ts",
         "../../tools/scripts/lighthouse-api-stub.ts",
@@ -541,10 +561,6 @@
       "cache": false,
       "dependsOn": ["@apps/room-server#deploy"]
     },
-    "@apps/client#deploy": {
-      "cache": false,
-      "dependsOn": ["@apps/server#deploy"]
-    },
     "@apps/product#deploy": {
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
@@ -555,11 +571,7 @@
     },
     "@apps/server#smoke": {
       "cache": false,
-      "dependsOn": [
-        "@apps/client#deploy",
-        "@apps/product#deploy",
-        "@libs/billing#billing:sync"
-      ]
+      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"]
     },
     "deploy": {
       "cache": false,

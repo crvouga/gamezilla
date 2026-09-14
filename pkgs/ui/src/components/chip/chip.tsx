@@ -40,7 +40,7 @@ export function Chip(props: ChipProps): JSX.Element {
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
     <button
-      class="clickable clickableTint self-start flex-row items-center justify-center gap-1.5 px-3 rounded-[9999px] border border-solid [transition-property:background-color,_border-color,_color] [transition-duration:var(--ui-duration-fast)]"
+      class="clickable clickableTint self-start flex-row items-center justify-center gap-1.5 px-3 rounded-[9999px] border border-solid"
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
       type="button"
       style={{

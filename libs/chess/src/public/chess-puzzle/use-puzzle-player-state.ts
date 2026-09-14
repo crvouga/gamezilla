@@ -100,9 +100,10 @@ function usePuzzlePlayerModel(args: {
 }) {
   const myId = useMyId();
   const profile = useChessPuzzleProfileRatings(myId);
-  const playerElo = createMemo(() =>
-    profile.profileRating > 0 ? profile.profileRating : DEFAULT_PLAYER_ELO
-  );
+  const playerElo = createMemo(() => {
+    const rating = profile.profileRating();
+    return rating > 0 ? rating : DEFAULT_PLAYER_ELO;
+  });
   const entity = usePuzzleEntityAndInteractions(args.puzzleId);
   const fen = createMemo(() => entity.fen);
   const movesStr = createMemo(() => entity.movesStr);
@@ -173,9 +174,7 @@ function usePuzzlePlayerUi(args: {
     solveIdx: args.m.solveIdx,
     furthestSolveIdx: args.m.furthestSolveIdx,
     status: args.m.status,
-    displayFen: args.m.displayFen,
     expectedFromSquare: args.m.expectedFromSquare,
-    expectedToSquare: args.m.expectedToSquare,
     solutionRevealed: args.m.solutionRevealed,
     onMoveRaw: args.m.onMoveRaw,
     setLastUci: args.m.setLastUci,
@@ -190,15 +189,12 @@ function usePuzzlePlayerUi(args: {
     themes: args.m.themes,
     layoutKey: args.m.layoutKey,
     orientation: args.m.orientation,
-    showCorrectFlash: controls.showCorrectFlash,
     displayFen: args.m.displayFen,
     totalTokens: args.m.totalTokens,
     wrongFromSquare: args.m.wrongFromSquare,
     wrongToSquare: args.m.wrongToSquare,
     expectedFromSquare: args.m.expectedFromSquare,
     expectedToSquare: args.m.expectedToSquare,
-    solvedCrownSquare: controls.solvedCrownSquare,
-    lastCorrectToSquare: controls.lastCorrectToSquare,
     hintStage: controls.hintStage,
     atFrontier: controls.atFrontier,
     rating: args.m.rating,

@@ -4,6 +4,7 @@ import type { Accessor } from 'solid-js';
 import {
   buildPuzzleCandidatesSql,
   PUZZLE_NEXT_MAX_BAND,
+  type PuzzleCandidateRow,
 } from '../../shared/puzzle-session/next-puzzle-selection';
 import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 
@@ -17,7 +18,10 @@ export type PuzzleCandidatesQueryArgs = {
   readonly pickOffset?: Accessor<number>;
 };
 
-export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
+export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs): {
+  readonly rows: Accessor<readonly PuzzleCandidateRow[]>;
+  readonly isLoading: Accessor<boolean>;
+} {
   const query = createQuery(() =>
     buildPuzzleCandidatesSql({
       rating: args.rating(),
@@ -31,11 +35,7 @@ export function usePuzzleCandidatesQuery(args: PuzzleCandidatesQueryArgs) {
     })
   );
   return {
-    get rows() {
-      return query.rows();
-    },
-    get isLoading() {
-      return query.isLoading();
-    },
+    rows: query.rows,
+    isLoading: query.isLoading,
   };
 }

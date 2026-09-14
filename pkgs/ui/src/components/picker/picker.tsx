@@ -3,6 +3,9 @@
  * `Picker` -- trigger row that opens a {@link ResponsiveSurface} with a
  * `role="listbox"` of options (single select).
  *
+ * The surface uses `scroll={false}` so only the option list scrolls; the
+ * title/close header stays pinned.
+ *
  * Pass `loading` / `error` for async option lists -- status renders inside the
  * open surface; the trigger stays pressable unless `disabled` is set. Set
  * `searchable` to add a filter box above the options (focus lands there
@@ -145,6 +148,7 @@ export function Picker<T extends PickerValue = string>(
         onClose={() => setOpen(false)}
         title={title()}
         label={name()}
+        scroll={false}
       >
         <Show
           when={props.surfaceExtra !== undefined && props.surfaceExtra !== null}

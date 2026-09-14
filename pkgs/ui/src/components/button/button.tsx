@@ -107,9 +107,6 @@ function buttonStyle(args: {
     'padding-top': `${spacingScale(args.s.py)}px`,
     'padding-bottom': `${spacingScale(args.s.py)}px`,
     'min-height': `${args.s.minHeight}px`,
-    gap: `${spacingScale(args.s.iconGap)}px`,
-    'transition-property': 'background-color, border-color, color',
-    'transition-duration': 'var(--ui-duration-fast)',
   };
 }
 
@@ -165,33 +162,28 @@ export function Button(props: ButtonProps): JSX.Element {
       })}
     >
       <OnColorProvider value={onColor}>
-        <div
-          class="box relative flex-row items-center justify-center"
-          style={{ gap: `${spacingScale(size().iconGap)}px` }}
-        >
-          <ButtonContent
-            labels={{
-              get title() {
-                return props.title;
-              },
-              get loadingLabel() {
-                return props.loadingLabel;
-              },
-              get successLabel() {
-                return props.successLabel;
-              },
-              get errorLabel() {
-                return props.errorLabel;
-              },
-            }}
-            phase={render().phase}
-            size={size()}
-            foregroundColor={fg()}
-            icon={props.icon}
-            startIcon={props.startIcon}
-            endIcon={props.endIcon}
-          />
-        </div>
+        <ButtonContent
+          labels={{
+            get title() {
+              return props.title;
+            },
+            get loadingLabel() {
+              return props.loadingLabel;
+            },
+            get successLabel() {
+              return props.successLabel;
+            },
+            get errorLabel() {
+              return props.errorLabel;
+            },
+          }}
+          phase={render().phase}
+          size={size()}
+          foregroundColor={fg()}
+          icon={props.icon}
+          startIcon={props.startIcon}
+          endIcon={props.endIcon}
+        />
       </OnColorProvider>
     </button>
   );

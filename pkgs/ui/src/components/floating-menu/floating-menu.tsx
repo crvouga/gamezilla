@@ -4,8 +4,9 @@
  *
  * Content is prop-driven via {@link FloatingMenuContent}. The anchor is a
  * window-space rect (or the trigger element, measured on open) converted to
- * surface-host coordinates with {@link windowRectToHostLocal}; the panel
- * flips above the anchor when space below runs out.
+ * surface-host coordinates with {@link windowRectToHostLocal}. Placement is
+ * a static prop (default `bottom-end`); the panel clamps to edges and does
+ * not auto-flip.
  *
  * Accessibility: `role="menu"` with `role="menuitem"` rows, focus moves to
  * the first item on open and returns to the trigger on close, arrow keys /
@@ -25,7 +26,6 @@ import {
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorReset, useThemeLayout } from '../../theme';
 import { pushEscapeDismissHandler } from '../focus-trap';
-import { Motion } from '../motion';
 import {
   type LayoutRect,
   measureHostFrame,
@@ -50,16 +50,13 @@ import {
 import {
   computeFloatingMenuPosition,
   type FloatingMenuInsets,
+  type FloatingMenuPlacement,
   type FloatingMenuPosition,
 } from './floating-menu-position';
 
 export const FLOATING_MENU_DEFAULT_WIDTH = 260;
 
 const NO_INSETS: FloatingMenuInsets = { top: 0, bottom: 0 };
-const ENTER_STYLE: JSX.CSSProperties = {
-  opacity: 0,
-  transform: 'translateY(-4px)',
-};
 
 /** Window-space rect, or the trigger element (measured when the menu opens). */
 export type FloatingMenuAnchor = LayoutRect | HTMLElement | null;
@@ -68,6 +65,8 @@ export type FloatingMenuProps = {
   open: boolean;
   onClose: () => void;
   anchor: FloatingMenuAnchor;
+  /** Static placement. Defaults to `bottom-end`. */
+  placement?: FloatingMenuPlacement | undefined;
   /** Safe-area insets to keep clear of. Defaults to none. */
   insets?: FloatingMenuInsets | undefined;
   width?: number | undefined;
@@ -146,23 +145,18 @@ function FloatingMenuPanel(props: {
     props.onClose();
   };
   return (
-    <Motion
-      class="absolute z-[1]"
+    <div
+      class="box absolute z-[1]"
       style={{
         top: `${props.position.top}px`,
         left: `${props.position.left}px`,
         width: `${props.width}px`,
       }}
-      duration="fast"
-      enterStyle={ENTER_STYLE}
-      dataSet={{ component: 'FloatingMenuPanel' }}
+      {...dataAttrs({ component: 'FloatingMenuPanel' })}
     >
       <OnColorReset>
         <div
           class="box rounded-[14px] border border-border py-2 bg-surface-overlay"
-          style={{
-            'box-shadow': '0 12px 40px var(--ui-color-shadow-color)',
-          }}
           ref={(el) => {
             hostEl = el;
           }}
@@ -188,7 +182,7 @@ function FloatingMenuPanel(props: {
           </For>
         </div>
       </OnColorReset>
-    </Motion>
+    </div>
   );
 }
 
@@ -212,6 +206,7 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
       menuHeight: estimateFloatingMenuHeight(props.content),
       menuWidth: width(),
       insets: props.insets ?? NO_INSETS,
+      placement: props.placement ?? 'bottom-end',
       viewport: {
         width: host.width > 0 ? host.width : layout.layout().width,
         height: host.height > 0 ? host.height : layout.layout().height,

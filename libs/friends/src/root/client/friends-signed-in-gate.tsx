@@ -5,9 +5,7 @@ import { EmptyState, ScreenBase, UsersIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
-export function FriendsSignedInGate({
-  children,
-}: {
+export function FriendsSignedInGate(props: {
   children: JSX.Element;
 }): JSX.Element {
   const signedIn = useIsSignedIn();
@@ -20,7 +18,10 @@ export function FriendsSignedInGate({
       fallback={
         <ScreenBase
           screenId="friends-signed-in-gate"
-          breadcrumbs={[{ name: <Trans>Friends</Trans> }]}
+          breadcrumbs={[
+            { name: <Trans>Profile</Trans>, href: '/profile' },
+            { name: <Trans>Friends</Trans> },
+          ]}
           content={({ bodyClass }) => (
             <div class={`box ${bodyClass}`}>
               <EmptyState
@@ -38,7 +39,7 @@ export function FriendsSignedInGate({
         />
       }
     >
-      {children}
+      {props.children}
     </Show>
   );
 }

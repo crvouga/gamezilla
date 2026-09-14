@@ -1,13 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import {
-  Button,
-  Island,
-  IslandGrid,
-  ScreenBase,
-  ScreenBodyScrollView,
-  useRouter,
-} from '@pkgs/ui';
+import { Button, Island, IslandGrid, ScreenBase, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
@@ -17,8 +10,6 @@ export type ProfileScreenProps = {
   readonly friendsStats?: JSX.Element | undefined;
   /** Second action pill beside Edit profile (e.g. Find friends). */
   readonly friendsActions?: JSX.Element | undefined;
-  /** Extra bottom inset for content padding. */
-  readonly bottomInset?: number | undefined;
 };
 
 export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
@@ -26,22 +17,13 @@ export function ProfileScreen(props: ProfileScreenProps): JSX.Element {
     <ScreenBase
       screenId="profile"
       surface="canvas"
+      scroll
       breadcrumbs={[{ name: <Trans>Profile</Trans> }]}
-      content={({ bodyClass }) => (
-        <ScreenBodyScrollView
-          class={bodyClass}
-          contentClass="grow"
-          contentStyle={
-            props.bottomInset !== undefined && props.bottomInset > 0
-              ? { 'padding-bottom': `${props.bottomInset}px` }
-              : undefined
-          }
-        >
-          <ProfileScreenContent
-            friendsStats={props.friendsStats}
-            friendsActions={props.friendsActions}
-          />
-        </ScreenBodyScrollView>
+      content={() => (
+        <ProfileScreenContent
+          friendsStats={props.friendsStats}
+          friendsActions={props.friendsActions}
+        />
       )}
     />
   );
@@ -85,7 +67,9 @@ function ProfileScreenContent(props: {
             : null}
           {props.friendsActions !== undefined &&
           props.friendsActions !== null ? (
-            <div class="box flex-row gap-2">{props.friendsActions}</div>
+            <div class="box flex-row flex-wrap gap-2 min-w-[0]">
+              {props.friendsActions}
+            </div>
           ) : null}
         </div>
       </Island>

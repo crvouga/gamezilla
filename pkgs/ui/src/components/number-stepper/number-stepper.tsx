@@ -39,7 +39,7 @@ function StepperButton(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint min-w-[40px] min-h-[40px] items-center justify-center py-2 rounded-[6px]"
+      class="clickable clickableTint min-w-[40px] min-h-[40px] items-center justify-center rounded-[6px]"
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}
@@ -47,7 +47,7 @@ function StepperButton(props: {
       aria-label={props['aria-label']}
       tabIndex={-1}
     >
-      <h1 class="text textTitle">{props.glyph}</h1>
+      <span class="text textLabel leading-none">{props.glyph}</span>
     </button>
   );
 }

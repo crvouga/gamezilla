@@ -3,10 +3,10 @@
  * `Tooltip` -- lightweight label popup for icon affordances.
  *
  * Shows on pointer hover when {@link useHoverCapable} is true and on keyboard
- * focus of the wrapped control (any device). The bubble is positioned with
- * CSS relative to the anchor wrapper (no measurement) and stays mounted while
- * hidden so `aria-describedby` on the control always resolves. Controls
- * inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
+ * focus of the wrapped control (any device). The bubble stays mounted while
+ * hidden so `aria-describedby` on the control always resolves. Position is
+ * static via the `placement` prop; no measurement or enter animation.
+ * Controls inside read {@link useTooltipTrigger} for `show` / `hide` / `id`.
  */
 
 import {
@@ -25,13 +25,22 @@ import {
   releaseActiveTooltip,
 } from './tooltip-coordinator';
 
-export type TooltipPlacement = 'top' | 'bottom';
+/** Static CSS placement — no measurement or auto-flip. Bare `top`/`bottom`
+ *  center on the trigger; `*-start` / `*-end` pin to that edge. */
+export type TooltipPlacement =
+  | 'top'
+  | 'bottom'
+  | 'top-start'
+  | 'top-end'
+  | 'bottom-start'
+  | 'bottom-end';
 
 export const TOOLTIP_MAX_WIDTH = 240;
 
 export type TooltipProps = {
   label: JSX.Element;
   children: JSX.Element;
+  /** Static placement. Defaults to centered `bottom`. */
   placement?: TooltipPlacement | undefined;
   /**
    * When true, keyboard `:focus-visible` also shows the bubble. Defaults to
@@ -41,6 +50,16 @@ export type TooltipProps = {
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
+
+function tooltipSide(placement: TooltipPlacement): 'top' | 'bottom' {
+  return placement.startsWith('top') ? 'top' : 'bottom';
+}
+
+function tooltipAlign(placement: TooltipPlacement): 'start' | 'center' | 'end' {
+  if (placement.endsWith('-start')) return 'start';
+  if (placement.endsWith('-end')) return 'end';
+  return 'center';
+}
 
 export type TooltipController = {
   show: () => void;
@@ -57,8 +76,72 @@ export function useTooltipTrigger(): TooltipController | null {
   return useContext(TooltipContext);
 }
 
-export function Tooltip(props: TooltipProps): JSX.Element {
+function TooltipAnchor(props: {
+  controller: TooltipController;
+  enableFocus: boolean | undefined;
+  placement: () => TooltipPlacement;
+  label: JSX.Element;
+  dataSet: ComponentDataSet | undefined;
+  children: JSX.Element;
+}): JSX.Element {
   const hoverCapable = useHoverCapable();
+
+  return (
+    <div
+      class="box"
+      classList={{ [styles['anchor'] ?? '']: true }}
+      role="presentation"
+      onMouseEnter={() => {
+        if (hoverCapable()) props.controller.show();
+      }}
+      onMouseLeave={() => {
+        if (hoverCapable()) props.controller.hide();
+      }}
+      onFocusIn={(event) => {
+        if (props.enableFocus === false) return;
+        const target = event.target;
+        if (target instanceof HTMLElement && target.matches(':focus-visible')) {
+          props.controller.show();
+        }
+      }}
+      onFocusOut={() => {
+        if (props.enableFocus === false) return;
+        props.controller.hide();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') props.controller.hide();
+      }}
+    >
+      {props.children}
+      <div
+        class="box bg-surface-elevated rounded-[6px] px-2 py-1 w-max"
+        classList={{
+          [styles['bubble'] ?? '']: true,
+          [styles['top'] ?? '']: tooltipSide(props.placement()) === 'top',
+          [styles['bottom'] ?? '']: tooltipSide(props.placement()) === 'bottom',
+          [styles['start'] ?? '']: tooltipAlign(props.placement()) === 'start',
+          [styles['center'] ?? '']:
+            tooltipAlign(props.placement()) === 'center',
+          [styles['end'] ?? '']: tooltipAlign(props.placement()) === 'end',
+          [styles['open'] ?? '']: props.controller.visible(),
+        }}
+        {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
+        style={{
+          'max-width': `${TOOLTIP_MAX_WIDTH}px`,
+        }}
+        id={props.controller.id}
+        role="tooltip"
+        aria-hidden={props.controller.visible() ? undefined : true}
+      >
+        <p class="text textCaption line-clamp-2 text-text text-center">
+          {props.label}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export function Tooltip(props: TooltipProps): JSX.Element {
   const id = `ui-tooltip-${createUniqueId()}`;
   const [visible, setVisible] = createSignal(false);
 
@@ -77,56 +160,15 @@ export function Tooltip(props: TooltipProps): JSX.Element {
 
   return (
     <TooltipContext.Provider value={controller}>
-      <div
-        class="box"
-        classList={{ [styles['anchor'] ?? '']: true }}
-        role="presentation"
-        onMouseEnter={() => {
-          if (hoverCapable()) show();
-        }}
-        onMouseLeave={() => {
-          if (hoverCapable()) hide();
-        }}
-        onFocusIn={(event) => {
-          if (props.enableFocus === false) return;
-          // Only keyboard :focus-visible — programmatic focus (modal open)
-          // must not pop the tooltip.
-          const target = event.target;
-          if (
-            target instanceof HTMLElement &&
-            target.matches(':focus-visible')
-          ) {
-            show();
-          }
-        }}
-        onFocusOut={() => {
-          if (props.enableFocus === false) return;
-          hide();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') hide();
-        }}
+      <TooltipAnchor
+        controller={controller}
+        enableFocus={props.enableFocus}
+        placement={placement}
+        label={props.label}
+        dataSet={props.dataSet}
       >
         {props.children}
-        <div
-          class="box bg-surface-elevated rounded-[6px] px-2 py-1 w-max"
-          classList={{
-            [styles['bubble'] ?? '']: true,
-            [styles['top'] ?? '']: placement() === 'top',
-            [styles['bottom'] ?? '']: placement() !== 'top',
-            [styles['open'] ?? '']: visible(),
-          }}
-          {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
-          style={{ 'max-width': `${TOOLTIP_MAX_WIDTH}px` }}
-          id={id}
-          role="tooltip"
-          aria-hidden={visible() ? undefined : true}
-        >
-          <p class="text textCaption line-clamp-2 text-text text-center">
-            {props.label}
-          </p>
-        </div>
-      </div>
+      </TooltipAnchor>
     </TooltipContext.Provider>
   );
 }

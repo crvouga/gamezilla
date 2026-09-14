@@ -112,7 +112,20 @@ function createHostLayout(
   return layout;
 }
 
+function mirrorDocumentTheme(scheme: ColorScheme): () => void {
+  const root = document.documentElement;
+  const previous = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', scheme);
+  return () => {
+    if (previous === null) root.removeAttribute('data-theme');
+    else root.setAttribute('data-theme', previous);
+  };
+}
+
 export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
+  // Nested providers compose via host `data-theme` + Solid context only —
+  // never fight over `<html>`. In-repo portals mount inside the host.
+  const isRoot = useContext(ThemeTokensContext) === undefined;
   const prefersDark = createMediaQuery(DARK_QUERY);
   const colorScheme = createMemo((): ColorScheme => {
     const wanted = props.colorScheme;
@@ -121,12 +134,12 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   });
   const palette = createMemo(() => COLOR_PALETTE[colorScheme()]);
 
-  // Portals mount outside the host element, so mirror the scheme on <html>
-  // for anything rendered on `document.body`.
-  createEffect(() => {
-    if (typeof document === 'undefined') return;
-    document.documentElement.setAttribute('data-theme', colorScheme());
-  });
+  if (isRoot) {
+    createEffect(() => {
+      if (typeof document === 'undefined') return;
+      onCleanup(mirrorDocumentTheme(colorScheme()));
+    });
+  }
 
   // Static options: read once by design.
   // eslint-disable-next-line solid/reactivity -- static configuration

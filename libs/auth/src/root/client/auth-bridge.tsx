@@ -303,15 +303,16 @@ export function AuthBridge(props: ParentProps): JSX.Element {
   });
   useClearStaleAccountOnExternalUserChange({ authState, deps });
   useReconcileAuthSession({ authState, port, deps });
+  const refreshEnabled = createMemo(
+    () => authToken() !== null && currentAccountId() !== null
+  );
   useRefreshOnAppForeground({
-    enabled: createMemo(
-      () => authToken() !== null && currentAccountId() !== null
-    ),
+    enabled: refreshEnabled,
     port,
     expiresAt,
     externalUserId,
     deps,
   });
 
-  return props.children;
+  return <>{props.children}</>;
 }

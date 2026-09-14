@@ -30,7 +30,6 @@
     "@pkgs/chess-board": "workspace:*",
     "@pkgs/chess-board-core": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/collab": "workspace:*",
     "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",

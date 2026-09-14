@@ -60,8 +60,8 @@ function currentSpacesSql(
  * Visibility is the SQL join of this device's open sessions × live spaces.
  */
 export function useCurrentSpaceIds(): {
-  readonly entries: readonly CurrentSpaceEntry[];
-  readonly isLoading: boolean;
+  readonly entries: Accessor<readonly CurrentSpaceEntry[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const myId = useMyId();
   const deviceId = useDeviceId();
@@ -72,20 +72,16 @@ export function useCurrentSpaceIds(): {
   const query = createQuery(() =>
     currentSpacesSql(enabled(), deviceId(), myId())
   );
-  const entries = createMemo(() =>
-    buildCurrentSpaceEntries(query.rows(), myId())
-  );
+  const entries = createMemo(() => {
+    if (!paintReady()) return [];
+    return buildCurrentSpaceEntries(query.rows(), myId());
+  });
+  const loading = createMemo(() => {
+    if (!paintReady()) return true;
+    return entries().length === 0 && query.isLoading();
+  });
 
-  return {
-    get entries() {
-      return paintReady() ? entries() : [];
-    },
-    get isLoading() {
-      if (!paintReady()) return true;
-      const current = entries();
-      return current.length === 0 && query.isLoading();
-    },
-  };
+  return { entries, isLoading: loading };
 }
 
 /** User ids used for space host/guest checks. */

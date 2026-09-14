@@ -39,7 +39,7 @@ async function collectSources(): Promise<string[]> {
 }
 
 const MENTIONS_SX =
-  /<(?:Box|Clickable|Text|Stack|Center|Spacer|ScrollView|GradientBox|Island|Card|Divider|Motion|VirtualList|SpinnerBox|MenuList|FocusTrap|ExampleRoot)\b|(?:frameSx|enterSx|exitSx|fieldSx|sx)\s*=|\bSx(?:Props|Input)\b/;
+  /<(?:Box|Clickable|Text|Stack|Center|Spacer|ScrollView|GradientBox|Island|Card|Divider|VirtualList|SpinnerBox|MenuList|FocusTrap|ExampleRoot)\b|(?:frameSx|enterSx|exitSx|fieldSx|sx)\s*=|\bSx(?:Props|Input)\b/;
 
 describe('corpus round-trip', () => {
   test('zero parse failures; zero manuals; corpus transforms stably', async () => {

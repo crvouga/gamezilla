@@ -1,10 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * `RelativeTime` -- live "3m ago" label.
+ * Live relative-time label ("3m ago") via injected `Clock` / `Timers`.
  *
- * Time comes only from the injected `Clock` / `Timers` (`@pkgs/clock/solid`):
- * the label re-evaluates every {@link RELATIVE_TIME_TICK_MS} on the injected
- * interval and whenever `at` changes. Renders a `<time dateTime>` element.
+ * Re-evaluates every {@link RELATIVE_TIME_TICK_MS} and whenever `at` changes.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -14,30 +12,13 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
   on,
   onCleanup,
-  splitProps,
 } from 'solid-js';
-import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import type { TextVariant } from '../text';
 import {
   RELATIVE_TIME_TICK_MS,
   relativeTimeParts,
 } from './relative-time-format';
-
-const VARIANT_CLASS: Record<TextVariant, string | undefined> = {
-  body: undefined,
-  bodyBold: 'textBodyBold',
-  caption: 'textCaption',
-  label: 'textLabel',
-  title: 'textTitle',
-  subtitle: 'textSubtitle',
-  heading: 'textHeading',
-  navigationTitle: 'textNavigationTitle',
-  link: 'textLink',
-  mono: 'textMono',
-};
 
 /** `clock.now()` sampled on mount, on every `restart` change, and every tick. */
 function createLiveNow(restart: Accessor<unknown>): Accessor<number> {
@@ -87,45 +68,4 @@ export function useRelativeTimeLabel(at: Accessor<string>): Accessor<string> {
         return t`just now`;
     }
   };
-}
-
-export type RelativeTimeProps = Omit<
-  JSX.HTMLAttributes<HTMLTimeElement>,
-  'children'
-> & {
-  /** ISO timestamp (or any `Date.parse`-able string). */
-  at: string;
-  variant?: TextVariant | undefined;
-  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
-  dataSet?: ComponentDataSet | undefined;
-};
-
-export function RelativeTime(props: RelativeTimeProps): JSX.Element {
-  const label = useRelativeTimeLabel(() => props.at);
-  const [local, rest] = splitProps(props, [
-    'at',
-    'variant',
-    'class',
-    'dataSet',
-  ]);
-  let host: HTMLTimeElement | undefined;
-  createEffect(() => {
-    host?.setAttribute('datetime', local.at);
-  });
-  return (
-    <time
-      class="text"
-      classList={{
-        [String(VARIANT_CLASS[local.variant ?? 'caption'])]: true,
-        [String(local.class)]: true,
-      }}
-      {...dataAttrs({ component: 'RelativeTime', ...local.dataSet })}
-      ref={(el) => {
-        host = el;
-      }}
-      {...rest}
-    >
-      {label()}
-    </time>
-  );
 }

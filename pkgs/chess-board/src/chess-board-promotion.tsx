@@ -37,7 +37,8 @@ function stackLayout(args: {
   cell: number;
   kinds: readonly PromotionKind[];
 } {
-  const cell = args.boardPx / 8;
+  const fileCell = args.boardPx / 8;
+  const cell = Math.max(fileCell, 44);
   const file = args.to.charCodeAt(0) - 97;
   const rank = args.to.charCodeAt(1) - 49;
   const col = args.orientation === 'white' ? file : 7 - file;
@@ -45,8 +46,8 @@ function stackLayout(args: {
   const fromTop =
     args.orientation === 'white' ? args.color === 'w' : args.color === 'b';
   return {
-    left: col * cell,
-    top: fromTop ? row * cell : Math.max(0, row * cell - cell * 3),
+    left: col * fileCell + (fileCell - cell) / 2,
+    top: fromTop ? row * fileCell : Math.max(0, row * fileCell - cell * 3),
     cell,
     kinds: fromTop ? ORDERED : [...ORDERED].reverse(),
   };

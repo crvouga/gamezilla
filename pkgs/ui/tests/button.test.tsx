@@ -12,7 +12,11 @@ import {
   IconButton,
   iconButtonAvatarContentSize,
 } from '@pkgs/ui/components/icon-button';
-import { PlusIcon, SettingsIcon } from '@pkgs/ui/components/icons';
+import {
+  ChevronRightIcon,
+  PlusIcon,
+  SettingsIcon,
+} from '@pkgs/ui/components/icons';
 import {
   OverflowMenuButton,
   type OverflowMenuRenderProps,
@@ -76,6 +80,26 @@ describe('Button', () => {
     const el = screen.getByRole('button', { name: 'Add' });
     expect(el.className).toMatch(/w-full/);
     expect(el.querySelector('svg')).not.toBeNull();
+  });
+
+  test('endIcon stroke follows the button on-color (matches label)', () => {
+    renderUi(() => (
+      <Button
+        title="Next"
+        intent="success"
+        endIcon={<ChevronRightIcon dataSet={{ testid: 'end' }} />}
+      />
+    ));
+    const end = screen.getByTestId('end');
+    expect(end.querySelector('svg')?.getAttribute('stroke')).toBe(
+      'var(--ui-on-icon)'
+    );
+    const onIcon = [
+      ...screen.getByRole('button', { name: 'Next' }).querySelectorAll('div'),
+    ]
+      .map((el) => el.style.getPropertyValue('--ui-on-icon'))
+      .find((value) => value.length > 0);
+    expect(onIcon).toBe('var(--ui-color-on-success)');
   });
 });
 

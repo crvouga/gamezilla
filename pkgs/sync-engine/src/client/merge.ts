@@ -85,12 +85,28 @@ async function touchScopeMeta(
   now: () => Date
 ): Promise<void> {
   const nowIso = now().toISOString();
+  // UPDATE-first: sqlite-mem may allocate a stale rowid before ON CONFLICT
+  // runs (UNIQUE on sync_engine_scope_meta.rowid). Skip allocate when the
+  // row already exists (including soft-deleted). Fresh inserts pick
+  // MAX(rowid)+1 explicitly so allocation does not consult the stale cache.
+  const updated = await tx.run(sql`
+    UPDATE sync_engine_scope_meta SET
+      last_checkpoint = ${input.checkpoint},
+      last_hash = ${input.hash},
+      last_active_at = ${nowIso},
+      updated_at = ${nowIso},
+      deleted_at = NULL
+    WHERE id = ${input.scopeHash}
+  `);
+  if (updated.changes > 0) return;
+
   await tx.run(sql`
     INSERT INTO sync_engine_scope_meta (
-      id, scope_hash, last_active_at, last_checkpoint, last_hash,
+      rowid, id, scope_hash, last_active_at, last_checkpoint, last_hash,
       created_at, updated_at, deleted_at
     )
     VALUES (
+      (SELECT COALESCE(MAX(rowid), 0) + 1 FROM sync_engine_scope_meta),
       ${input.scopeHash},
       ${input.scopeHash},
       ${nowIso},
@@ -100,12 +116,6 @@ async function touchScopeMeta(
       ${nowIso},
       ${null}
     )
-    ON CONFLICT (id) DO UPDATE SET
-      last_checkpoint = excluded.last_checkpoint,
-      last_hash = excluded.last_hash,
-      last_active_at = excluded.last_active_at,
-      updated_at = excluded.updated_at,
-      deleted_at = NULL
   `);
 }
 

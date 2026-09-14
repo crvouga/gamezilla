@@ -3,6 +3,10 @@
  * Content sub-components for `Button`: idle label row and the loading /
  * success / error faces (with a width lock so feedback never collapses the
  * button to an icon-only square).
+ *
+ * Idle / status rows keep the label optically centered: equal side padding
+ * reserves space for leading and trailing icons, which are absolutely
+ * positioned in those gutters so they do not shift the text.
  */
 
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -94,8 +98,9 @@ function rowClass(): string {
   return 'flex-row items-center justify-center';
 }
 
-function rowStyle(size: ButtonSizeSpec): JSX.CSSProperties {
-  return { gap: `${spacingScale(size.iconGap)}px` };
+/** Equal gutter on each side so an icon on one side does not shift the label. */
+function iconSidePad(size: ButtonSizeSpec): number {
+  return size.iconSize + spacingScale(size.iconGap);
 }
 
 export function ButtonLabelText(props: {
@@ -129,33 +134,126 @@ function IconSlot(props: { size: ButtonSizeSpec; children: JSX.Element }) {
   );
 }
 
-function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
+/** Icon sits in a reserved side gutter; does not participate in label centering. */
+function IconRail(props: {
+  side: 'start' | 'end';
+  size: ButtonSizeSpec;
+  children: JSX.Element;
+}): JSX.Element {
   return (
-    <>
-      <Show when={props.icon}>
-        {(icon) => (
-          <IconSlot size={props.size}>
-            <Dynamic
-              component={icon()}
-              size={props.size.iconSize}
-              strokeWidth={props.size.iconStrokeWidth}
-              color={props.foregroundColor}
-            />
-          </IconSlot>
-        )}
-      </Show>
-      <Show when={props.startIcon !== undefined}>
-        <IconSlot size={props.size}>{props.startIcon}</IconSlot>
-      </Show>
+    <div
+      class="box absolute inset-y-0 flex-row items-center justify-center"
+      classList={{
+        'left-0': props.side === 'start',
+        'right-0': props.side === 'end',
+      }}
+      style={{ width: `${props.size.iconSize}px` }}
+    >
+      {props.children}
+    </div>
+  );
+}
+
+function CenteredLabelRow(props: {
+  size: ButtonSizeSpec;
+  padded: boolean;
+  leading?: JSX.Element | undefined;
+  trailing?: JSX.Element | undefined;
+  children: JSX.Element;
+}): JSX.Element {
+  const pad = (): number => (props.padded ? iconSidePad(props.size) : 0);
+  return (
+    <div
+      class={`box ${rowClass()}`}
+      style={{
+        'padding-left': `${pad()}px`,
+        'padding-right': `${pad()}px`,
+      }}
+    >
+      {props.leading}
+      {props.children}
+      {props.trailing}
+    </div>
+  );
+}
+
+function SizedLeadingIcon(props: ButtonContentProps): JSX.Element {
+  return (
+    <Show when={props.icon}>
+      {(icon) => (
+        <IconSlot size={props.size}>
+          <Dynamic
+            component={icon()}
+            size={props.size.iconSize}
+            strokeWidth={props.size.iconStrokeWidth}
+            color={props.foregroundColor}
+          />
+        </IconSlot>
+      )}
+    </Show>
+  );
+}
+
+function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
+  const hasLeading = (): boolean =>
+    props.icon !== undefined || props.startIcon !== undefined;
+  const hasTrailing = (): boolean => props.endIcon !== undefined;
+  const padded = (): boolean => hasLeading() || hasTrailing();
+  return (
+    <CenteredLabelRow
+      size={props.size}
+      padded={padded()}
+      leading={
+        <Show when={hasLeading()}>
+          <IconRail side="start" size={props.size}>
+            <SizedLeadingIcon {...props} />
+            <Show when={props.startIcon !== undefined}>
+              <IconSlot size={props.size}>{props.startIcon}</IconSlot>
+            </Show>
+          </IconRail>
+        </Show>
+      }
+      trailing={
+        <Show when={hasTrailing()}>
+          <IconRail side="end" size={props.size}>
+            <IconSlot size={props.size}>{props.endIcon}</IconSlot>
+          </IconRail>
+        </Show>
+      }
+    >
       <ButtonLabelText
         label={props.labels.title}
         size={props.size}
         foregroundColor={props.foregroundColor}
       />
-      <Show when={props.endIcon !== undefined}>
-        <IconSlot size={props.size}>{props.endIcon}</IconSlot>
-      </Show>
-    </>
+    </CenteredLabelRow>
+  );
+}
+
+function StatusGlyph(props: {
+  spinner?: boolean | undefined;
+  icon?: IconComponent | undefined;
+  size: ButtonSizeSpec;
+  foregroundColor: string;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.spinner === true}
+      fallback={
+        <Dynamic
+          component={props.icon ?? XIcon}
+          size={props.size.iconSize}
+          strokeWidth={props.size.iconStrokeWidth}
+          color={props.foregroundColor}
+        />
+      }
+    >
+      <Spinner
+        decorative
+        color={props.foregroundColor}
+        size={props.size.iconSize}
+      />
+    </Show>
   );
 }
 
@@ -166,33 +264,33 @@ function ButtonStatusContent(props: {
   foregroundColor: string;
   label: JSX.Element | undefined;
 }): JSX.Element {
+  const hasLabel = (): boolean =>
+    props.label !== undefined && props.label !== null;
   return (
-    <>
-      <Show
-        when={props.spinner === true}
-        fallback={
-          <Dynamic
-            component={props.icon ?? XIcon}
-            size={props.size.iconSize}
-            strokeWidth={props.size.iconStrokeWidth}
-            color={props.foregroundColor}
-          />
+    <Show
+      when={hasLabel()}
+      fallback={
+        <div class={`box ${rowClass()}`}>
+          <StatusGlyph {...props} />
+        </div>
+      }
+    >
+      <CenteredLabelRow
+        size={props.size}
+        padded
+        leading={
+          <IconRail side="start" size={props.size}>
+            <StatusGlyph {...props} />
+          </IconRail>
         }
       >
-        <Spinner
-          decorative
-          color={props.foregroundColor}
-          size={props.size.iconSize}
-        />
-      </Show>
-      <Show when={props.label !== undefined && props.label !== null}>
         <ButtonLabelText
           label={props.label}
           size={props.size}
           foregroundColor={props.foregroundColor}
         />
-      </Show>
-    </>
+      </CenteredLabelRow>
+    </Show>
   );
 }
 
@@ -235,17 +333,15 @@ function ButtonFeedbackFace(props: ButtonContentProps): JSX.Element {
  * shorter — otherwise success collapses to an icon-only square.
  */
 function ButtonFeedbackWidthLock(props: ButtonContentProps): JSX.Element {
-  const row = (): string => `box ${rowClass()}`;
   return (
-    <div class={`relative ${row()}`} style={rowStyle(props.size)}>
+    <div class={`relative box ${rowClass()}`}>
       <div
-        class={`opacity-0 pointer-events-none ${row()}`}
-        style={rowStyle(props.size)}
+        class={`opacity-0 pointer-events-none box ${rowClass()}`}
         aria-hidden="true"
       >
         <ButtonIdleContent {...props} />
       </div>
-      <div class={`absolute inset-0 ${row()}`} style={rowStyle(props.size)}>
+      <div class={`absolute inset-0 box ${rowClass()}`}>
         <ButtonFeedbackFace {...props} />
       </div>
     </div>

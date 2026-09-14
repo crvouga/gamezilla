@@ -11,8 +11,8 @@ export type AccountDeviceOsTextProps = {
 export function AccountDeviceOsText(
   props: AccountDeviceOsTextProps
 ): JSX.Element {
-  const osName = useDeviceColumn(props.deviceId, 'osName');
-  const osVersion = useDeviceColumn(props.deviceId, 'osVersion');
+  const osName = useDeviceColumn(() => props.deviceId, 'osName');
+  const osVersion = useDeviceColumn(() => props.deviceId, 'osVersion');
   const label = createMemo(() => {
     const name = osName();
     const version = osVersion();

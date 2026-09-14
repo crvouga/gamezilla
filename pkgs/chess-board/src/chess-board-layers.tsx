@@ -1,10 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * Paint stack for {@link ChessBoard}: squares → pieces → arrows → feedback.
+ * Paint stack: background → squares → pieces → shapes → feedback.
  */
 
 import type { CaptureGhost } from '@pkgs/chess-board-core/capture-ghost';
 import type { ChessPieceRow } from '@pkgs/chess-board-core/piece-rows';
+import type { BoardShape } from '@pkgs/chess-board-core/shapes/board-shapes';
 import type {
   BoardArrow,
   BoardOrientation,
@@ -12,15 +13,18 @@ import type {
   CellFeedback,
   CellHighlight,
   Move,
+  PieceCode,
   Position,
   Square,
 } from '@pkgs/chess-board-core/types';
 import type { Accessor, JSX } from 'solid-js';
 
-import { ChessBoardArrows } from './chess-board-arrows';
+import { ChessBoardBackground } from './chess-board-background';
 import { ChessBoardFeedback } from './chess-board-feedback';
 import { ChessBoardPieces } from './chess-board-pieces';
+import { ChessBoardShapes } from './chess-board-shapes';
 import { ChessBoardSquares } from './chess-board-squares';
+import type { DragGhostController } from './drag-ghost-controller';
 
 export type ChessBoardLayersProps = {
   readonly orientation: BoardOrientation;
@@ -39,17 +43,21 @@ export type ChessBoardLayersProps = {
   readonly captureGhost: Accessor<CaptureGhost | null>;
   readonly snapSquare: Accessor<Square | null>;
   readonly dragFrom: Accessor<Square | null>;
-  readonly dragAt: Accessor<{ x: number; y: number } | null>;
+  readonly dragGhost: DragGhostController;
   readonly animated: Accessor<boolean>;
   readonly arrows: readonly BoardArrow[];
+  readonly shapes: readonly BoardShape[];
+  readonly premoveFrom: Square | null;
+  readonly premoveTo: Square | null;
+  readonly premoveCode: PieceCode | null;
 };
 
 export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
   return (
     <>
+      <ChessBoardBackground />
       <ChessBoardSquares
         orientation={props.orientation}
-        theme={props.theme}
         position={props.position}
         lastMove={props.lastMove}
         selected={props.selected}
@@ -59,6 +67,8 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
         highlightLastMove={props.highlightLastMove}
         highlightLegalMoves={props.highlightLegalMoves}
         checkSquare={props.checkSquare}
+        premoveFrom={props.premoveFrom}
+        premoveTo={props.premoveTo}
       />
       <ChessBoardPieces
         orientation={props.orientation}
@@ -66,12 +76,15 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
         captureGhost={props.captureGhost}
         snapSquare={props.snapSquare}
         dragFrom={props.dragFrom}
-        dragAt={props.dragAt}
+        dragGhost={props.dragGhost}
         animated={props.animated}
+        premoveTo={props.premoveTo}
+        premoveCode={props.premoveCode}
       />
-      <ChessBoardArrows
+      <ChessBoardShapes
         orientation={props.orientation}
         theme={props.theme}
+        shapes={props.shapes}
         arrows={props.arrows}
       />
       <ChessBoardFeedback

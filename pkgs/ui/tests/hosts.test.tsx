@@ -3,7 +3,6 @@ import {
   Checkbox,
   ContentEdgePaddingProvider,
   GradientBox,
-  Motion,
   ScrollView,
   Switch,
   TextInput,
@@ -146,6 +145,7 @@ describe('ScrollView', () => {
     const wrapper = frame.parentElement;
     if (wrapper === null) throw new Error('wrapper missing');
     expect(wrapper.className).toMatch(/flex-1/);
+    expect(wrapper.className).toMatch(/min-h-0/);
   });
 });
 
@@ -197,24 +197,5 @@ describe('GradientBox', () => {
       'background-image:linear-gradient(90deg,#000000,#111111)'
     );
     expect(screen.getByTestId('t')).toHaveTextContent('on gradient');
-  });
-});
-
-describe('Motion', () => {
-  test('emits transition declarations and unmounts after exit', () => {
-    const [present, setPresent] = createSignal(true);
-    const { clock } = renderUi(() => (
-      <Motion data-testid="m" present={present()} style={{ opacity: 1 }} />
-    ));
-    const el = screen.getByTestId('m');
-    expect(cssOf(el)).toContain('transition-property:all');
-    expect(cssOf(el)).toContain(
-      'transition-duration:var(--ui-duration-normal)'
-    );
-    setPresent(false);
-    expect(screen.getByTestId('m')).toBeInTheDocument();
-    expect(cssOf(screen.getByTestId('m'))).toContain('opacity:0');
-    clock.advance(1000);
-    expect(screen.queryByTestId('m')).toBeNull();
   });
 });

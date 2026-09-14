@@ -3,9 +3,8 @@
  * `ModalRoot` -- transparent modal wrapper.
  *
  * Renders into {@link SurfaceStackProvider} (via {@link SurfaceStackSlot})
- * with a monotonic z-index so nested surfaces stack by open order. The layer
- * fades in through {@link Motion}; unmount is instant (no exit fade), so the
- * stack entry and the DOM always agree with `visible`.
+ * with a monotonic z-index so nested surfaces stack by open order. Mount and
+ * unmount are instant (no enter/exit fade).
  *
  * {@link FocusTrap} keeps Tab focus inside the topmost modal, restores it on
  * close, exposes `role="dialog"` named by the {@link ModalHeader} title
@@ -17,10 +16,9 @@
  */
 
 import { createUniqueId, type JSX, Show } from 'solid-js';
-import type { ComponentDataSet } from '../../component-id';
+import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorReset } from '../../theme';
 import { FocusTrap } from '../focus-trap';
-import { Motion } from '../motion';
 import { SurfaceStackSlot, useIsTopSurface } from '../surface-stack';
 import { ModalTitleIdProvider } from './modal-title-id';
 
@@ -40,8 +38,6 @@ export type ModalRootProps = {
   children?: JSX.Element | undefined;
 };
 
-const ENTER_SX = { opacity: 0 } as const;
-
 export function ModalRoot(props: ModalRootProps): JSX.Element {
   const generatedId = createUniqueId();
   const titleId = `modal-title-${createUniqueId()}`;
@@ -51,12 +47,9 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
   return (
     <Show when={props.visible}>
       <SurfaceStackSlot id={surfaceId()} visible>
-        <Motion
-          class="absolute inset-0 flex-1"
-          duration="fast"
-          property="opacity"
-          enterStyle={ENTER_SX}
-          dataSet={{ component: 'ModalRoot', ...props.dataSet }}
+        <div
+          class="box absolute inset-0 flex-1"
+          {...dataAttrs({ component: 'ModalRoot', ...props.dataSet })}
         >
           <OnColorReset>
             <ModalTitleIdProvider id={titleId}>
@@ -70,7 +63,7 @@ export function ModalRoot(props: ModalRootProps): JSX.Element {
               </FocusTrap>
             </ModalTitleIdProvider>
           </OnColorReset>
-        </Motion>
+        </div>
       </SurfaceStackSlot>
     </Show>
   );

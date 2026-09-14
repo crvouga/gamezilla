@@ -1,5 +1,6 @@
 import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
 import { useLocalSearchParams, useRouter } from '@pkgs/ui';
+import type { Accessor } from 'solid-js';
 import { createEffect, createMemo } from 'solid-js';
 
 import type { FriendProfile } from '../../shared/friendship/friends-types';
@@ -15,26 +16,29 @@ export function readRouteParam(value: string | string[] | undefined): string {
  * Resolves another user's display profile from sync `profiles` (via the
  * friends list join) or route search-param seed for non-friends.
  */
-export function useFriendUserProfile(userId: string) {
+export function useFriendUserProfile(userId: Accessor<string>): {
+  readonly profile: Accessor<FriendProfile>;
+  readonly refreshProfile: () => void;
+} {
   const router = useRouter();
   const myProfileId = useMyProfileId();
-  const { friends } = useFriends();
+  const friendsState = useFriends();
   const cachedFriend = createMemo(
-    () => friends.find((f) => f.userId === userId) ?? null
+    () => friendsState.friends().find((f) => f.userId === userId()) ?? null
   );
   const params = useLocalSearchParams<{
     username?: string;
     avatarConfig?: string;
   }>();
   const seedProfile = createMemo<FriendProfile>(() => ({
-    userId,
+    userId: userId(),
     username: readRouteParam(params().username),
     avatarConfig: readRouteParam(params().avatarConfig) || null,
   }));
   const profile = createMemo(() => cachedFriend() ?? seedProfile());
 
   createEffect(() => {
-    if (myProfileId() !== null && userId === myProfileId()) {
+    if (myProfileId() !== null && userId() === myProfileId()) {
       router.replace('/profile');
     }
   });
@@ -44,9 +48,7 @@ export function useFriendUserProfile(userId: string) {
   };
 
   return {
-    get profile() {
-      return profile();
-    },
+    profile,
     refreshProfile,
   };
 }

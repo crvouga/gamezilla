@@ -72,7 +72,11 @@ function FlexLayout(props: SlotsProps): JSX.Element {
         </div>
       </Show>
       <Show when={props.trailing !== undefined && props.trailing !== null}>
-        <div class="box flex-1 min-w-0 self-stretch flex-row items-center justify-end gap-2">
+        {/*
+          Cap trailing so ActionBar still gets a measurable width budget while
+          the center title/event-log keeps at least half the row on narrow hosts.
+        */}
+        <div class="box flex-1 min-w-0 max-w-[50%] self-stretch flex-row items-center justify-end gap-2">
           {props.trailing}
         </div>
       </Show>
@@ -86,10 +90,10 @@ function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
       <div class={`box justify-start ${SIDE_SLOT_CLASS}`}>{props.leading}</div>
       <div class={`box justify-end ${SIDE_SLOT_CLASS}`}>{props.trailing}</div>
       <div
-        class="box absolute inset-0 flex-row items-center justify-center z-[2]"
+        class="box absolute inset-0 flex-row items-center justify-center z-[2] px-12"
         classList={{ boxNone: true }}
       >
-        <div class="box min-w-0">{props.center}</div>
+        <div class="box min-w-0 max-w-full">{props.center}</div>
       </div>
     </div>
   );

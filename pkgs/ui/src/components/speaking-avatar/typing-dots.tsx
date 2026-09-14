@@ -1,8 +1,7 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '../../css/css-px';
 /**
- * `TypingDots` -- chat "..." indicator. The three dots pulse in sequence via
- * CSS keyframes (static under `prefers-reduced-motion`).
+ * `TypingDots` -- chat "..." indicator. Three static dots (no keyframe loop).
  */
 
 import { For, type JSX } from 'solid-js';

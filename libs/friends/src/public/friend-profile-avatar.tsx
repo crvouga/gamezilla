@@ -9,15 +9,14 @@ export type FriendProfileAvatarProps = {
   readonly size: number;
 };
 
-export function FriendProfileAvatar({
-  profile,
-  size,
-}: FriendProfileAvatarProps): JSX.Element {
+export function FriendProfileAvatar(
+  props: FriendProfileAvatarProps
+): JSX.Element {
   return (
     <DeviceAvatar
-      avatarConfig={parseAvatarConfig(profile.avatarConfig)}
-      seedFallback={profile.userId}
-      size={size}
+      avatarConfig={parseAvatarConfig(props.profile.avatarConfig)}
+      seedFallback={props.profile.userId}
+      size={props.size}
     />
   );
 }

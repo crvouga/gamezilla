@@ -18,6 +18,7 @@ export {
   type ComputeFloatingMenuPositionOptions,
   computeFloatingMenuPosition,
   type FloatingMenuInsets,
+  type FloatingMenuPlacement,
   type FloatingMenuPosition,
   type FloatingMenuViewport,
 } from './floating-menu-position';

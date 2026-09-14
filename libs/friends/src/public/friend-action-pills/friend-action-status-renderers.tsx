@@ -14,10 +14,14 @@ import type { FriendActionMutations } from './friend-action-types';
 type LinguiT = ReturnType<typeof useLingui>['t'];
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
+function noopOperation(): Promise<void> {
+  return Promise.resolve();
+}
+
 function renderBlockedByThem(t: LinguiT): JSX.Element {
   return (
     <SingleActionPill
-      operation={async () => {}}
+      operation={noopOperation}
       idle={t`Unavailable`}
       loading={t`Unavailable`}
       success={t`Unavailable`}
@@ -80,7 +84,7 @@ function renderPendingOutgoing(
 function renderFriends(t: LinguiT, username: string | undefined): JSX.Element {
   return (
     <SingleActionPill
-      operation={async () => {}}
+      operation={noopOperation}
       idle={<Trans>Friends</Trans>}
       loading={t`Friends`}
       success={t`Friends`}

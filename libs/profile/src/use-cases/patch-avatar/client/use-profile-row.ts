@@ -33,8 +33,9 @@ export function useProfileRow(
     if (!enabled()) return null;
     return rows()[0] ?? null;
   });
+  const loading = createMemo(() => enabled() && isLoading());
   return {
     row,
-    isLoading: createMemo(() => enabled() && isLoading()),
+    isLoading: loading,
   };
 }

@@ -9,9 +9,11 @@ import {
   deleteSecret,
   deleteSecretIn,
   exportSecretsMap,
+  exportSecretsMapLive,
   fetchSecret,
   fetchSecretFrom,
   listSecretNames,
+  listSecretNamesLive,
   secretExists,
   setSecret,
   setSecretIn,
@@ -23,11 +25,13 @@ export {
   deleteSecret,
   deleteSecretIn,
   exportSecretsMap,
+  exportSecretsMapLive,
   fetchSecret,
   fetchSecretFrom,
   getApiWorkerSecrets,
   getSecretMap,
   listSecretNames,
+  listSecretNamesLive,
   SECRETS,
   secretExists,
   setSecret,
@@ -53,7 +57,7 @@ export async function ensureSeedInAllEnvsSecrets(): Promise<
   for (const entry of getSeedInAllEnvsSecrets()) {
     if (entry.seed === undefined) continue;
     for (const env of SECRETS_ENVS) {
-      const stored = new Map(await exportSecretsMap(env));
+      const stored = new Map(await exportSecretsMapLive(env));
       const current = (stored.get(entry.name) ?? '').trim();
       if (current.length > 0) {
         results.push({ name: entry.name, env, action: 'present' });

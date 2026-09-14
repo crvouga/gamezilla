@@ -15,8 +15,8 @@ export function AccountDeviceActiveSessionLine(
   props: AccountDeviceActiveSessionLineProps
 ): JSX.Element {
   const { t } = useLingui();
-  const active = useDeviceActiveSessionCount(props.deviceId);
-  const latest = useDeviceLatestSessionExpiresAt(props.deviceId);
+  const active = useDeviceActiveSessionCount(() => props.deviceId);
+  const latest = useDeviceLatestSessionExpiresAt(() => props.deviceId);
   const latestExpires = createMemo(() => formatTimestamp(latest()));
   const value = createMemo(() => String(active()));
   const caption = createMemo(() =>

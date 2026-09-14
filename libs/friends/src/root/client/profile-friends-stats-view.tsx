@@ -11,8 +11,9 @@ const CHEVRON_SIZE = 18;
 export function ProfileFriendsStats(): JSX.Element {
   const navigate = useFriendsProfileNavigation();
   const theme = useTheme();
-  const { friends } = useFriends();
-  const count = friends.length;
+  // Keep the store object — destructuring `friends` snapshots the array once
+  // in Solid and freezes the count at the first paint (often 0).
+  const friendsState = useFriends();
 
   return (
     <button
@@ -22,9 +23,17 @@ export function ProfileFriendsStats(): JSX.Element {
       onClick={() => navigate(FriendsProfileRoute.Friends)}
     >
       <div class="box flex-row items-baseline gap-2">
-        <h3 class="text textHeading">{String(count)}</h3>
+        <h3 class="text textHeading">
+          {String(friendsState.friends().length)}
+        </h3>
         <p class="text text-text-secondary">
-          {<Plural value={count} one="friend" other="friends" />}
+          {
+            <Plural
+              value={friendsState.friends().length}
+              one="friend"
+              other="friends"
+            />
+          }
         </p>
       </div>
       <ChevronRightIcon size={CHEVRON_SIZE} color={theme.colors.icon} />

@@ -4,6 +4,10 @@
  * compiler emits utilities. Do not import this file alone from app entries —
  * Vite would inject raw `@theme` into the browser and skip generation.
  * Values point at the same `--ui-color-*` vars as `tokens.css`.
+ *
+ * Nested ThemeProviders: `:root` aliases alone compute against the document
+ * scheme. `tokens.css` re-binds every `--color-*` inside each `[data-theme]`
+ * block so utilities follow the nearest theme host.
  */
 
 @theme {

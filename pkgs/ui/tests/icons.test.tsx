@@ -19,7 +19,7 @@ describe('icons', () => {
     expect(svg?.getAttribute('width')).toBe('16');
   });
 
-  test('color resolves tokens, falls back to on-color context', () => {
+  test('color resolves tokens; default stroke follows --ui-on-icon', () => {
     renderUi(() => (
       <>
         <HouseIcon color="destructive" dataSet={{ testid: 'tok' }} />
@@ -31,8 +31,12 @@ describe('icons', () => {
     expect(
       screen.getByTestId('tok').querySelector('svg')?.getAttribute('stroke')
     ).toBe('var(--ui-color-destructive)');
-    expect(
-      screen.getByTestId('ctx').querySelector('svg')?.getAttribute('stroke')
-    ).toBe('#abc');
+    const ctx = screen.getByTestId('ctx');
+    expect(ctx.querySelector('svg')?.getAttribute('stroke')).toBe(
+      'var(--ui-on-icon)'
+    );
+    expect(ctx.parentElement?.style.getPropertyValue('--ui-on-icon')).toBe(
+      '#abc'
+    );
   });
 });

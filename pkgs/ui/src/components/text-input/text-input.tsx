@@ -57,10 +57,14 @@ export type TextInputProps = Omit<
   ref?: ((el: HTMLInputElement | HTMLTextAreaElement) => void) | undefined;
 };
 
-/** Horizontal inset of the field text (`px: 4`). */
+/** Horizontal inset of the field text (`px: 4` → 16px). */
 const FIELD_PX_STEP = 4;
-/** Width reserved for a leading adornment (glyph + gap). */
-const ADORNMENT_WIDTH_STEP = 7;
+/**
+ * Total left inset when a leading adornment is present.
+ * Must clear: field pad (16px) + ~18px glyph + ~8px gap → 44px (`11 * 4`).
+ * Smaller values put placeholder/text under the icon.
+ */
+const ADORNMENT_WIDTH_STEP = 11;
 const FIELD_MIN_HEIGHT = 44;
 
 function FieldFooter(props: {

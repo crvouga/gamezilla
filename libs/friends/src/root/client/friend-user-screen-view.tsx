@@ -25,9 +25,10 @@ import {
 function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const router = useRouter();
   const nav = useBreadcrumbNav();
-  const status = useFriendshipStatus(props.userId);
-  const requestIds = useFriendRequestIdsForUser(props.userId);
-  const userProfile = useFriendUserProfile(props.userId);
+  const userId = () => props.userId;
+  const status = useFriendshipStatus(userId);
+  const requestIds = useFriendRequestIdsForUser(userId);
+  const userProfile = useFriendUserProfile(userId);
   const [removeOpen, setRemoveOpen] = createSignal(false);
   const [blockOpen, setBlockOpen] = createSignal(false);
   const removeFriend = useRemoveFriend();
@@ -61,7 +62,7 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   });
   const breadcrumbs = createMemo(() => [
     { name: <Trans>Profile</Trans>, onClick: nav('/profile') },
-    { name: friendUserBreadcrumbName(userProfile.profile, props.userId) },
+    { name: friendUserBreadcrumbName(userProfile.profile(), props.userId) },
   ]);
 
   return (
@@ -72,11 +73,11 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       content={({ bodyClass }) => (
         <FriendUserScreenContent
           class={bodyClass}
-          profile={userProfile.profile}
+          profile={userProfile.profile()}
           userId={props.userId}
           status={status()}
-          incomingRequestId={requestIds.incomingRequestId}
-          outgoingRequestId={requestIds.outgoingRequestId}
+          incomingRequestId={requestIds.incomingRequestId()}
+          outgoingRequestId={requestIds.outgoingRequestId()}
           onChanged={userProfile.refreshProfile}
           removeOpen={removeOpen()}
           blockOpen={blockOpen()}
@@ -95,8 +96,8 @@ export function FriendUserScreen(): JSX.Element {
   const userId = () => readRouteParam(params().userId);
   return (
     <FriendsSignedInGate>
-      <Show when={userId().length > 0}>
-        <FriendUserScreenBody userId={userId()} />
+      <Show when={userId()} keyed>
+        {(id) => <FriendUserScreenBody userId={id} />}
       </Show>
     </FriendsSignedInGate>
   );

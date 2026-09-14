@@ -6,7 +6,6 @@ export function useChessPuzzleFeedback(): {
   onCorrectMove: () => void;
   onWrongMove: () => void;
   onSolved: () => void;
-  onEloTick: () => void;
   onEloComplete: (delta: number) => void;
 } {
   const boardSounds = createChessBoardSounds();
@@ -24,10 +23,6 @@ export function useChessPuzzleFeedback(): {
     puzzleSounds.playSolved();
   };
 
-  const onEloTick = (): void => {
-    puzzleSounds.playEloTick();
-  };
-
   const onEloComplete = (delta: number): void => {
     if (delta > 0) {
       puzzleSounds.playEloCompleteGain();
@@ -38,5 +33,5 @@ export function useChessPuzzleFeedback(): {
     }
   };
 
-  return { onCorrectMove, onWrongMove, onSolved, onEloTick, onEloComplete };
+  return { onCorrectMove, onWrongMove, onSolved, onEloComplete };
 }

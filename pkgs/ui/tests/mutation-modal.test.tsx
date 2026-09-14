@@ -69,9 +69,9 @@ describe('MutationModal', () => {
     fireEvent.click(submit);
     expect(await screen.findByText('Ending…')).toBeInTheDocument();
     expect(phaseBand).toHaveAttribute('data-phase', 'loading');
-    // Surface close is inert while loading (Escape / backdrop).
+    // Surface close is hidden while loading; Escape / backdrop stay inert.
     await user.keyboard('{Escape}');
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.queryByRole('button', { name: 'Cancel' })).toBeNull();
 

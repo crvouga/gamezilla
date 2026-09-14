@@ -6,6 +6,18 @@
   -webkit-touch-callout: none;
 }
 
+.background {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-color: var(--chess-sq-light);
+  background-image: repeating-conic-gradient(
+    var(--chess-sq-dark) 0% 25%,
+    var(--chess-sq-light) 0% 50%
+  );
+  background-size: 25% 25%;
+}
+
 .layer {
   position: absolute;
   inset: 0;
@@ -51,51 +63,37 @@
   border-radius: 2px;
 }
 
-.piece {
+.pieceAnimated {
+  transition: transform var(--chess-move-ms, 150ms) var(--ui-easing-standard);
+}
+
+.dragOriginGhost {
+  pointer-events: none;
+}
+
+.dragGhost {
+  pointer-events: none;
+  transform-origin: center;
   will-change: transform;
 }
 
-.pieceAnimated {
-  transition: transform var(--ui-duration-normal) var(--ui-easing-standard);
+.captureGhost {
+  pointer-events: none;
+  opacity: 0.45;
+  transition: opacity var(--chess-move-ms, 150ms) var(--ui-easing-standard);
 }
 
-.pieceFadeIn {
-  animation: chessPieceFadeIn var(--ui-duration-normal)
-    var(--ui-easing-decelerate);
-}
-
-@keyframes chessPieceFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.pulse {
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: chessBadgePulse 1.2s var(--ui-easing-inOut) infinite;
-}
-
-@keyframes chessBadgePulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.18);
-  }
+.premoveGhost {
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .pieceAnimated {
     transition: none;
   }
-  .pieceFadeIn,
-  .pulse {
-    animation: none;
+
+  .captureGhost {
+    transition: none;
   }
 }
 
@@ -112,4 +110,54 @@
   opacity: 0.01;
   white-space: nowrap;
   pointer-events: none;
+}
+
+.liveRegion {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.boardBackground {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--chess-sq-light, #f0d9b5);
+  background-image: repeating-conic-gradient(
+    var(--chess-sq-dark, #b58863) 0% 25%,
+    var(--chess-sq-light, #f0d9b5) 0% 50%
+  );
+  background-size: 25% 25%;
+  pointer-events: none;
+}
+
+.wrongShake {
+  animation: chess-wrong-shake 280ms var(--ui-easing-standard, ease);
+}
+
+@keyframes chess-wrong-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+.dragGhostHost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  visibility: hidden;
 }

@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SecretAdminStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import { parseInfisicalExportJson } from '../local-secrets-cache';
 import { INFISICAL_CLI_BIN } from './defaults';
 import { ensureInfisicalCliConfig } from './ensure-cli-config';
 import { resolveInfisicalAccessTokenForWrites } from './oidc-access-token';
@@ -123,25 +124,7 @@ class InfisicalCliAdminStore implements SecretAdminStore {
       ...infisicalBaseArgs(coords),
       '--format=json',
     ]);
-    const parsed: unknown = JSON.parse(raw);
-    const map = new Map<string, string>();
-    if (!Array.isArray(parsed)) return map;
-    for (const item of parsed) {
-      if (item === null || typeof item !== 'object' || Array.isArray(item)) {
-        continue;
-      }
-      const rec = item as Record<string, unknown>;
-      const key = rec['key'];
-      const value = rec['value'];
-      if (
-        typeof key === 'string' &&
-        key.length > 0 &&
-        typeof value === 'string'
-      ) {
-        map.set(key, value);
-      }
-    }
-    return map;
+    return parseInfisicalExportJson(raw);
   }
 
   async listSecretNames(envOverride?: string): Promise<readonly string[]> {

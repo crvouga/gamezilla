@@ -1,35 +1,11 @@
-/* Playing state: the three wave arcs ripple outward in sequence. Compositor-
-   only (opacity) and disabled under reduced motion. */
-
-@keyframes ui-sound-wave {
-  0%,
-  100% {
-    opacity: 0.25;
-  }
-  40% {
-    opacity: 1;
-  }
-}
+/* Playing state: static wave arcs (no infinite ripple) for low-end Android. */
 
 .wave {
-  animation: ui-sound-wave 1200ms var(--ui-easing-inOut) infinite;
+  opacity: 1;
 }
 
-.wave1 {
-  animation-delay: 0ms;
-}
-
-.wave2 {
-  animation-delay: 200ms;
-}
-
+.wave1,
+.wave2,
 .wave3 {
-  animation-delay: 400ms;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wave {
-    animation: none;
-    opacity: 1;
-  }
+  opacity: 1;
 }

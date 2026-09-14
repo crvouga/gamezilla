@@ -74,7 +74,7 @@ function SpacesList(props: {
   const open = useOpenSpaceSessionIds();
   const mode = useLayoutMode();
   const orderedIds = createMemo(() =>
-    sortCurrentSpacesFirst(joinable.spaceIds, new Set(open.spaceIds))
+    sortCurrentSpacesFirst(joinable.spaceIds(), new Set(open.spaceIds()))
   );
 
   return (

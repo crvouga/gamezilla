@@ -26,6 +26,7 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
       onClose={() => props.onOpenChange(false)}
       title={<Trans>Share space</Trans>}
       size="medium"
+      scroll={false}
     >
       <ScrollView class="max-h-[480px]" contentClass="px-0 gap-3">
         <SpaceShareLinkSection spaceId={props.spaceId} />

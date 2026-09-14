@@ -15,10 +15,10 @@ export type AccountDeviceListCaptionTextProps = {
 export function AccountDeviceListCaptionText(
   props: AccountDeviceListCaptionTextProps
 ): JSX.Element {
-  const osName = useDeviceColumn(props.deviceId, 'osName');
-  const osVersion = useDeviceColumn(props.deviceId, 'osVersion');
-  const lastSeenAt = useDeviceColumn(props.deviceId, 'lastSeenAt');
-  const createdAt = useDeviceColumn(props.deviceId, 'createdAt');
+  const osName = useDeviceColumn(() => props.deviceId, 'osName');
+  const osVersion = useDeviceColumn(() => props.deviceId, 'osVersion');
+  const lastSeenAt = useDeviceColumn(() => props.deviceId, 'lastSeenAt');
+  const createdAt = useDeviceColumn(() => props.deviceId, 'createdAt');
   const label = createMemo(() =>
     formatDeviceListCaption({
       osName: osName(),

@@ -27,7 +27,18 @@ export function SignInCapabilitiesProvider(props: {
   readonly value: SignInCapabilities;
   readonly children: JSX.Element;
 }): JSX.Element {
-  return <Ctx.Provider value={props.value}>{props.children}</Ctx.Provider>;
+  const value: SignInCapabilities = {
+    get google() {
+      return props.value.google;
+    },
+    get devOauth() {
+      return props.value.devOauth;
+    },
+    get ready() {
+      return props.value.ready;
+    },
+  };
+  return <Ctx.Provider value={value}>{props.children}</Ctx.Provider>;
 }
 
 export function useSignInCapabilities(): SignInCapabilities {

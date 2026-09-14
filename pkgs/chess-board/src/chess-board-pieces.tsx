@@ -1,8 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
  * Piece layer: stable-id rows slide via CSS `transform`; the capture ghost
- * fades at the vacated square; the dragged piece follows the pointer in
- * board units.
+ * fades at the vacated square; the dragged piece is an imperative ghost
+ * (rAF transform) while the source square stays faintly visible.
  */
 
 import type { CaptureGhost } from '@pkgs/chess-board-core/capture-ghost';
@@ -12,10 +12,12 @@ import type {
   PieceCode,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { type Accessor, For, type JSX, Show } from 'solid-js';
+import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
 
 import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
 import styles from './chess-board.module.css';
+import { bumpChessBoardRender } from './dev/render-counts';
+import type { DragGhostController } from './drag-ghost-controller';
 import { PIECE_IMAGE_URIS } from './piece-images';
 
 export type ChessBoardPiecesProps = {
@@ -24,9 +26,10 @@ export type ChessBoardPiecesProps = {
   readonly captureGhost: Accessor<CaptureGhost | null>;
   readonly snapSquare: Accessor<Square | null>;
   readonly dragFrom: Accessor<Square | null>;
-  /** Pointer position in board units, or null when not dragging. */
-  readonly dragAt: Accessor<{ x: number; y: number } | null>;
+  readonly dragGhost: DragGhostController;
   readonly animated: Accessor<boolean>;
+  readonly premoveTo: Square | null;
+  readonly premoveCode: PieceCode | null;
 };
 
 function pieceTransform(square: Square, orientation: BoardOrientation): string {
@@ -51,7 +54,69 @@ function PieceImage(props: {
   );
 }
 
+function DragGhostLayer(props: {
+  readonly dragFrom: Accessor<Square | null>;
+  readonly rows: Accessor<readonly ChessPieceRow[]>;
+  readonly dragGhost: DragGhostController;
+}): JSX.Element {
+  const dragCode = createMemo((): PieceCode | null => {
+    const from = props.dragFrom();
+    if (from === null) return null;
+    const row = props.rows().find((r) => r.square === from);
+    return row?.code ?? null;
+  });
+  return (
+    <g
+      class={styles['dragGhost']}
+      ref={(el) => props.dragGhost.setElement(el)}
+      style={{ visibility: 'hidden' }}
+    >
+      <Show when={dragCode()}>{(code) => <PieceImage code={code()} />}</Show>
+    </g>
+  );
+}
+
+function PieceRow(props: {
+  readonly row: ChessPieceRow;
+  readonly orientation: BoardOrientation;
+  readonly dragFrom: Accessor<Square | null>;
+  readonly snapSquare: Accessor<Square | null>;
+  readonly animated: Accessor<boolean>;
+}): JSX.Element {
+  const dragging = () => props.dragFrom() === props.row.square;
+  const className = () => {
+    if (
+      dragging() ||
+      !props.animated() ||
+      props.snapSquare() === props.row.square
+    ) {
+      return '';
+    }
+    return styles['pieceAnimated'] ?? '';
+  };
+  return (
+    <>
+      <Show when={dragging()}>
+        <g
+          class={styles['dragOriginGhost']}
+          transform={pieceTransform(props.row.square, props.orientation)}
+        >
+          <PieceImage code={props.row.code} opacity={0.35} />
+        </g>
+      </Show>
+      <g
+        transform={pieceTransform(props.row.square, props.orientation)}
+        class={className()}
+        style={{ visibility: dragging() ? 'hidden' : undefined }}
+      >
+        <PieceImage code={props.row.code} />
+      </g>
+    </>
+  );
+}
+
 export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
+  bumpChessBoardRender('pieces');
   return (
     <svg
       class={`${styles['layer']} ${styles['svgLayer']}`}
@@ -60,43 +125,46 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
     >
       <Show when={props.captureGhost()}>
         {(ghost) => (
-          <g transform={pieceTransform(ghost().square, props.orientation)}>
-            <PieceImage code={ghost().code} opacity={0.45} />
+          <g
+            class={styles['captureGhost']}
+            transform={pieceTransform(ghost().square, props.orientation)}
+          >
+            <PieceImage code={ghost().code} />
+          </g>
+        )}
+      </Show>
+      <Show
+        when={
+          props.premoveTo !== null && props.premoveCode !== null
+            ? { to: props.premoveTo, code: props.premoveCode }
+            : null
+        }
+      >
+        {(premove) => (
+          <g
+            class={styles['premoveGhost']}
+            transform={pieceTransform(premove().to, props.orientation)}
+          >
+            <PieceImage code={premove().code} opacity={0.4} />
           </g>
         )}
       </Show>
       <For each={props.rows()}>
-        {(row) => {
-          const dragging = () => props.dragFrom() === row.square;
-          const at = () => props.dragAt();
-          const transform = () => {
-            const atPos = at();
-            if (dragging() && atPos !== null) {
-              return `translate(${atPos.x - CELL_UNITS / 2} ${atPos.y - CELL_UNITS / 2})`;
-            }
-            return pieceTransform(row.square, props.orientation);
-          };
-          const className = () => {
-            const parts = [styles['piece']];
-            if (
-              props.animated() &&
-              props.snapSquare() !== row.square &&
-              !dragging()
-            ) {
-              parts.push(styles['pieceAnimated']);
-            }
-            if (row.fadeIn === true && props.animated()) {
-              parts.push(styles['pieceFadeIn']);
-            }
-            return parts.join(' ');
-          };
-          return (
-            <g transform={transform()} class={className()}>
-              <PieceImage code={row.code} />
-            </g>
-          );
-        }}
+        {(row) => (
+          <PieceRow
+            row={row}
+            orientation={props.orientation}
+            dragFrom={props.dragFrom}
+            snapSquare={props.snapSquare}
+            animated={props.animated}
+          />
+        )}
       </For>
+      <DragGhostLayer
+        dragFrom={props.dragFrom}
+        rows={props.rows}
+        dragGhost={props.dragGhost}
+      />
     </svg>
   );
 }
