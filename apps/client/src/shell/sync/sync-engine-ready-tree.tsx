@@ -88,9 +88,8 @@ export default function ReadyEngineTree(
               <AuthSyncBridge>
                 <MutationClientProvider registry={ready.registry}>
                   <AppSignInCapabilities>
-                    {/* UI hosts (surface stack, overlays, command palette) must
-                        wrap the sign-in modal: surfaces throw without
-                        SurfaceStackProvider. */}
+                    {/* Sign-in modal needs the outer AppUiPortals surface
+                        stack plus this session chrome (palette / banners). */}
                     <AppUiProvider>
                       <AuthModalsProvider>
                         <AppClientConfig>

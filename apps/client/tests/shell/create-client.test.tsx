@@ -2,7 +2,7 @@
 import { createClient } from '@apps/client/shell/create-client';
 import { Handles } from '@libs/test-ids';
 import { createMemoryHistory } from '@solidjs/router';
-import { render, screen, waitFor } from '@solidjs/testing-library';
+import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { type SimClientEnv, simClientEnv } from '../support/sim-client-env';
@@ -121,6 +121,23 @@ describe('createClient', () => {
     for (const handle of TAB_HANDLES) {
       expect(screen.getByTestId(handle)).toBeInTheDocument();
     }
+
+    view.unmount();
+    await client.close();
+  }, 30_000);
+
+  it('opens the account menu without a surface-stack crash', async () => {
+    sim = await simClientEnv({ seed: 13 });
+    const client = createClient(sim.env);
+    const history = createMemoryHistory();
+    const view = render(() => <client.App embedded history={history} />);
+    await sim.session.advanceTime(1_000);
+    await sim.session.waitForIdle();
+    await waitForScreen('spaces');
+
+    fireEvent.click(screen.getByTestId(Handles.statusCurrentUser));
+    expect(screen.queryByText('App crashed!')).toBeNull();
+    expect(screen.getByTestId(Handles.globalMenuSettings)).toBeInTheDocument();
 
     view.unmount();
     await client.close();

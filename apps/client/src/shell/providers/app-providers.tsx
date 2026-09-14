@@ -6,7 +6,8 @@
  * Split so `ProductApp` can paint `AppFrame` + `BootPaintGate` **outside**
  * the SQLite boot gate: shell chrome and first paint must not wait on WASM.
  *
- * - {@link AppProvidersOuter}: shell → infrastructure → auth → services
+ * - {@link AppProvidersOuter}: shell → infrastructure → auth → services →
+ *   overlay/surface portals (so `AppFrame` chrome can open menus before SQLite)
  * - {@link AppProvidersSession}: games bootstrap → local database
  *
  * Games bootstrap must wrap the sync ready tree: `AppSpaceRoomsProvider`
@@ -24,6 +25,7 @@ import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
 import { AppServicesProvider } from './app-services-provider';
 import { AppShellProvider } from './app-shell-provider';
+import { AppUiPortals } from './app-ui-portals';
 
 export function AppProvidersOuter(props: {
   readonly children: JSX.Element;
@@ -34,7 +36,9 @@ export function AppProvidersOuter(props: {
       <AppShellProvider>
         <AppInfrastructureProvider>
           <AppAuthProvider>
-            <AppServicesProvider>{props.children}</AppServicesProvider>
+            <AppServicesProvider>
+              <AppUiPortals>{props.children}</AppUiPortals>
+            </AppServicesProvider>
           </AppAuthProvider>
         </AppInfrastructureProvider>
       </AppShellProvider>

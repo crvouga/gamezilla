@@ -1,15 +1,13 @@
 /** @jsxImportSource solid-js */
 /**
- * Overlays, surfaces, banners, command palette. Mounts inside the
- * identity-scoped sync engine tree (`sync-engine-ready-tree.tsx`), after
- * `AppLocalDatabaseProvider` (commands read the sync engine) and above the
- * sign-in modal (`AppSignInCapabilities` + `AuthModalsProvider`, which needs
- * both the engine for `useClientConfig` and this stack for surfaces).
+ * Banners, command palette, and in-session chrome. Overlay / surface-stack
+ * hosts live in `AppUiPortals` (outer shell) so `AppFrame` menus work
+ * before SQLite. This provider still mounts inside the identity-scoped sync
+ * tree (`sync-engine-ready-tree.tsx`), after `AppLocalDatabaseProvider`
+ * (commands read the sync engine) and above the sign-in modal
+ * (`AppSignInCapabilities` + `AuthModalsProvider`).
  *
- * `OverlayPortalProvider` wraps `SurfaceStackProvider`: surface chrome renders
- * in the stack host (sibling of `children`), so overlay context must be
- * outside for modal tooltips to work. The bottom sheet host is the `@pkgs/ui`
- * web default (no provider needed).
+ * The bottom sheet host is the `@pkgs/ui` web default (no provider needed).
  *
  * Deferred lib providers (each with its screen port): `EndSpaceModalProvider`
  * / `LeaveSpaceModalProvider` / space rooms / notifications — mounted from
@@ -26,8 +24,6 @@ import {
   CommandRegistryProvider,
   DismissibleBannerPortalProvider,
   KeyboardShortcutScope,
-  OverlayPortalProvider,
-  SurfaceStackProvider,
 } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 import { AppCommands } from '../commands/app-commands';
@@ -69,14 +65,10 @@ export function AppUiProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <OverlayPortalProvider>
-      <SurfaceStackProvider>
-        <DismissibleBannerPortalProvider>
-          <OfflineIndicator />
-          <PerfHudOverlay />
-          <AppCommandRegistry>{props.children}</AppCommandRegistry>
-        </DismissibleBannerPortalProvider>
-      </SurfaceStackProvider>
-    </OverlayPortalProvider>
+    <DismissibleBannerPortalProvider>
+      <OfflineIndicator />
+      <PerfHudOverlay />
+      <AppCommandRegistry>{props.children}</AppCommandRegistry>
+    </DismissibleBannerPortalProvider>
   );
 }
