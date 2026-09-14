@@ -437,7 +437,6 @@
       "inputs": [
         "dist/**",
         "perf-budget.json",
-        "lighthouserc.json",
         "../../tools/scripts/lighthouse-ci.ts",
         "../../tools/scripts/lighthouse-report.ts",
         "../../tools/scripts/lighthouse-api-stub.ts",

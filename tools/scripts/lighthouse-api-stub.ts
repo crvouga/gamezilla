@@ -3,26 +3,44 @@
 /**
  * Tiny API stub so the client shell can boot during Lighthouse CI
  * without wrangler / Postgres. Tracks response body bytes for first-load budget.
+ *
+ * Prefer same-origin via preview-server `/api` proxy (`LOCAL_PREVIEW_API_ORIGIN`).
+ * CORS + CORP remain for direct cross-origin probes.
  */
+const CORS_HEADERS: Record<string, string> = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  'access-control-allow-headers': '*',
+  'access-control-max-age': '86400',
+  'cross-origin-resource-policy': 'cross-origin',
+};
+
 export function startPerfApiStub(port: number): {
   stop: () => void;
   origin: string;
   totalResponseBytes: () => number;
 } {
   let totalResponseBytes = 0;
-  const track = (body: string): Response => {
+  const track = (body: string, init?: ResponseInit): Response => {
     totalResponseBytes += Buffer.byteLength(body);
-    return new Response(body, {
-      headers: { 'content-type': 'application/json' },
-    });
+    const headers = new Headers(init?.headers);
+    headers.set('content-type', 'application/json');
+    for (const [k, v] of Object.entries(CORS_HEADERS)) {
+      headers.set(k, v);
+    }
+    return new Response(body, { ...init, headers });
   };
   const server = Bun.serve({
     port,
     fetch(req) {
-      const url = new URL(req.url);
-      const path = url.pathname;
+      if (req.method === 'OPTIONS') {
+        return new Response(null, { status: 204, headers: CORS_HEADERS });
+      }
+      const path = new URL(req.url).pathname;
       if (path === '/api/health' || path.endsWith('/api/health')) {
-        return track(JSON.stringify({ ok: true }));
+        // Match production `/api/health` (`{ status: 'ok' }`) for
+        // `probeHealthEndpoint`.
+        return track(JSON.stringify({ status: 'ok' }));
       }
       if (path.includes('/api/identity/')) {
         return track(
@@ -38,7 +56,10 @@ export function startPerfApiStub(port: number): {
       if (path.includes('/api/mutations')) {
         return track(JSON.stringify({ results: [] }));
       }
-      return new Response('not found', { status: 404 });
+      return new Response('not found', {
+        status: 404,
+        headers: CORS_HEADERS,
+      });
     },
   });
   return {

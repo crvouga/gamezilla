@@ -58,6 +58,7 @@
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
+    "secrets:pull": "bun run tools/scripts/secrets-pull.ts",
     "sims:open": "bun run tools/scripts/sims/open-sims.ts",
     "test:pbt": "bun run tools/scripts/test-pbt-random.ts",
     "test:pbt:random": "bun run tools/scripts/test-pbt-random.ts",

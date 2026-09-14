@@ -47,9 +47,9 @@ Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph
 
 `@apps/client#check:lighthouse` runs via Turborepo on **`bun check:full`** and **`bun run deploy`** (depends on `@apps/client#build`). It is **not** in `bun check` (needs a Vite build + Chrome). While `lighthouse.mode` is `warn`, overs print warnings and the task still exits 0.
 
-- Local production build + preview-server + tiny API stub
-- Routes: `/` (shell), `/more`, `/profile`
-- Median of `lighthouse.iterations` (3)
+- Rebuilds (when needed) with `VITE_API_URL` = preview origin; preview proxies `/api` → stub (never production)
+- Routes: `/` (shell), `/more`, `/profile` — **one LHCI process per route** (Chrome reaped between routes); SIGKILL retries that route once after reap
+- Median of `lighthouse.iterations` (3) × performance category only
 - Metrics: LCP / TBT / TTI / Speed Index / total-byte-weight / CLS
 - Reports under `apps/client/.lighthouseci/` (`--skip-upload` in the package script)
 

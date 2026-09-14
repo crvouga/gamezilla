@@ -5,6 +5,10 @@ export type RunWithSecretsOptions = {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
   readonly childArgs: readonly string[];
+  /** Injected wall clock (ms) for cache stale checks. */
+  readonly nowMs: number;
+  /** Injected wall clock ISO for cache meta `pulledAt`. */
+  readonly nowIso: string;
 };
 
 /**

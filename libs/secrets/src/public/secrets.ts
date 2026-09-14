@@ -8,6 +8,7 @@ export {
   deleteSecretIn,
   ensureSeedInAllEnvsSecrets,
   exportSecretsMap,
+  exportSecretsMapLive,
   fetchSecret,
   fetchSecretFrom,
   getApiWorkerSecrets,

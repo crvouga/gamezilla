@@ -10,14 +10,14 @@ import { SECRETS_ENVS } from '../shared/secrets/secret';
 import {
   deleteSecretIn,
   ensureSeedInAllEnvsSecrets,
-  exportSecretsMap,
+  exportSecretsMapLive,
   setSecretIn,
 } from '../shared/secrets/secrets';
 
 const LEGACY = 'BETTER_AUTH_SECRET';
 
 for (const env of SECRETS_ENVS) {
-  const stored = await exportSecretsMap(env);
+  const stored = await exportSecretsMapLive(env);
   const current = (stored.get('AUTH_SECRET') ?? '').trim();
   const legacy = (stored.get(LEGACY) ?? '').trim();
 
