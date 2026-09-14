@@ -2,7 +2,7 @@
 import { Badge, BellIcon, type IconProps } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
-import { useNotificationsUnreadCount } from './use-notifications-unread-count';
+import { useNotificationsUnreadCountChrome } from './notifications-unread-count-chrome';
 
 function UnreadCountBadge(props: { readonly count: number }): JSX.Element {
   return (
@@ -17,7 +17,7 @@ function UnreadCountBadge(props: { readonly count: number }): JSX.Element {
 
 /** Bell + unread badge; drop-in {@link IconComponent} for the notifications tab. */
 export function NotificationsTabIcon(props: IconProps): JSX.Element {
-  const unreadCount = useNotificationsUnreadCount();
+  const unreadCount = useNotificationsUnreadCountChrome();
   return (
     <div class="box relative">
       <BellIcon color={props.color} size={props.size ?? 24} />

@@ -36,9 +36,23 @@ async function waitForScreen(screenId: string): Promise<Element> {
   );
 }
 
+function stubHostSize(size: { width: number; height: number }): () => void {
+  const proto = HTMLElement.prototype;
+  const original = proto.getBoundingClientRect;
+  proto.getBoundingClientRect = function getBoundingClientRect(): DOMRect {
+    return new DOMRect(0, 0, size.width, size.height);
+  };
+  return () => {
+    proto.getBoundingClientRect = original;
+  };
+}
+
 describe('createClient', () => {
   let sim: SimClientEnv | null = null;
+  let restoreHostSize: (() => void) | null = null;
   afterEach(async () => {
+    restoreHostSize?.();
+    restoreHostSize = null;
     await sim?.dispose();
     sim = null;
   });
@@ -82,6 +96,32 @@ describe('createClient', () => {
     expect(screen.getByTestId('route-not-found')).toBeInTheDocument();
 
     expect(sim.requests).toContain('/api/identity/anon/ensure');
+    view.unmount();
+    await client.close();
+  }, 30_000);
+
+  it('paints the wide header island without crashing on notifications chrome', async () => {
+    restoreHostSize = stubHostSize({ width: 1280, height: 900 });
+    sim = await simClientEnv({ seed: 11 });
+    const client = createClient(sim.env);
+    const history = createMemoryHistory();
+
+    const view = render(() => <client.App embedded history={history} />);
+    await sim.session.advanceTime(1_000);
+    await sim.session.waitForIdle();
+    await waitForScreen('spaces');
+
+    expect(screen.queryByText('App crashed!')).toBeNull();
+    expect(
+      document.querySelector('[data-component="AppHeaderIsland"]')
+    ).not.toBeNull();
+    expect(
+      document.querySelector('[data-component="AppFrame"]')
+    ).toHaveAttribute('data-mode', 'wide');
+    for (const handle of TAB_HANDLES) {
+      expect(screen.getByTestId(handle)).toBeInTheDocument();
+    }
+
     view.unmount();
     await client.close();
   }, 30_000);

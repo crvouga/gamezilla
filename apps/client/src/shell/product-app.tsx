@@ -7,10 +7,13 @@
  *
  * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
  * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
- * not block the frame itself (see docs/low-end-android-perf.md).
+ * not block the frame itself (see docs/low-end-android-perf.md). Wide header
+ * tabs read unread count from `NotificationsUnreadCountRoot` — the
+ * registry / `createQuery` live inside the session tree.
  */
 
 import { EmbeddedHrefPersistence } from '@apps/client/shell/embedded-href-persistence';
+import { NotificationsUnreadCountRoot } from '@libs/notifications/public/notifications-unread-count-chrome';
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
 import { AppFrame, AppFrameChromeProvider, AppRouterProvider } from '@pkgs/ui';
 import { type JSX, onCleanup, onMount, Show } from 'solid-js';
@@ -51,17 +54,19 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
             </Show>
             <SyncStatusRoot>
               <GlobalMenuIdentityRoot>
-                <AppFrameChromeProvider
-                  globalTrailing={<AppHeaderGlobalMenu />}
-                >
-                  <BootPaintGate>
-                    <AppFrame header={<AppHeaderIslandHost />}>
-                      <AppProvidersSession>
-                        {props.children}
-                      </AppProvidersSession>
-                    </AppFrame>
-                  </BootPaintGate>
-                </AppFrameChromeProvider>
+                <NotificationsUnreadCountRoot>
+                  <AppFrameChromeProvider
+                    globalTrailing={<AppHeaderGlobalMenu />}
+                  >
+                    <BootPaintGate>
+                      <AppFrame header={<AppHeaderIslandHost />}>
+                        <AppProvidersSession>
+                          {props.children}
+                        </AppProvidersSession>
+                      </AppFrame>
+                    </BootPaintGate>
+                  </AppFrameChromeProvider>
+                </NotificationsUnreadCountRoot>
               </GlobalMenuIdentityRoot>
             </SyncStatusRoot>
           </AppProvidersOuter>

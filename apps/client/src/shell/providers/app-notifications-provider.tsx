@@ -15,6 +15,7 @@ import {
   type NotificationProvider,
   type NotificationsClientDeps,
   NotificationsProviderRegistry,
+  NotificationsUnreadCountLiveBridge,
 } from '@libs/notifications/public';
 import { useHttpClient } from '@pkgs/http-client/solid';
 import { createMemo, type JSX } from 'solid-js';
@@ -113,9 +114,11 @@ export function AppNotificationsProvider(props: {
     >
       {/* Decision-modal open state lives above the virtualized rows so row
           recycling (read-state flips, sync merges) cannot close it. */}
-      <FriendRequestDecisionProvider>
-        {props.children}
-      </FriendRequestDecisionProvider>
+      <NotificationsUnreadCountLiveBridge>
+        <FriendRequestDecisionProvider>
+          {props.children}
+        </FriendRequestDecisionProvider>
+      </NotificationsUnreadCountLiveBridge>
     </NotificationsProviderRegistry>
   );
 }
