@@ -420,6 +420,7 @@
         "../../tools/scripts/lighthouse-ci.ts",
         "../../tools/scripts/lighthouse-report.ts",
         "../../tools/scripts/lighthouse-api-stub.ts",
+        "../../tools/scripts/listen-preferred-or-ephemeral.ts",
         "../../tools/scripts/perf-budget.ts"
       ],
       "outputs": [".lighthouseci/**"],

@@ -4,9 +4,12 @@
  * Tiny API stub so the client shell can boot during Lighthouse CI
  * without wrangler / Postgres. Tracks response body bytes for first-load budget.
  */
-export function startPerfApiStub(port: number): {
+import { listenPreferredOrEphemeral } from './listen-preferred-or-ephemeral';
+
+export function startPerfApiStub(preferredPort = 8799): {
   stop: () => void;
   origin: string;
+  port: number;
   totalResponseBytes: () => number;
 } {
   let totalResponseBytes = 0;
@@ -16,8 +19,8 @@ export function startPerfApiStub(port: number): {
       headers: { 'content-type': 'application/json' },
     });
   };
-  const server = Bun.serve({
-    port,
+  const { server, port } = listenPreferredOrEphemeral({
+    preferredPort,
     fetch(req) {
       const url = new URL(req.url);
       const path = url.pathname;
@@ -41,8 +44,14 @@ export function startPerfApiStub(port: number): {
       return new Response('not found', { status: 404 });
     },
   });
+  if (port !== preferredPort) {
+    console.log(
+      `[lighthouse] API stub preferred :${String(preferredPort)} busy; using :${String(port)}`
+    );
+  }
   return {
     origin: server.url.origin,
+    port,
     totalResponseBytes: () => totalResponseBytes,
     stop: () => {
       server.stop(true);

@@ -55,23 +55,56 @@ async function waitPort(origin: string, ms: number): Promise<void> {
   throw new Error(`server not ready: ${origin}`);
 }
 
-function startPreview(args: {
+const PREVIEW_ORIGIN_RE = /\[preview-server\] static web=(https?:\/\/\S+)/;
+
+async function startPreview(args: {
   readonly distDir: string;
-  readonly port: number;
+  readonly preferredPort: number;
   readonly apiOrigin: string;
-}): { stop: () => void; origin: string } {
+}): Promise<{ stop: () => void; origin: string }> {
   const proc = spawn('bun', [join(CLIENT_DIR, 'scripts/preview-server.ts')], {
     cwd: CLIENT_DIR,
     env: {
       ...process.env,
-      PREVIEW_PORT: String(args.port),
+      PREVIEW_PORT: String(args.preferredPort),
       VITE_API_URL: args.apiOrigin,
       LOCAL_PREVIEW_API_ORIGIN: args.apiOrigin,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+  proc.stderr?.on('data', (chunk: Buffer | string) => {
+    process.stderr.write(chunk);
+  });
+  const origin = await new Promise<string>((resolve, reject) => {
+    let settled = false;
+    let buf = '';
+    const finish = (fn: () => void): void => {
+      if (settled) return;
+      settled = true;
+      fn();
+    };
+    const onData = (chunk: Buffer | string): void => {
+      buf += typeof chunk === 'string' ? chunk : chunk.toString();
+      const match = PREVIEW_ORIGIN_RE.exec(buf);
+      if (match?.[1] !== undefined) {
+        proc.stdout?.off('data', onData);
+        finish(() => resolve(match[1]));
+      }
+    };
+    proc.stdout?.on('data', onData);
+    proc.once('error', (err) => finish(() => reject(err)));
+    proc.once('exit', (code) => {
+      finish(() =>
+        reject(
+          new Error(
+            `preview-server exited before ready (code=${String(code ?? 'null')})`
+          )
+        )
+      );
+    });
+  });
   return {
-    origin: `http://127.0.0.1:${String(args.port)}`,
+    origin,
     stop: () => {
       proc.kill('SIGTERM');
     },
@@ -262,9 +295,9 @@ async function main(): Promise<void> {
   mkdirSync(LHCI_OUT, { recursive: true });
   const api = startPerfApiStub(8799);
   await ensureClientBuild(distDir, api.origin);
-  const preview = startPreview({
+  const preview = await startPreview({
     distDir,
-    port: 5177,
+    preferredPort: 5177,
     apiOrigin: api.origin,
   });
 
