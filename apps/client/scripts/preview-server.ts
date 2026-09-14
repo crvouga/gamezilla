@@ -51,15 +51,15 @@ async function proxyApi(req: Request): Promise<Response> {
     : `${apiProxyOrigin}/`;
   const target = new URL(`${inbound.pathname}${inbound.search}`, base);
   const method = req.method;
-  const upstream = await fetch(target, {
+  const init: RequestInit = {
     method,
     headers: req.headers,
-    body:
-      method === 'GET' || method === 'HEAD' || method === 'OPTIONS'
-        ? undefined
-        : await req.arrayBuffer(),
     redirect: 'manual',
-  });
+  };
+  if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+    init.body = await req.arrayBuffer();
+  }
+  const upstream = await fetch(target, init);
   return withIsolation(
     new Response(upstream.body, {
       status: upstream.status,

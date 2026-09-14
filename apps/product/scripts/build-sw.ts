@@ -59,9 +59,7 @@ const { count, size, warnings } = await generateSW({
    * Apple splash PNGs are device-specific (runtime image cache), not precache.
    */
   maximumFileSizeToCacheInBytes: 1024 * 1024,
-  globPatterns: [
-    '**/*.{html,js,css,wasm,ttf,woff2,svg,ico,webmanifest,json}',
-  ],
+  globPatterns: ['**/*.{html,js,css,wasm,ttf,woff2,svg,ico,webmanifest,json}'],
   globIgnores: [
     '**/apple-splash-*.png',
     '**/generated/**',
