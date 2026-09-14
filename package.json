@@ -103,7 +103,7 @@
     "knip": "catalog:",
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "^2.10.12",
+    "turbo": "^2.10.13",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },
