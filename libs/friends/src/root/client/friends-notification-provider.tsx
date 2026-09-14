@@ -3,6 +3,7 @@ import type {
   NotificationCardActions,
   NotificationProvider,
 } from '@libs/notifications/public';
+import { Show } from 'solid-js';
 
 import { FriendRequestNotificationCard } from './friend-request-notification-card';
 import type { FriendsClientDeps } from './friends-client-deps';
@@ -15,16 +16,13 @@ export function createFriendsNotificationProvider(
     renderCard: (
       interaction: Notification,
       actions: NotificationCardActions
-    ) => {
-      if (interaction.sourceType === 'friend-request') {
-        return (
-          <FriendRequestNotificationCard
-            interaction={interaction}
-            actions={actions}
-          />
-        );
-      }
-      return null;
-    },
+    ) => (
+      <Show when={interaction.sourceType === 'friend-request'}>
+        <FriendRequestNotificationCard
+          interaction={interaction}
+          actions={actions}
+        />
+      </Show>
+    ),
   };
 }

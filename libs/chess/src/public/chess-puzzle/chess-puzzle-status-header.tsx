@@ -1,4 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
+import { SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import {
@@ -6,7 +7,7 @@ import {
   type ChessPuzzleStatusKind,
 } from './chess-puzzle-status-icons';
 
-const HEADER_ROW_HEIGHT = 22;
+const HEADER_ROW_HEIGHT = SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT;
 
 export { HEADER_ROW_HEIGHT };
 

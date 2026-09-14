@@ -10,11 +10,7 @@ import { createEffect, type JSX, on } from 'solid-js';
 
 import { writeEmbeddedHref } from './embedded-href';
 
-function locationHref(
-  pathname: string,
-  search: string,
-  hash: string
-): string {
+function locationHref(pathname: string, search: string, hash: string): string {
   return `${pathname}${search}${hash}`;
 }
 

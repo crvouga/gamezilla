@@ -77,7 +77,7 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
   const { t } = useLingui();
   const lifecycle = useSignInModalLifecycle({
     resumePending: () => props.resumePending,
-    ...(props.onError !== undefined ? { onError: props.onError } : {}),
+    onError: (error) => props.onError?.(error),
   });
   useResetOnClose({
     visible: () => props.visible,

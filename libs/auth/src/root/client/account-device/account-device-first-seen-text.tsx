@@ -11,7 +11,7 @@ export type AccountDeviceFirstSeenTextProps = {
 export function AccountDeviceFirstSeenText(
   props: AccountDeviceFirstSeenTextProps
 ): JSX.Element {
-  const firstSeenAt = useDeviceColumn(props.deviceId, 'firstSeenAt');
+  const firstSeenAt = useDeviceColumn(() => props.deviceId, 'firstSeenAt');
   const label = createMemo(() => formatTimestamp(firstSeenAt()));
   return <p class="text line-clamp-4">{label()}</p>;
 }

@@ -100,9 +100,10 @@ function usePuzzlePlayerModel(args: {
 }) {
   const myId = useMyId();
   const profile = useChessPuzzleProfileRatings(myId);
-  const playerElo = createMemo(() =>
-    profile.profileRating > 0 ? profile.profileRating : DEFAULT_PLAYER_ELO
-  );
+  const playerElo = createMemo(() => {
+    const rating = profile.profileRating();
+    return rating > 0 ? rating : DEFAULT_PLAYER_ELO;
+  });
   const entity = usePuzzleEntityAndInteractions(args.puzzleId);
   const fen = createMemo(() => entity.fen);
   const movesStr = createMemo(() => entity.movesStr);

@@ -24,8 +24,8 @@ function readSpaceId(spaceId: string | Accessor<string>): string {
  * Source of truth for miniplayer + room host lifetime.
  */
 export function useOpenSpaceSessionIds(): {
-  readonly spaceIds: readonly string[];
-  readonly isLoading: boolean;
+  readonly spaceIds: Accessor<readonly string[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
@@ -40,15 +40,11 @@ export function useOpenSpaceSessionIds(): {
           SELECT space_id FROM spaces_open_sessions WHERE false
         `
   );
-  const spaceIds = createMemo(() => query.rows().map((row) => row.space_id));
-  return {
-    get spaceIds() {
-      return paintReady() ? spaceIds() : EMPTY_IDS;
-    },
-    get isLoading() {
-      return paintReady() ? query.isLoading() : true;
-    },
-  };
+  const spaceIds = createMemo(() =>
+    paintReady() ? query.rows().map((row) => row.space_id) : EMPTY_IDS
+  );
+  const loading = createMemo(() => (paintReady() ? query.isLoading() : true));
+  return { spaceIds, isLoading: loading };
 }
 
 /** Whether this install currently has `spaceId` open. */
@@ -79,9 +75,9 @@ export function useIsSpaceOpenLocally(
 
 /** Open-session fields for join announce (room clientId is per-tab in-memory). */
 export function useSpaceOpenSession(spaceId: string | Accessor<string>): {
-  readonly joinAnnounced: boolean;
-  readonly isOpen: boolean;
-  readonly isLoading: boolean;
+  readonly joinAnnounced: Accessor<boolean>;
+  readonly isOpen: Accessor<boolean>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const { paintReady } = useSyncEngine();
   const localDeviceId = useDeviceId();
@@ -106,14 +102,10 @@ export function useSpaceOpenSession(spaceId: string | Accessor<string>): {
   );
   const row = createMemo(() => query.rows()[0] ?? null);
   return {
-    get joinAnnounced() {
-      return paintReady() && Boolean(row()?.join_announced);
-    },
-    get isOpen() {
-      return paintReady() && row() !== null;
-    },
-    get isLoading() {
-      return paintReady() ? query.isLoading() : true;
-    },
+    joinAnnounced: createMemo(
+      () => paintReady() && Boolean(row()?.join_announced)
+    ),
+    isOpen: createMemo(() => paintReady() && row() !== null),
+    isLoading: createMemo(() => (paintReady() ? query.isLoading() : true)),
   };
 }

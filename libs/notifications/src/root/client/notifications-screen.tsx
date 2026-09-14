@@ -79,14 +79,14 @@ function NotificationsScreenBody(props: {
   });
 
   const hasUnread = (): boolean =>
-    inbox.interactions.some((item) => item.isUnread);
+    inbox.interactions().some((item) => item.isUnread);
 
   return (
     <div class="box flex-1 min-h-[0] gap-2">
       <div class="box flex-row items-center justify-between gap-3">
         <div class="box flex-1 min-w-[0]">
           <NotificationsFilterBar
-            filter={inbox.filter}
+            filter={inbox.filter()}
             onFilterChange={inbox.setFilter}
           />
         </div>
@@ -101,9 +101,9 @@ function NotificationsScreenBody(props: {
         </Show>
       </div>
       <NotificationsList
-        sections={inbox.sections}
-        isLoading={inbox.isLoading}
-        filter={inbox.filter}
+        sections={inbox.sections()}
+        isLoading={inbox.isLoading()}
+        filter={inbox.filter()}
         actions={inboxActions}
       />
     </div>

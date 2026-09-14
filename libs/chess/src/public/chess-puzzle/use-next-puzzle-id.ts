@@ -112,10 +112,15 @@ export function useNextPuzzleId(args: {
     historyFilter: () => config().historyFilter,
     themes: () => config().themes,
   });
-  const puzzleResult = selectPuzzleCandidates(banded, fallback);
+  const puzzleResult = createMemo(() =>
+    selectPuzzleCandidates(
+      { rows: banded.rows(), isLoading: banded.isLoading() },
+      { rows: fallback.rows(), isLoading: fallback.isLoading() }
+    )
+  );
   const puzzleId = createMemo(() =>
     pickPuzzleIdFromPool({
-      rows: puzzleResult.rows,
+      rows: puzzleResult().rows,
       rating: rating(),
       preferredBand: PUZZLE_PREFERRED_BAND,
       seed: args.seed(),
@@ -124,8 +129,8 @@ export function useNextPuzzleId(args: {
   const loading = createMemo(() =>
     computeNextPuzzleLoading({
       myId: myId(),
-      banded,
-      fallback,
+      banded: { rows: banded.rows(), isLoading: banded.isLoading() },
+      fallback: { rows: fallback.rows(), isLoading: fallback.isLoading() },
       puzzleId: puzzleId(),
       localPuzzleTotal: localPuzzleTotal(),
     })
@@ -135,8 +140,8 @@ export function useNextPuzzleId(args: {
     puzzleId,
     rating,
     loading,
-    bandedCount: () => banded.rows.length,
-    fallbackCount: () => fallback.rows.length,
+    bandedCount: () => banded.rows().length,
+    fallbackCount: () => fallback.rows().length,
     replayCount: 0,
   };
 }

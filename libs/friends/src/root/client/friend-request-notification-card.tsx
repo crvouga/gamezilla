@@ -16,24 +16,25 @@ type FriendRequestNotificationCardProps = {
   readonly actions: NotificationCardActions;
 };
 
-export function FriendRequestNotificationCard({
-  interaction,
-  actions,
-}: FriendRequestNotificationCardProps): JSX.Element {
+export function FriendRequestNotificationCard(
+  props: FriendRequestNotificationCardProps
+): JSX.Element {
   const decision = useFriendRequestDecisionOptional();
   const [localOpen, setLocalOpen] = createSignal(false);
   const profile = createMemo(() =>
-    profileFromFriendRequestNotification(interaction)
+    profileFromFriendRequestNotification(props.interaction)
   );
 
   // Modal open state lives above the virtualized row when a provider is
   // present: row content remounts on data change (mark-read flips) and would
   // otherwise close the modal from under the user.
   const isOpen = (): boolean =>
-    decision !== null ? decision.openId() === interaction.id : localOpen();
+    decision !== null
+      ? decision.openId() === props.interaction.id
+      : localOpen();
   const setOpen = (open: boolean): void => {
     if (decision !== null) {
-      if (open) decision.open(interaction.id);
+      if (open) decision.open(props.interaction.id);
       else decision.close();
       return;
     }
@@ -41,7 +42,7 @@ export function FriendRequestNotificationCard({
   };
 
   const onPress = () => {
-    void actions.markRead(interaction.id);
+    void props.actions.markRead(props.interaction.id);
     setOpen(true);
   };
 
@@ -57,8 +58,8 @@ export function FriendRequestNotificationCard({
   return (
     <>
       <NotificationCardDefault
-        interaction={interaction}
-        actions={actions}
+        interaction={props.interaction}
+        actions={props.actions}
         showInlineActions={false}
         onPress={onPress}
         {...(leading() !== undefined ? { leading: leading() } : {})}
@@ -72,8 +73,8 @@ export function FriendRequestNotificationCard({
       />
       <FriendRequestDecisionModal
         visible={isOpen()}
-        interaction={interaction}
-        actions={actions}
+        interaction={props.interaction}
+        actions={props.actions}
         onClose={onClose}
       />
     </>

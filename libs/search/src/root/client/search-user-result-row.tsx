@@ -10,8 +10,9 @@ export function SearchUserResultRow(props: {
   readonly user: UserSearchResult;
 }): JSX.Element {
   const router = useRouter();
-  const status = useFriendshipStatus(props.user.userId);
-  const requestIds = useFriendRequestIdsForUser(props.user.userId);
+  const userId = () => props.user.userId;
+  const status = useFriendshipStatus(userId);
+  const requestIds = useFriendRequestIdsForUser(userId);
   const edgePx = spacingScale(MENU_ROW_PX_STEP);
 
   return (
@@ -39,8 +40,8 @@ export function SearchUserResultRow(props: {
             userId={props.user.userId}
             username={props.user.username}
             status={status()}
-            incomingRequestId={requestIds.incomingRequestId}
-            outgoingRequestId={requestIds.outgoingRequestId}
+            incomingRequestId={requestIds.incomingRequestId()}
+            outgoingRequestId={requestIds.outgoingRequestId()}
           />
         }
       />

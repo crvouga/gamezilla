@@ -15,9 +15,12 @@ export type AccountDeviceListTitleTextProps = {
 export function AccountDeviceListTitleText(
   props: AccountDeviceListTitleTextProps
 ): JSX.Element {
-  const deviceName = useDeviceColumn(props.deviceId, 'deviceName');
-  const deviceBrand = useDeviceColumn(props.deviceId, 'deviceBrand');
-  const deviceModelName = useDeviceColumn(props.deviceId, 'deviceModelName');
+  const deviceName = useDeviceColumn(() => props.deviceId, 'deviceName');
+  const deviceBrand = useDeviceColumn(() => props.deviceId, 'deviceBrand');
+  const deviceModelName = useDeviceColumn(
+    () => props.deviceId,
+    'deviceModelName'
+  );
   const label = createMemo(() =>
     formatDeviceListTitle({
       deviceId: props.deviceId,

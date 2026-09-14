@@ -58,10 +58,10 @@ function BackgroundColorPicker(props: {
         allowTransparent
         allowCustomEntry={false}
         onChange={(next) => {
+          const key = props.field.key;
           props.editor.updateOptions((o) => ({
             ...o,
-            [props.field.key]:
-              next.length <= 1 ? next : [next[next.length - 1]!],
+            [key]: next.length <= 1 ? next : [next[next.length - 1]!],
           }));
         }}
       />

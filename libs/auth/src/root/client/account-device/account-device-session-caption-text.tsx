@@ -14,8 +14,8 @@ export function AccountDeviceSessionCaptionText(
   props: AccountDeviceSessionCaptionTextProps
 ): JSX.Element {
   const { t } = useLingui();
-  const active = useDeviceActiveSessionCount(props.deviceId);
-  const latest = useDeviceLatestSessionExpiresAt(props.deviceId);
+  const active = useDeviceActiveSessionCount(() => props.deviceId);
+  const latest = useDeviceLatestSessionExpiresAt(() => props.deviceId);
   const label = createMemo(() => {
     const latestExpires = formatTimestamp(latest());
     return active() === 0

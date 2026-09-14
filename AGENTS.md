@@ -43,6 +43,16 @@
 
 `@pkgs/ui` is the only design-system surface in the repo. Every component, prop type, hook, and theme helper is implemented in-house under `pkgs/ui/src/components/**` and re-exported from `pkgs/ui/src/index.ts`. There is no adapter indirection, no swappable backend, and no third-party UI library — consumers always do `import { Button, Text, useTheme } from '@pkgs/ui';` and the import resolves to the in-house implementation directly.
 
+### Solid reactivity
+
+Solid components run once; reactivity is tracking, not re-render. Product UI freezes have come from treating Solid like React:
+
+- **Never destructure component props** (`function Foo({ x })` or `const { x } = props`). Use `props.x` in JSX / memos / effects so updates track. Enforced by `solid/no-destructure`.
+- **Hooks that expose lists / status return `Accessor`s** (e.g. `friends()`, `isLoading()`), not getter-bags that look like plain values. Destructuring `const { friends } = useFriends()` snapshots forever.
+- **Do not derive UI once at setup** (`const pills = render(props.status)` outside `createMemo` / `<Switch>`). Compute inside a memo or render branch so status changes update the tree.
+- **Pass `Accessor`s into hooks that subscribe** (`useFriendshipStatus(() => props.userId)`), or remount with `<Show when={id} keyed>`. Bare `string` props read at hook setup will not track.
+- Lint: `eslint.config.mjs` full Solid block on `tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). Run `bun run lint:eslint` (`check:full` / deploy; not fast `bun check`).
+
 ```
 pkgs/ui/src/
   index.ts              # public API -- `export * from './components'` + theme/explorer/web helpers

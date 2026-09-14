@@ -9,7 +9,12 @@ import tseslint from 'typescript-eslint';
  * ESLint is scoped to Solid code (Biome covers everything else).
  * The scope ratchets outward per port phase via `tools/port/solid-scope.json`.
  */
-const scope = /** @type {{ dirs: string[]; files: string[] }} */ (
+const scope = /** @type {{
+  dirs: string[];
+  files: string[];
+  reactivityDirs?: string[];
+  noDestructureDirs?: string[];
+}} */ (
   JSON.parse(
     readFileSync(
       new URL('./tools/port/solid-scope.json', import.meta.url),
@@ -20,6 +25,20 @@ const scope = /** @type {{ dirs: string[]; files: string[] }} */ (
 
 const solidFiles = [
   ...scope.dirs.flatMap((dir) => [`${dir}/**/*.ts`, `${dir}/**/*.tsx`]),
+  ...scope.files,
+];
+
+const productReactivityFiles = (scope.reactivityDirs ?? []).flatMap((dir) => [
+  `${dir}/**/*.ts`,
+  `${dir}/**/*.tsx`,
+]);
+
+const productNoDestructureFiles = (scope.noDestructureDirs ?? []).flatMap(
+  (dir) => [`${dir}/**/*.ts`, `${dir}/**/*.tsx`]
+);
+
+const productSolidIgnoreOverlap = [
+  ...scope.dirs.flatMap((dir) => [`${dir}/**`]),
   ...scope.files,
 ];
 
@@ -47,6 +66,15 @@ const allSolidRulesAsErrors = Object.fromEntries(
     .filter((name) => !NOT_APPLICABLE_SOLID_RULES.has(name))
     .map((name) => [`solid/${name}`, 'error'])
 );
+
+/** Core reactivity rules for product libs (no a11y / type-checked blast). */
+const PRODUCT_REACTIVITY_RULES = {
+  'solid/reactivity': 'error',
+  'solid/no-destructure': 'error',
+  'solid/components-return-once': 'error',
+  'solid/no-react-deps': 'error',
+  'solid/no-module-scope-reactive-primitive': 'error',
+};
 
 export default tseslint.config(
   {
@@ -106,6 +134,41 @@ export default tseslint.config(
       // Biome's `a11y/noLabelWithoutControl` covers the label case.
       'jsx-a11y/label-has-associated-control': 'off',
       'jsx-a11y/control-has-associated-label': 'off',
+    },
+  },
+  {
+    files: productReactivityFiles,
+    // Avoid overlapping the full solid+a11y block (Cannot redefine plugin "solid").
+    ignores: productSolidIgnoreOverlap,
+    plugins: {
+      solid: solidPlugin,
+      '@typescript-eslint': tseslint.plugin,
+    },
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: PRODUCT_REACTIVITY_RULES,
+  },
+  {
+    files: productNoDestructureFiles,
+    ignores: productSolidIgnoreOverlap,
+    plugins: {
+      solid: solidPlugin,
+      '@typescript-eslint': tseslint.plugin,
+    },
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      'solid/no-destructure': 'error',
     },
   },
   {

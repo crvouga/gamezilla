@@ -12,7 +12,7 @@ export type AccountDeviceCurrentBadgeProps = {
 export function AccountDeviceCurrentBadge(
   props: AccountDeviceCurrentBadgeProps
 ): JSX.Element {
-  const isCurrent = useDeviceIsCurrent(props.deviceId);
+  const isCurrent = useDeviceIsCurrent(() => props.deviceId);
   return (
     <Show when={isCurrent()}>
       <Badge label={<Trans>This device</Trans>} intent="info" size="sm" />

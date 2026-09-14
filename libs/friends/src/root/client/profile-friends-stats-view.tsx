@@ -23,11 +23,13 @@ export function ProfileFriendsStats(): JSX.Element {
       onClick={() => navigate(FriendsProfileRoute.Friends)}
     >
       <div class="box flex-row items-baseline gap-2">
-        <h3 class="text textHeading">{String(friendsState.friends.length)}</h3>
+        <h3 class="text textHeading">
+          {String(friendsState.friends().length)}
+        </h3>
         <p class="text text-text-secondary">
           {
             <Plural
-              value={friendsState.friends.length}
+              value={friendsState.friends().length}
               one="friend"
               other="friends"
             />

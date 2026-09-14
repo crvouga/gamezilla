@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { createQuery } from '@pkgs/sync-engine/solid';
+import { type Accessor, createMemo } from 'solid-js';
 import {
   buildPuzzleMatchedCountSql,
   buildPuzzleTotalCountSql,
@@ -10,9 +11,9 @@ import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 export type ChessPuzzleFeedPoolStats = {
-  readonly matched: number;
-  readonly total: number;
-  readonly isLoading: boolean;
+  readonly matched: Accessor<number>;
+  readonly total: Accessor<number>;
+  readonly isLoading: Accessor<boolean>;
 };
 
 export function useChessPuzzleFeedPoolStats(): ChessPuzzleFeedPoolStats {
@@ -23,7 +24,7 @@ export function useChessPuzzleFeedPoolStats(): ChessPuzzleFeedPoolStats {
     buildPuzzleMatchedCountSql({
       rating: resolveEffectivePuzzleRating({
         config: config(),
-        profileRating: profile.profileRating,
+        profileRating: profile.profileRating(),
       }),
       halfWindow: PUZZLE_NEXT_MAX_BAND,
       ownerId: myId(),
@@ -34,14 +35,8 @@ export function useChessPuzzleFeedPoolStats(): ChessPuzzleFeedPoolStats {
   );
   const total = createQuery(buildPuzzleTotalCountSql);
   return {
-    get matched() {
-      return matched.rows()[0]?.value ?? 0;
-    },
-    get total() {
-      return total.rows()[0]?.value ?? 0;
-    },
-    get isLoading() {
-      return matched.isLoading() || total.isLoading();
-    },
+    matched: createMemo(() => matched.rows()[0]?.value ?? 0),
+    total: createMemo(() => total.rows()[0]?.value ?? 0),
+    isLoading: createMemo(() => matched.isLoading() || total.isLoading()),
   };
 }

@@ -25,7 +25,8 @@ const BUBBLE_PADDING_HORIZONTAL = 16;
 const BUBBLE_LINE_HEIGHT = 26;
 const DEFAULT_NUMBER_OF_LINES = 2;
 
-export const SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT = 28;
+/** Must match coach status header row height (e.g. chess puzzle status). */
+export const SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT = 22;
 
 export type SpeechBubbleProps = {
   text: string;
@@ -66,7 +67,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
             aria-hidden="true"
           />
           <div
-            class="box flex-1 bg-surface-muted rounded-[10px] justify-center border border-solid border-border"
+            class="box flex-1 bg-surface-muted rounded-[10px] justify-start border border-solid border-border"
             style={{
               'padding-top': `${BUBBLE_PADDING_VERTICAL}px`,
               'padding-bottom': `${BUBBLE_PADDING_VERTICAL}px`,

@@ -14,8 +14,8 @@ export function ClientConfigEntityCard(): JSX.Element {
   const jsonPreview = () =>
     JSON.stringify(
       {
-        parsed: state.config,
-        rows: state.rows.map((r) => ({
+        parsed: state.config(),
+        rows: state.rows().map((r) => ({
           id: r.id,
           value: r.value,
         })),
@@ -37,38 +37,38 @@ export function ClientConfigEntityCard(): JSX.Element {
       >
         <MenuRow
           title={<Trans>Google</Trans>}
-          value={onOff(state.config.google_enabled, t`On`, t`Off`)}
-          {...(state.config.google_web_client_id !== null
-            ? { caption: state.config.google_web_client_id }
+          value={onOff(state.config().google_enabled, t`On`, t`Off`)}
+          {...(state.config().google_web_client_id !== null
+            ? { caption: state.config().google_web_client_id }
             : {})}
         />
         <MenuRow
           title={<Trans>Dev OAuth</Trans>}
-          value={onOff(state.config.dev_oauth_enabled, t`On`, t`Off`)}
+          value={onOff(state.config().dev_oauth_enabled, t`On`, t`Off`)}
         />
       </MenuSection>
       <MenuSection title={<Trans>Features</Trans>}>
         <MenuRow
           title={<Trans>Billing</Trans>}
-          value={onOff(state.config.billing_enabled, t`On`, t`Off`)}
+          value={onOff(state.config().billing_enabled, t`On`, t`Off`)}
         />
         <MenuRow
           title={<Trans>Text to speech</Trans>}
-          value={onOff(state.config.tts_enabled, t`On`, t`Off`)}
+          value={onOff(state.config().tts_enabled, t`On`, t`Off`)}
         />
         <MenuRow
           title={<Trans>LLM</Trans>}
-          value={onOff(state.config.llm_enabled, t`On`, t`Off`)}
+          value={onOff(state.config().llm_enabled, t`On`, t`Off`)}
         />
       </MenuSection>
       <MenuSection title={<Trans>Infrastructure</Trans>}>
         <MenuRow
           title={<Trans>EMQX</Trans>}
-          value={state.config.emqx_wss_url ?? t`Not set`}
+          value={state.config().emqx_wss_url ?? t`Not set`}
         />
         <MenuRow
           title={<Trans>Observability</Trans>}
-          value={state.config.observability_backend}
+          value={state.config().observability_backend}
         />
       </MenuSection>
       <div class="box gap-2">

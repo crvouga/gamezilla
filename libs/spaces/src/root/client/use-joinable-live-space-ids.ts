@@ -1,13 +1,13 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { createQuery } from '@pkgs/sync-engine/solid';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 import { sharedLiveSpaceIdsSql } from './my-live-space-seat-sql';
 
 /** Live spaces the viewer can join: host, spaces_users ACL, or a friend's live space. */
 export function useJoinableLiveSpaceIds(): {
-  readonly spaceIds: readonly string[];
-  readonly isLoading: boolean;
+  readonly spaceIds: Accessor<readonly string[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const memberId = useMyId();
   const enabled = createMemo(() => memberId().length > 0);
@@ -17,12 +17,9 @@ export function useJoinableLiveSpaceIds(): {
   const spaceIds = createMemo(() =>
     enabled() ? query.rows().map((r) => r.id) : []
   );
+  const loading = createMemo(() => enabled() && query.isLoading());
   return {
-    get spaceIds() {
-      return spaceIds();
-    },
-    get isLoading() {
-      return enabled() && query.isLoading();
-    },
+    spaceIds,
+    isLoading: loading,
   };
 }

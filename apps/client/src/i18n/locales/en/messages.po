@@ -21,6 +21,11 @@ msgstr "— of {total}"
 msgid "?"
 msgstr "?"
 
+#. placeholder {0}: friendsState.friends().length
+#: libs/friends/src/root/client/profile-friends-stats-view.tsx
+msgid "{0, plural, one {friend} other {friends}}"
+msgstr "{0, plural, one {friend} other {friends}}"
+
 #. placeholder {0}: props.puzzleId
 #. placeholder {1}: props.rating
 #. placeholder {1}: props.timeLabel
@@ -29,8 +34,8 @@ msgstr "?"
 msgid "{0} · {1}"
 msgstr "{0} · {1}"
 
-#. placeholder {0}: pool.matched
-#. placeholder {1}: pool.total
+#. placeholder {0}: pool.matched()
+#. placeholder {1}: pool.total()
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 msgid "{0} / {1}"
 msgstr "{0} / {1}"
@@ -45,8 +50,8 @@ msgstr "{0} active — expires {latestExpires}"
 msgid "{0} live spaces"
 msgstr "{0} live spaces"
 
-#. placeholder {0}: pool.matched
-#. placeholder {1}: pool.total
+#. placeholder {0}: pool.matched()
+#. placeholder {1}: pool.total()
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "{0} matching · {1} local puzzles"
 msgstr "{0} matching · {1} local puzzles"
@@ -65,10 +70,6 @@ msgstr "{0} puzzle streak"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 msgid "{0} themes"
 msgstr "{0} themes"
-
-#: libs/friends/src/root/client/profile-friends-stats-view.tsx
-msgid "{count, plural, one {friend} other {friends}}"
-msgstr "{count, plural, one {friend} other {friends}}"
 
 #: libs/spaces/src/root/client/members/space-guest-count-text.tsx
 msgid "{count} guests"

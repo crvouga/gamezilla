@@ -11,7 +11,7 @@ export type AccountDeviceCreatedTextProps = {
 export function AccountDeviceCreatedText(
   props: AccountDeviceCreatedTextProps
 ): JSX.Element {
-  const createdAt = useDeviceColumn(props.deviceId, 'createdAt');
+  const createdAt = useDeviceColumn(() => props.deviceId, 'createdAt');
   const label = createMemo(() => formatTimestamp(createdAt()));
   return <p class="text line-clamp-4">{label()}</p>;
 }

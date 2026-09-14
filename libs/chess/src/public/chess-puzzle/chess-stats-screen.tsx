@@ -52,18 +52,21 @@ export function ChessStatsScreen(): JSX.Element {
           <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />
           <div class="box items-center gap-2">
             <ChessPuzzleEloChip
-              elo={history.stats.currentElo}
+              elo={history.stats().currentElo}
               variant="primary"
               testID="chess-stats-elo"
             />
             <ChessEloSparkline
-              series={history.stats.eloSeries}
+              series={history.stats().eloSeries}
               testID="chess-stats-sparkline"
             />
           </div>
-          <ChessPuzzleStatsCards stats={history.stats} />
+          <ChessPuzzleStatsCards stats={history.stats()} />
           <h3 class="text textHeading text-text">{<Trans>Game log</Trans>}</h3>
-          <ChessGameLog entries={history.gameLog} onSelectEntry={openReview} />
+          <ChessGameLog
+            entries={history.gameLog()}
+            onSelectEntry={openReview}
+          />
         </div>
       </ScrollView>
     </>

@@ -56,7 +56,10 @@ export function ChessPuzzleFeedBar(
   const [config] = useChessPuzzleFeedConfig();
   const pool = useChessPuzzleFeedPoolStats();
   const effectiveRating = createMemo(() =>
-    resolveEffectivePuzzleRating({ config: config(), profileRating })
+    resolveEffectivePuzzleRating({
+      config: config(),
+      profileRating: profileRating(),
+    })
   );
   const feedLabel = createMemo(() =>
     config().mode === 'auto' ? (
@@ -116,7 +119,7 @@ export function ChessPuzzleFeedBar(
         <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
           {
             <Trans>
-              {pool.matched} / {pool.total}
+              {pool.matched()} / {pool.total()}
             </Trans>
           }
         </p>

@@ -11,8 +11,11 @@ export type AccountDeviceAppTextProps = {
 export function AccountDeviceAppText(
   props: AccountDeviceAppTextProps
 ): JSX.Element {
-  const appVersion = useDeviceColumn(props.deviceId, 'appVersion');
-  const appBuildNumber = useDeviceColumn(props.deviceId, 'appBuildNumber');
+  const appVersion = useDeviceColumn(() => props.deviceId, 'appVersion');
+  const appBuildNumber = useDeviceColumn(
+    () => props.deviceId,
+    'appBuildNumber'
+  );
   const label = createMemo(() => {
     const version = appVersion();
     const build = appBuildNumber();

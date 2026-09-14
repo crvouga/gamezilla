@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids';
 import { dataAttrs } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { createMemo, Show } from 'solid-js';
 
 import type { FriendProfile } from '../shared/friendship/friends-types';
 import { FriendProfileAvatar } from './friend-profile-avatar';
@@ -35,10 +35,16 @@ function FriendUserRowIdentity(props: {
 }
 
 export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
-  const rowTestID =
-    props.friendsListHandle && props.profile.username.length > 0
+  const rowTestID = createMemo(() =>
+    props.friendsListHandle === true && props.profile.username.length > 0
       ? Handles.friendsListRow(props.profile.username)
-      : undefined;
+      : undefined
+  );
+
+  const rowAttrs = () => {
+    const id = rowTestID();
+    return id !== undefined ? dataAttrs({ testid: id }) : {};
+  };
 
   const trailing = () => (
     <Show when={props.trailing !== undefined}>
@@ -52,7 +58,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       fallback={
         <div
           class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch"
-          {...(rowTestID !== undefined ? dataAttrs({ testid: rowTestID }) : {})}
+          {...rowAttrs()}
         >
           <FriendUserRowIdentity profile={props.profile} />
           {trailing()}
@@ -61,7 +67,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
     >
       <div
         class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch"
-        {...(rowTestID !== undefined ? dataAttrs({ testid: rowTestID }) : {})}
+        {...rowAttrs()}
       >
         <button
           class="clickable clickableTint box flex-1 flex-row items-center gap-2 min-w-[0]"

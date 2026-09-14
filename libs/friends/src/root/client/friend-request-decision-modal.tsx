@@ -61,20 +61,22 @@ function AcceptButton(props: {
   onDone: () => void;
 }): JSX.Element {
   const { t } = useLingui();
-  const accept = findAction(props.interaction, 'accept');
-  const successSound = (): SoundId | undefined =>
-    accept?.soundKey !== undefined && isSoundId(accept.soundKey)
-      ? accept.soundKey
+  const accept = createMemo(() => findAction(props.interaction, 'accept'));
+  const successSound = (): SoundId | undefined => {
+    const action = accept();
+    return action?.soundKey !== undefined && isSoundId(action.soundKey)
+      ? action.soundKey
       : undefined;
+  };
   const onPhaseChange = useDecisionSounds(successSound);
-  const username = usernameFrom(props.interaction);
+  const username = createMemo(() => usernameFrom(props.interaction));
   const mutation = useMutationButton({
     operation: async () => {
       await props.actions.performAction(props.interaction.id, 'accept');
       props.onDone();
     },
     labels: {
-      idle: accept?.label ?? t`Accept`,
+      idle: accept()?.label ?? t`Accept`,
       loading: t`Accepting…`,
       success: t`Accepted`,
       error: t`Couldn't accept`,
@@ -87,10 +89,10 @@ function AcceptButton(props: {
       {...mutation.buttonProps}
       intent="primary"
       size="md"
-      {...(username.length > 0
+      {...(username().length > 0
         ? {
             dataSet: {
-              testid: Handles.notificationsFriendRequestAccept(username),
+              testid: Handles.notificationsFriendRequestAccept(username()),
             },
           }
         : {})}
@@ -104,8 +106,8 @@ function DeclineButton(props: {
   onDone: () => void;
 }): JSX.Element {
   const { t } = useLingui();
-  const decline = findAction(props.interaction, 'decline');
-  const username = usernameFrom(props.interaction);
+  const decline = createMemo(() => findAction(props.interaction, 'decline'));
+  const username = createMemo(() => usernameFrom(props.interaction));
   const onPhaseChange = useDecisionSounds(() => undefined);
   const mutation = useMutationButton({
     operation: async () => {
@@ -113,7 +115,7 @@ function DeclineButton(props: {
       props.onDone();
     },
     labels: {
-      idle: decline?.label ?? t`Decline`,
+      idle: decline()?.label ?? t`Decline`,
       loading: t`Declining…`,
       success: t`Declined`,
       error: t`Couldn't decline`,
@@ -127,10 +129,10 @@ function DeclineButton(props: {
       intent="neutral"
       variant="ghost"
       size="md"
-      {...(username.length > 0
+      {...(username().length > 0
         ? {
             dataSet: {
-              testid: Handles.notificationsFriendRequestDecline(username),
+              testid: Handles.notificationsFriendRequestDecline(username()),
             },
           }
         : {})}
@@ -145,25 +147,22 @@ export type FriendRequestDecisionModalProps = {
   readonly onClose: () => void;
 };
 
-export function FriendRequestDecisionModal({
-  visible,
-  interaction,
-  actions,
-  onClose,
-}: FriendRequestDecisionModalProps): JSX.Element {
+export function FriendRequestDecisionModal(
+  props: FriendRequestDecisionModalProps
+): JSX.Element {
   const router = useRouter();
   const profile = createMemo(() =>
-    profileFromFriendRequestNotification(interaction)
+    profileFromFriendRequestNotification(props.interaction)
   );
 
   const onViewProfile = () => {
-    onClose();
-    if (interaction.deepLink === undefined) return;
+    props.onClose();
+    if (props.interaction.deepLink === undefined) return;
     router.push({
-      pathname: interaction.deepLink.path,
-      ...(interaction.deepLink.params !== undefined
+      pathname: props.interaction.deepLink.path,
+      ...(props.interaction.deepLink.params !== undefined
         ? {
-            params: interaction.deepLink.params as Record<
+            params: props.interaction.deepLink.params as Record<
               string,
               string | undefined
             >,
@@ -174,8 +173,8 @@ export function FriendRequestDecisionModal({
 
   return (
     <ResponsiveSurface
-      visible={visible}
-      onClose={onClose}
+      visible={props.visible}
+      onClose={props.onClose}
       title={<Trans>Friend request</Trans>}
       presentation="modal"
       size="medium"
@@ -185,19 +184,19 @@ export function FriendRequestDecisionModal({
           <Show when={profile().userId.length > 0}>
             <FriendProfileAvatar profile={profile()} size={64} />
           </Show>
-          <p class="text textBodyBold text-center">{interaction.title}</p>
+          <p class="text textBodyBold text-center">{props.interaction.title}</p>
         </div>
       </ModalBody>
       <ModalFooter>
         <AcceptButton
-          interaction={interaction}
-          actions={actions}
-          onDone={onClose}
+          interaction={props.interaction}
+          actions={props.actions}
+          onDone={props.onClose}
         />
         <DeclineButton
-          interaction={interaction}
-          actions={actions}
-          onDone={onClose}
+          interaction={props.interaction}
+          actions={props.actions}
+          onDone={props.onClose}
         />
         <Button
           title={<Trans>View profile</Trans>}

@@ -51,34 +51,29 @@ function mapFriendRow(row: FriendRow): Friend {
 }
 
 export function useFriends(): {
-  readonly friends: readonly Friend[];
-  readonly isLoading: boolean;
+  readonly friends: Accessor<readonly Friend[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const { paintReady } = useSyncEngine();
   const myId = useMyId();
   const enabled = createMemo(() => paintReady() && myId().length > 0);
   const { rows, isLoading } = createQuery(() => friendsSql(myId(), enabled()));
-  const friends = createMemo(() =>
-    rows()
+  const friends = createMemo(() => {
+    if (!paintReady()) return [];
+    return rows()
       .filter((row) => row.friend_id.length > 0)
-      .map(mapFriendRow)
-  );
-  return {
-    get friends() {
-      return paintReady() ? friends() : [];
-    },
-    get isLoading() {
-      if (!paintReady()) return true;
-      return myId().length === 0 ? false : isLoading();
-    },
-  };
+      .map(mapFriendRow);
+  });
+  const loading = createMemo(() => {
+    if (!paintReady()) return true;
+    return myId().length === 0 ? false : isLoading();
+  });
+  return { friends, isLoading: loading };
 }
 
 export function useFriendIds(): Accessor<readonly string[]> {
-  const friendsState = useFriends();
-  return createMemo(() =>
-    friendsState.friends.map((friend) => friend.userId)
-  );
+  const { friends } = useFriends();
+  return createMemo(() => friends().map((friend) => friend.userId));
 }
 
 export { otherUserInPair };

@@ -58,7 +58,9 @@ function findLogEntry(
 function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
   const entity = usePuzzleEntity(() => props.puzzleId);
   const history = useChessPuzzleHistory();
-  const entry = createMemo(() => findLogEntry(history.gameLog, props.puzzleId));
+  const entry = createMemo(() =>
+    findLogEntry(history.gameLog(), props.puzzleId)
+  );
   const hasPuzzle = () => entity.fen.length > 0 && entity.movesStr.length > 0;
 
   return (

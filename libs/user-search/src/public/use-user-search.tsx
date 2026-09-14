@@ -101,19 +101,21 @@ export function useDebouncedUserSearchEffect(
   });
 
   createEffect(() => {
-    const q = debouncedQuery();
-    if (!signedIn() || q.length === 0) {
+    const initialQuery = debouncedQuery();
+    if (!signedIn() || initialQuery.length === 0) {
       setAwaitingSync(false);
       return;
     }
 
     let cancelled = false;
     setAwaitingSync(true);
-    const sub = sync.subscribeQuery('searchProfiles', { query: q });
+    const sub = sync.subscribeQuery('searchProfiles', {
+      query: initialQuery,
+    });
     void sub.waitForFirstSync().then(() => {
       if (cancelled) return;
       setAwaitingSync(false);
-      onCompleted?.(q);
+      onCompleted?.(initialQuery);
     });
 
     onCleanup(() => {

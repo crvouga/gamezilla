@@ -56,11 +56,15 @@ function FriendsListBody(): JSX.Element {
       content={({ bodyClass }) => (
         <div class={`box ${bodyClass}`}>
           <ScreenBodyVirtualList
-            items={friendsState.friends}
+            items={friendsState.friends()}
             keyExtractor={(item) => item.userId}
             estimateSize={72}
             empty={
-              friendsState.isLoading ? <LoadingState /> : <FriendsEmptyState />
+              friendsState.isLoading() ? (
+                <LoadingState />
+              ) : (
+                <FriendsEmptyState />
+              )
             }
             renderItem={(item) => (
               <FriendUserRow

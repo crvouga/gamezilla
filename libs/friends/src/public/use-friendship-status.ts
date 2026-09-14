@@ -58,19 +58,21 @@ function friendshipStatusSql(
 }
 
 export function useFriendshipStatus(
-  targetUserId: string
+  targetUserId: Accessor<string>
 ): Accessor<FriendshipStatus> {
   const { paintReady } = useSyncEngine();
   const myId = useMyId();
-  const enabled = createMemo(
-    () =>
+  const enabled = createMemo(() => {
+    const target = targetUserId();
+    return (
       paintReady() &&
       myId().length > 0 &&
-      targetUserId.length > 0 &&
-      myId() !== targetUserId
-  );
+      target.length > 0 &&
+      myId() !== target
+    );
+  });
   const query = createQuery(() =>
-    enabled() ? friendshipStatusSql(myId(), targetUserId) : noneStatusSql()
+    enabled() ? friendshipStatusSql(myId(), targetUserId()) : noneStatusSql()
   );
   const row = createMemo(() => query.rows()[0] ?? null);
   return createMemo(() => {

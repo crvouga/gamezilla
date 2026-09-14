@@ -10,7 +10,7 @@ export type AccountDeviceUserAgentBlockProps = {
 export function AccountDeviceUserAgentBlock(
   props: AccountDeviceUserAgentBlockProps
 ): JSX.Element {
-  const userAgent = useDeviceColumn(props.deviceId, 'userAgent');
+  const userAgent = useDeviceColumn(() => props.deviceId, 'userAgent');
   return (
     <Show when={userAgent()}>
       {(ua) => <p class="text textCaption line-clamp-6 select-text">{ua()}</p>}

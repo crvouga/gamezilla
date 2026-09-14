@@ -1,5 +1,5 @@
 import { createQuery } from '@pkgs/sync-engine/solid';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import {
   type ClientConfigDbRow,
   type ClientRuntimeConfig,
@@ -16,9 +16,9 @@ import { clientConfigRowsQuery } from './client-config-queries';
  * snapshot while loading must not be treated as “all methods disabled”.
  */
 export function useClientConfig(): {
-  readonly config: ClientRuntimeConfig;
-  readonly rows: readonly ClientConfigDbRow[];
-  readonly isLoading: boolean;
+  readonly config: Accessor<ClientRuntimeConfig>;
+  readonly rows: Accessor<readonly ClientConfigDbRow[]>;
+  readonly isLoading: Accessor<boolean>;
 } {
   const query = createQuery(clientConfigRowsQuery);
   const config = createMemo(() =>
@@ -27,14 +27,8 @@ export function useClientConfig(): {
       : parseClientConfigRows(query.rows())
   );
   return {
-    get config() {
-      return config();
-    },
-    get rows() {
-      return query.rows();
-    },
-    get isLoading() {
-      return query.isLoading();
-    },
+    config,
+    rows: query.rows,
+    isLoading: query.isLoading,
   };
 }
