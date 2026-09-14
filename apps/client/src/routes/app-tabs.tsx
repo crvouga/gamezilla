@@ -1,14 +1,12 @@
 /** @jsxImportSource solid-js */
 /**
  * Shared tab spec for the compact bottom tab bar and the wide header island.
- * The notifications tab icon is the plain bell until the Notifications
- * screen port brings the unread-badge icon.
  */
 
+import { NotificationsTabIcon } from '@libs/notifications/public';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import {
-  BellIcon,
   Gamepad2Icon,
   type Href,
   type IconComponent,
@@ -56,7 +54,7 @@ export function useAppTabs(): Accessor<readonly AppTabSpec[]> {
       name: 'Notifications',
       href: '/notifications',
       label: t`Notifications`,
-      Icon: BellIcon,
+      Icon: NotificationsTabIcon,
       testID: Handles.tabNotifications,
     },
     {

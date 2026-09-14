@@ -27,21 +27,19 @@ function hiddenWhen(active: boolean): string {
 function ActorView(props: { readonly actor: ProductSimulatorActor }) {
   return (
     <Switch>
-      <Match when={props.actor.view.kind === 'url'}>
-        <ActorUrlFrame
-          title={props.actor.id}
-          url={props.actor.view.kind === 'url' ? props.actor.view.url : ''}
-        />
+      <Match when={props.actor.view.kind === 'url' ? props.actor.view : false}>
+        {(view) => <ActorUrlFrame title={props.actor.id} url={view().url} />}
       </Match>
-      <Match when={true}>
-        <SolidActorHost
-          title={props.actor.id}
-          App={
-            props.actor.view.kind === 'solid'
-              ? props.actor.view.App
-              : () => null
-          }
-        />
+      <Match
+        when={props.actor.view.kind === 'solid' ? props.actor.view : false}
+      >
+        {(view) => (
+          <SolidActorHost
+            title={props.actor.id}
+            App={view().App}
+            history={view().history}
+          />
+        )}
       </Match>
     </Switch>
   );

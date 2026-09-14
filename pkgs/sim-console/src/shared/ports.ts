@@ -44,12 +44,35 @@ export type ProductSimulatorActorView =
   | {
       /** Solid product `App`; the console hosts it in a DOM element (web only). */
       readonly kind: 'solid';
-      readonly App: SolidComponent<{ readonly embedded?: boolean }>;
+      readonly App: SolidComponent<{
+        readonly embedded?: boolean;
+        readonly history?: ProductSimulatorMemoryHistory;
+      }>;
+      /**
+       * Owned outside keyed remounts so MemoryRouter location survives
+       * `snapshotEpoch` remounts; seeded from client Kv on spawn.
+       */
+      readonly history: ProductSimulatorMemoryHistory;
     }
   | {
       readonly kind: 'url';
       readonly url: string;
     };
+
+/**
+ * Structural match for `@solidjs/router` `MemoryHistory` — kept here so the
+ * console never imports the router package.
+ */
+export type ProductSimulatorMemoryHistory = {
+  readonly get: () => string;
+  readonly set: (change: {
+    value: string;
+    replace?: boolean;
+    scroll?: boolean;
+  }) => void;
+  readonly go: (delta: number) => void;
+  readonly listen: (listener: (value: string) => void) => () => void;
+};
 
 export type ProductSimulatorActor = ProductSimulatorSqlNode & {
   readonly view: ProductSimulatorActorView;

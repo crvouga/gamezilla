@@ -1,17 +1,25 @@
 import type { Component as SolidComponent } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
+import type { ProductSimulatorMemoryHistory } from '../../shared/ports';
+
 /**
  * Hosts a Solid product `App` inside the console (web). `Dynamic` remounts
  * when `App` changes (snapshot reload also remounts via the parent key).
+ * `history` is owned by the session actor so the MemoryRouter location
+ * survives `snapshotEpoch` remounts.
  */
 export function SolidActorHost(props: {
   readonly title: string;
-  readonly App: SolidComponent<{ readonly embedded?: boolean }>;
+  readonly App: SolidComponent<{
+    readonly embedded?: boolean;
+    readonly history?: ProductSimulatorMemoryHistory;
+  }>;
+  readonly history: ProductSimulatorMemoryHistory;
 }) {
   return (
     <div title={props.title} style={hostStyle}>
-      <Dynamic component={props.App} embedded={true} />
+      <Dynamic component={props.App} embedded={true} history={props.history} />
     </div>
   );
 }

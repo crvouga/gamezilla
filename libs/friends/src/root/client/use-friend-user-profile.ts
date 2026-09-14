@@ -18,9 +18,9 @@ export function readRouteParam(value: string | string[] | undefined): string {
 export function useFriendUserProfile(userId: string) {
   const router = useRouter();
   const myProfileId = useMyProfileId();
-  const { friends } = useFriends();
+  const friendsState = useFriends();
   const cachedFriend = createMemo(
-    () => friends.find((f) => f.userId === userId) ?? null
+    () => friendsState.friends.find((f) => f.userId === userId) ?? null
   );
   const params = useLocalSearchParams<{
     username?: string;

@@ -75,8 +75,10 @@ export function useFriends(): {
 }
 
 export function useFriendIds(): Accessor<readonly string[]> {
-  const { friends } = useFriends();
-  return createMemo(() => friends.map((friend) => friend.userId));
+  const friendsState = useFriends();
+  return createMemo(() =>
+    friendsState.friends.map((friend) => friend.userId)
+  );
 }
 
 export { otherUserInPair };

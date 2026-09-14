@@ -12,10 +12,6 @@ import { type JSX, Show } from 'solid-js';
 import { notificationsPath } from './notifications-routes';
 import { useNotificationsUnreadCount } from './use-notifications-unread-count';
 
-type NotificationsTabIconProps = IconProps & {
-  readonly color: string;
-};
-
 function UnreadCountBadge(props: { readonly count: number }): JSX.Element {
   return (
     <Badge
@@ -27,9 +23,8 @@ function UnreadCountBadge(props: { readonly count: number }): JSX.Element {
   );
 }
 
-export function NotificationsTabIcon(
-  props: NotificationsTabIconProps
-): JSX.Element {
+/** Bell + unread badge; drop-in {@link IconComponent} for the notifications tab. */
+export function NotificationsTabIcon(props: IconProps): JSX.Element {
   const unreadCount = useNotificationsUnreadCount();
   return (
     <div class="box relative">
