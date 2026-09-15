@@ -55,10 +55,19 @@ export function segmentIndicatorCss(
   return { width, left };
 }
 
+/** Per-segment DOM id derived from the group's `dataSet.testid` (E2E). */
+export function segmentTestId(
+  groupTestId: string | undefined,
+  key: string
+): string | undefined {
+  return groupTestId === undefined ? undefined : `${groupTestId}-${key}`;
+}
+
 function SegmentButton<K extends string>(props: {
   segment: Segment<K>;
   isActive: boolean;
   disabled: boolean;
+  groupTestId: string | undefined;
   onSelect: (key: K) => void;
 }): JSX.Element {
   return (
@@ -69,6 +78,7 @@ function SegmentButton<K extends string>(props: {
       }}
       data-component="Segment"
       data-key={props.segment.key}
+      data-testid={segmentTestId(props.groupTestId, props.segment.key)}
       type="button"
       role="radio"
       aria-checked={props.isActive}
@@ -130,6 +140,7 @@ export function SegmentedControl<K extends string = string>(
             segment={seg}
             isActive={seg.key === props.selected}
             disabled={props.disabled === true}
+            groupTestId={props.dataSet?.['testid']}
             onSelect={props.onSelect}
           />
         )}

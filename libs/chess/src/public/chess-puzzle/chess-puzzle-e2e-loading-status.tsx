@@ -10,7 +10,7 @@ export type ChessPuzzleE2ELoadingStatusProps = {
   activePuzzleId: string | null;
   bandedCount: number;
   fallbackCount: number;
-  replayCount: number;
+  poolReady: boolean;
   loading: boolean;
 };
 
@@ -21,7 +21,7 @@ function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
     `active=${props.activePuzzleId ?? 'null'}`,
     `banded=${String(props.bandedCount)}`,
     `fallback=${String(props.fallbackCount)}`,
-    `replay=${String(props.replayCount)}`,
+    `pool=${props.poolReady ? 'ready' : 'pending'}`,
     `loading=${props.loading ? '1' : '0'}`,
   ].join(' ');
 }

@@ -14,7 +14,7 @@ export function ChessGameLog(props: ChessGameLogProps): JSX.Element {
     <Show
       when={props.entries.length > 0}
       fallback={
-        <p class="text text-text-secondary">
+        <p class="text text-text-secondary" data-testid="chess-game-log-empty">
           {<Trans>No puzzles played yet.</Trans>}
         </p>
       }

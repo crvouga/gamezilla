@@ -8,6 +8,7 @@ import {
 } from '@pkgs/sim';
 import { projectReportTopology } from '@pkgs/sim-console';
 import { noErrorBoundary } from '@pkgs/ui-testing/explore';
+import { createSimIds } from '@pkgs/uuid';
 
 import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
@@ -41,17 +42,34 @@ function canSeedFromNodeFs(): boolean {
   return typeof shim.versions?.node === 'string';
 }
 
-async function maybeSeedSimChessPuzzles(sqlClient: {
+/** Fixed seed clock / id namespace so web dumps stay byte-stable. */
+const SIM_CHESS_WEB_SEED_NOW_MS = 1_700_000_000_000;
+
+/**
+ * Every sim host boots with puzzles so the chess surface is playable without
+ * a manual seed step. Node hosts load the tiny DST CSV (3 documented puzzles
+ * the scenario tests exhaust on purpose); the web host (product-simulator /
+ * `bun run dev`) inserts the inline 50-row fixture.
+ */
+async function seedSimChessPuzzles(sqlClient: {
   readonly query: unknown;
 }): Promise<void> {
-  // ProductSimulator / web: Node fixtures + `__dirname` are unavailable.
-  // Console seeds puzzles via product-simulator command palette instead.
-  if (!canSeedFromNodeFs()) return;
-  const { seedSimChessPuzzles } = await import(
-    '../setup/seed-sim-chess-puzzles'
+  const typed = sqlClient as import('@pkgs/sql-client/interface').SqlClient;
+  if (canSeedFromNodeFs()) {
+    const { seedSimChessPuzzles: seedFromNodeFs } = await import(
+      '../setup/seed-sim-chess-puzzles'
+    );
+    await seedFromNodeFs({ sqlClient: typed });
+    return;
+  }
+  const { seedSimChessPuzzlesWeb } = await import(
+    '../setup/seed-sim-chess-puzzles-web'
   );
-  await seedSimChessPuzzles({
-    sqlClient: sqlClient as import('@pkgs/sql-client/interface').SqlClient,
+  const ids = createSimIds('sim-chess-puzzle-seed-web');
+  await seedSimChessPuzzlesWeb({
+    sqlClient: typed,
+    now: () => SIM_CHESS_WEB_SEED_NOW_MS,
+    createId: ids.createId,
   });
 }
 
@@ -187,7 +205,7 @@ export const product = defineSystem<ProductSim>({
     // burn their budget while serialized /api/* requests are still queued.
     extra.drainServerHttp.current = () => sim.drainServerFetch();
     await sim.spawnServer();
-    await maybeSeedSimChessPuzzles(sim.serverSql.sqlClient);
+    await seedSimChessPuzzles(sim.serverSql.sqlClient);
     return createProductSim(session, sim);
   },
 });

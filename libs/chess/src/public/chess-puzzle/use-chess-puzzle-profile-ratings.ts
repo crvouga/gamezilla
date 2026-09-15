@@ -18,6 +18,7 @@ export function useChessPuzzleProfileRatings(myId: Accessor<string>): {
           SELECT rating, rating_deviation
           FROM chess_puzzle_profiles
           WHERE id = ${myId()}
+            AND deleted_at IS NULL
         `
       : sql<PuzzleProfileRatingsRow>`
           SELECT

@@ -75,6 +75,7 @@ export function usePuzzleEntity(puzzleId: Accessor<string>): {
     SELECT fen, moves, rating, themes
     FROM chess_puzzles
     WHERE id = ${puzzleId()}
+      AND deleted_at IS NULL
   `
   );
   const row = () => rows()[0] ?? null;

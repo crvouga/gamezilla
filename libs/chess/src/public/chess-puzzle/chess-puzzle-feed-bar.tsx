@@ -104,11 +104,17 @@ export function ChessPuzzleFeedBar(
           />
         </Show>
         <FeedBarSep />
-        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
+        <p
+          class="text textCaption line-clamp-1 shrink-0 text-text-secondary"
+          data-testid="chess-puzzle-feed-target-label"
+        >
           {feedLabel()}
         </p>
         <FeedBarSep />
-        <p class="text textCaption line-clamp-1 shrink-0 text-text-secondary">
+        <p
+          class="text textCaption line-clamp-1 shrink-0 text-text-secondary"
+          data-testid="chess-puzzle-feed-history-label"
+        >
           {historyFilterLabel(config().historyFilter)}
         </p>
         <FeedBarSep />

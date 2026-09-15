@@ -12,8 +12,19 @@ export const PUZZLE_FEED_RATING_DEFAULT = 1200;
 export const PUZZLE_FEED_AUTO_OFFSET_MIN = -400;
 export const PUZZLE_FEED_AUTO_OFFSET_MAX = 400;
 export const PUZZLE_FEED_AUTO_OFFSET_STEP = 50;
-/** Half-width of bands subscribed around the effective rating (center ± this). */
-export const PUZZLE_FEED_BAND_SPREAD = 2;
+/**
+ * Half-width of bands subscribed around the effective rating (center ± this).
+ * One band each side covers the ±{@link PUZZLE_RATING_BAND_SIZE} pick window
+ * wherever the rating sits inside its own band.
+ */
+export const PUZZLE_FEED_BAND_SPREAD = 1;
+/**
+ * Rows hydrated per synced rating band (`chessPuzzlePool` server limit).
+ * Bands × limit is the local pool a fresh device downloads for one rating.
+ */
+export const PUZZLE_POOL_BAND_ROW_LIMIT = 1500;
+/** Highest rating accepted by the pool query params. */
+export const PUZZLE_POOL_RATING_CEILING = 4000;
 
 export const CHESS_PUZZLE_FEED_MODES = ['auto', 'custom'] as const;
 
@@ -157,15 +168,58 @@ export function resolveEffectivePuzzleRating(args: {
 /** sync `chess_puzzles` stream bands covering puzzle picking for `rating`. */
 export function chessPuzzleSyncRatingBands(rating: number): readonly number[] {
   const centerBand = Math.floor(Math.max(0, rating) / PUZZLE_RATING_BAND_SIZE);
+  const maxBand = Math.floor(
+    PUZZLE_POOL_RATING_CEILING / PUZZLE_RATING_BAND_SIZE
+  );
   const bands: number[] = [];
   for (
     let band = centerBand - PUZZLE_FEED_BAND_SPREAD;
     band <= centerBand + PUZZLE_FEED_BAND_SPREAD;
     band += 1
   ) {
-    if (band >= 0) bands.push(band);
+    if (band >= 0 && band <= maxBand) bands.push(band);
   }
   return bands;
+}
+
+export type ChessPuzzlePoolRange = {
+  readonly ratingMin: number;
+  readonly ratingMax: number;
+};
+
+/** Inclusive `chessPuzzlePool` params for one sync band index. */
+export function chessPuzzlePoolRangeForBand(
+  band: number
+): ChessPuzzlePoolRange {
+  const ratingMin = Math.max(0, band) * PUZZLE_RATING_BAND_SIZE;
+  return {
+    ratingMin: Math.min(ratingMin, PUZZLE_POOL_RATING_CEILING),
+    ratingMax: Math.min(
+      ratingMin + PUZZLE_RATING_BAND_SIZE - 1,
+      PUZZLE_POOL_RATING_CEILING
+    ),
+  };
+}
+
+/** Pool subscription params for every band around `rating`. */
+export function chessPuzzlePoolRangesForRating(
+  rating: number
+): readonly ChessPuzzlePoolRange[] {
+  return chessPuzzleSyncRatingBands(rating).map(chessPuzzlePoolRangeForBand);
+}
+
+/** True when history / theme filters can hide otherwise-synced puzzles. */
+export function puzzleFeedHasNarrowingFilters(
+  config: ChessPuzzleFeedConfig
+): boolean {
+  return config.historyFilter !== 'any' || config.themes.length > 0;
+}
+
+/** Same rating target, but every synced puzzle is eligible again. */
+export function widenPuzzleFeedConfig(
+  config: ChessPuzzleFeedConfig
+): ChessPuzzleFeedConfig {
+  return { ...config, historyFilter: 'any', themes: [] };
 }
 
 /** Stable string for detecting feed-config edits (modal Done apply). */

@@ -37,10 +37,15 @@ function completionKey(completion: PuzzleCompletion): string {
   ].join(':');
 }
 
+/** Chrome callbacks the board well may need (feed settings live in the layout). */
+export type PuzzlePlayBoardChrome = {
+  readonly openFeedSettings: () => void;
+};
+
 export type PuzzlePlayLayoutProps = {
   backToRoot: () => void;
   assistant: JSX.Element;
-  boardSlot: (size: number) => JSX.Element;
+  boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
   puzzleId?: string;
   puzzleRating?: number;
   status: Accessor<SolveStatus>;
@@ -95,11 +100,12 @@ function PuzzlePlayActions(props: {
 }
 
 function PuzzlePlayBoard(props: {
-  boardSlot: (size: number) => JSX.Element;
+  boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
+  chrome: PuzzlePlayBoardChrome;
 }): JSX.Element {
   return (
     <ChessPuzzleBoardFrame>
-      {(size) => props.boardSlot(size)}
+      {(size) => props.boardSlot(size, props.chrome)}
     </ChessPuzzleBoardFrame>
   );
 }
@@ -109,7 +115,8 @@ function PuzzlePlayBoard(props: {
  * (app background), not as a blank mat above a bottom-aligned board.
  */
 function PuzzlePlayBoardWell(props: {
-  boardSlot: (size: number) => JSX.Element;
+  boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
+  chrome: PuzzlePlayBoardChrome;
 }): JSX.Element {
   return (
     <div
@@ -126,7 +133,7 @@ function PuzzlePlayBoardWell(props: {
           padding: `${BOARD_WELL_PADDING_PX}px`,
         }}
       >
-        <PuzzlePlayBoard boardSlot={props.boardSlot} />
+        <PuzzlePlayBoard boardSlot={props.boardSlot} chrome={props.chrome} />
       </Island>
     </div>
   );
@@ -169,7 +176,10 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
           {props.layout.assistant}
         </div>
       </div>
-      <PuzzlePlayBoardWell boardSlot={props.layout.boardSlot} />
+      <PuzzlePlayBoardWell
+        boardSlot={props.layout.boardSlot}
+        chrome={{ openFeedSettings: props.openFeedSettings }}
+      />
       <div class="box shrink-0">
         <ChessPuzzleMoveHistoryBar />
       </div>
@@ -191,7 +201,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
   return (
     <div
       class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden"
-      data-testid="chess-puzzle-play-screen"
+      data-testid="chess-puzzle-play-layout"
       data-screen="chess-puzzle-play"
     >
       <DefineBackButton onPress={props.backToRoot} />

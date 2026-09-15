@@ -1,18 +1,32 @@
 import { sql } from '@pkgs/sql';
 import { defineQuery } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
+import {
+  PUZZLE_POOL_BAND_ROW_LIMIT,
+  PUZZLE_POOL_RATING_CEILING,
+} from '../../../shared/chess/chess-puzzle-feed-config';
 import { chessPuzzlesChannels } from '../../../shared/sync-topics';
 
 export const chessPuzzlePool = defineQuery({
   name: 'chessPuzzlePool',
   params: z
     .object({
-      ratingMin: z.number().int().min(0).max(4000).default(0),
-      ratingMax: z.number().int().min(0).max(4000).default(4000),
+      ratingMin: z
+        .number()
+        .int()
+        .min(0)
+        .max(PUZZLE_POOL_RATING_CEILING)
+        .default(0),
+      ratingMax: z
+        .number()
+        .int()
+        .min(0)
+        .max(PUZZLE_POOL_RATING_CEILING)
+        .default(PUZZLE_POOL_RATING_CEILING),
     })
     .refine((p) => p.ratingMin <= p.ratingMax),
-  sampleParams: { ratingMin: 0, ratingMax: 4000 },
-  limit: 5000,
+  sampleParams: { ratingMin: 0, ratingMax: PUZZLE_POOL_RATING_CEILING },
+  limit: PUZZLE_POOL_BAND_ROW_LIMIT,
   entryChannel: () => chessPuzzlesChannels(),
   async run(ctx, { ratingMin, ratingMax }) {
     const rows = await ctx.db.query(sql`
@@ -31,7 +45,7 @@ export const chessPuzzlePool = defineQuery({
       FROM chess_puzzles
       WHERE rating >= ${ratingMin}
         AND rating <= ${ratingMax}
-      ORDER BY popularity DESC
+      ORDER BY popularity DESC, nb_plays DESC, id ASC
 `);
     return { chess_puzzles: rows };
   },

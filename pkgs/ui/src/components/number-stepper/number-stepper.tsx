@@ -31,15 +31,25 @@ export function stepValue(
   return Math.min(max, Math.max(min, value + delta));
 }
 
+/** Child DOM ids derived from the stepper's `dataSet.testid` (E2E). */
+export function stepperPartTestId(
+  testId: string | undefined,
+  part: 'decrease' | 'increase' | 'value'
+): string | undefined {
+  return testId === undefined ? undefined : `${testId}-${part}`;
+}
+
 function StepperButton(props: {
   onClick: () => void;
   disabled: boolean;
   'aria-label': string;
   glyph: string;
+  testId: string | undefined;
 }): JSX.Element {
   return (
     <button
       class="clickable clickableTint min-w-[40px] min-h-[40px] items-center justify-center rounded-[6px]"
+      data-testid={props.testId}
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}
@@ -74,10 +84,12 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           disabled={props.disabled === true || props.value <= props.min}
           aria-label={t`Decrease ${props.label}`}
           glyph="−"
+          testId={stepperPartTestId(props.dataSet?.['testid'], 'decrease')}
         />
         <div
           class="text min-w-[48px] text-center text-text"
           role="spinbutton"
+          data-testid={stepperPartTestId(props.dataSet?.['testid'], 'value')}
           tabIndex={props.disabled === true ? -1 : 0}
           aria-label={props.label}
           aria-valuenow={props.value}
@@ -108,6 +120,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           disabled={props.disabled === true || props.value >= props.max}
           aria-label={t`Increase ${props.label}`}
           glyph="+"
+          testId={stepperPartTestId(props.dataSet?.['testid'], 'increase')}
         />
       </div>
     </div>
