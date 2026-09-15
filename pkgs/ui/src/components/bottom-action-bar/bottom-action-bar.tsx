@@ -3,7 +3,8 @@
  * `BottomActionBar` -- chess.com-style play chrome for game screens.
  *
  * Equal-flex row that mixes labeled icon-tab actions with solid contained
- * buttons. Distinct from top `ActionBar` (icon overflow chrome).
+ * buttons. Distinct from top `ActionBar` (icon overflow chrome). Transparent
+ * chrome — no surface fill or hairline (page background shows through).
  */
 
 import { For, type JSX, Match, Switch } from 'solid-js';
@@ -35,13 +36,9 @@ function BottomActionBarSlot(props: {
 }
 
 export function BottomActionBar(props: BottomActionBarProps): JSX.Element {
-  const elevated = (): boolean => props.elevated !== false;
   return (
     <div
       class="box flex-row items-center self-stretch gap-2 px-3"
-      classList={{
-        'bg-surface border-t border-solid border-border': elevated(),
-      }}
       {...dataAttrs({ component: 'BottomActionBar', ...props.dataSet })}
       style={{ 'min-height': `${BOTTOM_ACTION_BAR_MIN_HEIGHT}px` }}
     >

@@ -70,10 +70,7 @@ export function AppTabBar(props: AppTabBarProps): JSX.Element {
   const tabs = useAppTabs();
   const height = () => getTopBarContentHeight(layout.breakpoint());
   return (
-    <nav
-      class="box bg-transparent border-t border-solid border-border safe-bottom"
-      data-component="AppTabBar"
-    >
+    <nav class="box bg-transparent safe-bottom" data-component="AppTabBar">
       <div
         class="box flex-row"
         style={{ height: `${height()}px`, 'min-height': `${height()}px` }}

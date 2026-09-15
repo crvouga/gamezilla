@@ -84,7 +84,7 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
   const trailing = (): JSX.Element => props.trailing ?? globalTrailing();
   return (
     <header
-      class="box bg-transparent border-b border-solid border-border overflow-hidden"
+      class="box bg-transparent overflow-hidden"
       {...dataAttrs({ component: 'AppHeaderIsland', ...props.dataSet })}
     >
       <div

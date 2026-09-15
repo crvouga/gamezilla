@@ -39,7 +39,7 @@ function MoveHistoryScroll(props: {
 
   return (
     <div
-      class="box self-stretch bg-surface-muted justify-center"
+      class="box self-stretch justify-center"
       style={{ height: `${ROW_HEIGHT}px` }}
       data-testid="chess-puzzle-move-history"
     >
@@ -74,7 +74,7 @@ export function ChessPuzzleMoveHistory(
       when={props.plies.length > 0}
       fallback={
         <div
-          class="box self-stretch bg-surface-muted"
+          class="box self-stretch"
           style={{ height: `${ROW_HEIGHT}px` }}
           data-testid="chess-puzzle-move-history"
         />

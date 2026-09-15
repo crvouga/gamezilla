@@ -71,6 +71,11 @@ msgstr "{0} puzzle streak"
 msgid "{0} themes"
 msgstr "{0} themes"
 
+#. placeholder {0}: parts.hostName
+#: libs/spaces/src/root/client/use-space-display-title.tsx
+msgid "{0}'s space"
+msgstr "{0}'s space"
+
 #: libs/spaces/src/root/client/members/space-guest-count-text.tsx
 msgid "{count} guests"
 msgstr "{count} guests"
@@ -293,6 +298,7 @@ msgid "Black to move"
 msgstr "Black to move"
 
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
+#: libs/friends/src/root/client/use-friend-user-overflow-menu.tsx
 msgid "Block"
 msgstr "Block"
 
@@ -1517,6 +1523,10 @@ msgstr "Reload app"
 msgid "Remove"
 msgstr "Remove"
 
+#: libs/friends/src/root/client/use-friend-user-overflow-menu.tsx
+msgid "Remove friend"
+msgstr "Remove friend"
+
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 msgid "Remove friend?"
 msgstr "Remove friend?"
@@ -1874,6 +1884,10 @@ msgstr "Sound off"
 #: pkgs/ui/src/components/sound-indicator/sound-indicator.tsx
 msgid "Sound on"
 msgstr "Sound on"
+
+#: libs/spaces/src/root/client/use-space-display-title.tsx
+msgid "Space"
+msgstr "Space"
 
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx

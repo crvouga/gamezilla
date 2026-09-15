@@ -129,7 +129,7 @@ describe('ScreenBase compact', () => {
     expect(scroller.className).toMatch(/flex-1/);
     const footer = mustQuery('[data-component="ScreenFooter"]');
     expect(footer.className).toMatch(/safeBottom/);
-    expect(footer.className).toMatch(/border-t/);
+    expect(footer.className).not.toMatch(/border-t/);
     // Footer is a sibling after the scroller inside the body column.
     const body = footer.parentElement;
     if (body === null) throw new Error('missing body');
@@ -314,7 +314,7 @@ describe('ScreenBase wide', () => {
     );
     expect(document.querySelector('[data-component="Island"]')).toBeNull();
     const footer = mustQuery('[data-component="ScreenFooter"]');
-    expect(footer.className).toMatch(/border-t/);
+    expect(footer.className).not.toMatch(/border-t/);
     expect(mustQuery('[data-component="ScreenBodyScroll"]')).toBeTruthy();
   });
 

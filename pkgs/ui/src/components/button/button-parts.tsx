@@ -41,27 +41,27 @@ export const BUTTON_SIZES: Record<ButtonSize, ButtonSizeSpec> = {
     minHeight: 32,
     text: { fontSize: 15, lineHeight: 20, fontWeight: '600' },
     iconSize: 18,
-    iconStrokeWidth: 2.75,
+    iconStrokeWidth: 2.25,
     iconGap: 1.5,
   },
   md: {
     py: 2.5,
     px: 4,
-    borderRadius: 10,
+    borderRadius: 12,
     minHeight: 40,
-    text: { fontSize: 17, lineHeight: 22, fontWeight: '700' },
-    iconSize: 22,
-    iconStrokeWidth: 2.75,
+    text: { fontSize: 16, lineHeight: 22, fontWeight: '600' },
+    iconSize: 20,
+    iconStrokeWidth: 2.25,
     iconGap: 2,
   },
   lg: {
     py: 3,
     px: 5,
-    borderRadius: 10,
+    borderRadius: 14,
     minHeight: 48,
-    text: { fontSize: 19, lineHeight: 26, fontWeight: '800' },
-    iconSize: 24,
-    iconStrokeWidth: 3,
+    text: { fontSize: 17, lineHeight: 24, fontWeight: '600' },
+    iconSize: 22,
+    iconStrokeWidth: 2.25,
     iconGap: 2,
   },
 };
@@ -198,35 +198,26 @@ function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
   const hasLeading = (): boolean =>
     props.icon !== undefined || props.startIcon !== undefined;
   const hasTrailing = (): boolean => props.endIcon !== undefined;
-  const padded = (): boolean => hasLeading() || hasTrailing();
   return (
-    <CenteredLabelRow
-      size={props.size}
-      padded={padded()}
-      leading={
-        <Show when={hasLeading()}>
-          <IconRail side="start" size={props.size}>
-            <SizedLeadingIcon {...props} />
-            <Show when={props.startIcon !== undefined}>
-              <IconSlot size={props.size}>{props.startIcon}</IconSlot>
-            </Show>
-          </IconRail>
-        </Show>
-      }
-      trailing={
-        <Show when={hasTrailing()}>
-          <IconRail side="end" size={props.size}>
-            <IconSlot size={props.size}>{props.endIcon}</IconSlot>
-          </IconRail>
-        </Show>
-      }
+    <div
+      class={`box ${rowClass()}`}
+      style={{ gap: `${spacingScale(props.size.iconGap)}px` }}
     >
+      <Show when={hasLeading()}>
+        <SizedLeadingIcon {...props} />
+        <Show when={props.startIcon !== undefined}>
+          <IconSlot size={props.size}>{props.startIcon}</IconSlot>
+        </Show>
+      </Show>
       <ButtonLabelText
         label={props.labels.title}
         size={props.size}
         foregroundColor={props.foregroundColor}
       />
-    </CenteredLabelRow>
+      <Show when={hasTrailing()}>
+        <IconSlot size={props.size}>{props.endIcon}</IconSlot>
+      </Show>
+    </div>
   );
 }
 

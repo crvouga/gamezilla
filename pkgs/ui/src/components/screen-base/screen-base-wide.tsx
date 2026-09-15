@@ -72,10 +72,7 @@ function WidePageHeader(
 
 function WidePinnedFooter(props: { children: JSX.Element }): JSX.Element {
   return (
-    <div
-      class="box border-border border-t border-solid pt-3 mt-3"
-      data-component="ScreenFooter"
-    >
+    <div class="box pt-3 mt-3" data-component="ScreenFooter">
       {props.children}
     </div>
   );

@@ -112,10 +112,6 @@ export default function BottomActionBarExample(): JSX.Element {
       <SchemePreview>
         <BottomActionBar items={BUTTONS_ONLY} />
       </SchemePreview>
-      <SectionLabel label="Unelevated" />
-      <SchemePreview>
-        <BottomActionBar items={mixed} elevated={false} />
-      </SchemePreview>
     </ExampleRoot>
   );
 }

@@ -69,10 +69,19 @@ export function ScreenBreadcrumbTrail(
                 <div class="box flex-row items-center gap-1">
                   <AncestorCrumb crumb={crumb} onClick={resolveClick(crumb)} />
                   <Show when={index() < trail().ancestors.length - 1}>
-                    <ChevronRightIcon
-                      size={SEPARATOR_SIZE}
-                      color="textSecondary"
-                    />
+                    <div
+                      class="box items-center justify-center"
+                      style={{
+                        width: `${SEPARATOR_SIZE}px`,
+                        height: '22px',
+                      }}
+                      aria-hidden="true"
+                    >
+                      <ChevronRightIcon
+                        size={SEPARATOR_SIZE}
+                        color="textSecondary"
+                      />
+                    </div>
                   </Show>
                 </div>
               )}
@@ -81,7 +90,7 @@ export function ScreenBreadcrumbTrail(
         </Show>
         <Show when={trail().current}>
           {(current) => (
-            <h1 class="text textTitle line-clamp-1">{current().name}</h1>
+            <h1 class="text textHeading line-clamp-1">{current().name}</h1>
           )}
         </Show>
       </nav>

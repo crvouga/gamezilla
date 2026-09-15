@@ -177,7 +177,7 @@ describe('BottomActionBar', () => {
     ));
     const bar = mustQuery('[data-component="BottomActionBar"]');
     expect(cssOf(bar)).toContain('min-height:56px');
-    expect(bar.className).toMatch(/border-t/);
+    expect(bar.className).not.toMatch(/border-t/);
 
     const hintBtn = screen.getByRole('button', { name: 'Hint' });
     expect(hintBtn).toHaveAttribute('aria-pressed', 'true');
@@ -189,16 +189,5 @@ describe('BottomActionBar', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     expect(next).toHaveBeenCalledTimes(1);
-  });
-
-  test('elevated={false} drops the surface chrome', () => {
-    renderUi(() => (
-      <BottomActionBar
-        elevated={false}
-        items={[{ type: 'button', id: 'x', title: 'X', onClick: () => {} }]}
-      />
-    ));
-    const bar = mustQuery('[data-component="BottomActionBar"]');
-    expect(bar.className).not.toMatch(/border-t/);
   });
 });

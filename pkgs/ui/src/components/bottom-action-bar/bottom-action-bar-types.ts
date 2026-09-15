@@ -47,11 +47,6 @@ export type BottomActionBarItem =
 
 export type BottomActionBarProps = {
   items: readonly BottomActionBarItem[];
-  /**
-   * Surface background + hairline top border (chess.com strip).
-   * Defaults to `true`.
-   */
-  elevated?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };

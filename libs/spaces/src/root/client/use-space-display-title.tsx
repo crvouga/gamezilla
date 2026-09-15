@@ -1,6 +1,6 @@
 import { useMyDeviceId, useMyId } from '@libs/auth/public/use-current-user';
 import { useProfileRow } from '@libs/profile/public/use-profile-row';
-import { useLingui } from '@lingui/solid';
+import { useLingui } from '@lingui/solid/macro';
 import { type Accessor, createMemo } from 'solid-js';
 import { SpaceField, useSpaceColumn } from '../../public/use-space-column';
 import { resolveSpaceFallbackTitleParts } from '../../shared/space/resolve-space-fallback-title-parts';
@@ -11,7 +11,7 @@ import { useSpaceHostMembershipDisplay } from './members/use-space-host-membersh
 export function useSpaceDisplayTitle(
   spaceId: string | Accessor<string>
 ): Accessor<string> {
-  const { _ } = useLingui();
+  const { t } = useLingui();
   const customTitle = useSpaceColumn(spaceId, SpaceField.title);
   const host = useSpaceHostMembershipDisplay(spaceId);
   const hostProfileId = createMemo(() => {
@@ -42,12 +42,8 @@ export function useSpaceDisplayTitle(
       })
     );
     if (parts.kind === 'host') {
-      return _({
-        id: `{hostName}'s space`,
-        message: `{hostName}'s space`,
-        values: { hostName: parts.hostName },
-      });
+      return t`${parts.hostName}'s space`;
     }
-    return _({ id: 'Space', message: 'Space' });
+    return t`Space`;
   });
 }

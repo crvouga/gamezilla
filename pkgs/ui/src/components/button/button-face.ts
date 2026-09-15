@@ -57,7 +57,7 @@ function resolveIntentTokens(
 ): IntentTokens {
   if (intent === 'primary') {
     return {
-      solidBg: c.tintActive,
+      solidBg: c.tint,
       solidFg: c.onPrimary,
       accent: c.tint,
       outlineBorder: c.tint,
@@ -65,7 +65,7 @@ function resolveIntentTokens(
   }
   if (intent === 'danger') {
     return {
-      solidBg: c.destructiveActive,
+      solidBg: c.destructive,
       solidFg: c.onDestructive,
       accent: c.destructive,
       outlineBorder: c.destructive,

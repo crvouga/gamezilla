@@ -47,7 +47,7 @@ describe('Button', () => {
       </>
     ));
     expect(cssOf(screen.getByRole('button', { name: 'Solid' }))).toContain(
-      'background-color:var(--ui-color-tint-active)'
+      'background-color:var(--ui-color-tint)'
     );
     const outline = cssOf(screen.getByRole('button', { name: 'Outline' }));
     expect(outline).toContain('border-width:1px');
