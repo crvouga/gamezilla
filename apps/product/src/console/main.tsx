@@ -3,6 +3,8 @@
  * Path-gated boot: `/console` mounts the Tests + Simulator console; every other
  * path mounts the real wall client (`wallClientEnv` + production/synced config).
  * Popstate remounts when crossing the console boundary (no nested routers).
+ * `?console` on any other path hands off to `/console` before boot, so a
+ * launcher that can only open the site root still lands in the simulator.
  */
 
 import { createClient } from '@apps/client/shell/create-client';
@@ -21,8 +23,19 @@ import { wallConsoleEnv } from './wall-console-env';
 const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
 
+const CONSOLE_FLAG = 'console';
+
 function isConsolePath(pathname: string): boolean {
   return pathname === '/console' || pathname.startsWith('/console/');
+}
+
+/** Navigates to `/console` for `?console`; `true` means boot is handed off. */
+function redirectedToConsole(): boolean {
+  const { pathname, search } = window.location;
+  if (isConsolePath(pathname)) return false;
+  if (!new URLSearchParams(search).has(CONSOLE_FLAG)) return false;
+  window.location.replace('/console');
+  return true;
 }
 
 function ConsoleBoot(): JSX.Element {
@@ -61,4 +74,6 @@ function Boot(): JSX.Element {
   );
 }
 
-render(() => <Boot />, root);
+if (!redirectedToConsole()) {
+  render(() => <Boot />, root);
+}
