@@ -37,8 +37,6 @@ type InteractionSqlRow = {
   readonly uci: string | null;
   readonly correct: unknown;
   readonly puzzle_rating: number;
-  readonly rating_before: number;
-  readonly rating_after: number;
   readonly at: string;
 };
 
@@ -52,8 +50,6 @@ function interactionRowFromSql(
     uci: row.uci,
     correct: readNullableBoolean(row.correct),
     puzzleRating: row.puzzle_rating,
-    ratingBefore: row.rating_before,
-    ratingAfter: row.rating_after,
     at: row.at,
   };
 }
@@ -64,6 +60,9 @@ type PuzzleEntityRow = {
   readonly rating: number | null;
   readonly themes: unknown;
 };
+
+/** Match sync hydrate limit so Elo folds see full attempt history. */
+const INTERACTION_HISTORY_LIMIT = 5000;
 
 export function usePuzzleEntity(puzzleId: Accessor<string>): {
   fen: string;
@@ -108,14 +107,12 @@ export function usePuzzleInteractions(
         uci,
         correct,
         puzzle_rating,
-        rating_before,
-        rating_after,
         at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${myId()}
         AND puzzle_id = ${puzzleId()}
       ORDER BY at ASC
-      LIMIT 100
+      LIMIT ${INTERACTION_HISTORY_LIMIT}
     `;
   const { rows } = createQuery(query);
   return createMemo(() => rows().map(interactionRowFromSql));
@@ -133,13 +130,11 @@ export function useChessPuzzleAllInteractions(): Accessor<
         uci,
         correct,
         puzzle_rating,
-        rating_before,
-        rating_after,
         at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${myId()}
       ORDER BY at DESC
-      LIMIT 100
+      LIMIT ${INTERACTION_HISTORY_LIMIT}
     `;
   const { rows } = createQuery(query);
   return createMemo(() => rows().map(interactionRowFromSql));

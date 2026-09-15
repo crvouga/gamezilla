@@ -79,8 +79,8 @@ export type ScreenBaseProps = {
   actions?: readonly ScreenBaseAction[] | undefined;
   content: (p: BodyContentProps) => JSX.Element;
   /**
-   * Wide-only body surface. `'island'` (default) wraps content in one card.
-   * `'canvas'` leaves content unwrapped so the screen composes
+   * Wide-only body surface. `'island'` (default) wraps content in one flat
+   * section. `'canvas'` leaves content unwrapped so the screen composes
    * `Island` / `IslandGrid`. Ignored on compact.
    */
   surface?: ScreenBaseSurface | undefined;

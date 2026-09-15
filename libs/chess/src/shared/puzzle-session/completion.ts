@@ -7,6 +7,7 @@ import {
   type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
 } from '../chess/chess-puzzle-interaction-entities';
+import { projectPuzzleEloFromInteractions } from '../chess/chess-puzzle-rating';
 
 export type PuzzleCompletionOutcome = 'solved' | 'abandoned';
 
@@ -36,9 +37,30 @@ function terminalFromPlay(
   return null;
 }
 
+function interactionKey(row: ChessPuzzleInteractionRow): string {
+  return `${row.puzzleId}|${row.kind}|${row.at}|${row.solveIdx}`;
+}
+
+/** Merge per-puzzle rows into all-history so projection sees the open play. */
+function mergeInteractionHistory(
+  all: readonly ChessPuzzleInteractionRow[],
+  extra: readonly ChessPuzzleInteractionRow[]
+): ChessPuzzleInteractionRow[] {
+  const keys = new Set(all.map(interactionKey));
+  const out = [...all];
+  for (const row of extra) {
+    const key = interactionKey(row);
+    if (keys.has(key)) continue;
+    keys.add(key);
+    out.push(row);
+  }
+  return out;
+}
+
 /**
  * Completion summary for the current play of `puzzleId`, or null while the
- * play has no terminal interaction (or ratings were never recorded).
+ * play has no terminal interaction. Elo before/after come from the formula
+ * projection over attempt facts (not stored columns).
  */
 export function derivePuzzleCompletion(args: {
   interactions: readonly ChessPuzzleInteractionRow[];
@@ -48,17 +70,25 @@ export function derivePuzzleCompletion(args: {
   const play = sliceCurrentPlay(args.interactions, args.puzzleId);
   const terminal = terminalFromPlay(play);
   if (terminal === null) return null;
-  if (terminal.ratingBefore <= 0 || terminal.ratingAfter <= 0) return null;
+
+  const history = mergeInteractionHistory(
+    args.allInteractions,
+    args.interactions
+  );
+  const projected = projectPuzzleEloFromInteractions(history);
+  const entry =
+    projected.entries.find(
+      (e) => e.puzzleId === args.puzzleId && e.at === terminal.at
+    ) ??
+    [...projected.entries].reverse().find((e) => e.puzzleId === args.puzzleId);
+  if (entry === undefined) return null;
 
   return {
-    outcome:
-      terminal.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
-        ? 'solved'
-        : 'abandoned',
-    ratingBefore: terminal.ratingBefore,
-    ratingAfter: terminal.ratingAfter,
-    delta: terminal.ratingAfter - terminal.ratingBefore,
-    streak: deriveCurrentStreak(args.allInteractions),
-    puzzleRating: terminal.puzzleRating,
+    outcome: entry.outcome,
+    ratingBefore: entry.ratingBefore,
+    ratingAfter: entry.ratingAfter,
+    delta: entry.delta,
+    streak: deriveCurrentStreak(history),
+    puzzleRating: entry.puzzleRating,
   };
 }

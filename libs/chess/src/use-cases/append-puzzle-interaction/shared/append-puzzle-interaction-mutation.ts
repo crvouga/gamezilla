@@ -13,8 +13,6 @@ const interactionArgs = z.object({
   solveIdx: z.number().int().nonnegative(),
   uci: z.string().nullable().optional(),
   correct: z.boolean().nullable().optional(),
-  ratingBefore: z.number().int().nonnegative().optional(),
-  ratingAfter: z.number().int().nonnegative().optional(),
 });
 
 export const appendPuzzleInteractionMutation = defineMutation({
@@ -30,7 +28,7 @@ export const appendPuzzleInteractionMutation = defineMutation({
     await tx.run(sql`
       INSERT INTO chess_puzzle_interactions (
         id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx, uci, correct,
-        rating_before, rating_after, at
+        at
       )
       VALUES (
         ${args.interactionId}, ${args.ownerId}, ${args.puzzleId},
@@ -43,7 +41,6 @@ export const appendPuzzleInteractionMutation = defineMutation({
               ? 1
               : 0
         },
-        ${args.ratingBefore ?? 0}, ${args.ratingAfter ?? 0},
         ${env.now().toISOString()}
       )
       ON CONFLICT (id) DO NOTHING

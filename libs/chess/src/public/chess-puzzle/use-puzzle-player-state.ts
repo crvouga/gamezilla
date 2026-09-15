@@ -19,17 +19,18 @@ import {
   StartChessPuzzlePlay,
 } from '../chess-puzzle-play';
 import {
+  PUZZLE_ELO_DEFAULT,
+  projectPuzzleEloFromInteractions,
+} from '../chess-puzzle-rating';
+import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,
 } from './chess-puzzle-play-queries';
 import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
-
-const DEFAULT_PLAYER_ELO = 1200;
 
 function useReclaimStalePuzzleHost(): void {
   const memberId = useMyId();
@@ -98,18 +99,17 @@ function usePuzzlePlayerModel(args: {
   readyGeneration: Accessor<number>;
   startNonce: Accessor<number>;
 }) {
-  const myId = useMyId();
-  const profile = useChessPuzzleProfileRatings(myId);
-  const playerElo = createMemo(() => {
-    const rating = profile.profileRating();
-    return rating > 0 ? rating : DEFAULT_PLAYER_ELO;
-  });
   const entity = usePuzzleEntityAndInteractions(args.puzzleId);
   const fen = createMemo(() => entity.fen);
   const movesStr = createMemo(() => entity.movesStr);
   const rating = createMemo(() => entity.rating);
   const themes = createMemo(() => entity.themes);
   const interactions = createMemo(() => entity.interactions);
+  const allInteractions = useChessPuzzleAllInteractions();
+  const playerElo = createMemo(() => {
+    const projected = projectPuzzleEloFromInteractions(allInteractions());
+    return projected.ratedGames > 0 ? projected.rating : PUZZLE_ELO_DEFAULT;
+  });
   useReclaimStalePuzzleHost();
   useStartPuzzleSessionOnMount({
     puzzleId: args.puzzleId,
@@ -126,6 +126,7 @@ function usePuzzlePlayerModel(args: {
     status: solver.status,
     solveIdx: solver.solveIdx,
     interactions,
+    allInteractions,
   });
 
   return {
@@ -134,6 +135,7 @@ function usePuzzlePlayerModel(args: {
     playerElo,
     themes,
     interactions,
+    allInteractions,
     movesStr,
     displayFen: solver.displayFen,
     layoutKey: solver.layoutKey,
@@ -161,11 +163,10 @@ function usePuzzlePlayerUi(args: {
   onRequestNext: () => void;
   m: ReturnType<typeof usePuzzlePlayerModel>;
 }) {
-  const allInteractions = useChessPuzzleAllInteractions();
   const completion = useChessPuzzleCompletion({
     puzzleId: args.m.puzzleId,
     interactions: args.m.interactions,
-    allInteractions,
+    allInteractions: args.m.allInteractions,
     status: args.m.status,
   });
   const controls = usePuzzlePlayerControls({

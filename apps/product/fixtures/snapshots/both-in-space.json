@@ -139,8 +139,6 @@
           "solve_idx",
           "uci",
           "correct",
-          "rating_before",
-          "rating_after",
           "at"
         ],
         "rows": []
@@ -896,8 +894,6 @@
               "owner_id",
               "puzzle_id",
               "puzzle_rating",
-              "rating_after",
-              "rating_before",
               "solve_idx",
               "uci",
               "updated_at"
@@ -1496,8 +1492,6 @@
               "owner_id",
               "puzzle_id",
               "puzzle_rating",
-              "rating_after",
-              "rating_before",
               "solve_idx",
               "uci",
               "updated_at"

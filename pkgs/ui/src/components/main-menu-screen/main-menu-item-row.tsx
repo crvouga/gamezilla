@@ -2,7 +2,7 @@
 import { cssPx } from '../../css/css-px';
 /**
  * One card row of `MainMenuScreen`: title, optional caption, and a trailing
- * chevron / selection check. Interactive rows are `Clickable`s.
+ * chevron / selection check. Interactive rows are pressable surface cards.
  */
 
 import { createMemo, type JSX, Show } from 'solid-js';

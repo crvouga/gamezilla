@@ -1,135 +1,158 @@
-/** Glicko-2 scale factor (rating → μ). */
-const GLICKO_SCALE = 173.7178;
+import { deriveOutcomeScore } from './chess-puzzle-derive';
+import {
+  CHESS_PUZZLE_INTERACTION_KIND,
+  type ChessPuzzleInteractionKind,
+  type ChessPuzzleInteractionRow,
+} from './chess-puzzle-interaction-entities';
+import { compareCodeUnit } from './code-unit-compare';
 
-/** System constant τ — controls volatility change per period. */
-const TAU = 0.5;
+/** Default player rating before any rated puzzles. */
+export const PUZZLE_ELO_DEFAULT = 1200;
 
-const PI_SQ = Math.PI ** 2;
+export const PUZZLE_ELO_MIN = 400;
+export const PUZZLE_ELO_MAX = 3000;
 
-/** Fixed opponent RD for puzzle rows (Lichess-style puzzle rating). */
-const PUZZLE_OPPONENT_RD = 50;
+/** Games using provisional K before switching to stable K. */
+export const PUZZLE_ELO_PROVISIONAL_GAMES = 20;
+
+export const PUZZLE_ELO_K_PROVISIONAL = 40;
+export const PUZZLE_ELO_K_STABLE = 20;
+
+/** Unused profile RD stub — Elo no longer depends on RD. */
+export const PUZZLE_PROFILE_RD_STUB = 0;
 
 export type PuzzleRatingScore = 0 | 0.5 | 1;
 
 export type PuzzleRatingInput = {
   readonly playerRating: number;
-  readonly playerRd: number;
   readonly puzzleRating: number;
   readonly score: PuzzleRatingScore;
+  readonly ratedGames: number;
 };
 
 export type PuzzleRatingResult = {
   readonly rating: number;
-  readonly ratingDeviation: number;
+};
+
+export type ProjectedPuzzleEloEntry = {
+  readonly puzzleId: string;
+  readonly puzzleRating: number;
+  readonly outcome: 'solved' | 'abandoned';
+  readonly ratingBefore: number;
+  readonly ratingAfter: number;
+  readonly delta: number;
+  readonly at: string;
+};
+
+export type ProjectedPuzzleElo = {
+  readonly rating: number;
+  readonly ratedGames: number;
+  readonly entries: readonly ProjectedPuzzleEloEntry[];
+  readonly eloSeries: readonly number[];
 };
 
 function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
-function toMu(rating: number): number {
-  return (rating - 1500) / GLICKO_SCALE;
+function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
+  return (
+    kind === CHESS_PUZZLE_INTERACTION_KIND.solved ||
+    kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned
+  );
 }
 
-function fromMu(mu: number): number {
-  return 1500 + GLICKO_SCALE * mu;
-}
-
-function toPhi(rd: number): number {
-  return rd / GLICKO_SCALE;
-}
-
-function fromPhi(phi: number): number {
-  return GLICKO_SCALE * phi;
-}
-
-function g(phi: number): number {
-  return 1 / Math.sqrt(1 + (3 * phi ** 2) / PI_SQ);
-}
-
-function expectedScore(mu: number, muJ: number, phiJ: number): number {
-  return 1 / (1 + Math.exp(-g(phiJ) * (mu - muJ)));
-}
-
-function volatilityObjective(args: {
-  x: number;
-  delta: number;
-  phi: number;
-  v: number;
-  a: number;
-}): number {
-  const { x, delta, phi, v, a } = args;
-  const ex = Math.exp(x);
-  const num = ex * (delta ** 2 - phi ** 2 - v - ex);
-  const den = 2 * (phi ** 2 + v + ex) ** 2;
-  return num / den - (x - a) / TAU ** 2;
-}
-
-/** Iterative Glicko-2 volatility update (Mark Glickman's algorithm). */
-function newVolatility(phi: number, delta: number, v: number): number {
-  const a = Math.log(phi ** 2);
-  let A = a;
-  if (delta ** 2 > phi ** 2 + v) {
-    A = Math.log(delta ** 2 - phi ** 2 - v);
-  }
-  let B: number;
-  if (delta ** 2 > phi ** 2 + v) {
-    B = A;
-  } else {
-    let k = 1;
-    while (
-      volatilityObjective({
-        x: a - k * TAU,
-        delta,
-        phi,
-        v,
-        a,
-      }) < 0
-    ) {
-      k += 1;
-    }
-    B = a - k * TAU;
-  }
-  let fA = volatilityObjective({ x: A, delta, phi, v, a });
-  let fB = volatilityObjective({ x: B, delta, phi, v, a });
-  while (Math.abs(B - A) > 1e-6) {
-    const C = A + ((A - B) * fA) / (fB - fA);
-    const fC = volatilityObjective({ x: C, delta, phi, v, a });
-    if (fC * fB < 0) {
-      A = B;
-      fA = fB;
-    } else {
-      fA /= 2;
-    }
-    B = C;
-    fB = fC;
-  }
-  return Math.exp(A / 2);
+/** K-factor: higher while provisional, then stable. */
+export function puzzleEloK(ratedGames: number): number {
+  return ratedGames < PUZZLE_ELO_PROVISIONAL_GAMES
+    ? PUZZLE_ELO_K_PROVISIONAL
+    : PUZZLE_ELO_K_STABLE;
 }
 
 /**
- * Glicko-2 rating update for a single puzzle outcome.
+ * Classic Elo step for one puzzle outcome.
  * `score`: 1 = clean solve, 0.5 = solved with hint/wrong move, 0 = abandoned.
  */
 export function updatePuzzleRating(
   input: PuzzleRatingInput
 ): PuzzleRatingResult {
-  const mu = toMu(input.playerRating);
-  const phi = toPhi(input.playerRd);
-  const muJ = toMu(input.puzzleRating);
-  const phiJ = toPhi(PUZZLE_OPPONENT_RD);
+  const expected =
+    1 / (1 + 10 ** ((input.puzzleRating - input.playerRating) / 400));
+  const k = puzzleEloK(input.ratedGames);
+  const next = Math.round(input.playerRating + k * (input.score - expected));
+  return { rating: clamp(next, PUZZLE_ELO_MIN, PUZZLE_ELO_MAX) };
+}
 
-  const gVal = g(phiJ);
-  const eVal = expectedScore(mu, muJ, phiJ);
-  const v = 1 / (gVal ** 2 * eVal * (1 - eVal));
-  const delta = v * gVal * (input.score - eVal);
+/** Play rows for a terminal at `terminalIndex` in chronologically sorted history. */
+function playForTerminal(
+  sorted: readonly ChessPuzzleInteractionRow[],
+  terminalIndex: number
+): readonly ChessPuzzleInteractionRow[] {
+  const terminal = sorted[terminalIndex];
+  if (terminal === undefined) return [];
+  const puzzleId = terminal.puzzleId;
+  let startIdx = -1;
+  for (let i = terminalIndex; i >= 0; i -= 1) {
+    const row = sorted[i];
+    if (
+      row !== undefined &&
+      row.puzzleId === puzzleId &&
+      row.kind === CHESS_PUZZLE_INTERACTION_KIND.started
+    ) {
+      startIdx = i;
+      break;
+    }
+  }
+  if (startIdx < 0) return [terminal];
+  const play: ChessPuzzleInteractionRow[] = [];
+  for (let i = startIdx; i <= terminalIndex; i += 1) {
+    const row = sorted[i];
+    if (row !== undefined && row.puzzleId === puzzleId) play.push(row);
+  }
+  return play;
+}
 
-  const phiStar = newVolatility(phi, delta, v);
-  const phiPrime = 1 / Math.sqrt(1 / phiStar ** 2 + 1 / v);
-  const muPrime = mu + phiPrime ** 2 * delta;
+/**
+ * Project Elo from attempt facts only. Formula edits change every delta
+ * without backfill — interactions never store before/after ratings.
+ */
+export function projectPuzzleEloFromInteractions(
+  interactions: readonly ChessPuzzleInteractionRow[]
+): ProjectedPuzzleElo {
+  const sorted = [...interactions].sort((a, b) => compareCodeUnit(a.at, b.at));
+  let rating = PUZZLE_ELO_DEFAULT;
+  let ratedGames = 0;
+  const entries: ProjectedPuzzleEloEntry[] = [];
+  const eloSeries: number[] = [rating];
 
-  return {
-    rating: clamp(Math.round(fromMu(muPrime)), 400, 3000),
-    ratingDeviation: clamp(Math.round(fromPhi(phiPrime)), 30, 350),
-  };
+  for (let i = 0; i < sorted.length; i += 1) {
+    const row = sorted[i];
+    if (row === undefined || !isTerminalKind(row.kind)) continue;
+    const play = playForTerminal(sorted, i);
+    const ratingBefore = rating;
+    const updated = updatePuzzleRating({
+      playerRating: ratingBefore,
+      puzzleRating: row.puzzleRating,
+      score: deriveOutcomeScore(play),
+      ratedGames,
+    });
+    rating = updated.rating;
+    ratedGames += 1;
+    const outcome =
+      row.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
+        ? 'solved'
+        : 'abandoned';
+    entries.push({
+      puzzleId: row.puzzleId,
+      puzzleRating: row.puzzleRating,
+      outcome,
+      ratingBefore,
+      ratingAfter: rating,
+      delta: rating - ratingBefore,
+      at: row.at,
+    });
+    eloSeries.push(rating);
+  }
+
+  return { rating, ratedGames, entries, eloSeries };
 }

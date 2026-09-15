@@ -49,8 +49,6 @@ export const chessPuzzleInteractions = defineTable({
     solve_idx: 'integer',
     uci: 'text',
     correct: 'boolean',
-    rating_before: 'integer',
-    rating_after: 'integer',
     at: 'timestamp',
   },
 });

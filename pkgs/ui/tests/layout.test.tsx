@@ -163,4 +163,29 @@ describe('AppFrame', () => {
     expect(screen.queryByText('default header')).toBeNull();
     expect(screen.getByRole('main')).toHaveAttribute('data-mode', 'compact');
   });
+
+  test('wide frame hosts banner portals outside the max-width column', () => {
+    renderUi(
+      () => (
+        <AppFrame>
+          <p class="text" data-testid="body">
+            {'body'}
+          </p>
+        </AppFrame>
+      ),
+      { width: 1280 }
+    );
+    const main = screen.getByRole('main');
+    const topHost = main.querySelector(
+      '[data-component="DismissibleBannerPortalHost"][data-position="top"]'
+    );
+    const body = screen.getByTestId('body');
+    if (topHost === null) throw new Error('missing top banner host');
+    expect(topHost.compareDocumentPosition(body)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+    const column = body.closest('div[style*="max-width"]');
+    expect(column).not.toBeNull();
+    expect(column?.contains(topHost)).toBe(false);
+  });
 });

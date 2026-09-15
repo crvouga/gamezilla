@@ -1,11 +1,14 @@
 /** @jsxImportSource solid-js */
 /**
- * Banners, command palette, and in-session chrome. Overlay / surface-stack
- * hosts live in `AppUiPortals` (outer shell) so `AppFrame` menus work
- * before SQLite. This provider still mounts inside the identity-scoped sync
- * tree (`sync-engine-ready-tree.tsx`), after `AppLocalDatabaseProvider`
- * (commands read the sync engine) and above the sign-in modal
- * (`AppSignInCapabilities` + `AuthModalsProvider`).
+ * Command palette, sync/offline banners, and in-session chrome. Overlay /
+ * surface-stack hosts live in `AppUiPortals` (outer shell) so `AppFrame`
+ * menus work before SQLite. Banner *portal hosts* live on `AppFrame` (full
+ * bleed outside the wide max-width column); this provider only mounts the
+ * banner sources (`OfflineIndicator`, perf HUD, PWA update).
+ *
+ * Mounts inside the identity-scoped sync tree (`sync-engine-ready-tree.tsx`),
+ * after `AppLocalDatabaseProvider` (commands read the sync engine) and above
+ * the sign-in modal (`AppSignInCapabilities` + `AuthModalsProvider`).
  *
  * The bottom sheet host is the `@pkgs/ui` web default (no provider needed).
  *
@@ -22,7 +25,6 @@ import { OfflineIndicator } from '@apps/client/chrome/offline-indicator';
 import {
   CommandPalette,
   CommandRegistryProvider,
-  DismissibleBannerPortalProvider,
   KeyboardShortcutScope,
 } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
@@ -65,10 +67,10 @@ export function AppUiProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <DismissibleBannerPortalProvider>
+    <>
       <OfflineIndicator />
       <PerfHudOverlay />
       <AppCommandRegistry>{props.children}</AppCommandRegistry>
-    </DismissibleBannerPortalProvider>
+    </>
   );
 }

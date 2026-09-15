@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 /**
- * Wires preference + sampler under the app shell. The HUD banner mounts
- * inside `DismissibleBannerPortalProvider` (`AppUiProvider`) so it stays
- * in-flow. The sampler defaults to the browser wall adapter on the injected
- * timers; tests and sims pass their own.
+ * Wires preference + sampler under the app shell. The HUD banner portals into
+ * `AppFrame`'s `DismissibleBannerPortalProvider` (full-bleed hosts) so it
+ * stays in-flow. The sampler defaults to the browser wall adapter on the
+ * injected timers; tests and sims pass their own.
  */
 
 import { useTimers } from '@pkgs/clock/solid';

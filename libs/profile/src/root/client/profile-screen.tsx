@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button, Island, IslandGrid, ScreenBase, useRouter } from '@pkgs/ui';
+import { Button, ScreenBase, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { MyProfileAvatar } from './my-profile-avatar';
 import { MyUsername } from './my-username';
@@ -37,42 +37,36 @@ function ProfileScreenContent(props: {
   const router = useRouter();
 
   return (
-    <IslandGrid columns={3}>
-      <Island span={1}>
-        <div class="box items-center gap-3 pt-2">
-          <MyProfileAvatar size={96} />
-          <div class="box items-center gap-1 self-stretch min-w-[0]">
-            <MyUsername
-              variant="heading"
-              numberOfLines={1}
-              class="text-center"
-            />
-          </div>
-          <div class="box flex-row gap-2 self-stretch mt-2">
-            <Button
-              title={t`Edit profile`}
-              intent="neutral"
-              variant="outline"
-              flex={1}
-              onClick={() => router.push('/profile/edit')}
-              dataSet={{ testid: Handles.profileEdit }}
-            />
-          </div>
+    <div class="box gap-6 pt-2">
+      <div class="box items-center gap-3">
+        <MyProfileAvatar size={96} />
+        <div class="box items-center gap-1 self-stretch min-w-[0]">
+          <MyUsername variant="heading" numberOfLines={1} class="text-center" />
         </div>
-      </Island>
-      <Island span={2} title={<Trans>Friends</Trans>}>
-        <div class="box gap-3 self-stretch">
-          {props.friendsStats !== undefined && props.friendsStats !== null
-            ? props.friendsStats
-            : null}
-          {props.friendsActions !== undefined &&
-          props.friendsActions !== null ? (
-            <div class="box flex-row flex-wrap gap-2 min-w-[0]">
-              {props.friendsActions}
-            </div>
-          ) : null}
+        <div class="box flex-row gap-2 self-stretch mt-2">
+          <Button
+            title={t`Edit profile`}
+            intent="neutral"
+            variant="outline"
+            flex={1}
+            onClick={() => router.push('/profile/edit')}
+            dataSet={{ testid: Handles.profileEdit }}
+          />
         </div>
-      </Island>
-    </IslandGrid>
+      </div>
+      <div class="box gap-3 self-stretch">
+        <h2 class="text textSubtitle">
+          <Trans>Friends</Trans>
+        </h2>
+        {props.friendsStats !== undefined && props.friendsStats !== null
+          ? props.friendsStats
+          : null}
+        {props.friendsActions !== undefined && props.friendsActions !== null ? (
+          <div class="box flex-row flex-wrap gap-2 min-w-[0]">
+            {props.friendsActions}
+          </div>
+        ) : null}
+      </div>
+    </div>
   );
 }

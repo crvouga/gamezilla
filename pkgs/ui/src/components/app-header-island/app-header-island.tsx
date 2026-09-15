@@ -2,8 +2,9 @@
 import { cssPx } from '../../css/css-px';
 /**
  * `AppHeaderIsland` -- wide-only top chrome: logo | pill tabs | trailing.
- * Mounted via `AppFrame` `header`; not used on compact layouts. The trailing
- * slot falls back to the `AppFrameChromeProvider` global chrome (avatar menu).
+ * Mounted via `AppFrame` `header`; not used on compact layouts. Flat hairline
+ * bar (no elevated card). The trailing slot falls back to the
+ * `AppFrameChromeProvider` global chrome (avatar menu).
  *
  * @example
  * ```tsx
@@ -16,11 +17,7 @@ import { cssPx } from '../../css/css-px';
 import { For, type JSX, Show } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { dataAttrs } from '../../component-id';
-import {
-  getTopBarContentHeight,
-  ISLAND_RADIUS,
-  useThemeLayout,
-} from '../../theme';
+import { getTopBarContentHeight, useThemeLayout } from '../../theme';
 import { useAppFrameGlobalTrailing } from '../app-frame';
 import type {
   AppHeaderIslandItem,
@@ -73,10 +70,7 @@ function HeaderPillGroup(props: {
   items: readonly AppHeaderIslandItem[];
 }): JSX.Element {
   return (
-    <div
-      class="box flex-row items-center gap-1 p-1 rounded-[9999px] bg-surface-muted"
-      role="tablist"
-    >
+    <div class="box flex-row items-center gap-1" role="tablist">
       <For each={props.items}>{(item) => <HeaderPill item={item} />}</For>
     </div>
   );
@@ -90,12 +84,11 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
   const trailing = (): JSX.Element => props.trailing ?? globalTrailing();
   return (
     <header
-      class="box bg-surface-elevated border border-solid border-border overflow-hidden"
+      class="box bg-transparent border-b border-solid border-border overflow-hidden"
       {...dataAttrs({ component: 'AppHeaderIsland', ...props.dataSet })}
-      style={{ 'border-radius': ISLAND_RADIUS }}
     >
       <div
-        class="box flex-row items-center gap-2 px-3"
+        class="box flex-row items-center gap-2 px-1"
         style={{
           height: cssPx(contentHeight()),
           'min-height': cssPx(contentHeight()),

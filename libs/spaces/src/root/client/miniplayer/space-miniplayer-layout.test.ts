@@ -2,7 +2,6 @@ import { describe, expect, it } from 'bun:test';
 
 import {
   isSpaceMiniplayerHidden,
-  MINIPLAYER_WIDE_MAX_WIDTH,
   resolveMiniplayerFrame,
   resolveMiniplayerMode,
 } from './space-miniplayer-layout';
@@ -11,14 +10,12 @@ describe('resolveMiniplayerFrame', () => {
   it('spans full width with square corners on compact', () => {
     expect(resolveMiniplayerFrame('compact')).toEqual({
       rounded: false,
-      maxWidth: null,
     });
   });
 
-  it('centers a rounded card with a max width on wide', () => {
+  it('spans the AppFrame column with soft corners on wide', () => {
     expect(resolveMiniplayerFrame('wide')).toEqual({
       rounded: true,
-      maxWidth: MINIPLAYER_WIDE_MAX_WIDTH,
     });
   });
 });

@@ -28,6 +28,8 @@ export function SpaceCardGradientBox(
       style={{
         'background-color': fill,
         'border-radius': `${SPACE_CARD_BORDER_RADIUS}px`,
+        width: '100%',
+        'align-self': 'stretch',
         ...props.style,
       }}
       {...dataAttrs(props.dataSet)}

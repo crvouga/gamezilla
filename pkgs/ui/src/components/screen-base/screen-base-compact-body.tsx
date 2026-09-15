@@ -70,14 +70,14 @@ function BodyInner(props: {
   );
 }
 
-/** Bottom-pinned footer: full-bleed surface with a top divider. */
+/** Bottom-pinned footer: hairline divider only (no surface fill). */
 function PinnedFooter(props: {
   children: JSX.Element;
   safeBottom: boolean;
 }): JSX.Element {
   return (
     <div
-      class="box bg-surface border-border border-t border-solid"
+      class="box bg-transparent border-border border-t border-solid"
       classList={{ safeBottom: props.safeBottom }}
       data-component="ScreenFooter"
     >
@@ -186,7 +186,7 @@ export function ScreenBaseCompactBody(
       <Show when={props.bottomBar}>
         {(bottomBar) => (
           <div
-            class="box bg-surface"
+            class="box bg-transparent border-t border-solid border-border"
             classList={{ safeBottom: true }}
             data-component="ScreenBottomBar"
           >

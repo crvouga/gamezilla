@@ -1,21 +1,11 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
-import { SpaceSideRailExtras } from '@libs/spaces/public/space-event-log-placement';
-import {
-  ISLAND_GAP_STEP,
-  ISLAND_SIDE_RAIL_WIDTH,
-  Island,
-  spacingScale,
-  useThemeLayout,
-} from '@pkgs/ui';
+import { Island, spacingScale } from '@pkgs/ui';
 import {
   type Accessor,
-  createEffect,
   createMemo,
   createSignal,
   type JSX,
-  Match,
   Show,
-  Switch,
 } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -31,7 +21,6 @@ import type { SolveStatus } from './use-chess-puzzle-solver';
 const noopElo = (): void => {};
 /** Tight inset so the square board can fill its well. */
 const BOARD_WELL_PADDING_PX = spacingScale(2);
-const SHELL_GAP_PX = ISLAND_GAP_STEP * 4;
 
 type PlayChromeProps = {
   layout: PuzzlePlayLayoutProps;
@@ -116,7 +105,7 @@ function PuzzlePlayBoard(props: {
 }
 
 /**
- * Largest square that fits the pane. Leftover space stays around the island
+ * Largest square that fits the pane. Leftover space stays around the board
  * (app background), not as a blank mat above a bottom-aligned board.
  */
 function PuzzlePlayBoardWell(props: {
@@ -139,48 +128,6 @@ function PuzzlePlayBoardWell(props: {
       >
         <PuzzlePlayBoard boardSlot={props.boardSlot} />
       </Island>
-    </div>
-  );
-}
-
-/** Portal wraps extras in an unstyled div; stretch that parent so flex-1 chrome can fill the rail. */
-function stretchPortalParent(el: HTMLElement): void {
-  const parent = el.parentElement;
-  if (parent === null) return;
-  parent.classList.add(
-    'box',
-    'flex-1',
-    'min-h-[0]',
-    'min-w-[0]',
-    'self-stretch'
-  );
-}
-
-function PuzzlePlayRailColumn(props: PlayChromeProps): JSX.Element {
-  const [root, setRoot] = createSignal<HTMLElement>();
-  createEffect(() => {
-    const el = root();
-    if (el === undefined) return;
-    stretchPortalParent(el);
-    queueMicrotask(() => stretchPortalParent(el));
-  });
-  return (
-    <div class="box flex-1 min-h-[0] min-w-[0] self-stretch" ref={setRoot}>
-      <div class="box shrink-0 min-w-[0]">
-        <PuzzlePlayFeed
-          layout={props.layout}
-          openFeedSettings={props.openFeedSettings}
-        />
-      </div>
-      <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden justify-center">
-        {props.layout.assistant}
-      </div>
-      <div class="box shrink-0">
-        <ChessPuzzleMoveHistoryBar />
-      </div>
-      <div class="box shrink-0">
-        <PuzzlePlayActions layout={props.layout} />
-      </div>
     </div>
   );
 }
@@ -209,7 +156,7 @@ function CelebrationLayer(props: {
   );
 }
 
-/** Phone: coach + square board + timeline/actions docked to the bottom. */
+/** Single-column: feed + coach + square board + timeline/actions. */
 function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
   return (
     <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
@@ -233,42 +180,6 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
   );
 }
 
-/** Tablet: in-body board | chrome (space shell has no side rail). */
-function PuzzlePlaySplit(props: PlayChromeProps): JSX.Element {
-  return (
-    <div
-      class="box flex-1 min-h-[0] min-w-[0] flex-row items-stretch overflow-hidden"
-      style={{ gap: `${SHELL_GAP_PX}px` }}
-    >
-      <PuzzlePlayBoardWell boardSlot={props.layout.boardSlot} />
-      <div
-        class="box min-h-[0] shrink-0 self-stretch overflow-hidden"
-        style={{ width: `${ISLAND_SIDE_RAIL_WIDTH}px` }}
-      >
-        <PuzzlePlayRailColumn
-          layout={props.layout}
-          openFeedSettings={props.openFeedSettings}
-        />
-      </div>
-    </div>
-  );
-}
-
-/** Desktop: board well + space side rail. */
-function PuzzlePlayWide(props: PlayChromeProps): JSX.Element {
-  return (
-    <>
-      <SpaceSideRailExtras>
-        <PuzzlePlayRailColumn
-          layout={props.layout}
-          openFeedSettings={props.openFeedSettings}
-        />
-      </SpaceSideRailExtras>
-      <PuzzlePlayBoardWell boardSlot={props.layout.boardSlot} />
-    </>
-  );
-}
-
 export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
   const [feedSettingsOpen, setFeedSettingsOpen] = createSignal(false);
   const openFeedSettings = (): void => {
@@ -277,13 +188,6 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
   const closeFeedSettings = (): void => {
     setFeedSettingsOpen(false);
   };
-  const themeLayout = useThemeLayout();
-  const shell = createMemo(() => {
-    const bp = themeLayout.breakpoint();
-    if (bp === 'desktop') return 'wide';
-    if (bp === 'tablet') return 'split';
-    return 'stack';
-  });
   return (
     <div
       class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden"
@@ -292,17 +196,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
     >
       <DefineBackButton onPress={props.backToRoot} />
       {props.e2eLoadingStatus}
-      <Switch>
-        <Match when={shell() === 'wide'}>
-          <PuzzlePlayWide layout={props} openFeedSettings={openFeedSettings} />
-        </Match>
-        <Match when={shell() === 'split'}>
-          <PuzzlePlaySplit layout={props} openFeedSettings={openFeedSettings} />
-        </Match>
-        <Match when={shell() === 'stack'}>
-          <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
-        </Match>
-      </Switch>
+      <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
       <CelebrationLayer completion={props.completion} />
       {props.e2eHints}
       <ChessPuzzleFeedSettingsModal

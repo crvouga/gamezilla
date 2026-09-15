@@ -46,7 +46,7 @@ msgid "{0} active — expires {latestExpires}"
 msgstr "{0} active — expires {latestExpires}"
 
 #. placeholder {0}: count()
-#: libs/spaces/src/root/client/miniplayer/miniplayer-stacked-bar.tsx
+#: libs/spaces/src/root/client/miniplayer/space-miniplayer.tsx
 msgid "{0} live spaces"
 msgstr "{0} live spaces"
 
@@ -1710,7 +1710,7 @@ msgstr "Share space"
 msgid "Show performance monitor"
 msgstr "Show performance monitor"
 
-#: libs/spaces/src/root/client/miniplayer/miniplayer-stacked-bar.tsx
+#: libs/spaces/src/root/client/miniplayer/space-miniplayer.tsx
 msgid "Show your live spaces"
 msgstr "Show your live spaces"
 

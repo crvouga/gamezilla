@@ -5,11 +5,13 @@
  */
 
 import { useSessionAccountEmail } from '@libs/auth/public/use-current-user';
+import { parseAvatarConfig } from '@libs/profile/public/avatar-config';
 import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/public/use-profile-column';
 import {
   type Accessor,
   createEffect,
+  createMemo,
   type JSX,
   onCleanup,
   Show,
@@ -21,12 +23,22 @@ import {
 } from './global-menu-identity-context';
 
 function PublishIdentity(props: {
+  readonly profileId: string | null;
   readonly username: Accessor<string | null>;
+  readonly avatarConfigRaw: Accessor<string | null>;
 }): JSX.Element {
   const publish = useGlobalMenuIdentityPublisher();
   const email = useSessionAccountEmail();
+  const avatarConfig = createMemo(() =>
+    parseAvatarConfig(props.avatarConfigRaw())
+  );
   createEffect(() => {
-    publish({ username: props.username(), email: email() });
+    publish({
+      username: props.username(),
+      email: email(),
+      profileId: props.profileId,
+      avatarConfig: avatarConfig(),
+    });
   });
   onCleanup(() => publish(BOOT_GLOBAL_MENU_IDENTITY));
   return null;
@@ -36,7 +48,17 @@ function PublishFromProfile(props: {
   readonly profileId: string;
 }): JSX.Element {
   const username = useProfileColumn(() => props.profileId, 'username');
-  return <PublishIdentity username={username} />;
+  const avatarConfigRaw = useProfileColumn(
+    () => props.profileId,
+    'avatarConfig'
+  );
+  return (
+    <PublishIdentity
+      profileId={props.profileId}
+      username={username}
+      avatarConfigRaw={avatarConfigRaw}
+    />
+  );
 }
 
 /** Mount under `SyncEngineProvider`. */
@@ -49,7 +71,13 @@ export function GlobalMenuIdentityLiveBridge(props: {
       <Show
         when={profileId()}
         keyed
-        fallback={<PublishIdentity username={() => null} />}
+        fallback={
+          <PublishIdentity
+            profileId={null}
+            username={() => null}
+            avatarConfigRaw={() => null}
+          />
+        }
       >
         {(id) => <PublishFromProfile profileId={id} />}
       </Show>

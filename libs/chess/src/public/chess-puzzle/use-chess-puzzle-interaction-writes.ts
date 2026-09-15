@@ -9,7 +9,6 @@ import type {
   ChessPuzzleInteractionRow,
 } from '../chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 type AppendExtra = {
   uci?: string | null;
@@ -22,6 +21,7 @@ export function useChessPuzzleInteractionWrites(args: {
   puzzleRating: Accessor<number>;
   solveIdx: Accessor<number>;
   interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  allInteractions: Accessor<readonly ChessPuzzleInteractionRow[]>;
 }): {
   appendInteraction: (
     kind: ChessPuzzleInteractionKind,
@@ -33,7 +33,6 @@ export function useChessPuzzleInteractionWrites(args: {
   const mutationClient = useMutationClient();
   const createId = useCreateId();
   const clock = useClock();
-  const profile = useChessPuzzleProfileRatings(myId);
   const interactionDb = new ChessPuzzleInteractionDb(mutationClient, createId);
 
   const appendInteraction = async (
@@ -62,9 +61,8 @@ export function useChessPuzzleInteractionWrites(args: {
       puzzleRating: args.puzzleRating(),
       solveIdx: args.solveIdx(),
       interactions: args.interactions(),
+      allInteractions: args.allInteractions(),
       terminalKind,
-      profileRating: profile.profileRating(),
-      profileRd: profile.profileRd(),
       clock,
     });
   };

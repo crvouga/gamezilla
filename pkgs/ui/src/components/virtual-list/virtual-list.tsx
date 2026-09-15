@@ -258,7 +258,11 @@ export function VirtualList<ItemT>(
     <Show when={flush().wrapperClass} fallback={list}>
       {(wrapperClass) => (
         <div
-          class={[wrapperClass(), flexFill() ? 'flex-1' : undefined]
+          class={[
+            wrapperClass(),
+            // Match ScrollView: fill flex parent and pass height to `.scroll`.
+            flexFill() ? 'flex-1 min-h-0' : undefined,
+          ]
             .filter(Boolean)
             .join(' ')}
           style={flush().contentStyle}

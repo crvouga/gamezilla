@@ -1,17 +1,13 @@
 /** @jsxImportSource solid-js */
 /**
- * `Island` -- content tile for the wide app shell. On compact layouts it is a
- * transparent pass-through so screens keep their mobile spacing.
+ * `Island` -- flat content section for the wide app shell. Transparent (no
+ * card chrome). On compact layouts it is a pass-through so screens keep their
+ * mobile spacing.
  */
 
 import { type JSX, Show, splitProps } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import {
-  ISLAND_PADDING_STEP,
-  ISLAND_RADIUS,
-  spacingScale,
-  useLayoutMode,
-} from '../../theme';
+import { ISLAND_PADDING_STEP, spacingScale, useLayoutMode } from '../../theme';
 import { ContentEdgePaddingProvider } from '../content-edge-padding';
 
 export type IslandSpan = 1 | 2 | 3;
@@ -51,11 +47,10 @@ function IslandWide(props: IslandProps): JSX.Element {
   const hasTitle = () => props.title !== undefined && props.title !== null;
   return (
     <section
-      class="box bg-surface-elevated border border-solid border-border overflow-hidden"
+      class="box bg-transparent overflow-hidden"
       classList={{ [String(props.class)]: true }}
       {...dataAttrs({ component: 'Island', ...props.dataSet })}
       style={{
-        'border-radius': `${ISLAND_RADIUS}px`,
         padding: `${spacingScale(ISLAND_PADDING_STEP)}px`,
         'grid-column': `span ${props.span ?? 1}`,
         ...props.style,

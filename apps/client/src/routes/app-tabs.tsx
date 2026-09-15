@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * Shared tab spec for the compact bottom tab bar and the wide header island.
+ * (NotificationsTabIcon owns unread badge layout.)
  */
 
 import { NotificationsTabIcon } from '@libs/notifications/public/notifications-tab-icon';

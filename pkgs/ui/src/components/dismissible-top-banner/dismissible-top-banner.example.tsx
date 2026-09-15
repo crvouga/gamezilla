@@ -24,7 +24,7 @@ export default function DismissibleBannerExample(): JSX.Element {
       <ExampleRoot class="flex-1 min-h-[360px]">
         <p class="text textCaption">
           {
-            'Banner UI portals into in-flow top/bottom slots on DismissibleBannerPortalProvider (mount once at the app root). This example mounts its own provider so the banner stays inside the preview and pushes content rather than covering it.'
+            'Banner UI portals into in-flow top/bottom slots. Product apps host the portal on AppFrame so the sheet full-bleeds while content stays on the max-width column. This example mounts its own provider so the banner stays inside the preview.'
           }
         </p>
         <SegmentedControl<DismissibleBannerPosition>

@@ -7,7 +7,6 @@ import {
   deriveChessPuzzleStats,
 } from '../chess-puzzle-stats';
 import { useChessPuzzleAllInteractions } from './chess-puzzle-play-queries';
-import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
 
 export function useChessPuzzleHistory(): {
   stats: Accessor<ChessPuzzleStats>;
@@ -16,12 +15,10 @@ export function useChessPuzzleHistory(): {
 } {
   const myId = useMyId();
   const interactions = useChessPuzzleAllInteractions();
-  const profile = useChessPuzzleProfileRatings(myId);
 
   const stats = createMemo(() =>
     deriveChessPuzzleStats({
       interactions: interactions(),
-      profileRating: profile.profileRating(),
     })
   );
   const gameLog = createMemo(() => deriveChessPuzzleGameLog(interactions()));

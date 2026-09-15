@@ -21,6 +21,7 @@ const SpaceMiniplayer = lazy(() =>
   )
 );
 
+/** Full-width miniplayer dock above the compact tab bar (or under wide body). */
 export function TabsLayout(props: RouteSectionProps): JSX.Element {
   const mode = useLayoutMode();
   const pathname = usePathname();

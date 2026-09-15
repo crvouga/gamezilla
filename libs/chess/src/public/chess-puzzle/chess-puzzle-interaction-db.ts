@@ -3,13 +3,12 @@ import type { MutationClient } from '@pkgs/sync-engine/client';
 import type { CreateId } from '@pkgs/uuid';
 import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation';
 import { upsertPuzzleProfileMutation } from '../../use-cases/upsert-puzzle-profile/shared/upsert-puzzle-profile-mutation';
-import {
-  deriveOutcomeScore,
-  isPlayClosed,
-  sliceCurrentPlay,
-} from '../chess-puzzle-derive';
+import { isPlayClosed } from '../chess-puzzle-derive';
 import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
-import { updatePuzzleRating } from '../chess-puzzle-rating';
+import {
+  PUZZLE_PROFILE_RD_STUB,
+  projectPuzzleEloFromInteractions,
+} from '../chess-puzzle-rating';
 import type { AppendPuzzleInteractionInput } from '../writes/append-puzzle-interaction-write';
 import type { UpsertPuzzleProfileInput } from '../writes/upsert-puzzle-profile-write';
 
@@ -42,81 +41,47 @@ export class ChessPuzzleInteractionDb {
     if (!result.ok) throw new Error(result.failures[0]?.message);
   }
 
-  /** Client orchestration: append terminal interaction, then upsert profile. */
+  /**
+   * Append terminal attempt fact, then upsert profile cache from a full
+   * history Elo fold (formula is the source of truth).
+   */
   async finalizePlayWithProfile(args: {
     ownerId: string;
     puzzleId: string;
     puzzleRating: number;
     solveIdx: number;
     interactions: readonly ChessPuzzleInteractionRow[];
+    allInteractions: readonly ChessPuzzleInteractionRow[];
     terminalKind: 'solved' | 'abandoned';
-    profileRating: number;
-    profileRd: number;
     clock: Clock;
   }): Promise<void> {
     if (isPlayClosed(args.interactions, args.puzzleId)) return;
-    const ratings = this.#computeFinalizeRatings(args);
+    const at = nowIso(args.clock);
+    const terminal: ChessPuzzleInteractionRow = {
+      puzzleId: args.puzzleId,
+      kind: args.terminalKind,
+      solveIdx: args.solveIdx,
+      uci: null,
+      correct: null,
+      puzzleRating: args.puzzleRating,
+      at,
+    };
     await this.appendRow({
       ownerId: args.ownerId,
       puzzleId: args.puzzleId,
       puzzleRating: args.puzzleRating,
       kind: args.terminalKind,
       solveIdx: args.solveIdx,
-      ratingBefore: ratings.ratingBefore,
-      ratingAfter: ratings.ratingAfter,
     });
+    const projected = projectPuzzleEloFromInteractions([
+      ...args.allInteractions,
+      terminal,
+    ]);
     await this.#upsertPuzzleProfile({
       ownerId: args.ownerId,
-      rating: ratings.ratingAfter,
-      ratingDeviation: ratings.ratingDeviation,
-      lastInteractionAt: ratings.at,
+      rating: projected.rating,
+      ratingDeviation: PUZZLE_PROFILE_RD_STUB,
+      lastInteractionAt: at,
     });
-  }
-
-  #computeFinalizeRatings(args: {
-    puzzleId: string;
-    puzzleRating: number;
-    solveIdx: number;
-    interactions: readonly ChessPuzzleInteractionRow[];
-    terminalKind: 'solved' | 'abandoned';
-    profileRating: number;
-    profileRd: number;
-    clock: Clock;
-  }): {
-    ratingBefore: number;
-    ratingAfter: number;
-    ratingDeviation: number;
-    at: string;
-  } {
-    const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-    const at = nowIso(args.clock);
-    const closed = [
-      ...play,
-      {
-        puzzleId: args.puzzleId,
-        kind: args.terminalKind,
-        solveIdx: args.solveIdx,
-        uci: null,
-        correct: null,
-        puzzleRating: args.puzzleRating,
-        ratingBefore: 0,
-        ratingAfter: 0,
-        at,
-      },
-    ];
-    const ratingBefore = args.profileRating > 0 ? args.profileRating : 1200;
-    const rdBefore = args.profileRd > 0 ? args.profileRd : 350;
-    const updated = updatePuzzleRating({
-      playerRating: ratingBefore,
-      playerRd: rdBefore,
-      puzzleRating: args.puzzleRating,
-      score: deriveOutcomeScore(closed),
-    });
-    return {
-      ratingBefore,
-      ratingAfter: updated.rating,
-      ratingDeviation: updated.ratingDeviation,
-      at,
-    };
   }
 }

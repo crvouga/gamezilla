@@ -71,7 +71,7 @@ export function AppTabBar(props: AppTabBarProps): JSX.Element {
   const height = () => getTopBarContentHeight(layout.breakpoint());
   return (
     <nav
-      class="box bg-surface border-t border-border safe-bottom"
+      class="box bg-transparent border-t border-solid border-border safe-bottom"
       data-component="AppTabBar"
     >
       <div

@@ -1,8 +1,6 @@
 import {
   AppHeaderIsland,
   ISLAND_GAP_STEP,
-  ISLAND_SIDE_RAIL_WIDTH,
-  Island,
   TopBar,
   useAppFrameGlobalTrailing,
   useLayoutMode,
@@ -10,11 +8,6 @@ import {
 } from '@pkgs/ui';
 import type { JSX, ParentProps } from 'solid-js';
 import { Show } from 'solid-js';
-import {
-  SpaceSideRailProvider,
-  useSetSpaceSideRailHost,
-  useSpaceSideRailHasExtras,
-} from '../../../public/space-event-log-placement';
 import { SpaceTitleText } from '../space-title-text';
 import {
   SpaceChromeLeadingActionBar,
@@ -42,7 +35,7 @@ function SpaceChromeTitle(props: {
 /**
  * Space ActionBar owns a real width budget (a content-sized slot collapses
  * every action into a lone More menu), then the global avatar menu sits at
- * the far edge — same on wide island trailing and compact TopBar trailing.
+ * the far edge — same on wide header trailing and compact TopBar trailing.
  */
 function SpaceTrailingWithGlobal(): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
@@ -56,56 +49,28 @@ function SpaceTrailingWithGlobal(): JSX.Element {
   );
 }
 
-/**
- * Wide body: game canvas, plus optional extras rail (game chrome via
- * {@link SpaceSideRailExtras}).
- */
-function SpaceActiveWideBody(props: ParentProps): JSX.Element {
-  const hasExtras = useSpaceSideRailHasExtras();
-  const setHost = useSetSpaceSideRailHost();
-  return (
-    <div
-      class="box flex-1 min-h-[0] min-w-[0] flex-row items-stretch overflow-hidden"
-      style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
-    >
-      <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
-      <Show when={hasExtras()}>
-        <Island
-          class="min-h-[0] self-stretch overflow-hidden"
-          style={{ width: `${ISLAND_SIDE_RAIL_WIDTH}px` }}
-        >
-          <div
-            class="box flex-1 min-h-[0] min-w-[0] self-stretch"
-            ref={setHost}
-          />
-        </Island>
-      </Show>
-    </div>
-  );
-}
-
 function SpaceActiveLayoutWide(props: {
   readonly spaceId: string;
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <SpaceSideRailProvider>
-      <div
-        class="box flex-1 min-h-[0] min-w-[0] overflow-hidden"
-        style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
-      >
-        <AppHeaderIsland
-          leading={
-            <div class="box flex-1 min-w-[0] flex-row items-center gap-4">
-              <SpaceChromeLeadingActionBar />
-              <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
-            </div>
-          }
-          trailing={<SpaceTrailingWithGlobal />}
-        />
-        <SpaceActiveWideBody>{props.children}</SpaceActiveWideBody>
+    <div
+      class="box flex-1 min-h-[0] min-w-[0] overflow-hidden"
+      style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
+    >
+      <AppHeaderIsland
+        leading={
+          <div class="box flex-1 min-w-[0] flex-row items-center gap-4">
+            <SpaceChromeLeadingActionBar />
+            <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
+          </div>
+        }
+        trailing={<SpaceTrailingWithGlobal />}
+      />
+      <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
+        {props.children}
       </div>
-    </SpaceSideRailProvider>
+    </div>
   );
 }
 
@@ -130,7 +95,7 @@ function SpaceActiveLayoutCompact(props: {
   );
 }
 
-/** Mounted only while wide: hides the default tab island. */
+/** Mounted only while wide: hides the default tab header. */
 function HideAppFrameHeaderWhileWide(): null {
   useSetAppFrameHeader(false);
   return null;
@@ -140,11 +105,9 @@ function HideAppFrameHeaderWhileWide(): null {
  * Unified active-space chrome: exit + back, members / manage actions, then
  * the game body.
  *
- * Wide: suppress the AppFrame tab island and paint space chrome as the single
- * top island (nav · title · actions · avatar); body is the game canvas plus an
- * optional extras rail.
- * Compact: TopBar nests the same chrome (nav · title · actions · avatar), then
- * the full-bleed body.
+ * Wide: suppress the AppFrame tab header and paint space chrome as the single
+ * top bar (nav · title · actions · avatar); body is a single-column game canvas.
+ * Compact: TopBar nests the same chrome, then the full-bleed body.
  */
 export function SpaceActiveLayout(props: SpaceActiveLayoutProps): JSX.Element {
   const sessionUi = useSpaceSessionUi();

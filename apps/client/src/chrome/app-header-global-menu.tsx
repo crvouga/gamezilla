@@ -3,9 +3,11 @@
  * Global dropdown mounted as `AppFrameChromeProvider` `globalTrailing` so
  * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
  * Theme, Sound. Header shows `@username` + email when signed in (bridged
- * from the sync tree via {@link useGlobalMenuIdentity}).
+ * from the sync tree via {@link useGlobalMenuIdentity}). Trigger face is the
+ * current user's avatar when available.
  */
 
+import { DeviceAvatar } from '@libs/profile/public/device-avatar';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
@@ -24,13 +26,15 @@ import {
   Volume2Icon,
   VolumeXIcon,
 } from '@pkgs/ui';
-import type { JSX } from 'solid-js';
+import { type Accessor, createMemo, type JSX } from 'solid-js';
 
 import { useLocalIdentity } from '../shell/identity/identity-context';
 import { useGlobalMenuIdentity } from './global-menu-identity-context';
 import { createConnectivity } from './use-connectivity';
 
 const CONNECTIVITY_DOT_SIZE = 14;
+const TRIGGER_AVATAR_SIZE = 32;
+const HEADER_AVATAR_SIZE = 40;
 
 function connectivityStatusLabel(
   t: ReturnType<typeof useLingui>['t'],
@@ -53,14 +57,14 @@ function useThemeCaption(): () => string {
   };
 }
 
-function useGlobalMenuActions(): () => readonly OverflowMenuAction[] {
+function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   const { t } = useLingui();
   const router = useRouter();
   const connectivity = createConnectivity();
   const themeCaption = useThemeCaption();
   const { muted } = useSoundsPreference();
   const go = (href: string) => () => router.push(href);
-  return () => [
+  return createMemo(() => [
     {
       id: 'settings',
       label: t`Settings`,
@@ -111,42 +115,62 @@ function useGlobalMenuActions(): () => readonly OverflowMenuAction[] {
       icon: muted() ? VolumeXIcon : Volume2Icon,
       onClick: go('/more/sound'),
     },
-  ];
+  ]);
 }
 
-function useGlobalMenuHeader(): () => OverflowMenuHeader {
+function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
   const { t } = useLingui();
   const identity = useLocalIdentity();
   const menuIdentity = useGlobalMenuIdentity();
-  return () => {
+  return createMemo(() => {
+    const { username, email, profileId, avatarConfig } = menuIdentity();
+    const avatar = (
+      <DeviceAvatar
+        avatarConfig={avatarConfig}
+        seedFallback={profileId ?? 'guest'}
+        size={HEADER_AVATAR_SIZE}
+      />
+    );
     if (!identity.isSignedIn()) {
-      return { title: t`Guest`, subtitle: t`Playing as guest` };
+      return {
+        title: t`Guest`,
+        subtitle: t`Playing as guest`,
+        avatar,
+      };
     }
-    const { username, email } = menuIdentity();
     if (username !== null && username.length > 0) {
       return {
         title: `@${username}`,
         subtitle: email ?? undefined,
+        avatar,
       };
     }
     if (email !== null && email.length > 0) {
-      return { title: email };
+      return { title: email, avatar };
     }
-    return { title: t`Account` };
-  };
+    return { title: t`Account`, avatar };
+  });
 }
 
 export function AppHeaderGlobalMenu(): JSX.Element {
   const { t } = useLingui();
   const actions = useGlobalMenuActions();
   const header = useGlobalMenuHeader();
+  const menuIdentity = useGlobalMenuIdentity();
+  const trigger = createMemo(() => (
+    <DeviceAvatar
+      avatarConfig={menuIdentity().avatarConfig}
+      seedFallback={menuIdentity().profileId ?? 'guest'}
+      size={TRIGGER_AVATAR_SIZE}
+    />
+  ));
   return (
     <OverflowMenuButton
       placement="bottom-end"
       tooltipPlacement="bottom-end"
       actions={actions()}
       header={header()}
-      icon={UserIcon}
+      trigger={trigger()}
       aria-label={t`Account menu`}
       dataSet={{ testid: Handles.statusCurrentUser }}
     />

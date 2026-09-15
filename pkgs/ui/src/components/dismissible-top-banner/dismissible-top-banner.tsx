@@ -4,9 +4,11 @@
  * once at the app root (inside the theme root); banners portal into its host
  * slots and push app content rather than covering it.
  *
- * Use {@link InFlowBanner} for custom banner chrome (e.g. perf HUD) and
- * {@link DismissibleBanner} for the standard dismissible sheet. Mount and
- * dismiss are instant (no slide animation) for low-end Android.
+ * Prefer hosting the portal on {@link AppFrame} so wide-mode hosts sit outside
+ * the max-width column (full-bleed sheet) while banner content still aligns to
+ * {@link APP_MAX_WIDTH}. Use {@link InFlowBanner} for custom chrome (e.g. perf
+ * HUD) and {@link DismissibleBanner} for the standard dismissible sheet. Mount
+ * and dismiss are instant (no slide animation) for low-end Android.
  */
 
 import { useLingui } from '@lingui/solid/macro';
@@ -20,7 +22,15 @@ import {
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { cssPx } from '../../css/css-px';
+import {
+  APP_FRAME_GUTTER_STEP,
+  APP_MAX_WIDTH,
+  spacingScale,
+  useLayoutMode,
+} from '../../theme';
 import { Button } from '../button';
+import { CONTENT_EDGE_PADDING_STEP } from '../content-edge-padding';
 import { IconButton } from '../icon-button';
 import { XIcon } from '../icons';
 
@@ -134,9 +144,9 @@ function DismissibleBannerPromptBody(props: {
   onActionClick: (() => void) | undefined;
 }): JSX.Element {
   return (
-    <div class="box flex-1 min-w-[0] flex-row items-center gap-3 flex-wrap">
-      <div class="box flex-1 min-w-[120px] gap-1">
-        <p class="text textBodyBold">{props.title}</p>
+    <div class="box flex-1 min-w-[0] flex-row items-center gap-2 flex-wrap">
+      <div class="box flex-1 min-w-[0] gap-0.5">
+        <p class="text textLabel font-semibold">{props.title}</p>
         <Show when={props.subtitle !== undefined && props.subtitle !== null}>
           <p class="text textCaption">{props.subtitle}</p>
         </Show>
@@ -149,6 +159,7 @@ function DismissibleBannerPromptBody(props: {
         }
       >
         <Button
+          size="sm"
           title={props.actionLabel}
           onClick={() => props.onActionClick?.()}
         />
@@ -163,21 +174,48 @@ const TONE_BG: Record<DismissibleBannerTone, string> = {
   info: 'bg-info-surface',
 };
 
-function frameClass(
+const EDGE_SAFE_PAD_PX = 6;
+const DISMISS_SIZE = 32;
+const DISMISS_ICON = 16;
+
+function sheetClass(
   position: DismissibleBannerPosition,
   tone: DismissibleBannerTone
 ): string {
   const edge =
     position === 'top'
-      ? 'pb-3 border-b border-solid border-border'
-      : 'pt-3 border-t border-solid border-border';
-  return `box w-full px-4 ${TONE_BG[tone]} flex-row items-center gap-3 ${edge}`;
+      ? 'border-b border-solid border-border'
+      : 'border-t border-solid border-border';
+  return `box w-full ${TONE_BG[tone]} ${edge}`;
 }
 
-function edgeStyle(position: DismissibleBannerPosition): JSX.CSSProperties {
+function sheetStyle(position: DismissibleBannerPosition): JSX.CSSProperties {
   return position === 'top'
-    ? { 'padding-top': 'calc(env(safe-area-inset-top, 0px) + 12px)' }
-    : { 'padding-bottom': 'calc(env(safe-area-inset-bottom, 0px) + 12px)' };
+    ? {
+        'padding-top': `calc(env(safe-area-inset-top, 0px) + ${EDGE_SAFE_PAD_PX}px)`,
+      }
+    : {
+        'padding-bottom': `calc(env(safe-area-inset-bottom, 0px) + ${EDGE_SAFE_PAD_PX}px)`,
+      };
+}
+
+function contentPadStyle(wide: boolean): JSX.CSSProperties {
+  const x = spacingScale(
+    wide ? APP_FRAME_GUTTER_STEP : CONTENT_EDGE_PADDING_STEP
+  );
+  if (!wide) {
+    return {
+      'padding-left': cssPx(x),
+      'padding-right': cssPx(x),
+    };
+  }
+  return {
+    'max-width': `min(${cssPx(APP_MAX_WIDTH)}, 100%)`,
+    'margin-left': 'auto',
+    'margin-right': 'auto',
+    'padding-left': cssPx(x),
+    'padding-right': cssPx(x),
+  };
 }
 
 function DismissibleBannerFrame(
@@ -188,27 +226,34 @@ function DismissibleBannerFrame(
   }
 ): JSX.Element {
   const { t } = useLingui();
+  const mode = useLayoutMode();
+  const wide = (): boolean => mode() === 'wide';
   return (
     <div
-      class={frameClass(props.position, props.tone)}
-      style={edgeStyle(props.position)}
+      class={sheetClass(props.position, props.tone)}
+      style={sheetStyle(props.position)}
     >
-      <DismissibleBannerPromptBody
-        title={props.title}
-        subtitle={props.subtitle}
-        actionLabel={props.actionLabel}
-        onActionClick={props.onActionClick}
-      />
-      <IconButton
-        size={40}
-        onClick={props.dismiss}
-        label={t`Dismiss`}
-        aria-label={t`Dismiss`}
-        tooltip="none"
-        dataSet={{ component: 'DismissibleBannerDismiss' }}
+      <div
+        class="box w-full flex-row items-center gap-2 py-1"
+        style={contentPadStyle(wide())}
       >
-        <XIcon size={20} color="icon" />
-      </IconButton>
+        <DismissibleBannerPromptBody
+          title={props.title}
+          subtitle={props.subtitle}
+          actionLabel={props.actionLabel}
+          onActionClick={props.onActionClick}
+        />
+        <IconButton
+          size={DISMISS_SIZE}
+          onClick={props.dismiss}
+          label={t`Dismiss`}
+          aria-label={t`Dismiss`}
+          tooltip="none"
+          dataSet={{ component: 'DismissibleBannerDismiss' }}
+        >
+          <XIcon size={DISMISS_ICON} color="icon" />
+        </IconButton>
+      </div>
     </div>
   );
 }

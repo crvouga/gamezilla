@@ -255,8 +255,9 @@ describe('DismissibleBanner', () => {
     ));
     const banner = screen.getByRole('status');
     expect(banner).toHaveTextContent('Update available');
-    // Default tone is paper (`bg-surface-overlay`) on the sheet frame.
+    // Full-bleed sheet; content row is max-width constrained on wide layouts.
     expect(banner.innerHTML).toMatch(/bg-surface-overlay/);
+    expect(banner.innerHTML).toMatch(/max-width/);
     const host = banner.closest(
       '[data-component="DismissibleBannerPortalHost"]'
     );

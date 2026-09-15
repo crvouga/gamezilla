@@ -9,7 +9,6 @@ import {
   ScreenBase,
   type ScreenBasePrimaryAction,
   ScreenBodyScrollView,
-  useLayoutMode,
   useRouter,
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -72,7 +71,6 @@ function SpacesList(props: {
 }): JSX.Element {
   const joinable = useJoinableLiveSpaceIds();
   const open = useOpenSpaceSessionIds();
-  const mode = useLayoutMode();
   const orderedIds = createMemo(() =>
     sortCurrentSpacesFirst(joinable.spaceIds(), new Set(open.spaceIds()))
   );
@@ -84,10 +82,7 @@ function SpacesList(props: {
     >
       <ScreenBodyScrollView
         contentClass="grid items-start gap-3 pb-[24px]"
-        contentStyle={{
-          'grid-template-columns':
-            mode() === 'wide' ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
-        }}
+        contentStyle={{ 'grid-template-columns': 'minmax(0, 1fr)' }}
       >
         <For each={orderedIds()}>
           {(spaceId) => <SpaceCard spaceId={spaceId} />}

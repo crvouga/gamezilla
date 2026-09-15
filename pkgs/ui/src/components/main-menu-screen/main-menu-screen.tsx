@@ -1,14 +1,12 @@
 /** @jsxImportSource solid-js */
 import { cssPx } from '../../css/css-px';
 /**
- * `MainMenuScreen` -- centered, card-based main menu: optional
- * title / subtitle / helper, a vertical stack of card rows, and an optional
- * footer. Content is capped at {@link MAIN_MENU_SCREEN_MAX_WIDTH} for visual
- * consistency across all space menus. Fills the parent and scrolls when the
- * card list exceeds the available height (compact / short viewports).
- * Presentational; parents own selection and navigation state. Back navigation
- * belongs in the host's nav chrome (`ScreenBase` breadcrumbs), not inside the
- * menu.
+ * `MainMenuScreen` -- centered card-list main menu: optional title / subtitle /
+ * helper, a vertical stack of pressable surface cards, and an optional footer.
+ * Content is capped at {@link MAIN_MENU_SCREEN_MAX_WIDTH}. Fills the parent and
+ * scrolls when the list exceeds the available height. Presentational; parents
+ * own selection and navigation state. Back navigation belongs in the host's
+ * nav chrome (`ScreenBase` breadcrumbs), not inside the menu.
  *
  * @example
  * ```tsx

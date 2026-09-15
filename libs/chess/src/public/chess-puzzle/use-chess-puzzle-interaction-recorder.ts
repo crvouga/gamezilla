@@ -16,6 +16,7 @@ export type InteractionRecorderArgs = {
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   solveIdx: Accessor<number>;
   interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  allInteractions: Accessor<readonly ChessPuzzleInteractionRow[]>;
 };
 
 export function useChessPuzzleInteractionRecorder(
@@ -31,6 +32,7 @@ export function useChessPuzzleInteractionRecorder(
     puzzleRating: args.puzzleRating,
     solveIdx: args.solveIdx,
     interactions: args.interactions,
+    allInteractions: args.allInteractions,
   });
 
   const prevStatusRef: {

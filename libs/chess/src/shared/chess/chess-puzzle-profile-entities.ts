@@ -32,7 +32,7 @@ function readBoundedInt(args: {
 
 const profNs = createAttrNamespace('chess', 'puzzle', 'profile');
 
-/** Denormalized rating cache — recomputed from interactions on terminal events. */
+/** Denormalized rating cache — recomputed from interaction history fold on terminal events. */
 export const ChessPuzzleProfileAttr = {
   /** Indexed: profile rows are looked up by ownerId on every play start. */
   ownerId: profNs.text('owner-id', readNonEmptyString).indexed(),
@@ -40,9 +40,10 @@ export const ChessPuzzleProfileAttr = {
     'rating',
     readBoundedInt({ min: 400, max: 3000, dflt: 1200 })
   ),
+  /** Stub column — Elo formula no longer uses RD. */
   ratingDev: profNs.integer(
     'rating-deviation',
-    readBoundedInt({ min: 30, max: 500, dflt: 350 })
+    readBoundedInt({ min: 0, max: 500, dflt: 0 })
   ),
   lastInteractionAt: profNs.timestamp('last-interaction-at', readString),
 } as const;

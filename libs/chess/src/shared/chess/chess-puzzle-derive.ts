@@ -3,7 +3,6 @@ import {
   type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
 } from './chess-puzzle-interaction-entities';
-import type { PuzzleRatingScore } from './chess-puzzle-rating';
 import { compareCodeUnit } from './code-unit-compare';
 
 function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
@@ -60,7 +59,7 @@ export function deriveCurrentPlayCounts(
  */
 export function deriveOutcomeScore(
   closed: readonly ChessPuzzleInteractionRow[]
-): PuzzleRatingScore {
+): 0 | 0.5 | 1 {
   const terminal = closed.findLast((r) => isTerminalKind(r.kind));
   if (terminal === undefined) return 0;
   if (terminal.kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned) return 0;

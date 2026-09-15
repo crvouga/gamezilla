@@ -1,10 +1,10 @@
 import { deriveCurrentStreak } from './chess-puzzle-derive';
+import type { ChessPuzzleInteractionRow } from './chess-puzzle-interaction-entities';
 import {
-  CHESS_PUZZLE_INTERACTION_KIND,
-  type ChessPuzzleInteractionKind,
-  type ChessPuzzleInteractionRow,
-} from './chess-puzzle-interaction-entities';
-import { compareCodeUnit } from './code-unit-compare';
+  type ProjectedPuzzleEloEntry,
+  PUZZLE_ELO_DEFAULT,
+  projectPuzzleEloFromInteractions,
+} from './chess-puzzle-rating';
 
 export type ChessPuzzleStats = {
   readonly currentElo: number;
@@ -26,31 +26,11 @@ export type ChessPuzzleGameLogEntry = {
   readonly at: string;
 };
 
-function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
-  return (
-    kind === CHESS_PUZZLE_INTERACTION_KIND.solved ||
-    kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned
-  );
-}
-
-function terminalRows(
-  interactions: readonly ChessPuzzleInteractionRow[]
-): ChessPuzzleInteractionRow[] {
-  return interactions.filter(
-    (r) => isTerminalKind(r.kind) && r.ratingBefore > 0 && r.ratingAfter > 0
-  );
-}
-
-function deriveBestStreak(
-  interactions: readonly ChessPuzzleInteractionRow[]
-): number {
-  const sorted = [...interactions]
-    .filter((r) => isTerminalKind(r.kind))
-    .sort((a, b) => compareCodeUnit(a.at, b.at));
+function deriveBestStreak(entries: readonly ProjectedPuzzleEloEntry[]): number {
   let best = 0;
   let current = 0;
-  for (const row of sorted) {
-    if (row.kind === CHESS_PUZZLE_INTERACTION_KIND.solved) {
+  for (const entry of entries) {
+    if (entry.outcome === 'solved') {
       current += 1;
       if (current > best) best = current;
     } else {
@@ -60,71 +40,32 @@ function deriveBestStreak(
   return best;
 }
 
-function deriveEloSeries(
-  terminals: readonly ChessPuzzleInteractionRow[]
-): number[] {
-  const sorted = [...terminals].sort((a, b) => compareCodeUnit(a.at, b.at));
-  if (sorted.length === 0) return [];
-  const first = sorted[0];
-  if (first === undefined) return [];
-  const series = [first.ratingBefore];
-  for (const row of sorted) {
-    series.push(row.ratingAfter);
-  }
-  return series;
-}
-
 export function deriveChessPuzzleStats(args: {
   interactions: readonly ChessPuzzleInteractionRow[];
-  profileRating: number;
 }): ChessPuzzleStats {
-  const terminals = terminalRows(args.interactions);
-  const totalPlayed = terminals.length;
-  const totalSolved = terminals.filter(
-    (r) => r.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
+  const projected = projectPuzzleEloFromInteractions(args.interactions);
+  const totalPlayed = projected.ratedGames;
+  const totalSolved = projected.entries.filter(
+    (e) => e.outcome === 'solved'
   ).length;
   const accuracy =
     totalPlayed > 0 ? Math.round((totalSolved / totalPlayed) * 100) : 0;
-  const latest = terminals.reduce<ChessPuzzleInteractionRow | null>(
-    (best, row) => {
-      if (best === null) return row;
-      return compareCodeUnit(row.at, best.at) > 0 ? row : best;
-    },
-    null
-  );
-  const currentElo =
-    latest !== null
-      ? latest.ratingAfter
-      : args.profileRating > 0
-        ? args.profileRating
-        : 1200;
 
   return {
-    currentElo,
+    currentElo:
+      projected.ratedGames > 0 ? projected.rating : PUZZLE_ELO_DEFAULT,
     totalPlayed,
     totalSolved,
     accuracy,
     currentStreak: deriveCurrentStreak(args.interactions),
-    bestStreak: deriveBestStreak(args.interactions),
-    eloSeries: deriveEloSeries(terminals),
+    bestStreak: deriveBestStreak(projected.entries),
+    eloSeries: projected.eloSeries,
   };
 }
 
 export function deriveChessPuzzleGameLog(
   interactions: readonly ChessPuzzleInteractionRow[]
 ): ChessPuzzleGameLogEntry[] {
-  return terminalRows(interactions)
-    .sort((a, b) => compareCodeUnit(b.at, a.at))
-    .map((row) => ({
-      puzzleId: row.puzzleId,
-      puzzleRating: row.puzzleRating,
-      outcome:
-        row.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
-          ? 'solved'
-          : 'abandoned',
-      ratingBefore: row.ratingBefore,
-      ratingAfter: row.ratingAfter,
-      delta: row.ratingAfter - row.ratingBefore,
-      at: row.at,
-    }));
+  const projected = projectPuzzleEloFromInteractions(interactions);
+  return [...projected.entries].reverse();
 }

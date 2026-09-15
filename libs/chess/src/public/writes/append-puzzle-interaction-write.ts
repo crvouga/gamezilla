@@ -14,8 +14,6 @@ export type AppendPuzzleInteractionInput = {
   readonly solveIdx: number;
   readonly uci?: string | null;
   readonly correct?: boolean | null;
-  readonly ratingBefore?: number;
-  readonly ratingAfter?: number;
 };
 
 export class AppendPuzzleInteractionWrite {
@@ -44,8 +42,6 @@ export class AppendPuzzleInteractionWrite {
         solve_idx,
         uci,
         correct,
-        rating_before,
-        rating_after,
         at
       )
       VALUES (
@@ -57,8 +53,6 @@ export class AppendPuzzleInteractionWrite {
         ${input.solveIdx},
         ${input.uci ?? null},
         ${correct},
-        ${input.ratingBefore ?? 0},
-        ${input.ratingAfter ?? 0},
         ${at}
       )
     `);

@@ -229,6 +229,44 @@ describe('ScreenBase compact', () => {
     const wrapper = list.parentElement;
     expect((wrapper ?? list).className.length).toBeGreaterThan(0);
   });
+
+  test('wide island virtual list keeps a flex height chain for flush-edge', () => {
+    const items = Array.from({ length: 30 }, (_, i) => `row-${i}`);
+    renderUi(
+      () => (
+        <AppFrame>
+          <Screen
+            body={
+              <div class="box flex-1 min-h-0 gap-2">
+                <p class="text">{'filters'}</p>
+                <ScreenBodyVirtualList
+                  items={items}
+                  keyExtractor={(item) => item}
+                  renderItem={(item) => <p class="text">{item}</p>}
+                  estimateSize={40}
+                  fixedViewport={{ width: 800, height: 400 }}
+                  dataSet={{ testid: 'vl-wide' }}
+                />
+              </div>
+            }
+          />
+        </AppFrame>
+      ),
+      WIDE
+    );
+    const list = screen.getByTestId('vl-wide');
+    const flush = list.parentElement;
+    const shell = flush?.parentElement;
+    expect(shell?.className).toMatch(/\bbox\b/);
+    expect(shell?.className).toMatch(/flex-1/);
+    expect(shell?.className).toMatch(/min-h-0/);
+    expect(flush?.className).toMatch(/flex-1/);
+    expect(flush?.className).toMatch(/min-h-0/);
+    expect(screen.getByText('row-0')).toBeInTheDocument();
+    // Flush wrapper must sit outside the Island padding column, not inside it.
+    const island = mustQuery('[data-component="Island"]');
+    expect(island.contains(list)).toBe(true);
+  });
 });
 
 describe('ScreenBase wide', () => {

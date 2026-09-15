@@ -15,8 +15,6 @@ export const chessPuzzleInteractions = defineQuery({
         solve_idx,
         uci, 
         correct, 
-        rating_before, 
-        rating_after, 
         at,
         deleted_at
       FROM chess_puzzle_interactions
