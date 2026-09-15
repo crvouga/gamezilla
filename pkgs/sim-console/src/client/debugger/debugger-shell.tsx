@@ -121,7 +121,12 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
           />
         ) : null}
       </div>
-      <div class="box flex-1 min-h-[0] bg-background">{props.children}</div>
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ overflow: 'clip' }}
+      >
+        {props.children}
+      </div>
     </div>
   );
 }

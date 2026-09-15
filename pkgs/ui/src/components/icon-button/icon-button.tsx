@@ -28,7 +28,7 @@
  */
 
 import { useTimers } from '@pkgs/clock/solid';
-import { type JSX, Show, untrack } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { OnColorProvider, resolveColor, useThemeTokens } from '../../theme';
 import { Tooltip, type TooltipPlacement, useTooltipTrigger } from '../tooltip';
@@ -160,12 +160,8 @@ function IconButtonFace(
       : (resolveColor(props.background, tokens.palette()) ?? 'transparent');
 
   const handleClick = (): void => {
-    // Event handlers have no Solid owner — untrack prop reads so parent
-    // accessors (e.g. ActionBar `<For>` items) do not mint orphaned memos.
-    const onClick = untrack(() => props.onClick);
-    const flash = untrack(() => props.flashTooltipOnClick === true);
-    onClick?.();
-    if (flash && tooltip !== null) {
+    props.onClick?.();
+    if (props.flashTooltipOnClick === true && tooltip !== null) {
       tooltip.show();
       timers.setTimeout(() => tooltip.hide(), ICON_BUTTON_TOOLTIP_FLASH_MS);
     }

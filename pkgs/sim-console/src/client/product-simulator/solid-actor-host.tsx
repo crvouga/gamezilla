@@ -33,5 +33,6 @@ const hostStyle = {
   'min-height': '0',
   'min-width': '0',
   position: 'relative',
-  overflow: 'hidden',
+  overflow: 'clip',
+  'overflow-anchor': 'none',
 } as const;

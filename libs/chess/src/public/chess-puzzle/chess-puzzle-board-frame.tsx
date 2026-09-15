@@ -49,7 +49,7 @@ export function ChessPuzzleBoardFrame(
 
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] self-stretch items-center justify-end overflow-hidden"
+      class="box flex-1 min-h-[0] min-w-[0] self-stretch items-center justify-center overflow-hidden"
       data-testid="chess-puzzle-board-frame"
       ref={setHostEl}
     >

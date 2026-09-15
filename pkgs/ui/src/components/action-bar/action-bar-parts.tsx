@@ -5,7 +5,7 @@
  */
 
 import { useLingui } from '@lingui/solid/macro';
-import { For, type JSX, Match, Show, Switch, untrack } from 'solid-js';
+import { For, type JSX, Match, Show, Switch } from 'solid-js';
 import { dataAttrs } from '../../component-id';
 import { Button } from '../button';
 import { IconButton } from '../icon-button';
@@ -14,6 +14,7 @@ import { ActionBarIconButton } from './action-bar-icon-button';
 import { ActionBarLabeledControl } from './action-bar-labeled-control';
 import {
   type ActionBarAvatarItem,
+  type ActionBarIconItem,
   type ActionBarItem,
   type ActionBarTextAction,
   isActionBarAvatarItem,
@@ -37,9 +38,7 @@ function ActionBarAvatarItemButton(props: {
   const disabled = (): boolean =>
     props.item.disabled === true || props.item.loading === true;
   const onClick = (): void => {
-    // Event handlers have no Solid owner — untrack so `<For>` item accessors
-    // do not mint orphaned memos (same pattern as IconButtonFace).
-    untrack(() => props.item).onClick();
+    props.item.onClick();
   };
   return (
     <Show
@@ -146,6 +145,36 @@ export function ActionBarOverflowTrigger(props: {
   );
 }
 
+function ActionBarInlineItem(props: {
+  item: ActionBarItem;
+  buttonSize: number;
+  showInlineLabel: boolean;
+  slotWidth: number;
+}): JSX.Element {
+  return (
+    <Show
+      when={isActionBarAvatarItem(props.item) ? props.item : undefined}
+      fallback={
+        <ActionBarIconButton
+          item={props.item as ActionBarIconItem}
+          buttonSize={props.buttonSize}
+          showInlineLabel={props.showInlineLabel}
+          slotWidth={props.slotWidth}
+        />
+      }
+    >
+      {(avatar) => (
+        <ActionBarAvatarItemButton
+          item={avatar()}
+          buttonSize={props.buttonSize}
+          showInlineLabel={props.showInlineLabel}
+          slotWidth={props.slotWidth}
+        />
+      )}
+    </Show>
+  );
+}
+
 export function ActionBarIconItems(props: {
   items: readonly ActionBarItem[];
   buttonSize: number;
@@ -157,34 +186,15 @@ export function ActionBarIconItems(props: {
   return (
     <For each={props.items}>
       {(item) => (
-        <Show
-          when={isActionBarAvatarItem(item) ? item : undefined}
-          fallback={
-            <ActionBarIconButton
-              item={isActionBarAvatarItem(item) ? neverIcon() : item}
-              buttonSize={props.buttonSize}
-              showInlineLabel={showInlineLabels()}
-              slotWidth={slotWidth()}
-            />
-          }
-        >
-          {(avatar) => (
-            <ActionBarAvatarItemButton
-              item={avatar()}
-              buttonSize={props.buttonSize}
-              showInlineLabel={showInlineLabels()}
-              slotWidth={slotWidth()}
-            />
-          )}
-        </Show>
+        <ActionBarInlineItem
+          item={item}
+          buttonSize={props.buttonSize}
+          showInlineLabel={showInlineLabels()}
+          slotWidth={slotWidth()}
+        />
       )}
     </For>
   );
-}
-
-/** Unreachable: the `Show` above already routed avatar items away. */
-function neverIcon(): never {
-  throw new Error('ActionBarIconItems: avatar item reached icon branch');
 }
 
 export function ActionBarTextItems(props: {

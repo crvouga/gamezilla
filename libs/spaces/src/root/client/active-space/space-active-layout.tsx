@@ -12,7 +12,8 @@ import type { JSX, ParentProps } from 'solid-js';
 import { Show } from 'solid-js';
 import {
   SpaceSideRailProvider,
-  useSpaceSideRailExtras,
+  useSetSpaceSideRailHost,
+  useSpaceSideRailHasExtras,
 } from '../../../public/space-event-log-placement';
 import { SpaceTitleText } from '../space-title-text';
 import {
@@ -60,27 +61,26 @@ function SpaceTrailingWithGlobal(): JSX.Element {
  * {@link SpaceSideRailExtras}).
  */
 function SpaceActiveWideBody(props: ParentProps): JSX.Element {
-  const extras = useSpaceSideRailExtras();
+  const hasExtras = useSpaceSideRailHasExtras();
+  const setHost = useSetSpaceSideRailHost();
   return (
-    <Show
-      when={extras() !== null}
-      fallback={
-        <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
-      }
+    <div
+      class="box flex-1 min-h-[0] min-w-[0] flex-row items-stretch overflow-hidden"
+      style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
     >
-      <div
-        class="box flex-1 min-h-[0] flex-row items-stretch"
-        style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
-      >
-        <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+      <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+      <Show when={hasExtras()}>
         <Island
-          class="min-h-[0] p-0"
+          class="min-h-[0] self-stretch overflow-hidden"
           style={{ width: `${ISLAND_SIDE_RAIL_WIDTH}px` }}
         >
-          <div class="box flex-1 min-h-[0]">{extras()}</div>
+          <div
+            class="box flex-1 min-h-[0] min-w-[0] self-stretch"
+            ref={setHost}
+          />
         </Island>
-      </div>
-    </Show>
+      </Show>
+    </div>
   );
 }
 
@@ -91,7 +91,7 @@ function SpaceActiveLayoutWide(props: {
   return (
     <SpaceSideRailProvider>
       <div
-        class="box flex-1 min-h-[0]"
+        class="box flex-1 min-h-[0] min-w-[0] overflow-hidden"
         style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
       >
         <AppHeaderIsland

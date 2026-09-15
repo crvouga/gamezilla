@@ -26,15 +26,18 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
   const header = useAppFrameHeader(() => props.header ?? null);
   return (
     <main
-      class="box flex-1 min-h-[0] bg-surface-sunken"
+      class="box flex-1 min-h-[0] min-w-[0] w-[100%] max-w-[100%] bg-surface-sunken"
       data-component="AppFrame"
       data-mode="wide"
+      style={{ overflow: 'clip' }}
     >
       <ContentEdgePaddingProvider step={0}>
         <div
-          class="box flex-1 min-h-[0] w-[100%] self-center"
+          class="box flex-1 min-h-[0] min-w-[0] w-[100%]"
           style={{
-            'max-width': cssPx(APP_MAX_WIDTH),
+            'max-width': `min(${cssPx(APP_MAX_WIDTH)}, 100%)`,
+            'margin-left': 'auto',
+            'margin-right': 'auto',
             'padding-left': `${APP_FRAME_GUTTER_STEP * 4}px`,
             'padding-right': `${APP_FRAME_GUTTER_STEP * 4}px`,
             'padding-top': `${APP_FRAME_GUTTER_STEP * 4}px`,

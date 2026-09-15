@@ -156,6 +156,35 @@ function ProductSimulatorClientColumnShell(
   );
 }
 
+/** Clients always listed — not kind-scoped instances (tabs vanish otherwise). */
+function productSimulatorUnifiedNodes(
+  session: ProductSimulatorSession,
+  clients: readonly ProductSimulatorActor[]
+) {
+  const clientNodes = clients.map((actor) =>
+    debuggerInstanceTabItem({ id: actor.id, kind: 'client' })
+  );
+  const fixed = [
+    { id: 'server', kind: 'server' },
+    { id: 'events', kind: 'events' },
+    ...[...session.rooms.values()].map((room) => ({
+      id: room.id,
+      kind: 'room' as const,
+    })),
+  ];
+  return [...clientNodes, ...fixed.map(debuggerInstanceTabItem)];
+}
+
+function selectedUnifiedNodeId(
+  current: SimChromeKind,
+  instanceId: string | null
+): string | null {
+  if (current === 'client' || current === 'room') return instanceId;
+  if (current === 'events') return 'events';
+  if (current === 'server') return 'server';
+  return current;
+}
+
 function ReadyProductSimulatorScreen(props: {
   readonly session: ProductSimulatorSession;
   readonly chrome: DebuggerChromeNav;
@@ -180,31 +209,12 @@ function ReadyProductSimulatorScreen(props: {
   const instanceId = createMemo(() =>
     resolveProductSimulatorInstanceId(props.chrome.instance, instances())
   );
-  // Unified strip must list clients always — not kind-scoped `instances`,
-  // or Client tabs vanish on Server/PubSub/Room and clicks mis-route as room.
-  const unifiedNodes = createMemo(() => {
-    const clientNodes = clients().map((actor) =>
-      debuggerInstanceTabItem({ id: actor.id, kind: 'client' })
-    );
-    const fixed = [
-      { id: 'server', kind: 'server' },
-      { id: 'events', kind: 'events' },
-      ...[...props.session.rooms.values()].map((room) => ({
-        id: room.id,
-        kind: 'room' as const,
-      })),
-    ];
-    return [...clientNodes, ...fixed.map(debuggerInstanceTabItem)];
-  });
-  const selectedNode = createMemo(() => {
-    const current = kind();
-    if (current === 'client') return instanceId();
-    if (current === 'events') return 'events';
-    if (current === 'server') return 'server';
-    // Room tab id is the topic UUID (not the bare kind).
-    if (current === 'room') return instanceId();
-    return current;
-  });
+  const unifiedNodes = createMemo(() =>
+    productSimulatorUnifiedNodes(props.session, clients())
+  );
+  const selectedNode = createMemo(() =>
+    selectedUnifiedNodeId(kind(), instanceId())
+  );
   const shellPaneKey = createMemo(() =>
     productSimulatorPaneKey(kind(), instanceId())
   );
@@ -224,7 +234,10 @@ function ReadyProductSimulatorScreen(props: {
     props.onFocusedClientIdChange(null);
   };
   return (
-    <div class="box flex-1 min-h-[0] bg-background overflow-hidden">
+    <div
+      class="box flex-1 min-h-[0] min-w-[0] bg-background"
+      style={{ overflow: 'clip' }}
+    >
       <ProductSimulatorPaletteRegistrations commands={paletteCommands()} />
       <ProductSimulatorDebuggerShell
         session={props.session}

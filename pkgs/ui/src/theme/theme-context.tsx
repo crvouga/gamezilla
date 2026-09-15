@@ -176,6 +176,8 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
             flex: '1 1 0%',
             'min-height': '0',
             'min-width': '0',
+            overflow: 'clip',
+            'overflow-anchor': 'none',
             'font-family': mergedFonts.sans,
             color: tokens.colors.text,
             background: tokens.colors.background,
