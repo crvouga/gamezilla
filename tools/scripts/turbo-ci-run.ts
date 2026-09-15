@@ -15,14 +15,13 @@
  * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
  *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
  *   packages but still execute named root tasks (`ci:depcruise`).
- * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise
- *   `min(8, max(cpus, 4))` locally. In CI the floor is 2 so a 2-core /
- *   7GB GitHub-hosted runner does not launch 10 Node heaps.
+ * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
+ *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
  * - Log order: `auto` locally; `stream` in CI (not `grouped` — grouped holds
  *   task stdout until completion, which looks like a hang). Override with
- *   `TURBO_LOG_ORDER`. `check` / `check:full` (and `//#…` forms) are expanded
- *   recursively to leaf `dependsOn` tasks so turbo never nests under a root
- *   `check` script (would recurse).
+ *   `TURBO_LOG_ORDER`. `check` / `check:full` / `deploy` (and `//#…` forms)
+ *   are expanded recursively to leaf `dependsOn` tasks so turbo never nests
+ *   under a root aggregator script (would recurse).
  * - Output logs: `new-only` (cache misses stream). Override with
  *   `TURBO_OUTPUT_LOGS`. Do not default CI to `errors-only`: a silent pipe is
  *   SIGTERM'd (~10 min, exit 143) by GitHub Actions.
@@ -45,8 +44,9 @@ import { DEFAULT_TURBO_API } from '../../libs/secrets/src/shared/secrets/turbo-t
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
 const CHECK_FULL_AGGREGATOR = '//#check:full';
+const DEPLOY_AGGREGATOR = '//#deploy';
 const SECRETS_CHECK_TASK = '@libs/secrets#check';
-const DEPLOY_TASK = 'deploy';
+const SMOKE_TASK = '@apps/server#smoke';
 
 /** Root-package script names and turbo root-task aliases that are aggregators. */
 const AGGREGATOR_ALIASES: ReadonlyMap<string, string> = new Map([
@@ -56,13 +56,15 @@ const AGGREGATOR_ALIASES: ReadonlyMap<string, string> = new Map([
   ['check:full', CHECK_FULL_AGGREGATOR],
   ['//#check:full', CHECK_FULL_AGGREGATOR],
   ['//:check:full', CHECK_FULL_AGGREGATOR],
+  ['deploy', DEPLOY_AGGREGATOR],
+  ['//#deploy', DEPLOY_AGGREGATOR],
+  ['//:deploy', DEPLOY_AGGREGATOR],
 ]);
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
 const DEFAULT_CACHE = 'local:rw,remote:rw';
 const LOCAL_ONLY_CACHE = 'local:rw';
-const MAX_CHECK_CONCURRENCY = 8;
 const MIN_CHECK_CONCURRENCY = 4;
 const CACHE_WORKERS = 16;
 
@@ -114,7 +116,7 @@ function resolveConcurrency(): string {
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
   const cpus = availableParallelism();
   const min = inCi() ? 2 : MIN_CHECK_CONCURRENCY;
-  return String(Math.min(MAX_CHECK_CONCURRENCY, Math.max(cpus, min)));
+  return String(Math.max(cpus, min));
 }
 
 function resolveUi(): string | undefined {
@@ -174,8 +176,8 @@ function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
 }
 
 /**
- * Recursively expand check / check:full aggregators to leaf turbo tasks.
- * Dedupes while preserving first-seen order.
+ * Recursively expand check / check:full / deploy aggregators to leaf turbo
+ * tasks. Dedupes while preserving first-seen order.
  */
 export function flattenCheckAggregators(
   taskArgs: readonly string[],
@@ -209,16 +211,18 @@ export function flattenCheckAggregators(
 
   if (expandedCount > 0) {
     console.log(
-      `turbo-ci-run: expanded check aggregators to ${String(out.length)} leaf tasks`
+      `turbo-ci-run: expanded aggregators to ${String(out.length)} leaf tasks`
     );
   }
   return out;
 }
 
+function isDeployLeafSet(taskArgs: readonly string[]): boolean {
+  return taskArgs.includes(SMOKE_TASK);
+}
+
 function needsSecretsFingerprint(taskArgs: readonly string[]): boolean {
-  return taskArgs.some(
-    (arg) => arg === SECRETS_CHECK_TASK || arg === DEPLOY_TASK
-  );
+  return taskArgs.includes(SECRETS_CHECK_TASK) || isDeployLeafSet(taskArgs);
 }
 
 async function ensureSecretsFingerprint(
@@ -255,7 +259,7 @@ function applyOfflineTaskArgs(
   hasRemote: boolean
 ): string[] {
   if (hasRemote) return [...taskArgs];
-  if (taskArgs.includes(DEPLOY_TASK)) {
+  if (isDeployLeafSet(taskArgs)) {
     console.error(
       'turbo-ci-run: deploy requires TURBO_TOKEN and TURBO_TEAM. ' +
         'Run `bun run secrets:pull` then retry via secrets-run.'

@@ -100,4 +100,21 @@ describe('turbo-ci-run aggregator flatten', () => {
       'tc',
     ]);
   });
+
+  test('deploy expands to //#deploy leaves', () => {
+    const withDeploy = {
+      ...tasks,
+      '//#deploy': {
+        dependsOn: ['tc', '@apps/server#smoke'],
+      },
+    };
+    expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
+      'tc',
+      '@apps/server#smoke',
+    ]);
+    expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
+      'tc',
+      '@apps/server#smoke',
+    ]);
+  });
 });

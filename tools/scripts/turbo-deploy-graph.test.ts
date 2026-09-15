@@ -36,10 +36,22 @@ const FAST_TIER = [
   'test',
 ];
 
+const SCOPED_E2E = [
+  '@pkgs/auth#test:e2e',
+  '@pkgs/sql-client-sqlite-web#test:e2e',
+] as const;
+
+const SCOPED_CONTRACT = [
+  '@pkgs/sql-client-postgres#test:contract',
+  '@pkgs/kv-postgres#test:contract',
+  '@pkgs/object-store-s3#test:contract',
+  '@pkgs/pubsub-emqx#test:contract',
+] as const;
+
 describe('turbo deploy graph invariants', () => {
-  test('deploy.dependsOn never includes //#check or //#check:full', () => {
+  test('//#deploy.dependsOn never includes //#check or //#check:full', () => {
     const turbo = loadTurboJson();
-    const deps = turbo.tasks?.['deploy']?.dependsOn;
+    const deps = turbo.tasks?.['//#deploy']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
     expect(deps as string[]).not.toContain('//#check');
     expect(deps as string[]).not.toContain('//#check:full');
@@ -49,10 +61,18 @@ describe('turbo deploy graph invariants', () => {
     expect(deps as string[]).toContain('//#ci:depcruise');
     expect(deps as string[]).toContain('//#ci:audit');
     expect(deps as string[]).toContain('//#ci:i18n');
-    expect(deps as string[]).toContain('test:contract');
-    expect(deps as string[]).toContain('test:e2e');
+    for (const leaf of SCOPED_CONTRACT) {
+      expect(deps as string[]).toContain(leaf);
+    }
+    for (const leaf of SCOPED_E2E) {
+      expect(deps as string[]).toContain(leaf);
+    }
+    expect(deps as string[]).not.toContain('test:contract');
+    expect(deps as string[]).not.toContain('test:e2e');
     expect(deps as string[]).toContain('@libs/billing#billing:check');
     expect(deps as string[]).toContain('@apps/server#check:api');
+    expect(deps as string[]).toContain('@apps/server#smoke');
+    expect(turbo.tasks?.deploy).toBeUndefined();
   });
 
   test('//#check is the fast tier (biome + vocab + critical-path + tc + test)', () => {
@@ -64,7 +84,7 @@ describe('turbo deploy graph invariants', () => {
     expect(deps as string[]).not.toContain('//#ci:i18n');
   });
 
-  test('//#check:full depends on //#check plus full leaves', () => {
+  test('//#check:full depends on //#check plus full leaves (no lighthouse)', () => {
     const turbo = loadTurboJson();
     const deps = turbo.tasks?.['//#check:full']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
@@ -78,11 +98,17 @@ describe('turbo deploy graph invariants', () => {
     expect(list).toContain('@libs/secrets#check');
     expect(list).toContain('@apps/server#build');
     expect(list).toContain('@apps/room-server#build');
-    expect(list).toContain('test:contract');
-    expect(list).toContain('test:e2e');
+    for (const leaf of SCOPED_CONTRACT) {
+      expect(list).toContain(leaf);
+    }
+    for (const leaf of SCOPED_E2E) {
+      expect(list).toContain(leaf);
+    }
+    expect(list).not.toContain('test:contract');
+    expect(list).not.toContain('test:e2e');
     expect(list).toContain('@libs/billing#billing:check');
     expect(list).toContain('@tools#check:static');
-    expect(list).toContain('@apps/client#check:lighthouse');
+    expect(list).not.toContain('@apps/client#check:lighthouse');
     expect(list).not.toContain('@apps/server#check:api');
     expect(list).not.toContain('@apps/client#check:bundle-budget');
   });
@@ -106,6 +132,14 @@ describe('turbo deploy graph invariants', () => {
     expect(tasks).toEqual(['check:full']);
   });
 
+  test('bun deploy invokes turbo-ci-run with //#deploy', () => {
+    const pkg = loadRootPackageJson();
+    const deploy = pkg.scripts?.['deploy'];
+    expect(deploy).toBeDefined();
+    const tasks = turboCiRunTaskArgs(deploy ?? '');
+    expect(tasks).toEqual(['//#deploy']);
+  });
+
   test('check:full flatten is a strict superset of check', () => {
     const turbo = loadTurboJson();
     const tasks = turbo.tasks ?? {};
@@ -120,11 +154,12 @@ describe('turbo deploy graph invariants', () => {
     expect(full).not.toContain('build');
     expect(full).not.toContain('@apps/client#build');
     expect(full).not.toContain('@apps/product#build');
+    expect(full).not.toContain('@apps/client#check:lighthouse');
   });
 
-  test('deploy gates live API probe, bundle budget, and lighthouse', () => {
+  test('deploy gates live API probe and bundle budget; not lighthouse', () => {
     const turbo = loadTurboJson();
-    const deployDeps = turbo.tasks?.deploy?.dependsOn;
+    const deployDeps = turbo.tasks?.['//#deploy']?.dependsOn;
     expect(Array.isArray(deployDeps)).toBe(true);
     expect(deployDeps as string[]).toContain(
       '@apps/client#check:bundle-budget'
@@ -132,18 +167,21 @@ describe('turbo deploy graph invariants', () => {
     expect(deployDeps as string[]).toContain(
       '@apps/client#check:critical-path'
     );
-    expect(deployDeps as string[]).toContain('@apps/client#check:lighthouse');
+    expect(deployDeps as string[]).not.toContain(
+      '@apps/client#check:lighthouse'
+    );
     expect(deployDeps as string[]).toContain('@apps/server#check:api');
+    expect(deployDeps as string[]).toContain('@apps/server#smoke');
     const fullDeps = turbo.tasks?.['//#check:full']?.dependsOn;
     expect(Array.isArray(fullDeps)).toBe(true);
     expect(fullDeps as string[]).not.toContain(
       '@apps/client#check:bundle-budget'
     );
     expect(fullDeps as string[]).not.toContain('@apps/server#check:api');
-    expect(fullDeps as string[]).toContain('@apps/client#check:lighthouse');
+    expect(fullDeps as string[]).not.toContain('@apps/client#check:lighthouse');
   });
 
-  test('check:lighthouse is build-gated and not in //#check', () => {
+  test('check:lighthouse remains manual (build-gated, off check/full/deploy)', () => {
     const turbo = loadTurboJson();
     const lh = turbo.tasks?.['@apps/client#check:lighthouse'] as
       | { dependsOn?: string[]; cache?: boolean }
@@ -153,17 +191,28 @@ describe('turbo deploy graph invariants', () => {
     const checkDeps = turbo.tasks?.['//#check']?.dependsOn as string[];
     expect(checkDeps).not.toContain('@apps/client#check:lighthouse');
     const fullDeps = turbo.tasks?.['//#check:full']?.dependsOn as string[];
-    expect(fullDeps).toContain('@apps/client#check:lighthouse');
-    const deployDeps = turbo.tasks?.deploy?.dependsOn as string[];
-    expect(deployDeps).toContain('@apps/client#check:lighthouse');
+    expect(fullDeps).not.toContain('@apps/client#check:lighthouse');
+    const deployDeps = turbo.tasks?.['//#deploy']?.dependsOn as string[];
+    expect(deployDeps).not.toContain('@apps/client#check:lighthouse');
   });
 
-  test('smoke depends on @apps/product#deploy', () => {
+  test('smoke depends on @apps/product#deploy and is scheduled by //#deploy', () => {
     const turbo = loadTurboJson();
     const deps = turbo.tasks?.['@apps/server#smoke']?.dependsOn;
     expect(Array.isArray(deps)).toBe(true);
     expect(deps as string[]).toContain('@apps/product#deploy');
     expect(deps as string[]).not.toContain('@apps/client#deploy');
+    const deployDeps = turbo.tasks?.['//#deploy']?.dependsOn as string[];
+    expect(deployDeps).toContain('@apps/server#smoke');
+  });
+
+  test('deploy flatten includes smoke and excludes lighthouse', () => {
+    const turbo = loadTurboJson();
+    const leaves = flattenCheckAggregators(['deploy'], turbo.tasks ?? {});
+    expect(leaves).toContain('@apps/server#smoke');
+    expect(leaves).toContain('@apps/client#check:bundle-budget');
+    expect(leaves).not.toContain('@apps/client#check:lighthouse');
+    expect(leaves).not.toContain('//#deploy');
   });
 
   test('secrets provision runs after install:cli (avoid infisical race)', () => {

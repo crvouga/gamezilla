@@ -486,11 +486,14 @@
         "@libs/secrets#check",
         "@apps/server#build",
         "@apps/room-server#build",
-        "test:contract",
-        "test:e2e",
+        "@pkgs/auth#test:e2e",
+        "@pkgs/sql-client-sqlite-web#test:e2e",
+        "@pkgs/sql-client-postgres#test:contract",
+        "@pkgs/kv-postgres#test:contract",
+        "@pkgs/object-store-s3#test:contract",
+        "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
-        "@tools#check:static",
-        "@apps/client#check:lighthouse"
+        "@tools#check:static"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -573,7 +576,7 @@
       "cache": false,
       "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"]
     },
-    "deploy": {
+    "//#deploy": {
       "cache": false,
       "dependsOn": [
         "//#lint:biome",
@@ -588,17 +591,21 @@
         "//#ci:depcruise",
         "//#ci:audit",
         "//#ci:i18n",
-        "test:contract",
-        "test:e2e",
+        "@pkgs/auth#test:e2e",
+        "@pkgs/sql-client-sqlite-web#test:e2e",
+        "@pkgs/sql-client-postgres#test:contract",
+        "@pkgs/kv-postgres#test:contract",
+        "@pkgs/object-store-s3#test:contract",
+        "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
         "@tools#check:static",
         "@apps/server#check:api",
         "@apps/client#check:bundle-budget",
-        "@apps/client#check:lighthouse",
         "@libs/secrets#check",
-        "@tools#install:cli",
-        "@libs/billing#billing:sync"
-      ]
+        "@apps/server#smoke"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "//#ci:syncpack": {
       "inputs": [

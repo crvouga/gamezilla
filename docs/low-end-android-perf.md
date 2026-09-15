@@ -43,9 +43,9 @@ Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph
 | Index HTML scripts | No third-party `<script src>` unless `thirdParty.indexHtmlScriptAllowlist` |
 | Image assets | PNG/JPEG size / modern-format policy (`images.mode`, currently **warn**) |
 
-## Runtime Lighthouse (Turbo)
+## Runtime Lighthouse (manual)
 
-`@apps/client#check:lighthouse` runs via Turborepo on **`bun check:full`** and **`bun run deploy`** (depends on `@apps/client#build`). It is **not** in `bun check` (needs a Vite build + Chrome). While `lighthouse.mode` is `warn`, overs print warnings and the task still exits 0.
+`@apps/client#check:lighthouse` is **opt-in** — not part of `bun check`, `bun check:full`, or `bun run deploy`. CD low-end gates are static: `@apps/client#check:critical-path` (fast tier) and `@apps/client#check:bundle-budget` (deploy; needs Vite `dist`). Run Lighthouse locally when investigating runtime metrics (needs a Vite build + Chrome). While `lighthouse.mode` is `warn`, overs print warnings and the task still exits 0.
 
 - Rebuilds (when needed) with `VITE_API_URL` = preview origin; preview proxies `/api` → stub (never production)
 - Routes: `/` (shell), `/more`, `/profile` — **one LHCI process per route** (Chrome reaped between routes); SIGKILL retries that route once after reap
@@ -53,11 +53,11 @@ Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph
 - Metrics: LCP / TBT / TTI / Speed Index / total-byte-weight / CLS
 - Reports under `apps/client/.lighthouseci/` (`--skip-upload` in the package script)
 
-### Flip-to-blocking plan
+### Flip-to-blocking plan (when re-enabled on CD)
 
-1. Collect ~2 weeks of medians from local/CI Turbo runs  
+1. Collect ~2 weeks of medians from local manual runs  
 2. Set thresholds to `ceil(p75 * 1.2)` in `perf-budget.json`  
-3. Set `lighthouse.mode: "error"` (task already on `check:full` + `deploy`)
+3. Set `lighthouse.mode: "error"` and re-add `@apps/client#check:lighthouse` to `//#deploy` only if the wall-clock cost is acceptable
 
 ## Compression
 
@@ -107,9 +107,8 @@ bun run --filter @apps/client check:critical-path
 bun run --filter @apps/client build
 bun run --filter @apps/client check:bundle-budget
 
-# Runtime Lighthouse (needs Chrome + build); on check:full + deploy via Turbo
+# Runtime Lighthouse (needs Chrome + build); manual only — not on check:full / deploy
 bun run --filter @apps/client check:lighthouse
-# or: bun check:full   /   bun run deploy
 ```
 
 Optional treemap: `ANALYZE=1 bun run --filter @apps/client build` → `apps/client/dist/.stats.html`.
