@@ -20,6 +20,7 @@
       "chess": 350,
       "ui-explorer": 300,
       "profile-avatar": 750,
+      "profile-dicebear-avatar": 700,
       "create-local-sync-engine": 600,
       "sync-engine-ready-tree": 550
     }
