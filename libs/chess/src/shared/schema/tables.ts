@@ -51,6 +51,10 @@ export const chessPuzzleInteractions = defineTable({
     correct: 'boolean',
     at: 'timestamp',
   },
+  deprecations: [
+    ['rating_before', 'Elo is projected from interaction history'],
+    ['rating_after', 'Elo is projected from interaction history'],
+  ],
 });
 
 export const CHESS_TABLES = [
