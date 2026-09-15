@@ -14,10 +14,10 @@ import {
   ChessMainMenuScreenAttr,
   SetChessMainMenuScreen,
 } from '../shared/chess/chess-main-menu';
+import { ChessPuzzleFeedProvider } from './chess-puzzle/chess-puzzle-feed-provider';
 import { PuzzlePlayScreen } from './chess-puzzle/chess-puzzle-play-screen';
 import { ChessPuzzleReviewScreen } from './chess-puzzle/chess-puzzle-review-screen';
 import { ChessStatsScreen } from './chess-puzzle/chess-stats-screen';
-import { useChessPuzzleFeedSubscription } from './chess-puzzle/use-chess-puzzle-feed-subscription';
 import { ChessSettingsDeveloperScreen } from './chess-settings/chess-settings-developer-screen';
 import { ChessSettingsDeveloperUiComponentDetailScreen } from './chess-settings/chess-settings-developer-ui-component-detail-screen';
 import { ChessSettingsDeveloperUiComponentsScreen } from './chess-settings/chess-settings-developer-ui-components-screen';
@@ -72,11 +72,12 @@ function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
 }
 
 export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
-  useChessPuzzleFeedSubscription();
   return (
-    <div class="box flex-1 min-h-[0] self-stretch">
-      <ChessScreenSwitch onBackToGames={props.onBackToGames} />
-    </div>
+    <ChessPuzzleFeedProvider>
+      <div class="box flex-1 min-h-[0] self-stretch">
+        <ChessScreenSwitch onBackToGames={props.onBackToGames} />
+      </div>
+    </ChessPuzzleFeedProvider>
   );
 }
 

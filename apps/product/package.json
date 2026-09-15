@@ -74,7 +74,7 @@
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bun test src/console/console-nav src/console/product-simulator/product-simulator-snapshot-prune.test.ts && NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests",
     "test:auth": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/auth-login-logout.test.tsx tests/auth-oauth-port.test.ts",
-    "test:chess": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/chess-puzzle-play.test.tsx",
+    "test:chess": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/chess-puzzle-play.test.tsx tests/chess-puzzle-feed.test.tsx tests/chess-puzzle-controls.test.tsx tests/chess-puzzle-stats.test.tsx tests/chess-puzzle-exhaust.test.tsx tests/chess-puzzle-spectator.test.tsx tests/chess-puzzle-offline.test.tsx",
     "test:friends": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/friends-request-accept.test.tsx",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
@@ -148,6 +148,7 @@
     "@pkgs/uuid": "workspace:*",
     "@solidjs/router": "catalog:",
     "better-sqlite3": "catalog:",
+    "chess.js": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"
   },

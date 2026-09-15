@@ -6,8 +6,6 @@ import {
 } from '../chess/chess-puzzle-feed-config';
 import { CHESS_PUZZLE_INTERACTION_KIND } from '../chess/chess-puzzle-interaction-entities';
 
-export { chessPuzzleSyncRatingBands } from '../chess/chess-puzzle-feed-config';
-
 export const PUZZLE_NEXT_MAX_BAND = PUZZLE_RATING_BAND_SIZE;
 export const PUZZLE_CANDIDATE_LIMIT = 50;
 /** Rotates candidate window so "Next" does not always hit the same top-N popular puzzles. */
@@ -87,7 +85,8 @@ function buildThemeCondition(themes: readonly string[]): SqlFragment | null {
 export function buildPuzzleFilterConditions(
   args: BuildPuzzleFilterArgs
 ): SqlFragment[] {
-  const conditions: SqlFragment[] = [];
+  // Live reads skip sync tombstones (`deleted_at` rows stay on the wire).
+  const conditions: SqlFragment[] = [sql<void>`deleted_at IS NULL`];
   if (args.halfWindow !== null) {
     conditions.push(
       sql<void>`rating >= ${Math.max(0, args.rating - args.halfWindow)}`,
@@ -108,6 +107,9 @@ function whereFromConditions(conditions: SqlFragment[]): SqlFragment {
   if (conditions.length === 0) return empty;
   return sql<void>`WHERE ${join(conditions, ' AND ')}`;
 }
+
+/** Shared tie-break so paging with OFFSET is stable across re-queries. */
+const CANDIDATE_ORDER = sql<void>`ORDER BY popularity DESC, nb_plays DESC, id ASC`;
 
 export type BuildPuzzleCandidatesSqlArgs = BuildPuzzleFilterArgs & {
   readonly pickOffset?: number;
@@ -134,7 +136,7 @@ export function buildPuzzleCandidatesSql(
     SELECT id, rating
     FROM chess_puzzles
     ${whereClause}
-    ORDER BY popularity DESC
+    ${CANDIDATE_ORDER}
     LIMIT ${PUZZLE_CANDIDATE_LIMIT}
     OFFSET ${pickOffset}
   `;
@@ -157,6 +159,7 @@ export function buildPuzzleTotalCountSql(): Sql<PuzzleCountRow> {
   return sql<PuzzleCountRow>`
     SELECT COUNT(*) AS value
     FROM chess_puzzles
+    WHERE deleted_at IS NULL
   `;
 }
 
@@ -209,15 +212,19 @@ export function computeNextPuzzleLoading(args: {
   fallback: PuzzleCandidateQueryResult;
   /** Chosen puzzle id after {@link pickPuzzleIdFromPool}. */
   puzzleId: string | null;
-  /** Local `chess_puzzles` row count; 0 means the catalog has not synced yet. */
+  /** Local `chess_puzzles` row count; 0 means nothing has synced yet. */
   localPuzzleTotal: number;
+  /** The pool subscription finished its first hydrate for the current bands. */
+  poolReady: boolean;
 }): boolean {
-  const { myId, banded, fallback, puzzleId, localPuzzleTotal } = args;
+  const { myId, banded, fallback, puzzleId, localPuzzleTotal, poolReady } =
+    args;
   if (myId.length === 0) return true;
   if (banded.isLoading) return true;
   if (banded.rows.length === 0 && fallback.isLoading) return true;
-  const noCandidates = banded.rows.length === 0 && fallback.rows.length === 0;
-  return puzzleId === null && localPuzzleTotal === 0 && noCandidates;
+  if (puzzleId !== null) return false;
+  // An empty local catalog is only "loading" until the first hydrate lands.
+  return localPuzzleTotal === 0 && !poolReady;
 }
 
 /** Profile rating when recorded (> 0), else the default seed rating. */

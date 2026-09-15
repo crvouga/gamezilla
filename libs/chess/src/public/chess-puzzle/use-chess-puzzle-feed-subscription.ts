@@ -1,11 +1,57 @@
 import { useSyncEngineInstance } from '@pkgs/sync-engine/solid';
-import { onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+} from 'solid-js';
 
-/** Hydrate the puzzle pool for the lifetime of the mounted feed. */
-export function useChessPuzzleFeedSubscription(): void {
+import {
+  type ChessPuzzleFeedConfig,
+  type ChessPuzzlePoolRange,
+  chessPuzzlePoolRangesForRating,
+} from '../chess-puzzle-feed-config';
+import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
+
+const POOL_QUERY_NAME = 'chessPuzzlePool';
+
+function rangesKey(ranges: readonly ChessPuzzlePoolRange[]): string {
+  return ranges.map((r) => `${r.ratingMin}-${r.ratingMax}`).join(',');
+}
+
+/**
+ * Hydrate the puzzle pool bands around the player's effective rating for the
+ * lifetime of the mounted feed. Re-subscribes only when the band set changes
+ * (rating crossing a band edge, or a feed-config edit), so per-solve Elo
+ * drift does not churn subscriptions. Rows from earlier bands stay local.
+ *
+ * Returns `poolReady`: first hydrate for the current bands has landed.
+ */
+export function useChessPuzzleFeedSubscription(
+  config: Accessor<ChessPuzzleFeedConfig>
+): Accessor<boolean> {
   const sync = useSyncEngineInstance();
-  const handle = sync.subscribeQueries([
-    { name: 'chessPuzzlePool', params: { ratingMin: 0, ratingMax: 4000 } },
-  ]);
-  onCleanup(() => handle.unsubscribe());
+  const rating = useEffectivePuzzleRatingFor(config);
+  const [poolReady, setPoolReady] = createSignal(false);
+  const ranges = createMemo(
+    () => chessPuzzlePoolRangesForRating(rating()),
+    [],
+    { equals: (a, b) => rangesKey(a) === rangesKey(b) }
+  );
+  createEffect(() => {
+    setPoolReady(false);
+    const handle = sync.subscribeQueries(
+      ranges().map((params) => ({ name: POOL_QUERY_NAME, params }))
+    );
+    let live = true;
+    void handle.ready.then((ready) => {
+      if (live && ready) setPoolReady(true);
+    });
+    onCleanup(() => {
+      live = false;
+      handle.unsubscribe();
+    });
+  });
+  return poolReady;
 }

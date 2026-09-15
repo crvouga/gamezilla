@@ -54,6 +54,18 @@ function useReclaimStalePuzzleHost(): void {
   });
 }
 
+/** True for the member the room recorded as the puzzle host (the one moving). */
+function usePuzzleHostIdentityMatch(): Accessor<boolean> {
+  const myId = useMyId();
+  const hostIdentity = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.hostIdentity.from
+  );
+  return createMemo(() => {
+    const host = hostIdentity();
+    return host !== null && host === myId();
+  });
+}
+
 function useStartPuzzleSessionOnMount(args: {
   puzzleId: Accessor<string>;
   fen: Accessor<string>;
@@ -120,6 +132,7 @@ function usePuzzlePlayerModel(args: {
     startNonce: args.startNonce,
   });
   const solver = usePuzzleSolver({ puzzleId: args.puzzleId });
+  const isPuzzleHost = usePuzzleHostIdentityMatch();
   const recorder = useChessPuzzleInteractionRecorder({
     puzzleId: args.puzzleId,
     puzzleRating: rating,
@@ -127,6 +140,7 @@ function usePuzzlePlayerModel(args: {
     solveIdx: solver.solveIdx,
     interactions,
     allInteractions,
+    canRecord: isPuzzleHost,
   });
 
   return {

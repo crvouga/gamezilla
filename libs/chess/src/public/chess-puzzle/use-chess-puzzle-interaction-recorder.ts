@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { useLogger } from '@pkgs/logger/solid';
 import { type Accessor, createEffect } from 'solid-js';
 
 import { sliceCurrentPlay } from '../chess-puzzle-derive';
@@ -17,8 +18,18 @@ export type InteractionRecorderArgs = {
   solveIdx: Accessor<number>;
   interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
   allInteractions: Accessor<readonly ChessPuzzleInteractionRow[]>;
+  /**
+   * Only the member driving the shared board owns the attempt. Spectators in
+   * the same space watch the room status change but must not be rated for it.
+   */
+  canRecord: Accessor<boolean>;
 };
 
+/**
+ * Mirrors room status transitions into this actor's append-only interaction
+ * log. Writes are local-first mutations; a rejected write is logged with the
+ * puzzle id so the rating gap is diagnosable instead of a silent no-op.
+ */
 export function useChessPuzzleInteractionRecorder(
   args: InteractionRecorderArgs
 ): {
@@ -27,6 +38,7 @@ export function useChessPuzzleInteractionRecorder(
   setLastUci: (uci: string) => void;
 } {
   const myId = useMyId();
+  const log = useLogger('chess-puzzle-recorder');
   const { appendInteraction, finalizePlay } = useChessPuzzleInteractionWrites({
     puzzleId: args.puzzleId,
     puzzleRating: args.puzzleRating,
@@ -34,6 +46,13 @@ export function useChessPuzzleInteractionRecorder(
     interactions: args.interactions,
     allInteractions: args.allInteractions,
   });
+
+  const reportWriteFailure = (what: string) => (error: unknown) => {
+    log.error(`puzzle interaction write failed: ${what}`, {
+      puzzleId: args.puzzleId(),
+      error,
+    });
+  };
 
   const prevStatusRef: {
     current: ChessPuzzlePlayStatus | 'loading' | null;
@@ -51,6 +70,10 @@ export function useChessPuzzleInteractionRecorder(
   createEffect(() => {
     const prev = prevStatusRef.current;
     prevStatusRef.current = args.status();
+    if (!args.canRecord()) {
+      lastUciRef.current = null;
+      return;
+    }
     const play = sliceCurrentPlay(args.interactions(), args.puzzleId());
     const playAlreadySolved = play.some(
       (r) => r.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
@@ -64,10 +87,10 @@ export function useChessPuzzleInteractionRecorder(
       lastUci: lastUciRef.current,
       playAlreadySolved,
       appendInteraction: (kind, extra) => {
-        void appendInteraction(kind, extra);
+        appendInteraction(kind, extra).catch(reportWriteFailure(kind));
       },
       finalizePlay: (k) => {
-        void finalizePlay(k);
+        finalizePlay(k).catch(reportWriteFailure(k));
       },
     });
     lastUciRef.current = null;
@@ -82,11 +105,15 @@ export function useChessPuzzleInteractionRecorder(
   };
 
   const appendUsedHint = async (): Promise<void> => {
-    await appendInteraction(CHESS_PUZZLE_INTERACTION_KIND.usedHint);
+    if (!args.canRecord()) return;
+    await appendInteraction(CHESS_PUZZLE_INTERACTION_KIND.usedHint).catch(
+      reportWriteFailure(CHESS_PUZZLE_INTERACTION_KIND.usedHint)
+    );
   };
 
   const appendAbandoned = async (): Promise<void> => {
-    await finalizePlay('abandoned');
+    if (!args.canRecord()) return;
+    await finalizePlay('abandoned').catch(reportWriteFailure('abandoned'));
   };
 
   return { appendUsedHint, appendAbandoned, setLastUci };

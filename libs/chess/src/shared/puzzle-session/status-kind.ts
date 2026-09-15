@@ -2,6 +2,8 @@ import type { SolveStatus } from './solve-status';
 
 export type ChessPuzzleStatusKind =
   | 'loading'
+  | 'empty'
+  | 'offline'
   | 'whiteToMove'
   | 'blackToMove'
   | 'wrong'

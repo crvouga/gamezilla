@@ -9,6 +9,7 @@ export * from '../shared/puzzle-session/completion';
 export * from '../shared/puzzle-session/hint-stage';
 export * from '../shared/puzzle-session/next-puzzle-selection';
 export * from '../shared/puzzle-session/opponent-stager';
+export * from '../shared/puzzle-session/pick-state';
 export * from '../shared/puzzle-session/puzzle-nav';
 export * from '../shared/puzzle-session/session-start-policy';
 export * from '../shared/puzzle-session/solve-projection';
