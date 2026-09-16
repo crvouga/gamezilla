@@ -1,49 +1,20 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { sql } from '@pkgs/sql';
 import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
 import {
+  buildPuzzleTotalCountSql,
   computeNextPuzzleLoading,
   PUZZLE_NEXT_MAX_BAND,
   PUZZLE_PREFERRED_BAND,
   pickPuzzleIdFromPool,
-  resolveProfilePuzzleRating,
   resolvePuzzlePickOffset,
   selectPuzzleCandidates,
 } from '../../shared/puzzle-session/next-puzzle-selection';
-import {
-  type ChessPuzzleFeedHistoryFilter,
-  resolveEffectivePuzzleRating,
-} from '../chess-puzzle-feed-config';
+import type { ChessPuzzleFeedHistoryFilter } from '../chess-puzzle-feed-config';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
+import { useEffectivePuzzleRating } from './use-effective-puzzle-rating';
 import { usePuzzleCandidatesQuery } from './use-puzzle-candidates-query';
-
-type PuzzleRatingValueRow = { readonly value: number };
-
-function usePuzzleProfileRating(): Accessor<number> {
-  const myId = useMyId();
-  const query = createMemo(
-    () => sql<PuzzleRatingValueRow>`
-      SELECT rating AS value
-      FROM chess_puzzle_profiles
-      WHERE id = ${myId()}
-    `
-  );
-  const { rows } = createQuery(query);
-  return createMemo(() => resolveProfilePuzzleRating(rows()[0]?.value));
-}
-
-function useEffectivePuzzleRating(): Accessor<number> {
-  const [config] = useChessPuzzleFeedConfig();
-  const profileRating = usePuzzleProfileRating();
-  return createMemo(() =>
-    resolveEffectivePuzzleRating({
-      config: config(),
-      profileRating: profileRating(),
-    })
-  );
-}
 
 function usePuzzleCandidateQueries(args: {
   rating: Accessor<number>;
@@ -74,28 +45,22 @@ function usePuzzleCandidateQueries(args: {
   return { banded, fallback };
 }
 
-type PuzzleCountRow = { readonly value: number };
-
 function useLocalPuzzleTotal(): Accessor<number> {
-  const { rows } = createQuery(
-    () => sql<PuzzleCountRow>`
-      SELECT COUNT(*) AS value
-      FROM chess_puzzles
-    `
-  );
+  const { rows } = createQuery(buildPuzzleTotalCountSql);
   return createMemo(() => Number(rows()[0]?.value ?? 0));
 }
 
 export function useNextPuzzleId(args: {
   currentPuzzleId: Accessor<string | null>;
   seed: Accessor<string>;
+  poolReady: Accessor<boolean>;
 }): {
   puzzleId: Accessor<string | null>;
   rating: Accessor<number>;
   loading: Accessor<boolean>;
   bandedCount: Accessor<number>;
   fallbackCount: Accessor<number>;
-  replayCount: number;
+  localPuzzleTotal: Accessor<number>;
 } {
   const myId = useMyId();
   const [config] = useChessPuzzleFeedConfig();
@@ -133,6 +98,7 @@ export function useNextPuzzleId(args: {
       fallback: { rows: fallback.rows(), isLoading: fallback.isLoading() },
       puzzleId: puzzleId(),
       localPuzzleTotal: localPuzzleTotal(),
+      poolReady: args.poolReady(),
     })
   );
 
@@ -142,7 +108,7 @@ export function useNextPuzzleId(args: {
     loading,
     bandedCount: () => banded.rows().length,
     fallbackCount: () => fallback.rows().length,
-    replayCount: 0,
+    localPuzzleTotal,
   };
 }
 

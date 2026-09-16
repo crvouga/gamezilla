@@ -209,6 +209,7 @@ describe('computeNextPuzzleLoading', () => {
     fallback: ready,
     puzzleId: 'b',
     localPuzzleTotal: 500,
+    poolReady: true,
   };
 
   test('settled once a candidate is picked', () => {
@@ -237,8 +238,20 @@ describe('computeNextPuzzleLoading', () => {
         fallback: empty,
         puzzleId: null,
         localPuzzleTotal: 0,
+        poolReady: false,
       })
     ).toBe(true);
+    // Once the pool hydrated with nothing, the screen must settle (empty state).
+    expect(
+      computeNextPuzzleLoading({
+        ...base,
+        banded: empty,
+        fallback: empty,
+        puzzleId: null,
+        localPuzzleTotal: 0,
+        poolReady: true,
+      })
+    ).toBe(false);
     expect(
       computeNextPuzzleLoading({
         ...base,

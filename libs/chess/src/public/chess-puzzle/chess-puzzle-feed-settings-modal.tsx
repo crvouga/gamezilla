@@ -10,7 +10,7 @@ import {
   ResponsiveSurface,
   SegmentedControl,
 } from '@pkgs/ui';
-import { createEffect, createMemo, type JSX } from 'solid-js';
+import { createEffect, createMemo, type JSX, Show } from 'solid-js';
 
 import {
   type ChessPuzzleFeedConfig,
@@ -62,6 +62,7 @@ function PuzzleFeedModeSection(props: {
         segments={modeSegments}
         selected={props.config.mode}
         onSelect={props.onSelectMode}
+        dataSet={{ testid: 'chess-puzzle-feed-mode' }}
       />
       <p class="text textCaption">
         {feedModeCaption(props.config.mode, props.profileCaption)}
@@ -90,6 +91,7 @@ function PuzzleFeedHistorySection(props: {
         segments={segments}
         selected={props.historyFilter}
         onSelect={props.onSelect}
+        dataSet={{ testid: 'chess-puzzle-feed-history' }}
       />
       <p class="text textCaption">{t`Filter by puzzles you have never seen, already seen, or failed.`}</p>
     </div>
@@ -122,14 +124,32 @@ function PuzzleFeedThemesSection(props: {
   );
 }
 
+/**
+ * Mode-dependent rating control. Branches inside `<Show>` so flipping the
+ * mode segment swaps the stepper live (a bare `if` would freeze the first
+ * branch for the modal's lifetime).
+ */
 function PuzzleFeedRatingSection(props: {
   config: ChessPuzzleFeedConfig;
   targetRating: number;
   onChangeCustomRating: (rating: number) => void;
   onChangeAutoOffset: (offset: number) => void;
 }): JSX.Element {
-  if (props.config.mode === 'auto') {
-    return (
+  return (
+    <Show
+      when={props.config.mode === 'auto'}
+      fallback={
+        <NumberStepper
+          label={t`Target rating`}
+          value={props.config.customRating}
+          onChange={props.onChangeCustomRating}
+          min={PUZZLE_FEED_RATING_MIN}
+          max={PUZZLE_FEED_RATING_MAX}
+          step={50}
+          dataSet={{ testid: 'chess-puzzle-feed-custom-rating' }}
+        />
+      }
+    >
       <div class="box gap-2">
         <NumberStepper
           label={t`Rating offset`}
@@ -138,22 +158,13 @@ function PuzzleFeedRatingSection(props: {
           min={PUZZLE_FEED_AUTO_OFFSET_MIN}
           max={PUZZLE_FEED_AUTO_OFFSET_MAX}
           step={PUZZLE_FEED_AUTO_OFFSET_STEP}
+          dataSet={{ testid: 'chess-puzzle-feed-offset' }}
         />
-        <p class="text textCaption">
+        <p class="text textCaption" data-testid="chess-puzzle-feed-target">
           {<Trans>Target rating: {props.targetRating}</Trans>}
         </p>
       </div>
-    );
-  }
-  return (
-    <NumberStepper
-      label={t`Target rating`}
-      value={props.config.customRating}
-      onChange={props.onChangeCustomRating}
-      min={PUZZLE_FEED_RATING_MIN}
-      max={PUZZLE_FEED_RATING_MAX}
-      step={50}
-    />
+    </Show>
   );
 }
 
@@ -232,7 +243,7 @@ export function ChessPuzzleFeedSettingsModal(
     >
       <ModalBody>
         <div class="box gap-4">
-          <p class="text textCaption">
+          <p class="text textCaption" data-testid="chess-puzzle-feed-pool">
             {
               <Trans>
                 {pool.matched()} matching · {pool.total()} local puzzles
@@ -265,7 +276,11 @@ export function ChessPuzzleFeedSettingsModal(
         </div>
       </ModalBody>
       <ModalFooter>
-        <ModalButton label={t`Done`} onClick={onDone} />
+        <ModalButton
+          label={t`Done`}
+          onClick={onDone}
+          dataSet={{ testid: 'chess-puzzle-feed-done' }}
+        />
       </ModalFooter>
     </ResponsiveSurface>
   );

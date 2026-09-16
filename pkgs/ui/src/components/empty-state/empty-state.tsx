@@ -80,6 +80,16 @@ function EmptyStateIcon(props: {
   );
 }
 
+/** `<root testid>-action` so E2E can tap the primary action (undefined otherwise). */
+export function emptyStateActionDataSet(
+  dataSet: ComponentDataSet | undefined
+): ComponentDataSet | undefined {
+  const testid = dataSet?.['testid'];
+  return typeof testid === 'string'
+    ? { testid: `${testid}-action` }
+    : undefined;
+}
+
 export function EmptyState(props: EmptyStateProps): JSX.Element {
   const variant = (): StateBlockVariant => props.variant ?? 'fill';
   const isFill = (): boolean => variant() === 'fill';
@@ -120,6 +130,7 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
               intent="primary"
               size={isFill() ? 'md' : 'sm'}
               onClick={() => action().onClick()}
+              dataSet={emptyStateActionDataSet(props.dataSet)}
             />
           </div>
         )}

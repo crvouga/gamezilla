@@ -16,6 +16,20 @@ import {
 } from '../chess-puzzle-play';
 import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
+/**
+ * A rated attempt is in flight only while the player is still moving or has
+ * just gone wrong. Solved plays are closed; idle / invalid / loading rooms
+ * have nothing to forfeit.
+ */
+export function isUnfinishedPuzzleStatus(
+  status: ChessPuzzlePlayStatus | 'loading'
+): boolean {
+  return (
+    status === CHESS_PUZZLE_PLAY_STATUS.solving ||
+    status === CHESS_PUZZLE_PLAY_STATUS.wrong
+  );
+}
+
 type HandlersArgs = {
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   hintStage: Accessor<HintStage>;
@@ -77,22 +91,25 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     args.onMoveRaw(m);
   };
 
+  /** Leaving an unfinished attempt (Back / Next / Retry) forfeits it. */
+  const abandonIfUnfinished = (): void => {
+    if (!isUnfinishedPuzzleStatus(args.status())) return;
+    void args.appendAbandoned();
+  };
+
   const backToRoot = (): void => {
+    abandonIfUnfinished();
     dispatch(ClearChessPuzzlePlay({}));
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   };
 
   const onRetry = (): void => {
-    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) {
-      void args.appendAbandoned();
-    }
+    abandonIfUnfinished();
     dispatch(ResetChessPuzzlePlay({}));
   };
 
   const onNext = (): void => {
-    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) {
-      void args.appendAbandoned();
-    }
+    abandonIfUnfinished();
     dispatch(ClearChessPuzzlePlay({}));
     args.onRequestNext();
   };

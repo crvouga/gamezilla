@@ -96,9 +96,40 @@ export const Handles = {
   chessPuzzleBoardElo: 'chess-puzzle-board-elo',
   chessPuzzleExpectedUci: 'chess-puzzle-expected-uci',
   chessPuzzleE2eDebug: 'chess-puzzle-e2e-debug',
+  /** Hidden probe: current display FEN (drivers derive legal wrong moves). */
+  chessPuzzleE2eFen: 'chess-puzzle-e2e-fen',
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
+  /** Board-well block shown when the feed has no puzzle to place. */
+  chessPuzzleEmptyPool: 'chess-puzzle-empty-pool',
+  /** Secondary "Adjust feed" button under the exhausted-pool block. */
+  chessPuzzleEmptyPoolAdjust: 'chess-puzzle-empty-pool-adjust',
+  chessPuzzleFeedSummary: 'chess-puzzle-feed-summary',
+  /** Feed bar: "Auto · 1200" / "Custom · 1500" target label. */
+  chessPuzzleFeedTargetLabel: 'chess-puzzle-feed-target-label',
+  /** Feed bar: history filter label (Any / Unseen / Seen / Failed). */
+  chessPuzzleFeedHistoryLabel: 'chess-puzzle-feed-history-label',
+  /** Feed settings modal parts. Segment ids are `<group>-<key>`. */
+  chessPuzzleFeedModeSegment: (mode: 'auto' | 'custom') =>
+    `chess-puzzle-feed-mode-${mode}`,
+  chessPuzzleFeedHistorySegment: (
+    filter: 'any' | 'neverSeen' | 'seen' | 'failed'
+  ) => `chess-puzzle-feed-history-${filter}`,
+  chessPuzzleFeedOffsetIncrease: 'chess-puzzle-feed-offset-increase',
+  chessPuzzleFeedOffsetDecrease: 'chess-puzzle-feed-offset-decrease',
+  chessPuzzleFeedOffsetValue: 'chess-puzzle-feed-offset-value',
+  chessPuzzleFeedCustomRatingIncrease:
+    'chess-puzzle-feed-custom-rating-increase',
+  chessPuzzleFeedCustomRatingValue: 'chess-puzzle-feed-custom-rating-value',
+  chessPuzzleFeedTarget: 'chess-puzzle-feed-target',
+  chessPuzzleFeedPool: 'chess-puzzle-feed-pool',
+  chessPuzzleFeedDone: 'chess-puzzle-feed-done',
+  chessPuzzleActionSolution: 'chess-puzzle-action-solution',
+  chessGameLogEmpty: 'chess-game-log-empty',
+  /** Game-log row title ("Solved · 1275" / "Abandoned · 1275"). */
+  chessGameLogRowTitle: (puzzleId: string) =>
+    `chess-game-log-row-${puzzleId}-title`,
   chessPuzzleMoveHistory: 'chess-puzzle-move-history',
   chessPuzzleActionHint: 'chess-puzzle-action-hint',
   chessPuzzleActionNext: 'chess-puzzle-action-next',

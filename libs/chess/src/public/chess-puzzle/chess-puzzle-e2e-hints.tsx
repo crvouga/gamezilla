@@ -15,6 +15,10 @@ export type ChessPuzzleE2EHintsProps = {
   solutionUci: Accessor<string | null>;
   expectedFromSquare: Accessor<string | null>;
   expectedToSquare: Accessor<string | null>;
+  /** Room hint stage (`none` / `highlight` / `solution`). */
+  hintStage: Accessor<string>;
+  /** Current display FEN so drivers can compute legal (wrong) moves. */
+  displayFen: Accessor<string | null>;
 };
 
 function buildUci(from: string | null, to: string | null): string | null {
@@ -59,7 +63,10 @@ export function ChessPuzzleE2EHints(
         class="text"
         style={hintStyle}
         data-testid="chess-puzzle-e2e-debug"
-      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}`}</p>
+      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}`}</p>
+      <p class="text" style={hintStyle} data-testid="chess-puzzle-e2e-fen">
+        {props.displayFen() ?? ''}
+      </p>
     </>
   );
 }

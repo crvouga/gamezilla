@@ -19,6 +19,7 @@ export const chessPuzzleInteractions = defineQuery({
         deleted_at
       FROM chess_puzzle_interactions
       WHERE owner_id = ${ctx.env.actorId}
+      ORDER BY at DESC, id ASC
 `);
     return { chess_puzzle_interactions: rows };
   },

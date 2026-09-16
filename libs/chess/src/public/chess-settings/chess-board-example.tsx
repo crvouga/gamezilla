@@ -1,3 +1,4 @@
+import { Trans } from '@lingui/solid/macro';
 import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import {
   createEffect,
@@ -38,7 +39,7 @@ export default function ChessBoardExample(): JSX.Element {
       ref={setHostEl}
     >
       <p class="text textCaption text-text-secondary">
-        {'Interactive Solid chess board.'}
+        <Trans>Interactive Solid chess board.</Trans>
       </p>
       <Show when={size() > 0}>
         <SmartChessBoard

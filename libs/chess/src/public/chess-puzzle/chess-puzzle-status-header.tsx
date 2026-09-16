@@ -15,6 +15,10 @@ function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
   switch (kind) {
     case 'loading':
       return <Trans>Loading puzzle…</Trans>;
+    case 'empty':
+      return <Trans>No puzzles left</Trans>;
+    case 'offline':
+      return <Trans>Offline</Trans>;
     case 'whiteToMove':
       return <Trans>White to move</Trans>;
     case 'blackToMove':

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { Spinner, useTheme } from '@pkgs/ui';
+import { SearchIcon, Spinner, useTheme, WifiOffIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
@@ -64,6 +64,20 @@ export function ChessPuzzleStatusIcon(props: {
     return (
       <div class="box" style={ROOT_STYLE}>
         <Spinner size="small" />
+      </div>
+    );
+  }
+  if (props.kind === 'empty') {
+    return (
+      <div class="box" style={ROOT_STYLE}>
+        <SearchIcon size={SIZE - 4} color="textSecondary" />
+      </div>
+    );
+  }
+  if (props.kind === 'offline') {
+    return (
+      <div class="box" style={ROOT_STYLE}>
+        <WifiOffIcon size={SIZE - 4} color="textSecondary" />
       </div>
     );
   }

@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { chessPuzzleStatusKindFromState } from '@libs/chess/public/puzzle-session';
+import {
+  type ChessPuzzleStatusKind,
+  chessPuzzleStatusKindFromState,
+} from '@libs/chess/public/puzzle-session';
 
 describe('chessPuzzleStatusKindFromState', () => {
   test('maps loading status to loading kind regardless of orientation', () => {
@@ -16,6 +19,11 @@ describe('chessPuzzleStatusKindFromState', () => {
         orientation: 'black',
       })
     ).toBe('loading');
+  });
+
+  test('empty and offline are header kinds the shell can render', () => {
+    const kinds: ChessPuzzleStatusKind[] = ['empty', 'offline'];
+    expect(kinds).toHaveLength(2);
   });
 
   test('maps solving to turn kind from orientation', () => {

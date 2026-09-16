@@ -12,6 +12,19 @@ import {
 import type { AppendPuzzleInteractionInput } from '../writes/append-puzzle-interaction-write';
 import type { UpsertPuzzleProfileInput } from '../writes/upsert-puzzle-profile-write';
 
+function mutationRejected(
+  mutation: string,
+  failures: readonly { readonly message?: string | undefined }[]
+): Error {
+  const detail = failures
+    .map((f) => f.message)
+    .filter((m): m is string => typeof m === 'string' && m.length > 0)
+    .join('; ');
+  return new Error(
+    `${mutation} rejected${detail.length > 0 ? `: ${detail}` : ''}`
+  );
+}
+
 function nowIso(clock: Clock): string {
   return new Date(clock.now()).toISOString();
 }
@@ -30,7 +43,9 @@ export class ChessPuzzleInteractionDb {
         ...args,
       }
     );
-    if (!result.ok) throw new Error(result.failures[0]?.message);
+    if (!result.ok) {
+      throw mutationRejected('appendPuzzleInteraction', result.failures);
+    }
   }
 
   async #upsertPuzzleProfile(args: UpsertPuzzleProfileInput): Promise<void> {
@@ -38,7 +53,9 @@ export class ChessPuzzleInteractionDb {
       upsertPuzzleProfileMutation,
       args
     );
-    if (!result.ok) throw new Error(result.failures[0]?.message);
+    if (!result.ok) {
+      throw mutationRejected('upsertPuzzleProfile', result.failures);
+    }
   }
 
   /**

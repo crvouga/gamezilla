@@ -205,6 +205,10 @@ msgstr "Add tab"
 msgid "Add…"
 msgstr "Add…"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "Adjust feed"
+msgstr "Adjust feed"
+
 #: libs/notifications/src/root/client/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
@@ -952,6 +956,14 @@ msgstr "Host"
 msgid "hud"
 msgstr "hud"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
+msgid "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
+msgstr "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "Include played puzzles"
+msgstr "Include played puzzles"
+
 #. placeholder {0}: props.label
 #: pkgs/ui/src/components/number-stepper/number-stepper.tsx
 msgid "Increase {0}"
@@ -972,6 +984,10 @@ msgstr "Installs signed into this account"
 #: apps/client/src/screens/more/performance-screen.tsx
 msgid "Interaction to next paint"
 msgstr "Interaction to next paint"
+
+#: libs/chess/src/public/chess-settings/chess-board-example.tsx
+msgid "Interactive Solid chess board."
+msgstr "Interactive Solid chess board."
 
 #: pkgs/ui/src/components/catalog/catalog-detail.tsx
 msgid "Item not found"
@@ -1243,6 +1259,14 @@ msgstr "No people found for “{0}”"
 msgid "No puzzle selected"
 msgstr "No puzzle selected"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "No puzzles left"
+msgstr "No puzzles left"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "No puzzles match your feed"
+msgstr "No puzzles match your feed"
+
 #: libs/chess/src/public/chess-puzzle/chess-game-log.tsx
 msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
@@ -1275,6 +1299,10 @@ msgstr "Nothing archived"
 msgid "Nothing needs your attention"
 msgstr "Nothing needs your attention"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "Nothing synced near this rating yet. Change the target rating to keep playing."
+msgstr "Nothing synced near this rating yet. Change the target rating to keep playing."
+
 #: apps/client/src/routes/app-tabs.tsx
 #: libs/notifications/src/public/notifications-header-button.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
@@ -1294,6 +1322,10 @@ msgstr "Observability"
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Off"
 msgstr "Off"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Offline"
+msgstr "Offline"
 
 #: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/screens/more/performance-screen.tsx
@@ -1491,6 +1523,10 @@ msgstr "Puzzle stats"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-review-screen.tsx
 msgid "Puzzle unavailable"
 msgstr "Puzzle unavailable"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "Puzzles download the first time you open the feed. Reconnect and they will appear here."
+msgstr "Puzzles download the first time you open the feed. Reconnect and they will appear here."
 
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 #: pkgs/ui/src/components/multi-select-swatch/multi-select-swatch-grid.tsx
@@ -2220,6 +2256,10 @@ msgstr "You"
 msgid "You can rejoin from the invite link if the space is still live."
 msgstr "You can rejoin from the invite link if the space is still live."
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
+msgstr "You have played every puzzle that matches your history and theme filters. Include played puzzles or adjust the feed."
+
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "You have unsaved avatar changes."
 msgstr "You have unsaved avatar changes."
@@ -2236,6 +2276,10 @@ msgstr "You'll be signed out on this device."
 msgid "You're all caught up"
 msgstr "You're all caught up"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "You're offline"
+msgstr "You're offline"
+
 #: libs/auth/src/public/sign-in-modal.tsx
 msgid "You're signed in on this device."
 msgstr "You're signed in on this device."
@@ -2243,6 +2287,10 @@ msgstr "You're signed in on this device."
 #: libs/auth/src/public/use-sign-out-confirmation.tsx
 msgid "You're signed out on this device."
 msgstr "You're signed out on this device."
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
+msgid "You've cleared everything in your feed. Widen the filters and let's keep going."
+msgstr "You've cleared everything in your feed. Widen the filters and let's keep going."
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "you@example.com"
