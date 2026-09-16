@@ -109,6 +109,8 @@ export type ProductSimulatorLoadBalancerRoute = {
   readonly from: string;
   /** Chosen backend id, or `null` when every backend was unreachable. */
   readonly to: string | null;
+  readonly method: string;
+  readonly path: string;
 };
 
 export type ProductSimulatorLoadBalancerBackend = {
