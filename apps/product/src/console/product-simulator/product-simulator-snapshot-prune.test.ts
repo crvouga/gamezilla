@@ -28,7 +28,7 @@ describe('toSnapshotInfo', () => {
   test('includes totalBytes when provided', () => {
     const info = toSnapshotInfo(
       {
-        version: 2,
+        version: 3,
         localSchemaVersion: 0,
         id: 's1',
         label: 'Snap',
@@ -44,7 +44,7 @@ describe('toSnapshotInfo', () => {
 
   test('omits totalBytes when not provided', () => {
     const info = toSnapshotInfo({
-      version: 2,
+      version: 3,
       localSchemaVersion: 0,
       id: 's1',
       label: 'Snap',

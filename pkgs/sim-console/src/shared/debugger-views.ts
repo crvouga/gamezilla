@@ -11,6 +11,7 @@ export const DEBUGGER_VIEW_IDS = [
   'events',
   'commands',
   'topics',
+  'routes',
 ] as const;
 
 export type DebuggerViewId = (typeof DEBUGGER_VIEW_IDS)[number];
@@ -27,6 +28,7 @@ export const VIEWS_BY_KIND: Readonly<
   Record<SimChromeKind, readonly DebuggerViewId[]>
 > = {
   client: ['ui'],
+  lb: ['routes', 'events'],
   server: ['db', 'events', 'commands'],
   events: ['events', 'topics'],
   room: ['db', 'events'],
@@ -36,6 +38,7 @@ export const DEFAULT_VIEW_BY_KIND: Readonly<
   Record<SimChromeKind, DebuggerViewId>
 > = {
   client: 'ui',
+  lb: 'routes',
   server: 'db',
   events: 'events',
   room: 'db',

@@ -2,6 +2,7 @@ import type { SimulationReportTopology } from '../types';
 
 const CLIENT_ATTRS = ['html', 'sqlite', 'ingress', 'egress'] as const;
 const SERVER_ATTRS = ['sqlite', 'ingress', 'egress'] as const;
+const LB_ATTRS = ['round-robin', 'ingress', 'egress'] as const;
 const DEFAULT_ATTRS = ['ingress', 'egress'] as const;
 
 export type SimTopologyNode = {
@@ -25,6 +26,7 @@ export type SimTopology = {
 function attributesFor(kind: string): readonly string[] {
   if (kind === 'client') return CLIENT_ATTRS;
   if (kind === 'server' || kind === 'db') return SERVER_ATTRS;
+  if (kind === 'lb') return LB_ATTRS;
   return DEFAULT_ATTRS;
 }
 
@@ -51,6 +53,9 @@ export function projectReportTopology(
   const spawn = Object.fromEntries(
     [...kinds.keys()].map((kind) => {
       if (kind === 'client') {
+        return [kind, { edges: [{ to: 'lb', kind: 'lb' }] }];
+      }
+      if (kind === 'lb') {
         return [kind, { edges: [{ to: 'server', kind: 'server' }] }];
       }
       if (kind === 'server') {

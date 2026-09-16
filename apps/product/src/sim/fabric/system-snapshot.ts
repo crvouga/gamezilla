@@ -25,7 +25,8 @@ import {
   dumpProductSimulatorClientDurable,
   restoreProductSimulatorClientDurable,
 } from './client-durable';
-import { type Sim, simClientNamespace } from './create-sim';
+import type { Sim } from './create-sim';
+import { simClientNamespace } from './sim-client-namespace';
 import { openFreshSimClientSql, type SimSql } from './sim-sql';
 import {
   awaitProductSimulatorMutationDrain,

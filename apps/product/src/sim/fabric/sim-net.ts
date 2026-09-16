@@ -34,6 +34,15 @@ export function createSimNet(opts?: {
     }
   }
 
+  function isReachable(from: string, to: string): boolean {
+    try {
+      assertReachable(from, to);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   return {
     crash(id: string): void {
       crashed.add(id);
@@ -59,13 +68,15 @@ export function createSimNet(opts?: {
       }
       partitions.delete(pairKey(a, b));
     },
-    wrapServerHttp(fromId: string, inner: ServerHttp): ServerHttp {
+    /** Gate one directed hop (`client → lb`, `lb → server-2`). */
+    wrapHop(fromId: string, toId: string, inner: ServerHttp): ServerHttp {
       return async (input, init) => {
-        assertReachable(fromId, 'server');
+        assertReachable(fromId, toId);
         return inner(input, init);
       };
     },
     assertReachable,
+    isReachable,
     isCrashed(id: string): boolean {
       return crashed.has(id);
     },

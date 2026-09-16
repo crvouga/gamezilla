@@ -39,8 +39,10 @@ export function nodeIdForKindInstance(
   instance: string | null | undefined
 ): string {
   const raw = instance?.trim() ?? '';
-  if (kind === 'server') return 'server';
-  if (kind === 'events') return 'events';
+  // Server / balancer / pubsub topology ids are bare (`server-2`, `lb`).
+  if (kind === 'server' || kind === 'events' || kind === 'lb') {
+    return raw.length === 0 ? kind : raw;
+  }
   if (raw.length === 0) return kind;
   const parsed = parseSimNodeAddress(raw);
   if (parsed.kind === kind || coerceSimNodeKind(raw) === kind) {

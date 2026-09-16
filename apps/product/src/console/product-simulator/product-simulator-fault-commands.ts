@@ -1,5 +1,7 @@
 /**
- * Expand live topology into crash / partition / clock palette commands.
+ * Expand live topology into topology / crash / partition / clock palette
+ * commands. Every node the session knows about — clients, the balancer, and
+ * each API instance — gets its own fault entries.
  */
 
 import type {
@@ -8,39 +10,87 @@ import type {
 } from '@pkgs/sim-console/client';
 
 function collectIds(session: ProductSimulatorSession): string[] {
-  const ids = ['server'];
+  const ids = [session.loadBalancer.id, ...session.servers.keys()];
   for (const c of session.clients.values()) ids.push(c.id);
   return ids;
 }
 
-export function buildProductSimulatorPaletteCommands(
+function clockCommands(
   session: ProductSimulatorSession
 ): ProductSimulatorPaletteCommand[] {
-  const ids = collectIds(session);
+  return [
+    {
+      id: 'clock:pause',
+      title: 'session · pause-clock',
+      category: 'Clock',
+      keywords: ['pause', 'clock'],
+      run: () => session.setClockPaused(true),
+    },
+    {
+      id: 'clock:resume',
+      title: 'session · resume-clock',
+      category: 'Clock',
+      keywords: ['resume', 'clock'],
+      run: () => session.setClockPaused(false),
+    },
+    {
+      id: 'net:heal',
+      title: 'session · heal',
+      category: 'Network',
+      keywords: ['heal', 'restoreNetwork', 'partition'],
+      run: () => session.heal(),
+    },
+  ];
+}
+
+function topologyCommands(
+  session: ProductSimulatorSession
+): ProductSimulatorPaletteCommand[] {
+  const out: ProductSimulatorPaletteCommand[] = [
+    {
+      id: 'topology:add-client',
+      title: 'topology · add client',
+      category: 'Topology',
+      keywords: ['add', 'client', 'spawn', 'node'],
+      run: () => session.addClient(),
+    },
+    {
+      id: 'topology:add-server',
+      title: 'topology · add server',
+      subtitle: 'Another API instance in the round-robin rotation',
+      category: 'Topology',
+      keywords: ['add', 'server', 'instance', 'scale', 'node'],
+      run: () => session.addServer(),
+    },
+  ];
+  for (const id of session.clients.keys()) {
+    out.push({
+      id: `topology:remove-client:${id}`,
+      title: `${id} · remove client`,
+      category: 'Topology',
+      keywords: ['remove', 'client', id],
+      run: () => session.removeClient(id),
+    });
+  }
+  if (session.servers.size > 1) {
+    for (const id of session.servers.keys()) {
+      out.push({
+        id: `topology:remove-server:${id}`,
+        title: `${id} · remove server`,
+        category: 'Topology',
+        keywords: ['remove', 'server', 'instance', id],
+        run: () => session.removeServer(id),
+      });
+    }
+  }
+  return out;
+}
+
+function faultCommands(
+  session: ProductSimulatorSession,
+  ids: readonly string[]
+): ProductSimulatorPaletteCommand[] {
   const out: ProductSimulatorPaletteCommand[] = [];
-
-  out.push({
-    id: 'clock:pause',
-    title: 'session · pause-clock',
-    category: 'Clock',
-    keywords: ['pause', 'clock'],
-    run: () => session.setClockPaused(true),
-  });
-  out.push({
-    id: 'clock:resume',
-    title: 'session · resume-clock',
-    category: 'Clock',
-    keywords: ['resume', 'clock'],
-    run: () => session.setClockPaused(false),
-  });
-  out.push({
-    id: 'net:heal',
-    title: 'session · heal',
-    category: 'Network',
-    keywords: ['heal', 'restoreNetwork', 'partition'],
-    run: () => session.heal(),
-  });
-
   for (const id of ids) {
     out.push({
       id: `crash:${id}`,
@@ -57,7 +107,6 @@ export function buildProductSimulatorPaletteCommands(
       run: () => session.restart(id),
     });
   }
-
   for (let i = 0; i < ids.length; i += 1) {
     for (let j = i + 1; j < ids.length; j += 1) {
       const a = ids[i]!;
@@ -71,8 +120,17 @@ export function buildProductSimulatorPaletteCommands(
       });
     }
   }
-
   return out;
+}
+
+export function buildProductSimulatorPaletteCommands(
+  session: ProductSimulatorSession
+): ProductSimulatorPaletteCommand[] {
+  return [
+    ...clockCommands(session),
+    ...topologyCommands(session),
+    ...faultCommands(session, collectIds(session)),
+  ];
 }
 
 export async function buildSnapshotLoadCommands(

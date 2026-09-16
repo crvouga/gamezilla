@@ -16,7 +16,9 @@ import {
   dumpProductSimulatorClientDurable,
   restoreProductSimulatorClientDurable,
 } from './client-durable';
-import { type Sim, simClientNamespace } from './create-sim';
+import type { Sim } from './create-sim';
+import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
+import { simClientNamespace } from './sim-client-namespace';
 import { openFreshSimClientSql, type SimSql } from './sim-sql';
 import { reconcileServerProfilesFromClients } from './snapshot-sync';
 
@@ -45,6 +47,8 @@ export type CheckpointSessionCtx = {
   readonly getClockPaused: () => boolean;
   readonly setClockPaused: (paused: boolean) => void;
   readonly spawnClient: (id?: string) => Promise<{ readonly id: string }>;
+  /** Rebuild console-side server nodes after the fleet is resized. */
+  readonly refreshServers: () => void;
   readonly detachClientsForSnapshotLoad: () => Promise<void>;
   readonly notify: () => void;
   readonly endSnapshotRestoring: () => void;
@@ -171,6 +175,25 @@ export async function importCheckpointSql(
   for (const id of checkpoint.clientIds) {
     await ctx.spawnClient(id);
   }
+}
+
+/**
+ * Resize the API fleet back to the captured shape. An empty list means the
+ * capture predates dynamic fleets, so fall back to a single instance.
+ */
+export async function restoreCheckpointServers(
+  ctx: CheckpointSessionCtx,
+  checkpoint: SimCheckpoint
+): Promise<void> {
+  const want =
+    checkpoint.serverIds.length > 0
+      ? checkpoint.serverIds
+      : [SIM_PRIMARY_SERVER_ID];
+  for (const id of ctx.sim.serverIds()) {
+    if (!want.includes(id)) await ctx.sim.dropServer(id);
+  }
+  for (const id of want) await ctx.sim.spawnServer(id);
+  ctx.refreshServers();
 }
 
 export function restoreCheckpointKv(checkpoint: SimCheckpoint): void {

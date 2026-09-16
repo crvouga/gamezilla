@@ -104,6 +104,35 @@ export type ProductSimulatorPubSubNode = ProductSimulatorNode & {
   listTopicStats(): readonly ProductSimulatorPubSubTopicStat[];
 };
 
+export type ProductSimulatorLoadBalancerRoute = {
+  readonly at: number;
+  readonly from: string;
+  /** Chosen backend id, or `null` when every backend was unreachable. */
+  readonly to: string | null;
+};
+
+export type ProductSimulatorLoadBalancerBackend = {
+  readonly id: string;
+  readonly reachable: boolean;
+  readonly requests: number;
+};
+
+export type ProductSimulatorLoadBalancerSnapshot = {
+  readonly id: string;
+  readonly algorithm: 'round-robin';
+  /** Index of the backend the next request will try first. */
+  readonly cursor: number;
+  readonly requests: number;
+  readonly rejected: number;
+  readonly backends: readonly ProductSimulatorLoadBalancerBackend[];
+  readonly recentRoutes: readonly ProductSimulatorLoadBalancerRoute[];
+};
+
+/** Ingress node every client addresses; round-robins across server nodes. */
+export type ProductSimulatorLoadBalancerNode = ProductSimulatorNode & {
+  inspect(): ProductSimulatorLoadBalancerSnapshot;
+};
+
 export type ProductSimulatorCommandContext = {
   readonly serverSql: SqlClient;
   readonly now: () => number;
@@ -143,7 +172,7 @@ export type ProductSimulatorSnapshotInfo = {
 };
 
 export type ProductSimulatorSnapshotManifest = {
-  readonly version: 2;
+  readonly version: 3;
   readonly localSchemaVersion: number;
   readonly id: string;
   readonly label: string;
@@ -151,6 +180,7 @@ export type ProductSimulatorSnapshotManifest = {
   readonly clockMs: number;
   readonly clockPaused: boolean;
   readonly clientIds: readonly string[];
+  readonly serverIds: readonly string[];
   readonly roomTopics: readonly string[];
   readonly partitions: readonly string[];
   readonly skewByAddress: Readonly<Record<string, number>>;
@@ -178,7 +208,9 @@ export type ProductSimulatorSession = {
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
   readonly clients: ReadonlyMap<string, ProductSimulatorActor>;
-  readonly server: ProductSimulatorSqlNode;
+  /** Live API instances, in balancer rotation order. All share one DB. */
+  readonly servers: ReadonlyMap<string, ProductSimulatorSqlNode>;
+  readonly loadBalancer: ProductSimulatorLoadBalancerNode;
   readonly pubsub: ProductSimulatorPubSubNode;
   readonly rooms: ReadonlyMap<string, ProductSimulatorRoomNode>;
   readonly revision: number;
@@ -187,6 +219,10 @@ export type ProductSimulatorSession = {
   subscribe(listener: () => void): () => void;
   addClient(id?: string): Promise<ProductSimulatorActor>;
   removeClient(id: string): Promise<void>;
+  /** Boot another API instance into the rotation (`server-2`, `server-3`, …). */
+  addServer(id?: string): Promise<ProductSimulatorSqlNode>;
+  /** Retire an API instance. Rejects on the last one — crash it instead. */
+  removeServer(id: string): Promise<void>;
   listCommands(): readonly ProductSimulatorCommand[];
   runCommand(id: string): Promise<void>;
   listPaletteCommands(): readonly ProductSimulatorPaletteCommand[];

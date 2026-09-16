@@ -10,13 +10,26 @@
  */
 
 export {
-  bumpSimClientEpoch,
   type CreateSimOptions,
   createSim,
-  type Server,
   type Sim,
-  simClientNamespace,
 } from './fabric/create-sim';
+export {
+  bumpSimClientEpoch,
+  simClientNamespace,
+} from './fabric/sim-client-namespace';
+export {
+  createSimLoadBalancer,
+  SIM_LOAD_BALANCER_ID,
+  type SimLoadBalancer,
+  type SimLoadBalancerBackendStat,
+  type SimLoadBalancerRoute,
+  type SimLoadBalancerSnapshot,
+} from './fabric/sim-load-balancer';
+export {
+  type Server,
+  SIM_PRIMARY_SERVER_ID,
+} from './fabric/sim-server-nodes';
 export {
   handleBoundSqlClient,
   openFreshSimClientSql,

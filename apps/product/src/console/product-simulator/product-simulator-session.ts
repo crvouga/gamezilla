@@ -12,6 +12,13 @@ import { createProductSimulatorChessCommands } from '@apps/product/product-simul
 import { buildSnapshotLoadCommands } from '@apps/product/product-simulator/product-simulator-fault-commands';
 import { loggingFetch } from '@apps/product/product-simulator/product-simulator-logging-fetch';
 import { makeProductSimulatorPubSubNode } from '@apps/product/product-simulator/product-simulator-session-nodes';
+import {
+  addProductSimulatorServer,
+  bindLoadBalancerRouteLogs,
+  makeProductSimulatorLoadBalancerNode,
+  refreshProductSimulatorServers,
+  removeProductSimulatorServer,
+} from '@apps/product/product-simulator/product-simulator-session-servers';
 import { snapshotSessionMethods } from '@apps/product/product-simulator/product-simulator-session-snapshot-api';
 import {
   detachClientsForSnapshotLoad,
@@ -33,20 +40,18 @@ import {
 } from '@apps/product/product-simulator/product-simulator-snapshots';
 import { installProductSimulatorStickyAutosave } from '@apps/product/product-simulator/product-simulator-sticky-autosave';
 import { clearProductSimulatorClientDurable } from '@apps/product/sim/fabric/client-durable';
-import {
-  type Sim,
-  simClientNamespace,
-} from '@apps/product/sim/fabric/create-sim';
+import type { Sim } from '@apps/product/sim/fabric/create-sim';
+import { simClientNamespace } from '@apps/product/sim/fabric/sim-client-namespace';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
 import {
   createProductSimulatorLogBuffer,
   type ProductSimulatorActor,
+  type ProductSimulatorLoadBalancerNode,
   type ProductSimulatorMemoryHistory,
   type ProductSimulatorPaletteCommand,
   type ProductSimulatorSession,
-  type ProductSimulatorSqlNode,
 } from '@pkgs/sim-console/client';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 import { createMemoryHistory } from '@solidjs/router';
@@ -78,7 +83,8 @@ export type BootProductSimulatorOptions = {
 
 export type ProductSimulatorSessionBuildArgs = {
   readonly sim: Sim;
-  readonly serverLogs: ReturnType<typeof createProductSimulatorLogBuffer>;
+  /** Balancer ingress access log (method / path / status for every request). */
+  readonly balancerLogs: ReturnType<typeof createProductSimulatorLogBuffer>;
   readonly pubsubLogs: ReturnType<typeof createProductSimulatorLogBuffer>;
   readonly roomLogs: ReturnType<typeof createProductSimulatorLogBuffer>;
   readonly snapshotStore: ObjectStore;
@@ -197,7 +203,7 @@ async function spawnClient(
   const base = args.sim.client(instanceId);
   const live = args.sim.spawnClient(instanceId, {
     ...base,
-    server: loggingFetch(base.server, actorLogs, args.serverLogs, () =>
+    server: loggingFetch(base.server, actorLogs, args.balancerLogs, () =>
       args.sim.clock.now()
     ),
   });
@@ -243,6 +249,9 @@ function makeSnapshotCtx(
     getClockPaused: args.getClockPaused,
     setClockPaused: args.setClockPaused,
     spawnClient: (nextId?: string) => spawnClient(args, maps, nextId),
+    refreshServers: () => {
+      refreshProductSimulatorServers(args.sim, maps);
+    },
     detachClientsForSnapshotLoad: () =>
       detachClientsForSnapshotLoad(args.sim, maps),
     notify: () => notify(maps),
@@ -257,7 +266,7 @@ type SessionApiAttachArgs = {
   readonly args: ProductSimulatorSessionBuildArgs;
   readonly maps: SessionMaps;
   readonly commands: ReturnType<typeof createProductSimulatorChessCommands>;
-  readonly server: ProductSimulatorSqlNode;
+  readonly loadBalancer: ProductSimulatorLoadBalancerNode;
   readonly sessionRef: { current: ProductSimulatorSession | null };
   readonly snapshotCtx: () => SnapshotSessionCtx;
   readonly getSnapshotLoads: () => ProductSimulatorPaletteCommand[];
@@ -286,7 +295,7 @@ async function deleteStickySnapshot(store: ObjectStore): Promise<void> {
 }
 
 function attachSessionApi(api: SessionApiAttachArgs): ProductSimulatorSession {
-  const { args: buildArgs, maps, commands, server, disposed } = api;
+  const { args: buildArgs, maps, commands, disposed } = api;
   const session: ProductSimulatorSession = {
     clock: productSimulatorClock(buildArgs.sim),
     crash: (id) => buildArgs.sim.crash(id),
@@ -294,7 +303,8 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductSimulatorSession {
     partition: (a, b) => buildArgs.sim.partition(a, b),
     heal: (a, b) => buildArgs.sim.heal(a, b),
     clients: maps.clients,
-    server,
+    servers: maps.servers,
+    loadBalancer: api.loadBalancer,
     pubsub: makeProductSimulatorPubSubNode(
       buildArgs.sim.pubSubBus,
       buildArgs.pubsubLogs
@@ -317,6 +327,9 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductSimulatorSession {
     },
     addClient: (id) => spawnClient(buildArgs, maps, id),
     removeClient: (id) => removeClient(buildArgs.sim, maps, id),
+    addServer: (id) => addProductSimulatorServer(buildArgs.sim, maps, id),
+    removeServer: (id) =>
+      removeProductSimulatorServer(buildArgs.sim, maps, id),
     listCommands: () => commands,
     runCommand: (id) =>
       runProductSimulatorCommand(buildArgs, maps, commands, id),
@@ -397,6 +410,8 @@ export async function buildProductSimulatorSession(
   const maps: SessionMaps = {
     clients: new Map(),
     lives: new Map(),
+    servers: new Map(),
+    serverLogs: new Map(),
     rooms: new Map(),
     listeners: new Set(),
     revision: 0,
@@ -413,6 +428,12 @@ export async function buildProductSimulatorSession(
   const unsubRooms = args.sim.roomNode.subscribe(() =>
     refreshRoomMap(args.sim.roomNode, maps, args.roomLogs)
   );
+  const unsubRoutes = bindLoadBalancerRouteLogs({
+    sim: args.sim,
+    maps,
+    balancerLogs: args.balancerLogs,
+  });
+  refreshProductSimulatorServers(args.sim, maps);
 
   const commands = createProductSimulatorChessCommands();
   let snapshotLoadCommands: ProductSimulatorPaletteCommand[] = [];
@@ -426,12 +447,10 @@ export async function buildProductSimulatorSession(
     args,
     maps,
     commands,
-    server: {
-      id: 'server',
-      address: 'server',
-      sqlClient: args.sim.serverSql.sqlClient,
-      logs: args.serverLogs,
-    },
+    loadBalancer: makeProductSimulatorLoadBalancerNode(
+      args.sim,
+      args.balancerLogs
+    ),
     sessionRef,
     snapshotCtx,
     getSnapshotLoads: () => snapshotLoadCommands,
@@ -439,7 +458,10 @@ export async function buildProductSimulatorSession(
       snapshotLoadCommands = cmds;
     },
     markDisposed,
-    unsubRooms,
+    unsubRooms: () => {
+      unsubRooms();
+      unsubRoutes();
+    },
     stopAutosave: () => {
       stopAutosave();
     },
