@@ -27,6 +27,8 @@ export function defineAction<S, const A extends unknown[] = []>(
     args: def.args,
     sample: def.sample,
     pool: def.pool !== false,
+    describe: def.describe,
+    report: def.report !== false,
     act: def.act,
     is: (action: CheckpointAction): action is AppliedAction<A> =>
       action !== null && action.name === def.name,

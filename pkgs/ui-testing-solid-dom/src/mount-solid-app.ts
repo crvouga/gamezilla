@@ -34,6 +34,9 @@ export function createActorContainer(
   container.style.height = `${MULTI_APP_ACTOR_FRAME.height}px`;
   container.style.position = 'relative';
   container.style.overflow = 'hidden';
+  // Flex column so the app root stretches to the frame in HTML snapshots.
+  container.style.display = 'flex';
+  container.style.flexDirection = 'column';
   return container;
 }
 

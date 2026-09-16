@@ -1,9 +1,12 @@
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-/** How a captured value is encoded on disk and rendered in the console. */
+/** How a captured value is encoded on disk and rendered in the report. */
 export type SnapshotMedia = 'json' | 'html' | 'png' | 'text' | 'bytes';
 
 export type ReportStepStatus = 'passed' | 'failed';
+
+/** Test outcome after the harness (e.g. the test runner) has weighed in. */
+export type ReportTestStatus = 'passed' | 'failed' | 'skipped';
 
 /**
  * One blob produced by a snapshotter at a point in time.
@@ -25,7 +28,10 @@ export type ReportFrame = {
   readonly snapshots: readonly ReportSnapshotBlob[];
 };
 
-/** One labeled entry on the report timeline (apply or explicit record). */
+/**
+ * One labeled entry on the report timeline. Steps nest: an `apply` step
+ * holds the UI ops recorded while its action ran.
+ */
 export type ReportStep = {
   readonly index: number;
   readonly kind: string;
@@ -40,7 +46,9 @@ export type ReportStep = {
   readonly action?: string;
   readonly args?: readonly unknown[];
   readonly error?: string;
+  readonly errorStack?: string;
   readonly frames: readonly ReportFrame[];
+  readonly steps: readonly ReportStep[];
 };
 
 export type RunReportMeta = {
@@ -50,11 +58,18 @@ export type RunReportMeta = {
   readonly startedAtMs: number;
   readonly endedAtMs: number;
   readonly durationMs: number;
-  readonly status: ReportStepStatus;
+  readonly status: ReportTestStatus;
   readonly runId: string;
   readonly testId: string;
+  /** Human title (defaults to `testId`). */
+  readonly title: string;
   readonly actorIds: readonly string[];
   readonly sourceFile?: string;
+  /** 1-based line of the call that opened this run, when known. */
+  readonly sourceLine?: number;
+  /** First failure message (step, property, or harness). */
+  readonly error?: string;
+  readonly errorStack?: string;
 };
 
 /** In-memory / persisted timeline for one test run. */
@@ -65,15 +80,16 @@ export type RunReport = {
 
 export type SuiteTestSummary = {
   readonly testId: string;
+  readonly title: string;
   readonly seed: string;
-  readonly status: ReportStepStatus;
+  readonly status: ReportTestStatus;
   readonly durationMs: number;
   readonly stepCount: number;
   readonly frameCount: number;
-  /** SPA path relative to bucket+run, e.g. `/t/auth-login-logout`. */
-  readonly path: string;
-  readonly system?: string;
-  readonly runtime?: string;
+  readonly system: string;
+  readonly runtime: string;
+  readonly sourceFile?: string;
+  readonly error?: string;
 };
 
 export type SuiteManifest = {
@@ -84,7 +100,7 @@ export type SuiteManifest = {
 export type RunSummary = {
   readonly id: string;
   readonly updatedAtMs: number;
-  readonly status: ReportStepStatus;
+  readonly status: ReportTestStatus;
   readonly testCount: number;
   readonly frameCount: number;
 };
@@ -122,6 +138,8 @@ export type RunReportOptions = {
    * Default: sanitized system name.
    */
   readonly testId?: string;
+  /** Human title shown in reports. Default: `testId`. */
+  readonly title?: string;
   /**
    * Epoch-ms clock for step timestamps. Default: session clock.
    */
@@ -133,14 +151,9 @@ export type RunReportOptions = {
   readonly capture?: ReportCaptureMode;
   /** Repo-relative path to the test source file when known. */
   readonly sourceFile?: string;
+  /** 1-based source line of the call that opened the run, when known. */
+  readonly sourceLine?: number;
 };
-
-/** Reserved SPA alias for “follow newest run”; never mint this as a real run id. */
-export const LATEST_RUN_ID = 'latest';
-
-export function isLatestRunId(id: string | null | undefined): boolean {
-  return id === LATEST_RUN_ID;
-}
 
 export function sanitizeTestId(raw: string): string {
   const cleaned = raw.replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '');
@@ -149,7 +162,6 @@ export function sanitizeTestId(raw: string): string {
 
 export function sanitizeRunId(raw: string): string {
   const cleaned = raw.replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '');
-  if (cleaned === LATEST_RUN_ID) return 'latest_run';
   return cleaned.length > 0 ? cleaned : 'run';
 }
 
@@ -171,15 +183,6 @@ export function resolveReportOptions(
   if (report === undefined || report === false) return null;
   if (report === true) return { enabled: true };
   if (report.enabled === false) return null;
-  return {
-    enabled: true,
-    ...(report.store !== undefined ? { store: report.store } : {}),
-    ...(report.runId !== undefined ? { runId: report.runId } : {}),
-    ...(report.testId !== undefined ? { testId: report.testId } : {}),
-    ...(report.now !== undefined ? { now: report.now } : {}),
-    ...(report.capture !== undefined ? { capture: report.capture } : {}),
-    ...(report.sourceFile !== undefined
-      ? { sourceFile: report.sourceFile }
-      : {}),
-  };
+  const { enabled: _enabled, ...rest } = report;
+  return { enabled: true, ...rest };
 }

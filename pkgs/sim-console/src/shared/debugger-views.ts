@@ -1,6 +1,6 @@
 /**
- * Shared debugger view ids (simulator + tests).
- * Persisted report aliases: html → ui, sqlite → db, logs → events.
+ * Debugger view ids for simulator chrome.
+ * URL aliases: html → ui, sqlite → db, logs → events.
  */
 
 import { coerceSimChromeKind, type SimChromeKind } from './sim-node';

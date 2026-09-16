@@ -2,15 +2,16 @@
   "name": "@pkgs/sql-client-sqlite-web",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./vite": "./scripts/sqlite-web-assets.ts",
     "./*": [
       "./src/*.ts",
       "./src/*/index.ts"
     ]
   },
   "scripts": {
-    "build:web-workers": "bun ./scripts/build-web-workers.ts",
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/e2e/**'",
@@ -33,6 +34,7 @@
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
     "happy-dom": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

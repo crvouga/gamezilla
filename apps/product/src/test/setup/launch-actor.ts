@@ -5,64 +5,17 @@
 import type { ProductUi, Sim, SimActor } from '@apps/product/sim';
 import { simClientNamespace } from '@apps/product/sim';
 import { wallClock } from '@pkgs/clock';
-import { writeUtf8 } from '@pkgs/object-store/helpers';
-import type { ObjectStore } from '@pkgs/object-store/interface';
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { resolveSimConsoleProductTestsDir } from '@pkgs/sim-console/local-data-dir';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import { wallPathExists } from '@pkgs/sim-console/wall-path-exists';
-import type { Driver } from '@pkgs/ui-testing';
+import type { Driver, StepRecorder } from '@pkgs/ui-testing';
+import { recordingDriver } from '@pkgs/ui-testing';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
 import {
   createSolidDomDriver,
   type MultiAppSolidDomSession,
-  SNAPSHOT_SHELL_CSS,
 } from '@pkgs/ui-testing-solid-dom';
 import { createSimWaitPump } from '../../sim/setup/sim-wait-pump';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
-
-const reportFs = wallNodeFs();
-const reportDataDir = resolveSimConsoleProductTestsDir(
-  process.cwd(),
-  wallPathExists
-);
-const reportStore = createNodeFsObjectStore({
-  rootDir: reportDataDir,
-  fs: reportFs,
-  layout: 'tree',
-});
-
-export const STATIC_REPORT_RUN_ID = 'latest_run';
-
-export function simReportEnabled(): boolean {
-  return process.env['SIM_REPORT'] !== '0';
-}
-
-export function getReportStore(): ObjectStore {
-  return reportStore;
-}
-
-export async function prepareReportStore(): Promise<void> {
-  await reportFs.mkdir(reportDataDir, { recursive: true });
-  await writeUtf8(
-    reportStore,
-    `runs/${STATIC_REPORT_RUN_ID}/snapshot-shell.css`,
-    SNAPSHOT_SHELL_CSS,
-    'text/css; charset=utf-8'
-  );
-}
-
-export async function writeKeysIndex(): Promise<void> {
-  const keys = await reportStore.listKeys();
-  await writeUtf8(
-    reportStore,
-    'keys.json',
-    JSON.stringify(keys),
-    'application/json'
-  );
-}
 
 export type ActorEntry = {
   readonly handle: SimActor;
@@ -104,6 +57,8 @@ export async function launchActor(args: {
   readonly sim: Sim;
   readonly id: string;
   readonly snapshot?: SimSystemSnapshot;
+  /** When set, every driver op becomes a report step for this actor. */
+  readonly recorder?: StepRecorder;
 }): Promise<ActorEntry> {
   let raw: Driver;
   let closeResources: () => Promise<void> = () => Promise.resolve();
@@ -148,8 +103,12 @@ export async function launchActor(args: {
     });
     await raw.launch();
   }
+  const ui =
+    args.recorder !== undefined
+      ? recordingDriver(raw, { recorder: args.recorder, actorId: args.id })
+      : raw;
   return {
-    handle: { id: args.id, ui: raw },
+    handle: { id: args.id, ui },
     raw,
     closeResources,
   };
@@ -167,5 +126,3 @@ export async function closeActorEntry(entry: ActorEntry): Promise<void> {
     // ignore teardown races
   }
 }
-
-export { reportDataDir, reportFs };

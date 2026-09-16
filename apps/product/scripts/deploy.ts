@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 /**
- * Super-app deploy: Vite build of `@apps/product` (App at `/`, console at `/console`) → Cloudflare assets Worker on gamezilla.app / www. Deletes the retired console Worker scripts on prd apply.
+ * Super-app deploy: Vite build of `@apps/product` (App at `/`, Simulator at `/simulator`) → Cloudflare assets Worker on gamezilla.app / www. Deletes the retired console Worker scripts on prd apply.
  */
 import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -161,12 +161,12 @@ async function deploy(dryRun: boolean): Promise<void> {
   deleteRetiredWorkerScripts();
 
   await waitForHttp(productionClientOrigin(), { label: 'Client' });
-  await waitForHttp(`${productionClientOrigin()}/console`, {
-    label: 'Console',
+  await waitForHttp(`${productionClientOrigin()}/simulator`, {
+    label: 'Simulator',
   });
 
   log.info(
-    `Super-app Worker deployed (${PRODUCT_CONFIG.cloudflare.clientWorker}) on gamezilla.app / www.gamezilla.app (App + /console).`
+    `Super-app Worker deployed (${PRODUCT_CONFIG.cloudflare.clientWorker}) on gamezilla.app / www.gamezilla.app (App + /simulator).`
   );
 }
 

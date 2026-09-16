@@ -12,8 +12,8 @@
 import { useLingui } from '@lingui/solid/macro';
 import {
   type Command,
-  FlaskConicalIcon,
   GaugeIcon,
+  MonitorPlayIcon,
   PaintbrushIcon,
   useRegisterCommands,
   useRouter,
@@ -43,8 +43,8 @@ const NAV_TARGETS: readonly {
   { href: '/ui', title: 'UI explorer' },
 ];
 
-/** Super-app Tests + Simulator chrome (`apps/product`); not an in-app route. */
-const CONSOLE_PATH = '/console';
+/** Super-app Simulator screen (`apps/product`), a sibling of the app. */
+const SIMULATOR_PATH = '/simulator';
 
 function NavigationCommands(): JSX.Element {
   const { t } = useLingui();
@@ -62,15 +62,15 @@ function NavigationCommands(): JSX.Element {
       })
     ),
     {
-      id: `nav:${CONSOLE_PATH}`,
-      title: t`Go to Console`,
+      id: `nav:${SIMULATOR_PATH}`,
+      title: t`Open Simulator`,
       category: t`Navigation`,
-      icon: FlaskConicalIcon,
-      keywords: [t`tests`, t`simulator`, t`dev`],
-      // Embedded simulator panels share the page with the console host.
+      icon: MonitorPlayIcon,
+      keywords: [t`simulator`, t`sim`, t`dev`, t`debug`],
+      // Embedded actors already live inside the simulator.
       visible: !embedded,
       run: () => {
-        window.location.assign(CONSOLE_PATH);
+        window.location.assign(SIMULATOR_PATH);
       },
     },
   ]);

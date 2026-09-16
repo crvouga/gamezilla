@@ -59,6 +59,7 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
   let pinned: ProductSim | null = null;
   const capture = defineAction({
     name: 'bootProductSimulator.pinSim',
+    report: false,
     act: (surface: ProductSim) => {
       pinned = surface;
     },

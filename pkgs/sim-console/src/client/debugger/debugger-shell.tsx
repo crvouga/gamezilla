@@ -7,8 +7,6 @@ import {
   debuggerInstanceTabItem,
   debuggerViewTabItem,
 } from '../debugger-chrome';
-import type { FlatFrame } from '../frames';
-import { PlayerStrip } from '../player-strip';
 import {
   showDebuggerInstanceTabs,
   useSimConsoleLayout,
@@ -32,13 +30,8 @@ export type DebuggerShellProps = {
   readonly unifiedNodes?: readonly TabStripItem[];
   readonly selectedNode?: string;
   readonly onNodeChange?: (id: string) => void;
-  /** When false, hide the frame player (product-simulator). Default true. */
-  readonly showPlayer?: boolean;
-  /** Fires on pointer-down on player / tab chrome (not the pane body). */
+  /** Fires on pointer-down on tab chrome (not the pane body). */
   readonly onChromePointerDown?: () => void;
-  readonly frames: readonly FlatFrame[];
-  readonly selectedFrameIndex: number;
-  readonly onSelectFrame: (index: number) => void;
   readonly kind: SimChromeKind;
   readonly onKindChange: (kind: SimChromeKind) => void;
   readonly instances: readonly DebuggerInstance[];
@@ -51,10 +44,7 @@ export type DebuggerShellProps = {
 };
 
 export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
-  const props = mergeProps(
-    { kindTabs: DEBUGGER_KIND_TABS, showPlayer: true },
-    input
-  );
+  const props = mergeProps({ kindTabs: DEBUGGER_KIND_TABS }, input);
   const layout = useSimConsoleLayout();
   const showInstances = () =>
     showDebuggerInstanceTabs({
@@ -67,13 +57,6 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
     <div class="box" style={shellSx}>
       {props.header}
       <div class="box" onPointerDown={() => props.onChromePointerDown?.()}>
-        {props.showPlayer ? (
-          <PlayerStrip
-            frames={props.frames}
-            selectedIndex={Math.max(0, props.selectedFrameIndex)}
-            onSelect={props.onSelectFrame}
-          />
-        ) : null}
         {layout.compactChrome &&
         props.kindTrailing !== undefined &&
         props.unifiedNodes === undefined ? (

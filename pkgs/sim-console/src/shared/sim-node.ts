@@ -1,5 +1,5 @@
 /**
- * System-aligned node kinds for console chrome (simulator + tests).
+ * System-aligned node kinds for simulator console chrome.
  * Addresses are `kind` or `kind:instanceId` (`client:alice`, `room:<topic>`).
  */
 

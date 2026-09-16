@@ -6,7 +6,6 @@ import {
   defineSnapshot,
   defineSystem,
 } from '@pkgs/sim';
-import { projectReportTopology } from '@pkgs/sim-console';
 import { noErrorBoundary } from '@pkgs/ui-testing/explore';
 import { createSimIds } from '@pkgs/uuid';
 
@@ -29,8 +28,6 @@ import { productServerActions } from './server-actions';
 import { createProductSim, type ProductSim, productExtra } from './sim';
 
 export { nextPuzzleDifferent } from './chess-properties';
-
-const FRAME_STYLESHEET_HREF = '../../snapshot-shell.css';
 
 function extraOf(session: { readonly ports: object }): ProductExtra {
   return session.ports as ProductExtra;
@@ -79,9 +76,7 @@ async function captureActorHtml(
 ): Promise<Record<string, string> | null> {
   const extra = extraOf(s.session);
   if (extra.ui.kind === 'solid-dom' && extra.ui.session !== undefined) {
-    const snapshots = await extra.ui.session.snapshotAllActors({
-      stylesheetHref: FRAME_STYLESHEET_HREF,
-    });
+    const snapshots = await extra.ui.session.snapshotAllActors();
     if (snapshots.size === 0) return null;
     return Object.fromEntries(snapshots.entries());
   }
@@ -196,7 +191,7 @@ export const product = defineSystem<ProductSim>({
     }),
     defineSnapshot({
       name: 'topology',
-      capture: (s) => projectReportTopology(simReportTopology(s.sim), '1'),
+      capture: (s) => simReportTopology(s),
     }),
   ],
   async create(session) {

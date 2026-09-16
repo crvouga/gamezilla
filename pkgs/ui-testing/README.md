@@ -184,14 +184,29 @@ await driver.get('app-root').expect.visible();
 `pump` (sim virtual clock) instead of `findBy` / wall 50ms sleeps. Public options
 are only `timeoutMs` / `description` — no shared poll interval.
 
-### UI snapshots for reports
+## Reporting (`@pkgs/ui-testing/report`)
+
+Reporting is first-class: a harness wraps each actor's driver and every
+user-intent op becomes a `@pkgs/sim` report step with its selector.
+
+```ts
+import { recordingDriver, type StepRecorder } from '@pkgs/ui-testing';
+
+const recorder: StepRecorder = { record: (meta, fn) => run.record(meta, fn) };
+const ui = recordingDriver(rawDriver, { recorder, actorId: 'alice' });
+await ui.get('modal').get('ok').tap(); // step: ui "tap" testId("modal") >> testId("ok")
+await ui.get('home').expect.visible(); // step: expect "expect visible" testId("home")
+```
+
+Reads (`isVisible`, `text`, `layout`, `snapshotHtml`) pass through unrecorded;
+explore `inventory` is forwarded. `UiOp` + `performUiOp` / `describeUiOp` are
+the data form of an op for explore walks and recordings.
 
 `Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
-produce a readable HTML preview of the current UI. Solid DOM serializes the
-live document (plus body-level portals). Pass `stylesheetHref` to link shared shell CSS
-instead of inlining it (used by `@pkgs/simulation` multi-frame reports).
-Reporting wraps waits with `pollFrames` on the simulation recorder (not a
-Driver poll hook).
+produce a readable HTML preview of the current UI (Solid DOM serializes the
+live document plus body-level portals). Systems expose it through
+`defineSnapshot({ media: 'html' })`; `@pkgs/sim` `writeHtmlReport` renders the
+frames into one standalone `index.html`.
 
 ## Adding a future driver (Maestro, Appium, Cypress, …)
 
@@ -213,6 +228,7 @@ pkgs/ui-testing/src/
   assertions/     shared expect* helpers for DriverNode implementations
   bootstrap/      AppHarness + RenderAdapter ports
   explore/        exploration helpers
+  report/         recordingDriver (ops → report steps), UiOp
 ```
 
 Drivers live in sibling packages: `@pkgs/ui-testing-solid-dom` (Solid in a

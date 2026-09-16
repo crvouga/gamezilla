@@ -1,7 +1,7 @@
 .cache/
 public/generated/
-public/product-tests/**
-!public/product-tests/.gitkeep
+# Standalone sim test report (bun run test:report)
+sim-report/
 
 # @pkgs/sql-client-sqlite-web build:web-workers outputs
 public/sql-workers/**/*.js

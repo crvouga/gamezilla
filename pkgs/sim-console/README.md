@@ -1,13 +1,14 @@
 # `@pkgs/sim-console`
 
-Capture sim/DST timelines into an ObjectStore and browse them in
-`@apps/product` (`SimConsoleApp`).
+Simulator screen for `@apps/product` (`/simulator`, a flat sibling of the app; enter via the app palette's "Open Simulator", leave via "Exit simulator"): multi-client
+columns, server / PubSub / Room panes, snapshot chrome, command palette, and
+the SQL notebook.
 
-- **Client:** `@pkgs/sim-console/client` — Solid UI (`Tests` / `Simulator`)
-- **Server:** `@pkgs/sim-console/server` — Hono factory mounted at `/sim-console` on `@apps/server` (MinIO / R2)
-- **Local report dumps (`bun run dev`):** `@apps/product` serves `<repo>/.cache/sim-console-data` on port `7789` so Jest UI sims appear in Tests
-- **Writer:** `@pkgs/sim-console` — `SimulationReporter` / `createReportingDriver` for DST
+- **Client:** `@pkgs/sim-console/client` — Solid UI (`SimConsoleApp`,
+  `ProductSimulatorScreen`, `SqlNotebookPane`)
+- **Ports:** `SimConsolePorts` — product app + product-simulator boot are
+  injected by `@apps/product`; this package never imports apps/libs/test.
 
-Product App and product-simulator boot are injected through `SimConsolePorts`
-(wired by `@apps/product`). Local artifacts land in
-`<repo>/.cache/sim-console-data` when writers use the local ObjectStore path helpers.
+Test reports are **not** browsed here. `@pkgs/sim` captures run timelines
+(`defineSnapshot` / `run({ report })`) and renders them to a standalone HTML
+file (`writeHtmlReport`); see `apps/product/src/test/setup/TESTING.md`.

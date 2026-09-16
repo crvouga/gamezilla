@@ -1,7 +1,6 @@
 /** Object-store key layout for one report bucket. */
 
 export const RUNS_INDEX_KEY = 'runs/index.json';
-export const GENERATION_KEY = 'runs/generation';
 
 export function runPrefix(runId: string): string {
   return `runs/${runId}`;
@@ -11,8 +10,12 @@ export function runManifestKey(runId: string): string {
   return `${runPrefix(runId)}/manifest.json`;
 }
 
+export function testPrefix(runId: string, testId: string): string {
+  return `${runPrefix(runId)}/tests/${testId}`;
+}
+
 export function testReportKey(runId: string, testId: string): string {
-  return `${runPrefix(runId)}/tests/${testId}/report.json`;
+  return `${testPrefix(runId, testId)}/report.json`;
 }
 
 export function testFrameKey(
@@ -21,7 +24,7 @@ export function testFrameKey(
   frameFile: string
 ): string {
   const rel = frameFile.replace(/^\/+/, '');
-  return `${runPrefix(runId)}/tests/${testId}/${rel}`;
+  return `${testPrefix(runId, testId)}/${rel}`;
 }
 
 export function mediaExtension(media: string): string {

@@ -612,6 +612,10 @@ msgstr "Dark"
 msgid "day"
 msgstr "day"
 
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "debug"
+msgstr "debug"
+
 #: libs/friends/src/root/client/friend-request-decision-modal.tsx
 msgid "Decline"
 msgstr "Decline"
@@ -906,10 +910,6 @@ msgstr "Give your space a name"
 #: apps/client/src/shell/commands/app-commands.tsx
 msgid "Go to {0}"
 msgstr "Go to {0}"
-
-#: apps/client/src/shell/commands/app-commands.tsx
-msgid "Go to Console"
-msgstr "Go to Console"
 
 #: apps/client/src/routes/route-stub.tsx
 msgid "Go to Spaces"
@@ -1347,6 +1347,10 @@ msgstr "Open command palette"
 #: libs/spaces/src/root/client/card/space-card-open-link.tsx
 msgid "Open current space {0}"
 msgstr "Open current space {0}"
+
+#: apps/client/src/shell/commands/app-commands.tsx
+msgid "Open Simulator"
+msgstr "Open Simulator"
 
 #. placeholder {0}: resolvedTitle()
 #: libs/spaces/src/root/client/card/space-card-open-link.tsx
@@ -1866,6 +1870,10 @@ msgid "Signing out…"
 msgstr "Signing out…"
 
 #: apps/client/src/shell/commands/app-commands.tsx
+msgid "sim"
+msgstr "sim"
+
+#: apps/client/src/shell/commands/app-commands.tsx
 msgid "simulator"
 msgstr "simulator"
 
@@ -2055,10 +2063,6 @@ msgstr "Target rating"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Target rating: {0}"
 msgstr "Target rating: {0}"
-
-#: apps/client/src/shell/commands/app-commands.tsx
-msgid "tests"
-msgstr "tests"
 
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Text to speech"
