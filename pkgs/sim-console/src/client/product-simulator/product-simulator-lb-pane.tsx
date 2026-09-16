@@ -36,7 +36,11 @@ function BackendRow(props: {
 }) {
   return (
     <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px] border-b border-border">
-      <StatusDot status={props.reachable ? 'online' : 'offline'} />
+      <StatusDot
+        status={props.reachable ? 'online' : 'offline'}
+        size={8}
+        label={props.reachable ? 'reachable' : 'unreachable'}
+      />
       <p class="text flex-1 text-text text-[12px] [font-family:mono]">
         {props.id}
       </p>

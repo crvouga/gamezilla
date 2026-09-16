@@ -44,6 +44,7 @@ import {
   resolveProductSimulatorPane,
 } from './product-simulator-kind-pane';
 import { ProductSimulatorSnapshotChrome } from './product-simulator-snapshot-chrome';
+import { ProductSimulatorTopologyChrome } from './product-simulator-topology-chrome';
 import { selectUnifiedNode } from './select-unified-node';
 import type { ProductSimulatorSessionState } from './use-product-simulator-session';
 
@@ -156,32 +157,39 @@ function ProductSimulatorClientColumnShell(
   );
 }
 
-/** Clients always listed — not kind-scoped instances (tabs vanish otherwise). */
+/**
+ * Clients always listed — not kind-scoped instances (tabs vanish otherwise).
+ * The strip mirrors the request path: clients, the balancer, each API
+ * instance, pubsub, then live rooms.
+ */
 function productSimulatorUnifiedNodes(
   session: ProductSimulatorSession,
   clients: readonly ProductSimulatorActor[]
 ) {
-  const clientNodes = clients.map((actor) =>
-    debuggerInstanceTabItem({ id: actor.id, kind: 'client' })
-  );
-  const fixed = [
-    { id: 'server', kind: 'server' },
+  const nodes = [
+    ...clients.map((actor) => ({ id: actor.id, kind: 'client' })),
+    { id: session.loadBalancer.id, kind: 'lb' },
+    ...[...session.servers.values()].map((server) => ({
+      id: server.id,
+      kind: 'server',
+    })),
     { id: 'events', kind: 'events' },
     ...[...session.rooms.values()].map((room) => ({
       id: room.id,
-      kind: 'room' as const,
+      kind: 'room',
     })),
   ];
-  return [...clientNodes, ...fixed.map(debuggerInstanceTabItem)];
+  return nodes.map(debuggerInstanceTabItem);
 }
 
 function selectedUnifiedNodeId(
   current: SimChromeKind,
   instanceId: string | null
 ): string | null {
-  if (current === 'client' || current === 'room') return instanceId;
+  if (current === 'client' || current === 'room' || current === 'server') {
+    return instanceId;
+  }
   if (current === 'events') return 'events';
-  if (current === 'server') return 'server';
   return current;
 }
 
@@ -248,7 +256,17 @@ function ReadyProductSimulatorScreen(props: {
         instanceId={instanceId}
         unifiedNodes={unifiedNodes}
         selectedNode={selectedNode}
-        onUnifiedNodeChange={(id) => selectUnifiedNode(props, clients(), id)}
+        onUnifiedNodeChange={(id) =>
+          selectUnifiedNode(
+            props,
+            {
+              clients: clients(),
+              servers: [...props.session.servers.values()],
+              loadBalancerId: props.session.loadBalancer.id,
+            },
+            id
+          )
+        }
         views={views}
         shellPane={shellPane}
         shellPaneKey={shellPaneKey}
@@ -289,7 +307,12 @@ function ProductSimulatorDebuggerShell(props: {
       selectedFrameIndex={0}
       onSelectFrame={() => undefined}
       onChromePointerDown={props.clearClientFocus}
-      kindTrailing={<ProductSimulatorSnapshotChrome session={props.session} />}
+      kindTrailing={
+        <div class="box flex-row items-center gap-1 min-w-[0]">
+          <ProductSimulatorTopologyChrome session={props.session} />
+          <ProductSimulatorSnapshotChrome session={props.session} />
+        </div>
+      }
       kind={props.kind()}
       onKindChange={props.chrome.onKindChange}
       unifiedNodes={props.unifiedNodes()}

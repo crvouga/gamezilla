@@ -10,6 +10,7 @@ import type {
   ProductSimulatorActor,
   ProductSimulatorRoomNode,
   ProductSimulatorSession,
+  ProductSimulatorSqlNode,
 } from '../../shared/ports';
 import type { SimChromeKind } from '../../shared/sim-node';
 import { DebuggerColumn, DebuggerColumns } from '../debugger/debugger-columns';
@@ -17,6 +18,7 @@ import { useSimConsoleLayout } from '../debugger/use-sim-console-layout';
 import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
 import {
   ClientProductSimulatorPanel,
+  LoadBalancerProductSimulatorPanel,
   PubSubProductSimulatorPanel,
   RoomProductSimulatorPanel,
   ServerProductSimulatorPanel,
@@ -60,7 +62,13 @@ export function productSimulatorInstancesForKind(
     }));
   }
   if (kind === 'server') {
-    return [{ id: session.server.id, kind: 'server' }];
+    return [...session.servers.values()].map((server) => ({
+      id: server.id,
+      kind: 'server',
+    }));
+  }
+  if (kind === 'lb') {
+    return [{ id: session.loadBalancer.id, kind: 'lb' }];
   }
   return [{ id: session.pubsub.id, kind: 'events' }];
 }
@@ -86,7 +94,7 @@ export function resolveProductSimulatorPane(
       view: coerceDebuggerView(kind, direct.view),
     };
   }
-  if ((kind === 'server' || kind === 'events') && panes[kind] !== undefined) {
+  if ((kind === 'lb' || kind === 'events') && panes[kind] !== undefined) {
     const byKind = panes[kind]!;
     return {
       view: coerceDebuggerView(kind, byKind.view),
@@ -99,7 +107,9 @@ export function productSimulatorPaneKey(
   kind: SimChromeKind,
   instanceId: string | null
 ): string {
-  if (kind === 'server' || kind === 'events') return kind;
+  if (kind === 'lb' || kind === 'events') return kind;
+  // Server panes are per instance — each instance keeps its own view.
+  if (kind === 'server') return `server:${instanceId ?? ''}`;
   return instanceId ?? '';
 }
 
@@ -121,8 +131,9 @@ export function ProductSimulatorKindPane(props: {
   readonly clientColumnShell?: ProductSimulatorClientColumnShell;
 }): JSX.Element {
   const room = () => resolveRoom(props.session, props.instanceId);
+  const server = () => resolveServer(props.session, props.instanceId);
   const serverPaneKey = () =>
-    productSimulatorPaneKey('server', props.session.server.id);
+    productSimulatorPaneKey('server', server()?.id ?? null);
   const eventsPaneKey = () =>
     productSimulatorPaneKey('events', props.session.pubsub.id);
   const roomPaneKey = () => {
@@ -150,19 +161,33 @@ export function ProductSimulatorKindPane(props: {
             : {})}
         />
       </div>
-      <div class="box" style={kindVisibilitySx(props.kind === 'server')}>
-        <ServerProductSimulatorPanel
+      <div class="box" style={kindVisibilitySx(props.kind === 'lb')}>
+        <LoadBalancerProductSimulatorPanel
           session={props.session}
-          node={props.session.server}
-          pane={resolveProductSimulatorPane(
-            props.panes,
-            serverPaneKey(),
-            'server'
-          )}
-          onPanePatch={(patch, mode) =>
-            props.onPanePatch(serverPaneKey(), patch, mode)
-          }
+          loadBalancer={props.session.loadBalancer}
+          pane={resolveProductSimulatorPane(props.panes, 'lb', 'lb')}
         />
+      </div>
+      <div class="box" style={kindVisibilitySx(props.kind === 'server')}>
+        <Show
+          when={server()}
+          fallback={<EmptyKind body="No server instances in this session." />}
+        >
+          {(resolvedServer) => (
+            <ServerProductSimulatorPanel
+              session={props.session}
+              node={resolvedServer()}
+              pane={resolveProductSimulatorPane(
+                props.panes,
+                serverPaneKey(),
+                'server'
+              )}
+              onPanePatch={(patch, mode) =>
+                props.onPanePatch(serverPaneKey(), patch, mode)
+              }
+            />
+          )}
+        </Show>
       </div>
       <div class="box" style={kindVisibilitySx(props.kind === 'events')}>
         <PubSubProductSimulatorPanel
@@ -208,6 +233,16 @@ export function productSimulatorViewForKind(
   raw: string
 ): DebuggerViewId {
   return coerceDebuggerView(kind, raw);
+}
+
+function resolveServer(
+  session: ProductSimulatorSession,
+  instanceId: string | null
+): ProductSimulatorSqlNode | null {
+  const servers = [...session.servers.values()];
+  if (servers.length === 0) return null;
+  if (instanceId === null) return servers[0] ?? null;
+  return servers.find((s) => s.id === instanceId) ?? servers[0] ?? null;
 }
 
 function resolveRoom(
