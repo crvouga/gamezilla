@@ -24,6 +24,7 @@ import { nextPuzzleDifferent } from './chess-properties';
 import { anyActor } from './observations';
 import { captureSnapshot, devOauthSignIn } from './probes';
 import { productScenarioActions } from './scenario-actions';
+import { productServerActions } from './server-actions';
 import { createProductSim, type ProductSim, productExtra } from './sim';
 
 export { nextPuzzleDifferent } from './chess-properties';
@@ -147,9 +148,10 @@ export const searchDoesNotHang = defineProperty({
 });
 
 /**
- * Product system: one sim (createSim + spawnServer) on the opened session.
- * UI actors spawn lazily via spawnActor. Hosts are registered runtimes:
- * `in-process` (default), `bun-webview`.
+ * Product system: one sim on the opened session, booted with a single API
+ * instance behind the round-robin load balancer. UI actors spawn lazily via
+ * spawnActor; `spawnServerNode` / `dropServerNode` resize the API fleet.
+ * Hosts are registered runtimes: `in-process` (default), `bun-webview`.
  */
 export const product = defineSystem<ProductSim>({
   name: 'sim.product',
@@ -178,6 +180,7 @@ export const product = defineSystem<ProductSim>({
     uiOp,
     devOauthSignIn,
     captureSnapshot,
+    ...productServerActions,
     ...productScenarioActions,
   ],
   snapshots: [

@@ -1,12 +1,11 @@
 import type { ClientEnv } from '@apps/client/shell/client-env';
 import { type Client, createClient } from '@apps/client/shell/create-client';
-import { createInMemoryClientPorts } from '@apps/client/shell/in-memory-client-ports';
 import {
   createRoomServer,
   type RoomServerApp,
 } from '@apps/room-server/app/create-room-server';
 import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
-import { createServer, type ServerEnv, serveFetch } from '@apps/server';
+import type { ServerEnv } from '@apps/server';
 import { loadAuthBootConfig } from '@apps/server/config/auth-boot';
 import {
   migrateSimPostgres,
@@ -14,16 +13,10 @@ import {
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
 } from '@apps/server/sim/migrate-sim-postgres';
-import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import { assert } from '@pkgs/assert';
-import {
-  createInProcessOpenAuthSession,
-  createNamespacedAuthClientStorage,
-} from '@pkgs/auth/client';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
@@ -32,26 +25,27 @@ import {
   createInMemoryPubSub,
 } from '@pkgs/pubsub/in-memory';
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
-import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
-import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
-import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
-import { serializeFetch } from './sim-fetch';
+import { bumpSimClientEpoch } from './sim-client-namespace';
+import { makeSimClientEnv } from './sim-client-env';
+import {
+  createSimLoadBalancer,
+  type SimLoadBalancer,
+} from './sim-load-balancer';
 import { createSimNet } from './sim-net';
 import {
-  handleBoundSqlClient,
-  openFreshSimClientSql,
+  createSimServerNodes,
+  type Server,
+  SIM_PRIMARY_SERVER_ID,
+  type SimServerNodes,
+} from './sim-server-nodes';
+import {
   openFreshSimServerSql,
   openSimServerSqlFromSeedBytes,
   type SimSql,
   sharedSqlClient,
 } from './sim-sql';
-
-function hasWebLocalStorage(): boolean {
-  return typeof globalThis.localStorage !== 'undefined';
-}
 
 export type CreateSimOptions = {
   /** Override virtual timers (hosts that need wall timers for a live UI). */
@@ -65,33 +59,40 @@ export type CreateSimOptions = {
   readonly serverSqlSeedBytes?: Uint8Array;
 };
 
-export type Server = Awaited<ReturnType<typeof createServer>>;
-
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 
 export type Sim = {
   readonly session: Session;
+  /** Primary instance env — the `clock` / `timers` / `createId` the console uses. */
   readonly server: ServerEnv;
   readonly clock: Clock;
   readonly scheduler: UnderlyingScheduler;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   /** Crash / partition coordinator for in-process + localhost HTTP hosts. */
   readonly net: ReturnType<typeof createSimNet>;
+  /** Round-robin ingress every client talks to. */
+  readonly loadBalancer: SimLoadBalancer;
   client(id: string): ClientEnv;
-  spawnServer(): Promise<Server>;
+  /** Boot an API instance. Default id `server`, then `server-2`, … */
+  spawnServer(id?: string): Promise<Server>;
+  /** Remove an API instance from the balancer rotation. */
+  dropServer(id: string): Promise<void>;
+  serverIds(): readonly string[];
+  serverEnv(id: string): ServerEnv | undefined;
   spawnClient(id: string, env?: ClientEnv): Client;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
   bumpClientEpoch(): void;
-  /** `'server'` or a client id. */
+  /** `'lb'`, a server instance id, or a client id. */
   crash(id: string): void;
   restart(id: string): void;
   partition(a: string, b: string): void;
   heal(a?: string, b?: string): void;
   /**
    * Wait until every in-flight (and queued) in-process server HTTP request
-   * settles. Virtual-time waits must call this after advancing so scripted
-   * polls cannot burn their budget while serialized Hono is still draining.
+   * settles, across all instances. Virtual-time waits must call this after
+   * advancing so scripted polls cannot burn their budget while serialized
+   * Hono is still draining.
    */
   drainServerFetch(): Promise<void>;
   dispose(): Promise<void>;
@@ -99,18 +100,6 @@ export type Sim = {
   readonly serverSql: SimSql;
   clientSql(id: string): SimSql | undefined;
 };
-
-let clientDurableEpoch = 0;
-
-/** Bump the process-wide client durable epoch (namespace isolation). */
-export function bumpSimClientEpoch(): number {
-  clientDurableEpoch += 1;
-  return clientDurableEpoch;
-}
-
-export function simClientNamespace(id: string): string {
-  return `sim_client_${id}_e${clientDurableEpoch}`;
-}
 
 function sessionSeed(session: Session): bigint {
   const rng = session.ports.rng as {
@@ -123,41 +112,71 @@ function portSql(session: Session): SimSql | undefined {
   return (session.ports as { readonly sql?: SimSql }).sql;
 }
 
-async function buildServerEnv(args: {
-  readonly session: Session;
-  readonly seed: bigint;
-  readonly timers: Timers;
-  readonly serverSql: SimSql;
-  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
-}): Promise<ServerEnv> {
-  const { session, seed, timers, serverSql, pubSubBus } = args;
-  const shared = sharedSqlClient(serverSql.sqlClient);
+/**
+ * Services a production fleet shares across API instances. Per-instance copies
+ * would hide shared-state bugs (a Kv write on one instance must be visible on
+ * the next request, whichever instance the balancer picks).
+ */
+type SharedServerServices = {
+  readonly kv: ServerEnv['kv'];
+  readonly blob: ServerEnv['blob'];
+  readonly billing: ServerEnv['billing'];
+  readonly tts: ServerEnv['tts'];
+  readonly llm: ServerEnv['llm'];
+  readonly secrets: ServerEnv['secrets'];
+  readonly auth: ServerEnv['auth'];
+  readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
+};
+
+async function buildSharedServerServices(
+  serverSql: SimSql
+): Promise<SharedServerServices> {
   const secrets = createRecordSecretStore({
     AUTH_SECRET: SIM_AUTH_SECRET,
     DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
   });
-  const auth = await loadAuthBootConfig({
-    secretStore: secrets,
-    apiUrlOverride: SIM_SERVER_URL,
-    secretsEnv: 'dev',
-  });
   return {
-    clock: session.ports.clock,
-    timers,
-    createId: session.ports.createId,
-    random: session.ports.random,
-    seed,
-    openSqlClient: () => Promise.resolve(shared),
-    events: createInMemoryPubSub({ bus: pubSubBus }),
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
     billing: new InMemoryBilling({ baseUrl: SIM_SERVER_URL }),
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,
-    observability: createNoopObservability('sim-server'),
-    auth,
+    auth: await loadAuthBootConfig({
+      secretStore: secrets,
+      apiUrlOverride: SIM_SERVER_URL,
+      secretsEnv: 'dev',
+    }),
+    sqlClient: sharedSqlClient(serverSql.sqlClient),
+  };
+}
+
+function buildServerEnv(args: {
+  readonly id: string;
+  readonly session: Session;
+  readonly seed: bigint;
+  readonly timers: Timers;
+  readonly shared: SharedServerServices;
+  readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
+}): ServerEnv {
+  const { id, session, seed, timers, shared, pubSubBus } = args;
+  return {
+    clock: session.ports.clock,
+    timers,
+    createId: session.ports.createId,
+    random: session.ports.random,
+    seed,
+    openSqlClient: () => Promise.resolve(shared.sqlClient),
+    events: createInMemoryPubSub({ bus: pubSubBus }),
+    kv: shared.kv,
+    blob: shared.blob,
+    billing: shared.billing,
+    tts: shared.tts,
+    llm: shared.llm,
+    secrets: shared.secrets,
+    observability: createNoopObservability(`sim-${id}`),
+    auth: shared.auth,
     secretsEnv: 'dev',
     serverUrl: SIM_SERVER_URL,
     skipDatabaseUrlPolicy: true,
@@ -191,7 +210,10 @@ type SimKernel = {
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   readonly serverSql: SimSql;
   readonly roomNode: RoomServerApp;
-  readonly serverEnv: ServerEnv;
+  readonly servers: SimServerNodes;
+  readonly loadBalancer: SimLoadBalancer;
+  readonly primaryEnv: ServerEnv;
+  readonly disposed: { value: boolean };
 };
 
 async function openServerSql(
@@ -231,14 +253,20 @@ async function bootSimKernel(
   });
   const pubSubBus = createInMemoryBus();
   const serverSql = await openServerSql(session, opts);
-  const roomServerEnv = buildRoomServerEnv({ session, seed, timers });
-  const roomNode = createRoomServer(roomServerEnv);
-  const serverEnv = await buildServerEnv({
-    session,
-    seed,
-    timers,
-    serverSql,
-    pubSubBus,
+  const shared = await buildSharedServerServices(serverSql);
+  const roomNode = createRoomServer(buildRoomServerEnv({ session, seed, timers }));
+  const disposed = { value: false };
+  const servers = createSimServerNodes({
+    buildEnv: (id) =>
+      Promise.resolve(
+        buildServerEnv({ id, session, seed, timers, shared, pubSubBus })
+      ),
+    disposed: () => disposed.value,
+  });
+  const loadBalancer = createSimLoadBalancer({
+    net,
+    now: () => session.ports.clock.now(),
+    listBackends: () => servers.backends(),
   });
   return {
     session,
@@ -248,153 +276,65 @@ async function bootSimKernel(
     pubSubBus,
     serverSql,
     roomNode,
-    serverEnv,
-  };
-}
-
-function makeSimClientEnv(
-  kernel: SimKernel,
-  args: {
-    readonly id: string;
-    readonly serverFetch: ClientEnv['server'];
-    readonly clientSql: Map<string, SimSql>;
-  }
-): ClientEnv {
-  const { session, seed, timers, net, pubSubBus, roomNode } = kernel;
-  const { id, serverFetch, clientSql } = args;
-  const ns = simClientNamespace(id);
-  let liveEvents: ReturnType<typeof createInMemoryPubSub> | null = null;
-  const createPubSub = (): ReturnType<typeof createInMemoryPubSub> => {
-    liveEvents?.close();
-    liveEvents = createInMemoryPubSub({ bus: pubSubBus });
-    return liveEvents;
-  };
-  liveEvents = createInMemoryPubSub({ bus: pubSubBus });
-  return {
-    clock: session.ports.clock,
-    timers,
-    createId: createSeededCreateId(
-      createSeededRng(`${seed.toString()}:client:${ns}`).random
-    ),
-    random: session.ports.random,
-    seed,
-    server: net.wrapServerHttp(id, serverFetch),
-    get events() {
-      assert.defined(liveEvents, 'sim client events');
-      return liveEvents;
-    },
-    createPubSub,
-    openSqlClient: async () => {
-      let handle = clientSql.get(id);
-      if (handle === undefined) {
-        handle = await openFreshSimClientSql(
-          `sim_client_${id}`,
-          session.ports.clock
-        );
-        clientSql.set(id, handle);
-      }
-      return handleBoundSqlClient(handle);
-    },
-    kv: hasWebLocalStorage()
-      ? new KvImplWebNamespaced(ns)
-      : new KvImplInMemory(),
-    authStorage: createNamespacedAuthClientStorage(ns),
-    secureStorage: createSecureStorageStore(
-      hasWebLocalStorage()
-        ? createNamespacedWebSecureStorage(ns)
-        : createInMemorySecureStorage()
-    ),
-    room: (roomArgs) => {
-      net.assertReachable(id, 'server');
-      return roomNode.createTransport(roomArgs);
-    },
-    ...createInMemoryClientPorts(`sim-client:${id}`),
-    serverUrl: SIM_SERVER_URL,
-    authBaseURL: SIM_SERVER_URL,
-    authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,
-    openAuthSession: (() => {
-      const completeDevAuth = createInProcessOpenAuthSession({
-        fetch: (input, init) =>
-          net.wrapServerHttp(id, serverFetch)(input, init),
-        subject: id,
-      });
-      return async (authorizationUrl, callbackUrl) => {
-        const result = await completeDevAuth(authorizationUrl, callbackUrl);
-        if (result.type === 'success') {
-          // Dev IdP subject doubles as the sim actor username (alice/bob).
-          setPendingSignupUsername(id);
-        }
-        return result;
-      };
-    })(),
-    resolveDatabaseName: () => ns,
-    mutationSuccessHoldMs: 900,
+    servers,
+    loadBalancer,
+    primaryEnv: await servers.ensureEnv(SIM_PRIMARY_SERVER_ID),
+    disposed,
   };
 }
 
 async function disposeSim(args: {
-  disposed: { value: boolean };
-  liveClients: Map<string, Client>;
-  roomNode: RoomServerApp;
-  clientSql: Map<string, SimSql>;
-  serverSql: SimSql;
-  /** Wait for in-flight Hono work before closing the DB. */
-  drainServerFetch: () => Promise<void>;
-  /** Drop HTTP after clients close so late auth cannot hit a closed DB. */
-  stopServerFetch: () => void;
+  readonly kernel: SimKernel;
+  readonly liveClients: Map<string, Client>;
+  readonly clientSql: Map<string, SimSql>;
 }): Promise<void> {
-  if (args.disposed.value) return;
-  args.disposed.value = true;
+  const { kernel } = args;
+  if (kernel.disposed.value) return;
   // Close clients first so AuthBridge / session refresh stop scheduling work.
   for (const live of args.liveClients.values()) await live.close();
   args.liveClients.clear();
-  await args.drainServerFetch();
-  args.stopServerFetch();
-  args.roomNode.dispose();
+  await kernel.servers.drainAll();
+  // Drop HTTP after clients close so late auth cannot hit a closed DB.
+  kernel.disposed.value = true;
+  kernel.servers.stopAll();
+  kernel.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
-  await args.serverSql.disconnect();
+  await kernel.serverSql.disconnect();
 }
 
 function createSimHandle(kernel: SimKernel): Sim {
-  const { session, net, pubSubBus, serverSql, roomNode, serverEnv } = kernel;
+  const { session, net, pubSubBus, serverSql, roomNode, servers } = kernel;
   const clientSql = new Map<string, SimSql>();
   /** One env per id for the sim lifetime — seeded `createId` must not reset
    * while `clientSql` still holds mutation rows from the prior stream. */
   const clientEnvs = new Map<string, ClientEnv>();
   const liveClients = new Map<string, Client>();
-  const disposed = { value: false };
-  let rawServerFetch: ReturnType<typeof serveFetch> | null = null;
-  let hono: Server | null = null;
-  const serialized = serializeFetch(async (input, init) => {
-    if (disposed.value || rawServerFetch === null) {
-      throw new Error('createSim: server disposed or not spawned');
-    }
-    return rawServerFetch(input, init);
-  });
-  const serverFetch: ClientEnv['server'] = serialized.fetch;
   const client = (id: string): ClientEnv => {
     const cached = clientEnvs.get(id);
     if (cached !== undefined) return cached;
-    const env = makeSimClientEnv(kernel, { id, serverFetch, clientSql });
+    const env = makeSimClientEnv(kernel, { id, clientSql });
     clientEnvs.set(id, env);
     return env;
   };
   return {
     session,
-    server: serverEnv,
+    server: kernel.primaryEnv,
     clock: session.ports.clock,
     scheduler: session.scheduler.underlying,
     pubSubBus,
     net,
+    loadBalancer: kernel.loadBalancer,
     client,
-    async spawnServer() {
-      if (hono !== null) return hono;
-      const booted = await createServer(serverEnv);
-      hono = booted;
-      rawServerFetch = serveFetch((request) => booted.fetch(request));
-      return booted;
+    async spawnServer(id) {
+      const node = await servers.spawn(id);
+      // A respawned instance must not stay marked down from a prior crash.
+      net.restart(node.id);
+      return node.app;
     },
+    dropServer: (id) => servers.drop(id),
+    serverIds: () => servers.ids(),
+    serverEnv: (id) => servers.get(id)?.env,
     spawnClient(id, env = client(id)) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
@@ -428,21 +368,10 @@ function createSimHandle(kernel: SimKernel): Sim {
     heal: (a, b) => {
       net.heal(a, b);
     },
-    drainServerFetch: () => serialized.drain(),
+    drainServerFetch: () => servers.drainAll(),
     dispose: async () => {
       clientEnvs.clear();
-      await disposeSim({
-        disposed,
-        liveClients,
-        roomNode,
-        clientSql,
-        serverSql,
-        drainServerFetch: serialized.drain,
-        stopServerFetch: () => {
-          rawServerFetch = null;
-          hono = null;
-        },
-      });
+      await disposeSim({ kernel, liveClients, clientSql });
     },
     roomNode,
     serverSql,
@@ -453,6 +382,9 @@ function createSimHandle(kernel: SimKernel): Sim {
 /**
  * ProductSimulator + openSim fabric. Production never calls this.
  * Caller opens a {@link Session} (`virtualTimeRuntime` / `realTimeRuntime` / product host).
+ *
+ * Topology is dynamic: `spawnServer` / `dropServer` resize the API fleet behind
+ * the round-robin balancer, `spawnClient` / `dropClient` resize the client set.
  *
  * Bumps the client durable epoch so each sim gets a fresh
  * `sim_client_${id}_eN` secure-storage / auth namespace. Without this, a prior

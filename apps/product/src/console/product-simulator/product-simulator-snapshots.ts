@@ -39,7 +39,7 @@ export type SnapshotSessionCtx = CheckpointSessionCtx & {
 /** Fixed ObjectStore id overwritten by product-simulator sticky auto-save. */
 export const PRODUCT_SIMULATOR_STICKY_SNAPSHOT_ID = 'latest';
 
-const MANIFEST_VERSION = 2 as const;
+const MANIFEST_VERSION = 3 as const;
 
 function slugLabel(label: string | undefined, now: number): string {
   const trimmed = label?.trim() ?? '';
@@ -241,6 +241,7 @@ function manifestFromCheckpoint(args: {
     clockMs: checkpoint.clockMs,
     clockPaused: checkpoint.clockPaused,
     clientIds: [...checkpoint.clientIds],
+    serverIds: [...checkpoint.serverIds],
     roomTopics: [...checkpoint.roomTopics],
     partitions: [...checkpoint.partitions],
     skewByAddress: { ...checkpoint.skewByAddress },
@@ -289,6 +290,7 @@ async function checkpointFromStore(
     clockPaused: manifest.clockPaused,
     localSchemaVersion: manifest.localSchemaVersion,
     clientIds: manifest.clientIds,
+    serverIds: manifest.serverIds,
     roomTopics: manifest.roomTopics,
     partitions: manifest.partitions,
     skewByAddress: manifest.skewByAddress,
@@ -345,7 +347,7 @@ export async function loadProductSimulatorSnapshot(
     throw new Error(`snapshot '${snapshotId}' has an invalid manifest`);
   }
   const compat = snapshotCompatibility(manifest);
-  if (!compat.compatible || manifest.version !== 2) {
+  if (!compat.compatible || manifest.version !== 3) {
     throw new Error(
       compat.incompatibleReason ??
         `snapshot '${snapshotId}' is incompatible with the current schema`

@@ -5,6 +5,7 @@
 
 export const SIM_NODE_KINDS = [
   'client',
+  'lb',
   'server',
   'events',
   'room',
@@ -14,7 +15,13 @@ export const SIM_NODE_KINDS = [
 export type SimNodeKind = (typeof SIM_NODE_KINDS)[number];
 
 /** ProductSimulator kind tabs (DB is a pane under Server, not its own tab). */
-export const SIM_CHROME_KINDS = ['client', 'server', 'events', 'room'] as const;
+export const SIM_CHROME_KINDS = [
+  'client',
+  'lb',
+  'server',
+  'events',
+  'room',
+] as const;
 
 export type SimChromeKind = (typeof SIM_CHROME_KINDS)[number];
 
@@ -22,10 +29,13 @@ export const SIM_NODE_KIND_ALIASES: Readonly<Record<string, SimNodeKind>> = {
   api: 'server',
   pubsub: 'events',
   actor: 'room',
+  balancer: 'lb',
+  loadbalancer: 'lb',
 };
 
 export const SIM_NODE_LABELS: Readonly<Record<SimNodeKind, string>> = {
   client: 'Client',
+  lb: 'Balancer',
   server: 'Server',
   events: 'PubSub',
   room: 'Room server',
@@ -112,6 +122,7 @@ export function fallbackReportNodes(
   actorIds: readonly string[]
 ): readonly FallbackReportNode[] {
   const out: FallbackReportNode[] = [
+    { id: 'lb', kind: 'lb', attributes: ['round-robin', 'ingress', 'egress'] },
     {
       id: 'server',
       kind: 'server',

@@ -24,6 +24,16 @@ export function clientIds(s: ProductSim): string[] {
   return [...s.actors.keys()];
 }
 
+/** Live API instance ids, in balancer rotation order. */
+export function serverIds(s: ProductSim): string[] {
+  return [...s.sim.serverIds()];
+}
+
+/** Round-robin balancer state (backends, per-backend counts, recent routes). */
+export function loadBalancer(s: ProductSim) {
+  return s.sim.loadBalancer.inspect();
+}
+
 export function actorIds(s: ProductSim): string[] {
   return [...s.actors.keys()];
 }

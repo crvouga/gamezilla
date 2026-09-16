@@ -4,6 +4,7 @@ import {
   type IconComponent,
   PaintbrushIcon,
   RadioIcon,
+  ShuffleIcon,
   type TabStripItem,
   TerminalIcon,
 } from '@pkgs/ui';
@@ -52,6 +53,7 @@ const VIEW_CHROME: Readonly<
   events: { label: 'Events', icon: RadioIcon },
   commands: { label: 'Commands', icon: TerminalIcon },
   topics: { label: 'Topics', icon: CodeIcon },
+  routes: { label: 'Routes', icon: ShuffleIcon },
 };
 
 export const DEBUGGER_KIND_TABS: readonly TabStripItem[] = SIM_CHROME_KINDS.map(

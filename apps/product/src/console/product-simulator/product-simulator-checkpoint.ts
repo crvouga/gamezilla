@@ -12,6 +12,7 @@ import {
   resetSimClock,
   restoreCheckpointKv,
   restoreCheckpointRooms,
+  restoreCheckpointServers,
 } from '@apps/product/sim/fabric/checkpoint-state';
 import { getSimSqlEngines } from '@apps/product/sim/fabric/sim-sql-engines';
 import { awaitProductSimulatorMutationDrain } from '@apps/product/sim/fabric/snapshot-sync';
@@ -36,6 +37,7 @@ export async function captureCheckpoint(
     clockPaused: ctx.getClockPaused(),
     localSchemaVersion: getLocalSchemaTargetVersion(),
     clientIds,
+    serverIds: [...ctx.sim.serverIds()],
     roomTopics,
     ...collectFaultFields(ctx),
     sqlFormat: getSimSqlEngines().checkpointSqlFormat,
@@ -64,6 +66,7 @@ export async function restoreCheckpoint(
     await ctx.detachClientsForSnapshotLoad();
     await ctx.runQuiet(async () => {
       ctx.sim.bumpClientEpoch();
+      await restoreCheckpointServers(ctx, checkpoint);
       restoreCheckpointKv(checkpoint);
       await importCheckpointSql(ctx, checkpoint);
       await restoreCheckpointRooms(ctx, checkpoint);

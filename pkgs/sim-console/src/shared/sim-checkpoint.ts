@@ -23,6 +23,8 @@ export type SimCheckpoint = {
   readonly clockPaused: boolean;
   readonly localSchemaVersion: number;
   readonly clientIds: readonly string[];
+  /** API instance ids live at capture time (`server`, `server-2`, …). */
+  readonly serverIds: readonly string[];
   readonly roomTopics: readonly string[];
   readonly partitions: readonly string[];
   readonly skewByAddress: Readonly<Record<string, number>>;

@@ -151,11 +151,11 @@ async function isStructurallyValidSnapshot(
 }
 
 export function snapshotCompatibility(manifest: {
-  readonly version: 1 | 2;
+  readonly version: 1 | 2 | 3;
   readonly localSchemaVersion?: number;
 }): Pick<ProductSimulatorSnapshotInfo, 'compatible' | 'incompatibleReason'> {
   const required = getLocalSchemaTargetVersion();
-  if (manifest.version !== 2) {
+  if (manifest.version !== 3) {
     return {
       compatible: false,
       incompatibleReason: `schema v${String(required)} required, snapshot missing/legacy`,
@@ -172,7 +172,7 @@ export function snapshotCompatibility(manifest: {
 
 export function toSnapshotInfo(
   manifest: {
-    readonly version: 1 | 2;
+    readonly version: 1 | 2 | 3;
     readonly localSchemaVersion?: number;
     readonly id: string;
     readonly label: string;

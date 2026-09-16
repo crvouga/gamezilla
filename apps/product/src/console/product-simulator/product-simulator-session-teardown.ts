@@ -10,7 +10,9 @@ import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type {
   createProductSimulatorLogBuffer,
   ProductSimulatorActor,
+  ProductSimulatorLogBuffer,
   ProductSimulatorRoomNode,
+  ProductSimulatorSqlNode,
 } from '@pkgs/sim-console/client';
 
 export type SessionTeardownArgs = {
@@ -21,6 +23,10 @@ export type SessionTeardownArgs = {
 export type SessionMaps = {
   readonly clients: Map<string, ProductSimulatorActor>;
   readonly lives: Map<string, Client>;
+  /** API instances behind the balancer, in rotation order. */
+  readonly servers: Map<string, ProductSimulatorSqlNode>;
+  /** Per-instance request logs, kept across respawns of the same id. */
+  readonly serverLogs: Map<string, ProductSimulatorLogBuffer>;
   readonly rooms: Map<string, ProductSimulatorRoomNode>;
   readonly listeners: Set<() => void>;
   revision: number;

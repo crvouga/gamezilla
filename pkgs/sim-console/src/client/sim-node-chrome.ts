@@ -5,12 +5,14 @@ import {
   MonitorIcon,
   RadioIcon,
   ServerIcon,
+  ShuffleIcon,
 } from '@pkgs/ui';
 
 import type { SimNodeKind } from '../shared/sim-node';
 
 const NODE_ICONS: Readonly<Record<SimNodeKind, IconComponent>> = {
   client: MonitorIcon,
+  lb: ShuffleIcon,
   server: ServerIcon,
   events: RadioIcon,
   room: DoorOpenIcon,

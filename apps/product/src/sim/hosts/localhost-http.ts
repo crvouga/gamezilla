@@ -1,14 +1,16 @@
 /**
  * Loopback HTTP listener for the bun-webview product host.
- * Exposes the in-process Hono app on a real port so browser clients hit the wire.
+ * Exposes the sim load balancer on a real port so browser clients hit the wire
+ * and get round-robined across the live API instances.
  * Partition / crash stay on `createSimNet` at the coordinator.
  */
 
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
-import { simCrashedError } from '@apps/product/sim/fabric/sim-net';
 
 const DEFAULT_PORT = 8787;
 const ACTOR_HEADER = 'x-sim-actor';
+/** Caller id for wire requests that carry no actor header. */
+const BROWSER_INGRESS_ID = 'browser';
 
 export type SimHttpListener = {
   readonly apiUrl: string;
@@ -24,36 +26,33 @@ function partitionedResponse(err: unknown): Response {
 }
 
 function isSimNetFault(err: unknown): boolean {
-  if (!(err instanceof Error)) return false;
-  return err.name === 'SimPartitionedError' || err.name === 'SimCrashedError';
+  if (err instanceof Error) {
+    if (err.name === 'SimPartitionedError' || err.name === 'SimCrashedError') {
+      return true;
+    }
+  }
+  return (
+    err instanceof TypeError &&
+    (err.message.startsWith('sim partition:') ||
+      err.message.startsWith('sim crash:'))
+  );
 }
 
-/** Bind sim Hono to `127.0.0.1:<port>` (default 8787), gated by createSimNet. */
+/** Bind the sim balancer to `127.0.0.1:<port>` (default 8787). */
 export async function listenSimHttpServer(sim: Sim): Promise<SimHttpListener> {
-  const hono = await sim.spawnServer();
+  await sim.spawnServer();
   const port = Number(process.env['SIM_HTTP_PORT'] ?? DEFAULT_PORT);
   const server = Bun.serve({
     port,
     hostname: '127.0.0.1',
-    fetch(req) {
+    async fetch(req) {
+      const actorId = req.headers.get(ACTOR_HEADER);
+      const from =
+        actorId != null && actorId !== '' ? actorId : BROWSER_INGRESS_ID;
       try {
-        if (sim.net.isCrashed('server')) {
-          throw simCrashedError('server');
-        }
-        const actorId = req.headers.get(ACTOR_HEADER);
-        if (actorId != null && actorId !== '') {
-          sim.net.assertReachable(actorId, 'server');
-        }
-        return hono.fetch(req);
+        return await sim.loadBalancer.fetchFrom(from)(req);
       } catch (err) {
         if (isSimNetFault(err)) return partitionedResponse(err);
-        if (
-          err instanceof TypeError &&
-          (err.message.startsWith('sim partition:') ||
-            err.message.startsWith('sim crash:'))
-        ) {
-          return partitionedResponse(err);
-        }
         throw err;
       }
     },

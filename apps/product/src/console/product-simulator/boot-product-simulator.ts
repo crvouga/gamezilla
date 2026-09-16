@@ -103,7 +103,7 @@ export async function bootProductSimulatorSession(
   };
   const session = await buildProductSimulatorSession({
     sim,
-    serverLogs: createProductSimulatorLogBuffer(),
+    balancerLogs: createProductSimulatorLogBuffer(),
     pubsubLogs: createProductSimulatorLogBuffer(),
     roomLogs: createProductSimulatorLogBuffer(),
     snapshotStore: env.snapshotStore,

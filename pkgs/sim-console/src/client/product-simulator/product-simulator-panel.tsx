@@ -6,6 +6,7 @@ import {
 } from '../../shared/debugger-views';
 import type {
   ProductSimulatorActor,
+  ProductSimulatorLoadBalancerNode,
   ProductSimulatorPubSubNode,
   ProductSimulatorRoomNode,
   ProductSimulatorSession,
@@ -15,6 +16,7 @@ import type { PaneNavPatch, PaneNavValue } from '../debugger-chrome';
 import { SqlNotebookPane } from '../sql-notebook/sql-notebook-pane';
 import { ActorUrlFrame } from './actor-url-frame';
 import { ProductSimulatorCommandsPane } from './product-simulator-commands-pane';
+import { ProductSimulatorLoadBalancerPane } from './product-simulator-lb-pane';
 import { ProductSimulatorLogsPane } from './product-simulator-logs-pane';
 import { ProductSimulatorPubSubTopicsPane } from './product-simulator-pubsub-topics-pane';
 import { ProductSimulatorRoomDbPane } from './product-simulator-room-db-pane';
@@ -47,7 +49,7 @@ function ActorView(props: { readonly actor: ProductSimulatorActor }) {
 
 function resolvePane(
   pane: PaneNavValue | undefined,
-  kind: 'client' | 'server' | 'events' | 'room'
+  kind: 'client' | 'lb' | 'server' | 'events' | 'room'
 ): PaneNavValue {
   if (pane !== undefined) {
     return { view: coerceDebuggerView(kind, pane.view) };
@@ -125,6 +127,34 @@ export function ServerProductSimulatorPanel(props: {
         style={{ display: hiddenWhen(tab() === 'commands') }}
       >
         <ProductSimulatorCommandsPane session={props.session} />
+      </div>
+    </div>
+  );
+}
+
+export function LoadBalancerProductSimulatorPanel(props: {
+  readonly session: ProductSimulatorSession;
+  readonly loadBalancer: ProductSimulatorLoadBalancerNode;
+  readonly pane: PaneNavValue | undefined;
+}) {
+  const pane = () => resolvePane(props.pane, 'lb');
+  const tab = () => pane().view;
+  return (
+    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'routes') }}
+      >
+        <ProductSimulatorLoadBalancerPane
+          loadBalancer={props.loadBalancer}
+          subscribe={props.session.subscribe}
+        />
+      </div>
+      <div
+        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        style={{ display: hiddenWhen(tab() === 'events') }}
+      >
+        <ProductSimulatorLogsPane logs={props.loadBalancer.logs} />
       </div>
     </div>
   );

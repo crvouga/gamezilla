@@ -15,7 +15,7 @@ export const productSimulatorSnapshotInfoSchema = z.object({
   totalBytes: z.number().finite().nonnegative().optional(),
 });
 
-const productSimulatorSnapshotManifestShared = {
+const productSimulatorSnapshotManifestLegacyShared = {
   id: z.string().min(1),
   label: z.string().min(1),
   createdAtMs: z.number().finite(),
@@ -35,19 +35,28 @@ const productSimulatorSnapshotManifestShared = {
   }),
 } as const;
 
-/** Legacy manifests (pre schema-gate). Treated as incompatible at load. */
+/** Legacy manifests (pre dynamic-topology). Treated as incompatible at load. */
 export const productSimulatorSnapshotManifestV1Schema = z.object({
   version: z.literal(1),
-  ...productSimulatorSnapshotManifestShared,
+  ...productSimulatorSnapshotManifestLegacyShared,
 });
 
 export const productSimulatorSnapshotManifestV2Schema = z.object({
   version: z.literal(2),
   localSchemaVersion: z.number().int(),
-  ...productSimulatorSnapshotManifestShared,
+  ...productSimulatorSnapshotManifestLegacyShared,
+});
+
+/** Current: records the API fleet shape alongside the client set. */
+export const productSimulatorSnapshotManifestV3Schema = z.object({
+  version: z.literal(3),
+  localSchemaVersion: z.number().int(),
+  ...productSimulatorSnapshotManifestLegacyShared,
+  serverIds: z.array(z.string()),
 });
 
 export const productSimulatorSnapshotManifestSchema = z.union([
+  productSimulatorSnapshotManifestV3Schema,
   productSimulatorSnapshotManifestV2Schema,
   productSimulatorSnapshotManifestV1Schema,
 ]);
