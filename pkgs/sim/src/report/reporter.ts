@@ -229,6 +229,7 @@ export class RunReporter {
       ...(meta.actorId !== undefined ? { actorId: meta.actorId } : {}),
       ...(meta.selector !== undefined ? { selector: meta.selector } : {}),
       ...(meta.detail !== undefined ? { detail: meta.detail } : {}),
+      ...(meta.hit !== undefined ? { hit: meta.hit } : {}),
       ...(meta.action !== undefined ? { action: meta.action } : {}),
       ...(meta.args !== undefined ? { args: meta.args } : {}),
       ...(outcome.cause !== undefined

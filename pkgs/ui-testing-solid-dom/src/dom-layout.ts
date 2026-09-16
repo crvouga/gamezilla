@@ -67,7 +67,9 @@ function installRect(element: Element, layout: ElementLayout): void {
     configurable: true,
     value: () => rect,
   });
-  element.dispatchEvent(new Event(ELEMENT_LAYOUT_EVENT));
+  const view = element.ownerDocument?.defaultView;
+  const EventCtor = view?.Event ?? Event;
+  element.dispatchEvent(new EventCtor(ELEMENT_LAYOUT_EVENT));
 }
 
 /**
@@ -81,13 +83,29 @@ export function ensureElementLayout(
   provider: LayoutProvider
 ): ElementLayout {
   const measured = rectLayout(element);
-  if (measured !== null) return measured;
-  const layout = provider(element) ?? synthesizeLayout(element);
-  if (layout === null) {
+  const syn = provider(element) ?? synthesizeLayout(element);
+  if (syn === null) {
     throw new Error('solid-dom: layout synthesis returned null');
   }
-  installRect(element, layout);
-  return layout;
+  const inline = readInlineSize(element);
+  // Prefer explicit inline px when present (tree layout may have stubbed size).
+  if (inline !== null) {
+    const layout: ElementLayout = {
+      x: measured?.x ?? syn.x,
+      y: measured?.y ?? syn.y,
+      width: inline.width,
+      height: inline.height,
+    };
+    installRect(element, layout);
+    return layout;
+  }
+  if (measured !== null && measured.width > 0 && measured.height > 0) {
+    // Re-install so ELEMENT_LAYOUT_EVENT fires for size listeners.
+    installRect(element, measured);
+    return measured;
+  }
+  installRect(element, syn);
+  return syn;
 }
 
 /** Client-space point for a relative position inside `layout`. */

@@ -68,7 +68,7 @@ export function createSimNet(opts?: {
       }
       partitions.delete(pairKey(a, b));
     },
-    /** Gate one directed hop (`client → lb`, `lb → server-2`). */
+    /** Gate one directed hop (`client-a → lb`, `lb → server-b`). */
     wrapHop(fromId: string, toId: string, inner: ServerHttp): ServerHttp {
       return async (input, init) => {
         assertReachable(fromId, toId);

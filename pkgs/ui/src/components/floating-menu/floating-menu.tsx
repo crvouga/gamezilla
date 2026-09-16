@@ -17,6 +17,7 @@
 import {
   createEffect,
   createMemo,
+  createSignal,
   createUniqueId,
   For,
   type JSX,
@@ -55,6 +56,9 @@ import {
 } from './floating-menu-position';
 
 export const FLOATING_MENU_DEFAULT_WIDTH = 260;
+
+/** Dispatched by sim layout synthesis when an element's box is installed. */
+const ELEMENT_LAYOUT_EVENT = 'ui-testing:element-layout';
 
 const NO_INSETS: FloatingMenuInsets = { top: 0, bottom: 0 };
 
@@ -192,8 +196,22 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
   const isTop = useIsTopSurface(surfaceId);
   const hostFrame = useSurfaceStackHostFrame();
   const layout = useThemeLayout();
-  // Measure on open only; a menu that outlives its trigger keeps its spot.
+  // Remeasure when sim layout synthesis updates the trigger box.
+  const [layoutEpoch, setLayoutEpoch] = createSignal(0);
+  createEffect(() => {
+    if (!props.open) return;
+    const anchor = props.anchor;
+    if (!(anchor instanceof Element)) return;
+    const bump = (): void => {
+      setLayoutEpoch((n) => n + 1);
+    };
+    anchor.addEventListener(ELEMENT_LAYOUT_EVENT, bump);
+    onCleanup(() => anchor.removeEventListener(ELEMENT_LAYOUT_EVENT, bump));
+  });
+  // Measure on open (and when layoutEpoch bumps); a menu that outlives its
+  // trigger keeps its last spot until the next open.
   const localAnchor = createMemo((): LayoutRect | null => {
+    layoutEpoch();
     if (!props.open) return null;
     const rect = resolveAnchorRect(props.anchor);
     return rect === null ? null : windowRectToHostLocal(rect, hostFrame());

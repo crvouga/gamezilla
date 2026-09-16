@@ -1,0 +1,31 @@
+{
+  "name": "@pkgs/sim-report",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./element": "./src/element.tsx"
+  },
+  "scripts": {
+    "build": "vite build && bun run scripts/build-artifact.ts",
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
+  }
+}

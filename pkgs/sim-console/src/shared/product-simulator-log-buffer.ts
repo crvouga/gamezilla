@@ -5,7 +5,7 @@ import type {
 
 const DEFAULT_CAPACITY = 500;
 
-/** Ring-buffer log sink for a product-simulator node (alice / bob / server). */
+/** Ring-buffer log sink for a product-simulator node (client-a / server-a). */
 export function createProductSimulatorLogBuffer(
   capacity = DEFAULT_CAPACITY
 ): ProductSimulatorLogBuffer {

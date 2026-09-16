@@ -13,6 +13,7 @@ import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
 import type { ProductExtra } from '../hosts/ports';
 import { simReportTopology } from '../setup/sim-report-topology';
+import { wireProductRuntime } from '../setup/wire-product-runtime';
 import {
   partition,
   resetActor,
@@ -22,6 +23,7 @@ import {
 } from './actions';
 import { nextPuzzleDifferent } from './chess-properties';
 import { anyActor } from './observations';
+import { PRODUCT_WALK_ACTIONS } from './pool-actions';
 import { captureSnapshot, devOauthSignIn } from './probes';
 import { productScenarioActions } from './scenario-actions';
 import { productServerActions } from './server-actions';
@@ -182,6 +184,7 @@ export const product = defineSystem<ProductSim>({
     captureSnapshot,
     ...productServerActions,
     ...productScenarioActions,
+    ...PRODUCT_WALK_ACTIONS,
   ],
   snapshots: [
     defineSnapshot({
@@ -204,7 +207,12 @@ export const product = defineSystem<ProductSim>({
     extra.drainServerHttp.current = () => sim.drainServerFetch();
     await sim.spawnServer();
     await seedSimChessPuzzles(sim.serverSql.sqlClient);
-    return createProductSim(session, sim);
+    const surface = createProductSim(session, sim);
+    // Default actor runtime so `system.explore` / `spawnActor` work without
+    // openSim. openSim may replace this with a recording-aware wrapper.
+    wireProductRuntime(surface);
+    surface.session.onDispose(() => surface.runtime.disposeResources());
+    return surface;
   },
 });
 

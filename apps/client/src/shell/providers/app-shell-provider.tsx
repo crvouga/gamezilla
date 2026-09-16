@@ -25,6 +25,7 @@ import {
   SpinnerProvider,
   ThemePreferenceProvider,
   ThemeProvider,
+  useTestViewport,
   useThemePreference,
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -36,8 +37,16 @@ import { DevicePortsProvider } from './device-ports-context';
 
 function AppTheme(props: { readonly children: JSX.Element }): JSX.Element {
   const { preference } = useThemePreference();
+  // Sims wrap the app in TestViewportProvider (happy-dom has no layout). Real
+  // clients leave it unset so ThemeProvider measures via ResizeObserver.
+  const testViewport = useTestViewport();
   return (
-    <ThemeProvider colorScheme={preference()}>{props.children}</ThemeProvider>
+    <ThemeProvider
+      colorScheme={preference()}
+      fixedLayout={testViewport ?? undefined}
+    >
+      {props.children}
+    </ThemeProvider>
   );
 }
 

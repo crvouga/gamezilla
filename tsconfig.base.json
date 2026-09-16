@@ -198,6 +198,8 @@
       "@pkgs/sim-console": ["./pkgs/sim-console/src/index.ts"],
       "@pkgs/sim-console/*": ["./pkgs/sim-console/src/*"],
       "@pkgs/sim-console/server": ["./pkgs/sim-console/src/server/index.ts"],
+      "@pkgs/sim-report": ["./pkgs/sim-report/src/index.ts"],
+      "@pkgs/sim-report/*": ["./pkgs/sim-report/src/*"],
       "@pkgs/sim/fast-check": ["./pkgs/sim/src/fast-check/index.ts"],
       "@pkgs/sim/internals": ["./pkgs/sim/src/internals/index.ts"],
       "@pkgs/sounds": ["./pkgs/sounds/src/index.ts"],

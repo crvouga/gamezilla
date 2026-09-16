@@ -29,6 +29,24 @@ export type ReportFrame = {
 };
 
 /**
+ * Where a UI gesture landed — path + optional host rect / tap point.
+ * Encoded on the step so the HTML viewer can overlay the press target.
+ */
+export type ReportStepHit = {
+  readonly path: readonly string[];
+  readonly rect?: {
+    readonly x: number;
+    readonly y: number;
+    readonly width: number;
+    readonly height: number;
+  };
+  readonly point?: {
+    readonly xRatio: number;
+    readonly yRatio: number;
+  };
+};
+
+/**
  * One labeled entry on the report timeline. Steps nest: an `apply` step
  * holds the UI ops recorded while its action ran.
  */
@@ -43,6 +61,8 @@ export type ReportStep = {
   readonly actorId?: string;
   readonly selector?: string;
   readonly detail?: string;
+  /** Press / gesture target for UI steps (overlay in the HTML viewer). */
+  readonly hit?: ReportStepHit;
   readonly action?: string;
   readonly args?: readonly unknown[];
   readonly error?: string;
@@ -116,6 +136,8 @@ export type RecordStepMeta = {
   readonly actorId?: string;
   readonly selector?: string;
   readonly detail?: string;
+  /** Press / gesture target; persisted onto the closed {@link ReportStep}. */
+  readonly hit?: ReportStepHit;
   /** Capture snapshots before `fn` (e.g. before close unmounts). */
   readonly snapshotBefore?: boolean;
   /** Skip registered snapshotters for this step. */

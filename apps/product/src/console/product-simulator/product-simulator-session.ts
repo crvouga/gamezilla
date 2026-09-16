@@ -42,6 +42,10 @@ import { installProductSimulatorStickyAutosave } from '@apps/product/product-sim
 import { clearProductSimulatorClientDurable } from '@apps/product/sim/fabric/client-durable';
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
 import { simClientNamespace } from '@apps/product/sim/fabric/sim-client-namespace';
+import {
+  nextSimNodeId,
+  normalizeSimNodeId,
+} from '@apps/product/sim/fabric/sim-node-name';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
@@ -56,7 +60,7 @@ import {
 import { notifyChannels } from '@pkgs/sync-engine/server';
 import { createMemoryHistory } from '@solidjs/router';
 
-const DEFAULT_CLIENT_IDS = ['alice', 'bob'] as const;
+const DEFAULT_CLIENT_IDS = ['client-a', 'client-b'] as const;
 
 function productSimulatorClock(sim: Sim): ProductSimulatorSession['clock'] {
   return {
@@ -180,13 +184,7 @@ async function runProductSimulatorCommand(
 }
 
 function nextClientId(clients: Map<string, ProductSimulatorActor>): string {
-  let n = clients.size + 1;
-  let id = `client-${n}`;
-  while (clients.has(id)) {
-    n += 1;
-    id = `client-${n}`;
-  }
-  return id;
+  return nextSimNodeId('client', new Set(clients.keys()));
 }
 
 async function spawnClient(
@@ -194,7 +192,10 @@ async function spawnClient(
   maps: SessionMaps,
   id?: string
 ): Promise<ProductSimulatorActor> {
-  const instanceId = id?.trim() || nextClientId(maps.clients);
+  const instanceId =
+    id === undefined || id.trim() === ''
+      ? nextClientId(maps.clients)
+      : normalizeSimNodeId(id, 'client');
   if (maps.clients.has(instanceId)) {
     throw new Error(`simulator client '${instanceId}' already exists`);
   }
@@ -328,8 +329,7 @@ function attachSessionApi(api: SessionApiAttachArgs): ProductSimulatorSession {
     addClient: (id) => spawnClient(buildArgs, maps, id),
     removeClient: (id) => removeClient(buildArgs.sim, maps, id),
     addServer: (id) => addProductSimulatorServer(buildArgs.sim, maps, id),
-    removeServer: (id) =>
-      removeProductSimulatorServer(buildArgs.sim, maps, id),
+    removeServer: (id) => removeProductSimulatorServer(buildArgs.sim, maps, id),
     listCommands: () => commands,
     runCommand: (id) =>
       runProductSimulatorCommand(buildArgs, maps, commands, id),

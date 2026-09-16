@@ -1,6 +1,6 @@
 /**
  * System-aligned node kinds for simulator console chrome.
- * Addresses are `kind` or `kind:instanceId` (`client:alice`, `room:<topic>`).
+ * Addresses are `kind` or `kind:instanceId` (`client:client-a`, `room:<topic>`).
  */
 
 export const SIM_NODE_KINDS = [
@@ -34,12 +34,12 @@ export const SIM_NODE_KIND_ALIASES: Readonly<Record<string, SimNodeKind>> = {
 };
 
 export const SIM_NODE_LABELS: Readonly<Record<SimNodeKind, string>> = {
-  client: 'Client',
-  lb: 'Balancer',
-  server: 'Server',
-  events: 'PubSub',
-  room: 'Room server',
-  db: 'DB',
+  client: 'client',
+  lb: 'balancer',
+  server: 'server',
+  events: 'pubsub',
+  room: 'room-server',
+  db: 'db',
 };
 
 const NODE_KIND_SET: ReadonlySet<string> = new Set(SIM_NODE_KINDS);
@@ -97,7 +97,7 @@ export function formatSimNodeLabel(args: {
   // Bare kind tokens (server / events / …) keep the chrome label.
   const bareKind = coerceSimNodeKind(args.id);
   if (bareKind !== null) return SIM_NODE_LABELS[bareKind];
-  // Instance ids with a kind hint (client-1, alice, …) keep the id.
+  // Instance ids with a kind hint (client-a, server-b, …) keep the id.
   return args.id;
 }
 
@@ -124,7 +124,7 @@ export function fallbackReportNodes(
   const out: FallbackReportNode[] = [
     { id: 'lb', kind: 'lb', attributes: ['round-robin', 'ingress', 'egress'] },
     {
-      id: 'server',
+      id: 'server-a',
       kind: 'server',
       attributes: ['sqlite', 'ingress', 'egress'],
     },

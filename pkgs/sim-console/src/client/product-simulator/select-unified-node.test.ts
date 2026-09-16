@@ -22,7 +22,7 @@ function chromeSpy() {
 
 function topology(
   clients: readonly { readonly id: string }[],
-  servers: readonly { readonly id: string }[] = [{ id: 'server' }]
+  servers: readonly { readonly id: string }[] = [{ id: 'server-a' }]
 ): UnifiedTopology {
   return { clients, servers, loadBalancerId: 'lb' };
 }
@@ -30,20 +30,24 @@ function topology(
 describe('selectUnifiedNode', () => {
   test('selects client even when chrome kind is not client', () => {
     const spy = chromeSpy();
-    selectUnifiedNode(spy, topology([{ id: 'alice' }, { id: 'bob' }]), 'alice');
+    selectUnifiedNode(
+      spy,
+      topology([{ id: 'client-a' }, { id: 'client-b' }]),
+      'client-a'
+    );
     expect(spy.onKindChange).toHaveBeenCalledWith('client');
-    expect(spy.onInstanceChange).toHaveBeenCalledWith('alice');
-    expect(spy.onFocusedClientIdChange).toHaveBeenCalledWith('alice');
+    expect(spy.onInstanceChange).toHaveBeenCalledWith('client-a');
+    expect(spy.onFocusedClientIdChange).toHaveBeenCalledWith('client-a');
   });
 
   test('selects the balancer and pubsub nodes without an instance', () => {
     const lb = chromeSpy();
-    selectUnifiedNode(lb, topology([{ id: 'alice' }]), 'lb');
+    selectUnifiedNode(lb, topology([{ id: 'client-a' }]), 'lb');
     expect(lb.onKindChange).toHaveBeenCalledWith('lb');
     expect(lb.onInstanceChange).not.toHaveBeenCalled();
 
     const events = chromeSpy();
-    selectUnifiedNode(events, topology([{ id: 'alice' }]), 'events');
+    selectUnifiedNode(events, topology([{ id: 'client-a' }]), 'events');
     expect(events.onKindChange).toHaveBeenCalledWith('events');
     expect(events.onInstanceChange).not.toHaveBeenCalled();
   });
@@ -51,18 +55,18 @@ describe('selectUnifiedNode', () => {
   test('selects a specific server instance', () => {
     const spy = chromeSpy();
     const nodes = topology(
-      [{ id: 'alice' }],
-      [{ id: 'server' }, { id: 'server-2' }]
+      [{ id: 'client-a' }],
+      [{ id: 'server-a' }, { id: 'server-b' }]
     );
-    selectUnifiedNode(spy, nodes, 'server-2');
+    selectUnifiedNode(spy, nodes, 'server-b');
     expect(spy.onKindChange).toHaveBeenCalledWith('server');
-    expect(spy.onInstanceChange).toHaveBeenCalledWith('server-2');
+    expect(spy.onInstanceChange).toHaveBeenCalledWith('server-b');
   });
 
   test('treats unknown ids as room topics', () => {
     const spy = chromeSpy();
     const topic = '199f2d72-aaaa-bbbb-cccc-ddddeeee0001';
-    selectUnifiedNode(spy, topology([{ id: 'alice' }]), topic);
+    selectUnifiedNode(spy, topology([{ id: 'client-a' }]), topic);
     expect(spy.onKindChange).toHaveBeenCalledWith('room');
     expect(spy.onInstanceChange).toHaveBeenCalledWith(topic);
   });

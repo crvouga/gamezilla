@@ -12,8 +12,9 @@
 import type { ServerHttp } from '@apps/client/shell/client-env';
 import { createServer, type ServerEnv, serveFetch } from '@apps/server';
 import { serializeFetch } from './sim-fetch';
+import { nextSimNodeId, normalizeSimNodeId } from './sim-node-name';
 
-export const SIM_PRIMARY_SERVER_ID = 'server';
+export const SIM_PRIMARY_SERVER_ID = 'server-a';
 
 export type Server = Awaited<ReturnType<typeof createServer>>;
 
@@ -39,13 +40,8 @@ export type SimServerNodes = {
   stopAll(): void;
 };
 
-/** `server`, `server-2`, `server-3`, … — first instance keeps the bare id so
- * `crash('server')` / `partition(actor, 'server')` stay meaningful. */
 function nextServerId(taken: ReadonlySet<string>): string {
-  if (!taken.has(SIM_PRIMARY_SERVER_ID)) return SIM_PRIMARY_SERVER_ID;
-  let n = taken.size + 1;
-  while (taken.has(`${SIM_PRIMARY_SERVER_ID}-${String(n)}`)) n += 1;
-  return `${SIM_PRIMARY_SERVER_ID}-${String(n)}`;
+  return nextSimNodeId('server', taken);
 }
 
 export function createSimServerNodes(args: {
@@ -68,7 +64,10 @@ export function createSimServerNodes(args: {
   return {
     ensureEnv,
     async spawn(id) {
-      const instanceId = id?.trim() || nextServerId(new Set(nodes.keys()));
+      const instanceId =
+        id === undefined || id.trim() === ''
+          ? nextServerId(new Set(nodes.keys()))
+          : normalizeSimNodeId(id, 'server');
       const existing = nodes.get(instanceId);
       if (existing !== undefined) return existing;
       if (args.disposed()) {

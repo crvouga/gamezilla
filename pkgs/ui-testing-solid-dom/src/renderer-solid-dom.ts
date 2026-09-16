@@ -22,12 +22,13 @@ import {
   queryWithinTestId,
 } from './dom-query';
 import { fieldOf, isTextField, readDomText } from './dom-text';
+import { layoutDomTree } from './dom-tree-layout';
 import { isDomVisible } from './dom-visibility';
 import {
   type SerializeDomHtmlOptions,
   serializeDomHtml,
 } from './serialize-dom-html';
-
+import { MULTI_APP_ACTOR_FRAME } from './snapshot-frame';
 export type UserEvent = ReturnType<typeof userEvent.setup>;
 
 export type SolidDomAppScope = {
@@ -143,6 +144,10 @@ export function createSolidDomRenderedApp(
 ): SolidDomRenderedApp {
   const user = scope.user ?? createDomUser(scope.document);
   const provider = scope.layoutProvider ?? synthesizeLayout;
+  const syncLayout = (): void => {
+    const container = scope.container();
+    if (container !== null) layoutDomTree(container, MULTI_APP_ACTOR_FRAME);
+  };
   return {
     query: (testId) =>
       queryActorTestId(scope.document, scope.container(), testId),
@@ -151,18 +156,27 @@ export function createSolidDomRenderedApp(
     isVisible: (element) => isDomVisible(asElement(element)),
     getText: (element) => readDomText(asElement(element)),
     tap: async (element) => {
+      syncLayout();
+      ensureElementLayout(asElement(element), provider);
       await user.click(asElement(element));
+      // Menus measure the trigger on open; re-layout so remounted anchors and
+      // FloatingMenu listeners pick up trailing-edge boxes.
+      syncLayout();
     },
     tapAt: (element, position) => {
+      syncLayout();
       fireTapAt(asElement(element), position, provider);
       return Promise.resolve();
     },
     drag: (element, from, to) => {
+      syncLayout();
       fireDrag(asElement(element), from, to, provider);
       return Promise.resolve();
     },
-    layout: (element) =>
-      Promise.resolve(ensureElementLayout(asElement(element), provider)),
+    layout: (element) => {
+      syncLayout();
+      return Promise.resolve(ensureElementLayout(asElement(element), provider));
+    },
     typeText: async (element, text) => {
       await user.type(
         findTextField(asElement(element)),
@@ -180,8 +194,10 @@ export function createSolidDomRenderedApp(
       return Promise.resolve();
     },
     unmount: scope.unmount,
-    snapshotHtml: (options) =>
-      snapshotActorHtml(scope.document, scope.container(), options),
+    snapshotHtml: (options) => {
+      syncLayout();
+      return snapshotActorHtml(scope.document, scope.container(), options);
+    },
     activate: async () => {
       await scope.activate?.();
     },

@@ -17,8 +17,8 @@ import {
   restoreProductSimulatorClientDurable,
 } from './client-durable';
 import type { Sim } from './create-sim';
-import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
 import { simClientNamespace } from './sim-client-namespace';
+import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
 import { openFreshSimClientSql, type SimSql } from './sim-sql';
 import { reconcileServerProfilesFromClients } from './snapshot-sync';
 
@@ -236,6 +236,6 @@ export function applyCheckpointFaults(
   }
   for (const addr of checkpoint.downAddresses) {
     const id = addr.startsWith('client:') ? addr.slice('client:'.length) : addr;
-    sim.crash(id === 'server' || id === 'api' ? 'server' : id);
+    sim.crash(id === 'server' || id === 'api' ? SIM_PRIMARY_SERVER_ID : id);
   }
 }

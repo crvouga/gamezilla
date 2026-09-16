@@ -26,7 +26,7 @@ export type DebuggerShellProps = {
    * to hide the strip — trailing chrome still renders.
    */
   readonly kindTabs?: readonly TabStripItem[];
-  /** Optional unified node strip (clients plus server/PubSub/Room). */
+  /** Optional unified node strip (clients plus server/pubsub/room). */
   readonly unifiedNodes?: readonly TabStripItem[];
   readonly selectedNode?: string;
   readonly onNodeChange?: (id: string) => void;

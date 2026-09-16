@@ -1,8 +1,12 @@
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
+import {
+  applyJunitOutcomes,
+  type HtmlReportBundle,
+  parseJunit,
+  readRunBundle,
+} from '@pkgs/sim';
 
-import { type HtmlReportBundle, readRunBundle } from './bundle';
-import { applyJunitOutcomes, parseJunit } from './junit';
 import { type RenderHtmlReportOptions, renderHtmlReport } from './render';
 
 export const HTML_REPORT_KEY = 'index.html';

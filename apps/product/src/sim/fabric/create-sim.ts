@@ -27,8 +27,8 @@ import {
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import { bumpSimClientEpoch } from './sim-client-namespace';
 import { makeSimClientEnv } from './sim-client-env';
+import { bumpSimClientEpoch } from './sim-client-namespace';
 import {
   createSimLoadBalancer,
   type SimLoadBalancer,
@@ -73,7 +73,7 @@ export type Sim = {
   /** Round-robin ingress every client talks to. */
   readonly loadBalancer: SimLoadBalancer;
   client(id: string): ClientEnv;
-  /** Boot an API instance. Default id `server`, then `server-2`, … */
+  /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
   spawnServer(id?: string): Promise<Server>;
   /** Remove an API instance from the balancer rotation. */
   dropServer(id: string): Promise<void>;
@@ -254,7 +254,9 @@ async function bootSimKernel(
   const pubSubBus = createInMemoryBus();
   const serverSql = await openServerSql(session, opts);
   const shared = await buildSharedServerServices(serverSql);
-  const roomNode = createRoomServer(buildRoomServerEnv({ session, seed, timers }));
+  const roomNode = createRoomServer(
+    buildRoomServerEnv({ session, seed, timers })
+  );
   const disposed = { value: false };
   const servers = createSimServerNodes({
     buildEnv: (id) =>

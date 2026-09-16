@@ -1,5 +1,5 @@
 /**
- * Per-actor UI launch / teardown for product {@link openSim}.
+ * Per-actor UI launch / teardown for the product system runtime.
  */
 
 import type { ProductUi, Sim, SimActor } from '@apps/product/sim';
@@ -13,7 +13,7 @@ import {
   createSolidDomDriver,
   type MultiAppSolidDomSession,
 } from '@pkgs/ui-testing-solid-dom';
-import { createSimWaitPump } from '../../sim/setup/sim-wait-pump';
+import { createSimWaitPump } from '../setup/sim-wait-pump';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
 

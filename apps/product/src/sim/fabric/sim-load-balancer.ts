@@ -7,14 +7,14 @@
  * degrades throughput instead of taking the product down, which is exactly the
  * fault the single-server fabric could not express.
  *
- * Reachability is checked on both hops (`client → lb`, `lb → server`), so an
- * existing `partition(client, 'server')` still isolates that client from that
- * instance even though the request now travels through the balancer.
+ * Reachability is checked on both hops (`client-a → lb`, `lb → server-a`), so
+ * partitioning a client from a server instance still isolates that hop even
+ * though the request now travels through the balancer.
  */
 
 import type { ServerHttp } from '@apps/client/shell/client-env';
 import { requestMethod, requestPath } from './sim-http-request';
-import { simCrashedError, type SimNet } from './sim-net';
+import { type SimNet, simCrashedError } from './sim-net';
 
 export const SIM_LOAD_BALANCER_ID = 'lb';
 

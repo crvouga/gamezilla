@@ -104,7 +104,14 @@ export function splitCaptureNodes(
 }
 
 function isNodeMap(media: SnapshotMedia, value: unknown): boolean {
-  if (media !== 'html' && media !== 'png' && media !== 'text') return false;
+  if (
+    media !== 'html' &&
+    media !== 'png' &&
+    media !== 'text' &&
+    media !== 'json'
+  ) {
+    return false;
+  }
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return false;
   }
@@ -113,6 +120,9 @@ function isNodeMap(media: SnapshotMedia, value: unknown): boolean {
   if (entries.length === 0) return false;
   return entries.every(([, v]) => {
     if (media === 'png') return v instanceof Uint8Array;
+    if (media === 'json') {
+      return v !== null && typeof v === 'object' && !(v instanceof Uint8Array);
+    }
     return typeof v === 'string';
   });
 }

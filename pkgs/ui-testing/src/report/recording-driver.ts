@@ -1,15 +1,18 @@
 /**
  * Report-aware {@link Driver}: every user-intent op (`tap`, `input`,
- * `expect.*`, …) becomes one report step with its selector, so a run's
- * timeline reads like the test script and each step carries a UI frame.
+ * `expect.*`, …) becomes one report step with its selector + press hit, so a
+ * run's timeline reads like the test script and each UI step carries a frame
+ * with the gesture target encoded for the HTML viewer.
  */
 
+import type { ReportStepHit } from '@pkgs/sim';
 import type { DriverKey } from '../core/keys';
 import type {
   AssertionOptions,
   Driver,
   DriverNode,
   DriverWaitOptions,
+  ElementLayout,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -44,9 +47,61 @@ type StepInfo = {
   readonly kind: 'ui' | 'expect';
   readonly title: string;
   readonly detail?: string;
+  readonly point?: TapPosition;
 };
 
-function step<T>(ctx: Ctx, info: StepInfo, fn: () => Promise<T>): Promise<T> {
+function hitFrom(
+  path: readonly string[],
+  layout: ElementLayout | null,
+  point?: TapPosition
+): ReportStepHit {
+  return {
+    path: [...path],
+    ...(layout !== null
+      ? {
+          rect: {
+            x: layout.x,
+            y: layout.y,
+            width: layout.width,
+            height: layout.height,
+          },
+        }
+      : {}),
+    ...(point !== undefined
+      ? { point: { xRatio: point.xRatio, yRatio: point.yRatio } }
+      : {}),
+  };
+}
+
+async function stepWithHit<T>(
+  ctx: Ctx,
+  node: DriverNode,
+  info: StepInfo,
+  fn: () => Promise<T>
+): Promise<T> {
+  const layout =
+    ctx.path.length > 0 ? await node.layout().catch(() => null) : null;
+  const hit = hitFrom(ctx.path, layout, info.point);
+  return ctx.recorder.record(
+    {
+      kind: info.kind,
+      title: info.title,
+      selector: formatTestIdPath(ctx.path),
+      hit,
+      // Capture while the target is still mounted (before tap navigates).
+      ...(info.kind === 'ui' ? { snapshotBefore: true } : {}),
+      ...(ctx.actorId !== undefined ? { actorId: ctx.actorId } : {}),
+      ...(info.detail !== undefined ? { detail: info.detail } : {}),
+    },
+    fn
+  );
+}
+
+function stepExpect<T>(
+  ctx: Ctx,
+  info: StepInfo,
+  fn: () => Promise<T>
+): Promise<T> {
   return ctx.recorder.record(
     {
       kind: info.kind,
@@ -59,10 +114,11 @@ function step<T>(ctx: Ctx, info: StepInfo, fn: () => Promise<T>): Promise<T> {
   );
 }
 
-const ui = (title: string, detail?: string): StepInfo => ({
+const ui = (title: string, detail?: string, point?: TapPosition): StepInfo => ({
   kind: 'ui',
   title,
   ...(detail !== undefined ? { detail } : {}),
+  ...(point !== undefined ? { point } : {}),
 });
 const check = (title: string, detail?: string): StepInfo => ({
   kind: 'expect',
@@ -73,14 +129,18 @@ const check = (title: string, detail?: string): StepInfo => ({
 function recordingExpect(node: DriverNode, ctx: Ctx): DriverNode['expect'] {
   return {
     visible: (options?: AssertionOptions) =>
-      step(ctx, check('expect visible'), () => node.expect.visible(options)),
+      stepExpect(ctx, check('expect visible'), () =>
+        node.expect.visible(options)
+      ),
     hidden: (options?: AssertionOptions) =>
-      step(ctx, check('expect hidden'), () => node.expect.hidden(options)),
+      stepExpect(ctx, check('expect hidden'), () =>
+        node.expect.hidden(options)
+      ),
     text: (
       expected: string,
       options?: AssertionOptions & { exact?: boolean }
     ) =>
-      step(
+      stepExpect(
         ctx,
         check(
           `expect text ${JSON.stringify(expected)}`,
@@ -96,26 +156,32 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
     get: (testId: string) =>
       recordingNode(node.get(testId), { ...ctx, path: [...ctx.path, testId] }),
     tap: (options?: UiWaitOptions) =>
-      step(ctx, ui('tap'), () => node.tap(options)),
+      stepWithHit(ctx, node, ui('tap'), () => node.tap(options)),
     tapAt: (position: TapPosition) =>
-      step(ctx, ui('tapAt', ratio(position)), () => node.tapAt(position)),
+      stepWithHit(ctx, node, ui('tapAt', ratio(position), position), () =>
+        node.tapAt(position)
+      ),
     drag: (from: TapPosition, to: TapPosition) =>
-      step(ctx, ui('drag', `${ratio(from)} → ${ratio(to)}`), () =>
-        node.drag(from, to)
+      stepWithHit(
+        ctx,
+        node,
+        ui('drag', `${ratio(from)} → ${ratio(to)}`, from),
+        () => node.drag(from, to)
       ),
     layout: () => node.layout(),
     input: (text: string, options?: UiWaitOptions) =>
-      step(ctx, ui(`input ${JSON.stringify(text)}`), () =>
+      stepWithHit(ctx, node, ui(`input ${JSON.stringify(text)}`), () =>
         node.input(text, options)
       ),
-    clear: () => step(ctx, ui('clear'), () => node.clear()),
-    key: (key: DriverKey) => step(ctx, ui(`key ${key}`), () => node.key(key)),
+    clear: () => stepWithHit(ctx, node, ui('clear'), () => node.clear()),
+    key: (key: DriverKey) =>
+      stepWithHit(ctx, node, ui(`key ${key}`), () => node.key(key)),
     scroll: (direction: ScrollDirection, amount?: number) =>
-      step(ctx, ui(`scroll ${direction}`), () =>
+      stepWithHit(ctx, node, ui(`scroll ${direction}`), () =>
         node.scroll(direction, amount)
       ),
     wait: (state: WaitState | WaitTextCondition, options?: DriverWaitOptions) =>
-      step(ctx, check(`wait ${describeWait(state)}`), () =>
+      stepExpect(ctx, check(`wait ${describeWait(state)}`), () =>
         node.wait(state, options)
       ),
     expect: recordingExpect(node, ctx),
@@ -141,7 +207,7 @@ export function recordingDriver(
     get: (testId: string) =>
       recordingNode(driver.get(testId), rootCtx([testId])),
     key: (key: DriverKey) =>
-      step(rootCtx([]), ui(`key ${key}`), () => driver.key(key)),
+      stepExpect(rootCtx([]), ui(`key ${key}`), () => driver.key(key)),
     snapshotHtml: (snapshotOptions) => driver.snapshotHtml(snapshotOptions),
   };
   if (hasInventory(driver)) {

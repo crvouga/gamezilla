@@ -20,8 +20,11 @@ Neither console nor test opens a Session / `createSim` outside `@apps/product/si
 
 **Authoring** — scenarios import `describe` / `test` from `bun:test` and call
 `openSim(testId)`. Drive UI with named `defineAction`s from `@apps/product/sim`
-(`s.apply(signInWithDev, 'alice')`). Explore still uses `spawnActor` / `uiOp` /
-`partition`. Scenario actions are `pool: false`. Reads are plain functions of `S`.
+(`s.apply(signInWithDev, 'alice')`). Smart monkey / explore walks are
+**only** `defineAction` catalogs: `s.randomActions({ actions: PRODUCT_POOL_ACTIONS })`
+or `product.explore({ actions: PRODUCT_POOL_ACTIONS })`. Standing properties
+(`noErrorBoundary`, …) run after every checkpoint. Do not use UI-inventory
+tap/fill helpers for product monkey testing.
 
 ```tsx
 import { describe, test } from 'bun:test';
@@ -87,23 +90,29 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 
-**Reports** (`SIM_REPORT`) — standalone HTML, Playwright-style:
+**Reports** (`SIM_REPORT`) — standalone HTML, Playwright-trace style:
 
 - `bun run test:product:report` (root) / `bun run --filter @apps/product test:report [files…]`
   wipes `apps/product/.cache/sim-report`, runs the suite with `SIM_REPORT=1` +
-  a JUnit reporter, then writes **`apps/product/sim-report/index.html`** — one
-  self-contained file with every test, its step tree (`apply` → recorded UI ops
-  with selectors), and every snapshot frame (HTML actors rendered in a phone
-  frame with the product's compiled CSS, JSON/text snapshots alongside).
-  `bun run test:product:report:open` opens it.
+  a JUnit reporter, writes **`apps/product/sim-report/index.html`**, and opens
+  it — one self-contained viewer: tests grouped by file name, step tree with
+  press hits, multi-client phone panels, scrubber + filmstrip, view controls
+  (multi/single, zoom, snapshots, press overlay), and keyboard shortcuts (`?`
+  for help). UI steps encode `hit` (testId path + layout rect) and snapshot
+  before the gesture so the overlay lands on the pressed element.
+  `bun run test:product:report:open` rebuilds/opens an existing bucket without
+  re-running tests.
 - Plain `bun run --filter @apps/product test` keeps `SIM_REPORT=0` (fast, no
   frames). `SIM_REPORT=1 bun test …` writes the raw bucket only; run
-  `bun run --filter @apps/product report:build` to render it.
-- Capture is owned by the packages: `product` declares `defineSnapshot`s
+  `bun run --filter @apps/product report:build` to render it without opening.
+-   Capture is owned by the packages: `product` declares `defineSnapshot`s
   (`html` per actor via `Driver.snapshotHtml`, `topology`), `openSim` wraps each
   actor's driver in `recordingDriver` so `tap` / `input` / `expect.*` are steps,
   and test-body assertions land via the JUnit overlay (`s.fail(err)` records a
-  harness failure explicitly when needed).
+  harness failure explicitly when needed). Frame CSS is Tailwind + `@pkgs/ui`
+  tokens/hosts + every `*.module.css` under `pkgs/ui` and `pkgs/chess-board`
+  (sim Babel leaves class names unhashed). `TestViewportProvider` feeds
+  `ThemeProvider.fixedLayout` so modal sizes match the 390×844 actor frame.
 
 Mem-engine wishlist:
 [`docs/sim-mem-engine-wishlist.md`](../../../docs/sim-mem-engine-wishlist.md).

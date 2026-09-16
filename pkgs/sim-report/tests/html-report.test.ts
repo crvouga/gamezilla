@@ -1,10 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-
 import {
   applyJunitOutcomes,
-  buildHtmlReport,
   defineAction,
   defineRuntime,
   defineSnapshot,
@@ -13,8 +11,9 @@ import {
   parseJunit,
   readRunBundle,
   virtualTimeRuntime,
-  writeHtmlReport,
-} from '../src/index';
+} from '@pkgs/sim';
+
+import { buildHtmlReport, writeHtmlReport } from '../src/index';
 
 type Kv = { values: Record<string, string> };
 
@@ -42,7 +41,7 @@ const sys = defineSystem({
       name: 'html',
       media: 'html',
       capture: (s: Kv) => ({
-        alice: `<html><head></head><body>alice sees ${s.values.x ?? ''}</body></html>`,
+        alice: `<html><head></head><body>alice sees ${s.values['x'] ?? ''}</body></html>`,
       }),
     }),
     defineSnapshot({
@@ -103,6 +102,11 @@ describe('html report', () => {
     expect(html).toContain('<title>My run</title>');
     expect(html).toContain('id="report-data"');
     expect(html).toContain('.x{color:red}');
+    expect(html).toContain('<sim-report></sim-report>');
+    expect(html).toContain('customElements');
+    expect(html).toContain('sr-press-overlay');
+    expect(html).toContain('Keyboard shortcuts');
+    expect(html).toContain('sim-report-root');
     const m =
       /<script id="report-data" type="application\/json">([\s\S]*?)<\/script>/.exec(
         html!
@@ -148,5 +152,85 @@ describe('html report', () => {
       junitXml: xml,
     });
     expect(html).toContain('expected 1 to be 2');
+  });
+
+  test('json-only (headless) reports use the document stage', async () => {
+    type State = { n: number };
+    const bump = defineAction({
+      name: 'bump',
+      act: (s: State) => {
+        s.n += 1;
+      },
+    });
+    const headless = defineSystem({
+      name: 'headless-kv',
+      create: (): State => ({ n: 0 }),
+      runtimes: [
+        defineRuntime({
+          default: true,
+          name: 'virtual',
+          create: () => virtualTimeRuntime(),
+        }),
+      ],
+      actions: [bump],
+      snapshots: [
+        defineSnapshot({
+          name: 'state',
+          media: 'json',
+          capture: (s: State) => ({ n: s.n }),
+        }),
+        defineSnapshot({
+          name: 'log',
+          media: 'text',
+          capture: (s: State) => `n=${s.n}`,
+        }),
+        defineSnapshot({
+          name: 'clients',
+          media: 'json',
+          capture: (s: State) => ({
+            alice: { n: s.n },
+            bob: { n: s.n * 2 },
+          }),
+        }),
+      ],
+    });
+    const store = new ObjectStoreImplInMemory();
+    {
+      await using s = await headless.run({
+        seed: 1,
+        report: {
+          store,
+          runId: 'headless-1',
+          testId: 'bump-once',
+          title: 'bumps state',
+          sourceFile: 'tests/headless.test.ts',
+          now: () => 1_000,
+        },
+      });
+      await s.apply(bump);
+    }
+    const bundle = await readRunBundle(store, 'headless-1');
+    expect(bundle.tests).toHaveLength(1);
+    const files = Object.keys(bundle.tests[0]!.blobs);
+    expect(files.some((f) => f.includes('alice'))).toBe(true);
+    expect(files.some((f) => f.includes('bob'))).toBe(true);
+    const out = new ObjectStoreImplInMemory();
+    await writeHtmlReport({
+      store,
+      runId: 'headless-1',
+      out,
+      title: 'Headless run',
+    });
+    const html = await readUtf8(out, 'index.html');
+    expect(html).not.toBeNull();
+    expect(html).toContain('<sim-report></sim-report>');
+    expect(html).toContain('sr-stage doc');
+    expect(html).toContain('sr-doc-card');
+    // Blob text is JSON-escaped inside the report-data script.
+    expect(html).toContain('\\"n\\":1');
+    expect(html).toContain('n=1');
+    expect(html).toContain('alice');
+    expect(html).toContain('bob');
+    expect(html).toContain('No snapshots in this frame');
   });
 });

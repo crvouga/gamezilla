@@ -1,27 +1,22 @@
 /**
- * Explore walk: tap / fill / back / scroll plus product partition.
+ * Smart monkey: weighted random walk over `defineAction` pool actions,
+ * asserting standing properties at every checkpoint.
  */
 
 import { describe, expect, test } from 'bun:test';
-import { back, fill, scroll, tap } from '@pkgs/ui-testing/explore';
-import { actor, partition, spawnActor } from '../src/sim';
+import { PRODUCT_POOL_ACTIONS } from '../src/sim/system/pool-actions';
 import { openSim } from '../src/test/setup/open-sim';
 
 describe('product walk', () => {
-  test('walk tap/fill/back/scroll + partition', async () => {
+  test('randomActions over defineAction pool holds properties', async () => {
     await using s = await openSim('product-walk');
-    await s.apply(spawnActor, 'alice');
-    const actorA = actor('alice');
     const w = await s.randomActions({
-      actions: [
-        tap(actorA),
-        fill(actorA),
-        back(actorA),
-        scroll(actorA),
-        partition,
-      ],
-      steps: 40,
+      actions: PRODUCT_POOL_ACTIONS,
+      steps: 24,
+      time: { weight: 1, minMs: 0, maxMs: 50 },
     });
     expect(w.violations).toEqual([]);
+    expect(w.count).toBeGreaterThan(0);
+    expect(w.coverage.actions['spawnActor'] ?? 0).toBeGreaterThan(0);
   });
 });

@@ -25,7 +25,7 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 | **record** | `s.record({ kind, title, selector?, actorId? }, fn)` — one labeled report step. Steps nest: `record` / `apply` inside an open step become its children. `advanceTime` never opens a step. |
 | **describe** | Optional `defineAction({ describe: (...args) => string })` — report title for `s.apply`; default `name(arg, …)`. `report: false` hides a harness-only action from the timeline. |
 | **fail** | `s.fail(err)` — mark the run failed for an error raised outside any step (test-body assertion). |
-| **HTML report** | `writeHtmlReport({ store, runId, out, frameCss?, junitXml? })` — one standalone `index.html` (Playwright-style: test list with status filters, step tree, frame scrubber, per-actor HTML previews, JSON panes). `readRunBundle` / `renderHtmlReport` / `applyJunitOutcomes` are the pure pieces. |
+| **HTML report** | `@pkgs/sim-report` `writeHtmlReport({ store, runId, out, frameCss?, junitXml? })` — Solid+Tailwind viewer built with Vite, shipped as a `<sim-report>` web component and inlined into one standalone `index.html`. UI suites (`html` / `png`) get phone panels + press overlays; headless suites (`json` / `text` / `bytes`) get a document stage. Embed the same element in apps via `@pkgs/sim-report/element`. `readRunBundle` / `applyJunitOutcomes` stay in `@pkgs/sim`. |
 | **randomActions** | Weighted random walk over the action pool (`s.randomActions`). Returns a `RandomActionsReport`. |
 | **explore** | `system.explore` — search (episodes × randomActions + shrink). Throws `ExploreFailedError`. |
 | **replay** | `system.replay(recording)` — re-apply a Recording / report path. |
@@ -41,7 +41,8 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/sim` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `writeHtmlReport`, `readRunBundle`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/sim` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `readRunBundle`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/sim-report` | Solid+Vite report viewer (`SimReportApp`, `<sim-report>` web component) + `writeHtmlReport` / `renderHtmlReport` standalone HTML artifacts |
 | `@pkgs/sim/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/sim/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver`, JSON arbs |
 
@@ -162,13 +163,19 @@ await s.apply(put, 'client:0', 'a', '1'); // step "put(\"client:0\", \"a\", \"1\
 await s.record({ kind: 'ui', title: 'tap', selector: 'testId("ok")' }, tapOk);
 
 // later, from a script (`// @io-wall-ok`):
+import { writeHtmlReport } from '@pkgs/sim-report';
 await writeHtmlReport({ store, runId: 'latest', out: artifactStore });
-// → artifactStore `index.html`
+// → artifactStore `index.html` (inlined <sim-report> web component)
 ```
 
-Frames come only from `defineSystem({ snapshots })`; UI harnesses wrap drivers
-with `@pkgs/ui-testing` `recordingDriver` so every op is a titled step. The
-HTML file embeds every frame — no server, no console tab.
+Frames come only from `defineSystem({ snapshots })`. Media is suite-agnostic:
+`json` / `text` / `bytes` for headless state (sync-engine, matchmaking, …),
+`html` / `png` for UI. Multi-actor captures may return a `Record<nodeId, …>`
+for `html` / `png` / `text` / `json` (json values must be objects/arrays). UI
+harnesses wrap drivers with `@pkgs/ui-testing` `recordingDriver` so every op is
+a titled step with an optional `hit` (path + rect + tap point); UI steps
+snapshot *before* the gesture so the HTML viewer can overlay the pressed
+element. The HTML file embeds every frame — no server, no console tab.
 
 ## Do / don't
 

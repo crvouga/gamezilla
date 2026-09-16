@@ -7,14 +7,20 @@
  * Usage: `bun run --filter @apps/product report:build [--open]`
  */
 
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { run } from '@pkgs/os';
-import { HTML_REPORT_KEY, writeHtmlReport } from '@pkgs/sim';
+import { HTML_REPORT_KEY, writeHtmlReport } from '@pkgs/sim-report';
 
 import {
   REPO_ROOT,
@@ -31,7 +37,30 @@ const UI_CSS = [
   join(REPO_ROOT, 'pkgs/ui/src/components/hosts.css'),
 ];
 
-/** Same stylesheet set the product mounts (`apps/product/src/console/main.tsx`). */
+/** Package roots whose `*.module.css` ship unhashed local class names in sims. */
+const MODULE_CSS_ROOTS = [
+  join(REPO_ROOT, 'pkgs/ui/src'),
+  join(REPO_ROOT, 'pkgs/chess-board/src'),
+];
+
+function listModuleCss(root: string): string[] {
+  const out: string[] = [];
+  const walk = (dir: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (entry.name.endsWith('.module.css')) out.push(path);
+    }
+  };
+  walk(root);
+  return out.sort();
+}
+
+/**
+ * Stylesheet set for iframe `srcdoc` frames. Matches the product mount
+ * (tokens + hosts + Tailwind) plus CSS modules: bun's sim Babel plugin
+ * exports unhashed local class names, so the raw module CSS applies.
+ */
 function compileFrameCss(): string {
   const tmp = mkdtempSync(join(tmpdir(), 'sim-report-css-'));
   try {
@@ -41,9 +70,14 @@ function compileFrameCss(): string {
       ['--no-install', '@tailwindcss/cli', '-i', TAILWIND_ENTRY, '-o', out],
       { cwd: TAILWIND_DIR }
     );
+    const modules = MODULE_CSS_ROOTS.flatMap(listModuleCss);
     return [
       readFileSync(out, 'utf8'),
       ...UI_CSS.map((p) => readFileSync(p, 'utf8')),
+      ...modules.map(
+        (p) =>
+          `/* ${p.slice(REPO_ROOT.length + 1)} */\n${readFileSync(p, 'utf8')}`
+      ),
     ].join('\n');
   } finally {
     rmSync(tmp, { recursive: true, force: true });
