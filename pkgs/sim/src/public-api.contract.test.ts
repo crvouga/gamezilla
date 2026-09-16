@@ -93,6 +93,7 @@ describe('public-api', () => {
         'apply',
         'assert',
         'advanceTime',
+        'fail',
         'never',
         'read',
         'record',

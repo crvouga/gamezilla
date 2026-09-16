@@ -4,6 +4,7 @@
  * Primary surface:
  * - {@link Driver} / {@link DriverNode} (`tap`, `wait`, nested `expect.*`)
  * - {@link RenderedApp} mounted-tree port
+ * - reporting: {@link recordingDriver} (ops → report steps), {@link UiOp}
  * - selector / explore / wait primitives
  *
  * Drivers ship as their own packages (`@pkgs/ui-testing-solid-dom`,
@@ -39,6 +40,16 @@ export type {
   WaitTextCondition,
 } from './driver/driver';
 export { isWaitTextCondition } from './driver/driver';
+export {
+  describeUiOp,
+  NO_RECORDER,
+  nodeAtPath,
+  performUiOp,
+  type RecordingDriverOptions,
+  recordingDriver,
+  type StepRecorder,
+  type UiOp,
+} from './report';
 export { formatTestId, formatTestIdPath } from './selector/format';
 export {
   type TestIdSelector,

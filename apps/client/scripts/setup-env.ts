@@ -19,7 +19,8 @@ const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outPath = join(clientRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
-// `setup-env.ts` runs under the `setup` turbo task (dependency of `dev` / `preview`).
+// `setup-env.ts` runs from the `setup` script (npm's `predev` lifecycle, and the
+// `setup` turbo task that `preview` depends on).
 // Production builds do not invoke this script — they read `VITE_*` at bundle time.
 
 function isProductionHostname(rawUrl: string): boolean {
@@ -105,9 +106,6 @@ async function applyProductionHostnameGuard(
 async function resolveViteApiUrl(): Promise<string> {
   const fromInjectedEnv = readApiOriginFromProcessEnv();
   if (fromInjectedEnv !== null) {
-    process.stdout.write(
-      '[setup-env] VITE_API_URL from process env (e.g. secrets-run).\n'
-    );
     return applyProductionHostnameGuard(
       null,
       fromInjectedEnv,
@@ -127,7 +125,6 @@ async function resolveViteApiUrl(): Promise<string> {
 
   const fromSecrets = await resolveApiOriginFromSecrets(store);
   if (fromSecrets !== null) {
-    process.stdout.write('[setup-env] VITE_API_URL from secret store.\n');
     return applyProductionHostnameGuard(
       store,
       fromSecrets,
@@ -166,9 +163,6 @@ function resolveViteCommitHash(): string {
     'git rev-parse HEAD returned invalid SHA',
     { value: stdout.trim(), normalized }
   );
-  process.stdout.write(
-    `[setup-env] VITE_COMMIT_HASH unset; using git HEAD ${normalized.slice(0, 7)}…\n`
-  );
   return normalized;
 }
 
@@ -189,9 +183,6 @@ function resolveViteCommitDate(): string {
   }, 'VITE_COMMIT_DATE is required and git log -1 --format=%cI HEAD failed');
   const normalized = stdout.trim();
   assertCommitDateIso(normalized);
-  process.stdout.write(
-    `[setup-env] VITE_COMMIT_DATE unset; using git HEAD committer date ${normalized}\n`
-  );
   return normalized;
 }
 
@@ -232,7 +223,7 @@ async function main(): Promise<void> {
   renameSync(tmpPath, outPath);
 
   process.stdout.write(
-    `[setup-env] wrote .env.local with VITE_API_URL=${origin} VITE_COMMIT_HASH=${commitHash.slice(0, 7)}… VITE_COMMIT_DATE=${commitDate}\n`
+    `[setup-env] .env.local: ${origin} @ ${commitHash.slice(0, 7)}\n`
   );
 }
 

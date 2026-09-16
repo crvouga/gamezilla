@@ -3,11 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts",
     "./client": "./src/client/index.ts",
     "./client/sql-notebook": "./src/client/sql-notebook/index.ts",
-    "./server": "./src/server/index.ts",
-    "./server/bun-sqlite-dump-to-sqlm": "./src/server/bun-sqlite-dump-to-sqlm.ts",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
@@ -17,34 +14,22 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx' && vitest run --passWithNoTests"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx'"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/db-schema-sqlite": "workspace:*",
-    "@pkgs/device": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/object-store": "workspace:*",
-    "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@pkgs/ui-testing": "workspace:*",
-    "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "hono": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/db-schema": "workspace:*",
-    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

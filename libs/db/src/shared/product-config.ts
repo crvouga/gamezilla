@@ -20,7 +20,7 @@ export const PRODUCT_CONFIG = {
      * Assets-only production Worker (super-app). Top-level `name` in
      * `apps/product/wrangler.toml` is `gamezilla-client`; `wrangler deploy
      * --env production` publishes as this. Serves `/` (wall client) and
-     * `/console` (Tests + Simulator).
+     * `/simulator` (Simulator).
      */
     clientWorker: 'gamezilla-client-production',
   },

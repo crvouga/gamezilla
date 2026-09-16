@@ -1,6 +1,7 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
+import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web/vite';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
@@ -33,6 +34,10 @@ export default defineConfig(({ mode }) => {
   const analyze = process.env['ANALYZE'] === '1';
   const plugins: PluginOption[] = [
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
+    sqliteWebAssets({
+      repoRoot,
+      sqlWorkersDir: resolve(clientDir, 'public/sql-workers'),
+    }),
     tailwindcss(),
     solid({
       babel: {

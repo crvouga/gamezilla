@@ -1,22 +1,14 @@
 /**
- * Pure console navigation codec (no wall I/O).
+ * Pure simulator navigation codec (no wall I/O).
  *
  * URL search keys:
- * - section
  * - simulator: kind, instance, cv (id:view,…); legacy trailing `:table` ignored
- * - tests: bucket, run, test, frame, node, rview
  *
  * Defaults are omitted from the built search. Legacy `host=console` is
  * ignored. Legacy top-level `view` applies to the focused instance (or the
  * kind key for server/events). View aliases: html→ui, sqlite→db, logs→events.
  */
 
-import {
-  DEFAULT_NAV as DEFAULT_REPORT_NAV,
-  navigateReport,
-  type NavPatch as ReportNavPatch,
-  type ReportNavState,
-} from '@pkgs/sim-console/client/router';
 import {
   type DebuggerViewId,
   defaultViewForKind,
@@ -26,7 +18,6 @@ import {
   type SimChromeKind,
 } from '@pkgs/sim-console/shared/sim-node';
 
-export type ConsoleSection = 'tests' | 'simulator';
 export type ConsoleKind = SimChromeKind;
 export type ConsoleView = DebuggerViewId;
 
@@ -41,9 +32,7 @@ export type SimulatorNav = {
 };
 
 export type ConsoleNavState = {
-  readonly section: ConsoleSection;
   readonly simulator: SimulatorNav;
-  readonly tests: ReportNavState;
 };
 
 export type PaneNavPatch = {
@@ -59,9 +48,7 @@ export type SimulatorNavPatch = {
 };
 
 export type ConsoleNavPatch = {
-  readonly section?: ConsoleSection;
   readonly simulator?: SimulatorNavPatch;
-  readonly tests?: ReportNavPatch;
   /**
    * Flat legacy patches — applied onto `simulator`.
    */
@@ -77,13 +64,10 @@ export const DEFAULT_SIMULATOR_NAV: SimulatorNav = {
 };
 
 export const DEFAULT_CONSOLE_NAV: ConsoleNavState = {
-  section: 'tests',
   simulator: DEFAULT_SIMULATOR_NAV,
-  tests: DEFAULT_REPORT_NAV,
 };
 
-const SECTIONS = new Set<string>(['tests', 'simulator']);
-
+/** Legacy section / report-tab keys are dropped on rewrite. */
 const CHROME_KEYS = [
   'host',
   'section',
@@ -107,7 +91,6 @@ const VIEW_ALIASES: Readonly<Record<string, ConsoleView>> = {
 
 const ALL_VIEWS = new Set<string>(['ui', 'db', 'events', 'commands', 'topics']);
 
-export type { ReportNavPatch, ReportNavState };
 export { defaultViewForKind };
 
 export function coerceView(kind: ConsoleKind, view: string): ConsoleView {
@@ -167,12 +150,7 @@ export function applyConsoleNavPatch(
       : {}),
   };
   return {
-    section: patch.section ?? current.section,
     simulator: applySimulatorNavPatch(current.simulator, simulatorPatch),
-    tests:
-      patch.tests !== undefined
-        ? navigateReport(current.tests, patch.tests)
-        : current.tests,
   };
 }
 
@@ -180,7 +158,6 @@ export function parseConsoleNav(search: string): ConsoleNavState {
   const params = new URLSearchParams(
     search.startsWith('?') ? search.slice(1) : search
   );
-  const section = parseSection(params.get('section'));
   const kind = coerceKind(params.get('kind'));
   const instanceParam = params.get('instance')?.trim() ?? '';
   const panes = parsePaneMap(params.get('cv'), kind);
@@ -204,13 +181,11 @@ export function parseConsoleNav(search: string): ConsoleNavState {
     }
   }
   return {
-    section,
     simulator: {
       kind,
       instance,
       panes,
     },
-    tests: parseReportsFromParams(params),
   };
 }
 
@@ -227,17 +202,13 @@ export function buildConsoleSearch(
   );
   for (const key of CHROME_KEYS) params.delete(key);
 
-  if (state.section !== 'tests') params.set('section', state.section);
-
-  const { simulator, tests } = state;
+  const { simulator } = state;
   if (simulator.kind !== 'client') params.set('kind', simulator.kind);
   if (simulator.instance.length > 0) {
     params.set('instance', simulator.instance);
   }
   const cv = buildPaneMap(simulator);
   if (cv.length > 0) params.set('cv', cv);
-
-  writeReportsParams(params, tests);
 
   const qs = params.toString();
   return qs ? `?${qs}` : '';
@@ -247,11 +218,7 @@ export function consoleNavEqual(
   a: ConsoleNavState,
   b: ConsoleNavState
 ): boolean {
-  return (
-    a.section === b.section &&
-    simulatorEqual(a.simulator, b.simulator) &&
-    reportsEqual(a.tests, b.tests)
-  );
+  return simulatorEqual(a.simulator, b.simulator);
 }
 
 function simulatorEqual(a: SimulatorNav, b: SimulatorNav): boolean {
@@ -267,17 +234,6 @@ function simulatorEqual(a: SimulatorNav, b: SimulatorNav): boolean {
     if (ap.view !== bp.view) return false;
   }
   return true;
-}
-
-function reportsEqual(a: ReportNavState, b: ReportNavState): boolean {
-  return (
-    a.bucketId === b.bucketId &&
-    a.runId === b.runId &&
-    a.testId === b.testId &&
-    a.frame === b.frame &&
-    a.node === b.node &&
-    a.view === b.view
-  );
 }
 
 function applySimulatorNavPatch(
@@ -323,10 +279,6 @@ function focusedPaneId(kind: ConsoleKind, instance: string): string {
   const singleton = singletonPaneKey(kind);
   if (singleton !== null) return singleton;
   return instance.trim();
-}
-
-function parseSection(raw: string | null): ConsoleSection {
-  return raw !== null && SECTIONS.has(raw) ? (raw as ConsoleSection) : 'tests';
 }
 
 function normalizeInstance(kind: ConsoleKind, raw: string): string {
@@ -404,53 +356,4 @@ function buildPaneMap(simulator: SimulatorNav): string {
     entries.push(`${encodeURIComponent(id)}:${encodeURIComponent(pane.view)}`);
   }
   return entries.join(',');
-}
-
-function parseReportsFromParams(params: URLSearchParams): ReportNavState {
-  const bucketId = emptyToNull(params.get('bucket'));
-  const runId = emptyToNull(params.get('run'));
-  const testId = emptyToNull(params.get('test'));
-  const node = emptyToNull(params.get('node'));
-  const frame = parsePositiveInt(params.get('frame'));
-  const rview = params.get('rview');
-  return {
-    bucketId,
-    runId,
-    testId,
-    frame,
-    node,
-    view: parseReportView(rview),
-  };
-}
-
-function writeReportsParams(
-  params: URLSearchParams,
-  reports: ReportNavState
-): void {
-  if (reports.bucketId != null) params.set('bucket', reports.bucketId);
-  if (reports.runId != null) params.set('run', reports.runId);
-  if (reports.testId != null) params.set('test', reports.testId);
-  if (reports.frame != null) params.set('frame', String(reports.frame));
-  if (reports.node != null) params.set('node', reports.node);
-  if (reports.view != null) params.set('rview', reports.view);
-}
-
-function emptyToNull(raw: string | null): string | null {
-  if (raw == null || raw.trim() === '') return null;
-  return raw.trim();
-}
-
-function parsePositiveInt(raw: string | null): number | null {
-  if (raw == null || raw === '') return null;
-  const n = Number(raw);
-  if (!Number.isFinite(n) || n < 1) return null;
-  return Math.floor(n);
-}
-
-function parseReportView(raw: string | null): ReportNavState['view'] {
-  if (raw == null || raw === '') return null;
-  const aliased = VIEW_ALIASES[raw] ?? raw;
-  return ALL_VIEWS.has(aliased)
-    ? (aliased as NonNullable<ReportNavState['view']>)
-    : null;
 }

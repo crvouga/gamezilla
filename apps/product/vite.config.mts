@@ -1,6 +1,7 @@
 // @io-wall-ok — build-tool composition root
 import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
+import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web/vite';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
@@ -16,11 +17,17 @@ const linguiConfig = getConfig({
   configPath: resolve(repoRoot, 'lingui.solid.config.ts'),
 });
 
-const DEV_PORT = 5173;
+/** `.superset/port.sh` exports `VITE_PORT` so parallel workspaces don't collide. */
+const DEV_PORT = Number(process.env['VITE_PORT'] ?? 5173);
 
 export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
+    sqliteWebAssets({
+      repoRoot,
+      sqlWorkersDir: resolve(consoleDir, 'public/sql-workers'),
+      sqliteWasmDir: resolve(consoleDir, 'public/generated/sqlite-wasm'),
+    }),
     tailwindcss(),
     solid({
       babel: {

@@ -35,6 +35,10 @@ import {
 } from '../debugger-chrome';
 import { ProductSimulatorAppearanceCommands } from './product-simulator-appearance-commands';
 import {
+  ProductSimulatorExitButton,
+  ProductSimulatorExitCommand,
+} from './product-simulator-exit';
+import {
   type ProductSimulatorClientColumnShellProps,
   ProductSimulatorKindPane,
   productSimulatorInstancesForKind,
@@ -63,6 +67,8 @@ export function ProductSimulatorScreen(props: {
   ) => void;
   /** Retry boot after an error (chunk load / sim init). */
   readonly onReload?: () => void;
+  /** Leave the simulator for the product app. */
+  readonly onExit: () => void;
 }) {
   const readyState = () =>
     props.state.status === 'ready' ? props.state : null;
@@ -90,6 +96,7 @@ export function ProductSimulatorScreen(props: {
             <SurfaceStackProvider>
               <FocusedProductSimulatorScreen
                 session={state().session}
+                onExit={props.onExit}
                 chrome={{
                   kind: props.kind,
                   instance: props.instance,
@@ -110,6 +117,7 @@ export function ProductSimulatorScreen(props: {
 function FocusedProductSimulatorScreen(props: {
   readonly session: ProductSimulatorSession;
   readonly chrome: DebuggerChromeNav;
+  readonly onExit: () => void;
 }) {
   const layout = useSimConsoleLayout();
   const [focusedClientId, setFocusedClientId] = createSignal<string | null>(
@@ -132,9 +140,11 @@ function FocusedProductSimulatorScreen(props: {
   return (
     <CommandRegistryProvider enableDefaultShortcuts={simShortcutsActive()}>
       <ProductSimulatorAppearanceCommands />
+      <ProductSimulatorExitCommand onExit={props.onExit} />
       <ReadyProductSimulatorScreen
         session={props.session}
         chrome={props.chrome}
+        onExit={props.onExit}
         focusedClientId={focusedClientId()}
         onFocusedClientIdChange={setFocusedClientId}
       />
@@ -188,6 +198,7 @@ function selectedUnifiedNodeId(
 function ReadyProductSimulatorScreen(props: {
   readonly session: ProductSimulatorSession;
   readonly chrome: DebuggerChromeNav;
+  readonly onExit: () => void;
   readonly focusedClientId: string | null;
   readonly onFocusedClientIdChange: (id: string | null) => void;
 }) {
@@ -242,6 +253,7 @@ function ReadyProductSimulatorScreen(props: {
       <ProductSimulatorDebuggerShell
         session={props.session}
         chrome={props.chrome}
+        onExit={props.onExit}
         clients={clients()}
         kind={kind}
         instances={instances}
@@ -264,6 +276,7 @@ function ReadyProductSimulatorScreen(props: {
 function ProductSimulatorDebuggerShell(props: {
   readonly session: ProductSimulatorSession;
   readonly chrome: DebuggerChromeNav;
+  readonly onExit: () => void;
   readonly clients: readonly ProductSimulatorActor[];
   readonly kind: () => SimChromeKind;
   readonly instances: () => readonly {
@@ -284,12 +297,13 @@ function ProductSimulatorDebuggerShell(props: {
 }) {
   return (
     <DebuggerShell
-      showPlayer={false}
-      frames={[]}
-      selectedFrameIndex={0}
-      onSelectFrame={() => undefined}
       onChromePointerDown={props.clearClientFocus}
-      kindTrailing={<ProductSimulatorSnapshotChrome session={props.session} />}
+      kindTrailing={
+        <div class="box flex-row items-center gap-1">
+          <ProductSimulatorSnapshotChrome session={props.session} />
+          <ProductSimulatorExitButton onExit={props.onExit} />
+        </div>
+      }
       kind={props.kind()}
       onKindChange={props.chrome.onKindChange}
       unifiedNodes={props.unifiedNodes()}

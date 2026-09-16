@@ -1,10 +1,9 @@
-import { defineAction, type JsonValue, type Rng } from '@pkgs/sim';
-import type { DriverKey, DriverNode, ScrollDirection } from '@pkgs/ui-testing';
+import { defineAction, type Rng } from '@pkgs/sim';
+import { describeUiOp, performUiOp, type UiOp } from '@pkgs/ui-testing';
 
 import { ensureActor } from './actor-ui';
 import { caps, clientIds, partitioned } from './observations';
 import type { ProductSim } from './sim';
-import { nodeAt } from './ui-nodes';
 
 export const spawnActor = defineAction({
   name: 'spawnActor',
@@ -43,87 +42,15 @@ export const restoreNetwork = defineAction({
   },
 });
 
-export type UiOp = {
-  readonly actorId: string;
-  readonly op: string;
-  readonly path: readonly string[];
-  readonly extra: Readonly<Record<string, JsonValue>>;
-};
+export type { UiOp };
 
+/** Explore-time UI stimulus (UI op as data); scenarios drive drivers directly. */
 export const uiOp = defineAction({
   name: 'uiOp',
+  describe: (op: UiOp) => describeUiOp(op),
   act: async (s: ProductSim, op: UiOp) => {
-    await performUiOp(s, op);
+    const handle = s.actors.get(op.actorId);
+    if (handle === undefined) return;
+    await performUiOp(handle.ui, op);
   },
 });
-
-function keyOf(op: UiOp): DriverKey {
-  const key = op.extra['key'];
-  return typeof key === 'string' ? (key as DriverKey) : 'enter';
-}
-
-function textOf(op: UiOp): string {
-  const text = op.extra['text'];
-  return typeof text === 'string' ? text : '';
-}
-
-async function performUiOp(s: ProductSim, op: UiOp): Promise<void> {
-  const handle = s.actors.get(op.actorId);
-  if (handle === undefined) return;
-  const timeoutMs =
-    typeof op.extra['timeoutMs'] === 'number'
-      ? op.extra['timeoutMs']
-      : undefined;
-  const opts = timeoutMs !== undefined ? { timeoutMs } : undefined;
-  if (op.op === 'key' && op.path.length === 0) {
-    await handle.ui.key(keyOf(op));
-    return;
-  }
-  const node = nodeAt(s, op.actorId, op.path);
-  if (node === null) return;
-  await runNodeOp(node, op, opts);
-}
-
-async function runNodeOp(
-  node: DriverNode,
-  op: UiOp,
-  opts: { readonly timeoutMs: number } | undefined
-): Promise<void> {
-  switch (op.op) {
-    case 'tap':
-      await node.tap(opts);
-      return;
-    case 'input':
-      await node.input(textOf(op), opts);
-      return;
-    case 'clear':
-      await node.clear();
-      return;
-    case 'key':
-      await node.key(keyOf(op));
-      return;
-    case 'scroll':
-      await node.scroll(op.extra['direction'] as ScrollDirection);
-      return;
-    case 'tapAt':
-      await node.tapAt({
-        xRatio: Number(op.extra['xRatio'] ?? 0),
-        yRatio: Number(op.extra['yRatio'] ?? 0),
-      });
-      return;
-    case 'drag':
-      await node.drag(
-        {
-          xRatio: Number(op.extra['fromX'] ?? 0),
-          yRatio: Number(op.extra['fromY'] ?? 0),
-        },
-        {
-          xRatio: Number(op.extra['toX'] ?? 0),
-          yRatio: Number(op.extra['toY'] ?? 0),
-        }
-      );
-      return;
-    default:
-      return;
-  }
-}

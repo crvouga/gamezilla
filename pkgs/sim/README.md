@@ -21,8 +21,11 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 | **Property** | Model-based checkpoint check `{ setup?, check(s, model, action) }` from `defineProperty`, listed in `defineSystem({ properties })`. Assert with the pre-update model; optionally return the next model. `action` is null on boot / `s.assert` / dispose. |
 | **Snapshot** | Named capture `{ media?, capture }` from `defineSnapshot`, listed in `defineSystem({ snapshots })`. Value may be any type; `media` (`json` / `html` / `png` / `text` / `bytes`) controls encoding and UI. |
 | **Run** | Opened by `system.run({ seed, runtime?, args?, report? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions` / `record` / `snapshot`. |
-| **RunReport** | Timeline of report steps + frames for one test. Built when `report` is enabled; optionally persisted to an ObjectStore. |
-| **record** | `s.record({ kind, title, … }, fn)` — one labeled report step; nested `apply` / `advanceTime` attach frames to it. |
+| **RunReport** | Timeline of report steps + frames for one test. Built when `report` is enabled; optionally persisted to an ObjectStore (`runs/<runId>/tests/<testId>/report.json` + `frames/`). |
+| **record** | `s.record({ kind, title, selector?, actorId? }, fn)` — one labeled report step. Steps nest: `record` / `apply` inside an open step become its children. `advanceTime` never opens a step. |
+| **describe** | Optional `defineAction({ describe: (...args) => string })` — report title for `s.apply`; default `name(arg, …)`. `report: false` hides a harness-only action from the timeline. |
+| **fail** | `s.fail(err)` — mark the run failed for an error raised outside any step (test-body assertion). |
+| **HTML report** | `writeHtmlReport({ store, runId, out, frameCss?, junitXml? })` — one standalone `index.html` (Playwright-style: test list with status filters, step tree, frame scrubber, per-actor HTML previews, JSON panes). `readRunBundle` / `renderHtmlReport` / `applyJunitOutcomes` are the pure pieces. |
 | **randomActions** | Weighted random walk over the action pool (`s.randomActions`). Returns a `RandomActionsReport`. |
 | **explore** | `system.explore` — search (episodes × randomActions + shrink). Throws `ExploreFailedError`. |
 | **replay** | `system.replay(recording)` — re-apply a Recording / report path. |
@@ -38,7 +41,7 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/sim` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + report types (`RunReport`, `RunReportOptions`, …) + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/sim` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `writeHtmlReport`, `readRunBundle`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
 | `@pkgs/sim/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/sim/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver`, JSON arbs |
 
@@ -139,6 +142,7 @@ src/index.ts       public algebra
 src/runtime/       virtualTimeRuntime / realTimeRuntime / createRuntime (internal) / Session
 src/system/        defineSystem / defineAction / defineProperty / defineRuntime / recording
 src/report/        Snapshot / RunReport / RunReporter / ObjectStore persist
+src/report/html/   standalone HTML report (bundle → index.html, JUnit overlay)
 src/run/           run / randomActions / explore / checkpoint (internal)
 src/internals/     clocks, schedulers, rng, fingerprint, json, timers
 src/models/        in-process network
@@ -146,6 +150,25 @@ src/fast-check/    gen / arbitrary adapters
 ```
 
 ---
+
+## Reporting
+
+```ts
+await using s = await kv.run({
+  seed: 7,
+  report: { store, runId: 'latest', testId: 'kv-put', title: 'puts a value' },
+});
+await s.apply(put, 'client:0', 'a', '1'); // step "put(\"client:0\", \"a\", \"1\")" + frame
+await s.record({ kind: 'ui', title: 'tap', selector: 'testId("ok")' }, tapOk);
+
+// later, from a script (`// @io-wall-ok`):
+await writeHtmlReport({ store, runId: 'latest', out: artifactStore });
+// → artifactStore `index.html`
+```
+
+Frames come only from `defineSystem({ snapshots })`; UI harnesses wrap drivers
+with `@pkgs/ui-testing` `recordingDriver` so every op is a titled step. The
+HTML file embeds every frame — no server, no console tab.
 
 ## Do / don't
 
