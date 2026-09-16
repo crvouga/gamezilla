@@ -1,13 +1,16 @@
-// @io-wall-ok — CLI: run the product suite with reporting, then build the HTML
+// @io-wall-ok — CLI: run the product suite with reporting, then build + open HTML
 /**
  * `bun run --filter @apps/product test:report [bun test args…]`
  *
  * Wipes the report bucket, runs `bun test` with `SIM_REPORT=1` plus a JUnit
- * reporter, then renders `sim-report/index.html`. Exits with the test status.
+ * reporter, renders `sim-report/index.html`, then opens it. Exits with the
+ * test status.
  */
 
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
+
+import { run } from '@pkgs/os';
 
 import {
   PRODUCT_DIR,
@@ -52,4 +55,5 @@ const result = await buildSimReport();
 process.stdout.write(
   `\n[sim-report] ${result.status} · ${String(result.testCount)} test(s)\n[sim-report] open ${result.indexPath}\n`
 );
+run('open', [result.indexPath]);
 process.exit(test.status ?? 1);

@@ -1,6 +1,8 @@
 /**
- * Product scenario actions (pool: false). Explore still uses spawnActor /
- * uiOp / partition; these are named user-intent stimuli for `s.apply`.
+ * Product scenario actions (pool: false unless opted in). Explore / monkey
+ * walks use `defineAction`s with `pool: true` + `sample` / `enabled`
+ * (see topology actions + opted-in scenario pins). UI inventory monkeys are
+ * not used — the walk is always the action catalog.
  */
 
 import { returnToTabs, signInWithDev, signOut } from './auth-actions';

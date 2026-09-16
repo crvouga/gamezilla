@@ -221,7 +221,7 @@ export type ProductSimulatorSession = {
   subscribe(listener: () => void): () => void;
   addClient(id?: string): Promise<ProductSimulatorActor>;
   removeClient(id: string): Promise<void>;
-  /** Boot another API instance into the rotation (`server-2`, `server-3`, …). */
+  /** Boot another API instance into the rotation (`server-b`, `server-c`, …). */
   addServer(id?: string): Promise<ProductSimulatorSqlNode>;
   /** Retire an API instance. Rejects on the last one — crash it instead. */
   removeServer(id: string): Promise<void>;

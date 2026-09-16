@@ -15,7 +15,7 @@ import { appShellSx } from './tokens';
  * the "Exit simulator" palette command and toolbar button).
  *
  * Simulator nav is controlled by the host so it can sync to browser history.
- * Test reports are standalone HTML artifacts (`@pkgs/sim` `writeHtmlReport`),
+ * Test reports are standalone HTML artifacts (`@pkgs/sim-report` `writeHtmlReport`),
  * not a screen here.
  */
 export function SimConsoleApp(props: {

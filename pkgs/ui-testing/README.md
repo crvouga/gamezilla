@@ -187,7 +187,9 @@ are only `timeoutMs` / `description` — no shared poll interval.
 ## Reporting (`@pkgs/ui-testing/report`)
 
 Reporting is first-class: a harness wraps each actor's driver and every
-user-intent op becomes a `@pkgs/sim` report step with its selector.
+user-intent op becomes a `@pkgs/sim` report step with its selector and press
+`hit` (testId path + layout rect / tap point). UI steps snapshot before the
+gesture so the HTML viewer can overlay the pressed element.
 
 ```ts
 import { recordingDriver, type StepRecorder } from '@pkgs/ui-testing';
@@ -205,7 +207,7 @@ the data form of an op for explore walks and recordings.
 `Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
 produce a readable HTML preview of the current UI (Solid DOM serializes the
 live document plus body-level portals). Systems expose it through
-`defineSnapshot({ media: 'html' })`; `@pkgs/sim` `writeHtmlReport` renders the
+`defineSnapshot({ media: 'html' })`; `@pkgs/sim-report` `writeHtmlReport` renders the
 frames into one standalone `index.html`.
 
 ## Adding a future driver (Maestro, Appium, Cypress, …)

@@ -25,9 +25,10 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
+import { simClientNamespace } from './sim-client-namespace';
 import type { SimLoadBalancer } from './sim-load-balancer';
 import type { SimNet } from './sim-net';
-import { simClientNamespace } from './sim-client-namespace';
+import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
 import { handleBoundSqlClient, openFreshSimClientSql, type SimSql } from './sim-sql';
 
 export type SimClientEnvDeps = {
@@ -70,7 +71,7 @@ function clientOpenAuthSession(
   return async (authorizationUrl, callbackUrl) => {
     const result = await completeDevAuth(authorizationUrl, callbackUrl);
     if (result.type === 'success') {
-      // Dev IdP subject doubles as the sim actor username (alice/bob).
+      // Dev IdP subject doubles as the sim actor username (client-a / client-b).
       setPendingSignupUsername(id);
     }
     return result;
@@ -124,7 +125,7 @@ export function makeSimClientEnv(
     authStorage: createNamespacedAuthClientStorage(ns),
     secureStorage: clientSecureStorage(ns),
     room: (roomArgs) => {
-      net.assertReachable(id, 'server');
+      net.assertReachable(id, SIM_PRIMARY_SERVER_ID);
       return roomNode.createTransport(roomArgs);
     },
     ...createInMemoryClientPorts(`sim-client:${id}`),

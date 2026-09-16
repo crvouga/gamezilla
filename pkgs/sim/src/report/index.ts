@@ -9,20 +9,13 @@ export {
 export { encodeSnapshotValue, hashBytes, hashString, padFrame } from './encode';
 export {
   applyJunitOutcomes,
-  type BuildHtmlReportOptions,
-  buildHtmlReport,
-  HTML_REPORT_KEY,
   type HtmlReportBlob,
   type HtmlReportBundle,
   type HtmlReportTest,
   type JunitCase,
   matchJunitCase,
   parseJunit,
-  type RenderHtmlReportOptions,
   readRunBundle,
-  renderHtmlReport,
-  type WriteHtmlReportOptions,
-  writeHtmlReport,
 } from './html';
 export {
   contentTypeForMedia,
@@ -43,6 +36,7 @@ export {
   type ReportFrame,
   type ReportSnapshotBlob,
   type ReportStep,
+  type ReportStepHit,
   type ReportStepStatus,
   type ReportTestStatus,
   type RunReport,

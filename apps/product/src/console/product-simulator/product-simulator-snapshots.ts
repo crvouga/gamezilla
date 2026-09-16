@@ -356,7 +356,7 @@ export async function loadProductSimulatorSnapshot(
   const checkpoint = await checkpointFromStore(ctx.store, prefix, manifest);
   await restoreCheckpoint(ctx, checkpoint);
   if (ctx.maps.clients.size === 0) {
-    await ctx.spawnClient('alice');
-    await ctx.spawnClient('bob');
+    await ctx.spawnClient('client-a');
+    await ctx.spawnClient('client-b');
   }
 }

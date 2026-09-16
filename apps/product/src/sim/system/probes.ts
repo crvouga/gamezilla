@@ -19,6 +19,7 @@ import type { ProductSim } from './sim';
 /** Sign in through the client auth port wired to the in-process sim server. */
 export const devOauthSignIn = defineAction({
   name: 'devOauthSignIn',
+  pool: false,
   act: async (s: ProductSim, actorId: string) => {
     const env = s.sim.client(actorId);
     const port = createAuthClientAdapter({
@@ -38,6 +39,7 @@ export const devOauthSignIn = defineAction({
 /** Dump server + client SQL / kv / rooms into `probes.snapshot`. */
 export const captureSnapshot = defineAction({
   name: 'captureSnapshot',
+  pool: false,
   act: async (s: ProductSim, clientIds: readonly string[]) => {
     s.probes.snapshot = await captureSnapshotOf(s, clientIds);
   },

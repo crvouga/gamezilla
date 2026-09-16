@@ -26,6 +26,7 @@ export {
   partitioned,
   visible,
 } from './observations';
+export { PRODUCT_POOL_ACTIONS } from './pool-actions';
 export { captureSnapshot, devOauthSignIn } from './probes';
 export {
   acceptFriendRequest,

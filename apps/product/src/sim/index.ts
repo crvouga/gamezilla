@@ -104,6 +104,7 @@ export {
   partitioned,
   visible,
 } from './system/observations';
+export { PRODUCT_POOL_ACTIONS } from './system/pool-actions';
 export { captureSnapshot, devOauthSignIn } from './system/probes';
 export {
   acceptFriendRequest,

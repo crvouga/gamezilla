@@ -66,8 +66,8 @@
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
     "lint": "bunx biome check --error-on-warnings .",
-    "report:build": "bun run scripts/build-sim-report.ts",
-    "report:open": "bun run scripts/build-sim-report.ts --open",
+    "report:build": "bun run --filter @pkgs/sim-report build && bun run scripts/build-sim-report.ts",
+    "report:open": "bun run --filter @pkgs/sim-report build && bun run scripts/build-sim-report.ts --open",
     "prebuild": "bun run --cwd ../.. i18n:compile",
     "predev": "bun run --silent setup",
     "seed:sim-db": "bun scripts/build-sim-seed.ts",
@@ -84,7 +84,8 @@
     "test:shell": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/shell-boot.test.tsx",
     "test:spaces": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/space-create.test.tsx tests/space-end.test.tsx tests/space-friend-join.test.tsx",
     "test:topology": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/topology-partition.test.tsx",
-    "test:walk": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/product-walk.test.tsx"
+    "test:walk": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/product-walk.test.tsx",
+    "test:explore": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 180000 tests/product-explore.test.tsx"
   },
   "dependencies": {
     "@apps/client": "workspace:*",
@@ -134,6 +135,7 @@
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/secure-storage-web": "workspace:*",
     "@pkgs/sim": "workspace:*",
+    "@pkgs/sim-report": "workspace:*",
     "@pkgs/sim-console": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",

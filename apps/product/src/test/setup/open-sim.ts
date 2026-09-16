@@ -6,9 +6,7 @@
 import type {
   ProductExtra,
   ProductHostName,
-  ProductRuntime,
   ProductSim,
-  ProductUi,
   Sim,
   SimActor,
   SimHttpListener,
@@ -27,11 +25,7 @@ import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 import type { StepRecorder } from '@pkgs/ui-testing';
 
-import {
-  type ActorEntry,
-  closeActorEntry,
-  launchActor as launchActorEntry,
-} from './launch-actor';
+import { wireProductRuntime } from '../../sim/setup/wire-product-runtime';
 import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
 import {
   clearNodeLocalStoragePolyfill,
@@ -53,71 +47,6 @@ function resolveHostName(options: OpenSimOptions | undefined): ProductHostName {
   return resolveSimMode(options) === 'real' ? 'bun-webview' : 'in-process';
 }
 
-type WiredRuntime = {
-  readonly entries: Map<string, ActorEntry>;
-  readonly recorder: StepRecorder | null;
-  httpListener: SimHttpListener | null;
-};
-
-function domSessionOf(ui: ProductUi) {
-  return ui.kind === 'solid-dom' ? (ui.session ?? null) : null;
-}
-
-function makeRuntime(args: {
-  readonly surface: ProductSim;
-  readonly extra: ProductExtra;
-  readonly snapshot: SimSystemSnapshot | undefined;
-  readonly wired: WiredRuntime;
-}): ProductRuntime {
-  const { surface, extra, snapshot, wired } = args;
-  return {
-    async launchActor(id) {
-      const entry = await launchActorEntry({
-        ui: extra.ui,
-        sim: surface.sim,
-        id,
-        ...(snapshot !== undefined ? { snapshot } : {}),
-        ...(wired.recorder !== null ? { recorder: wired.recorder } : {}),
-      });
-      wired.entries.set(id, entry);
-      return entry.handle;
-    },
-    async resetActor(id) {
-      const existing = wired.entries.get(id);
-      if (existing !== undefined) {
-        await closeActorEntry(existing);
-        wired.entries.delete(id);
-      }
-      surface.actors.delete(id);
-      await surface.sim.dropClient(id);
-      surface.sim.bumpClientEpoch();
-    },
-    async disposeResources() {
-      await disposeProduct(surface.sim, extra, wired);
-    },
-  };
-}
-
-async function disposeProduct(
-  sim: Sim,
-  extra: ProductExtra,
-  wired: WiredRuntime
-): Promise<void> {
-  for (const a of wired.entries.values()) {
-    await closeActorEntry(a);
-  }
-  wired.entries.clear();
-  domSessionOf(extra.ui)?.dispose();
-  if (wired.httpListener !== null) {
-    await wired.httpListener.stop();
-  }
-  await sim.dispose();
-  clearNodeLocalStoragePolyfill();
-  await new Promise<void>((resolve) => {
-    simNodeTimers.setTimeout(resolve, 50);
-  });
-}
-
 async function restoreSnapshot(
   sim: Sim,
   snapshot: SimSystemSnapshot
@@ -133,32 +62,6 @@ async function restoreSnapshot(
   await restoreSystemSnapshot(snapshotCtx, snapshot);
 }
 
-async function wireSim(args: {
-  readonly surface: ProductSim;
-  readonly snapshot?: SimSystemSnapshot;
-  readonly recorder: StepRecorder | null;
-}): Promise<void> {
-  const { surface } = args;
-  const extra = productExtra(surface);
-  if (args.snapshot !== undefined) {
-    await restoreSnapshot(surface.sim, args.snapshot);
-  }
-  const wired: WiredRuntime = {
-    entries: new Map(),
-    recorder: args.recorder,
-    httpListener: null,
-  };
-  if (extra.http.kind === 'localhost') {
-    wired.httpListener = await listenSimHttpServer(surface.sim);
-  }
-  surface.runtime = makeRuntime({
-    surface,
-    extra,
-    snapshot: args.snapshot,
-    wired,
-  });
-}
-
 /**
  * Pin the surface for setup wiring only. `Run` is the sole public handle —
  * scenarios never see this, and nothing outside this module may call it.
@@ -168,8 +71,8 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
   const capture = defineAction({
     name: 'openSim.pinSim',
     report: false,
-    act: (s: ProductSim) => {
-      pin.current = s;
+    act: (surf: ProductSim) => {
+      pin.current = surf;
     },
   });
   await s.apply(capture);
@@ -214,13 +117,31 @@ export async function openSim(
     options?.snapshot !== undefined
       ? readSimSystemSnapshot(options.snapshot)
       : undefined;
-  await wireSim({
-    surface,
+  if (snapshot !== undefined) {
+    await restoreSnapshot(surface.sim, snapshot);
+  }
+  const extra = productExtra(surface);
+  let httpListener: SimHttpListener | null = null;
+  if (extra.http.kind === 'localhost') {
+    httpListener = await listenSimHttpServer(surface.sim);
+  }
+  // Replace create()-default runtime with report / snapshot / HTTP extras.
+  wireProductRuntime(surface, {
     ...(snapshot !== undefined ? { snapshot } : {}),
     recorder: reporting ? { record: (meta, fn) => s.record(meta, fn) } : null,
+    onDispose: async () => {
+      if (httpListener !== null) {
+        await httpListener.stop();
+      }
+      clearNodeLocalStoragePolyfill();
+      await new Promise<void>((resolve) => {
+        simNodeTimers.setTimeout(resolve, 50);
+      });
+    },
   });
-  surface.session.onDispose(() => surface.runtime.disposeResources());
+  // create() already registered disposeResources on session.onDispose; the
+  // replacement runtime is what runs on dispose.
   return s;
 }
 
-export type { OpenSimOptions, SimMode };
+export type { OpenSimOptions, ProductExtra, SimMode };

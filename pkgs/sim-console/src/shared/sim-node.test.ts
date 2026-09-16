@@ -8,16 +8,18 @@ describe('formatSimNodeLabel', () => {
     expect(formatSimNodeLabel({ id: `room:${topic}` })).toBe('199f2d72…');
   });
 
-  test('keeps kind labels for fixed nodes', () => {
-    expect(formatSimNodeLabel({ id: 'server', kind: 'server' })).toBe('Server');
-    expect(formatSimNodeLabel({ id: 'events', kind: 'events' })).toBe('PubSub');
+  test('keeps kebab-case kind labels for fixed nodes', () => {
+    expect(formatSimNodeLabel({ id: 'server-a', kind: 'server' })).toBe(
+      'server-a'
+    );
+    expect(formatSimNodeLabel({ id: 'events', kind: 'events' })).toBe('pubsub');
+    expect(formatSimNodeLabel({ id: 'lb', kind: 'lb' })).toBe('balancer');
   });
 
   test('shows client instance ids as-is', () => {
-    expect(formatSimNodeLabel({ id: 'client-1', kind: 'client' })).toBe(
-      'client-1'
+    expect(formatSimNodeLabel({ id: 'client-a', kind: 'client' })).toBe(
+      'client-a'
     );
-    expect(formatSimNodeLabel({ id: 'alice', kind: 'client' })).toBe('alice');
-    expect(formatSimNodeLabel({ id: 'client:alice' })).toBe('alice');
+    expect(formatSimNodeLabel({ id: 'client:client-b' })).toBe('client-b');
   });
 });

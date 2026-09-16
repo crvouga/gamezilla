@@ -10,5 +10,6 @@ the SQL notebook.
   injected by `@apps/product`; this package never imports apps/libs/test.
 
 Test reports are **not** browsed here. `@pkgs/sim` captures run timelines
-(`defineSnapshot` / `run({ report })`) and renders them to a standalone HTML
-file (`writeHtmlReport`); see `apps/product/src/test/setup/TESTING.md`.
+(`defineSnapshot` / `run({ report })`); `@pkgs/sim-report` renders them to a
+standalone HTML file (`writeHtmlReport`); see
+`apps/product/src/test/setup/TESTING.md`.

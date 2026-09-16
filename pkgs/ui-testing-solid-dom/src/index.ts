@@ -15,6 +15,10 @@ export {
 } from './dom-layout';
 export { ACTOR_ATTR, testIdSelector } from './dom-query';
 export { normalizeText, readDomText } from './dom-text';
+export {
+  layoutDomTree,
+  type TreeLayoutFrame,
+} from './dom-tree-layout';
 export { isDomVisible } from './dom-visibility';
 export {
   DEFAULT_WAIT_TIMEOUT_MS,

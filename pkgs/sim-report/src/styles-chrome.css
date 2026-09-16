@@ -1,0 +1,215 @@
+@layer components {
+  .sr-scrubber {
+    flex: none;
+    border-top: 1px solid var(--color-sr-border);
+    background: var(--color-sr-panel);
+    padding: 8px 12px 10px;
+  }
+
+  .sr-scrubber-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .sr-scrub-track {
+    position: relative;
+    flex: 1;
+    height: 28px;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .sr-scrub-track:active,
+  .sr-scrub-track.dragging {
+    cursor: grabbing;
+  }
+
+  .sr-scrub-rail {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-sr-panel-3);
+    pointer-events: none;
+  }
+
+  .sr-scrub-fill {
+    position: absolute;
+    left: 0;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-sr-accent);
+    pointer-events: none;
+    max-width: 100%;
+  }
+
+  .sr-scrub-knob {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border-radius: 50%;
+    background: var(--color-sr-text);
+    border: 2px solid var(--color-sr-accent);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+  }
+
+  .sr-frame-label {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-sr-muted);
+    min-width: 88px;
+    text-align: right;
+    font-size: 12px;
+  }
+
+  .sr-film {
+    display: flex;
+    gap: 6px;
+    padding-top: 8px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .sr-thumb {
+    flex: none;
+    width: 76px;
+    border: 1px solid var(--color-sr-border);
+    border-radius: 6px;
+    padding: 4px;
+    color: var(--color-sr-muted);
+    font-size: 10.5px;
+    text-align: center;
+    cursor: pointer;
+    background: var(--color-sr-panel-2);
+    position: relative;
+  }
+
+  .sr-thumb:hover {
+    border-color: var(--color-sr-border-strong);
+    color: var(--color-sr-text);
+  }
+
+  .sr-thumb.on {
+    border-color: var(--color-sr-accent);
+    color: var(--color-sr-text);
+    box-shadow: 0 0 0 1px var(--color-sr-accent);
+  }
+
+  .sr-thumb.failed {
+    border-color: rgba(240, 89, 101, 0.55);
+  }
+
+  .sr-thumb .n {
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+  }
+
+  .sr-thumb .t {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .sr-hit-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-sr-press);
+  }
+
+  .sr-nodata {
+    color: var(--color-sr-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 24px;
+    text-align: center;
+  }
+
+  .sr-help {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .sr-help-card {
+    background: var(--color-sr-panel);
+    border: 1px solid var(--color-sr-border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: var(--shadow-sr);
+  }
+
+  .sr-help-card h3 {
+    margin: 0 0 10px;
+    font-size: 14px;
+  }
+
+  .sr-help-card dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 14px;
+    font-size: 12.5px;
+  }
+
+  .sr-help-card dt {
+    font-family: var(--font-sr-mono);
+    color: var(--color-sr-accent);
+  }
+
+  .sr-help-card dd {
+    margin: 0;
+    color: var(--color-sr-muted);
+  }
+
+  .sr-hints {
+    position: fixed;
+    bottom: 10px;
+    right: 12px;
+    color: var(--color-sr-faint);
+    font-size: 11px;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  @media (max-width: 960px) {
+    .sr-detail {
+      grid-template-columns: 1fr;
+    }
+    .sr-side {
+      max-height: 36vh;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-sr-border);
+    }
+    .sr-aside {
+      display: none;
+    }
+    .sr-stage.multi {
+      flex-wrap: wrap;
+    }
+    .sr-client {
+      max-width: none;
+      flex: 1 1 45%;
+    }
+  }
+}

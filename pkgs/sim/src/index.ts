@@ -15,18 +15,17 @@ export type {
 } from './models/network';
 export { RELIABLE_NETWORK } from './models/network';
 export type {
-  BuildHtmlReportOptions,
   CatalogSnapshot,
   HtmlReportBlob,
   HtmlReportBundle,
   HtmlReportTest,
   JunitCase,
   RecordStepMeta,
-  RenderHtmlReportOptions,
   ReportCaptureMode,
   ReportFrame,
   ReportSnapshotBlob,
   ReportStep,
+  ReportStepHit,
   ReportStepStatus,
   ReportTestStatus,
   RunReport,
@@ -39,15 +38,12 @@ export type {
   SnapshotMedia,
   SuiteManifest,
   SuiteTestSummary,
-  WriteHtmlReportOptions,
 } from './report';
 export {
   applyJunitOutcomes,
-  buildHtmlReport,
   countFrames,
   countSteps,
   defineSnapshot,
-  HTML_REPORT_KEY,
   isSnapshot,
   matchJunitCase,
   mediaExtension,
@@ -55,7 +51,6 @@ export {
   parseJunit,
   RUNS_INDEX_KEY,
   readRunBundle,
-  renderHtmlReport,
   resolveReportOptions,
   runManifestKey,
   runPrefix,
@@ -65,7 +60,6 @@ export {
   testFrameKey,
   testPrefix,
   testReportKey,
-  writeHtmlReport,
 } from './report';
 export type {
   ExploreOptions,
