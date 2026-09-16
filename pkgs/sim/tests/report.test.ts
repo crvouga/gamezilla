@@ -8,6 +8,7 @@ import {
   defineSnapshot,
   defineSystem,
   RUNS_INDEX_KEY,
+  runManifestKey,
   testReportKey,
   virtualTimeRuntime,
 } from '../src/index';
@@ -69,7 +70,7 @@ describe('run reporting', () => {
     expect(report).not.toBeNull();
     expect(report!.steps).toHaveLength(1);
     expect(report!.steps[0]!.kind).toBe('apply');
-    expect(report!.steps[0]!.title).toBe('put');
+    expect(report!.steps[0]!.title).toBe('put("x", "1")');
     expect(report!.steps[0]!.frames.length).toBeGreaterThanOrEqual(1);
     const snaps = report!.steps[0]!.frames[0]!.snapshots;
     expect(snaps.some((b) => b.name === 'store' && b.media === 'json')).toBe(
@@ -92,6 +93,64 @@ describe('run reporting', () => {
     expect(report.steps).toHaveLength(1);
     expect(report.steps[0]!.kind).toBe('waitFor');
     expect(report.steps[0]!.actorId).toBe('alice');
+  });
+
+  test('nested record / apply become child steps', async () => {
+    const { sys, put } = makeKv();
+    await using s = await sys.run({ seed: 1, report: true });
+    await s.record({ kind: 'scenario', title: 'outer' }, async () => {
+      await s.record({ kind: 'ui', title: 'tap', selector: 'x' }, () =>
+        Promise.resolve()
+      );
+      await s.apply(put, 'x', '1');
+    });
+    const report = s.report()!;
+    expect(report.steps).toHaveLength(1);
+    const outer = report.steps[0]!;
+    expect(outer.steps.map((c) => c.title)).toEqual(['tap', 'put("x", "1")']);
+    expect(outer.steps[0]!.selector).toBe('x');
+    expect(outer.steps[1]!.kind).toBe('apply');
+  });
+
+  test('describe names the apply step; failures mark the run', async () => {
+    const boom = defineAction({
+      name: 'boom',
+      describe: (who: string) => `explode ${who}`,
+      act: (_s: Kv, _who: string) => {
+        throw new Error('kaboom');
+      },
+    });
+    const { sys, put } = makeKv();
+    const withBoom = defineSystem({
+      name: 'report-kv-boom',
+      create: (): Kv => ({ values: {}, clients: [] }),
+      runtimes: [
+        defineRuntime({
+          default: true,
+          name: 'virtual',
+          create: () => virtualTimeRuntime(),
+        }),
+      ],
+      actions: [put, boom],
+    });
+    void sys;
+    await using s = await withBoom.run({ seed: 1, report: true });
+    await expect(s.apply(boom, 'alice')).rejects.toThrow('kaboom');
+    const report = s.report()!;
+    expect(report.steps[0]!.title).toBe('explode alice');
+    expect(report.steps[0]!.status).toBe('failed');
+    expect(report.steps[0]!.error).toBe('kaboom');
+    expect(report.meta.status).toBe('failed');
+    expect(report.meta.error).toBe('kaboom');
+  });
+
+  test('fail() records a harness failure outside any step', async () => {
+    const { sys, put } = makeKv();
+    await using s = await sys.run({ seed: 1, report: true });
+    await s.apply(put, 'x', '1');
+    s.fail(new Error('assertion in test body'));
+    expect(s.report()!.meta.status).toBe('failed');
+    expect(s.report()!.meta.error).toBe('assertion in test body');
   });
 
   test('persists report.json to ObjectStore on dispose', async () => {
@@ -119,6 +178,11 @@ describe('run reporting', () => {
     expect(parsed.meta.testId).toBe('kv-put');
     expect(parsed.meta.status).toBe('passed');
     expect(parsed.steps).toHaveLength(1);
+    const manifest = JSON.parse(
+      (await readUtf8(store, runManifestKey('latest_run')))!
+    ) as { tests: { testId: string; title: string; frameCount: number }[] };
+    expect(manifest.tests[0]!.title).toBe('kv-put');
+    expect(manifest.tests[0]!.frameCount).toBeGreaterThan(0);
     const indexText = await readUtf8(store, RUNS_INDEX_KEY);
     expect(indexText).not.toBeNull();
     const index = JSON.parse(indexText!) as {

@@ -25,16 +25,12 @@ import { wallClock } from '@pkgs/clock';
 import type { Run } from '@pkgs/sim';
 import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
+import type { StepRecorder } from '@pkgs/ui-testing';
 
 import {
   type ActorEntry,
   closeActorEntry,
-  getReportStore,
   launchActor as launchActorEntry,
-  prepareReportStore,
-  STATIC_REPORT_RUN_ID,
-  simReportEnabled,
-  writeKeysIndex,
 } from './launch-actor';
 import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
 import {
@@ -42,6 +38,12 @@ import {
   ensureNodeLocalStoragePolyfill,
 } from './node-local-storage-polyfill';
 import { simNodeTimers } from './sim-actor-overrides';
+import {
+  getReportStore,
+  SIM_REPORT_RUN_ID,
+  simReportEnabled,
+  testCallSite,
+} from './sim-report';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 
 export type { SimActor };
@@ -53,6 +55,7 @@ function resolveHostName(options: OpenSimOptions | undefined): ProductHostName {
 
 type WiredRuntime = {
   readonly entries: Map<string, ActorEntry>;
+  readonly recorder: StepRecorder | null;
   httpListener: SimHttpListener | null;
 };
 
@@ -74,6 +77,7 @@ function makeRuntime(args: {
         sim: surface.sim,
         id,
         ...(snapshot !== undefined ? { snapshot } : {}),
+        ...(wired.recorder !== null ? { recorder: wired.recorder } : {}),
       });
       wired.entries.set(id, entry);
       return entry.handle;
@@ -107,16 +111,6 @@ async function disposeProduct(
   if (wired.httpListener !== null) {
     await wired.httpListener.stop();
   }
-  if (simReportEnabled()) {
-    try {
-      await writeKeysIndex();
-    } catch (err) {
-      console.error(
-        '[openSim] report keys index failed:',
-        err instanceof Error ? err.message : err
-      );
-    }
-  }
   await sim.dispose();
   clearNodeLocalStoragePolyfill();
   await new Promise<void>((resolve) => {
@@ -142,6 +136,7 @@ async function restoreSnapshot(
 async function wireSim(args: {
   readonly surface: ProductSim;
   readonly snapshot?: SimSystemSnapshot;
+  readonly recorder: StepRecorder | null;
 }): Promise<void> {
   const { surface } = args;
   const extra = productExtra(surface);
@@ -150,6 +145,7 @@ async function wireSim(args: {
   }
   const wired: WiredRuntime = {
     entries: new Map(),
+    recorder: args.recorder,
     httpListener: null,
   };
   if (extra.http.kind === 'localhost') {
@@ -171,6 +167,7 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
   const pin: { current: ProductSim | null } = { current: null };
   const capture = defineAction({
     name: 'openSim.pinSim',
+    report: false,
     act: (s: ProductSim) => {
       pin.current = s;
     },
@@ -182,6 +179,10 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
   return pin.current;
 }
 
+/**
+ * Open a reported product sim. The report bucket is `.cache/sim-report`;
+ * `bun run --filter @apps/product test:report` builds the standalone HTML.
+ */
 export async function openSim(
   testId: string,
   options?: OpenSimOptions
@@ -191,19 +192,19 @@ export async function openSim(
   if (mode === 'real') {
     process.env['SIM_MODE'] = 'real';
   }
-  if (simReportEnabled()) {
-    await prepareReportStore();
-  }
+  const reporting = simReportEnabled();
+  const callSite = reporting ? testCallSite(new Error().stack) : null;
   const s = await product.run({
     seed: 1,
     runtime: resolveHostName(options),
-    ...(simReportEnabled()
+    ...(reporting
       ? {
           report: {
             store: getReportStore(),
-            runId: STATIC_REPORT_RUN_ID,
+            runId: SIM_REPORT_RUN_ID,
             testId,
             now: () => wallClock.now(),
+            ...(callSite ?? {}),
           },
         }
       : {}),
@@ -216,6 +217,7 @@ export async function openSim(
   await wireSim({
     surface,
     ...(snapshot !== undefined ? { snapshot } : {}),
+    recorder: reporting ? { record: (meta, fn) => s.record(meta, fn) } : null,
   });
   surface.session.onDispose(() => surface.runtime.disposeResources());
   return s;

@@ -29,8 +29,8 @@ function httpEndpoints(outputs: DeployOutputs): readonly HttpEndpointCheck[] {
       url: outputs.client_url,
     },
     {
-      label: 'Console',
-      url: `${outputs.client_url}/console`,
+      label: 'Simulator',
+      url: `${outputs.client_url}/simulator`,
     },
     {
       label: 'API /api/health',

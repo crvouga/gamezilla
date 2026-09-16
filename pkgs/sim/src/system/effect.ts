@@ -23,6 +23,13 @@ export type ActionDef<S, A extends unknown[] = []> = {
   readonly sample?: (s: S) => Awaitable<ArgsSampler<A>>;
   /** When false, excluded from explore / randomActions pools (still replayable). Default true. */
   readonly pool?: boolean;
+  /**
+   * Report step title for `s.apply(action, ...args)`. Default:
+   * `name(arg, …)` with primitive args previewed.
+   */
+  readonly describe?: (...args: A) => string;
+  /** When false, `s.apply` opens no report step (harness plumbing). Default true. */
+  readonly report?: boolean;
   readonly act: (s: S, ...args: A) => Awaitable<void>;
 };
 
@@ -44,6 +51,8 @@ export type Action<S, A extends unknown[] = []> = {
   readonly args: A | undefined;
   readonly sample: ((s: S) => Awaitable<ArgsSampler<A>>) | undefined;
   readonly pool: boolean;
+  readonly describe: ((...args: A) => string) | undefined;
+  readonly report: boolean;
   readonly act: (s: S, ...args: A) => Awaitable<void>;
   readonly is: (action: CheckpointAction) => action is AppliedAction<A>;
 };
@@ -65,6 +74,8 @@ export type CatalogAction<S> = {
   readonly args: readonly unknown[] | undefined;
   readonly sample: ((s: S) => Awaitable<Gen<unknown>>) | undefined;
   readonly pool: boolean;
+  readonly describe: BivariantFn<(...args: unknown[]) => string> | undefined;
+  readonly report: boolean;
   readonly act: BivariantFn<(s: S, ...args: unknown[]) => Awaitable<void>>;
   readonly is: (action: CheckpointAction) => action is AppliedAction<unknown[]>;
 };

@@ -166,10 +166,11 @@ async function applyAction<S>(
     );
 
   const reporter = internal.reporter;
-  if (reporter !== null && reporter.shouldCaptureApply) {
+  if (reporter !== null && reporter.shouldCaptureApply && action.report) {
     await reporter.recordApply({
       action: action.name,
       applyArgs: resolved,
+      describe: action.describe,
       run: doCheckpoint,
     });
     return;
@@ -185,6 +186,7 @@ async function disposeRun(
 ): Promise<void> {
   const endViolations = await disposeMonitors(monitors, surface);
   if (reporter !== null) {
+    if (endViolations.length > 0) reporter.markFailed(endViolations[0]);
     await reporter.flush();
   }
   await session.dispose();
@@ -257,6 +259,9 @@ function buildRun<S>(args: {
         result = await fn();
       });
       return result;
+    },
+    fail(cause) {
+      internal.reporter?.markFailed(cause);
     },
     async snapshot() {
       if (internal.reporter === null) return;

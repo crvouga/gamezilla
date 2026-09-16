@@ -12,10 +12,8 @@ import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import type { Billing } from '@pkgs/billing';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
-import { ObjectStorePrefix } from '@pkgs/object-store/prefixes';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import type { SecretStore } from '@pkgs/secret-store';
-import { createSimConsoleApp } from '@pkgs/sim-console/server';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
@@ -313,23 +311,6 @@ function createServerRouter(args: {
   return apiRouter;
 }
 
-async function createConsoleRouter(env: ServerEnv) {
-  const reportConsole = createSimConsoleApp({
-    buckets: [
-      {
-        id: 'local',
-        label: 'Local',
-        store: await Promise.resolve(
-          env.blob.withPrefix(ObjectStorePrefix.simConsole)
-        ),
-      },
-    ],
-    timers: env.timers,
-    now: () => env.clock.now(),
-  });
-  return new Hono().use('*', apiCors).route('/', reportConsole.app);
-}
-
 /**
  * Composes the server Worker app from mounted sub-apps (`app.route()`).
  */
@@ -356,12 +337,8 @@ export async function createServer(env: ServerEnv) {
     ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
   });
 
-  const consoleRouter = await createConsoleRouter(env);
-
-  return new Hono()
-    .route(
-      '/api',
-      createServerRouter({ env, desiredClientConfig, billing, tts, llm, log })
-    )
-    .route('/sim-console', consoleRouter);
+  return new Hono().route(
+    '/api',
+    createServerRouter({ env, desiredClientConfig, billing, tts, llm, log })
+  );
 }

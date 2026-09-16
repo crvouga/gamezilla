@@ -222,13 +222,6 @@ export type SimConsolePorts = {
     init?: RequestInit
   ) => Promise<Response>;
   /**
-   * Static / ObjectStore-backed report artifacts (`public/product-tests`).
-   * When set, the console reads reports client-side with no report server.
-   */
-  readonly productTestsStore?: ObjectStore;
-  /** Public URL base for report assets (default `/product-tests`). */
-  readonly productTestsPublicBaseUrl?: string;
-  /**
    * Durable store for per-node SQL notebooks (OPFS / filesystem). When omitted,
    * notebooks fall back to an in-memory ObjectStore (lost on reload).
    */

@@ -45,7 +45,7 @@
       "outputs": []
     },
     "dev": {
-      "dependsOn": ["kill", "install:deps", "setup"],
+      "dependsOn": ["kill", "install:deps"],
       "persistent": true,
       "cache": false
     },
@@ -242,6 +242,7 @@
         "index.html",
         "public/**",
         "!public/sql-workers/**",
+        "!public/generated/**",
         "tsconfig.json",
         "tsconfig.tc.json",
         "babel.config.js"

@@ -87,16 +87,23 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 
-**Reports** (`SIM_REPORT`):
+**Reports** (`SIM_REPORT`) — standalone HTML, Playwright-style:
 
-- Default: off (`SIM_REPORT=0`) for speed; leaves any existing dump under
-  `apps/product/public/product-tests` in place (header shows the run's `updatedAt`
-  timestamp so age is obvious).
-- Set `SIM_REPORT=1` (or `bun test:sim:report`) to wipe + rewrite HTML frames.
-
-View captured timelines in **`bun run dev`** (`@apps/product` → Reports).
-Production browsing of reports stays on the API Worker `/sim-console` mount
-(R2).
+- `bun run test:product:report` (root) / `bun run --filter @apps/product test:report [files…]`
+  wipes `apps/product/.cache/sim-report`, runs the suite with `SIM_REPORT=1` +
+  a JUnit reporter, then writes **`apps/product/sim-report/index.html`** — one
+  self-contained file with every test, its step tree (`apply` → recorded UI ops
+  with selectors), and every snapshot frame (HTML actors rendered in a phone
+  frame with the product's compiled CSS, JSON/text snapshots alongside).
+  `bun run test:product:report:open` opens it.
+- Plain `bun run --filter @apps/product test` keeps `SIM_REPORT=0` (fast, no
+  frames). `SIM_REPORT=1 bun test …` writes the raw bucket only; run
+  `bun run --filter @apps/product report:build` to render it.
+- Capture is owned by the packages: `product` declares `defineSnapshot`s
+  (`html` per actor via `Driver.snapshotHtml`, `topology`), `openSim` wraps each
+  actor's driver in `recordingDriver` so `tap` / `input` / `expect.*` are steps,
+  and test-body assertions land via the JUnit overlay (`s.fail(err)` records a
+  harness failure explicitly when needed).
 
 Mem-engine wishlist:
 [`docs/sim-mem-engine-wishlist.md`](../../../docs/sim-mem-engine-wishlist.md).

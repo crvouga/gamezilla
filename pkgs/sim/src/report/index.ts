@@ -8,19 +8,35 @@ export {
 } from './define-snapshot';
 export { encodeSnapshotValue, hashBytes, hashString, padFrame } from './encode';
 export {
+  applyJunitOutcomes,
+  type BuildHtmlReportOptions,
+  buildHtmlReport,
+  HTML_REPORT_KEY,
+  type HtmlReportBlob,
+  type HtmlReportBundle,
+  type HtmlReportTest,
+  type JunitCase,
+  matchJunitCase,
+  parseJunit,
+  type RenderHtmlReportOptions,
+  readRunBundle,
+  renderHtmlReport,
+  type WriteHtmlReportOptions,
+  writeHtmlReport,
+} from './html';
+export {
   contentTypeForMedia,
-  GENERATION_KEY,
   mediaExtension,
   RUNS_INDEX_KEY,
   runManifestKey,
   runPrefix,
   testFrameKey,
+  testPrefix,
   testReportKey,
 } from './keys';
+export { countFrames, countSteps, suiteStatus } from './persist';
 export { RunReporter } from './reporter';
 export {
-  isLatestRunId,
-  LATEST_RUN_ID,
   mintRunId,
   type RecordStepMeta,
   type ReportCaptureMode,
@@ -28,6 +44,7 @@ export {
   type ReportSnapshotBlob,
   type ReportStep,
   type ReportStepStatus,
+  type ReportTestStatus,
   type RunReport,
   type RunReportMeta,
   type RunReportOptions,

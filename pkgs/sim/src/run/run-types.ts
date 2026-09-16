@@ -86,6 +86,11 @@ export type Run<S> = {
   ) => Promise<T>;
   /** Capture registered snapshotters onto the current/open step. */
   readonly snapshot: () => Promise<void>;
+  /**
+   * Mark the run failed for a failure raised outside any step (e.g. a test
+   * body assertion). No-op when reporting is disabled.
+   */
+  readonly fail: (cause: unknown) => void;
   /** In-memory report so far (empty when reporting is disabled). */
   readonly report: () => RunReport | null;
   readonly [Symbol.asyncDispose]: () => Promise<void>;

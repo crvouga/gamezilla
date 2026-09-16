@@ -71,11 +71,7 @@ const { count, size, warnings } = await generateSW({
   ],
   navigateFallback: '/index.html',
   // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).
-  navigateFallbackDenylist: [
-    /^\/api\//,
-    /^\/sql-workers\//,
-    /^\/sim-console\//,
-  ],
+  navigateFallbackDenylist: [/^\/api\//, /^\/sql-workers\//],
   runtimeCaching: [
     {
       urlPattern: /^\/api\//,

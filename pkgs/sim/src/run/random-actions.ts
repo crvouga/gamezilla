@@ -73,6 +73,8 @@ function collectEnabled<S>(
       args: undefined,
       sample: undefined,
       pool: true,
+      describe: undefined,
+      report: true,
       act: async () => {
         await advanceTime(ms);
       },
