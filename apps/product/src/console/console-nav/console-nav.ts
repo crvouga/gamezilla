@@ -12,6 +12,7 @@
 import {
   type DebuggerViewId,
   defaultViewForKind,
+  VIEWS_BY_KIND,
 } from '@pkgs/sim-console/shared/debugger-views';
 import {
   coerceSimChromeKind,
@@ -287,16 +288,7 @@ function normalizeInstance(kind: ConsoleKind, raw: string): string {
 }
 
 function viewsAllowedForKind(kind: ConsoleKind): readonly ConsoleView[] {
-  switch (kind) {
-    case 'client':
-      return ['ui'];
-    case 'server':
-      return ['db', 'events', 'commands'];
-    case 'events':
-      return ['events', 'topics'];
-    case 'room':
-      return ['db', 'events'];
-  }
+  return VIEWS_BY_KIND[kind];
 }
 
 function impliedPaneKind(paneId: string, chromeKind: ConsoleKind): ConsoleKind {

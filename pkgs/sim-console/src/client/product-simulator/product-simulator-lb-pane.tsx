@@ -54,7 +54,9 @@ function BackendRow(props: {
   );
 }
 
-function RouteRow(props: { readonly route: ProductSimulatorLoadBalancerRoute }) {
+function RouteRow(props: {
+  readonly route: ProductSimulatorLoadBalancerRoute;
+}) {
   return (
     <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px]">
       <p class="text flex-1 min-w-[0] text-text-secondary text-[12px] [font-family:mono]">

@@ -67,7 +67,7 @@ function installRect(element: Element, layout: ElementLayout): void {
     configurable: true,
     value: () => rect,
   });
-  const view = element.ownerDocument?.defaultView;
+  const view = element.ownerDocument.defaultView;
   const EventCtor = view?.Event ?? Event;
   element.dispatchEvent(new EventCtor(ELEMENT_LAYOUT_EVENT));
 }

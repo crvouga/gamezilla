@@ -23,7 +23,6 @@ import { wallClock } from '@pkgs/clock';
 import type { Run } from '@pkgs/sim';
 import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
-import type { StepRecorder } from '@pkgs/ui-testing';
 
 import { wireProductRuntime } from '../../sim/setup/wire-product-runtime';
 import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';

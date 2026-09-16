@@ -203,13 +203,16 @@ function selectedUnifiedNodeId(
   return current;
 }
 
-function ReadyProductSimulatorScreen(props: {
+type ReadyScreenProps = {
   readonly session: ProductSimulatorSession;
   readonly chrome: DebuggerChromeNav;
   readonly onExit: () => void;
   readonly focusedClientId: string | null;
   readonly onFocusedClientIdChange: (id: string | null) => void;
-}) {
+};
+
+/** Session maps mutate in place — topology reads must track `revision`. */
+function useReadyProductSimulatorModel(props: ReadyScreenProps) {
   const [revision, setRevision] = createSignal(props.session.revision);
   createEffect(() => {
     const session = props.session;
@@ -219,8 +222,6 @@ function ReadyProductSimulatorScreen(props: {
   });
 
   const kind = () => props.chrome.kind;
-  // Session maps mutate in place, so every topology read must depend on
-  // `revision` — otherwise added / removed nodes never reach the chrome.
   const clients = createMemo(() => {
     revision();
     return props.session.snapshotRestoring
@@ -259,7 +260,24 @@ function ReadyProductSimulatorScreen(props: {
     revision();
     return props.session.listPaletteCommands();
   });
-  const snapshotEpoch = () => props.session.snapshotEpoch;
+  return {
+    kind,
+    clients,
+    servers,
+    instances,
+    instanceId,
+    unifiedNodes,
+    selectedNode,
+    shellPaneKey,
+    shellPane,
+    views,
+    paletteCommands,
+    snapshotEpoch: () => props.session.snapshotEpoch,
+  };
+}
+
+function ReadyProductSimulatorScreen(props: ReadyScreenProps) {
+  const model = useReadyProductSimulatorModel(props);
   const clearClientFocus = () => {
     props.onFocusedClientIdChange(null);
   };
@@ -268,32 +286,34 @@ function ReadyProductSimulatorScreen(props: {
       class="box flex-1 min-h-[0] min-w-[0] bg-background"
       style={{ overflow: 'clip' }}
     >
-      <ProductSimulatorPaletteRegistrations commands={paletteCommands()} />
+      <ProductSimulatorPaletteRegistrations
+        commands={model.paletteCommands()}
+      />
       <ProductSimulatorDebuggerShell
         session={props.session}
         chrome={props.chrome}
         onExit={props.onExit}
-        clients={clients()}
-        kind={kind}
-        instances={instances}
-        instanceId={instanceId}
-        unifiedNodes={unifiedNodes}
-        selectedNode={selectedNode}
+        clients={model.clients()}
+        kind={model.kind}
+        instances={model.instances}
+        instanceId={model.instanceId}
+        unifiedNodes={model.unifiedNodes}
+        selectedNode={model.selectedNode}
         onUnifiedNodeChange={(id) =>
           selectUnifiedNode(
             props,
             {
-              clients: clients(),
-              servers: servers(),
+              clients: model.clients(),
+              servers: model.servers(),
               loadBalancerId: props.session.loadBalancer.id,
             },
             id
           )
         }
-        views={views}
-        shellPane={shellPane}
-        shellPaneKey={shellPaneKey}
-        snapshotEpoch={snapshotEpoch}
+        views={model.views}
+        shellPane={model.shellPane}
+        shellPaneKey={model.shellPaneKey}
+        snapshotEpoch={model.snapshotEpoch}
         focusedClientId={props.focusedClientId}
         onFocusedClientIdChange={props.onFocusedClientIdChange}
         clearClientFocus={clearClientFocus}

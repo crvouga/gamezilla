@@ -1,7 +1,7 @@
 import type { HtmlReportTest } from '@pkgs/sim';
 import { For, Show } from 'solid-js';
 
-import type { ReportNav } from '../app/report-app';
+import type { ReportNav } from '../app/use-report-nav';
 import { fmtMs } from '../lib/format';
 import type { FlatFrame } from '../lib/frames';
 import { frameHasUi } from '../lib/frames';

@@ -32,7 +32,7 @@ const COMPONENT_SIZE: Record<string, { w?: number; h?: number }> = {
 };
 
 function dispatchLayoutEvent(element: Element): void {
-  const view = element.ownerDocument?.defaultView;
+  const view = element.ownerDocument.defaultView;
   const EventCtor = view?.Event ?? Event;
   element.dispatchEvent(new EventCtor(ELEMENT_LAYOUT_EVENT));
 }
@@ -235,7 +235,7 @@ function distribute(
   }
   const rest = Math.max(0, total - used);
   const each = flexCount > 0 ? rest / flexCount : 0;
-  return fixed.map((v) => (v === null ? each : v));
+  return fixed.map((v) => v ?? each);
 }
 
 function estimateFlowWidth(el: Element): number | null {
@@ -355,8 +355,7 @@ function layoutColumn(
     // Default flex column stretch: fill parent width unless the child has a
     // concrete intrinsic width (and is not marked to grow/fill).
     const hintW = estimateFlowWidth(child);
-    const w =
-      hintW === null ? box.width : Math.min(hintW, box.width);
+    const w = hintW === null ? box.width : Math.min(hintW, box.width);
     const childBox = {
       x: box.x,
       y,

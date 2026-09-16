@@ -43,7 +43,7 @@ function AppTheme(props: { readonly children: JSX.Element }): JSX.Element {
   return (
     <ThemeProvider
       colorScheme={preference()}
-      fixedLayout={testViewport ?? undefined}
+      {...(testViewport != null ? { fixedLayout: testViewport } : {})}
     >
       {props.children}
     </ThemeProvider>

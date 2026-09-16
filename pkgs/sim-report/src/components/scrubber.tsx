@@ -1,7 +1,7 @@
 import type { HtmlReportTest } from '@pkgs/sim';
 import { createMemo, For, onCleanup, onMount } from 'solid-js';
 
-import type { ReportNav } from '../app/report-app';
+import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
 
 function scrubPct(frames: FlatFrame[], sel: FlatFrame | null): number {

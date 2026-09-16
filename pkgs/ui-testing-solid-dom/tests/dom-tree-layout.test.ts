@@ -18,8 +18,8 @@ describe('layoutDomTree', () => {
     window.document.body.appendChild(root);
     layoutDomTree(root as unknown as HTMLElement, { width: 390, height: 56 });
     const trigger = root.querySelector('#trigger');
-    expect(trigger).not.toBeNull();
-    const rect = trigger!.getBoundingClientRect();
+    if (trigger === null) throw new Error('expected #trigger');
+    const rect = trigger.getBoundingClientRect();
     expect(rect.width).toBeGreaterThan(0);
     expect(rect.height).toBeGreaterThan(0);
     expect(rect.top).toBeLessThan(60);
@@ -48,7 +48,9 @@ describe('layoutDomTree', () => {
     layoutDomTree(root as unknown as HTMLElement, { width: 390, height: 844 });
     const header = root.querySelector('header');
     const trigger = root.querySelector('#trigger');
-    expect(header!.getBoundingClientRect().width).toBe(390);
-    expect(trigger!.getBoundingClientRect().left).toBeGreaterThan(200);
+    if (header === null) throw new Error('expected header');
+    if (trigger === null) throw new Error('expected #trigger');
+    expect(header.getBoundingClientRect().width).toBe(390);
+    expect(trigger.getBoundingClientRect().left).toBeGreaterThan(200);
   });
 });

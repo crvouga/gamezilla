@@ -52,7 +52,9 @@ function topologyCommands(
       title: 'topology · add client',
       category: 'Topology',
       keywords: ['add', 'client', 'spawn', 'node'],
-      run: () => session.addClient(),
+      run: async () => {
+        await session.addClient();
+      },
     },
     {
       id: 'topology:add-server',
@@ -60,7 +62,9 @@ function topologyCommands(
       subtitle: 'Another API instance in the round-robin rotation',
       category: 'Topology',
       keywords: ['add', 'server', 'instance', 'scale', 'node'],
-      run: () => session.addServer(),
+      run: async () => {
+        await session.addServer();
+      },
     },
   ];
   for (const id of session.clients.keys()) {

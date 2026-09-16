@@ -40,6 +40,7 @@
     ]
   },
   "scripts": {
+    "prebuild": "bun run --cwd ../.. i18n:compile",
     "build": "vite build && bun run scripts/build-sw.ts",
     "check:bundle-budget": "bun run ../../tools/scripts/bundle-budget.ts dist --budget=./perf-budget.json",
     "check:critical-path": "bun run ../../tools/scripts/client-critical-path-imports.ts --budget=./perf-budget.json && bun run ../../tools/scripts/check-index-html-scripts.ts --budget=./perf-budget.json && bun run ../../tools/scripts/check-client-image-budgets.ts --budget=./perf-budget.json",
@@ -48,12 +49,11 @@
     "check:production-compression": "bun run ../../tools/scripts/check-production-compression.ts",
     "check:production-dist": "bun run scripts/production-bundle-guard-cli.ts check-dist",
     "check:production-env": "bun run scripts/production-bundle-guard-cli.ts check-env",
+    "predev": "bun run --silent setup",
     "dev": "bun run scripts/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
     "lint": "bunx biome check --error-on-warnings .",
-    "prebuild": "bun run --cwd ../.. i18n:compile",
-    "predev": "bun run --silent setup",
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",

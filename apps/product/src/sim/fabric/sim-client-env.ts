@@ -17,7 +17,7 @@ import type { Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import {
-  createInMemoryBus,
+  type createInMemoryBus,
   createInMemoryPubSub,
 } from '@pkgs/pubsub/in-memory';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
@@ -29,7 +29,11 @@ import { simClientNamespace } from './sim-client-namespace';
 import type { SimLoadBalancer } from './sim-load-balancer';
 import type { SimNet } from './sim-net';
 import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
-import { handleBoundSqlClient, openFreshSimClientSql, type SimSql } from './sim-sql';
+import {
+  handleBoundSqlClient,
+  openFreshSimClientSql,
+  type SimSql,
+} from './sim-sql';
 
 export type SimClientEnvDeps = {
   readonly session: Session;

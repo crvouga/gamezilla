@@ -88,7 +88,11 @@ export async function addProductSimulatorServer(
   id?: string
 ): Promise<ProductSimulatorSqlNode> {
   const requested = id?.trim();
-  if (requested !== undefined && requested !== '' && maps.servers.has(requested)) {
+  if (
+    requested !== undefined &&
+    requested !== '' &&
+    maps.servers.has(requested)
+  ) {
     throw new Error(`simulator server '${requested}' already exists`);
   }
   await sim.spawnServer(requested === '' ? undefined : requested);

@@ -1,8 +1,7 @@
 import type { HtmlReportTest } from '@pkgs/sim';
 import { createMemo, For, Show } from 'solid-js';
-
-import type { ReportNav } from '../app/report-app';
 import { useReport } from '../app/report-context';
+import type { ReportNav } from '../app/use-report-nav';
 import { fileLabel, fmtMs } from '../lib/format';
 
 function matchesFilter(

@@ -1,7 +1,6 @@
 import { createMemo, For, Show } from 'solid-js';
-
-import type { ReportNav } from '../app/report-app';
 import { useReport } from '../app/report-context';
+import type { ReportNav } from '../app/use-report-nav';
 import { fmtDate, fmtMs } from '../lib/format';
 
 const FILTERS = ['all', 'passed', 'failed', 'skipped'] as const;

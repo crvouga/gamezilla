@@ -5,10 +5,9 @@ import type { ReportData } from '../types';
 import { ListView } from '../views/list-view';
 import { TestView } from '../views/test-view';
 import { ReportProvider } from './report-context';
-import { type ReportNav, useReportNav } from './use-report-nav';
+import { useReportNav } from './use-report-nav';
 import '../styles.css';
 
-export type { ReportNav };
 export type SimReportAppProps = {
   data: ReportData;
   frameCss?: string;

@@ -7,9 +7,8 @@ import {
   onMount,
   Show,
 } from 'solid-js';
-
-import type { ReportNav } from '../app/report-app';
 import { useReport } from '../app/report-context';
+import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
 import { showPress, zoomMode } from '../lib/hash';
 import { PHONE_H, PHONE_W, zoomScale } from '../lib/phone';
