@@ -57,6 +57,7 @@
     "preview": "bun run scripts/preview-server.ts",
     "pwa:generate": "bun run scripts/generate-pwa-assets.ts",
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
+    "stack": "bun run scripts/preview-server.ts",
     "start": "bun run dev",
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**' --path-ignore-patterns='**/*.test.tsx' && vitest run",

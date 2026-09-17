@@ -11,7 +11,7 @@ import {
   readGameLogRowTitle,
   readStatsElo,
   returnToTabs,
-  signInWithDev,
+  signInWithGoogle,
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
 
@@ -25,7 +25,7 @@ function required<T>(value: T | null | undefined, what: string): T {
 }
 
 async function enterPuzzle(s: Awaited<ReturnType<typeof openSim>>) {
-  await s.apply(signInWithDev, 'alice');
+  await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');
   await s.apply(createSpace, 'alice');
   await s.apply(openPuzzleFromSpace, 'alice');

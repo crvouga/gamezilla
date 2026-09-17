@@ -1,15 +1,13 @@
 import type { HttpClient } from '@pkgs/http-client';
 
-import {
-  GOOGLE_OAUTH_AUTHORIZE_URL,
-  GOOGLE_OAUTH_TOKEN_URL,
-  GOOGLE_OAUTH_USERINFO_URL,
-} from '../shared/auth-constants';
+import type { GoogleOauthEndpoints } from '../shared/auth-constants';
 import { pkceS256Challenge } from '../shared/pkce';
 
 export type GoogleProviderConfig = {
   readonly clientId: string;
   readonly clientSecret: string;
+  /** Production Google, or a simulated provider on loopback. */
+  readonly endpoints: GoogleOauthEndpoints;
 };
 
 export type GoogleUserInfo = {
@@ -22,13 +20,13 @@ export type GoogleUserInfo = {
 };
 
 export function buildGoogleAuthorizationUrl(args: {
-  readonly clientId: string;
+  readonly google: GoogleProviderConfig;
   readonly redirectUri: string;
   readonly state: string;
   readonly codeVerifier: string;
 }): string {
-  const url = new URL(GOOGLE_OAUTH_AUTHORIZE_URL);
-  url.searchParams.set('client_id', args.clientId);
+  const url = new URL(args.google.endpoints.authorizeUrl);
+  url.searchParams.set('client_id', args.google.clientId);
   url.searchParams.set('redirect_uri', args.redirectUri);
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('scope', 'openid email profile');
@@ -54,7 +52,7 @@ export async function exchangeGoogleAuthorizationCode(args: {
     grant_type: 'authorization_code',
     redirect_uri: args.redirectUri,
   });
-  const tokenRes = await args.http.fetch(GOOGLE_OAUTH_TOKEN_URL, {
+  const tokenRes = await args.http.fetch(args.google.endpoints.tokenUrl, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: body.toString(),
@@ -78,7 +76,7 @@ export async function exchangeGoogleAuthorizationCode(args: {
     throw new Error('google token response missing access_token');
   }
 
-  const userRes = await args.http.fetch(GOOGLE_OAUTH_USERINFO_URL, {
+  const userRes = await args.http.fetch(args.google.endpoints.userinfoUrl, {
     method: 'GET',
     headers: { authorization: `Bearer ${accessToken}` },
   });

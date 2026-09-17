@@ -1,6 +1,6 @@
 /**
  * Dual-backend contract: same suite against live S3-compatible storage
- * (local MinIO / R2) when `S3_ENDPOINT` + credentials are present.
+ * (local S3rver / R2) when `S3_ENDPOINT` + credentials are present.
  */
 
 import { describe } from 'bun:test';
@@ -20,7 +20,7 @@ const HAS_S3 =
   secretAccessKey.length > 0 &&
   bucket.length > 0;
 
-describe.skipIf(!HAS_S3)('ObjectStore S3/MinIO (contract)', () => {
+describe.skipIf(!HAS_S3)('ObjectStore S3-compatible (contract)', () => {
   const adapters = createSimAdapters({ seed: 1 });
   const prefix = normalizeObjectStoreRootPrefix(
     `dst-contract/${adapters.createId()}/`

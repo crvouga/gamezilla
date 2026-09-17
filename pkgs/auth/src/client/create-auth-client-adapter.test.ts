@@ -122,7 +122,7 @@ describe('createAuthClientAdapter / oauth', () => {
       }),
     });
 
-    await expect(port.signIn('oauth-dev')).rejects.toThrow(
+    await expect(port.signIn('oauth-google')).rejects.toThrow(
       AUTH_SSO_CANCELLED_ERROR
     );
   });

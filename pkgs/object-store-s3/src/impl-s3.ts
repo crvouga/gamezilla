@@ -37,7 +37,7 @@ function isS3NotFound(err: unknown): boolean {
   return s3HttpStatus(err) === 404;
 }
 
-/** MinIO + browser SDK sometimes answers DeleteObject on absent keys with 403. */
+/** S3-compatible stores may answer DeleteObject on absent keys with 403. */
 function isS3AccessDenied(err: unknown): boolean {
   if (err === null || typeof err !== 'object') return false;
   if (
@@ -143,10 +143,10 @@ class ObjectStoreImplS3 implements ObjectStore {
         secretAccessKey: config.secretAccessKey,
       },
       forcePathStyle: true,
-      // MinIO / older S3-compat reject default flexible checksums (501).
+      // Older S3-compatible stores reject default flexible checksums (501).
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',
-      // Directory-bucket session auth is AWS-only; keep SigV4 for MinIO/R2.
+      // Directory-bucket session auth is AWS-only; keep SigV4 for S3-compatible stores.
       disableS3ExpressSessionAuth: true,
     });
   }

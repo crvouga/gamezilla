@@ -24,7 +24,10 @@ export type ProductUi =
 
 export type ProductHttp =
   | { readonly kind: 'in-process' }
-  | { readonly kind: 'localhost'; readonly origin: string };
+  /** The sim balancer, bound to a loopback port by this process. */
+  | { readonly kind: 'localhost'; readonly origin: string }
+  /** A separately booted localhost stack; this process owns no servers. */
+  | { readonly kind: 'stack'; readonly origin: string };
 
 export type ProductExtra = {
   readonly sql: SimSql;

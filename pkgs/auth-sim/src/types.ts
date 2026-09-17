@@ -1,4 +1,5 @@
 import type { createAuthServerAdapter } from '@pkgs/auth/server/create-auth-server-adapter';
+import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import type { Session } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -29,11 +30,11 @@ export type AuthStore = {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
   readonly server: ReturnType<typeof createAuthServerAdapter>;
-  readonly sim: {
-    googleFault: boolean;
-    googleSubjects: Map<string, string>;
-  };
+  /** The provider node, with its own accounts, sessions and faults. */
+  readonly idp: GoogleIdp;
   readonly fetch: (path: string, init?: RequestInit) => Promise<Response>;
+  /** Absolute-URL fetch across both nodes, for walking the sign-in screens. */
+  readonly wire: (url: string, init?: RequestInit) => Promise<Response>;
 };
 
 export type AuthSurface = {

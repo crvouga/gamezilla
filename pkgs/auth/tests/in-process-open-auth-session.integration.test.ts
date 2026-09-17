@@ -1,5 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import {
+  createGoogleIdpApp,
+  createIdpSigningKeys,
+} from '@pkgs/idp-google-sim/server';
+import { idpEndpoints } from '@pkgs/idp-google-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
@@ -11,12 +16,23 @@ import { AuthPostgresDatabaseMigration } from '../src/server/auth-database-migra
 import { createAuthApp } from '../src/server/create-auth-app';
 
 const BASE_URL = 'http://sim.local';
+const IDP_URL = 'http://idp.sim';
 const CALLBACK = 'gamezilla://sso-callback';
 const SECRET = 'auth-system-secret-0123456789abcdef';
+const CLIENT_ID = 'sim.apps.googleusercontent.com';
+const CLIENT_SECRET = 'sim-google-client-secret';
+const REDIRECT_URI = `${BASE_URL}/api/auth/callback/google`;
 
-async function bootAuthFetch(): Promise<{
-  readonly fetch: typeof appFetch;
-}> {
+type WireFetch = (
+  input: string | URL | Request,
+  init?: RequestInit
+) => Promise<Response>;
+
+/**
+ * Two nodes on one machine: the auth app and a simulated Google. The
+ * headless session walks between them exactly as a browser would.
+ */
+async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
   const sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
   await new AuthPostgresDatabaseMigration({
     dbScope: createPostgresDbScope('public'),
@@ -25,53 +41,92 @@ async function bootAuthFetch(): Promise<{
   }).migrate({ sqlClient, logger: createNoopLogger() });
 
   let nextId = 0;
-  const idpApp = createAuthApp({
-    getSql: () => sqlClient,
+  const idp = createGoogleIdpApp({
     clock: wallClock,
-    createId: () => `id-${(nextId += 1)}`,
-    http: { fetch: async () => new Response('{}', { status: 404 }) },
-    secret: SECRET,
-    baseURL: BASE_URL,
-    publicPathPrefix: '/api',
-    trustedOrigins: [BASE_URL, 'gamezilla://'],
-    providers: { dev: { enabled: true } },
+    createId: () => `idp-${(nextId += 1)}`,
+    keys: await createIdpSigningKeys(),
+    issuer: IDP_URL,
+    clients: [
+      {
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        redirectUris: [REDIRECT_URI],
+        appName: 'Gamezilla',
+      },
+    ],
+    accounts: [{ handle: 'alice' }],
   });
-  const app = new Hono();
-  app.route('/api', idpApp);
 
-  const appFetch = async (
-    input: string | URL | Request,
-    init?: RequestInit
-  ): Promise<Response> => {
+  const wire: WireFetch = async (input, init) => {
     const request =
       input instanceof Request && init === undefined
         ? input
         : new Request(input, init);
+    if (request.url.startsWith(IDP_URL)) return idp.app.fetch(request);
     return app.request(request);
   };
 
-  return { fetch: appFetch };
+  const authApp = createAuthApp({
+    getSql: () => sqlClient,
+    clock: wallClock,
+    createId: () => `id-${(nextId += 1)}`,
+    http: { fetch: (input, requestInit) => wire(input, requestInit) },
+    secret: SECRET,
+    baseURL: BASE_URL,
+    publicPathPrefix: '/api',
+    trustedOrigins: [BASE_URL, 'gamezilla://'],
+    providers: {
+      google: {
+        clientId: CLIENT_ID,
+        clientSecret: CLIENT_SECRET,
+        endpoints: idpEndpoints(IDP_URL),
+      },
+    },
+  });
+  const app = new Hono();
+  app.route('/api', authApp);
+
+  return { wire };
 }
 
 describe('createInProcessOpenAuthSession / sim parity', () => {
-  test('completes dev oauth launch chain and exchanges session', async () => {
-    const { fetch } = await bootAuthFetch();
+  test('walks the provider screens and exchanges a session', async () => {
+    const { wire } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
-      fetch,
-      subject: 'alice',
+      fetch: wire,
+      account: { email: 'alice@gmail.com', password: 'hunter2-hunter2' },
     });
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
       timers: wallTimers,
-      fetch,
+      fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,
       callbackUrl: CALLBACK,
     });
 
-    await port.signIn('oauth-dev');
+    await port.signIn('oauth-google');
     const token = await port.getFreshToken();
     expect(token).not.toBeNull();
     expect(token?.length).toBeGreaterThan(0);
+  });
+
+  test('a wrong password never reaches a session', async () => {
+    const { wire } = await bootNodes();
+    const openAuthSession = createInProcessOpenAuthSession({
+      fetch: wire,
+      account: { email: 'alice@gmail.com', password: 'wrong' },
+    });
+    const port = createAuthClientAdapter({
+      baseURL: BASE_URL,
+      timers: wallTimers,
+      fetch: wire,
+      storage: createInMemoryAuthClientStorage(),
+      openAuthSession,
+      callbackUrl: CALLBACK,
+    });
+
+    await expect(port.signIn('oauth-google')).rejects.toThrow();
+    expect(await port.getFreshToken()).toBeNull();
   });
 });

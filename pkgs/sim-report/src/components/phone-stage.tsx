@@ -101,7 +101,10 @@ function PhonePanel(props: {
       hit: props.step?.hit,
       frameCss: report.frameCss,
     });
-    applyPhoneScale(frameEl, scale());
+  });
+
+  createEffect(() => {
+    if (frameEl) applyPhoneScale(frameEl, scale());
   });
 
   onMount(() => {

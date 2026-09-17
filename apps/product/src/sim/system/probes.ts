@@ -16,9 +16,9 @@ import { defineAction } from '@pkgs/sim';
 
 import type { ProductSim } from './sim';
 
-/** Sign in through the client auth port wired to the in-process sim server. */
-export const devOauthSignIn = defineAction({
-  name: 'devOauthSignIn',
+/** Sign in through the client auth port, against the simulated provider. */
+export const googleOauthSignIn = defineAction({
+  name: 'googleOauthSignIn',
   pool: false,
   act: async (s: ProductSim, actorId: string) => {
     const env = s.sim.client(actorId);
@@ -30,7 +30,7 @@ export const devOauthSignIn = defineAction({
       openAuthSession: env.openAuthSession,
       callbackUrl: 'gamezilla://sso-callback',
     });
-    await port.signIn('oauth-dev');
+    await port.signIn('oauth-google');
     const token = await port.getFreshToken();
     s.probes.oauthTokenLength = token === null ? null : token.length;
   },

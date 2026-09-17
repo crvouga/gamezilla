@@ -6,21 +6,31 @@ runtimes on that System:
 | Host name | Factory | Command | UI | SQL / HTTP |
 | --- | --- | --- | --- | --- |
 | `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
-| `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
+| `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + S3rver/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
+| `bun-webview` (stack) | `bunWebviewRuntime` | `SIM_MODE=stack` / `bun run test:product:localhost` | `Bun.WebView` against the stack's web origin | Attaches to a **separately booted localhost stack** ([`tools/scripts/localhost-stack`](../../../../tools/scripts/localhost-stack/README.md)): round-robin balancer, N Bun API instances, real Postgres/S3rver/EMQX, simulated Google on its own origin. This process owns no servers |
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
 helper over `product.run({ seed, runtime })` (plus snapshot restore + reporter).
-Host name is `in-process` unless `SIM_MODE=real` / `{ mode: 'real' }` (then
-`bun-webview`). Standing properties (`noErrorBoundary`) are registered with
+Host name is `in-process` unless `SIM_MODE=real` / `SIM_MODE=stack` (or
+`{ mode: … }`), which select `bun-webview`. Standing properties (`noErrorBoundary`) are registered with
 `product.property`.
 
 ProductSimulator (`@apps/product`) also calls `product.run` only — default
 `runtime: 'in-process'`; optional `bun-webview` when a localhost web sidecar is up.
 Neither console nor test opens a Session / `createSim` outside `@apps/product/sim`.
 
+**Sign-in** — there is no dev provider. Every mode signs in through Google
+against `@pkgs/idp-google-sim`, a simulated provider with its own origin,
+account directory, browser sessions and consent grants. In-process runs mount
+it as the `idp` node on `createSimNet` (so it can be partitioned); the
+localhost stack runs it as its own process on its own port. The headless
+"popup" (`createInProcessOpenAuthSession`) parses and submits the provider's
+real HTML forms, so a provider flow change fails the suite instead of
+silently diverging.
+
 **Authoring** — scenarios import `describe` / `test` from `bun:test` and call
 `openSim(testId)`. Drive UI with named `defineAction`s from `@apps/product/sim`
-(`s.apply(signInWithDev, 'alice')`). Smart monkey / explore walks are
+(`s.apply(signInWithGoogle, 'alice')`). Smart monkey / explore walks are
 **only** `defineAction` catalogs: `s.randomActions({ actions: PRODUCT_POOL_ACTIONS })`
 or `product.explore({ actions: PRODUCT_POOL_ACTIONS })`. Standing properties
 (`noErrorBoundary`, …) run after every checkpoint. Do not use UI-inventory
@@ -29,12 +39,12 @@ tap/fill helpers for product monkey testing.
 ```tsx
 import { describe, test } from 'bun:test';
 import { openSim } from '../src/setup/open-sim';
-import { createSpace, returnToTabs, signInWithDev } from '../src/sim';
+import { createSpace, returnToTabs, signInWithGoogle } from '../src/sim';
 
 describe('space create', () => {
   test('host creates a space', async () => {
     await using s = await openSim('space-create');
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(createSpace, 'alice');
   });
@@ -48,7 +58,7 @@ throws `ActionNotEnabled`.
 **SQL fabric** — in-process sim always uses **postgres-mem** + **sqlite-mem**
 (checkpoint format `mixed-pgmm-sqlm`). Seed:
 `apps/product/.cache/sim-backend-seed.pgmm.json`. Fidelity-max /
-`SIM_MODE=real` uses **postgres-embedded** (+ MinIO/EMQX) outside this fabric.
+`SIM_MODE=real` uses **postgres-embedded** (+ S3rver/EMQX) outside this fabric.
 
 Engine selection lives in `@apps/product/sim` (`getSimSqlEngines` / fabric) — not in
 product libs. ProductSimulator web may still load SQLite WASM from
@@ -86,7 +96,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   `listenSimHttpServer` binds Hono on `127.0.0.1:8787` and enforces createSimNet
   crash/partition (actor id via `x-sim-actor`). Tests drive `Bun.WebView`;
   product-simulator embeds the web origin URL. `SIM_MODE=real` boots sidecars via
-  `ensureMaxFidelityStack` (real Postgres + MinIO/EMQX), serves web web
+  `ensureMaxFidelityStack` (real Postgres + S3rver/EMQX), serves web web
   (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 

@@ -14,6 +14,7 @@ import {
   createNamespacedAuthClientStorage,
 } from '@pkgs/auth/client';
 import type { Timers } from '@pkgs/clock';
+import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import {
@@ -26,6 +27,7 @@ import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import { simClientNamespace } from './sim-client-namespace';
+import { SIM_IDP_PASSWORD, simBrowserFetch, simIdpEmail } from './sim-idp';
 import type { SimLoadBalancer } from './sim-load-balancer';
 import type { SimNet } from './sim-net';
 import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
@@ -43,6 +45,7 @@ export type SimClientEnvDeps = {
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   readonly roomNode: RoomServerApp;
   readonly loadBalancer: SimLoadBalancer;
+  readonly idp: GoogleIdp;
 };
 
 function hasWebLocalStorage(): boolean {
@@ -63,19 +66,23 @@ function clientSecureStorage(ns: string): ClientEnv['secureStorage'] {
   );
 }
 
-/** Dev IdP handshake, routed through the balancer like every other request. */
+/**
+ * The sign-in popup, headless. It walks the provider's real screens — the
+ * account chooser, the password form, the consent card — the same way the
+ * bun-webview host walks them with a live browser.
+ */
 function clientOpenAuthSession(
   id: string,
-  serverFetch: ClientEnv['server']
+  browserFetch: ClientEnv['server']
 ): ClientEnv['openAuthSession'] {
-  const completeDevAuth = createInProcessOpenAuthSession({
-    fetch: (input, init) => serverFetch(input, init),
-    subject: id,
+  const completeAuth = createInProcessOpenAuthSession({
+    fetch: (input, init) => browserFetch(input, init),
+    account: { email: simIdpEmail(id), password: SIM_IDP_PASSWORD },
   });
   return async (authorizationUrl, callbackUrl) => {
-    const result = await completeDevAuth(authorizationUrl, callbackUrl);
+    const result = await completeAuth(authorizationUrl, callbackUrl);
     if (result.type === 'success') {
-      // Dev IdP subject doubles as the sim actor username (client-a / client-b).
+      // The actor id doubles as the sim username (client-a / client-b).
       setPendingSignupUsername(id);
     }
     return result;
@@ -93,6 +100,12 @@ export function makeSimClientEnv(
   const { id, clientSql } = args;
   const ns = simClientNamespace(id);
   const serverFetch = deps.loadBalancer.fetchFrom(id);
+  const browserFetch = simBrowserFetch({
+    idp: deps.idp,
+    net,
+    from: id,
+    server: serverFetch,
+  });
   let liveEvents: ReturnType<typeof createInMemoryPubSub> | null =
     createInMemoryPubSub({ bus: pubSubBus });
   const createPubSub = (): ReturnType<typeof createInMemoryPubSub> => {
@@ -136,7 +149,7 @@ export function makeSimClientEnv(
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
     authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,
-    openAuthSession: clientOpenAuthSession(id, serverFetch),
+    openAuthSession: clientOpenAuthSession(id, browserFetch),
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 900,
   };

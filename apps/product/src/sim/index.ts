@@ -105,7 +105,7 @@ export {
   visible,
 } from './system/observations';
 export { PRODUCT_POOL_ACTIONS } from './system/pool-actions';
-export { captureSnapshot, devOauthSignIn } from './system/probes';
+export { captureSnapshot, googleOauthSignIn } from './system/probes';
 export {
   acceptFriendRequest,
   addFriend,
@@ -146,7 +146,7 @@ export {
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   setUsername,
-  signInWithDev,
+  signInWithGoogle,
   signOut,
 } from './system/scenario-actions';
 export {

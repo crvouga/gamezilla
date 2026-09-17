@@ -20,9 +20,10 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "catalog:",
+    "@happy-dom/global-registrator": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "happy-dom": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

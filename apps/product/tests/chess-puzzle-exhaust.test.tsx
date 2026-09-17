@@ -12,7 +12,7 @@ import {
   readActivePuzzleId,
   readFeedHistoryLabel,
   returnToTabs,
-  signInWithDev,
+  signInWithGoogle,
 } from '../src/sim';
 import { SIM_CHESS_PUZZLES } from '../src/test/fixtures/chess-puzzles';
 import { openSim } from '../src/test/setup/open-sim';
@@ -20,7 +20,7 @@ import { openSim } from '../src/test/setup/open-sim';
 describe('chess puzzle exhausted feed', () => {
   test('after every unseen puzzle is solved, Next shows the empty state; widening recovers', async () => {
     await using s = await openSim('chess-puzzle-exhaust');
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(createSpace, 'alice');
     await s.apply(openPuzzleFromSpace, 'alice');

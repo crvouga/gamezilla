@@ -6,19 +6,15 @@ import { SignInModalBody } from './sign-in-modal-body';
 export function SignInIdleBody(props: {
   methodsLoading?: boolean | undefined;
   googleAvailable: boolean;
-  devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onPressGoogle: () => void;
-  onPressDev: () => void;
 }): JSX.Element {
   return (
     <SignInModalBody
       methodsLoading={props.methodsLoading}
       googleAvailable={props.googleAvailable}
-      devOauthAvailable={props.devOauthAvailable}
       signInUnavailableReason={props.signInUnavailableReason}
       onPressGoogle={props.onPressGoogle}
-      onPressDev={props.onPressDev}
     />
   );
 }

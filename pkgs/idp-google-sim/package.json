@@ -1,0 +1,36 @@
+{
+  "name": "@pkgs/idp-google-sim",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server/index.ts",
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*/index.ts"
+    ],
+    "./start-server": "./scripts/start-idp-server.ts"
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "start": "bun run scripts/serve.ts",
+    "stack": "bun run scripts/serve.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test ./tests"
+  },
+  "dependencies": {
+    "@noble/hashes": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "hono": "catalog:",
+    "jose": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

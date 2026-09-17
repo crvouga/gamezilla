@@ -211,7 +211,6 @@ async function buildDesiredClientConfig(args: {
   ]);
   return {
     google: auth.googleEnabled,
-    devOauth: auth.enableDev,
     billing: args.billingConfigured,
     tts: args.ttsConfigured,
     llm: args.llmConfigured,

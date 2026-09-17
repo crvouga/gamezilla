@@ -79,10 +79,8 @@ export function AuthModalsProvider(props: {
         resumePending={connection.resumePending()}
         methodsLoading={connection.methodsLoading()}
         googleAvailable={connection.googleAvailable()}
-        devOauthAvailable={connection.devOauthAvailable()}
         signInUnavailableReason={connection.signInUnavailableReason()}
         onSignInWithGoogle={connection.onSignInWithGoogle}
-        onSignInWithDev={connection.onSignInWithDev}
         onError={connection.onError}
       />
       {signOutConfirm.modal}
@@ -101,7 +99,7 @@ function useSignInModalConnection(args: {
   closeSignInModal: () => void;
 }) {
   const apiUrl = useConfigService().getApiUrl();
-  const { signInWithGoogle, signInWithDev } = useSignIn();
+  const { signInWithGoogle } = useSignIn();
   const capabilities = useSignInCapabilities();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
@@ -126,10 +124,7 @@ function useSignInModalConnection(args: {
   const googleAvailable = createMemo(
     () => !methodsLoading() && apiReachable && capabilities.google
   );
-  const devOauthAvailable = createMemo(
-    () => !methodsLoading() && apiReachable && capabilities.devOauth
-  );
-  const anyMethod = createMemo(() => googleAvailable() || devOauthAvailable());
+  const anyMethod = createMemo(() => googleAvailable());
   const visible = createMemo(() => args.signInModalOpen() || resumePending());
   const signInUnavailableReason = createMemo<string | null>(() =>
     methodsLoading() || anyMethod()
@@ -144,13 +139,9 @@ function useSignInModalConnection(args: {
     resumePending,
     methodsLoading,
     googleAvailable,
-    devOauthAvailable,
     signInUnavailableReason,
     onSignInWithGoogle: async () => {
       await signInWithGoogle();
-    },
-    onSignInWithDev: async () => {
-      await signInWithDev();
     },
     onError,
   };

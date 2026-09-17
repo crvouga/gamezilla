@@ -25,6 +25,7 @@ import {
   ConfigurationError,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
+  readOptionalGoogleIdpOrigin,
   workerEnvToSecretRecord,
 } from './config/env';
 import { createApiObjectStore } from './config/object-store';
@@ -146,7 +147,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const auth = await loadAuthBootConfig({
     secretStore,
     apiUrlOverride: serverUrl,
-    secretsEnv,
+    googleIdpOrigin: readOptionalGoogleIdpOrigin(env),
   });
 
   const billing = await createStripeBillingFromSecretStore(secretStore);

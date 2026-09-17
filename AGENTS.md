@@ -112,6 +112,24 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 **Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are standalone HTML artifacts (`bun run test:product:report` → `apps/product/sim-report/index.html`, built by `@pkgs/sim-report` `writeHtmlReport`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, MinIO, or EMQX. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
+**Highest-fidelity local run** — `bun run stack` runs the whole product in the foreground
+loopback: embedded Postgres, MinIO, EMQX, a **simulated Google IdP on its own
+port with its own internal state** (`@pkgs/idp-google-sim`), N Bun API
+instances running the production Worker handler, and a round-robin load
+balancer in front of them (room WebSockets are hashed by topic so a room keeps
+one authority, as a Durable Object does). Every port is OS-assigned and the
+addresses are published to `.cache/localhost-stack/<instance>.json`, so
+several stacks run concurrently. `bun run test:product:localhost` boots one,
+runs the sim suite against it with `SIM_MODE=stack`, and tears it down. See
+[`tools/scripts/localhost-stack/README.md`](tools/scripts/localhost-stack/README.md).
+
+**Sign-in has one provider: Google.** There is no dev/test IdP route in the
+API. Simulations and the localhost stack both run `@pkgs/idp-google-sim`,
+which serves Google's real endpoints (PKCE, code exchange, userinfo, JWKS)
+so the production `google-oauth.ts` path is the path under test. Point it
+somewhere else with the `GOOGLE_IDP_ORIGIN` Worker binding; unset means real
+Google.
+
 Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ MinIO/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
 `@apps/product` migrates the mem fabric **once** (`seed:sim-db` → `apps/product/.cache/sim-backend-seed.pgmm.json`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`apps/product/src/test/setup/TESTING.md`](apps/product/src/test/setup/TESTING.md).
@@ -121,7 +139,7 @@ Production (`SECRETS_ENV=prd`) uses Infisical Neon + Cloudflare R2 (+ Railway EM
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
 - **`bun run dev`** — `@apps/product` super-app (`/` = real client, `/simulator` = Simulator; `?simulator` on `/` hands off). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
 - **`bun run dev:client`** — `@apps/client` standalone only (no product console).
-- **Sign-in in the simulator** — Dev social against the in-process sim API.
+- **Sign-in in the simulator** — Google against the in-process simulated IdP node.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
 - **`bun db:migrate`** — migrates `DATABASE_URL` (CI / after booting embedded Postgres). Not part of daily `bun dev`.
 - **`bun run db:wipe:dev`** — secrets env `dev` only; destructive on the resolved non-prod URL.

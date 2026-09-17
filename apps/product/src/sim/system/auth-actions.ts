@@ -5,17 +5,17 @@ import { actorUi, scenarioAction } from './actor-ui';
 const WAIT_MS = 15_000;
 
 /**
- * Open the avatar menu → Account, tap Dev on the sign-in modal, then dismiss
- * the signed-in success.
+ * Open the avatar menu → Account, tap Continue with Google, walk the
+ * provider's screens, then dismiss the signed-in success.
  */
-export const signInWithDev = scenarioAction({
-  name: 'signInWithDev',
+export const signInWithGoogle = scenarioAction({
+  name: 'signInWithGoogle',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.accountSignIn).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.authMethodDev).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.authMethodGoogle).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.authSignedInDone).tap({ timeoutMs: WAIT_MS });
     if (await ui.get(Handles.authModalClose).isVisible()) {
       await ui.get(Handles.authModalClose).tap({ timeoutMs: 1000 });

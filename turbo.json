@@ -9,6 +9,7 @@
     "VITE_*",
     "PREVIEW_PORT",
     "POSTGRES_SCHEMA",
+    "API_NODE_*",
     "API_URL",
     "LOCAL_PREVIEW_API_ORIGIN",
     "DATABASE_URL",
@@ -30,11 +31,30 @@
     "TURBO_*",
     "SIM_FIDELITY",
     "SIM_REPORT",
+    "IDP_*",
     "TMPDIR"
   ],
   "tasks": {
-    "up": {
-      "cache": false
+    "stack": {
+      "cache": false,
+      "persistent": false
+    },
+    "@tools#stack": {
+      "dependsOn": ["@apps/client#build"],
+      "cache": false,
+      "persistent": false
+    },
+    "@apps/server#stack": {
+      "cache": false,
+      "persistent": false
+    },
+    "@apps/client#stack": {
+      "cache": false,
+      "persistent": false
+    },
+    "@pkgs/idp-google-sim#stack": {
+      "cache": false,
+      "persistent": false
     },
     "install:deps": {
       "cache": false
@@ -254,6 +274,10 @@
       "dependsOn": ["kill", "setup", "^build", "build"],
       "persistent": true,
       "cache": false
+    },
+    "test:stack": {
+      "cache": false,
+      "persistent": false
     },
     "test:integration": {
       "inputs": [

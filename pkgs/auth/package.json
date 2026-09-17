@@ -40,6 +40,7 @@
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/idp-google-sim": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/sim": "workspace:*",
