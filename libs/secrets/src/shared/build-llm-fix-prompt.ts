@@ -188,26 +188,26 @@ const DEPLOYMENT_PIPELINE_LOCAL_PROMPT: LocalPromptOptions = {
   failureIntro:
     'The Deployment Pipeline checks failed when run locally via `bun run check`.',
   fixInstructions:
-    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:ci`, `bun run check:static`, `bun run check:api`).',
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:api`).',
   constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 
-/** Prompt body for local `bun check` failures (offline Turbo graph). */
+/** Prompt body for local `bun check` failures. */
 const LOCAL_BUN_CHECK_PROMPT: LocalPromptOptions = {
   title: `Fix \`bun check\` failures for ${PRODUCT_CONFIG.domain}`,
   failureIntro:
-    'The `bun check` gates failed (offline Turbo graph: gates/verify/static/secrets + build). An agent should fix every failing step below in one pass.',
+    'The `bun check` gates failed (lint, gates, tc, tests, scoped contracts/e2e, builds, secrets, static). An agent should fix every failing step below in one pass.',
   fixInstructions:
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci:verify`). Live `check:api` is opt-in / CI-only.',
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` (or the matching step from the repo root `package.json`, e.g. `bun run check:static`). Live `check:api` is deploy-only.',
   constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 
 const CHECK_HEAL_LOCAL_PROMPT: LocalPromptOptions = {
   ...LOCAL_BUN_CHECK_PROMPT,
   failureIntro:
-    'The deploy-gate checks failed when run locally via `bun run check:heal` (includes live `check:api`).',
+    'The `bun check` gates failed when run locally via `bun run check:heal`.',
   fixInstructions:
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check:heal` or the matching step from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:ci:verify`, `bun run check:api`).',
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check:heal` (or `bun run check`) to verify.',
 };
 
 function renderLocalPromptBody(
@@ -261,7 +261,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:ci\`, \`bun run check:static\`, \`bun run check:api\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`).`
+    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run \`bun run check\` (the whole check surface) or the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:static\`, \`bun run check:api\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`).`
   );
   lines.push('');
   for (const s of sections) {

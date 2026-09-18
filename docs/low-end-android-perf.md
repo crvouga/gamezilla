@@ -45,7 +45,7 @@ Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph
 
 ## Runtime Lighthouse (manual)
 
-`@apps/client#check:lighthouse` is **opt-in** — not part of `bun check`, `bun check:full`, or `bun run deploy`. CD low-end gates are static: `@apps/client#check:critical-path` (fast tier) and `@apps/client#check:bundle-budget` (deploy; needs Vite `dist`). Run Lighthouse locally when investigating runtime metrics (needs a Vite build + Chrome). While `lighthouse.mode` is `warn`, overs print warnings and the task still exits 0.
+`@apps/client#check:lighthouse` is **opt-in** — not part of `bun check` or `bun run deploy`. CD low-end gates are static: `@apps/client#check:critical-path` (in `bun check`) and `@apps/client#check:bundle-budget` (deploy; needs Vite `dist`). Run Lighthouse locally when investigating runtime metrics (needs a Vite build + Chrome). While `lighthouse.mode` is `warn`, overs print warnings and the task still exits 0.
 
 - Rebuilds (when needed) with `VITE_API_URL` = preview origin; preview proxies `/api` → stub (never production)
 - Routes: `/` (shell), `/more`, `/profile` — **one LHCI process per route** (Chrome reaped between routes); SIGKILL retries that route once after reap
@@ -107,7 +107,7 @@ bun run --filter @apps/client check:critical-path
 bun run --filter @apps/client build
 bun run --filter @apps/client check:bundle-budget
 
-# Runtime Lighthouse (needs Chrome + build); manual only — not on check:full / deploy
+# Runtime Lighthouse (needs Chrome + build); manual only — not on check / deploy
 bun run --filter @apps/client check:lighthouse
 ```
 

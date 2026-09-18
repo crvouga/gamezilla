@@ -1,5 +1,5 @@
 /**
- * Shared Turbo flags for CI / `check:ci*` / local `check` / `deploy`.
+ * Shared Turbo flags for CI / local `check` / `deploy`.
  *
  * - Cache is `local:rw,remote:rw` (self-hosted remote at
  *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` + `TURBO_TEAM` are
@@ -19,9 +19,9 @@
  *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
  * - Log order: `auto` locally; `stream` in CI (not `grouped` — grouped holds
  *   task stdout until completion, which looks like a hang). Override with
- *   `TURBO_LOG_ORDER`. `check` / `check:full` / `deploy` (and `//#…` forms)
- *   are expanded recursively to leaf `dependsOn` tasks so turbo never nests
- *   under a root aggregator script (would recurse).
+ *   `TURBO_LOG_ORDER`. `check` / `deploy` (and `//#…` forms) are expanded
+ *   recursively to leaf `dependsOn` tasks so turbo never nests under a root
+ *   aggregator script (would recurse).
  * - Output logs: `new-only` (cache misses stream). Override with
  *   `TURBO_OUTPUT_LOGS`. Do not default CI to `errors-only`: a silent pipe is
  *   SIGTERM'd (~10 min, exit 143) by GitHub Actions.
@@ -29,7 +29,7 @@
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 
@@ -43,23 +43,40 @@ import { DEFAULT_TURBO_API } from '../../libs/secrets/src/shared/secrets/turbo-t
 
 const REPO_ROOT = join(import.meta.dirname, '../..');
 const CHECK_AGGREGATOR = '//#check';
-const CHECK_FULL_AGGREGATOR = '//#check:full';
 const DEPLOY_AGGREGATOR = '//#deploy';
 const SECRETS_CHECK_TASK = '@libs/secrets#check';
 const SMOKE_TASK = '@apps/server#smoke';
 
+const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
+
+/**
+ * Turborepo's hash knows nothing about the platform
+ * (https://turborepo.dev/docs/guides/handling-platforms), so a macOS result
+ * could satisfy a Linux run. The platform-scoped leaves — `test:e2e` (real
+ * browser engine) and `test:contract` (embedded Postgres / MinIO / EMQX
+ * binaries) — declare this file as an input, so their caches are per-platform
+ * while everything portable (tc, lint, unit tests) still shares one cache
+ * across machines. Written on every run: absent (a bare `turbo run`) hashes
+ * differently, which costs a cache miss, never correctness.
+ */
+function writePlatformCacheKey(): void {
+  const key = {
+    platform: process.platform,
+    arch: process.arch,
+    bun: Bun.version,
+  };
+  writeFileSync(PLATFORM_KEY_PATH, `${JSON.stringify(key, null, 2)}\n`);
+}
+
 /** Root-package script names and turbo root-task aliases that are aggregators. */
-const AGGREGATOR_ALIASES: ReadonlyMap<string, string> = new Map([
-  ['check', CHECK_AGGREGATOR],
-  ['//#check', CHECK_AGGREGATOR],
-  ['//:check', CHECK_AGGREGATOR],
-  ['check:full', CHECK_FULL_AGGREGATOR],
-  ['//#check:full', CHECK_FULL_AGGREGATOR],
-  ['//:check:full', CHECK_FULL_AGGREGATOR],
-  ['deploy', DEPLOY_AGGREGATOR],
-  ['//#deploy', DEPLOY_AGGREGATOR],
-  ['//:deploy', DEPLOY_AGGREGATOR],
-]);
+const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
+  check: CHECK_AGGREGATOR,
+  '//#check': CHECK_AGGREGATOR,
+  '//:check': CHECK_AGGREGATOR,
+  deploy: DEPLOY_AGGREGATOR,
+  '//#deploy': DEPLOY_AGGREGATOR,
+  '//:deploy': DEPLOY_AGGREGATOR,
+};
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
@@ -176,8 +193,8 @@ function taskDependsOn(tasks: TurboTasks, taskName: string): string[] {
 }
 
 /**
- * Recursively expand check / check:full / deploy aggregators to leaf turbo
- * tasks. Dedupes while preserving first-seen order.
+ * Recursively expand `check` / `deploy` aggregators to leaf turbo tasks.
+ * Dedupes while preserving first-seen order.
  */
 export function flattenCheckAggregators(
   taskArgs: readonly string[],
@@ -194,7 +211,9 @@ export function flattenCheckAggregators(
   }
 
   function expand(arg: string): void {
-    const canonical = AGGREGATOR_ALIASES.get(arg);
+    const canonical = Object.hasOwn(AGGREGATOR_ALIASES, arg)
+      ? AGGREGATOR_ALIASES[arg]
+      : undefined;
     if (canonical === undefined) {
       pushLeaf(arg);
       return;
@@ -275,6 +294,8 @@ function applyOfflineTaskArgs(
 
 async function main(): Promise<void> {
   const env = turboChildEnv();
+  writePlatformCacheKey();
+
   const remote = hasRemoteCreds(env);
   requireRemoteCredsInCi(remote);
   warnLocalCacheOnly(remote);

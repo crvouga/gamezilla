@@ -66,12 +66,9 @@ describe('turbo-ci-run TURBO_API', () => {
 describe('turbo-ci-run aggregator flatten', () => {
   const tasks = {
     '//#check': { dependsOn: ['lint', 'tc', 'test'] },
-    '//#check:full': {
-      dependsOn: ['//#check', '//#ci:audit', '@libs/secrets#check'],
-    },
   };
 
-  test('check expands to fast leaves', () => {
+  test('check expands to its leaves', () => {
     expect(flattenCheckAggregators(['check'], tasks)).toEqual([
       'lint',
       'tc',
@@ -81,16 +78,6 @@ describe('turbo-ci-run aggregator flatten', () => {
       'lint',
       'tc',
       'test',
-    ]);
-  });
-
-  test('check:full recursively expands //#check', () => {
-    expect(flattenCheckAggregators(['check:full'], tasks)).toEqual([
-      'lint',
-      'tc',
-      'test',
-      '//#ci:audit',
-      '@libs/secrets#check',
     ]);
   });
 

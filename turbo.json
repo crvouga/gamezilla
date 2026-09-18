@@ -3,6 +3,7 @@
   "ui": "stream",
   "concurrency": "50%",
   "globalDependencies": ["tsconfig.base.json"],
+  "globalEnv": ["SIM_FIDELITY", "POSTGRES_SCHEMA"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
@@ -128,11 +129,10 @@
         "bun-*.ts",
         "tsconfig*.json"
       ],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": []
     },
     "test:auth": {
-      "dependsOn": ["tc"],
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
@@ -284,7 +284,8 @@
         "tests/**/*.contract.test.ts",
         "package.json",
         "*.cjs",
-        "tsconfig*.json"
+        "tsconfig*.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputLogs": "new-only",
       "outputs": [],
@@ -297,20 +298,9 @@
         "scripts/**",
         "package.json",
         "*.cjs",
-        "tsconfig*.json"
+        "tsconfig*.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "@pkgs/auth#test:e2e": {
-      "cache": false,
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "@pkgs/sql-client-sqlite-web#test:e2e": {
-      "cache": false,
       "outputLogs": "new-only",
       "outputs": [],
       "dependsOn": ["tc"]
@@ -491,24 +481,17 @@
     },
     "//#check": {
       "dependsOn": [
+        "//#ci:pr-template",
         "//#lint:biome",
         "//#lint:vocab",
-        "@apps/client#check:critical-path",
-        "tc",
-        "test"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#check:full": {
-      "dependsOn": [
-        "//#check",
         "//#lint:eslint",
         "//#ci:syncpack",
         "//#ci:depcruise",
         "//#ci:audit",
         "//#ci:i18n",
-        "@libs/secrets#check",
+        "@apps/client#check:critical-path",
+        "tc",
+        "test",
         "@apps/server#build",
         "@apps/room-server#build",
         "@pkgs/auth#test:e2e",
@@ -518,6 +501,7 @@
         "@pkgs/object-store-s3#test:contract",
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
+        "@libs/secrets#check",
         "@tools#check:static"
       ],
       "outputs": [],
@@ -678,6 +662,15 @@
       ],
       "outputs": [],
       "outputLogs": "new-only"
+    },
+    "//#ci:pr-template": {
+      "inputs": [
+        ".github/pull_request_template.md",
+        "tools/scripts/check-pr-body.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only",
+      "cache": false
     }
   }
 }

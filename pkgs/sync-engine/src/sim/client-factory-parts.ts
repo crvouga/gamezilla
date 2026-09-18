@@ -189,7 +189,7 @@ export type CreateMutationSideArgs = {
 export function createMutationSide(
   args: CreateMutationSideArgs
 ): MutationClient {
-  return createMutationClient({
+  const client = createMutationClient({
     db: args.db,
     registry: args.mutations,
     env: args.getEnv(),
@@ -201,4 +201,6 @@ export function createMutationSide(
       args.engine.notifyLocalMutation(mutation, mutationArgs, capture);
     },
   });
+  args.engine.registerMutationDrain(() => client.drain());
+  return client;
 }

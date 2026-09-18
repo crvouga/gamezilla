@@ -60,7 +60,7 @@
     "start": "bun run dev",
     "tc": "tsc --noEmit -p tsconfig.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**' --path-ignore-patterns='**/*.test.tsx' && vitest run",
-    "test:integration": "bun test src/integration/"
+    "test:integration": "bun test --pass-with-no-tests src/integration/"
   },
   "dependencies": {
     "@apps/server": "workspace:*",

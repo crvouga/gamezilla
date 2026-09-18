@@ -51,7 +51,7 @@ Solid components run once; reactivity is tracking, not re-render. Product UI fre
 - **Hooks that expose lists / status return `Accessor`s** (e.g. `friends()`, `isLoading()`), not getter-bags that look like plain values. Destructuring `const { friends } = useFriends()` snapshots forever.
 - **Do not derive UI once at setup** (`const pills = render(props.status)` outside `createMemo` / `<Switch>`). Compute inside a memo or render branch so status changes update the tree.
 - **Pass `Accessor`s into hooks that subscribe** (`useFriendshipStatus(() => props.userId)`), or remount with `<Show when={id} keyed>`. Bare `string` props read at hook setup will not track.
-- Lint: `eslint.config.mjs` full Solid block on `tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). Run `bun run lint:eslint` (`check:full` / deploy; not fast `bun check`).
+- Lint: `eslint.config.mjs` full Solid block on `tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). Run `bun run lint:eslint` (`bun check` / deploy).
 
 ```
 pkgs/ui/src/
@@ -88,15 +88,15 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` / `TURBO_TEAM` are present: `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). Missing token/team is a hard error in CI. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Optional knobs `TURBO_LOG_ORDER` and `TURBO_TELEMETRY_DISABLED` remain derived defaults from provision. Look for `cache hit` / `cache miss` in Turbo output.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` / `TURBO_TEAM` are present: `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). Missing token/team is a hard error in CI. Platform-scoped leaves (`test:e2e`, `test:contract`) also hash `turbo-platform-key.json`, which `tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Optional knobs `TURBO_LOG_ORDER` and `TURBO_TELEMETRY_DISABLED` remain derived defaults from provision. Look for `cache hit` / `cache miss` in Turbo output.
 
-**Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` / `bun check:full` go through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
+**Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**Two-tier checks:** `bun check` is the fast cacheable tier (`//#lint:biome` / vocab / `@apps/client#check:critical-path` / `tc` / `test` via `//#check`). `bun check:full` is the CD gate — a strict superset (`//#check:full` depends on `//#check` plus Solid eslint, ci gates, secrets, no-op app builds, scoped package `test:contract` / `test:e2e`, billing catalog, and static). Live API probe (`@apps/server#check:api`) and client multi-asset budget (`@apps/client#check:bundle-budget`, which needs the Vite web build; Slow-3G / low-end Android bar in [`docs/low-end-android-perf.md`](docs/low-end-android-perf.md)) run on `//#deploy`, not `check:full`. Low-end device gates are **static** (critical-path + bundle-budget); runtime Lighthouse is manual only (`bun run --filter @apps/client check:lighthouse`). Both go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the PR-body contract (`//#ci:pr-template`), Biome + vocab + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` / `test:e2e` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/low-end-android-perf.md`](docs/low-end-android-perf.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget); runtime Lighthouse is manual only (`bun run --filter @apps/client check:lighthouse`), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
-**Local → CI reuse:** run `bun run secrets:pull` then `bun check` / `bun check:full` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Uncacheable deploy steps (`cache: false`: check:api, provision, migrate, deploy, smoke, OTA) always re-run.
+**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Uncacheable steps (`cache: false`: the PR-template contract, check:api, provision, migrate, deploy, smoke, OTA) always re-run.
 
-Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Cloudflare R2 (`gamezilla-production`). Provision uses `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to ensure R2 buckets and mint per-env S3 API tokens (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). After renaming Worker secret keys, delete any stale bindings not in the registry once (`wrangler secret bulk` does not remove old names). Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun check:full` / `bun run deploy` run `@libs/secrets#check` (validates both `dev` and `prd`).
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Cloudflare R2 (`gamezilla-production`). Provision uses `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to ensure R2 buckets and mint per-env S3 API tokens (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). After renaming Worker secret keys, delete any stale bindings not in the registry once (`wrangler secret bulk` does not remove old names). Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun check` / `bun run deploy` run `@libs/secrets#check` (validates both `dev` and `prd`).
 
 ## CI/CD job layout
 
@@ -104,15 +104,16 @@ Two workflow files, both on GitHub-hosted `ubuntu-latest` (the repo is private o
 a plan without larger runners):
 
 1. **PRs run exactly one check.** `.github/workflows/pr.yml` has a single job
-   named `check:full` that runs `bun run check:full` with `SECRETS_ENV=dev` — the
-   same `//#check:full` leaf set as the CD gate, nothing more. Never split the
-   check surface into per-check jobs: assign a new check to `//#check` (fast) or
-   `//#check:full` (slow/live) in `turbo.json`, or add a `ci:*` root task, and it
-   rides along in that one job. `//#deploy` is a strict superset of
-   `//#check:full` (it adds `@apps/server#check:api`,
-   `@apps/client#check:bundle-budget` and `@apps/server#smoke`, which pulls
-   provision → migrate → room deploy → API deploy → product deploy → billing
-   sync), so it is never listed as a `dependsOn` of another aggregator.
+   named `check` that runs `bun run check` with `SECRETS_ENV=dev` — the same
+   `//#check` leaf set as the deploy gate, nothing more. It also re-runs on
+   `edited` so a PR body edit re-validates `//#ci:pr-template`. Never split the
+   check surface into per-check jobs: assign a new check to `//#check` in
+   `turbo.json`, or add a `ci:*` root task, and it rides along in that one job.
+   `//#deploy` is a strict superset of `//#check` (it adds
+   `@apps/server#check:api`, `@apps/client#check:bundle-budget` and
+   `@apps/server#smoke`, which pulls provision → migrate → room deploy → API
+   deploy → product deploy → billing sync), so it is never listed as a
+   `dependsOn` of another aggregator.
 2. **`main` deploys in two stages.** `.github/workflows/deploy.yml` runs
    `canary-dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
    succeeds, `release-prod` (`SECRETS_ENV=prd bun run deploy`,
@@ -135,29 +136,38 @@ to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 `@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
 wildcard to a `.tsx` file) fails on the runner while passing locally.
 
-`check:full` is the merge gate by convention, not by GitHub enforcement — the
-current plan cannot require a status check (branch protection returns
-`Upgrade to GitHub Pro or make this repository public`), so `/pr-ready`
-(`.agents/commands/pr-ready.md`) is what refuses to call a PR ready until
-`gh pr checks` is green. If the repo moves to Pro/Team or goes public, add
-`check:full` as the single required status check in branch protection. **Agents
-never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue; merging is
-always a human decision on GitHub.
+Every PR check is required by GitHub, not by convention:
+`tools/github-config/main-protection.json` (applied with `bun run github:config`)
+requires everything that reports on the PR — ours and third-party apps' — against
+the latest `main`, so GitHub itself refuses the merge until all of it is green.
+**Agents never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue;
+merging is always a human decision on GitHub.
 
-**`main` only moves through a merged PR.** Three layers, because the plan above
-blocks the server-side one: `tools/githooks/pre-push` refuses any push to
+**`main` only moves through a merged PR.** GitHub enforces it — every setting
+this repo applies on GitHub lives in `tools/github-config/` as the REST payload,
+applied by `bun run github:config` (drift check `bun run github:config:check`):
+
+- `main-protection.json` — a PR is required to change `main`, and direct pushes,
+  force-pushes and deletions are rejected, admins included. **Required checks are
+  never named here**: the script reads what actually reports on open PRs
+  (`gh pr checks`, third-party apps included) and requires all of it, strictly
+  (the branch must be up to date). Add, rename or drop a PR check and
+  `bun run github:config` follows; pushed-only checks (the deploy jobs) are
+  excluded because they never report on a PR. Verified by pushing to a protected
+  branch with the local hook bypassed: `remote: - Changes must be made through a
+  pull request.`
+- `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
+  branch.
+
+Two local layers back it up: `tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
-`bun run hooks:install`), `.github/workflows/deploy.yml` fails before it deploys
-any commit that is not associated with a pull request, and that same job re-runs
-the whole `check:full` leaf set before shipping — so a merged-but-red PR cannot
-reach prod either. `bun run protect:main` applies the airtight version — a PR is
-required to change `main`, `check:full` must be green on the latest `main`,
-and direct pushes, force-pushes and deletions are rejected, admins included. It
-exits 1 with GitHub's `Upgrade to GitHub Pro or make this repository public`
-until the repo is on Pro/Team or public; re-run it after that plan change. The
-other hook, `tools/githooks/pre-commit` (repo-wide `lint tc --affected`), is
-opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`): checks belong to PR CI,
-and `--affected` spans every package while a global dependency is dirty.
+`bun run hooks:install`), and `.github/workflows/deploy.yml` fails before it
+deploys any commit that is not associated with a pull request — that job also
+re-runs the whole `check` leaf set first, so a merged-but-red PR cannot
+ship. The other hook, `tools/githooks/pre-commit` (repo-wide
+`lint tc --affected`), is opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`):
+checks belong to PR CI, and `--affected` spans every package while a global
+dependency is dirty.
 
 ## Superset workspaces
 
@@ -175,9 +185,11 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (`4177`/`4178`) and the wrangler preview (`8788`) stay machine-wide
   singletons: at most one workspace at a time may run something that binds them
   (fidelity-max sims, `test:contract`, `check:api`).
-- **Checks.** PR CI owns `bun check:full` — never run it locally. Verify with
+- **Checks.** PR CI owns `bun check` — it is the whole gate, so prefer
   `bun fmt` plus `bun run --filter <pkg> tc` and `bun run --filter <pkg> test`
-  for the packages actually touched, then run `/pr-ready`
+  while iterating. Every PR body fills `.github/pull_request_template.md`
+  completely; `//#ci:pr-template` fails the PR on a missing section, empty
+  content or an unchecked box. Then run `/pr-ready`
   (`.agents/commands/pr-ready.md`) — the single PR command: it syncs with
   `main`, commits, pushes, opens/updates the PR, addresses review comments, and
   drives the PR check green. It never merges: a green PR is handed to a human.

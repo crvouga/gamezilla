@@ -10,8 +10,8 @@
  * frees the API port. Self-contained for CI and local — the deploy turbo
  * graph no longer has a separate "Start API preview" workflow step.
  *
- * Deploy / opt-in only (`@apps/server#check:api` in the deploy graph;
- * not part of local `bun check` / `bun check:full`).
+ * Deploy only (`@apps/server#check:api` in the deploy graph; not part of
+ * `bun check`).
  *
  * Invoked via `bun run check:api` (wraps `secrets-run` for secrets).
  */
