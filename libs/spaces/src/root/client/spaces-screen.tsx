@@ -1,5 +1,3 @@
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
-import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
@@ -16,6 +14,7 @@ import { createMemo, For, Show } from 'solid-js';
 import { openSpaceDetail } from '../../public/space-routes';
 import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
+import { RecentSpacesSection } from './card/recent-spaces-section';
 import { SpaceCard } from './card/space-card';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 
@@ -33,36 +32,20 @@ function sortCurrentSpacesFirst(
 function SpacesEmptyState(props: {
   readonly onCreateSpace: () => void;
 }): JSX.Element {
-  const canCreateSpace = useIsSignedIn();
-  const { open: openSignInModal } = useSignInModal();
   return (
-    <Show
-      when={canCreateSpace()}
-      fallback={
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={<Trans>No spaces yet</Trans>}
-          body={
-            <Trans>Sign in to start a space or join one from a friend.</Trans>
-          }
-          action={{ label: <Trans>Sign in</Trans>, onClick: openSignInModal }}
-        />
+    <EmptyState
+      icon={Gamepad2Icon}
+      title={<Trans>No spaces yet</Trans>}
+      body={
+        <Trans>
+          Start a space to play with friends. Spaces you join show up here.
+        </Trans>
       }
-    >
-      <EmptyState
-        icon={Gamepad2Icon}
-        title={<Trans>No spaces yet</Trans>}
-        body={
-          <Trans>
-            Start a space to play with friends. Spaces you join show up here.
-          </Trans>
-        }
-        action={{
-          label: <Trans>Start a space</Trans>,
-          onClick: props.onCreateSpace,
-        }}
-      />
-    </Show>
+      action={{
+        label: <Trans>Start a space</Trans>,
+        onClick: props.onCreateSpace,
+      }}
+    />
   );
 }
 
@@ -93,7 +76,6 @@ function SpacesList(props: {
 }
 
 export function SpacesScreen(): JSX.Element {
-  const canCreateSpace = useIsSignedIn();
   const router = useRouter();
   const createSpace = useCreateSpace();
   const { t } = useLingui();
@@ -115,7 +97,6 @@ export function SpacesScreen(): JSX.Element {
       operation: startSpace,
       successHoldMs: 0,
       icon: PlusIcon,
-      disabled: !canCreateSpace(),
       dataSet: { testid: Handles.spaceCreate },
     };
   });
@@ -134,6 +115,7 @@ export function SpacesScreen(): JSX.Element {
         // Lobby cards are cards already — never nest them inside an Island.
         <div class={`box ${bodyClass}`}>
           <SpacesList onCreateSpace={onCreateSpace} />
+          <RecentSpacesSection />
         </div>
       )}
     />

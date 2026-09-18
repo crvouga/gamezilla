@@ -2,7 +2,7 @@ import { t } from '@lingui/core/macro';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
-import { SpeakingAvatar, useLayoutMode } from '@pkgs/ui';
+import { SpeakingAvatar, useLayoutMode, useRouter } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -29,6 +29,7 @@ const LOADING_SHELL_STATUS = 'loading' as const satisfies SolveStatus;
 const LOADING_SHELL_HINT_STAGE = 'none' as const satisfies HintStage;
 const COMPACT_AVATAR_SIZE = 56;
 const WIDE_AVATAR_SIZE = 80;
+const BILLING_ROUTE = '/more/billing';
 
 const noop = (): void => {};
 
@@ -170,6 +171,7 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
 }
 
 type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
+type ShellBoardPickState = Exclude<ShellPickState, 'loading'>;
 
 function shellHeaderKind(state: ShellPickState): ChessPuzzleStatusKind {
   return state;
@@ -181,6 +183,8 @@ function shellCoachLine(state: ShellPickState): string {
       return '';
     case 'offline':
       return t`I can't fetch puzzles without a connection. Come back online and we'll pick up here.`;
+    case 'limited':
+      return t`You've used today's puzzles. Upgrade for unlimited play, or come back tomorrow.`;
     case 'empty':
       return t`You've cleared everything in your feed. Widen the filters and let's keep going.`;
   }
@@ -189,35 +193,37 @@ function shellCoachLine(state: ShellPickState): string {
 function ShellBoardSlot(props: {
   size: number;
   chrome: PuzzlePlayBoardChrome;
-  pickState: ShellPickState;
+  pickState: ShellBoardPickState;
   includeAllPuzzles: () => void;
+  onUpgrade: () => void;
 }): JSX.Element {
   const [config] = useChessPuzzleFeedConfig();
   return (
-    <Show
-      when={props.pickState !== 'loading'}
-      fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
-    >
-      <ChessPuzzleEmptyPoolState
-        kind={props.pickState === 'offline' ? 'offline' : 'empty'}
-        size={props.size}
-        config={config()}
-        onIncludeAllPuzzles={props.includeAllPuzzles}
-        onOpenFeedSettings={props.chrome.openFeedSettings}
-      />
-    </Show>
+    <ChessPuzzleEmptyPoolState
+      kind={props.pickState}
+      size={props.size}
+      config={config()}
+      onIncludeAllPuzzles={props.includeAllPuzzles}
+      onOpenFeedSettings={props.chrome.openFeedSettings}
+      onUpgrade={props.onUpgrade}
+    />
   );
 }
 
-/** Play chrome without a placed puzzle: loading, offline, or exhausted feed. */
+/** Play chrome without a placed puzzle: loading, offline, limited or empty. */
 function PuzzlePlayShell(props: {
   backToChessRoot: () => void;
   pickState: Accessor<ShellPickState>;
   e2eLoadingStatus: JSX.Element;
   onFeedConfigApplied: () => void;
   includeAllPuzzles: () => void;
+  onUpgrade: () => void;
 }): JSX.Element {
   const avatarSize = usePuzzleAvatarSize();
+  const boardKind = createMemo<ShellBoardPickState | null>(() => {
+    const state = props.pickState();
+    return state === 'loading' ? null : state;
+  });
   return (
     <PuzzlePlayLayout
       backToRoot={props.backToChessRoot}
@@ -236,12 +242,21 @@ function PuzzlePlayShell(props: {
         />
       }
       boardSlot={(size, chrome) => (
-        <ShellBoardSlot
-          size={size}
-          chrome={chrome}
-          pickState={props.pickState()}
-          includeAllPuzzles={props.includeAllPuzzles}
-        />
+        <Show
+          when={boardKind()}
+          keyed
+          fallback={<ChessPuzzleBoardLoadingState size={size} />}
+        >
+          {(kind) => (
+            <ShellBoardSlot
+              size={size}
+              chrome={chrome}
+              pickState={kind}
+              includeAllPuzzles={props.includeAllPuzzles}
+              onUpgrade={props.onUpgrade}
+            />
+          )}
+        </Show>
       )}
       status={() => LOADING_SHELL_STATUS}
       hintStage={() => LOADING_SHELL_HINT_STAGE}
@@ -274,10 +289,14 @@ export function PuzzlePlayScreen(): JSX.Element {
   } = usePuzzlePlayScreenState();
 
   const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus()} />;
+  const router = useRouter();
   const shellState = createMemo<ShellPickState>(() => {
     const state = pickState();
     return state === 'ready' ? 'loading' : state;
   });
+  const openBilling = (): void => {
+    router.push(BILLING_ROUTE);
+  };
 
   return (
     <div
@@ -293,6 +312,7 @@ export function PuzzlePlayScreen(): JSX.Element {
             e2eLoadingStatus={e2ePickStatus}
             onFeedConfigApplied={reselectActivePuzzleFromFeed}
             includeAllPuzzles={includeAllPuzzles}
+            onUpgrade={openBilling}
           />
         }
       >

@@ -23,15 +23,20 @@ type SpaceHostRow = {
 export const spaceIdArgs = z.object({ spaceId: z.string().min(1) });
 export const visibilityArgs = z.enum(SPACE_VISIBILITIES);
 
-export function accountId(env: MutationEnv): string {
-  if (env.accountId === null || env.accountId.length === 0 || env.isAnon) {
+/**
+ * Space actor id: the signed-in account, or the install's `users.id` for a
+ * guest. Guests can host and join; membership rows are keyed by this id.
+ */
+export function spaceActorId(env: MutationEnv): string {
+  const id = env.accountId ?? env.actorId;
+  if (id.length === 0) {
     throw new MutationError('SPACE_NOT_SIGNED_IN', 'Sign in to manage spaces.');
   }
-  return env.accountId;
+  return id;
 }
 
 export function memberId(env: MutationEnv): string {
-  return resolveSpaceMemberId(accountId(env));
+  return resolveSpaceMemberId(spaceActorId(env));
 }
 
 export async function getSpaceHost(
@@ -131,14 +136,13 @@ export async function endSpace(
   env: MutationEnv,
   spaceId: string
 ): Promise<void> {
-  const actorAccountId = accountId(env);
   const now = env.now().toISOString();
   await tx.run(sql`
     UPDATE spaces
     SET ended_at = ${now},
         host_id = ${env.deviceId},
         host_member_id = ${memberId(env)},
-        host_account_id = ${actorAccountId}
+        host_account_id = ${env.accountId}
     WHERE id = ${spaceId} AND ended_at IS NULL
   `);
   await tx.run(sql`

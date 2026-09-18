@@ -172,5 +172,6 @@ export {
   readAvatarSeed,
   readAvatarStyleLabel,
   readUsername,
+  recentSpaceCardVisible,
   tabsVisible,
 } from './system/ui-reads';

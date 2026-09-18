@@ -15,6 +15,7 @@ import { AuthSyncBridge } from '@libs/auth/root/client/auth-sync-bridge';
 import { ProfileProvider } from '@libs/profile/root/client/profile-provider';
 import { EndSpaceModalProvider } from '@libs/spaces/root/client/end-space/end-space-modal-provider';
 import { LeaveSpaceModalProvider } from '@libs/spaces/root/client/leave-space/leave-space-modal-provider';
+import { ReconcileEndedOpenSessions } from '@libs/spaces/root/client/reconcile-ended-open-sessions';
 import { SqlClientProvider } from '@pkgs/sql-client/solid';
 import {
   SyncEnginePaintGateProvider,
@@ -49,6 +50,7 @@ function SessionFeatureProviders(props: {
 }): JSX.Element {
   return (
     <SyncLocalDataActions>
+      <ReconcileEndedOpenSessions />
       <DeviceEntityBootstrap>
         <ProfileProvider>
           <AppSpaceRoomsProvider>

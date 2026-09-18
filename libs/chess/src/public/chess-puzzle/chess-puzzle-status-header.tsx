@@ -19,6 +19,8 @@ function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
       return <Trans>No puzzles left</Trans>;
     case 'offline':
       return <Trans>Offline</Trans>;
+    case 'limited':
+      return <Trans>Daily limit reached</Trans>;
     case 'whiteToMove':
       return <Trans>White to move</Trans>;
     case 'blackToMove':

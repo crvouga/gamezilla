@@ -1,3 +1,5 @@
+// goal:chess-puzzles:3
+// goal:chess-puzzles:4
 import { describe, expect, test } from 'bun:test';
 import {
   bumpPuzzleFeedCustomRating,

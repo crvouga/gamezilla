@@ -48,6 +48,7 @@
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/entitlements": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/keyword": "workspace:*",

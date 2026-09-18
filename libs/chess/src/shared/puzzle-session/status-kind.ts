@@ -4,6 +4,7 @@ export type ChessPuzzleStatusKind =
   | 'loading'
   | 'empty'
   | 'offline'
+  | 'limited'
   | 'whiteToMove'
   | 'blackToMove'
   | 'wrong'

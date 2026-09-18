@@ -9,13 +9,15 @@ import {
 } from '../chess-puzzle-feed-config';
 
 export type ChessPuzzleEmptyPoolStateProps = {
-  /** `'empty'` or `'offline'`; other states never render this block. */
+  /** `'empty'`, `'offline'` or `'limited'`; other states never render this block. */
   kind: Exclude<PuzzlePickState, 'ready' | 'loading'>;
   size: number;
   config: ChessPuzzleFeedConfig;
   /** Drop history / theme filters so every synced puzzle is eligible. */
   onIncludeAllPuzzles: () => void;
   onOpenFeedSettings: () => void;
+  /** Open the billing screen — the upgrade invitation a limit shows. */
+  onUpgrade: () => void;
 };
 
 function OfflineBlock(): JSX.Element {
@@ -30,6 +32,20 @@ function OfflineBlock(): JSX.Element {
         </Trans>
       }
       dataSet={{ testid: 'chess-puzzle-empty-pool' }}
+    />
+  );
+}
+
+function LimitBlock(props: { onUpgrade: () => void }): JSX.Element {
+  return (
+    <EmptyState
+      icon={SearchIcon}
+      title={<Trans>You've hit today's puzzle limit</Trans>}
+      body={
+        <Trans>Upgrade for unlimited puzzles, or come back tomorrow.</Trans>
+      }
+      action={{ label: <Trans>See plans</Trans>, onClick: props.onUpgrade }}
+      dataSet={{ testid: 'chess-puzzle-limit' }}
     />
   );
 }
@@ -96,7 +112,14 @@ export function ChessPuzzleEmptyPoolState(
       class="box self-center bg-surface items-center justify-center overflow-hidden"
       style={{ width: `${props.size}px`, height: `${props.size}px` }}
     >
-      <Show when={props.kind === 'empty'} fallback={<OfflineBlock />}>
+      <Show
+        when={props.kind === 'empty'}
+        fallback={
+          <Show when={props.kind === 'limited'} fallback={<OfflineBlock />}>
+            <LimitBlock onUpgrade={props.onUpgrade} />
+          </Show>
+        }
+      >
         <ExhaustedBlock
           config={props.config}
           onIncludeAllPuzzles={props.onIncludeAllPuzzles}

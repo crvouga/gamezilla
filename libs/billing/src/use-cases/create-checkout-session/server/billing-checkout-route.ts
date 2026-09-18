@@ -1,14 +1,16 @@
 import { zValidator } from '@hono/zod-validator';
 import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
-import type { Billing } from '@pkgs/billing';
+import type { Billing, BillingEvent } from '@pkgs/billing';
+import type { Clock } from '@pkgs/clock';
 import { createLogger, type Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { CreateId } from '@pkgs/uuid/create-id';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 import { CATALOG_PRICE_KEYS } from '../../../shared/catalog/catalog-spec';
+import { BillingSubscriptionRepository } from '../../apply-subscription-state/server/billing-subscription-repository';
 
 export type BillingAuthContext = {
   readonly accountId: string;
@@ -19,6 +21,18 @@ export type BillingRequireAuth = (
   sql: SqlClient,
   request: Request
 ) => Promise<BillingAuthContext>;
+
+/** Best-effort user-topic push after a DOMAIN write (app-injected). */
+export type BillingNotify = (accountId: string, label: string) => Promise<void>;
+
+export type BillingRoutesDeps = {
+  readonly getSqlClient: () => SqlClient;
+  readonly billing: Billing | null;
+  readonly requireAuth: BillingRequireAuth;
+  readonly createId: CreateId;
+  readonly clock: Clock;
+  readonly notifyUser: BillingNotify;
+};
 
 const checkoutBodySchema = z.object({
   priceKey: z.enum(CATALOG_PRICE_KEYS),
@@ -43,97 +57,139 @@ async function readBillingCustomerId(
   );
 }
 
+/** Reuses the linked customer, or mints and links one. */
+async function ensureBillingCustomer(args: {
+  readonly sql: SqlClient;
+  readonly billing: Billing;
+  readonly auth: BillingAuthContext;
+  readonly createId: CreateId;
+  readonly clock: Clock;
+}): Promise<string> {
+  const existing = await readBillingCustomerId(args.sql, args.auth.accountId);
+  if (existing !== null) return existing;
+  const created = await args.billing.createCustomer({
+    accountId: args.auth.accountId,
+  });
+  await args.sql.transaction(async (tx) => {
+    await new ExternalAccountRepository(tx).insertExternalAccountOrGet({
+      userId: args.auth.accountId,
+      provider: EXTERNAL_ACCOUNT_PROVIDER_BILLING,
+      externalId: created.customerId,
+      now: () => args.clock.now(),
+      createId: args.createId,
+    });
+  });
+  return created.customerId;
+}
+
 async function handleBillingCheckout(
   c: Context,
   body: CheckoutValidated,
-  args: {
-    readonly sql: SqlClient;
-    readonly requireAuth: BillingRequireAuth;
-    readonly log: Logger;
-  }
+  deps: BillingRoutesDeps & { readonly billing: Billing }
 ): Promise<Response> {
-  const { sql, requireAuth, log } = args;
-  await requireAuth(sql, c.req.raw);
-
-  // Catalog price → provider price id previously came from entity_store.
-  // Fail closed until billing rewires onto `@pkgs/entity-store`.
-  log.error(
-    'checkout: catalog price lookup unavailable — entity_store dump removed; rewire onto @pkgs/entity-store',
-    { priceKey: body.priceKey }
-  );
-  return c.json(
-    {
-      error:
-        'Billing checkout is temporarily unavailable (catalog price lookup not wired)',
-    },
-    503
-  );
+  const sql = deps.getSqlClient();
+  const auth = await deps.requireAuth(sql, c.req.raw);
+  const customerId = await ensureBillingCustomer({
+    sql,
+    billing: deps.billing,
+    auth,
+    createId: deps.createId,
+    clock: deps.clock,
+  });
+  const session = await deps.billing.createCheckoutSession({
+    customerId,
+    priceKey: body.priceKey,
+    successUrl: body.successUrl,
+    cancelUrl: body.cancelUrl,
+  });
+  if (session.url.length === 0) {
+    return c.json({ error: 'Billing checkout URL missing' }, 502);
+  }
+  return c.json({ url: session.url }, 200);
 }
 
 async function handleBillingPortal(
   c: Context,
   body: PortalValidated,
-  args: {
-    readonly sql: SqlClient;
-    readonly billing: Billing;
-    readonly requireAuth: BillingRequireAuth;
-    readonly log: Logger;
-  }
+  deps: BillingRoutesDeps & { readonly billing: Billing }
 ): Promise<Response> {
-  const { sql, billing, requireAuth, log } = args;
-  const auth = await requireAuth(sql, c.req.raw);
+  const sql = deps.getSqlClient();
+  const auth = await deps.requireAuth(sql, c.req.raw);
   const customerId = await readBillingCustomerId(sql, auth.accountId);
-
   if (customerId === null) {
-    throw new HTTPException(404, {
-      message: 'No billing customer for this account',
-    });
+    return c.json({ error: 'No billing customer for this account' }, 404);
   }
-
-  const portal = await billing.createPortalSession({
+  const portal = await deps.billing.createPortalSession({
     customerId,
     returnUrl: body.returnUrl,
   });
-
   if (portal.url.length === 0) {
-    log.error('portal: billing returned empty portal.url', {
-      portalId: portal.id,
-    });
     return c.json({ error: 'Billing portal URL missing' }, 502);
   }
-
   return c.json({ url: portal.url }, 200);
+}
+
+async function handleBillingWebhook(
+  c: Context,
+  deps: BillingRoutesDeps & { readonly billing: Billing },
+  log: Logger
+): Promise<Response> {
+  const signature = c.req.header('stripe-signature') ?? '';
+  const rawBody = await c.req.text();
+  let event: BillingEvent;
+  try {
+    event = await deps.billing.verifyWebhook({ rawBody, signature });
+  } catch {
+    log.warn('billing webhook: signature verification failed');
+    return c.json({ error: 'Invalid webhook signature' }, 400);
+  }
+  if (event.kind === 'ignored') {
+    return c.json({ received: true }, 200);
+  }
+  if (event.accountId === null) {
+    // Provider identity never linked to an account: nothing to project.
+    return c.json({ received: true }, 200);
+  }
+  const accountId = event.accountId;
+  const sql = deps.getSqlClient();
+  await sql.transaction(async (tx) => {
+    await new BillingSubscriptionRepository(tx, deps.clock).upsert({
+      accountId,
+      providerSubscriptionId: event.providerSubscriptionId,
+      priceKey: event.priceKey,
+      status: event.status,
+      currentPeriodEndMs: event.currentPeriodEndMs,
+      cancelAtPeriodEnd: event.cancelAtPeriodEnd,
+    });
+  });
+  await deps.notifyUser(accountId, 'billing:subscription');
+  return c.json({ received: true }, 200);
 }
 
 export class BillingCheckoutRoutes {
   private readonly log: Logger;
 
-  constructor(
-    private readonly getSqlClient: () => SqlClient,
-    private readonly billing: Billing | null,
-    private readonly requireAuth: BillingRequireAuth,
-    now: () => number
-  ) {
-    this.log = createLogger({ name: 'billing:checkout', now });
+  constructor(private readonly deps: BillingRoutesDeps) {
+    this.log = createLogger({
+      name: 'billing:checkout',
+      now: () => deps.clock.now(),
+    });
   }
 
   build(): Hono {
-    const { getSqlClient, billing, requireAuth, log } = this;
-
+    const deps = this.deps;
+    const log = this.log;
     return new Hono()
       .post(
         '/billing/checkout',
         zValidator('json', checkoutBodySchema),
         async (c) => {
-          if (billing === null) {
+          if (deps.billing === null) {
             return c.json({ error: 'Billing is not configured' }, 503);
           }
-          const body = c.req.valid('json');
-          const sql = getSqlClient();
-          return handleBillingCheckout(c, body, {
-            sql,
-            requireAuth,
-            log,
+          return handleBillingCheckout(c, c.req.valid('json'), {
+            ...deps,
+            billing: deps.billing,
           });
         }
       )
@@ -141,18 +197,20 @@ export class BillingCheckoutRoutes {
         '/billing/portal',
         zValidator('json', portalBodySchema),
         async (c) => {
-          if (billing === null) {
+          if (deps.billing === null) {
             return c.json({ error: 'Billing is not configured' }, 503);
           }
-          const body = c.req.valid('json');
-          const sql = getSqlClient();
-          return handleBillingPortal(c, body, {
-            sql,
-            billing,
-            requireAuth,
-            log,
+          return handleBillingPortal(c, c.req.valid('json'), {
+            ...deps,
+            billing: deps.billing,
           });
         }
-      );
+      )
+      .post('/billing/webhook', async (c) => {
+        if (deps.billing === null) {
+          return c.json({ error: 'Billing is not configured' }, 503);
+        }
+        return handleBillingWebhook(c, { ...deps, billing: deps.billing }, log);
+      });
   }
 }

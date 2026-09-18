@@ -15,3 +15,7 @@ export {
   createStripeBillingFromSecretStore,
   StripeBilling,
 } from './stripe-billing';
+export {
+  type StripeEventLike,
+  translateStripeEvent,
+} from './translate-event';

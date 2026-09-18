@@ -1,7 +1,14 @@
 export type {
   Billing,
+  BillingCustomer,
+  BillingEvent,
+  CheckoutSession,
+  CreateCheckoutSessionInput,
+  CreateCustomerInput,
   CreatePortalSessionInput,
   PortalSession,
+  SubscriptionChange,
+  VerifyWebhookInput,
 } from './billing';
 export type {
   CatalogPriceSyncEntry,
@@ -25,4 +32,5 @@ export {
 export {
   InMemoryBilling,
   type InMemoryBillingOptions,
+  type InMemoryBillingWebhook,
 } from './in-memory-billing';

@@ -1,3 +1,4 @@
+// goal:chess-puzzles:8
 import { describe, expect, test } from 'bun:test';
 import {
   PUZZLE_OPENING_PREVIEW_MS,

@@ -16,6 +16,7 @@ export { defineView } from './core/define-view';
 export type { DialectCaps } from './core/dialect-caps';
 export { POSTGRES_CAPS, SQLITE_CAPS } from './core/dialect-caps';
 export type { DialectSql } from './core/dialect-sql';
+export { indexFingerprintName } from './core/index-fingerprint';
 export type { SchemaMember } from './core/register-tables';
 export {
   domainsFromSchemaMembers,

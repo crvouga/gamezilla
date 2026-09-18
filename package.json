@@ -23,6 +23,7 @@
     "chess:puzzles:seed": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles",
     "ci:audit": "bun run libs/tools/scripts/ci-audit.ts",
     "ci:depcruise": "NODE_OPTIONS=--max-old-space-size=4096 dependency-cruise apps libs pkgs --validate .dependency-cruiser.cjs --output-type err",
+    "ci:goals": "bun run libs/tools/scripts/check-goals.ts",
     "ci:i18n": "bun run libs/tools/scripts/ci-i18n.ts",
     "ci:knip": "knip --dependencies --files --no-progress --no-config-hints",
     "ci:pr-template": "bun run libs/tools/scripts/check-pr-body.ts",

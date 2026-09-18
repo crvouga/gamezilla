@@ -23,6 +23,7 @@
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/entitlements": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/secret-store": "workspace:*",

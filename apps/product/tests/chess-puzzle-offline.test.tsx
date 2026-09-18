@@ -1,3 +1,4 @@
+// goal:works-offline:2
 import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
 import {

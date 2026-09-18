@@ -79,5 +79,6 @@ export {
   readAvatarSeed,
   readAvatarStyleLabel,
   readUsername,
+  recentSpaceCardVisible,
   tabsVisible,
 } from './ui-reads';

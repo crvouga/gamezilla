@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// goal:room-to-grow:6
 // @io-wall-ok — composition root
 /**
  * Fail if Lingui catalogs are stale vs source macros, or if a `t` / `<Trans>`

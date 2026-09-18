@@ -25,6 +25,7 @@
     "@lingui/solid": "catalog:",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/device": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -32,11 +33,14 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@pkgs/word-filter": "workspace:*",
     "solid-js": "catalog:",
     "unique-names-generator": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/vitest-solid": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",

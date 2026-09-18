@@ -47,6 +47,7 @@ export const APP_ROUTE_TABLE: readonly AppRouteEntry[] = [
     load: () => import('./stubs/more-client-config'),
   },
   { path: '/more/account', load: () => import('./stubs/account') },
+  { path: '/more/billing', load: () => import('./stubs/more-billing') },
   {
     path: '/more/account/providers',
     load: () => import('./stubs/account-providers'),

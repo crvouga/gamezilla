@@ -1,4 +1,5 @@
 import { AUTH_QUERIES } from '@libs/auth/root/queries';
+import { BILLING_QUERIES } from '@libs/billing/root/queries';
 import { CHESS_QUERIES } from '@libs/chess/root/queries';
 import { CLIENT_CONFIG_QUERIES } from '@libs/client-config/root/queries';
 import { FRIENDS_QUERIES } from '@libs/friends/root/queries';
@@ -16,4 +17,5 @@ export const APP_QUERIES = queryRegistry([
   ...CHESS_QUERIES,
   ...CLIENT_CONFIG_QUERIES,
   ...NOTIFICATIONS_QUERIES,
+  ...BILLING_QUERIES,
 ]);

@@ -3,7 +3,6 @@ import { defineMutation } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
 import {
-  accountId,
   memberId,
   openSession,
   visibilityArgs,
@@ -12,7 +11,7 @@ export const createSpaceMutation = defineMutation({
   name: 'createSpace',
   args: z.object({ spaceId: z.string().min(1), visibility: visibilityArgs }),
   async run({ tx, env }, { spaceId, visibility }) {
-    const actorAccountId = accountId(env);
+    const actorAccountId = env.accountId;
     const actorMemberId = memberId(env);
     const now = env.now().toISOString();
     await tx.run(sql`

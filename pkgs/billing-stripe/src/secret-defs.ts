@@ -58,6 +58,17 @@ export async function validateStripePublishableKeyValue(
   }
 }
 
+export function validateStripeWebhookSecretValue(
+  input: BillingStripeSecretValidateInput
+): Promise<void> {
+  const v = input.secretValue.trim();
+  requireNonEmpty(v, StripeSecretKeys.webhookSecret);
+  if (!v.startsWith('whsec_')) {
+    throw new Error('Must start with whsec_');
+  }
+  return Promise.resolve();
+}
+
 /**
  * Secret definitions for the infra registry. Callers wrap these with their
  * `Secret` class and inject `fetch` into `validate`.
@@ -74,5 +85,12 @@ export const billingStripeSecretDefs: readonly BillingStripeSecretDef[] = [
     hint: 'Stripe publishable key (pk_live_… or pk_test_…)',
     optional: true,
     validate: validateStripePublishableKeyValue,
+  },
+  {
+    name: StripeSecretKeys.webhookSecret,
+    hint: 'Stripe webhook signing secret (whsec_…) — Dashboard → Developers → Webhooks',
+    optional: true,
+    pushToApiWorker: true,
+    validate: validateStripeWebhookSecretValue,
   },
 ];

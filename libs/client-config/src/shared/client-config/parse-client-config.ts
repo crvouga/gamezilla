@@ -1,4 +1,11 @@
 import {
+  DEFAULT_BILLING_GRACE_PERIOD_MS,
+  DEFAULT_LIMITS_SPEC,
+  type LimitsSpec,
+  type TierLimits,
+} from '@pkgs/entitlements';
+
+import {
   ClientConfigKey,
   type ObservabilityBackendName,
 } from './client-config-keys';
@@ -17,6 +24,8 @@ export type ClientRuntimeConfig = {
   readonly llm_enabled: boolean;
   readonly emqx_wss_url: string | null;
   readonly observability_backend: ObservabilityBackendName;
+  readonly limits_spec: LimitsSpec;
+  readonly billing_grace_period_ms: number;
 };
 
 export const DEFAULT_CLIENT_RUNTIME_CONFIG: ClientRuntimeConfig = {
@@ -27,6 +36,8 @@ export const DEFAULT_CLIENT_RUNTIME_CONFIG: ClientRuntimeConfig = {
   llm_enabled: false,
   emqx_wss_url: null,
   observability_backend: 'noop',
+  limits_spec: DEFAULT_LIMITS_SPEC,
+  billing_grace_period_ms: DEFAULT_BILLING_GRACE_PERIOD_MS,
 };
 
 const OBSERVABILITY_BACKENDS = new Set<string>(['noop', 'console']);
@@ -84,6 +95,40 @@ function parseObservabilityBackend(
   return raw as ObservabilityBackendName;
 }
 
+function isTierLimits(value: unknown): value is TierLimits {
+  if (value === null || typeof value !== 'object') return false;
+  const record = value as Record<string, unknown>;
+  const counted = (raw: unknown): boolean =>
+    raw === null || (typeof raw === 'number' && Number.isFinite(raw));
+  return (
+    counted(record['puzzlesPerDay']) &&
+    counted(record['maxHostedSpaces']) &&
+    typeof record['canHost'] === 'boolean' &&
+    typeof record['canJoin'] === 'boolean' &&
+    typeof record['canWatch'] === 'boolean' &&
+    typeof record['canUseFriends'] === 'boolean' &&
+    typeof record['canCustomizeFeed'] === 'boolean'
+  );
+}
+
+/** Config-driven policy; anything malformed falls back to the shipped spec. */
+function parseLimitsSpec(raw: unknown): LimitsSpec {
+  if (raw === null || typeof raw !== 'object') return DEFAULT_LIMITS_SPEC;
+  const record = raw as Record<string, unknown>;
+  const guest = record['guest'];
+  const free = record['free'];
+  const paid = record['paid'];
+  if (!isTierLimits(guest) || !isTierLimits(free) || !isTierLimits(paid)) {
+    return DEFAULT_LIMITS_SPEC;
+  }
+  return { guest, free, paid };
+}
+
+function parseGracePeriodMs(raw: unknown): number {
+  if (typeof raw === 'number' && Number.isFinite(raw) && raw >= 0) return raw;
+  return DEFAULT_BILLING_GRACE_PERIOD_MS;
+}
+
 /**
  * Parse synced `client_config` rows into a typed runtime view.
  * Unknown / invalid rows are ignored; missing keys default to disabled / null / noop.
@@ -116,6 +161,10 @@ export function parseClientConfigRows(
     ),
     observability_backend: parseObservabilityBackend(
       liveValue(byId, ClientConfigKey.observabilityBackend)
+    ),
+    limits_spec: parseLimitsSpec(liveValue(byId, ClientConfigKey.limitsSpec)),
+    billing_grace_period_ms: parseGracePeriodMs(
+      liveValue(byId, ClientConfigKey.billingGracePeriodMs)
     ),
   };
 }

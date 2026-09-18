@@ -20,6 +20,9 @@ export const Handles = {
   spaceCreate: 'space-create',
   /** Lobby card for a host's live space (scoped by host username). */
   spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
+  /** Ended-space history card in the lobby (scoped by host username). */
+  spaceRecentCard: (hostUsername: string) =>
+    `space-recent-card-${hostUsername}`,
   spaceJoin: 'space-join',
   spaceEnded: 'space-ended',
   spaceClose: 'space-close',

@@ -1,0 +1,532 @@
+{
+  "the-bar:1": {
+    "status": "unproven",
+    "note": "bun check gates PR merge, but the deploy gate is a separate superset and no checked artifact is promoted."
+  },
+  "the-bar:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/tools/scripts/check-goals.test.ts"
+      }
+    ]
+  },
+  "the-bar:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
+      }
+    ]
+  },
+  "the-bar:4": {
+    "status": "unproven",
+    "note": "two test:e2e leaves exit 0 on non-darwin, and pubsub-emqx test:contract loud-skips without a broker."
+  },
+  "the-bar:5": {
+    "status": "unproven",
+    "note": "fidelity-max and localhost-stack runs are outside //#check; outside services run against stubs there."
+  },
+  "the-bar:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/tools/scripts/check-goals.test.ts"
+      }
+    ]
+  },
+  "the-bar:7": {
+    "status": "unproven",
+    "note": "prod is live (www.gamezilla.app, api.gamezilla.app/api/health) but only @apps/server#smoke checks it, and smoke is deploy-only."
+  },
+  "spaces:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/space-guest-host.test.tsx"
+      }
+    ]
+  },
+  "spaces:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/spaces/tests/guest-space-join.test.ts"
+      }
+    ]
+  },
+  "spaces:3": {
+    "status": "unproven",
+    "note": "the host picks the game through room state, but no check exercises the picker."
+  },
+  "spaces:4": {
+    "status": "unproven",
+    "note": "the presence strip is driven by the live room roster, but no check reads it."
+  },
+  "spaces:5": {
+    "status": "unproven",
+    "note": "reopen is checked; duplicate/linger after disconnect has no check yet."
+  },
+  "spaces:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/space-lifecycle.test.tsx"
+      }
+    ]
+  },
+  "spaces:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/space-friend-join.test.tsx"
+      }
+    ]
+  },
+  "works-offline:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/sw-policy.test.ts"
+      }
+    ]
+  },
+  "works-offline:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-offline.test.tsx"
+      }
+    ]
+  },
+  "works-offline:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/puzzle-session/feed-sync-bands.test.ts"
+      }
+    ]
+  },
+  "works-offline:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+      }
+    ]
+  },
+  "works-offline:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+      }
+    ]
+  },
+  "works-offline:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/requires-online-fails-offline-without-queue.test.ts"
+      }
+    ]
+  },
+  "works-offline:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
+      }
+    ]
+  },
+  "social:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/auth-login-logout.test.tsx"
+      }
+    ]
+  },
+  "social:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/auth/src/root/server/anon-user-service.test.ts"
+      }
+    ]
+  },
+  "social:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/username-integrity.test.ts"
+      }
+    ]
+  },
+  "social:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/username-integrity.test.ts"
+      }
+    ]
+  },
+  "social:5": {
+    "status": "unproven",
+    "note": "send/accept are covered by setupFriendsPair-based space tests; decline, cancel and remove have no automated check."
+  },
+  "social:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/spaces/src/root/client/my-live-space-seat-sql.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-play.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-stats.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-feed.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-feed.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-exhaust.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:8": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/puzzle-session/opponent-stager.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:9": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-controls.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:10": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/chess-board/tests/chess-board.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:11": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-stats.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:12": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-spectator.test.tsx"
+      }
+    ]
+  },
+  "guest-free-and-paid:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:5": {
+    "status": "unproven",
+    "note": "no check asserts the cost of an entitlement evaluation."
+  },
+  "guest-free-and-paid:6": {
+    "status": "unproven",
+    "note": "server limit enforcement and the upgrade card exist, but no check reaches the limit during a sim run."
+  },
+  "guest-free-and-paid:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/billing/src/use-cases/create-checkout-session/server/billing-checkout-route.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:8": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/billing/src/use-cases/create-checkout-session/server/billing-checkout-route.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:9": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/billing-stripe/src/stripe-billing.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:10": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "always-true:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/crash-restart-rehydrates-and-drains-queue.test.ts"
+      }
+    ]
+  },
+  "always-true:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+      }
+    ]
+  },
+  "always-true:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+      }
+    ]
+  },
+  "always-true:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "always-true:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "always-true:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "always-true:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-spectator.test.tsx"
+      }
+    ]
+  },
+  "always-true:8": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      }
+    ]
+  },
+  "always-true:9": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/username-integrity.test.ts"
+      }
+    ]
+  },
+  "always-true:10": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/auth/src/root/server/anon-user-service.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/games/tests/game-plugin-contract.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/games/tests/game-plugin-contract.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/entitlements/tests/limits.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/billing/src/billing.contract.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:5": {
+    "status": "unproven",
+    "note": "no check proves a non-web delivery path compiles or runs from the same sources."
+  },
+  "room-to-grow:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/ci-i18n.ts"
+      }
+    ]
+  }
+}

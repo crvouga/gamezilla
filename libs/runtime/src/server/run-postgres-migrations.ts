@@ -1,3 +1,4 @@
+import { ProfileUsernameIntegrityMigration } from '@libs/profile/root/server/profile-username-integrity-migration';
 import { appSchema } from '@libs/runtime/root/app-schema';
 import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
 import type { Clock } from '@pkgs/clock';
@@ -70,6 +71,7 @@ export class PostgresMigrationRunner {
       .register(new SyncEngineDatabaseMigration())
       .register(new OutboxDatabaseMigration())
       .register(new DomainSchemaNullabilityMigration())
+      .register(new ProfileUsernameIntegrityMigration())
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
           skipAdvisoryLock: true,

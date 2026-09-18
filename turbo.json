@@ -482,6 +482,7 @@
     "//#check": {
       "dependsOn": [
         "//#ci:pr-template",
+        "//#ci:goals",
         "//#lint:biome",
         "//#lint:vocab",
         "//#lint:eslint",
@@ -590,6 +591,7 @@
       "dependsOn": [
         "//#lint:biome",
         "//#lint:vocab",
+        "//#ci:goals",
         "@apps/client#check:critical-path",
         "//#lint:eslint",
         "tc",
@@ -660,6 +662,11 @@
         "apps/product/babel.test.config.cjs",
         "libs/tools/scripts/ci-i18n.ts"
       ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:goals": {
+      "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
     },

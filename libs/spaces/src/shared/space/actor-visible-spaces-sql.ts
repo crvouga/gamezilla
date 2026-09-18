@@ -35,8 +35,9 @@ export function friendIdsForMemberIncludingTombstonesSql(
 
 /**
  * Spaces an actor may see via mySpaces hydrate: host, spaces_users membership,
- * or a friend's space (including ended / friendship tombstones so soft-deletes
- * still sync). Must not mention deleted_at — enforced by defineQuery.run.
+ * a friend's space, or a friend who is a member of a live space (including
+ * ended / friendship tombstones so soft-deletes still sync). Must not mention
+ * deleted_at — enforced by defineQuery.run.
  */
 export function actorVisibleSpacesPredicateSql(
   actorId: string
@@ -51,12 +52,21 @@ export function actorVisibleSpacesPredicateSql(
     )
     OR host_account_id IN (SELECT friend_id FROM (${friendIds}))
     OR host_member_id IN (SELECT friend_id FROM (${friendIds}))
+    OR id IN (
+      SELECT space_id FROM spaces_users
+      WHERE user_id IN (SELECT friend_id FROM (${friendIds}))
+    )
   `;
 }
 
 /**
  * Live spaces for pubsub ACL (not defineQuery.run — may filter deleted_at /
  * ended_at). Host, spaces_users membership, or a live friend's live space.
+ */
+/**
+ * Live spaces for pubsub ACL (not defineQuery.run — may filter deleted_at /
+ * ended_at). Host, spaces_users membership, a live friend's live space, or a
+ * live friend who is a member of the space.
  */
 export function actorVisibleLiveSpacesPredicateSql(
   actorId: string
@@ -73,6 +83,11 @@ export function actorVisibleLiveSpacesPredicateSql(
       )
       OR host_account_id IN (SELECT friend_id FROM (${friendIds}))
       OR host_member_id IN (SELECT friend_id FROM (${friendIds}))
+      OR id IN (
+        SELECT space_id FROM spaces_users
+        WHERE deleted_at IS NULL
+          AND user_id IN (SELECT friend_id FROM (${friendIds}))
+      )
     )
   `;
 }

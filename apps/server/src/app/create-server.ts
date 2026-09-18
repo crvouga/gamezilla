@@ -10,11 +10,16 @@ import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import type { Billing } from '@pkgs/billing';
+import {
+  DEFAULT_BILLING_GRACE_PERIOD_MS,
+  DEFAULT_LIMITS_SPEC,
+} from '@pkgs/entitlements';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs';
+import type { CreateId } from '@pkgs/uuid/create-id';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { createAuthRoutes } from '../auth/auth-routes';
@@ -127,15 +132,19 @@ async function createLlmAppForServer(env: ServerEnv) {
   return result;
 }
 
-function createBillingSubApp(billing: Billing | null, now: () => number) {
-  return new BillingApp(
-    () => {
+function createBillingSubApp(
+  billing: Billing | null,
+  now: () => number,
+  createId: CreateId
+) {
+  return new BillingApp({
+    getSqlClient: () => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'billing: request store missing');
       return s.sqlClient;
     },
     billing,
-    async (_sql, req) => {
+    requireAuth: async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'billing auth: request store missing');
       const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
@@ -147,8 +156,14 @@ function createBillingSubApp(billing: Billing | null, now: () => number) {
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
     },
-    now
-  ).build();
+    createId,
+    clock: { now },
+    notifyUser: (accountId, label) =>
+      notifyUserChannels([accountId], label, {
+        tables: ['billing_subscriptions'],
+        deferPublish: false,
+      }),
+  }).build();
 }
 
 const LOCAL_EMQX_WSS_URL = 'ws://127.0.0.1:8083/mqtt';
@@ -222,6 +237,8 @@ async function buildDesiredClientConfig(args: {
     googleWebClientId: null,
     emqxWssUrl,
     observabilityBackend: parseObservabilityBackend(observabilityRaw),
+    limitsSpec: DEFAULT_LIMITS_SPEC,
+    billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
 }
 
@@ -303,7 +320,7 @@ function createServerRouter(args: {
     .route('/', llm.app)
     .route(
       '/',
-      createBillingSubApp(billing, () => env.clock.now())
+      createBillingSubApp(billing, () => env.clock.now(), env.createId)
     )
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())

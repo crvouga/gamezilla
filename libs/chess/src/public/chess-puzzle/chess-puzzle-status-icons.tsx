@@ -81,6 +81,13 @@ export function ChessPuzzleStatusIcon(props: {
       </div>
     );
   }
+  if (props.kind === 'limited') {
+    return (
+      <div class="box" style={ROOT_STYLE}>
+        <SearchIcon size={SIZE - 4} color="textSecondary" />
+      </div>
+    );
+  }
   if (props.kind === 'whiteToMove') {
     return (
       <div class="box" style={ROOT_STYLE}>
