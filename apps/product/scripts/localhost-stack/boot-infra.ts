@@ -15,8 +15,8 @@ import {
   startS3Server,
 } from '@pkgs/s3-server';
 
-import { runLocalMigrate } from '../../../apps/server/scripts/run-local-postgres-migrate';
-import { runLocalSeed } from '../../../apps/server/scripts/run-local-postgres-seed';
+import { runLocalMigrate } from '../../../server/scripts/run-local-postgres-migrate';
+import { runLocalSeed } from '../../../server/scripts/run-local-postgres-seed';
 import { reservePort } from './free-port';
 import type { StackOptions } from './stack-options';
 

@@ -14,7 +14,7 @@ import { bootLocalhostStack } from './boot-stack';
 import { removeManifest } from './manifest';
 import { parseStackOptions } from './stack-options';
 
-const REPO_ROOT = join(import.meta.dir, '../../..');
+const REPO_ROOT = join(import.meta.dir, '../../../..');
 const options = parseStackOptions(process.argv.slice(2));
 const stack = await bootLocalhostStack(options);
 

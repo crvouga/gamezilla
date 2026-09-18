@@ -7,7 +7,7 @@ runtimes on that System:
 | --- | --- | --- | --- | --- |
 | `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + S3rver/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
-| `bun-webview` (stack) | `bunWebviewRuntime` | `SIM_MODE=stack` / `bun run test:product:localhost` | `Bun.WebView` against the stack's web origin | Attaches to a **separately booted localhost stack** ([`tools/scripts/localhost-stack`](../../../../tools/scripts/localhost-stack/README.md)): round-robin balancer, N Bun API instances, real Postgres/S3rver/EMQX, simulated Google on its own origin. This process owns no servers |
+| `bun-webview` (stack) | `bunWebviewRuntime` | `SIM_MODE=stack` / `bun run test:product:localhost` | `Bun.WebView` against the stack's web origin | Attaches to a **separately booted localhost stack** ([`apps/product/scripts/localhost-stack`](../../../scripts/localhost-stack/README.md)): round-robin balancer, N Bun API instances, real Postgres/S3rver/EMQX, simulated Google on its own origin. This process owns no servers |
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
 helper over `product.run({ seed, runtime })` (plus snapshot restore + reporter).

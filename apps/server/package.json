@@ -68,6 +68,7 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/room-adapter-bun": "workspace:*",
+    "@pkgs/s3-server": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",

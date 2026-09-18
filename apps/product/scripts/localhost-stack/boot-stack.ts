@@ -20,7 +20,7 @@ import { startLoadBalancer } from './load-balancer';
 import { type StackManifest, writeManifest } from './manifest';
 import type { IdpStateMode, StackOptions } from './stack-options';
 
-const REPO_ROOT = join(import.meta.dir, '../../..');
+const REPO_ROOT = join(import.meta.dir, '../../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
 const GOOGLE_CLIENT_ID = 'localhost-stack.apps.googleusercontent.com';
 const GOOGLE_CLIENT_SECRET = 'localhost-stack-google-secret';
@@ -226,6 +226,43 @@ async function startApiTier(args: {
   return { children, backends };
 }
 
+/** Boots infra and the simulated IdP, unwinding whichever side succeeded on failure. */
+async function bootInfraAndIdp(args: {
+  readonly options: StackOptions;
+  readonly dataDir: string;
+  readonly apiOrigin: string;
+  readonly idpPort: number;
+  readonly idpState: {
+    readonly mode: IdpStateMode;
+    readonly path: string | null;
+  };
+  /** Frees the reserved IdP port just before the IdP process binds it. */
+  readonly releaseIdpPort: () => Promise<void>;
+}): Promise<{ infra: InfraHandles; idpChild: ChildProcess }> {
+  const infraPromise = bootInfra({
+    options: args.options,
+    dataDir: args.dataDir,
+  });
+  await args.releaseIdpPort();
+  const idpPromise = startIdp({
+    apiOrigin: args.apiOrigin,
+    port: args.idpPort,
+    state: args.idpState,
+  });
+  try {
+    const [infra, idpChild] = await Promise.all([infraPromise, idpPromise]);
+    return { infra, idpChild };
+  } catch (error) {
+    const [infraResult, idpResult] = await Promise.allSettled([
+      infraPromise,
+      idpPromise,
+    ]);
+    if (infraResult.status === 'fulfilled') await infraResult.value.stop();
+    if (idpResult.status === 'fulfilled') await stopChild(idpResult.value);
+    throw error;
+  }
+}
+
 export async function bootLocalhostStack(
   options: StackOptions
 ): Promise<LocalhostStack> {
@@ -245,26 +282,14 @@ export async function bootLocalhostStack(
 
   // Infra and the simulated Google boot independently; the product Vite
   // server starts after the API origin is available and serves `/simulator`.
-  const infraPromise = bootInfra({ options, dataDir });
-  await idpReservation.release();
-  const idpPromise = startIdp({
+  const { infra, idpChild } = await bootInfraAndIdp({
+    options,
+    dataDir,
     apiOrigin,
-    port: idpReservation.port,
-    state: idpState,
+    idpPort: idpReservation.port,
+    idpState,
+    releaseIdpPort: () => idpReservation.release(),
   });
-  let infra: InfraHandles;
-  let idpChild: ChildProcess;
-  try {
-    [infra, idpChild] = await Promise.all([infraPromise, idpPromise]);
-  } catch (error) {
-    const [infraResult, idpResult] = await Promise.allSettled([
-      infraPromise,
-      idpPromise,
-    ]);
-    if (infraResult.status === 'fulfilled') await infraResult.value.stop();
-    if (idpResult.status === 'fulfilled') await stopChild(idpResult.value);
-    throw error;
-  }
   let api: ApiTier;
   try {
     api = await startApiTier({

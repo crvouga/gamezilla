@@ -12,9 +12,9 @@
  */
 
 import { join } from 'node:path';
-import { bootLocalhostStack } from '../../../tools/scripts/localhost-stack/boot-stack';
-import { removeManifest } from '../../../tools/scripts/localhost-stack/manifest';
-import { parseStackOptions } from '../../../tools/scripts/localhost-stack/stack-options';
+import { bootLocalhostStack } from './localhost-stack/boot-stack';
+import { removeManifest } from './localhost-stack/manifest';
+import { parseStackOptions } from './localhost-stack/stack-options';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const argv = process.argv.slice(2);
