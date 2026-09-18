@@ -30,6 +30,13 @@ export type MutationConnectivity = {
 export type MutationClient = {
   readonly query: SqlClient['query'];
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
+  /**
+   * Resolves once every mutation queued so far has finished its local apply.
+   * Hosts await this before closing the SQL client so teardown can never write
+   * to a closed database (fire-and-forget bootstrap mutations outlive the
+   * component tree).
+   */
+  readonly drain: () => Promise<void>;
 };
 
 export type CreateMutationClientOptions = {
@@ -210,8 +217,8 @@ function snapshotMutationEnv(env: MutationEnv): MutationEnv {
 }
 
 /**
- * THE client write API. Exposes read-only `query` and `mutate` only —
- * never a writable transaction outside a mutation's `run`.
+ * THE client write API. Exposes read-only `query`, `mutate`, and teardown
+ * `drain` only — never a writable transaction outside a mutation's `run`.
  */
 export function createMutationClient(
   options: CreateMutationClientOptions
@@ -220,6 +227,7 @@ export function createMutationClient(
   let mutationTail: Promise<void> = Promise.resolve();
   return {
     query: db.query.bind(db) as SqlClient['query'],
+    drain: () => mutationTail,
 
     async mutate<A>(m: Mutation<A>, args: A): Promise<MutateResult> {
       const mutationEnv = snapshotMutationEnv(env);
