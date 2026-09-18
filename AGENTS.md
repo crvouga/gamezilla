@@ -142,6 +142,16 @@ current plan cannot require a status check (branch protection returns
 `gh pr checks` is green. If the repo moves to Pro/Team or goes public, add
 `check:full` as the single required status check in branch protection.
 
+**`main` only moves through a merged PR.** Three layers, because the plan above
+blocks the server-side one: `tools/githooks/pre-push` refuses any push to
+`refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
+`bun run hooks:install`), `.github/workflows/deploy.yml` fails before it deploys
+any commit that is not associated with a pull request, and that same job re-runs
+the whole `check:full` leaf set before shipping — so a merged-but-red PR cannot
+reach prod either. Only GitHub branch protection makes direct commits genuinely
+impossible: enable it with `check:full` required and direct pushes blocked once
+the repo is on Pro/Team or public.
+
 ## Superset workspaces
 
 Every Superset workspace is a git worktree bootstrapped by

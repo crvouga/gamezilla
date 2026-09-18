@@ -44,6 +44,7 @@
     "fc": "clear && bun run fmt && bun run check",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run tools/scripts/remove-empty-dirs.ts & wait",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/pr.yml",
+    "hooks:install": "git config core.hooksPath tools/githooks",
     "i18n:compile": "lingui compile --typescript --strict && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract --clean --overwrite",
     "inspect": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/inspect.ts",
@@ -65,6 +66,7 @@
     "test:product": "SIM_REPORT=0 turbo test -F @apps/product --force",
     "test:product:report": "bun run --filter @apps/product test:report",
     "test:product:report:open": "bun run --filter @apps/product report:open",
+    "test:surface": "bun run tools/scripts/check-test-surface.ts",
     "wipe": "git clean -xfd"
   },
   "overrides": {

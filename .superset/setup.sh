@@ -17,6 +17,15 @@ if ! bun install; then
   echo "!!! fix: sudo xcodebuild -license accept && bun install"
 fi
 
+# `main` only moves through a merged PR: enable the repo hooks (pre-commit,
+# pre-push) for this clone. `core.hooksPath` lives in the shared git config, so
+# it covers every worktree and the root checkout, not just this one.
+if [ "$(git config --get core.hooksPath || true)" != 'tools/githooks' ]; then
+  echo "==> enabling tools/githooks (pre-commit, pre-push)"
+  git config core.hooksPath tools/githooks || \
+    echo "!!! could not set core.hooksPath; run 'bun run hooks:install' manually"
+fi
+
 root="${SUPERSET_ROOT_PATH:-}"
 if [ -z "$root" ] || [ ! -d "$root" ]; then
   echo "==> SUPERSET_ROOT_PATH unset; skipping local-file copy"
