@@ -3,6 +3,17 @@
 import { killListenersOnPort } from '@pkgs/os/kill-port';
 import { waitForHttp } from './webview';
 
+// This harness drives a real browser engine through `Bun.WebView`, which is
+// macOS-only. CI's check:full job runs on Linux, where `Bun.WebView` is
+// undefined; skip loudly there instead of failing the gate. turbo.json marks
+// this task `cache: false` so a macOS result can never satisfy a Linux run.
+if (typeof Bun.WebView !== 'function') {
+  console.log(
+    `auth e2e: skipping on ${process.platform} — this harness needs Bun.WebView (macOS)`
+  );
+  process.exit(0);
+}
+
 const PORT = 4178;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 

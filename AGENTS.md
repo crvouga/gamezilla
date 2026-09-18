@@ -125,6 +125,11 @@ a plan without larger runners):
    `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
    `@libs/db#migrate` / `@libs/secrets#provision` are not dry-run gated.
 
+The two `test:e2e` leaves (`@pkgs/auth`, `@pkgs/sql-client-sqlite-web`) drive a
+browser through `Bun.WebView`, which is macOS-only: they log a skip and exit 0
+on other platforms, and `turbo.json` marks both `cache: false` so a macOS result
+can never satisfy a Linux run. Do not re-enable caching for them.
+
 `check:full` is the merge gate by convention, not by GitHub enforcement — the
 current plan cannot require a status check (branch protection returns
 `Upgrade to GitHub Pro or make this repository public`), so `/pr-ready`
