@@ -1,3 +1,4 @@
+// goal:chess-puzzles:5
 import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
 import {

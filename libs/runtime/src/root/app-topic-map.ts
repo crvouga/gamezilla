@@ -1,4 +1,5 @@
 import { AUTH_TOPIC_MAP } from '@libs/auth/public/topic-map';
+import { BILLING_TOPIC_MAP } from '@libs/billing/public/topic-map';
 import { CHESS_TOPIC_MAP } from '@libs/chess/public/topic-map';
 import { CLIENT_CONFIG_TOPIC_MAP } from '@libs/client-config/public/topic-map';
 import { FRIENDS_TOPIC_MAP } from '@libs/friends/public/topic-map';
@@ -18,6 +19,7 @@ export const appTopicMap = defineTopicMap({
   ...CHESS_TOPIC_MAP,
   ...CLIENT_CONFIG_TOPIC_MAP,
   ...NOTIFICATIONS_TOPIC_MAP,
+  ...BILLING_TOPIC_MAP,
 });
 
 export function appDefaultEntryChannel(

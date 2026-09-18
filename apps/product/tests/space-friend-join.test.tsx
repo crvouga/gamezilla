@@ -1,3 +1,4 @@
+// goal:spaces:7
 import { describe, expect, test } from 'bun:test';
 import {
   activeSpaceVisible,

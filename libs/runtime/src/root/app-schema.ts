@@ -1,4 +1,5 @@
 import { AUTH_TABLES } from '@libs/auth/public/schema';
+import { BILLING_TABLES } from '@libs/billing/public/schema';
 import { CHESS_TABLES } from '@libs/chess/public/schema';
 import { CLIENT_CONFIG_TABLES } from '@libs/client-config/public/schema';
 import { FRIENDS_TABLES } from '@libs/friends/public/schema';
@@ -15,6 +16,7 @@ const ALL_TABLES = [
   ...CHESS_TABLES,
   ...CLIENT_CONFIG_TABLES,
   ...NOTIFICATIONS_TABLES,
+  ...BILLING_TABLES,
 ] as const;
 
 /** Registered domain ids for composed app schema tables. */

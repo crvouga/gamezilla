@@ -41,6 +41,7 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@pkgs/word-filter": "workspace:*",
     "hono": "catalog:",
     "jose": "catalog:",
     "solid-js": "catalog:",

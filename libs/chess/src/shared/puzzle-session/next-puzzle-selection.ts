@@ -163,6 +163,29 @@ export function buildPuzzleTotalCountSql(): Sql<PuzzleCountRow> {
   `;
 }
 
+/**
+ * Local rows inside the pick's rating window. 0 while the active band has not
+ * hydrated, which is what turns "not downloaded" into the offline copy
+ * instead of "you cleared your feed".
+ */
+export function buildPuzzleBandCountSql(args: {
+  readonly rating: number;
+  readonly halfWindow: number | null;
+}): Sql<PuzzleCountRow> {
+  const conditions: SqlFragment[] = [sql<void>`deleted_at IS NULL`];
+  if (args.halfWindow !== null) {
+    conditions.push(
+      sql<void>`rating >= ${Math.max(0, args.rating - args.halfWindow)}`,
+      sql<void>`rating <= ${args.rating + args.halfWindow}`
+    );
+  }
+  return sql<PuzzleCountRow>`
+    SELECT COUNT(*) AS value
+    FROM chess_puzzles
+    ${whereFromConditions(conditions)}
+  `;
+}
+
 export function pickPuzzleIdFromPool(args: {
   rows: readonly PuzzleCandidateRow[];
   rating: number;

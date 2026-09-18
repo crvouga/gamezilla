@@ -13,6 +13,7 @@ import {
 import {
   BILLING_VENDOR_PUBLISHABLE_KEY,
   BILLING_VENDOR_SECRET_KEY,
+  BILLING_VENDOR_WEBHOOK_SECRET,
 } from './billing-vendor-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
@@ -64,6 +65,7 @@ export const SECRETS: readonly Secret[] = [
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
   BILLING_VENDOR_SECRET_KEY,
   BILLING_VENDOR_PUBLISHABLE_KEY,
+  BILLING_VENDOR_WEBHOOK_SECRET,
   TURBO_API,
   TURBO_TOKEN,
   TURBO_TEAM,

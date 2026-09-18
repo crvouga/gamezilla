@@ -59,6 +59,7 @@ const SESSION_QUERIES = [
   'notificationsActive',
   'chessPuzzleProfile',
   'chessPuzzleInteractions',
+  'mySubscription',
 ] as const;
 
 export type CreateAppLocalSyncEngineArgs = {

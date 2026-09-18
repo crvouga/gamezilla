@@ -1,4 +1,4 @@
-import { useMyAccountId } from '@libs/auth/public/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
 import { type Sql, sql } from '@pkgs/sql';
 
@@ -71,14 +71,14 @@ function presenceSql(
 export function useSpacePresence(
   spaceId: string | Accessor<string>
 ): Accessor<SpacePresence> {
-  const accountId = useMyAccountId();
+  const memberId = useMyId();
   const deviceId = useDeviceId();
   const { paintReady } = useSyncEngine();
   const resolveId = (): string =>
     typeof spaceId === 'string' ? spaceId : spaceId();
   const spaceEnabled = createMemo(() => paintReady() && resolveId().length > 0);
   const query = createQuery(() =>
-    presenceSql(resolveId(), spaceEnabled(), deviceId(), accountId() ?? '')
+    presenceSql(resolveId(), spaceEnabled(), deviceId(), memberId())
   );
   const row = createMemo(() => query.rows()[0] ?? null);
   return createMemo<SpacePresence>(() => {
@@ -99,7 +99,7 @@ export function useSpacePresence(
             },
       isOpenLocally: current?.is_open === 1,
       isMember: current?.is_member === 1,
-      myId: accountId() ?? '',
+      myId: memberId(),
     });
   });
 }

@@ -1,3 +1,4 @@
+// goal:chess-puzzles:10
 /** @jsxImportSource solid-js */
 import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import {

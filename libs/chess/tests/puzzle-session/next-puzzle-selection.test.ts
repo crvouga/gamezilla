@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
+  buildPuzzleBandCountSql,
   buildPuzzleCandidatesSql,
   buildPuzzleMatchedCountSql,
   capPuzzleCandidateOffset,
@@ -283,5 +284,24 @@ describe('resolveProfilePuzzleRating', () => {
     expect(resolveProfilePuzzleRating(0)).toBe(DEFAULT_PUZZLE_RATING);
     expect(resolveProfilePuzzleRating(undefined)).toBe(DEFAULT_PUZZLE_RATING);
     expect(resolveProfilePuzzleRating('1500')).toBe(DEFAULT_PUZZLE_RATING);
+  });
+});
+
+describe('buildPuzzleBandCountSql', () => {
+  test('counts only the active rating window', () => {
+    const query = buildPuzzleBandCountSql({
+      rating: 1500,
+      halfWindow: 400,
+    });
+    expect(query.sql.replace(/\s+/g, ' ')).toContain(
+      'SELECT COUNT(*) AS value FROM chess_puzzles WHERE deleted_at IS NULL'
+    );
+    expect(query.values).toEqual([1100, 1900]);
+  });
+
+  test('counts the whole catalog without a window', () => {
+    const query = buildPuzzleBandCountSql({ rating: 1500, halfWindow: null });
+    expect(query.sql.replace(/\s+/g, ' ')).not.toContain('rating >=');
+    expect(query.values).toEqual([]);
   });
 });

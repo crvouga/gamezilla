@@ -83,7 +83,7 @@
     "test:profile": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/profile-edit.test.tsx",
     "test:report": "bun run scripts/test-report.ts",
     "test:shell": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/shell-boot.test.tsx",
-    "test:spaces": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/space-create.test.tsx tests/space-end.test.tsx tests/space-friend-join.test.tsx",
+    "test:spaces": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/space-create.test.tsx tests/space-end.test.tsx tests/space-friend-join.test.tsx tests/space-guest-host.test.tsx tests/space-lifecycle.test.tsx",
     "test:stack": "bun run scripts/test-stack.ts",
     "test:topology": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/topology-partition.test.tsx",
     "test:walk": "NODE_OPTIONS=--max-old-space-size=8192 bun test --conditions=browser --conditions=development --preload ./bun-babel-plugin.ts --preload ./bun-preload.ts --timeout 90000 tests/product-walk.test.tsx"

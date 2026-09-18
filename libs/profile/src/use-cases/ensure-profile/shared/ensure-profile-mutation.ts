@@ -12,6 +12,10 @@ import {
   serializeAvatarConfig,
   serializeDefaultAvatarConfig,
 } from '../../../shared/profile/avatar-config';
+import {
+  USERNAME_NORM_UNIQUE_INDEX,
+  USERNAME_TAKEN_CONSTRAINT_ERROR,
+} from '../../../shared/profile/username-column';
 import { generateRandomUsername } from '../../../shared/profile/username-generator';
 
 const avatarConfigArgs = z.union([
@@ -131,6 +135,9 @@ export const ensureProfileMutation = defineMutation({
     avatarConfig: avatarConfigArgs.optional(),
     username: z.string().optional(),
   }),
+  constraintErrors: {
+    [USERNAME_NORM_UNIQUE_INDEX]: USERNAME_TAKEN_CONSTRAINT_ERROR,
+  },
   async run({ tx, env }, { avatarConfig, username }) {
     await seedProfile(
       tx,

@@ -3,7 +3,7 @@ import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
 import {
-  buildPuzzleTotalCountSql,
+  buildPuzzleBandCountSql,
   computeNextPuzzleLoading,
   PUZZLE_NEXT_MAX_BAND,
   PUZZLE_PREFERRED_BAND,
@@ -45,8 +45,14 @@ function usePuzzleCandidateQueries(args: {
   return { banded, fallback };
 }
 
-function useLocalPuzzleTotal(): Accessor<number> {
-  const { rows } = createQuery(buildPuzzleTotalCountSql);
+/** Local rows in the active rating window (not the whole catalog). */
+function useLocalPuzzleTotal(rating: Accessor<number>): Accessor<number> {
+  const { rows } = createQuery(() =>
+    buildPuzzleBandCountSql({
+      rating: rating(),
+      halfWindow: PUZZLE_NEXT_MAX_BAND,
+    })
+  );
   return createMemo(() => Number(rows()[0]?.value ?? 0));
 }
 
@@ -65,7 +71,7 @@ export function useNextPuzzleId(args: {
   const myId = useMyId();
   const [config] = useChessPuzzleFeedConfig();
   const rating = useEffectivePuzzleRating();
-  const localPuzzleTotal = useLocalPuzzleTotal();
+  const localPuzzleTotal = useLocalPuzzleTotal(rating);
   const pickOffset = createMemo(() =>
     resolvePuzzlePickOffset(args.seed(), localPuzzleTotal())
   );

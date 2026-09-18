@@ -3,7 +3,6 @@ import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
 import {
-  accountId,
   requireHost,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
@@ -29,7 +28,7 @@ export const addSpaceUserMutation = defineMutation({
       INSERT INTO spaces_users (
         id, space_id, user_id, created_at, created_by_account_id, deleted_at
       )
-      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${accountId(env)}, ${null})
+      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${env.accountId}, ${null})
       ON CONFLICT (id) DO UPDATE SET
         deleted_at = NULL,
         created_at = excluded.created_at,

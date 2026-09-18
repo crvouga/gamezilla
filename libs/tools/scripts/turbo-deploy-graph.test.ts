@@ -31,6 +31,7 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
 /** `//#check` is the whole check surface — there is no second tier. */
 const CHECK_LEAVES = [
   '//#ci:pr-template',
+  '//#ci:goals',
   '//#lint:biome',
   '//#lint:vocab',
   '//#lint:eslint',
@@ -86,6 +87,7 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps as string[]).toContain('//#lint:biome');
     expect(deps as string[]).toContain('//#lint:eslint');
     expect(deps as string[]).toContain('//#ci:syncpack');
+    expect(deps as string[]).toContain('//#ci:goals');
     expect(deps as string[]).toContain('//#ci:depcruise');
     expect(deps as string[]).toContain('//#ci:audit');
     expect(deps as string[]).toContain('//#ci:i18n');

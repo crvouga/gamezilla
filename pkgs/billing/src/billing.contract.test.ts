@@ -1,5 +1,15 @@
+// goal:room-to-grow:4
 import { describe, expect, it } from 'bun:test';
-import type { CatalogSpec, PriceSpec } from './catalog';
+import type {
+  Billing,
+  BillingCustomer,
+  BillingEvent,
+  CheckoutSession,
+  CreateCheckoutSessionInput,
+  CreateCustomerInput,
+  PortalSession,
+} from './billing';
+import type { CatalogSpec, CatalogSyncResult, PriceSpec } from './catalog';
 import {
   decidePriceReconcile,
   normalizeCurrencyOptions,
@@ -258,5 +268,75 @@ describe('InMemoryBilling contract', () => {
     expect(first.prices).toEqual(second.prices);
     expect(first.products[0]?.productId).toMatch(/^prod_sim_/);
     expect(first.prices[0]?.priceId).toMatch(/^price_sim_/);
+  });
+});
+
+describe('the port admits another payment provider', () => {
+  /** Minimal second implementation: same port, different vendor identity. */
+  class OtherProviderBilling implements Billing {
+    private readonly seen: string[] = [];
+
+    async createCustomer(input: CreateCustomerInput): Promise<BillingCustomer> {
+      this.seen.push(input.accountId);
+      return { customerId: `other_cus_${input.accountId}` };
+    }
+
+    async createCheckoutSession(
+      input: CreateCheckoutSessionInput
+    ): Promise<CheckoutSession> {
+      return { id: 'other_cs', url: `https://other.test/${input.priceKey}` };
+    }
+
+    createPortalSession(): Promise<PortalSession> {
+      return Promise.resolve({ id: 'other_bps', url: 'https://other.test/p' });
+    }
+
+    createCheckoutSessions(): readonly string[] {
+      return this.seen;
+    }
+
+    verifyWebhook(): Promise<BillingEvent> {
+      return Promise.resolve({
+        kind: 'subscription_changed',
+        accountId: 'acct',
+        providerSubscriptionId: 'sub',
+        priceKey: null,
+        status: 'active',
+        currentPeriodEndMs: null,
+        cancelAtPeriodEnd: false,
+      });
+    }
+
+    syncCatalog(spec: CatalogSpec): Promise<CatalogSyncResult> {
+      return Promise.resolve({
+        products: Object.keys(spec.products).map((key) => ({
+          key,
+          productId: `other_${key}`,
+        })),
+        prices: Object.keys(spec.prices).map((key) => ({
+          key,
+          priceId: `other_${key}`,
+        })),
+      });
+    }
+  }
+
+  it('runs the same purchase flow with limits untouched', async () => {
+    const billing: Billing = new OtherProviderBilling();
+    const customer = await billing.createCustomer({ accountId: 'acct-1' });
+    const session = await billing.createCheckoutSession({
+      customerId: customer.customerId,
+      priceKey: 'subscription_monthly',
+      successUrl: 'https://app.test/ok',
+      cancelUrl: 'https://app.test/cancel',
+    });
+    expect(session.url).toBe('https://other.test/subscription_monthly');
+    const event = await billing.verifyWebhook({
+      rawBody: '{}',
+      signature: 'sig',
+    });
+    expect(event.kind).toBe('subscription_changed');
+    const catalog = await billing.syncCatalog(fixtureSpec);
+    expect(catalog.prices[0]?.priceId).toBe('other_subscription_monthly');
   });
 });

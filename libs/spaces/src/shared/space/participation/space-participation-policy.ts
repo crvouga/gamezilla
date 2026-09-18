@@ -14,7 +14,7 @@ export type SpaceAccessInput = {
   readonly hostId: string;
   readonly hostAccountId: string | null;
   readonly hostMemberId: string;
-  readonly viewerAccountId: string;
+  readonly viewerAccountId: string | null;
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
   /** Viewer already has a spaces_users ACL row. */
@@ -94,7 +94,7 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
  * Whether the viewer may open a live space.
  *
  * Space owners (member / creating device / host account) may always reopen.
- * Existing ACL (`spaces_users`) may reopen. Public is open to signed-in users
+ * Existing ACL (`spaces_users`) may reopen. Public is open to anyone
  * (self-grant on join). Private requires an ACL row, friendship with the host,
  * or host identity.
  */

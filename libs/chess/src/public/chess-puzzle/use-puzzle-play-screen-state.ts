@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { useLimit } from '@libs/billing/root/client/use-entitlement';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -27,6 +28,7 @@ import type { ChessPuzzleE2ELoadingStatusProps } from './chess-puzzle-e2e-loadin
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useNextPuzzleId } from './use-next-puzzle-id';
+import { usePuzzlesPlayedToday } from './use-puzzles-played-today';
 
 export type PuzzlePlayScreenModel = {
   backToChessRoot: () => void;
@@ -176,6 +178,8 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   };
 
+  const playedToday = usePuzzlesPlayedToday();
+  const dailyLimit = useLimit('puzzlesPerDay', playedToday);
   const pickState = createMemo(() =>
     resolvePuzzlePickState({
       activePuzzleId: placement.activePuzzleId(),
@@ -183,6 +187,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
       loading: next.loading(),
       localPuzzleTotal: next.localPuzzleTotal(),
       online: syncStatus().online,
+      limitReached: !dailyLimit().allowed,
     })
   );
 

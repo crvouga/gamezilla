@@ -1,3 +1,4 @@
+// goal:chess-puzzles:1
 import { describe, expect, test } from 'bun:test';
 import {
   createSpace,

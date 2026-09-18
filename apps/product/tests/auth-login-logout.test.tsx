@@ -1,3 +1,4 @@
+// goal:social:1
 import { describe, test } from 'bun:test';
 import { signInWithGoogle, signOut } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';

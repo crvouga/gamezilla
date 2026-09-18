@@ -1,3 +1,5 @@
+// goal:chess-puzzles:12
+// goal:always-true:7
 import { describe, expect, test } from 'bun:test';
 import {
   createSpace,

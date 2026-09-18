@@ -21,8 +21,9 @@ function wrapDefs(): Secret[] {
   );
 }
 
-const [secretKey, publishableKey] = wrapDefs();
+const [secretKey, publishableKey, webhookSecret] = wrapDefs();
 
 /** Re-exported for registry — names/validation owned by `@pkgs/billing-stripe`. */
 export const BILLING_VENDOR_SECRET_KEY = secretKey!;
 export const BILLING_VENDOR_PUBLISHABLE_KEY = publishableKey!;
+export const BILLING_VENDOR_WEBHOOK_SECRET = webhookSecret!;

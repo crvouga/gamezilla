@@ -271,6 +271,7 @@
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
+        "@pkgs/entitlements": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/keyword": "workspace:*",
@@ -345,6 +346,7 @@
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/uuid": "workspace:*",
+        "@pkgs/word-filter": "workspace:*",
         "hono": "catalog:",
         "jose": "catalog:",
         "solid-js": "catalog:",
@@ -364,16 +366,24 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/client-config": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
+        "@pkgs/entitlements": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/ui": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
         "hono": "catalog:",
+        "solid-js": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -387,6 +397,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/billing": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -449,6 +460,7 @@
         "@lingui/solid": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
+        "@pkgs/entitlements": "workspace:*",
         "@pkgs/equal": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
@@ -598,6 +610,7 @@
         "@lingui/solid": "catalog:",
         "@pkgs/attribute": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/device": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -605,11 +618,14 @@
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "@pkgs/uuid": "workspace:*",
+        "@pkgs/word-filter": "workspace:*",
         "solid-js": "catalog:",
         "unique-names-generator": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/sql-client-sqlite": "workspace:*",
         "@pkgs/vitest-solid": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
@@ -1287,6 +1303,15 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@types/node": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/entitlements": {
+      "name": "@pkgs/entitlements",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -2580,6 +2605,15 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/word-filter": {
+      "name": "@pkgs/word-filter",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
   },
   "trustedDependencies": [
     "@embedded-postgres/darwin-x64",
@@ -3488,6 +3522,8 @@
 
     "@pkgs/emqx-server": ["@pkgs/emqx-server@workspace:pkgs/emqx-server"],
 
+    "@pkgs/entitlements": ["@pkgs/entitlements@workspace:pkgs/entitlements"],
+
     "@pkgs/entity-store": ["@pkgs/entity-store@workspace:pkgs/entity-store"],
 
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
@@ -3639,6 +3675,8 @@
     "@pkgs/vite-workspace-resolver": ["@pkgs/vite-workspace-resolver@workspace:pkgs/vite-workspace-resolver"],
 
     "@pkgs/vitest-solid": ["@pkgs/vitest-solid@workspace:pkgs/vitest-solid"],
+
+    "@pkgs/word-filter": ["@pkgs/word-filter@workspace:pkgs/word-filter"],
 
     "@poppinss/colors": ["@poppinss/colors@4.1.6", "", { "dependencies": { "kleur": "^4.1.5" } }, "sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg=="],
 

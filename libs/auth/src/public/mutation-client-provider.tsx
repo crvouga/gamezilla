@@ -16,7 +16,7 @@ export function MutationClientProvider(
   // Live env view: stable identity (bootstrap `ensure*` effects never re-fire)
   // while identity fields resolve at mutate time — signing in upgrades the
   // anon user in place, so a mount-time snapshot would pin `isAnon: true`
-  // forever and fail every `accountId(env)` guard with SPACE_NOT_SIGNED_IN.
+  // forever and misreport the actor's tier.
   const env: MutationEnv = {
     get actorId() {
       return auth.userId;

@@ -1,7 +1,13 @@
 import type {
   Billing,
+  BillingCustomer,
+  BillingEvent,
+  CheckoutSession,
+  CreateCheckoutSessionInput,
+  CreateCustomerInput,
   CreatePortalSessionInput,
   PortalSession,
+  VerifyWebhookInput,
 } from './billing';
 import type {
   CatalogSpec,
@@ -14,6 +20,13 @@ export type InMemoryBillingOptions = {
   /** Default portal session URL host. */
   readonly baseUrl?: string;
   readonly failNextPortal?: boolean;
+};
+
+/** Test knob: the next `verifyWebhook` reports this subscription change. */
+export type InMemoryBillingWebhook = {
+  readonly status: string;
+  readonly currentPeriodEndMs: number | null;
+  readonly cancelAtPeriodEnd: boolean;
 };
 
 type MemProduct = {
@@ -42,7 +55,9 @@ type MemPrice = {
 export class InMemoryBilling implements Billing {
   private readonly baseUrl: string;
   private portalFailArmed: boolean;
+  private pendingWebhook: InMemoryBillingWebhook | null = null;
   private seq = 0;
+  private readonly customers = new Map<string, string>();
   private readonly products = new Map<string, MemProduct>();
   private readonly prices = new Map<string, MemPrice>();
 
@@ -54,6 +69,54 @@ export class InMemoryBilling implements Billing {
   /** Test knob: arm portal failure once. */
   armPortalFailure(): void {
     this.portalFailArmed = true;
+  }
+
+  /** Test knob: the next `verifyWebhook` reports this change. */
+  armWebhook(change: InMemoryBillingWebhook): void {
+    this.pendingWebhook = change;
+  }
+
+  async createCustomer(input: CreateCustomerInput): Promise<BillingCustomer> {
+    const existing = this.customers.get(input.accountId);
+    if (existing !== undefined) return { customerId: existing };
+    this.seq += 1;
+    const customerId = `cus_sim_${this.seq}`;
+    this.customers.set(input.accountId, customerId);
+    return { customerId };
+  }
+
+  async createCheckoutSession(
+    input: CreateCheckoutSessionInput
+  ): Promise<CheckoutSession> {
+    this.seq += 1;
+    const id = `cs_sim_${this.seq}`;
+    return {
+      id,
+      url: `${this.baseUrl}/checkout/${input.priceKey}/${input.customerId}`,
+    };
+  }
+
+  async verifyWebhook(input: VerifyWebhookInput): Promise<BillingEvent> {
+    if (input.signature.length === 0) {
+      throw new Error('in-memory billing: missing webhook signature');
+    }
+    if (this.pendingWebhook === null) {
+      return { kind: 'ignored', type: 'unarmed' };
+    }
+    const change = this.pendingWebhook;
+    this.pendingWebhook = null;
+    const accountId = /"accountId":"([^"]+)"/.exec(input.rawBody)?.[1] ?? null;
+    const subscriptionId =
+      /"subscriptionId":"([^"]+)"/.exec(input.rawBody)?.[1] ?? 'sub_sim_1';
+    return {
+      kind: 'subscription_changed',
+      accountId,
+      providerSubscriptionId: subscriptionId,
+      priceKey: 'subscription_monthly',
+      status: change.status,
+      currentPeriodEndMs: change.currentPeriodEndMs,
+      cancelAtPeriodEnd: change.cancelAtPeriodEnd,
+    };
   }
 
   async createPortalSession(

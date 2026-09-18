@@ -1,3 +1,4 @@
+// goal:works-offline:6
 import { describe, expect, test } from 'bun:test';
 import {
   addClient,
