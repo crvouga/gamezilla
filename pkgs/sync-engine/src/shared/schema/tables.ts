@@ -22,12 +22,6 @@ export const syncEngineMutationsApplied = defineTable({
   },
   uniqueIndexes: ['mutation_id'],
   indexes: [['client_id', 'seq']],
-  checks: [
-    {
-      name: 'status_applied_rejected',
-      sql: "status IN ('applied', 'rejected')",
-    },
-  ],
 });
 
 /** Server + client audit of permanent mutation rejections. */

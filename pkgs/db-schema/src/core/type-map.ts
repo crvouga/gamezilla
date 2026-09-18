@@ -79,3 +79,21 @@ export function normalizeSqliteType(
   }
   return null;
 }
+/**
+ * Alias → canonical physical type. Canonical values are exactly the forms
+ * used by {@link PG_TYPE_SQL} plus the allowlisted overrides in
+ * `physical-types.ts`, so a declared column and an introspected `udt_name`
+ * compare equal iff they are the same physical type.
+ */
+export const PG_PHYSICAL_ALIASES: Readonly<Record<string, string>> = {
+  int8: 'bigint',
+  bool: 'boolean',
+  'character varying': 'varchar',
+  'timestamp with time zone': 'timestamptz',
+};
+
+/** Canonicalize a Postgres physical type name (`udt_name` or declared form). */
+export function normalizePgPhysical(value: string): string {
+  const lower = value.toLowerCase();
+  return PG_PHYSICAL_ALIASES[lower] ?? lower;
+}

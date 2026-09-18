@@ -19,6 +19,11 @@ export type PostgresSchemaDatabaseMigrationOptions = {
    * transaction (caller already provides a transaction).
    */
   readonly alreadyInTransaction?: boolean;
+  /**
+   * `inline` (default): reconcile indexes in this migrate call. `skip`: table
+   * DDL only — the caller then registers a separate concurrent index phase.
+   */
+  readonly indexPhase?: 'inline' | 'skip';
 };
 
 /**
@@ -45,7 +50,10 @@ export class PostgresSchemaDatabaseMigration implements DatabaseMigration {
     const client = Object.assign(ctx.sqlClient, {
       dbScope: this.dbScope,
     }) as PostgresSqlClient;
-    await postgres(this.schema, client, this.options).reconcile();
+    await postgres(this.schema, client, {
+      ...this.options,
+      indexPhase: this.options?.indexPhase ?? 'inline',
+    }).reconcile();
     // Existing tables may still have engine DEFAULT now()/gen_random_uuid().
     await ctx.sqlClient.run(
       unsafe(`

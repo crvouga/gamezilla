@@ -14,6 +14,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "check:api": "bun run scripts/check-api.ts",
+    "check:contract": "bun run scripts/check-contract-manifest.ts",
     "deploy": "bun run scripts/deploy.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "bunx biome check --error-on-warnings .",

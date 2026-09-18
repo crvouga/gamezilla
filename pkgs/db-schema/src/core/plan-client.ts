@@ -1,9 +1,5 @@
-import {
-  classifyDelta,
-  columnVisibleForDrift,
-  desiredColumns,
-  findColumn,
-} from './compatibility';
+import { resolveBackfillSql } from './backfill';
+import { classifyDelta, desiredColumns, findColumn } from './compatibility';
 import { SQLITE_CAPS } from './dialect-caps';
 import {
   asPackageIndexName,
@@ -11,7 +7,6 @@ import {
   asSchemaIdent,
   fingerprintForIndexDef,
 } from './index-fingerprint';
-import { resolveBackfillSql } from './lifecycle';
 import type {
   ClientOperation,
   CreateTableColumn,
@@ -22,7 +17,9 @@ import type {
   IndexDef,
   IntrospectedCatalog,
   IntrospectedTable,
+  PhysicalIdent,
   ReadonlyDeclaredSchema,
+  SchemaIdent,
 } from './types';
 import {
   MANAGED_IMPLICIT_COLUMN_NAMES,
@@ -60,66 +57,51 @@ function toCreateColumn(name: string, col: DeclaredColumn): CreateTableColumn {
     ...(col.physicalSqlite !== undefined
       ? { physicalSqlite: col.physicalSqlite }
       : {}),
-    ...(col.references !== undefined
-      ? {
-          references: {
-            table: asSchemaIdent(col.references.table),
-            column: asSchemaIdent(col.references.column),
-          },
-        }
-      : {}),
   };
 }
 
-function underscoreExtras(existing: IntrospectedTable): {
-  names: string[];
-  types: Record<string, string>;
-} {
-  const names: string[] = [];
-  const types: Record<string, string> = {};
+/** Physical SQLite type to re-declare for a preserved extra column. */
+function sqliteExtraType(physical: string): string {
+  const upper = physical.toUpperCase();
+  if (upper === 'INTEGER' || upper === 'REAL' || upper === 'BLOB') {
+    return upper;
+  }
+  return 'TEXT';
+}
+
+/**
+ * Undeclared columns to preserve verbatim across a rebuild. The client is a
+ * cache: an unknown column means a newer bundle wrote here, or a stale bundle
+ * is running — never a reason to fail boot or drop data.
+ */
+function extras(
+  existing: IntrospectedTable,
+  desired: Map<string, DeclaredColumn>,
+  retired: ReadonlySet<string>
+): Record<string, string> {
+  const preserved: Record<string, string> = {};
   for (const col of existing.columns) {
-    if (col.name.startsWith('_') && !MANAGED_IMPLICIT_SET.has(col.name)) {
-      names.push(col.name);
-      types[col.name] = col.type;
-    }
+    if (desired.has(col.name) || retired.has(col.name)) continue;
+    preserved[col.name] = sqliteExtraType(col.physical);
   }
-  return { names, types };
+  return preserved;
 }
 
-function missingChecksOrFks(
-  tableName: string,
+function retiredColumnNames(
   declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): boolean {
-  const existingChecks = new Set(
-    (catalog.checks ?? []).map((c) => `${c.table}.${c.name}`)
-  );
-  for (const check of declared.checks) {
-    if (
-      check.table === tableName &&
-      !existingChecks.has(`${check.table}.${check.name}`)
-    ) {
-      return true;
+  tableName: string
+): Set<string> {
+  const names = new Set<string>();
+  for (const [key, entry] of declared.retiredColumns) {
+    if (key.slice(0, key.lastIndexOf('.')) === tableName) {
+      names.add(entry.name);
     }
   }
-  const existingFks = new Set(
-    (catalog.foreignKeys ?? []).map((f) => `${f.table}.${f.column}`)
-  );
-  for (const [colName, col] of Object.entries(declared.tables[tableName]!)) {
-    if (
-      col.references !== undefined &&
-      !existingFks.has(`${tableName}.${colName}`)
-    ) {
-      return true;
-    }
-  }
-  return false;
+  return names;
 }
 
-function columnCopyRef(
-  name: string
-): import('./types').SchemaIdent | import('./types').PhysicalIdent {
-  if (name.startsWith('_') && !MANAGED_IMPLICIT_SET.has(name)) {
+function columnCopyRef(name: string): SchemaIdent | PhysicalIdent {
+  if (!MANAGED_IMPLICIT_SET.has(name)) {
     return asPhysicalIdent(name);
   }
   return asSchemaIdent(name);
@@ -210,8 +192,7 @@ function planAdditiveColumns(
 function planOneTable(
   tableName: string,
   declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog,
-  depCols: Set<string>
+  catalog: IntrospectedCatalog
 ): ClientOperation[] {
   const existing = catalog.tables.get(tableName);
   const desired = desiredColumns(declared, tableName);
@@ -224,18 +205,15 @@ function planOneTable(
       },
     ];
   }
-  const extras = underscoreExtras(existing);
-  const hasDeprecatedExtras = existing.columns.some(
-    (c) => columnVisibleForDrift(c.name) && depCols.has(c.name)
-  );
+  const retired = retiredColumnNames(declared, tableName);
+  const preserved = extras(existing, desired, retired);
+  const retiredPresent = existing.columns.some((c) => retired.has(c.name));
   const copyAliases = collectCopyAliases(desired, existing);
   const needsShapeRebuild =
-    hasDeprecatedExtras ||
-    Object.keys(copyAliases).length > 0 ||
-    missingChecksOrFks(tableName, declared, catalog);
+    retiredPresent || Object.keys(copyAliases).length > 0;
 
   if (needsShapeRebuild) {
-    const copyColumns = [...desired.keys(), ...extras.names].filter(
+    const copyColumns = [...desired.keys(), ...Object.keys(preserved)].filter(
       (n) => findColumn(existing, n) || copyAliases[n] !== undefined
     );
     const backfills = collectRebuildBackfills(desired, existing, copyAliases);
@@ -243,8 +221,7 @@ function planOneTable(
       {
         kind: 'rebuild_table',
         table: asSchemaIdent(tableName),
-        preserveUnderscoreExtras: extras.names.map(asPhysicalIdent),
-        preserveExtraTypes: extras.types,
+        preserveExtras: preserved,
         copyColumns: copyColumns.map(columnCopyRef),
         ...(Object.keys(copyAliases).length > 0 ? { copyAliases } : {}),
         ...(Object.keys(backfills).length > 0 ? { backfills } : {}),
@@ -256,25 +233,11 @@ function planOneTable(
 
 function planTableOps(
   declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog,
-  deprecatedExtras: readonly { table: string; column: string }[]
+  catalog: IntrospectedCatalog
 ): ClientOperation[] {
   const ops: ClientOperation[] = [];
-  const deprecatedByTable = new Map<string, Set<string>>();
-  for (const e of deprecatedExtras) {
-    const set = deprecatedByTable.get(e.table) ?? new Set();
-    set.add(e.column);
-    deprecatedByTable.set(e.table, set);
-  }
   for (const tableName of Object.keys(declared.tables)) {
-    ops.push(
-      ...planOneTable(
-        tableName,
-        declared,
-        catalog,
-        deprecatedByTable.get(tableName) ?? new Set()
-      )
-    );
+    ops.push(...planOneTable(tableName, declared, catalog));
   }
   return ops;
 }
@@ -339,32 +302,6 @@ function planIndexOps(
   return ops;
 }
 
-function planViewOps(
-  declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): ClientOperation[] {
-  const ops: ClientOperation[] = [];
-  const existingViews = new Set((catalog.views ?? []).map((v) => v.name));
-  for (const view of declared.views) {
-    if (declared.deprecatedViews.has(view.name)) {
-      if (existingViews.has(view.name)) {
-        ops.push({ kind: 'drop_view', name: asSchemaIdent(view.name) });
-      }
-      continue;
-    }
-    const expr =
-      typeof view.sql === 'string'
-        ? view.sql
-        : (view.sql.sqlite ?? view.sql.sql);
-    ops.push({
-      kind: existingViews.has(view.name) ? 'replace_view' : 'create_view',
-      name: asSchemaIdent(view.name),
-      expression: expr,
-    });
-  }
-  return ops;
-}
-
 function planRebuildBackfillOps(
   priorOps: readonly ClientOperation[]
 ): ClientOperation[] {
@@ -385,19 +322,12 @@ function planRebuildBackfillOps(
 
 const CLIENT_OP_ORDER: Record<ClientOperation['kind'], number> = {
   drop_table: 0,
-  drop_view: 1,
-  rebuild_table: 2,
-  create_table: 3,
-  add_column: 4,
-  backfill: 5,
-  drop_index: 6,
-  create_index: 7,
-  add_check: 8,
-  add_foreign_key: 9,
-  create_view: 10,
-  replace_view: 11,
-  create_enum: 12,
-  add_enum_value: 13,
+  rebuild_table: 1,
+  create_table: 2,
+  add_column: 3,
+  backfill: 4,
+  drop_index: 5,
+  create_index: 6,
 };
 
 export function planClient(
@@ -417,11 +347,10 @@ export function planClient(
   }
 
   const declaredNames = new Set(Object.keys(declared.tables));
-  const tableOps = planTableOps(declared, catalog, classified.deprecatedExtras);
+  const tableOps = planTableOps(declared, catalog);
   const ops: ClientOperation[] = [
     ...planDropUnknownTables(declaredNames, catalog, ownership),
     ...tableOps,
-    ...planViewOps(declared, catalog),
   ];
   ops.push(...planIndexOps(declared, catalog, declaredNames, ops));
   ops.push(...planRebuildBackfillOps(tableOps));

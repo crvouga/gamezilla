@@ -1,12 +1,8 @@
-import { validateColumnLifecycle } from './column-spec';
 import {
-  emptyPortableExtras,
-  parseChecksLiteral,
-  parseDeprecationsLiteral,
-  parseEnumsLiteral,
   parseIndexesLiteral,
+  parseRetiredColumnsLiteral,
+  parseRetiredTablesLiteral,
   parseTablesLiteral,
-  parseViewsLiteral,
 } from './parse-schema-literal';
 import { assertSnakeCaseIdent } from './snake-case';
 import { buildSnapshot } from './snapshot';
@@ -38,18 +34,17 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+const ALLOWED_TOP_LEVEL_KEYS = new Set([
+  'tables',
+  'indexes',
+  'uniqueIndexes',
+  'retiredColumns',
+  'retiredTables',
+]);
+
 function assertKnownTopLevelKeys(literal: Record<string, unknown>): void {
-  const allowed = new Set([
-    'tables',
-    'indexes',
-    'uniqueIndexes',
-    'deprecations',
-    'checks',
-    'views',
-    'enums',
-  ]);
   for (const key of Object.keys(literal)) {
-    if (!allowed.has(key)) {
+    if (!ALLOWED_TOP_LEVEL_KEYS.has(key)) {
       throw new Error(`unknown top-level key '${key}'`);
     }
   }
@@ -110,19 +105,15 @@ export function validateRuntime(
   assertKnownTopLevelKeys(literal);
   const tables = parseTablesLiteral(literal['tables']);
   assertAllTablesMatchPolicy(tables, options?.tableNamePolicy);
-  const { deprecations, deprecatedTables, deprecatedColumns } =
-    parseDeprecationsLiteral(literal['deprecations'], tables);
-  for (const [tableName, cols] of Object.entries(tables)) {
-    const tableDeps = deprecations.filter(
-      (d) => d[0] === tableName && d.length === 3
-    );
-    validateColumnLifecycle({
-      tableName,
-      columns: cols,
-      deprecations: tableDeps,
-    });
-  }
-  const indexCtx = { tables, deprecatedTables, deprecatedColumns };
+  const retiredColumns = parseRetiredColumnsLiteral(
+    literal['retiredColumns'],
+    tables
+  );
+  const retiredTables = parseRetiredTablesLiteral(
+    literal['retiredTables'],
+    tables
+  );
+  const indexCtx = { tables };
   const crossSeen = new Set<string>();
   const indexes = parseIndexesLiteral({
     value: literal['indexes'],
@@ -138,22 +129,7 @@ export function validateRuntime(
     unique: true,
     crossSeen,
   });
-  const checks = parseChecksLiteral(literal['checks'], tables);
-  const { views, deprecatedViews } = parseViewsLiteral(literal['views']);
-  const { enums, deprecatedEnums } = parseEnumsLiteral(literal['enums']);
-  return {
-    tables,
-    indexes,
-    uniqueIndexes,
-    deprecations,
-    checks,
-    views,
-    enums,
-    deprecatedTables,
-    deprecatedColumns,
-    deprecatedViews,
-    deprecatedEnums,
-  };
+  return { tables, indexes, uniqueIndexes, retiredColumns, retiredTables };
 }
 
 /** Seal a validated declared schema into an immutable {@link Schema}. */
@@ -177,4 +153,3 @@ export function defineSchema<const T>(
 }
 
 export type { SchemaInput, SchemaLiteral, ValidateSchema };
-export { emptyPortableExtras };

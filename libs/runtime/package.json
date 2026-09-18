@@ -21,7 +21,9 @@
     ]
   },
   "scripts": {
+    "check:schema-evolution": "bun run scripts/check-schema-evolution.ts",
     "lint": "bunx biome check --error-on-warnings .",
+    "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },

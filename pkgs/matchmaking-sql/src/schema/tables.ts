@@ -1,12 +1,5 @@
 import { defineTable, registerTables } from '@pkgs/db-schema';
 
-import {
-  MATCHMAKING_MAX_GROUP_SIZE,
-  MATCHMAKING_MAX_PRIORITY,
-  MATCHMAKING_MIN_GROUP_SIZE,
-  MATCHMAKING_MIN_PRIORITY,
-} from '@pkgs/matchmaking/interface';
-
 export const MATCHMAKING_SCHEMA_STATE_TABLE = 'matchmaking_schema_state';
 export const MATCHMAKING_ACTIVE_PARTITIONS_TABLE =
   'matchmaking_active_partitions';
@@ -80,16 +73,6 @@ export const matchmakingWaiting = defineTable({
     ],
     'claim_token',
     'claimed_at',
-  ],
-  checks: [
-    {
-      name: 'waiting_group_size',
-      sql: `group_size BETWEEN ${String(MATCHMAKING_MIN_GROUP_SIZE)} AND ${String(MATCHMAKING_MAX_GROUP_SIZE)}`,
-    },
-    {
-      name: 'waiting_priority',
-      sql: `priority BETWEEN ${String(MATCHMAKING_MIN_PRIORITY)} AND ${String(MATCHMAKING_MAX_PRIORITY)}`,
-    },
   ],
 });
 
