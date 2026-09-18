@@ -157,7 +157,9 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
   branch with the local hook bypassed: `remote: - Changes must be made through a
   pull request.`
 - `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
-  branch.
+  branch, plus the merge-method policy: **merge commits only** — squash and
+  rebase merges are disabled, so `main` keeps every PR's commit graph and merge
+  base.
 
 Two local layers back it up: `tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
