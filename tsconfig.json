@@ -84,6 +84,7 @@
     "libs/client-config/src/**/*.tsx",
     "libs/client-config/scripts/**/*.ts",
     "libs/runtime/src/**/*.ts",
+    "libs/runtime/scripts/**/*.ts",
     "pkgs/matchmaking/src/**/*.ts",
     "pkgs/matchmaking-sql/src/**/*.ts",
     "pkgs/matchmaking-sim/src/**/*.ts",

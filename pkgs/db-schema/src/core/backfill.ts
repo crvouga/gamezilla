@@ -1,4 +1,3 @@
-import type { DialectSql } from './dialect-sql';
 import { type DialectName, resolveDialectSql } from './dialect-sql';
 import type { DeclaredColumn } from './types';
 
@@ -29,16 +28,4 @@ export function resolveBackfillSql(
 /** Safe identifier quoting for backfill copy expressions (no user SQL). */
 function quoteIdent(name: string): string {
   return `"${name.replace(/"/g, '""')}"`;
-}
-
-export function enumCheckSql(
-  column: string,
-  values: readonly string[]
-): DialectSql {
-  const list = values.map((v) => `'${v.replace(/'/g, "''")}'`).join(', ');
-  return `${quoteIdent(column)} IS NULL OR ${quoteIdent(column)} IN (${list})`;
-}
-
-export function enumCheckName(enumName: string, column: string): string {
-  return `ck_${enumName}_${column}`.slice(0, 63);
 }

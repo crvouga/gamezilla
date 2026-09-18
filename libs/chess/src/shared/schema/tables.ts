@@ -14,7 +14,9 @@ export const chessPuzzles = defineTable({
     game_url: 'text',
     opening_tags: 'json',
   },
-  deprecations: [['sync_pool', 'not needed anymore']],
+  retiredColumns: [
+    { name: 'sync_pool', type: 'boolean', note: 'not needed anymore' },
+  ],
 });
 
 export const chessPuzzleLoad = defineTable({
@@ -51,9 +53,17 @@ export const chessPuzzleInteractions = defineTable({
     correct: 'boolean',
     at: 'timestamp',
   },
-  deprecations: [
-    ['rating_before', 'Elo is projected from interaction history'],
-    ['rating_after', 'Elo is projected from interaction history'],
+  retiredColumns: [
+    {
+      name: 'rating_before',
+      type: 'integer',
+      note: 'Elo is projected from interaction history',
+    },
+    {
+      name: 'rating_after',
+      type: 'integer',
+      note: 'Elo is projected from interaction history',
+    },
   ],
 });
 

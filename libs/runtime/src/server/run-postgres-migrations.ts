@@ -7,7 +7,10 @@ import {
   EnsurePostgresSchemaMigration,
   PostgresAdvisoryLockedTransactionMigration,
 } from '@pkgs/db-migrate';
-import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema-postgres';
+import {
+  PostgresSchemaDatabaseMigration,
+  PostgresSchemaIndexReconcileMigration,
+} from '@pkgs/db-schema-postgres';
 import { EntityStorePostgresDatabaseMigration } from '@pkgs/entity-store/postgres-database-migration';
 import { KvPostgresDatabaseMigration } from '@pkgs/kv-postgres/postgres-database-migration';
 import type { Logger } from '@pkgs/logger';
@@ -76,6 +79,9 @@ export class PostgresMigrationRunner {
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
           skipAdvisoryLock: true,
           alreadyInTransaction: !skipAdvisoryLock,
+          // When the concurrent index phase below is registered, it owns every
+          // appSchema index; otherwise this call must create them itself.
+          indexPhase: skipIndexReconcile ? 'inline' : 'skip',
         })
       )
       .register(new KvPostgresDatabaseMigration())
@@ -105,6 +111,14 @@ export class PostgresMigrationRunner {
       )
       .register(new CutoverLegacyAuthToIdpMigration())
       .register(new PurgeClerkExternalAccountsMigration());
+
+    // Index builds must run outside the advisory-locked transaction so every
+    // build is CONCURRENTLY and no long lock is held on a live table.
+    if (!skipIndexReconcile) {
+      databaseMigration.register(
+        new PostgresSchemaIndexReconcileMigration(appSchema, dbScope)
+      );
+    }
 
     if (!skipIndexReconcile) {
       if (clock === undefined) {
