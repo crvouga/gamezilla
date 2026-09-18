@@ -12,7 +12,6 @@
   </head>
   <body>
     <h1>Auth OAuth harness</h1>
-    <button id="sign-in-dev" data-testid="harness-sign-in-dev">Sign in with Dev</button>
     <button id="sign-in-google" data-testid="harness-sign-in-google">Sign in with Google</button>
     <div id="error" data-testid="harness-error"></div>
     <div id="token" data-testid="harness-token"></div>
@@ -87,9 +86,6 @@
         tokenEl.textContent = token;
       }
 
-      document.getElementById('sign-in-dev').addEventListener('click', () => {
-        void runOauth('dev');
-      });
       document.getElementById('sign-in-google').addEventListener('click', () => {
         void runOauth('google');
       });

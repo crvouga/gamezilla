@@ -23,11 +23,6 @@ describe('parseClientConfigRows', () => {
         deleted_at: null,
       },
       {
-        id: ClientConfigKey.devOauthEnabled,
-        value: true,
-        deleted_at: null,
-      },
-      {
         id: ClientConfigKey.billingEnabled,
         value: false,
         deleted_at: null,
@@ -35,7 +30,6 @@ describe('parseClientConfigRows', () => {
     ]);
     expect(config.google_enabled).toBe(true);
     expect(config.google_web_client_id).toBe('abc.apps.googleusercontent.com');
-    expect(config.dev_oauth_enabled).toBe(true);
     expect(config.billing_enabled).toBe(false);
     expect(config.tts_enabled).toBe(false);
   });
@@ -53,11 +47,6 @@ describe('parseClientConfigRows', () => {
         deleted_at: null,
       },
       {
-        id: ClientConfigKey.devOauthEnabled,
-        value: 'true',
-        deleted_at: null,
-      },
-      {
         id: ClientConfigKey.llmEnabled,
         value: 0,
         deleted_at: null,
@@ -65,19 +54,18 @@ describe('parseClientConfigRows', () => {
     ]);
     expect(config.google_enabled).toBe(true);
     expect(config.google_web_client_id).toBe('abc.apps.googleusercontent.com');
-    expect(config.dev_oauth_enabled).toBe(true);
     expect(config.llm_enabled).toBe(false);
   });
 
   test('treats omitted deleted_at as live (null → undefined)', () => {
     const config = parseClientConfigRows([
       {
-        id: ClientConfigKey.devOauthEnabled,
+        id: ClientConfigKey.googleEnabled,
         value: 'true',
         deleted_at: undefined as unknown as string | null,
       },
     ]);
-    expect(config.dev_oauth_enabled).toBe(true);
+    expect(config.google_enabled).toBe(true);
   });
 
   test('ignores soft-deleted rows', () => {

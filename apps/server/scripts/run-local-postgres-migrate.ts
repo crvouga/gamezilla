@@ -11,7 +11,10 @@ import { createLogger } from '@pkgs/logger';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
-export async function runLocalMigrate(): Promise<void> {
+/** `databaseUrl` defaults to the shared local cluster; a stack passes its own. */
+export async function runLocalMigrate(
+  databaseUrl: string = LOCAL_DATABASE_URL
+): Promise<void> {
   process.stdout.write('[postgres] migrating…\n');
   const dbScope = appPostgresDbScope();
   const logger = createLogger({
@@ -19,7 +22,7 @@ export async function runLocalMigrate(): Promise<void> {
     now: wallClock.now,
   });
   const { pool, sqlClient } = createPgPool({
-    connectionString: LOCAL_DATABASE_URL,
+    connectionString: databaseUrl,
     dbScope,
     max: 1,
   });

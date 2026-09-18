@@ -15,7 +15,7 @@ import {
   returnToTabs,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
-  signInWithDev,
+  signInWithGoogle,
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
 
@@ -41,7 +41,7 @@ async function untilFeedTarget(s: Sim, rating: number): Promise<void> {
 }
 
 async function enterPuzzle(s: Sim) {
-  await s.apply(signInWithDev, 'alice');
+  await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');
   await s.apply(createSpace, 'alice');
   await s.apply(openPuzzleFromSpace, 'alice');

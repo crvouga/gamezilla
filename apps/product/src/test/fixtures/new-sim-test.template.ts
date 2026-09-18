@@ -7,13 +7,13 @@
  */
 
 import { describe, test } from 'bun:test';
-import { openSpacesTab, returnToTabs, signInWithDev } from '../../sim';
+import { openSpacesTab, returnToTabs, signInWithGoogle } from '../../sim';
 import { openSim } from '../setup/open-sim';
 
 describe('example journey', () => {
   test('alice signs up and opens spaces', async () => {
     await using s = await openSim('example-journey');
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(openSpacesTab, 'alice');
   });

@@ -1,24 +1,46 @@
 // @io-wall-ok — auth OAuth e2e harness server
 
+/**
+ * Two processes' worth of surface on one machine: the auth app on :4178 and
+ * the simulated Google provider on its own port, with its own state. The
+ * harness page drives the real popup flow between them.
+ *
+ * `GET /__harness/config` hands the suite the provider's origin — it takes an
+ * OS-assigned port, so the only other way to reach its `/__idp/*` control
+ * plane from a test process would be to scrape this process's stdout.
+ */
+
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AuthSqliteDatabaseMigration } from '@pkgs/auth/server/auth-database-migration';
 import { createAuthApp } from '@pkgs/auth/server/create-auth-app';
+import { idpEndpoints } from '@pkgs/idp-google-sim/shared';
+import { startGoogleIdpServer } from '@pkgs/idp-google-sim/start-server';
 import { createNoopLogger } from '@pkgs/logger';
 import { virtualTimeRuntime } from '@pkgs/sim';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
-import { createFakeGoogleHttp } from '../src/fake-google';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PORT = 4178;
 const API_ORIGIN = `http://127.0.0.1:${PORT}`;
 const AUTH_SECRET = 'auth-system-secret-0123456789abcdef';
+const CLIENT_ID = 'auth-e2e.apps.googleusercontent.com';
+const CLIENT_SECRET = 'auth-e2e-secret';
+const REDIRECT_URI = `${API_ORIGIN}/auth/callback/google`;
 
-const authState = {
-  googleSubjects: new Map<string, string>(),
-  googleFault: false,
-};
+const idp = await startGoogleIdpServer({
+  port: Number(process.env['IDP_PORT'] ?? 0),
+  clients: [
+    {
+      clientId: CLIENT_ID,
+      clientSecret: CLIENT_SECRET,
+      redirectUris: [REDIRECT_URI],
+      appName: 'Auth Harness',
+    },
+  ],
+  accounts: [{ handle: 'alice' }, { handle: 'bob' }],
+});
 
 const session = await virtualTimeRuntime().open(1);
 const sql = SqlClientImplSqliteMem.open({ seed: 1 });
@@ -31,7 +53,7 @@ const app = createAuthApp({
   getSql: () => sql,
   clock: session.ports.clock,
   createId: session.ports.createId,
-  http: createFakeGoogleHttp(authState),
+  http: { fetch: (input, init) => fetch(input, init) },
   secret: AUTH_SECRET,
   baseURL: API_ORIGIN,
   trustedOrigins: [
@@ -42,41 +64,44 @@ const app = createAuthApp({
     'http://callback.test',
   ],
   providers: {
-    google: { clientId: 'cid', clientSecret: 'csecret' },
-    dev: { enabled: true },
+    google: {
+      clientId: CLIENT_ID,
+      clientSecret: CLIENT_SECRET,
+      endpoints: idpEndpoints(idp.origin),
+    },
   },
 });
 
 const authE2e = join(here, '../../auth/e2e/harness');
 const html = readFileSync(join(authE2e, 'oauth-harness.html'), 'utf8');
 
+const CALLBACK_HTML = `<!DOCTYPE html><html><body><script>
+  const code = new URL(location.href).searchParams.get('code');
+  if (window.opener && code) {
+    window.opener.postMessage({ type: 'oauth-complete', code }, '*');
+  }
+  window.close();
+</script></body></html>`;
+
 Bun.serve({
   port: PORT,
   hostname: '127.0.0.1',
-  async fetch(req) {
+  fetch(req) {
     const url = new URL(req.url);
-    if (url.pathname.startsWith('/auth/')) {
-      return app.fetch(req);
-    }
+    if (url.pathname.startsWith('/auth/')) return app.fetch(req);
     if (url.pathname === '/oauth-callback') {
-      const callbackHtml = `<!DOCTYPE html><html><body><script>
-        const code = new URL(location.href).searchParams.get('code');
-        if (window.opener && code) {
-          window.opener.postMessage({ type: 'oauth-complete', code }, '*');
-        }
-        window.close();
-      </script></body></html>`;
-      return new Response(callbackHtml, {
+      return new Response(CALLBACK_HTML, {
         headers: { 'content-type': 'text/html' },
       });
+    }
+    if (url.pathname === '/__harness/config') {
+      return Response.json({ idpOrigin: idp.origin });
     }
     if (url.pathname === '/' || url.pathname === '/index.html') {
-      return new Response(html, {
-        headers: { 'content-type': 'text/html' },
-      });
+      return new Response(html, { headers: { 'content-type': 'text/html' } });
     }
     return new Response('not found', { status: 404 });
   },
 });
 
-process.stdout.write(`auth e2e harness http://127.0.0.1:${PORT}\n`);
+process.stdout.write(`auth e2e harness ${API_ORIGIN} (idp ${idp.origin})\n`);

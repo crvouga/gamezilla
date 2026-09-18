@@ -22,6 +22,11 @@ export type ApiWorkerEnv = {
   AUTH_SECRET?: string;
   WEB_CLIENT_GOOGLE_CLIENT_ID?: string;
   WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
+  /**
+   * Origin of the OpenID provider to treat as Google. Unset means real
+   * Google; the localhost stack points it at its own simulated provider.
+   */
+  GOOGLE_IDP_ORIGIN?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;
@@ -67,6 +72,10 @@ export function assertSecretsEnvBinding(env: ApiWorkerEnv): string {
 
 export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.API_URL);
+}
+
+export function readOptionalGoogleIdpOrigin(env: ApiWorkerEnv): string | null {
+  return readOptionalBinding(env.GOOGLE_IDP_ORIGIN);
 }
 
 export function readOptionalDatabaseUrlOverride(

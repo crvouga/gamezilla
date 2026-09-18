@@ -14,6 +14,14 @@ export type FlatFrame = {
   index: number;
 };
 
+export type OrderedUiBlob = {
+  readonly nodeId: string;
+  readonly blob: ReportSnapshotBlob | null;
+};
+
+const frameCache = new WeakMap<object, FlatFrame[]>();
+const actorOrderCache = new WeakMap<object, string[]>();
+
 export type FlatStep = {
   step: ReportStep;
   depth: number;
@@ -75,12 +83,74 @@ export function lastFrameBefore(
 }
 
 export function testFrames(test: HtmlReportTest): FlatFrame[] {
-  const frames = flattenFrames(test.report.steps, [], 0);
-  frames.sort((a, b) => a.frame.capturedAtMs - b.frame.capturedAtMs);
-  frames.forEach((f, i) => {
-    f.index = i;
-  });
+  const cached = frameCache.get(test);
+  if (cached) return cached;
+
+  const flattened = flattenFrames(test.report.steps, [], 0).map(
+    (frame, order) => ({ frame, order })
+  );
+  flattened.sort(
+    (a, b) =>
+      a.frame.frame.capturedAtMs - b.frame.frame.capturedAtMs ||
+      a.order - b.order
+  );
+  const frames = flattened.map(({ frame }, index) => ({
+    ...frame,
+    index,
+  }));
+  frameCache.set(test, frames);
   return frames;
+}
+
+function allUiActorIds(test: HtmlReportTest): string[] {
+  const cached = actorOrderCache.get(test);
+  if (cached) return cached;
+  const observed: string[] = [];
+  const seen = new Set<string>();
+  for (const frame of testFrames(test)) {
+    for (const blob of uiBlobs(frame)) {
+      const id = blob.nodeId;
+      if (id && !seen.has(id)) {
+        seen.add(id);
+        observed.push(id);
+      }
+    }
+  }
+  if (observed.length === 0) {
+    actorOrderCache.set(test, []);
+    return [];
+  }
+
+  const ordered = test.report.meta.actorIds.filter((id) => seen.has(id));
+  for (const id of observed) {
+    if (!ordered.includes(id)) ordered.push(id);
+  }
+  actorOrderCache.set(test, ordered);
+  return ordered;
+}
+
+/** Return UI snapshots in one stable actor order, including empty slots. */
+export function orderedUiBlobs(
+  frame: FlatFrame | null,
+  test: HtmlReportTest
+): OrderedUiBlob[] {
+  const blobs = uiBlobs(frame);
+  const byNode = new Map<string, ReportSnapshotBlob>();
+  const unassigned: ReportSnapshotBlob[] = [];
+  for (const blob of blobs) {
+    const nodeId = blob.nodeId || '';
+    if (nodeId && !byNode.has(nodeId)) byNode.set(nodeId, blob);
+    else if (!nodeId) unassigned.push(blob);
+  }
+
+  const ordered = allUiActorIds(test).map((nodeId) => ({
+    nodeId,
+    blob: byNode.get(nodeId) ?? null,
+  }));
+  for (const blob of unassigned) {
+    ordered.push({ nodeId: `snapshot-${ordered.length + 1}`, blob });
+  }
+  return ordered;
 }
 
 export function selectedFrame(

@@ -21,11 +21,25 @@ const ORIGIN = `http://127.0.0.1:${PORT}`;
 
 killListenersOnPort(PORT);
 
-const harness = Bun.spawn(['bun', './e2e/serve-harness.ts'], {
-  cwd: import.meta.dir + '/../../auth-sim',
-  stdout: 'inherit',
-  stderr: 'inherit',
-});
+// The harness imports the simulated Google IdP, which renders Solid screens
+// server-side; without the preload Bun compiles workspace `.tsx` to React JSX
+// and `solid-js/web` under the `node` condition refuses to `render`. Same
+// flags as `@pkgs/auth-sim`'s own test script and `localhost-stack/boot-stack`.
+const harness = Bun.spawn(
+  [
+    'bun',
+    '--conditions=browser',
+    '--conditions=development',
+    '--preload',
+    '../idp-google-sim/bun-solid-preload.ts',
+    './e2e/serve-harness.ts',
+  ],
+  {
+    cwd: import.meta.dir + '/../../auth-sim',
+    stdout: 'inherit',
+    stderr: 'inherit',
+  }
+);
 
 let code = 1;
 try {

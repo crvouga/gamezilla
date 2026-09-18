@@ -102,6 +102,7 @@
     "@pkgs/observability-impl-local-file": "workspace:*",
     "@pkgs/polyfill": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/pubsub-aedes": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-web": "workspace:*",

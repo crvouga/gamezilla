@@ -260,7 +260,7 @@ export function createAuthClientAdapter(
     providerLabel: IDP_PROVIDER_LABEL,
     session,
     async signIn(strategy: SignInStrategy, _credentials?: SignInCredentials) {
-      if (strategy === 'oauth-dev' || strategy === 'oauth-google') {
+      if (strategy === 'oauth-google') {
         await signInOauth(ctx, strategy);
         return;
       }

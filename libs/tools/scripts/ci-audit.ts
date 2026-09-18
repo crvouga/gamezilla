@@ -6,7 +6,7 @@
  *
  * Ignored CVEs must stay empty unless there is no published patched release
  * (`first_patched_version: null`). Revisit when image-size ships a fix past
- * 2.0.2 (transitive).
+ * 2.0.2 (transitive), or when dicer ships anything past 0.3.1.
  */
 import { spawnSync } from 'node:child_process';
 
@@ -14,6 +14,10 @@ import { spawnSync } from 'node:child_process';
 const IGNORE_ADVISORIES = [
   'GHSA-w3rx-r6r6-pgpr', // image-size ICNS infinite loop (CVE-2025-71330)
   'GHSA-5p2g-fcmc-qvqq', // image-size JXL/HEIF infinite loop (CVE-2025-71329)
+  // dicer HeaderParser crash, reached only through s3rver > busboy > dicer in
+  // the loopback test sidecar (`@pkgs/s3-server`). 0.3.1 is the latest release
+  // and is still vulnerable, so there is nothing to upgrade to.
+  'GHSA-wm7h-9275-46v2',
 ] as const;
 
 const AUDIT_TIMEOUT_MS = 300_000;

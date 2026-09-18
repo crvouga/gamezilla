@@ -28,13 +28,13 @@ export type ActorEntry = {
  * virtual `runFor`), deadlines run on the wall clock so virtual-time stepping
  * never eats the wait budget.
  */
-function createSolidDomClientDriver(args: {
+async function createSolidDomClientDriver(args: {
   readonly sim: Sim;
   readonly id: string;
   readonly session: MultiAppSolidDomSession;
   readonly runFor: (durationMs: number) => Promise<void>;
-}): Driver {
-  const live = args.sim.spawnClient(args.id);
+}): Promise<Driver> {
+  const live = await args.sim.spawnClient(args.id);
   const pump = createSimWaitPump({
     scheduler: args.sim.scheduler,
     runFor: args.runFor,
@@ -95,7 +95,7 @@ export async function launchActor(args: {
         'launchActor: solid-dom host requires a MultiAppSolidDomSession (in-process tests)'
       );
     }
-    raw = createSolidDomClientDriver({
+    raw = await createSolidDomClientDriver({
       sim: args.sim,
       id: args.id,
       session,

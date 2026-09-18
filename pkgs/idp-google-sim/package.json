@@ -1,0 +1,55 @@
+{
+  "name": "@pkgs/idp-google-sim",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server/index.ts",
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*/index.ts"
+    ],
+    "./start-server": "./scripts/start-idp-server.ts"
+  },
+  "scripts": {
+    "build:web": "bun run scripts/build-web-assets.ts",
+    "lint": "bunx biome check --error-on-warnings .",
+    "start": "bun --conditions=browser --conditions=development --preload ./bun-solid-preload.ts scripts/serve.ts",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload ./bun-solid-preload.ts ./tests",
+    "web:dev": "vite --config vite.config.mts"
+  },
+  "dependencies": {
+    "@happy-dom/global-registrator": "catalog:",
+    "@noble/hashes": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "happy-dom": "catalog:",
+    "hono": "catalog:",
+    "jose": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@babel/core": "catalog:",
+    "@babel/preset-typescript": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "babel-preset-solid": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
+  }
+}

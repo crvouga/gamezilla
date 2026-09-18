@@ -37,7 +37,7 @@ export const Handles = {
   accountSignOut: 'account-sign-out',
 
   // sign-in modal
-  authMethodDev: 'auth-method-dev',
+  authMethodGoogle: 'auth-method-google',
   authSignedInDone: 'auth-signed-in-done',
   authModalClose: 'auth-modal-close',
 

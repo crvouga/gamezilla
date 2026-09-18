@@ -13,9 +13,15 @@ import {
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
 } from '@apps/server/sim/migrate-sim-postgres';
+import {
+  SIM_GOOGLE_CLIENT_ID,
+  SIM_GOOGLE_CLIENT_SECRET,
+  SIM_IDP_URL,
+} from '@apps/server/sim/sim-constants';
 import { assert } from '@pkgs/assert';
 import { InMemoryBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
+import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
@@ -29,6 +35,7 @@ import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { makeSimClientEnv } from './sim-client-env';
 import { bumpSimClientEpoch } from './sim-client-namespace';
+import { createSimIdp, simIdpEmail, simIdpFetchFrom } from './sim-idp';
 import {
   createSimLoadBalancer,
   type SimLoadBalancer,
@@ -41,6 +48,7 @@ import {
   type SimServerNodes,
 } from './sim-server-nodes';
 import {
+  openFreshSimClientSql,
   openFreshSimServerSql,
   openSimServerSqlFromSeedBytes,
   type SimSql,
@@ -72,14 +80,17 @@ export type Sim = {
   readonly net: ReturnType<typeof createSimNet>;
   /** Round-robin ingress every client talks to. */
   readonly loadBalancer: SimLoadBalancer;
-  client(id: string): ClientEnv;
+  /** The simulated Google the product signs in against. */
+  readonly idp: GoogleIdp;
+  /** Auth directory entry + env; the account row is written on first use. */
+  client(id: string): Promise<ClientEnv>;
   /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
   spawnServer(id?: string): Promise<Server>;
   /** Remove an API instance from the balancer rotation. */
   dropServer(id: string): Promise<void>;
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
-  spawnClient(id: string, env?: ClientEnv): Client;
+  spawnClient(id: string, env?: ClientEnv): Promise<Client>;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
   bumpClientEpoch(): void;
@@ -135,6 +146,8 @@ async function buildSharedServerServices(
     AUTH_SECRET: SIM_AUTH_SECRET,
     DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
+    WEB_CLIENT_GOOGLE_CLIENT_ID: SIM_GOOGLE_CLIENT_ID,
+    WEB_CLIENT_GOOGLE_CLIENT_SECRET: SIM_GOOGLE_CLIENT_SECRET,
   });
   return {
     kv: new KvImplInMemory(),
@@ -146,20 +159,24 @@ async function buildSharedServerServices(
     auth: await loadAuthBootConfig({
       secretStore: secrets,
       apiUrlOverride: SIM_SERVER_URL,
-      secretsEnv: 'dev',
+      googleIdpOrigin: SIM_IDP_URL,
     }),
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
 }
 
-function buildServerEnv(args: {
+type ServerEnvDeps = {
   readonly id: string;
   readonly session: Session;
   readonly seed: bigint;
   readonly timers: Timers;
   readonly shared: SharedServerServices;
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
-}): ServerEnv {
+  /** Outbound vendor HTTP: only the provider node is reachable. */
+  readonly vendorFetch: ServerEnv['fetch'];
+};
+
+function buildServerEnv(args: ServerEnvDeps): ServerEnv {
   const { id, session, seed, timers, shared, pubSubBus } = args;
   return {
     clock: session.ports.clock,
@@ -180,10 +197,7 @@ function buildServerEnv(args: {
     secretsEnv: 'dev',
     serverUrl: SIM_SERVER_URL,
     skipDatabaseUrlPolicy: true,
-    fetch: () =>
-      Promise.reject(
-        new Error('sim ServerEnv.fetch: vendor HTTP not configured')
-      ),
+    fetch: args.vendorFetch,
   };
 }
 
@@ -204,6 +218,8 @@ function buildRoomServerEnv(args: {
 
 type SimKernel = {
   readonly session: Session;
+  readonly idp: GoogleIdp;
+  readonly idpSql: SimSql;
   readonly seed: bigint;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
@@ -252,6 +268,12 @@ async function bootSimKernel(
     isPartitioned: (a, b) => session.network.isPartitioned(a, b),
   });
   const pubSubBus = createInMemoryBus();
+  const idpSql = await openFreshSimClientSql('sim_idp', session.ports.clock);
+  const idp = await createSimIdp({
+    clock: session.ports.clock,
+    createId: session.ports.createId,
+    sqlClient: idpSql.sqlClient,
+  });
   const serverSql = await openServerSql(session, opts);
   const shared = await buildSharedServerServices(serverSql);
   const roomNode = createRoomServer(
@@ -261,7 +283,15 @@ async function bootSimKernel(
   const servers = createSimServerNodes({
     buildEnv: (id) =>
       Promise.resolve(
-        buildServerEnv({ id, session, seed, timers, shared, pubSubBus })
+        buildServerEnv({
+          id,
+          session,
+          seed,
+          timers,
+          shared,
+          pubSubBus,
+          vendorFetch: simIdpFetchFrom({ idp, net, from: id }),
+        })
       ),
     disposed: () => disposed.value,
   });
@@ -272,6 +302,8 @@ async function bootSimKernel(
   });
   return {
     session,
+    idp,
+    idpSql,
     seed,
     timers,
     net,
@@ -302,22 +334,33 @@ async function disposeSim(args: {
   kernel.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
+  await kernel.idpSql.disconnect();
   await kernel.serverSql.disconnect();
 }
 
 function createSimHandle(kernel: SimKernel): Sim {
-  const { session, net, pubSubBus, serverSql, roomNode, servers } = kernel;
+  const { session, net, pubSubBus, serverSql, roomNode, servers, idp } = kernel;
   const clientSql = new Map<string, SimSql>();
   /** One env per id for the sim lifetime — seeded `createId` must not reset
    * while `clientSql` still holds mutation rows from the prior stream. */
   const clientEnvs = new Map<string, ClientEnv>();
+  const pendingEnvs = new Map<string, Promise<ClientEnv>>();
   const liveClients = new Map<string, Client>();
-  const client = (id: string): ClientEnv => {
+  const client = async (id: string): Promise<ClientEnv> => {
     const cached = clientEnvs.get(id);
     if (cached !== undefined) return cached;
-    const env = makeSimClientEnv(kernel, { id, clientSql });
-    clientEnvs.set(id, env);
-    return env;
+    const inFlight = pendingEnvs.get(id);
+    if (inFlight !== undefined) return await inFlight;
+    const pending = (async (): Promise<ClientEnv> => {
+      // The person behind this actor needs a Google account to sign in with.
+      await idp.addAccount({ handle: id, email: simIdpEmail(id) });
+      const env = makeSimClientEnv(kernel, { id, clientSql });
+      clientEnvs.set(id, env);
+      pendingEnvs.delete(id);
+      return env;
+    })();
+    pendingEnvs.set(id, pending);
+    return await pending;
   };
   return {
     session,
@@ -327,6 +370,7 @@ function createSimHandle(kernel: SimKernel): Sim {
     pubSubBus,
     net,
     loadBalancer: kernel.loadBalancer,
+    idp,
     client,
     async spawnServer(id) {
       const node = await servers.spawn(id);
@@ -337,10 +381,10 @@ function createSimHandle(kernel: SimKernel): Sim {
     dropServer: (id) => servers.drop(id),
     serverIds: () => servers.ids(),
     serverEnv: (id) => servers.get(id)?.env,
-    spawnClient(id, env = client(id)) {
+    async spawnClient(id, env) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
-      const live = createClient(env);
+      const live = createClient(env ?? (await client(id)));
       liveClients.set(id, live);
       return live;
     },

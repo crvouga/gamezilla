@@ -49,16 +49,33 @@ function coerceDevBundleApiOrigin(origin: string): string {
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
+function loopbackBrowserOrigin(): string | null {
+  if (typeof window === 'undefined') return null;
+  const origin = new URL(window.location.origin);
+  if (
+    origin.hostname !== 'localhost' &&
+    origin.hostname !== '127.0.0.1' &&
+    origin.hostname !== '[::1]'
+  ) {
+    return null;
+  }
+  return origin.origin;
+}
+
 /**
  * Resolves the API base URL. The SPA is served from a separate origin from the
  * API Worker, so the URL is always absolute.
  */
 export function getServerBaseUrl(): string {
   const raw = viteEnv().VITE_API_URL;
-  assert.nonEmptyString(
-    raw,
-    'VITE_API_URL is required; run `bun run dev` (with secret store) or set apps/client/.env.local'
-  );
+  if (typeof raw !== 'string' || raw.trim().length === 0) {
+    const fallback = loopbackBrowserOrigin();
+    assert.nonEmptyString(
+      fallback,
+      'VITE_API_URL is required outside a loopback browser preview; run `bun run dev` or set apps/client/.env.local'
+    );
+    return fallback;
+  }
   const origin = normalizeLoopbackOriginToLocalhost(
     coerceDevBundleApiOrigin(parseOrigin(raw))
   );

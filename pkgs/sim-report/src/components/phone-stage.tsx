@@ -1,6 +1,7 @@
 import type { HtmlReportTest, ReportSnapshotBlob, ReportStep } from '@pkgs/sim';
 import {
   createEffect,
+  createMemo,
   createSignal,
   For,
   onCleanup,
@@ -10,6 +11,7 @@ import {
 import { useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
+import { orderedUiBlobs } from '../lib/frames';
 import { showPress, zoomMode } from '../lib/hash';
 import { PHONE_H, PHONE_W, zoomScale } from '../lib/phone';
 import {
@@ -27,17 +29,16 @@ function PressOverlay(props: {
   const hit = () => {
     const step = props.step;
     if (!showPress(props.route) || !step?.hit?.rect) return null;
-    if (step.actorId && props.nodeId && step.actorId !== props.nodeId) {
+    if (step.actorId && props.nodeId && step.actorId !== props.nodeId)
       return null;
-    }
     return step.hit;
   };
   return (
     <Show when={hit()}>
       {(h) => {
-        const r = h().rect;
-        if (!r) return null;
-        const pr = h().point || { xRatio: 0.5, yRatio: 0.5 };
+        const rect = h().rect;
+        if (!rect) return null;
+        const point = h().point || { xRatio: 0.5, yRatio: 0.5 };
         return (
           <div
             class="sr-press-overlay"
@@ -51,17 +52,17 @@ function PressOverlay(props: {
             <div
               class="sr-press-ring"
               style={{
-                left: `${r.x}px`,
-                top: `${r.y}px`,
-                width: `${r.width}px`,
-                height: `${r.height}px`,
+                left: `${rect.x}px`,
+                top: `${rect.y}px`,
+                width: `${rect.width}px`,
+                height: `${rect.height}px`,
               }}
             />
             <div
               class="sr-press-point"
               style={{
-                left: `${r.x + r.width * pr.xRatio}px`,
-                top: `${r.y + r.height * pr.yRatio}px`,
+                left: `${rect.x + rect.width * point.xRatio}px`,
+                top: `${rect.y + rect.height * point.yRatio}px`,
               }}
             />
           </div>
@@ -73,7 +74,8 @@ function PressOverlay(props: {
 
 function PhonePanel(props: {
   test: HtmlReportTest;
-  blob: ReportSnapshotBlob;
+  blob: ReportSnapshotBlob | null;
+  nodeId: string;
   step: ReportStep | null;
   nav: ReportNav;
   active: boolean;
@@ -90,7 +92,7 @@ function PhonePanel(props: {
   };
 
   createEffect(() => {
-    if (!frameEl) return;
+    if (!frameEl || !props.blob) return;
     layers.frameEl = frameEl;
     paintPhoneBlob({
       layers,
@@ -101,50 +103,75 @@ function PhonePanel(props: {
       hit: props.step?.hit,
       frameCss: report.frameCss,
     });
-    applyPhoneScale(frameEl, scale());
+  });
+
+  createEffect(() => {
+    if (frameEl) applyPhoneScale(frameEl, scale());
   });
 
   onMount(() => {
     const fit = () => {
       if (!wrapEl || !frameEl) return;
-      const s = zoomScale(
+      const nextScale = zoomScale(
         zoomMode(props.nav.route()),
         wrapEl.clientWidth,
         wrapEl.clientHeight
       );
-      setScale(s);
-      applyPhoneScale(frameEl, s);
+      setScale(nextScale);
+      applyPhoneScale(frameEl, nextScale);
     };
     fit();
-    const ro =
+    const resizeObserver =
       typeof ResizeObserver === 'function' ? new ResizeObserver(fit) : null;
-    if (ro && wrapEl) ro.observe(wrapEl);
+    if (resizeObserver && wrapEl) resizeObserver.observe(wrapEl);
     else window.addEventListener('resize', fit);
     onCleanup(() => {
-      ro?.disconnect();
+      resizeObserver?.disconnect();
       window.removeEventListener('resize', fit);
     });
   });
 
+  const activate = (e: KeyboardEvent) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    props.onFocus();
+  };
+
   return (
     <div
       class="sr-client"
-      classList={{ active: props.active, focused: props.focused }}
+      classList={{
+        active: props.active,
+        focused: props.focused,
+        empty: !props.blob,
+      }}
+      role="button"
+      tabindex="0"
+      aria-label={`Focus ${props.nodeId}`}
+      aria-current={props.focused ? 'true' : undefined}
       onClick={() => props.onFocus()}
+      onKeyDown={activate}
     >
       <div class="sr-client-label">
         <span class={`sr-dot ${props.active ? 'passed' : ''}`} />
-        <span class="actor">{props.blob.nodeId || props.blob.name}</span>
+        <span class="actor">{props.nodeId}</span>
       </div>
       <div class="sr-phone" ref={wrapEl}>
-        <div class="frame" ref={frameEl}>
-          <PressOverlay
-            step={props.step}
-            nodeId={props.blob.nodeId || ''}
-            route={props.nav.route()}
-            scale={scale()}
-          />
-        </div>
+        <Show
+          when={props.blob}
+          fallback={
+            <div class="sr-client-empty">No snapshot in this frame</div>
+          }
+        >
+          <div class="frame" ref={frameEl}>
+            <PressOverlay
+              step={props.step}
+              nodeId={props.nodeId}
+              route={props.nav.route()}
+              scale={scale()}
+            />
+          </div>
+        </Show>
       </div>
     </div>
   );
@@ -156,17 +183,18 @@ export function PhoneStage(props: {
   nav: ReportNav;
   mode: 'single' | 'multi';
   node: string | null;
-  blobs: ReportSnapshotBlob[];
 }) {
-  const list = () => {
+  const list = createMemo(() => {
+    const ordered = orderedUiBlobs(props.selected, props.test);
     if (props.mode === 'single') {
       const one =
-        props.blobs.find((b) => (b.nodeId || '') === (props.node || '')) ||
-        props.blobs[0];
+        ordered.find((entry) => entry.nodeId === (props.node || '')) ||
+        ordered.find((entry) => entry.blob) ||
+        ordered[0];
       return one ? [one] : [];
     }
-    return props.blobs;
-  };
+    return ordered;
+  });
 
   return (
     <Show
@@ -185,24 +213,26 @@ export function PhoneStage(props: {
           single: props.mode === 'single',
           multi: props.mode === 'multi',
         }}
+        aria-label={
+          props.mode === 'multi' ? 'Client snapshots' : 'Client snapshot'
+        }
       >
         <For each={list()}>
-          {(blob) => {
+          {(entry) => {
             const active = () =>
-              (blob.nodeId || '') === (props.node || '') ||
-              props.selected?.step.actorId === blob.nodeId;
-            const focused = () => (blob.nodeId || '') === (props.node || '');
+              entry.nodeId === (props.node || '') ||
+              props.selected?.step.actorId === entry.nodeId;
+            const focused = () => entry.nodeId === (props.node || '');
             return (
               <PhonePanel
                 test={props.test}
-                blob={blob}
+                blob={entry.blob}
+                nodeId={entry.nodeId}
                 step={props.selected?.step ?? null}
                 nav={props.nav}
                 active={active()}
                 focused={focused()}
-                onFocus={() =>
-                  props.nav.goFrame(props.selected, blob.nodeId || '')
-                }
+                onFocus={() => props.nav.goFrame(props.selected, entry.nodeId)}
               />
             );
           }}

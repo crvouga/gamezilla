@@ -53,8 +53,6 @@ apps/api/.cache/
 apps/emqx/.cache/
 apps/emqx/data/
 apps/postgres/data/
-apps/minio/data/
-apps/minio/.cache/
 
 # Legacy local PostgreSQL cluster paths (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.postgres/

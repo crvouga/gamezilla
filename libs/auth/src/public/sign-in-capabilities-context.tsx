@@ -2,7 +2,6 @@ import { createContext, type JSX, useContext } from 'solid-js';
 
 export type SignInCapabilities = {
   readonly google: boolean;
-  readonly devOauth: boolean;
   /**
    * False while sync paint is not ready or the local `client_config` watch has
    * not hydrated. Callers must not treat missing methods as “server has none
@@ -13,7 +12,6 @@ export type SignInCapabilities = {
 
 const DEFAULT_SIGN_IN_CAPABILITIES: SignInCapabilities = {
   google: false,
-  devOauth: false,
   ready: true,
 };
 
@@ -30,9 +28,6 @@ export function SignInCapabilitiesProvider(props: {
   const value: SignInCapabilities = {
     get google() {
       return props.value.google;
-    },
-    get devOauth() {
-      return props.value.devOauth;
     },
     get ready() {
       return props.value.ready;

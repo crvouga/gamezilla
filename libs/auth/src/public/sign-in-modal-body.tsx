@@ -8,13 +8,11 @@ import { Show } from 'solid-js';
 export function SignInModalBody(props: {
   methodsLoading?: boolean | undefined;
   googleAvailable: boolean;
-  devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onPressGoogle: () => void;
-  onPressDev: () => void;
 }): JSX.Element {
   const methodsLoading = () => props.methodsLoading === true;
-  const anyMethod = () => props.googleAvailable || props.devOauthAvailable;
+  const anyMethod = () => props.googleAvailable;
 
   return (
     <ModalBody>
@@ -35,16 +33,7 @@ export function SignInModalBody(props: {
             action="signIn"
             theme="light"
             onClick={() => props.onPressGoogle()}
-          />
-        </Show>
-
-        <Show when={!methodsLoading() && props.devOauthAvailable}>
-          <SocialSignInButton
-            provider="dev"
-            action="signIn"
-            theme="neutral"
-            onClick={() => props.onPressDev()}
-            dataSet={{ testid: Handles.authMethodDev }}
+            dataSet={{ testid: Handles.authMethodGoogle }}
           />
         </Show>
 

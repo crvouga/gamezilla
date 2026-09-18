@@ -2,6 +2,10 @@ import {
   buildAuthTrustedOrigins,
   type CreateAuthAppProviders,
 } from '@pkgs/auth/server';
+import {
+  GOOGLE_PRODUCTION_ENDPOINTS,
+  type GoogleOauthEndpoints,
+} from '@pkgs/auth/shared';
 import type { SecretStore } from '@pkgs/secret-store';
 
 import { ApiSecretName } from './secret-names';
@@ -21,18 +25,34 @@ export type AuthBootConfig = {
   readonly googleClientId: string | null;
   readonly googleClientSecret: string | null;
   readonly googleEnabled: boolean;
+  /** Where the Google conversation happens — production, or a local stand-in. */
+  readonly googleEndpoints: GoogleOauthEndpoints;
   readonly trustedOrigins: readonly string[];
-  /** Dev social OAuth (JSON POST) — enabled when secretsEnv is `dev`. */
-  readonly enableDev: boolean;
   readonly providers: CreateAuthAppProviders;
 };
+
+/**
+ * A simulated provider serves Google's paths from one origin; production
+ * spreads them across three hosts.
+ */
+function googleEndpointsFor(idpOrigin: string | null): GoogleOauthEndpoints {
+  if (idpOrigin === null) return GOOGLE_PRODUCTION_ENDPOINTS;
+  const base = idpOrigin.replace(/\/$/, '');
+  return {
+    authorizeUrl: `${base}/o/oauth2/v2/auth`,
+    tokenUrl: `${base}/token`,
+    userinfoUrl: `${base}/v1/userinfo`,
+  };
+}
 
 export async function loadAuthBootConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
-  readonly secretsEnv: string;
+  /** Dynamic localhost stack web origin for OAuth callbacks. */
+  readonly webClientOrigin?: string | null;
+  readonly googleIdpOrigin?: string | null;
 }): Promise<AuthBootConfig> {
-  const { secretStore, secretsEnv } = args;
+  const { secretStore } = args;
   const secret = (
     await secretStore.getRequired(ApiSecretName.authSecret)
   ).readSecretValue();
@@ -47,16 +67,15 @@ export async function loadAuthBootConfig(args: {
     )?.readSecretValue()
   );
   const googleEnabled = googleClientId !== null && googleClientSecret !== null;
-  const enableDev = secretsEnv === 'dev';
+  const googleEndpoints = googleEndpointsFor(args.googleIdpOrigin ?? null);
 
   const override = args.apiUrlOverride?.trim();
   const baseURL =
     override !== undefined && override !== null && override.length > 0
       ? override.replace(/\/$/, '')
-      : (await secretStore.getRequired(ApiSecretName.apiUrl))
-          .readSecretValue()
-          .replace(/\/$/, '');
-  const webClientOrigin = resolveWebClientOrigin(baseURL);
+      : (await secretStore.getRequired(ApiSecretName.apiUrl)).readSecretValue();
+  const webClientOrigin =
+    args.webClientOrigin?.trim() || resolveWebClientOrigin(baseURL);
 
   const providers: CreateAuthAppProviders = {
     ...(googleEnabled && googleClientId !== null && googleClientSecret !== null
@@ -64,10 +83,10 @@ export async function loadAuthBootConfig(args: {
           google: {
             clientId: googleClientId,
             clientSecret: googleClientSecret,
+            endpoints: googleEndpoints,
           },
         }
       : {}),
-    ...(enableDev ? { dev: { enabled: true as const } } : {}),
   };
 
   return {
@@ -77,11 +96,11 @@ export async function loadAuthBootConfig(args: {
     googleClientId,
     googleClientSecret,
     googleEnabled,
+    googleEndpoints,
     trustedOrigins: buildAuthTrustedOrigins({
       apiBaseURL: baseURL,
       clientWebOrigins: [webClientOrigin],
     }),
-    enableDev,
     providers,
   };
 }

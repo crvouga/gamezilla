@@ -12,4 +12,8 @@ export {
   EMQX_VERSION,
   EMQX_WS_PORT,
 } from './ports';
-export { type EmqxServerHandle, startEmqxServer } from './start';
+export {
+  type EmqxServerHandle,
+  type StartEmqxServerOptions,
+  startEmqxServer,
+} from './start';

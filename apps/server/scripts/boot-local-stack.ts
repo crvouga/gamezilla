@@ -1,29 +1,48 @@
 // @io-wall-ok
 /**
- * Boot loopback Postgres + MinIO + EMQX for CI / fidelity-max tests.
+ * Boot loopback Postgres + S3rver + EMQX for CI / fidelity-max tests.
  * Not used by `bun dev`.
  */
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { startEmqxServer } from '@pkgs/emqx-server';
-import { startMinioServer } from '@pkgs/minio-server';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
+import {
+  S3_ACCESS_KEY_ID,
+  S3_BUCKET,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
+  startS3Server,
+} from '@pkgs/s3-server';
 
 import { runLocalMigrate } from './run-local-postgres-migrate';
 import { runLocalSeed } from './run-local-postgres-seed';
 
 export type LocalStackHandle = {
+  readonly s3: Readonly<Record<string, string>>;
   stop(): Promise<void>;
 };
 
 export async function bootLocalStack(): Promise<LocalStackHandle> {
   const postgres = await startEmbeddedPostgres();
-  const minio = await startMinioServer();
+  const s3 = await startS3Server({
+    directory: mkdtempSync(join(tmpdir(), 's3-')),
+  });
   const emqx = await startEmqxServer();
   await runLocalMigrate();
   await runLocalSeed();
   return {
+    s3: {
+      S3_ACCESS_KEY_ID,
+      S3_SECRET_ACCESS_KEY,
+      S3_BUCKET,
+      S3_ENDPOINT: s3.endpoint,
+      S3_REGION,
+    },
     async stop() {
       emqx.stop();
-      minio.stop();
+      await s3.stop();
       await postgres.stop();
     },
   };

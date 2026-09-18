@@ -182,10 +182,15 @@ async function resolveEmqxWssUrlForClientConfig(args: {
     args.apiUrlOverride?.trim() ||
     (await readOptionalSecretValue(args.secretStore, ApiSecretName.apiUrl)) ||
     '';
+  const configured = await readOptionalSecretValue(
+    args.secretStore,
+    PubsubSecretName.wssUrl
+  );
+  if (configured !== null) return configured;
   if (apiUrl.length > 0 && isLocalApiOrigin(apiUrl)) {
     return LOCAL_EMQX_WSS_URL;
   }
-  return readOptionalSecretValue(args.secretStore, PubsubSecretName.wssUrl);
+  return null;
 }
 
 async function buildDesiredClientConfig(args: {
@@ -211,7 +216,6 @@ async function buildDesiredClientConfig(args: {
   ]);
   return {
     google: auth.googleEnabled,
-    devOauth: auth.enableDev,
     billing: args.billingConfigured,
     tts: args.ttsConfigured,
     llm: args.llmConfigured,

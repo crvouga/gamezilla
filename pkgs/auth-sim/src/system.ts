@@ -1,8 +1,4 @@
-import {
-  AUTH_SESSION_TTL_MS,
-  IDP_PROVIDER_DEV,
-  IDP_PROVIDER_GOOGLE,
-} from '@pkgs/auth/shared/auth-constants';
+import { AUTH_SESSION_TTL_MS } from '@pkgs/auth/shared/auth-constants';
 import {
   defineAction,
   defineProperty,
@@ -18,8 +14,8 @@ import {
   dispatchSessionExchange,
   dispatchSignOut,
   dispatchStealBearer,
-  type OauthProvider,
 } from './dispatch';
+import { IDP_SUBJECTS } from './idp-node';
 import { assertAuthInvariants, authFingerprint } from './invariants';
 import { migrateAuthSchema, startActor, startStore } from './nodes';
 import type { AuthFabric, AuthSurface } from './types';
@@ -28,8 +24,7 @@ function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
-const SUBJECTS = ['alice', 'bob', 'carol'] as const;
-const PROVIDERS = [IDP_PROVIDER_GOOGLE, IDP_PROVIDER_DEV] as const;
+const SUBJECTS = IDP_SUBJECTS;
 const CALLBACK_URLS = [
   'http://callback.test/sso',
   'gamezilla://sso-callback',
@@ -40,24 +35,18 @@ const CALLBACK_URLS = [
 export type AuthArgs = {
   readonly fabric: AuthFabric;
   readonly clientCount: number;
-  readonly enableDev: boolean;
-  readonly enableGoogle: boolean;
 };
 
-/** sqlite-mem, two clients, both providers on. */
+/** sqlite-mem, two clients. */
 export const AUTH_ARGS: AuthArgs = {
   fabric: 'sqlite-mem',
   clientCount: 2,
-  enableDev: true,
-  enableGoogle: true,
 };
 
 export const arbAuthArgs = (): fc.Arbitrary<AuthArgs> =>
   fc.record({
     fabric: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
     clientCount: fc.integer({ min: 1, max: 3 }),
-    enableDev: fc.boolean(),
-    enableGoogle: fc.boolean(),
   });
 
 export function caps(s: AuthSurface): string[] {
@@ -119,17 +108,21 @@ export const advanceClock = defineAction({
   },
 });
 
+/** Make the provider's token endpoint fail, the way a real outage would. */
 export const setGoogleFault = defineAction({
   name: 'setGoogleFault',
   sample: () => gen(fc.boolean()),
-  act: (s: AuthSurface, fault: boolean) => {
-    s.store.sim.googleFault = fault;
+  act: async (s: AuthSurface, fault: boolean) => {
+    const store = s.store.idp.ctx.store;
+    await store.setFaults({
+      ...(await store.faults()),
+      tokenEndpoint: fault ? 'server_error' : 'ok',
+    });
   },
 });
 
 export type OauthStartArgs = {
   readonly clientId: string;
-  readonly provider: OauthProvider;
   readonly callbackUrl: string;
 };
 
@@ -141,18 +134,16 @@ export const oauthStart = defineAction({
     gen(
       fc.record({
         clientId: fc.constantFrom(...clientIds(s)),
-        provider: fc.constantFrom(...PROVIDERS),
         callbackUrl: fc.constantFrom(...CALLBACK_URLS),
       })
     ),
   act: async (s: AuthSurface, args: OauthStartArgs) => {
-    await dispatchOauthStart(s, args.clientId, args.provider, args.callbackUrl);
+    await dispatchOauthStart(s, args.clientId, args.callbackUrl);
   },
 });
 
 export type OauthApproveArgs = {
   readonly clientId: string;
-  readonly provider: OauthProvider;
   readonly subject: string;
 };
 
@@ -164,12 +155,11 @@ export const oauthApprove = defineAction({
     gen(
       fc.record({
         clientId: fc.constantFrom(...clientIds(s)),
-        provider: fc.constantFrom(...PROVIDERS),
         subject: fc.constantFrom(...SUBJECTS),
       })
     ),
   act: async (s: AuthSurface, args: OauthApproveArgs) => {
-    await dispatchOauthApprove(s, args.clientId, args.provider, args.subject);
+    await dispatchOauthApprove(s, args.clientId, args.subject);
   },
 });
 
@@ -240,8 +230,6 @@ export const auth = defineSystem<AuthSurface, AuthArgs>({
   async create(session, args): Promise<AuthSurface> {
     const store = await startStore(session.fork('store'), {
       fabric: args.fabric,
-      enableDev: args.enableDev,
-      enableGoogle: args.enableGoogle,
     });
     const clients = new Map(
       range(args.clientCount).map((i) => [`c${i}`, startActor()] as const)

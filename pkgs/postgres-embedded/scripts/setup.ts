@@ -5,16 +5,19 @@
 import {
   clusterLooksHealthy,
   createEmbeddedPostgres,
-  DATA_DIR,
+  defaultClusterConfig,
   ensureClusterInitialised,
 } from '../src/cluster';
 
-const pg = createEmbeddedPostgres();
-if (clusterLooksHealthy()) {
+const config = defaultClusterConfig();
+const pg = createEmbeddedPostgres(config);
+if (clusterLooksHealthy(config)) {
   process.stdout.write(
-    `[postgres] setup complete (existing cluster) ${DATA_DIR}\n`
+    `[postgres] setup complete (existing cluster) ${config.dataDir}\n`
   );
 } else {
-  await ensureClusterInitialised(pg);
-  process.stdout.write(`[postgres] setup complete (initialised) ${DATA_DIR}\n`);
+  await ensureClusterInitialised(pg, config);
+  process.stdout.write(
+    `[postgres] setup complete (initialised) ${config.dataDir}\n`
+  );
 }

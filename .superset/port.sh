@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Per-workspace port block so parallel Superset workspaces can run `dev` (and
 # their sidecars) at once. apps/product pins 5173 with strictPort, and the
-# embedded Postgres / MinIO sidecars pin 15432 / 9000 / 9001, so every
-# workspace needs its own block of ports rather than one.
+# embedded Postgres sidecar takes `POSTGRES_PORT`, so every workspace needs its
+# own block of ports rather than one.
 #
 # The workspace ID hashes to a preferred block for stability across restarts;
 # if any port in that block is taken -- by a colliding workspace ID, or by a
@@ -10,9 +10,9 @@
 # instead of letting a service die on `address already in use`.
 #
 # Block layout (offsets from the block base, consumed by @pkgs/postgres-embedded
-# and @pkgs/minio-server via the same env vars):
+# via the same env vars):
 #   +0 VITE_PORT / PREVIEW_PORT     +1 POSTGRES_PORT
-#   +2 MINIO_API_PORT               +3 MINIO_CONSOLE_PORT
+#   +2, +3 stay slack: the object-store and MQTT sidecars take OS-assigned ports.
 #
 # EMQX (1883 / 8083 / 18083) and the e2e harness / wrangler preview ports stay
 # machine-wide singletons: only one workspace at a time may bind them.
@@ -89,5 +89,3 @@ export VITE_PORT="$SUPERSET_PORT_BASE"
 export VITE_PORT_PREFERRED="$SUPERSET_PORT_BASE_PREFERRED"
 export PREVIEW_PORT="$VITE_PORT"
 export POSTGRES_PORT=$((SUPERSET_PORT_BASE + 1))
-export MINIO_API_PORT=$((SUPERSET_PORT_BASE + 2))
-export MINIO_CONSOLE_PORT=$((SUPERSET_PORT_BASE + 3))

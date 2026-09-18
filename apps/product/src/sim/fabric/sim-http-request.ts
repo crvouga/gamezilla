@@ -11,13 +11,15 @@ export function requestMethod(
   return 'GET';
 }
 
+/** Absolute (or raw) URL of a request, whatever shape the caller passed. */
+export function requestHref(input: RequestInfo | URL): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.href;
+  return input.url;
+}
+
 export function requestPath(input: RequestInfo | URL): string {
-  const href =
-    typeof input === 'string'
-      ? input
-      : input instanceof URL
-        ? input.href
-        : input.url;
+  const href = requestHref(input);
   try {
     return new URL(href).pathname;
   } catch {

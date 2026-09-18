@@ -1,52 +1,118 @@
 // @io-wall-ok
 import { spawn } from 'node:child_process';
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ensureEmqxBin } from '../scripts/ensure-emqx';
 import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
   EMQX_DASHBOARD_PASS,
   EMQX_DASHBOARD_PORT,
   EMQX_DASHBOARD_USER,
   EMQX_JWT_SECRET,
+  EMQX_MQTT_PASS,
+  EMQX_MQTT_PORT,
+  EMQX_MQTT_USER,
+  EMQX_WS_PORT,
 } from './ports';
 
 export type EmqxServerHandle = {
   readonly dashboardPort: number;
+  readonly mqttPort: number;
+  readonly wsPort: number;
+  readonly dataDir: string;
   stop(): void;
 };
 
-const APP_DIR = join(import.meta.dirname, '..');
-const DATA_DIR = join(APP_DIR, 'data');
-const ETC_DIR = join(DATA_DIR, 'etc');
+export type StartEmqxServerOptions = {
+  readonly mqttPort?: number;
+  readonly wsPort?: number;
+  readonly dashboardPort?: number;
+  /** A distinct directory + node name is what allows a second broker. */
+  readonly dataDir?: string;
+  readonly nodeName?: string;
+};
 
-export async function startEmqxServer(): Promise<EmqxServerHandle> {
+const APP_DIR = join(import.meta.dirname, '..');
+const DEFAULT_DATA_DIR = join(APP_DIR, 'data');
+
+/** Seed the config + bootstrap files a fresh data directory needs. */
+export function ensureEmqxDataDir(dataDir: string): void {
+  const etcDir = join(dataDir, 'etc');
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(etcDir, { recursive: true });
+
+  const bootstrap = join(dataDir, 'api-keys.bootstrap');
+  if (!existsSync(bootstrap)) {
+    writeFileSync(bootstrap, `${EMQX_API_KEY}:${EMQX_API_SECRET}\n`, 'utf8');
+  }
+  copyFileSync(join(APP_DIR, 'config', 'emqx.conf'), join(etcDir, 'emqx.conf'));
+
+  const users = join(dataDir, 'auth-built-in-db-bootstrap.csv');
+  if (!existsSync(users)) {
+    writeFileSync(
+      users,
+      `${EMQX_MQTT_USER}:{plain}${EMQX_MQTT_PASS}\n`,
+      'utf8'
+    );
+  }
+}
+
+function listenerEnv(args: {
+  readonly mqttPort: number;
+  readonly wsPort: number;
+  readonly dashboardPort: number;
+}): Record<string, string> {
+  return {
+    EMQX_LISTENERS__TCP__DEFAULT__BIND: `0.0.0.0:${String(args.mqttPort)}`,
+    EMQX_LISTENERS__WS__DEFAULT__BIND: `0.0.0.0:${String(args.wsPort)}`,
+    EMQX_DASHBOARD__LISTENERS__HTTP__BIND: `0.0.0.0:${String(args.dashboardPort)}`,
+  };
+}
+
+function authEnv(dataDir: string): Record<string, string> {
+  return {
+    EMQX_AUTHENTICATION__1__MECHANISM: 'jwt',
+    EMQX_AUTHENTICATION__1__FROM: 'password',
+    EMQX_AUTHENTICATION__1__ENABLE: 'true',
+    EMQX_AUTHENTICATION__1__USE_JWKS: 'false',
+    EMQX_AUTHENTICATION__1__ALGORITHM: 'hmac-based',
+    EMQX_AUTHENTICATION__1__SECRET: EMQX_JWT_SECRET,
+    EMQX_AUTHENTICATION__1__SECRET_BASE64_ENCODED: 'false',
+    EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: 'acl',
+    EMQX_AUTHENTICATION__2__MECHANISM: 'password_based',
+    EMQX_AUTHENTICATION__2__BACKEND: 'built_in_database',
+    EMQX_AUTHENTICATION__2__ENABLE: 'true',
+    EMQX_AUTHENTICATION__2__BOOTSTRAP_FILE: join(
+      dataDir,
+      'auth-built-in-db-bootstrap.csv'
+    ),
+  };
+}
+
+export async function startEmqxServer(
+  options?: StartEmqxServerOptions
+): Promise<EmqxServerHandle> {
+  const dataDir = options?.dataDir ?? DEFAULT_DATA_DIR;
+  const mqttPort = options?.mqttPort ?? EMQX_MQTT_PORT;
+  const wsPort = options?.wsPort ?? EMQX_WS_PORT;
+  const dashboardPort = options?.dashboardPort ?? EMQX_DASHBOARD_PORT;
+  ensureEmqxDataDir(dataDir);
   const bin = ensureEmqxBin();
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
     stdio: 'inherit',
     env: {
       ...process.env,
-      EMQX_NODE__DATA_DIR: DATA_DIR,
-      EMQX_NODE__ETC_DIR: ETC_DIR,
-      EMQX_NODE__NAME: 'emqx@127.0.0.1',
+      EMQX_NODE__DATA_DIR: dataDir,
+      EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
+      EMQX_NODE__NAME: options?.nodeName ?? 'emqx@127.0.0.1',
       EMQX_NODE__COOKIE: 'emqx_local',
-      EMQX_API_KEY__BOOTSTRAP_FILE: join(DATA_DIR, 'api-keys.bootstrap'),
+      EMQX_API_KEY__BOOTSTRAP_FILE: join(dataDir, 'api-keys.bootstrap'),
       EMQX_DASHBOARD__DEFAULT_USERNAME: EMQX_DASHBOARD_USER,
       EMQX_DASHBOARD__DEFAULT_PASSWORD: EMQX_DASHBOARD_PASS,
-      EMQX_AUTHENTICATION__1__MECHANISM: 'jwt',
-      EMQX_AUTHENTICATION__1__FROM: 'password',
-      EMQX_AUTHENTICATION__1__ENABLE: 'true',
-      EMQX_AUTHENTICATION__1__USE_JWKS: 'false',
-      EMQX_AUTHENTICATION__1__ALGORITHM: 'hmac-based',
-      EMQX_AUTHENTICATION__1__SECRET: EMQX_JWT_SECRET,
-      EMQX_AUTHENTICATION__1__SECRET_BASE64_ENCODED: 'false',
-      EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: 'acl',
-      EMQX_AUTHENTICATION__2__MECHANISM: 'password_based',
-      EMQX_AUTHENTICATION__2__BACKEND: 'built_in_database',
-      EMQX_AUTHENTICATION__2__ENABLE: 'true',
-      EMQX_AUTHENTICATION__2__BOOTSTRAP_FILE: join(
-        DATA_DIR,
-        'auth-built-in-db-bootstrap.csv'
-      ),
+      ...listenerEnv({ mqttPort, wsPort, dashboardPort }),
+      ...authEnv(dataDir),
     },
   });
 
@@ -55,7 +121,10 @@ export async function startEmqxServer(): Promise<EmqxServerHandle> {
   });
 
   return {
-    dashboardPort: EMQX_DASHBOARD_PORT,
+    dashboardPort,
+    mqttPort,
+    wsPort,
+    dataDir,
     stop() {
       if (emqx.exitCode !== null || emqx.killed) return;
       try {

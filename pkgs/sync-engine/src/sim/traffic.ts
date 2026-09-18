@@ -6,6 +6,7 @@ export type ClientTraffic = Exclude<SimTraffic, 'all'>;
 const HTTP_PREFIX = 'http:';
 const PUBSUB_PREFIX = 'pubsub:';
 const SERVER_HTTP = 'http:server';
+const SERVER_NODE_PREFIX = 'server:';
 const BROKER = 'pubsub:broker';
 const SERVER_PUB = 'pubsub:server';
 
@@ -43,6 +44,10 @@ export function syncEndpoint(nodeId: string): string {
 
 export function liveEndpoint(nodeId: string): string {
   return `${PUBSUB_PREFIX}${nodeId}`;
+}
+
+export function serverNodeEndpoint(nodeId: string): string {
+  return `${SERVER_NODE_PREFIX}${nodeId}`;
 }
 
 export { BROKER, SERVER_HTTP, SERVER_PUB };

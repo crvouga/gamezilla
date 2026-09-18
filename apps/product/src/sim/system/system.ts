@@ -24,7 +24,7 @@ import {
 import { nextPuzzleDifferent } from './chess-properties';
 import { anyActor } from './observations';
 import { PRODUCT_WALK_ACTIONS } from './pool-actions';
-import { captureSnapshot, devOauthSignIn } from './probes';
+import { captureSnapshot, googleOauthSignIn } from './probes';
 import { productScenarioActions } from './scenario-actions';
 import { productServerActions } from './server-actions';
 import { createProductSim, type ProductSim, productExtra } from './sim';
@@ -180,7 +180,7 @@ export const product = defineSystem<ProductSim>({
     partition,
     restoreNetwork,
     uiOp,
-    devOauthSignIn,
+    googleOauthSignIn,
     captureSnapshot,
     ...productServerActions,
     ...productScenarioActions,

@@ -3,6 +3,7 @@
  * (`in-process` / `bun-webview`).
  */
 
+import type { Client } from '@apps/client/shell/create-client';
 import type {
   ProductExtra,
   ProductHostName,
@@ -25,7 +26,12 @@ import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 
 import { wireProductRuntime } from '../../sim/setup/wire-product-runtime';
-import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
+import {
+  isLiveBrowserMode,
+  type OpenSimOptions,
+  resolveSimMode,
+  type SimMode,
+} from './mode';
 import {
   clearNodeLocalStoragePolyfill,
   ensureNodeLocalStoragePolyfill,
@@ -43,7 +49,9 @@ export type { SimActor };
 export type OpenSim = Run<ProductSim>;
 
 function resolveHostName(options: OpenSimOptions | undefined): ProductHostName {
-  return resolveSimMode(options) === 'real' ? 'bun-webview' : 'in-process';
+  return isLiveBrowserMode(resolveSimMode(options))
+    ? 'bun-webview'
+    : 'in-process';
 }
 
 async function restoreSnapshot(
@@ -51,7 +59,7 @@ async function restoreSnapshot(
   snapshot: SimSystemSnapshot
 ): Promise<void> {
   const clientSqlByAddress = new Map<string, SimSql>();
-  const liveClients = new Map<string, ReturnType<Sim['spawnClient']>>();
+  const liveClients = new Map<string, Client>();
   const snapshotCtx: SystemSnapshotCtx = {
     sim,
     clientIds: snapshot.clientIds,
@@ -91,8 +99,8 @@ export async function openSim(
 ): Promise<OpenSim> {
   ensureNodeLocalStoragePolyfill();
   const mode = resolveSimMode(options);
-  if (mode === 'real') {
-    process.env['SIM_MODE'] = 'real';
+  if (mode !== 'fast') {
+    process.env['SIM_MODE'] = mode;
   }
   const reporting = simReportEnabled();
   const callSite = reporting ? testCallSite(new Error().stack) : null;

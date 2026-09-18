@@ -90,7 +90,7 @@ export async function actorHtml(
   );
 }
 
-/** Token length recorded by the `devOauthSignIn` action (`null` = no token). */
+/** Token length recorded by the `googleOauthSignIn` action (`null` = no token). */
 export function oauthTokenLength(s: ProductSim): number | null {
   return s.probes.oauthTokenLength;
 }

@@ -1,4 +1,8 @@
-import type { HtmlReportTest, ReportSnapshotBlob } from '@pkgs/sim';
+import type {
+  HtmlReportTest,
+  ReportSnapshotBlob,
+  ReportStepHit,
+} from '@pkgs/sim';
 
 import { blobDataUrl, blobText } from './frames';
 import type { Route } from './hash';
@@ -10,114 +14,93 @@ export type PhoneLayers = {
   paintGen: number;
 };
 
-function ensureHtml(frameEl: HTMLDivElement): {
-  front: HTMLIFrameElement;
-  back: HTMLIFrameElement;
-} {
-  frameEl.querySelectorAll('img.shot').forEach((el) => el.remove());
-  const layers = frameEl.querySelectorAll('iframe.phone-layer');
-  if (layers.length >= 2) {
-    return {
-      front: layers[0] as HTMLIFrameElement,
-      back: layers[1] as HTMLIFrameElement,
-    };
-  }
-  layers.forEach((el) => el.remove());
-  const front = document.createElement('iframe');
-  front.className = 'phone-layer is-front';
-  front.sandbox = '';
-  front.width = String(PHONE_W);
-  front.height = String(PHONE_H);
-  front.title = 'front';
-  const back = document.createElement('iframe');
-  back.className = 'phone-layer is-back';
-  back.sandbox = '';
-  back.width = String(PHONE_W);
-  back.height = String(PHONE_H);
-  back.title = 'back';
-  frameEl.appendChild(front);
-  frameEl.appendChild(back);
-  return { front, back };
+function visibleLayer(frameEl: HTMLDivElement): HTMLElement | null {
+  return frameEl.querySelector<HTMLElement>(
+    'iframe.phone-layer.is-front, img.shot.is-front'
+  );
 }
 
-function ensurePng(frameEl: HTMLDivElement): {
-  front: HTMLImageElement;
-  back: HTMLImageElement;
-} {
-  frameEl.querySelectorAll('iframe.phone-layer').forEach((el) => el.remove());
-  const imgs = frameEl.querySelectorAll('img.shot');
-  if (imgs.length >= 2) {
-    return {
-      front: imgs[0] as HTMLImageElement,
-      back: imgs[1] as HTMLImageElement,
-    };
-  }
-  imgs.forEach((el) => el.remove());
-  const front = document.createElement('img');
-  front.className = 'shot is-front';
-  front.alt = '';
-  const back = document.createElement('img');
-  back.className = 'shot is-back';
-  back.alt = '';
-  frameEl.appendChild(front);
-  frameEl.appendChild(back);
-  return { front, back };
+function clearPendingLayers(frameEl: HTMLDivElement): void {
+  frameEl
+    .querySelectorAll<HTMLElement>(
+      'iframe.phone-layer.is-back, img.shot.is-back'
+    )
+    .forEach((layer) => layer.remove());
 }
 
-function swapOnLoad(
-  front: HTMLElement,
-  back: HTMLElement,
-  layers: PhoneLayers,
-  gen: number
-): void {
-  const onLoad = () => {
-    if (layers.paintGen !== gen) return;
-    front.classList.remove('is-front');
-    front.classList.add('is-back');
-    back.classList.remove('is-back');
-    back.classList.add('is-front');
-  };
-  if (back instanceof HTMLIFrameElement) back.onload = onLoad;
-  if (back instanceof HTMLImageElement) back.onload = onLoad;
+function promoteLayer(frameEl: HTMLDivElement, layer: HTMLElement): void {
+  frameEl
+    .querySelectorAll<HTMLElement>(
+      'iframe.phone-layer.is-front, img.shot.is-front'
+    )
+    .forEach((old) => {
+      if (old !== layer) old.remove();
+    });
+  layer.classList.replace('is-back', 'is-front');
+}
+
+function createIframe(): HTMLIFrameElement {
+  const frame = document.createElement('iframe');
+  frame.className = 'phone-layer is-back';
+  frame.sandbox = '';
+  frame.width = String(PHONE_W);
+  frame.height = String(PHONE_H);
+  frame.title = 'snapshot';
+  return frame;
+}
+
+function createImage(): HTMLImageElement {
+  const image = document.createElement('img');
+  image.className = 'shot is-back';
+  image.alt = '';
+  return image;
 }
 
 export function paintHtmlLayer(layers: PhoneLayers, srcdoc: string): void {
-  const { front: f0, back: b0 } = ensureHtml(layers.frameEl);
-  const front =
-    layers.frameEl.querySelector<HTMLIFrameElement>(
-      'iframe.phone-layer.is-front'
-    ) || f0;
-  const back =
-    layers.frameEl.querySelector<HTMLIFrameElement>(
-      'iframe.phone-layer.is-back'
-    ) || b0;
+  const { frameEl } = layers;
+  clearPendingLayers(frameEl);
+  const oldVisible = visibleLayer(frameEl);
+  const next = createIframe();
   layers.paintGen += 1;
   const gen = layers.paintGen;
-  if (!front.getAttribute('srcdoc')) {
-    front.setAttribute('srcdoc', srcdoc);
-    return;
-  }
-  swapOnLoad(front, back, layers, gen);
-  if (back.getAttribute('srcdoc') === srcdoc) back.removeAttribute('srcdoc');
-  back.setAttribute('srcdoc', srcdoc);
+  next.addEventListener(
+    'load',
+    () => {
+      if (layers.paintGen !== gen) {
+        if (next.classList.contains('is-back')) next.remove();
+        return;
+      }
+      promoteLayer(frameEl, next);
+    },
+    { once: true }
+  );
+  frameEl.appendChild(next);
+  next.setAttribute('srcdoc', srcdoc);
+  if (!oldVisible) next.classList.replace('is-back', 'is-front');
 }
 
 export function paintPngLayer(layers: PhoneLayers, url: string | null): void {
-  const { front: f0, back: b0 } = ensurePng(layers.frameEl);
-  const front =
-    layers.frameEl.querySelector<HTMLImageElement>('img.shot.is-front') || f0;
-  const back =
-    layers.frameEl.querySelector<HTMLImageElement>('img.shot.is-back') || b0;
+  if (!url) return;
+  const { frameEl } = layers;
+  clearPendingLayers(frameEl);
+  const oldVisible = visibleLayer(frameEl);
+  const next = createImage();
   layers.paintGen += 1;
   const gen = layers.paintGen;
-  if (!front.getAttribute('src')) {
-    if (url) front.setAttribute('src', url);
-    return;
-  }
-  if (!url) return;
-  swapOnLoad(front, back, layers, gen);
-  if (back.getAttribute('src') === url) back.removeAttribute('src');
-  back.setAttribute('src', url);
+  next.addEventListener(
+    'load',
+    () => {
+      if (layers.paintGen !== gen) {
+        if (next.classList.contains('is-back')) next.remove();
+        return;
+      }
+      promoteLayer(frameEl, next);
+    },
+    { once: true }
+  );
+  frameEl.appendChild(next);
+  next.setAttribute('src', url);
+  if (!oldVisible) next.classList.replace('is-back', 'is-front');
 }
 
 export function applyPhoneScale(frameEl: HTMLDivElement, s: number): void {
@@ -138,7 +121,7 @@ export function paintPhoneBlob(opts: {
   blob: ReportSnapshotBlob;
   route: Route;
   stepActorId: string | undefined;
-  hit: import('@pkgs/sim').ReportStepHit | undefined;
+  hit: ReportStepHit | undefined;
   frameCss: string;
 }): void {
   const pressHit =
@@ -154,10 +137,6 @@ export function paintPhoneBlob(opts: {
     return;
   }
   const html = blobText(opts.test, opts.blob);
-  paintHtmlLayer(
-    opts.layers,
-    html !== null
-      ? frameSrcdoc(html, opts.frameCss, pressHit)
-      : '<html><body></body></html>'
-  );
+  if (html === null) return;
+  paintHtmlLayer(opts.layers, frameSrcdoc(html, opts.frameCss, pressHit));
 }

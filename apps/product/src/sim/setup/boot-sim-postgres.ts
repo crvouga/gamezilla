@@ -12,16 +12,19 @@ export type SimPostgresHandle = {
   stop(): Promise<void>;
 };
 
-export function bootSimPostgres(): Promise<SimPostgresHandle> {
+/** `databaseUrl` defaults to the shared local cluster; a stack passes its own. */
+export function bootSimPostgres(
+  databaseUrl: string = LOCAL_DATABASE_URL
+): Promise<SimPostgresHandle> {
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
-    connectionString: LOCAL_DATABASE_URL,
+    connectionString: databaseUrl,
     dbScope,
     max: 4,
   });
   return Promise.resolve({
     sqlClient,
-    databaseUrl: LOCAL_DATABASE_URL,
+    databaseUrl,
     async stop() {
       await pool.end();
     },

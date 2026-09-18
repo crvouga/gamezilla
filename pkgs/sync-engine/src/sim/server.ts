@@ -8,7 +8,10 @@ import type { MutationRegistry } from '../mutations/core/types';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { QueryRegistry } from '../queries/core/types';
 import { notifyChannels } from '../server/notify-channels';
-import { createMonotonicCheckpoint } from '../shared/commit-checkpoint';
+import {
+  createMonotonicCheckpoint,
+  type MonotonicCheckpoint,
+} from '../shared/commit-checkpoint';
 import { withFrameworkTopicMap } from '../shared/framework-topic-map';
 import type { TopicMap } from '../shared/topic-map';
 import type { EdgeFaultController } from './edge-faults';
@@ -53,6 +56,8 @@ export type OpenSimServerArgs = {
   readonly rowImageFanout?: boolean;
   readonly faults?: EdgeFaultController;
   readonly topicMap?: TopicMap;
+  /** Shared across simulated nodes behind the ingress balancer. */
+  readonly checkpoint?: MonotonicCheckpoint;
   /** Reuse an existing server DB (server crash/restart with preserveDb). */
   readonly existingDb?: SqlClient;
   readonly onDisposeDb?: () => Promise<void>;
@@ -137,12 +142,14 @@ export async function openSimServer(
     isAnon: true,
   };
 
-  const checkpoints = createMonotonicCheckpoint(
-    args.now,
-    args.checkpointFloor !== undefined
-      ? { initialLast: args.checkpointFloor }
-      : undefined
-  );
+  const checkpoints =
+    args.checkpoint ??
+    createMonotonicCheckpoint(
+      args.now,
+      args.checkpointFloor !== undefined
+        ? { initialLast: args.checkpointFloor }
+        : undefined
+    );
 
   const ctx = buildHandlerCtx({
     db,

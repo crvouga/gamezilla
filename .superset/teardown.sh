@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Release this workspace's dev listeners and sidecar state. No containers or
-# daemons to stop: the local stack (embedded Postgres, EMQX, MinIO) is spawned
+# daemons to stop: the local stack (embedded Postgres, S3rver, EMQX) is spawned
 # per-command and everything else lives inside the worktree, which Superset
 # removes.
 set -euo pipefail
@@ -32,5 +32,5 @@ if command -v lsof >/dev/null 2>&1; then
   done
 fi
 
-# A reused port block must never inherit a half-initialised cluster or bucket.
-rm -rf pkgs/postgres-embedded/data pkgs/minio-server/data
+# A reused port block must never inherit a half-initialised cluster.
+rm -rf pkgs/postgres-embedded/data

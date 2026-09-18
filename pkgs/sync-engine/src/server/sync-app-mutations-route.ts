@@ -41,15 +41,6 @@ function asNestedTxClient(tx: SqlClient): SqlClient {
     prepare: (q) => tx.prepare(q),
   };
 }
-
-/**
- * Per-user serialization relies on the outer request transaction + unique
- * mutation idempotency keys. No pg_advisory_* (not portable).
- */
-async function acquireLock(_tx: SqlClient, _lockUserId: string): Promise<void> {
-  // Portable path: no-op.
-}
-
 function mergeCaptures(
   captures: readonly WriteCaptureSnapshot[]
 ): WriteCaptureSnapshot {
@@ -147,7 +138,6 @@ async function prepareMutationNotify(
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
   return db.transaction(async (tx) => {
-    await acquireLock(tx, auth.actorId);
     const nested = asNestedTxClient(tx);
     const result = await processMutationsBatch({
       serverDb: nested,

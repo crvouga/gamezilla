@@ -657,10 +657,6 @@ msgstr "Design system explorer"
 msgid "dev"
 msgstr "dev"
 
-#: libs/client-config/src/root/client/client-config-entity-card.tsx
-msgid "Dev OAuth"
-msgstr "Dev OAuth"
-
 #: apps/client/src/shell/commands/app-commands.tsx
 #: libs/chess/src/public/chess-settings/chess-settings-developer-screen.tsx
 #: libs/chess/src/public/chess-settings/chess-settings-screen.tsx
