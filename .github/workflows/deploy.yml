@@ -23,6 +23,9 @@ permissions:
   contents: read
   actions: write
   id-token: write
+  # Pre-checkout guard reads PR association for the pushed commit
+  # (GET /repos/{owner}/{repo}/commits/{sha}/pulls → "Pull requests": read).
+  pull-requests: read
 
 on:
   push:
@@ -47,10 +50,11 @@ jobs:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
-      # `main` only moves through a merged PR. GitHub branch protection — the
-      # real gate — is unavailable while this repo is private on a plan without
-      # it, so the pipeline refuses to deploy a commit that did not arrive
-      # through a pull request. Fails before checkout: nothing else runs.
+      # `main` only moves through a merged PR. Branch protection enforces that
+      # (tools/github-config/main-protection.json, applied by `bun run
+      # github:config`); this guard is the pipeline's own layer, so a direct
+      # push can never ship even if protection drifts. Fails before checkout:
+      # the deploy steps themselves never run.
       - name: Assert the commit came from a pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -64,6 +68,7 @@ jobs:
           echo "guard: ${GITHUB_SHA} arrived through ${prs} pull request(s)"
 
       - name: Checkout
+        id: checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
@@ -73,7 +78,8 @@ jobs:
           job: deploy-canary
           mode: restore
 
-      - uses: ./.github/actions/setup
+      - id: setup
+        uses: ./.github/actions/setup
 
       - uses: ./.github/actions/secrets-auth
         with:
@@ -97,7 +103,7 @@ jobs:
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
       - name: Write pipeline summary
-        if: always()
+        if: always() && steps.setup.outcome == 'success'
         env:
           DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
           DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
@@ -105,7 +111,7 @@ jobs:
         run: bun run tools/scripts/write-pipeline-summary.ts
 
       - uses: ./.github/actions/turbo-cache
-        if: always()
+        if: always() && steps.checkout.outcome == 'success'
         with:
           job: deploy-canary
           mode: save
