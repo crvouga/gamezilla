@@ -4,6 +4,10 @@
  * Two processes' worth of surface on one machine: the auth app on :4178 and
  * the simulated Google provider on its own port, with its own state. The
  * harness page drives the real popup flow between them.
+ *
+ * `GET /__harness/config` hands the suite the provider's origin — it takes an
+ * OS-assigned port, so the only other way to reach its `/__idp/*` control
+ * plane from a test process would be to scrape this process's stdout.
  */
 
 import { readFileSync } from 'node:fs';
@@ -89,6 +93,9 @@ Bun.serve({
       return new Response(CALLBACK_HTML, {
         headers: { 'content-type': 'text/html' },
       });
+    }
+    if (url.pathname === '/__harness/config') {
+      return Response.json({ idpOrigin: idp.origin });
     }
     if (url.pathname === '/' || url.pathname === '/index.html') {
       return new Response(html, { headers: { 'content-type': 'text/html' } });

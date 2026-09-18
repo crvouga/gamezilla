@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, test } from 'bun:test';
+import { beforeAll, beforeEach, describe, expect, test } from 'bun:test';
 
 import { evalJson, openView, waitFor, waitForHttp } from '../webview';
 
@@ -9,6 +9,28 @@ const POPUP_BLOCKED =
 
 beforeAll(async () => {
   await waitForHttp(ORIGIN);
+});
+
+/**
+ * Every scenario signs in as the same account, and the provider remembers the
+ * approval (as Google does) — so the *second* flow would find the scopes
+ * already granted and skip the consent screen, turning an ordering artifact
+ * into a failure. Wipe runtime state so each scenario starts with consent
+ * pending. `/__idp/*` is the provider's test-only control plane.
+ */
+async function resetIdp(): Promise<void> {
+  const config = await fetch(`${ORIGIN}/__harness/config`);
+  const { idpOrigin } = (await config.json()) as {
+    readonly idpOrigin: string;
+  };
+  const reset = await fetch(`${idpOrigin}/__idp/reset`, { method: 'POST' });
+  if (!reset.ok) {
+    throw new Error(`idp reset failed: ${reset.status}`);
+  }
+}
+
+beforeEach(async () => {
+  await resetIdp();
 });
 
 const INSTALL_OPEN_CAPTURE = `(function(){
