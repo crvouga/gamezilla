@@ -130,6 +130,11 @@ browser through `Bun.WebView`, which is macOS-only: they log a skip and exit 0
 on other platforms, and `turbo.json` marks both `cache: false` so a macOS result
 can never satisfy a Linux run. Do not re-enable caching for them.
 
+CI pins Bun `1.4.2` (`packageManager`, `.github/actions/setup`). Do not downgrade
+to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
+`@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
+wildcard to a `.tsx` file) fails on the runner while passing locally.
+
 `check:full` is the merge gate by convention, not by GitHub enforcement — the
 current plan cannot require a status check (branch protection returns
 `Upgrade to GitHub Pro or make this repository public`), so `/pr-ready`
