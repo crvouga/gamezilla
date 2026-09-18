@@ -1,0 +1,150 @@
+name: Deploy
+
+# `main` is what ships, in two stages:
+#
+#   canary-dev   — dev-scope rehearsal. Builds the real production bundle,
+#                  applies migrations to the dev database and runs
+#                  `wrangler deploy --dry-run` for all three workers. It serves
+#                  no traffic: prod is still the first environment to receive
+#                  worker code.
+#   release-prod — applies to production, then runs @apps/server#smoke
+#                  (HTTP probes against the client URL, /simulator and
+#                  /api/health). Runs only when canary-dev succeeded.
+#
+# SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
+# `deploy:prd` aliases, which force TURBO_UI=tui (a TTY UI).
+#
+# This never runs on pull requests: the dev scope is a shared singleton and
+# @libs/db#migrate / @libs/secrets#provision are not dry-run gated, so
+# concurrent PRs would clobber each other's dev migrations and secret state.
+# PRs get `bun run check:full` in .github/workflows/pr.yml instead.
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+  TURBO_LOG_ORDER: stream
+  TURBO_OUTPUT_LOGS: new-only
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  canary-dev:
+    name: deploy (dev rehearsal)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/turbo-cache
+        with:
+          job: deploy-canary
+          mode: restore
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: Deploy (dev rehearsal)
+        id: deploy
+        run: |
+          set -euo pipefail
+          # Heartbeat: turbo cache restore and long tasks can go quiet, and
+          # GitHub SIGTERMs a step with no log output (~10 min, exit 143).
+          (
+            while sleep 120; do
+              echo "deploy: still running $(date -u +%H:%M:%SZ)"
+            done
+          ) &
+          heartbeat_pid=$!
+          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
+          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+
+      - name: Write pipeline summary
+        if: always()
+        env:
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run tools/scripts/write-pipeline-summary.ts
+
+      - uses: ./.github/actions/turbo-cache
+        if: always()
+        with:
+          job: deploy-canary
+          mode: save
+
+  release-prod:
+    name: deploy:prd
+    needs: canary-dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment: production
+    env:
+      SECRETS_ENV: prd
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/turbo-cache
+        with:
+          job: deploy-prod
+          mode: restore
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: prd
+
+      - name: Deploy (production)
+        id: deploy
+        run: |
+          set -euo pipefail
+          (
+            while sleep 120; do
+              echo "deploy: still running $(date -u +%H:%M:%SZ)"
+            done
+          ) &
+          heartbeat_pid=$!
+          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
+          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+
+      - name: Write pipeline summary
+        if: always()
+        env:
+          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
+          DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run tools/scripts/write-pipeline-summary.ts
+
+      - uses: ./.github/actions/turbo-cache
+        if: always()
+        with:
+          job: deploy-prod
+          mode: save

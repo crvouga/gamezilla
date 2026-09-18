@@ -1,0 +1,84 @@
+name: PR
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+  TURBO_LOG_ORDER: stream
+  TURBO_OUTPUT_LOGS: new-only
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # One job, one check: `bun run check:full` — the same //#check:full leaf set
+  # the CD gate runs. New checks belong in //#check / //#check:full in turbo.json
+  # (or a `ci:*` root task), not in a new job here.
+  check:
+    name: check:full
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      # tools/scripts/check-static.ts scopes gitleaks to this PR's commit range
+      # when the event is a pull_request and both refs are present.
+      GH_EVENT: ${{ github.event_name }}
+      PR_BASE: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/turbo-cache
+        with:
+          job: pr-check
+          mode: restore
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: check:full
+        id: check
+        run: |
+          set -euo pipefail
+          # Heartbeat: turbo cache restore and long tasks can go quiet, and
+          # GitHub SIGTERMs a step with no log output (~10 min, exit 143).
+          (
+            while sleep 120; do
+              echo "check:full: still running $(date -u +%H:%M:%SZ)"
+            done
+          ) &
+          heartbeat_pid=$!
+          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
+          bun run check:full 2>&1 | tee "${RUNNER_TEMP}/check.log"
+
+      - name: Write pipeline summary
+        if: always()
+        env:
+          DEPLOY_OUTCOME: ${{ steps.check.outcome }}
+          DEPLOY_LOG_PATH: ${{ runner.temp }}/check.log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run tools/scripts/write-pipeline-summary.ts
+
+      - uses: ./.github/actions/turbo-cache
+        if: always()
+        with:
+          job: pr-check
+          mode: save

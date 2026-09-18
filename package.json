@@ -43,7 +43,7 @@
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "fc": "clear && bun run fmt && bun run check",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run tools/scripts/remove-empty-dirs.ts & wait",
-    "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
+    "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/pr.yml",
     "i18n:compile": "lingui compile --typescript --strict && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract --clean --overwrite",
     "inspect": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/inspect.ts",
