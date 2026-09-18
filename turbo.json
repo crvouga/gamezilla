@@ -3,6 +3,7 @@
   "ui": "stream",
   "concurrency": "50%",
   "globalDependencies": ["tsconfig.base.json"],
+  "globalEnv": ["SIM_FIDELITY", "POSTGRES_SCHEMA"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
