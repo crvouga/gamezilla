@@ -1,6 +1,6 @@
 /**
  * Online step: export Infisical secrets for `dev` + `prd` into
- * `.cache/secrets/` so `bun check` / `bun check:full` can run offline-first.
+ * `.cache/secrets/` so `bun check` can run offline-first.
  *
  * Usage: `bun run secrets:pull`
  */
@@ -91,9 +91,7 @@ async function main(): Promise<number> {
     `secrets:pull: fingerprint=${fingerprint.slice(0, 12)}… ` +
       `meta.pulledAt=${nowIso} (stale warn after ${String(ttlHours)}h)`
   );
-  console.log(
-    'secrets:pull: done. `bun check` / `bun check:full` will use the cache offline.'
-  );
+  console.log('secrets:pull: done. `bun check` will use the cache offline.');
   return 0;
 }
 

@@ -46,16 +46,12 @@ export async function runStep(
   step: CheckHealStep,
   repoRoot: string
 ): Promise<RunStepResult> {
-  const envKeys =
-    step.env !== undefined ? Object.keys(step.env).join(', ') : 'none';
-  healLog(
-    `step ${step.stepId}: starting \`bun run ${step.bunScript}\` (extra env: ${envKeys})`
-  );
+  healLog(`step ${step.stepId}: starting \`bun run ${step.bunScript}\``);
 
   const started = Date.now();
   const proc = Bun.spawn(['bun', 'run', step.bunScript], {
     cwd: repoRoot,
-    env: withForcedColorEnv({ ...process.env, ...step.env }),
+    env: withForcedColorEnv(),
     stdout: 'pipe',
     stderr: 'pipe',
   });

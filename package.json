@@ -13,13 +13,8 @@
     "billing:sync": "bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/billing billing:sync",
     "check": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts check",
     "check:api": "bun run tools/scripts/secrets-run.ts -- bun run --filter @apps/server check:api",
-    "check:ci": "echo 'deprecated: use bun check' && exit 1",
-    "check:ci:build": "echo 'deprecated: use bun check' && exit 1",
-    "check:ci:gates": "echo 'deprecated: use bun check' && exit 1",
-    "check:ci:verify": "echo 'deprecated: use bun check' && exit 1",
     "check:client": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts test:integration --filter=@apps/client",
-    "check:deployment-pipeline": "bun run check:full",
-    "check:full": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts check:full",
+    "check:coverage": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-coverage.ts",
     "check:gitleaks": "gitleaks detect --redact --verbose --no-banner --log-opts=-1",
     "check:heal": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/check-heal.ts",
     "check:secrets": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/run-check-secrets.ts",
@@ -69,7 +64,6 @@
     "test:product": "SIM_REPORT=0 turbo test -F @apps/product --force",
     "test:product:report": "bun run --filter @apps/product test:report",
     "test:product:report:open": "bun run --filter @apps/product report:open",
-    "test:surface": "bun run tools/scripts/check-test-surface.ts",
     "wipe": "git clean -xfd"
   },
   "overrides": {

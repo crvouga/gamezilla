@@ -8,6 +8,10 @@ permissions:
 on:
   pull_request:
     branches: [main]
+    # `edited` re-runs the gate when the title/body change so
+    # `//#ci:pr-template` re-validates the PR contract. All other leaves hit
+    # the Turbo cache, so a body edit costs one uncacheable task.
+    types: [opened, reopened, synchronize, edited]
   workflow_dispatch:
 
 env:
@@ -20,11 +24,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # One job, one check: `bun run check:full` — the same //#check:full leaf set
-  # the CD gate runs. New checks belong in //#check / //#check:full in turbo.json
-  # (or a `ci:*` root task), not in a new job here.
+  # One job, one check: `bun run check` — the same //#check leaf set the CD
+  # gate runs. New checks belong in //#check in turbo.json (or a `ci:*` root
+  # task), not in a new job here.
   check:
-    name: check:full
+    name: check
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -54,7 +58,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
 
-      - name: check:full
+      - name: check
         id: check
         run: |
           set -euo pipefail
@@ -62,12 +66,12 @@ jobs:
           # GitHub SIGTERMs a step with no log output (~10 min, exit 143).
           (
             while sleep 120; do
-              echo "check:full: still running $(date -u +%H:%M:%SZ)"
+              echo "check: still running $(date -u +%H:%M:%SZ)"
             done
           ) &
           heartbeat_pid=$!
           trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
-          bun run check:full 2>&1 | tee "${RUNNER_TEMP}/check.log"
+          bun run check 2>&1 | tee "${RUNNER_TEMP}/check.log"
 
       - name: Write pipeline summary
         if: always()
