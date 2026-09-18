@@ -54,6 +54,21 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
 
+      # TEMPORARY diagnostic — remove once the Linux resolution failure in
+      # @apps/product#test is understood.
+      - name: Diagnose bun module resolution
+        shell: bash
+        run: |
+          set -uo pipefail
+          bun --version
+          echo "--- apps/client node_modules/@pkgs"; ls apps/client/node_modules/@pkgs 2>&1 | head -5
+          echo "--- apps/product node_modules/@pkgs"; ls apps/product/node_modules/@pkgs 2>&1 | head -5
+          echo "--- pkgs/clock/src"; ls pkgs/clock/src
+          echo "--- resolve from apps/client"
+          (cd apps/client && bun -e 'console.log(import.meta.resolve("@pkgs/clock/solid"))') 2>&1 | tail -3
+          echo "--- resolve from apps/product"
+          (cd apps/product && bun -e 'console.log(import.meta.resolve("@pkgs/clock/solid"))') 2>&1 | tail -3
+
       - name: check:full
         id: check
         run: |
