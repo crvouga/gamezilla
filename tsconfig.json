@@ -115,6 +115,8 @@
     "pkgs/git/src/**/*.ts",
     "pkgs/ts-reset/src/**/*.ts",
     "pkgs/keyword/src/**/*.ts",
+    "pkgs/word-filter/src/**/*.ts",
+    "pkgs/word-filter/tests/**/*.ts",
     "pkgs/permissions/src/**/*.ts",
     "pkgs/permissions/tests/**/*.ts",
     "pkgs/jingle/src/**/*.ts",
