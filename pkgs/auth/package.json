@@ -22,7 +22,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test ./src ./tests",
+    "test": "bun test --conditions=browser --conditions=development --preload ../idp-google-sim/bun-solid-preload.ts ./src ./tests",
     "test:e2e": "bun ./e2e/run-e2e.ts"
   },
   "dependencies": {

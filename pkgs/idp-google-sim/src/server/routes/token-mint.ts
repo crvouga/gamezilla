@@ -2,7 +2,7 @@
 
 import type { IdpAccount } from '../../shared/types';
 import { accessTokenHash, type IdpSigningKeys, signIdToken } from '../idp-keys';
-import { IDP_ACCESS_TOKEN_TTL_MS, type IdpState } from '../idp-state';
+import { IDP_ACCESS_TOKEN_TTL_MS, type IdpStore } from '../idp-state';
 
 export type MintedTokens = {
   readonly access_token: string;
@@ -13,12 +13,12 @@ export type MintedTokens = {
   readonly refresh_token?: string;
 };
 
-function mintAccessToken(state: IdpState): string {
-  return `ya29.${state.createId().replaceAll('-', '')}`;
+function mintAccessToken(store: IdpStore): string {
+  return `ya29.${store.createId().replaceAll('-', '')}`;
 }
 
-function mintRefreshToken(state: IdpState): string {
-  return `1//0${state.createId().replaceAll('-', '')}`;
+function mintRefreshToken(store: IdpStore): string {
+  return `1//0${store.createId().replaceAll('-', '')}`;
 }
 
 async function buildIdToken(args: {
@@ -55,7 +55,7 @@ async function buildIdToken(args: {
 }
 
 export async function mintTokens(args: {
-  readonly ctx: { readonly state: IdpState; readonly keys: IdpSigningKeys };
+  readonly store: IdpStore;
   readonly issuer: string;
   readonly account: IdpAccount;
   readonly grant: {
@@ -65,23 +65,23 @@ export async function mintTokens(args: {
     readonly withRefreshToken: boolean;
   };
 }): Promise<MintedTokens> {
-  const { state, keys } = args.ctx;
-  const { grant, account } = args;
-  const nowMs = state.clock.now();
-  const accessToken = mintAccessToken(state);
-  state.accessTokens.set(accessToken, {
+  const { store, account, grant } = args;
+  const nowMs = store.clock.now();
+  const accessToken = mintAccessToken(store);
+  await store.putAccessToken({
     token: accessToken,
     sub: account.sub,
     clientId: grant.clientId,
     scopes: grant.scopes,
     expiresAtMs: nowMs + IDP_ACCESS_TOKEN_TTL_MS,
   });
+  const faults = await store.faults();
   const refreshToken =
-    grant.withRefreshToken && !state.faults.withholdRefreshToken
-      ? mintRefreshToken(state)
+    grant.withRefreshToken && !faults.withholdRefreshToken
+      ? mintRefreshToken(store)
       : null;
   if (refreshToken !== null) {
-    state.refreshTokens.set(refreshToken, {
+    await store.putRefreshToken({
       token: refreshToken,
       sub: account.sub,
       clientId: grant.clientId,
@@ -91,7 +91,7 @@ export async function mintTokens(args: {
   }
   const idToken = grant.scopes.includes('openid')
     ? await buildIdToken({
-        keys,
+        keys: store.keys,
         issuer: args.issuer,
         account,
         grant: {

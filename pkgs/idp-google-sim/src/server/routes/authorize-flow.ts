@@ -9,7 +9,7 @@ import type {
   IdpAuthRequest,
   IdpBrowserSession,
 } from '../../shared/types';
-import { hasGrant, type IdpState, sessionAccounts } from '../idp-state';
+import type { IdpStore } from '../idp-state';
 
 export type AuthorizeStep =
   | { readonly kind: 'chooser'; readonly accounts: readonly IdpAccount[] }
@@ -22,12 +22,19 @@ export type AuthorizeStep =
   | { readonly kind: 'issue'; readonly account: IdpAccount }
   | { readonly kind: 'error'; readonly error: string; readonly detail: string };
 
-function consentOrIssue(
-  state: IdpState,
+/** What a *chosen* account can lead to: never a chooser, never a sign-in. */
+export type ChosenStep = Extract<
+  AuthorizeStep,
+  { kind: 'consent' | 'issue' | 'error' }
+>;
+
+async function consentOrIssue(
+  store: IdpStore,
   request: IdpAuthRequest,
   account: IdpAccount
-): AuthorizeStep {
-  if (state.faults.denyConsent) {
+): Promise<ChosenStep> {
+  const faults = await store.faults();
+  if (faults.denyConsent) {
     return {
       kind: 'error',
       error: 'access_denied',
@@ -36,17 +43,17 @@ function consentOrIssue(
   }
   const needsConsent =
     request.prompts.includes('consent') ||
-    !hasGrant(state, account.sub, request.clientId, request.scopes);
+    !(await store.hasGrant(account.sub, request.clientId, request.scopes));
   if (needsConsent) return { kind: 'consent', account };
   return { kind: 'issue', account };
 }
 
 /** `prompt=none` must never paint UI: it either completes or errors out. */
-function silentStep(
-  state: IdpState,
+async function silentStep(
+  store: IdpStore,
   request: IdpAuthRequest,
   accounts: readonly IdpAccount[]
-): AuthorizeStep {
+): Promise<AuthorizeStep> {
   const account = accounts[0];
   if (account === undefined) {
     return {
@@ -55,7 +62,7 @@ function silentStep(
       detail: 'The user is not signed in.',
     };
   }
-  if (!hasGrant(state, account.sub, request.clientId, request.scopes)) {
+  if (!(await store.hasGrant(account.sub, request.clientId, request.scopes))) {
     return {
       kind: 'error',
       error: 'consent_required',
@@ -65,24 +72,24 @@ function silentStep(
   return { kind: 'issue', account };
 }
 
-export function nextAuthorizeStep(args: {
-  readonly state: IdpState;
+export async function nextAuthorizeStep(args: {
+  readonly store: IdpStore;
   readonly request: IdpAuthRequest;
   readonly session: IdpBrowserSession;
   /** Set once the human has picked (or just authenticated) an account. */
   readonly chosen: IdpAccount | null;
-}): AuthorizeStep {
-  const { state, request, session, chosen } = args;
-  if (chosen !== null) return consentOrIssue(state, request, chosen);
+}): Promise<AuthorizeStep> {
+  const { store, request, session, chosen } = args;
+  if (chosen !== null) return await consentOrIssue(store, request, chosen);
 
-  const accounts = sessionAccounts(state, session);
+  const accounts = await store.sessionAccounts(session);
   const hinted =
     request.loginHint === null
       ? undefined
       : accounts.find((account) => account.email === request.loginHint);
   if (request.prompts.includes('none')) {
-    return silentStep(
-      state,
+    return await silentStep(
+      store,
       request,
       hinted === undefined ? accounts : [hinted]
     );
@@ -91,7 +98,7 @@ export function nextAuthorizeStep(args: {
     return { kind: 'signin', email: request.loginHint ?? '', error: null };
   }
   if (hinted !== undefined && !request.prompts.includes('select_account')) {
-    return consentOrIssue(state, request, hinted);
+    return await consentOrIssue(store, request, hinted);
   }
   if (request.prompts.includes('select_account') || accounts.length > 1) {
     return { kind: 'chooser', accounts };
@@ -100,5 +107,17 @@ export function nextAuthorizeStep(args: {
   if (only === undefined) {
     return { kind: 'signin', email: '', error: null };
   }
-  return consentOrIssue(state, request, only);
+  return await consentOrIssue(store, request, only);
+}
+
+/**
+ * The step for an account the human already chose or authenticated: consent,
+ * a code, or a fault. `prompt=none` and the account chooser cannot appear.
+ */
+export async function nextChosenStep(args: {
+  readonly store: IdpStore;
+  readonly request: IdpAuthRequest;
+  readonly account: IdpAccount;
+}): Promise<ChosenStep> {
+  return await consentOrIssue(args.store, args.request, args.account);
 }

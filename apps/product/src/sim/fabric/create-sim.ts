@@ -48,6 +48,7 @@ import {
   type SimServerNodes,
 } from './sim-server-nodes';
 import {
+  openFreshSimClientSql,
   openFreshSimServerSql,
   openSimServerSqlFromSeedBytes,
   type SimSql,
@@ -81,14 +82,15 @@ export type Sim = {
   readonly loadBalancer: SimLoadBalancer;
   /** The simulated Google the product signs in against. */
   readonly idp: GoogleIdp;
-  client(id: string): ClientEnv;
+  /** Auth directory entry + env; the account row is written on first use. */
+  client(id: string): Promise<ClientEnv>;
   /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
   spawnServer(id?: string): Promise<Server>;
   /** Remove an API instance from the balancer rotation. */
   dropServer(id: string): Promise<void>;
   serverIds(): readonly string[];
   serverEnv(id: string): ServerEnv | undefined;
-  spawnClient(id: string, env?: ClientEnv): Client;
+  spawnClient(id: string, env?: ClientEnv): Promise<Client>;
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
   bumpClientEpoch(): void;
@@ -217,6 +219,7 @@ function buildRoomServerEnv(args: {
 type SimKernel = {
   readonly session: Session;
   readonly idp: GoogleIdp;
+  readonly idpSql: SimSql;
   readonly seed: bigint;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
@@ -265,9 +268,11 @@ async function bootSimKernel(
     isPartitioned: (a, b) => session.network.isPartitioned(a, b),
   });
   const pubSubBus = createInMemoryBus();
+  const idpSql = await openFreshSimClientSql('sim_idp', session.ports.clock);
   const idp = await createSimIdp({
     clock: session.ports.clock,
     createId: session.ports.createId,
+    sqlClient: idpSql.sqlClient,
   });
   const serverSql = await openServerSql(session, opts);
   const shared = await buildSharedServerServices(serverSql);
@@ -298,6 +303,7 @@ async function bootSimKernel(
   return {
     session,
     idp,
+    idpSql,
     seed,
     timers,
     net,
@@ -328,6 +334,7 @@ async function disposeSim(args: {
   kernel.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
+  await kernel.idpSql.disconnect();
   await kernel.serverSql.disconnect();
 }
 
@@ -337,15 +344,23 @@ function createSimHandle(kernel: SimKernel): Sim {
   /** One env per id for the sim lifetime — seeded `createId` must not reset
    * while `clientSql` still holds mutation rows from the prior stream. */
   const clientEnvs = new Map<string, ClientEnv>();
+  const pendingEnvs = new Map<string, Promise<ClientEnv>>();
   const liveClients = new Map<string, Client>();
-  const client = (id: string): ClientEnv => {
+  const client = async (id: string): Promise<ClientEnv> => {
     const cached = clientEnvs.get(id);
     if (cached !== undefined) return cached;
-    // The person behind this actor needs a Google account to sign in with.
-    idp.addAccount({ handle: id, email: simIdpEmail(id) });
-    const env = makeSimClientEnv(kernel, { id, clientSql });
-    clientEnvs.set(id, env);
-    return env;
+    const inFlight = pendingEnvs.get(id);
+    if (inFlight !== undefined) return await inFlight;
+    const pending = (async (): Promise<ClientEnv> => {
+      // The person behind this actor needs a Google account to sign in with.
+      await idp.addAccount({ handle: id, email: simIdpEmail(id) });
+      const env = makeSimClientEnv(kernel, { id, clientSql });
+      clientEnvs.set(id, env);
+      pendingEnvs.delete(id);
+      return env;
+    })();
+    pendingEnvs.set(id, pending);
+    return await pending;
   };
   return {
     session,
@@ -366,10 +381,10 @@ function createSimHandle(kernel: SimKernel): Sim {
     dropServer: (id) => servers.drop(id),
     serverIds: () => servers.ids(),
     serverEnv: (id) => servers.get(id)?.env,
-    spawnClient(id, env = client(id)) {
+    async spawnClient(id, env) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
-      const live = createClient(env);
+      const live = createClient(env ?? (await client(id)));
       liveClients.set(id, live);
       return live;
     },

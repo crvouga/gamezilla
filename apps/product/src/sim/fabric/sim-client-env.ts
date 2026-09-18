@@ -15,6 +15,7 @@ import {
 } from '@pkgs/auth/client';
 import type { Timers } from '@pkgs/clock';
 import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
+import { IDP_PASSWORD } from '@pkgs/idp-google-sim/shared';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import {
@@ -27,7 +28,7 @@ import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import { simClientNamespace } from './sim-client-namespace';
-import { SIM_IDP_PASSWORD, simBrowserFetch, simIdpEmail } from './sim-idp';
+import { simBrowserFetch, simIdpEmail } from './sim-idp';
 import type { SimLoadBalancer } from './sim-load-balancer';
 import type { SimNet } from './sim-net';
 import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
@@ -77,7 +78,7 @@ function clientOpenAuthSession(
 ): ClientEnv['openAuthSession'] {
   const completeAuth = createInProcessOpenAuthSession({
     fetch: (input, init) => browserFetch(input, init),
-    account: { email: simIdpEmail(id), password: SIM_IDP_PASSWORD },
+    account: { email: simIdpEmail(id), password: IDP_PASSWORD },
   });
   return async (authorizationUrl, callbackUrl) => {
     const result = await completeAuth(authorizationUrl, callbackUrl);

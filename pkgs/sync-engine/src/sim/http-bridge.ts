@@ -72,6 +72,37 @@ export function bindSimHttpServer(args: {
   return () => args.network.unregister(args.serverId);
 }
 
+/** Round-robin ingress over independent server handlers sharing one DB. */
+export function bindSimHttpLoadBalancer(args: {
+  readonly network: SyncNetwork;
+  readonly balancerId: EndpointId;
+  readonly nodes: readonly {
+    readonly id: EndpointId;
+    readonly handlers: SimHttpServerHandlers;
+  }[];
+  readonly faults?: EdgeFaultController;
+  readonly onMutationsAccepted?: (clientNodeId: string) => void | Promise<void>;
+}): () => void {
+  if (args.nodes.length === 0) throw new Error('sim http: no server nodes');
+  let nextNode = 0;
+  args.network.register(args.balancerId, async (payload) => {
+    if (!isHttpRequest(payload)) return;
+    const node = args.nodes[nextNode % args.nodes.length]!;
+    nextNode += 1;
+    await dispatchSimHttpRequest({
+      payload,
+      serverId: node.id,
+      network: args.network,
+      handlers: node.handlers,
+      ...(args.faults !== undefined ? { faults: args.faults } : {}),
+      ...(args.onMutationsAccepted !== undefined
+        ? { onMutationsAccepted: args.onMutationsAccepted }
+        : {}),
+    });
+  });
+  return () => args.network.unregister(args.balancerId);
+}
+
 export type SimHttpClient = {
   readonly postQueries: (
     requests: readonly QueryRequest[]

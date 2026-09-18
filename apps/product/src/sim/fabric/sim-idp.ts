@@ -23,7 +23,9 @@ import {
   createGoogleIdpApp,
   createIdpSigningKeys,
   type GoogleIdp,
+  IdpStore,
 } from '@pkgs/idp-google-sim/server';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import { requestHref } from './sim-http-request';
@@ -39,16 +41,20 @@ export function simIdpEmail(actorId: string): string {
   return `${actorId}@gmail.com`;
 }
 
-export const SIM_IDP_PASSWORD = 'hunter2-hunter2';
-
 export async function createSimIdp(deps: {
   readonly clock: Clock;
   readonly createId: CreateId;
+  /** The host's SQLite (in-memory under the default fabric). */
+  readonly sqlClient: SqlClient;
 }): Promise<GoogleIdp> {
-  return createGoogleIdpApp({
+  const store = await IdpStore.open({
+    sqlClient: deps.sqlClient,
     clock: deps.clock,
     createId: deps.createId,
-    keys: await createIdpSigningKeys(),
+    createKeys: () => createIdpSigningKeys(),
+  });
+  return await createGoogleIdpApp({
+    store,
     issuer: SIM_IDP_URL,
     clients: [
       {

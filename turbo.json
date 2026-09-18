@@ -12,6 +12,7 @@
     "API_NODE_*",
     "API_URL",
     "LOCAL_PREVIEW_API_ORIGIN",
+    "LOCALHOST_STACK",
     "DATABASE_URL",
     "AUTH_*",
     "LOCAL_SECRETS",
@@ -25,8 +26,10 @@
     "SECRETS_*",
     "INFISICAL_*",
     "ACTIONS_ID_TOKEN_*",
+    "GOOGLE_IDP_ORIGIN",
     "WEB_CLIENT_*",
     "EMQX_*",
+    "WEB_CLIENT_ORIGIN",
     "OBSERVABILITY_*",
     "TURBO_*",
     "SIM_FIDELITY",
@@ -35,27 +38,6 @@
     "TMPDIR"
   ],
   "tasks": {
-    "stack": {
-      "cache": false,
-      "persistent": false
-    },
-    "@tools#stack": {
-      "dependsOn": ["@apps/client#build"],
-      "cache": false,
-      "persistent": false
-    },
-    "@apps/server#stack": {
-      "cache": false,
-      "persistent": false
-    },
-    "@apps/client#stack": {
-      "cache": false,
-      "persistent": false
-    },
-    "@pkgs/idp-google-sim#stack": {
-      "cache": false,
-      "persistent": false
-    },
     "install:deps": {
       "cache": false
     },
@@ -78,6 +60,8 @@
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.d.ts",
+        "web/**",
+        "vite.config.mts",
         "package.json",
         "tsconfig.json",
         "tsconfig.tc.json",
@@ -136,6 +120,8 @@
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
+        "web/**",
+        "vite.config.mts",
         "tests/**",
         "package.json",
         "*.cjs",
@@ -326,8 +312,10 @@
     "lint": {
       "inputs": [
         "src/**/*.{ts,tsx,js,jsx,cjs}",
+        "web/**/*.{ts,tsx,js,jsx,cjs}",
         "tests/**/*.{ts,tsx,js,jsx,cjs}",
         "scripts/**/*.{ts,tsx,js,cjs}",
+        "vite.config.mts",
         "package.json",
         "biome.json",
         "../../biome.json",

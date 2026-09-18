@@ -1,13 +1,11 @@
-/** Everything a route handler needs: internal state, signing keys, issuer. */
+/** Everything a route handler needs: the store and the issuer source. */
 
 import type { Context } from 'hono';
 
-import type { IdpSigningKeys } from './idp-keys';
-import type { IdpState } from './idp-state';
+import type { IdpStore } from './idp-state';
 
 export type IdpCtx = {
-  readonly state: IdpState;
-  readonly keys: IdpSigningKeys;
+  readonly store: IdpStore;
   /**
    * Fixed issuer, or `null` to derive it from the inbound request. Deriving is
    * what makes an OS-assigned port work without anyone configuring an origin.

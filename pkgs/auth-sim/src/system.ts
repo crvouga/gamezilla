@@ -112,11 +112,12 @@ export const advanceClock = defineAction({
 export const setGoogleFault = defineAction({
   name: 'setGoogleFault',
   sample: () => gen(fc.boolean()),
-  act: (s: AuthSurface, fault: boolean) => {
-    s.store.idp.ctx.state.faults = {
-      ...s.store.idp.ctx.state.faults,
+  act: async (s: AuthSurface, fault: boolean) => {
+    const store = s.store.idp.ctx.store;
+    await store.setFaults({
+      ...(await store.faults()),
       tokenEndpoint: fault ? 'server_error' : 'ok',
-    };
+    });
   },
 });
 

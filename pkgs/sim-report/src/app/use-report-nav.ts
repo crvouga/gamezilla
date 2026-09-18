@@ -11,12 +11,15 @@ import { onReportKeyDown } from './keyboard';
 export type ReportNav = {
   route: Accessor<Route>;
   showHelp: Accessor<boolean>;
+  showPalette: Accessor<boolean>;
   playing: Accessor<boolean>;
   navigate: (route: Route, replace?: boolean) => void;
   setParam: (key: string, value: string) => void;
   goFrame: (frame: FlatFrame | null, node?: string | undefined) => void;
   stepFrame: (delta: number) => void;
   toggleHelp: () => void;
+  togglePalette: () => void;
+  closePalette: () => void;
   togglePlay: () => void;
   stopPlay: () => void;
 };
@@ -62,6 +65,8 @@ function bindWindowListeners(opts: {
   setRoute: (r: Route) => void;
   showHelp: Accessor<boolean>;
   setShowHelp: (v: boolean | ((p: boolean) => boolean)) => void;
+  showPalette: Accessor<boolean>;
+  togglePalette: () => void;
   stopPlay: () => void;
   navigate: (route: Route, replace?: boolean) => void;
   goFrame: ReportNav['goFrame'];
@@ -82,6 +87,8 @@ function bindWindowListeners(opts: {
       onReportKeyDown(e, opts.data, {
         toggleHelp: () => opts.setShowHelp((p) => !p),
         showHelp: opts.showHelp,
+        showPalette: opts.showPalette,
+        togglePalette: opts.togglePalette,
         stopPlay: opts.stopPlay,
         navigate: (next) => opts.navigate(next),
         goFrame: opts.goFrame,
@@ -104,11 +111,44 @@ function bindWindowListeners(opts: {
   });
 }
 
+function makeReportNav(state: {
+  readonly route: Accessor<Route>;
+  readonly showHelp: Accessor<boolean>;
+  readonly showPalette: Accessor<boolean>;
+  readonly playing: Accessor<boolean>;
+  readonly navigate: ReportNav['navigate'];
+  readonly setParam: ReportNav['setParam'];
+  readonly goFrame: ReportNav['goFrame'];
+  readonly stepFrame: ReportNav['stepFrame'];
+  readonly toggleHelp: ReportNav['toggleHelp'];
+  readonly togglePalette: ReportNav['togglePalette'];
+  readonly closePalette: ReportNav['closePalette'];
+  readonly togglePlay: ReportNav['togglePlay'];
+  readonly stopPlay: ReportNav['stopPlay'];
+}): ReportNav {
+  return state;
+}
+
+function navigateFrame(args: {
+  readonly route: Route;
+  readonly navigate: ReportNav['navigate'];
+  readonly frame: FlatFrame | null;
+  readonly node?: string;
+}): void {
+  if (args.route.view !== 'test') return;
+  const params: Record<string, string> = {
+    ...args.route.params,
+    frame: args.frame ? String(args.frame.index + 1) : '',
+  };
+  if (args.node !== undefined) params['node'] = args.node || '';
+  args.navigate({ view: 'test', testId: args.route.testId, params }, true);
+}
+
 export function useReportNav(data: ReportData): ReportNav {
   const [route, setRoute] = createSignal<Route>(parseHash());
   const [showHelp, setShowHelp] = createSignal(false);
+  const [showPalette, setShowPalette] = createSignal(false);
   const [playing, setPlaying] = createSignal(false);
-
   const navigate = (next: Route, replace = false) => {
     const hash = buildHash(next);
     if (replace) {
@@ -124,16 +164,13 @@ export function useReportNav(data: ReportData): ReportNav {
     setPlaying(false);
   };
 
-  const goFrame = (frame: FlatFrame | null, node?: string) => {
-    const r = route();
-    if (r.view !== 'test') return;
-    const params: Record<string, string> = {
-      ...r.params,
-      frame: frame ? String(frame.index + 1) : '',
-    };
-    if (node !== undefined) params['node'] = node || '';
-    navigate({ view: 'test', testId: r.testId, params }, true);
-  };
+  const goFrame = (frame: FlatFrame | null, node?: string) =>
+    navigateFrame({
+      route: route(),
+      navigate,
+      frame,
+      ...(node !== undefined ? { node } : {}),
+    });
 
   const setParam = (key: string, value: string) => {
     const r = route();
@@ -172,6 +209,8 @@ export function useReportNav(data: ReportData): ReportNav {
     setRoute,
     showHelp,
     setShowHelp,
+    showPalette,
+    togglePalette: () => setShowPalette((open) => !open),
     stopPlay,
     navigate,
     goFrame,
@@ -179,16 +218,19 @@ export function useReportNav(data: ReportData): ReportNav {
     setParam,
   });
 
-  return {
+  return makeReportNav({
     route,
     showHelp,
+    showPalette,
     playing,
     navigate,
     setParam,
     goFrame,
     stepFrame,
     toggleHelp: () => setShowHelp(!showHelp()),
+    togglePalette: () => setShowPalette((open) => !open),
+    closePalette: () => setShowPalette(false),
     togglePlay,
     stopPlay,
-  };
+  });
 }

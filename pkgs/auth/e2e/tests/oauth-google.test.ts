@@ -38,16 +38,24 @@ describe('auth oauth harness', () => {
       try {
         await waitFor(
           popup,
-          'document.querySelector("[data-testid=idp-signin-page]")'
+          'document.querySelector("[data-testid=idp-identifier-page]")'
         );
         await popup.evaluate(
-          `document.querySelector("[data-testid=idp-signin-email]").value = "alice@gmail.com"`
+          `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
         await popup.evaluate(
-          `document.querySelector("[data-testid=idp-signin-password]").value = "hunter2-hunter2"`
+          `document.querySelector("[data-testid=idp-identifier-next]").click()`
+        );
+        await waitFor(
+          popup,
+          'document.querySelector("[data-testid=idp-password-input]")',
+          15_000
         );
         await popup.evaluate(
-          `document.querySelector("[data-testid=idp-signin-next]").click()`
+          `document.querySelector("[data-testid=idp-password-input]").value = "password"`
+        );
+        await popup.evaluate(
+          `document.querySelector("[data-testid=idp-password-next]").click()`
         );
         await waitFor(
           popup,
@@ -90,16 +98,24 @@ describe('auth oauth harness', () => {
       try {
         await waitFor(
           popup,
-          'document.querySelector("[data-testid=idp-signin-page]")'
+          'document.querySelector("[data-testid=idp-identifier-page]")'
         );
         await popup.evaluate(
-          `document.querySelector("[data-testid=idp-signin-email]").value = "alice@gmail.com"`
+          `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
         await popup.evaluate(
-          `document.querySelector("[data-testid=idp-signin-password]").value = "hunter2-hunter2"`
+          `document.querySelector("[data-testid=idp-identifier-next]").click()`
+        );
+        await waitFor(
+          popup,
+          'document.querySelector("[data-testid=idp-password-input]")',
+          15_000
         );
         await popup.evaluate(
-          `document.querySelector("[data-testid=idp-signin-next]").click()`
+          `document.querySelector("[data-testid=idp-password-input]").value = "password"`
+        );
+        await popup.evaluate(
+          `document.querySelector("[data-testid=idp-password-next]").click()`
         );
         await waitFor(
           popup,

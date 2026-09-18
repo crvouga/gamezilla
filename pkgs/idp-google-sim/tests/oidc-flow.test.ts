@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
   IDP_AUTHORIZE_SUBMIT_PATH,
+  IDP_PASSWORD,
   IDP_TEST_IDS,
 } from '@pkgs/idp-google-sim/shared';
 import {
@@ -8,6 +9,8 @@ import {
   formBody,
   type IdpBrowser,
   requestIdOf,
+  submitIdentifier,
+  submitPassword,
   TEST_CLIENT,
 } from './harness';
 import { createJWKSSet, jwtVerify } from './verify';
@@ -33,24 +36,21 @@ function authorizeUrl(overrides: Record<string, string> = {}): string {
 }
 
 /**
- * A fresh browser is signed in to nobody, so Google shows the password screen
- * first and only offers the chooser once a session exists. Both paths are
- * exercised here because relying parties hit both.
+ * A fresh browser is signed in to nobody, so Google asks for the address and
+ * then the password; the chooser only appears once a session exists. Both
+ * paths are exercised here because relying parties hit both.
  */
 async function signInAsAlice(browser: IdpBrowser, url: string): Promise<URL> {
   const page = await browser.fetch(url);
   const html = await page.text();
-  expect(html).toContain(IDP_TEST_IDS.signInPage);
-  const authed = await browser.fetch(
-    IDP_AUTHORIZE_SUBMIT_PATH,
-    formBody({
-      request_id: requestIdOf(html),
-      step: 'password',
-      email: 'alice@gmail.com',
-      password: 'hunter2-hunter2',
-    })
+  expect(html).toContain(IDP_TEST_IDS.identifierPage);
+  const identified = await submitIdentifier(browser, html, 'alice@gmail.com');
+  return await approveConsent(
+    browser,
+    await (
+      await submitPassword(browser, await identified.text(), IDP_PASSWORD)
+    ).text()
   );
-  return await approveConsent(browser, await authed.text());
 }
 
 async function approveConsent(

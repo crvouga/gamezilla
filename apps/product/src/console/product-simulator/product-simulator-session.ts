@@ -201,8 +201,8 @@ async function spawnClient(
   }
   args.sim.restart(instanceId);
   const actorLogs = createProductSimulatorLogBuffer();
-  const base = args.sim.client(instanceId);
-  const live = args.sim.spawnClient(instanceId, {
+  const base = await args.sim.client(instanceId);
+  const live = await args.sim.spawnClient(instanceId, {
     ...base,
     server: loggingFetch(base.server, actorLogs, args.balancerLogs, () =>
       args.sim.clock.now()

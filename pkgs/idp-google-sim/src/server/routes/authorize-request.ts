@@ -8,7 +8,7 @@
  */
 
 import type { IdpAuthRequest, IdpClient, IdpPrompt } from '../../shared/types';
-import type { IdpState } from '../idp-state';
+import type { IdpStore } from '../idp-state';
 
 export type AuthorizeRejection =
   | {
@@ -61,14 +61,16 @@ function rejectRedirect(error: string, detail: string): AuthorizeParse {
   return { ok: false, rejection: { kind: 'redirect', error, detail } };
 }
 
-function validateClient(
-  state: IdpState,
+async function validateClient(
+  store: IdpStore,
   params: URLSearchParams
-): { readonly client: IdpClient } | { readonly rejection: AuthorizeRejection } {
+): Promise<
+  { readonly client: IdpClient } | { readonly rejection: AuthorizeRejection }
+> {
   const clientId = params.get('client_id') ?? '';
   const redirectUri = params.get('redirect_uri') ?? '';
-  const client = state.clients.get(clientId);
-  if (client === undefined) {
+  const client = await store.client(clientId);
+  if (client === null) {
     return {
       rejection: {
         kind: 'page',
@@ -91,11 +93,11 @@ function validateClient(
   return { client };
 }
 
-export function parseAuthorizeRequest(
-  state: IdpState,
+export async function parseAuthorizeRequest(
+  store: IdpStore,
   params: URLSearchParams
-): AuthorizeParse {
-  const checked = validateClient(state, params);
+): Promise<AuthorizeParse> {
+  const checked = await validateClient(store, params);
   if ('rejection' in checked) {
     return { ok: false, rejection: checked.rejection };
   }
@@ -129,7 +131,7 @@ export function parseAuthorizeRequest(
     ok: true,
     client: checked.client,
     request: {
-      id: state.createId(),
+      id: store.createId(),
       clientId: checked.client.clientId,
       redirectUri: params.get('redirect_uri') ?? '',
       scopes,
@@ -141,8 +143,9 @@ export function parseAuthorizeRequest(
         params.get('access_type') === 'offline' ? 'offline' : 'online',
       prompts: parsePrompts(params.get('prompt') ?? ''),
       loginHint: params.get('login_hint'),
-      createdAtMs: state.clock.now(),
+      createdAtMs: store.clock.now(),
       chosenSub: null,
+      identifierEmail: null,
     },
   };
 }

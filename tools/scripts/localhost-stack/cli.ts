@@ -14,6 +14,7 @@ import { bootLocalhostStack } from './boot-stack';
 import { removeManifest } from './manifest';
 import { parseStackOptions } from './stack-options';
 
+const REPO_ROOT = join(import.meta.dir, '../../..');
 const options = parseStackOptions(process.argv.slice(2));
 const stack = await bootLocalhostStack(options);
 
@@ -25,13 +26,15 @@ let stopping = false;
 const stop = (): void => {
   if (stopping) return;
   stopping = true;
-  void stack.stop().then(() => {
-    removeManifest(join(import.meta.dir, '../../..'), options.instanceId);
-    process.exit(0);
-  });
+  void stack.stop().then(() => process.exit(0));
 };
 process.on('SIGINT', stop);
 process.on('SIGTERM', stop);
+// A crash or a bare `process.exit` must not leave a manifest pointing at
+// processes that are gone; the child teardown above is best-effort.
+process.on('exit', () => {
+  removeManifest(REPO_ROOT, options.instanceId);
+});
 
 await new Promise<void>(() => {
   // hold the process open

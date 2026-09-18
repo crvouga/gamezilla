@@ -20,7 +20,6 @@
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
     "smoke": "bun run scripts/smoke.ts",
-    "stack": "bun run scripts/serve-api-node.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test --pass-with-no-tests src/integration/"

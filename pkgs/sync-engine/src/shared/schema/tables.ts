@@ -110,7 +110,6 @@ export const syncEngineServerSchema = registerTables([
   syncEngineWriteRejections,
   syncEngineTopicSeq,
 ]);
-
 export const syncEngineLocalSchema = registerTables([
   syncEngineMutations,
   syncEngineScopeMeta,

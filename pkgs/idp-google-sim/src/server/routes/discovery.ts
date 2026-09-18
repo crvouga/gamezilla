@@ -50,5 +50,5 @@ export function handleDiscovery(c: Context, ctx: IdpCtx): Response {
 }
 
 export function handleCerts(c: Context, ctx: IdpCtx): Response {
-  return c.json({ keys: [ctx.keys.publicJwk] }, 200);
+  return c.json({ keys: [ctx.store.keys.publicJwk] }, 200);
 }

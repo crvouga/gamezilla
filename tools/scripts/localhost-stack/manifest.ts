@@ -29,8 +29,8 @@ export type StackManifest = {
   readonly idpOrigin: string;
   readonly databaseUrl: string;
   readonly s3Endpoint: string | null;
-  readonly emqxWssUrl: string | null;
-  readonly emqxApiUrl: string | null;
+  readonly mqttWssUrl: string | null;
+  readonly mqttUrl: string | null;
   readonly dataDir: string;
 };
 

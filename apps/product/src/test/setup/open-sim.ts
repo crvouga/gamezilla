@@ -3,6 +3,7 @@
  * (`in-process` / `bun-webview`).
  */
 
+import type { Client } from '@apps/client/shell/create-client';
 import type {
   ProductExtra,
   ProductHostName,
@@ -58,7 +59,7 @@ async function restoreSnapshot(
   snapshot: SimSystemSnapshot
 ): Promise<void> {
   const clientSqlByAddress = new Map<string, SimSql>();
-  const liveClients = new Map<string, ReturnType<Sim['spawnClient']>>();
+  const liveClients = new Map<string, Client>();
   const snapshotCtx: SystemSnapshotCtx = {
     sim,
     clientIds: snapshot.clientIds,

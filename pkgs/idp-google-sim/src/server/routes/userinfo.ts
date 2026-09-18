@@ -3,7 +3,6 @@
 import type { Context } from 'hono';
 
 import type { IdpCtx } from '../idp-context';
-import { sweepExpired } from '../idp-state';
 
 function bearer(c: Context): string | null {
   const header = c.req.header('authorization') ?? '';
@@ -23,20 +22,24 @@ function unauthorized(c: Context, description: string): Response {
   );
 }
 
-export function handleUserinfo(c: Context, ctx: IdpCtx): Response {
-  sweepExpired(ctx.state);
-  if (ctx.state.faults.userinfoEndpoint === 'server_error') {
+export async function handleUserinfo(
+  c: Context,
+  ctx: IdpCtx
+): Promise<Response> {
+  await ctx.store.sweepExpired();
+  const faults = await ctx.store.faults();
+  if (faults.userinfoEndpoint === 'server_error') {
     return c.json(
       { error: { code: 500, message: 'Backend Error', status: 'INTERNAL' } },
       500
     );
   }
-  if (ctx.state.faults.userinfoEndpoint === 'unauthorized') {
+  if (faults.userinfoEndpoint === 'unauthorized') {
     return unauthorized(c, 'Invalid Credentials');
   }
   const token = bearer(c);
-  const entry = token === null ? undefined : ctx.state.accessTokens.get(token);
-  if (entry === undefined) return unauthorized(c, 'Invalid Credentials');
+  const entry = token === null ? null : await ctx.store.accessToken(token);
+  if (entry === null) return unauthorized(c, 'Invalid Credentials');
   if (!entry.scopes.includes('openid')) {
     return c.json(
       {
@@ -49,8 +52,8 @@ export function handleUserinfo(c: Context, ctx: IdpCtx): Response {
       403
     );
   }
-  const account = ctx.state.accounts.get(entry.sub);
-  if (account === undefined) return unauthorized(c, 'Invalid Credentials');
+  const account = await ctx.store.accountBySub(entry.sub);
+  if (account === null) return unauthorized(c, 'Invalid Credentials');
   return c.json(
     {
       sub: account.sub,
@@ -67,12 +70,15 @@ export function handleUserinfo(c: Context, ctx: IdpCtx): Response {
   );
 }
 
-export function handleTokenInfo(c: Context, ctx: IdpCtx): Response {
-  sweepExpired(ctx.state);
+export async function handleTokenInfo(
+  c: Context,
+  ctx: IdpCtx
+): Promise<Response> {
+  await ctx.store.sweepExpired();
   const token =
     c.req.query('access_token') ?? c.req.query('id_token') ?? bearer(c) ?? '';
-  const entry = ctx.state.accessTokens.get(token);
-  if (entry === undefined) {
+  const entry = await ctx.store.accessToken(token);
+  if (entry === null) {
     return c.json(
       { error: 'invalid_token', error_description: 'Invalid Value' },
       400
@@ -80,7 +86,7 @@ export function handleTokenInfo(c: Context, ctx: IdpCtx): Response {
   }
   const expiresIn = Math.max(
     0,
-    Math.floor((entry.expiresAtMs - ctx.state.clock.now()) / 1000)
+    Math.floor((entry.expiresAtMs - ctx.store.clock.now()) / 1000)
   );
   return c.json(
     {
@@ -99,14 +105,14 @@ export function handleTokenInfo(c: Context, ctx: IdpCtx): Response {
 export async function handleRevoke(c: Context, ctx: IdpCtx): Promise<Response> {
   const body = new URLSearchParams(await c.req.text());
   const token = body.get('token') ?? c.req.query('token') ?? '';
-  const access = ctx.state.accessTokens.get(token);
-  if (access !== undefined) {
-    ctx.state.accessTokens.delete(token);
+  const access = await ctx.store.accessToken(token);
+  if (access !== null) {
+    await ctx.store.deleteAccessToken(token);
     return c.body(null, 200);
   }
-  const refresh = ctx.state.refreshTokens.get(token);
-  if (refresh !== undefined) {
-    refresh.revoked = true;
+  const refresh = await ctx.store.refreshToken(token);
+  if (refresh !== null) {
+    await ctx.store.revokeRefreshToken(token);
     return c.body(null, 200);
   }
   return c.json({ error: 'invalid_token' }, 400);

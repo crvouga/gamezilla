@@ -8,13 +8,13 @@
   "scripts": {
     "check:static": "bun run scripts/check-static.ts",
     "install:cli": "bun run scripts/install-cli.ts",
-    "stack": "bun run scripts/localhost-stack/cli.ts",
     "lint": "bunx biome check --error-on-warnings .",
     "test": "bun test --pass-with-no-tests scripts/sims scripts/*.test.ts"
   },
   "dependencies": {
     "@clack/prompts": "catalog:",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/aedes-server": "workspace:*",
     "@pkgs/s3-server": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/os": "workspace:*",

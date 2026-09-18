@@ -1,0 +1,29 @@
+/*
+ * The IdP's own stylesheet: Tailwind, with Google's measured values as `@theme`
+ * tokens and no Gamezilla design-system tokens at all.
+ *
+ * Source detection is off and the sources are listed explicitly — the shared
+ * `@pkgs/tailwind` entry would also pull the product token map, which fights
+ * every colour here.
+ */
+@import "tailwindcss" source(none);
+
+@source "../";
+
+@theme {
+  --color-gm-primary: #0b57d0;
+  --color-gm-on-surface: #1f1f1f;
+  --color-gm-on-surface-variant: #444746;
+  --color-gm-outline: #747775;
+  --color-gm-hover: #f2f2f2;
+  --color-gm-divider: #c4c7c5;
+  --color-gm-error: #b3261e;
+  --font-gm:
+    "Google Sans", Roboto, "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}

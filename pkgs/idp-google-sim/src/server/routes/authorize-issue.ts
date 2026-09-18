@@ -1,27 +1,32 @@
 /** Mint the authorization code and bounce back to the relying party. */
 
 import type { IdpAccount, IdpAuthRequest } from '../../shared/types';
-import { IDP_AUTH_CODE_TTL_MS, type IdpState, recordGrant } from '../idp-state';
+import { IDP_AUTH_CODE_TTL_MS, type IdpStore } from '../idp-state';
 
 /**
  * Google's codes are opaque and prefixed; the prefix is load-bearing only in
  * that it shows up in logs, but matching it keeps captured traffic readable.
  */
-function mintCode(state: IdpState): string {
-  return `4/0A${state.createId().replaceAll('-', '')}`;
+function mintCode(store: IdpStore): string {
+  return `4/0A${store.createId().replaceAll('-', '')}`;
 }
 
-export function issueAuthorizationCode(args: {
-  readonly state: IdpState;
+/**
+ * Records the grant and parks the code. Call inside a store transaction: the
+ * grant and the code must land together or a crash leaves a code nobody can
+ * redeem against an approval that never happened.
+ */
+export async function issueAuthorizationCode(args: {
+  readonly store: IdpStore;
   readonly request: IdpAuthRequest;
   readonly account: IdpAccount;
   /** True when the human just approved the scopes on the consent screen. */
   readonly freshConsent: boolean;
-}): string {
-  const { state, request, account } = args;
-  recordGrant(state, account.sub, request.clientId, request.scopes);
-  const code = mintCode(state);
-  state.authCodes.set(code, {
+}): Promise<string> {
+  const { store, request, account } = args;
+  await store.recordGrant(account.sub, request.clientId, request.scopes);
+  const code = mintCode(store);
+  await store.putAuthCode({
     code,
     clientId: request.clientId,
     redirectUri: request.redirectUri,
@@ -31,7 +36,7 @@ export function issueAuthorizationCode(args: {
     codeChallenge: request.codeChallenge,
     codeChallengeMethod: request.codeChallengeMethod,
     issueRefreshToken: request.accessType === 'offline' && args.freshConsent,
-    expiresAtMs: state.clock.now() + IDP_AUTH_CODE_TTL_MS,
+    expiresAtMs: store.clock.now() + IDP_AUTH_CODE_TTL_MS,
     redeemed: false,
   });
   return code;

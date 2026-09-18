@@ -48,7 +48,8 @@ function googleEndpointsFor(idpOrigin: string | null): GoogleOauthEndpoints {
 export async function loadAuthBootConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
-  /** Non-null redirects the Google provider at a local simulated IdP. */
+  /** Dynamic localhost stack web origin for OAuth callbacks. */
+  readonly webClientOrigin?: string | null;
   readonly googleIdpOrigin?: string | null;
 }): Promise<AuthBootConfig> {
   const { secretStore } = args;
@@ -72,10 +73,9 @@ export async function loadAuthBootConfig(args: {
   const baseURL =
     override !== undefined && override !== null && override.length > 0
       ? override.replace(/\/$/, '')
-      : (await secretStore.getRequired(ApiSecretName.apiUrl))
-          .readSecretValue()
-          .replace(/\/$/, '');
-  const webClientOrigin = resolveWebClientOrigin(baseURL);
+      : (await secretStore.getRequired(ApiSecretName.apiUrl)).readSecretValue();
+  const webClientOrigin =
+    args.webClientOrigin?.trim() || resolveWebClientOrigin(baseURL);
 
   const providers: CreateAuthAppProviders = {
     ...(googleEnabled && googleClientId !== null && googleClientSecret !== null

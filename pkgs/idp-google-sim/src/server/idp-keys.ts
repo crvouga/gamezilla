@@ -11,6 +11,7 @@ import { utf8ToBytes } from '@noble/hashes/utils.js';
 import {
   exportJWK,
   generateKeyPair,
+  importJWK,
   type JWK,
   type KeyObject,
   SignJWT,
@@ -36,6 +37,41 @@ export async function createIdpSigningKeys(
     alg: 'RS256',
     privateKey,
     publicJwk: { ...publicJwk, kid, alg: 'RS256', use: 'sig' },
+  };
+}
+
+/**
+ * The durable form of a signing key. `jose` key objects are not JSON, so the
+ * pair is stored as JWKs; a restart imports them back and keeps the same
+ * `kid`, which is what makes previously issued `id_token`s keep verifying.
+ */
+export type IdpSigningKeyRecord = {
+  readonly kid: string;
+  readonly alg: 'RS256';
+  readonly privateJwk: JWK;
+  readonly publicJwk: JWK;
+};
+
+export async function exportIdpSigningKeyRecord(
+  keys: IdpSigningKeys
+): Promise<IdpSigningKeyRecord> {
+  return {
+    kid: keys.kid,
+    alg: keys.alg,
+    privateJwk: await exportJWK(keys.privateKey),
+    publicJwk: keys.publicJwk,
+  };
+}
+
+export async function importIdpSigningKeyRecord(
+  record: IdpSigningKeyRecord
+): Promise<IdpSigningKeys> {
+  const privateKey = await importJWK(record.privateJwk, record.alg);
+  return {
+    kid: record.kid,
+    alg: record.alg,
+    privateKey: privateKey as IdpSigningKeys['privateKey'],
+    publicJwk: record.publicJwk,
   };
 }
 

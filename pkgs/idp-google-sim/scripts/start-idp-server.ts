@@ -3,16 +3,27 @@
 /**
  * Bind the IdP to a loopback port. Port `0` asks the OS for a free one, which
  * is what lets several full stacks run side by side on one machine.
+ *
+ * Durability is a property of the SQLite database opened here: in memory by
+ * default, or an explicit file the caller resolved. `memory` is still SQLite;
+ * there is no map-backed mode left.
  */
 
 import { wallClock } from '@pkgs/clock';
+import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
+
 import {
   createGoogleIdpApp,
+  createIdpSigningKeys,
   type GoogleIdp,
-} from '../src/server/create-idp-app';
-import { createIdpSigningKeys } from '../src/server/idp-keys';
-import type { IdpAccountDraft } from '../src/server/idp-seed';
-import type { IdpClient } from '../src/shared/types';
+  IdpStore,
+} from '../src/server/index';
+import type { IdpAccountDraft, IdpClient } from '../src/shared/index';
+
+/** Where the provider keeps its state. */
+export type IdpStateLocation =
+  | { readonly kind: 'memory' }
+  | { readonly kind: 'file'; readonly path: string };
 
 export type StartIdpServerOptions = {
   /** `0` (default) takes an OS-assigned port. */
@@ -20,6 +31,8 @@ export type StartIdpServerOptions = {
   readonly hostname?: string;
   readonly clients: readonly IdpClient[];
   readonly accounts?: readonly IdpAccountDraft[];
+  /** Default `{ kind: 'memory' }`. */
+  readonly state?: IdpStateLocation;
 };
 
 export type IdpServerHandle = {
@@ -32,11 +45,20 @@ export type IdpServerHandle = {
 export async function startGoogleIdpServer(
   options: StartIdpServerOptions
 ): Promise<IdpServerHandle> {
-  const keys = await createIdpSigningKeys();
-  const idp = createGoogleIdpApp({
+  const location = options.state ?? { kind: 'memory' };
+  const sqlClient =
+    location.kind === 'memory'
+      ? SqlClientImplBunSqlite.openMemory()
+      : SqlClientImplBunSqlite.open(location.path);
+  await sqlClient.connect();
+  const store = await IdpStore.open({
+    sqlClient,
     clock: wallClock,
     createId: () => crypto.randomUUID(),
-    keys,
+    createKeys: () => createIdpSigningKeys(),
+  });
+  const idp = await createGoogleIdpApp({
+    store,
     clients: options.clients,
     ...(options.accounts === undefined ? {} : { accounts: options.accounts }),
   });
@@ -49,6 +71,9 @@ export async function startGoogleIdpServer(
     origin: server.url.origin,
     port: Number(server.url.port),
     idp,
-    stop: () => server.stop(true),
+    async stop() {
+      await server.stop(true);
+      await sqlClient.disconnect();
+    },
   };
 }

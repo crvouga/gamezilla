@@ -3,6 +3,7 @@ import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
 import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
 import type { Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
+import { createAedesPubSub } from '@pkgs/pubsub-aedes/create-aedes-pubsub';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx/create-emqx-pubsub';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -34,9 +35,8 @@ export async function readEmqxWssUrlFromLocalDb(
 }
 
 /**
- * Client composition root for EMQX MQTT.
- * `clientIdPrefix` is the stable MQTT client id (device id) so short offline
- * sessions can drain on reconnect.
+ * Client composition root for MQTT pub/sub. Loopback WebSocket brokers use the
+ * Aedes MQTT 3.1.1 adapter; secure WebSocket brokers use the EMQX MQTT 5 adapter.
  */
 export function createClientPubSub(args: {
   readonly url: string;
@@ -48,10 +48,14 @@ export function createClientPubSub(args: {
   readonly random: Random;
 }): PubSub {
   const deviceId = args.auth.getDeviceId() ?? 'device';
-  return createEmqxPubSub({
+  const createPubSub = args.url.startsWith('ws:')
+    ? createAedesPubSub
+    : createEmqxPubSub;
+  return createPubSub({
     url: args.url,
     clientIdPrefix: deviceId,
     timers: args.timers,
+    protocolVersion: args.url.startsWith('ws://') ? 4 : 5,
     random: args.random,
     auth: async () =>
       fetchPubSubToken({

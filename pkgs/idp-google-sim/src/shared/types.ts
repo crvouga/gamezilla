@@ -11,9 +11,31 @@ export type IdpAccount = {
   readonly picture: string;
   /** Workspace domain (`hd` claim); `null` for consumer accounts. */
   readonly hd: string | null;
-  /** Required by the password page. Blank means "chooser only". */
-  readonly password: string;
 };
+
+/**
+ * Input for a directory entry. `handle` alone is enough (`alice` →
+ * `alice@gmail.com`); a create-account submission supplies `email` and `name`.
+ */
+export type IdpAccountDraft = {
+  /** Local part of the address and the display-name source, e.g. `alice`. */
+  readonly handle?: string;
+  readonly sub?: string;
+  readonly email?: string;
+  readonly name?: string;
+  readonly givenName?: string;
+  readonly familyName?: string;
+  readonly picture?: string;
+  readonly hd?: string | null;
+  readonly emailVerified?: boolean;
+};
+
+/**
+ * Every account in the simulated directory authenticates with this one
+ * literal. It is deliberately not a secret and deliberately not per-account:
+ * local work needs a password that is obvious and never expires.
+ */
+export const IDP_PASSWORD = 'password';
 
 export type IdpClient = {
   readonly clientId: string;
@@ -63,7 +85,12 @@ export type IdpAuthRequest = {
   readonly loginHint: string | null;
   readonly createdAtMs: number;
   /** Account the human picked, carried across the consent post back. */
-  chosenSub: string | null;
+  readonly chosenSub: string | null;
+  /**
+   * Address parked after step 1 of sign-in, before the password is checked.
+   * `null` means the human has not typed an address yet.
+   */
+  readonly identifierEmail: string | null;
 };
 
 export type IdpAuthCode = {

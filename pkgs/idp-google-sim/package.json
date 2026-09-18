@@ -15,22 +15,41 @@
     "./start-server": "./scripts/start-idp-server.ts"
   },
   "scripts": {
+    "build:web": "bun run scripts/build-web-assets.ts",
     "lint": "bunx biome check --error-on-warnings .",
-    "start": "bun run scripts/serve.ts",
-    "stack": "bun run scripts/serve.ts",
+    "start": "bun --conditions=browser --conditions=development --preload ./bun-solid-preload.ts scripts/serve.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test ./tests"
+    "test": "bun test --conditions=browser --conditions=development --preload ./bun-solid-preload.ts ./tests",
+    "web:dev": "vite --config vite.config.mts"
   },
   "dependencies": {
+    "@happy-dom/global-registrator": "catalog:",
     "@noble/hashes": "catalog:",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "happy-dom": "catalog:",
     "hono": "catalog:",
-    "jose": "catalog:"
+    "jose": "catalog:",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@babel/core": "catalog:",
+    "@babel/preset-typescript": "catalog:",
+    "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "babel-preset-solid": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
   }
 }

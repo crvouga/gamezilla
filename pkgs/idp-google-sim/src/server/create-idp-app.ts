@@ -8,43 +8,27 @@
  * origin — which is the point, because the production code path (PKCE, code
  * exchange, userinfo) is then the code path under test.
  *
- * All I/O is injected, so the same app runs in-process inside a simulation
- * and standalone on a loopback port.
+ * Every piece of state lives in the injected {@link IdpStore}; the same app
+ * runs in-process inside a simulation and standalone on a loopback port. The
+ * app itself is assembled in `app.ts`, whose return type is the RPC contract.
  */
 
-import { Hono } from 'hono';
+import type { Hono } from 'hono';
 
-import {
-  IDP_ADMIN_PREFIX,
-  IDP_AUTHORIZE_PATH,
-  IDP_AUTHORIZE_SUBMIT_PATH,
-  IDP_CERTS_PATH,
-  IDP_DISCOVERY_PATH,
-  IDP_REVOKE_PATH,
-  IDP_TOKEN_PATH,
-  IDP_TOKENINFO_PATH,
-  IDP_USERINFO_PATH,
-} from '../shared/paths';
-import type { IdpAccount, IdpClient } from '../shared/types';
+import type { IdpAccount, IdpAccountDraft, IdpClient } from '../shared/types';
+import { createIdpApp, createIdpAppWithAdmin } from './app';
 import type { IdpCtx } from './idp-context';
-import type { IdpSigningKeys } from './idp-keys';
-import { type IdpAccountDraft, upsertAccount } from './idp-seed';
-import { createIdpState, type IdpStateDeps } from './idp-state';
-import { createIdpAdminApp } from './routes/admin';
-import { handleAuthorize, handleAuthorizeSubmit } from './routes/authorize';
-import { handleCerts, handleDiscovery } from './routes/discovery';
-import { handleToken } from './routes/token';
-import {
-  handleRevoke,
-  handleTokenInfo,
-  handleUserinfo,
-} from './routes/userinfo';
+import type { IdpStore } from './idp-state';
 
-export type CreateIdpAppDeps = IdpStateDeps & {
-  readonly keys: IdpSigningKeys;
+export type CreateIdpAppOptions = {
+  /** Migrated, bootstrapped IdP storage. */
+  readonly store: IdpStore;
   /** OAuth clients this provider will serve. */
   readonly clients: readonly IdpClient[];
-  /** Directory contents at boot. */
+  /**
+   * Directory contents at boot. Seeded, not upserted: a restart never rewrites
+   * an account that was created or edited in the running provider.
+   */
   readonly accounts?: readonly IdpAccountDraft[];
   /** Pin the issuer instead of deriving it from the request origin. */
   readonly issuer?: string;
@@ -56,37 +40,27 @@ export type GoogleIdp = {
   readonly app: Hono;
   readonly ctx: IdpCtx;
   /** Add (or replace) a directory entry after boot. */
-  addAccount(draft: IdpAccountDraft): IdpAccount;
+  addAccount(draft: IdpAccountDraft): Promise<IdpAccount>;
 };
 
-export function createGoogleIdpApp(deps: CreateIdpAppDeps): GoogleIdp {
-  const state = createIdpState({ clock: deps.clock, createId: deps.createId });
-  for (const client of deps.clients) state.clients.set(client.clientId, client);
-  for (const draft of deps.accounts ?? []) upsertAccount(state, draft);
-
-  const ctx: IdpCtx = {
-    state,
-    keys: deps.keys,
-    issuerOverride: deps.issuer ?? null,
-  };
-
-  const app = new Hono();
-  app.get(IDP_DISCOVERY_PATH, (c) => handleDiscovery(c, ctx));
-  app.get(IDP_CERTS_PATH, (c) => handleCerts(c, ctx));
-  app.get(IDP_AUTHORIZE_PATH, (c) => handleAuthorize(c, ctx));
-  app.post(IDP_AUTHORIZE_SUBMIT_PATH, (c) => handleAuthorizeSubmit(c, ctx));
-  app.post(IDP_TOKEN_PATH, (c) => handleToken(c, ctx));
-  app.get(IDP_USERINFO_PATH, (c) => handleUserinfo(c, ctx));
-  app.post(IDP_USERINFO_PATH, (c) => handleUserinfo(c, ctx));
-  app.get(IDP_TOKENINFO_PATH, (c) => handleTokenInfo(c, ctx));
-  app.post(IDP_REVOKE_PATH, (c) => handleRevoke(c, ctx));
-  if (deps.admin !== false) {
-    app.route(IDP_ADMIN_PREFIX, createIdpAdminApp(ctx));
+export async function createGoogleIdpApp(
+  options: CreateIdpAppOptions
+): Promise<GoogleIdp> {
+  const { store } = options;
+  for (const client of options.clients) {
+    await store.registerClient(client);
   }
+  for (const draft of options.accounts ?? []) {
+    await store.seedAccount(draft);
+  }
+
+  const ctx: IdpCtx = { store, issuerOverride: options.issuer ?? null };
+  const app =
+    options.admin === false ? createIdpApp(ctx) : createIdpAppWithAdmin(ctx);
 
   return {
     app,
     ctx,
-    addAccount: (draft) => upsertAccount(state, draft),
+    addAccount: (draft) => store.upsertAccount(draft),
   };
 }

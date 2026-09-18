@@ -1,78 +1,74 @@
 /**
  * Test-only control plane (`/__idp/*`). Real Google has no such thing; this is
  * how a suite seeds the directory, forces a fault, or wipes browser state
- * between scenarios without reaching into the provider's memory directly.
+ * between scenarios without reaching into the provider's storage directly.
  */
 
 import { Hono } from 'hono';
 
-import { IDP_DEFAULT_FAULTS, type IdpFaults } from '../../shared/types';
+import type { IdpClient, IdpFaults } from '../../shared/types';
 import type { IdpCtx } from '../idp-context';
-import {
-  type IdpAccountDraft,
-  registerClient,
-  resetRuntimeState,
-  upsertAccount,
-} from '../idp-seed';
+import { normalizeFaults } from '../store/state';
+import { parseAdminAccountDraft } from './account-creation';
 
 function readFaults(raw: unknown, current: IdpFaults): IdpFaults {
   if (raw === null || typeof raw !== 'object') return current;
-  const patch = raw as Partial<IdpFaults>;
-  return {
-    tokenEndpoint: patch.tokenEndpoint ?? current.tokenEndpoint,
-    userinfoEndpoint: patch.userinfoEndpoint ?? current.userinfoEndpoint,
-    denyConsent: patch.denyConsent ?? current.denyConsent,
-    withholdRefreshToken:
-      patch.withholdRefreshToken ?? current.withholdRefreshToken,
-  };
+  return normalizeFaults({ ...current, ...(raw as Partial<IdpFaults>) });
 }
 
 export function createIdpAdminApp(ctx: IdpCtx): Hono {
   const app = new Hono();
 
-  app.get('/state', (c) =>
-    c.json({
-      accounts: [...ctx.state.accounts.values()].map((account) => ({
-        ...account,
-        password: undefined,
-      })),
-      clients: [...ctx.state.clients.values()].map((client) => client.clientId),
-      sessions: [...ctx.state.sessions.values()],
-      grants: [...ctx.state.grants].map(([key, scopes]) => ({ key, scopes })),
-      pendingAuthRequests: ctx.state.authRequests.size,
-      liveAccessTokens: ctx.state.accessTokens.size,
-      faults: ctx.state.faults,
-    })
-  );
+  app.get('/state', async (c) => {
+    const [accounts, clients, faults, stats] = await Promise.all([
+      ctx.store.accounts(),
+      ctx.store.clients(),
+      ctx.store.faults(),
+      ctx.store.stats(),
+    ]);
+    return c.json({
+      accounts,
+      clients: clients.map((client) => client.clientId),
+      sessions: stats.sessions,
+      grants: stats.grants,
+      pendingAuthRequests: stats.pendingAuthRequests,
+      liveAccessTokens: stats.liveAccessTokens,
+      faults,
+    });
+  });
 
-  app.post('/reset', (c) => {
-    resetRuntimeState(ctx.state);
-    ctx.state.faults = IDP_DEFAULT_FAULTS;
+  app.post('/reset', async (c) => {
+    await ctx.store.tx(async (store) => {
+      await store.resetRuntimeState();
+      await store.resetFaults();
+    });
     return c.json({ ok: true });
   });
 
   app.post('/accounts', async (c) => {
-    const draft = (await c.req.json()) as IdpAccountDraft;
-    return c.json(upsertAccount(ctx.state, draft), 201);
+    const parsed = parseAdminAccountDraft(await c.req.json());
+    if (!parsed.ok) return c.json({ error: parsed.error }, 400);
+    return c.json(await ctx.store.upsertAccount(parsed.draft), 201);
   });
 
-  app.delete('/accounts/:sub', (c) => {
-    ctx.state.accounts.delete(c.req.param('sub'));
+  app.delete('/accounts/:sub', async (c) => {
+    await ctx.store.deleteAccount(c.req.param('sub'));
     return c.json({ ok: true });
   });
 
   app.post('/clients', async (c) => {
-    const client = await c.req.json();
-    return c.json(registerClient(ctx.state, client), 201);
+    const client = (await c.req.json()) as IdpClient;
+    return c.json(await ctx.store.registerClient(client), 201);
   });
 
   app.post('/faults', async (c) => {
-    ctx.state.faults = readFaults(await c.req.json(), ctx.state.faults);
-    return c.json(ctx.state.faults);
+    const next = readFaults(await c.req.json(), await ctx.store.faults());
+    await ctx.store.setFaults(next);
+    return c.json(next);
   });
 
-  app.post('/sign-out', (c) => {
-    ctx.state.sessions.clear();
+  app.post('/sign-out', async (c) => {
+    await ctx.store.clearSessions();
     return c.json({ ok: true });
   });
 

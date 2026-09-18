@@ -298,4 +298,24 @@
     color: var(--color-sr-accent);
     font-size: 12px;
   }
+  .sr-client[role="button"] {
+    cursor: pointer;
+  }
+
+  .sr-client.empty .sr-phone {
+    border: 1px dashed var(--color-sr-border-strong);
+    border-radius: 18px;
+    background: rgba(31, 32, 38, 0.45);
+  }
+
+  .sr-client-empty {
+    display: grid;
+    place-items: center;
+    height: 100%;
+    min-height: 160px;
+    padding: 18px;
+    color: var(--color-sr-faint);
+    font-size: 11px;
+    text-align: center;
+  }
 }

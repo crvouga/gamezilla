@@ -77,6 +77,9 @@ function writeDistIsolationHeaders(): void {
     `\tCross-Origin-Opener-Policy: ${SQLITE_WEB_COOP}`,
     `\tCross-Origin-Embedder-Policy: ${SQLITE_WEB_COEP}`,
     '',
+    '/sso-callback',
+    '\tCross-Origin-Opener-Policy: same-origin-allow-popups',
+    '',
   ].join('\n');
   writeFileSync(join(productDir, 'dist', '_headers'), body, 'utf8');
 }

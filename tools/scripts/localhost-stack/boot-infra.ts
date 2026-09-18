@@ -5,12 +5,7 @@
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import {
-  EMQX_API_KEY,
-  EMQX_API_SECRET,
-  EMQX_JWT_SECRET,
-  startEmqxServer,
-} from '@pkgs/emqx-server';
+import { startAedesServer } from '@pkgs/aedes-server';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
 import {
   S3_ACCESS_KEY_ID,
@@ -22,14 +17,14 @@ import {
 
 import { runLocalMigrate } from '../../../apps/server/scripts/run-local-postgres-migrate';
 import { runLocalSeed } from '../../../apps/server/scripts/run-local-postgres-seed';
-import { reservePort, waitForHttp } from './free-port';
+import { reservePort } from './free-port';
 import type { StackOptions } from './stack-options';
 
 export type InfraHandles = {
   readonly databaseUrl: string;
   readonly s3Endpoint: string | null;
-  readonly emqxWssUrl: string | null;
-  readonly emqxApiUrl: string | null;
+  readonly mqttWssUrl: string | null;
+  readonly mqttUrl: string | null;
   /** Environment the API instances need to reach all of the above. */
   readonly env: Readonly<Record<string, string>>;
   stop(): Promise<void>;
@@ -40,7 +35,7 @@ async function bootPostgres(dataDir: string): Promise<{
   stop(): Promise<void>;
 }> {
   const reservation = reservePort();
-  reservation.release();
+  await reservation.release();
   const postgres = await startEmbeddedPostgres({
     port: reservation.port,
     dataDir: join(dataDir, 'postgres'),
@@ -60,34 +55,16 @@ async function bootS3(): Promise<{
   return { endpoint: s3.endpoint, stop: s3.stop };
 }
 
-async function bootEmqx(
-  dataDir: string,
-  instanceId: string
-): Promise<{
+async function bootMqtt(): Promise<{
   readonly wssUrl: string;
-  readonly apiUrl: string;
-  stop(): void;
+  readonly mqttUrl: string;
+  stop(): Promise<void>;
 }> {
-  const mqtt = reservePort();
-  const ws = reservePort();
-  const dashboard = reservePort();
-  mqtt.release();
-  ws.release();
-  dashboard.release();
-  const emqx = await startEmqxServer({
-    mqttPort: mqtt.port,
-    wsPort: ws.port,
-    dashboardPort: dashboard.port,
-    dataDir: join(dataDir, 'emqx'),
-    // Distinct node names keep two brokers from fighting over one Erlang node.
-    nodeName: `emqx-${instanceId}@127.0.0.1`,
-  });
-  const apiUrl = `http://127.0.0.1:${String(emqx.dashboardPort)}`;
-  await waitForHttp(`${apiUrl}/status`, 90_000);
+  const mqtt = await startAedesServer();
   return {
-    wssUrl: `ws://127.0.0.1:${String(emqx.wsPort)}/mqtt`,
-    apiUrl,
-    stop: emqx.stop,
+    wssUrl: mqtt.wsUrl,
+    mqttUrl: mqtt.mqttUrl,
+    stop: mqtt.stop,
   };
 }
 
@@ -97,16 +74,15 @@ export async function bootInfra(args: {
 }): Promise<InfraHandles> {
   const postgres = await bootPostgres(args.dataDir);
   const s3 = args.options.withS3 ? await bootS3() : null;
-  const emqx = args.options.withEmqx
-    ? await bootEmqx(args.dataDir, args.options.instanceId)
-    : null;
+  const mqtt = args.options.withMqtt ? await bootMqtt() : null;
 
   return {
     databaseUrl: postgres.url,
     s3Endpoint: s3?.endpoint ?? null,
-    emqxWssUrl: emqx?.wssUrl ?? null,
-    emqxApiUrl: emqx?.apiUrl ?? null,
+    mqttWssUrl: mqtt?.wssUrl ?? null,
+    mqttUrl: mqtt?.mqttUrl ?? null,
     env: {
+      LOCALHOST_STACK: '1',
       DATABASE_URL: postgres.url,
       ...(s3 === null
         ? {}
@@ -117,18 +93,23 @@ export async function bootInfra(args: {
             S3_ENDPOINT: s3.endpoint,
             S3_REGION,
           }),
-      ...(emqx === null
+      ...(mqtt === null
         ? {}
         : {
-            EMQX_API_URL: emqx.apiUrl,
-            EMQX_API_KEY,
-            EMQX_API_SECRET,
-            EMQX_JWT_SECRET,
-            EMQX_WSS_URL: emqx.wssUrl,
+            EMQX_API_URL: mqtt.wssUrl
+              .replace(/^ws:/, 'http:')
+              .replace(/\/mqtt$/, ''),
+            EMQX_API_KEY: 'stack',
+            EMQX_API_SECRET: 'stack',
+            EMQX_JWT_SECRET: 'stack-jwt-secret',
+            EMQX_WSS_URL: mqtt.wssUrl,
+            EMQX_MQTT_URL: mqtt.mqttUrl,
+            EMQX_MQTT_USER: 'stack',
+            EMQX_MQTT_PASS: 'stack',
           }),
     },
     async stop() {
-      emqx?.stop();
+      await mqtt?.stop();
       await s3?.stop();
       await postgres.stop();
     },

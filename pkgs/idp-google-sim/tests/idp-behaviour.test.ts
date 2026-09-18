@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
   IDP_AUTHORIZE_SUBMIT_PATH,
+  IDP_PASSWORD,
   IDP_TEST_IDS,
 } from '@pkgs/idp-google-sim/shared';
 
@@ -10,6 +11,8 @@ import {
   type IdpBrowser,
   type IdpFixture,
   requestIdOf,
+  submitIdentifier,
+  submitPassword,
   TEST_CLIENT,
 } from './harness';
 
@@ -26,19 +29,17 @@ function authorizeUrl(overrides: Record<string, string> = {}): string {
   }).toString()}`;
 }
 
+/** Both sign-in steps, stopping on whatever screen follows. */
 async function passwordSignIn(
   browser: IdpBrowser,
   url: string
 ): Promise<string> {
   const html = await (await browser.fetch(url)).text();
-  const authed = await browser.fetch(
-    IDP_AUTHORIZE_SUBMIT_PATH,
-    formBody({
-      request_id: requestIdOf(html),
-      step: 'password',
-      email: 'alice@gmail.com',
-      password: 'hunter2-hunter2',
-    })
+  const identified = await submitIdentifier(browser, html, 'alice@gmail.com');
+  const authed = await submitPassword(
+    browser,
+    await identified.text(),
+    IDP_PASSWORD
   );
   return await authed.text();
 }
@@ -61,6 +62,14 @@ async function signedInBrowser(fixture: IdpFixture): Promise<IdpBrowser> {
 }
 
 describe('idp screens', () => {
+  test('a fresh browser shows the local account guidance', async () => {
+    const fixture = await createIdpFixture();
+    const html = await (await fixture.browser().fetch(authorizeUrl())).text();
+    expect(html).toContain(IDP_TEST_IDS.identifierAccounts);
+    expect(html).toContain('alice@gmail.com');
+    expect(html).toContain('bob@gmail.com');
+    expect(html).toContain(IDP_PASSWORD);
+  });
   test('a browser that already has a session sees the chooser', async () => {
     const fixture = await createIdpFixture();
     const browser = await signedInBrowser(fixture);
@@ -96,21 +105,20 @@ describe('idp screens', () => {
     expect(back.searchParams.get('state')).toBe('state-123');
   });
 
-  test('a wrong password re-renders the sign-in page with Google copy', async () => {
+  test('a wrong password stays on step 2 with Google copy', async () => {
     const fixture = await createIdpFixture();
     const browser = fixture.browser();
     const html = await (await browser.fetch(authorizeUrl())).text();
-    const retry = await browser.fetch(
-      IDP_AUTHORIZE_SUBMIT_PATH,
-      formBody({
-        request_id: requestIdOf(html),
-        step: 'password',
-        email: 'alice@gmail.com',
-        password: 'nope',
-      })
+    const identified = await submitIdentifier(browser, html, 'alice@gmail.com');
+    const retry = await submitPassword(
+      browser,
+      await identified.text(),
+      'nope'
     );
     expect(retry.status).toBe(401);
-    expect(await retry.text()).toContain('Wrong password.');
+    const retryHtml = await retry.text();
+    expect(retryHtml).toContain(IDP_TEST_IDS.passwordPage);
+    expect(retryHtml).toContain('Wrong password.');
   });
 
   test('an unregistered redirect URI never redirects', async () => {
@@ -144,10 +152,10 @@ describe('idp screens', () => {
 describe('idp faults', () => {
   test('the token endpoint can be made to fail', async () => {
     const fixture = await createIdpFixture();
-    fixture.idp.ctx.state.faults = {
-      ...fixture.idp.ctx.state.faults,
+    await fixture.store.setFaults({
+      ...(await fixture.store.faults()),
       tokenEndpoint: 'server_error',
-    };
+    });
     const res = await fixture.browser().fetch('/token', formBody({}));
     expect(res.status).toBe(500);
     expect((await res.json())['error']).toBe('internal_failure');
@@ -155,20 +163,17 @@ describe('idp faults', () => {
 
   test('consent can be forced to deny', async () => {
     const fixture = await createIdpFixture();
-    fixture.idp.ctx.state.faults = {
-      ...fixture.idp.ctx.state.faults,
+    await fixture.store.setFaults({
+      ...(await fixture.store.faults()),
       denyConsent: true,
-    };
+    });
     const browser = fixture.browser();
     const html = await (await browser.fetch(authorizeUrl())).text();
-    const res = await browser.fetch(
-      IDP_AUTHORIZE_SUBMIT_PATH,
-      formBody({
-        request_id: requestIdOf(html),
-        step: 'password',
-        email: 'alice@gmail.com',
-        password: 'hunter2-hunter2',
-      })
+    const identified = await submitIdentifier(browser, html, 'alice@gmail.com');
+    const res = await submitPassword(
+      browser,
+      await identified.text(),
+      IDP_PASSWORD
     );
     expect(res.headers.get('location') ?? '').toContain('error=access_denied');
   });
