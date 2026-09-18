@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
-# Opt-in: git config core.hooksPath tools/githooks
+# Repo-wide lint + typecheck before a commit. Opt-in, because the repo's checks
+# belong to PR CI (`.agents/commands/pr-ready.md`), and `--affected` spans every
+# package whenever a global dependency (turbo.json, tsconfig.base.json) is in
+# the working tree — a commit-blocking, multi-minute run with no CI signal
+# gained. Turn it on per commit with `GIT_LINT_PRECOMMIT=1 git commit …`.
+#
+# `tools/githooks/pre-push` (the `main` guard) always runs — that one is not
+# heavy and is what keeps direct pushes to `main` out of the repo.
 set -euo pipefail
+
+if [ "${GIT_LINT_PRECOMMIT:-}" != '1' ]; then
+  exit 0
+fi
 
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"

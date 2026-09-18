@@ -140,7 +140,9 @@ current plan cannot require a status check (branch protection returns
 `Upgrade to GitHub Pro or make this repository public`), so `/pr-ready`
 (`.agents/commands/pr-ready.md`) is what refuses to call a PR ready until
 `gh pr checks` is green. If the repo moves to Pro/Team or goes public, add
-`check:full` as the single required status check in branch protection.
+`check:full` as the single required status check in branch protection. **Agents
+never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue; merging is
+always a human decision on GitHub.
 
 **`main` only moves through a merged PR.** Three layers, because the plan above
 blocks the server-side one: `tools/githooks/pre-push` refuses any push to
@@ -148,9 +150,14 @@ blocks the server-side one: `tools/githooks/pre-push` refuses any push to
 `bun run hooks:install`), `.github/workflows/deploy.yml` fails before it deploys
 any commit that is not associated with a pull request, and that same job re-runs
 the whole `check:full` leaf set before shipping — so a merged-but-red PR cannot
-reach prod either. Only GitHub branch protection makes direct commits genuinely
-impossible: enable it with `check:full` required and direct pushes blocked once
-the repo is on Pro/Team or public.
+reach prod either. `bun run protect:main` applies the airtight version — a PR is
+required to change `main`, `check:full` must be green on the latest `main`,
+and direct pushes, force-pushes and deletions are rejected, admins included. It
+exits 1 with GitHub's `Upgrade to GitHub Pro or make this repository public`
+until the repo is on Pro/Team or public; re-run it after that plan change. The
+other hook, `tools/githooks/pre-commit` (repo-wide `lint tc --affected`), is
+opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`): checks belong to PR CI,
+and `--affected` spans every package while a global dependency is dirty.
 
 ## Superset workspaces
 
@@ -171,9 +178,9 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 - **Checks.** PR CI owns `bun check:full` — never run it locally. Verify with
   `bun fmt` plus `bun run --filter <pkg> tc` and `bun run --filter <pkg> test`
   for the packages actually touched, then run `/pr-ready`
-  (`.agents/commands/pr-ready.md`), which syncs with `main`, commits, pushes and
-  drives the PR check green. Review feedback is handled by `/pr-feedback`
-  (`.agents/commands/pr-feedback.md`).
+  (`.agents/commands/pr-ready.md`) — the single PR command: it syncs with
+  `main`, commits, pushes, opens/updates the PR, addresses review comments, and
+  drives the PR check green. It never merges: a green PR is handed to a human.
 
 ## Local development
 
