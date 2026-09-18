@@ -8,7 +8,6 @@
     "required_approving_review_count": 0
   },
   "required_status_checks": {
-    "contexts": ["check:full"],
     "strict": true
   },
   "restrictions": null

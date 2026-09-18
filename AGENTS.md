@@ -135,23 +135,26 @@ to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 `@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
 wildcard to a `.tsx` file) fails on the runner while passing locally.
 
-`check:full` is enforced by GitHub, not by convention:
+Every PR check is required by GitHub, not by convention:
 `tools/github-config/main-protection.json` (applied with `bun run github:config`)
-makes the single `check:full` job a required status check against the latest
-`main`, so GitHub itself refuses the merge until it is green. **Agents never
-merge PRs** — no `gh pr merge`, no auto-merge, no merge queue; merging is always
-a human decision on GitHub.
+requires everything that reports on the PR — ours and third-party apps' — against
+the latest `main`, so GitHub itself refuses the merge until all of it is green.
+**Agents never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue;
+merging is always a human decision on GitHub.
 
 **`main` only moves through a merged PR.** GitHub enforces it — every setting
 this repo applies on GitHub lives in `tools/github-config/` as the REST payload,
 applied by `bun run github:config` (drift check `bun run github:config:check`):
 
-- `main-protection.json` — a PR is required to change `main`, `check:full` must
-  be green against the latest `main`, and direct pushes, force-pushes and
-  deletions are rejected, admins included. Protected branches need GitHub
-  Pro/Team (or a public repo); the API 403s otherwise. Verified by pushing to a
-  protected branch with the local hook bypassed: `remote: - Changes must be made
-  through a pull request.`
+- `main-protection.json` — a PR is required to change `main`, and direct pushes,
+  force-pushes and deletions are rejected, admins included. **Required checks are
+  never named here**: the script reads what actually reports on open PRs
+  (`gh pr checks`, third-party apps included) and requires all of it, strictly
+  (the branch must be up to date). Add, rename or drop a PR check and
+  `bun run github:config` follows; pushed-only checks (the deploy jobs) are
+  excluded because they never report on a PR. Verified by pushing to a protected
+  branch with the local hook bypassed: `remote: - Changes must be made through a
+  pull request.`
 - `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
   branch.
 
