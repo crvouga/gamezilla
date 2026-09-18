@@ -135,29 +135,35 @@ to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 `@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
 wildcard to a `.tsx` file) fails on the runner while passing locally.
 
-`check:full` is the merge gate by convention, not by GitHub enforcement — the
-current plan cannot require a status check (branch protection returns
-`Upgrade to GitHub Pro or make this repository public`), so `/pr-ready`
-(`.agents/commands/pr-ready.md`) is what refuses to call a PR ready until
-`gh pr checks` is green. If the repo moves to Pro/Team or goes public, add
-`check:full` as the single required status check in branch protection. **Agents
-never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue; merging is
-always a human decision on GitHub.
+`check:full` is enforced by GitHub, not by convention:
+`tools/github-config/main-protection.json` (applied with `bun run github:config`)
+makes the single `check:full` job a required status check against the latest
+`main`, so GitHub itself refuses the merge until it is green. **Agents never
+merge PRs** — no `gh pr merge`, no auto-merge, no merge queue; merging is always
+a human decision on GitHub.
 
-**`main` only moves through a merged PR.** Three layers, because the plan above
-blocks the server-side one: `tools/githooks/pre-push` refuses any push to
+**`main` only moves through a merged PR.** GitHub enforces it — every setting
+this repo applies on GitHub lives in `tools/github-config/` as the REST payload,
+applied by `bun run github:config` (drift check `bun run github:config:check`):
+
+- `main-protection.json` — a PR is required to change `main`, `check:full` must
+  be green against the latest `main`, and direct pushes, force-pushes and
+  deletions are rejected, admins included. Protected branches need GitHub
+  Pro/Team (or a public repo); the API 403s otherwise. Verified by pushing to a
+  protected branch with the local hook bypassed: `remote: - Changes must be made
+  through a pull request.`
+- `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
+  branch.
+
+Two local layers back it up: `tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
-`bun run hooks:install`), `.github/workflows/deploy.yml` fails before it deploys
-any commit that is not associated with a pull request, and that same job re-runs
-the whole `check:full` leaf set before shipping — so a merged-but-red PR cannot
-reach prod either. `bun run protect:main` applies the airtight version — a PR is
-required to change `main`, `check:full` must be green on the latest `main`,
-and direct pushes, force-pushes and deletions are rejected, admins included. It
-exits 1 with GitHub's `Upgrade to GitHub Pro or make this repository public`
-until the repo is on Pro/Team or public; re-run it after that plan change. The
-other hook, `tools/githooks/pre-commit` (repo-wide `lint tc --affected`), is
-opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`): checks belong to PR CI,
-and `--affected` spans every package while a global dependency is dirty.
+`bun run hooks:install`), and `.github/workflows/deploy.yml` fails before it
+deploys any commit that is not associated with a pull request — that job also
+re-runs the whole `check:full` leaf set first, so a merged-but-red PR cannot
+ship. The other hook, `tools/githooks/pre-commit` (repo-wide
+`lint tc --affected`), is opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`):
+checks belong to PR CI, and `--affected` spans every package while a global
+dependency is dirty.
 
 ## Superset workspaces
 
