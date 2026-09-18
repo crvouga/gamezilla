@@ -93,6 +93,9 @@ apps/client/android/
 /actionlint
 # Turborepo
 .turbo
+# Platform cache key written by tools/scripts/turbo-ci-run.ts (Turbo's hash has
+# no OS notion; the scoped test:e2e / test:contract leaves hash this file).
+turbo-platform-key.json
 
 
 # Check artifacts (reports, traces, videos)

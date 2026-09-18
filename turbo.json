@@ -274,7 +274,8 @@
         "tests/**/*.contract.test.ts",
         "package.json",
         "*.cjs",
-        "tsconfig*.json"
+        "tsconfig*.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "outputLogs": "new-only",
       "outputs": [],
@@ -287,20 +288,9 @@
         "scripts/**",
         "package.json",
         "*.cjs",
-        "tsconfig*.json"
+        "tsconfig*.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "@pkgs/auth#test:e2e": {
-      "cache": false,
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "@pkgs/sql-client-sqlite-web#test:e2e": {
-      "cache": false,
       "outputLogs": "new-only",
       "outputs": [],
       "dependsOn": ["tc"]
