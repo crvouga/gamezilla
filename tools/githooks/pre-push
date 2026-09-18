@@ -24,7 +24,7 @@ pre-push: refusing to update refs/heads/main.
 
 main only moves through a merged pull request. Push a feature branch and open a
 PR instead — `/pr-ready` (.agents/commands/pr-ready.md) does exactly that — then
-merge the PR on GitHub.
+have a human merge the green PR on GitHub.
 
 `--no-verify` is not a fix: a commit pushed straight to main is not associated
 with a pull request, so the deploy pipeline rejects it and nothing ships.

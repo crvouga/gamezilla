@@ -146,8 +146,10 @@ type LocalEngineState = {
   disposePush: (() => void) | null;
   /** Remake entryChannel / held-row topics after identity switch wake. */
   refreshTopics: (() => void) | null;
-  pushPubSub: PubSub | null;
   disposeExternalDbChanged: (() => void) | null;
+  pushPubSub: PubSub | null;
+  /** In-flight local mutation work (MutationClientProvider / sim clients). */
+  readonly mutationDrains: Set<() => Promise<void>>;
 };
 
 type LocalEngineStateRef = { current: LocalEngineState | null };
@@ -265,6 +267,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     options,
     bus,
     appDb,
+    mutationDrains: new Set(),
     status,
     runtime,
     uploadQueue,
@@ -360,9 +363,16 @@ async function connectState(state: LocalEngineState): Promise<void> {
   state.status.patch({ connection: 'syncing' });
 }
 
+async function drainMutationClients(state: LocalEngineState): Promise<void> {
+  await Promise.all([...state.mutationDrains].map((drain) => drain()));
+}
+
 async function disconnectState(state: LocalEngineState): Promise<void> {
   state.connected = false;
   detachPush(state);
+  // Local mutations outlive their component tree (bootstrap effects), so their
+  // apply must finish before callers close the SqlClient (pool releaseAll).
+  await drainMutationClients(state);
   // Drain in-flight sweep/merge before callers close SqlClient (pool releaseAll).
   await state.runtime.stopAndDrain();
   await state.uploadQueue.stop();
@@ -374,6 +384,7 @@ async function revokeDatabase(state: LocalEngineState): Promise<void> {
   state.disposeExternalDbChanged?.();
   state.disposeExternalDbChanged = null;
   detachPush(state);
+  await drainMutationClients(state);
   await state.runtime.stopAndDrain();
   await state.uploadQueue.stop();
   await state.options.db.disconnect();
@@ -437,6 +448,12 @@ function toEngine(state: LocalEngineState): SyncEngine {
     wakeUploads: () => state.uploadQueue.wake(),
     notifyLocalMutation: (mutation, args, capture) =>
       notifyLocalMutation(state, mutation, args, capture),
+    registerMutationDrain: (drain) => {
+      state.mutationDrains.add(drain);
+      return () => {
+        state.mutationDrains.delete(drain);
+      };
+    },
     ensurePush: () => {
       if (!state.connected) return;
       void attachPushIfConfigured(state, () => mergeDeps(state)).catch(

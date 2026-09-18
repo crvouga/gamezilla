@@ -1,5 +1,5 @@
 ---
-description: Sync the current branch with main, commit, push, and drive the PR checks green
+description: Take the current branch to a green, mergeable PR — sync, verify, commit, push, address review feedback, and drive CI green
 ---
 
 # /pr-ready
@@ -8,21 +8,30 @@ Take the current branch from "changes exist" to "PR is green and mergeable". Run
 it once per logical unit of work (a completed fix, feature, or review pass) —
 not after every keystroke or file save.
 
-The repo is PR-first: `bun check:full` runs in GitHub Actions on the PR
-(`.github/workflows/pr.yml`, one job named `check:full`), and deploying happens
+The repo is PR-first: `bun check` runs in GitHub Actions on the PR
+(`.github/workflows/pr.yml`, one job named `check`), and deploying happens
 on `main` (`.github/workflows/deploy.yml`), never from this branch. Your job is
-to make the branch mergeable, not to prove it locally.
+to make the branch mergeable.
 
 ## Core rules (read first)
 
-- **PR CI owns the checks.** Never run `bun check:full`, `bun check`, or any
-  `bun deploy*` here. Local verification is `bun fmt` plus per-package `tc` /
-  `test` for the packages this branch actually touches.
+- **PR CI owns the gate.** `bun check` is the whole check surface and the same
+  suite CI runs; you may run it locally, but while iterating prefer `bun fmt`
+  plus per-package `tc` / `test` for the packages this branch actually touches.
+  Never run any `bun deploy*` here.
 - **Never make a check pass by weakening it.** Deleting or skipping tests
   (`.skip`, `.only`, commenting out), loosening assertions, `@ts-ignore` /
   `@ts-expect-error` / `as any`, disabling lint rules (inline or in config), or
   editing the check scripts are all forbidden. If a check itself looks wrong,
   stop and report it.
+- **Never merge the PR.** Agents may create or update the PR, push commits, and
+  watch checks, but never run `gh pr merge`, never enable auto-merge or the
+  merge queue, and never merge through any other GitHub UI/API path. A green PR
+  is the finish line: stop and hand the merge decision to a human.
+- **The PR body is a contract.** Every PR fills
+  `.github/pull_request_template.md` completely — no empty section, no unchecked
+  box, no deleted checklist line. `//#ci:pr-template` enforces it in PR CI and
+  re-runs on body edits; never weaken the template or the checker to pass it.
 - **Never rewrite history.** No `--amend` on pushed commits, no `--force`, no
   `--force-with-lease`, no `--no-verify`. Sync with `main` by merging.
 - **Run steps individually** — do not chain them with `&&` and do not use
@@ -112,14 +121,25 @@ git push -u origin "$(git branch --show-current)"
 gh pr view --json number,url >/dev/null 2>&1 || gh pr create --base main --fill
 ```
 
-Then make the PR legible:
+Then write the PR body from `.github/pull_request_template.md`. The body is a
+contract: `//#ci:pr-template` (part of `//#check`) fails the PR when a `##`
+section is missing, empty, or a checklist box is unchecked, and it re-runs when
+the body is edited. Write the filled body to a file — do not paste a section
+list by hand — keeping every heading and every checklist line exactly as the
+template has them, replacing the HTML comments with real content:
 
 ```sh
-gh pr edit --title "<type>(<scope>): <summary>"
-gh pr edit --body "<what changed and why>
-
-Checks: \`bun check:full\` (PR CI)"
+gh pr edit --title "<type>(<scope>): <summary>" --body-file /tmp/pr-body.md
+bun run ci:pr-template      # local self-check; also enforced by PR CI
 ```
+
+- `Summary` / `Why` / `Scope` / `Verification` / `Risk` / `Provenance`: real
+  content, no placeholders left. `Verification` names the surface you actually
+  exercised and what the PR does *not* prove.
+- Checklist: check a box only when it is true. If an item genuinely does not
+  apply, say so under `Verification` and check it — do not delete the line.
+- Never edit `.github/pull_request_template.md`, `tools/scripts/check-pr-body.ts`,
+  or the checklist text to make the gate pass.
 
 ## 6. Drive the checks green
 
@@ -142,7 +162,49 @@ If the failure is in a leaf you cannot reproduce locally (the CI-only
 `@tools#check:static`, or a contract test whose sidecar ports are busy in this
 workspace), say so in the report rather than guessing.
 
-## 7. Stop and report when
+If the failing leaf is `//#ci:pr-template`, the fix is the PR body (step 5), not
+the checker: fill the missing section, write the missing content, or check the
+box that is actually true.
+
+## 7. Resolve review feedback when present
+
+Read the review comments — top-level **and** inline:
+
+```sh
+gh pr view --comments
+gh api repos/crvouga/gamezilla/pulls/<N>/comments --paginate
+```
+
+The second call matters: `gh pr view --comments` does **not** include inline code
+comments. Together they give you every comment, with the file, line range and
+side baked in.
+
+Triage each comment as exactly one of: **change** (the reviewer is right),
+**reply** (they are wrong, or it is a judgement call that needs a human), or
+**already done** (the branch already covers it — reply with the commit or file
+that proves it). Never guess on a judgement call; leave it for a human.
+
+For accepted changes, verify with the touched packages' `tc` / `test`, commit one
+logical change per review unit, and push:
+
+```sh
+bun fmt
+git add -A
+git commit -m "<type>(<scope>): <what the comment asked for>"
+git push
+```
+
+Reference the comment being addressed in the commit body (comment URL or
+`review comment <id>`). Reply where a change is not the right answer:
+
+```sh
+gh api --method POST repos/crvouga/gamezilla/pulls/<N>/comments/<comment_id>/replies -f body="<why not>"
+```
+
+Keep replies to the point: what you did instead, or the evidence that the current
+behaviour is intended. Then return to step 6 and watch the checks again.
+
+## 8. Stop and report when
 
 - a required human decision or missing credential blocks progress
 - a check is genuinely wrong (report it — do not edit the check)
@@ -154,7 +216,7 @@ Use this template:
 ```
 ❌ PR not ready.
 Branch: <branch>
-Failing step: <fmt | biome | <pkg> tc | <pkg> test | check:full (CI)>
+Failing step: <fmt | biome | <pkg> tc | <pkg> test | check (CI)>
 PR: <url | none>
 Error: <exact key output>
 Attempts: <what you tried, in order>
@@ -162,11 +224,14 @@ Hypothesis: <most likely root cause>
 Needs: <what a human should decide or provide>
 ```
 
-## 8. Report when done
+## 9. Report when done
 
-- PR URL and final commit list (`git log --oneline origin/main..HEAD`)
-- `gh pr checks` summary (every check green)
+- PR URL, final commit list (`git log --oneline origin/main..HEAD`), and merge
+  state: **green and awaiting a human merge** — this command never merges.
+- `gh pr checks` summary (every check green).
+- Per review comment: changed (with commit) vs replied (with reason) vs already
+  covered.
 - What is *not* verified: deployment. `main` runs the dev rehearsal canary and
-  then prod via `.github/workflows/deploy.yml` after merge — nothing is deployed
-  from this branch.
+  then prod via `.github/workflows/deploy.yml` after a human merges — nothing is
+  deployed from this branch.
 - Any flaky tests, warnings, or marginal calls a human should look at.

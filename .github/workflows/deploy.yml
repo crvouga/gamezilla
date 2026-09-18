@@ -17,7 +17,7 @@ name: Deploy
 # This never runs on pull requests: the dev scope is a shared singleton and
 # @libs/db#migrate / @libs/secrets#provision are not dry-run gated, so
 # concurrent PRs would clobber each other's dev migrations and secret state.
-# PRs get `bun run check:full` in .github/workflows/pr.yml instead.
+# PRs get `bun run check` in .github/workflows/pr.yml instead.
 
 permissions:
   contents: read
