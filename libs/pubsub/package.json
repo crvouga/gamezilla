@@ -32,6 +32,7 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "jose": "catalog:"

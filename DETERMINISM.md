@@ -68,7 +68,7 @@ Do not call bare:
 
 Wall construction (`wallClock`, `wallTimers`, `crypto.randomUUID`) only in **tests** or
 **entry-shaped** files marked `// @io-wall-ok` (see
-`tools/scripts/io-scan-pragma.ts`).
+`libs/tools/biome-plugins/no-bare-io.grit`).
 
 CI: Biome Grit plugins (via `bun run lint`) for bare I/O, wall defaults, and hard-determinism.
 
@@ -125,7 +125,7 @@ steps).
 ## Optional local pre-commit
 
 ```bash
-git config core.hooksPath tools/githooks
+git config core.hooksPath libs/tools/githooks
 ```
 
 Runs hard-determinism + sim tests when staged paths touch room / shared game /

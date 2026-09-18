@@ -5,7 +5,7 @@ import { ensureObjectStoreBuckets } from '@libs/object-store/shared/ensure-bucke
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { ok, warn } from '../shared/fmt';
 import {
   applySeededS3ToEnv,

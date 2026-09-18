@@ -7,7 +7,7 @@ import tseslint from 'typescript-eslint';
 
 /**
  * ESLint is scoped to Solid code (Biome covers everything else).
- * The scope ratchets outward per port phase via `tools/port/solid-scope.json`.
+ * The scope ratchets outward per port phase via `libs/tools/port/solid-scope.json`.
  */
 const scope = /** @type {{
   dirs: string[];
@@ -17,7 +17,7 @@ const scope = /** @type {{
 }} */ (
   JSON.parse(
     readFileSync(
-      new URL('./tools/port/solid-scope.json', import.meta.url),
+      new URL('./libs/tools/port/solid-scope.json', import.meta.url),
       'utf8'
     )
   )

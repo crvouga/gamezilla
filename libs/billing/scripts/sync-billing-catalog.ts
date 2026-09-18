@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   );
   if (billing === null) {
     console.error(
-      `[${SCRIPT_TAG}] billing secret key is missing or blank — run under \`bun run tools/scripts/secrets-run.ts\``
+      `[${SCRIPT_TAG}] billing secret key is missing or blank — run under \`bun run libs/secrets/src/scripts/secrets-run.ts\``
     );
     process.exit(1);
   }

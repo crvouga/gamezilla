@@ -2,6 +2,8 @@
  * Process-wide Postgres + MinIO + EMQX for `openSim` mode `real`.
  * Default `test` never calls this.
  */
+
+import { bootLocalStack } from '@apps/server/scripts/boot-local-stack';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -17,8 +19,6 @@ import {
   MINIO_ROOT_USER,
 } from '@pkgs/minio-server';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
-
-import { bootLocalStack } from '../../../../../tools/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 

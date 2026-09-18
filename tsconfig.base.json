@@ -30,6 +30,7 @@
       "@apps/room-server": ["./apps/room-server/src/room.ts"],
       "@apps/room-server/*": ["./apps/room-server/src/*"],
       "@apps/server/*": ["./apps/server/src/*"],
+      "@apps/server/scripts/*": ["./apps/server/scripts/*.ts"],
       "@libs/auth/*": ["./libs/auth/src/*"],
       "@libs/billing/*": ["./libs/billing/src/*"],
       "@libs/chess/*": ["./libs/chess/src/*"],

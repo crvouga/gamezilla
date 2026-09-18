@@ -24,7 +24,7 @@ import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 const log = createLogger({ name: 'product:deploy', now: wallClock.now });
 

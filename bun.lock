@@ -170,6 +170,7 @@
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
         "@pkgs/secure-storage": "workspace:*",
         "@pkgs/secure-storage-web": "workspace:*",
         "@pkgs/sim": "workspace:*",
@@ -199,6 +200,7 @@
         "@babel/plugin-transform-explicit-resource-management": "catalog:",
         "@babel/preset-typescript": "catalog:",
         "@babel/runtime": "catalog:",
+        "@clack/prompts": "catalog:",
         "@happy-dom/global-registrator": "catalog:",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
@@ -231,6 +233,7 @@
         "@pkgs/room": "workspace:*",
         "@pkgs/room-adapter-durable-object": "workspace:*",
         "@pkgs/room-adapter-memory": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -286,6 +289,7 @@
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
@@ -470,7 +474,9 @@
         "@pkgs/kv-postgres": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/os": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
@@ -568,6 +574,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-s3": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -621,6 +628,7 @@
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "jose": "catalog:",
@@ -776,6 +784,17 @@
       "devDependencies": {
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+      },
+    },
+    "libs/tools": {
+      "name": "@libs/tools",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/secrets": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/os": "workspace:*",
+        "@pkgs/secret-provider": "workspace:*",
       },
     },
     "libs/user-search": {
@@ -1323,6 +1342,18 @@
     "pkgs/invariants": {
       "name": "@pkgs/invariants",
       "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/jingle": {
+      "name": "@pkgs/jingle",
+      "version": "0.0.0",
+      "bin": {
+        "jingle": "./src/jingle.ts",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -2452,21 +2483,6 @@
         "typescript": "catalog:",
       },
     },
-    "tools": {
-      "name": "@tools",
-      "version": "0.0.0",
-      "bin": {
-        "jingle": "./jingle.ts",
-      },
-      "dependencies": {
-        "@clack/prompts": "catalog:",
-        "@pkgs/object-store-node-fs": "workspace:*",
-        "@pkgs/os": "workspace:*",
-        "@pkgs/secret-provider": "workspace:*",
-        "@pkgs/secrets-config": "workspace:*",
-        "@pkgs/sql-client-postgres": "workspace:*",
-      },
-    },
   },
   "trustedDependencies": [
     "@embedded-postgres/darwin-x64",
@@ -3168,6 +3184,8 @@
 
     "@libs/test-ids": ["@libs/test-ids@workspace:libs/test-ids"],
 
+    "@libs/tools": ["@libs/tools@workspace:libs/tools"],
+
     "@libs/user-search": ["@libs/user-search@workspace:libs/user-search"],
 
     "@lingui/babel-plugin-extract-messages": ["@lingui/babel-plugin-extract-messages@6.6.0", "", { "dependencies": { "@lingui/conf": "6.6.0" } }, "sha512-QfCS4SjZYvVZFaiF44e/mLsdzCqQvRSGoVJWkb8nc51FkNpOZkwFLiwLtRnWgvm0ce7GeG51czMsG7RFPPCXqw=="],
@@ -3375,6 +3393,8 @@
     "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
 
     "@pkgs/invariants": ["@pkgs/invariants@workspace:pkgs/invariants"],
+
+    "@pkgs/jingle": ["@pkgs/jingle@workspace:pkgs/jingle"],
 
     "@pkgs/keyword": ["@pkgs/keyword@workspace:pkgs/keyword"],
 
@@ -3629,8 +3649,6 @@
     "@testing-library/jest-dom": ["@testing-library/jest-dom@7.0.1", "", { "dependencies": { "@adobe/css-tools": "^4.4.0", "aria-query": "^5.0.0", "css.escape": "^1.5.1", "dom-accessibility-api": "^0.6.3", "picocolors": "^1.1.1", "redent": "^3.0.0" }, "peerDependencies": { "@testing-library/dom": ">=10 <11", "vitest": ">= 0.32" }, "optionalPeers": ["vitest"] }, "sha512-oMDTC3oA+6CXSO2JZnvOI7CA6oVub6kij5ggk9ohwye5slmkwxYDXcPOVxgMw/RQlticjtO0C1RZkR97HgrWMw=="],
 
     "@testing-library/user-event": ["@testing-library/user-event@14.6.7", "", { "peerDependencies": { "@testing-library/dom": ">=7.21.4" } }, "sha512-MPCpX8bxe8zS+JmmTwLp8jd0dy1rAm60Te/SL8JrQM3qvQJcBOs1d7IefJMyZzqM3EWBrDn/LWDt1BCGu4ASfg=="],
-
-    "@tools": ["@tools@workspace:tools"],
 
     "@total-typescript/ts-reset": ["@total-typescript/ts-reset@0.6.1", "", {}, "sha512-cka47fVSo6lfQDIATYqb/vO1nvFfbPw7uWLayIXIhGETj0wcOOlrlkobOMDNQOFr9QOafegUPq13V2+6vtD7yg=="],
 

@@ -28,7 +28,8 @@
     "@pkgs/message": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-durable-object": "workspace:*",
-    "@pkgs/room-adapter-memory": "workspace:*"
+    "@pkgs/room-adapter-memory": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -50,7 +50,7 @@ export async function createApiObjectStore(
     if (options.requireCredentials === true) {
       throw new Error(
         `S3 credentials required but missing: ${missing.join(', ')}. ` +
-          'Run under `bun run tools/scripts/secrets-run.ts` with SECRETS_ENV=dev.'
+          'Run under `bun run libs/secrets/src/scripts/secrets-run.ts` with SECRETS_ENV=dev.'
       );
     }
     log.warn('S3 credentials missing — using in-memory object store', {

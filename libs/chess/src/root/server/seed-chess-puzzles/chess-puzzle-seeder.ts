@@ -37,10 +37,10 @@
  * `SET …` statements that need to persist across the seed's batches).
  *
  * Dev (secrets env `dev`, local `@pkgs/postgres-embedded` or resolved DATABASE_URL):
- *   SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
+ *   SECRETS_ENV=dev bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (secrets env `prd`, `DATABASE_URL` → Postgres):
- *   SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
+ *   SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--profile auto|fast|managed` (default `auto`), `--source`,
  *   `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,

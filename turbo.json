@@ -118,6 +118,7 @@
         "src/**/*.ts",
         "src/**/*.tsx",
         "tests/**",
+        "scripts/**",
         "package.json",
         "*.cjs",
         "bun-*.ts",
@@ -309,8 +310,8 @@
         "package.json",
         "biome.json",
         "../../biome.json",
-        "../../tools/biome-plugins/**",
-        "tools/biome-plugins/**"
+        "../../libs/tools/biome-plugins/**",
+        "libs/tools/biome-plugins/**"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -318,23 +319,22 @@
     "//#lint:biome": {
       "inputs": [
         "biome.json",
-        "tools/biome-plugins/**",
+        "libs/tools/biome-plugins/**",
         "apps/**/*.{ts,tsx,js,jsx,cjs,mjs}",
         "libs/**/*.{ts,tsx,js,jsx,cjs,mjs}",
         "pkgs/**/*.{ts,tsx,js,jsx,cjs,mjs}",
-        "tools/**/*.{ts,tsx,js,jsx,cjs,mjs}",
         "package.json",
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "tools/package.json"
+        "libs/tools/package.json"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
     "//#lint:vocab": {
       "inputs": [
-        "tools/scripts/check-no-removed-auth-vocab.ts",
+        "libs/tools/scripts/check-no-removed-auth-vocab.ts",
         "libs/auth/**/*.{ts,tsx}",
         "pkgs/auth/**/*.{ts,tsx}"
       ],
@@ -344,7 +344,7 @@
     "//#lint:eslint": {
       "inputs": [
         "eslint.config.mjs",
-        "tools/port/solid-scope.json",
+        "libs/tools/port/solid-scope.json",
         "tsconfig.base.json",
         "tsconfig.json",
         "apps/client/src/chrome/**/*.{ts,tsx}",
@@ -425,10 +425,10 @@
         "dist/index.html",
         "dist/sw.js",
         "perf-budget.json",
-        "../../tools/scripts/bundle-budget.ts",
-        "../../tools/scripts/bundle-budget-lazy.ts",
-        "../../tools/scripts/bundle-budget-manifest.ts",
-        "../../tools/scripts/perf-budget.ts"
+        "scripts/bundle-budget.ts",
+        "scripts/bundle-budget-lazy.ts",
+        "scripts/bundle-budget-manifest.ts",
+        "scripts/perf-budget.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -440,11 +440,11 @@
       "inputs": [
         "dist/**",
         "perf-budget.json",
-        "../../tools/scripts/lighthouse-ci.ts",
-        "../../tools/scripts/lighthouse-report.ts",
-        "../../tools/scripts/lighthouse-api-stub.ts",
-        "../../tools/scripts/listen-preferred-or-ephemeral.ts",
-        "../../tools/scripts/perf-budget.ts"
+        "scripts/lighthouse-ci.ts",
+        "scripts/lighthouse-report.ts",
+        "scripts/lighthouse-api-stub.ts",
+        "scripts/listen-preferred-or-ephemeral.ts",
+        "scripts/perf-budget.ts"
       ],
       "outputs": [".lighthouseci/**"],
       "outputLogs": "new-only"
@@ -457,10 +457,10 @@
         "src/assets/**",
         "perf-budget.json",
         "../../tsconfig.base.json",
-        "../../tools/scripts/client-critical-path-imports.ts",
-        "../../tools/scripts/check-index-html-scripts.ts",
-        "../../tools/scripts/check-client-image-budgets.ts",
-        "../../tools/scripts/perf-budget.ts",
+        "scripts/client-critical-path-imports.ts",
+        "scripts/check-index-html-scripts.ts",
+        "scripts/check-client-image-budgets.ts",
+        "scripts/perf-budget.ts",
         "../../libs/**/*.{ts,tsx}",
         "../../pkgs/**/*.{ts,tsx}"
       ],
@@ -490,16 +490,16 @@
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
         "@libs/secrets#check",
-        "@tools#check:static"
+        "@libs/tools#check:static"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "@tools#install:cli": {
+    "@libs/tools#install:cli": {
       "cache": false,
       "outputLogs": "new-only"
     },
-    "@tools#check:static": {
+    "@libs/tools#check:static": {
       "env": [
         "GH_EVENT",
         "GITHUB_EVENT_NAME",
@@ -508,8 +508,8 @@
         "GITLEAKS_VERSION"
       ],
       "inputs": [
-        "tools/scripts/check-static.ts",
-        "tools/scripts/cli-deps/**",
+        "scripts/check-static.ts",
+        "scripts/cli-deps/**",
         ".gitleaks.toml",
         ".github/workflows/**"
       ],
@@ -522,7 +522,7 @@
     },
     "@libs/secrets#provision": {
       "cache": false,
-      "dependsOn": ["@tools#install:cli"]
+      "dependsOn": ["@libs/tools#install:cli"]
     },
     "@libs/db#provision": {
       "cache": false,
@@ -595,7 +595,7 @@
         "@pkgs/object-store-s3#test:contract",
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
-        "@tools#check:static",
+        "@libs/tools#check:static",
         "@apps/server#check:api",
         "@apps/client#check:bundle-budget",
         "@libs/secrets#check",
@@ -610,7 +610,7 @@
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "tools/package.json",
+        "libs/tools/package.json",
         ".syncpackrc.cjs"
       ],
       "outputs": [],
@@ -625,14 +625,14 @@
         "pkgs/**/*.ts",
         "pkgs/**/*.tsx",
         ".dependency-cruiser.cjs",
-        "tools/port/solid-scope.json",
-        "tools/port/core-scope.json"
+        "libs/tools/port/solid-scope.json",
+        "libs/tools/port/core-scope.json"
       ],
       "outputs": [],
       "outputLogs": "new-only"
     },
     "//#ci:audit": {
-      "inputs": ["bun.lock", "tools/scripts/ci-audit.ts", "package.json"],
+      "inputs": ["bun.lock", "libs/tools/scripts/ci-audit.ts", "package.json"],
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -646,7 +646,7 @@
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
         "apps/product/babel.test.config.cjs",
-        "tools/scripts/ci-i18n.ts"
+        "libs/tools/scripts/ci-i18n.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -654,7 +654,7 @@
     "//#ci:pr-template": {
       "inputs": [
         ".github/pull_request_template.md",
-        "tools/scripts/check-pr-body.ts"
+        "libs/tools/scripts/check-pr-body.ts"
       ],
       "outputs": [],
       "outputLogs": "errors-only",

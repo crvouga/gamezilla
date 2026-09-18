@@ -1,0 +1,18 @@
+{
+  "name": "@libs/tools",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check:static": "bun run scripts/check-static.ts",
+    "install:cli": "bun run scripts/install-cli.ts",
+    "lint": "bunx biome check --error-on-warnings .",
+    "test": "bun test --pass-with-no-tests scripts/*.test.ts"
+  },
+  "dependencies": {
+    "@libs/secrets": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*"
+  }
+}

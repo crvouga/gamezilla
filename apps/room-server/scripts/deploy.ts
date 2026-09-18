@@ -7,7 +7,7 @@ import { runAsync } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 const log = createLogger({ name: 'room-server:deploy', now: wallClock.now });
 

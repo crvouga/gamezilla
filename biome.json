@@ -68,7 +68,6 @@
     "enabled": true,
     "includes": [
       "**",
-      "!tools/**",
       "!**/.wrangler/**",
       "!**/babel.config.js",
       "!**/lingui.config.*",
@@ -178,14 +177,14 @@
     }
   },
   "plugins": [
-    "./tools/biome-plugins/no-aria-hidden.grit",
-    "./tools/biome-plugins/no-aria-hidden-block.grit",
-    "./tools/biome-plugins/no-a11y-elements-hidden.grit",
-    "./tools/biome-plugins/no-a11y-elements-hidden-block.grit",
-    "./tools/biome-plugins/no-a11y-important-for.grit",
-    "./tools/biome-plugins/no-a11y-important-for-block.grit",
+    "./libs/tools/biome-plugins/no-aria-hidden.grit",
+    "./libs/tools/biome-plugins/no-aria-hidden-block.grit",
+    "./libs/tools/biome-plugins/no-a11y-elements-hidden.grit",
+    "./libs/tools/biome-plugins/no-a11y-elements-hidden-block.grit",
+    "./libs/tools/biome-plugins/no-a11y-important-for.grit",
+    "./libs/tools/biome-plugins/no-a11y-important-for-block.grit",
     {
-      "path": "./tools/biome-plugins/text-use-label.grit",
+      "path": "./libs/tools/biome-plugins/text-use-label.grit",
       "includes": [
         "**/*.{ts,tsx}",
         "!**/tests/**",
@@ -194,7 +193,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/text-must-be-trans.grit",
+      "path": "./libs/tools/biome-plugins/text-must-be-trans.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
         "**/libs/spaces/**/*.{ts,tsx}",
@@ -214,7 +213,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/text-must-be-trans-children.grit",
+      "path": "./libs/tools/biome-plugins/text-must-be-trans-children.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
         "**/libs/spaces/**/*.{ts,tsx}",
@@ -234,15 +233,15 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-nested-await.grit",
+      "path": "./libs/tools/biome-plugins/no-nested-await.grit",
       "includes": ["**/apps/client/src/**/*.{ts,tsx}"]
     },
     {
-      "path": "./tools/biome-plugins/no-export-star.grit",
+      "path": "./libs/tools/biome-plugins/no-export-star.grit",
       "includes": ["**/libs/notifications/**/*.{ts,tsx}"]
     },
     {
-      "path": "./tools/biome-plugins/lingui-no-trans-inside-trans.grit",
+      "path": "./libs/tools/biome-plugins/lingui-no-trans-inside-trans.grit",
       "includes": [
         "**/apps/client/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -253,7 +252,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/lingui-no-single-variables-to-translate.grit",
+      "path": "./libs/tools/biome-plugins/lingui-no-single-variables-to-translate.grit",
       "includes": [
         "**/apps/client/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -264,7 +263,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-locale-apis.grit",
+      "path": "./libs/tools/biome-plugins/no-locale-apis.grit",
       "includes": [
         "**/libs/*/src/shared/**/*.{ts,tsx}",
         "**/libs/*/src/shared/*.{ts,tsx}",
@@ -287,7 +286,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-optional-io.grit",
+      "path": "./libs/tools/biome-plugins/no-optional-io.grit",
       "includes": [
         "**/libs/*/src/shared/**/*.{ts,tsx}",
         "**/libs/*/src/shared/*.{ts,tsx}",
@@ -310,7 +309,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-mutation-nondeterminism.grit",
+      "path": "./libs/tools/biome-plugins/no-mutation-nondeterminism.grit",
       "includes": [
         "**/libs/**/mutations/**/*.{ts,tsx}",
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
@@ -320,7 +319,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-sync-engine-framework-leak.grit",
+      "path": "./libs/tools/biome-plugins/no-sync-engine-framework-leak.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -328,7 +327,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-legacy-writes.grit",
+      "path": "./libs/tools/biome-plugins/no-legacy-writes.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -339,7 +338,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-di-container.grit",
+      "path": "./libs/tools/biome-plugins/no-di-container.grit",
       "includes": [
         "**/libs/*/src/**/*.{ts,tsx}",
         "**/apps/*/src/**/*.{ts,tsx}",
@@ -350,7 +349,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-sync-engine-terminology.grit",
+      "path": "./libs/tools/biome-plugins/no-sync-engine-terminology.grit",
       "includes": [
         "**/pkgs/sync-engine/**/*.{ts,tsx}",
         "**/libs/notifications/src/**/*.{ts,tsx}",
@@ -366,7 +365,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-direct-pg-imports.grit",
+      "path": "./libs/tools/biome-plugins/no-direct-pg-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -376,7 +375,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-pg-connect-imports.grit",
+      "path": "./libs/tools/biome-plugins/no-pg-connect-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -392,7 +391,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-pubsub-emqx-imports.grit",
+      "path": "./libs/tools/biome-plugins/no-pubsub-emqx-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -403,16 +402,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/forbid-removed-auth-sdk-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}",
-        "**/tools/**/*.{ts,tsx}"
-      ]
-    },
-    {
-      "path": "./tools/biome-plugins/no-clerk-imports.grit",
+      "path": "./libs/tools/biome-plugins/forbid-removed-auth-sdk-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -420,7 +410,15 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-heavy-client-imports.grit",
+      "path": "./libs/tools/biome-plugins/no-clerk-imports.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-heavy-client-imports.grit",
       "includes": [
         "**/apps/client/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -430,11 +428,11 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-eager-games-shell-imports.grit",
+      "path": "./libs/tools/biome-plugins/no-eager-games-shell-imports.grit",
       "includes": ["**/apps/client/src/shell/**/*.{ts,tsx}"]
     },
     {
-      "path": "./tools/biome-plugins/no-zod-in-pkgs.grit",
+      "path": "./libs/tools/biome-plugins/no-zod-in-pkgs.grit",
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
@@ -443,7 +441,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-bare-fs.grit",
+      "path": "./libs/tools/biome-plugins/no-bare-fs.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -478,7 +476,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-bare-io.grit",
+      "path": "./libs/tools/biome-plugins/no-bare-io.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -542,7 +540,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-resolve-wall-defaults.grit",
+      "path": "./libs/tools/biome-plugins/no-resolve-wall-defaults.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -551,7 +549,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-wall-io-defaults.grit",
+      "path": "./libs/tools/biome-plugins/no-wall-io-defaults.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -614,7 +612,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-inline-style-prop.grit",
+      "path": "./libs/tools/biome-plugins/no-inline-style-prop.grit",
       "includes": [
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
@@ -636,11 +634,11 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/invariant-id-literal.grit",
+      "path": "./libs/tools/biome-plugins/invariant-id-literal.grit",
       "includes": ["**/pkgs/invariants/**/*.ts"]
     },
     {
-      "path": "./tools/biome-plugins/no-dst-raw-selectors.grit",
+      "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
         "**/apps/product/tests/**/*.{ts,tsx}",
         "**/apps/product/src/test/fixtures/**/*.{ts,tsx}",
@@ -651,7 +649,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-dst-internal.grit",
+      "path": "./libs/tools/biome-plugins/no-dst-internal.grit",
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -660,7 +658,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-world-objects.grit",
+      "path": "./libs/tools/biome-plugins/no-world-objects.grit",
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -669,7 +667,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-dst-wait-assert-actions.grit",
+      "path": "./libs/tools/biome-plugins/no-dst-wait-assert-actions.grit",
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -677,7 +675,7 @@
       ]
     },
     {
-      "path": "./tools/biome-plugins/no-raw-create-table.grit",
+      "path": "./libs/tools/biome-plugins/no-raw-create-table.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
@@ -687,6 +685,7 @@
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
         "!**/pkgs/sql-client/e2e/harness/memory-sql.ts",
         "!**/pkgs/sql-client/tests/helpers/generators/program.ts",
+        "!**/libs/tools/scripts/check-pr-body.ts",
         "!**/pkgs/**/cutover-migration.ts",
         "!**/dist/**",
         "!**/build/**",
