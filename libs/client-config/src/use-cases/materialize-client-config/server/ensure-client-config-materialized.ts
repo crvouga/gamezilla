@@ -1,5 +1,4 @@
 import type { Clock } from '@pkgs/clock';
-import type { LimitsSpec } from '@pkgs/entitlements';
 import { isEqual } from '@pkgs/equal/is-equal';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import {
@@ -18,7 +17,7 @@ export type DesiredClientConfig = {
   readonly googleWebClientId: string | null;
   readonly emqxWssUrl: string | null;
   readonly observabilityBackend: ObservabilityBackendName;
-  readonly limitsSpec: LimitsSpec;
+  readonly permissionPolicy: unknown;
   readonly billingGracePeriodMs: number;
 };
 
@@ -64,8 +63,8 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: desired.observabilityBackend,
     },
     {
-      id: ClientConfigKey.limitsSpec,
-      value: desired.limitsSpec,
+      id: ClientConfigKey.permissionPolicy,
+      value: desired.permissionPolicy,
     },
     {
       id: ClientConfigKey.billingGracePeriodMs,

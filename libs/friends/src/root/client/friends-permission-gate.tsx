@@ -1,20 +1,21 @@
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
-import { useIsSignedIn } from '@libs/auth/public/use-current-user';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { EmptyState, ScreenBase, UsersIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
-export function FriendsSignedInGate(props: {
+export function FriendsPermissionGate(props: {
   children: JSX.Element;
 }): JSX.Element {
-  const signedIn = useIsSignedIn();
+  const canUseFriends = useCan(PERMISSION.friendsUse);
   const { open: openSignInModal } = useSignInModal();
   const { t } = useLingui();
 
   return (
     <Show
-      when={signedIn()}
+      when={canUseFriends()}
       fallback={
         <ScreenBase
           screenId="friends-signed-in-gate"

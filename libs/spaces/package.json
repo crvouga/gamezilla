@@ -20,6 +20,7 @@
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/notifications": "workspace:*",
+    "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
@@ -35,6 +36,7 @@
     "@pkgs/i18n": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
+    "@pkgs/permissions": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-web": "workspace:*",
     "@pkgs/solid-context": "workspace:*",

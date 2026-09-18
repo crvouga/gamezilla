@@ -1,5 +1,7 @@
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
-import { useIsSignedIn, useMyId } from '@libs/auth/public/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
 import type { Sql } from '@pkgs/sql';
@@ -76,7 +78,7 @@ export function useDebouncedUserSearchEffect(
   query: Accessor<string>,
   onCompleted?: (query: string) => void
 ) {
-  const signedIn = useIsSignedIn();
+  const canSearch = useCan(PERMISSION.peopleSearch);
   const myId = useMyId();
   const timers = useTimers();
   const sync = useSyncEngineInstance();
@@ -85,7 +87,7 @@ export function useDebouncedUserSearchEffect(
 
   createEffect(() => {
     const trimmed = query().trim();
-    if (!signedIn() || trimmed.length === 0) {
+    if (!canSearch() || trimmed.length === 0) {
       setDebouncedQuery('');
       setAwaitingSync(false);
       return;
@@ -102,7 +104,7 @@ export function useDebouncedUserSearchEffect(
 
   createEffect(() => {
     const initialQuery = debouncedQuery();
-    if (!signedIn() || initialQuery.length === 0) {
+    if (!canSearch() || initialQuery.length === 0) {
       setAwaitingSync(false);
       return;
     }
@@ -137,11 +139,11 @@ export function useDebouncedUserSearchEffect(
     },
     get searching() {
       const trimmed = query().trim();
-      if (!signedIn() || trimmed.length === 0) return false;
+      if (!canSearch() || trimmed.length === 0) return false;
       return trimmed !== debouncedQuery() || awaitingSync();
     },
-    get signedIn() {
-      return signedIn();
+    get canSearch() {
+      return canSearch();
     },
   };
 }

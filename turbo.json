@@ -389,6 +389,8 @@
         "libs/user-search/src/public/**/*.{ts,tsx}",
         "libs/client-config/src/public/**/*.{ts,tsx}",
         "libs/client-config/src/root/**/*.{ts,tsx}",
+        "libs/permissions/src/public/**/*.{ts,tsx}",
+        "libs/permissions/src/root/**/*.{ts,tsx}",
         "libs/chess/src/public/**/*.{ts,tsx}",
         "libs/chess/src/root/**/*.{ts,tsx}",
         "pkgs/async/src/solid.ts",

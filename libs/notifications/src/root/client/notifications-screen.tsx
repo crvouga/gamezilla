@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   BellIcon,
@@ -20,14 +22,15 @@ export type NotificationsScreenProps = {
   readonly initialFilter?: NotificationFilter | undefined;
 };
 
-function NotificationsSignedInGate(props: {
+function NotificationsPermissionGate(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const { t } = useLingui();
   const shell = useNotificationsShell();
+  const canReceive = useCan(PERMISSION.notificationsReceive);
   return (
     <Show
-      when={shell.isSignedIn}
+      when={canReceive()}
       fallback={
         <EmptyState
           variant="compact"
@@ -121,9 +124,9 @@ export function NotificationsScreen(
       breadcrumbs={[{ name: t`Notifications` }]}
       content={(body) => (
         <div class={`box ${body.bodyClass}`}>
-          <NotificationsSignedInGate>
+          <NotificationsPermissionGate>
             <NotificationsScreenBody initialFilter={props.initialFilter} />
-          </NotificationsSignedInGate>
+          </NotificationsPermissionGate>
         </div>
       )}
     />
