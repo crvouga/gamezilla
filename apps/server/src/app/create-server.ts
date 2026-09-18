@@ -4,16 +4,16 @@ import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
 import { BillingApp } from '@libs/billing/root/server/billing-app';
+import { DEFAULT_BILLING_GRACE_PERIOD_MS } from '@libs/client-config/public/client-config-defaults';
 import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
+import { requirePermission } from '@libs/permissions/root/server/require-permission';
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import type { Billing } from '@pkgs/billing';
-import {
-  DEFAULT_BILLING_GRACE_PERIOD_MS,
-  DEFAULT_LIMITS_SPEC,
-} from '@pkgs/entitlements';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
@@ -147,13 +147,16 @@ function createBillingSubApp(
     requireAuth: async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
       assert.defined(s, 'billing auth: request store missing');
-      const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, req);
+      const ctx = await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
       const auth = appAuth(ctx);
-      if (auth === null || auth.accountId === null || auth.isAnon) {
-        throw new UnauthorizedError(
-          'Billing routes require a signed-in account'
-        );
-      }
+      await requirePermission({
+        db: s.sqlClient,
+        auth,
+        permission: PERMISSION.billingManage,
+        nowMs: now(),
+      });
+      assert.defined(auth, 'billing auth: auth missing');
+      assert.defined(auth.accountId, 'billing auth: account missing');
       return { accountId: auth.accountId, deviceId: auth.deviceId };
     },
     createId,
@@ -237,7 +240,7 @@ async function buildDesiredClientConfig(args: {
     googleWebClientId: null,
     emqxWssUrl,
     observabilityBackend: parseObservabilityBackend(observabilityRaw),
-    limitsSpec: DEFAULT_LIMITS_SPEC,
+    permissionPolicy: DEFAULT_PERMISSION_POLICY,
     billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
 }

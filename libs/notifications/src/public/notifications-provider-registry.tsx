@@ -12,8 +12,7 @@ import type { NotificationsClientDeps } from './notifications-actions';
 
 export type NotificationsShellContextValue = {
   readonly userId: string;
-  readonly isSignedIn: boolean;
-  /** Bearer + device headers are ready for notifications REST (may lag `isSignedIn`). */
+  /** Bearer + device headers are ready for notifications REST (may lag permission). */
   readonly isAuthReady: boolean;
   readonly deps: NotificationsClientDeps;
   readonly providers: readonly NotificationProvider[];
@@ -25,7 +24,6 @@ const NotificationsShellContext =
 
 export type NotificationsProviderRegistryProps = {
   readonly userId: string;
-  readonly isSignedIn: boolean;
   readonly isAuthReady?: boolean | undefined;
   readonly deps: NotificationsClientDeps;
   readonly providers?: readonly NotificationProvider[] | undefined;
@@ -40,11 +38,8 @@ export function NotificationsProviderRegistry(
     get userId() {
       return props.userId;
     },
-    get isSignedIn() {
-      return props.isSignedIn;
-    },
     get isAuthReady() {
-      return props.isAuthReady ?? props.isSignedIn;
+      return props.isAuthReady ?? false;
     },
     get deps() {
       return props.deps;

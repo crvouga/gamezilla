@@ -3,6 +3,8 @@ import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { HandleFriendsNotificationsActionUseCase } from '@libs/friends/root/server/handle-friends-notifications-action-use-case';
 import { registerNotificationActionHandler } from '@libs/notifications/public/notifications';
 import { NotificationsApp } from '@libs/notifications/root/server/notifications-app';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { requirePermission } from '@libs/permissions/root/server/require-permission';
 import { assert } from '@pkgs/assert';
 import { AsyncLocalStorage } from '@pkgs/async-local';
 import type { MiddlewareHandler } from 'hono';
@@ -66,14 +68,19 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   const store = apiRequestAsyncLocalStorage.getStore();
   assert.defined(store, 'notifications auth: request store missing');
   try {
-    const ctx = await store.sessionAuth.requireAuthContext(
+    const ctx = await store.sessionAuth.resolveAuthContext(
       store.sqlClient,
       c.req.raw
     );
     const auth = appAuth(ctx);
-    if (auth === null || auth.accountId === null) {
-      throw new UnauthorizedError('Notifications requires a signed-in account');
-    }
+    await requirePermission({
+      db: store.sqlClient,
+      auth,
+      permission: PERMISSION.notificationsReceive,
+      nowMs: store.clock.now(),
+    });
+    assert.defined(auth, 'notifications: auth missing');
+    assert.defined(auth.accountId, 'notifications: account missing');
     return notificationsActorStorage.run(
       { accountId: auth.accountId, deviceId: auth.deviceId },
       next

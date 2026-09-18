@@ -85,8 +85,8 @@ function SearchScreenBody(): JSX.Element {
   const state = useDebouncedUserSearchEffect(query, recordSearch);
   const trimmed = () => query().trim();
   const showRecent = () => trimmed().length === 0;
-  const showSignInPrompt = () => !state.signedIn && trimmed().length > 0;
-  const showResults = () => state.signedIn && trimmed().length > 0;
+  const showSignInPrompt = () => !state.canSearch && trimmed().length > 0;
+  const showResults = () => state.canSearch && trimmed().length > 0;
 
   return (
     <div class="box flex-1 min-h-[0] gap-4">

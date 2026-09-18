@@ -46,7 +46,7 @@ export function SpaceShareAddPeople(props: {
 
   return (
     <Show
-      when={search.signedIn}
+      when={search.canSearch}
       fallback={
         <div class="box gap-2">
           <label class="text textLabel">{<Trans>Add people</Trans>}</label>

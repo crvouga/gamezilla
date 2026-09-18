@@ -885,12 +885,12 @@ msgstr "Friend requests and space invites will land here."
 
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
-#: libs/friends/src/root/client/friends-signed-in-gate.tsx
+#: libs/friends/src/root/client/friends-permission-gate.tsx
 #: libs/profile/src/root/client/profile-screen.tsx
 msgid "Friends"
 msgstr "Friends"
 
-#: libs/friends/src/root/client/friends-signed-in-gate.tsx
+#: libs/friends/src/root/client/friends-permission-gate.tsx
 msgid "Friends let you find each other and jump into shared spaces."
 msgstr "Friends let you find each other and jump into shared spaces."
 
@@ -1499,7 +1499,7 @@ msgstr "Production"
 #: apps/client/src/routes/app-tabs.tsx
 #: libs/friends/src/root/client/friend-user-screen-view.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
-#: libs/friends/src/root/client/friends-signed-in-gate.tsx
+#: libs/friends/src/root/client/friends-permission-gate.tsx
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/root/client/profile-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
@@ -1793,13 +1793,13 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 
 #: libs/auth/src/public/sign-in-modal.tsx
 #: libs/auth/src/root/client/account-actions-row.tsx
-#: libs/friends/src/root/client/friends-signed-in-gate.tsx
+#: libs/friends/src/root/client/friends-permission-gate.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
 #: libs/user-search/src/public/use-user-search.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
-#: libs/friends/src/root/client/friends-signed-in-gate.tsx
+#: libs/friends/src/root/client/friends-permission-gate.tsx
 msgid "Sign in to add friends"
 msgstr "Sign in to add friends"
 

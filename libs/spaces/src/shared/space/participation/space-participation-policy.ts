@@ -23,10 +23,6 @@ export type SpaceAccessInput = {
   readonly isFriendOfHost: boolean;
 };
 
-export type EndSpaceDecision =
-  | { readonly allowed: true }
-  | { readonly allowed: false; readonly code: 'SPACE_HOST_REQUIRED' };
-
 export type PresenceRole = 'host' | 'guest';
 
 /**
@@ -115,15 +111,6 @@ export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
     return { allowed: true, reason: 'already' };
   }
   return decideJoinVisibility(input);
-}
-
-export function decideEndSpace(args: {
-  readonly isHostActor: boolean;
-}): EndSpaceDecision {
-  if (!args.isHostActor) {
-    return { allowed: false, code: 'SPACE_HOST_REQUIRED' };
-  }
-  return { allowed: true };
 }
 
 export function resolvePresenceRole(args: {

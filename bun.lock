@@ -40,6 +40,7 @@
         "@libs/friends": "workspace:*",
         "@libs/games": "workspace:*",
         "@libs/notifications": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/search": "workspace:*",
@@ -256,6 +257,7 @@
         "@libs/db": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/notifications": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/pubsub": "workspace:*",
         "@libs/runtime": "workspace:*",
@@ -271,7 +273,6 @@
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
-        "@pkgs/entitlements": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/keyword": "workspace:*",
@@ -367,11 +368,11 @@
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
-        "@pkgs/entitlements": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
@@ -398,6 +399,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/billing": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -460,7 +462,6 @@
         "@lingui/solid": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
-        "@pkgs/entitlements": "workspace:*",
         "@pkgs/equal": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
@@ -513,6 +514,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/notifications": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
         "@libs/test-ids": "workspace:*",
@@ -560,6 +562,7 @@
       "name": "@libs/notifications",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/permissions": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -591,6 +594,25 @@
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-s3": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/permissions": {
+      "name": "@libs/permissions",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/auth": "workspace:*",
+        "@libs/client-config": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/permissions": "workspace:*",
+        "@pkgs/sql": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+        "solid-js": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -756,6 +778,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/notifications": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/test-ids": "workspace:*",
         "@libs/user-search": "workspace:*",
@@ -771,6 +794,7 @@
         "@pkgs/i18n": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
+        "@pkgs/permissions": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/room-adapter-web": "workspace:*",
         "@pkgs/solid-context": "workspace:*",
@@ -822,6 +846,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -1307,15 +1332,6 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/entitlements": {
-      "name": "@pkgs/entitlements",
-      "version": "0.0.0",
-      "devDependencies": {
-        "@types/bun": "catalog:",
-        "@typescript/native": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
     "pkgs/entity-store": {
       "name": "@pkgs/entity-store",
       "version": "0.0.0",
@@ -1776,6 +1792,15 @@
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@pkgs/uuid": "workspace:*",
       },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/permissions": {
+      "name": "@pkgs/permissions",
+      "version": "0.0.0",
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -3308,6 +3333,8 @@
 
     "@libs/object-store": ["@libs/object-store@workspace:libs/object-store"],
 
+    "@libs/permissions": ["@libs/permissions@workspace:libs/permissions"],
+
     "@libs/profile": ["@libs/profile@workspace:libs/profile"],
 
     "@libs/pubsub": ["@libs/pubsub@workspace:libs/pubsub"],
@@ -3522,8 +3549,6 @@
 
     "@pkgs/emqx-server": ["@pkgs/emqx-server@workspace:pkgs/emqx-server"],
 
-    "@pkgs/entitlements": ["@pkgs/entitlements@workspace:pkgs/entitlements"],
-
     "@pkgs/entity-store": ["@pkgs/entity-store@workspace:pkgs/entity-store"],
 
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
@@ -3579,6 +3604,8 @@
     "@pkgs/os": ["@pkgs/os@workspace:pkgs/os"],
 
     "@pkgs/outbox": ["@pkgs/outbox@workspace:pkgs/outbox"],
+
+    "@pkgs/permissions": ["@pkgs/permissions@workspace:pkgs/permissions"],
 
     "@pkgs/polyfill": ["@pkgs/polyfill@workspace:pkgs/polyfill"],
 
