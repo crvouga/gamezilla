@@ -39,9 +39,7 @@
         "package.json",
         "eslint.config.mjs",
         "lingui.config.ts",
-        "lingui.solid.config.ts",
-        "tools/scripts/*.ts",
-        "tools/*.ts"
+        "lingui.solid.config.ts"
       ]
     },
     "apps/client": {
@@ -57,6 +55,9 @@
     },
     "libs/pubsub": {
       "entry": "src/scripts/provision.ts"
+    },
+    "libs/tools": {
+      "entry": ["package.json", "scripts/**/*.ts"]
     }
   }
 }

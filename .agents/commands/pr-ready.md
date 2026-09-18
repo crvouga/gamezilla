@@ -73,8 +73,7 @@ bunx biome check --error-on-warnings .
 git diff --name-only origin/main...HEAD
 ```
 
-For every workspace touched by that file list (`apps/*`, `libs/*`, `pkgs/*`,
-`tools`), run:
+For every workspace touched by that file list (`apps/*`, `libs/*`, `pkgs/*`), run:
 
 ```sh
 bun run --filter <pkg> tc
@@ -138,7 +137,7 @@ bun run ci:pr-template      # local self-check; also enforced by PR CI
   exercised and what the PR does *not* prove.
 - Checklist: check a box only when it is true. If an item genuinely does not
   apply, say so under `Verification` and check it — do not delete the line.
-- Never edit `.github/pull_request_template.md`, `tools/scripts/check-pr-body.ts`,
+- Never edit `.github/pull_request_template.md`, `libs/tools/scripts/check-pr-body.ts`,
   or the checklist text to make the gate pass.
 
 ## 6. Drive the checks green
@@ -159,7 +158,7 @@ Diagnose the failing leaf from the log (`tc`, `test`, `lint:eslint`,
 step 3, push, and watch again. Repeat until every check passes.
 
 If the failure is in a leaf you cannot reproduce locally (the CI-only
-`@tools#check:static`, or a contract test whose sidecar ports are busy in this
+`@libs/tools#check:static`, or a contract test whose sidecar ports are busy in this
 workspace), say so in the report rather than guessing.
 
 If the failing leaf is `//#ci:pr-template`, the fix is the PR body (step 5), not

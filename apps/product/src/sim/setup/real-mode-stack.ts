@@ -2,6 +2,8 @@
  * Process-wide Postgres + S3rver + EMQX for `openSim` mode `real`.
  * Default `test` never calls this.
  */
+
+import { bootLocalStack } from '@apps/server/scripts/boot-local-stack';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -10,8 +12,6 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-server';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
-
-import { bootLocalStack } from '../../../../../tools/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 

@@ -2,7 +2,7 @@
 /**
  * Export a bounded chess_puzzles CSV load file from Postgres (typically prod).
  *
- *   SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- \
+ *   SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- \
  *     bun run --filter @libs/chess export:puzzles-load -- --confirm-prod
  */
 

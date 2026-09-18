@@ -1,6 +1,6 @@
 <!--
 Strict PR contract — enforced by `//#ci:pr-template` on every PR (see
-`tools/scripts/check-pr-body.ts`). Every `##` section below must keep its
+`libs/tools/scripts/check-pr-body.ts`). Every `##` section below must keep its
 heading and carry real content; the HTML comments are guidance and do not count
 as content. Every checklist box must be checked before a human merges. Deleting
 a section, a checklist line, or leaving a box unchecked fails CI.
@@ -17,7 +17,7 @@ a section, a checklist line, or leaving a box unchecked fails CI.
 ## Scope
 
 <!--
-Packages touched (`apps/*`, `libs/*`, `pkgs/*`, `tools`) and, explicitly, what
+Packages touched (`apps/*`, `libs/*`, `pkgs/*`) and, explicitly, what
 is out of scope / deferred. Note any cross-package contract that moved.
 -->
 

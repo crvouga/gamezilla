@@ -18,7 +18,8 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store-s3": "workspace:*"
+    "@pkgs/object-store-s3": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -34,7 +34,7 @@ jobs:
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      # tools/scripts/check-static.ts scopes gitleaks to this PR's commit range
+      # libs/tools/scripts/check-static.ts scopes gitleaks to this PR's commit range
       # when the event is a pull_request and both refs are present.
       GH_EVENT: ${{ github.event_name }}
       PR_BASE: ${{ github.event.pull_request.base.sha }}
@@ -79,7 +79,7 @@ jobs:
           DEPLOY_OUTCOME: ${{ steps.check.outcome }}
           DEPLOY_LOG_PATH: ${{ runner.temp }}/check.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bun run tools/scripts/write-pipeline-summary.ts
+        run: bun run libs/tools/scripts/write-pipeline-summary.ts
 
       - uses: ./.github/actions/turbo-cache
         if: always()

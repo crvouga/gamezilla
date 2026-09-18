@@ -4,7 +4,7 @@
  * Framework-agnostic core (grows per port phase). Files here must not import
  * any UI framework — including solid-js.
  */
-const coreScope = require('./tools/port/core-scope.json');
+const coreScope = require('./libs/tools/port/core-scope.json');
 
 const scopeToPathRegex = (scope) =>
   `^(${[...scope.dirs.map((dir) => `${dir}/`), ...scope.files]
@@ -22,7 +22,7 @@ module.exports = {
       name: 'core-no-framework',
       severity: 'error',
       comment:
-        'Framework-agnostic core must not import solid-js. See tools/port/core-scope.json.',
+        'Framework-agnostic core must not import solid-js. See libs/tools/port/core-scope.json.',
       from: { path: coreScopePath },
       to: { path: `(${SOLID_STACK_PATH})` },
     },

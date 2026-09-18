@@ -14,7 +14,7 @@ import {
 } from '@pkgs/emqx-server/railway/railway-api';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { cfHeadersForZones, upsertDnsRecord } from '../shared/provision/cf-dns';
 
 const log = createLogger({ name: 'pubsub:provision', now: wallClock.now });

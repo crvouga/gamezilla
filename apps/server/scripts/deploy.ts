@@ -21,7 +21,7 @@ import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 
 const log = createLogger({ name: 'server:deploy', now: wallClock.now });

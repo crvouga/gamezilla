@@ -20,9 +20,9 @@ fi
 # `main` only moves through a merged PR: enable the repo hooks (pre-commit,
 # pre-push) for this clone. `core.hooksPath` lives in the shared git config, so
 # it covers every worktree and the root checkout, not just this one.
-if [ "$(git config --get core.hooksPath || true)" != 'tools/githooks' ]; then
-  echo "==> enabling tools/githooks (pre-commit, pre-push)"
-  git config core.hooksPath tools/githooks || \
+if [ "$(git config --get core.hooksPath || true)" != 'libs/tools/githooks' ]; then
+  echo "==> enabling libs/tools/githooks (pre-commit, pre-push)"
+  git config core.hooksPath libs/tools/githooks || \
     echo "!!! could not set core.hooksPath; run 'bun run hooks:install' manually"
 fi
 
@@ -33,7 +33,7 @@ if [ -z "$root" ] || [ ! -d "$root" ]; then
 fi
 
 # Offline secrets cache written by `bun run secrets:pull` (read by
-# tools/scripts/secrets-run.ts, i.e. `bun check`, `bun run dev`, deploys).
+# libs/secrets/src/scripts/secrets-run.ts, i.e. `bun check`, `bun run dev`, deploys).
 # Bootstrap it from the root checkout when possible so a fresh workspace does
 # not need a second Infisical login; setup stays fast because the cache lives
 # next to the checkout rather than per-worktree.

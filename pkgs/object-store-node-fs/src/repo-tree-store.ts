@@ -38,7 +38,7 @@ export function createRepoTreeObjectStore(
   });
 }
 
-/** Convenience when the script lives under `tools/scripts/`. */
+/** Convenience when the script lives under `libs/tools/scripts/`. */
 export function createRepoTreeObjectStoreFromScriptsDir(
   scriptsDirname: string
 ): ObjectStore {

@@ -8,11 +8,12 @@
       "./src/*.ts",
       "./src/*.tsx",
       "./src/*/index.ts"
-    ]
+    ],
+    "./scripts/*": "./scripts/*.ts"
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
-    "check:api": "bun run ../../tools/scripts/check-api.ts",
+    "check:api": "bun run scripts/check-api.ts",
     "deploy": "bun run scripts/deploy.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "bunx biome check --error-on-warnings .",
@@ -67,7 +68,9 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/room-adapter-bun": "workspace:*",
+    "@pkgs/s3-server": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
