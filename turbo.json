@@ -303,6 +303,18 @@
       "outputs": [],
       "dependsOn": ["tc"]
     },
+    "@pkgs/auth#test:e2e": {
+      "cache": false,
+      "outputLogs": "new-only",
+      "outputs": [],
+      "dependsOn": ["tc"]
+    },
+    "@pkgs/sql-client-sqlite-web#test:e2e": {
+      "cache": false,
+      "outputLogs": "new-only",
+      "outputs": [],
+      "dependsOn": ["tc"]
+    },
     "billing:check": {
       "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
       "outputLogs": "new-only",

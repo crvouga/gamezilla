@@ -1,5 +1,9 @@
-/** Local embedded Postgres listen port (avoid clashing with system :5432). */
-export const POSTGRES_PORT = 15_432;
+/**
+ * Local embedded Postgres listen port (avoid clashing with system :5432).
+ * `.superset/port.sh` exports `POSTGRES_PORT` so parallel Superset workspaces
+ * do not fight over the sidecar's fixed port.
+ */
+export const POSTGRES_PORT = Number(process.env['POSTGRES_PORT'] ?? 15_432);
 
 export const POSTGRES_USER = 'postgres';
 export const POSTGRES_PASSWORD = 'postgres';

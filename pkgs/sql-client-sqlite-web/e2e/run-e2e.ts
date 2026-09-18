@@ -3,6 +3,19 @@
 import { killListenersOnPort } from '@pkgs/os/kill-port';
 import { waitForHttp } from './webview';
 
+// This harness drives Chromium through `Bun.WebView`, which only works on
+// macOS. Off macOS `Bun.WebView` is either absent (Bun 1.3) or present without
+// a usable CDP session (Bun 1.4 on Linux: "'Runtime.evaluate' wasn't found"),
+// so gate on the platform and skip loudly instead of failing CI's Linux
+// check:full job. turbo.json marks this task `cache: false` so a macOS result
+// can never satisfy a Linux run.
+if (process.platform !== 'darwin') {
+  console.log(
+    `sql-client sqlite-web e2e: skipping on ${process.platform} — this harness needs Bun.WebView (macOS)`
+  );
+  process.exit(0);
+}
+
 const PORT = 4177;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 

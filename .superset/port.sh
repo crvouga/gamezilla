@@ -1,13 +1,28 @@
 #!/usr/bin/env bash
-# Per-workspace Vite port so parallel Superset workspaces can all run `dev` at
-# once (apps/product pins 5173 with strictPort, so every workspace needs its
-# own port). The workspace name hashes to a preferred port for stability across
-# restarts; if that port is taken -- by a colliding workspace name, or by a
-# stale dev server from a torn-down workspace -- we scan upward for a free one
-# instead of letting Vite die on `Port NNNN is already in use`.
+# Per-workspace port block so parallel Superset workspaces can run `dev` (and
+# their sidecars) at once. apps/product pins 5173 with strictPort, and the
+# embedded Postgres / MinIO sidecars pin 15432 / 9000 / 9001, so every
+# workspace needs its own block of ports rather than one.
+#
+# The workspace ID hashes to a preferred block for stability across restarts;
+# if any port in that block is taken -- by a colliding workspace ID, or by a
+# stale listener from a torn-down workspace -- we scan upward for a free block
+# instead of letting a service die on `address already in use`.
+#
+# Block layout (offsets from the block base, consumed by @pkgs/postgres-embedded
+# and @pkgs/minio-server via the same env vars):
+#   +0 VITE_PORT / PREVIEW_PORT     +1 POSTGRES_PORT
+#   +2 MINIO_API_PORT               +3 MINIO_CONSOLE_PORT
+#
+# EMQX (1883 / 8083 / 18083) and the e2e harness / wrangler preview ports stay
+# machine-wide singletons: only one workspace at a time may bind them.
+#
 # Override by exporting VITE_PORT before launching (no probing is done then).
 SUPERSET_PORT_RANGE_START=5200
 SUPERSET_PORT_RANGE_SIZE=300
+SUPERSET_PORT_BLOCK=4
+# Number of whole blocks that fit in the range.
+SUPERSET_PORT_BLOCK_COUNT=$((SUPERSET_PORT_RANGE_SIZE / SUPERSET_PORT_BLOCK))
 
 superset_port_is_free() {
   local port="$1"
@@ -26,32 +41,53 @@ superset_port_is_free() {
   return 0
 }
 
-# Seed from the workspace ID, which Superset always exports and which is
-# unique per workspace. (There is no SUPERSET_WORKSPACE_NAME: seeding from it
-# meant every workspace hashed the literal "root" and collided on one port.)
+superset_block_is_free() {
+  local base="$1"
+  local offset
+  for offset in $(seq 0 $((SUPERSET_PORT_BLOCK - 1))); do
+    if ! superset_port_is_free $((base + offset)); then
+      return 1
+    fi
+  done
+  return 0
+}
+
+# Seed from the workspace ID, which Superset always exports and which is unique
+# per workspace. (There is no SUPERSET_WORKSPACE_NAME: seeding from it meant
+# every workspace hashed the literal "root" and collided on one block.)
 # Fall back to the worktree path, then the checkout root, for plain shells.
 name="${SUPERSET_WORKSPACE_ID:-${SUPERSET_WORKSPACE_PATH:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}}"
 sum="$(printf '%s' "$name" | cksum | cut -d' ' -f1)"
-# The hashed port this workspace prefers, regardless of what is free right now.
-# Teardown needs it to reclaim a listener that probing would have skipped past.
-export VITE_PORT_PREFERRED=$((SUPERSET_PORT_RANGE_START + sum % SUPERSET_PORT_RANGE_SIZE))
+# The hashed block this workspace prefers, regardless of what is free right now.
+# Teardown needs it to reclaim listeners that probing would have skipped past.
+export SUPERSET_PORT_BASE_PREFERRED=$((SUPERSET_PORT_RANGE_START + (sum % SUPERSET_PORT_BLOCK_COUNT) * SUPERSET_PORT_BLOCK))
 
-if [ -z "${VITE_PORT:-}" ]; then
-  offset=$((sum % SUPERSET_PORT_RANGE_SIZE))
-  for i in $(seq 0 $((SUPERSET_PORT_RANGE_SIZE - 1))); do
-    candidate=$((SUPERSET_PORT_RANGE_START + (offset + i) % SUPERSET_PORT_RANGE_SIZE))
-    if superset_port_is_free "$candidate"; then
-      VITE_PORT="$candidate"
+if [ -n "${VITE_PORT:-}" ]; then
+  # Caller pinned the web port; derive the rest of the block from it.
+  export SUPERSET_PORT_BASE="$VITE_PORT"
+else
+  offset=$((sum % SUPERSET_PORT_BLOCK_COUNT))
+  for i in $(seq 0 $((SUPERSET_PORT_BLOCK_COUNT - 1))); do
+    candidate=$((SUPERSET_PORT_RANGE_START + ((offset + i) % SUPERSET_PORT_BLOCK_COUNT) * SUPERSET_PORT_BLOCK))
+    if superset_block_is_free "$candidate"; then
+      SUPERSET_PORT_BASE="$candidate"
       break
     fi
   done
-  if [ -z "${VITE_PORT:-}" ]; then
-    echo "!!! no free port in ${SUPERSET_PORT_RANGE_START}-$((SUPERSET_PORT_RANGE_START + SUPERSET_PORT_RANGE_SIZE - 1)); run 'bun run kill' or export VITE_PORT" >&2
-    VITE_PORT="$VITE_PORT_PREFERRED"
+  if [ -z "${SUPERSET_PORT_BASE:-}" ]; then
+    echo "!!! no free port block in ${SUPERSET_PORT_RANGE_START}-$((SUPERSET_PORT_RANGE_START + SUPERSET_PORT_RANGE_SIZE - 1)); run 'bun run kill' or export VITE_PORT" >&2
+    SUPERSET_PORT_BASE="$SUPERSET_PORT_BASE_PREFERRED"
   fi
-  if [ "$VITE_PORT" -ne "$VITE_PORT_PREFERRED" ]; then
-    echo "==> port $VITE_PORT_PREFERRED busy; using $VITE_PORT" >&2
+  if [ "$SUPERSET_PORT_BASE" -ne "$SUPERSET_PORT_BASE_PREFERRED" ]; then
+    echo "==> port block $SUPERSET_PORT_BASE_PREFERRED busy; using $SUPERSET_PORT_BASE" >&2
   fi
 fi
-export VITE_PORT
+
+export SUPERSET_PORT_BASE
+export VITE_PORT="$SUPERSET_PORT_BASE"
+# Teardown reclaims this one too: probing may have skipped past it.
+export VITE_PORT_PREFERRED="$SUPERSET_PORT_BASE_PREFERRED"
 export PREVIEW_PORT="$VITE_PORT"
+export POSTGRES_PORT=$((SUPERSET_PORT_BASE + 1))
+export MINIO_API_PORT=$((SUPERSET_PORT_BASE + 2))
+export MINIO_CONSOLE_PORT=$((SUPERSET_PORT_BASE + 3))

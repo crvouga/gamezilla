@@ -43,7 +43,9 @@
     "dev:client": "SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- turbo dev --ui=stream --filter=@apps/client",
     "fc": "clear && bun run fmt && bun run check",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run tools/scripts/remove-empty-dirs.ts & wait",
-    "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/deployment-pipeline.yml",
+    "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/pr.yml",
+    "hooks:install": "git config core.hooksPath tools/githooks",
+    "hooks:uninstall": "git config --unset core.hooksPath || true",
     "i18n:compile": "lingui compile --typescript --strict && bun run tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract --clean --overwrite",
     "inspect": "SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/inspect.ts",
@@ -56,6 +58,7 @@
     "migrate-to-tailwind": "bun run --filter @pkgs/ui codemod -- --write",
     "pg:monitoring": "bun run tools/scripts/enable-pg-monitoring.ts",
     "preview": "bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/boot-embedded-postgres.ts",
+    "protect:main": "bun run tools/scripts/protect-main.ts",
     "psql": "bun ./pkgs/postgres-embedded/scripts/psql.ts",
     "scaffold:game": "bun run tools/scripts/scaffold-game.ts",
     "secrets:pull": "bun run tools/scripts/secrets-pull.ts",
@@ -67,6 +70,7 @@
     "test:product:localhost": "turbo run test:stack --filter=@apps/product --",
     "test:product:report": "bun run --filter @apps/product test:report",
     "test:product:report:open": "bun run --filter @apps/product report:open",
+    "test:surface": "bun run tools/scripts/check-test-surface.ts",
     "wipe": "git clean -xfd"
   },
   "overrides": {
@@ -110,7 +114,7 @@
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   },
-  "packageManager": "bun@1.3.11",
+  "packageManager": "bun@1.4.2",
   "engines": {
     "node": ">=22"
   },

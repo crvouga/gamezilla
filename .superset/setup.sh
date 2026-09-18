@@ -17,6 +17,15 @@ if ! bun install; then
   echo "!!! fix: sudo xcodebuild -license accept && bun install"
 fi
 
+# `main` only moves through a merged PR: enable the repo hooks (pre-commit,
+# pre-push) for this clone. `core.hooksPath` lives in the shared git config, so
+# it covers every worktree and the root checkout, not just this one.
+if [ "$(git config --get core.hooksPath || true)" != 'tools/githooks' ]; then
+  echo "==> enabling tools/githooks (pre-commit, pre-push)"
+  git config core.hooksPath tools/githooks || \
+    echo "!!! could not set core.hooksPath; run 'bun run hooks:install' manually"
+fi
+
 root="${SUPERSET_ROOT_PATH:-}"
 if [ -z "$root" ] || [ ! -d "$root" ]; then
   echo "==> SUPERSET_ROOT_PATH unset; skipping local-file copy"
@@ -25,6 +34,15 @@ fi
 
 # Offline secrets cache written by `bun run secrets:pull` (read by
 # tools/scripts/secrets-run.ts, i.e. `bun check`, `bun run dev`, deploys).
+# Bootstrap it from the root checkout when possible so a fresh workspace does
+# not need a second Infisical login; setup stays fast because the cache lives
+# next to the checkout rather than per-worktree.
+if [ ! -d "$root/.cache/secrets" ] && command -v infisical >/dev/null 2>&1; then
+  echo "==> no .cache/secrets in root checkout; running 'bun run secrets:pull'"
+  (cd "$root" && bun run secrets:pull) || \
+    echo "!!! secrets:pull failed; continuing without the offline secrets cache"
+fi
+
 if [ -d "$root/.cache/secrets" ]; then
   echo "==> copying .cache/secrets"
   mkdir -p .cache/secrets

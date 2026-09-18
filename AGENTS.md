@@ -100,13 +100,87 @@ Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs
 
 ## CI/CD job layout
 
-The deployment pipeline (`.github/workflows/deployment-pipeline.yml`) follows three rules:
+Two workflow files, both on GitHub-hosted `ubuntu-latest` (the repo is private on
+a plan without larger runners):
 
-1. **One GitHub Actions job runs `bun run deploy`.** The turbo graph is `//#deploy` flattened to leaves: the full check leaf set (same as flattened `bun check:full`: `//#lint:biome`, `tc`, `test`, `@apps/client#check:critical-path`, `@apps/server#build`, `@apps/room-server#build`, `//#ci:syncpack`, `//#ci:depcruise`, `//#ci:audit`, `//#ci:i18n`, `//#lint:eslint`, scoped `@pkgs/*#test:contract` / `#test:e2e`, billing catalog checks, `@tools#check:static`, `@libs/secrets#check`) plus live `@apps/server#check:api`, client bundle-budget, and `@apps/server#smoke` (which pulls provision/migrate/product deploy / billing sync). Local `bun check` is the fast half only; `bun check:full` is the offline CD gate without shipping. **Never put `//#check` or `//#check:full` in `//#deploy.dependsOn`** — Turbo would execute the root script and recurse. **Never use unscoped `build` in `check` / `check:full`** — only `@apps/server#build` and `@apps/room-server#build` (no-op); the production web bundle is built once inside `@apps/product#deploy`. `@libs/secrets#check` is Turbo-cached on `CHECK_SECRETS_FINGERPRINT` (sha256 of registry values in `dev` + `prd`, set by `turbo-ci-run`). PRs and main use the same `bun run deploy` command; `SECRETS_ENV` (OIDC-injected in CI) controls dry-run vs apply. The deploy job uses `ubuntu-latest-8-cores` (32 GB) with `NODE_OPTIONS=--max-old-space-size=8192` for the bundler.
-2. **Non-Turbo tasks are folded into package turbo tasks.** `@tools#check:static` runs actionlint + gitleaks (Turbo-cached; vocab is covered by `//#lint:vocab`). `@apps/server#check:api` boots wrangler preview and probes `/api/health` on `deploy` (not in `bun check` / `bun check:full`).
-3. **The production deploy is one atomic `deploy` job.** Checkout + setup + secrets-auth, then `bun run deploy` (same command locally). Turbo runs the full check graph, then provision/migrate/deploy/smoke/OTA. `SECRETS_ENV=prd` applies; anything else dry-runs remotes.
+1. **PRs run exactly one check.** `.github/workflows/pr.yml` has a single job
+   named `check:full` that runs `bun run check:full` with `SECRETS_ENV=dev` — the
+   same `//#check:full` leaf set as the CD gate, nothing more. Never split the
+   check surface into per-check jobs: assign a new check to `//#check` (fast) or
+   `//#check:full` (slow/live) in `turbo.json`, or add a `ci:*` root task, and it
+   rides along in that one job. `//#deploy` is a strict superset of
+   `//#check:full` (it adds `@apps/server#check:api`,
+   `@apps/client#check:bundle-budget` and `@apps/server#smoke`, which pulls
+   provision → migrate → room deploy → API deploy → product deploy → billing
+   sync), so it is never listed as a `dependsOn` of another aggregator.
+2. **`main` deploys in two stages.** `.github/workflows/deploy.yml` runs
+   `canary-dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
+   succeeds, `release-prod` (`SECRETS_ENV=prd bun run deploy`,
+   `environment: production`). Both jobs invoke `bun run deploy` with
+   `SECRETS_ENV` set at the job level rather than the `deploy:dev` /
+   `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage is a
+   rehearsal: it builds the real product bundle, applies migrations to the dev
+   database and `wrangler deploy --dry-run`s all three workers, but serves no
+   traffic — prod is still the first environment to receive worker code.
+   `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
+   `@libs/db#migrate` / `@libs/secrets#provision` are not dry-run gated.
 
-When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow/live) in `turbo.json`, or add a `ci:*` root task. Only carve out a new GitHub Actions job if the check truly needs a unique runner shape.
+The two `test:e2e` leaves (`@pkgs/auth`, `@pkgs/sql-client-sqlite-web`) drive a
+browser through `Bun.WebView`, which is macOS-only: they log a skip and exit 0
+on other platforms, and `turbo.json` marks both `cache: false` so a macOS result
+can never satisfy a Linux run. Do not re-enable caching for them.
+
+CI pins Bun `1.4.2` (`packageManager`, `.github/actions/setup`). Do not downgrade
+to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
+`@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
+wildcard to a `.tsx` file) fails on the runner while passing locally.
+
+`check:full` is the merge gate by convention, not by GitHub enforcement — the
+current plan cannot require a status check (branch protection returns
+`Upgrade to GitHub Pro or make this repository public`), so `/pr-ready`
+(`.agents/commands/pr-ready.md`) is what refuses to call a PR ready until
+`gh pr checks` is green. If the repo moves to Pro/Team or goes public, add
+`check:full` as the single required status check in branch protection. **Agents
+never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue; merging is
+always a human decision on GitHub.
+
+**`main` only moves through a merged PR.** Three layers, because the plan above
+blocks the server-side one: `tools/githooks/pre-push` refuses any push to
+`refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
+`bun run hooks:install`), `.github/workflows/deploy.yml` fails before it deploys
+any commit that is not associated with a pull request, and that same job re-runs
+the whole `check:full` leaf set before shipping — so a merged-but-red PR cannot
+reach prod either. `bun run protect:main` applies the airtight version — a PR is
+required to change `main`, `check:full` must be green on the latest `main`,
+and direct pushes, force-pushes and deletions are rejected, admins included. It
+exits 1 with GitHub's `Upgrade to GitHub Pro or make this repository public`
+until the repo is on Pro/Team or public; re-run it after that plan change. The
+other hook, `tools/githooks/pre-commit` (repo-wide `lint tc --affected`), is
+opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`): checks belong to PR CI,
+and `--affected` spans every package while a global dependency is dirty.
+
+## Superset workspaces
+
+Every Superset workspace is a git worktree bootstrapped by
+`.superset/setup.sh` (`bun install`, `.cache/secrets`, `apps/*/.env.local`),
+torn down by `.superset/teardown.sh`, and launched from the Run button through
+`.superset/run.sh`. `.superset/config.json` owns exactly those three keys;
+per-machine extras belong in the gitignored `.superset/config.local.json`.
+
+- **Ports.** `source .superset/port.sh` gives a workspace its own four-port
+  block (`VITE_PORT`/`PREVIEW_PORT`, `POSTGRES_PORT`, `MINIO_API_PORT`,
+  `MINIO_CONSOLE_PORT`); the Run pane sources it automatically, and any terminal
+  that boots a sidecar (`@pkgs/postgres-embedded`, `@pkgs/minio-server`) must
+  source it first. EMQX (`1883`/`8083`/`18083`), the e2e harness ports
+  (`4177`/`4178`) and the wrangler preview (`8788`) stay machine-wide
+  singletons: at most one workspace at a time may run something that binds them
+  (fidelity-max sims, `test:contract`, `check:api`).
+- **Checks.** PR CI owns `bun check:full` — never run it locally. Verify with
+  `bun fmt` plus `bun run --filter <pkg> tc` and `bun run --filter <pkg> test`
+  for the packages actually touched, then run `/pr-ready`
+  (`.agents/commands/pr-ready.md`) — the single PR command: it syncs with
+  `main`, commits, pushes, opens/updates the PR, addresses review comments, and
+  drives the PR check green. It never merges: a green PR is handed to a human.
 
 ## Local development
 
