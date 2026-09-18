@@ -20,11 +20,12 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
-    "mqtt": "catalog:"
+    "@pkgs/pubsub-mqtt": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "mqtt": "catalog:",
     "typescript": "catalog:"
   }
 }

@@ -13,8 +13,12 @@
   },
   "dependencies": {
     "@clack/prompts": "catalog:",
+    "@pkgs/aedes-server": "workspace:*",
+    "@pkgs/emqx-server": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/os": "workspace:*",
+    "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/s3-server": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*"

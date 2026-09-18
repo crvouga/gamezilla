@@ -2,7 +2,6 @@
 export const ClientConfigKey = {
   googleEnabled: 'google_enabled',
   googleWebClientId: 'google_web_client_id',
-  devOauthEnabled: 'dev_oauth_enabled',
   billingEnabled: 'billing_enabled',
   ttsEnabled: 'tts_enabled',
   llmEnabled: 'llm_enabled',
@@ -16,7 +15,6 @@ export type ClientConfigKeyId =
 export const CLIENT_CONFIG_KEYS: readonly ClientConfigKeyId[] = [
   ClientConfigKey.googleEnabled,
   ClientConfigKey.googleWebClientId,
-  ClientConfigKey.devOauthEnabled,
   ClientConfigKey.billingEnabled,
   ClientConfigKey.ttsEnabled,
   ClientConfigKey.llmEnabled,

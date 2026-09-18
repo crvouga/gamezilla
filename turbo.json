@@ -10,8 +10,10 @@
     "VITE_*",
     "PREVIEW_PORT",
     "POSTGRES_SCHEMA",
+    "API_NODE_*",
     "API_URL",
     "LOCAL_PREVIEW_API_ORIGIN",
+    "LOCALHOST_STACK",
     "DATABASE_URL",
     "AUTH_*",
     "LOCAL_SECRETS",
@@ -25,18 +27,18 @@
     "SECRETS_*",
     "INFISICAL_*",
     "ACTIONS_ID_TOKEN_*",
+    "GOOGLE_IDP_ORIGIN",
     "WEB_CLIENT_*",
     "EMQX_*",
+    "WEB_CLIENT_ORIGIN",
     "OBSERVABILITY_*",
     "TURBO_*",
     "SIM_FIDELITY",
     "SIM_REPORT",
+    "IDP_*",
     "TMPDIR"
   ],
   "tasks": {
-    "up": {
-      "cache": false
-    },
     "install:deps": {
       "cache": false
     },
@@ -59,6 +61,8 @@
         "src/**/*.ts",
         "src/**/*.tsx",
         "src/**/*.d.ts",
+        "web/**",
+        "vite.config.mts",
         "package.json",
         "tsconfig.json",
         "tsconfig.tc.json",
@@ -117,6 +121,8 @@
       "inputs": [
         "src/**/*.ts",
         "src/**/*.tsx",
+        "web/**",
+        "vite.config.mts",
         "tests/**",
         "package.json",
         "*.cjs",
@@ -255,6 +261,10 @@
       "persistent": true,
       "cache": false
     },
+    "test:stack": {
+      "cache": false,
+      "persistent": false
+    },
     "test:integration": {
       "inputs": [
         "**/*.ts",
@@ -304,8 +314,10 @@
     "lint": {
       "inputs": [
         "src/**/*.{ts,tsx,js,jsx,cjs}",
+        "web/**/*.{ts,tsx,js,jsx,cjs}",
         "tests/**/*.{ts,tsx,js,jsx,cjs}",
         "scripts/**/*.{ts,tsx,js,cjs}",
+        "vite.config.mts",
         "package.json",
         "biome.json",
         "../../biome.json",

@@ -10,12 +10,15 @@ import {
 } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
+import { InMemoryBilling } from '@pkgs/billing';
 import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
 import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';
 import { isSecretStoreError } from '@pkgs/secret-store';
+import { InMemoryTtsProvider } from '@pkgs/tts/server';
 import { createServer } from './app/create-server';
 import type { ServerEnv } from './app/server-env';
 import { loadAuthBootConfig } from './config/auth-boot';
@@ -25,6 +28,7 @@ import {
   ConfigurationError,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
+  readOptionalGoogleIdpOrigin,
   workerEnvToSecretRecord,
 } from './config/env';
 import { createApiObjectStore } from './config/object-store';
@@ -143,14 +147,22 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
+  const webClientOrigin =
+    typeof env['WEB_CLIENT_ORIGIN'] === 'string'
+      ? env['WEB_CLIENT_ORIGIN']
+      : undefined;
   const auth = await loadAuthBootConfig({
     secretStore,
     apiUrlOverride: serverUrl,
-    secretsEnv,
+    ...(webClientOrigin === undefined ? {} : { webClientOrigin }),
+    googleIdpOrigin: readOptionalGoogleIdpOrigin(env),
   });
 
-  const billing = await createStripeBillingFromSecretStore(secretStore);
-  if (billing === null) {
+  const localStack = env['LOCALHOST_STACK'] === '1';
+  const billing = localStack
+    ? new InMemoryBilling({ baseUrl: serverUrl ?? 'http://127.0.0.1' })
+    : await createStripeBillingFromSecretStore(secretStore);
+  if (!localStack && billing === null) {
     log.warn('billing secret key missing; billing routes will return 503');
   }
 
@@ -175,8 +187,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     kv: null,
     blob: objectStore,
     billing,
-    tts: null,
-    llm: null,
+    tts: localStack ? new InMemoryTtsProvider() : null,
+    llm: localStack ? new InMemoryLlmProvider() : null,
     secrets: secretStore,
     observability,
     auth,

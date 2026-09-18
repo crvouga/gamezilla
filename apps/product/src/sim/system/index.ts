@@ -27,7 +27,7 @@ export {
   visible,
 } from './observations';
 export { PRODUCT_POOL_ACTIONS } from './pool-actions';
-export { captureSnapshot, devOauthSignIn } from './probes';
+export { captureSnapshot, googleOauthSignIn } from './probes';
 export {
   acceptFriendRequest,
   addFriend,
@@ -53,7 +53,7 @@ export {
   setAvatarSeed,
   setAvatarStyle,
   setUsername,
-  signInWithDev,
+  signInWithGoogle,
   signOut,
 } from './scenario-actions';
 export {

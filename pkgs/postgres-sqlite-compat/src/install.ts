@@ -20,6 +20,8 @@ import { SQLITE_JSON_INSTALL_STATEMENTS } from './json-functions-sql';
 export type PostgresSqliteCompatSqlClient = {
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]>;
   run(query: Sql<unknown>): Promise<unknown>;
+  /** Postgres clients expose dbScope; SQLite clients do not. */
+  readonly dbScope?: unknown;
 };
 
 export type InstallPostgresSqliteCompatOptions = {
@@ -28,12 +30,15 @@ export type InstallPostgresSqliteCompatOptions = {
 
 /**
  * True when the client is not SQLite.
- * Uses portable `sqlite_version()` — succeeds only on SQLite; failure ⇒ Postgres
- * (or other). Avoids `pg_catalog` so probes work under agnostic SQL bans.
+ *
+ * Raw Postgres clients expose `dbScope`, so normal startup avoids sending a
+ * deliberately invalid SQLite function to Postgres (which logs an ERROR).
+ * The fallback keeps this leaf usable with third-party structural clients.
  */
 export async function isPostgresSqlClient(
   sqlClient: PostgresSqliteCompatSqlClient
 ): Promise<boolean> {
+  if (sqlClient.dbScope !== undefined) return true;
   try {
     await sqlClient.query(sql<{ v: string }>`SELECT sqlite_version() AS v`);
     return false;

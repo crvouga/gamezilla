@@ -5,7 +5,7 @@
  * not used — the walk is always the action catalog.
  */
 
-import { returnToTabs, signInWithDev, signOut } from './auth-actions';
+import { returnToTabs, signInWithGoogle, signOut } from './auth-actions';
 import {
   bumpPuzzleFeedCustomRating,
   bumpPuzzleFeedOffset,
@@ -88,14 +88,14 @@ export {
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   setUsername,
-  signInWithDev,
+  signInWithGoogle,
   signOut,
 };
 
 export const productScenarioActions = [
   openSettings,
   focusActor,
-  signInWithDev,
+  signInWithGoogle,
   signOut,
   returnToTabs,
   openSpacesTab,

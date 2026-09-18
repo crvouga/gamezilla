@@ -35,18 +35,38 @@ export function StepTree(props: {
               classList={{ sel: props.selected?.step === row.step }}
               style={{ 'padding-left': `${8 + row.depth * 16}px` }}
               data-step-row={String(row.index)}
+              role="button"
+              tabindex="0"
+              aria-current={
+                props.selected?.step === row.step ? 'true' : undefined
+              }
+              aria-label={`Select ${row.step.title}`}
               onClick={() => {
                 const f =
                   firstFrameFor(row.step, props.frames) ||
                   lastFrameBefore(row.step, props.frames);
                 props.onSelect(f);
               }}
+              onKeyDown={(e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                e.preventDefault();
+                const f =
+                  firstFrameFor(row.step, props.frames) ||
+                  lastFrameBefore(row.step, props.frames);
+                props.onSelect(f);
+              }}
             >
-              <span
+              <button
+                type="button"
                 class="tw"
+                aria-label={
+                  (row.step.steps || []).length > 0
+                    ? `${collapsed()[row.index] ? 'Expand' : 'Collapse'} ${row.step.title}`
+                    : undefined
+                }
+                disabled={(row.step.steps || []).length === 0}
                 onClick={(e) => {
                   e.stopPropagation();
-                  if ((row.step.steps || []).length === 0) return;
                   setCollapsed((c) => ({
                     ...c,
                     [row.index]: !c[row.index],
@@ -58,7 +78,7 @@ export function StepTree(props: {
                     ? '▸'
                     : '▾'
                   : ''}
-              </span>
+              </button>
               <span class={`sr-dot st ${row.step.status}`} />
               <div class="body">
                 <div class="t">

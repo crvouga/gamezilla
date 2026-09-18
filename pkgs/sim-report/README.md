@@ -28,6 +28,12 @@ Rebuild the viewer bundle after UI changes:
 bun run --filter @pkgs/sim-report build
 ```
 
+The viewer is keyboard-first: `Ctrl/Cmd-K` opens a searchable command palette,
+`Enter` runs the highlighted command, and `Escape` closes it. The timeline uses
+a native range control with coalesced drag updates, plus `Home` / `End` and
+arrow-key frame navigation. Multi-client panels use a canonical actor order and
+keep empty slots in place when a client has no snapshot for a frame.
+
 ### Embed in an app
 
 ```ts

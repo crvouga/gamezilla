@@ -3,6 +3,7 @@
  * and record the outcome in `probes`, where a read can observe it back.
  */
 
+import type { Client } from '@apps/client/shell/create-client';
 import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
 import {
   captureSystemSnapshot,
@@ -16,12 +17,12 @@ import { defineAction } from '@pkgs/sim';
 
 import type { ProductSim } from './sim';
 
-/** Sign in through the client auth port wired to the in-process sim server. */
-export const devOauthSignIn = defineAction({
-  name: 'devOauthSignIn',
+/** Sign in through the client auth port, against the simulated provider. */
+export const googleOauthSignIn = defineAction({
+  name: 'googleOauthSignIn',
   pool: false,
   act: async (s: ProductSim, actorId: string) => {
-    const env = s.sim.client(actorId);
+    const env = await s.sim.client(actorId);
     const port = createAuthClientAdapter({
       baseURL: env.authBaseURL,
       timers: env.timers,
@@ -30,7 +31,7 @@ export const devOauthSignIn = defineAction({
       openAuthSession: env.openAuthSession,
       callbackUrl: 'gamezilla://sso-callback',
     });
-    await port.signIn('oauth-dev');
+    await port.signIn('oauth-google');
     const token = await port.getFreshToken();
     s.probes.oauthTokenLength = token === null ? null : token.length;
   },
@@ -48,9 +49,9 @@ export const captureSnapshot = defineAction({
 async function captureSnapshotOf(s: ProductSim, clientIds: readonly string[]) {
   const sim = s.sim;
   const clientSqlByAddress = new Map<string, SimSql>();
-  const liveClients = new Map<string, ReturnType<typeof sim.spawnClient>>();
+  const liveClients = new Map<string, Client>();
   for (const id of clientIds) {
-    liveClients.set(id, sim.spawnClient(id));
+    liveClients.set(id, await sim.spawnClient(id));
     const handle = sim.clientSql(id);
     if (handle !== undefined) {
       clientSqlByAddress.set(id, handle);

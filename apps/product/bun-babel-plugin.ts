@@ -50,8 +50,10 @@ const LINGUI_ACTIVATE =
   'if (__gzLingui.locale == null || __gzLingui.locale === "") { ' +
   '__gzLingui.loadAndActivate({ locale: "en", messages: {} }); } ';
 
-function transformSolidTsx(path: string): { contents: string; loader: 'js' } {
-  const source = readFileSync(path, 'utf8');
+function transformSolidTsx(
+  path: string,
+  source: string
+): { contents: string; loader: 'js' } {
   const result = babel.transformSync(source, {
     filename: path,
     babelrc: false,
@@ -80,9 +82,10 @@ function cssModule(path: string): { contents: string; loader: 'js' } {
 plugin({
   name: 'product-test-solid',
   setup(build) {
-    build.onLoad({ filter: WORKSPACE_TSX_FILTER }, (args) =>
-      transformSolidTsx(args.path)
-    );
+    build.onLoad({ filter: WORKSPACE_TSX_FILTER }, (args) => {
+      const source = readFileSync(args.path, 'utf8');
+      return transformSolidTsx(args.path, source);
+    });
     build.onLoad({ filter: CSS_FILTER }, (args) => cssModule(args.path));
     build.onLoad({ filter: MEDIA_FILTER }, (args) => ({
       contents: `module.exports = ${JSON.stringify(args.path)};`,

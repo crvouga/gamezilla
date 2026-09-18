@@ -14,7 +14,6 @@ import {
   selectedFrame,
   selectedNode,
   testFrames,
-  uiBlobs,
 } from '../lib/frames';
 import { showAside, viewMode } from '../lib/hash';
 
@@ -119,7 +118,6 @@ export function TestView(props: { nav: ReportNav }) {
                       nav={props.nav}
                       mode={viewMode(props.nav.route())}
                       node={selectedNode(sel(), props.nav.route(), t())}
-                      blobs={uiBlobs(sel())}
                     />
                   </Show>
                   <Show when={showSnapshots()}>

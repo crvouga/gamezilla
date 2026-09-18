@@ -1,16 +1,20 @@
 export {
   APP_DIR,
+  type ClusterConfig,
   clusterLooksHealthy,
+  clusterUrl,
   createEmbeddedPostgres,
-  DATA_DIR,
-  DATABASE_DIR,
+  databaseDir,
+  defaultClusterConfig,
   ensureAppDatabase,
   ensureClusterInitialised,
   formatUnknownError,
-  LOCAL_DATABASE_URL,
+  resolveDataDir,
   wipeClusterData,
 } from './cluster';
 export {
+  databaseUrlFor,
+  LOCAL_DATABASE_URL,
   POSTGRES_DATABASE,
   POSTGRES_LOCAL_PORTS,
   POSTGRES_PASSWORD,
@@ -19,5 +23,6 @@ export {
 } from './ports';
 export {
   type EmbeddedPostgresHandle,
+  type StartEmbeddedPostgresOptions,
   startEmbeddedPostgres,
 } from './start';

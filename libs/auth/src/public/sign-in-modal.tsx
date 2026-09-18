@@ -39,10 +39,8 @@ export type SignInModalProps = {
   /** True while synced sign-in method flags are still loading. */
   methodsLoading?: boolean | undefined;
   googleAvailable: boolean;
-  devOauthAvailable: boolean;
   signInUnavailableReason: string | null;
   onSignInWithGoogle: () => Promise<void>;
-  onSignInWithDev: () => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
 
@@ -85,7 +83,7 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
     reset: lifecycle.reset,
   });
 
-  const anyMethod = () => props.googleAvailable || props.devOauthAvailable;
+  const anyMethod = () => props.googleAvailable;
   const trigger = (runner: () => Promise<void>) => {
     if (!anyMethod() || lifecycle.phase() === 'loading') return;
     void lifecycle.start(runner);
@@ -120,13 +118,9 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
             <SignInIdleBody
               methodsLoading={props.methodsLoading}
               googleAvailable={props.googleAvailable}
-              devOauthAvailable={props.devOauthAvailable}
               signInUnavailableReason={props.signInUnavailableReason}
               onPressGoogle={() => {
                 trigger(props.onSignInWithGoogle);
-              }}
-              onPressDev={() => {
-                trigger(props.onSignInWithDev);
               }}
             />
           }

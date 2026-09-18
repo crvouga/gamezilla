@@ -2,17 +2,10 @@ import type { Context } from 'hono';
 
 import {
   AUTH_SET_TOKEN_HEADER,
-  IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../shared/auth-constants';
 import { isTrustedCallbackUrl } from '../shared/trusted-origins';
 import type { CreateAuthAppDeps } from './create-auth-app-types';
-import {
-  buildDevAuthorizeUrl,
-  devAuthorizeCompletePath,
-  devRedirectUri,
-  renderDevAuthorizePage,
-} from './dev-oauth';
 import {
   buildGoogleAuthorizationUrl,
   exchangeGoogleAuthorizationCode,
@@ -87,17 +80,13 @@ function publicPrefix(deps: CreateAuthAppDeps): string {
 }
 
 function isSupportedProvider(provider: string): boolean {
-  return provider === IDP_PROVIDER_GOOGLE || provider === IDP_PROVIDER_DEV;
+  return provider === IDP_PROVIDER_GOOGLE;
 }
 
 function providerEnabled(deps: CreateAuthAppDeps, provider: string): boolean {
-  if (provider === IDP_PROVIDER_GOOGLE) {
-    return deps.providers.google !== undefined;
-  }
-  if (provider === IDP_PROVIDER_DEV) {
-    return deps.providers.dev?.enabled === true;
-  }
-  return false;
+  return (
+    provider === IDP_PROVIDER_GOOGLE && deps.providers.google !== undefined
+  );
 }
 
 async function finishOauthCallback(args: {
@@ -141,80 +130,17 @@ export async function handleOauthLaunch(
     provider,
     callbackUrl,
   });
-  const prefix = publicPrefix(deps);
-  if (provider === IDP_PROVIDER_GOOGLE) {
-    if (deps.providers.google === undefined) {
-      return c.json({ error: 'provider_disabled' }, 404);
-    }
-    const authorizationUrl = buildGoogleAuthorizationUrl({
-      clientId: deps.providers.google.clientId,
-      redirectUri: googleRedirectUri(deps.baseURL, prefix),
-      state,
-      codeVerifier,
-    });
-    return c.redirect(authorizationUrl, 302);
-  }
-  const authorizeUrl = buildDevAuthorizeUrl({
-    baseURL: deps.baseURL,
-    publicPathPrefix: prefix,
-    state,
-  });
-  return c.redirect(authorizeUrl, 302);
-}
-
-export async function handleDevAuthorize(
-  c: Context,
-  deps: CreateAuthAppDeps
-): Promise<Response> {
-  if (deps.providers.dev?.enabled !== true) {
+  const google = deps.providers.google;
+  if (google === undefined) {
     return c.json({ error: 'provider_disabled' }, 404);
   }
-  const state = c.req.query('state') ?? '';
-  if (state.length === 0) {
-    return c.json({ error: 'missing_state' }, 400);
-  }
-  const oauthState = await repo(deps).findOauthStateByState(state);
-  if (oauthState === null || oauthState.provider !== IDP_PROVIDER_DEV) {
-    return c.json({ error: 'invalid_state' }, 400);
-  }
-  const accounts = await repo(deps).listDevAccounts();
-  const html = renderDevAuthorizePage({
+  const authorizationUrl = buildGoogleAuthorizationUrl({
+    google,
+    redirectUri: googleRedirectUri(deps.baseURL, publicPrefix(deps)),
     state,
-    completePath: devAuthorizeCompletePath(publicPrefix(deps)),
-    accounts,
+    codeVerifier,
   });
-  return c.html(html, 200);
-}
-
-export async function handleDevAuthorizeComplete(
-  c: Context,
-  deps: CreateAuthAppDeps
-): Promise<Response> {
-  if (deps.providers.dev?.enabled !== true) {
-    return c.json({ error: 'provider_disabled' }, 404);
-  }
-  const body = await c.req.parseBody();
-  const state = typeof body['state'] === 'string' ? body['state'].trim() : '';
-  const subject =
-    typeof body['subject'] === 'string' ? body['subject'].trim() : '';
-  if (state.length === 0 || subject.length === 0) {
-    return c.json({ error: 'missing_state_or_subject' }, 400);
-  }
-  const r = repo(deps);
-  const oauthState = await r.findOauthStateByState(state);
-  if (oauthState === null || oauthState.provider !== IDP_PROVIDER_DEV) {
-    return c.json({ error: 'invalid_state' }, 400);
-  }
-  const authCode = deps.createId();
-  await r.attachProviderAuthCode({
-    oauthStateId: oauthState.id,
-    authCode,
-    providerUserId: subject,
-  });
-  const callback = new URL(devRedirectUri(deps.baseURL, publicPrefix(deps)));
-  callback.searchParams.set('code', authCode);
-  callback.searchParams.set('state', state);
-  return c.redirect(callback.toString(), 302);
+  return c.redirect(authorizationUrl, 302);
 }
 
 export async function handleOauthCallback(
@@ -239,47 +165,30 @@ export async function handleOauthCallback(
     return c.json({ error: 'invalid_state' }, 400);
   }
 
-  if (provider === IDP_PROVIDER_GOOGLE) {
-    if (deps.providers.google === undefined) {
-      return c.json({ error: 'provider_disabled' }, 404);
-    }
-    let googleUser: Awaited<ReturnType<typeof exchangeGoogleAuthorizationCode>>;
-    try {
-      googleUser = await exchangeGoogleAuthorizationCode({
-        http: deps.http,
-        google: deps.providers.google,
-        redirectUri: googleRedirectUri(deps.baseURL, publicPrefix(deps)),
-        code,
-        codeVerifier: oauthState.code_verifier,
-      });
-    } catch {
-      return c.json({ error: 'google_exchange_failed' }, 400);
-    }
-    const user = await r.upsertSocialUser({
-      provider: IDP_PROVIDER_GOOGLE,
-      providerUserId: googleUser.sub,
-      email: googleUser.email,
-      name: googleUser.name,
-      image: googleUser.picture,
-      accessToken: googleUser.accessToken,
-      refreshToken: googleUser.refreshToken,
-    });
-    return finishOauthCallback({ c, deps, oauthState, user });
+  const google = deps.providers.google;
+  if (google === undefined) {
+    return c.json({ error: 'provider_disabled' }, 404);
   }
-
-  const subject = await r.consumeProviderAuthCode({
-    authCode: code,
-    oauthStateId: oauthState.id,
-  });
-  if (subject === null) {
-    return c.json({ error: 'invalid_code' }, 400);
+  let googleUser: Awaited<ReturnType<typeof exchangeGoogleAuthorizationCode>>;
+  try {
+    googleUser = await exchangeGoogleAuthorizationCode({
+      http: deps.http,
+      google,
+      redirectUri: googleRedirectUri(deps.baseURL, publicPrefix(deps)),
+      code,
+      codeVerifier: oauthState.code_verifier,
+    });
+  } catch {
+    return c.json({ error: 'google_exchange_failed' }, 400);
   }
   const user = await r.upsertSocialUser({
-    provider: IDP_PROVIDER_DEV,
-    providerUserId: subject,
-    email: `${subject}@dev.local`,
-    name: subject,
-    image: null,
+    provider: IDP_PROVIDER_GOOGLE,
+    providerUserId: googleUser.sub,
+    email: googleUser.email,
+    name: googleUser.name,
+    image: googleUser.picture,
+    accessToken: googleUser.accessToken,
+    refreshToken: googleUser.refreshToken,
   });
   return finishOauthCallback({ c, deps, oauthState, user });
 }

@@ -13,7 +13,7 @@ import {
   setAvatarSeed,
   setAvatarStyle,
   setUsername,
-  signInWithDev,
+  signInWithGoogle,
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
 
@@ -47,7 +47,7 @@ describe('profile edit', () => {
 
   test('signed-in updates username', async () => {
     await using s = await openSim('profile-edit-signed-username');
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(openProfileEdit, 'alice');
     await s.apply(setUsername, 'alice', 'signed_alice_1');
@@ -56,7 +56,7 @@ describe('profile edit', () => {
 
   test('signed-in updates avatar', async () => {
     await using s = await openSim('profile-edit-signed-avatar');
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(openProfileEdit, 'alice');
     await s.apply(openAvatarEditor, 'alice');

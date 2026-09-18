@@ -126,7 +126,7 @@ async function ensureClientSqlHandle(
   const existing =
     ctx.clientSqlByAddress.get(clientId) ?? ctx.sim.clientSql(clientId);
   if (existing !== undefined) return existing;
-  await ctx.sim.client(clientId).openSqlClient();
+  await (await ctx.sim.client(clientId)).openSqlClient();
   const handle = ctx.sim.clientSql(clientId);
   if (handle === undefined) {
     const opened = await openFreshSimClientSql(

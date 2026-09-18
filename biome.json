@@ -17,7 +17,7 @@
       "!!**/.cache",
       "!**/*.lock",
       "!apps/client/src/i18n/locales/*/messages.ts",
-      "!apps/client/public/sql-workers/**/*.js",
+      "!pkgs/idp-google-sim/src/server/assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",

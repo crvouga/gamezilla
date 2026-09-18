@@ -1,13 +1,9 @@
 import { useAuthClientPort } from './auth-client-provider';
 import type { SignInTriggerResult } from './sign-in-trigger';
 
-/**
- * Triggers hosted sign-in via {@link AuthClientPort.signIn}.
- * Google and Dev both use OAuth auth-session + session exchange.
- */
+/** Triggers hosted Google sign-in via {@link AuthClientPort.signIn}. */
 export function useSignIn(): {
   signInWithGoogle: () => Promise<SignInTriggerResult>;
-  signInWithDev: () => Promise<SignInTriggerResult>;
 } {
   const port = useAuthClientPort();
 
@@ -16,10 +12,5 @@ export function useSignIn(): {
     return 'completed' as const;
   };
 
-  const signInWithDev = async () => {
-    await port.signIn('oauth-dev');
-    return 'completed' as const;
-  };
-
-  return { signInWithGoogle, signInWithDev };
+  return { signInWithGoogle };
 }

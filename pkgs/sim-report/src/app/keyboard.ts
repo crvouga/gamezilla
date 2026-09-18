@@ -14,6 +14,8 @@ import type { ReportData } from '../types';
 export type KeyNavHandlers = {
   toggleHelp: () => void;
   showHelp: () => boolean;
+  showPalette: () => boolean;
+  togglePalette: () => void;
   stopPlay: () => void;
   navigate: (route: Route) => void;
   goFrame: (frame: FlatFrame | null, node?: string) => void;
@@ -118,8 +120,29 @@ export function onReportKeyDown(
   data: ReportData,
   h: KeyNavHandlers
 ): void {
-  const tag = (e.target as HTMLElement | null)?.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    h.togglePalette();
+    return;
+  }
+  if (e.key === 'Escape' && h.showPalette()) {
+    e.preventDefault();
+    h.togglePalette();
+    return;
+  }
+  if (h.showPalette()) return;
+  const target = e.target as HTMLElement | null;
+  const tag = target?.tagName;
+  if (
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    tag === 'BUTTON' ||
+    tag === 'A' ||
+    target?.isContentEditable
+  ) {
+    return;
+  }
   if (e.key === '?' || (e.shiftKey && e.key === '/')) {
     h.toggleHelp();
     return;

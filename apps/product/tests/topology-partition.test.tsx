@@ -6,7 +6,7 @@ import {
   clientIds,
   partition,
   restoreNetwork,
-  signInWithDev,
+  signInWithGoogle,
   spawnActor,
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
@@ -30,7 +30,7 @@ describe('topology partition', () => {
 
     await s.apply(partition, 'alice');
     await s.apply(restoreNetwork);
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     const ids = await s.read(clientIds);
     assert.ok(ids.includes('alice'), 'alice client mounted after sign-in');
   });

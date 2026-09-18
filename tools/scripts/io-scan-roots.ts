@@ -53,14 +53,7 @@ export async function collectIoScanFiles(
 ): Promise<string[]> {
   const files: string[] = [];
 
-  for (const app of [
-    'client',
-    'api',
-    'postgres',
-    'room',
-    'minio',
-    'emqx',
-  ] as const) {
+  for (const app of ['client', 'api', 'postgres', 'room', 'emqx'] as const) {
     files.push(
       ...(await keysUnder(store, `apps/${app}/src`, TS_JS_EXTS)),
       ...(await keysUnder(store, `apps/${app}/scripts`, TS_EXTS)),
@@ -112,14 +105,7 @@ export async function collectSqlWallScanFiles(
   store: ObjectStore = createCiRepoStore()
 ): Promise<string[]> {
   const files: string[] = [];
-  for (const app of [
-    'client',
-    'api',
-    'postgres',
-    'room',
-    'minio',
-    'emqx',
-  ] as const) {
+  for (const app of ['client', 'api', 'postgres', 'room', 'emqx'] as const) {
     files.push(...(await keysUnder(store, `apps/${app}`, TS_SQL_EXTS)));
   }
   const allKeys = await store.listKeys();

@@ -29,6 +29,12 @@ export {
   type OpenAuthSessionResult,
 } from './create-auth-client-adapter';
 export {
+  formSubmitBody,
+  type HeadlessButton,
+  type HeadlessForm,
+  parseFirstForm,
+} from './headless-form';
+export {
   createInProcessOpenAuthSession,
   type InProcessOpenAuthSessionConfig,
   type InProcessOpenAuthSessionFault,

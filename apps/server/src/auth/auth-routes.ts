@@ -1,6 +1,6 @@
 import type { AuthContext } from '@libs/auth/public/types';
 import { createAuthApp, IdpRepository } from '@pkgs/auth/server';
-import { AUTH_SET_TOKEN_HEADER, IDP_PROVIDER_DEV } from '@pkgs/auth/shared';
+import { AUTH_SET_TOKEN_HEADER, IDP_PROVIDER_GOOGLE } from '@pkgs/auth/shared';
 import type { Clock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { CreateId } from '@pkgs/uuid';
@@ -79,7 +79,7 @@ export function createAuthRoutes(args: {
         args.boot.secret
       );
       const user = await repo.upsertSocialUser({
-        provider: IDP_PROVIDER_DEV,
+        provider: IDP_PROVIDER_GOOGLE,
         providerUserId: identity.subject,
         email: identity.email,
         name: identity.name,

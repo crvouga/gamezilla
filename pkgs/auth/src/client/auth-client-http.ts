@@ -1,8 +1,5 @@
 import type { HttpFetch } from '@pkgs/http-client';
-import {
-  IDP_PROVIDER_DEV,
-  IDP_PROVIDER_GOOGLE,
-} from '../shared/auth-constants';
+import { IDP_PROVIDER_GOOGLE } from '../shared/auth-constants';
 import type { VerifiedSession } from '../shared/verified-session';
 
 export const AUTH_SSO_CANCELLED_ERROR =
@@ -11,9 +8,7 @@ export const AUTH_SSO_POPUP_BLOCKED_ERROR =
   'Popup window was blocked by the browser or failed to open. This can happen in mobile browsers when the window.open() method was invoked too long after a user input was fired.';
 export const AUTH_NETWORK_ERROR = 'Network error during sign-in.';
 
-export type OauthProviderId =
-  | typeof IDP_PROVIDER_GOOGLE
-  | typeof IDP_PROVIDER_DEV;
+export type OauthProviderId = typeof IDP_PROVIDER_GOOGLE;
 
 export type SessionBody = {
   readonly token?: string;
@@ -61,9 +56,9 @@ export function buildOauthLaunchUrl(
 }
 
 export function strategyToOauthProvider(
-  strategy: 'oauth-google' | 'oauth-dev'
+  _strategy: 'oauth-google'
 ): OauthProviderId {
-  return strategy === 'oauth-google' ? IDP_PROVIDER_GOOGLE : IDP_PROVIDER_DEV;
+  return IDP_PROVIDER_GOOGLE;
 }
 
 export function isPopupBlockedError(err: unknown): boolean {

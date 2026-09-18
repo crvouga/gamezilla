@@ -1,6 +1,5 @@
 import {
   AUTH_SET_TOKEN_HEADER,
-  IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '@pkgs/auth/shared/auth-constants';
 import { sql } from '@pkgs/sql';
@@ -54,8 +53,6 @@ export async function authFingerprint(surface: AuthSurface): Promise<string> {
   return JSON.stringify({ users, accounts, sessions, bearers });
 }
 
-export type OauthProvider =
-  | typeof IDP_PROVIDER_GOOGLE
-  | typeof IDP_PROVIDER_DEV;
+export type OauthProvider = typeof IDP_PROVIDER_GOOGLE;
 
-export { AUTH_SET_TOKEN_HEADER, IDP_PROVIDER_DEV, IDP_PROVIDER_GOOGLE };
+export { AUTH_SET_TOKEN_HEADER, IDP_PROVIDER_GOOGLE };

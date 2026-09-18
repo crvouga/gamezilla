@@ -7,7 +7,6 @@ import type { GoogleProviderConfig } from './google-oauth';
 
 export type CreateAuthAppProviders = {
   readonly google?: GoogleProviderConfig;
-  readonly dev?: { readonly enabled: true };
 };
 
 export type CreateAuthAppDeps = {

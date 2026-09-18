@@ -1,14 +1,8 @@
 import type { HtmlReportTest } from '@pkgs/sim';
-import { createMemo, For, onCleanup, onMount } from 'solid-js';
+import { createMemo, For, onCleanup } from 'solid-js';
 
 import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
-
-function scrubPct(frames: FlatFrame[], sel: FlatFrame | null): number {
-  if (!frames.length) return 0;
-  const idx = sel ? sel.index : 0;
-  return frames.length <= 1 ? 0 : (idx / (frames.length - 1)) * 100;
-}
 
 function Filmstrip(props: {
   frames: FlatFrame[];
@@ -16,145 +10,79 @@ function Filmstrip(props: {
   onSelect: (f: FlatFrame) => void;
 }) {
   return (
-    <div class="sr-film">
+    <div class="sr-film" aria-label="Frame thumbnails">
       <For each={props.frames}>
         {(f) => (
-          <div
+          <button
+            type="button"
             class="sr-thumb"
             classList={{
               on: f === props.selected,
               failed: f.step.status === 'failed',
             }}
             title={f.step.title}
+            aria-label={`Frame ${f.index + 1}: ${f.step.title}`}
+            aria-current={f === props.selected ? 'true' : undefined}
             data-film-index={String(f.index)}
             onClick={() => props.onSelect(f)}
           >
-            <div class="n">{f.index + 1}</div>
-            <div class="t">{f.step.title}</div>
+            <span class="n">{f.index + 1}</span>
+            <span class="t">{f.step.title}</span>
             {f.step.hit ? <span class="sr-hit-dot" /> : null}
-          </div>
+          </button>
         )}
       </For>
     </div>
   );
 }
 
-function bindScrubPointers(
-  track: HTMLDivElement,
-  nav: ReportNav,
-  frames: () => FlatFrame[]
-): void {
-  let dragging = false;
-  const seek = (clientX: number) => {
-    const list = frames();
-    if (!list.length) return;
-    const rect = track.getBoundingClientRect();
-    let t = rect.width <= 0 ? 0 : (clientX - rect.left) / rect.width;
-    t = Math.max(0, Math.min(1, t));
-    const i = list.length <= 1 ? 0 : Math.round(t * (list.length - 1));
-    const frame = list[i];
-    if (frame) nav.goFrame(frame);
-  };
-  const onDown = (e: PointerEvent) => {
-    if (frames().length === 0) return;
-    e.preventDefault();
-    dragging = true;
-    nav.stopPlay();
-    track.classList.add('dragging');
-    track.setPointerCapture(e.pointerId);
-    seek(e.clientX);
-  };
-  const onMove = (e: PointerEvent) => {
-    if (dragging) seek(e.clientX);
-  };
-  const endDrag = (e: PointerEvent) => {
-    if (!dragging) return;
-    dragging = false;
-    track.classList.remove('dragging');
-    try {
-      track.releasePointerCapture(e.pointerId);
-    } catch {
-      /* ignore */
-    }
-  };
-  track.addEventListener('pointerdown', onDown);
-  track.addEventListener('pointermove', onMove);
-  track.addEventListener('pointerup', endDrag);
-  track.addEventListener('pointercancel', endDrag);
-  onCleanup(() => {
-    track.removeEventListener('pointerdown', onDown);
-    track.removeEventListener('pointermove', onMove);
-    track.removeEventListener('pointerup', endDrag);
-    track.removeEventListener('pointercancel', endDrag);
-  });
-}
-
-function onScrubKey(
-  e: KeyboardEvent,
-  frames: FlatFrame[],
-  nav: ReportNav
-): void {
-  if (e.key === 'ArrowLeft') {
-    e.preventDefault();
-    nav.stepFrame(-1);
-  }
-  if (e.key === 'ArrowRight') {
-    e.preventDefault();
-    nav.stepFrame(1);
-  }
-  if (e.key === 'Home' && frames.length) {
-    e.preventDefault();
-    nav.goFrame(frames[0] ?? null);
-  }
-  if (e.key === 'End' && frames.length) {
-    e.preventDefault();
-    nav.goFrame(frames[frames.length - 1] ?? null);
-  }
-}
-
 function ScrubTrack(props: {
   frames: FlatFrame[];
   selected: FlatFrame | null;
-  pct: number;
   nav: ReportNav;
 }) {
-  let trackEl: HTMLDivElement | undefined;
+  let pendingIndex: number | null = null;
+  let rafId: number | null = null;
   const idx = () => (props.selected ? props.selected.index : -1);
 
-  onMount(() => {
-    if (trackEl) bindScrubPointers(trackEl, props.nav, () => props.frames);
+  const flush = () => {
+    rafId = null;
+    if (pendingIndex === null) return;
+    const frame = props.frames[pendingIndex];
+    pendingIndex = null;
+    if (frame) props.nav.goFrame(frame);
+  };
+
+  const schedule = (next: number) => {
+    pendingIndex = next;
+    if (rafId === null) rafId = requestAnimationFrame(flush);
+  };
+
+  onCleanup(() => {
+    if (rafId !== null) cancelAnimationFrame(rafId);
   });
 
   return (
-    <div
-      ref={trackEl}
-      class="sr-scrub-track"
-      role="slider"
-      tabindex="0"
+    <input
+      class="sr-scrub-input"
+      type="range"
+      min="1"
+      max={Math.max(1, props.frames.length)}
+      value={Math.max(1, idx() + 1)}
+      disabled={props.frames.length === 0}
       aria-label="Frame scrubber"
-      aria-valuemin={1}
-      aria-valuemax={Math.max(1, props.frames.length)}
-      aria-valuenow={Math.max(0, idx() + 1)}
       aria-valuetext={
         props.selected
           ? `Frame ${idx() + 1} of ${props.frames.length}`
           : 'No frames'
       }
       data-scrub-track=""
-      onKeyDown={(e) => onScrubKey(e, props.frames, props.nav)}
-    >
-      <div class="sr-scrub-rail" />
-      <div
-        class="sr-scrub-fill"
-        data-scrub-fill=""
-        style={{ width: `${props.pct}%` }}
-      />
-      <div
-        class="sr-scrub-knob"
-        data-scrub-knob=""
-        style={{ left: `${props.pct}%` }}
-      />
-    </div>
+      onInput={(e) => {
+        props.nav.stopPlay();
+        schedule(Number.parseInt(e.currentTarget.value, 10) - 1);
+      }}
+      onChange={flush}
+    />
   );
 }
 
@@ -165,7 +93,11 @@ export function Scrubber(props: {
   nav: ReportNav;
 }) {
   const idx = createMemo(() => (props.selected ? props.selected.index : -1));
-  const pct = createMemo(() => scrubPct(props.frames, props.selected));
+  const pct = createMemo(() =>
+    props.frames.length <= 1 || idx() < 0
+      ? 0
+      : (idx() / (props.frames.length - 1)) * 100
+  );
 
   return (
     <div class="sr-scrubber">
@@ -173,6 +105,8 @@ export function Scrubber(props: {
         <button
           type="button"
           class="sr-navbtn"
+          aria-label="Previous frame"
+          title="Previous frame"
           disabled={idx() <= 0}
           onClick={() => props.nav.stepFrame(-1)}
         >
@@ -180,7 +114,8 @@ export function Scrubber(props: {
         </button>
         <button
           type="button"
-          class="sr-navbtn"
+          class="sr-navbtn sr-play"
+          aria-label={props.nav.playing() ? 'Pause playback' : 'Play frames'}
           onClick={() => props.nav.togglePlay()}
         >
           {props.nav.playing() ? 'Pause' : 'Play'}
@@ -188,18 +123,23 @@ export function Scrubber(props: {
         <button
           type="button"
           class="sr-navbtn"
+          aria-label="Next frame"
+          title="Next frame"
           disabled={idx() < 0 || idx() >= props.frames.length - 1}
           onClick={() => props.nav.stepFrame(1)}
         >
           ▸
         </button>
-        <ScrubTrack
-          frames={props.frames}
-          selected={props.selected}
-          pct={pct()}
-          nav={props.nav}
-        />
-        <span class="sr-frame-label" data-scrub-label="">
+        <div class="sr-scrub-wrap">
+          <div class="sr-scrub-rail" />
+          <div class="sr-scrub-fill" style={{ width: `${pct()}%` }} />
+          <ScrubTrack
+            frames={props.frames}
+            selected={props.selected}
+            nav={props.nav}
+          />
+        </div>
+        <span class="sr-frame-label" aria-live="polite" data-scrub-label="">
           {props.selected ? `${idx() + 1} / ${props.frames.length}` : '0 / 0'}
         </span>
       </div>

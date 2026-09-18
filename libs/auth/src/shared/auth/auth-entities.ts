@@ -117,4 +117,3 @@ export const GOOGLE_PROVIDER = 'google' as const;
  * dev IdP. Mirrors {@link GOOGLE_PROVIDER}: anywhere we branch on
  * `provider`, this constant is the single source of truth.
  */
-export const DEV_PROVIDER = 'dev' as const;

@@ -2,7 +2,7 @@ import { describe } from 'bun:test';
 import { ObjectStoreImplInMemory } from './impl-in-memory';
 import { runObjectStoreContractTests } from './object-store-contract';
 
-/** Fake-tier port suite. Real S3/MinIO: *.contract.test.ts */
+/** Fake-tier port suite. Real S3-compatible: *.contract.test.ts */
 describe('ObjectStore — ObjectStoreImplInMemory (port suite)', () => {
   runObjectStoreContractTests(() => new ObjectStoreImplInMemory());
 });

@@ -1,13 +1,11 @@
 import {
   AUTH_SET_TOKEN_HEADER,
-  type IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '@pkgs/auth/shared/auth-constants';
+import { walkIdpScreens } from './idp-walk';
 import type { ActorState, AuthStore, AuthSurface } from './types';
 
-export type OauthProvider =
-  | typeof IDP_PROVIDER_GOOGLE
-  | typeof IDP_PROVIDER_DEV;
+export type OauthProvider = typeof IDP_PROVIDER_GOOGLE;
 
 const JSON_HEADERS = { 'content-type': 'application/json' };
 
@@ -25,10 +23,9 @@ function actorOf(surface: AuthSurface, clientId: string): ActorState | null {
 async function oauthStart(
   store: AuthStore,
   actor: ActorState,
-  provider: OauthProvider,
   callbackUrl: string
 ): Promise<void> {
-  const launchPath = `/auth/oauth/launch?provider=${encodeURIComponent(provider)}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
+  const launchPath = `/auth/oauth/launch?provider=${IDP_PROVIDER_GOOGLE}&callbackUrl=${encodeURIComponent(callbackUrl)}`;
   const res = await store.fetch(launchPath, {
     method: 'GET',
     redirect: 'manual',
@@ -37,60 +34,21 @@ async function oauthStart(
   actor.pendingAuthUrl = location;
 }
 
+/**
+ * Walk the provider's real screens: sign in, approve consent, ride the
+ * redirect back through the auth callback to the app.
+ */
 async function googleApprove(
   surface: AuthSurface,
   actor: ActorState,
   subject: string
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
-  const store = surface.store;
-  const state = new URL(actor.pendingAuthUrl).searchParams.get('state') ?? '';
-  const code = surface.session.ports.createId();
-  store.sim.googleSubjects.set(code, subject);
-  const query = `code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
-  const res = await store.fetch(`/auth/callback/google?${query}`, {
-    method: 'GET',
-    redirect: 'manual',
+  actor.pendingCode = await walkIdpScreens({
+    wire: surface.store.wire,
+    startUrl: actor.pendingAuthUrl,
+    subject,
   });
-  const location = res.headers.get('location');
-  if (location === null) {
-    actor.pendingCode = null;
-    return;
-  }
-  actor.pendingCode = new URL(location).searchParams.get('code');
-  actor.pendingAuthUrl = null;
-}
-
-async function devApprove(
-  surface: AuthSurface,
-  actor: ActorState,
-  subject: string
-): Promise<void> {
-  if (actor.pendingAuthUrl === null) return;
-  const store = surface.store;
-  const authorizeUrl = new URL(actor.pendingAuthUrl);
-  const state = authorizeUrl.searchParams.get('state') ?? '';
-  const completeRes = await store.fetch('/auth/dev/authorize/complete', {
-    method: 'POST',
-    headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ state, subject }).toString(),
-    redirect: 'manual',
-  });
-  const callbackLocation = completeRes.headers.get('location');
-  if (callbackLocation === null) {
-    actor.pendingCode = null;
-    return;
-  }
-  const callbackRes = await store.fetch(
-    new URL(callbackLocation).pathname + new URL(callbackLocation).search,
-    { method: 'GET', redirect: 'manual' }
-  );
-  const appLocation = callbackRes.headers.get('location');
-  if (appLocation === null) {
-    actor.pendingCode = null;
-    return;
-  }
-  actor.pendingCode = new URL(appLocation).searchParams.get('code');
   actor.pendingAuthUrl = null;
 }
 
@@ -125,27 +83,21 @@ async function signOut(store: AuthStore, actor: ActorState): Promise<void> {
 export async function dispatchOauthStart(
   surface: AuthSurface,
   clientId: string,
-  provider: OauthProvider,
   callbackUrl: string
 ): Promise<void> {
   const actor = actorOf(surface, clientId);
   if (actor === null) return;
-  await oauthStart(surface.store, actor, provider, callbackUrl);
+  await oauthStart(surface.store, actor, callbackUrl);
 }
 
 export async function dispatchOauthApprove(
   surface: AuthSurface,
   clientId: string,
-  provider: OauthProvider,
   subject: string
 ): Promise<void> {
   const actor = actorOf(surface, clientId);
   if (actor === null) return;
-  if (provider === IDP_PROVIDER_GOOGLE) {
-    await googleApprove(surface, actor, subject);
-    return;
-  }
-  await devApprove(surface, actor, subject);
+  await googleApprove(surface, actor, subject);
 }
 
 export async function dispatchSessionExchange(

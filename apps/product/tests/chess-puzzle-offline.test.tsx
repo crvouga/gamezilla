@@ -7,7 +7,7 @@ import {
   readActivePuzzleId,
   restoreNetwork,
   returnToTabs,
-  signInWithDev,
+  signInWithGoogle,
   uiOp,
   visible,
 } from '../src/sim';
@@ -28,7 +28,7 @@ const tap = (actorId: string, handle: string) => ({
 describe('chess puzzle offline', () => {
   test('offline with no local pool shows the offline block; reconnect recovers', async () => {
     await using s = await openSim('chess-puzzle-offline');
-    await s.apply(signInWithDev, 'alice');
+    await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(createSpace, 'alice');
 

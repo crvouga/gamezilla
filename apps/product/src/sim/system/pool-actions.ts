@@ -9,7 +9,7 @@ import { type CatalogAction, defineAction, type Rng } from '@pkgs/sim';
 
 import { partition, restoreNetwork, spawnActor } from './actions';
 import { actorUi } from './actor-ui';
-import { returnToTabs, signInWithDev } from './auth-actions';
+import { returnToTabs, signInWithGoogle } from './auth-actions';
 import { pickId, readyActorIds, sampleReadyActorId } from './pool-support';
 import {
   dropServerNode,
@@ -93,7 +93,7 @@ export const walkSignInWithDev = defineAction({
   act: async (s: ProductSim, actorId: string) => {
     if (actorId === '') return;
     try {
-      await Promise.resolve(signInWithDev.act(s, actorId));
+      await Promise.resolve(signInWithGoogle.act(s, actorId));
     } catch {
       // Already signed in or chrome moved — walk continues.
     }
