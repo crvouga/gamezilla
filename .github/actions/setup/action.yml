@@ -44,6 +44,9 @@ runs:
         restore-keys: |
           secrets-backend-cli-${{ runner.os }}-
 
+    # This step is a composition root: the GitHub-release installer it falls
+    # back to on Linux (no Homebrew) needs an injected OsFs, and `bun -e` is
+    # not wrapped by the repo's wall-injection entrypoints.
     - name: Install secrets backend CLI
       shell: bash
       env:
@@ -54,8 +57,9 @@ runs:
         echo "$HOME/.local/bin" >> "$GITHUB_PATH"
         export PATH="$HOME/.local/bin:$PATH"
         bun -e '
+          import { wallOsFs } from "@pkgs/os";
           import { createSecretBackendCli } from "@pkgs/secret-provider";
-          const cli = createSecretBackendCli();
+          const cli = createSecretBackendCli({ osFs: wallOsFs() });
           const status = cli.check();
           if (!status.ok) {
             cli.install();
