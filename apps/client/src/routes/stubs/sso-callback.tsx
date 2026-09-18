@@ -18,8 +18,13 @@ import {
 
 const SSO_HANDOFF_NAVIGATE_MS = 800;
 
+/** `window.opener` is `any` in lib.dom; the handoff only ever posts to it. */
+type OpenerLike = {
+  postMessage(message: unknown, targetOrigin: string): void;
+};
+
 function handoffToParent(): boolean {
-  const opener = window.opener;
+  const opener = window.opener as OpenerLike | null;
   let markedActive = false;
   try {
     markedActive = window.localStorage.getItem(AUTH_POPUP_ACTIVE_KEY) === '1';
@@ -51,9 +56,9 @@ function delay(
   ms: number,
   setTimeoutFn: (fn: () => void, delayMs: number) => unknown
 ): Promise<void> {
-  const { promise, resolve } = Promise.withResolvers<void>();
-  setTimeoutFn(resolve, ms);
-  return promise;
+  return new Promise<void>((resolve) => {
+    setTimeoutFn(resolve, ms);
+  });
 }
 
 export default function SsoCallbackRoute(): JSX.Element {

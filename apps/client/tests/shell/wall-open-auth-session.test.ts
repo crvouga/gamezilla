@@ -42,7 +42,7 @@ describe('createWallOpenAuthSession', () => {
         values.set(key, value);
       },
     };
-    const intervals: Array<() => void> = [];
+    const intervals: (() => void)[] = [];
     const timers: Timers = {
       setTimeout: () => Symbol('timeout'),
       clearTimeout: () => undefined,

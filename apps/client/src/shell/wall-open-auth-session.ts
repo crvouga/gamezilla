@@ -56,8 +56,6 @@ function waitForCallback(
 ): Promise<OpenAuthSessionResult> {
   const { promise, resolve } = Promise.withResolvers<OpenAuthSessionResult>();
   let settled = false;
-  let poll: unknown;
-  let timeout: unknown;
   const channel =
     typeof BroadcastChannel === 'undefined'
       ? null
@@ -101,7 +99,7 @@ function waitForCallback(
     if (event.key !== AUTH_POPUP_RESULT_KEY || event.newValue === null) return;
     finishFromHref(event.newValue);
   };
-  poll = timers.setInterval(() => {
+  const poll = timers.setInterval(() => {
     try {
       const storedHref = window.localStorage.getItem(AUTH_POPUP_RESULT_KEY);
       if (storedHref !== null) {
@@ -117,7 +115,7 @@ function waitForCallback(
     const href = readPopupHref(popup);
     if (href !== null) finishFromHref(href);
   }, POLL_INTERVAL_MS);
-  timeout = timers.setTimeout(
+  const timeout = timers.setTimeout(
     () => finish({ type: 'cancel' }),
     POPUP_TIMEOUT_MS
   );
