@@ -47,6 +47,7 @@
     "pkgs/observability-impl-local-file/src",
     "pkgs/os/src",
     "pkgs/outbox/src",
+    "pkgs/permissions/src",
     "pkgs/postgres-embedded/src",
     "pkgs/postgres-sqlite-compat/src",
     "pkgs/pubsub-emqx/src",

@@ -7,7 +7,7 @@ export const ClientConfigKey = {
   llmEnabled: 'llm_enabled',
   emqxWssUrl: 'emqx_wss_url',
   observabilityBackend: 'observability_backend',
-  limitsSpec: 'limits_spec',
+  permissionPolicy: 'permission_policy',
   billingGracePeriodMs: 'billing_grace_period_ms',
 } as const;
 
@@ -22,7 +22,7 @@ export const CLIENT_CONFIG_KEYS: readonly ClientConfigKeyId[] = [
   ClientConfigKey.llmEnabled,
   ClientConfigKey.emqxWssUrl,
   ClientConfigKey.observabilityBackend,
-  ClientConfigKey.limitsSpec,
+  ClientConfigKey.permissionPolicy,
   ClientConfigKey.billingGracePeriodMs,
 ];
 

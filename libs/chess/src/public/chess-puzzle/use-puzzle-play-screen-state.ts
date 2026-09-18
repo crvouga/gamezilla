@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { useLimit } from '@libs/billing/root/client/use-entitlement';
+import { LIMIT } from '@libs/permissions/public/permission-catalog';
+import { usePermissionLimit } from '@libs/permissions/public/use-permission-limit';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -179,7 +180,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   };
 
   const playedToday = usePuzzlesPlayedToday();
-  const dailyLimit = useLimit('puzzlesPerDay', playedToday);
+  const dailyLimit = usePermissionLimit(LIMIT.puzzlesPerDay, playedToday);
   const pickState = createMemo(() =>
     resolvePuzzlePickState({
       activePuzzleId: placement.activePuzzleId(),

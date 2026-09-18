@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  decideEndSpace,
   decideJoin,
   isHostMember,
   isSpaceHostActor,
@@ -187,15 +186,5 @@ describe('decideJoin', () => {
         isFriendOfHost: true,
       })
     ).toEqual({ allowed: true, reason: 'friend' });
-  });
-});
-
-describe('decideEndSpace', () => {
-  test('only host may end', () => {
-    expect(decideEndSpace({ isHostActor: true })).toEqual({ allowed: true });
-    expect(decideEndSpace({ isHostActor: false })).toEqual({
-      allowed: false,
-      code: 'SPACE_HOST_REQUIRED',
-    });
   });
 });

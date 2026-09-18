@@ -1,13 +1,21 @@
-import { useIsSignedIn } from '@libs/auth/public/use-current-user';
+import { PERMISSION, ROLE } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
+import { usePlanRole } from '@libs/permissions/public/use-plan-role';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button, ScreenBase, useMutationButton } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
-import { useTier } from './use-entitlement';
 import { useSubscribe } from './use-subscribe';
 
 const PRICE_KEY_MONTHLY = 'subscription_monthly';
+
+/** Display label per plan role; the previous screen printed the raw tier. */
+const PLAN_LABEL: Record<string, string> = {
+  [ROLE.planGuest]: 'guest',
+  [ROLE.planFree]: 'free',
+  [ROLE.planPaid]: 'paid',
+};
 
 function billingReturnUrl(): string {
   return `${window.location.origin}/more/billing`;
@@ -16,8 +24,9 @@ function billingReturnUrl(): string {
 /** Account billing: current plan and the subscribe action. */
 export function BillingScreen(): JSX.Element {
   const { t } = useLingui();
-  const tier = useTier();
-  const signedIn = useIsSignedIn();
+  const planRole = usePlanRole();
+  const canSubscribe = useCan(PERMISSION.billingSubscribe);
+  const canManage = useCan(PERMISSION.billingManage);
   const subscribe = useSubscribe();
 
   const openCheckout = async (): Promise<void> => {
@@ -38,7 +47,7 @@ export function BillingScreen(): JSX.Element {
       error: t`Couldn't open checkout`,
     },
     get disabled() {
-      return !signedIn();
+      return !canSubscribe();
     },
   });
 
@@ -56,14 +65,14 @@ export function BillingScreen(): JSX.Element {
             <Trans>Plan</Trans>
           </p>
           <p class="text textBody" data-testid="billing-tier">
-            {tier()}
+            {PLAN_LABEL[planRole()] ?? planRole()}
           </p>
-          <Show when={!signedIn()}>
+          <Show when={!canManage()}>
             <p class="text textCaption text-secondary">
               <Trans>Sign in to subscribe and keep your progress.</Trans>
             </p>
           </Show>
-          <Show when={signedIn() && tier() !== 'paid'}>
+          <Show when={canSubscribe()}>
             <Button {...checkout.buttonProps} />
           </Show>
         </div>

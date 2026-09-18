@@ -1,5 +1,5 @@
 {
-  "name": "@pkgs/entitlements",
+  "name": "@pkgs/permissions",
   "version": "0.0.0",
   "private": true,
   "exports": {

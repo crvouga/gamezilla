@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useConfigService } from '@libs/auth/public/config-service-context';
-import { useIsSignedIn, useMyId } from '@libs/auth/public/use-current-user';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
 import {
   type GetFreshAuthTokenFn,
@@ -17,6 +17,8 @@ import {
   NotificationsProviderRegistry,
   NotificationsUnreadCountLiveBridge,
 } from '@libs/notifications/public';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
 import { useHttpClient } from '@pkgs/http-client/solid';
 import { createMemo, type JSX } from 'solid-js';
 
@@ -88,25 +90,24 @@ export function AppNotificationsProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const userId = useMyId();
-  const isSignedIn = useIsSignedIn();
+  const canReceive = useCan(PERMISSION.notificationsReceive);
   const authToken = useFreshAuthToken();
   const deviceId = useDeviceId();
   const isAuthReady = createMemo(
-    () => isSignedIn() && authToken() !== null && deviceId().length > 0
+    () => canReceive() && authToken() !== null && deviceId().length > 0
   );
   const deps = useNotificationsClientDeps();
   const friendsDeps = useFriendsClientDeps();
   const { open: openSignInModal } = useSignInModal();
 
   const providers = createMemo((): readonly NotificationProvider[] => {
-    if (!isSignedIn()) return [];
+    if (!canReceive()) return [];
     return [createFriendsNotificationProvider(friendsDeps)];
   });
 
   return (
     <NotificationsProviderRegistry
       userId={userId()}
-      isSignedIn={isSignedIn()}
       isAuthReady={isAuthReady()}
       deps={deps}
       providers={providers()}

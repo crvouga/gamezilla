@@ -26,7 +26,7 @@ const HASH_PATTERN = /^[0-9a-f]{32}$/;
 
 /**
  * Auth gate. The host injects e.g. the API Worker's
- * `sessionAuth.requireAuthContext`. There is no anonymous mode any more —
+ * `sessionAuth.resolveAuthContext`. There is no anonymous mode any more —
  * `POST /tts/synthesize` is always gated. Throwing from `requireAuth`
  * (typically `UnauthorizedError`) bubbles up to the host's global
  * `app.onError` for status mapping.

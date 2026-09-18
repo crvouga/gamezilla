@@ -13,7 +13,7 @@ import type { JSX } from 'solid-js';
 import { FriendUserRow } from '../../public/friend-user-row';
 import type { Friend } from '../../shared/friendship/friends-types';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
-import { FriendsSignedInGate } from './friends-signed-in-gate';
+import { FriendsPermissionGate } from './friends-permission-gate';
 
 function FriendsEmptyState(): JSX.Element {
   const { t } = useLingui();
@@ -83,8 +83,8 @@ function FriendsListBody(): JSX.Element {
 
 export function FriendsListScreen(): JSX.Element {
   return (
-    <FriendsSignedInGate>
+    <FriendsPermissionGate>
       <FriendsListBody />
-    </FriendsSignedInGate>
+    </FriendsPermissionGate>
   );
 }
