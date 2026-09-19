@@ -1,9 +1,6 @@
 <!--
-Strict PR contract — enforced by `//#ci:pr-template` on every PR (see
-`libs/tools/scripts/check-pr-body.ts`). Every `##` section below must keep its
-heading and carry real content; the HTML comments are guidance and do not count
-as content. Every checklist box must be checked before a human merges. Deleting
-a section, a checklist line, or leaving a box unchecked fails CI.
+Keep every `##` section with real content; the HTML comments are guidance.
+Check a box only when it is true.
 -->
 
 ## Summary

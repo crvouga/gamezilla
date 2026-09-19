@@ -685,7 +685,6 @@
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
         "!**/pkgs/sql-client/e2e/harness/memory-sql.ts",
         "!**/pkgs/sql-client/tests/helpers/generators/program.ts",
-        "!**/libs/tools/scripts/check-pr-body.ts",
         "!**/pkgs/**/cutover-migration.ts",
         "!**/dist/**",
         "!**/build/**",

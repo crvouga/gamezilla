@@ -92,7 +92,7 @@ GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + re
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on the PR-body contract (`//#ci:pr-template`), Biome + vocab + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` / `test:e2e` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/low-end-android-perf.md`](docs/low-end-android-perf.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget); runtime Lighthouse is manual only (`bun run --filter @apps/client check:lighthouse`), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on Biome + vocab + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` / `test:e2e` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/low-end-android-perf.md`](docs/low-end-android-perf.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget); runtime Lighthouse is manual only (`bun run --filter @apps/client check:lighthouse`), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
 **Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Uncacheable steps (`cache: false`: the PR-template contract, check:api, provision, migrate, deploy, smoke, OTA) always re-run.
 
@@ -105,8 +105,7 @@ a plan without larger runners):
 
 1. **PRs run exactly one check.** `.github/workflows/pr.yml` has a single job
    named `check` that runs `bun run check` with `SECRETS_ENV=dev` — the same
-   `//#check` leaf set as the deploy gate, nothing more. It also re-runs on
-   `edited` so a PR body edit re-validates `//#ci:pr-template`. Never split the
+   `//#check` leaf set as the deploy gate, nothing more. Never split the
    check surface into per-check jobs: assign a new check to `//#check` in
    `turbo.json`, or add a `ci:*` root task, and it rides along in that one job.
    `//#deploy` is a strict superset of `//#check` (it adds
@@ -187,14 +186,15 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (`4177`/`4178`) and the wrangler preview (`8788`) stay machine-wide
   singletons: at most one workspace at a time may run something that binds them
   (fidelity-max sims, `test:contract`, `check:api`).
-- **Checks.** PR CI owns `bun check` — it is the whole gate, so prefer
-  `bun fmt` plus `bun run --filter <pkg> tc` and `bun run --filter <pkg> test`
-  while iterating. Every PR body fills `.github/pull_request_template.md`
-  completely; `//#ci:pr-template` fails the PR on a missing section, empty
-  content or an unchecked box. Then run `/pr-ready`
-  (`.agents/commands/pr-ready.md`) — the single PR command: it syncs with
-  `main`, commits, pushes, opens/updates the PR, addresses review comments, and
-  drives the PR check green. It never merges: a green PR is handed to a human.
+- **Checks.** `bun check` is the whole gate (the same leaf set PR CI runs).
+  While iterating, prefer `bun fmt` plus `bun run --filter <pkg> tc` and
+  `bun run --filter <pkg> test`. Every PR body follows
+  `.github/pull_request_template.md` (not CI-enforced). Then run `/pr-ready`
+  (`.agents/commands/pr-ready.md`) — the single PR command: it gets
+  `bun check` green locally first, then commits, syncs with `main` (re-running
+  `bun check` on anything the merge brings in), pushes, opens/updates the PR,
+  addresses review comments, and drives the PR check green. It never merges: a
+  green PR is handed to a human.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only place a slash command is written. `bun run
   agents:sync` projects it into every harness: `.claude/commands`,

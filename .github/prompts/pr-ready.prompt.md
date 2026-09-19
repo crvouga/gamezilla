@@ -1,5 +1,5 @@
 ---
-description: "Take the current branch to a green, conflict-free, review-complete PR — sync with main, resolve conflicts, commit, push, drive CI green, and address review feedback without merging"
+description: "Take the current branch to a green, conflict-free, review-complete PR — pass `bun check` locally, commit, sync with main, resolve conflicts, push, drive CI green, and address review feedback without merging"
 agent: agent
 ---
 

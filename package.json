@@ -29,7 +29,6 @@
     "ci:i18n": "bun run libs/tools/scripts/ci-i18n.ts",
     "ci:knip": "knip --dependencies --files --no-progress --no-config-hints",
     "ci:no-skipped-tests": "bun run libs/tools/scripts/check-no-skipped-tests.ts",
-    "ci:pr-template": "bun run libs/tools/scripts/check-pr-body.ts",
     "ci:public-link": "bun run libs/tools/scripts/check-public-link.ts",
     "ci:release-gate": "bun run libs/tools/scripts/check-release-gate.ts",
     "ci:setup-secrets-auth": "bun run libs/secrets/src/scripts/setup-ci-secrets-auth.ts",

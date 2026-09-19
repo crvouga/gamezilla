@@ -1,5 +1,5 @@
 ---
-description: Take the current branch to a green, conflict-free, review-complete PR — sync with main, resolve conflicts, commit, push, drive CI green, and address review feedback without merging
+description: Take the current branch to a green, conflict-free, review-complete PR — pass `bun check` locally, commit, sync with main, resolve conflicts, push, drive CI green, and address review feedback without merging
 ---
 
 # /pr-ready
@@ -13,29 +13,49 @@ The repo is PR-first: `bun check` runs in GitHub Actions on the PR
 on `main` (`.github/workflows/deploy.yml`), never from this branch. Your job is
 to make the branch mergeable **and conflict-free**, not to merge it.
 
+**Loop until the goal is reached.** The goal is a green, conflict-free,
+review-complete PR. Every problem between here and there — a failing leaf, a
+merge conflict, a red CI run, a review comment — is yours to fix, whoever
+introduced it: fix it, re-verify, and go around again. Do not stop at the first
+failure to report it; stop only when you are genuinely stuck (step 8). And
+never reach the goal by degrading anything: a check passes because the code is
+right, never because the test or the code got weaker.
+
+The order is fixed: **`bun check` passes locally first** (step 2), then the
+work is committed (step 3), and only then is the branch synced with `main`
+(step 4), pushed and put up as a PR (step 5), and watched on CI (step 6).
+Nothing reaches the remote until the local gate is green.
+
 ## Core rules (read first)
 
-- **PR CI owns the gate.** `bun check` is the whole check surface and the same
-  suite CI runs; you may run it locally, but while iterating prefer `bun fmt`
-  plus affected-package `tc` / `test` for the packages this branch actually
-  touches. Never run any `bun deploy*` here.
-- **Never make a check pass by weakening it.** Deleting or skipping tests
-  (`.skip`, `.only`, commenting out), loosening assertions, `@ts-ignore` /
-  `@ts-expect-error` / `as any`, disabling lint rules (inline or in config), or
-  editing the check scripts are all forbidden. If a check itself looks wrong,
-  stop and report it.
+- **`bun check` passes locally before anything is synced or pushed.** It is
+  the whole check surface and the same suite PR CI runs. Turbo caches every
+  leaf locally and remotely, so a re-run only pays for what changed — run it,
+  fix what fails, and run it again until it is green. While fixing a single
+  failure, iterate on that leaf (`bun fmt`, the failing package's `tc` /
+  `test`), then confirm with a full `bun check`. Never run any `bun deploy*`
+  here.
+- **Fix, never nerf.** A check passes because the code is right. Forbidden, no
+  matter how stuck: deleting or skipping tests (`.skip`, `.only`, commenting
+  out), loosening or removing assertions, raising timeouts to hide slowness,
+  `@ts-ignore` / `@ts-expect-error` / `as any`, disabling lint rules (inline or
+  in config), weakening check scripts, removing a check from the gate, and
+  degrading product code (dropping a feature, swallowing an error, stubbing
+  behaviour) to get past a failure. Updating a test's expectation is allowed
+  only when the code change behind it is intentional and correct, and the test
+  stays exactly as strict (e.g. adding a newly required leaf to an expected
+  list) — say so in the commit body.
 - **Never merge the PR.** Agents may create or update the PR, push commits, and
   watch checks, but never run `gh pr merge`, never enable auto-merge or the
   merge queue, and never merge through any other GitHub UI/API path. A green PR
   is the finish line: stop and hand the merge decision to a human.
-- **The PR body is a contract.** Every PR fills
-  `.github/pull_request_template.md` completely — no empty section, no unchecked
-  box, no deleted checklist line. `//#ci:pr-template` enforces it in PR CI and
-  re-runs on body edits; never weaken the template or the checker to pass it.
+- **The PR body follows the template.** Every PR fills
+  `.github/pull_request_template.md` — every section, checklist lines kept, a
+  box checked only when true. CI does not check the body, so keep it honest.
 - **Never rewrite history.** No `--amend` on pushed commits, no `--force`, no
   `--force-with-lease`, no `--no-verify`. Sync with `main` by merging.
 - **Automate the mechanics.** Branch/PR state, `main` sync, conflict detection,
-  formatting, affected-package checks, the template check, CI log collection,
+  formatting, the local `bun check` gate, the template check, CI log collection,
   check polling, and review-comment retrieval are script/CLI work. Never burn a
   turn on them by hand.
 - **Push and sync continuously.** After every local commit or merge commit, push
@@ -47,9 +67,10 @@ to make the branch mergeable **and conflict-free**, not to merge it.
   decision. Nothing else.
 - **Run steps individually** — do not chain them with `&&` and do not use
   `clear`; you need to see exactly which step failed.
-- **Escalate instead of thrashing.** Each retry must test a *new* root-cause
-  hypothesis. After three consecutive attempts with no new hypothesis, stop and
-  report.
+- **Loop, but don't thrash.** Keep going for as long as each attempt tests a
+  *new* root-cause hypothesis — there is no cap on attempts that make progress.
+  You are stuck only after three consecutive attempts with no new hypothesis,
+  or when the next step needs a human (step 8); then stop and report.
 
 ## Where agents are allowed
 
@@ -78,12 +99,97 @@ gh auth status
   open PR, this run's work goes onto that PR — even when it is a different
   logical unit from what the PR started as. Never split work onto a new branch
   or open a second PR, and never ask whether to; widen the existing PR's title
-  and body (`Summary` / `Scope` / `Verification` / `Risk`) to cover it instead.
-- If the tree has pending changes you did not make and cannot explain, stop and
-  report — do not fold them into this run.
+  and rewrite its body to cover it instead (step 5).
+- Pending changes you did not make (another session's work on this branch) are
+  part of the branch: they ship with this PR, and any problem they cause is
+  yours to fix like any other. Commit them as their own logical units (step 3)
+  rather than folding them into your commits.
 - If `gh auth status` fails, stop: every remaining step needs GitHub.
 
-## 2. Sync with base
+## 2. Local gate: `bun check` green
+
+Format first, and inspect what the formatter touched:
+
+```sh
+bun fmt
+git status --short
+```
+
+Then run the whole gate — the same leaf set PR CI runs:
+
+```sh
+bun check
+```
+
+`bun check` goes through `secrets-run`, which reads the offline secrets cache;
+if it reports the cache missing, run `bun run secrets:pull` once and retry.
+Remember the port rule while it runs — EMQX (`1883`/`8083`/`18083`), the e2e
+harness ports (`4177`/`4178`) and the wrangler preview (`8788`) are
+machine-wide singletons shared with other workspaces; a contract leaf that
+fails only because another workspace holds its port is reported, not "fixed".
+
+If a leaf fails: read its output, state one root-cause hypothesis, fix that
+cause, iterate on the failing leaf alone, then run `bun check` again — and keep
+looping until it exits 0. A
+reproducible failure can go through the bounded healer, which captures the same
+output and invokes the CI-failure agent (step 6 contract) for you:
+
+```sh
+bun run check:heal -- --max-iterations 1
+```
+
+A failure caused by changes this run did not make (another session's work in
+the tree) is still yours to fix — find the real cause and fix it the same way.
+Do not continue to step 3 until `bun check` exits 0 on the tree you are about
+to commit.
+
+## 3. Commit
+
+Inspect the whole diff before staging anything:
+
+```sh
+git status --short
+```
+
+Do not use `git add -A` until that status is known to contain only this work.
+Stage the logical unit, then review what you staged:
+
+```sh
+git add <reviewed paths>
+git diff --cached --stat
+git diff --cached
+```
+
+Give the **staged diff** to the commit-message agent and use its output verbatim
+in the commit:
+
+```sh
+git commit -m "<type>(<scope>): <summary>"
+```
+
+Commit message rules (state them in the agent request if you want them applied):
+
+- Conventional Commits: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`,
+  `perf`, `ci`. Pick the type from the dominant change, not the last file
+  touched.
+- Imperative summary, ≤ 72 chars, no trailing period.
+- Body only when the *why* is not obvious from the diff.
+- One commit per logical change. If the work spans several independent changes,
+  stage and commit them separately rather than producing one omnibus commit.
+
+Do not commit unrelated files. Do not create an empty commit. Never
+`--no-verify`, never `--amend`. Only commit a tree that just passed step 2.
+After every non-merge commit, push before doing anything else and prove the
+remote tracking branch contains exactly that commit:
+
+```sh
+git push -u origin "$BRANCH"
+git fetch origin "$BRANCH"
+test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
+test -z "$(git status --porcelain=v1)"
+```
+
+## 4. Sync with base
 
 ```sh
 git fetch --prune origin main
@@ -91,7 +197,8 @@ git merge --no-edit origin/main
 ```
 
 Merge, never rebase — this repo does not rewrite pushed history, and `main`
-history is merge-based.
+history is merge-based. Sync only after step 2 is green and step 3 has
+committed and pushed that work.
 
 ### Resolving merge conflicts
 
@@ -127,92 +234,13 @@ test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
 
 Keep Git's generated merge message; do not spend an agent renaming it. Any
 conflict the agent cannot resolve without a product decision goes to the stop
-template in step 8. Continue to step 3.
+template in step 8.
 
-## 3. Local verification (cheap by design)
-
-```sh
-bun fmt
-bun run lint:biome
-git diff --check
-```
-
-Immediately inspect the result of `bun fmt`:
-
-```sh
-git status --short
-```
-
-If formatting changed files, review and commit them through step 4, push the
-commit, fetch `origin/$BRANCH`, and prove local `HEAD` equals the remote branch
-before running the affected checks. Never continue with formatter changes that
-exist only in the working tree.
-
-Then run the affected packages without enumerating them by hand —
-`TURBO_AFFECTED_BASE` makes the checked-in Turbo runner select changed
-workspaces and their dependents:
-
-```sh
-TURBO_AFFECTED_BASE=origin/main bun run libs/tools/scripts/turbo-ci-run.ts tc test
-```
-
-If you need the file list behind that selection:
-
-```sh
-git diff --name-only origin/main...HEAD
-```
-
-Do not run the repo-wide suite; GitHub runs the full gate in step 6. If a
-package task fails: read the output, form a hypothesis, fix the cause, re-run
-the same command. Remember the port rule while testing — EMQX
-(`1883`/`8083`/`18083`), the e2e harness ports (`4177`/`4178`) and the wrangler
-preview (`8788`) are machine-wide singletons shared with other workspaces.
-
-## 4. Commit
-
-Inspect the whole diff before staging anything:
-
-```sh
-git status --short
-```
-
-Do not use `git add -A` until that status is known to contain only this work.
-Stage the logical unit, then review what you staged:
-
-```sh
-git add <reviewed paths>
-git diff --cached --stat
-git diff --cached
-```
-
-Give the **staged diff** to the commit-message agent and use its output verbatim
-in the commit:
-
-```sh
-git commit -m "<type>(<scope>): <summary>"
-```
-
-Commit message rules (state them in the agent request if you want them applied):
-
-- Conventional Commits: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`,
-  `perf`, `ci`. Pick the type from the dominant change, not the last file
-  touched.
-- Imperative summary, ≤ 72 chars, no trailing period.
-- Body only when the *why* is not obvious from the diff.
-- One commit per logical change. If the work spans several independent changes,
-  stage and commit them separately rather than producing one omnibus commit.
-
-Do not commit unrelated files. Do not create an empty commit. Never
-`--no-verify`, never `--amend`.
-After every non-merge commit, push before doing anything else and prove the
-remote tracking branch contains exactly that commit:
-
-```sh
-git push -u origin "$BRANCH"
-git fetch origin "$BRANCH"
-test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
-test -z "$(git status --porcelain=v1)"
-```
+If the merge brought anything in from `main` (a merge commit, conflicted or
+not), the merged tree is unverified: return to step 2 and get `bun check` green
+on it — Turbo's cache keeps the re-run to the leaves `main` actually changed —
+then commit any fix (step 3) and push before continuing. Continue to step 5
+only when the merged tree has passed `bun check`.
 
 ## 5. Push and open/update the PR
 
@@ -224,14 +252,13 @@ PR_REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 gh pr view "$PR_NUMBER" --json mergeable,mergeStateStatus,isDraft,reviewDecision
 ```
 
-When the PR already exists, keep its body and extend it: add this run's work to
-every section it affects rather than replacing what earlier runs wrote, and
-retitle only if the old title no longer describes the PR.
+When the PR already exists, rewrite its body to describe the PR as a whole —
+merge this run's work into the existing points instead of appending per-run
+bullets ("Stack fix: …", "Report overhaul: …"), and drop anything no longer
+true. Retitle only if the old title no longer describes the PR.
 
-Otherwise write the PR body from `.github/pull_request_template.md`. The body is a
-contract: `//#ci:pr-template` (part of `//#check`) fails the PR when a `##`
-section is missing, empty, or a checklist box is unchecked, and it re-runs when
-the body is edited. Start from the template file rather than retyping it:
+Otherwise write the PR body from `.github/pull_request_template.md`. Start from
+the template file rather than retyping it:
 
 ```sh
 BODY_FILE="$(mktemp -t pr-ready-body.XXXXXX.md)"
@@ -248,21 +275,22 @@ gh pr edit --title "<type>(<scope>): <summary>" --body-file "$BODY_FILE"
 - `Summary` / `Why` / `Scope` / `Verification` / `Risk` / `Provenance`: real
   content, no placeholders left. `Verification` names the surface you actually
   exercised and what the PR does *not* prove.
-- Checklist: check a box only when it is true. Before the first remote run, the
-  CI box is the only one allowed to stay unchecked — the remote gate has not run
-  yet. Never claim `bun check` is green in `Verification` on the strength of a
-  local affected-package run.
-- Once the remote gate passes, check the CI box, update the body, and validate
-  the contract locally before watching again:
-
-```sh
-bun run ci:pr-template      # local self-check; also enforced by PR CI
-```
-
+- **Keep it short.** The body is for a reviewer skimming, not a lab notebook.
+  The whole body above the checklist should fit on one screen:
+  - `Summary`: 1–3 bullets, one line each — what changed, not how.
+  - `Why` / `Risk` / `Provenance`: one or two sentences each.
+  - `Scope`: package names only, plus what is out of scope if it's non-obvious.
+  - `Verification`: one line per surface (command or scenario → result) plus
+    one line on what is not proven. No test counts, frame counts, browsers
+    tried, or step-by-step debugging story.
+  - Leave out anything the diff, commit messages, or CI already show: file
+    lists, log excerpts, hypotheses, attempt histories, and rationale that
+    belongs in a commit body.
+- Checklist: check a box only when it is true. Leave the CI box unchecked until
+  the remote gate passes, then check it. `Verification` may state that
+  `bun check` passed locally (step 2); the CI box still waits for the PR run.
 - An item that genuinely does not apply: say so under `Verification` and check
   it — do not delete the line.
-- Never edit `.github/pull_request_template.md`, `libs/tools/scripts/check-pr-body.ts`,
-  or the checklist text to make the gate pass.
 
 ## 6. Drive the checks green
 
@@ -281,9 +309,6 @@ gh run view "$RUN_ID" --log-failed > /tmp/pr-ready-ci.log
 
 Mechanical failures you handle yourself:
 
-- `//#ci:pr-template`: fix the PR body (step 5) — fill the missing section, write
-  the missing content, or check the box that is actually true. Do not touch code
-  or the checker.
 - Stale or cancelled run: push the already-tested commit and watch the new run.
 - Failure in a leaf you cannot reproduce locally (the CI-only
   `@libs/tools#check:static`, or a contract test whose sidecar ports are busy in
@@ -307,13 +332,13 @@ output and invokes that agent for you:
 bun run check:heal -- --max-iterations 1
 ```
 
-After any fix: return to step 3, commit through the commit-message agent, push,
-and watch a fresh run. Never re-run the same failed commit without a new
-hypothesis. Stop after three attempts with no new root cause and report the leaf
-and log.
+After any fix: return to step 2 and get `bun check` green locally, commit
+through the commit-message agent (step 3), push, and watch a fresh run. Never
+re-run the same failed commit without a new hypothesis. Stop after three
+attempts with no new root cause and report the leaf and log.
 
 If CI reveals the branch is behind or `mergeable` is `CONFLICTING`, go back to
-step 2, sync again, resolve with the conflict agent, re-verify, and push. A
+step 4, sync again, resolve with the conflict agent, re-verify, and push. A
 branch that was current when you pushed can fall behind while CI runs.
 
 ## 7. Resolve review feedback when present
@@ -343,12 +368,12 @@ Triage each comment as exactly one of: **change** (the reviewer is right),
 that proves it), or **human decision** (two valid behaviours; stop and ask).
 Never guess on a judgement call.
 
-For accepted changes, verify with the touched packages' checks (step 3), commit
-one logical change per review unit, and push:
+For accepted changes, get `bun check` green locally (step 2), commit one
+logical change per review unit, and push:
 
 ```sh
 bun fmt
-TURBO_AFFECTED_BASE=origin/main bun run libs/tools/scripts/turbo-ci-run.ts tc test
+bun check
 git add <reviewed paths>
 git commit -m "<agent message for this review unit>"
 git push -u origin "$BRANCH"
@@ -378,9 +403,13 @@ again — review commits invalidate earlier CI and mergeability results.
 
 ## 8. Stop and report when
 
+Only these end the loop early — a failing check, a conflict, or a red CI run on
+its own is never a reason to stop; it is the next thing to fix.
+
 - a merge conflict needs a product decision the agent cannot make
 - a required human decision or missing credential blocks progress
-- a check is genuinely wrong (report it — do not edit the check)
+- a check is genuinely wrong and the only way past it would weaken it (report
+  it — do not edit the check)
 - three consecutive attempts produced no new root-cause hypothesis
 - the PR needs a reviewer decision, not more code
 - `reviewDecision` is `CHANGES_REQUESTED`, or required approvals are missing
@@ -391,7 +420,7 @@ Use this template:
 ❌ PR not ready.
 Branch: <branch>
 PR: <url | none>
-Failing step: <fmt | biome | <pkg> tc | <pkg> test | merge conflict | check (CI) | review>
+Failing step: <fmt | bun check (local) | merge conflict | check (CI) | review>
 Failing leaf or files: <exact name>
 Error: <exact key output>
 Log: <path when collected from CI>
@@ -410,9 +439,10 @@ git fetch --prune origin main
 git merge --no-edit origin/main
 ```
 
-If this merge conflicts, return to §2 and use the conflict agent. If it creates
-a merge commit, return to §3, push it immediately, and rerun §6; the new merge
-commit is not verified until the PR check passes again.
+If this merge conflicts, return to §4 and use the conflict agent. If it creates
+a merge commit, return to §2 and get `bun check` green on the merged tree, push
+it immediately, and rerun §6; the new merge commit is not verified until the
+PR check passes again.
 
 After the merge is clean and all required checks are green:
 

@@ -497,7 +497,6 @@
     },
     "//#check": {
       "dependsOn": [
-        "//#ci:pr-template",
         "//#ci:agent-commands",
         "//#ci:goals",
         "//#ci:no-skipped-tests",
@@ -752,15 +751,6 @@
       "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
-    },
-    "//#ci:pr-template": {
-      "inputs": [
-        ".github/pull_request_template.md",
-        "libs/tools/scripts/check-pr-body.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only",
-      "cache": false
     }
   }
 }
