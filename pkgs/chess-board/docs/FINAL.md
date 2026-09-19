@@ -55,7 +55,7 @@ Chrome DevTools traces (4× throttle): run `ChessBoardBenchPage` in the explorer
 
 - `@pkgs/chess-board-core`: game, interaction, piece-rows, geometry, arrows, premove-queue, position-diff, shapes, a11y, variants, …
 - `@pkgs/chess-board`: mount, pointer-session, keyboard-nav, theme, render-counts, drag-ghost, blindfold
-- `@pkgs/chess-board` UI suite (`tests/ui`): one `@pkgs/ui-testing` suite run in happy-dom (`test`) and WebKit / Chrome via `Bun.WebView` (`test:e2e`) — gestures, rules, premoves, promotion, keyboard, shapes, sync, layout precision, seeded model-based games
+- `@pkgs/chess-board` UI suite (`tests/ui`): one `@pkgs/ui-testing` suite run in-process in happy-dom (`test`) — gestures, rules, premoves, promotion, keyboard, shapes, sync, seeded model-based games
 
 ## How to verify budgets
 

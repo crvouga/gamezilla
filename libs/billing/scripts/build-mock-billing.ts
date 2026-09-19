@@ -34,7 +34,7 @@ type ViteOutput = { readonly output?: readonly ViteChunk[] };
 
 async function bundle(): Promise<{ js: string; css: string }> {
   const result = (await build({
-    configFile: path.join(PACKAGE_DIR, 'vite.mock-billing.config.mts'),
+    configFile: path.join(PACKAGE_DIR, 'vite-mock-billing.config.mts'),
     root: PACKAGE_DIR,
     build: { write: false },
   })) as unknown as ViteOutput;

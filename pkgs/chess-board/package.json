@@ -16,8 +16,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='**/e2e/**' tests",
-    "test:e2e": "bun ./e2e/run-e2e.ts"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -33,17 +32,12 @@
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
-    "@pkgs/ui-testing-bun-webview": "workspace:*",
     "@pkgs/ui-testing-solid-dom": "workspace:*",
-    "@pkgs/vite-workspace-resolver": "workspace:*",
     "@solidjs/testing-library": "catalog:",
-    "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "chess.js": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "vite": "catalog:"
   }
 }

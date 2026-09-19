@@ -6,7 +6,7 @@
  * navigation, and the miniplayer sits under the route body.
  *
  * Miniplayer is lazy: it pulls space-room / mutation graphs that must stay off
- * the shell entry (docs/low-end-android-perf.md).
+ * the shell entry (docs/LOW_END_ANDROID_PERF.md).
  */
 
 import { useLayoutMode, usePathname, useRouter } from '@pkgs/ui';

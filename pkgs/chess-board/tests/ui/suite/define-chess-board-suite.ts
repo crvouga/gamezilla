@@ -1,7 +1,7 @@
 /**
  * The chess board UI suite, written once against a {@link ChessBoardHost}.
- * Each host (happy-dom in-process, a real browser through `Bun.WebView`)
- * calls this from its own test file so the same scenarios run on both.
+ * A host (happy-dom in-process today) calls this from its own test file; the
+ * scenarios only see the host port and its `@pkgs/ui-testing` driver.
  */
 
 import { afterEach, describe } from 'bun:test';

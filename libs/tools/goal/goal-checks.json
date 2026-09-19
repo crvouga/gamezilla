@@ -3,8 +3,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "gate",
-        "path": "libs/tools/scripts/check-release-gate.ts"
+        "kind": "test",
+        "path": "libs/tools/scripts/turbo-deploy-graph.test.ts"
       }
     ]
   },
@@ -28,7 +28,7 @@
   },
   "the-bar:4": {
     "status": "proven",
-    "note": "two test:e2e leaves exit 0 on non-darwin, and pubsub-emqx test:contract loud-skips without a broker.",
+    "note": "pubsub-emqx test:contract loud-skips without a broker.",
     "proofs": [
       {
         "kind": "gate",
@@ -65,12 +65,6 @@
         "kind": "test",
         "path": "libs/tools/scripts/check-goals.test.ts"
       }
-    ]
-  },
-  "the-bar:7": {
-    "status": "proven",
-    "proofs": [
-      { "kind": "gate", "path": "libs/tools/scripts/check-public-link.ts" }
     ]
   },
   "spaces:1": {

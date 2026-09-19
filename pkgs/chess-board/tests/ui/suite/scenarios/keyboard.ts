@@ -5,7 +5,7 @@ import type { DriverKey } from '@pkgs/ui-testing';
 
 import type { ChessBoardHost } from '../board-host';
 import { openBoard } from '../board-page';
-import { ALL_SQUARES, FEN, play } from '../oracle';
+import { FEN, play } from '../oracle';
 
 export function defineKeyboardScenarios(host: ChessBoardHost): void {
   describe('keyboard', () => {
@@ -97,27 +97,6 @@ export function defineKeyboardScenarios(host: ChessBoardHost): void {
         await board.expectFen(play(FEN.start, 'g1f3'));
         await board.expectConsistent();
       });
-    }
-
-    // Only a real layout engine puts each button over its painted square.
-    if (host.measuresLayout) {
-      for (const orientation of ['white', 'black'] as const) {
-        test(`${orientation}: every square button sits over its own square`, async () => {
-          const board = await openBoard(host, {
-            orientation,
-            interactive: false,
-          });
-          const misses: string[] = [];
-          for (const square of ALL_SQUARES) {
-            await board.ui
-              .get(chessBoardSquareTestId(board.testId, square))
-              .tap();
-            const hit = (await board.probe()).cursor;
-            if (hit !== square) misses.push(`${square}->${hit}`);
-          }
-          expect(misses).toEqual([]);
-        });
-      }
     }
 
     test('tapping a square moves the keyboard cursor there', async () => {

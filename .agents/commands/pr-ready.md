@@ -50,7 +50,7 @@ Nothing reaches the remote until the local gate is green.
   merge queue, and never merge through any other GitHub UI/API path. A green PR
   is the finish line: stop and hand the merge decision to a human.
 - **The PR body follows the template.** Every PR fills
-  `.github/pull_request_template.md` — every section, checklist lines kept, a
+  `.github/PULL_REQUEST_TEMPLATE.md` — every section, checklist lines kept, a
   box checked only when true. CI does not check the body, so keep it honest.
 - **Never rewrite history.** No `--amend` on pushed commits, no `--force`, no
   `--force-with-lease`, no `--no-verify`. Sync with `main` by merging.
@@ -123,9 +123,8 @@ bun check
 
 `bun check` goes through `secrets-run`, which reads the offline secrets cache;
 if it reports the cache missing, run `bun run secrets:pull` once and retry.
-Remember the port rule while it runs — EMQX (`1883`/`8083`/`18083`), the e2e
-harness ports (`4177`/`4178`) and the wrangler preview (`8788`) are
-machine-wide singletons shared with other workspaces; a contract leaf that
+Remember the port rule while it runs — EMQX (`1883`/`8083`/`18083`) and the
+wrangler preview (`8788`) are machine-wide singletons shared with other workspaces; a contract leaf that
 fails only because another workspace holds its port is reported, not "fixed".
 
 If a leaf fails: read its output, state one root-cause hypothesis, fix that
@@ -258,12 +257,12 @@ bullets, and drop anything no longer true. As the PR grows, raise the altitude
 rather than the bullet count: merge related changes into one broader bullet.
 Retitle only if the old title no longer describes the PR.
 
-Otherwise write the PR body from `.github/pull_request_template.md`. Start from
+Otherwise write the PR body from `.github/PULL_REQUEST_TEMPLATE.md`. Start from
 the template file rather than retyping it:
 
 ```sh
 BODY_FILE="$(mktemp -t pr-ready-body.XXXXXX.md)"
-cp .github/pull_request_template.md "$BODY_FILE"
+cp .github/PULL_REQUEST_TEMPLATE.md "$BODY_FILE"
 ```
 
 Replace the HTML comments with real content, keeping every heading and every

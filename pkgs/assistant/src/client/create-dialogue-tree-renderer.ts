@@ -1,11 +1,4 @@
 import type {
-  AssistantAction,
-  AssistantSpeakAction,
-} from '../shared/_internal/action';
-import type { AssistantClock } from '../shared/_internal/clock';
-import type { AssistantRenderer } from '../shared/_internal/renderer';
-import { createSplitMix32, hashSeedString } from '../shared/_internal/rng';
-import type {
   DialogueContext,
   DialogueLookupKey,
   DialogueTree,
@@ -16,7 +9,14 @@ import {
   substituteDialogueText,
 } from '../shared/dialogue-tree';
 import type { Assistant } from '../shared/index';
-import { emitAssistantSpeakingMessage } from './_internal/assistant-speaking-bridge';
+import type {
+  AssistantAction,
+  AssistantSpeakAction,
+} from '../shared/internal/action';
+import type { AssistantClock } from '../shared/internal/clock';
+import type { AssistantRenderer } from '../shared/internal/renderer';
+import { createSplitMix32, hashSeedString } from '../shared/internal/rng';
+import { emitAssistantSpeakingMessage } from './internal/assistant-speaking-bridge';
 
 export type CreateAssistantDialogueTreeRendererDeps<TPayload> = {
   readonly getAssistant: () => Assistant<TPayload> | null;

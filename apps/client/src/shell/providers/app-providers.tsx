@@ -14,7 +14,7 @@
  * opens rooms that call `useSpaceModule`. Space rooms / leave-end modals /
  * notifications still mount inside `sync-engine-ready-tree.tsx` so mutation /
  * avatar graphs stay off the initial entry chunk
- * (see docs/low-end-android-perf.md).
+ * (see docs/LOW_END_ANDROID_PERF.md).
  */
 
 import type { JSX } from 'solid-js';

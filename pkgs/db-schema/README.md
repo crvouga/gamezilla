@@ -176,7 +176,7 @@ outside `@pkgs/db-schema` emit.
 
 ## Tests
 
-See [`TESTING.md`](TESTING.md). Summary:
+See [`docs/TESTING.md`](docs/TESTING.md). Summary:
 
 - `pkgs/db-schema/tests/` — pure planner / evolution / snapshot suites
 - `pkgs/db-schema-postgres/tests/` and `pkgs/db-schema-sqlite/tests/` — the

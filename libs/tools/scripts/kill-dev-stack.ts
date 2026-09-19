@@ -16,8 +16,6 @@ const DEV_PORTS = [
   9231, // wrangler inspector
   5173, // Vite web dev / static preview (PREVIEW_PORT)
   5174, // legacy Vite web dev
-  4177, // @pkgs/sql-client-sqlite-web e2e harness
-  4178, // @pkgs/auth OAuth e2e harness
   8799, // observability collector
   1883, // EMQX MQTT TCP (fidelity-max / CI)
   8083, // EMQX MQTT WebSocket

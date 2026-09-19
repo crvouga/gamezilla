@@ -403,14 +403,6 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/forbid-removed-auth-sdk-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/no-clerk-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
@@ -453,7 +445,6 @@
         "!**/wall-node-fs.ts",
         "!**/wall-path-exists.ts",
         "!**/wall-os-fs.ts",
-        "!**/pkgs/chess-board/e2e/webview-host.ts",
         "!**/repo-tree-store.ts",
         "!**/wall-io.ts",
         "!**/sim-io.ts",
@@ -531,11 +522,6 @@
         "!**/*-boot.js",
         "!**/*.example.ts",
         "!**/*.example.tsx",
-        "!**/e2e/harness/tab-app.ts",
-        "!**/e2e/harness/harness-client.ts",
-        "!**/e2e/webview.ts",
-        "!**/pkgs/chess-board/e2e/harness/browser-entry.tsx",
-        "!**/pkgs/chess-board/e2e/webview-host.ts",
         "!**/bun-webview-driver-node.ts",
         "!**/sql-host-entry.ts",
         "!**/cf-dns.ts",
@@ -606,11 +592,6 @@
         "!**/*-boot.js",
         "!**/*.example.ts",
         "!**/*.example.tsx",
-        "!**/e2e/harness/tab-app.ts",
-        "!**/e2e/harness/harness-client.ts",
-        "!**/e2e/webview.ts",
-        "!**/pkgs/chess-board/e2e/harness/browser-entry.tsx",
-        "!**/pkgs/chess-board/e2e/webview-host.ts",
         "!**/bun-webview-driver-node.ts",
         "!**/sql-host-entry.ts",
         "!**/tests/**",
@@ -872,13 +853,13 @@
                 "paths": {
                   "@pkgs/ui-testing": {
                     "importNames": ["Driver"],
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
                   },
                   "@pkgs/ui-testing-bun-webview": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
                   }
                 }
               }

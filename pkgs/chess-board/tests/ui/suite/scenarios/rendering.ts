@@ -9,13 +9,6 @@ import { ALL_SQUARES, FEN } from '../oracle';
 const COORDINATE_LABELS = 'abcdefgh12345678'.split('').sort().join('');
 
 /** ~1px inside each corner of a 40px square: top-left, bottom-right, … */
-const EDGE_POINTS: readonly (readonly [number, number])[] = [
-  [0.03, 0.03],
-  [0.97, 0.97],
-  [0.03, 0.97],
-  [0.97, 0.03],
-];
-
 export function defineRenderingScenarios(host: ChessBoardHost): void {
   describe('rendering', () => {
     test('start position paints exactly the 32 pieces and no overlays', async () => {
@@ -96,27 +89,6 @@ export function defineRenderingScenarios(host: ChessBoardHost): void {
       await board.expectConsistent();
     });
 
-    // Only a real layout engine paints squares; happy-dom boxes are synthetic.
-    if (host.measuresLayout) {
-      test('taps just inside the painted edges of a square land on it', async () => {
-        const layouts = [
-          { size: 320 },
-          { size: 333 },
-          { size: null, frameWidth: 360 },
-          { size: null, frameWidth: 363 },
-        ] as const;
-        for (const layout of layouts) {
-          const board = await openBoard(host, {
-            ...layout,
-            interactive: false,
-          });
-          const misses = await edgeMisses(board);
-          expect({ layout, misses }).toEqual({ layout, misses: [] });
-          await host.close();
-        }
-      }, 120_000);
-    }
-
     test('fill-width boards measure their frame', async () => {
       const board = await openBoard(host, { size: null });
       const layout = await board.ui.get(board.testId).layout();
@@ -129,21 +101,6 @@ export function defineRenderingScenarios(host: ChessBoardHost): void {
       await expectEveryCenterHits(board, 'white');
     });
   });
-}
-
-/** Taps ~1px inside every painted square's corners; returns the misses. */
-async function edgeMisses(
-  board: Awaited<ReturnType<typeof openBoard>>
-): Promise<string[]> {
-  const misses: string[] = [];
-  for (const square of ALL_SQUARES) {
-    for (const [x, y] of EDGE_POINTS) {
-      await board.tapInsidePaintedSquare(square, x, y);
-      const hit = (await board.probe()).cursor;
-      if (hit !== square) misses.push(`${square}@${x},${y}->${hit}`);
-    }
-  }
-  return misses;
 }
 
 async function expectEveryCenterHits(

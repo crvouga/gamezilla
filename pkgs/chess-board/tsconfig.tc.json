@@ -11,9 +11,7 @@
     "./src/**/*.tsx",
     "./src/**/*.d.ts",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx",
-    "./e2e/**/*.ts",
-    "./e2e/**/*.tsx"
+    "./tests/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

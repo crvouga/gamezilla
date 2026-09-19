@@ -1,7 +1,7 @@
 /**
  * Manifest + validation for the goal gate (`//#ci:goals`).
  *
- * `goal.md` says every statement must be proven by a check. This module turns
+ * `docs/GOAL.md` says every statement must be proven by a check. This module turns
  * that into a machine rule: each statement is either `proven` with proof files
  * that carry the `goal:<id>` marker, or `unproven` with a written note, and the
  * number of unproven statements may only go down.
@@ -75,12 +75,12 @@ function validateIdSets(
   const ids = new Set(statements.map((statement) => statement.id));
   for (const id of ids) {
     if (checks[id] === undefined) {
-      errors.push(`${id}: goal.md statement has no goal-checks.json entry`);
+      errors.push(`${id}: GOAL.md statement has no goal-checks.json entry`);
     }
   }
   for (const id of Object.keys(checks)) {
     if (!ids.has(id)) {
-      errors.push(`${id}: goal-checks.json entry has no goal.md statement`);
+      errors.push(`${id}: goal-checks.json entry has no GOAL.md statement`);
     }
   }
   return ids;
@@ -95,7 +95,7 @@ function validateEntry(
   const proven = entry.status === 'proven';
   if (statement.checked !== proven) {
     errors.push(
-      `${statement.id}: goal.md checkbox is ${
+      `${statement.id}: GOAL.md checkbox is ${
         statement.checked ? 'checked' : 'unchecked'
       } but manifest status is "${entry.status}"`
     );

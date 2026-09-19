@@ -22,12 +22,7 @@ import {
   parseChessBoardProbe,
 } from '@pkgs/chess-board-core/probe';
 import type { Square } from '@pkgs/chess-board-core/types';
-import type {
-  Driver,
-  DriverKey,
-  ElementLayout,
-  TapPosition,
-} from '@pkgs/ui-testing';
+import type { Driver, DriverKey, TapPosition } from '@pkgs/ui-testing';
 
 import {
   HARNESS_BOARD_TEST_ID,
@@ -140,55 +135,6 @@ export class BoardPage {
     await this.ui.get(this.testId).tapAt(position);
   }
 
-  /**
-   * Tap at a fraction of the square's *painted* box (its hit-grid cell), not
-   * of the board's outer box — borders / sub-pixel sizing must not shift it.
-   */
-  async tapInsidePaintedSquare(
-    square: Square,
-    xFraction: number,
-    yFraction: number
-  ): Promise<void> {
-    const board = await this.ui.get(this.testId).layout();
-    const cell = await this.ui
-      .get(chessBoardSquareTestId(this.testId, square))
-      .layout();
-    if (board === null || cell === null) throw new Error('no layout');
-    await this.ui.get(this.testId).tapAt({
-      xRatio: (cell.x + cell.width * xFraction - board.x) / board.width,
-      yRatio: (cell.y + cell.height * yFraction - board.y) / board.height,
-    });
-  }
-
-  /** Measured box of a square's hit-grid cell (real layout hosts only). */
-  async squareBox(square: Square): Promise<ElementLayout> {
-    return requireLayout(
-      await this.ui.get(chessBoardSquareTestId(this.testId, square)).layout()
-    );
-  }
-
-  /** The painted board: from a8's top-left to h1's bottom-right cell. */
-  async paintedBox(): Promise<ElementLayout> {
-    // Sequential: a Bun.WebView runs one evaluate at a time.
-    const corners: ElementLayout[] = [];
-    for (const square of ['a1', 'a8', 'h1', 'h8'] as const) {
-      corners.push(await this.squareBox(square));
-    }
-    const x = Math.min(...corners.map((b) => b.x));
-    const y = Math.min(...corners.map((b) => b.y));
-    const right = Math.max(...corners.map((b) => b.x + b.width));
-    const bottom = Math.max(...corners.map((b) => b.y + b.height));
-    return { x, y, width: right - x, height: bottom - y };
-  }
-
-  async promotionBox(
-    choice: ChessBoardPromotionChoice
-  ): Promise<ElementLayout> {
-    return requireLayout(
-      await this.ui.get(chessBoardPromotionTestId(this.testId, choice)).layout()
-    );
-  }
-
   async drag(from: Square, to: Square): Promise<void> {
     await this.ui
       .get(this.testId)
@@ -298,11 +244,6 @@ export class BoardPage {
       ...expectedSquarePaint(probe, options),
     ]);
   }
-}
-
-function requireLayout(layout: ElementLayout | null): ElementLayout {
-  if (layout === null) throw new Error('element has no layout box');
-  return layout;
 }
 
 function kingSquare(probe: ChessBoardProbe): Square | null {

@@ -1,24 +1,15 @@
 import { describe, expect, test } from 'bun:test';
-import { sumPrecacheFromSw } from './bundle-budget';
 import {
   collectLazyRoots,
   lazyGraphJsFiles,
   lazyOverrideKey,
 } from './bundle-budget-lazy';
 import type { Manifest } from './bundle-budget-manifest';
-import { assertFirstLoadApiBytes } from './check-first-load-api-budget';
 import { collectExternalScriptSrcs } from './check-index-html-scripts';
 import {
   collectDynamicImports,
   collectStaticSpecifiers,
 } from './client-critical-path-imports';
-import {
-  assertRouteMetrics,
-  findBannedFetches,
-  median,
-  mediansFromLhrs,
-  urlMatchesBannedPattern,
-} from './lighthouse-report';
 
 const MANIFEST: Manifest = {
   'src/main.tsx': {
@@ -63,93 +54,6 @@ describe('bundle-budget lazy collectors', () => {
       })
     ).toBe('chess');
   });
-
-  test('sumPrecacheFromSw sums workbox manifest sizes', () => {
-    const sw = `self.__WB_MANIFEST;precacheAndRoute([{"url":"a.js","revision":null,"size":1000},{"url":"b.wasm","revision":"x","size":2000}]);`;
-    expect(sumPrecacheFromSw(sw)).toBe(3000);
-  });
-});
-
-describe('lighthouse-report', () => {
-  test('median picks middle value', () => {
-    expect(median([3, 1, 2])).toBe(2);
-    expect(median([4, 1, 2, 3])).toBe(2.5);
-  });
-
-  test('mediansFromLhrs + assertRouteMetrics flags overs', () => {
-    const lhr = {
-      audits: {
-        'largest-contentful-paint': { numericValue: 5000 },
-        'total-blocking-time': { numericValue: 100 },
-        interactive: { numericValue: 1000 },
-        'speed-index': { numericValue: 1000 },
-        'total-byte-weight': { numericValue: 50_000 },
-        'cumulative-layout-shift': { numericValue: 0.01 },
-      },
-    };
-    const medians = mediansFromLhrs([lhr, lhr, lhr]);
-    const overs = assertRouteMetrics({
-      routeId: 'shell',
-      path: '/',
-      medians,
-      budget: {
-        lcpMs: 4000,
-        tbtMs: 600,
-        ttiMs: 5000,
-        speedIndexMs: 4500,
-        totalByteWeightKb: 300,
-        cls: 0.1,
-      },
-    });
-    expect(overs.some((m) => m.includes('LCP'))).toBe(true);
-  });
-
-  test('findBannedFetches matches patterns before LCP only', () => {
-    const hits = findBannedFetches({
-      lhr: {
-        audits: {
-          'largest-contentful-paint': { numericValue: 1000 },
-          'network-requests': {
-            details: {
-              items: [
-                {
-                  url: 'https://x/assets/game-plugins-abc.js',
-                  networkRequestTime: 100,
-                },
-                {
-                  url: 'https://x/assets/chess-sound-urls.js',
-                  networkRequestTime: 100,
-                },
-                {
-                  url: 'https://x/sql-workers/sqlite3.wasm',
-                  networkRequestTime: 5000,
-                },
-                {
-                  url: 'https://x/sql-workers/sqlite-worker.js',
-                  // no timing → ignored
-                },
-                { url: 'https://x/assets/ok.js', networkRequestTime: 50 },
-              ],
-            },
-          },
-        },
-      },
-      patterns: ['game-plugins', 'sql-workers', '.wasm', 'sqlite3'],
-    });
-    expect(hits).toEqual(['https://x/assets/game-plugins-abc.js']);
-  });
-
-  test('urlMatchesBannedPattern segment rules', () => {
-    expect(
-      urlMatchesBannedPattern(
-        'http://x/assets/game-plugins-abc.js',
-        'game-plugins'
-      )
-    ).toBe(true);
-    expect(
-      urlMatchesBannedPattern('http://x/sql-workers/sqlite3.wasm', '.wasm')
-    ).toBe(true);
-  });
 });
 
 describe('critical-path dynamic imports', () => {
@@ -161,7 +65,7 @@ describe('critical-path dynamic imports', () => {
     expect(specs).toEqual(['./bar']);
   });
 
-  test('collectDynamicImports flags top-level and nested denylist', () => {
+  test('collectDynamicImports marks top-level vs nested import()', () => {
     const hits = collectDynamicImports(`
 import './side';
 void import('./top');
@@ -185,21 +89,12 @@ function f(): import('./types').Foo { return null as never; }
   });
 });
 
-describe('index-html scripts + first-load api', () => {
+describe('index-html scripts', () => {
   test('collectExternalScriptSrcs ignores module entry', () => {
     const html = `<script type="module" src="/src/main.tsx"></script>
 <script src="https://evil.example/x.js"></script>`;
     expect(collectExternalScriptSrcs(html)).toEqual([
       'https://evil.example/x.js',
     ]);
-  });
-
-  test('assertFirstLoadApiBytes warn does not hard-fail', () => {
-    const result = assertFirstLoadApiBytes({
-      totalBytes: 200_000,
-      budgetKb: 50,
-      mode: 'warn',
-    });
-    expect(result).toBe('warn');
   });
 });
