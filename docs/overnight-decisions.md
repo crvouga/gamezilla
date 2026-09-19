@@ -214,3 +214,88 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   synced `billing_subscriptions` row. The chess gate's automatic retry is
   edge-triggered (only when the local answer flips from denied to allowed),
   so a hint/consume disagreement can never spin.
+
+## Slice 3 — puzzle data + Lichess ingest (§4, §23, §35)
+
+- **D27 — `moves[]` stays a text column.** §38 is logical (§0.0): the §4
+  `moves[]` is the existing space-separated `chess_puzzles.moves` text column.
+  The pure model (`Puzzle` in `@libs/chess/public/puzzle-data`) exposes
+  `moves` as an array plus the derived `solverColor` (inverse of the FEN side
+  to move) and `positionKey`; ingest stores the canonical UCI line (castling
+  written king-onto-rook is normalized to king-two-squares). No other column
+  was renamed (`nb_plays` = `plays`, `game_url` = `sourceGameUrl`).
+- **D28 — Indexes are declared, not derived.** `defineTable` supports
+  `indexes` / `uniqueIndexes` (auth, billing, matchmaking use them), so
+  `chess_puzzles` now declares `ix` on `rating` and `popularity` (the pool /
+  band queries filter on rating and order by popularity) and `ux` on
+  `position_key`. Themes and opening tags are JSON arrays filtered only on
+  the client (`json_each` over the synced band) and no server query reads
+  them in Phase 1, so they get no index; an index for them belongs with
+  §10.3 / §10.4 (P1) when a server query filters on them. The seed's
+  `--defer-indexes` still drops non-unique indexes during a bulk load; the
+  declared ones come back on the next `db:migrate` reconcile. Proven on real
+  SQL by `libs/chess/tests/puzzle-data/puzzle-ingest-sql.test.ts`
+  (`pragma_index_list`).
+- **D29 — Dedupe key.** `position_key` = FNV-1a 64 (`fnv1a64Hex`, the
+  existing deterministic hash in `@pkgs/room`) of FEN fields 1–4 + `|` + the
+  canonical line. Clocks are excluded (they do not change the puzzle).
+  Nullable: rows seeded before this slice keep `NULL` (unique indexes allow
+  many NULLs, so the schema-evolution `unique-index-added` warning printed by
+  `schema:snapshot` cannot turn into a failed `CREATE UNIQUE INDEX`); they are not backfilled, because rewriting ~4M rows is the WAL surge
+  the fast path exists to avoid — a fresh seed or a re-seed of the table
+  fills them. Each batch first reads the stored ids / keys it collides with
+  and splits the batch (`partitionPuzzleBatch`): an id match counts as
+  `duplicateId` (a resumed / repeated run, not bad content) before a
+  position match (`duplicatePosition`); `ON CONFLICT DO NOTHING` (no target,
+  both unique keys) stays as the backstop.
+- **D30 — Validation reasons.** `missingField`, `invalidFen`,
+  `malformedMove`, `tooShort` (< 2 plies), `illegalMove`, `oddLength` (ends on
+  the opponent's move), `invalidNumber` (rating / RD / plays must be integers
+  ≥ 0; popularity may be negative — Lichess's vote ratio is −100…100).
+  "FEN valid" includes cross-field consistency chess.js does not check: each
+  castling right needs its king and rook on their home squares, and an
+  en-passant square needs the double-pushed pawn in front of it and empty
+  squares behind. That check was added to the kernel as
+  `fenConsistencyError` (`@pkgs/chess-rules/fen`, own tests) rather than
+  tightening `parseFen`, so board code that parses hand-written FENs is
+  unaffected. A castling move whose right is missing from the FEN is
+  `illegalMove`.
+- **D31 — One ingest path.** Every writer goes through `PuzzleIngestTally`
+  (validate + per-reason counts) and `PuzzleSeedFastPath.insertPuzzleTableRows`
+  (dedupe): the streaming Lichess seed (counts in the batch / done /
+  dry-run reporter lines), the committed load-file seeder (now accepts the
+  raw Lichess header too, and gained `ingest()` returning the summary), the
+  web sim seed, and the load-file export (only validated rows are written).
+  The seeder's DATABASE_URL policy block moved to `resolveToolingDatabaseUrl`
+  so the new validation job shares it.
+- **D32 — §35 job.** `bun run --filter @libs/chess validate:puzzles`
+  streams the live table (keyset pages of 5000 by id, default) and/or any
+  `--source` CSV / `.csv.zst` / URL through the same validator, reports
+  per-reason counts + the first 20 failures, and exits 1 on any invalid row.
+  Duplicate positions are tracked per source (one file or the table), since
+  separate fixture files legitimately share rows. Cost: ~0.6 ms per puzzle on
+  the loaded dev machine (chess.js `move` dominates), i.e. roughly 40 min for
+  the full ~4M-row database — acceptable for an offline job; the canonical
+  form is computed from the SAN instead of chess.js verbose history, which
+  was 40 % of the cost.
+- **D33 — Fixture fix.** `libs/chess/scripts/fixtures/lichess-puzzles-sample.csv`
+  (referenced nowhere) held two one-move lines from the start position — both
+  invalid (`tooShort`). Its rows were replaced with two real Lichess puzzles
+  (one White-to-solve, one Black-to-solve) under the same ids. The 2000-row
+  load file, the Node sim CSV and the 50-row web fixture were all valid and
+  are unchanged.
+- **D34 — Ingest scenario shape.** The product sim
+  (`apps/product/tests/chess-puzzle-ingest.test.tsx`) ingests through the
+  real load-file seeder against the sim's server database (the streaming
+  seed needs a Postgres TCP session and secrets, which the sim does not
+  have; both share the validator and deduping insert — D31). The orientation
+  probe (`Handles.chessPuzzleBoardOrientation`) reads the same accessor the
+  board renders with. The Node sim fixture only has Black-to-solve puzzles and
+  other chess scenarios exhaust exactly those three, so the White-to-solve
+  puzzle comes from the scenario's own ingest rather than a fixture change.
+- **D35 — Load flake in the gate, not a code failure.** The first two gate
+  runs failed only on `@libs/tools#test` "classifier is fast (10k paths)"
+  (a 50 ms wall-clock budget; measured 80–540 ms at load average ~110). It is
+  in the affected set only because `bun.lock` changed, this slice touches no
+  `libs/tools` file, and it passed on retry when the load dipped; the test was
+  left unchanged. Final gate: 392/392 tasks, exit 0.

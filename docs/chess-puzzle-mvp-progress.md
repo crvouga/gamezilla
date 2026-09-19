@@ -8,7 +8,7 @@ hash is the slice commit. Assumptions: [`overnight-decisions.md`](overnight-deci
 | # | Slice | Spec | Status | Commit |
 | - | ----- | ---- | ------ | ------ |
 | 1 | Rules core + perft | §1 P0, §35 perft/round-trip | done | 4ef94c80b |
-| 2 | Permission layer, permissive baseline | §22.1–22.7 P0, §22.11 P0, §35 permission tests | pending | |
+| 2 | Permission layer, permissive baseline | §22.1–22.7 P0, §22.11 P0, §35 permission tests | done | 5aed447b3 |
 | 3 | Lichess ingest + validation | §4 P0, §23 P0, §35 DB validation | pending | |
 | 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | pending | |
 | 5 | Rating mutator (Glicko-2) | §8 P0 | pending | |
@@ -87,3 +87,27 @@ Kernel: `@pkgs/permissions` (extended). Policy: `@libs/permissions`. Tests:
 - [x] §34 Device clock manipulation — server-time window (`consume-quota.test.ts`)
 - [x] §34 Policy version published mid-session / offline replay — (`consume-quota.test.ts`)
 - [x] §34 Limit hit while a puzzle is on the board: it completes, the next start is denied and never charged — `chess-puzzle-quota.test.tsx`; window rollover re-allows — `consume-quota.test.ts` + kernel window property test (product-level 24 h advance infeasible, D23)
+
+### Slice 3 — Puzzle data + Lichess ingest (§4, §23)
+
+Kernel extension: `@pkgs/chess-rules/fen` `fenConsistencyError`. Model +
+validator: `@libs/chess/public/puzzle-data`. Ingest: `root/server/seed-chess-puzzles/`
+(`puzzle-ingest.ts`, `fast-path.ts`). Job: `root/server/validate-chess-puzzles/`,
+`bun run --filter @libs/chess validate:puzzles`. Tests:
+`bun run --filter @pkgs/chess-rules test`, `bun run --filter @libs/chess test`
+(`tests/puzzle-data/*`), product sims `apps/product/tests/chess-puzzle-ingest.test.tsx`
++ `chess-puzzle-fixtures.test.ts` (in `test:chess`). Decisions D27–D34.
+
+- [x] §4 Fields id, fen, moves[] (UCI), rating, ratingDeviation, themes[], plays, popularity, sourceGameUrl, openingTags[] — `Puzzle` (`puzzle-validation.ts`); physical form = existing `chess_puzzles` columns + `position_key` (D27)
+- [x] §4 Lichess convention (FEN before the setup move; user plays moves[1], [3], …; line ends on a user move) — `validatePuzzleFields` (`oddLength` / `tooShort`); `validate-puzzle.test.ts`, seeded property test `validate-puzzle.property.test.ts`
+- [x] §4 Solver colour = inverted FEN side to move — `solverColor`; product sim asserts the served board orientation for a White-to-solve and a Black-to-solve puzzle (`chess-puzzle-ingest.test.tsx`)
+- [x] §4 Seeded from the Lichess CC0 DB — existing streaming seed (`seed:puzzles`), now validating + deduping (D31)
+- [x] §23 Parse CSV (PuzzleId, FEN, Moves, Rating, RatingDeviation, Popularity, NbPlays, Themes, GameUrl, OpeningTags) — `validateLichessPuzzleRow`; load-file seeder accepts the Lichess header too
+- [x] §23 Load to DB — `PuzzleSeedFastPath.insertPuzzleTableRows` (all seed paths); `puzzle-ingest-sql.test.ts`, `chess-puzzle-ingest.test.tsx`
+- [x] §23 Indexes on rating, themes, opening, popularity — declared `ix` rating / popularity + `ux` position_key via `defineTable`; themes / opening not indexed (client-only JSON filters in Phase 1, D28); `puzzle-ingest-sql.test.ts`
+- [x] §23 Validation: every move legal, line ends on solver move, FEN valid, no duplicates by position hash + solution — `validatePuzzleFields` + `fenConsistencyError` + `partitionPuzzleBatch` (D29, D30); per-reason counts in the seed reporter
+- [x] §35 Full-database validation job — `validate:puzzles` (DB or CSV, exit 1 on invalid); run over every checked-in fixture CSV (`validate-chess-puzzles-job.test.ts`, `chess-puzzle-fixtures.test.ts`); one unreferenced fixture fixed (D33)
+- [x] §34 Castling rights in FEN wrong/missing — wrong rights → `invalidFen`, castling without the right → `illegalMove` (`validate-puzzle.test.ts`, product ingest sim)
+- [x] §34 En passant as the solution; en passant illegal due to a pin — `validate-puzzle.test.ts`
+- [x] §34 Promotion / underpromotion / capture-promotion lines — `validate-puzzle.test.ts` (solve-time input is slice 4)
+- [x] §34 Puzzle where solver is Black: orientation flipped — `chess-puzzle-ingest.test.tsx`

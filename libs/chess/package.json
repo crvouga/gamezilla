@@ -17,7 +17,8 @@
     "lint": "bunx biome check --error-on-warnings .",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests",
+    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -67,9 +68,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

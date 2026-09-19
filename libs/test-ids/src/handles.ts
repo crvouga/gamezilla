@@ -133,6 +133,8 @@ export const Handles = {
   /** Hidden probe: `spectating=0|1 role=… kind=… clock=… recs=…`. */
   chessPuzzleE2eSpectator: 'chess-puzzle-e2e-spectator',
   chessPuzzleE2eFen: 'chess-puzzle-e2e-fen',
+  /** Hidden probe: board orientation (`white` / `black`) = solver colour. */
+  chessPuzzleBoardOrientation: 'chess-puzzle-board-orientation',
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',

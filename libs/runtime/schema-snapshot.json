@@ -1,5 +1,5 @@
 {
-  "release": 2,
+  "release": 3,
   "snapshot": {
     "tables": {
       "auth_devices": {
@@ -63,6 +63,7 @@
         "nb_plays": "integer",
         "opening_tags": "json",
         "popularity": "integer",
+        "position_key": "text",
         "rating": "integer",
         "rating_deviation": "integer",
         "themes": "json"
@@ -175,15 +176,55 @@
     },
     "retiredTables": [],
     "indexes": [
-      ["billing_subscriptions", "account_id"],
-      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"]
+      [
+        "billing_subscriptions",
+        "account_id"
+      ],
+      [
+        "chess_puzzles",
+        "popularity"
+      ],
+      [
+        "chess_puzzles",
+        "rating"
+      ],
+      [
+        "permissions_quota_ledger",
+        "owner_id",
+        "quota",
+        "consumed_at"
+      ]
     ],
     "uniqueIndexes": [
-      ["auth_external_accounts", "provider", "external_id"],
-      ["auth_external_accounts", "user_id", "provider"],
-      ["billing_subscriptions", "provider", "provider_subscription_id"],
-      ["friends_blocks", "blocker_id", "blocked_id"],
-      ["friends_friendships", "user_low", "user_high"],
+      [
+        "auth_external_accounts",
+        "provider",
+        "external_id"
+      ],
+      [
+        "auth_external_accounts",
+        "user_id",
+        "provider"
+      ],
+      [
+        "billing_subscriptions",
+        "provider",
+        "provider_subscription_id"
+      ],
+      [
+        "chess_puzzles",
+        "position_key"
+      ],
+      [
+        "friends_blocks",
+        "blocker_id",
+        "blocked_id"
+      ],
+      [
+        "friends_friendships",
+        "user_low",
+        "user_high"
+      ],
       [
         "notifications",
         "user_id",
@@ -191,10 +232,25 @@
         "source_type",
         "source_id"
       ],
-      ["permissions_quota_ledger", "owner_id", "idempotency_key"],
-      ["profile", "username_norm"],
-      ["spaces_open_sessions", "device_id", "space_id"],
-      ["spaces_users", "space_id", "user_id"]
+      [
+        "permissions_quota_ledger",
+        "owner_id",
+        "idempotency_key"
+      ],
+      [
+        "profile",
+        "username_norm"
+      ],
+      [
+        "spaces_open_sessions",
+        "device_id",
+        "space_id"
+      ],
+      [
+        "spaces_users",
+        "space_id",
+        "user_id"
+      ]
     ]
   }
 }

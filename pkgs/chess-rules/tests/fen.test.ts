@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  fenConsistencyError,
   parseFen,
   START_FEN,
   serializeFen,
@@ -73,5 +74,37 @@ describe('parseFen / serializeFen', () => {
     expect(sideToMoveOf(START_FEN)).toBe('w');
     expect(sideToMoveOf('8/8/8/8/8/8/8/8 b - - 0 1')).toBe('b');
     expect(sideToMoveOf('garbage')).toBe('w');
+  });
+});
+
+describe('fenConsistencyError', () => {
+  function consistency(fen: string): string | null {
+    const result = parseFen(fen);
+    if (!result.ok) throw new Error(`fixture FEN must parse: ${fen}`);
+    return fenConsistencyError(result.fields)?.field ?? null;
+  }
+
+  test('start position and plain positions are consistent', () => {
+    expect(consistency(START_FEN)).toBeNull();
+    expect(consistency('4k3/8/8/8/8/8/8/4K3 w - - 0 1')).toBeNull();
+    expect(consistency('r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1')).toBeNull();
+  });
+
+  test('a castling right without its rook or king is inconsistent', () => {
+    expect(consistency('r3k2r/8/8/8/8/8/8/R3K1R1 w K - 0 1')).toBe('castling');
+    expect(consistency('r3k2r/8/8/8/8/8/8/1R2K2R w Q - 0 1')).toBe('castling');
+    expect(consistency('r3k2r/8/8/8/8/8/8/R2K3R w KQ - 0 1')).toBe('castling');
+    expect(consistency('r4rk1/8/8/8/8/8/8/R3K2R w KQkq - 0 1')).toBe(
+      'castling'
+    );
+  });
+
+  test('an en-passant square needs the double-pushed pawn behind it', () => {
+    expect(consistency('4k3/8/8/3pP3/8/8/8/4K3 w - d6 0 1')).toBeNull();
+    expect(consistency('4k3/8/8/8/3Pp3/8/8/4K3 b - d3 0 1')).toBeNull();
+    expect(consistency('4k3/8/8/4P3/8/8/8/4K3 w - d6 0 1')).toBe('enPassant');
+    expect(consistency('4k3/3p4/8/3pP3/8/8/8/4K3 w - d6 0 1')).toBe(
+      'enPassant'
+    );
   });
 });

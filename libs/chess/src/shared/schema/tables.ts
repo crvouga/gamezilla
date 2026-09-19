@@ -13,7 +13,15 @@ export const chessPuzzles = defineTable({
     themes: 'json',
     game_url: 'text',
     opening_tags: 'json',
+    /** Hash of FEN fields 1–4 + the line; null on rows seeded before §23. */
+    position_key: 'text',
   },
+  // Pool / band reads filter on rating and order by popularity. Themes and
+  // opening tags are JSON arrays filtered on the client only (no server
+  // query reads them in Phase 1), so they carry no index.
+  indexes: ['rating', 'popularity'],
+  // §23 dedupe: one row per position + solution, whatever its id.
+  uniqueIndexes: ['position_key'],
   retiredColumns: [
     { name: 'sync_pool', type: 'boolean', note: 'not needed anymore' },
   ],

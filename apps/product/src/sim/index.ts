@@ -83,6 +83,13 @@ export {
   serverMembershipRow,
 } from './system/billing-reads';
 export {
+  ingestChessPuzzleCsv,
+  readLocalPuzzles,
+  readPuzzleBoardOrientation,
+  readServerPuzzles,
+  type StoredPuzzleRow,
+} from './system/chess-puzzle-data';
+export {
   readFeedHistoryLabel,
   readFeedModalPool,
   readFeedModalTargetRating,

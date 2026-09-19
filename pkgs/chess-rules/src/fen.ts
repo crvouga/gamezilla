@@ -146,6 +146,87 @@ export function parseFen(fen: string): FenParseResult {
   };
 }
 
+/** Piece letter on `square` (`e1`) of a structurally valid placement, or null. */
+function pieceOn(placement: string, square: string): string | null {
+  const file = square.charCodeAt(0) - 97;
+  const rank = Number(square[1]);
+  const row = placement.split('/')[8 - rank] ?? '';
+  let col = 0;
+  for (const ch of row) {
+    if (ch >= '1' && ch <= '8') {
+      col += Number(ch);
+      continue;
+    }
+    if (col === file) return ch;
+    col += 1;
+  }
+  return null;
+}
+
+/** King square + rook square each castling right requires (standard chess). */
+const CASTLING_HOMES: Readonly<
+  Record<string, { king: string; rook: string; k: string; r: string }>
+> = {
+  K: { king: 'e1', rook: 'h1', k: 'K', r: 'R' },
+  Q: { king: 'e1', rook: 'a1', k: 'K', r: 'R' },
+  k: { king: 'e8', rook: 'h8', k: 'k', r: 'r' },
+  q: { king: 'e8', rook: 'a8', k: 'k', r: 'r' },
+};
+
+function castlingConsistencyError(fields: FenFields): FenError | null {
+  if (fields.castling === '-') return null;
+  for (const right of fields.castling) {
+    const home = CASTLING_HOMES[right];
+    if (home === undefined) continue;
+    if (
+      pieceOn(fields.placement, home.king) !== home.k ||
+      pieceOn(fields.placement, home.rook) !== home.r
+    ) {
+      return {
+        field: 'castling',
+        message: `castling right '${right}' needs ${home.k} on ${home.king} and ${home.r} on ${home.rook}`,
+      };
+    }
+  }
+  return null;
+}
+
+function enPassantConsistencyError(fields: FenFields): FenError | null {
+  const ep = fields.enPassant;
+  if (ep === '-') return null;
+  const file = ep[0] ?? '';
+  // White to move ⇒ Black just double-pushed: pawn on rank 5, ep on rank 6.
+  const white = fields.sideToMove === 'w';
+  const pawnSquare = `${file}${white ? 5 : 4}`;
+  const originSquare = `${file}${white ? 7 : 2}`;
+  if (pieceOn(fields.placement, pawnSquare) !== (white ? 'p' : 'P')) {
+    return {
+      field: 'enPassant',
+      message: `en-passant square ${ep} has no double-pushed pawn on ${pawnSquare}`,
+    };
+  }
+  if (
+    pieceOn(fields.placement, ep) !== null ||
+    pieceOn(fields.placement, originSquare) !== null
+  ) {
+    return {
+      field: 'enPassant',
+      message: `en-passant square ${ep} or ${originSquare} is occupied`,
+    };
+  }
+  return null;
+}
+
+/**
+ * Cross-field consistency chess.js does not check: every castling right has
+ * its king and rook on their home squares, and an en-passant square sits
+ * behind a pawn that just double-pushed. `null` when consistent. Takes the
+ * fields of a successful {@link parseFen}.
+ */
+export function fenConsistencyError(fields: FenFields): FenError | null {
+  return castlingConsistencyError(fields) ?? enPassantConsistencyError(fields);
+}
+
 export function serializeFen(fields: FenFields): string {
   return [
     fields.placement,
