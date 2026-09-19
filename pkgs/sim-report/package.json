@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "catalog:",
+    "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "happy-dom": "catalog:",

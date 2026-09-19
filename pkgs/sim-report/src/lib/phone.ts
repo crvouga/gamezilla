@@ -1,5 +1,3 @@
-import type { ReportStepHit } from '@pkgs/sim';
-
 export const PHONE_W = 390;
 export const PHONE_H = 844;
 
@@ -15,30 +13,7 @@ export function zoomScale(mode: string, wrapW: number, wrapH: number): number {
   return !Number.isFinite(s) || s <= 0 ? 0.4 : s;
 }
 
-function cssEscape(s: string): string {
-  return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}
-
-function hitSelector(hit: ReportStepHit | undefined): string {
-  if (!hit?.path?.length) return '';
-  return hit.path.map((id) => `[data-testid="${cssEscape(id)}"]`).join(' ');
-}
-
-export function pressCss(hit: ReportStepHit | null | undefined): string {
-  const sel = hitSelector(hit ?? undefined);
-  if (!sel) return '';
-  return `${sel}{outline:2px solid #ff5a8a !important;outline-offset:2px !important;box-shadow:0 0 0 4px rgba(255,90,138,.35) !important;position:relative;z-index:5}`;
-}
-
-export function frameSrcdoc(
-  html: string,
-  frameCss: string,
-  hit: ReportStepHit | null | undefined
-): string {
-  const cleaned = html.replace(SCRIPT_RE, '').replace(SHELL_LINK_RE, '');
-  const inject = `<style>${frameCss}${pressCss(hit)}</style>`;
-  if (/<\/head>/i.test(cleaned)) {
-    return cleaned.replace(/<\/head>/i, `${inject}</head>`);
-  }
-  return inject + cleaned;
+/** Drop scripts and the external shell stylesheet (frameCss replaces it). */
+export function cleanSnapshotHtml(html: string): string {
+  return html.replace(SCRIPT_RE, '').replace(SHELL_LINK_RE, '');
 }
