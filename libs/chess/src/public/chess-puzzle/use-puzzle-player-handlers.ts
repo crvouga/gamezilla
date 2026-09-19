@@ -1,5 +1,6 @@
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { formatUci } from '@pkgs/chess-rules/uci';
 import type { Accessor } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -15,7 +16,6 @@ import {
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
 } from '../chess-puzzle-play';
-import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
 /**
  * A rated attempt is in flight only while the player is still moving or has
@@ -89,7 +89,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   });
 
   const onMove = (m: Move): void => {
-    args.setLastUci(uciFromMove(m));
+    args.setLastUci(formatUci(m));
     args.onMoveRaw(m);
   };
 

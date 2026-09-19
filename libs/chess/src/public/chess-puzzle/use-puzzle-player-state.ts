@@ -5,6 +5,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { formatUci } from '@pkgs/chess-rules/uci';
 import { RoomMetaAttr } from '@pkgs/room';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
@@ -26,7 +27,6 @@ import {
   PUZZLE_ELO_DEFAULT,
   projectPuzzleEloFromInteractions,
 } from '../chess-puzzle-rating';
-import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,
@@ -127,7 +127,7 @@ function usePuzzleRecommendDispatch(): {
   return {
     recommendBump,
     onRecommendMove: (m: Move): void => {
-      const uci = uciFromMove(m);
+      const uci = formatUci(m);
       const from = uci.slice(0, 2);
       const to = uci.slice(2, 4);
       if (!isBoardSquare(from) || !isBoardSquare(to)) return;

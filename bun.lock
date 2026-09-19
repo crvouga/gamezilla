@@ -403,6 +403,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/chess-board": "workspace:*",
         "@pkgs/chess-board-core": "workspace:*",
+        "@pkgs/chess-rules": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/collab": "workspace:*",
         "@pkgs/database-url-policy": "workspace:*",
@@ -1064,6 +1065,7 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/chess-board-core": "workspace:*",
+        "@pkgs/chess-rules": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/solid-context": "workspace:*",
         "@pkgs/sounds": "workspace:*",
@@ -1087,6 +1089,7 @@
       "name": "@pkgs/chess-board-core",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/chess-rules": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/ui-testing": "workspace:*",
         "chess.js": "catalog:",
@@ -1094,6 +1097,19 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/chess-rules": {
+      "name": "@pkgs/chess-rules",
+      "version": "0.0.0",
+      "dependencies": {
+        "chess.js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3479,6 +3495,8 @@
     "@pkgs/chess-board": ["@pkgs/chess-board@workspace:pkgs/chess-board"],
 
     "@pkgs/chess-board-core": ["@pkgs/chess-board-core@workspace:pkgs/chess-board-core"],
+
+    "@pkgs/chess-rules": ["@pkgs/chess-rules@workspace:pkgs/chess-rules"],
 
     "@pkgs/clock": ["@pkgs/clock@workspace:pkgs/clock"],
 

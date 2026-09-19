@@ -155,6 +155,8 @@
     "pkgs/object-store-opfs/src/**/*.ts",
     "pkgs/device/src/**/*.ts",
     "pkgs/chess-board-core/src/**/*.ts",
+    "pkgs/chess-rules/src/**/*.ts",
+    "pkgs/chess-rules/tests/**/*.ts",
     "pkgs/chess-board-core/tests/**/*.ts",
     "pkgs/device/tests/**/*.ts",
     "pkgs/object-store-opfs/tests/**/*.ts",

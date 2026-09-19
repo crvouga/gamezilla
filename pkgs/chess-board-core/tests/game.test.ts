@@ -4,9 +4,9 @@ import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import {
   applyUci,
   boardOrientationFromFen,
-  parseUci,
   uciFromMove,
 } from '@pkgs/chess-board-core/uci';
+import { parseUci } from '@pkgs/chess-rules/uci';
 import { Chess } from 'chess.js';
 
 const START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -119,7 +119,8 @@ describe('uci', () => {
     expect(uciFromMove({ from: 'e2', to: 'e4' })).toBe('e2e4');
     expect(uciFromMove({ from: 'a7', to: 'a8', promotion: 'n' })).toBe('a7a8n');
     expect(parseUci('E7E8Q')).toEqual({ from: 'e7', to: 'e8', promotion: 'q' });
-    expect(parseUci('e2e4x')).toEqual({ from: 'e2', to: 'e4' });
+    // Strict since the rules kernel (§1): a bad promotion char is malformed.
+    expect(parseUci('e2e4x')).toBeNull();
     expect(parseUci('e2')).toBeNull();
   });
 

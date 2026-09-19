@@ -55,6 +55,10 @@
     "kill": {
       "cache": false
     },
+    "typecheck": {
+      "dependsOn": ["tc"],
+      "outputs": []
+    },
     "tc": {
       "dependsOn": ["^tc"],
       "inputs": [
