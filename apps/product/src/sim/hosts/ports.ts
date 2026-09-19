@@ -27,7 +27,18 @@ export type ProductHttp =
   /** The sim balancer, bound to a loopback port by this process. */
   | { readonly kind: 'localhost'; readonly origin: string }
   /** A separately booted localhost stack; this process owns no servers. */
-  | { readonly kind: 'stack'; readonly origin: string };
+  | {
+      readonly kind: 'stack';
+      readonly origin: string;
+      /** The stack's simulated Google, on its own origin. */
+      readonly idpOrigin: string;
+      /**
+       * A stack outlives one run, so each run brings its own people: actor
+       * `alice` signs in as `alice.<tag>@gmail.com`, never as an earlier
+       * run's alice.
+       */
+      readonly accountTag: string;
+    };
 
 export type ProductExtra = {
   readonly sql: SimSql;

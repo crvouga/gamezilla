@@ -31,10 +31,7 @@ import {
   createNoopDevMenuPort,
 } from './client-env';
 import { setOriginAvailability } from './origin-availability-for-env';
-import {
-  getMainSqliteDbName,
-  openMainSqlClient,
-} from './storage/open-main-sql-client';
+import { getMainSqliteDbName } from './storage/main-sqlite-db-name';
 import { createWallOpenAuthSession } from './wall-open-auth-session';
 
 const OBJECT_STORE_BASE_DIR = 'object-store';
@@ -103,8 +100,14 @@ export function wallClientEnv(args?: {
     server,
     events: createInMemoryPubSub(),
     createPubSub: () => createInMemoryPubSub(),
-    openSqlClient: (openArgs) =>
-      openMainSqlClient(openArgs?.userId ?? 'pending', wallTimers),
+    // Dynamic: keeps the web SQLite client (worker transport, OPFS recovery)
+    // off first load; it is only needed once the sync engine opens.
+    openSqlClient: async (openArgs) => {
+      const { openMainSqlClient } = await import(
+        './storage/open-main-sql-client'
+      );
+      return openMainSqlClient(openArgs?.userId ?? 'pending', wallTimers);
+    },
     kv: new KvImplWeb(),
     authStorage: createSecureStoreAuthClientStorage(secureStorage),
     secureStorage,

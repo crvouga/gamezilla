@@ -2,10 +2,8 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
 import { useLogger } from '@pkgs/logger/solid';
-import {
-  isLeaderLostError,
-  runWebOpfsRecoveryAndReload,
-} from '@pkgs/sql-client-sqlite-web';
+import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web/recover-in-process';
+import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web/rpc';
 import { ErrorState } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 

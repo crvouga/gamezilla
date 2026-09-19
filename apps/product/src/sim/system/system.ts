@@ -6,12 +6,13 @@ import {
   defineSnapshot,
   defineSystem,
 } from '@pkgs/sim';
+import type { Driver } from '@pkgs/ui-testing';
 import { noErrorBoundary } from '@pkgs/ui-testing/explore';
 import { createSimIds } from '@pkgs/uuid';
 
 import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
-import type { ProductExtra } from '../hosts/ports';
+import type { ProductExtra, ProductUi } from '../hosts/ports';
 import { simReportTopology } from '../setup/sim-report-topology';
 import { wireProductRuntime } from '../setup/wire-product-runtime';
 import {
@@ -102,6 +103,25 @@ export const noErrorBoundaryAnyActor = defineProperty(
  * active tree is probed.
  * Bun-webview actors each own a window and are all checked.
  */
+/** A live browser's next screen may still be loading when a checkpoint lands. */
+const WALL_TIME_SETTLE_MS = 30_000;
+
+/**
+ * On virtual time the checkpoint runs after the UI has settled, so the menu
+ * must be there now; a live browser gets the time a person would wait.
+ */
+async function menuVisible(
+  ui: Driver,
+  host: ProductUi['kind']
+): Promise<boolean> {
+  const menu = ui.get(Handles.statusCurrentUser);
+  if (host === 'solid-dom') return await menu.isVisible();
+  return await menu.wait('visible', { timeoutMs: WALL_TIME_SETTLE_MS }).then(
+    () => true,
+    () => false
+  );
+}
+
 export const globalActionMenuAlwaysVisible = defineProperty({
   name: 'globalActionMenuAlwaysVisible',
   check: async (s: ProductSim) => {
@@ -113,7 +133,7 @@ export const globalActionMenuAlwaysVisible = defineProperty({
     const missing: string[] = [];
     for (const [id, handle] of s.actors) {
       if (activeId !== undefined && id !== activeId) continue;
-      if (!(await handle.ui.get(Handles.statusCurrentUser).isVisible())) {
+      if (!(await menuVisible(handle.ui, extra.ui.kind))) {
         missing.push(id);
       }
     }

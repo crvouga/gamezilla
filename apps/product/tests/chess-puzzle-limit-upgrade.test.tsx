@@ -4,6 +4,7 @@ import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
 import { sql } from '@pkgs/sql';
 import {
+  actorLocalSql,
   createSpace,
   openPuzzleFromSpace,
   readActivePuzzleId,
@@ -18,9 +19,9 @@ async function seedGuestPuzzleHistory(
   activePuzzleId: string
 ): Promise<void> {
   await s.read(async (surf) => {
-    const client = surf.sim.clientSql('alice');
-    if (client === undefined) throw new Error('missing guest client SQL');
-    const ownerRows = await client.sqlClient.query<{
+    const client = actorLocalSql(surf, 'alice');
+    if (client === null) throw new Error('missing guest client SQL');
+    const ownerRows = await client.query<{
       owner_id: string;
       at: string;
     }>(sql`
@@ -35,7 +36,7 @@ async function seedGuestPuzzleHistory(
 
     for (let index = 0; index < 20; index += 1) {
       const puzzleId = `guest-limit-fixture-${index}`;
-      await client.sqlClient.run(sql`
+      await client.run(sql`
         INSERT INTO chess_puzzle_interactions (
           id, owner_id, puzzle_id, puzzle_rating, kind, solve_idx, uci, correct, at
         ) VALUES (
@@ -58,9 +59,9 @@ describe('guest puzzle limit upgrade invitation', () => {
 
     await seedGuestPuzzleHistory(s, activePuzzleId);
     const count = await s.read(async (surf) => {
-      const client = surf.sim.clientSql('alice');
-      if (client === undefined) throw new Error('missing guest client SQL');
-      const rows = await client.sqlClient.query<{ count: number }>(sql`
+      const client = actorLocalSql(surf, 'alice');
+      if (client === null) throw new Error('missing guest client SQL');
+      const rows = await client.query<{ count: number }>(sql`
         SELECT COUNT(DISTINCT puzzle_id) AS count
         FROM chess_puzzle_interactions
         WHERE puzzle_id LIKE 'guest-limit-fixture-%'

@@ -136,6 +136,7 @@ export const Handles = {
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
+  chessPuzzleSummaryClose: 'chess-puzzle-summary-close',
   /** Board-well block shown when the feed has no puzzle to place. */
   chessPuzzleEmptyPool: 'chess-puzzle-empty-pool',
   /** Secondary "Adjust feed" button under the exhausted-pool block. */

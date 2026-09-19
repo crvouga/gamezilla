@@ -75,7 +75,6 @@ export {
   type BillingObserveKind,
 } from './system/billing-actions';
 export {
-  accountIdOf,
   billingButtonVisible,
   billingTier,
   type MembershipRowView,
@@ -107,6 +106,11 @@ export {
   readPuzzleStatusKind,
   readStatsElo,
 } from './system/chess-puzzle-ui';
+export {
+  accountIdOf,
+  actorEmail,
+  actorLocalSql,
+} from './system/identity';
 export {
   actor,
   actorHtml,

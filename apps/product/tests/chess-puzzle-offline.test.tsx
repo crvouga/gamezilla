@@ -4,6 +4,7 @@ import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
 import { sql } from '@pkgs/sql';
 import {
+  actorLocalSql,
   createSpace,
   isEmptyPoolVisible,
   openPuzzleFromSpace,
@@ -73,9 +74,9 @@ describe('chess puzzle offline', () => {
     await s.apply(playWrongPuzzleMove, 'alice');
 
     const localRows = await s.read(async (surf) => {
-      const clientSql = surf.sim.clientSql('alice');
-      if (clientSql === undefined) throw new Error('missing client SQL');
-      return await clientSql.sqlClient.query(sql<{ count: number }>`
+      const clientSql = actorLocalSql(surf, 'alice');
+      if (clientSql === null) throw new Error('missing client SQL');
+      return await clientSql.query(sql<{ count: number }>`
         SELECT COUNT(*) AS count
         FROM chess_puzzle_interactions
         WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE

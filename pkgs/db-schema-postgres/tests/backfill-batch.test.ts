@@ -68,7 +68,8 @@ describe('postgres batched backfill', () => {
     } finally {
       await harness.close();
     }
-  });
+    // 2500 rows through postgres-mem: ~3s alone, past 10s under turbo load.
+  }, 60_000);
 
   test('NULL-yielding backfill terminates and leaves the target NULL', async () => {
     const harness = await createPostgresMemTestClient('backfill_null');

@@ -33,7 +33,7 @@ import {
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import type { SimBillingBrowser } from './sim-billing-browser';
+import type { SimBrowser } from './sim-browser';
 import { makeSimClientEnv } from './sim-client-env';
 import { bumpSimClientEpoch } from './sim-client-namespace';
 import { createSimIdp, simIdpEmail, simIdpFetchFrom } from './sim-idp';
@@ -86,7 +86,8 @@ export type Sim = {
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
   /** The actor's headless browser for the fake provider's mock pages. */
-  billingBrowser(id: string): SimBillingBrowser;
+  /** The actor's web browser (sign-in window, billing pages). */
+  browser(id: string): SimBrowser;
   /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
   spawnServer(id?: string): Promise<Server>;
   /** Remove an API instance from the balancer rotation. */
@@ -350,7 +351,7 @@ function createSimHandle(kernel: SimKernel): Sim {
    * while `clientSql` still holds mutation rows from the prior stream. */
   const clientEnvs = new Map<string, ClientEnv>();
   const pendingEnvs = new Map<string, Promise<ClientEnv>>();
-  const billingBrowsers = new Map<string, SimBillingBrowser>();
+  const browsers = new Map<string, SimBrowser>();
   const liveClients = new Map<string, Client>();
   const client = async (id: string): Promise<ClientEnv> => {
     const cached = clientEnvs.get(id);
@@ -361,7 +362,7 @@ function createSimHandle(kernel: SimKernel): Sim {
       // The person behind this actor needs a Google account to sign in with.
       await idp.addAccount({ handle: id, email: simIdpEmail(id) });
       const built = makeSimClientEnv(kernel, { id, clientSql });
-      billingBrowsers.set(id, built.billingBrowser);
+      browsers.set(id, built.browser);
       clientEnvs.set(id, built.env);
       pendingEnvs.delete(id);
       return built.env;
@@ -379,9 +380,9 @@ function createSimHandle(kernel: SimKernel): Sim {
     loadBalancer: kernel.loadBalancer,
     idp,
     client,
-    billingBrowser: (id) => {
-      const browser = billingBrowsers.get(id);
-      assert.defined(browser, `sim billing browser missing for ${id}`);
+    browser: (id) => {
+      const browser = browsers.get(id);
+      assert.defined(browser, `sim browser missing for ${id}`);
       return browser;
     },
     async spawnServer(id) {

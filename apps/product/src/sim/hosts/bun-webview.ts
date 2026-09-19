@@ -67,7 +67,12 @@ async function openStackExtra(): Promise<
   return {
     sql: postgresHandle(await bootSimPostgres(addresses.databaseUrl)),
     ui: { kind: 'bun-webview' as const, webOrigin: addresses.webOrigin },
-    http: { kind: 'stack' as const, origin: addresses.apiOrigin },
+    http: {
+      kind: 'stack' as const,
+      origin: addresses.apiOrigin,
+      idpOrigin: addresses.idpOrigin,
+      accountTag: crypto.randomUUID().slice(0, 8),
+    },
   };
 }
 

@@ -531,6 +531,14 @@ export async function pressPuzzleBackToChessMenu(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  // A solved puzzle's summary sits over the board; close it first, as a
+  // person must before the header behind it can be pressed.
+  if (await ui.get(Handles.chessPuzzleSummary).isVisible()) {
+    await ui.get(Handles.chessPuzzleSummaryClose).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(Handles.chessPuzzleSummary)
+      .expect.hidden({ timeoutMs: WAIT_MS });
+  }
   await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
 }

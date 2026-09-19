@@ -44,6 +44,16 @@ const INSTALL_OPEN_CAPTURE = `(function(){
 
 const SIGN_IN = '[data-testid=harness-sign-in-google]';
 
+/**
+ * The provider serves server-rendered markup, then its SPA clears `#idp-root`
+ * and mounts a fresh form. A value typed into the server copy is wiped by that
+ * mount (and "Next" then submits an empty email), so interact only after the
+ * SPA marks itself ready. Under a loaded `bun check` the mount lands seconds
+ * after the markup.
+ */
+const IDP_IDENTIFIER_READY =
+  'document.documentElement.dataset.idpSpa === "ready" && document.querySelector("[data-testid=idp-identifier-page]")';
+
 async function startSignIn(page: ReturnType<typeof openView>): Promise<string> {
   await waitFor(page, `document.querySelector("${SIGN_IN}")`);
   await page.evaluate(INSTALL_OPEN_CAPTURE);
@@ -58,10 +68,7 @@ describe('auth oauth harness', () => {
     try {
       const popup = openView(await startSignIn(page));
       try {
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-identifier-page]")'
-        );
+        await waitFor(popup, IDP_IDENTIFIER_READY);
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
@@ -118,10 +125,7 @@ describe('auth oauth harness', () => {
     try {
       const popup = openView(await startSignIn(page));
       try {
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-identifier-page]")'
-        );
+        await waitFor(popup, IDP_IDENTIFIER_READY);
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
