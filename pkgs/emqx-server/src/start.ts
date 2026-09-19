@@ -90,11 +90,19 @@ export async function startEmqxServer(
   const dashboardPort = options?.dashboardPort ?? EMQX_DASHBOARD_PORT;
   ensureEmqxDataDir(dataDir);
   const bin = ensureEmqxBin();
+  // Drop ambient EMQX_AUTHENTICATION_* from secrets-run so Infisical JWT
+  // chain entries cannot override the local password bootstrap.
+  const cleanEnv: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value === undefined) continue;
+    if (key.startsWith('EMQX_AUTHENTICATION_')) continue;
+    cleanEnv[key] = value;
+  }
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
     stdio: 'inherit',
     env: {
-      ...process.env,
+      ...cleanEnv,
       EMQX_NODE__DATA_DIR: dataDir,
       EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
       EMQX_NODE__NAME: options?.nodeName ?? 'emqx@127.0.0.1',
