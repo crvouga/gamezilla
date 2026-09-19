@@ -253,9 +253,10 @@ gh pr view "$PR_NUMBER" --json mergeable,mergeStateStatus,isDraft,reviewDecision
 ```
 
 When the PR already exists, rewrite its body to describe the PR as a whole —
-merge this run's work into the existing points instead of appending per-run
-bullets ("Stack fix: …", "Report overhaul: …"), and drop anything no longer
-true. Retitle only if the old title no longer describes the PR.
+fold this run's work into the existing points instead of appending per-run
+bullets, and drop anything no longer true. As the PR grows, raise the altitude
+rather than the bullet count: merge related changes into one broader bullet.
+Retitle only if the old title no longer describes the PR.
 
 Otherwise write the PR body from `.github/pull_request_template.md`. Start from
 the template file rather than retyping it:
@@ -272,25 +273,60 @@ checklist line exactly as the template has them:
 gh pr edit --title "<type>(<scope>): <summary>" --body-file "$BODY_FILE"
 ```
 
-- `Summary` / `Why` / `Scope` / `Verification` / `Risk` / `Provenance`: real
-  content, no placeholders left. `Verification` names the surface you actually
-  exercised and what the PR does *not* prove.
-- **Keep it short.** The body is for a reviewer skimming, not a lab notebook.
-  The whole body above the checklist should fit on one screen:
-  - `Summary`: 1–3 bullets, one line each — what changed, not how.
-  - `Why` / `Risk` / `Provenance`: one or two sentences each.
-  - `Scope`: package names only, plus what is out of scope if it's non-obvious.
-  - `Verification`: one line per surface (command or scenario → result) plus
-    one line on what is not proven. No test counts, frame counts, browsers
-    tried, or step-by-step debugging story.
-  - Leave out anything the diff, commit messages, or CI already show: file
-    lists, log excerpts, hypotheses, attempt histories, and rationale that
-    belongs in a commit body.
-- Checklist: check a box only when it is true. Leave the CI box unchecked until
-  the remote gate passes, then check it. `Verification` may state that
-  `bun check` passed locally (step 2); the CI box still waits for the PR run.
-- An item that genuinely does not apply: say so under `Verification` and check
-  it — do not delete the line.
+**Write it high level and short.** The reader is a reviewer with thirty
+seconds; the diff, commit bodies and CI carry the detail. Everything above the
+checklist stays under ~120 words.
+
+- `Summary`: 1–3 bullets, ≤ 15 words each. Name the outcome or feature, not
+  the packages, flags, scripts or files that implement it.
+- `Why`: one sentence.
+- `Scope`: one line of top-level areas (`libs/billing`, `pkgs/sim*`), not every
+  package. Add `Out:` only when a reader would otherwise assume it is in.
+- `Verification`: one line — `bun check` → green locally (plus a second surface
+  only if it matters) — then one line on what is not proven. No test counts,
+  run counts, timeouts, or debugging story.
+- `Risk`: one line — level, blast radius, rollback.
+- `Provenance`: one line — who produced it (agent + model), plus an open
+  question only if a human must decide it before merging.
+- Leave out file lists, log excerpts, hypotheses, attempt histories, and
+  anything a checklist box already says.
+
+The right size looks like this:
+
+```md
+## Summary
+
+- Prove the remaining v1 goals inside `bun check`.
+- Replace Vitest with `bun test` across the repo.
+- Rebuild the mock billing portal; sim actors get a browser for hosted pages.
+
+## Why
+
+v1 is done only when every goal is proven by `bun check`; the rest is friction found on the way.
+
+## Scope
+
+`apps/product`, `libs/billing`, `pkgs/sim*`, `pkgs/chess-board`, test tooling. Out: production EMQX config.
+
+## Verification
+
+`bun check` → green locally. Not proven: deploy, or the WebKit leaf on Linux.
+
+## Risk
+
+Medium — the larger PR gate can red-block merges on a flaky sidecar. Rollback: revert.
+
+## Provenance
+
+`/pr-ready` agent (Claude Opus 5).
+```
+
+Checklist rules:
+
+- Check a box only when it is true. Leave the CI box unchecked until the remote
+  gate passes, then check it.
+- A box that cannot be checked or does not apply gets at most one short clause
+  under `Verification` — do not delete the line.
 
 ## 6. Drive the checks green
 

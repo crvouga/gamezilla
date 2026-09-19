@@ -1,47 +1,40 @@
 <!--
 Keep every `##` section with real content; the HTML comments are guidance.
+Stay high level: everything above the checklist fits in ~120 words.
 Check a box only when it is true.
 -->
 
 ## Summary
 
-<!-- 1–3 bullets: what changed, for a reviewer who knows this codebase. -->
+<!-- 1–3 short bullets: the outcome, not the implementation. -->
 
 ## Why
 
-<!-- The problem, its user-visible impact, and the linked issue (`Closes #N`) if any. -->
+<!-- One sentence: the problem it solves, plus `Closes #N` if any. -->
 
 ## Scope
 
-<!--
-Packages touched (`apps/*`, `libs/*`, `pkgs/*`) and, explicitly, what
-is out of scope / deferred. Note any cross-package contract that moved.
--->
+<!-- One line of top-level areas touched; `Out:` only if non-obvious. -->
 
 ## Verification
 
 <!--
-Exact commands run and what was observed, e.g.
-`bun run --filter @pkgs/sync-engine tc` → clean,
-`bun run --filter @apps/client test` → 15 passed.
-Name the surface actually exercised (sim scenario, browser tab, real device,
-throwaway script) and — required — what this PR does NOT prove.
+One line: the surface exercised and its result (`bun check` → green).
+One line — required: what this PR does NOT prove.
 -->
 
 ## Risk
 
 <!--
-Risk level (low | medium | high), blast radius if it breaks, and the rollback
-(revert, feature flag, migration reversal). Call out any deploy ordering, such
-as migrate-before-deploy, and anything the deploy pipeline must do first.
+One line: low | medium | high, blast radius, rollback. Add deploy ordering
+(e.g. migrate-before-deploy) only when there is some.
 -->
 
 ## Provenance
 
 <!--
-Who produced this and how much to trust it:
-`Produced by:` human | `/pr-ready` agent (state the model when an agent).
-`Open questions:` anything a human should decide before merging.
+One line: human | `/pr-ready` agent (model), plus any open question a human
+must decide before merging.
 -->
 
 ## Checklist
