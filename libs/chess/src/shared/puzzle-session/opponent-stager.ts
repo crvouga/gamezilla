@@ -110,7 +110,7 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
       return;
     }
 
-    const plan = planOpponentStage({
+    const stage = planOpponentStage({
       startFen: input.startFen,
       moves: input.moves,
       displayFen: input.displayFen,
@@ -124,11 +124,11 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
       furthestSolveIdx: input.furthestSolveIdx,
     };
 
-    if (plan.kind === 'snap') {
+    if (stage.kind === 'snap') {
       this.setPhase(null);
       return;
     }
-    this.runAnimate(plan);
+    this.runAnimate(stage);
   };
 
   dispose = (): void => {
@@ -136,16 +136,16 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
     this.listeners.clear();
   };
 
-  private runAnimate(plan: AnimatePlan): void {
-    this.setPhase({ fen: plan.fromFen, locked: true });
+  private runAnimate(stage: AnimatePlan): void {
+    this.setPhase({ fen: stage.fromFen, locked: true });
     const moveMs = PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS;
     const t1 = this.timers.setTimeout(() => {
-      this.setPhase({ fen: plan.toFen, locked: true });
-    }, plan.holdMs);
+      this.setPhase({ fen: stage.toFen, locked: true });
+    }, stage.holdMs);
     const t2 = this.timers.setTimeout(() => {
       this.cancelTimers = null;
       this.setPhase(null);
-    }, plan.holdMs + moveMs);
+    }, stage.holdMs + moveMs);
     this.cancelTimers = () => {
       this.timers.clearTimeout(t1);
       this.timers.clearTimeout(t2);

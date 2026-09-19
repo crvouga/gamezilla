@@ -1,6 +1,7 @@
 import { AUTH_MUTATIONS } from '@libs/auth/root/mutations';
 import { CHESS_MUTATIONS } from '@libs/chess/root/mutations';
 import { FRIENDS_MUTATIONS } from '@libs/friends/root/mutations';
+import { PERMISSIONS_MUTATIONS } from '@libs/permissions/root/mutations';
 import { PROFILE_MUTATIONS } from '@libs/profile/root/mutations';
 import { SPACE_MUTATIONS } from '@libs/spaces/root/mutations';
 import { mutationRegistry } from '@pkgs/sync-engine/shared';
@@ -10,6 +11,7 @@ export const APP_MUTATIONS = mutationRegistry([
   ...AUTH_MUTATIONS,
   ...CHESS_MUTATIONS,
   ...FRIENDS_MUTATIONS,
+  ...PERMISSIONS_MUTATIONS,
   ...PROFILE_MUTATIONS,
   ...SPACE_MUTATIONS,
 ]);

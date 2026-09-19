@@ -9,6 +9,7 @@ import {
 import type { WriteCaptureSnapshot } from '../../sql-ast';
 import { isMutationError, mutationErrorToFailure } from '../core/failures';
 import type {
+  MutationAuthorize,
   MutationEnv,
   MutationFailure,
   MutationRegistry,
@@ -43,6 +44,8 @@ export type ReplayMutationDeps = {
   readonly now: () => number;
   readonly createId: CreateId;
   readonly serverNow?: () => Date;
+  /** Host guard run before every mutation body (server replay only). */
+  readonly authorize?: MutationAuthorize;
 };
 
 export type ReplayOutcome =
@@ -99,6 +102,13 @@ async function applyReplayMutationInTxn(args: {
 
   const wrapped = wrapMutationDb(txc, env);
   try {
+    await deps.authorize?.({
+      name: m.name,
+      args: parsedValue,
+      tx: wrapped.tx,
+      env,
+      serverNow: deps.serverNow ?? (() => new Date(deps.now())),
+    });
     await mutation.run({ tx: wrapped.tx, env }, parsedValue);
   } catch (e) {
     const mapped = mapConstraintError(e, mutation.constraintErrors);

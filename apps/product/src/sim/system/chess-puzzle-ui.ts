@@ -626,6 +626,17 @@ export async function isEmptyPoolVisible(
   return ui.get(Handles.chessPuzzleEmptyPool).isVisible();
 }
 
+/** The permission denial surface that replaces the board at the limit. */
+export async function isPuzzleLimitVisible(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  const frame = ui.get(Handles.chessPuzzleBoardFrame);
+  if (await frame.isVisible()) await frame.layout();
+  return ui.get(Handles.chessPuzzleLimit).isVisible();
+}
+
 /** Primary action on the exhausted-feed block ("Include played puzzles"). */
 export async function tapEmptyPoolPrimaryAction(
   s: ProductSim,

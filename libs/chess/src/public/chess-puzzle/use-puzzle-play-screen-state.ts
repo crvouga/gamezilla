@@ -1,6 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { LIMIT } from '@libs/permissions/public/permission-catalog';
-import { usePermissionLimit } from '@libs/permissions/public/use-permission-limit';
+import type { Decision } from '@libs/permissions/public/use-permissions';
 import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
@@ -29,7 +28,7 @@ import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
-import { usePuzzlesPlayedToday } from './use-puzzles-played-today';
+import { type RatedStartGate, useRatedStartGate } from './use-rated-start-gate';
 
 export type PuzzlePlayScreenModel = {
   backToChessRoot: () => void;
@@ -45,6 +44,8 @@ export type PuzzlePlayScreenModel = {
   /** Drop history / theme filters, then re-pick from the widened feed. */
   includeAllPuzzles: () => void;
   e2eLoadingStatus: Accessor<ChessPuzzleE2ELoadingStatusProps>;
+  /** Why the last start was denied (renders the denial surface). */
+  startDenial: Accessor<Decision | null>;
 };
 
 type PuzzlePlacement = {
@@ -65,12 +66,17 @@ function usePuzzlePlacement(args: {
   roomPuzzleId: Accessor<string | null>;
   poolReady: Accessor<boolean>;
   canPick: Accessor<boolean>;
+  gate: RatedStartGate;
+  /** Clears a finished puzzle when the next start is denied. */
+  clearRoomPuzzle: () => void;
 }): PuzzlePlacement {
   const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
   const [attemptSeed, setAttemptSeed] = createSignal(0);
   const [readyGeneration, setReadyGeneration] = createSignal(0);
   const [startNonce, setStartNonce] = createSignal(0);
   const placedAttemptRef: { current: number } = { current: 0 };
+  /** Seed whose start is being consumed / was denied: never re-consumed. */
+  const gatedSeedRef: { current: number | null } = { current: null };
 
   const commitAttempt = (seed: number, armStart: boolean): void => {
     placedAttemptRef.current = seed;
@@ -95,9 +101,23 @@ function usePuzzlePlacement(args: {
       placedSeed: placedAttemptRef.current,
       canPick: args.canPick(),
     });
-    if (decision.kind === 'place') {
+    if (decision.kind === 'place' && decision.armStart) {
+      if (gatedSeedRef.current === seed) return;
+      gatedSeedRef.current = seed;
+      void args.gate.start(decision.puzzleId).then((allowed) => {
+        if (attemptSeed() !== seed) return;
+        if (allowed) {
+          setActivePuzzleId(decision.puzzleId);
+          commitAttempt(seed, true);
+          return;
+        }
+        placedAttemptRef.current = seed;
+        setActivePuzzleId(null);
+        args.clearRoomPuzzle();
+      });
+    } else if (decision.kind === 'place') {
       setActivePuzzleId(decision.puzzleId);
-      commitAttempt(seed, decision.armStart);
+      commitAttempt(seed, false);
     } else if (decision.kind === 'drop') {
       setActivePuzzleId(null);
       placedAttemptRef.current = seed;
@@ -122,20 +142,23 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const [, setFeedConfig] = useChessPuzzleFeedConfig();
   const canPick = useIsPuzzleDriver();
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
+  const requestNextRef: { current: () => void } = { current: () => {} };
+  const gate = useRatedStartGate(() => requestNextRef.current());
   const placement = usePuzzlePlacement({
     myId,
     roomPuzzleId,
     poolReady,
     canPick,
+    gate,
+    clearRoomPuzzle: () => dispatch(ClearChessPuzzlePlay({})),
   });
+  requestNextRef.current = placement.onRequestNext;
   const { next } = placement;
 
   const backToChessRoot = (): void => {
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   };
 
-  const playedToday = usePuzzlesPlayedToday();
-  const dailyLimit = usePermissionLimit(LIMIT.puzzlesPerDay, playedToday);
   const pickState = createMemo<PuzzlePickState>(() => {
     if (!canPick()) {
       return placement.activePuzzleId() === null ? 'waiting' : 'ready';
@@ -146,7 +169,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
       loading: next.loading(),
       localPuzzleTotal: next.localPuzzleTotal(),
       online: syncStatus().online,
-      limitReached: !dailyLimit().allowed,
+      limitReached: canPick() && gate.denial() !== null,
     });
   });
 
@@ -185,5 +208,6 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     reselectActivePuzzleFromFeed,
     includeAllPuzzles,
     e2eLoadingStatus,
+    startDenial: gate.denial,
   };
 }

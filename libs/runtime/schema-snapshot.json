@@ -1,5 +1,5 @@
 {
-  "release": 1,
+  "release": 2,
   "snapshot": {
     "tables": {
       "auth_devices": {
@@ -110,6 +110,14 @@
         "title": "text",
         "user_id": "text"
       },
+      "permissions_quota_ledger": {
+        "amount": "integer",
+        "consumed_at": "timestamp",
+        "idempotency_key": "text",
+        "owner_id": "text",
+        "policy_version": "text",
+        "quota": "text"
+      },
       "profile": {
         "avatar_config": "json",
         "username": "text",
@@ -166,7 +174,10 @@
       }
     },
     "retiredTables": [],
-    "indexes": [["billing_subscriptions", "account_id"]],
+    "indexes": [
+      ["billing_subscriptions", "account_id"],
+      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"]
+    ],
     "uniqueIndexes": [
       ["auth_external_accounts", "provider", "external_id"],
       ["auth_external_accounts", "user_id", "provider"],
@@ -180,6 +191,7 @@
         "source_type",
         "source_id"
       ],
+      ["permissions_quota_ledger", "owner_id", "idempotency_key"],
       ["profile", "username_norm"],
       ["spaces_open_sessions", "device_id", "space_id"],
       ["spaces_users", "space_id", "user_id"]

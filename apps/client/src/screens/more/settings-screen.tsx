@@ -5,8 +5,7 @@
  */
 
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
-import { ROLE } from '@libs/permissions/public/permission-catalog';
-import { usePlanRole } from '@libs/permissions/public/use-plan-role';
+import { useAccessLabel } from '@libs/permissions/public/use-access-label';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
@@ -69,12 +68,7 @@ function useAccountGroup(): Accessor<SettingsGroup> {
   const { t } = useLingui();
   const { isSignedIn } = useLocalIdentity();
   const config = useClientConfig();
-  const planRole = usePlanRole();
-  const billingValue = (): string => {
-    if (planRole() === ROLE.planPaid) return t`Paid`;
-    if (planRole() === ROLE.planFree) return t`Free`;
-    return t`Guest`;
-  };
+  const accessLabel = useAccessLabel();
   return () => ({
     key: 'account',
     title: t`Account`,
@@ -92,7 +86,7 @@ function useAccountGroup(): Accessor<SettingsGroup> {
             {
               title: t`Billing`,
               caption: t`Plan and subscription`,
-              value: billingValue(),
+              value: accessLabel(),
               icon: CreditCardIcon,
               href: '/more/billing',
               testid: Handles.settingsBilling,

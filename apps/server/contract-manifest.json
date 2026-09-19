@@ -8,6 +8,7 @@
     "cancelFriendRequest",
     "claimUsername",
     "closeEndedOpenSessions",
+    "consumeQuota",
     "createSpace",
     "declineFriendRequest",
     "endSpace",
@@ -42,6 +43,7 @@
     "ownExternalAccounts",
     "ownProfile",
     "ownUser",
+    "permissionQuotaLedger",
     "profilesByIds",
     "searchProfiles",
     "userBlocks"

@@ -93,6 +93,7 @@ export {
 export {
   isEmptyPoolVisible,
   isGameLogEmpty,
+  isPuzzleLimitVisible,
   isPuzzleSolved,
   pickWrongUci,
   readActivePuzzleId,

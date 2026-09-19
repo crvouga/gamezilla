@@ -4,6 +4,7 @@
     "pkgs/ts-reset/src/index.ts",
     "apps/server/src/**/*.ts",
     "apps/server/src/**/*.d.ts",
+    "apps/server/tests/**/*.ts",
     "apps/client/src/**/*.ts",
     "apps/client/src/**/*.tsx",
     "apps/client/tests/**/*.ts",

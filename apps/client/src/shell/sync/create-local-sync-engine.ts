@@ -63,6 +63,7 @@ const SESSION_QUERIES = [
   'chessPuzzleProfile',
   'chessPuzzleInteractions',
   'mySubscription',
+  'permissionQuotaLedger',
 ] as const;
 
 export type CreateAppLocalSyncEngineArgs = {

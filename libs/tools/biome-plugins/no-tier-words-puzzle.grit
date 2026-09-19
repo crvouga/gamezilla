@@ -1,0 +1,20 @@
+language js
+
+// §22.11 inside the puzzle feature: not even bare tier words as identifiers.
+or {
+  JsIdentifierBinding() as $n,
+  JsReferenceIdentifier() as $n,
+  JsName() as $n,
+  JsLiteralMemberName() as $n
+} where {
+  $n <: or {
+    r"^tier$",
+    r"^plan$",
+    r"^free$",
+    r"^guest$",
+    r"^premium$",
+    r"^pro$",
+    r"^plus$"
+  },
+  register_diagnostic(span=$n, message="Tier word used as an identifier in the puzzle feature (§22.11). Name the thing by what it does; gate through usePermissions().", severity="error")
+}
