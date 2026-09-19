@@ -122,7 +122,17 @@ export async function showPuzzleSolution(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessPuzzleActionSolution).tap({ timeoutMs: WAIT_MS });
+  // While solving, the one hint button escalates Hint → Solution → line; after
+  // a wrong move the bar has its own Solution action.
+  const solution = ui.get(Handles.chessPuzzleActionSolution);
+  if (await solution.isVisible()) {
+    await solution.tap({ timeoutMs: WAIT_MS });
+  } else {
+    const hint = ui.get(Handles.chessPuzzleActionHint);
+    await hint.tap({ timeoutMs: WAIT_MS });
+    await hint.tap({ timeoutMs: WAIT_MS });
+    await hint.tap({ timeoutMs: WAIT_MS });
+  }
   await pollUntil(
     s,
     async () =>

@@ -400,3 +400,10 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   `selectFeedTheme` searches by label first and then closes the picker
   through the multi-select footer, which now takes a `doneDataSet`
   identifier like every other addressable control.
+- **D49 — One escalating hint button (design feedback).** The solving action
+  bar offered both an escalated "Hint → Solution" button and a separate
+  "Solution" action, which read as the same thing twice. The separate slot is
+  gone; the single button now steps Hint (highlight) → Solution (full arrow) →
+  Solution (§6: plays the rest of the line out, then review), so §6 keeps an
+  entry point while solving. The `wrong` state keeps its own Solution action —
+  there is no hint button there, so nothing is duplicated.

@@ -10,7 +10,7 @@ hash is the slice commit. Assumptions: [`overnight-decisions.md`](overnight-deci
 | 1 | Rules core + perft | §1 P0, §35 perft/round-trip | done | 4ef94c80b |
 | 2 | Permission layer, permissive baseline | §22.1–22.7 P0, §22.11 P0, §35 permission tests | done | 5aed447b3 |
 | 3 | Lichess ingest + validation | §4 P0, §23 P0, §35 DB validation | done | 21d7588fc |
-| 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | done | |
+| 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | done | 2e8938ad7 |
 | 5 | Rating mutator (Glicko-2) | §8 P0 | pending | |
 | 6 | Selection | §9 P0, §10.1/10.2 P0 | pending | |
 | 7 | Review | §7 P0 | pending | |

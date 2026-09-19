@@ -24,13 +24,22 @@ function ids(
 }
 
 describe('buildChessPuzzleActionBarPlan', () => {
-  test('solving offers Show solution (§6); disabled while loading', () => {
-    const live = buildChessPuzzleActionBarPlan(input({ status: 'solving' }));
-    const solution = live.find((s) => s.id === 'solution');
-    expect(solution?.type === 'action' && solution.disabled).toBe(false);
+  // One escalating button: Hint → Solution (arrow) → Solution (§6 line).
+  test('solving never offers Solution twice; the hint button escalates', () => {
+    const stages = ['none', 'highlight', 'solution'] as const;
+    const labels = stages.map((hintStage) => {
+      const slots = buildChessPuzzleActionBarPlan(
+        input({ status: 'solving', hintStage })
+      );
+      expect(slots.some((s) => s.id === 'solution')).toBe(false);
+      const hint = slots[0];
+      expect(hint?.id === 'hint' && hint.disabled).toBe(false);
+      return hint?.id === 'hint' ? hint.hintLabel : null;
+    });
+    expect(labels).toEqual(['hint', 'solution', 'solution']);
     const loading = buildChessPuzzleActionBarPlan(input({ status: 'loading' }));
-    const idle = loading.find((s) => s.id === 'solution');
-    expect(idle?.type === 'action' && idle.disabled).toBe(true);
+    const idle = loading[0];
+    expect(idle?.id === 'hint' && idle.disabled).toBe(true);
   });
 
   test('revealed review: back + forward + next button + retry', () => {
@@ -44,7 +53,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: false })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'solution', 'skip']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
     const back = slots.find((s) => s.id === 'back');
     const forward = slots.find((s) => s.id === 'forward');
     expect(back?.type === 'action' && back.disabled).toBe(false);
@@ -55,7 +64,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'solution', 'skip']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
     const forward = slots.find((s) => s.id === 'forward');
     expect(forward?.type === 'action' && forward.disabled).toBe(false);
   });
@@ -64,7 +73,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'loading', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'solution', 'skip']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
     const hint = slots[0];
     const back = slots[1];
     const forward = slots[2];

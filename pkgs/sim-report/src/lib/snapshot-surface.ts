@@ -179,6 +179,10 @@ export function paintSnapshot(
 export function createSnapshotIframe(): HTMLIFrameElement {
   const frame = document.createElement('iframe');
   frame.className = 'sr-snap';
+  // Without an explicit src the frame resolves to the report's own URL, so the
+  // browser tries to load the whole (multi-MB) report into every snapshot —
+  // blocked with a console warning when the report is opened over `file:`.
+  frame.src = 'about:blank';
   frame.setAttribute('sandbox', 'allow-same-origin');
   frame.width = String(PHONE_W);
   frame.height = String(PHONE_H);

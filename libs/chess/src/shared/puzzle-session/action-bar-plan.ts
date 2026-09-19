@@ -42,24 +42,21 @@ export type ChessPuzzleActionBarSlot =
       intent: 'success';
     };
 
+/**
+ * One escalating button, so "Solution" is never offered twice at once:
+ * Hint (highlight the squares) → Solution (full arrow) → Solution (§6, plays
+ * the rest of the line out, then review).
+ */
 function hintSlot(
   status: ActionBarSolveStatus,
   hintStage: ActionBarHintStage
 ): Extract<ChessPuzzleActionBarSlot, { id: 'hint' }> {
   const baseDisabled = status !== 'solving';
-  if (hintStage === 'highlight') {
-    return {
-      id: 'hint',
-      type: 'action',
-      hintLabel: 'solution',
-      disabled: baseDisabled,
-    };
-  }
   return {
     id: 'hint',
     type: 'action',
-    hintLabel: 'hint',
-    disabled: baseDisabled || hintStage === 'solution',
+    hintLabel: hintStage === 'none' ? 'hint' : 'solution',
+    disabled: baseDisabled,
   };
 }
 
@@ -83,8 +80,6 @@ function solvingSlots(
       type: 'action',
       disabled: navDisabled || !p.canGoForward,
     },
-    // §6 "Show solution": plays the rest of the line out, then review.
-    { id: 'solution', type: 'action', disabled: p.status !== 'solving' },
     skipSlot(navDisabled),
   ];
 }

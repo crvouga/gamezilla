@@ -41,7 +41,9 @@ const sys = defineSystem({
       name: 'html',
       media: 'html',
       capture: (s: Kv) => ({
-        alice: `<html><head></head><body>alice sees ${s.values['x'] ?? ''}</body></html>`,
+        // Solid renders literal `<!---->` markers, and product markup can
+        // carry a `</script>`; both must survive the inline data script.
+        alice: `<html><head></head><body>alice sees <!---->${s.values['x'] ?? ''}<!----><script>x</script></body></html>`,
       }),
     }),
     defineSnapshot({
@@ -81,7 +83,7 @@ describe('html report', () => {
     const files = Object.keys(test0.blobs);
     expect(files.some((f) => f.endsWith('.html'))).toBe(true);
     const html = files.find((f) => f.endsWith('.html'))!;
-    expect(test0.blobs[html]!.text).toContain('alice sees hello');
+    expect(test0.blobs[html]!.text).toContain('alice sees <!---->hello');
     const png = files.find((f) => f.endsWith('.png'))!;
     expect(test0.blobs[png]!.base64).toBe('iVBORw==');
   });
@@ -112,14 +114,23 @@ describe('html report', () => {
         html!
       );
     expect(m).not.toBeNull();
-    const data = JSON.parse(m![1]!.replace(/<\\\//g, '</')) as {
+    // The embedded data script is parsed verbatim by the browser: no
+    // unescaping step, and no `<` survives to close it or open a comment.
+    const data = JSON.parse(m![1]!) as {
       title: string;
-      tests: { report: { meta: { testId: string } } }[];
+      tests: {
+        report: { meta: { testId: string } };
+        blobs: Record<string, { text?: string }>;
+      }[];
     };
     expect(data.title).toBe('My run');
     expect(data.tests[0]!.report.meta.testId).toBe('kv-put');
-    // Embedded frame markup must not terminate the data script early.
-    expect(m![1]).not.toContain('</script>');
+    expect(m![1]).not.toContain('<');
+    const frame = Object.entries(data.tests[0]!.blobs).find(([f]) =>
+      f.endsWith('.html')
+    )!;
+    expect(frame[1].text).toContain('<!---->hello<!---->');
+    expect(frame[1].text).toContain('<script>x</script>');
   });
 
   test('junit outcomes override in-run status and titles', async () => {

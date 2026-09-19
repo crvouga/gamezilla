@@ -69,7 +69,10 @@ function useHintSolutionHandlers(args: {
     }
     if (hintStage === 'highlight') {
       dispatch(RevealChessPuzzleSolution({}));
+      return;
     }
+    // Already arrowed: the last step of the same button is §6 "Show solution".
+    dispatch(ShowChessPuzzleSolution({}));
   };
 
   /** §6 "Show solution": the room plays the rest of the line out, then review. */
