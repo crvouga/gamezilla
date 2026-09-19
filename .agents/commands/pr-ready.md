@@ -1,3 +1,7 @@
+---
+description: Take the current branch to a green, conflict-free, review-complete PR — sync with main, resolve conflicts, commit, push, drive CI green, and address review feedback without merging
+---
+
 # /pr-ready
 
 Take the current branch from "changes exist" to "PR is green and mergeable". Run
