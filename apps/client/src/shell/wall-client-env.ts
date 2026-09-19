@@ -119,6 +119,10 @@ export function wallClientEnv(args?: {
     authBaseURL: serverUrl,
     authCallbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
     openAuthSession: createWallOpenAuthSession(wallTimers),
+    openExternalUrl: (url) => {
+      window.location.assign(url);
+      return Promise.resolve();
+    },
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId),
     mutationSuccessHoldMs: 900,
   };

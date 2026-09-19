@@ -39,6 +39,13 @@ export const Handles = {
   accountSignIn: 'account-sign-in',
   accountSignOut: 'account-sign-out',
 
+  // billing
+  settingsBilling: 'settings-billing',
+  billingScreen: 'billing-screen',
+  billingTier: 'billing-tier',
+  billingSubscribe: 'billing-subscribe',
+  billingManage: 'billing-manage',
+
   // sign-in modal
   authMethodGoogle: 'auth-method-google',
   authSignedInDone: 'auth-signed-in-done',

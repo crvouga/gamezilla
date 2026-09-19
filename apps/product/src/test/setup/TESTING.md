@@ -65,6 +65,22 @@ product libs. ProductSimulator web may still load SQLite WASM from
 `apps/product/public/generated/` (`bun run --filter @apps/product bundle:sim-sql-wasm`;
 wired into `predev` / `setup`). Seed with `bun run --filter @apps/product seed:sim-db`.
 
+**Billing** — the fake provider (`FakeMembershipBilling`) points its
+checkout/portal URLs at this app's own dev-only mock pages
+(`/api/billing/mock/…`, mounted only when `BILLING_PROVIDER=fake`; the sim and
+the localhost stack both set it). The sim's headless browser walks those mock
+pages the way `bun-webview` taps them with a live browser, so
+`subscribeToPlus` / `cancelPlus` / `resumePlus` / `switchPlusInterval` are the
+same walk at every fidelity. `observeMembership(kind)` is the lifecycle driver
+at every fidelity: it posts one of the mock provider's `observe` kinds, which
+derives the next membership from the account's current projection row —
+renewals never need a clock jump. `checkoutPlusAtProvider` starts a fresh
+checkout straight at the mock edge (the billing screen keeps Subscribe hidden
+while the grace window still grants access). `advanceBillingClock(ms)` is the
+virtual-time escape hatch, but the grace-window rule itself is unit-proven in
+`@pkgs/entitlements` (`tests/limits.test.ts`) rather than by jumping a
+signed-in sim days ahead.
+
 **System snapshots** (committed fixtures; infrastructure only — scenarios still use UI setup):
 
 - One JSON file per snapshot under `apps/product/fixtures/snapshots/<id>.json`

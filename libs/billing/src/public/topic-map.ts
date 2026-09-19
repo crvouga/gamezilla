@@ -3,8 +3,8 @@ import type { TopicMap } from '@pkgs/sync-engine/shared';
 
 export const BILLING_TOPIC_MAP = {
   billing_subscriptions: {
-    topics(row): Topic[] {
-      const account = String(row['account_id'] ?? '');
+    topics(row, ctx): Topic[] {
+      const account = String(row['account_id'] ?? ctx.actorId);
       return account.length > 0 ? [`user:${account}` as Topic] : [];
     },
   },

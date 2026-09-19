@@ -1,31 +1,27 @@
 /**
- * Declarative catalog SPEC — source of truth for products/prices we offer.
- * Reconciled onto the billing provider via {@link Billing.syncCatalog}.
- *
- * Durable identity at the provider:
- *   - Products: catalogProductId
- *   - Prices: lookupKey (also used as checkout priceKey)
+ * The plus membership offer — source of truth for what we sell and how the
+ * hosted portal is configured. Reconciled onto the provider by
+ * `@pkgs/billing-stripe` (`billing:check` in CI, `billing:sync` on deploy).
  *
  * Currency amounts are integer minor units (e.g. cents). PPP-tier amounts
  * approximate USD purchasing power for each region.
  */
-import type { CatalogSpec, PriceSpec } from '@pkgs/billing';
+import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing';
 
-export const CATALOG_SPEC = {
-  products: {
-    subscription: {
-      catalogProductId: 'subscription',
-      name: 'Unlimited',
-      description: 'Get unlimited access to Gamezilla servers.',
-    },
+export const PLUS_MEMBERSHIP_OFFER = {
+  product: {
+    catalogProductId: 'subscription',
+    name: 'Unlimited',
+    description: 'Get unlimited access to Gamezilla servers.',
   },
   prices: {
     subscription_monthly: {
-      product: 'subscription',
+      key: 'subscription_monthly',
       lookupKey: 'subscription_monthly',
       unitAmount: 700,
       currency: 'usd',
-      recurring: { interval: 'month' as const, trialPeriodDays: 7 },
+      interval: 'month',
+      trialPeriodDays: 7,
       currencyOptions: {
         inr: { unitAmount: 4900 },
         brl: { unitAmount: 2090 },
@@ -43,11 +39,12 @@ export const CATALOG_SPEC = {
       },
     },
     subscription_yearly: {
-      product: 'subscription',
+      key: 'subscription_yearly',
       lookupKey: 'subscription_yearly',
       unitAmount: 6000,
       currency: 'usd',
-      recurring: { interval: 'year' as const, trialPeriodDays: 7 },
+      interval: 'year',
+      trialPeriodDays: 7,
       currencyOptions: {
         inr: { unitAmount: 49900 },
         brl: { unitAmount: 20900 },
@@ -65,14 +62,16 @@ export const CATALOG_SPEC = {
       },
     },
   },
-} as const satisfies CatalogSpec & {
-  readonly prices: Record<string, PriceSpec>;
+  defaultPriceKey: 'subscription_monthly',
+  switchablePriceKeys: ['subscription_monthly', 'subscription_yearly'],
+  portal: {
+    defaultReturnUrlPath: '/more/billing',
+    businessProfileHeadline: 'Gamezilla Unlimited',
+    cancellationReasons: ['too_expensive', 'missing_features', 'other'],
+  },
+  callbackPath: '/api/billing/callback',
+} as const satisfies PlusMembershipOffer & {
+  readonly prices: Record<string, OfferPriceSpec>;
 };
 
-export type CatalogProductKey = keyof typeof CATALOG_SPEC.products;
-export type CatalogPriceKey = keyof typeof CATALOG_SPEC.prices;
-
-export const CATALOG_PRICE_KEYS = Object.keys(CATALOG_SPEC.prices) as [
-  CatalogPriceKey,
-  ...CatalogPriceKey[],
-];
+export type OfferPriceKey = keyof typeof PLUS_MEMBERSHIP_OFFER.prices;

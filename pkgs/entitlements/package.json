@@ -15,7 +15,9 @@
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@pkgs/billing": "workspace:*"
+  },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -10,8 +10,8 @@ export {
   type TierLimits,
 } from './limits';
 export {
+  type MembershipSnapshot,
   type ResolveTierInput,
   resolveTier,
-  type SubscriptionSnapshot,
   type Tier,
 } from './tier';

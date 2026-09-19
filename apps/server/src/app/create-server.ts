@@ -3,13 +3,14 @@ import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { BillingApp } from '@libs/billing/root/server/billing-app';
 import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
-import type { Billing } from '@pkgs/billing';
+import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
 import {
   DEFAULT_BILLING_GRACE_PERIOD_MS,
   DEFAULT_LIMITS_SPEC,
@@ -133,16 +134,27 @@ async function createLlmAppForServer(env: ServerEnv) {
 }
 
 function createBillingSubApp(
-  billing: Billing | null,
+  billing: MembershipBilling | null,
   now: () => number,
   createId: CreateId
 ) {
+  const clock = { now };
+  const getSqlClient = () => {
+    const s = apiRequestAsyncLocalStorage.getStore();
+    assert.defined(s, 'billing: request store missing');
+    return s.sqlClient;
+  };
+  const notifyUser = (
+    accountId: string,
+    label: string,
+    tables: readonly string[]
+  ) =>
+    notifyUserChannels([accountId], label, {
+      tables,
+      deferPublish: false,
+    });
   return new BillingApp({
-    getSqlClient: () => {
-      const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(s, 'billing: request store missing');
-      return s.sqlClient;
-    },
+    getSqlClient,
     billing,
     requireAuth: async (_sql, req) => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -157,12 +169,20 @@ function createBillingSubApp(
       return { accountId: auth.accountId, deviceId: auth.deviceId };
     },
     createId,
-    clock: { now },
-    notifyUser: (accountId, label) =>
-      notifyUserChannels([accountId], label, {
-        tables: ['billing_subscriptions'],
-        deferPublish: false,
-      }),
+    clock,
+    notifyUser,
+    // The mock edge exists only for the stateless fake; `instanceof` is why
+    // the decision lives here rather than as a flag on the port.
+    mock:
+      billing instanceof FakeMembershipBilling
+        ? {
+            getSqlClient,
+            offer: PLUS_MEMBERSHIP_OFFER,
+            clock,
+            createId,
+            notifyUser,
+          }
+        : null,
   }).build();
 }
 
@@ -253,7 +273,7 @@ function createSyncAppMount(env: ServerEnv) {
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly desiredClientConfig: DesiredClientConfig;
-  readonly billing: Billing | null;
+  readonly billing: MembershipBilling | null;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
   readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
   readonly log: ReturnType<typeof createAppLogger>;

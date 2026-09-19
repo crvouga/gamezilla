@@ -1310,6 +1310,9 @@
     "pkgs/entitlements": {
       "name": "@pkgs/entitlements",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/billing": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

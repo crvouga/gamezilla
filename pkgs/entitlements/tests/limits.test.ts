@@ -25,7 +25,7 @@ describe('resolveTier', () => {
     expect(
       resolveTier({
         signedIn: false,
-        subscription: null,
+        membership: null,
         nowMs: 0,
         graceMs: GRACE_MS,
       })
@@ -33,19 +33,19 @@ describe('resolveTier', () => {
     expect(
       resolveTier({
         signedIn: true,
-        subscription: null,
+        membership: null,
         nowMs: 0,
         graceMs: GRACE_MS,
       })
     ).toBe('free');
   });
 
-  test('an active or trialing subscription is paid', () => {
-    for (const status of ['active', 'trialing']) {
+  test('an active or trialing membership is paid', () => {
+    for (const status of ['active', 'trialing'] as const) {
       expect(
         resolveTier({
           signedIn: true,
-          subscription: {
+          membership: {
             status,
             currentPeriodEndMs: null,
             cancelAtPeriodEnd: false,
@@ -57,16 +57,16 @@ describe('resolveTier', () => {
     }
   });
 
-  test('a canceled subscription keeps paid access through the grace window', () => {
-    const subscription = {
-      status: 'canceled',
+  test('an ended membership keeps paid access through the grace window', () => {
+    const membership = {
+      status: 'ended',
       currentPeriodEndMs: 1000,
       cancelAtPeriodEnd: true,
-    };
+    } as const;
     expect(
       resolveTier({
         signedIn: true,
-        subscription,
+        membership,
         nowMs: 1000 + GRACE_MS,
         graceMs: GRACE_MS,
       })
@@ -74,28 +74,50 @@ describe('resolveTier', () => {
     expect(
       resolveTier({
         signedIn: true,
-        subscription,
+        membership,
         nowMs: 1000 + GRACE_MS + 1,
         graceMs: GRACE_MS,
       })
     ).toBe('free');
   });
 
-  test('past due, unpaid and refunded subscriptions fall back to free', () => {
-    for (const status of ['past_due', 'unpaid', 'incomplete_expired']) {
-      expect(
-        resolveTier({
-          signedIn: true,
-          subscription: {
-            status,
-            currentPeriodEndMs: 0,
-            cancelAtPeriodEnd: false,
-          },
-          nowMs: 10 * DAY_MS,
-          graceMs: GRACE_MS,
-        })
-      ).toBe('free');
-    }
+  test('a delinquent membership behaves the same as ended', () => {
+    const membership = {
+      status: 'delinquent',
+      currentPeriodEndMs: 1000,
+      cancelAtPeriodEnd: false,
+    } as const;
+    expect(
+      resolveTier({
+        signedIn: true,
+        membership,
+        nowMs: 1000 + GRACE_MS,
+        graceMs: GRACE_MS,
+      })
+    ).toBe('paid');
+    expect(
+      resolveTier({
+        signedIn: true,
+        membership,
+        nowMs: 1000 + GRACE_MS + 1,
+        graceMs: GRACE_MS,
+      })
+    ).toBe('free');
+  });
+
+  test('an incomplete membership falls back to free', () => {
+    expect(
+      resolveTier({
+        signedIn: true,
+        membership: {
+          status: 'incomplete',
+          currentPeriodEndMs: 0,
+          cancelAtPeriodEnd: false,
+        },
+        nowMs: 10 * DAY_MS,
+        graceMs: GRACE_MS,
+      })
+    ).toBe('free');
   });
 });
 

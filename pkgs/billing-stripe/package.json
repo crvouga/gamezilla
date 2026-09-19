@@ -10,9 +10,7 @@
     ]
   },
   "scripts": {
-    "check": "bun run scripts/check-catalog.ts",
     "lint": "bunx biome check --error-on-warnings .",
-    "sync": "bun run scripts/sync-catalog.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
   },

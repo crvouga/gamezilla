@@ -1,41 +1,80 @@
 // goal:guest-free-and-paid:7
-// goal:guest-free-and-paid:8
 import { describe, expect, it } from 'bun:test';
-import { InMemoryBilling } from '@pkgs/billing';
+import type {
+  CallbackResult,
+  MembershipBilling,
+  OpenPortalInput,
+  ReadCallbackInput,
+  StartCheckoutInput,
+  StartCheckoutResult,
+} from '@pkgs/billing';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import {
-  BillingCheckoutRoutes,
-  type BillingRoutesDeps,
-} from './billing-checkout-route';
 
-function fakeSql(rows: readonly unknown[] = []): SqlClient {
+import type { BillingRouteDeps } from '../../../shared/routes/billing-route-deps';
+import { BillingCheckoutRoutes } from './billing-checkout-route';
+
+const NOW = 1_700_000_000_000;
+
+type FakeRow = Record<string, unknown>;
+
+/** Minimal second provider; asserts the port is all the route depends on. */
+class StubBilling implements MembershipBilling {
+  readonly calls: StartCheckoutInput[] = [];
+
+  constructor(private readonly url: string) {}
+
+  startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
+    this.calls.push(input);
+    return Promise.resolve({
+      customerId: input.customerId ?? 'cus_new',
+      url: this.url,
+    });
+  }
+
+  openPortal(_input: OpenPortalInput): Promise<{ readonly url: string }> {
+    return Promise.resolve({ url: 'https://portal.test' });
+  }
+
+  readCallback(_input: ReadCallbackInput): Promise<CallbackResult> {
+    return Promise.resolve({ kind: 'unverified' });
+  }
+}
+
+function fakeSql(linkedCustomerId: string | null = null): SqlClient {
   const sql = {
-    query: async () => rows,
-    run: async () => ({ changes: 0 }),
+    query: async (query: {
+      readonly sql: string;
+    }): Promise<readonly FakeRow[]> => {
+      const text = query.sql.trim();
+      if (text.startsWith('SELECT user_id')) return [{ user_id: 'acc_1' }];
+      if (text.startsWith('SELECT external_id')) {
+        return linkedCustomerId === null
+          ? []
+          : [{ external_id: linkedCustomerId }];
+      }
+      return [];
+    },
+    run: async () => ({ changes: 1 }),
     transaction: async (fn: (tx: SqlClient) => Promise<unknown>) =>
       fn(sql as unknown as SqlClient),
     disconnect: async () => {},
   } as unknown as SqlClient;
   return sql;
 }
-
-function deps(overrides: Partial<BillingRoutesDeps> = {}): BillingRoutesDeps {
+function deps(overrides: Partial<BillingRouteDeps> = {}): BillingRouteDeps {
   return {
     getSqlClient: () => fakeSql(),
     billing: null,
-    requireAuth: async () => ({ accountId: 'acc_1', deviceId: 'dev_1' }),
+    requireAuth: () =>
+      Promise.resolve({ accountId: 'acc_1', deviceId: 'dev_1' }),
     createId: (() => 'id-1') as never,
-    clock: { now: () => 0 },
-    notifyUser: async () => {},
+    clock: { now: () => NOW },
+    notifyUser: () => Promise.resolve(),
     ...overrides,
   };
 }
 
-const CHECKOUT_BODY = {
-  priceKey: 'subscription_monthly',
-  successUrl: 'https://example.com/s',
-  cancelUrl: 'https://example.com/c',
-};
+const CHECKOUT_BODY = { returnUrl: 'https://example.com/return' };
 
 describe('BillingCheckoutRoutes', () => {
   it('returns 503 when billing is not configured', async () => {
@@ -48,10 +87,30 @@ describe('BillingCheckoutRoutes', () => {
     expect(res.status).toBe(503);
   });
 
-  it('creates a customer and returns the checkout url', async () => {
-    const billing = new InMemoryBilling({ baseUrl: 'https://billing.test' });
+  it('rejects a body without a valid return url', async () => {
     const app = new BillingCheckoutRoutes(
-      deps({ billing, getSqlClient: () => fakeSql([{ user_id: 'acc_1' }]) })
+      deps({ billing: new StubBilling('https://pay.test/cs_1') })
+    ).build();
+    const res = await app.request('/billing/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ returnUrl: 'not-a-url' }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('creates a customer, links it and notifies the link', async () => {
+    const billing = new StubBilling('https://pay.test/cs_1');
+    const notified: Array<{ tables: readonly string[] }> = [];
+    const app = new BillingCheckoutRoutes(
+      deps({
+        billing,
+        getSqlClient: () => fakeSql(null),
+        notifyUser: (_accountId, _label, tables) => {
+          notified.push({ tables });
+          return Promise.resolve();
+        },
+      })
     ).build();
     const res = await app.request('/billing/checkout', {
       method: 'POST',
@@ -59,66 +118,50 @@ describe('BillingCheckoutRoutes', () => {
       body: JSON.stringify(CHECKOUT_BODY),
     });
     expect(res.status).toBe(200);
-    const json = (await res.json()) as { url: string };
-    expect(json.url).toContain(
-      'https://billing.test/checkout/subscription_monthly/'
-    );
+    expect(await res.json()).toEqual({ url: 'https://pay.test/cs_1' });
+    expect(billing.calls[0]).toEqual({
+      accountId: 'acc_1',
+      customerId: null,
+      returnUrl: 'https://example.com/return',
+    });
+    expect(notified).toEqual([{ tables: ['auth_external_accounts'] }]);
   });
 
-  it('returns portal url when billing is configured', async () => {
-    const billing = new InMemoryBilling({ baseUrl: 'https://billing.test' });
-    const app = new BillingCheckoutRoutes(
-      deps({
-        billing,
-        getSqlClient: () => fakeSql([{ external_id: 'cus_test_1' }]),
-      })
-    ).build();
-    const res = await app.request('/billing/portal', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ returnUrl: 'https://example.com/return' }),
-    });
-    expect(res.status).toBe(200);
-    const json = (await res.json()) as { url: string };
-    expect(json.url).toContain('https://billing.test/portal/cus_test_1');
-  });
-
-  it('rejects an unsigned webhook', async () => {
-    const billing = new InMemoryBilling();
-    const app = new BillingCheckoutRoutes(deps({ billing })).build();
-    const res = await app.request('/billing/webhook', {
-      method: 'POST',
-      body: JSON.stringify({ type: 'customer.subscription.updated' }),
-    });
-    expect(res.status).toBe(400);
-  });
-
-  it('projects a verified subscription change and notifies the account', async () => {
-    const billing = new InMemoryBilling();
-    billing.armWebhook({
-      status: 'active',
-      currentPeriodEndMs: 1_700_000_000_000,
-      cancelAtPeriodEnd: false,
-    });
+  it('reuses a linked customer without re-notifying', async () => {
+    const billing = new StubBilling('https://pay.test/cs_1');
     const notified: string[] = [];
     const app = new BillingCheckoutRoutes(
       deps({
         billing,
-        getSqlClient: () => fakeSql(),
-        notifyUser: async (accountId) => {
+        getSqlClient: () => fakeSql('cus_linked'),
+        notifyUser: (accountId) => {
           notified.push(accountId);
+          return Promise.resolve();
         },
       })
     ).build();
-    const res = await app.request('/billing/webhook', {
+    const res = await app.request('/billing/checkout', {
       method: 'POST',
-      headers: { 'stripe-signature': 'sig' },
-      body: JSON.stringify({
-        accountId: 'acc_1',
-        subscriptionId: 'sub_1',
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(CHECKOUT_BODY),
     });
     expect(res.status).toBe(200);
-    expect(notified).toEqual(['acc_1']);
+    expect(billing.calls[0]?.customerId).toBe('cus_linked');
+    expect(notified).toEqual([]);
+  });
+
+  it('returns 502 when the provider hands back no url', async () => {
+    const app = new BillingCheckoutRoutes(
+      deps({
+        billing: new StubBilling(''),
+        getSqlClient: () => fakeSql('cus_1'),
+      })
+    ).build();
+    const res = await app.request('/billing/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(CHECKOUT_BODY),
+    });
+    expect(res.status).toBe(502);
   });
 });

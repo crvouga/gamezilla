@@ -1,8 +1,8 @@
 /**
- * Pure helpers for catalog price reconcile — unit-tested without network.
+ * Pure comparison helpers for the offer price reconcile — unit-tested without
+ * network.
  */
-
-import type { CurrencyOptionSpec, PriceSpec } from './catalog';
+import type { OfferPriceSpec } from '@pkgs/billing';
 
 /** Provider/live currency options may use snake_case keys; normalize. */
 export function normalizeCurrencyOptions(
@@ -18,7 +18,7 @@ export function normalizeCurrencyOptions(
   return out;
 }
 
-/** Snake_case wire shape used by some providers for currency_options. */
+/** Snake_case wire shape used by Stripe for currency_options. */
 export function normalizeSnakeCurrencyOptions(
   raw: Record<string, { unit_amount?: number | null }> | null | undefined
 ): Record<string, number> {
@@ -33,7 +33,7 @@ export function normalizeSnakeCurrencyOptions(
 }
 
 export function currencyOptionsToSnake(
-  spec: Record<string, CurrencyOptionSpec>
+  spec: Readonly<Record<string, { readonly unitAmount: number }>>
 ): Record<string, { unit_amount: number }> {
   const out: Record<string, { unit_amount: number }> = {};
   for (const [k, v] of Object.entries(spec)) {
@@ -42,7 +42,7 @@ export function currencyOptionsToSnake(
   return out;
 }
 
-function specCurrencyAmountMap(spec: PriceSpec): Record<string, number> {
+function specCurrencyAmountMap(spec: OfferPriceSpec): Record<string, number> {
   const out: Record<string, number> = {};
   for (const [k, v] of Object.entries(spec.currencyOptions)) {
     out[k.toLowerCase()] = v.unitAmount;
@@ -51,8 +51,8 @@ function specCurrencyAmountMap(spec: PriceSpec): Record<string, number> {
 }
 
 /**
- * Declarative spec is the source of truth: every spec currency must match live.
- * Providers may attach extra currency options; those must not force a replace.
+ * The offer is the source of truth: every offer currency must match live.
+ * Stripe may attach extra currency options; those must not force a replace.
  */
 function specCurrencyOptionsMatchLive(
   spec: Record<string, number>,
@@ -63,40 +63,24 @@ function specCurrencyOptionsMatchLive(
   }
   return true;
 }
-
 export function priceProductId(product: unknown): string | null {
   if (typeof product === 'string') return product;
   if (
     product !== null &&
     typeof product === 'object' &&
     'id' in product &&
-    typeof (product as { id: unknown }).id === 'string'
+    typeof product.id === 'string'
   ) {
-    return (product as { id: string }).id;
+    return product.id;
   }
   return null;
-}
-
-function recurringMatchesSpec(
-  live: {
-    interval: string;
-    trialPeriodDays?: number | null;
-  } | null,
-  spec: PriceSpec['recurring']
-): boolean {
-  if (live?.interval !== spec.interval) return false;
-  const specTrial = spec.trialPeriodDays ?? null;
-  const liveTrial = live.trialPeriodDays ?? null;
-  return specTrial === liveTrial;
 }
 
 export type LivePriceSnapshot = {
   readonly unitAmount: number | null;
   readonly currency: string;
-  readonly recurring: {
-    readonly interval: string;
-    readonly trialPeriodDays?: number | null;
-  } | null;
+  readonly interval: string | null;
+  readonly trialPeriodDays: number | null;
   readonly active: boolean;
   readonly product?: string | { id: string } | null;
   readonly currencyOptions?: Record<
@@ -107,19 +91,21 @@ export type LivePriceSnapshot = {
 
 export function priceMatchesSpec(
   live: LivePriceSnapshot,
-  spec: PriceSpec,
+  spec: OfferPriceSpec,
   expectedProductId: string
 ): boolean {
   if (!live.active) return false;
-  const pid = priceProductId(live.product ?? null);
-  if (pid !== expectedProductId) return false;
+  if (priceProductId(live.product ?? null) !== expectedProductId) return false;
   if (live.unitAmount !== spec.unitAmount) return false;
-  if (live.currency?.toLowerCase() !== spec.currency.toLowerCase())
+  if (live.currency?.toLowerCase() !== spec.currency.toLowerCase()) {
     return false;
-  if (!recurringMatchesSpec(live.recurring, spec.recurring)) return false;
+  }
+  if (live.interval !== spec.interval) return false;
+  if ((live.trialPeriodDays ?? null) !== (spec.trialPeriodDays ?? null)) {
+    return false;
+  }
   const liveCo = normalizeCurrencyOptions(live.currencyOptions ?? undefined);
-  const specCo = specCurrencyAmountMap(spec);
-  return specCurrencyOptionsMatchLive(specCo, liveCo);
+  return specCurrencyOptionsMatchLive(specCurrencyAmountMap(spec), liveCo);
 }
 
 export type PriceReconcileAction = 'noop' | 'replace';
@@ -127,17 +113,10 @@ export type PriceReconcileAction = 'noop' | 'replace';
 export function decidePriceReconcile(
   live: { id: string } | null | undefined,
   liveDetail: LivePriceSnapshot | null | undefined,
-  spec: PriceSpec,
+  spec: OfferPriceSpec,
   expectedProductId: string
 ): PriceReconcileAction {
-  if (
-    live === undefined ||
-    live === null ||
-    liveDetail === undefined ||
-    liveDetail === null
-  ) {
-    return 'replace';
-  }
+  if (live === undefined || live === null || !liveDetail) return 'replace';
   if (priceMatchesSpec(liveDetail, spec, expectedProductId)) return 'noop';
   return 'replace';
 }

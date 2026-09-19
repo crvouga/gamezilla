@@ -13,8 +13,8 @@
     ]
   },
   "scripts": {
-    "billing:check": "bun run scripts/check-billing-catalog.ts",
-    "billing:sync": "bun run scripts/sync-billing-catalog.ts",
+    "billing:check": "bun run scripts/check-billing-offer.ts",
+    "billing:sync": "bun run scripts/sync-billing-offer.ts",
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"

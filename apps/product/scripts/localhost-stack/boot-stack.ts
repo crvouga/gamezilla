@@ -133,6 +133,7 @@ function startApiNode(args: {
       WEB_CLIENT_GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID,
       WEB_CLIENT_GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,
       GOOGLE_IDP_ORIGIN: args.idpOrigin,
+      BILLING_PROVIDER: 'fake',
       WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
       OBSERVABILITY_BACKEND: 'noop',
     },

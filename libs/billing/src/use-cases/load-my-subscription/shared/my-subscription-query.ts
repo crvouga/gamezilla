@@ -13,6 +13,6 @@ export const mySubscription = defineQuery({
         status, current_period_end, cancel_at_period_end, deleted_at
       FROM billing_subscriptions
       WHERE account_id = ${account}`);
-    return { subscriptions: rows };
+    return { billing_subscriptions: rows };
   },
 });

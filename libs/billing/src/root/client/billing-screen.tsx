@@ -1,32 +1,39 @@
-import { useIsSignedIn } from '@libs/auth/public/use-current-user';
+import {
+  useCurrentUser,
+  useIsSignedIn,
+} from '@libs/auth/public/use-current-user';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
-import { Button, ScreenBase, useMutationButton } from '@pkgs/ui';
+import {
+  Button,
+  ScreenBase,
+  useMutationButton,
+  useOpenExternalUrl,
+} from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
+import { useManageSubscription } from '../../use-cases/open-portal-session/client/use-manage-subscription';
 import { useTier } from './use-entitlement';
 import { useSubscribe } from './use-subscribe';
-
-const PRICE_KEY_MONTHLY = 'subscription_monthly';
 
 function billingReturnUrl(): string {
   return `${window.location.origin}/more/billing`;
 }
 
-/** Account billing: current plan and the subscribe action. */
+/** Account billing: current plan, subscribe, and manage the subscription. */
 export function BillingScreen(): JSX.Element {
   const { t } = useLingui();
   const tier = useTier();
   const signedIn = useIsSignedIn();
+  const currentUser = useCurrentUser();
   const subscribe = useSubscribe();
+  const manage = useManageSubscription();
+  const openExternalUrl = useOpenExternalUrl();
 
   const openCheckout = async (): Promise<void> => {
-    const url = await subscribe({
-      priceKey: PRICE_KEY_MONTHLY,
-      successUrl: billingReturnUrl(),
-      cancelUrl: billingReturnUrl(),
-    });
-    window.location.assign(url);
+    const url = await subscribe({ returnUrl: billingReturnUrl() });
+    await openExternalUrl(url);
   };
 
   const checkout = useMutationButton({
@@ -42,6 +49,16 @@ export function BillingScreen(): JSX.Element {
     },
   });
 
+  const manageButton = useMutationButton({
+    operation: manage,
+    labels: {
+      idle: t`Manage subscription`,
+      loading: t`Opening…`,
+      success: t`Opening…`,
+      error: t`Couldn't open billing`,
+    },
+  });
+
   return (
     <ScreenBase
       screenId="billing"
@@ -51,11 +68,11 @@ export function BillingScreen(): JSX.Element {
         { name: <Trans>Billing</Trans> },
       ]}
       content={() => (
-        <div class="box gap-4 p-4" data-testid="billing-screen">
+        <div class="box gap-4 p-4" data-testid={Handles.billingScreen}>
           <p class="text textBodyBold">
             <Trans>Plan</Trans>
           </p>
-          <p class="text textBody" data-testid="billing-tier">
+          <p class="text textBody" data-testid={Handles.billingTier}>
             {tier()}
           </p>
           <Show when={!signedIn()}>
@@ -64,7 +81,18 @@ export function BillingScreen(): JSX.Element {
             </p>
           </Show>
           <Show when={signedIn() && tier() !== 'paid'}>
-            <Button {...checkout.buttonProps} />
+            <Button
+              {...checkout.buttonProps}
+              dataSet={{ testid: Handles.billingSubscribe }}
+            />
+          </Show>
+          <Show when={currentUser.billingCustomerId !== null}>
+            <Button
+              {...manageButton.buttonProps}
+              intent="neutral"
+              variant="outline"
+              dataSet={{ testid: Handles.billingManage }}
+            />
           </Show>
         </div>
       )}

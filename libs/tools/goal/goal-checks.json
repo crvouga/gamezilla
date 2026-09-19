@@ -360,6 +360,10 @@
       {
         "kind": "test",
         "path": "libs/billing/src/use-cases/create-checkout-session/server/billing-checkout-route.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "apps/product/tests/billing-subscribe.test.tsx"
       }
     ]
   },
@@ -368,7 +372,11 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "libs/billing/src/use-cases/create-checkout-session/server/billing-checkout-route.test.ts"
+        "path": "libs/billing/src/use-cases/open-portal-session/server/billing-portal-route.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "apps/product/tests/billing-portal.test.tsx"
       }
     ]
   },
@@ -377,7 +385,11 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/billing-stripe/src/stripe-billing.test.ts"
+        "path": "pkgs/billing-stripe/src/stripe-membership.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "apps/product/tests/billing-lifecycle.test.tsx"
       }
     ]
   },
@@ -512,7 +524,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/billing/src/billing.contract.test.ts"
+        "path": "pkgs/billing/src/membership.contract.test.ts"
       }
     ]
   },

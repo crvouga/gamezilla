@@ -37,6 +37,7 @@ const NAV_TARGETS: readonly {
   { href: '/more/performance', title: 'Performance' },
   { href: '/more/about', title: 'About' },
   { href: '/more/account', title: 'Account' },
+  { href: '/more/billing', title: 'Billing' },
   { href: '/more/sync', title: 'Sync' },
   { href: '/client/sql', title: 'Client SQL' },
   { href: '/client/events', title: 'Client events' },

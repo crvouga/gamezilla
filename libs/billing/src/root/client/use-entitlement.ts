@@ -1,5 +1,6 @@
 import { useIsSignedIn, useMyId } from '@libs/auth/public/use-current-user';
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
+import type { MembershipStatus } from '@pkgs/billing';
 import { useClock } from '@pkgs/clock/solid';
 import {
   type CountedLimitFeature,
@@ -7,32 +8,46 @@ import {
   type FeatureGate,
   isFeatureAllowed,
   type LimitVerdict,
+  type MembershipSnapshot,
   resolveTier,
-  type SubscriptionSnapshot,
   type Tier,
 } from '@pkgs/entitlements';
 import { sql } from '@pkgs/sql';
 import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
-type SubscriptionRow = {
+type MembershipRow = {
   readonly status: string | null;
   readonly current_period_end: string | null;
   readonly cancel_at_period_end: number | boolean | null;
 };
 
-function readSubscription(
-  row: SubscriptionRow | undefined
-): SubscriptionSnapshot | null {
-  if (row === undefined || row.status === null || row.status.length === 0) {
-    return null;
-  }
+const MEMBERSHIP_STATUSES: Readonly<Record<string, MembershipStatus>> = {
+  incomplete: 'incomplete',
+  trialing: 'trialing',
+  active: 'active',
+  delinquent: 'delinquent',
+  ended: 'ended',
+};
+
+/** Unknown statuses resolve to `null` — the tier rule then ignores the row. */
+function asMembershipStatus(value: string | null): MembershipStatus | null {
+  if (value === null) return null;
+  return MEMBERSHIP_STATUSES[value] ?? null;
+}
+
+function readMembership(
+  row: MembershipRow | undefined
+): MembershipSnapshot | null {
+  if (row === undefined) return null;
+  const status = asMembershipStatus(row.status);
+  if (status === null) return null;
   const parsed =
     row.current_period_end === null
       ? Number.NaN
       : Date.parse(row.current_period_end);
   return {
-    status: row.status,
+    status,
     currentPeriodEndMs: Number.isFinite(parsed) ? parsed : null,
     cancelAtPeriodEnd:
       row.cancel_at_period_end === true || row.cancel_at_period_end === 1,
@@ -40,7 +55,7 @@ function readSubscription(
 }
 
 /**
- * Local, offline-capable tier. Reads the synced subscription row plus config —
+ * Local, offline-capable tier. Reads the synced membership row plus config —
  * never the network — so the answer matches what the server will say.
  */
 export function useTier(): Accessor<Tier> {
@@ -49,7 +64,7 @@ export function useTier(): Accessor<Tier> {
   const clock = useClock();
   const config = useClientConfig();
   const query = createQuery(
-    () => sql<SubscriptionRow>`
+    () => sql<MembershipRow>`
     SELECT status, current_period_end, cancel_at_period_end
     FROM billing_subscriptions
     WHERE account_id = ${myId()} AND deleted_at IS NULL
@@ -60,7 +75,7 @@ export function useTier(): Accessor<Tier> {
   return createMemo(() =>
     resolveTier({
       signedIn: signedIn(),
-      subscription: readSubscription(query.rows()[0]),
+      membership: readMembership(query.rows()[0]),
       nowMs: clock.now(),
       graceMs: config.config().billing_grace_period_ms,
     })
