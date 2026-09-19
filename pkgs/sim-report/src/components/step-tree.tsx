@@ -1,8 +1,20 @@
 import type { HtmlReportTest } from '@pkgs/sim';
-import { createMemo, createSignal, For, Show } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSelector,
+  createSignal,
+  For,
+  Show,
+} from 'solid-js';
 import { fmtMs } from '../lib/format';
 import type { FlatFrame } from '../lib/frames';
-import { firstFrameFor, flattenSteps, lastFrameBefore } from '../lib/frames';
+import {
+  firstFrameFor,
+  flattenSteps,
+  lastFrameBefore,
+  stepHasPress,
+} from '../lib/frames';
 
 export function StepTree(props: {
   test: HtmlReportTest;
@@ -14,6 +26,18 @@ export function StepTree(props: {
     flattenSteps(props.test.report.steps, [], 0, null)
   );
   const [collapsed, setCollapsed] = createSignal<Record<number, boolean>>({});
+  // O(1) row updates per selection change instead of re-checking every row.
+  const isSelected = createSelector(() => props.selected?.step ?? null);
+  let listEl: HTMLDivElement | undefined;
+
+  createEffect(() => {
+    const step = props.selected?.step;
+    if (!step || !listEl) return;
+    const index = rows().findIndex((r) => r.step === step);
+    listEl
+      .querySelector(`[data-step-row="${index}"]`)
+      ?.scrollIntoView({ block: 'nearest' });
+  });
 
   const visible = (rowIndex: number): boolean => {
     const all = rows();
@@ -26,20 +50,18 @@ export function StepTree(props: {
   };
 
   return (
-    <div class="sr-steps">
+    <div class="sr-steps" ref={listEl}>
       <For each={rows()}>
         {(row) => (
           <Show when={visible(row.index)}>
             <div
               class={`sr-step ${row.step.status}`}
-              classList={{ sel: props.selected?.step === row.step }}
+              classList={{ sel: isSelected(row.step) }}
               style={{ 'padding-left': `${8 + row.depth * 16}px` }}
               data-step-row={String(row.index)}
               role="button"
               tabindex="0"
-              aria-current={
-                props.selected?.step === row.step ? 'true' : undefined
-              }
+              aria-current={isSelected(row.step) ? 'true' : undefined}
               aria-label={`Select ${row.step.title}`}
               onClick={() => {
                 const f =
@@ -91,7 +113,7 @@ export function StepTree(props: {
                       </span>
                     )}
                   </Show>
-                  <Show when={row.step.hit}>
+                  <Show when={stepHasPress(row.step)}>
                     <span class="hit-flag">● press</span>
                   </Show>
                 </div>

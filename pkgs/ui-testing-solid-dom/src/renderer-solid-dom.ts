@@ -139,6 +139,13 @@ export type SolidDomRenderedApp = RenderedApp & {
   snapshotHtml(options?: SerializeDomHtmlOptions): string | undefined;
 };
 
+/** Move focus into `element` (its text field when it wraps one). */
+function focusInto(element: Element): void {
+  if (element.contains(element.ownerDocument.activeElement)) return;
+  const focusable = fieldOf(element) ?? element;
+  if (focusable instanceof HTMLElement) focusable.focus();
+}
+
 export function createSolidDomRenderedApp(
   scope: SolidDomAppScope
 ): SolidDomRenderedApp {
@@ -163,14 +170,14 @@ export function createSolidDomRenderedApp(
       // FloatingMenu listeners pick up trailing-edge boxes.
       syncLayout();
     },
-    tapAt: (element, position) => {
+    tapAt: (element, position, options) => {
       syncLayout();
-      fireTapAt(asElement(element), position, provider);
+      fireTapAt(asElement(element), position, provider, options);
       return Promise.resolve();
     },
-    drag: (element, from, to) => {
+    drag: (element, from, to, options) => {
       syncLayout();
-      fireDrag(asElement(element), from, to, provider);
+      fireDrag(asElement(element), { from, to }, provider, options);
       return Promise.resolve();
     },
     layout: (element) => {
@@ -186,7 +193,8 @@ export function createSolidDomRenderedApp(
     clearText: async (element) => {
       await user.clear(findTextField(asElement(element)));
     },
-    pressKey: async (domKey) => {
+    pressKey: async (domKey, target) => {
+      if (target !== undefined) focusInto(asElement(target));
       await user.keyboard(userEventKeyFromDom(domKey));
     },
     scroll: (element, direction, amount) => {

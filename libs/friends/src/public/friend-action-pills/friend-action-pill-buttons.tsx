@@ -27,6 +27,7 @@ export function ConfirmDeletePills(props: {
   onConfirm: () => Promise<void>;
   onDelete: () => Promise<void>;
   confirmTestID?: string;
+  deleteTestID?: string;
 }): JSX.Element {
   const { t } = useLingui();
   const confirm = useMutationButton({
@@ -61,7 +62,13 @@ export function ConfirmDeletePills(props: {
         />
       </div>
       <div class="box flex-1">
-        <Button variant="outline" {...del.buttonProps} />
+        <Button
+          variant="outline"
+          {...del.buttonProps}
+          {...(props.deleteTestID !== undefined
+            ? { dataSet: { testid: props.deleteTestID } }
+            : {})}
+        />
       </div>
     </div>
   );

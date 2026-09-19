@@ -27,6 +27,20 @@ runs:
       shell: bash
       run: bun install --frozen-lockfile
 
+    # Browser e2e leaves (`test:e2e`) drive the runner's preinstalled Google
+    # Chrome headless through Bun.WebView. Ubuntu 24.04's AppArmor blocks the
+    # unprivileged user namespaces Chrome's sandbox needs; allow them rather
+    # than running the browser under test with `--no-sandbox`. The Chrome
+    # version is part of Turbo's platform key (turbo-ci-run), so warm runs
+    # replay cached e2e results until the code or the browser changes.
+    - name: Enable Chrome sandbox for browser e2e
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        google-chrome --version
+
     # check:secrets (and other admin secret I/O) shells out to the secrets
     # backend CLI. secrets-auth injects secret values + SECRETS_IDENTITY_ID
     # (for OIDC → INFISICAL_TOKEN); secrets-run passes them to children.

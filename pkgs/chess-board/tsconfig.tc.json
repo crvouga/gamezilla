@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["bun", "vite/client", "@testing-library/jest-dom/vitest"]
+    "types": ["bun", "vite/client", "@pkgs/bun-test-solid/jest-dom"]
   },
   "include": [
     "../ts-reset/src/index.ts",
@@ -11,7 +11,9 @@
     "./src/**/*.tsx",
     "./src/**/*.d.ts",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx"
+    "./tests/**/*.tsx",
+    "./e2e/**/*.ts",
+    "./e2e/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   AppFrame,
   AppFrameChromeProvider,
@@ -15,7 +17,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { type JSX, splitProps } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { mustQuery, renderUi } from './support/render';
 
 const COMPACT = { width: 390, height: 800 };
@@ -57,7 +58,7 @@ function fakeRouter(canGoBack: boolean): AppRouter & { calls: string[] } {
 describe('ScreenBase compact', () => {
   test('renders data-screen, TopBar h1 title, back button and body', async () => {
     const user = userEvent.setup();
-    const onBack = vi.fn();
+    const onBack = mock();
     renderUi(
       () => (
         <Screen
@@ -93,8 +94,8 @@ describe('ScreenBase compact', () => {
 
   test('actions render as buttons (icon + text) and fire', async () => {
     const user = userEvent.setup();
-    const save = vi.fn();
-    const settings = vi.fn();
+    const save = mock();
+    const settings = mock();
     renderUi(
       () => (
         <Screen
@@ -181,7 +182,7 @@ describe('ScreenBase compact', () => {
 
   test('primaryAction renders a FAB that runs the mutation', async () => {
     const user = userEvent.setup();
-    const operation = vi.fn(async () => {});
+    const operation = mock(async () => {});
     renderUi(
       () => (
         <Screen
@@ -272,8 +273,8 @@ describe('ScreenBase compact', () => {
 describe('ScreenBase wide', () => {
   test('renders breadcrumb trail with h1 title, link crumbs, actions and island body', async () => {
     const user = userEvent.setup();
-    const home = vi.fn();
-    const save = vi.fn();
+    const home = mock();
+    const save = mock();
     renderUi(
       () => (
         <AppFrameChromeProvider>

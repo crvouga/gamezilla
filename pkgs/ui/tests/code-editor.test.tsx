@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import type { LocalizedString } from '@pkgs/i18n';
 import {
   CODE_EDITOR_LINE_HEIGHT,
@@ -8,7 +10,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 const label = 'Code' as unknown as LocalizedString;
@@ -84,8 +85,8 @@ describe('CodeEditor', () => {
 
   test('reports text and selection changes from input/select events', async () => {
     const user = userEvent.setup();
-    const onChangeText = vi.fn();
-    const onSelectionChange = vi.fn();
+    const onChangeText = mock();
+    const onSelectionChange = mock();
     const [value, setValue] = createSignal('');
     renderUi(() => (
       <CodeEditor
@@ -111,7 +112,7 @@ describe('CodeEditor', () => {
 
   test('onKeyDown receives document keydown only while focused', async () => {
     const user = userEvent.setup();
-    const onKeyDown = vi.fn(() => true);
+    const onKeyDown = mock(() => true);
     renderUi(() => (
       <CodeEditor
         value=""

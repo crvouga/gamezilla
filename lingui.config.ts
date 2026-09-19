@@ -9,7 +9,7 @@ import { formatter } from '@lingui/format-po';
  *
  * Runtime macro output is JSX-runtime specific. This root config emits the
  * Solid shape; `lingui.solid.config.ts` layers the Solid shape on top for
- * Vite / Vitest.
+ * Vite and `bun test` (`@pkgs/bun-test-solid`).
  */
 export const LINGUI_CATALOG_INCLUDE = [
   '<rootDir>/apps/client/src',

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import {
   AppLogo,
   type AppRouter,
@@ -21,7 +23,6 @@ import {
   type ParentProps,
   useContext,
 } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 import { renderUi } from './support/render';
 
 describe('hrefToPath', () => {

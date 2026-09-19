@@ -35,6 +35,7 @@ export type ScreenBaseAction = {
   endsGroup?: boolean | undefined;
   trailing?: JSX.Element | undefined;
   overflow?: ActionBarOverflowPolicy | undefined;
+  dataSet?: ComponentDataSet | undefined;
 };
 
 export type BodyContentProps = {

@@ -16,7 +16,6 @@
   --color-sr-fail: #f05965;
   --color-sr-skip: #d4a017;
   --color-sr-press: #ff5a8a;
-  --color-sr-press-glow: rgba(255, 90, 138, 0.45);
   --font-sr-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-sr-sans:
     Inter, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,

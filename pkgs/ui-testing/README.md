@@ -169,11 +169,11 @@ await driver.get('app-root').expect.visible();
 | `launch` / `close` | yes | yes (`baseUrl` optional) |
 | `get` / nested `get` | yes | yes |
 | `tap` / `input` (auto-wait) | yes (user-event) | yes |
-| `tapAt` | yes (synthetic PointerEvents) | yes |
-| `drag` | yes (PointerEvent stream) | yes |
+| `tapAt` (primary / secondary) | yes (synthetic PointerEvents) | yes (native click; re-sent if the page never saw it) |
+| `drag` (primary / secondary) | yes (PointerEvent stream) | yes (PointerEvent stream) |
 | `layout` | yes (synthetic layout provider) | yes |
 | `clear` | yes | yes |
-| `key` (driver + node) | yes (user-event keyboard) | yes |
+| `key` (driver + node; node focuses first) | yes (user-event keyboard) | yes |
 | `scroll` | yes | yes |
 | `wait` / `isVisible` | MutationObserver + pump | `evaluate` poll |
 | `expect.visible` / `hidden` / `text` | thin wrappers over `wait` | same |

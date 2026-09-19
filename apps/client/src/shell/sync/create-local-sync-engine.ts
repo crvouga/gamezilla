@@ -32,15 +32,17 @@ import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
-import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web';
+import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web/web-sql-client';
 import {
   createLocalSyncEngine,
   type SyncEngine,
 } from '@pkgs/sync-engine/client';
 import type { MutationRegistry } from '@pkgs/sync-engine/shared';
 import type { CreateId, Random } from '@pkgs/uuid/create-id';
-import { openMainSqlClient } from '../storage/open-main-sql-client';
+import {
+  openDisposableSqlClient,
+  openMainSqlClient,
+} from '../storage/open-main-sql-client';
 import { createAppSyncLifecycle } from './app-sync-lifecycle';
 import { tryAcquireSyncOwnerLease } from './sync-owner-lock';
 
@@ -185,9 +187,7 @@ async function openAppLocalDb(
     // SQLite is only an optimistic local cache. A stale worker, broken OPFS
     // handle, or corrupt snapshot must never prevent the product shell from
     // booting; discard this cache and use a disposable in-memory SQLite DB.
-    const fallback = SqlClientImplSqliteMem.open();
-    await fallback.connect();
-    return fallback;
+    return openDisposableSqlClient();
   }
 }
 
@@ -280,8 +280,7 @@ export async function createAppLocalSyncEngine(
       // unusable. Rebuild once against a clean disposable cache; SQLite must
       // never turn into an application boot gate.
       await db.disconnect().catch(() => undefined);
-      db = SqlClientImplSqliteMem.open();
-      await db.connect();
+      db = await openDisposableSqlClient();
       engine = await buildEngine(args, db, syncLease.isOwner);
       emqxUrlHolderFor(args.databaseName).url =
         await readEmqxWssUrlFromLocalDb(db);

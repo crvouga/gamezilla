@@ -3,18 +3,21 @@
  * Circle marks + arrow layer for user/external {@link BoardShape}s.
  */
 
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type { BoardShape } from '@pkgs/chess-board-core/shapes/board-shapes';
 import type {
   BoardArrow,
   BoardOrientation,
   BoardTheme,
 } from '@pkgs/chess-board-core/types';
-import { For, type JSX, Show } from 'solid-js';
+import { For, type JSX } from 'solid-js';
 import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
 import styles from './chess-board.module.css';
 import { ChessBoardArrows } from './chess-board-arrows';
+import { PaintToken } from './paint-token';
 
 export type ChessBoardShapesProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly theme: BoardTheme;
   readonly shapes: readonly BoardShape[];
@@ -37,6 +40,7 @@ export function ChessBoardShapes(props: ChessBoardShapesProps): JSX.Element {
         class={`${styles['layer']} ${styles['svgLayer']}`}
         viewBox={`0 0 ${BOARD_UNITS} ${BOARD_UNITS}`}
         aria-hidden="true"
+        data-testid={chessBoardLayerTestId(props.boardTestId, 'shapes')}
       >
         <For each={[...circles()]}>
           {(c) => {
@@ -50,18 +54,19 @@ export function ChessBoardShapes(props: ChessBoardShapesProps): JSX.Element {
                 stroke={resolveColor(props.theme, c.color)}
                 stroke-width={CELL_UNITS * 0.08}
                 opacity={0.85}
-              />
+              >
+                <PaintToken kind="circle" detail={c.color} at={c.square} />
+              </circle>
             );
           }}
         </For>
       </svg>
-      <Show when={props.arrows.length > 0 || true}>
-        <ChessBoardArrows
-          orientation={props.orientation}
-          theme={props.theme}
-          arrows={props.arrows}
-        />
-      </Show>
+      <ChessBoardArrows
+        boardTestId={props.boardTestId}
+        orientation={props.orientation}
+        theme={props.theme}
+        arrows={props.arrows}
+      />
     </>
   );
 }

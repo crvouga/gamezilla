@@ -3,6 +3,8 @@ import { createMemo, For, Show } from 'solid-js';
 import { useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
 import { DocStage } from '../components/doc-stage';
+import { FailBanner } from '../components/fail-banner';
+import { FrameCaption } from '../components/frame-caption';
 import { PhoneStage } from '../components/phone-stage';
 import { Scrubber } from '../components/scrubber';
 import { StepTree } from '../components/step-tree';
@@ -11,6 +13,7 @@ import { blobHeading, fileLabel, fmtMs, formatBlobBody } from '../lib/format';
 import {
   frameHasUi,
   isUi,
+  neighborFailure,
   selectedFrame,
   selectedNode,
   testFrames,
@@ -54,6 +57,7 @@ export function TestView(props: { nav: ReportNav }) {
   const asideBlobs = createMemo(
     () => sel()?.frame.snapshots.filter((b) => !isUi(b)) ?? []
   );
+  const firstFailure = createMemo(() => neighborFailure(frames(), -1, 1));
   const showSnapshots = createMemo(
     () => hasUi() && showAside(props.nav.route()) && asideBlobs().length > 0
   );
@@ -89,9 +93,6 @@ export function TestView(props: { nav: ReportNav }) {
                   </Show>
                 </div>
               </div>
-              <Show when={m().errorStack || m().error}>
-                {(err) => <div class="sr-error">{err()}</div>}
-              </Show>
               <StepTree
                 test={t()}
                 frames={frames()}
@@ -101,12 +102,18 @@ export function TestView(props: { nav: ReportNav }) {
             </div>
             <div class="sr-main">
               <div class="sr-viewer">
-                <Toolbar
-                  test={t()}
-                  frames={frames()}
-                  selected={sel()}
-                  nav={props.nav}
+                <FailBanner
+                  error={m().error}
+                  errorStack={m().errorStack}
+                  failure={firstFailure()}
+                  onJump={(f) => props.nav.goFrame(f)}
                 />
+                <Toolbar
+                  nav={props.nav}
+                  ui={hasUi()}
+                  hasData={asideBlobs().length > 0}
+                />
+                <FrameCaption test={t()} frames={frames()} selected={sel()} />
                 <div class="sr-stage-wrap">
                   <Show
                     when={hasUi()}
@@ -124,12 +131,7 @@ export function TestView(props: { nav: ReportNav }) {
                     <SnapshotsAside test={t()} blobs={asideBlobs()} />
                   </Show>
                 </div>
-                <Scrubber
-                  test={t()}
-                  frames={frames()}
-                  selected={sel()}
-                  nav={props.nav}
-                />
+                <Scrubber frames={frames()} selected={sel()} nav={props.nav} />
               </div>
             </div>
           </div>

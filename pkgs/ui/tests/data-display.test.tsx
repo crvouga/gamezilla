@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { AVATAR_BORDER_WIDTH, Avatar } from '@pkgs/ui/components/avatar';
 import { AvatarGroup } from '@pkgs/ui/components/avatar-group';
 import { AvatarHero } from '@pkgs/ui/components/avatar-hero';
@@ -12,7 +14,6 @@ import { SpeakingAvatar } from '@pkgs/ui/components/speaking-avatar';
 import { StatusDot } from '@pkgs/ui/components/status-dot';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 function byComponent(name: string): HTMLElement {
@@ -113,7 +114,7 @@ describe('AvatarGroup', () => {
   });
 
   test('becomes a button when onClick is provided', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <AvatarGroup onClick={onClick} aria-label="Members">
         <Avatar initials="A" />
@@ -127,7 +128,7 @@ describe('AvatarGroup', () => {
 
 describe('AvatarHero', () => {
   test('renders the corner action as a 44px button', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <AvatarHero
         size={96}
@@ -176,7 +177,7 @@ describe('SpeakingAvatar', () => {
   });
 
   test('with a speaker, the head toggles mute (aria-pressed)', () => {
-    const speaker = vi.fn(() => ({
+    const speaker = mock(() => ({
       isLoading: () => false,
       isSpeaking: () => false,
     }));
@@ -220,7 +221,7 @@ describe('List / ListItem', () => {
   });
 
   test('interactive items are buttons and report selection', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <List>
         <ListItem title="Pick" onClick={onClick} selected />
@@ -235,7 +236,7 @@ describe('List / ListItem', () => {
 
 describe('MenuRow / MenuList / MenuSection', () => {
   test('rows are menuitems inside role=menu with a chevron', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <MenuSection title="Account" footer="Manage your account">
         <MenuRow title="Profile" onClick={onClick} />
@@ -270,7 +271,7 @@ describe('MenuRow / MenuList / MenuSection', () => {
 
 describe('PaginationControls', () => {
   test('page buttons carry aria-current and nav buttons clamp', () => {
-    const onPageChange = vi.fn();
+    const onPageChange = mock();
     renderUi(() => (
       <PaginationControls
         pageIndex={0}

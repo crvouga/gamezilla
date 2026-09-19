@@ -99,9 +99,9 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 - **`in-process`** — the network mesh (`partition`) is first-class. Server schema is migrated
   **once** into the seed file (`bun run --filter @apps/product seed:sim-db`); each
   `openSim` clones that seed instead of re-running DDL. UI runs on **virtual
-  time**: `bun-preload.ts` installs a happy-dom document (phone viewport) and
-  `bun-babel-plugin.ts` compiles workspace `.tsx` with `babel-preset-solid` +
-  the Lingui macro (CSS modules → class-name proxies, media assets → paths);
+  time**: `@pkgs/bun-test-solid/preload` installs a happy-dom document and
+  compiles workspace `.tsx` with `babel-preset-solid` + the Lingui macro
+  (`bun-preload.ts` narrows it to a phone viewport) (CSS modules → class-name proxies, media assets → paths);
   `bun test` runs with `--conditions=browser --conditions=development` so Solid
   resolves to its browser dev build. Each actor is one `MultiAppSolidDomSession`
   mount (`launch-actor.ts` → `createSolidDomDriver`); only the focused actor is

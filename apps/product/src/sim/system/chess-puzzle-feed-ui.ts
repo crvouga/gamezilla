@@ -3,6 +3,7 @@
  * history / mode segments, step the rating offset, and read the bar labels.
  */
 
+import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
 import { Handles } from '@libs/test-ids';
 
 import { actorUi, pollUntil } from './actor-ui';
@@ -75,6 +76,19 @@ export async function increaseFeedOffset(
       .tap({ timeoutMs: WAIT_MS });
   }
 }
+export async function selectFeedTheme(
+  s: ProductSim,
+  actorId: string,
+  theme: ChessPuzzleTheme
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessPuzzleFeedThemeTrigger).tap({ timeoutMs: WAIT_MS });
+  await ui
+    .get(Handles.chessPuzzleFeedThemeOption(theme))
+    .tap({ timeoutMs: WAIT_MS });
+}
+
+/** Tap the custom target rating '+' `steps` times. */
 
 export async function increaseFeedCustomRating(
   s: ProductSim,

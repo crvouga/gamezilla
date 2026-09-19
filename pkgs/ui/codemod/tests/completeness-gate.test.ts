@@ -2,7 +2,7 @@
  * Completeness gate unit checks.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { checkCompleteness, stripComments } from '../completeness-gate';
 
 describe('stripComments', () => {

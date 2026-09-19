@@ -1,7 +1,12 @@
 {
   "the-bar:1": {
-    "status": "unproven",
-    "note": "bun check gates PR merge, but the deploy gate is a separate superset and no checked artifact is promoted."
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/check-release-gate.ts"
+      }
+    ]
   },
   "the-bar:2": {
     "status": "proven",
@@ -22,12 +27,36 @@
     ]
   },
   "the-bar:4": {
-    "status": "unproven",
-    "note": "two test:e2e leaves exit 0 on non-darwin, and pubsub-emqx test:contract loud-skips without a broker."
+    "status": "proven",
+    "note": "two test:e2e leaves exit 0 on non-darwin, and pubsub-emqx test:contract loud-skips without a broker.",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/check-no-skipped-tests.ts"
+      }
+    ]
   },
   "the-bar:5": {
-    "status": "unproven",
-    "note": "fidelity-max and localhost-stack runs are outside //#check; outside services run against stubs there."
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sql-client-postgres/src/postgres.contract.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/object-store-s3/src/object-store.s3.contract.test.ts"
+      },
+      { "kind": "test", "path": "pkgs/pubsub-emqx/src/emqx.contract.test.ts" },
+      {
+        "kind": "test",
+        "path": "pkgs/db-indexes-postgres/tests/postgres.contract.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/db-schema-postgres/tests/postgres-reconcile.contract.test.ts"
+      }
+    ]
   },
   "the-bar:6": {
     "status": "proven",
@@ -39,46 +68,58 @@
     ]
   },
   "the-bar:7": {
-    "status": "unproven",
-    "note": "prod is live (www.gamezilla.app, api.gamezilla.app/api/health) but only @apps/server#smoke checks it, and smoke is deploy-only."
+    "status": "proven",
+    "proofs": [
+      { "kind": "gate", "path": "libs/tools/scripts/check-public-link.ts" }
+    ]
   },
   "spaces:1": {
     "status": "proven",
     "proofs": [
-      {
-        "kind": "test",
-        "path": "apps/product/tests/space-guest-host.test.tsx"
-      }
+      { "kind": "test", "path": "apps/product/tests/space-guest-host.test.tsx" }
     ]
   },
   "spaces:2": {
     "status": "proven",
     "proofs": [
+      { "kind": "test", "path": "libs/spaces/tests/guest-space-join.test.ts" },
       {
         "kind": "test",
-        "path": "libs/spaces/tests/guest-space-join.test.ts"
+        "path": "apps/product/tests/space-guest-link-join.test.tsx"
       }
     ]
   },
   "spaces:3": {
-    "status": "unproven",
-    "note": "the host picks the game through room state, but no check exercises the picker."
-  },
-  "spaces:4": {
-    "status": "unproven",
-    "note": "the presence strip is driven by the live room roster, but no check reads it."
-  },
-  "spaces:5": {
-    "status": "unproven",
-    "note": "reopen is checked; duplicate/linger after disconnect has no check yet."
-  },
-  "spaces:6": {
     "status": "proven",
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/space-lifecycle.test.tsx"
+        "path": "apps/product/tests/space-host-select-game.test.tsx"
       }
+    ]
+  },
+  "spaces:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/space-live-presence.test.tsx"
+      }
+    ]
+  },
+  "spaces:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/space-disconnect-reconnect.test.tsx"
+      }
+    ]
+  },
+  "spaces:6": {
+    "status": "proven",
+    "proofs": [
+      { "kind": "test", "path": "apps/product/tests/space-lifecycle.test.tsx" }
     ]
   },
   "spaces:7": {
@@ -190,8 +231,13 @@
     ]
   },
   "social:5": {
-    "status": "unproven",
-    "note": "send/accept are covered by setupFriendsPair-based space tests; decline, cancel and remove have no automated check."
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/friends-request-decline-cancel.test.tsx"
+      }
+    ]
   },
   "social:6": {
     "status": "proven",
@@ -347,12 +393,22 @@
     ]
   },
   "guest-free-and-paid:5": {
-    "status": "unproven",
-    "note": "no check asserts the cost of an entitlement evaluation."
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/permissions/tests/evaluate-performance.test.ts"
+      }
+    ]
   },
   "guest-free-and-paid:6": {
-    "status": "unproven",
-    "note": "server limit enforcement and the upgrade card exist, but no check reaches the limit during a sim run."
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/chess-puzzle-limit-upgrade.test.tsx"
+      }
+    ]
   },
   "guest-free-and-paid:7": {
     "status": "proven",
@@ -529,8 +585,13 @@
     ]
   },
   "room-to-grow:5": {
-    "status": "unproven",
-    "note": "no check proves a non-web delivery path compiles or runs from the same sources."
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/tests/non-web-host-smoke.test.ts"
+      }
+    ]
   },
   "room-to-grow:6": {
     "status": "proven",

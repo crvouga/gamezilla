@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   createMemoryPageLoader,
   DataTable,
@@ -12,7 +14,6 @@ import {
 } from '@pkgs/ui/components/data-table';
 import { fireEvent, screen, waitFor } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { renderUi } from './support/render';
 
 type Row = { id: string; name: string; score: number };
@@ -123,7 +124,7 @@ describe('DataTable', () => {
 
   test('paginates through PaginationControls and caches pages', async () => {
     const inner = createMemoryPageLoader(() => ROWS);
-    const loadPage = vi.fn<DataTableLoadPage<Row>>((p) => inner(p));
+    const loadPage = mock<DataTableLoadPage<Row>>((p) => inner(p));
     renderUi(() => (
       <DataTable
         columns={COLUMNS}
@@ -148,8 +149,8 @@ describe('DataTable', () => {
   });
 
   test('row clicks fire onRowClick; selection checkboxes stay separate', async () => {
-    const onRowClick = vi.fn();
-    const onSelectedKeysChange = vi.fn((_keys: readonly string[]) => {});
+    const onRowClick = mock();
+    const onSelectedKeysChange = mock((_keys: readonly string[]) => {});
     const [selected, setSelected] = createSignal<readonly string[]>([]);
     renderUi(() => (
       <DataTable

@@ -45,7 +45,7 @@ Chrome DevTools traces (4× throttle): run `ChessBoardBenchPage` in the explorer
 ## Known limitations
 
 1. Controlled `ChessBoard` still reuses the smart paint pipeline for fen-driven piece rows; full dests-only rules without chess.js paint path is incremental.
-2. Visual regression / Playwright gesture suite not fully expanded to every edge case in CI yet — core unit coverage is strong; add Playwright under `@apps/product` when live-game mounts exist.
+2. No pixel-level visual regression: the UI suite (`tests/ui`, see its README) asserts what is painted through E2E paint tokens and measured layout, not screenshots.
 3. Piece sets: still Cburnett only (lazy multi-set not shipped).
 4. History scrub UX is supported via fen stream + diff planner; dedicated wheel-binding lives with the parent (review board).
 5. Crazyhouse pockets: tray pattern exists for editor; pocket drop dests are parent-owned.
@@ -55,6 +55,7 @@ Chrome DevTools traces (4× throttle): run `ChessBoardBenchPage` in the explorer
 
 - `@pkgs/chess-board-core`: game, interaction, piece-rows, geometry, arrows, premove-queue, position-diff, shapes, a11y, variants, …
 - `@pkgs/chess-board`: mount, pointer-session, keyboard-nav, theme, render-counts, drag-ghost, blindfold
+- `@pkgs/chess-board` UI suite (`tests/ui`): one `@pkgs/ui-testing` suite run in happy-dom (`test`) and WebKit / Chrome via `Bun.WebView` (`test:e2e`) — gestures, rules, premoves, promotion, keyboard, shapes, sync, layout precision, seeded model-based games
 
 ## How to verify budgets
 

@@ -30,7 +30,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { availableParallelism } from 'node:os';
+import { availableParallelism, release } from 'node:os';
 import { join } from 'node:path';
 import {
   CHECK_SECRETS_FINGERPRINT_ENV,
@@ -38,6 +38,10 @@ import {
 } from '@libs/secrets/shared/secrets/check-secrets-fingerprint';
 import { DEFAULT_TURBO_API } from '@libs/secrets/shared/secrets/turbo-token';
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+import {
+  chromeVersion,
+  findChrome,
+} from '@pkgs/ui-testing-bun-webview/e2e-browser';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -56,12 +60,19 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
  * while everything portable (tc, lint, unit tests) still shares one cache
  * across machines. Written on every run: absent (a bare `turbo run`) hashes
  * differently, which costs a cache miss, never correctness.
+ *
+ * The browser the e2e leaves drive is part of the key too — the installed
+ * Chrome's version, and on macOS the OS release that ships WebKit — so a warm
+ * run replays the cached result until the engine itself changes.
  */
 function writePlatformCacheKey(): void {
+  const chrome = findChrome();
   const key = {
     platform: process.platform,
     arch: process.arch,
     bun: Bun.version,
+    chrome: chrome === null ? null : chromeVersion(chrome),
+    ...(process.platform === 'darwin' ? { webkitOs: release() } : {}),
   };
   writeFileSync(PLATFORM_KEY_PATH, `${JSON.stringify(key, null, 2)}\n`);
 }

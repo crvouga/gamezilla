@@ -44,7 +44,17 @@ const INSTALL_OPEN_CAPTURE = `(function(){
 
 const SIGN_IN = '[data-testid=harness-sign-in-google]';
 
-async function startSignIn(page: ReturnType<typeof openView>): Promise<string> {
+/**
+ * The provider serves server-rendered markup, then its SPA clears `#idp-root`
+ * and mounts a fresh form. A value typed into the server copy is wiped by that
+ * mount (and "Next" then submits an empty email), so interact only after the
+ * SPA marks itself ready. Under a loaded `bun check` the mount lands seconds
+ * after the markup.
+ */
+const IDP_IDENTIFIER_READY =
+  'document.documentElement.dataset.idpSpa === "ready" && document.querySelector("[data-testid=idp-identifier-page]")';
+
+async function startSignIn(page: Bun.WebView): Promise<string> {
   await waitFor(page, `document.querySelector("${SIGN_IN}")`);
   await page.evaluate(INSTALL_OPEN_CAPTURE);
   await page.evaluate(`document.querySelector("${SIGN_IN}").click()`);
@@ -54,14 +64,11 @@ async function startSignIn(page: ReturnType<typeof openView>): Promise<string> {
 
 describe('auth oauth harness', () => {
   test('the real Google flow completes against the simulated provider', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
-      const popup = openView(await startSignIn(page));
+      const popup = await openView(await startSignIn(page));
       try {
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-identifier-page]")'
-        );
+        await waitFor(popup, IDP_IDENTIFIER_READY);
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
@@ -114,14 +121,11 @@ describe('auth oauth harness', () => {
   });
 
   test('cancelling on the provider returns the app to an error', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
-      const popup = openView(await startSignIn(page));
+      const popup = await openView(await startSignIn(page));
       try {
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-identifier-page]")'
-        );
+        await waitFor(popup, IDP_IDENTIFIER_READY);
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
@@ -161,7 +165,7 @@ describe('auth oauth harness', () => {
   });
 
   test('closing popup shows cancelled error', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
       await waitFor(page, `document.querySelector("${SIGN_IN}")`);
       await page.evaluate(INSTALL_OPEN_CAPTURE);
@@ -178,7 +182,7 @@ describe('auth oauth harness', () => {
   });
 
   test('blocked popup shows exact browser message', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
       await waitFor(page, `document.querySelector("${SIGN_IN}")`);
       await page.evaluate(`window.open = function(){ return null; }`);

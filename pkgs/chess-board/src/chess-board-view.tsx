@@ -4,7 +4,10 @@
 import { speakMove } from '@pkgs/chess-board-core/a11y/speak-move';
 import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import { pieceCode } from '@pkgs/chess-board-core/piece-svgs';
-import { DEFAULT_CHESS_BOARD_TEST_ID } from '@pkgs/chess-board-core/probe';
+import {
+  chessBoardLiveRegionTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+} from '@pkgs/chess-board-core/probe';
 import type { PieceCode, Square } from '@pkgs/chess-board-core/types';
 import { dataAttrs } from '@pkgs/ui';
 import {
@@ -87,8 +90,12 @@ function BoardBody(args: {
   const liveMessage = useSpokenLastMove(() => args.ctrl);
   return (
     <>
-      <ChessBoardLiveRegion message={liveMessage} />
+      <ChessBoardLiveRegion
+        testId={chessBoardLiveRegionTestId(args.boardTestId())}
+        message={liveMessage}
+      />
       <ChessBoardLayers
+        boardTestId={args.boardTestId()}
         orientation={args.ctrl.orientation()}
         theme={args.ctrl.theme()}
         position={game().position}
@@ -115,6 +122,8 @@ function BoardBody(args: {
       />
       <ChessBoardHitGrid
         boardTestId={args.boardTestId()}
+        orientation={args.ctrl.orientation()}
+        onSquareFocus={(square) => args.ctrl.onSquareFocus(square)}
         cursor={args.ctrl.cursor()}
         position={game().position}
         turn={game().turn}

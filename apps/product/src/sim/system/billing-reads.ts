@@ -6,11 +6,9 @@ import { Handles } from '@libs/test-ids';
 import { sql } from '@pkgs/sql';
 
 import { actorUi } from './actor-ui';
+import { actorLocalSql } from './identity';
 import { nodeText } from './observations';
 import type { ProductSim } from './sim';
-
-/** The primary auth provider slug the auth snapshot writes (`idp`). */
-const IDP_PROVIDER = 'idp';
 
 /** Raw row shape; `cancel_at_period_end` is 0/1 on SQLite and a bool on PG. */
 type MembershipRowRaw = {
@@ -64,9 +62,9 @@ export async function membershipRow(
   s: ProductSim,
   actorId: string
 ): Promise<MembershipRowView | null> {
-  const handle = s.sim.clientSql(actorId);
-  if (handle === undefined) return null;
-  const rows = await handle.sqlClient.query(sql<MembershipRowRaw>`
+  const local = actorLocalSql(s, actorId);
+  if (local === null) return null;
+  const rows = await local.query(sql<MembershipRowRaw>`
     SELECT status, price_key, current_period_end, cancel_at_period_end
     FROM billing_subscriptions
     WHERE deleted_at IS NULL
@@ -80,9 +78,9 @@ export async function membershipRows(
   s: ProductSim,
   actorId: string
 ): Promise<readonly MembershipRowView[]> {
-  const handle = s.sim.clientSql(actorId);
-  if (handle === undefined) return [];
-  const rows = await handle.sqlClient.query(sql<MembershipRowRaw>`
+  const local = actorLocalSql(s, actorId);
+  if (local === null) return [];
+  const rows = await local.query(sql<MembershipRowRaw>`
     SELECT status, price_key, current_period_end, cancel_at_period_end
     FROM billing_subscriptions
     WHERE deleted_at IS NULL
@@ -104,22 +102,4 @@ export async function serverMembershipRow(
     ORDER BY updated_at DESC
     LIMIT 1`);
   return normalizeRow(rows[0]);
-}
-
-/**
- * The actor's signed-in account id, or `null` while signed out. Read from the
- * synced `auth_external_accounts` row the client already trusts.
- */
-export async function accountIdOf(
-  s: ProductSim,
-  actorId: string
-): Promise<string | null> {
-  const handle = s.sim.clientSql(actorId);
-  if (handle === undefined) return null;
-  const rows = await handle.sqlClient.query(sql<{ readonly user_id: string }>`
-    SELECT user_id
-    FROM auth_external_accounts
-    WHERE provider = ${IDP_PROVIDER}
-    LIMIT 1`);
-  return rows[0]?.user_id ?? null;
 }

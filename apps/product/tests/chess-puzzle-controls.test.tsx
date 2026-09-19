@@ -18,6 +18,7 @@ import {
   revealPuzzleSolution,
   signInWithGoogle,
 } from '../src/sim';
+import type { OpenSim } from '../src/test/setup/open-sim';
 import { openSim } from '../src/test/setup/open-sim';
 
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */
@@ -28,7 +29,7 @@ function required<T>(value: T | null | undefined, what: string): T {
   return value;
 }
 
-async function enterPuzzle(s: Awaited<ReturnType<typeof openSim>>) {
+async function enterPuzzle(s: OpenSim) {
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');
   await s.apply(createSpace, 'alice');

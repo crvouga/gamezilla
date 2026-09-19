@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n';
 import { CHIP_HEIGHT, Chip } from '@pkgs/ui/components/chip';
 import { ChipGroup } from '@pkgs/ui/components/chip-group';
@@ -22,7 +23,6 @@ import { SocialSignInButton } from '@pkgs/ui/components/social-sign-in-button';
 import { PillTabBar, TabStrip } from '@pkgs/ui/components/tab-strip';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 function mustAt<T>(items: readonly T[], index: number): T {
@@ -33,7 +33,7 @@ function mustAt<T>(items: readonly T[], index: number): T {
 
 describe('Chip / ChipGroup', () => {
   test('Chip is a toggle button with aria-pressed and fixed height', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => <Chip label="All" selected onClick={onClick} />);
     const el = screen.getByRole('button', { name: 'All' });
     expect(el).toHaveAttribute('aria-pressed', 'true');
@@ -43,7 +43,7 @@ describe('Chip / ChipGroup', () => {
   });
 
   test('ChipGroup is a radiogroup that selects exactly one option', () => {
-    const onSelect = vi.fn();
+    const onSelect = mock();
     renderUi(() => (
       <ChipGroup
         label="Filter"
@@ -92,8 +92,8 @@ describe('SegmentedControl', () => {
 
 describe('TabStrip', () => {
   test('tablist/tab roles, aria-selected, select + close', () => {
-    const onSelect = vi.fn();
-    const onClose = vi.fn();
+    const onSelect = mock();
+    const onClose = mock();
     renderUi(() => (
       <TabStrip
         aria-label="Apps"
@@ -153,7 +153,7 @@ describe('NumberStepper', () => {
 
 describe('MultiSelectSwatchGrid', () => {
   test('toggles swatches with aria-checked and helpers agree', () => {
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => (
       <MultiSelectSwatchGrid
         label="Colors"
@@ -173,7 +173,7 @@ describe('MultiSelectSwatchGrid', () => {
 
 describe('SocialSignInButton', () => {
   test('renders the provider label, brand glyph, and blocks when loading', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <>
         <SocialSignInButton provider="google" onClick={onClick} />
@@ -198,7 +198,7 @@ describe('SocialSignInButton', () => {
 
 describe('CopyToClipboardField', () => {
   test('copies via the injected sink and flips to the copied label', async () => {
-    const copy = vi.fn(async (_text: string) => {});
+    const copy = mock(async (_text: string) => {});
     const { clock } = renderUi(() => (
       <CopyToClipboardField
         value="ABC-123"
@@ -222,8 +222,8 @@ describe('CopyToClipboardField', () => {
 
 describe('FormActionsFooter', () => {
   test('submit runs the operation with success feedback; cancel fires', async () => {
-    const operation = vi.fn(async () => {});
-    const onCancel = vi.fn();
+    const operation = mock(async () => {});
+    const onCancel = mock();
     const { clock } = renderUi(() => (
       <FormActionsFooter
         submit={{

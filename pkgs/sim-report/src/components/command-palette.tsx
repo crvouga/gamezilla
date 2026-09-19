@@ -10,7 +10,12 @@ import {
 import { useReport } from '../app/report-context';
 import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
-import { frameHasUi, selectedFrame, testFrames } from '../lib/frames';
+import {
+  frameHasUi,
+  neighborFailure,
+  selectedFrame,
+  testFrames,
+} from '../lib/frames';
 import { showAside, showPress, viewMode, zoomMode } from '../lib/hash';
 import type { ReportData } from '../types';
 
@@ -74,6 +79,17 @@ function timelineCommands(nav: ReportNav, test: HtmlReportTest): Command[] {
       run: () => nav.togglePlay(),
     },
     {
+      id: 'next-failure',
+      label: 'Jump to next failure',
+      hint: 'N',
+      keywords: 'failure error failed red',
+      run: () => {
+        const sel = selectedFrame(frames, nav.route());
+        const f = neighborFailure(frames, sel ? sel.index : -1, 1);
+        if (f) nav.goFrame(f);
+      },
+    },
+    {
       id: 'first-frame',
       label: 'Jump to first frame',
       hint: 'Home',
@@ -102,14 +118,14 @@ function uiCommands(nav: ReportNav, route: CommandContext['route']): Command[] {
     },
     {
       id: 'toggle-snapshots',
-      label: `${showAside(route) ? 'Hide' : 'Show'} snapshot details`,
+      label: `${showAside(route) ? 'Hide' : 'Show'} state panel`,
       hint: 'A',
       keywords: 'aside snapshots details json text',
       run: () => nav.setParam('aside', showAside(route) ? '0' : ''),
     },
     {
       id: 'toggle-press',
-      label: `${showPress(route) ? 'Hide' : 'Show'} press overlay`,
+      label: `${showPress(route) ? 'Hide' : 'Show'} press highlight`,
       hint: 'P',
       keywords: 'press tap click overlay gesture',
       run: () => nav.setParam('press', showPress(route) ? '0' : ''),

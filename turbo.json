@@ -320,6 +320,34 @@
       "outputs": [],
       "dependsOn": ["tc"]
     },
+    "@pkgs/auth#test:e2e": {
+      "inputs": [
+        "src/**",
+        "e2e/**",
+        "package.json",
+        "tsconfig*.json",
+        "$TURBO_ROOT$/pkgs/auth-sim/src/**",
+        "$TURBO_ROOT$/pkgs/auth-sim/e2e/**",
+        "$TURBO_ROOT$/pkgs/auth-sim/package.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputLogs": "new-only",
+      "outputs": [],
+      "dependsOn": ["tc", "@pkgs/auth-sim#tc"]
+    },
+    "@pkgs/chess-board#test:e2e": {
+      "inputs": [
+        "src/**",
+        "e2e/**",
+        "tests/ui/**",
+        "package.json",
+        "tsconfig*.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputLogs": "new-only",
+      "outputs": [],
+      "dependsOn": ["tc"]
+    },
     "billing:check": {
       "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
       "outputLogs": "new-only",
@@ -439,7 +467,7 @@
         "pkgs/ui/src/**/*.{ts,tsx}",
         "pkgs/ui/tests/**/*.{ts,tsx}",
         "pkgs/uuid/src/solid.tsx",
-        "pkgs/vitest-solid/src/**/*.{ts,tsx}"
+        "pkgs/bun-test-solid/src/**/*.{ts,tsx}"
       ],
       "outputs": [".eslintcache"],
       "outputLogs": "new-only"
@@ -497,8 +525,11 @@
     },
     "//#check": {
       "dependsOn": [
-        "//#ci:pr-template",
+        "//#ci:agent-commands",
         "//#ci:goals",
+        "//#ci:no-skipped-tests",
+        "//#ci:public-link",
+        "//#ci:release-gate",
         "//#lint:biome",
         "//#lint:vocab",
         "//#lint:eslint",
@@ -507,18 +538,23 @@
         "//#ci:audit",
         "//#ci:i18n",
         "@apps/client#check:critical-path",
+        "@apps/client#check:bundle-budget",
         "tc",
         "test",
         "@apps/server#build",
         "@apps/room-server#build",
         "@pkgs/auth#test:e2e",
         "@pkgs/sql-client-sqlite-web#test:e2e",
+        "@pkgs/chess-board#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
+        "@pkgs/db-schema-postgres#test:contract",
+        "@pkgs/db-indexes-postgres#test:contract",
         "@pkgs/kv-postgres#test:contract",
         "@pkgs/object-store-s3#test:contract",
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
         "@apps/server#check:contract",
+        "@apps/server#check:api",
         "@libs/runtime#check:schema-evolution",
         "@libs/secrets#check",
         "@libs/tools#check:static"
@@ -633,6 +669,7 @@
         "//#lint:biome",
         "//#lint:vocab",
         "//#ci:goals",
+        "//#ci:agent-commands",
         "@apps/client#check:critical-path",
         "//#lint:eslint",
         "tc",
@@ -643,8 +680,12 @@
         "//#ci:depcruise",
         "//#ci:audit",
         "//#ci:i18n",
+        "//#ci:no-skipped-tests",
+        "//#ci:public-link",
+        "//#ci:release-gate",
         "@pkgs/auth#test:e2e",
         "@pkgs/sql-client-sqlite-web#test:e2e",
+        "@pkgs/chess-board#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
         "@pkgs/kv-postgres#test:contract",
         "@pkgs/object-store-s3#test:contract",
@@ -653,10 +694,33 @@
         "@apps/server#check:contract",
         "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:static",
-        "@apps/server#check:api",
-        "@apps/client#check:bundle-budget",
         "@libs/secrets#check",
         "@apps/server#smoke"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-skipped-tests": {
+      "inputs": [
+        "apps/**/*.{ts,tsx}",
+        "libs/**/*.{ts,tsx}",
+        "pkgs/**/*.{ts,tsx}",
+        "libs/tools/scripts/check-no-skipped-tests.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:public-link": {
+      "cache": false,
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:release-gate": {
+      "inputs": [
+        "turbo.json",
+        "libs/tools/scripts/check-release-gate.ts",
+        ".github/workflows/pr.yml",
+        ".github/workflows/deploy.yml"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -702,9 +766,14 @@
         "pkgs/*/src/**/*.{ts,tsx}",
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
-        "apps/product/babel.test.config.cjs",
+        "pkgs/bun-test-solid/src/babel.config.cjs",
         "libs/tools/scripts/ci-i18n.ts"
       ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:agent-commands": {
+      "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -712,15 +781,6 @@
       "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
-    },
-    "//#ci:pr-template": {
-      "inputs": [
-        ".github/pull_request_template.md",
-        "libs/tools/scripts/check-pr-body.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only",
-      "cache": false
     }
   }
 }

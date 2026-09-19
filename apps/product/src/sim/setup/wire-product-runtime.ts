@@ -11,11 +11,13 @@ import {
   closeActorEntry,
   launchActor,
 } from '../actors/launch-actor';
+import { actorEmail } from '../system/identity';
 import {
   type ProductRuntime,
   type ProductSim,
   productExtra,
 } from '../system/sim';
+import { ensureStackIdpAccount } from './stack-idp-accounts';
 
 export type WireProductRuntimeOptions = {
   readonly snapshot?: SimSystemSnapshot;
@@ -35,6 +37,13 @@ export function wireProductRuntime(
   const extra = productExtra(surface);
   const runtime: ProductRuntime = {
     async launchActor(id) {
+      if (extra.http.kind === 'stack') {
+        await ensureStackIdpAccount({
+          idpOrigin: extra.http.idpOrigin,
+          actorId: id,
+          email: actorEmail(surface, id),
+        });
+      }
       const entry = await launchActor({
         ui: extra.ui,
         sim: surface.sim,

@@ -26,20 +26,20 @@ export type ReportFrame = {
   readonly capturedAtMs: number;
   readonly durationMs?: number;
   readonly snapshots: readonly ReportSnapshotBlob[];
+  /**
+   * Gesture target, set only on the frame captured right before a UI step
+   * acts (the target is still mounted). Viewers highlight it on this frame.
+   */
+  readonly hit?: ReportStepHit;
 };
 
 /**
- * Where a UI gesture landed — path + optional host rect / tap point.
- * Encoded on the step so the HTML viewer can overlay the press target.
+ * Where a UI gesture landed — test-id path (chained first-match, as the
+ * driver resolves it) + optional tap point relative to the target box.
+ * Viewers resolve the path against the snapshot DOM for real geometry.
  */
 export type ReportStepHit = {
   readonly path: readonly string[];
-  readonly rect?: {
-    readonly x: number;
-    readonly y: number;
-    readonly width: number;
-    readonly height: number;
-  };
   readonly point?: {
     readonly xRatio: number;
     readonly yRatio: number;
@@ -61,8 +61,6 @@ export type ReportStep = {
   readonly actorId?: string;
   readonly selector?: string;
   readonly detail?: string;
-  /** Press / gesture target for UI steps (overlay in the HTML viewer). */
-  readonly hit?: ReportStepHit;
   readonly action?: string;
   readonly args?: readonly unknown[];
   readonly error?: string;
@@ -136,7 +134,7 @@ export type RecordStepMeta = {
   readonly actorId?: string;
   readonly selector?: string;
   readonly detail?: string;
-  /** Press / gesture target; persisted onto the closed {@link ReportStep}. */
+  /** Press / gesture target; persisted onto the step's pre-action frame. */
   readonly hit?: ReportStepHit;
   /** Capture snapshots before `fn` (e.g. before close unmounts). */
   readonly snapshotBefore?: boolean;

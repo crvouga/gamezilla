@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   CatalogDetail,
   CatalogDetailNav,
@@ -8,7 +10,6 @@ import {
 import { ContentEdgePaddingProvider } from '@pkgs/ui/components/content-edge-padding';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 function nth<T>(list: readonly T[], index: number): T {
@@ -26,7 +27,7 @@ const ITEMS: readonly CatalogItem[] = [
 
 describe('CatalogList', () => {
   test('renders grouped rows as buttons and selects by id', () => {
-    const onSelect = vi.fn();
+    const onSelect = mock();
     renderUi(() => <CatalogList items={ITEMS} onSelect={onSelect} />);
     expect(screen.getByRole('heading', { name: 'Inputs' })).toBeInTheDocument();
     expect(
@@ -60,7 +61,7 @@ describe('CatalogList', () => {
 
 describe('CatalogDetailNav', () => {
   test('prev/next buttons navigate in flattened order and clamp at ends', () => {
-    const onNavigate = vi.fn();
+    const onNavigate = mock();
     const [current, setCurrent] = createSignal('btn');
     renderUi(() => (
       <CatalogDetailNav
@@ -96,7 +97,7 @@ describe('CatalogDetailNav', () => {
 
 describe('CatalogDetail', () => {
   test('renders children plus a bottom nav bar when onNavigate is set', () => {
-    const onNavigate = vi.fn();
+    const onNavigate = mock();
     renderUi(() => (
       <CatalogDetail items={ITEMS} currentId="chk" onNavigate={onNavigate}>
         <p>Body copy</p>

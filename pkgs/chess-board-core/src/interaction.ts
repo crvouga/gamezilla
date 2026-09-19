@@ -183,9 +183,14 @@ export class BoardInteraction {
     });
   }
 
+  /** Gestures are ignored while off or while the promotion picker is open. */
+  private acceptsGestures(): boolean {
+    return this.snapshot.interactive && this.snapshot.pendingPromotion === null;
+  }
+
   tap(square: Square): void {
-    const { interactive, selected, premove } = this.snapshot;
-    if (!interactive) return;
+    const { selected, premove } = this.snapshot;
+    if (!this.acceptsGestures()) return;
     if (
       selected === null &&
       premove !== null &&
@@ -207,12 +212,23 @@ export class BoardInteraction {
       this.publish({ selected: null });
       return;
     }
+    if (this.reselects(square)) {
+      this.publish({ selected: square });
+      this.hooks.onSelect?.(square);
+      return;
+    }
     this.publish({ selected: null });
     this.drop(selected, square);
   }
 
+  /** Tapping another of your pieces (not a legal target) moves the selection. */
+  private reselects(square: Square): boolean {
+    if (this.snapshot.legalTargets.includes(square)) return false;
+    return this.ownsPiece(square) || this.isPremovable(square);
+  }
+
   canDrag(square: Square): boolean {
-    if (!this.snapshot.interactive) return false;
+    if (!this.acceptsGestures()) return false;
     return this.ownsPiece(square) || this.isPremovable(square);
   }
 
@@ -272,7 +288,14 @@ export class BoardInteraction {
     return { kind: 'applied', result };
   }
 
+  /**
+   * Play the head of the premove queue once it is the player's turn. While
+   * the opponent is still to move the queue is left intact; a premove whose
+   * piece is gone (captured) is dropped.
+   */
   flushPremmove(): DropOutcome | null {
+    if (this.premoveCtl.current() === null) return null;
+    if (this.rules.getTurn() !== this.playerColor) return null;
     const queued = this.premoveCtl.shift();
     this.publishPremoves();
     if (queued === null) return null;

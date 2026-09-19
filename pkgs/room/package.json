@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx' && vitest run",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --pass-with-no-tests",
     "test:sim": "bun run --filter @pkgs/room-sim test"
   },
   "dependencies": {
@@ -26,15 +26,13 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/sim": "workspace:*",
-    "@pkgs/vitest-solid": "workspace:*",
     "@solidjs/testing-library": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   },
   "peerDependencies": {}
 }

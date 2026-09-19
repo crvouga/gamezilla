@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import {
   BottomSheetHostProvider,
@@ -12,7 +14,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 function Surface(props: {
@@ -57,7 +58,7 @@ describe('shouldUseMobileSheet', () => {
 
 describe('ResponsiveSurface', () => {
   test('wide layout renders a centered ModalContent dialog named by the title', () => {
-    const onClose = vi.fn();
+    const onClose = mock();
     renderUi(
       () => (
         <SurfaceStackProvider>
@@ -76,7 +77,7 @@ describe('ResponsiveSurface', () => {
 
   test('compact layout renders the CSS bottom sheet with a decorative handle', async () => {
     const user = userEvent.setup();
-    const onClose = vi.fn();
+    const onClose = mock();
     renderUi(
       () => (
         <SurfaceStackProvider>
@@ -219,7 +220,7 @@ describe('ResponsiveSurface', () => {
   });
 
   test('closable=false hides the close icon and ignores backdrop dismiss', () => {
-    const onClose = vi.fn();
+    const onClose = mock();
     renderUi(
       () => (
         <SurfaceStackProvider>

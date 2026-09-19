@@ -3,6 +3,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { MOCK_BILLING_TEST_IDS } from '../../../public/mock-test-ids';
 import { PLUS_MEMBERSHIP_OFFER } from '../../../shared/offer/plus-membership-offer';
+import type { MockBillingState } from '../shared/mock-billing-contract';
 import { BillingMockRoutes } from './billing-mock-routes';
 
 const NOW = 1_700_000_000_000;
@@ -89,25 +90,23 @@ function postJson(
   });
 }
 
-/** The mock pages are real HTML forms; the browser posts urlencoded. */
-function postForm(
-  app: Harness['app'],
-  path: string,
-  body: Record<string, string>
-) {
-  return app.request(path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams(body).toString(),
-    redirect: 'manual',
+async function pay(
+  harnessed: Harness,
+  priceKey = 'subscription_monthly'
+): Promise<Response> {
+  return postJson(harnessed.app, '/billing/mock/api/checkout', {
+    accountId: ACCOUNT,
+    priceKey,
   });
 }
 
-async function pay(harnessed: Harness): Promise<Response> {
-  return postForm(harnessed.app, '/billing/mock/checkout', {
+async function portal(
+  harnessed: Harness,
+  action: Record<string, string>
+): Promise<Response> {
+  return postJson(harnessed.app, '/billing/mock/api/portal', {
     accountId: ACCOUNT,
-    returnUrl: 'https://app.test/more/billing',
-    action: 'pay',
+    action,
   });
 }
 
@@ -119,22 +118,49 @@ async function observe(harnessed: Harness, kind: string): Promise<Response> {
 }
 
 describe('BillingMockRoutes', () => {
-  it('renders a checkout page with a pay button', async () => {
+  it('serves the SPA shell for both hosted pages', async () => {
+    const { app } = harness();
+    for (const page of ['checkout', 'portal']) {
+      const res = await app.request(
+        `/billing/mock/${page}?accountId=${ACCOUNT}&returnUrl=https%3A%2F%2Fapp.test`
+      );
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-type')).toContain('text/html');
+      const html = await res.text();
+      expect(html).toContain('id="mock-billing-root"');
+      expect(html).toContain('src="assets/app.js"');
+    }
+  });
+
+  it('serves the embedded SPA bundle', async () => {
+    const { app } = harness();
+    const js = await app.request('/billing/mock/assets/app.js');
+    expect(js.status).toBe(200);
+    expect(js.headers.get('content-type')).toContain('javascript');
+    expect(await js.text()).toContain(MOCK_BILLING_TEST_IDS.checkoutPay);
+    const css = await app.request('/billing/mock/assets/app.css');
+    expect(css.headers.get('content-type')).toContain('text/css');
+  });
+
+  it('reports the offer and no membership before checkout', async () => {
     const { app } = harness();
     const res = await app.request(
-      `/billing/mock/checkout?accountId=${ACCOUNT}&returnUrl=https%3A%2F%2Fapp.test%2Fmore%2Fbilling`
+      `/billing/mock/api/state?accountId=${ACCOUNT}`
     );
     expect(res.status).toBe(200);
-    const html = await res.text();
-    expect(html).toContain(
-      `data-testid="${MOCK_BILLING_TEST_IDS.checkoutPay}"`
-    );
+    const state = (await res.json()) as MockBillingState;
+    expect(state.membership).toBeNull();
+    expect(state.nowMs).toBe(NOW);
+    expect(state.prices.map((price) => price.key)).toEqual([
+      'subscription_monthly',
+      'subscription_yearly',
+    ]);
   });
 
   it('pay writes a trialing membership with the default price', async () => {
     const harnessed = harness();
     const res = await pay(harnessed);
-    expect(res.status).toBe(303);
+    expect(res.status).toBe(200);
     expect(harnessed.state.row?.status).toBe('trialing');
     expect(harnessed.state.row?.price_key).toBe('subscription_monthly');
     expect(Date.parse(harnessed.state.row?.current_period_end ?? '')).toBe(
@@ -154,49 +180,25 @@ describe('BillingMockRoutes', () => {
     );
   });
 
-  it('renders a portal page with cancel, resume and switch controls', async () => {
-    const { app } = harness();
-    const res = await app.request(
-      `/billing/mock/portal?accountId=${ACCOUNT}&returnUrl=https%3A%2F%2Fapp.test`
-    );
-    expect(res.status).toBe(200);
-    const html = await res.text();
-    expect(html).toContain(
-      `data-testid="${MOCK_BILLING_TEST_IDS.portalCancel}"`
-    );
-    expect(html).toContain(
-      `data-testid="${MOCK_BILLING_TEST_IDS.portalResume}"`
-    );
-    expect(html).toContain(
-      `data-testid="${MOCK_BILLING_TEST_IDS.portalSwitch('subscription_yearly')}"`
-    );
-  });
-
   it('portal cancel sets cancel_at_period_end and resume clears it', async () => {
     const harnessed = harness();
     await pay(harnessed);
-    await postForm(harnessed.app, '/billing/mock/portal', {
-      accountId: ACCOUNT,
-      returnUrl: 'https://app.test',
-      action: 'cancel',
-    });
+    await portal(harnessed, { kind: 'cancel' });
     expect(harnessed.state.row?.cancel_at_period_end).toBe(1);
-    await postForm(harnessed.app, '/billing/mock/portal', {
-      accountId: ACCOUNT,
-      returnUrl: 'https://app.test',
-      action: 'resume',
-    });
+    await portal(harnessed, { kind: 'resume' });
     expect(harnessed.state.row?.cancel_at_period_end).toBe(0);
   });
 
   it('portal switch flips the price key', async () => {
     const harnessed = harness();
     await pay(harnessed);
-    await postForm(harnessed.app, '/billing/mock/portal', {
-      accountId: ACCOUNT,
-      returnUrl: 'https://app.test',
-      action: 'switch:subscription_yearly',
+    const res = await portal(harnessed, {
+      kind: 'switch',
+      priceKey: 'subscription_yearly',
     });
+    expect(res.status).toBe(200);
+    const state = (await res.json()) as MockBillingState;
+    expect(state.membership?.priceKey).toBe('subscription_yearly');
     expect(harnessed.state.row?.price_key).toBe('subscription_yearly');
     expect(harnessed.state.row?.status).toBe('active');
   });
@@ -204,12 +206,25 @@ describe('BillingMockRoutes', () => {
   it('portal rejects an unknown price', async () => {
     const harnessed = harness();
     await pay(harnessed);
-    const res = await postForm(harnessed.app, '/billing/mock/portal', {
-      accountId: ACCOUNT,
-      returnUrl: 'https://app.test',
-      action: 'switch:nope',
-    });
+    const res = await portal(harnessed, { kind: 'switch', priceKey: 'nope' });
     expect(res.status).toBe(400);
+  });
+
+  it('checkout starts the chosen price', async () => {
+    const harnessed = harness();
+    await pay(harnessed, 'subscription_yearly');
+    expect(harnessed.state.row?.price_key).toBe('subscription_yearly');
+  });
+
+  it('checkout rejects an unknown price', async () => {
+    const harnessed = harness();
+    expect((await pay(harnessed, 'nope')).status).toBe(400);
+    expect(harnessed.state.row).toBeNull();
+  });
+
+  it('portal returns 404 when the account has no membership', async () => {
+    const harnessed = harness();
+    expect((await portal(harnessed, { kind: 'cancel' })).status).toBe(404);
   });
 
   it('returns 404 from observe when the account has no membership', async () => {

@@ -104,7 +104,7 @@ describe('html report', () => {
     expect(html).toContain('.x{color:red}');
     expect(html).toContain('<sim-report></sim-report>');
     expect(html).toContain('customElements');
-    expect(html).toContain('sr-press-overlay');
+    expect(html).toContain('sr-frame-css');
     expect(html).toContain('Keyboard shortcuts');
     expect(html).toContain('sim-report-root');
     const m =

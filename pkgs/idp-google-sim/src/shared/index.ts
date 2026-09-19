@@ -29,6 +29,7 @@ export {
   titleOf,
   urlOf,
 } from './screen-state';
+export { idpSubOf } from './sub';
 export { IDP_TEST_IDS } from './test-ids';
 export {
   IDP_DEFAULT_FAULTS,

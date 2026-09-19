@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import {
   Combobox,
@@ -8,7 +10,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { mustQuery, renderUi } from './support/render';
 
 const COLORS: ComboboxOption[] = [
@@ -77,7 +78,7 @@ describe('Combobox (single)', () => {
   });
 
   test('opens a dialog with a focused search box and a listbox; click picks and closes', () => {
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Single onChange={onChange} initial="green" />, {
       width: 1200,
     });
@@ -109,7 +110,7 @@ describe('Combobox (single)', () => {
 
   test('typing filters options; arrows move aria-activedescendant; Enter picks', async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Single onChange={onChange} />, { width: 1200 });
     openSurface('Colour');
     const search = screen.getByRole('searchbox', { name: 'Search…' });
@@ -133,7 +134,7 @@ describe('Combobox (single)', () => {
 
   test('no match shows the empty message; Escape closes without picking', async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(
       () => (
         <SurfaceStackProvider>
@@ -161,7 +162,7 @@ describe('Combobox (single)', () => {
 
 describe('Combobox (multiple)', () => {
   test('renders chips, toggles values without closing, Done closes', () => {
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Multiple onChange={onChange} />, { width: 1200 });
     expect(screen.getByRole('list')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Red/ })).toBeInTheDocument();
@@ -188,7 +189,7 @@ describe('Combobox (multiple)', () => {
   });
 
   test('chip click removes the value; clear button empties the selection', () => {
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Multiple onChange={onChange} />, { width: 1200 });
     fireEvent.click(mustQuery('[data-component="ComboboxChip"]'));
     expect(onChange).toHaveBeenLastCalledWith([]);
@@ -196,7 +197,7 @@ describe('Combobox (multiple)', () => {
 
   test('Backspace in an empty search removes the last chip', async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Multiple onChange={onChange} />, { width: 1200 });
     openSurface('Colours');
     await user.keyboard('{Backspace}');

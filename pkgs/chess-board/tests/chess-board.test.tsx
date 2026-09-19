@@ -1,5 +1,8 @@
 // goal:chess-puzzles:10
 /** @jsxImportSource solid-js */
+
+import { describe, expect, it } from 'bun:test';
+import { renderWithI18n } from '@pkgs/bun-test-solid/render';
 import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import {
   chessBoardProbeTestId,
@@ -15,9 +18,7 @@ import type {
 } from '@pkgs/sounds/audio-playback/ports';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
 import { ThemeProvider } from '@pkgs/ui/theme/theme-context';
-import { renderWithI18n } from '@pkgs/vitest-solid/render';
 import { screen } from '@solidjs/testing-library';
-import { describe, expect, it } from 'vitest';
 
 const IDLE: AudioPlayerStatus = {
   playing: false,

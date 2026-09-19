@@ -8,9 +8,9 @@
  *   Tier C nodes keep their source text (plus the TODO marker line).
  */
 
+import { describe, expect, test } from 'bun:test';
 import * as fc from 'fast-check';
 import ts from 'typescript';
-import { describe, expect, test } from 'vitest';
 import { transformFile } from '../transform';
 
 function parses(text: string): boolean {

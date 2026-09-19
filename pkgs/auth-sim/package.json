@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload ../idp-google-sim/bun-solid-preload.ts --parallel=1 --timeout 120000 --pass-with-no-tests tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel=1 --timeout 120000 --pass-with-no-tests tests"
   },
   "dependencies": {
     "@pkgs/auth": "workspace:*",
@@ -26,6 +26,7 @@
     "@pkgs/sql-client-sqlite": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

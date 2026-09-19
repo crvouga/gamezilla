@@ -4,9 +4,9 @@
  * asserted only for the migration corpus, not implementation internals.
  */
 
+import { describe, expect, test } from 'bun:test';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { describe, expect, test } from 'vitest';
 import { DEFAULT_GLOBS } from '../cli-io';
 import { runCodemod } from '../run-codemod';
 

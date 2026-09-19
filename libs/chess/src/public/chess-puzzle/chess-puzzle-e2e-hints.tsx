@@ -1,10 +1,7 @@
 import type { Accessor, JSX } from 'solid-js';
 
 import { uciToSquares } from '../chess-puzzle-fsm';
-
-const E2E_ENABLED =
-  typeof process !== 'undefined' &&
-  (process.env['VITE_E2E'] === '1' || process.env['NODE_ENV'] === 'test');
+import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
 
 export type ChessPuzzleE2EHintsProps = {
   orientation: Accessor<'white' | 'black'>;
@@ -24,6 +21,9 @@ export type ChessPuzzleE2EHintsProps = {
   spaceRole: Accessor<'host' | 'guest' | 'unknown'>;
   statusKind: Accessor<string>;
   clockElapsedMs: Accessor<number | null>;
+  /** Current puzzle metadata for deterministic feed assertions. */
+  puzzleRating: Accessor<number>;
+  themes: Accessor<readonly string[]>;
   /** `by:fromto` pairs, comma separated, oldest first. */
   recommendations: Accessor<string>;
 };
@@ -55,7 +55,7 @@ function spectatorProbe(props: ChessPuzzleE2EHintsProps): string {
 export function ChessPuzzleE2EHints(
   props: ChessPuzzleE2EHintsProps
 ): JSX.Element {
-  if (!E2E_ENABLED) return <></>;
+  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
   const resolved = (): string | null => resolveSolutionUci(props);
   const uci = (): string | null => (props.interactive() ? resolved() : null);
   const hintStyle = {
@@ -80,7 +80,7 @@ export function ChessPuzzleE2EHints(
         class="text"
         style={hintStyle}
         data-testid="chess-puzzle-e2e-debug"
-      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}`}</p>
+      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}|${props.puzzleRating()}|${props.themes().join(',')}`}</p>
       <p class="text" style={hintStyle} data-testid="chess-puzzle-e2e-fen">
         {props.displayFen() ?? ''}
       </p>

@@ -153,7 +153,7 @@ async function loadLinguiConfig(): Promise<LinguiCatalogConfig> {
 
 const BABEL_CONFIG_RELS = [
   'apps/client/vite.config.mts',
-  'apps/product/babel.test.config.cjs',
+  'pkgs/bun-test-solid/src/babel.config.cjs',
 ] as const;
 
 function assertDescriptorFieldsKept(): void {

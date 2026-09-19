@@ -5,7 +5,7 @@
  * data attributes, import pruning) or the exact Tier C reason + TODO marker.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { transformFile } from '../transform';
 
 const IMPORT = `import { Box } from '@pkgs/ui';\n`;
