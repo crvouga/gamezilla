@@ -74,6 +74,11 @@ gh auth status
 ```
 
 - On `main`, stop: this command works on a feature branch that will become a PR.
+- **Always ship into the current branch's PR.** If the branch already has an
+  open PR, this run's work goes onto that PR — even when it is a different
+  logical unit from what the PR started as. Never split work onto a new branch
+  or open a second PR, and never ask whether to; widen the existing PR's title
+  and body (`Summary` / `Scope` / `Verification` / `Risk`) to cover it instead.
 - If the tree has pending changes you did not make and cannot explain, stop and
   report — do not fold them into this run.
 - If `gh auth status` fails, stop: every remaining step needs GitHub.
@@ -219,7 +224,11 @@ PR_REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 gh pr view "$PR_NUMBER" --json mergeable,mergeStateStatus,isDraft,reviewDecision
 ```
 
-Then write the PR body from `.github/pull_request_template.md`. The body is a
+When the PR already exists, keep its body and extend it: add this run's work to
+every section it affects rather than replacing what earlier runs wrote, and
+retitle only if the old title no longer describes the PR.
+
+Otherwise write the PR body from `.github/pull_request_template.md`. The body is a
 contract: `//#ci:pr-template` (part of `//#check`) fails the PR when a `##`
 section is missing, empty, or a checklist box is unchecked, and it re-runs when
 the body is edited. Start from the template file rather than retyping it:
