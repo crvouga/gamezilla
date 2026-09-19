@@ -1,8 +1,0 @@
-$ SECRETS_ENV=dev TURBO_UI=tui bun run deploy
-$ bun run tools/scripts/secrets-run.ts -- bun run tools/scripts/turbo-ci-run.ts deploy
-secrets-run: projectId=26137c60-8dea-4d95-a8a3-30901615b026 env=dev endpoint=https://app.infisical.com
-secrets-run: Infisical unavailable; falling back to local/injected env for SECRETS_ENV=dev.
-turbo-ci-run: TURBO_TOKEN and TURBO_TEAM missing; using local cache only. Run `infisical login` so local warms upload to the self-hosted Turbo remote cache.
-turbo-ci-run: deploy requires TURBO_TOKEN and TURBO_TEAM from Infisical. Run `infisical login` then retry via secrets-run.
-error: script "deploy" exited with code 1
-error: script "deploy:dev" exited with code 1

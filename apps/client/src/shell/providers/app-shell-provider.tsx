@@ -4,7 +4,7 @@
  *
  * RN → web deltas: the gesture root and safe-area provider are gone
  * (CSS `env()` insets); typography uses the system font stack from `@pkgs/ui`
- * (see docs/low-end-android-perf.md — prefer no webfonts on the critical path) and
+ * (see docs/LOW_END_ANDROID_PERF.md — prefer no webfonts on the critical path) and
  * mark the paint latch through `document.fonts.ready`; the RN suspense root is
  * not needed (Solid `lazy` routes suspend inside the router outlet).
  *

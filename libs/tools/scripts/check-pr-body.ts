@@ -2,7 +2,7 @@
 // @io-wall-ok — composition root
 /**
  * Strict PR contract enforcement: the PR body must fill every section of
- * `.github/pull_request_template.md` and check every box in its checklist.
+ * `.github/PULL_REQUEST_TEMPLATE.md` and check every box in its checklist.
  *
  * The body comes from the `pull_request` event payload in Actions
  * (`GITHUB_EVENT_PATH`) or, locally, from `gh pr view` for the current branch.
@@ -167,7 +167,7 @@ function report(pullRequest: PullRequestBody): number {
     return 0;
   }
   process.stderr.write(
-    `[ci:pr-template] PR does not satisfy .github/pull_request_template.md:\n` +
+    `[ci:pr-template] PR does not satisfy .github/PULL_REQUEST_TEMPLATE.md:\n` +
       violations.map((violation) => `- ${violation}`).join('\n') +
       '\n'
   );

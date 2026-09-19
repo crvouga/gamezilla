@@ -9,7 +9,7 @@ import {
 } from './check-pr-body';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const TEMPLATE_PATH = join(REPO_ROOT, '.github', 'pull_request_template.md');
+const TEMPLATE_PATH = join(REPO_ROOT, '.github', 'PULL_REQUEST_TEMPLATE.md');
 const template = readFileSync(TEMPLATE_PATH, 'utf8');
 
 /** The template as an agent would submit it: every box checked, sections filled. */

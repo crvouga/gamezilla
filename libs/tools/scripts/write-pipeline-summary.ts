@@ -1,14 +1,16 @@
 #!/usr/bin/env bun
 /**
- * Always-run CI helper: append a Deployment Pipeline status block (and, on
- * failure, a copy-pasteable LLM fix prompt) to `GITHUB_STEP_SUMMARY`.
+ * Always-run CI helper: append a pipeline status block (and, on failure, a
+ * copy-pasteable LLM fix prompt) to `GITHUB_STEP_SUMMARY`.
  *
  * Expects:
- * - `DEPLOY_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
- * - `DEPLOY_LOG_PATH` — path to teed `bun run deploy` output (optional)
+ * - `PIPELINE_NAME` — step label, e.g. `check` / `deploy (dev rehearsal)`
+ * - `PIPELINE_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
+ * - `PIPELINE_LOG_PATH` — path to the teed step output (optional)
  */
-// @io-wall-ok — CI entry; reads teed deploy log + writes GITHUB_STEP_SUMMARY
+// @io-wall-ok — CI entry; reads teed pipeline log + writes GITHUB_STEP_SUMMARY
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { stripVTControlCharacters } from 'node:util';
 import { buildCiDeployFailureLlmFixPromptMarkdown } from '@libs/secrets/shared/build-llm-fix-prompt';
 
 const MAX_LOG_CHARS = 120_000;
@@ -28,14 +30,14 @@ function iconFor(result: string): string {
   }
 }
 
-function readDeployLog(): string {
-  const path = (process.env['DEPLOY_LOG_PATH'] ?? '').trim();
+function readPipelineLog(): string {
+  const path = (process.env['PIPELINE_LOG_PATH'] ?? '').trim();
   if (path === '' || !existsSync(path)) {
-    return '(no deploy log captured — DEPLOY_LOG_PATH missing or empty)';
+    return '(no log captured — PIPELINE_LOG_PATH missing or empty)';
   }
-  const raw = readFileSync(path, 'utf8');
+  const raw = stripVTControlCharacters(readFileSync(path, 'utf8'));
   if (raw.trim() === '') {
-    return '(deploy log was empty — task may have failed before writing output)';
+    return '(log was empty — task may have failed before writing output)';
   }
   if (raw.length <= MAX_LOG_CHARS) return raw;
   const head = Math.floor(MAX_LOG_CHARS * 0.15);
@@ -43,7 +45,7 @@ function readDeployLog(): string {
   return `${raw.slice(0, head)}\n\n... (truncated ${String(raw.length - MAX_LOG_CHARS)} chars) ...\n\n${raw.slice(-tail)}`;
 }
 
-function buildStatusMarkdown(outcome: string): string {
+function buildStatusMarkdown(name: string, outcome: string): string {
   const lines: string[] = [];
   const repo = (process.env['GITHUB_REPOSITORY'] ?? '').trim();
   const runId = (process.env['GITHUB_RUN_ID'] ?? '').trim();
@@ -56,7 +58,7 @@ function buildStatusMarkdown(outcome: string): string {
   const actor = (process.env['GITHUB_ACTOR'] ?? '').trim();
   const secretsEnv = (process.env['SECRETS_ENV'] ?? '').trim();
 
-  lines.push(`## ${iconFor(outcome)} Deployment Pipeline`);
+  lines.push(`## ${iconFor(outcome)} ${name}`);
   lines.push('');
   lines.push(`**Overall:** \`${outcome}\``);
   lines.push('');
@@ -64,7 +66,7 @@ function buildStatusMarkdown(outcome: string): string {
   lines.push('');
   lines.push('| Step | Result |');
   lines.push('|------|--------|');
-  lines.push(`| ${iconFor(outcome)} **Deploy** | \`${outcome}\` |`);
+  lines.push(`| ${iconFor(outcome)} **${name}** | \`${outcome}\` |`);
   lines.push('');
   lines.push('### Trigger');
   if (event !== '') lines.push(`- **event:** \`${event}\``);
@@ -98,16 +100,17 @@ function writeSummary(markdown: string): void {
 }
 
 try {
+  const name = (process.env['PIPELINE_NAME'] ?? '').trim() || 'pipeline';
   const outcome =
-    (process.env['DEPLOY_OUTCOME'] ?? 'unknown').trim() || 'unknown';
-  const status = buildStatusMarkdown(outcome);
+    (process.env['PIPELINE_OUTCOME'] ?? 'unknown').trim() || 'unknown';
+  const status = buildStatusMarkdown(name, outcome);
 
   let llm = '';
   if (outcome === 'failure') {
     llm = buildCiDeployFailureLlmFixPromptMarkdown([
       {
-        stepId: 'Deploy — bun run deploy',
-        output: readDeployLog(),
+        stepId: name,
+        output: readPipelineLog(),
       },
     ]);
   }

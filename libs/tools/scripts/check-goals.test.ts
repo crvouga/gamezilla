@@ -76,7 +76,7 @@ describe('validateGoalGate', () => {
       'spaces:1': { status: 'unproven', note: 'not started' },
     };
     expect(validateGoalGate({ ...base, checks }).join('\n')).toContain(
-      'the-bar:1: goal.md statement has no goal-checks.json entry'
+      'the-bar:1: GOAL.md statement has no goal-checks.json entry'
     );
   });
 
@@ -87,8 +87,8 @@ describe('validateGoalGate', () => {
       'spaces:1': { status: 'unproven', note: 'not started' },
     };
     const errors = validateGoalGate({ ...base, checks }).join('\n');
-    expect(errors).toContain('the-bar:1: goal.md checkbox is unchecked');
-    expect(errors).toContain('the-bar:2: goal.md checkbox is checked');
+    expect(errors).toContain('the-bar:1: GOAL.md checkbox is unchecked');
+    expect(errors).toContain('the-bar:2: GOAL.md checkbox is checked');
   });
 
   test('reports a proof file that does not carry the marker', () => {
@@ -176,8 +176,8 @@ describe('validateGoalGate', () => {
  * guarded by a check.
  */
 describe('goal gate over the repository', () => {
-  test('goal.md and its manifest agree and every proof resolves', () => {
-    const statements = parseGoalMarkdown(readRepoFile('goal.md') ?? '');
+  test('GOAL.md and its manifest agree and every proof resolves', () => {
+    const statements = parseGoalMarkdown(readRepoFile('docs/GOAL.md') ?? '');
     expect(statements.length).toBeGreaterThan(50);
     const checks = JSON.parse(
       readRepoFile('libs/tools/goal/goal-checks.json') ?? '{}'

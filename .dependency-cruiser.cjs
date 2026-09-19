@@ -82,7 +82,7 @@ module.exports = {
       comment:
         'Only @pkgs/assistant/shared and @pkgs/assistant/client are importable from outside the assistant package.',
       from: { pathNot: '^pkgs/assistant/' },
-      to: { path: '^pkgs/assistant/src/(shared|client)/_internal/' },
+      to: { path: '^pkgs/assistant/src/(shared|client)/internal/' },
     },
     {
       name: 'not-to-dev-dep-from-src',
@@ -127,7 +127,7 @@ module.exports = {
       name: 'shared-no-wall-io-packages',
       severity: 'error',
       comment:
-        'Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See DETERMINISM.md.',
+        'Shared game/domain logic must not import networking or wall Io construction. Inject Io ports from composition roots. See docs/DETERMINISM.md.',
       from: {
         path: '(^libs/[^/]+/src/shared/|^libs/[^/]+/src/use-cases/[^/]+/shared/|^pkgs/room/src/(client/core|server/core|types\\.ts|hash-room-state\\.ts))',
         pathNot: '(\\.test\\.|\\.spec\\.|/tests/|/e2e/)',

@@ -32,6 +32,7 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
 const CHECK_LEAVES = [
   '//#ci:pr-template',
   '//#ci:goals',
+  '//#lint:naming',
   '//#lint:biome',
   '//#lint:vocab',
   '//#lint:eslint',

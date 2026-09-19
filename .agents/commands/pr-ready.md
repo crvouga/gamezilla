@@ -29,7 +29,7 @@ to make the branch mergeable **and conflict-free**, not to merge it.
   merge queue, and never merge through any other GitHub UI/API path. A green PR
   is the finish line: stop and hand the merge decision to a human.
 - **The PR body is a contract.** Every PR fills
-  `.github/pull_request_template.md` completely — no empty section, no unchecked
+  `.github/PULL_REQUEST_TEMPLATE.md` completely — no empty section, no unchecked
   box, no deleted checklist line. `//#ci:pr-template` enforces it in PR CI and
   re-runs on body edits; never weaken the template or the checker to pass it.
 - **Never rewrite history.** No `--amend` on pushed commits, no `--force`, no
@@ -219,14 +219,14 @@ PR_REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 gh pr view "$PR_NUMBER" --json mergeable,mergeStateStatus,isDraft,reviewDecision
 ```
 
-Then write the PR body from `.github/pull_request_template.md`. The body is a
+Then write the PR body from `.github/PULL_REQUEST_TEMPLATE.md`. The body is a
 contract: `//#ci:pr-template` (part of `//#check`) fails the PR when a `##`
 section is missing, empty, or a checklist box is unchecked, and it re-runs when
 the body is edited. Start from the template file rather than retyping it:
 
 ```sh
 BODY_FILE="$(mktemp -t pr-ready-body.XXXXXX.md)"
-cp .github/pull_request_template.md "$BODY_FILE"
+cp .github/PULL_REQUEST_TEMPLATE.md "$BODY_FILE"
 ```
 
 Replace the HTML comments with real content, keeping every heading and every
@@ -252,7 +252,7 @@ bun run ci:pr-template      # local self-check; also enforced by PR CI
 
 - An item that genuinely does not apply: say so under `Verification` and check
   it — do not delete the line.
-- Never edit `.github/pull_request_template.md`, `libs/tools/scripts/check-pr-body.ts`,
+- Never edit `.github/PULL_REQUEST_TEMPLATE.md`, `libs/tools/scripts/check-pr-body.ts`,
   or the checklist text to make the gate pass.
 
 ## 6. Drive the checks green

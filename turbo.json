@@ -358,6 +358,11 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "//#lint:naming": {
+      "cache": false,
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "//#lint:vocab": {
       "inputs": [
         "libs/tools/scripts/check-no-removed-auth-vocab.ts",
@@ -499,6 +504,7 @@
       "dependsOn": [
         "//#ci:pr-template",
         "//#ci:goals",
+        "//#lint:naming",
         "//#lint:biome",
         "//#lint:vocab",
         "//#lint:eslint",
@@ -630,6 +636,7 @@
     "//#deploy": {
       "cache": false,
       "dependsOn": [
+        "//#lint:naming",
         "//#lint:biome",
         "//#lint:vocab",
         "//#ci:goals",
@@ -715,7 +722,7 @@
     },
     "//#ci:pr-template": {
       "inputs": [
-        ".github/pull_request_template.md",
+        ".github/PULL_REQUEST_TEMPLATE.md",
         "libs/tools/scripts/check-pr-body.ts"
       ],
       "outputs": [],

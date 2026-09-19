@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Goal gate (`//#ci:goals`): `goal.md` promises that every definition-of-done
+ * Goal gate (`//#ci:goals`): `docs/GOAL.md` promises that every definition-of-done
  * statement is proven by an automated check. This enforces the bookkeeping:
  * every statement has a manifest entry, checked boxes and `proven` status
  * agree, proofs point at real files carrying the `goal:<id>` marker, and the
@@ -17,7 +17,7 @@ import { countUnproven, validateGoalGate } from '../goal/goal-manifest';
 import { parseGoalMarkdown } from '../goal/goal-statements';
 
 const ROOT = join(import.meta.dirname, '../../..');
-const GOAL_PATH = 'goal.md';
+const GOAL_PATH = 'docs/GOAL.md';
 const CHECKS_PATH = 'libs/tools/goal/goal-checks.json';
 const BUGS_PATH = 'libs/tools/goal/known-bugs.json';
 

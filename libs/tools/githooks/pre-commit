@@ -16,5 +16,8 @@ fi
 ROOT="$(git rev-parse --show-toplevel)"
 cd "$ROOT"
 
+echo "pre-commit: naming gate"
+bun run libs/tools/scripts/check-naming.ts
+
 echo "pre-commit: turbo run lint tc --affected"
 bunx turbo run lint tc --affected

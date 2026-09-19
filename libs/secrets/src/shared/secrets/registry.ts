@@ -43,14 +43,7 @@ import {
   S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
 import type { Secret } from './secret';
-import {
-  TURBO_API,
-  TURBO_CACHE,
-  TURBO_LOG_ORDER,
-  TURBO_TEAM,
-  TURBO_TELEMETRY_DISABLED,
-  TURBO_TOKEN,
-} from './turbo-token';
+import { TURBO_API, TURBO_TOKEN } from './turbo-token';
 
 /**
  * Exhaustive registry of every managed secret. Orphans (stored keys not in
@@ -68,10 +61,6 @@ export const SECRETS: readonly Secret[] = [
   BILLING_VENDOR_WEBHOOK_SECRET,
   TURBO_API,
   TURBO_TOKEN,
-  TURBO_TEAM,
-  TURBO_CACHE,
-  TURBO_LOG_ORDER,
-  TURBO_TELEMETRY_DISABLED,
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
   S3_BUCKET,

@@ -71,6 +71,9 @@ apps/client/android/
 
 .cursor/debug*.log
 
+# Local deploy / script logs
+*.log
+
 # DuckDB inspect UI local database
 .local/
 

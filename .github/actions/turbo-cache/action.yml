@@ -2,7 +2,7 @@
 name: Turbo local cache
 description: >-
   Restore or save `.turbo` with a per-job primary key so parallel jobs do not
-  race on the same SHA key. The Turbo *remote* cache (TURBO_TOKEN / TURBO_TEAM)
+  race on the same SHA key. The Turbo *remote* cache (TURBO_TOKEN)
   is what makes repeat runs cheap; this only keeps the local artifacts warm
   between steps of the same job.
 inputs:

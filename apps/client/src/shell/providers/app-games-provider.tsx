@@ -4,7 +4,7 @@
  * space rooms (`SpaceOpenRoomsProvider`, miniplayer) has `SpaceModuleProvider`.
  *
  * Heavy `@libs/games/game-plugins.client` still loads only under `/space/*`
- * (see docs/low-end-android-perf.md). Empty registries cover non-space routes.
+ * (see docs/LOW_END_ANDROID_PERF.md). Empty registries cover non-space routes.
  */
 import {
   GamesBootstrapFromPlugins,
