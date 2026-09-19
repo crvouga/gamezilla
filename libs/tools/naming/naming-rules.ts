@@ -29,6 +29,8 @@ export const NAMING_EXEMPT = {
     '.agents/commands/',
     '.cursor/commands/',
     '.claude/commands/',
+    '.github/prompts/',
+    '.windsurf/workflows/',
   ],
 } as const;
 
