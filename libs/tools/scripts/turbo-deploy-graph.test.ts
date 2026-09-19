@@ -30,7 +30,6 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
 
 /** `//#check` is the whole check surface — there is no second tier. */
 const CHECK_LEAVES = [
-  '//#ci:pr-template',
   '//#ci:agent-commands',
   '//#ci:goals',
   '//#ci:no-skipped-tests',
@@ -51,6 +50,7 @@ const CHECK_LEAVES = [
   '@apps/room-server#build',
   '@pkgs/auth#test:e2e',
   '@pkgs/sql-client-sqlite-web#test:e2e',
+  '@pkgs/chess-board#test:e2e',
   '@pkgs/sql-client-postgres#test:contract',
   '@pkgs/db-schema-postgres#test:contract',
   '@pkgs/db-indexes-postgres#test:contract',

@@ -7,6 +7,7 @@
 
 import type { CaptureGhost } from '@pkgs/chess-board-core/capture-ghost';
 import type { ChessPieceRow } from '@pkgs/chess-board-core/piece-rows';
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   PieceCode,
@@ -18,9 +19,11 @@ import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
 import styles from './chess-board.module.css';
 import { bumpChessBoardRender } from './dev/render-counts';
 import type { DragGhostController } from './drag-ghost-controller';
+import { PaintToken } from './paint-token';
 import { PIECE_IMAGE_URIS } from './piece-images';
 
 export type ChessBoardPiecesProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly rows: Accessor<readonly ChessPieceRow[]>;
   readonly captureGhost: Accessor<CaptureGhost | null>;
@@ -78,18 +81,25 @@ function DragGhostLayer(props: {
 
 function PieceRow(props: {
   readonly row: ChessPieceRow;
+  readonly rows: Accessor<readonly ChessPieceRow[]>;
   readonly orientation: BoardOrientation;
   readonly dragFrom: Accessor<Square | null>;
   readonly snapSquare: Accessor<Square | null>;
   readonly animated: Accessor<boolean>;
 }): JSX.Element {
-  const dragging = () => props.dragFrom() === props.row.square;
+  // The tracker reuses (mutates) a surviving row so `<For>` keeps its node
+  // and the piece slides; `rows()` is the signal that a row moved / promoted.
+  const square = (): Square => {
+    props.rows();
+    return props.row.square;
+  };
+  const code = (): PieceCode => {
+    props.rows();
+    return props.row.code;
+  };
+  const dragging = () => props.dragFrom() === square();
   const className = () => {
-    if (
-      dragging() ||
-      !props.animated() ||
-      props.snapSquare() === props.row.square
-    ) {
+    if (dragging() || !props.animated() || props.snapSquare() === square()) {
       return '';
     }
     return styles['pieceAnimated'] ?? '';
@@ -99,17 +109,19 @@ function PieceRow(props: {
       <Show when={dragging()}>
         <g
           class={styles['dragOriginGhost']}
-          transform={pieceTransform(props.row.square, props.orientation)}
+          transform={pieceTransform(square(), props.orientation)}
         >
-          <PieceImage code={props.row.code} opacity={0.35} />
+          <PieceImage code={code()} opacity={0.35} />
+          <PaintToken kind="drag-origin" detail={code()} at={square()} />
         </g>
       </Show>
       <g
-        transform={pieceTransform(props.row.square, props.orientation)}
+        transform={pieceTransform(square(), props.orientation)}
         class={className()}
         style={{ visibility: dragging() ? 'hidden' : undefined }}
       >
-        <PieceImage code={props.row.code} />
+        <PieceImage code={code()} />
+        <PaintToken kind="piece" detail={code()} at={square()} />
       </g>
     </>
   );
@@ -122,6 +134,7 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
       class={`${styles['layer']} ${styles['svgLayer']}`}
       viewBox={`0 0 ${BOARD_UNITS} ${BOARD_UNITS}`}
       aria-hidden="true"
+      data-testid={chessBoardLayerTestId(props.boardTestId, 'pieces')}
     >
       <Show when={props.captureGhost()}>
         {(ghost) => (
@@ -130,6 +143,11 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
             transform={pieceTransform(ghost().square, props.orientation)}
           >
             <PieceImage code={ghost().code} />
+            <PaintToken
+              kind="capture-ghost"
+              detail={ghost().code}
+              at={ghost().square}
+            />
           </g>
         )}
       </Show>
@@ -146,6 +164,11 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
             transform={pieceTransform(premove().to, props.orientation)}
           >
             <PieceImage code={premove().code} opacity={0.4} />
+            <PaintToken
+              kind="premove-ghost"
+              detail={premove().code}
+              at={premove().to}
+            />
           </g>
         )}
       </Show>
@@ -153,6 +176,7 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
         {(row) => (
           <PieceRow
             row={row}
+            rows={props.rows}
             orientation={props.orientation}
             dragFrom={props.dragFrom}
             snapSquare={props.snapSquare}

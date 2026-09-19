@@ -5,7 +5,11 @@
  * synthesizes when the host cannot lay out.
  */
 
-import type { TapPosition } from '@pkgs/ui-testing/driver/driver';
+import type {
+  GestureOptions,
+  PointerButton,
+  TapPosition,
+} from '@pkgs/ui-testing/driver/driver';
 import {
   ensureElementLayout,
   type LayoutProvider,
@@ -18,7 +22,20 @@ type PointerPhase = 'down' | 'move' | 'up';
 
 const POINTER_ID = 1;
 
-function pointerInit(phase: PointerPhase, point: Point): PointerEventInit {
+/** DOM `button` / `buttons` values for each gesture button. */
+const BUTTONS: Readonly<
+  Record<PointerButton, { readonly button: number; readonly buttons: number }>
+> = {
+  primary: { button: 0, buttons: 1 },
+  secondary: { button: 2, buttons: 2 },
+};
+
+function pointerInit(
+  phase: PointerPhase,
+  point: Point,
+  button: PointerButton
+): PointerEventInit {
+  const b = BUTTONS[button];
   return {
     bubbles: true,
     cancelable: true,
@@ -26,8 +43,8 @@ function pointerInit(phase: PointerPhase, point: Point): PointerEventInit {
     pointerId: POINTER_ID,
     pointerType: 'mouse',
     isPrimary: true,
-    button: phase === 'move' ? -1 : 0,
-    buttons: phase === 'up' ? 0 : 1,
+    button: phase === 'move' ? -1 : b.button,
+    buttons: phase === 'up' ? 0 : b.buttons,
     clientX: point.x,
     clientY: point.y,
     screenX: point.x,
@@ -38,45 +55,64 @@ function pointerInit(phase: PointerPhase, point: Point): PointerEventInit {
 function dispatchPointer(
   element: Element,
   phase: PointerPhase,
-  point: Point
+  point: Point,
+  button: PointerButton
 ): void {
-  const init = pointerInit(phase, point);
+  const init = pointerInit(phase, point, button);
   element.dispatchEvent(new PointerEvent(`pointer${phase}`, init));
   const mouseType =
     phase === 'down' ? 'mousedown' : phase === 'up' ? 'mouseup' : 'mousemove';
   element.dispatchEvent(new MouseEvent(mouseType, init));
+  // A secondary press opens the context menu (on press, as macOS / Linux do).
+  if (phase === 'down' && button === 'secondary') {
+    element.dispatchEvent(new MouseEvent('contextmenu', init));
+  }
 }
 
-function dispatchClick(element: Element, point: Point): void {
-  element.dispatchEvent(new MouseEvent('click', pointerInit('up', point)));
+/** Primary release → `click`; secondary release → `auxclick`. */
+function dispatchRelease(
+  element: Element,
+  point: Point,
+  button: PointerButton
+): void {
+  const type = button === 'primary' ? 'click' : 'auxclick';
+  element.dispatchEvent(new MouseEvent(type, pointerInit('up', point, button)));
 }
 
 /** Press + release at a relative position, followed by `click`. */
 export function fireTapAt(
   element: Element,
   position: TapPosition,
-  provider: LayoutProvider
+  provider: LayoutProvider,
+  options?: GestureOptions
 ): void {
+  const button = options?.button ?? 'primary';
   const layout = ensureElementLayout(element, provider);
   const point = pointFromRatio(layout, position);
-  dispatchPointer(element, 'down', point);
-  dispatchPointer(element, 'up', point);
-  dispatchClick(element, point);
+  dispatchPointer(element, 'down', point, button);
+  dispatchPointer(element, 'up', point, button);
+  dispatchRelease(element, point, button);
 }
+
+type DragPath = {
+  readonly from: TapPosition;
+  readonly to: TapPosition;
+};
 
 /** Press at `from`, move through the midpoint, release at `to`. */
 export function fireDrag(
   element: Element,
-  from: TapPosition,
-  to: TapPosition,
-  provider: LayoutProvider
+  path: DragPath,
+  provider: LayoutProvider,
+  options?: GestureOptions
 ): void {
+  const button = options?.button ?? 'primary';
   const layout = ensureElementLayout(element, provider);
-  const start = pointFromRatio(layout, from);
-  const end = pointFromRatio(layout, to);
+  const start = pointFromRatio(layout, path.from);
+  const end = pointFromRatio(layout, path.to);
   const mid = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
-  dispatchPointer(element, 'down', start);
-  dispatchPointer(element, 'move', mid);
-  dispatchPointer(element, 'move', end);
-  dispatchPointer(element, 'up', end);
+  dispatchPointer(element, 'down', start, button);
+  dispatchPointer(element, 'move', mid, button);
+  dispatchPointer(element, 'move', end, button);
+  dispatchPointer(element, 'up', end, button);
 }

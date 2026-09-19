@@ -6,7 +6,12 @@
 import type { JsonValue } from '@pkgs/sim';
 
 import type { DriverKey } from '../core/keys';
-import type { Driver, DriverNode, ScrollDirection } from '../driver/driver';
+import type {
+  Driver,
+  DriverNode,
+  GestureOptions,
+  ScrollDirection,
+} from '../driver/driver';
 import { formatTestIdPath } from '../selector/format';
 
 export type UiOp = {
@@ -24,6 +29,10 @@ function keyOf(op: UiOp): DriverKey {
 function textOf(op: UiOp): string {
   const text = op.extra['text'];
   return typeof text === 'string' ? text : '';
+}
+
+function gestureOf(op: UiOp): GestureOptions {
+  return op.extra['button'] === 'secondary' ? { button: 'secondary' } : {};
 }
 
 function num(op: UiOp, key: string): number {
@@ -79,15 +88,16 @@ async function runNodeOp(
       await node.scroll(op.extra['direction'] as ScrollDirection);
       return;
     case 'tapAt':
-      await node.tapAt({
-        xRatio: num(op, 'xRatio'),
-        yRatio: num(op, 'yRatio'),
-      });
+      await node.tapAt(
+        { xRatio: num(op, 'xRatio'), yRatio: num(op, 'yRatio') },
+        gestureOf(op)
+      );
       return;
     case 'drag':
       await node.drag(
         { xRatio: num(op, 'fromX'), yRatio: num(op, 'fromY') },
-        { xRatio: num(op, 'toX'), yRatio: num(op, 'toY') }
+        { xRatio: num(op, 'toX'), yRatio: num(op, 'toY') },
+        gestureOf(op)
       );
       return;
     default:

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { afterEach, describe, expect, test } from 'bun:test';
 import { TimeoutError, UiTestError } from '@pkgs/ui-testing/core/errors';
 import {
   createSolidDomDriver,
@@ -6,7 +8,6 @@ import {
   type SolidDomDriver,
 } from '@pkgs/ui-testing-solid-dom';
 import { createSignal, type JSX, onMount } from 'solid-js';
-import { afterEach, describe, expect, test } from 'vitest';
 import { createDemoClock, DemoApp, DemoProviders } from './support/demo-app';
 
 function demoDriver(): SolidDomDriver {
@@ -16,6 +17,16 @@ function demoDriver(): SolidDomDriver {
     pump: sim.pump,
     harness: { createRoot: () => () => <DemoApp sim={sim} /> },
   });
+}
+
+/** The error `promise` rejects with; fails if it resolves. */
+async function rejection(promise: Promise<unknown>): Promise<unknown> {
+  return promise.then(
+    () => {
+      throw new Error('expected a rejection');
+    },
+    (error: unknown) => error
+  );
 }
 
 function customDriver(root: () => JSX.Element): SolidDomDriver {
@@ -199,6 +210,41 @@ describe('SolidDomDriver', () => {
     ]);
   });
 
+  test('secondary tapAt / drag press button 2 and open the context menu', async () => {
+    const events: string[] = [];
+    const log = (e: MouseEvent) =>
+      events.push(`${e.type}:${e.button}:${e.clientX},${e.clientY}`);
+    driver = customDriver(() => (
+      <div
+        class="box"
+        data-testid="board"
+        style={{ width: '200px', height: '100px' }}
+        onPointerDown={log}
+        onPointerUp={log}
+        ref={(el) => el.addEventListener('contextmenu', log)}
+      />
+    ));
+    await driver.launch();
+    await driver
+      .get('board')
+      .tapAt({ xRatio: 0.5, yRatio: 0.5 }, { button: 'secondary' });
+    await driver
+      .get('board')
+      .drag(
+        { xRatio: 0, yRatio: 0 },
+        { xRatio: 1, yRatio: 1 },
+        { button: 'secondary' }
+      );
+    expect(events).toEqual([
+      'pointerdown:2:100,50',
+      'contextmenu:2:100,50',
+      'pointerup:2:100,50',
+      'pointerdown:2:0,0',
+      'contextmenu:2:0,0',
+      'pointerup:2:200,100',
+    ]);
+  });
+
   test('wait(text) observes async updates driven by the pump', async () => {
     const [label, setLabel] = createSignal('before');
     const sim = createDemoClock();
@@ -224,12 +270,11 @@ describe('SolidDomDriver', () => {
   test('wait times out with TimeoutError / UiTestError on the injected clock', async () => {
     driver = demoDriver();
     await driver.launch();
-    await expect(
+    const waitError = await rejection(
       driver.get('missing').wait('visible', { timeoutMs: 50 })
-    ).rejects.toBeInstanceOf(TimeoutError);
-    await expect(
-      driver.get('missing').wait('visible', { timeoutMs: 50 })
-    ).rejects.toThrow(
+    );
+    expect(waitError).toBeInstanceOf(TimeoutError);
+    expect((waitError as Error).message).toContain(
       'Timed out after 50ms waiting for visible testId("missing")'
     );
     const textError = await driver
@@ -247,8 +292,7 @@ describe('SolidDomDriver', () => {
     expect(document.querySelector('[data-actor]')).not.toBeNull();
     await driver.close();
     expect(document.querySelector('[data-actor]')).toBeNull();
-    await expect(driver.get('email').isVisible()).rejects.toThrow(
-      'Driver not launched'
-    );
+    const closedError = await rejection(driver.get('email').isVisible());
+    expect((closedError as Error).message).toContain('Driver not launched');
   });
 });

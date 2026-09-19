@@ -125,10 +125,13 @@ a plan without larger runners):
    `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
    `@libs/db#migrate` / `@libs/secrets#provision` are not dry-run gated.
 
-The two `test:e2e` leaves (`@pkgs/auth`, `@pkgs/sql-client-sqlite-web`) drive a
-browser through `Bun.WebView`, which is macOS-only: they log a skip and exit 0
-on other platforms, and `turbo.json` marks both `cache: false` so a macOS result
-can never satisfy a Linux run. Do not re-enable caching for them.
+The three `test:e2e` leaves (`@pkgs/auth`, `@pkgs/sql-client-sqlite-web`,
+`@pkgs/chess-board`) drive a browser through `Bun.WebView`, which is macOS-only:
+on other platforms they fall back to their in-process path, and `turbo.json`
+hashes `turbo-platform-key.json` so a macOS result can never satisfy a Linux
+run. Do not re-enable caching for them. `@pkgs/chess-board`'s UI suite is
+written once (`tests/ui/suite`) and runs in happy-dom (`test`) and in WebKit
+(`test:e2e`; `CHESS_BOARD_WEBVIEW=chrome` for Chrome).
 
 CI pins Bun `1.4.2` (`packageManager`, `.github/actions/setup`). Do not downgrade
 to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so

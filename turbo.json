@@ -320,6 +320,19 @@
       "outputs": [],
       "dependsOn": ["tc"]
     },
+    "@pkgs/chess-board#test:e2e": {
+      "inputs": [
+        "src/**",
+        "e2e/**",
+        "tests/ui/**",
+        "package.json",
+        "tsconfig*.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputLogs": "new-only",
+      "outputs": [],
+      "dependsOn": ["tc"]
+    },
     "billing:check": {
       "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
       "outputLogs": "new-only",
@@ -517,6 +530,7 @@
         "@apps/room-server#build",
         "@pkgs/auth#test:e2e",
         "@pkgs/sql-client-sqlite-web#test:e2e",
+        "@pkgs/chess-board#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
         "@pkgs/db-schema-postgres#test:contract",
         "@pkgs/db-indexes-postgres#test:contract",
@@ -656,6 +670,7 @@
         "//#ci:release-gate",
         "@pkgs/auth#test:e2e",
         "@pkgs/sql-client-sqlite-web#test:e2e",
+        "@pkgs/chess-board#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
         "@pkgs/kv-postgres#test:contract",
         "@pkgs/object-store-s3#test:contract",

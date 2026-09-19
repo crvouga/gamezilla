@@ -12,6 +12,7 @@ import type {
   Driver,
   DriverNode,
   DriverWaitOptions,
+  GestureOptions,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -133,19 +134,31 @@ function recordingExpect(node: DriverNode, ctx: Ctx): DriverNode['expect'] {
   };
 }
 
+function gestureTitle(op: string, options: GestureOptions | undefined): string {
+  return options?.button === 'secondary' ? `${op} secondary` : op;
+}
+
 function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
   return {
     get: (testId: string) =>
       recordingNode(node.get(testId), { ...ctx, path: [...ctx.path, testId] }),
     tap: (options?: UiWaitOptions) =>
       stepWithHit(ctx, ui('tap'), () => node.tap(options)),
-    tapAt: (position: TapPosition) =>
-      stepWithHit(ctx, ui('tapAt', ratio(position), position), () =>
-        node.tapAt(position)
+    tapAt: (position: TapPosition, options?: GestureOptions) =>
+      stepWithHit(
+        ctx,
+        ui(gestureTitle('tapAt', options), ratio(position), position),
+        () => node.tapAt(position, options)
       ),
-    drag: (from: TapPosition, to: TapPosition) =>
-      stepWithHit(ctx, ui('drag', `${ratio(from)} → ${ratio(to)}`, from), () =>
-        node.drag(from, to)
+    drag: (from: TapPosition, to: TapPosition, options?: GestureOptions) =>
+      stepWithHit(
+        ctx,
+        ui(
+          gestureTitle('drag', options),
+          `${ratio(from)} → ${ratio(to)}`,
+          from
+        ),
+        () => node.drag(from, to, options)
       ),
     layout: () => node.layout(),
     input: (text: string, options?: UiWaitOptions) =>

@@ -9,6 +9,7 @@ import {
   Chess,
   type Move as ChessJsMove,
   type Square as ChessSquare,
+  validateFen,
 } from 'chess.js';
 import { moveFromChessJs } from './chess-js-move';
 import { isSquare } from './geometry';
@@ -91,6 +92,8 @@ export function applyExternalFenToChess(
   nextFen: string
 ): ApplyExternalFenResult | null {
   if (nextFen === chess.fen()) return null;
+  // Parent / server data: a malformed FEN keeps the current position.
+  if (!validateFen(nextFen).ok) return null;
   const prev = positionFromChess(chess);
   chess.load(nextFen);
   const moved = inferLastMoveFromPositionDiff(prev, positionFromChess(chess));
@@ -119,8 +122,13 @@ export class ChessGame {
   private snapshot: ChessGameSnapshot;
   private readonly listeners = new Set<() => void>();
 
+  /** A malformed `initialFen` falls back to the start position. */
   constructor(initialFen?: string) {
-    this.chess = new Chess(initialFen);
+    this.chess = new Chess(
+      initialFen !== undefined && validateFen(initialFen).ok
+        ? initialFen
+        : undefined
+    );
     this.snapshot = snapshotOf(this.chess, null);
   }
 

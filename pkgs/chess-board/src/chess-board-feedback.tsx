@@ -4,6 +4,7 @@
  * board-unit SVG layer.
  */
 
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   BoardTheme,
@@ -11,7 +12,6 @@ import type {
   Square,
 } from '@pkgs/chess-board-core/types';
 import { For, type JSX, Show } from 'solid-js';
-
 import { fmtUnits } from './board-units';
 import styles from './chess-board.module.css';
 import {
@@ -24,8 +24,10 @@ import {
   glyphStyle,
   TEXT_GLYPH,
 } from './feedback-badge';
+import { PaintToken } from './paint-token';
 
 export type ChessBoardFeedbackProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly theme: BoardTheme;
   readonly cellFeedback: Partial<Record<Square, CellFeedback>> | undefined;
@@ -47,6 +49,11 @@ function FeedbackMark(props: {
       opacity={opacity()}
       transform={`translate(${fmtUnits(props.badge.cx)} ${fmtUnits(props.badge.cy)})`}
     >
+      <PaintToken
+        kind="feedback"
+        detail={props.badge.feedback.kind}
+        at={props.badge.square}
+      />
       <circle
         r={BADGE_RADIUS}
         fill={color()}
@@ -100,6 +107,7 @@ export function ChessBoardFeedback(
       class={`${styles['layer']} ${styles['svgLayer']}`}
       viewBox="0 0 800 800"
       aria-hidden="true"
+      data-testid={chessBoardLayerTestId(props.boardTestId, 'feedback')}
     >
       <For each={[...badges()]}>
         {(badge) => <FeedbackMark badge={badge} theme={props.theme} />}

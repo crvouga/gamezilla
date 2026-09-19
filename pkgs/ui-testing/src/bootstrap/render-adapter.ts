@@ -1,4 +1,8 @@
-import type { ElementLayout, TapPosition } from '../driver/driver';
+import type {
+  ElementLayout,
+  GestureOptions,
+  TapPosition,
+} from '../driver/driver';
 
 /**
  * Runtime-agnostic node handle. DOM adapters use `Element`.
@@ -31,10 +35,19 @@ export interface RenderedApp {
   tap(element: HostNode): Promise<void>;
 
   /** Tap at a relative position within the element. */
-  tapAt(element: HostNode, position: TapPosition): Promise<void>;
+  tapAt(
+    element: HostNode,
+    position: TapPosition,
+    options?: GestureOptions
+  ): Promise<void>;
 
   /** Drag from one relative position to another within the element. */
-  drag(element: HostNode, from: TapPosition, to: TapPosition): Promise<void>;
+  drag(
+    element: HostNode,
+    from: TapPosition,
+    to: TapPosition,
+    options?: GestureOptions
+  ): Promise<void>;
 
   /**
    * Read (or synthesize) the element's layout box.
@@ -48,8 +61,12 @@ export interface RenderedApp {
   /** Clear the element's current value. */
   clearText(element: HostNode): Promise<void>;
 
-  /** Press a DOM-style key name (e.g. `"Enter"`). */
-  pressKey(domKey: string): Promise<void>;
+  /**
+   * Press a DOM-style key name (e.g. `"Enter"`). With a `target`, focus moves
+   * into it first (unless focus is already inside), like a person clicking
+   * into a control before typing.
+   */
+  pressKey(domKey: string, target?: HostNode): Promise<void>;
 
   /** Scroll the element in a direction by `amount` pixels. */
   scroll(
