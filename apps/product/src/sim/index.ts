@@ -95,13 +95,17 @@ export {
   isEmptyPoolVisible,
   isGameLogEmpty,
   isPuzzleSolved,
+  pickWrongUci,
   readActivePuzzleId,
   readGameLogRowTitle,
   readPuzzleDebug,
+  readPuzzleDisplayFen,
   readPuzzleHintStage,
+  readPuzzlePickState,
+  readPuzzleSpectator,
   readPuzzleStatus,
+  readPuzzleStatusKind,
   readStatsElo,
-  waitEmptyPool,
 } from './system/chess-puzzle-ui';
 export {
   actor,
@@ -168,7 +172,9 @@ export {
   setUsername,
   signInWithGoogle,
   signOut,
+  skipPuzzle,
   subscribeToPlus,
+  suggestPuzzleMove,
   switchPlusInterval,
 } from './system/scenario-actions';
 export {

@@ -107,6 +107,8 @@ export const Handles = {
   chessPuzzleExpectedUci: 'chess-puzzle-expected-uci',
   chessPuzzleE2eDebug: 'chess-puzzle-e2e-debug',
   /** Hidden probe: current display FEN (drivers derive legal wrong moves). */
+  /** Hidden probe: `spectating=0|1 role=… kind=… clock=… recs=…`. */
+  chessPuzzleE2eSpectator: 'chess-puzzle-e2e-spectator',
   chessPuzzleE2eFen: 'chess-puzzle-e2e-fen',
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
@@ -146,6 +148,11 @@ export const Handles = {
   chessPuzzleActionRetry: 'chess-puzzle-action-retry',
   chessPuzzleActionBack: 'chess-puzzle-action-back',
   chessPuzzleActionForward: 'chess-puzzle-action-forward',
+  chessPuzzleActionSkip: 'chess-puzzle-action-skip',
+  chessPuzzleClock: 'chess-puzzle-clock',
+  chessPuzzleRecommendationLegend: 'chess-puzzle-recommendation-legend',
+  chessPuzzleRecommendationClear: 'chess-puzzle-recommendation-clear',
+  chessPuzzleWaitingForHost: 'chess-puzzle-waiting-for-host',
   chessStatsElo: 'chess-stats-elo',
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
   /** Career game-log row scoped by puzzle id. */

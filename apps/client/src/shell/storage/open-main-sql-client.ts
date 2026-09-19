@@ -6,6 +6,7 @@
 import type { Timers } from '@pkgs/clock';
 import { assertDatabaseName } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import { createWebSqlClient } from '@pkgs/sql-client-sqlite-web';
 
 /** Short stable id fragment for SQLite filenames (keeps names near legacy length). */
@@ -38,9 +39,17 @@ export async function openMainSqlClient(
   userId: string,
   timers: Timers
 ): Promise<SqlClient> {
-  const client = createWebSqlClient(getMainSqliteDbName(userId), {
-    timers,
-  });
-  await client.connect();
-  return client;
+  try {
+    const client = createWebSqlClient(getMainSqliteDbName(userId), {
+      timers,
+    });
+    await client.connect();
+    return client;
+  } catch {
+    // Local SQLite is an optimistic cache. A stale worker, broken OPFS
+    // handle, or corrupt snapshot must never block application boot.
+    const fallback = SqlClientImplSqliteMem.open();
+    await fallback.connect();
+    return fallback;
+  }
 }

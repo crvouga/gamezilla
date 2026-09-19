@@ -3,9 +3,13 @@ import { describe, expect, test } from 'bun:test';
 import {
   createSpace,
   isPuzzleSolved,
+  leavePuzzleToChessMenu,
+  openChessStatsScreen,
   openPuzzleFromSpace,
   playUntilSolved,
   playWrongPuzzleMove,
+  readActivePuzzleId,
+  readGameLogRowTitle,
   readPuzzleHintStage,
   readPuzzleStatus,
   requestPuzzleHint,
@@ -15,6 +19,14 @@ import {
   signInWithGoogle,
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
+
+/** Narrow a nullable read result; failing loudly beats a silent `!`. */
+function required<T>(value: T | null | undefined, what: string): T {
+  if (value === null || value === undefined) {
+    throw new Error(`expected ${what}`);
+  }
+  return value;
+}
 
 async function enterPuzzle(s: Awaited<ReturnType<typeof openSim>>) {
   await s.apply(signInWithGoogle, 'alice');
@@ -64,5 +76,25 @@ describe('chess puzzle controls', () => {
     await s.apply(retryPuzzle, 'alice');
     await s.apply(playUntilSolved, 'alice');
     expect(await s.read(isPuzzleSolved, 'alice')).toBe(true);
+  });
+
+  test('a wrong move then Retry then solve still logs as Solved', async () => {
+    await using s = await openSim('chess-puzzle-wrong-retry-scored');
+    await enterPuzzle(s);
+    const puzzleId = required(
+      await s.read(readActivePuzzleId, 'alice'),
+      'active puzzle'
+    );
+
+    await s.apply(playWrongPuzzleMove, 'alice');
+    expect(await s.read(readPuzzleStatus, 'alice')).toBe('wrong');
+
+    await s.apply(retryPuzzle, 'alice');
+    await s.apply(playUntilSolved, 'alice');
+    await s.apply(leavePuzzleToChessMenu, 'alice');
+    await s.apply(openChessStatsScreen, 'alice');
+    expect(await s.read(readGameLogRowTitle, 'alice', puzzleId)).toMatch(
+      /^Solved/
+    );
   });
 });

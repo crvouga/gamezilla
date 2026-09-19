@@ -177,11 +177,11 @@ async function waitAfterHumanMove(
 async function playExpectedMove(s: ProductSim, actorId: string): Promise<void> {
   const uci = await waitExpectedUci(s, actorId);
   const squares = parseUciSquares(uci);
+  await waitBoardReady(s, actorId);
   const board = await puzzleBoard(s, actorId);
   await board.drag(squares.from, squares.to);
   await waitAfterHumanMove(s, actorId, uci);
 }
-
 export async function solvePuzzle(
   s: ProductSim,
   actorId: string
@@ -341,6 +341,97 @@ export async function waitPuzzleHintStage(
   );
 }
 
+export type PuzzleSpectatorProbe = {
+  readonly spectating: boolean;
+  readonly role: 'host' | 'guest' | 'unknown';
+  readonly statusKind: string;
+  readonly clockMs: number | null;
+  readonly recommendations: readonly {
+    readonly by: string;
+    readonly from: string;
+    readonly to: string;
+  }[];
+};
+
+function parseRecommendationProbe(
+  raw: string
+): PuzzleSpectatorProbe['recommendations'] {
+  if (raw.length === 0) return [];
+  return raw.split(',').flatMap((entry) => {
+    const [by, squares] = entry.split(':');
+    if (by === undefined || squares === undefined || squares.length < 4) {
+      return [];
+    }
+    return [{ by, from: squares.slice(0, 2), to: squares.slice(2, 4) }];
+  });
+}
+
+/** Watcher/clock probe: who is spectating, the header kind, elapsed ms, recs. */
+export async function readPuzzleSpectator(
+  s: ProductSim,
+  actorId: string
+): Promise<PuzzleSpectatorProbe | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const raw = stripProbe(
+      await ui.get(Handles.chessPuzzleE2eSpectator).text()
+    );
+    const fields: Record<string, string> = {};
+    for (const part of raw.split(' ')) {
+      const at = part.indexOf('=');
+      if (at > 0) fields[part.slice(0, at)] = part.slice(at + 1);
+    }
+    const clock = fields['clock'];
+    const role = fields['role'];
+    return {
+      spectating: fields['spectating'] === '1',
+      role: role === 'host' || role === 'guest' ? role : 'unknown',
+      statusKind: fields['kind'] ?? '',
+      clockMs: clock !== undefined && clock !== '-' ? Number(clock) : null,
+      recommendations: parseRecommendationProbe(fields['recs'] ?? ''),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function readPuzzleStatusKind(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  const probe = await readPuzzleSpectator(s, actorId);
+  return probe?.statusKind ?? null;
+}
+
+/** Pick state from the hidden pick-status probe (`ready`, `waiting`, …). */
+export async function readPuzzlePickState(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  return (await readPickStatusField(s, actorId, 'pickState')) ?? null;
+}
+
+/** Host abandons the live attempt: Skip → terminal `skipped` status. */
+export async function skipPuzzle(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  await tapAction(s, actorId, Handles.chessPuzzleActionSkip);
+  await waitPuzzleStatus(s, actorId, 'skipped');
+}
+
+/** A spectator drags a legal move; the room records it as a suggestion. */
+export async function suggestPuzzleMove(
+  s: ProductSim,
+  actorId: string,
+  from: Square,
+  to: Square
+): Promise<void> {
+  await waitBoardReady(s, actorId);
+  const board = await puzzleBoard(s, actorId);
+  await board.drag(from, to);
+}
+
 async function readDisplayFen(s: ProductSim, actorId: string): Promise<string> {
   const ui = await actorUi(s, actorId);
   return pollUntil(
@@ -351,6 +442,18 @@ async function readDisplayFen(s: ProductSim, actorId: string): Promise<string> {
     },
     { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'display fen' }
   );
+}
+
+/** Display FEN probe: the position the board currently renders. */
+export async function readPuzzleDisplayFen(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  try {
+    return await readDisplayFen(s, actorId);
+  } catch {
+    return null;
+  }
 }
 
 /** A legal move for the side to move that is not the expected solution ply. */
@@ -508,16 +611,6 @@ export async function isEmptyPoolVisible(
   const frame = ui.get(Handles.chessPuzzleBoardFrame);
   if (await frame.isVisible()) await frame.layout();
   return ui.get(Handles.chessPuzzleEmptyPool).isVisible();
-}
-
-export async function waitEmptyPool(
-  s: ProductSim,
-  actorId: string
-): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui.get(Handles.chessPuzzleEmptyPool).expect.visible({
-    timeoutMs: WAIT_MS,
-  });
 }
 
 /** Primary action on the exhausted-feed block ("Include played puzzles"). */

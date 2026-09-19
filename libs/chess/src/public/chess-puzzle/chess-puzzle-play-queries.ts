@@ -1,8 +1,14 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
 
-import { createQuery } from '@pkgs/sync-engine/solid';
-import { type Accessor, createMemo, mergeProps } from 'solid-js';
+import { createQuery, useSyncEngineInstance } from '@pkgs/sync-engine/solid';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  mergeProps,
+  onCleanup,
+} from 'solid-js';
 
 import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
 
@@ -64,12 +70,16 @@ type PuzzleEntityRow = {
 /** Match sync hydrate limit so Elo folds see full attempt history. */
 const INTERACTION_HISTORY_LIMIT = 5000;
 
+/** Registered query name for a single puzzle row (watchers outside the band). */
+const PUZZLE_BY_ID_QUERY_NAME = 'chessPuzzleById';
+
 export function usePuzzleEntity(puzzleId: Accessor<string>): {
   fen: string;
   movesStr: string;
   rating: number;
   themes: readonly string[];
 } {
+  const sync = useSyncEngineInstance();
   const { rows } = createQuery(
     () => sql<PuzzleEntityRow>`
     SELECT fen, moves, rating, themes
@@ -79,6 +89,17 @@ export function usePuzzleEntity(puzzleId: Accessor<string>): {
   `
   );
   const row = () => rows()[0] ?? null;
+
+  // A watcher whose rating band does not contain the host's puzzle has no
+  // local row; hydrate that one puzzle by id so the board can render.
+  createEffect(() => {
+    const id = puzzleId();
+    if (id.length === 0 || row() !== null) return;
+    const handle = sync.subscribeQueries([
+      { name: PUZZLE_BY_ID_QUERY_NAME, params: { id } },
+    ]);
+    onCleanup(() => handle.unsubscribe());
+  });
 
   return {
     get fen() {

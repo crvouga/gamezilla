@@ -26,18 +26,24 @@ describe('chessPuzzleStatusKindFromState', () => {
     expect(kinds).toHaveLength(2);
   });
 
-  test('maps solving to turn kind from orientation', () => {
+  test('maps live outcomes to clear status kinds', () => {
     expect(
       chessPuzzleStatusKindFromState({
         status: 'solving',
         orientation: 'white',
       })
-    ).toBe('whiteToMove');
+    ).toBe('started');
+    expect(
+      chessPuzzleStatusKindFromState({ status: 'wrong', orientation: 'black' })
+    ).toBe('failed');
     expect(
       chessPuzzleStatusKindFromState({
-        status: 'solving',
-        orientation: 'black',
+        status: 'skipped',
+        orientation: 'white',
       })
-    ).toBe('blackToMove');
+    ).toBe('skipped');
+    expect(
+      chessPuzzleStatusKindFromState({ status: 'solved', orientation: 'black' })
+    ).toBe('solved');
   });
 });

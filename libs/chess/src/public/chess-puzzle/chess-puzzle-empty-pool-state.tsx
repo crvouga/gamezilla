@@ -1,5 +1,11 @@
 import { Trans } from '@lingui/solid/macro';
-import { Button, EmptyState, SearchIcon, WifiOffIcon } from '@pkgs/ui';
+import {
+  Button,
+  ClockIcon,
+  EmptyState,
+  SearchIcon,
+  WifiOffIcon,
+} from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
 import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
@@ -9,7 +15,7 @@ import {
 } from '../chess-puzzle-feed-config';
 
 export type ChessPuzzleEmptyPoolStateProps = {
-  /** `'empty'`, `'offline'` or `'limited'`; other states never render this block. */
+  /** `'empty'`, `'offline'`, `'limited'` or `'waiting'`; `loading` never renders. */
   kind: Exclude<PuzzlePickState, 'ready' | 'loading'>;
   size: number;
   config: ChessPuzzleFeedConfig;
@@ -32,6 +38,17 @@ function OfflineBlock(): JSX.Element {
         </Trans>
       }
       dataSet={{ testid: 'chess-puzzle-empty-pool' }}
+    />
+  );
+}
+
+function WaitingBlock(): JSX.Element {
+  return (
+    <EmptyState
+      icon={ClockIcon}
+      title={<Trans>Waiting for the host</Trans>}
+      body={<Trans>The host hasn't started a puzzle yet.</Trans>}
+      dataSet={{ testid: 'chess-puzzle-waiting-for-host' }}
     />
   );
 }
@@ -115,7 +132,14 @@ export function ChessPuzzleEmptyPoolState(
       <Show
         when={props.kind === 'empty'}
         fallback={
-          <Show when={props.kind === 'limited'} fallback={<OfflineBlock />}>
+          <Show
+            when={props.kind === 'limited'}
+            fallback={
+              <Show when={props.kind === 'waiting'} fallback={<OfflineBlock />}>
+                <WaitingBlock />
+              </Show>
+            }
+          >
             <LimitBlock onUpgrade={props.onUpgrade} />
           </Show>
         }

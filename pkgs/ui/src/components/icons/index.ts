@@ -14,6 +14,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   CircleCheck,
+  Clock,
   Code,
   Columns2,
   Copy,
@@ -21,6 +22,7 @@ import {
   Database,
   DoorOpen,
   Ellipsis,
+  Eye,
   FlaskConical,
   Gamepad2,
   Gauge,
@@ -90,6 +92,7 @@ export const ChevronRightIcon = createIcon(ChevronRight);
 export const ChevronLeftIcon = createIcon(ChevronLeft);
 export const ChevronsLeftIcon = createIcon(ChevronsLeft);
 export const ChevronsRightIcon = createIcon(ChevronsRight);
+export const ClockIcon = createIcon(Clock);
 export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
@@ -97,6 +100,7 @@ export const PaintbrushIcon = createIcon(Paintbrush);
 export const PauseIcon = createIcon(Pause);
 export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);
+export const EyeIcon = createIcon(Eye);
 export const SettingsIcon = createIcon(Settings);
 export const WifiIcon = createIcon(Wifi);
 export const LogInIcon = createIcon(LogIn);

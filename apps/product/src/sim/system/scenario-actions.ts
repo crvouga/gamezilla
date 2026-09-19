@@ -36,6 +36,8 @@ import {
   revealPuzzleSolution,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
+  skipPuzzle,
+  suggestPuzzleMove,
 } from './chess-actions';
 import { acceptFriendRequest, openFriendsList } from './friends-actions';
 import {
@@ -108,7 +110,9 @@ export {
   setUsername,
   signInWithGoogle,
   signOut,
+  skipPuzzle,
   subscribeToPlus,
+  suggestPuzzleMove,
   switchPlusInterval,
 };
 
@@ -137,6 +141,8 @@ export const productScenarioActions = [
   openChessStatsScreen,
   openPuzzleReview,
   includePlayedPuzzles,
+  skipPuzzle,
+  suggestPuzzleMove,
   openPuzzleFeedSettings,
   closePuzzleFeedSettings,
   setPuzzleFeedHistory,

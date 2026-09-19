@@ -26,6 +26,7 @@
     "upsertPuzzleProfile"
   ],
   "queries": [
+    "chessPuzzleById",
     "chessPuzzleInteractions",
     "chessPuzzlePool",
     "chessPuzzleProfile",
