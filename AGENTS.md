@@ -88,7 +88,7 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` / `TURBO_TEAM` are present: `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). Missing token/team is a hard error in CI. Platform-scoped leaves (`test:e2e`, `test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Optional knobs `TURBO_LOG_ORDER` and `TURBO_TELEMETRY_DISABLED` remain derived defaults from provision. Look for `cache hit` / `cache miss` in Turbo output.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` / `TURBO_TEAM` are present: `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). Missing token/team is a hard error in CI. Platform-scoped leaves (`test:e2e`, `test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun, chrome}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Optional knobs `TURBO_LOG_ORDER` and `TURBO_TELEMETRY_DISABLED` remain derived defaults from provision. Look for `cache hit` / `cache miss` in Turbo output.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
@@ -126,12 +126,18 @@ a plan without larger runners):
    `@libs/db#migrate` / `@libs/secrets#provision` are not dry-run gated.
 
 The three `test:e2e` leaves (`@pkgs/auth`, `@pkgs/sql-client-sqlite-web`,
-`@pkgs/chess-board`) drive a browser through `Bun.WebView`, which is macOS-only:
-on other platforms they fall back to their in-process path, and `turbo.json`
-hashes `turbo-platform-key.json` so a macOS result can never satisfy a Linux
-run. Do not re-enable caching for them. `@pkgs/chess-board`'s UI suite is
-written once (`tests/ui/suite`) and runs in happy-dom (`test`) and in WebKit
-(`test:e2e`; `CHESS_BOARD_WEBVIEW=chrome` for Chrome).
+`@pkgs/chess-board`) drive a real browser through `Bun.WebView`: WebKit on
+macOS, the runner's preinstalled headless Google Chrome on Linux CI (the setup
+action lifts Ubuntu's AppArmor user-namespace block so Chrome keeps its
+sandbox). `@pkgs/ui-testing-bun-webview/e2e-browser` picks the engine; with
+`CI` set, a missing browser fails the leaf instead of falling back — only a
+local machine with no browser runs the in-process path. Warm runs are Turbo
+cache hits: `turbo-platform-key.json` carries `{platform, arch, bun, chrome}`
+(plus the macOS release that ships WebKit), so a result replays until the code
+or the browser changes and a macOS result never satisfies a Linux run.
+`@pkgs/chess-board`'s UI suite is written once (`tests/ui/suite`) and runs in
+happy-dom (`test`) and in a browser (`test:e2e`; `CHESS_BOARD_WEBVIEW=chrome`
+/ `AUTH_E2E_WEBVIEW=chrome` run the Linux engine on macOS).
 
 CI pins Bun `1.4.2` (`packageManager`, `.github/actions/setup`). Do not downgrade
 to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so

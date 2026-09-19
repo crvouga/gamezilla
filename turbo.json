@@ -320,6 +320,21 @@
       "outputs": [],
       "dependsOn": ["tc"]
     },
+    "@pkgs/auth#test:e2e": {
+      "inputs": [
+        "src/**",
+        "e2e/**",
+        "package.json",
+        "tsconfig*.json",
+        "$TURBO_ROOT$/pkgs/auth-sim/src/**",
+        "$TURBO_ROOT$/pkgs/auth-sim/e2e/**",
+        "$TURBO_ROOT$/pkgs/auth-sim/package.json",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "outputLogs": "new-only",
+      "outputs": [],
+      "dependsOn": ["tc", "@pkgs/auth-sim#tc"]
+    },
     "@pkgs/chess-board#test:e2e": {
       "inputs": [
         "src/**",

@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@pkgs/os": "workspace:*",
+    "@pkgs/ui-testing-bun-webview": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",

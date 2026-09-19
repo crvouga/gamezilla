@@ -47,6 +47,7 @@
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/ui-testing-bun-webview": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

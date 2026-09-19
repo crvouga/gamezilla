@@ -1,17 +1,20 @@
 // @io-wall-ok — start the OAuth harness then run bun:test.
-// On macOS the harness drives a real browser engine through Bun.WebView.
-// On other platforms, exercises the same OAuth contract through the
-// in-process open-auth-session path.
+// The harness drives a real browser engine through Bun.WebView: WebKit on
+// macOS, headless Chrome on Linux (CI). Only a local machine with no browser
+// exercises the same OAuth contract through the in-process path instead.
 
 import { killListenersOnPort } from '@pkgs/os/kill-port';
+import { resolveE2eBrowser } from '@pkgs/ui-testing-bun-webview/e2e-browser';
 import { waitForHttp } from './webview';
 
 const PORT = 4178;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const HERE = import.meta.dir;
 
-if (process.platform === 'darwin') {
-  // Darwin: full Bun.WebView e2e path with real browser automation.
+const browser = resolveE2eBrowser();
+
+if (browser.engine !== null) {
+  // Full Bun.WebView e2e path with real browser automation.
   killListenersOnPort(PORT);
 
   // The harness imports the simulated Google IdP, which renders Solid screens
@@ -58,13 +61,19 @@ if (process.platform === 'darwin') {
 
   process.exit(code);
 } else {
-  // Non-darwin: verify the OAuth contract through the in-process path that
-  // does not require Bun.WebView. This runs the same protocol-level contract
+  // No browser here: verify the OAuth contract through the in-process path
+  // that does not require Bun.WebView. This runs the same protocol-level contract
   // (token exchange, callback handling, session creation) as the WebView e2e.
+  // The IdP renders Solid screens in-process, so it needs the package `test`
+  // script's compile flags (Solid browser build + Babel preload).
   const test = Bun.spawn(
     [
       'bun',
       'test',
+      '--conditions=browser',
+      '--conditions=development',
+      '--preload',
+      '@pkgs/bun-test-solid/preload',
       '--timeout',
       '60000',
       `${HERE}/../tests/in-process-open-auth-session.integration.test.ts`,

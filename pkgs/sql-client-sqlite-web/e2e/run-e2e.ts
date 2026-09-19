@@ -1,17 +1,21 @@
 // @io-wall-ok — start the sql-client harness then run bun:test.
-// On macOS the harness drives Chromium through Bun.WebView.
-// On other platforms, exercises the same SQLite worker protocol through
-// the in-process MessageChannel path (broker-core, owner-handlers, RPC).
+// The harness drives Chrome through Bun.WebView (macOS and Linux CI alike).
+// Only a local machine with no Chrome exercises the same SQLite worker
+// protocol through the in-process MessageChannel path (broker-core,
+// owner-handlers, RPC).
 
 import { killListenersOnPort } from '@pkgs/os/kill-port';
+import { resolveE2eBrowser } from '@pkgs/ui-testing-bun-webview/e2e-browser';
 import { waitForHttp } from './webview';
 
 const PORT = 4177;
 const ORIGIN = `http://127.0.0.1:${PORT}`;
 const HERE = import.meta.dir;
 
-if (process.platform === 'darwin') {
-  // Darwin: full Bun.WebView e2e path with real Chromium browser.
+// The tests always ask for `backend: 'chrome'`; on macOS Bun finds the
+// installed app, elsewhere this resolves (or, in CI, insists on) a Chrome.
+if (resolveE2eBrowser().engine !== null) {
+  // Full Bun.WebView e2e path with a real Chrome (SharedWorker + OPFS).
   killListenersOnPort(PORT);
 
   const harness = Bun.spawn(['bun', './e2e/serve-harness.ts'], {
@@ -46,7 +50,7 @@ if (process.platform === 'darwin') {
 
   process.exit(code);
 } else {
-  // Non-darwin: verify the SQLite worker protocol through the in-process
+  // No Chrome: verify the SQLite worker protocol through the in-process
   // MessageChannel path that does not require Bun.WebView or Chromium.
   // This covers the same core RPC, broker, and owner-handler paths as the
   // WebView e2e but without a real browser renderer.
