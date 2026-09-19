@@ -53,7 +53,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.startedAtMs(p.startedAtMs),
       ...ChessPuzzlePlayAttr.endedAtMs(null),
       ...ChessPuzzlePlayAttr.recommendations({}),
-      ...ChessPuzzlePlayAttr.recommendationSeq(0),
     };
   })
   .on(ChessPuzzlePlayMoveAccepted, (state, _ctx, ev) => {
@@ -74,7 +73,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
       // The position the suggestions were made for is gone.
       ...ChessPuzzlePlayAttr.recommendations({}),
-      ...ChessPuzzlePlayAttr.recommendationSeq(0),
     };
   })
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
@@ -126,7 +124,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
     ...ChessPuzzlePlayAttr.solutionRevealed(0),
     ...ChessPuzzlePlayAttr.recommendations({}),
-    ...ChessPuzzlePlayAttr.recommendationSeq(0),
   }))
   .on(ChessPuzzleMoveRecommended, (state, _ctx, ev) => {
     const next = recommendMove({
@@ -135,11 +132,9 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       from: ev.payload.from,
       to: ev.payload.to,
     });
-    const seq = next[ev.payload.by]?.seq ?? 0;
     return {
       ...state,
       ...ChessPuzzlePlayAttr.recommendations(next),
-      ...ChessPuzzlePlayAttr.recommendationSeq(seq),
     };
   })
   .on(ChessPuzzleRecommendationCleared, (state, _ctx, ev) => ({
@@ -187,7 +182,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.startedAtMs(null),
     ...ChessPuzzlePlayAttr.endedAtMs(null),
     ...ChessPuzzlePlayAttr.recommendations({}),
-    ...ChessPuzzlePlayAttr.recommendationSeq(0),
   }));
 
 /** Default values to seed in `SpaceModule.initialState()`. */
@@ -212,6 +206,5 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.startedAtMs(null),
     ...ChessPuzzlePlayAttr.endedAtMs(null),
     ...ChessPuzzlePlayAttr.recommendations({}),
-    ...ChessPuzzlePlayAttr.recommendationSeq(0),
   };
 }

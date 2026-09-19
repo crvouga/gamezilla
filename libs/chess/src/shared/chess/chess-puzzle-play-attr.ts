@@ -160,10 +160,6 @@ export const ChessPuzzlePlayAttr = {
    * suggestions were made for stops being the live one.
    */
   recommendations: playNs.json('recommendations', parseRecommendations),
-  recommendationSeq: playNs.integer(
-    'recommendation-seq',
-    readNonNegativeInteger
-  ),
 } as const;
 
 export function isNonEmptyString(v: unknown): v is string {
