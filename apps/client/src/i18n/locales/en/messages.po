@@ -293,6 +293,7 @@ msgstr "Back to Spaces"
 msgid "Best streak"
 msgstr "Best streak"
 
+#: apps/client/src/screens/more/settings-screen.tsx
 #: libs/billing/src/root/client/billing-screen.tsx
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Billing"
@@ -556,6 +557,10 @@ msgstr "Couldn't leave space"
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Couldn't open"
 msgstr "Couldn't open"
+
+#: libs/billing/src/root/client/billing-screen.tsx
+msgid "Couldn't open billing"
+msgstr "Couldn't open billing"
 
 #: libs/billing/src/root/client/billing-screen.tsx
 msgid "Couldn't open checkout"
@@ -875,6 +880,10 @@ msgstr "fps"
 msgid "Frames per second"
 msgstr "Frames per second"
 
+#: apps/client/src/screens/more/settings-screen.tsx
+msgid "Free"
+msgstr "Free"
+
 #: libs/friends/src/root/client/friend-request-decision-modal.tsx
 msgid "Friend request"
 msgstr "Friend request"
@@ -1116,6 +1125,10 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 #: apps/client/src/screens/more/performance-screen.tsx
 msgid "Long tasks"
 msgstr "Long tasks"
+
+#: libs/billing/src/root/client/billing-screen.tsx
+msgid "Manage subscription"
+msgstr "Manage subscription"
 
 #: libs/notifications/src/root/client/notifications-screen.tsx
 msgid "Mark all read"
@@ -1396,6 +1409,10 @@ msgstr "Page not found"
 msgid "Pagination"
 msgstr "Pagination"
 
+#: apps/client/src/screens/more/settings-screen.tsx
+msgid "Paid"
+msgstr "Paid"
+
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
 msgid "People"
 msgstr "People"
@@ -1453,6 +1470,10 @@ msgstr "Pick one from the previous screen."
 #: libs/billing/src/root/client/billing-screen.tsx
 msgid "Plan"
 msgstr "Plan"
+
+#: apps/client/src/screens/more/settings-screen.tsx
+msgid "Plan and subscription"
+msgstr "Plan and subscription"
 
 #: apps/client/src/screens/more/about-screen.tsx
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
