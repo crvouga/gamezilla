@@ -268,7 +268,7 @@ export async function settleAfterPuzzleNext(
   await expectPlayReady(s, actorId);
 }
 
-/** `status|interactive|solveIdx|moves|solution|hintStage` probe → parsed. */
+/** `status|interactive|solveIdx|moves|solution|hintStage|rating|themes` probe. */
 export type PuzzleE2eDebug = {
   readonly status: string;
   readonly interactive: boolean;
@@ -276,6 +276,8 @@ export type PuzzleE2eDebug = {
   readonly moves: string;
   readonly solutionUci: string;
   readonly hintStage: string;
+  readonly puzzleRating: number | null;
+  readonly themes: readonly string[];
 };
 
 export async function readPuzzleDebug(
@@ -287,6 +289,7 @@ export async function readPuzzleDebug(
     const raw = stripProbe(await ui.get(Handles.chessPuzzleE2eDebug).text());
     const parts = raw.split('|');
     if (parts.length < 6) return null;
+    const puzzleRating = Number.parseInt(parts[6] ?? '', 10);
     return {
       status: parts[0] ?? '',
       interactive: parts[1] === '1',
@@ -294,6 +297,8 @@ export async function readPuzzleDebug(
       moves: parts[3] ?? '',
       solutionUci: parts[4] ?? '',
       hintStage: parts[5] ?? '',
+      puzzleRating: Number.isFinite(puzzleRating) ? puzzleRating : null,
+      themes: (parts[7] ?? '').split(',').filter((theme) => theme.length > 0),
     };
   } catch {
     return null;

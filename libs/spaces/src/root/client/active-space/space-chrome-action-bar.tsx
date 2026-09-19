@@ -126,7 +126,12 @@ function buildTrailingItems(args: {
       onClick: callbacks.onPressMembers,
       overflow: 'never',
       priority: 90,
-      children: <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />,
+      dataSet: { testid: Handles.spaceMembersButton },
+      children: (
+        <div data-testid={Handles.spacePresenceStrip}>
+          <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />
+        </div>
+      ),
     },
     {
       id: 'share',

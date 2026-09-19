@@ -1201,6 +1201,7 @@
       },
       "devDependencies": {
         "@pkgs/postgres-embedded": "workspace:*",
+        "@pkgs/sql-client-postgres": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1264,6 +1265,7 @@
       },
       "devDependencies": {
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/postgres-embedded": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1723,6 +1725,7 @@
         "@pkgs/object-store": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/s3-server": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -2295,6 +2298,7 @@
         "pg": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/postgres-embedded": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
         "@typescript/native": "catalog:",

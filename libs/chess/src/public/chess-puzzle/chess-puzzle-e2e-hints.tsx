@@ -24,6 +24,9 @@ export type ChessPuzzleE2EHintsProps = {
   spaceRole: Accessor<'host' | 'guest' | 'unknown'>;
   statusKind: Accessor<string>;
   clockElapsedMs: Accessor<number | null>;
+  /** Current puzzle metadata for deterministic feed assertions. */
+  puzzleRating: Accessor<number>;
+  themes: Accessor<readonly string[]>;
   /** `by:fromto` pairs, comma separated, oldest first. */
   recommendations: Accessor<string>;
 };
@@ -80,7 +83,7 @@ export function ChessPuzzleE2EHints(
         class="text"
         style={hintStyle}
         data-testid="chess-puzzle-e2e-debug"
-      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}`}</p>
+      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}|${props.puzzleRating()}|${props.themes().join(',')}`}</p>
       <p class="text" style={hintStyle} data-testid="chess-puzzle-e2e-fen">
         {props.displayFen() ?? ''}
       </p>

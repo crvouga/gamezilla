@@ -1,0 +1,11 @@
+---
+description: "Take the current branch to a green, conflict-free, review-complete PR — sync with main, resolve conflicts, commit, push, drive CI green, and address review feedback without merging"
+agent: agent
+---
+
+<!-- generated from .agents/commands by `bun run agents:sync` — do not edit -->
+
+Run the `/pr-ready` command. Its single source of truth is [.agents/commands/pr-ready.md](../../.agents/commands/pr-ready.md).
+
+Read that file in full now and follow it exactly. Treat any text the user
+typed after the command as its arguments.

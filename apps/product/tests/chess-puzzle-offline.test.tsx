@@ -1,10 +1,14 @@
 // goal:works-offline:2
+// goal:always-true:1
 import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
+import { sql } from '@pkgs/sql';
 import {
   createSpace,
   isEmptyPoolVisible,
+  openPuzzleFromSpace,
   partition,
+  playWrongPuzzleMove,
   readActivePuzzleId,
   restoreNetwork,
   returnToTabs,
@@ -55,5 +59,51 @@ describe('chess puzzle offline', () => {
       async (surf) => (await readActivePuzzleId(surf, 'alice')) !== null,
       { maxMs: 30_000, stepMs: 250 }
     );
+  });
+  test('an offline wrong move syncs exactly once after reconnect', async () => {
+    await using s = await openSim('chess-puzzle-offline-exactly-once');
+    await s.apply(signInWithGoogle, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(createSpace, 'alice');
+    await s.apply(openPuzzleFromSpace, 'alice');
+    const puzzleId = await s.read(readActivePuzzleId, 'alice');
+    if (puzzleId === null) throw new Error('expected an active puzzle');
+
+    await s.apply(partition, 'alice');
+    await s.apply(playWrongPuzzleMove, 'alice');
+
+    const localRows = await s.read(async (surf) => {
+      const clientSql = surf.sim.clientSql('alice');
+      if (clientSql === undefined) throw new Error('missing client SQL');
+      return await clientSql.sqlClient.query(sql<{ count: number }>`
+        SELECT COUNT(*) AS count
+        FROM chess_puzzle_interactions
+        WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
+      `);
+    });
+    expect(Number(localRows[0]?.count ?? 0)).toBe(1);
+
+    await s.apply(restoreNetwork);
+    await s.until(
+      async (surf) => {
+        const serverRows = await surf.sim.serverSql.sqlClient.query(
+          sql<{ count: number }>`
+            SELECT COUNT(*) AS count
+            FROM chess_puzzle_interactions
+            WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
+          `
+        );
+        return Number(serverRows[0]?.count ?? 0) === 1;
+      },
+      { maxMs: 30_000, stepMs: 250 }
+    );
+    const serverRows = await s.read((surf) =>
+      surf.sim.serverSql.sqlClient.query(sql<{ count: number }>`
+        SELECT COUNT(*) AS count
+        FROM chess_puzzle_interactions
+        WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
+      `)
+    );
+    expect(Number(serverRows[0]?.count ?? 0)).toBe(1);
   });
 });

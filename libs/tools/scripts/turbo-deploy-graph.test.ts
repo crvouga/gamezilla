@@ -31,7 +31,11 @@ function turboCiRunTaskArgs(checkScript: string): string[] {
 /** `//#check` is the whole check surface — there is no second tier. */
 const CHECK_LEAVES = [
   '//#ci:pr-template',
+  '//#ci:agent-commands',
   '//#ci:goals',
+  '//#ci:no-skipped-tests',
+  '//#ci:public-link',
+  '//#ci:release-gate',
   '//#lint:biome',
   '//#lint:vocab',
   '//#lint:eslint',
@@ -40,6 +44,7 @@ const CHECK_LEAVES = [
   '//#ci:audit',
   '//#ci:i18n',
   '@apps/client#check:critical-path',
+  '@apps/client#check:bundle-budget',
   'tc',
   'test',
   '@apps/server#build',
@@ -47,21 +52,21 @@ const CHECK_LEAVES = [
   '@pkgs/auth#test:e2e',
   '@pkgs/sql-client-sqlite-web#test:e2e',
   '@pkgs/sql-client-postgres#test:contract',
+  '@pkgs/db-schema-postgres#test:contract',
+  '@pkgs/db-indexes-postgres#test:contract',
   '@pkgs/kv-postgres#test:contract',
   '@pkgs/object-store-s3#test:contract',
   '@pkgs/pubsub-emqx#test:contract',
   '@libs/billing#billing:check',
   '@apps/server#check:contract',
+  '@apps/server#check:api',
   '@libs/runtime#check:schema-evolution',
   '@libs/secrets#check',
   '@libs/tools#check:static',
 ];
 
-const DEPLOY_ONLY = [
-  '@apps/server#check:api',
-  '@apps/client#check:bundle-budget',
-  '@apps/server#smoke',
-] as const;
+/** Deploy mutates shared envs; smoke is the only deploy-only leaf. */
+const DEPLOY_ONLY = ['@apps/server#smoke'] as const;
 
 describe('turbo check/deploy graph invariants', () => {
   test('//#check is the whole check suite and //#check:full is gone', () => {
@@ -90,9 +95,13 @@ describe('turbo check/deploy graph invariants', () => {
     expect(deps as string[]).toContain('//#lint:eslint');
     expect(deps as string[]).toContain('//#ci:syncpack');
     expect(deps as string[]).toContain('//#ci:goals');
+    expect(deps as string[]).toContain('//#ci:agent-commands');
     expect(deps as string[]).toContain('//#ci:depcruise');
     expect(deps as string[]).toContain('//#ci:audit');
     expect(deps as string[]).toContain('//#ci:i18n');
+    expect(deps as string[]).toContain('//#ci:no-skipped-tests');
+    expect(deps as string[]).toContain('//#ci:public-link');
+    expect(deps as string[]).toContain('//#ci:release-gate');
     for (const leaf of DEPLOY_ONLY) {
       expect(deps as string[]).toContain(leaf);
     }
@@ -135,25 +144,23 @@ describe('turbo check/deploy graph invariants', () => {
     expect(leaves).not.toContain('//#check');
   });
 
-  test('deploy gates live API probe and bundle budget; not lighthouse', () => {
+  test('check gates live API probe and bundle budget; deploy adds smoke only', () => {
     const turbo = loadTurboJson();
+    const checkDeps = turbo.tasks?.['//#check']?.dependsOn as string[];
+    expect(checkDeps).toContain('@apps/client#check:bundle-budget');
+    expect(checkDeps).toContain('@apps/client#check:critical-path');
+    expect(checkDeps).toContain('@apps/server#check:api');
+    expect(checkDeps).not.toContain('@apps/client#check:lighthouse');
+    expect(checkDeps).not.toContain('@apps/server#smoke');
     const deployDeps = turbo.tasks?.['//#deploy']?.dependsOn;
     expect(Array.isArray(deployDeps)).toBe(true);
-    expect(deployDeps as string[]).toContain(
-      '@apps/client#check:bundle-budget'
-    );
     expect(deployDeps as string[]).toContain(
       '@apps/client#check:critical-path'
     );
     expect(deployDeps as string[]).not.toContain(
       '@apps/client#check:lighthouse'
     );
-    expect(deployDeps as string[]).toContain('@apps/server#check:api');
     expect(deployDeps as string[]).toContain('@apps/server#smoke');
-    const checkDeps = turbo.tasks?.['//#check']?.dependsOn as string[];
-    expect(checkDeps).not.toContain('@apps/client#check:bundle-budget');
-    expect(checkDeps).not.toContain('@apps/server#check:api');
-    expect(checkDeps).not.toContain('@apps/client#check:lighthouse');
   });
 
   test('check:lighthouse remains manual (build-gated, off check/deploy)', () => {
@@ -183,7 +190,6 @@ describe('turbo check/deploy graph invariants', () => {
     const turbo = loadTurboJson();
     const leaves = flattenCheckAggregators(['deploy'], turbo.tasks ?? {});
     expect(leaves).toContain('@apps/server#smoke');
-    expect(leaves).toContain('@apps/client#check:bundle-budget');
     expect(leaves).not.toContain('@apps/client#check:lighthouse');
     expect(leaves).not.toContain('//#deploy');
   });

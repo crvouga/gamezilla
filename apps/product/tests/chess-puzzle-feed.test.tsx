@@ -14,11 +14,13 @@ import {
   readFeedModalTargetRating,
   readFeedOffsetValue,
   readFeedTargetLabel,
+  readPuzzleDebug,
   returnToTabs,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   signInWithGoogle,
 } from '../src/sim';
+import type { OpenSim } from '../src/test/setup/open-sim';
 import { openSim } from '../src/test/setup/open-sim';
 
 /** Default auto target with no rated games (feed config default + profile 1200). */
@@ -26,7 +28,7 @@ const DEFAULT_TARGET = 1200;
 /** Offset stepper step (see `PUZZLE_FEED_AUTO_OFFSET_STEP`). */
 const OFFSET_STEP = 50;
 
-type Sim = Awaited<ReturnType<typeof openSim>>;
+type Sim = OpenSim;
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */
 function required<T>(value: T | null | undefined, what: string): T {
   if (value === null || value === undefined) {
@@ -104,5 +106,26 @@ describe('chess puzzle feed settings', () => {
     const pool = required(await s.read(readFeedModalPool, 'alice'), 'pool');
     expect(pool.total).toBeGreaterThan(0);
     await s.apply(closePuzzleFeedSettings, 'alice');
+  });
+  test('custom difficulty target changes the selected puzzle band', async () => {
+    await using s = await openSim('chess-puzzle-feed-difficulty-band');
+    await enterPuzzle(s);
+    const before = await s.read(readActivePuzzleId, 'alice');
+
+    await s.apply(openPuzzleFeedSettings, 'alice');
+    await s.apply(setPuzzleFeedMode, 'alice', 'custom');
+    await s.apply(bumpPuzzleFeedCustomRating, 'alice', 2);
+    await s.apply(closePuzzleFeedSettings, 'alice');
+
+    expect(await s.read(readFeedTargetLabel, 'alice')).toEqual({
+      mode: 'custom',
+      rating: DEFAULT_TARGET + 100,
+    });
+    const debug = await s.read(readPuzzleDebug, 'alice');
+    expect(debug?.status).toBe('solving');
+    expect(debug?.puzzleRating).not.toBeNull();
+    expect(debug?.puzzleRating).toBeGreaterThanOrEqual(1200);
+    expect(debug?.puzzleRating).toBeLessThanOrEqual(1400);
+    expect(await s.read(readActivePuzzleId, 'alice')).not.toBe(before);
   });
 });

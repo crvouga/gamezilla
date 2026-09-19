@@ -1,3 +1,7 @@
+---
+description: Make UI, shell chrome, overlays, and client runtime fast and jank-free across the full device and runtime matrix (low-end Android to high-end iPhone, web and Capacitor)
+---
+
 # /optimize — performant across the full device/runtime matrix
 
 ## When to run

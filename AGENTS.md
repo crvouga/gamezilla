@@ -195,6 +195,14 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (`.agents/commands/pr-ready.md`) — the single PR command: it syncs with
   `main`, commits, pushes, opens/updates the PR, addresses review comments, and
   drives the PR check green. It never merges: a green PR is handed to a human.
+- **Agent commands.** `.agents/commands/<name>.md` (with `description:`
+  frontmatter) is the only place a slash command is written. `bun run
+  agents:sync` projects it into every harness: `.claude/commands`,
+  `.cursor/commands` and `.opencode/commands` are symlinks to it; Gemini CLI
+  (`.gemini/commands/*.toml`), Copilot (`.github/prompts/*.prompt.md`),
+  Windsurf (`.windsurf/workflows/*.md`) and Codex (`.agents/skills/*/SKILL.md`)
+  get generated stubs that load the source. Never edit those outputs;
+  `//#ci:agent-commands` fails `bun check` on any drift.
 
 ## Local development
 

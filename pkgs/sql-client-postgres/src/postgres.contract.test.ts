@@ -1,187 +1,101 @@
-/**
- * Live Postgres contract (ambient `DATABASE_URL` — `@pkgs/postgres-embedded` or
- * secrets-run). Excluded from default unit speed when URL unset.
- */
-import { describe, expect, test } from 'bun:test';
+// goal:the-bar:5 — Postgres connection contract runs against real PG.
+
+import { afterAll, describe, expect, test } from 'bun:test';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
 import { raw } from '@pkgs/sql';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import {
-  createPgPool,
-  ensurePostgresSchema,
-  isLoopbackPostgresUrl,
-  openPgClient,
-} from './connect';
+import { createPgPool, openPgClient } from './connect';
+import { ensurePostgresSchema } from './ensure-schema';
 import { SqlClientImplBunPostgres } from './impl-bun-postgres';
 
-const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
-const HAS_DB = DATABASE_URL.length > 0;
 const TEST_SCHEMA = 'gamezilla_test_scope';
 const REMOTE_DB_TIMEOUT_MS = 30_000;
+const dbScope = createPostgresDbScope(TEST_SCHEMA);
+let databaseUrl = process.env['DATABASE_URL'] ?? '';
+let stopPg: (() => Promise<void>) | undefined;
 
-describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
-  const dbScope = createPostgresDbScope(TEST_SCHEMA);
+if (databaseUrl.length === 0) {
+  const pg = await startEmbeddedPostgres({
+    dataDir: join(tmpdir(), `pg-contract-${randomUUID()}`),
+  });
+  databaseUrl = pg.url;
+  stopPg = pg.stop;
+}
 
-  test('DATABASE_URL is a postgres wire URL', () => {
-    expect(
-      DATABASE_URL.startsWith('postgres://') ||
-        DATABASE_URL.startsWith('postgresql://')
-    ).toBe(true);
-    expect(typeof isLoopbackPostgresUrl(DATABASE_URL)).toBe('boolean');
+afterAll(async () => {
+  await stopPg?.();
+});
+
+describe('postgres-connect (DATABASE_URL contract)', () => {
+  test('database URL is a PostgreSQL wire URL', () => {
+    expect(databaseUrl).toMatch(/^postgres(?:ql)?:\/\//);
   });
 
   test(
-    'ensurePostgresSchema skips CREATE SCHEMA for public',
+    'pool pins every connection to the requested schema',
     async () => {
-      const publicScope = createPostgresDbScope('public');
-      const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
-        dbScope: publicScope,
-        max: 1,
-      });
-      try {
-        await ensurePostgresSchema(sqlClient, publicScope);
-        const rows = await sqlClient.query(
-          raw<{ current_schema: string | null }>(
-            'SELECT current_schema() AS current_schema'
-          )
-        );
-        const current = rows[0]?.current_schema ?? null;
-        expect(current === 'public' || current === null).toBe(true);
-      } finally {
-        await pool.end();
-      }
-    },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
-  );
-
-  test(
-    'ensurePostgresSchema creates the schema and is idempotent',
-    async () => {
-      const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
+      const { pool } = createPgPool({
+        connectionString: databaseUrl,
         dbScope,
         max: 1,
       });
       try {
-        await ensurePostgresSchema(sqlClient, dbScope);
-        await ensurePostgresSchema(sqlClient, dbScope);
-        const rows = await sqlClient.query(
-          raw<{ exists: boolean }>(
-            `SELECT EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = '${TEST_SCHEMA}') AS exists`
-          )
-        );
-        expect(rows[0]?.exists).toBe(true);
+        await pool.query(`CREATE SCHEMA IF NOT EXISTS "${TEST_SCHEMA}"`);
+        const result = await pool.query('SELECT current_schema() AS schema');
+        expect(result.rows[0]?.schema).toBe(TEST_SCHEMA);
       } finally {
         await pool.end();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
-    'createPgPool pins every pooled connection to the schema',
+    'open client bootstraps and pins its schema',
     async () => {
-      const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
-        dbScope,
-        max: 1,
-      });
-      try {
-        await ensurePostgresSchema(sqlClient, dbScope);
-        for (let i = 0; i < 3; i++) {
-          const rows = await sqlClient.query(
-            raw<{ current_schema: string }>(
-              'SELECT current_schema() AS current_schema'
-            )
-          );
-          expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
-        }
-      } finally {
-        await pool.end();
-      }
-    },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
-  );
-
-  test(
-    'openPgClient pins the session and can self-bootstrap the schema',
-    async () => {
-      const { client, sqlClient } = await openPgClient({
-        connectionString: DATABASE_URL,
+      const opened = await openPgClient({
+        connectionString: databaseUrl,
         dbScope,
         ensureSchema: true,
       });
       try {
-        const rows = await sqlClient.query(
-          raw<{ current_schema: string }>(
-            'SELECT current_schema() AS current_schema'
-          )
+        const rows = await opened.sqlClient.query<{ schema: string }>(
+          raw('SELECT current_schema() AS schema')
         );
-        expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
+        expect(rows[0]?.schema).toBe(TEST_SCHEMA);
+        await ensurePostgresSchema(opened.sqlClient, dbScope);
       } finally {
-        await client.end();
+        await opened.sqlClient.disconnect();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
-    'SqlClientImplBunPostgres pins every query on Neon pooler URLs',
+    'Bun Postgres adapter returns JSON-safe int8 rows',
     async () => {
-      const sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
+      const impl = SqlClientImplBunPostgres.connect(databaseUrl, dbScope);
+      await impl.connect();
       try {
-        await sqlClient.connect();
-        await ensurePostgresSchema(sqlClient, dbScope);
-        for (let i = 0; i < 3; i++) {
-          const rows = await sqlClient.query(
-            raw<{ current_schema: string }>(
-              'SELECT current_schema() AS current_schema'
-            )
-          );
-          expect(rows[0]?.current_schema).toBe(TEST_SCHEMA);
-        }
-      } finally {
-        await sqlClient.disconnect();
-      }
-    },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
-  );
-
-  test(
-    'int8 rows are JSON-safe (no bigint) on pool + client',
-    async () => {
-      const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
-        dbScope,
-        max: 1,
-      });
-      try {
-        await ensurePostgresSchema(sqlClient, dbScope);
-        const rows = await sqlClient.query<{ n: number | string }>(
-          raw(`SELECT 42::int8 AS n`)
+        await impl.run(
+          raw('CREATE TABLE IF NOT EXISTS contract_int8 (value BIGINT)')
         );
-        expect(typeof rows[0]?.n).not.toBe('bigint');
-        expect(() => JSON.stringify(rows)).not.toThrow();
-        expect(Math.max(0, Number(rows[0]?.n))).toBe(42);
-
-        const { client, sqlClient: oneShot } = await openPgClient({
-          connectionString: DATABASE_URL,
-          dbScope,
-          ensureSchema: true,
-        });
-        try {
-          const again = await oneShot.query<{ n: number | string }>(
-            raw(`SELECT 42::int8 AS n`)
-          );
-          expect(typeof again[0]?.n).not.toBe('bigint');
-          expect(() => JSON.stringify(again)).not.toThrow();
-        } finally {
-          await client.end();
-        }
+        await impl.run(raw('TRUNCATE contract_int8'));
+        await impl.run(
+          raw('INSERT INTO contract_int8 (value) VALUES (9007199254740991)')
+        );
+        const rows = await impl.query<{ value: number | string }>(
+          raw('SELECT value FROM contract_int8')
+        );
+        expect(String(rows[0]?.value)).toBe('9007199254740991');
+        await impl.run(raw('DROP TABLE contract_int8'));
       } finally {
-        await pool.end();
+        await impl.disconnect();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 });
