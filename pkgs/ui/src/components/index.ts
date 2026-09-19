@@ -81,6 +81,7 @@ export * from './skeleton';
 export * from './social-sign-in-button';
 export * from './sound-indicator';
 export * from './speaking-avatar';
+export * from './spectator-indicator';
 export * from './spinner';
 export * from './state-block';
 export * from './status-dot';
