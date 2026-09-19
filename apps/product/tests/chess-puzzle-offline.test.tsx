@@ -81,7 +81,7 @@ describe('chess puzzle offline', () => {
         WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
       `);
     });
-    expect(Number(localRows[0]?.count ?? 0)).toBe(1);
+    expect(localRows[0]?.count ?? 0).toBe(1);
 
     await s.apply(restoreNetwork);
     await s.until(
@@ -93,7 +93,7 @@ describe('chess puzzle offline', () => {
             WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
           `
         );
-        return Number(serverRows[0]?.count ?? 0) === 1;
+        return (serverRows[0]?.count ?? 0) === 1;
       },
       { maxMs: 30_000, stepMs: 250 }
     );
@@ -104,6 +104,6 @@ describe('chess puzzle offline', () => {
         WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
       `)
     );
-    expect(Number(serverRows[0]?.count ?? 0)).toBe(1);
+    expect(serverRows[0]?.count ?? 0).toBe(1);
   });
 });

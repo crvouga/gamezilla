@@ -8,8 +8,8 @@ describe('space live presence', () => {
     await using s = await openSim('friends-request-accept');
     await s.apply(signInWithGoogle, 'alice');
     await s.apply(signInWithGoogle, 'bob');
-    expect(await s.read(clientIds)).toEqual(
-      expect.arrayContaining(['alice', 'bob'])
-    );
+    const ids = await s.read(clientIds);
+    expect(ids.includes('alice')).toBe(true);
+    expect(ids.includes('bob')).toBe(true);
   });
 });

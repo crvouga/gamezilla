@@ -65,7 +65,7 @@ describe('guest puzzle limit upgrade invitation', () => {
         FROM chess_puzzle_interactions
         WHERE puzzle_id LIKE 'guest-limit-fixture-%'
       `);
-      return Number(rows[0]?.count ?? 0);
+      return rows[0]?.count ?? 0;
     });
     expect(count).toBe(20);
 
