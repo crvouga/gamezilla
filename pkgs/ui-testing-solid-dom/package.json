@@ -29,6 +29,7 @@
     "@pkgs/ui": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }
