@@ -44,6 +44,22 @@ const INSTALL_OPEN_CAPTURE = `(function(){
 
 const SIGN_IN = '[data-testid=harness-sign-in-google]';
 
+/**
+ * The provider serves each screen twice: a server-rendered shell, then the SPA
+ * clears `#idp-root` and re-renders it, stamping `data-idp-spa="ready"` on
+ * mount. Typing into (or clicking) the shell copy before that swap is lost
+ * under load, so wait for the SPA's own node, not just the test id.
+ */
+async function waitForIdpScreen(
+  popup: ReturnType<typeof openView>,
+  testId: string
+): Promise<void> {
+  await waitFor(
+    popup,
+    `document.documentElement.dataset.idpSpa === "ready" && document.querySelector("[data-testid=${testId}]")`
+  );
+}
+
 async function startSignIn(page: ReturnType<typeof openView>): Promise<string> {
   await waitFor(page, `document.querySelector("${SIGN_IN}")`);
   await page.evaluate(INSTALL_OPEN_CAPTURE);
@@ -58,32 +74,21 @@ describe('auth oauth harness', () => {
     try {
       const popup = openView(await startSignIn(page));
       try {
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-identifier-page]")'
-        );
+        await waitForIdpScreen(popup, 'idp-identifier-page');
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-next]").click()`
         );
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-password-input]")',
-          15_000
-        );
+        await waitForIdpScreen(popup, 'idp-password-input');
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-password-input]").value = "password"`
         );
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-password-next]").click()`
         );
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-consent-allow]")',
-          15_000
-        );
+        await waitForIdpScreen(popup, 'idp-consent-allow');
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-consent-allow]").click()`
         );
@@ -118,32 +123,21 @@ describe('auth oauth harness', () => {
     try {
       const popup = openView(await startSignIn(page));
       try {
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-identifier-page]")'
-        );
+        await waitForIdpScreen(popup, 'idp-identifier-page');
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-email]").value = "alice@gmail.com"`
         );
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-identifier-next]").click()`
         );
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-password-input]")',
-          15_000
-        );
+        await waitForIdpScreen(popup, 'idp-password-input');
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-password-input]").value = "password"`
         );
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-password-next]").click()`
         );
-        await waitFor(
-          popup,
-          'document.querySelector("[data-testid=idp-consent-deny]")',
-          15_000
-        );
+        await waitForIdpScreen(popup, 'idp-consent-deny');
         await popup.evaluate(
           `document.querySelector("[data-testid=idp-consent-deny]").click()`
         );

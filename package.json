@@ -40,6 +40,7 @@
     "fc": "clear && bun run fmt && bun run check",
     "fmt": "biome format --write . & sort-package-json \"**/package.json\" -i \"**/node_modules/**\" & bun run libs/tools/scripts/remove-empty-dirs.ts & wait",
     "gh": "bun x open https://github.com/crvouga/gamezilla/actions/workflows/pr.yml",
+    "git-sync": "bun run libs/tools/scripts/git-sync.ts",
     "github:config": "bun run libs/tools/scripts/github-config.ts",
     "github:config:check": "bun run libs/tools/scripts/github-config.ts --check",
     "hooks:install": "git config core.hooksPath libs/tools/githooks",

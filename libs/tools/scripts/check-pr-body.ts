@@ -44,9 +44,9 @@ export const CHECKLIST_ITEMS = [
   'A human merges this PR — agents never merge (`gh pr merge`, auto-merge, merge queue).',
 ] as const;
 
-const TITLE_PATTERN =
+export const TITLE_PATTERN =
   /^(feat|fix|refactor|test|chore|docs|perf|ci)(\([a-z0-9./-]+\))?!?: \S.*$/;
-const TITLE_MAX_LENGTH = 72;
+export const TITLE_MAX_LENGTH = 72;
 const SECTION_HEADING = /^## .+$/;
 const UNCHECKED_BOX = /^\s*[-*] \[ \] /;
 
