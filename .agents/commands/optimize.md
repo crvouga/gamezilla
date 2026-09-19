@@ -64,7 +64,7 @@ constraints below).
 
 1. **Never soft-deprecate.** Delete old APIs and update every call site in
    the same change.
-2. **Never fake the budgets.** Don't satisfy critical-path/Lighthouse gates
+2. **Never fake the budgets.** Don't satisfy critical-path/bundle-budget gates
    with eager `import()`, disabled checks, or a loosened
    `perf-budget.json`. If a gate looks wrong, stop and report it using the
    failure template.

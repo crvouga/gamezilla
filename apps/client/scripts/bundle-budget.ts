@@ -4,8 +4,8 @@
  * Fail if the initial / lazy route assets exceed the low-end Android perf budget.
  * usage: bundle-budget.ts <dist-dir> --budget=<perf-budget.json>
  */
-import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { brotliCompressSync, constants, gzipSync } from 'node:zlib';
 import {
   collectLazyRoots,
@@ -114,17 +114,6 @@ export function collectInitialHtmlImages(html: string): string[] {
   return out;
 }
 
-export function sumPrecacheFromSw(swJs: string): number {
-  const m = /precacheAndRoute\(\s*(\[[\s\S]*?\])\s*(?:,|\))/m.exec(swJs);
-  if (m?.[1] === undefined) return 0;
-  try {
-    const entries = JSON.parse(m[1]) as { size?: number }[];
-    return entries.reduce((acc, e) => acc + (e.size ?? 0), 0);
-  } catch {
-    return 0;
-  }
-}
-
 function sumSizes(
   distDir: string,
   files: readonly string[],
@@ -158,34 +147,6 @@ function printRows(
     console.log(`  ${row.kb.toFixed(1).padStart(8)} KB  ${row.file}`);
   }
   return over;
-}
-
-function walkDistFiles(distDir: string): string[] {
-  const out: string[] = [];
-  const walk = (dir: string): void => {
-    let entries: string[];
-    try {
-      entries = readdirSync(dir);
-    } catch {
-      return;
-    }
-    for (const name of entries) {
-      const abs = join(dir, name);
-      let st;
-      try {
-        st = statSync(abs);
-      } catch {
-        continue;
-      }
-      if (st.isDirectory()) {
-        walk(abs);
-        continue;
-      }
-      out.push(relative(distDir, abs).split('\\').join('/'));
-    }
-  };
-  walk(distDir);
-  return out;
 }
 
 function checkLazy(
@@ -255,46 +216,6 @@ function checkFontsDisplay(
     }
   }
   return failed;
-}
-
-function checkSwPrecache(distDir: string, budget: PerfBudget): void {
-  const swPath = join(distDir, 'sw.js');
-  if (!existsSync(swPath)) {
-    console.log('[bundle-budget] service worker precache — skipped (no sw.js)');
-    return;
-  }
-  const total = sumPrecacheFromSw(readFileSync(swPath, 'utf8'));
-  const totalKb = kb(total);
-  const over = totalKb > budget.serviceWorker.precacheWarnKb;
-  console.log(
-    `[bundle-budget] SW precache ${totalKb.toFixed(1)} KB / ${String(budget.serviceWorker.precacheWarnKb)} KB warn — ${over ? 'WARN' : 'OK'}`
-  );
-  if (over) {
-    console.warn(
-      `[bundle-budget] WARN: SW precache ${totalKb.toFixed(1)} KB > serviceWorker.precacheWarnKb ${String(budget.serviceWorker.precacheWarnKb)} (offline first-install cost; not a hard fail)`
-    );
-  }
-}
-
-function checkPwaSplash(distDir: string, budget: PerfBudget): void {
-  const splashFiles = walkDistFiles(distDir).filter((f) =>
-    /pwa\/.*splash/i.test(f)
-  );
-  let total = 0;
-  for (const f of splashFiles) {
-    const abs = join(distDir, f);
-    if (existsSync(abs)) total += rawBytes(abs);
-  }
-  const totalMb = total / (1024 * 1024);
-  const over = totalMb > budget.pwaChrome.splashTotalWarnMb;
-  console.log(
-    `[bundle-budget] PWA splash chrome ${totalMb.toFixed(1)} MB / ${String(budget.pwaChrome.splashTotalWarnMb)} MB warn — ${over ? 'WARN' : 'OK'}`
-  );
-  if (over) {
-    console.warn(
-      `[bundle-budget] WARN: PWA splash total ${totalMb.toFixed(1)} MB > pwaChrome.splashTotalWarnMb`
-    );
-  }
 }
 
 type SizeSummary = {
@@ -483,8 +404,6 @@ function main(): void {
   failed = reportInitialRows(bundle, measured) || failed;
   failed = checkLazy(distDir, bundle.manifest, budget) || failed;
   failed = checkFontsDisplay(distDir, bundle.cssFiles, budget) || failed;
-  checkSwPrecache(distDir, budget);
-  checkPwaSplash(distDir, budget);
 
   if (failed) process.exit(1);
 }

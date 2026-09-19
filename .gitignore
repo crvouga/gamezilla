@@ -108,7 +108,3 @@ apps/product/sim-report/
 
 /.data/
 **/.data/
-# Lighthouse CI artifacts (generated configs + LHRs)
-apps/client/.lighthouseci/
-apps/client/lighthouserc.ab.json
-apps/client/lighthouserc.fast.json

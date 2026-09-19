@@ -2,7 +2,7 @@
 
 Primary product target: **low-end Android mobile web** (Android Go / ~2 GB class, slow networks common in emerging markets). Not desktop, not Capacitor.
 
-These gates **prove** the bar. Quantity budgets follow [web.dev Slow 3G / Moto G4](https://web.dev/articles/your-first-performance-budget) (~100 KB JS, ~170 KB critical path for ~5s interactivity). Runtime gates use Lighthouse mobile + 4× CPU + Slow 4G simulation (Slow 3G remains the aspirational bar).
+These gates **prove** the bar. Quantity budgets follow [web.dev Slow 3G / Moto G4](https://web.dev/articles/your-first-performance-budget) (~100 KB JS, ~170 KB critical path for ~5s interactivity). Every gate is static and every gate can fail: there are no warn-only budgets.
 
 Config: [`apps/client/perf-budget.json`](../apps/client/perf-budget.json) (schema **v2** — all thresholds live here; scripts must not hardcode budgets).
 
@@ -11,10 +11,9 @@ Config: [`apps/client/perf-budget.json`](../apps/client/perf-budget.json) (schem
 | Layer | What counts |
 | --- | --- |
 | Assets | HTML + initial CSS/JS/fonts/images on the Vite **static** entry graph |
-| Boot API | `/api/health`, identity ensure/refresh, first `POST /api/query` session batch — compressed transfer budgeted under `firstLoadApi` |
-| Must not fetch before LCP | `sql-workers` / `.wasm` / `sqlite3` / `game-plugins` (Lighthouse network backstop; SQLite open is deferred until after first paint) |
+| Must stay off the initial graph | `sql-workers` / `.wasm` (`deferredPathMustNotMatch`; SQLite open is deferred until after first paint) |
 
-**Do not “fix” a red static gate by converting a static import into an eager `import()`** (module top-level or shell `createResource` / `useEffect` on mount). The critical-path walker flags denylisted dynamic imports in the initial closure; Lighthouse asserts they are not fetched on `/` before interaction.
+**Do not “fix” a red static gate by converting a static import into an eager `import()`** (module top-level or shell `createResource` / `useEffect` on mount). The critical-path walker fails on any top-level `import()` in the initial closure.
 
 ## Hard quantity budgets (deploy)
 
@@ -32,32 +31,15 @@ Measured on the **initial** route graph: Vite manifest entry + static `imports` 
 
 Brotli sizes are **reported** (Cloudflare edge prefers brotli); CI enforces **gzip** for determinism. Production `Content-Encoding` is smoke-checked separately.
 
-Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph or entry HTML preloads. SW precache of WASM is allowed for offline; tracked as a **warn** metric (`serviceWorker.precacheWarnKb`).
+Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph or entry HTML preloads. SW precache of WASM is allowed for offline.
 
 ## Fast static checks (`bun check`)
 
 | Check | What |
 | --- | --- |
 | Biome grit | Ban known-heavy packages; ban eager static `@libs/games` / `@libs/chess` under `shell/**` |
-| `@apps/client#check:critical-path` | Static import walk from `main.tsx`; top-level `import()` hard-fail; denylisted nested `import()` per `criticalPath.eagerDynamicImportMode` (currently **warn**) |
+| `@apps/client#check:critical-path` | Static import walk from `main.tsx`: denylisted static imports and any top-level `import()` hard-fail |
 | Index HTML scripts | No third-party `<script src>` unless `thirdParty.indexHtmlScriptAllowlist` |
-| Image assets | PNG/JPEG size / modern-format policy (`images.mode`, currently **warn**) |
-
-## Runtime Lighthouse (manual)
-
-`@apps/client#check:lighthouse` is **opt-in** — not part of `bun check` or `bun run deploy`. CD low-end gates are static: `@apps/client#check:critical-path` (in `bun check`) and `@apps/client#check:bundle-budget` (deploy; needs Vite `dist`). Run Lighthouse locally when investigating runtime metrics (needs a Vite build + Chrome). While `lighthouse.mode` is `warn`, overs print warnings and the task still exits 0.
-
-- Rebuilds (when needed) with `VITE_API_URL` = preview origin; preview proxies `/api` → stub (never production)
-- Routes: `/` (shell), `/more`, `/profile` — **one LHCI process per route** (Chrome reaped between routes); SIGKILL retries that route once after reap
-- Median of `lighthouse.iterations` (3) × performance category only
-- Metrics: LCP / TBT / TTI / Speed Index / total-byte-weight / CLS
-- Reports under `apps/client/.lighthouseci/` (`--skip-upload` in the package script)
-
-### Flip-to-blocking plan (when re-enabled on CD)
-
-1. Collect ~2 weeks of medians from local manual runs  
-2. Set thresholds to `ceil(p75 * 1.2)` in `perf-budget.json`  
-3. Set `lighthouse.mode: "error"` and re-add `@apps/client#check:lighthouse` to `//#deploy` only if the wall-clock cost is acceptable
 
 ## Compression
 
@@ -69,19 +51,11 @@ Prefer the **system font stack** already used in `@pkgs/ui` (0 KB on the critica
 
 ## Third-party scripts
 
-Inventory today: **none** in `index.html`. New tags need an allowlist entry + size review. Lighthouse third-party blocking budget: `thirdParty.maxBlockingMs`.
+Inventory today: **none** in `index.html`. New tags need an allowlist entry + size review.
 
-## Memory + SW + first-load API
+## Perf HUD
 
-| Gate | Mode | Threshold (baseline-tunable) |
-| --- | --- | --- |
-| Shell JS heap | warn | 60 MB |
-| After `/more` + `/profile` | warn | 90 MB |
-| Boot API transfer | warn | 50 KB |
-| SW precache total | warn | 2048 KB |
-| PWA apple splash chrome | warn | 16 MB |
-
-In-app perf HUD (`apps/client/src/shell/perf/`) remains diagnostic-only (shows `heapMb` when enabled).
+In-app perf HUD (`apps/client/src/shell/perf/`) is diagnostic-only (shows `heapMb` when enabled).
 
 ## Known product hot spot
 
@@ -106,9 +80,6 @@ bun run --filter @apps/client check:critical-path
 # Artifact budgets (needs production build) — part of deploy
 bun run --filter @apps/client build
 bun run --filter @apps/client check:bundle-budget
-
-# Runtime Lighthouse (needs Chrome + build); manual only — not on check / deploy
-bun run --filter @apps/client check:lighthouse
 ```
 
 Optional treemap: `ANALYZE=1 bun run --filter @apps/client build` → `apps/client/dist/.stats.html`.
@@ -117,8 +88,7 @@ Optional treemap: `ANALYZE=1 bun run --filter @apps/client build` → `apps/clie
 
 | Item | Eventual path |
 | --- | --- |
-| Real Android device lab | Weekly sample on 2 GB Android Go after LHCI baselines |
+| Real Android device lab | Weekly sample on 2 GB Android Go |
 | WebPageTest | Optional monthly filmstrips vs production — not a merge gate |
 | RUM / CrUX | After first-party RUM exists; alert on p75 — never replace lab gates |
-| Paid LHCI server | Stay on temporary-public-storage + GHA artifacts |
 | Capacitor / desktop perf | Non-targets |

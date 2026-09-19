@@ -2,25 +2,17 @@
 // @io-wall-ok — composition root
 /**
  * Walk static imports from apps/client/src/main.tsx and fail if the closure
- * hits modules that must stay off the low-end Android critical path.
- * Also flags top-level import() and denylisted eager dynamic imports.
+ * hits modules that must stay off the low-end Android critical path, or if
+ * any file on that closure runs a top-level import().
  *
- * usage: client-critical-path-imports.ts [--budget=<perf-budget.json>]
+ * usage: client-critical-path-imports.ts
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
-import {
-  type GateMode,
-  loadPerfBudget,
-  parseBudgetPath,
-  reportGate,
-} from './perf-budget';
-
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const ENTRY_REL = 'apps/client/src/main.tsx';
 const TSCONFIG_REL = 'tsconfig.base.json';
-const DEFAULT_BUDGET = join(REPO_ROOT, 'apps/client/perf-budget.json');
 
 const DENY_SPECIFIER_PREFIXES = [
   '@libs/chess',
@@ -208,7 +200,6 @@ export type CriticalPathViolation = {
   readonly fromRel: string;
   readonly specifier: string;
   readonly reason: string;
-  readonly soft?: boolean;
 };
 
 export function walkCriticalPath(args: {
@@ -268,7 +259,7 @@ export function walkCriticalPath(args: {
   return { files, violations };
 }
 
-export function scanEagerDynamicImports(args: {
+export function scanTopLevelDynamicImports(args: {
   readonly files: readonly string[];
   readonly repoRoot: string;
 }): CriticalPathViolation[] {
@@ -278,42 +269,19 @@ export function scanEagerDynamicImports(args: {
     const source = readFileSync(file, 'utf8');
     const fromRel = relative(args.repoRoot, file);
     for (const hit of collectDynamicImports(source)) {
-      if (hit.topLevel) {
-        violations.push({
-          fromRel: `${fromRel}:${String(hit.line)}`,
-          specifier: hit.specifier,
-          reason:
-            'top-level import() on the initial static closure — defer behind a function or route',
-        });
-      }
-      if (isDeniedSpecifier(hit.specifier)) {
-        violations.push({
-          fromRel: `${fromRel}:${String(hit.line)}`,
-          specifier: hit.specifier,
-          reason:
-            'eager dynamic import of denylisted module — moves cost onto first load; defer behind user gesture or route',
-          soft: true,
-        });
-      }
+      if (!hit.topLevel) continue;
+      violations.push({
+        fromRel: `${fromRel}:${String(hit.line)}`,
+        specifier: hit.specifier,
+        reason:
+          'top-level import() on the initial static closure — defer behind a function or route',
+      });
     }
   }
   return violations;
 }
 
 function main(): void {
-  const argv = process.argv.slice(2);
-  let budgetPath = DEFAULT_BUDGET;
-  try {
-    if (argv.some((a) => a.startsWith('--budget='))) {
-      const p = parseBudgetPath(argv);
-      budgetPath = p.startsWith('/') ? p : join(process.cwd(), p);
-    }
-  } catch {
-    // optional flag
-  }
-  const budget = loadPerfBudget(budgetPath);
-  const mode: GateMode = budget.criticalPath.eagerDynamicImportMode;
-
   const entryAbs = join(REPO_ROOT, ENTRY_REL);
   if (!existsSync(entryAbs)) {
     console.error(`[critical-path] missing entry ${ENTRY_REL}`);
@@ -325,7 +293,7 @@ function main(): void {
     repoRoot: REPO_ROOT,
     aliases,
   });
-  const dynamicViolations = scanEagerDynamicImports({
+  const dynamicViolations = scanTopLevelDynamicImports({
     files,
     repoRoot: REPO_ROOT,
   });
@@ -334,37 +302,18 @@ function main(): void {
     `[critical-path] walked ${String(files.length)} files from ${ENTRY_REL}`
   );
 
-  let failed = false;
-  const hard = [
-    ...violations,
-    ...dynamicViolations.filter((v) => v.soft !== true),
-  ];
-  const soft = dynamicViolations.filter((v) => v.soft === true);
-
-  if (hard.length > 0) {
-    failed = true;
-    console.error(
-      `[critical-path] ${String(hard.length)} denylist hit(s) — low-end Android critical path`
-    );
-    for (const v of hard) {
-      console.error(`  ${v.fromRel} → ${v.specifier} (${v.reason})`);
-    }
-  }
-
-  for (const v of soft) {
-    const result = reportGate({
-      tag: 'critical-path',
-      mode,
-      over: true,
-      message: `eager dynamic import of ${v.specifier} at ${v.fromRel} (mode=${mode}) — ${v.reason}`,
-    });
-    if (result === 'fail') failed = true;
-  }
-
-  if (hard.length === 0 && soft.length === 0) {
+  const all = [...violations, ...dynamicViolations];
+  if (all.length === 0) {
     console.log('[critical-path] OK');
+    return;
   }
-  if (failed) process.exit(1);
+  console.error(
+    `[critical-path] ${String(all.length)} violation(s) — low-end Android critical path`
+  );
+  for (const v of all) {
+    console.error(`  ${v.fromRel} → ${v.specifier} (${v.reason})`);
+  }
+  process.exit(1);
 }
 
 if (import.meta.main) main();

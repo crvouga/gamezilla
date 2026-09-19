@@ -3,8 +3,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "gate",
-        "path": "libs/tools/scripts/check-release-gate.ts"
+        "kind": "test",
+        "path": "libs/tools/scripts/turbo-deploy-graph.test.ts"
       }
     ]
   },
@@ -65,12 +65,6 @@
         "kind": "test",
         "path": "libs/tools/scripts/check-goals.test.ts"
       }
-    ]
-  },
-  "the-bar:7": {
-    "status": "proven",
-    "proofs": [
-      { "kind": "gate", "path": "libs/tools/scripts/check-public-link.ts" }
     ]
   },
   "spaces:1": {

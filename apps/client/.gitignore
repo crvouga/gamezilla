@@ -5,7 +5,6 @@ public/sql-workers/**/*.html
 
 test-results/
 .check-dist-prodcheck
-.lighthouseci/
 
 # @pkgs/sql-client build-web-workers outputs (extensionless classic worker + wasm)
 public/sql-workers/worker

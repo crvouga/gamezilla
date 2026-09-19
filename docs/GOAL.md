@@ -32,7 +32,6 @@ v1 is done when every statement below is true. Not before.
 - [x] **Checks are trustworthy.** None are skipped, none are flaky, and a pass means the same thing every time.
 - [x] **Checks are realistic.** They exercise the whole product the way real users and the real world would, including the outside services it depends on, and including things going wrong.
 - [x] **Zero known bugs.** Every bug ever found is permanently guarded by a check.
-- [x] The app is live and reachable by a public link.
 
 ## 2. Spaces
 

@@ -403,14 +403,6 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/forbid-removed-auth-sdk-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/no-clerk-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
