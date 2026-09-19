@@ -6,6 +6,7 @@ import {
   type MessageRouter,
 } from '@pkgs/message';
 import type { HandleResult, RoomState } from '@pkgs/room';
+import type { GameCommandContext } from './game';
 
 function validateEmptyPayload(p: unknown): p is Record<string, never> {
   return isPlainRecord(p) && Object.keys(p).length === 0;
@@ -41,9 +42,11 @@ function readCount(state: RoomState): number {
 /** Routes counter commands to the events that should be appended to the log. */
 export const counterCommandRouter: MessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
-> = createMessageRouter<RoomState, string, HandleResult>(counterCmdNs)
+> = createMessageRouter<RoomState, GameCommandContext, HandleResult>(
+  counterCmdNs
+)
   .on(Increment, () => ({ ok: true, events: [CounterIncremented({})] }))
   .on(Decrement, () => ({ ok: true, events: [CounterDecremented({})] }));
 
