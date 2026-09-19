@@ -59,13 +59,6 @@
     },
     "libs/tools": {
       "entry": ["package.json", "scripts/**/*.ts"]
-    },
-    "pkgs/chess-board": {
-      "entry": [
-        "e2e/run-e2e.ts",
-        "e2e/tests/*.test.ts",
-        "e2e/harness/browser-entry.tsx"
-      ]
     }
   }
 }

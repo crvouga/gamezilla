@@ -123,9 +123,8 @@ bun check
 
 `bun check` goes through `secrets-run`, which reads the offline secrets cache;
 if it reports the cache missing, run `bun run secrets:pull` once and retry.
-Remember the port rule while it runs — EMQX (`1883`/`8083`/`18083`), the e2e
-harness ports (`4177`/`4178`) and the wrangler preview (`8788`) are
-machine-wide singletons shared with other workspaces; a contract leaf that
+Remember the port rule while it runs — EMQX (`1883`/`8083`/`18083`) and the
+wrangler preview (`8788`) are machine-wide singletons shared with other workspaces; a contract leaf that
 fails only because another workspace holds its port is reported, not "fixed".
 
 If a leaf fails: read its output, state one root-cause hypothesis, fix that

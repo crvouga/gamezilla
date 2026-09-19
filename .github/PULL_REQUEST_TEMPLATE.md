@@ -50,5 +50,5 @@ must decide before merging.
 - [ ] Client reads/writes go through local SQLite queries and mutations; no new data REST endpoint.
 - [ ] Any new secret is registered in `@libs/secrets` and provisioned for dev and prd.
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
-- [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, e2e `4177`/`4178`, wrangler `8788`).
+- [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
 - [ ] A human merges this PR — agents never merge (`gh pr merge`, auto-merge, merge queue).

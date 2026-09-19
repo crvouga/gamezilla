@@ -135,4 +135,24 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
     await expect(port.signIn('oauth-google')).rejects.toThrow();
     expect(await port.getFreshToken()).toBeNull();
   });
+
+  test('denying consent on the provider returns the app to an error', async () => {
+    const { wire } = await bootNodes();
+    const openAuthSession = createInProcessOpenAuthSession({
+      fetch: wire,
+      account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
+      consent: 'deny',
+    });
+    const port = createAuthClientAdapter({
+      baseURL: BASE_URL,
+      timers: wallTimers,
+      fetch: wire,
+      storage: createInMemoryAuthClientStorage(),
+      openAuthSession,
+      callbackUrl: CALLBACK,
+    });
+
+    await expect(port.signIn('oauth-google')).rejects.toThrow();
+    expect(await port.getFreshToken()).toBeNull();
+  });
 });

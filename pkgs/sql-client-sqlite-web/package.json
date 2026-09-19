@@ -14,8 +14,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/e2e/**'",
-    "test:e2e": "bun ./scripts/build-web-workers.ts && bun ./e2e/run-e2e.ts"
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
@@ -28,8 +27,6 @@
     "@sqlite.org/sqlite-wasm": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/os": "workspace:*",
-    "@pkgs/ui-testing-bun-webview": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",

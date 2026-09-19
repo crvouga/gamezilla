@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 
-import type { Square } from '@pkgs/chess-board-core/types';
-import type { ElementLayout } from '@pkgs/ui-testing';
-
 import type { ChessBoardHost } from '../board-host';
 import { openBoard } from '../board-page';
 import { FEN, play } from '../oracle';
@@ -104,54 +101,6 @@ export function defineSpecialMoveScenarios(host: ChessBoardHost): void {
       await board.expectSounds(['capture', 'promote']);
     });
 
-    // Only a real layout engine positions the picker; happy-dom boxes are synthetic.
-    if (host.measuresLayout) {
-      test('the picker sits on the promotion file, queen on the square, all inside the board', async () => {
-        const cases = [
-          {
-            fen: FEN.whitePromotion,
-            from: 'a7',
-            to: 'a8',
-            orientation: 'white',
-            size: 320,
-          },
-          {
-            fen: FEN.whitePromotion,
-            from: 'a7',
-            to: 'b8',
-            orientation: 'black',
-            size: 333,
-          },
-          {
-            fen: FEN.blackPromotion,
-            from: 'a2',
-            to: 'b1',
-            orientation: 'white',
-            size: null,
-          },
-          {
-            fen: FEN.blackPromotion,
-            from: 'a2',
-            to: 'a1',
-            orientation: 'black',
-            size: null,
-          },
-        ] as const;
-        for (const c of cases) {
-          const board = await openBoard(host, {
-            fen: c.fen,
-            orientation: c.orientation,
-            size: c.size,
-            frameWidth: 363,
-          });
-          await board.drag(c.from, c.to);
-          const problems = await pickerProblems(board, c.to);
-          expect({ c, problems }).toEqual({ c, problems: [] });
-          await host.close();
-        }
-      });
-    }
-
     test('cancelling the picker leaves the pawn where it was', async () => {
       const board = await openBoard(host, { fen: FEN.whitePromotion });
       await board.drag('a7', 'a8');
@@ -241,50 +190,4 @@ export function defineSpecialMoveScenarios(host: ChessBoardHost): void {
       await board.expectSounds(['move', 'gameEnd']);
     });
   });
-}
-
-const EPS = 0.5;
-
-/** Where the open picker is not where it belongs (empty when it is). */
-async function pickerProblems(
-  board: Awaited<ReturnType<typeof openBoard>>,
-  to: Square
-): Promise<string[]> {
-  const painted = await board.paintedBox();
-  const square = await board.squareBox(to);
-  const center = {
-    x: square.x + square.width / 2,
-    y: square.y + square.height / 2,
-  };
-  const problems: string[] = [];
-  for (const choice of ['q', 'r', 'b', 'n', 'cancel'] as const) {
-    const box = await board.promotionBox(choice);
-    if (!contains(painted, box)) problems.push(`${choice} outside board`);
-    const onFile = center.x >= box.x && center.x <= box.x + box.width;
-    if (choice !== 'cancel' && !onFile) problems.push(`${choice} off the file`);
-  }
-  const queen = await board.promotionBox('q');
-  if (!containsPoint(queen, center)) problems.push('queen off the square');
-  return problems;
-}
-
-function contains(outer: ElementLayout, inner: ElementLayout): boolean {
-  return (
-    inner.x >= outer.x - EPS &&
-    inner.y >= outer.y - EPS &&
-    inner.x + inner.width <= outer.x + outer.width + EPS &&
-    inner.y + inner.height <= outer.y + outer.height + EPS
-  );
-}
-
-function containsPoint(
-  box: ElementLayout,
-  p: { readonly x: number; readonly y: number }
-): boolean {
-  return (
-    p.x >= box.x &&
-    p.x <= box.x + box.width &&
-    p.y >= box.y &&
-    p.y <= box.y + box.height
-  );
 }

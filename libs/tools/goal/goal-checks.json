@@ -28,7 +28,7 @@
   },
   "the-bar:4": {
     "status": "proven",
-    "note": "two test:e2e leaves exit 0 on non-darwin, and pubsub-emqx test:contract loud-skips without a broker.",
+    "note": "pubsub-emqx test:contract loud-skips without a broker.",
     "proofs": [
       {
         "kind": "gate",

@@ -90,11 +90,11 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. Platform-scoped leaves (`test:e2e`, `test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun, chrome}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task, with cache-hit-only groups dropped (turbo's `Cached:` line still counts them). Look for `cache miss` in Turbo output.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task, with cache-hit-only groups dropped (turbo's `Cached:` line still counts them). Look for `cache miss` in Turbo output.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on Biome + vocab + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` / `test:e2e` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget); runtime Lighthouse is manual only (`bun run --filter @apps/client check:lighthouse`), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on Biome + vocab + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget); runtime Lighthouse is manual only (`bun run --filter @apps/client check:lighthouse`), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
 **Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Uncacheable steps (`cache: false`: check:api, provision, migrate, deploy, smoke, OTA) always re-run.
 
@@ -127,19 +127,13 @@ a plan without larger runners):
    `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
    `@libs/db#migrate` / `@libs/secrets#provision` are not dry-run gated.
 
-The three `test:e2e` leaves (`@pkgs/auth`, `@pkgs/sql-client-sqlite-web`,
-`@pkgs/chess-board`) drive a real browser through `Bun.WebView`: WebKit on
-macOS, the runner's preinstalled headless Google Chrome on Linux CI (the setup
-action lifts Ubuntu's AppArmor user-namespace block so Chrome keeps its
-sandbox). `@pkgs/ui-testing-bun-webview/e2e-browser` picks the engine; with
-`CI` set, a missing browser fails the leaf instead of falling back — only a
-local machine with no browser runs the in-process path. Warm runs are Turbo
-cache hits: `turbo-platform-key.json` carries `{platform, arch, bun, chrome}`
-(plus the macOS release that ships WebKit), so a result replays until the code
-or the browser changes and a macOS result never satisfies a Linux run.
-`@pkgs/chess-board`'s UI suite is written once (`tests/ui/suite`) and runs in
-happy-dom (`test`) and in a browser (`test:e2e`; `CHESS_BOARD_WEBVIEW=chrome`
-/ `AUTH_E2E_WEBVIEW=chrome` run the Linux engine on macOS).
+UI tests run in-process, in happy-dom, inside each package's `test` leaf —
+`bun check` drives no real browser. UI suites are written against the
+polymorphic `@pkgs/ui-testing` `Driver` and run on `@pkgs/ui-testing-solid-dom`
+(Solid in happy-dom, virtual clock). `@pkgs/ui-testing-bun-webview` implements the same `Driver`
+and is used only by the opt-in live-browser product sims
+(`SIM_MODE=real|stack`); swapping hosts is a driver choice, never a suite
+rewrite.
 
 CI pins Bun `1.4.2` (`packageManager`, `.github/actions/setup`). Do not downgrade
 to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
@@ -193,8 +187,7 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (`VITE_PORT`/`PREVIEW_PORT`, `POSTGRES_PORT`); the Run pane sources it
   automatically, and any terminal that boots a sidecar
   (`@pkgs/postgres-embedded`) must source it first. EMQX
-  (`1883`/`8083`/`18083`), the e2e harness ports
-  (`4177`/`4178`) and the wrangler preview (`8788`) stay machine-wide
+  (`1883`/`8083`/`18083`) and the wrangler preview (`8788`) stay machine-wide
   singletons: at most one workspace at a time may run something that binds them
   (fidelity-max sims, `test:contract`, `check:api`).
 - **Checks.** `bun check` is the whole gate (the same leaf set PR CI runs).

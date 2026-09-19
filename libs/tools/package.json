@@ -13,7 +13,6 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/os": "workspace:*",
-    "@pkgs/secret-provider": "workspace:*",
-    "@pkgs/ui-testing-bun-webview": "workspace:*"
+    "@pkgs/secret-provider": "workspace:*"
   }
 }

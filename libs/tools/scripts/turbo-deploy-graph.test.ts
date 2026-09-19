@@ -49,9 +49,6 @@ const CHECK_LEAVES = [
   'test',
   '@apps/server#build',
   '@apps/room-server#build',
-  '@pkgs/auth#test:e2e',
-  '@pkgs/sql-client-sqlite-web#test:e2e',
-  '@pkgs/chess-board#test:e2e',
   '@pkgs/sql-client-postgres#test:contract',
   '@pkgs/db-schema-postgres#test:contract',
   '@pkgs/db-indexes-postgres#test:contract',
@@ -81,7 +78,6 @@ describe('turbo check/deploy graph invariants', () => {
     }
     expect(deps as string[]).not.toContain('@apps/client#check:lighthouse');
     expect(deps as string[]).not.toContain('test:contract');
-    expect(deps as string[]).not.toContain('test:e2e');
     expect(deps as string[]).not.toContain('build');
     expect(deps as string[]).not.toContain('@apps/client#build');
     expect(deps as string[]).not.toContain('@apps/product#build');
@@ -107,7 +103,6 @@ describe('turbo check/deploy graph invariants', () => {
       expect(deps as string[]).toContain(leaf);
     }
     expect(deps as string[]).not.toContain('test:contract');
-    expect(deps as string[]).not.toContain('test:e2e');
     expect(deps as string[]).toContain('@libs/billing#billing:check');
     expect(turbo.tasks?.['deploy']).toBeUndefined();
   });

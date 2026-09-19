@@ -1,11 +1,11 @@
 # Chess board UI suite
 
-One suite, written against the `@pkgs/ui-testing` `Driver`, run on two hosts:
+One suite, written against the `@pkgs/ui-testing` `Driver`. A host supplies the
+driver, so swapping the implementation never touches a scenario:
 
 | Host | Command | Engine |
 | --- | --- | --- |
 | happy-dom (in-process) | `bun run --filter @pkgs/chess-board test` | Solid in happy-dom via `@pkgs/ui-testing-solid-dom`, virtual clock |
-| Bun.WebView (browser) | `bun run --filter @pkgs/chess-board test:e2e` | WKWebView on macOS via `@pkgs/ui-testing-bun-webview`, wall clock; `CHESS_BOARD_WEBVIEW=chrome` for Chrome. Off macOS, `test:e2e` runs the happy-dom host. |
 
 ## Layout
 
@@ -17,7 +17,6 @@ tests/ui/
   suite/       ChessBoardHost port, BoardPage page object, chess.js oracle,
                scenarios/* (one describe per concern)
   hosts/       happy-dom host
-e2e/           browser host: Vite-built harness page served locally, Bun.WebView
 ```
 
 ## What a test can observe
@@ -33,12 +32,11 @@ Only what a driver can read by test id:
   `selected@e2`, `dot@e3`, `arrow:primary@e2-e4`, …). `BoardPage.expectConsistent`
   asserts painted pieces and overlays match the probe.
 - **Harness logs**: emitted moves, sounds played (recording audio port), user arrows.
-- **Layout** (browser host only, `host.measuresLayout`): square / picker boxes.
 
 ## Adding a scenario
 
 Add a `test` to the matching `suite/scenarios/*.ts` (or a new file registered in
 `define-chess-board-suite.ts`). Use `openBoard(host, config)`, gestures on
 `BoardPage` (`tap`, `drag`, `clickMove`, `key`, `rightDrag`, `promote`, …) and
-assert on reads — never on host internals, so the test runs on both hosts.
+assert on reads — never on host internals, so the test runs on any host.
 Model-based runs (`scenarios/model-based.ts`) replay from their seed.

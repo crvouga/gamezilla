@@ -24,7 +24,6 @@ export function createDomHost(): ChessBoardHost {
   let sim: ReturnType<typeof createSimClock> | undefined;
   return {
     name: 'happy-dom',
-    measuresLayout: false,
     async open(config: HarnessConfig) {
       await driver?.close();
       const clock = createSimClock();

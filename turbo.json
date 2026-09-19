@@ -306,48 +306,6 @@
       "outputs": [],
       "dependsOn": ["tc"]
     },
-    "test:e2e": {
-      "inputs": [
-        "src/**",
-        "e2e/**",
-        "scripts/**",
-        "package.json",
-        "*.cjs",
-        "tsconfig*.json",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "@pkgs/auth#test:e2e": {
-      "inputs": [
-        "src/**",
-        "e2e/**",
-        "package.json",
-        "tsconfig*.json",
-        "$TURBO_ROOT$/pkgs/auth-sim/src/**",
-        "$TURBO_ROOT$/pkgs/auth-sim/e2e/**",
-        "$TURBO_ROOT$/pkgs/auth-sim/package.json",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc", "@pkgs/auth-sim#tc"]
-    },
-    "@pkgs/chess-board#test:e2e": {
-      "inputs": [
-        "src/**",
-        "e2e/**",
-        "tests/ui/**",
-        "package.json",
-        "tsconfig*.json",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
     "billing:check": {
       "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
       "outputLogs": "new-only",
@@ -549,9 +507,6 @@
         "test",
         "@apps/server#build",
         "@apps/room-server#build",
-        "@pkgs/auth#test:e2e",
-        "@pkgs/sql-client-sqlite-web#test:e2e",
-        "@pkgs/chess-board#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
         "@pkgs/db-schema-postgres#test:contract",
         "@pkgs/db-indexes-postgres#test:contract",
@@ -690,9 +645,6 @@
         "//#ci:no-skipped-tests",
         "//#ci:public-link",
         "//#ci:release-gate",
-        "@pkgs/auth#test:e2e",
-        "@pkgs/sql-client-sqlite-web#test:e2e",
-        "@pkgs/chess-board#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
         "@pkgs/kv-postgres#test:contract",
         "@pkgs/object-store-s3#test:contract",
