@@ -1,12 +1,16 @@
 // @io-wall-ok
 /**
- * Billing catalog sync — reconcile CATALOG_SPEC onto the billing vendor adapter.
+ * Billing sync — reconcile the plus membership offer onto the provider.
  */
-import { CATALOG_SPEC } from '@libs/billing/public/catalog';
-import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
+import {
+  createStripeMembershipBillingFromSecretStore,
+  reconcileStripeOffer,
+} from '@pkgs/billing-stripe';
 import { wallClock } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
+import { readOfferCallbackUrl } from './billing-reconcile';
 import { createBillingScriptSecretStore } from './billing-script-secret-store';
 
 const SCRIPT_TAG = 'billing sync';
@@ -18,8 +22,9 @@ async function main(): Promise<void> {
     fetchFn: cliHttp.fetch.bind(cliHttp),
     now: wallClock.now,
   });
-  const billing = await createStripeBillingFromSecretStore(
+  const billing = await createStripeMembershipBillingFromSecretStore(
     store,
+    PLUS_MEMBERSHIP_OFFER,
     wallClock.now
   );
   if (billing === null) {
@@ -28,12 +33,23 @@ async function main(): Promise<void> {
     );
     process.exit(1);
   }
-  const catalog = await billing.syncCatalog(CATALOG_SPEC);
+  const callbackUrl = await readOfferCallbackUrl(store);
+  if (callbackUrl === null) {
+    console.error(
+      `[${SCRIPT_TAG}] API_URL secret is missing or blank — the provider needs an absolute callback URL`
+    );
+    process.exit(1);
+  }
+  const result = await reconcileStripeOffer(
+    billing.stripe,
+    PLUS_MEMBERSHIP_OFFER,
+    { callbackUrl }
+  );
   log.info(`[${SCRIPT_TAG}] done`, {
-    catalog: {
-      products: catalog.products.length,
-      prices: catalog.prices.length,
-    },
+    products: result.products.length,
+    prices: result.prices.length,
+    portalConfigurationId: result.portalConfigurationId,
+    webhookEndpointId: result.webhookEndpointId,
   });
 }
 

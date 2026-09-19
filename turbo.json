@@ -188,6 +188,20 @@
       "outputLogs": "new-only",
       "outputs": []
     },
+    "test:billing": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/billing-*.ts",
+        "tests/billing-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
     "test:chess": {
       "dependsOn": ["tc"],
       "inputs": [

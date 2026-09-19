@@ -22,22 +22,17 @@ function facts(overrides: Partial<PlanFacts>): PlanFacts {
 }
 
 describe('readSubscriptionSnapshot', () => {
-  test('an absent row or blank status is no subscription', () => {
+  test('an absent, blank or unknown status is no subscription', () => {
     expect(readSubscriptionSnapshot(undefined)).toBeNull();
-    expect(
-      readSubscriptionSnapshot({
-        status: '',
-        current_period_end: null,
-        cancel_at_period_end: null,
-      })
-    ).toBeNull();
-    expect(
-      readSubscriptionSnapshot({
-        status: null,
-        current_period_end: null,
-        cancel_at_period_end: null,
-      })
-    ).toBeNull();
+    for (const status of ['', null, 'mystery', 'past_due']) {
+      expect(
+        readSubscriptionSnapshot({
+          status,
+          current_period_end: null,
+          cancel_at_period_end: null,
+        })
+      ).toBeNull();
+    }
   });
 
   test('an unparsable period end becomes null', () => {
@@ -55,22 +50,18 @@ describe('readSubscriptionSnapshot', () => {
 
   test('sqlite 0/1 and postgres booleans both decode', () => {
     const base = { status: 'active', current_period_end: null };
-    expect(
-      readSubscriptionSnapshot({ ...base, cancel_at_period_end: 1 })
-        ?.cancelAtPeriodEnd
-    ).toBe(true);
-    expect(
-      readSubscriptionSnapshot({ ...base, cancel_at_period_end: true })
-        ?.cancelAtPeriodEnd
-    ).toBe(true);
-    expect(
-      readSubscriptionSnapshot({ ...base, cancel_at_period_end: 0 })
-        ?.cancelAtPeriodEnd
-    ).toBe(false);
-    expect(
-      readSubscriptionSnapshot({ ...base, cancel_at_period_end: null })
-        ?.cancelAtPeriodEnd
-    ).toBe(false);
+    for (const flag of [1, true]) {
+      expect(
+        readSubscriptionSnapshot({ ...base, cancel_at_period_end: flag })
+          ?.cancelAtPeriodEnd
+      ).toBe(true);
+    }
+    for (const flag of [0, null]) {
+      expect(
+        readSubscriptionSnapshot({ ...base, cancel_at_period_end: flag })
+          ?.cancelAtPeriodEnd
+      ).toBe(false);
+    }
   });
 });
 
@@ -95,7 +86,7 @@ describe('resolvePlanRole', () => {
   });
 
   test('an active or trialing plan is paid', () => {
-    for (const status of ['active', 'trialing']) {
+    for (const status of ['active', 'trialing'] as const) {
       expect(
         resolvePlanRole(
           facts({
@@ -112,10 +103,10 @@ describe('resolvePlanRole', () => {
 
   test('an ended plan keeps paid access through the grace window', () => {
     const subscription = {
-      status: 'canceled',
+      status: 'ended',
       currentPeriodEndMs: 1_000,
       cancelAtPeriodEnd: false,
-    };
+    } as const;
     expect(
       resolvePlanRole(facts({ subscription, nowMs: 1_000 + GRACE_MS }))
     ).toBe(ROLE.planPaid);
@@ -124,8 +115,8 @@ describe('resolvePlanRole', () => {
     ).toBe(ROLE.planFree);
   });
 
-  test('every ended status gets the same grace window', () => {
-    for (const status of ['unpaid', 'past_due', 'incomplete_expired']) {
+  test('a delinquent plan gets the same grace window as an ended one', () => {
+    for (const status of ['delinquent', 'ended'] as const) {
       expect(
         resolvePlanRole(
           facts({
@@ -146,7 +137,7 @@ describe('resolvePlanRole', () => {
       resolvePlanRole(
         facts({
           subscription: {
-            status: 'canceled',
+            status: 'ended',
             currentPeriodEndMs: null,
             cancelAtPeriodEnd: false,
           },
@@ -155,13 +146,13 @@ describe('resolvePlanRole', () => {
     ).toBe(ROLE.planFree);
   });
 
-  test('an unknown status is free', () => {
+  test('an incomplete plan is free even inside its period', () => {
     expect(
       resolvePlanRole(
         facts({
           subscription: {
-            status: 'mystery',
-            currentPeriodEndMs: 1_000,
+            status: 'incomplete',
+            currentPeriodEndMs: 1_000 + GRACE_MS,
             cancelAtPeriodEnd: false,
           },
         })

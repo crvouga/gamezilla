@@ -19,7 +19,7 @@ import {
   SIM_IDP_URL,
 } from '@apps/server/sim/sim-constants';
 import { assert } from '@pkgs/assert';
-import { InMemoryBilling } from '@pkgs/billing';
+import { FakeMembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -33,6 +33,7 @@ import {
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
+import type { SimBillingBrowser } from './sim-billing-browser';
 import { makeSimClientEnv } from './sim-client-env';
 import { bumpSimClientEpoch } from './sim-client-namespace';
 import { createSimIdp, simIdpEmail, simIdpFetchFrom } from './sim-idp';
@@ -84,6 +85,8 @@ export type Sim = {
   readonly idp: GoogleIdp;
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
+  /** The actor's headless browser for the fake provider's mock pages. */
+  billingBrowser(id: string): SimBillingBrowser;
   /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
   spawnServer(id?: string): Promise<Server>;
   /** Remove an API instance from the balancer rotation. */
@@ -152,7 +155,9 @@ async function buildSharedServerServices(
   return {
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
-    billing: new InMemoryBilling({ baseUrl: SIM_SERVER_URL }),
+    billing: new FakeMembershipBilling({
+      mockBaseUrl: `${SIM_SERVER_URL}/api/billing/mock`,
+    }),
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,
@@ -345,6 +350,7 @@ function createSimHandle(kernel: SimKernel): Sim {
    * while `clientSql` still holds mutation rows from the prior stream. */
   const clientEnvs = new Map<string, ClientEnv>();
   const pendingEnvs = new Map<string, Promise<ClientEnv>>();
+  const billingBrowsers = new Map<string, SimBillingBrowser>();
   const liveClients = new Map<string, Client>();
   const client = async (id: string): Promise<ClientEnv> => {
     const cached = clientEnvs.get(id);
@@ -354,10 +360,11 @@ function createSimHandle(kernel: SimKernel): Sim {
     const pending = (async (): Promise<ClientEnv> => {
       // The person behind this actor needs a Google account to sign in with.
       await idp.addAccount({ handle: id, email: simIdpEmail(id) });
-      const env = makeSimClientEnv(kernel, { id, clientSql });
-      clientEnvs.set(id, env);
+      const built = makeSimClientEnv(kernel, { id, clientSql });
+      billingBrowsers.set(id, built.billingBrowser);
+      clientEnvs.set(id, built.env);
       pendingEnvs.delete(id);
-      return env;
+      return built.env;
     })();
     pendingEnvs.set(id, pending);
     return await pending;
@@ -372,6 +379,11 @@ function createSimHandle(kernel: SimKernel): Sim {
     loadBalancer: kernel.loadBalancer,
     idp,
     client,
+    billingBrowser: (id) => {
+      const browser = billingBrowsers.get(id);
+      assert.defined(browser, `sim billing browser missing for ${id}`);
+      return browser;
+    },
     async spawnServer(id) {
       const node = await servers.spawn(id);
       // A respawned instance must not stay marked down from a prior crash.

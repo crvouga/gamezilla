@@ -27,6 +27,11 @@ export type ApiWorkerEnv = {
    * Google; the localhost stack points it at its own simulated provider.
    */
   GOOGLE_IDP_ORIGIN?: string;
+  /**
+   * Which membership provider to inject: `stripe` or `fake`. Unset means
+   * Stripe-from-secrets; the localhost stack sets `fake` explicitly.
+   */
+  BILLING_PROVIDER?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;
@@ -76,6 +81,13 @@ export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
 
 export function readOptionalGoogleIdpOrigin(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.GOOGLE_IDP_ORIGIN);
+}
+
+export function readBillingProviderBinding(
+  env: ApiWorkerEnv
+): 'stripe' | 'fake' | null {
+  const value = readOptionalBinding(env.BILLING_PROVIDER)?.toLowerCase();
+  return value === 'stripe' || value === 'fake' ? value : null;
 }
 
 export function readOptionalDatabaseUrlOverride(

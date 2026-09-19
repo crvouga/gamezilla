@@ -84,6 +84,7 @@ export async function simClientEnv(
     authBaseURL: serverUrl,
     authCallbackUrl: `${serverUrl}/sso-callback`,
     openAuthSession: () => Promise.resolve({ type: 'cancel' }),
+    openExternalUrl: () => Promise.resolve(),
     resolveDatabaseName: ({ userId }) => `sim_client_${userId}`,
     mutationSuccessHoldMs: 0,
   };

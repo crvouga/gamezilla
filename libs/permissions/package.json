@@ -20,6 +20,7 @@
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/client-config": "workspace:*",
+    "@pkgs/billing": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/permissions": "workspace:*",
     "@pkgs/sql": "workspace:*",

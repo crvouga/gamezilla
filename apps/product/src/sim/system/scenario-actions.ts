@@ -7,6 +7,17 @@
 
 import { returnToTabs, signInWithGoogle, signOut } from './auth-actions';
 import {
+  advanceBillingClock,
+  cancelPlus,
+  checkoutPlusAtProvider,
+  managePlus,
+  observeMembership,
+  openBilling,
+  resumePlus,
+  subscribeToPlus,
+  switchPlusInterval,
+} from './billing-actions';
+import {
   bumpPuzzleFeedCustomRating,
   bumpPuzzleFeedOffset,
   closePuzzleFeedSettings,
@@ -53,8 +64,11 @@ import {
 export {
   acceptFriendRequest,
   addFriend,
+  advanceBillingClock,
   bumpPuzzleFeedCustomRating,
   bumpPuzzleFeedOffset,
+  cancelPlus,
+  checkoutPlusAtProvider,
   closePuzzleFeedSettings,
   createSpace,
   endSpace,
@@ -63,7 +77,10 @@ export {
   joinFromPrompt,
   leaveAvatarEditor,
   leavePuzzleToChessMenu,
+  managePlus,
+  observeMembership,
   openAvatarEditor,
+  openBilling,
   openChessStatsScreen,
   openFriendsList,
   openLobbyCard,
@@ -79,6 +96,7 @@ export {
   pressPuzzleNextNoWait,
   reenterActiveSpace,
   requestPuzzleHint,
+  resumePlus,
   retryPuzzle,
   returnToLobby,
   returnToTabs,
@@ -93,7 +111,9 @@ export {
   signInWithGoogle,
   signOut,
   skipPuzzle,
+  subscribeToPlus,
   suggestPuzzleMove,
+  switchPlusInterval,
 };
 
 export const productScenarioActions = [
@@ -140,4 +160,13 @@ export const productScenarioActions = [
   addFriend,
   acceptFriendRequest,
   openFriendsList,
+  openBilling,
+  subscribeToPlus,
+  managePlus,
+  cancelPlus,
+  checkoutPlusAtProvider,
+  resumePlus,
+  switchPlusInterval,
+  observeMembership,
+  advanceBillingClock,
 ];

@@ -19,6 +19,7 @@ import type { PubSub } from '@pkgs/pubsub/interface';
 import type { ClientTransport } from '@pkgs/room';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
+import type { OpenExternalUrl } from '@pkgs/ui';
 import type { CreateId, Random } from '@pkgs/uuid/create-id';
 
 /** HTTP to the server app only — not a generic fetch. */
@@ -108,6 +109,12 @@ export type ClientEnv = {
   readonly authCallbackUrl: string;
   /** OAuth popup (browser) / in-process stub (sim). */
   readonly openAuthSession: OpenAuthSession;
+  /**
+   * Leaves the app for a provider-hosted page (Stripe Checkout / billing
+   * portal). Browser: `location.assign`; sim: the provider's real screens,
+   * walked headlessly.
+   */
+  readonly openExternalUrl: OpenExternalUrl;
   /** Sync-engine pool key / local DB name (sim: per-actor; prod: per-user). */
   readonly resolveDatabaseName: (args: { readonly userId: string }) => string;
   /**

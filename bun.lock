@@ -609,6 +609,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@pkgs/billing": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/permissions": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -1803,6 +1804,9 @@
     "pkgs/permissions": {
       "name": "@pkgs/permissions",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/billing": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

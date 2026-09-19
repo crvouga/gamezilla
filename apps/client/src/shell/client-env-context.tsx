@@ -8,7 +8,7 @@
 import { ClockProvider } from '@pkgs/clock/solid';
 import { HttpClientProvider } from '@pkgs/http-client/solid';
 import type { HttpClient } from '@pkgs/http-client/types';
-import { MutationSuccessHoldProvider } from '@pkgs/ui';
+import { ExternalUrlProvider, MutationSuccessHoldProvider } from '@pkgs/ui';
 import { IdProvider } from '@pkgs/uuid/solid';
 import { createContext, type JSX, untrack, useContext } from 'solid-js';
 
@@ -34,13 +34,15 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
       <PoolContext.Provider value={pool}>
         <ClockProvider clock={env.clock} timers={env.timers}>
           <HttpClientProvider value={http}>
-            <IdProvider createId={env.createId} random={env.random}>
-              <MutationSuccessHoldProvider
-                successHoldMs={env.mutationSuccessHoldMs}
-              >
-                {props.children}
-              </MutationSuccessHoldProvider>
-            </IdProvider>
+            <ExternalUrlProvider value={env.openExternalUrl}>
+              <IdProvider createId={env.createId} random={env.random}>
+                <MutationSuccessHoldProvider
+                  successHoldMs={env.mutationSuccessHoldMs}
+                >
+                  {props.children}
+                </MutationSuccessHoldProvider>
+              </IdProvider>
+            </ExternalUrlProvider>
           </HttpClientProvider>
         </ClockProvider>
       </PoolContext.Provider>

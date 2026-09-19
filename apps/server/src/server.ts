@@ -4,14 +4,15 @@
 // Must be first: installs native ALS on globalThis before any `@pkgs/async-local` construction.
 import './install-native-als';
 
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
-import { InMemoryBilling } from '@pkgs/billing';
-import { createStripeBillingFromSecretStore } from '@pkgs/billing-stripe';
+import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
+import { createStripeMembershipBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
@@ -26,6 +27,7 @@ import type { ApiWorkerEnv } from './config/env';
 import {
   assertSecretsEnvBinding,
   ConfigurationError,
+  readBillingProviderBinding,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
   readOptionalGoogleIdpOrigin,
@@ -121,6 +123,23 @@ function latchFatal(reason: string): void {
   }
 }
 
+async function createMembershipBilling(
+  env: ApiWorkerEnv,
+  secretStore: ReturnType<typeof createApiSecretStore>,
+  serverUrl: string | null
+): Promise<MembershipBilling | null> {
+  if (readBillingProviderBinding(env) === 'fake') {
+    return new FakeMembershipBilling({
+      mockBaseUrl: `${serverUrl ?? 'http://127.0.0.1'}/api/billing/mock`,
+    });
+  }
+  return await createStripeMembershipBillingFromSecretStore(
+    secretStore,
+    PLUS_MEMBERSHIP_OFFER,
+    wallClock.now
+  );
+}
+
 async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const secretsEnv = assertSecretsEnvBinding(env);
   const secretStore = createApiSecretStore(
@@ -159,10 +178,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   });
 
   const localStack = env['LOCALHOST_STACK'] === '1';
-  const billing = localStack
-    ? new InMemoryBilling({ baseUrl: serverUrl ?? 'http://127.0.0.1' })
-    : await createStripeBillingFromSecretStore(secretStore);
-  if (!localStack && billing === null) {
+  const billing = await createMembershipBilling(env, secretStore, serverUrl);
+  if (billing === null) {
     log.warn('billing secret key missing; billing routes will return 503');
   }
 

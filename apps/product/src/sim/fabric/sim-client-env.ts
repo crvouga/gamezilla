@@ -27,6 +27,10 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
+import {
+  createSimBillingBrowser,
+  type SimBillingBrowser,
+} from './sim-billing-browser';
 import { simClientNamespace } from './sim-client-namespace';
 import { simBrowserFetch, simIdpEmail } from './sim-idp';
 import type { SimLoadBalancer } from './sim-load-balancer';
@@ -96,7 +100,7 @@ export function makeSimClientEnv(
     readonly id: string;
     readonly clientSql: Map<string, SimSql>;
   }
-): ClientEnv {
+): { readonly env: ClientEnv; readonly billingBrowser: SimBillingBrowser } {
   const { session, seed, timers, net, pubSubBus, roomNode } = deps;
   const { id, clientSql } = args;
   const ns = simClientNamespace(id);
@@ -107,6 +111,10 @@ export function makeSimClientEnv(
     from: id,
     server: serverFetch,
   });
+  const billingBrowser = createSimBillingBrowser({
+    browserFetch,
+    apiOrigin: SIM_SERVER_URL,
+  });
   let liveEvents: ReturnType<typeof createInMemoryPubSub> | null =
     createInMemoryPubSub({ bus: pubSubBus });
   const createPubSub = (): ReturnType<typeof createInMemoryPubSub> => {
@@ -114,7 +122,7 @@ export function makeSimClientEnv(
     liveEvents = createInMemoryPubSub({ bus: pubSubBus });
     return liveEvents;
   };
-  return {
+  const env: ClientEnv = {
     clock: session.ports.clock,
     timers,
     createId: createSeededCreateId(
@@ -151,7 +159,9 @@ export function makeSimClientEnv(
     authBaseURL: SIM_SERVER_URL,
     authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,
     openAuthSession: clientOpenAuthSession(id, browserFetch),
+    openExternalUrl: billingBrowser.openExternalUrl,
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 900,
   };
+  return { env, billingBrowser };
 }

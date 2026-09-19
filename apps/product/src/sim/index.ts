@@ -71,6 +71,19 @@ export {
   uiOp,
 } from './system/actions';
 export {
+  BILLING_OBSERVE_KINDS,
+  type BillingObserveKind,
+} from './system/billing-actions';
+export {
+  accountIdOf,
+  billingButtonVisible,
+  billingTier,
+  type MembershipRowView,
+  membershipRow,
+  membershipRows,
+  serverMembershipRow,
+} from './system/billing-reads';
+export {
   readFeedHistoryLabel,
   readFeedModalPool,
   readFeedModalTargetRating,
@@ -113,8 +126,11 @@ export { captureSnapshot, googleOauthSignIn } from './system/probes';
 export {
   acceptFriendRequest,
   addFriend,
+  advanceBillingClock,
   bumpPuzzleFeedCustomRating,
   bumpPuzzleFeedOffset,
+  cancelPlus,
+  checkoutPlusAtProvider,
   closePuzzleFeedSettings,
   createSpace,
   endSpace,
@@ -123,7 +139,10 @@ export {
   joinFromPrompt,
   leaveAvatarEditor,
   leavePuzzleToChessMenu,
+  managePlus,
+  observeMembership,
   openAvatarEditor,
+  openBilling,
   openChessStatsScreen,
   openFriendsList,
   openLobbyCard,
@@ -139,6 +158,7 @@ export {
   pressPuzzleNextNoWait,
   reenterActiveSpace,
   requestPuzzleHint,
+  resumePlus,
   retryPuzzle,
   returnToLobby,
   returnToTabs,
@@ -153,7 +173,9 @@ export {
   signInWithGoogle,
   signOut,
   skipPuzzle,
+  subscribeToPlus,
   suggestPuzzleMove,
+  switchPlusInterval,
 } from './system/scenario-actions';
 export {
   createProductSim,

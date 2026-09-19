@@ -18,6 +18,7 @@ import {
   Code,
   Columns2,
   Copy,
+  CreditCard,
   Database,
   DoorOpen,
   Ellipsis,
@@ -74,6 +75,7 @@ import {
 import { createIcon } from './create-icon';
 
 export { createIcon, type IconComponent, type IconProps } from './create-icon';
+export const CreditCardIcon = createIcon(CreditCard);
 
 export const HouseIcon = createIcon(House);
 export const FlaskConicalIcon = createIcon(FlaskConical);

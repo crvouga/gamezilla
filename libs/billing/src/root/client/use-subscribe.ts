@@ -6,9 +6,7 @@ import {
 import { useHttpClient } from '@pkgs/http-client/solid';
 
 export type SubscribeArgs = {
-  readonly priceKey: string;
-  readonly successUrl: string;
-  readonly cancelUrl: string;
+  readonly returnUrl: string;
 };
 
 /** Starts a checkout session and returns the provider URL to open. */
