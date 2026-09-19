@@ -128,8 +128,7 @@ describe('postgres reconcile integration', () => {
     expect(stillThere.length).toBe(1);
   });
 
-  // postgres-mem lacks ALTER COLUMN SET NOT NULL — re-home on postgres-embedded.
-  test.skip('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
+  test('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
     await applyPostgresSchema(
       sqlClient,
       registerTables([
@@ -141,9 +140,6 @@ describe('postgres reconcile integration', () => {
       ]),
       sqlClient.dbScope
     );
-    await sqlClient.run(
-      raw(`ALTER TABLE clash ALTER COLUMN weird SET NOT NULL`)
-    );
     const before = await sqlClient.query<{ column_name: string }>(sql`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema = ${sqlClient.dbScope.schema}
@@ -151,8 +147,12 @@ describe('postgres reconcile integration', () => {
       ORDER BY column_name
     `);
 
+    // Redeclaring the pre-existing column with a different type is a shape
+    // collision that must be refused with zero DDL. postgres-mem cannot
+    // ALTER COLUMN SET NOT NULL ("this ALTER COLUMN form is not supported"),
+    // so the mismatch is a declared type change, not a nullability one.
     const schema = defineSchema({
-      tables: { clash: { body: 'text' } },
+      tables: { clash: { weird: 'text' } },
     });
     await expect(postgres(schema, sqlClient).reconcile()).rejects.toThrow(
       /drift/
@@ -180,6 +180,9 @@ describe('postgres reconcile integration', () => {
     expect(rows[0]?.table_schema).toBe('app_schema');
   });
 
+  // postgres-mem rejects `ALTER COLUMN ... SET NOT NULL` ("this ALTER COLUMN
+  // form is not supported"), so the legacy NOT NULL shape this test needs
+  // cannot be constructed in-process. Re-home on postgres-embedded.
   test.skip('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
     await applyPostgresSchema(
       sqlClient,

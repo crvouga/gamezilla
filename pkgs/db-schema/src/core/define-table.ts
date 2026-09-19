@@ -1,16 +1,12 @@
 import {
+  assertColumnType,
   type ColumnSpecInput,
   parseTableColumnMap,
   validateColumnLifecycle,
 } from './column-spec';
-import { assertDialectSqlShape, type DialectSql } from './dialect-sql';
 import { assertSnakeCaseIdent } from './snake-case';
-import type {
-  CheckDef,
-  DeclaredColumn,
-  DeprecationDef,
-  IndexDef,
-} from './types';
+import type { DeclaredColumn, IndexDef, RetiredColumn } from './types';
+import { MANAGED_IMPLICIT_SET } from './types';
 
 function assertMatchesDomain(
   tableName: string,
@@ -32,82 +28,67 @@ function normalizeIndexEntries(
 ): IndexDef[] {
   if (entries === undefined) return [];
   const out: IndexDef[] = [];
+  const seen = new Set<string>();
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i]!;
-    const path = `${field}[${i}]`;
-    if (typeof entry === 'string') {
-      out.push([tableName, entry]);
-      continue;
+    const cols = typeof entry === 'string' ? [entry] : [...entry];
+    if (cols.length === 0) {
+      throw new Error(`defineTable(${tableName}).${field}[${i}]: empty index`);
     }
-    if (!Array.isArray(entry) || entry.length === 0) {
+    for (const col of cols) {
+      assertSnakeCaseIdent(col, `defineTable(${tableName}).${field}[${i}]`);
+    }
+    const key = cols.join('\0');
+    if (seen.has(key)) {
       throw new Error(
-        `${path}: index entry must be a column name or non-empty column tuple`
+        `defineTable(${tableName}).${field}[${i}]: duplicate index definition`
       );
     }
-    if (!entry.every((x) => typeof x === 'string')) {
-      throw new Error(`${path}: index column names must be strings`);
-    }
-    out.push([tableName, ...(entry as string[])]);
+    seen.add(key);
+    out.push([tableName, ...cols]);
   }
   return out;
 }
 
-function normalizeDeprecations(
-  tableName: string,
-  entries:
-    | readonly (readonly [string, string] | readonly [string])[]
-    | undefined
-): DeprecationDef[] {
-  if (entries === undefined) return [];
-  const out: DeprecationDef[] = [];
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i]!;
-    const path = `deprecations[${i}]`;
-    if (!Array.isArray(entry)) {
-      throw new Error(`${path}: deprecation must be [note] or [column, note]`);
-    }
-    if (entry.length === 1) {
-      const [note] = entry;
-      if (typeof note !== 'string' || note.length === 0) {
-        throw new Error(`${path}: table deprecation note is required`);
-      }
-      out.push([tableName, note]);
-      continue;
-    }
-    if (entry.length === 2) {
-      const [column, note] = entry;
-      if (typeof column !== 'string' || typeof note !== 'string') {
-        throw new Error(
-          `${path}: column deprecation must be [column, note] with strings`
-        );
-      }
-      if (note.length === 0) {
-        throw new Error(`${path}: note is required`);
-      }
-      out.push([tableName, column, note]);
-      continue;
-    }
-    throw new Error(`${path}: deprecation must be [note] or [column, note]`);
-  }
-  return out;
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function normalizeChecks(
+function normalizeRetiredColumns(
   tableName: string,
-  entries:
-    | readonly { readonly name: string; readonly sql: DialectSql }[]
-    | undefined
-): CheckDef[] {
+  entries: readonly RetiredColumn[] | undefined
+): RetiredColumn[] {
   if (entries === undefined) return [];
-  const out: CheckDef[] = [];
+  const out: RetiredColumn[] = [];
+  const seen = new Set<string>();
   for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i]!;
-    const path = `checks[${i}]`;
-    assertSnakeCaseIdent(entry.name, `${path}.name`);
+    const path = `defineTable(${tableName}).retiredColumns[${i}]`;
+    const entry: unknown = entries[i];
+    if (!isPlainObject(entry)) {
+      throw new Error(`${path}: must be { name, type, note }`);
+    }
+    const name = entry['name'];
+    if (typeof name !== 'string') {
+      throw new Error(`${path}.name must be a string`);
+    }
+    assertSnakeCaseIdent(name, `${path}.name`);
+    if (MANAGED_IMPLICIT_SET.has(name)) {
+      throw new Error(
+        `${path}: engine-owned column '${name}' cannot be retired`
+      );
+    }
+    if (seen.has(name)) {
+      throw new Error(`${path}: duplicate retired column '${name}'`);
+    }
+    seen.add(name);
+    const note = entry['note'];
+    if (typeof note !== 'string' || note.length === 0) {
+      throw new Error(`${path}: note must be a non-empty string`);
+    }
     out.push({
-      name: entry.name,
-      table: tableName,
-      sql: assertDialectSqlShape(entry.sql, `${path}.sql`),
+      name,
+      type: assertColumnType(entry['type'], `${path}.type`),
+      note,
     });
   }
   return out;
@@ -119,14 +100,7 @@ export type TableDefInput = {
   readonly columns: Record<string, ColumnSpecInput>;
   readonly indexes?: readonly (string | readonly string[])[];
   readonly uniqueIndexes?: readonly (string | readonly string[])[];
-  readonly deprecations?: readonly (
-    | readonly [string, string]
-    | readonly [string]
-  )[];
-  readonly checks?: readonly {
-    readonly name: string;
-    readonly sql: DialectSql;
-  }[];
+  readonly retiredColumns?: readonly RetiredColumn[];
 };
 
 export type TableDefSlice = {
@@ -135,8 +109,7 @@ export type TableDefSlice = {
   readonly columns: Record<string, DeclaredColumn>;
   readonly indexes: readonly IndexDef[];
   readonly uniqueIndexes: readonly IndexDef[];
-  readonly deprecations: readonly DeprecationDef[];
-  readonly checks: readonly CheckDef[];
+  readonly retiredColumns: readonly RetiredColumn[];
 };
 
 export type TableDef = {
@@ -147,7 +120,8 @@ export type TableDef = {
 };
 
 /**
- * Declare a single domain table with optional per-table indexes and deprecations.
+ * Declare a single domain table with optional per-table indexes and
+ * `retiredColumns` tombstones.
  */
 export function defineTable(input: TableDefInput): TableDef {
   const path = `defineTable(${input.name})`;
@@ -160,12 +134,21 @@ export function defineTable(input: TableDefInput): TableDef {
     'uniqueIndexes',
     input.uniqueIndexes
   );
-  const deprecations = normalizeDeprecations(input.name, input.deprecations);
-  const checks = normalizeChecks(input.name, input.checks);
+  const retiredColumns = normalizeRetiredColumns(
+    input.name,
+    input.retiredColumns
+  );
+  for (const retired of retiredColumns) {
+    if (retired.name in columns) {
+      throw new Error(
+        `${path}.retiredColumns: '${retired.name}' is still declared — remove it from columns`
+      );
+    }
+  }
   validateColumnLifecycle({
     tableName: input.name,
     columns,
-    deprecations,
+    retiredCols: new Set(retiredColumns.map((r) => r.name)),
   });
   return Object.freeze({
     kind: 'table' as const,
@@ -177,8 +160,7 @@ export function defineTable(input: TableDefInput): TableDef {
       columns,
       indexes,
       uniqueIndexes,
-      deprecations,
-      checks,
+      retiredColumns,
     }),
   });
 }

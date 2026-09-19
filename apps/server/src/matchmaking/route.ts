@@ -21,6 +21,8 @@
 
 import { appAuth } from '@libs/auth/public/auth-context';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { requirePermission } from '@libs/permissions/root/server/require-permission';
 import { assert } from '@pkgs/assert';
 import type { Matchmaking } from '@pkgs/matchmaking/interface';
 import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
@@ -72,11 +74,13 @@ const requireAuth: MiddlewareHandler = async (c, next) => {
   const s = apiRequestAsyncLocalStorage.getStore();
   assert.defined(s, 'matchmaking auth: request store missing');
   try {
-    const ctx = await s.sessionAuth.requireAuthContext(s.sqlClient, c.req.raw);
-    const auth = appAuth(ctx);
-    if (auth === null || auth.accountId === null || auth.isAnon) {
-      throw new UnauthorizedError('Matchmaking requires a signed-in account');
-    }
+    const ctx = await s.sessionAuth.resolveAuthContext(s.sqlClient, c.req.raw);
+    await requirePermission({
+      db: s.sqlClient,
+      auth: appAuth(ctx),
+      permission: PERMISSION.matchmakingUse,
+      nowMs: s.clock.now(),
+    });
   } catch (err: unknown) {
     if (err instanceof UnauthorizedError) {
       return c.json({ error: err.message }, 401);

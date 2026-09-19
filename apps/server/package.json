@@ -14,6 +14,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "check:api": "bun run scripts/check-api.ts",
+    "check:contract": "bun run scripts/check-contract-manifest.ts",
     "deploy": "bun run scripts/deploy.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "bunx biome check --error-on-warnings .",
@@ -33,6 +34,7 @@
     "@libs/db": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
+    "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/pubsub": "workspace:*",
     "@libs/runtime": "workspace:*",
@@ -48,7 +50,6 @@
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
-    "@pkgs/entitlements": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/keyword": "workspace:*",

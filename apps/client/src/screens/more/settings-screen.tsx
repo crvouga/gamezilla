@@ -4,8 +4,9 @@
  * `MenuRow`s linking to the sub-screens.
  */
 
-import { useTier } from '@libs/billing/root/client/use-entitlement';
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
+import { ROLE } from '@libs/permissions/public/permission-catalog';
+import { usePlanRole } from '@libs/permissions/public/use-plan-role';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
@@ -68,11 +69,10 @@ function useAccountGroup(): Accessor<SettingsGroup> {
   const { t } = useLingui();
   const { isSignedIn } = useLocalIdentity();
   const config = useClientConfig();
-  const tier = useTier();
+  const planRole = usePlanRole();
   const billingValue = (): string => {
-    const resolved = tier();
-    if (resolved === 'paid') return t`Paid`;
-    if (resolved === 'free') return t`Free`;
+    if (planRole() === ROLE.planPaid) return t`Paid`;
+    if (planRole() === ROLE.planFree) return t`Free`;
     return t`Guest`;
   };
   return () => ({

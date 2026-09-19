@@ -403,6 +403,8 @@
         "libs/user-search/src/public/**/*.{ts,tsx}",
         "libs/client-config/src/public/**/*.{ts,tsx}",
         "libs/client-config/src/root/**/*.{ts,tsx}",
+        "libs/permissions/src/public/**/*.{ts,tsx}",
+        "libs/permissions/src/root/**/*.{ts,tsx}",
         "libs/chess/src/public/**/*.{ts,tsx}",
         "libs/chess/src/root/**/*.{ts,tsx}",
         "pkgs/async/src/solid.ts",
@@ -516,6 +518,8 @@
         "@pkgs/object-store-s3#test:contract",
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
+        "@apps/server#check:contract",
+        "@libs/runtime#check:schema-evolution",
         "@libs/secrets#check",
         "@libs/tools#check:static"
       ],
@@ -580,6 +584,29 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
+    "@libs/runtime#check:schema-evolution": {
+      "env": ["PR_BASE"],
+      "inputs": [
+        "src/**/*.ts",
+        "scripts/**/*.ts",
+        "schema-snapshot.json",
+        "../../libs/*/src/**/schema/**",
+        "../../pkgs/db-schema/src/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "@apps/server#check:contract": {
+      "inputs": [
+        "src/sync/**/*.ts",
+        "contract-manifest.json",
+        "scripts/check-contract-manifest.ts",
+        "../../libs/*/src/**/*.ts",
+        "../../pkgs/sync-engine/src/**/*.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
     "@apps/room-server#deploy": {
       "cache": false,
       "dependsOn": ["@libs/db#migrate"]
@@ -623,6 +650,8 @@
         "@pkgs/object-store-s3#test:contract",
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
+        "@apps/server#check:contract",
+        "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:static",
         "@apps/server#check:api",
         "@apps/client#check:bundle-budget",

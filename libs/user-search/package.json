@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

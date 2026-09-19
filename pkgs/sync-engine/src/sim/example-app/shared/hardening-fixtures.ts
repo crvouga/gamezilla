@@ -90,8 +90,8 @@ export const exampleAppSchemaExtraTable = registerTables([
       owner_id: 'text',
     },
 
-    // Preserve-DB extraColumn → extraTable leaves notes.color on disk.
-    deprecations: [['color', 'pbt leftover from extraColumn variant']],
+    // Preserve-DB extraColumn → extraTable: `color` stays on disk because the
+    // client preserves every undeclared column (no tombstone required).
   }),
   defineTable({
     domain: 'tags',

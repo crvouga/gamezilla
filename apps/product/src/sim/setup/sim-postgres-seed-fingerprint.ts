@@ -8,6 +8,8 @@ const MIGRATE_SOURCE_KEY = 'migrate-sim-postgres.ts';
 
 const AUTH_SCHEMA_TABLES_KEY = 'tables.ts';
 
+const DOMAIN_SCHEMA_KEY = 'schema-snapshot.json';
+
 function createMigrateSourceStore(repoRoot: string) {
   return createNodeFsObjectStore({
     rootDir: join(repoRoot, 'apps/server/src/sim'),
@@ -19,6 +21,14 @@ function createMigrateSourceStore(repoRoot: string) {
 function createAuthSchemaStore(repoRoot: string) {
   return createNodeFsObjectStore({
     rootDir: join(repoRoot, 'pkgs/auth/src/shared/schema'),
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
+}
+
+function createDomainSchemaStore(repoRoot: string) {
+  return createNodeFsObjectStore({
+    rootDir: join(repoRoot, 'libs/runtime'),
     fs: wallNodeFs(),
     layout: 'tree',
   });
@@ -42,5 +52,12 @@ export async function simPostgresSeedFingerprintSource(
   if (authTables === null) {
     throw new Error(`missing auth schema: ${AUTH_SCHEMA_TABLES_KEY}`);
   }
-  return Buffer.from([migrate, SIM_AUTH_SECRET, authTables].join('\n---\n'));
+  const domainStore = createDomainSchemaStore(repoRoot);
+  const domainSchema = await readUtf8(domainStore, DOMAIN_SCHEMA_KEY);
+  if (domainSchema === null) {
+    throw new Error(`missing domain schema: ${DOMAIN_SCHEMA_KEY}`);
+  }
+  return Buffer.from(
+    [migrate, SIM_AUTH_SECRET, authTables, domainSchema].join('\n---\n')
+  );
 }

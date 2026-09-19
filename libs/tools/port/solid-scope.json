@@ -64,7 +64,9 @@
     "libs/search/src/root",
     "libs/user-search/src/public",
     "libs/client-config/src/public",
-    "libs/client-config/src/root"
+    "libs/client-config/src/root",
+    "libs/permissions/src/public",
+    "libs/permissions/src/root"
   ],
   "noDestructureDirs": [
     "libs/spaces/src/public",

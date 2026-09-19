@@ -1,3 +1,9 @@
+import {
+  type AppPermission,
+  ROLE,
+} from '@libs/permissions/public/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
+import { can, createSubject } from '@pkgs/permissions';
 import { sql } from '@pkgs/sql';
 import {
   type MutationDb,
@@ -69,15 +75,24 @@ export function isHost(env: MutationEnv, row: SpaceHostRow): boolean {
   });
 }
 
-export async function requireHost(
+export async function requireSpacePermission(
   tx: MutationDb,
   env: MutationEnv,
-  spaceId: string,
-  message: string
+  args: {
+    readonly spaceId: string;
+    readonly permission: AppPermission;
+    readonly message: string;
+  }
 ): Promise<void> {
-  const row = await getSpaceHost(tx, spaceId);
-  if (!isHost(env, row)) {
-    throw new MutationError('SPACE_HOST_REQUIRED', message);
+  const row = await getSpaceHost(tx, args.spaceId);
+  const role = isHost(env, row) ? ROLE.spaceHost : ROLE.spaceMember;
+  const decision = can(
+    DEFAULT_PERMISSION_POLICY,
+    createSubject([role]),
+    args.permission
+  );
+  if (!decision.allowed) {
+    throw new MutationError('SPACE_PERMISSION_DENIED', args.message);
   }
 }
 

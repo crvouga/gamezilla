@@ -1,8 +1,8 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { Trans } from '@lingui/solid/macro';
 import { ResponsiveSurface, ScrollView } from '@pkgs/ui';
 import { createMemo, type JSX, Show } from 'solid-js';
-
-import { useCurrentSpaceRole } from '../use-current-space-role';
+import { useSpaceCan } from '../../../public/use-space-can';
 import { SpaceShareAddPeople } from './space-share-add-people';
 import { SpaceShareLinkSection } from './space-share-link-section';
 import { SpaceSharePeopleList } from './space-share-people-list';
@@ -15,8 +15,10 @@ export type SpaceShareSheetProps = {
 };
 
 export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
-  const role = useCurrentSpaceRole(props.spaceId);
-  const isHost = () => role() === 'host';
+  const canManageMembers = useSpaceCan(
+    () => props.spaceId,
+    PERMISSION.spacesManageMembers
+  );
   const { entries } = useSpaceUserEntries(props.spaceId);
   const listedIds = createMemo(() => new Set(entries().map((e) => e.userId)));
 
@@ -30,13 +32,16 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
     >
       <ScrollView class="max-h-[480px]" contentClass="px-0 gap-3">
         <SpaceShareLinkSection spaceId={props.spaceId} />
-        <Show when={isHost()}>
+        <Show when={canManageMembers()}>
           <SpaceShareAddPeople
             spaceId={props.spaceId}
             listedIds={listedIds()}
           />
         </Show>
-        <SpaceSharePeopleList spaceId={props.spaceId} canManage={isHost()} />
+        <SpaceSharePeopleList
+          spaceId={props.spaceId}
+          canManage={canManageMembers()}
+        />
       </ScrollView>
     </ResponsiveSurface>
   );

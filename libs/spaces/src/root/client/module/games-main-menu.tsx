@@ -1,3 +1,4 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { Trans } from '@lingui/solid/macro';
 import { FadeSwitch, type MainMenuItem, MainMenuScreen } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -6,6 +7,7 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '../../../public/room/use-space-room-selector';
+import { useSpaceCan } from '../../../public/use-space-can';
 import type { GameClientDefinition } from '../../../shared/space/game';
 import {
   GamesRoomAttr,
@@ -13,7 +15,6 @@ import {
   SelectGame,
 } from '../../../shared/space/games';
 import { useSpaceSessionUi } from '../active-space/space-session-ui-context';
-import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useGamesRegistry } from './games-registry-context';
 
 function buildSpaceGameMenuItems(
@@ -36,8 +37,7 @@ function GameListMenu(props: {
   games: readonly GameClientDefinition[];
 }): JSX.Element {
   const { spaceId } = useSpaceSessionUi();
-  const role = useCurrentSpaceRole(spaceId);
-  const isHost = createMemo(() => role() === 'host');
+  const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
 
   const dispatch = useSpaceRoomDispatch();
@@ -52,7 +52,12 @@ function GameListMenu(props: {
   });
 
   const items = createMemo(() =>
-    buildSpaceGameMenuItems(props.games, isHost(), selectedGame(), onSelectGame)
+    buildSpaceGameMenuItems(
+      props.games,
+      canSelectGame(),
+      selectedGame(),
+      onSelectGame
+    )
   );
 
   return (
@@ -61,7 +66,7 @@ function GameListMenu(props: {
       title={<Trans>Games</Trans>}
       subtitle={<Trans>Pick a game to play.</Trans>}
       helper={
-        !isHost() ? (
+        !canSelectGame() ? (
           <Trans>The host picks the game for this space.</Trans>
         ) : undefined
       }

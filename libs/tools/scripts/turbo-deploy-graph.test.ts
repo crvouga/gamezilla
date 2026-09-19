@@ -51,6 +51,8 @@ const CHECK_LEAVES = [
   '@pkgs/object-store-s3#test:contract',
   '@pkgs/pubsub-emqx#test:contract',
   '@libs/billing#billing:check',
+  '@apps/server#check:contract',
+  '@libs/runtime#check:schema-evolution',
   '@libs/secrets#check',
   '@libs/tools#check:static',
 ];

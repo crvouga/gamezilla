@@ -1,7 +1,7 @@
-import {
-  useCurrentUser,
-  useIsSignedIn,
-} from '@libs/auth/public/use-current-user';
+import { useCurrentUser } from '@libs/auth/public/use-current-user';
+import { PERMISSION, ROLE } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
+import { usePlanRole } from '@libs/permissions/public/use-plan-role';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
@@ -14,25 +14,30 @@ import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
 import { useManageSubscription } from '../../use-cases/open-portal-session/client/use-manage-subscription';
-import { useTier } from './use-entitlement';
 import { useSubscribe } from './use-subscribe';
 
-function billingReturnUrl(): string {
-  return `${window.location.origin}/more/billing`;
-}
+/** Display label per plan role; the role itself is a policy value. */
+const PLAN_LABEL: Record<string, string> = {
+  [ROLE.planGuest]: 'guest',
+  [ROLE.planFree]: 'free',
+  [ROLE.planPaid]: 'paid',
+};
 
 /** Account billing: current plan, subscribe, and manage the subscription. */
 export function BillingScreen(): JSX.Element {
   const { t } = useLingui();
-  const tier = useTier();
-  const signedIn = useIsSignedIn();
+  const planRole = usePlanRole();
+  const canSubscribe = useCan(PERMISSION.billingSubscribe);
+  const canManage = useCan(PERMISSION.billingManage);
   const currentUser = useCurrentUser();
   const subscribe = useSubscribe();
   const manage = useManageSubscription();
   const openExternalUrl = useOpenExternalUrl();
 
   const openCheckout = async (): Promise<void> => {
-    const url = await subscribe({ returnUrl: billingReturnUrl() });
+    const url = await subscribe({
+      returnUrl: `${window.location.origin}/more/billing`,
+    });
     await openExternalUrl(url);
   };
 
@@ -45,7 +50,7 @@ export function BillingScreen(): JSX.Element {
       error: t`Couldn't open checkout`,
     },
     get disabled() {
-      return !signedIn();
+      return !canSubscribe();
     },
   });
 
@@ -73,20 +78,20 @@ export function BillingScreen(): JSX.Element {
             <Trans>Plan</Trans>
           </p>
           <p class="text textBody" data-testid={Handles.billingTier}>
-            {tier()}
+            {PLAN_LABEL[planRole()] ?? planRole()}
           </p>
-          <Show when={!signedIn()}>
+          <Show when={!canManage()}>
             <p class="text textCaption text-secondary">
               <Trans>Sign in to subscribe and keep your progress.</Trans>
             </p>
           </Show>
-          <Show when={signedIn() && tier() !== 'paid'}>
+          <Show when={canSubscribe()}>
             <Button
               {...checkout.buttonProps}
               dataSet={{ testid: Handles.billingSubscribe }}
             />
           </Show>
-          <Show when={currentUser.billingCustomerId !== null}>
+          <Show when={canManage() && currentUser.billingCustomerId !== null}>
             <Button
               {...manageButton.buttonProps}
               intent="neutral"

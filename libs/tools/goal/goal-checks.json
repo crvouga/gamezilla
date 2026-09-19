@@ -315,7 +315,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "libs/permissions/tests/policy.test.ts"
       }
     ]
   },
@@ -324,7 +324,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
       }
     ]
   },
@@ -333,7 +333,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
       }
     ]
   },
@@ -342,7 +342,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "libs/permissions/tests/policy.test.ts"
       }
     ]
   },
@@ -398,7 +398,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "libs/permissions/tests/plan.test.ts"
       }
     ]
   },
@@ -434,7 +434,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "libs/permissions/tests/plan.test.ts"
       }
     ]
   },
@@ -443,7 +443,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "libs/permissions/tests/plan.test.ts"
       }
     ]
   },
@@ -452,7 +452,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
       }
     ]
   },
@@ -515,7 +515,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/entitlements/tests/limits.test.ts"
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
       }
     ]
   },
