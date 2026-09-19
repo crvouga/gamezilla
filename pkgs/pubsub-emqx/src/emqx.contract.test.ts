@@ -35,7 +35,7 @@ let stopEmqx: (() => void) | undefined;
 if (!WSS_URL || !API_URL) {
   const dataDir = join(tmpdir(), `emqx-contract-${randomUUID()}`);
   const broker = await startEmqxServer({ dataDir });
-  WSS_URL = `ws://127.0.0.1:${broker.wsPort}/mqtt`;
+  WSS_URL = `mqtt://127.0.0.1:${broker.mqttPort}`;
   API_URL = `http://127.0.0.1:${broker.dashboardPort}`;
   stopEmqx = () => broker.stop();
 }
@@ -133,7 +133,7 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
       instances.push(ps);
       await waitUntilStatus(() => ps.status(), 'connected', 10_000);
       if (ps.status() !== 'connected') {
-        throw new Error('EMQX WSS failed to connect');
+        throw new Error('EMQX MQTT failed to connect');
       }
       return ps;
     },
