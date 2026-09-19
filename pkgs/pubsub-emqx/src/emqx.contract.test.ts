@@ -38,6 +38,23 @@ if (!WSS_URL || !API_URL) {
   WSS_URL = `mqtt://127.0.0.1:${broker.mqttPort}`;
   API_URL = `http://127.0.0.1:${broker.dashboardPort}`;
   stopEmqx = () => broker.stop();
+
+  // startEmqxServer returns before listeners bind; wait for the HTTP API.
+  const readyDeadline = wallClock.now() + 60_000;
+  while (wallClock.now() < readyDeadline) {
+    try {
+      const res = await createGlobalHttpClient().fetch(
+        `${API_URL}/api/v5/status`,
+        { signal: AbortSignal.timeout(1_000) }
+      );
+      if (res.ok || res.status === 401 || res.status === 404) break;
+    } catch {
+      // still booting
+    }
+    await new Promise<void>((resolve) => {
+      wallTimers.setTimeout(resolve, 250);
+    });
+  }
 }
 
 const http = createGlobalHttpClient();

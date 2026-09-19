@@ -72,21 +72,23 @@ function listenerEnv(args: {
 
 function authEnv(dataDir: string): Record<string, string> {
   return {
-    EMQX_AUTHENTICATION__1__MECHANISM: 'jwt',
-    EMQX_AUTHENTICATION__1__FROM: 'password',
+    // Password bootstrap first so local contract/dev clients using the
+    // plain `pubsub`/`pubsub` user succeed; JWT stays available for app tokens.
+    EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
+    EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
     EMQX_AUTHENTICATION__1__ENABLE: 'true',
-    EMQX_AUTHENTICATION__1__USE_JWKS: 'false',
-    EMQX_AUTHENTICATION__1__ALGORITHM: 'hmac-based',
-    EMQX_AUTHENTICATION__1__SECRET: EMQX_JWT_SECRET,
-    EMQX_AUTHENTICATION__1__SECRET_BASE64_ENCODED: 'false',
-    EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: 'acl',
-    EMQX_AUTHENTICATION__2__MECHANISM: 'password_based',
-    EMQX_AUTHENTICATION__2__BACKEND: 'built_in_database',
-    EMQX_AUTHENTICATION__2__ENABLE: 'true',
-    EMQX_AUTHENTICATION__2__BOOTSTRAP_FILE: join(
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE: join(
       dataDir,
       'auth-built-in-db-bootstrap.csv'
     ),
+    EMQX_AUTHENTICATION__2__MECHANISM: 'jwt',
+    EMQX_AUTHENTICATION__2__FROM: 'password',
+    EMQX_AUTHENTICATION__2__ENABLE: 'true',
+    EMQX_AUTHENTICATION__2__USE_JWKS: 'false',
+    EMQX_AUTHENTICATION__2__ALGORITHM: 'hmac-based',
+    EMQX_AUTHENTICATION__2__SECRET: EMQX_JWT_SECRET,
+    EMQX_AUTHENTICATION__2__SECRET_BASE64_ENCODED: 'false',
+    EMQX_AUTHENTICATION__2__ACL_CLAIM_NAME: 'acl',
   };
 }
 
