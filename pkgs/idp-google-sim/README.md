@@ -67,7 +67,7 @@ imported (its tokens would fight every colour here).
 
 Both hosts render **one** component tree: `src/server/render/render-screen.tsx`
 renders `web/src/screen.tsx` into a DOM (happy-dom, registered by
-`bun-solid-preload.ts`) and reads back `innerHTML`, while a real browser mounts
+`@pkgs/bun-test-solid/register`) and reads back `innerHTML`, while a real browser mounts
 the same tree as an SPA. The server owns the shell: the built CSS is inlined
 and the built JS is served from `/idp-assets/app.js` out of the committed
 bundle (`src/server/assets.generated.ts`, produced by
@@ -78,8 +78,9 @@ walker — takes the same path.
 
 Bun hosts that render a screen need the same compile contract:
 `bun --conditions=browser --conditions=development --preload
-@pkgs/idp-google-sim/bun-preload` (which is what this package's `test`/`start`
-scripts, `@pkgs/auth`, `@pkgs/auth-sim` and `bun run stack` all use).
+@pkgs/bun-test-solid/register` (`bun run stack` and this package's `start`;
+`bun test` in this package, `@pkgs/auth` and `@pkgs/auth-sim` preload
+`@pkgs/bun-test-solid/preload`, which includes it).
 
 Navigation is Google's: a back arrow on every screen that is not the first step
 (`/o/oauth2/v2/auth/back?request_id=…` returns to the account picker, or the

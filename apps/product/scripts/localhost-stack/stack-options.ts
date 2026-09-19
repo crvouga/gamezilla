@@ -14,6 +14,13 @@ export type StackOptions = {
   readonly withMqtt: boolean;
   /** Serve the built web bundle. Off for API-only runs. */
   readonly withWeb: boolean;
+  /**
+   * Serve the web app as a fixed snapshot: no HMR and no file watching, so
+   * edits in the working tree cannot reload a browser mid-run (test runs).
+   */
+  readonly frozenWeb: boolean;
+  /** Build the web app with its test-only probes on (`VITE_E2E=1`). */
+  readonly e2eHooks: boolean;
   /** Reuse a data directory (and its Postgres cluster) instead of a fresh one. */
   readonly keepData: boolean;
   /**
@@ -77,6 +84,8 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
     withS3: !flag(argv, 'no-s3'),
     withMqtt: !flag(argv, 'no-mqtt'),
     withWeb: !flag(argv, 'no-web'),
+    frozenWeb: flag(argv, 'frozen-web'),
+    e2eHooks: flag(argv, 'e2e'),
     keepData: flag(argv, 'keep-data'),
     idpStateMode: idpState.mode,
     idpStatePath: idpState.path,

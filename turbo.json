@@ -306,20 +306,6 @@
       "outputs": [],
       "dependsOn": ["tc"]
     },
-    "test:e2e": {
-      "inputs": [
-        "src/**",
-        "e2e/**",
-        "scripts/**",
-        "package.json",
-        "*.cjs",
-        "tsconfig*.json",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
     "billing:check": {
       "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
       "outputLogs": "new-only",
@@ -358,14 +344,10 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#lint:vocab": {
-      "inputs": [
-        "libs/tools/scripts/check-no-removed-auth-vocab.ts",
-        "libs/auth/**/*.{ts,tsx}",
-        "pkgs/auth/**/*.{ts,tsx}"
-      ],
+    "//#lint:naming": {
+      "cache": false,
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#lint:eslint": {
       "inputs": [
@@ -439,7 +421,7 @@
         "pkgs/ui/src/**/*.{ts,tsx}",
         "pkgs/ui/tests/**/*.{ts,tsx}",
         "pkgs/uuid/src/solid.tsx",
-        "pkgs/vitest-solid/src/**/*.{ts,tsx}"
+        "pkgs/bun-test-solid/src/**/*.{ts,tsx}"
       ],
       "outputs": [".eslintcache"],
       "outputLogs": "new-only"
@@ -451,7 +433,6 @@
         "dist/assets/**/*.js",
         "dist/assets/**/*.css",
         "dist/index.html",
-        "dist/sw.js",
         "perf-budget.json",
         "scripts/bundle-budget.ts",
         "scripts/bundle-budget-lazy.ts",
@@ -461,33 +442,14 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "@apps/client#check:lighthouse": {
-      "dependsOn": ["@apps/client#build"],
-      "cache": false,
-      "env": ["CHROME_PATH", "PUPPETEER_EXECUTABLE_PATH", "GITHUB_ACTIONS"],
-      "inputs": [
-        "dist/**",
-        "perf-budget.json",
-        "scripts/lighthouse-ci.ts",
-        "scripts/lighthouse-report.ts",
-        "scripts/lighthouse-api-stub.ts",
-        "scripts/listen-preferred-or-ephemeral.ts",
-        "scripts/perf-budget.ts"
-      ],
-      "outputs": [".lighthouseci/**"],
-      "outputLogs": "new-only"
-    },
     "@apps/client#check:critical-path": {
       "inputs": [
         "src/**/*.{ts,tsx}",
         "index.html",
-        "public/**",
-        "src/assets/**",
         "perf-budget.json",
         "../../tsconfig.base.json",
         "scripts/client-critical-path-imports.ts",
         "scripts/check-index-html-scripts.ts",
-        "scripts/check-client-image-budgets.ts",
         "scripts/perf-budget.ts",
         "../../libs/**/*.{ts,tsx}",
         "../../pkgs/**/*.{ts,tsx}"
@@ -497,28 +459,31 @@
     },
     "//#check": {
       "dependsOn": [
-        "//#ci:pr-template",
+        "//#ci:agent-commands",
         "//#ci:goals",
+        "//#ci:no-skipped-tests",
+        "//#lint:naming",
         "//#lint:biome",
-        "//#lint:vocab",
         "//#lint:eslint",
         "//#ci:syncpack",
         "//#ci:depcruise",
         "//#ci:audit",
         "//#ci:i18n",
         "@apps/client#check:critical-path",
+        "@apps/client#check:bundle-budget",
         "tc",
         "test",
         "@apps/server#build",
         "@apps/room-server#build",
-        "@pkgs/auth#test:e2e",
-        "@pkgs/sql-client-sqlite-web#test:e2e",
         "@pkgs/sql-client-postgres#test:contract",
+        "@pkgs/db-schema-postgres#test:contract",
+        "@pkgs/db-indexes-postgres#test:contract",
         "@pkgs/kv-postgres#test:contract",
         "@pkgs/object-store-s3#test:contract",
         "@pkgs/pubsub-emqx#test:contract",
         "@libs/billing#billing:check",
         "@apps/server#check:contract",
+        "@apps/server#check:api",
         "@libs/runtime#check:schema-evolution",
         "@libs/secrets#check",
         "@libs/tools#check:static"
@@ -630,9 +595,10 @@
     "//#deploy": {
       "cache": false,
       "dependsOn": [
+        "//#lint:naming",
         "//#lint:biome",
-        "//#lint:vocab",
         "//#ci:goals",
+        "//#ci:agent-commands",
         "@apps/client#check:critical-path",
         "//#lint:eslint",
         "tc",
@@ -643,8 +609,7 @@
         "//#ci:depcruise",
         "//#ci:audit",
         "//#ci:i18n",
-        "@pkgs/auth#test:e2e",
-        "@pkgs/sql-client-sqlite-web#test:e2e",
+        "//#ci:no-skipped-tests",
         "@pkgs/sql-client-postgres#test:contract",
         "@pkgs/kv-postgres#test:contract",
         "@pkgs/object-store-s3#test:contract",
@@ -653,10 +618,18 @@
         "@apps/server#check:contract",
         "@libs/runtime#check:schema-evolution",
         "@libs/tools#check:static",
-        "@apps/server#check:api",
-        "@apps/client#check:bundle-budget",
         "@libs/secrets#check",
         "@apps/server#smoke"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:no-skipped-tests": {
+      "inputs": [
+        "apps/**/*.{ts,tsx}",
+        "libs/**/*.{ts,tsx}",
+        "pkgs/**/*.{ts,tsx}",
+        "libs/tools/scripts/check-no-skipped-tests.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -702,9 +675,14 @@
         "pkgs/*/src/**/*.{ts,tsx}",
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
-        "apps/product/babel.test.config.cjs",
+        "pkgs/bun-test-solid/src/babel.config.cjs",
         "libs/tools/scripts/ci-i18n.ts"
       ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:agent-commands": {
+      "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
     },
@@ -712,15 +690,6 @@
       "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
-    },
-    "//#ci:pr-template": {
-      "inputs": [
-        ".github/pull_request_template.md",
-        "libs/tools/scripts/check-pr-body.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only",
-      "cache": false
     }
   }
 }

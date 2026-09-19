@@ -16,7 +16,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "vitest run"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
@@ -29,14 +29,15 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/conf": "catalog:",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@solidjs/testing-library": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
-    "@testing-library/user-event": "catalog:",
     "@types/bun": "catalog:",
-    "happy-dom": "catalog:",
+    "chess.js": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:"
   }
 }

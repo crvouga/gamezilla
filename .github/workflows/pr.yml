@@ -8,15 +8,11 @@ permissions:
 on:
   pull_request:
     branches: [main]
-    # `edited` re-runs the gate when the title/body change so
-    # `//#ci:pr-template` re-validates the PR contract. All other leaves hit
-    # the Turbo cache, so a body edit costs one uncacheable task.
-    types: [opened, reopened, synchronize, edited]
+    types: [opened, reopened, synchronize]
   workflow_dispatch:
 
 env:
   TURBO_UI: stream
-  TURBO_LOG_ORDER: stream
   TURBO_OUTPUT_LOGS: new-only
 
 concurrency:
@@ -62,8 +58,9 @@ jobs:
         id: check
         run: |
           set -euo pipefail
-          # Heartbeat: turbo cache restore and long tasks can go quiet, and
-          # GitHub SIGTERMs a step with no log output (~10 min, exit 143).
+          # Heartbeat: turbo's grouped log order holds a task's output until it
+          # finishes, and GitHub SIGTERMs a step with no log output (~10 min,
+          # exit 143).
           (
             while sleep 120; do
               echo "check: still running $(date -u +%H:%M:%SZ)"
@@ -76,8 +73,9 @@ jobs:
       - name: Write pipeline summary
         if: always()
         env:
-          DEPLOY_OUTCOME: ${{ steps.check.outcome }}
-          DEPLOY_LOG_PATH: ${{ runner.temp }}/check.log
+          PIPELINE_NAME: check
+          PIPELINE_OUTCOME: ${{ steps.check.outcome }}
+          PIPELINE_LOG_PATH: ${{ runner.temp }}/check.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
 

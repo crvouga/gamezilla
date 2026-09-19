@@ -22,8 +22,7 @@
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload ../idp-google-sim/bun-solid-preload.ts ./src ./tests",
-    "test:e2e": "bun ./e2e/run-e2e.ts"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload ./src ./tests"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -40,9 +39,9 @@
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/idp-google-sim": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/os": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

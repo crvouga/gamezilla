@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   ACTION_BAR_FEEDBACK_RESET_MS,
   ActionBar,
@@ -9,12 +11,11 @@ import { PlusIcon, SettingsIcon, ShareIcon } from '@pkgs/ui/components/icons';
 import type { OverflowMenuRenderProps } from '@pkgs/ui/components/overflow-menu-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 describe('ActionBar', () => {
   test('renders inline icon buttons with ≥44px targets and fires clicks', () => {
-    const share = vi.fn();
+    const share = mock();
     renderUi(() => (
       <ActionBar
         items={[
@@ -36,10 +37,10 @@ describe('ActionBar', () => {
   });
 
   test('always-overflow items collapse behind a More trigger that opens the menu', () => {
-    const renderMenu = vi.fn<(menu: OverflowMenuRenderProps) => JSX.Element>(
+    const renderMenu = mock<(menu: OverflowMenuRenderProps) => JSX.Element>(
       () => null
     );
-    const onOpenMenu = vi.fn();
+    const onOpenMenu = mock();
     renderUi(() => (
       <ActionBar
         items={[
@@ -76,7 +77,7 @@ describe('ActionBar', () => {
   });
 
   test('overflow="never" keeps everything inline; text actions render as buttons', () => {
-    const onText = vi.fn();
+    const onText = mock();
     renderUi(() => (
       <ActionBar
         overflow="never"
@@ -99,7 +100,7 @@ describe('ActionBar', () => {
   });
 
   test('inline labels render captions and press feedback flips the label', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     const { clock } = renderUi(() => (
       <ActionBar
         showInlineLabels
@@ -129,7 +130,7 @@ describe('ActionBar', () => {
   });
 
   test('ActionBarLabeledControl is a labeled ≥44px button', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <ActionBarLabeledControl
         caption="More"
@@ -150,8 +151,8 @@ describe('ActionBar', () => {
 
 describe('BottomActionBar', () => {
   test('mixes tab-style actions and contained buttons', () => {
-    const hint = vi.fn();
-    const next = vi.fn();
+    const hint = mock();
+    const next = mock();
     renderUi(() => (
       <BottomActionBar
         items={[

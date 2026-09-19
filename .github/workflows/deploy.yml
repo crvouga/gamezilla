@@ -34,7 +34,6 @@ on:
 
 env:
   TURBO_UI: stream
-  TURBO_LOG_ORDER: stream
   TURBO_OUTPUT_LOGS: new-only
 
 concurrency:
@@ -91,8 +90,9 @@ jobs:
         id: deploy
         run: |
           set -euo pipefail
-          # Heartbeat: turbo cache restore and long tasks can go quiet, and
-          # GitHub SIGTERMs a step with no log output (~10 min, exit 143).
+          # Heartbeat: turbo's grouped log order holds a task's output until it
+          # finishes, and GitHub SIGTERMs a step with no log output (~10 min,
+          # exit 143).
           (
             while sleep 120; do
               echo "deploy: still running $(date -u +%H:%M:%SZ)"
@@ -105,8 +105,9 @@ jobs:
       - name: Write pipeline summary
         if: always() && steps.setup.outcome == 'success'
         env:
-          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
-          DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
+          PIPELINE_NAME: deploy (dev rehearsal)
+          PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
+          PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
 
@@ -160,8 +161,9 @@ jobs:
       - name: Write pipeline summary
         if: always()
         env:
-          DEPLOY_OUTCOME: ${{ steps.deploy.outcome }}
-          DEPLOY_LOG_PATH: ${{ runner.temp }}/deploy.log
+          PIPELINE_NAME: deploy:prd
+          PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
+          PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
 

@@ -106,6 +106,7 @@ function PuzzleFeedThemesSection(props: {
     value: theme,
     label: formatChessPuzzleThemeLabel(theme),
     searchText: formatChessPuzzleThemeLabel(theme),
+    dataSet: { testid: `chess-puzzle-feed-theme-${theme}` },
   }));
   return (
     <Combobox
@@ -120,6 +121,7 @@ function PuzzleFeedThemesSection(props: {
       searchPlaceholder={t`Search themes…`}
       emptyMessage={t`No matching themes`}
       surfaceTitle={t`Themes`}
+      triggerDataSet={{ testid: 'chess-puzzle-feed-theme-trigger' }}
     />
   );
 }

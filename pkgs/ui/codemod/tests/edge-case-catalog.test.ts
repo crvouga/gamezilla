@@ -2,7 +2,7 @@
  * Meta-tests for the edge-case catalog + coverage completeness.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { COVERED_IDS } from './catalog-coverage';
 import {
   CATALOG_IDS,

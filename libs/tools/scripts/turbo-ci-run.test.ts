@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 
-import { DEFAULT_TURBO_API } from '@libs/secrets/shared/secrets/turbo-token';
+import {
+  DEFAULT_TURBO_API,
+  TURBO_TEAM,
+} from '@libs/secrets/shared/secrets/turbo-token';
 import {
   flattenCheckAggregators,
   hasRemoteCreds,
@@ -9,16 +12,10 @@ import {
 } from './turbo-ci-run';
 
 describe('turbo-ci-run cache flags', () => {
-  test('hasRemoteCreds requires both token and team', () => {
+  test('hasRemoteCreds requires a non-blank token', () => {
     expect(hasRemoteCreds({})).toBe(false);
-    expect(hasRemoteCreds({ TURBO_TOKEN: 'tok' })).toBe(false);
-    expect(hasRemoteCreds({ TURBO_TEAM: 'local' })).toBe(false);
-    expect(hasRemoteCreds({ TURBO_TOKEN: '  ', TURBO_TEAM: 'local' })).toBe(
-      false
-    );
-    expect(hasRemoteCreds({ TURBO_TOKEN: 'tok', TURBO_TEAM: 'local' })).toBe(
-      true
-    );
+    expect(hasRemoteCreds({ TURBO_TOKEN: '  ' })).toBe(false);
+    expect(hasRemoteCreds({ TURBO_TOKEN: 'tok' })).toBe(true);
   });
 
   test('missing remote creds use local cache only', () => {
@@ -39,27 +36,34 @@ describe('turbo-ci-run cache flags', () => {
   });
 });
 
-describe('turbo-ci-run TURBO_API', () => {
-  test('defaults TURBO_API when remote creds present and API unset', () => {
-    const env = turboChildEnv({
-      TURBO_TOKEN: 'tok',
-      TURBO_TEAM: 'local',
-    });
+describe('turbo-ci-run child env', () => {
+  test('defaults TURBO_API and TURBO_TEAM when a token is present', () => {
+    const env = turboChildEnv({ TURBO_TOKEN: 'tok' });
     expect(env['TURBO_API']).toBe(DEFAULT_TURBO_API);
+    expect(env['TURBO_TEAM']).toBe(TURBO_TEAM);
   });
 
   test('passes through and strips trailing slash on TURBO_API', () => {
     const env = turboChildEnv({
       TURBO_TOKEN: 'tok',
-      TURBO_TEAM: 'local',
       TURBO_API: 'https://turborepo.chrisvouga.dev/',
     });
     expect(env['TURBO_API']).toBe(DEFAULT_TURBO_API);
   });
 
-  test('does not invent TURBO_API without remote creds', () => {
+  test('does not invent remote cache settings without a token', () => {
     const env = turboChildEnv({});
     expect(env['TURBO_API']).toBeUndefined();
+    expect(env['TURBO_TEAM']).toBeUndefined();
+  });
+
+  test('disables telemetry unless the caller set it', () => {
+    expect(turboChildEnv({})['TURBO_TELEMETRY_DISABLED']).toBe('1');
+    expect(
+      turboChildEnv({ TURBO_TELEMETRY_DISABLED: '0' })[
+        'TURBO_TELEMETRY_DISABLED'
+      ]
+    ).toBe('0');
   });
 });
 

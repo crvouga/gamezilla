@@ -4,11 +4,11 @@
  * permanent Connecting… / dead Chess.
  */
 
+import { describe, expect, it } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword';
 import type { RoomCommandPayload } from '@pkgs/room';
 import { render, screen } from '@solidjs/testing-library';
 import { createEffect, type JSX } from 'solid-js';
-import { describe, expect, it } from 'vitest';
 
 import {
   type SpaceOpenRoomEntry,

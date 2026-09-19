@@ -51,6 +51,7 @@ export function textActionsToOverflow(
       action.onClick();
     },
     disabled: action.disabled,
+    dataSet: action.dataSet,
   }));
 }
 

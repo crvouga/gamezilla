@@ -1,3 +1,7 @@
+---
+description: Make UI, shell chrome, overlays, and client runtime fast and jank-free across the full device and runtime matrix (low-end Android to high-end iPhone, web and Capacitor)
+---
+
 # /optimize — performant across the full device/runtime matrix
 
 ## When to run
@@ -50,7 +54,7 @@ and don't add compositor-heavy CSS to smooth over what was actually a
 bridge-call problem.
 
 Byte / LCP / critical-path budgets live in
-[`docs/low-end-android-perf.md`](docs/low-end-android-perf.md) and
+[`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md) and
 [`apps/client/perf-budget.json`](apps/client/perf-budget.json). This
 command is about **runtime jank and interaction cost** across the matrix,
 not bundle size — leave those docs and the budget file alone (see
@@ -60,7 +64,7 @@ constraints below).
 
 1. **Never soft-deprecate.** Delete old APIs and update every call site in
    the same change.
-2. **Never fake the budgets.** Don't satisfy critical-path/Lighthouse gates
+2. **Never fake the budgets.** Don't satisfy critical-path/bundle-budget gates
    with eager `import()`, disabled checks, or a loosened
    `perf-budget.json`. If a gate looks wrong, stop and report it using the
    failure template.

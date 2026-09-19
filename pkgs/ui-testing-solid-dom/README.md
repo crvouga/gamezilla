@@ -1,7 +1,7 @@
 # `@pkgs/ui-testing-solid-dom`
 
 `Driver` / `DriverNode` implementation from `@pkgs/ui-testing` over a Solid
-tree rendered into a DOM (happy-dom under Vitest). `kind: 'solid-dom'`. It is
+tree rendered into a DOM (happy-dom under `bun test`, via `@pkgs/bun-test-solid/preload`). `kind: 'solid-dom'`. It is
 the in-process replacement for the old native driver: no
 browser, emulator, IPC, or HTTP server.
 

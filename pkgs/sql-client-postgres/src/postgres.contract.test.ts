@@ -1,8 +1,10 @@
-/**
- * Live Postgres contract (ambient `DATABASE_URL` — `@pkgs/postgres-embedded` or
- * secrets-run). Excluded from default unit speed when URL unset.
- */
-import { describe, expect, test } from 'bun:test';
+// goal:the-bar:5 — Postgres connection contract runs against real PG.
+
+import { afterAll, describe, expect, test } from 'bun:test';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
 import { raw } from '@pkgs/sql';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import {
@@ -13,20 +15,32 @@ import {
 } from './connect';
 import { SqlClientImplBunPostgres } from './impl-bun-postgres';
 
-const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
-const HAS_DB = DATABASE_URL.length > 0;
 const TEST_SCHEMA = 'gamezilla_test_scope';
 const REMOTE_DB_TIMEOUT_MS = 30_000;
+const dbScope = createPostgresDbScope(TEST_SCHEMA);
 
-describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
-  const dbScope = createPostgresDbScope(TEST_SCHEMA);
+let databaseUrl = process.env['DATABASE_URL'] ?? '';
+let stopPg: (() => Promise<void>) | undefined;
 
+if (databaseUrl.length === 0) {
+  const pg = await startEmbeddedPostgres({
+    dataDir: join(tmpdir(), `pg-contract-${randomUUID()}`),
+  });
+  databaseUrl = pg.url;
+  stopPg = pg.stop;
+}
+
+afterAll(async () => {
+  await stopPg?.();
+});
+
+describe('postgres-connect (DATABASE_URL contract)', () => {
   test('DATABASE_URL is a postgres wire URL', () => {
     expect(
-      DATABASE_URL.startsWith('postgres://') ||
-        DATABASE_URL.startsWith('postgresql://')
+      databaseUrl.startsWith('postgres://') ||
+        databaseUrl.startsWith('postgresql://')
     ).toBe(true);
-    expect(typeof isLoopbackPostgresUrl(DATABASE_URL)).toBe('boolean');
+    expect(typeof isLoopbackPostgresUrl(databaseUrl)).toBe('boolean');
   });
 
   test(
@@ -34,7 +48,7 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
     async () => {
       const publicScope = createPostgresDbScope('public');
       const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
+        connectionString: databaseUrl,
         dbScope: publicScope,
         max: 1,
       });
@@ -51,14 +65,14 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         await pool.end();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
     'ensurePostgresSchema creates the schema and is idempotent',
     async () => {
       const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
+        connectionString: databaseUrl,
         dbScope,
         max: 1,
       });
@@ -75,14 +89,14 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         await pool.end();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
     'createPgPool pins every pooled connection to the schema',
     async () => {
       const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
+        connectionString: databaseUrl,
         dbScope,
         max: 1,
       });
@@ -100,14 +114,14 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         await pool.end();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
     'openPgClient pins the session and can self-bootstrap the schema',
     async () => {
       const { client, sqlClient } = await openPgClient({
-        connectionString: DATABASE_URL,
+        connectionString: databaseUrl,
         dbScope,
         ensureSchema: true,
       });
@@ -122,13 +136,13 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         await client.end();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
     'SqlClientImplBunPostgres pins every query on Neon pooler URLs',
     async () => {
-      const sqlClient = SqlClientImplBunPostgres.connect(DATABASE_URL, dbScope);
+      const sqlClient = SqlClientImplBunPostgres.connect(databaseUrl, dbScope);
       try {
         await sqlClient.connect();
         await ensurePostgresSchema(sqlClient, dbScope);
@@ -144,14 +158,14 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         await sqlClient.disconnect();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 
   test(
     'int8 rows are JSON-safe (no bigint) on pool + client',
     async () => {
       const { pool, sqlClient } = createPgPool({
-        connectionString: DATABASE_URL,
+        connectionString: databaseUrl,
         dbScope,
         max: 1,
       });
@@ -165,7 +179,7 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         expect(Math.max(0, Number(rows[0]?.n))).toBe(42);
 
         const { client, sqlClient: oneShot } = await openPgClient({
-          connectionString: DATABASE_URL,
+          connectionString: databaseUrl,
           dbScope,
           ensureSchema: true,
         });
@@ -182,6 +196,6 @@ describe.skipIf(!HAS_DB)('postgres-connect (DATABASE_URL contract)', () => {
         await pool.end();
       }
     },
-    { timeout: REMOTE_DB_TIMEOUT_MS }
+    REMOTE_DB_TIMEOUT_MS
   );
 });

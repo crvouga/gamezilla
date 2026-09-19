@@ -10,9 +10,9 @@
  *   codemod emits (`box`, `text`, `clickable`, …).
  */
 
+import { describe, expect, test } from 'bun:test';
 import { readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { describe, expect, test } from 'vitest';
 import { COLOR_PALETTE } from '../../src/theme/colors/color-palette';
 import { tokenToKebab } from '../sx-map-color';
 import { tokenKebabs } from './class-declaration';

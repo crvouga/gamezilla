@@ -7,7 +7,7 @@
  *
  * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
  * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
- * not block the frame itself (see docs/low-end-android-perf.md). Wide header
+ * not block the frame itself (see docs/LOW_END_ANDROID_PERF.md). Wide header
  * tabs read unread count from `NotificationsUnreadCountRoot` — the
  * registry / `createQuery` live inside the session tree.
  */

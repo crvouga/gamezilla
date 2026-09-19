@@ -56,7 +56,7 @@ async function startIdp(args: {
       '--conditions=browser',
       '--conditions=development',
       '--preload',
-      './pkgs/idp-google-sim/bun-solid-preload.ts',
+      './pkgs/bun-test-solid/src/register.ts',
       'pkgs/idp-google-sim/scripts/serve.ts',
     ],
     {
@@ -143,6 +143,8 @@ function startApiNode(args: {
 async function startWeb(args: {
   readonly origin: string;
   readonly apiOrigin: string;
+  readonly frozen: boolean;
+  readonly e2eHooks: boolean;
 }): Promise<ChildProcess> {
   const child = spawn('bun', PRODUCT_DEV_ARGS, {
     cwd: REPO_ROOT,
@@ -152,6 +154,8 @@ async function startWeb(args: {
       VITE_PORT: new URL(args.origin).port,
       VITE_API_URL: args.apiOrigin,
       VITE_LOCAL_PREVIEW_API_ORIGIN: args.apiOrigin,
+      ...(args.frozen ? { PRODUCT_DEV_FROZEN: '1' } : {}),
+      ...(args.e2eHooks ? { VITE_E2E: '1' } : {}),
     },
   });
   await waitForHttp(`${args.origin}/simulator`);
@@ -316,7 +320,12 @@ export async function bootLocalhostStack(
   const webChild =
     webOrigin === null
       ? null
-      : await startWeb({ origin: webOrigin, apiOrigin });
+      : await startWeb({
+          origin: webOrigin,
+          apiOrigin,
+          frozen: options.frozenWeb,
+          e2eHooks: options.e2eHooks,
+        });
 
   const manifest: StackManifest = {
     instanceId: options.instanceId,

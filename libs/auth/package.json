@@ -14,7 +14,7 @@
   },
   "scripts": {
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx'"
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@libs/test-ids": "workspace:*",
@@ -48,10 +48,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
-    "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

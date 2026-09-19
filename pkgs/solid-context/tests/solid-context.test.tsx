@@ -1,9 +1,10 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { defineContext } from '@pkgs/solid-context/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
 import { render, screen } from '@solidjs/testing-library';
 import { createRoot } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 type Greeter = { readonly greet: (name: string) => string };
 

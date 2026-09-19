@@ -5,7 +5,12 @@ import type { FlatFrame } from '../lib/frames';
 import { selectedFrame, testFrames } from '../lib/frames';
 import { buildHash, parseHash, type Route } from '../lib/hash';
 import type { ReportData } from '../types';
-import { startPlayTimer, stopPlayTimer } from '../wall';
+import {
+  cancelHashWrite,
+  debounceHash,
+  startPlayTimer,
+  stopPlayTimer,
+} from '../wall';
 import { onReportKeyDown } from './keyboard';
 
 export type ReportNav = {
@@ -14,6 +19,8 @@ export type ReportNav = {
   showPalette: Accessor<boolean>;
   playing: Accessor<boolean>;
   navigate: (route: Route, replace?: boolean) => void;
+  /** Write the in-memory route to the URL now (end of a scrub drag). */
+  commitHash: () => void;
   setParam: (key: string, value: string) => void;
   goFrame: (frame: FlatFrame | null, node?: string | undefined) => void;
   stepFrame: (delta: number) => void;
@@ -26,37 +33,35 @@ export type ReportNav = {
 
 function advancePlay(
   data: ReportData,
-  setRoute: (r: Route) => void,
+  route: Accessor<Route>,
+  navigate: ReportNav['navigate'],
   stopPlay: () => void
 ): void {
-  const r = parseHash();
-  if (r.view !== 'test') {
-    stopPlay();
-    return;
-  }
+  const r = route();
   const test =
-    data.tests.find((t) => t.report.meta.testId === r.testId) ?? null;
-  if (!test) {
+    r.view === 'test'
+      ? (data.tests.find((t) => t.report.meta.testId === r.testId) ?? null)
+      : null;
+  if (r.view !== 'test' || !test) {
     stopPlay();
     return;
   }
   const frames = testFrames(test);
   const cur = selectedFrame(frames, r);
   const idx = cur ? cur.index : -1;
-  if (idx < 0 || idx >= frames.length - 1) {
+  const frame = frames[idx + 1];
+  if (idx < 0 || !frame) {
     stopPlay();
-    setRoute(parseHash());
     return;
   }
-  const frame = frames[idx + 1];
-  if (!frame) return;
-  const next: Route = {
-    view: 'test',
-    testId: r.testId,
-    params: { ...r.params, frame: String(frame.index + 1) },
-  };
-  history.replaceState(null, '', buildHash(next));
-  setRoute(next);
+  navigate(
+    {
+      view: 'test',
+      testId: r.testId,
+      params: { ...r.params, frame: String(frame.index + 1) },
+    },
+    true
+  );
 }
 
 function bindWindowListeners(opts: {
@@ -75,6 +80,7 @@ function bindWindowListeners(opts: {
 }): void {
   createEffect(() => {
     const onHash = () => {
+      cancelHashWrite();
       opts.stopPlay();
       opts.setRoute(parseHash());
     };
@@ -117,6 +123,7 @@ function makeReportNav(state: {
   readonly showPalette: Accessor<boolean>;
   readonly playing: Accessor<boolean>;
   readonly navigate: ReportNav['navigate'];
+  readonly commitHash: ReportNav['commitHash'];
   readonly setParam: ReportNav['setParam'];
   readonly goFrame: ReportNav['goFrame'];
   readonly stepFrame: ReportNav['stepFrame'];
@@ -144,20 +151,36 @@ function navigateFrame(args: {
   args.navigate({ view: 'test', testId: args.route.testId, params }, true);
 }
 
-export function useReportNav(data: ReportData): ReportNav {
+/**
+ * Route signal backed by the URL hash. Replace-navigation (scrub, play,
+ * toggles) updates the in-memory route at once and writes the URL on a
+ * trailing debounce: rendering never waits on history, and rapid scrubbing
+ * cannot trip replaceState rate limits.
+ */
+function createHashRoute() {
   const [route, setRoute] = createSignal<Route>(parseHash());
+  const commitHash = () => {
+    cancelHashWrite();
+    const hash = buildHash(route());
+    if (location.hash !== hash) history.replaceState(null, '', hash);
+  };
+  const navigate = (next: Route, replace = false) => {
+    if (replace) {
+      setRoute(next);
+      debounceHash(commitHash, 200);
+    } else {
+      cancelHashWrite();
+      location.hash = buildHash(next);
+    }
+  };
+  return { route, setRoute, commitHash, navigate };
+}
+
+export function useReportNav(data: ReportData): ReportNav {
+  const { route, setRoute, commitHash, navigate } = createHashRoute();
   const [showHelp, setShowHelp] = createSignal(false);
   const [showPalette, setShowPalette] = createSignal(false);
   const [playing, setPlaying] = createSignal(false);
-  const navigate = (next: Route, replace = false) => {
-    const hash = buildHash(next);
-    if (replace) {
-      history.replaceState(null, '', hash);
-      setRoute(next);
-    } else {
-      location.hash = hash;
-    }
-  };
 
   const stopPlay = () => {
     stopPlayTimer();
@@ -200,7 +223,7 @@ export function useReportNav(data: ReportData): ReportNav {
       return;
     }
     setPlaying(true);
-    startPlayTimer(() => advancePlay(data, setRoute, stopPlay));
+    startPlayTimer(() => advancePlay(data, route, navigate, stopPlay));
   };
 
   bindWindowListeners({
@@ -224,6 +247,7 @@ export function useReportNav(data: ReportData): ReportNav {
     showPalette,
     playing,
     navigate,
+    commitHash,
     setParam,
     goFrame,
     stepFrame,

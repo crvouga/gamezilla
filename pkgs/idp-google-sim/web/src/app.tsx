@@ -76,6 +76,7 @@ function ScreenHost(props: HostProps): JSX.Element {
     requestId: () => requestIdOf(props.state) ?? '',
     apply,
     setBusy: (value) => props.setBusy(value),
+    openDocument: (url) => window.location.assign(url),
   });
 
   // The one case where the URL has the last word: a step URL whose

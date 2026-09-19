@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import {
   buildHighlightSegments,
   CODE_EDITOR_LINE_HEIGHT,
@@ -5,7 +6,6 @@ import {
   countLines,
   editorFrameHeight,
 } from '@pkgs/ui/components/code-editor';
-import { describe, expect, test } from 'vitest';
 
 describe('countLines / editorFrameHeight', () => {
   test('counts newline-separated lines (at least one)', () => {

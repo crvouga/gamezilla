@@ -4,7 +4,7 @@
 
 <!-- TODO: update architecture diagram -->
 
-**Dependency injection:** product `libs/` code uses constructor-injected classes for `SqlClient`, `CreateId`, and other shared deps. See [docs/dependency-injection.md](docs/dependency-injection.md).
+**Dependency injection:** product `libs/` code uses constructor-injected classes for `SqlClient`, `CreateId`, and other shared deps.
 
 ## Security (local data)
 

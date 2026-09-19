@@ -49,7 +49,8 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const menuActions = useFriendUserOverflowMenu(
     status,
     () => setRemoveOpen(true),
-    () => setBlockOpen(true)
+    () => setBlockOpen(true),
+    () => userProfile.profile().username
   );
   const headerActions = createMemo((): ScreenBaseAction[] => {
     return menuActions().map((action) => ({
@@ -58,6 +59,7 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       onClick: action.onPress,
       overflow: 'always' as const,
       ...(action.endsGroup === true ? { endsGroup: true } : {}),
+      dataSet: action.dataSet,
     }));
   });
   const breadcrumbs = createMemo(() => [

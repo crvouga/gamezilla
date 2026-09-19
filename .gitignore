@@ -71,6 +71,9 @@ apps/client/android/
 
 .cursor/debug*.log
 
+# Local deploy / script logs
+*.log
+
 # DuckDB inspect UI local database
 .local/
 
@@ -92,7 +95,7 @@ apps/client/android/
 # Turborepo
 .turbo
 # Platform cache key written by libs/tools/scripts/turbo-ci-run.ts (Turbo's hash has
-# no OS notion; the scoped test:e2e / test:contract leaves hash this file).
+# no OS notion; the scoped test:contract leaves hash this file).
 turbo-platform-key.json
 
 
@@ -105,7 +108,3 @@ apps/product/sim-report/
 
 /.data/
 **/.data/
-# Lighthouse CI artifacts (generated configs + LHRs)
-apps/client/.lighthouseci/
-apps/client/lighthouserc.ab.json
-apps/client/lighthouserc.fast.json

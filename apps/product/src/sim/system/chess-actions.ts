@@ -8,6 +8,7 @@ import {
   openFeedSettings,
   selectFeedHistory,
   selectFeedMode,
+  selectFeedTheme,
 } from './chess-puzzle-feed-ui';
 import {
   suggestPuzzleMove as dragSuggestedMove,
@@ -152,6 +153,16 @@ export const setPuzzleFeedMode = scenarioAction({
   name: 'setPuzzleFeedMode',
   act: async (s, actorId: string, mode: FeedMode) => {
     await selectFeedMode(s, actorId, mode);
+  },
+});
+export const setPuzzleFeedTheme = scenarioAction({
+  name: 'setPuzzleFeedTheme',
+  act: async (
+    s,
+    actorId: string,
+    theme: Parameters<typeof selectFeedTheme>[2]
+  ) => {
+    await selectFeedTheme(s, actorId, theme);
   },
 });
 

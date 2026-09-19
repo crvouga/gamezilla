@@ -23,6 +23,8 @@ export type InProcessOpenAuthSessionConfig = {
   readonly fetch: HttpFetch;
   /** What the simulated person types on the provider's sign-in screen. */
   readonly account: { readonly email: string; readonly password: string };
+  /** What the simulated person answers on the consent screen (default `allow`). */
+  readonly consent?: 'allow' | 'deny';
   /** Optional fault injection for tests. */
   readonly fault?: InProcessOpenAuthSessionFault;
 };
@@ -76,11 +78,15 @@ function createCookieJar(): {
   };
 }
 
-function pickButton(form: HeadlessForm, email: string): HeadlessButton | null {
+function pickButton(
+  form: HeadlessForm,
+  email: string,
+  consent: 'allow' | 'deny'
+): HeadlessButton | null {
   const mine = form.buttons.find((button) => button.content.includes(email));
   if (mine !== undefined) return mine;
-  const approve = form.buttons.find((button) => button.value === 'allow');
-  if (approve !== undefined) return approve;
+  const answer = form.buttons.find((button) => button.value === consent);
+  if (answer !== undefined) return answer;
   return form.buttons[form.buttons.length - 1] ?? null;
 }
 
@@ -102,11 +108,12 @@ function submitHop(args: {
   readonly form: HeadlessForm;
   readonly base: string;
   readonly account: { readonly email: string; readonly password: string };
+  readonly consent: 'allow' | 'deny';
 }): Hop {
   const body = formSubmitBody({
     form: args.form,
     typed: typedFields(args.form, args.account),
-    button: pickButton(args.form, args.account.email),
+    button: pickButton(args.form, args.account.email, args.consent),
   });
   const action = new URL(args.form.action, args.base).toString();
   if (args.form.method === 'get') {
@@ -149,7 +156,12 @@ async function walk(
     if (!response.ok) return { type: 'cancel' };
     const form = parseFirstForm(await response.text());
     if (form === null) return { type: 'cancel' };
-    hop = submitHop({ form, base: hop.url, account: config.account });
+    hop = submitHop({
+      form,
+      base: hop.url,
+      account: config.account,
+      consent: config.consent ?? 'allow',
+    });
   }
   return { type: 'cancel' };
 }

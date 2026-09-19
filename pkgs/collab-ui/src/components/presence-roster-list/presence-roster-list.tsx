@@ -24,6 +24,8 @@ export type PresenceRosterRow = {
   readonly isThisTab?: boolean;
   readonly isHost?: boolean;
   readonly badges?: JSX.Element;
+  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  readonly dataSet?: Record<string, string> | undefined;
 };
 
 export type PresenceRosterListProps = {
@@ -64,6 +66,7 @@ export function PresenceRosterList(
               </div>
             }
             trailing={row.badges}
+            {...(row.dataSet !== undefined ? { dataSet: row.dataSet } : {})}
           />
         )}
       </For>

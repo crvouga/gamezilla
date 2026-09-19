@@ -5,6 +5,7 @@
  */
 
 import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   CellHighlight,
@@ -19,8 +20,10 @@ import styles from './chess-board.module.css';
 import { BOARD_SQUARES } from './chess-board-hit-grid';
 import { SquareCell } from './chess-board-square-cell';
 import { bumpChessBoardRender } from './dev/render-counts';
+import { PaintToken } from './paint-token';
 
 export type ChessBoardSquaresProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly position: Position;
   readonly lastMove: Move | null;
@@ -52,7 +55,9 @@ function LegalMarker(props: {
           cy={cy()}
           r={CELL_UNITS * 0.15}
           fill="var(--chess-legal-dot)"
-        />
+        >
+          <PaintToken kind="dot" at={props.square} />
+        </circle>
       }
     >
       <circle
@@ -62,7 +67,9 @@ function LegalMarker(props: {
         fill="none"
         stroke="var(--chess-legal-ring)"
         stroke-width={CELL_UNITS * 0.11}
-      />
+      >
+        <PaintToken kind="ring" at={props.square} />
+      </circle>
     </Show>
   );
 }
@@ -74,6 +81,7 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
       class={`${styles['layer']} ${styles['svgLayer']}`}
       viewBox={`0 0 ${BOARD_UNITS} ${BOARD_UNITS}`}
       aria-hidden="true"
+      data-testid={chessBoardLayerTestId(props.boardTestId, 'squares')}
     >
       <For each={[...BOARD_SQUARES]}>
         {(square) => (

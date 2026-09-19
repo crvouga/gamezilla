@@ -23,7 +23,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "happy-dom": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

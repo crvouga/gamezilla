@@ -27,6 +27,7 @@
     "pg": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/postgres-embedded": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

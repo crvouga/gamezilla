@@ -30,7 +30,6 @@ function planFor(dir: string, name: string): PackagePlan {
     dir,
     coverageRoot: join(dir, '.cache/coverage'),
     commands: ['bun test'],
-    unmeasuredSegments: [],
   };
 }
 

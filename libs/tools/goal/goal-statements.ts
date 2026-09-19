@@ -1,9 +1,9 @@
 /**
- * Parses `goal.md` into stable, id-addressable statements.
+ * Parses `docs/GOAL.md` into stable, id-addressable statements.
  *
  * Ids are `${sectionSlug}:${ordinal}` where the ordinal is 1-based within the
  * `## ` section under `# Definition of done`. Reordering bullets changes ids,
- * so `goal.md` carries a do-not-reorder comment.
+ * so `docs/GOAL.md` carries a do-not-reorder comment.
  */
 
 export type GoalStatement = {

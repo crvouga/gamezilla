@@ -13,8 +13,8 @@
  * (`flex:1` ≡ `flex:1 1 0%`, `font-weight:bold` ≡ `700`) before comparing.
  */
 
+import { describe, expect, test } from 'bun:test';
 import * as fc from 'fast-check';
-import { describe, expect, test } from 'vitest';
 import { CSS_VAR_COLORS, cssVarElevation } from '../../src/theme/css-vars';
 import { sxToCss } from '../legacy-sx-to-css';
 import { compileStaticTransform } from '../sx-map-effect';

@@ -1,5 +1,5 @@
+import { describe, expect, test } from 'bun:test';
 import { isPieceBlind } from '@pkgs/chess-board/blindfold';
-import { describe, expect, test } from 'vitest';
 
 describe('isPieceBlind', () => {
   test('modes', () => {

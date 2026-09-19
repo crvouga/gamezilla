@@ -18,6 +18,7 @@
       "!**/*.lock",
       "!apps/client/src/i18n/locales/*/messages.ts",
       "!pkgs/idp-google-sim/src/server/assets.generated.ts",
+      "!libs/billing/src/use-cases/mock-provider/server/mock-billing-assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
@@ -402,14 +403,6 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/forbid-removed-auth-sdk-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/no-clerk-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
@@ -431,6 +424,7 @@
       "path": "./libs/tools/biome-plugins/no-eager-games-shell-imports.grit",
       "includes": ["**/apps/client/src/shell/**/*.{ts,tsx}"]
     },
+    "./libs/tools/biome-plugins/no-vitest.grit",
     {
       "path": "./libs/tools/biome-plugins/no-zod-in-pkgs.grit",
       "includes": [
@@ -528,9 +522,6 @@
         "!**/*-boot.js",
         "!**/*.example.ts",
         "!**/*.example.tsx",
-        "!**/e2e/harness/tab-app.ts",
-        "!**/e2e/harness/harness-client.ts",
-        "!**/e2e/webview.ts",
         "!**/bun-webview-driver-node.ts",
         "!**/sql-host-entry.ts",
         "!**/cf-dns.ts",
@@ -601,9 +592,6 @@
         "!**/*-boot.js",
         "!**/*.example.ts",
         "!**/*.example.tsx",
-        "!**/e2e/harness/tab-app.ts",
-        "!**/e2e/harness/harness-client.ts",
-        "!**/e2e/webview.ts",
         "!**/bun-webview-driver-node.ts",
         "!**/sql-host-entry.ts",
         "!**/tests/**",
@@ -685,7 +673,6 @@
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
         "!**/pkgs/sql-client/e2e/harness/memory-sql.ts",
         "!**/pkgs/sql-client/tests/helpers/generators/program.ts",
-        "!**/libs/tools/scripts/check-pr-body.ts",
         "!**/pkgs/**/cutover-migration.ts",
         "!**/dist/**",
         "!**/build/**",
@@ -866,13 +853,13 @@
                 "paths": {
                   "@pkgs/ui-testing": {
                     "importNames": ["Driver"],
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
                   },
                   "@pkgs/ui-testing-bun-webview": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/src/test/setup/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
                   }
                 }
               }

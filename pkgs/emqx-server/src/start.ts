@@ -9,7 +9,6 @@ import {
   EMQX_DASHBOARD_PASS,
   EMQX_DASHBOARD_PORT,
   EMQX_DASHBOARD_USER,
-  EMQX_JWT_SECRET,
   EMQX_MQTT_PASS,
   EMQX_MQTT_PORT,
   EMQX_MQTT_USER,
@@ -48,11 +47,12 @@ export function ensureEmqxDataDir(dataDir: string): void {
   }
   copyFileSync(join(APP_DIR, 'config', 'emqx.conf'), join(etcDir, 'emqx.conf'));
 
+  // EMQX `bootstrap_type = plain` CSV: header row, then one user per line.
   const users = join(dataDir, 'auth-built-in-db-bootstrap.csv');
   if (!existsSync(users)) {
     writeFileSync(
       users,
-      `${EMQX_MQTT_USER}:{plain}${EMQX_MQTT_PASS}\n`,
+      `user_id,password,is_superuser\n${EMQX_MQTT_USER},${EMQX_MQTT_PASS},false\n`,
       'utf8'
     );
   }
@@ -72,18 +72,11 @@ function listenerEnv(args: {
 
 function authEnv(dataDir: string): Record<string, string> {
   return {
-    EMQX_AUTHENTICATION__1__MECHANISM: 'jwt',
-    EMQX_AUTHENTICATION__1__FROM: 'password',
+    EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
+    EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
     EMQX_AUTHENTICATION__1__ENABLE: 'true',
-    EMQX_AUTHENTICATION__1__USE_JWKS: 'false',
-    EMQX_AUTHENTICATION__1__ALGORITHM: 'hmac-based',
-    EMQX_AUTHENTICATION__1__SECRET: EMQX_JWT_SECRET,
-    EMQX_AUTHENTICATION__1__SECRET_BASE64_ENCODED: 'false',
-    EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: 'acl',
-    EMQX_AUTHENTICATION__2__MECHANISM: 'password_based',
-    EMQX_AUTHENTICATION__2__BACKEND: 'built_in_database',
-    EMQX_AUTHENTICATION__2__ENABLE: 'true',
-    EMQX_AUTHENTICATION__2__BOOTSTRAP_FILE: join(
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE: 'plain',
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE: join(
       dataDir,
       'auth-built-in-db-bootstrap.csv'
     ),
@@ -99,11 +92,19 @@ export async function startEmqxServer(
   const dashboardPort = options?.dashboardPort ?? EMQX_DASHBOARD_PORT;
   ensureEmqxDataDir(dataDir);
   const bin = ensureEmqxBin();
+  // Drop ambient EMQX_AUTHENTICATION_* from secrets-run so Infisical JWT
+  // chain entries cannot override the local password bootstrap.
+  const cleanEnv: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value === undefined) continue;
+    if (key.startsWith('EMQX_AUTHENTICATION_')) continue;
+    cleanEnv[key] = value;
+  }
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
     stdio: 'inherit',
     env: {
-      ...process.env,
+      ...cleanEnv,
       EMQX_NODE__DATA_DIR: dataDir,
       EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
       EMQX_NODE__NAME: options?.nodeName ?? 'emqx@127.0.0.1',

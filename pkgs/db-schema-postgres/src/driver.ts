@@ -1,7 +1,7 @@
 import type { ServerOperation } from '@pkgs/db-schema/core/operations';
 import { planServer } from '@pkgs/db-schema/core/plan';
 import type { Schema } from '@pkgs/db-schema/core/types';
-import { ident, join, raw, sql } from '@pkgs/sql';
+import { ident, raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import {
   advisoryLockSql,
@@ -69,7 +69,9 @@ async function runIndexOp(
  * Backfill in bounded PK-cursor batches. A full-table `UPDATE` holds a row lock
  * per matching row for the whole statement; batching keeps each lock window
  * small. The cursor is monotone on `id`, so an expression that yields NULL
- * still terminates instead of re-selecting the same rows forever.
+ * still terminates instead of re-selecting the same rows forever. Each UPDATE
+ * targets the batch's `id` range (two binds, a PK range scan) rather than an
+ * `IN` list of every id.
  */
 async function runBatchedBackfill(
   client: SqlClient,
@@ -88,14 +90,12 @@ async function runBatchedBackfill(
             sql`SELECT id FROM ${ident(table)} WHERE ${ident(column)} IS NULL AND id > ${cursor} ORDER BY id LIMIT ${BACKFILL_BATCH_ROWS}`
           );
     if (batch.length === 0) return;
-    const ids: string[] = batch.map((row) => row.id);
+    const first = batch[0]!.id;
+    const last = batch[batch.length - 1]!.id;
     await client.run(
-      sql`UPDATE ${ident(table)} SET ${ident(column)} = ${raw(expression)} WHERE id IN (${join(
-        ids.map((id) => sql`${id}`),
-        ', '
-      )}) AND ${ident(column)} IS NULL`
+      sql`UPDATE ${ident(table)} SET ${ident(column)} = ${raw(expression)} WHERE id >= ${first} AND id <= ${last} AND ${ident(column)} IS NULL`
     );
-    cursor = ids[ids.length - 1]!;
+    cursor = last;
   }
 }
 

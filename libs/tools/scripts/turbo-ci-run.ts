@@ -2,11 +2,11 @@
  * Shared Turbo flags for CI / local `check` / `deploy`.
  *
  * - Cache is `local:rw,remote:rw` (self-hosted remote at
- *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` + `TURBO_TEAM` are
- *   present. Local disk under `.turbo` is also persisted in CI via per-job
+ *   `https://turborepo.chrisvouga.dev`) when `TURBO_TOKEN` is present
+ *   (`TURBO_TEAM` defaults to the constant slug; telemetry is disabled). Local disk under `.turbo` is also persisted in CI via per-job
  *   `actions/cache`. `TURBO_CACHE` may tighten local/remote modes but cannot
  *   drop `remote:` when creds are present.
- * - CI requires `TURBO_TOKEN` + `TURBO_TEAM`. Locally, missing creds (Infisical
+ * - CI requires `TURBO_TOKEN`. Locally, a missing token (Infisical
  *   login/network fallback) use `local:rw` so `bun check` still runs.
  * - Disables framework inference so only explicit `turbo.json` `env` /
  *   `globalEnv` enter the hash (avoids `VITE_*` skew).
@@ -17,27 +17,34 @@
  *   packages but still execute named root tasks (`ci:depcruise`).
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
  *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
- * - Log order: `auto` locally; `stream` in CI (not `grouped` — grouped holds
- *   task stdout until completion, which looks like a hang). Override with
- *   `TURBO_LOG_ORDER`. `check` / `deploy` (and `//#…` forms) are expanded
+ * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
+ *   collapsible `::group::` per task on GitHub Actions. Grouped holds a task's
+ *   output until it finishes, so the workflow step runs a heartbeat. Override
+ *   with `TURBO_LOG_ORDER`. On GitHub Actions, groups that only say "cache
+ *   hit, suppressing logs" are dropped (`CachedGroupFilter`); turbo's final
+ *   `Cached:` line still counts them. `check` / `deploy` (and `//#…` forms) are expanded
  *   recursively to leaf `dependsOn` tasks so turbo never nests under a root
  *   aggregator script (would recurse).
- * - Output logs: `new-only` (cache misses stream). Override with
- *   `TURBO_OUTPUT_LOGS`. Do not default CI to `errors-only`: a silent pipe is
- *   SIGTERM'd (~10 min, exit 143) by GitHub Actions.
+ * - Output logs: `new-only` (cache misses print). Override with
+ *   `TURBO_OUTPUT_LOGS`.
  * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
  */
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
+import { createInterface } from 'node:readline';
 import {
   CHECK_SECRETS_FINGERPRINT_ENV,
   computeCheckSecretsFingerprint,
 } from '@libs/secrets/shared/secrets/check-secrets-fingerprint';
-import { DEFAULT_TURBO_API } from '@libs/secrets/shared/secrets/turbo-token';
+import {
+  DEFAULT_TURBO_API,
+  TURBO_TEAM,
+} from '@libs/secrets/shared/secrets/turbo-token';
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+import { CachedGroupFilter } from './github-cached-group-filter';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -50,12 +57,12 @@ const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 /**
  * Turborepo's hash knows nothing about the platform
  * (https://turborepo.dev/docs/guides/handling-platforms), so a macOS result
- * could satisfy a Linux run. The platform-scoped leaves — `test:e2e` (real
- * browser engine) and `test:contract` (embedded Postgres / S3rver / EMQX
- * binaries) — declare this file as an input, so their caches are per-platform
- * while everything portable (tc, lint, unit tests) still shares one cache
- * across machines. Written on every run: absent (a bare `turbo run`) hashes
- * differently, which costs a cache miss, never correctness.
+ * could satisfy a Linux run. The platform-scoped `test:contract` leaves
+ * (embedded Postgres / S3rver / EMQX binaries) declare this file as an input,
+ * so their caches are per-platform while everything portable (tc, lint, unit
+ * tests) still shares one cache across machines. Written on every run: absent
+ * (a bare `turbo run`) hashes differently, which costs a cache miss, never
+ * correctness.
  */
 function writePlatformCacheKey(): void {
   const key = {
@@ -85,21 +92,17 @@ const CACHE_WORKERS = 16;
 
 type TurboTasks = Record<string, { dependsOn?: unknown }>;
 
+function inGithubActions(): boolean {
+  return process.env['GITHUB_ACTIONS'] === 'true';
+}
+
 function inCi(): boolean {
-  return (
-    process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true'
-  );
+  return inGithubActions() || process.env['CI'] === 'true';
 }
 
 export function hasRemoteCreds(env: NodeJS.ProcessEnv): boolean {
   const token = env['TURBO_TOKEN']?.trim();
-  const team = env['TURBO_TEAM']?.trim();
-  return (
-    token !== undefined &&
-    token.length > 0 &&
-    team !== undefined &&
-    team.length > 0
-  );
+  return token !== undefined && token.length > 0;
 }
 
 function ensureRemoteCache(cache: string): string {
@@ -146,19 +149,19 @@ function resolveUi(): string | undefined {
   return undefined;
 }
 
-/** Pass through / default `TURBO_API` for self-hosted remote cache. */
+/**
+ * Turbo child env: telemetry off, and for the self-hosted remote cache the
+ * constant `TURBO_TEAM` plus a normalized / defaulted `TURBO_API`.
+ */
 export function turboChildEnv(
   source: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv {
-  const env: NodeJS.ProcessEnv = { ...source };
-  const api = env['TURBO_API']?.trim();
-  if (api !== undefined && api.length > 0) {
-    env['TURBO_API'] = api.replace(/\/+$/, '');
-    return env;
-  }
-  if (hasRemoteCreds(env)) {
-    env['TURBO_API'] = DEFAULT_TURBO_API;
-  }
+  const env: NodeJS.ProcessEnv = { TURBO_TELEMETRY_DISABLED: '1', ...source };
+  if (!hasRemoteCreds(env)) return env;
+  if ((env['TURBO_TEAM']?.trim() ?? '') === '') env['TURBO_TEAM'] = TURBO_TEAM;
+  const api = env['TURBO_API']?.trim() ?? '';
+  env['TURBO_API'] =
+    api.length > 0 ? api.replace(/\/+$/, '') : DEFAULT_TURBO_API;
   return env;
 }
 
@@ -257,7 +260,7 @@ async function ensureSecretsFingerprint(
 function requireRemoteCredsInCi(hasRemote: boolean): void {
   if (hasRemote || !inCi()) return;
   console.error(
-    'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM are required for self-hosted Turbo remote cache. ' +
+    'turbo-ci-run: TURBO_TOKEN is required for self-hosted Turbo remote cache. ' +
       'Run via secrets-run / secrets-auth (Infisical) so local warms upload and CI reuses them.'
   );
   process.exit(1);
@@ -266,7 +269,7 @@ function requireRemoteCredsInCi(hasRemote: boolean): void {
 function warnLocalCacheOnly(hasRemote: boolean): void {
   if (hasRemote) return;
   console.warn(
-    'turbo-ci-run: TURBO_TOKEN and TURBO_TEAM missing; using local cache only. ' +
+    'turbo-ci-run: TURBO_TOKEN missing; using local cache only. ' +
       'Run `bun run secrets:pull` so local warms upload to the self-hosted Turbo remote cache.'
   );
 }
@@ -278,7 +281,7 @@ function applyOfflineTaskArgs(
   if (hasRemote) return [...taskArgs];
   if (isDeployLeafSet(taskArgs)) {
     console.error(
-      'turbo-ci-run: deploy requires TURBO_TOKEN and TURBO_TEAM. ' +
+      'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
         'Run `bun run secrets:pull` then retry via secrets-run.'
     );
     process.exit(1);
@@ -303,7 +306,7 @@ async function main(): Promise<void> {
   const TURBO_OUTPUT_LOGS =
     process.env['TURBO_OUTPUT_LOGS']?.trim() || 'new-only';
   const TURBO_LOG_ORDER =
-    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'stream' : 'auto');
+    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
   const ui = resolveUi();
 
   const TURBO_CI_FLAGS = [
@@ -363,18 +366,48 @@ async function main(): Promise<void> {
         : ' (local cache only)')
   );
 
-  const result = spawnSync(
-    'turbo',
+  const status = await runTurbo(
     ['run', ...taskArgs, ...affected, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
-    {
-      stdio: 'inherit',
-      env,
-    }
+    env,
+    inGithubActions() && ui !== 'tui'
   );
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(result.status ?? 1);
+  process.exit(status);
+}
+
+/**
+ * Run turbo to completion. With `hideCachedGroups`, stdout goes through
+ * `CachedGroupFilter` so the GitHub log keeps only tasks that did work.
+ */
+async function runTurbo(
+  args: readonly string[],
+  env: NodeJS.ProcessEnv,
+  hideCachedGroups: boolean
+): Promise<number> {
+  const child = spawn('turbo', args, {
+    stdio: ['inherit', hideCachedGroups ? 'pipe' : 'inherit', 'inherit'],
+    env,
+  });
+  const exited = new Promise<number>((resolve) => {
+    child.on('close', (code) => resolve(code ?? 1));
+  });
+  if (child.stdout === null) return exited;
+
+  const filter = new CachedGroupFilter((line) => {
+    process.stdout.write(`${line}\n`);
+  });
+  for await (const line of createInterface({ input: child.stdout })) {
+    filter.push(line);
+  }
+  filter.end();
+  if (filter.hiddenCount > 0) {
+    console.log(
+      `turbo-ci-run: hid ${String(filter.hiddenCount)} cache-hit task group(s) with no new logs`
+    );
+  }
+  return exited;
 }
 
 if (import.meta.main) {

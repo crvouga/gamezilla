@@ -15,6 +15,7 @@
   "scripts": {
     "billing:check": "bun run scripts/check-billing-offer.ts",
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
+    "build:mock-billing": "bun run scripts/build-mock-billing.ts",
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test"
@@ -35,6 +36,7 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
+    "@pkgs/static-file-server": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
@@ -43,8 +45,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
   }
 }

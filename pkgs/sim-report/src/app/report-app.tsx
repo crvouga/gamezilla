@@ -34,7 +34,6 @@ export function SimReportApp(props: SimReportAppProps) {
           <HelpModal onClose={() => nav.toggleHelp()} />
         </Show>
         <CommandPalette nav={nav} />
-        <div class="sr-hints">← → scrub · Space play · ? help</div>
       </div>
     </ReportProvider>
   );

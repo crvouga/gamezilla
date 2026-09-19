@@ -20,7 +20,9 @@ const REPO_ROOT = join(import.meta.dir, '../../..');
 const argv = process.argv.slice(2);
 const testPaths = argv.filter((arg) => !arg.startsWith('--'));
 
-const options = parseStackOptions(argv);
+// Tests drive live browsers: the web app must not hot-reload under them, and
+// the scenarios read the app's test-only probes.
+const options = parseStackOptions([...argv, '--frozen-web', '--e2e']);
 const stack = await bootLocalhostStack(options);
 process.stdout.write(`[stack] ${stack.manifestPath}\n`);
 
@@ -30,8 +32,11 @@ try {
     [
       'bun',
       'test',
+      // Same compile contract as the in-process suite: Solid's browser build.
+      '--conditions=browser',
+      '--conditions=development',
       '--preload',
-      './bun-babel-plugin.ts',
+      '@pkgs/bun-test-solid/preload',
       '--preload',
       './bun-preload.ts',
       '--timeout',

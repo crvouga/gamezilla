@@ -15,9 +15,15 @@ import {
 } from '@pkgs/auth/client';
 import { defineAction } from '@pkgs/sim';
 
+import { actorUi, pollUntil } from './actor-ui';
+import { completeGoogleSignIn } from './auth-actions';
 import type { ProductSim } from './sim';
 
-/** Sign in through the client auth port, against the simulated provider. */
+/**
+ * Sign in through the client auth port, against the simulated provider: the
+ * port opens the sign-in window in the actor's browser and the person walks
+ * the provider's screens there.
+ */
 export const googleOauthSignIn = defineAction({
   name: 'googleOauthSignIn',
   pool: false,
@@ -31,7 +37,24 @@ export const googleOauthSignIn = defineAction({
       openAuthSession: env.openAuthSession,
       callbackUrl: 'gamezilla://sso-callback',
     });
-    await port.signIn('oauth-google');
+    const ui = await actorUi(s, actorId);
+    const browser = s.sim.browser(actorId);
+    const signingIn = port.signIn('oauth-google');
+    await pollUntil(
+      s,
+      () => Promise.resolve(browser.tab() === null ? null : true),
+      {
+        maxMs: 15_000,
+        description: 'the sign-in window',
+      }
+    );
+    await completeGoogleSignIn({
+      s,
+      ui,
+      actorId,
+      done: () => Promise.resolve(browser.tab() === null),
+    });
+    await signingIn;
     const token = await port.getFreshToken();
     s.probes.oauthTokenLength = token === null ? null : token.length;
   },

@@ -35,6 +35,10 @@ export type ConfirmationModalProps = {
   confirmError?: JSX.Element | undefined;
   /** When true, both actions are disabled (e.g. while `onConfirm` is async). */
   submitting?: boolean | undefined;
+  /** DOM `data-*` identifiers for the confirm button. */
+  confirmDataSet?: ComponentDataSet | undefined;
+  /** DOM `data-*` identifiers for the cancel button. */
+  cancelDataSet?: ComponentDataSet | undefined;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -89,14 +93,14 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
           variant={props.variant === 'destructive' ? 'destructive' : 'default'}
           disabled={submitting()}
           onClick={handleConfirm}
-          dataSet={{ action: 'confirm' }}
+          dataSet={{ action: 'confirm', ...props.confirmDataSet }}
         />
         <ModalButton
           label={props.cancelLabel ?? t`Cancel`}
           variant="cancel"
           disabled={submitting()}
           onClick={() => props.onCancel()}
-          dataSet={{ action: 'cancel' }}
+          dataSet={{ action: 'cancel', ...props.cancelDataSet }}
         />
       </ModalFooter>
     </ResponsiveSurface>
