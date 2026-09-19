@@ -1,3 +1,4 @@
+import type { GameCommandContext } from '@libs/spaces/public/game';
 import {
   createComposedMessageRouter,
   isMessageEnvelope,
@@ -22,7 +23,7 @@ function reject(error: RoomError): HandleResult {
 
 const commandRouter = createComposedMessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
 >(
   chessGameShared.commandRouters.map((entry) => ({
@@ -61,11 +62,15 @@ export const ChessModule: RoomModule<RoomState, Message, Message, string> = {
         reason: 'not a message envelope',
       });
     }
-    return commandRouter.dispatch(state, identity, msg, (_s, _c, m) =>
-      reject({
-        type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: String(m.type),
-      })
+    return commandRouter.dispatch(
+      state,
+      { identity, ts: command.ts },
+      msg,
+      (_s, _c, m) =>
+        reject({
+          type: ROOM_ERROR_TYPE.invalidCommand,
+          reason: String(m.type),
+        })
     );
   },
 

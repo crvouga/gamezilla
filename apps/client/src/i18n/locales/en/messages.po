@@ -21,6 +21,11 @@ msgstr "— of {total}"
 msgid "?"
 msgstr "?"
 
+#. js-lingui-explicit-id
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-icons.tsx
+msgid "chess.puzzleStatus.skippedMark"
+msgstr "»"
+
 #. placeholder {0}: friendsState.friends().length
 #: libs/friends/src/root/client/profile-friends-stats-view.tsx
 msgid "{0, plural, one {friend} other {friends}}"
@@ -115,7 +120,7 @@ msgstr "✕"
 
 #. js-lingui-explicit-id
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-icons.tsx
-msgid "chess.puzzleStatus.wrongMark"
+msgid "chess.puzzleStatus.failedMark"
 msgstr "✕"
 
 #: libs/spaces/src/root/client/members/space-guest-count-text.tsx
@@ -819,6 +824,7 @@ msgstr "Expand all"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 #: libs/notifications/src/public/notification-card-default.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
 msgid "Failed"
@@ -1899,6 +1905,14 @@ msgstr "sim"
 msgid "simulator"
 msgstr "simulator"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
+msgid "Skip"
+msgstr "Skip"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Skipped"
+msgstr "Skipped"
+
 #: apps/client/src/screens/more/performance-screen.tsx
 msgid "Slowest script"
 msgstr "Slowest script"
@@ -1993,6 +2007,14 @@ msgstr "Space renamed"
 msgid "Spaces"
 msgstr "Spaces"
 
+#: pkgs/ui/src/components/spectator-indicator/spectator-indicator.tsx
+msgid "Spectating"
+msgstr "Spectating"
+
+#: pkgs/ui/src/components/spectator-indicator/spectator-indicator.tsx
+msgid "Spectating — controls are disabled"
+msgstr "Spectating — controls are disabled"
+
 #: libs/auth/src/root/client/account-device/account-device-id-field.tsx
 msgid "Stable per-device identifier; tap to copy"
 msgstr "Stable per-device identifier; tap to copy"
@@ -2008,6 +2030,10 @@ msgstr "Start a space"
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Start a space to play with friends. Spaces you join show up here."
 msgstr "Start a space to play with friends. Spaces you join show up here."
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Started"
+msgstr "Started"
 
 #: apps/client/src/shell/boot/boot-loading-shell.tsx
 msgid "Starting…"
@@ -2032,6 +2058,10 @@ msgstr "Style"
 #: libs/billing/src/root/client/billing-screen.tsx
 msgid "Subscribe"
 msgstr "Subscribe"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-recommendation-legend.tsx
+msgid "Suggested"
+msgstr "Suggested"
 
 #: apps/client/src/screens/more/settings-screen.tsx
 #: apps/client/src/screens/more/sync-screen.tsx
@@ -2093,6 +2123,10 @@ msgstr "Target rating: {0}"
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Text to speech"
 msgstr "Text to speech"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+msgid "The host hasn't started a puzzle yet."
+msgstr "The host hasn't started a puzzle yet."
 
 #: libs/spaces/src/root/client/module/games-main-menu.tsx
 msgid "The host picks the game for this space."
@@ -2259,6 +2293,15 @@ msgstr "Version"
 msgid "View profile"
 msgstr "View profile"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Waiting for the host"
+msgstr "Waiting for the host"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
+msgid "Waiting for the host to start a puzzle."
+msgstr "Waiting for the host to start a puzzle."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "White to move"
 msgstr "White to move"
@@ -2267,10 +2310,6 @@ msgstr "White to move"
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Working…"
 msgstr "Working…"
-
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
-msgid "Wrong"
-msgstr "Wrong"
 
 #: apps/client/src/screens/more/sync-screen.tsx
 msgid "Yes"

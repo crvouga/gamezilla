@@ -10,6 +10,7 @@ import {
   selectFeedMode,
 } from './chess-puzzle-feed-ui';
 import {
+  suggestPuzzleMove as dragSuggestedMove,
   expectPlayReady,
   openChessStats,
   openPuzzlePlay,
@@ -23,6 +24,7 @@ import {
   solvePuzzle,
   tapEmptyPoolPrimaryAction,
   pressPuzzleNext as tapPuzzleNext,
+  skipPuzzle as tapPuzzleSkip,
   waitPuzzleHintStage,
 } from './chess-puzzle-ui';
 
@@ -64,6 +66,18 @@ export const playWrongPuzzleMove = scenarioAction({
 export const retryPuzzle = scenarioAction({
   name: 'retryPuzzle',
   act: pressPuzzleRetry,
+});
+
+/** Skip abandons the live attempt without solving it (terminal `skipped`). */
+export const skipPuzzle = scenarioAction({
+  name: 'skipPuzzle',
+  act: tapPuzzleSkip,
+});
+
+/** A spectator drags a legal move; the room records it as a suggestion. */
+export const suggestPuzzleMove = scenarioAction({
+  name: 'suggestPuzzleMove',
+  act: dragSuggestedMove,
 });
 
 /** First Hint press: highlight the piece to move. */

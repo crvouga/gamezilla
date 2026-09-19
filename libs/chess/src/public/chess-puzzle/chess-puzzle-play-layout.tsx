@@ -57,9 +57,12 @@ export type PuzzlePlayLayoutProps = {
   onBack: () => void;
   onForward: () => void;
   onRetry: () => void;
+  onSkip: () => void;
   onNext: () => void;
   onFeedConfigApplied: () => void;
   completion: Accessor<PuzzleCompletion | null>;
+  spectator: Accessor<boolean>;
+  recommendationLegend?: JSX.Element;
   e2eHints?: JSX.Element;
   e2eLoadingStatus?: JSX.Element;
 };
@@ -94,6 +97,7 @@ function PuzzlePlayActions(props: {
       onBack={p.onBack}
       onForward={p.onForward}
       onRetry={p.onRetry}
+      onSkip={p.onSkip}
       onNext={p.onNext}
     />
   );
@@ -168,10 +172,12 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
   return (
     <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
       <div class="box shrink-0 min-w-[0]">
-        <PuzzlePlayFeed
-          layout={props.layout}
-          openFeedSettings={props.openFeedSettings}
-        />
+        <Show when={!props.layout.spectator()}>
+          <PuzzlePlayFeed
+            layout={props.layout}
+            openFeedSettings={props.openFeedSettings}
+          />
+        </Show>
         <div class="box shrink-0 min-w-[0] overflow-hidden">
           {props.layout.assistant}
         </div>
@@ -180,11 +186,14 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
         boardSlot={props.layout.boardSlot}
         chrome={{ openFeedSettings: props.openFeedSettings }}
       />
+      {props.layout.recommendationLegend}
       <div class="box shrink-0">
         <ChessPuzzleMoveHistoryBar />
       </div>
       <div class="box self-stretch shrink-0">
-        <PuzzlePlayActions layout={props.layout} />
+        <Show when={!props.layout.spectator()}>
+          <PuzzlePlayActions layout={props.layout} />
+        </Show>
       </div>
     </div>
   );

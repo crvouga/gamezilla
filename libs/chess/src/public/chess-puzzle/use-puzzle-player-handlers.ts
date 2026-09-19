@@ -11,6 +11,7 @@ import {
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
+  SkipChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
 } from '../chess-puzzle-play';
@@ -75,6 +76,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   onHint: () => void;
   onSolution: () => void;
   onRetry: () => void;
+  onSkip: () => void;
   onNext: () => void;
   onBack: () => void;
   onForward: () => void;
@@ -91,7 +93,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     args.onMoveRaw(m);
   };
 
-  /** Leaving an unfinished attempt (Back / Next / Retry) forfeits it. */
+  /** Leaving an unfinished attempt (Back / Next) forfeits it. Retry does not. */
   const abandonIfUnfinished = (): void => {
     if (!isUnfinishedPuzzleStatus(args.status())) return;
     void args.appendAbandoned();
@@ -104,8 +106,13 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   };
 
   const onRetry = (): void => {
-    abandonIfUnfinished();
     dispatch(ResetChessPuzzlePlay({}));
+  };
+
+  /** Skip is a terminal forfeit; the recorder finalizes it from `skipped`. */
+  const onSkip = (): void => {
+    if (!isUnfinishedPuzzleStatus(args.status())) return;
+    dispatch(SkipChessPuzzlePlay({}));
   };
 
   const onNext = (): void => {
@@ -127,6 +134,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     onHint,
     onSolution,
     onRetry,
+    onSkip,
     onNext,
     onBack,
     onForward,

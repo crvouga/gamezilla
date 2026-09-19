@@ -28,7 +28,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: false })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
     const back = slots.find((s) => s.id === 'back');
     const forward = slots.find((s) => s.id === 'forward');
     expect(back?.type === 'action' && back.disabled).toBe(false);
@@ -39,7 +39,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
     const forward = slots.find((s) => s.id === 'forward');
     expect(forward?.type === 'action' && forward.disabled).toBe(false);
   });
@@ -48,7 +48,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'loading', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
     const hint = slots[0];
     const back = slots[1];
     const forward = slots[2];
@@ -57,13 +57,13 @@ describe('buildChessPuzzleActionBarPlan', () => {
     expect(forward?.id === 'forward' && forward.disabled).toBe(true);
   });
 
-  test('wrong: solution + next action + danger retry button', () => {
+  test('wrong: solution + danger retry button + skip action', () => {
     const slots = buildChessPuzzleActionBarPlan(input({ status: 'wrong' }));
-    expect(ids(slots)).toEqual(['solution', 'next', 'retry']);
+    expect(ids(slots)).toEqual(['solution', 'retry', 'skip']);
     const retry = slots.find((s) => s.id === 'retry');
     expect(retry).toEqual({ id: 'retry', type: 'button', intent: 'danger' });
-    const next = slots.find((s) => s.id === 'next');
-    expect(next?.type).toBe('action');
+    const skip = slots.find((s) => s.id === 'skip');
+    expect(skip?.type === 'action' && skip.disabled).toBe(false);
   });
 
   test('solved: back + success next button + retry action', () => {

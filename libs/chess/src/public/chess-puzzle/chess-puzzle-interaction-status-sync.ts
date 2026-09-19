@@ -26,7 +26,7 @@ type SyncCtx = {
   /** Current play already wrote a solved terminal (skip re-finalize). */
   playAlreadySolved: boolean;
   appendInteraction: AppendInteraction;
-  finalizePlay: (k: 'solved') => void;
+  finalizePlay: (k: 'solved' | 'abandoned') => void;
 };
 
 function appendStartedIfNeeded(ctx: SyncCtx): boolean {
@@ -76,6 +76,17 @@ function finalizeSolvedIfNeeded(ctx: SyncCtx): void {
 }
 
 /**
+ * A skipped attempt is terminal and unrated, exactly like abandoning it.
+ * `finalizePlayWithProfile` ignores the call when the play is already closed.
+ */
+function finalizeSkippedIfNeeded(ctx: SyncCtx): void {
+  const { prev, status, finalizePlay } = ctx;
+  if (status !== CHESS_PUZZLE_PLAY_STATUS.skipped) return;
+  if (prev === CHESS_PUZZLE_PLAY_STATUS.skipped) return;
+  finalizePlay('abandoned');
+}
+
+/**
  * Mirrors room status transitions into the append-only interaction log.
  */
 export function syncInteractionForRoomStatus(args: SyncCtx): void {
@@ -84,4 +95,5 @@ export function syncInteractionForRoomStatus(args: SyncCtx): void {
   if (appendWrongMoveIfNeeded(args)) return;
   if (appendCorrectMoveIfNeeded(args)) return;
   finalizeSolvedIfNeeded(args);
+  finalizeSkippedIfNeeded(args);
 }

@@ -1,22 +1,37 @@
 import type { SolveStatus } from './solve-status';
 
+/**
+ * Everything the puzzle header can say. The first block is the shell (no
+ * puzzle placed yet); the second is the live attempt.
+ */
 export type ChessPuzzleStatusKind =
   | 'loading'
   | 'empty'
   | 'offline'
   | 'limited'
-  | 'whiteToMove'
-  | 'blackToMove'
-  | 'wrong'
+  | 'waiting'
+  | 'started'
+  | 'failed'
+  | 'skipped'
   | 'solved';
 
+/** Live status → header kind. Side to move is a separate caption. */
 export function chessPuzzleStatusKindFromState(args: {
+  orientation?: 'white' | 'black';
   status: SolveStatus;
-  orientation: 'white' | 'black';
 }): ChessPuzzleStatusKind {
-  const { status, orientation } = args;
-  if (status === 'loading') return 'loading';
-  if (status === 'wrong') return 'wrong';
-  if (status === 'solved') return 'solved';
-  return orientation === 'white' ? 'whiteToMove' : 'blackToMove';
+  switch (args.status) {
+    case 'solving':
+      return 'started';
+    case 'wrong':
+      return 'failed';
+    case 'skipped':
+      return 'skipped';
+    case 'solved':
+      return 'solved';
+    case 'invalid':
+      return 'failed';
+    default:
+      return 'loading';
+  }
 }

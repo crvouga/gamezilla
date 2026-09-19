@@ -4,10 +4,12 @@ import {
   useSpaceRoomDispatch,
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { RoomMetaAttr } from '@pkgs/room';
 import type { Accessor } from 'solid-js';
-import { createEffect, createMemo } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 
+import { isBoardSquare } from '../../shared/puzzle-session/recommendations';
 import {
   decidePuzzleSessionStart,
   shouldReclaimPuzzleHost,
@@ -15,13 +17,16 @@ import {
 
 import {
   ChessPuzzlePlayAttr,
+  ClearChessPuzzleRecommendation,
   ReclaimChessPuzzlePlay,
+  RecommendChessPuzzleMove,
   StartChessPuzzlePlay,
 } from '../chess-puzzle-play';
 import {
   PUZZLE_ELO_DEFAULT,
   projectPuzzleEloFromInteractions,
 } from '../chess-puzzle-rating';
+import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,
@@ -29,10 +34,13 @@ import {
 import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
+import { usePuzzleClock } from './use-puzzle-clock';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
+import { usePuzzleRecommendations } from './use-puzzle-recommendations';
+import { useIsPuzzleDriver, usePuzzleSpaceRole } from './use-puzzle-space-role';
 
-function useReclaimStalePuzzleHost(): void {
+function useReclaimStalePuzzleHost(canDrive: Accessor<boolean>): void {
   const memberId = useMyId();
   const dispatch = useSpaceRoomDispatch();
   const roomStatus = useSpaceRoomSelector(ChessPuzzlePlayAttr.status.from);
@@ -43,6 +51,7 @@ function useReclaimStalePuzzleHost(): void {
   const { peersByMemberId } = useSpacePresence();
   createEffect(() => {
     const reclaim = shouldReclaimPuzzleHost({
+      canDrive: canDrive(),
       memberId: memberId(),
       roomStatus: roomStatus(),
       hostIdentity: hostIdentity(),
@@ -67,6 +76,7 @@ function usePuzzleHostIdentityMatch(): Accessor<boolean> {
 }
 
 function useStartPuzzleSessionOnMount(args: {
+  canDrive: Accessor<boolean>;
   puzzleId: Accessor<string>;
   fen: Accessor<string>;
   movesStr: Accessor<string>;
@@ -81,6 +91,7 @@ function useStartPuzzleSessionOnMount(args: {
   const lastStartedNonceRef: { current: number } = { current: 0 };
   createEffect(() => {
     const decision = decidePuzzleSessionStart({
+      canDrive: args.canDrive(),
       identityReady: myId().length > 0,
       startNonce: args.startNonce(),
       lastStartedNonce: lastStartedNonceRef.current,
@@ -105,12 +116,39 @@ function useStartPuzzleSessionOnMount(args: {
   });
 }
 
+/** Suggest-by-drag for spectators: a legal drag becomes a synced arrow. */
+function usePuzzleRecommendDispatch(): {
+  recommendBump: Accessor<number>;
+  onRecommendMove: (m: Move) => void;
+  onClearMyRecommendation: () => void;
+} {
+  const dispatch = useSpaceRoomDispatch();
+  const [recommendBump, setRecommendBump] = createSignal(0);
+  return {
+    recommendBump,
+    onRecommendMove: (m: Move): void => {
+      const uci = uciFromMove(m);
+      const from = uci.slice(0, 2);
+      const to = uci.slice(2, 4);
+      if (!isBoardSquare(from) || !isBoardSquare(to)) return;
+      dispatch(RecommendChessPuzzleMove({ from, to }));
+      // The board applied the drag optimistically; bump the sync key so it
+      // snaps back to the room's position (the suggestion is only an arrow).
+      setRecommendBump((n) => n + 1);
+    },
+    onClearMyRecommendation: (): void => {
+      dispatch(ClearChessPuzzleRecommendation({}));
+    },
+  };
+}
+
 function usePuzzlePlayerModel(args: {
   puzzleId: Accessor<string>;
   playGeneration: Accessor<number>;
   readyGeneration: Accessor<number>;
   startNonce: Accessor<number>;
 }) {
+  const canDrive = useIsPuzzleDriver();
   const entity = usePuzzleEntityAndInteractions(args.puzzleId);
   const fen = createMemo(() => entity.fen);
   const movesStr = createMemo(() => entity.movesStr);
@@ -122,8 +160,16 @@ function usePuzzlePlayerModel(args: {
     const projected = projectPuzzleEloFromInteractions(allInteractions());
     return projected.ratedGames > 0 ? projected.rating : PUZZLE_ELO_DEFAULT;
   });
-  useReclaimStalePuzzleHost();
+  const startedAtMs = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.startedAtMs.from
+  );
+  const endedAtMs = useSpaceRoomSelector(ChessPuzzlePlayAttr.endedAtMs.from);
+  const hostIdentity = useSpaceRoomSelector(
+    ChessPuzzlePlayAttr.hostIdentity.from
+  );
+  useReclaimStalePuzzleHost(canDrive);
   useStartPuzzleSessionOnMount({
+    canDrive,
     puzzleId: args.puzzleId,
     fen,
     movesStr,
@@ -169,6 +215,11 @@ function usePuzzlePlayerModel(args: {
     appendUsedHint: recorder.appendUsedHint,
     appendAbandoned: recorder.appendAbandoned,
     setLastUci: recorder.setLastUci,
+    startedAtMs,
+    endedAtMs,
+    hostIdentity,
+    canDrive,
+    isPuzzleHost,
   };
 }
 
@@ -177,6 +228,7 @@ function usePuzzlePlayerUi(args: {
   onRequestNext: () => void;
   m: ReturnType<typeof usePuzzlePlayerModel>;
 }) {
+  const myId = useMyId();
   const completion = useChessPuzzleCompletion({
     puzzleId: args.m.puzzleId,
     interactions: args.m.interactions,
@@ -214,12 +266,33 @@ function usePuzzlePlayerUi(args: {
     atFrontier: controls.atFrontier,
     rating: args.m.rating,
   });
+  const recommendations = usePuzzleRecommendations({
+    excludeMemberId: () => (args.m.isPuzzleHost() ? null : myId()),
+  });
+  const clock = usePuzzleClock({
+    status: args.m.status,
+    startedAtMs: args.m.startedAtMs,
+    endedAtMs: args.m.endedAtMs,
+  });
+  const recommend = usePuzzleRecommendDispatch();
+  const spaceRole = usePuzzleSpaceRole();
+  const recommendationProbe = createMemo(() =>
+    recommendations
+      .entries()
+      .map((entry) => `${entry.by}:${entry.from}${entry.to}`)
+      .join(',')
+  );
 
   return frozenPlayerModel({
     m: args.m,
     controls,
     visual,
     completion,
+    recommendations,
+    clock,
+    recommend,
+    spaceRole,
+    recommendationProbe,
     puzzleId: args.m.puzzleId,
   });
 }
@@ -229,9 +302,15 @@ function frozenPlayerModel(args: {
   controls: ReturnType<typeof usePuzzlePlayerControls>;
   visual: ReturnType<typeof usePuzzlePlayerVisual>;
   completion: ReturnType<typeof useChessPuzzleCompletion>;
+  recommendations: ReturnType<typeof usePuzzleRecommendations>;
+  clock: ReturnType<typeof usePuzzleClock>;
+  recommend: ReturnType<typeof usePuzzleRecommendDispatch>;
+  spaceRole: ReturnType<typeof usePuzzleSpaceRole>;
+  recommendationProbe: Accessor<string>;
   puzzleId: Accessor<string>;
 }) {
-  const { m, controls, visual, completion } = args;
+  const { m, controls, visual, completion, recommendations, clock, recommend } =
+    args;
   return {
     puzzleId: m.puzzleId,
     rating: m.rating,
@@ -258,12 +337,27 @@ function frozenPlayerModel(args: {
     onBack: controls.onBack,
     onForward: controls.onForward,
     onRetry: controls.onRetry,
+    onSkip: controls.onSkip,
     onNext: controls.onNext,
     expectedFromSquare: m.expectedFromSquare,
     expectedToSquare: m.expectedToSquare,
     solutionUci: m.solutionUci,
     solveIdx: m.solveIdx,
     movesStr: m.movesStr,
+    hostIdentity: m.hostIdentity,
+    isSpectator: createMemo(
+      () => m.status() !== 'loading' && m.isPuzzleHost() === false
+    ),
+    clockElapsedMs: clock.elapsedMs,
+    clockRunning: clock.running,
+    recommendationEntries: recommendations.entries,
+    recommendationArrows: recommendations.arrows,
+    recommendationColorFor: recommendations.colorFor,
+    onRecommendMove: recommend.onRecommendMove,
+    onClearMyRecommendation: recommend.onClearMyRecommendation,
+    recommendBump: recommend.recommendBump,
+    spaceRole: args.spaceRole,
+    recommendationProbe: args.recommendationProbe,
   };
 }
 

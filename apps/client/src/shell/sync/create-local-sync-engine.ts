@@ -32,6 +32,7 @@ import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web';
 import {
   createLocalSyncEngine,
@@ -178,7 +179,16 @@ async function openAppLocalDb(
       databaseName: args.databaseName,
     });
   }
-  return openMainSqlClient(args.userId, args.timers);
+  try {
+    return await openMainSqlClient(args.userId, args.timers);
+  } catch {
+    // SQLite is only an optimistic local cache. A stale worker, broken OPFS
+    // handle, or corrupt snapshot must never prevent the product shell from
+    // booting; discard this cache and use a disposable in-memory SQLite DB.
+    const fallback = SqlClientImplSqliteMem.open();
+    await fallback.connect();
+    return fallback;
+  }
 }
 
 async function deleteEngineDatabase(
@@ -259,10 +269,23 @@ export async function createAppLocalSyncEngine(
       ? { isOwner: true as const, release: () => undefined }
       : await tryAcquireSyncOwnerLease(args.databaseName);
   try {
-    const db = await openAppLocalDb(args);
-    const engine = await buildEngine(args, db, syncLease.isOwner);
-    emqxUrlHolderFor(args.databaseName).url =
-      await readEmqxWssUrlFromLocalDb(db);
+    let db = await openAppLocalDb(args);
+    let engine: SyncEngine;
+    try {
+      engine = await buildEngine(args, db, syncLease.isOwner);
+      emqxUrlHolderFor(args.databaseName).url =
+        await readEmqxWssUrlFromLocalDb(db);
+    } catch {
+      // A worker can open successfully while the cached schema/snapshot is
+      // unusable. Rebuild once against a clean disposable cache; SQLite must
+      // never turn into an application boot gate.
+      await db.disconnect().catch(() => undefined);
+      db = SqlClientImplSqliteMem.open();
+      await db.connect();
+      engine = await buildEngine(args, db, syncLease.isOwner);
+      emqxUrlHolderFor(args.databaseName).url =
+        await readEmqxWssUrlFromLocalDb(db);
+    }
     const disconnect = engine.disconnect.bind(engine);
     return {
       ...engine,
