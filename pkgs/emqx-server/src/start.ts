@@ -47,11 +47,12 @@ export function ensureEmqxDataDir(dataDir: string): void {
   }
   copyFileSync(join(APP_DIR, 'config', 'emqx.conf'), join(etcDir, 'emqx.conf'));
 
+  // EMQX `bootstrap_type = plain` CSV: header row, then one user per line.
   const users = join(dataDir, 'auth-built-in-db-bootstrap.csv');
   if (!existsSync(users)) {
     writeFileSync(
       users,
-      `${EMQX_MQTT_USER}:{plain}${EMQX_MQTT_PASS}\n`,
+      `user_id,password,is_superuser\n${EMQX_MQTT_USER},${EMQX_MQTT_PASS},false\n`,
       'utf8'
     );
   }
@@ -74,6 +75,7 @@ function authEnv(dataDir: string): Record<string, string> {
     EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
     EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
     EMQX_AUTHENTICATION__1__ENABLE: 'true',
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE: 'plain',
     EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE: join(
       dataDir,
       'auth-built-in-db-bootstrap.csv'
