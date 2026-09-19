@@ -22,7 +22,7 @@ export type ChessPuzzleActionBarSlot =
       disabled: boolean;
     }
   | {
-      id: 'solution';
+      id: 'solution' | 'skip';
       type: 'action';
       disabled: boolean;
     }
@@ -63,6 +63,10 @@ function hintSlot(
   };
 }
 
+function skipSlot(disabled: boolean): ChessPuzzleActionBarSlot {
+  return { id: 'skip', type: 'action', disabled };
+}
+
 function solvingSlots(
   p: ChessPuzzleActionBarPlanInput
 ): ChessPuzzleActionBarSlot[] {
@@ -79,6 +83,7 @@ function solvingSlots(
       type: 'action',
       disabled: navDisabled || !p.canGoForward,
     },
+    skipSlot(navDisabled),
   ];
 }
 
@@ -92,15 +97,11 @@ function wrongSlots(
       disabled: p.hintStage === 'solution',
     },
     {
-      id: 'next',
-      type: 'action',
-      disabled: false,
-    },
-    {
       id: 'retry',
       type: 'button',
       intent: 'danger',
     },
+    skipSlot(false),
   ];
 }
 
@@ -119,6 +120,6 @@ export function buildChessPuzzleActionBarPlan(
   p: ChessPuzzleActionBarPlanInput
 ): ChessPuzzleActionBarSlot[] {
   if (p.status === 'wrong') return wrongSlots(p);
-  if (p.status === 'solved') return solvedSlots(p);
+  if (p.status === 'solved' || p.status === 'skipped') return solvedSlots(p);
   return solvingSlots(p);
 }

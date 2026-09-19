@@ -14,11 +14,10 @@ import {
 } from 'solid-js';
 
 import {
+  decidePuzzlePlacement,
   type PuzzlePickState,
   resolvePuzzlePickState,
-  shouldDropExhaustedActivePuzzle,
 } from '../../shared/puzzle-session/pick-state';
-import { shouldDeferPuzzleAttemptPlacement } from '../../shared/puzzle-session/session-start-policy';
 import { CHESS_SCREEN, SetChessMainMenuScreen } from '../chess-main-menu';
 import { widenPuzzleFeedConfig } from '../chess-puzzle-feed-config';
 import {
@@ -29,12 +28,15 @@ import type { ChessPuzzleE2ELoadingStatusProps } from './chess-puzzle-e2e-loadin
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useNextPuzzleId } from './use-next-puzzle-id';
+import { useIsPuzzleDriver } from './use-puzzle-space-role';
 import { usePuzzlesPlayedToday } from './use-puzzles-played-today';
 
 export type PuzzlePlayScreenModel = {
   backToChessRoot: () => void;
   activePuzzleId: Accessor<string | null>;
   pickState: Accessor<PuzzlePickState>;
+  /** Watching the host's puzzle; owns no picker and no controls. */
+  isSpectator: Accessor<boolean>;
   attemptSeed: Accessor<number>;
   readyGeneration: Accessor<number>;
   startNonce: Accessor<number>;
@@ -44,61 +46,6 @@ export type PuzzlePlayScreenModel = {
   includeAllPuzzles: () => void;
   e2eLoadingStatus: Accessor<ChessPuzzleE2ELoadingStatusProps>;
 };
-
-type PlacementArgs = {
-  readonly active: string | null;
-  readonly seed: number;
-  readonly nextId: string | null;
-  readonly room: string | null;
-  readonly nextLoading: boolean;
-  readonly placedSeed: number;
-};
-
-type PlacementDecision =
-  | { readonly kind: 'none' }
-  | {
-      readonly kind: 'place';
-      readonly puzzleId: string;
-      readonly armStart: boolean;
-    }
-  | { readonly kind: 'drop' };
-
-/** Pure placement rule for one reactive tick (see effect below). */
-function decidePlacement(a: PlacementArgs): PlacementDecision {
-  if (a.active === null) {
-    if (a.seed === 0 && a.room !== null) {
-      return { kind: 'place', puzzleId: a.room, armStart: false };
-    }
-    if (a.nextId !== null) {
-      return { kind: 'place', puzzleId: a.nextId, armStart: true };
-    }
-    return { kind: 'none' };
-  }
-  if (a.room !== null && a.room !== a.active) {
-    return { kind: 'place', puzzleId: a.room, armStart: false };
-  }
-  if (a.seed === a.placedSeed) return { kind: 'none' };
-  if (
-    shouldDeferPuzzleAttemptPlacement({
-      attemptSeed: a.seed,
-      placedAttemptSeed: a.placedSeed,
-      roomPuzzleId: a.room,
-    })
-  ) {
-    return { kind: 'none' };
-  }
-  if (
-    shouldDropExhaustedActivePuzzle({
-      nextPuzzleId: a.nextId,
-      loading: a.nextLoading,
-      roomPuzzleId: a.room,
-    })
-  ) {
-    return { kind: 'drop' };
-  }
-  if (a.nextId === null || a.nextId === a.active) return { kind: 'none' };
-  return { kind: 'place', puzzleId: a.nextId, armStart: true };
-}
 
 type PuzzlePlacement = {
   activePuzzleId: Accessor<string | null>;
@@ -117,6 +64,7 @@ function usePuzzlePlacement(args: {
   myId: Accessor<string>;
   roomPuzzleId: Accessor<string | null>;
   poolReady: Accessor<boolean>;
+  canPick: Accessor<boolean>;
 }): PuzzlePlacement {
   const [activePuzzleId, setActivePuzzleId] = createSignal<string | null>(null);
   const [attemptSeed, setAttemptSeed] = createSignal(0);
@@ -138,13 +86,14 @@ function usePuzzlePlacement(args: {
 
   createEffect(() => {
     const seed = attemptSeed();
-    const decision = decidePlacement({
+    const decision = decidePuzzlePlacement({
       active: activePuzzleId(),
       seed,
       nextId: next.puzzleId(),
       room: args.roomPuzzleId(),
       nextLoading: next.loading(),
       placedSeed: placedAttemptRef.current,
+      canPick: args.canPick(),
     });
     if (decision.kind === 'place') {
       setActivePuzzleId(decision.puzzleId);
@@ -171,8 +120,14 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const { status: syncStatus } = useSyncEngine();
   const { poolReady } = useChessPuzzleFeedState();
   const [, setFeedConfig] = useChessPuzzleFeedConfig();
+  const canPick = useIsPuzzleDriver();
   const roomPuzzleId = useSpaceRoomSelector(ChessPuzzlePlayAttr.puzzleId.from);
-  const placement = usePuzzlePlacement({ myId, roomPuzzleId, poolReady });
+  const placement = usePuzzlePlacement({
+    myId,
+    roomPuzzleId,
+    poolReady,
+    canPick,
+  });
   const { next } = placement;
 
   const backToChessRoot = (): void => {
@@ -181,16 +136,19 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
 
   const playedToday = usePuzzlesPlayedToday();
   const dailyLimit = usePermissionLimit(LIMIT.puzzlesPerDay, playedToday);
-  const pickState = createMemo(() =>
-    resolvePuzzlePickState({
+  const pickState = createMemo<PuzzlePickState>(() => {
+    if (!canPick()) {
+      return placement.activePuzzleId() === null ? 'waiting' : 'ready';
+    }
+    return resolvePuzzlePickState({
       activePuzzleId: placement.activePuzzleId(),
       nextPuzzleId: next.puzzleId(),
       loading: next.loading(),
       localPuzzleTotal: next.localPuzzleTotal(),
       online: syncStatus().online,
       limitReached: !dailyLimit().allowed,
-    })
-  );
+    });
+  });
 
   const reselectActivePuzzleFromFeed = (): void => {
     dispatch(ClearChessPuzzlePlay({}));
@@ -206,6 +164,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     myId: myId(),
     nextId: next.puzzleId(),
     activePuzzleId: placement.activePuzzleId(),
+    pickState: pickState(),
     bandedCount: next.bandedCount(),
     fallbackCount: next.fallbackCount(),
     poolReady: poolReady(),
@@ -216,6 +175,9 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     backToChessRoot,
     activePuzzleId: placement.activePuzzleId,
     pickState,
+    isSpectator: createMemo(
+      () => !canPick() && placement.activePuzzleId() !== null
+    ),
     attemptSeed: placement.attemptSeed,
     readyGeneration: placement.readyGeneration,
     startNonce: placement.startNonce,

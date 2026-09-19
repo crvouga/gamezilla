@@ -40,10 +40,7 @@ export function usePuzzlePlayerPresentation(args: {
   });
 
   const statusKind = createMemo(() =>
-    chessPuzzleStatusKindFromState({
-      status: args.status(),
-      orientation: args.orientation(),
-    })
+    chessPuzzleStatusKindFromState({ status: args.status() })
   );
 
   return { assistant, statusKind };

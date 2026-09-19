@@ -1,5 +1,6 @@
 import { createAttrNamespace } from '@pkgs/attribute';
 
+import { parseRecommendations } from '../puzzle-session/recommendations';
 import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
 
 /**
@@ -9,6 +10,7 @@ import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
  * - `solving`: puzzle started, awaiting host's next move.
  * - `wrong`: host's last move did not match the solution; awaiting retry.
  * - `solved`: solution complete.
+ * - `skipped`: host moved on without solving; terminal until cleared.
  * - `invalid`: puzzle FEN / moves payload could not be parsed or applied.
  */
 export const CHESS_PUZZLE_PLAY_STATUS = {
@@ -16,6 +18,7 @@ export const CHESS_PUZZLE_PLAY_STATUS = {
   solving: 'solving',
   wrong: 'wrong',
   solved: 'solved',
+  skipped: 'skipped',
   invalid: 'invalid',
 } as const;
 
@@ -52,6 +55,11 @@ function readOrientation(v: unknown): ChessPuzzleOrientation {
   return v === 'black' ? 'black' : 'white';
 }
 
+function readNullableNonNegativeInteger(v: unknown): number | null {
+  if (typeof v === 'number' && Number.isInteger(v) && v >= 0) return v;
+  return null;
+}
+
 const playNs = createAttrNamespace('chess', 'puzzle', 'play');
 
 /** Room state slice for the active chess puzzle solving session. */
@@ -60,6 +68,22 @@ export const ChessPuzzlePlayAttr = {
   puzzleId: playNs.textOrNull('puzzle-id', readNullableNonEmptyString),
   /** Identity captured from the dispatcher of the first `StartChessPuzzlePlay`. */
   hostIdentity: playNs.textOrNull('host-identity', readNullableNonEmptyString),
+  /**
+   * Server commit time (ms) of the command that started this attempt. The
+   * puzzle clock renders `now - startedAtMs`; `null` before start / after clear.
+   */
+  startedAtMs: playNs.integerOrNull(
+    'started-at-ms',
+    readNullableNonNegativeInteger
+  ),
+  /**
+   * Server commit time (ms) of the terminal event (`solved` / `skipped`).
+   * `null` while the attempt is still running.
+   */
+  endedAtMs: playNs.integerOrNull(
+    'ended-at-ms',
+    readNullableNonNegativeInteger
+  ),
   /** Initial FEN of the puzzle (before the opponent's first move). */
   fen: playNs.text('fen', readString),
   /** Space-separated UCI tokens of the full solution line (incl. opponent's first move). */
@@ -71,6 +95,7 @@ export const ChessPuzzlePlayAttr = {
       CHESS_PUZZLE_PLAY_STATUS.solving,
       CHESS_PUZZLE_PLAY_STATUS.wrong,
       CHESS_PUZZLE_PLAY_STATUS.solved,
+      CHESS_PUZZLE_PLAY_STATUS.skipped,
       CHESS_PUZZLE_PLAY_STATUS.invalid,
     ] as const,
     readStatus
@@ -129,6 +154,16 @@ export const ChessPuzzlePlayAttr = {
   solutionRevealed: playNs.integer('solution-revealed', (v) =>
     typeof v === 'number' && Number.isInteger(v) && v > 0 ? 1 : 0
   ),
+  /**
+   * Spectator move suggestions keyed by member id, synced so every client
+   * (host included) sees the same arrows. Cleared whenever the position the
+   * suggestions were made for stops being the live one.
+   */
+  recommendations: playNs.json('recommendations', parseRecommendations),
+  recommendationSeq: playNs.integer(
+    'recommendation-seq',
+    readNonNegativeInteger
+  ),
 } as const;
 
 export function isNonEmptyString(v: unknown): v is string {
@@ -141,6 +176,10 @@ export function isNullOrNonEmptyString(v: unknown): v is string | null {
 
 export function isNonNegativeInteger(v: unknown): v is number {
   return typeof v === 'number' && Number.isInteger(v) && v >= 0;
+}
+
+export function isNullOrNonNegativeInteger(v: unknown): v is number | null {
+  return v === null || isNonNegativeInteger(v);
 }
 
 export function isOrientation(v: unknown): v is ChessPuzzleOrientation {

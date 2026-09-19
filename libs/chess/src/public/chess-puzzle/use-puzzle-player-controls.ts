@@ -36,6 +36,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   onHint: () => void;
   onSolution: () => void;
   onRetry: () => void;
+  onSkip: () => void;
   onNext: () => void;
   backToRoot: () => void;
 } {
@@ -76,6 +77,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
     onHint: handlers.onHint,
     onSolution: handlers.onSolution,
     onRetry: handlers.onRetry,
+    onSkip: handlers.onSkip,
     onNext: handlers.onNext,
     onBack: handlers.onBack,
     onForward: handlers.onForward,

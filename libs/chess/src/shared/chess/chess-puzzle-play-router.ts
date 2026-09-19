@@ -1,3 +1,4 @@
+import type { GameCommandContext } from '@libs/spaces/public/game';
 import { createMessageRouter } from '@pkgs/message';
 import {
   type HandleResult,
@@ -32,17 +33,25 @@ import {
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
   ClearChessPuzzlePlay,
+  ClearChessPuzzleRecommendation,
   chessPuzzlePlayCmdNs,
   ReclaimChessPuzzlePlay,
+  RecommendChessPuzzleMove,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
   SeekChessPuzzlePlay,
+  SkipChessPuzzlePlay,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play-messages';
+import {
+  handleClearRecommendation,
+  handleRecommend,
+} from './chess-puzzle-play-recommendation-handlers';
+import { handleSkip } from './chess-puzzle-play-terminal-handlers';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
@@ -98,6 +107,7 @@ function applyAcceptedMove(args: {
   actual: string;
   tokens: readonly string[];
   idx: number;
+  ts: number;
 }):
   | {
       uci: string;
@@ -105,9 +115,10 @@ function applyAcceptedMove(args: {
       displayFen: string;
       solveIdx: number;
       status: ChessPuzzlePlayStatus;
+      endedAtMs: number | null;
     }
   | { error: HandleResult } {
-  const { chess, actual, tokens, idx } = args;
+  const { chess, actual, tokens, idx, ts } = args;
   const san = applyUciToChessSan(chess, actual);
   if (san === null) {
     return {
@@ -125,6 +136,7 @@ function applyAcceptedMove(args: {
       displayFen: chess.fen(),
       solveIdx: nextIdx,
       status: CHESS_PUZZLE_PLAY_STATUS.solved,
+      endedAtMs: ts,
     };
   }
   const reply = tokens[nextIdx];
@@ -137,25 +149,25 @@ function applyAcceptedMove(args: {
     };
   }
   nextIdx += 1;
-  const status =
-    nextIdx >= tokens.length
-      ? CHESS_PUZZLE_PLAY_STATUS.solved
-      : CHESS_PUZZLE_PLAY_STATUS.solving;
+  const solved = nextIdx >= tokens.length;
   return {
     uci: actual,
     san,
     displayFen: chess.fen(),
     solveIdx: nextIdx,
-    status,
+    status: solved
+      ? CHESS_PUZZLE_PLAY_STATUS.solved
+      : CHESS_PUZZLE_PLAY_STATUS.solving,
+    endedAtMs: solved ? ts : null,
   };
 }
 
 function handleSubmitMove(
   state: RoomState,
-  identity: string,
+  ctx: GameCommandContext,
   uci: string
 ): HandleResult {
-  if (!isHostOf(state, identity)) {
+  if (!isHostOf(state, ctx.identity)) {
     return unauthorized('only the puzzle host may submit moves');
   }
   const status = ChessPuzzlePlayAttr.status.from(state);
@@ -180,6 +192,7 @@ function handleSubmitMove(
     actual,
     tokens,
     idx,
+    ts: ctx.ts,
   });
   if ('error' in applied) return applied.error;
   return {
@@ -236,7 +249,7 @@ function handleWrongMove(args: {
 
 function handleStart(
   state: RoomState,
-  identity: string,
+  ctx: GameCommandContext,
   payload: { puzzleId: string; fen: string; moves: string }
 ): HandleResult {
   if (ChessPuzzlePlayAttr.hostIdentity.from(state) !== null) {
@@ -252,11 +265,12 @@ function handleStart(
           puzzleId,
           fen,
           moves,
-          hostIdentity: identity,
+          hostIdentity: ctx.identity,
           displayFen: null,
           orientation: 'white',
           status: CHESS_PUZZLE_PLAY_STATUS.invalid,
           solveIdx: 0,
+          startedAtMs: ctx.ts,
         }),
       ],
     };
@@ -268,11 +282,12 @@ function handleStart(
         puzzleId,
         fen,
         moves,
-        hostIdentity: identity,
+        hostIdentity: ctx.identity,
         displayFen: setup.displayFen,
         orientation: setup.orientation,
         status: setup.status,
         solveIdx: 1,
+        startedAtMs: ctx.ts,
       }),
     ],
   };
@@ -448,34 +463,41 @@ function handleReclaim(state: RoomState, identity: string): HandleResult {
 
 export const chessPuzzlePlayCommandRouter = createMessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
 >(chessPuzzlePlayCmdNs)
-  .on(StartChessPuzzlePlay, (state, identity, c) =>
-    handleStart(state, identity, c.payload)
+  .on(StartChessPuzzlePlay, (state, ctx, c) =>
+    handleStart(state, ctx, c.payload)
   )
-  .on(SubmitChessPuzzleMove, (state, identity, c) =>
-    handleSubmitMove(state, identity, c.payload.uci)
+  .on(SubmitChessPuzzleMove, (state, ctx, c) =>
+    handleSubmitMove(state, ctx, c.payload.uci)
   )
-  .on(ResetChessPuzzlePlay, (state, identity) => handleReset(state, identity))
-  .on(StepBackChessPuzzlePlay, (state, identity) =>
-    handleStepSeek(state, identity, 'back')
+  .on(ResetChessPuzzlePlay, (state, ctx) => handleReset(state, ctx.identity))
+  .on(StepBackChessPuzzlePlay, (state, ctx) =>
+    handleStepSeek(state, ctx.identity, 'back')
   )
-  .on(StepForwardChessPuzzlePlay, (state, identity) =>
-    handleStepSeek(state, identity, 'forward')
+  .on(StepForwardChessPuzzlePlay, (state, ctx) =>
+    handleStepSeek(state, ctx.identity, 'forward')
   )
-  .on(SeekChessPuzzlePlay, (state, identity, c) =>
-    handleSeek(state, identity, c.payload.solveIdx)
+  .on(SeekChessPuzzlePlay, (state, ctx, c) =>
+    handleSeek(state, ctx.identity, c.payload.solveIdx)
   )
-  .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
-  .on(RequestChessPuzzleHint, (state, identity) =>
-    handleRequestHint(state, identity)
+  .on(ClearChessPuzzlePlay, (state, ctx) => handleClear(state, ctx.identity))
+  .on(RequestChessPuzzleHint, (state, ctx) =>
+    handleRequestHint(state, ctx.identity)
   )
-  .on(RevealChessPuzzleSolution, (state, identity) =>
-    handleRevealSolution(state, identity)
+  .on(RevealChessPuzzleSolution, (state, ctx) =>
+    handleRevealSolution(state, ctx.identity)
   )
-  .on(ReclaimChessPuzzlePlay, (state, identity) =>
-    handleReclaim(state, identity)
+  .on(ReclaimChessPuzzlePlay, (state, ctx) =>
+    handleReclaim(state, ctx.identity)
+  )
+  .on(SkipChessPuzzlePlay, (state, ctx) => handleSkip(state, ctx))
+  .on(RecommendChessPuzzleMove, (state, ctx, c) =>
+    handleRecommend(state, ctx.identity, c.payload)
+  )
+  .on(ClearChessPuzzleRecommendation, (state, ctx) =>
+    handleClearRecommendation(state, ctx.identity)
   );
 
 export {

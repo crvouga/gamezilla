@@ -1,14 +1,21 @@
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { t } from '@lingui/core/macro';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
 import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
 import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
-import { SpeakingAvatar, useLayoutMode, useRouter } from '@pkgs/ui';
+import {
+  SpeakingAvatar,
+  SpectatorIndicator,
+  useLayoutMode,
+  useRouter,
+} from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
+import { ChessPuzzleClock } from './chess-puzzle-clock';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
@@ -16,6 +23,7 @@ import {
   type PuzzlePlayBoardChrome,
   PuzzlePlayLayout,
 } from './chess-puzzle-play-layout';
+import { ChessPuzzleRecommendationLegend } from './chess-puzzle-recommendation-legend';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import type { SolveStatus } from './use-chess-puzzle-solver';
@@ -42,14 +50,17 @@ function PuzzleBoardSlot(props: {
   size: number;
   displayFen: Accessor<string | null>;
   layoutKey: Accessor<number>;
+  recommendBump: Accessor<number>;
   orientation: Accessor<'white' | 'black'>;
   status: Accessor<SolveStatus>;
   atFrontier: Accessor<boolean>;
   opponentAnimating: Accessor<boolean>;
+  spectator: Accessor<boolean>;
   onMove: (m: Move) => void;
   cellFeedback: PuzzlePlayerChromeModel['cellFeedback'];
   cellHighlights: PuzzlePlayerChromeModel['cellHighlights'];
   arrows: PuzzlePlayerChromeModel['arrows'];
+  recommendationArrows: PuzzlePlayerChromeModel['recommendationArrows'];
 }): JSX.Element {
   return (
     <Show
@@ -60,7 +71,7 @@ function PuzzleBoardSlot(props: {
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}
-        fenSyncKey={props.layoutKey()}
+        fenSyncKey={props.layoutKey() + props.recommendBump()}
         orientation={props.orientation()}
         interactive={
           props.status() === 'solving' &&
@@ -73,9 +84,65 @@ function PuzzleBoardSlot(props: {
         highlightLegalMoves
         cellFeedback={props.cellFeedback()}
         cellHighlights={props.cellHighlights()}
-        arrows={props.arrows()}
+        arrows={[...props.arrows(), ...props.recommendationArrows()]}
       />
     </Show>
+  );
+}
+
+function PuzzlePlayerBoardSlot(props: {
+  size: number;
+  p: PuzzlePlayerChromeModel;
+}): JSX.Element {
+  const p = props.p;
+  return (
+    <PuzzleBoardSlot
+      size={props.size}
+      displayFen={p.displayFen}
+      layoutKey={p.layoutKey}
+      recommendBump={p.recommendBump}
+      orientation={p.orientation}
+      status={p.status}
+      atFrontier={p.atFrontier}
+      opponentAnimating={p.opponentAnimating}
+      spectator={p.isSpectator}
+      onMove={(m) => (p.isSpectator() ? p.onRecommendMove(m) : p.onMove(m))}
+      cellFeedback={p.cellFeedback}
+      cellHighlights={p.cellHighlights}
+      arrows={p.arrows}
+      recommendationArrows={p.recommendationArrows}
+    />
+  );
+}
+
+function PuzzlePlayerE2eHints(props: {
+  p: PuzzlePlayerChromeModel;
+}): JSX.Element {
+  const p = props.p;
+  const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
+  return (
+    <ChessPuzzleE2EHints
+      orientation={p.orientation}
+      status={p.status}
+      solveIdx={p.solveIdx}
+      moves={p.movesStr}
+      interactive={() =>
+        !p.isSpectator() &&
+        p.status() === 'solving' &&
+        p.atFrontier() &&
+        !p.opponentAnimating()
+      }
+      solutionUci={p.solutionUci}
+      expectedFromSquare={p.expectedFromSquare}
+      expectedToSquare={p.expectedToSquare}
+      hintStage={p.hintStage}
+      displayFen={p.displayFen}
+      spectating={p.isSpectator}
+      spaceRole={p.spaceRole}
+      statusKind={statusKind}
+      clockElapsedMs={p.clockElapsedMs}
+      recommendations={p.recommendationProbe}
+    />
   );
 }
 
@@ -84,35 +151,45 @@ function PuzzlePlayerChrome(props: {
   onFeedConfigApplied: () => void;
 }): JSX.Element {
   const p = props.model;
+  const myId = useMyId();
   const avatarSize = usePuzzleAvatarSize();
+  const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
       puzzleId={p.puzzleId()}
       puzzleRating={p.rating()}
+      spectator={p.isSpectator}
       assistant={
         <SpeakingAvatarAssistant
           assistant={p.assistant()}
-          header={<ChessPuzzleStatusHeader kind={p.statusKind()} />}
+          header={
+            <ChessPuzzleStatusHeader
+              kind={statusKind()}
+              sideToMove={p.orientation()}
+              trailing={
+                <>
+                  <ChessPuzzleClock elapsedMs={p.clockElapsedMs} />
+                  <Show when={p.isSpectator()}>
+                    <SpectatorIndicator />
+                  </Show>
+                </>
+              }
+            />
+          }
           numberOfLines={2}
           avatarSize={avatarSize()}
         />
       }
-      boardSlot={(size) => (
-        <PuzzleBoardSlot
-          size={size}
-          displayFen={p.displayFen}
-          layoutKey={p.layoutKey}
-          orientation={p.orientation}
-          status={p.status}
-          atFrontier={p.atFrontier}
-          opponentAnimating={p.opponentAnimating}
-          onMove={p.onMove}
-          cellFeedback={p.cellFeedback}
-          cellHighlights={p.cellHighlights}
-          arrows={p.arrows}
+      recommendationLegend={
+        <ChessPuzzleRecommendationLegend
+          entries={p.recommendationEntries}
+          colorFor={p.recommendationColorFor}
+          myId={myId()}
+          onClearMine={p.onClearMyRecommendation}
         />
-      )}
+      }
+      boardSlot={(size) => <PuzzlePlayerBoardSlot size={size} p={p} />}
       status={p.status}
       hintStage={p.hintStage}
       canGoBack={p.canGoBack}
@@ -122,25 +199,11 @@ function PuzzlePlayerChrome(props: {
       onBack={p.onBack}
       onForward={p.onForward}
       onRetry={p.onRetry}
+      onSkip={p.onSkip}
       onNext={p.onNext}
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={p.completion}
-      e2eHints={
-        <ChessPuzzleE2EHints
-          orientation={p.orientation}
-          status={p.status}
-          solveIdx={p.solveIdx}
-          moves={p.movesStr}
-          interactive={() =>
-            p.status() === 'solving' && p.atFrontier() && !p.opponentAnimating()
-          }
-          solutionUci={p.solutionUci}
-          expectedFromSquare={p.expectedFromSquare}
-          expectedToSquare={p.expectedToSquare}
-          hintStage={p.hintStage}
-          displayFen={p.displayFen}
-        />
-      }
+      e2eHints={<PuzzlePlayerE2eHints p={p} />}
     />
   );
 }
@@ -169,7 +232,6 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
     />
   );
 }
-
 type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
 type ShellBoardPickState = Exclude<ShellPickState, 'loading'>;
 
@@ -187,6 +249,8 @@ function shellCoachLine(state: ShellPickState): string {
       return t`You've used today's puzzles. Upgrade for unlimited play, or come back tomorrow.`;
     case 'empty':
       return t`You've cleared everything in your feed. Widen the filters and let's keep going.`;
+    case 'waiting':
+      return t`Waiting for the host to start a puzzle.`;
   }
 }
 
@@ -267,9 +331,11 @@ function PuzzlePlayShell(props: {
       onBack={noop}
       onForward={noop}
       onRetry={noop}
+      onSkip={noop}
       onNext={noop}
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={() => null}
+      spectator={() => false}
     />
   );
 }

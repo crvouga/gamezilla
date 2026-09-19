@@ -1,4 +1,5 @@
 import type { JSX } from 'solid-js';
+import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 
 const E2E_ENABLED =
   typeof process !== 'undefined' &&
@@ -8,6 +9,7 @@ export type ChessPuzzleE2ELoadingStatusProps = {
   myId: string;
   nextId: string | null;
   activePuzzleId: string | null;
+  pickState: PuzzlePickState;
   bandedCount: number;
   fallbackCount: number;
   poolReady: boolean;
@@ -16,8 +18,8 @@ export type ChessPuzzleE2ELoadingStatusProps = {
 
 function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
   return [
-    `myId=${props.myId.length > 0 ? 'set' : 'empty'}`,
     `pick=${props.nextId ?? 'null'}`,
+    `pickState=${props.pickState}`,
     `active=${props.activePuzzleId ?? 'null'}`,
     `banded=${String(props.bandedCount)}`,
     `fallback=${String(props.fallbackCount)}`,
