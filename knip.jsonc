@@ -43,11 +43,12 @@
       ]
     },
     "apps/client": {
+      "entry": ["src/main.tsx", "src/integration/*.test.ts", "vite.config.mts"]
+    },
+    "libs/billing": {
       "entry": [
-        "src/main.tsx",
-        "src/integration/*.test.ts",
-        "vite.config.mts",
-        "vitest.config.mts"
+        "src/use-cases/mock-provider/client/main.tsx",
+        "vite.mock-billing.config.mts"
       ]
     },
     "libs/object-store": {

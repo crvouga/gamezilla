@@ -18,6 +18,7 @@
       "!**/*.lock",
       "!apps/client/src/i18n/locales/*/messages.ts",
       "!pkgs/idp-google-sim/src/server/assets.generated.ts",
+      "!libs/billing/src/use-cases/mock-provider/server/mock-billing-assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
