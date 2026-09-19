@@ -24,11 +24,27 @@ function ids(
 }
 
 describe('buildChessPuzzleActionBarPlan', () => {
+  test('solving offers Show solution (§6); disabled while loading', () => {
+    const live = buildChessPuzzleActionBarPlan(input({ status: 'solving' }));
+    const solution = live.find((s) => s.id === 'solution');
+    expect(solution?.type === 'action' && solution.disabled).toBe(false);
+    const loading = buildChessPuzzleActionBarPlan(input({ status: 'loading' }));
+    const idle = loading.find((s) => s.id === 'solution');
+    expect(idle?.type === 'action' && idle.disabled).toBe(true);
+  });
+
+  test('revealed review: back + forward + next button + retry', () => {
+    const slots = buildChessPuzzleActionBarPlan(
+      input({ status: 'revealed', canGoBack: true, canGoForward: false })
+    );
+    expect(ids(slots)).toEqual(['back', 'forward', 'next', 'retry']);
+  });
+
   test('solving at frontier: hint + back + disabled forward', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: false })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'solution', 'skip']);
     const back = slots.find((s) => s.id === 'back');
     const forward = slots.find((s) => s.id === 'forward');
     expect(back?.type === 'action' && back.disabled).toBe(false);
@@ -39,7 +55,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'solution', 'skip']);
     const forward = slots.find((s) => s.id === 'forward');
     expect(forward?.type === 'action' && forward.disabled).toBe(false);
   });
@@ -48,7 +64,7 @@ describe('buildChessPuzzleActionBarPlan', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'loading', canGoBack: true, canGoForward: true })
     );
-    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'skip']);
+    expect(ids(slots)).toEqual(['hint', 'back', 'forward', 'solution', 'skip']);
     const hint = slots[0];
     const back = slots[1];
     const forward = slots[2];

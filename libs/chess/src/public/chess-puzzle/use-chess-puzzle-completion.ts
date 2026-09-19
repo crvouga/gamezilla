@@ -22,7 +22,13 @@ export function useChessPuzzleCompletion(args: {
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
 }): Accessor<PuzzleCompletion | null> {
   return createMemo(() => {
-    if (args.status() !== CHESS_PUZZLE_PLAY_STATUS.solved) return null;
+    const status = args.status();
+    if (
+      status !== CHESS_PUZZLE_PLAY_STATUS.solved &&
+      status !== CHESS_PUZZLE_PLAY_STATUS.revealed
+    ) {
+      return null;
+    }
     return derivePuzzleCompletion({
       interactions: args.interactions(),
       puzzleId: args.puzzleId(),

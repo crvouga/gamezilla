@@ -8,8 +8,11 @@ import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
  *
  * - `idle`: no puzzle in play (default; also after `ClearChessPuzzlePlay`).
  * - `solving`: puzzle started, awaiting host's next move.
- * - `wrong`: host's last move did not match the solution; awaiting retry.
+ * - `wrong`: host's last move did not match the solution; the piece went
+ *   back (the board still shows the position before it); awaiting retry.
  * - `solved`: solution complete.
+ * - `revealed`: the host asked to see the solution; the rest of the line was
+ *   played out and the attempt is in review (terminal, step back / forward).
  * - `skipped`: host moved on without solving; terminal until cleared.
  * - `invalid`: puzzle FEN / moves payload could not be parsed or applied.
  */
@@ -18,6 +21,7 @@ export const CHESS_PUZZLE_PLAY_STATUS = {
   solving: 'solving',
   wrong: 'wrong',
   solved: 'solved',
+  revealed: 'revealed',
   skipped: 'skipped',
   invalid: 'invalid',
 } as const;
@@ -77,7 +81,8 @@ export const ChessPuzzlePlayAttr = {
     readNullableNonNegativeInteger
   ),
   /**
-   * Server commit time (ms) of the terminal event (`solved` / `skipped`).
+   * Server commit time (ms) of the terminal event (`solved` / `revealed` /
+   * `skipped`).
    * `null` while the attempt is still running.
    */
   endedAtMs: playNs.integerOrNull(
@@ -86,7 +91,11 @@ export const ChessPuzzlePlayAttr = {
   ),
   /** Initial FEN of the puzzle (before the opponent's first move). */
   fen: playNs.text('fen', readString),
-  /** Space-separated UCI tokens of the full solution line (incl. opponent's first move). */
+  /**
+   * Space-separated UCI tokens of the line being followed (incl. the
+   * opponent's first move). Starts as the stored solution; an accepted
+   * alternative mate or transposition rewrites it to what was played.
+   */
   moves: playNs.text('moves', readString),
   status: playNs.enum(
     'status',
@@ -95,6 +104,7 @@ export const ChessPuzzlePlayAttr = {
       CHESS_PUZZLE_PLAY_STATUS.solving,
       CHESS_PUZZLE_PLAY_STATUS.wrong,
       CHESS_PUZZLE_PLAY_STATUS.solved,
+      CHESS_PUZZLE_PLAY_STATUS.revealed,
       CHESS_PUZZLE_PLAY_STATUS.skipped,
       CHESS_PUZZLE_PLAY_STATUS.invalid,
     ] as const,
@@ -113,16 +123,6 @@ export const ChessPuzzlePlayAttr = {
   ),
   /** FEN currently rendered on the board (after applied moves). */
   displayFen: playNs.textOrNull('display-fen', readNullableNonEmptyString),
-  /**
-   * FEN that was rendered immediately before the last wrong move. Set
-   * alongside `displayFen` when a wrong move is applied so `Retry` can
-   * revert just that move (instead of resetting to the puzzle start).
-   * Cleared on every other state transition.
-   */
-  previousDisplayFen: playNs.textOrNull(
-    'previous-display-fen',
-    readNullableNonEmptyString
-  ),
   /** Side the host is sitting on; fixed for the session. */
   orientation: playNs.enum(
     'orientation',

@@ -248,5 +248,18 @@ export function sideToMoveOf(fen: string): Color {
   return parts[1] === 'b' ? 'b' : 'w';
 }
 
+/**
+ * FEN fields 1–4 (placement, side to move, castling, en passant): what makes
+ * two positions the same position, whatever their move clocks say.
+ */
+export function positionPartOf(fen: string): string {
+  return fen.trim().split(/\s+/).slice(0, 4).join(' ');
+}
+
+/** True when both FENs describe the same position (fields 1–4 equal). */
+export function isSamePosition(a: string, b: string): boolean {
+  return positionPartOf(a) === positionPartOf(b);
+}
+
 export const START_FEN =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';

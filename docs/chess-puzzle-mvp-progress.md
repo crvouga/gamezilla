@@ -9,8 +9,8 @@ hash is the slice commit. Assumptions: [`overnight-decisions.md`](overnight-deci
 | - | ----- | ---- | ------ | ------ |
 | 1 | Rules core + perft | §1 P0, §35 perft/round-trip | done | 4ef94c80b |
 | 2 | Permission layer, permissive baseline | §22.1–22.7 P0, §22.11 P0, §35 permission tests | done | 5aed447b3 |
-| 3 | Lichess ingest + validation | §4 P0, §23 P0, §35 DB validation | pending | |
-| 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | pending | |
+| 3 | Lichess ingest + validation | §4 P0, §23 P0, §35 DB validation | done | 21d7588fc |
+| 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | done | |
 | 5 | Rating mutator (Glicko-2) | §8 P0 | pending | |
 | 6 | Selection | §9 P0, §10.1/10.2 P0 | pending | |
 | 7 | Review | §7 P0 | pending | |
@@ -111,3 +111,54 @@ validator: `@libs/chess/public/puzzle-data`. Ingest: `root/server/seed-chess-puz
 - [x] §34 En passant as the solution; en passant illegal due to a pin — `validate-puzzle.test.ts`
 - [x] §34 Promotion / underpromotion / capture-promotion lines — `validate-puzzle.test.ts` (solve-time input is slice 4)
 - [x] §34 Puzzle where solver is Black: orientation flipped — `chess-puzzle-ingest.test.tsx`
+
+### Slice 4 — Solve flow (§5, §6, §3)
+
+Room FSM: `libs/chess/src/shared/chess/` (`chess-puzzle-move-judge.ts`,
+`-play-router.ts`, `-play-reducer.ts`, `-play-terminal-handlers.ts`,
+`-opponent-stage.ts`). Outcome model: `chess-puzzle-derive.ts` /
+`-rating.ts` / `-interaction-entities.ts` + `public/chess-puzzle/`
+(`use-chess-puzzle-interaction-recorder.ts`,
+`chess-puzzle-interaction-status-sync.ts`). Primitives extended:
+`@pkgs/chess-rules` (`castlingFromRookInput`, `castlingRookTargets`,
+`isSamePosition`), `@pkgs/chess-board-core` (king-onto-rook castling),
+`@pkgs/device` + `ClientEnv` (haptics port), `@pkgs/ui` Combobox
+(`doneDataSet`), `@apps/product` sim runtime (`restartActor`). Tests:
+`bun run --filter @pkgs/chess-rules test`,
+`bun run --filter @pkgs/chess-board-core test`,
+`bun run --filter @libs/chess test` (`tests/puzzle-session/move-judge.test.ts`,
+`outcome.test.ts`, `opponent-stager.test.ts`, `action-bar-plan.test.ts`),
+product sims `apps/product/tests/chess-puzzle-solve-flow.test.tsx` +
+`chess-puzzle-solve-session.test.tsx` (both in `test:chess`). Fixtures:
+`apps/product/fixtures/chess-puzzles-motifs.sim.csv` (validated by the §35
+job test). Decisions D36–D48.
+
+- [x] §5 Next puzzle already in memory when the previous ends (prefetch) — local-pool pick (`useNextPuzzleId`); the pick-status probe carries the next id before the current resolves, and Next transitions with the network partitioned (`chess-puzzle-solve-session.test.tsx`)
+- [x] §5 Pre-setup position, ~500 ms pause, then the opponent's setup move animates with last-move highlight — `PUZZLE_OPENING_PREVIEW_MS` + opponent stager (`opponent-stager.test.ts`); the served board shows the setup move played (`chess-puzzle-solve-flow.test.tsx`)
+- [x] §5 Orientation set before first paint (no visible flip) — solver renders nothing until the room holds this puzzle (`use-chess-puzzle-solver.ts`); orientation asserted for a White- and a Black-solver puzzle
+- [x] §5 Prompt "Your turn — find the best move for White/Black" — `ChessPuzzleStatusHeader`; asserted for both colours
+- [x] §5 Compare the user move after normalizing castling notation and promotion piece — `judgePuzzleMove` (`move-judge.test.ts`); castling entered both ways and an underpromotion vs queen in the sims
+- [x] §5 Correct + line continues → opponent reply auto-plays after ~400 ms, input re-enabled — `PUZZLE_REPLY_PREVIEW_MS` (`opponent-stager.test.ts`, product clean-solve scenario)
+- [x] §5 Correct final move → success state, sound, haptic, result panel — `usePuzzleStatusFeedback` + `useHaptics` + summary card (haptics asserted in the sim)
+- [x] §5 Final-move mate rule: any checkmating move counts — `judgePuzzleMove` `via: 'mate'`; sim plays the other mate
+- [x] §5 Wrong move → red feedback, the piece returns, the puzzle is marked failed once, rating updates immediately — D36/D37; `failed` row written on the transition (`chess-puzzle-solve-flow.test.tsx`, `chess-puzzle-stats.test.tsx`)
+- [x] §5 Rating is affected only by the first outcome — one outcome row per play + projection guard (`outcome.test.ts`); retry-then-solve keeps the loss (`chess-puzzle-controls.test.tsx`)
+- [x] §5 Result panel: solved/failed, animated rating delta, new rating — `ChessPuzzleCelebrationOverlay` (titles per outcome, existing Elo animation)
+- [x] §5 Primary CTA "Next puzzle" + auto-advance setting (off / after 1 s / immediately) — summary CTA (`chess-puzzle-summary-next`) and the feed-settings segment (D42); auto-advance scenario in `chess-puzzle-solve-session.test.tsx`
+- [x] §5 Leaving mid-puzzle: the puzzle stays pending and is restored (no free skip, no silent fail) — D41; leave/return and app-kill scenarios
+- [x] §6 "Show solution" plays the remaining line then enters review; counts as a fail if unresolved — `ShowChessPuzzleSolution` → `revealed` (D40); `chess-puzzle-solve-flow.test.tsx`
+- [x] §3 Only the side to move is interactive; input locked during the opponent animation and after the puzzle ends — board `interactive` gate (`opponentAnimating`, D47); opponent-piece drag ignored, locked in `wrong` and after the end
+- [x] §3 Promotion picker, never auto-queen in puzzles — `autoPromoteQueen={false}`; picker asserted for a White and a Black solver
+- [x] §3 Castling accepted via king-two-squares and king-onto-own-rook — kernel + board input (D44); both entered in the sim
+- [x] §3 Drop on an illegal square snaps back: no penalty, no wrong move — router rejects with `invalidCommand`; asserted with the interaction log unchanged
+- [x] §34 Underpromotion is the solution (auto-queen ignored) / promotion with capture / promotion mate across piece choice — motif fixtures `solveUP1`, `solveCAP1`
+- [x] §34 En passant as the solution — `solveEP1`
+- [x] §34 Castling as the solution, entered as king-takes-rook — `solveCAS1`
+- [x] §34 Final move has multiple mates; a non-final faster mate ends the puzzle as solved — `solveMM1`, `solveFM1`
+- [x] §34 A move that transposes to the stored line is accepted — `solveTR1` (D38)
+- [x] §34 Solver is Black: orientation, prompt and promotion picker follow — `solveBP1`
+- [x] §34 King in check at puzzle start — `solveCK1`
+- [x] §34 Tapping "Next" twice quickly advances exactly one puzzle — one-advance latch (`use-puzzle-player-handlers.ts`); `chess-puzzle-solve-session.test.tsx`
+- [x] §34 App killed mid-puzzle — `restartApp` scenario: same puzzle restored pending, no outcome, no second start or quota consume
+- [x] §35 Solve-flow tests: correct path, wrong path, alt-mate acceptance, promotion variants, castling input variants — `move-judge.test.ts` + the product scenarios above
+- [ ] §5 P1 rows (header rating/timer, themes hidden until the end, progress dots, soft-fail, session summary) and §6 P1 progressive-hint extensions — out of this slice; existing hint behaviour kept working

@@ -3,8 +3,11 @@ import type { MutationClient } from '@pkgs/sync-engine/client';
 import type { CreateId } from '@pkgs/uuid';
 import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation';
 import { upsertPuzzleProfileMutation } from '../../use-cases/upsert-puzzle-profile/shared/upsert-puzzle-profile-mutation';
-import { isPlayClosed } from '../chess-puzzle-derive';
-import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
+import { hasPlayOutcome } from '../chess-puzzle-derive';
+import type {
+  ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
+} from '../chess-puzzle-interaction-entities';
 import {
   PUZZLE_PROFILE_RD_STUB,
   projectPuzzleEloFromInteractions,
@@ -59,8 +62,9 @@ export class ChessPuzzleInteractionDb {
   }
 
   /**
-   * Append terminal attempt fact, then upsert profile cache from a full
-   * history Elo fold (formula is the source of truth).
+   * Append the play's rated outcome (at most once per play), then upsert the
+   * profile cache from a full-history Elo fold (formula is the source of
+   * truth).
    */
   async finalizePlayWithProfile(args: {
     ownerId: string;
@@ -69,10 +73,10 @@ export class ChessPuzzleInteractionDb {
     solveIdx: number;
     interactions: readonly ChessPuzzleInteractionRow[];
     allInteractions: readonly ChessPuzzleInteractionRow[];
-    terminalKind: 'solved' | 'abandoned';
+    terminalKind: ChessPuzzleOutcomeKind;
     clock: Clock;
   }): Promise<void> {
-    if (isPlayClosed(args.interactions, args.puzzleId)) return;
+    if (hasPlayOutcome(args.interactions, args.puzzleId)) return;
     const at = nowIso(args.clock);
     const terminal: ChessPuzzleInteractionRow = {
       puzzleId: args.puzzleId,

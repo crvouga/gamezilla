@@ -1,5 +1,8 @@
 import { deriveCurrentStreak } from './chess-puzzle-derive';
-import type { ChessPuzzleInteractionRow } from './chess-puzzle-interaction-entities';
+import type {
+  ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
+} from './chess-puzzle-interaction-entities';
 import {
   type ProjectedPuzzleEloEntry,
   PUZZLE_ELO_DEFAULT,
@@ -19,7 +22,7 @@ export type ChessPuzzleStats = {
 export type ChessPuzzleGameLogEntry = {
   readonly puzzleId: string;
   readonly puzzleRating: number;
-  readonly outcome: 'solved' | 'abandoned';
+  readonly outcome: ChessPuzzleOutcomeKind;
   readonly ratingBefore: number;
   readonly ratingAfter: number;
   readonly delta: number;

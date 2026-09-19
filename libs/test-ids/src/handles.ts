@@ -149,6 +149,8 @@ export const Handles = {
   /** Feed bar: history filter label (Any / Unseen / Seen / Failed). */
   chessPuzzleFeedHistoryLabel: 'chess-puzzle-feed-history-label',
   chessPuzzleFeedThemeTrigger: 'chess-puzzle-feed-theme-trigger',
+  chessPuzzleFeedThemeSearch: 'chess-puzzle-feed-theme-search',
+  chessPuzzleFeedThemeDone: 'chess-puzzle-feed-theme-done',
   chessPuzzleFeedThemeOption: (theme: string) =>
     `chess-puzzle-feed-theme-${theme}`,
   /** Feed settings modal parts. Segment ids are `<group>-<key>`. */
@@ -157,6 +159,9 @@ export const Handles = {
   chessPuzzleFeedHistorySegment: (
     filter: 'any' | 'neverSeen' | 'seen' | 'failed'
   ) => `chess-puzzle-feed-history-${filter}`,
+  chessPuzzleFeedAutoAdvanceSegment: (
+    setting: 'off' | 'after1s' | 'immediate'
+  ) => `chess-puzzle-feed-auto-advance-${setting}`,
   chessPuzzleFeedOffsetIncrease: 'chess-puzzle-feed-offset-increase',
   chessPuzzleFeedOffsetDecrease: 'chess-puzzle-feed-offset-decrease',
   chessPuzzleFeedOffsetValue: 'chess-puzzle-feed-offset-value',
@@ -179,6 +184,8 @@ export const Handles = {
   chessPuzzleActionForward: 'chess-puzzle-action-forward',
   chessPuzzleActionSkip: 'chess-puzzle-action-skip',
   chessPuzzleClock: 'chess-puzzle-clock',
+  chessPuzzleStatusLabel: 'chess-puzzle-status-label',
+  chessPuzzleSummaryNext: 'chess-puzzle-summary-next',
   chessPuzzleRecommendationLegend: 'chess-puzzle-recommendation-legend',
   chessPuzzleRecommendationClear: 'chess-puzzle-recommendation-clear',
   chessPuzzleWaitingForHost: 'chess-puzzle-waiting-for-host',

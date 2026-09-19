@@ -21,7 +21,6 @@ type ControlsArgs = {
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
-  appendAbandoned: () => Promise<void>;
   onRequestNext: () => void;
 };
 
@@ -47,6 +46,7 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
   });
   const hintStage = createMemo(() =>
     hintStageFromRoom({
+      status: args.status(),
       expectedFromSquare: args.expectedFromSquare(),
       solutionRevealed: args.solutionRevealed(),
     })
@@ -60,12 +60,12 @@ export function usePuzzlePlayerControls(args: ControlsArgs): {
     })
   );
   const handlers = usePuzzlePlayerHandlers({
+    puzzleId: args.puzzleId,
     status: args.status,
     hintStage,
     onMoveRaw: args.onMoveRaw,
     setLastUci: args.setLastUci,
     appendUsedHint: args.appendUsedHint,
-    appendAbandoned: args.appendAbandoned,
     onRequestNext: args.onRequestNext,
   });
   return {

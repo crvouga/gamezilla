@@ -1,11 +1,14 @@
 import { describe, expect, test } from 'bun:test';
 import {
   applyUci,
+  castlingFromRookInput,
+  castlingRookTargets,
   legalMoves,
   positionStatus,
   sanFromUci,
   uciFromSan,
 } from '@pkgs/chess-rules/moves';
+import { Chess } from 'chess.js';
 
 function legal(fen: string, uci: string): boolean {
   return applyUci(fen, uci).ok;
@@ -32,6 +35,28 @@ describe('castling', () => {
     expect(kingside.ok && kingside.uci).toBe('e1g1');
     expect(queenside.ok && queenside.uci).toBe('e1c1');
     expect(applyUci(played(bothSides, 'a1b1'), 'e8h8').ok).toBe(true);
+  });
+
+  test('board input helpers: rook targets and the castle they stand for', () => {
+    const chess = new Chess(bothSides);
+    expect([...castlingRookTargets(chess, 'e1')].sort()).toEqual(['a1', 'h1']);
+    expect(castlingRookTargets(chess, 'a1')).toEqual([]);
+    expect(castlingFromRookInput(chess, { from: 'e1', to: 'h1' })).toEqual({
+      from: 'e1',
+      to: 'g1',
+    });
+    expect(castlingFromRookInput(chess, { from: 'e1', to: 'a1' })).toEqual({
+      from: 'e1',
+      to: 'c1',
+    });
+    expect(castlingFromRookInput(chess, { from: 'e1', to: 'f1' })).toBeNull();
+    const noRights = new Chess('r3k2r/8/8/8/8/8/8/R3K2R w kq - 0 1');
+    expect(castlingRookTargets(noRights, 'e1')).toEqual([]);
+    expect(
+      castlingFromRookInput(noRights, { from: 'e1', to: 'h1' })
+    ).toBeNull();
+    const black = new Chess('r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1');
+    expect([...castlingRookTargets(black, 'e8')].sort()).toEqual(['a8', 'h8']);
   });
 
   test('rights are tracked', () => {

@@ -101,10 +101,12 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
 
   const totalTokens = createMemo(() => countMoveTokens(room.roomMoves()));
 
+  // Nothing paints until the room holds this puzzle: a previous puzzle's
+  // position (and orientation) never flashes first (§5 no visible flip).
   const opponentInput = createMemo(() => ({
     startFen: room.startFen(),
     moves: room.roomMoves(),
-    displayFen: room.displayFen(),
+    displayFen: status() === 'loading' ? null : room.displayFen(),
     solveIdx: room.solveIdx(),
     furthestSolveIdx: room.furthestSolveIdx(),
     status: status(),

@@ -299,3 +299,104 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   in the affected set only because `bun.lock` changed, this slice touches no
   `libs/tools` file, and it passed on retry when the load dipped; the test was
   left unchanged. Final gate: 392/392 tasks, exit 0.
+
+## Slice 4 — Solve flow (§5, §6, §3)
+
+- **D36 — A wrong move is never applied.** §5 allows "piece returns (or
+  stays briefly then reverts)". The room now rejects the ply without
+  changing `displayFen`: the board bumps `layoutKey`, so the dragged piece
+  snaps back to where it started and the from/to squares flash red. The
+  `previousDisplayFen` attr existed only to undo the applied wrong move and
+  was deleted (Retry keeps `displayFen` / `solveIdx`).
+- **D37 — The rated outcome is one interaction row, written once.** New
+  interaction kind `failed` joins `solved` / `abandoned` as an *outcome*
+  row; a play has at most one, and it is the first one (§5 "rating is
+  affected only by the first outcome"). First wrong move → `failed`
+  immediately (rating updates at once through the existing projection);
+  "Show solution" before resolution → `failed`; a clean or hinted solve →
+  `solved`; Skip → `abandoned`. A solve after a fail writes no row at all,
+  so the game log / result panel keep showing the loss. Guards: an in-memory
+  latch keyed by the room attempt (`puzzleId|startedAtMs`), the synced log
+  (`hasPlayOutcome`), and `projectPuzzleEloFromInteractions`, which folds
+  only the first outcome of each play even if history ever holds two.
+- **D38 — Acceptance beyond the stored move.** `judgePuzzleMove`
+  (`@libs/chess/public/chess-puzzle-move-judge`, pure, kernel-backed)
+  accepts: the expected move in canonical UCI (castling entered as
+  king-onto-rook and the promotion piece both normalize through
+  `@pkgs/chess-rules`), **any checkmating move** on any ply (§34: an
+  alternative or faster mate ends the puzzle as solved — the room's line is
+  rewritten to what was played), and a **transposition**, read as the
+  solver's next line move played one turn early when the opponent's reply
+  stays legal and the pair reaches the same position (FEN fields 1–4, new
+  kernel helper `isSamePosition`). A single ply can never reach the expected
+  move's position by another route, so the one-ply reading of §34 is the
+  order swap. Everything else legal is `wrong`; anything illegal is no move
+  at all (snap back, no penalty).
+- **D39 — Timings.** Opening pause 500 ms (§5: 400–600), opponent reply
+  400 ms (§5: 300–500), shown solution 600 ms per ply, all on the injected
+  `Timers` in the opponent stager. Input stays locked for the hold plus the
+  piece slide.
+- **D40 — "Show solution" is a room transition, not the hint arrow.** New
+  command `ShowChessPuzzleSolution` → event `ChessPuzzleSolutionShown` →
+  new terminal status `revealed`: the room jumps to the end of the line, the
+  stager plays the remaining plies out, and the attempt is in review
+  (scrub back / forward, Next, Retry; the board is not interactive). The
+  pre-existing `RevealChessPuzzleSolution` arrow stays the second step of
+  the P1 progressive hint, so the hint tests are unchanged.
+- **D41 — Leaving keeps the attempt pending (§5).** Back / Next no longer
+  abandon; `appendAbandoned` and the abandon-on-leave path were deleted.
+  Leaving keeps the room's puzzle (it is only cleared when the attempt is
+  finished), and the play screen re-places the room's puzzle on return
+  without arming a new start (no second quota consume, no second `started`
+  row — `hasPendingPlay` also suppresses the restored attempt's `started`).
+  Skip stays the one explicit forfeit. Consequence: the stats scenario that
+  read "Abandoned" after a wrong move + leave now reads "Failed" (the wrong
+  move is the loss), and the controls scenario "wrong → Retry → solve" logs
+  Failed, not Solved.
+- **D42 — Auto-advance lives in the feed prefs for now.** Slice 11 owns the
+  settings screen, so `off / after 1 s / immediately` is a field on the
+  device-local puzzle-feed config with a segment in the feed settings modal.
+  It is deliberately left out of `chessPuzzleFeedConfigFingerprint`, so
+  changing it does not re-pick the puzzle on the board. It fires only on a
+  live solve (`solving → solved`) through the injected `Timers`.
+- **D43 — Haptics became an injected port.** §5 asks for a haptic on the
+  success state. `HapticsPort` already existed in `@pkgs/device` but was
+  wired nowhere; it is now on `ClientEnv` exactly like the clipboard
+  (`wallWebHaptics` in the browser root, `createRecordingHaptics` in every
+  sim env) with a `HapticsProvider` / `useHaptics` Solid binding. The puzzle
+  feedback hook fires `success` on a solve and `error` on a wrong move, and
+  scenarios read the recorded calls.
+- **D44 — Board input primitives.** `@pkgs/chess-rules/moves` gained
+  `castlingFromRookInput` / `castlingRookTargets`; `@pkgs/chess-board-core`
+  uses them so a king dropped (or tapped) onto its own rook castles and the
+  rook square is listed as a legal target. The puzzle board passes
+  `autoPromoteQueen={false}` explicitly — §3 forbids silent auto-queening in
+  puzzles whatever a future setting says.
+- **D45 — Theme filter SQL.** The feed's theme filter had never been
+  exercised: SQLite does not resolve an outer column inside a subquery's
+  table-valued function, so `EXISTS (SELECT 1 FROM json_each(themes) …)`
+  failed with "no such column: themes" on every client read. The local
+  condition is now `instr(themes, '"<theme>"') > 0` per selected theme,
+  which is exact because the ids are quoted in the synced JSON array.
+- **D46 — Motif fixtures are their own file.** The three-puzzle Node sim
+  fixture is exhausted exactly by other scenarios (D34), so the nine
+  hand-built motif puzzles (underpromotion, capture-promotion mate, en
+  passant, castling, two mates on the last ply, a faster mate mid-line,
+  transposition, a Black-solver promotion and a check at the start) live in
+  `apps/product/fixtures/chess-puzzles-motifs.sim.csv`, are ingested by the
+  scenario through the real load-file seeder, and are validated by the §35
+  job test. Each row carries one otherwise-unused Lichess theme, so the
+  feed's theme filter serves exactly the puzzle a scenario is about — a real
+  user path, not a test-only selector.
+- **D47 — Where the millisecond assertions live.** The sim's UI wait pump
+  fast-forwards virtual time to the next due timer, so a product-level
+  assertion "the board is still locked 200 ms in" races the pump. The exact
+  frames and lock windows are asserted in the stager's seeded unit test
+  (manual timers), and the product scenarios assert what cannot race: the
+  setup move has played before the solver may move, the reply plays by
+  itself, and the board is locked in `wrong` and after the attempt ends.
+- **D48 — Combobox `doneDataSet` / theme search.** Selecting a feed theme
+  from a scenario needs the virtualized combobox to render the row, so
+  `selectFeedTheme` searches by label first and then closes the picker
+  through the multi-select footer, which now takes a `doneDataSet`
+  identifier like every other addressable control.

@@ -54,7 +54,9 @@ describe('chess puzzle stats', () => {
     await s.apply(openPuzzleReview, 'alice', puzzleId);
   });
 
-  test('leaving mid-attempt forfeits it: Abandoned row and Elo drop', async () => {
+  // §5: the wrong move itself is the loss (recorded once, rating drops at
+  // once); leaving afterwards adds nothing.
+  test('a wrong move drops Elo and logs a Failed row', async () => {
     await using s = await openSim('chess-puzzle-stats-abandon');
     await enterPuzzle(s);
     const puzzleId = required(
@@ -69,6 +71,6 @@ describe('chess puzzle stats', () => {
     const elo = required(await s.read(readStatsElo, 'alice'), 'stats elo');
     expect(elo).toBeLessThan(DEFAULT_ELO);
     const title = await s.read(readGameLogRowTitle, 'alice', puzzleId);
-    expect(title).toMatch(/^Abandoned/);
+    expect(title).toMatch(/^Failed/);
   });
 });

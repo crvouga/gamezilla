@@ -24,6 +24,7 @@ export function chessPuzzleStatusKindFromState(args: {
     case 'solving':
       return 'started';
     case 'wrong':
+    case 'revealed':
       return 'failed';
     case 'skipped':
       return 'skipped';

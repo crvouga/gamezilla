@@ -22,6 +22,7 @@ import {
   ChessPuzzlePlayStepped,
   ChessPuzzleRecommendationCleared,
   ChessPuzzleSolutionRevealed,
+  ChessPuzzleSolutionShown,
   chessPuzzlePlayEvtNs,
 } from './chess-puzzle-play-messages';
 
@@ -39,7 +40,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.moves(p.moves),
       ...ChessPuzzlePlayAttr.hostIdentity(p.hostIdentity),
       ...ChessPuzzlePlayAttr.displayFen(p.displayFen),
-      ...ChessPuzzlePlayAttr.previousDisplayFen(null),
       ...ChessPuzzlePlayAttr.orientation(p.orientation),
       ...ChessPuzzlePlayAttr.status(p.status),
       ...ChessPuzzlePlayAttr.solveIdx(p.solveIdx),
@@ -60,8 +60,8 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     const nextFurthest = Math.max(prevFurthest, ev.payload.solveIdx);
     return {
       ...state,
+      ...ChessPuzzlePlayAttr.moves(ev.payload.moves),
       ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-      ...ChessPuzzlePlayAttr.previousDisplayFen(null),
       ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
       ...ChessPuzzlePlayAttr.furthestSolveIdx(nextFurthest),
       ...ChessPuzzlePlayAttr.status(ev.payload.status),
@@ -75,10 +75,10 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.recommendations({}),
     };
   })
+  // The wrong move is never applied: the display stays put, so the dragged
+  // piece snaps back (layoutKey remounts the board on the same FEN).
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
     ...state,
-    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(ev.payload.previousDisplayFen),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
     ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
@@ -90,7 +90,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   .on(ChessPuzzlePlayResetEvt, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.furthestSolveIdx(ev.payload.furthestSolveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
@@ -104,7 +103,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   .on(ChessPuzzlePlayStepped, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
@@ -113,6 +111,20 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
     ...ChessPuzzlePlayAttr.solutionRevealed(0),
+  }))
+  .on(ChessPuzzleSolutionShown, (state, _ctx, ev) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
+    ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
+    ...ChessPuzzlePlayAttr.furthestSolveIdx(ev.payload.solveIdx),
+    ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.revealed),
+    ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
+    ...ChessPuzzlePlayAttr.recommendations({}),
   }))
   .on(ChessPuzzlePlaySkipped, (state, _ctx, ev) => ({
     ...state,
@@ -168,7 +180,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.moves(''),
     ...ChessPuzzlePlayAttr.hostIdentity(null),
     ...ChessPuzzlePlayAttr.displayFen(null),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.orientation('white'),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),
@@ -192,7 +203,6 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.moves(''),
     ...ChessPuzzlePlayAttr.hostIdentity(null),
     ...ChessPuzzlePlayAttr.displayFen(null),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.orientation('white'),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),

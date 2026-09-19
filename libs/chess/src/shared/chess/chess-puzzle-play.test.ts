@@ -214,7 +214,7 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(4);
   });
 
-  test('wrong move applies the move, flips to wrong, captures previous fen', () => {
+  test('wrong move is not applied (the piece returns) and flips to wrong', () => {
     let state = startValid(ChessModule.initialState());
     const before = ChessPuzzlePlayAttr.layoutKey.from(state);
     const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
@@ -235,10 +235,8 @@ describe('chess puzzle play FSM — Submit', () => {
       CHESS_PUZZLE_PLAY_STATUS.wrong
     );
     expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
-    // Board now reflects the wrong move so the player can see what they did.
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).not.toBe(beforeFen);
-    // Pre-move fen is captured so Retry can revert just that ply.
-    expect(ChessPuzzlePlayAttr.previousDisplayFen.from(state)).toBe(beforeFen);
+    // §5: the piece returns — the board keeps the position it moved from.
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
     expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('h1');
     expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('h2');
@@ -463,7 +461,6 @@ describe('chess puzzle play FSM — Reset', () => {
       fenAfterFirstCorrect
     );
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-    expect(ChessPuzzlePlayAttr.previousDisplayFen.from(state)).toBeNull();
   });
 
   test('host reset returns to post-opening state and bumps layoutKey', () => {

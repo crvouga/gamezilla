@@ -7,6 +7,7 @@ import type { Accessor } from 'solid-js';
 import type {
   ChessPuzzleInteractionKind,
   ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
 } from '../chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
 
@@ -27,7 +28,7 @@ export function useChessPuzzleInteractionWrites(args: {
     kind: ChessPuzzleInteractionKind,
     extra?: AppendExtra
   ) => Promise<void>;
-  finalizePlay: (terminalKind: 'solved' | 'abandoned') => Promise<void>;
+  finalizePlay: (terminalKind: ChessPuzzleOutcomeKind) => Promise<void>;
 } {
   const myId = useMyId();
   const mutationClient = useMutationClient();
@@ -52,7 +53,7 @@ export function useChessPuzzleInteractionWrites(args: {
   };
 
   const finalizePlay = async (
-    terminalKind: 'solved' | 'abandoned'
+    terminalKind: ChessPuzzleOutcomeKind
   ): Promise<void> => {
     if (myId().length === 0) return;
     await interactionDb.finalizePlayWithProfile({

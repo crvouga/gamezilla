@@ -1,15 +1,15 @@
 import {
   deriveCurrentStreak,
+  playOutcome,
   sliceCurrentPlay,
 } from '../chess/chess-puzzle-derive';
-import {
-  CHESS_PUZZLE_INTERACTION_KIND,
-  type ChessPuzzleInteractionKind,
-  type ChessPuzzleInteractionRow,
+import type {
+  ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
 } from '../chess/chess-puzzle-interaction-entities';
 import { projectPuzzleEloFromInteractions } from '../chess/chess-puzzle-rating';
 
-export type PuzzleCompletionOutcome = 'solved' | 'abandoned';
+export type PuzzleCompletionOutcome = ChessPuzzleOutcomeKind;
 
 export type PuzzleCompletion = {
   readonly outcome: PuzzleCompletionOutcome;
@@ -19,23 +19,6 @@ export type PuzzleCompletion = {
   readonly streak: number;
   readonly puzzleRating: number;
 };
-
-function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
-  return (
-    kind === CHESS_PUZZLE_INTERACTION_KIND.solved ||
-    kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned
-  );
-}
-
-function terminalFromPlay(
-  play: readonly ChessPuzzleInteractionRow[]
-): ChessPuzzleInteractionRow | null {
-  for (let i = play.length - 1; i >= 0; i -= 1) {
-    const row = play[i];
-    if (row !== undefined && isTerminalKind(row.kind)) return row;
-  }
-  return null;
-}
 
 function interactionKey(row: ChessPuzzleInteractionRow): string {
   return `${row.puzzleId}|${row.kind}|${row.at}|${row.solveIdx}`;
@@ -59,8 +42,9 @@ function mergeInteractionHistory(
 
 /**
  * Completion summary for the current play of `puzzleId`, or null while the
- * play has no terminal interaction. Elo before/after come from the formula
- * projection over attempt facts (not stored columns).
+ * play has no outcome yet. It always reports the play's first (rated)
+ * outcome — a retry solved after a fail still reads as failed. Elo
+ * before/after come from the formula projection over attempt facts.
  */
 export function derivePuzzleCompletion(args: {
   interactions: readonly ChessPuzzleInteractionRow[];
@@ -68,7 +52,7 @@ export function derivePuzzleCompletion(args: {
   allInteractions: readonly ChessPuzzleInteractionRow[];
 }): PuzzleCompletion | null {
   const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-  const terminal = terminalFromPlay(play);
+  const terminal = playOutcome(play);
   if (terminal === null) return null;
 
   const history = mergeInteractionHistory(

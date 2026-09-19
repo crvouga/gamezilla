@@ -79,7 +79,9 @@ describe('chess puzzle controls', () => {
     expect(await s.read(isPuzzleSolved, 'alice')).toBe(true);
   });
 
-  test('a wrong move then Retry then solve still logs as Solved', async () => {
+  // §5: the first wrong move is the attempt's outcome; solving it after a
+  // retry never re-rates it, so the log keeps the loss.
+  test('a wrong move then Retry then solve still logs as Failed', async () => {
     await using s = await openSim('chess-puzzle-wrong-retry-scored');
     await enterPuzzle(s);
     const puzzleId = required(
@@ -95,7 +97,7 @@ describe('chess puzzle controls', () => {
     await s.apply(leavePuzzleToChessMenu, 'alice');
     await s.apply(openChessStatsScreen, 'alice');
     expect(await s.read(readGameLogRowTitle, 'alice', puzzleId)).toMatch(
-      /^Solved/
+      /^Failed/
     );
   });
 });

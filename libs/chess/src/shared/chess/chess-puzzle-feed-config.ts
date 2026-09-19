@@ -40,6 +40,32 @@ export const CHESS_PUZZLE_FEED_HISTORY_FILTERS = [
 export type ChessPuzzleFeedHistoryFilter =
   (typeof CHESS_PUZZLE_FEED_HISTORY_FILTERS)[number];
 
+/**
+ * §5 result panel auto-advance after a solve: never, one second after the
+ * result shows, or at once. Lives in the device-local feed prefs until the
+ * settings slice moves settings to a synced table.
+ */
+export const CHESS_PUZZLE_AUTO_ADVANCE = [
+  'off',
+  'after1s',
+  'immediate',
+] as const;
+
+export type ChessPuzzleAutoAdvance = (typeof CHESS_PUZZLE_AUTO_ADVANCE)[number];
+
+/** Delay before auto-advancing, or null when the setting is off. */
+export function puzzleAutoAdvanceDelayMs(
+  setting: ChessPuzzleAutoAdvance
+): number | null {
+  if (setting === 'after1s') return 1000;
+  if (setting === 'immediate') return 0;
+  return null;
+}
+
+function readAutoAdvance(value: unknown): ChessPuzzleAutoAdvance {
+  return value === 'after1s' || value === 'immediate' ? value : 'off';
+}
+
 export type ChessPuzzleFeedConfig = {
   readonly mode: ChessPuzzleFeedMode;
   readonly customRating: number;
@@ -48,6 +74,7 @@ export type ChessPuzzleFeedConfig = {
   /** Empty = any theme. Match puzzles that include any selected theme (OR). */
   readonly themes: readonly ChessPuzzleTheme[];
   readonly historyFilter: ChessPuzzleFeedHistoryFilter;
+  readonly autoAdvance: ChessPuzzleAutoAdvance;
 };
 
 export const DEFAULT_CHESS_PUZZLE_FEED_CONFIG: ChessPuzzleFeedConfig = {
@@ -56,6 +83,7 @@ export const DEFAULT_CHESS_PUZZLE_FEED_CONFIG: ChessPuzzleFeedConfig = {
   autoOffset: 0,
   themes: [],
   historyFilter: 'neverSeen',
+  autoAdvance: 'off',
 };
 
 export function clampPuzzleFeedRating(rating: number): number {
@@ -142,6 +170,7 @@ export function readChessPuzzleFeedConfig(
     autoOffset,
     themes: readFeedThemes(record['themes']),
     historyFilter: readHistoryFilter(record['historyFilter']),
+    autoAdvance: readAutoAdvance(record['autoAdvance']),
   };
 }
 

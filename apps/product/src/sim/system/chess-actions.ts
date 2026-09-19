@@ -1,19 +1,28 @@
 import { scenarioAction } from './actor-ui';
 import {
   closeFeedSettings,
+  type FeedAutoAdvance,
   type FeedHistoryFilter,
   type FeedMode,
   increaseFeedCustomRating,
   increaseFeedOffset,
   openFeedSettings,
+  selectFeedAutoAdvance,
   selectFeedHistory,
   selectFeedMode,
   selectFeedTheme,
 } from './chess-puzzle-feed-ui';
 import {
+  dragPuzzleUci,
+  pickPuzzlePromotion,
+  showPuzzleSolution,
+  tapPuzzleUci,
+} from './chess-puzzle-solve-ui';
+import {
   suggestPuzzleMove as dragSuggestedMove,
   expectPlayReady,
   openChessStats,
+  openPuzzleFromChessMenu,
   openPuzzlePlay,
   openReviewFromGameLog,
   playWrongMove,
@@ -26,12 +35,19 @@ import {
   tapEmptyPoolPrimaryAction,
   pressPuzzleNext as tapPuzzleNext,
   skipPuzzle as tapPuzzleSkip,
+  pressPuzzleSummaryNext as tapPuzzleSummaryNext,
   waitPuzzleHintStage,
 } from './chess-puzzle-ui';
 
 export const openPuzzleFromSpace = scenarioAction({
   name: 'openPuzzleFromSpace',
   act: openPuzzlePlay,
+});
+
+/** Back on the board from the chess main menu (a pending attempt is restored). */
+export const reopenPuzzleFromChessMenu = scenarioAction({
+  name: 'reopenPuzzleFromChessMenu',
+  act: openPuzzleFromChessMenu,
 });
 
 export const playUntilSolved = scenarioAction({
@@ -62,6 +78,59 @@ export const pressPuzzleNextNoWait = scenarioAction({
 export const playWrongPuzzleMove = scenarioAction({
   name: 'playWrongPuzzleMove',
   act: playWrongMove,
+});
+
+/** Drag one UCI move on the puzzle board (solver input, §3). */
+export const playPuzzleMove = scenarioAction({
+  name: 'playPuzzleMove',
+  act: (s, actorId: string, uci: string) => dragPuzzleUci(s, actorId, uci),
+});
+
+/** Tap-tap the same move (the no-drag input path, §3). */
+export const tapPuzzleMove = scenarioAction({
+  name: 'tapPuzzleMove',
+  act: (s, actorId: string, uci: string) => tapPuzzleUci(s, actorId, uci),
+});
+
+/** Choose a piece in the promotion picker (never auto-queen, §3). */
+export const choosePuzzlePromotion = scenarioAction({
+  name: 'choosePuzzlePromotion',
+  act: (s, actorId: string, piece: 'q' | 'r' | 'b' | 'n') =>
+    pickPuzzlePromotion(s, actorId, piece),
+});
+
+/** §6 Show solution: the rest of the line plays out, then review. */
+export const showPuzzleSolutionLine = scenarioAction({
+  name: 'showPuzzleSolutionLine',
+  act: showPuzzleSolution,
+});
+
+/**
+ * Both "Next puzzle" surfaces pressed back to back (§34 fast double input):
+ * the result panel's CTA and the action bar's button. The second press is
+ * best-effort — by then the chrome may already be gone.
+ */
+export const pressPuzzleNextTwice = scenarioAction({
+  name: 'pressPuzzleNextTwice',
+  act: async (s, actorId: string) => {
+    await tapPuzzleSummaryNext(s, actorId);
+    try {
+      await tapPuzzleNext(s, actorId);
+    } catch {
+      // The action bar already moved on; one advance is the point.
+    }
+    await settleAfterPuzzleNext(s, actorId);
+  },
+});
+
+/** Set the §5 auto-advance preference through the feed settings modal. */
+export const setPuzzleAutoAdvance = scenarioAction({
+  name: 'setPuzzleAutoAdvance',
+  act: async (s, actorId: string, setting: FeedAutoAdvance) => {
+    await openFeedSettings(s, actorId);
+    await selectFeedAutoAdvance(s, actorId, setting);
+    await closeFeedSettings(s, actorId);
+  },
 });
 
 export const retryPuzzle = scenarioAction({

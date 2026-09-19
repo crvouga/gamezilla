@@ -71,15 +71,19 @@ function buildHistoryCondition(
   `;
 }
 
+/**
+ * Theme match on the synced JSON array. SQLite does not resolve an outer
+ * column inside a subquery's table-valued function (`json_each(themes)` in an
+ * `EXISTS`), so the local read tests the serialized array for the quoted
+ * theme id — exact because ids are quoted (`"mate"` never matches
+ * `"mateIn1"`).
+ */
 function buildThemeCondition(themes: readonly string[]): SqlFragment | null {
   if (themes.length === 0) return null;
-  return sql<void>`
-    EXISTS (
-      SELECT 1
-      FROM json_each(themes) AS theme_row
-      WHERE theme_row.value IN (${join([...themes])})
-    )
-  `;
+  const matches = themes.map(
+    (theme) => sql<void>`instr(themes, ${`"${theme}"`}) > 0`
+  );
+  return sql<void>`(${join(matches, ' OR ')})`;
 }
 
 export function buildPuzzleFilterConditions(

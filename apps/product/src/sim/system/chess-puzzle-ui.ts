@@ -131,6 +131,26 @@ export async function openPuzzlePlay(
   await expectPlayReady(s, actorId);
 }
 
+/** §5 result panel CTA: "Next puzzle" inside the summary. */
+export async function pressPuzzleSummaryNext(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessPuzzleSummaryNext).tap({ timeoutMs: WAIT_MS });
+}
+
+/** Re-open the puzzle board from the chess main menu (already inside chess). */
+export async function openPuzzleFromChessMenu(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await expectPlayReady(s, actorId);
+}
+
 async function waitExpectedUci(
   s: ProductSim,
   actorId: string
@@ -229,6 +249,18 @@ export async function readActivePuzzleId(
   actorId: string
 ): Promise<string | null> {
   const value = await readPickStatusField(s, actorId, 'active');
+  if (value === undefined || value === 'null' || value.length === 0) {
+    return null;
+  }
+  return value;
+}
+
+/** The prefetched next puzzle id (pick status), before Next is pressed. */
+export async function readNextPuzzleId(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  const value = await readPickStatusField(s, actorId, 'pick');
   if (value === undefined || value === 'null' || value.length === 0) {
     return null;
   }

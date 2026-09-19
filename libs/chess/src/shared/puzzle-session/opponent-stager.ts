@@ -118,6 +118,7 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
       furthestSolveIdx: input.furthestSolveIdx,
       prevSolveIdx: this.prev.solveIdx,
       prevFurthestSolveIdx: this.prev.furthestSolveIdx,
+      revealed: input.status === 'revealed',
     });
     this.prev = {
       solveIdx: input.solveIdx,
@@ -139,16 +140,20 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
   private runAnimate(stage: AnimatePlan): void {
     this.setPhase({ fen: stage.fromFen, locked: true });
     const moveMs = PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS;
-    const t1 = this.timers.setTimeout(() => {
-      this.setPhase({ fen: stage.toFen, locked: true });
-    }, stage.holdMs);
-    const t2 = this.timers.setTimeout(() => {
-      this.cancelTimers = null;
-      this.setPhase(null);
-    }, stage.holdMs + moveMs);
+    const handles = stage.frames.map((frame) =>
+      this.timers.setTimeout(() => {
+        this.setPhase({ fen: frame.fen, locked: true });
+      }, frame.atMs)
+    );
+    const lastAtMs = stage.frames[stage.frames.length - 1]?.atMs ?? 0;
+    handles.push(
+      this.timers.setTimeout(() => {
+        this.cancelTimers = null;
+        this.setPhase(null);
+      }, lastAtMs + moveMs)
+    );
     this.cancelTimers = () => {
-      this.timers.clearTimeout(t1);
-      this.timers.clearTimeout(t2);
+      for (const handle of handles) this.timers.clearTimeout(handle);
     };
   }
 

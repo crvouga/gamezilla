@@ -24,7 +24,8 @@ export function puzzleNavFromState(args: {
   const { status, solveIdx, furthestSolveIdx, moves } = args;
   const scrubbing =
     status === CHESS_PUZZLE_PLAY_STATUS.solving ||
-    status === CHESS_PUZZLE_PLAY_STATUS.solved;
+    status === CHESS_PUZZLE_PLAY_STATUS.solved ||
+    status === CHESS_PUZZLE_PLAY_STATUS.revealed;
   if (!scrubbing) {
     return { atFrontier: true, canGoBack: false, canGoForward: false };
   }

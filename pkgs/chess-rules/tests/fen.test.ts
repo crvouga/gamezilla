@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test';
 import {
   fenConsistencyError,
+  isSamePosition,
   parseFen,
+  positionPartOf,
   START_FEN,
   serializeFen,
   sideToMoveOf,
@@ -105,6 +107,23 @@ describe('fenConsistencyError', () => {
     expect(consistency('4k3/8/8/4P3/8/8/8/4K3 w - d6 0 1')).toBe('enPassant');
     expect(consistency('4k3/3p4/8/3pP3/8/8/8/4K3 w - d6 0 1')).toBe(
       'enPassant'
+    );
+  });
+});
+
+describe('same position', () => {
+  test('fields 1–4 decide; move clocks do not', () => {
+    expect(positionPartOf(START_FEN)).toBe(
+      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
+    );
+    expect(isSamePosition(START_FEN, START_FEN.replace(' 0 1', ' 7 42'))).toBe(
+      true
+    );
+    expect(isSamePosition(START_FEN, START_FEN.replace(' w ', ' b '))).toBe(
+      false
+    );
+    expect(isSamePosition(START_FEN, START_FEN.replace('KQkq', 'Kkq'))).toBe(
+      false
     );
   });
 });

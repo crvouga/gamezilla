@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { ResponsiveSurface } from '@pkgs/ui';
+import { Button, ChevronRightIcon, ResponsiveSurface } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
 
 import { ChessPuzzleSummaryCard } from './chess-puzzle-summary-card';
@@ -34,6 +34,13 @@ function celebrationTitle(outcome: PuzzleCompletion['outcome']): JSX.Element {
       </span>
     );
   }
+  if (outcome === 'failed') {
+    return (
+      <span class="text-destructive">
+        <Trans>Puzzle failed</Trans>
+      </span>
+    );
+  }
   return <Trans>Puzzle abandoned</Trans>;
 }
 
@@ -41,6 +48,8 @@ export type ChessPuzzleCelebrationOverlayProps = {
   completion: PuzzleCompletion;
   visible: boolean;
   onClose: () => void;
+  /** §5 primary CTA: the next puzzle (large, thumb-reachable). */
+  onNext: () => void;
   onDisplayEloChange: (rating: number) => void;
 };
 
@@ -62,10 +71,21 @@ export function ChessPuzzleCelebrationOverlay(
       closeDataSet={{ testid: 'chess-puzzle-summary-close' }}
       dataSet={{ testid: 'chess-puzzle-summary' }}
     >
-      <ChessPuzzleSummaryCard
-        completion={props.completion}
-        displayRating={eloAnim.displayRating()}
-      />
+      <div class="box gap-4 self-stretch min-w-[0]">
+        <ChessPuzzleSummaryCard
+          completion={props.completion}
+          displayRating={eloAnim.displayRating()}
+        />
+        <Button
+          title={<Trans>Next puzzle</Trans>}
+          intent="success"
+          size="lg"
+          fullWidth
+          endIcon={<ChevronRightIcon />}
+          onClick={props.onNext}
+          dataSet={{ testid: 'chess-puzzle-summary-next' }}
+        />
+      </div>
     </ResponsiveSurface>
   );
 }

@@ -1,8 +1,9 @@
 import { deriveOutcomeScore } from './chess-puzzle-derive';
 import {
   CHESS_PUZZLE_INTERACTION_KIND,
-  type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
+  type ChessPuzzleOutcomeKind,
+  isOutcomeKind,
 } from './chess-puzzle-interaction-entities';
 import { compareCodeUnit } from './code-unit-compare';
 
@@ -37,7 +38,7 @@ export type PuzzleRatingResult = {
 export type ProjectedPuzzleEloEntry = {
   readonly puzzleId: string;
   readonly puzzleRating: number;
-  readonly outcome: 'solved' | 'abandoned';
+  readonly outcome: ChessPuzzleOutcomeKind;
   readonly ratingBefore: number;
   readonly ratingAfter: number;
   readonly delta: number;
@@ -55,13 +56,6 @@ function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
 }
 
-function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
-  return (
-    kind === CHESS_PUZZLE_INTERACTION_KIND.solved ||
-    kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned
-  );
-}
-
 /** K-factor: higher while provisional, then stable. */
 export function puzzleEloK(ratedGames: number): number {
   return ratedGames < PUZZLE_ELO_PROVISIONAL_GAMES
@@ -71,7 +65,7 @@ export function puzzleEloK(ratedGames: number): number {
 
 /**
  * Classic Elo step for one puzzle outcome.
- * `score`: 1 = clean solve, 0.5 = solved with hint/wrong move, 0 = abandoned.
+ * `score`: 1 = clean solve, 0.5 = solved after a hint, 0 = failed / abandoned.
  */
 export function updatePuzzleRating(
   input: PuzzleRatingInput
@@ -114,7 +108,9 @@ function playForTerminal(
 
 /**
  * Project Elo from attempt facts only. Formula edits change every delta
- * without backfill — interactions never store before/after ratings.
+ * without backfill — interactions never store before/after ratings. Only a
+ * play's first outcome is rated (§5): a later outcome row of the same play
+ * (never written by the client, but tolerated in synced history) is ignored.
  */
 export function projectPuzzleEloFromInteractions(
   interactions: readonly ChessPuzzleInteractionRow[]
@@ -124,28 +120,33 @@ export function projectPuzzleEloFromInteractions(
   let ratedGames = 0;
   const entries: ProjectedPuzzleEloEntry[] = [];
   const eloSeries: number[] = [rating];
+  /** Puzzle id → its current play already has a rated outcome. */
+  const ratedPlay = new Map<string, boolean>();
 
   for (let i = 0; i < sorted.length; i += 1) {
     const row = sorted[i];
-    if (row === undefined || !isTerminalKind(row.kind)) continue;
-    const play = playForTerminal(sorted, i);
+    if (row === undefined) continue;
+    if (row.kind === CHESS_PUZZLE_INTERACTION_KIND.started) {
+      ratedPlay.set(row.puzzleId, false);
+      continue;
+    }
+    if (!isOutcomeKind(row.kind) || ratedPlay.get(row.puzzleId) === true) {
+      continue;
+    }
+    ratedPlay.set(row.puzzleId, true);
     const ratingBefore = rating;
     const updated = updatePuzzleRating({
       playerRating: ratingBefore,
       puzzleRating: row.puzzleRating,
-      score: deriveOutcomeScore(play),
+      score: deriveOutcomeScore(playForTerminal(sorted, i)),
       ratedGames,
     });
     rating = updated.rating;
     ratedGames += 1;
-    const outcome =
-      row.kind === CHESS_PUZZLE_INTERACTION_KIND.solved
-        ? 'solved'
-        : 'abandoned';
     entries.push({
       puzzleId: row.puzzleId,
       puzzleRating: row.puzzleRating,
-      outcome,
+      outcome: row.kind,
       ratingBefore,
       ratingAfter: rating,
       delta: rating - ratingBefore,

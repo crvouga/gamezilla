@@ -43,7 +43,7 @@ function toLegalMove(m: ChessJsMove): LegalMove {
     ...base,
     ...(promotion !== undefined ? { promotion } : {}),
     isCapture: m.isCapture(),
-    isCastle: m.isKingsideCastle() || m.isQueensideCastle(),
+    isCastle: isCastle(m),
     isEnPassant: m.isEnPassant(),
   };
 }
@@ -73,8 +73,25 @@ export function positionStatusOf(chess: Chess): PositionStatus {
 
 type Square = Parameters<Chess['get']>[0];
 
-/** The castling move a king-onto-own-rook input stands for, if legal. */
-function castlingAlias(chess: Chess, move: UciMove): UciMove | null {
+function isCastle(m: ChessJsMove): boolean {
+  return m.isKingsideCastle() || m.isQueensideCastle();
+}
+
+/** Home square of the rook a standard castle moves (`e1g1` → `h1`). */
+function castleRookSquare(m: ChessJsMove): string {
+  const rank = m.from[1] ?? '';
+  return `${m.isKingsideCastle() ? 'h' : 'a'}${rank}`;
+}
+
+/**
+ * The castling move a king-onto-own-rook input (`e1h1`) stands for, when that
+ * castle is legal in `chess`; `null` otherwise. Board input layers use it so a
+ * king dropped on its own rook castles (spec §3).
+ */
+export function castlingFromRookInput(
+  chess: Chess,
+  move: UciMove
+): UciMove | null {
   const piece = chess.get(move.from as Square);
   const target = chess.get(move.to as Square);
   if (
@@ -90,6 +107,21 @@ function castlingAlias(chess: Chess, move: UciMove): UciMove | null {
     .moves({ square: move.from as Square, verbose: true })
     .find((m) => (kingside ? m.isKingsideCastle() : m.isQueensideCastle()));
   return castle === undefined ? null : { from: castle.from, to: castle.to };
+}
+
+/**
+ * Own-rook squares a king on `from` may be dropped onto to castle (one per
+ * legal castle). Empty for any other piece or when no castle is legal.
+ */
+export function castlingRookTargets(
+  chess: Chess,
+  from: string
+): readonly string[] {
+  if (chess.get(from as Square)?.type !== 'k') return [];
+  return chess
+    .moves({ square: from as Square, verbose: true })
+    .filter(isCastle)
+    .map(castleRookSquare);
 }
 
 function tryMove(chess: Chess, move: UciMove): ChessJsMove | null {
@@ -110,7 +142,7 @@ function tryMove(chess: Chess, move: UciMove): ChessJsMove | null {
 function playParsed(chess: Chess, move: UciMove): ChessJsMove | null {
   const direct = tryMove(chess, move);
   if (direct !== null) return direct;
-  const alias = castlingAlias(chess, move);
+  const alias = castlingFromRookInput(chess, move);
   return alias === null ? null : tryMove(chess, alias);
 }
 

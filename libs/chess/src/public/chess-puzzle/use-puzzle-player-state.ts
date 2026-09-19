@@ -34,6 +34,7 @@ import {
 import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
+import { usePuzzleAutoAdvance } from './use-puzzle-auto-advance';
 import { usePuzzleClock } from './use-puzzle-clock';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
@@ -155,6 +156,7 @@ function usePuzzlePlayerModel(args: {
   const rating = createMemo(() => entity.rating);
   const themes = createMemo(() => entity.themes);
   const interactions = createMemo(() => entity.interactions);
+  const interactionsReady = createMemo(() => entity.interactionsReady);
   const allInteractions = useChessPuzzleAllInteractions();
   const playerElo = createMemo(() => {
     const projected = projectPuzzleEloFromInteractions(allInteractions());
@@ -185,7 +187,9 @@ function usePuzzlePlayerModel(args: {
     status: solver.status,
     solveIdx: solver.solveIdx,
     interactions,
+    interactionsReady,
     allInteractions,
+    attemptStartedAtMs: startedAtMs,
     canRecord: isPuzzleHost,
   });
 
@@ -213,7 +217,6 @@ function usePuzzlePlayerModel(args: {
     solutionRevealed: solver.solutionRevealed,
     opponentAnimating: solver.opponentAnimating,
     appendUsedHint: recorder.appendUsedHint,
-    appendAbandoned: recorder.appendAbandoned,
     setLastUci: recorder.setLastUci,
     startedAtMs,
     endedAtMs,
@@ -246,8 +249,12 @@ function usePuzzlePlayerUi(args: {
     onMoveRaw: args.m.onMoveRaw,
     setLastUci: args.m.setLastUci,
     appendUsedHint: args.m.appendUsedHint,
-    appendAbandoned: args.m.appendAbandoned,
     onRequestNext: args.onRequestNext,
+  });
+  usePuzzleAutoAdvance({
+    status: args.m.status,
+    canDrive: args.m.isPuzzleHost,
+    onNext: controls.onNext,
   });
   const visual = usePuzzlePlayerVisual({
     puzzleId: args.m.puzzleId,

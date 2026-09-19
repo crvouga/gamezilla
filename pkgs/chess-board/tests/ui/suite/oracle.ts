@@ -41,9 +41,19 @@ function verboseMoves(fen: string, square?: Square): ChessJsMove[] {
     : chess.moves({ square, verbose: true });
 }
 
-/** Sorted distinct legal destinations of the piece on `square`. */
+/**
+ * Sorted distinct legal destinations of the piece on `square`. A king also
+ * lists its own rook's square for every legal castle: the board accepts
+ * king-onto-own-rook as castling input (spec §3).
+ */
 export function legalTargets(fen: string, square: Square): readonly Square[] {
-  return [...new Set(verboseMoves(fen, square).map((m) => m.to))].sort();
+  const moves = verboseMoves(fen, square);
+  const targets = new Set(moves.map((m) => m.to));
+  for (const move of moves) {
+    if (move.isKingsideCastle()) targets.add(`h${move.from[1] ?? ''}`);
+    if (move.isQueensideCastle()) targets.add(`a${move.from[1] ?? ''}`);
+  }
+  return [...targets].sort();
 }
 
 /** FEN after playing `uci` (e.g. `e2e4`, `a7a8q`) from `fen`. */

@@ -16,6 +16,7 @@ const FIXTURE_CSVS = [
   join(PACKAGE_ROOT, 'scripts/fixtures/chess-puzzles.load.csv'),
   join(PACKAGE_ROOT, 'scripts/fixtures/lichess-puzzles-sample.csv'),
   join(REPO_ROOT, 'apps/product/fixtures/chess-puzzles.sim.csv'),
+  join(REPO_ROOT, 'apps/product/fixtures/chess-puzzles-motifs.sim.csv'),
 ];
 
 const HEADER =

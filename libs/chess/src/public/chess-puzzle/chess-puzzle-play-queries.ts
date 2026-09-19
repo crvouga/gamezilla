@@ -117,9 +117,11 @@ export function usePuzzleEntity(puzzleId: Accessor<string>): {
   };
 }
 
-export function usePuzzleInteractions(
-  puzzleId: Accessor<string>
-): Accessor<ChessPuzzleInteractionRow[]> {
+/** This actor's interaction rows for one puzzle, plus whether the first read landed. */
+export function usePuzzleInteractions(puzzleId: Accessor<string>): {
+  rows: Accessor<ChessPuzzleInteractionRow[]>;
+  ready: Accessor<boolean>;
+} {
   const myId = useMyId();
   const query = () => sql<InteractionSqlRow>`
       SELECT
@@ -136,8 +138,11 @@ export function usePuzzleInteractions(
       ORDER BY at ASC
       LIMIT ${INTERACTION_HISTORY_LIMIT}
     `;
-  const { rows } = createQuery(query);
-  return createMemo(() => rows().map(interactionRowFromSql));
+  const { rows, isLoading } = createQuery(query);
+  return {
+    rows: createMemo(() => rows().map(interactionRowFromSql)),
+    ready: createMemo(() => myId().length > 0 && !isLoading()),
+  };
 }
 
 export function useChessPuzzleAllInteractions(): Accessor<
@@ -168,12 +173,16 @@ export function usePuzzleEntityAndInteractions(puzzleId: Accessor<string>): {
   rating: number;
   themes: readonly string[];
   interactions: ChessPuzzleInteractionRow[];
+  interactionsReady: boolean;
 } {
   const base = usePuzzleEntity(puzzleId);
   const interactions = usePuzzleInteractions(puzzleId);
   return mergeProps(base, {
     get interactions() {
-      return interactions();
+      return interactions.rows();
+    },
+    get interactionsReady() {
+      return interactions.ready();
     },
   });
 }

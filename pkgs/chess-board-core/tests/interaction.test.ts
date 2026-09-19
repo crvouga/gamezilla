@@ -295,3 +295,22 @@ describe('BoardInteraction autoPromoteQueen', () => {
     expect(events).toEqual(['applied:a7a8']);
   });
 });
+
+describe('BoardInteraction castling input', () => {
+  const fen = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
+
+  test('tap king then own rook castles instead of re-selecting the rook', () => {
+    const { interaction, events } = setup(fen);
+    interaction.tap('e1');
+    interaction.tap('h1');
+    expect(events).toEqual(['select:e1', 'applied:e1g1']);
+  });
+
+  test('dragging the king onto its rook castles', () => {
+    const { interaction, events } = setup(fen);
+    expect(interaction.beginDrag('e1')).toBe(true);
+    const outcome = interaction.drop('e1', 'a1');
+    expect(outcome.kind).toBe('applied');
+    expect(events).toEqual(['applied:e1c1']);
+  });
+});

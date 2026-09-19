@@ -3,6 +3,7 @@
  * history / mode segments, step the rating offset, and read the bar labels.
  */
 
+import { formatChessPuzzleThemeLabel } from '@libs/chess/public/chess-puzzle-theme-label';
 import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
 import { Handles } from '@libs/test-ids';
 
@@ -76,6 +77,24 @@ export async function increaseFeedOffset(
       .tap({ timeoutMs: WAIT_MS });
   }
 }
+export type FeedAutoAdvance = 'off' | 'after1s' | 'immediate';
+
+/** §5 auto-advance segment in the feed settings modal. */
+export async function selectFeedAutoAdvance(
+  s: ProductSim,
+  actorId: string,
+  setting: FeedAutoAdvance
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui
+    .get(Handles.chessPuzzleFeedAutoAdvanceSegment(setting))
+    .tap({ timeoutMs: WAIT_MS });
+}
+
+/**
+ * Toggle one theme in the (virtualized, searchable) themes combobox: search
+ * by label so the row is rendered, tap it, then close the picker.
+ */
 export async function selectFeedTheme(
   s: ProductSim,
   actorId: string,
@@ -84,8 +103,15 @@ export async function selectFeedTheme(
   const ui = await actorUi(s, actorId);
   await ui.get(Handles.chessPuzzleFeedThemeTrigger).tap({ timeoutMs: WAIT_MS });
   await ui
+    .get(Handles.chessPuzzleFeedThemeSearch)
+    .input(formatChessPuzzleThemeLabel(theme));
+  await ui
     .get(Handles.chessPuzzleFeedThemeOption(theme))
     .tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessPuzzleFeedThemeDone).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessPuzzleFeedThemeDone).expect.hidden({
+    timeoutMs: WAIT_MS,
+  });
 }
 
 /** Tap the custom target rating '+' `steps` times. */

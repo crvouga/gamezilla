@@ -33,7 +33,8 @@ export function ChessPuzzleMoveHistoryBar(): JSX.Element {
   const interactive = createMemo(
     () =>
       status() === CHESS_PUZZLE_PLAY_STATUS.solving ||
-      status() === CHESS_PUZZLE_PLAY_STATUS.solved
+      status() === CHESS_PUZZLE_PLAY_STATUS.solved ||
+      status() === CHESS_PUZZLE_PLAY_STATUS.revealed
   );
 
   const onSeek = (targetSolveIdx: number): void => {

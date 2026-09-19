@@ -9,7 +9,7 @@
  */
 
 import { ConfigServiceProvider } from '@libs/auth/public/config-service-context';
-import { ClipboardProvider } from '@pkgs/device/solid';
+import { ClipboardProvider, HapticsProvider } from '@pkgs/device/solid';
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
 import { createLogger } from '@pkgs/logger/logger';
 import { LoggerProvider } from '@pkgs/logger/solid';
@@ -36,7 +36,9 @@ export function AppInfrastructureProvider(props: {
             <ConfigServiceProvider value={{ getApiUrl: () => env.serverUrl }}>
               <OriginAvailabilityProvider value={originAvailabilityFor(env)}>
                 <ClipboardProvider value={env.clipboard}>
-                  {props.children}
+                  <HapticsProvider value={env.haptics}>
+                    {props.children}
+                  </HapticsProvider>
                 </ClipboardProvider>
               </OriginAvailabilityProvider>
             </ConfigServiceProvider>

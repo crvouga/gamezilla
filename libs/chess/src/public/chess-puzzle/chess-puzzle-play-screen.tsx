@@ -74,6 +74,8 @@ function PuzzleBoardSlot(props: {
           !props.opponentAnimating()
         }
         onMove={props.onMove}
+        // §3: never auto-queen in puzzles — underpromotion puzzles exist.
+        autoPromoteQueen={false}
         showCoordinates
         highlightLastMove
         highlightLegalMoves

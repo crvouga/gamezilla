@@ -8,11 +8,32 @@ export const CHESS_PUZZLE_INTERACTION_KIND = {
   moved: 'moved',
   usedHint: 'used-hint',
   solved: 'solved',
+  /** First wrong move, or the solution shown before the puzzle was resolved. */
+  failed: 'failed',
   abandoned: 'abandoned',
 } as const;
 
 export type ChessPuzzleInteractionKind =
   (typeof CHESS_PUZZLE_INTERACTION_KIND)[keyof typeof CHESS_PUZZLE_INTERACTION_KIND];
+
+/**
+ * The rated outcome of a play (§5): at most one per play — the first of a
+ * clean or hinted solve, a fail, or an abandon. Nothing after it re-rates.
+ */
+export type ChessPuzzleOutcomeKind =
+  | typeof CHESS_PUZZLE_INTERACTION_KIND.solved
+  | typeof CHESS_PUZZLE_INTERACTION_KIND.failed
+  | typeof CHESS_PUZZLE_INTERACTION_KIND.abandoned;
+
+export function isOutcomeKind(
+  kind: ChessPuzzleInteractionKind
+): kind is ChessPuzzleOutcomeKind {
+  return (
+    kind === CHESS_PUZZLE_INTERACTION_KIND.solved ||
+    kind === CHESS_PUZZLE_INTERACTION_KIND.failed ||
+    kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned
+  );
+}
 
 const ALL_KINDS: ReadonlySet<string> = new Set<string>(
   Object.values(CHESS_PUZZLE_INTERACTION_KIND)
@@ -70,6 +91,7 @@ export const ChessPuzzleInteractionAttr = {
       CHESS_PUZZLE_INTERACTION_KIND.moved,
       CHESS_PUZZLE_INTERACTION_KIND.usedHint,
       CHESS_PUZZLE_INTERACTION_KIND.solved,
+      CHESS_PUZZLE_INTERACTION_KIND.failed,
       CHESS_PUZZLE_INTERACTION_KIND.abandoned,
     ] as const,
     readInteractionKind

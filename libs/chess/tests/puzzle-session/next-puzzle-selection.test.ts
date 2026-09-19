@@ -75,7 +75,7 @@ describe('buildPuzzleCandidatesSql', () => {
     expect(query.values).toContain('solved');
   });
 
-  test('themes add json_each OR filter', () => {
+  test('themes add a quoted-id OR filter over the synced array', () => {
     const query = buildPuzzleCandidatesSql({
       rating: 1500,
       halfWindow: null,
@@ -85,10 +85,9 @@ describe('buildPuzzleCandidatesSql', () => {
       currentPuzzleId: null,
     });
     const normalized = query.sql.replace(/\s+/g, ' ');
-    expect(normalized).toContain('json_each(themes)');
-    expect(normalized).toContain('theme_row.value IN');
+    expect(normalized).toContain('instr(themes, ?) > 0 OR instr(themes, ?)');
     expect(query.values).toEqual(
-      expect.arrayContaining(['fork', 'mate', 50, 0])
+      expect.arrayContaining(['"fork"', '"mate"', 50, 0])
     );
   });
 
@@ -145,7 +144,7 @@ describe('buildPuzzleMatchedCountSql', () => {
     });
     expect(query.sql).toContain('COUNT(*)');
     expect(query.sql).not.toContain('LIMIT');
-    expect(query.values).toContain('fork');
+    expect(query.values).toContain('"fork"');
   });
 });
 

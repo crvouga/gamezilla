@@ -31,6 +31,9 @@ function ReviewTitle(props: {
   if (props.entry.outcome === 'solved') {
     return <Trans>Solved · {puzzleRating}</Trans>;
   }
+  if (props.entry.outcome === 'failed') {
+    return <Trans>Failed · {puzzleRating}</Trans>;
+  }
   return <Trans>Abandoned · {puzzleRating}</Trans>;
 }
 

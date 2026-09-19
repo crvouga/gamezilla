@@ -16,10 +16,15 @@ function formatSignedDelta(delta: number): string {
 }
 
 function GameLogTitle(props: {
-  solved: boolean;
+  outcome: ChessPuzzleGameLogEntry['outcome'];
   puzzleRating: number;
 }): JSX.Element {
-  if (props.solved) return <Trans>Solved · {props.puzzleRating}</Trans>;
+  if (props.outcome === 'solved') {
+    return <Trans>Solved · {props.puzzleRating}</Trans>;
+  }
+  if (props.outcome === 'failed') {
+    return <Trans>Failed · {props.puzzleRating}</Trans>;
+  }
   return <Trans>Abandoned · {props.puzzleRating}</Trans>;
 }
 
@@ -67,7 +72,12 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
             class="text textBodyBold line-clamp-1 text-text"
             data-testid={`chess-game-log-row-${props.entry.puzzleId}-title`}
           >
-            {<GameLogTitle solved={solved} puzzleRating={puzzleRating} />}
+            {
+              <GameLogTitle
+                outcome={props.entry.outcome}
+                puzzleRating={puzzleRating}
+              />
+            }
           </p>
           <p class="text textCaption line-clamp-1 text-text-secondary">
             {

@@ -83,19 +83,15 @@ function solvingSlots(
       type: 'action',
       disabled: navDisabled || !p.canGoForward,
     },
+    // §6 "Show solution": plays the rest of the line out, then review.
+    { id: 'solution', type: 'action', disabled: p.status !== 'solving' },
     skipSlot(navDisabled),
   ];
 }
 
-function wrongSlots(
-  p: ChessPuzzleActionBarPlanInput
-): ChessPuzzleActionBarSlot[] {
+function wrongSlots(): ChessPuzzleActionBarSlot[] {
   return [
-    {
-      id: 'solution',
-      type: 'action',
-      disabled: p.hintStage === 'solution',
-    },
+    { id: 'solution', type: 'action', disabled: false },
     {
       id: 'retry',
       type: 'button',
@@ -115,11 +111,24 @@ function solvedSlots(
   ];
 }
 
+/** Review after "Show solution": scrub the whole line, then move on. */
+function revealedSlots(
+  p: ChessPuzzleActionBarPlanInput
+): ChessPuzzleActionBarSlot[] {
+  return [
+    { id: 'back', type: 'action', disabled: !p.canGoBack },
+    { id: 'forward', type: 'action', disabled: !p.canGoForward },
+    { id: 'next', type: 'button', intent: 'success' },
+    { id: 'retry', type: 'action', disabled: false },
+  ];
+}
+
 /** Mode-specific slot plan. Exported for unit tests. */
 export function buildChessPuzzleActionBarPlan(
   p: ChessPuzzleActionBarPlanInput
 ): ChessPuzzleActionBarSlot[] {
-  if (p.status === 'wrong') return wrongSlots(p);
+  if (p.status === 'wrong') return wrongSlots();
+  if (p.status === 'revealed') return revealedSlots(p);
   if (p.status === 'solved' || p.status === 'skipped') return solvedSlots(p);
   return solvingSlots(p);
 }

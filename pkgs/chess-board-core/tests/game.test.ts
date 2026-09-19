@@ -68,6 +68,22 @@ describe('ChessGame', () => {
     expect(r.ok && r.move.castle).toEqual({ rookFrom: 'h1', rookTo: 'f1' });
   });
 
+  test('king onto own rook castles; the rook square is a king target', () => {
+    const fen = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
+    const kingside = new ChessGame(fen);
+    expect([...kingside.legalMovesFrom('e1')]).toContain('h1');
+    expect([...kingside.legalMovesFrom('e1')]).toContain('a1');
+    const r = kingside.tryMove({ from: 'e1', to: 'h1' });
+    expect(r.ok && r.move.to).toBe('g1');
+    expect(r.ok && r.move.castle).toEqual({ rookFrom: 'h1', rookTo: 'f1' });
+    const queenside = new ChessGame(fen);
+    const q = queenside.tryMove({ from: 'e1', to: 'a1' });
+    expect(q.ok && q.move.to).toBe('c1');
+    const noRights = new ChessGame('r3k2r/8/8/8/8/8/8/R3K2R w kq - 0 1');
+    expect([...noRights.legalMovesFrom('e1')]).not.toContain('h1');
+    expect(noRights.tryMove({ from: 'e1', to: 'h1' }).ok).toBe(false);
+  });
+
   test('checkmate flags', () => {
     const game = new ChessGame(
       'r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 4 4'
