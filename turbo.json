@@ -452,7 +452,7 @@
         "pkgs/ui/src/**/*.{ts,tsx}",
         "pkgs/ui/tests/**/*.{ts,tsx}",
         "pkgs/uuid/src/solid.tsx",
-        "pkgs/vitest-solid/src/**/*.{ts,tsx}"
+        "pkgs/bun-test-solid/src/**/*.{ts,tsx}"
       ],
       "outputs": [".eslintcache"],
       "outputLogs": "new-only"
@@ -751,7 +751,7 @@
         "pkgs/*/src/**/*.{ts,tsx}",
         "apps/client/src/i18n/locales/**",
         "apps/client/babel.config.js",
-        "apps/product/babel.test.config.cjs",
+        "pkgs/bun-test-solid/src/babel.config.cjs",
         "libs/tools/scripts/ci-i18n.ts"
       ],
       "outputs": [],

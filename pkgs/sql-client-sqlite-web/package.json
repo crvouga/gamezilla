@@ -28,12 +28,10 @@
     "@sqlite.org/sqlite-wasm": "catalog:"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "catalog:",
     "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
-    "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

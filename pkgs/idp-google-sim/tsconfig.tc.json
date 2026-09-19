@@ -6,8 +6,7 @@
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
     "./web/**/*.ts",
-    "./web/**/*.tsx",
-    "./bun-solid-preload.ts"
+    "./web/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

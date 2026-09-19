@@ -26,10 +26,8 @@ export type CoverageSummary = {
 export type ReportMeta = {
   readonly secretsEnv: string;
   readonly ranPackages: number;
-  /** Packages with no `bun test` segment (vitest-only, e2e-only, …). */
+  /** Packages with no `bun test` segment (e2e-only, …). */
   readonly skipped: readonly string[];
-  /** Measured packages whose script also has a segment we cannot measure. */
-  readonly partial: readonly string[];
   /** `name (exit N)` for every package whose tests exited non-zero. */
   readonly failed: readonly string[];
   readonly durationMs: number;
@@ -199,11 +197,6 @@ function scopeRows(meta: ReportMeta): string[] {
   const rows = [
     '  scope     `bun test` suites only; test:contract / test:e2e run as separate checks',
   ];
-  if (meta.partial.length > 0) {
-    rows.push(
-      `            ${String(meta.partial.length)} packages also run vitest; their vitest-covered files read as unreached`
-    );
-  }
   if (meta.skipped.length > 0) {
     rows.push(
       `            ${String(meta.skipped.length)} packages have no \`bun test\` segment and are not measured`
@@ -221,13 +214,9 @@ export function renderReport(
     meta.skipped.length === 0
       ? ''
       : ` · ${String(meta.skipped.length)} skipped`;
-  const partialNote =
-    meta.partial.length === 0
-      ? ''
-      : ` · ${String(meta.partial.length)} partial (vitest)`;
   const lines: string[] = [
     `code coverage - bun test suite (SECRETS_ENV=${meta.secretsEnv})`,
-    `  ${String(meta.ranPackages)} packages, ${formatDuration(meta.durationMs)}${skippedNote}${partialNote}`,
+    `  ${String(meta.ranPackages)} packages, ${formatDuration(meta.durationMs)}${skippedNote}`,
     '',
     `  line coverage      ${formatPercent(totals.linesHit, totals.linesFound).padStart(7)}   ${formatCount(totals.linesHit)} / ${formatCount(totals.linesFound)} lines executed`,
     `  function coverage  ${formatPercent(totals.functionsHit, totals.functionsFound).padStart(7)}   ${formatCount(totals.functionsHit)} / ${formatCount(totals.functionsFound)} functions`,

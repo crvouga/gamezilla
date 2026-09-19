@@ -432,6 +432,7 @@
       "path": "./libs/tools/biome-plugins/no-eager-games-shell-imports.grit",
       "includes": ["**/apps/client/src/shell/**/*.{ts,tsx}"]
     },
+    "./libs/tools/biome-plugins/no-vitest.grit",
     {
       "path": "./libs/tools/biome-plugins/no-zod-in-pkgs.grit",
       "includes": [

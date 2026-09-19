@@ -1,6 +1,6 @@
 // @pkgs/tailwind -- shared Tailwind CSS entry for the monorepo.
 //
-// Any Vite app (apps directory) or Vitest suite gets Tailwind by:
+// Any Vite app (apps directory) gets Tailwind by:
 //
 //   1. Adding the `@tailwindcss/vite` plugin to its Vite config.
 //   2. Importing `@pkgs/tailwind/tailwind.css` from its entry file.

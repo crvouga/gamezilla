@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import {
   type Command,
@@ -19,7 +21,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { mustQuery, renderUi } from './support/render';
 
 /** `mod` → Meta on macOS web, Ctrl elsewhere. */
@@ -122,7 +123,7 @@ describe('CommandPalette', () => {
 
   test('typing filters, arrows move the selection, Enter runs and closes, recent bubbles up', async () => {
     const user = userEvent.setup();
-    const ran = vi.fn();
+    const ran = mock();
     renderUi(() => <Shell commands={baseCommands(ran)} />, { width: 1200 });
     openPalette();
     const input = screen.getByRole('combobox');
@@ -162,7 +163,7 @@ describe('CommandPalette', () => {
 
   test('clicking a row runs it; disabled rows do not run; Escape and scrim close', async () => {
     const user = userEvent.setup();
-    const ran = vi.fn();
+    const ran = mock();
     renderUi(() => <Shell commands={baseCommands(ran)} />, { width: 1200 });
     openPalette();
     fireEvent.click(screen.getByRole('option', { name: 'Disabled thing' }));
@@ -251,7 +252,7 @@ describe('CommandPalette', () => {
 describe('shortcuts', () => {
   test('mod+k toggles the palette; command shortcuts run without opening', async () => {
     const user = userEvent.setup();
-    const ran = vi.fn();
+    const ran = mock();
     renderUi(() => <Shell commands={baseCommands(ran)} />, { width: 1200 });
     await user.keyboard(`{${MOD}>}k{/${MOD}}`);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -366,7 +367,7 @@ describe('registry hooks', () => {
   });
 
   test('useCommand and useCommandPalette expose reactive handles', async () => {
-    const ran = vi.fn();
+    const ran = mock();
     let handle: ReturnType<typeof useCommand> | undefined;
     let palette: ReturnType<typeof useCommandPalette> | undefined;
     function Probe(): JSX.Element {

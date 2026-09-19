@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import {
   AppFrame,
   AppFrameChromeProvider,
@@ -9,7 +11,6 @@ import {
   useSetAppFrameHeader,
 } from '@pkgs/ui';
 import { screen } from '@solidjs/testing-library';
-import { describe, expect, test } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 describe('layout host classes', () => {

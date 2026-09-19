@@ -31,7 +31,7 @@ const test = spawnSync(
     '--conditions=browser',
     '--conditions=development',
     '--preload',
-    './bun-babel-plugin.ts',
+    '@pkgs/bun-test-solid/preload',
     '--preload',
     './bun-preload.ts',
     '--timeout',

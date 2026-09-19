@@ -1,12 +1,13 @@
 {
-  "name": "@pkgs/vitest-solid",
+  "name": "@pkgs/bun-test-solid",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
-    "./config": "./src/config.ts",
-    "./render": "./src/render.tsx",
-    "./setup": "./src/setup.ts"
+    "./jest-dom": "./src/jest-dom.d.ts",
+    "./preload": "./src/preload.ts",
+    "./register": "./src/register.ts",
+    "./render": "./src/render.tsx"
   },
   "scripts": {
     "lint": "bunx biome check --error-on-warnings .",
@@ -14,20 +15,22 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@babel/core": "catalog:",
+    "@babel/plugin-transform-explicit-resource-management": "catalog:",
+    "@babel/preset-typescript": "catalog:",
+    "@happy-dom/global-registrator": "catalog:",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
-    "@pkgs/vite-workspace-resolver": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@testing-library/jest-dom": "catalog:",
+    "babel-preset-solid": "catalog:",
     "happy-dom": "catalog:",
-    "solid-js": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
-    "vitest": "catalog:"
+    "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@types/babel__core": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

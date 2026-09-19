@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { afterEach, describe, expect, test } from 'bun:test';
 import {
   createMultiAppSolidDomSession,
   createSolidDomDriver,
@@ -6,7 +8,6 @@ import {
   type MultiAppSolidDomSession,
 } from '@pkgs/ui-testing-solid-dom';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
-import { afterEach, describe, expect, test } from 'vitest';
 import { createDemoClock, DemoApp, DemoProviders } from './support/demo-app';
 
 function actorContainer(actorId: string): Element | null {

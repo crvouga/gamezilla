@@ -1,0 +1,228 @@
+// @io-wall-ok — Bun preload; Babel transform for Solid + happy-dom globals
+/**
+ * Runs Solid `.tsx` inside Bun, with no browser: `bun --preload` it before any
+ * process that renders Solid (the IdP dev server, the localhost stack) or
+ * through `./preload` for `bun test`.
+ *
+ * - Workspace `.tsx` → Babel (`babel.config.cjs`: TypeScript strip, Lingui
+ *   macro for the Solid runtime, `babel-preset-solid` DOM output). Bun's own
+ *   `tsx` loader emits JSX `jsx()` calls, which Solid cannot render.
+ * - Solid's browser **dev** build is selected by the `--conditions=browser
+ *   --conditions=development` flags every caller passes (Bun's default `node`
+ *   condition picks Solid's SSR build, whose `render` throws). Runtime
+ *   `onResolve` cannot rewrite bare specifiers imported from `node_modules`,
+ *   so conditions are the only lever.
+ * - `*.module.css` → proxy of class names; plain `.css` → empty module;
+ *   media assets (`.mp3`, images, fonts) → their file path.
+ * - happy-dom supplies `document`/`window`; Bun's own fetch / streams / timers
+ *   / crypto are restored afterwards so in-process Hono, SQLite and sim HTTP
+ *   stay Bun's.
+ *
+ * `onLoad` is synchronous so CJS `require()` of transformed modules works.
+ */
+
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { transformSync } from '@babel/core';
+import { GlobalRegistrator } from '@happy-dom/global-registrator';
+import { plugin } from 'bun';
+
+process.env.NODE_ENV = process.env.NODE_ENV ?? 'test';
+
+const configFile = require.resolve('./babel.config.cjs');
+
+/** Workspace `.tsx` outside `node_modules` (tests included). */
+const WORKSPACE_TSX_FILTER = /^(?!.*\/node_modules\/).*\.tsx$/;
+const CSS_FILTER = /\.css$/;
+/** Media assets (`require('../assets/x.mp3')`) → their file path, like Vite's URL import. */
+const MEDIA_FILTER = /\.(?:mp3|wav|ogg|png|jpe?g|gif|webp|svg|woff2?|ttf)$/;
+
+/**
+ * Each bun `@lingui/core` copy must activate; macros compile to `i18n._`.
+ * Single line, joined to the module's first line, so the inline source map's
+ * line numbers stay exact (only line 1 gets a column offset).
+ */
+const LINGUI_ACTIVATE =
+  'import { i18n as __gzLingui } from "@lingui/core"; ' +
+  'if (__gzLingui.locale == null || __gzLingui.locale === "") { ' +
+  '__gzLingui.loadAndActivate({ locale: "en", messages: {} }); } ';
+
+/**
+ * Babel output keyed by source + config, shared across processes and
+ * `--parallel` workers. Babel dominates cold start; the key covers every input
+ * (`babel.config.cjs` caches on `NODE_ENV` / `VITE_E2E`), so a stale hit is
+ * impossible and the directory is safe to delete at any time.
+ */
+const CACHE_DIR = join(
+  import.meta.dirname,
+  '../node_modules/.cache/bun-test-solid'
+);
+const TRANSFORM_PACKAGES = [
+  '@babel/core',
+  '@babel/preset-typescript',
+  '@babel/plugin-transform-explicit-resource-management',
+  '@lingui/babel-plugin-lingui-macro',
+  'babel-preset-solid',
+] as const;
+const CACHE_SALT = [
+  readFileSync(configFile, 'utf8'),
+  readFileSync(import.meta.filename, 'utf8'),
+  readFileSync(
+    join(import.meta.dirname, '../../../lingui.solid.config.ts'),
+    'utf8'
+  ),
+  ...TRANSFORM_PACKAGES.map((name) =>
+    readFileSync(require.resolve(`${name}/package.json`), 'utf8')
+  ),
+  process.env.NODE_ENV ?? '',
+  process.env['VITE_E2E'] ?? '',
+].join('\0');
+
+function cachedTransform(path: string, source: string): string {
+  const key = Bun.hash(`${CACHE_SALT}\0${path}\0${source}`).toString(36);
+  const file = join(CACHE_DIR, `${key}.js`);
+  try {
+    return readFileSync(file, 'utf8');
+  } catch {
+    const code = transformSolidTsx(path, source);
+    mkdirSync(CACHE_DIR, { recursive: true });
+    // Write-then-rename so a concurrent worker never reads a partial file.
+    const tmp = `${file}.${process.pid}.tmp`;
+    writeFileSync(tmp, code);
+    renameSync(tmp, file);
+    return code;
+  }
+}
+
+function transformSolidTsx(path: string, source: string): string {
+  const result = transformSync(source, {
+    filename: path,
+    babelrc: false,
+    configFile,
+    sourceMaps: 'inline',
+    parserOpts: {
+      plugins: ['typescript', 'jsx', 'explicitResourceManagement'],
+    },
+  });
+  const code = result?.code ?? source;
+  return code.includes('@lingui/core') ? `${LINGUI_ACTIVATE}${code}` : code;
+}
+
+function cssModule(path: string): { contents: string; loader: 'js' } {
+  if (path.endsWith('.module.css')) {
+    return {
+      contents:
+        'export default new Proxy({}, { get: (_target, key) => String(key) });',
+      loader: 'js',
+    };
+  }
+  return { contents: 'export {};', loader: 'js' };
+}
+
+plugin({
+  name: 'bun-test-solid',
+  setup(build) {
+    build.onLoad({ filter: WORKSPACE_TSX_FILTER }, (args) => ({
+      contents: cachedTransform(args.path, readFileSync(args.path, 'utf8')),
+      loader: 'js',
+    }));
+    build.onLoad({ filter: CSS_FILTER }, (args) => cssModule(args.path));
+    build.onLoad({ filter: MEDIA_FILTER }, (args) => ({
+      contents: `module.exports = ${JSON.stringify(args.path)};`,
+      loader: 'js',
+    }));
+  },
+});
+
+/**
+ * Bun natives that must survive happy-dom's global registration: in-process
+ * Hono servers, SQLite clients, sim HTTP serialization and the sim schedulers
+ * rely on Bun's fetch / streams / timers / crypto, not happy-dom's emulations.
+ */
+const KEEP_BUN_GLOBALS = [
+  'fetch',
+  'Request',
+  'Response',
+  'Headers',
+  'FormData',
+  'Blob',
+  'File',
+  'URL',
+  'URLSearchParams',
+  'TextEncoder',
+  'TextDecoder',
+  'AbortController',
+  'AbortSignal',
+  'ReadableStream',
+  'WritableStream',
+  'TransformStream',
+  'setTimeout',
+  'clearTimeout',
+  'setInterval',
+  'clearInterval',
+  'setImmediate',
+  'clearImmediate',
+  'queueMicrotask',
+  'structuredClone',
+  'crypto',
+  'performance',
+  'MessageChannel',
+  'MessagePort',
+  'BroadcastChannel',
+  'WebSocket',
+  'atob',
+  'btoa',
+] as const;
+
+/** Desktop viewport; {@link setDomWindow} narrows it (e.g. a phone). */
+const DEFAULT_WINDOW = { width: 1024, height: 768 };
+
+type HappyDomHandle = {
+  readonly happyDOM: {
+    setViewport(viewport: { width: number; height: number }): void;
+    setURL(url: string): void;
+  };
+};
+
+/** Resize (and optionally re-address) the registered happy-dom window. */
+export function setDomWindow(options: {
+  readonly width: number;
+  readonly height: number;
+  readonly url?: string;
+}): void {
+  const { happyDOM } = window as unknown as HappyDomHandle;
+  happyDOM.setViewport({ width: options.width, height: options.height });
+  if (options.url !== undefined) happyDOM.setURL(options.url);
+}
+
+if (typeof document === 'undefined') {
+  const saved = new Map<string, PropertyDescriptor>();
+  for (const key of KEEP_BUN_GLOBALS) {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, key);
+    if (descriptor !== undefined) saved.set(key, descriptor);
+  }
+  GlobalRegistrator.register({
+    ...DEFAULT_WINDOW,
+    url: 'http://localhost:3000/',
+  });
+  for (const [key, descriptor] of saved) {
+    Object.defineProperty(globalThis, key, descriptor);
+  }
+}
+
+if (typeof Symbol.dispose !== 'symbol') {
+  Object.defineProperty(Symbol, 'dispose', {
+    value: Symbol.for('Symbol.dispose'),
+    configurable: true,
+    enumerable: false,
+    writable: false,
+  });
+}
+if (typeof Symbol.asyncDispose !== 'symbol') {
+  Object.defineProperty(Symbol, 'asyncDispose', {
+    value: Symbol.for('Symbol.asyncDispose'),
+    configurable: true,
+    enumerable: false,
+    writable: false,
+  });
+}

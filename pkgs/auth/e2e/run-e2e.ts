@@ -24,7 +24,7 @@ if (process.platform === 'darwin') {
       '--conditions=browser',
       '--conditions=development',
       '--preload',
-      '../idp-google-sim/bun-solid-preload.ts',
+      '@pkgs/bun-test-solid/register',
       './e2e/serve-harness.ts',
     ],
     {

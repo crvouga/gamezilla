@@ -7,8 +7,8 @@
  * attributes, no divergence between what a browser without JavaScript sees and
  * what the SPA mounts.
  *
- * The document comes from the host's preload (`bun-solid-preload.ts` registers
- * happy-dom); this module refuses to render without one, because registering
+ * The document comes from the host's preload (`@pkgs/bun-test-solid/register`
+ * registers happy-dom); this module refuses to render without one, because registering
  * globals in the middle of a request would replace Bun's own `fetch`, `Request`
  * and timers under the running server.
  */
@@ -61,7 +61,7 @@ function shell(state: IdpScreenState, markup: string): string {
 export async function renderScreenHtml(state: IdpScreenState): Promise<string> {
   if (typeof document === 'undefined') {
     throw new Error(
-      'idp: no DOM — preload ./bun-solid-preload.ts before rendering screens'
+      'idp: no DOM — preload @pkgs/bun-test-solid/register before rendering screens'
     );
   }
   const container = document.createElement('div');

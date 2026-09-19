@@ -5,10 +5,10 @@
  * Tailwind `--color-*` aliases must re-bind on each `[data-theme]` host.
  */
 
+import { describe, expect, test } from 'bun:test';
 import { renderTokensCss, ThemeProvider, useTheme } from '@pkgs/ui';
 import { render } from '@solidjs/testing-library';
 import { createSignal, type JSX, Show } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 const FIXED = { width: 320, height: 480 } as const;
 

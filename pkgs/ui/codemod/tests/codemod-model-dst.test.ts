@@ -6,9 +6,9 @@
  * DST: golden outputs lock the public migration contract byte-for-byte.
  */
 
+import { describe, expect, test } from 'bun:test';
 import * as fc from 'fast-check';
 import ts from 'typescript';
-import { describe, expect, test } from 'vitest';
 import { parseArgs } from '../cli-io';
 import { checkCompleteness } from '../completeness-gate';
 import { runCodemod } from '../run-codemod';

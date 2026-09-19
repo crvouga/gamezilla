@@ -1,13 +1,13 @@
 // @ts-check
 /**
- * bun:test Babel config for product UI simulations (Solid).
+ * Babel config for Solid `.tsx` under Bun (`register.ts`).
  * Strips TypeScript, compiles Lingui macros for the Solid JSX runtime, then
  * compiles Solid JSX to DOM expressions (`babel-preset-solid`).
  */
 const path = require('node:path');
 const { getConfig } = require('@lingui/conf');
 
-const REPO_ROOT = path.resolve(__dirname, '../..');
+const REPO_ROOT = path.resolve(__dirname, '../../..');
 
 /** Solid-flavoured macro output (`jsxRuntime: 'solid'`), same catalogs as root. */
 const linguiConfig = getConfig({

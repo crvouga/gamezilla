@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import {
   classifyValue,
   collapseAllState,
@@ -17,7 +18,6 @@ import {
   stringifyForCopy,
   toggleExpansion,
 } from '@pkgs/ui/components/json-view';
-import { describe, expect, test } from 'vitest';
 
 describe('classifyValue / isContainer', () => {
   test('classifies primitives and object-likes', () => {

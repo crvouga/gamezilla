@@ -4,7 +4,7 @@
  * fixpoint) outputs, or count mismatches.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { parseArgs } from '../cli-io';
 import { formatReport } from '../report';
 import { runCodemod, verifyStable } from '../run-codemod';

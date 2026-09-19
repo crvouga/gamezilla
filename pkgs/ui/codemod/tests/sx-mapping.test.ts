@@ -6,7 +6,7 @@
  * without an exact equivalent bails for Tier C.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { mapSxRecord } from '../sx-mapping';
 
 function classes(

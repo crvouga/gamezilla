@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { describe, expect, test } from 'bun:test';
 import { createSimClock } from '@pkgs/clock/sim-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { asKeyword } from '@pkgs/keyword/keyword';
@@ -8,7 +9,6 @@ import { booleanKvCodec } from '@pkgs/kv/kv-state-codec';
 import { createKvState, KvProvider, useKvOptional } from '@pkgs/kv/solid';
 import { render, screen, waitFor } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 const KEY = asKeyword('ui.prefs/test-flag');
 const CODEC = booleanKvCodec(asKeyword('ui.prefs/value'));
