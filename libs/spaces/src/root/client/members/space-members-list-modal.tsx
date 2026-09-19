@@ -1,6 +1,7 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
@@ -52,6 +53,7 @@ export function SpaceMembersListModal(
               isThisTab={client.clientId === selfClientId()}
             />
           ),
+          dataSet: { testid: Handles.spaceMemberRow(client.id) },
         });
       }
     }
@@ -85,6 +87,13 @@ export function SpaceMembersListModal(
             )}
           />
         </Show>
+        <span
+          data-testid={Handles.spacePresenceCount}
+          class="hidden"
+          aria-hidden="true"
+        >
+          {titledRows().length}
+        </span>
       </ScrollView>
     </ResponsiveSurface>
   );

@@ -6,7 +6,7 @@ import { clearWebClientPersistentState } from '@pkgs/browser/clear-web-client-st
 import { useTimers } from '@pkgs/clock/solid';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage/solid';
-import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web';
+import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web/recover-in-process';
 import { useSyncEngineInstance } from '@pkgs/sync-engine/solid';
 import type { JSX } from 'solid-js';
 

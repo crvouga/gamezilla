@@ -5,6 +5,7 @@
 
 import {
   buildChessBoardProbe,
+  type ChessBoardProbeInteraction,
   chessBoardProbeTestId,
 } from '@pkgs/chess-board-core/probe';
 import type {
@@ -14,10 +15,28 @@ import type {
 import type { Accessor, JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 
-import { BOARD_UNITS } from './board-units';
 import styles from './chess-board.module.css';
 import type { BoardController } from './chess-board-controller';
 import { ChessBoardPromotion } from './chess-board-promotion';
+
+function probeInteraction(ctrl: BoardController): ChessBoardProbeInteraction {
+  const ix = ctrl.model.interaction();
+  const lastMove = ctrl.model.game().lastMove;
+  const pending = ix.pendingPromotion;
+  return {
+    interactive: ix.interactive,
+    selected: ix.selected,
+    legalTargets: ix.legalTargets,
+    lastMove:
+      lastMove === null ? null : { from: lastMove.from, to: lastMove.to },
+    promotion:
+      pending === null
+        ? null
+        : { from: pending.from, to: pending.to, color: pending.color },
+    premoves: ix.premves.map((p) => ({ from: p.from, to: p.to })),
+    cursor: ctrl.cursor(),
+  };
+}
 
 export function ChessBoardOverlays(args: {
   readonly ctrl: BoardController;
@@ -31,6 +50,7 @@ export function ChessBoardOverlays(args: {
         fen: args.ctrl.model.game().fen,
         size: (args.ctrl.boardPx() || args.size) ?? 0,
         orientation: args.ctrl.orientation(),
+        interaction: probeInteraction(args.ctrl),
       })
     )
   );
@@ -39,14 +59,16 @@ export function ChessBoardOverlays(args: {
       <Show when={pending()}>
         {(p) => (
           <ChessBoardPromotion
+            boardTestId={args.boardTestId()}
             color={p().color}
             to={p().to}
             orientation={args.ctrl.orientation()}
             theme={args.ctrl.theme()}
-            boardPx={args.ctrl.boardPx() || BOARD_UNITS}
             onPick={(promo) => {
+              // Read before picking: the pick closes this <Show>.
+              const to = p().to;
               args.ctrl.model.actions.pickPromotion(promo);
-              args.ctrl.model.markSnap(p().to);
+              args.ctrl.model.markSnap(to);
             }}
             onCancel={() => args.ctrl.model.actions.cancelPromotion()}
           />

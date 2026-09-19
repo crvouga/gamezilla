@@ -4,8 +4,9 @@
 
 import type { ProductUi, Sim, SimActor } from '@apps/product/sim';
 import { simClientNamespace } from '@apps/product/sim';
-import { wallClock } from '@pkgs/clock';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { Driver, StepRecorder } from '@pkgs/ui-testing';
 import { recordingDriver } from '@pkgs/ui-testing';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
@@ -16,6 +17,7 @@ import {
 import { createSimWaitPump } from '../setup/sim-wait-pump';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
+import { webviewLocalSql } from './webview-local-sql';
 
 export type ActorEntry = {
   readonly handle: SimActor;
@@ -44,7 +46,10 @@ async function createSolidDomClientDriver(args: {
     pump,
     harness: {
       mount: async () => {
-        const app = args.session.mountActor(args.id, solidActorRoot(live));
+        const app = args.session.mountActor(
+          args.id,
+          solidActorRoot(live, args.sim.browser(args.id))
+        );
         await args.runFor(0);
         return app;
       },
@@ -61,22 +66,32 @@ export async function launchActor(args: {
   readonly recorder?: StepRecorder;
 }): Promise<ActorEntry> {
   let raw: Driver;
+  let localSql: () => SqlTx | null = () =>
+    args.sim.clientSql(args.id)?.sqlClient ?? null;
   let closeResources: () => Promise<void> = () => Promise.resolve();
   if (args.ui.kind === 'bun-webview') {
     const webOrigin = args.ui.webOrigin;
-    const view = new Bun.WebView({
-      url: webOrigin,
-      width: 390,
-      height: 844,
-    });
+    // Each actor is its own device: its own on-disk storage (cookies, OPFS
+    // for the app's SQLite), shared with the popups it opens. No URL here:
+    // the driver's `launch` navigates and awaits the load.
+    const { mkdtemp, rm } = await import('node:fs/promises');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const directory = await mkdtemp(join(tmpdir(), `sim-webview-${args.id}-`));
+    const dataStore = { directory };
+    const view = new Bun.WebView({ width: 390, height: 844, dataStore });
     raw = new BunWebviewDriver({
       view,
       baseUrl: webOrigin,
       actorId: args.id,
+      popupOptions: { dataStore },
+      timers: wallTimers,
     });
-    closeResources = () => {
+    const pageSql = webviewLocalSql(view);
+    localSql = () => pageSql;
+    closeResources = async () => {
       view.close();
-      return Promise.resolve();
+      await rm(directory, { recursive: true, force: true });
     };
     await raw.launch();
     if (args.snapshot !== undefined) {
@@ -108,7 +123,7 @@ export async function launchActor(args: {
       ? recordingDriver(raw, { recorder: args.recorder, actorId: args.id })
       : raw;
   return {
-    handle: { id: args.id, ui },
+    handle: { id: args.id, ui, localSql },
     raw,
     closeResources,
   };

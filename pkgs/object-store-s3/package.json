@@ -23,6 +23,7 @@
     "@pkgs/object-store": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/s3-server": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

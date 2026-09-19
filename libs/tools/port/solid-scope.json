@@ -18,7 +18,7 @@
     "pkgs/ui-testing-solid-dom/tests",
     "pkgs/ui/src",
     "pkgs/ui/tests",
-    "pkgs/vitest-solid/src",
+    "pkgs/bun-test-solid/src",
     "apps/product/src/sim",
     "apps/product/src/test",
     "apps/product/tests"

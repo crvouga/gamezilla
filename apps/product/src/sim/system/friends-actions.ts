@@ -20,6 +20,118 @@ export const acceptFriendRequest = scenarioAction({
   },
 });
 
+export const declineFriendRequest = scenarioAction({
+  name: 'declineFriendRequest',
+  act: async (s, actorId: string, fromUsername: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.tabNotifications).tap({ timeoutMs: WAIT_MS });
+    const card = Handles.notificationsFriendRequestCard(fromUsername);
+    await ui.get(card).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(card).tap({ timeoutMs: WAIT_MS });
+    const decline = Handles.notificationsFriendRequestDecline(fromUsername);
+    await ui.get(decline).tap({ timeoutMs: WAIT_MS });
+    await ui.get(card).expect.hidden({ timeoutMs: HIDDEN_MS });
+  },
+});
+
+export const cancelFriendRequest = scenarioAction({
+  name: 'cancelFriendRequest',
+  act: async (s, actorId: string, toUsername: string) => {
+    const ui = await actorUi(s, actorId);
+    const cancel = Handles.friendCancel(toUsername);
+    await ui.get(cancel).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(cancel).tap({ timeoutMs: WAIT_MS });
+    await ui.get(cancel).expect.hidden({ timeoutMs: HIDDEN_MS });
+  },
+});
+
+async function searchFriend(
+  s: Parameters<typeof actorUi>[0],
+  actorId: string,
+  username: string
+) {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.tabSearch).tap();
+  const input = ui.get(Handles.searchInput);
+  await input.expect.visible({ timeoutMs: WAIT_MS });
+  await input.clear();
+  await input.input(username);
+  await s.session.waitForIdle();
+  await ui.get(Handles.searchLoading).expect.hidden({ timeoutMs: WAIT_MS });
+}
+
+async function openFriendProfile(
+  s: Parameters<typeof actorUi>[0],
+  actorId: string,
+  username: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.statusCurrentUser).expect.visible({
+    timeoutMs: WAIT_MS,
+  });
+  if (
+    !(await ui.get(Handles.tabProfile).isVisible()) &&
+    (await ui.get(Handles.navBack).isVisible())
+  ) {
+    await ui.get(Handles.navBack).tap();
+  }
+  await ui.get(Handles.tabProfile).tap();
+  await ui
+    .get(Handles.profileFriendsStats)
+    .expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.profileFriendsStats).tap();
+  await s.session.waitForIdle();
+  const row = Handles.friendsListRow(username);
+  await ui.get(row).expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(row).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.friendStatusFriends(username)).expect.visible({
+    timeoutMs: WAIT_MS,
+  });
+}
+
+export const removeFriend = scenarioAction({
+  name: 'removeFriend',
+  act: async (s, actorId: string, username: string) => {
+    const ui = await actorUi(s, actorId);
+    await openFriendProfile(s, actorId, username);
+    await ui.get('header-overflow-menu').tap({ timeoutMs: WAIT_MS });
+    const remove = Handles.friendRemove(username);
+    await ui.get(remove).tap({ timeoutMs: WAIT_MS });
+    const confirm = Handles.friendRemoveConfirm(username);
+    await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
+    await ui.get(confirm).expect.hidden({ timeoutMs: HIDDEN_MS });
+    await ui.get(Handles.friendsListRow(username)).expect.hidden({
+      timeoutMs: HIDDEN_MS,
+    });
+  },
+});
+
+export const blockFriend = scenarioAction({
+  name: 'blockFriend',
+  act: async (s, actorId: string, username: string) => {
+    const ui = await actorUi(s, actorId);
+    await openFriendProfile(s, actorId, username);
+    await ui.get('header-overflow-menu').tap({ timeoutMs: WAIT_MS });
+    const block = Handles.friendBlock(username);
+    await ui.get(block).tap({ timeoutMs: WAIT_MS });
+    const confirm = Handles.friendBlockConfirm(username);
+    await ui.get(confirm).tap({ timeoutMs: WAIT_MS });
+    await ui.get(confirm).expect.hidden({ timeoutMs: HIDDEN_MS });
+  },
+});
+
+export const unblockFriend = scenarioAction({
+  name: 'unblockFriend',
+  act: async (s, actorId: string, username: string) => {
+    await searchFriend(s, actorId, username);
+    const ui = await actorUi(s, actorId);
+    const unblock = Handles.friendUnblock(username);
+    await ui.get(unblock).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(unblock).tap({ timeoutMs: WAIT_MS });
+    await ui.get(unblock).expect.hidden({ timeoutMs: HIDDEN_MS });
+  },
+});
+
 export const openFriendsList = scenarioAction({
   name: 'openFriendsList',
   act: async (s, actorId: string) => {

@@ -16,3 +16,22 @@ export function startPlayTimer(tick: () => void): void {
   stopPlayTimer();
   playTimer = setInterval(tick, 700);
 }
+
+let hashTimer: ReturnType<typeof setTimeout> | null = null;
+
+/** Cancel a pending debounced task scheduled with {@link debounceHash}. */
+export function cancelHashWrite(): void {
+  if (hashTimer !== null) {
+    clearTimeout(hashTimer);
+    hashTimer = null;
+  }
+}
+
+/** Trailing debounce for URL hash writes (Safari throttles replaceState). */
+export function debounceHash(write: () => void, delayMs: number): void {
+  cancelHashWrite();
+  hashTimer = setTimeout(() => {
+    hashTimer = null;
+    write();
+  }, delayMs);
+}

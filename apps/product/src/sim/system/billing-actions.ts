@@ -5,14 +5,14 @@
  * projection row.
  */
 import { SIM_SERVER_URL } from '@apps/server/sim/migrate-sim-postgres';
+import { createMockBillingApi } from '@libs/billing/public/mock-billing-api';
 import { MOCK_BILLING_TEST_IDS } from '@libs/billing/public/mock-test-ids';
 import { Handles } from '@libs/test-ids';
-import type { SimPortalIntent } from '../fabric/sim-billing-browser';
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
-import { accountIdOf } from './billing-reads';
+import { accountIdOf } from './identity';
 
 import { nodeText } from './observations';
-import { type ProductSim, productExtra } from './sim';
+import type { ProductSim } from './sim';
 
 const WAIT_MS = 20_000;
 
@@ -42,17 +42,17 @@ export const openBilling = scenarioAction({
   },
 });
 
-/** Subscribe to plus, then wait for the tier to read `paid`. */
+/**
+ * Subscribe to plus: the app hands off to the provider's hosted checkout in
+ * the actor's browser, the person pays there, and the checkout returns to the
+ * app. Then wait for the tier to read `paid`.
+ */
 export const subscribeToPlus = scenarioAction({
   name: 'subscribeToPlus',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.billingSubscribe).tap({ timeoutMs: WAIT_MS });
-    if (productExtra(s).ui.kind === 'bun-webview') {
-      await ui
-        .get(MOCK_BILLING_TEST_IDS.checkoutPay)
-        .tap({ timeoutMs: WAIT_MS });
-    }
+    await ui.get(MOCK_BILLING_TEST_IDS.checkoutPay).tap({ timeoutMs: WAIT_MS });
     await pollUntil(
       s,
       async () =>
@@ -70,58 +70,58 @@ export const managePlus = scenarioAction({
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.billingManage).tap({ timeoutMs: WAIT_MS });
+    await ui
+      .get(MOCK_BILLING_TEST_IDS.portalReturn)
+      .expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 
-/** Queue a portal intent, open the portal, then press it where a browser must. */
-async function applyPortalIntent(
+/**
+ * Open the portal, press `buttons` in order (a destructive change opens its
+ * confirmation first), wait for the portal to confirm the change, then take
+ * the portal's own link back to the app.
+ */
+async function inPortal(
   s: ProductSim,
   actorId: string,
-  intent: SimPortalIntent,
-  liveButtonTestId: string
+  buttons: readonly string[]
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  s.sim.billingBrowser(actorId).queuePortalIntent(intent);
   await ui.get(Handles.billingManage).tap({ timeoutMs: WAIT_MS });
-  if (productExtra(s).ui.kind === 'bun-webview') {
-    await ui.get(liveButtonTestId).tap({ timeoutMs: WAIT_MS });
+  for (const testId of buttons) {
+    await ui.get(testId).tap({ timeoutMs: WAIT_MS });
   }
+  await ui
+    .get(MOCK_BILLING_TEST_IDS.portalNotice)
+    .expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(MOCK_BILLING_TEST_IDS.portalReturn).tap({ timeoutMs: WAIT_MS });
   await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
 }
 
 export const cancelPlus = scenarioAction({
   name: 'cancelPlus',
   act: async (s, actorId: string) => {
-    await applyPortalIntent(
-      s,
-      actorId,
-      { kind: 'cancel' },
-      MOCK_BILLING_TEST_IDS.portalCancel
-    );
+    await inPortal(s, actorId, [
+      MOCK_BILLING_TEST_IDS.portalCancelStart,
+      MOCK_BILLING_TEST_IDS.portalCancel,
+    ]);
   },
 });
 
 export const resumePlus = scenarioAction({
   name: 'resumePlus',
   act: async (s, actorId: string) => {
-    await applyPortalIntent(
-      s,
-      actorId,
-      { kind: 'resume' },
-      MOCK_BILLING_TEST_IDS.portalResume
-    );
+    await inPortal(s, actorId, [MOCK_BILLING_TEST_IDS.portalResume]);
   },
 });
 
 export const switchPlusInterval = scenarioAction({
   name: 'switchPlusInterval',
   act: async (s, actorId: string, priceKey: string) => {
-    await applyPortalIntent(
-      s,
-      actorId,
-      { kind: 'switch_price', priceKey },
-      MOCK_BILLING_TEST_IDS.portalSwitch(priceKey)
-    );
+    await inPortal(s, actorId, [
+      MOCK_BILLING_TEST_IDS.portalSwitchStart(priceKey),
+      MOCK_BILLING_TEST_IDS.portalSwitch(priceKey),
+    ]);
   },
 });
 
@@ -150,29 +150,21 @@ export const observeMembership = scenarioAction({
 });
 
 /**
- * Start a fresh checkout straight through the mock provider's checkout route —
- * the same edge the browser page posts to. Used where the billing screen
- * deliberately hides Subscribe (an ended membership still inside grace).
+ * Start a fresh checkout straight through the mock provider's API — the same
+ * call its checkout page makes on "Start free trial". Used where the billing
+ * screen deliberately hides Subscribe (an ended membership still inside grace).
  */
 export const checkoutPlusAtProvider = scenarioAction({
   name: 'checkoutPlusAtProvider',
   act: async (s, actorId: string) => {
     const accountId = await accountIdOf(s, actorId);
     if (accountId === null) return;
-    const fetchFn = s.sim.loadBalancer.fetchFrom(actorId);
-    const res = await fetchFn(`${SIM_SERVER_URL}/api/billing/mock/checkout`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        accountId,
-        returnUrl: `${SIM_SERVER_URL}/more/billing`,
-        action: 'pay',
-      }).toString(),
+    const api = createMockBillingApi({
+      fetch: s.sim.loadBalancer.fetchFrom(actorId),
+      baseUrl: `${SIM_SERVER_URL}/api/billing/mock/`,
     });
-    // The mock edge answers 303 back to the return url on success.
-    if (res.status >= 400) {
-      throw new Error(`checkoutPlusAtProvider failed (${String(res.status)})`);
-    }
+    const state = await api.state(accountId);
+    await api.checkout({ accountId, priceKey: state.defaultPriceKey });
     await s.session.waitForIdle();
   },
 });

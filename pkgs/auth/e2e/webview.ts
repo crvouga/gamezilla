@@ -3,8 +3,22 @@ export type EvalView = {
   evaluate(script: string): Promise<unknown>;
 };
 
-export function openView(url: string): Bun.WebView {
-  return new Bun.WebView({ url, width: 1280, height: 800 });
+/**
+ * Bun's default engine: WebKit on macOS, Chrome elsewhere (Linux CI).
+ * `AUTH_E2E_WEBVIEW=chrome` runs the Linux engine on macOS too. The page is
+ * loaded with an awaited `navigate`: a Chrome view constructed with `url`
+ * has no page to evaluate in yet (`Runtime.evaluate wasn't found`).
+ */
+export async function openView(url: string): Promise<Bun.WebView> {
+  const view = new Bun.WebView({
+    width: 1280,
+    height: 800,
+    ...(process.env['AUTH_E2E_WEBVIEW'] === 'chrome'
+      ? { backend: 'chrome' as const }
+      : {}),
+  });
+  await view.navigate(url);
+  return view;
 }
 
 export async function waitFor(

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import { Button } from '@pkgs/ui/components/button';
 import {
@@ -15,7 +17,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 function Dialog(props: {
@@ -86,7 +87,7 @@ describe('ModalRoot', () => {
   });
 
   test('backdrop click dismisses unless dismissOnBackdrop is false', () => {
-    const onClose = vi.fn();
+    const onClose = mock();
     const [dismiss, setDismiss] = createSignal(true);
     renderUi(() => (
       <SurfaceStackProvider>
@@ -110,8 +111,8 @@ describe('ModalRoot', () => {
 
   test('Escape closes only the top surface', async () => {
     const user = userEvent.setup();
-    const closeFirst = vi.fn();
-    const closeSecond = vi.fn();
+    const closeFirst = mock();
+    const closeSecond = mock();
     const [second, setSecond] = createSignal(true);
     renderUi(() => (
       <SurfaceStackProvider>
@@ -195,8 +196,8 @@ describe('ModalContent', () => {
 describe('ConfirmationModal', () => {
   test('confirm / cancel wiring, submitting lock, and error caption', async () => {
     const user = userEvent.setup();
-    const onConfirm = vi.fn();
-    const onCancel = vi.fn();
+    const onConfirm = mock();
+    const onCancel = mock();
     const [submitting, setSubmitting] = createSignal(false);
     const [error, setError] = createSignal<string | undefined>(undefined);
     renderUi(() => (

@@ -12,6 +12,7 @@ import {
 } from 'solid-js';
 import { useLocalPaintLatch } from '../boot/local-paint-latch';
 import { useClientEnv, useSyncEnginePool } from '../client-env-context';
+import { exposeLocalSqlForE2e } from '../e2e-local-sql';
 import { useLocalIdentity } from '../identity/identity-context';
 import { originAvailabilityFor } from '../origin-availability-for-env';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
@@ -88,6 +89,7 @@ function useSyncBootPromise(args: {
       args.preloadReadyTree(),
     ]).then(async ([resolved, registry]) => {
       await resolved.connect();
+      exposeLocalSqlForE2e(resolved.db);
       return { engine: resolved, registry };
     });
   });

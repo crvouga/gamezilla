@@ -1,8 +1,8 @@
 /** Strict repository gates for the Tailwind migration command. */
 
+import { describe, expect, test } from 'bun:test';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { describe, expect, test } from 'vitest';
 import { stripComments } from '../completeness-gate';
 import { runCodemod } from '../run-codemod';
 

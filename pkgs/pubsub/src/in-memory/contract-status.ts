@@ -1,6 +1,11 @@
 import { expect, test } from 'bun:test';
 import { PubSubNotSupportedError } from '../pubsub-not-supported-error';
-import { collect, expectRejects, waitUntil } from './contract-helpers';
+import {
+  awaitSubscriptionLive,
+  collect,
+  expectRejects,
+  waitUntil,
+} from './contract-helpers';
 import type { PubSubContractEnv } from './contract-types';
 
 export function registerStatusContractTests(
@@ -20,11 +25,12 @@ export function registerStatusContractTests(
     const unsub = a.onStatus((s) => seen.push(s));
     expect(a.status()).toBe('connected');
     await e.disruptTransport(a);
-    await waitUntil(
-      () => a.status() === 'down' || a.status() === 'connecting',
-      5000
-    );
-    expect(['down', 'connecting']).toContain(a.status());
+    // Read the transition from the event log, not a poll: a fast backoff can
+    // drop and reconnect between two polls of `status()`.
+    const dropped = (): boolean =>
+      seen.some((s) => s === 'down' || s === 'connecting');
+    await waitUntil(dropped, 5000);
+    expect(dropped()).toBe(true);
     await waitUntil(() => a.status() === 'connected', 15_000);
     expect(a.status()).toBe('connected');
     expect(seen.length).toBeGreaterThan(0);
@@ -63,6 +69,7 @@ export function registerPublishOnlyContractTests(
     const sub = await e.make();
     const pub = await e.makePublishOnly();
     const { items, unsub } = collect(sub, 'http');
+    await awaitSubscriptionLive(sub, 'http', items);
     await pub.publish('http', { via: 'http' });
     await waitUntil(() => items.length === 1, 5000);
     expect(items[0]).toEqual({ via: 'http' });

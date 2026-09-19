@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import { SettingsIcon } from '@pkgs/ui/components/icons';
 import {
   bodyNeedsSafeBottom,
@@ -12,7 +13,6 @@ import {
   screenBaseActionIntent,
   splitBreadcrumbTrail,
 } from '@pkgs/ui/components/screen-base';
-import { describe, expect, test } from 'vitest';
 
 const noop = (): void => {};
 

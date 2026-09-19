@@ -6,8 +6,7 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx",
-    "./vitest.config.mts"
+    "./tests/**/*.tsx"
   ],
   "exclude": ["node_modules", "dist"]
 }

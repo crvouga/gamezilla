@@ -87,6 +87,11 @@ export function Header(props: { nav: ReportNav }) {
           }}
         />
       </Show>
+      <Show when={!isList()}>
+        <span class="sr-keys">
+          ← → frames · ↑ ↓ steps · N failures · Space play
+        </span>
+      </Show>
       <button
         type="button"
         class="sr-navbtn"

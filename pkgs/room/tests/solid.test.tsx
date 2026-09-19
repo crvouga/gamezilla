@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import {
   asKeyword,
   type LogEntry,
@@ -20,7 +22,6 @@ import {
 } from '@pkgs/room/solid';
 import { render, screen } from '@solidjs/testing-library';
 import { createRoot, createSignal } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 const COUNT = asKeyword('room/count');
 const TITLE = asKeyword('room/title');

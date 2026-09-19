@@ -312,10 +312,11 @@ function frozenPlayerModel(args: {
   const { m, controls, visual, completion, recommendations, clock, recommend } =
     args;
   return {
+    completion,
     puzzleId: m.puzzleId,
     rating: m.rating,
+    themes: m.themes,
     playerElo: m.playerElo,
-    completion,
     backToRoot: controls.backToRoot,
     assistant: visual.assistant,
     statusKind: visual.statusKind,

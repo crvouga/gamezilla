@@ -1,6 +1,6 @@
 import type { ElementLayout } from '@pkgs/ui-testing';
+import { ElementNotFoundError } from '@pkgs/ui-testing';
 import type { Actor } from '@pkgs/ui-testing/explore';
-
 import type { ProductSim } from './sim';
 import { nodeAt } from './ui-nodes';
 
@@ -61,7 +61,13 @@ export async function nodeText(
 ): Promise<string | null> {
   const node = nodeAt(s, actorId, path);
   if (node === null) return null;
-  return node.text();
+  try {
+    return await node.text();
+  } catch (err) {
+    // Not on screen right now (a live browser may be mid page load).
+    if (err instanceof ElementNotFoundError) return null;
+    throw err;
+  }
 }
 
 /**

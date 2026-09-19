@@ -39,7 +39,7 @@ try {
       'bun',
       'test',
       '--preload',
-      './bun-babel-plugin.ts',
+      '@pkgs/bun-test-solid/preload',
       '--preload',
       './bun-preload.ts',
       '--timeout',

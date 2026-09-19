@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import { ActionBar } from '@pkgs/ui/components/action-bar';
 import {
@@ -12,7 +14,6 @@ import { OverflowMenuButton } from '@pkgs/ui/components/overflow-menu-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 const ANCHOR = { x: 500, y: 20, width: 40, height: 40 };
@@ -145,9 +146,9 @@ describe('FloatingMenu', () => {
 
   test('focuses the first item, arrows skip disabled rows, select closes', async () => {
     const user = userEvent.setup();
-    const onSettings = vi.fn();
-    const onSignOut = vi.fn();
-    const onClose = vi.fn();
+    const onSettings = mock();
+    const onSignOut = mock();
+    const onClose = mock();
     renderUi(() => (
       <Harness
         onSettings={onSettings}
@@ -183,7 +184,7 @@ describe('FloatingMenu', () => {
 
   test('Escape and outside click close the menu', async () => {
     const user = userEvent.setup();
-    const onClose = vi.fn();
+    const onClose = mock();
     renderUi(() => (
       <Harness onSettings={() => {}} onSignOut={() => {}} onClose={onClose} />
     ));
@@ -202,7 +203,7 @@ describe('FloatingMenu', () => {
 
 describe('default overflow menus', () => {
   test('OverflowMenuButton renders a FloatingMenu anchored to its trigger', () => {
-    const onAction = vi.fn();
+    const onAction = mock();
     renderUi(() => (
       <SurfaceStackProvider>
         <OverflowMenuButton
@@ -235,7 +236,7 @@ describe('default overflow menus', () => {
   });
 
   test('ActionBar More trigger opens a FloatingMenu with the overflow rows', () => {
-    const onBeta = vi.fn();
+    const onBeta = mock();
     renderUi(() => (
       <SurfaceStackProvider>
         <ActionBar

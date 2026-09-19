@@ -6,9 +6,7 @@
  *
  * Runs every package's `bun test` script segment (the package manifest stays
  * the source of truth for which files are in the suite) with bun coverage
- * enabled, then folds the per-run lcov into one report. Script segments this
- * runner cannot measure (`vitest run`) are reported as partial rather than
- * silently counted as uncovered.
+ * enabled, then folds the per-run lcov into one report.
  *
  * Options: `--filter=<substring>` (repeatable), `--jobs=<n>`, `--verbose`.
  */
@@ -241,9 +239,6 @@ async function main(): Promise<void> {
     secretsEnv: process.env['SECRETS_ENV'] ?? 'dev',
     ranPackages: selected.length,
     skipped: skipped.map((plan) => plan.name),
-    partial: selected
-      .filter((plan) => plan.unmeasuredSegments.length > 0)
-      .map((plan) => plan.name),
     failed: failed.map(
       (result) => `${result.plan.name} (exit ${String(result.exitCode)})`
     ),
@@ -253,9 +248,7 @@ async function main(): Promise<void> {
   writeArtifacts(index, summary, meta);
   process.stdout.write(`\n${renderReport(summary, meta).join('\n')}\n`);
   if (options.verbose) {
-    process.stdout.write(
-      `\n  skipped: ${meta.skipped.join(', ') || '-'}\n  partial: ${meta.partial.join(', ') || '-'}\n`
-    );
+    process.stdout.write(`\n  skipped: ${meta.skipped.join(', ') || '-'}\n`);
   }
   process.exit(failed.length > 0 ? 1 : 0);
 }

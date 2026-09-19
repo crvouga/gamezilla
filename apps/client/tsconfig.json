@@ -7,8 +7,7 @@
     "./tests/**/*.ts",
     "./tests/**/*.tsx",
     "./scripts/**/*.ts",
-    "./vite.config.mts",
-    "./vitest.config.mts"
+    "./vite.config.mts"
   ],
   "exclude": [
     "src/providers/**",

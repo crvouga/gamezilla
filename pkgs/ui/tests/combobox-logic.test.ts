@@ -1,3 +1,4 @@
+import { describe, expect, mock, test } from 'bun:test';
 import {
   type ComboboxKeyEvent,
   type ComboboxOption,
@@ -11,7 +12,6 @@ import {
   selectedOptionsFor,
   toggleSelectedValue,
 } from '@pkgs/ui/components/combobox';
-import { describe, expect, test, vi } from 'vitest';
 
 const RED: ComboboxOption = { value: 'red', label: 'Red' };
 const GREEN: ComboboxOption = {
@@ -104,9 +104,9 @@ describe('handleComboboxKeyNav', () => {
     overrides: Partial<Parameters<typeof handleComboboxKeyNav>[0]> = {}
   ) {
     const ev = keyEvent(key);
-    const setHighlightedIndex = vi.fn();
-    const onActivate = vi.fn();
-    const onBackspaceEmpty = vi.fn();
+    const setHighlightedIndex = mock();
+    const onActivate = mock();
+    const onBackspaceEmpty = mock();
     const handled = handleComboboxKeyNav({
       event: ev,
       optionCount: 3,

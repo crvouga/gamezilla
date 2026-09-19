@@ -13,8 +13,11 @@
  * force-pushes, and aborts a conflicted merge before exiting.
  */
 import { existsSync } from 'node:fs';
-import { TITLE_MAX_LENGTH, TITLE_PATTERN } from './check-pr-body';
 
+/** Conventional Commit header: `<type>(<scope>): <summary>`, same as a PR title. */
+const TITLE_PATTERN =
+  /^(feat|fix|refactor|test|chore|docs|perf|ci)(\([a-z0-9./-]+\))?!?: \S.*$/;
+const TITLE_MAX_LENGTH = 72;
 const BASE = 'main';
 const TRUNKS: ReadonlySet<string> = new Set(['main', 'master', 'dev']);
 const IN_PROGRESS = [

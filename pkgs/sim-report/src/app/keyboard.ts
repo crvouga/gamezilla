@@ -1,7 +1,14 @@
 import type { HtmlReportTest } from '@pkgs/sim';
 
 import type { FlatFrame } from '../lib/frames';
-import { actorIds, frameHasUi, selectedFrame, testFrames } from '../lib/frames';
+import {
+  actorIds,
+  frameHasUi,
+  neighborFailure,
+  neighborStepFrame,
+  selectedFrame,
+  testFrames,
+} from '../lib/frames';
 import {
   type Route,
   showAside,
@@ -54,6 +61,24 @@ function scrubKeys(
     e.preventDefault();
     h.togglePlay();
   }
+}
+
+/** ↑/↓ jump between steps, N / Shift+N between failures. */
+function jumpKeys(
+  e: KeyboardEvent,
+  frames: FlatFrame[],
+  sel: FlatFrame | null,
+  h: KeyNavHandlers
+): void {
+  const idx = sel ? sel.index : -1;
+  let target: FlatFrame | null = null;
+  if (e.key === 'ArrowDown') target = neighborStepFrame(frames, idx, 1);
+  else if (e.key === 'ArrowUp') target = neighborStepFrame(frames, idx, -1);
+  else if (e.key === 'n') target = neighborFailure(frames, idx, 1);
+  else if (e.key === 'N') target = neighborFailure(frames, idx, -1);
+  else return;
+  e.preventDefault();
+  if (target) h.goFrame(target);
 }
 
 function neighborKeys(
@@ -164,5 +189,6 @@ export function onReportKeyDown(
   const frames = testFrames(test);
   const sel = selectedFrame(frames, r);
   scrubKeys(e, frames, sel, h);
+  jumpKeys(e, frames, sel, h);
   viewKeys(e, { data, test, sel, route: r, h });
 }

@@ -13,6 +13,7 @@ import type {
 import { type JSX, Show } from 'solid-js';
 
 import { CELL_UNITS, squareOrigin } from './board-units';
+import { PaintToken } from './paint-token';
 
 export type SquareCellProps = {
   readonly square: Square;
@@ -37,8 +38,16 @@ export type SquareOverlayInput = {
   readonly premoveTo: Square | null;
 };
 
-/** Overlay fill CSS color, or null when the checker background shows through. */
-export function squareOverlayFill(cell: SquareOverlayInput): string | null {
+export type SquareOverlay = {
+  readonly kind: 'selected' | 'check' | 'premove' | 'last-move';
+  readonly fill: string;
+};
+
+/**
+ * The one overlay painted on a square (selection > check > premove > last
+ * move), or null when the checker background shows through.
+ */
+export function squareOverlay(cell: SquareOverlayInput): SquareOverlay | null {
   const {
     square,
     lastMove,
@@ -48,17 +57,21 @@ export function squareOverlayFill(cell: SquareOverlayInput): string | null {
     premoveFrom,
     premoveTo,
   } = cell;
-  if (selected === square) return 'var(--chess-selected)';
-  if (checkSquare === square) return 'var(--chess-check)';
+  if (selected === square) {
+    return { kind: 'selected', fill: 'var(--chess-selected)' };
+  }
+  if (checkSquare === square) {
+    return { kind: 'check', fill: 'var(--chess-check)' };
+  }
   if (premoveFrom === square || premoveTo === square) {
-    return 'var(--chess-last-move)';
+    return { kind: 'premove', fill: 'var(--chess-last-move)' };
   }
   if (
     highlightLastMove &&
     lastMove !== null &&
     (square === lastMove.from || square === lastMove.to)
   ) {
-    return 'var(--chess-last-move)';
+    return { kind: 'last-move', fill: 'var(--chess-last-move)' };
   }
   return null;
 }
@@ -108,7 +121,7 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
   const y = () => origin().y;
   const h = () => props.highlight;
   const overlay = () =>
-    squareOverlayFill({
+    squareOverlay({
       square: props.square,
       lastMove: props.lastMove,
       selected: props.selected,
@@ -120,14 +133,16 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
   return (
     <g>
       <Show when={overlay()}>
-        {(fill) => (
+        {(o) => (
           <rect
             x={x()}
             y={y()}
             width={CELL_UNITS}
             height={CELL_UNITS}
-            fill={fill()}
-          />
+            fill={o().fill}
+          >
+            <PaintToken kind={o().kind} at={props.square} />
+          </rect>
         )}
       </Show>
       <Show when={h()}>
@@ -142,7 +157,9 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
                 height={CELL_UNITS}
                 fill={hl().color}
                 opacity={hl().opacity ?? 0.35}
-              />
+              >
+                <PaintToken kind="highlight" at={props.square} />
+              </rect>
             }
           >
             <rect
@@ -154,7 +171,9 @@ export function SquareCell(props: SquareCellProps): JSX.Element {
               stroke={hl().color}
               stroke-width={4}
               opacity={hl().opacity ?? 0.85}
-            />
+            >
+              <PaintToken kind="highlight" detail="ring" at={props.square} />
+            </rect>
           </Show>
         )}
       </Show>

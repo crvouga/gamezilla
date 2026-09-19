@@ -3,7 +3,7 @@
  * Assert light contracts; deeper proofs live in transform-cases / sx-mapping.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { checkCompleteness } from '../completeness-gate';
 import { mapSxRecord } from '../sx-mapping';
 import { transformFile } from '../transform';

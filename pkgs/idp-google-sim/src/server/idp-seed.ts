@@ -6,6 +6,7 @@
  * at two domains is two accounts.
  */
 
+import { idpSubOf } from '../shared/sub';
 import type { IdpAccount, IdpAccountDraft } from '../shared/types';
 
 const DEFAULT_FAMILY_NAME = 'Tester';
@@ -28,18 +29,6 @@ function titleCase(raw: string): string {
   return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 
-/**
- * Google `sub`s are 21-digit decimal strings. Derive one from the address so
- * a given account is the same subject on every boot of the stack.
- */
-function derivedSub(seed: string): string {
-  let hash = 0n;
-  for (const char of seed) {
-    hash = (hash * 131n + BigInt(char.codePointAt(0) ?? 0)) % 10n ** 20n;
-  }
-  return `1${hash.toString().padStart(20, '0')}`;
-}
-
 function resolveEmail(draft: IdpAccountDraft): string {
   if (draft.email !== undefined) return draft.email.trim().toLowerCase();
   if (draft.handle !== undefined) {
@@ -55,7 +44,7 @@ export function buildAccount(draft: IdpAccountDraft): IdpAccount {
   const given = draft.givenName ?? titleCase(handle);
   const family = draft.familyName ?? DEFAULT_FAMILY_NAME;
   return {
-    sub: draft.sub ?? derivedSub(email),
+    sub: draft.sub ?? idpSubOf(email),
     email,
     emailVerified: draft.emailVerified ?? true,
     name: draft.name ?? `${given} ${family}`,

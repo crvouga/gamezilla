@@ -25,7 +25,7 @@ const BUGS_PATH = 'libs/tools/goal/known-bugs.json';
  * Ratchet: the number of statements that are not yet proven by a check. Later
  * PRs may only lower this (and the manifest entry must move to `proven`).
  */
-const UNPROVEN_BUDGET = 11;
+const UNPROVEN_BUDGET = 0;
 
 function readRepoFile(path: string): string | null {
   try {

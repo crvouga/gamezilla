@@ -16,11 +16,38 @@ export type FlatFrame = {
 
 export type OrderedUiBlob = {
   readonly nodeId: string;
+  /** This frame's snapshot, or the client's latest earlier one when stale. */
   readonly blob: ReportSnapshotBlob | null;
+  /** True when `blob` is carried forward from an earlier frame. */
+  readonly stale: boolean;
 };
 
 const frameCache = new WeakMap<object, FlatFrame[]>();
 const actorOrderCache = new WeakMap<object, string[]>();
+const carryCache = new WeakMap<
+  object,
+  ReadonlyMap<string, ReportSnapshotBlob>[]
+>();
+
+/** Per frame index: each client's latest UI snapshot at or before it. */
+function carriedUiBlobs(
+  test: HtmlReportTest
+): ReadonlyMap<string, ReportSnapshotBlob>[] {
+  const cached = carryCache.get(test);
+  if (cached) return cached;
+  const out: ReadonlyMap<string, ReportSnapshotBlob>[] = [];
+  let last = new Map<string, ReportSnapshotBlob>();
+  for (const frame of testFrames(test)) {
+    const next = new Map(last);
+    for (const blob of uiBlobs(frame)) {
+      if (blob.nodeId) next.set(blob.nodeId, blob);
+    }
+    out.push(next);
+    last = next;
+  }
+  carryCache.set(test, out);
+  return out;
+}
 
 export type FlatStep = {
   step: ReportStep;
@@ -143,12 +170,18 @@ export function orderedUiBlobs(
     else if (!nodeId) unassigned.push(blob);
   }
 
-  const ordered = allUiActorIds(test).map((nodeId) => ({
-    nodeId,
-    blob: byNode.get(nodeId) ?? null,
-  }));
+  const carried = frame ? carriedUiBlobs(test)[frame.index] : undefined;
+  const ordered: OrderedUiBlob[] = allUiActorIds(test).map((nodeId) => {
+    const own = byNode.get(nodeId);
+    if (own) return { nodeId, blob: own, stale: false };
+    return { nodeId, blob: carried?.get(nodeId) ?? null, stale: true };
+  });
   for (const blob of unassigned) {
-    ordered.push({ nodeId: `snapshot-${ordered.length + 1}`, blob });
+    ordered.push({
+      nodeId: `snapshot-${ordered.length + 1}`,
+      blob,
+      stale: false,
+    });
   }
   return ordered;
 }
@@ -233,4 +266,40 @@ export function blobDataUrl(
   const b = test.blobs[blob.file];
   if (!b?.base64) return null;
   return `data:${b.contentType};base64,${b.base64}`;
+}
+
+/** Whether any frame of `step` (not its children) shows a press target. */
+export function stepHasPress(step: ReportStep): boolean {
+  return step.frames.some((f) => f.hit !== undefined);
+}
+
+/** Next (`delta` 1) / previous (-1) frame of a failed step, wrapping. */
+export function neighborFailure(
+  frames: readonly FlatFrame[],
+  from: number,
+  delta: 1 | -1
+): FlatFrame | null {
+  const n = frames.length;
+  for (let k = 1; k <= n; k += 1) {
+    const f = frames[(((from + delta * k) % n) + n) % n];
+    if (f && f.step.status === 'failed' && f.index !== from) return f;
+  }
+  return null;
+}
+
+/** First frame of the next / previous step (skipping same-step frames). */
+export function neighborStepFrame(
+  frames: readonly FlatFrame[],
+  from: number,
+  delta: 1 | -1
+): FlatFrame | null {
+  const cur = frames[from];
+  if (!cur) return null;
+  let i = from + delta;
+  while (frames[i] && frames[i]?.step === cur.step) i += delta;
+  const target = frames[i];
+  if (!target) return null;
+  if (delta === 1) return target;
+  while (frames[i - 1] && frames[i - 1]?.step === target.step) i -= 1;
+  return frames[i] ?? null;
 }

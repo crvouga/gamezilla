@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import {
@@ -13,7 +15,6 @@ import {
   toCatalogItems,
 } from '@pkgs/ui';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { describe, expect, test, vi } from 'vitest';
 import { renderUi } from './support/render';
 
 const COMPONENTS_DIR = join(import.meta.dirname, '../src/components');
@@ -82,7 +83,7 @@ describe('componentRegistry', () => {
 
 describe('ExplorerList', () => {
   test('renders grouped rows and calls onSelect with the id', () => {
-    const onSelect = vi.fn();
+    const onSelect = mock();
     renderUi(() => <ExplorerList entries={DEMO_ENTRIES} onSelect={onSelect} />);
     expect(
       screen.getByRole('heading', { name: 'Group A' })

@@ -124,6 +124,7 @@ describe('public-api', () => {
     expect(Object.keys(fcAdapter).sort()).toEqual(
       [
         'arbitrary',
+        'fc',
         'gen',
         'randomGeneratorOver',
         'assertProperty',

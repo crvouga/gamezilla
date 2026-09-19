@@ -35,7 +35,8 @@ function renderBlockedByThem(t: LinguiT): JSX.Element {
 function renderBlockedByMe(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  t: LinguiT
+  t: LinguiT,
+  username: string | undefined
 ): JSX.Element {
   return (
     <SingleActionPill
@@ -44,6 +45,9 @@ function renderBlockedByMe(
       loading={t`Unblocking…`}
       success={t`Unblocked`}
       error={t`Couldn't unblock`}
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendUnblock(username) }
+        : {})}
     />
   );
 }
@@ -58,7 +62,10 @@ function renderPendingIncoming(
       onConfirm={wrap(mutations.confirmRequest)}
       onDelete={wrap(mutations.deleteRequest)}
       {...(username !== undefined && username.length > 0
-        ? { confirmTestID: Handles.friendConfirm(username) }
+        ? {
+            confirmTestID: Handles.friendConfirm(username),
+            deleteTestID: Handles.friendDecline(username),
+          }
         : {})}
     />
   );
@@ -67,7 +74,8 @@ function renderPendingIncoming(
 function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  t: LinguiT
+  t: LinguiT,
+  username: string | undefined
 ): JSX.Element {
   return (
     <SingleActionPill
@@ -77,6 +85,9 @@ function renderPendingOutgoing(
       success={t`Cancelled`}
       error={t`Couldn't cancel`}
       variant="outline"
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendCancel(username) }
+        : {})}
     />
   );
 }
@@ -139,11 +150,11 @@ export function renderFriendActionPillsForStatus({
     case 'blocked_by_them':
       return renderBlockedByThem(t);
     case 'blocked_by_me':
-      return renderBlockedByMe(wrap, mutations, t);
+      return renderBlockedByMe(wrap, mutations, t, username);
     case 'pending_incoming':
       return renderPendingIncoming(wrap, mutations, username);
     case 'pending_outgoing':
-      return renderPendingOutgoing(wrap, mutations, t);
+      return renderPendingOutgoing(wrap, mutations, t, username);
     case 'friends':
       return renderFriends(t, username);
     default:

@@ -180,53 +180,6 @@ describe('postgres reconcile integration', () => {
     expect(rows[0]?.table_schema).toBe('app_schema');
   });
 
-  // postgres-mem rejects `ALTER COLUMN ... SET NOT NULL` ("this ALTER COLUMN
-  // form is not supported"), so the legacy NOT NULL shape this test needs
-  // cannot be constructed in-process. Re-home on postgres-embedded.
-  test.skip('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
-    await applyPostgresSchema(
-      sqlClient,
-      registerTables([
-        defineTable({
-          domain: 'legacy_puzzle_shape',
-          name: 'legacy_puzzle_shape',
-          columns: { rating: 'integer', body: 'text' },
-        }),
-      ]),
-      sqlClient.dbScope
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`)
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body SET NOT NULL`)
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating DROP NOT NULL`)
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body DROP NOT NULL`)
-    );
-
-    const schema = defineSchema({
-      tables: {
-        legacy_puzzle_shape: { rating: 'integer', body: 'text' },
-      },
-    });
-    await postgres(schema, sqlClient).reconcile();
-
-    const catalog = await readPostgresCatalog(sqlClient, schema._declared);
-    const rating = catalog.tables
-      .get('legacy_puzzle_shape')
-      ?.columns.find((c) => c.name === 'rating');
-    const body = catalog.tables
-      .get('legacy_puzzle_shape')
-      ?.columns.find((c) => c.name === 'body');
-    expect(rating?.type).toBe('integer');
-    expect(rating?.nullable).toBe(true);
-    expect(body?.nullable).toBe(true);
-  });
-
   test('concurrent reconcile serializes via advisory lock', async () => {
     const schema = defineSchema({
       tables: { concurrent_t: { v: 'text' } },

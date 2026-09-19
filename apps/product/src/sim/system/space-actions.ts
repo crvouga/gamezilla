@@ -64,3 +64,40 @@ export const endSpace = scenarioAction({
     });
   },
 });
+
+export const selectChessGame = scenarioAction({
+  name: 'selectChessGame',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.gameMenuChess).expect.visible({
+      timeoutMs: SPACE_WAIT_MS,
+    });
+    await ui.get(Handles.gameMenuChess).tap({ timeoutMs: SPACE_WAIT_MS });
+    await ui.get(Handles.chessMenuPuzzle).expect.visible({
+      timeoutMs: SPACE_WAIT_MS,
+    });
+  },
+});
+
+export const openSpaceMembers = scenarioAction({
+  name: 'openSpaceMembers',
+  act: async (s, actorId: string) => {
+    await tapChromeAction(s, actorId, Handles.spaceMembersButton);
+    await s.session.waitForIdle();
+  },
+});
+
+export const leaveSpace = scenarioAction({
+  name: 'leaveSpace',
+  act: async (s, actorId: string) => {
+    await tapChromeAction(s, actorId, Handles.spaceLeave);
+    await confirmSpaceMutation(s, actorId, Handles.spaceLeaveConfirm);
+    const ui = await actorUi(s, actorId);
+    // Dismiss the success state when present (optional step).
+    if (await ui.get(Handles.spaceMutationDismiss).isVisible()) {
+      await ui
+        .get(Handles.spaceMutationDismiss)
+        .tap({ timeoutMs: SPACE_WAIT_MS });
+    }
+  },
+});

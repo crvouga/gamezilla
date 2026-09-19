@@ -36,6 +36,7 @@ export function FriendUserScreenContent(props: {
         />
       </div>
       <FriendUserDangerModals
+        username={props.profile.username}
         removeOpen={props.removeOpen}
         blockOpen={props.blockOpen}
         onCloseRemove={props.onCloseRemove}

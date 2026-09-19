@@ -88,6 +88,17 @@ describe('ChessGame', () => {
     expect(game.applyExternalFen(other.fen())).toBeNull();
   });
 
+  test('a malformed FEN never throws: start position / position kept', () => {
+    expect(new ChessGame('not a fen').getSnapshot().fen).toBe(
+      new Chess().fen()
+    );
+    const game = new ChessGame();
+    game.tryMove({ from: 'e2', to: 'e4' });
+    const fen = game.getSnapshot().fen;
+    expect(game.applyExternalFen('8/8/8 w - - 0 1')).toBeNull();
+    expect(game.getSnapshot().fen).toBe(fen);
+  });
+
   test('reset / undo / pgn round-trip', () => {
     const game = new ChessGame();
     game.tryMove({ from: 'e2', to: 'e4' });

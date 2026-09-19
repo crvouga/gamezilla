@@ -141,6 +141,8 @@ function PuzzlePlayerE2eHints(props: {
       spaceRole={p.spaceRole}
       statusKind={statusKind}
       clockElapsedMs={p.clockElapsedMs}
+      puzzleRating={p.rating}
+      themes={p.themes}
       recommendations={p.recommendationProbe}
     />
   );

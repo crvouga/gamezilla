@@ -1,13 +1,18 @@
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
 import type { Session } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { Driver } from '@pkgs/ui-testing';
-
 import type { ProductExtra } from '../hosts/ports';
 
 export type SimActor = {
   readonly id: string;
   readonly ui: Driver;
+  /**
+   * The actor's local database, wherever the actor runs (in-process SQLite,
+   * or inside a live browser), or `null` before the app has opened one.
+   */
+  readonly localSql: () => SqlTx | null;
 };
 
 export type ProductRuntime = {

@@ -210,6 +210,7 @@ export function ActionBarTextItems(props: {
           size="sm"
           loading={action.loading ?? false}
           disabled={action.disabled ?? false}
+          dataSet={action.dataSet}
         />
       )}
     </For>

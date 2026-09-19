@@ -1,5 +1,18 @@
-import { describe, expect, test } from 'bun:test';
+// goal:the-bar:5 — PubSub contract runs against local EMQX or externally
+// supplied broker. When no broker URL is provided, starts EMQX automatically.
+
+import { afterAll, describe, expect, test } from 'bun:test';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_MQTT_PASS,
+  EMQX_MQTT_USER,
+  startEmqxServer,
+} from '@pkgs/emqx-server';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import {
   type PubSubContractEnv,
@@ -10,12 +23,39 @@ import { createEmqxPubSub, EMQX_PUBSUB_QOS } from './create-emqx-pubsub';
 import { getEmqxClientId } from './emqx-client-id';
 import { randomClientIdSuffix } from './reconnect-backoff';
 
-const WSS_URL = process.env['EMQX_TEST_URL'];
-const API_URL = process.env['EMQX_TEST_API_URL'];
-const API_KEY = process.env['EMQX_TEST_API_KEY'] ?? 'pubsub-test';
-const API_SECRET = process.env['EMQX_TEST_API_SECRET'] ?? 'pubsub-test-secret';
-const MQTT_USER = process.env['EMQX_TEST_MQTT_USER'] ?? 'pubsub';
-const MQTT_PASS = process.env['EMQX_TEST_MQTT_PASS'] ?? 'pubsub';
+let WSS_URL = process.env['EMQX_TEST_URL'] ?? '';
+let API_URL = process.env['EMQX_TEST_API_URL'] ?? '';
+const API_KEY = process.env['EMQX_TEST_API_KEY'] ?? EMQX_API_KEY;
+const API_SECRET = process.env['EMQX_TEST_API_SECRET'] ?? EMQX_API_SECRET;
+const MQTT_USER = process.env['EMQX_TEST_MQTT_USER'] ?? EMQX_MQTT_USER;
+const MQTT_PASS = process.env['EMQX_TEST_MQTT_PASS'] ?? EMQX_MQTT_PASS;
+let stopEmqx: (() => void) | undefined;
+
+// When no EMQX test URL is supplied, start the broker locally.
+if (!WSS_URL || !API_URL) {
+  const dataDir = join(tmpdir(), `emqx-contract-${randomUUID()}`);
+  const broker = await startEmqxServer({ dataDir });
+  WSS_URL = `mqtt://127.0.0.1:${broker.mqttPort}`;
+  API_URL = `http://127.0.0.1:${broker.dashboardPort}`;
+  stopEmqx = () => broker.stop();
+
+  // startEmqxServer returns before listeners bind; wait for the HTTP API.
+  const readyDeadline = wallClock.now() + 60_000;
+  while (wallClock.now() < readyDeadline) {
+    try {
+      const res = await createGlobalHttpClient().fetch(
+        `${API_URL}/api/v5/status`,
+        { signal: AbortSignal.timeout(1_000) }
+      );
+      if (res.ok || res.status === 401 || res.status === 404) break;
+    } catch {
+      // still booting
+    }
+    await new Promise<void>((resolve) => {
+      wallTimers.setTimeout(resolve, 250);
+    });
+  }
+}
 
 const http = createGlobalHttpClient();
 const now = wallClock.now;
@@ -46,22 +86,6 @@ function apiHeaders(): Record<string, string> {
     Authorization: `Basic ${btoa(`${API_KEY}:${API_SECRET}`)}`,
     Accept: 'application/json',
   };
-}
-
-async function probeBroker(): Promise<boolean> {
-  if (!WSS_URL || !API_URL) return false;
-  try {
-    const res = await http.fetch(
-      `${API_URL.replace(/\/$/, '')}/api/v5/status`,
-      {
-        headers: apiHeaders(),
-        signal: AbortSignal.timeout(2000),
-      }
-    );
-    return res.ok || res.status === 401 || res.status === 404;
-  } catch {
-    return false;
-  }
 }
 
 async function httpPublish(
@@ -107,13 +131,13 @@ async function forceDisconnectClient(
 }
 
 async function makeContractEnv(): Promise<PubSubContractEnv> {
-  const apiBaseUrl = API_URL!;
+  const apiBaseUrl = API_URL;
   const instances: ReturnType<typeof createEmqxPubSub>[] = [];
 
   return {
     make: async () => {
       const ps = createEmqxPubSub({
-        url: WSS_URL!,
+        url: WSS_URL,
         clientIdPrefix: `contract_${randomClientIdSuffix(random)}`,
         timers,
         random,
@@ -126,7 +150,7 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
       instances.push(ps);
       await waitUntilStatus(() => ps.status(), 'connected', 10_000);
       if (ps.status() !== 'connected') {
-        throw new Error('EMQX WSS failed to connect');
+        throw new Error('EMQX MQTT failed to connect');
       }
       return ps;
     },
@@ -140,7 +164,22 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
     disruptTransport: async (p) => {
       const clientId = getEmqxClientId(p);
       if (!clientId) throw new Error('missing EMQX client id');
-      await forceDisconnectClient(apiBaseUrl, clientId);
+      // The kick is async: the client still reads `connected` when the API
+      // answers, and with a 100ms backoff it can drop and reconnect between
+      // two polls. Resolve on the drop event itself, so the contract's "wait
+      // until connected" means "reconnected", not "not yet dropped".
+      let unsubscribe = (): void => undefined;
+      const dropped = new Promise<void>((resolve) => {
+        unsubscribe = p.onStatus((s) => {
+          if (s !== 'connected') resolve();
+        });
+      });
+      try {
+        await forceDisconnectClient(apiBaseUrl, clientId);
+        await dropped;
+      } finally {
+        unsubscribe();
+      }
     },
     injectMalformedInbound: async (_subscriber, topic) => {
       await httpPublish(apiBaseUrl, topic, 'not-json{{{');
@@ -153,39 +192,104 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
   };
 }
 
-const brokerReady = await probeBroker();
+runPubSubContractTests('emqx', makeContractEnv);
 
-if (!brokerReady) {
-  describe('PubSub contract: emqx (skipped)', () => {
-    test('loud skip — set EMQX_TEST_URL and EMQX_TEST_API_URL with a running EMQX 5.x', () => {
-      console.warn(
-        '[pubsub-emqx] broker contract skipped: EMQX unreachable. ' +
-          'See README for brew install emqx + env vars.'
-      );
-      expect(true).toBe(true);
-    });
+type LinkProxy = {
+  readonly url: string;
+  /** Destroy live connections and refuse new ones — a network outage. */
+  cut(): void;
+  restore(): void;
+  stop(): void;
+};
+
+/**
+ * A TCP relay the test can unplug. Kicking the client through the EMQX API
+ * discards its session (the broker answers `CLIENTID_NOT_FOUND` and publishes
+ * find no subscriber), so an offline buffer can only be observed across a
+ * transport drop the broker did not ask for.
+ */
+function startLinkProxy(target: URL): LinkProxy {
+  type Side = { peer: Bun.Socket<Side> | null; pending: Uint8Array[] };
+  const live = new Set<Bun.Socket<Side>>();
+  let down = false;
+  const server = Bun.listen<Side>({
+    hostname: '127.0.0.1',
+    port: 0,
+    socket: {
+      open(client) {
+        if (down) {
+          client.end();
+          return;
+        }
+        client.data = { peer: null, pending: [] };
+        live.add(client);
+        void Bun.connect<Side>({
+          hostname: target.hostname,
+          port: Number(target.port),
+          data: { peer: client, pending: [] },
+          socket: {
+            open(upstream) {
+              live.add(upstream);
+              client.data.peer = upstream;
+              for (const chunk of client.data.pending) upstream.write(chunk);
+              client.data.pending = [];
+            },
+            data(upstream, chunk) {
+              upstream.data.peer?.write(chunk);
+            },
+            close(upstream) {
+              live.delete(upstream);
+              upstream.data.peer?.end();
+            },
+          },
+        }).catch(() => client.end());
+      },
+      data(client, chunk) {
+        if (client.data.peer === null) client.data.pending.push(chunk);
+        else client.data.peer.write(chunk);
+      },
+      close(client) {
+        live.delete(client);
+        client.data?.peer?.end();
+      },
+    },
   });
-} else {
-  runPubSubContractTests('emqx', makeContractEnv);
+  return {
+    url: `mqtt://127.0.0.1:${String(server.port)}`,
+    cut() {
+      down = true;
+      for (const socket of live) socket.terminate();
+      live.clear();
+    },
+    restore() {
+      down = false;
+    },
+    stop() {
+      server.stop(true);
+    },
+  };
+}
 
-  describe('EMQX offline session buffer', () => {
-    test('reconnect with same clientId receives queued qos1 publish', async () => {
-      const apiBaseUrl = API_URL!;
-      const clientId = `offline_${randomClientIdSuffix(random)}`;
-      const topic = `offline_${randomClientIdSuffix(random)}`;
-      const received: unknown[] = [];
+describe('EMQX offline session buffer', () => {
+  test('reconnect with same clientId receives queued qos1 publish', async () => {
+    const apiBaseUrl = API_URL;
+    const clientId = `offline_${randomClientIdSuffix(random)}`;
+    const topic = `offline_${randomClientIdSuffix(random)}`;
+    const received: unknown[] = [];
+    const link = startLinkProxy(new URL(WSS_URL));
 
-      const first = createEmqxPubSub({
-        url: WSS_URL!,
-        clientIdPrefix: clientId,
-        timers,
-        random,
-        auth: async () => ({
-          username: MQTT_USER,
-          password: MQTT_PASS,
-        }),
-        reconnect: { baseMs: 1500, maxMs: 3000 },
-      });
+    const first = createEmqxPubSub({
+      url: link.url,
+      clientIdPrefix: clientId,
+      timers,
+      random,
+      auth: async () => ({
+        username: MQTT_USER,
+        password: MQTT_PASS,
+      }),
+      reconnect: { baseMs: 1500, maxMs: 3000 },
+    });
+    try {
       await waitUntilStatus(() => first.status(), 'connected', 10_000);
       expect(first.status()).toBe('connected');
       first.subscribe(topic, (data) => {
@@ -193,7 +297,7 @@ if (!brokerReady) {
       });
       await waitMs(400);
 
-      await forceDisconnectClient(apiBaseUrl, clientId);
+      link.cut();
       await waitUntilStatus(
         () => first.status(),
         (s) => s !== 'connected',
@@ -206,6 +310,7 @@ if (!brokerReady) {
         topic,
         JSON.stringify({ while: 'offline' })
       );
+      link.restore();
 
       await waitUntilStatus(() => first.status(), 'connected', 20_000);
       expect(first.status()).toBe('connected');
@@ -215,7 +320,13 @@ if (!brokerReady) {
         await waitMs(50);
       }
       expect(received).toEqual([{ while: 'offline' }]);
+    } finally {
       first.close();
-    });
+      link.stop();
+    }
   });
-}
+});
+
+afterAll(() => {
+  stopEmqx?.();
+});

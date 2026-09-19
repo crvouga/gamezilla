@@ -18,18 +18,34 @@ import type { DragGhostController } from './drag-ghost-controller';
 import { isArrowKey, moveCursor } from './keyboard-nav';
 import type { PointerSession } from './pointer-session';
 
-function squareFromRect(args: {
-  event: { clientX: number; clientY: number };
-  rect: DOMRect;
-  boardPx: number;
-  orientation: BoardOrientation;
-}): Square | null {
-  return xyToSquare(
-    args.event.clientX - args.rect.left,
-    args.event.clientY - args.rect.top,
-    args.boardPx,
-    args.orientation
-  );
+/**
+ * The painted board: the host's content box (inside its border), where the
+ * squares, pieces and hit grid are drawn. Pointer math must use this box —
+ * the border box or the snapped `boardPx` shifts taps near square edges.
+ */
+type BoardBox = {
+  readonly left: number;
+  readonly top: number;
+  readonly size: number;
+};
+
+function borderPx(value: string): number {
+  const n = Number.parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function measureBoardBox(node: HTMLElement, fallbackPx: number): BoardBox {
+  const rect = node.getBoundingClientRect();
+  const style = node.ownerDocument.defaultView?.getComputedStyle(node);
+  const left = borderPx(style?.borderLeftWidth ?? '');
+  const right = borderPx(style?.borderRightWidth ?? '');
+  const top = borderPx(style?.borderTopWidth ?? '');
+  const size = rect.width - left - right;
+  return {
+    left: rect.left + left,
+    top: rect.top + top,
+    size: size > 0 ? size : fallbackPx,
+  };
 }
 
 export type BoardHandlers = {
@@ -39,6 +55,8 @@ export type BoardHandlers = {
   readonly onPointerCancel: () => void;
   readonly onKeyDown: (event: KeyboardEvent) => void;
   readonly onContextMenu: (event: MouseEvent) => void;
+  /** A hit-grid square button took focus: the cursor follows it. */
+  readonly onSquareFocus: (square: Square) => void;
 };
 
 type HandlerArgs = {
@@ -55,7 +73,7 @@ type HandlerArgs = {
 };
 
 type RectCache = {
-  cached: DOMRect | null;
+  cached: BoardBox | null;
   ro: ResizeObserver | null;
 };
 
@@ -67,11 +85,15 @@ function clearRectCache(cache: RectCache): void {
   }
 }
 
-function ensureRect(cache: RectCache, node: HTMLElement): DOMRect {
+function ensureRect(
+  cache: RectCache,
+  node: HTMLElement,
+  fallbackPx: number
+): BoardBox {
   if (cache.cached !== null) return cache.cached;
-  cache.cached = node.getBoundingClientRect();
+  cache.cached = measureBoardBox(node, fallbackPx);
   cache.ro = new ResizeObserver(() => {
-    cache.cached = node.getBoundingClientRect();
+    cache.cached = measureBoardBox(node, fallbackPx);
   });
   cache.ro.observe(node);
   return cache.cached;
@@ -84,11 +106,10 @@ function unitsFromEvent(
 ): { x: number; y: number } | null {
   const node = args.host();
   if (node === undefined) return null;
-  const rect = ensureRect(cache, node);
-  const px = args.boardPx();
+  const box = ensureRect(cache, node, args.boardPx());
   return {
-    x: pxToUnits(event.clientX - rect.left, px),
-    y: pxToUnits(event.clientY - rect.top, px),
+    x: pxToUnits(event.clientX - box.left, box.size),
+    y: pxToUnits(event.clientY - box.top, box.size),
   };
 }
 
@@ -105,12 +126,13 @@ function atSquare(
 ): Square | null {
   const node = args.host();
   if (node === undefined) return null;
-  return squareFromRect({
-    event,
-    rect: ensureRect(cache, node),
-    boardPx: args.boardPx(),
-    orientation: args.orientation(),
-  });
+  const box = ensureRect(cache, node, args.boardPx());
+  return xyToSquare(
+    event.clientX - box.left,
+    event.clientY - box.top,
+    box.size,
+    args.orientation()
+  );
 }
 
 function beginGhostDrag(
@@ -145,7 +167,7 @@ function createPointerPart(
       if (args.enableUserArrows()) args.userArrows.clear();
       node.setPointerCapture(event.pointerId);
       clearRectCache(cache);
-      ensureRect(cache, node);
+      ensureRect(cache, node, args.boardPx());
       const sq = atSquare(args, cache, event);
       args.session.down(sq, event.clientX, event.clientY, event.pointerType);
       if (sq !== null) args.setCursor(sq);
@@ -183,15 +205,26 @@ function createPointerPart(
   };
 }
 
+/** Roving focus: the cursor square's button holds keyboard focus. */
+function focusSquare(host: HTMLElement | undefined, square: Square): void {
+  const button = host?.querySelector<HTMLElement>(`[data-square="${square}"]`);
+  button?.focus();
+}
+
 function createKeyPart(
   args: HandlerArgs
-): Pick<BoardHandlers, 'onKeyDown' | 'onContextMenu'> {
+): Pick<BoardHandlers, 'onKeyDown' | 'onContextMenu' | 'onSquareFocus'> {
   return {
+    onSquareFocus(square) {
+      args.setCursor(square);
+    },
     onKeyDown(event) {
       if (isArrowKey(event.key)) {
         event.preventDefault();
         const next = moveCursor(args.cursor(), event.key, args.orientation());
-        if (next !== null) args.setCursor(next);
+        if (next === null) return;
+        args.setCursor(next);
+        focusSquare(args.host(), next);
         return;
       }
       if (event.key === 'Enter' || event.key === ' ') {

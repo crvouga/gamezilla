@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { JsonView } from '@pkgs/ui/components/json-view';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { describe, expect, test, vi } from 'vitest';
 import { renderUi } from './support/render';
 
 const VALUE = {
@@ -72,7 +73,7 @@ describe('JsonView', () => {
   });
 
   test('copy sink receives pretty JSON for the root and raw text for leaves', () => {
-    const copy = vi.fn((_text: string) => Promise.resolve());
+    const copy = mock((_text: string) => Promise.resolve());
     renderUi(() => <JsonView value={VALUE} copy={copy} />);
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
     expect(copy).toHaveBeenCalledWith(JSON.stringify(VALUE, null, 2));

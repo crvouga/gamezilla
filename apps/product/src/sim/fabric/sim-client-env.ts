@@ -9,13 +9,9 @@ import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import { SIM_SERVER_URL } from '@apps/server/sim/migrate-sim-postgres';
 import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import { assert } from '@pkgs/assert';
-import {
-  createInProcessOpenAuthSession,
-  createNamespacedAuthClientStorage,
-} from '@pkgs/auth/client';
+import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import type { Timers } from '@pkgs/clock';
 import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
-import { IDP_PASSWORD } from '@pkgs/idp-google-sim/shared';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import {
@@ -27,12 +23,9 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
-import {
-  createSimBillingBrowser,
-  type SimBillingBrowser,
-} from './sim-billing-browser';
+import { createSimBrowser, type SimBrowser } from './sim-browser';
 import { simClientNamespace } from './sim-client-namespace';
-import { simBrowserFetch, simIdpEmail } from './sim-idp';
+import { simBrowserFetch } from './sim-idp';
 import type { SimLoadBalancer } from './sim-load-balancer';
 import type { SimNet } from './sim-net';
 import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
@@ -71,36 +64,13 @@ function clientSecureStorage(ns: string): ClientEnv['secureStorage'] {
   );
 }
 
-/**
- * The sign-in popup, headless. It walks the provider's real screens — the
- * account chooser, the password form, the consent card — the same way the
- * bun-webview host walks them with a live browser.
- */
-function clientOpenAuthSession(
-  id: string,
-  browserFetch: ClientEnv['server']
-): ClientEnv['openAuthSession'] {
-  const completeAuth = createInProcessOpenAuthSession({
-    fetch: (input, init) => browserFetch(input, init),
-    account: { email: simIdpEmail(id), password: IDP_PASSWORD },
-  });
-  return async (authorizationUrl, callbackUrl) => {
-    const result = await completeAuth(authorizationUrl, callbackUrl);
-    if (result.type === 'success') {
-      // The actor id doubles as the sim username (client-a / client-b).
-      setPendingSignupUsername(id);
-    }
-    return result;
-  };
-}
-
 export function makeSimClientEnv(
   deps: SimClientEnvDeps,
   args: {
     readonly id: string;
     readonly clientSql: Map<string, SimSql>;
   }
-): { readonly env: ClientEnv; readonly billingBrowser: SimBillingBrowser } {
+): { readonly env: ClientEnv; readonly browser: SimBrowser } {
   const { session, seed, timers, net, pubSubBus, roomNode } = deps;
   const { id, clientSql } = args;
   const ns = simClientNamespace(id);
@@ -111,9 +81,13 @@ export function makeSimClientEnv(
     from: id,
     server: serverFetch,
   });
-  const billingBrowser = createSimBillingBrowser({
-    browserFetch,
-    apiOrigin: SIM_SERVER_URL,
+  const browser = createSimBrowser({
+    network: browserFetch,
+    // DOM types claim `location` always exists; under Bun it does not.
+    appOrigin: () =>
+      'location' in globalThis ? globalThis.location.origin : null,
+    // The actor id doubles as the sim username (client-a / client-b).
+    onAuthSuccess: () => setPendingSignupUsername(id),
   });
   let liveEvents: ReturnType<typeof createInMemoryPubSub> | null =
     createInMemoryPubSub({ bus: pubSubBus });
@@ -158,10 +132,10 @@ export function makeSimClientEnv(
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
     authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,
-    openAuthSession: clientOpenAuthSession(id, browserFetch),
-    openExternalUrl: billingBrowser.openExternalUrl,
+    openAuthSession: browser.openAuthSession,
+    openExternalUrl: browser.openExternalUrl,
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 900,
   };
-  return { env, billingBrowser };
+  return { env, browser };
 }

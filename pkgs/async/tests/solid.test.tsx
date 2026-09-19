@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { createAsync } from '@pkgs/async/solid';
 import { render, screen, waitFor } from '@solidjs/testing-library';
-import { describe, expect, test } from 'vitest';
 
 describe('createAsync', () => {
   test('exposes reactive status and value', async () => {

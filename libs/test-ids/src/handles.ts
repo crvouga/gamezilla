@@ -34,6 +34,29 @@ export const Handles = {
   spaceMiniplayer: 'space-miniplayer',
   /** MutationModal success-state dismiss (Done) for space leave/end flows. */
   spaceMutationDismiss: 'space-mutation-dismiss',
+  /** Members button in the space action bar. */
+  spaceMembersButton: 'space-members-button',
+  /** Presence strip (member faces) in the space action bar. */
+  spacePresenceStrip: 'space-presence-strip',
+  /** One row in the space members list modal, scoped by member id. */
+  spaceMemberRow: (memberId: string) => `space-member-row-${memberId}`,
+  /** Hidden count probe in the space members modal. */
+  spacePresenceCount: 'space-presence-count',
+  /** Cancel outgoing friend request pill (scoped by username). */
+  friendCancel: (username: string) => `friend-cancel-${username}`,
+  /** Decline incoming friend request pill (scoped by username). */
+  friendDecline: (username: string) => `friend-decline-${username}`,
+  /** Remove friend pill (scoped by username). */
+  friendRemove: (username: string) => `friend-remove-${username}`,
+  /** Remove friend confirmation button (scoped by username). */
+  friendRemoveConfirm: (username: string) =>
+    `friend-remove-confirm-${username}`,
+  /** Block user pill (scoped by username). */
+  friendBlock: (username: string) => `friend-block-${username}`,
+  /** Block user confirmation (scoped by username). */
+  friendBlockConfirm: (username: string) => `friend-block-confirm-${username}`,
+  /** Unblock user pill (scoped by username). */
+  friendUnblock: (username: string) => `friend-unblock-${username}`,
 
   // account
   accountSignIn: 'account-sign-in',
@@ -113,6 +136,7 @@ export const Handles = {
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
+  chessPuzzleSummaryClose: 'chess-puzzle-summary-close',
   /** Board-well block shown when the feed has no puzzle to place. */
   chessPuzzleEmptyPool: 'chess-puzzle-empty-pool',
   /** Secondary "Adjust feed" button under the exhausted-pool block. */
@@ -122,6 +146,9 @@ export const Handles = {
   chessPuzzleFeedTargetLabel: 'chess-puzzle-feed-target-label',
   /** Feed bar: history filter label (Any / Unseen / Seen / Failed). */
   chessPuzzleFeedHistoryLabel: 'chess-puzzle-feed-history-label',
+  chessPuzzleFeedThemeTrigger: 'chess-puzzle-feed-theme-trigger',
+  chessPuzzleFeedThemeOption: (theme: string) =>
+    `chess-puzzle-feed-theme-${theme}`,
   /** Feed settings modal parts. Segment ids are `<group>-<key>`. */
   chessPuzzleFeedModeSegment: (mode: 'auto' | 'custom') =>
     `chess-puzzle-feed-mode-${mode}`,
@@ -157,6 +184,7 @@ export const Handles = {
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
   /** Career game-log row scoped by puzzle id. */
   chessGameLogRow: (puzzleId: string) => `chess-game-log-row-${puzzleId}`,
+  chessPuzzleLimit: 'chess-puzzle-limit',
 } as const;
 
 export type Handle = {

@@ -9,8 +9,7 @@
     "./scripts/**/*.ts",
     "./tests/**/*.ts",
     "./tests/**/*.tsx",
-    "./bun-preload.ts",
-    "./bun-babel-plugin.ts"
+    "./bun-preload.ts"
   ],
   "compilerOptions": {
     "types": ["bun", "node"]

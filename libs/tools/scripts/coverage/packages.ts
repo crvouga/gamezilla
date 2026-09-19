@@ -16,8 +16,6 @@ export type PackagePlan = {
   readonly coverageRoot: string;
   /** `bun test ...` script segments, run verbatim. */
   readonly commands: readonly string[];
-  /** Script segments the coverage run cannot measure (`vitest run`). */
-  readonly unmeasuredSegments: readonly string[];
 };
 
 type Manifest = {
@@ -77,15 +75,13 @@ export function listPackagePlans(repoRoot: string): PackagePlan[] {
       const manifest = readManifest(join(dir, 'package.json'));
       const script = manifest?.scripts?.['test'];
       if (script === undefined) continue;
-      const segments = splitScriptSegments(script);
       plans.push({
         name: manifest?.name ?? `${tier}/${entry}`,
         tier,
         dir,
         coverageRoot: join(repoRoot, '.cache', 'coverage', `${tier}__${entry}`),
-        commands: segments.filter((segment) => BUN_TEST_SEGMENT.test(segment)),
-        unmeasuredSegments: segments.filter(
-          (segment) => !BUN_TEST_SEGMENT.test(segment)
+        commands: splitScriptSegments(script).filter((segment) =>
+          BUN_TEST_SEGMENT.test(segment)
         ),
       });
     }

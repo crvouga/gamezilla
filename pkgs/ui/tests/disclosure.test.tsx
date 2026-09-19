@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import {
   Collapsible,
   ScreenLargeTitle,
@@ -9,7 +11,6 @@ import {
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 import { renderUi } from './support/render';
 
 describe('Collapsible', () => {

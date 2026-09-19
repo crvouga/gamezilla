@@ -39,8 +39,10 @@ import {
   type SnapshotSessionCtx,
 } from '@apps/product/product-simulator/product-simulator-snapshots';
 import { installProductSimulatorStickyAutosave } from '@apps/product/product-simulator/product-simulator-sticky-autosave';
+import { simActorApp } from '@apps/product/sim/actors/solid-actor-root';
 import { clearProductSimulatorClientDurable } from '@apps/product/sim/fabric/client-durable';
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
+import type { SimBrowser } from '@apps/product/sim/fabric/sim-browser';
 import { simClientNamespace } from '@apps/product/sim/fabric/sim-client-namespace';
 import {
   nextSimNodeId,
@@ -107,6 +109,7 @@ function liveToActor(args: {
   logs: ReturnType<typeof createProductSimulatorLogBuffer>;
   sqlClient: ProductSimulatorActor['sqlClient'];
   history: ProductSimulatorMemoryHistory;
+  browser: SimBrowser;
   actorWebOrigin?: string;
 }): ProductSimulatorActor {
   return {
@@ -117,7 +120,15 @@ function liveToActor(args: {
     view:
       args.actorWebOrigin !== undefined
         ? { kind: 'url', url: args.actorWebOrigin }
-        : { kind: 'solid', App: args.live.App, history: args.history },
+        : {
+            kind: 'solid',
+            App: simActorApp({
+              live: args.live,
+              browser: args.browser,
+              isolateStyles: true,
+            }),
+            history: args.history,
+          },
   };
 }
 
@@ -221,6 +232,7 @@ async function spawnClient(
     logs: actorLogs,
     sqlClient: handle.sqlClient,
     history,
+    browser: args.sim.browser(instanceId),
     ...(args.actorWebOrigin !== undefined
       ? { actorWebOrigin: args.actorWebOrigin }
       : {}),

@@ -12,6 +12,8 @@ type Args = {
   readonly requestId: () => string;
   readonly apply: (outcome: IdpScreenOutcome) => void;
   readonly setBusy: (busy: boolean) => void;
+  /** A real document navigation — the host decides what loading one means. */
+  readonly openDocument: (url: string) => void;
 };
 
 type JsonResponse = { json(): Promise<unknown> };
@@ -63,6 +65,6 @@ export function createScreenActions(args: Args): ScreenActions {
           json: { request_id: id(), decision },
         })
       ),
-    openDocument: (url) => window.location.assign(url),
+    openDocument: args.openDocument,
   };
 }

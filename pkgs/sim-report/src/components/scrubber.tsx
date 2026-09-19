@@ -1,35 +1,42 @@
-import type { HtmlReportTest } from '@pkgs/sim';
 import { createMemo, For, onCleanup } from 'solid-js';
 
 import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
 
-function Filmstrip(props: {
-  frames: FlatFrame[];
-  selected: FlatFrame | null;
-  onSelect: (f: FlatFrame) => void;
-}) {
+type Marker = {
+  readonly frame: FlatFrame;
+  readonly kind: 'fail' | 'press';
+  readonly pct: number;
+};
+
+function pctOf(index: number, count: number): number {
+  return count <= 1 ? 0 : (index / (count - 1)) * 100;
+}
+
+/** Failure + press ticks under the track — the timeline at a glance. */
+function Markers(props: { frames: FlatFrame[]; nav: ReportNav }) {
+  const markers = createMemo(() => {
+    const out: Marker[] = [];
+    const n = props.frames.length;
+    for (const f of props.frames) {
+      const pct = pctOf(f.index, n);
+      if (f.step.status === 'failed') out.push({ frame: f, kind: 'fail', pct });
+      else if (f.frame.hit) out.push({ frame: f, kind: 'press', pct });
+    }
+    return out;
+  });
   return (
-    <div class="sr-film" aria-label="Frame thumbnails">
-      <For each={props.frames}>
-        {(f) => (
+    <div class="sr-marks" aria-hidden="true">
+      <For each={markers()}>
+        {(m) => (
           <button
             type="button"
-            class="sr-thumb"
-            classList={{
-              on: f === props.selected,
-              failed: f.step.status === 'failed',
-            }}
-            title={f.step.title}
-            aria-label={`Frame ${f.index + 1}: ${f.step.title}`}
-            aria-current={f === props.selected ? 'true' : undefined}
-            data-film-index={String(f.index)}
-            onClick={() => props.onSelect(f)}
-          >
-            <span class="n">{f.index + 1}</span>
-            <span class="t">{f.step.title}</span>
-            {f.step.hit ? <span class="sr-hit-dot" /> : null}
-          </button>
+            tabindex="-1"
+            class={`sr-mark ${m.kind}`}
+            style={{ left: `${m.pct}%` }}
+            title={`${m.frame.index + 1}: ${m.frame.step.title}`}
+            onClick={() => props.nav.goFrame(m.frame)}
+          />
         )}
       </For>
     </div>
@@ -81,73 +88,68 @@ function ScrubTrack(props: {
         props.nav.stopPlay();
         schedule(Number.parseInt(e.currentTarget.value, 10) - 1);
       }}
-      onChange={flush}
+      onChange={() => {
+        flush();
+        props.nav.commitHash();
+      }}
     />
   );
 }
 
 export function Scrubber(props: {
-  test: HtmlReportTest;
   frames: FlatFrame[];
   selected: FlatFrame | null;
   nav: ReportNav;
 }) {
   const idx = createMemo(() => (props.selected ? props.selected.index : -1));
-  const pct = createMemo(() =>
-    props.frames.length <= 1 || idx() < 0
-      ? 0
-      : (idx() / (props.frames.length - 1)) * 100
-  );
+  const pct = createMemo(() => pctOf(idx(), props.frames.length));
 
   return (
     <div class="sr-scrubber">
-      <div class="sr-scrubber-row">
-        <button
-          type="button"
-          class="sr-navbtn"
-          aria-label="Previous frame"
-          title="Previous frame"
-          disabled={idx() <= 0}
-          onClick={() => props.nav.stepFrame(-1)}
-        >
-          ◂
-        </button>
-        <button
-          type="button"
-          class="sr-navbtn sr-play"
-          aria-label={props.nav.playing() ? 'Pause playback' : 'Play frames'}
-          onClick={() => props.nav.togglePlay()}
-        >
-          {props.nav.playing() ? 'Pause' : 'Play'}
-        </button>
-        <button
-          type="button"
-          class="sr-navbtn"
-          aria-label="Next frame"
-          title="Next frame"
-          disabled={idx() < 0 || idx() >= props.frames.length - 1}
-          onClick={() => props.nav.stepFrame(1)}
-        >
-          ▸
-        </button>
-        <div class="sr-scrub-wrap">
-          <div class="sr-scrub-rail" />
-          <div class="sr-scrub-fill" style={{ width: `${pct()}%` }} />
-          <ScrubTrack
-            frames={props.frames}
-            selected={props.selected}
-            nav={props.nav}
-          />
-        </div>
-        <span class="sr-frame-label" aria-live="polite" data-scrub-label="">
-          {props.selected ? `${idx() + 1} / ${props.frames.length}` : '0 / 0'}
-        </span>
+      <button
+        type="button"
+        class="sr-navbtn"
+        aria-label="Previous frame"
+        title="Previous frame (←)"
+        disabled={idx() <= 0}
+        data-scrub-prev=""
+        onClick={() => props.nav.stepFrame(-1)}
+      >
+        ◂
+      </button>
+      <button
+        type="button"
+        class="sr-navbtn sr-play"
+        aria-label={props.nav.playing() ? 'Pause playback' : 'Play frames'}
+        title="Play / pause (Space)"
+        onClick={() => props.nav.togglePlay()}
+      >
+        {props.nav.playing() ? '❚❚' : '▶'}
+      </button>
+      <button
+        type="button"
+        class="sr-navbtn"
+        aria-label="Next frame"
+        title="Next frame (→)"
+        disabled={idx() < 0 || idx() >= props.frames.length - 1}
+        data-scrub-next=""
+        onClick={() => props.nav.stepFrame(1)}
+      >
+        ▸
+      </button>
+      <div class="sr-scrub-wrap">
+        <div class="sr-scrub-rail" />
+        <div class="sr-scrub-fill" style={{ width: `${pct()}%` }} />
+        <ScrubTrack
+          frames={props.frames}
+          selected={props.selected}
+          nav={props.nav}
+        />
+        <Markers frames={props.frames} nav={props.nav} />
       </div>
-      <Filmstrip
-        frames={props.frames}
-        selected={props.selected}
-        onSelect={(f) => props.nav.goFrame(f)}
-      />
+      <span class="sr-frame-label" aria-live="polite" data-scrub-label="">
+        {props.selected ? `${idx() + 1} / ${props.frames.length}` : '0 / 0'}
+      </span>
     </div>
   );
 }

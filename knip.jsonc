@@ -43,11 +43,12 @@
       ]
     },
     "apps/client": {
+      "entry": ["src/main.tsx", "src/integration/*.test.ts", "vite.config.mts"]
+    },
+    "libs/billing": {
       "entry": [
-        "src/main.tsx",
-        "src/integration/*.test.ts",
-        "vite.config.mts",
-        "vitest.config.mts"
+        "src/use-cases/mock-provider/client/main.tsx",
+        "vite.mock-billing.config.mts"
       ]
     },
     "libs/object-store": {
@@ -58,6 +59,13 @@
     },
     "libs/tools": {
       "entry": ["package.json", "scripts/**/*.ts"]
+    },
+    "pkgs/chess-board": {
+      "entry": [
+        "e2e/run-e2e.ts",
+        "e2e/tests/*.test.ts",
+        "e2e/harness/browser-entry.tsx"
+      ]
     }
   }
 }

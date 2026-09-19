@@ -12,6 +12,13 @@
 @source "../../../libs";
 @source "../../../pkgs";
 
+/* Standalone SPAs compile their own stylesheet (`source(none)` + local
+   `@source`), and their built bundles are embedded as `*.generated.ts`
+   strings. Scanning either ships their utilities on the app's critical path. */
+@source not "../../../libs/billing/src/use-cases/mock-provider/client";
+@source not "../../../pkgs/idp-google-sim/web";
+@source not "../../../**/*.generated.ts";
+
 /* The repo themes with `[data-theme]` (see `@pkgs/ui` tokens.css), not
    `prefers-color-scheme`, so route `dark:` through the same attribute.
 

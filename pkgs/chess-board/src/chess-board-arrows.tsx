@@ -10,6 +10,7 @@ import {
   arrowSvgPaths,
   boardArrowGeometry,
 } from '@pkgs/chess-board-core/arrow-geometry';
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardArrow,
   BoardOrientation,
@@ -19,8 +20,10 @@ import { For, type JSX } from 'solid-js';
 
 import { BOARD_UNITS } from './board-units';
 import styles from './chess-board.module.css';
+import { PaintToken } from './paint-token';
 
 export type ChessBoardArrowsProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly theme: BoardTheme;
   readonly arrows: readonly BoardArrow[];
@@ -41,9 +44,10 @@ export function ChessBoardArrows(props: ChessBoardArrowsProps): JSX.Element {
       class={`${styles['layer']} ${styles['svgLayer']}`}
       viewBox={`0 0 ${BOARD_UNITS} ${BOARD_UNITS}`}
       aria-hidden="true"
+      data-testid={chessBoardLayerTestId(props.boardTestId, 'arrows')}
     >
       <For each={[...props.arrows]}>
-        {(arrow, i) => {
+        {(arrow) => {
           const g = boardArrowGeometry(arrow, BOARD_UNITS, props.orientation);
           const paths = arrowSvgPaths(g);
           const color = resolveArrowColor(props.theme, arrow.color);
@@ -64,8 +68,11 @@ export function ChessBoardArrows(props: ChessBoardArrowsProps): JSX.Element {
                 stroke-dasharray={dash}
               />
               <path d={paths.headD} fill={color} />
-              {/* key via index+endpoints for stable For identity */}
-              <title>{`arrow-${i()}-${arrow.from}-${arrow.to}`}</title>
+              <PaintToken
+                kind="arrow"
+                detail={arrow.color ?? 'primary'}
+                at={`${arrow.from}-${arrow.to}`}
+              />
             </g>
           );
         }}

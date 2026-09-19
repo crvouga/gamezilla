@@ -21,6 +21,7 @@ export type ActionBarTextAction = {
   loading?: boolean | undefined;
   disabled?: boolean | undefined;
   overflow?: ActionBarOverflowPolicy | undefined;
+  dataSet?: Record<string, string> | undefined;
 };
 
 export type ActionBarPressFeedback = {
@@ -235,6 +236,7 @@ export type ScreenBaseActionLike = {
   icon?: IconComponent | undefined;
   endsGroup?: boolean | undefined;
   overflow?: ActionBarOverflowPolicy | undefined;
+  dataSet?: Record<string, string> | undefined;
 };
 
 export function screenBaseActionToActionBarItem(
@@ -251,6 +253,7 @@ export function screenBaseActionToActionBarItem(
     loading: action.loading,
     endsGroup: action.endsGroup,
     overflow: action.overflow,
+    dataSet: action.dataSet,
   };
 }
 

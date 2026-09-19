@@ -4,9 +4,14 @@
 /**
  * Remove empty directories under the repo root (bottom-up). Skips heavy /
  * generated trees so format stays fast. Safe: Git does not track empty dirs.
+ *
+ * Gitignored trees are never entered: they belong to running tools, not Git.
+ * An embedded Postgres cluster (`.cache/localhost-stack/<id>/postgres/db`)
+ * keeps required empty dirs (`pg_logical/snapshots`, `pg_notify`, …); pruning
+ * them under a live stack makes every checkpoint fail.
  */
 import { readdirSync, rmdirSync, statSync, unlinkSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
@@ -29,6 +34,37 @@ const SKIP_NAMES = new Set([
   'ios',
   'android',
 ]);
+
+/** Repo-relative paths (trailing `/` for dirs) of ignored, untracked entries. */
+function listIgnoredDirs(): Set<string> {
+  const result = Bun.spawnSync(
+    [
+      'git',
+      'ls-files',
+      '--others',
+      '--ignored',
+      '--exclude-standard',
+      '--directory',
+    ],
+    { cwd: REPO_ROOT, stdout: 'pipe', stderr: 'pipe' }
+  );
+  if (result.exitCode !== 0) {
+    throw new Error(`git ls-files failed: ${result.stderr.toString().trim()}`);
+  }
+  return new Set(
+    result.stdout
+      .toString()
+      .split('\n')
+      .filter((line) => line.endsWith('/'))
+  );
+}
+
+const IGNORED_DIRS = listIgnoredDirs();
+
+function isIgnoredDir(path: string): boolean {
+  const rel = relative(REPO_ROOT, path).split(sep).join('/');
+  return IGNORED_DIRS.has(`${rel}/`);
+}
 
 /** Junk that should not keep a directory alive. */
 const IGNORE_ENTRIES = new Set(['.DS_Store', 'Thumbs.db']);
@@ -69,7 +105,7 @@ function pruneEmpty(dir: string, isRoot: boolean): void {
   for (const name of listEntries(dir)) {
     if (IGNORE_ENTRIES.has(name) || SKIP_NAMES.has(name)) continue;
     const path = join(dir, name);
-    if (isDirectory(path)) {
+    if (isDirectory(path) && !isIgnoredDir(path)) {
       pruneEmpty(path, false);
     }
   }

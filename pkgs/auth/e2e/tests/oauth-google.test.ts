@@ -45,13 +45,15 @@ const INSTALL_OPEN_CAPTURE = `(function(){
 const SIGN_IN = '[data-testid=harness-sign-in-google]';
 
 /**
- * The provider serves each screen twice: a server-rendered shell, then the SPA
- * clears `#idp-root` and re-renders it, stamping `data-idp-spa="ready"` on
- * mount. Typing into (or clicking) the shell copy before that swap is lost
- * under load, so wait for the SPA's own node, not just the test id.
+ * The provider serves each screen twice: server-rendered markup, then its SPA
+ * clears `#idp-root` and mounts a fresh form, stamping `data-idp-spa="ready"`.
+ * A value typed into (or a click on) the server copy is wiped by that mount
+ * (and "Next" then submits an empty email), so interact only after the SPA
+ * marks itself ready and its own node is present. Under a loaded `bun check`
+ * the mount lands seconds after the markup.
  */
 async function waitForIdpScreen(
-  popup: ReturnType<typeof openView>,
+  popup: Bun.WebView,
   testId: string
 ): Promise<void> {
   await waitFor(
@@ -60,7 +62,7 @@ async function waitForIdpScreen(
   );
 }
 
-async function startSignIn(page: ReturnType<typeof openView>): Promise<string> {
+async function startSignIn(page: Bun.WebView): Promise<string> {
   await waitFor(page, `document.querySelector("${SIGN_IN}")`);
   await page.evaluate(INSTALL_OPEN_CAPTURE);
   await page.evaluate(`document.querySelector("${SIGN_IN}").click()`);
@@ -70,9 +72,9 @@ async function startSignIn(page: ReturnType<typeof openView>): Promise<string> {
 
 describe('auth oauth harness', () => {
   test('the real Google flow completes against the simulated provider', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
-      const popup = openView(await startSignIn(page));
+      const popup = await openView(await startSignIn(page));
       try {
         await waitForIdpScreen(popup, 'idp-identifier-page');
         await popup.evaluate(
@@ -119,9 +121,9 @@ describe('auth oauth harness', () => {
   });
 
   test('cancelling on the provider returns the app to an error', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
-      const popup = openView(await startSignIn(page));
+      const popup = await openView(await startSignIn(page));
       try {
         await waitForIdpScreen(popup, 'idp-identifier-page');
         await popup.evaluate(
@@ -155,7 +157,7 @@ describe('auth oauth harness', () => {
   });
 
   test('closing popup shows cancelled error', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
       await waitFor(page, `document.querySelector("${SIGN_IN}")`);
       await page.evaluate(INSTALL_OPEN_CAPTURE);
@@ -172,7 +174,7 @@ describe('auth oauth harness', () => {
   });
 
   test('blocked popup shows exact browser message', async () => {
-    const page = openView(ORIGIN);
+    const page = await openView(ORIGIN);
     try {
       await waitFor(page, `document.querySelector("${SIGN_IN}")`);
       await page.evaluate(`window.open = function(){ return null; }`);
