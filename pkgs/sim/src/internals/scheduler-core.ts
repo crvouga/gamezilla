@@ -3,7 +3,9 @@ import type { VirtualClock } from './clock';
 import { waitQuiescence } from './idle';
 import {
   advanceToNextDue,
+  assertDrainBudget,
   assertQuiescentBudget,
+  type DrainBudget,
   withinRunUntilBudget,
 } from './scheduler-limits';
 import type { InFlightTask, Task } from './scheduler-types';
@@ -18,6 +20,8 @@ export type DrainContext = {
   readonly choiceRng?: SeededRng;
   readonly trace?: TraceRecorder;
   readonly inFlight: InFlightTask[];
+  /** Fired-Task counter for this drain; bounds every drain loop. */
+  readonly budget: DrainBudget;
 };
 
 export function pushTask(heap: Task[], item: Task): void {
@@ -102,6 +106,9 @@ export async function fireOneDue(ctx: DrainContext): Promise<boolean> {
   const now = ctx.clock.now();
   const due = dueAt(ctx.heap, now);
   if (due.length === 0) return false;
+
+  ctx.budget.steps += 1;
+  assertDrainBudget(ctx.budget, ctx.heap);
 
   const picked =
     ctx.choiceRng !== undefined

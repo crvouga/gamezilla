@@ -55,10 +55,12 @@ export function createScheduler(
   const choiceRng = opts?.choiceRng;
   const inFlight: DrainContext['inFlight'] = [];
 
+  // A fresh budget per top-level drain: the ceiling is per drain, not per run.
   const makeCtx = (): DrainContext => ({
     heap,
     clock,
     inFlight,
+    budget: { steps: 0 },
     ...(choiceRng !== undefined ? { choiceRng } : {}),
     ...(trace !== undefined ? { trace } : {}),
   });
