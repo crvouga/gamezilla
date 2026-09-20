@@ -24,7 +24,6 @@
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
     "@libs/client-config": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",

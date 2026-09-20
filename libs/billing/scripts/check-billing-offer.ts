@@ -60,6 +60,12 @@ async function main(): Promise<void> {
   }
 
   const callbackUrl = await readOfferCallbackUrl(store);
+  if (callbackUrl === null) {
+    unavailable(
+      'the API_URL secret is missing (it is seeded by `provision`, so a ' +
+        'never-provisioned environment has none)'
+    );
+  }
 
   const result = await reconcileStripeOffer(
     billing.stripe,
