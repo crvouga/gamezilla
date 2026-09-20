@@ -250,7 +250,11 @@ API. Simulations and the localhost stack both run `@pkgs/idp-google-sim`,
 which serves Google's real endpoints (PKCE, code exchange, userinfo, JWKS)
 so the production `google-oauth.ts` path is the path under test. Point it
 somewhere else with the `GOOGLE_IDP_ORIGIN` Worker binding; unset means real
-Google.
+Google. Its **wire** is Google's; its **screens** deliberately are not — they
+are a neutral brand (`IDP_BRAND` in `pkgs/idp-google-sim/src/shared/brand.ts`)
+with their own mark, palette and shape language. Keep flow parity (address
+step, chooser, password, consent, create-account, refusal) and do **not**
+restore Google's logo, palette, page titles or footer links.
 
 Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ S3rver/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/s3-server`, `@pkgs/aedes-server`, `@pkgs/emqx-server` and are booted from tests/CI (`apps/server/scripts/boot-local-stack.ts`, `apps/server/scripts/boot-embedded-postgres.ts`).
 

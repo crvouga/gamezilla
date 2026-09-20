@@ -1,7 +1,7 @@
 /**
  * Stable hooks on the IdP's own pages. Relying-party test suites drive these
- * the way a person drives the real Google screens, so a flow change here shows
- * up as a failing scenario rather than a silently different code path.
+ * the way a person drives the screens, so a flow change here shows up as a
+ * failing scenario rather than a silently different code path.
  */
 export const IDP_TEST_IDS = {
   /** Back arrow on every screen that is not the first step. */

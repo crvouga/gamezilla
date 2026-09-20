@@ -13,7 +13,7 @@ export function DevNote(props: { readonly accounts: readonly IdpAccount[] }) {
   return (
     <Show when={props.accounts.length > 0}>
       <aside
-        class="mt-4 flex flex-col gap-2 rounded-lg bg-gm-hover px-4 py-3 text-xs text-gm-on-surface-variant"
+        class="mt-4 flex flex-col gap-2 rounded-lg bg-idp-hover px-4 py-3 text-xs text-idp-on-surface-variant"
         data-testid={IDP_TEST_IDS.identifierAccounts}
       >
         <p class="flex items-center gap-2">

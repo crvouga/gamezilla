@@ -1,4 +1,4 @@
-/** Step 1 — Google's "Email or phone" card. */
+/** Step 1 — the address step: who is signing in. */
 
 import { For } from 'solid-js';
 
@@ -43,7 +43,7 @@ export function IdentifierScreen(props: Props) {
       open={props.actions.openDocument}
     >
       <h1 class="text-2xl leading-8 font-normal">Sign in</h1>
-      <p class="text-base text-gm-on-surface-variant">
+      <p class="text-base text-idp-on-surface-variant">
         to continue to {props.state.appName}
       </p>
       <form
@@ -66,7 +66,7 @@ export function IdentifierScreen(props: Props) {
           describedBy={invalid() ? ERROR_ID : HINT_ID}
           list={IDP_TEST_IDS.identifierAccountsDatalist}
         />
-        <p id={HINT_ID} class="text-xs text-gm-on-surface-variant">
+        <p id={HINT_ID} class="text-xs text-idp-on-surface-variant">
           Any address from the local directory below, or one you create here.
         </p>
         {invalid() ? (
@@ -76,7 +76,7 @@ export function IdentifierScreen(props: Props) {
         ) : null}
         <div class="mt-2 flex items-center justify-between gap-4">
           <a
-            class="rounded text-sm font-medium text-gm-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gm-primary"
+            class="rounded text-sm font-medium text-idp-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-idp-primary"
             href={createHref()}
             rel="external"
             onClick={(event) => {

@@ -1,7 +1,8 @@
-/** The third way in: "Create your Google Account". No password field. */
+/** The third way in: create an account inline. No password field. */
 
 import { Show } from 'solid-js';
 
+import { IDP_BRAND } from '../../../src/shared/brand';
 import { IDP_AUTHORIZE_SUBMIT_PATH } from '../../../src/shared/paths';
 import {
   backHrefOf,
@@ -41,8 +42,10 @@ export function CreateAccountScreen(props: Props) {
       backHref={back()}
       open={props.actions.openDocument}
     >
-      <h1 class="text-2xl leading-8 font-normal">Create your Google Account</h1>
-      <p class="text-base text-gm-on-surface-variant">
+      <h1 class="text-2xl leading-8 font-normal">
+        Create your {IDP_BRAND.name} account
+      </h1>
+      <p class="text-base text-idp-on-surface-variant">
         to continue to {props.state.appName}
       </p>
       <form
@@ -73,7 +76,7 @@ export function CreateAccountScreen(props: Props) {
           invalid={invalid()}
           describedBy={invalid() ? ERROR_ID : HINT_ID}
         />
-        <p id={HINT_ID} class="text-xs text-gm-on-surface-variant">
+        <p id={HINT_ID} class="text-xs text-idp-on-surface-variant">
           This simulator always uses the password <code>{IDP_PASSWORD}</code>{' '}
           for local accounts.
         </p>
@@ -86,7 +89,7 @@ export function CreateAccountScreen(props: Props) {
           <Show when={back()}>
             {(href) => (
               <a
-                class="rounded text-sm font-medium text-gm-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gm-primary"
+                class="rounded text-sm font-medium text-idp-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-idp-primary"
                 href={href()}
                 rel="external"
                 onClick={(event) => {

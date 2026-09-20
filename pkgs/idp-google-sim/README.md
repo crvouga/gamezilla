@@ -24,6 +24,23 @@ authorization codes (a replay kills the grant, as Google does), client
 authentication via `client_secret_post` or Basic, RS256 `id_token`s with
 `at_hash`/`azp`/`nonce`.
 
+## Google's wire, its own face
+
+The **protocol** is Google's, down to the `sub` shape and the `4/0A…` code
+format, because that is the whole point: the relying party runs its production
+`google-oauth` path against this server.
+
+The **screens** are not. They are `Acme ID` — a neutral brand with its own
+mark, palette and shape language (`src/shared/brand.ts`, `web/src/styles.css`).
+A pixel clone of Google's sign-in teaches the wrong thing to anyone who opens
+the simulator, and impersonating a real provider's mark is not something a
+local fixture should do. The flow keeps full parity — address step, chooser,
+password, consent, account creation, refusal — so every path a relying party
+must handle is still reachable; only the identity changed.
+
+Renaming the brand is one edit to `IDP_BRAND` in `src/shared/brand.ts`; the
+screens, page titles, server error copy and favicon all read from it.
+
 **All state is SQLite.** There is no map-backed mode: accounts, clients,
 browser sessions, parked authorize requests, codes, tokens, consent grants,
 fault flags and the RS256 key live in one database the caller opens. Every

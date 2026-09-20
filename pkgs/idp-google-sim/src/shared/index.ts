@@ -1,3 +1,4 @@
+export { IDP_BRAND } from './brand';
 export {
   IDP_ADMIN_PREFIX,
   IDP_ASSET_CSS_PATH,

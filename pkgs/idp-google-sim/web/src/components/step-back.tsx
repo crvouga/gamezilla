@@ -14,7 +14,7 @@ export function StepBack(props: {
     <Show when={props.href}>
       {(href) => (
         <a
-          class="inline-flex size-10 items-center justify-center rounded-full text-gm-on-surface hover:bg-gm-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gm-primary"
+          class="inline-flex size-8 items-center justify-center rounded-lg text-idp-on-surface hover:bg-idp-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-idp-primary"
           href={href()}
           rel="external"
           aria-label="Back"

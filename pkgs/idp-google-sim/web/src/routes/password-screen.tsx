@@ -1,4 +1,4 @@
-/** Step 2 — Google's "Welcome" card, with the account chip and one field. */
+/** Step 2 — the password step, with the account chip and one field. */
 
 import { createSignal } from 'solid-js';
 
@@ -43,12 +43,12 @@ export function PasswordScreen(props: Props) {
       <h1 class="text-2xl leading-8 font-normal">Welcome</h1>
       <div class="flex items-center gap-4">
         <span
-          class="grid size-8 shrink-0 place-items-center rounded-full bg-white text-sm font-medium text-gm-primary ring-1 ring-gm-divider"
+          class="grid size-8 shrink-0 place-items-center rounded-full bg-white text-sm font-medium text-idp-primary ring-1 ring-idp-divider"
           aria-hidden="true"
         >
           {initials(props.state.account.name)}
         </span>
-        <span class="truncate text-sm text-gm-on-surface">
+        <span class="truncate text-sm text-idp-on-surface">
           {props.state.account.email}
         </span>
       </div>
@@ -70,7 +70,7 @@ export function PasswordScreen(props: Props) {
           invalid={invalid()}
           describedBy={invalid() ? ERROR_ID : HINT_ID}
         />
-        <label class="flex items-center gap-2 text-sm text-gm-on-surface-variant">
+        <label class="flex items-center gap-2 text-sm text-idp-on-surface-variant">
           <input
             type="checkbox"
             checked={show()}
@@ -80,7 +80,7 @@ export function PasswordScreen(props: Props) {
           <Icon name={show() ? 'eye-off' : 'eye'} class="size-4" />
           Show password
         </label>
-        <p id={HINT_ID} class="text-xs text-gm-on-surface-variant">
+        <p id={HINT_ID} class="text-xs text-idp-on-surface-variant">
           Forgot password? Local simulator: the password is{' '}
           <code>{IDP_PASSWORD}</code>.
         </p>

@@ -1,6 +1,7 @@
 /** Reading and authenticating a post back from one of the IdP's screens. */
 
 import type { Context } from 'hono';
+import { IDP_BRAND } from '../../shared/brand';
 
 /**
  * The steps the screens submit. Google splits sign-in into `identifier` and
@@ -50,6 +51,6 @@ export async function readSubmission(c: Context): Promise<Submission> {
 }
 
 /** Google's own copy, because relying parties screenshot these strings. */
-export const NO_ACCOUNT_ERROR = "Couldn't find your Google Account";
+export const NO_ACCOUNT_ERROR = `Couldn't find your ${IDP_BRAND.name} account`;
 export const WRONG_PASSWORD_ERROR =
   'Wrong password. Try again or click Forgot password to reset it.';

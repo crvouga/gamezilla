@@ -5,6 +5,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   IDP_ADMIN_PREFIX,
   IDP_AUTHORIZE_SUBMIT_PATH,
+  IDP_BRAND,
   IDP_PASSWORD,
   IDP_TEST_IDS,
 } from '@pkgs/idp-google-sim/shared';
@@ -121,7 +122,7 @@ describe('create an account from the sign-in screen', () => {
     expect(res.status).toBe(400);
     const html = await res.text();
     expect(html).toContain(IDP_TEST_IDS.createAccountError);
-    expect(html).toContain('valid Google Account name');
+    expect(html).toContain(`valid ${IDP_BRAND.name} account name`);
     expect(await fixture.store.accountByEmail('nobody')).toBeNull();
   });
 
