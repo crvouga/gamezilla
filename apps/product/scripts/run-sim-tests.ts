@@ -37,6 +37,23 @@ function positiveIntEnv(name: string, fallback: number): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+/**
+ * How many suites to run at once.
+ *
+ * Each one drives a whole product, so the useful cap is cores, not files. The
+ * old floor of 2 was wrong on a small machine: PR CI runs on two shared cores,
+ * so "half of two, but at least two" put two full sims on two cores. Starved
+ * like that, the sim's drain gives up waiting for wall I/O and advances
+ * virtual time anyway, and scenarios fail on deadlines that never should have
+ * elapsed. Below four cores, run them one at a time — slower than thrashing,
+ * but it is the machine that is slow, not the check.
+ */
+function defaultConcurrency(): number {
+  const cores = availableParallelism();
+  if (cores < 4) return 1;
+  return Math.max(2, Math.floor(cores / 2));
+}
+
 function isTestFile(name: string): boolean {
   return name.endsWith('.test.ts') || name.endsWith('.test.tsx');
 }
@@ -141,10 +158,7 @@ async function main(): Promise<void> {
   const targets = process.argv.slice(2);
   const files = expandTargets(targets.length > 0 ? targets : ['tests']);
   if (files.length === 0) throw new Error('run-sim-tests: no test files');
-  const limit = positiveIntEnv(
-    'SIM_TEST_CONCURRENCY',
-    Math.max(2, Math.floor(availableParallelism() / 2))
-  );
+  const limit = positiveIntEnv('SIM_TEST_CONCURRENCY', defaultConcurrency());
   const timeoutSeconds = positiveIntEnv(
     'SIM_TEST_FILE_TIMEOUT_SECONDS',
     DEFAULT_FILE_TIMEOUT_SECONDS

@@ -149,9 +149,16 @@ export async function fireDueTasks(ctx: DrainContext): Promise<number> {
  * a busy one: with the sim suites running in parallel, a contended process
  * spent its 64 turns without the SQLite round-trip landing, virtual time moved
  * anyway, and scenario deadlines burned while nothing progressed — a flake
- * that looked like a slow product rather than a starved drain. Spins cost
- * nothing when the work has already settled (the loop exits on the first
- * probe), so the ceiling is sized for the contended case.
+ * that looked like a slow product rather than a starved drain.
+ *
+ * The number is patience, not a deadline: the loop exits on the first probe
+ * once the work has settled, so a high ceiling costs nothing on an idle
+ * machine and only spends microseconds of macrotask turns on a starved one.
+ * It is sized for the worst runner the gate runs on — two shared cores — not
+ * for the laptop that writes the scenario. Deadlock is still caught, by
+ * `settleOrDeadlock` and by the drain's fired-task budget. Raising it further
+ * did not help: 4096 measured the same as 512, because past a point the drain
+ * is no longer what is starved.
  *
  * TODO(dst-audit): D4 — replace with registered Effects (Phase 3.3).
  */
