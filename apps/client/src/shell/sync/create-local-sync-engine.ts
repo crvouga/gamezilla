@@ -62,6 +62,7 @@ const SESSION_QUERIES = [
   'notificationsActive',
   'chessPuzzleProfile',
   'chessPuzzleInteractions',
+  'chessPuzzleRatingEvents',
   'mySubscription',
   'permissionQuotaLedger',
 ] as const;

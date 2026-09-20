@@ -26,6 +26,7 @@ import {
 import type { ChessPuzzleE2ELoadingStatusProps } from './chess-puzzle-e2e-loading-status';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
+import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
 import { useNextPuzzleId } from './use-next-puzzle-id';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
 import { type RatedStartGate, useRatedStartGate } from './use-rated-start-gate';
@@ -183,6 +184,9 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     reselectActivePuzzleFromFeed();
   };
 
+  const alreadyRated = useIsPuzzleAlreadyRated(
+    () => placement.activePuzzleId() ?? ''
+  );
   const e2eLoadingStatus = createMemo<ChessPuzzleE2ELoadingStatusProps>(() => ({
     myId: myId(),
     nextId: next.puzzleId(),
@@ -192,6 +196,9 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     fallbackCount: next.fallbackCount(),
     poolReady: poolReady(),
     loading: next.loading(),
+    halfWindow: next.halfWindow(),
+    source: next.source(),
+    rated: !alreadyRated(),
   }));
 
   return {

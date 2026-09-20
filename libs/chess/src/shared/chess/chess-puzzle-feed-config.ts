@@ -1,5 +1,6 @@
 /** Device-local puzzle feed preference: which rating band(s) to sync + pick from. */
 
+import { PUZZLE_RATING_DEFAULT } from './chess-puzzle-rating';
 import {
   type ChessPuzzleTheme,
   isChessPuzzleTheme,
@@ -8,7 +9,8 @@ import {
 export const PUZZLE_RATING_BAND_SIZE = 400;
 export const PUZZLE_FEED_RATING_MIN = 400;
 export const PUZZLE_FEED_RATING_MAX = 3000;
-export const PUZZLE_FEED_RATING_DEFAULT = 1200;
+/** §8 seed rating: where a player with no rated attempts sits. */
+export const PUZZLE_FEED_RATING_DEFAULT = PUZZLE_RATING_DEFAULT;
 export const PUZZLE_FEED_AUTO_OFFSET_MIN = -400;
 export const PUZZLE_FEED_AUTO_OFFSET_MAX = 400;
 export const PUZZLE_FEED_AUTO_OFFSET_STEP = 50;

@@ -5,7 +5,12 @@
  * not used — the walk is always the action catalog.
  */
 
-import { returnToTabs, signInWithGoogle, signOut } from './auth-actions';
+import {
+  returnToTabs,
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+  signOut,
+} from './auth-actions';
 import {
   advanceBillingClock,
   cancelPlus,
@@ -22,7 +27,9 @@ import {
   bumpPuzzleFeedOffset,
   choosePuzzlePromotion,
   closePuzzleFeedSettings,
+  closePuzzleFeedSettingsNoWait,
   includePlayedPuzzles,
+  leaveChessStatsScreen,
   leavePuzzleToChessMenu,
   openChessStatsScreen,
   openPuzzleFeedSettings,
@@ -92,6 +99,7 @@ export {
   checkoutPlusAtProvider,
   choosePuzzlePromotion,
   closePuzzleFeedSettings,
+  closePuzzleFeedSettingsNoWait,
   createSpace,
   declineFriendRequest,
   endSpace,
@@ -99,6 +107,7 @@ export {
   includePlayedPuzzles,
   joinFromPrompt,
   leaveAvatarEditor,
+  leaveChessStatsScreen,
   leavePuzzleToChessMenu,
   leaveSpace,
   managePlus,
@@ -142,6 +151,7 @@ export {
   setUsername,
   showPuzzleSolutionLine,
   signInWithGoogle,
+  signInWithGoogleAsAccount,
   signOut,
   skipPuzzle,
   subscribeToPlus,
@@ -179,6 +189,7 @@ export const productScenarioActions = [
   retryPuzzle,
   requestPuzzleHint,
   revealPuzzleSolution,
+  leaveChessStatsScreen,
   leavePuzzleToChessMenu,
   openChessStatsScreen,
   openPuzzleReview,
@@ -187,6 +198,7 @@ export const productScenarioActions = [
   suggestPuzzleMove,
   openPuzzleFeedSettings,
   closePuzzleFeedSettings,
+  closePuzzleFeedSettingsNoWait,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   setPuzzleFeedTheme,

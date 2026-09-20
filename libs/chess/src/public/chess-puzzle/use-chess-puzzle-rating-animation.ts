@@ -1,9 +1,9 @@
 import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 /**
- * Instant ELO display for low-end Android — no count-up interval or pulse.
+ * Instant rating display for low-end Android — no count-up interval or pulse.
  */
-export function useChessPuzzleEloAnimation(args: {
+export function useChessPuzzleRatingAnimation(args: {
   ratingBefore: number;
   ratingAfter: number;
   animationKey: string;

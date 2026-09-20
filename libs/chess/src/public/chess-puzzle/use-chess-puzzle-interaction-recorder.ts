@@ -18,12 +18,12 @@ import { useChessPuzzleInteractionWrites } from './use-chess-puzzle-interaction-
 export type InteractionRecorderArgs = {
   puzzleId: Accessor<string>;
   puzzleRating: Accessor<number>;
+  puzzleRatingDeviation: Accessor<number>;
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   solveIdx: Accessor<number>;
   interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
   /** The per-puzzle interaction read has landed (restore decisions wait for it). */
   interactionsReady: Accessor<boolean>;
-  allInteractions: Accessor<readonly ChessPuzzleInteractionRow[]>;
   /** Room commit time of the attempt's Start — the attempt's identity. */
   attemptStartedAtMs: Accessor<number | null>;
   /**
@@ -76,9 +76,9 @@ export function useChessPuzzleInteractionRecorder(
   const { appendInteraction, finalizePlay } = useChessPuzzleInteractionWrites({
     puzzleId: args.puzzleId,
     puzzleRating: args.puzzleRating,
+    puzzleRatingDeviation: args.puzzleRatingDeviation,
     solveIdx: args.solveIdx,
     interactions: args.interactions,
-    allInteractions: args.allInteractions,
   });
 
   const reportWriteFailure = (what: string) => (error: unknown) => {

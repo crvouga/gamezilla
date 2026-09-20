@@ -64,6 +64,7 @@ type PuzzleEntityRow = {
   readonly fen: string | null;
   readonly moves: string | null;
   readonly rating: number | null;
+  readonly rating_deviation: number | null;
   readonly themes: unknown;
 };
 
@@ -77,12 +78,13 @@ export function usePuzzleEntity(puzzleId: Accessor<string>): {
   fen: string;
   movesStr: string;
   rating: number;
+  ratingDeviation: number;
   themes: readonly string[];
 } {
   const sync = useSyncEngineInstance();
   const { rows } = createQuery(
     () => sql<PuzzleEntityRow>`
-    SELECT fen, moves, rating, themes
+    SELECT fen, moves, rating, rating_deviation, themes
     FROM chess_puzzles
     WHERE id = ${puzzleId()}
       AND deleted_at IS NULL
@@ -110,6 +112,9 @@ export function usePuzzleEntity(puzzleId: Accessor<string>): {
     },
     get rating() {
       return row()?.rating ?? 0;
+    },
+    get ratingDeviation() {
+      return row()?.rating_deviation ?? 0;
     },
     get themes() {
       return readStringArray(row()?.themes);
@@ -171,6 +176,7 @@ export function usePuzzleEntityAndInteractions(puzzleId: Accessor<string>): {
   fen: string;
   movesStr: string;
   rating: number;
+  ratingDeviation: number;
   themes: readonly string[];
   interactions: ChessPuzzleInteractionRow[];
   interactionsReady: boolean;

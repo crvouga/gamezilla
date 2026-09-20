@@ -7,10 +7,6 @@ import {
   playOutcome,
 } from '@libs/chess/public/chess-puzzle-derive';
 import type { ChessPuzzleInteractionRow } from '@libs/chess/public/chess-puzzle-interaction-entities';
-import {
-  PUZZLE_ELO_DEFAULT,
-  projectPuzzleEloFromInteractions,
-} from '@libs/chess/public/chess-puzzle-rating';
 
 let at = 0;
 function row(
@@ -60,29 +56,18 @@ describe('the play outcome (§5: the first one, once)', () => {
     expect(deriveOutcomeScore([row('started'), row('abandoned')])).toBe(0);
   });
 
-  test('rating folds one outcome per play — later rows never re-rate', () => {
-    const failedThenSolved = projectPuzzleEloFromInteractions([
+  // §8: the rated outcome is the play's first one. Which attempt the rating
+  // mutation accepts is the ledger's job (tests/puzzle-session/rating.test.ts
+  // and the product rating scenario); here we pin the score it is handed.
+  test('a later row of the same play never changes the rated score', () => {
+    const play = [
       row('started'),
       row('moved', { correct: false }),
       row('failed'),
       row('solved'),
-    ]);
-    expect(failedThenSolved.ratedGames).toBe(1);
-    expect(failedThenSolved.entries[0]).toMatchObject({ outcome: 'failed' });
-    expect(failedThenSolved.rating).toBeLessThan(PUZZLE_ELO_DEFAULT);
-
-    // A second play of the same puzzle is rated again on its own outcome.
-    const replayed = projectPuzzleEloFromInteractions([
-      row('started'),
-      row('failed'),
-      row('started'),
-      row('solved'),
-    ]);
-    expect(replayed.ratedGames).toBe(2);
-    expect(replayed.entries.map((entry) => entry.outcome)).toEqual([
-      'failed',
-      'solved',
-    ]);
+    ];
+    expect(playOutcome(play)?.kind).toBe('failed');
+    expect(deriveOutcomeScore(play)).toBe(0);
   });
 });
 

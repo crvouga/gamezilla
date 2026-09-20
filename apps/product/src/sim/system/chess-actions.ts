@@ -21,6 +21,7 @@ import {
 import {
   suggestPuzzleMove as dragSuggestedMove,
   expectPlayReady,
+  leaveChessStats,
   openChessStats,
   openPuzzleFromChessMenu,
   openPuzzlePlay,
@@ -183,6 +184,12 @@ export const openChessStatsScreen = scenarioAction({
   act: openChessStats,
 });
 
+/** Back out of the stats screen to the chess main menu. */
+export const leaveChessStatsScreen = scenarioAction({
+  name: 'leaveChessStatsScreen',
+  act: leaveChessStats,
+});
+
 export const openPuzzleReview = scenarioAction({
   name: 'openPuzzleReview',
   act: openReviewFromGameLog,
@@ -209,6 +216,12 @@ export const closePuzzleFeedSettings = scenarioAction({
     await closeFeedSettings(s, actorId);
     await expectPlayReady(s, actorId);
   },
+});
+
+/** Done without waiting for a board — the new filter may match nothing. */
+export const closePuzzleFeedSettingsNoWait = scenarioAction({
+  name: 'closePuzzleFeedSettingsNoWait',
+  act: closeFeedSettings,
 });
 
 export const setPuzzleFeedHistory = scenarioAction({

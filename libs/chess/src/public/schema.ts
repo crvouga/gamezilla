@@ -3,5 +3,6 @@ export {
   chessPuzzleInteractions,
   chessPuzzleLoad,
   chessPuzzleProfiles,
+  chessPuzzleRatingEvents,
   chessPuzzles,
 } from '../shared/schema/tables';

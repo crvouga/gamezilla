@@ -1,159 +1,194 @@
-import { deriveOutcomeScore } from './chess-puzzle-derive';
+/**
+ * §8 puzzle rating: Glicko-2, one rating period per attempt.
+ *
+ * Every attempt is a game between the player and the puzzle (solve = win,
+ * fail = loss). The puzzle's stored rating / deviation is the opponent; the
+ * puzzle side does not move yet (that is the §8 `P1` row).
+ *
+ * The state persisted in `chess_puzzle_profiles` is integral on purpose:
+ * Glicko-2 is float math, so rating / RD are rounded and volatility is kept
+ * in micros. Rounding once per attempt keeps client and server on the same
+ * value whatever their engines do to the last bits of `Math.exp`.
+ */
+
 import {
-  CHESS_PUZZLE_INTERACTION_KIND,
-  type ChessPuzzleInteractionRow,
-  type ChessPuzzleOutcomeKind,
-  isOutcomeKind,
-} from './chess-puzzle-interaction-entities';
-import { compareCodeUnit } from './code-unit-compare';
+  GLICKO2_DEFAULT_RATING,
+  GLICKO2_DEFAULT_RD,
+  GLICKO2_DEFAULT_TAU,
+  GLICKO2_DEFAULT_VOLATILITY,
+  glicko2Update,
+} from '@pkgs/glicko2/glicko2';
 
-/** Default player rating before any rated puzzles. */
-export const PUZZLE_ELO_DEFAULT = 1200;
+/** §8: new players start here. */
+export const PUZZLE_RATING_DEFAULT = GLICKO2_DEFAULT_RATING;
+/** §8: …with maximum uncertainty (the "350–500" end of the range). */
+export const PUZZLE_RATING_DEFAULT_RD = GLICKO2_DEFAULT_RD;
 
-export const PUZZLE_ELO_MIN = 400;
-export const PUZZLE_ELO_MAX = 3000;
+export const PUZZLE_VOLATILITY_SCALE = 1_000_000;
+export const PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS = Math.round(
+  GLICKO2_DEFAULT_VOLATILITY * PUZZLE_VOLATILITY_SCALE
+);
 
-/** Games using provisional K before switching to stable K. */
-export const PUZZLE_ELO_PROVISIONAL_GAMES = 20;
-
-export const PUZZLE_ELO_K_PROVISIONAL = 40;
-export const PUZZLE_ELO_K_STABLE = 20;
-
-/** Unused profile RD stub — Elo no longer depends on RD. */
-export const PUZZLE_PROFILE_RD_STUB = 0;
-
-export type PuzzleRatingScore = 0 | 0.5 | 1;
-
-export type PuzzleRatingInput = {
-  readonly playerRating: number;
-  readonly puzzleRating: number;
-  readonly score: PuzzleRatingScore;
-  readonly ratedGames: number;
-};
-
-export type PuzzleRatingResult = {
-  readonly rating: number;
-};
-
-export type ProjectedPuzzleEloEntry = {
-  readonly puzzleId: string;
-  readonly puzzleRating: number;
-  readonly outcome: ChessPuzzleOutcomeKind;
-  readonly ratingBefore: number;
-  readonly ratingAfter: number;
-  readonly delta: number;
-  readonly at: string;
-};
-
-export type ProjectedPuzzleElo = {
-  readonly rating: number;
-  readonly ratedGames: number;
-  readonly entries: readonly ProjectedPuzzleEloEntry[];
-  readonly eloSeries: readonly number[];
-};
-
-function clamp(n: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, n));
-}
-
-/** K-factor: higher while provisional, then stable. */
-export function puzzleEloK(ratedGames: number): number {
-  return ratedGames < PUZZLE_ELO_PROVISIONAL_GAMES
-    ? PUZZLE_ELO_K_PROVISIONAL
-    : PUZZLE_ELO_K_STABLE;
-}
+export const PUZZLE_RATING_MIN = 400;
+export const PUZZLE_RATING_MAX = 3000;
+export const PUZZLE_RATING_RD_MIN = 30;
+export const PUZZLE_RATING_RD_MAX = GLICKO2_DEFAULT_RD;
+export const PUZZLE_VOLATILITY_MICROS_MIN = 1_000;
+export const PUZZLE_VOLATILITY_MICROS_MAX = 500_000;
 
 /**
- * Classic Elo step for one puzzle outcome.
- * `score`: 1 = clean solve, 0.5 = solved after a hint, 0 = failed / abandoned.
+ * §8 provisional marker: the rating shows a "?" until the player's RD drops
+ * below this. ~110 is roughly a dozen rated attempts from a cold start.
  */
-export function updatePuzzleRating(
-  input: PuzzleRatingInput
-): PuzzleRatingResult {
-  const expected =
-    1 / (1 + 10 ** ((input.puzzleRating - input.playerRating) / 400));
-  const k = puzzleEloK(input.ratedGames);
-  const next = Math.round(input.playerRating + k * (input.score - expected));
-  return { rating: clamp(next, PUZZLE_ELO_MIN, PUZZLE_ELO_MAX) };
+export const PUZZLE_PROVISIONAL_RD = 110;
+
+/** Deviation used for a puzzle row that carries none (Lichess always does). */
+export const PUZZLE_OPPONENT_RD_DEFAULT = 80;
+
+export const PUZZLE_RATING_TAU = GLICKO2_DEFAULT_TAU;
+
+/** Persisted player rating state (all integers — see the file comment). */
+export type PuzzleRatingState = {
+  readonly rating: number;
+  readonly ratingDeviation: number;
+  readonly volatilityMicros: number;
+};
+
+export const DEFAULT_PUZZLE_RATING_STATE: PuzzleRatingState = {
+  rating: PUZZLE_RATING_DEFAULT,
+  ratingDeviation: PUZZLE_RATING_DEFAULT_RD,
+  volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+};
+
+/** Attempt score in permille so the wire and the DB stay integral. */
+export const PUZZLE_SCORE_PERMILLE = {
+  loss: 0,
+  half: 500,
+  win: 1000,
+} as const;
+
+export type PuzzleScorePermille =
+  (typeof PUZZLE_SCORE_PERMILLE)[keyof typeof PUZZLE_SCORE_PERMILLE];
+
+export function isPuzzleScorePermille(
+  value: number
+): value is PuzzleScorePermille {
+  return (
+    value === PUZZLE_SCORE_PERMILLE.loss ||
+    value === PUZZLE_SCORE_PERMILLE.half ||
+    value === PUZZLE_SCORE_PERMILLE.win
+  );
 }
 
-/** Play rows for a terminal at `terminalIndex` in chronologically sorted history. */
-function playForTerminal(
-  sorted: readonly ChessPuzzleInteractionRow[],
-  terminalIndex: number
-): readonly ChessPuzzleInteractionRow[] {
-  const terminal = sorted[terminalIndex];
-  if (terminal === undefined) return [];
-  const puzzleId = terminal.puzzleId;
-  let startIdx = -1;
-  for (let i = terminalIndex; i >= 0; i -= 1) {
-    const row = sorted[i];
-    if (
-      row !== undefined &&
-      row.puzzleId === puzzleId &&
-      row.kind === CHESS_PUZZLE_INTERACTION_KIND.started
-    ) {
-      startIdx = i;
-      break;
-    }
-  }
-  if (startIdx < 0) return [terminal];
-  const play: ChessPuzzleInteractionRow[] = [];
-  for (let i = startIdx; i <= terminalIndex; i += 1) {
-    const row = sorted[i];
-    if (row !== undefined && row.puzzleId === puzzleId) play.push(row);
-  }
-  return play;
+export function puzzleScorePermille(score: 0 | 0.5 | 1): PuzzleScorePermille {
+  if (score === 1) return PUZZLE_SCORE_PERMILLE.win;
+  if (score === 0.5) return PUZZLE_SCORE_PERMILLE.half;
+  return PUZZLE_SCORE_PERMILLE.loss;
 }
+
+function clampInt(value: number, min: number, max: number): number {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(max, Math.max(min, Math.round(value)));
+}
+
+/** Reads a stored profile row (or nothing) into usable rating state. */
+export function readPuzzleRatingState(row: {
+  readonly rating?: unknown;
+  readonly ratingDeviation?: unknown;
+  readonly volatilityMicros?: unknown;
+}): PuzzleRatingState {
+  const rating = Number(row.rating);
+  const rd = Number(row.ratingDeviation);
+  const volatility = Number(row.volatilityMicros);
+  return {
+    rating:
+      Number.isFinite(rating) && rating > 0
+        ? clampInt(rating, PUZZLE_RATING_MIN, PUZZLE_RATING_MAX)
+        : PUZZLE_RATING_DEFAULT,
+    ratingDeviation:
+      Number.isFinite(rd) && rd > 0
+        ? clampInt(rd, PUZZLE_RATING_RD_MIN, PUZZLE_RATING_RD_MAX)
+        : PUZZLE_RATING_DEFAULT_RD,
+    volatilityMicros:
+      Number.isFinite(volatility) && volatility > 0
+        ? clampInt(
+            volatility,
+            PUZZLE_VOLATILITY_MICROS_MIN,
+            PUZZLE_VOLATILITY_MICROS_MAX
+          )
+        : PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  };
+}
+
+/** Opponent deviation for a puzzle row, falling back to the catalog default. */
+export function puzzleOpponentRd(ratingDeviation: unknown): number {
+  const rd = Number(ratingDeviation);
+  if (!Number.isFinite(rd) || rd <= 0) return PUZZLE_OPPONENT_RD_DEFAULT;
+  return clampInt(rd, PUZZLE_RATING_RD_MIN, PUZZLE_RATING_RD_MAX);
+}
+
+export type PuzzleAttemptRatingInput = {
+  readonly player: PuzzleRatingState;
+  readonly puzzleRating: number;
+  readonly puzzleRatingDeviation: number;
+  readonly scorePermille: number;
+};
 
 /**
- * Project Elo from attempt facts only. Formula edits change every delta
- * without backfill — interactions never store before/after ratings. Only a
- * play's first outcome is rated (§5): a later outcome row of the same play
- * (never written by the client, but tolerated in synced history) is ignored.
+ * The player's rating after one attempt. Pure: the same inputs give the same
+ * integers on the client's optimistic apply and on the server's replay.
  */
-export function projectPuzzleEloFromInteractions(
-  interactions: readonly ChessPuzzleInteractionRow[]
-): ProjectedPuzzleElo {
-  const sorted = [...interactions].sort((a, b) => compareCodeUnit(a.at, b.at));
-  let rating = PUZZLE_ELO_DEFAULT;
-  let ratedGames = 0;
-  const entries: ProjectedPuzzleEloEntry[] = [];
-  const eloSeries: number[] = [rating];
-  /** Puzzle id → its current play already has a rated outcome. */
-  const ratedPlay = new Map<string, boolean>();
-
-  for (let i = 0; i < sorted.length; i += 1) {
-    const row = sorted[i];
-    if (row === undefined) continue;
-    if (row.kind === CHESS_PUZZLE_INTERACTION_KIND.started) {
-      ratedPlay.set(row.puzzleId, false);
-      continue;
+export function applyPuzzleAttemptRating(
+  input: PuzzleAttemptRatingInput
+): PuzzleRatingState {
+  const next = glicko2Update(
+    {
+      rating: input.player.rating,
+      rd: input.player.ratingDeviation,
+      volatility: input.player.volatilityMicros / PUZZLE_VOLATILITY_SCALE,
+    },
+    [
+      {
+        opponentRating: clampInt(
+          input.puzzleRating,
+          PUZZLE_RATING_MIN,
+          PUZZLE_RATING_MAX
+        ),
+        opponentRd: puzzleOpponentRd(input.puzzleRatingDeviation),
+        score: input.scorePermille / PUZZLE_SCORE_PERMILLE.win,
+      },
+    ],
+    {
+      tau: PUZZLE_RATING_TAU,
+      minRd: PUZZLE_RATING_RD_MIN,
+      maxRd: PUZZLE_RATING_RD_MAX,
     }
-    if (!isOutcomeKind(row.kind) || ratedPlay.get(row.puzzleId) === true) {
-      continue;
-    }
-    ratedPlay.set(row.puzzleId, true);
-    const ratingBefore = rating;
-    const updated = updatePuzzleRating({
-      playerRating: ratingBefore,
-      puzzleRating: row.puzzleRating,
-      score: deriveOutcomeScore(playForTerminal(sorted, i)),
-      ratedGames,
-    });
-    rating = updated.rating;
-    ratedGames += 1;
-    entries.push({
-      puzzleId: row.puzzleId,
-      puzzleRating: row.puzzleRating,
-      outcome: row.kind,
-      ratingBefore,
-      ratingAfter: rating,
-      delta: rating - ratingBefore,
-      at: row.at,
-    });
-    eloSeries.push(rating);
-  }
+  );
+  return {
+    rating: clampInt(next.rating, PUZZLE_RATING_MIN, PUZZLE_RATING_MAX),
+    ratingDeviation: clampInt(
+      next.rd,
+      PUZZLE_RATING_RD_MIN,
+      PUZZLE_RATING_RD_MAX
+    ),
+    volatilityMicros: clampInt(
+      next.volatility * PUZZLE_VOLATILITY_SCALE,
+      PUZZLE_VOLATILITY_MICROS_MIN,
+      PUZZLE_VOLATILITY_MICROS_MAX
+    ),
+  };
+}
 
-  return { rating, ratedGames, entries, eloSeries };
+/** §8: show the "?" marker while the player's rating is still this uncertain. */
+export function isProvisionalPuzzleRating(ratingDeviation: number): boolean {
+  if (!Number.isFinite(ratingDeviation) || ratingDeviation <= 0) return true;
+  return ratingDeviation >= PUZZLE_PROVISIONAL_RD;
+}
+
+/** Rating as the UI prints it: `1500` or `1500?` while provisional. */
+export function formatPuzzleRating(args: {
+  readonly rating: number;
+  readonly provisional: boolean;
+}): string {
+  return `${String(Math.round(args.rating))}${args.provisional ? '?' : ''}`;
 }

@@ -9,10 +9,11 @@ import {
   resolveEffectivePuzzleRating,
 } from '../chess-puzzle-feed-config';
 import { formatChessPuzzleThemeLabel } from '../chess-puzzle-theme-label';
-import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
+import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useChessPuzzleFeedPoolStats } from './use-chess-puzzle-feed-pool-stats';
 import { useChessPuzzleProfileRatings } from './use-chess-puzzle-profile-ratings';
+import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
 
 export type ChessPuzzleFeedBarProps = {
   puzzleId?: string | undefined;
@@ -53,6 +54,8 @@ export function ChessPuzzleFeedBar(
 ): JSX.Element {
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
+  // §9: an exhausted-pool re-serve is played again but never re-rated (§8).
+  const alreadyRated = useIsPuzzleAlreadyRated(() => props.puzzleId ?? '');
   const [config] = useChessPuzzleFeedConfig();
   const pool = useChessPuzzleFeedPoolStats();
   const effectiveRating = createMemo(() =>
@@ -97,11 +100,20 @@ export function ChessPuzzleFeedBar(
         </p>
         <Show when={showPuzzleRating()}>
           <FeedBarSep />
-          <ChessPuzzleEloChip
-            elo={puzzleElo()}
+          <ChessPuzzleRatingChip
+            rating={puzzleElo()}
             variant="muted"
             testID="chess-puzzle-board-elo"
           />
+        </Show>
+        <Show when={alreadyRated()}>
+          <FeedBarSep />
+          <p
+            class="text textCaption line-clamp-1 shrink-0 text-text-secondary"
+            data-testid="chess-puzzle-feed-unrated-label"
+          >
+            {<Trans>Unrated</Trans>}
+          </p>
         </Show>
         <FeedBarSep />
         <p

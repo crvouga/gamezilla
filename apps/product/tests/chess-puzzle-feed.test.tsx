@@ -23,8 +23,8 @@ import {
 import type { OpenSim } from '../src/test/setup/open-sim';
 import { openSim } from '../src/test/setup/open-sim';
 
-/** Default auto target with no rated games (feed config default + profile 1200). */
-const DEFAULT_TARGET = 1200;
+/** Default auto target with no rated games (§8 seed rating 1500). */
+const DEFAULT_TARGET = 1500;
 /** Offset stepper step (see `PUZZLE_FEED_AUTO_OFFSET_STEP`). */
 const OFFSET_STEP = 50;
 
@@ -124,8 +124,10 @@ describe('chess puzzle feed settings', () => {
     const debug = await s.read(readPuzzleDebug, 'alice');
     expect(debug?.status).toBe('solving');
     expect(debug?.puzzleRating).not.toBeNull();
-    expect(debug?.puzzleRating).toBeGreaterThanOrEqual(1200);
-    expect(debug?.puzzleRating).toBeLessThanOrEqual(1400);
+    // §9: the seeded fixture sits below the target, so the pick widens past
+    // the ±window rather than serving nothing.
+    expect(debug?.puzzleRating).toBeGreaterThanOrEqual(1100);
+    expect(debug?.puzzleRating).toBeLessThanOrEqual(1700);
     expect(await s.read(readActivePuzzleId, 'alice')).not.toBe(before);
   });
 });

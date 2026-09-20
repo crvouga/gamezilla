@@ -1,6 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
 import {
+  PUZZLE_RATING_DEFAULT_RD,
+  PUZZLE_RATING_RD_MIN,
+} from '@libs/chess/public/chess-puzzle-rating';
+import {
+  buildExhaustedPuzzleCandidatesSql,
   buildPuzzleBandCountSql,
   buildPuzzleCandidatesSql,
   buildPuzzleMatchedCountSql,
@@ -8,7 +12,13 @@ import {
   computeNextPuzzleLoading,
   DEFAULT_PUZZLE_RATING,
   PUZZLE_CANDIDATE_MAX_OFFSET,
+  PUZZLE_MIN_PLAYS,
+  PUZZLE_MIN_POPULARITY,
+  PUZZLE_WINDOW_HALF_MAX,
+  PUZZLE_WINDOW_HALF_MIN,
+  pickNextPuzzle,
   pickPuzzleIdFromPool,
+  puzzleSelectionHalfWindow,
   resolveProfilePuzzleRating,
   resolvePuzzlePickOffset,
   selectPuzzleCandidates,
@@ -26,7 +36,15 @@ describe('buildPuzzleCandidatesSql', () => {
     });
     expect(query.sql).toContain('rating >= ?');
     expect(query.sql).toContain('rating <= ?');
-    expect(query.values).toEqual([1300, 1700, 50, 0]);
+    // §9 quality bars come first, then the rating window, LIMIT and OFFSET.
+    expect(query.values).toEqual([
+      PUZZLE_MIN_POPULARITY,
+      PUZZLE_MIN_PLAYS,
+      1300,
+      1700,
+      50,
+      0,
+    ]);
   });
 
   test('neverSeen excludes interacted puzzles via subquery', () => {
@@ -116,7 +134,12 @@ describe('buildPuzzleCandidatesSql', () => {
     });
     expect(query.sql).not.toContain('rating >=');
     expect(query.sql).not.toContain('rating <=');
-    expect(query.values).toEqual([50, 28]);
+    expect(query.values).toEqual([
+      PUZZLE_MIN_POPULARITY,
+      PUZZLE_MIN_PLAYS,
+      50,
+      28,
+    ]);
   });
 });
 
@@ -207,6 +230,7 @@ describe('computeNextPuzzleLoading', () => {
     myId: 'user_1',
     banded: ready,
     fallback: ready,
+    exhausted: empty,
     puzzleId: 'b',
     localPuzzleTotal: 500,
     poolReady: true,
@@ -302,5 +326,165 @@ describe('buildPuzzleBandCountSql', () => {
     const query = buildPuzzleBandCountSql({ rating: 1500, halfWindow: null });
     expect(query.sql.replace(/\s+/g, ' ')).not.toContain('rating >=');
     expect(query.values).toEqual([]);
+  });
+});
+
+describe('§9 selection window', () => {
+  test('±200 while the deviation is maximal, ±100 once settled', () => {
+    expect(puzzleSelectionHalfWindow(PUZZLE_RATING_DEFAULT_RD)).toBe(
+      PUZZLE_WINDOW_HALF_MAX
+    );
+    expect(puzzleSelectionHalfWindow(PUZZLE_RATING_RD_MIN)).toBe(
+      PUZZLE_WINDOW_HALF_MIN
+    );
+    expect(puzzleSelectionHalfWindow(0)).toBe(PUZZLE_WINDOW_HALF_MIN);
+    expect(puzzleSelectionHalfWindow(Number.NaN)).toBe(PUZZLE_WINDOW_HALF_MAX);
+  });
+
+  test('the window widens monotonically with the deviation', () => {
+    let previous = 0;
+    for (let rd = PUZZLE_RATING_RD_MIN; rd <= PUZZLE_RATING_DEFAULT_RD; rd++) {
+      const half = puzzleSelectionHalfWindow(rd);
+      expect(half).toBeGreaterThanOrEqual(previous);
+      expect(half).toBeGreaterThanOrEqual(PUZZLE_WINDOW_HALF_MIN);
+      expect(half).toBeLessThanOrEqual(PUZZLE_WINDOW_HALF_MAX);
+      previous = half;
+    }
+  });
+});
+
+describe('§9 quality filter', () => {
+  test('every candidate read carries the popularity and play-count bars', () => {
+    for (const query of [
+      buildPuzzleCandidatesSql({
+        rating: 1500,
+        halfWindow: 200,
+        ownerId: 'user_1',
+        historyFilter: 'neverSeen',
+        themes: [],
+        currentPuzzleId: null,
+      }),
+      buildPuzzleMatchedCountSql({
+        rating: 1500,
+        halfWindow: 200,
+        ownerId: 'user_1',
+        historyFilter: 'neverSeen',
+        themes: [],
+        currentPuzzleId: null,
+      }),
+      buildExhaustedPuzzleCandidatesSql({
+        ownerId: 'user_1',
+        themes: [],
+        currentPuzzleId: null,
+      }),
+    ]) {
+      expect(query.sql).toContain('popularity >= ?');
+      expect(query.sql).toContain('nb_plays >= ?');
+      expect(query.values).toContain(PUZZLE_MIN_POPULARITY);
+      expect(query.values).toContain(PUZZLE_MIN_PLAYS);
+    }
+  });
+});
+
+describe('§9 exhausted pool', () => {
+  test('reads attempted puzzles, oldest attempt first, with no rating window', () => {
+    const query = buildExhaustedPuzzleCandidatesSql({
+      ownerId: 'user_1',
+      themes: [],
+      currentPuzzleId: 'current',
+    });
+    const normalized = query.sql.replace(/\s+/g, ' ');
+    expect(normalized).toContain(
+      'id IN ( SELECT puzzle_id FROM chess_puzzle_interactions'
+    );
+    expect(normalized).toContain('ORDER BY last_at ASC, id ASC');
+    expect(normalized).not.toContain('rating >=');
+    expect(query.values).toContain('current');
+  });
+});
+
+describe('pickNextPuzzle', () => {
+  const inWindow = { rows: [{ id: 'near', rating: 1500 }], isLoading: false };
+  const anywhere = { rows: [{ id: 'far', rating: 2600 }], isLoading: false };
+  const none = { rows: [], isLoading: false };
+  const played = [
+    { id: 'old', rating: 900, last_at: '2026-01-01T00:00:00.000Z' },
+    { id: 'recent', rating: 900, last_at: '2026-02-01T00:00:00.000Z' },
+  ];
+
+  test('serves an unseen in-window puzzle first', () => {
+    expect(
+      pickNextPuzzle({
+        banded: inWindow,
+        fallback: anywhere,
+        exhausted: played,
+        rating: 1500,
+        seed: 'seed-1',
+      })
+    ).toEqual({ puzzleId: 'near', source: 'unseen' });
+  });
+
+  test('widens past the window before touching played puzzles', () => {
+    expect(
+      pickNextPuzzle({
+        banded: none,
+        fallback: anywhere,
+        exhausted: played,
+        rating: 1500,
+        seed: 'seed-1',
+      })
+    ).toEqual({ puzzleId: 'far', source: 'widened' });
+  });
+
+  test('exhausted pool serves the oldest attempt, in order', () => {
+    expect(
+      pickNextPuzzle({
+        banded: none,
+        fallback: none,
+        exhausted: played,
+        rating: 1500,
+        seed: 'seed-1',
+      })
+    ).toEqual({ puzzleId: 'old', source: 'exhausted' });
+    // Deterministic: the seed never reorders the exhausted page.
+    expect(
+      pickNextPuzzle({
+        banded: none,
+        fallback: none,
+        exhausted: played,
+        rating: 1500,
+        seed: 'another-seed',
+      })
+    ).toEqual({ puzzleId: 'old', source: 'exhausted' });
+  });
+
+  test('nothing anywhere is an empty pick', () => {
+    expect(
+      pickNextPuzzle({
+        banded: none,
+        fallback: none,
+        exhausted: [],
+        rating: 1500,
+        seed: 'seed-1',
+      })
+    ).toEqual({ puzzleId: null, source: null });
+  });
+});
+
+describe('§9 the window waits for its own hydrate', () => {
+  const empty = { rows: [], isLoading: false };
+  const rows = { rows: [{ id: 'far', rating: 900 }], isLoading: false };
+
+  test('an empty window keeps loading until the pool is ready', () => {
+    const base = {
+      myId: 'user_1',
+      banded: empty,
+      fallback: rows,
+      exhausted: empty,
+      puzzleId: 'far',
+      localPuzzleTotal: 3,
+    };
+    expect(computeNextPuzzleLoading({ ...base, poolReady: false })).toBe(true);
+    expect(computeNextPuzzleLoading({ ...base, poolReady: true })).toBe(false);
   });
 });

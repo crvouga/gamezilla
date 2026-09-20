@@ -27,7 +27,7 @@ import { aliceUsername } from '../src/test/fixtures/fixtures';
 import { setupFriendsPair } from '../src/test/fixtures/setup-friends-pair';
 import { openSim } from '../src/test/setup/open-sim';
 
-const DEFAULT_ELO = 1200;
+const DEFAULT_ELO = 1500;
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */
 function required<T>(value: T | null | undefined, what: string): T {
   if (value === null || value === undefined) {

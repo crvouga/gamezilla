@@ -410,6 +410,7 @@
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/device": "workspace:*",
+        "@pkgs/glicko2": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/keyword": "workspace:*",
@@ -1402,6 +1403,16 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/glicko2": {
+      "name": "@pkgs/glicko2",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3547,6 +3558,8 @@
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
 
     "@pkgs/git": ["@pkgs/git@workspace:pkgs/git"],
+
+    "@pkgs/glicko2": ["@pkgs/glicko2@workspace:pkgs/glicko2"],
 
     "@pkgs/http-client": ["@pkgs/http-client@workspace:pkgs/http-client"],
 

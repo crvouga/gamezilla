@@ -18,7 +18,7 @@ import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
-const noopElo = (): void => {};
+const noopRating = (): void => {};
 /** Tight inset so the square board can fill its well. */
 const BOARD_WELL_PADDING_PX = spacingScale(2);
 
@@ -162,7 +162,7 @@ function CelebrationLayer(props: {
           visible={visible()}
           onClose={() => setDismissedKey(completionKey(current()))}
           onNext={props.onNext}
-          onDisplayEloChange={noopElo}
+          onDisplayRatingChange={noopRating}
         />
       )}
     </Show>

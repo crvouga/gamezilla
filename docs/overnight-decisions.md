@@ -407,3 +407,100 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   Solution (§6: plays the rest of the line out, then review), so §6 keeps an
   entry point while solving. The `wrong` state keeps its own Solution action —
   there is no hint button there, so nothing is duplicated.
+- **D50 — Glicko-2 is its own package.** §8 asks for Glicko-2 for the player
+  and the puzzle side of the pairing. The math is product-agnostic, so it
+  lives in `@pkgs/glicko2` (`glicko2Update` / `glicko2Decay` /
+  `glicko2ExpectedScore`), mirroring `@pkgs/chess-rules`' layout, with the
+  published worked example from Glickman's paper as a test vector plus seeded
+  fast-check properties. `@libs/chess` wraps it in
+  `shared/chess/chess-puzzle-rating.ts`, which owns the puzzle-specific
+  constants and the rounding.
+- **D51 — Rating state is integral on the wire.** [`DETERMINISM.md`](DETERMINISM.md)
+  already prescribed "float then `Math.round` for persisted ratings".
+  `chess_puzzle_profiles` therefore stores `rating` and `rating_deviation` as
+  rounded integers and volatility as `volatility_micros` (σ × 1e6). Rounding
+  once per attempt absorbs any last-bit difference between the client's and
+  the server's `Math.exp`, so the optimistic value and the replayed one agree
+  exactly.
+- **D52 — One mechanism for "this puzzle already moved your rating".** The new
+  `chess_puzzle_rating_events` table holds at most one row per (owner,
+  puzzle), keyed by the deterministic id `<ownerId>|<puzzleId>`. That single
+  primary key is what enforces §8 "repeat attempts never affect rating", what
+  makes an offline attempt replayed twice (or out of order) idempotent, and
+  what makes a §9 exhausted-pool re-serve unrated — no separate `rated` flag
+  on the wire, no UI-side rule. It doubles as the §8 `P1` rating history the
+  stats graph and game log read.
+- **D53 — The client sends the attempt, not a rating.** `upsertPuzzleProfile`
+  (which stored whatever the client computed) is gone, replaced by
+  `ratePuzzleAttempt`, which derives the new profile inside the mutation
+  transaction from the stored profile plus the puzzle's rating/deviation. The
+  same definition produces the optimistic local row and the authoritative one
+  on replay, and the engine rebases the client onto the server's. The
+  Elo-only helpers (`updatePuzzleRating`, `projectPuzzleEloFromInteractions`,
+  `puzzleEloK`, `PUZZLE_PROFILE_RD_STUB`, `PUZZLE_ELO_*`) are deleted; stats,
+  the sparkline, the game log and the result panel read the ledger instead of
+  re-folding history. `ChessPuzzleEloChip` / `ChessPuzzleEloDelta` are renamed
+  to `ChessPuzzleRatingChip` / `ChessPuzzleRatingDelta` and carry the
+  provisional marker and the "Unrated · already played" face.
+- **D54 — The seed rating moves 1200 → 1500.** §8 states new users start at
+  1500, so `PUZZLE_RATING_DEFAULT` is the Glicko-2 default and the feed's
+  `PUZZLE_FEED_RATING_DEFAULT` / `resolveProfilePuzzleRating` follow it. The
+  node sim fixture sits at ~1200, i.e. below the window — which is exactly the
+  §34 "rating at extremes where few puzzles exist" case, handled by the
+  widening step of §9 rather than by re-rating the fixture. Existing
+  expectations that hard-coded 1200 (`chess-puzzle-stats`,
+  `chess-puzzle-spectator`, `chess-puzzle-feed`) were updated.
+- **D55 — Provisional until RD < 110.** §8 leaves the threshold open ("until
+  RD drops below a threshold"). 110 is the conventional Glicko "established"
+  bar and is reached in roughly a dozen attempts against comparably rated
+  puzzles. The marker is a `?` suffix on the rating chip and the result
+  panel's headline.
+- **D56 — The puzzle side of the pairing does not move yet.** §8 `P0` pairs
+  the player against the puzzle; updating *puzzle* ratings is the `P1` row, so
+  the puzzle's stored `rating` / `rating_deviation` are read-only opponents.
+  A puzzle row with no deviation is treated as RD 80.
+- **D57 — Selection window formula.** §9 asks for "±100–200, widening with
+  RD". Implemented as
+  `half = 100 + 100 × clamp((RD − 30) / (350 − 30), 0, 1)` rounded — ±200 for
+  a brand-new player, ±100 once the rating is settled. The half-window is
+  published on the pick-status probe (`window=`) so scenarios can assert it.
+- **D58 — Quality bars are popularity and play count.** §9 asks for a
+  "popularity / play-count / report threshold". The Lichess corpus this app
+  ingests has **no report-count column**, so the filter is
+  `popularity >= 50 AND nb_plays >= 5`, applied to every candidate read
+  including the exhausted-pool fallback. If a report count is ever ingested it
+  becomes a third condition in the same place.
+- **D59 — Pick order, and why widening waits for the pool.** Selection tries
+  (1) unseen inside the ±window, (2) unseen anywhere (rating at an extreme),
+  (3) the oldest-attempted puzzle. Step 2 is gated on the pool subscription
+  being ready: bands hydrate one response at a time, so an empty window before
+  the first hydrate means "not downloaded yet", not "nothing at your level" —
+  without the gate the first puzzle of a session came from whichever band
+  happened to land first. Step 3 only applies to the default "hide played
+  puzzles" feed; every other history filter already serves attempted puzzles
+  on its own terms.
+- **D60 — The exhausted feed is no longer a dead end.** §9 says the pool
+  falls back to oldest-first instead of stopping, so
+  `chess-puzzle-exhaust.test.tsx` no longer expects the empty-pool block after
+  the last unseen puzzle: it expects the oldest attempt to come round again,
+  unrated. The empty-pool block and its "include played puzzles" recovery are
+  still covered by the same file, through a theme filter that matches nothing
+  (and by the offline scenario).
+- **D61 — One account, two devices.** §34 needs the same account signed in on
+  two devices. The sim's Google address is derived from the actor id, so a new
+  `signInWithGoogleAsAccount(actorId, accountActorId)` action signs one actor
+  in with another's address — the real second-device path, no test-only hook.
+- **D62 — Rating / selection fixtures are re-rated real puzzles.**
+  `apps/product/fixtures/chess-puzzles-rating.sim.csv` (14 rows clustered on
+  1500, so RD converges at a realistic rate) and
+  `chess-puzzles-selection.sim.csv` (4 in-window, 5 below the quality bars, 3
+  outside the window) are rows from the checked-in Lichess web fixture with
+  the rating / popularity / play-count columns rewritten. The positions and
+  solutions are untouched, both files pass `validate:puzzles`, and both are
+  listed in the §35 validation-job test.
+- **D63 — The one deleted test file.** `libs/chess/src/shared/chess/chess-puzzle-rating.test.ts`
+  tested the Elo helpers, which §8 replaces with Glicko-2, so the functions it
+  called no longer exist. Its coverage was rewritten, not dropped:
+  `libs/chess/tests/puzzle-session/rating.test.ts` (11 tests, in the location
+  AGENTS.md prescribes) plus `@pkgs/glicko2`'s reference-vector and property
+  tests. No other existing test was deleted or skipped anywhere in this work.

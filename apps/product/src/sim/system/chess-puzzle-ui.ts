@@ -440,6 +440,35 @@ export async function readPuzzleStatusKind(
   return probe?.statusKind ?? null;
 }
 
+/** §9 half-window the pick used, from the pick-status probe. */
+export async function readPuzzleSelectionWindow(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  const raw = await readPickStatusField(s, actorId, 'window');
+  if (raw === undefined) return null;
+  const n = Number.parseInt(raw, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Where the served puzzle came from: `unseen` / `widened` / `exhausted`. */
+export async function readPuzzlePickSource(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  return (await readPickStatusField(s, actorId, 'source')) ?? null;
+}
+
+/** Whether the attempt on the board can still move the rating (§8 / §9). */
+export async function isPuzzleAttemptRated(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean | null> {
+  const raw = await readPickStatusField(s, actorId, 'rated');
+  if (raw === undefined) return null;
+  return raw === '1';
+}
+
 /** Pick state from the hidden pick-status probe (`ready`, `waiting`, …). */
 export async function readPuzzlePickState(
   s: ProductSim,
@@ -584,6 +613,16 @@ export async function openChessStats(
   await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
 }
 
+/** Back arrow on the stats screen → chess main menu. */
+export async function leaveChessStats(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+}
+
 export async function readStatsElo(
   s: ProductSim,
   actorId: string
@@ -593,6 +632,19 @@ export async function readStatsElo(
     const raw = stripProbe(await ui.get(Handles.chessStatsElo).text());
     const n = Number.parseInt(raw, 10);
     return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Raw rating chip text on the stats screen — `1500` or `1500?` (§8). */
+export async function readStatsRatingLabel(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return stripProbe(await ui.get(Handles.chessStatsElo).text()).trim();
   } catch {
     return null;
   }

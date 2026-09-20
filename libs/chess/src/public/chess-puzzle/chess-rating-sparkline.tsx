@@ -19,12 +19,14 @@ function buildPoints(series: readonly number[]): string {
     .join(' ');
 }
 
-export type ChessEloSparklineProps = {
+export type ChessRatingSparklineProps = {
   series: readonly number[];
   testID?: string;
 };
 
-export function ChessEloSparkline(props: ChessEloSparklineProps): JSX.Element {
+export function ChessRatingSparkline(
+  props: ChessRatingSparklineProps
+): JSX.Element {
   const theme = useTheme();
   const points = createMemo(() => buildPoints(props.series));
 

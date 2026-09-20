@@ -11,8 +11,8 @@ hash is the slice commit. Assumptions: [`overnight-decisions.md`](overnight-deci
 | 2 | Permission layer, permissive baseline | §22.1–22.7 P0, §22.11 P0, §35 permission tests | done | 5aed447b3 |
 | 3 | Lichess ingest + validation | §4 P0, §23 P0, §35 DB validation | done | 21d7588fc |
 | 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | done | 2e8938ad7 |
-| 5 | Rating mutator (Glicko-2) | §8 P0 | pending | |
-| 6 | Selection | §9 P0, §10.1/10.2 P0 | pending | |
+| 5 | Rating mutator (Glicko-2) | §8 P0 | done | |
+| 6 | Selection | §9 P0, §10.1/10.2 P0 | done | |
 | 7 | Review | §7 P0 | pending | |
 | 8 | Coach v1 | §36 P0 | pending | |
 | 9 | Stats | §15 P0 | pending | |
@@ -162,3 +162,47 @@ job test). Decisions D36–D48.
 - [x] §34 App killed mid-puzzle — `restartApp` scenario: same puzzle restored pending, no outcome, no second start or quota consume
 - [x] §35 Solve-flow tests: correct path, wrong path, alt-mate acceptance, promotion variants, castling input variants — `move-judge.test.ts` + the product scenarios above
 - [ ] §5 P1 rows (header rating/timer, themes hidden until the end, progress dots, soft-fail, session summary) and §6 P1 progressive-hint extensions — out of this slice; existing hint behaviour kept working
+
+### Slice 5 — Rating (§8)
+
+Kernel: `@pkgs/glicko2` (new package). Domain:
+`libs/chess/src/shared/chess/chess-puzzle-rating.ts` +
+`chess-puzzle-rating-event.ts`. Mutation:
+`use-cases/rate-puzzle-attempt/shared/rate-puzzle-attempt-mutation.ts`.
+Query: `use-cases/load-puzzle-rating-events/shared/`. Tables:
+`chess_puzzle_rating_events` (new) + `chess_puzzle_profiles.volatility_micros`.
+Tests: `bun run --filter @pkgs/glicko2 test`,
+`bun run --filter @libs/chess test`
+(`tests/puzzle-session/rating.test.ts`, `rate-puzzle-attempt.test.ts`,
+`completion.test.ts`), product sim
+`apps/product/tests/chess-puzzle-rating.test.tsx` (in `test:chess`).
+Fixture: `apps/product/fixtures/chess-puzzles-rating.sim.csv`. Decisions
+D50–D56, D61, D62.
+
+- [x] §8 Glicko-2 for the player and the puzzle side of the pairing; each attempt is a game (solve = win, fail = loss) — `@pkgs/glicko2` + `applyPuzzleAttemptRating`; the published worked example and seeded properties in `pkgs/glicko2/tests/glicko2.test.ts`, the puzzle wrapper in `libs/chess/tests/puzzle-session/rating.test.ts`
+- [x] §8 New users: 1500, RD 350, provisional "?" until RD drops below the threshold — `DEFAULT_PUZZLE_RATING_STATE`, `isProvisionalPuzzleRating` (D55); chip/result-panel marker asserted in `chess-puzzle-rating.test.tsx` ("a new player starts at 1500 provisional", "the provisional marker clears…")
+- [x] §8 Server-authoritative rating; the client shows an optimistic estimate and reconciles — `ratePuzzleAttempt` derives the profile in the mutation transaction (D53); offline solve → reconnect → the client lands on the server value (`chess-puzzle-rating.test.tsx`)
+- [x] §8 Repeat attempts on an already-seen puzzle never affect rating — the `chess_puzzle_rating_events` primary key (D52); asserted in `chess-puzzle-rating.test.tsx` ("a repeat attempt…"), `chess-puzzle-selection.test.tsx` ("pool exhaustion…") and `completion.test.ts`
+- [x] §34 Offline attempts synced days later, out of order, or duplicated — the ledger key makes replay idempotent; `rate-puzzle-attempt.test.ts` replays a batch duplicated and reversed against real SQL, and the product scenario "an offline solve reconciles to the server value and never double-applies" asserts the server rating equals a direct recomputation with exactly one ledger row
+- [x] §34 Same account on two devices simultaneously — `signInWithGoogleAsAccount` (D61); "two devices of one account converge on a single rating"
+- [ ] §8 P1 rows (puzzle ratings move, reduced weight with extra information, RD inflation over inactivity, per-theme ratings, per-mode ratings, swing caps, zen mode) — out of this slice; the ledger already stores the per-attempt history those rows need
+
+### Slice 6 — Selection (§9)
+
+Kernel: `libs/chess/src/shared/puzzle-session/next-puzzle-selection.ts`
+(`puzzleSelectionHalfWindow`, quality bars, `buildExhaustedPuzzleCandidatesSql`,
+`pickNextPuzzle`). Client: `use-next-puzzle-id.ts`,
+`use-puzzle-candidates-query.ts`. Tests:
+`bun run --filter @libs/chess test`
+(`tests/puzzle-session/next-puzzle-selection.test.ts`), product sims
+`apps/product/tests/chess-puzzle-selection.test.tsx` and the rewritten
+`chess-puzzle-exhaust.test.tsx` (both in `test:chess`). Fixture:
+`apps/product/fixtures/chess-puzzles-selection.sim.csv`. Decisions D57–D60,
+D62.
+
+- [x] §9 Puzzles within a window around the user's rating (±100–200, widening with RD) — `puzzleSelectionHalfWindow` (D57); unit + monotonicity tests, and the product scenario reads the live half-window off the pick probe ("the window widens with RD and narrows as the rating settles")
+- [x] §9 Never serve a puzzle already attempted in rated mode, until pool exhaustion, then oldest-first and unrated — `buildExhaustedPuzzleCandidatesSql` + `pickNextPuzzle` (D59); "no repeat while unseen puzzles remain…" and "pool exhaustion serves the oldest attempt first, unrated"; the attempt is unrated through the §8 ledger, not a separate flag (D52)
+- [x] §9 Quality filter: exclude puzzles below a popularity / play-count threshold — `PUZZLE_MIN_POPULARITY` / `PUZZLE_MIN_PLAYS` on every candidate read (D58; the corpus has no report column); low-quality fixture rows are never served in any phase
+- [x] §10.1 / §10.2 The existing feed knobs (difficulty offset, custom rating, theme filter, history filter) keep working on top of the P0 default — `chess-puzzle-feed.test.tsx`, `chess-puzzle-exhaust.test.tsx`
+- [x] §34 User exhausts the puzzle pool / rating at extremes where few puzzles exist — the widening step serves unseen puzzles outside the window (the sim fixture sits ~300 points below the seed rating), then the exhausted step keeps the feed alive
+- [ ] §9 P1/P2 rows (difficulty presets, target success rate tuning, balance, weakness weighting, prefetch batches, server-side seen set, tilt detection, session shaping, power-user filters) — out of this slice

@@ -81,11 +81,13 @@ export async function completeGoogleSignIn(args: {
   readonly s: ProductSim;
   readonly ui: Driver;
   readonly actorId: string;
+  /** Google address to sign in with; defaults to this actor's own. */
+  readonly email?: string;
   /** The sign-in is over (the app shows it, or the window closed). */
   readonly done: () => Promise<boolean>;
 }): Promise<void> {
   const { s, ui, actorId } = args;
-  const email = actorEmail(s, actorId);
+  const email = args.email ?? actorEmail(s, actorId);
   for (let step = 0; step < MAX_PROVIDER_STEPS; step += 1) {
     const screen = await currentScreen(s, ui, args.done);
     if (screen === 'done') return;
@@ -101,25 +103,43 @@ export async function completeGoogleSignIn(args: {
  * Open the avatar menu → Account, tap Continue with Google, walk the
  * provider's screens in the sign-in window, then dismiss the signed-in success.
  */
+async function googleSignIn(
+  s: ProductSim,
+  actorId: string,
+  email?: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.accountSignIn).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.authMethodGoogle).tap({ timeoutMs: WAIT_MS });
+  await completeGoogleSignIn({
+    s,
+    ui,
+    actorId,
+    ...(email === undefined ? {} : { email }),
+    done: () => ui.get(Handles.authSignedInDone).isVisible(),
+  });
+  await ui.get(Handles.authSignedInDone).tap({ timeoutMs: WAIT_MS });
+  if (await ui.get(Handles.authModalClose).isVisible()) {
+    await ui.get(Handles.authModalClose).tap({ timeoutMs: 1000 });
+  }
+}
+
 export const signInWithGoogle = scenarioAction({
   name: 'signInWithGoogle',
-  act: async (s, actorId: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.accountSignIn).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.authMethodGoogle).tap({ timeoutMs: WAIT_MS });
-    await completeGoogleSignIn({
-      s,
-      ui,
-      actorId,
-      done: () => ui.get(Handles.authSignedInDone).isVisible(),
-    });
-    await ui.get(Handles.authSignedInDone).tap({ timeoutMs: WAIT_MS });
-    if (await ui.get(Handles.authModalClose).isVisible()) {
-      await ui.get(Handles.authModalClose).tap({ timeoutMs: 1000 });
-    }
-  },
+  act: (s, actorId: string) => googleSignIn(s, actorId),
+});
+
+/**
+ * The same person on a second device: `actorId` signs in with the Google
+ * address that belongs to `accountActorId` (§34 "same account on two
+ * devices").
+ */
+export const signInWithGoogleAsAccount = scenarioAction({
+  name: 'signInWithGoogleAsAccount',
+  act: (s, actorId: string, accountActorId: string) =>
+    googleSignIn(s, actorId, actorEmail(s, accountActorId)),
 });
 
 /**

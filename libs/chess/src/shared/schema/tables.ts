@@ -42,10 +42,37 @@ export const chessPuzzleProfiles = defineTable({
   name: 'chess_puzzle_profiles',
   columns: {
     owner_id: 'text',
+    // §8 Glicko-2 state. Rating and deviation are rounded and volatility is
+    // held in micros so nothing float ever reaches the wire (DETERMINISM.md).
     rating: 'integer',
     rating_deviation: 'integer',
+    volatility_micros: 'integer',
     last_interaction_at: 'timestamp',
   },
+});
+
+/**
+ * §8 rating ledger: at most one row per (owner, puzzle), keyed by
+ * `<ownerId>|<puzzleId>`. The primary key enforces "repeat attempts never
+ * affect rating" for replays, duplicates and out-of-order uploads alike.
+ */
+export const chessPuzzleRatingEvents = defineTable({
+  domain: 'chess',
+  name: 'chess_puzzle_rating_events',
+  columns: {
+    owner_id: 'text',
+    puzzle_id: 'text',
+    puzzle_rating: 'integer',
+    outcome: 'text',
+    score_permille: 'integer',
+    rating_before: 'integer',
+    rating_after: 'integer',
+    rating_deviation_before: 'integer',
+    rating_deviation_after: 'integer',
+    volatility_micros_after: 'integer',
+    at: 'timestamp',
+  },
+  indexes: ['owner_id'],
 });
 
 export const chessPuzzleInteractions = defineTable({
@@ -65,12 +92,12 @@ export const chessPuzzleInteractions = defineTable({
     {
       name: 'rating_before',
       type: 'integer',
-      note: 'Elo is projected from interaction history',
+      note: 'per-attempt rating lives in chess_puzzle_rating_events',
     },
     {
       name: 'rating_after',
       type: 'integer',
-      note: 'Elo is projected from interaction history',
+      note: 'per-attempt rating lives in chess_puzzle_rating_events',
     },
   ],
 });
@@ -79,5 +106,6 @@ export const CHESS_TABLES = [
   chessPuzzles,
   chessPuzzleLoad,
   chessPuzzleProfiles,
+  chessPuzzleRatingEvents,
   chessPuzzleInteractions,
 ] as const;

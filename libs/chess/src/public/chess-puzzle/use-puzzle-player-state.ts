@@ -24,10 +24,6 @@ import {
   StartChessPuzzlePlay,
 } from '../chess-puzzle-play';
 import {
-  PUZZLE_ELO_DEFAULT,
-  projectPuzzleEloFromInteractions,
-} from '../chess-puzzle-rating';
-import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,
 } from './chess-puzzle-play-queries';
@@ -154,14 +150,11 @@ function usePuzzlePlayerModel(args: {
   const fen = createMemo(() => entity.fen);
   const movesStr = createMemo(() => entity.movesStr);
   const rating = createMemo(() => entity.rating);
+  const ratingDeviation = createMemo(() => entity.ratingDeviation);
   const themes = createMemo(() => entity.themes);
   const interactions = createMemo(() => entity.interactions);
   const interactionsReady = createMemo(() => entity.interactionsReady);
   const allInteractions = useChessPuzzleAllInteractions();
-  const playerElo = createMemo(() => {
-    const projected = projectPuzzleEloFromInteractions(allInteractions());
-    return projected.ratedGames > 0 ? projected.rating : PUZZLE_ELO_DEFAULT;
-  });
   const startedAtMs = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.startedAtMs.from
   );
@@ -184,11 +177,11 @@ function usePuzzlePlayerModel(args: {
   const recorder = useChessPuzzleInteractionRecorder({
     puzzleId: args.puzzleId,
     puzzleRating: rating,
+    puzzleRatingDeviation: ratingDeviation,
     status: solver.status,
     solveIdx: solver.solveIdx,
     interactions,
     interactionsReady,
-    allInteractions,
     attemptStartedAtMs: startedAtMs,
     canRecord: isPuzzleHost,
   });
@@ -196,7 +189,7 @@ function usePuzzlePlayerModel(args: {
   return {
     puzzleId: args.puzzleId,
     rating,
-    playerElo,
+    ratingDeviation,
     themes,
     interactions,
     allInteractions,
@@ -323,7 +316,6 @@ function frozenPlayerModel(args: {
     puzzleId: m.puzzleId,
     rating: m.rating,
     themes: m.themes,
-    playerElo: m.playerElo,
     backToRoot: controls.backToRoot,
     assistant: visual.assistant,
     statusKind: visual.statusKind,

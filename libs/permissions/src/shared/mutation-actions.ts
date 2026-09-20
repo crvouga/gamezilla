@@ -27,7 +27,7 @@ export const MUTATION_ACTIONS: Readonly<
   patchAvatar: 'public',
   // chess
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
-  upsertPuzzleProfile: PERMISSION.puzzlesPlay,
+  ratePuzzleAttempt: PERMISSION.puzzlesPlay,
   // spaces (host / member checks run in the bodies against space roles)
   createSpace: PERMISSION.spacesCreate,
   joinSpace: PERMISSION.spacesJoin,

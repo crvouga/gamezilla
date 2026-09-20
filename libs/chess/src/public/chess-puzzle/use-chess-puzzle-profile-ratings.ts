@@ -2,14 +2,24 @@ import { sql } from '@pkgs/sql';
 import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
+import {
+  isProvisionalPuzzleRating,
+  PUZZLE_RATING_DEFAULT_RD,
+} from '../chess-puzzle-rating';
+
 type PuzzleProfileRatingsRow = {
   readonly rating: number | null;
   readonly rating_deviation: number | null;
 };
 
+/**
+ * The player's §8 rating state from the synced profile row. Before the first
+ * rated attempt there is no row: that is the 1500 / RD 350 provisional start.
+ */
 export function useChessPuzzleProfileRatings(myId: Accessor<string>): {
   readonly profileRating: Accessor<number>;
   readonly profileRd: Accessor<number>;
+  readonly provisional: Accessor<boolean>;
 } {
   const { paintReady } = useSyncEngine();
   const { rows } = createQuery(() =>
@@ -27,12 +37,16 @@ export function useChessPuzzleProfileRatings(myId: Accessor<string>): {
           WHERE false
         `
   );
+  const profileRating = createMemo(() =>
+    paintReady() ? (rows()[0]?.rating ?? 0) : 0
+  );
+  const profileRd = createMemo(() => {
+    const rd = paintReady() ? (rows()[0]?.rating_deviation ?? 0) : 0;
+    return rd > 0 ? rd : PUZZLE_RATING_DEFAULT_RD;
+  });
   return {
-    profileRating: createMemo(() =>
-      paintReady() ? (rows()[0]?.rating ?? 0) : 0
-    ),
-    profileRd: createMemo(() =>
-      paintReady() ? (rows()[0]?.rating_deviation ?? 0) : 0
-    ),
+    profileRating,
+    profileRd,
+    provisional: createMemo(() => isProvisionalPuzzleRating(profileRd())),
   };
 }

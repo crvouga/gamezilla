@@ -7,7 +7,7 @@ export function useChessPuzzleFeedback(): {
   onCorrectMove: () => void;
   onWrongMove: () => void;
   onSolved: () => void;
-  onEloComplete: (delta: number) => void;
+  onRatingComplete: (delta: number) => void;
 } {
   const boardSounds = createChessBoardSounds();
   const puzzleSounds = useChessPuzzleSounds();
@@ -27,7 +27,7 @@ export function useChessPuzzleFeedback(): {
     haptics.success();
   };
 
-  const onEloComplete = (delta: number): void => {
+  const onRatingComplete = (delta: number): void => {
     if (delta > 0) {
       puzzleSounds.playEloCompleteGain();
       return;
@@ -37,5 +37,5 @@ export function useChessPuzzleFeedback(): {
     }
   };
 
-  return { onCorrectMove, onWrongMove, onSolved, onEloComplete };
+  return { onCorrectMove, onWrongMove, onSolved, onRatingComplete };
 }
