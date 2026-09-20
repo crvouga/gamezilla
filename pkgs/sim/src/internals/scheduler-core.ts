@@ -144,9 +144,18 @@ export async function fireDueTasks(ctx: DrainContext): Promise<number> {
  * record and replay — advancing while that work is still pending makes
  * `scheduleAfter` deadlines drift and breaks Trace replay.
  *
+ * A probe is one macrotask, so the ceiling is really "how many event-loop
+ * turns can that I/O need". 64 was enough on an idle machine and not enough on
+ * a busy one: with the sim suites running in parallel, a contended process
+ * spent its 64 turns without the SQLite round-trip landing, virtual time moved
+ * anyway, and scenario deadlines burned while nothing progressed — a flake
+ * that looked like a slow product rather than a starved drain. Spins cost
+ * nothing when the work has already settled (the loop exits on the first
+ * probe), so the ceiling is sized for the contended case.
+ *
  * TODO(dst-audit): D4 — replace with registered Effects (Phase 3.3).
  */
-const MAX_WALL_SPINS_BEFORE_ADVANCE = 64;
+const MAX_WALL_SPINS_BEFORE_ADVANCE = 512;
 
 function throwIfInFlightError(ctx: DrainContext): void {
   const err = firstInFlightError(ctx);
