@@ -87,20 +87,35 @@ export function findColumn(
  * one dialect. `actual` is the engine's physical type name (Postgres
  * `udt_name`, SQLite STRICT affinity).
  */
+/**
+ * The engine type a declared column is expected to have. Drift compares
+ * physical types, so this is also what a mismatch must report: the logical
+ * token alone reads as `expected 'integer', found 'integer'` when a declared
+ * `integer` (physical `bigint`) meets an `int4` column.
+ */
+export function expectedPhysicalOf(
+  expected: ColumnType,
+  mode: 'postgres' | 'sqlite',
+  declared?: DeclaredColumn
+): string {
+  if (mode === 'sqlite') {
+    return declared?.physicalSqlite ?? sqlitePhysicalOf(expected);
+  }
+  return normalizePgPhysical(
+    declared?.physicalPostgres ?? pgPhysicalOf(expected)
+  );
+}
+
 export function logicalTypeMatch(
   expected: ColumnType,
   actual: string,
   mode: 'postgres' | 'sqlite',
   declared?: DeclaredColumn
 ): boolean {
+  const expectedPhysical = expectedPhysicalOf(expected, mode, declared);
   if (mode === 'sqlite') {
-    const expectedPhysical =
-      declared?.physicalSqlite ?? sqlitePhysicalOf(expected);
     return expectedPhysical.toUpperCase() === actual.toUpperCase();
   }
-  const expectedPhysical = normalizePgPhysical(
-    declared?.physicalPostgres ?? pgPhysicalOf(expected)
-  );
   return expectedPhysical === normalizePgPhysical(actual);
 }
 
@@ -149,9 +164,10 @@ function classifyRetiredColumn(args: {
   out.retiredExtras.push({ table: tableName, column: col.name });
   const declared: DeclaredColumn = { type: retired.type };
   if (!logicalTypeMatch(retired.type, col.physical, mode, declared)) {
+    const wanted = expectedPhysicalOf(retired.type, mode, declared);
     out.drift.push({
       path: `${tableName}.${col.name}`,
-      message: `retired column changed shape: expected '${retired.type}', found '${String(col.type)}' — old clients still read it`,
+      message: `retired column changed shape: expected '${retired.type}' (${wanted}), found '${String(col.type)}' (${col.physical}) — old clients still read it`,
     });
     out.columnDeltas.push({
       table: tableName,
@@ -210,15 +226,17 @@ function classifyTypeMismatch(args: {
   tableName: string;
   col: IntrospectedColumn;
   expected: DeclaredColumn;
+  mode: 'postgres' | 'sqlite';
   out: MutableClassified;
 }): void {
-  const { tableName, col, expected, out } = args;
+  const { tableName, col, expected, mode, out } = args;
   const hint = hasLifecycleSource(expected)
     ? ' (use a new column + widenedFrom/renamedFrom + retire the old one; never ALTER TYPE)'
     : '';
+  const wanted = expectedPhysicalOf(expected.type, mode, expected);
   out.drift.push({
     path: `${tableName}.${col.name}`,
-    message: `column type mismatch: expected '${expected.type}', found '${String(col.type)}'${hint}`,
+    message: `column type mismatch: expected '${expected.type}' (${wanted}), found '${String(col.type)}' (${col.physical})${hint}`,
   });
   out.columnDeltas.push({
     table: tableName,
@@ -278,7 +296,7 @@ function classifyExistingColumns(args: {
     }
     const expected = desired.get(col.name)!;
     if (!logicalTypeMatch(expected.type, col.physical, mode, expected)) {
-      classifyTypeMismatch({ tableName, col, expected, out });
+      classifyTypeMismatch({ tableName, col, expected, mode, out });
     }
     if (!nullabilityOk(col)) {
       classifyNullability({ tableName, col, expected, out });

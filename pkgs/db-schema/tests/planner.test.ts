@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { classifyDelta } from '@pkgs/db-schema/core/compatibility';
-import { SQLITE_CAPS } from '@pkgs/db-schema/core/dialect-caps';
+import { POSTGRES_CAPS, SQLITE_CAPS } from '@pkgs/db-schema/core/dialect-caps';
 import type { ClientOperation } from '@pkgs/db-schema/core/operations';
 import { planClient, planServer } from '@pkgs/db-schema/core/plan';
 import type {
@@ -397,5 +397,37 @@ describe('planClient — tolerant cache behaviour', () => {
     expect(scoped.operations.some((op) => op.kind === 'drop_table')).toBe(
       false
     );
+  });
+});
+
+describe('drift messages name the physical types that were compared', () => {
+  test('a declared integer stored as int4 says bigint vs int4, not integer twice', () => {
+    // Drift compares physical types, so reporting the logical token on both
+    // sides renders a real mismatch as `expected 'integer', found 'integer'`.
+    const schema = declared([
+      defineTable({
+        domain: 'alpha',
+        name: 'alpha',
+        columns: { rating: 'integer' },
+      }),
+    ]);
+    const existing = catalog({
+      tables: [
+        table('alpha', 'postgres', [
+          { name: 'rating', type: 'integer', physical: 'int4' },
+        ]),
+      ],
+    });
+
+    const classified = classifyDelta({
+      declared: schema,
+      catalog: existing,
+      caps: POSTGRES_CAPS,
+      mode: 'postgres',
+    });
+
+    const drift = classified.drift.find((d) => d.path === 'alpha.rating');
+    expect(drift?.message).toContain('(bigint)');
+    expect(drift?.message).toContain('(int4)');
   });
 });
