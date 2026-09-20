@@ -251,10 +251,13 @@ which serves Google's real endpoints (PKCE, code exchange, userinfo, JWKS)
 so the production `google-oauth.ts` path is the path under test. Point it
 somewhere else with the `GOOGLE_IDP_ORIGIN` Worker binding; unset means real
 Google. Its **wire** is Google's; its **screens** deliberately are not — they
-are a neutral brand (`IDP_BRAND` in `pkgs/idp-google-sim/src/shared/brand.ts`)
-with their own mark, palette and shape language. Keep flow parity (address
-step, chooser, password, consent, create-account, refusal) and do **not**
-restore Google's logo, palette, page titles or footer links.
+say `OAuth Mock` (`IDP_BRAND` in `pkgs/idp-google-sim/src/shared/brand.ts`),
+with their own mark, palette and shape language. The mock must never pass for a
+real provider: do **not** restore Google's logo, palette, page titles or footer
+links, and do **not** swap in an invented brand that reads as real. It must
+also stay a **high-fidelity** mock of social sign-in — keep flow parity with
+Google / Apple (address step, account chooser, password, consent with scopes,
+create-account, refusal); saying "mock" is not licence to make it a toy.
 
 Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ S3rver/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/s3-server`, `@pkgs/aedes-server`, `@pkgs/emqx-server` and are booted from tests/CI (`apps/server/scripts/boot-local-stack.ts`, `apps/server/scripts/boot-embedded-postgres.ts`).
 
