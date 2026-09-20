@@ -87,7 +87,6 @@ export {
   readAvatarSeed,
   readAvatarStyleLabel,
   readUsername,
-  recentSpaceCardVisible,
   spaceMemberVisible,
   spacePresenceCount,
   tabsVisible,

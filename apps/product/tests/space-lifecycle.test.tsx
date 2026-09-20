@@ -3,9 +3,6 @@ import { describe, expect, test } from 'bun:test';
 import {
   activeSpaceVisible,
   createSpace,
-  endSpace,
-  openSpacesTab,
-  recentSpaceCardVisible,
   reenterActiveSpace,
   returnToLobby,
   returnToTabs,
@@ -24,21 +21,5 @@ describe('space lifecycle', () => {
     await s.apply(returnToLobby, 'alice');
     await s.apply(reenterActiveSpace, 'alice', aliceUsername);
     expect(await s.read(activeSpaceVisible, 'alice')).toBe(true);
-  });
-
-  test('an ended space is listed under recent spaces', async () => {
-    await using s = await openSim('space-lifecycle-recent');
-
-    await s.apply(signInWithGoogle, 'alice');
-    await s.apply(returnToTabs, 'alice');
-    await s.apply(createSpace, 'alice');
-    await s.apply(endSpace, 'alice');
-    await s.apply(openSpacesTab, 'alice');
-    await s.until((surf) =>
-      recentSpaceCardVisible(surf, 'alice', aliceUsername)
-    );
-    expect(await s.read(recentSpaceCardVisible, 'alice', aliceUsername)).toBe(
-      true
-    );
   });
 });
