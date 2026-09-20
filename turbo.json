@@ -477,6 +477,7 @@
         "@apps/client#check:bundle-budget",
         "tc",
         "test",
+        "@apps/product#check:test-slices",
         "@apps/server#build",
         "@apps/room-server#build",
         "@pkgs/sql-client-postgres#test:contract",
@@ -694,6 +695,67 @@
       "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
+    },
+    "test:search": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/search-*.ts",
+        "tests/search-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:platform": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/non-web-host-smoke.test.ts",
+        "tests/sw-policy.test.ts",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "@apps/product#check:test-slices": {
+      "inputs": ["package.json", "scripts/check-test-slices.ts", "tests/**"],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:explore": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/product-explore.test.ts",
+        "tests/product-explore.test.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:shell": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/shell-*.ts",
+        "tests/shell-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
     }
   }
 }

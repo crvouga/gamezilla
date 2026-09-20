@@ -29,8 +29,11 @@
  *   `TURBO_OUTPUT_LOGS`.
  * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
+ * - Time limits: the run is killed at a hard wall-clock deadline, and every
+ *   task that executed is checked against its per-task budget once the run
+ *   finishes. Both live in `check-budget.ts`.
  */
-import { spawn } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
@@ -44,6 +47,12 @@ import {
   TURBO_TEAM,
 } from '@libs/secrets/shared/secrets/turbo-token';
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+import {
+  findBudgetOverruns,
+  formatBudgetOverruns,
+  readLatestRunSummary,
+  resolveRunDeadlineSeconds,
+} from './check-budget';
 import { CachedGroupFilter } from './github-cached-group-filter';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -358,8 +367,14 @@ async function main(): Promise<void> {
     }
   }
 
+  const slowRunner = inCi();
+  const deadlineSeconds = resolveRunDeadlineSeconds(process.env, {
+    isDeploy: isDeployLeafSet(taskArgs),
+    slowRunner,
+  });
+
   console.log(
-    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
+    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
       (ui !== undefined ? ` ui=${ui}` : '') +
       (remote
         ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API})`
@@ -369,29 +384,110 @@ async function main(): Promise<void> {
   const status = await runTurbo(
     ['run', ...taskArgs, ...affected, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
     env,
-    inGithubActions() && ui !== 'tui'
+    {
+      hideCachedGroups: inGithubActions() && ui !== 'tui',
+      deadlineSeconds,
+    }
   );
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(status);
+  process.exit(status === 0 ? enforceTaskBudgets(slowRunner) : status);
 }
 
 /**
- * Run turbo to completion. With `hideCachedGroups`, stdout goes through
- * `CachedGroupFilter` so the GitHub log keeps only tasks that did work.
+ * Fail a run whose tasks were individually too slow. Read from turbo's own
+ * `--summarize` output, so cache hits (which did no work) are never measured.
+ */
+function enforceTaskBudgets(slowRunner: boolean): number {
+  const summary = readLatestRunSummary(REPO_ROOT);
+  if (summary === null) {
+    console.warn(
+      'turbo-ci-run: no turbo run summary found; per-task budgets not checked.'
+    );
+    return 0;
+  }
+  const overruns = findBudgetOverruns(summary, slowRunner);
+  if (overruns.length === 0) return 0;
+  console.error(formatBudgetOverruns(overruns));
+  return 1;
+}
+
+type RunTurboOptions = {
+  readonly hideCachedGroups: boolean;
+  readonly deadlineSeconds: number;
+};
+
+/** SIGKILL the turbo process group; a wedged task rarely dies with turbo. */
+function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
+  const pid = child.pid;
+  if (pid === undefined) return;
+  try {
+    process.kill(-pid, signal);
+  } catch {
+    try {
+      child.kill(signal);
+    } catch {
+      // already exited
+    }
+  }
+}
+
+/**
+ * Kill the run at `deadlineSeconds`. Returns a disarm callback.
+ *
+ * `detached: true` puts turbo in its own process group so the whole tree dies
+ * with it; the price is that the terminal's Ctrl-C no longer reaches it, so
+ * SIGINT / SIGTERM are forwarded here instead.
+ */
+function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
+  const forward = (signal: NodeJS.Signals) => () => {
+    killTree(child, signal);
+  };
+  const onInt = forward('SIGINT');
+  const onTerm = forward('SIGTERM');
+  process.on('SIGINT', onInt);
+  process.on('SIGTERM', onTerm);
+  const timer = setTimeout(() => {
+    console.error(
+      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; killing the run. ` +
+        'Find the task that wedged (turbo prints the ones still running), fix it, ' +
+        `or raise the deadline in libs/tools/scripts/check-budget.ts.`
+    );
+    killTree(child, 'SIGKILL');
+  }, deadlineSeconds * 1000);
+  return () => {
+    clearTimeout(timer);
+    process.off('SIGINT', onInt);
+    process.off('SIGTERM', onTerm);
+  };
+}
+
+/**
+ * Run turbo to completion or until the deadline. With `hideCachedGroups`,
+ * stdout goes through `CachedGroupFilter` so the GitHub log keeps only tasks
+ * that did work.
  */
 async function runTurbo(
   args: readonly string[],
   env: NodeJS.ProcessEnv,
-  hideCachedGroups: boolean
+  options: RunTurboOptions
 ): Promise<number> {
   const child = spawn('turbo', args, {
-    stdio: ['inherit', hideCachedGroups ? 'pipe' : 'inherit', 'inherit'],
+    stdio: [
+      'inherit',
+      options.hideCachedGroups ? 'pipe' : 'inherit',
+      'inherit',
+    ],
     env,
+    detached: true,
   });
+  const disarm = armDeadline(child, options.deadlineSeconds);
   const exited = new Promise<number>((resolve) => {
-    child.on('close', (code) => resolve(code ?? 1));
+    child.on('close', (code, signal) => {
+      disarm();
+      resolve(code ?? (signal === null ? 1 : 124));
+    });
   });
   if (child.stdout === null) return exited;
 

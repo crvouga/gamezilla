@@ -44,6 +44,7 @@ const CHECK_LEAVES = [
   '@apps/client#check:bundle-budget',
   'tc',
   'test',
+  '@apps/product#check:test-slices',
   '@apps/server#build',
   '@apps/room-server#build',
   '@pkgs/sql-client-postgres#test:contract',

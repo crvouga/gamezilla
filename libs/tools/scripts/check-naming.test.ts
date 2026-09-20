@@ -83,14 +83,30 @@ describe('naming rules', () => {
     ]);
   });
 
-  test('classifier is fast (10k paths)', () => {
-    const paths = Array.from(
-      { length: 10_000 },
-      (_, i) => `pkgs/p${i % 90}/src/d${i % 300}/file-${i}.test.ts`
-    );
-    const started = performance.now();
-    findNamingViolations(paths);
-    expect(performance.now() - started).toBeLessThan(50);
+  test('classifier cost stays linear in the number of paths', () => {
+    // A wall-clock ceiling here measured the machine, not the classifier, and
+    // went red whenever `bun check` had the CPU saturated. What this guards is
+    // that nothing turns the per-path work quadratic (a per-path scan of every
+    // other path), so compare the per-path cost at two sizes: linear holds it
+    // flat, quadratic multiplies it by the size ratio. Both samples take the
+    // same contention, so load cancels out.
+    const makePaths = (count: number): string[] =>
+      Array.from(
+        { length: count },
+        (_, i) => `pkgs/p${i % 90}/src/d${i % 300}/file-${i}.test.ts`
+      );
+    const perPathMs = (count: number): number => {
+      const paths = makePaths(count);
+      const started = performance.now();
+      findNamingViolations(paths);
+      return (performance.now() - started) / count;
+    };
+
+    perPathMs(2_000); // warm the JIT so the first sample is not the slow one
+    const small = perPathMs(2_000);
+    const large = perPathMs(20_000);
+    // Quadratic would be ~10x at a 10x size ratio; 4x leaves room for noise.
+    expect(large / small).toBeLessThan(4);
   });
 
   test('the repository follows the convention', () => {

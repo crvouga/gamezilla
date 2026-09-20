@@ -92,6 +92,28 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task, with cache-hit-only groups dropped (turbo's `Cached:` line still counts them). Look for `cache miss` in Turbo output.
 
+**Checks are time-limited, and the limits are enforced.** `turbo-ci-run` kills
+the whole run at a hard wall-clock deadline, then checks every task that
+actually executed against a per-task budget read back from turbo's
+`--summarize` summary. Both live in
+[`libs/tools/scripts/check-budget.ts`](libs/tools/scripts/check-budget.ts):
+`DEFAULT_TASK_BUDGET_SECONDS` for anything unlisted, named entries for the
+tasks allowed to cost more (the Postgres/S3/EMQX contract leaves, the widest
+sim walks), and `SLOW_RUNNER_MULTIPLIER` for the 2-core GitHub runner. Cache
+hits are never measured. **Make the task faster before you raise its number**,
+and when you do raise one, put the measurement in the commit body.
+`CHECK_DEADLINE_SECONDS` overrides the wall clock for a single run; there is no
+"off". The product sim suites get a second, tighter limit of their own: each
+file runs in its own process under
+[`apps/product/scripts/run-sim-tests.ts`](apps/product/scripts/run-sim-tests.ts),
+which hard-kills any suite past `SIM_TEST_FILE_TIMEOUT_SECONDS` (180s default).
+One `bun test` process over all 46 sim suites does **not** work — every suite
+boots a whole product and the process never gives the memory back, so the run
+reached 3.8 GB and 2104s before the kernel killed it (exit 137) while the same
+suites cost 2-5s each on their own. Isolated and parallel, the whole suite is
+~60s. The `test:<feature>` scripts are per-feature entry points over the same
+runner; `@apps/product#check:test-slices` keeps them collectively complete.
+
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
 **One check surface:** `bun check` is the whole gate — `//#check` depends on Biome + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
