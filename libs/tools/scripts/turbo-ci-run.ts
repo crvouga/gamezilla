@@ -283,11 +283,24 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   );
 }
 
+type OfflineTaskArgs = {
+  readonly taskArgs: readonly string[];
+  /** Leaves this machine cannot run; the gate is incomplete without them. */
+  readonly skipped: readonly string[];
+};
+
+/**
+ * Leaves that need real credentials still come out of the set when there are
+ * none — running them would only fail at the fingerprint, before any other
+ * check got to speak. What must not happen is the run then reporting green:
+ * that is the bug where a laptop passes and CI fails on the same commit. The
+ * names come back so `main` can fail the run and say which leaves are missing.
+ */
 function applyOfflineTaskArgs(
   taskArgs: readonly string[],
   hasRemote: boolean
-): string[] {
-  if (hasRemote) return [...taskArgs];
+): OfflineTaskArgs {
+  if (hasRemote) return { taskArgs: [...taskArgs], skipped: [] };
   if (isDeployLeafSet(taskArgs)) {
     console.error(
       'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
@@ -295,11 +308,24 @@ function applyOfflineTaskArgs(
     );
     process.exit(1);
   }
-  if (!taskArgs.includes(SECRETS_CHECK_TASK)) return [...taskArgs];
-  console.warn(
-    'turbo-ci-run: skipping @libs/secrets#check (no Turbo remote creds; run `bun run secrets:pull`).'
+  if (!taskArgs.includes(SECRETS_CHECK_TASK)) {
+    return { taskArgs: [...taskArgs], skipped: [] };
+  }
+  return {
+    taskArgs: taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK),
+    skipped: [SECRETS_CHECK_TASK],
+  };
+}
+
+/** A run that could not execute every leaf is not a green gate. */
+function reportIncompleteGate(skipped: readonly string[]): void {
+  console.error(
+    `turbo-ci-run: gate incomplete — ${String(skipped.length)} leaf(s) could ` +
+      `not run on this machine: ${skipped.join(', ')}.\n` +
+      'Everything else passed, but this run does not prove the PR check is ' +
+      'green, so it does not exit 0. Run `infisical login` then ' +
+      '`bun run secrets:pull` to run the whole gate.'
   );
-  return taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK);
 }
 
 async function main(): Promise<void> {
@@ -337,7 +363,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const taskArgs = applyOfflineTaskArgs(
+  const { taskArgs, skipped } = applyOfflineTaskArgs(
     flattenCheckAggregators(rawTaskArgs),
     remote
   );
@@ -392,7 +418,24 @@ async function main(): Promise<void> {
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(status === 0 ? enforceTaskBudgets(slowRunner) : status);
+  process.exit(finalExitCode({ status, slowRunner, skipped }));
+}
+
+/**
+ * Zero only when turbo passed, every executed task was inside its budget, and
+ * the gate ran end to end. A skipped leaf is not a pass.
+ */
+function finalExitCode(args: {
+  readonly status: number;
+  readonly slowRunner: boolean;
+  readonly skipped: readonly string[];
+}): number {
+  if (args.status !== 0) return args.status;
+  const budget = enforceTaskBudgets(args.slowRunner);
+  if (budget !== 0) return budget;
+  if (args.skipped.length === 0) return 0;
+  reportIncompleteGate(args.skipped);
+  return 1;
 }
 
 /**

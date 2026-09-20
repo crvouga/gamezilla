@@ -114,6 +114,22 @@ suites cost 2-5s each on their own. Isolated and parallel, the whole suite is
 ~60s. The `test:<feature>` scripts are per-feature entry points over the same
 runner; `@apps/product#check:test-slices` keeps them collectively complete.
 
+**A green `bun check` must mean a green PR check.** The gate is only worth
+running if the two agree, so a check leaf's **verdict** may not depend on which
+machine runs it. Do not branch on `CI` / `GITHUB_ACTIONS` to decide pass, fail
+or skip — `scripts/check-*.ts` may not read them at all, and
+`libs/tools/scripts/check-env-parity.test.ts` fails the build on any that do
+(reporting-only reads are named there with the reason they cannot change a
+verdict). Adapting *resources* is fine and stays explicit: concurrency, log
+order and the `SLOW_RUNNER_MULTIPLIER` budget correction. Two real bugs came
+from getting this wrong: `@libs/billing#billing:check` skipped off CI and
+hard-failed on it, so a laptop reported green over a check it never ran, and
+the property harness explored 40 cases in CI against 10 locally off one seed,
+so CI searched 30 cases nobody had run. When a leaf genuinely cannot run
+locally (it needs real credentials), `turbo-ci-run` drops it, names it, and
+**exits non-zero** — an incomplete gate reports as incomplete rather than
+green.
+
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
 **One check surface:** `bun check` is the whole gate — `//#check` depends on Biome + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.

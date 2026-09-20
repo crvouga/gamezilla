@@ -16,13 +16,14 @@ function configureFastCheck(): void {
   if (configured) return;
   configured = true;
 
+  // One run count everywhere. CI used to explore 40 cases and a laptop 10, off
+  // the same seed, so CI silently searched 30 cases nobody had run locally —
+  // a property could pass on the machine that wrote it and fail on the one
+  // that gates it. Tune it deliberately with `PBT_NUM_RUNS`, not by moving
+  // between machines.
   const fromEnv = process.env['PBT_NUM_RUNS'];
   const numRuns =
-    fromEnv !== undefined && fromEnv.length > 0
-      ? Number(fromEnv)
-      : process.env['CI'] === 'true'
-        ? 40
-        : 10;
+    fromEnv !== undefined && fromEnv.length > 0 ? Number(fromEnv) : 40;
 
   const random = process.env['PBT_RANDOM'] === '1';
   const seedRaw = process.env['FC_SEED'];

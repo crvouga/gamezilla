@@ -1,11 +1,14 @@
 // @io-wall-ok
 /**
- * CI gate: reconcile the plus membership offer onto the provider — no DB
+ * Gate: reconcile the plus membership offer onto the provider — no DB
  * mutation.
  *
- * - CI (`CI=true` / `GITHUB_ACTIONS=true`): require a resolvable billing secret
- *   and API origin; fail if either is missing.
- * - Local: silently skip when the secret store / keys are unavailable.
+ * **One verdict, everywhere.** This used to skip silently off CI and hard-fail
+ * on it, so the same code on the same commit passed locally and failed in CI —
+ * a green local gate that meant nothing. Now missing secrets fail the same way
+ * in both places: a run that cannot reconcile says so, and the CI failure is
+ * reproducible on a laptop. Get the secrets with `bun run secrets:pull`
+ * (`infisical login` first) rather than reaching for an environment branch.
  *
  * This does write provider state (product, prices, portal configuration,
  * webhook endpoint) — that is what "the offer is the source of truth" means.
@@ -25,11 +28,15 @@ const SCRIPT_TAG = 'billing check';
 const log = createLogger({ name: SCRIPT_TAG, now: wallClock.now });
 const cliHttp = createGlobalHttpClient();
 
-function isCi(): boolean {
-  const ci = process.env['CI'];
-  return (
-    ci === 'true' || ci === '1' || process.env['GITHUB_ACTIONS'] === 'true'
+/** Every "cannot reconcile" path ends here, on every machine. */
+function unavailable(reason: string): never {
+  console.error(
+    `[${SCRIPT_TAG}] ${reason}. This gate reconciles the offer onto the ` +
+      'provider, so it needs real credentials: run `infisical login` then ' +
+      '`bun run secrets:pull`. It fails the same way in CI and locally on ' +
+      'purpose — a skip here would be a green check that proved nothing.'
   );
+  process.exit(1);
 }
 
 async function main(): Promise<void> {
@@ -40,16 +47,7 @@ async function main(): Promise<void> {
       now: wallClock.now,
     });
   } catch {
-    if (isCi()) {
-      console.error(
-        `[${SCRIPT_TAG}] CI needs SECRETS_TOKEN (or secret store CLI login) so the reconcile can load secrets`
-      );
-      process.exit(1);
-    }
-    log.info(
-      `[${SCRIPT_TAG}] skip reconcile — could not resolve secret store token`
-    );
-    return;
+    unavailable('could not resolve a secret store token');
   }
 
   const billing = await createStripeMembershipBillingFromSecretStore(
@@ -58,22 +56,15 @@ async function main(): Promise<void> {
     wallClock.now
   );
   if (billing === null) {
-    if (isCi()) {
-      console.error(`[${SCRIPT_TAG}] CI: billing secret key missing`);
-      process.exit(1);
-    }
-    log.info(`[${SCRIPT_TAG}] skip reconcile — billing secret missing`);
-    return;
+    unavailable('the billing secret key is missing');
   }
 
   const callbackUrl = await readOfferCallbackUrl(store);
   if (callbackUrl === null) {
-    if (isCi()) {
-      console.error(`[${SCRIPT_TAG}] CI: API_URL secret missing`);
-      process.exit(1);
-    }
-    log.info(`[${SCRIPT_TAG}] skip reconcile — API origin missing`);
-    return;
+    unavailable(
+      'the API_URL secret is missing (it is seeded by `provision`, so a ' +
+        'never-provisioned environment has none)'
+    );
   }
 
   const result = await reconcileStripeOffer(
