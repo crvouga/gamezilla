@@ -135,9 +135,18 @@ describe('sqlite rebuild recovery', () => {
       throw new Error('expected rebuild_table operation');
     }
     const statements = emitClientOperation(op, v2._declared);
+    // Crash *inside* the driver's pragma bracket. `runRebuild` always renames
+    // with `legacy_alter_table` ON precisely so a child table's REFERENCES is
+    // never repointed at the staging name, so a real crash cannot leave that
+    // state. Replaying the statements bare invents one the driver can't
+    // produce — and whether it does depends on how the platform's SQLite was
+    // built, which is why this passed on macOS and failed on Linux.
+    await client.run(raw('PRAGMA foreign_keys = OFF'));
+    await client.run(raw('PRAGMA legacy_alter_table = ON'));
     for (const statement of statements.slice(0, 3)) {
       await client.run(statement);
     }
+    await client.run(raw('PRAGMA legacy_alter_table = OFF'));
 
     // Real client connections run with foreign_keys ON.
     await client.run(raw('PRAGMA foreign_keys = ON'));
