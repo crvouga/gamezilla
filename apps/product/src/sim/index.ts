@@ -84,10 +84,14 @@ export {
   serverMembershipRow,
 } from './system/billing-reads';
 export {
+  editChessPuzzleRating,
   ingestChessPuzzleCsv,
+  type LocalPuzzleRow,
+  readLocalPuzzleRow,
   readLocalPuzzles,
   readPuzzleBoardOrientation,
   readServerPuzzles,
+  retireChessPuzzle,
   type StoredPuzzleRow,
 } from './system/chess-puzzle-data';
 export {
@@ -98,6 +102,15 @@ export {
   readFeedTargetLabel,
   waitFeedTargetRating,
 } from './system/chess-puzzle-feed-ui';
+export {
+  type PuzzleNavControl,
+  type PuzzleReviewProbe,
+  readPuzzleReviewFen,
+  readPuzzleReviewMoveLabels,
+  readPuzzleReviewProbe,
+  readSelectedMoveLabel,
+  waitPuzzleReviewReady,
+} from './system/chess-puzzle-review-ui';
 export {
   countPuzzleStarts,
   dragPuzzleUci,
@@ -131,8 +144,11 @@ export {
   readPuzzleSpectator,
   readPuzzleStatus,
   readPuzzleStatusKind,
+  readStatsAccuracy,
   readStatsElo,
+  readStatsPlayed,
   readStatsRatingLabel,
+  readStatsSolved,
 } from './system/chess-puzzle-ui';
 export {
   type PuzzleProfileRow,
@@ -206,6 +222,8 @@ export {
   pressPuzzleNext,
   pressPuzzleNextNoWait,
   pressPuzzleNextTwice,
+  pressPuzzleReviewArrow,
+  pressPuzzleReviewNav,
   reenterActiveSpace,
   removeFriend,
   reopenPuzzleFromChessMenu,
@@ -232,8 +250,10 @@ export {
   skipPuzzle,
   subscribeToPlus,
   suggestPuzzleMove,
+  swipePuzzleReview,
   switchPlusInterval,
   tapPuzzleMove,
+  tapPuzzleReviewMove,
   unblockFriend,
 } from './system/scenario-actions';
 export {
@@ -260,7 +280,6 @@ export {
   readAvatarSeed,
   readAvatarStyleLabel,
   readUsername,
-  recentSpaceCardVisible,
   spaceMemberVisible,
   spacePresenceCount,
   tabsVisible,

@@ -4,6 +4,11 @@ import {
 } from '@libs/spaces/public/room/use-space-room-selector';
 import { createMemo, type JSX } from 'solid-js';
 
+import {
+  type PuzzleNavIntent,
+  puzzleNavFromState,
+  resolvePuzzleNavTarget,
+} from '../../shared/puzzle-session/puzzle-nav';
 import { buildPuzzleMoveHistory } from '../chess-puzzle-move-history';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
@@ -11,9 +16,11 @@ import {
   SeekChessPuzzlePlay,
 } from '../chess-puzzle-play';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
+import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 
 export function ChessPuzzleMoveHistoryBar(): JSX.Element {
   const dispatch = useSpaceRoomDispatch();
+  const [config] = useChessPuzzleFeedConfig();
   const fen = useSpaceRoomSelector(ChessPuzzlePlayAttr.fen.from);
   const moves = useSpaceRoomSelector(ChessPuzzlePlayAttr.moves.from);
   const solveIdx = useSpaceRoomSelector(ChessPuzzlePlayAttr.solveIdx.from);
@@ -37,8 +44,27 @@ export function ChessPuzzleMoveHistoryBar(): JSX.Element {
       status() === CHESS_PUZZLE_PLAY_STATUS.revealed
   );
 
+  const nav = createMemo(() =>
+    puzzleNavFromState({
+      status: status(),
+      solveIdx: solveIdx(),
+      furthestSolveIdx: furthestSolveIdx(),
+      moves: moves(),
+    })
+  );
+
   const onSeek = (targetSolveIdx: number): void => {
     dispatch(SeekChessPuzzlePlay({ solveIdx: targetSolveIdx }));
+  };
+
+  const onNavigate = (intent: PuzzleNavIntent): void => {
+    const target = resolvePuzzleNavTarget({
+      intent,
+      solveIdx: solveIdx(),
+      furthestSolveIdx: furthestSolveIdx(),
+    });
+    if (target === null) return;
+    onSeek(target);
   };
 
   return (
@@ -46,7 +72,15 @@ export function ChessPuzzleMoveHistoryBar(): JSX.Element {
       plies={plies()}
       selectedSolveIdx={solveIdx()}
       interactive={interactive()}
+      notation={config().notation}
       onSeek={onSeek}
+      nav={{
+        canGoBack: nav().canGoBack,
+        canGoForward: nav().canGoForward,
+        // Back / Forward already live in the bottom action bar here.
+        showStepControls: false,
+        onNavigate,
+      }}
     />
   );
 }

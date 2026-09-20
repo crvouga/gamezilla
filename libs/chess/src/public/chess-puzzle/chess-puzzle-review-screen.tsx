@@ -19,7 +19,7 @@ import {
   SetChessSelectedReviewPuzzle,
 } from '../chess-main-menu';
 import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
-import { usePuzzleEntity } from './chess-puzzle-play-queries';
+import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
@@ -59,7 +59,7 @@ function findLogEntry(
 }
 
 function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
-  const entity = usePuzzleEntity(() => props.puzzleId);
+  const entity = useReviewPuzzleEntity(() => props.puzzleId);
   const history = useChessPuzzleHistory();
   const entry = createMemo(() =>
     findLogEntry(history.gameLog(), props.puzzleId)

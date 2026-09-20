@@ -187,7 +187,21 @@ export const Handles = {
   chessPuzzleRecommendationClear: 'chess-puzzle-recommendation-clear',
   chessPuzzleWaitingForHost: 'chess-puzzle-waiting-for-host',
   chessStatsElo: 'chess-stats-elo',
+  /** §15 P0 tiles: total solved and overall accuracy. */
+  chessStatsSolved: 'chess-stats-solved',
+  chessStatsAccuracy: 'chess-stats-accuracy',
+  chessStatsPlayed: 'chess-stats-played',
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
+  /** Hidden review probe: `solveIdx|lastSolveIdx|animated|notation`. */
+  chessPuzzleReviewE2e: 'chess-puzzle-review-e2e',
+  chessPuzzleReviewE2eFen: 'chess-puzzle-review-e2e-fen',
+  /** §7 move-list scrub controls (`start` / `back` / `forward` / `end`). */
+  chessPuzzleMoveNav: (intent: 'start' | 'back' | 'forward' | 'end') =>
+    `chess-puzzle-move-nav-${intent}`,
+  /** §7 tappable move-list ply, by 0-based ply index. */
+  chessPuzzleMovePly: (plyIndex: number) => `chess-puzzle-move-ply-${plyIndex}`,
+  /** Hidden marker on the highlighted ply: `<plyIndex>|<san>`. */
+  chessPuzzleMovePlySelected: 'chess-puzzle-move-ply-selected',
   /** Career game-log row scoped by puzzle id. */
   chessGameLogRow: (puzzleId: string) => `chess-game-log-row-${puzzleId}`,
   chessPuzzleLimit: 'chess-puzzle-limit',

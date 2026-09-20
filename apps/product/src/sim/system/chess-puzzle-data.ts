@@ -91,3 +91,65 @@ export async function readPuzzleBoardOrientation(
     return null;
   }
 }
+
+/**
+ * §34 "puzzle retired after being prefetched". Retirement is a soft delete on
+ * the catalog row (domain rows are never hard-deleted), which takes the
+ * puzzle out of every feed and pick read. The tombstone reaches the client
+ * through the ordinary snapshot path when its pool subscription re-hydrates.
+ */
+export const retireChessPuzzle = scenarioAction({
+  name: 'retireChessPuzzle',
+  act: async (s, puzzleId: string) => {
+    await s.sim.serverSql.sqlClient.run(sql`
+      UPDATE chess_puzzles
+      SET deleted_at = ${new Date(s.sim.clock.now()).toISOString()}
+      WHERE id = ${puzzleId}
+    `);
+  },
+});
+
+/** §34 "puzzle edited after being prefetched": the catalog rating moves. */
+export const editChessPuzzleRating = scenarioAction({
+  name: 'editChessPuzzleRating',
+  act: async (s, puzzleId: string, rating: number) => {
+    await s.sim.serverSql.sqlClient.run(sql`
+      UPDATE chess_puzzles
+      SET rating = ${rating}
+      WHERE id = ${puzzleId}
+    `);
+  },
+});
+
+export type LocalPuzzleRow = {
+  readonly fen: string;
+  readonly moves: string;
+  readonly deleted: boolean;
+};
+
+/** The actor's own local copy of one puzzle row, tombstones included. */
+export async function readLocalPuzzleRow(
+  s: ProductSim,
+  actorId: string,
+  puzzleId: string
+): Promise<LocalPuzzleRow | null> {
+  const db = actorLocalSql(s, actorId);
+  if (db === null) return null;
+  const rows = await db.query(sql<{
+    readonly fen: string;
+    readonly moves: string;
+    readonly deleted_at: string | null;
+  }>`
+    SELECT fen, moves, deleted_at
+    FROM chess_puzzles
+    WHERE id = ${puzzleId}
+    LIMIT 1
+  `);
+  const row = rows[0];
+  if (row === undefined) return null;
+  return {
+    fen: row.fen,
+    moves: row.moves,
+    deleted: row.deleted_at !== null,
+  };
+}

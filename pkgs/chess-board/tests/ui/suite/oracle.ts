@@ -4,6 +4,7 @@
  */
 
 import type { Square } from '@pkgs/chess-board-core/types';
+import { castlingRookTargets } from '@pkgs/chess-rules/moves';
 import { Chess, type Move as ChessJsMove } from 'chess.js';
 
 export const FEN = {
@@ -48,10 +49,9 @@ function verboseMoves(fen: string, square?: Square): ChessJsMove[] {
  */
 export function legalTargets(fen: string, square: Square): readonly Square[] {
   const moves = verboseMoves(fen, square);
-  const targets = new Set(moves.map((m) => m.to));
-  for (const move of moves) {
-    if (move.isKingsideCastle()) targets.add(`h${move.from[1] ?? ''}`);
-    if (move.isQueensideCastle()) targets.add(`a${move.from[1] ?? ''}`);
+  const targets = new Set<Square>(moves.map((m) => m.to));
+  for (const rook of castlingRookTargets(new Chess(fen), square)) {
+    targets.add(rook as Square);
   }
   return [...targets].sort();
 }

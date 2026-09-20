@@ -1,5 +1,10 @@
 /** Device-local puzzle feed preference: which rating band(s) to sync + pick from. */
 
+import {
+  type ChessMoveNotation,
+  DEFAULT_CHESS_MOVE_NOTATION,
+  isChessMoveNotation,
+} from './chess-puzzle-notation';
 import { PUZZLE_RATING_DEFAULT } from './chess-puzzle-rating';
 import {
   type ChessPuzzleTheme,
@@ -68,6 +73,11 @@ function readAutoAdvance(value: unknown): ChessPuzzleAutoAdvance {
   return value === 'after1s' || value === 'immediate' ? value : 'off';
 }
 
+/** Unknown / legacy rows fall back to SAN letters, never to figurines. */
+function readMoveNotation(value: unknown): ChessMoveNotation {
+  return isChessMoveNotation(value) ? value : DEFAULT_CHESS_MOVE_NOTATION;
+}
+
 export type ChessPuzzleFeedConfig = {
   readonly mode: ChessPuzzleFeedMode;
   readonly customRating: number;
@@ -77,6 +87,11 @@ export type ChessPuzzleFeedConfig = {
   readonly themes: readonly ChessPuzzleTheme[];
   readonly historyFilter: ChessPuzzleFeedHistoryFilter;
   readonly autoAdvance: ChessPuzzleAutoAdvance;
+  /**
+   * §7 move-list rendering. Lives beside `autoAdvance` in the device-local
+   * puzzle prefs until the settings slice moves settings to a synced table.
+   */
+  readonly notation: ChessMoveNotation;
 };
 
 export const DEFAULT_CHESS_PUZZLE_FEED_CONFIG: ChessPuzzleFeedConfig = {
@@ -86,6 +101,7 @@ export const DEFAULT_CHESS_PUZZLE_FEED_CONFIG: ChessPuzzleFeedConfig = {
   themes: [],
   historyFilter: 'neverSeen',
   autoAdvance: 'off',
+  notation: DEFAULT_CHESS_MOVE_NOTATION,
 };
 
 export function clampPuzzleFeedRating(rating: number): number {
@@ -173,6 +189,7 @@ export function readChessPuzzleFeedConfig(
     themes: readFeedThemes(record['themes']),
     historyFilter: readHistoryFilter(record['historyFilter']),
     autoAdvance: readAutoAdvance(record['autoAdvance']),
+    notation: readMoveNotation(record['notation']),
   };
 }
 

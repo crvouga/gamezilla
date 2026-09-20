@@ -800,10 +800,6 @@ msgstr "End space"
 msgid "End space?"
 msgstr "End space?"
 
-#: libs/spaces/src/root/client/card/recent-space-card.tsx
-msgid "Ended"
-msgstr "Ended"
-
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Ending space…"
@@ -1059,6 +1055,14 @@ msgstr "Joined"
 msgid "Joining…"
 msgstr "Joining…"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Jump to end"
+msgstr "Jump to end"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Jump to start"
+msgstr "Jump to start"
+
 #: pkgs/ui/src/components/relative-time/relative-time.tsx
 msgid "just now"
 msgstr "just now"
@@ -1227,6 +1231,10 @@ msgstr "New version available — reload to update"
 #: pkgs/ui/src/components/pagination-controls/pagination-controls.tsx
 msgid "Next"
 msgstr "Next"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Next move"
+msgstr "Next move"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
 msgid "Next puzzle"
@@ -1550,6 +1558,10 @@ msgstr "Preferences and developer tools"
 msgid "Previous"
 msgstr "Previous"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Previous move"
+msgstr "Previous move"
+
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Private spaces only sync for people you add here."
 msgstr "Private spaces only sync for people you add here."
@@ -1634,10 +1646,6 @@ msgstr "Ready"
 #: libs/search/src/root/client/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
-
-#: libs/spaces/src/root/client/card/recent-spaces-section.tsx
-msgid "Recent spaces"
-msgstr "Recent spaces"
 
 #: apps/client/src/shell/pwa/update-prompt.tsx
 msgid "Reload"

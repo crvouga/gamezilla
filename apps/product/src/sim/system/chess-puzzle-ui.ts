@@ -650,6 +650,45 @@ export async function readStatsRatingLabel(
   }
 }
 
+/** §15 P0 stat tile: rated attempts counted in the ledger. */
+export async function readStatsPlayed(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  return readStatTile(s, actorId, Handles.chessStatsPlayed);
+}
+
+/** §15 P0 stat tile: rated attempts that ended solved. */
+export async function readStatsSolved(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  return readStatTile(s, actorId, Handles.chessStatsSolved);
+}
+
+/** §15 P0 stat tile: overall accuracy, as a whole percentage. */
+export async function readStatsAccuracy(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  return readStatTile(s, actorId, Handles.chessStatsAccuracy);
+}
+
+async function readStatTile(
+  s: ProductSim,
+  actorId: string,
+  handle: string
+): Promise<number | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const raw = stripProbe(await ui.get(handle).text()).replace('%', '');
+    const n = Number.parseInt(raw, 10);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function readGameLogRowTitle(
   s: ProductSim,
   actorId: string,

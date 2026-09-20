@@ -11,7 +11,10 @@ import {
   PUZZLE_SCORE_PERMILLE,
 } from '@libs/chess/public/chess-puzzle-rating';
 import { CHESS_TABLES } from '@libs/chess/public/schema';
-import { ratePuzzleAttemptMutation } from '@libs/chess/root/mutations';
+import {
+  ratePuzzleAttemptMutation,
+  upsertPuzzleProfileMutation,
+} from '@libs/chess/root/mutations';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
@@ -211,5 +214,65 @@ describe('§8 ratePuzzleAttempt', () => {
         }
       )
     ).rejects.toThrow(/only update your own/);
+  });
+});
+
+/**
+ * The pre-§8 wire name stays registered so an old client's queued write is not
+ * dropped (contract names are append-only), but it can no longer set a rating.
+ */
+describe('upsertPuzzleProfile (frozen wire name)', () => {
+  async function legacyUpsert(
+    db: SqlClient,
+    args: {
+      ownerId: string;
+      rating: number;
+      ratingDeviation: number;
+      lastInteractionAt?: string;
+    }
+  ): Promise<void> {
+    const parsed =
+      await upsertPuzzleProfileMutation.args['~standard'].validate(args);
+    if (parsed.issues !== undefined) {
+      throw new Error(`invalid args: ${JSON.stringify(parsed.issues)}`);
+    }
+    await upsertPuzzleProfileMutation.run(
+      { tx: db, env: env(1_700_000_000_000) },
+      parsed.value
+    );
+  }
+
+  test('records activity and ignores the rating the client sent', async () => {
+    const db = await openDb();
+    await rate(db, SOLVED_P1);
+    const before = (await readProfile(db))[0];
+    await legacyUpsert(db, {
+      ownerId: OWNER,
+      rating: 2800,
+      ratingDeviation: 10,
+      lastInteractionAt: '2026-09-19T00:00:00.000Z',
+    });
+    const after = (await readProfile(db))[0];
+    expect(after?.rating).toBe(before?.rating as number);
+    expect(after?.rating_deviation).toBe(before?.rating_deviation as number);
+    const activity = await db.query(sql<{
+      readonly last_interaction_at: string;
+    }>`
+      SELECT last_interaction_at FROM chess_puzzle_profiles
+      WHERE owner_id = ${OWNER}
+    `);
+    expect(activity[0]?.last_interaction_at).toBe('2026-09-19T00:00:00.000Z');
+  });
+
+  test('refuses to write another owner', async () => {
+    const db = await openDb();
+    await rate(db, SOLVED_P1);
+    await expect(
+      legacyUpsert(db, {
+        ownerId: 'someone_else',
+        rating: 1600,
+        ratingDeviation: 100,
+      })
+    ).rejects.toThrow(/only update your own/i);
   });
 });

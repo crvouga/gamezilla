@@ -11,11 +11,11 @@ hash is the slice commit. Assumptions: [`overnight-decisions.md`](overnight-deci
 | 2 | Permission layer, permissive baseline | §22.1–22.7 P0, §22.11 P0, §35 permission tests | done | 5aed447b3 |
 | 3 | Lichess ingest + validation | §4 P0, §23 P0, §35 DB validation | done | 21d7588fc |
 | 4 | Solve flow | §5 P0, §6 P0, §3 P0 castling/promotion input rules | done | 2e8938ad7 |
-| 5 | Rating mutator (Glicko-2) | §8 P0 | done | |
-| 6 | Selection | §9 P0, §10.1/10.2 P0 | done | |
-| 7 | Review | §7 P0 | pending | |
+| 5 | Rating mutator (Glicko-2) | §8 P0 | done | 2311c1742 |
+| 6 | Selection | §9 P0, §10.1/10.2 P0 | done | 2311c1742 |
+| 7 | Review | §7 P0 | done | |
 | 8 | Coach v1 | §36 P0 | pending | |
-| 9 | Stats | §15 P0 | pending | |
+| 9 | Stats | §15 P0 | done | |
 | 10 | Anonymous + sign-in | §19 P0 | pending | |
 | 11 | Settings basics | §21 (Phase 1 basics), §36.10 P0 | pending | |
 
@@ -206,3 +206,48 @@ D62.
 - [x] §10.1 / §10.2 The existing feed knobs (difficulty offset, custom rating, theme filter, history filter) keep working on top of the P0 default — `chess-puzzle-feed.test.tsx`, `chess-puzzle-exhaust.test.tsx`
 - [x] §34 User exhausts the puzzle pool / rating at extremes where few puzzles exist — the widening step serves unseen puzzles outside the window (the sim fixture sits ~300 points below the seed rating), then the exhausted step keeps the feed alive
 - [ ] §9 P1/P2 rows (difficulty presets, target success rate tuning, balance, weakness weighting, prefetch batches, server-side seen set, tilt detection, session shaping, power-user filters) — out of this slice
+
+### Slice 7 — Review (§7)
+
+Kernel: `libs/chess/src/shared/puzzle-session/puzzle-nav.ts`
+(`puzzleNavIntentFromKey`, `puzzleNavIntentFromSwipe`,
+`resolvePuzzleNavTarget`, `isPuzzleSeekAnimated`) and
+`libs/chess/src/shared/chess/chess-puzzle-notation.ts` (`formatSanNotation`).
+UI: `public/chess-puzzle/chess-puzzle-move-history{,-nav,-ply,-bar}.tsx`,
+`chess-puzzle-review-board.tsx`, `use-puzzle-review-board.ts`,
+`puzzle-swipe-handlers.ts`, `chess-puzzle-review-e2e.tsx`. Primitive extended:
+`@pkgs/ui-testing` `DriverKey` gained `home` / `end` (tests
+`pkgs/ui-testing/tests/keys.test.ts`,
+`pkgs/ui-testing-solid-dom/tests/dom-keys.test.ts`). Tests:
+`bun run --filter @libs/chess test`
+(`tests/puzzle-session/puzzle-nav.test.ts`, `move-notation.test.ts`), product
+sim `apps/product/tests/chess-puzzle-review.test.tsx` (in `test:chess`).
+Decisions D64–D68, D70, D71.
+
+- [x] §7 Move list with tappable moves — `ChessPuzzleMoveHistory` + `HistoryPlyChip`; a ply tap seeks in `chess-puzzle-review.test.tsx` ("buttons, the move list and the ends scrub the solved line")
+- [x] §7 SAN / figurine option — `formatSanNotation` driven by `ChessPuzzleFeedConfig.notation` (defaults to SAN letters, D66); `move-notation.test.ts` + the SAN labels asserted in the review sim
+- [x] §7 Current move highlighted — the `selected` branch of `HistoryPlyChip`, asserted at every scrub step through its own marker (D71)
+- [x] §7 Scrubbing forward / back with buttons — `ChessPuzzleMoveNav` step controls on review, the existing action-bar Back / Forward on play
+- [x] §7 Scrubbing with swipe — `puzzleNavIntentFromSwipe` + `puzzleSwipeHandlers` over the review board ("a horizontal swipe scrubs one ply at a time")
+- [x] §7 Scrubbing with arrow keys — `useDocumentShortcuts` + `puzzleNavIntentFromKey`, review surface only (D64); "arrow keys step and Home / End jump"
+- [x] §7 Jump to start / end — `resolvePuzzleNavTarget`; jump buttons flank the move list on both the review screen and the play move bar
+- [x] §7 Board animates on single steps, snaps on jumps — `isPuzzleSeekAnimated` → `SmartChessBoard animations` (D65); asserted at every step of the review sim
+- [x] §7 Review after a failed attempt and after "Show solution" both scrub the full line — "review after a failed attempt still scrubs the whole line", "the revealed state scrubs the full line in place"
+- [x] §34 Puzzle retired / edited after being prefetched — review reads the row tombstone included (`useReviewPuzzleEntity`, D68); "a retired puzzle still opens in review from the game log"
+- [ ] §7 P1 / P2 rows (play-it-out variations, engine analysis + eval bar, refutation lines, source game, copy FEN / PGN, play on vs computer, threats, opening explorer, comments, theme voting) — out of this slice
+
+### Slice 9 — Stats (§15)
+
+Verified against the slice 5 Glicko ledger rather than rewritten:
+`deriveChessPuzzleStats` already folds `chess_puzzle_rating_events`, so all
+three P0 figures count the §5 first outcome once per puzzle and ignore
+repeat / unrated attempts (D69). Changed: `ChessPuzzleStatsCards` now carries
+`chess-stats-played` / `-solved` / `-accuracy` test ids so the figures are
+addressable. Test: `apps/product/tests/chess-puzzle-stats-p0.test.tsx` (in
+`test:chess`). Decision D69.
+
+- [x] §15 Current rating — `ChessPuzzleRatingChip` on `chess-stats-screen.tsx` (`chess-stats-elo`); "rating, solved and accuracy are folds of the rating ledger" asserts it equals the server profile row
+- [x] §15 Total solved — `deriveChessPuzzleStats.totalSolved` = ledger rows with outcome `solved`; recomputed from the server ledger in the same scenario, and unmoved by an unrated repeat ("an unrated repeat attempt moves none of the three figures")
+- [x] §15 Overall accuracy — `round(totalSolved / totalPlayed * 100)` over the ledger, i.e. per attempt and per first outcome, never per move (D69)
+- [x] §8 Provisional marker — `formatPuzzleRating` + `isProvisionalPuzzleRating`; visible for a fresh profile and gone once RD settles ("the provisional marker clears once RD settles, figures still hold")
+- [ ] §15 P1 / P2 rows (rating graph with ranges, history list + filters, per-theme performance, dashboard windows + radar, activity heatmap, time stats, per-mode bests, weekly report, percentile, goals, export) — out of this slice

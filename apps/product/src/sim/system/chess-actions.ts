@@ -13,6 +13,13 @@ import {
   selectFeedTheme,
 } from './chess-puzzle-feed-ui';
 import {
+  type PuzzleNavControl,
+  pressPuzzleNavControl,
+  pressPuzzleReviewKey,
+  swipePuzzleReviewBoard,
+  tapPuzzleReviewPly,
+} from './chess-puzzle-review-ui';
+import {
   dragPuzzleUci,
   pickPuzzlePromotion,
   showPuzzleSolution,
@@ -193,6 +200,34 @@ export const leaveChessStatsScreen = scenarioAction({
 export const openPuzzleReview = scenarioAction({
   name: 'openPuzzleReview',
   act: openReviewFromGameLog,
+});
+
+/** §7 scrub control: jump to start / step back / step forward / jump to end. */
+export const pressPuzzleReviewNav = scenarioAction({
+  name: 'pressPuzzleReviewNav',
+  act: (s, actorId: string, control: PuzzleNavControl) =>
+    pressPuzzleNavControl(s, actorId, control),
+});
+
+/** §7 tappable move list: jump straight to one ply. */
+export const tapPuzzleReviewMove = scenarioAction({
+  name: 'tapPuzzleReviewMove',
+  act: (s, actorId: string, plyIndex: number) =>
+    tapPuzzleReviewPly(s, actorId, plyIndex),
+});
+
+/** §7 keyboard scrubbing: arrows step, Home / End jump. */
+export const pressPuzzleReviewArrow = scenarioAction({
+  name: 'pressPuzzleReviewArrow',
+  act: (s, actorId: string, key: 'arrowLeft' | 'arrowRight' | 'home' | 'end') =>
+    pressPuzzleReviewKey(s, actorId, key),
+});
+
+/** §7 swipe scrubbing across the review board. */
+export const swipePuzzleReview = scenarioAction({
+  name: 'swipePuzzleReview',
+  act: (s, actorId: string, direction: 'back' | 'forward') =>
+    swipePuzzleReviewBoard(s, actorId, direction),
 });
 
 /** Exhausted-feed block primary action, then wait for a placed puzzle. */

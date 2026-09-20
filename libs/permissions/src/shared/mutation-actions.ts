@@ -28,6 +28,7 @@ export const MUTATION_ACTIONS: Readonly<
   // chess
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
   ratePuzzleAttempt: PERMISSION.puzzlesPlay,
+  upsertPuzzleProfile: PERMISSION.puzzlesPlay,
   // spaces (host / member checks run in the bodies against space roles)
   createSpace: PERMISSION.spacesCreate,
   joinSpace: PERMISSION.spacesJoin,

@@ -504,3 +504,63 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   `libs/chess/tests/puzzle-session/rating.test.ts` (11 tests, in the location
   AGENTS.md prescribes) plus `@pkgs/glicko2`'s reference-vector and property
   tests. No other existing test was deleted or skipped anywhere in this work.
+- **D64 — §7 keyboard scrubbing is bound on the review screen only.**
+  `@pkgs/ui`'s `useDocumentShortcuts` is the repo's one keyboard primitive and
+  it listens on `document` in the **capture** phase, while
+  `@pkgs/chess-board` binds `ArrowLeft` / `ArrowRight` as a JSX `onKeyDown` on
+  the board itself for square-cursor navigation. A global arrow binding on the
+  play screen would therefore fire first and fight the board. The review
+  surface renders a non-interactive board, so only
+  `ChessPuzzleReviewBoard` binds arrows / Home / End; the play screen scrubs
+  with its action-bar Back / Forward plus the new jump-to-start / jump-to-end
+  buttons in the move bar.
+- **D65 — Animate vs snap is a decision, not a measurement.** §7 asks the
+  board to animate single steps and snap on jumps. That is expressed as the
+  pure `isPuzzleSeekAnimated(from, to)` (|Δ| === 1) feeding
+  `SmartChessBoard`'s existing `animations` prop, and published on the hidden
+  review probe. Scenarios assert the decision, because happy-dom cannot
+  observe a running Web Animation.
+- **D66 — Figurine notation lives in the device-local puzzle prefs.** §7's
+  "figurine option" is a rendering switch here, not a settings screen (that is
+  slice 11). `ChessPuzzleFeedConfig` gains `notation: 'san' | 'figurine'`
+  defaulting to `'san'`, beside `autoAdvance`, which already lives there
+  "until the settings slice moves settings to a synced table". It is
+  deliberately **not** part of `chessPuzzleFeedConfigFingerprint`: a display
+  preference must not re-pick the puzzle when the feed modal closes. The
+  kernel is `formatSanNotation(san, notation)`; `PuzzleHistoryPly.san` stays
+  plain SAN so `aria-label`s and assertions keep reading as letters.
+- **D67 — Swipe scrubbing is written from scratch, pure reducer first.** The
+  repo has no swipe primitive (the bottom sheet says so explicitly), so §7's
+  swipe is `puzzleNavIntentFromSwipe({dx, dy})` (24 px threshold, horizontal
+  dominance) plus a ten-line pointer-down/up adapter, following
+  `@pkgs/chess-board`'s pointer-session shape. Dragging left pulls the next
+  ply in from the right.
+- **D68 — §34 "puzzle retired after being prefetched" is answered by the
+  tombstone, not a new column.** Retiring a puzzle soft-deletes the catalog
+  row, and `chessPuzzlePool` already selects `deleted_at` so the tombstone
+  reaches every client. Review therefore reads the puzzle row **including**
+  tombstones (`useReviewPuzzleEntity`), while every feed / pick read keeps
+  filtering them out. No line is copied onto the rating ledger. If the row is
+  missing entirely (never synced, or a different device), the existing
+  "Puzzle unavailable" empty state still renders — review never crashes.
+- **D69 — §15 P0 counts rated attempts, not plays.** `deriveChessPuzzleStats`
+  folds `chess_puzzle_rating_events`, whose primary key is
+  `<ownerId>|<puzzleId>`, so "played" means "rated attempts", one per puzzle
+  ever. A retry inside one play (§5 first-outcome rule) and an unrated
+  exhausted-pool repeat (§9) therefore cannot inflate "solved" or accuracy —
+  which is the reading §15 P0 needs, at the cost of replays being invisible in
+  the P0 figures. Accuracy is `round(solved / played * 100)`, i.e. per
+  attempt, never per move. Verified rather than rewritten;
+  `chess-puzzle-stats-p0.test.tsx` recomputes all three from the server's own
+  ledger rows.
+- **D70 — `DriverKey` gained `home` / `end`.** §7 needs Home / End through the
+  same UI path a person uses, and `@pkgs/ui-testing`'s portable key table had
+  neither. The primitive was extended first, with its own tests
+  (`pkgs/ui-testing/tests/keys.test.ts`,
+  `pkgs/ui-testing-solid-dom/tests/dom-keys.test.ts`); every driver maps
+  through `DRIVER_KEY_TO_DOM`, so Bun.WebView picked them up for free.
+- **D71 — "Current move highlighted" is asserted from the highlight's own
+  branch.** The driver cannot read attributes, so the selected chip renders a
+  test-build-only marker (`chess-puzzle-move-ply-selected`) from the same
+  `selected` expression that paints it. That keeps the assertion tied to the
+  rendered highlight instead of re-deriving the selection in the scenario.
