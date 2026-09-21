@@ -1,27 +1,29 @@
 /** The billing-interval chooser shared by checkout and the portal. */
 import { For, type JSX, Show } from 'solid-js';
 
-import type { MockBillingPrice } from '../shared/mock-billing-contract';
+import type { PagePrice } from '../../src/shared/pages';
+import { MOCK_BILLING_TEST_IDS } from '../../src/shared/test-ids';
 import {
   formatMoney,
   intervalLabel,
   monthlyEquivalent,
+  priceKeyOf,
   savingsPercent,
 } from './format';
 import { CheckIcon } from './icons';
 
 export type PlanOptionsProps = {
   readonly name: string;
-  readonly prices: readonly MockBillingPrice[];
-  readonly selectedKey: string;
-  readonly onSelect: (key: string) => void;
+  readonly prices: readonly PagePrice[];
+  readonly selectedId: string;
+  readonly onSelect: (priceId: string) => void;
   /** Extra content under an option (e.g. the portal's "Current plan"). */
-  readonly footer?: (price: MockBillingPrice) => JSX.Element;
+  readonly footer?: (price: PagePrice) => JSX.Element;
 };
 
 export function SavingsTag(props: {
-  readonly price: MockBillingPrice;
-  readonly prices: readonly MockBillingPrice[];
+  readonly price: PagePrice;
+  readonly prices: readonly PagePrice[];
 }) {
   const percent = () => savingsPercent(props.price, props.prices);
   return (
@@ -33,12 +35,11 @@ export function SavingsTag(props: {
   );
 }
 
-function PlanOption(
-  props: PlanOptionsProps & { readonly price: MockBillingPrice }
-) {
-  const selected = () => props.selectedKey === props.price.key;
+function PlanOption(props: PlanOptionsProps & { readonly price: PagePrice }) {
+  const selected = () => props.selectedId === props.price.id;
   return (
     <label
+      data-testid={MOCK_BILLING_TEST_IDS.checkoutPlan(priceKeyOf(props.price))}
       class="group relative flex cursor-pointer flex-col gap-1 rounded-xl p-4 ring-1 transition-all duration-150 has-focus-visible:outline-2 has-focus-visible:outline-indigo-600 has-focus-visible:outline-offset-2"
       classList={{
         'bg-indigo-50/60 ring-2 ring-indigo-600 dark:bg-indigo-500/10 dark:ring-indigo-400':
@@ -51,9 +52,9 @@ function PlanOption(
         checked={selected()}
         class="sr-only"
         name={props.name}
-        onChange={() => props.onSelect(props.price.key)}
+        onChange={() => props.onSelect(props.price.id)}
         type="radio"
-        value={props.price.key}
+        value={props.price.id}
       />
       <span class="flex items-center justify-between gap-2">
         <span class="font-semibold text-sm">{intervalLabel(props.price)}</span>

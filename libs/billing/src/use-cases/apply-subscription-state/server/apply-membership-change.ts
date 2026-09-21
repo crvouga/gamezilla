@@ -6,8 +6,7 @@ import { BillingSubscriptionRepository } from './billing-subscription-repository
 
 /**
  * The single writer of `billing_subscriptions`: opens one transaction and
- * projects the membership change. Shared by the provider callback route and
- * the fake provider's mock routes.
+ * projects the membership change a verified provider callback reported.
  */
 export async function applyMembershipChange(args: {
   readonly sql: SqlClient;

@@ -1,5 +1,5 @@
 /** Inline stroke icons (24px grid, `currentColor`). */
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 type IconProps = { readonly class?: string | undefined };
 
@@ -122,5 +122,29 @@ export function VisaMark() {
         VISA
       </text>
     </svg>
+  );
+}
+
+export function MastercardMark() {
+  return (
+    <svg
+      aria-label="Mastercard"
+      class="h-8 w-12 shrink-0"
+      role="img"
+      viewBox="0 0 48 32"
+    >
+      <rect fill="#1c1c1c" height="32" rx="5" width="48" />
+      <circle cx="20" cy="16" fill="#eb001b" r="8" />
+      <circle cx="28" cy="16" fill="#f79e1b" fill-opacity="0.9" r="8" />
+    </svg>
+  );
+}
+
+/** The mark for a card brand. */
+export function CardMark(props: { readonly brand: 'visa' | 'mastercard' }) {
+  return (
+    <Show fallback={<VisaMark />} when={props.brand === 'mastercard'}>
+      <MastercardMark />
+    </Show>
   );
 }

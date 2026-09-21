@@ -31,7 +31,7 @@ async function waitRow(
 }
 
 describe('billing portal', () => {
-  test('cancel, resume and switch interval through the mock portal', async () => {
+  test("cancel, renew and switch interval through the provider's portal", async () => {
     await using s = await openSim('billing-portal-controls');
     await s.apply(signInWithGoogle, 'alice');
     await s.apply(openBilling, 'alice');
@@ -54,7 +54,8 @@ describe('billing portal', () => {
       s,
       (candidate) => candidate.price_key === 'subscription_yearly'
     );
-    expect(row.status).toBe('active');
+    // A switch during the trial keeps the trial, as at Stripe.
+    expect(row.status).toBe('trialing');
     expect(await s.read(billingTier, 'alice')).toBe('paid');
   });
 });

@@ -5,6 +5,7 @@
  * this; a feature's own e2e runs its slice from its own package.
  */
 
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { BILLING_SIM_ACTIONS } from '@libs/billing/sim/billing-actions';
 import { billingBrowserPage } from '@libs/billing/sim/billing-browser-page';
 import { BILLING_WALK_ACTIONS } from '@libs/billing/sim/billing-walk';
@@ -54,6 +55,7 @@ export const APP_COMPOSITION: SimComposition = {
   roomNode: (env) => createInProcessRoomNode(env, GAME_DEFINITIONS),
   seedServer: seedChessPuzzlesForSim,
   browserPages: [billingBrowserPage],
+  billingOffer: PLUS_MEMBERSHIP_OFFER,
   properties: [searchDoesNotHang, nextPuzzleDifferent],
   actions: [
     ...SPACES_SIM_ACTIONS,

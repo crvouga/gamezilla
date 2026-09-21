@@ -1,7 +1,7 @@
 /**
- * The mock provider's hosted pages as one SPA. The URL picks the page
- * (`…/checkout` or `…/portal`) and carries `accountId` + `returnUrl`, exactly
- * like a real provider's hosted session link.
+ * The provider's hosted pages as one SPA. The URL picks the page and carries
+ * the session, exactly like a real provider's hosted link:
+ * `/c/pay/<checkout session>` or `/p/session/<portal session>`.
  */
 import {
   createEffect,
@@ -12,21 +12,35 @@ import {
   Switch,
 } from 'solid-js';
 
-import type { MockBillingState } from '../shared/mock-billing-contract';
-import type { MockBillingApi } from './api';
+import { MOCK_BILLING_BRAND } from '../../src/shared/brand';
+import type { CheckoutView, PortalView } from '../../src/shared/pages';
+import { isDeadLink, type MockBillingPageApi, messageOf } from './api';
 import { CheckoutScreen } from './checkout-screen';
 import { AlertIcon } from './icons';
 import { PortalScreen } from './portal-screen';
 import { BackLink, Button } from './ui';
 
-export type MockBillingPage = 'checkout' | 'portal';
+export type MockBillingPage =
+  | { readonly kind: 'checkout'; readonly sessionId: string }
+  | { readonly kind: 'portal'; readonly sessionId: string }
+  | { readonly kind: 'unknown' };
+
+/** Which hosted page a URL is. */
+export function pageOf(url: URL): MockBillingPage {
+  const checkout = /^\/c\/pay\/([^/]+)$/.exec(url.pathname);
+  if (checkout?.[1] !== undefined) {
+    return { kind: 'checkout', sessionId: decodeURIComponent(checkout[1]) };
+  }
+  const portal = /^\/p\/session\/([^/]+)$/.exec(url.pathname);
+  if (portal?.[1] !== undefined) {
+    return { kind: 'portal', sessionId: decodeURIComponent(portal[1]) };
+  }
+  return { kind: 'unknown' };
+}
 
 export type MockBillingAppProps = {
-  readonly api: MockBillingApi;
+  readonly api: MockBillingPageApi;
   readonly page: MockBillingPage;
-  readonly accountId: string | null;
-  readonly returnUrl: string;
-  readonly checkoutUrl: string;
   readonly navigate: (url: string) => void;
   readonly setTitle: (title: string) => void;
 };
@@ -49,7 +63,7 @@ function Skeleton(): JSX.Element {
 function Problem(props: {
   readonly title: string;
   readonly message: string;
-  readonly returnUrl: string;
+  readonly returnUrl?: string;
   readonly onRetry?: () => void;
 }) {
   return (
@@ -65,75 +79,135 @@ function Problem(props: {
           </p>
         </div>
         <div class="flex items-center justify-between gap-3">
-          <Show when={props.returnUrl.length > 0}>
-            <BackLink href={props.returnUrl} label="Return to app" />
+          <Show when={props.returnUrl}>
+            {(href) => <BackLink href={href()} label="Return to app" />}
           </Show>
           <Show when={props.onRetry}>
             {(retry) => <Button onClick={retry()}>Try again</Button>}
           </Show>
         </div>
       </div>
+      <p class="text-center text-xs text-zinc-500 dark:text-zinc-400">
+        {MOCK_BILLING_BRAND.footer}
+      </p>
     </div>
   );
 }
 
-export function MockBillingApp(props: MockBillingAppProps) {
-  const [state, { mutate, refetch }] = createResource(
-    () => props.accountId,
-    (accountId) => props.api.state(accountId)
+function LoadProblem(props: {
+  readonly error: unknown;
+  readonly onRetry: () => void;
+}) {
+  return (
+    <Show
+      fallback={
+        <Problem
+          message={messageOf(
+            props.error,
+            'The billing service did not respond.'
+          )}
+          onRetry={props.onRetry}
+          title="Couldn't load billing"
+        />
+      }
+      when={isDeadLink(props.error)}
+    >
+      <Problem
+        message="This link has expired or is invalid. Go back to the app and open billing again."
+        title="Link expired"
+      />
+    </Show>
   );
-  const onState = (next: MockBillingState) => mutate(() => next);
+}
+
+function CheckoutPage(props: MockBillingAppProps & { readonly id: string }) {
+  const [view, { refetch }] = createResource(
+    () => props.id,
+    (id) => props.api.checkout(id)
+  );
   createEffect(() => {
-    const name = state.latest?.product.name ?? 'Billing';
-    props.setTitle(
-      props.page === 'checkout' ? `Subscribe to ${name}` : `Manage ${name}`
-    );
+    // `latest` rethrows a load error; the title falls back instead.
+    const name =
+      (view.state === 'ready' || view.state === 'refreshing'
+        ? view.latest.business.product.name
+        : null) ?? 'Billing';
+    props.setTitle(`Subscribe to ${name} · ${MOCK_BILLING_BRAND.name}`);
   });
+  return (
+    <Switch fallback={<Skeleton />}>
+      <Match when={view.state === 'errored'}>
+        <LoadProblem error={view.error} onRetry={() => void refetch()} />
+      </Match>
+      <Match when={view.latest?.session.status === 'expired'}>
+        <Problem
+          message="This checkout session has expired. Go back to the app and start again."
+          returnUrl={view.latest?.session.cancelUrl ?? ''}
+          title="Checkout expired"
+        />
+      </Match>
+      <Match when={view.latest}>
+        {(loaded: () => CheckoutView) => (
+          <CheckoutScreen
+            api={props.api}
+            navigate={props.navigate}
+            view={loaded()}
+          />
+        )}
+      </Match>
+    </Switch>
+  );
+}
+
+function PortalPage(props: MockBillingAppProps & { readonly id: string }) {
+  const [view, { mutate, refetch }] = createResource(
+    () => props.id,
+    (id) => props.api.portal(id)
+  );
+  createEffect(() => {
+    // `latest` rethrows a load error; the title falls back instead.
+    const name =
+      (view.state === 'ready' || view.state === 'refreshing'
+        ? view.latest.business.product.name
+        : null) ?? 'Billing';
+    props.setTitle(`Manage ${name} · ${MOCK_BILLING_BRAND.name}`);
+  });
+  return (
+    <Switch fallback={<Skeleton />}>
+      <Match when={view.state === 'errored'}>
+        <LoadProblem error={view.error} onRetry={() => void refetch()} />
+      </Match>
+      <Match when={view.latest}>
+        {(loaded: () => PortalView) => (
+          <PortalScreen
+            api={props.api}
+            onView={(next) => mutate(() => next)}
+            sessionId={props.id}
+            view={loaded()}
+          />
+        )}
+      </Match>
+    </Switch>
+  );
+}
+
+export function MockBillingApp(props: MockBillingAppProps) {
   return (
     // The page's own root carries the base colours: the host may not be a
     // document body (a simulated browser renders it into a shadow root).
     <div class="min-h-dvh bg-zinc-50 font-sans text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
-      <Switch fallback={<Skeleton />}>
-        <Match when={props.accountId === null}>
+      <Switch
+        fallback={
           <Problem
-            message="This billing link is missing its account. Go back to the app and open billing again."
-            returnUrl={props.returnUrl}
-            title="Link incomplete"
+            message="This isn't a billing page. Go back to the app and open billing again."
+            title="Page not found"
           />
+        }
+      >
+        <Match when={props.page.kind === 'checkout' ? props.page : undefined}>
+          {(page) => <CheckoutPage {...props} id={page().sessionId} />}
         </Match>
-        <Match when={state.error !== undefined && state.latest === undefined}>
-          <Problem
-            message={
-              state.error instanceof Error
-                ? state.error.message
-                : 'The billing service did not respond.'
-            }
-            onRetry={() => void refetch()}
-            returnUrl={props.returnUrl}
-            title="Couldn't load billing"
-          />
-        </Match>
-        <Match when={props.accountId !== null && state.latest}>
-          {(loaded) => (
-            <Show
-              fallback={
-                <CheckoutScreen
-                  {...props}
-                  accountId={props.accountId ?? ''}
-                  onState={onState}
-                  state={loaded()}
-                />
-              }
-              when={props.page === 'portal'}
-            >
-              <PortalScreen
-                {...props}
-                accountId={props.accountId ?? ''}
-                onState={onState}
-                state={loaded()}
-              />
-            </Show>
-          )}
+        <Match when={props.page.kind === 'portal' ? props.page : undefined}>
+          {(page) => <PortalPage {...props} id={page().sessionId} />}
         </Match>
       </Switch>
     </div>

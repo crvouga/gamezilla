@@ -27,6 +27,8 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
     "@pkgs/billing": "workspace:*",
+    "@pkgs/billing-mock": "workspace:*",
+    "@pkgs/billing-mock-provider": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",

@@ -108,6 +108,7 @@ describe('StripeMembershipBilling', () => {
     expect(sessionInputs[0]?.['client_reference_id']).toBe('acct-1');
     expect(sessionInputs[0]?.['subscription_data']).toEqual({
       metadata: { accountId: 'acct-1' },
+      trial_period_days: 7,
     });
     expect(sessionInputs[0]?.['line_items']).toEqual([
       { price: 'price_1', quantity: 1 },
@@ -226,29 +227,36 @@ describe('StripeMembershipBilling', () => {
     expect(result.kind).toBe('ignored');
   });
 
-  test('readCallback projects an updated subscription', async () => {
+  test('readCallback projects the subscription as Stripe reports it now', async () => {
+    const current = {
+      id: 'sub_1',
+      customer: 'cus_1',
+      status: 'active',
+      cancel_at_period_end: false,
+      items: {
+        data: [
+          {
+            current_period_end: 1_700_000_000,
+            price: { lookup_key: 'subscription_monthly' },
+          },
+        ],
+      },
+    };
+    const retrieved: string[] = [];
     const stripe = {
       webhooks: {
         constructEventAsync: () =>
           Promise.resolve({
             type: 'customer.subscription.updated',
-            data: {
-              object: {
-                id: 'sub_1',
-                customer: 'cus_1',
-                status: 'active',
-                cancel_at_period_end: false,
-                items: {
-                  data: [
-                    {
-                      current_period_end: 1_700_000_000,
-                      price: { lookup_key: 'subscription_monthly' },
-                    },
-                  ],
-                },
-              },
-            },
+            // A stale snapshot: the adapter must not trust it.
+            data: { object: { ...current, status: 'trialing' } },
           }),
+      },
+      subscriptions: {
+        retrieve: (id: string) => {
+          retrieved.push(id);
+          return Promise.resolve(current);
+        },
       },
     };
     const billing = new StripeMembershipBilling(
@@ -261,6 +269,7 @@ describe('StripeMembershipBilling', () => {
       headers: new Headers({ 'stripe-signature': 'sig' }),
       rawBody: '{}',
     });
+    expect(retrieved).toEqual(['sub_1']);
     expect(result.kind).toBe('membership');
     if (result.kind !== 'membership') throw new Error('unreachable');
     expect(result.provider).toBe('stripe');

@@ -18,7 +18,6 @@
   },
   "scripts": {
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
-    "build:mock-billing": "bun run scripts/build-mock-billing.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
@@ -35,6 +34,8 @@
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/billing": "workspace:*",
+    "@pkgs/billing-mock": "workspace:*",
+    "@pkgs/billing-mock-provider": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
@@ -46,7 +47,6 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/static-file-server": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
@@ -55,12 +55,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "tailwindcss": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "typescript": "catalog:"
   }
 }

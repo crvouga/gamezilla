@@ -1,6 +1,7 @@
 /** The hosted pages' small component kit. */
 import { createEffect, type JSX, onCleanup, Show } from 'solid-js';
 
+import { MOCK_BILLING_BRAND } from '../../src/shared/brand';
 import type { StatusTone } from './format';
 import {
   AlertIcon,
@@ -65,10 +66,14 @@ export function Button(props: ButtonProps) {
 export function Card(props: {
   readonly title?: string;
   readonly aside?: JSX.Element;
+  readonly testId?: string;
   readonly children: JSX.Element;
 }) {
   return (
-    <section class="animate-rise rounded-2xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+    <section
+      data-testid={props.testId}
+      class="animate-rise rounded-2xl bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10"
+    >
       <Show when={props.title}>
         <header class="flex items-center justify-between gap-4 border-zinc-100 border-b px-5 py-3.5 sm:px-6 dark:border-zinc-800">
           <h2 class="font-semibold text-xs text-zinc-500 uppercase tracking-wider dark:text-zinc-400">
@@ -123,9 +128,11 @@ export function Notice(props: {
   readonly tone: StatusTone;
   readonly children: JSX.Element;
   readonly action?: JSX.Element;
+  readonly testId?: string;
 }) {
   return (
     <div
+      data-testid={props.testId}
       class={`flex flex-col gap-3 rounded-xl p-4 text-sm ring-1 ring-inset sm:flex-row sm:items-center ${NOTICE_TONES[props.tone]}`}
       role={props.tone === 'danger' ? 'alert' : 'status'}
     >
@@ -161,7 +168,7 @@ export function TestModePill() {
   return (
     <span class="inline-flex items-center gap-1.5 rounded-md bg-amber-100 px-2 py-1 font-semibold text-[11px] text-amber-900 uppercase tracking-wider dark:bg-amber-400/15 dark:text-amber-200">
       <span class="size-1.5 rounded-full bg-amber-500" />
-      Test mode
+      {MOCK_BILLING_BRAND.modeLabel}
     </span>
   );
 }

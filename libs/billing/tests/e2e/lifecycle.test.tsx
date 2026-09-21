@@ -120,8 +120,13 @@ describe('billing lifecycle', () => {
 
   test('cancel_now ends the membership immediately', async () => {
     await using s = await plus('billing-lifecycle-cancel-now');
+    const trial = await waitStatus(s, 'trialing');
     await s.apply(observeMembership, 'alice', 'cancel_now');
-    await waitStatus(s, 'ended');
+    const ended = await waitStatus(s, 'ended');
+    // Access ends when it was canceled, not at the trial end it gave up.
+    expect(Date.parse(ended.current_period_end ?? '')).toBeLessThan(
+      Date.parse(trial.current_period_end ?? '')
+    );
   });
 
   test('resubscribing after the end starts a new live membership', async () => {
@@ -141,26 +146,39 @@ describe('billing lifecycle', () => {
     expect(await s.read(billingTier, 'alice')).toBe('paid');
   });
 
-  test('switching the interval flips the price key and stays paid', async () => {
+  test('switching the interval during the trial keeps the trial', async () => {
     await using s = await plus('billing-lifecycle-switch');
     await s.apply(observeMembership, 'alice', 'switch_interval');
     const switched = await waitRow(
       s,
       (candidate) => candidate.price_key === 'subscription_yearly'
     );
-    expect(switched.status).toBe('active');
+    // The provider keeps a trial running across a price change.
+    expect(switched.status).toBe('trialing');
     await settle(s);
     expect(await s.read(billingTier, 'alice')).toBe('paid');
   });
 
-  test('an incomplete payment is not paid and an expired one has ended', async () => {
-    await using s = await plus('billing-lifecycle-incomplete');
-    await s.apply(observeMembership, 'alice', 'payment_incomplete');
-    await waitStatus(s, 'incomplete');
-    await settle(s);
-    expect(await s.read(billingTier, 'alice')).toBe('free');
+  test('switching the interval after the trial starts a paid year now', async () => {
+    await using s = await plus('billing-lifecycle-switch-active');
+    await s.apply(observeMembership, 'alice', 'period_end');
+    const monthly = await waitStatus(s, 'active');
+    await s.apply(observeMembership, 'alice', 'switch_interval');
+    const yearly = await waitRow(
+      s,
+      (candidate) => candidate.price_key === 'subscription_yearly'
+    );
+    expect(yearly.status).toBe('active');
+    expect(Date.parse(yearly.current_period_end ?? '')).toBeGreaterThan(
+      Date.parse(monthly.current_period_end ?? '')
+    );
+  });
 
-    await s.apply(observeMembership, 'alice', 'payment_expired');
+  test('a renewal that keeps failing ends after the last retry', async () => {
+    await using s = await plus('billing-lifecycle-dunning');
+    await s.apply(observeMembership, 'alice', 'payment_failed');
+    await waitStatus(s, 'delinquent');
+    await s.apply(observeMembership, 'alice', 'payment_retries_exhausted');
     await waitStatus(s, 'ended');
   });
 
@@ -179,11 +197,11 @@ describe('billing lifecycle', () => {
     expect(await s.read(billingTier, 'alice')).toBe('paid');
   });
 
-  test('the same observe twice leaves one identical row', async () => {
+  test('a redelivered event leaves one identical row', async () => {
     await using s = await plus('billing-lifecycle-idempotent');
     await s.apply(observeMembership, 'alice', 'payment_failed');
     const first = await waitStatus(s, 'delinquent');
-    await s.apply(observeMembership, 'alice', 'payment_failed');
+    await s.apply(observeMembership, 'alice', 'redeliver_last_event');
     await settle(s);
     const second = await waitStatus(s, 'delinquent');
     expect(second).toEqual(first);

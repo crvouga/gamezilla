@@ -18,7 +18,7 @@ change to a feature the suite does not compose leaves it cached.
 | `libs/chess/tests/e2e` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
 | `libs/friends/tests/e2e` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
 | `libs/profile/tests/e2e` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
-| `libs/billing/tests/e2e` | billing | the membership lifecycle through the mock provider |
+| `libs/billing/tests/e2e` | billing | the membership lifecycle through the payment provider node |
 | `libs/runtime/tests/e2e` | everything (`APP_COMPOSITION`) | shell boot, partition, the whole-app monkey, explore — small on purpose |
 
 Every suite has a `monkey.test.tsx`: `runMonkey(s, { walks })` from
@@ -102,21 +102,24 @@ Engine selection lives in the harness (`getSimSqlEngines` / fabric) — not in
 product libs. ProductSimulator web may still load SQLite WASM from
 `apps/product/public/generated/`.
 
-**Billing** — the fake provider (`FakeMembershipBilling`) points its
-checkout/portal URLs at this app's own dev-only mock pages
-(`/api/billing/mock/…`, mounted only when `BILLING_PROVIDER=fake`; the sim and
-the localhost stack both set it). The sim's headless browser walks those mock
-pages the way `bun-webview` taps them with a live browser, so
-`subscribeToPlus` / `cancelPlus` / `resumePlus` / `switchPlusInterval` are the
-same walk at every fidelity. `observeMembership(kind)` is the lifecycle driver
-at every fidelity: it posts one of the mock provider's `observe` kinds, which
-derives the next membership from the account's current projection row —
-renewals never need a clock jump. `checkoutPlusAtProvider` starts a fresh
-checkout straight at the mock edge (the billing screen keeps Subscribe hidden
-while the grace window still grants access). `advanceBillingClock(ms)` is the
-virtual-time escape hatch, but the grace-window rule itself is unit-proven in
-`@pkgs/entitlements` (`tests/limits.test.ts`) rather than by jumping a
-signed-in sim days ahead.
+**Billing** — a composition that sells something (`billingOffer` on its
+slice) gets a **payment provider node** (`fabric/sim-billing.ts`,
+`@pkgs/billing-mock-provider`) at `SIM_BILLING_URL`, with its own SQLite state,
+the way it gets the simulated Google. Every API instance holds the production
+adapter to it (`MockMembershipBilling`) through the network; the provider
+delivers **signed webhooks** back through the load balancer, and billing's only
+write path is the callback route — exactly how Stripe reaches production. The
+actor's browser loads the provider's hosted checkout and portal from its own
+origin, so `subscribeToPlus` / `cancelPlus` / `resumePlus` /
+`switchPlusInterval` are the same walk at every fidelity.
+`observeMembership(kind)` is the tester acting at the provider through its
+REST API: per-customer **test clocks** (renewals, dunning retries), Stripe's
+**test cards** (`pm_card_chargeCustomerFail`), subscription updates, event
+**resends** — never a clock jump for the rest of the sim.
+`checkoutPlusAtProvider` pays a fresh checkout session at the provider (the
+billing screen keeps Subscribe hidden while the grace window still grants
+access). `advanceBillingClock(ms)` is the virtual-time escape hatch; the
+grace-window rule itself is unit-proven in `@libs/permissions`.
 
 **System snapshots** — `openSim(id, { snapshot: '<id>' })` restores a
 committed fixture from the running package's `fixtures/snapshots/<id>.json`

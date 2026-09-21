@@ -9,7 +9,7 @@ import { defineProductSystem } from '@libs/sim-harness/system/define-product-sys
 
 /**
  * Billing on the platform alone: sign-in, the settings menu that reaches the
- * billing screen and the mock provider's hosted pages come from the platform
+ * billing screen and the payment provider node's hosted pages come from the platform
  * slices plus billing's own (the harness lands on its bare home screen, since
  * nothing here owns `/`). No profile, spaces or games: profile devDepends on
  * billing for its own e2e, and a change anywhere else leaves this cached.

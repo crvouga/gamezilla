@@ -1,9 +1,9 @@
 /**
- * What billing contributes to a server: checkout, portal and webhook routes,
- * plus the fake provider's mock pages when that is what is configured.
+ * What billing contributes to a server: checkout, portal and webhook routes.
  *
  * The provider is a port on `ServerEnv`; billing reads it rather than
- * choosing one, so a simulation and production mount the same routes.
+ * choosing one, so a simulation (the mock provider) and production (Stripe)
+ * mount the same routes and take the same code path.
  */
 
 import { appAuth } from '@libs/auth/public/auth-context';
@@ -13,11 +13,10 @@ import { requirePermission } from '@libs/permissions/root/server/require-permiss
 import { apiRequestAsyncLocalStorage } from '@libs/server-app/request-scope';
 import { notifyUserChannels } from '@libs/server-app/sync/notify-user-channels';
 import { assert } from '@pkgs/assert';
-import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
+import type { MembershipBilling } from '@pkgs/billing';
 import { createLogger } from '@pkgs/logger';
 import type { CreateId } from '@pkgs/uuid/create-id';
 
-import { PLUS_MEMBERSHIP_OFFER } from '../../public/offer';
 import { BillingApp } from './billing-app';
 
 export function createBillingSubApp(
@@ -58,25 +57,13 @@ export function createBillingSubApp(
     clock,
     log: createLogger({ name: 'billing', now }),
     notifyUser,
-    // The mock edge exists only for the stateless fake; `instanceof` is why
-    // the decision lives here rather than as a flag on the port.
-    mock:
-      billing instanceof FakeMembershipBilling
-        ? {
-            getSqlClient,
-            offer: PLUS_MEMBERSHIP_OFFER,
-            clock,
-            createId,
-            notifyUser,
-          }
-        : null,
   }).build();
 }
 
 /**
  * Billing needs the membership provider the host configured, so it is a
- * factory rather than a constant: the composition root hands it the port, the
- * same way a harness would hand it a fake.
+ * factory rather than a constant: the composition root hands it the port —
+ * Stripe in production, the mock provider's adapter in a sim or the stack.
  */
 export function createBillingServer(billing: MembershipBilling | null) {
   return defineFeatureServer({

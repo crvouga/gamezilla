@@ -51,6 +51,15 @@ function readNumber(record: UnknownRecord | null, key: string): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+/** `customer` is an id, or the expanded object when a caller expanded it. */
+function readCustomerId(subscription: UnknownRecord): string | null {
+  const customer = subscription['customer'];
+  if (typeof customer === 'string')
+    return customer.length > 0 ? customer : null;
+  const expanded = asRecord(customer);
+  return expanded === null ? null : readString(expanded, 'id');
+}
+
 function firstItem(subscription: UnknownRecord): UnknownRecord | null {
   const items = asRecord(subscription['items']);
   return Array.isArray(items?.['data']) ? asRecord(items['data'][0]) : null;
@@ -78,6 +87,22 @@ function readOfferPriceKey(
   return null;
 }
 
+/**
+ * When access runs out. A subscription canceled immediately keeps its
+ * `current_period_end` in the future, so an ended one ends at `ended_at` when
+ * that came first — the paid period it lost is not a period it still has.
+ */
+function accessEndMs(
+  subscription: UnknownRecord,
+  ended: boolean
+): number | null {
+  const periodEndMs = readPeriodEndMs(subscription);
+  const endedAtS = readNumber(subscription, 'ended_at');
+  if (!ended || endedAtS === null) return periodEndMs;
+  const endedAtMs = endedAtS * 1000;
+  return periodEndMs === null ? endedAtMs : Math.min(periodEndMs, endedAtMs);
+}
+
 function toMembership(
   subscription: UnknownRecord,
   forcedEnded: boolean
@@ -87,8 +112,9 @@ function toMembership(
     : membershipStatusOf(readString(subscription, 'status') ?? '');
   return {
     status,
-    periodEndMs: readPeriodEndMs(subscription),
-    endsAtPeriodEnd: readBoolean(subscription, 'cancel_at_period_end'),
+    periodEndMs: accessEndMs(subscription, status === 'ended'),
+    endsAtPeriodEnd:
+      status !== 'ended' && readBoolean(subscription, 'cancel_at_period_end'),
   };
 }
 
@@ -137,7 +163,13 @@ export class StripeMembershipBilling implements MembershipBilling {
       client_reference_id: input.accountId,
       // Subscriptions do not inherit customer metadata, so the account link
       // has to ride on the subscription itself.
-      subscription_data: { metadata: { accountId: input.accountId } },
+      subscription_data: {
+        metadata: { accountId: input.accountId },
+        // Checkout ignores a price's own trial unless the session asks for one.
+        ...((spec.trialPeriodDays ?? 0) > 0
+          ? { trial_period_days: spec.trialPeriodDays }
+          : {}),
+      },
       line_items: [{ price: price.id, quantity: 1 }],
       success_url: input.returnUrl,
       cancel_url: input.returnUrl,
@@ -177,18 +209,20 @@ export class StripeMembershipBilling implements MembershipBilling {
     if (STRIPE_MEMBERSHIP_CALLBACK_EVENTS[event.type] !== true) {
       return { kind: 'ignored' };
     }
-    const subscription = asRecord(event.data.object);
+    const snapshot = asRecord(event.data.object);
+    const id = snapshot === null ? null : readString(snapshot, 'id');
+    if (id === null) return { kind: 'ignored' };
+    // Stripe delivers duplicates and out of order; the payload is a snapshot
+    // from whenever the event fired. Re-read so every delivery reports now.
+    const subscription = asRecord(await this.stripe.subscriptions.retrieve(id));
     if (subscription === null) return { kind: 'ignored' };
-    const customerId = readString(subscription, 'customer');
-    const subscriptionId = readString(subscription, 'id');
-    if (customerId === null || subscriptionId === null) {
-      return { kind: 'ignored' };
-    }
+    const customerId = readCustomerId(subscription);
+    if (customerId === null) return { kind: 'ignored' };
 
     const change: MembershipChange = {
       provider: 'stripe',
       customerId,
-      subscriptionId,
+      subscriptionId: id,
       offerPriceKey: readOfferPriceKey(subscription, this.offer),
       membership: toMembership(
         subscription,
