@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
 name: Setup repo (Node + Bun + deps)
-description: Node 22, Bun, cache install store, bun install (run actions/checkout first)
+description: Node 22, Bun, cached node_modules, bun install (run actions/checkout first)
 
 runs:
   using: composite
@@ -15,7 +15,24 @@ runs:
       with:
         bun-version: '1.4.2'
 
+    # The installed trees, not just the package store: restoring the store and
+    # then linking ~1GB of node_modules out of it cost ~13s a run; one extract
+    # of the finished trees leaves `bun install` a no-op check. Exact key only
+    # (this file is hashed so a Bun upgrade re-keys it); on a miss the store
+    # cache below makes the install cheap and the post step saves new trees.
+    - name: Cache node_modules
+      id: node-modules
+      uses: actions/cache@v5
+      with:
+        path: |
+          node_modules
+          apps/*/node_modules
+          libs/*/node_modules
+          pkgs/*/node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('bun.lock', '.github/actions/setup/action.yml') }}
+
     - name: Cache Bun install store
+      if: steps.node-modules.outputs.cache-hit != 'true'
       uses: actions/cache@v5
       with:
         path: ~/.bun/install/cache
