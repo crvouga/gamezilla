@@ -25,6 +25,7 @@ import {
   type OpenSqlClient,
 } from '@libs/feature/public/sync';
 import type { Clock, Timers } from '@pkgs/clock';
+import { createLogger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { WebSqlClient } from '@pkgs/sql-client-sqlite-web/web-sql-client';
@@ -139,6 +140,7 @@ function pushOptions(
           getFreshAuthToken: args.getFreshAuthToken,
           timers: args.timers,
           random: args.random,
+          logger: createLogger({ name: 'pubsub', now: args.clock.now }),
         });
       },
       getChannelsCtx: pushCtx.getChannelsCtx,
@@ -168,7 +170,11 @@ async function openAppLocalDb(
     });
   }
   try {
-    return await openMainSqlClient(args.userId, args.timers);
+    return await openMainSqlClient(
+      args.userId,
+      args.timers,
+      createLogger({ name: 'sqlite-web', now: args.clock.now })
+    );
   } catch {
     // SQLite is only an optimistic local cache. A stale worker, broken OPFS
     // handle, or corrupt snapshot must never prevent the product shell from

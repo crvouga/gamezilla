@@ -26,15 +26,15 @@
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
  *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
- *   collapsible `::group::` per task on GitHub Actions. Grouped holds a task's
- *   output until it finishes, so a heartbeat prints every 2 min. Override
- *   with `TURBO_LOG_ORDER`. On GitHub Actions, groups that only say "cache
- *   hit, suppressing logs" are dropped (`CachedGroupFilter`); turbo's final
- *   `Cached:` line still counts them. `check` / `deploy` (and `//#…` forms) are expanded
- *   recursively to leaf `dependsOn` tasks so turbo never nests under a root
- *   aggregator script (would recurse).
- * - Output logs: `new-only` (cache misses print). Override with
- *   `TURBO_OUTPUT_LOGS`.
+ *   collapsible `::group::` per failing task on GitHub Actions. Grouped holds
+ *   a task's output until it finishes, so a heartbeat prints every 2 min.
+ *   Override with `TURBO_LOG_ORDER`. `check` / `deploy` (and `//#…` forms)
+ *   are expanded recursively to leaf `dependsOn` tasks so turbo never nests
+ *   under a root aggregator script (would recurse).
+ * - Output logs: `errors-only` — a task's output is printed only when that
+ *   task fails, so a green gate prints the plan, the heartbeat and the
+ *   summary and nothing a passing test wrote. Override with
+ *   `TURBO_OUTPUT_LOGS` (`full` / `new-only`) to watch a run locally.
  * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
  * - Time limits: the run is killed at a hard wall-clock deadline, and every
@@ -45,7 +45,6 @@ import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
-import { createInterface } from 'node:readline';
 import {
   CHECK_SECRETS_FINGERPRINT_ENV,
   computeCheckSecretsFingerprint,
@@ -62,7 +61,6 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
-import { CachedGroupFilter } from './github-cached-group-filter';
 import {
   dryRunPlan,
   prefetchRemoteHits,
@@ -224,7 +222,6 @@ export function flattenCheckAggregators(
 ): string[] {
   const out: string[] = [];
   const seen = new Set<string>();
-  let expandedCount = 0;
 
   function pushLeaf(leaf: string): void {
     if (seen.has(leaf)) return;
@@ -240,7 +237,6 @@ export function flattenCheckAggregators(
       pushLeaf(arg);
       return;
     }
-    expandedCount += 1;
     for (const dep of taskDependsOn(tasks, canonical)) {
       expand(dep);
     }
@@ -250,11 +246,6 @@ export function flattenCheckAggregators(
     expand(arg);
   }
 
-  if (expandedCount > 0) {
-    console.log(
-      `turbo-ci-run: expanded aggregators to ${String(out.length)} leaf tasks`
-    );
-  }
   return out;
 }
 
@@ -351,7 +342,7 @@ async function main(): Promise<void> {
   const cache = resolveCacheFlag(env, remote);
   const concurrency = resolveConcurrency();
   const TURBO_OUTPUT_LOGS =
-    process.env['TURBO_OUTPUT_LOGS']?.trim() || 'new-only';
+    process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
   const TURBO_LOG_ORDER =
     process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
   const ui = resolveUi();
@@ -409,7 +400,6 @@ async function main(): Promise<void> {
 
   const stopHeartbeat = startHeartbeat();
   const status = await runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, {
-    hideCachedGroups: inGithubActions() && ui !== 'tui',
     deadlineSeconds,
   });
   stopHeartbeat();
@@ -559,7 +549,6 @@ function enforceTaskBudgets(slowRunner: boolean): number {
 }
 
 type RunTurboOptions = {
-  readonly hideCachedGroups: boolean;
   readonly deadlineSeconds: number;
 };
 
@@ -608,47 +597,24 @@ function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
   };
 }
 
-/**
- * Run turbo to completion or until the deadline. With `hideCachedGroups`,
- * stdout goes through `CachedGroupFilter` so the GitHub log keeps only tasks
- * that did work.
- */
-async function runTurbo(
+/** Run turbo to completion or until the deadline. */
+function runTurbo(
   args: readonly string[],
   env: NodeJS.ProcessEnv,
   options: RunTurboOptions
 ): Promise<number> {
   const child = spawn('turbo', args, {
-    stdio: [
-      'inherit',
-      options.hideCachedGroups ? 'pipe' : 'inherit',
-      'inherit',
-    ],
+    stdio: 'inherit',
     env,
     detached: true,
   });
   const disarm = armDeadline(child, options.deadlineSeconds);
-  const exited = new Promise<number>((resolve) => {
+  return new Promise<number>((resolve) => {
     child.on('close', (code, signal) => {
       disarm();
       resolve(code ?? (signal === null ? 1 : 124));
     });
   });
-  if (child.stdout === null) return exited;
-
-  const filter = new CachedGroupFilter((line) => {
-    process.stdout.write(`${line}\n`);
-  });
-  for await (const line of createInterface({ input: child.stdout })) {
-    filter.push(line);
-  }
-  filter.end();
-  if (filter.hiddenCount > 0) {
-    console.log(
-      `turbo-ci-run: hid ${String(filter.hiddenCount)} cache-hit task group(s) with no new logs`
-    );
-  }
-  return exited;
 }
 
 if (import.meta.main) {

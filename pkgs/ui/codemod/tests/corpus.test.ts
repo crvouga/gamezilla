@@ -65,10 +65,5 @@ describe('corpus round-trip', () => {
     const gateKinds = new Set(result!.gateHits.map((hit) => hit.kind));
     expect(gateKinds).not.toContain('todo');
     expect(gateKinds).toBeDefined();
-    process.stdout.write(
-      `corpus: scanned=${paths.length} candidates=${Object.keys(inputs).length} ` +
-        `A=${result!.summary.totalConvertedA} B=${result!.summary.totalConvertedB} ` +
-        `gateHits=${result!.gateHits.length} manual=0\n`
-    );
   }, 120000);
 });

@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import type { PlusMembershipOffer } from '@pkgs/billing';
+import { createNoopLogger } from '@pkgs/logger';
 import { reconcileStripeOffer } from './offer-reconcile';
 
 const offer: PlusMembershipOffer = {
@@ -139,7 +140,7 @@ function stubStripe(store: Store): unknown {
 }
 
 const ctx = { callbackUrl: 'https://api.test/api/billing/callback' };
-const now = () => 1_700_000_000_000;
+const log = createNoopLogger();
 
 function emptyStore(): Store {
   return {
@@ -158,7 +159,7 @@ describe('reconcileStripeOffer', () => {
       stubStripe(store) as never,
       offer,
       ctx,
-      now
+      log
     );
     expect(result.products).toHaveLength(1);
     expect(result.prices).toHaveLength(2);
@@ -196,7 +197,7 @@ describe('reconcileStripeOffer', () => {
 
   test('a second run is a no-op', async () => {
     const store = emptyStore();
-    await reconcileStripeOffer(stubStripe(store) as never, offer, ctx, now);
+    await reconcileStripeOffer(stubStripe(store) as never, offer, ctx, log);
     const created = {
       products: store.products.length,
       prices: store.prices.length,
@@ -207,7 +208,7 @@ describe('reconcileStripeOffer', () => {
       stubStripe(store) as never,
       offer,
       ctx,
-      now
+      log
     );
     expect(store.products).toHaveLength(created.products);
     expect(store.prices).toHaveLength(created.prices);

@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
 import { wallTimers } from '@pkgs/clock';
+import { createNoopLogger, type Logger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
 import {
@@ -88,6 +89,7 @@ async function boot(
     clientIdPrefix: 'device-1',
     timers: wallTimers,
     random: () => 0,
+    logger: createNoopLogger(),
     connectFn: (_url: string, opts: IClientOptions) => {
       lastOpts = opts;
       return fake as unknown as MqttClient;
@@ -153,6 +155,7 @@ describe('createMqttPubSub', () => {
       clientIdPrefix: 'stable-id',
       timers: wallTimers,
       random: () => 0,
+      logger: createNoopLogger(),
       reconnect: { baseMs: 1, maxMs: 1 },
       connectFn: (_url, opts) => {
         optsList.push(opts);
@@ -186,7 +189,12 @@ describe('createMqttPubSub', () => {
 
   test('contains handler errors and terminally closes', async () => {
     const fake = new FakeMqttClient();
-    const { ps } = await boot(fake);
+    const warnings: string[] = [];
+    const logger: Logger = {
+      ...createNoopLogger(),
+      warn: (msg) => warnings.push(msg),
+    };
+    const { ps } = await boot(fake, { logger });
     const received = mock(() => undefined);
     ps.subscribe('events', () => {
       throw new Error('boom');
@@ -194,6 +202,7 @@ describe('createMqttPubSub', () => {
     ps.subscribe('events', received);
     fake.emit('message', 'events', Buffer.from(JSON.stringify({ n: 1 })));
     expect(received).toHaveBeenCalledWith({ n: 1 });
+    expect(warnings).toEqual(['handler error contained']);
 
     ps.close();
     ps.close();

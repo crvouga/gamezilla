@@ -34,7 +34,6 @@ on:
 
 env:
   TURBO_UI: stream
-  TURBO_OUTPUT_LOGS: new-only
 
 concurrency:
   group: deploy-main

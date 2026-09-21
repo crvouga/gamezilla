@@ -1,7 +1,7 @@
 import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
 import type { MembershipBilling } from '@pkgs/billing';
-import { createLogger, type Logger } from '@pkgs/logger';
+import type { Logger } from '@pkgs/logger';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 
@@ -56,10 +56,7 @@ export class BillingCallbackRoutes {
   private readonly log: Logger;
 
   constructor(private readonly deps: BillingRouteDeps) {
-    this.log = createLogger({
-      name: 'billing:callback',
-      now: () => deps.clock.now(),
-    });
+    this.log = deps.log.child({ route: 'billing:callback' });
   }
 
   build(): Hono {

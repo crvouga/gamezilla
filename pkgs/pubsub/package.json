@@ -19,7 +19,8 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/clock": "workspace:*"
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

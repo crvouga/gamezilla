@@ -14,6 +14,7 @@ import { apiRequestAsyncLocalStorage } from '@libs/server-app/request-scope';
 import { notifyUserChannels } from '@libs/server-app/sync/notify-user-channels';
 import { assert } from '@pkgs/assert';
 import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
+import { createLogger } from '@pkgs/logger';
 import type { CreateId } from '@pkgs/uuid/create-id';
 
 import { PLUS_MEMBERSHIP_OFFER } from '../../public/offer';
@@ -55,6 +56,7 @@ export function createBillingSubApp(
     },
     createId,
     clock,
+    log: createLogger({ name: 'billing', now }),
     notifyUser,
     // The mock edge exists only for the stateless fake; `instanceof` is why
     // the decision lives here rather than as a flag on the port.

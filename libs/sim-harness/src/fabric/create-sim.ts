@@ -19,6 +19,7 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
+import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import {
@@ -199,7 +200,13 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     random: session.ports.random,
     seed,
     openSqlClient: () => Promise.resolve(shared.sqlClient),
-    events: createInMemoryPubSub({ bus: pubSubBus }),
+    events: createInMemoryPubSub({
+      bus: pubSubBus,
+      logger: createLogger({
+        name: `sim-${id}:pubsub`,
+        now: () => session.ports.clock.now(),
+      }),
+    }),
     kv: shared.kv,
     blob: shared.blob,
     billing: shared.billing,

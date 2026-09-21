@@ -1,3 +1,4 @@
+import type { Logger } from '@pkgs/logger';
 import type { PubSub, PubSubStatus } from '../interface';
 import { decodePayload, encodePayload } from '../payload';
 import { PubSubClosedError } from '../pubsub-closed-error';
@@ -47,6 +48,8 @@ export type InMemoryPubSubOptions = {
   readonly offlineBuffer?: boolean;
   /** Cap buffered messages (oldest dropped). Default {@link IN_MEMORY_PUBSUB_MAX_BUFFER}. */
   readonly maxBuffer?: number;
+  /** Receives dropped-frame and contained-handler-error warnings. */
+  readonly logger: Logger;
 };
 
 type BufferedMessage = {
@@ -63,9 +66,10 @@ export class InMemoryPubSub implements PubSub {
   private readonly offlineBuffer: boolean;
   private readonly maxBuffer: number;
   private readonly buffer: BufferedMessage[] = [];
+  private readonly logger: Logger;
 
-  constructor(busOrOptions?: InMemoryBus | InMemoryPubSubOptions) {
-    const options = normalizeOptions(busOrOptions);
+  constructor(options: InMemoryPubSubOptions) {
+    this.logger = options.logger;
     this.bus = options.bus ?? createInMemoryBus();
     this.offlineBuffer = options.offlineBuffer !== false;
     this.maxBuffer = options.maxBuffer ?? IN_MEMORY_PUBSUB_MAX_BUFFER;
@@ -123,7 +127,7 @@ export class InMemoryPubSub implements PubSub {
   deliverRawForTest(topic: Topic, raw: string): void {
     this.assertOpen();
     assertValidTopic(topic);
-    this.dispatchDecoded(topic, decodePayload(raw));
+    this.dispatchDecoded(topic, decodePayload(raw, this.logger));
   }
 
   /** Test hook: force status transitions without closing. */
@@ -135,7 +139,9 @@ export class InMemoryPubSub implements PubSub {
       try {
         cb(status);
       } catch (err) {
-        console.warn('[pubsub] status listener error contained', err);
+        this.logger.warn('status listener error contained', {
+          error: String(err),
+        });
       }
     }
     if (prev === 'down' && status === 'connected') {
@@ -166,7 +172,7 @@ export class InMemoryPubSub implements PubSub {
 
   receiveEncoded(topic: Topic, encoded: string, _source: InMemoryPubSub): void {
     if (this.closed) return;
-    const data = decodePayload(encoded);
+    const data = decodePayload(encoded, this.logger);
     if (data === undefined) return;
     if (this.offlineBuffer && this.status() === 'down') {
       if (this.handlers.has(topic)) {
@@ -202,7 +208,7 @@ export class InMemoryPubSub implements PubSub {
       try {
         handler(msg.data);
       } catch (err) {
-        console.warn('[pubsub] handler error contained', err);
+        this.logger.warn('handler error contained', { error: String(err) });
       }
     }
     this.buffer.length = 0;
@@ -217,7 +223,7 @@ export class InMemoryPubSub implements PubSub {
       try {
         handler(data);
       } catch (err) {
-        console.warn('[pubsub] handler error contained', err);
+        this.logger.warn('handler error contained', { error: String(err) });
       }
     }
   }
@@ -227,31 +233,18 @@ export class InMemoryPubSub implements PubSub {
   }
 }
 
-function normalizeOptions(
-  busOrOptions?: InMemoryBus | InMemoryPubSubOptions
-): InMemoryPubSubOptions {
-  if (busOrOptions === undefined) return {};
-  if (
-    typeof busOrOptions === 'object' &&
-    'publish' in busOrOptions &&
-    'register' in busOrOptions
-  ) {
-    return { bus: busOrOptions as InMemoryBus };
-  }
-  return busOrOptions as InMemoryPubSubOptions;
-}
-
-export function createInMemoryPubSub(
-  busOrOptions?: InMemoryBus | InMemoryPubSubOptions
-): PubSub {
-  return new InMemoryPubSub(busOrOptions);
+export function createInMemoryPubSub(options: InMemoryPubSubOptions): PubSub {
+  return new InMemoryPubSub(options);
 }
 
 /**
  * Publish-only peer on a shared bus (API notifyChannels). Subscribe throws.
  */
-export function createInMemoryPublishOnlyPubSub(bus: InMemoryBus): PubSub {
-  const duplex = new InMemoryPubSub({ bus, offlineBuffer: false });
+export function createInMemoryPublishOnlyPubSub(options: {
+  readonly bus: InMemoryBus;
+  readonly logger: Logger;
+}): PubSub {
+  const duplex = new InMemoryPubSub({ ...options, offlineBuffer: false });
   return {
     publish: (topic, data) => duplex.publish(topic, data),
     subscribe: () => {

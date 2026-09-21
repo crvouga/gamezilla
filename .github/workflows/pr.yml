@@ -13,7 +13,6 @@ on:
 
 env:
   TURBO_UI: stream
-  TURBO_OUTPUT_LOGS: new-only
 
 concurrency:
   group: pr-${{ github.event.pull_request.number || github.ref }}

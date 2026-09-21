@@ -9,7 +9,7 @@
  *   - webhook endpoint by `url`
  */
 import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing';
-import { createLogger, type Logger } from '@pkgs/logger';
+import type { Logger } from '@pkgs/logger';
 import type Stripe from 'stripe';
 
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from './callback-events';
@@ -428,9 +428,8 @@ export async function reconcileStripeOffer(
   stripe: Stripe,
   offer: PlusMembershipOffer,
   ctx: OfferReconcileContext,
-  now: () => number = () => 0
+  log: Logger
 ): Promise<OfferReconcileResult> {
-  const log = createLogger({ name: TAG, now });
   const product = await ensureProduct(stripe, offer, log);
 
   const prices: Array<{ key: string; priceId: string }> = [];

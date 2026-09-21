@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { openWithWaitRetry, sleepMs } from './open-retry';
 import {
@@ -172,12 +173,14 @@ export async function openSqlOwnerWithRecovery(args: {
   readonly dbName: string;
   readonly owner: SqlOwner;
   readonly timers: Timers;
+  readonly logger: Logger;
   readonly migrate: (client: SqlClient) => Promise<void>;
 }): Promise<SqlClient> {
   const open = () =>
     openWithWaitRetry({
       databaseName: args.dbName,
       timers: args.timers,
+      logger: args.logger,
       openOnce: async () => {
         try {
           const client = await args.owner.open();
