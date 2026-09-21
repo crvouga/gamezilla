@@ -33,7 +33,7 @@ One line: low | medium | high, blast radius, rollback. Add deploy ordering
 ## Provenance
 
 <!--
-One line: human | `/pr-ready` agent (model), plus any open question a human
+One line: human | `/pr-merge` agent (model), plus any open question a human
 must decide before merging.
 -->
 
@@ -51,4 +51,4 @@ must decide before merging.
 - [ ] Any new secret is registered in `@libs/secrets` and provisioned for dev and prd.
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
-- [ ] A human merges this PR — agents never merge (`gh pr merge`, auto-merge, merge queue).
+- [ ] Merged only once every check is green — `/pr-merge` or a human; never `--admin`, auto-merge or merge queue.

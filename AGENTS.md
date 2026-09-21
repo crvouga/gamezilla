@@ -226,8 +226,8 @@ a plan without larger runners):
    deploy → billing sync), so it is never listed as a `dependsOn` of another
    aggregator.
 2. **`main` deploys in two stages.** `.github/workflows/deploy.yml` runs
-   `canary-dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
-   succeeds, `release-prod` (`SECRETS_ENV=prd bun run deploy`,
+   `deploy:dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
+   succeeds, `deploy:prd` (`SECRETS_ENV=prd bun run deploy`,
    `environment: production`). Both jobs invoke `bun run deploy` with
    `SECRETS_ENV` set at the job level rather than the `deploy:dev` /
    `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage is a
@@ -254,8 +254,10 @@ Every PR check is required by GitHub, not by convention:
 `libs/tools/github-config/main-protection.json` (applied with `bun run github:config`)
 requires everything that reports on the PR — ours and third-party apps' — against
 the latest `main`, so GitHub itself refuses the merge until all of it is green.
-**Agents never merge PRs** — no `gh pr merge`, no auto-merge, no merge queue;
-merging is always a human decision on GitHub.
+**Agents merge only through `/pr-merge`**, and only once every required check
+is green on the verified head commit (`gh pr merge --merge --match-head-commit`)
+— never `--admin`, never auto-merge, never the merge queue, never a red,
+pending or draft PR.
 
 **`main` only moves through a merged PR.** GitHub enforces it — every setting
 this repo applies on GitHub lives in `libs/tools/github-config/` as the REST payload,
@@ -275,8 +277,8 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
   rebase merges are disabled, so `main` keeps every PR's commit graph and merge
   base. `allow_auto_merge` is on so a **human** can queue a PR to merge once
   its required checks pass; it is only safe because those checks are required
-  (`github:config:check` reports a protection with none). Agents still never
-  enable it.
+  (`github:config:check` reports a protection with none). Agents never enable
+  it — `/pr-merge` merges directly after verifying the checks itself.
 
 Two local layers back it up: `libs/tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
@@ -306,12 +308,12 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 - **Checks.** `bun check` is the whole gate (the same leaf set PR CI runs).
   While iterating, prefer `bun fmt` plus `bun run --filter <pkg> tc` and
   `bun run --filter <pkg> test`. Every PR body follows
-  `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-ready`
-  (`.agents/commands/pr-ready.md`) — the single PR command: it gets
+  `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-merge`
+  (`.agents/commands/pr-merge.md`) — the single PR command: it gets
   `bun check` green locally first, then commits, syncs with `main` (re-running
   `bun check` on anything the merge brings in), pushes, opens/updates the PR,
-  addresses review comments, and drives the PR check green. It never merges: a
-  green PR is handed to a human.
+  addresses review comments, drives the PR check green, and merges the PR
+  once every check passes.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only place a slash command is written. `bun run
   agents:sync` projects it into every harness: `.claude/commands`,

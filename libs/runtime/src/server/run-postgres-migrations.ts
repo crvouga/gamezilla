@@ -19,6 +19,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
+import { DomainSchemaIntegerWidthMigration } from './domain-schema-integer-width-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
 import { PostgresIndexesDatabaseMigration } from './postgres-indexes-database-migration';
@@ -74,6 +75,7 @@ export class PostgresMigrationRunner {
       .register(new SyncEngineDatabaseMigration())
       .register(new OutboxDatabaseMigration())
       .register(new DomainSchemaNullabilityMigration())
+      .register(new DomainSchemaIntegerWidthMigration(appSchema.snapshot()))
       .register(new ProfileUsernameIntegrityMigration())
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
