@@ -15,9 +15,15 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "hono": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

@@ -7,7 +7,7 @@
  */
 
 import type { DevMenuPort } from '@libs/client-app/device/ports';
-import type { OpenSqlClient } from '@libs/feature/public/sync';
+import type { OpenSqlClient, ServerHttp } from '@libs/feature/public/sync';
 import type { AuthClientStorage } from '@pkgs/auth/client/bearer-token-store';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ClipboardPort } from '@pkgs/device/clipboard';
@@ -23,11 +23,7 @@ import type { AudioPlaybackPort } from '@pkgs/sounds/audio-playback/ports';
 import type { OpenExternalUrl } from '@pkgs/ui';
 import type { CreateId, Random } from '@pkgs/uuid/create-id';
 
-/** HTTP to the server app only — not a generic fetch. */
-export type ServerHttp = (
-  input: RequestInfo | URL,
-  init?: RequestInit
-) => Promise<Response>;
+export type { ServerHttp };
 
 /**
  * Outcome of an OAuth popup / auth-session round trip. Mirrors the

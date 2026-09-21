@@ -22,7 +22,7 @@ import type {
 import {
   SIM_IDP_URL,
   SIM_SERVER_URL,
-} from '@libs/server-app/sim/sim-constants';
+} from '@libs/feature/public/sim-constants';
 import type { OpenExternalUrl } from '@pkgs/ui';
 import { type Accessor, createSignal } from 'solid-js';
 

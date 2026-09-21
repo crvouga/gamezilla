@@ -7,7 +7,7 @@
 
 import { createMockBillingApi } from '@libs/billing/public/mock-billing-api';
 import { MOCK_BILLING_TEST_IDS } from '@libs/billing/public/mock-test-ids';
-import { SIM_SERVER_URL } from '@libs/server-app/sim/migrate-sim-postgres';
+import { SIM_SERVER_URL } from '@libs/runtime/root/sim/migrate-sim-postgres';
 import { Handles } from '@libs/test-ids';
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import { accountIdOf } from './identity';

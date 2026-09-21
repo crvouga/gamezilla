@@ -36,6 +36,15 @@ export type EnvTime = {
   readonly seed: bigint;
 };
 
+/**
+ * HTTP to this app's server, and nothing else. Not a general-purpose fetch:
+ * a client gets one of these and can reach the API, not the internet.
+ */
+export type ServerHttp = (
+  input: RequestInfo | URL,
+  init?: RequestInit
+) => Promise<Response>;
+
 /** Who the push is for. */
 export type ChannelsCtx = {
   readonly actorId: string;

@@ -3,10 +3,6 @@
  * Composes package-owned migrations — no inline DDL.
  */
 
-import {
-  appSchema,
-  LOCAL_DOMAIN_TABLE_NAMES,
-} from '@libs/runtime/root/app-schema';
 import { AuthSqliteDatabaseMigration } from '@pkgs/auth/server';
 import { SqliteSchemaDatabaseMigration } from '@pkgs/db-schema-sqlite';
 import { EntityStoreSqliteDatabaseMigration } from '@pkgs/entity-store/sqlite-database-migration';
@@ -16,12 +12,13 @@ import { migrateOutbox } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { migrateLocalSchema } from '@pkgs/sync-engine/client';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
+import { appSchema, LOCAL_DOMAIN_TABLE_NAMES } from '../app-schema';
 
 export {
   SIM_AUTH_SECRET,
   SIM_SERVER_URL,
   SIM_SQLITE_DATABASE_URL,
-} from './sim-constants';
+} from '@libs/feature/public/sim-constants';
 
 /** Applies portable framework + domain + kv/entity/outbox + IdP (sqlite). */
 export async function migrateSimSqlite(args: {

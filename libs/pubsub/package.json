@@ -24,7 +24,6 @@
     "@libs/client-config": "workspace:*",
     "@libs/db": "workspace:*",
     "@libs/feature": "workspace:*",
-    "@libs/runtime": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",

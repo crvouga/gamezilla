@@ -49,7 +49,7 @@ const FEATURES = new Set([
 const COMPOSITION_ROOT = '@libs/runtime';
 
 /** Packages that must stay composable from any subset of features. */
-const SHELL = '@libs/client-app';
+const SHELLS = ['@libs/client-app', '@libs/server-app'] as const;
 
 type Rule = {
   readonly pkg: string;
@@ -58,11 +58,11 @@ type Rule = {
 };
 
 const RULES: readonly Rule[] = [
-  {
-    pkg: SHELL,
-    forbidden: new Set([...FEATURES, COMPOSITION_ROOT]),
-    why: "the app shell is what a feature's own e2e boots; naming a feature here puts every feature in every feature's build graph. Contribute routes, tabs, docks and providers through the FeatureClient fold instead, or declare a port the composition root fills.",
-  },
+  ...SHELLS.map((pkg) => ({
+    pkg,
+    forbidden: new Set<string>([...FEATURES, COMPOSITION_ROOT]),
+    why: "the shell is what a feature's own e2e boots; naming a feature here puts every feature in every feature's build graph. Contribute through the FeatureClient / FeatureServer fold instead, or declare a port the composition root fills.",
+  })),
   ...[...FEATURES, ...PLATFORM]
     .filter((pkg) => pkg !== '@libs/feature')
     .map((pkg) => ({
@@ -72,8 +72,8 @@ const RULES: readonly Rule[] = [
     })),
   {
     pkg: '@libs/feature',
-    forbidden: new Set([...FEATURES, COMPOSITION_ROOT, SHELL]),
-    why: 'the manifest algebra is generic over what features declare; it may not know one.',
+    forbidden: new Set([...FEATURES, COMPOSITION_ROOT, ...SHELLS]),
+    why: 'the manifest algebra is generic over what features declare; it may not know one, nor the shells that fold them.',
   },
 ];
 

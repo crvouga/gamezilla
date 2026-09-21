@@ -1,13 +1,8 @@
 import { userTopic } from '@libs/feature/public/sync';
-import {
-  friendRequestAcceptedNotifyConsumer,
-  friendRequestClosedNotifyConsumer,
-  friendRequestSentNotifyConsumer,
-} from '@libs/friends/root/server/friends-outbox-consumers';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
-import { drainOutbox, OutboxConsumerRegistry } from '@pkgs/outbox';
+import { drainOutbox, type OutboxConsumerRegistry } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 import type { CreateId } from '@pkgs/uuid';
@@ -15,17 +10,20 @@ import { apiRequestAsyncLocalStorage } from '../request-scope';
 
 let registry: OutboxConsumerRegistry | null = null;
 
+/**
+ * The consumers the composed features registered. Set once while the server
+ * is built, because a delivery can be drained from any request and the
+ * request has no idea which features this app runs.
+ */
+export function setOutboxConsumerRegistry(next: OutboxConsumerRegistry): void {
+  registry = next;
+}
+
 export function getOutboxConsumerRegistry(): OutboxConsumerRegistry {
-  if (registry === null) {
-    registry = new OutboxConsumerRegistry();
-    registry.register(friendRequestSentNotifyConsumer);
-    registry.register(friendRequestAcceptedNotifyConsumer);
-    registry.register(friendRequestClosedNotifyConsumer);
-    assert.ok(
-      registry.all().length > 0,
-      'outbox registry must have at least one consumer'
-    );
-  }
+  assert.defined(
+    registry,
+    'outbox registry: not composed — createServer sets it from the feature fold'
+  );
   return registry;
 }
 

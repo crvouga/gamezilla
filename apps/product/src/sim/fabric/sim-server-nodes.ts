@@ -10,6 +10,9 @@
  */
 
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
+import { composeFeatureServers } from '@libs/feature/public/compose-server';
+import { APP } from '@libs/runtime/root/app-features';
+import { appFeatureServers } from '@libs/runtime/root/server/app-feature-servers';
 import { createServer, type ServerEnv, serveFetch } from '@libs/server-app';
 import { serializeFetch } from './sim-fetch';
 import { nextSimNodeId, normalizeSimNodeId } from './sim-node-name';
@@ -74,7 +77,12 @@ export function createSimServerNodes(args: {
         throw new Error('createSim: server disposed');
       }
       const env = await ensureEnv(instanceId);
-      const app = await createServer(env);
+      const app = await createServer(env, {
+        app: APP,
+        servers: composeFeatureServers(
+          appFeatureServers({ billing: env.billing })
+        ),
+      });
       const raw = serveFetch((request) => app.fetch(request));
       const serialized = serializeFetch(async (input, init) => {
         if (args.disposed()) {

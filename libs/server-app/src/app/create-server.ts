@@ -1,37 +1,34 @@
-import { appAuth } from '@libs/auth/public/auth-context';
 import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
-import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
-import { BillingApp } from '@libs/billing/root/server/billing-app';
 import { DEFAULT_BILLING_GRACE_PERIOD_MS } from '@libs/client-config/public/client-config-defaults';
 import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
-import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import type { ComposedFeatures } from '@libs/feature/public/compose';
+import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
 import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
-import { requirePermission } from '@libs/permissions/root/server/require-permission';
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
-import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs';
-import type { CreateId } from '@pkgs/uuid/create-id';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { createAuthRoutes } from '../auth/auth-routes';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
-import { createNotificationsSubApp } from '../notifications/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
 import { notifyUserChannels } from '../sync/notify-user-channels';
-import { drainAndNotifyOutbox } from '../sync/outbox-drain';
+import {
+  drainAndNotifyOutbox,
+  setOutboxConsumerRegistry,
+} from '../sync/outbox-drain';
 import { createPubSubTokenRoutes } from '../sync/pubsub-token-routes';
 import { createSyncApp } from '../sync/sync-app';
 import type { ApiHonoEnv } from './api-hono-types';
@@ -133,62 +130,6 @@ async function createLlmAppForServer(env: ServerEnv) {
   return result;
 }
 
-function createBillingSubApp(
-  billing: MembershipBilling | null,
-  now: () => number,
-  createId: CreateId
-) {
-  const clock = { now };
-  const getSqlClient = () => {
-    const s = apiRequestAsyncLocalStorage.getStore();
-    assert.defined(s, 'billing: request store missing');
-    return s.sqlClient;
-  };
-  const notifyUser = (
-    accountId: string,
-    label: string,
-    tables: readonly string[]
-  ) =>
-    notifyUserChannels([accountId], label, {
-      tables,
-      deferPublish: false,
-    });
-  return new BillingApp({
-    getSqlClient,
-    billing,
-    requireAuth: async (_sql, req) => {
-      const s = apiRequestAsyncLocalStorage.getStore();
-      assert.defined(s, 'billing auth: request store missing');
-      const ctx = await s.sessionAuth.resolveAuthContext(s.sqlClient, req);
-      const auth = appAuth(ctx);
-      await requirePermission({
-        db: s.sqlClient,
-        auth,
-        permission: PERMISSION.billingManage,
-        nowMs: now(),
-      });
-      assert.defined(auth, 'billing auth: auth missing');
-      assert.defined(auth.accountId, 'billing auth: account missing');
-      return { accountId: auth.accountId, deviceId: auth.deviceId };
-    },
-    createId,
-    clock,
-    notifyUser,
-    // The mock edge exists only for the stateless fake; `instanceof` is why
-    // the decision lives here rather than as a flag on the port.
-    mock:
-      billing instanceof FakeMembershipBilling
-        ? {
-            getSqlClient,
-            offer: PLUS_MEMBERSHIP_OFFER,
-            clock,
-            createId,
-            notifyUser,
-          }
-        : null,
-  }).build();
-}
-
 const LOCAL_EMQX_WSS_URL = 'ws://127.0.0.1:8083/mqtt';
 
 async function readOptionalSecretValue(
@@ -265,8 +206,9 @@ async function buildDesiredClientConfig(args: {
   };
 }
 
-function createSyncAppMount(env: ServerEnv) {
+function createSyncAppMount(env: ServerEnv, app: ComposedFeatures) {
   return createSyncApp({
+    app,
     now: () => env.clock.now(),
     createId: env.createId,
     ...(env.secretsEnv === 'dev' ? { strictQueryLimits: true } : {}),
@@ -276,16 +218,16 @@ function createSyncAppMount(env: ServerEnv) {
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly desiredClientConfig: DesiredClientConfig;
-  readonly billing: MembershipBilling | null;
+  readonly servers: ComposedFeatureServers;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
   readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
   readonly sync: Awaited<ReturnType<typeof createSyncApp>>;
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
-  const { env, desiredClientConfig, billing, tts, llm, sync, log } = args;
+  const { env, desiredClientConfig, servers, tts, llm, sync, log } = args;
   const { secrets, observability, auth, secretsEnv } = env;
 
-  const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
+  const shell = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
       '*',
       createObservabilityMiddleware(observability, {
@@ -339,29 +281,46 @@ function createServerRouter(args: {
       });
     })
     .route('/', sync)
-    .route('/', createPubSubTokenRoutes())
+    .route('/', createPubSubTokenRoutes(servers))
     .route('/', tts.app)
     .route('/', llm.app)
-    .route(
-      '/',
-      createBillingSubApp(billing, () => env.clock.now(), env.createId)
-    )
     .route('/', createRoomApp())
-    .route('/matchmaking', createMatchmakingSubApp())
-    .route(
-      '/notifications',
-      createNotificationsSubApp(() => env.clock.now())
-    )
-    .onError(createApiErrorHandler(log));
-  return apiRouter;
+    .route('/matchmaking', createMatchmakingSubApp());
+
+  // Whatever the composed features contribute, in feature order. The shell
+  // mounts them; it does not know what any of them serves.
+  const featureRouters = servers.routers({
+    getSqlClient: () => {
+      const store = apiRequestAsyncLocalStorage.getStore();
+      assert.defined(store, 'feature routes: request store missing');
+      return store.sqlClient;
+    },
+    clock: env.clock,
+    createId: env.createId,
+  });
+  for (const router of featureRouters) shell.route('/', router);
+  return shell.onError(createApiErrorHandler(log));
 }
 
+export type CreateServerArgs = {
+  /** The folded feature set sync serves: schema, queries, topics, mutations. */
+  readonly app: ComposedFeatures;
+  /** The same features' server halves: routes, outbox consumers, topics. */
+  readonly servers: ComposedFeatureServers;
+};
+
 /**
- * Composes the server Worker app from mounted sub-apps (`app.route()`).
+ * Composes the server app from mounted sub-apps (`app.route()`).
+ *
+ * The shell owns the platform routes — health, auth, sync, pubsub tokens,
+ * rooms, matchmaking, the vendor apps — and mounts whatever the composed
+ * features contribute on top. It names no feature, so the same function
+ * serves the whole product and a single bounded context under test.
  */
-export async function createServer(env: ServerEnv) {
+export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   const { auth } = env;
   const log = createAppLogger(env);
+  setOutboxConsumerRegistry(args.servers.outboxConsumers);
 
   if (env.events !== null) {
     setHttpPubSubOverride(env.events);
@@ -371,7 +330,7 @@ export async function createServer(env: ServerEnv) {
   const [tts, llm, sync] = await Promise.all([
     createTtsAppForServer(env),
     createLlmAppForServer(env),
-    createSyncAppMount(env),
+    createSyncAppMount(env, args.app),
   ]);
 
   const desiredClientConfig = await buildDesiredClientConfig({
@@ -388,7 +347,7 @@ export async function createServer(env: ServerEnv) {
     createServerRouter({
       env,
       desiredClientConfig,
-      billing,
+      servers: args.servers,
       tts,
       llm,
       sync,

@@ -14,6 +14,9 @@
     ],
     "./bin/*": [
       "./src/bin/*.ts"
+    ],
+    "./scripts/*": [
+      "./src/scripts/*.ts"
     ]
   },
   "scripts": {
@@ -27,7 +30,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@libs/runtime": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",

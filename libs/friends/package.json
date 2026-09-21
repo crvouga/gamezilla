@@ -23,6 +23,7 @@
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/server-app": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",

@@ -8,20 +8,20 @@ import {
   type Client,
   createClient,
 } from '@libs/client-app/shell/create-client';
+import {
+  SIM_GOOGLE_CLIENT_ID,
+  SIM_GOOGLE_CLIENT_SECRET,
+  SIM_IDP_URL,
+} from '@libs/feature/public/sim-constants';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
-import type { ServerEnv } from '@libs/server-app';
-import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import {
   migrateSimPostgres,
   SIM_AUTH_SECRET,
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
-} from '@libs/server-app/sim/migrate-sim-postgres';
-import {
-  SIM_GOOGLE_CLIENT_ID,
-  SIM_GOOGLE_CLIENT_SECRET,
-  SIM_IDP_URL,
-} from '@libs/server-app/sim/sim-constants';
+} from '@libs/runtime/root/sim/migrate-sim-postgres';
+import type { ServerEnv } from '@libs/server-app';
+import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import { assert } from '@pkgs/assert';
 import { FakeMembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';

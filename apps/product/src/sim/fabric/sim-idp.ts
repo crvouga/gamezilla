@@ -17,7 +17,7 @@ import {
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
   SIM_SERVER_URL,
-} from '@libs/server-app/sim/sim-constants';
+} from '@libs/feature/public/sim-constants';
 import type { Clock } from '@pkgs/clock';
 import {
   createGoogleIdpApp,

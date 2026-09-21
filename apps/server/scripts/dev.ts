@@ -2,7 +2,7 @@
 
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
-import { migratePostgresApp } from '@libs/server-app/db/migrate';
+import { migratePostgresApp } from '@libs/runtime/root/server/migrate';
 import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
 

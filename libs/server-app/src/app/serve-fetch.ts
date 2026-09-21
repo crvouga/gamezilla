@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@libs/client-app/shell/client-env';
+import type { ServerHttp } from '@libs/feature/public/sync';
 
 type RnResponse = Response & { _bodyInit?: BodyInit | null };
 

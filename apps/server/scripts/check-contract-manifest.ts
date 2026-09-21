@@ -1,8 +1,7 @@
 // @io-wall-ok — contract manifest CLI entry root (scripts/**).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { loadAppMutations } from '@libs/server-app/sync/app-mutations';
-import { APP_QUERIES } from '@libs/server-app/sync/app-queries';
+import { APP } from '@libs/runtime/root/app-features';
 
 /**
  * Every query and mutation name ever shipped to a client is append-only.
@@ -19,8 +18,8 @@ const MANIFEST_PATH = resolve(import.meta.dir, '..', 'contract-manifest.json');
 
 export async function buildContractManifest(): Promise<ContractManifest> {
   return {
-    mutations: Object.keys(await loadAppMutations()).sort(),
-    queries: Object.keys(APP_QUERIES).sort(),
+    mutations: Object.keys(await APP.mutations()).sort(),
+    queries: Object.keys(APP.queries).sort(),
   };
 }
 

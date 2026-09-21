@@ -1,10 +1,15 @@
 // @api-wall-ok
 // @io-wall-ok
 /**
- * Programmatic app Postgres migrate orchestration — owned by `@libs/db`.
- * Compose site is `@libs/runtime/server/run-postgres-migrations`. Same-package
- * callers (api preview/dev) import this in-process. Root `db:migrate` / infra
- * shell out to `@libs/db` `migrate-cli.ts`. Tests/CI boot `@pkgs/postgres-embedded`
+ * Programmatic app Postgres migrate orchestration.
+ *
+ * This is composition-root work — it migrates *this product's* schema — so it
+ * lives with the fold rather than in `@libs/db`. An infra package that
+ * depended on the composition root made a cycle the moment features started
+ * depending on the server shell.
+ *
+ * Root `db:migrate` / infra shell out to `@libs/db` `migrate-cli.ts`. Tests
+ * and CI boot `@pkgs/postgres-embedded` first.
  */
 
 import { join } from 'node:path';
@@ -14,7 +19,12 @@ import {
 } from '@libs/db/public/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/db/public/database-url-policy-tooling';
 import { appPostgresDbScope } from '@libs/db/public/scope';
-import { PostgresMigrationRunner } from '@libs/runtime/server/run-postgres-migrations';
+import { readDevVarsDatabaseUrl } from '@libs/db/scripts/dev-vars';
+import {
+  isPostgresTransientMigrateError,
+  transientMigrateRetryReason,
+} from '@libs/db/server/migrate-transient-errors';
+import { fetchSecret } from '@libs/db/shared/secret-io';
 import { assert } from '@pkgs/assert';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger, type Logger } from '@pkgs/logger';
@@ -22,14 +32,9 @@ import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-
 import { createScriptSecretStore } from '@pkgs/secret-store';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { createPgPool, pingPostgres } from '@pkgs/sql-client-postgres/connect';
-import { readDevVarsDatabaseUrl } from '../scripts/dev-vars';
-import { fetchSecret } from '../shared/secret-io';
-import {
-  isPostgresTransientMigrateError,
-  transientMigrateRetryReason,
-} from './migrate-transient-errors';
+import { PostgresMigrationRunner } from '../../server/run-postgres-migrations';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
 /** Composition root: migrate CLI / in-process migrate owns wall I/O. */
 const now = wallClock.now;

@@ -4,8 +4,9 @@
  * CLI entry for root `bun run db:migrate` / infra migrate phase.
  * Tests/CI boot `@pkgs/postgres-embedded` then migrate via `@libs/runtime`.
  */
+
+import { migratePostgresApp } from '@libs/runtime/root/server/migrate';
 import { assert } from '@pkgs/assert';
-import { migratePostgresApp } from '../server/migrate';
 
 const wait = process.argv.includes('--wait');
 const databaseUrlFlag = process.argv.find((arg) =>

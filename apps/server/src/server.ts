@@ -10,6 +10,9 @@ import {
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
+import { composeFeatureServers } from '@libs/feature/public/compose-server';
+import { APP } from '@libs/runtime/root/app-features';
+import { appFeatureServers } from '@libs/runtime/root/server/app-feature-servers';
 import { createServer } from '@libs/server-app/app/create-server';
 import type { ServerEnv } from '@libs/server-app/app/server-env';
 import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
@@ -215,7 +218,10 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     fetch: (input, init) => globalThis.fetch(input, init),
   };
 
-  return await createServer(serverEnv);
+  return await createServer(serverEnv, {
+    app: APP,
+    servers: composeFeatureServers(appFeatureServers({ billing })),
+  });
 }
 
 async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
