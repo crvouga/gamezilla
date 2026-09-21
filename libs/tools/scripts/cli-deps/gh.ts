@@ -26,14 +26,21 @@ export const ghCliDep = defineCliDep({
   id: 'gh',
   dependsOn: ['bun'],
   installOrUpgrade() {
-    // Prefer an existing binary. Forcing brew upgrade fails hard when Homebrew
-    // cannot run (e.g. unsigned Xcode license) even though `gh` is already
-    // usable for deploy/provision.
-    if (which('gh')) {
+    if (!which('gh')) {
+      ghInstaller.install();
       logCliVersion('gh', 'gh');
       return;
     }
-    ghInstaller.install();
+    // A failed upgrade keeps the installed binary: `brew upgrade` fails hard
+    // when Homebrew cannot run (e.g. unsigned Xcode license) even though the
+    // existing `gh` is still usable for `bun pr` / deploy / provision.
+    try {
+      ghInstaller.upgrade();
+    } catch (error) {
+      console.warn(
+        `gh: upgrade failed, keeping the installed version: ${String(error)}`
+      );
+    }
     logCliVersion('gh', 'gh');
   },
 });

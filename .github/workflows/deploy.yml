@@ -44,7 +44,7 @@ jobs:
   deploy-dev:
     name: deploy:dev
     runs-on: ubuntu-latest
-    # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup and cache save, so
+    # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
     # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
     env:
@@ -69,15 +69,9 @@ jobs:
           echo "guard: ${GITHUB_SHA} arrived through ${prs} pull request(s)"
 
       - name: Checkout
-        id: checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - uses: ./.github/actions/turbo-cache
-        with:
-          job: deploy-dev
-          mode: restore
 
       - id: setup
         uses: ./.github/actions/setup
@@ -92,16 +86,6 @@ jobs:
         id: deploy
         run: |
           set -euo pipefail
-          # Heartbeat: turbo's grouped log order holds a task's output until it
-          # finishes, and GitHub SIGTERMs a step with no log output (~10 min,
-          # exit 143).
-          (
-            while sleep 120; do
-              echo "deploy: still running $(date -u +%H:%M:%SZ)"
-            done
-          ) &
-          heartbeat_pid=$!
-          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
       - name: Write pipeline summary
@@ -112,12 +96,6 @@ jobs:
           PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
-
-      - uses: ./.github/actions/turbo-cache
-        if: always() && steps.checkout.outcome == 'success'
-        with:
-          job: deploy-dev
-          mode: save
 
   deploy-prd:
     name: deploy:prd
@@ -130,15 +108,9 @@ jobs:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
-        id: checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - uses: ./.github/actions/turbo-cache
-        with:
-          job: deploy-prd
-          mode: restore
 
       - id: setup
         uses: ./.github/actions/setup
@@ -153,13 +125,6 @@ jobs:
         id: deploy
         run: |
           set -euo pipefail
-          (
-            while sleep 120; do
-              echo "deploy: still running $(date -u +%H:%M:%SZ)"
-            done
-          ) &
-          heartbeat_pid=$!
-          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
       - name: Write pipeline summary
@@ -170,9 +135,3 @@ jobs:
           PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
-
-      - uses: ./.github/actions/turbo-cache
-        if: always() && steps.checkout.outcome == 'success'
-        with:
-          job: deploy-prd
-          mode: save

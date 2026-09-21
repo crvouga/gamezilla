@@ -17,11 +17,17 @@
  *   second notion of "what changed" to keep correct. The one input turbo
  *   cannot see — which commits exist — is exported as `CHECK_GIT_HEAD` for the
  *   tasks that scan git history (`check:static`).
+ * - Plan first (`turbo-preflight.ts`): `--dry=json` asks both caches about
+ *   every task (~1s). All hits → the gate already passed for these inputs, so
+ *   turbo is not run at all. Otherwise turbo runs only the missed task ids
+ *   (plus their `dependsOn` closure, same hashes), after the closure's remote
+ *   hits are prefetched in parallel into the local cache — so `--concurrency`
+ *   slots go to real work, not ~400 serialized cross-country cache restores.
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
  *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
  *   collapsible `::group::` per task on GitHub Actions. Grouped holds a task's
- *   output until it finishes, so the workflow step runs a heartbeat. Override
+ *   output until it finishes, so a heartbeat prints every 2 min. Override
  *   with `TURBO_LOG_ORDER`. On GitHub Actions, groups that only say "cache
  *   hit, suppressing logs" are dropped (`CachedGroupFilter`); turbo's final
  *   `Cached:` line still counts them. `check` / `deploy` (and `//#…` forms) are expanded
@@ -57,6 +63,11 @@ import {
   slowestExecuted,
 } from './check-budget';
 import { CachedGroupFilter } from './github-cached-group-filter';
+import {
+  dryRunPlan,
+  prefetchRemoteHits,
+  type RunPlan,
+} from './turbo-preflight';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
@@ -371,25 +382,6 @@ async function main(): Promise<void> {
   await ensureSecretsFingerprint(env, taskArgs);
   exportGitHead(env);
 
-  // Exclude the root workspace from package tasks so root scripts like
-  // `lint` (which themselves call turbo-ci-run) are never scheduled.
-  const hasExplicitFilter = taskArgs.some((a) => a.startsWith('--filter='));
-  const hasPackageTasks = taskArgs.some(
-    (a) => !a.startsWith('//') && !a.startsWith('--')
-  );
-  const hasRootTasks = taskArgs.some((a) => a.startsWith('//'));
-  const rootExcludeFilters: string[] = [];
-  if (!hasExplicitFilter && hasPackageTasks) {
-    rootExcludeFilters.push(
-      '--filter=./apps/*',
-      '--filter=./libs/*',
-      '--filter=./pkgs/*'
-    );
-    if (hasRootTasks) {
-      rootExcludeFilters.push('--filter=//');
-    }
-  }
-
   const slowRunner = inCi();
   const deadlineSeconds = resolveRunDeadlineSeconds(process.env, {
     isDeploy: isDeployLeafSet(taskArgs),
@@ -404,18 +396,117 @@ async function main(): Promise<void> {
         : ' (local cache only)')
   );
 
-  const status = await runTurbo(
-    ['run', ...taskArgs, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
-    env,
-    {
-      hideCachedGroups: inGithubActions() && ui !== 'tui',
-      deadlineSeconds,
-    }
-  );
+  const fullRunArgs = ['run', ...taskArgs, ...rootExcludeFiltersFor(taskArgs)];
+  const plan = planOrNull(fullRunArgs, cache, env);
+  if (plan !== null && plan.toExecute.length === 0) {
+    process.exit(finalExitCode({ status: 0, slowRunner, skipped, ran: false }));
+  }
+  if (plan !== null) await prefetchRemoteHits(plan, REPO_ROOT, env);
+  const runArgs =
+    plan === null
+      ? fullRunArgs
+      : ['run', ...plan.toExecute.map((task) => task.taskId)];
+
+  const stopHeartbeat = startHeartbeat();
+  const status = await runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, {
+    hideCachedGroups: inGithubActions() && ui !== 'tui',
+    deadlineSeconds,
+  });
+  stopHeartbeat();
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(finalExitCode({ status, slowRunner, skipped }));
+  process.exit(finalExitCode({ status, slowRunner, skipped, ran: true }));
+}
+
+/**
+ * Exclude the root workspace from package tasks so root scripts like `lint`
+ * (which themselves call turbo-ci-run) are never scheduled.
+ */
+function rootExcludeFiltersFor(taskArgs: readonly string[]): string[] {
+  const hasExplicitFilter = taskArgs.some((a) => a.startsWith('--filter='));
+  const hasPackageTasks = taskArgs.some(
+    (a) => !a.startsWith('//') && !a.startsWith('--')
+  );
+  if (hasExplicitFilter || !hasPackageTasks) return [];
+  const filters = [
+    '--filter=./apps/*',
+    '--filter=./libs/*',
+    '--filter=./pkgs/*',
+  ];
+  if (taskArgs.some((a) => a.startsWith('//'))) filters.push('--filter=//');
+  return filters;
+}
+
+const LISTED_MISSES = 25;
+
+/**
+ * Dry-run the exact task set (see `turbo-preflight.ts`). `null` when the dry
+ * run itself fails: the real run then goes ahead unplanned — the verdict is
+ * always the real run's, the plan only decides how much of it to skip.
+ */
+function planOrNull(
+  runArgs: readonly string[],
+  cache: string,
+  env: NodeJS.ProcessEnv
+): RunPlan | null {
+  // The misses are re-run by id alone, so a caller's own turbo flags
+  // (`--force`, `--continue`, …) would be dropped: plan only plain task sets.
+  const flags = runArgs.filter((arg) => arg.startsWith('-'));
+  if (flags.some((flag) => !flag.startsWith('--filter='))) return null;
+  let plan: RunPlan;
+  try {
+    plan = dryRunPlan(
+      [...runArgs, `--cache=${cache}`, '--framework-inference=false'],
+      REPO_ROOT,
+      env
+    );
+  } catch (error) {
+    console.warn(
+      `turbo-ci-run: dry run failed (${String(error)}); running unplanned.`
+    );
+    return null;
+  }
+  const cached = plan.tasks.length - plan.toExecute.length;
+  console.log(
+    `turbo-ci-run: ${String(plan.tasks.length)} tasks — ${String(cached)} cached, ` +
+      `${String(plan.toExecute.length)} to execute`
+  );
+  for (const task of plan.toExecute.slice(0, LISTED_MISSES)) {
+    console.log(`  miss  ${task.taskId}`);
+  }
+  if (plan.toExecute.length > LISTED_MISSES) {
+    console.log(
+      `  … and ${String(plan.toExecute.length - LISTED_MISSES)} more`
+    );
+  }
+  if (plan.toExecute.length === 0) {
+    console.log(
+      'turbo-ci-run: every task is a cache hit (a cached result is a passed ' +
+        'result for these exact inputs); nothing to run.'
+    );
+  }
+  return plan;
+}
+
+const HEARTBEAT_MS = 120_000;
+
+/**
+ * GitHub SIGTERMs a step that prints nothing for ~10 min (exit 143), and the
+ * grouped log order holds each task's output until it finishes. A heartbeat
+ * in-process — not a background shell loop, whose orphaned `sleep` held the
+ * step's stdout open for seconds after the run was done.
+ */
+function startHeartbeat(): () => void {
+  if (!inGithubActions()) return () => undefined;
+  const started = process.hrtime.bigint();
+  const timer = setInterval(() => {
+    const seconds = Number(
+      (process.hrtime.bigint() - started) / 1_000_000_000n
+    );
+    console.log(`turbo-ci-run: still running (${String(seconds)}s)`);
+  }, HEARTBEAT_MS);
+  return () => clearInterval(timer);
 }
 
 /**
@@ -426,10 +517,12 @@ function finalExitCode(args: {
   readonly status: number;
   readonly slowRunner: boolean;
   readonly skipped: readonly string[];
+  /** False when the plan found nothing to execute: no summary to measure. */
+  readonly ran: boolean;
 }): number {
   // The timing table prints even when a task failed — that is exactly when
   // someone is reading the log and wants to know where the time went.
-  const budget = enforceTaskBudgets(args.slowRunner);
+  const budget = args.ran ? enforceTaskBudgets(args.slowRunner) : 0;
   if (args.status !== 0) return args.status;
   if (budget !== 0) return budget;
   if (args.skipped.length === 0) return 0;
