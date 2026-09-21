@@ -29,7 +29,7 @@ import {
   openLobbyCard,
 } from '@libs/spaces/sim/space-actions';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
-import { openSim } from './support/open-product-sim';
+import { openSim } from './support/open-chess-sim';
 
 const DEFAULT_ELO = 1500;
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */

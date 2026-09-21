@@ -9,7 +9,7 @@ import {
 } from '@libs/sim-harness';
 import { assert } from '@pkgs/assert';
 import { ActionNotEnabled } from '@pkgs/sim';
-import { openSim } from './support/open-product-sim';
+import { openSim } from './support/open-app-sim';
 
 describe('topology partition', () => {
   test('partition alice–server then restoreNetwork still allows sign-up', async () => {

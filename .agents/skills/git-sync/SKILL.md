@@ -1,6 +1,6 @@
 ---
 name: git-sync
-description: "Only when the user explicitly invokes /git-sync or $git-sync. Commit and push all local work on the current feature branch, then merge the latest origin/main into it — one script call, you only write the commit message"
+description: "Only when the user explicitly invokes /git-sync or $git-sync. Sync the branch with trunk — commit and push local work, merge the latest origin/main in, push, and fast-forward local main — one script call, you only write the commit message"
 ---
 
 <!-- generated from .agents/commands by `bun run agents:sync` — do not edit -->

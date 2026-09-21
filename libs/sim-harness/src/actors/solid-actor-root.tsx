@@ -4,9 +4,10 @@
  * router, no document shortcuts) so many actors share one document, with the
  * actor's web browser drawn over it while a page is open.
  *
- * The `MemoryHistory` is created once per actor and owned here, outside the
- * component: the multi-actor session unmounts a parked actor's tree and
- * remounts it on focus, and the route must survive that round trip.
+ * The `MemoryHistory` is created once per actor and owned by the caller,
+ * outside the component: the multi-actor session unmounts a parked actor's
+ * tree and remounts it on focus, and the route must survive that round trip.
+ * It is also how the actor opens a link (`SimActor.openLink`).
  */
 
 import type {
@@ -14,7 +15,7 @@ import type {
   ClientAppProps,
 } from '@libs/client-app/shell/create-client';
 import { TestViewportProvider } from '@pkgs/ui';
-import { createMemoryHistory } from '@solidjs/router';
+import type { MemoryHistory } from '@solidjs/router';
 import type { Component, JSX } from 'solid-js';
 import type { SimBrowser } from '../fabric/sim-browser';
 
@@ -43,9 +44,9 @@ export function simActorApp(args: {
 
 export function solidActorRoot(
   live: Client,
-  browser: SimBrowser
+  browser: SimBrowser,
+  history: MemoryHistory
 ): () => JSX.Element {
-  const history = createMemoryHistory();
   const App = simActorApp({ live, browser, isolateStyles: false });
   return () => (
     <TestViewportProvider value={ACTOR_VIEWPORT}>

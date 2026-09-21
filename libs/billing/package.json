@@ -22,7 +22,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --preload @libs/sim-harness/preload --timeout 90000 --parallel tests/e2e"
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
@@ -55,7 +55,6 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/bun-test-solid": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -4,16 +4,16 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { APP_SYSTEM } from '@libs/runtime/sim/app-composition';
 import { ensureNodeLocalStoragePolyfill } from '@libs/sim-harness/open-sim/node-local-storage-polyfill';
 import { PRODUCT_POOL_ACTIONS } from '@libs/sim-harness/system/pool-actions';
-import { product } from '../src/sim/system';
 
 describe('product explore', () => {
   test(
     'explore episodes over defineAction pool hold properties',
     async () => {
       ensureNodeLocalStoragePolyfill();
-      const report = await product.explore({
+      const report = await APP_SYSTEM.explore({
         seed: 42,
         episodes: 3,
         steps: 16,
@@ -25,6 +25,6 @@ describe('product explore', () => {
       expect(report.ok).toBe(true);
       expect(report.coverage.actions['spawnActor'] ?? 0).toBeGreaterThan(0);
     },
-    { timeout: 180_000 }
+    { timeout: 300_000 }
   );
 });

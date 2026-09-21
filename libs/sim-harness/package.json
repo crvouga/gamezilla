@@ -68,6 +68,8 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os": "workspace:*",
+    "@pkgs/sim-report": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

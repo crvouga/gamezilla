@@ -155,7 +155,7 @@ them, and turbo does not rerun the reader when the owner's schema changes.
 
 A change reruns its package's checks and its dependents'; an e2e suite reruns
 when anything in its composition's closure changes. The full-composition
-suite (`@apps/product#test:e2e`) is small — smoke, walks, cross-feature
+suite (`@libs/runtime#test:e2e`) is small — smoke, the whole-app monkey, explore
 journeys — and is the only e2e that reruns for every feature.
 
 Measured with `turbo run test:e2e --filter=...<pkg> --dry=json` (the e2e

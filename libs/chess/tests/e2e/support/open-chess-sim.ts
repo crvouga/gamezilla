@@ -3,7 +3,9 @@ import { chessGameShared } from '@libs/chess/public/chess-game';
 import { chessGameClient } from '@libs/chess/public/chess-game-def';
 import { CHESS_SIM_SLICE } from '@libs/chess/sim/chess-sim-slice';
 import { FRIENDS_SIM_SLICE } from '@libs/friends/sim/friends-sim-slice';
+import { NOTIFICATIONS_SIM_SLICE } from '@libs/notifications/sim/notifications-sim-slice';
 import { PROFILE_SIM_SLICE } from '@libs/profile/sim/profile-sim-slice';
+import { SEARCH_SIM_SLICE } from '@libs/search/sim/search-sim-slice';
 import {
   type OpenSim,
   type OpenSimOptions,
@@ -15,18 +17,19 @@ import { spacesSimSlice } from '@libs/spaces/sim/spaces-sim-slice';
 
 /**
  * Chess puzzles and what they cross: a puzzle opens in a space hosting only
- * chess, and profile owns the signed-in identity. Two slices are in for data
- * another feature reads directly rather than for their flows: friends, because
- * spaces' visibility / join SQL reads `friends_friendships`, and billing,
- * because permissions reads its `billing_subscriptions` rows (billing's plans
- * are also where the guest puzzle limit sends you). No search or
- * notifications: a change there leaves this cached.
+ * chess, profile owns the signed-in identity, and friends watch a puzzle live
+ * — so the befriending path (search finds a person, notifications deliver the
+ * request) is in too. Billing is in because permissions reads its
+ * `billing_subscriptions` rows directly, and its plans are where the guest
+ * puzzle limit sends you.
  */
 const CHESS_SYSTEM = defineProductSystem(
   composeSimSlices('chess', [
     PROFILE_SIM_SLICE,
     spacesSimSlice({ games: [chessGameShared], clients: [chessGameClient] }),
     FRIENDS_SIM_SLICE,
+    NOTIFICATIONS_SIM_SLICE,
+    SEARCH_SIM_SLICE,
     CHESS_SIM_SLICE,
     BILLING_SIM_SLICE,
   ])

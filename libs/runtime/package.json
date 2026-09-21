@@ -18,6 +18,10 @@
     "./server/*": [
       "./src/server/*.ts",
       "./src/server/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
@@ -27,7 +31,8 @@
     "migrate": "bun run scripts/migrate-cli.ts --wait",
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -43,6 +48,7 @@
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/search": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",

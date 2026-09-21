@@ -12,6 +12,7 @@ import {
   createSolidDomDriver,
   type MultiAppSolidDomSession,
 } from '@pkgs/ui-testing-solid-dom';
+import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
 import type { ProductUi, Sim, SimActor } from '..';
 import { simClientNamespace } from '..';
 import { createSimWaitPump } from '../setup/sim-wait-pump';
@@ -35,6 +36,7 @@ async function createSolidDomClientDriver(args: {
   readonly id: string;
   readonly session: MultiAppSolidDomSession;
   readonly runFor: (durationMs: number) => Promise<void>;
+  readonly history: MemoryHistory;
 }): Promise<Driver> {
   const live = await args.sim.spawnClient(args.id);
   const pump = createSimWaitPump({
@@ -48,7 +50,7 @@ async function createSolidDomClientDriver(args: {
       mount: async () => {
         const app = args.session.mountActor(
           args.id,
-          solidActorRoot(live, args.sim.browser(args.id))
+          solidActorRoot(live, args.sim.browser(args.id), args.history)
         );
         await args.runFor(0);
         return app;
@@ -69,6 +71,8 @@ export async function launchActor(args: {
   let localSql: () => SqlTx | null = () =>
     args.sim.clientSql(args.id)?.sqlClient ?? null;
   let closeResources: () => Promise<void> = () => Promise.resolve();
+  let openLink: (path: string) => Promise<void>;
+  let currentPath: () => Promise<string>;
   if (args.ui.kind === 'bun-webview') {
     const webOrigin = args.ui.webOrigin;
     // Each actor is its own device: its own on-disk storage (cookies, OPFS
@@ -93,6 +97,9 @@ export async function launchActor(args: {
       view.close();
       await rm(directory, { recursive: true, force: true });
     };
+    openLink = (path) => view.navigate(`${webOrigin}${path}`);
+    currentPath = async () =>
+      String(await view.evaluate('location.pathname + location.search'));
     await raw.launch();
     if (args.snapshot !== undefined) {
       await injectWebViewSnapshotAuth({
@@ -110,12 +117,20 @@ export async function launchActor(args: {
         'launchActor: solid-dom host requires a MultiAppSolidDomSession (in-process tests)'
       );
     }
+    const history = createMemoryHistory();
+    const runFor = args.ui.runFor;
     raw = await createSolidDomClientDriver({
       sim: args.sim,
       id: args.id,
       session,
-      runFor: args.ui.runFor,
+      runFor,
+      history,
     });
+    openLink = async (path) => {
+      history.set({ value: path });
+      await runFor(0);
+    };
+    currentPath = () => Promise.resolve(history.get());
     await raw.launch();
   }
   const ui =
@@ -123,7 +138,7 @@ export async function launchActor(args: {
       ? recordingDriver(raw, { recorder: args.recorder, actorId: args.id })
       : raw;
   return {
-    handle: { id: args.id, ui, localSql },
+    handle: { id: args.id, ui, localSql, openLink, currentPath },
     raw,
     closeResources,
   };

@@ -41,6 +41,7 @@ import {
   getReportStore,
   SIM_REPORT_RUN_ID,
   simReportEnabled,
+  type TestCallSite,
   testCallSite,
 } from './sim-report';
 import { readSimSystemSnapshot } from './sim-snapshot-fixture';
@@ -90,8 +91,20 @@ async function pinSim(s: Run<ProductSim>): Promise<ProductSim> {
 }
 
 /**
+ * The report key for a test: its spec file's name, then the id the test
+ * chose. Parallel workers share one bucket, so two specs that happen to pick
+ * the same id must not overwrite each other's report.
+ */
+function reportTestId(testId: string, callSite: TestCallSite | null): string {
+  if (callSite === null) return testId;
+  const file = callSite.sourceFile.split('/').pop() ?? '';
+  const stem = file.replace(/\.test\.[cm]?[jt]sx?$/, '');
+  return stem.length > 0 ? `${stem}.${testId}` : testId;
+}
+
+/**
  * Open a reported product sim. The report bucket is `.cache/sim-report`;
- * the package's `test:report` builds the standalone HTML.
+ * `bun run test:report` folds every package's bucket into one HTML report.
  */
 export async function openSim(
   system: ProductSystem,
@@ -113,7 +126,7 @@ export async function openSim(
           report: {
             store: getReportStore(),
             runId: SIM_REPORT_RUN_ID,
-            testId,
+            testId: reportTestId(testId, callSite),
             now: () => wallClock.now(),
             ...(callSite ?? {}),
           },

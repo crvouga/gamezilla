@@ -18,3 +18,4 @@ export type {
   ProductUi,
 } from './ports';
 export { SIM_START_MS } from './ports';
+export { ensureRealStack, registerRealStackBooter } from './real-stack';

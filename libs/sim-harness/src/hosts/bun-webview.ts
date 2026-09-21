@@ -7,14 +7,10 @@ import {
   sharedSqlClient,
 } from '../fabric/sim-sql';
 import type { ProductExtra } from './ports';
+import { ensureRealStack } from './real-stack';
 
 export type BunWebviewRuntimeOptions = {
   readonly composition: SimComposition;
-  /**
-   * `SIM_MODE=real`: boot the local sidecars (embedded Postgres, S3rver,
-   * EMQX). The product app owns that boot; the harness only calls it.
-   */
-  readonly ensureRealStack: () => Promise<void>;
 };
 
 type WebviewMode = 'seeded' | 'real' | 'stack';
@@ -60,9 +56,7 @@ function postgresHandle(pg: {
   };
 }
 
-async function openRealPostgresSql(
-  ensureRealStack: () => Promise<void>
-): Promise<SimSql> {
+async function openRealPostgresSql(): Promise<SimSql> {
   const { bootSimPostgres } = await import('../setup/boot-sim-postgres');
   await ensureRealStack();
   return postgresHandle(await bootSimPostgres());
@@ -111,7 +105,7 @@ export function bunWebviewRuntime(
     }
     const sql =
       mode === 'real'
-        ? await openRealPostgresSql(opts.ensureRealStack)
+        ? await openRealPostgresSql()
         : await openSeededServerSql(opts.composition);
     const webOrigin = process.env['SIM_WEB_ORIGIN'] ?? 'http://127.0.0.1:8081';
     const apiOrigin = process.env['VITE_API_URL'] ?? 'http://127.0.0.1:8787';

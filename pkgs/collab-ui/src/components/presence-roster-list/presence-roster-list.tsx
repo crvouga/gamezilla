@@ -18,7 +18,8 @@ import { ParticipantColorRing } from '../participant-color-ring';
 
 export type PresenceRosterRow = {
   readonly client: RoomActor;
-  readonly title: LocalizedString;
+  /** Who this is — a name, never a raw id. */
+  readonly title: JSX.Element;
   readonly subtitle?: LocalizedString;
   readonly isYou?: boolean;
   readonly isThisTab?: boolean;

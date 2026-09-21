@@ -39,6 +39,8 @@ export const Handles = {
   spaceMemberRow: (memberId: string) => `space-member-row-${memberId}`,
   /** Hidden count probe in the space members modal. */
   spacePresenceCount: 'space-presence-count',
+  /** Close control of the space members modal. */
+  spaceMembersClose: 'space-members-close',
   /** Cancel outgoing friend request pill (scoped by username). */
   friendCancel: (username: string) => `friend-cancel-${username}`,
   /** Decline incoming friend request pill (scoped by username). */
@@ -106,6 +108,9 @@ export const Handles = {
   /** Disabled Friends status pill scoped by peer username. */
   friendStatusFriends: (username: string) =>
     `friend-status-friends-${username}`,
+  /** Live-space badge on a friend who hosts an open space (host account id). */
+  friendLiveSpace: (hostAccountId: string) =>
+    `friend-live-space-${hostAccountId}`,
   /** Friends list row scoped by friend username. */
   friendsListRow: (username: string) => `friends-list-row-${username}`,
   /** Notifications friend-request summary card (fromUsername). */

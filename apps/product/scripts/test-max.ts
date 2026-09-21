@@ -1,4 +1,5 @@
-// @io-wall-ok — real-mode bun-webview: serve the web bundle, then bun:test
+// @io-wall-ok — real-mode bun-webview: serve the web bundle, then every e2e suite
+import { runE2ePackages } from './e2e-packages';
 
 process.env['SIM_MODE'] = 'real';
 process.env['VITE_API_URL'] =
@@ -32,29 +33,17 @@ const web = Bun.spawn(['bun', './e2e/serve-max-web.ts'], {
   env: process.env,
 });
 
+let code = 1;
 try {
   await waitForHttp(origin);
-  const test = Bun.spawn(
-    [
-      'bun',
-      'test',
-      '--preload',
-      '@pkgs/bun-test-solid/preload',
-      '--preload',
-      '@libs/sim-harness/preload',
-      '--timeout',
-      '120000',
-      'tests',
-    ],
+  code = runE2ePackages(
     {
-      cwd: pkgRoot,
-      stdout: 'inherit',
-      stderr: 'inherit',
-      env: process.env,
-    }
+      ...process.env,
+      SIM_PRELOAD: `${pkgRoot}/src/sim/setup/real-stack-preload.ts`,
+    },
+    process.argv.slice(2)
   );
-  const code = await test.exited;
-  process.exit(code ?? 1);
 } finally {
   web.kill();
 }
+process.exit(code);
