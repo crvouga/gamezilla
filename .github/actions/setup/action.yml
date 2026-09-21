@@ -33,16 +33,22 @@ runs:
     # Export of both `dev` and `prd` still needs the CLI on PATH.
     # GITHUB_TOKEN authenticates GitHub API fallbacks when resolving the
     # secrets-backend CLI release (shared runner IPs often exhaust unauth quota).
-    # Cache the user-local binary so parallel CI jobs skip the GitHub CDN
-    # download on hit; bump the key suffix when the CLI must be force-upgraded.
-    - name: Cache secrets backend CLI
+    # Cache the user-local binaries so CI jobs skip the GitHub CDN downloads on
+    # hit: the secrets backend CLI (installed below) and check:static's
+    # gitleaks / actionlint, which it installs on first use when missing. The
+    # key hashes their pinned versions and has no restore-keys fallback, since
+    # a stale binary would be kept (the installers only act when missing); bump
+    # the suffix when the secrets CLI must be force-upgraded.
+    - name: Cache CLI binaries
       uses: actions/cache@v5
       with:
-        # Binary basename is owned by the secrets-backend adapter package.
-        path: ~/.local/bin/infisical
-        key: secrets-backend-cli-${{ runner.os }}-v1
-        restore-keys: |
-          secrets-backend-cli-${{ runner.os }}-
+        # Binary basenames are owned by their installers
+        # (secrets-backend adapter, libs/tools/scripts/cli-deps).
+        path: |
+          ~/.local/bin/infisical
+          ~/.local/bin/gitleaks
+          ~/.local/bin/actionlint
+        key: cli-bin-${{ runner.os }}-${{ hashFiles('libs/tools/scripts/cli-deps/gitleaks.ts', 'libs/tools/scripts/cli-deps/actionlint.ts') }}-v1
 
     # This step is a composition root: the GitHub-release installer it falls
     # back to on Linux (no Homebrew) needs an injected OsFs, and `bun -e` is

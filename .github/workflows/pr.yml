@@ -26,8 +26,8 @@ jobs:
   check:
     name: check
     runs-on: ubuntu-latest
-    # Hard ceiling for the whole job: setup + the check step + summary + cache
-    # save. The check step has its own tighter limit below.
+    # Hard ceiling for the whole job: setup + the check step + summary. The
+    # check step has its own tighter limit below.
     timeout-minutes: 30
     env:
       SECRETS_ENV: dev
@@ -42,11 +42,6 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - uses: ./.github/actions/turbo-cache
-        with:
-          job: pr-check
-          mode: restore
 
       - uses: ./.github/actions/setup
 
@@ -64,16 +59,6 @@ jobs:
         timeout-minutes: 25
         run: |
           set -euo pipefail
-          # Heartbeat: turbo's grouped log order holds a task's output until it
-          # finishes, and GitHub SIGTERMs a step with no log output (~10 min,
-          # exit 143).
-          (
-            while sleep 120; do
-              echo "check: still running $(date -u +%H:%M:%SZ)"
-            done
-          ) &
-          heartbeat_pid=$!
-          trap 'kill "$heartbeat_pid" 2>/dev/null || true' EXIT
           bun run check 2>&1 | tee "${RUNNER_TEMP}/check.log"
 
       - name: Write pipeline summary
@@ -84,9 +69,3 @@ jobs:
           PIPELINE_LOG_PATH: ${{ runner.temp }}/check.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
-
-      - uses: ./.github/actions/turbo-cache
-        if: always()
-        with:
-          job: pr-check
-          mode: save
