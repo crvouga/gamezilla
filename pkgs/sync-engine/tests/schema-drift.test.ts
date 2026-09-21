@@ -4,7 +4,6 @@ import {
   addClient,
   connection,
   exampleLocalSchemaExtraColumn,
-  exampleLocalSchemaExtraTable,
   exampleMutationRegistry,
   exampleQueryRegistry,
   exampleSystem,
