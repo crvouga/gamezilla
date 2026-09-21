@@ -95,7 +95,7 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     {
       key: 'stats',
       title: <Trans>Stats</Trans>,
-      caption: <Trans>Elo trend and game log</Trans>,
+      caption: <Trans>Rating trend and game log</Trans>,
       dataSet: { testid: 'chess-menu-stats' },
       onClick: () =>
         dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats })),

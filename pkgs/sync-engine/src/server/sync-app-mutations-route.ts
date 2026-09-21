@@ -3,7 +3,11 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { Hono } from 'hono';
 
-import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
+import type {
+  MutationAuthorize,
+  MutationEnv,
+  MutationRegistry,
+} from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
 import type { AuthErrorBody, QueryRow } from '../protocol';
@@ -146,6 +150,7 @@ async function prepareMutationNotify(
       mutations: mutationRows,
       now: deps.now,
       createId: deps.createId,
+      ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
     });
     if (result.applied.length === 0 || deps.pubsub === undefined) {
       return {
@@ -231,6 +236,7 @@ export type MountMutationsRouteDeps = {
   /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;
   readonly topicMap?: TopicMap;
+  readonly authorize?: MutationAuthorize;
 };
 
 export function mountMutationsRoute(

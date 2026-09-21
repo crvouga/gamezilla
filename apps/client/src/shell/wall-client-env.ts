@@ -10,6 +10,7 @@ import { oauthClientCallbackUrl } from '@pkgs/auth/shared/oauth-client-callback-
 import { wallClock, wallTimers } from '@pkgs/clock/wall';
 import {
   wallWebClipboard,
+  wallWebHaptics,
   wallWebNetworkStatePort,
 } from '@pkgs/device/wall-web-device';
 import { gateFetchUntilAvailable } from '@pkgs/http-client/gate-fetch-until-available';
@@ -114,6 +115,7 @@ export function wallClientEnv(args?: {
     room: createWallRoomTransport,
     network: wallWebNetworkStatePort(),
     clipboard: wallWebClipboard(),
+    haptics: wallWebHaptics(),
     audio: createWebAudioPlaybackPort(),
     devMenu: createNoopDevMenuPort(),
     objectStore: createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),

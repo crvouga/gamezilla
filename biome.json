@@ -350,6 +350,49 @@
       ]
     },
     {
+      "path": "./libs/tools/biome-plugins/no-tier-vocabulary.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/libs/*/tests/**/*.{ts,tsx}",
+        "**/libs/*/scripts/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "**/apps/*/tests/**/*.{ts,tsx}",
+        "**/pkgs/*/src/**/*.{ts,tsx}",
+        "**/pkgs/*/tests/**/*.{ts,tsx}",
+        "!**/libs/permissions/**",
+        "!**/pkgs/permissions/**",
+        "!**/libs/billing/**",
+        "!**/pkgs/billing*/**",
+        "!**/apps/product/src/sim/system/billing-*.ts",
+        "!**/apps/product/tests/billing-*.test.tsx"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-tier-vocabulary-string.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/libs/*/tests/**/*.{ts,tsx}",
+        "**/libs/*/scripts/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "**/apps/*/tests/**/*.{ts,tsx}",
+        "**/pkgs/*/src/**/*.{ts,tsx}",
+        "**/pkgs/*/tests/**/*.{ts,tsx}",
+        "!**/libs/permissions/**",
+        "!**/pkgs/permissions/**",
+        "!**/libs/billing/**",
+        "!**/pkgs/billing*/**",
+        "!**/apps/product/src/sim/system/billing-*.ts",
+        "!**/apps/product/tests/billing-*.test.tsx"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-tier-words-puzzle.grit",
+      "includes": [
+        "**/libs/chess/src/**/*.{ts,tsx}",
+        "!**/libs/chess/src/**/*.test.{ts,tsx}"
+      ]
+    },
+    {
       "path": "./libs/tools/biome-plugins/no-sync-engine-terminology.grit",
       "includes": [
         "**/pkgs/sync-engine/**/*.{ts,tsx}",

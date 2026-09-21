@@ -18,6 +18,7 @@ import { wireProductRuntime } from '../setup/wire-product-runtime';
 import {
   partition,
   resetActor,
+  restartApp,
   restoreNetwork,
   spawnActor,
   uiOp,
@@ -197,6 +198,7 @@ export const product = defineSystem<ProductSim>({
   actions: [
     spawnActor,
     resetActor,
+    restartApp,
     partition,
     restoreNetwork,
     uiOp,

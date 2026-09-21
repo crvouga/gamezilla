@@ -20,9 +20,6 @@ export const Handles = {
   spaceCreate: 'space-create',
   /** Lobby card for a host's live space (scoped by host username). */
   spaceCard: (hostUsername: string) => `space-card-${hostUsername}`,
-  /** Ended-space history card in the lobby (scoped by host username). */
-  spaceRecentCard: (hostUsername: string) =>
-    `space-recent-card-${hostUsername}`,
   spaceJoin: 'space-join',
   spaceEnded: 'space-ended',
   spaceClose: 'space-close',
@@ -133,6 +130,8 @@ export const Handles = {
   /** Hidden probe: `spectating=0|1 role=… kind=… clock=… recs=…`. */
   chessPuzzleE2eSpectator: 'chess-puzzle-e2e-spectator',
   chessPuzzleE2eFen: 'chess-puzzle-e2e-fen',
+  /** Hidden probe: board orientation (`white` / `black`) = solver colour. */
+  chessPuzzleBoardOrientation: 'chess-puzzle-board-orientation',
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
@@ -147,6 +146,8 @@ export const Handles = {
   /** Feed bar: history filter label (Any / Unseen / Seen / Failed). */
   chessPuzzleFeedHistoryLabel: 'chess-puzzle-feed-history-label',
   chessPuzzleFeedThemeTrigger: 'chess-puzzle-feed-theme-trigger',
+  chessPuzzleFeedThemeSearch: 'chess-puzzle-feed-theme-search',
+  chessPuzzleFeedThemeDone: 'chess-puzzle-feed-theme-done',
   chessPuzzleFeedThemeOption: (theme: string) =>
     `chess-puzzle-feed-theme-${theme}`,
   /** Feed settings modal parts. Segment ids are `<group>-<key>`. */
@@ -155,6 +156,9 @@ export const Handles = {
   chessPuzzleFeedHistorySegment: (
     filter: 'any' | 'neverSeen' | 'seen' | 'failed'
   ) => `chess-puzzle-feed-history-${filter}`,
+  chessPuzzleFeedAutoAdvanceSegment: (
+    setting: 'off' | 'after1s' | 'immediate'
+  ) => `chess-puzzle-feed-auto-advance-${setting}`,
   chessPuzzleFeedOffsetIncrease: 'chess-puzzle-feed-offset-increase',
   chessPuzzleFeedOffsetDecrease: 'chess-puzzle-feed-offset-decrease',
   chessPuzzleFeedOffsetValue: 'chess-puzzle-feed-offset-value',
@@ -177,11 +181,27 @@ export const Handles = {
   chessPuzzleActionForward: 'chess-puzzle-action-forward',
   chessPuzzleActionSkip: 'chess-puzzle-action-skip',
   chessPuzzleClock: 'chess-puzzle-clock',
+  chessPuzzleStatusLabel: 'chess-puzzle-status-label',
+  chessPuzzleSummaryNext: 'chess-puzzle-summary-next',
   chessPuzzleRecommendationLegend: 'chess-puzzle-recommendation-legend',
   chessPuzzleRecommendationClear: 'chess-puzzle-recommendation-clear',
   chessPuzzleWaitingForHost: 'chess-puzzle-waiting-for-host',
   chessStatsElo: 'chess-stats-elo',
+  /** §15 P0 tiles: total solved and overall accuracy. */
+  chessStatsSolved: 'chess-stats-solved',
+  chessStatsAccuracy: 'chess-stats-accuracy',
+  chessStatsPlayed: 'chess-stats-played',
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
+  /** Hidden review probe: `solveIdx|lastSolveIdx|animated|notation`. */
+  chessPuzzleReviewE2e: 'chess-puzzle-review-e2e',
+  chessPuzzleReviewE2eFen: 'chess-puzzle-review-e2e-fen',
+  /** §7 move-list scrub controls (`start` / `back` / `forward` / `end`). */
+  chessPuzzleMoveNav: (intent: 'start' | 'back' | 'forward' | 'end') =>
+    `chess-puzzle-move-nav-${intent}`,
+  /** §7 tappable move-list ply, by 0-based ply index. */
+  chessPuzzleMovePly: (plyIndex: number) => `chess-puzzle-move-ply-${plyIndex}`,
+  /** Hidden marker on the highlighted ply: `<plyIndex>|<san>`. */
+  chessPuzzleMovePlySelected: 'chess-puzzle-move-ply-selected',
   /** Career game-log row scoped by puzzle id. */
   chessGameLogRow: (puzzleId: string) => `chess-game-log-row-${puzzleId}`,
   chessPuzzleLimit: 'chess-puzzle-limit',

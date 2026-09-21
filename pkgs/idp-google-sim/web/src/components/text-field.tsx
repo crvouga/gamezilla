@@ -1,9 +1,9 @@
 /**
- * Outlined field with Google's floating label.
+ * Outlined field with a floating label.
  *
  * The label is a sibling `span` driven by `:placeholder-shown`, not a real
- * `<label>`: Google labels its inputs with `aria-label`, and the headless
- * walkers read attributes, not accessible names.
+ * `<label>`: the input carries its own `aria-label`, and the headless walkers
+ * read attributes, not accessible names.
  */
 
 import 'solid-js';
@@ -42,10 +42,10 @@ export function TextField(props: TextFieldProps) {
   return (
     <div class="relative">
       <input
-        class="peer h-14 w-full rounded border bg-white px-[15px] pt-[13px] pb-[13px] text-base text-gm-on-surface outline-none focus:border-2 focus:border-gm-primary focus:px-[14px] focus:pt-3 focus:pb-3"
+        class="peer h-14 w-full rounded-lg border bg-white px-[15px] pt-[13px] pb-[13px] text-base text-idp-on-surface outline-none focus:border-2 focus:border-idp-primary focus:px-[14px] focus:pt-3 focus:pb-3"
         classList={{
-          'border-gm-outline': !invalid(),
-          'border-gm-error': invalid(),
+          'border-idp-outline': !invalid(),
+          'border-idp-error': invalid(),
         }}
         type={props.type ?? 'text'}
         name={props.name}
@@ -60,7 +60,7 @@ export function TextField(props: TextFieldProps) {
         attr:value={props.value ?? ''}
         data-testid={props.testId}
       />
-      <span class="pointer-events-none absolute top-1/2 left-[13px] -translate-y-1/2 rounded bg-white px-2 text-base text-gm-on-surface-variant transition-all duration-150 peer-focus:top-0 peer-focus:text-xs peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs motion-reduce:transition-none">
+      <span class="pointer-events-none absolute top-1/2 left-[13px] -translate-y-1/2 rounded bg-white px-2 text-base text-idp-on-surface-variant transition-all duration-150 peer-focus:top-0 peer-focus:text-xs peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs motion-reduce:transition-none">
         {props.label}
       </span>
     </div>

@@ -1,0 +1,7 @@
+language js
+
+// §22.11: `plan:*` role ids are policy data, never literals in feature code.
+JsStringLiteralExpression() as $s where {
+  $s <: r"^['\"]plan:.*",
+  register_diagnostic(span=$s, message="Plan role literal outside the policy package (§22.11). Roles are assigned by policy predicates, never named in code.", severity="error")
+}

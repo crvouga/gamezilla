@@ -1,3 +1,6 @@
+import { parseFen, sideToMoveOf } from '@pkgs/chess-rules/fen';
+import { playUci } from '@pkgs/chess-rules/moves';
+import { parseUci, tokenizeUciLine } from '@pkgs/chess-rules/uci';
 import { Chess } from 'chess.js';
 
 /** Side the human plays — fixed for the puzzle session, not derived from the live FEN. */
@@ -24,58 +27,27 @@ export type ChessPuzzleSetupResult =
 export function uciToSquares(
   uci: string
 ): { readonly from: string; readonly to: string } | null {
-  const t = uci.trim().toLowerCase();
-  if (t.length < 4) return null;
-  const from = t.slice(0, 2);
-  const to = t.slice(2, 4);
-  const squareRe = /^[a-h][1-8]$/;
-  if (!squareRe.test(from) || !squareRe.test(to)) return null;
-  return { from, to };
+  const parsed = parseUci(uci);
+  return parsed === null ? null : { from: parsed.from, to: parsed.to };
 }
 
 /** Lower-cased UCI tokens; empty entries dropped. */
 export function tokenize(movesStr: string): readonly string[] {
-  return movesStr
-    .trim()
-    .split(/\s+/)
-    .map((s) => s.trim().toLowerCase())
-    .filter((s) => s.length > 0);
+  return tokenizeUciLine(movesStr);
 }
 
 /** Side-to-move from FEN's second field; defaults to white when missing. */
 export function boardOrientationFromFen(fen: string): ChessPuzzleOrientation {
-  const parts = fen.trim().split(/\s+/);
-  if (parts.length < 2) return 'white';
-  return parts[1] === 'b' ? 'black' : 'white';
-}
-
-function parsePromotion(uci: string): ChessPuzzlePromotion | undefined {
-  if (uci.length < 5) return undefined;
-  const c = uci[4];
-  if (c === 'q' || c === 'r' || c === 'b' || c === 'n') return c;
-  return undefined;
+  return sideToMoveOf(fen) === 'b' ? 'black' : 'white';
 }
 
 /**
  * Apply a UCI move to the given Chess instance in place. Returns the SAN when
  * the move was legal and applied; `null` for malformed UCI or illegal moves.
+ * Castling entered as king-onto-rook is normalized by the rules kernel.
  */
 export function applyUciToChessSan(chess: Chess, uci: string): string | null {
-  const t = uci.trim().toLowerCase();
-  if (t.length < 4) return null;
-  const from = t.slice(0, 2);
-  const to = t.slice(2, 4);
-  const promotion = parsePromotion(t);
-  try {
-    const res = chess.move({
-      from,
-      to,
-      ...(promotion !== undefined ? { promotion } : {}),
-    });
-    return res?.san ?? null;
-  } catch {
-    return null;
-  }
+  return playUci(chess, uci);
 }
 
 /**
@@ -83,7 +55,7 @@ export function applyUciToChessSan(chess: Chess, uci: string): string | null {
  * the move was legal and applied; `false` for malformed UCI or illegal moves.
  */
 export function applyUciToChess(chess: Chess, uci: string): boolean {
-  return applyUciToChessSan(chess, uci) !== null;
+  return playUci(chess, uci) !== null;
 }
 
 /**
@@ -97,18 +69,8 @@ export function setupPuzzleStart(
   moves: string
 ): ChessPuzzleSetupResult {
   if (fen.length === 0 || moves.length === 0) return { kind: 'invalid' };
-
-  const chess = new Chess();
-  let loadOk = true;
-  try {
-    chess.load(fen);
-  } catch {
-    loadOk = false;
-  }
-  const wantBoard = fen.trim().split(/\s+/)[0];
-  const gotBoard = chess.fen().trim().split(/\s+/)[0];
-  if (wantBoard !== undefined && gotBoard !== wantBoard) loadOk = false;
-  if (!loadOk) return { kind: 'invalid' };
+  if (!parseFen(fen).ok) return { kind: 'invalid' };
+  const chess = new Chess(fen);
 
   const tokens = tokenize(moves);
   const first = tokens[0];

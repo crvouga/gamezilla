@@ -5,14 +5,74 @@ import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
 } from './chess-puzzle-play-attr';
-import { ChessPuzzlePlaySkipped } from './chess-puzzle-play-messages';
+import {
+  ChessPuzzlePlaySkipped,
+  ChessPuzzleSolutionShown,
+} from './chess-puzzle-play-messages';
+import { fenAtSolveIdx, puzzleTokensLength } from './chess-puzzle-step';
 
 function isHostOf(state: RoomState, identity: string): boolean {
   const host = ChessPuzzlePlayAttr.hostIdentity.from(state);
   return host !== null && host === identity;
 }
 
-/** Host abandons the live attempt without solving it (terminal, unrated). */
+function isLiveAttempt(state: RoomState): boolean {
+  const status = ChessPuzzlePlayAttr.status.from(state);
+  return (
+    status === CHESS_PUZZLE_PLAY_STATUS.solving ||
+    status === CHESS_PUZZLE_PLAY_STATUS.wrong
+  );
+}
+
+/**
+ * "Show solution" (§6): jump the room to the end of the line. Clients play
+ * the skipped plies out with animation (opponent stager) before review; the
+ * attempt's outcome (a fail unless already resolved) is the recorder's job.
+ */
+export function handleShowSolution(
+  state: RoomState,
+  ctx: GameCommandContext
+): HandleResult {
+  if (!isHostOf(state, ctx.identity)) {
+    return {
+      ok: false,
+      error: {
+        type: ROOM_ERROR_TYPE.unauthorized,
+        reason: 'only the puzzle host may show the solution',
+      },
+    };
+  }
+  if (!isLiveAttempt(state)) {
+    return {
+      ok: false,
+      error: {
+        type: ROOM_ERROR_TYPE.conflict,
+        reason: `cannot show the solution while status is ${ChessPuzzlePlayAttr.status.from(state)}`,
+      },
+    };
+  }
+  const fen = ChessPuzzlePlayAttr.fen.from(state);
+  const moves = ChessPuzzlePlayAttr.moves.from(state);
+  const solveIdx = puzzleTokensLength(moves);
+  const displayFen = fenAtSolveIdx({ fen, moves, solveIdx });
+  if (displayFen === null) {
+    return {
+      ok: false,
+      error: {
+        type: ROOM_ERROR_TYPE.internal,
+        reason: 'could not rebuild the final fen of the line',
+      },
+    };
+  }
+  return {
+    ok: true,
+    events: [
+      ChessPuzzleSolutionShown({ displayFen, solveIdx, endedAtMs: ctx.ts }),
+    ],
+  };
+}
+
+/** Host abandons the live attempt without solving it (terminal; a loss unless already resolved). */
 export function handleSkip(
   state: RoomState,
   ctx: GameCommandContext
@@ -26,16 +86,12 @@ export function handleSkip(
       },
     };
   }
-  const status = ChessPuzzlePlayAttr.status.from(state);
-  if (
-    status !== CHESS_PUZZLE_PLAY_STATUS.solving &&
-    status !== CHESS_PUZZLE_PLAY_STATUS.wrong
-  ) {
+  if (!isLiveAttempt(state)) {
     return {
       ok: false,
       error: {
         type: ROOM_ERROR_TYPE.conflict,
-        reason: `cannot skip while status is ${status}`,
+        reason: `cannot skip while status is ${ChessPuzzlePlayAttr.status.from(state)}`,
       },
     };
   }

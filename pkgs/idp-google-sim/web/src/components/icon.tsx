@@ -4,7 +4,7 @@
  * The design system's icon boundary (`@pkgs/ui`) is deliberately not used here:
  * `createIcon` reads `@pkgs/ui`'s theme context and throws without
  * `ThemeProvider`, and that provider installs Gamezilla's token map — the one
- * thing a Google-branded page must not inherit. Each glyph is a few stroke
+ * thing the provider's own pages must not inherit. Each glyph is a few stroke
  * commands in `currentColor`, so nothing is vendored and nothing is themed.
  */
 

@@ -1,5 +1,6 @@
 /** Validating an account submission — the create screen and the test admin. */
 
+import { IDP_BRAND } from '../../shared/brand';
 import type { IdpAccountDraft } from '../../shared/types';
 
 /** The exact shape the create screen produces — email and name are required. */
@@ -36,14 +37,17 @@ export function parseAccountDraft(input: {
   if (!EMAIL_PATTERN.test(email)) {
     return {
       ok: false,
-      error: "That email address isn't a valid Google Account name.",
+      error: `That email address isn't a valid ${IDP_BRAND.name} account name.`,
     };
   }
   if (name.length === 0) {
     return { ok: false, error: 'Enter the name for this account.' };
   }
   if (name.length > MAX_NAME_LENGTH) {
-    return { ok: false, error: 'That name is too long for a Google Account.' };
+    return {
+      ok: false,
+      error: `That name is too long for an ${IDP_BRAND.name} account.`,
+    };
   }
   const parts = name.split(' ');
   const givenName = parts[0] ?? name;

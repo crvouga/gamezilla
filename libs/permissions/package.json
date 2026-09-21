@@ -20,17 +20,25 @@
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/client-config": "workspace:*",
+    "@lingui/core": "catalog:",
     "@pkgs/billing": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
     "@pkgs/permissions": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
-    "solid-js": "catalog:"
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

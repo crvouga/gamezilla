@@ -1,5 +1,5 @@
 {
-  "release": 1,
+  "release": 5,
   "snapshot": {
     "tables": {
       "auth_devices": {
@@ -54,7 +54,21 @@
         "last_interaction_at": "timestamp",
         "owner_id": "text",
         "rating": "integer",
-        "rating_deviation": "integer"
+        "rating_deviation": "integer",
+        "volatility_micros": "integer"
+      },
+      "chess_puzzle_rating_events": {
+        "at": "timestamp",
+        "outcome": "text",
+        "owner_id": "text",
+        "puzzle_id": "text",
+        "puzzle_rating": "integer",
+        "rating_after": "integer",
+        "rating_before": "integer",
+        "rating_deviation_after": "integer",
+        "rating_deviation_before": "integer",
+        "score_permille": "integer",
+        "volatility_micros_after": "integer"
       },
       "chess_puzzles": {
         "fen": "text",
@@ -63,6 +77,7 @@
         "nb_plays": "integer",
         "opening_tags": "json",
         "popularity": "integer",
+        "position_key": "text",
         "rating": "integer",
         "rating_deviation": "integer",
         "themes": "json"
@@ -110,6 +125,14 @@
         "title": "text",
         "user_id": "text"
       },
+      "permissions_quota_ledger": {
+        "amount": "integer",
+        "consumed_at": "timestamp",
+        "idempotency_key": "text",
+        "owner_id": "text",
+        "policy_version": "text",
+        "quota": "text"
+      },
       "profile": {
         "avatar_config": "json",
         "username": "text",
@@ -141,11 +164,11 @@
       "chess_puzzle_interactions": {
         "rating_after": {
           "type": "integer",
-          "note": "Elo is projected from interaction history"
+          "note": "per-attempt rating lives in chess_puzzle_rating_events"
         },
         "rating_before": {
           "type": "integer",
-          "note": "Elo is projected from interaction history"
+          "note": "per-attempt rating lives in chess_puzzle_rating_events"
         }
       },
       "chess_puzzles": {
@@ -166,11 +189,18 @@
       }
     },
     "retiredTables": [],
-    "indexes": [["billing_subscriptions", "account_id"]],
+    "indexes": [
+      ["billing_subscriptions", "account_id"],
+      ["chess_puzzle_rating_events", "owner_id"],
+      ["chess_puzzles", "popularity"],
+      ["chess_puzzles", "rating"],
+      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"]
+    ],
     "uniqueIndexes": [
       ["auth_external_accounts", "provider", "external_id"],
       ["auth_external_accounts", "user_id", "provider"],
       ["billing_subscriptions", "provider", "provider_subscription_id"],
+      ["chess_puzzles", "position_key"],
       ["friends_blocks", "blocker_id", "blocked_id"],
       ["friends_friendships", "user_low", "user_high"],
       [
@@ -180,6 +210,7 @@
         "source_type",
         "source_id"
       ],
+      ["permissions_quota_ledger", "owner_id", "idempotency_key"],
       ["profile", "username_norm"],
       ["spaces_open_sessions", "device_id", "space_id"],
       ["spaces_users", "space_id", "user_id"]

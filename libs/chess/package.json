@@ -17,7 +17,8 @@
     "lint": "bunx biome check --error-on-warnings .",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests",
+    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -32,11 +33,14 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/chess-board": "workspace:*",
     "@pkgs/chess-board-core": "workspace:*",
+    "@pkgs/chess-rules": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/collab": "workspace:*",
     "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/device": "workspace:*",
+    "@pkgs/glicko2": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",
@@ -66,9 +70,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

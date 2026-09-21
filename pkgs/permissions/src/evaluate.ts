@@ -1,5 +1,5 @@
 import type { LimitKey, PermissionKey, RoleId } from './catalog';
-import type { PermissionPolicy } from './policy';
+import type { PolicyVersion } from './policy';
 import { limitsOf, permissionsOf, resolveRoleClosure } from './resolve';
 import type { Subject } from './subject';
 
@@ -19,7 +19,7 @@ export type LimitVerdict = {
 
 /** Whether the subject holds `permission`; grants are additive across roles. */
 export function can(
-  policy: PermissionPolicy,
+  policy: PolicyVersion,
   subject: Subject,
   permission: PermissionKey
 ): PermissionDecision {
@@ -37,7 +37,7 @@ export function can(
  * limits are restrictions, only roles that declare one restrict anything.
  */
 export function checkLimit(
-  policy: PermissionPolicy,
+  policy: PolicyVersion,
   subject: Subject,
   limit: LimitKey,
   usage: number

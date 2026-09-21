@@ -44,7 +44,9 @@ jobs:
   canary-dev:
     name: deploy (dev rehearsal)
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup and cache save, so
+    # turbo-ci-run's own deadline fires first and names what wedged.
+    timeout-minutes: 55
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -121,7 +123,7 @@ jobs:
     name: deploy:prd
     needs: canary-dev
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 55
     environment: production
     env:
       SECRETS_ENV: prd

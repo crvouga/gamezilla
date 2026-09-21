@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-10-13.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-2.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "50%",
   "globalDependencies": ["tsconfig.base.json"],
@@ -54,6 +54,10 @@
     },
     "kill": {
       "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["tc"],
+      "outputs": []
     },
     "tc": {
       "dependsOn": ["^tc"],
@@ -342,7 +346,8 @@
         "libs/tools/package.json"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "new-only",
+      "env": ["CHECK_CHANGED_SINCE"]
     },
     "//#lint:naming": {
       "cache": false,
@@ -424,7 +429,8 @@
         "pkgs/bun-test-solid/src/**/*.{ts,tsx}"
       ],
       "outputs": [".eslintcache"],
-      "outputLogs": "new-only"
+      "outputLogs": "new-only",
+      "env": ["CHECK_CHANGED_SINCE"]
     },
     "@apps/client#check:bundle-budget": {
       "dependsOn": ["@apps/client#build"],
@@ -473,6 +479,7 @@
         "@apps/client#check:bundle-budget",
         "tc",
         "test",
+        "@apps/product#check:test-slices",
         "@apps/server#build",
         "@apps/room-server#build",
         "@pkgs/sql-client-postgres#test:contract",
@@ -690,6 +697,67 @@
       "cache": false,
       "outputs": [],
       "outputLogs": "new-only"
+    },
+    "test:search": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/search-*.ts",
+        "tests/search-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:platform": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/non-web-host-smoke.test.ts",
+        "tests/sw-policy.test.ts",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "@apps/product#check:test-slices": {
+      "inputs": ["package.json", "scripts/check-test-slices.ts", "tests/**"],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:explore": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/product-explore.test.ts",
+        "tests/product-explore.test.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test:shell": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "tests/shell-*.ts",
+        "tests/shell-*.tsx",
+        "package.json",
+        "*.cjs",
+        "bun-*.ts"
+      ],
+      "outputLogs": "new-only",
+      "outputs": []
     }
   }
 }

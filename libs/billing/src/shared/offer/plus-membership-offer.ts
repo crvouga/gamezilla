@@ -1,7 +1,8 @@
 /**
  * The plus membership offer — source of truth for what we sell and how the
  * hosted portal is configured. Reconciled onto the provider by
- * `@pkgs/billing-stripe` (`billing:check` in CI, `billing:sync` on deploy).
+ * `@pkgs/billing-stripe` in `billing:sync`, on deploy only; `billing:check`
+ * validates this value in the PR gate without touching the provider.
  *
  * Currency amounts are integer minor units (e.g. cents). PPP-tier amounts
  * approximate USD purchasing power for each region.

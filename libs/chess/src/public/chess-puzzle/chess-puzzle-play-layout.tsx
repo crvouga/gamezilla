@@ -18,7 +18,7 @@ import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
-const noopElo = (): void => {};
+const noopRating = (): void => {};
 /** Tight inset so the square board can fill its well. */
 const BOARD_WELL_PADDING_PX = spacingScale(2);
 
@@ -145,6 +145,7 @@ function PuzzlePlayBoardWell(props: {
 
 function CelebrationLayer(props: {
   completion: Accessor<PuzzleCompletion | null>;
+  onNext: () => void;
 }): JSX.Element {
   const [dismissedKey, setDismissedKey] = createSignal<string | null>(null);
   const completion = createMemo(() => props.completion());
@@ -160,7 +161,8 @@ function CelebrationLayer(props: {
           completion={current()}
           visible={visible()}
           onClose={() => setDismissedKey(completionKey(current()))}
-          onDisplayEloChange={noopElo}
+          onNext={props.onNext}
+          onDisplayRatingChange={noopRating}
         />
       )}
     </Show>
@@ -216,7 +218,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
       <DefineBackButton onPress={props.backToRoot} />
       {props.e2eLoadingStatus}
       <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
-      <CelebrationLayer completion={props.completion} />
+      <CelebrationLayer completion={props.completion} onNext={props.onNext} />
       {props.e2eHints}
       <ChessPuzzleFeedSettingsModal
         visible={feedSettingsOpen()}

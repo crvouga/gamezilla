@@ -5,6 +5,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { formatUci } from '@pkgs/chess-rules/uci';
 import { RoomMetaAttr } from '@pkgs/room';
 import type { Accessor } from 'solid-js';
 import { createEffect, createMemo, createSignal } from 'solid-js';
@@ -23,17 +24,13 @@ import {
   StartChessPuzzlePlay,
 } from '../chess-puzzle-play';
 import {
-  PUZZLE_ELO_DEFAULT,
-  projectPuzzleEloFromInteractions,
-} from '../chess-puzzle-rating';
-import { uciFromMove } from './chess-puzzle-play-chess-utils';
-import {
   useChessPuzzleAllInteractions,
   usePuzzleEntityAndInteractions,
 } from './chess-puzzle-play-queries';
 import { useChessPuzzleCompletion } from './use-chess-puzzle-completion';
 import { useChessPuzzleInteractionRecorder } from './use-chess-puzzle-interaction-recorder';
 import { usePuzzleSolver } from './use-chess-puzzle-solver';
+import { usePuzzleAutoAdvance } from './use-puzzle-auto-advance';
 import { usePuzzleClock } from './use-puzzle-clock';
 import { usePuzzlePlayerControls } from './use-puzzle-player-controls';
 import { usePuzzlePlayerVisual } from './use-puzzle-player-visual';
@@ -127,7 +124,7 @@ function usePuzzleRecommendDispatch(): {
   return {
     recommendBump,
     onRecommendMove: (m: Move): void => {
-      const uci = uciFromMove(m);
+      const uci = formatUci(m);
       const from = uci.slice(0, 2);
       const to = uci.slice(2, 4);
       if (!isBoardSquare(from) || !isBoardSquare(to)) return;
@@ -153,13 +150,11 @@ function usePuzzlePlayerModel(args: {
   const fen = createMemo(() => entity.fen);
   const movesStr = createMemo(() => entity.movesStr);
   const rating = createMemo(() => entity.rating);
+  const ratingDeviation = createMemo(() => entity.ratingDeviation);
   const themes = createMemo(() => entity.themes);
   const interactions = createMemo(() => entity.interactions);
+  const interactionsReady = createMemo(() => entity.interactionsReady);
   const allInteractions = useChessPuzzleAllInteractions();
-  const playerElo = createMemo(() => {
-    const projected = projectPuzzleEloFromInteractions(allInteractions());
-    return projected.ratedGames > 0 ? projected.rating : PUZZLE_ELO_DEFAULT;
-  });
   const startedAtMs = useSpaceRoomSelector(
     ChessPuzzlePlayAttr.startedAtMs.from
   );
@@ -182,17 +177,19 @@ function usePuzzlePlayerModel(args: {
   const recorder = useChessPuzzleInteractionRecorder({
     puzzleId: args.puzzleId,
     puzzleRating: rating,
+    puzzleRatingDeviation: ratingDeviation,
     status: solver.status,
     solveIdx: solver.solveIdx,
     interactions,
-    allInteractions,
+    interactionsReady,
+    attemptStartedAtMs: startedAtMs,
     canRecord: isPuzzleHost,
   });
 
   return {
     puzzleId: args.puzzleId,
     rating,
-    playerElo,
+    ratingDeviation,
     themes,
     interactions,
     allInteractions,
@@ -213,7 +210,6 @@ function usePuzzlePlayerModel(args: {
     solutionRevealed: solver.solutionRevealed,
     opponentAnimating: solver.opponentAnimating,
     appendUsedHint: recorder.appendUsedHint,
-    appendAbandoned: recorder.appendAbandoned,
     setLastUci: recorder.setLastUci,
     startedAtMs,
     endedAtMs,
@@ -246,8 +242,12 @@ function usePuzzlePlayerUi(args: {
     onMoveRaw: args.m.onMoveRaw,
     setLastUci: args.m.setLastUci,
     appendUsedHint: args.m.appendUsedHint,
-    appendAbandoned: args.m.appendAbandoned,
     onRequestNext: args.onRequestNext,
+  });
+  usePuzzleAutoAdvance({
+    status: args.m.status,
+    canDrive: args.m.isPuzzleHost,
+    onNext: controls.onNext,
   });
   const visual = usePuzzlePlayerVisual({
     puzzleId: args.m.puzzleId,
@@ -316,7 +316,6 @@ function frozenPlayerModel(args: {
     puzzleId: m.puzzleId,
     rating: m.rating,
     themes: m.themes,
-    playerElo: m.playerElo,
     backToRoot: controls.backToRoot,
     assistant: visual.assistant,
     statusKind: visual.statusKind,

@@ -12,7 +12,7 @@ export function ErrorNote(props: {
       id={props.id}
       role="alert"
       data-testid={props.testId}
-      class="flex items-start gap-2 text-sm text-gm-error"
+      class="flex items-start gap-2 text-sm text-idp-error"
     >
       <Icon name="alert" class="mt-0.5 size-4 shrink-0" />
       <span>{props.children}</span>

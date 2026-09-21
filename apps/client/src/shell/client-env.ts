@@ -11,6 +11,7 @@ import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { AuthClientStorage } from '@pkgs/auth/client/bearer-token-store';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ClipboardPort } from '@pkgs/device/clipboard';
+import type { HapticsPort } from '@pkgs/device/haptics';
 import type { NetworkStatePort } from '@pkgs/device/network-state';
 import type { Kv } from '@pkgs/kv/interface';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -91,6 +92,8 @@ export type ClientEnv = {
   readonly network: NetworkStatePort;
   /** System clipboard write (copy device id, avatar seed, …). */
   readonly clipboard: ClipboardPort;
+  /** Haptic feedback (puzzle solved / wrong move, …). */
+  readonly haptics: HapticsPort;
   readonly audio: AudioPlaybackPort;
   readonly devMenu: DevMenuPort;
   /**

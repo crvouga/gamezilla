@@ -17,7 +17,7 @@ import {
 } from '../src/sim';
 import { openSim } from '../src/test/setup/open-sim';
 
-const DEFAULT_ELO = 1200;
+const DEFAULT_ELO = 1500;
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */
 function required<T>(value: T | null | undefined, what: string): T {
   if (value === null || value === undefined) {
@@ -54,7 +54,9 @@ describe('chess puzzle stats', () => {
     await s.apply(openPuzzleReview, 'alice', puzzleId);
   });
 
-  test('leaving mid-attempt forfeits it: Abandoned row and Elo drop', async () => {
+  // §5: the wrong move itself is the loss (recorded once, rating drops at
+  // once); leaving afterwards adds nothing.
+  test('a wrong move drops Elo and logs a Failed row', async () => {
     await using s = await openSim('chess-puzzle-stats-abandon');
     await enterPuzzle(s);
     const puzzleId = required(
@@ -69,6 +71,6 @@ describe('chess puzzle stats', () => {
     const elo = required(await s.read(readStatsElo, 'alice'), 'stats elo');
     expect(elo).toBeLessThan(DEFAULT_ELO);
     const title = await s.read(readGameLogRowTitle, 'alice', puzzleId);
-    expect(title).toMatch(/^Abandoned/);
+    expect(title).toMatch(/^Failed/);
   });
 });

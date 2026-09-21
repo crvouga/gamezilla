@@ -7,6 +7,7 @@
  * invent a screen the other does not have.
  */
 
+import { IDP_BRAND } from './brand';
 import {
   IDP_AUTHORIZE_BACK_PATH,
   IDP_AUTHORIZE_CREATE_PATH,
@@ -115,11 +116,11 @@ export function titleOf(state: IdpScreenState): string {
     case 'chooser':
       return 'Choose an account';
     case 'create-account':
-      return 'Create your Google Account';
+      return `Create your ${IDP_BRAND.name} account`;
     case 'error':
-      return 'Error - Google Accounts';
+      return `Error · ${IDP_BRAND.name}`;
     default:
-      return 'Sign in - Google Accounts';
+      return `Sign in · ${IDP_BRAND.name}`;
   }
 }
 

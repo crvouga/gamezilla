@@ -214,6 +214,10 @@ msgstr "Add…"
 msgid "Adjust feed"
 msgstr "Adjust feed"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
+msgid "After 1 s"
+msgstr "After 1 s"
+
 #: libs/notifications/src/root/client/notifications-filter-bar.tsx
 msgid "All"
 msgstr "All"
@@ -275,6 +279,10 @@ msgstr "Auto"
 msgid "Auto · {0}"
 msgstr "Auto · {0}"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
+msgid "Auto-advance"
+msgstr "Auto-advance"
+
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Avatar"
@@ -303,10 +311,6 @@ msgstr "Best streak"
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Billing"
 msgstr "Billing"
-
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
-msgid "Black to move"
-msgstr "Black to move"
 
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 #: libs/friends/src/root/client/use-friend-user-overflow-menu.tsx
@@ -584,6 +588,10 @@ msgstr "Couldn't rename space"
 msgid "Couldn't save"
 msgstr "Couldn't save"
 
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "Create an account"
+msgstr "Create an account"
+
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
 msgstr "Created"
@@ -767,10 +775,6 @@ msgstr "e.g. ff5733"
 msgid "Edit profile"
 msgstr "Edit profile"
 
-#: libs/chess/src/public/chess-main-menu-view.tsx
-msgid "Elo trend and game log"
-msgstr "Elo trend and game log"
-
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
@@ -795,10 +799,6 @@ msgstr "End space"
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
-
-#: libs/spaces/src/root/client/card/recent-space-card.tsx
-msgid "Ended"
-msgstr "Ended"
 
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
@@ -834,6 +834,15 @@ msgstr "Expand all"
 #: libs/notifications/src/root/client/notifications-screen.tsx
 msgid "Failed"
 msgstr "Failed"
+
+#. placeholder {0}: props.puzzleRating
+#: libs/chess/src/public/chess-puzzle/chess-game-log-row.tsx
+msgid "Failed · {0}"
+msgstr "Failed · {0}"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-review-screen.tsx
+msgid "Failed · {puzzleRating}"
+msgstr "Failed · {puzzleRating}"
 
 #: pkgs/ui/src/components/combobox/combobox-body.tsx
 #: pkgs/ui/src/components/data-table/data-table-status.tsx
@@ -886,7 +895,7 @@ msgstr "fps"
 msgid "Frames per second"
 msgstr "Frames per second"
 
-#: apps/client/src/screens/more/settings-screen.tsx
+#: libs/permissions/src/public/use-access-label.tsx
 msgid "Free"
 msgstr "Free"
 
@@ -945,6 +954,7 @@ msgstr "Google"
 
 #: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
+#: libs/permissions/src/public/use-access-label.tsx
 msgid "Guest"
 msgstr "Guest"
 
@@ -983,6 +993,10 @@ msgstr "hud"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
 msgstr "I can't fetch puzzles without a connection. Come back online and we'll pick up here."
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
+msgid "Immediately"
+msgstr "Immediately"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 msgid "Include played puzzles"
@@ -1040,6 +1054,14 @@ msgstr "Joined"
 #: libs/spaces/src/root/client/join-space/space-join-button.tsx
 msgid "Joining…"
 msgstr "Joining…"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Jump to end"
+msgstr "Jump to end"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Jump to start"
+msgstr "Jump to start"
 
 #: pkgs/ui/src/components/relative-time/relative-time.tsx
 msgid "just now"
@@ -1165,6 +1187,10 @@ msgstr "Model"
 msgid "More"
 msgstr "More"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
+msgid "Move on to the next puzzle by itself after a solve."
+msgstr "Move on to the next puzzle by itself after a solve."
+
 #: pkgs/ui/src/components/speaking-avatar/speaking-avatar.tsx
 msgid "Mute coach"
 msgstr "Mute coach"
@@ -1205,6 +1231,14 @@ msgstr "New version available — reload to update"
 #: pkgs/ui/src/components/pagination-controls/pagination-controls.tsx
 msgid "Next"
 msgstr "Next"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Next move"
+msgstr "Next move"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
+msgid "Next puzzle"
+msgstr "Next puzzle"
 
 #: apps/client/src/shell/commands/app-commands.tsx
 msgid "night"
@@ -1312,6 +1346,14 @@ msgstr "No spaces yet"
 msgid "None"
 msgstr "None"
 
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "Not available"
+msgstr "Not available"
+
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "Not available on this account"
+msgstr "Not available on this account"
+
 #: apps/client/src/routes/stubs/not-found.tsx
 msgid "Not found"
 msgstr "Not found"
@@ -1348,6 +1390,7 @@ msgstr "Observability"
 
 #: apps/client/src/screens/more/performance-screen.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Off"
 msgstr "Off"
@@ -1415,7 +1458,7 @@ msgstr "Page not found"
 msgid "Pagination"
 msgstr "Pagination"
 
-#: apps/client/src/screens/more/settings-screen.tsx
+#: libs/permissions/src/public/use-access-label.tsx
 msgid "Paid"
 msgstr "Paid"
 
@@ -1515,6 +1558,10 @@ msgstr "Preferences and developer tools"
 msgid "Previous"
 msgstr "Previous"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
+msgid "Previous move"
+msgstr "Previous move"
+
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Private spaces only sync for people you add here."
 msgstr "Private spaces only sync for people you add here."
@@ -1541,6 +1588,10 @@ msgstr "Puzzle"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
 msgid "Puzzle abandoned"
 msgstr "Puzzle abandoned"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-celebration-overlay.tsx
+msgid "Puzzle failed"
+msgstr "Puzzle failed"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Puzzle feed"
@@ -1584,6 +1635,10 @@ msgstr "Randomize"
 msgid "Rating offset"
 msgstr "Rating offset"
 
+#: libs/chess/src/public/chess-main-menu-view.tsx
+msgid "Rating trend and game log"
+msgstr "Rating trend and game log"
+
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Ready"
 msgstr "Ready"
@@ -1591,10 +1646,6 @@ msgstr "Ready"
 #: libs/search/src/root/client/search-recent-queries.tsx
 msgid "Recent"
 msgstr "Recent"
-
-#: libs/spaces/src/root/client/card/recent-spaces-section.tsx
-msgid "Recent spaces"
-msgstr "Recent spaces"
 
 #: apps/client/src/shell/pwa/update-prompt.tsx
 msgid "Reload"
@@ -1648,6 +1699,14 @@ msgstr "Reset"
 #: apps/client/src/shell/sync/boot-error-screen.tsx
 msgid "Reset local data and reload"
 msgstr "Reset local data and reload"
+
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "Resets in {hours} h"
+msgstr "Resets in {hours} h"
+
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "Resets in {minutes} min"
+msgstr "Resets in {minutes} min"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-action-bar-items.tsx
 #: pkgs/ui/src/components/error-state/error-state.tsx
@@ -1735,7 +1794,7 @@ msgstr "Security"
 msgid "See below"
 msgstr "See below"
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+#: libs/permissions/src/public/unlock-copy.tsx
 msgid "See plans"
 msgstr "See plans"
 
@@ -1829,6 +1888,10 @@ msgstr "Sign in"
 #: libs/friends/src/root/client/friends-permission-gate.tsx
 msgid "Sign in to add friends"
 msgstr "Sign in to add friends"
+
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "Sign in to continue"
+msgstr "Sign in to continue"
 
 #: libs/user-search/src/public/use-user-search.tsx
 msgid "Sign in to search for people"
@@ -2145,6 +2208,10 @@ msgstr "Target rating: {0}"
 msgid "Text to speech"
 msgstr "Text to speech"
 
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
+msgid "That's all the puzzles for now. The board opens again when your allowance resets."
+msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
 msgid "The host hasn't started a puzzle yet."
 msgstr "The host hasn't started a puzzle yet."
@@ -2257,11 +2324,19 @@ msgid "Unmute coach"
 msgstr "Unmute coach"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
+msgid "Unrated"
+msgstr "Unrated"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-rating-delta.tsx
+msgid "Unrated · already played"
+msgstr "Unrated · already played"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-bar.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Unseen"
 msgstr "Unseen"
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+#: libs/permissions/src/public/unlock-copy.tsx
 msgid "Upgrade for unlimited puzzles, or come back tomorrow."
 msgstr "Upgrade for unlimited puzzles, or come back tomorrow."
 
@@ -2323,10 +2398,6 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
-msgid "White to move"
-msgstr "White to move"
-
 #: libs/notifications/src/public/notification-card-default.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Working…"
@@ -2382,13 +2453,13 @@ msgstr "You're signed out on this device."
 msgid "You've cleared everything in your feed. Widen the filters and let's keep going."
 msgstr "You've cleared everything in your feed. Widen the filters and let's keep going."
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+#: libs/permissions/src/public/unlock-copy.tsx
 msgid "You've hit today's puzzle limit"
 msgstr "You've hit today's puzzle limit"
 
-#: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
-msgid "You've used today's puzzles. Upgrade for unlimited play, or come back tomorrow."
-msgstr "You've used today's puzzles. Upgrade for unlimited play, or come back tomorrow."
+#: libs/permissions/src/public/unlock-copy.tsx
+msgid "You've used this for now"
+msgstr "You've used this for now"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "you@example.com"
@@ -2409,6 +2480,14 @@ msgstr "Your live spaces"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Your rating"
 msgstr "Your rating"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Your turn — find the best move for Black"
+msgstr "Your turn — find the best move for Black"
+
+#: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+msgid "Your turn — find the best move for White"
+msgstr "Your turn — find the best move for White"
 
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 msgid "your_handle"

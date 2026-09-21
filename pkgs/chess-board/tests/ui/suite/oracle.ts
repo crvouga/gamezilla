@@ -4,6 +4,7 @@
  */
 
 import type { Square } from '@pkgs/chess-board-core/types';
+import { castlingRookTargets } from '@pkgs/chess-rules/moves';
 import { Chess, type Move as ChessJsMove } from 'chess.js';
 
 export const FEN = {
@@ -41,9 +42,18 @@ function verboseMoves(fen: string, square?: Square): ChessJsMove[] {
     : chess.moves({ square, verbose: true });
 }
 
-/** Sorted distinct legal destinations of the piece on `square`. */
+/**
+ * Sorted distinct legal destinations of the piece on `square`. A king also
+ * lists its own rook's square for every legal castle: the board accepts
+ * king-onto-own-rook as castling input (spec §3).
+ */
 export function legalTargets(fen: string, square: Square): readonly Square[] {
-  return [...new Set(verboseMoves(fen, square).map((m) => m.to))].sort();
+  const moves = verboseMoves(fen, square);
+  const targets = new Set<Square>(moves.map((m) => m.to));
+  for (const rook of castlingRookTargets(new Chess(fen), square)) {
+    targets.add(rook as Square);
+  }
+  return [...targets].sort();
 }
 
 /** FEN after playing `uci` (e.g. `e2e4`, `a7a8q`) from `fen`. */

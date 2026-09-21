@@ -10,16 +10,10 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
-import {
-  assertDevSecretsEnv,
-  PRODUCTION_SECRETS_ENV,
-} from '@pkgs/database-url-policy';
-import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
+import { PRODUCTION_SECRETS_ENV } from '@pkgs/database-url-policy';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
-import { createScriptSecretStore } from '@pkgs/secret-store';
-import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { raw } from '@pkgs/sql';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres/connect';
@@ -28,6 +22,9 @@ import {
   CHESS_PUZZLES_LOAD_EXPORT_SQL,
   resolveChessPuzzlesLoadFilePath,
 } from './load-file';
+import { PuzzleIngestTally } from './puzzle-ingest';
+import type { PuzzleTableRow } from './row';
+import { resolveToolingDatabaseUrl } from './tooling-database-url';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 const configStore = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
@@ -73,7 +70,7 @@ function cellToCsv(value: unknown): string {
   return csvEscape(JSON.stringify(value));
 }
 
-function rowsToCsv(rows: readonly ExportRow[]): string {
+function rowsToCsv(rows: readonly PuzzleTableRow[]): string {
   const header = CHESS_PUZZLES_LOAD_CSV_COLUMNS.join(',');
   const lines = rows.map((row) =>
     CHESS_PUZZLES_LOAD_CSV_COLUMNS.map((col) => cellToCsv(row[col])).join(',')
@@ -89,32 +86,19 @@ export async function exportChessPuzzlesLoadFile(
     name: 'chess:export-puzzles-load',
     now: wallClock.now,
   });
-  const store = createScriptSecretStore();
-  const secretsEnv =
-    process.env['SECRETS_ENV']?.trim() ||
-    (await resolveSecretsScope(configStore)).env;
-  if (secretsEnv === PRODUCTION_SECRETS_ENV && !confirmProd) {
-    assert.fail(
-      'export:puzzles-load: refusing SECRETS_ENV=prd without --confirm-prod'
-    );
-  }
-  if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
-    assertDevSecretsEnv(secretsEnv);
-  }
-  const databaseUrl = (
-    await store.getRequired('DATABASE_URL')
-  ).readSecretValue();
-  await assertDatabaseUrlAllowedForSecretsEnvForTooling(
-    databaseUrl,
-    secretsEnv,
-    {
-      deps: {
-        repoRoot: REPO_ROOT,
-        fetchFn: (input, init) => createGlobalHttpClient().fetch(input, init),
-      },
-      context: { surface: 'chess:export-puzzles-load' },
-    }
-  );
+  const { databaseUrl, secretsEnv } = await resolveToolingDatabaseUrl({
+    configStore,
+    http: createGlobalHttpClient(),
+    repoRoot: REPO_ROOT,
+    surface: 'chess:export-puzzles-load',
+    guardSecretsEnv: (env) => {
+      if (env === PRODUCTION_SECRETS_ENV && !confirmProd) {
+        assert.fail(
+          'export:puzzles-load: refusing SECRETS_ENV=prd without --confirm-prod'
+        );
+      }
+    },
+  });
 
   const outPath = resolveChessPuzzlesLoadFilePath();
   const { sqlClient } = await openPgClient({
@@ -123,14 +107,21 @@ export async function exportChessPuzzlesLoadFile(
     clientOptions: { application_name: 'export:puzzles-load' },
   });
   try {
-    const rows = await sqlClient.query(
+    const stored = await sqlClient.query(
       raw<ExportRow>(CHESS_PUZZLES_LOAD_EXPORT_SQL)
     );
+    // §23: only rows that pass the validation pass reach the load file.
+    const tally = new PuzzleIngestTally();
+    const rows = stored.flatMap((row) => {
+      const tableRow = tally.accept(row);
+      return tableRow === null ? [] : [tableRow];
+    });
     await mkdir(dirname(outPath), { recursive: true });
     await writeFile(outPath, rowsToCsv(rows), 'utf8');
     log.info('export:puzzles-load wrote load file', {
       outPath,
       rowCount: rows.length,
+      skipped: tally.skipped(),
       secretsEnv,
     });
     return { outPath, rowCount: rows.length };

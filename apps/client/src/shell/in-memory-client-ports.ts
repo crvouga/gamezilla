@@ -6,6 +6,7 @@
 
 import type { DevMenuItem, DevMenuPort } from '@apps/client/device/ports';
 import { createRecordingClipboard } from '@pkgs/device/clipboard';
+import { createRecordingHaptics } from '@pkgs/device/haptics';
 import { createInMemoryNetworkStatePort } from '@pkgs/device/network-state';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
@@ -17,6 +18,7 @@ export type InMemoryClientPorts = Pick<
   ClientEnv,
   | 'network'
   | 'clipboard'
+  | 'haptics'
   | 'audio'
   | 'devMenu'
   | 'objectStore'
@@ -39,6 +41,7 @@ export function createInMemoryClientPorts(label: string): InMemoryClientPorts {
   return {
     network: createInMemoryNetworkStatePort(),
     clipboard: createRecordingClipboard(),
+    haptics: createRecordingHaptics(),
     audio: createInMemoryAudioPlaybackPort(),
     devMenu: createInMemoryDevMenuPort(),
     objectStore: new ObjectStoreImplInMemory(),

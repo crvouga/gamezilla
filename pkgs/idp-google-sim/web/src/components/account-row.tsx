@@ -9,23 +9,23 @@ export function AccountRow(props: {
 }) {
   return (
     <button
-      class="flex min-h-14 w-full items-center gap-4 rounded-lg px-3 py-2 text-left hover:bg-gm-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gm-primary"
+      class="flex min-h-14 w-full items-center gap-4 rounded-lg px-3 py-2 text-left hover:bg-idp-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-idp-primary"
       type="submit"
       name="sub"
       value={props.account.sub}
       data-testid={props.testId}
     >
       <span
-        class="grid size-8 shrink-0 place-items-center rounded-full bg-white text-sm font-medium text-gm-primary ring-1 ring-gm-divider"
+        class="grid size-8 shrink-0 place-items-center rounded-full bg-white text-sm font-medium text-idp-primary ring-1 ring-idp-divider"
         aria-hidden="true"
       >
         {initials(props.account.name)}
       </span>
       <span class="flex min-w-0 flex-col">
-        <span class="truncate text-sm font-medium text-gm-on-surface">
+        <span class="truncate text-sm font-medium text-idp-on-surface">
           {props.account.name}
         </span>
-        <span class="truncate text-sm text-gm-on-surface-variant">
+        <span class="truncate text-sm text-idp-on-surface-variant">
           {props.account.email}
         </span>
       </span>

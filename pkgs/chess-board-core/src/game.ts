@@ -6,6 +6,10 @@
  */
 
 import {
+  castlingFromRookInput,
+  castlingRookTargets,
+} from '@pkgs/chess-rules/moves';
+import {
   Chess,
   type Move as ChessJsMove,
   type Square as ChessSquare,
@@ -58,14 +62,25 @@ export type ChessGameSnapshot = {
  * state (drop path only needs check + game-over; avoids the fan-out of
  * isCheckmate / isStalemate / isDraw which each re-scan moves).
  */
+function playOnChess(chess: Chess, m: MoveInput): ChessJsMove {
+  const input = {
+    from: m.from,
+    to: m.to,
+    ...(m.promotion ? { promotion: m.promotion } : {}),
+  };
+  try {
+    return chess.move(input);
+  } catch (error) {
+    // A king dropped on its own rook stands for that castle (spec §3).
+    const castle = castlingFromRookInput(chess, input);
+    if (castle === null) throw error;
+    return chess.move(castle);
+  }
+}
+
 export function tryMoveOnChess(chess: Chess, m: MoveInput): TryMoveResult {
   try {
-    const result = chess.move({
-      from: m.from,
-      to: m.to,
-      ...(m.promotion ? { promotion: m.promotion } : {}),
-    });
-    const move = moveFromChessJs(result);
+    const move = moveFromChessJs(playOnChess(chess, m));
     const inCheck = chess.inCheck();
     const isGameOver = chess.isGameOver();
     return {
@@ -146,13 +161,18 @@ export class ChessGame {
     for (const listener of [...this.listeners]) listener();
   }
 
-  /** Distinct destination squares reachable from `from` (promotions deduped). */
+  /**
+   * Distinct destination squares reachable from `from` (promotions deduped).
+   * A king also lists its own rook's square for every legal castle, so a tap
+   * or drop on the rook castles instead of re-selecting the rook.
+   */
   legalMovesFrom(from: Square): readonly Square[] {
     const moves = this.chess.moves({
       square: from as unknown as ChessSquare,
       verbose: true,
     }) as ChessJsMove[];
     const targets = new Set(moves.map((m) => String(m.to)));
+    for (const rook of castlingRookTargets(this.chess, from)) targets.add(rook);
     return [...targets].filter(isSquare);
   }
 

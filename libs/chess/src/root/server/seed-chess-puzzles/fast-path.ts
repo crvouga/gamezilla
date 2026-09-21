@@ -3,10 +3,16 @@
  */
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
-import { bulk, raw, sql } from '@pkgs/sql';
+import { bulk, join, raw, sql } from '@pkgs/sql';
 
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlClient, SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import {
+  type ExistingPuzzleKey,
+  type PuzzleIngestTally,
+  type PuzzleInsertOutcome,
+  partitionPuzzleBatch,
+} from './puzzle-ingest';
 import type { PuzzleSeedReporter } from './reporter';
 import type { PuzzleBatchEntry, PuzzleTableRow } from './row';
 
@@ -29,7 +35,8 @@ function insertPuzzlesBatchQuery(rows: readonly PuzzleInsertRow[]) {
       nb_plays,
       themes,
       game_url,
-      opening_tags
+      opening_tags,
+      position_key
     )
     VALUES ${bulk(
       rows.map((row) => [
@@ -45,10 +52,24 @@ function insertPuzzlesBatchQuery(rows: readonly PuzzleInsertRow[]) {
         row.themes,
         row.game_url,
         row.opening_tags,
+        row.position_key,
       ])
     )}
-    ON CONFLICT (id) DO NOTHING
+    ON CONFLICT DO NOTHING
   `;
+}
+
+/** Stored rows sharing an id or a position key with the batch. */
+async function readExistingKeys(
+  tx: Pick<SqlTx, 'query'>,
+  rows: readonly PuzzleTableRow[]
+): Promise<ExistingPuzzleKey[]> {
+  return tx.query(sql<ExistingPuzzleKey>`
+    SELECT id, position_key
+    FROM chess_puzzles
+    WHERE id IN (${join(rows.map((row) => row.id))})
+      OR position_key IN (${join(rows.map((row) => row.position_key))})
+  `);
 }
 
 const SEEDED_TABLES: readonly string[] = ['chess_puzzles'];
@@ -76,13 +97,16 @@ export type SeedStats = {
   lastPuzzleId: string | null;
   startedAt: number;
   batch: PuzzleBatchEntry[];
+  tally: PuzzleIngestTally;
 };
 
 export function createSeedStats(
   initialCursor: string | null,
-  now: Clock['now']
+  now: Clock['now'],
+  tally: PuzzleIngestTally
 ): SeedStats {
   return {
+    tally,
     processed: 0,
     rowsInserted: 0,
     batchesFlushed: 0,
@@ -145,24 +169,45 @@ export class PuzzleSeedFastPath {
     return new Promise((res) => timers.setTimeout(res, ms));
   }
 
-  /** Bulk insert puzzle rows; returns accepted row count (`ON CONFLICT DO NOTHING`). */
+  /**
+   * Bulk insert validated puzzle rows, skipping ids already stored and
+   * position + solution duplicates (§23). `ON CONFLICT DO NOTHING` stays as
+   * the backstop for both unique keys.
+   */
   async insertPuzzleTableRows(
     rows: readonly PuzzleTableRow[],
     io: InsertPuzzleTableRowsIo
-  ): Promise<number> {
-    if (rows.length === 0) return 0;
+  ): Promise<PuzzleInsertOutcome> {
+    if (rows.length === 0) {
+      return { inserted: 0, duplicateId: 0, duplicatePosition: 0 };
+    }
     const nowIso = new Date(io.now()).toISOString();
-    const insertRows: PuzzleInsertRow[] = rows.map((row) => ({
-      ...row,
-      created_at: nowIso,
-      updated_at: nowIso,
-    }));
-    let rowChanges = 0;
+    let outcome: PuzzleInsertOutcome = {
+      inserted: 0,
+      duplicateId: 0,
+      duplicatePosition: 0,
+    };
     await this.db.transaction(async (tx) => {
-      const res = await tx.run(insertPuzzlesBatchQuery(insertRows));
-      rowChanges = res.changes;
+      const split = partitionPuzzleBatch(
+        rows,
+        await readExistingKeys(tx, rows)
+      );
+      const insertRows: PuzzleInsertRow[] = split.novel.map((row) => ({
+        ...row,
+        created_at: nowIso,
+        updated_at: nowIso,
+      }));
+      const res =
+        insertRows.length === 0
+          ? { changes: 0 }
+          : await tx.run(insertPuzzlesBatchQuery(insertRows));
+      outcome = {
+        inserted: res.changes,
+        duplicateId: split.duplicateId,
+        duplicatePosition: split.duplicatePosition,
+      };
     });
-    return rowChanges;
+    return outcome;
   }
 
   async flushPuzzleBatchFast(args: {
@@ -174,10 +219,12 @@ export class PuzzleSeedFastPath {
     const { reporter, state, createId, now } = args;
     if (state.batch.length === 0) return;
     const chunkStart = now();
-    const rowChanges = await this.insertPuzzleTableRows(
+    const outcome = await this.insertPuzzleTableRows(
       state.batch.map((b) => b.row),
       { createId, now }
     );
+    const rowChanges = outcome.inserted;
+    state.tally.recordInsert(outcome);
     state.rowsInserted += rowChanges;
     state.batchesFlushed += 1;
     state.batch.length = 0;
@@ -185,6 +232,7 @@ export class PuzzleSeedFastPath {
       processed: state.processed,
       rowsInserted: state.rowsInserted,
       batchRowsAccepted: rowChanges,
+      skipped: state.tally.skipped(),
       batchMs: Math.round(now() - chunkStart),
       lastPuzzleId: state.lastPuzzleId,
     });

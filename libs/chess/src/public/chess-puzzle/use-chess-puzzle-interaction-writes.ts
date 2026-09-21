@@ -1,12 +1,12 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { useMutationClient } from '@libs/auth/public/use-mutation-client';
-import { useClock } from '@pkgs/clock/solid';
 import { useCreateId } from '@pkgs/uuid/solid';
 import type { Accessor } from 'solid-js';
 
 import type {
   ChessPuzzleInteractionKind,
   ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
 } from '../chess-puzzle-interaction-entities';
 import { ChessPuzzleInteractionDb } from './chess-puzzle-interaction-db';
 
@@ -19,20 +19,19 @@ type AppendExtra = {
 export function useChessPuzzleInteractionWrites(args: {
   puzzleId: Accessor<string>;
   puzzleRating: Accessor<number>;
+  puzzleRatingDeviation: Accessor<number>;
   solveIdx: Accessor<number>;
   interactions: Accessor<readonly ChessPuzzleInteractionRow[]>;
-  allInteractions: Accessor<readonly ChessPuzzleInteractionRow[]>;
 }): {
   appendInteraction: (
     kind: ChessPuzzleInteractionKind,
     extra?: AppendExtra
   ) => Promise<void>;
-  finalizePlay: (terminalKind: 'solved' | 'abandoned') => Promise<void>;
+  finalizePlay: (terminalKind: ChessPuzzleOutcomeKind) => Promise<void>;
 } {
   const myId = useMyId();
   const mutationClient = useMutationClient();
   const createId = useCreateId();
-  const clock = useClock();
   const interactionDb = new ChessPuzzleInteractionDb(mutationClient, createId);
 
   const appendInteraction = async (
@@ -52,18 +51,17 @@ export function useChessPuzzleInteractionWrites(args: {
   };
 
   const finalizePlay = async (
-    terminalKind: 'solved' | 'abandoned'
+    terminalKind: ChessPuzzleOutcomeKind
   ): Promise<void> => {
     if (myId().length === 0) return;
-    await interactionDb.finalizePlayWithProfile({
+    await interactionDb.finalizeRatedAttempt({
       ownerId: myId(),
       puzzleId: args.puzzleId(),
       puzzleRating: args.puzzleRating(),
+      puzzleRatingDeviation: args.puzzleRatingDeviation(),
       solveIdx: args.solveIdx(),
       interactions: args.interactions(),
-      allInteractions: args.allInteractions(),
       terminalKind,
-      clock,
     });
   };
 

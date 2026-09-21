@@ -131,6 +131,26 @@ export async function openPuzzlePlay(
   await expectPlayReady(s, actorId);
 }
 
+/** §5 result panel CTA: "Next puzzle" inside the summary. */
+export async function pressPuzzleSummaryNext(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessPuzzleSummaryNext).tap({ timeoutMs: WAIT_MS });
+}
+
+/** Re-open the puzzle board from the chess main menu (already inside chess). */
+export async function openPuzzleFromChessMenu(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+  await expectPlayReady(s, actorId);
+}
+
 async function waitExpectedUci(
   s: ProductSim,
   actorId: string
@@ -229,6 +249,18 @@ export async function readActivePuzzleId(
   actorId: string
 ): Promise<string | null> {
   const value = await readPickStatusField(s, actorId, 'active');
+  if (value === undefined || value === 'null' || value.length === 0) {
+    return null;
+  }
+  return value;
+}
+
+/** The prefetched next puzzle id (pick status), before Next is pressed. */
+export async function readNextPuzzleId(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  const value = await readPickStatusField(s, actorId, 'pick');
   if (value === undefined || value === 'null' || value.length === 0) {
     return null;
   }
@@ -408,6 +440,35 @@ export async function readPuzzleStatusKind(
   return probe?.statusKind ?? null;
 }
 
+/** §9 half-window the pick used, from the pick-status probe. */
+export async function readPuzzleSelectionWindow(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  const raw = await readPickStatusField(s, actorId, 'window');
+  if (raw === undefined) return null;
+  const n = Number.parseInt(raw, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Where the served puzzle came from: `unseen` / `widened` / `exhausted`. */
+export async function readPuzzlePickSource(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  return (await readPickStatusField(s, actorId, 'source')) ?? null;
+}
+
+/** Whether the attempt on the board can still move the rating (§8 / §9). */
+export async function isPuzzleAttemptRated(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean | null> {
+  const raw = await readPickStatusField(s, actorId, 'rated');
+  if (raw === undefined) return null;
+  return raw === '1';
+}
+
 /** Pick state from the hidden pick-status probe (`ready`, `waiting`, …). */
 export async function readPuzzlePickState(
   s: ProductSim,
@@ -552,6 +613,16 @@ export async function openChessStats(
   await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
 }
 
+/** Back arrow on the stats screen → chess main menu. */
+export async function leaveChessStats(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+}
+
 export async function readStatsElo(
   s: ProductSim,
   actorId: string
@@ -559,6 +630,58 @@ export async function readStatsElo(
   try {
     const ui = await actorUi(s, actorId);
     const raw = stripProbe(await ui.get(Handles.chessStatsElo).text());
+    const n = Number.parseInt(raw, 10);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Raw rating chip text on the stats screen — `1500` or `1500?` (§8). */
+export async function readStatsRatingLabel(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return stripProbe(await ui.get(Handles.chessStatsElo).text()).trim();
+  } catch {
+    return null;
+  }
+}
+
+/** §15 P0 stat tile: rated attempts counted in the ledger. */
+export async function readStatsPlayed(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  return readStatTile(s, actorId, Handles.chessStatsPlayed);
+}
+
+/** §15 P0 stat tile: rated attempts that ended solved. */
+export async function readStatsSolved(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  return readStatTile(s, actorId, Handles.chessStatsSolved);
+}
+
+/** §15 P0 stat tile: overall accuracy, as a whole percentage. */
+export async function readStatsAccuracy(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  return readStatTile(s, actorId, Handles.chessStatsAccuracy);
+}
+
+async function readStatTile(
+  s: ProductSim,
+  actorId: string,
+  handle: string
+): Promise<number | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const raw = stripProbe(await ui.get(handle).text()).replace('%', '');
     const n = Number.parseInt(raw, 10);
     return Number.isFinite(n) ? n : null;
   } catch {
@@ -624,6 +747,17 @@ export async function isEmptyPoolVisible(
   const frame = ui.get(Handles.chessPuzzleBoardFrame);
   if (await frame.isVisible()) await frame.layout();
   return ui.get(Handles.chessPuzzleEmptyPool).isVisible();
+}
+
+/** The permission denial surface that replaces the board at the limit. */
+export async function isPuzzleLimitVisible(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  const frame = ui.get(Handles.chessPuzzleBoardFrame);
+  if (await frame.isVisible()) await frame.layout();
+  return ui.get(Handles.chessPuzzleLimit).isVisible();
 }
 
 /** Primary action on the exhausted-feed block ("Include played puzzles"). */

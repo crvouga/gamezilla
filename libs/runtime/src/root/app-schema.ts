@@ -4,6 +4,7 @@ import { CHESS_TABLES } from '@libs/chess/public/schema';
 import { CLIENT_CONFIG_TABLES } from '@libs/client-config/public/schema';
 import { FRIENDS_TABLES } from '@libs/friends/public/schema';
 import { NOTIFICATIONS_TABLES } from '@libs/notifications/public/schema';
+import { PERMISSIONS_TABLES } from '@libs/permissions/public/schema';
 import { PROFILE_TABLES } from '@libs/profile/public/schema';
 import { SPACES_TABLES } from '@libs/spaces/public/schema';
 import {
@@ -21,6 +22,7 @@ const ALL_TABLES = [
   ...CLIENT_CONFIG_TABLES,
   ...NOTIFICATIONS_TABLES,
   ...BILLING_TABLES,
+  ...PERMISSIONS_TABLES,
 ] as const;
 
 /** Registered domain ids for composed app schema tables. */

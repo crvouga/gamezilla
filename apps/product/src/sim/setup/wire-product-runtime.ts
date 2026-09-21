@@ -56,6 +56,19 @@ export function wireProductRuntime(
       entries.set(id, entry);
       return entry.handle;
     },
+    /**
+     * Kill the app and open it again on the same device: the UI and the live
+     * client go away, the local database / secure storage namespace stay.
+     */
+    async restartActor(id) {
+      const existing = entries.get(id);
+      if (existing !== undefined) {
+        await closeActorEntry(existing);
+        entries.delete(id);
+      }
+      surface.actors.delete(id);
+      await surface.sim.dropClient(id);
+    },
     async resetActor(id) {
       const existing = entries.get(id);
       if (existing !== undefined) {

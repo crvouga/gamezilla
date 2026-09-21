@@ -29,6 +29,16 @@ export const resetActor = defineAction({
   },
 });
 
+/** App killed and reopened (same device, same storage). */
+export const restartApp = defineAction({
+  name: 'restartApp',
+  pool: false,
+  act: async (s: ProductSim, id: string) => {
+    await s.runtime.restartActor(id);
+    await ensureActor(s, id);
+  },
+});
+
 export const partition = defineAction({
   name: 'partition',
   enabled: (s: ProductSim) =>

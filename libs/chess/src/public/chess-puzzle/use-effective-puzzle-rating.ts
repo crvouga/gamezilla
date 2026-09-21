@@ -12,7 +12,7 @@ import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 
 type PuzzleRatingValueRow = { readonly value: number };
 
-/** Profile Elo from the synced profile row, or the default seed rating. */
+/** Profile rating from the synced profile row, or the default seed rating. */
 export function usePuzzleProfileRating(): Accessor<number> {
   const myId = useMyId();
   const query = createMemo(

@@ -22,6 +22,7 @@
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-core": "workspace:*",
+    "@pkgs/chess-rules": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",

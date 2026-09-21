@@ -1,5 +1,8 @@
 /**
- * Seeds `chess_puzzles` from the committed CSV load file (local sidecar boot).
+ * Seeds `chess_puzzles` from a committed CSV (local sidecar boot, sims).
+ * Accepts the load-file shape (`id,fen,moves,…`, JSON themes) and the raw
+ * Lichess shape (`PuzzleId,FEN,Moves,…`); every record goes through the §23
+ * validation pass and the same deduping bulk insert as the streaming seed.
  */
 import type { Clock } from '@pkgs/clock';
 import type { DatabaseSeeder, DatabaseSeederContext } from '@pkgs/db-migrate';
@@ -9,6 +12,7 @@ import type { CreateId } from '@pkgs/uuid';
 import { parse } from 'csv-parse/sync';
 import { PuzzleSeedFastPath } from './fast-path';
 import { CHESS_PUZZLES_LOAD_FILE_RELATIVE } from './load-file-constants';
+import { PuzzleIngestTally, type PuzzleSkipReason } from './puzzle-ingest';
 import type { PuzzleTableRow } from './row';
 
 const BATCH_SIZE = 250;
@@ -20,56 +24,12 @@ export type ChessPuzzleLoadFileSeederArgs = {
   readonly now: Clock['now'];
 };
 
-function readNonNegativeInt(raw: unknown): number {
-  const n = Number.parseInt(String(raw ?? ''), 10);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function jsonCellToString(raw: unknown): string {
-  if (raw === null || raw === undefined || raw === '') return '[]';
-  if (typeof raw === 'string') {
-    const trimmed = raw.trim();
-    if (trimmed.length === 0) return '[]';
-    try {
-      JSON.parse(trimmed);
-      return trimmed;
-    } catch {
-      return JSON.stringify(
-        trimmed
-          .split(/\s+/)
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0)
-      );
-    }
-  }
-  return JSON.stringify(raw);
-}
-
-function csvRecordToPuzzleTableRow(
-  row: Record<string, unknown>
-): PuzzleTableRow | null {
-  const id = String(row['id'] ?? '').trim();
-  const fen = String(row['fen'] ?? '').trim();
-  const moves = String(row['moves'] ?? '').trim();
-  if (id.length === 0 || fen.length === 0 || moves.length === 0) return null;
-  const gameUrlRaw = row['game_url'];
-  const gameUrl =
-    typeof gameUrlRaw === 'string' && gameUrlRaw.trim().length > 0
-      ? gameUrlRaw.trim()
-      : null;
-  return {
-    id,
-    fen,
-    moves,
-    rating: readNonNegativeInt(row['rating']),
-    rating_deviation: readNonNegativeInt(row['rating_deviation']),
-    popularity: readNonNegativeInt(row['popularity']),
-    nb_plays: readNonNegativeInt(row['nb_plays']),
-    themes: jsonCellToString(row['themes']),
-    game_url: gameUrl,
-    opening_tags: jsonCellToString(row['opening_tags']),
-  };
-}
+export type PuzzleIngestSummary = {
+  readonly parsedRows: number;
+  readonly validRows: number;
+  readonly rowsInserted: number;
+  readonly skipped: Readonly<Record<PuzzleSkipReason, number>>;
+};
 
 export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
   readonly #loadFileStore: ObjectStore;
@@ -85,7 +45,15 @@ export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
   }
 
   async seed(ctx: DatabaseSeederContext): Promise<void> {
-    const { sqlClient, logger } = ctx;
+    const summary = await this.ingest(ctx);
+    ctx.logger.info('chess-puzzle-load-file: seed complete', {
+      loadFileKey: this.#loadFileKey,
+      ...summary,
+    });
+  }
+
+  /** Validates, dedupes and inserts the file; returns per-reason counts. */
+  async ingest(ctx: DatabaseSeederContext): Promise<PuzzleIngestSummary> {
     const text = await readUtf8(this.#loadFileStore, this.#loadFileKey);
     if (text === null) {
       throw new Error(`chess puzzle load file not found: ${this.#loadFileKey}`);
@@ -97,26 +65,26 @@ export class ChessPuzzleLoadFileSeeder implements DatabaseSeeder {
       trim: true,
     }) as Record<string, unknown>[];
 
+    const tally = new PuzzleIngestTally();
     const rows: PuzzleTableRow[] = [];
     for (const record of records) {
-      const mapped = csvRecordToPuzzleTableRow(record);
-      if (mapped !== null) rows.push(mapped);
+      const row = tally.accept(record);
+      if (row !== null) rows.push(row);
     }
 
-    const fastPath = new PuzzleSeedFastPath(sqlClient);
-    let inserted = 0;
+    const fastPath = new PuzzleSeedFastPath(ctx.sqlClient);
     for (let i = 0; i < rows.length; i += BATCH_SIZE) {
-      const batch = rows.slice(i, i + BATCH_SIZE);
-      inserted += await fastPath.insertPuzzleTableRows(batch, {
-        createId: this.#createId,
-        now: this.#now,
-      });
+      const outcome = await fastPath.insertPuzzleTableRows(
+        rows.slice(i, i + BATCH_SIZE),
+        { createId: this.#createId, now: this.#now }
+      );
+      tally.recordInsert(outcome);
     }
-
-    logger.info('chess-puzzle-load-file: seed complete', {
-      loadFileKey: this.#loadFileKey,
-      parsedRows: rows.length,
-      rowsInserted: inserted,
-    });
+    return {
+      parsedRows: records.length,
+      validRows: tally.accepted,
+      rowsInserted: tally.inserted,
+      skipped: tally.skipped(),
+    };
   }
 }

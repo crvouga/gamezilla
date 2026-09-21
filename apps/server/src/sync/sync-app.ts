@@ -1,3 +1,4 @@
+import { authorizeAppMutation } from '@libs/permissions/root/server/authorize-app-mutation';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { appTopicMap } from '@libs/runtime/root/app-topic-map';
 import { assert } from '@pkgs/assert';
@@ -50,6 +51,7 @@ export function createSyncApp(deps: {
     getSql: openRequestSqlClient,
     queries: APP_QUERIES,
     mutations: APP_MUTATIONS,
+    authorizeMutation: authorizeAppMutation,
     now: deps.now,
     createId: deps.createId,
     pubsub: createRequestScopedPubSub(),

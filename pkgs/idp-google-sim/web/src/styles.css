@@ -1,6 +1,11 @@
 /*
- * The IdP's own stylesheet: Tailwind, with Google's measured values as `@theme`
- * tokens and no Gamezilla design-system tokens at all.
+ * The IdP's own stylesheet: Tailwind, with this simulator's tokens and no
+ * Gamezilla design-system tokens at all.
+ *
+ * The values are the simulator's, not a measurement of anyone's real sign-in
+ * page. The shape language is intentionally its own — 16px card, 8px controls,
+ * a system type stack — so the screens read as a provider without reading as
+ * a particular one.
  *
  * Source detection is off and the sources are listed explicitly — the shared
  * `@pkgs/tailwind` entry would also pull the product token map, which fights
@@ -11,15 +16,19 @@
 @source "../";
 
 @theme {
-  --color-gm-primary: #0b57d0;
-  --color-gm-on-surface: #1f1f1f;
-  --color-gm-on-surface-variant: #444746;
-  --color-gm-outline: #747775;
-  --color-gm-hover: #f2f2f2;
-  --color-gm-divider: #c4c7c5;
-  --color-gm-error: #b3261e;
-  --font-gm:
-    "Google Sans", Roboto, "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+  --color-idp-primary: #4f46e5;
+  --color-idp-primary-hover: #4338ca;
+  --color-idp-surface: #ffffff;
+  --color-idp-page: #f4f4f5;
+  --color-idp-on-surface: #18181b;
+  --color-idp-on-surface-variant: #52525b;
+  --color-idp-outline: #a1a1aa;
+  --color-idp-hover: #f4f4f5;
+  --color-idp-divider: #e4e4e7;
+  --color-idp-error: #b91c1c;
+  --font-idp:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
 }
 
 @media (forced-colors: active) {

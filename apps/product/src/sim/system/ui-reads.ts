@@ -98,19 +98,6 @@ export async function lobbyCardVisible(
   }
 }
 
-export async function recentSpaceCardVisible(
-  s: ProductSim,
-  actorId: string,
-  hostUsername: string
-): Promise<boolean> {
-  try {
-    const ui = await actorUi(s, actorId);
-    return await ui.get(Handles.spaceRecentCard(hostUsername)).isVisible();
-  } catch {
-    return false;
-  }
-}
-
 export async function activeSpaceVisible(
   s: ProductSim,
   actorId: string

@@ -1,56 +1,80 @@
 // goal:chess-puzzles:5
 import { describe, expect, test } from 'bun:test';
-import { Handles } from '@libs/test-ids';
 import {
+  closePuzzleFeedSettingsNoWait,
   createSpace,
   includePlayedPuzzles,
   isEmptyPoolVisible,
-  nodeText,
+  isPuzzleAttemptRated,
+  openPuzzleFeedSettings,
   openPuzzleFromSpace,
   playUntilSolved,
   pressPuzzleNext,
-  pressPuzzleNextNoWait,
   readActivePuzzleId,
   readFeedHistoryLabel,
+  readPuzzlePickSource,
   returnToTabs,
+  setPuzzleFeedTheme,
   signInWithGoogle,
 } from '../src/sim';
 import { SIM_CHESS_PUZZLES } from '../src/test/fixtures/chess-puzzles';
 import { openSim } from '../src/test/setup/open-sim';
 
+const WAIT_MS = 15_000;
+
 describe('chess puzzle exhausted feed', () => {
-  test('after every unseen puzzle is solved, Next shows the empty state; widening recovers', async () => {
+  /**
+   * §9: the pool is never a dead end. Once every unseen puzzle is solved the
+   * feed comes round to the puzzle attempted longest ago — and that attempt
+   * is unrated, because the puzzle already moved the rating once (§8).
+   */
+  test('after every unseen puzzle is solved, the oldest attempt comes round again, unrated', async () => {
     await using s = await openSim('chess-puzzle-exhaust');
     await s.apply(signInWithGoogle, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(createSpace, 'alice');
     await s.apply(openPuzzleFromSpace, 'alice');
 
-    // Default feed is "Unseen": each solve removes one of the seeded puzzles.
-    for (let i = 0; i < SIM_CHESS_PUZZLES.length - 1; i += 1) {
+    const played: string[] = [];
+    for (const _puzzle of SIM_CHESS_PUZZLES) {
+      const id = await s.read(readActivePuzzleId, 'alice');
+      if (id === null) throw new Error('expected an active puzzle');
+      expect(played).not.toContain(id);
+      expect(await s.read(isPuzzleAttemptRated, 'alice')).toBe(true);
+      played.push(id);
       await s.apply(playUntilSolved, 'alice');
       await s.apply(pressPuzzleNext, 'alice');
     }
-    await s.apply(playUntilSolved, 'alice');
-    await s.apply(pressPuzzleNextNoWait, 'alice');
 
-    try {
-      await s.until((surf) => isEmptyPoolVisible(surf, 'alice'), {
-        maxMs: 15_000,
-        stepMs: 250,
-      });
-    } catch (error) {
-      const status = await s.read(nodeText, 'alice', [
-        Handles.chessPuzzlePickStatus,
-      ]);
-      throw new Error(
-        `empty pool never shown; pick status: ${String(status)}`,
-        {
-          cause: error,
-        }
-      );
-    }
-    expect(await s.read(isEmptyPoolVisible, 'alice')).toBe(true);
+    await s.until(
+      async (surf) =>
+        (await readPuzzlePickSource(surf, 'alice')) === 'exhausted',
+      { maxMs: WAIT_MS, stepMs: 250 }
+    );
+    expect(await s.read(readActivePuzzleId, 'alice')).toBe(played[0] ?? null);
+    expect(await s.read(isPuzzleAttemptRated, 'alice')).toBe(false);
+    expect(await s.read(isEmptyPoolVisible, 'alice')).toBe(false);
+  });
+
+  /**
+   * A filter that matches nothing is still a dead end — that is what the
+   * empty-pool block is for, and widening recovers from it.
+   */
+  test('a theme filter that matches nothing shows the empty state; widening recovers', async () => {
+    await using s = await openSim('chess-puzzle-exhaust-theme');
+    await s.apply(signInWithGoogle, 'alice');
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(createSpace, 'alice');
+    await s.apply(openPuzzleFromSpace, 'alice');
+
+    await s.apply(openPuzzleFeedSettings, 'alice');
+    await s.apply(setPuzzleFeedTheme, 'alice', 'zugzwang');
+    await s.apply(closePuzzleFeedSettingsNoWait, 'alice');
+
+    await s.until((surf) => isEmptyPoolVisible(surf, 'alice'), {
+      maxMs: WAIT_MS,
+      stepMs: 250,
+    });
     expect(await s.read(readActivePuzzleId, 'alice')).toBeNull();
 
     await s.apply(includePlayedPuzzles, 'alice');

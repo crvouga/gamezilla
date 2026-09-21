@@ -24,6 +24,31 @@ function ids(
 }
 
 describe('buildChessPuzzleActionBarPlan', () => {
+  // One escalating button: Hint → Solution (arrow) → Solution (§6 line).
+  test('solving never offers Solution twice; the hint button escalates', () => {
+    const stages = ['none', 'highlight', 'solution'] as const;
+    const labels = stages.map((hintStage) => {
+      const slots = buildChessPuzzleActionBarPlan(
+        input({ status: 'solving', hintStage })
+      );
+      expect(slots.some((s) => s.id === 'solution')).toBe(false);
+      const hint = slots[0];
+      expect(hint?.id === 'hint' && hint.disabled).toBe(false);
+      return hint?.id === 'hint' ? hint.hintLabel : null;
+    });
+    expect(labels).toEqual(['hint', 'solution', 'solution']);
+    const loading = buildChessPuzzleActionBarPlan(input({ status: 'loading' }));
+    const idle = loading[0];
+    expect(idle?.id === 'hint' && idle.disabled).toBe(true);
+  });
+
+  test('revealed review: back + forward + next button + retry', () => {
+    const slots = buildChessPuzzleActionBarPlan(
+      input({ status: 'revealed', canGoBack: true, canGoForward: false })
+    );
+    expect(ids(slots)).toEqual(['back', 'forward', 'next', 'retry']);
+  });
+
   test('solving at frontier: hint + back + disabled forward', () => {
     const slots = buildChessPuzzleActionBarPlan(
       input({ status: 'solving', canGoBack: true, canGoForward: false })

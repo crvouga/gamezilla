@@ -4,6 +4,7 @@ import { describe, expect, test } from 'bun:test';
 import { parsePermissionPolicy } from '@libs/permissions/public/parse-permission-policy';
 
 import {
+  ACTION,
   type AppPermission,
   LIMIT,
   PERMISSION,
@@ -12,17 +13,19 @@ import {
 import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
 import {
   can,
-  checkLimit,
   createSubject,
-  type LimitVerdict,
+  type Decision,
+  decideQuota,
 } from '@pkgs/permissions';
 
-function limitFor(role: string, usage: number): LimitVerdict {
-  return checkLimit(
+const NOON = Date.UTC(2026, 8, 19, 12);
+
+function ratedFor(role: string, used: number): Decision {
+  return decideQuota(
     DEFAULT_PERMISSION_POLICY,
-    createSubject([role]),
-    LIMIT.puzzlesPerDay,
-    usage
+    createSubject([ROLE.baseline, role]),
+    ACTION.puzzleRatedSolve,
+    { used, nowMs: NOON }
   );
 }
 
@@ -59,16 +62,14 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
   });
 
   test('paid never hits a usage limit but is not offered an upgrade', () => {
-    expect(limitFor(ROLE.planGuest, 1_000_000).allowed).toBe(false);
-    expect(limitFor(ROLE.planFree, 1_000_000)).toEqual({
+    expect(ratedFor(ROLE.planGuest, 1_000_000).allowed).toBe(false);
+    expect(ratedFor(ROLE.planFree, 1_000_000)).toEqual({
       allowed: true,
-      limit: null,
-      remaining: null,
+      policyVersion: DEFAULT_PERMISSION_POLICY.version ?? '0',
     });
-    expect(limitFor(ROLE.planPaid, 1_000_000)).toEqual({
+    expect(ratedFor(ROLE.planPaid, 1_000_000)).toEqual({
       allowed: true,
-      limit: null,
-      remaining: null,
+      policyVersion: DEFAULT_PERMISSION_POLICY.version ?? '0',
     });
     expect(allows(ROLE.planPaid, PERMISSION.billingManage)).toBe(true);
     expect(allows(ROLE.planPaid, PERMISSION.billingSubscribe)).toBe(false);
@@ -81,7 +82,7 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
   });
 
   test('every catalog key is referenced by the policy', () => {
-    const declaredPermissions = new Set<AppPermission>();
+    const declaredPermissions = new Set<string>();
     const declaredLimits = new Set<string>();
     for (const spec of Object.values(DEFAULT_PERMISSION_POLICY.roles)) {
       for (const permission of spec.permissions ?? []) {
@@ -108,18 +109,20 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
         ...DEFAULT_PERMISSION_POLICY.roles,
         [ROLE.planFree]: {
           ...DEFAULT_PERMISSION_POLICY.roles[ROLE.planFree],
-          limits: { [LIMIT.puzzlesPerDay]: 3 },
+          quotas: {
+            [ACTION.puzzleRatedSolve]: { limit: 3, window: 'day' as const },
+          },
         },
       },
     };
     expect(
-      checkLimit(
+      decideQuota(
         changed,
         createSubject([ROLE.planFree]),
-        LIMIT.puzzlesPerDay,
-        3
+        ACTION.puzzleRatedSolve,
+        { used: 3, nowMs: NOON }
       )
-    ).toEqual({ allowed: false, limit: 3, remaining: 0 });
+    ).toMatchObject({ allowed: false, limit: 3, remaining: 0 });
   });
 
   test('a malformed stored policy degrades to the shipped policy', () => {

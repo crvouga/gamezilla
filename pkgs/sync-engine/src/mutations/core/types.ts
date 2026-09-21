@@ -70,3 +70,25 @@ export type Mutation<A> = {
 };
 
 export type MutationRegistry = Readonly<Record<string, Mutation<unknown>>>;
+
+/** What a host-level server authorize hook sees for one replayed mutation. */
+export type MutationAuthorizeCtx = {
+  readonly name: string;
+  /** Schema-validated args (the `run` input). */
+  readonly args: unknown;
+  /** Replay transaction (reads + writes; same capture as `run`). */
+  readonly tx: MutationDb;
+  readonly env: MutationEnv;
+  /**
+   * The host's authoritative clock (`env.now` is pinned to the client's
+   * timestamp on replay). Guards that must not trust device time use this.
+   */
+  readonly serverNow: () => Date;
+};
+
+/**
+ * Server-only guard run inside the replay transaction before `run`. Throw a
+ * `MutationError` to reject permanently (recorded as a write rejection; the
+ * client's optimistic rows roll back); any other error is retryable infra.
+ */
+export type MutationAuthorize = (ctx: MutationAuthorizeCtx) => Promise<void>;

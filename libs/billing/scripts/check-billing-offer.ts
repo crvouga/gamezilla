@@ -1,98 +1,33 @@
 // @io-wall-ok
 /**
- * CI gate: reconcile the plus membership offer onto the provider — no DB
- * mutation.
+ * Gate: the plus membership offer is sound. Pure — no provider, no
+ * credentials, no writes.
  *
- * - CI (`CI=true` / `GITHUB_ACTIONS=true`): require a resolvable billing secret
- *   and API origin; fail if either is missing.
- * - Local: silently skip when the secret store / keys are unavailable.
+ * This used to *reconcile* the offer onto Stripe: the same call `billing:sync`
+ * makes on deploy. So every pull request rewrote the live product catalogue,
+ * prices, portal configuration and webhook endpoint, and needed production
+ * billing credentials to do it — which is why the gate was green on a laptop
+ * only because it silently skipped itself, and red in CI.
  *
- * This does write provider state (product, prices, portal configuration,
- * webhook endpoint) — that is what "the offer is the source of truth" means.
+ * Mutating the payment provider is a deploy action and stays in `billing:sync`
+ * (`//#deploy`, after `provision` has seeded `API_URL`). What belongs in the
+ * PR gate is whether the offer Stripe gets reconciled *from* is coherent, and
+ * that is decidable from the value alone — so it reaches the same verdict on
+ * every machine.
  */
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
-import {
-  createStripeMembershipBillingFromSecretStore,
-  reconcileStripeOffer,
-} from '@pkgs/billing-stripe';
-import { wallClock } from '@pkgs/clock';
-import { createGlobalHttpClient } from '@pkgs/http-client';
-import { createLogger } from '@pkgs/logger';
-import { readOfferCallbackUrl } from './billing-reconcile';
-import { createBillingScriptSecretStore } from './billing-script-secret-store';
+import { validatePlusMembershipOffer } from '../src/shared/offer/validate-offer';
 
 const SCRIPT_TAG = 'billing check';
-const log = createLogger({ name: SCRIPT_TAG, now: wallClock.now });
-const cliHttp = createGlobalHttpClient();
 
-function isCi(): boolean {
-  const ci = process.env['CI'];
-  return (
-    ci === 'true' || ci === '1' || process.env['GITHUB_ACTIONS'] === 'true'
-  );
-}
-
-async function main(): Promise<void> {
-  let store;
-  try {
-    store = await createBillingScriptSecretStore({
-      fetchFn: cliHttp.fetch.bind(cliHttp),
-      now: wallClock.now,
-    });
-  } catch {
-    if (isCi()) {
-      console.error(
-        `[${SCRIPT_TAG}] CI needs SECRETS_TOKEN (or secret store CLI login) so the reconcile can load secrets`
-      );
-      process.exit(1);
-    }
-    log.info(
-      `[${SCRIPT_TAG}] skip reconcile — could not resolve secret store token`
-    );
-    return;
-  }
-
-  const billing = await createStripeMembershipBillingFromSecretStore(
-    store,
-    PLUS_MEMBERSHIP_OFFER,
-    wallClock.now
-  );
-  if (billing === null) {
-    if (isCi()) {
-      console.error(`[${SCRIPT_TAG}] CI: billing secret key missing`);
-      process.exit(1);
-    }
-    log.info(`[${SCRIPT_TAG}] skip reconcile — billing secret missing`);
-    return;
-  }
-
-  const callbackUrl = await readOfferCallbackUrl(store);
-  if (callbackUrl === null) {
-    if (isCi()) {
-      console.error(`[${SCRIPT_TAG}] CI: API_URL secret missing`);
-      process.exit(1);
-    }
-    log.info(`[${SCRIPT_TAG}] skip reconcile — API origin missing`);
-    return;
-  }
-
-  const result = await reconcileStripeOffer(
-    billing.stripe,
-    PLUS_MEMBERSHIP_OFFER,
-    { callbackUrl }
-  );
-  log.info(`[${SCRIPT_TAG}] ok`, {
-    products: result.products.length,
-    prices: result.prices.length,
-    portalConfigurationId: result.portalConfigurationId,
-    webhookEndpointId: result.webhookEndpointId,
-  });
-}
-
-await main().catch((e: unknown) => {
+const problems = validatePlusMembershipOffer(PLUS_MEMBERSHIP_OFFER);
+if (problems.length > 0) {
   console.error(
-    `[${SCRIPT_TAG}] failed`,
-    e instanceof Error ? e.message : String(e)
+    `[${SCRIPT_TAG}] the plus membership offer is not sound:\n` +
+      problems.map((problem) => `  - ${problem}`).join('\n')
   );
   process.exit(1);
-});
+}
+console.log(
+  `[${SCRIPT_TAG}] offer ok — ${String(Object.keys(PLUS_MEMBERSHIP_OFFER.prices).length)} prices, default '${PLUS_MEMBERSHIP_OFFER.defaultPriceKey}'`
+);

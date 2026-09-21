@@ -37,17 +37,18 @@ function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
   }
 }
 
-function sideToMoveLabel(sideToMove: 'white' | 'black'): JSX.Element {
-  return sideToMove === 'white' ? (
-    <Trans>White to move</Trans>
+/** §5 prompt once the setup move has played: the solver is to move. */
+function yourTurnLabel(side: 'white' | 'black'): JSX.Element {
+  return side === 'white' ? (
+    <Trans>Your turn — find the best move for White</Trans>
   ) : (
-    <Trans>Black to move</Trans>
+    <Trans>Your turn — find the best move for Black</Trans>
   );
 }
 
 export type ChessPuzzleStatusHeaderProps = {
   kind: ChessPuzzleStatusKind;
-  /** Shown as a caption only while the attempt is being played. */
+  /** The solver's side: the `started` label becomes the §5 "your turn" prompt. */
   sideToMove?: 'white' | 'black' | null;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
@@ -62,16 +63,17 @@ export function ChessPuzzleStatusHeader(
       style={{ height: `${HEADER_ROW_HEIGHT}px` }}
     >
       <ChessPuzzleStatusIcon kind={props.kind} />
-      <p class="text textBodyBold flex-1 text-text">
-        {statusLabel(props.kind)}
+      <p
+        class="text textBodyBold flex-1 text-text line-clamp-2"
+        data-testid="chess-puzzle-status-label"
+      >
+        <Show
+          when={props.kind === 'started' ? props.sideToMove : null}
+          fallback={statusLabel(props.kind)}
+        >
+          {(side) => yourTurnLabel(side())}
+        </Show>
       </p>
-      <Show when={props.kind === 'started' ? props.sideToMove : null}>
-        {(side) => (
-          <p class="text textCaption shrink-0 text-text-secondary">
-            {sideToMoveLabel(side())}
-          </p>
-        )}
-      </Show>
       {props.trailing}
     </div>
   );

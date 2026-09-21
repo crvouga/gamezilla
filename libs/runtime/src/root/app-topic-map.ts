@@ -4,6 +4,7 @@ import { CHESS_TOPIC_MAP } from '@libs/chess/public/topic-map';
 import { CLIENT_CONFIG_TOPIC_MAP } from '@libs/client-config/public/topic-map';
 import { FRIENDS_TOPIC_MAP } from '@libs/friends/public/topic-map';
 import { NOTIFICATIONS_TOPIC_MAP } from '@libs/notifications/public/topic-map';
+import { PERMISSIONS_TOPIC_MAP } from '@libs/permissions/public/topic-map';
 import { PROFILE_TOPIC_MAP } from '@libs/profile/public/topic-map';
 import { SPACES_TOPIC_MAP } from '@libs/spaces/public/topic-map';
 import type { Topic } from '@pkgs/pubsub/interface';
@@ -20,6 +21,7 @@ export const appTopicMap = defineTopicMap({
   ...CLIENT_CONFIG_TOPIC_MAP,
   ...NOTIFICATIONS_TOPIC_MAP,
   ...BILLING_TOPIC_MAP,
+  ...PERMISSIONS_TOPIC_MAP,
 });
 
 export function appDefaultEntryChannel(

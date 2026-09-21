@@ -1,7 +1,7 @@
 /**
  * The markup contract of the provider's screens: same form shape, same test
  * ids, two sign-in steps, plus the autocomplete affordances a person expects
- * from Google and the boot state the SPA picks up.
+ * from any sign-in page and the boot state the SPA picks up.
  */
 
 import { describe, expect, test } from 'bun:test';
@@ -12,6 +12,7 @@ import {
   IDP_AUTHORIZE_PASSWORD_PATH,
   IDP_AUTHORIZE_SUBMIT_PATH,
   IDP_BOOT_STATE_ELEMENT_ID,
+  IDP_BRAND,
   IDP_PASSWORD,
   IDP_TEST_IDS,
 } from '@pkgs/idp-google-sim/shared';
@@ -188,7 +189,7 @@ describe('idp page markup', () => {
     const refused = await res.text();
     expect(screenStateOf(refused).kind).toBe('identifier');
     expect(refused).toContain(IDP_TEST_IDS.identifierError);
-    expect(refused).toContain("Couldn't find your Google Account");
+    expect(refused).toContain(`Couldn't find your ${IDP_BRAND.name} account`);
     expect(refused).toContain('role="alert"');
     expect(
       attrOfTestId(refused, IDP_TEST_IDS.identifierEmail, 'aria-invalid')

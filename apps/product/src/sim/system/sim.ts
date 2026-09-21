@@ -18,6 +18,8 @@ export type SimActor = {
 export type ProductRuntime = {
   launchActor: (id: string) => Promise<SimActor>;
   resetActor: (id: string) => Promise<void>;
+  /** App killed and reopened on the same device: storage and session survive. */
+  restartActor: (id: string) => Promise<void>;
   disposeResources: () => Promise<void>;
 };
 
@@ -52,6 +54,7 @@ export function createProductSim(session: Session, sim: Sim): ProductSim {
   const runtime: ProductRuntime = {
     launchActor: () => Promise.reject(unwiredError('launchActor')),
     resetActor: () => Promise.reject(unwiredError('resetActor')),
+    restartActor: () => Promise.reject(unwiredError('restartActor')),
     disposeResources: () => Promise.reject(unwiredError('disposeResources')),
   };
   return {

@@ -14,7 +14,6 @@ import { createMemo, For, Show } from 'solid-js';
 import { openSpaceDetail } from '../../public/space-routes';
 import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
-import { RecentSpacesSection } from './card/recent-spaces-section';
 import { SpaceCard } from './card/space-card';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 
@@ -115,7 +114,6 @@ export function SpacesScreen(): JSX.Element {
         // Lobby cards are cards already — never nest them inside an Island.
         <div class={`box ${bodyClass}`}>
           <SpacesList onCreateSpace={onCreateSpace} />
-          <RecentSpacesSection />
         </div>
       )}
     />

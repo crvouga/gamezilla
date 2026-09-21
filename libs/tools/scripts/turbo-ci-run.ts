@@ -29,8 +29,11 @@
  *   `TURBO_OUTPUT_LOGS`.
  * - UI: turbo ignores a `TURBO_UI` env var — pass `--ui=tui|stream` via
  *   `TURBO_UI` here (CI sets `stream`; local `deploy:*` sets `tui`).
+ * - Time limits: the run is killed at a hard wall-clock deadline, and every
+ *   task that executed is checked against its per-task budget once the run
+ *   finishes. Both live in `check-budget.ts`.
  */
-import { spawn } from 'node:child_process';
+import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
@@ -44,6 +47,13 @@ import {
   TURBO_TEAM,
 } from '@libs/secrets/shared/secrets/turbo-token';
 import { killOrphanEsbuildServices } from '@pkgs/os/kill-orphan-esbuild';
+import {
+  findBudgetOverruns,
+  formatBudgetOverruns,
+  readLatestRunSummary,
+  resolveRunDeadlineSeconds,
+  slowestExecuted,
+} from './check-budget';
 import { CachedGroupFilter } from './github-cached-group-filter';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -165,6 +175,38 @@ export function turboChildEnv(
   return env;
 }
 
+/** The three package tiers; everything else is shared by all of them. */
+const PACKAGE_TIER = /^(apps|libs|pkgs)\//;
+
+/**
+ * The first changed path that can change *every* package's result, or null.
+ *
+ * `--filter=...[base]` selects packages by directory: a package runs when a
+ * file under it changed, or under something it depends on. A change outside
+ * the tiers — `bun.lock`, root `package.json` / `turbo.json` / `biome.json` /
+ * `tsconfig.json`, `.github/workflows/**` — lives in no package, so the filter
+ * would select nothing for it and a dependency bump would skip every test.
+ * Any such path means the whole gate runs.
+ */
+export function pathForcingFullGate(
+  changedPaths: readonly string[]
+): string | null {
+  return changedPaths.find((path) => !PACKAGE_TIER.test(path)) ?? null;
+}
+
+function changedPathsSince(base: string): readonly string[] | null {
+  try {
+    const out = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return out.split('\n').filter((line) => line.length > 0);
+  } catch {
+    return null;
+  }
+}
+
 function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
   const base = process.env['TURBO_AFFECTED_BASE']?.trim();
   if (base === undefined || base.length === 0) return [];
@@ -172,6 +214,23 @@ function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
     (a) => a.startsWith('--filter=') && a.includes('[')
   );
   if (alreadyScm) return [];
+  const changed = changedPathsSince(base);
+  if (changed === null) {
+    console.warn(
+      `turbo-ci-run: could not diff against ${base}; running the full gate.`
+    );
+    return [];
+  }
+  const forcing = pathForcingFullGate(changed);
+  if (forcing !== null) {
+    console.log(
+      `turbo-ci-run: full gate — '${forcing}' is outside apps/ libs/ pkgs/ and can change every package.`
+    );
+    return [];
+  }
+  // Root lint tasks read this to lint the diff instead of the whole repo; it
+  // is declared in their turbo `env`, so the two scopes hash differently.
+  process.env['CHECK_CHANGED_SINCE'] = base;
   return [`--filter=...[${base}]`, '--filter=//'];
 }
 
@@ -274,11 +333,24 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   );
 }
 
+type OfflineTaskArgs = {
+  readonly taskArgs: readonly string[];
+  /** Leaves this machine cannot run; the gate is incomplete without them. */
+  readonly skipped: readonly string[];
+};
+
+/**
+ * Leaves that need real credentials still come out of the set when there are
+ * none — running them would only fail at the fingerprint, before any other
+ * check got to speak. What must not happen is the run then reporting green:
+ * that is the bug where a laptop passes and CI fails on the same commit. The
+ * names come back so `main` can fail the run and say which leaves are missing.
+ */
 function applyOfflineTaskArgs(
   taskArgs: readonly string[],
   hasRemote: boolean
-): string[] {
-  if (hasRemote) return [...taskArgs];
+): OfflineTaskArgs {
+  if (hasRemote) return { taskArgs: [...taskArgs], skipped: [] };
   if (isDeployLeafSet(taskArgs)) {
     console.error(
       'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
@@ -286,11 +358,24 @@ function applyOfflineTaskArgs(
     );
     process.exit(1);
   }
-  if (!taskArgs.includes(SECRETS_CHECK_TASK)) return [...taskArgs];
-  console.warn(
-    'turbo-ci-run: skipping @libs/secrets#check (no Turbo remote creds; run `bun run secrets:pull`).'
+  if (!taskArgs.includes(SECRETS_CHECK_TASK)) {
+    return { taskArgs: [...taskArgs], skipped: [] };
+  }
+  return {
+    taskArgs: taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK),
+    skipped: [SECRETS_CHECK_TASK],
+  };
+}
+
+/** A run that could not execute every leaf is not a green gate. */
+function reportIncompleteGate(skipped: readonly string[]): void {
+  console.error(
+    `turbo-ci-run: gate incomplete — ${String(skipped.length)} leaf(s) could ` +
+      `not run on this machine: ${skipped.join(', ')}.\n` +
+      'Everything else passed, but this run does not prove the PR check is ' +
+      'green, so it does not exit 0. Run `infisical login` then ' +
+      '`bun run secrets:pull` to run the whole gate.'
   );
-  return taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK);
 }
 
 async function main(): Promise<void> {
@@ -328,7 +413,7 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const taskArgs = applyOfflineTaskArgs(
+  const { taskArgs, skipped } = applyOfflineTaskArgs(
     flattenCheckAggregators(rawTaskArgs),
     remote
   );
@@ -358,8 +443,14 @@ async function main(): Promise<void> {
     }
   }
 
+  const slowRunner = inCi();
+  const deadlineSeconds = resolveRunDeadlineSeconds(process.env, {
+    isDeploy: isDeployLeafSet(taskArgs),
+    slowRunner,
+  });
+
   console.log(
-    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER}` +
+    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
       (ui !== undefined ? ` ui=${ui}` : '') +
       (remote
         ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API})`
@@ -369,29 +460,139 @@ async function main(): Promise<void> {
   const status = await runTurbo(
     ['run', ...taskArgs, ...affected, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
     env,
-    inGithubActions() && ui !== 'tui'
+    {
+      hideCachedGroups: inGithubActions() && ui !== 'tui',
+      deadlineSeconds,
+    }
   );
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(status);
+  process.exit(finalExitCode({ status, slowRunner, skipped }));
 }
 
 /**
- * Run turbo to completion. With `hideCachedGroups`, stdout goes through
- * `CachedGroupFilter` so the GitHub log keeps only tasks that did work.
+ * Zero only when turbo passed, every executed task was inside its budget, and
+ * the gate ran end to end. A skipped leaf is not a pass.
+ */
+function finalExitCode(args: {
+  readonly status: number;
+  readonly slowRunner: boolean;
+  readonly skipped: readonly string[];
+}): number {
+  // The timing table prints even when a task failed — that is exactly when
+  // someone is reading the log and wants to know where the time went.
+  const budget = enforceTaskBudgets(args.slowRunner);
+  if (args.status !== 0) return args.status;
+  if (budget !== 0) return budget;
+  if (args.skipped.length === 0) return 0;
+  reportIncompleteGate(args.skipped);
+  return 1;
+}
+
+/**
+ * Fail a run whose tasks were individually too slow. Read from turbo's own
+ * `--summarize` output, so cache hits (which did no work) are never measured.
+ */
+function enforceTaskBudgets(slowRunner: boolean): number {
+  const summary = readLatestRunSummary(REPO_ROOT);
+  if (summary === null) {
+    console.warn(
+      'turbo-ci-run: no turbo run summary found; per-task budgets not checked.'
+    );
+    return 0;
+  }
+  // Print it every run: without this the CI log says how long the whole gate
+  // took and nothing about where it went, and the only way to find the slow
+  // task was to guess.
+  const slowest = slowestExecuted(summary, 10);
+  if (slowest.length > 0) {
+    console.log('turbo-ci-run: slowest tasks that ran');
+    for (const row of slowest) {
+      console.log(`  ${String(row.seconds).padStart(5)}s  ${row.taskId}`);
+    }
+  }
+  const overruns = findBudgetOverruns(summary, slowRunner);
+  if (overruns.length === 0) return 0;
+  console.error(formatBudgetOverruns(overruns));
+  return 1;
+}
+
+type RunTurboOptions = {
+  readonly hideCachedGroups: boolean;
+  readonly deadlineSeconds: number;
+};
+
+/** SIGKILL the turbo process group; a wedged task rarely dies with turbo. */
+function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
+  const pid = child.pid;
+  if (pid === undefined) return;
+  try {
+    process.kill(-pid, signal);
+  } catch {
+    try {
+      child.kill(signal);
+    } catch {
+      // already exited
+    }
+  }
+}
+
+/**
+ * Kill the run at `deadlineSeconds`. Returns a disarm callback.
+ *
+ * `detached: true` puts turbo in its own process group so the whole tree dies
+ * with it; the price is that the terminal's Ctrl-C no longer reaches it, so
+ * SIGINT / SIGTERM are forwarded here instead.
+ */
+function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
+  const forward = (signal: NodeJS.Signals) => () => {
+    killTree(child, signal);
+  };
+  const onInt = forward('SIGINT');
+  const onTerm = forward('SIGTERM');
+  process.on('SIGINT', onInt);
+  process.on('SIGTERM', onTerm);
+  const timer = setTimeout(() => {
+    console.error(
+      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; killing the run. ` +
+        'Find the task that wedged (turbo prints the ones still running), fix it, ' +
+        `or raise the deadline in libs/tools/scripts/check-budget.ts.`
+    );
+    killTree(child, 'SIGKILL');
+  }, deadlineSeconds * 1000);
+  return () => {
+    clearTimeout(timer);
+    process.off('SIGINT', onInt);
+    process.off('SIGTERM', onTerm);
+  };
+}
+
+/**
+ * Run turbo to completion or until the deadline. With `hideCachedGroups`,
+ * stdout goes through `CachedGroupFilter` so the GitHub log keeps only tasks
+ * that did work.
  */
 async function runTurbo(
   args: readonly string[],
   env: NodeJS.ProcessEnv,
-  hideCachedGroups: boolean
+  options: RunTurboOptions
 ): Promise<number> {
   const child = spawn('turbo', args, {
-    stdio: ['inherit', hideCachedGroups ? 'pipe' : 'inherit', 'inherit'],
+    stdio: [
+      'inherit',
+      options.hideCachedGroups ? 'pipe' : 'inherit',
+      'inherit',
+    ],
     env,
+    detached: true,
   });
+  const disarm = armDeadline(child, options.deadlineSeconds);
   const exited = new Promise<number>((resolve) => {
-    child.on('close', (code) => resolve(code ?? 1));
+    child.on('close', (code, signal) => {
+      disarm();
+      resolve(code ?? (signal === null ? 1 : 124));
+    });
   });
   if (child.stdout === null) return exited;
 

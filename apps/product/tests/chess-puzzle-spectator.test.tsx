@@ -27,7 +27,7 @@ import { aliceUsername } from '../src/test/fixtures/fixtures';
 import { setupFriendsPair } from '../src/test/fixtures/setup-friends-pair';
 import { openSim } from '../src/test/setup/open-sim';
 
-const DEFAULT_ELO = 1200;
+const DEFAULT_ELO = 1500;
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */
 function required<T>(value: T | null | undefined, what: string): T {
   if (value === null || value === undefined) {
@@ -118,8 +118,14 @@ describe('chess puzzle spectator', () => {
     await s.apply(suggestPuzzleMove, 'bob', suggestedFrom, suggestedTo);
     await s.apply(focusActor, 'alice');
     expect(await s.read(readPuzzleStatus, 'alice')).toBe('solving');
+    // The suggestion crosses the room to the host; wait for it to land rather
+    // than assuming one read is late enough. It is not on a loaded machine.
     const withSuggestion = required(
-      await s.read(readPuzzleSpectator, 'alice'),
+      await s.until((surf) => readPuzzleSpectator(surf, 'alice'), {
+        maxMs: 15_000,
+        stepMs: 250,
+        pred: (probe) => probe?.recommendations.length === 1,
+      }),
       'host probe after suggestion'
     );
     expect(withSuggestion.recommendations).toHaveLength(1);
@@ -128,8 +134,13 @@ describe('chess puzzle spectator', () => {
 
     await s.apply(playUntilSolved, 'alice');
     await s.apply(focusActor, 'bob');
+    // Same crossing in reverse: the host's move clears the guest's suggestion.
     const afterSolve = required(
-      await s.read(readPuzzleSpectator, 'bob'),
+      await s.until((surf) => readPuzzleSpectator(surf, 'bob'), {
+        maxMs: 15_000,
+        stepMs: 250,
+        pred: (probe) => probe?.recommendations.length === 0,
+      }),
       'guest probe after solve'
     );
     expect(afterSolve.recommendations).toHaveLength(0);

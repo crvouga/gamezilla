@@ -1,3 +1,5 @@
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
+import type { Decision } from '@libs/permissions/public/use-permissions';
 import { Trans } from '@lingui/solid/macro';
 import {
   Button,
@@ -22,8 +24,8 @@ export type ChessPuzzleEmptyPoolStateProps = {
   /** Drop history / theme filters so every synced puzzle is eligible. */
   onIncludeAllPuzzles: () => void;
   onOpenFeedSettings: () => void;
-  /** Open the billing screen — the upgrade invitation a limit shows. */
-  onUpgrade: () => void;
+  /** The permission decision behind `'limited'` (null otherwise). */
+  denial: Decision | null;
 };
 
 function OfflineBlock(): JSX.Element {
@@ -49,20 +51,6 @@ function WaitingBlock(): JSX.Element {
       title={<Trans>Waiting for the host</Trans>}
       body={<Trans>The host hasn't started a puzzle yet.</Trans>}
       dataSet={{ testid: 'chess-puzzle-waiting-for-host' }}
-    />
-  );
-}
-
-function LimitBlock(props: { onUpgrade: () => void }): JSX.Element {
-  return (
-    <EmptyState
-      icon={SearchIcon}
-      title={<Trans>You've hit today's puzzle limit</Trans>}
-      body={
-        <Trans>Upgrade for unlimited puzzles, or come back tomorrow.</Trans>
-      }
-      action={{ label: <Trans>See plans</Trans>, onClick: props.onUpgrade }}
-      dataSet={{ testid: 'chess-puzzle-limit' }}
     />
   );
 }
@@ -140,7 +128,14 @@ export function ChessPuzzleEmptyPoolState(
               </Show>
             }
           >
-            <LimitBlock onUpgrade={props.onUpgrade} />
+            <Show when={props.denial} keyed>
+              {(decision) => (
+                <DenialSurface
+                  decision={decision}
+                  testId="chess-puzzle-limit"
+                />
+              )}
+            </Show>
           </Show>
         }
       >

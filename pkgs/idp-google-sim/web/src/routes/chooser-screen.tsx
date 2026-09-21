@@ -7,6 +7,7 @@
 
 import { For } from 'solid-js';
 
+import { IDP_BRAND } from '../../../src/shared/brand';
 import {
   IDP_AUTHORIZE_CREATE_PATH,
   IDP_AUTHORIZE_SUBMIT_PATH,
@@ -49,7 +50,7 @@ export function ChooserScreen(props: Props) {
       <h1 id={HEADING_ID} class="text-2xl leading-8 font-normal">
         Choose an account
       </h1>
-      <p class="text-base text-gm-on-surface-variant">
+      <p class="text-base text-idp-on-surface-variant">
         to continue to {props.state.appName}
       </p>
       <form
@@ -71,16 +72,16 @@ export function ChooserScreen(props: Props) {
             />
           )}
         </For>
-        <hr class="my-2 border-gm-divider" />
+        <hr class="my-2 border-idp-divider" />
         <button
-          class="flex min-h-14 w-full items-center gap-4 rounded-lg px-3 py-2 text-left text-sm text-gm-on-surface hover:bg-gm-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gm-primary"
+          class="flex min-h-14 w-full items-center gap-4 rounded-lg px-3 py-2 text-left text-sm text-idp-on-surface hover:bg-idp-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-idp-primary"
           type="submit"
           name="sub"
           value=""
           data-testid={IDP_TEST_IDS.chooserUseAnother}
         >
           <span
-            class="grid size-8 shrink-0 place-items-center rounded-full bg-gm-hover"
+            class="grid size-8 shrink-0 place-items-center rounded-full bg-idp-hover"
             aria-hidden="true"
           >
             <Icon name="plus" class="size-4" />
@@ -89,7 +90,7 @@ export function ChooserScreen(props: Props) {
         </button>
       </form>
       <a
-        class="flex min-h-14 items-center gap-4 rounded-lg px-3 text-sm text-gm-on-surface hover:bg-gm-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gm-primary"
+        class="flex min-h-14 items-center gap-4 rounded-lg px-3 text-sm text-idp-on-surface hover:bg-idp-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-idp-primary"
         href={createHref()}
         rel="external"
         onClick={(event) => {
@@ -99,16 +100,16 @@ export function ChooserScreen(props: Props) {
         data-testid={IDP_TEST_IDS.chooserCreateAccount}
       >
         <span
-          class="grid size-8 shrink-0 place-items-center rounded-full bg-gm-hover"
+          class="grid size-8 shrink-0 place-items-center rounded-full bg-idp-hover"
           aria-hidden="true"
         >
           <Icon name="user-plus" class="size-4" />
         </span>
         Create account
       </a>
-      <p class="mt-2 text-xs text-gm-on-surface-variant">
-        To continue, Google will share your name, email address, and profile
-        picture with {props.state.appName}.
+      <p class="mt-2 text-xs text-idp-on-surface-variant">
+        To continue, {IDP_BRAND.name} will share your name, email address, and
+        profile picture with {props.state.appName}.
       </p>
     </Card>
   );

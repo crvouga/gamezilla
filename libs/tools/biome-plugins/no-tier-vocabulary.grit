@@ -1,0 +1,30 @@
+language js
+
+// §22.11: product tiers exist only as policy data. Outside the policy package
+// (`libs/permissions`, `pkgs/permissions`) and billing, no identifier may name a
+// tier / plan check and no string literal may name a `plan:` role.
+or {
+  JsIdentifierBinding() as $n,
+  JsReferenceIdentifier() as $n,
+  JsName() as $n,
+  JsLiteralMemberName() as $n
+} where {
+  $n <: or {
+    r"^isPremium$",
+    r"^isPro$",
+    r"^isPaid$",
+    r"^isGuest$",
+    r"^isFree$",
+    r"^isPlus$",
+    r"^subscriptionLevel$",
+    r"^entitled$",
+    r"^premium$",
+    r"^usePlanRole$",
+    r"^PlanRole$",
+    r"^planGuest$",
+    r"^planFree$",
+    r"^planPaid$",
+    r"^resolvePlanRole$"
+  },
+  register_diagnostic(span=$n, message="Tier vocabulary outside the policy package (§22.11). Gate with usePermissions().can/consume and a catalogued ACTION; tiers live only in policy config.", severity="error")
+}

@@ -1,5 +1,12 @@
 import type { LimitKey, PermissionKey } from './catalog';
-import type { PermissionPolicy, RoleSpec } from './policy';
+import {
+  isPlainObject,
+  readParams,
+  readPolicyMeta,
+  readPredicate,
+  readQuotas,
+} from './parse-extras';
+import type { PermissionPolicy, PolicyVersion, RoleSpec } from './policy';
 
 /** Result of parsing untrusted policy JSON. */
 export type PolicyParseResult<P extends string, L extends string> =
@@ -11,15 +18,16 @@ const MAX_GRANTS = 64;
 const MAX_PERMISSIONS = 256;
 const MAX_LIMITS = 64;
 
+const MAX_HISTORY = 32;
+
 const ROLE_SPEC_KEYS: Record<string, true> = {
+  when: true,
   grants: true,
   permissions: true,
   limits: true,
+  quotas: true,
+  params: true,
 };
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function readStringArray(
   value: unknown,
@@ -111,7 +119,13 @@ function readRoleSpec(
     issues
   );
   const limits = readLimits(value['limits'], `${label}.limits`, issues);
+  const when = readPredicate(value['when'], `${label}.when`, issues);
+  const quotas = readQuotas(value['quotas'], `${label}.quotas`, issues);
+  const params = readParams(value['params'], `${label}.params`, issues);
   return {
+    ...(when === undefined ? {} : { when }),
+    ...(quotas === undefined ? {} : { quotas }),
+    ...(params === undefined ? {} : { params }),
     ...(grants === undefined ? {} : { grants }),
     ...(permissions === undefined
       ? {}
@@ -168,6 +182,13 @@ function validateGrants(
 
 function freezeRoleSpec(spec: RoleSpec): RoleSpec {
   return Object.freeze({
+    ...(spec.when === undefined ? {} : { when: spec.when }),
+    ...(spec.quotas === undefined
+      ? {}
+      : { quotas: Object.freeze({ ...spec.quotas }) }),
+    ...(spec.params === undefined
+      ? {}
+      : { params: Object.freeze({ ...spec.params }) }),
     ...(spec.grants === undefined
       ? {}
       : { grants: Object.freeze([...spec.grants]) }),
@@ -180,36 +201,33 @@ function freezeRoleSpec(spec: RoleSpec): RoleSpec {
   });
 }
 
-function freezePolicy<P extends string, L extends string>(
+function freezeRoles(
   roles: Record<string, RoleSpec>
-): PermissionPolicy<P, L> {
+): Readonly<Record<string, RoleSpec>> {
   const frozen: Record<string, RoleSpec> = {};
   for (const [role, spec] of Object.entries(roles)) {
     frozen[role] = freezeRoleSpec(spec);
   }
-  return { roles: Object.freeze(frozen) } as PermissionPolicy<P, L>;
+  return Object.freeze(frozen);
 }
 
-/**
- * Structural validation of untrusted policy JSON (config). Collects every issue
- * instead of throwing; an undeclared `grants` target and a `grants` cycle are
- * both rejected.
- */
-export function parsePolicy<
-  P extends string = PermissionKey,
-  L extends string = LimitKey,
->(raw: unknown): PolicyParseResult<P, L> {
+function readVersion(
+  raw: unknown,
+  label: string,
+  issues: string[]
+): PolicyVersion | undefined {
   if (!isPlainObject(raw)) {
-    return { ok: false, issues: ['policy must be an object'] };
+    issues.push(`${label} must be an object`);
+    return undefined;
   }
   const rolesRaw = raw['roles'];
   if (!isPlainObject(rolesRaw)) {
-    return { ok: false, issues: ['policy.roles must be an object'] };
+    issues.push(`${label}.roles must be an object`);
+    return undefined;
   }
-  const issues: string[] = [];
   const roleIds = Object.keys(rolesRaw);
   if (roleIds.length > MAX_ROLES) {
-    issues.push(`policy.roles must hold at most ${MAX_ROLES} roles`);
+    issues.push(`${label}.roles must hold at most ${MAX_ROLES} roles`);
   }
   const roles: Record<string, RoleSpec> = {};
   for (const role of roleIds) {
@@ -220,6 +238,48 @@ export function parsePolicy<
     roles[role] = readRoleSpec(rolesRaw[role], role, issues);
   }
   validateGrants(roles, issues);
-  if (issues.length > 0) return { ok: false, issues };
-  return { ok: true, policy: freezePolicy<P, L>(roles) };
+  return { ...readPolicyMeta(raw, issues), roles: freezeRoles(roles) };
+}
+
+function readHistory(
+  value: unknown,
+  issues: string[]
+): readonly PolicyVersion[] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.length > MAX_HISTORY) {
+    issues.push(`policy.history must be an array of at most ${MAX_HISTORY}`);
+    return undefined;
+  }
+  const out: PolicyVersion[] = [];
+  value.forEach((entry, index) => {
+    const version = readVersion(entry, `policy.history[${index}]`, issues);
+    if (version !== undefined) out.push(version);
+  });
+  return Object.freeze(out);
+}
+
+/**
+ * Structural validation of untrusted policy JSON (config). Collects every issue
+ * instead of throwing; an undeclared `grants` target and a `grants` cycle are
+ * both rejected. `history` holds retained prior versions.
+ */
+export function parsePolicy<
+  P extends string = PermissionKey,
+  L extends string = LimitKey,
+>(raw: unknown): PolicyParseResult<P, L> {
+  if (!isPlainObject(raw)) {
+    return { ok: false, issues: ['policy must be an object'] };
+  }
+  if (!isPlainObject(raw['roles'])) {
+    return { ok: false, issues: ['policy.roles must be an object'] };
+  }
+  const issues: string[] = [];
+  const current = readVersion(raw, 'policy', issues);
+  const history = readHistory(raw['history'], issues);
+  if (issues.length > 0 || current === undefined) return { ok: false, issues };
+  const policy = Object.freeze({
+    ...current,
+    ...(history === undefined ? {} : { history }),
+  });
+  return { ok: true, policy: policy as PermissionPolicy<P, L> };
 }

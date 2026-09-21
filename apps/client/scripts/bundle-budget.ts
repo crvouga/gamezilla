@@ -45,9 +45,32 @@ export function gzipBytes(abs: string): number {
   return gzipSync(readFileSync(abs), { level: 9 }).byteLength;
 }
 
+/**
+ * What a CDN would actually ship: brotli at maximum quality. Slow on purpose —
+ * only use it for a number the budget enforces.
+ */
 export function brotliBytes(abs: string): number {
   return brotliCompressSync(readFileSync(abs), {
     params: { [constants.BROTLI_PARAM_QUALITY]: 11 },
+  }).byteLength;
+}
+
+/**
+ * Quality for the brotli figures the budget only *reports*.
+ *
+ * `perf-budget.json` enforces gzip and lists brotli under `alsoReport`, so
+ * every brotli number in the log is informational — and computing them at
+ * quality 11 cost 17.3s per pass over the client's 167 JS chunks, several
+ * passes per run, for digits nobody gates on. Quality 5 is the same work in
+ * 0.1s and lands ~13% high (1484 KB vs 1315 KB), which is fine for a trend
+ * line and is labelled as an estimate. Make brotli the enforced metric and it
+ * goes back through {@link brotliBytes} at full quality.
+ */
+const REPORT_BROTLI_QUALITY = 5;
+
+export function brotliReportBytes(abs: string): number {
+  return brotliCompressSync(readFileSync(abs), {
+    params: { [constants.BROTLI_PARAM_QUALITY]: REPORT_BROTLI_QUALITY },
   }).byteLength;
 }
 
@@ -183,9 +206,9 @@ function checkLazy(
       }
     }
     if (budget.compression.alsoReport.includes('brotli')) {
-      const br = sumSizes(distDir, files, brotliBytes);
+      const br = sumSizes(distDir, files, brotliReportBytes);
       console.log(
-        `[bundle-budget] lazy "${root}" brotli ${kb(br.total).toFixed(1)} KB (report only)`
+        `[bundle-budget] lazy "${root}" brotli ~${kb(br.total).toFixed(1)} KB (report only, q5 estimate)`
       );
     }
   }
@@ -371,13 +394,13 @@ function reportInitialRows(
   }
 
   if (budget.compression.alsoReport.includes('brotli')) {
-    const jsBr = sumSizes(distDir, bundle.jsFiles, brotliBytes);
-    const cssBr = sumSizes(distDir, bundle.cssFiles, brotliBytes);
+    const jsBr = sumSizes(distDir, bundle.jsFiles, brotliReportBytes);
+    const cssBr = sumSizes(distDir, bundle.cssFiles, brotliReportBytes);
     console.log(
-      `[bundle-budget] initial JS brotli ${kb(jsBr.total).toFixed(1)} KB (report only)`
+      `[bundle-budget] initial JS brotli ~${kb(jsBr.total).toFixed(1)} KB (report only, q5 estimate)`
     );
     console.log(
-      `[bundle-budget] initial CSS brotli ${kb(cssBr.total).toFixed(1)} KB (report only)`
+      `[bundle-budget] initial CSS brotli ~${kb(cssBr.total).toFixed(1)} KB (report only, q5 estimate)`
     );
   }
 

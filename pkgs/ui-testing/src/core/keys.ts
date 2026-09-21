@@ -11,6 +11,8 @@ export type DriverKey =
   | 'arrowDown'
   | 'arrowLeft'
   | 'arrowRight'
+  | 'home'
+  | 'end'
   | 'space'
   | 'delete';
 
@@ -24,6 +26,8 @@ export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
   arrowDown: 'ArrowDown',
   arrowLeft: 'ArrowLeft',
   arrowRight: 'ArrowRight',
+  home: 'Home',
+  end: 'End',
   space: ' ',
   delete: 'Delete',
 };

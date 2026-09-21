@@ -8,17 +8,13 @@
 
 import { chessPuzzlesTopic } from '@libs/chess/public/sync-topics';
 import { PuzzleSeedFastPath } from '@libs/chess/root/server/seed-chess-puzzles/fast-path';
+import { PuzzleIngestTally } from '@libs/chess/root/server/seed-chess-puzzles/puzzle-ingest';
 import type { PuzzleTableRow } from '@libs/chess/root/server/seed-chess-puzzles/row';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { SIM_CHESS_PUZZLES_WEB_CSV } from './sim-chess-puzzles-web-fixture';
 
 const BATCH_SIZE = 50;
-
-function readNonNegativeInt(raw: string): number {
-  const n = Number.parseInt(raw, 10);
-  return Number.isFinite(n) ? n : 0;
-}
 
 function splitCsvLine(line: string): string[] {
   const cells: string[] = [];
@@ -76,28 +72,6 @@ export function parseSimChessPuzzleCsv(text: string): Record<string, string>[] {
   return rows;
 }
 
-export function simChessPuzzleRowFromRecord(
-  row: Record<string, string>
-): PuzzleTableRow | null {
-  const id = (row['id'] ?? '').trim();
-  const fen = (row['fen'] ?? '').trim();
-  const moves = (row['moves'] ?? '').trim();
-  if (id.length === 0 || fen.length === 0 || moves.length === 0) return null;
-  const gameUrl = (row['game_url'] ?? '').trim();
-  return {
-    id,
-    fen,
-    moves,
-    rating: readNonNegativeInt(row['rating'] ?? ''),
-    rating_deviation: readNonNegativeInt(row['rating_deviation'] ?? ''),
-    popularity: readNonNegativeInt(row['popularity'] ?? ''),
-    nb_plays: readNonNegativeInt(row['nb_plays'] ?? ''),
-    themes: (row['themes'] ?? '[]').trim() || '[]',
-    game_url: gameUrl.length > 0 ? gameUrl : null,
-    opening_tags: (row['opening_tags'] ?? '[]').trim() || '[]',
-  };
-}
-
 export type SeedSimChessPuzzlesWebArgs = {
   readonly sqlClient: SqlClient;
   readonly now: () => number;
@@ -113,10 +87,12 @@ export type SeedSimChessPuzzlesWebArgs = {
 export async function seedSimChessPuzzlesWeb(
   args: SeedSimChessPuzzlesWebArgs
 ): Promise<void> {
+  // Same §23 validation pass + dedupe as every other ingest path.
+  const tally = new PuzzleIngestTally();
   const rows: PuzzleTableRow[] = [];
   for (const record of parseSimChessPuzzleCsv(SIM_CHESS_PUZZLES_WEB_CSV)) {
-    const mapped = simChessPuzzleRowFromRecord(record);
-    if (mapped !== null) rows.push(mapped);
+    const row = tally.accept(record);
+    if (row !== null) rows.push(row);
   }
   const fastPath = new PuzzleSeedFastPath(args.sqlClient);
   for (let i = 0; i < rows.length; i += BATCH_SIZE) {
