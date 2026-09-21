@@ -15,6 +15,13 @@ import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
 
+/**
+ * One RSA key pair per file: minting RS256 keys is the costliest part of an
+ * IdP boot, and no test here is about key generation. Every test still boots
+ * its own store and app.
+ */
+const SIGNING_KEYS = createIdpSigningKeys();
+
 const BASE_URL = 'https://api.gamezilla.app';
 const IDP_URL = 'https://accounts.idp.test';
 const PREFIX = '/api';
@@ -40,7 +47,7 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
     sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
     clock: wallClock,
     createId: () => `idp-${(nextId += 1)}`,
-    createKeys: () => createIdpSigningKeys(),
+    createKeys: () => SIGNING_KEYS,
   });
   const idp = await createGoogleIdpApp({
     store: idpStore,
