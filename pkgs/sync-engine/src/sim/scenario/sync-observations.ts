@@ -193,6 +193,11 @@ export function lastMutationFailures(s: SyncSim, clientId: string): string[] {
   );
 }
 
+/** True once this client's last mutate call has returned (see `startMutate`). */
+export function lastMutationSettled(s: SyncSim, clientId: string): boolean {
+  return s.runtime.lastMutation.has(clientId);
+}
+
 /** True when the last {@link mutate} pin on this client applied locally. */
 export function lastMutationOk(s: SyncSim, clientId: string): boolean {
   return s.runtime.lastMutation.get(clientId)?.ok ?? false;

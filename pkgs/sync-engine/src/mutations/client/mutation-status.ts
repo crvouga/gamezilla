@@ -31,6 +31,40 @@ export async function mutationStatus(
   return 'confirmed';
 }
 
+/** The server's answer for one mutation, with the reason when it refused. */
+export type MutationVerdict =
+  | { readonly status: 'pending' | 'confirmed' }
+  | {
+      readonly status: 'rejected';
+      readonly code: string;
+      readonly message: string;
+    };
+
+/** {@link mutationStatus} plus the rejection's code and message. */
+export async function mutationVerdict(
+  db: Pick<SqlClient, 'query'>,
+  mutationId: string
+): Promise<MutationVerdict> {
+  const rejections = await db.query(sql<{ code: string; message: string }>`
+    SELECT code, message FROM sync_engine_write_rejections
+    WHERE mutation_id = ${mutationId}
+      AND deleted_at IS NULL
+    LIMIT 1
+  `);
+  const rejection = rejections[0];
+  if (rejection !== undefined) {
+    return {
+      status: 'rejected',
+      code: rejection.code,
+      message: rejection.message,
+    };
+  }
+  const status = await mutationStatus(db, mutationId);
+  // Rejected between the two reads: read the rejection it just stored.
+  if (status === 'rejected') return mutationVerdict(db, mutationId);
+  return { status };
+}
+
 export type UnackedWriteRejection = {
   readonly id: string;
   readonly mutationId: string;
