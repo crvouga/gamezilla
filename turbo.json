@@ -492,6 +492,7 @@
         "@apps/server#check:contract",
         "@apps/server#check:api",
         "@libs/runtime#check:schema-evolution",
+        "@libs/runtime#check:feature-boundaries",
         "@libs/secrets#check",
         "@libs/tools#check:static"
       ],
@@ -624,6 +625,7 @@
         "@libs/billing#billing:check",
         "@apps/server#check:contract",
         "@libs/runtime#check:schema-evolution",
+        "@libs/runtime#check:feature-boundaries",
         "@libs/tools#check:static",
         "@libs/secrets#check",
         "@apps/server#smoke"
@@ -758,6 +760,20 @@
       ],
       "outputLogs": "new-only",
       "outputs": []
+    },
+    "@libs/runtime#check:feature-boundaries": {
+      "inputs": [
+        "src/**/*.ts",
+        "scripts/check-feature-boundaries.ts",
+        "../../libs/*/src/root/feature.ts",
+        "../../libs/*/src/**/schema/**",
+        "../../libs/*/src/**/queries.ts",
+        "../../libs/feature/src/**/*.ts",
+        "../../pkgs/sync-engine/src/**/*.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only",
+      "dependsOn": ["tc"]
     }
   }
 }

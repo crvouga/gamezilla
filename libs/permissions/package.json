@@ -20,6 +20,7 @@
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/client-config": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/billing": "workspace:*",
     "@pkgs/clock": "workspace:*",

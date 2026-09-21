@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { APP_MUTATIONS } from '@apps/server/sync/app-mutations';
+import { loadAppMutations } from '@apps/server/sync/app-mutations';
 import { MUTATION_ACTIONS } from '@libs/permissions/public/mutation-actions';
 import {
   ACTION,
@@ -12,6 +12,8 @@ const KNOWN_KEYS = new Set<string>([
   'public',
   'quota',
 ]);
+
+const APP_MUTATIONS = await loadAppMutations();
 
 describe('§22.6 every server mutation declares its action', () => {
   test('every registered mutation has a MUTATION_ACTIONS declaration', () => {

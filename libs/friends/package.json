@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",

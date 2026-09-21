@@ -37,6 +37,7 @@
       "@libs/client-config/*": ["./libs/client-config/src/*"],
       "@libs/db/public/*": ["./libs/db/src/public/*.ts"],
       "@libs/db/shared/*": ["./libs/db/src/shared/*.ts"],
+      "@libs/feature/*": ["./libs/feature/src/*"],
       "@libs/friends/*": ["./libs/friends/src/*"],
       "@libs/games/*": ["./libs/games/src/*"],
       "@libs/notifications": ["./libs/notifications/src/public/index.ts"],

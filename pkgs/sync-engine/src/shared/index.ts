@@ -70,6 +70,7 @@ export {
   type AssertQueryRegistryIndexableOpts,
   assertQueryRegistryIndexable,
   type EnvFixture,
+  extractQueryTables,
   extractWorkload,
 } from './extract-workload';
 export {

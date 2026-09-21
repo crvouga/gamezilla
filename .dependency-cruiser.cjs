@@ -123,6 +123,20 @@ module.exports = {
       from: { path: '^libs/' },
       to: { path: '^apps/' },
     },
+    // Feature packages are bounded contexts: they know their own slice and the
+    // platform, never the app that composes them. `@libs/runtime` is the
+    // composition root's fold; a feature reaching for it inverts the whole
+    // arrangement and would pull every other feature into its build.
+    {
+      name: 'feature-no-composition-root',
+      severity: 'error',
+      comment:
+        'A feature package must not import the composition root (@libs/runtime / libs/runtime). Declare what the feature needs as a port on its manifest and let the composition root fill it.',
+      from: {
+        path: '^libs/(auth|billing|chess|client-config|feature|friends|notifications|permissions|profile|spaces)/src/',
+      },
+      to: { path: '^libs/runtime/' },
+    },
     {
       name: 'shared-no-wall-io-packages',
       severity: 'error',

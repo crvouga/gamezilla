@@ -57,6 +57,7 @@ const CHECK_LEAVES = [
   '@apps/server#check:contract',
   '@apps/server#check:api',
   '@libs/runtime#check:schema-evolution',
+  '@libs/runtime#check:feature-boundaries',
   '@libs/secrets#check',
   '@libs/tools#check:static',
 ];

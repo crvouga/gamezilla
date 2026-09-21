@@ -7,7 +7,7 @@ import { PubSubNotSupportedError } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createSyncApp as createSyncEngineApp } from '@pkgs/sync-engine/server';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
-import { APP_MUTATIONS } from './app-mutations';
+import { loadAppMutations } from './app-mutations';
 import { APP_QUERIES } from './app-queries';
 import { resolveSessionReplayAuth } from './query-auth';
 
@@ -39,18 +39,19 @@ function createRequestScopedPubSub(): PubSub {
 }
 
 /** Product mount: `POST /api/query` (batch body), `/api/mutations`. */
-export function createSyncApp(deps: {
+export async function createSyncApp(deps: {
   readonly now: () => number;
   readonly createId: () => string;
   /** Enables dev-only query limit strictness (injected from `ServerEnv.secretsEnv`). */
   readonly strictQueryLimits?: boolean;
 }) {
   let checkpointSeq = 0;
+  const mutations = await loadAppMutations();
   return createSyncEngineApp({
     resolveAuth: resolveSessionReplayAuth,
     getSql: openRequestSqlClient,
     queries: APP_QUERIES,
-    mutations: APP_MUTATIONS,
+    mutations,
     authorizeMutation: authorizeAppMutation,
     now: deps.now,
     createId: deps.createId,

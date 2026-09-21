@@ -1,17 +1,6 @@
-import { AUTH_MUTATIONS } from '@libs/auth/root/mutations';
-import { CHESS_MUTATIONS } from '@libs/chess/root/mutations';
-import { FRIENDS_MUTATIONS } from '@libs/friends/root/mutations';
-import { PERMISSIONS_MUTATIONS } from '@libs/permissions/root/mutations';
-import { PROFILE_MUTATIONS } from '@libs/profile/root/mutations';
-import { SPACE_MUTATIONS } from '@libs/spaces/root/mutations';
-import { mutationRegistry } from '@pkgs/sync-engine/shared';
-
-/** Product mutations only — framework mutations are merged by createSyncApp / createLocalSyncEngine. */
-export const APP_MUTATIONS = mutationRegistry([
-  ...AUTH_MUTATIONS,
-  ...CHESS_MUTATIONS,
-  ...FRIENDS_MUTATIONS,
-  ...PERMISSIONS_MUTATIONS,
-  ...PROFILE_MUTATIONS,
-  ...SPACE_MUTATIONS,
-]);
+/**
+ * Server view of the product mutation registry. The list lives in the
+ * composition root's feature fold (`@libs/runtime/root/app-features`); this
+ * module only names it for the API.
+ */
+export { loadAppMutations } from '@libs/runtime/root/app-mutations';

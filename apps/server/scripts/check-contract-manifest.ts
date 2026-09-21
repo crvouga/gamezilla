@@ -1,7 +1,7 @@
 // @io-wall-ok — contract manifest CLI entry root (scripts/**).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { APP_MUTATIONS } from '../src/sync/app-mutations';
+import { loadAppMutations } from '../src/sync/app-mutations';
 import { APP_QUERIES } from '../src/sync/app-queries';
 
 /**
@@ -17,9 +17,9 @@ export type ContractManifest = {
 
 const MANIFEST_PATH = resolve(import.meta.dir, '..', 'contract-manifest.json');
 
-export function buildContractManifest(): ContractManifest {
+export async function buildContractManifest(): Promise<ContractManifest> {
   return {
-    mutations: Object.keys(APP_MUTATIONS).sort(),
+    mutations: Object.keys(await loadAppMutations()).sort(),
     queries: Object.keys(APP_QUERIES).sort(),
   };
 }
@@ -45,8 +45,8 @@ function diffNames(
   };
 }
 
-function main(): void {
-  const current = buildContractManifest();
+async function main(): Promise<void> {
+  const current = await buildContractManifest();
   if (process.argv.includes('--write')) {
     writeFileSync(MANIFEST_PATH, serializeContractManifest(current), 'utf8');
     console.log('contract manifest written');
@@ -91,4 +91,4 @@ function main(): void {
   );
 }
 
-main();
+await main();

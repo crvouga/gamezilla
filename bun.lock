@@ -315,6 +315,7 @@
       "name": "@libs/auth",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/feature": "workspace:*",
         "@libs/test-ids": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -357,6 +358,7 @@
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@libs/permissions": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-stripe": "workspace:*",
@@ -393,6 +395,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/billing": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
         "@libs/spaces": "workspace:*",
@@ -454,6 +457,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/assert": "workspace:*",
@@ -504,11 +508,27 @@
         "typescript": "catalog:",
       },
     },
+    "libs/feature": {
+      "name": "@libs/feature",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/assert": "workspace:*",
+        "@pkgs/db-schema": "workspace:*",
+        "@pkgs/sync-engine": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "zod": "catalog:",
+      },
+    },
     "libs/friends": {
       "name": "@libs/friends",
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
@@ -558,6 +578,7 @@
       "name": "@libs/notifications",
       "version": "0.0.0",
       "dependencies": {
+        "@libs/feature": "workspace:*",
         "@libs/permissions": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -603,6 +624,7 @@
       "dependencies": {
         "@libs/auth": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/billing": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -632,6 +654,7 @@
         "@dicebear/collection": "catalog:",
         "@dicebear/core": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@libs/test-ids": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -690,6 +713,7 @@
         "@libs/auth": "workspace:*",
         "@libs/chess": "workspace:*",
         "@libs/client-config": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@libs/friends": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/permissions": "workspace:*",
@@ -780,6 +804,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/feature": "workspace:*",
         "@libs/notifications": "workspace:*",
         "@libs/permissions": "workspace:*",
         "@libs/profile": "workspace:*",
@@ -3324,6 +3349,8 @@
     "@libs/client-config": ["@libs/client-config@workspace:libs/client-config"],
 
     "@libs/db": ["@libs/db@workspace:libs/db"],
+
+    "@libs/feature": ["@libs/feature@workspace:libs/feature"],
 
     "@libs/friends": ["@libs/friends@workspace:libs/friends"],
 

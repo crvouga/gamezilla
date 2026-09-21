@@ -17,6 +17,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/feature": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

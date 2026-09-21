@@ -279,9 +279,10 @@ function createServerRouter(args: {
   readonly billing: MembershipBilling | null;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
   readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
+  readonly sync: Awaited<ReturnType<typeof createSyncApp>>;
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
-  const { env, desiredClientConfig, billing, tts, llm, log } = args;
+  const { env, desiredClientConfig, billing, tts, llm, sync, log } = args;
   const { secrets, observability, auth, secretsEnv } = env;
 
   const apiRouter = new Hono<ApiHonoEnv<AuthContext>>()
@@ -337,7 +338,7 @@ function createServerRouter(args: {
         createId: store.createId,
       });
     })
-    .route('/', createSyncAppMount(env))
+    .route('/', sync)
     .route('/', createPubSubTokenRoutes())
     .route('/', tts.app)
     .route('/', llm.app)
@@ -367,9 +368,10 @@ export async function createServer(env: ServerEnv) {
   }
 
   const billing = env.billing;
-  const [tts, llm] = await Promise.all([
+  const [tts, llm, sync] = await Promise.all([
     createTtsAppForServer(env),
     createLlmAppForServer(env),
+    createSyncAppMount(env),
   ]);
 
   const desiredClientConfig = await buildDesiredClientConfig({
@@ -383,6 +385,14 @@ export async function createServer(env: ServerEnv) {
 
   return new Hono().route(
     '/api',
-    createServerRouter({ env, desiredClientConfig, billing, tts, llm, log })
+    createServerRouter({
+      env,
+      desiredClientConfig,
+      billing,
+      tts,
+      llm,
+      sync,
+      log,
+    })
   );
 }

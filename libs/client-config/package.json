@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",

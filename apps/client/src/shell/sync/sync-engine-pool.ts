@@ -65,9 +65,12 @@ export function createAppSyncEnginePool(options?: {
   const loadEngineModule = once(
     (): Promise<EngineModule> => import('./create-local-sync-engine')
   );
-  const loadMutations = once(
-    (): Promise<MutationsModule> => import('@apps/client/sync/app-mutations')
-  );
+  const loadMutations = once(async (): Promise<MutationRegistry> => {
+    const mod: MutationsModule = await import(
+      '@apps/client/sync/app-mutations'
+    );
+    return await mod.loadAppMutations();
+  });
   return {
     getOrCreate: async (args) => {
       const pool = await loadPool();
@@ -78,11 +81,11 @@ export function createAppSyncEnginePool(options?: {
         ]);
         return mod.createAppLocalSyncEngine({
           ...args,
-          mutationRegistry: mutations.APP_MUTATIONS,
+          mutationRegistry: mutations,
         });
       });
     },
-    mutationRegistry: async () => (await loadMutations()).APP_MUTATIONS,
+    mutationRegistry: () => loadMutations(),
     peekReady: (databaseName) => loadedPool?.peekReady(databaseName) ?? null,
     releaseAll: async () => {
       // Nothing to release when no engine was ever requested.
