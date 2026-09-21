@@ -15,7 +15,21 @@ import { FRIENDS_CLIENT } from '@libs/friends/root/client/feature-client';
 import { NOTIFICATIONS_CLIENT } from '@libs/notifications/root/client/feature-client';
 import { PROFILE_CLIENT } from '@libs/profile/root/client/feature-client';
 import { SEARCH_CLIENT } from '@libs/search/root/client/feature-client';
-import { SPACES_CLIENT } from '@libs/spaces/root/client/feature-client';
+import { createSpacesClient } from '@libs/spaces/root/client/feature-client';
+
+/**
+ * Games depend on spaces, so the composition root hands spaces its plugin
+ * registry. Dynamic import keeps the heavy plugins off the shell entry graph.
+ */
+const SPACES_CLIENT = createSpacesClient({
+  loadGameRegistry: async () => {
+    const mod = await import('@libs/games/game-plugins.client');
+    return {
+      games: mod.GAME_DEFINITIONS,
+      clients: mod.GAME_CLIENT_DEFINITIONS,
+    };
+  },
+});
 
 export const APP_FEATURE_CLIENTS: readonly FeatureClient[] = [
   // Profile is outermost: a space's room roster reads the local profile, so

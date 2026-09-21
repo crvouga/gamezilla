@@ -12,34 +12,28 @@
     "./server/*": [
       "./src/server/*.ts"
     ],
-    "./bin/*": [
-      "./src/bin/*.ts"
-    ],
     "./scripts/*": [
       "./src/scripts/*.ts"
     ]
   },
   "scripts": {
-    "db:migrate": "bun run src/bin/migrate-cli.ts --wait",
-    "db:wipe:dev": "bun run src/scripts/wipe-dev-db.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "migrate": "bun run src/bin/migrate-cli.ts --wait",
     "provision": "bun run src/scripts/provision-postgres.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/distributed-lock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

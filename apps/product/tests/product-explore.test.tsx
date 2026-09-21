@@ -4,9 +4,9 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { product } from '../src/sim';
-import { PRODUCT_POOL_ACTIONS } from '../src/sim/system/pool-actions';
-import { ensureNodeLocalStoragePolyfill } from '../src/test/setup/node-local-storage-polyfill';
+import { ensureNodeLocalStoragePolyfill } from '@libs/sim-harness/open-sim/node-local-storage-polyfill';
+import { PRODUCT_POOL_ACTIONS } from '@libs/sim-harness/system/pool-actions';
+import { product } from '../src/sim/system';
 
 describe('product explore', () => {
   test(

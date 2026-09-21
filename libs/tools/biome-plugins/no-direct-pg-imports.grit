@@ -1,28 +1,36 @@
 language js
 
-or {
-  `from 'pg'` as $imp where {
-    register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may. Types: @pkgs/sql-client/postgres/pg-types.", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "'pg'",
+    includes "\"pg\""
   },
-  `from "pg"` as $imp where {
-    register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may. Types: @pkgs/sql-client/postgres/pg-types.", severity="error")
-  },
-  `import 'pg'` as $imp where {
-    register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may.", severity="error")
-  },
-  `import "pg"` as $imp where {
-    register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may.", severity="error")
-  },
-  `require('pg')` as $imp where {
-    register_diagnostic(span=$imp, message="Do not require pg — only wall TCP openers may.", severity="error")
-  },
-  `require("pg")` as $imp where {
-    register_diagnostic(span=$imp, message="Do not require pg — only wall TCP openers may.", severity="error")
-  },
-  `import('pg')` as $imp where {
-    register_diagnostic(span=$imp, message="Do not dynamic-import pg — only wall TCP openers may.", severity="error")
-  },
-  `import("pg")` as $imp where {
-    register_diagnostic(span=$imp, message="Do not dynamic-import pg — only wall TCP openers may.", severity="error")
+  $body <: contains bubble or {
+    `from 'pg'` as $imp where {
+      register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may. Types: @pkgs/sql-client/postgres/pg-types.", severity="error")
+    },
+    `from "pg"` as $imp where {
+      register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may. Types: @pkgs/sql-client/postgres/pg-types.", severity="error")
+    },
+    `import 'pg'` as $imp where {
+      register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may.", severity="error")
+    },
+    `import "pg"` as $imp where {
+      register_diagnostic(span=$imp, message="Do not import pg — only pkgs/sql-client/src/postgres/connect.ts and ping.ts may.", severity="error")
+    },
+    `require('pg')` as $imp where {
+      register_diagnostic(span=$imp, message="Do not require pg — only wall TCP openers may.", severity="error")
+    },
+    `require("pg")` as $imp where {
+      register_diagnostic(span=$imp, message="Do not require pg — only wall TCP openers may.", severity="error")
+    },
+    `import('pg')` as $imp where {
+      register_diagnostic(span=$imp, message="Do not dynamic-import pg — only wall TCP openers may.", severity="error")
+    },
+    `import("pg")` as $imp where {
+      register_diagnostic(span=$imp, message="Do not dynamic-import pg — only wall TCP openers may.", severity="error")
+    }
   }
 }

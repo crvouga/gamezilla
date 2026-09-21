@@ -15,7 +15,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
@@ -26,6 +25,7 @@
     "@pkgs/sql-client-postgres": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/uuid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

@@ -10,6 +10,10 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
@@ -19,13 +23,15 @@
   },
   "dependencies": {
     "@libs/feature": "workspace:*",
-    "@libs/friends": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "solid-js": "catalog:"
   },

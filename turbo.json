@@ -113,11 +113,12 @@
         "!**/*.md",
         "$TURBO_ROOT$/biome.json",
         "$TURBO_ROOT$/libs/tools/biome-plugins/**",
-        "$TURBO_ROOT$/eslint.config.mjs",
-        "$TURBO_ROOT$/.dependency-cruiser.cjs",
+        "$TURBO_ROOT$/oxlint.config.mts",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
         "$TURBO_ROOT$/libs/tools/naming/**",
         "$TURBO_ROOT$/libs/tools/goal/**"
       ],
@@ -153,10 +154,6 @@
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
         "FC_SEED"
-      ],
-      "passThroughEnv": [
-        "SIM_TEST_CONCURRENCY",
-        "SIM_TEST_BATCH_TIMEOUT_SECONDS"
       ],
       "outputLogs": "new-only",
       "outputs": [".cache/sim-report/**"]
@@ -214,13 +211,26 @@
       "inputs": [
         "lingui.config.ts",
         "lingui.solid.config.ts",
-        "apps/*/src/**/*.{ts,tsx}",
-        "libs/*/src/**/*.{ts,tsx}",
-        "pkgs/*/src/**/*.{ts,tsx}",
+        "libs/auth/src/**/*.{ts,tsx}",
+        "libs/billing/src/**/*.{ts,tsx}",
+        "libs/chess/src/**/*.{ts,tsx}",
+        "libs/client-app/src/**/*.{ts,tsx}",
+        "libs/client-config/src/**/*.{ts,tsx}",
+        "libs/friends/src/**/*.{ts,tsx}",
+        "libs/notifications/src/**/*.{ts,tsx}",
+        "libs/permissions/src/**/*.{ts,tsx}",
+        "libs/profile/src/**/*.{ts,tsx}",
+        "libs/search/src/**/*.{ts,tsx}",
+        "libs/spaces/src/**/*.{ts,tsx}",
+        "libs/user-search/src/**/*.{ts,tsx}",
+        "pkgs/chess-board/src/**/*.{ts,tsx}",
+        "pkgs/ui/src/**/*.{ts,tsx}",
+        "pkgs/ui-devtools/src/**/*.{ts,tsx}",
         "libs/client-app/src/i18n/locales/**",
         "apps/client/babel.config.js",
         "pkgs/bun-test-solid/src/babel.config.cjs",
-        "libs/tools/scripts/ci-i18n.ts"
+        "libs/tools/scripts/ci-i18n.ts",
+        "libs/tools/scripts/lingui-scope.ts"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -337,7 +347,7 @@
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
-    "@libs/db#migrate": {
+    "@libs/runtime#migrate": {
       "cache": false,
       "dependsOn": [
         "@libs/db#provision",
@@ -347,7 +357,7 @@
     },
     "@apps/room-server#deploy": {
       "cache": false,
-      "dependsOn": ["@libs/db#migrate"]
+      "dependsOn": ["@libs/runtime#migrate"]
     },
     "@apps/server#deploy": {
       "cache": false,

@@ -23,7 +23,7 @@ import styles from './chess-board.module.css';
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const RANKS: readonly RankChar[] = ['1', '2', '3', '4', '5', '6', '7', '8'];
 export const BOARD_SQUARES: readonly Square[] = FILES.flatMap((f) =>
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- tsc widens the template to string; the assertion is load-bearing
+  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion -- tsc widens the template to string; the assertion is load-bearing
   RANKS.map((r) => `${f}${r}` as Square)
 );
 

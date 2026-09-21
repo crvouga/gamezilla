@@ -23,7 +23,7 @@
 
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { transformSync } from '@babel/core';
+import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
 import { plugin } from 'bun';
 
@@ -94,7 +94,13 @@ function cachedTransform(path: string, source: string): string {
   }
 }
 
+/**
+ * Babel loads only on a cache miss: requiring `@babel/core` and its plugins is
+ * most of this preload's cold start, and a warm cache never needs it.
+ */
 function transformSolidTsx(path: string, source: string): string {
+  // oxlint-disable-next-line typescript/no-require-imports -- `onLoad` is synchronous, so a lazy load cannot be `await import()`.
+  const { transformSync } = require('@babel/core') as typeof Babel;
   const result = transformSync(source, {
     filename: path,
     babelrc: false,

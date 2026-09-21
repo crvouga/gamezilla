@@ -33,7 +33,6 @@ import SegmentedControlExample from '../segmented-control/segmented-control.exam
 import SelectExample from '../select/select.example';
 import SocialSignInButtonExample from '../social-sign-in-button/social-sign-in-button.example';
 import SwitchExample from '../switch/switch.example';
-import TabStripExample from '../tab-strip/tab-strip.example';
 import TextInputExample from '../text-input/text-input.example';
 import ThemeTokensExample from '../theme-tokens/theme-tokens.example';
 import TooltipExample from '../tooltip/tooltip.example';
@@ -107,7 +106,6 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
     INPUTS,
     SegmentedControlExample
   ),
-  entry('tab-strip', 'TabStrip', INPUTS, TabStripExample),
   entry('picker', 'Picker', INPUTS, PickerExample),
   entry('picker-section', 'PickerSection', INPUTS, PickerSectionExample),
   entry('chip-group', 'ChipGroup', INPUTS, ChipGroupExample),

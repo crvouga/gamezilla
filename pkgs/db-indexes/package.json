@@ -19,8 +19,6 @@
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*",
     "node-sql-parser": "catalog:"
   },
   "devDependencies": {

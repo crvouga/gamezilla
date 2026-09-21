@@ -1,40 +1,63 @@
 language js
 
-or {
-  `from 'node:fs'` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store (injected ObjectStore) — node:fs only in wall FS adapters.", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+// Each snippet is tried only against its own node kind, not every node.
+file($body) where {
+  $body <: or {
+    includes "node:fs",
+    includes "'fs",
+    includes "\"fs",
+    includes "Bun",
+    includes "Glob"
   },
-  `from "node:fs"` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store (injected ObjectStore) — node:fs only in wall FS adapters.", severity="error")
-  },
-  `from 'node:fs/promises'` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store — node:fs/promises only in wall FS adapters.", severity="error")
-  },
-  `from "node:fs/promises"` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store — node:fs/promises only in wall FS adapters.", severity="error")
-  },
-  `from 'fs'` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store — fs only in wall FS adapters.", severity="error")
-  },
-  `from "fs"` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store — fs only in wall FS adapters.", severity="error")
-  },
-  `from 'fs/promises'` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store — fs/promises only in wall FS adapters.", severity="error")
-  },
-  `from "fs/promises"` as $imp where {
-    register_diagnostic(span=$imp, message="Use @pkgs/object-store — fs/promises only in wall FS adapters.", severity="error")
-  },
-  `Bun.file` as $id where {
-    register_diagnostic(span=$id, message="Use @pkgs/object-store — Bun.file only at @io-wall-ok entry roots.", severity="error")
-  },
-  `Bun.write` as $id where {
-    register_diagnostic(span=$id, message="Use @pkgs/object-store — Bun.write only at @io-wall-ok entry roots.", severity="error")
-  },
-  `Bun.Glob` as $id where {
-    register_diagnostic(span=$id, message="Use @pkgs/object-store — Bun.Glob only at @io-wall-ok entry roots.", severity="error")
-  },
-  `new Glob($args)` as $call where {
-    register_diagnostic(span=$call, message="Use @pkgs/object-store — new Glob only at @io-wall-ok entry roots.", severity="error")
+  $body <: contains bubble or {
+    `from 'node:fs'` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store (injected ObjectStore) — node:fs only in wall FS adapters.", severity="error")
+    },
+    `from "node:fs"` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store (injected ObjectStore) — node:fs only in wall FS adapters.", severity="error")
+    },
+    `from 'node:fs/promises'` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store — node:fs/promises only in wall FS adapters.", severity="error")
+    },
+    `from "node:fs/promises"` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store — node:fs/promises only in wall FS adapters.", severity="error")
+    },
+    `from 'fs'` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store — fs only in wall FS adapters.", severity="error")
+    },
+    `from "fs"` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store — fs only in wall FS adapters.", severity="error")
+    },
+    `from 'fs/promises'` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store — fs/promises only in wall FS adapters.", severity="error")
+    },
+    `from "fs/promises"` as $node where {
+      register_diagnostic(span=$node, message="Use @pkgs/object-store — fs/promises only in wall FS adapters.", severity="error")
+    },
+    or {
+      JsStaticMemberExpression(),
+      TsQualifiedName()
+    } as $node where {
+      $node <: or {
+        `Bun.file` where {
+          register_diagnostic(span=$node, message="Use @pkgs/object-store — Bun.file only at @io-wall-ok entry roots.", severity="error")
+        },
+        `Bun.write` where {
+          register_diagnostic(span=$node, message="Use @pkgs/object-store — Bun.write only at @io-wall-ok entry roots.", severity="error")
+        },
+        `Bun.Glob` where {
+          register_diagnostic(span=$node, message="Use @pkgs/object-store — Bun.Glob only at @io-wall-ok entry roots.", severity="error")
+        }
+      }
+    },
+    JsNewExpression() as $node where {
+      $node <: or {
+        `new Glob($args)` where {
+          register_diagnostic(span=$node, message="Use @pkgs/object-store — new Glob only at @io-wall-ok entry roots.", severity="error")
+        }
+      }
+    }
   }
 }

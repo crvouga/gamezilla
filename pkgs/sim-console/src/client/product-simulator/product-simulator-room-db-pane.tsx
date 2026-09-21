@@ -1,5 +1,6 @@
 import { useTimers } from '@pkgs/clock/solid';
-import { EmptyState, JsonView, ScrollView } from '@pkgs/ui';
+import { EmptyState, ScrollView } from '@pkgs/ui';
+import { JsonView } from '@pkgs/ui-devtools';
 import {
   createEffect,
   createSignal,

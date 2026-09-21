@@ -9,11 +9,9 @@ import BadgeExample from '../badge/badge.example';
 import ChipExample from '../chip/chip.example';
 import CollapsibleExample from '../collapsible/collapsible.example';
 import CommandPaletteExample from '../command-palette/command-palette.example';
-import DataTableExample from '../data-table/data-table.example';
 import DismissibleBannerExample from '../dismissible-top-banner/dismissible-top-banner.example';
 import EmptyStateExample from '../empty-state/empty-state.example';
 import ErrorStateExample from '../error-state/error-state.example';
-import JsonViewExample from '../json-view/json-view.example';
 import ListExample from '../list/list.example';
 import LoadingStateExample from '../loading-state/loading-state.example';
 import MenuRowExample from '../menu-row/menu-row.example';
@@ -36,7 +34,6 @@ const DISCLOSURE = 'Disclosure';
 const OVERLAY = 'Overlay';
 
 export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
-  entry('data-table', 'DataTable', DATA_DISPLAY, DataTableExample),
   entry(
     'pagination-controls',
     'PaginationControls',
@@ -50,7 +47,6 @@ export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('chip', 'Chip', DATA_DISPLAY, ChipExample),
   entry('list', 'List', DATA_DISPLAY, ListExample),
   entry('menu-row', 'MenuRow', DATA_DISPLAY, MenuRowExample),
-  entry('json-view', 'JsonView', DATA_DISPLAY, JsonViewExample),
   entry('status-dot', 'StatusDot', DATA_DISPLAY, StatusDotExample),
 
   entry('spinner', 'Spinner', FEEDBACK, SpinnerExample),

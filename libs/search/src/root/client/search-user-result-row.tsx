@@ -1,50 +1,32 @@
-import { FriendActionPills } from '@libs/friends/public/friend-action-pills/friend-action-pills';
-import { FriendUserRow } from '@libs/friends/public/friend-user-row';
-import { useFriendRequestIdsForUser } from '@libs/friends/public/use-friend-request-ids';
-import { useFriendshipStatus } from '@libs/friends/public/use-friendship-status';
+import { Handles } from '@libs/test-ids';
+import { UserSearchResultRow } from '@libs/user-search/public/user-search-result-row';
 import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
-import { MENU_ROW_PX_STEP, spacingScale, useRouter } from '@pkgs/ui';
-import type { JSX } from 'solid-js';
+import { dataAttrs, MENU_ROW_PX_STEP, spacingScale } from '@pkgs/ui';
+import { type JSX, Show } from 'solid-js';
+
+import { useSearchResultSlots } from '../../public/search-result-slots';
 
 export function SearchUserResultRow(props: {
   readonly user: UserSearchResult;
 }): JSX.Element {
-  const router = useRouter();
-  const userId = () => props.user.userId;
-  const status = useFriendshipStatus(userId);
-  const requestIds = useFriendRequestIdsForUser(userId);
+  const slots = useSearchResultSlots();
   const edgePx = spacingScale(MENU_ROW_PX_STEP);
 
   return (
     <div
       class="box self-stretch"
+      {...dataAttrs({ testid: Handles.searchUserResult(props.user.username) })}
       style={{
         'padding-left': `${edgePx}px`,
         'padding-right': `${edgePx}px`,
       }}
     >
-      <FriendUserRow
-        profile={props.user}
-        onPress={() =>
-          router.push({
-            pathname: '/profile/user/[userId]',
-            params: {
-              userId: props.user.userId,
-              username: props.user.username,
-              avatarConfig: props.user.avatarConfig ?? '',
-            },
-          })
-        }
-        trailing={
-          <FriendActionPills
-            userId={props.user.userId}
-            username={props.user.username}
-            status={status()}
-            incomingRequestId={requestIds.incomingRequestId()}
-            outgoingRequestId={requestIds.outgoingRequestId()}
-          />
-        }
-      />
+      <Show
+        when={slots.userRow}
+        fallback={<UserSearchResultRow user={props.user} />}
+      >
+        {(userRow) => userRow()(props.user)}
+      </Show>
     </div>
   );
 }

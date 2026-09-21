@@ -1,46 +1,65 @@
 language js
 
-or {
-  `validatedWrite` as $id where {
-    register_diagnostic(span=$id, message="Legacy validatedWrite is removed — use defineMutation / mutate().", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "validatedWrite",
+    includes "defineRule",
+    includes "runRules",
+    includes "RulesReject",
+    includes "processUploadWithRules",
+    includes "applyBatch",
+    includes "APP_TABLE_POLICIES",
+    includes "denyTablePolicy",
+    includes "createTablePolicyRegistry",
+    includes "APP_RULES",
+    includes "beforeBatch",
+    includes "BeforeBatch",
+    includes "@pkgs/rules"
   },
-  `defineRule` as $id where {
-    register_diagnostic(span=$id, message="Legacy defineRule is removed — use defineMutation.", severity="error")
-  },
-  `runRules` as $id where {
-    register_diagnostic(span=$id, message="Legacy runRules is removed — use defineMutation / mutate().", severity="error")
-  },
-  `RulesReject` as $id where {
-    register_diagnostic(span=$id, message="Legacy RulesReject is removed — use MutationError.", severity="error")
-  },
-  `processUploadWithRules` as $id where {
-    register_diagnostic(span=$id, message="Legacy processUploadWithRules is removed — use sync mutations upload.", severity="error")
-  },
-  `applyBatch` as $id where {
-    register_diagnostic(span=$id, message="Legacy applyBatch is removed — use mutation upload.", severity="error")
-  },
-  `APP_TABLE_POLICIES` as $id where {
-    register_diagnostic(span=$id, message="Legacy APP_TABLE_POLICIES is removed — authorize inside mutations.", severity="error")
-  },
-  `denyTablePolicy` as $id where {
-    register_diagnostic(span=$id, message="Legacy denyTablePolicy is removed — authorize inside mutations.", severity="error")
-  },
-  `createTablePolicyRegistry` as $id where {
-    register_diagnostic(span=$id, message="Legacy createTablePolicyRegistry is removed — authorize inside mutations.", severity="error")
-  },
-  `APP_RULES` as $id where {
-    register_diagnostic(span=$id, message="Legacy APP_RULES is removed — use defineMutation.", severity="error")
-  },
-  `beforeBatch` as $id where {
-    register_diagnostic(span=$id, message="Legacy beforeBatch is removed — use mutation upload.", severity="error")
-  },
-  `BeforeBatch` as $id where {
-    register_diagnostic(span=$id, message="Legacy BeforeBatch is removed — use mutation upload.", severity="error")
-  },
-  `from '@pkgs/rules'` as $imp where {
-    register_diagnostic(span=$imp, message="Legacy @pkgs/rules is removed — use defineMutation.", severity="error")
-  },
-  `from "@pkgs/rules"` as $imp where {
-    register_diagnostic(span=$imp, message="Legacy @pkgs/rules is removed — use defineMutation.", severity="error")
+  $body <: contains bubble or {
+    `validatedWrite` as $id where {
+      register_diagnostic(span=$id, message="Legacy validatedWrite is removed — use defineMutation / mutate().", severity="error")
+    },
+    `defineRule` as $id where {
+      register_diagnostic(span=$id, message="Legacy defineRule is removed — use defineMutation.", severity="error")
+    },
+    `runRules` as $id where {
+      register_diagnostic(span=$id, message="Legacy runRules is removed — use defineMutation / mutate().", severity="error")
+    },
+    `RulesReject` as $id where {
+      register_diagnostic(span=$id, message="Legacy RulesReject is removed — use MutationError.", severity="error")
+    },
+    `processUploadWithRules` as $id where {
+      register_diagnostic(span=$id, message="Legacy processUploadWithRules is removed — use sync mutations upload.", severity="error")
+    },
+    `applyBatch` as $id where {
+      register_diagnostic(span=$id, message="Legacy applyBatch is removed — use mutation upload.", severity="error")
+    },
+    `APP_TABLE_POLICIES` as $id where {
+      register_diagnostic(span=$id, message="Legacy APP_TABLE_POLICIES is removed — authorize inside mutations.", severity="error")
+    },
+    `denyTablePolicy` as $id where {
+      register_diagnostic(span=$id, message="Legacy denyTablePolicy is removed — authorize inside mutations.", severity="error")
+    },
+    `createTablePolicyRegistry` as $id where {
+      register_diagnostic(span=$id, message="Legacy createTablePolicyRegistry is removed — authorize inside mutations.", severity="error")
+    },
+    `APP_RULES` as $id where {
+      register_diagnostic(span=$id, message="Legacy APP_RULES is removed — use defineMutation.", severity="error")
+    },
+    `beforeBatch` as $id where {
+      register_diagnostic(span=$id, message="Legacy beforeBatch is removed — use mutation upload.", severity="error")
+    },
+    `BeforeBatch` as $id where {
+      register_diagnostic(span=$id, message="Legacy BeforeBatch is removed — use mutation upload.", severity="error")
+    },
+    `from '@pkgs/rules'` as $imp where {
+      register_diagnostic(span=$imp, message="Legacy @pkgs/rules is removed — use defineMutation.", severity="error")
+    },
+    `from "@pkgs/rules"` as $imp where {
+      register_diagnostic(span=$imp, message="Legacy @pkgs/rules is removed — use defineMutation.", severity="error")
+    }
   }
 }

@@ -12,7 +12,7 @@ export function AuthClientProvider(
   props: ParentProps<{ readonly port: AuthClientPort }>
 ): JSX.Element {
   // Composition-root DI: the port identity is fixed for this tree's lifetime.
-  // eslint-disable-next-line solid/reactivity -- intentional one-time DI capture
+  // oxlint-disable-next-line solid/reactivity -- intentional one-time DI capture
   const staticPort = props.port;
   return (
     <AuthClientPortContext.Provider value={staticPort}>

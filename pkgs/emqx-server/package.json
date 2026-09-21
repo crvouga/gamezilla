@@ -26,6 +26,7 @@
     "picocolors": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",

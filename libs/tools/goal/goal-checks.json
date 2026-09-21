@@ -70,7 +70,10 @@
   "spaces:1": {
     "status": "proven",
     "proofs": [
-      { "kind": "test", "path": "apps/product/tests/space-guest-host.test.tsx" }
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-guest-host.test.tsx"
+      }
     ]
   },
   "spaces:2": {
@@ -79,7 +82,7 @@
       { "kind": "test", "path": "libs/spaces/tests/guest-space-join.test.ts" },
       {
         "kind": "test",
-        "path": "apps/product/tests/space-guest-link-join.test.tsx"
+        "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
       }
     ]
   },
@@ -88,7 +91,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/space-host-select-game.test.tsx"
+        "path": "libs/friends/tests/e2e/space-host-select-game.test.tsx"
       }
     ]
   },
@@ -97,7 +100,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/space-live-presence.test.tsx"
+        "path": "libs/friends/tests/e2e/space-live-presence.test.tsx"
       }
     ]
   },
@@ -106,14 +109,17 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/space-disconnect-reconnect.test.tsx"
+        "path": "libs/friends/tests/e2e/space-disconnect-reconnect.test.tsx"
       }
     ]
   },
   "spaces:6": {
     "status": "proven",
     "proofs": [
-      { "kind": "test", "path": "apps/product/tests/space-lifecycle.test.tsx" }
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-lifecycle.test.tsx"
+      }
     ]
   },
   "spaces:7": {
@@ -121,7 +127,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/space-friend-join.test.tsx"
+        "path": "libs/friends/tests/e2e/space-friend-join.test.tsx"
       }
     ]
   },
@@ -130,7 +136,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/sw-policy.test.ts"
+        "path": "apps/product/scripts/sw-policy.test.ts"
       }
     ]
   },
@@ -139,7 +145,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-offline.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-offline.test.tsx"
       }
     ]
   },
@@ -193,7 +199,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/auth-login-logout.test.tsx"
+        "path": "libs/profile/tests/e2e/auth-login-logout.test.tsx"
       }
     ]
   },
@@ -229,7 +235,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/friends-request-decline-cancel.test.tsx"
+        "path": "libs/friends/tests/e2e/request-decline-cancel.test.tsx"
       }
     ]
   },
@@ -247,7 +253,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-play.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-play.test.tsx"
       }
     ]
   },
@@ -256,7 +262,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-stats.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-stats.test.tsx"
       }
     ]
   },
@@ -265,7 +271,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-feed.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-feed.test.tsx"
       }
     ]
   },
@@ -274,7 +280,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-feed.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-feed.test.tsx"
       }
     ]
   },
@@ -283,7 +289,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-exhaust.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-exhaust.test.tsx"
       }
     ]
   },
@@ -319,7 +325,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-controls.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-controls.test.tsx"
       }
     ]
   },
@@ -337,7 +343,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-stats.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-stats.test.tsx"
       }
     ]
   },
@@ -400,7 +406,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-limit-upgrade.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-limit-upgrade.test.tsx"
       }
     ]
   },
@@ -413,7 +419,7 @@
       },
       {
         "kind": "test",
-        "path": "apps/product/tests/billing-subscribe.test.tsx"
+        "path": "libs/billing/tests/e2e/subscribe.test.tsx"
       }
     ]
   },
@@ -426,7 +432,7 @@
       },
       {
         "kind": "test",
-        "path": "apps/product/tests/billing-portal.test.tsx"
+        "path": "libs/billing/tests/e2e/portal.test.tsx"
       }
     ]
   },
@@ -439,7 +445,7 @@
       },
       {
         "kind": "test",
-        "path": "apps/product/tests/billing-lifecycle.test.tsx"
+        "path": "libs/billing/tests/e2e/lifecycle.test.tsx"
       }
     ]
   },

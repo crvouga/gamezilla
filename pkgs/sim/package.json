@@ -14,8 +14,6 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
-    "@pkgs/invariants": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/uuid": "workspace:*"
   },

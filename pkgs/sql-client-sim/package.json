@@ -15,8 +15,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",

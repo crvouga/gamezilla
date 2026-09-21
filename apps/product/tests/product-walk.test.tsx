@@ -4,8 +4,8 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { PRODUCT_POOL_ACTIONS } from '../src/sim/system/pool-actions';
-import { openSim } from '../src/test/setup/open-sim';
+import { PRODUCT_POOL_ACTIONS } from '@libs/sim-harness/system/pool-actions';
+import { openSim } from './support/open-product-sim';
 
 describe('product walk', () => {
   test('randomActions over defineAction pool holds properties', async () => {

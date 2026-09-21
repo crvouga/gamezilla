@@ -16,7 +16,6 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/colors": "workspace:*",
     "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",

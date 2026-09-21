@@ -16,19 +16,17 @@ import {
 } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-
-import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
-import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { run } from '@pkgs/os';
-import { HTML_REPORT_KEY, writeHtmlReport } from '@pkgs/sim-report';
-
 import {
   REPO_ROOT,
   SIM_REPORT_DATA_DIR,
   SIM_REPORT_JUNIT_PATH,
   SIM_REPORT_OUT_DIR,
   SIM_REPORT_RUN_ID,
-} from '../src/test/setup/sim-report';
+} from '@libs/sim-harness/open-sim/sim-report';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+import { run } from '@pkgs/os';
+import { HTML_REPORT_KEY, writeHtmlReport } from '@pkgs/sim-report';
 
 const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
 const TAILWIND_ENTRY = join(TAILWIND_DIR, 'src/tailwind.css');
@@ -40,6 +38,7 @@ const UI_CSS = [
 /** Package roots whose `*.module.css` ship unhashed local class names in sims. */
 const MODULE_CSS_ROOTS = [
   join(REPO_ROOT, 'pkgs/ui/src'),
+  join(REPO_ROOT, 'pkgs/ui-devtools/src'),
   join(REPO_ROOT, 'pkgs/chess-board/src'),
 ];
 

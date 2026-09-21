@@ -8,7 +8,7 @@
  * depended on the composition root made a cycle the moment features started
  * depending on the server shell.
  *
- * Root `db:migrate` / infra shell out to `@libs/db` `migrate-cli.ts`. Tests
+ * Root `db:migrate` / infra run `libs/runtime/scripts/migrate-cli.ts`. Tests
  * and CI boot `@pkgs/postgres-embedded` first.
  */
 

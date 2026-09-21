@@ -333,7 +333,7 @@ function ProductSimulatorDebuggerShell(props: {
     readonly kind: string;
   }[];
   readonly instanceId: () => string | null;
-  readonly unifiedNodes: () => readonly import('@pkgs/ui').TabStripItem[];
+  readonly unifiedNodes: () => readonly import('@pkgs/ui-devtools').TabStripItem[];
   readonly selectedNode: () => string | null;
   readonly onUnifiedNodeChange: (id: string) => void;
   readonly views: () => readonly import('../../shared/debugger-views').DebuggerViewId[];

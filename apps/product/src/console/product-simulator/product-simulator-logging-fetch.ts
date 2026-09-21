@@ -1,8 +1,8 @@
+import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import {
   requestMethod,
   requestPath,
-} from '@apps/product/sim/fabric/sim-http-request';
-import type { ServerHttp } from '@libs/client-app/shell/client-env';
+} from '@libs/sim-harness/fabric/sim-http-request';
 import type { ProductSimulatorLogBuffer } from '@pkgs/sim-console/client';
 
 /**

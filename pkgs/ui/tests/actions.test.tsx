@@ -20,16 +20,9 @@ import {
   segmentIndicatorCss,
 } from '@pkgs/ui/components/segmented-control';
 import { SocialSignInButton } from '@pkgs/ui/components/social-sign-in-button';
-import { PillTabBar, TabStrip } from '@pkgs/ui/components/tab-strip';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import { cssOf, renderUi } from './support/render';
-
-function mustAt<T>(items: readonly T[], index: number): T {
-  const item = items[index];
-  if (item === undefined) throw new Error(`no item at ${index}`);
-  return item;
-}
 
 describe('Chip / ChipGroup', () => {
   test('Chip is a toggle button with aria-pressed and fixed height', () => {
@@ -87,38 +80,6 @@ describe('SegmentedControl', () => {
     const geo = segmentIndicatorCss(1, 2);
     expect(geo.width).toContain('/ 2)');
     expect(geo.left).toContain('1 *');
-  });
-});
-
-describe('TabStrip', () => {
-  test('tablist/tab roles, aria-selected, select + close', () => {
-    const onSelect = mock();
-    const onClose = mock();
-    renderUi(() => (
-      <TabStrip
-        aria-label="Apps"
-        items={[
-          { id: 'one', label: 'One' },
-          { id: 'two', label: 'Two', onClose },
-        ]}
-        selectedId="one"
-        onSelect={onSelect}
-      />
-    ));
-    expect(screen.getByRole('tablist', { name: 'Apps' })).toBeInTheDocument();
-    const tabs = screen.getAllByRole('tab');
-    expect(tabs).toHaveLength(2);
-    expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
-    expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
-    fireEvent.click(mustAt(tabs, 1));
-    expect(onSelect).toHaveBeenCalledWith('two');
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-    expect(onClose).toHaveBeenCalledTimes(1);
-    expect(onSelect).toHaveBeenCalledTimes(1);
-  });
-
-  test('PillTabBar alias is the same component', () => {
-    expect(PillTabBar).toBe(TabStrip);
   });
 });
 

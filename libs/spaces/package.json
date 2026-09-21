@@ -10,6 +10,10 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
@@ -21,14 +25,13 @@
     "@libs/auth": "workspace:*",
     "@libs/client-app": "workspace:*",
     "@libs/feature": "workspace:*",
-    "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
-    "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/collab": "workspace:*",
@@ -39,7 +42,9 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/permissions": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
     "@pkgs/room": "workspace:*",
+    "@pkgs/room-adapter-memory": "workspace:*",
     "@pkgs/room-adapter-web": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
@@ -56,7 +61,7 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

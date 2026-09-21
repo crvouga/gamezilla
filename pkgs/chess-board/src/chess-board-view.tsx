@@ -165,7 +165,7 @@ export function ChessBoardView(args: {
     // arrow keys move the cursor and pointer events drive drags. jsx-a11y
     // classifies `application` as non-interactive, so the standard
     // WAI-ARIA pattern for a keyboard game board trips these two rules.
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
       class={`box relative [border-width:2px] border-solid overflow-hidden ${styles['root']}`}
       style={hostStyle()}
@@ -181,7 +181,7 @@ export function ChessBoardView(args: {
       onPointerCancel={() => args.ctrl.onPointerCancel()}
       onKeyDown={(e) => args.ctrl.onKeyDown(e)}
       onContextMenu={(e) => args.ctrl.onContextMenu(e)}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       role="application"
       aria-label="Chess board"

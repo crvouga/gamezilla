@@ -24,6 +24,7 @@
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/keyword": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

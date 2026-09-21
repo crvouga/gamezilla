@@ -3,10 +3,10 @@
  */
 
 import { makeProductSimulatorRoomNode } from '@apps/product/product-simulator/product-simulator-session-nodes';
-import type { Sim } from '@apps/product/sim/fabric/create-sim';
-import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
 import type { Client } from '@libs/client-app/shell/create-client';
-import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
+import type { SimRoomNode } from '@libs/sim-harness/composition';
+import type { Sim } from '@libs/sim-harness/fabric/create-sim';
+import type { SimSql } from '@libs/sim-harness/fabric/sim-sql';
 import type {
   createProductSimulatorLogBuffer,
   ProductSimulatorActor,
@@ -118,7 +118,7 @@ export async function detachClientsForSnapshotLoad(
 }
 
 export function refreshRoomMap(
-  roomNode: RoomServerApp,
+  roomNode: SimRoomNode,
   maps: SessionMaps,
   roomLogs: ReturnType<typeof createProductSimulatorLogBuffer>
 ): void {

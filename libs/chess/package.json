@@ -10,6 +10,10 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
@@ -17,7 +21,8 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests",
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --preload @libs/sim-harness/preload --timeout 90000 --parallel tests/e2e",
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
   "dependencies": {
@@ -26,7 +31,9 @@
     "@libs/feature": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/spaces": "workspace:*",
+    "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
@@ -43,13 +50,13 @@
     "@pkgs/device": "workspace:*",
     "@pkgs/glicko2": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-sim": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
@@ -62,6 +69,7 @@
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "chess.js": "catalog:",
     "csv-parse": "catalog:",
@@ -71,6 +79,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/friends": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",

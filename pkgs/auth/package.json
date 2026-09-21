@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
-    "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",

@@ -1,5 +1,10 @@
 language js
 
-`<$name importantForAccessibility=$value>$children</$name>` as $el where {
-  register_diagnostic(span=$el, message="Do not use importantForAccessibility; prefer the inert attribute.", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "importantForAccessibility",
+  $body <: contains bubble `<$name importantForAccessibility=$value>$children</$name>` as $el where {
+    register_diagnostic(span=$el, message="Do not use importantForAccessibility; prefer the inert attribute.", severity="error")
+  }
 }

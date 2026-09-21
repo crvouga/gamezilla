@@ -19,7 +19,6 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*"
   },
   "devDependencies": {

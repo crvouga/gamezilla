@@ -26,6 +26,7 @@
   "devDependencies": {
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

@@ -16,8 +16,6 @@
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",

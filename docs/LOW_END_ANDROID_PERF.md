@@ -64,7 +64,7 @@ Shell cold load keeps mutation hubs, DiceBear, SQLite WASM, and game-plugins **o
 - Vite `build.modulePreload` does not inject HTML preloads for dynamic-import targets
 - [`ProductApp`](../apps/client/src/shell/product-app.tsx) paints `AppFrame` outside SQLite boot
 - [`TabsLayout`](../apps/client/src/routes/tabs-layout.tsx) lazy-loads `SpaceMiniplayer`
-- [`AppGamesProvider`](../apps/client/src/shell/providers/app-games-provider.tsx) wraps the sync ready tree (empty bootstrap always; game-plugins only under `/space/*`) so open-room slots see `SpaceModuleProvider`
+- [`AppGamesProvider`](../libs/spaces/src/root/client/app/games-provider.tsx) wraps the sync ready tree (empty bootstrap always; game-plugins, injected by `@libs/runtime`, only under `/space/*`) so open-room slots see `SpaceModuleProvider`
 - Sync-engine Solid bridges + leave/end modals live in `sync-engine-ready-tree.tsx` (lazy with the engine)
 - [`DeviceAvatar`](../libs/profile/src/public/device-avatar.tsx) lazy-loads DiceBear only when a config exists
 

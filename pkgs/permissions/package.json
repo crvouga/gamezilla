@@ -15,9 +15,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
-  "dependencies": {
-    "@pkgs/billing": "workspace:*"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

@@ -202,7 +202,7 @@ msgstr "Add hex (6 chars, no #)"
 msgid "Add people"
 msgstr "Add people"
 
-#: pkgs/ui/src/components/tab-strip/tab-strip.tsx
+#: pkgs/ui-devtools/src/tab-strip/tab-strip.tsx
 msgid "Add tab"
 msgstr "Add tab"
 
@@ -402,12 +402,12 @@ msgstr "Client SQL"
 #: libs/auth/src/public/sign-in-idle-content.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
+#: pkgs/ui-devtools/src/tab-strip/tab-strip-tab.tsx
 #: pkgs/ui/src/components/close-icon-button/close-icon-button.tsx
-#: pkgs/ui/src/components/tab-strip/tab-strip-tab.tsx
 msgid "Close"
 msgstr "Close"
 
-#: pkgs/ui/src/components/json-view/json-view.tsx
+#: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Collapse all"
 msgstr "Collapse all"
 
@@ -498,7 +498,7 @@ msgstr "Copied"
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
 
-#: pkgs/ui/src/components/json-view/json-view.tsx
+#: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Copy"
 msgstr "Copy"
 
@@ -518,7 +518,7 @@ msgstr "Copy seed"
 msgid "Copy to clipboard"
 msgstr "Copy to clipboard"
 
-#: pkgs/ui/src/components/json-view/json-view-node.tsx
+#: pkgs/ui-devtools/src/json-view/json-view-node.tsx
 msgid "Copy value"
 msgstr "Copy value"
 
@@ -823,7 +823,7 @@ msgstr "Everyone has been returned to the lobby."
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
-#: pkgs/ui/src/components/json-view/json-view.tsx
+#: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Expand all"
 msgstr "Expand all"
 
@@ -844,8 +844,8 @@ msgstr "Failed · {0}"
 msgid "Failed · {puzzleRating}"
 msgstr "Failed · {puzzleRating}"
 
+#: pkgs/ui-devtools/src/data-table/data-table-status.tsx
 #: pkgs/ui/src/components/combobox/combobox-body.tsx
-#: pkgs/ui/src/components/data-table/data-table-status.tsx
 #: pkgs/ui/src/components/picker/picker.tsx
 msgid "Failed to load"
 msgstr "Failed to load"
@@ -1137,7 +1137,7 @@ msgstr "Loading puzzle…"
 msgid "Loading sign-in methods…"
 msgstr "Loading sign-in methods…"
 
-#: pkgs/ui/src/components/data-table/data-table-status.tsx
+#: pkgs/ui-devtools/src/data-table/data-table-status.tsx
 #: pkgs/ui/src/components/spinner/spinner.tsx
 msgid "Loading…"
 msgstr "Loading…"
@@ -1334,7 +1334,7 @@ msgstr "No puzzles match your feed"
 msgid "No puzzles played yet."
 msgstr "No puzzles played yet."
 
-#: pkgs/ui/src/components/data-table/data-table.tsx
+#: pkgs/ui-devtools/src/data-table/data-table.tsx
 msgid "No results"
 msgstr "No results"
 
@@ -1442,7 +1442,7 @@ msgstr "os"
 msgid "OS"
 msgstr "OS"
 
-#: pkgs/ui/src/components/data-table/data-table-pagination.tsx
+#: pkgs/ui-devtools/src/data-table/data-table-pagination.tsx
 msgid "Page {current} of {total}"
 msgstr "Page {current} of {total}"
 
@@ -1692,7 +1692,7 @@ msgstr "Requested"
 msgid "Requests and invites that need a reply land here."
 msgstr "Requests and invites that need a reply land here."
 
-#: pkgs/ui/src/components/json-view/json-view.tsx
+#: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Reset"
 msgstr "Reset"
 
@@ -1807,11 +1807,11 @@ msgstr "Seed"
 msgid "Seen"
 msgstr "Seen"
 
-#: pkgs/ui/src/components/data-table/data-table-header.tsx
+#: pkgs/ui-devtools/src/data-table/data-table-header.tsx
 msgid "Select all rows on this page"
 msgstr "Select all rows on this page"
 
-#: pkgs/ui/src/components/data-table/data-table-row.tsx
+#: pkgs/ui-devtools/src/data-table/data-table-row.tsx
 msgid "Select row"
 msgstr "Select row"
 

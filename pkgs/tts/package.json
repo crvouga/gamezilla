@@ -26,10 +26,8 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@pkgs/assert": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
-    "@pkgs/secret-store": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "hono": "catalog:",

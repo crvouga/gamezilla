@@ -45,35 +45,37 @@ function badgeMark(kind: BadgeKind): JSX.Element {
   return <Trans id="chess.puzzleStatus.skippedMark">»</Trans>;
 }
 
-function iconBox(child: JSX.Element): JSX.Element {
-  return (
-    <div class="box" style={ROOT_STYLE}>
-      {child}
-    </div>
-  );
+/** The glyph for one status; called from JSX so it re-runs when the kind changes. */
+function statusGlyph(
+  theme: ReturnType<typeof useTheme>,
+  kind: ChessPuzzleStatusKind
+): JSX.Element {
+  switch (kind) {
+    case 'loading':
+      return <Spinner size="small" />;
+    case 'empty':
+    case 'limited':
+      return <SearchIcon size={SIZE - 4} color="textSecondary" />;
+    case 'offline':
+      return <WifiOffIcon size={SIZE - 4} color="textSecondary" />;
+    case 'waiting':
+      return <ClockIcon size={SIZE - 4} color="textSecondary" />;
+    case 'started':
+      return <PlayIcon size={SIZE - 4} color="textSecondary" />;
+    default: {
+      const { bg, fg } = badgeColors(theme, kind);
+      return <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={badgeMark(kind)} />;
+    }
+  }
 }
 
 export function ChessPuzzleStatusIcon(props: {
   kind: ChessPuzzleStatusKind;
 }): JSX.Element {
   const theme = useTheme();
-  switch (props.kind) {
-    case 'loading':
-      return iconBox(<Spinner size="small" />);
-    case 'empty':
-    case 'limited':
-      return iconBox(<SearchIcon size={SIZE - 4} color="textSecondary" />);
-    case 'offline':
-      return iconBox(<WifiOffIcon size={SIZE - 4} color="textSecondary" />);
-    case 'waiting':
-      return iconBox(<ClockIcon size={SIZE - 4} color="textSecondary" />);
-    case 'started':
-      return iconBox(<PlayIcon size={SIZE - 4} color="textSecondary" />);
-    default: {
-      const { bg, fg } = badgeColors(theme, props.kind);
-      return iconBox(
-        <ChessPuzzleStatusBadge bg={bg} fg={fg} mark={badgeMark(props.kind)} />
-      );
-    }
-  }
+  return (
+    <div class="box" style={ROOT_STYLE}>
+      {statusGlyph(theme, props.kind)}
+    </div>
+  );
 }

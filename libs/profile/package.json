@@ -10,12 +10,17 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --preload @libs/sim-harness/preload --timeout 90000 --parallel tests/e2e"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",
@@ -23,6 +28,7 @@
     "@libs/auth": "workspace:*",
     "@libs/client-app": "workspace:*",
     "@libs/feature": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
@@ -30,7 +36,8 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/device": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
@@ -42,8 +49,11 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/billing": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
+    "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   }

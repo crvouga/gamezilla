@@ -2,12 +2,8 @@ import {
   type BootProductSimulatorOptions,
   buildProductSimulatorSession,
 } from '@apps/product/product-simulator/product-simulator-session';
-import {
-  type ProductSim,
-  product,
-  productExtra,
-  type Sim,
-} from '@apps/product/sim';
+import { product } from '@apps/product/sim/system';
+import { type ProductSim, productExtra, type Sim } from '@libs/sim-harness';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { defineAction, type Run } from '@pkgs/sim';
@@ -90,7 +86,7 @@ export async function bootProductSimulatorSession(
   let actorWebOrigin: string | undefined;
   if (extra.http.kind === 'localhost') {
     const { listenSimHttpServer } = await import(
-      '@apps/product/sim/hosts/localhost-http'
+      '@libs/sim-harness/hosts/localhost-http'
     );
     httpListener = await listenSimHttpServer(sim);
   }

@@ -261,6 +261,7 @@
       "@pkgs/ui-testing/*": ["./pkgs/ui-testing/src/*"],
       "@pkgs/solid-context/*": ["./pkgs/solid-context/src/*"],
       "@pkgs/ui": ["./pkgs/ui/src/index.ts"],
+      "@pkgs/ui-devtools": ["./pkgs/ui-devtools/src/index.ts"],
       "@pkgs/ui/*": ["./pkgs/ui/src/*", "./pkgs/ui/src/*/index.ts"],
       "@pkgs/uuid": ["./pkgs/uuid/src/index.ts"],
       "@pkgs/uuid/*": ["./pkgs/uuid/src/*"],
