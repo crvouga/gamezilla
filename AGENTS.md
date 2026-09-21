@@ -92,27 +92,69 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task, with cache-hit-only groups dropped (turbo's `Cached:` line still counts them). Look for `cache miss` in Turbo output.
 
-**Checks are time-limited, and the limits are enforced.** `turbo-ci-run` kills
-the whole run at a hard wall-clock deadline, then checks every task that
-actually executed against a per-task budget read back from turbo's
-`--summarize` summary. Both live in
-[`libs/tools/scripts/check-budget.ts`](libs/tools/scripts/check-budget.ts):
-`DEFAULT_TASK_BUDGET_SECONDS` for anything unlisted, named entries for the
-tasks allowed to cost more (the Postgres/S3/EMQX contract leaves, the widest
-sim walks), and `SLOW_RUNNER_MULTIPLIER` for the 2-core GitHub runner. Cache
-hits are never measured. **Make the task faster before you raise its number**,
-and when you do raise one, put the measurement in the commit body.
-`CHECK_DEADLINE_SECONDS` overrides the wall clock for a single run; there is no
-"off". The product sim suites get a second, tighter limit of their own: each
-file runs in its own process under
+**Checks are time-limited at every layer, and the limits are enforced.**
+Nothing in the gate may run unbounded:
+
+| Layer | Limit | Where |
+| --- | --- | --- |
+| Whole `check` run, laptop | 10 min | `DEFAULT_RUN_DEADLINE_SECONDS` |
+| Whole `check` run, CI | 20 min | `CI_RUN_DEADLINE_SECONDS` |
+| Whole `deploy` run | 45 min | `DEPLOY_RUN_DEADLINE_SECONDS` |
+| PR `check` step | 25 min | `timeout-minutes`, `.github/workflows/pr.yml` |
+| PR `check` job | 30 min | `timeout-minutes`, `.github/workflows/pr.yml` |
+| Deploy jobs | 55 min | `timeout-minutes`, `.github/workflows/deploy.yml` |
+| One sim group | 600 s | `SIM_TEST_BATCH_TIMEOUT_SECONDS` |
+| One task | 300 s (×2 on CI) | `DEFAULT_TASK_BUDGET_SECONDS` |
+
+The run deadlines are **absolute** — never scaled by `SLOW_RUNNER_MULTIPLIER`,
+which corrects per-task budgets only; scaling the run deadline is what once let
+a wedged PR check sit for 90 minutes. Each in-process deadline sits **below**
+its workflow `timeout-minutes`, so `turbo-ci-run` kills the run and names the
+task still running before GitHub cancels the step and says nothing
+(`check-budget.test.ts` asserts the ordering). Per-task budgets are read back
+from turbo's `--summarize` summary; cache hits are never measured. All of them
+live in [`libs/tools/scripts/check-budget.ts`](libs/tools/scripts/check-budget.ts).
+**Make the task faster before you raise its number**, and when you do raise
+one, put the measurement in the commit body. `CHECK_DEADLINE_SECONDS`
+overrides the wall clock for a single run; there is no "off".
+
+**Keep the gate fast; it is measured every run.** `turbo-ci-run` prints the
+ten slowest tasks that executed, so the CI log always says where the time
+went. Two things that were quietly expensive and are worth not
+reintroducing: `check:bundle-budget` compressed every chunk with brotli at
+quality 11 for figures `perf-budget.json` only *reports* (gzip is what it
+enforces) — 146s a run, now 1.8s at quality 5 for the report-only numbers,
+with full quality kept for any metric actually enforced; and root lint runs
+42 Grit plugins over every file, which is most of Biome's cost, so PR runs
+lint the diff instead (see below).
+
+**PR checks run only what changed.** `pr.yml` sets `TURBO_AFFECTED_BASE` to
+the PR base, so the gate runs the packages the PR touched plus everything that
+depends on them, and every root task. A change outside `apps/` `libs/` `pkgs/`
+— `bun.lock`, root `package.json` / `turbo.json` / `biome.json`, a workflow —
+lives in no package, so `turbo-ci-run` falls back to the full gate for it
+(`pathForcingFullGate`); otherwise a dependency bump would skip every test.
+`deploy.yml` always runs the full gate. The root lint tasks use the same
+signal: `turbo-ci-run` exports `CHECK_CHANGED_SINCE`, and
+[`lint-changed.ts`](libs/tools/scripts/lint-changed.ts) lints just those files
+(4008 files in 219s versus 316 in 17s on a wide branch), falling back to the
+whole repo whenever `biome.json`, a Grit plugin, `eslint.config.mjs` or the
+Solid scope map changed, because those change what linting means. The variable
+is declared in each task's turbo `env`, so a changed-only result can never be
+served to a run that asked for the full sweep. The product sim suites run through
 [`apps/product/scripts/run-sim-tests.ts`](apps/product/scripts/run-sim-tests.ts),
-which hard-kills any suite past `SIM_TEST_FILE_TIMEOUT_SECONDS` (180s default).
-One `bun test` process over all 46 sim suites does **not** work — every suite
-boots a whole product and the process never gives the memory back, so the run
-reached 3.8 GB and 2104s before the kernel killed it (exit 137) while the same
-suites cost 2-5s each on their own. Isolated and parallel, the whole suite is
-~60s. The `test:<feature>` scripts are per-feature entry points over the same
-runner; `@apps/product#check:test-slices` keeps them collectively complete.
+which groups them by how many products each boots (`openSim` calls), caps a
+group at `MAX_BOOTS_PER_GROUP`, and feeds the groups to a pool with a hard
+`SIM_TEST_BATCH_TIMEOUT_SECONDS` per group. Both extremes are slower: one
+process per file pays a seconds-long startup 46 times, and one process per core
+concentrates the heaviest suites until a process that has booted 25 products
+crawls. All 46 in a single process is 149s and 873 MB, so memory is not the
+constraint — an earlier version of this file claimed a cross-suite leak made
+one process impossible, on the evidence of a run that hit 3.8 GB and never
+finished. That was a scenario livelock spinning and allocating, since fixed;
+the claim was wrong. The `test:<feature>` scripts are per-feature entry points
+over the same runner; `@apps/product#check:test-slices` keeps them
+collectively complete.
 
 **A green `bun check` must mean a green PR check.** The gate is only worth
 running if the two agree, so a check leaf's **verdict** may not depend on which

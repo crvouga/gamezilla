@@ -33,7 +33,7 @@
  *   task that executed is checked against its per-task budget once the run
  *   finishes. Both live in `check-budget.ts`.
  */
-import { type ChildProcess, spawn } from 'node:child_process';
+import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
@@ -52,6 +52,7 @@ import {
   formatBudgetOverruns,
   readLatestRunSummary,
   resolveRunDeadlineSeconds,
+  slowestExecuted,
 } from './check-budget';
 import { CachedGroupFilter } from './github-cached-group-filter';
 
@@ -174,6 +175,38 @@ export function turboChildEnv(
   return env;
 }
 
+/** The three package tiers; everything else is shared by all of them. */
+const PACKAGE_TIER = /^(apps|libs|pkgs)\//;
+
+/**
+ * The first changed path that can change *every* package's result, or null.
+ *
+ * `--filter=...[base]` selects packages by directory: a package runs when a
+ * file under it changed, or under something it depends on. A change outside
+ * the tiers — `bun.lock`, root `package.json` / `turbo.json` / `biome.json` /
+ * `tsconfig.json`, `.github/workflows/**` — lives in no package, so the filter
+ * would select nothing for it and a dependency bump would skip every test.
+ * Any such path means the whole gate runs.
+ */
+export function pathForcingFullGate(
+  changedPaths: readonly string[]
+): string | null {
+  return changedPaths.find((path) => !PACKAGE_TIER.test(path)) ?? null;
+}
+
+function changedPathsSince(base: string): readonly string[] | null {
+  try {
+    const out = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], {
+      cwd: REPO_ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return out.split('\n').filter((line) => line.length > 0);
+  } catch {
+    return null;
+  }
+}
+
 function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
   const base = process.env['TURBO_AFFECTED_BASE']?.trim();
   if (base === undefined || base.length === 0) return [];
@@ -181,6 +214,23 @@ function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
     (a) => a.startsWith('--filter=') && a.includes('[')
   );
   if (alreadyScm) return [];
+  const changed = changedPathsSince(base);
+  if (changed === null) {
+    console.warn(
+      `turbo-ci-run: could not diff against ${base}; running the full gate.`
+    );
+    return [];
+  }
+  const forcing = pathForcingFullGate(changed);
+  if (forcing !== null) {
+    console.log(
+      `turbo-ci-run: full gate — '${forcing}' is outside apps/ libs/ pkgs/ and can change every package.`
+    );
+    return [];
+  }
+  // Root lint tasks read this to lint the diff instead of the whole repo; it
+  // is declared in their turbo `env`, so the two scopes hash differently.
+  process.env['CHECK_CHANGED_SINCE'] = base;
   return [`--filter=...[${base}]`, '--filter=//'];
 }
 
@@ -449,6 +499,16 @@ function enforceTaskBudgets(slowRunner: boolean): number {
       'turbo-ci-run: no turbo run summary found; per-task budgets not checked.'
     );
     return 0;
+  }
+  // Print it every run: without this the CI log says how long the whole gate
+  // took and nothing about where it went, and the only way to find the slow
+  // task was to guess.
+  const slowest = slowestExecuted(summary, 10);
+  if (slowest.length > 0) {
+    console.log('turbo-ci-run: slowest tasks that ran');
+    for (const row of slowest) {
+      console.log(`  ${String(row.seconds).padStart(5)}s  ${row.taskId}`);
+    }
   }
   const overruns = findBudgetOverruns(summary, slowRunner);
   if (overruns.length === 0) return 0;

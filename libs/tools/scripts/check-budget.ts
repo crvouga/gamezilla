@@ -38,20 +38,46 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // Walks every screen in the product; the widest sim slice by design.
   '@apps/product#test:explore': 600,
   '@apps/product#test:walk': 600,
+  /**
+   * A full sweep is 42 Grit plugins over ~4000 files, and the plugins are most
+   * of it: 57s idle on a 12-core laptop, 404s on a loaded one, 832s on CI's
+   * two cores, against 28s with plugins off. PR runs lint the diff instead
+   * (`lint-changed.ts`), so this ceiling only applies when lint config changed
+   * and the whole repo has to be re-checked. The real fix is fewer plugins —
+   * several are near-duplicates (six a11y, two tier-vocabulary, two
+   * must-be-trans) — not a larger number here.
+   */
+  '//#lint:biome': 480,
 };
 
 /**
  * PR CI and the deploy job run on 2-core GitHub-hosted runners; the budgets
- * above are measured on a dev laptop. Three is the observed ratio with
- * headroom — it is a runner correction, not slack for slower checks.
+ * above are measured on a dev laptop. It is a runner correction for
+ * *per-task* budgets only, not slack for slower checks, and it never touches
+ * the run deadline.
  */
-export const SLOW_RUNNER_MULTIPLIER = 3;
+export const SLOW_RUNNER_MULTIPLIER = 2;
 
-/** Wall-clock ceiling for a whole `check` run. */
-export const DEFAULT_RUN_DEADLINE_SECONDS = 1800;
+/**
+ * Wall-clock ceiling for a whole `check` run on a laptop.
+ *
+ * These are absolute, never scaled by {@link SLOW_RUNNER_MULTIPLIER}. Scaling
+ * the *run* deadline is what let PR CI sit on a wedged check for 90 minutes
+ * (`1800 × 3`) with nobody told why. The multiplier corrects per-task budgets
+ * for a slower machine; the run deadline is the promise that a gate finishes.
+ */
+export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
+
+/**
+ * The same ceiling on CI's 2-core runner. It must stay **below** the check
+ * step's `timeout-minutes` in `.github/workflows/pr.yml`, so this process kills
+ * the run and names the task still running before GitHub kills the job and
+ * says nothing.
+ */
+export const CI_RUN_DEADLINE_SECONDS = 1200;
 
 /** `deploy` adds provision → migrate → three worker deploys → smoke. */
-export const DEPLOY_RUN_DEADLINE_SECONDS = 3600;
+export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 
 /** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */
 export const RUN_DEADLINE_ENV = 'CHECK_DEADLINE_SECONDS';
@@ -74,10 +100,10 @@ export function resolveRunDeadlineSeconds(
 ): number {
   const override = Number.parseInt(env[RUN_DEADLINE_ENV]?.trim() ?? '', 10);
   if (Number.isInteger(override) && override > 0) return override;
-  const base = options.isDeploy
-    ? DEPLOY_RUN_DEADLINE_SECONDS
+  if (options.isDeploy) return DEPLOY_RUN_DEADLINE_SECONDS;
+  return options.slowRunner
+    ? CI_RUN_DEADLINE_SECONDS
     : DEFAULT_RUN_DEADLINE_SECONDS;
-  return options.slowRunner ? base * SLOW_RUNNER_MULTIPLIER : base;
 }
 
 type SummaryTask = {
@@ -122,6 +148,22 @@ export function findBudgetOverruns(
     overruns.push({ taskId, seconds, budgetSeconds });
   }
   return overruns.sort((a, b) => b.seconds - a.seconds);
+}
+
+/** The slowest tasks that actually executed, for the end-of-run table. */
+export function slowestExecuted(
+  summary: RunSummary,
+  limit: number
+): readonly TaskOverrun[] {
+  const rows: TaskOverrun[] = [];
+  for (const task of summary.tasks ?? []) {
+    const taskId = task.taskId;
+    if (typeof taskId !== 'string') continue;
+    const seconds = executedSeconds(task);
+    if (seconds === null) continue;
+    rows.push({ taskId, seconds, budgetSeconds: 0 });
+  }
+  return rows.sort((a, b) => b.seconds - a.seconds).slice(0, limit);
 }
 
 export function formatBudgetOverruns(overruns: readonly TaskOverrun[]): string {

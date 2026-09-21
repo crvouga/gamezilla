@@ -346,7 +346,8 @@
         "libs/tools/package.json"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "new-only",
+      "env": ["CHECK_CHANGED_SINCE"]
     },
     "//#lint:naming": {
       "cache": false,
@@ -428,7 +429,8 @@
         "pkgs/bun-test-solid/src/**/*.{ts,tsx}"
       ],
       "outputs": [".eslintcache"],
-      "outputLogs": "new-only"
+      "outputLogs": "new-only",
+      "env": ["CHECK_CHANGED_SINCE"]
     },
     "@apps/client#check:bundle-budget": {
       "dependsOn": ["@apps/client#build"],

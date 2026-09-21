@@ -7,6 +7,7 @@ import {
 import {
   flattenCheckAggregators,
   hasRemoteCreds,
+  pathForcingFullGate,
   resolveCacheFlag,
   turboChildEnv,
 } from './turbo-ci-run';
@@ -107,5 +108,40 @@ describe('turbo-ci-run aggregator flatten', () => {
       'tc',
       '@apps/server#smoke',
     ]);
+  });
+});
+
+describe('affected-only PR runs fall back to the full gate', () => {
+  test('changes confined to packages keep the affected filter', () => {
+    expect(
+      pathForcingFullGate([
+        'libs/chess/src/public/board.tsx',
+        'pkgs/sim/src/run/run.ts',
+        'apps/product/tests/chess.test.tsx',
+      ])
+    ).toBeNull();
+  });
+
+  test('a lockfile or root config change forces the full gate', () => {
+    for (const path of [
+      'bun.lock',
+      'package.json',
+      'turbo.json',
+      'biome.json',
+      'tsconfig.base.json',
+      '.github/workflows/pr.yml',
+      '.dependency-cruiser.cjs',
+    ]) {
+      expect(pathForcingFullGate(['libs/chess/src/x.ts', path])).toBe(path);
+    }
+  });
+
+  test('a lookalike directory name is not a package tier', () => {
+    expect(pathForcingFullGate(['appsettings/x.ts'])).toBe('appsettings/x.ts');
+    expect(pathForcingFullGate(['libraries/x.ts'])).toBe('libraries/x.ts');
+  });
+
+  test('an empty diff needs no fallback', () => {
+    expect(pathForcingFullGate([])).toBeNull();
   });
 });
