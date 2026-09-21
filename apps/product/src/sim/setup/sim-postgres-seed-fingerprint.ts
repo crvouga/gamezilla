@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { SIM_AUTH_SECRET } from '@apps/server/sim/migrate-sim-postgres';
+import { SIM_AUTH_SECRET } from '@libs/server-app/sim/migrate-sim-postgres';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
@@ -12,7 +12,7 @@ const DOMAIN_SCHEMA_KEY = 'schema-snapshot.json';
 
 function createMigrateSourceStore(repoRoot: string) {
   return createNodeFsObjectStore({
-    rootDir: join(repoRoot, 'apps/server/src/sim'),
+    rootDir: join(repoRoot, 'libs/server-app/src/sim'),
     fs: wallNodeFs(),
     layout: 'tree',
   });

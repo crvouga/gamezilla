@@ -5,7 +5,7 @@
 
 import { join } from 'node:path';
 import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
-import { migrateSimPostgres } from '@apps/server/sim/migrate-sim-postgres';
+import { migrateSimPostgres } from '@libs/server-app/sim/migrate-sim-postgres';
 import type { Clock } from '@pkgs/clock';
 import { wallClock } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';

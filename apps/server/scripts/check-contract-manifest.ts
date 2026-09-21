@@ -1,8 +1,8 @@
 // @io-wall-ok — contract manifest CLI entry root (scripts/**).
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { loadAppMutations } from '../src/sync/app-mutations';
-import { APP_QUERIES } from '../src/sync/app-queries';
+import { loadAppMutations } from '@libs/server-app/sync/app-mutations';
+import { APP_QUERIES } from '@libs/server-app/sync/app-queries';
 
 /**
  * Every query and mutation name ever shipped to a client is append-only.

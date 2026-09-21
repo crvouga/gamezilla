@@ -1,4 +1,4 @@
-import type { AppType } from '@apps/server/rpc';
+import type { AppType } from '@libs/server-app/rpc';
 import { type ApplyGlobalResponse, hc } from 'hono/client';
 
 type WithGlobalApiErrors<TAppType> = ApplyGlobalResponse<
@@ -21,8 +21,8 @@ export type CreateTypedApiRpcClientOptions = {
 
 /**
  * Typed Hono RPC client for the API. Duplicates the shape of
- * `@apps/server/rpc` so this package does not take a **value** dependency on
- * `@apps/server` (avoids `api` ↔ `client-config` package cycles — `api`
+ * `@libs/server-app/rpc` so this package does not take a **value** dependency on
+ * `@libs/server-app` (avoids `api` ↔ `client-config` package cycles — `api`
  * mounts `client-config`). `import type { AppType }` is type-only.
  */
 export function createTypedApiRpcClient(

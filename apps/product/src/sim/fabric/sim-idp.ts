@@ -11,13 +11,13 @@
  * away from a client or from the API and the product has to cope.
  */
 
+import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import {
   SIM_GOOGLE_CLIENT_ID,
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
   SIM_SERVER_URL,
-} from '@apps/server/sim/sim-constants';
-import type { ServerHttp } from '@libs/client-app/shell/client-env';
+} from '@libs/server-app/sim/sim-constants';
 import type { Clock } from '@pkgs/clock';
 import {
   createGoogleIdpApp,

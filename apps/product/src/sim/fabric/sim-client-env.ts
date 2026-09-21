@@ -4,10 +4,10 @@
  */
 
 import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
-import { SIM_SERVER_URL } from '@apps/server/sim/migrate-sim-postgres';
 import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
+import { SIM_SERVER_URL } from '@libs/server-app/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import type { Timers } from '@pkgs/clock';

@@ -3,25 +3,25 @@ import {
   type RoomServerApp,
 } from '@apps/room-server/app/create-room-server';
 import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
-import type { ServerEnv } from '@apps/server';
-import { loadAuthBootConfig } from '@apps/server/config/auth-boot';
-import {
-  migrateSimPostgres,
-  SIM_AUTH_SECRET,
-  SIM_POSTGRES_MEM_DATABASE_URL,
-  SIM_SERVER_URL,
-} from '@apps/server/sim/migrate-sim-postgres';
-import {
-  SIM_GOOGLE_CLIENT_ID,
-  SIM_GOOGLE_CLIENT_SECRET,
-  SIM_IDP_URL,
-} from '@apps/server/sim/sim-constants';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import {
   type Client,
   createClient,
 } from '@libs/client-app/shell/create-client';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
+import type { ServerEnv } from '@libs/server-app';
+import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
+import {
+  migrateSimPostgres,
+  SIM_AUTH_SECRET,
+  SIM_POSTGRES_MEM_DATABASE_URL,
+  SIM_SERVER_URL,
+} from '@libs/server-app/sim/migrate-sim-postgres';
+import {
+  SIM_GOOGLE_CLIENT_ID,
+  SIM_GOOGLE_CLIENT_SECRET,
+  SIM_IDP_URL,
+} from '@libs/server-app/sim/sim-constants';
 import { assert } from '@pkgs/assert';
 import { FakeMembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';

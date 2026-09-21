@@ -15,14 +15,13 @@
  */
 
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
+import type { ApiWorkerEnv } from '@libs/server-app/config/env';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   type BunRoomSocketData,
   createBunRoomHost,
 } from '@pkgs/room-adapter-bun';
-
-import type { ApiWorkerEnv } from '../src/config/env';
 import workerHandler from '../src/server';
 
 const PORT = Number(process.env['API_NODE_PORT'] ?? 0);

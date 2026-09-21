@@ -24,7 +24,7 @@
  * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the
  * standard migration step first (`bun run db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
- * of the seed lets `@libs/chess` stay independent of `@apps/server`
+ * of the seed lets `@libs/chess` stay independent of `@libs/server-app`
  * and avoids a workspace-level dependency cycle.
  *
  * Connection model: the seed opens **exactly one** TCP session to Postgres

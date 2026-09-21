@@ -9,8 +9,8 @@
  * shared-state class of bug).
  */
 
-import { createServer, type ServerEnv, serveFetch } from '@apps/server';
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
+import { createServer, type ServerEnv, serveFetch } from '@libs/server-app';
 import { serializeFetch } from './sim-fetch';
 import { nextSimNodeId, normalizeSimNodeId } from './sim-node-name';
 

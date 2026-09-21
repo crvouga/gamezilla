@@ -4,9 +4,10 @@
  * `observe` kinds, which derives the next membership from the account's current
  * projection row.
  */
-import { SIM_SERVER_URL } from '@apps/server/sim/migrate-sim-postgres';
+
 import { createMockBillingApi } from '@libs/billing/public/mock-billing-api';
 import { MOCK_BILLING_TEST_IDS } from '@libs/billing/public/mock-test-ids';
+import { SIM_SERVER_URL } from '@libs/server-app/sim/migrate-sim-postgres';
 import { Handles } from '@libs/test-ids';
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
 import { accountIdOf } from './identity';

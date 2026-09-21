@@ -572,9 +572,9 @@
     },
     "@apps/server#check:contract": {
       "inputs": [
-        "src/sync/**/*.ts",
         "contract-manifest.json",
         "scripts/check-contract-manifest.ts",
+        "../../libs/server-app/src/sync/**/*.ts",
         "../../libs/*/src/**/*.ts",
         "../../pkgs/sync-engine/src/**/*.ts"
       ],

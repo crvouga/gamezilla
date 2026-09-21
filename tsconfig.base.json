@@ -54,6 +54,8 @@
       "@libs/pubsub/shared/*": ["./libs/pubsub/src/shared/*.ts"],
       "@libs/runtime/*": ["./libs/runtime/src/*"],
       "@libs/search/*": ["./libs/search/src/*"],
+      "@libs/server-app": ["./libs/server-app/src/index.ts"],
+      "@libs/server-app/*": ["./libs/server-app/src/*"],
       "@libs/secrets/public/*": ["./libs/secrets/src/public/*.ts"],
       "@libs/secrets/shared/*": ["./libs/secrets/src/shared/*.ts"],
       "@libs/spaces/*": ["./libs/spaces/src/*"],

@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-import { loadAppMutations } from '@apps/server/sync/app-mutations';
 import { MUTATION_ACTIONS } from '@libs/permissions/public/mutation-actions';
 import {
   ACTION,
   PERMISSION,
 } from '@libs/permissions/public/permission-catalog';
+import { loadAppMutations } from '@libs/server-app/sync/app-mutations';
 
 const KNOWN_KEYS = new Set<string>([
   ...Object.values(PERMISSION),
