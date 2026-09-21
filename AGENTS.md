@@ -226,8 +226,8 @@ a plan without larger runners):
    deploy → billing sync), so it is never listed as a `dependsOn` of another
    aggregator.
 2. **`main` deploys in two stages.** `.github/workflows/deploy.yml` runs
-   `canary-dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
-   succeeds, `release-prod` (`SECRETS_ENV=prd bun run deploy`,
+   `deploy:dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
+   succeeds, `deploy:prd` (`SECRETS_ENV=prd bun run deploy`,
    `environment: production`). Both jobs invoke `bun run deploy` with
    `SECRETS_ENV` set at the job level rather than the `deploy:dev` /
    `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage is a
