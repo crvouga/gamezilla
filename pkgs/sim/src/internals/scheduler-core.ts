@@ -22,7 +22,21 @@ export type DrainContext = {
   readonly inFlight: InFlightTask[];
   /** Fired-Task counter for this drain; bounds every drain loop. */
   readonly budget: DrainBudget;
+  /** Shared across drains; see {@link DrainStats}. */
+  readonly stats: DrainStats;
 };
+
+/**
+ * Counts advances the drain made while wall work was still in flight.
+ *
+ * `drainInFlightWallWork` gives a starved process only so many macrotask turns
+ * before it moves virtual time anyway, to avoid deadlocking on a task that is
+ * really waiting for a future timer. On a contended machine that guess is
+ * wrong often enough to matter: virtual time runs ahead of the work, and a
+ * scenario's `until` budget drains without the system having progressed. The
+ * count lets a waiter tell that apart from "the product never got there".
+ */
+export type DrainStats = { starvedAdvances: number };
 
 export function pushTask(heap: Task[], item: Task): void {
   heap.push(item);
@@ -213,6 +227,9 @@ async function settleOrDeadlock(
     if (end !== undefined && nextAt > end) {
       throw new Error(deadlockMessage(ctx));
     }
+    // Moving the clock with work still in flight: the drain ran out of
+    // patience, not the simulation out of things to do.
+    ctx.stats.starvedAdvances += 1;
     ctx.clock.set(nextAt);
     await fireOneDue(ctx);
   }

@@ -28,6 +28,8 @@ export type Scheduler = {
   /** Drop all pending Tasks and reset virtual time to `atMs`. */
   readonly reset: (atMs: number) => void;
   readonly runFor: (durationMs: number) => Promise<void>;
+  /** Advances made while wall work was still in flight; see `DrainStats`. */
+  readonly starvedAdvances: () => number;
   readonly runUntilQuiescent: (opts?: {
     readonly maxSteps?: number;
     readonly maxVirtualMs?: number;
@@ -54,6 +56,7 @@ export function createScheduler(
   const trace = opts?.trace;
   const choiceRng = opts?.choiceRng;
   const inFlight: DrainContext['inFlight'] = [];
+  const stats: DrainContext['stats'] = { starvedAdvances: 0 };
 
   // A fresh budget per top-level drain: the ceiling is per drain, not per run.
   const makeCtx = (): DrainContext => ({
@@ -61,6 +64,7 @@ export function createScheduler(
     clock,
     inFlight,
     budget: { steps: 0 },
+    stats,
     ...(choiceRng !== undefined ? { choiceRng } : {}),
     ...(trace !== undefined ? { trace } : {}),
   });
@@ -100,6 +104,7 @@ export function createScheduler(
       heap.length = 0;
       clock.reset(atMs);
     },
+    starvedAdvances: () => stats.starvedAdvances,
     runFor: (durationMs) =>
       withDrainGate(() => runForDuration(makeCtx(), durationMs)),
     runUntilQuiescent: (opts) =>
