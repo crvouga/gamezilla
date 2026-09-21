@@ -4,6 +4,7 @@
  */
 import type { MembershipBilling } from '@pkgs/billing';
 import type { Clock } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid/create-id';
 import type { Context } from 'hono';
@@ -31,6 +32,7 @@ export type BillingRouteDeps = {
   readonly requireAuth: BillingRequireAuth;
   readonly createId: CreateId;
   readonly clock: Clock;
+  readonly log: Logger;
   readonly notifyUser: BillingNotify;
 };
 

@@ -58,7 +58,7 @@
         "!**/*.md",
         "$TURBO_ROOT$/pkgs/ts-reset/src/**"
       ],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": []
     },
     "@pkgs/auth#tc": {
@@ -122,7 +122,7 @@
         "$TURBO_ROOT$/libs/tools/naming/**",
         "$TURBO_ROOT$/libs/tools/goal/**"
       ],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": []
     },
     "test": {
@@ -140,7 +140,7 @@
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": []
     },
     "test:e2e": {
@@ -155,7 +155,7 @@
         "PBT_RANDOM",
         "FC_SEED"
       ],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": [".cache/sim-report/**"]
     },
     "build": {
@@ -176,7 +176,7 @@
         "tsconfig.tc.json",
         "babel.config.js"
       ],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": ["dist/**"]
     },
     "preview": {
@@ -188,7 +188,7 @@
       "dependsOn": ["@libs/tools#tc"],
       "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#ci:syncpack": {
       "inputs": [
@@ -200,12 +200,12 @@
         ".syncpackrc.cjs"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#ci:audit": {
       "inputs": ["bun.lock", "libs/tools/scripts/ci-audit.ts", "package.json"],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#ci:i18n": {
       "inputs": [
@@ -233,7 +233,7 @@
         "libs/tools/scripts/lingui-scope.ts"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#ci:agent-commands": {
       "inputs": [
@@ -247,13 +247,13 @@
         "libs/tools/scripts/sync-agent-commands.ts"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#ci:goals": {
       "dependsOn": ["@libs/tools#tc"],
       "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@apps/client#check:bundle-budget": {
       "dependsOn": ["@apps/client#build"],
@@ -269,20 +269,20 @@
         "scripts/perf-budget.ts"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@libs/runtime#check:schema-evolution": {
       "dependsOn": ["tc"],
       "env": ["PR_BASE"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@libs/secrets#check": {
       "env": ["CHECK_SECRETS_FINGERPRINT"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@libs/tools#check:static": {
       "env": [
@@ -300,11 +300,11 @@
         "$TURBO_ROOT$/.github/workflows/**"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@libs/tools#install:cli": {
       "cache": false,
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "//#check": {
       "dependsOn": [
@@ -325,11 +325,11 @@
         "@libs/tools#check:static"
       ],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@apps/server#check:api": {
       "cache": false,
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@libs/secrets#provision": {
       "cache": false,
@@ -379,7 +379,7 @@
       "cache": false,
       "dependsOn": ["//#check", "@apps/server#check:api", "@apps/server#smoke"],
       "outputs": [],
-      "outputLogs": "new-only"
+      "outputLogs": "errors-only"
     },
     "@libs/tools#test": {
       "dependsOn": ["tc"],

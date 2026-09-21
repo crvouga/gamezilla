@@ -48,6 +48,7 @@ import {
   nextSimNodeId,
   normalizeSimNodeId,
 } from '@libs/sim-harness/fabric/sim-node-name';
+import { createLogger } from '@pkgs/logger';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
@@ -165,7 +166,13 @@ async function runProductSimulatorCommand(
 ): Promise<void> {
   const cmd = commands.find((c) => c.id === id);
   if (cmd === undefined) throw new Error(`unknown command '${id}'`);
-  const publishPeer = createInMemoryPublishOnlyPubSub(buildArgs.sim.pubSubBus);
+  const publishPeer = createInMemoryPublishOnlyPubSub({
+    bus: buildArgs.sim.pubSubBus,
+    logger: createLogger({
+      name: 'product-simulator:pubsub',
+      now: () => buildArgs.sim.clock.now(),
+    }),
+  });
   try {
     await cmd.run({
       serverSql: buildArgs.sim.serverSql.sqlClient,

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { createNoopLogger } from '@pkgs/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from '@pkgs/sql-client/impl-with-pub-sub';
@@ -43,7 +44,7 @@ async function loadImplementations(): Promise<
         Promise.resolve(
           new SqlClientWithPubSub(
             SqlClientImplBunSqlite.open(':memory:'),
-            createInMemoryPubSub(),
+            createInMemoryPubSub({ logger: createNoopLogger() }),
             adapters.clock.now
           )
         ),

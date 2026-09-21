@@ -1,6 +1,9 @@
 import type { Timers } from '@pkgs/clock';
 import { OPEN_DATABASE_TIMEOUT_MS } from './open-retry';
-import type { createOwnerRuntime, OwnerRuntime } from './owner-runtime';
+import type {
+  OwnerRuntime,
+  TransportOwnerRuntimeFactory,
+} from './owner-runtime';
 import {
   awaitRpcResponse,
   type BrokerToTabMessage,
@@ -38,7 +41,7 @@ class SharedWorkerTransport implements WebSqlTransport {
   private readonly timers: Timers;
   private readonly workerUrl: string;
   private readonly protocolVersion: number;
-  private readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  private readonly createOwnerRuntimeFn: TransportOwnerRuntimeFactory;
   private readonly nextId = createRpcIdFactory('sw');
   private readonly pending = new Map<string, PendingRpc>();
   private readonly changeListeners = new Set<
@@ -56,7 +59,7 @@ class SharedWorkerTransport implements WebSqlTransport {
     readonly dbName: string;
     readonly timers: Timers;
     readonly workerUrl: string;
-    readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+    readonly createOwnerRuntimeFn: TransportOwnerRuntimeFactory;
     readonly protocolVersion?: number;
   }) {
     this.dbName = args.dbName;
@@ -299,7 +302,7 @@ export function createSharedWorkerTransport(args: {
   readonly dbName: string;
   readonly timers: Timers;
   readonly workerUrl: string;
-  readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  readonly createOwnerRuntimeFn: TransportOwnerRuntimeFactory;
   readonly protocolVersion?: number;
 }): WebSqlTransport {
   return new SharedWorkerTransport(args);

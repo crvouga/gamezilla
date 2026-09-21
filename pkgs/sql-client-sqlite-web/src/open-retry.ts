@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 
 /** Fail fast instead of leaving Suspense on a hung OPFS / worker open. */
 export const OPEN_DATABASE_TIMEOUT_MS = 25_000;
@@ -52,6 +53,8 @@ export async function sleepMs(timers: Timers, ms: number): Promise<void> {
 export async function openWithWaitRetry<T>(args: {
   readonly databaseName: string;
   readonly timers: Timers;
+  /** Receives one warning per locked-handle retry. */
+  readonly logger: Logger;
   readonly openOnce: () => Promise<T>;
   readonly delaysMs?: readonly number[];
 }): Promise<T> {
@@ -70,10 +73,13 @@ export async function openWithWaitRetry<T>(args: {
         throw error;
       }
       const delay = delays[attempt] ?? 4000;
-      console.warn(
-        `[sqlite-web] Open locked for "${args.databaseName}"; retrying in ${delay}ms (attempt ${attempt + 1}/${delays.length}).`,
-        error
-      );
+      args.logger.warn('open locked; retrying', {
+        databaseName: args.databaseName,
+        delayMs: delay,
+        attempt: attempt + 1,
+        attempts: delays.length,
+        error: String(error),
+      });
       await sleepMs(args.timers, delay);
     }
   }

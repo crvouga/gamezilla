@@ -14,3 +14,12 @@ export type PubSubContractEnv = {
 };
 
 export type PubSubContractFactory = () => Promise<PubSubContractEnv>;
+
+/**
+ * Registration-time capabilities. Known before the env is built so the runner
+ * reports unsupported cases as skipped instead of passing them silently.
+ */
+export type PubSubContractOptions = {
+  /** Adapter provides `disruptTransport` (status + resubscribe cases). */
+  readonly supportsDisruptTransport: boolean;
+};

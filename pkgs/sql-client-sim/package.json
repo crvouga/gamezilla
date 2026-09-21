@@ -18,6 +18,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",

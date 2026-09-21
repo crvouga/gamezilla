@@ -16,6 +16,7 @@
   "dependencies": {
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

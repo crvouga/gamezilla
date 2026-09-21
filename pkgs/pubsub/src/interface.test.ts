@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import { createNoopLogger, type Logger } from '@pkgs/logger';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
@@ -9,21 +10,27 @@ import { runPubSubContractTests } from './in-memory/contract';
 import { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from './payload';
 import { assertValidTopic } from './topic';
 
-runPubSubContractTests('in-memory', async () => {
-  const bus = createInMemoryBus();
-  return {
-    make: async () => createInMemoryPubSub(bus),
-    injectMalformedInbound: async (subscriber, topic) => {
-      if (!(subscriber instanceof InMemoryPubSub)) {
-        throw new Error('expected InMemoryPubSub');
-      }
-      subscriber.deliverRawForTest(topic, 'not-json{{{');
-    },
-    clock: wallClock,
-    timers: wallTimers,
-    teardown: async () => undefined,
-  };
-});
+const logger = createNoopLogger();
+
+runPubSubContractTests(
+  'in-memory',
+  async () => {
+    const bus = createInMemoryBus();
+    return {
+      make: async () => createInMemoryPubSub({ bus, logger }),
+      injectMalformedInbound: async (subscriber, topic) => {
+        if (!(subscriber instanceof InMemoryPubSub)) {
+          throw new Error('expected InMemoryPubSub');
+        }
+        subscriber.deliverRawForTest(topic, 'not-json{{{');
+      },
+      clock: wallClock,
+      timers: wallTimers,
+      teardown: async () => undefined,
+    };
+  },
+  { supportsDisruptTransport: false }
+);
 
 describe('assertValidTopic', () => {
   test('accepts simple and namespaced topics', () => {
@@ -41,14 +48,20 @@ describe('assertValidTopic', () => {
 
 describe('payload codec', () => {
   test('round-trips', () => {
-    expect(decodePayload(encodePayload({ a: 1 }))).toEqual({ a: 1 });
+    expect(decodePayload(encodePayload({ a: 1 }), logger)).toEqual({ a: 1 });
   });
 
   test('rejects oversized', () => {
     expect(() => encodePayload('x'.repeat(PAYLOAD_MAX_BYTES))).toThrow();
   });
 
-  test('malformed decode returns undefined', () => {
-    expect(decodePayload('{')).toBeUndefined();
+  test('malformed decode returns undefined and warns', () => {
+    const warnings: string[] = [];
+    const capturing: Logger = {
+      ...createNoopLogger(),
+      warn: (msg) => warnings.push(msg),
+    };
+    expect(decodePayload('{', capturing)).toBeUndefined();
+    expect(warnings).toEqual(['malformed payload dropped']);
   });
 });

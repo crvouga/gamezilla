@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import { createNoopLogger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
 import {
@@ -95,6 +96,7 @@ async function boot(
     clientIdPrefix: 'device-1',
     timers,
     random,
+    logger: createNoopLogger(),
     connectFn: (_url: string, opts: IClientOptions) => {
       lastOpts = opts;
       return fake as unknown as MqttClient;
@@ -216,6 +218,7 @@ describe('createEmqxPubSub', () => {
       clientIdPrefix: 'stable-id',
       timers,
       random,
+      logger: createNoopLogger(),
       reconnect: { baseMs: 1, maxMs: 1 },
       connectFn: (_url, opts) => {
         optsList.push(opts);

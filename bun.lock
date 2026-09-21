@@ -2047,6 +2047,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/logger": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2073,6 +2074,7 @@
       "dependencies": {
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-mqtt": "workspace:*",
       },
@@ -2089,6 +2091,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "mqtt": "catalog:",
       },
@@ -2438,6 +2441,7 @@
       "dependencies": {
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -2484,6 +2488,7 @@
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/sim": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -2524,6 +2529,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",

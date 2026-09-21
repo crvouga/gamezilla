@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "mqtt": "catalog:"
   },
