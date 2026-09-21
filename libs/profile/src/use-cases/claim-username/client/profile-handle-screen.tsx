@@ -79,6 +79,8 @@ function usernameErrorLabel(
       return <Trans>Username can only use letters, numbers, and _</Trans>;
     case 'USERNAME_EMPTY':
       return <Trans>Username is required</Trans>;
+    case 'USERNAME_BLOCKED':
+      return <Trans>That username is not allowed</Trans>;
     default:
       return <Trans>Couldn't save</Trans>;
   }

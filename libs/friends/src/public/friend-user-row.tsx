@@ -12,6 +12,8 @@ export type FriendUserRowProps = {
   readonly trailing?: JSX.Element;
   /** When true, sets the friends-list DST handle from `profile.username`. */
   readonly friendsListHandle?: boolean;
+  /** DST handle for the pressable identity, when not a friends-list row. */
+  readonly pressTestID?: string | undefined;
 };
 
 function usernameLabel(profile: FriendProfile): string {
@@ -38,7 +40,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
   const rowTestID = createMemo(() =>
     props.friendsListHandle === true && props.profile.username.length > 0
       ? Handles.friendsListRow(props.profile.username)
-      : undefined
+      : props.pressTestID
   );
 
   const rowAttrs = () => {

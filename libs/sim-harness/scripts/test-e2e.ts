@@ -20,6 +20,15 @@ import { join } from 'node:path';
 const PACKAGE_DIR = process.cwd();
 const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
+/**
+ * Resolved from here, not from the feature package: `bun test --preload` looks
+ * a bare specifier up from its cwd, and a feature does not (and should not)
+ * declare the Solid test preload — sim-harness does.
+ */
+const SOLID_PRELOAD = Bun.resolveSync(
+  '@pkgs/bun-test-solid/preload',
+  import.meta.dir
+);
 /** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
 const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
 
@@ -43,7 +52,7 @@ const result = spawnSync(
     '--conditions=browser',
     '--conditions=development',
     '--preload',
-    '@pkgs/bun-test-solid/preload',
+    SOLID_PRELOAD,
     '--preload',
     '@libs/sim-harness/preload',
     ...(process.env['SIM_PRELOAD'] === undefined

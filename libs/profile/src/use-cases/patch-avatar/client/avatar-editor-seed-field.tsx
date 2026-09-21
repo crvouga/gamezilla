@@ -13,6 +13,10 @@ import type { JSX } from 'solid-js';
 import { createEffect, createSignal, onCleanup } from 'solid-js';
 
 export function AvatarEditorSeedField(props: {
+  /**
+   * The draft's own seed, not the effective one: empty while the person is
+   * retyping it (the avatar falls back to their default look meanwhile).
+   */
   seed: string;
   onSeedChange: (seed: string) => void;
   onRandomize: () => void;
@@ -39,6 +43,7 @@ export function AvatarEditorSeedField(props: {
         <div class="box flex-1">
           <TextInput
             value={props.seed}
+            placeholder={t`Empty: your default look`}
             onChangeText={props.onSeedChange}
             aria-label={t`Seed`}
             autocapitalize="none"

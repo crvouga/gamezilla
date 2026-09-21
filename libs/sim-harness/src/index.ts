@@ -117,7 +117,7 @@ export {
 } from './system/observations';
 export { PRODUCT_POOL_ACTIONS } from './system/pool-actions';
 export { captureSnapshot, googleOauthSignIn } from './system/probes';
-export { focusActor, openSettings } from './system/shell-actions';
+export { focusActor, openAccount, openSettings } from './system/shell-actions';
 export { SHELL_SCENARIO_ACTIONS } from './system/shell-scenario-actions';
 export {
   createProductSim,
