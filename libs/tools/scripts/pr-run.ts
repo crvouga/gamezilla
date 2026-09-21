@@ -6,8 +6,9 @@
  * SIGTERM / SIGHUP cancel the run on GitHub before exiting (SIGKILL cannot be
  * caught — cancel that run with `gh run cancel <id>`).
  *
- * The run checks out the branch as pushed, so the local HEAD must already be
- * on `origin/<branch>`; uncommitted changes are not part of it.
+ * First it syncs the branch with GitHub: merges commits only `origin/<branch>`
+ * has (aborting on conflict), then pushes, so the run checks out the local
+ * HEAD. Uncommitted changes are not part of the run. Refuses on `main`.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
@@ -80,28 +81,56 @@ function listDispatchRuns(branch: string): ListedRun[] {
   return JSON.parse(out) as ListedRun[];
 }
 
-/** Branch name and HEAD sha, after proving GitHub has exactly that commit. */
-function pushedHead(): { readonly branch: string; readonly sha: string } {
-  const branch = must(['git', 'branch', '--show-current']);
-  if (branch === '') throw new PrRunError('detached HEAD: check out a branch.');
-  const sha = must(['git', 'rev-parse', 'HEAD']);
-  const fetched = run(['git', 'fetch', '--quiet', 'origin', branch]);
-  if (fetched.code !== 0) {
+const TRUNKS: ReadonlySet<string> = new Set(['main', 'master']);
+
+function remoteBranchExists(branch: string): boolean {
+  return run(['git', 'fetch', '--quiet', 'origin', branch]).code === 0;
+}
+
+/** Merge commits that exist only on `origin/<branch>` into the local branch. */
+function pullRemote(branch: string): void {
+  const upToDate = run([
+    'git',
+    'merge-base',
+    '--is-ancestor',
+    `origin/${branch}`,
+    'HEAD',
+  ]);
+  if (upToDate.code === 0) return;
+  console.log(`pr: merging origin/${branch} into ${branch}`);
+  const merged = run(['git', 'merge', '--no-edit', `origin/${branch}`]);
+  if (merged.code !== 0) {
+    run(['git', 'merge', '--abort']);
     throw new PrRunError(
-      `origin/${branch} does not exist: push the branch first.`
+      `merging origin/${branch} failed (aborted): ${merged.err || merged.out}`
     );
   }
-  const remote = must(['git', 'rev-parse', `origin/${branch}`]);
-  if (remote !== sha) {
+}
+
+/**
+ * Sync the branch with GitHub — pull what only origin has, push what only
+ * this clone has — so the run checks out exactly the local HEAD.
+ */
+function syncBranch(): { readonly branch: string; readonly sha: string } {
+  const branch = must(['git', 'branch', '--show-current']);
+  if (branch === '') throw new PrRunError('detached HEAD: check out a branch.');
+  if (TRUNKS.has(branch)) {
     throw new PrRunError(
-      `HEAD ${sha.slice(0, 9)} is not origin/${branch} (${remote.slice(0, 9)}): ` +
-        'push (or pull) first — the run checks out what GitHub has.'
+      `refusing to push ${branch}: run from a feature branch.`
     );
   }
   if (must(['git', 'status', '--porcelain']) !== '') {
-    console.warn('pr: uncommitted changes are not part of this run.');
+    console.warn(
+      'pr: uncommitted changes are not part of this run — commit them first.'
+    );
   }
-  return { branch, sha };
+  if (remoteBranchExists(branch)) pullRemote(branch);
+  const pushed = Bun.spawnSync(['git', 'push', '-u', 'origin', branch], {
+    stdio: ['inherit', 'inherit', 'inherit'],
+  });
+  if (pushed.exitCode !== 0)
+    throw new PrRunError(`git push origin ${branch} failed.`);
+  return { branch, sha: must(['git', 'rev-parse', 'HEAD']) };
 }
 
 async function waitForRun(
@@ -165,7 +194,7 @@ function printFailedLog(runId: number): void {
 }
 
 async function main(): Promise<number> {
-  const { branch, sha } = pushedHead();
+  const { branch, sha } = syncBranch();
   const knownIds = new Set(listDispatchRuns(branch).map((r) => r.databaseId));
   const state: WatchState = {
     runId: null,

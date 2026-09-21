@@ -307,7 +307,10 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (fidelity-max sims, `test:contract`, `check:api`).
 - **Checks.** `bun check` is the whole gate (the same leaf set PR CI runs).
   While iterating, prefer `bun fmt` plus `bun run --filter <pkg> tc` and
-  `bun run --filter <pkg> test`. Every PR body follows
+  `bun run --filter <pkg> test`. `bun pr` runs the real PR workflow
+  (`.github/workflows/pr.yml`) on GitHub for the current branch: it merges
+  commits only `origin/<branch>` has, pushes, dispatches the run and blocks
+  until it finishes (exit code = verdict); Ctrl-C cancels the run on GitHub. Every PR body follows
   `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-merge`
   (`.agents/commands/pr-merge.md`) — the single PR command: it gets
   `bun check` green locally first, then commits, syncs with `main` (re-running
