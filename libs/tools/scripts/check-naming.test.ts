@@ -86,12 +86,12 @@ describe('naming rules', () => {
     // other path), so compare the per-path cost at two sizes: linear holds it
     // flat, quadratic multiplies it by the size ratio.
     //
-    // Two things make that comparison survive a loaded machine. Interleave the
-    // sizes, so a busy stretch lands on both samples rather than on whichever
-    // one happened to run during it; and keep the fastest round of each, since
-    // contention only ever makes a sample slower, so the minimum is the round
-    // that got the CPU to itself. Measured: 1.04 idle, 1.7 with twelve CPU
-    // burners running — against 10 for an actually quadratic classifier.
+    // The comparison has to survive a loaded machine — `bun check` runs this
+    // beside a dozen other tasks. Wall-clock time counts every moment the OS
+    // gave the CPU to someone else, and even the fastest of seven interleaved
+    // rounds read 11x under load. So measure this process's own CPU time, which
+    // other processes cannot inflate; still interleave the sizes and keep the
+    // fastest round of each. The bound is unchanged: quadratic reads ~10x.
     const makePaths = (count: number): string[] =>
       Array.from(
         { length: count },
@@ -99,9 +99,10 @@ describe('naming rules', () => {
       );
     const perPathMs = (count: number): number => {
       const paths = makePaths(count);
-      const started = performance.now();
+      const started = process.cpuUsage();
       findNamingViolations(paths);
-      return (performance.now() - started) / count;
+      const spent = process.cpuUsage(started);
+      return (spent.user + spent.system) / 1000 / count;
     };
 
     perPathMs(2_000); // warm the JIT so the first sample is not the slow one
