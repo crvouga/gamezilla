@@ -263,6 +263,14 @@
       ]
     },
     {
+      "path": "./libs/tools/biome-plugins/lingui-no-t-parameter.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
       "path": "./libs/tools/biome-plugins/lingui-no-single-variables-to-translate.grit",
       "includes": [
         "**/apps/client/**/*.{ts,tsx}",

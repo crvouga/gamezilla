@@ -1,0 +1,9 @@
+language js
+
+// The Lingui macro compiles `t` only where it is destructured from
+// `useLingui()` in scope. A `t` typed from the hook and passed around as an
+// argument reaches the runtime as a plain function, and every tagged
+// template on it renders an empty string (and is never extracted).
+`ReturnType<typeof useLingui>` as $type where {
+  register_diagnostic(span=$type, message="Do not pass Lingui's `t` around: call `useLingui()` where the label is written (the macro compiles only that binding; a passed-in `t` renders empty labels).", severity="error")
+}
