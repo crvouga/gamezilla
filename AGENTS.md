@@ -273,7 +273,10 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
 - `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
   branch, plus the merge-method policy: **merge commits only** — squash and
   rebase merges are disabled, so `main` keeps every PR's commit graph and merge
-  base.
+  base. `allow_auto_merge` is on so a **human** can queue a PR to merge once
+  its required checks pass; it is only safe because those checks are required
+  (`github:config:check` reports a protection with none). Agents still never
+  enable it.
 
 Two local layers back it up: `libs/tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
