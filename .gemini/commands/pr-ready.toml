@@ -1,7 +1,0 @@
-# generated from .agents/commands by `bun run agents:sync` — do not edit
-description = "Take the current branch to a green, conflict-free, review-complete PR — pass `bun check` locally, commit, sync with main, resolve conflicts, push, drive CI green, and address review feedback without merging"
-prompt = """
-@{.agents/commands/pr-ready.md}
-
-Follow the command above exactly. Arguments: {{args}}
-"""

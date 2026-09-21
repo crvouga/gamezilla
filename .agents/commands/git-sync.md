@@ -10,7 +10,7 @@ Commit and push all local work on the current feature branch, then merge the lat
 the commit message.
 
 Use it to checkpoint and stay current with `main` between units of work. To take a branch all
-the way to a green PR, use `/pr-ready` (`.agents/commands/pr-ready.md`).
+the way to a green PR, use `/pr-merge` (`.agents/commands/pr-merge.md`).
 
 ## Run
 
@@ -30,7 +30,7 @@ message.
 Message rules: the header is `<type>(<scope>): <summary>`. The type is one of
 `feat|fix|refactor|test|chore|docs|perf|ci`. The header is at most 72 characters, has no
 trailing full stop, and is followed by a blank line before any body. They are the same
-Conventional Commit rules as the PR title in `/pr-ready` (enforced in `libs/tools/scripts/git-sync.ts`).
+Conventional Commit rules as the PR title in `/pr-merge` (enforced in `libs/tools/scripts/git-sync.ts`).
 
 That is the whole flow. Do not invent other git steps, and do not hand-run fetch, merge or push
 around the script.
@@ -74,4 +74,4 @@ on the remote, merges the feature branch into trunk, or merges a PR.
 
 Report the script's `ERROR:` output verbatim. Do not force-push, stash, amend, open a PR, or
 continue after a failed merge. If the merge with `origin/main` conflicted, resolve it through
-`/pr-ready` §2 (conflict agent), not by hand-running merge steps here.
+`/pr-merge` §2 (conflict agent), not by hand-running merge steps here.

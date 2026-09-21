@@ -21,17 +21,17 @@ describe('parseDescription', () => {
 });
 
 describe('renderStubs', () => {
-  const files = renderStubs([{ name: 'pr-ready', description: 'Go "green"' }]);
+  const files = renderStubs([{ name: 'pr-merge', description: 'Go "green"' }]);
 
   test('emits one stub per harness, each pointing at the source file', () => {
     expect(files.map((file) => file.path)).toEqual([
-      '.gemini/commands/pr-ready.toml',
-      '.github/prompts/pr-ready.prompt.md',
-      '.windsurf/workflows/pr-ready.md',
-      '.agents/skills/pr-ready/SKILL.md',
+      '.gemini/commands/pr-merge.toml',
+      '.github/prompts/pr-merge.prompt.md',
+      '.windsurf/workflows/pr-merge.md',
+      '.agents/skills/pr-merge/SKILL.md',
     ]);
     for (const file of files) {
-      expect(file.content).toContain('.agents/commands/pr-ready.md');
+      expect(file.content).toContain('.agents/commands/pr-merge.md');
       expect(file.content).toContain(GENERATED_MARKER);
     }
   });
