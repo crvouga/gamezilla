@@ -4,6 +4,7 @@ import { SpacesNavProvider } from '../../public/nav/spaces-nav-context';
 import { SpaceRoomProvider } from '../../public/room/space-room-context';
 import { useSpaceRouteId } from '../../public/space-routes';
 import { useSpacePresence } from '../../public/use-space-presence';
+import { useSpaceByLink } from '../../use-cases/open-space-link/client/use-space-by-link';
 import { ActiveSpace } from './active-space/active-space';
 import { SpaceEndedScreen } from './join-space/space-ended-screen';
 import { SpaceJoinPrompt } from './join-space/space-join-prompt';
@@ -32,6 +33,7 @@ export function SpaceDetailScreen(): JSX.Element {
 }
 
 function SpaceDetailBody(props: { readonly spaceId: string }): JSX.Element {
+  useSpaceByLink(() => props.spaceId);
   const presence = useSpacePresence(() => props.spaceId);
 
   const joinedEnded = (): boolean => {

@@ -1,5 +1,8 @@
 /** The third way in: create an account inline. No password field. */
 
+import { Button } from '@pkgs/ui/components/button';
+import { Notice } from '@pkgs/ui/components/notice';
+import { TextLink } from '@pkgs/ui/components/text-link';
 import { Show } from 'solid-js';
 
 import { IDP_BRAND } from '../../../src/shared/brand';
@@ -11,10 +14,8 @@ import {
 } from '../../../src/shared/screen-state';
 import { IDP_TEST_IDS } from '../../../src/shared/test-ids';
 import { IDP_PASSWORD } from '../../../src/shared/types';
-import { Button } from '../components/button';
-import { Card } from '../components/card';
-import { ErrorNote } from '../components/error-note';
-import { TextField } from '../components/text-field';
+import { FormField } from '../components/form-field';
+import { FieldHint, Page, PageHeading } from '../components/page';
 import { fieldValueOf } from '../dom';
 
 type Props = {
@@ -29,6 +30,7 @@ const ERROR_ID = IDP_TEST_IDS.createAccountError;
 export function CreateAccountScreen(props: Props) {
   const invalid = (): boolean => props.state.error !== null;
   const back = (): string | null => backHrefOf(props.state);
+  const describedBy = (): string => (invalid() ? ERROR_ID : HINT_ID);
   const submit = (event: Event): void => {
     event.preventDefault();
     void props.actions.submitCreateAccount(
@@ -37,36 +39,33 @@ export function CreateAccountScreen(props: Props) {
     );
   };
   return (
-    <Card
+    <Page
       testId={IDP_TEST_IDS.createAccountPage}
       backHref={back()}
       open={props.actions.openDocument}
     >
-      <h1 class="text-2xl leading-8 font-normal">
-        Create your {IDP_BRAND.name} account
-      </h1>
-      <p class="text-base text-idp-on-surface-variant">
-        to continue to {props.state.appName}
-      </p>
+      <PageHeading
+        title={`Create your ${IDP_BRAND.name} account`}
+        subtitle={`to continue to ${props.state.appName}`}
+      />
       <form
-        class="mt-2 flex flex-col gap-4"
+        class="box gap-4"
         method="post"
         action={IDP_AUTHORIZE_SUBMIT_PATH}
         onSubmit={submit}
       >
         <input type="hidden" name="request_id" value={props.state.requestId} />
         <input type="hidden" name="step" value="create" />
-        <TextField
+        <FormField
           testId={IDP_TEST_IDS.createAccountName}
           name="name"
           label="Full name"
           value={props.state.name}
           autocomplete="name"
-          autofocus={invalid()}
           invalid={invalid()}
-          describedBy={invalid() ? ERROR_ID : HINT_ID}
+          describedBy={describedBy()}
         />
-        <TextField
+        <FormField
           testId={IDP_TEST_IDS.createAccountEmail}
           name="email"
           label="Email"
@@ -74,40 +73,38 @@ export function CreateAccountScreen(props: Props) {
           autocomplete="email"
           inputmode="email"
           invalid={invalid()}
-          describedBy={invalid() ? ERROR_ID : HINT_ID}
+          describedBy={describedBy()}
         />
-        <p id={HINT_ID} class="text-xs text-idp-on-surface-variant">
+        <FieldHint id={HINT_ID}>
           This simulator always uses the password <code>{IDP_PASSWORD}</code>{' '}
           for local accounts.
-        </p>
-        {invalid() ? (
-          <ErrorNote id={ERROR_ID} testId={ERROR_ID}>
-            {props.state.error ?? ''}
-          </ErrorNote>
-        ) : null}
-        <div class="mt-2 flex items-center justify-end gap-4">
+        </FieldHint>
+        <Show when={props.state.error}>
+          {(error) => (
+            <Notice tone="error" id={ERROR_ID} dataSet={{ testid: ERROR_ID }}>
+              {error()}
+            </Notice>
+          )}
+        </Show>
+        <div class="box flex-row items-center justify-end gap-4 pt-2">
           <Show when={back()}>
             {(href) => (
-              <a
-                class="rounded text-sm font-medium text-idp-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-idp-primary"
+              <TextLink
                 href={href()}
-                rel="external"
-                onClick={(event) => {
-                  event.preventDefault();
-                  props.actions.openDocument(href());
-                }}
+                onClick={() => props.actions.openDocument(href())}
               >
                 Sign in instead
-              </a>
+              </TextLink>
             )}
           </Show>
           <Button
-            label="Create account"
-            testId={IDP_TEST_IDS.createAccountSubmit}
-            busy={props.busy}
+            type="submit"
+            title="Create account"
+            loading={props.busy}
+            dataSet={{ testid: IDP_TEST_IDS.createAccountSubmit }}
           />
         </div>
       </form>
-    </Card>
+    </Page>
   );
 }

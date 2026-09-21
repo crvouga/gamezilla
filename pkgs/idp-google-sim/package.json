@@ -24,15 +24,19 @@
     "web:dev": "vite --config vite.config.mts"
   },
   "dependencies": {
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
     "@noble/hashes": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/i18n": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@solidjs/router": "catalog:",
     "hono": "catalog:",
@@ -40,7 +44,10 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/conf": "catalog:",
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/vite-workspace-resolver": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

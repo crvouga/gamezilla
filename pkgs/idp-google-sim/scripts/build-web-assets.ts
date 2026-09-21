@@ -57,7 +57,16 @@ async function bundle(): Promise<{ js: string; css: string }> {
     typeof style.source === 'string'
       ? style.source
       : new TextDecoder().decode(style.source);
-  return { js: entry.code, css };
+  return { js: entry.code, css: withShadowHost(css) };
+}
+
+/**
+ * `@pkgs/ui`'s tokens hang off `:root`, which a shadow tree (the simulation's
+ * embedded browser, `@pkgs/idp-google-sim/embedded`) never matches; `:host`
+ * is its root.
+ */
+function withShadowHost(css: string): string {
+  return css.replaceAll(/:root(?!,:host)\{/g, ':root,:host{');
 }
 
 function bytesOf(value: string): number {

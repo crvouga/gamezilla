@@ -21,6 +21,7 @@ import {
   assertSecretsEnvBinding,
   ConfigurationError,
   readBillingProviderBinding,
+  readMockBillingBindings,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
   readOptionalGoogleIdpOrigin,
@@ -33,7 +34,8 @@ import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origi
 import { openRequestDb } from '@libs/server-app/db/open-request-db-postgres';
 import { drainAndNotifyOutbox } from '@libs/server-app/sync/outbox-drain';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
-import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
+import type { MembershipBilling } from '@pkgs/billing';
+import { MockMembershipBilling } from '@pkgs/billing-mock';
 import { createStripeMembershipBillingFromSecretStore } from '@pkgs/billing-stripe';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
@@ -126,14 +128,24 @@ function latchFatal(reason: string): void {
   }
 }
 
+/**
+ * The membership provider this worker bills through. Stripe and the mock are
+ * built the same way — an origin, a secret key, a webhook signing secret —
+ * and the app never learns which one it got.
+ */
 async function createMembershipBilling(
   env: ApiWorkerEnv,
-  secretStore: ReturnType<typeof createApiSecretStore>,
-  serverUrl: string | null
+  secretStore: ReturnType<typeof createApiSecretStore>
 ): Promise<MembershipBilling | null> {
-  if (readBillingProviderBinding(env) === 'fake') {
-    return new FakeMembershipBilling({
-      mockBaseUrl: `${serverUrl ?? 'http://127.0.0.1'}/api/billing/mock`,
+  if (readBillingProviderBinding(env) === 'mock') {
+    const mock = readMockBillingBindings(env);
+    return new MockMembershipBilling({
+      origin: mock.origin,
+      secretKey: mock.secretKey,
+      webhookSecret: mock.webhookSecret,
+      offer: PLUS_MEMBERSHIP_OFFER,
+      now: wallClock.now,
+      fetch: (input, init) => globalThis.fetch(input, init),
     });
   }
   return await createStripeMembershipBillingFromSecretStore(
@@ -181,7 +193,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   });
 
   const localStack = env['LOCALHOST_STACK'] === '1';
-  const billing = await createMembershipBilling(env, secretStore, serverUrl);
+  const billing = await createMembershipBilling(env, secretStore);
   if (billing === null) {
     log.warn('billing secret key missing; billing routes will return 503');
   }

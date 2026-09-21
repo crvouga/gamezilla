@@ -7,11 +7,7 @@ import { join } from 'node:path';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 function collectSimTests(): string[] {
-  const roots = [
-    join(REPO_ROOT, 'apps/product/tests'),
-    join(REPO_ROOT, 'pkgs'),
-    join(REPO_ROOT, 'libs'),
-  ];
+  const roots = [join(REPO_ROOT, 'pkgs'), join(REPO_ROOT, 'libs')];
   const files: string[] = [];
   function walk(dir: string): void {
     let entries: string[];

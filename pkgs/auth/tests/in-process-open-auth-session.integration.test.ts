@@ -17,6 +17,13 @@ import { createInProcessOpenAuthSession } from '../src/client/in-process-open-au
 import { AuthPostgresDatabaseMigration } from '../src/server/auth-database-migration';
 import { createAuthApp } from '../src/server/create-auth-app';
 
+/**
+ * One RSA key pair per file: minting RS256 keys is the costliest part of an
+ * IdP boot, and no test here is about key generation. Every test still boots
+ * its own store and app.
+ */
+const SIGNING_KEYS = createIdpSigningKeys();
+
 const BASE_URL = 'http://sim.local';
 const IDP_URL = 'http://idp.sim';
 const CALLBACK = 'gamezilla://sso-callback';
@@ -47,7 +54,7 @@ async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
     sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
     clock: wallClock,
     createId: () => `idp-${(nextId += 1)}`,
-    createKeys: () => createIdpSigningKeys(),
+    createKeys: () => SIGNING_KEYS,
   });
   const idp = await createGoogleIdpApp({
     store: idpStore,

@@ -16,7 +16,7 @@ import type { FeatureClient } from '@libs/feature/public/client';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
 import type { FeatureServer } from '@libs/feature/public/server';
 import type { EnvTime } from '@libs/feature/public/sync';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipBilling, PlusMembershipOffer } from '@pkgs/billing';
 import type { RoomActor, RoomState } from '@pkgs/room';
 import type {
   RoomStorageTopicReplace,
@@ -91,6 +91,11 @@ export type SimComposition = {
   /** Rows every sim of this composition starts with, after migrate. */
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
   readonly browserPages?: readonly SimBrowserAppPage[];
+  /**
+   * What the composition sells. When set, the sim runs a payment provider
+   * node with this catalog and gives every API instance an adapter to it.
+   */
+  readonly billingOffer?: PlusMembershipOffer;
   readonly properties?: readonly CatalogProperty<ProductSim>[];
   readonly actions?: readonly CatalogAction<ProductSim>[];
 };

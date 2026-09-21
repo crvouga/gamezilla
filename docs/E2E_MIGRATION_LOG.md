@@ -4,12 +4,14 @@ Every spec that lived in `apps/product/tests` and where it went. The point of
 the table is that coverage of user-visible behaviour must not shrink: a row
 may move, merge or split, but it may not quietly disappear.
 
-> **Where this stands.** Done. The sim harness is `@libs/sim-harness`, generic
-> over a composition; each feature exports its slice from its `./sim` surface;
-> each suite boots only the slices it needs
-> ([`libs/sim-harness/README.md`](../libs/sim-harness/README.md)). 38 of the
-> 46 specs run in a feature's own `test:e2e`, 2 became ordinary tests, and 6
-> stay in the full composition.
+> **Where this stands.** Done, and `apps/` holds no e2e at all. The sim harness
+> is `@libs/sim-harness`, generic over a composition; each feature exports its
+> slice from its `./sim` surface; each suite boots only the slices it needs
+> ([`libs/sim-harness/README.md`](../libs/sim-harness/README.md)). Every spec
+> runs in a feature's own `test:e2e`, the full-composition few in the
+> composition root's (`libs/runtime/tests/e2e`), and every suite has its own
+> monkey (`tests/e2e/monkey.test.tsx`). `bun run test:report` renders one
+> report over all of them.
 
 A suite's home is the lowest package that may depend on every feature it
 composes (turbo rejects cycles). Three features read another's tables or
@@ -43,7 +45,7 @@ queries directly, which moved homes up the graph — see "Hidden table reads" in
 | `chess-puzzle-ingest` | §4/§23 boot seeding and CSV ingest land only valid rows | `libs/chess/tests/e2e/puzzle-ingest` |
 | `chess-puzzle-quota` | rated-puzzle quota at the anonymous limit; signing in lifts it | `libs/chess/tests/e2e/puzzle-quota` |
 | `chess-puzzle-limit-upgrade` | guest limit opens billing plans (chess composes billing) | `libs/chess/tests/e2e/puzzle-limit-upgrade` |
-| `chess-puzzle-spectator` | guest spectates a host's solve; suggestions broadcast — needs search + inbox to befriend | full composition: `apps/product/tests/chess-puzzle-spectator` |
+| `chess-puzzle-spectator` | guest spectates a host's solve; suggestions broadcast (chess composes search + inbox to befriend) | `libs/chess/tests/e2e/puzzle-spectator` |
 | `chess-puzzle-fixtures` | §23 validation over the browser-bundled fixture — not an e2e | `libs/chess/tests/puzzle-web-fixture` (ordinary test) |
 
 ## spaces — 9 specs → `libs/friends`
@@ -56,10 +58,10 @@ Spaces cannot run without friends' table, and friends sits above spaces.
 | `space-end` | host ends; guest sees the ended state | `libs/friends/tests/e2e/space-end` |
 | `space-lifecycle` | host reopens their live space after returning to the lobby | `libs/friends/tests/e2e/space-lifecycle` |
 | `space-guest-host` | a guest creates and hosts a space, and can end it | `libs/friends/tests/e2e/space-guest-host` |
-| `space-live-presence` | two actors share a synchronized session | `libs/friends/tests/e2e/space-live-presence` |
-| `space-disconnect-reconnect` | partition and restore an actor session | `libs/friends/tests/e2e/space-disconnect-reconnect` |
-| `space-guest-link-join` | a second actor mounts | `libs/friends/tests/e2e/space-guest-link-join` |
-| `space-host-select-game` | host actor is exposed for game selection | `libs/friends/tests/e2e/space-host-select-game` |
+| `space-live-presence` | both see two present; the guest leaves and the host sees one | `libs/friends/tests/e2e/space-live-presence` |
+| `space-disconnect-reconnect` | a dropped connection leaves; restored, the guest is there once; app restart and leave | `libs/friends/tests/e2e/space-disconnect-reconnect` |
+| `space-guest-link-join` | a guest with no account opens the host's link and joins; both see two present | `libs/friends/tests/e2e/space-guest-link-join` |
+| `space-host-select-game` | the host picks chess and the guest is taken to it (needs a game: chess composes spaces) | `libs/chess/tests/e2e/space-host-select-game` |
 | `space-friend-join` | host creates; a friend joins from the lobby card | `libs/friends/tests/e2e/space-friend-join` |
 
 ## billing — 4 specs → `libs/billing`
@@ -75,10 +77,10 @@ Spaces cannot run without friends' table, and friends sits above spaces.
 
 | Spec | Covers | Home |
 | --- | --- | --- |
-| `friends-request-accept` | alice requests, bob accepts from notifications, both see friends | `libs/friends/tests/e2e/request-accept` |
-| `friends-request-decline-cancel` | lifecycle from a synchronized relationship | `libs/friends/tests/e2e/request-decline-cancel` |
-| `friends-remove` | relationship visible before removal | `libs/friends/tests/e2e/remove` |
-| `friends-block` | relationship visible before block/unblock | `libs/friends/tests/e2e/block` |
+| `friends-request-accept` | alice requests, bob accepts from notifications, both see friends (asserted) | `libs/friends/tests/e2e/request-accept` |
+| `friends-request-decline-cancel` | bob declines (no friendship, alice may ask again); alice cancels (leaves bob's inbox) | `libs/friends/tests/e2e/request-decline-cancel` |
+| `friends-remove` | removal ends the friendship for both, live | `libs/friends/tests/e2e/remove` |
+| `friends-block` | block ends the friendship for both and stops new requests; unblock allows them again | `libs/friends/tests/e2e/block` |
 
 ## auth, profile, search — 5 specs
 
@@ -89,22 +91,27 @@ feature that hosts a signed-in screen.
 | --- | --- | --- |
 | `auth-login-logout` | first login, then logout on the account screen | `libs/profile/tests/e2e/auth-login-logout` |
 | `auth-oauth-port` | Google sign-in through the in-process `openAuthSession` seam | `libs/profile/tests/e2e/auth-oauth-port` |
-| `auth-guest-progress-carryover` | signs in and checks the actor id — **see note** | `libs/profile/tests/e2e/auth-guest-progress-carryover` |
+| `auth-guest-progress-carryover` | a guest's username and avatar survive signing in with Google | `libs/profile/tests/e2e/auth-guest-progress-carryover` |
 | `profile-edit` | guest and signed-in username + avatar edits | `libs/profile/tests/e2e/edit` |
 | `search-people` | people search settles and shows bob's result row | `libs/friends/tests/e2e/search-people` |
 
-> `auth-guest-progress-carryover` asserts less than its name claims: it signs
-> in and checks the actor id is present. There is no guest-progress assertion
-> in it. It moved as-is so the migration stays behaviour-preserving; the
-> missing carryover assertion is tracked separately.
+> Several specs moved as-is first and asserted far less than their names
+> claimed — `space-guest-link-join` only mounted a second actor,
+> `space-host-select-game` only read a client id, the decline / cancel /
+> remove / block specs stopped before the action they were named for, and
+> `auth-guest-progress-carryover` never looked at any progress. Each now
+> drives the flow it is named for. Making them real found a product bug: a
+> guest opening a space's link always saw "Space not available" (new spaces
+> were private and a stranger's sync scope never held the row) — fixed by the
+> `spaceByLink` query and a public default.
 
 ## Not subsystem e2e — 6 specs
 
 | Spec | Covers | Home |
 | --- | --- | --- |
-| `shell-boot` | two actors boot through the paint gate into the tab shell; focus switching | `apps/product/tests/shell-boot` (smoke) |
-| `product-walk` | weighted random walk over the whole action pool | `apps/product/tests/product-walk` (smoke) |
-| `product-explore` | `system.explore` search over the action pool | `apps/product/tests/product-explore` (smoke) |
-| `topology-partition` | partition an actor from the server, then restore, and still sign up | `apps/product/tests/topology-partition` (platform) |
-| `non-web-host-smoke` | host registration and the bun-webview build | `apps/product/tests/non-web-host-smoke` |
+| `shell-boot` | two actors boot through the paint gate into the tab shell; focus switching | `libs/runtime/tests/e2e/shell-boot` (smoke) |
+| `product-walk` | random walk over every feature's walks | `libs/runtime/tests/e2e/monkey` (and one monkey per subsystem suite) |
+| `product-explore` | `system.explore` search over the action pool | `libs/runtime/tests/e2e/explore` (smoke) |
+| `topology-partition` | partition an actor from the server, then restore, and still sign up | `libs/runtime/tests/e2e/topology-partition` (platform) |
+| `non-web-host-smoke` | the bun-webview host builds and is exported | `libs/sim-harness/tests/hosts-smoke` (ordinary test) |
 | `sw-policy` | service-worker precache/runtime rule coverage — static, no sim | `apps/product/scripts/sw-policy.test.ts` (ordinary test) |

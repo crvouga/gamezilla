@@ -1,8 +1,8 @@
 /**
- * Product scenario actions for the plus membership. `observeMembership` is the
- * lifecycle driver at every fidelity: it posts one of the mock provider's
- * `observe` kinds, which derives the next membership from the account's current
- * projection row.
+ * Product scenario actions for the plus membership. A person acts in the app
+ * and on the provider's hosted pages; `observeMembership` is the tester acting
+ * at the provider (test clocks, test cards, subscription updates), whose
+ * effect reaches the app only as a signed webhook.
  */
 
 import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
@@ -15,24 +15,32 @@ import { accountIdOf } from '@libs/sim-harness/system/identity';
 import { nodeText } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
-import { createMockBillingApi } from '../public/mock-billing-api';
-import { MOCK_BILLING_TEST_IDS } from '../public/mock-test-ids';
+import {
+  MOCK_BILLING_PATHS,
+  MOCK_TEST_PAYMENT_METHODS,
+  type MockCheckoutSession,
+  type MockList,
+  type MockPrice,
+} from '@pkgs/billing-mock';
+import {
+  MOCK_BILLING_PAGE_API,
+  MOCK_BILLING_TEST_IDS,
+} from '@pkgs/billing-mock-provider/shared';
+
+import { PLUS_MEMBERSHIP_OFFER } from '../public/offer';
+import {
+  type BillingObserveKind,
+  customerOf,
+  driveProvider,
+  providerCall,
+} from './billing-provider-driver';
+
+export {
+  BILLING_OBSERVE_KINDS,
+  type BillingObserveKind,
+} from './billing-provider-driver';
 
 const WAIT_MS = 20_000;
-
-export const BILLING_OBSERVE_KINDS = [
-  'period_end',
-  'payment_failed',
-  'payment_recovered',
-  'cancel_at_period_end',
-  'resume',
-  'cancel_now',
-  'switch_interval',
-  'payment_incomplete',
-  'payment_expired',
-] as const;
-
-export type BillingObserveKind = (typeof BILLING_OBSERVE_KINDS)[number];
 
 /** Global menu → Settings → Billing. */
 export const openBilling = scenarioAction({
@@ -115,60 +123,76 @@ export const cancelPlus = scenarioAction({
 export const resumePlus = scenarioAction({
   name: 'resumePlus',
   act: async (s, actorId: string) => {
-    await inPortal(s, actorId, [MOCK_BILLING_TEST_IDS.portalResume]);
+    await inPortal(s, actorId, [MOCK_BILLING_TEST_IDS.portalRenew]);
   },
 });
 
 export const switchPlusInterval = scenarioAction({
   name: 'switchPlusInterval',
   act: async (s, actorId: string, priceKey: string) => {
+    const lookupKey =
+      PLUS_MEMBERSHIP_OFFER.prices[
+        priceKey as keyof typeof PLUS_MEMBERSHIP_OFFER.prices
+      ]?.lookupKey ?? priceKey;
     await inPortal(s, actorId, [
-      MOCK_BILLING_TEST_IDS.portalSwitchStart(priceKey),
-      MOCK_BILLING_TEST_IDS.portalSwitch(priceKey),
+      MOCK_BILLING_TEST_IDS.portalSwitchStart(lookupKey),
+      MOCK_BILLING_TEST_IDS.portalSwitch(lookupKey),
     ]);
   },
 });
 
 /**
- * Drive one lifecycle transition through the mock provider's `observe` route.
- * Guests (no signed-in account) have nothing to observe.
+ * Drive one lifecycle transition at the provider, then let its webhook reach
+ * the app. Guests (no signed-in account) have nothing to observe.
  */
 export const observeMembership = scenarioAction({
   name: 'observeMembership',
   act: async (s, actorId: string, kind: BillingObserveKind) => {
     const accountId = await accountIdOf(s, actorId);
     if (accountId === null) return;
-    const fetchFn = s.sim.loadBalancer.fetchFrom(actorId);
-    const res = await fetchFn(`${SIM_SERVER_URL}/api/billing/mock/observe`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ accountId, kind }),
-    });
-    if (!res.ok) {
-      throw new Error(
-        `observeMembership ${kind} failed (${String(res.status)})`
-      );
-    }
+    await driveProvider(s, accountId, kind);
     await s.session.waitForIdle();
   },
 });
 
 /**
- * Start a fresh checkout straight through the mock provider's API — the same
- * call its checkout page makes on "Start free trial". Used where the billing
- * screen deliberately hides Subscribe (an ended membership still inside grace).
+ * Start and pay a fresh checkout for the actor's customer at the provider —
+ * the session the app's own checkout would create, paid through the hosted
+ * page's API. Used where the billing screen deliberately hides Subscribe (an
+ * ended membership still inside grace).
  */
 export const checkoutPlusAtProvider = scenarioAction({
   name: 'checkoutPlusAtProvider',
   act: async (s, actorId: string) => {
     const accountId = await accountIdOf(s, actorId);
     if (accountId === null) return;
-    const api = createMockBillingApi({
-      fetch: s.sim.loadBalancer.fetchFrom(actorId),
-      baseUrl: `${SIM_SERVER_URL}/api/billing/mock/`,
+    const call = providerCall(s);
+    const spec =
+      PLUS_MEMBERSHIP_OFFER.prices[PLUS_MEMBERSHIP_OFFER.defaultPriceKey];
+    const prices = await call<MockList<MockPrice>>(
+      'GET',
+      `${MOCK_BILLING_PATHS.prices}?lookup_keys=${spec.lookupKey}`
+    );
+    const price = prices.data[0]?.id ?? '';
+    const session = await call<MockCheckoutSession>(
+      'POST',
+      MOCK_BILLING_PATHS.checkoutSessions,
+      {
+        mode: 'subscription',
+        customer: await customerOf(s, accountId),
+        line_items: [{ price, quantity: 1 }],
+        success_url: `${SIM_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
+        cancel_url: `${SIM_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
+        subscription_data: {
+          metadata: { accountId },
+          trial_period_days: spec.trialPeriodDays,
+        },
+      }
+    );
+    await call('POST', MOCK_BILLING_PAGE_API.checkoutConfirm(session.id), {
+      price,
+      paymentMethod: MOCK_TEST_PAYMENT_METHODS.visa,
     });
-    const state = await api.state(accountId);
-    await api.checkout({ accountId, priceKey: state.defaultPriceKey });
     await s.session.waitForIdle();
   },
 });

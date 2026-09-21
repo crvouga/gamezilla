@@ -14,6 +14,9 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
+import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
+import { mockBillingCatalogFromOffer } from '@pkgs/billing-mock';
+
 import { bootInfra, type InfraHandles } from './boot-infra';
 import { reservePort, waitForApiBooted, waitForHttp } from './free-port';
 import { startLoadBalancer } from './load-balancer';
@@ -24,6 +27,8 @@ const REPO_ROOT = join(import.meta.dir, '../../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
 const GOOGLE_CLIENT_ID = 'localhost-stack.apps.googleusercontent.com';
 const GOOGLE_CLIENT_SECRET = 'localhost-stack-google-secret';
+const BILLING_SECRET_KEY = 'sk_test_mock_localhost_stack';
+const BILLING_WEBHOOK_SECRET = 'whsec_mock_localhost_stack';
 /** Product super-app serves both `/` and the always-available `/simulator`. */
 const PRODUCT_DEV_ARGS = [
   'run',
@@ -82,6 +87,35 @@ async function startIdp(args: {
   return child;
 }
 
+/**
+ * The mock payment provider, on its own port with its own SQLite file in the
+ * instance directory — reached by the API nodes exactly as they reach Stripe,
+ * and sending its webhooks to the balancer.
+ */
+async function startBillingProvider(args: {
+  readonly apiOrigin: string;
+  readonly port: number;
+  readonly dataDir: string;
+}): Promise<ChildProcess> {
+  const child = spawn('bun', ['pkgs/billing-mock-provider/scripts/serve.ts'], {
+    cwd: REPO_ROOT,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      BILLING_MOCK_PORT: String(args.port),
+      BILLING_MOCK_CATALOG: JSON.stringify(
+        mockBillingCatalogFromOffer(PLUS_MEMBERSHIP_OFFER)
+      ),
+      BILLING_MOCK_SECRET_KEY: BILLING_SECRET_KEY,
+      BILLING_MOCK_WEBHOOK_URL: `${args.apiOrigin}${PLUS_MEMBERSHIP_OFFER.callbackPath}`,
+      BILLING_MOCK_WEBHOOK_SECRET: BILLING_WEBHOOK_SECRET,
+      BILLING_MOCK_STATE_PATH: join(args.dataDir, 'billing.sqlite'),
+    },
+  });
+  await waitForHttp(`http://127.0.0.1:${String(args.port)}/health`);
+  return child;
+}
+
 function waitForChildExit(child: ChildProcess): Promise<void> {
   const { promise, resolve, reject } = Promise.withResolvers<void>();
   child.once('error', reject);
@@ -116,6 +150,7 @@ function startApiNode(args: {
   readonly port: number;
   readonly apiOrigin: string;
   readonly idpOrigin: string;
+  readonly billingOrigin: string;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
 }): ChildProcess {
@@ -133,7 +168,10 @@ function startApiNode(args: {
       WEB_CLIENT_GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID,
       WEB_CLIENT_GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,
       GOOGLE_IDP_ORIGIN: args.idpOrigin,
-      BILLING_PROVIDER: 'fake',
+      BILLING_PROVIDER: 'mock',
+      BILLING_MOCK_ORIGIN: args.billingOrigin,
+      BILLING_MOCK_SECRET_KEY: BILLING_SECRET_KEY,
+      BILLING_MOCK_WEBHOOK_SECRET: BILLING_WEBHOOK_SECRET,
       WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
       OBSERVABILITY_BACKEND: 'noop',
     },
@@ -197,6 +235,7 @@ async function startApiTier(args: {
   readonly options: StackOptions;
   readonly apiOrigin: string;
   readonly idpOrigin: string;
+  readonly billingOrigin: string;
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
 }): Promise<ApiTier> {
@@ -212,6 +251,7 @@ async function startApiTier(args: {
         port: reservation.port,
         apiOrigin: args.apiOrigin,
         idpOrigin: args.idpOrigin,
+        billingOrigin: args.billingOrigin,
         webOrigin: args.webOrigin,
         infraEnv: args.infra.env,
       })
@@ -268,6 +308,52 @@ async function bootInfraAndIdp(args: {
   }
 }
 
+type BillingAndApi = {
+  readonly billingChild: ChildProcess;
+  readonly api: ApiTier;
+};
+
+/** The payment provider, then the API nodes that bill through it. */
+async function startBillingAndApi(args: {
+  readonly options: StackOptions;
+  readonly apiOrigin: string;
+  readonly idpOrigin: string;
+  readonly billingPort: number;
+  readonly releaseBillingPort: () => Promise<void>;
+  readonly webOrigin: string | null;
+  readonly infra: InfraHandles;
+  readonly dataDir: string;
+  readonly unwind: () => Promise<void>;
+}): Promise<BillingAndApi> {
+  await args.releaseBillingPort();
+  let billingChild: ChildProcess;
+  try {
+    billingChild = await startBillingProvider({
+      apiOrigin: args.apiOrigin,
+      port: args.billingPort,
+      dataDir: args.dataDir,
+    });
+  } catch (error) {
+    await args.unwind();
+    throw error;
+  }
+  try {
+    const api = await startApiTier({
+      options: args.options,
+      apiOrigin: args.apiOrigin,
+      idpOrigin: args.idpOrigin,
+      billingOrigin: `http://127.0.0.1:${String(args.billingPort)}`,
+      webOrigin: args.webOrigin,
+      infra: args.infra,
+    });
+    return { billingChild, api };
+  } catch (error) {
+    await stopChild(billingChild);
+    await args.unwind();
+    throw error;
+  }
+}
+
 export async function bootLocalhostStack(
   options: StackOptions
 ): Promise<LocalhostStack> {
@@ -277,6 +363,7 @@ export async function bootLocalhostStack(
   // API origin baked into OAuth redirect URIs and the IdP client.
   const lbReservation = reservePort();
   const idpReservation = reservePort();
+  const billingReservation = reservePort();
   const webReservation = options.withWeb ? reservePort() : null;
   const webOrigin =
     webReservation === null
@@ -284,6 +371,7 @@ export async function bootLocalhostStack(
       : `http://127.0.0.1:${String(webReservation.port)}`;
   const apiOrigin = `http://127.0.0.1:${String(lbReservation.port)}`;
   const idpOrigin = `http://127.0.0.1:${String(idpReservation.port)}`;
+  const billingOrigin = `http://127.0.0.1:${String(billingReservation.port)}`;
 
   // Infra and the simulated Google boot independently; the product Vite
   // server starts after the API origin is available and serves `/simulator`.
@@ -295,20 +383,21 @@ export async function bootLocalhostStack(
     idpState,
     releaseIdpPort: () => idpReservation.release(),
   });
-  let api: ApiTier;
-  try {
-    api = await startApiTier({
-      options,
-      apiOrigin,
-      idpOrigin,
-      webOrigin,
-      infra,
-    });
-  } catch (error) {
-    await stopChild(idpChild);
-    await infra.stop();
-    throw error;
-  }
+  const { api, billingChild } = await startBillingAndApi({
+    options,
+    apiOrigin,
+    idpOrigin,
+    billingPort: billingReservation.port,
+    releaseBillingPort: () => billingReservation.release(),
+    webOrigin,
+    infra,
+    dataDir,
+    // Unwind what already booted if the provider or an API node fails.
+    unwind: async () => {
+      await stopChild(idpChild);
+      await infra.stop();
+    },
+  });
   await lbReservation.release();
   const balancer = startLoadBalancer({
     port: lbReservation.port,
@@ -334,6 +423,7 @@ export async function bootLocalhostStack(
     apiNodes: api.backends,
     webOrigin: webOrigin ?? '',
     idpOrigin,
+    billingOrigin,
     databaseUrl: infra.databaseUrl,
     s3Endpoint: infra.s3Endpoint,
     mqttWssUrl: infra.mqttWssUrl,
@@ -349,6 +439,7 @@ export async function bootLocalhostStack(
       if (webChild !== null) await stopChild(webChild);
       await Promise.all(api.children.map((child) => stopChild(child)));
       await stopChild(idpChild);
+      await stopChild(billingChild);
       await balancer.stop();
       await infra.stop();
     },

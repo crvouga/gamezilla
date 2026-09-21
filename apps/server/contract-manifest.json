@@ -48,6 +48,7 @@
     "permissionQuotaLedger",
     "profilesByIds",
     "searchProfiles",
+    "spaceByLink",
     "userBlocks"
   ]
 }

@@ -18,7 +18,7 @@
       "!**/*.lock",
       "!libs/client-app/src/i18n/locales/*/messages.ts",
       "!pkgs/idp-google-sim/src/server/assets.generated.ts",
-      "!libs/billing/src/use-cases/mock-provider/server/mock-billing-assets.generated.ts",
+      "!pkgs/billing-mock-provider/src/server/assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
       "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
@@ -377,8 +377,7 @@
         "!**/pkgs/permissions/**",
         "!**/libs/billing/**",
         "!**/pkgs/billing*/**",
-        "!**/libs/billing/src/sim/**",
-        "!**/apps/product/tests/billing-*.test.tsx"
+        "!**/libs/billing/src/sim/**"
       ]
     },
     {
@@ -395,8 +394,7 @@
         "!**/pkgs/permissions/**",
         "!**/libs/billing/**",
         "!**/pkgs/billing*/**",
-        "!**/libs/billing/src/sim/**",
-        "!**/apps/product/tests/billing-*.test.tsx"
+        "!**/libs/billing/src/sim/**"
       ]
     },
     {
@@ -668,8 +666,7 @@
       "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
         "**/libs/sim-harness/src/open-sim/**/*.{ts,tsx}",
-        "**/libs/*/tests/e2e/support/**/*.{ts,tsx}",
-        "**/apps/product/tests/support/**/*.{ts,tsx}"
+        "**/libs/*/tests/e2e/support/**/*.{ts,tsx}"
       ]
     },
     {
@@ -898,6 +895,7 @@
         "**/libs/**/*.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**",
+        "!**/libs/sim-harness/scripts/**",
         "!**/apps/product/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
@@ -1099,7 +1097,7 @@
       }
     },
     {
-      "includes": ["apps/product/tests/**", "**/libs/*/tests/e2e/**"],
+      "includes": ["**/libs/*/tests/e2e/**"],
       "linter": {
         "rules": {
           "style": {

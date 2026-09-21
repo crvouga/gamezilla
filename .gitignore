@@ -101,8 +101,8 @@ turbo-platform-key.json
 /check/
 **/test-results/
 **/blob-report/
-# Standalone sim test report artifact (bun run --filter @apps/product test:report)
-apps/product/sim-report/
+# Aggregated e2e report over every package (bun run test:report)
+/sim-report/
 
 /.data/
 **/.data/

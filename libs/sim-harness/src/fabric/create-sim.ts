@@ -14,7 +14,7 @@ import type { EnvTime } from '@libs/feature/public/sync';
 import type { ServerEnv } from '@libs/server-app';
 import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import { assert } from '@pkgs/assert';
-import { FakeMembershipBilling } from '@pkgs/billing';
+import type { MembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -35,6 +35,12 @@ import {
   type SimRoomNode,
 } from '../composition';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
+import {
+  openSimBillingNode,
+  SIM_BILLING_ID,
+  type SimBillingProvider,
+  simMembershipBilling,
+} from './sim-billing';
 import type { SimBrowser } from './sim-browser';
 import { makeSimClientEnv } from './sim-client-env';
 import { bumpSimClientEpoch } from './sim-client-namespace';
@@ -91,9 +97,10 @@ export type Sim = {
   readonly loadBalancer: SimLoadBalancer;
   /** The simulated Google the product signs in against. */
   readonly idp: GoogleIdp;
+  /** The payment provider node, when the composition sells something. */
+  readonly billing: SimBillingProvider | null;
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
-  /** The actor's headless browser for the fake provider's mock pages. */
   /** The actor's web browser (sign-in window, billing pages). */
   browser(id: string): SimBrowser;
   /** Boot an API instance. Default ids are `server-a`, `server-b`, … */
@@ -144,7 +151,6 @@ function portSql(session: Session): SimSql | undefined {
 type SharedServerServices = {
   readonly kv: ServerEnv['kv'];
   readonly blob: ServerEnv['blob'];
-  readonly billing: ServerEnv['billing'];
   readonly tts: ServerEnv['tts'];
   readonly llm: ServerEnv['llm'];
   readonly secrets: ServerEnv['secrets'];
@@ -165,9 +171,6 @@ async function buildSharedServerServices(
   return {
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
-    billing: new FakeMembershipBilling({
-      mockBaseUrl: `${SIM_SERVER_URL}/api/billing/mock`,
-    }),
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,
@@ -189,6 +192,8 @@ type ServerEnvDeps = {
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
   /** Outbound vendor HTTP: only the provider node is reachable. */
   readonly vendorFetch: ServerEnv['fetch'];
+  /** This instance's membership adapter, or `null` when nothing is sold. */
+  readonly billing: MembershipBilling | null;
 };
 
 function buildServerEnv(args: ServerEnvDeps): ServerEnv {
@@ -209,7 +214,7 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     }),
     kv: shared.kv,
     blob: shared.blob,
-    billing: shared.billing,
+    billing: args.billing,
     tts: shared.tts,
     llm: shared.llm,
     secrets: shared.secrets,
@@ -242,6 +247,8 @@ type SimKernel = {
   readonly composition: SimComposition;
   readonly idp: GoogleIdp;
   readonly idpSql: SimSql;
+  readonly billing: SimBillingProvider | null;
+  readonly billingSql: SimSql | null;
   readonly seed: bigint;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
@@ -299,6 +306,15 @@ async function bootSimKernel(
   });
   const serverSql = await openServerSql(session, opts);
   const shared = await buildSharedServerServices(serverSql);
+  const billingNode = await openSimBillingNode({
+    offer: composition.billingOffer,
+    clock: session.ports.clock,
+    timers,
+    createId: session.ports.createId,
+    // Webhooks go through the balancer, like any caller's.
+    toApi: () => loadBalancer.fetchFrom(SIM_BILLING_ID),
+  });
+  const billing = billingNode?.provider ?? null;
   const roomNode =
     composition.roomNode?.(buildRoomServerEnv({ session, seed, timers })) ??
     noRoomNode(composition.name);
@@ -315,6 +331,12 @@ async function bootSimKernel(
           shared,
           pubSubBus,
           vendorFetch: simIdpFetchFrom({ idp, net, from: id }),
+          billing: simMembershipBilling({
+            billing,
+            net,
+            from: id,
+            clock: session.ports.clock,
+          }),
         })
       ),
     disposed: () => disposed.value,
@@ -329,6 +351,8 @@ async function bootSimKernel(
     composition,
     idp,
     idpSql,
+    billing,
+    billingSql: billingNode?.sql ?? null,
     seed,
     timers,
     net,
@@ -360,6 +384,7 @@ async function disposeSim(args: {
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
   await kernel.idpSql.disconnect();
+  await kernel.billingSql?.disconnect();
   await kernel.serverSql.disconnect();
 }
 
@@ -409,6 +434,7 @@ function createSimHandle(kernel: SimKernel): Sim {
     net,
     loadBalancer: kernel.loadBalancer,
     idp,
+    billing: kernel.billing,
     client,
     browser: (id) => {
       const browser = browsers.get(id);

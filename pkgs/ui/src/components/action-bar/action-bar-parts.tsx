@@ -90,12 +90,11 @@ export function ActionBarOverflowTrigger(props: {
     <MenuIcon size={iconSize()} color="icon" />
   );
   return (
+    // `dataSet` (the caller's handle) goes on the control a person presses,
+    // not this wrapper: a tap on the wrapper reaches no click handler.
     <div
       class="box"
-      {...dataAttrs({
-        component: 'ActionBarOverflowTrigger',
-        ...props.dataSet,
-      })}
+      {...dataAttrs({ component: 'ActionBarOverflowTrigger' })}
       ref={props.setTrigger}
     >
       <Switch
@@ -107,6 +106,7 @@ export function ActionBarOverflowTrigger(props: {
             tooltip="hover"
             aria-haspopup="menu"
             aria-expanded={props.open}
+            dataSet={props.dataSet}
           >
             {menuIcon()}
           </IconButton>
@@ -123,7 +123,7 @@ export function ActionBarOverflowTrigger(props: {
               aria-haspopup="menu"
               aria-expanded={props.open}
               tooltip="hover"
-              dataSet={trigger().dataSet}
+              dataSet={{ ...props.dataSet, ...trigger().dataSet }}
             >
               {trigger().children}
             </IconButton>
@@ -136,6 +136,7 @@ export function ActionBarOverflowTrigger(props: {
             buttonSize={props.buttonSize}
             slotWidth={slotWidth()}
             onClick={props.onOpen}
+            dataSet={props.dataSet}
           >
             {menuIcon()}
           </ActionBarLabeledControl>

@@ -1,0 +1,53 @@
+{
+  "name": "@pkgs/billing-mock-provider",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shared": "./src/shared/index.ts",
+    "./server": "./src/server/index.ts",
+    "./shared/*": [
+      "./src/shared/*.ts"
+    ],
+    "./server/*": [
+      "./src/server/*.ts",
+      "./src/server/*/index.ts"
+    ],
+    "./embedded": "./web/src/embedded-page.tsx",
+    "./start-server": "./scripts/start-provider-server.ts"
+  },
+  "scripts": {
+    "build:web": "bun run scripts/build-web-assets.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "start": "bun run scripts/serve.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload ./tests"
+  },
+  "dependencies": {
+    "@pkgs/billing-mock": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/static-file-server": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "hono": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/billing": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-solid": "catalog:"
+  }
+}

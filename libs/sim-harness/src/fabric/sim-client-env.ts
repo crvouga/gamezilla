@@ -24,6 +24,8 @@ import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import type { SimComposition, SimRoomNode } from '../composition';
+import { partitionAwareRoomTransport } from './partition-aware-room-transport';
+import type { SimBillingProvider } from './sim-billing';
 import { createSimBrowser, type SimBrowser } from './sim-browser';
 import { simClientNamespace } from './sim-client-namespace';
 import { simBrowserFetch } from './sim-idp';
@@ -46,6 +48,7 @@ export type SimClientEnvDeps = {
   readonly composition: SimComposition;
   readonly loadBalancer: SimLoadBalancer;
   readonly idp: GoogleIdp;
+  readonly billing: SimBillingProvider | null;
 };
 
 function hasWebLocalStorage(): boolean {
@@ -79,6 +82,7 @@ export function makeSimClientEnv(
   const serverFetch = deps.loadBalancer.fetchFrom(id);
   const browserFetch = simBrowserFetch({
     idp: deps.idp,
+    billing: deps.billing,
     net,
     from: id,
     server: serverFetch,
@@ -133,7 +137,11 @@ export function makeSimClientEnv(
     secureStorage: clientSecureStorage(ns),
     room: (roomArgs) => {
       net.assertReachable(id, SIM_PRIMARY_SERVER_ID);
-      return roomNode.createTransport(roomArgs);
+      return partitionAwareRoomTransport({
+        open: () => roomNode.createTransport(roomArgs),
+        reachable: () => net.isReachable(id, SIM_PRIMARY_SERVER_ID),
+        timers,
+      });
     },
     ...createInMemoryClientPorts(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,

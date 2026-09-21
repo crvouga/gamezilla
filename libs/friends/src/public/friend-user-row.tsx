@@ -65,14 +65,13 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
         </div>
       }
     >
-      <div
-        class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch"
-        {...rowAttrs()}
-      >
+      <div class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch">
+        {/* The handle marks what a person presses, so a driver's tap lands. */}
         <button
           class="clickable clickableTint box flex-1 flex-row items-center gap-2 min-w-[0]"
           type="button"
           onClick={() => props.onPress?.()}
+          {...rowAttrs()}
         >
           <FriendUserRowIdentity profile={props.profile} />
         </button>

@@ -63,10 +63,14 @@ reaches the remote until the local gate is green.
   formatting, the local `bun check` gate, the template check, CI log collection,
   check polling, and review-comment retrieval are script/CLI work. Never burn a
   turn on them by hand.
-- **Push and sync continuously.** After every local commit or merge commit, push
-  it to `origin/$BRANCH` before continuing. Before reporting success, the working
-  tree must be clean and local `HEAD` must equal `origin/$BRANCH`; never leave
-  local commits, staged files, or untracked files unsynced.
+- **Push and sync continuously, always through `/git-sync`.** Every push and
+  every sync with trunk is `bun run git-sync` (`.agents/commands/git-sync.md`).
+  It pushes the branch, merges the latest `origin/main`, pushes the merge,
+  fast-forwards local `main`, and verifies that `HEAD` equals `origin/$BRANCH`
+  on a clean tree. Never hand-run `git fetch` / `git merge origin/main` /
+  `git push`. Run it after every local commit or merge commit before
+  continuing. Before reporting success, never leave local commits, staged
+  files, or untracked files unsynced.
 - **Spend an agent only where judgement is required** — a commit message, a
   merge conflict, a semantic CI failure, or a review comment that needs a
   decision. Nothing else.
@@ -183,31 +187,25 @@ Commit message rules (state them in the agent request if you want them applied):
 
 Do not commit unrelated files. Do not create an empty commit. Never
 `--no-verify`, never `--amend`. Only commit a tree that just passed step 2.
-After every non-merge commit, push before doing anything else and prove the
-remote tracking branch contains exactly that commit:
-
-```sh
-git push -u origin "$BRANCH"
-git fetch origin "$BRANCH"
-test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
-test -z "$(git status --porcelain=v1)"
-```
+Once the tree is clean, go straight to step 4. Its `git-sync` pushes these
+commits and verifies the remote before it touches trunk.
 
 ## 4. Sync with base
 
 ```sh
-git fetch --prune origin main
-git merge --no-edit origin/main
+bun run git-sync --leave-conflicts
 ```
 
-Merge, never rebase — this repo does not rewrite pushed history, and `main`
-history is merge-based. Sync only after step 2 is green and step 3 has
-committed and pushed that work.
+This one call pushes the branch, merges the latest `origin/main`, pushes the
+merge, fast-forwards local `main`, and verifies that `HEAD` equals
+`origin/$BRANCH` on a clean tree. It merges and never rebases, because this
+repo does not rewrite pushed history and `main` history is merge-based. Sync
+only after step 2 is green and step 3 has committed that work.
 
 ### Resolving merge conflicts
 
-If the merge exits non-zero, collect the conflict set mechanically before
-involving anyone:
+If `git-sync` reports a conflict, the merge is left in progress. Collect the
+conflict set mechanically before involving anyone:
 
 ```sh
 git diff --name-only --diff-filter=U
@@ -224,24 +222,22 @@ Hand those exact paths to a conflict agent with this contract:
 > not commit, do not push. Remove every conflict marker, stage only the paths
 > you resolved, and report anything genuinely ambiguous instead of guessing.
 
-Then verify the result is a real merge, push it immediately, and prove the
-remote branch contains the merge before continuing:
+Then verify the result is a real merge, conclude it, and sync again. That
+pushes the merge and verifies the remote:
 
 ```sh
 test -z "$(git diff --name-only --diff-filter=U)"
 git diff --check
 GIT_EDITOR=true git merge --continue
-git push -u origin "$BRANCH"
-git fetch origin "$BRANCH"
-test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
+bun run git-sync --leave-conflicts
 ```
 
 Keep Git's generated merge message; do not spend an agent renaming it. Any
 conflict the agent cannot resolve without a product decision goes to the stop
 template in step 8.
 
-If the merge brought anything in from `main` (a merge commit, conflicted or
-not), the merged tree is unverified: return to step 2 and get `bun check` green
+If the merge brought anything in from `main` (`git-sync` printed
+`merged origin/main.`, conflicted or not), the merged tree is unverified: return to step 2 and get `bun check` green
 on it — Turbo's cache keeps the re-run to the leaves `main` actually changed —
 then commit any fix (step 3) and push before continuing. Continue to step 5
 only when the merged tree has passed `bun check`.
@@ -249,7 +245,7 @@ only when the merged tree has passed `bun check`.
 ## 5. Push and open/update the PR
 
 ```sh
-git push -u origin "$BRANCH"
+bun run git-sync --leave-conflicts
 gh pr view --json number,url >/dev/null 2>&1 || gh pr create --base main --fill
 PR_NUMBER="$(gh pr view --json number --jq .number)"
 PR_REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
@@ -416,10 +412,7 @@ bun fmt
 bun check
 git add <reviewed paths>
 git commit -m "<agent message for this review unit>"
-git push -u origin "$BRANCH"
-git fetch origin "$BRANCH"
-test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
-test -z "$(git status --porcelain=v1)"
+bun run git-sync --leave-conflicts
 ```
 
 Reference the comment being addressed in the commit body (comment URL or
@@ -475,20 +468,18 @@ Never report success until this gate passes. It is the last operation after all
 code, formatting, review, and CI work:
 
 ```sh
-git fetch --prune origin main
-git merge --no-edit origin/main
+bun run git-sync --leave-conflicts
 ```
 
 If this merge conflicts, return to §4 and use the conflict agent. If it creates
-a merge commit, return to §2 and get `bun check` green on the merged tree, push
-it immediately, and rerun §6; the new merge commit is not verified until the
+a merge commit, return to §2 and get `bun check` green on the merged tree,
+sync it again, and rerun §6. The new merge commit is not verified until the
 PR check passes again.
 
 After the merge is clean and all required checks are green:
 
 ```sh
-git push -u origin "$BRANCH"
-git fetch origin "$BRANCH"
+bun run git-sync
 test -z "$(git status --porcelain=v1)"
 test -z "$(git diff --cached --name-only)"
 test "$(git rev-parse HEAD)" = "$(git rev-parse "origin/$BRANCH")"
@@ -525,8 +516,13 @@ gh pr view "$PR_NUMBER" --json state,mergedAt,mergeCommit
   changed), do not retry with a bigger hammer: return to the final
   synchronization gate and go around again.
 - `state` must read `MERGED` before you report success. The remote branch is
-  deleted by `delete_branch_on_merge`; leave the local branch and worktree
-  alone.
+  deleted by `delete_branch_on_merge`, so leave the local branch and worktree
+  alone. Do not run a plain `git-sync` on the branch, because that would
+  re-push the deleted branch. Bring local `main` up to the merge instead:
+
+  ```sh
+  bun run git-sync --trunk-only
+  ```
 
 ## 10. Report when done
 

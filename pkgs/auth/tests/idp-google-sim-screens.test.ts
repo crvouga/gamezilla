@@ -26,6 +26,13 @@ import {
   parseFirstForm,
 } from '../src/client';
 
+/**
+ * One RSA key pair per file: minting RS256 keys is the costliest part of an
+ * IdP boot, and no test here is about key generation. Every test still boots
+ * its own store and app.
+ */
+const SIGNING_KEYS = createIdpSigningKeys();
+
 const CLIENT: IdpClient = {
   clientId: 'walker.apps.googleusercontent.com',
   clientSecret: 'walker-secret',
@@ -45,7 +52,7 @@ async function bootIdp(): Promise<Wire> {
       let n = 0;
       return () => `walker-${(n += 1)}`;
     })(),
-    createKeys: () => createIdpSigningKeys(),
+    createKeys: () => SIGNING_KEYS,
   });
   const idp = await createGoogleIdpApp({
     store,

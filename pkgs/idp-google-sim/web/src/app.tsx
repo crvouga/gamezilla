@@ -124,7 +124,9 @@ function App(): JSX.Element {
   );
 
   return (
-    <Router>
+    // `explicitLinks`: the screens' links are real documents (the back step,
+    // "Create account"), opened through `openDocument`, never router pushes.
+    <Router explicitLinks>
       <Route path="/o/oauth2/v2/auth" component={host} />
       <Route path="/o/oauth2/v2/auth/password" component={host} />
       <Route path="/o/oauth2/v2/auth/create" component={host} />

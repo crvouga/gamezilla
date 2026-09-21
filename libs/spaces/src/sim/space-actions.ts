@@ -1,4 +1,9 @@
-import { actorUi, scenarioAction } from '@libs/sim-harness/system/actor-ui';
+import {
+  actorUi,
+  ensureActor,
+  pollUntil,
+  scenarioAction,
+} from '@libs/sim-harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
 import {
   confirmSpaceMutation,
@@ -101,6 +106,43 @@ export const leaveSpace = scenarioAction({
   },
 });
 
+/**
+ * Open a space's link (`/space/<id>`, what the host's Copy link hands out)
+ * the way a person pastes one: an app that may never have been opened, a
+ * guest with no account. Lands on the join prompt, or in the space for
+ * someone already seated.
+ */
+export const openSpaceLink = scenarioAction({
+  name: 'openSpaceLink',
+  act: async (s, actorId: string, link: string) => {
+    await ensureActor(s, actorId);
+    const actor = s.actors.get(actorId);
+    if (actor === undefined) throw new Error(`actor ${actorId} missing`);
+    await actor.openLink(link);
+    const ui = await actorUi(s, actorId);
+    await pollUntil(
+      s,
+      async () =>
+        (await ui.get(Handles.spaceJoin).isVisible()) ||
+        (await ui.get(Handles.spaceClose).isVisible())
+          ? true
+          : null,
+      { maxMs: SPACE_WAIT_MS, description: `space link ${link} opened` }
+    );
+  },
+});
+
+export const closeSpaceMembers = scenarioAction({
+  name: 'closeSpaceMembers',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.spaceMembersClose).tap({ timeoutMs: SPACE_WAIT_MS });
+    await ui
+      .get(Handles.spaceMembersClose)
+      .expect.hidden({ timeoutMs: SPACE_WAIT_MS });
+  },
+});
+
 /** Registered on every system that composes this feature. */
 export const SPACES_SIM_ACTIONS = [
   openSpacesTab,
@@ -110,4 +152,9 @@ export const SPACES_SIM_ACTIONS = [
   joinFromPrompt,
   reenterActiveSpace,
   endSpace,
+  selectChessGame,
+  openSpaceMembers,
+  closeSpaceMembers,
+  leaveSpace,
+  openSpaceLink,
 ];

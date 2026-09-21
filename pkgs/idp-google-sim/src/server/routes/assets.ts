@@ -10,13 +10,14 @@ import {
 import { IDP_SPA_CSS, IDP_SPA_JS } from '../assets.generated';
 
 /**
- * The simulator's own mark, matching `brand-mark.tsx`. The browser asks for it
+ * The simulator's own mark, matching `brand-mark.tsx` in the design system's
+ * light-scheme tint (a favicon cannot read CSS variables). The browser asks for it
  * implicitly on every page; a 404 there is the one console error the screens
  * would otherwise produce.
  */
 const FAVICON = [
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">',
-  '<rect width="48" height="48" rx="12" fill="#4f46e5"/>',
+  '<rect width="48" height="48" rx="12" fill="hsl(221 83% 53%)"/>',
   '<circle cx="24" cy="20" r="6.5" fill="#ffffff"/>',
   '<path d="M21.4 25.5h5.2l1.9 9.8a1 1 0 0 1-1 1.2h-7a1 1 0 0 1-1-1.2z" fill="#ffffff"/>',
   '</svg>',

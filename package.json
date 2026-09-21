@@ -56,6 +56,7 @@
     "stack": "bun run apps/product/scripts/localhost-stack/cli.ts",
     "test:pbt": "bun run apps/product/scripts/test-pbt-random.ts",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
+    "test:report": "bun run libs/sim-harness/scripts/report.ts --open",
     "wipe": "git clean -xfd"
   },
   "overrides": {

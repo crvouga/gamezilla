@@ -175,13 +175,20 @@ declared dependencies are its blast radius: a change reruns every dependent's
 `tc` / `lint` / `test`. Prefer small packages, depend on `public/` ports rather
 than whole features, and never let a shell or `pkgs/` package name a feature.
 E2e lives with the feature it exercises: `libs/<feature>/tests/e2e/`, run by
-that package's `test:e2e` (`bun test --parallel`, preloading
-`@libs/sim-harness/preload`) against a composition of only the slices it needs
-(`composeSimSlices`, see [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)),
-so a change to a feature it does not compose leaves it cached. The widest task
-is `@apps/product#test:e2e`: the few full-composition sims (smoke, walks,
-cross-feature journeys) that depend on everything, kept small on purpose. Run a
-subset with `bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`.
+that package's `test:e2e` — every package's is the one harness runner
+`libs/sim-harness/scripts/test-e2e.ts` (`bun test --parallel`, preloading
+`@libs/sim-harness/preload`, JUnit into the package's report bucket) — against a
+composition of only the slices it needs (`composeSimSlices`, see
+[`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)), so a change to a
+feature it does not compose leaves it cached. **No e2e lives in `apps/`.**
+Every suite has its own monkey (`tests/e2e/monkey.test.tsx`: `runMonkey` — a
+seeded random walk over the platform's steps and the suite's feature
+`walkAction`s, every standing property checked after each step). The widest
+task is `@libs/runtime#test:e2e` (the composition root): the few
+full-composition sims (shell boot, partition, the whole-app monkey, explore)
+that depend on everything, kept small on purpose. Run a subset with
+`bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`; one
+aggregated HTML report over every suite with `bun run test:report`.
 
 **A green `bun check` must mean a green PR check.** The gate is only worth
 running if the two agree, so a check leaf's **verdict** may not depend on which
@@ -304,9 +311,12 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 - **Checks.** `bun check` is the whole gate (the same leaf set PR CI runs).
   While iterating, prefer `bun fmt` plus `bun run --filter <pkg> tc` and
   `bun run --filter <pkg> test`. `bun pr` runs the real PR workflow
-  (`.github/workflows/pr.yml`) on GitHub for the current branch: it merges
-  commits only `origin/<branch>` has, pushes, dispatches the run and blocks
-  until it finishes (exit code = verdict); Ctrl-C cancels the run on GitHub. Every PR body follows
+  (`.github/workflows/pr.yml`) on GitHub for the current branch: it runs
+  `git-sync` (`--message` commits a dirty tree), dispatches the run and blocks
+  until it finishes (exit code = verdict); Ctrl-C cancels the run on GitHub. `bun run git-sync`
+  (`/git-sync`, `.agents/commands/git-sync.md`) is the one commit/push/trunk-sync step: it
+  pushes the branch, merges the latest `origin/main`, pushes, and fast-forwards local `main`,
+  and `bun pr` and `/pr-merge` both go through it. Every PR body follows
   `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-merge`
   (`.agents/commands/pr-merge.md`) — the single PR command: it gets
   `bun check` green locally first, then commits, syncs with `main` (re-running
@@ -324,7 +334,7 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 
 ## Local development
 
-**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are standalone HTML artifacts (`bun run --filter @apps/product test:report` → `apps/product/sim-report/index.html`, built by `@pkgs/sim-report` `writeHtmlReport`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
+**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are one standalone HTML artifact over every package's e2e suite (`bun run test:report` → `sim-report/index.html`, rendered by `@pkgs/sim-report`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
 **Highest-fidelity local run** — `bun run stack` runs the whole product in the foreground
 loopback: embedded Postgres, S3rver, Aedes MQTT, a **simulated Google IdP on its own
@@ -442,7 +452,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@apps/product` — www super-app (`/` wall client, `/simulator` Simulator), the full composition (`src/sim/composition.ts`: every feature, the production migrate) and its `product` system (adds the `bun-webview` host), plus the full-composition suites (smoke, walks, cross-feature journeys). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@apps/product` — www super-app (`/` wall client, `/simulator` Simulator) and the live-browser runners (`test:max`, `test:stack`, which run every package's e2e on the `bun-webview` host; `SIM_MODE=real` sidecars are registered through `src/sim/setup/real-stack-preload.ts`). It owns no e2e. The full composition (`APP_COMPOSITION` / `APP_SYSTEM`: every feature, the production migrate) lives in `@libs/runtime/sim/app-composition`, and its suites in `libs/runtime/tests/e2e`. Console and test call `APP_SYSTEM.run({ runtime })` only; neither owns a parallel boot.
 - `@libs/sim-harness` — the sim fabric (`createSim`, SQL engines, net/fetch, snapshots), hosts (`in-process`, `bun-webview`), `openSim`, and `defineProductSystem` / `composeSimSlices`, generic over a `SimComposition`. A shell: it may not depend on a feature. Features export their slices from `@libs/<feature>/sim/*`; their e2e lives in `libs/<feature>/tests/e2e/` ([`libs/sim-harness/README.md`](libs/sim-harness/README.md)).
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
@@ -494,7 +504,7 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
-- `@apps/product` composes product apps (the full sim composition, product-simulator, full-composition suites). libs/pkgs must not import `@apps/*`.
+- `@apps/product` composes product apps (the product-simulator, the live-browser runners). libs/pkgs must not import `@apps/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/`.

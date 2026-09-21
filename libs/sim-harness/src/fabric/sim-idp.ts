@@ -13,6 +13,7 @@
 
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import {
+  SIM_BILLING_URL,
   SIM_GOOGLE_CLIENT_ID,
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
@@ -28,6 +29,7 @@ import {
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
+import { type SimBillingProvider, simBillingFetchFrom } from './sim-billing';
 import { requestHref } from './sim-http-request';
 import type { SimNet } from './sim-net';
 
@@ -79,18 +81,29 @@ export function simIdpFetchFrom(args: {
 }
 
 /**
- * A client's browser: the provider on its own origin, everything else through
- * the load balancer. One port, two destinations — same as a real browser.
+ * A client's browser: each provider on its own origin, everything else
+ * through the load balancer. One port, several destinations — same as a real
+ * browser.
  */
 export function simBrowserFetch(args: {
   readonly idp: GoogleIdp;
+  readonly billing: SimBillingProvider | null;
   readonly net: SimNet;
   readonly from: string;
   readonly server: ServerHttp;
 }): ServerHttp {
   const toIdp = simIdpFetchFrom(args);
+  const billing = args.billing;
+  const toBilling =
+    billing === null
+      ? null
+      : simBillingFetchFrom({ billing, net: args.net, from: args.from });
   return async (input, init) => {
-    if (requestHref(input).startsWith(SIM_IDP_URL)) return toIdp(input, init);
+    const href = requestHref(input);
+    if (href.startsWith(SIM_IDP_URL)) return toIdp(input, init);
+    if (toBilling !== null && href.startsWith(SIM_BILLING_URL)) {
+      return toBilling(input, init);
+    }
     return args.server(input, init);
   };
 }

@@ -53,3 +53,36 @@ export async function spacePresenceCount(
     return 0;
   }
 }
+
+/**
+ * The link the actor's open space is at (`/space/<id>`) — what its Copy link
+ * button hands out — or `null` outside a space.
+ */
+export async function readSpaceLink(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  const actor = s.actors.get(actorId);
+  if (actor === undefined) return null;
+  const path = await actor.currentPath();
+  return /^\/space\/[^/?#]+/.exec(path)?.[0] ?? null;
+}
+
+/**
+ * People connected to the space, as the members sheet counts them (its
+ * hidden count probe), or `null` while the sheet is closed.
+ */
+export async function readSpacePresenceCount(
+  s: ProductSim,
+  actorId: string
+): Promise<number | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const raw = await ui.get(Handles.spacePresenceCount).text();
+    if (raw === null) return null;
+    const n = Number.parseInt(raw, 10);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}

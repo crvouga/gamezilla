@@ -97,6 +97,12 @@
       "@pkgs/auth-sim/*": ["./pkgs/auth-sim/src/*"],
       "@pkgs/auth/*": ["./pkgs/auth/src/*"],
       "@pkgs/billing": ["./pkgs/billing/src/index.ts"],
+      "@pkgs/billing-mock": ["./pkgs/billing-mock/src/index.ts"],
+      "@pkgs/billing-mock-provider/start-server": [
+        "./pkgs/billing-mock-provider/scripts/start-provider-server.ts"
+      ],
+      "@pkgs/billing-mock-provider/*": ["./pkgs/billing-mock-provider/src/*"],
+      "@pkgs/billing-mock/*": ["./pkgs/billing-mock/src/*"],
       "@pkgs/billing-stripe": ["./pkgs/billing-stripe/src/index.ts"],
       "@pkgs/billing-stripe/*": ["./pkgs/billing-stripe/src/*"],
       "@pkgs/billing/*": ["./pkgs/billing/src/*"],

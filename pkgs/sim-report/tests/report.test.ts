@@ -21,6 +21,20 @@ describe('hash', () => {
       expect(testRoute.params['frame']).toBe('2');
     }
   });
+
+  test('an aggregated report id with slashes survives the round trip', () => {
+    // `bun run test:report` prefixes ids with the package (`libs/chess/…`).
+    const hash = buildHash({
+      view: 'test',
+      testId: 'libs/chess/monkey.monkey',
+      params: {},
+    });
+    const route = parseHash(hash);
+    expect(route.view).toBe('test');
+    if (route.view === 'test') {
+      expect(route.testId).toBe('libs/chess/monkey.monkey');
+    }
+  });
 });
 
 describe('format', () => {

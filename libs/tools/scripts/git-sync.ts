@@ -2,15 +2,19 @@
 // @io-wall-ok — git CLI entry
 /**
  * `/git-sync` (.agents/commands/git-sync.md): commit and push all local work
- * on the checked-out feature branch, then merge the latest `origin/main` into
- * that same branch and push the merge.
+ * on the checked-out feature branch, merge the latest `origin/main` into that
+ * same branch, push the merge, and fast-forward local `main` to `origin/main`
+ * — so the branch, `origin/<branch>` and local `main` all end up current.
  *
  *   bun run git-sync --message "type(scope): description"
  *   bun run git-sync                 (clean tree: sync only)
+ *   bun run git-sync --trunk-only    (only fast-forward local main)
+ *   bun run git-sync --leave-conflicts   (keep a conflicted merge for resolving)
  *
- * The script owns every git step and every safeguard; the caller only writes
- * the commit message. It never touches local or remote `main`, never
- * force-pushes, and aborts a conflicted merge before exiting.
+ * On `main` itself it only fast-forwards the checkout. The script owns every
+ * git step and every safeguard; the caller only writes the commit message. It
+ * never pushes `main`, never force-pushes, never moves local `main` except by
+ * fast-forward, and aborts a conflicted merge unless told to leave it.
  */
 import { existsSync } from 'node:fs';
 
@@ -19,7 +23,8 @@ const TITLE_PATTERN =
   /^(feat|fix|refactor|test|chore|docs|perf|ci)(\([a-z0-9./-]+\))?!?: \S.*$/;
 const TITLE_MAX_LENGTH = 72;
 const BASE = 'main';
-const TRUNKS: ReadonlySet<string> = new Set(['main', 'master', 'dev']);
+/** Trunks git-sync refuses outright; `main` itself only gets fast-forwarded. */
+const OTHER_TRUNKS: ReadonlySet<string> = new Set(['master', 'dev']);
 const IN_PROGRESS = [
   ['MERGE_HEAD', 'merge'],
   ['rebase-merge', 'rebase'],
@@ -38,7 +43,16 @@ const SECRET_PATHS: readonly RegExp[] = [
   /(^|\/)\.(npmrc|netrc|pgpass)$/u,
 ];
 
-class SyncError extends Error {}
+export class SyncError extends Error {}
+
+export type GitSyncOptions = {
+  /** Commit message for a dirty tree; `null` requires a clean tree. */
+  readonly message: string | null;
+  /** Only fast-forward local `main`; never commit, push or merge. */
+  readonly trunkOnly: boolean;
+  /** On a merge conflict, leave the merge in progress instead of aborting. */
+  readonly leaveConflicts: boolean;
+};
 
 type Run = {
   readonly code: number;
@@ -104,6 +118,19 @@ export function secretLookingPaths(paths: readonly string[]): string[] {
   );
 }
 
+/** The worktree path that has `branch` checked out, from `git worktree list --porcelain`. */
+export function worktreeForBranch(
+  porcelain: string,
+  branch: string
+): string | null {
+  let path: string | null = null;
+  for (const line of porcelain.split('\n')) {
+    if (line.startsWith('worktree ')) path = line.slice('worktree '.length);
+    if (line === `branch refs/heads/${branch}`) return path;
+  }
+  return null;
+}
+
 /** Paths from `git status --porcelain=v1 -z -uall`, rename sources included. */
 export function parsePorcelainPaths(output: string): string[] {
   const entries = output.split('\0').filter((entry) => entry.length > 0);
@@ -119,8 +146,10 @@ export function parsePorcelainPaths(output: string): string[] {
   return paths;
 }
 
-function parseArgs(argv: readonly string[]): { message: string | null } {
+export function parseGitSyncArgs(argv: readonly string[]): GitSyncOptions {
   let message: string | null = null;
+  let trunkOnly = false;
+  let leaveConflicts = false;
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index] ?? '';
     if (arg === '--message' || arg === '-m') {
@@ -128,6 +157,10 @@ function parseArgs(argv: readonly string[]): { message: string | null } {
       index += 1;
     } else if (arg.startsWith('--message=')) {
       message = arg.slice('--message='.length);
+    } else if (arg === '--trunk-only') {
+      trunkOnly = true;
+    } else if (arg === '--leave-conflicts') {
+      leaveConflicts = true;
     } else {
       throw new SyncError(`Unknown argument: ${arg}`);
     }
@@ -135,18 +168,21 @@ function parseArgs(argv: readonly string[]): { message: string | null } {
   if (message !== null && message.trim().length === 0) {
     throw new SyncError('--message is empty.');
   }
-  return { message };
+  if (trunkOnly && message !== null) {
+    throw new SyncError('--trunk-only never commits; drop --message.');
+  }
+  return { message, trunkOnly, leaveConflicts };
 }
 
-/** The checked-out feature branch, after every refuse-to-run check. */
+/** The checked-out branch (a feature branch or `main`), after every refuse-to-run check. */
 function preflight(): string {
   const branch = git(['symbolic-ref', '--short', '-q', 'HEAD']);
   if (branch.code !== 0 || branch.out.length === 0) {
     throw new SyncError('Detached HEAD — check out a feature branch first.');
   }
-  if (TRUNKS.has(branch.out)) {
+  if (OTHER_TRUNKS.has(branch.out)) {
     throw new SyncError(
-      `On trunk branch \`${branch.out}\` — git-sync only runs on a feature branch.`
+      `On trunk branch \`${branch.out}\` — git-sync only runs on a feature branch or \`${BASE}\`.`
     );
   }
   for (const [marker, operation] of IN_PROGRESS) {
@@ -212,20 +248,30 @@ function remoteBranchExists(branch: string): boolean {
   throw new SyncError(`git ls-remote origin failed:\n${probe.err}`);
 }
 
-/** Fetches only `origin/main` and, when it exists, `origin/<branch>`. */
-function fetchScoped(branch: string, remoteExists: boolean): void {
+/** Fetches only `origin/main` and, when given and present, `origin/<branch>`. */
+function fetchScoped(branch: string | null, remoteExists: boolean): void {
   const refspecs = [`+refs/heads/${BASE}:refs/remotes/origin/${BASE}`];
-  if (remoteExists) {
+  if (branch !== null && remoteExists) {
     refspecs.push(`+refs/heads/${branch}:refs/remotes/origin/${branch}`);
   }
   gitOk(['fetch', '--quiet', '--no-tags', '--no-prune', 'origin', ...refspecs]);
 }
 
-/** Merges `ref` into HEAD with git's default message; aborts on conflict. */
-function mergeOrAbort(ref: string): void {
+/**
+ * Merges `ref` into HEAD with git's default message. On conflict it aborts,
+ * or with `leaveConflicts` keeps the merge in progress for the caller.
+ */
+function mergeOrAbort(ref: string, leaveConflicts: boolean): void {
   const merge = git(['merge', '--no-edit', '--quiet', ref]);
   if (merge.code === 0) return;
   const conflicts = git(['diff', '--name-only', '--diff-filter=U']).out;
+  if (leaveConflicts) {
+    throw new SyncError(
+      `Merging ${ref} conflicted; the merge is left in progress.\n` +
+        `Conflicted paths:\n${conflicts.length > 0 ? conflicts : '(none listed)'}\n` +
+        'Resolve and `git add` them, run `GIT_EDITOR=true git merge --continue`, then rerun `bun run git-sync`.'
+    );
+  }
   git(['merge', '--abort']);
   throw new SyncError(
     `Merging ${ref} conflicted; the merge was aborted and the tree is back at HEAD.\n` +
@@ -234,7 +280,7 @@ function mergeOrAbort(ref: string): void {
 }
 
 /** Brings local up to `origin/<branch>` when the remote moved ahead. */
-function catchUpWithRemote(branch: string): void {
+function catchUpWithRemote(branch: string, leaveConflicts: boolean): void {
   const counts = gitOk([
     'rev-list',
     '--left-right',
@@ -248,7 +294,7 @@ function catchUpWithRemote(branch: string): void {
     step(`fast-forwarded to origin/${branch} (+${String(behind)}).`);
     return;
   }
-  mergeOrAbort(`origin/${branch}`);
+  mergeOrAbort(`origin/${branch}`, leaveConflicts);
   step(`merged origin/${branch} (${String(behind)} remote commits).`);
 }
 
@@ -260,7 +306,7 @@ function pushBranch(branch: string, setUpstream: boolean): void {
 }
 
 /** Merges `origin/main` into the branch; returns false when already contained. */
-function mergeBase(): boolean {
+function mergeBase(leaveConflicts: boolean): boolean {
   const contained = git([
     'merge-base',
     '--is-ancestor',
@@ -271,7 +317,7 @@ function mergeBase(): boolean {
     step(`already contains origin/${BASE}.`);
     return false;
   }
-  mergeOrAbort(`origin/${BASE}`);
+  mergeOrAbort(`origin/${BASE}`, leaveConflicts);
   step(`merged origin/${BASE}.`);
   return true;
 }
@@ -292,21 +338,75 @@ function verifySynced(branch: string): void {
   step(`done — ${branch} @ ${local.slice(0, 9)} matches origin, tree clean.`);
 }
 
-function main(argv: readonly string[]): void {
-  const { message } = parseArgs(argv);
+/**
+ * Fast-forwards local `main` to the fetched `origin/main`. A checkout of
+ * `main` (this one or another worktree) moves only when its tree is clean;
+ * a local `main` with commits `origin/main` lacks is reported, never moved.
+ */
+function fastForwardLocalMain(): void {
+  const target = gitOk(['rev-parse', `refs/remotes/origin/${BASE}`]);
+  const current = git(['rev-parse', '--verify', '-q', `refs/heads/${BASE}`]);
+  if (current.code !== 0) {
+    gitOk(['branch', '--quiet', '--track', BASE, `origin/${BASE}`]);
+    step(`created local ${BASE} at origin/${BASE}.`);
+    return;
+  }
+  if (current.out === target) {
+    step(`local ${BASE} already at origin/${BASE}.`);
+    return;
+  }
+  if (git(['merge-base', '--is-ancestor', current.out, target]).code !== 0) {
+    step(
+      `warning: local ${BASE} has commits origin/${BASE} lacks — left untouched.`
+    );
+    return;
+  }
+  const checkout = worktreeForBranch(
+    gitOk(['worktree', 'list', '--porcelain']),
+    BASE
+  );
+  if (checkout === null) {
+    gitOk(['update-ref', `refs/heads/${BASE}`, target, current.out]);
+  } else if (
+    gitOk(['-C', checkout, 'status', '--porcelain=v1', '-uno']).length > 0
+  ) {
+    step(
+      `warning: ${BASE} is checked out with local changes at ${checkout} — left untouched.`
+    );
+    return;
+  } else {
+    gitOk(['-C', checkout, 'merge', '--ff-only', '--quiet', target]);
+  }
+  step(`fast-forwarded local ${BASE} → ${target.slice(0, 9)}.`);
+}
+
+/** Runs the whole sync; returns the synced branch. */
+export function gitSync(options: GitSyncOptions): string {
   const branch = preflight();
-  commitWorkingTree(message);
+  if (options.trunkOnly || branch === BASE) {
+    if (branch === BASE && options.message !== null) {
+      throw new SyncError(
+        `Refusing to commit on \`${BASE}\` — check out a feature branch.`
+      );
+    }
+    fetchScoped(null, false);
+    fastForwardLocalMain();
+    return branch;
+  }
+  commitWorkingTree(options.message);
   const remoteExists = remoteBranchExists(branch);
   fetchScoped(branch, remoteExists);
-  if (remoteExists) catchUpWithRemote(branch);
+  if (remoteExists) catchUpWithRemote(branch, options.leaveConflicts);
   pushBranch(branch, !remoteExists);
-  if (mergeBase()) pushBranch(branch, false);
+  if (mergeBase(options.leaveConflicts)) pushBranch(branch, false);
+  fastForwardLocalMain();
   verifySynced(branch);
+  return branch;
 }
 
 if (import.meta.main) {
   try {
-    main(process.argv.slice(2));
+    gitSync(parseGitSyncArgs(process.argv.slice(2)));
   } catch (error) {
     if (!(error instanceof SyncError)) throw error;
     process.stderr.write(`ERROR: ${error.message}\n`);

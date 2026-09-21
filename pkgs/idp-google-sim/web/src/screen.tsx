@@ -14,6 +14,7 @@ import type {
   IdpScreenStateOf,
   ScreenActions,
 } from '../../src/shared/screen-state';
+import { IdpUiRoot } from './components/ui-root';
 import { ChooserScreen } from './routes/chooser-screen';
 import { ConsentScreen } from './routes/consent-screen';
 import { CreateAccountScreen } from './routes/create-account-screen';
@@ -36,6 +37,14 @@ function pick<K extends IdpScreenState['kind']>(
 }
 
 export function Screen(props: ScreenProps) {
+  return (
+    <IdpUiRoot>
+      <ScreenSwitch {...props} />
+    </IdpUiRoot>
+  );
+}
+
+function ScreenSwitch(props: ScreenProps) {
   return (
     <Switch>
       <Match when={pick(props.state, 'identifier')}>

@@ -1,5 +1,4 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
-import { Island, spacingScale } from '@pkgs/ui';
 import {
   type Accessor,
   createMemo,
@@ -19,8 +18,6 @@ import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
 const noopRating = (): void => {};
-/** Tight inset so the square board can fill its well. */
-const BOARD_WELL_PADDING_PX = spacingScale(2);
 
 type PlayChromeProps = {
   layout: PuzzlePlayLayoutProps;
@@ -115,8 +112,8 @@ function PuzzlePlayBoard(props: {
 }
 
 /**
- * Largest square that fits the pane. Leftover space stays around the board
- * (app background), not as a blank mat above a bottom-aligned board.
+ * Largest square that fits the pane, flush with its edges (no inset or
+ * island mat). Leftover space stays around the board (app background).
  */
 function PuzzlePlayBoardWell(props: {
   boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
@@ -127,18 +124,17 @@ function PuzzlePlayBoardWell(props: {
       class="box flex-1 min-h-[0] min-w-[0] overflow-hidden items-center justify-center self-stretch"
       style={{ 'container-type': 'size' }}
     >
-      <Island
-        class="overflow-hidden min-h-[0] min-w-[0] shrink"
+      <div
+        class="box overflow-hidden min-h-[0] min-w-[0] shrink"
         style={{
           width: 'min(100cqw, 100cqh)',
           height: 'min(100cqw, 100cqh)',
           'max-width': '100%',
           'max-height': '100%',
-          padding: `${BOARD_WELL_PADDING_PX}px`,
         }}
       >
         <PuzzlePlayBoard boardSlot={props.boardSlot} chrome={props.chrome} />
-      </Island>
+      </div>
     </div>
   );
 }

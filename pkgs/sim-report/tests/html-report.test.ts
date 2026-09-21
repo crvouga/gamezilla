@@ -8,8 +8,10 @@ import {
   defineSnapshot,
   defineSystem,
   matchJunitCase,
+  mergeRunBundles,
   parseJunit,
   readRunBundle,
+  runManifestKey,
   virtualTimeRuntime,
 } from '@pkgs/sim';
 
@@ -71,6 +73,37 @@ async function seedRun(store: ObjectStoreImplInMemory): Promise<void> {
 }
 
 describe('html report', () => {
+  test('a test the manifest lost is still in the bundle', async () => {
+    // `bun test --parallel` workers read-modify-write one manifest; the
+    // report files are the record of what ran.
+    const store = new ObjectStoreImplInMemory();
+    await seedRun(store);
+    await store.put(
+      runManifestKey('r1'),
+      new TextEncoder().encode(JSON.stringify({ tests: [], updatedAtMs: 0 })),
+      'application/json'
+    );
+    const bundle = await readRunBundle(store, 'r1');
+    expect(bundle.tests.map((t) => t.report.meta.testId)).toEqual(['kv-put']);
+  });
+
+  test('merged runs keep every test, prefixed by the run label', async () => {
+    const a = new ObjectStoreImplInMemory();
+    const b = new ObjectStoreImplInMemory();
+    await seedRun(a);
+    await seedRun(b);
+    const merged = mergeRunBundles('all', [
+      { label: 'libs/chess', bundle: await readRunBundle(a, 'r1') },
+      { label: 'libs/friends', bundle: await readRunBundle(b, 'r1') },
+    ]);
+    expect(merged.runId).toBe('all');
+    expect(merged.status).toBe('passed');
+    expect(merged.tests.map((t) => t.report.meta.testId)).toEqual([
+      'libs/chess/kv-put',
+      'libs/friends/kv-put',
+    ]);
+  });
+
   test('bundle embeds text frames inline and binary frames as base64', async () => {
     const store = new ObjectStoreImplInMemory();
     await seedRun(store);

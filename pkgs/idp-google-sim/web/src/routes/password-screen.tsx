@@ -1,6 +1,9 @@
 /** Step 2 — the password step, with the account chip and one field. */
 
-import { createSignal } from 'solid-js';
+import { Button } from '@pkgs/ui/components/button';
+import { Checkbox } from '@pkgs/ui/components/checkbox';
+import { Notice } from '@pkgs/ui/components/notice';
+import { createSignal, Show } from 'solid-js';
 
 import { IDP_AUTHORIZE_SUBMIT_PATH } from '../../../src/shared/paths';
 import {
@@ -10,12 +13,9 @@ import {
 } from '../../../src/shared/screen-state';
 import { IDP_TEST_IDS } from '../../../src/shared/test-ids';
 import { IDP_PASSWORD } from '../../../src/shared/types';
-import { Button } from '../components/button';
-import { Card } from '../components/card';
-import { ErrorNote } from '../components/error-note';
-import { Icon } from '../components/icon';
-import { initials } from '../components/initials';
-import { TextField } from '../components/text-field';
+import { AccountChip } from '../components/account-chip';
+import { FormField } from '../components/form-field';
+import { FieldHint, Page, PageHeading } from '../components/page';
 import { fieldValueOf } from '../dom';
 
 type Props = {
@@ -35,68 +35,56 @@ export function PasswordScreen(props: Props) {
     void props.actions.submitPassword(fieldValueOf(event, 'password'));
   };
   return (
-    <Card
+    <Page
       testId={IDP_TEST_IDS.passwordPage}
       backHref={backHrefOf(props.state)}
       open={props.actions.openDocument}
     >
-      <h1 class="text-2xl leading-8 font-normal">Welcome</h1>
-      <div class="flex items-center gap-4">
-        <span
-          class="grid size-8 shrink-0 place-items-center rounded-full bg-white text-sm font-medium text-idp-primary ring-1 ring-idp-divider"
-          aria-hidden="true"
-        >
-          {initials(props.state.account.name)}
-        </span>
-        <span class="truncate text-sm text-idp-on-surface">
-          {props.state.account.email}
-        </span>
-      </div>
+      <PageHeading title="Welcome" />
+      <AccountChip account={props.state.account} />
       <form
-        class="mt-2 flex flex-col gap-4"
+        class="box gap-4"
         method="post"
         action={IDP_AUTHORIZE_SUBMIT_PATH}
         onSubmit={submit}
       >
         <input type="hidden" name="request_id" value={props.state.requestId} />
         <input type="hidden" name="step" value="password" />
-        <TextField
+        <FormField
           testId={IDP_TEST_IDS.passwordInput}
           name="password"
           label="Password"
-          type={show() ? 'text' : 'password'}
+          secure={!show()}
           autocomplete="current-password"
-          autofocus={invalid()}
           invalid={invalid()}
           describedBy={invalid() ? ERROR_ID : HINT_ID}
         />
-        <label class="flex items-center gap-2 text-sm text-idp-on-surface-variant">
-          <input
-            type="checkbox"
-            checked={show()}
-            onChange={(event) => setShow(event.currentTarget.checked)}
-            data-testid={IDP_TEST_IDS.passwordShow}
-          />
-          <Icon name={show() ? 'eye-off' : 'eye'} class="size-4" />
-          Show password
-        </label>
-        <p id={HINT_ID} class="text-xs text-idp-on-surface-variant">
+        <Checkbox
+          checked={show()}
+          onToggle={setShow}
+          label="Show password"
+          dataSet={{ testid: IDP_TEST_IDS.passwordShow }}
+        />
+        <FieldHint id={HINT_ID}>
           Forgot password? Local simulator: the password is{' '}
           <code>{IDP_PASSWORD}</code>.
-        </p>
-        {invalid() ? (
-          <ErrorNote id={ERROR_ID} testId={ERROR_ID}>
-            {props.state.error ?? ''}
-          </ErrorNote>
-        ) : null}
-        <div class="mt-2 flex justify-end">
+        </FieldHint>
+        <Show when={props.state.error}>
+          {(error) => (
+            <Notice tone="error" id={ERROR_ID} dataSet={{ testid: ERROR_ID }}>
+              {error()}
+            </Notice>
+          )}
+        </Show>
+        <div class="box flex-row justify-end pt-2">
           <Button
-            label="Next"
-            testId={IDP_TEST_IDS.passwordNext}
-            busy={props.busy}
+            type="submit"
+            title="Next"
+            loading={props.busy}
+            dataSet={{ testid: IDP_TEST_IDS.passwordNext }}
           />
         </div>
       </form>
-    </Card>
+    </Page>
   );
 }

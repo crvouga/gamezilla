@@ -10,6 +10,7 @@ import { noErrorBoundary } from '@pkgs/ui-testing/explore';
 import type { SimComposition } from '../composition';
 import { createSim } from '../fabric/create-sim';
 
+import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
 import type { ProductExtra, ProductUi } from '../hosts/ports';
 import { simReportTopology } from '../setup/sim-report-topology';
@@ -104,21 +105,14 @@ export const globalActionMenuAlwaysVisible = defineProperty({
   },
 });
 
-/** Extra hosts beyond the default `in-process` (the product adds `bun-webview`). */
-export type ProductSystemOptions = {
-  readonly runtimes?: readonly ReturnType<typeof defineRuntime>[];
-};
-
 /**
  * A product system over a composition: one sim on the opened session, booted
  * with a single API instance behind the round-robin load balancer. UI actors
  * spawn lazily via spawnActor; `spawnServerNode` / `dropServerNode` resize the
- * API fleet. The default host is `in-process` (virtual time, happy-dom).
+ * API fleet. The default host is `in-process` (virtual time, happy-dom);
+ * `bun-webview` (a live browser, `SIM_MODE=real|stack`) runs the same suite.
  */
-export function defineProductSystem(
-  composition: SimComposition,
-  options?: ProductSystemOptions
-) {
+export function defineProductSystem(composition: SimComposition) {
   return defineSystem<ProductSim>({
     name: `sim.${composition.name}`,
     runtimes: [
@@ -127,7 +121,10 @@ export function defineProductSystem(
         name: 'in-process',
         create: () => inProcessRuntime({ composition }),
       }),
-      ...(options?.runtimes ?? []),
+      defineRuntime({
+        name: 'bun-webview',
+        create: () => bunWebviewRuntime({ composition }),
+      }),
     ],
     properties: [
       noErrorBoundaryAnyActor,

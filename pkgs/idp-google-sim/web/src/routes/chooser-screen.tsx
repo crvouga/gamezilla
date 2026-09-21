@@ -5,6 +5,9 @@
  * demand `role="option"` children) keeps the button contract intact.
  */
 
+import { Avatar } from '@pkgs/ui/components/avatar';
+import { PlusIcon, UserPlusIcon } from '@pkgs/ui/components/icons';
+import { MenuRow } from '@pkgs/ui/components/menu-row';
 import { For } from 'solid-js';
 
 import { IDP_BRAND } from '../../../src/shared/brand';
@@ -18,9 +21,8 @@ import {
   type ScreenActions,
 } from '../../../src/shared/screen-state';
 import { IDP_TEST_IDS } from '../../../src/shared/test-ids';
-import { AccountRow } from '../components/account-row';
-import { Card } from '../components/card';
-import { Icon } from '../components/icon';
+import { AccountAvatar } from '../components/account-chip';
+import { Page, PageHeading } from '../components/page';
 import { moveRovingFocus } from '../dom';
 
 type Props = {
@@ -30,6 +32,7 @@ type Props = {
 };
 
 const HEADING_ID = 'idp-chooser-heading';
+const ROW_AVATAR_SIZE = 32;
 
 export function ChooserScreen(props: Props) {
   const createHref = (): string =>
@@ -42,75 +45,80 @@ export function ChooserScreen(props: Props) {
     );
   };
   return (
-    <Card
+    <Page
       testId={IDP_TEST_IDS.chooserPage}
       backHref={backHrefOf(props.state)}
       open={props.actions.openDocument}
     >
-      <h1 id={HEADING_ID} class="text-2xl leading-8 font-normal">
-        Choose an account
-      </h1>
-      <p class="text-base text-idp-on-surface-variant">
-        to continue to {props.state.appName}
-      </p>
-      <form
-        class="mt-2 flex flex-col gap-1"
-        method="post"
-        action={IDP_AUTHORIZE_SUBMIT_PATH}
-        onSubmit={submit}
-        onKeyDown={(event) => moveRovingFocus(event, event.currentTarget)}
-        role="group"
-        aria-labelledby={HEADING_ID}
-      >
-        <input type="hidden" name="request_id" value={props.state.requestId} />
-        <input type="hidden" name="step" value="choose" />
-        <For each={props.state.accounts}>
-          {(account) => (
-            <AccountRow
-              account={account}
-              testId={IDP_TEST_IDS.chooserAccount(account.sub)}
+      <PageHeading
+        id={HEADING_ID}
+        title="Choose an account"
+        subtitle={`to continue to ${props.state.appName}`}
+      />
+      <div class="box -mx-2">
+        <form
+          class="box gap-1"
+          method="post"
+          action={IDP_AUTHORIZE_SUBMIT_PATH}
+          onSubmit={submit}
+          onKeyDown={(event) => moveRovingFocus(event, event.currentTarget)}
+          role="group"
+          aria-labelledby={HEADING_ID}
+        >
+          <input
+            type="hidden"
+            name="request_id"
+            value={props.state.requestId}
+          />
+          <input type="hidden" name="step" value="choose" />
+          <For each={props.state.accounts}>
+            {(account) => (
+              <MenuRow
+                submit={{ name: 'sub', value: account.sub }}
+                title={account.name}
+                caption={account.email}
+                leading={<AccountAvatar account={account} />}
+                hideChevron
+                disabled={props.busy}
+                dataSet={{ testid: IDP_TEST_IDS.chooserAccount(account.sub) }}
+              />
+            )}
+          </For>
+          <hr class="my-1 border-border" />
+          <MenuRow
+            submit={{ name: 'sub', value: '' }}
+            title="Use another account"
+            leading={
+              <Avatar
+                icon={PlusIcon}
+                size={ROW_AVATAR_SIZE}
+                background="surfaceMuted"
+              />
+            }
+            hideChevron
+            disabled={props.busy}
+            dataSet={{ testid: IDP_TEST_IDS.chooserUseAnother }}
+          />
+        </form>
+        <MenuRow
+          href={createHref()}
+          onClick={() => props.actions.openDocument(createHref())}
+          title="Create account"
+          leading={
+            <Avatar
+              icon={UserPlusIcon}
+              size={ROW_AVATAR_SIZE}
+              background="surfaceMuted"
             />
-          )}
-        </For>
-        <hr class="my-2 border-idp-divider" />
-        <button
-          class="flex min-h-14 w-full items-center gap-4 rounded-lg px-3 py-2 text-left text-sm text-idp-on-surface hover:bg-idp-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-idp-primary"
-          type="submit"
-          name="sub"
-          value=""
-          data-testid={IDP_TEST_IDS.chooserUseAnother}
-        >
-          <span
-            class="grid size-8 shrink-0 place-items-center rounded-full bg-idp-hover"
-            aria-hidden="true"
-          >
-            <Icon name="plus" class="size-4" />
-          </span>
-          Use another account
-        </button>
-      </form>
-      <a
-        class="flex min-h-14 items-center gap-4 rounded-lg px-3 text-sm text-idp-on-surface hover:bg-idp-hover focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-idp-primary"
-        href={createHref()}
-        rel="external"
-        onClick={(event) => {
-          event.preventDefault();
-          props.actions.openDocument(createHref());
-        }}
-        data-testid={IDP_TEST_IDS.chooserCreateAccount}
-      >
-        <span
-          class="grid size-8 shrink-0 place-items-center rounded-full bg-idp-hover"
-          aria-hidden="true"
-        >
-          <Icon name="user-plus" class="size-4" />
-        </span>
-        Create account
-      </a>
-      <p class="mt-2 text-xs text-idp-on-surface-variant">
+          }
+          hideChevron
+          dataSet={{ testid: IDP_TEST_IDS.chooserCreateAccount }}
+        />
+      </div>
+      <p class="text textCaption">
         To continue, {IDP_BRAND.name} will share your name, email address, and
         profile picture with {props.state.appName}.
       </p>
-    </Card>
+    </Page>
   );
 }

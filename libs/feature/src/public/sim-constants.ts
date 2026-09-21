@@ -22,3 +22,12 @@ export const SIM_IDP_URL = 'http://idp.sim';
 /** OAuth client the sim API registers with that provider. */
 export const SIM_GOOGLE_CLIENT_ID = 'sim.apps.googleusercontent.com';
 export const SIM_GOOGLE_CLIENT_SECRET = 'sim-google-client-secret';
+
+/** Origin of the mock payment provider node inside a sim. */
+export const SIM_BILLING_URL = 'http://billing.sim';
+
+/** The key the sim API's billing adapter calls that provider with. */
+export const SIM_BILLING_SECRET_KEY = 'sk_test_mock_sim';
+
+/** The secret that provider signs its webhooks to the sim API with. */
+export const SIM_BILLING_WEBHOOK_SECRET = 'whsec_mock_sim';

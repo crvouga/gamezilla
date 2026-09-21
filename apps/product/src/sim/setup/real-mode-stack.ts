@@ -1,6 +1,7 @@
 /**
- * Process-wide Postgres + S3rver + EMQX for `openSim` mode `real`.
- * Default `test` never calls this.
+ * Process-wide Postgres + S3rver + EMQX for `openSim` mode `real`, registered
+ * with the sim harness by `real-stack-preload.ts` (`test:max` preloads it into
+ * every package's e2e run). Default `test:e2e` never calls this.
  */
 
 import { bootLocalStack } from '@apps/server/scripts/boot-local-stack';

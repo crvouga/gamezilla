@@ -16,7 +16,7 @@ import type { FeatureManifest } from '@libs/feature/public/manifest';
 import type { FeatureServer } from '@libs/feature/public/server';
 import type { EnvTime } from '@libs/feature/public/sync';
 import { PERMISSIONS_FEATURE } from '@libs/permissions/root/feature';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipBilling, PlusMembershipOffer } from '@pkgs/billing';
 import type { CatalogAction, CatalogProperty } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { withHome } from './bare-home-client';
@@ -37,6 +37,8 @@ export type SimSlice = {
   readonly roomNode?: (env: EnvTime) => SimRoomNode;
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;
   readonly browserPages?: readonly SimBrowserAppPage[];
+  /** What this feature sells; boots the sim's payment provider. */
+  readonly billingOffer?: PlusMembershipOffer;
   readonly properties?: readonly CatalogProperty<ProductSim>[];
   readonly actions?: readonly CatalogAction<ProductSim>[];
 };
@@ -114,6 +116,7 @@ export function composeSimSlices(
     return slice === undefined ? [] : [slice];
   });
   const roomNode = only(ordered, (s) => s.roomNode, 'a room node');
+  const billingOffer = only(ordered, (s) => s.billingOffer, 'a billing offer');
   const seeds = ordered.flatMap((s) =>
     s.seedServer === undefined ? [] : [s.seedServer]
   );
@@ -128,6 +131,7 @@ export function composeSimSlices(
     servers: (deps) =>
       ordered.flatMap((s) => (s.server === undefined ? [] : [s.server(deps)])),
     ...(roomNode === undefined ? {} : { roomNode }),
+    ...(billingOffer === undefined ? {} : { billingOffer }),
     seedServer: async (sqlClient) => {
       for (const seed of seeds) await seed(sqlClient);
     },

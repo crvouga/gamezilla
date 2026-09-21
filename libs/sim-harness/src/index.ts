@@ -67,6 +67,7 @@ export type {
   ProductUi,
 } from './hosts/ports';
 export { SIM_START_MS } from './hosts/ports';
+export { registerRealStackBooter } from './hosts/real-stack';
 export {
   compositionMigratePostgres,
   migrateCompositionClientSqlite,
@@ -94,7 +95,6 @@ export {
   noErrorBoundaryAnyActor,
   type ProductSim,
   type ProductSystem,
-  type ProductSystemOptions,
 } from './system/define-product-system';
 export {
   accountIdOf,

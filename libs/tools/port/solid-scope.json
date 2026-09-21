@@ -21,7 +21,6 @@
     "pkgs/ui-devtools/tests",
     "pkgs/bun-test-solid/src",
     "apps/product/src/sim",
-    "apps/product/tests",
     "libs/sim-harness/src"
   ],
   "files": [

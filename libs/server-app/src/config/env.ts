@@ -32,6 +32,10 @@ export type ApiWorkerEnv = {
    * Stripe-from-secrets; the localhost stack sets `fake` explicitly.
    */
   BILLING_PROVIDER?: string;
+  /** `BILLING_PROVIDER=mock`: where the mock provider runs and its secrets. */
+  BILLING_MOCK_ORIGIN?: string;
+  BILLING_MOCK_SECRET_KEY?: string;
+  BILLING_MOCK_WEBHOOK_SECRET?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;
@@ -85,9 +89,30 @@ export function readOptionalGoogleIdpOrigin(env: ApiWorkerEnv): string | null {
 
 export function readBillingProviderBinding(
   env: ApiWorkerEnv
-): 'stripe' | 'fake' | null {
+): 'stripe' | 'mock' | null {
   const value = readOptionalBinding(env.BILLING_PROVIDER)?.toLowerCase();
-  return value === 'stripe' || value === 'fake' ? value : null;
+  return value === 'stripe' || value === 'mock' ? value : null;
+}
+
+/**
+ * The mock provider's address and secrets. The mock is reached exactly like
+ * Stripe — an origin, a secret key, a webhook signing secret — so all three
+ * are required; a partial set is a misconfiguration, not a degraded mode.
+ */
+export function readMockBillingBindings(env: ApiWorkerEnv): {
+  readonly origin: string;
+  readonly secretKey: string;
+  readonly webhookSecret: string;
+} {
+  const origin = readOptionalBinding(env.BILLING_MOCK_ORIGIN);
+  const secretKey = readOptionalBinding(env.BILLING_MOCK_SECRET_KEY);
+  const webhookSecret = readOptionalBinding(env.BILLING_MOCK_WEBHOOK_SECRET);
+  if (origin === null || secretKey === null || webhookSecret === null) {
+    throw new Error(
+      'BILLING_PROVIDER=mock needs BILLING_MOCK_ORIGIN, BILLING_MOCK_SECRET_KEY and BILLING_MOCK_WEBHOOK_SECRET'
+    );
+  }
+  return { origin, secretKey, webhookSecret };
 }
 
 export function readOptionalDatabaseUrlOverride(

@@ -10,7 +10,12 @@ export type MembershipStatus =
   | 'ended'; // no further access (canceled, expired, never paid)
 
 export type Membership = {
-  /** End of the paid period the provider last confirmed (epoch ms). */
+  /**
+   * When access runs out (epoch ms): the end of the paid period the provider
+   * last confirmed, or — for an `ended` membership — the moment it ended, when
+   * that came before the period end (an immediate cancellation). Never a
+   * period the person no longer has.
+   */
   readonly periodEndMs: number | null;
   /** True while the provider will stop at `periodEndMs`. */
   readonly endsAtPeriodEnd: boolean;
@@ -62,10 +67,20 @@ export type CallbackResult =
 /**
  * What the app needs from a payment provider: start a plus membership, let the
  * person manage it, and learn what changed. Nothing else belongs here.
+ *
+ * Every implementation — Stripe, the mock provider — must pass
+ * `describeMembershipBillingContract` (`./membership-billing-contract`); the
+ * app treats them identically and never asks which one it holds.
  */
 export interface MembershipBilling {
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult>;
   openPortal(input: OpenPortalInput): Promise<{ readonly url: string }>;
-  /** Verifies authenticity itself; the caller never sees a signature scheme. */
+  /**
+   * Verifies authenticity itself; the caller never sees a signature scheme.
+   * A verified callback reports the provider's *current* state of the
+   * subscription it names, not the payload's snapshot: providers deliver
+   * duplicates and out of order, so an adapter re-reads before it answers.
+   * Throws when the provider cannot be reached, so the delivery is retried.
+   */
   readCallback(input: ReadCallbackInput): Promise<CallbackResult>;
 }

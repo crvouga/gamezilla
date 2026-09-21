@@ -2,7 +2,7 @@ import {
   type BootProductSimulatorOptions,
   buildProductSimulatorSession,
 } from '@apps/product/product-simulator/product-simulator-session';
-import { product } from '@apps/product/sim/system';
+import { APP_SYSTEM } from '@libs/runtime/sim/app-composition';
 import { type ProductSim, productExtra, type Sim } from '@libs/sim-harness';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -78,7 +78,7 @@ export async function bootProductSimulatorSession(
   opts?: BootProductSimulatorOptions
 ): Promise<ProductSimulatorSession> {
   const host: 'in-process' | 'bun-webview' = opts?.runtime ?? 'in-process';
-  const run = await product.run({ seed: 1, runtime: host });
+  const run = await APP_SYSTEM.run({ seed: 1, runtime: host });
   const surface = await pinSim(run);
   const extra = productExtra(surface);
   const sim = surface.sim;

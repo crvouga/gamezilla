@@ -53,13 +53,13 @@ function searchHitsSql(myId: string, query: string): Sql<SearchHitRow> {
       AND p.username_norm <> ''
       AND p.username_norm LIKE ${likeQuery}
       AND NOT EXISTS (
+        -- Someone who blocked me cannot be found by me. Someone I blocked
+        -- still can: their row is where I unblock them (there is no other).
         SELECT 1
         FROM friends_blocks AS b
         WHERE b.deleted_at IS NULL
-          AND (
-            (b.blocker_id = ${myId} AND b.blocked_id = p.id)
-            OR (b.blocker_id = p.id AND b.blocked_id = ${myId})
-          )
+          AND b.blocker_id = p.id
+          AND b.blocked_id = ${myId}
       )
     ORDER BY p.username_norm ASC
     LIMIT ${USER_SEARCH_MAX_RESULTS}

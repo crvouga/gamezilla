@@ -47,7 +47,10 @@
         "kind": "test",
         "path": "pkgs/object-store-s3/src/object-store.s3.contract.test.ts"
       },
-      { "kind": "test", "path": "pkgs/pubsub-emqx/src/emqx.contract.test.ts" },
+      {
+        "kind": "test",
+        "path": "pkgs/pubsub-emqx/src/emqx.contract.test.ts"
+      },
       {
         "kind": "test",
         "path": "pkgs/db-indexes-postgres/tests/postgres.contract.test.ts"
@@ -79,7 +82,10 @@
   "spaces:2": {
     "status": "proven",
     "proofs": [
-      { "kind": "test", "path": "libs/spaces/tests/guest-space-join.test.ts" },
+      {
+        "kind": "test",
+        "path": "libs/spaces/tests/guest-space-join.test.ts"
+      },
       {
         "kind": "test",
         "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
@@ -91,7 +97,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "libs/friends/tests/e2e/space-host-select-game.test.tsx"
+        "path": "libs/chess/tests/e2e/space-host-select-game.test.tsx"
       }
     ]
   },
@@ -128,6 +134,10 @@
       {
         "kind": "test",
         "path": "libs/friends/tests/e2e/space-friend-join.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/friend-in-open-space.test.tsx"
       }
     ]
   },
@@ -199,7 +209,11 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "libs/profile/tests/e2e/auth-login-logout.test.tsx"
+        "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-play.test.tsx"
       }
     ]
   },
@@ -209,6 +223,10 @@
       {
         "kind": "test",
         "path": "libs/auth/src/root/server/anon-user-service.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
       }
     ]
   },
@@ -235,7 +253,15 @@
     "proofs": [
       {
         "kind": "test",
+        "path": "libs/friends/tests/e2e/request-accept.test.tsx"
+      },
+      {
+        "kind": "test",
         "path": "libs/friends/tests/e2e/request-decline-cancel.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/remove.test.tsx"
       }
     ]
   },
@@ -245,6 +271,10 @@
       {
         "kind": "test",
         "path": "libs/spaces/src/root/client/my-live-space-seat-sql.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/friend-in-open-space.test.tsx"
       }
     ]
   },
@@ -352,7 +382,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-spectator.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-spectator.test.tsx"
       }
     ]
   },
@@ -517,7 +547,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/chess-puzzle-spectator.test.tsx"
+        "path": "libs/chess/tests/e2e/puzzle-spectator.test.tsx"
       }
     ]
   },
@@ -545,6 +575,10 @@
       {
         "kind": "test",
         "path": "libs/auth/src/root/server/anon-user-service.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
       }
     ]
   },
@@ -589,7 +623,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "apps/product/tests/non-web-host-smoke.test.ts"
+        "path": "libs/sim-harness/tests/hosts-smoke.test.ts"
       }
     ]
   },

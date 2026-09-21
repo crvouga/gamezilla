@@ -6,6 +6,7 @@ import { SPACES_FEATURE } from '../root/feature';
 import { SPACES_SERVER } from '../root/server/feature-server';
 import { createInProcessRoomNode } from './in-process-room-node';
 import { SPACES_SIM_ACTIONS } from './space-actions';
+import { SPACES_WALK_ACTIONS } from './space-walk';
 
 /**
  * Spaces in a sim, hosting exactly the games given: the product passes its
@@ -28,6 +29,6 @@ export function spacesSimSlice(registry: {
     }),
     server: () => SPACES_SERVER,
     roomNode: (env) => createInProcessRoomNode(env, registry.games),
-    actions: SPACES_SIM_ACTIONS,
+    actions: [...SPACES_SIM_ACTIONS, ...SPACES_WALK_ACTIONS],
   };
 }
