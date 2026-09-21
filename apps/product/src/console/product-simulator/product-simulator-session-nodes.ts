@@ -2,7 +2,7 @@
  * ProductSimulator console node adapters (room + pubsub inspect façades).
  */
 
-import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
+import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
 import type { InMemoryBus } from '@pkgs/pubsub/in-memory';
 import type {
   createProductSimulatorLogBuffer,

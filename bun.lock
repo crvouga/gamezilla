@@ -175,6 +175,7 @@
         "@libs/db": "workspace:*",
         "@libs/feature": "workspace:*",
         "@libs/games": "workspace:*",
+        "@libs/room-app": "workspace:*",
         "@libs/runtime": "workspace:*",
         "@libs/secrets": "workspace:*",
         "@libs/spaces": "workspace:*",
@@ -741,6 +742,30 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "jose": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/room-app": {
+      "name": "@libs/room-app",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/db": "workspace:*",
+        "@libs/feature": "workspace:*",
+        "@libs/games": "workspace:*",
+        "@libs/runtime": "workspace:*",
+        "@libs/secrets": "workspace:*",
+        "@libs/spaces": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/message": "workspace:*",
+        "@pkgs/room": "workspace:*",
+        "@pkgs/room-adapter-durable-object": "workspace:*",
+        "@pkgs/room-adapter-memory": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -3489,6 +3514,8 @@
     "@libs/profile": ["@libs/profile@workspace:libs/profile"],
 
     "@libs/pubsub": ["@libs/pubsub@workspace:libs/pubsub"],
+
+    "@libs/room-app": ["@libs/room-app@workspace:libs/room-app"],
 
     "@libs/runtime": ["@libs/runtime@workspace:libs/runtime"],
 

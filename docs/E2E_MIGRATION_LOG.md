@@ -8,6 +8,14 @@ Status values: **done** (moved and passing at its new home), **planned**
 (destination decided, not yet moved), **kept** (stays where it is, with the
 reason).
 
+> **Where this stands.** The architecture the moves depend on is in place —
+> feature manifests, the three folds, both shells generic over the features
+> they run, boundaries enforced (see
+> [`FEATURE_SUBSYSTEMS.md`](FEATURE_SUBSYSTEMS.md)). No spec has moved yet:
+> that needs the sim fabric to become a harness that boots a feature slice,
+> which is the next piece of work. Until then every row below is **planned**
+> and all 46 specs still run from `apps/product/tests` as one task.
+
 ## Where things go
 
 | Destination | What belongs there |

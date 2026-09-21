@@ -2,8 +2,8 @@
  * Collect / apply checkpoint slices (SQL, rooms, faults, clock).
  */
 
-import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type { Client } from '@libs/client-app/shell/create-client';
+import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
 import { migrateSimClientSqlite } from '@libs/runtime/root/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';

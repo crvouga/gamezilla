@@ -78,6 +78,7 @@
     "libs/client-app/tests/**/*.ts",
     "libs/client-app/tests/**/*.tsx",
     "libs/feature/src/**/*.ts",
+    "libs/room-app/src/**/*.ts",
     "libs/server-app/src/**/*.ts",
     "libs/server-app/src/**/*.d.ts",
     "libs/server-app/tests/**/*.ts",

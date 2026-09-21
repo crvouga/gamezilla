@@ -1,0 +1,36 @@
+{
+  "name": "@libs/room-app",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bunx biome check --error-on-warnings .",
+    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
+  },
+  "dependencies": {
+    "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/games": "workspace:*",
+    "@libs/runtime": "workspace:*",
+    "@libs/secrets": "workspace:*",
+    "@libs/spaces": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/message": "workspace:*",
+    "@pkgs/room": "workspace:*",
+    "@pkgs/room-adapter-durable-object": "workspace:*",
+    "@pkgs/room-adapter-memory": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

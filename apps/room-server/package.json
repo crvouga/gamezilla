@@ -21,6 +21,7 @@
     "@libs/db": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/games": "workspace:*",
+    "@libs/room-app": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
     "@libs/spaces": "workspace:*",

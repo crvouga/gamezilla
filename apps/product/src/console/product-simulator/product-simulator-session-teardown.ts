@@ -5,8 +5,8 @@
 import { makeProductSimulatorRoomNode } from '@apps/product/product-simulator/product-simulator-session-nodes';
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
 import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
-import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import type { Client } from '@libs/client-app/shell/create-client';
+import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
 import type {
   createProductSimulatorLogBuffer,
   ProductSimulatorActor,

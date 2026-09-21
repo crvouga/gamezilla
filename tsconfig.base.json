@@ -54,6 +54,7 @@
         "./libs/pubsub/src/root/*.tsx"
       ],
       "@libs/pubsub/shared/*": ["./libs/pubsub/src/shared/*.ts"],
+      "@libs/room-app/*": ["./libs/room-app/src/*"],
       "@libs/runtime/*": ["./libs/runtime/src/*"],
       "@libs/search/*": ["./libs/search/src/*"],
       "@libs/server-app": ["./libs/server-app/src/index.ts"],

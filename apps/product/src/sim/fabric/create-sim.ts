@@ -1,8 +1,3 @@
-import {
-  createRoomServer,
-  type RoomServerApp,
-} from '@apps/room-server/app/create-room-server';
-import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import {
   type Client,
@@ -13,6 +8,11 @@ import {
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
 } from '@libs/feature/public/sim-constants';
+import {
+  createRoomServer,
+  type RoomServerApp,
+} from '@libs/room-app/app/create-room-server';
+import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
 import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
 import {
   migrateSimPostgres,

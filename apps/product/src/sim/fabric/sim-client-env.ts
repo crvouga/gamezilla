@@ -3,10 +3,10 @@
  * it never holds a direct handle to a server instance.
  */
 
-import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
 import { setPendingSignupUsername } from '@libs/auth/public/pending-signup-username';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
+import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
 import { SIM_SERVER_URL } from '@libs/runtime/root/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
