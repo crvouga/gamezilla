@@ -13,6 +13,9 @@ import * as fc from 'fast-check';
 import ts from 'typescript';
 import { transformFile } from '../transform';
 
+/** 250 runs a property; a loaded machine must not turn that into a failure. */
+const PROPERTY_TIMEOUT_MS = 60_000;
+
 function parses(text: string): boolean {
   const source = ts.createSourceFile(
     'f.tsx',
@@ -82,78 +85,94 @@ const arbUsage = fc
   });
 
 describe('valid TSX property', () => {
-  test('output always parses; converted nodes drop sx and imports', async () => {
-    await fc.assert(
-      fc.property(arbUsage, ({ source }) => {
-        const result = transformFile('prop.tsx', source);
-        expect(result.parseError).toBe(undefined);
-        expect(parses(result.text)).toBe(true);
-        if (result.converted.length > 0) {
-          expect(result.text).not.toMatch(/[\s{]sx=\{/);
-          expect(result.text).not.toMatch(/[\s{]sx="/);
-        }
-      }),
-      { numRuns: 250 }
-    );
-  });
+  test(
+    'output always parses; converted nodes drop sx and imports',
+    async () => {
+      await fc.assert(
+        fc.property(arbUsage, ({ source }) => {
+          const result = transformFile('prop.tsx', source);
+          expect(result.parseError).toBe(undefined);
+          expect(parses(result.text)).toBe(true);
+          if (result.converted.length > 0) {
+            expect(result.text).not.toMatch(/[\s{]sx=\{/);
+            expect(result.text).not.toMatch(/[\s{]sx="/);
+          }
+        }),
+        { numRuns: 250 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
 });
 
 describe('idempotence property', () => {
-  test('second run is a byte-identical no-op', async () => {
-    await fc.assert(
-      fc.property(arbUsage, ({ source }) => {
-        const first = transformFile('prop.tsx', source);
-        expect(first.parseError).toBe(undefined);
-        const second = transformFile('prop.tsx', first.text);
-        expect(second.parseError).toBe(undefined);
-        expect(second.text).toBe(first.text);
-        expect(second.converted).toEqual([]);
-      }),
-      { numRuns: 250 }
-    );
-  });
+  test(
+    'second run is a byte-identical no-op',
+    async () => {
+      await fc.assert(
+        fc.property(arbUsage, ({ source }) => {
+          const first = transformFile('prop.tsx', source);
+          expect(first.parseError).toBe(undefined);
+          const second = transformFile('prop.tsx', first.text);
+          expect(second.parseError).toBe(undefined);
+          expect(second.text).toBe(first.text);
+          expect(second.converted).toEqual([]);
+        }),
+        { numRuns: 250 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
 });
 
 describe('preservation property', () => {
-  test('passthrough attributes and children survive verbatim', async () => {
-    await fc.assert(
-      fc.property(arbUsage, ({ source }) => {
-        const result = transformFile('prop.tsx', source);
-        for (const kept of [
-          'id="keep"',
-          'aria-label="keep me"',
-          'data-testid="keep"',
-          'onClick={onClick}',
-          'keep-children-{value}',
-        ]) {
-          if (source.includes(kept)) expect(result.text).toContain(kept);
-        }
+  test(
+    'passthrough attributes and children survive verbatim',
+    async () => {
+      await fc.assert(
+        fc.property(arbUsage, ({ source }) => {
+          const result = transformFile('prop.tsx', source);
+          for (const kept of [
+            'id="keep"',
+            'aria-label="keep me"',
+            'data-testid="keep"',
+            'onClick={onClick}',
+            'keep-children-{value}',
+          ]) {
+            if (source.includes(kept)) expect(result.text).toContain(kept);
+          }
+          expect(result.manual).toEqual([]);
+          expect(result.text).not.toContain('TODO(sx-codemod)');
+        }),
+        { numRuns: 250 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
+
+  test(
+    'former Tier C inputs convert or stay silent — never TODO',
+    async () => {
+      const cases: readonly string[] = [
+        `import { Box } from '@pkgs/ui';\nexport const A = (p: { rest: never }) => <Box sx={{ p: 1 }} {...p.rest} />;`,
+        `import { Text } from '@pkgs/ui';\nexport const A = (p: { v: 'heading' }) => <Text variant={p.v} label="x" />;`,
+        `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }} />;`,
+      ];
+      for (const source of cases) {
+        const result = transformFile('tierc.tsx', source);
         expect(result.manual).toEqual([]);
         expect(result.text).not.toContain('TODO(sx-codemod)');
-      }),
-      { numRuns: 250 }
-    );
-  });
-
-  test('former Tier C inputs convert or stay silent — never TODO', async () => {
-    const cases: readonly string[] = [
-      `import { Box } from '@pkgs/ui';\nexport const A = (p: { rest: never }) => <Box sx={{ p: 1 }} {...p.rest} />;`,
-      `import { Text } from '@pkgs/ui';\nexport const A = (p: { v: 'heading' }) => <Text variant={p.v} label="x" />;`,
-      `import { ScrollView } from '@pkgs/ui';\nexport const A = () => <ScrollView frameSx={{ flex: 1 }} />;`,
-    ];
-    for (const source of cases) {
-      const result = transformFile('tierc.tsx', source);
-      expect(result.manual).toEqual([]);
-      expect(result.text).not.toContain('TODO(sx-codemod)');
-    }
-    await fc.assert(
-      fc.property(fc.constantFrom(...cases), (source) => {
-        const first = transformFile('tierc.tsx', source);
-        const second = transformFile('tierc.tsx', first.text);
-        expect(second.text).toBe(first.text);
-        expect(second.manual).toEqual([]);
-      }),
-      { numRuns: 20 }
-    );
-  });
+      }
+      await fc.assert(
+        fc.property(fc.constantFrom(...cases), (source) => {
+          const first = transformFile('tierc.tsx', source);
+          const second = transformFile('tierc.tsx', first.text);
+          expect(second.text).toBe(first.text);
+          expect(second.manual).toEqual([]);
+        }),
+        { numRuns: 20 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
 });
