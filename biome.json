@@ -16,7 +16,7 @@
       "!!**/.turbo",
       "!!**/.cache",
       "!**/*.lock",
-      "!apps/client/src/i18n/locales/*/messages.ts",
+      "!libs/client-app/src/i18n/locales/*/messages.ts",
       "!pkgs/idp-google-sim/src/server/assets.generated.ts",
       "!libs/billing/src/use-cases/mock-provider/server/mock-billing-assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
@@ -197,6 +197,7 @@
       "path": "./libs/tools/biome-plugins/text-must-be-trans.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
+        "**/libs/client-app/src/**/*.{ts,tsx}",
         "**/libs/spaces/**/*.{ts,tsx}",
         "**/libs/chess/**/*.{ts,tsx}",
         "**/libs/profile/**/*.{ts,tsx}",
@@ -217,6 +218,7 @@
       "path": "./libs/tools/biome-plugins/text-must-be-trans-children.grit",
       "includes": [
         "**/apps/client/src/**/*.{ts,tsx}",
+        "**/libs/client-app/src/**/*.{ts,tsx}",
         "**/libs/spaces/**/*.{ts,tsx}",
         "**/libs/chess/**/*.{ts,tsx}",
         "**/libs/profile/**/*.{ts,tsx}",
@@ -235,7 +237,10 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-nested-await.grit",
-      "includes": ["**/apps/client/src/**/*.{ts,tsx}"]
+      "includes": [
+        "**/apps/client/src/**/*.{ts,tsx}",
+        "**/libs/client-app/src/**/*.{ts,tsx}"
+      ]
     },
     {
       "path": "./libs/tools/biome-plugins/no-export-star.grit",
@@ -397,7 +402,7 @@
       "includes": [
         "**/pkgs/sync-engine/**/*.{ts,tsx}",
         "**/libs/notifications/src/**/*.{ts,tsx}",
-        "**/apps/client/src/sync/**/*.{ts,tsx}",
+        "**/libs/client-app/src/sync/**/*.{ts,tsx}",
         "**/apps/server/src/sync/**/*.{ts,tsx}",
         "**/libs/**/use-cases/**/shared/**/*.{ts,tsx}",
         "**/libs/runtime/src/public/sync-topics.ts",
@@ -442,7 +447,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/pkgs/pubsub-emqx/**",
         "!**/apps/server/src/sync/**",
-        "!**/apps/client/src/sync/**"
+        "!**/libs/client-app/src/sync/**"
       ]
     },
     {
@@ -465,7 +470,7 @@
     },
     {
       "path": "./libs/tools/biome-plugins/no-eager-games-shell-imports.grit",
-      "includes": ["**/apps/client/src/shell/**/*.{ts,tsx}"]
+      "includes": ["**/libs/client-app/src/shell/**/*.{ts,tsx}"]
     },
     "./libs/tools/biome-plugins/no-vitest.grit",
     {
@@ -649,9 +654,9 @@
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
         "**/apps/product/tests/**/*.{tsx}",
-        "!**/apps/client/src/providers/root-error-boundary.tsx",
-        "!**/apps/client/src/i18n/i18n-provider.tsx",
-        "!**/apps/client/src/exemplars/virtualized-list.tsx",
+        "!**/libs/client-app/src/providers/root-error-boundary.tsx",
+        "!**/libs/client-app/src/i18n/i18n-provider.tsx",
+        "!**/libs/client-app/src/exemplars/virtualized-list.tsx",
         "!**/pkgs/chess-board/src/chess-board-canvas-content.tsx",
         "!**/pkgs/chess-board/src/chess-board-promotion.tsx",
         "!**/pkgs/chess-board/src/chess-board-drag-preview.tsx",
@@ -748,7 +753,7 @@
       }
     },
     {
-      "includes": ["apps/client/src/providers/app-providers.tsx"],
+      "includes": ["libs/client-app/src/providers/app-providers.tsx"],
       "linter": {
         "rules": {
           "complexity": {

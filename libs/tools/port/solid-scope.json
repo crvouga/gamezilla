@@ -1,12 +1,12 @@
 {
   "$comment": "dirs/files: full Solid ESLint (solid + a11y + type-checked). reactivityDirs: product libs get core reactivity rules. noDestructureDirs: spaces/chess get solid/no-destructure only (Accessor-passing ratchet is a follow-up).",
   "dirs": [
-    "apps/client/src/chrome",
-    "apps/client/src/exemplars",
-    "apps/client/src/routes",
-    "apps/client/src/screens",
-    "apps/client/src/shell",
-    "apps/client/tests",
+    "libs/client-app/src/chrome",
+    "libs/client-app/src/exemplars",
+    "libs/client-app/src/routes",
+    "libs/client-app/src/screens",
+    "libs/client-app/src/shell",
+    "libs/client-app/tests",
     "pkgs/chess-board/src",
     "pkgs/chess-board/tests",
     "pkgs/llm/src/solid",

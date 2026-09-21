@@ -21,7 +21,7 @@
  * always-active scope.
  */
 
-import { OfflineIndicator } from '@apps/client/chrome/offline-indicator';
+import { OfflineIndicator } from '@libs/client-app/chrome/offline-indicator';
 import {
   CommandPalette,
   CommandRegistryProvider,

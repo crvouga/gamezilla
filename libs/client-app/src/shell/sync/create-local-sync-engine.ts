@@ -4,12 +4,13 @@
  * watch snapshots notify synchronously (no transition scheduling).
  */
 
-import { APP_QUERIES } from '@apps/client/sync/app-queries';
+import type { ConfigService } from '@libs/auth/public/config-service-types';
+import { APP_QUERIES } from '@libs/client-app/sync/app-queries';
 import {
   createClientPubSub,
   readEmqxWssUrlFromLocalDb,
-} from '@apps/client/sync/create-client-pubsub';
-import { emqxUrlHolderFor } from '@apps/client/sync/emqx-url-holder';
+} from '@libs/client-app/sync/create-client-pubsub';
+import { emqxUrlHolderFor } from '@libs/client-app/sync/emqx-url-holder';
 import {
   type GetFreshAuthToken,
   postAppQueries,
@@ -17,8 +18,7 @@ import {
   SyncApiAuthError,
   type SyncApiFetch,
   type SyncClientAuth,
-} from '@apps/client/sync/sync-api';
-import type { ConfigService } from '@libs/auth/public/config-service-types';
+} from '@libs/client-app/sync/sync-api';
 import type { AppChannelsCtx } from '@libs/runtime/public/sync-topics';
 import {
   appSchema,

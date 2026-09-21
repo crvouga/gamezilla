@@ -2,8 +2,6 @@
  * Session façade over createSim + room node + snapshot store.
  */
 
-import type { Client } from '@apps/client/shell/create-client';
-import { readEmbeddedHref } from '@apps/client/shell/embedded-href';
 import {
   captureCheckpoint,
   restoreCheckpoint,
@@ -48,6 +46,8 @@ import {
   nextSimNodeId,
   normalizeSimNodeId,
 } from '@apps/product/sim/fabric/sim-node-name';
+import type { Client } from '@libs/client-app/shell/create-client';
+import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';

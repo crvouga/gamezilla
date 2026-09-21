@@ -32,7 +32,7 @@ export default defineConfig({
   },
   catalogs: [
     {
-      path: '<rootDir>/apps/client/src/i18n/locales/{locale}/messages',
+      path: '<rootDir>/libs/client-app/src/i18n/locales/{locale}/messages',
       include: [...LINGUI_CATALOG_INCLUDE],
       exclude: [
         '**/node_modules/**',

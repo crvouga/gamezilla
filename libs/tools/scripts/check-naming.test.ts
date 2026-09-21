@@ -88,8 +88,14 @@ describe('naming rules', () => {
     // went red whenever `bun check` had the CPU saturated. What this guards is
     // that nothing turns the per-path work quadratic (a per-path scan of every
     // other path), so compare the per-path cost at two sizes: linear holds it
-    // flat, quadratic multiplies it by the size ratio. Both samples take the
-    // same contention, so load cancels out.
+    // flat, quadratic multiplies it by the size ratio.
+    //
+    // Two things make that comparison survive a loaded machine. Interleave the
+    // sizes, so a busy stretch lands on both samples rather than on whichever
+    // one happened to run during it; and keep the fastest round of each, since
+    // contention only ever makes a sample slower, so the minimum is the round
+    // that got the CPU to itself. Measured: 1.04 idle, 1.7 with twelve CPU
+    // burners running — against 10 for an actually quadratic classifier.
     const makePaths = (count: number): string[] =>
       Array.from(
         { length: count },
@@ -103,8 +109,12 @@ describe('naming rules', () => {
     };
 
     perPathMs(2_000); // warm the JIT so the first sample is not the slow one
-    const small = perPathMs(2_000);
-    const large = perPathMs(20_000);
+    let small = Number.POSITIVE_INFINITY;
+    let large = Number.POSITIVE_INFINITY;
+    for (let round = 0; round < 7; round++) {
+      small = Math.min(small, perPathMs(2_000));
+      large = Math.min(large, perPathMs(20_000));
+    }
     // Quadratic would be ~10x at a 10x size ratio; 4x leaves room for noise.
     expect(large / small).toBeLessThan(4);
   });

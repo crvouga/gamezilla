@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { resolveConnectivityStatus } from '@apps/client/chrome/resolve-connectivity-status';
+import { resolveConnectivityStatus } from '@libs/client-app/chrome/resolve-connectivity-status';
 
 const base = {
   browserOnline: true,

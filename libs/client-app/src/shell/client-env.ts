@@ -6,7 +6,7 @@
  * and `bottomSheetHost` (the web bottom sheet is the `@pkgs/ui` default).
  */
 
-import type { DevMenuPort } from '@apps/client/device/ports';
+import type { DevMenuPort } from '@libs/client-app/device/ports';
 import type { OpenSqlClient } from '@libs/runtime/shared/env';
 import type { AuthClientStorage } from '@pkgs/auth/client/bearer-token-store';
 import type { Clock, Timers } from '@pkgs/clock';

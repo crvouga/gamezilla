@@ -34,6 +34,7 @@
       "@libs/auth/*": ["./libs/auth/src/*"],
       "@libs/billing/*": ["./libs/billing/src/*"],
       "@libs/chess/*": ["./libs/chess/src/*"],
+      "@libs/client-app/*": ["./libs/client-app/src/*"],
       "@libs/client-config/*": ["./libs/client-config/src/*"],
       "@libs/db/public/*": ["./libs/db/src/public/*.ts"],
       "@libs/db/shared/*": ["./libs/db/src/shared/*.ts"],

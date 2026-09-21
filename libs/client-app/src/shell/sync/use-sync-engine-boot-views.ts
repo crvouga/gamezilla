@@ -1,4 +1,7 @@
-import type { SyncApiFetch, SyncClientAuth } from '@apps/client/sync/sync-api';
+import type {
+  SyncApiFetch,
+  SyncClientAuth,
+} from '@libs/client-app/sync/sync-api';
 import { useTimers } from '@pkgs/clock/solid';
 import { useLogger } from '@pkgs/logger/solid';
 import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';

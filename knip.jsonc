@@ -14,7 +14,7 @@
     "pkgs/eslint-rules/**/*.cjs",
     "lingui.config.ts",
     "libs/infra/src/cli/secrets/planetscale.ts",
-    "apps/client/src/connection/offline-indicator.tsx"
+    "libs/client-app/src/connection/offline-indicator.tsx"
   ],
   "ignoreDependencies": [
     "make-plural",

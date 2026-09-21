@@ -1,5 +1,3 @@
-import type { ClientEnv } from '@apps/client/shell/client-env';
-import { type Client, createClient } from '@apps/client/shell/create-client';
 import {
   createRoomServer,
   type RoomServerApp,
@@ -18,6 +16,11 @@ import {
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
 } from '@apps/server/sim/sim-constants';
+import type { ClientEnv } from '@libs/client-app/shell/client-env';
+import {
+  type Client,
+  createClient,
+} from '@libs/client-app/shell/create-client';
 import { assert } from '@pkgs/assert';
 import { FakeMembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';

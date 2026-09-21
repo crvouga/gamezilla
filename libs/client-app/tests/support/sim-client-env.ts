@@ -5,9 +5,9 @@
  * stub product API (`sim-server-fetch.ts`). No wall I/O.
  */
 
-import { createSecureStoreAuthClientStorage } from '@apps/client/shell/auth-client-storage';
-import type { ClientEnv } from '@apps/client/shell/client-env';
-import { createInMemoryClientPorts } from '@apps/client/shell/in-memory-client-ports';
+import { createSecureStoreAuthClientStorage } from '@libs/client-app/shell/auth-client-storage';
+import type { ClientEnv } from '@libs/client-app/shell/client-env';
+import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';

@@ -1,9 +1,9 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, it } from 'bun:test';
-import { matchAppRoute } from '@apps/client/routes/match-route-path';
-import { APP_ROUTE_TABLE } from '@apps/client/routes/route-table';
-import { buildAppRoutes } from '@apps/client/routes/routes';
+import { matchAppRoute } from '@libs/client-app/routes/match-route-path';
+import { APP_ROUTE_TABLE } from '@libs/client-app/routes/route-table';
+import { buildAppRoutes } from '@libs/client-app/routes/routes';
 
 /** Every path from the RN linking config with params filled in. */
 const LINKING_CONFIG_PATHS: readonly string[] = [

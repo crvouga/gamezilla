@@ -4,7 +4,7 @@
  * on `ClientEnv` is wired in exactly one place for sims.
  */
 
-import type { DevMenuItem, DevMenuPort } from '@apps/client/device/ports';
+import type { DevMenuItem, DevMenuPort } from '@libs/client-app/device/ports';
 import { createRecordingClipboard } from '@pkgs/device/clipboard';
 import { createRecordingHaptics } from '@pkgs/device/haptics';
 import { createInMemoryNetworkStatePort } from '@pkgs/device/network-state';

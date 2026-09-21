@@ -9,8 +9,8 @@
  * site root still lands in the simulator.
  */
 
-import { createClient } from '@apps/client/shell/create-client';
-import { wallClientEnv } from '@apps/client/shell/wall-client-env';
+import { createClient } from '@libs/client-app/shell/create-client';
+import { wallClientEnv } from '@libs/client-app/shell/wall-client-env';
 import { assert } from '@pkgs/assert';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';

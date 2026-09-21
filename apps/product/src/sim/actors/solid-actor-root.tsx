@@ -9,8 +9,11 @@
  * remounts it on focus, and the route must survive that round trip.
  */
 
-import type { Client, ClientAppProps } from '@apps/client/shell/create-client';
 import type { SimBrowser } from '@apps/product/sim/fabric/sim-browser';
+import type {
+  Client,
+  ClientAppProps,
+} from '@libs/client-app/shell/create-client';
 import { TestViewportProvider } from '@pkgs/ui';
 import { createMemoryHistory } from '@solidjs/router';
 import type { Component, JSX } from 'solid-js';

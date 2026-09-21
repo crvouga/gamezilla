@@ -1,12 +1,12 @@
 /**
  * An actor's local database when the actor is a live browser: queries run in
  * the page, against the app's own client, through the E2E hook the web app
- * exposes (`@apps/client/shell/e2e-local-sql`).
+ * exposes (`@libs/client-app/shell/e2e-local-sql`).
  */
 import {
   E2E_LOCAL_SQL_GLOBAL,
   type E2eLocalSql,
-} from '@apps/client/shell/e2e-local-sql';
+} from '@libs/client-app/shell/e2e-local-sql';
 import type { Sql } from '@pkgs/sql';
 import type { RunResult, SqlTx } from '@pkgs/sql-client/interface';
 

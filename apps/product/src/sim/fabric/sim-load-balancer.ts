@@ -12,7 +12,7 @@
  * though the request now travels through the balancer.
  */
 
-import type { ServerHttp } from '@apps/client/shell/client-env';
+import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import { requestMethod, requestPath } from './sim-http-request';
 import { type SimNet, simCrashedError } from './sim-net';
 

@@ -11,8 +11,8 @@ import { render } from 'solid-js/web';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
-import { createClient } from './shell/create-client';
-import { wallClientEnv } from './shell/wall-client-env';
+import { createClient } from '@libs/client-app/shell/create-client';
+import { wallClientEnv } from '@libs/client-app/shell/wall-client-env';
 
 const root = document.getElementById('root');
 if (root === null) {

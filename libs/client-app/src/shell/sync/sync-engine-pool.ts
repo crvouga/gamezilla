@@ -30,7 +30,7 @@ export type AppSyncEnginePool = {
 };
 
 type EngineModule = typeof import('./create-local-sync-engine');
-type MutationsModule = typeof import('@apps/client/sync/app-mutations');
+type MutationsModule = typeof import('@libs/client-app/sync/app-mutations');
 type PoolApi = ReturnType<
   typeof import('@pkgs/sync-engine/client')['createSyncEnginePool']
 >;
@@ -67,7 +67,7 @@ export function createAppSyncEnginePool(options?: {
   );
   const loadMutations = once(async (): Promise<MutationRegistry> => {
     const mod: MutationsModule = await import(
-      '@apps/client/sync/app-mutations'
+      '@libs/client-app/sync/app-mutations'
     );
     return await mod.loadAppMutations();
   });

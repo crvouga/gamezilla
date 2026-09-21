@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { afterEach, describe, expect, it } from 'bun:test';
-import { createClient } from '@apps/client/shell/create-client';
+import { createClient } from '@libs/client-app/shell/create-client';
 import { Handles } from '@libs/test-ids';
 import { createMemoryHistory } from '@solidjs/router';
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';

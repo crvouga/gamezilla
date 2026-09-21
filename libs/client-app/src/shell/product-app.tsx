@@ -12,7 +12,7 @@
  * registry / `createQuery` live inside the session tree.
  */
 
-import { EmbeddedHrefPersistence } from '@apps/client/shell/embedded-href-persistence';
+import { EmbeddedHrefPersistence } from '@libs/client-app/shell/embedded-href-persistence';
 import { NotificationsUnreadCountRoot } from '@libs/notifications/public/notifications-unread-count-chrome';
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
 import { AppFrame, AppFrameChromeProvider, AppRouterProvider } from '@pkgs/ui';

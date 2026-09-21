@@ -47,7 +47,7 @@
     "github:config:check": "bun run libs/tools/scripts/github-config.ts --check",
     "hooks:install": "git config core.hooksPath libs/tools/githooks",
     "hooks:uninstall": "git config --unset core.hooksPath || true",
-    "i18n:compile": "lingui compile --typescript --strict && bun run libs/tools/scripts/ensure-trailing-newline.ts apps/client/src/i18n/locales/en/messages.ts",
+    "i18n:compile": "lingui compile --typescript --strict && bun run libs/tools/scripts/ensure-trailing-newline.ts libs/client-app/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract --clean --overwrite",
     "inspect": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/db/src/scripts/inspect.ts",
     "install:cli": "bun run --filter @libs/tools install:cli",

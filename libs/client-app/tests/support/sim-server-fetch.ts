@@ -4,7 +4,7 @@
  * tests can assert what the shell touched during boot.
  */
 
-import type { ServerHttp } from '@apps/client/shell/client-env';
+import type { ServerHttp } from '@libs/client-app/shell/client-env';
 
 const JSON_HEADERS = { 'content-type': 'application/json' };
 

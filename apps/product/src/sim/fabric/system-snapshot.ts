@@ -2,8 +2,8 @@
  * Portable logical system snapshot capture / restore for createSim.
  */
 
-import type { Client } from '@apps/client/shell/create-client';
 import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
+import type { Client } from '@libs/client-app/shell/create-client';
 import { LOCAL_DOMAIN_TABLE_NAMES } from '@libs/runtime/root/app-schema';
 import type {
   SimSystemSnapshot,

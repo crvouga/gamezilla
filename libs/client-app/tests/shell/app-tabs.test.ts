@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { isAppTabActive } from '@apps/client/routes/is-app-tab-active';
+import { isAppTabActive } from '@libs/client-app/routes/is-app-tab-active';
 
 describe('isAppTabActive', () => {
   test('root tab matches only the root path', () => {
