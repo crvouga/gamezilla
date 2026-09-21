@@ -30,8 +30,8 @@ The **protocol** is Google's, down to the `sub` shape and the `4/0A…` code
 format, because that is the whole point: the relying party runs its production
 `google-oauth` path against this server.
 
-The **screens** are not. They say `OAuth Mock`, with their own mark, palette
-and shape language (`src/shared/brand.ts`, `web/src/styles.css`). Cloning
+The **screens** are not. They say `OAuth Mock`, with their own mark and wordmark
+(`src/shared/brand.ts`), built from the product design system. Cloning
 Google's sign-in and inventing a plausible brand fail the same way: someone
 opens the simulator and cannot tell whether it is real. This one says what it
 is, in the wordmark, the page titles and the footer.
@@ -79,11 +79,11 @@ The screens are a **Solid SPA** (`web/`, Vite root `web/index.html`) with stable
 `data-testid`s (`IDP_TEST_IDS`), so a browser test and a headless walk drive the
 same flow. Sign-in is Google's two steps — `identifier`, then `password` — with
 the account chooser, the create-account card and the consent card around them.
-The card, type scale, outlined fields with floating labels, pill buttons and
-the four-arc wordmark follow Google's own measured values
-(`web/src/google-theme.ts`); the palette and font stack are Tailwind `@theme`
-tokens in `web/src/styles.css`, and nothing from the product design system is
-imported (its tokens would fight every colour here).
+Every control is a `@pkgs/ui` component — `Card`, `TextInput`, `Button`,
+`Checkbox`, `MenuRow`, `Avatar`, `Notice`, `TextLink`, `IconLink` and its icons
+— under `ThemeProvider`, so the screens follow the design system's tokens and
+light / dark scheme (`web/src/styles.css` compiles Tailwind over `@pkgs/ui`'s
+sources). Only the `OAuth Mock` mark and wordmark are the provider's own.
 
 Both hosts render **one** component tree: `src/server/render/render-screen.tsx`
 renders `web/src/screen.tsx` into a DOM (happy-dom, registered by

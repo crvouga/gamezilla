@@ -1,6 +1,9 @@
 /** Step 1 — the address step: who is signing in. */
 
-import { For } from 'solid-js';
+import { Button } from '@pkgs/ui/components/button';
+import { Notice } from '@pkgs/ui/components/notice';
+import { TextLink } from '@pkgs/ui/components/text-link';
+import { For, Show } from 'solid-js';
 
 import {
   IDP_AUTHORIZE_CREATE_PATH,
@@ -12,11 +15,9 @@ import {
   type ScreenActions,
 } from '../../../src/shared/screen-state';
 import { IDP_TEST_IDS } from '../../../src/shared/test-ids';
-import { Button } from '../components/button';
-import { Card } from '../components/card';
 import { DevNote } from '../components/dev-note';
-import { ErrorNote } from '../components/error-note';
-import { TextField } from '../components/text-field';
+import { FormField } from '../components/form-field';
+import { FieldHint, Page, PageHeading } from '../components/page';
 import { fieldValueOf } from '../dom';
 
 type Props = {
@@ -37,60 +38,57 @@ export function IdentifierScreen(props: Props) {
     void props.actions.submitIdentifier(fieldValueOf(event, 'email'));
   };
   return (
-    <Card
+    <Page
       testId={IDP_TEST_IDS.identifierPage}
       backHref={backHrefOf(props.state)}
       open={props.actions.openDocument}
     >
-      <h1 class="text-2xl leading-8 font-normal">Sign in</h1>
-      <p class="text-base text-idp-on-surface-variant">
-        to continue to {props.state.appName}
-      </p>
+      <PageHeading
+        title="Sign in"
+        subtitle={`to continue to ${props.state.appName}`}
+      />
       <form
-        class="mt-2 flex flex-col gap-4"
+        class="box gap-4"
         method="post"
         action={IDP_AUTHORIZE_SUBMIT_PATH}
         onSubmit={submit}
       >
         <input type="hidden" name="request_id" value={props.state.requestId} />
         <input type="hidden" name="step" value="identifier" />
-        <TextField
+        <FormField
           testId={IDP_TEST_IDS.identifierEmail}
           name="email"
           label="Email or phone"
           value={props.state.email}
           autocomplete="username"
           inputmode="email"
-          autofocus={invalid()}
           invalid={invalid()}
           describedBy={invalid() ? ERROR_ID : HINT_ID}
           list={IDP_TEST_IDS.identifierAccountsDatalist}
         />
-        <p id={HINT_ID} class="text-xs text-idp-on-surface-variant">
+        <FieldHint id={HINT_ID}>
           Any address from the local directory below, or one you create here.
-        </p>
-        {invalid() ? (
-          <ErrorNote id={ERROR_ID} testId={ERROR_ID}>
-            {props.state.error ?? ''}
-          </ErrorNote>
-        ) : null}
-        <div class="mt-2 flex items-center justify-between gap-4">
-          <a
-            class="rounded text-sm font-medium text-idp-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-idp-primary"
+        </FieldHint>
+        <Show when={props.state.error}>
+          {(error) => (
+            <Notice tone="error" id={ERROR_ID} dataSet={{ testid: ERROR_ID }}>
+              {error()}
+            </Notice>
+          )}
+        </Show>
+        <div class="box flex-row items-center justify-between gap-4 pt-2">
+          <TextLink
             href={createHref()}
-            rel="external"
-            onClick={(event) => {
-              event.preventDefault();
-              props.actions.openDocument(createHref());
-            }}
-            data-testid={IDP_TEST_IDS.identifierCreateAccount}
+            onClick={() => props.actions.openDocument(createHref())}
+            dataSet={{ testid: IDP_TEST_IDS.identifierCreateAccount }}
           >
             Create account
-          </a>
+          </TextLink>
           <Button
-            label="Next"
-            testId={IDP_TEST_IDS.identifierNext}
-            busy={props.busy}
+            type="submit"
+            title="Next"
+            loading={props.busy}
+            dataSet={{ testid: IDP_TEST_IDS.identifierNext }}
           />
         </div>
       </form>
@@ -100,6 +98,6 @@ export function IdentifierScreen(props: Props) {
         </For>
       </datalist>
       <DevNote accounts={props.state.accounts} />
-    </Card>
+    </Page>
   );
 }

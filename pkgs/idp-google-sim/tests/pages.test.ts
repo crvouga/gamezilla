@@ -131,8 +131,11 @@ describe('idp page markup', () => {
     expect(attrOfTestId(html, IDP_TEST_IDS.passwordInput, 'aria-label')).toBe(
       'Password'
     );
-    expect(attrOfTestId(html, IDP_TEST_IDS.passwordShow, 'type')).toBe(
+    expect(attrOfTestId(html, IDP_TEST_IDS.passwordShow, 'role')).toBe(
       'checkbox'
+    );
+    expect(attrOfTestId(html, IDP_TEST_IDS.passwordShow, 'aria-checked')).toBe(
+      'false'
     );
     expect(html).toContain(`<code>${IDP_PASSWORD}</code>`);
   });

@@ -9,6 +9,7 @@ import AppLogoExample from '../app-logo/app-logo.example';
 import BottomActionBarExample from '../bottom-action-bar/bottom-action-bar.example';
 import BrandIconExample from '../brand-icon/brand-icon.example';
 import ButtonExample from '../button/button.example';
+import CardExample from '../card/card.example';
 import CatalogExample from '../catalog/catalog.example';
 import CheckboxExample from '../checkbox/checkbox.example';
 import ChipGroupExample from '../chip-group/chip-group.example';
@@ -19,6 +20,7 @@ import FloatingActionButtonExample from '../floating-action-button/floating-acti
 import FormActionsFooterExample from '../form-actions-footer/form-actions-footer.example';
 import GradientBoxExample from '../gradient-box/gradient-box.example';
 import IconButtonExample from '../icon-button/icon-button.example';
+import IconLinkExample from '../icon-link/icon-link.example';
 import IslandExample from '../island/island.example';
 import IslandGridExample from '../island-grid/island-grid.example';
 import MultiSelectSwatchGridExample from '../multi-select-swatch/multi-select-swatch-grid.example';
@@ -34,6 +36,7 @@ import SelectExample from '../select/select.example';
 import SocialSignInButtonExample from '../social-sign-in-button/social-sign-in-button.example';
 import SwitchExample from '../switch/switch.example';
 import TextInputExample from '../text-input/text-input.example';
+import TextLinkExample from '../text-link/text-link.example';
 import ThemeTokensExample from '../theme-tokens/theme-tokens.example';
 import TooltipExample from '../tooltip/tooltip.example';
 import { type ComponentEntry, entry } from './component-entry';
@@ -54,6 +57,7 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
   entry('app-frame', 'AppFrame', LAYOUT, AppFrameExample),
   entry('app-header-island', 'AppHeaderIsland', LAYOUT, AppHeaderIslandExample),
   entry('island', 'Island', LAYOUT, IslandExample),
+  entry('card', 'Card', LAYOUT, CardExample),
   entry('island-grid', 'IslandGrid', LAYOUT, IslandGridExample),
   entry('catalog', 'Catalog', LAYOUT, CatalogExample),
 
@@ -73,6 +77,7 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
     FloatingActionButtonExample
   ),
   entry('icon-button', 'IconButton', INPUTS, IconButtonExample),
+  entry('icon-link', 'IconLink', INPUTS, IconLinkExample),
   entry(
     'overflow-menu-button',
     'OverflowMenuButton',
@@ -89,6 +94,7 @@ export const CORE_ENTRIES: readonly ComponentEntry[] = [
     SocialSignInButtonExample
   ),
   entry('text-input', 'TextInput', INPUTS, TextInputExample),
+  entry('text-link', 'TextLink', INPUTS, TextLinkExample),
   entry('code-editor', 'CodeEditor', INPUTS, CodeEditorExample),
   entry(
     'copy-to-clipboard-field',

@@ -1,10 +1,15 @@
-/** One scope row: an icon plus plain-language copy for the scope. */
+/** What the app asked for: one icon plus plain-language copy per scope. */
 
+import {
+  type IconComponent,
+  InfoIcon,
+  MailIcon,
+  UserIcon,
+} from '@pkgs/ui/components/icons';
 import { For } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 import { IDP_BRAND } from '../../../src/shared/brand';
-import type { IconName } from './icon';
-import { Icon } from './icon';
 
 const LABEL: Record<string, string> = {
   openid: `Associate you with your ${IDP_BRAND.name} account`,
@@ -13,20 +18,28 @@ const LABEL: Record<string, string> = {
     'See your personal info, including any that you have made publicly available',
 };
 
-const ICON: Record<string, IconName> = {
-  openid: 'user',
-  email: 'mail',
-  profile: 'info',
+const ICON: Record<string, IconComponent> = {
+  openid: UserIcon,
+  email: MailIcon,
+  profile: InfoIcon,
 };
+
+const SCOPE_ICON_SIZE = 20;
 
 export function ScopeList(props: { readonly scopes: readonly string[] }) {
   return (
-    <ul class="flex flex-col gap-4">
+    <ul class="box gap-4">
       <For each={props.scopes}>
         {(scope) => (
-          <li class="flex items-center gap-4 text-sm text-idp-on-surface-variant">
-            <Icon name={ICON[scope] ?? 'info'} class="size-5" />
-            <span>{LABEL[scope] ?? scope}</span>
+          <li class="box flex-row items-center gap-4">
+            <Dynamic
+              component={ICON[scope] ?? InfoIcon}
+              size={SCOPE_ICON_SIZE}
+              color="textSecondary"
+            />
+            <span class="text textLabel text-text-secondary">
+              {LABEL[scope] ?? scope}
+            </span>
           </li>
         )}
       </For>

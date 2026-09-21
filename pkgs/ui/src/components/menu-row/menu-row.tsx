@@ -9,6 +9,12 @@
  * whose trailing control owns the interaction) are plain boxes. Pass
  * `selected` to opt into a `tintSubtle` row fill.
  *
+ * Two more hosts keep the row's look for markup that must work without
+ * JavaScript: `href` renders an `<a>` (an `onClick` alongside it intercepts
+ * the navigation), and `submit` renders a submit `<button>` carrying
+ * `name=value` into its form. Neither takes `role="menuitem"`, so they sit in
+ * ordinary lists and forms.
+ *
  * @example
  * ```tsx
  * <MenuRow
@@ -20,10 +26,15 @@
  */
 
 import type { LocalizedString } from '@pkgs/i18n';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, Match, Show, Switch } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
 import { spacingScale } from '../../theme';
 import { ChevronRightIcon } from '../icons';
+
+export type MenuRowSubmit = {
+  readonly name: string;
+  readonly value: string;
+};
 
 export type MenuRowProps = {
   title: JSX.Element;
@@ -42,6 +53,13 @@ export type MenuRowProps = {
   /** Render the row in its "current selection" state. */
   selected?: boolean | undefined;
   onClick?: (() => void) | undefined;
+  /** Render as a link to this URL. */
+  href?: string | undefined;
+  /**
+   * Render as a submit button for the enclosing form, posting
+   * `name=value` — how a list of choices submits the one picked.
+   */
+  submit?: MenuRowSubmit | undefined;
   disabled?: boolean | undefined;
   'aria-label'?: LocalizedString | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
@@ -145,36 +163,79 @@ function rowClass(selected: boolean): string {
   return selected ? 'rounded-[10px] bg-tint-subtle' : 'rounded-[10px]';
 }
 
-export function MenuRow(props: MenuRowProps): JSX.Element {
-  const selected = () => props.selected === true;
+type MenuRowHost = 'static' | 'action' | 'link' | 'submit';
+
+function menuRowHost(
+  row: Pick<MenuRowProps, 'href' | 'submit' | 'onClick'>
+): MenuRowHost {
+  if (row.href !== undefined) return 'link';
+  if (row.submit !== undefined) return 'submit';
+  return row.onClick === undefined ? 'static' : 'action';
+}
+
+function MenuRowLink(props: MenuRowProps & { href: string }): JSX.Element {
   return (
-    <Show
-      when={props.onClick}
-      fallback={
+    <a
+      class={`clickable clickableTint ${rowClass(props.selected === true)}`}
+      {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
+      href={props.href}
+      onClick={(event) => {
+        if (props.onClick === undefined) return;
+        event.preventDefault();
+        props.onClick();
+      }}
+      aria-label={props['aria-label']}
+      aria-current={props.selected === true ? 'page' : undefined}
+    >
+      <MenuRowBody {...props} interactive />
+    </a>
+  );
+}
+
+function MenuRowButton(props: MenuRowProps): JSX.Element {
+  return (
+    <button
+      class={`clickable clickableTint ${rowClass(props.selected === true)}`}
+      {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
+      type={props.submit === undefined ? 'button' : 'submit'}
+      role={props.submit === undefined ? 'menuitem' : undefined}
+      name={props.submit?.name}
+      value={props.submit?.value}
+      onClick={() => props.onClick?.()}
+      disabled={props.disabled === true}
+      aria-label={props['aria-label']}
+      aria-current={props.selected === true ? true : undefined}
+      style={{ opacity: props.disabled === true ? 0.5 : 1 }}
+    >
+      <MenuRowBody {...props} interactive />
+    </button>
+  );
+}
+
+export function MenuRow(props: MenuRowProps): JSX.Element {
+  const host = (): MenuRowHost =>
+    menuRowHost({
+      href: props.href,
+      submit: props.submit,
+      onClick: props.onClick,
+    });
+  return (
+    <Switch>
+      <Match when={host() === 'link' ? props.href : undefined}>
+        {(href) => <MenuRowLink {...props} href={href()} />}
+      </Match>
+      <Match when={host() === 'submit' || host() === 'action'}>
+        <MenuRowButton {...props} />
+      </Match>
+      <Match when={host() === 'static'}>
         <div
-          class={`box ${rowClass(selected())}`}
+          class={`box ${rowClass(props.selected === true)}`}
           {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
           aria-label={props['aria-label']}
         >
           <MenuRowBody {...props} interactive={false} />
         </div>
-      }
-    >
-      {(onClick) => (
-        <button
-          class={`clickable clickableTint ${rowClass(selected())}`}
-          {...dataAttrs({ component: 'MenuRow', ...props.dataSet })}
-          type="button"
-          role="menuitem"
-          onClick={() => onClick()()}
-          disabled={props.disabled === true}
-          aria-label={props['aria-label']}
-          aria-current={props.selected === true ? true : undefined}
-          style={{ opacity: props.disabled === true ? 0.5 : 1 }}
-        >
-          <MenuRowBody {...props} interactive />
-        </button>
-      )}
-    </Show>
+      </Match>
+    </Switch>
   );
 }

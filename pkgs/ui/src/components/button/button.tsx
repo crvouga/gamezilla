@@ -70,6 +70,13 @@ export type ButtonProps = {
   fullWidth?: boolean | undefined;
   /** Form semantics. Defaults to `button`. */
   type?: 'button' | 'submit' | 'reset' | undefined;
+  /**
+   * Submitted with the form as `name=value` when this button submits it —
+   * how a form with several submit buttons tells them apart (and how the
+   * decision survives without JavaScript).
+   */
+  name?: string | undefined;
+  value?: string | undefined;
   'aria-label'?: string | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
@@ -151,6 +158,8 @@ export function Button(props: ButtonProps): JSX.Element {
         ...props.dataSet,
       })}
       type={props.type}
+      name={props.name}
+      value={props.value}
       onClick={() => render().handleClick?.()}
       disabled={render().nonInteractive}
       aria-busy={render().phase === 'loading' ? true : undefined}

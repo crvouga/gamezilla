@@ -17,6 +17,7 @@ import LoadingStateExample from '../loading-state/loading-state.example';
 import MenuRowExample from '../menu-row/menu-row.example';
 import ModalExample from '../modal/modal.example';
 import MutationModalExample from '../mutation-modal/mutation-modal.example';
+import NoticeExample from '../notice/notice.example';
 import PaginationControlsExample from '../pagination-controls/pagination-controls.example';
 import ProgressBarExample from '../progress-bar/progress-bar.example';
 import ResponsiveSurfaceExample from '../responsive-surface/responsive-surface.example';
@@ -63,6 +64,7 @@ export const DISPLAY_ENTRIES: readonly ComponentEntry[] = [
   entry('loading-state', 'LoadingState', FEEDBACK, LoadingStateExample),
   entry('empty-state', 'EmptyState', FEEDBACK, EmptyStateExample),
   entry('error-state', 'ErrorState', FEEDBACK, ErrorStateExample),
+  entry('notice', 'Notice', FEEDBACK, NoticeExample),
   entry('success-state', 'SuccessState', FEEDBACK, SuccessStateExample),
 
   entry('collapsible', 'Collapsible', DISCLOSURE, CollapsibleExample),

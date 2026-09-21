@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CircleAlert,
   CircleCheck,
   Clock,
   Code,
@@ -23,6 +24,7 @@ import {
   DoorOpen,
   Ellipsis,
   Eye,
+  EyeOff,
   FlaskConical,
   Gamepad2,
   Gauge,
@@ -101,6 +103,7 @@ export const PauseIcon = createIcon(Pause);
 export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);
 export const EyeIcon = createIcon(Eye);
+export const EyeOffIcon = createIcon(EyeOff);
 export const SettingsIcon = createIcon(Settings);
 export const WifiIcon = createIcon(Wifi);
 export const LogInIcon = createIcon(LogIn);
@@ -110,6 +113,7 @@ export const MenuIcon = createIcon(Menu);
 export const DatabaseIcon = createIcon(Database);
 export const DoorOpenIcon = createIcon(DoorOpen);
 export const CopyIcon = createIcon(Copy);
+export const CircleAlertIcon = createIcon(CircleAlert);
 export const CircleCheckIcon = createIcon(CircleCheck);
 export const XIcon = createIcon(X);
 export const Volume2Icon = createIcon(Volume2);
