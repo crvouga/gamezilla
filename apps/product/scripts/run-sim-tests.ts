@@ -53,7 +53,13 @@ function positiveIntEnv(name: string, fallback: number): number {
  */
 function defaultBatches(): number {
   const cores = availableParallelism();
-  return cores <= 2 ? cores : Math.max(2, Math.floor(cores / 2));
+  // One worker on a two-core box. Turbo is already running another task
+  // alongside this one there, so a second sim worker oversubscribes the
+  // machine, and a starved sim is not just slow: the scheduler's drain gives
+  // up waiting for wall I/O, advances virtual time anyway, and scenarios fail
+  // on deadlines that never should have elapsed.
+  if (cores <= 2) return 1;
+  return Math.max(2, Math.floor(cores / 2));
 }
 
 function isTestFile(name: string): boolean {

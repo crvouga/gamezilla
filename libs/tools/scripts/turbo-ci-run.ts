@@ -480,8 +480,10 @@ function finalExitCode(args: {
   readonly slowRunner: boolean;
   readonly skipped: readonly string[];
 }): number {
-  if (args.status !== 0) return args.status;
+  // The timing table prints even when a task failed — that is exactly when
+  // someone is reading the log and wants to know where the time went.
   const budget = enforceTaskBudgets(args.slowRunner);
+  if (args.status !== 0) return args.status;
   if (budget !== 0) return budget;
   if (args.skipped.length === 0) return 0;
   reportIncompleteGate(args.skipped);
