@@ -45,7 +45,7 @@ jobs:
 
       - uses: ./.github/actions/turbo-cache
         with:
-          job: pr-check
+          job: check
           mode: restore
 
       - uses: ./.github/actions/setup
@@ -88,5 +88,5 @@ jobs:
       - uses: ./.github/actions/turbo-cache
         if: always()
         with:
-          job: pr-check
+          job: check
           mode: save

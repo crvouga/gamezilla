@@ -69,6 +69,7 @@
     "@pkgs/kv": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/sim": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@solidjs/router": "catalog:",
     "@solidjs/testing-library": "catalog:",

@@ -2,14 +2,14 @@ name: Deploy
 
 # `main` is what ships, in two stages:
 #
-#   canary-dev   — dev-scope rehearsal. Builds the real production bundle,
-#                  applies migrations to the dev database and runs
-#                  `wrangler deploy --dry-run` for all three workers. It serves
-#                  no traffic: prod is still the first environment to receive
-#                  worker code.
-#   release-prod — applies to production, then runs @apps/server#smoke
-#                  (HTTP probes against the client URL, /simulator and
-#                  /api/health). Runs only when canary-dev succeeded.
+#   deploy-dev — dev-scope rehearsal. Builds the real production bundle,
+#                applies migrations to the dev database and runs
+#                `wrangler deploy --dry-run` for all three workers. It serves
+#                no traffic: prod is still the first environment to receive
+#                worker code.
+#   deploy-prd — applies to production, then runs @apps/server#smoke
+#                (HTTP probes against the client URL, /simulator and
+#                /api/health). Runs only when deploy-dev succeeded.
 #
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
 # `deploy:prd` aliases, which force TURBO_UI=tui (a TTY UI).
@@ -41,8 +41,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  canary-dev:
-    name: deploy (dev rehearsal)
+  deploy-dev:
+    name: deploy:dev
     runs-on: ubuntu-latest
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup and cache save, so
     # turbo-ci-run's own deadline fires first and names what wedged.
@@ -76,7 +76,7 @@ jobs:
 
       - uses: ./.github/actions/turbo-cache
         with:
-          job: deploy-canary
+          job: deploy-dev
           mode: restore
 
       - id: setup
@@ -88,7 +88,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
 
-      - name: Deploy (dev rehearsal)
+      - name: deploy:dev
         id: deploy
         run: |
           set -euo pipefail
@@ -107,7 +107,7 @@ jobs:
       - name: Write pipeline summary
         if: always() && steps.setup.outcome == 'success'
         env:
-          PIPELINE_NAME: deploy (dev rehearsal)
+          PIPELINE_NAME: deploy:dev
           PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
           PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -116,12 +116,12 @@ jobs:
       - uses: ./.github/actions/turbo-cache
         if: always() && steps.checkout.outcome == 'success'
         with:
-          job: deploy-canary
+          job: deploy-dev
           mode: save
 
-  release-prod:
+  deploy-prd:
     name: deploy:prd
-    needs: canary-dev
+    needs: deploy-dev
     runs-on: ubuntu-latest
     timeout-minutes: 55
     environment: production
@@ -130,16 +130,18 @@ jobs:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
+        id: checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - uses: ./.github/actions/turbo-cache
         with:
-          job: deploy-prod
+          job: deploy-prd
           mode: restore
 
-      - uses: ./.github/actions/setup
+      - id: setup
+        uses: ./.github/actions/setup
 
       - uses: ./.github/actions/secrets-auth
         with:
@@ -147,7 +149,7 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: prd
 
-      - name: Deploy (production)
+      - name: deploy:prd
         id: deploy
         run: |
           set -euo pipefail
@@ -161,7 +163,7 @@ jobs:
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
       - name: Write pipeline summary
-        if: always()
+        if: always() && steps.setup.outcome == 'success'
         env:
           PIPELINE_NAME: deploy:prd
           PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
@@ -170,7 +172,7 @@ jobs:
         run: bun run libs/tools/scripts/write-pipeline-summary.ts
 
       - uses: ./.github/actions/turbo-cache
-        if: always()
+        if: always() && steps.checkout.outcome == 'success'
         with:
-          job: deploy-prod
+          job: deploy-prd
           mode: save

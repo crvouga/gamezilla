@@ -1,20 +1,21 @@
 ---
-description: Take the current branch to a green, conflict-free, review-complete PR — pass `bun check` locally, commit, sync with main, resolve conflicts, push, drive CI green, and address review feedback without merging
+description: Take the current branch to a green, conflict-free, review-complete PR and merge it — pass `bun check` locally, commit, sync with main, resolve conflicts, push, drive CI green, address review feedback, then merge once every check passes
 ---
 
-# /pr-ready
+# /pr-merge
 
-Take the current branch from "changes exist" to "PR is green and mergeable". Run
+Take the current branch from "changes exist" to "PR is green and merged". Run
 it once per logical unit of work (a completed fix, feature, or review pass) —
 not after every keystroke or file save.
 
 The repo is PR-first: `bun check` runs in GitHub Actions on the PR
 (`.github/workflows/pr.yml`, one job named `check`), and deploying happens
 on `main` (`.github/workflows/deploy.yml`), never from this branch. Your job is
-to make the branch mergeable **and conflict-free**, not to merge it.
+to make the branch mergeable **and conflict-free**, then merge it once every
+check passes (step 9).
 
 **Loop until the goal is reached.** The goal is a green, conflict-free,
-review-complete PR. Every problem between here and there — a failing leaf, a
+review-complete, merged PR. Every problem between here and there — a failing leaf, a
 merge conflict, a red CI run, a review comment — is yours to fix, whoever
 introduced it: fix it, re-verify, and go around again. Do not stop at the first
 failure to report it; stop only when you are genuinely stuck (step 8). And
@@ -23,8 +24,9 @@ right, never because the test or the code got weaker.
 
 The order is fixed: **`bun check` passes locally first** (step 2), then the
 work is committed (step 3), and only then is the branch synced with `main`
-(step 4), pushed and put up as a PR (step 5), and watched on CI (step 6).
-Nothing reaches the remote until the local gate is green.
+(step 4), pushed and put up as a PR (step 5), watched on CI (step 6), and
+merged only after the final synchronization gate passes (step 9). Nothing
+reaches the remote until the local gate is green.
 
 ## Core rules (read first)
 
@@ -45,10 +47,13 @@ Nothing reaches the remote until the local gate is green.
   only when the code change behind it is intentional and correct, and the test
   stays exactly as strict (e.g. adding a newly required leaf to an expected
   list) — say so in the commit body.
-- **Never merge the PR.** Agents may create or update the PR, push commits, and
-  watch checks, but never run `gh pr merge`, never enable auto-merge or the
-  merge queue, and never merge through any other GitHub UI/API path. A green PR
-  is the finish line: stop and hand the merge decision to a human.
+- **Merge only a fully green PR.** Merge with `gh pr merge --merge` (merge
+  commits are the only method this repo allows) and only after the final
+  synchronization gate (step 8) passes: every check green on the current
+  `HEAD`, `mergeable` is `MERGEABLE`, and no review requests changes. Pin the
+  merge to the verified commit with `--match-head-commit`. Never `--admin`,
+  never bypass branch protection, never enable auto-merge or the merge queue,
+  and never merge a PR whose checks are pending, skipped or red.
 - **The PR body follows the template.** Every PR fills
   `.github/PULL_REQUEST_TEMPLATE.md` — every section, checklist lines kept, a
   box checked only when true. CI does not check the body, so keep it honest.
@@ -261,7 +266,7 @@ Otherwise write the PR body from `.github/PULL_REQUEST_TEMPLATE.md`. Start from
 the template file rather than retyping it:
 
 ```sh
-BODY_FILE="$(mktemp -t pr-ready-body.XXXXXX.md)"
+BODY_FILE="$(mktemp -t pr-merge-body.XXXXXX.md)"
 cp .github/PULL_REQUEST_TEMPLATE.md "$BODY_FILE"
 ```
 
@@ -317,7 +322,7 @@ Medium — the larger PR gate can red-block merges on a flaky sidecar. Rollback:
 
 ## Provenance
 
-`/pr-ready` agent (Claude Opus 5).
+`/pr-merge` agent (Claude Opus 5).
 ```
 
 Checklist rules:
@@ -339,7 +344,7 @@ its logs — never an agent's guess at what CI said:
 ```sh
 gh run list --branch "$BRANCH" --limit 5 --json databaseId,status,conclusion,url,headSha
 RUN_ID="$(gh run list --branch "$BRANCH" --limit 1 --json databaseId --jq '.[0].databaseId')"
-gh run view "$RUN_ID" --log-failed > /tmp/pr-ready-ci.log
+gh run view "$RUN_ID" --log-failed > /tmp/pr-merge-ci.log
 ```
 
 Mechanical failures you handle yourself:
@@ -351,7 +356,7 @@ Mechanical failures you handle yourself:
 - Auth, secrets, hosted-runner, or missing-sidecar failure: record the exact log
   and stop if it is not repairable from this branch.
 
-For a reproducible code or test failure, hand `/tmp/pr-ready-ci.log` plus the
+For a reproducible code or test failure, hand `/tmp/pr-merge-ci.log` plus the
 failing leaf to **one** CI-failure agent:
 
 > Diagnose the exact failure from this log. State one root-cause hypothesis and
@@ -452,7 +457,7 @@ its own is never a reason to stop; it is the next thing to fix.
 Use this template:
 
 ```
-❌ PR not ready.
+❌ PR not merged.
 Branch: <branch>
 PR: <url | none>
 Failing step: <fmt | bun check (local) | merge conflict | check (CI) | review>
@@ -497,18 +502,43 @@ The working tree must print nothing, `mergeable` must be `MERGEABLE`, and
 `mergeStateStatus` must not be `BEHIND` or `CONFLICTING`. If GitHub reports
 `UNKNOWN`, poll again; never report success while it reports `CONFLICTING`.
 
-## 9. Report when done
+## 9. Merge
 
-- PR URL, final commit list (`git log --oneline origin/main..HEAD`), and merge
-  state: **green, conflict-free, review-complete, and awaiting a human merge** —
-  this command never merges.
+Only after the final synchronization gate passes. Re-confirm every check is
+green on the exact commit you verified, then merge that commit:
+
+```sh
+gh pr checks "$PR_NUMBER" --required
+gh pr view "$PR_NUMBER" --json mergeable,mergeStateStatus,isDraft,reviewDecision,headRefOid
+gh pr merge "$PR_NUMBER" --merge --match-head-commit "$(git rev-parse HEAD)"
+gh pr view "$PR_NUMBER" --json state,mergedAt,mergeCommit
+```
+
+- Merge only when every check reports `pass`, `isDraft` is `false`,
+  `mergeable` is `MERGEABLE`, `mergeStateStatus` is `CLEAN`, and
+  `reviewDecision` is not `CHANGES_REQUESTED` or `REVIEW_REQUIRED`. Anything
+  else goes back to the matching step (6 for checks, 4 for `BEHIND` /
+  `CONFLICTING`, 7 for reviews) or to step 8's stop template.
+- A draft PR is a human's signal to hold: stop and report rather than marking
+  it ready.
+- If GitHub refuses the merge (branch moved, a check re-ran, protection
+  changed), do not retry with a bigger hammer: return to the final
+  synchronization gate and go around again.
+- `state` must read `MERGED` before you report success. The remote branch is
+  deleted by `delete_branch_on_merge`; leave the local branch and worktree
+  alone.
+
+## 10. Report when done
+
+- PR URL, merge commit, final commit list (`git log --oneline origin/main..HEAD`
+  captured before the merge), and merge state: **merged**.
 - `gh pr checks` summary (every check green) plus
   `gh pr view --json mergeable,mergeStateStatus,isDraft,reviewDecision`.
 - Conflicts: what `origin/main` brought in, which paths conflicted, and how each
   was resolved (or which reached a human).
 - Per review comment: changed (with commit) vs replied (with reason) vs already
-  covered vs awaiting a human decision, and which threads are resolved.
-- What is *not* verified: deployment. `main` runs the dev rehearsal canary and
-  then prod via `.github/workflows/deploy.yml` after a human merges — nothing is
-  deployed from this branch.
+  covered, and which threads are resolved.
+- What is *not* verified: deployment. The merge starts `deploy:dev` (a dev
+  rehearsal) and then `deploy:prd` via `.github/workflows/deploy.yml` on
+  `main` — link the triggered run; this command does not wait on it.
 - Any flaky tests, warnings, or marginal calls a human should look at.

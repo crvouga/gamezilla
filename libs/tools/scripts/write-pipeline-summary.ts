@@ -4,7 +4,7 @@
  * copy-pasteable LLM fix prompt) to `GITHUB_STEP_SUMMARY`.
  *
  * Expects:
- * - `PIPELINE_NAME` — step label, e.g. `check` / `deploy (dev rehearsal)`
+ * - `PIPELINE_NAME` — step label, e.g. `check` / `deploy:dev`
  * - `PIPELINE_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
  * - `PIPELINE_LOG_PATH` — path to the teed step output (optional)
  */

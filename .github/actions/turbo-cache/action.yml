@@ -7,7 +7,7 @@ description: >-
   between steps of the same job.
 inputs:
   job:
-    description: Job slug used in the primary cache key (e.g. pr-check)
+    description: Job slug used in the primary cache key (e.g. check)
     required: true
   mode:
     description: restore | save

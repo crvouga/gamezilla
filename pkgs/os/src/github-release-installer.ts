@@ -95,24 +95,24 @@ function extractTo(
   const dir = shellQuote(installDir);
   const u = shellQuote(url);
   const bin = shellQuote(binName);
-  const stage = shellQuote(`${installDir}/.${binName}.stage`);
-  const pack = shellQuote(`${installDir}/.${binName}.archive`);
+  const stageTemplate = shellQuote(`${installDir}/.${binName}.stage.XXXXXX`);
   const unpack =
     archive.format === 'tar.gz'
-      ? `tar -xzf ${pack} -C ${stage} ${bin}`
-      : `unzip -o ${pack} ${bin} -d ${stage}`;
+      ? `tar -xzf "$stage/archive" -C "$stage" ${bin}`
+      : `unzip -o "$stage/archive" ${bin} -d "$stage"`;
   // Download fully, then extract to a staging dir, then mv into place so a
-  // killed install cannot leave a truncated binary on PATH.
+  // killed install cannot leave a truncated binary on PATH. The staging dir is
+  // unique per install: concurrent installs of one tool (turbo runs
+  // `install:cli` beside a check that ensures the same binary) otherwise
+  // delete each other's archive mid-extract.
   run('bash', [
     '-lc',
     `set -euo pipefail
-rm -rf ${stage} ${pack}
-mkdir -p ${stage}
-curl -fsSL -o ${pack} ${u}
+stage="$(mktemp -d ${stageTemplate})"
+trap 'rm -rf "$stage"' EXIT
+curl -fsSL -o "$stage/archive" ${u}
 ${unpack}
-rm -f ${pack}
-mv -f ${stage}/${bin} ${dir}/${bin}
-rmdir ${stage}`,
+mv -f "$stage"/${bin} ${dir}/${bin}`,
   ]);
 }
 
