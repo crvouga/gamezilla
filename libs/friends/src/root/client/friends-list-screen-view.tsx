@@ -1,4 +1,5 @@
 import { FriendLiveSpaceBadge } from '@libs/spaces/public/friend-live-space-badge';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   EmptyState,
@@ -26,6 +27,7 @@ function FriendsEmptyState(): JSX.Element {
         <Trans>Search for people by username to send a friend request.</Trans>
       }
       action={{ label: t`Find friends`, onClick: () => router.push('/search') }}
+      dataSet={{ testid: Handles.friendsEmpty }}
     />
   );
 }

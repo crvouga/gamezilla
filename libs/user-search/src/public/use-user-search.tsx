@@ -2,6 +2,7 @@ import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { useCan } from '@libs/permissions/public/use-can';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
 import type { Sql } from '@pkgs/sql';
@@ -159,6 +160,7 @@ export function UserSearchSignInPrompt(): JSX.Element {
       title={<Trans>Sign in to search for people</Trans>}
       body={<Trans>Find friends by username and send requests.</Trans>}
       action={{ label: t`Sign in`, onClick: openSignInModal }}
+      dataSet={{ testid: Handles.searchSignInPrompt }}
     />
   );
 }

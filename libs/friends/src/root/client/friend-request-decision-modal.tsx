@@ -204,6 +204,15 @@ export function FriendRequestDecisionModal(
           variant="ghost"
           size="md"
           onClick={onViewProfile}
+          {...(profile().username.length > 0
+            ? {
+                dataSet: {
+                  testid: Handles.notificationsFriendRequestViewProfile(
+                    profile().username
+                  ),
+                },
+              }
+            : {})}
         />
       </ModalFooter>
     </ResponsiveSurface>

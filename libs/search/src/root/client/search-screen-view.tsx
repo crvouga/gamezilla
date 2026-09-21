@@ -43,6 +43,7 @@ function SearchResults(props: {
           icon={SearchIcon}
           title={<Trans>No people found for “{props.query}”</Trans>}
           body={<Trans>Check the spelling or try a different username.</Trans>}
+          dataSet={{ testid: Handles.searchEmpty }}
         />
       </Match>
       <Match when={true}>

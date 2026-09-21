@@ -22,6 +22,7 @@ export function FriendUserDangerModals(props: {
         variant="destructive"
         confirmLabel={<Trans>Remove</Trans>}
         confirmDataSet={{ testid: Handles.friendRemoveConfirm(props.username) }}
+        cancelDataSet={{ testid: Handles.friendRemoveCancel(props.username) }}
         onConfirm={props.onRemove}
         onCancel={props.onCloseRemove}
       />
