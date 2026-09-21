@@ -128,3 +128,28 @@ dependency there is a cache invalidation everywhere downstream, and a shell
 that names one feature quietly puts every feature in every feature's test
 closure. depcruise cannot catch it — it resolves relative paths, and these are
 workspace aliases.
+
+## What reruns today
+
+Measured on this tree with `turbo run tc test --dry`, warm cache. The numbers
+are tasks that would *execute*; everything else is a cache hit.
+
+| Touch | Tasks that run |
+| --- | --- |
+| nothing | 0 of 273 — `FULL TURBO`, 202ms |
+| one test file (`apps/product/tests/chess-puzzle-play.test.tsx`) | 1: the product test task. Typechecks stay cached. |
+| `libs/chess/src` | 17: chess, games (which registers it), the composition root, and the apps |
+| `libs/profile/src` | 27: profile plus the five features that still import it, the root, the apps |
+| `libs/runtime/src` (the composition root) | 13: the root and the apps |
+| `libs/client-app/src` or `libs/server-app/src` (a shell) | 29: the features that contribute to it, the root, the apps |
+| `pkgs/sync-engine/src` | 52: everything. Correct by design — keep that package small. |
+
+Two things to read out of this. Touching a feature no longer reruns the
+shells, which is the whole point of the fold; and the apps rerun for every
+feature because **all 46 e2e specs are still one task in `@apps/product`**.
+Splitting them into the features is what makes the first column narrow, and is
+tracked in [`E2E_MIGRATION_LOG.md`](E2E_MIGRATION_LOG.md).
+
+`libs/profile` reruns more than `libs/chess` because five features still
+import it directly. Each one of those is a port waiting to be declared; the
+number is the debt, and it is visible.
