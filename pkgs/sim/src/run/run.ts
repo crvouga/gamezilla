@@ -99,6 +99,7 @@ async function runCheckpoint<S>(
 async function runUntil<S, T>(
   s: Run<S>,
   read: Read<S, [], T>,
+  starvedAdvances: () => number,
   opts?: {
     readonly maxMs?: number;
     readonly stepMs?: number;
@@ -109,15 +110,47 @@ async function runUntil<S, T>(
   const stepMs = opts?.stepMs ?? 50;
   const pred = opts?.pred ?? ((t: unknown) => Boolean(t));
   let waited = 0;
+  let granted = 0;
   for (;;) {
     const value = await s.read(read);
     if (pred(value)) return value;
     if (waited >= maxMs) {
-      throw new Error(`until: predicate not met within ${String(maxMs)}ms`);
+      // Say what it actually saw. "predicate not met" alone cannot tell a
+      // scenario that converged on the wrong value from one that never
+      // converged at all, and that is the whole difference when diagnosing.
+      throw new Error(
+        `until: predicate not met within ${String(maxMs)}ms of virtual time ` +
+          `(${String(Math.round(maxMs / stepMs))} polls); last value: ${describeValue(value)}`
+      );
     }
+    // A poll the drain spent running ahead of unfinished wall work did not
+    // advance the simulation, so it must not spend the budget either: that is
+    // how a busy machine turns a converging scenario into a timeout. The grace
+    // is capped, so a genuinely stuck wait still ends — at worst it polls
+    // twice as many times.
+    const starvedBefore = starvedAdvances();
     await s.advanceTime(stepMs);
+    const starved = starvedAdvances() > starvedBefore;
+    if (starved && granted < maxMs) {
+      granted += stepMs;
+      continue;
+    }
     waited += stepMs;
   }
+}
+
+/** A short, safe rendering of whatever a read returned. */
+function describeValue(value: unknown): string {
+  if (value === undefined) return 'undefined';
+  if (value === null) return 'null';
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value).slice(0, 200);
+    } catch {
+      return '[unserializable object]';
+    }
+  }
+  return String(value).slice(0, 200);
 }
 
 async function runNever<S, T>(
@@ -245,7 +278,8 @@ function buildRun<S>(args: {
         await args.session.advanceTime(ms);
       });
     },
-    until: (readFn, opts) => runUntil(s, readFn, opts),
+    until: (readFn, opts) =>
+      runUntil(s, readFn, () => args.session.scheduler.starvedAdvances(), opts),
     never: (readFn, opts) => runNever(s, readFn, opts),
     async randomActions(opts) {
       const { randomActions } = await import('./random-actions');
