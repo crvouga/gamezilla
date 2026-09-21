@@ -33,8 +33,6 @@ yarn-error.*
 .turbo/
 /out
 
-# ESLint FS cache (lint:eslint --cache)
-.eslintcache
 
 # Jest transform cache (pinned under package `.cache/jest`, not OS /tmp)
 **/.jest-cache/
@@ -103,7 +101,7 @@ turbo-platform-key.json
 /check/
 **/test-results/
 **/blob-report/
-# Standalone sim test report artifact (bun run test:product:report)
+# Standalone sim test report artifact (bun run --filter @apps/product test:report)
 apps/product/sim-report/
 
 /.data/

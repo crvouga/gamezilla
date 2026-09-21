@@ -1,0 +1,33 @@
+/**
+ * The server half of the composition root: which bounded contexts this
+ * product's API runs, and what each of them needs from the host.
+ *
+ * Features that need a host service — billing needs the membership provider —
+ * are factories over it rather than constants, so the same feature runs
+ * against Stripe in production and a fake in a simulation without knowing
+ * which it got.
+ */
+
+import { createBillingServer } from '@libs/billing/root/server/feature-server';
+import type { FeatureServer } from '@libs/feature/public/server';
+import { FRIENDS_SERVER } from '@libs/friends/root/server/feature-server';
+import { NOTIFICATIONS_SERVER } from '@libs/notifications/root/server/feature-server';
+import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
+import type { MembershipBilling } from '@pkgs/billing';
+
+export type AppFeatureServerDeps = {
+  readonly billing: MembershipBilling | null;
+};
+
+export function appFeatureServers(
+  deps: AppFeatureServerDeps
+): readonly FeatureServer[] {
+  return [
+    SPACES_SERVER,
+    // Friends registers the inbox actions its deliveries carry, so it is
+    // composed before the inbox that serves them.
+    FRIENDS_SERVER,
+    NOTIFICATIONS_SERVER,
+    createBillingServer(deps.billing),
+  ];
+}

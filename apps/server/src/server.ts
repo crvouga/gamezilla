@@ -10,6 +10,28 @@ import {
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
+import { composeFeatureServers } from '@libs/feature/public/compose-server';
+import { APP } from '@libs/runtime/root/app-features';
+import { appFeatureServers } from '@libs/runtime/root/server/app-feature-servers';
+import { createServer } from '@libs/server-app/app/create-server';
+import type { ServerEnv } from '@libs/server-app/app/server-env';
+import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
+import type { ApiWorkerEnv } from '@libs/server-app/config/env';
+import {
+  assertSecretsEnvBinding,
+  ConfigurationError,
+  readBillingProviderBinding,
+  readOptionalApiUrlOverride,
+  readOptionalDatabaseUrlOverride,
+  readOptionalGoogleIdpOrigin,
+  workerEnvToSecretRecord,
+} from '@libs/server-app/config/env';
+import { createApiObjectStore } from '@libs/server-app/config/object-store';
+import { ApiSecretName } from '@libs/server-app/config/secret-names';
+import { createApiSecretStore } from '@libs/server-app/config/secret-store';
+import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
+import { openRequestDb } from '@libs/server-app/db/open-request-db-postgres';
+import { drainAndNotifyOutbox } from '@libs/server-app/sync/outbox-drain';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { FakeMembershipBilling, type MembershipBilling } from '@pkgs/billing';
 import { createStripeMembershipBillingFromSecretStore } from '@pkgs/billing-stripe';
@@ -20,25 +42,6 @@ import { createServerObservability } from '@pkgs/observability/server/create-ser
 import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
-import { createServer } from './app/create-server';
-import type { ServerEnv } from './app/server-env';
-import { loadAuthBootConfig } from './config/auth-boot';
-import type { ApiWorkerEnv } from './config/env';
-import {
-  assertSecretsEnvBinding,
-  ConfigurationError,
-  readBillingProviderBinding,
-  readOptionalApiUrlOverride,
-  readOptionalDatabaseUrlOverride,
-  readOptionalGoogleIdpOrigin,
-  workerEnvToSecretRecord,
-} from './config/env';
-import { createApiObjectStore } from './config/object-store';
-import { ApiSecretName } from './config/secret-names';
-import { createApiSecretStore } from './config/secret-store';
-import { resolveWebClientOrigin } from './config/web-client-origin';
-import { openRequestDb } from './db/open-request-db-postgres';
-import { drainAndNotifyOutbox } from './sync/outbox-drain';
 
 assert.registerCrashHandler(new ThrowingCrashHandler());
 
@@ -215,7 +218,10 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     fetch: (input, init) => globalThis.fetch(input, init),
   };
 
-  return await createServer(serverEnv);
+  return await createServer(serverEnv, {
+    app: APP,
+    servers: composeFeatureServers(appFeatureServers({ billing })),
+  });
 }
 
 async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {

@@ -1,23 +1,15 @@
-#!/usr/bin/env bun
-// @io-wall-ok — composition root
+// @io-wall-ok — static analysis over the source tree (scripts/**).
 /**
  * Ban third-party <script src> in apps/client/index.html unless allowlisted
- * in perf-budget.json thirdParty.indexHtmlScriptAllowlist.
- *
- * usage: check-index-html-scripts.ts --budget=<perf-budget.json> [--html=<path>]
+ * in perf-budget.json thirdParty.indexHtmlScriptAllowlist. Asserted by this
+ * package's tests.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { loadPerfBudget, parseBudgetPath } from './perf-budget';
+import { loadPerfBudget } from './perf-budget';
 
-const REPO_ROOT = join(import.meta.dirname, '../../..');
-const DEFAULT_HTML = join(REPO_ROOT, 'apps/client/index.html');
-
-function argValue(argv: readonly string[], name: string): string | undefined {
-  const hit = argv.find((a) => a.startsWith(`${name}=`));
-  return hit?.slice(name.length + 1);
-}
+const CLIENT_DIR = join(import.meta.dirname, '..');
 
 export function collectExternalScriptSrcs(html: string): string[] {
   const out: string[] = [];
@@ -36,32 +28,13 @@ export function collectExternalScriptSrcs(html: string): string[] {
   return out;
 }
 
-function main(): void {
-  const argv = process.argv.slice(2);
-  const budgetRel = parseBudgetPath(argv);
-  const budgetAbs = budgetRel.startsWith('/')
-    ? budgetRel
-    : join(process.cwd(), budgetRel);
-  const budget = loadPerfBudget(budgetAbs);
-  const htmlPath = argValue(argv, '--html') ?? DEFAULT_HTML;
-  const html = readFileSync(htmlPath, 'utf8');
-  const srcs = collectExternalScriptSrcs(html);
+/**
+ * Third-party `<script src>` in the shipped index.html that
+ * perf-budget.json `thirdParty.indexHtmlScriptAllowlist` does not allow.
+ */
+export function bannedIndexHtmlScripts(): string[] {
+  const budget = loadPerfBudget(join(CLIENT_DIR, 'perf-budget.json'));
+  const html = readFileSync(join(CLIENT_DIR, 'index.html'), 'utf8');
   const allow = new Set(budget.thirdParty.indexHtmlScriptAllowlist);
-  const banned = srcs.filter((s) => !allow.has(s));
-
-  if (banned.length === 0) {
-    console.log(
-      `[index-html-scripts] OK (${String(srcs.length)} external script(s), all allowlisted)`
-    );
-    return;
-  }
-  console.error(
-    `[index-html-scripts] OVER: ${String(banned.length)} third-party script(s) in index.html without thirdParty.indexHtmlScriptAllowlist entry:`
-  );
-  for (const s of banned) {
-    console.error(`  ${s}`);
-  }
-  process.exit(1);
+  return collectExternalScriptSrcs(html).filter((src) => !allow.has(src));
 }
-
-if (import.meta.main) main();

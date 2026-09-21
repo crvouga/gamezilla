@@ -13,7 +13,7 @@
  * Deploy only (`@apps/server#check:api` in the deploy graph; not part of
  * `bun check`).
  *
- * Invoked via `bun run check:api` (wraps `secrets-run` for secrets).
+ * Invoked via `bun run --filter @apps/server check:api` under `secrets-run`.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { closeSync, existsSync, openSync, readFileSync } from 'node:fs';

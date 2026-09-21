@@ -3,7 +3,6 @@
  * (`in-process` / `bun-webview`).
  */
 
-import type { Client } from '@apps/client/shell/create-client';
 import type {
   ProductExtra,
   ProductHostName,
@@ -20,6 +19,7 @@ import {
   restoreSystemSnapshot,
   type SystemSnapshotCtx,
 } from '@apps/product/sim';
+import type { Client } from '@libs/client-app/shell/create-client';
 import { wallClock } from '@pkgs/clock';
 import type { Run } from '@pkgs/sim';
 import { defineAction } from '@pkgs/sim';

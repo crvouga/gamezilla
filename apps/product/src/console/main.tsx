@@ -9,8 +9,10 @@
  * site root still lands in the simulator.
  */
 
-import { createClient } from '@apps/client/shell/create-client';
-import { wallClientEnv } from '@apps/client/shell/wall-client-env';
+import { createClient } from '@libs/client-app/shell/create-client';
+import { wallClientEnv } from '@libs/client-app/shell/wall-client-env';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
+import { wallSpaceRoomTransport } from '@libs/spaces/root/client/room/wall-room-transport';
 import { assert } from '@pkgs/assert';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
@@ -49,7 +51,9 @@ function SimulatorBoot(): JSX.Element {
 }
 
 function AppBoot(): JSX.Element {
-  const client = createClient(wallClientEnv(), {
+  const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
+    features: APP_FEATURE_CLIENTS,
+    loadApp: async () => (await import('@libs/runtime/root/app-features')).APP,
     poolGlobalKey: '__gamezilla_sync_engine_pool__',
   });
   const onPageHide = (): void => {

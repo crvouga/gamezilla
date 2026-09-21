@@ -66,7 +66,7 @@ describe('validateGoalGate', () => {
   const base = {
     statements,
     knownBugs: [] as readonly KnownBug[],
-    readFile: readRepoFile,
+    proofFiles: { owns: () => true, read: readRepoFile },
     unprovenBudget: 2,
   };
 
@@ -167,31 +167,5 @@ describe('validateGoalGate', () => {
     expect(
       validateGoalGate({ ...base, checks, knownBugs }).join('\n')
     ).toContain('known-bugs:bug-1: proof file not found: nope.ts');
-  });
-});
-
-/**
- * The real repository state: the gate itself. `goal:the-bar:2` proves that no
- * goal statement is verified by hand, `goal:the-bar:6` that every bug found is
- * guarded by a check.
- */
-describe('goal gate over the repository', () => {
-  test('GOAL.md and its manifest agree and every proof resolves', () => {
-    const statements = parseGoalMarkdown(readRepoFile('docs/GOAL.md') ?? '');
-    expect(statements.length).toBeGreaterThan(50);
-    const checks = JSON.parse(
-      readRepoFile('libs/tools/goal/goal-checks.json') ?? '{}'
-    ) as GoalChecks;
-    const knownBugs = JSON.parse(
-      readRepoFile('libs/tools/goal/known-bugs.json') ?? '[]'
-    ) as readonly KnownBug[];
-    const errors = validateGoalGate({
-      statements,
-      checks,
-      knownBugs,
-      readFile: readRepoFile,
-      unprovenBudget: countUnproven(checks),
-    });
-    expect(errors).toEqual([]);
   });
 });

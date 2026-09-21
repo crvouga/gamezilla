@@ -1,23 +1,27 @@
-import type { ClientEnv } from '@apps/client/shell/client-env';
-import { type Client, createClient } from '@apps/client/shell/create-client';
+import type { ClientEnv } from '@libs/client-app/shell/client-env';
+import {
+  type Client,
+  createClient,
+} from '@libs/client-app/shell/create-client';
+import {
+  SIM_GOOGLE_CLIENT_ID,
+  SIM_GOOGLE_CLIENT_SECRET,
+  SIM_IDP_URL,
+} from '@libs/feature/public/sim-constants';
 import {
   createRoomServer,
   type RoomServerApp,
-} from '@apps/room-server/app/create-room-server';
-import type { RoomServerEnv } from '@apps/room-server/app/room-server-env';
-import type { ServerEnv } from '@apps/server';
-import { loadAuthBootConfig } from '@apps/server/config/auth-boot';
+} from '@libs/room-app/app/create-room-server';
+import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
 import {
   migrateSimPostgres,
   SIM_AUTH_SECRET,
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
-} from '@apps/server/sim/migrate-sim-postgres';
-import {
-  SIM_GOOGLE_CLIENT_ID,
-  SIM_GOOGLE_CLIENT_SECRET,
-  SIM_IDP_URL,
-} from '@apps/server/sim/sim-constants';
+} from '@libs/runtime/root/sim/migrate-sim-postgres';
+import type { ServerEnv } from '@libs/server-app';
+import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import { assert } from '@pkgs/assert';
 import { FakeMembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
@@ -397,7 +401,11 @@ function createSimHandle(kernel: SimKernel): Sim {
     async spawnClient(id, env) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
-      const live = createClient(env ?? (await client(id)));
+      const live = createClient(env ?? (await client(id)), {
+        features: APP_FEATURE_CLIENTS,
+        loadApp: async () =>
+          (await import('@libs/runtime/root/app-features')).APP,
+      });
       liveClients.set(id, live);
       return live;
     },

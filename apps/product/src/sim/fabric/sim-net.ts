@@ -1,4 +1,4 @@
-import type { ServerHttp } from '@apps/client/shell/client-env';
+import type { ServerHttp } from '@libs/client-app/shell/client-env';
 
 export function simPartitionedError(from: string, to: string): TypeError {
   const err = new TypeError(`sim partition: ${from} ↛ ${to}`);

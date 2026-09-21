@@ -3,26 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    ".": "./src/index.ts",
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*/index.ts"
-    ],
     "./scripts/*": "./scripts/*.ts"
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "check:api": "bun run scripts/check-api.ts",
-    "check:contract": "bun run scripts/check-contract-manifest.ts",
+    "contract:write": "bun run scripts/contract-manifest.ts",
     "deploy": "bun run scripts/deploy.ts",
     "kill": "bun run scripts/kill-dev.ts",
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "preview": "bun run scripts/preview.ts",
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
     "smoke": "bun run scripts/smoke.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test --pass-with-no-tests src/integration/"
   },
@@ -32,6 +26,7 @@
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
     "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
@@ -39,6 +34,7 @@
     "@libs/pubsub": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
+    "@libs/server-app": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/async-local": "workspace:*",

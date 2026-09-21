@@ -13,18 +13,19 @@
     ]
   },
   "scripts": {
-    "billing:check": "bun run scripts/check-billing-offer.ts",
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
     "build:mock-billing": "bun run scripts/build-mock-billing.ts",
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
     "@libs/client-config": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/permissions": "workspace:*",
+    "@libs/server-app": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",

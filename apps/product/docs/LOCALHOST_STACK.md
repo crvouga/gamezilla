@@ -36,7 +36,7 @@ bun run stack --idp-state memory                                   # default: Id
 bun run stack --idp-state instance --keep-data --instance alpha    # IdP survives restarts of `alpha`
 bun run stack --no-web --idp-state path --idp-state-path /tmp/idp.sqlite
 
-bun run test:product:localhost            # boot a stack, run the sim suite, tear down
+bun run --filter @apps/product test:stack  # boot a stack, run the sim suite, tear down
 ```
 
 ### Local Google sign-in

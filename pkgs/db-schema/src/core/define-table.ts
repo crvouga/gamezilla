@@ -112,9 +112,9 @@ export type TableDefSlice = {
   readonly retiredColumns: readonly RetiredColumn[];
 };
 
-export type TableDef = {
+export type TableDef<Name extends string = string> = {
   readonly domain: string;
-  readonly name: string;
+  readonly name: Name;
   readonly _slice: TableDefSlice;
   readonly kind: 'table';
 };
@@ -123,7 +123,9 @@ export type TableDef = {
  * Declare a single domain table with optional per-table indexes and
  * `retiredColumns` tombstones.
  */
-export function defineTable(input: TableDefInput): TableDef {
+export function defineTable<const T extends TableDefInput>(
+  input: T
+): TableDef<T['name']> {
   const path = `defineTable(${input.name})`;
   assertSnakeCaseIdent(input.name, `${path}.name`);
   assertMatchesDomain(input.name, input.domain, path);

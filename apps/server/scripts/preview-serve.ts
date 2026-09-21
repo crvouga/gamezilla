@@ -91,7 +91,7 @@ function assertEphemeralPortsAvailable(): void {
       `[preview-serve] ephemeral ports exhausted (TIME_WAIT=${String(timeWait)}).`,
       'Stop other local stacks that open many TCP sockets (e.g. another monorepo',
       '`turbo dev` / Redis / Electron apps), wait ~30s for TIME_WAIT to drain,',
-      'then retry `bun preview` / `bun check:api`.',
+      'then retry `bun preview` / `bun run --filter @apps/server check:api`.',
     ].join(' ')
   );
 }

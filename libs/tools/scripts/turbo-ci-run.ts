@@ -12,9 +12,11 @@
  *   `globalEnv` enter the hash (avoids `VITE_*` skew).
  * - Ensures `TURBO_API` points at the self-hosted cache origin (defaults when
  *   remote creds are present but the secret is unset).
- * - Optional `TURBO_AFFECTED_BASE` (git ref/SHA) adds
- *   `--filter=...[<base>] --filter=//` so PR runs skip unchanged
- *   packages but still execute named root tasks (`ci:depcruise`).
+ * - No affected-package filter: every gate task is cached per package, so an
+ *   unchanged package is a cache hit, which is the same saving without a
+ *   second notion of "what changed" to keep correct. The one input turbo
+ *   cannot see — which commits exist — is exported as `CHECK_GIT_HEAD` for the
+ *   tasks that scan git history (`check:static`).
  * - Concurrency: honor `TURBO_CONCURRENCY`; otherwise `availableParallelism()`
  *   with a local floor of 4 and a CI floor of 2 (2-core / 7GB runners).
  * - Log order: `auto` locally; `grouped` in CI, which turbo renders as one
@@ -175,63 +177,12 @@ export function turboChildEnv(
   return env;
 }
 
-/** The three package tiers; everything else is shared by all of them. */
-const PACKAGE_TIER = /^(apps|libs|pkgs)\//;
-
-/**
- * The first changed path that can change *every* package's result, or null.
- *
- * `--filter=...[base]` selects packages by directory: a package runs when a
- * file under it changed, or under something it depends on. A change outside
- * the tiers — `bun.lock`, root `package.json` / `turbo.json` / `biome.json` /
- * `tsconfig.json`, `.github/workflows/**` — lives in no package, so the filter
- * would select nothing for it and a dependency bump would skip every test.
- * Any such path means the whole gate runs.
- */
-export function pathForcingFullGate(
-  changedPaths: readonly string[]
-): string | null {
-  return changedPaths.find((path) => !PACKAGE_TIER.test(path)) ?? null;
-}
-
-function changedPathsSince(base: string): readonly string[] | null {
-  try {
-    const out = execFileSync('git', ['diff', '--name-only', `${base}...HEAD`], {
-      cwd: REPO_ROOT,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    return out.split('\n').filter((line) => line.length > 0);
-  } catch {
-    return null;
-  }
-}
-
-function resolveAffectedFilter(taskArgs: readonly string[]): string[] {
-  const base = process.env['TURBO_AFFECTED_BASE']?.trim();
-  if (base === undefined || base.length === 0) return [];
-  const alreadyScm = taskArgs.some(
-    (a) => a.startsWith('--filter=') && a.includes('[')
-  );
-  if (alreadyScm) return [];
-  const changed = changedPathsSince(base);
-  if (changed === null) {
-    console.warn(
-      `turbo-ci-run: could not diff against ${base}; running the full gate.`
-    );
-    return [];
-  }
-  const forcing = pathForcingFullGate(changed);
-  if (forcing !== null) {
-    console.log(
-      `turbo-ci-run: full gate — '${forcing}' is outside apps/ libs/ pkgs/ and can change every package.`
-    );
-    return [];
-  }
-  // Root lint tasks read this to lint the diff instead of the whole repo; it
-  // is declared in their turbo `env`, so the two scopes hash differently.
-  process.env['CHECK_CHANGED_SINCE'] = base;
-  return [`--filter=...[${base}]`, '--filter=//'];
+/** `check:static` scans commits; the sha is its cache key for them. */
+function exportGitHead(env: NodeJS.ProcessEnv): void {
+  env['CHECK_GIT_HEAD'] = execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+  }).trim();
 }
 
 function loadTurboTasks(): TurboTasks {
@@ -418,11 +369,7 @@ async function main(): Promise<void> {
     remote
   );
   await ensureSecretsFingerprint(env, taskArgs);
-
-  const affected = resolveAffectedFilter(taskArgs);
-  if (affected.length > 0) {
-    console.log(`turbo-ci-run: affected filter ${affected.join(' ')}`);
-  }
+  exportGitHead(env);
 
   // Exclude the root workspace from package tasks so root scripts like
   // `lint` (which themselves call turbo-ci-run) are never scheduled.
@@ -432,7 +379,7 @@ async function main(): Promise<void> {
   );
   const hasRootTasks = taskArgs.some((a) => a.startsWith('//'));
   const rootExcludeFilters: string[] = [];
-  if (!hasExplicitFilter && affected.length === 0 && hasPackageTasks) {
+  if (!hasExplicitFilter && hasPackageTasks) {
     rootExcludeFilters.push(
       '--filter=./apps/*',
       '--filter=./libs/*',
@@ -458,7 +405,7 @@ async function main(): Promise<void> {
   );
 
   const status = await runTurbo(
-    ['run', ...taskArgs, ...affected, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
+    ['run', ...taskArgs, ...rootExcludeFilters, ...TURBO_CI_FLAGS],
     env,
     {
       hideCachedGroups: inGithubActions() && ui !== 'tui',

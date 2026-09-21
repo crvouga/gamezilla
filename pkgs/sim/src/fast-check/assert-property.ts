@@ -8,9 +8,14 @@ let configured = false;
 /**
  * Apply global fast-check defaults once per process.
  *
- * - `PBT_NUM_RUNS` overrides run count (else 10 local / 40 in CI)
+ * - `PBT_NUM_RUNS` overrides run count (default 40, everywhere)
  * - `FC_SEED` pins the seed (default `424242`) unless `PBT_RANDOM=1`
- * - `interruptAfterTimeLimit` keeps a hung property from blocking CI
+ *
+ * No wall-clock limit: with the seed and run count pinned, a property's
+ * verdict is a function of the code alone, which is what lets turbo cache it.
+ * `interruptAfterTimeLimit` made a loaded machine fail a property an idle one
+ * passed. A hung property is still bounded — by the test's own timeout and the
+ * gate's per-task budget.
  */
 function configureFastCheck(): void {
   if (configured) return;
@@ -37,8 +42,6 @@ function configureFastCheck(): void {
     numRuns: Number.isFinite(numRuns) && numRuns > 0 ? numRuns : 10,
     ...(seed !== undefined && Number.isFinite(seed) ? { seed } : {}),
     verbose: 2,
-    interruptAfterTimeLimit: 15_000,
-    markInterruptAsFailure: true,
   });
 }
 

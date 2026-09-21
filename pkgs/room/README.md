@@ -289,7 +289,7 @@ Scripts:
 
 ```bash
 bun run --filter @pkgs/room test       # all package tests
-bun run --filter @pkgs/room test:sim   # system scenarios + kit only
+bun run --filter @pkgs/room-sim test  # system scenarios + kit only
 bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_SEED)
 bun run test:pbt:random                # nightly random exploration
 ```

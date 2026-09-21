@@ -10,10 +10,9 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --parallel=1 --timeout 120000 tests",
-    "test:sim": "bun test --parallel=1 --timeout 120000 tests"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --parallel=1 --timeout 120000 tests"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

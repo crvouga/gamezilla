@@ -1,5 +1,5 @@
 import { clientConfigTopic } from '@libs/client-config/public/sync-topics';
-import { roomTopic, userTopic } from '@libs/runtime/public/sync-topics';
+import { userTopic } from '@libs/feature/public/sync';
 import type { Topic } from '@pkgs/pubsub/interface';
 import { SignJWT } from 'jose';
 
@@ -29,28 +29,30 @@ export function buildSubscribeAcl(topics: readonly Topic[]): EmqxAclRule[] {
   return rules;
 }
 
+/**
+ * What every actor may subscribe to whatever the app was composed from: their
+ * own rows and the runtime config. Anything else — a room, a channel — is a
+ * feature's to grant, and arrives as `featureTopics`.
+ */
 export function pubsubTopicsForActor(
   actorId: string,
-  spaceIds: readonly string[]
+  featureTopics: readonly Topic[]
 ): Topic[] {
-  return [
-    userTopic(actorId),
-    clientConfigTopic(),
-    ...spaceIds.map((id) => roomTopic(id)),
-  ];
+  return [userTopic(actorId), clientConfigTopic(), ...featureTopics];
 }
 
 export async function mintPubSubToken(args: {
   readonly secret: string;
   readonly actorId: string;
-  readonly spaceIds: readonly string[];
+  /** Topics the composed features granted this actor. */
+  readonly featureTopics: readonly Topic[];
   /** Epoch ms — callers pass env.clock.now or a sim clock. */
   readonly now: () => number;
 }): Promise<{ readonly token: string; readonly expiresAt: number }> {
   const nowMs = args.now();
   const issuedAt = Math.floor(nowMs / 1000);
   const expiresAt = issuedAt + TOKEN_TTL_SEC;
-  const topics = pubsubTopicsForActor(args.actorId, args.spaceIds);
+  const topics = pubsubTopicsForActor(args.actorId, args.featureTopics);
   const acl = buildSubscribeAcl(topics);
   const token = await new SignJWT({
     acl,

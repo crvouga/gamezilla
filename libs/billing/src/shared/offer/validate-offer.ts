@@ -1,7 +1,7 @@
 /**
  * Static checks on the offer, with no provider and no credentials.
  *
- * `billing:check` used to *reconcile* the offer onto Stripe — the same call
+ * The billing gate used to *reconcile* the offer onto Stripe — the same call
  * `billing:sync` makes on deploy — which meant every pull request wrote the
  * live product catalogue, prices, portal configuration and webhook endpoint,
  * and needed production billing credentials to do it. That is a deploy action,

@@ -1,6 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { execFileSync } from 'node:child_process';
-import { join } from 'node:path';
 
 import {
   convertPath,
@@ -18,8 +16,6 @@ import {
   rulesFromManifests,
   rulesFromTsconfigPaths,
 } from '../naming/workspace-resolver';
-
-const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 describe('naming rules', () => {
   test.each([
@@ -88,8 +84,14 @@ describe('naming rules', () => {
     // went red whenever `bun check` had the CPU saturated. What this guards is
     // that nothing turns the per-path work quadratic (a per-path scan of every
     // other path), so compare the per-path cost at two sizes: linear holds it
-    // flat, quadratic multiplies it by the size ratio. Both samples take the
-    // same contention, so load cancels out.
+    // flat, quadratic multiplies it by the size ratio.
+    //
+    // The comparison has to survive a loaded machine — `bun check` runs this
+    // beside a dozen other tasks. Wall-clock time counts every moment the OS
+    // gave the CPU to someone else, and even the fastest of seven interleaved
+    // rounds read 11x under load. So measure this process's own CPU time, which
+    // other processes cannot inflate; still interleave the sizes and keep the
+    // fastest round of each. The bound is unchanged: quadratic reads ~10x.
     const makePaths = (count: number): string[] =>
       Array.from(
         { length: count },
@@ -97,28 +99,21 @@ describe('naming rules', () => {
       );
     const perPathMs = (count: number): number => {
       const paths = makePaths(count);
-      const started = performance.now();
+      const started = process.cpuUsage();
       findNamingViolations(paths);
-      return (performance.now() - started) / count;
+      const spent = process.cpuUsage(started);
+      return (spent.user + spent.system) / 1000 / count;
     };
 
     perPathMs(2_000); // warm the JIT so the first sample is not the slow one
-    const small = perPathMs(2_000);
-    const large = perPathMs(20_000);
+    let small = Number.POSITIVE_INFINITY;
+    let large = Number.POSITIVE_INFINITY;
+    for (let round = 0; round < 7; round++) {
+      small = Math.min(small, perPathMs(2_000));
+      large = Math.min(large, perPathMs(20_000));
+    }
     // Quadratic would be ~10x at a 10x size ratio; 4x leaves room for noise.
     expect(large / small).toBeLessThan(4);
-  });
-
-  test('the repository follows the convention', () => {
-    const listing = execFileSync(
-      'git',
-      ['ls-files', '-z', '--cached', '--others', '--exclude-standard'],
-      {
-        cwd: REPO_ROOT,
-        encoding: 'utf8',
-      }
-    );
-    expect(findNamingViolations(listing.split('\0'))).toEqual([]);
   });
 });
 

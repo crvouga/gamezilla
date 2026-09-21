@@ -13,13 +13,15 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "deploy": "bun run scripts/deploy.ts",
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/games": "workspace:*",
+    "@libs/room-app": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
     "@libs/spaces": "workspace:*",

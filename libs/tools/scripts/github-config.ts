@@ -133,8 +133,9 @@ function compareRequiredCheck(
   contexts: readonly string[],
   diffs: string[]
 ): void {
-  const actual = live['required_status_checks'] as Json | null;
-  if (actual === null) {
+  // GitHub omits the key entirely when no check is required.
+  const actual = live['required_status_checks'] as Json | null | undefined;
+  if (actual === undefined || actual === null) {
     diffs.push('required_status_checks: live=absent (no required check)');
     return;
   }

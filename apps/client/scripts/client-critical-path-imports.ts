@@ -1,11 +1,8 @@
-#!/usr/bin/env bun
-// @io-wall-ok — composition root
+// @io-wall-ok — static analysis over the source tree (scripts/**).
 /**
- * Walk static imports from apps/client/src/main.tsx and fail if the closure
- * hits modules that must stay off the low-end Android critical path, or if
- * any file on that closure runs a top-level import().
- *
- * usage: client-critical-path-imports.ts
+ * Walk static imports from apps/client/src/main.tsx and report modules that
+ * must stay off the low-end Android critical path, and any file on that
+ * closure that runs a top-level import(). Asserted by this package's tests.
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
@@ -281,11 +278,14 @@ export function scanTopLevelDynamicImports(args: {
   return violations;
 }
 
-function main(): void {
+/**
+ * Every violation on the shipped client's critical path: denylisted static
+ * imports reachable from `main.tsx`, and top-level `import()` on that closure.
+ */
+export function criticalPathViolations(): CriticalPathViolation[] {
   const entryAbs = join(REPO_ROOT, ENTRY_REL);
   if (!existsSync(entryAbs)) {
-    console.error(`[critical-path] missing entry ${ENTRY_REL}`);
-    process.exit(1);
+    throw new Error(`[critical-path] missing entry ${ENTRY_REL}`);
   }
   const aliases = loadPathAliases(join(REPO_ROOT, TSCONFIG_REL));
   const { files, violations } = walkCriticalPath({
@@ -293,27 +293,8 @@ function main(): void {
     repoRoot: REPO_ROOT,
     aliases,
   });
-  const dynamicViolations = scanTopLevelDynamicImports({
-    files,
-    repoRoot: REPO_ROOT,
-  });
-
-  console.log(
-    `[critical-path] walked ${String(files.length)} files from ${ENTRY_REL}`
-  );
-
-  const all = [...violations, ...dynamicViolations];
-  if (all.length === 0) {
-    console.log('[critical-path] OK');
-    return;
-  }
-  console.error(
-    `[critical-path] ${String(all.length)} violation(s) — low-end Android critical path`
-  );
-  for (const v of all) {
-    console.error(`  ${v.fromRel} → ${v.specifier} (${v.reason})`);
-  }
-  process.exit(1);
+  return [
+    ...violations,
+    ...scanTopLevelDynamicImports({ files, repoRoot: REPO_ROOT }),
+  ];
 }
-
-if (import.meta.main) main();

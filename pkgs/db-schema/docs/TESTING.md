@@ -10,7 +10,7 @@
 | SQLite behavior pins | `pkgs/db-schema-sqlite/tests/*.test.ts` | `bun test pkgs/db-schema-sqlite/tests` |
 | Weeks-behind client worlds | `pkgs/sync-engine/tests/schema-drift.test.ts` | `bun test pkgs/sync-engine/tests/schema-drift.test.ts` |
 | Evolution gate (CI) | `libs/runtime/scripts/check-schema-evolution.ts` | `bun run --filter @libs/runtime check:schema-evolution` |
-| Append-only names (CI) | `apps/server/scripts/check-contract-manifest.ts` | `bun run --filter @apps/server check:contract` |
+| Append-only names (CI) | `apps/server/tests/contract-manifest.test.ts` | `bun run --filter @apps/server test` |
 
 ## Invariants (oracles)
 
@@ -23,7 +23,7 @@
 7. **Idempotence** — apply(S) twice emits no DDL; apply → introspect → re-plan is empty.
 8. **snake_case** — all schema identifiers validated at authoring time (runtime + type-level).
 9. **Evolution gate** — removing/renaming/retyping without a tombstone, weakening a tombstone, or dropping a tombstone fails `assertEvolvable`.
-10. **Append-only contract names** — removing or renaming a registered query/mutation name fails `check:contract`.
+10. **Append-only contract names** — removing or renaming a registered query/mutation name fails `apps/server/tests/contract-manifest.test.ts`.
 
 ## Backends
 

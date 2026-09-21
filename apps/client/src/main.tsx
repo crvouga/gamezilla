@@ -11,15 +11,19 @@ import { render } from 'solid-js/web';
 import '@pkgs/tailwind/tailwind.css';
 import '@pkgs/ui/tokens.css';
 import '@pkgs/ui/base.css';
-import { createClient } from './shell/create-client';
-import { wallClientEnv } from './shell/wall-client-env';
+import { createClient } from '@libs/client-app/shell/create-client';
+import { wallClientEnv } from '@libs/client-app/shell/wall-client-env';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
+import { wallSpaceRoomTransport } from '@libs/spaces/root/client/room/wall-room-transport';
 
 const root = document.getElementById('root');
 if (root === null) {
   throw new Error('#root element missing from index.html');
 }
 
-const client = createClient(wallClientEnv(), {
+const client = createClient(wallClientEnv({ room: wallSpaceRoomTransport }), {
+  features: APP_FEATURE_CLIENTS,
+  loadApp: async () => (await import('@libs/runtime/root/app-features')).APP,
   poolGlobalKey: '__gamezilla_sync_engine_pool__',
 });
 

@@ -261,7 +261,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run \`bun run check\` (the whole check surface) or the matching \`bun run ...\` command locally to verify (e.g. \`bun run check:static\`, \`bun run check:api\`, \`bun run ci:depcruise\`, \`bun run ci:syncpack\`).`
+    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run \`bun run check\` (the whole check surface) or the matching \`bun run ...\` command locally to verify (e.g. \`bun run --filter <pkg> lint\`, \`bun run --filter <pkg> test\`, \`bun run ci:syncpack\`).`
   );
   lines.push('');
   for (const s of sections) {

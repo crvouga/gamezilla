@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | Unit / contract | `tests/*.test.ts` | `bun test` |
 | Generators | `tests/generators` | imported by PBT / scenario |
-| Sim / scenario | `tests/scenario` | `bun test` / `bun run test:sim` |
+| Sim / scenario | `tests/scenario` | `bun test tests/scenario` |
 | Mutants | `tests/mutants` | `bun run mutants` |
 
 ## Replay a seed

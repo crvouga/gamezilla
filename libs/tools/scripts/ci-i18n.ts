@@ -13,8 +13,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-const PO_REL = 'apps/client/src/i18n/locales/en/messages.po';
-const COMPILED_REL = 'apps/client/src/i18n/locales/en/messages.ts';
+const PO_REL = 'libs/client-app/src/i18n/locales/en/messages.po';
+const COMPILED_REL = 'libs/client-app/src/i18n/locales/en/messages.ts';
 const MACRO_FROM = /from\s+['"]@lingui\/(?:core|solid)\/macro['"]/;
 const SCAN_ROOTS = ['apps', 'libs', 'pkgs'] as const;
 const SKIP_DIR_NAMES = new Set([
@@ -199,7 +199,7 @@ function assertCatalogsFresh(): void {
     '[ci:i18n] Lingui catalogs are stale. Production shows hashed ids ' +
       '(e.g. "iDNBZe") for any string missing from the catalog.\n' +
       'Run `bun run i18n:extract && bun run i18n:compile` and commit\n' +
-      'apps/client/src/i18n/locales/en/messages.{po,ts}'
+      'libs/client-app/src/i18n/locales/en/messages.{po,ts}'
   );
   process.exit(1);
 }

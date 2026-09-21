@@ -13,13 +13,16 @@
     ]
   },
   "scripts": {
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
     "@libs/auth": "workspace:*",
+    "@libs/client-app": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

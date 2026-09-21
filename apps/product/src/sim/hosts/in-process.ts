@@ -56,7 +56,7 @@ async function openMigratedFreshServerSql(clock: Clock): Promise<SimSql> {
     // Lazy: migrations run against the node Postgres pool — never load in the
     // web bundle.
     const { migrateSimPostgres } = await import(
-      '@apps/server/sim/migrate-sim-postgres'
+      '@libs/runtime/root/sim/migrate-sim-postgres'
     );
     await migrateSimPostgres({
       sqlClient: serverSql.sqlClient,

@@ -86,47 +86,65 @@ const sourceArb = fc
     };
   });
 
-describe('property-based transform invariants', () => {
-  test('generated valid inputs parse, never throw, and are idempotent', async () => {
-    await fc.assert(
-      fc.property(sourceArb, ({ source }) => {
-        const first = transformFile('generated.tsx', source);
-        expect(first.parseError).toBeUndefined();
-        expect(parses(first.text)).toBe(true);
-        const second = transformFile('generated.tsx', first.text);
-        expect(second.parseError).toBeUndefined();
-        expect(second.text).toBe(first.text);
-        expect(second.converted).toEqual([]);
-      }),
-      { numRuns: 500 }
-    );
-  });
+/**
+ * These walk hundreds of generated sources through the TypeScript parser, so
+ * they take seconds even on an idle machine and considerably longer on a
+ * saturated one. The run count is the budget; the wall clock is not allowed to
+ * be, or the verdict would depend on how busy the machine was — they timed out
+ * under a full `bun check` while passing in 9s on their own. Explicit
+ * timeouts keep the coverage and take the scheduler out of the decision.
+ */
+const PROPERTY_TIMEOUT_MS = 120_000;
 
-  test('runCodemod preserves one output per input and stable counts', async () => {
-    await fc.assert(
-      fc.property(
-        fc.array(sourceArb, { minLength: 1, maxLength: 20 }),
-        (cases) => {
-          const inputs = Object.fromEntries(
-            cases.map((item, index) => [`file-${index}.tsx`, item.source])
-          );
-          const result = runCodemod(inputs, { dryRun: true });
-          expect(result.outputs).toHaveLength(Object.keys(inputs).length);
-          expect(result.files).toHaveLength(Object.keys(inputs).length);
-          expect(result.unstable).toEqual([]);
-          expect(
-            result.summary.totalConvertedA + result.summary.totalConvertedB
-          ).toBe(
-            result.files.reduce(
-              (sum, file) => sum + file.convertedA + file.convertedB,
-              0
-            )
-          );
-        }
-      ),
-      { numRuns: 100 }
-    );
-  });
+describe('property-based transform invariants', () => {
+  test(
+    'generated valid inputs parse, never throw, and are idempotent',
+    async () => {
+      await fc.assert(
+        fc.property(sourceArb, ({ source }) => {
+          const first = transformFile('generated.tsx', source);
+          expect(first.parseError).toBeUndefined();
+          expect(parses(first.text)).toBe(true);
+          const second = transformFile('generated.tsx', first.text);
+          expect(second.parseError).toBeUndefined();
+          expect(second.text).toBe(first.text);
+          expect(second.converted).toEqual([]);
+        }),
+        { numRuns: 500 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
+
+  test(
+    'runCodemod preserves one output per input and stable counts',
+    async () => {
+      await fc.assert(
+        fc.property(
+          fc.array(sourceArb, { minLength: 1, maxLength: 20 }),
+          (cases) => {
+            const inputs = Object.fromEntries(
+              cases.map((item, index) => [`file-${index}.tsx`, item.source])
+            );
+            const result = runCodemod(inputs, { dryRun: true });
+            expect(result.outputs).toHaveLength(Object.keys(inputs).length);
+            expect(result.files).toHaveLength(Object.keys(inputs).length);
+            expect(result.unstable).toEqual([]);
+            expect(
+              result.summary.totalConvertedA + result.summary.totalConvertedB
+            ).toBe(
+              result.files.reduce(
+                (sum, file) => sum + file.convertedA + file.convertedB,
+                0
+              )
+            );
+          }
+        ),
+        { numRuns: 100 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
 });
 
 type PipelineState = {
@@ -152,24 +170,33 @@ function modelPipeline(source: string, write: boolean): PipelineState {
 }
 
 describe('model-based migration pipeline', () => {
-  test('write is permitted exactly when parse, stability, and completeness gates pass', async () => {
-    await fc.assert(
-      fc.property(sourceArb, fc.boolean(), ({ source }, write) => {
-        const state = modelPipeline(source, write);
-        const result = runCodemod({ 'model.tsx': source }, { dryRun: !write });
-        const canCommit =
-          result.summary.parseFailures === 0 &&
-          result.unstable.length === 0 &&
-          result.gateHits.length === 0;
-        expect(state.stable).toBe(result.unstable.length === 0);
-        expect(state.gatePassed).toBe(result.gateHits.length === 0);
-        expect(canCommit).toBe(
-          result.summary.parseFailures === 0 && state.stable && state.gatePassed
-        );
-      }),
-      { numRuns: 200 }
-    );
-  });
+  test(
+    'write is permitted exactly when parse, stability, and completeness gates pass',
+    async () => {
+      await fc.assert(
+        fc.property(sourceArb, fc.boolean(), ({ source }, write) => {
+          const state = modelPipeline(source, write);
+          const result = runCodemod(
+            { 'model.tsx': source },
+            { dryRun: !write }
+          );
+          const canCommit =
+            result.summary.parseFailures === 0 &&
+            result.unstable.length === 0 &&
+            result.gateHits.length === 0;
+          expect(state.stable).toBe(result.unstable.length === 0);
+          expect(state.gatePassed).toBe(result.gateHits.length === 0);
+          expect(canCommit).toBe(
+            result.summary.parseFailures === 0 &&
+              state.stable &&
+              state.gatePassed
+          );
+        }),
+        { numRuns: 200 }
+      );
+    },
+    PROPERTY_TIMEOUT_MS
+  );
 
   test('CLI model rejects ambiguous or unknown transitions', () => {
     expect(() => parseArgs(['--write', '--dry-run'])).toThrow();

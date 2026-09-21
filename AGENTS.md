@@ -6,7 +6,7 @@
 
 - **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `apps/product`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createSim` via harness-only `virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry). **`Session` / Runtime are harness-only** — only `@apps/product`, package `src/sim/` systems, and tests hold them; product `ClientEnv` / `ServerEnv` / `RoomServerEnv` receive unpacked `clock` / `timers` / `createId` / `random` / `http`. Never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Inject via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks. Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `libs/tools/biome-plugins/no-bare-io.grit`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` only in `@io-wall-ok` adapters (`wall-node-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `bun run lint`) for bare I/O / FS / wall defaults / hard-determinism. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`docs/DETERMINISM.md`](docs/DETERMINISM.md). **Scenario authoring** lives only in `@pkgs/sim`: packages declare `defineSystem` / `defineAction` / `defineProperty` (topology via `session.fork`; reads are plain functions of `S`; converge is a read + property, restoreNetwork/revive are the stimuli); the framework owns the run via `system.run` / `s.randomActions` / `system.explore` / `system.replay`. Do **not** add package-local World openers / kit DSLs. Kernel mechanics: Runtime/Session, virtual/wall schedulers, network, Recording. **Reporting is first-class in `@pkgs/sim` / `@pkgs/ui-testing` / `@pkgs/sim-report`:** `defineSnapshot` captures frames, `recordingDriver` turns UI ops into steps, `@pkgs/sim-report` `writeHtmlReport` renders one standalone `index.html` (Playwright-style `<sim-report>` web component). No report tabs, report servers, or console report viewers. Fresh-agent guide: [`pkgs/sim/README.md`](pkgs/sim/README.md).
 
-- **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md`, `docs/GOAL.md`); every other file and every directory is `lower-kebab-case` with a lowercase extension chain (`foo-bar.test.ts`, `icon@2x.png`). Repo-wide docs live in `docs/`; package docs in `<pkg>/docs/` (only `README.md` sits at the package root). Tool-mandated names (`Dockerfile`, `Caddyfile`, `.agents/commands/<command-id>.md`, …) are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`) — extend that list rather than bypassing the gate. CI: `bun run lint:naming` (~50 ms, part of `lint` / `//#check`). Fix: `bun run naming:fix` (dry run) then `--write` — renames the paths and rewrites every import, asset URL, config path and doc link that points at them; review its heuristic / manual-review output.
+- **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md`, `docs/GOAL.md`); every other file and every directory is `lower-kebab-case` with a lowercase extension chain (`foo-bar.test.ts`, `icon@2x.png`). Repo-wide docs live in `docs/`; package docs in `<pkg>/docs/` (only `README.md` sits at the package root). Tool-mandated names (`Dockerfile`, `Caddyfile`, `.agents/commands/<command-id>.md`, …) are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`) — extend that list rather than bypassing the gate. CI: every package's `lint` checks its own paths (`bun run lint:naming` sweeps the whole repo in ~50 ms). Fix: `bun run naming:fix` (dry run) then `--write` — renames the paths and rewrites every import, asset URL, config path and doc link that points at them; review its heuristic / manual-review output.
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree.
 
@@ -53,7 +53,7 @@ Solid components run once; reactivity is tracking, not re-render. Product UI fre
 - **Hooks that expose lists / status return `Accessor`s** (e.g. `friends()`, `isLoading()`), not getter-bags that look like plain values. Destructuring `const { friends } = useFriends()` snapshots forever.
 - **Do not derive UI once at setup** (`const pills = render(props.status)` outside `createMemo` / `<Switch>`). Compute inside a memo or render branch so status changes update the tree.
 - **Pass `Accessor`s into hooks that subscribe** (`useFriendshipStatus(() => props.userId)`), or remount with `<Show when={id} keyed>`. Bare `string` props read at hook setup will not track.
-- Lint: `eslint.config.mjs` full Solid block on `libs/tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). Run `bun run lint:eslint` (`bun check` / deploy).
+- Lint: `eslint.config.mjs` full Solid block on `libs/tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). Runs inside each package's `lint` (`bun check` / deploy).
 
 ```
 pkgs/ui/src/
@@ -90,7 +90,7 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. `SIM_FIDELITY` and `POSTGRES_SCHEMA` are hashed globally (`globalEnv`), because they change what the sim and DB tests actually run — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` / `globalEnv` enter the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task, with cache-hit-only groups dropped (turbo's `Cached:` line still counts them). Look for `cache miss` in Turbo output.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `actions/cache` persists `.turbo` with **per-job** keys (restore/save via `.github/actions/turbo-cache`, save on failure), and `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. Env that changes a test's verdict is declared in that task's turbo `env` (`SIM_FIDELITY` / fast-check knobs on `test`, plus `SIM_MODE` / `SIM_WITH_DOM` / `SIM_REPORT` on `test:e2e`) — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` enters the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task, with cache-hit-only groups dropped (turbo's `Cached:` line still counts them). Look for `cache miss` in Turbo output.
 
 **Checks are time-limited at every layer, and the limits are enforced.**
 Nothing in the gate may run unbounded:
@@ -120,51 +120,81 @@ overrides the wall clock for a single run; there is no "off".
 
 **Keep the gate fast; it is measured every run.** `turbo-ci-run` prints the
 ten slowest tasks that executed, so the CI log always says where the time
-went. Two things that were quietly expensive and are worth not
-reintroducing: `check:bundle-budget` compressed every chunk with brotli at
-quality 11 for figures `perf-budget.json` only *reports* (gzip is what it
-enforces) — 146s a run, now 1.8s at quality 5 for the report-only numbers,
-with full quality kept for any metric actually enforced; and root lint runs
-42 Grit plugins over every file, which is most of Biome's cost, so PR runs
-lint the diff instead (see below).
+went. `check:bundle-budget` once compressed every chunk with brotli at quality
+11 for figures `perf-budget.json` only *reports* (gzip is what it enforces) —
+146s a run, now 1.8s at quality 5; do not reintroduce that.
 
-**PR checks run only what changed.** `pr.yml` sets `TURBO_AFFECTED_BASE` to
-the PR base, so the gate runs the packages the PR touched plus everything that
-depends on them, and every root task. A change outside `apps/` `libs/` `pkgs/`
-— `bun.lock`, root `package.json` / `turbo.json` / `biome.json`, a workflow —
-lives in no package, so `turbo-ci-run` falls back to the full gate for it
-(`pathForcingFullGate`); otherwise a dependency bump would skip every test.
-`deploy.yml` always runs the full gate. The root lint tasks use the same
-signal: `turbo-ci-run` exports `CHECK_CHANGED_SINCE`, and
-[`lint-changed.ts`](libs/tools/scripts/lint-changed.ts) lints just those files
-(4008 files in 219s versus 316 in 17s on a wide branch), falling back to the
-whole repo whenever `biome.json`, a Grit plugin, `eslint.config.mjs` or the
-Solid scope map changed, because those change what linting means. The variable
-is declared in each task's turbo `env`, so a changed-only result can never be
-served to a run that asked for the full sweep. The product sim suites run through
+**Every check is a cached, per-package task.** The gate's speed comes from the
+cache, not from guessing what changed: there is no affected filter and no
+changed-files lint. A package's checks live in its own tasks — `tc`, `lint`,
+`test`, `test:contract`, `test:e2e` — and each hashes the package's whole
+tracked tree (`$TURBO_DEFAULT$`) plus, through `dependsOn: ["tc"]` → `^tc`,
+every package it depends on. An unchanged package is a cache hit on every
+machine that shares the remote cache, and a change reruns exactly its package
+and its dependents. `turbo-deploy-graph.test.ts` fails the build if any task
+`bun check` can reach is `cache: false`, or if a package check task enumerates
+its inputs instead of hashing the whole package (that is how a fixture or a
+`tests/` tsconfig include falls out of the hash and a stale pass is served).
+Rules that follow from it:
+
+- **A package check reads only its own package and what it declares.** A test
+  that scans other packages' files (a repo-wide grep, a naming sweep) is
+  unsound under per-package caching — it passes from cache after the file it
+  scans changed. Put a per-file rule in a Biome Grit plugin (it then runs in
+  every package's `lint`), a per-package rule in
+  [`lint-package.ts`](libs/tools/scripts/lint-package.ts), and declare a
+  fixture package as a dependency.
+- **`lint` is one script for every package**
+  ([`lint-package.ts`](libs/tools/scripts/lint-package.ts)): path naming,
+  Biome, the Solid ESLint scope, depcruise, the package-boundary rules and the
+  `docs/GOAL.md` proofs that live in the package — all over that package's
+  files, run from the repo root so they resolve the one root config. It
+  depends on `tc` because type-aware rules read upstream types. Type-aware
+  ESLint builds its program from the package's own tsconfig
+  (`ESLINT_PACKAGE_TSCONFIG`), not the root IDE mega-project — 2s instead of
+  17s a package — so every file in the Solid scope must be in that tsconfig's
+  `include`.
+  `//#lint:root` covers paths in no package (root config, editor and agent
+  settings).
+- **`tc` is incremental** (`--incremental`, `.cache/tc.tsbuildinfo`,
+  gitignored so it never enters a hash): on a cache miss tsc re-checks what
+  changed rather than the package's whole graph — `@apps/product#tc` goes from
+  21s to 12s after a leaf edit.
+- **Root `//#` leaves are only for subjects that belong to no package**
+  (lockfile audit, syncpack, the i18n catalog, agent-command projections, goal
+  bookkeeping), each with explicit inputs. Explicit input globs do **not**
+  honour `.gitignore` — a bare `**` hashes `.turbo/` run logs and never hits
+  cache — so a root task that reads broadly uses `$TURBO_DEFAULT$` with
+  negations, and reaches into a package through `dependsOn` on its `tc`.
+- **Nondeterministic inputs become cache keys.** Platform (`test:contract`,
+  via `turbo-platform-key.json`), the secrets fingerprint (`@libs/secrets#check`)
+  and the commits under scan (`@libs/tools#check:static`, via `CHECK_GIT_HEAD`)
+  are exported by `turbo-ci-run` and declared in the task's `env` / `inputs`.
+
+**Feature work should rerun little, so keep the graph narrow.** A package's
+declared dependencies are its blast radius: a change reruns every dependent's
+`tc` / `lint` / `test`. Prefer small packages, depend on `public/` ports rather
+than whole features, and never let a shell or `pkgs/` package name a feature.
+The widest task is `@apps/product#test:e2e` (the full-composition sims), which
+depends on everything; per-feature e2e belongs in the feature's own
+`test:e2e` (see [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)).
+The product sims run through
 [`apps/product/scripts/run-sim-tests.ts`](apps/product/scripts/run-sim-tests.ts),
 which groups them by how many products each boots (`openSim` calls), caps a
 group at `MAX_BOOTS_PER_GROUP`, and feeds the groups to a pool with a hard
 `SIM_TEST_BATCH_TIMEOUT_SECONDS` per group. Both extremes are slower: one
 process per file pays a seconds-long startup 46 times, and one process per core
 concentrates the heaviest suites until a process that has booted 25 products
-crawls. All 46 in a single process is 149s and 873 MB, so memory is not the
-constraint — an earlier version of this file claimed a cross-suite leak made
-one process impossible, on the evidence of a run that hit 3.8 GB and never
-finished. That was a scenario livelock spinning and allocating, since fixed;
-the claim was wrong. The `test:<feature>` scripts are per-feature entry points
-over the same runner; `@apps/product#check:test-slices` keeps them
-collectively complete.
+crawls. Run a subset with `bun run --filter @apps/product test:e2e tests/chess-*.test.tsx`.
 
 **A green `bun check` must mean a green PR check.** The gate is only worth
 running if the two agree, so a check leaf's **verdict** may not depend on which
 machine runs it. Do not branch on `CI` / `GITHUB_ACTIONS` to decide pass, fail
-or skip — `scripts/check-*.ts` may not read them at all, and
-`libs/tools/scripts/check-env-parity.test.ts` fails the build on any that do
-(reporting-only reads are named there with the reason they cannot change a
-verdict). Adapting *resources* is fine and stays explicit: concurrency, log
+or skip — `scripts/check-*.ts` may not read them at all, and the
+`no-ci-verdict.grit` Biome rule fails `lint` on any that do (reporting-only
+reads are exempted by path in `biome.json`, with the reason beside the read). Adapting *resources* is fine and stays explicit: concurrency, log
 order and the `SLOW_RUNNER_MULTIPLIER` budget correction. Two real bugs came
-from getting this wrong: `@libs/billing#billing:check` skipped off CI and
+from getting this wrong: the billing offer check skipped off CI and
 hard-failed on it, so a laptop reported green over a check it never ran, and
 the property harness explored 40 cases in CI against 10 locally off one seed,
 so CI searched 30 cases nobody had run. When a leaf genuinely cannot run
@@ -174,9 +204,9 @@ green.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on Biome + Solid eslint, the ci gates (syncpack / depcruise / audit / i18n), `@apps/client#check:critical-path`, `tc`, `test`, the app builds (`@apps/server#build`, `@apps/room-server#build`), the scoped package `test:contract` leaves, `@libs/billing#billing:check`, `@libs/secrets#check` and `@libs/tools#check:static`. **A `//#check` leaf verifies; it never mutates the outside world.** `billing:check` validates the offer value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. PR CI and the deploy gate run that same set. `//#deploy` is a strict superset — it adds `@apps/server#check:api` (live probe), `@apps/client#check:bundle-budget` (needs the Vite web build; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path + bundle-budget), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@libs/runtime#check:schema-evolution`, `@libs/secrets#check` and `@libs/tools#check:static`. A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. PR CI and the deploy gate run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path test + bundle-budget; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
-**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Uncacheable steps (`cache: false`: check:api, provision, migrate, deploy, smoke, OTA) always re-run.
+**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, provision, migrate, deploy, smoke, OTA) always re-run.
 
 Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Cloudflare R2 (`gamezilla-production`). Provision uses `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to ensure R2 buckets and mint per-env S3 API tokens (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). After renaming Worker secret keys, delete any stale bindings not in the registry once (`wrangler secret bulk` does not remove old names). Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun check` / `bun run deploy` run `@libs/secrets#check` (validates both `dev` and `prd`).
 
@@ -189,12 +219,12 @@ a plan without larger runners):
    named `check` that runs `bun run check` with `SECRETS_ENV=dev` — the same
    `//#check` leaf set as the deploy gate, nothing more. Never split the
    check surface into per-check jobs: assign a new check to `//#check` in
-   `turbo.json`, or add a `ci:*` root task, and it rides along in that one job.
-   `//#deploy` is a strict superset of `//#check` (it adds
-   `@apps/server#check:api`, `@apps/client#check:bundle-budget` and
-   `@apps/server#smoke`, which pulls provision → migrate → room deploy → API
-   deploy → product deploy → billing sync), so it is never listed as a
-   `dependsOn` of another aggregator.
+   `turbo.json` — preferably as a test or lint rule inside the package it is
+   about — and it rides along in that one job. `//#deploy` depends on
+   `//#check` and adds `@apps/server#check:api` and `@apps/server#smoke`
+   (which pulls provision → migrate → room deploy → API deploy → product
+   deploy → billing sync), so it is never listed as a `dependsOn` of another
+   aggregator.
 2. **`main` deploys in two stages.** `.github/workflows/deploy.yml` runs
    `canary-dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
    succeeds, `release-prod` (`SECRETS_ENV=prd bun run deploy`,
@@ -243,7 +273,10 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
 - `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
   branch, plus the merge-method policy: **merge commits only** — squash and
   rebase merges are disabled, so `main` keeps every PR's commit graph and merge
-  base.
+  base. `allow_auto_merge` is on so a **human** can queue a PR to merge once
+  its required checks pass; it is only safe because those checks are required
+  (`github:config:check` reports a protection with none). Agents still never
+  enable it.
 
 Two local layers back it up: `libs/tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
@@ -290,7 +323,7 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 
 ## Local development
 
-**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are standalone HTML artifacts (`bun run test:product:report` → `apps/product/sim-report/index.html`, built by `@pkgs/sim-report` `writeHtmlReport`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
+**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are standalone HTML artifacts (`bun run --filter @apps/product test:report` → `apps/product/sim-report/index.html`, built by `@pkgs/sim-report` `writeHtmlReport`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
 **Highest-fidelity local run** — `bun run stack` runs the whole product in the foreground
 loopback: embedded Postgres, S3rver, Aedes MQTT, a **simulated Google IdP on its own
@@ -299,7 +332,7 @@ instances running the production Worker handler, and a round-robin load
 balancer in front of them (room WebSockets are hashed by topic so a room keeps
 one authority, as a Durable Object does). Every port is OS-assigned and the
 addresses are published to `.cache/localhost-stack/<instance>.json`, so
-several stacks run concurrently. `bun run test:product:localhost` boots one,
+several stacks run concurrently. `bun run --filter @apps/product test:stack` boots one,
 runs the sim suite against it with `SIM_MODE=stack`, and tears it down. See
 [`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md).
 

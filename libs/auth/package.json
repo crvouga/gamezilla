@@ -13,10 +13,12 @@
     ]
   },
   "scripts": {
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/feature": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

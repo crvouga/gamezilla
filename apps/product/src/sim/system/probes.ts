@@ -3,12 +3,12 @@
  * and record the outcome in `probes`, where a read can observe it back.
  */
 
-import type { Client } from '@apps/client/shell/create-client';
 import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
 import {
   captureSystemSnapshot,
   type SystemSnapshotCtx,
 } from '@apps/product/sim/fabric/system-snapshot';
+import type { Client } from '@libs/client-app/shell/create-client';
 import {
   createAuthClientAdapter,
   createInMemoryAuthClientStorage,

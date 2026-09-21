@@ -17,9 +17,9 @@
   },
   "scripts": {
     "build:web": "bun run scripts/build-web-assets.ts",
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "start": "bun --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/register scripts/serve.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload ./tests",
     "web:dev": "vite --config vite.config.mts"
   },

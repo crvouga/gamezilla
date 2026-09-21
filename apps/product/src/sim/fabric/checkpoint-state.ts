@@ -2,9 +2,9 @@
  * Collect / apply checkpoint slices (SQL, rooms, faults, clock).
  */
 
-import type { Client } from '@apps/client/shell/create-client';
-import type { RoomServerApp } from '@apps/room-server/app/create-room-server';
-import { migrateSimClientSqlite } from '@apps/server/sim/migrate-sim-sqlite';
+import type { Client } from '@libs/client-app/shell/create-client';
+import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
+import { migrateSimClientSqlite } from '@libs/runtime/root/sim/migrate-sim-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Clock } from '@pkgs/clock';
 import type { Session } from '@pkgs/sim';
@@ -155,7 +155,7 @@ export async function importCheckpointSql(
   // Lazy: Postgres migration runs against the node pool — never in the web
   // bundle.
   const { migrateSimPostgres } = await import(
-    '@apps/server/sim/migrate-sim-postgres'
+    '@libs/runtime/root/sim/migrate-sim-postgres'
   );
   await migrateSimPostgres({
     sqlClient: ctx.serverHandle.sqlClient,

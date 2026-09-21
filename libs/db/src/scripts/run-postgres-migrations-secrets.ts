@@ -4,7 +4,7 @@
  * Used by sync setup/deploy so schema + publication target the same DB.
  *
  * Retries on transient Postgres errors (deadlock / too many clients) — same
- * policy as `@apps/server/db/migrate`. Dropping sync tables while
+ * policy as `@libs/server-app/db/migrate`. Dropping sync tables while
  * sync holds replication locks commonly surfaces `40P01`.
  */
 

@@ -35,19 +35,6 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/kv-postgres#test:contract': 600,
   '@pkgs/object-store-s3#test:contract': 600,
   '@pkgs/pubsub-emqx#test:contract': 600,
-  // Walks every screen in the product; the widest sim slice by design.
-  '@apps/product#test:explore': 600,
-  '@apps/product#test:walk': 600,
-  /**
-   * A full sweep is 42 Grit plugins over ~4000 files, and the plugins are most
-   * of it: 57s idle on a 12-core laptop, 404s on a loaded one, 832s on CI's
-   * two cores, against 28s with plugins off. PR runs lint the diff instead
-   * (`lint-changed.ts`), so this ceiling only applies when lint config changed
-   * and the whole repo has to be re-checked. The real fix is fewer plugins —
-   * several are near-duplicates (six a11y, two tier-vocabulary, two
-   * must-be-trans) — not a larger number here.
-   */
-  '//#lint:biome': 480,
 };
 
 /**

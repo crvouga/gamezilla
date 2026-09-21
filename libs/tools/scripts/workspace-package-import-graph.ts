@@ -23,7 +23,7 @@ export type PackageName = string;
 /** from -> to -> sample importer paths (relative to repo root) */
 export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
 
-/** Captures the full scoped import (`@apps/server`, `@pkgs/ui-rn`, …). */
+/** Captures the full scoped import (`@libs/server-app`, `@pkgs/ui-rn`, …). */
 export const IMPORT_PATTERN =
   /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs)\/[^/'"\s)]+)/g;
 

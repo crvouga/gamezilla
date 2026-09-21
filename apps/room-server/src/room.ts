@@ -1,9 +1,8 @@
 // @io-wall-ok — Room server Worker composition root (Durable Object isolate).
 
+import { createRoomServerDurableObject } from '@libs/room-app/app/create-room-server-durable-object';
+import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock';
-
-import { createRoomServerDurableObject } from './app/create-room-server-durable-object';
-import type { RoomServerEnv } from './app/room-server-env';
 
 /** DO adapter only uses clock/createId; seed is unused — no random I/O at module load. */
 const env: RoomServerEnv = {

@@ -41,6 +41,8 @@ async function main(): Promise<void> {
       } else {
         failed = true;
         console.warn(`${line} — WARN (expected br or gzip)`);
+        // Reporting only (exempt from no-ci-verdict.grit): an annotation, and
+        // the script exits 0 on every path.
         if (process.env['GITHUB_ACTIONS'] === 'true') {
           console.warn(`::warning::${line}`);
         }

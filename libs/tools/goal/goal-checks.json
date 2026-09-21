@@ -12,8 +12,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/tools/scripts/check-goals.test.ts"
+        "kind": "gate",
+        "path": "libs/tools/scripts/check-goals.ts"
       }
     ]
   },
@@ -32,7 +32,7 @@
     "proofs": [
       {
         "kind": "gate",
-        "path": "libs/tools/scripts/check-no-skipped-tests.ts"
+        "path": "libs/tools/biome-plugins/no-skipped-tests.grit"
       }
     ]
   },
@@ -62,8 +62,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/tools/scripts/check-goals.test.ts"
+        "kind": "gate",
+        "path": "libs/tools/scripts/check-goals.ts"
       }
     ]
   },
