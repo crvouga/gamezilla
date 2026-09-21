@@ -17,6 +17,8 @@ export type Scheduler = {
   readonly schedule: (task: TaskBody, atMs?: number) => { dispose(): void };
   readonly advance: (ms: number) => Promise<void>;
   readonly waitForIdle: () => Promise<void>;
+  /** Advances the drain made while wall work was still in flight. */
+  readonly starvedAdvances: () => number;
   /** Escape hatch for runtimes / legacy adapters that need the heap API. */
   readonly underlying: VirtualScheduler;
   readonly clock: VirtualClock;
@@ -41,6 +43,7 @@ export function createVirtualScheduler(
     virtual: true,
     clock: opts.clock,
     underlying,
+    starvedAdvances: () => underlying.starvedAdvances(),
     schedule(task, atMs) {
       const handle = { disposed: false };
       const run = () => {

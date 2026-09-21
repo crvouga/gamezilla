@@ -63,6 +63,7 @@ export async function pollUntil<T>(
 ): Promise<T> {
   const stepMs = opts.stepMs ?? DEFAULT_STEP_MS;
   let waited = 0;
+  let granted = 0;
   for (;;) {
     const found = await probe();
     if (found !== null) return found;
@@ -71,8 +72,19 @@ export async function pollUntil<T>(
         `Timed out after ${String(opts.maxMs)}ms waiting for ${opts.description}`
       );
     }
+    // A poll the scheduler spent running ahead of unfinished wall work moved
+    // the clock without moving the simulation, so it does not spend the
+    // budget. Capped, so a genuinely stuck wait still ends.
+    const starvedBefore = s.session.scheduler.starvedAdvances();
     await s.session.advanceTime(stepMs);
     await s.session.waitForIdle();
+    if (
+      s.session.scheduler.starvedAdvances() > starvedBefore &&
+      granted < opts.maxMs
+    ) {
+      granted += stepMs;
+      continue;
+    }
     waited += stepMs;
   }
 }
