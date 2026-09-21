@@ -29,15 +29,33 @@ export function e2ePackageDirs(): string[] {
   return dirs.sort();
 }
 
-/** Run each package's `test:e2e` with `env`; the first failure's code, else 0. */
+/**
+ * Run `test:e2e` with `env` in every package, or — when `args` name
+ * repo-relative spec paths (`libs/chess/tests/e2e/puzzle-play.test.tsx`) —
+ * only in the packages that own them, each given its own paths. Flags pass to
+ * every run. The first failure's code, else 0.
+ */
 export function runE2ePackages(
   env: NodeJS.ProcessEnv,
-  testArgs: readonly string[]
+  args: readonly string[]
 ): number {
+  const dirs = e2ePackageDirs();
+  const paths = args.filter((arg) => /\.test\.[cm]?[jt]sx?$/.test(arg));
+  const flags = args.filter((arg) => !paths.includes(arg));
+  const runs = new Map<string, string[]>();
+  for (const path of paths) {
+    const dir = dirs.find((d) => path.startsWith(`${d}/`));
+    if (dir === undefined) {
+      process.stderr.write(`[e2e] no e2e package owns ${path}\n`);
+      return 1;
+    }
+    runs.set(dir, [...(runs.get(dir) ?? []), path.slice(dir.length + 1)]);
+  }
+  if (paths.length === 0) for (const dir of dirs) runs.set(dir, []);
   let code = 0;
-  for (const dir of e2ePackageDirs()) {
+  for (const [dir, own] of runs) {
     process.stdout.write(`\n[e2e] ${dir}\n`);
-    const result = spawnSync('bun', ['run', 'test:e2e', ...testArgs], {
+    const result = spawnSync('bun', ['run', 'test:e2e', ...flags, ...own], {
       cwd: join(REPO_ROOT, dir),
       stdio: 'inherit',
       env,

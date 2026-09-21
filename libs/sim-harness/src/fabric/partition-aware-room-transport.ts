@@ -66,7 +66,16 @@ export function partitionAwareRoomTransport(args: {
       drop();
       return;
     }
-    if (inner === null) void Promise.resolve(attach().connect());
+    if (inner !== null) return;
+    const next = attach();
+    // A reconnect that fails leaves no connection behind, so the next
+    // heartbeat tries again — the actor is not stranded offline.
+    Promise.resolve(next.connect()).catch(() => {
+      if (inner === next) {
+        inner = null;
+        next.destroy();
+      }
+    });
   };
 
   return {

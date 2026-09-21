@@ -20,7 +20,7 @@ import { parseStackOptions } from './localhost-stack/stack-options';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
 const argv = process.argv.slice(2);
-const testPaths = argv.filter((arg) => !arg.startsWith('--'));
+const testPaths = argv.filter((arg) => /\.test\.[cm]?[jt]sx?$/.test(arg));
 
 // Tests drive live browsers: the web app must not hot-reload under them, and
 // the scenarios read the app's test-only probes.

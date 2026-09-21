@@ -140,6 +140,36 @@ describe('partition-aware room transport', () => {
     expect(t.server.live.size).toBe(1);
   });
 
+  test('a reconnect that fails is retried on the next heartbeat', async () => {
+    const server: FakeServer = { live: new Set(), received: [] };
+    const timers = manualTimers();
+    let reachable = true;
+    let opened = 0;
+    const transport = partitionAwareRoomTransport({
+      open: () => {
+        opened += 1;
+        const conn = fakeConnection(server, opened);
+        // The first reconnect (connection #2) is refused by the host.
+        return opened === 2
+          ? { ...conn, connect: () => Promise.reject(new Error('refused')) }
+          : conn;
+      },
+      reachable: () => reachable,
+      timers,
+    });
+    await transport.connect();
+    reachable = false;
+    timers.advance(ROOM_HEARTBEAT_MS);
+    reachable = true;
+    timers.advance(ROOM_HEARTBEAT_MS);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(server.live.size).toBe(0);
+    timers.advance(ROOM_HEARTBEAT_MS);
+    expect(server.live.size).toBe(1);
+    expect(transport.isConnected).toBe(true);
+  });
+
   test('destroy leaves the room and stops the heartbeat', async () => {
     const t = setup();
     await t.transport.connect();
