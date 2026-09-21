@@ -27,6 +27,7 @@
     "hono": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/clock": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

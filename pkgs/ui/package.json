@@ -48,6 +48,7 @@
     "@solidjs/testing-library": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"

@@ -10,7 +10,7 @@
     "includes": [
       "**",
       "!.github/workflows",
-      "!**/node_modules",
+      "!!**/node_modules",
       "!!**/dist",
       "!!**/.wrangler",
       "!!**/.turbo",
@@ -108,7 +108,8 @@
           "options": {
             "ignoreRestSiblings": true
           }
-        }
+        },
+        "noUndeclaredDependencies": "error"
       },
       "nursery": {
         "noExcessiveNestedCallbacks": {
@@ -167,14 +168,14 @@
         "noDoubleEquals": "error",
         "noExplicitAny": "error",
         "noFocusedTests": "error",
-        "noVar": "error"
+        "noVar": "error",
+        "noImportCycles": "error"
       }
     },
     "domains": {
       "react": "none",
       "test": "none",
-      "types": "none",
-      "project": "none"
+      "types": "none"
     }
   },
   "plugins": [
@@ -190,7 +191,8 @@
         "**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -211,7 +213,8 @@
         "**/pkgs/llm/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -232,7 +235,8 @@
         "**/pkgs/llm/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -254,7 +258,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -265,7 +270,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -321,7 +327,8 @@
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -329,7 +336,8 @@
       "includes": [
         "**/apps/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -351,7 +359,8 @@
         "!**/libs/secrets/src/shared/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -368,7 +377,7 @@
         "!**/pkgs/permissions/**",
         "!**/libs/billing/**",
         "!**/pkgs/billing*/**",
-        "!**/apps/product/src/sim/system/billing-*.ts",
+        "!**/libs/billing/src/sim/**",
         "!**/apps/product/tests/billing-*.test.tsx"
       ]
     },
@@ -386,7 +395,7 @@
         "!**/pkgs/permissions/**",
         "!**/libs/billing/**",
         "!**/pkgs/billing*/**",
-        "!**/apps/product/src/sim/system/billing-*.ts",
+        "!**/libs/billing/src/sim/**",
         "!**/apps/product/tests/billing-*.test.tsx"
       ]
     },
@@ -424,22 +433,6 @@
       ]
     },
     {
-      "path": "./libs/tools/biome-plugins/no-pg-connect-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}",
-        "!**/libs/runtime/src/root/server/migrate.ts",
-        "!**/libs/server-app/src/db/open-request-db-postgres.ts",
-        "!**/libs/db/src/scripts/wipe-dev-db.ts",
-        "!**/apps/server/scripts/run-local-postgres-migrate.ts",
-        "!**/apps/server/scripts/run-local-postgres-seed.ts",
-        "!**/libs/chess/src/root/server/seed-chess-puzzles/chess-puzzle-seeder.ts",
-        "!**/libs/chess/src/root/server/seed-chess-puzzles/export-chess-puzzles-load.ts",
-        "!**/libs/secrets/src/shared/secrets/db-url.ts"
-      ]
-    },
-    {
       "path": "./libs/tools/biome-plugins/no-pubsub-emqx-imports.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",
@@ -447,15 +440,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/pkgs/pubsub-emqx/**",
         "!**/libs/server-app/src/sync/**",
-        "!**/libs/client-app/src/sync/**"
-      ]
-    },
-    {
-      "path": "./libs/tools/biome-plugins/no-clerk-imports.grit",
-      "includes": [
-        "**/apps/**/*.{ts,tsx}",
-        "**/libs/**/*.{ts,tsx}",
-        "**/pkgs/**/*.{ts,tsx}"
+        "!**/libs/client-app/src/sync/**",
+        "!**/libs/pubsub/src/root/server/**"
       ]
     },
     {
@@ -465,7 +451,8 @@
         "**/libs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -479,7 +466,8 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -514,7 +502,8 @@
         "!**/pkgs/polyfill/src/crypto.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -575,7 +564,8 @@
         "!**/cf-dns.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -644,7 +634,8 @@
         "!**/sql-host-entry.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -653,7 +644,6 @@
         "**/apps/**/*.{tsx}",
         "**/libs/**/*.{tsx}",
         "**/pkgs/**/*.{tsx}",
-        "**/apps/product/tests/**/*.{tsx}",
         "!**/libs/client-app/src/providers/root-error-boundary.tsx",
         "!**/libs/client-app/src/i18n/i18n-provider.tsx",
         "!**/libs/client-app/src/exemplars/virtualized-list.tsx",
@@ -666,7 +656,8 @@
         "!**/serialize-host-tree-html*",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -676,12 +667,9 @@
     {
       "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
-        "**/apps/product/tests/**/*.{ts,tsx}",
-        "**/apps/product/src/test/fixtures/**/*.{ts,tsx}",
-        "**/apps/product/src/test/snapshots/**/*.{ts,tsx}",
-        "!**/tests/**",
-        "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "**/libs/sim-harness/src/open-sim/**/*.{ts,tsx}",
+        "**/libs/*/tests/e2e/support/**/*.{ts,tsx}",
+        "**/apps/product/tests/support/**/*.{ts,tsx}"
       ]
     },
     {
@@ -726,7 +714,8 @@
         "!**/build/**",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
-        "!**/src/sim/**"
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**"
       ]
     },
     {
@@ -740,6 +729,213 @@
     {
       "path": "./libs/tools/biome-plugins/no-skipped-tests.grit",
       "includes": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-no-ui-framework.grit",
+      "includes": [
+        "**/libs/chess/src/shared/puzzle-session/**/*.{ts,tsx}",
+        "**/pkgs/assert-crash-browser/src/**/*.{ts,tsx}",
+        "**/pkgs/assert-crash-node/src/**/*.{ts,tsx}",
+        "**/pkgs/assert/src/**/*.{ts,tsx}",
+        "**/pkgs/async-local/src/**/*.{ts,tsx}",
+        "**/pkgs/attribute/src/**/*.{ts,tsx}",
+        "**/pkgs/auth-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-stripe/src/**/*.{ts,tsx}",
+        "**/pkgs/billing/src/**/*.{ts,tsx}",
+        "**/pkgs/browser/src/**/*.{ts,tsx}",
+        "**/pkgs/chess-board-core/src/**/*.{ts,tsx}",
+        "**/pkgs/collab/src/**/*.{ts,tsx}",
+        "**/pkgs/colors/src/**/*.{ts,tsx}",
+        "**/pkgs/database-url-policy/src/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes-postgres/src/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes-sqlite/src/**/*.{ts,tsx}",
+        "**/pkgs/db-indexes/src/**/*.{ts,tsx}",
+        "**/pkgs/db-migrate/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-postgres/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema-sqlite/src/**/*.{ts,tsx}",
+        "**/pkgs/db-schema/src/**/*.{ts,tsx}",
+        "**/pkgs/device/src/**/*.{ts,tsx}",
+        "**/pkgs/distributed-lock/src/**/*.{ts,tsx}",
+        "**/pkgs/emqx-server/src/**/*.{ts,tsx}",
+        "**/pkgs/entity-store/src/**/*.{ts,tsx}",
+        "**/pkgs/equal/src/**/*.{ts,tsx}",
+        "**/pkgs/git/src/**/*.{ts,tsx}",
+        "**/pkgs/i18n/src/**/*.{ts,tsx}",
+        "**/pkgs/invariants/src/**/*.{ts,tsx}",
+        "**/pkgs/jingle/src/**/*.{ts,tsx}",
+        "**/pkgs/keyword/src/**/*.{ts,tsx}",
+        "**/pkgs/kv-postgres/src/**/*.{ts,tsx}",
+        "**/pkgs/kv-web/src/**/*.{ts,tsx}",
+        "**/pkgs/llm-openai/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking-sql/src/**/*.{ts,tsx}",
+        "**/pkgs/matchmaking/src/**/*.{ts,tsx}",
+        "**/pkgs/message/src/**/*.{ts,tsx}",
+        "**/pkgs/s3-server/src/**/*.{ts,tsx}",
+        "**/pkgs/ndjson/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-node-fs/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-opfs/src/**/*.{ts,tsx}",
+        "**/pkgs/object-store-s3/src/**/*.{ts,tsx}",
+        "**/pkgs/observability-impl-local-file/src/**/*.{ts,tsx}",
+        "**/pkgs/os/src/**/*.{ts,tsx}",
+        "**/pkgs/outbox/src/**/*.{ts,tsx}",
+        "**/pkgs/permissions/src/**/*.{ts,tsx}",
+        "**/pkgs/postgres-embedded/src/**/*.{ts,tsx}",
+        "**/pkgs/postgres-sqlite-compat/src/**/*.{ts,tsx}",
+        "**/pkgs/pubsub-emqx/src/**/*.{ts,tsx}",
+        "**/pkgs/pubsub/src/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-durable-object/src/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-memory/src/**/*.{ts,tsx}",
+        "**/pkgs/room-adapter-web/src/**/*.{ts,tsx}",
+        "**/pkgs/room-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-provider/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-store/src/**/*.{ts,tsx}",
+        "**/pkgs/secret-string/src/**/*.{ts,tsx}",
+        "**/pkgs/secrets-config/src/**/*.{ts,tsx}",
+        "**/pkgs/secure-storage-web/src/**/*.{ts,tsx}",
+        "**/pkgs/sim/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-cli/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-postgres/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-client-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/sql-map/src/**/*.{ts,tsx}",
+        "**/pkgs/sql/src/**/*.{ts,tsx}",
+        "**/pkgs/static-file-server/src/**/*.{ts,tsx}",
+        "**/pkgs/task-dag/src/**/*.{ts,tsx}",
+        "**/pkgs/ts-reset/src/**/*.{ts,tsx}",
+        "**/pkgs/tts-elevenlabs/src/**/*.{ts,tsx}",
+        "**/pkgs/ui-testing-bun-webview/src/**/*.{ts,tsx}",
+        "**/pkgs/vite-workspace-resolver/src/**/*.{ts,tsx}",
+        "**/pkgs/async/src/async-runner.ts",
+        "**/pkgs/clock/src/sim-clock.ts",
+        "**/pkgs/clock/src/types.ts",
+        "**/pkgs/clock/src/wall.ts",
+        "**/pkgs/http-client/src/origin-availability.ts",
+        "**/pkgs/http-client/src/types.ts",
+        "**/pkgs/kv/src/interface.ts",
+        "**/pkgs/kv/src/kv-state-codec.ts",
+        "**/pkgs/object-store/src/interface.ts",
+        "**/pkgs/observability/src/client/create-client-observability.ts",
+        "**/pkgs/secure-storage/src/interface.ts",
+        "**/pkgs/secure-storage/src/secure-storage-store.ts",
+        "**/pkgs/sounds/src/audio-playback/in-memory-audio-playback-port.ts",
+        "**/pkgs/sounds/src/audio-playback/ports.ts",
+        "**/pkgs/sounds/src/audio-playback/web-audio-playback-port.ts",
+        "**/pkgs/sounds/src/safe-audio-play.ts",
+        "**/pkgs/sounds/src/sound-engine.ts",
+        "**/pkgs/sql-client/src/interface.ts",
+        "**/pkgs/tts/src/client/tts-player-controller.ts",
+        "!**/solid.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-no-test-from-prod.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-shared-pure.grit",
+      "includes": [
+        "**/src/shared/**/*.{ts,tsx}",
+        "**/use-cases/*/shared/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-client-not-server.grit",
+      "includes": [
+        "**/client/**/*.{ts,tsx}",
+        "**/apps/client/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-server-not-client.grit",
+      "includes": ["**/server/**/*.{ts,tsx}", "**/apps/server/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-assistant-internal.grit",
+      "includes": ["**/*.{ts,tsx}", "!**/pkgs/assistant/**"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-pkgs-tier.grit",
+      "includes": ["**/pkgs/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-libs-tier.grit",
+      "includes": ["**/libs/**/*.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-shared-no-wall-io.grit",
+      "includes": [
+        "**/libs/*/src/shared/**/*.{ts,tsx}",
+        "**/libs/*/src/use-cases/*/shared/**/*.{ts,tsx}",
+        "**/pkgs/room/src/client/core/**/*.{ts,tsx}",
+        "**/pkgs/room/src/server/core/**/*.{ts,tsx}",
+        "**/pkgs/room/src/types.ts",
+        "**/pkgs/room/src/hash-room-state.ts",
+        "!**/libs/db/**",
+        "!**/libs/secrets/**",
+        "!**/libs/pubsub/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-product-no-sim.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**",
+        "!**/apps/product/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-sim-seam.grit",
+      "includes": [
+        "**/*.{ts,tsx}",
+        "!**/src/sim/**",
+        "!**/libs/sim-harness/src/**",
+        "!**/apps/product/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-sim-internals.grit",
+      "includes": ["**/*.{ts,tsx}", "!**/pkgs/sim/**"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-sim-core-no-fast-check.grit",
+      "includes": [
+        "**/pkgs/sim/src/**/*.{ts,tsx}",
+        "!**/pkgs/sim/src/fast-check/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-switch-in-component.grit",
+      "includes": ["**/*.tsx"]
     }
   ],
   "overrides": [
@@ -903,7 +1099,7 @@
       }
     },
     {
-      "includes": ["apps/product/tests/**"],
+      "includes": ["apps/product/tests/**", "**/libs/*/tests/e2e/**"],
       "linter": {
         "rules": {
           "style": {
@@ -913,13 +1109,13 @@
                 "paths": {
                   "@pkgs/ui-testing": {
                     "importNames": ["Driver"],
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see libs/sim-harness/README.md)."
                   },
                   "@pkgs/ui-testing-solid-dom": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see libs/sim-harness/README.md)."
                   },
                   "@pkgs/ui-testing-bun-webview": {
-                    "message": "Scenarios must use s.apply(defineAction) / openSim (see apps/product/docs/TESTING.md)."
+                    "message": "Scenarios must use s.apply(defineAction) / openSim (see libs/sim-harness/README.md)."
                   }
                 }
               }

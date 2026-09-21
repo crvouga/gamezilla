@@ -12,4 +12,4 @@ the SQL notebook.
 Test reports are **not** browsed here. `@pkgs/sim` captures run timelines
 (`defineSnapshot` / `run({ report })`); `@pkgs/sim-report` renders them to a
 standalone HTML file (`writeHtmlReport`); see
-`apps/product/docs/TESTING.md`.
+`libs/sim-harness/README.md`.

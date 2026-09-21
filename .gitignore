@@ -40,7 +40,7 @@ product/test/.cache/
 pkgs/ui-testing/.cache/
 pkgs/simulation/.cache/
 
-# dependency-cruiser HTML (bun run deps:graph)
+# Package dependency graph HTML (bun run deps:graph)
 tmp/package-deps-graph.html
 
 # Lichess puzzle CSV cache (seed:puzzles)

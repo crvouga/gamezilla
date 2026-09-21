@@ -1,21 +1,26 @@
 language js
 
-or {
-  `type World` as $x where {
-    register_diagnostic(span=$x, message="World types are purged — use a module-private Surface closed over by actions/observations.", severity="error")
-  },
-  `interface World` as $x where {
-    register_diagnostic(span=$x, message="World types are purged — use a module-private Surface closed over by actions/observations.", severity="error")
-  },
-  `class World` as $x where {
-    register_diagnostic(span=$x, message="World types are purged — use a module-private Surface closed over by actions/observations.", severity="error")
-  },
-  `export type $name` as $x where {
-    $name <: r".*World.*",
-    register_diagnostic(span=$x, message="World-named types are purged — rename to Surface / Kit / nodes.", severity="error")
-  },
-  `export function $name` as $x where {
-    $name <: r"open.*World|assembleWorld|buildWorldFacade|bindWorldMethods|registerWorld|unregisterWorld",
-    register_diagnostic(span=$x, message="World facade APIs are purged — use defineSystem + start/Run.", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "World",
+  $body <: contains bubble or {
+    `type World` as $x where {
+      register_diagnostic(span=$x, message="World types are purged — use a module-private Surface closed over by actions/observations.", severity="error")
+    },
+    `interface World` as $x where {
+      register_diagnostic(span=$x, message="World types are purged — use a module-private Surface closed over by actions/observations.", severity="error")
+    },
+    `class World` as $x where {
+      register_diagnostic(span=$x, message="World types are purged — use a module-private Surface closed over by actions/observations.", severity="error")
+    },
+    `export type $name` as $x where {
+      $name <: r".*World.*",
+      register_diagnostic(span=$x, message="World-named types are purged — rename to Surface / Kit / nodes.", severity="error")
+    },
+    `export function $name` as $x where {
+      $name <: r"open.*World|assembleWorld|buildWorldFacade|bindWorldMethods|registerWorld|unregisterWorld",
+      register_diagnostic(span=$x, message="World facade APIs are purged — use defineSystem + start/Run.", severity="error")
+    }
   }
 }

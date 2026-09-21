@@ -37,6 +37,7 @@
     "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
     "chess.js": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"

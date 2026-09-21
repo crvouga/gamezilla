@@ -5,9 +5,9 @@ import {
   PaintbrushIcon,
   RadioIcon,
   ShuffleIcon,
-  type TabStripItem,
   TerminalIcon,
 } from '@pkgs/ui';
+import type { TabStripItem } from '@pkgs/ui-devtools';
 
 import type { DebuggerViewId } from '../shared/debugger-views';
 import {

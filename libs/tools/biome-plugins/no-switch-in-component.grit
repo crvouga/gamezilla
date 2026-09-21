@@ -1,0 +1,14 @@
+language js
+
+// A component body runs once, so a JavaScript `switch` in it only ever sees
+// the setup-time value. Mirrors the old ESLint selector: a switch anywhere
+// inside a PascalCase function declaration, or inside an arrow function bound
+// to a PascalCase const.
+JsSwitchStatement() as $switch where {
+  $switch <: within or {
+    JsFunctionDeclaration(id=r"^[A-Z].*"),
+    JsFunctionExportDefaultDeclaration(id=r"^[A-Z].*"),
+    JsVariableDeclarator(id=r"^[A-Z].*", initializer=JsInitializerClause(expression=JsArrowFunctionExpression()))
+  } ,
+  register_diagnostic(span=$switch, message="Use Solid <Switch>/<Match> for component rendering instead of a JavaScript switch: a component body runs once, so a switch only sees the setup-time value.", severity="error")
+}

@@ -41,7 +41,7 @@ try {
       '--preload',
       '@pkgs/bun-test-solid/preload',
       '--preload',
-      './bun-preload.ts',
+      '@libs/sim-harness/preload',
       '--timeout',
       '120000',
       'tests',

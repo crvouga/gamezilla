@@ -34,7 +34,6 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
-    "@pkgs/secret-store": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",

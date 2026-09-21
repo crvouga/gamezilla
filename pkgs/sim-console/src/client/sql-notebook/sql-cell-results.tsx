@@ -1,10 +1,10 @@
 import { asLocalized } from '@pkgs/i18n';
+import { OverflowMenuButton } from '@pkgs/ui';
 import {
   createMemoryPageLoader,
   DataTable,
   type DataTableColumn,
-  OverflowMenuButton,
-} from '@pkgs/ui';
+} from '@pkgs/ui-devtools';
 import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
 import type { SqlStatementResult } from './run-sql-cell';

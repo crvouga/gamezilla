@@ -142,9 +142,9 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   }
 
   // Static options: read once by design.
-  // eslint-disable-next-line solid/reactivity -- static configuration
+  // oxlint-disable-next-line solid/reactivity -- static configuration
   const mergedFonts: FontStacks = { ...fonts, ...props.fonts };
-  // eslint-disable-next-line solid/reactivity -- static configuration
+  // oxlint-disable-next-line solid/reactivity -- static configuration
   const textCasing = props.textCasing ?? defaultTextCasing;
 
   const tokens: ThemeTokens = {
@@ -158,7 +158,7 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   };
 
   const [host, setHost] = createSignal<HTMLElement>();
-  // eslint-disable-next-line solid/reactivity -- static configuration
+  // oxlint-disable-next-line solid/reactivity -- static configuration
   const layout = createHostLayout(host, props.fixedLayout);
   const breakpoint = createMemo(() => getBreakpoint(layout().width));
   const layoutValue: ThemeLayoutValue = { layout, breakpoint };

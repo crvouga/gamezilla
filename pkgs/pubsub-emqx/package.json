@@ -22,6 +22,7 @@
     "@pkgs/pubsub-mqtt": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/emqx-server": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "mqtt": "catalog:",

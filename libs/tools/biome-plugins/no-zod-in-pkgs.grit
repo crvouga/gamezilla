@@ -1,6 +1,11 @@
 language js
 
-`import $mod from $src` where {
-  $src <: r"^['\"]zod(?:/.*)?['\"]$",
-  register_diagnostic(span=$src, message="@pkgs must not import zod — use Standard Schema (@standard-schema/spec). Author with zod only in libs/apps/tests.", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "zod",
+  $body <: contains bubble `import $mod from $src` where {
+    $src <: r"^['\"]zod(?:/.*)?['\"]$",
+    register_diagnostic(span=$src, message="@pkgs must not import zod — use Standard Schema (@standard-schema/spec). Author with zod only in libs/apps/tests.", severity="error")
+  }
 }

@@ -3,8 +3,10 @@
  * Always mounts {@link GamesBootstrapFromPlugins} so shell chrome that opens
  * space rooms (`SpaceOpenRoomsProvider`, miniplayer) has `SpaceModuleProvider`.
  *
- * Heavy `@libs/games/game-plugins.client` still loads only under `/space/*`
- * (see docs/LOW_END_ANDROID_PERF.md). Empty registries cover non-space routes.
+ * The heavy game-plugin registry is injected by the composition root as a
+ * lazy loader (spaces cannot depend on the games that depend on it) and still
+ * loads only under `/space/*` (see docs/LOW_END_ANDROID_PERF.md). Empty
+ * registries cover non-space routes.
  */
 import {
   GamesBootstrapFromPlugins,
@@ -20,7 +22,13 @@ import {
   Show,
 } from 'solid-js';
 
-type GameRegistry = Pick<GamesBootstrapFromPluginsProps, 'games' | 'clients'>;
+export type GameRegistry = Pick<
+  GamesBootstrapFromPluginsProps,
+  'games' | 'clients'
+>;
+
+/** Lazy loader for the game-plugin registry; call it only on space routes. */
+export type LoadGameRegistry = () => Promise<GameRegistry>;
 
 const EMPTY_REGISTRY: GameRegistry = {
   games: [],
@@ -28,6 +36,7 @@ const EMPTY_REGISTRY: GameRegistry = {
 };
 
 export function AppGamesProvider(props: {
+  readonly loadGameRegistry: LoadGameRegistry;
   readonly children: JSX.Element;
 }): JSX.Element {
   const location = useLocation();
@@ -35,13 +44,9 @@ export function AppGamesProvider(props: {
     location.pathname.startsWith('/space/')
   );
   // Source falsy → resource idle (fetcher not called). Truthy → always load.
-  const [plugins] = createResource(onSpaceRoute, async () => {
-    const mod = await import('@libs/games/game-plugins.client');
-    return {
-      games: mod.GAME_DEFINITIONS,
-      clients: mod.GAME_CLIENT_DEFINITIONS,
-    } satisfies GameRegistry;
-  });
+  const [plugins] = createResource(onSpaceRoute, () =>
+    props.loadGameRegistry()
+  );
 
   // Retain the last successful registry across navigations away from `/space/*`
   // (`createResource` clears when the source goes falsy).

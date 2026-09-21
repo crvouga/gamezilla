@@ -37,17 +37,17 @@ import {
   type SnapshotSessionCtx,
 } from '@apps/product/product-simulator/product-simulator-snapshots';
 import { installProductSimulatorStickyAutosave } from '@apps/product/product-simulator/product-simulator-sticky-autosave';
-import { simActorApp } from '@apps/product/sim/actors/solid-actor-root';
-import { clearProductSimulatorClientDurable } from '@apps/product/sim/fabric/client-durable';
-import type { Sim } from '@apps/product/sim/fabric/create-sim';
-import type { SimBrowser } from '@apps/product/sim/fabric/sim-browser';
-import { simClientNamespace } from '@apps/product/sim/fabric/sim-client-namespace';
+import type { Client } from '@libs/client-app/shell/create-client';
+import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
+import { simActorApp } from '@libs/sim-harness/actors/solid-actor-root';
+import { clearProductSimulatorClientDurable } from '@libs/sim-harness/fabric/client-durable';
+import type { Sim } from '@libs/sim-harness/fabric/create-sim';
+import type { SimBrowser } from '@libs/sim-harness/fabric/sim-browser';
+import { simClientNamespace } from '@libs/sim-harness/fabric/sim-client-namespace';
 import {
   nextSimNodeId,
   normalizeSimNodeId,
-} from '@apps/product/sim/fabric/sim-node-name';
-import type { Client } from '@libs/client-app/shell/create-client';
-import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
+} from '@libs/sim-harness/fabric/sim-node-name';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';

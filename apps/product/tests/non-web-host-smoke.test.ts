@@ -2,11 +2,8 @@
 // compiles and runs from the same product sources without macOS UI execution.
 
 import { describe, expect, test } from 'bun:test';
-import {
-  bunWebviewRuntime,
-  inProcessRuntime,
-  product,
-} from '@apps/product/sim';
+import { bunWebviewRuntime, inProcessRuntime } from '@libs/sim-harness';
+import { product } from '../src/sim/system';
 
 describe('non-web host registration', () => {
   test('bunWebviewRuntime is exported as a function', () => {
@@ -34,7 +31,7 @@ describe('non-web host registration', () => {
 describe('bun-webview host build smoke', () => {
   test('bun-webview.ts compiles for bun target', async () => {
     const build = await Bun.build({
-      entrypoints: ['src/sim/hosts/bun-webview.ts'],
+      entrypoints: ['../../libs/sim-harness/src/hosts/bun-webview.ts'],
       target: 'bun',
       external: ['@apps/*', '@libs/*', '@pkgs/*'],
       outdir: '/tmp',

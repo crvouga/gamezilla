@@ -1,6 +1,4 @@
 import { describe, test } from 'bun:test';
-import { assert } from '@pkgs/assert';
-import { ActionNotEnabled } from '@pkgs/sim';
 import {
   caps,
   clientIds,
@@ -8,8 +6,10 @@ import {
   restoreNetwork,
   signInWithGoogle,
   spawnActor,
-} from '../src/sim';
-import { openSim } from '../src/test/setup/open-sim';
+} from '@libs/sim-harness';
+import { assert } from '@pkgs/assert';
+import { ActionNotEnabled } from '@pkgs/sim';
+import { openSim } from './support/open-product-sim';
 
 describe('topology partition', () => {
   test('partition alice–server then restoreNetwork still allows sign-up', async () => {

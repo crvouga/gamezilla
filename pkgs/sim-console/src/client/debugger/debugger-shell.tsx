@@ -1,4 +1,4 @@
-import { TabStrip, type TabStripItem } from '@pkgs/ui';
+import { TabStrip, type TabStripItem } from '@pkgs/ui-devtools';
 import { type JSX, mergeProps } from 'solid-js';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';

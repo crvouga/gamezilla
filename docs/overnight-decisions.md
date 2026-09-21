@@ -185,7 +185,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   (`plan`, `tier`, `free`, …) are not banned repo-wide (query plans, rename
   plans, UI tiers).
 - **D23 — Where each §34 quota row is proven.** The product sim
-  (`apps/product/tests/chess-puzzle-quota.test.tsx`) drives the real UI for:
+  (`libs/chess/tests/e2e/puzzle-quota.test.tsx`) drives the real UI for:
   one unit charged per start, the limit reached mid-puzzle with the board
   completing, the next start denied (denial surface shown, never charged on
   the server), and sign-in lifting the limit. Advancing ~24 h of virtual time
@@ -285,7 +285,7 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   load file, the Node sim CSV and the 50-row web fixture were all valid and
   are unchanged.
 - **D34 — Ingest scenario shape.** The product sim
-  (`apps/product/tests/chess-puzzle-ingest.test.tsx`) ingests through the
+  (`libs/chess/tests/e2e/puzzle-ingest.test.tsx`) ingests through the
   real load-file seeder against the sim's server database (the streaming
   seed needs a Postgres TCP session and secrets, which the sim does not
   have; both share the validator and deduping insert — D31). The orientation

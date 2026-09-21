@@ -32,7 +32,7 @@ export const MAX_FORMULAS_PER_PARTICIPANT = 8;
 /**
  * Caller-supplied per-row payload bundle. Threaded into
  * `Matchmaker.insertJoin` as one object so the function signature
- * stays narrow enough for ESLint's `max-params` cap and so adding a
+ * stays narrow enough for Biome's `useMaxParams` cap and so adding a
  * future field doesn't ripple through every caller.
  *
  * @internal

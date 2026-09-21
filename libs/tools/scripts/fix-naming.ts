@@ -4,7 +4,7 @@
  * Naming codemod: renames every path that breaks the naming convention
  * (`libs/tools/naming/naming-rules.ts`) and rewrites everything that points at
  * it — relative / workspace-alias imports, `new URL(...)` assets, package.json
- * scripts, turbo / biome / depcruise config paths, and Markdown links.
+ * scripts, turbo / biome config paths, and Markdown links.
  *
  *   bun run naming:fix                     # dry run: plan + edits, nothing touched
  *   bun run naming:fix --write             # apply

@@ -12,8 +12,8 @@ import {
   openSettings,
   spawnActor,
   tabsVisible,
-} from '../src/sim';
-import { openSim } from '../src/test/setup/open-sim';
+} from '@libs/sim-harness';
+import { openSim } from './support/open-product-sim';
 
 describe('shell boot', () => {
   test('two actors boot into the tab shell, open Settings, switch focus', async () => {

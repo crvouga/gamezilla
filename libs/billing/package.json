@@ -10,6 +10,10 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
@@ -17,15 +21,19 @@
     "build:mock-billing": "bun run scripts/build-mock-billing.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --preload @libs/sim-harness/preload --timeout 90000 --parallel tests/e2e"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
-    "@libs/client-config": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/server-app": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
+    "@libs/test-ids": "workspace:*",
+    "@lingui/solid": "catalog:",
+    "@pkgs/assert": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
@@ -33,6 +41,7 @@
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -46,6 +55,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

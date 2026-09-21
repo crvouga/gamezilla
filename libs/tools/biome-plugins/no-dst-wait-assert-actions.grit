@@ -1,40 +1,61 @@
 language js
 
-or {
-  `s.apply(settle)` as $x where {
-    register_diagnostic(span=$x, message="settle is not an action — use run.until(quiet).", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+// Each snippet is tried only against its own node kind, not every node.
+file($body) where {
+  $body <: or {
+    includes "settle",
+    includes "converge",
+    includes "assertConverged",
+    includes "waitUntilMatched",
+    includes "waitNeverMatched",
+    includes "uiWait"
   },
-  `s.apply(converge)` as $x where {
-    register_diagnostic(span=$x, message="converge is not an action — use expectConverged(run) or revive + run.until(converged).", severity="error")
-  },
-  `s.apply(assertConverged)` as $x where {
-    register_diagnostic(span=$x, message="assertConverged is not an action — use expectConverged(run) or revive + run.until(converged).", severity="error")
-  },
-  `s.apply(waitUntilMatched)` as $x where {
-    register_diagnostic(span=$x, message="waitUntilMatched is not an action — use run.until(matched).", severity="error")
-  },
-  `s.apply(waitNeverMatched)` as $x where {
-    register_diagnostic(span=$x, message="waitNeverMatched is not an action — use run.never(matched, { forMs }).", severity="error")
-  },
-  `s.apply(uiWait)` as $x where {
-    register_diagnostic(span=$x, message="uiWait is not an action — wait via run.until on UI reads.", severity="error")
-  },
-  `name: 'settle'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named settle — use quiet read + run.until.", severity="error")
-  },
-  `name: 'converge'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named converge — use revive stimulus + converged read.", severity="error")
-  },
-  `name: 'assertConverged'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named assertConverged — use converged read.", severity="error")
-  },
-  `name: 'waitUntilMatched'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named waitUntilMatched — use matched read + run.until.", severity="error")
-  },
-  `name: 'waitNeverMatched'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named waitNeverMatched — use matched read + run.never.", severity="error")
-  },
-  `name: 'uiWait'` as $x where {
-    register_diagnostic(span=$x, message="Do not defineAction named uiWait — use UI reads + run.until.", severity="error")
+  $body <: contains bubble or {
+    JsCallExpression() as $node where {
+      $node <: or {
+        `s.apply(settle)` where {
+          register_diagnostic(span=$node, message="settle is not an action — use run.until(quiet).", severity="error")
+        },
+        `s.apply(converge)` where {
+          register_diagnostic(span=$node, message="converge is not an action — use expectConverged(run) or revive + run.until(converged).", severity="error")
+        },
+        `s.apply(assertConverged)` where {
+          register_diagnostic(span=$node, message="assertConverged is not an action — use expectConverged(run) or revive + run.until(converged).", severity="error")
+        },
+        `s.apply(waitUntilMatched)` where {
+          register_diagnostic(span=$node, message="waitUntilMatched is not an action — use run.until(matched).", severity="error")
+        },
+        `s.apply(waitNeverMatched)` where {
+          register_diagnostic(span=$node, message="waitNeverMatched is not an action — use run.never(matched, { forMs }).", severity="error")
+        },
+        `s.apply(uiWait)` where {
+          register_diagnostic(span=$node, message="uiWait is not an action — wait via run.until on UI reads.", severity="error")
+        }
+      }
+    },
+    JsPropertyObjectMember() as $node where {
+      $node <: or {
+        `name: 'settle'` where {
+          register_diagnostic(span=$node, message="Do not defineAction named settle — use quiet read + run.until.", severity="error")
+        },
+        `name: 'converge'` where {
+          register_diagnostic(span=$node, message="Do not defineAction named converge — use revive stimulus + converged read.", severity="error")
+        },
+        `name: 'assertConverged'` where {
+          register_diagnostic(span=$node, message="Do not defineAction named assertConverged — use converged read.", severity="error")
+        },
+        `name: 'waitUntilMatched'` where {
+          register_diagnostic(span=$node, message="Do not defineAction named waitUntilMatched — use matched read + run.until.", severity="error")
+        },
+        `name: 'waitNeverMatched'` where {
+          register_diagnostic(span=$node, message="Do not defineAction named waitNeverMatched — use matched read + run.never.", severity="error")
+        },
+        `name: 'uiWait'` where {
+          register_diagnostic(span=$node, message="Do not defineAction named uiWait — use UI reads + run.until.", severity="error")
+        }
+      }
+    }
   }
 }

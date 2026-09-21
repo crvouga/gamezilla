@@ -9,16 +9,15 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 
 const PACKAGE_ROOT = join(import.meta.dir, '../..');
-const REPO_ROOT = join(PACKAGE_ROOT, '../..');
 
 /** Every checked-in puzzle fixture CSV the seeders load (§35 job input). */
 const FIXTURE_CSVS = [
   join(PACKAGE_ROOT, 'scripts/fixtures/chess-puzzles.load.csv'),
   join(PACKAGE_ROOT, 'scripts/fixtures/lichess-puzzles-sample.csv'),
-  join(REPO_ROOT, 'apps/product/fixtures/chess-puzzles.sim.csv'),
-  join(REPO_ROOT, 'apps/product/fixtures/chess-puzzles-motifs.sim.csv'),
-  join(REPO_ROOT, 'apps/product/fixtures/chess-puzzles-rating.sim.csv'),
-  join(REPO_ROOT, 'apps/product/fixtures/chess-puzzles-selection.sim.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles.sim.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-motifs.sim.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-rating.sim.csv'),
+  join(PACKAGE_ROOT, 'fixtures/chess-puzzles-selection.sim.csv'),
 ];
 
 const HEADER =

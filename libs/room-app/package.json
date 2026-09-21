@@ -14,19 +14,11 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@libs/db": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/games": "workspace:*",
-    "@libs/runtime": "workspace:*",
-    "@libs/secrets": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/message": "workspace:*",
-    "@pkgs/room": "workspace:*",
-    "@pkgs/room-adapter-durable-object": "workspace:*",
-    "@pkgs/room-adapter-memory": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*"
+    "@pkgs/room-adapter-durable-object": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

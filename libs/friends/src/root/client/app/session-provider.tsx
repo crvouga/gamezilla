@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
  * Friends' session tree: the friend-request notification source, the
- * decision-modal state, and the friend bits that fill profile's slots.
+ * decision-modal state, and the friend bits that fill profile's and search's
+ * slots.
  *
  * Loaded with the sync engine — the notification provider and the profile
  * widgets both read synced rows and run mutations.
@@ -11,17 +12,24 @@ import { NotificationSourceProvider } from '@libs/notifications/public/notificat
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { useCan } from '@libs/permissions/public/use-can';
 import { ProfileScreenSlotsProvider } from '@libs/profile/public/profile-screen-slots';
+import { SearchResultSlotsProvider } from '@libs/search/public/search-result-slots';
+import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
 import { createMemo, type JSX } from 'solid-js';
 
 import { FriendRequestDecisionProvider } from '../../../public/friend-request-decision-state';
 import { createFriendsNotificationProvider } from '../friends-notification-provider';
 import { ProfileFriendsActions } from '../profile-friends-actions';
 import { ProfileFriendsStats } from '../profile-friends-stats';
+import { SearchFriendResultRow } from '../search-friend-result-row';
 import { useFriendsClientDeps } from '../use-friends-client-deps';
 
 const PROFILE_SLOTS = {
   stats: () => <ProfileFriendsStats />,
   actions: () => <ProfileFriendsActions />,
+};
+
+const SEARCH_SLOTS = {
+  userRow: (user: UserSearchResult) => <SearchFriendResultRow user={user} />,
 };
 
 export default function FriendsSession(props: {
@@ -39,7 +47,9 @@ export default function FriendsSession(props: {
           it. */}
       <FriendRequestDecisionProvider>
         <ProfileScreenSlotsProvider value={PROFILE_SLOTS}>
-          {props.children}
+          <SearchResultSlotsProvider value={SEARCH_SLOTS}>
+            {props.children}
+          </SearchResultSlotsProvider>
         </ProfileScreenSlotsProvider>
       </FriendRequestDecisionProvider>
     </NotificationSourceProvider>

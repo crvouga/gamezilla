@@ -1,5 +1,5 @@
 {
-  "$comment": "dirs/files: full Solid ESLint (solid + a11y + type-checked). reactivityDirs: product libs get core reactivity rules. noDestructureDirs: spaces/chess get solid/no-destructure only (Accessor-passing ratchet is a follow-up).",
+  "$comment": "Solid lint scope, read by oxlint.config.mts and lint-package.ts. dirs/files: full Solid oxlint (solid + a11y + type-aware). reactivityDirs: product libs get core reactivity rules. noDestructureDirs: spaces/chess get solid/no-destructure only (Accessor-passing ratchet is a follow-up).",
   "dirs": [
     "libs/client-app/src/chrome",
     "libs/client-app/src/routes",
@@ -17,10 +17,12 @@
     "pkgs/ui-testing-solid-dom/tests",
     "pkgs/ui/src",
     "pkgs/ui/tests",
+    "pkgs/ui-devtools/src",
+    "pkgs/ui-devtools/tests",
     "pkgs/bun-test-solid/src",
     "apps/product/src/sim",
-    "apps/product/src/test",
-    "apps/product/tests"
+    "apps/product/tests",
+    "libs/sim-harness/src"
   ],
   "files": [
     "apps/client/src/main.tsx",

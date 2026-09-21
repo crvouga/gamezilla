@@ -2,7 +2,7 @@
  * ProductSimulator console node adapters (room + pubsub inspect façades).
  */
 
-import type { RoomServerApp } from '@libs/room-app/app/create-room-server';
+import type { SimRoomNode } from '@libs/sim-harness/composition';
 import type { InMemoryBus } from '@pkgs/pubsub/in-memory';
 import type {
   createProductSimulatorLogBuffer,
@@ -12,7 +12,7 @@ import type {
 
 export function makeProductSimulatorRoomNode(
   topic: string,
-  roomNode: RoomServerApp,
+  roomNode: SimRoomNode,
   logs: ReturnType<typeof createProductSimulatorLogBuffer>
 ): ProductSimulatorRoomNode {
   return {

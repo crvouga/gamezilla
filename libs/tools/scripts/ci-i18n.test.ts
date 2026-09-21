@@ -1,39 +1,45 @@
 import { describe, expect, test } from 'bun:test';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
-  catalogIncludeRelPaths,
-  macrosOutsideCatalogInclude,
-  posixUnderInclude,
-} from './ci-i18n';
+  LINGUI_CATALOG_SOURCES,
+  macrosOutsideCatalog,
+  underCatalogSource,
+} from './lingui-scope';
 
-describe('ci-i18n catalog include', () => {
-  test('strips <rootDir>/ from lingui catalog include paths', () => {
-    expect(
-      catalogIncludeRelPaths({
-        catalogs: [{ include: ['<rootDir>/libs', '<rootDir>/pkgs'] }],
-      })
-    ).toEqual(['libs', 'pkgs']);
+const REPO_ROOT = join(import.meta.dirname, '../../..');
+const MACRO = "import { t } from '@lingui/core/macro';";
+
+describe('lingui catalog scope', () => {
+  test('underCatalogSource matches files inside a source dir only', () => {
+    expect(underCatalogSource('libs/spaces/src/root/x.tsx')).toBe(true);
+    expect(underCatalogSource('libs/spaces-extra/src/x.tsx')).toBe(false);
+    expect(underCatalogSource('apps/server/src/api.ts')).toBe(false);
   });
 
-  test('posixUnderInclude matches files inside an include dir', () => {
+  test('macrosOutsideCatalog lists macro files the extractor would skip', () => {
     expect(
-      posixUnderInclude('libs/spaces/src/root/client/spaces-screen.tsx', [
-        'libs',
+      macrosOutsideCatalog([
+        { path: 'libs/spaces/src/root/spaces-screen.tsx', text: MACRO },
+        { path: 'apps/server/src/untranslated.tsx', text: MACRO },
+        { path: 'apps/server/src/plain.ts', text: 'export {};' },
+        { path: 'apps/server/tests/fixture.test.tsx', text: MACRO },
       ])
-    ).toBe(true);
-    expect(
-      posixUnderInclude('apps/server/src/api.ts', ['apps/client/src'])
-    ).toBe(false);
+    ).toEqual(['apps/server/src/untranslated.tsx']);
   });
 
-  test('macrosOutsideCatalogInclude lists files the extractor would skip', () => {
-    expect(
-      macrosOutsideCatalogInclude(
-        [
-          'libs/spaces/src/root/client/spaces-screen.tsx',
-          'apps/server/src/untranslated.tsx',
-        ],
-        ['libs', 'apps/client/src']
-      )
-    ).toEqual(['apps/server/src/untranslated.tsx']);
+  test('turbo hashes exactly the catalog sources for //#ci:i18n', () => {
+    const turbo = JSON.parse(
+      readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
+    ) as {
+      readonly tasks: Record<string, { readonly inputs?: readonly string[] }>;
+    };
+    const inputs = turbo.tasks['//#ci:i18n']?.inputs ?? [];
+    const sources = inputs
+      .filter((input) => input.endsWith('/**/*.{ts,tsx}'))
+      .map((input) => input.slice(0, -'/**/*.{ts,tsx}'.length))
+      .sort();
+    expect(sources).toEqual([...LINGUI_CATALOG_SOURCES].sort());
   });
 });

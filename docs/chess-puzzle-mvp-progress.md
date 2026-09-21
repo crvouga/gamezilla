@@ -47,7 +47,7 @@ Kernel: `@pkgs/permissions` (extended). Policy: `@libs/permissions`. Tests:
 `bun run --filter @pkgs/sync-engine test` (authorize hook),
 `apps/server/tests/mutation-actions-contract.test.ts`,
 `libs/tools/scripts/tier-vocabulary.test.ts`, product sims
-`apps/product/tests/chess-puzzle-quota.test.tsx` (in `test:chess`). Decisions D12–D26.
+`libs/chess/tests/e2e/puzzle-quota.test.tsx` (in `@libs/chess` `test:e2e`). Decisions D12–D26.
 
 - [x] §22.1 One entry point — `can`/`decide`, `consume`/`decideQuota` (`@pkgs/permissions`); client `usePermissions()`, server `authorizeAppMutation` + `requirePermission`
 - [x] §22.1 No tier coupling — Grit rules + grep test (§22.11 rows below)
@@ -95,8 +95,8 @@ validator: `@libs/chess/public/puzzle-data`. Ingest: `root/server/seed-chess-puz
 (`puzzle-ingest.ts`, `fast-path.ts`). Job: `root/server/validate-chess-puzzles/`,
 `bun run --filter @libs/chess validate:puzzles`. Tests:
 `bun run --filter @pkgs/chess-rules test`, `bun run --filter @libs/chess test`
-(`tests/puzzle-data/*`), product sims `apps/product/tests/chess-puzzle-ingest.test.tsx`
-+ `chess-puzzle-fixtures.test.ts` (in `test:chess`). Decisions D27–D34.
+(`tests/puzzle-data/*`), product sims `libs/chess/tests/e2e/puzzle-ingest.test.tsx`
++ `chess-puzzle-fixtures.test.ts` (in `@libs/chess` `test:e2e`). Decisions D27–D34.
 
 - [x] §4 Fields id, fen, moves[] (UCI), rating, ratingDeviation, themes[], plays, popularity, sourceGameUrl, openingTags[] — `Puzzle` (`puzzle-validation.ts`); physical form = existing `chess_puzzles` columns + `position_key` (D27)
 - [x] §4 Lichess convention (FEN before the setup move; user plays moves[1], [3], …; line ends on a user move) — `validatePuzzleFields` (`oddLength` / `tooShort`); `validate-puzzle.test.ts`, seeded property test `validate-puzzle.property.test.ts`
@@ -128,8 +128,8 @@ Room FSM: `libs/chess/src/shared/chess/` (`chess-puzzle-move-judge.ts`,
 `bun run --filter @pkgs/chess-board-core test`,
 `bun run --filter @libs/chess test` (`tests/puzzle-session/move-judge.test.ts`,
 `outcome.test.ts`, `opponent-stager.test.ts`, `action-bar-plan.test.ts`),
-product sims `apps/product/tests/chess-puzzle-solve-flow.test.tsx` +
-`chess-puzzle-solve-session.test.tsx` (both in `test:chess`). Fixtures:
+product sims `libs/chess/tests/e2e/puzzle-solve-flow.test.tsx` +
+`chess-puzzle-solve-session.test.tsx` (both in `@libs/chess` `test:e2e`). Fixtures:
 `apps/product/fixtures/chess-puzzles-motifs.sim.csv` (validated by the §35
 job test). Decisions D36–D48.
 
@@ -175,7 +175,7 @@ Tests: `bun run --filter @pkgs/glicko2 test`,
 `bun run --filter @libs/chess test`
 (`tests/puzzle-session/rating.test.ts`, `rate-puzzle-attempt.test.ts`,
 `completion.test.ts`), product sim
-`apps/product/tests/chess-puzzle-rating.test.tsx` (in `test:chess`).
+`libs/chess/tests/e2e/puzzle-rating.test.tsx` (in `@libs/chess` `test:e2e`).
 Fixture: `apps/product/fixtures/chess-puzzles-rating.sim.csv`. Decisions
 D50–D56, D61, D62.
 
@@ -195,8 +195,8 @@ Kernel: `libs/chess/src/shared/puzzle-session/next-puzzle-selection.ts`
 `use-puzzle-candidates-query.ts`. Tests:
 `bun run --filter @libs/chess test`
 (`tests/puzzle-session/next-puzzle-selection.test.ts`), product sims
-`apps/product/tests/chess-puzzle-selection.test.tsx` and the rewritten
-`chess-puzzle-exhaust.test.tsx` (both in `test:chess`). Fixture:
+`libs/chess/tests/e2e/puzzle-selection.test.tsx` and the rewritten
+`chess-puzzle-exhaust.test.tsx` (both in `@libs/chess` `test:e2e`). Fixture:
 `apps/product/fixtures/chess-puzzles-selection.sim.csv`. Decisions D57–D60,
 D62.
 
@@ -221,7 +221,7 @@ UI: `public/chess-puzzle/chess-puzzle-move-history{,-nav,-ply,-bar}.tsx`,
 `pkgs/ui-testing-solid-dom/tests/dom-keys.test.ts`). Tests:
 `bun run --filter @libs/chess test`
 (`tests/puzzle-session/puzzle-nav.test.ts`, `move-notation.test.ts`), product
-sim `apps/product/tests/chess-puzzle-review.test.tsx` (in `test:chess`).
+sim `libs/chess/tests/e2e/puzzle-review.test.tsx` (in `@libs/chess` `test:e2e`).
 Decisions D64–D68, D70, D71.
 
 - [x] §7 Move list with tappable moves — `ChessPuzzleMoveHistory` + `HistoryPlyChip`; a ply tap seeks in `chess-puzzle-review.test.tsx` ("buttons, the move list and the ends scrub the solved line")
@@ -243,8 +243,8 @@ Verified against the slice 5 Glicko ledger rather than rewritten:
 three P0 figures count the §5 first outcome once per puzzle and ignore
 repeat / unrated attempts (D69). Changed: `ChessPuzzleStatsCards` now carries
 `chess-stats-played` / `-solved` / `-accuracy` test ids so the figures are
-addressable. Test: `apps/product/tests/chess-puzzle-stats-p0.test.tsx` (in
-`test:chess`). Decision D69.
+addressable. Test: `libs/chess/tests/e2e/puzzle-stats-p0.test.tsx` (in
+`@libs/chess` `test:e2e`). Decision D69.
 
 - [x] §15 Current rating — `ChessPuzzleRatingChip` on `chess-stats-screen.tsx` (`chess-stats-elo`); "rating, solved and accuracy are folds of the rating ledger" asserts it equals the server profile row
 - [x] §15 Total solved — `deriveChessPuzzleStats.totalSolved` = ledger rows with outcome `solved`; recomputed from the server ledger in the same scenario, and unmoved by an unrated repeat ("an unrated repeat attempt moves none of the three figures")

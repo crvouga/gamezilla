@@ -218,7 +218,7 @@ Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (af
 |------|------|
 | `bun run lint` | Biome plugins: `no-sync-engine-framework-leak`, `no-sync-engine-terminology`, `no-legacy-writes` |
 | `bun run --filter @pkgs/sync-engine test` | Black-box scenarios + kernel harness |
-| `bun run --filter @pkgs/sync-engine lint` | Import graph / layering (depcruise) |
+| `bun run --filter @pkgs/sync-engine lint` | Import graph / layering (Biome import-boundary rules) |
 
 To update a freeze deliberately: change the surface, run the check once to rewrite the report/hash (or edit the snapshot), and review in PR.
 

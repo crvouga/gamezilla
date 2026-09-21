@@ -4,7 +4,7 @@
 
 - **Never leave deprecated code.** Do not add `@deprecated` markers, deprecated aliases, shim re-exports, or “kept for migration” optional fields. Delete the old API and update all call sites in the same change. Soft-deprecation / compatibility leftovers are banned.
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `apps/product`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createSim` via harness-only `virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry). **`Session` / Runtime are harness-only** — only `@apps/product`, package `src/sim/` systems, and tests hold them; product `ClientEnv` / `ServerEnv` / `RoomServerEnv` receive unpacked `clock` / `timers` / `createId` / `random` / `http`. Never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Inject via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks. Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `libs/tools/biome-plugins/no-bare-io.grit`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` only in `@io-wall-ok` adapters (`wall-node-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `bun run lint`) for bare I/O / FS / wall defaults / hard-determinism. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`docs/DETERMINISM.md`](docs/DETERMINISM.md). **Scenario authoring** lives only in `@pkgs/sim`: packages declare `defineSystem` / `defineAction` / `defineProperty` (topology via `session.fork`; reads are plain functions of `S`; converge is a read + property, restoreNetwork/revive are the stimuli); the framework owns the run via `system.run` / `s.randomActions` / `system.explore` / `system.replay`. Do **not** add package-local World openers / kit DSLs. Kernel mechanics: Runtime/Session, virtual/wall schedulers, network, Recording. **Reporting is first-class in `@pkgs/sim` / `@pkgs/ui-testing` / `@pkgs/sim-report`:** `defineSnapshot` captures frames, `recordingDriver` turns UI ops into steps, `@pkgs/sim-report` `writeHtmlReport` renders one standalone `index.html` (Playwright-style `<sim-report>` web component). No report tabs, report servers, or console report viewers. Fresh-agent guide: [`pkgs/sim/README.md`](pkgs/sim/README.md).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/client`, `apps/server`, `apps/product`, `libs/*`, `pkgs/*`, including scripts) must not call bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random`, or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`), and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createSim` via harness-only `virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry). **`Session` / Runtime are harness-only** — only `@libs/sim-harness`, `@apps/product`, package `src/sim/` systems, and tests hold them; product `ClientEnv` / `ServerEnv` / `RoomServerEnv` receive unpacked `clock` / `timers` / `createId` / `random` / `http`. Never an `Io` bag (`wallIo` / `createSimIo` / `useIo` / `getIo` / `runWithIo`). Inject via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never silent wall fallbacks. Do **not** reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, or `cryptoCreateId` / `mathRandom`. `wallClock` / `wallTimers` / `createGlobalHttpClient()` / `crypto.randomUUID` are allowed only in **test files** or **entry-shaped** files marked `// @io-wall-ok` (`**/scripts/**`, wall adapters, `create-app` / `cli-io` / `polyfill-entry`, and similar process roots — see `libs/tools/biome-plugins/no-bare-io.grit`). **File content I/O goes through `@pkgs/object-store`:** libraries take an injected `ObjectStore` (sidecar layout for blobs, tree layout for source/CI trees). Wall `node:fs` only in `@io-wall-ok` adapters (`wall-node-fs.ts`). Process I/O (`spawn` / `chmod`) stays on `@pkgs/os` — not ObjectStore. **SQL engines must not mint time or ids:** no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')`, or bare SQL `now()` / `gen_random_uuid()` in DML — managed columns and framework timestamps come from injected `now` / `createId` (mutation wrap + store constructors); SQL stubs that must mention engine UUID helpers mark `@io-wall-ok` on an entry-shaped path. CI: Biome plugins under `tools/biome-plugins/` (via `bun run lint`) for bare I/O / FS / wall defaults / hard-determinism. Hard-determinism gotchas (floats, object key order, locale sorts, room `hash(state)`, LWW sync): see [`docs/DETERMINISM.md`](docs/DETERMINISM.md). **Scenario authoring** lives only in `@pkgs/sim`: packages declare `defineSystem` / `defineAction` / `defineProperty` (topology via `session.fork`; reads are plain functions of `S`; converge is a read + property, restoreNetwork/revive are the stimuli); the framework owns the run via `system.run` / `s.randomActions` / `system.explore` / `system.replay`. Do **not** add package-local World openers / kit DSLs. Kernel mechanics: Runtime/Session, virtual/wall schedulers, network, Recording. **Reporting is first-class in `@pkgs/sim` / `@pkgs/ui-testing` / `@pkgs/sim-report`:** `defineSnapshot` captures frames, `recordingDriver` turns UI ops into steps, `@pkgs/sim-report` `writeHtmlReport` renders one standalone `index.html` (Playwright-style `<sim-report>` web component). No report tabs, report servers, or console report viewers. Fresh-agent guide: [`pkgs/sim/README.md`](pkgs/sim/README.md).
 
 - **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md` (`README.md`, `docs/GOAL.md`); every other file and every directory is `lower-kebab-case` with a lowercase extension chain (`foo-bar.test.ts`, `icon@2x.png`). Repo-wide docs live in `docs/`; package docs in `<pkg>/docs/` (only `README.md` sits at the package root). Tool-mandated names (`Dockerfile`, `Caddyfile`, `.agents/commands/<command-id>.md`, …) are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools/naming/naming-rules.ts`) — extend that list rather than bypassing the gate. CI: every package's `lint` checks its own paths (`bun run lint:naming` sweeps the whole repo in ~50 ms). Fix: `bun run naming:fix` (dry run) then `--write` — renames the paths and rewrites every import, asset URL, config path and doc link that points at them; review its heuristic / manual-review output.
 
@@ -53,7 +53,7 @@ Solid components run once; reactivity is tracking, not re-render. Product UI fre
 - **Hooks that expose lists / status return `Accessor`s** (e.g. `friends()`, `isLoading()`), not getter-bags that look like plain values. Destructuring `const { friends } = useFriends()` snapshots forever.
 - **Do not derive UI once at setup** (`const pills = render(props.status)` outside `createMemo` / `<Switch>`). Compute inside a memo or render branch so status changes update the tree.
 - **Pass `Accessor`s into hooks that subscribe** (`useFriendshipStatus(() => props.userId)`), or remount with `<Show when={id} keyed>`. Bare `string` props read at hook setup will not track.
-- Lint: `eslint.config.mjs` full Solid block on `libs/tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). Runs inside each package's `lint` (`bun check` / deploy).
+- Lint: oxlint (`oxlint.config.mts`, eslint-plugin-solid loaded as a JS plugin, type-aware rules through oxlint-tsgolint) runs the full Solid set — typescript strict + stylistic, jsx-a11y strict, every applicable `solid/*` rule — on `libs/tools/port/solid-scope.json` `dirs`/`files`; product libs use `reactivityDirs` (core reactivity rules) and `noDestructureDirs` (spaces/chess — destructure only until Accessor-passing is ratcheted). A JS `switch` in a PascalCase component is banned everywhere by the Biome plugin `no-switch-in-component.grit` (use `<Switch>`/`<Match>`). Suppress with `oxlint-disable-next-line <rule> -- reason`; unused suppressions fail. Runs inside each package's `lint` (`bun check` / deploy).
 
 ```
 pkgs/ui/src/
@@ -103,7 +103,6 @@ Nothing in the gate may run unbounded:
 | PR `check` step | 25 min | `timeout-minutes`, `.github/workflows/pr.yml` |
 | PR `check` job | 30 min | `timeout-minutes`, `.github/workflows/pr.yml` |
 | Deploy jobs | 55 min | `timeout-minutes`, `.github/workflows/deploy.yml` |
-| One sim group | 600 s | `SIM_TEST_BATCH_TIMEOUT_SECONDS` |
 | One task | 300 s (×2 on CI) | `DEFAULT_TASK_BUDGET_SECONDS` |
 
 The run deadlines are **absolute** — never scaled by `SLOW_RUNNER_MULTIPLIER`,
@@ -146,14 +145,14 @@ Rules that follow from it:
   fixture package as a dependency.
 - **`lint` is one script for every package**
   ([`lint-package.ts`](libs/tools/scripts/lint-package.ts)): path naming,
-  Biome, the Solid ESLint scope, depcruise, the package-boundary rules and the
-  `docs/GOAL.md` proofs that live in the package — all over that package's
-  files, run from the repo root so they resolve the one root config. It
+  Biome (including the import-boundary rules), the Solid oxlint scope, the
+  package-boundary rules and the `docs/GOAL.md` proofs that live in the
+  package — all over that package's files, run from the repo root so they
+  resolve the one root config, with Biome and oxlint running concurrently. It
   depends on `tc` because type-aware rules read upstream types. Type-aware
-  ESLint builds its program from the package's own tsconfig
-  (`ESLINT_PACKAGE_TSCONFIG`), not the root IDE mega-project — 2s instead of
-  17s a package — so every file in the Solid scope must be in that tsconfig's
-  `include`.
+  oxlint (oxlint-tsgolint, a Go port of the TypeScript checker) resolves each
+  file's nearest `tsconfig.json`, so every file in the Solid scope must be in
+  one — ~1–1.5s a package where ESLint took up to ~6s.
   `//#lint:root` covers paths in no package (root config, editor and agent
   settings).
 - **`tc` is incremental** (`--incremental`, `.cache/tc.tsbuildinfo`,
@@ -175,17 +174,14 @@ Rules that follow from it:
 declared dependencies are its blast radius: a change reruns every dependent's
 `tc` / `lint` / `test`. Prefer small packages, depend on `public/` ports rather
 than whole features, and never let a shell or `pkgs/` package name a feature.
-The widest task is `@apps/product#test:e2e` (the full-composition sims), which
-depends on everything; per-feature e2e belongs in the feature's own
-`test:e2e` (see [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)).
-The product sims run through
-[`apps/product/scripts/run-sim-tests.ts`](apps/product/scripts/run-sim-tests.ts),
-which groups them by how many products each boots (`openSim` calls), caps a
-group at `MAX_BOOTS_PER_GROUP`, and feeds the groups to a pool with a hard
-`SIM_TEST_BATCH_TIMEOUT_SECONDS` per group. Both extremes are slower: one
-process per file pays a seconds-long startup 46 times, and one process per core
-concentrates the heaviest suites until a process that has booted 25 products
-crawls. Run a subset with `bun run --filter @apps/product test:e2e tests/chess-*.test.tsx`.
+E2e lives with the feature it exercises: `libs/<feature>/tests/e2e/`, run by
+that package's `test:e2e` (`bun test --parallel`, preloading
+`@libs/sim-harness/preload`) against a composition of only the slices it needs
+(`composeSimSlices`, see [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)),
+so a change to a feature it does not compose leaves it cached. The widest task
+is `@apps/product#test:e2e`: the few full-composition sims (smoke, walks,
+cross-feature journeys) that depend on everything, kept small on purpose. Run a
+subset with `bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`.
 
 **A green `bun check` must mean a green PR check.** The gate is only worth
 running if the two agree, so a check leaf's **verdict** may not depend on which
@@ -235,7 +231,7 @@ a plan without larger runners):
    database and `wrangler deploy --dry-run`s all three workers, but serves no
    traffic — prod is still the first environment to receive worker code.
    `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
-   `@libs/db#migrate` / `@libs/secrets#provision` are not dry-run gated.
+   `@libs/runtime#migrate` / `@libs/secrets#provision` are not dry-run gated.
 
 UI tests run in-process, in happy-dom, inside each package's `test` leaf —
 `bun check` drives no real browser. UI suites are written against the
@@ -357,7 +353,7 @@ create-account, refusal); saying "mock" is not licence to make it a toy.
 
 Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ S3rver/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/s3-server`, `@pkgs/aedes-server`, `@pkgs/emqx-server` and are booted from tests/CI (`apps/server/scripts/boot-local-stack.ts`, `apps/server/scripts/boot-embedded-postgres.ts`).
 
-`@apps/product` migrates the mem fabric **once** (`seed:sim-db` → `apps/product/.cache/sim-backend-seed.pgmm.json`) and clones per `openSim`. Suite notes: [`apps/product/docs/TESTING.md`](apps/product/docs/TESTING.md).
+The sim harness (`@libs/sim-harness`) migrates each composition's mem fabric **once** into `<package>/.cache/sim-seed-<composition>.pgmm.json` and clones it per `openSim`. Suite notes: [`libs/sim-harness/README.md`](libs/sim-harness/README.md).
 
 Production (`SECRETS_ENV=prd`) uses Infisical Neon + Cloudflare R2 (+ Railway EMQX) only.
 
@@ -380,7 +376,7 @@ Server SQL migrations are expressed only as `DatabaseMigration` classes (interfa
 
 **Never author `CREATE TABLE` strings** in product or test code — use `defineTable` + `applySqliteSchema` / `applyPostgresSchema` / `*SchemaDatabaseMigration`. The only DDL emitters are `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite` `emit.ts`. Biome grit `no-raw-create-table` enforces this.
 
-Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `defineTable` + register (app-schema for synced domain; package-local schema for infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra shell out to `apps/server/src/db/migrate-cli.ts` (apps must not import other `@apps/*` packages).
+Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema — implement `defineTable` + register (app-schema for synced domain; package-local schema for infra). `@apps/server` owns URL/policy/retry orchestration (`migratePostgresApp` / `migrate-cli.ts`); tests/CI boot `@pkgs/postgres-embedded` then call api migrate/seed scripts. Root `db:migrate` / infra run `libs/runtime/scripts/migrate-cli.ts` (apps must not import other `@apps/*` packages).
 
 ### Database safety (Tiger policy)
 
@@ -446,12 +442,13 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@apps/product` — www super-app (`/` wall client, `/simulator` Simulator), shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered hosts (`in-process`, `bun-webview`), plus the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@apps/product` — www super-app (`/` wall client, `/simulator` Simulator), the full composition (`src/sim/composition.ts`: every feature, the production migrate) and its `product` system (adds the `bun-webview` host), plus the full-composition suites (smoke, walks, cross-feature journeys). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@libs/sim-harness` — the sim fabric (`createSim`, SQL engines, net/fetch, snapshots), hosts (`in-process`, `bun-webview`), `openSim`, and `defineProductSystem` / `composeSimSlices`, generic over a `SimComposition`. A shell: it may not depend on a feature. Features export their slices from `@libs/<feature>/sim/*`; their e2e lives in `libs/<feature>/tests/e2e/` ([`libs/sim-harness/README.md`](libs/sim-harness/README.md)).
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
-- `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`. Every sim host seeds puzzles on boot (Node: `apps/product/fixtures/chess-puzzles.sim.csv`, 3 documented puzzles; web / product-simulator: the inline 50-row fixture in `apps/product/src/sim/setup/`), so `bun run dev` and scenario tests never need a manual seed. Feed config is one shared signal per chess surface (`ChessPuzzleFeedProvider`); the pool syncs per rating band around the effective rating (`chessPuzzlePoolRangesForRating`). Puzzle scenarios: `bun run --filter @apps/product test:chess`.
+- `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`. Every sim that composes chess seeds puzzles on boot (Node: `libs/chess/fixtures/chess-puzzles.sim.csv`, 3 documented puzzles; web / product-simulator: the inline 50-row fixture in `libs/chess/src/sim/`), so `bun run dev` and scenario tests never need a manual seed. Feed config is one shared signal per chess surface (`ChessPuzzleFeedProvider`); the pool syncs per rating band around the effective rating (`chessPuzzlePoolRangesForRating`). Puzzle scenarios: `bun run --filter @libs/chess test:e2e`.
 - `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, observability backend) live here — not in `VITE_*` build-time env (API URL / commit provenance / E2E / Watchman stay build-time env).
 - `@libs/profile` — public profile, dicebear avatar editor, username generator (vertical slices: ensure-local, patch-avatar, ensure-online, set-username).
 - `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts` (lifecycle mutations as vertical slices: create/join/leave/end/rename/set-visibility).
@@ -481,9 +478,11 @@ Each game is its own package modelled after `@libs/chess`. To add `@libs/connect
 7. Wire the client entry in spaces `root/client` games menu so the new game shows up in the games list.
    `apps/server` and `apps/client` themselves do **not** need to be edited beyond the registries above — game packages compose into spaces, and spaces is already wired into the shells.
 
-### Layering rules (enforced by depcruise)
+### Layering rules (enforced by Biome)
 
-**Tier pyramid** — one-way dependencies between tiers, enforced by depcruise rules `pkgs-not-libs`, `pkgs-not-apps`, `libs-not-apps` (path-based; relative-import escape hatch):
+Every layering rule is a Grit plugin, `libs/tools/biome-plugins/import-*.grit`, matched against each import specifier (static, `export … from`, `import()`, `require()`) and scoped by its `includes` in `biome.json`; each has a must-report and a must-allow probe in `libs/tools/scripts/import-boundaries.test.ts`. Biome's own `noImportCycles` bans file-level cycles and `noUndeclaredDependencies` bans importing a package the importer's `package.json` does not declare — load-bearing, since turbo builds its cache graph from `package.json`. (These replaced dependency-cruiser, which had cruised 0 modules per package and so enforced nothing.)
+
+**Tier pyramid** — one-way dependencies between tiers, enforced by `import-pkgs-tier` / `import-libs-tier` (workspace specifiers and the relative-import escape hatch):
 
 ```text
 apps    →  apps, libs, pkgs (cross-app OK e.g. client → server; apps/product is the composition hub and may compose other apps)
@@ -495,7 +494,7 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 **Other layering rules:**
 
-- `@apps/product` composes product apps (sim fabric / hosts, product-simulator, system worlds, test harness). libs/pkgs must not import `@apps/*`.
+- `@apps/product` composes product apps (the full sim composition, product-simulator, full-composition suites). libs/pkgs must not import `@apps/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.
 - **`@apps/server` Hono/runtime source is isomorphic.** Platform engines (`pg`, `node:*`, …) live only behind injected ports (e.g. `OpenSqlClient`) and `@api-wall-ok` adapter/entry modules. Isomorphic files must not import wall modules.
 - `shared/` cannot import from `client/` or `server/` anywhere in the repo (`shared-pure`). Product-lib `shared/` also must not import `use-cases/`, `root/`, or `public/`.

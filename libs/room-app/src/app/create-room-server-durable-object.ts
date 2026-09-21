@@ -6,7 +6,7 @@ import type { RoomServerEnv } from './room-server-env';
 
 /**
  * Bind a Durable Object class from {@link RoomServerEnv}. Wall composition
- * root only — sim uses {@link createRoomServer} instead.
+ * root only — sims use `createInProcessRoomNode` (`@libs/spaces/sim`) instead.
  */
 export function createRoomServerDurableObject(env: RoomServerEnv) {
   return createDurableObjectAdapter({

@@ -1,28 +1,41 @@
 language js
 
-or {
-  `run._internal` as $x where {
-    register_diagnostic(span=$x, message="Run._internal is sealed — use s.apply / run.observe / run.assert.", severity="error")
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "_internal",
+    includes "openAcmeWorld",
+    includes "openSyncWorld",
+    includes "openMatchmakingWorld",
+    includes "openRoomWorld",
+    includes "playSyncActions",
+    includes "playRoomActions"
   },
-  `$run._internal` as $x where {
-    register_diagnostic(span=$x, message="Run._internal is sealed — use s.apply / run.observe / run.assert.", severity="error")
-  },
-  `openAcmeWorld` as $x where {
-    register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
-  },
-  `openSyncWorld` as $x where {
-    register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
-  },
-  `openMatchmakingWorld` as $x where {
-    register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
-  },
-  `openRoomWorld` as $x where {
-    register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
-  },
-  `playSyncActions` as $x where {
-    register_diagnostic(span=$x, message="play*Actions is forbidden — use s.apply or check/replay.", severity="error")
-  },
-  `playRoomActions` as $x where {
-    register_diagnostic(span=$x, message="play*Actions is forbidden — use system.script + s.apply / system.explore / system.replay.", severity="error")
+  $body <: contains bubble or {
+    `run._internal` as $x where {
+      register_diagnostic(span=$x, message="Run._internal is sealed — use s.apply / run.observe / run.assert.", severity="error")
+    },
+    `$run._internal` as $x where {
+      register_diagnostic(span=$x, message="Run._internal is sealed — use s.apply / run.observe / run.assert.", severity="error")
+    },
+    `openAcmeWorld` as $x where {
+      register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
+    },
+    `openSyncWorld` as $x where {
+      register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
+    },
+    `openMatchmakingWorld` as $x where {
+      register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
+    },
+    `openRoomWorld` as $x where {
+      register_diagnostic(span=$x, message="open*World is forbidden — use start(system) and Run.", severity="error")
+    },
+    `playSyncActions` as $x where {
+      register_diagnostic(span=$x, message="play*Actions is forbidden — use s.apply or check/replay.", severity="error")
+    },
+    `playRoomActions` as $x where {
+      register_diagnostic(span=$x, message="play*Actions is forbidden — use system.script + s.apply / system.explore / system.replay.", severity="error")
+    }
   }
 }

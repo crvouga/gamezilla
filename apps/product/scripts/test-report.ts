@@ -9,14 +9,12 @@
 
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, rmSync } from 'node:fs';
-
-import { run } from '@pkgs/os';
-
 import {
-  PRODUCT_DIR,
+  PACKAGE_DIR,
   SIM_REPORT_DATA_DIR,
   SIM_REPORT_JUNIT_PATH,
-} from '../src/test/setup/sim-report';
+} from '@libs/sim-harness/open-sim/sim-report';
+import { run } from '@pkgs/os';
 import { buildSimReport } from './build-sim-report';
 
 const extraArgs = process.argv.slice(2);
@@ -33,7 +31,7 @@ const test = spawnSync(
     '--preload',
     '@pkgs/bun-test-solid/preload',
     '--preload',
-    './bun-preload.ts',
+    '@libs/sim-harness/preload',
     '--timeout',
     '90000',
     '--reporter=junit',
@@ -41,7 +39,7 @@ const test = spawnSync(
     ...(extraArgs.length > 0 ? extraArgs : ['tests']),
   ],
   {
-    cwd: PRODUCT_DIR,
+    cwd: PACKAGE_DIR,
     stdio: 'inherit',
     env: {
       ...process.env,

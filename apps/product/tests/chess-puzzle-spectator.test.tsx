@@ -1,19 +1,17 @@
 // goal:chess-puzzles:12
 // goal:always-true:7
 import { describe, expect, test } from 'bun:test';
-import type { Square } from '@pkgs/chess-board/chess-board-types';
 import {
-  createSpace,
-  focusActor,
-  isGameLogEmpty,
-  isPuzzleSolved,
-  joinFromPrompt,
   leavePuzzleToChessMenu,
   openChessStatsScreen,
-  openLobbyCard,
   openPuzzleFromSpace,
-  pickWrongUci,
   playUntilSolved,
+  suggestPuzzleMove,
+} from '@libs/chess/sim/chess-actions';
+import {
+  isGameLogEmpty,
+  isPuzzleSolved,
+  pickWrongUci,
   readActivePuzzleId,
   readGameLogRowTitle,
   readPuzzleDebug,
@@ -21,11 +19,17 @@ import {
   readPuzzleSpectator,
   readPuzzleStatus,
   readStatsElo,
-  suggestPuzzleMove,
-} from '../src/sim';
-import { aliceUsername } from '../src/test/fixtures/fixtures';
-import { setupFriendsPair } from '../src/test/fixtures/setup-friends-pair';
-import { openSim } from '../src/test/setup/open-sim';
+} from '@libs/chess/sim/chess-puzzle-ui';
+import { setupFriendsPair } from '@libs/friends/sim/setup-friends-pair';
+import { focusActor } from '@libs/sim-harness';
+import { aliceUsername } from '@libs/sim-harness/open-sim/fixtures';
+import {
+  createSpace,
+  joinFromPrompt,
+  openLobbyCard,
+} from '@libs/spaces/sim/space-actions';
+import type { Square } from '@pkgs/chess-board/chess-board-types';
+import { openSim } from './support/open-product-sim';
 
 const DEFAULT_ELO = 1500;
 /** Narrow a nullable read result; failing loudly beats a silent `!`. */

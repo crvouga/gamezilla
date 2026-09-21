@@ -43,7 +43,6 @@
     "@lingui/conf": "catalog:",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/os": "workspace:*",
-    "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-sqlite-web": "workspace:*",
     "@pkgs/vite-workspace-resolver": "workspace:*",
     "@solidjs/testing-library": "catalog:",

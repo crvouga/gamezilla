@@ -9,9 +9,9 @@
  * all run, every time, and nobody notices for months. That is why this is a
  * gate and not a convention.
  *
- * depcruise cannot help here: it resolves relative paths, and these imports
- * are workspace aliases (its own config says so). So this reads the manifest
- * and the import specifiers directly. Each rule reads only its own package,
+ * The Biome import-boundary rules see one file's specifiers; this also needs
+ * the package's manifest, because a declared dependency invalidates the cache
+ * even when nothing imports it. So this reads both directly. Each rule reads only its own package,
  * which is what lets it run inside that package's cached `lint`.
  */
 
@@ -46,8 +46,15 @@ const FEATURES = [
 /** The one package allowed to know every feature. */
 const COMPOSITION_ROOT = '@libs/runtime';
 
-/** Packages that must stay composable from any subset of features. */
-const SHELLS = ['@libs/client-app', '@libs/server-app'] as const;
+/**
+ * Packages that must stay composable from any subset of features: the app
+ * shells, and the sim harness a feature's own e2e boots them through.
+ */
+const SHELLS = [
+  '@libs/client-app',
+  '@libs/server-app',
+  '@libs/sim-harness',
+] as const;
 
 type Rule = {
   readonly forbidden: ReadonlySet<string>;

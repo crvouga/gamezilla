@@ -26,7 +26,6 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/sim": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

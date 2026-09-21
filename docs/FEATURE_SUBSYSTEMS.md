@@ -53,9 +53,12 @@ shell instead of a second one written for tests.
 
 ## Where a new test goes
 
-- **It exercises one feature** → `libs/<feature>/tests/`, black-box against
-  the package's exports, defined with `@pkgs/sim` `defineSystem`. The actions
-  and reads it drives live in that feature's `./sim` surface.
+- **It exercises one feature** → `libs/<feature>/tests/e2e/`, black-box
+  against the package's exports, booting a composition of only the slices it
+  needs (`composeSimSlices` + `defineProductSystem` from `@libs/sim-harness`).
+  The actions, reads and slice it drives live in that feature's `./sim`
+  surface (`libs/<feature>/src/sim/`). The suite's home is the lowest package
+  that may depend on every feature it composes — turbo rejects cycles.
 - **It spans features** (a friend joining a space, a puzzle limit opening the
   billing screen) → the full-composition layer. Do not stretch a subsystem
   test across a boundary; that is what makes every test depend on everything.
@@ -104,6 +107,9 @@ composition root fills it:
   is.
 - `client-app` declares that a client may need a room transport; `spaces`
   supplies one that knows a room is a space.
+- `search` declares a result-row slot; `friends` fills it with the friendship
+  status and add / accept / cancel pills. Search with no friends composed in
+  shows plain rows.
 
 `readsForeign` on the manifest is the exception that proves the rule: a
 feature may declare that its queries read another's table (friends joins
@@ -120,36 +126,47 @@ rather than implicit. Prefer a port.
 | A feature's queries may only read its own tables plus declared `readsForeign` | `libs/runtime/tests/feature-boundaries.test.ts`, from the SQL AST |
 | A shell may not depend on a feature or the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | A feature may not depend on the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
-| Tier pyramid, `shared/` purity, client/server split | depcruise, in each package's `lint` |
+| Tier pyramid, `shared/` purity, client/server split | Biome `import-*.grit` rules, in each package's `lint` |
+| The sim harness may not depend on a feature | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
+| A package declares no workspace dependency it does not use | that package's `lint` (`libs/tools/scripts/unused-dependencies.ts`) |
+| A package imports only what its `package.json` declares | Biome `noUndeclaredDependencies`, in each package's `lint` |
 
 The package-boundary check reads `package.json` dependencies *and* import
 specifiers, because turbo builds its task graph from `package.json`: a
 dependency there is a cache invalidation everywhere downstream, and a shell
 that names one feature quietly puts every feature in every feature's test
-closure. depcruise cannot catch it — it resolves relative paths, and these are
-workspace aliases.
+closure. A per-file import rule cannot catch that — the dependency is in the
+manifest, whether or not a file imports it.
 
-## What reruns today
+## Hidden table reads (debt)
 
-Measured on this tree with `turbo run tc test --dry`, warm cache. The numbers
-are tasks that would *execute*; everything else is a cache hit.
+A subsystem sim fails loudly when a feature reads a table its composition does
+not declare, which is how these three surfaced. They bypass the manifest, so
+`feature-boundaries.test.ts` (which checks `defineQuery` reads) does not see
+them, and turbo does not rerun the reader when the owner's schema changes.
 
-| Touch | Tasks that run |
+| Reader | Reads | Consequence today | Fix |
+| --- | --- | --- | --- |
+| `permissions` (`use-access-facts.ts`, `read-access.ts`) | billing's `billing_subscriptions` | every sim composes billing; a billing change reruns every feature's e2e | a membership-facts port billing fills (it must stay inside the mutation transaction, so the port goes through the mutation env) |
+| `spaces` (`friendship-sql.ts`, `actor-visible-spaces-sql.ts`, `use-is-friend-of-host-local.ts`, `topic-map.ts`) | friends' `friends_friendships` | spaces cannot run without friends, so its e2e lives in `libs/friends`, and chess composes friends | a friendship port friends fills, or the friendship schema in a package below spaces |
+| `search` (people search) | friends' `searchProfiles` sync query and `friends_blocks` | search cannot run without friends, so search-people lives in `libs/friends` | the search query in search, with block filtering behind a port friends fills |
+
+## What reruns
+
+A change reruns its package's checks and its dependents'; an e2e suite reruns
+when anything in its composition's closure changes. The full-composition
+suite (`@apps/product#test:e2e`) is small — smoke, walks, cross-feature
+journeys — and is the only e2e that reruns for every feature.
+
+Measured with `turbo run test:e2e --filter=...<pkg> --dry=json` (the e2e
+tasks in a package's dependents). Before the split, every row was "all 46
+specs, one task".
+
+| Touch | E2e suites that rerun |
 | --- | --- |
-| nothing | 0 of 273 — `FULL TURBO`, 202ms |
-| one test file (`apps/product/tests/chess-puzzle-play.test.tsx`) | 1: the product test task. Typechecks stay cached. |
-| `libs/chess/src` | 17: chess, games (which registers it), the composition root, and the apps |
-| `libs/profile/src` | 27: profile plus the five features that still import it, the root, the apps |
-| `libs/runtime/src` (the composition root) | 13: the root and the apps |
-| `libs/client-app/src` or `libs/server-app/src` (a shell) | 29: the features that contribute to it, the root, the apps |
-| `pkgs/sync-engine/src` | 52: everything. Correct by design — keep that package small. |
-
-Two things to read out of this. Touching a feature no longer reruns the
-shells, which is the whole point of the fold; and the apps rerun for every
-feature because **all 46 e2e specs are still one task in `@apps/product`**.
-Splitting them into the features is what makes the first column narrow, and is
-tracked in [`E2E_MIGRATION_LOG.md`](E2E_MIGRATION_LOG.md).
-
-`libs/profile` reruns more than `libs/chess` because five features still
-import it directly. Each one of those is a port waiting to be declared; the
-number is the debt, and it is visible.
+| `@libs/chess`, `@pkgs/chess-board` | chess, product |
+| `@libs/runtime` (the composition root) | product |
+| `@libs/friends`, `@libs/spaces`, `@libs/search`, `@libs/notifications` | chess, friends, product |
+| `@libs/profile` | chess, friends, profile, product |
+| `@libs/billing` | all (hidden read above) |
+| `@libs/sim-harness`, a shell, `@pkgs/ui`, `@pkgs/sync-engine` | all — correct by design |

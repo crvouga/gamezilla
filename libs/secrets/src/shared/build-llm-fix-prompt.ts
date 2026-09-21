@@ -177,7 +177,7 @@ interface LocalPromptOptions {
 
 const LOCAL_CHECK_CONSTRAINTS = [
   'Never patch dependencies (`bun patch`, `patch-package`, `patches/`, etc.).',
-  'Never disable Tiger-style size-limit ESLint rules (`max-lines`, `max-lines-per-function`, etc.). Refactor instead.',
+  'Never disable the Tiger-style Biome size limits (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, etc.). Refactor instead.',
   'Fix the root cause; do not suppress rules or add blanket biome-ignore comments.',
   'Do not create git commits unless explicitly asked.',
   'After edits, re-run the failing step(s) to verify before finishing.',
