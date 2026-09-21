@@ -23,6 +23,17 @@ const scope = /** @type {{
   )
 );
 
+/**
+ * `lint-package.ts` names the package's own tsconfig, so a package's `lint`
+ * type-checks that package instead of the whole repo; without it (an editor, a
+ * bare `eslint`), each file resolves its nearest tsconfig.
+ */
+const packageTsconfig = process.env['ESLINT_PACKAGE_TSCONFIG'];
+const TYPED_PARSER_OPTIONS =
+  packageTsconfig === undefined
+    ? { projectService: true, tsconfigRootDir: import.meta.dirname }
+    : { project: [packageTsconfig], tsconfigRootDir: import.meta.dirname };
+
 const solidFiles = [
   ...scope.dirs.flatMap((dir) => [`${dir}/**/*.ts`, `${dir}/**/*.tsx`]),
   ...scope.files,
@@ -95,10 +106,7 @@ export default tseslint.config(
       jsxA11y.flatConfigs.strict,
     ],
     languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
+      parserOptions: TYPED_PARSER_OPTIONS,
     },
     rules: {
       ...allSolidRulesAsErrors,
@@ -146,10 +154,7 @@ export default tseslint.config(
     },
     languageOptions: {
       parser: tseslint.parser,
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
+      parserOptions: TYPED_PARSER_OPTIONS,
     },
     rules: PRODUCT_REACTIVITY_RULES,
   },
@@ -162,10 +167,7 @@ export default tseslint.config(
     },
     languageOptions: {
       parser: tseslint.parser,
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
+      parserOptions: TYPED_PARSER_OPTIONS,
     },
     rules: {
       'solid/no-destructure': 'error',

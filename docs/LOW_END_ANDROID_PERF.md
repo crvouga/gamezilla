@@ -38,7 +38,7 @@ Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph
 | Check | What |
 | --- | --- |
 | Biome grit | Ban known-heavy packages; ban eager static `@libs/games` / `@libs/chess` under `shell/**` |
-| `@apps/client#check:critical-path` | Static import walk from `main.tsx`: denylisted static imports and any top-level `import()` hard-fail |
+| `@apps/client` test `the shipped client keeps heavy modules off the critical path` | Static import walk from `main.tsx`: denylisted static imports and any top-level `import()` hard-fail |
 | Index HTML scripts | No third-party `<script src>` unless `thirdParty.indexHtmlScriptAllowlist` |
 
 ## Compression
@@ -74,8 +74,8 @@ Post-paint SQLite open is delayed after fonts so LCP is not blocked on `sql-work
 
 ```bash
 # Fast (no Vite build) — part of bun check
-bun run lint:biome
-bun run --filter @apps/client check:critical-path
+bun run --filter @apps/client lint
+bun run --filter @apps/client test
 
 # Artifact budgets (needs production build) — part of deploy
 bun run --filter @apps/client build

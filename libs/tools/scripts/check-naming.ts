@@ -1,9 +1,11 @@
 #!/usr/bin/env bun
 // @io-wall-ok — composition root
 /**
- * Naming gate (`//#lint:naming`): Markdown docs are `SCREAMING_SNAKE_CASE.md`,
- * every other file and directory is `lower-kebab-case`
- * (rules + exemptions: `libs/tools/naming/naming-rules.ts`).
+ * Whole-repo naming sweep: Markdown docs are `SCREAMING_SNAKE_CASE.md`, every
+ * other file and directory is `lower-kebab-case` (rules + exemptions:
+ * `libs/tools/naming/naming-rules.ts`). `bun check` applies the same rules per
+ * package inside `lint`; this sweep backs `bun run lint:naming`, the
+ * `naming:fix` post-write gate and the pre-commit hook.
  *
  * Built to be as fast as the process can start: one `git ls-files` (index
  * read, honours .gitignore), no fs walk, no stat, each directory judged once.

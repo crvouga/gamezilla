@@ -137,7 +137,7 @@ Two committed artifacts enforce it in PR CI (`//#check`):
   Regenerate with `bun run --filter @libs/runtime schema:snapshot`, which refuses
   to write an illegal evolution.
 - `apps/server/contract-manifest.json` +
-  `bun run --filter @apps/server check:contract` — the query/mutation **name set
+  `apps/server/tests/contract-manifest.test.ts` — the query/mutation **name set
   is append-only**. Renaming one silently deletes every offline client's queued
   writes (`UNKNOWN_MUTATION` ⇒ permanent rejection ⇒ queue row dropped).
 

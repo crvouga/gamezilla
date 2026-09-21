@@ -31,11 +31,6 @@ jobs:
     timeout-minutes: 30
     env:
       SECRETS_ENV: dev
-      # Run only the packages this PR changed, plus everything that depends on
-      # them. `turbo-ci-run` falls back to the full gate on its own when the PR
-      # touches anything outside apps/ libs/ pkgs/ (lockfile, root config,
-      # workflows), because those can change every package's result.
-      TURBO_AFFECTED_BASE: ${{ github.event.pull_request.base.sha }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       # libs/tools/scripts/check-static.ts scopes gitleaks to this PR's commit range
       # when the event is a pull_request and both refs are present.

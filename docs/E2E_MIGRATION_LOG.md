@@ -14,7 +14,8 @@ reason).
 > [`FEATURE_SUBSYSTEMS.md`](FEATURE_SUBSYSTEMS.md)). No spec has moved yet:
 > that needs the sim fabric to become a harness that boots a feature slice,
 > which is the next piece of work. Until then every row below is **planned**
-> and all 46 specs still run from `apps/product/tests` as one task.
+> and all 46 specs still run from `apps/product/tests` as one task,
+> `@apps/product#test:e2e`.
 
 ## Where things go
 

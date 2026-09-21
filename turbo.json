@@ -3,13 +3,11 @@
   "ui": "stream",
   "concurrency": "50%",
   "globalDependencies": ["tsconfig.base.json"],
-  "globalEnv": ["SIM_FIDELITY", "POSTGRES_SCHEMA"],
   "globalPassThroughEnv": [
     "GITHUB_*",
     "POST_DEPLOY_*",
     "VITE_*",
     "PREVIEW_PORT",
-    "POSTGRES_SCHEMA",
     "API_NODE_*",
     "API_URL",
     "LOCAL_PREVIEW_API_ORIGIN",
@@ -33,8 +31,6 @@
     "WEB_CLIENT_ORIGIN",
     "OBSERVABILITY_*",
     "TURBO_*",
-    "SIM_FIDELITY",
-    "SIM_REPORT",
     "IDP_*",
     "TMPDIR"
   ],
@@ -55,22 +51,12 @@
     "kill": {
       "cache": false
     },
-    "typecheck": {
-      "dependsOn": ["tc"],
-      "outputs": []
-    },
     "tc": {
       "dependsOn": ["^tc"],
       "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "src/**/*.d.ts",
-        "web/**",
-        "vite.config.mts",
-        "package.json",
-        "tsconfig.json",
-        "tsconfig.tc.json",
-        "../../tsconfig.base.json"
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/pkgs/ts-reset/src/**"
       ],
       "outputLogs": "new-only",
       "outputs": []
@@ -120,139 +106,60 @@
         "@pkgs/sql-client#tc"
       ]
     },
-    "test": {
+    "lint": {
       "dependsOn": ["tc"],
       "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "web/**",
-        "vite.config.mts",
-        "tests/**",
-        "scripts/**",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts",
-        "tsconfig*.json"
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/libs/tools/biome-plugins/**",
+        "$TURBO_ROOT$/eslint.config.mjs",
+        "$TURBO_ROOT$/.dependency-cruiser.cjs",
+        "$TURBO_ROOT$/libs/tools/port/*.json",
+        "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/naming/**",
+        "$TURBO_ROOT$/libs/tools/goal/**"
       ],
+      "outputLogs": "new-only",
+      "outputs": []
+    },
+    "test": {
+      "dependsOn": ["tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "test:auth": {
+    "test:contract": {
+      "dependsOn": ["tc"],
       "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/auth-*.ts",
-        "tests/auth-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo-platform-key.json"
       ],
+      "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "new-only",
       "outputs": []
     },
-    "test:spaces": {
+    "test:e2e": {
       "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/space-*.ts",
-        "tests/space-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
+      "env": [
+        "SIM_MODE",
+        "SIM_WITH_DOM",
+        "SIM_REPORT",
+        "SIM_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED"
+      ],
+      "passThroughEnv": [
+        "SIM_TEST_CONCURRENCY",
+        "SIM_TEST_BATCH_TIMEOUT_SECONDS"
       ],
       "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:friends": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/friends-*.ts",
-        "tests/friends-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:profile": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/profile-*.ts",
-        "tests/profile-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:billing": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/billing-*.ts",
-        "tests/billing-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:chess": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/chess-*.ts",
-        "tests/chess-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:walk": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/product-walk.test.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:topology": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/topology-*.ts",
-        "tests/topology-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:max": {
-      "cache": false,
-      "dependsOn": ["tc"],
-      "inputs": ["**/*.ts", "**/*.tsx", "tests/**", "package.json", "*.cjs"],
-      "outputLogs": "new-only",
-      "outputs": []
+      "outputs": [".cache/sim-report/**"]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -280,157 +187,63 @@
       "persistent": true,
       "cache": false
     },
-    "test:stack": {
-      "cache": false,
-      "persistent": false
-    },
-    "test:integration": {
-      "inputs": [
-        "**/*.ts",
-        "**/*.tsx",
-        "package.json",
-        "*.cjs",
-        "**/integration/**"
-      ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "test:contract": {
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/**/*.contract.test.ts",
-        "package.json",
-        "*.cjs",
-        "tsconfig*.json",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "billing:check": {
-      "inputs": ["src/**", "scripts/**", "package.json", "tsconfig*.json"],
-      "outputLogs": "new-only",
-      "outputs": [],
-      "dependsOn": ["tc"]
-    },
-    "lint": {
-      "inputs": [
-        "src/**/*.{ts,tsx,js,jsx,cjs}",
-        "web/**/*.{ts,tsx,js,jsx,cjs}",
-        "tests/**/*.{ts,tsx,js,jsx,cjs}",
-        "scripts/**/*.{ts,tsx,js,cjs}",
-        "vite.config.mts",
-        "package.json",
-        "biome.json",
-        "../../biome.json",
-        "../../libs/tools/biome-plugins/**",
-        "libs/tools/biome-plugins/**"
-      ],
+    "//#lint:root": {
+      "dependsOn": ["@libs/tools#tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#lint:biome": {
+    "//#ci:syncpack": {
       "inputs": [
-        "biome.json",
-        "libs/tools/biome-plugins/**",
-        "apps/**/*.{ts,tsx,js,jsx,cjs,mjs}",
-        "libs/**/*.{ts,tsx,js,jsx,cjs,mjs}",
-        "pkgs/**/*.{ts,tsx,js,jsx,cjs,mjs}",
         "package.json",
         "apps/*/package.json",
         "libs/*/package.json",
         "pkgs/*/package.json",
-        "libs/tools/package.json"
+        "libs/tools/package.json",
+        ".syncpackrc.cjs"
       ],
       "outputs": [],
-      "outputLogs": "new-only",
-      "env": ["CHECK_CHANGED_SINCE"]
+      "outputLogs": "new-only"
     },
-    "//#lint:naming": {
-      "cache": false,
+    "//#ci:audit": {
+      "inputs": ["bun.lock", "libs/tools/scripts/ci-audit.ts", "package.json"],
       "outputs": [],
-      "outputLogs": "errors-only"
+      "outputLogs": "new-only"
     },
-    "//#lint:eslint": {
+    "//#ci:i18n": {
       "inputs": [
-        "eslint.config.mjs",
-        "libs/tools/port/solid-scope.json",
-        "tsconfig.base.json",
-        "tsconfig.json",
-        "libs/client-app/src/chrome/**/*.{ts,tsx}",
-        "libs/client-app/src/exemplars/**/*.{ts,tsx}",
-        "libs/client-app/src/routes/**/*.{ts,tsx}",
-        "libs/client-app/src/screens/**/*.{ts,tsx}",
-        "libs/client-app/src/shell/**/*.{ts,tsx}",
-        "apps/client/src/main.tsx",
-        "libs/client-app/tests/**/*.{ts,tsx}",
-        "apps/product/src/sim/**/*.{ts,tsx}",
-        "apps/product/src/test/**/*.{ts,tsx}",
-        "apps/product/tests/**/*.{ts,tsx}",
-        "libs/chess/src/public/chess-main-menu-view.tsx",
-        "libs/friends/src/public/**/*.{ts,tsx}",
-        "libs/friends/src/root/**/*.{ts,tsx}",
-        "libs/friends/src/use-cases/**/*.{ts,tsx}",
-        "libs/spaces/src/public/**/*.{ts,tsx}",
-        "libs/spaces/src/root/**/*.{ts,tsx}",
-        "libs/spaces/src/use-cases/**/*.{ts,tsx}",
-        "libs/auth/src/public/**/*.{ts,tsx}",
-        "libs/auth/src/root/**/*.{ts,tsx}",
-        "libs/auth/src/use-cases/**/*.{ts,tsx}",
-        "libs/profile/src/public/**/*.{ts,tsx}",
-        "libs/profile/src/root/**/*.{ts,tsx}",
-        "libs/profile/src/use-cases/**/*.{ts,tsx}",
-        "libs/notifications/src/public/**/*.{ts,tsx}",
-        "libs/notifications/src/root/**/*.{ts,tsx}",
-        "libs/search/src/public/**/*.{ts,tsx}",
-        "libs/search/src/root/**/*.{ts,tsx}",
-        "libs/user-search/src/public/**/*.{ts,tsx}",
-        "libs/client-config/src/public/**/*.{ts,tsx}",
-        "libs/client-config/src/root/**/*.{ts,tsx}",
-        "libs/permissions/src/public/**/*.{ts,tsx}",
-        "libs/permissions/src/root/**/*.{ts,tsx}",
-        "libs/chess/src/public/**/*.{ts,tsx}",
-        "libs/chess/src/root/**/*.{ts,tsx}",
-        "pkgs/async/src/solid.ts",
-        "pkgs/async/tests/solid.test.tsx",
-        "pkgs/chess-board/src/**/*.{ts,tsx}",
-        "pkgs/chess-board/tests/**/*.{ts,tsx}",
-        "pkgs/clock/src/solid.tsx",
-        "pkgs/clock/tests/solid.test.tsx",
-        "pkgs/http-client/src/solid.tsx",
-        "pkgs/http-client/tests/solid.test.tsx",
-        "pkgs/kv/src/solid.tsx",
-        "pkgs/kv/tests/solid-kv-state.test.tsx",
-        "pkgs/llm/src/solid/**/*.{ts,tsx}",
-        "pkgs/logger/src/solid.tsx",
-        "pkgs/object-store/src/solid.tsx",
-        "pkgs/observability/src/client/solid.tsx",
-        "pkgs/room/src/client/solid/**/*.{ts,tsx}",
-        "pkgs/room/src/solid.ts",
-        "pkgs/room/tests/solid.test.tsx",
-        "pkgs/secure-storage/src/solid.tsx",
-        "pkgs/secure-storage/tests/solid.test.tsx",
-        "pkgs/solid-context/src/**/*.{ts,tsx}",
-        "pkgs/solid-context/tests/**/*.{ts,tsx}",
-        "pkgs/sounds/src/solid.tsx",
-        "pkgs/sounds/tests/solid.test.tsx",
-        "pkgs/sql-client/src/solid.tsx",
-        "pkgs/sync-engine/src/solid/**/*.{ts,tsx}",
-        "pkgs/sync-engine/tests/solid-bindings.test.tsx",
-        "pkgs/tts/src/client/solid.tsx",
-        "pkgs/ui-testing-solid-dom/src/**/*.{ts,tsx}",
-        "pkgs/ui-testing-solid-dom/tests/**/*.{ts,tsx}",
-        "pkgs/ui/src/**/*.{ts,tsx}",
-        "pkgs/ui/tests/**/*.{ts,tsx}",
-        "pkgs/uuid/src/solid.tsx",
-        "pkgs/bun-test-solid/src/**/*.{ts,tsx}"
+        "lingui.config.ts",
+        "lingui.solid.config.ts",
+        "apps/*/src/**/*.{ts,tsx}",
+        "libs/*/src/**/*.{ts,tsx}",
+        "pkgs/*/src/**/*.{ts,tsx}",
+        "libs/client-app/src/i18n/locales/**",
+        "apps/client/babel.config.js",
+        "pkgs/bun-test-solid/src/babel.config.cjs",
+        "libs/tools/scripts/ci-i18n.ts"
       ],
-      "outputs": [".eslintcache"],
-      "outputLogs": "new-only",
-      "env": ["CHECK_CHANGED_SINCE"]
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:agent-commands": {
+      "inputs": [
+        ".agents/**",
+        ".claude/commands",
+        ".cursor/commands",
+        ".opencode/commands",
+        ".gemini/commands/**",
+        ".github/prompts/**",
+        ".windsurf/workflows/**",
+        "libs/tools/scripts/sync-agent-commands.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "//#ci:goals": {
+      "dependsOn": ["@libs/tools#tc"],
+      "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
+      "outputs": [],
+      "outputLogs": "new-only"
     },
     "@apps/client#check:bundle-budget": {
       "dependsOn": ["@apps/client#build"],
@@ -448,64 +261,22 @@
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "@apps/client#check:critical-path": {
-      "inputs": [
-        "src/**/*.{ts,tsx}",
-        "index.html",
-        "perf-budget.json",
-        "../../tsconfig.base.json",
-        "scripts/client-critical-path-imports.ts",
-        "scripts/check-index-html-scripts.ts",
-        "scripts/perf-budget.ts",
-        "../../libs/**/*.{ts,tsx}",
-        "../../pkgs/**/*.{ts,tsx}"
-      ],
+    "@libs/runtime#check:schema-evolution": {
+      "dependsOn": ["tc"],
+      "env": ["PR_BASE"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#check": {
-      "dependsOn": [
-        "//#ci:agent-commands",
-        "//#ci:goals",
-        "//#ci:no-skipped-tests",
-        "//#lint:naming",
-        "//#lint:biome",
-        "//#lint:eslint",
-        "//#ci:syncpack",
-        "//#ci:depcruise",
-        "//#ci:package-boundaries",
-        "//#ci:audit",
-        "//#ci:i18n",
-        "@apps/client#check:critical-path",
-        "@apps/client#check:bundle-budget",
-        "tc",
-        "test",
-        "@apps/product#check:test-slices",
-        "@apps/server#build",
-        "@apps/room-server#build",
-        "@pkgs/sql-client-postgres#test:contract",
-        "@pkgs/db-schema-postgres#test:contract",
-        "@pkgs/db-indexes-postgres#test:contract",
-        "@pkgs/kv-postgres#test:contract",
-        "@pkgs/object-store-s3#test:contract",
-        "@pkgs/pubsub-emqx#test:contract",
-        "@libs/billing#billing:check",
-        "@apps/server#check:contract",
-        "@apps/server#check:api",
-        "@libs/runtime#check:schema-evolution",
-        "@libs/runtime#check:feature-boundaries",
-        "@libs/secrets#check",
-        "@libs/tools#check:static"
-      ],
+    "@libs/secrets#check": {
+      "env": ["CHECK_SECRETS_FINGERPRINT"],
+      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "@libs/tools#install:cli": {
-      "cache": false,
       "outputLogs": "new-only"
     },
     "@libs/tools#check:static": {
       "env": [
+        "CHECK_GIT_HEAD",
         "GH_EVENT",
         "GITHUB_EVENT_NAME",
         "PR_BASE",
@@ -515,8 +286,33 @@
       "inputs": [
         "scripts/check-static.ts",
         "scripts/cli-deps/**",
-        ".gitleaks.toml",
-        ".github/workflows/**"
+        "$TURBO_ROOT$/.gitleaks.toml",
+        "$TURBO_ROOT$/.github/workflows/**"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
+    },
+    "@libs/tools#install:cli": {
+      "cache": false,
+      "outputLogs": "new-only"
+    },
+    "//#check": {
+      "dependsOn": [
+        "//#lint:root",
+        "//#ci:syncpack",
+        "//#ci:audit",
+        "//#ci:i18n",
+        "//#ci:agent-commands",
+        "//#ci:goals",
+        "tc",
+        "lint",
+        "test",
+        "test:contract",
+        "test:e2e",
+        "@apps/client#check:bundle-budget",
+        "@libs/runtime#check:schema-evolution",
+        "@libs/secrets#check",
+        "@libs/tools#check:static"
       ],
       "outputs": [],
       "outputLogs": "new-only"
@@ -549,38 +345,6 @@
         "@libs/pubsub#provision"
       ]
     },
-    "@libs/secrets#check": {
-      "env": ["CHECK_SECRETS_FINGERPRINT"],
-      "inputs": [
-        "libs/secrets/src/bin/check-secrets.ts",
-        "libs/secrets/src/shared/secrets/**"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "@libs/runtime#check:schema-evolution": {
-      "env": ["PR_BASE"],
-      "inputs": [
-        "src/**/*.ts",
-        "scripts/**/*.ts",
-        "schema-snapshot.json",
-        "../../libs/*/src/**/schema/**",
-        "../../pkgs/db-schema/src/**"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "@apps/server#check:contract": {
-      "inputs": [
-        "contract-manifest.json",
-        "scripts/check-contract-manifest.ts",
-        "../../libs/server-app/src/sync/**/*.ts",
-        "../../libs/*/src/**/*.ts",
-        "../../pkgs/sync-engine/src/**/*.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
     "@apps/room-server#deploy": {
       "cache": false,
       "dependsOn": ["@libs/db#migrate"]
@@ -603,188 +367,22 @@
     },
     "//#deploy": {
       "cache": false,
-      "dependsOn": [
-        "//#lint:naming",
-        "//#lint:biome",
-        "//#ci:goals",
-        "//#ci:agent-commands",
-        "@apps/client#check:critical-path",
-        "//#lint:eslint",
-        "tc",
-        "test",
-        "@apps/server#build",
-        "@apps/room-server#build",
-        "//#ci:syncpack",
-        "//#ci:depcruise",
-        "//#ci:package-boundaries",
-        "//#ci:audit",
-        "//#ci:i18n",
-        "//#ci:no-skipped-tests",
-        "@pkgs/sql-client-postgres#test:contract",
-        "@pkgs/kv-postgres#test:contract",
-        "@pkgs/object-store-s3#test:contract",
-        "@pkgs/pubsub-emqx#test:contract",
-        "@libs/billing#billing:check",
-        "@apps/server#check:contract",
-        "@libs/runtime#check:schema-evolution",
-        "@libs/runtime#check:feature-boundaries",
-        "@libs/tools#check:static",
-        "@libs/secrets#check",
-        "@apps/server#smoke"
-      ],
+      "dependsOn": ["//#check", "@apps/server#check:api", "@apps/server#smoke"],
       "outputs": [],
       "outputLogs": "new-only"
     },
-    "//#ci:no-skipped-tests": {
-      "inputs": [
-        "apps/**/*.{ts,tsx}",
-        "libs/**/*.{ts,tsx}",
-        "pkgs/**/*.{ts,tsx}",
-        "libs/tools/scripts/check-no-skipped-tests.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:syncpack": {
-      "inputs": [
-        "package.json",
-        "apps/*/package.json",
-        "libs/*/package.json",
-        "pkgs/*/package.json",
-        "libs/tools/package.json",
-        ".syncpackrc.cjs"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:depcruise": {
-      "inputs": [
-        "apps/**/*.ts",
-        "apps/**/*.tsx",
-        "libs/**/*.ts",
-        "libs/**/*.tsx",
-        "pkgs/**/*.ts",
-        "pkgs/**/*.tsx",
-        ".dependency-cruiser.cjs",
-        "libs/tools/port/solid-scope.json",
-        "libs/tools/port/core-scope.json"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:audit": {
-      "inputs": ["bun.lock", "libs/tools/scripts/ci-audit.ts", "package.json"],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:i18n": {
-      "inputs": [
-        "lingui.config.ts",
-        "lingui.solid.config.ts",
-        "apps/*/src/**/*.{ts,tsx}",
-        "libs/*/src/**/*.{ts,tsx}",
-        "pkgs/*/src/**/*.{ts,tsx}",
-        "libs/client-app/src/i18n/locales/**",
-        "apps/client/babel.config.js",
-        "pkgs/bun-test-solid/src/babel.config.cjs",
-        "libs/tools/scripts/ci-i18n.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:agent-commands": {
-      "cache": false,
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "//#ci:goals": {
-      "cache": false,
-      "outputs": [],
-      "outputLogs": "new-only"
-    },
-    "test:search": {
+    "@libs/tools#test": {
       "dependsOn": ["tc"],
       "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/search-*.ts",
-        "tests/search-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/turbo.json",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/.github/workflows/**"
       ],
-      "outputLogs": "new-only",
+      "outputLogs": "errors-only",
       "outputs": []
-    },
-    "test:platform": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/non-web-host-smoke.test.ts",
-        "tests/sw-policy.test.ts",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "@apps/product#check:test-slices": {
-      "inputs": ["package.json", "scripts/check-test-slices.ts", "tests/**"],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:explore": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/product-explore.test.ts",
-        "tests/product-explore.test.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "test:shell": {
-      "dependsOn": ["tc"],
-      "inputs": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "tests/shell-*.ts",
-        "tests/shell-*.tsx",
-        "package.json",
-        "*.cjs",
-        "bun-*.ts"
-      ],
-      "outputLogs": "new-only",
-      "outputs": []
-    },
-    "@libs/runtime#check:feature-boundaries": {
-      "inputs": [
-        "src/**/*.ts",
-        "scripts/check-feature-boundaries.ts",
-        "../../libs/*/src/root/feature.ts",
-        "../../libs/*/src/**/schema/**",
-        "../../libs/*/src/**/queries.ts",
-        "../../libs/feature/src/**/*.ts",
-        "../../pkgs/sync-engine/src/**/*.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only",
-      "dependsOn": ["tc"]
-    },
-    "//#ci:package-boundaries": {
-      "inputs": [
-        "libs/*/package.json",
-        "libs/*/src/**/*.{ts,tsx}",
-        "libs/tools/scripts/check-package-boundaries.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "new-only"
     }
   }
 }

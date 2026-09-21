@@ -117,10 +117,10 @@ rather than implicit. Prefer a port.
 | --- | --- |
 | A feature's topic map may only name its own tables | the type system (`TopicMapFor`) |
 | Two features may not declare the same table | `composeFeatures` |
-| A feature's queries may only read its own tables plus declared `readsForeign` | `@libs/runtime#check:feature-boundaries`, from the SQL AST |
-| A shell may not depend on a feature or the composition root | `//#ci:package-boundaries` |
-| A feature may not depend on the composition root | `//#ci:package-boundaries` |
-| Tier pyramid, `shared/` purity, client/server split | `//#ci:depcruise` |
+| A feature's queries may only read its own tables plus declared `readsForeign` | `libs/runtime/tests/feature-boundaries.test.ts`, from the SQL AST |
+| A shell may not depend on a feature or the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
+| A feature may not depend on the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
+| Tier pyramid, `shared/` purity, client/server split | depcruise, in each package's `lint` |
 
 The package-boundary check reads `package.json` dependencies *and* import
 specifiers, because turbo builds its task graph from `package.json`: a

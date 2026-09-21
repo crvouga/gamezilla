@@ -5,7 +5,10 @@ import {
   lazyOverrideKey,
 } from './bundle-budget-lazy';
 import type { Manifest } from './bundle-budget-manifest';
-import { collectExternalScriptSrcs } from './check-index-html-scripts';
+import {
+  bannedIndexHtmlScripts,
+  collectExternalScriptSrcs,
+} from './check-index-html-scripts';
 import {
   collectDynamicImports,
   collectStaticSpecifiers,
@@ -97,4 +100,8 @@ describe('index-html scripts', () => {
       'https://evil.example/x.js',
     ]);
   });
+});
+
+test('index.html loads no third-party script outside the allowlist', () => {
+  expect(bannedIndexHtmlScripts()).toEqual([]);
 });

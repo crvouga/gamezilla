@@ -14,9 +14,9 @@
   },
   "scripts": {
     "export:puzzles-load": "bun run scripts/export-chess-puzzles-load.ts",
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests",
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },

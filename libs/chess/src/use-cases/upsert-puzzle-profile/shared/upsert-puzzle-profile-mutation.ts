@@ -2,7 +2,7 @@
  * Frozen wire name, not a deprecated alias.
  *
  * Clients shipped before §8 queue `upsertPuzzleProfile` writes while offline,
- * and contract names are append-only (`apps/server/scripts/check-contract-manifest.ts`):
+ * and contract names are append-only (`apps/server/tests/contract-manifest.test.ts`):
  * dropping the name would resolve those queued writes to `UNKNOWN_MUTATION`,
  * a permanent rejection whose queue row is then thrown away.
  *

@@ -728,6 +728,18 @@
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**"
       ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-ci-verdict.grit",
+      "includes": [
+        "**/scripts/**/check-*.ts",
+        "!**/*.test.ts",
+        "!**/apps/client/scripts/check-production-compression.ts"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-skipped-tests.grit",
+      "includes": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
     }
   ],
   "overrides": [

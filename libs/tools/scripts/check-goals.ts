@@ -1,10 +1,13 @@
 #!/usr/bin/env bun
+// goal:the-bar:2 goal:the-bar:6
 /**
  * Goal gate (`//#ci:goals`): `docs/GOAL.md` promises that every definition-of-done
  * statement is proven by an automated check. This enforces the bookkeeping:
  * every statement has a manifest entry, checked boxes and `proven` status
- * agree, proofs point at real files carrying the `goal:<id>` marker, and the
- * number of unproven statements may only go down.
+ * agree, known bugs are guarded, and the number of unproven statements may
+ * only go down. Proof files outside the package tiers are checked here; each
+ * package's `lint` checks the proofs inside it exist and carry `goal:<id>`, so
+ * editing a proof reruns its package and not this gate.
  *
  * `--count-unproven` prints the current count (used to set the ratchet).
  * `--json` prints the machine report.
@@ -58,7 +61,10 @@ const errors = validateGoalGate({
   statements,
   checks,
   knownBugs,
-  readFile: readRepoFile,
+  proofFiles: {
+    owns: (path) => !/^(apps|libs|pkgs)\//.test(path),
+    read: readRepoFile,
+  },
   unprovenBudget: UNPROVEN_BUDGET,
 });
 

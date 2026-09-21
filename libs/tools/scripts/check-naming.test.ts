@@ -1,6 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { execFileSync } from 'node:child_process';
-import { join } from 'node:path';
 
 import {
   convertPath,
@@ -18,8 +16,6 @@ import {
   rulesFromManifests,
   rulesFromTsconfigPaths,
 } from '../naming/workspace-resolver';
-
-const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 describe('naming rules', () => {
   test.each([
@@ -117,18 +113,6 @@ describe('naming rules', () => {
     }
     // Quadratic would be ~10x at a 10x size ratio; 4x leaves room for noise.
     expect(large / small).toBeLessThan(4);
-  });
-
-  test('the repository follows the convention', () => {
-    const listing = execFileSync(
-      'git',
-      ['ls-files', '-z', '--cached', '--others', '--exclude-standard'],
-      {
-        cwd: REPO_ROOT,
-        encoding: 'utf8',
-      }
-    );
-    expect(findNamingViolations(listing.split('\0'))).toEqual([]);
   });
 });
 

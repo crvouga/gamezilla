@@ -8,15 +8,15 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "check:api": "bun run scripts/check-api.ts",
-    "check:contract": "bun run scripts/check-contract-manifest.ts",
+    "contract:write": "bun run scripts/contract-manifest.ts",
     "deploy": "bun run scripts/deploy.ts",
     "kill": "bun run scripts/kill-dev.ts",
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "preview": "bun run scripts/preview.ts",
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
     "smoke": "bun run scripts/smoke.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test --pass-with-no-tests src/integration/"
   },

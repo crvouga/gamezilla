@@ -6,180 +6,137 @@ import { flattenCheckAggregators } from './turbo-ci-run';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
-function loadTurboJson(): { tasks?: Record<string, { dependsOn?: unknown }> } {
-  return JSON.parse(readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')) as {
-    tasks?: Record<string, { dependsOn?: unknown }>;
-  };
+type TaskConfig = {
+  readonly dependsOn?: readonly string[];
+  readonly cache?: boolean;
+  readonly inputs?: readonly string[];
+};
+type Tasks = Readonly<Record<string, TaskConfig>>;
+
+function loadTasks(): Tasks {
+  const turbo = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
+  ) as { tasks: Tasks };
+  return turbo.tasks;
 }
 
-function loadRootPackageJson(): { scripts?: Record<string, string> } {
-  return JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf8')) as {
-    scripts?: Record<string, string>;
-  };
+function loadRootScripts(): Readonly<Record<string, string>> {
+  const pkg = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'package.json'), 'utf8')
+  ) as { scripts: Record<string, string> };
+  return pkg.scripts;
 }
 
-function turboCiRunTaskArgs(checkScript: string): string[] {
+function turboCiRunTaskArgs(script: string): string[] {
   const marker = 'turbo-ci-run.ts';
-  const idx = checkScript.indexOf(marker);
+  const idx = script.indexOf(marker);
   expect(idx).toBeGreaterThanOrEqual(0);
-  return checkScript
+  return script
     .slice(idx + marker.length)
     .trim()
     .split(/\s+/);
 }
 
-/** `//#check` is the whole check surface — there is no second tier. */
+/**
+ * `//#check` is the whole check surface. Everything a package can check about
+ * itself rides in its own `tc` / `lint` / `test` / `test:contract` /
+ * `test:e2e`, so it caches per package; root leaves are only the checks whose
+ * subject belongs to no package.
+ */
 const CHECK_LEAVES = [
-  '//#ci:agent-commands',
-  '//#ci:goals',
-  '//#ci:no-skipped-tests',
-  '//#lint:naming',
-  '//#lint:biome',
-  '//#lint:eslint',
+  '//#lint:root',
   '//#ci:syncpack',
-  '//#ci:depcruise',
-  '//#ci:package-boundaries',
   '//#ci:audit',
   '//#ci:i18n',
-  '@apps/client#check:critical-path',
-  '@apps/client#check:bundle-budget',
+  '//#ci:agent-commands',
+  '//#ci:goals',
   'tc',
+  'lint',
   'test',
-  '@apps/product#check:test-slices',
-  '@apps/server#build',
-  '@apps/room-server#build',
-  '@pkgs/sql-client-postgres#test:contract',
-  '@pkgs/db-schema-postgres#test:contract',
-  '@pkgs/db-indexes-postgres#test:contract',
-  '@pkgs/kv-postgres#test:contract',
-  '@pkgs/object-store-s3#test:contract',
-  '@pkgs/pubsub-emqx#test:contract',
-  '@libs/billing#billing:check',
-  '@apps/server#check:contract',
-  '@apps/server#check:api',
+  'test:contract',
+  'test:e2e',
+  '@apps/client#check:bundle-budget',
   '@libs/runtime#check:schema-evolution',
-  '@libs/runtime#check:feature-boundaries',
   '@libs/secrets#check',
   '@libs/tools#check:static',
 ];
 
-/** Deploy mutates shared envs; smoke is the only deploy-only leaf. */
-const DEPLOY_ONLY = ['@apps/server#smoke'] as const;
+/** Deploy runs the whole check surface, then the two leaves that need a live env. */
+const DEPLOY_ONLY = ['@apps/server#check:api', '@apps/server#smoke'] as const;
+
+/** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
+function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
+  const bare = task.startsWith('^') ? task.slice(1) : task;
+  if (tasks[bare] !== undefined) return tasks[bare];
+  const hash = bare.indexOf('#');
+  return hash > 0 ? tasks[bare.slice(hash + 1)] : undefined;
+}
+
+/** Every task `//#check` can schedule, through `dependsOn` and `^deps`. */
+function reachableFromCheck(tasks: Tasks): ReadonlySet<string> {
+  const seen = new Set<string>();
+  const queue = [...CHECK_LEAVES];
+  while (queue.length > 0) {
+    const task = queue.pop() ?? '';
+    const bare = task.startsWith('^') ? task.slice(1) : task;
+    if (seen.has(bare)) continue;
+    seen.add(bare);
+    queue.push(...(configFor(tasks, bare)?.dependsOn ?? []));
+  }
+  return seen;
+}
 
 describe('turbo check/deploy graph invariants', () => {
-  test('//#check is the whole check suite and //#check:full is gone', () => {
-    const turbo = loadTurboJson();
-    const deps = turbo.tasks?.['//#check']?.dependsOn;
-    expect(Array.isArray(deps)).toBe(true);
-    expect(deps as string[]).toEqual(CHECK_LEAVES);
-    expect(turbo.tasks?.['//#check:full']).toBeUndefined();
-    for (const leaf of DEPLOY_ONLY) {
-      expect(deps as string[]).not.toContain(leaf);
+  test('//#check is exactly the check surface', () => {
+    expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
+  });
+
+  test('every task `bun check` can run is cached', () => {
+    const tasks = loadTasks();
+    const uncached = [...reachableFromCheck(tasks)].filter(
+      (task) => configFor(tasks, task)?.cache === false
+    );
+    expect(uncached).toEqual([]);
+  });
+
+  test('package check tasks hash every file in the package', () => {
+    // An enumerated input list is how a fixture or a tests/ tsconfig include
+    // silently falls out of the hash and a stale pass gets served.
+    const tasks = loadTasks();
+    for (const task of ['tc', 'lint', 'test', 'test:contract', 'test:e2e']) {
+      expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');
     }
-    expect(deps as string[]).not.toContain('test:contract');
-    expect(deps as string[]).not.toContain('build');
-    expect(deps as string[]).not.toContain('@apps/client#build');
-    expect(deps as string[]).not.toContain('@apps/product#build');
   });
 
   // goal:the-bar:1 — every check that gates a release also gates a PR merge.
-  test('//#deploy adds only DEPLOY_ONLY leaves on top of //#check', () => {
-    const turbo = loadTurboJson();
-    const check = new Set(turbo.tasks?.['//#check']?.dependsOn as string[]);
-    const deploy = turbo.tasks?.['//#deploy']?.dependsOn as string[];
-    expect(deploy.filter((dep) => !check.has(dep))).toEqual([...DEPLOY_ONLY]);
+  test('//#deploy is //#check plus the live-env leaves', () => {
+    const tasks = loadTasks();
+    expect(tasks['//#deploy']?.dependsOn).toEqual(['//#check', ...DEPLOY_ONLY]);
+    expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
+      ...CHECK_LEAVES,
+      ...DEPLOY_ONLY,
+    ]);
   });
 
-  test('//#deploy.dependsOn never includes //#check', () => {
-    const turbo = loadTurboJson();
-    const deps = turbo.tasks?.['//#deploy']?.dependsOn;
-    expect(Array.isArray(deps)).toBe(true);
-    expect(deps as string[]).not.toContain('//#check');
-    expect(deps as string[]).toContain('//#lint:biome');
-    expect(deps as string[]).toContain('//#lint:eslint');
-    expect(deps as string[]).toContain('//#ci:syncpack');
-    expect(deps as string[]).toContain('//#ci:goals');
-    expect(deps as string[]).toContain('//#ci:agent-commands');
-    expect(deps as string[]).toContain('//#ci:depcruise');
-    expect(deps as string[]).toContain('//#ci:audit');
-    expect(deps as string[]).toContain('//#ci:i18n');
-    expect(deps as string[]).toContain('//#ci:no-skipped-tests');
-    for (const leaf of DEPLOY_ONLY) {
-      expect(deps as string[]).toContain(leaf);
-    }
-    expect(deps as string[]).not.toContain('test:contract');
-    expect(deps as string[]).toContain('@libs/billing#billing:check');
-    expect(turbo.tasks?.['deploy']).toBeUndefined();
+  test('bun check and bun deploy go through turbo-ci-run', () => {
+    const scripts = loadRootScripts();
+    expect(turboCiRunTaskArgs(scripts['check'] ?? '')).toEqual(['check']);
+    expect(turboCiRunTaskArgs(scripts['deploy'] ?? '')).toEqual(['//#deploy']);
   });
 
-  test('bun check invokes turbo-ci-run with the check aggregator only', () => {
-    const pkg = loadRootPackageJson();
-    const check = pkg.scripts?.['check'];
-    expect(check).toBeDefined();
-    const tasks = turboCiRunTaskArgs(check ?? '');
-    expect(tasks).toEqual(['check']);
-    expect(tasks).not.toContain('build');
-    expect(tasks).not.toContain('@apps/client#build');
-    expect(tasks).not.toContain('@apps/product#build');
-    expect(pkg.scripts?.['check:full']).toBeUndefined();
-  });
-
-  test('bun deploy invokes turbo-ci-run with //#deploy', () => {
-    const pkg = loadRootPackageJson();
-    const deploy = pkg.scripts?.['deploy'];
-    expect(deploy).toBeDefined();
-    const tasks = turboCiRunTaskArgs(deploy ?? '');
-    expect(tasks).toEqual(['//#deploy']);
-  });
-
-  test('check flattens to the full suite (no client/product build)', () => {
-    const turbo = loadTurboJson();
-    const leaves = flattenCheckAggregators(['check'], turbo.tasks ?? {});
-    expect(leaves).toEqual(CHECK_LEAVES);
-    expect(leaves).toContain('@apps/server#build');
-    expect(leaves).toContain('@apps/room-server#build');
-    expect(leaves).not.toContain('build');
-    expect(leaves).not.toContain('@apps/client#build');
-    expect(leaves).not.toContain('@apps/product#build');
-    expect(leaves).not.toContain('//#check');
-  });
-
-  test('check gates live API probe and bundle budget; deploy adds smoke only', () => {
-    const turbo = loadTurboJson();
-    const checkDeps = turbo.tasks?.['//#check']?.dependsOn as string[];
-    expect(checkDeps).toContain('@apps/client#check:bundle-budget');
-    expect(checkDeps).toContain('@apps/client#check:critical-path');
-    expect(checkDeps).toContain('@apps/server#check:api');
-    expect(checkDeps).not.toContain('@apps/server#smoke');
-    const deployDeps = turbo.tasks?.['//#deploy']?.dependsOn;
-    expect(Array.isArray(deployDeps)).toBe(true);
-    expect(deployDeps as string[]).toContain(
-      '@apps/client#check:critical-path'
+  test('check flattens to its leaves', () => {
+    expect(flattenCheckAggregators(['check'], loadTasks())).toEqual(
+      CHECK_LEAVES
     );
-    expect(deployDeps as string[]).toContain('@apps/server#smoke');
   });
 
-  test('smoke depends on @apps/product#deploy and is scheduled by //#deploy', () => {
-    const turbo = loadTurboJson();
-    const deps = turbo.tasks?.['@apps/server#smoke']?.dependsOn;
-    expect(Array.isArray(deps)).toBe(true);
-    expect(deps as string[]).toContain('@apps/product#deploy');
-    expect(deps as string[]).not.toContain('@apps/client#deploy');
-    const deployDeps = turbo.tasks?.['//#deploy']?.dependsOn as string[];
-    expect(deployDeps).toContain('@apps/server#smoke');
-  });
-
-  test('deploy flatten includes smoke', () => {
-    const turbo = loadTurboJson();
-    const leaves = flattenCheckAggregators(['deploy'], turbo.tasks ?? {});
-    expect(leaves).toContain('@apps/server#smoke');
-    expect(leaves).not.toContain('//#deploy');
+  test('smoke runs after the product deploy', () => {
+    const deps = loadTasks()['@apps/server#smoke']?.dependsOn;
+    expect(deps).toContain('@apps/product#deploy');
   });
 
   test('secrets provision runs after install:cli (avoid infisical race)', () => {
-    const turbo = loadTurboJson();
-    const deps = turbo.tasks?.['@libs/secrets#provision']?.dependsOn;
-    expect(Array.isArray(deps)).toBe(true);
-    expect(deps as string[]).toContain('@libs/tools#install:cli');
+    const deps = loadTasks()['@libs/secrets#provision']?.dependsOn;
+    expect(deps).toContain('@libs/tools#install:cli');
   });
 });

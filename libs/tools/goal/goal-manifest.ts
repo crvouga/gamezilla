@@ -31,9 +31,19 @@ export type GoalGateInput = {
   readonly statements: readonly GoalStatement[];
   readonly checks: GoalChecks;
   readonly knownBugs: readonly KnownBug[];
-  /** Reads a repo-relative path; `null` when the file is missing. */
-  readonly readFile: (path: string) => string | null;
+  readonly proofFiles: ProofFiles;
   readonly unprovenBudget: number;
+};
+
+/**
+ * Which proof files a run reads. The root gate owns paths outside the package
+ * tiers; each package's `lint` owns its own, so a proof file's edit reruns only
+ * its package, and the bookkeeping reruns only when the manifest changes.
+ */
+export type ProofFiles = {
+  readonly owns: (path: string) => boolean;
+  /** Reads a repo-relative path; `null` when the file is missing. */
+  readonly read: (path: string) => string | null;
 };
 
 export function countUnproven(checks: GoalChecks): number {
@@ -43,7 +53,7 @@ export function countUnproven(checks: GoalChecks): number {
 function validateProof(
   label: string,
   proof: GoalProof,
-  readFile: (path: string) => string | null,
+  files: ProofFiles,
   errors: string[]
 ): void {
   if (proof.kind !== 'test' && proof.kind !== 'gate') {
@@ -53,7 +63,8 @@ function validateProof(
     errors.push(`${label}: proof path is required`);
     return;
   }
-  const body = readFile(proof.path);
+  if (!files.owns(proof.path)) return;
+  const body = files.read(proof.path);
   if (body === null) {
     errors.push(`${label}: proof file not found: ${proof.path}`);
     return;
@@ -89,7 +100,7 @@ function validateIdSets(
 function validateEntry(
   statement: GoalStatement,
   entry: GoalCheckEntry,
-  readFile: (path: string) => string | null,
+  files: ProofFiles,
   errors: string[]
 ): void {
   const proven = entry.status === 'proven';
@@ -110,13 +121,13 @@ function validateEntry(
     errors.push(`${statement.id}: proven entry needs at least one proof`);
   }
   for (const proof of entry.proofs) {
-    validateProof(statement.id, proof, readFile, errors);
+    validateProof(statement.id, proof, files, errors);
   }
 }
 
 function validateKnownBugs(
   bugs: readonly KnownBug[],
-  readFile: (path: string) => string | null,
+  files: ProofFiles,
   errors: string[]
 ): void {
   const seen = new Set<string>();
@@ -128,7 +139,7 @@ function validateKnownBugs(
     if (bug.id.trim().length === 0 || bug.summary.trim().length === 0) {
       errors.push(`known-bugs: entry "${bug.id}" needs id and summary`);
     }
-    validateProof(`known-bugs:${bug.id}`, bug.guard, readFile, errors);
+    validateProof(`known-bugs:${bug.id}`, bug.guard, files, errors);
   }
 }
 
@@ -139,7 +150,7 @@ export function validateGoalGate(input: GoalGateInput): readonly string[] {
   for (const statement of input.statements) {
     const entry = input.checks[statement.id];
     if (entry === undefined) continue;
-    validateEntry(statement, entry, input.readFile, errors);
+    validateEntry(statement, entry, input.proofFiles, errors);
   }
 
   const unproven = countUnproven(input.checks);
@@ -149,6 +160,28 @@ export function validateGoalGate(input: GoalGateInput): readonly string[] {
     );
   }
 
-  validateKnownBugs(input.knownBugs, input.readFile, errors);
+  validateKnownBugs(input.knownBugs, input.proofFiles, errors);
+  return errors;
+}
+
+/**
+ * Missing or unmarked proof files among those `files` owns — the half of the
+ * gate a package's `lint` runs for the proofs that live in it.
+ */
+export function validateProofFiles(input: {
+  readonly checks: GoalChecks;
+  readonly knownBugs: readonly KnownBug[];
+  readonly files: ProofFiles;
+}): readonly string[] {
+  const errors: string[] = [];
+  for (const [id, entry] of Object.entries(input.checks)) {
+    if (entry.status !== 'proven') continue;
+    for (const proof of entry.proofs) {
+      validateProof(id, proof, input.files, errors);
+    }
+  }
+  for (const bug of input.knownBugs) {
+    validateProof(`known-bugs:${bug.id}`, bug.guard, input.files, errors);
+  }
   return errors;
 }

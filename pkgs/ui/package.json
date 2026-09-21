@@ -19,7 +19,8 @@
   },
   "scripts": {
     "codemod": "bun run ./codemod/cli-io.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel tests codemod/tests",
     "tokens:check": "bun run ./scripts/generate-tokens-css.ts --check",
     "tokens:generate": "bun run ./scripts/generate-tokens-css.ts"

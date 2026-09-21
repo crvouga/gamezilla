@@ -5,6 +5,7 @@ import { join } from 'node:path';
 
 import {
   collectStaticSpecifiers,
+  criticalPathViolations,
   isDeniedResolvedPath,
   isDeniedSpecifier,
   resolveImport,
@@ -100,4 +101,11 @@ describe('client-critical-path-imports', () => {
       true
     );
   });
+});
+
+test('the shipped client keeps heavy modules off the critical path', () => {
+  const found = criticalPathViolations().map(
+    (v) => `${v.fromRel} → ${v.specifier} (${v.reason})`
+  );
+  expect(found).toEqual([]);
 });

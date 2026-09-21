@@ -7,7 +7,7 @@ runtimes on that System:
 | --- | --- | --- | --- | --- |
 | `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + S3rver/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
-| `bun-webview` (stack) | `bunWebviewRuntime` | `SIM_MODE=stack` / `bun run test:product:localhost` | `Bun.WebView` against the stack's web origin | Attaches to a **separately booted localhost stack** ([`apps/product/scripts/localhost-stack`](./LOCALHOST_STACK.md)): round-robin balancer, N Bun API instances, real Postgres/S3rver/EMQX, simulated Google on its own origin. This process owns no servers |
+| `bun-webview` (stack) | `bunWebviewRuntime` | `SIM_MODE=stack` / `bun run --filter @apps/product test:stack` | `Bun.WebView` against the stack's web origin | Attaches to a **separately booted localhost stack** ([`apps/product/scripts/localhost-stack`](./LOCALHOST_STACK.md)): round-robin balancer, N Bun API instances, real Postgres/S3rver/EMQX, simulated Google on its own origin. This process owns no servers |
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
 helper over `product.run({ seed, runtime })` (plus snapshot restore + reporter).
@@ -118,7 +118,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
 
 **Reports** (`SIM_REPORT`) — standalone HTML, Playwright-trace style:
 
-- `bun run test:product:report` (root) / `bun run --filter @apps/product test:report [files…]`
+- `bun run --filter @apps/product test:report [files…]`
   wipes `apps/product/.cache/sim-report`, runs the suite with `SIM_REPORT=1` +
   a JUnit reporter, writes **`apps/product/sim-report/index.html`**, and opens
   it — one self-contained viewer: tests grouped by file name, step tree with
@@ -126,7 +126,7 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   (multi/single, zoom, snapshots, press overlay), and keyboard shortcuts (`?`
   for help). UI steps encode `hit` (testId path + layout rect) and snapshot
   before the gesture so the overlay lands on the pressed element.
-  `bun run test:product:report:open` rebuilds/opens an existing bucket without
+  `bun run --filter @apps/product report:open` rebuilds/opens an existing bucket without
   re-running tests.
 - Plain `bun run --filter @apps/product test` keeps `SIM_REPORT=0` (fast, no
   frames). `SIM_REPORT=1 bun test …` writes the raw bucket only; run
