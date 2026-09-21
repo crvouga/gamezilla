@@ -33,6 +33,8 @@ export type StartEmqxServerOptions = {
 };
 
 const APP_DIR = join(import.meta.dirname, '..');
+/** Tail of broker output kept for the report when it dies unexpectedly. */
+const OUTPUT_TAIL_BYTES = 64 * 1024;
 const DEFAULT_DATA_DIR = join(APP_DIR, 'data');
 
 /** Seed the config + bootstrap files a fresh data directory needs. */
@@ -100,9 +102,13 @@ export async function startEmqxServer(
     if (key.startsWith('EMQX_AUTHENTICATION_')) continue;
     cleanEnv[key] = value;
   }
+  // The broker's own log is noise while it works; it is buffered and printed
+  // only if the broker exits without being asked to (the parent's failure).
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
-    stdio: 'inherit',
+    // stdin stays inherited: an Erlang node in `foreground` halts when its
+    // stdin hits EOF, so `ignore` (/dev/null) kills the broker at boot.
+    stdio: ['inherit', 'pipe', 'pipe'],
     env: {
       ...cleanEnv,
       EMQX_NODE__DATA_DIR: dataDir,
@@ -117,8 +123,22 @@ export async function startEmqxServer(
     },
   });
 
+  let tail = '';
+  const keep = (chunk: Buffer): void => {
+    tail = (tail + chunk.toString('utf8')).slice(-OUTPUT_TAIL_BYTES);
+  };
+  emqx.stdout.on('data', keep);
+  emqx.stderr.on('data', keep);
+  let stopping = false;
+
   emqx.on('error', (err) => {
     process.stderr.write(`[emqx] failed to start ${String(err)}\n`);
+  });
+  emqx.on('exit', (code, signal) => {
+    if (stopping) return;
+    process.stderr.write(
+      `[emqx] exited unexpectedly (code=${String(code)} signal=${String(signal)}); last output:\n${tail}\n`
+    );
   });
 
   return {
@@ -127,6 +147,7 @@ export async function startEmqxServer(
     wsPort,
     dataDir,
     stop() {
+      stopping = true;
       if (emqx.exitCode !== null || emqx.killed) return;
       try {
         emqx.kill('SIGTERM');

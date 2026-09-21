@@ -56,6 +56,9 @@ const bus = createEmqxPubSub({
     username: 'device',
     password: await fetchJwt(),
   }),
+  timers, // injected @pkgs/clock Timers
+  random, // injected RNG for reconnect jitter
+  logger, // injected @pkgs/logger Logger
   keepaliveSec: 30,
 });
 

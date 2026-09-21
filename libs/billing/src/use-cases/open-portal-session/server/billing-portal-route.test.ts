@@ -8,6 +8,7 @@ import type {
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing';
+import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { BillingRouteDeps } from '../../../shared/routes/billing-route-deps';
@@ -59,6 +60,7 @@ function deps(
       Promise.resolve({ accountId: 'acc_1', deviceId: 'dev_1' }),
     createId: (() => 'id-1') as never,
     clock: { now: () => NOW },
+    log: createNoopLogger(),
     notifyUser: () => Promise.resolve(),
     ...overrides,
   };

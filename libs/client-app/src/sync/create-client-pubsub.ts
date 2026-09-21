@@ -2,6 +2,7 @@ import type { ConfigService } from '@libs/auth/public/config-service-types';
 import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
 import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import { createAedesPubSub } from '@pkgs/pubsub-aedes/create-aedes-pubsub';
 import { createEmqxPubSub } from '@pkgs/pubsub-emqx/create-emqx-pubsub';
@@ -46,6 +47,7 @@ export function createClientPubSub(args: {
   readonly getFreshAuthToken: GetFreshAuthToken;
   readonly timers: Timers;
   readonly random: Random;
+  readonly logger: Logger;
 }): PubSub {
   const deviceId = args.auth.getDeviceId() ?? 'device';
   const createPubSub = args.url.startsWith('ws:')
@@ -57,6 +59,7 @@ export function createClientPubSub(args: {
     timers: args.timers,
     protocolVersion: args.url.startsWith('ws://') ? 4 : 5,
     random: args.random,
+    logger: args.logger,
     auth: async () =>
       fetchPubSubToken({
         config: args.config,

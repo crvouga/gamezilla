@@ -43,7 +43,8 @@ async function main(): Promise<void> {
   const result = await reconcileStripeOffer(
     billing.stripe,
     PLUS_MEMBERSHIP_OFFER,
-    { callbackUrl }
+    { callbackUrl },
+    log
   );
   log.info(`[${SCRIPT_TAG}] done`, {
     products: result.products.length,

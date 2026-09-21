@@ -6,17 +6,20 @@
  */
 
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createWebSqlClient } from '@pkgs/sql-client-sqlite-web/web-sql-client';
 import { getMainSqliteDbName } from './main-sqlite-db-name';
 
 export async function openMainSqlClient(
   userId: string,
-  timers: Timers
+  timers: Timers,
+  logger: Logger
 ): Promise<SqlClient> {
   try {
     const client = createWebSqlClient(getMainSqliteDbName(userId), {
       timers,
+      logger,
     });
     await client.connect();
     return client;

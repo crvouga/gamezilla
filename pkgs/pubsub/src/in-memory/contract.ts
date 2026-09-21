@@ -8,11 +8,13 @@ import {
 import type {
   PubSubContractEnv,
   PubSubContractFactory,
+  PubSubContractOptions,
 } from './contract-types';
 
 export type {
   PubSubContractEnv,
   PubSubContractFactory,
+  PubSubContractOptions,
 } from './contract-types';
 
 /**
@@ -21,7 +23,8 @@ export type {
  */
 export function runPubSubContractTests(
   name: string,
-  factory: PubSubContractFactory
+  factory: PubSubContractFactory,
+  options: PubSubContractOptions
 ): void {
   describe(`PubSub contract: ${name}`, () => {
     let env: PubSubContractEnv | undefined;
@@ -42,7 +45,7 @@ export function runPubSubContractTests(
     };
 
     registerCoreContractTests(getEnv);
-    registerStatusContractTests(getEnv);
+    registerStatusContractTests(getEnv, options);
     registerPublishOnlyContractTests(getEnv);
   });
 }

@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { Sql, Value } from '@pkgs/sql';
 import type {
   PreparedStatement,
@@ -9,6 +10,7 @@ import { createLeaderTransport } from './db-host-leader';
 import {
   type CreateOwnerRuntimeArgs,
   createOwnerRuntime,
+  type TransportOwnerRuntimeFactory,
 } from './owner-runtime';
 import {
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
@@ -24,6 +26,8 @@ import type { SqlOwner } from './sql-owner';
 
 export type WebSqlClientOptions = {
   readonly timers: Timers;
+  /** Receives open-retry warnings from the owner runtime. */
+  readonly logger: Logger;
   /** Absolute URL of the SharedWorker script (default `/sql-workers/db-host-shared-worker.js`). */
   readonly sharedWorkerUrl?: string;
   /** Force leader-election path (tests / no SharedWorker). */
@@ -55,15 +59,13 @@ function newTabId(): string {
 
 function buildOwnerRuntimeFactory(
   options: WebSqlClientOptions
-): (args: {
-  readonly dbName: string;
-  readonly timers: Timers;
-}) => ReturnType<typeof createOwnerRuntime> {
+): TransportOwnerRuntimeFactory {
   const base = options.createOwnerRuntime ?? createOwnerRuntime;
   return (args) => {
     const ownerArgs: CreateOwnerRuntimeArgs = {
       dbName: args.dbName,
       timers: args.timers,
+      logger: options.logger,
       ...(options.createOwner !== undefined
         ? { createOwner: options.createOwner }
         : {}),

@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { createLogger } from '@pkgs/logger';
+import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
 import { createSimAdapters } from '@pkgs/uuid';
@@ -20,10 +20,7 @@ describe('EntityStoreImplPostgres', () => {
   });
 
   test('migrateUp + upsert + get + delete', async () => {
-    const logger = createLogger({
-      name: 'entity-store-test',
-      now: adapters.clock.now,
-    });
+    const logger = createNoopLogger();
     await EntityStoreImplPostgres.migrateUp({ sqlClient, logger });
     await EntityStoreImplPostgres.migrateUp({ sqlClient, logger });
 

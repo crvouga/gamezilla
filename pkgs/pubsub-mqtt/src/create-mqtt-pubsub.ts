@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import {
   assertValidTopic,
   decodePayload,
@@ -37,6 +38,8 @@ export type MqttPubSubOptions = {
   timers: Timers;
   /** Injectable RNG for reconnect jitter. */
   random: () => number;
+  /** Receives connect / transport / contained-handler warnings. */
+  logger: Logger;
   reconnect?: { baseMs?: number; maxMs?: number };
   keepaliveSec?: number;
   /** MQTT protocol version; Aedes currently requires 3.1.1. */
@@ -60,6 +63,7 @@ class MqttPubSub implements PubSub {
   private readonly connectFn: MqttConnectFn;
   private readonly timers: Timers;
   private readonly random: () => number;
+  private readonly logger: Logger;
 
   private client: MqttClient | null = null;
   private currentStatus: PubSubStatus = 'connecting';
@@ -81,6 +85,7 @@ class MqttPubSub implements PubSub {
     this.connectFn = options.connectFn ?? mqtt.connect;
     this.timers = options.timers;
     this.random = options.random;
+    this.logger = options.logger;
     rememberMqttClientId(this, this.clientId);
     void this.openConnection();
   }
@@ -176,7 +181,7 @@ class MqttPubSub implements PubSub {
       this.client = client;
       this.wireClient(client);
     } catch (err) {
-      console.warn('[pubsub-mqtt] connect failed', err);
+      this.logger.warn('connect failed', { error: String(err) });
       this.setStatus('down');
       this.scheduleReconnect();
     }
@@ -204,7 +209,7 @@ class MqttPubSub implements PubSub {
       this.dispatchMessage(topic, buf.toString('utf8'));
     });
     client.on('error', (err) => {
-      console.warn('[pubsub-mqtt] mqtt error', err);
+      this.logger.warn('mqtt error', { error: String(err) });
     });
   }
 
@@ -215,7 +220,7 @@ class MqttPubSub implements PubSub {
   }
 
   private dispatchMessage(topic: string, raw: string): void {
-    const data = decodePayload(raw);
+    const data = decodePayload(raw, this.logger);
     if (data === undefined) return;
     const set = this.topics.get(topic);
     if (!set) return;
@@ -223,7 +228,7 @@ class MqttPubSub implements PubSub {
       try {
         handler(data);
       } catch (err) {
-        console.warn('[pubsub] handler error contained', err);
+        this.logger.warn('handler error contained', { error: String(err) });
       }
     }
   }
@@ -261,7 +266,7 @@ class MqttPubSub implements PubSub {
       try {
         cb(next);
       } catch (err) {
-        console.warn('[pubsub-mqtt] onStatus error contained', err);
+        this.logger.warn('onStatus error contained', { error: String(err) });
       }
     }
   }

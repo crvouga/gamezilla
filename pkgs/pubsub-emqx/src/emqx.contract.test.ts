@@ -14,6 +14,7 @@ import {
   startEmqxServer,
 } from '@pkgs/emqx-server';
 import { createGlobalHttpClient } from '@pkgs/http-client';
+import { createNoopLogger } from '@pkgs/logger';
 import {
   type PubSubContractEnv,
   runPubSubContractTests,
@@ -141,6 +142,7 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
         clientIdPrefix: `contract_${randomClientIdSuffix(random)}`,
         timers,
         random,
+        logger: createNoopLogger(),
         auth: async () => ({
           username: MQTT_USER,
           password: MQTT_PASS,
@@ -192,7 +194,9 @@ async function makeContractEnv(): Promise<PubSubContractEnv> {
   };
 }
 
-runPubSubContractTests('emqx', makeContractEnv);
+runPubSubContractTests('emqx', makeContractEnv, {
+  supportsDisruptTransport: true,
+});
 
 type LinkProxy = {
   readonly url: string;
@@ -283,6 +287,7 @@ describe('EMQX offline session buffer', () => {
       clientIdPrefix: clientId,
       timers,
       random,
+      logger: createNoopLogger(),
       auth: async () => ({
         username: MQTT_USER,
         password: MQTT_PASS,

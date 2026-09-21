@@ -121,7 +121,7 @@ sequenceDiagram
 
 ## Migration (`open-main-sql-client.ts`)
 
-Web calls `createWebSqlClient(dbName, { timers, migrate?, schemaEpoch? })`.
+Web calls `createWebSqlClient(dbName, { timers, logger, migrate?, schemaEpoch? })`.
 Sync upload/push is gated by `sync-owner:<dbName>`.
 
 ### Legacy session lock

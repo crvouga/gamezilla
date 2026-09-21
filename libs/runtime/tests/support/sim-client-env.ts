@@ -9,6 +9,7 @@ import { createSecureStoreAuthClientStorage } from '@libs/client-app/shell/auth-
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
+import { createNoopLogger } from '@pkgs/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
@@ -60,8 +61,8 @@ export async function simClientEnv(
     random: session.ports.random,
     seed: seedToBigInt(seed),
     server: server.fetch,
-    events: createInMemoryPubSub(),
-    createPubSub: () => createInMemoryPubSub(),
+    events: createInMemoryPubSub({ logger: createNoopLogger() }),
+    createPubSub: () => createInMemoryPubSub({ logger: createNoopLogger() }),
     openSqlClient: async () => {
       const client = SqlClientImplSqliteMem.open({
         seed: 1,

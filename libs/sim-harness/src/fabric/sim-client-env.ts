@@ -13,6 +13,7 @@ import type { Timers } from '@pkgs/clock';
 import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
+import { createLogger } from '@pkgs/logger';
 import {
   type createInMemoryBus,
   createInMemoryPubSub,
@@ -92,11 +93,15 @@ export function makeSimClientEnv(
     // The actor id doubles as the sim username (client-a / client-b).
     onAuthSuccess: () => setPendingSignupUsername(id),
   });
+  const pubsubLogger = createLogger({
+    name: `sim-${id}:pubsub`,
+    now: () => session.ports.clock.now(),
+  });
   let liveEvents: ReturnType<typeof createInMemoryPubSub> | null =
-    createInMemoryPubSub({ bus: pubSubBus });
+    createInMemoryPubSub({ bus: pubSubBus, logger: pubsubLogger });
   const createPubSub = (): ReturnType<typeof createInMemoryPubSub> => {
     liveEvents?.close();
-    liveEvents = createInMemoryPubSub({ bus: pubSubBus });
+    liveEvents = createInMemoryPubSub({ bus: pubSubBus, logger: pubsubLogger });
     return liveEvents;
   };
   const env: ClientEnv = {

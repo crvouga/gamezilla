@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

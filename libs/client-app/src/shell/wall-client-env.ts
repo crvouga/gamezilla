@@ -15,6 +15,7 @@ import {
 import { gateFetchUntilAvailable } from '@pkgs/http-client/gate-fetch-until-available';
 import { createHealthOriginAvailability } from '@pkgs/http-client/origin-availability';
 import { KvImplWeb } from '@pkgs/kv-web/impl-kv-web';
+import { createLogger } from '@pkgs/logger';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs/wall-browser-fs';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
@@ -78,6 +79,7 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
   });
   const server = gateFetchUntilAvailable({ fetch: innerFetch, availability });
   const secureStorage = createSecureStorageStore(createWebSecureStorage());
+  const pubsubLogger = createLogger({ name: 'pubsub', now: wallClock.now });
 
   const env: ClientEnv = {
     clock: wallClock,
@@ -86,15 +88,19 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     random: () => Math.random(),
     seed: mintWallSeed(),
     server,
-    events: createInMemoryPubSub(),
-    createPubSub: () => createInMemoryPubSub(),
+    events: createInMemoryPubSub({ logger: pubsubLogger }),
+    createPubSub: () => createInMemoryPubSub({ logger: pubsubLogger }),
     // Dynamic: keeps the web SQLite client (worker transport, OPFS recovery)
     // off first load; it is only needed once the sync engine opens.
     openSqlClient: async (openArgs) => {
       const { openMainSqlClient } = await import(
         './storage/open-main-sql-client'
       );
-      return openMainSqlClient(openArgs?.userId ?? 'pending', wallTimers);
+      return openMainSqlClient(
+        openArgs?.userId ?? 'pending',
+        wallTimers,
+        createLogger({ name: 'sqlite-web', now: wallClock.now })
+      );
     },
     kv: new KvImplWeb(),
     authStorage: createSecureStoreAuthClientStorage(secureStorage),
