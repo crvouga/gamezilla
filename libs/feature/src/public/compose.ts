@@ -42,6 +42,8 @@ export type ComposedFeatures = {
   readonly ownerOfTable: ReadonlyMap<string, string>;
   readonly schema: Schema;
   readonly queries: QueryRegistry;
+  /** Session-held query names, in feature order. */
+  readonly sessionQueries: readonly string[];
   readonly topicMap: TopicMap;
   /** Memoized: the mutation thunks run once per composition. */
   readonly mutations: () => Promise<MutationRegistry>;
@@ -65,6 +67,22 @@ function collectTables(features: readonly FeatureManifest[]): {
     }
   }
   return { tables, ownerOfTable };
+}
+
+function collectSessionQueries(
+  features: readonly FeatureManifest[]
+): readonly string[] {
+  const out: string[] = [];
+  for (const feature of features) {
+    for (const name of feature.sessionQueries ?? []) {
+      assert.ok(
+        feature.queries.some((q) => q.name === name),
+        `composeFeatures: feature '${feature.name}' holds session query '${name}', which it does not define`
+      );
+      out.push(name);
+    }
+  }
+  return out;
 }
 
 function collectTopicMap(
@@ -131,6 +149,7 @@ export function composeFeatures(
     ownerOfTable,
     schema,
     queries: collectQueries(features),
+    sessionQueries: collectSessionQueries(features),
     topicMap: collectTopicMap(features, ownerOfTable),
     mutations: () => {
       pending ??= loadMutations(features);

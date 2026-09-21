@@ -14,6 +14,9 @@ export const BILLING_FEATURE = defineFeature({
   name: 'billing',
   tables: BILLING_TABLES,
   topicMap: BILLING_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['mySubscription'],
   queries: BILLING_QUERIES,
   // No writes: this feature's rows are server-materialized.
   mutations: () => Promise.resolve([]),

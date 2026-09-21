@@ -131,11 +131,25 @@ module.exports = {
       name: 'feature-no-composition-root',
       severity: 'error',
       comment:
-        'A feature package must not import the composition root (@libs/runtime / libs/runtime). Declare what the feature needs as a port on its manifest and let the composition root fill it.',
+        'A feature package (and the app shell) must not import the composition root (@libs/runtime / libs/runtime). Declare what it needs as a port on its manifest and let the composition root fill it.',
       from: {
-        path: '^libs/(auth|billing|chess|client-config|feature|friends|notifications|permissions|profile|spaces)/src/',
+        path: '^libs/(auth|billing|chess|client-app|client-config|feature|friends|notifications|permissions|profile|search|spaces|user-search)/src/',
       },
       to: { path: '^libs/runtime/' },
+    },
+    // The shell is what a feature's own e2e boots. The moment it imports a
+    // feature, every feature is in every feature's build graph and per-feature
+    // test caching is gone — so this rule is load-bearing for the whole
+    // arrangement, not housekeeping.
+    {
+      name: 'shell-no-features',
+      severity: 'error',
+      comment:
+        'The app shell (@libs/client-app) must not import a feature. Routes, tabs, docks and providers arrive through the FeatureClient fold; anything else the shell needs is a port the composition root fills. Platform packages (auth, permissions, client-config, feature, test-ids) are fine.',
+      from: { path: '^libs/client-app/src/' },
+      to: {
+        path: '^libs/(billing|chess|friends|games|notifications|profile|search|spaces|user-search)/',
+      },
     },
     {
       name: 'shared-no-wall-io-packages',

@@ -6,7 +6,7 @@ import {
   assertDatabaseUrlAllowedForSecretsEnv,
   DEVELOPMENT_SECRETS_ENV,
 } from '@libs/db/public/database-url-policy';
-import type { OpenSqlClient } from '@libs/runtime/shared/env';
+import type { OpenSqlClient } from '@libs/feature/public/sync';
 import { assert } from '@pkgs/assert';
 import { createAuthServerAdapter } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';

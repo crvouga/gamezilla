@@ -29,6 +29,7 @@
     "ci:i18n": "bun run libs/tools/scripts/ci-i18n.ts",
     "ci:knip": "knip --dependencies --files --no-progress --no-config-hints",
     "ci:no-skipped-tests": "bun run libs/tools/scripts/check-no-skipped-tests.ts",
+    "ci:package-boundaries": "bun run libs/tools/scripts/check-package-boundaries.ts",
     "ci:setup-secrets-auth": "bun run libs/secrets/src/scripts/setup-ci-secrets-auth.ts",
     "ci:syncpack": "syncpack lint --dependency-types prod,dev",
     "db:migrate": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/db migrate",

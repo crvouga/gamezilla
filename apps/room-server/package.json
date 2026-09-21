@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/games": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",

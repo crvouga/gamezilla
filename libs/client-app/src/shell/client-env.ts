@@ -7,7 +7,7 @@
  */
 
 import type { DevMenuPort } from '@libs/client-app/device/ports';
-import type { OpenSqlClient } from '@libs/runtime/shared/env';
+import type { OpenSqlClient } from '@libs/feature/public/sync';
 import type { AuthClientStorage } from '@pkgs/auth/client/bearer-token-store';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ClipboardPort } from '@pkgs/device/clipboard';

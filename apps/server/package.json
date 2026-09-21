@@ -32,6 +32,7 @@
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
     "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",

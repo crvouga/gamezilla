@@ -2,21 +2,15 @@
 
 import { describe, expect, it } from 'bun:test';
 import { matchAppRoute } from '@libs/client-app/routes/match-route-path';
-import { APP_ROUTE_TABLE } from '@libs/client-app/routes/route-table';
+import {
+  buildRouteTable,
+  SHELL_ROUTE_TABLE,
+} from '@libs/client-app/routes/route-table';
 import { buildAppRoutes } from '@libs/client-app/routes/routes';
+import type { FeatureRoute } from '@libs/feature/public/client';
 
-/** Every path from the RN linking config with params filled in. */
-const LINKING_CONFIG_PATHS: readonly string[] = [
-  '/',
-  '/search',
-  '/notifications',
-  '/profile',
-  '/space/space-1',
-  '/profile/edit',
-  '/profile/handle',
-  '/profile/avatar',
-  '/profile/friends',
-  '/profile/user/user-1',
+/** Paths the shell owns regardless of which features are composed in. */
+const SHELL_PATHS: readonly string[] = [
   '/more',
   '/more/theme',
   '/more/performance',
@@ -29,36 +23,58 @@ const LINKING_CONFIG_PATHS: readonly string[] = [
   '/more/account/providers',
   '/more/account/devices',
   '/more/account/device/device-1',
+  '/client/sql',
+  '/client/events',
   '/ui',
   '/ui/button',
   '/sso-callback',
 ];
 
+const FAKE_TAB: FeatureRoute = {
+  path: '/fake',
+  tab: true,
+  load: () => import('@libs/client-app/routes/stubs/not-found'),
+};
+
+const FAKE_STACK: FeatureRoute = {
+  path: '/fake/:id',
+  load: () => import('@libs/client-app/routes/stubs/not-found'),
+};
+
 describe('route table', () => {
-  it('resolves every linking-config path to a real route (no catch-all)', () => {
-    for (const path of LINKING_CONFIG_PATHS) {
-      expect(matchAppRoute(path), path).not.toBeNull();
+  it('resolves every shell path to a real route (no catch-all)', () => {
+    const table = buildRouteTable([]);
+    for (const path of SHELL_PATHS) {
+      expect(matchAppRoute(table, path), path).not.toBeNull();
     }
   });
 
   it('routes unknown paths to the catch-all', () => {
-    expect(matchAppRoute('/nope')).toBeNull();
-    expect(matchAppRoute('/more/unknown/deep')).toBeNull();
+    const table = buildRouteTable([]);
+    expect(matchAppRoute(table, '/nope')).toBeNull();
+    expect(matchAppRoute(table, '/more/unknown/deep')).toBeNull();
   });
 
-  it('exposes one lazy route per table entry plus the tabs layout and catch-all', () => {
-    const routes = buildAppRoutes();
+  it('mounts what the composed features contributed, and nothing more', () => {
+    const empty = buildRouteTable([]);
+    expect(matchAppRoute(empty, '/fake')).toBeNull();
+    const withFeature = buildRouteTable([FAKE_TAB, FAKE_STACK]);
+    expect(matchAppRoute(withFeature, '/fake')).not.toBeNull();
+    expect(matchAppRoute(withFeature, '/fake/7')).not.toBeNull();
+  });
+
+  it('nests tab routes under the layout and ends with the catch-all', () => {
+    const routes = buildAppRoutes(buildRouteTable([FAKE_TAB, FAKE_STACK]));
     const tabs = routes[0];
     expect(tabs?.path).toBe('/');
-    expect(Array.isArray(tabs?.children) ? tabs.children.length : 0).toBe(4);
-    const tabCount = APP_ROUTE_TABLE.filter((e) => e.tab === true).length;
-    // tabs layout + stack routes + catch-all
-    expect(routes.length).toBe(APP_ROUTE_TABLE.length - tabCount + 2);
+    expect(Array.isArray(tabs?.children) ? tabs.children.length : 0).toBe(1);
+    // tabs layout + shell stack routes + the feature stack route + catch-all
+    expect(routes.length).toBe(SHELL_ROUTE_TABLE.length + 3);
     expect(routes.at(-1)?.path).toBe('/*all');
   });
 
-  it('every stub module default-exports a component', async () => {
-    for (const entry of APP_ROUTE_TABLE) {
+  it('every shell stub module default-exports a component', async () => {
+    for (const entry of SHELL_ROUTE_TABLE) {
       const mod = await entry.load();
       expect(typeof mod.default, entry.path).toBe('function');
     }

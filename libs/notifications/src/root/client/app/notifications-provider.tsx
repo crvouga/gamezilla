@@ -8,15 +8,12 @@ import {
   useFreshAuthToken,
   useGetFreshAuthToken,
 } from '@libs/auth/public/use-fresh-auth-token';
-import { FriendRequestDecisionProvider } from '@libs/friends/public/friend-request-decision-state';
-import { createFriendsNotificationProvider } from '@libs/friends/root/client/friends-notification-provider';
-import { useFriendsClientDeps } from '@libs/friends/root/client/use-friends-client-deps';
 import {
-  type NotificationProvider,
   type NotificationsClientDeps,
   NotificationsProviderRegistry,
   NotificationsUnreadCountLiveBridge,
 } from '@libs/notifications/public';
+import { useNotificationSources } from '@libs/notifications/public/notification-sources';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { useCan } from '@libs/permissions/public/use-can';
 import { useHttpClient } from '@pkgs/http-client/solid';
@@ -97,13 +94,12 @@ export function AppNotificationsProvider(props: {
     () => canReceive() && authToken() !== null && deviceId().length > 0
   );
   const deps = useNotificationsClientDeps();
-  const friendsDeps = useFriendsClientDeps();
   const { open: openSignInModal } = useSignInModal();
+  const sources = useNotificationSources();
 
-  const providers = createMemo((): readonly NotificationProvider[] => {
-    if (!canReceive()) return [];
-    return [createFriendsNotificationProvider(friendsDeps)];
-  });
+  // Nothing arrives for someone who may not receive notifications, whatever
+  // features registered.
+  const providers = createMemo(() => (canReceive() ? sources() : []));
 
   return (
     <NotificationsProviderRegistry
@@ -113,12 +109,8 @@ export function AppNotificationsProvider(props: {
       providers={providers()}
       onSignIn={openSignInModal}
     >
-      {/* Decision-modal open state lives above the virtualized rows so row
-          recycling (read-state flips, sync merges) cannot close it. */}
       <NotificationsUnreadCountLiveBridge>
-        <FriendRequestDecisionProvider>
-          {props.children}
-        </FriendRequestDecisionProvider>
+        {props.children}
       </NotificationsUnreadCountLiveBridge>
     </NotificationsProviderRegistry>
   );

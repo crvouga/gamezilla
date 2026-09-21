@@ -78,6 +78,7 @@
     "libs/client-app/tests/**/*.ts",
     "libs/client-app/tests/**/*.tsx",
     "libs/feature/src/**/*.ts",
+    "libs/feature/src/**/*.tsx",
     "libs/feature/tests/**/*.ts",
     "libs/profile/src/**/*.ts",
     "libs/profile/src/**/*.tsx",

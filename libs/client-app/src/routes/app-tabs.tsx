@@ -1,69 +1,34 @@
-/** @jsxImportSource solid-js */
 /**
- * Shared tab spec for the compact bottom tab bar and the wide header island.
- * (NotificationsTabIcon owns unread badge layout.)
+ * The tab bar's spec comes from whichever features contributed a tab, in the
+ * order they declared. The shell owns no tabs of its own.
  */
 
-import { NotificationsTabIcon } from '@libs/notifications/public/notifications-tab-icon';
-import { Handles } from '@libs/test-ids';
-import { useLingui } from '@lingui/solid/macro';
-import {
-  Gamepad2Icon,
-  type Href,
-  type IconComponent,
-  SearchIcon,
-  UserIcon,
-} from '@pkgs/ui';
-import type { Accessor } from 'solid-js';
+import type { FeatureTab } from '@libs/feature/public/client';
+import { type Accessor, createMemo } from 'solid-js';
 
-export type AppTabName = 'Spaces' | 'Search' | 'Notifications' | 'ProfileTab';
+import { useAppFeatures } from '../shell/app-features-context';
 
 export type AppTabSpec = {
-  readonly name: AppTabName;
-  readonly href: Href;
+  readonly name: string;
+  readonly href: string;
   readonly label: string;
-  readonly Icon: IconComponent;
+  readonly Icon: FeatureTab['Icon'];
   readonly testID: string;
 };
 
-/** Paths that render inside `TabsLayout`. */
-export const APP_TAB_PATHS: readonly Href[] = [
-  '/',
-  '/search',
-  '/notifications',
-  '/profile',
-];
-
+/**
+ * Labels are read through the active locale, so they are evaluated inside a
+ * memo owned by the calling component rather than in a bare thunk.
+ */
 export function useAppTabs(): Accessor<readonly AppTabSpec[]> {
-  const { t } = useLingui();
-  return () => [
-    {
-      name: 'Spaces',
-      href: '/',
-      label: t`Spaces`,
-      Icon: Gamepad2Icon,
-      testID: Handles.tabSpaces,
-    },
-    {
-      name: 'Search',
-      href: '/search',
-      label: t`Search`,
-      Icon: SearchIcon,
-      testID: Handles.tabSearch,
-    },
-    {
-      name: 'Notifications',
-      href: '/notifications',
-      label: t`Notifications`,
-      Icon: NotificationsTabIcon,
-      testID: Handles.tabNotifications,
-    },
-    {
-      name: 'ProfileTab',
-      href: '/profile',
-      label: t`Profile`,
-      Icon: UserIcon,
-      testID: Handles.tabProfile,
-    },
-  ];
+  const features = useAppFeatures();
+  return createMemo(() =>
+    features.tabs.map((tab) => ({
+      name: tab.name,
+      href: tab.href,
+      label: tab.label(),
+      Icon: tab.Icon,
+      testID: tab.testID,
+    }))
+  );
 }

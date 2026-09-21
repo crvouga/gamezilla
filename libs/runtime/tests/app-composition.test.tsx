@@ -2,11 +2,13 @@
 
 import { afterEach, describe, expect, it } from 'bun:test';
 import { createClient } from '@libs/client-app/shell/create-client';
+import { APP } from '@libs/runtime/root/app-features';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
 import { Handles } from '@libs/test-ids';
 import { createMemoryHistory } from '@solidjs/router';
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
 
-import { type SimClientEnv, simClientEnv } from '../support/sim-client-env';
+import { type SimClientEnv, simClientEnv } from './support/sim-client-env';
 
 const BOOT_TIMEOUT_MS = 15_000;
 const TAB_HANDLES = [
@@ -48,7 +50,13 @@ function stubHostSize(size: { width: number; height: number }): () => void {
   };
 }
 
-describe('createClient', () => {
+/**
+ * The real composition: every feature the product ships, folded by the same
+ * `createClient` a subsystem harness calls with one. This is the thin
+ * full-composition layer — it invalidates whenever any feature changes, by
+ * design, so it stays small and is never skipped.
+ */
+describe('app composition', () => {
   let sim: SimClientEnv | null = null;
   let restoreHostSize: (() => void) | null = null;
   afterEach(async () => {
@@ -60,7 +68,10 @@ describe('createClient', () => {
 
   it('boots through the paint gate into the tabbed Spaces screen and routes', async () => {
     sim = await simClientEnv({ seed: 7 });
-    const client = createClient(sim.env);
+    const client = createClient(sim.env, {
+      features: APP_FEATURE_CLIENTS,
+      loadApp: () => Promise.resolve(APP),
+    });
     const history = createMemoryHistory();
 
     const view = render(() => <client.App embedded history={history} />);
@@ -104,7 +115,10 @@ describe('createClient', () => {
   it('paints the wide header island without crashing on notifications chrome', async () => {
     restoreHostSize = stubHostSize({ width: 1280, height: 900 });
     sim = await simClientEnv({ seed: 11 });
-    const client = createClient(sim.env);
+    const client = createClient(sim.env, {
+      features: APP_FEATURE_CLIENTS,
+      loadApp: () => Promise.resolve(APP),
+    });
     const history = createMemoryHistory();
 
     const view = render(() => <client.App embedded history={history} />);
@@ -129,7 +143,10 @@ describe('createClient', () => {
 
   it('opens the account menu without a surface-stack crash', async () => {
     sim = await simClientEnv({ seed: 13 });
-    const client = createClient(sim.env);
+    const client = createClient(sim.env, {
+      features: APP_FEATURE_CLIENTS,
+      loadApp: () => Promise.resolve(APP),
+    });
     const history = createMemoryHistory();
     const view = render(() => <client.App embedded history={history} />);
     await sim.session.advanceTime(1_000);

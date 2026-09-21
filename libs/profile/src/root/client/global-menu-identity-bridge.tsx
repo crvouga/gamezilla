@@ -1,11 +1,22 @@
 /** @jsxImportSource solid-js */
 /**
- * Live publisher for {@link GlobalMenuIdentityRoot}. Loaded only with the
- * sync-engine ready tree so profile / auth queries stay off the entry chunk.
+ * Publishes the signed-in person's name and face into the shell's global
+ * menu. Mounts inside the sync tree, because it reads profile rows; the shell
+ * chrome that renders the menu sits above the local-database gate and only
+ * ever sees the published values.
+ *
+ * The shell is told how to draw the face, not what it is made of — profile
+ * owns avatar configs, and a shell composed without profile simply shows the
+ * default glyph.
  */
 
 import { useSessionAccountEmail } from '@libs/auth/public/use-current-user';
+import {
+  BOOT_GLOBAL_MENU_IDENTITY,
+  useGlobalMenuIdentityPublisher,
+} from '@libs/client-app/chrome/global-menu-identity-context';
 import { parseAvatarConfig } from '@libs/profile/public/avatar-config';
+import { DeviceAvatar } from '@libs/profile/public/device-avatar';
 import { useMyProfileId } from '@libs/profile/public/use-my-profile-id';
 import { useProfileColumn } from '@libs/profile/public/use-profile-column';
 import {
@@ -17,11 +28,6 @@ import {
   Show,
 } from 'solid-js';
 
-import {
-  BOOT_GLOBAL_MENU_IDENTITY,
-  useGlobalMenuIdentityPublisher,
-} from './global-menu-identity-context';
-
 function PublishIdentity(props: {
   readonly profileId: string | null;
   readonly username: Accessor<string | null>;
@@ -32,12 +38,20 @@ function PublishIdentity(props: {
   const avatarConfig = createMemo(() =>
     parseAvatarConfig(props.avatarConfigRaw())
   );
+  // The face is a render thunk, and it reads the config where it renders —
+  // inside the menu — rather than closing over the value at publish time. The
+  // avatar then follows an edit without this effect having to republish.
   createEffect(() => {
     publish({
       username: props.username(),
       email: email(),
-      profileId: props.profileId,
-      avatarConfig: avatarConfig(),
+      avatar: (size) => (
+        <DeviceAvatar
+          avatarConfig={avatarConfig()}
+          seedFallback={props.profileId ?? 'guest'}
+          size={size}
+        />
+      ),
     });
   });
   onCleanup(() => publish(BOOT_GLOBAL_MENU_IDENTITY));

@@ -7,19 +7,19 @@
  *
  * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
  * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
- * not block the frame itself (see docs/LOW_END_ANDROID_PERF.md). Wide header
- * tabs read unread count from `NotificationsUnreadCountRoot` — the
- * registry / `createQuery` live inside the session tree.
+ * not block the frame itself (see docs/LOW_END_ANDROID_PERF.md). Anything a
+ * feature needs painted above the SQLite gate — an unread-count root, a game
+ * registry — is its `chrome` contribution, mounted by `AppProvidersSession`.
  */
 
 import { EmbeddedHrefPersistence } from '@libs/client-app/shell/embedded-href-persistence';
-import { NotificationsUnreadCountRoot } from '@libs/notifications/public/notifications-unread-count-chrome';
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
 import { AppFrame, AppFrameChromeProvider, AppRouterProvider } from '@pkgs/ui';
 import { type JSX, onCleanup, onMount, Show } from 'solid-js';
 import { AppHeaderGlobalMenu } from '../chrome/app-header-global-menu';
 import { AppHeaderIslandHost } from '../chrome/app-header-island';
 import { GlobalMenuIdentityRoot } from '../chrome/global-menu-identity-context';
+import { useAppFeatures } from './app-features-context';
 import { BootPaintGate } from './boot/boot-paint-gate';
 import { useClientEnv } from './client-env-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
@@ -39,6 +39,7 @@ export type ProductAppProps = {
 
 export function ProductApp(props: ProductAppProps): JSX.Element {
   const env = useClientEnv();
+  const features = useAppFeatures();
   const availability = originAvailabilityFor(env);
   onMount(() => {
     availability.start();
@@ -54,7 +55,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
             </Show>
             <SyncStatusRoot>
               <GlobalMenuIdentityRoot>
-                <NotificationsUnreadCountRoot>
+                <features.Chrome>
                   <AppFrameChromeProvider
                     globalTrailing={<AppHeaderGlobalMenu />}
                   >
@@ -66,7 +67,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                       </AppFrame>
                     </BootPaintGate>
                   </AppFrameChromeProvider>
-                </NotificationsUnreadCountRoot>
+                </features.Chrome>
               </GlobalMenuIdentityRoot>
             </SyncStatusRoot>
           </AppProvidersOuter>

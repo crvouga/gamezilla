@@ -14,6 +14,9 @@ export const PROFILE_FEATURE = defineFeature({
   name: 'profile',
   tables: PROFILE_TABLES,
   topicMap: PROFILE_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['ownProfile'],
   queries: PROFILE_QUERIES,
   mutations: async () => (await import('./mutations')).PROFILE_MUTATIONS,
 });

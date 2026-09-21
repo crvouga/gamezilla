@@ -1374,8 +1374,8 @@ msgstr "Nothing needs your attention"
 msgid "Nothing synced near this rating yet. Change the target rating to keep playing."
 msgstr "Nothing synced near this rating yet. Change the target rating to keep playing."
 
-#: libs/client-app/src/routes/app-tabs.tsx
 #: libs/notifications/src/public/notifications-header-button.tsx
+#: libs/notifications/src/root/client/feature-client.tsx
 #: libs/notifications/src/root/client/notifications-screen.tsx
 msgid "Notifications"
 msgstr "Notifications"
@@ -1570,10 +1570,10 @@ msgstr "Private spaces only sync for people you add here."
 msgid "Production"
 msgstr "Production"
 
-#: libs/client-app/src/routes/app-tabs.tsx
 #: libs/friends/src/root/client/friend-user-screen-view.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
 #: libs/friends/src/root/client/friends-permission-gate.tsx
+#: libs/profile/src/root/client/feature-client.tsx
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 #: libs/profile/src/root/client/profile-screen.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
@@ -1738,7 +1738,7 @@ msgstr "Saved"
 msgid "Saving…"
 msgstr "Saving…"
 
-#: libs/client-app/src/routes/app-tabs.tsx
+#: libs/search/src/root/client/feature-client.tsx
 #: libs/search/src/root/client/search-screen-view.tsx
 msgid "Search"
 msgstr "Search"
@@ -2074,7 +2074,6 @@ msgstr "Space renamed"
 #: libs/auth/src/root/client/account-device/account-device-detail-screen.tsx
 #: libs/auth/src/root/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/root/client/account-screen.tsx
-#: libs/client-app/src/routes/app-tabs.tsx
 #: libs/client-app/src/routes/stubs/client-events.tsx
 #: libs/client-app/src/routes/stubs/client-sql.tsx
 #: libs/client-app/src/routes/stubs/ui-explorer.tsx
@@ -2085,6 +2084,7 @@ msgstr "Space renamed"
 #: libs/client-app/src/screens/more/sync-screen.tsx
 #: libs/client-app/src/screens/more/theme-screen.tsx
 #: libs/client-config/src/root/client/client-config-screen.tsx
+#: libs/spaces/src/root/client/feature-client.tsx
 #: libs/spaces/src/root/client/join-space/space-ended-screen.tsx
 #: libs/spaces/src/root/client/join-space/space-join-prompt.tsx
 #: libs/spaces/src/root/client/spaces-screen.tsx

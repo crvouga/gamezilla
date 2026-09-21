@@ -14,6 +14,9 @@ export const SPACES_FEATURE = defineFeature({
   name: 'spaces',
   tables: SPACES_TABLES,
   topicMap: SPACES_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['openSpaceSessions', 'mySpaces', 'mySpaceUsers'],
   queries: SPACE_QUERIES,
   mutations: async () => (await import('./mutations')).SPACE_MUTATIONS,
 });

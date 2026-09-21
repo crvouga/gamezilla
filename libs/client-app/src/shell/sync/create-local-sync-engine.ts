@@ -5,7 +5,6 @@
  */
 
 import type { ConfigService } from '@libs/auth/public/config-service-types';
-import { APP_QUERIES } from '@libs/client-app/sync/app-queries';
 import {
   createClientPubSub,
   readEmqxWssUrlFromLocalDb,
@@ -19,16 +18,12 @@ import {
   type SyncApiFetch,
   type SyncClientAuth,
 } from '@libs/client-app/sync/sync-api';
-import type { AppChannelsCtx } from '@libs/runtime/public/sync-topics';
+import type { ComposedFeatures } from '@libs/feature/public/compose';
 import {
-  appSchema,
-  LOCAL_DOMAIN_TABLE_NAMES,
-} from '@libs/runtime/root/app-schema';
-import {
-  appDefaultEntryChannel,
-  appTopicMap,
-} from '@libs/runtime/root/app-topic-map';
-import type { OpenSqlClient } from '@libs/runtime/shared/env';
+  type ChannelsCtx,
+  defaultEntryChannel,
+  type OpenSqlClient,
+} from '@libs/feature/public/sync';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -46,28 +41,15 @@ import {
 import { createAppSyncLifecycle } from './app-sync-lifecycle';
 import { tryAcquireSyncOwnerLease } from './sync-owner-lock';
 
-/** Session queries held for the engine lifetime (not a UI paint barrier). */
-const SESSION_QUERIES = [
-  'ownUser',
-  'ownDevices',
-  'ownExternalAccounts',
-  'ownProfile',
-  'clientConfig',
-  'openSpaceSessions',
-  'mySpaces',
-  'mySpaceUsers',
-  'friendships',
-  'friendRequests',
-  'userBlocks',
-  'notificationsActive',
-  'chessPuzzleProfile',
-  'chessPuzzleInteractions',
-  'chessPuzzleRatingEvents',
-  'mySubscription',
-  'permissionQuotaLedger',
-] as const;
-
 export type CreateAppLocalSyncEngineArgs = {
+  /**
+   * Resolves the folded feature set this engine serves: its schema, its
+   * queries, its wake topics. The shell holds no product registry of its own,
+   * so the same factory builds the whole product's engine and a single
+   * feature's — and the fold loads here, with the engine, rather than on the
+   * entry chunk.
+   */
+  readonly loadApp: () => Promise<ComposedFeatures>;
   readonly config: ConfigService;
   readonly fetchFn: SyncApiFetch;
   readonly userId: string;
@@ -109,8 +91,9 @@ function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
   };
 }
 
-function sessionQuerySpecs() {
-  return SESSION_QUERIES.map((name) => ({ name, params: {} }));
+/** What the composed features asked to keep open for the session. */
+function sessionQuerySpecs(app: ComposedFeatures) {
+  return app.sessionQueries.map((name) => ({ name, params: {} }));
 }
 
 /** Identity-only ctx — room topics derive from held rows in attachPush. */
@@ -118,7 +101,7 @@ function createMembershipChannels(args: {
   readonly auth: SyncClientAuth;
   readonly userId: string;
 }): {
-  readonly getChannelsCtx: () => AppChannelsCtx;
+  readonly getChannelsCtx: () => ChannelsCtx;
   readonly onBindTopicRefresh: (refresh: () => void) => void;
 } {
   return {
@@ -132,12 +115,13 @@ function createMembershipChannels(args: {
 
 function pushOptions(
   args: CreateAppLocalSyncEngineArgs,
+  app: ComposedFeatures,
   pushCtx: ReturnType<typeof createMembershipChannels>,
   emqxUrlHolder: { url: string | null }
 ) {
   return {
     push: {
-      queryRegistry: APP_QUERIES,
+      queryRegistry: app.queries,
       createPubSub: () => {
         if (args.createPubSub !== undefined) {
           return args.createPubSub();
@@ -160,8 +144,8 @@ function pushOptions(
       getChannelsCtx: pushCtx.getChannelsCtx,
       onBindTopicRefresh: pushCtx.onBindTopicRefresh,
       rowImageFanout: true,
-      topicMap: appTopicMap,
-      defaultEntryChannel: appDefaultEntryChannel,
+      topicMap: app.topicMap,
+      defaultEntryChannel,
     },
   };
 }
@@ -219,6 +203,7 @@ function webChangeBridge(webDb: Partial<WebSqlClient>) {
 
 function buildEngine(
   args: CreateAppLocalSyncEngineArgs,
+  app: ComposedFeatures,
   db: SqlClient,
   isOwner: boolean
 ): Promise<SyncEngine> {
@@ -231,13 +216,13 @@ function buildEngine(
   return createLocalSyncEngine({
     db,
     localSchema: {
-      domainSchema: appSchema,
-      cacheTableNames: LOCAL_DOMAIN_TABLE_NAMES,
+      domainSchema: app.schema,
+      cacheTableNames: app.tableNames,
     },
     mutationRegistry: args.mutationRegistry,
     getMutationEnv: () => mutationEnv(args),
     getClientId: () => args.auth.getDeviceId() ?? args.databaseName,
-    sessionQueries: sessionQuerySpecs(),
+    sessionQueries: sessionQuerySpecs(app),
     postQueries: (requests) => postAppQueries({ ...args, requests }),
     postMutations: (mutations) => postMutationBatch({ ...args, mutations }),
     isAuthRevoked: (error) =>
@@ -255,7 +240,7 @@ function buildEngine(
       ? { waitUntilAvailable: args.waitUntilAvailable }
       : {}),
     ...webChangeBridge(webDb),
-    ...(isOwner ? pushOptions(args, pushCtx, emqxUrlHolder) : {}),
+    ...(isOwner ? pushOptions(args, app, pushCtx, emqxUrlHolder) : {}),
   });
 }
 
@@ -266,6 +251,8 @@ export async function createAppLocalSyncEngine(
   // Injected openSqlClient = sim/product-simulator isolated DB — never share OPFS, so
   // skip Web Locks (a prior engine's unreleased lock would make reload a
   // permanent non-owner with no upload/push).
+  // The fold arrives with this module, not with the entry chunk.
+  const app = await args.loadApp();
   const syncLease =
     args.openSqlClient !== undefined
       ? { isOwner: true as const, release: () => undefined }
@@ -274,7 +261,7 @@ export async function createAppLocalSyncEngine(
     let db = await openAppLocalDb(args);
     let engine: SyncEngine;
     try {
-      engine = await buildEngine(args, db, syncLease.isOwner);
+      engine = await buildEngine(args, app, db, syncLease.isOwner);
       emqxUrlHolderFor(args.databaseName).url =
         await readEmqxWssUrlFromLocalDb(db);
     } catch {
@@ -283,7 +270,7 @@ export async function createAppLocalSyncEngine(
       // never turn into an application boot gate.
       await db.disconnect().catch(() => undefined);
       db = await openDisposableSqlClient();
-      engine = await buildEngine(args, db, syncLease.isOwner);
+      engine = await buildEngine(args, app, db, syncLease.isOwner);
       emqxUrlHolderFor(args.databaseName).url =
         await readEmqxWssUrlFromLocalDb(db);
     }

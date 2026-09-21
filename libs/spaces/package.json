@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/client-app": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
@@ -48,6 +49,7 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@solidjs/router": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"

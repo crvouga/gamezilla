@@ -13,6 +13,7 @@ import {
   createSignal,
   onCleanup,
 } from 'solid-js';
+import { useAppData } from '../app-features-context';
 import { useLocalPaintLatch } from '../boot/local-paint-latch';
 import { useClientEnv, useSyncEnginePool } from '../client-env-context';
 import { exposeLocalSqlForE2e } from '../e2e-local-sql';
@@ -46,6 +47,7 @@ function useSyncBootPromise(args: {
   readonly preloadReadyTree: () => Promise<unknown>;
 }): Accessor<Promise<ReadySyncEngine>> {
   const env = useClientEnv();
+  const loadApp = useAppData();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
   const observability = useObservability();
@@ -67,6 +69,7 @@ function useSyncBootPromise(args: {
       });
     }
     const engine = pool.getOrCreate({
+      loadApp,
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
       createPubSub: () => env.createPubSub(),
       config: { getApiUrl: () => env.serverUrl },

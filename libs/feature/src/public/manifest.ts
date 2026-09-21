@@ -61,6 +61,12 @@ export type FeatureManifest<
    */
   readonly queries: readonly QueryDef<unknown>[];
   /**
+   * Queries a signed-in client holds open for the whole session, by name.
+   * These are what the local database is kept warm with, so a feature says
+   * which of its reads are session-scoped rather than the shell guessing.
+   */
+  readonly sessionQueries?: readonly string[];
+  /**
    * Writes, behind a thunk. Mutation bodies pull the feature's whole domain
    * layer, so they stay on their own chunk boundary: the client loads them
    * with its first sync engine, and a slice harness loads only what the

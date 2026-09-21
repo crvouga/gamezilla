@@ -38,6 +38,7 @@ const CHECK_LEAVES = [
   '//#lint:eslint',
   '//#ci:syncpack',
   '//#ci:depcruise',
+  '//#ci:package-boundaries',
   '//#ci:audit',
   '//#ci:i18n',
   '@apps/client#check:critical-path',

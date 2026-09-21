@@ -7,7 +7,6 @@
  * current user's avatar when available.
  */
 
-import { DeviceAvatar } from '@libs/profile/public/device-avatar';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
@@ -29,7 +28,10 @@ import {
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 
 import { useLocalIdentity } from '../shell/identity/identity-context';
-import { useGlobalMenuIdentity } from './global-menu-identity-context';
+import {
+  type GlobalMenuIdentity,
+  useGlobalMenuIdentity,
+} from './global-menu-identity-context';
 import { createConnectivity } from './use-connectivity';
 
 const CONNECTIVITY_DOT_SIZE = 14;
@@ -118,19 +120,25 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   ]);
 }
 
+/** Shell default face when no feature published one. */
+function DefaultAccountFace(props: { readonly size: number }): JSX.Element {
+  return <UserIcon size={props.size} />;
+}
+
+function accountFace(identity: GlobalMenuIdentity, size: number): JSX.Element {
+  const render = identity.avatar;
+  if (render === null) return <DefaultAccountFace size={size} />;
+  return render(size);
+}
+
 function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
   const { t } = useLingui();
   const identity = useLocalIdentity();
   const menuIdentity = useGlobalMenuIdentity();
   return createMemo(() => {
-    const { username, email, profileId, avatarConfig } = menuIdentity();
-    const avatar = (
-      <DeviceAvatar
-        avatarConfig={avatarConfig}
-        seedFallback={profileId ?? 'guest'}
-        size={HEADER_AVATAR_SIZE}
-      />
-    );
+    const current = menuIdentity();
+    const { username, email } = current;
+    const avatar = accountFace(current, HEADER_AVATAR_SIZE);
     if (!identity.isSignedIn()) {
       return {
         title: t`Guest`,
@@ -157,13 +165,9 @@ export function AppHeaderGlobalMenu(): JSX.Element {
   const actions = useGlobalMenuActions();
   const header = useGlobalMenuHeader();
   const menuIdentity = useGlobalMenuIdentity();
-  const trigger = createMemo(() => (
-    <DeviceAvatar
-      avatarConfig={menuIdentity().avatarConfig}
-      seedFallback={menuIdentity().profileId ?? 'guest'}
-      size={TRIGGER_AVATAR_SIZE}
-    />
-  ));
+  const trigger = createMemo(() =>
+    accountFace(menuIdentity(), TRIGGER_AVATAR_SIZE)
+  );
   return (
     <OverflowMenuButton
       placement="bottom-end"

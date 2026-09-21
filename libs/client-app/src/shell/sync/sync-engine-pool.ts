@@ -1,7 +1,7 @@
 /**
  * One local engine per identity-scoped SQLite database. The pool, the engine
- * factory and the product registries are all loaded on demand so
- * `@pkgs/sync-engine/client` (and its SQL AST parser), the app schema and the
+ * factory and the composed features' writes are all loaded on demand so
+ * `@pkgs/sync-engine/client` (and its SQL AST parser), the schema and the
  * SQLite broker stay out of the initial JS chunk.
  */
 
@@ -30,7 +30,6 @@ export type AppSyncEnginePool = {
 };
 
 type EngineModule = typeof import('./create-local-sync-engine');
-type MutationsModule = typeof import('@libs/client-app/sync/app-mutations');
 type PoolApi = ReturnType<
   typeof import('@pkgs/sync-engine/client')['createSyncEnginePool']
 >;
@@ -48,15 +47,17 @@ function once<T>(load: () => Promise<T>): () => Promise<T> {
  * pool survives HMR / re-imports; sims omit it for an isolated per-session pool
  * (owned by the simulation, never a process singleton).
  */
-export function createAppSyncEnginePool(options?: {
+export function createAppSyncEnginePool(options: {
   readonly globalKey?: string | undefined;
+  /** The composed features' writes, loaded with the first engine. */
+  readonly loadMutations: () => Promise<MutationRegistry>;
 }): AppSyncEnginePool {
   let poolPromise: Promise<PoolApi> | null = null;
   let loadedPool: PoolApi | null = null;
   const loadPool = (): Promise<PoolApi> => {
     poolPromise ??= import('@pkgs/sync-engine/client').then((mod) => {
       loadedPool = mod.createSyncEnginePool(
-        options?.globalKey === undefined ? {} : { globalKey: options.globalKey }
+        options.globalKey === undefined ? {} : { globalKey: options.globalKey }
       );
       return loadedPool;
     });
@@ -65,12 +66,7 @@ export function createAppSyncEnginePool(options?: {
   const loadEngineModule = once(
     (): Promise<EngineModule> => import('./create-local-sync-engine')
   );
-  const loadMutations = once(async (): Promise<MutationRegistry> => {
-    const mod: MutationsModule = await import(
-      '@libs/client-app/sync/app-mutations'
-    );
-    return await mod.loadAppMutations();
-  });
+  const loadMutations = once(options.loadMutations);
   return {
     getOrCreate: async (args) => {
       const pool = await loadPool();

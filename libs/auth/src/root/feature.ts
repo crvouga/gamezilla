@@ -14,6 +14,9 @@ export const AUTH_FEATURE = defineFeature({
   name: 'auth',
   tables: AUTH_TABLES,
   topicMap: AUTH_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['ownUser', 'ownDevices', 'ownExternalAccounts'],
   queries: AUTH_QUERIES,
   mutations: async () => (await import('./mutations')).AUTH_MUTATIONS,
 });

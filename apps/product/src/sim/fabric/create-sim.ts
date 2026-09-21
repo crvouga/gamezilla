@@ -21,6 +21,7 @@ import {
   type Client,
   createClient,
 } from '@libs/client-app/shell/create-client';
+import { APP_FEATURE_CLIENTS } from '@libs/runtime/root/client/app-feature-clients';
 import { assert } from '@pkgs/assert';
 import { FakeMembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
@@ -400,7 +401,11 @@ function createSimHandle(kernel: SimKernel): Sim {
     async spawnClient(id, env) {
       const existing = liveClients.get(id);
       if (existing !== undefined) return existing;
-      const live = createClient(env ?? (await client(id)));
+      const live = createClient(env ?? (await client(id)), {
+        features: APP_FEATURE_CLIENTS,
+        loadApp: async () =>
+          (await import('@libs/runtime/root/app-features')).APP,
+      });
       liveClients.set(id, live);
       return live;
     },

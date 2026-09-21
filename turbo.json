@@ -473,6 +473,7 @@
         "//#lint:eslint",
         "//#ci:syncpack",
         "//#ci:depcruise",
+        "//#ci:package-boundaries",
         "//#ci:audit",
         "//#ci:i18n",
         "@apps/client#check:critical-path",
@@ -615,6 +616,7 @@
         "@apps/room-server#build",
         "//#ci:syncpack",
         "//#ci:depcruise",
+        "//#ci:package-boundaries",
         "//#ci:audit",
         "//#ci:i18n",
         "//#ci:no-skipped-tests",
@@ -774,6 +776,15 @@
       "outputs": [],
       "outputLogs": "new-only",
       "dependsOn": ["tc"]
+    },
+    "//#ci:package-boundaries": {
+      "inputs": [
+        "libs/*/package.json",
+        "libs/*/src/**/*.{ts,tsx}",
+        "libs/tools/scripts/check-package-boundaries.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "new-only"
     }
   }
 }

@@ -5,17 +5,14 @@
  * `@pkgs/sync-engine/solid` pulls the mutation client and its SQL AST parser,
  * which must stay out of the initial chunk.
  *
- * Space rooms + leave/end modals + notifications live here (not in the outer
- * shell) so the entry graph does not static-import mutation hubs / dicebear.
+ * Feature session providers (space rooms, leave/end modals, notifications,
+ * profile) live here rather than in the outer shell, so the entry graph does
+ * not static-import mutation hubs / dicebear.
  */
 
 import { AuthModalsProvider } from '@libs/auth/public/auth-modals-provider';
 import { MutationClientProvider } from '@libs/auth/public/mutation-client-provider';
 import { AuthSyncBridge } from '@libs/auth/root/client/auth-sync-bridge';
-import { ProfileProvider } from '@libs/profile/root/client/profile-provider';
-import { EndSpaceModalProvider } from '@libs/spaces/root/client/end-space/end-space-modal-provider';
-import { LeaveSpaceModalProvider } from '@libs/spaces/root/client/leave-space/leave-space-modal-provider';
-import { ReconcileEndedOpenSessions } from '@libs/spaces/root/client/reconcile-ended-open-sessions';
 import { SqlClientProvider } from '@pkgs/sql-client/solid';
 import {
   SyncEnginePaintGateProvider,
@@ -23,11 +20,9 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine/solid';
 import { type JSX, untrack } from 'solid-js';
-import { GlobalMenuIdentityLiveBridge } from '../../chrome/global-menu-identity-bridge';
+import { useAppFeatures } from '../app-features-context';
 import { AppClientConfig } from '../providers/app-client-config';
-import { AppNotificationsProvider } from '../providers/app-notifications-provider';
 import { AppSignInCapabilities } from '../providers/app-sign-in-capabilities';
-import { AppSpaceRoomsProvider } from '../providers/app-space-rooms-provider';
 import { AppUiProvider } from '../providers/app-ui-provider';
 import { DeviceEntityBootstrap } from '../providers/device-bootstrap';
 import { SyncLocalDataActions } from '../providers/local-data-actions';
@@ -45,24 +40,19 @@ function SyncStatusBridge(props: {
   );
 }
 
+/**
+ * Shell session scaffolding, then whatever the composed features contribute.
+ * Feature providers nest in feature order, so a later feature may read an
+ * earlier one's context and the order is the composition root's to choose.
+ */
 function SessionFeatureProviders(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
+  const features = useAppFeatures();
   return (
     <SyncLocalDataActions>
-      <ReconcileEndedOpenSessions />
       <DeviceEntityBootstrap>
-        <ProfileProvider>
-          <AppSpaceRoomsProvider>
-            <EndSpaceModalProvider>
-              <LeaveSpaceModalProvider>
-                <AppNotificationsProvider>
-                  {props.children}
-                </AppNotificationsProvider>
-              </LeaveSpaceModalProvider>
-            </EndSpaceModalProvider>
-          </AppSpaceRoomsProvider>
-        </ProfileProvider>
+        <features.Session>{props.children}</features.Session>
       </DeviceEntityBootstrap>
     </SyncLocalDataActions>
   );
@@ -85,27 +75,25 @@ export default function ReadyEngineTree(
     <SyncEnginePaintGateProvider ready={props.paintReady}>
       <SyncEngineProvider value={ready.engine}>
         <SyncStatusBridge>
-          <GlobalMenuIdentityLiveBridge>
-            <SqlClientProvider value={ready.engine.db}>
-              <AuthSyncBridge>
-                <MutationClientProvider registry={ready.registry}>
-                  <AppSignInCapabilities>
-                    {/* Sign-in modal needs the outer AppUiPortals surface
+          <SqlClientProvider value={ready.engine.db}>
+            <AuthSyncBridge>
+              <MutationClientProvider registry={ready.registry}>
+                <AppSignInCapabilities>
+                  {/* Sign-in modal needs the outer AppUiPortals surface
                         stack plus this session chrome (palette / banners). */}
-                    <AppUiProvider>
-                      <AuthModalsProvider>
-                        <AppClientConfig>
-                          <SessionFeatureProviders>
-                            {props.children}
-                          </SessionFeatureProviders>
-                        </AppClientConfig>
-                      </AuthModalsProvider>
-                    </AppUiProvider>
-                  </AppSignInCapabilities>
-                </MutationClientProvider>
-              </AuthSyncBridge>
-            </SqlClientProvider>
-          </GlobalMenuIdentityLiveBridge>
+                  <AppUiProvider>
+                    <AuthModalsProvider>
+                      <AppClientConfig>
+                        <SessionFeatureProviders>
+                          {props.children}
+                        </SessionFeatureProviders>
+                      </AppClientConfig>
+                    </AuthModalsProvider>
+                  </AppUiProvider>
+                </AppSignInCapabilities>
+              </MutationClientProvider>
+            </AuthSyncBridge>
+          </SqlClientProvider>
         </SyncStatusBridge>
       </SyncEngineProvider>
     </SyncEnginePaintGateProvider>

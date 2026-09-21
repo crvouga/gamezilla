@@ -18,6 +18,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",

@@ -1,37 +1,21 @@
 /**
- * Data half of the route table: every path from the RN linking config
- * (`apps/client/src/navigation/types.ts` `appLinking.config`) plus the
- * catch-all. `routes.tsx` turns this into `@solidjs/router` definitions.
- * Every screen is a lazy `RouteStub` until its Solid port lands.
+ * The shell's own routes — settings, account, the client inspector, the UI
+ * explorer, the OAuth callback. Everything a *feature* owns is contributed by
+ * that feature's `FeatureClient` and folded in by `buildRouteTable`.
+ *
+ * Every screen is lazy so no screen code rides the initial chunk.
  */
 
+import type { FeatureRoute } from '@libs/feature/public/client';
 import type { Component } from 'solid-js';
 
 export type RouteScreenModule = { readonly default: Component };
 
-export type AppRouteEntry = {
-  /** `@solidjs/router` path pattern (`:param` segments). */
-  readonly path: string;
-  readonly load: () => Promise<RouteScreenModule>;
-  /** Renders inside `TabsLayout` (bottom tab bar on compact). */
-  readonly tab?: true | undefined;
-};
+/** A route the router can mount: the shell's own, or a feature's. */
+export type AppRouteEntry = FeatureRoute;
 
-export const APP_ROUTE_TABLE: readonly AppRouteEntry[] = [
-  { path: '/', tab: true, load: () => import('./stubs/spaces') },
-  { path: '/search', tab: true, load: () => import('./stubs/search') },
-  {
-    path: '/notifications',
-    tab: true,
-    load: () => import('./stubs/notifications'),
-  },
-  { path: '/profile', tab: true, load: () => import('./stubs/profile') },
-  { path: '/space/:id', load: () => import('./stubs/space') },
-  { path: '/profile/edit', load: () => import('./stubs/profile-edit') },
-  { path: '/profile/handle', load: () => import('./stubs/profile-handle') },
-  { path: '/profile/avatar', load: () => import('./stubs/profile-avatar') },
-  { path: '/profile/friends', load: () => import('./stubs/profile-friends') },
-  { path: '/profile/user/:userId', load: () => import('./stubs/friend-user') },
+/** Routes that belong to the shell itself, not to any bounded context. */
+export const SHELL_ROUTE_TABLE: readonly AppRouteEntry[] = [
   { path: '/more', load: () => import('./stubs/more') },
   { path: '/more/theme', load: () => import('./stubs/more-theme') },
   { path: '/more/performance', load: () => import('./stubs/more-performance') },
@@ -47,7 +31,6 @@ export const APP_ROUTE_TABLE: readonly AppRouteEntry[] = [
     load: () => import('./stubs/more-client-config'),
   },
   { path: '/more/account', load: () => import('./stubs/account') },
-  { path: '/more/billing', load: () => import('./stubs/more-billing') },
   {
     path: '/more/account/providers',
     load: () => import('./stubs/account-providers'),
@@ -67,7 +50,14 @@ export const APP_ROUTE_TABLE: readonly AppRouteEntry[] = [
   { path: '/sso-callback', load: () => import('./stubs/sso-callback') },
 ];
 
-/** Catch-all pattern (`@solidjs/router` splat). */
+/** Shell routes plus whatever the composed features contribute. */
+export function buildRouteTable(
+  featureRoutes: readonly AppRouteEntry[]
+): readonly AppRouteEntry[] {
+  return [...featureRoutes, ...SHELL_ROUTE_TABLE];
+}
+
+/** `@solidjs/router` splat for the not-found screen. */
 export const NOT_FOUND_ROUTE_PATH = '/*all';
 
 export const loadNotFoundScreen = (): Promise<RouteScreenModule> =>

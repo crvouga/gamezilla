@@ -8,19 +8,18 @@
  *
  * - {@link AppProvidersOuter}: shell → infrastructure → auth → services →
  *   overlay/surface portals (so `AppFrame` chrome can open menus before SQLite)
- * - {@link AppProvidersSession}: games bootstrap → local database
+ * - {@link AppProvidersSession}: local database
  *
- * Games bootstrap must wrap the sync ready tree: `AppSpaceRoomsProvider`
- * opens rooms that call `useSpaceModule`. Space rooms / leave-end modals /
- * notifications still mount inside `sync-engine-ready-tree.tsx` so mutation /
- * avatar graphs stay off the initial entry chunk
+ * Feature *chrome* mounts higher still, in `ProductApp`, above the frame —
+ * the header badge and the global menu read it, and they paint before SQLite.
+ * Feature *session* providers mount inside `sync-engine-ready-tree.tsx`, so
+ * mutation / avatar graphs stay off the initial entry chunk
  * (see docs/LOW_END_ANDROID_PERF.md).
  */
 
 import type { JSX } from 'solid-js';
 import { EmbeddedAppProvider } from '../embedded-app-context';
 import { AppAuthProvider } from './app-auth-provider';
-import { AppGamesProvider } from './app-games-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';
 import { AppServicesProvider } from './app-services-provider';
@@ -49,11 +48,7 @@ export function AppProvidersOuter(props: {
 export function AppProvidersSession(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
-  return (
-    <AppGamesProvider>
-      <AppLocalDatabaseProvider>{props.children}</AppLocalDatabaseProvider>
-    </AppGamesProvider>
-  );
+  return <AppLocalDatabaseProvider>{props.children}</AppLocalDatabaseProvider>;
 }
 
 /** Full stack (tests / hosts that do not need a paint split). */

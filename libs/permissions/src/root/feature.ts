@@ -14,6 +14,9 @@ export const PERMISSIONS_FEATURE = defineFeature({
   name: 'permissions',
   tables: PERMISSIONS_TABLES,
   topicMap: PERMISSIONS_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['permissionQuotaLedger'],
   queries: PERMISSIONS_QUERIES,
   mutations: async () => (await import('./mutations')).PERMISSIONS_MUTATIONS,
 });

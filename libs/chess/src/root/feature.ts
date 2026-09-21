@@ -14,6 +14,13 @@ export const CHESS_FEATURE = defineFeature({
   name: 'chess',
   tables: CHESS_TABLES,
   topicMap: CHESS_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: [
+    'chessPuzzleProfile',
+    'chessPuzzleInteractions',
+    'chessPuzzleRatingEvents',
+  ],
   queries: CHESS_QUERIES,
   mutations: async () => (await import('./mutations')).CHESS_MUTATIONS,
 });

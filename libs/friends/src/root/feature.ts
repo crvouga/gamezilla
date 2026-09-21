@@ -19,6 +19,9 @@ export const FRIENDS_FEATURE = defineFeature({
   // the composition root fills, so friends stops reading another feature's
   // table directly.
   readsForeign: ['profile'],
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['friendships', 'friendRequests', 'userBlocks'],
   queries: FRIENDS_QUERIES,
   mutations: async () => (await import('./mutations')).FRIENDS_MUTATIONS,
 });

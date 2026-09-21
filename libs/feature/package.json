@@ -16,7 +16,9 @@
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/sync-engine": "workspace:*"
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "solid-js": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

@@ -26,17 +26,19 @@
     "lint": "bunx biome check --error-on-warnings .",
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/chess": "workspace:*",
+    "@libs/client-app": "workspace:*",
     "@libs/client-config": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/search": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
@@ -61,8 +63,18 @@
     "@pkgs/tts": "workspace:*"
   },
   "devDependencies": {
+    "@libs/test-ids": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "solid-js": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

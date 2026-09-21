@@ -14,6 +14,9 @@ export const NOTIFICATIONS_FEATURE = defineFeature({
   name: 'notifications',
   tables: NOTIFICATIONS_TABLES,
   topicMap: NOTIFICATIONS_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['notificationsActive'],
   queries: NOTIFICATIONS_QUERIES,
   // No writes: this feature's rows are server-materialized.
   mutations: () => Promise.resolve([]),

@@ -1,4 +1,4 @@
-import type { EnvTime } from '@libs/runtime/shared/env';
+import type { EnvTime } from '@libs/feature/public/sync';
 
 /**
  * Layer A bag for `@apps/room-server` — wall DO and sim in-process inject

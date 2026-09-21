@@ -1,36 +1,34 @@
 /** @jsxImportSource solid-js */
 /**
- * Layout for the four tab roots. Compact: bottom `AppTabBar` with the
- * `SpaceMiniplayer` docked above it (RN tab-bar bridge parity). Wide: the
- * header island (default `AppFrame` header, `AppHeaderIslandHost`) owns tab
- * navigation, and the miniplayer sits under the route body.
+ * Layout for the tab roots. Compact: bottom `AppTabBar` with any feature
+ * docks above it. Wide: the header island (default `AppFrame` header,
+ * `AppHeaderIslandHost`) owns tab navigation, and the docks sit under the
+ * route body.
  *
- * Miniplayer is lazy: it pulls space-room / mutation graphs that must stay off
- * the shell entry (docs/LOW_END_ANDROID_PERF.md).
+ * Docks are a named slot, not a list of imports: whichever features were
+ * composed in contribute theirs, and a shell running one feature shows one.
  */
 
 import { useLayoutMode, usePathname, useRouter } from '@pkgs/ui';
 import type { RouteSectionProps } from '@solidjs/router';
-import { type JSX, lazy, Show, Suspense } from 'solid-js';
+import { For, type JSX, Show, Suspense } from 'solid-js';
+import { Dynamic } from 'solid-js/web';
 
 import { AppTabBar } from '../chrome/app-tab-bar';
+import { useAppFeatures } from '../shell/app-features-context';
 
-const SpaceMiniplayer = lazy(() =>
-  import('@libs/spaces/root/client/miniplayer/space-miniplayer').then(
-    (mod) => ({ default: mod.SpaceMiniplayer })
-  )
-);
-
-/** Full-width miniplayer dock above the compact tab bar (or under wide body). */
 export function TabsLayout(props: RouteSectionProps): JSX.Element {
   const mode = useLayoutMode();
   const pathname = usePathname();
   const router = useRouter();
+  const features = useAppFeatures();
   return (
     <div class="box flex-1 min-h-[0]" data-component="TabsLayout">
       <div class="box flex-1 min-h-[0]">{props.children}</div>
       <Suspense fallback={null}>
-        <SpaceMiniplayer />
+        <For each={features.tabsDocks}>
+          {(Dock) => <Dynamic component={Dock} />}
+        </For>
       </Suspense>
       <Show when={mode() === 'compact'}>
         <AppTabBar

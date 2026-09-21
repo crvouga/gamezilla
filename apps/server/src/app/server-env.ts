@@ -1,4 +1,4 @@
-import type { OpenSqlClient } from '@libs/runtime/shared/env';
+import type { OpenSqlClient } from '@libs/feature/public/sync';
 import type { MembershipBilling } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';

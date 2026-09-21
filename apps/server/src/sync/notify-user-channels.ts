@@ -1,5 +1,5 @@
+import { userTopic } from '@libs/feature/public/sync';
 import { HttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
-import { userTopic } from '@libs/runtime/public/sync-topics';
 import { notifyChannels } from '@pkgs/sync-engine/server';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 

@@ -14,6 +14,9 @@ export const CLIENT_CONFIG_FEATURE = defineFeature({
   name: 'client-config',
   tables: CLIENT_CONFIG_TABLES,
   topicMap: CLIENT_CONFIG_TOPIC_MAP,
+  // Held open for the whole session: what keeps this feature's slice
+  // of the local database warm.
+  sessionQueries: ['clientConfig'],
   queries: CLIENT_CONFIG_QUERIES,
   // No writes: this feature's rows are server-materialized.
   mutations: () => Promise.resolve([]),

@@ -5,7 +5,6 @@
  * their own env (`tests/support/sim-client-env.ts`).
  */
 
-import { apiUrlToRoomWebSocketUrl } from '@libs/spaces/public/room/space-room-url';
 import { oauthClientCallbackUrl } from '@pkgs/auth/shared/oauth-client-callback-url';
 import { wallClock, wallTimers } from '@pkgs/clock/wall';
 import {
@@ -19,7 +18,6 @@ import { KvImplWeb } from '@pkgs/kv-web/impl-kv-web';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs/wall-browser-fs';
 import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
-import { WebSocketRoomTransport } from '@pkgs/room-adapter-web';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createWebSecureStorage } from '@pkgs/secure-storage-web';
 import { createWebAudioPlaybackPort } from '@pkgs/sounds/audio-playback/web-audio-playback-port';
@@ -59,28 +57,17 @@ function readBrowserOrigin(): string | undefined {
   return origin.length > 0 ? origin : undefined;
 }
 
-const createWallRoomTransport: CreateRoomTransport = (args) => {
-  const topic = `space:${args.spaceId}`;
-  return new WebSocketRoomTransport({
-    timers: args.timers,
-    random: args.random,
-    url: async () => {
-      const token = await Promise.resolve(args.getSessionToken());
-      return apiUrlToRoomWebSocketUrl({
-        apiUrl: args.apiUrl,
-        topic,
-        sessionToken: token,
-        installId: args.installId,
-        clientId: args.clientId,
-      });
-    },
-  });
+export type WallClientEnvArgs = {
+  readonly serverUrl?: string | undefined;
+  /**
+   * Whoever owns rooms supplies the transport. The shell knows a client may
+   * open one; it does not know a room is a space.
+   */
+  readonly room: CreateRoomTransport;
 };
 
-export function wallClientEnv(args?: {
-  readonly serverUrl?: string | undefined;
-}): ClientEnv {
-  const serverUrl = args?.serverUrl ?? getServerBaseUrl();
+export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
+  const serverUrl = args.serverUrl ?? getServerBaseUrl();
   const innerFetch = (input: RequestInfo | URL, init?: RequestInit) =>
     globalThis.fetch(input, init);
   const availability = createHealthOriginAvailability({
@@ -112,7 +99,7 @@ export function wallClientEnv(args?: {
     kv: new KvImplWeb(),
     authStorage: createSecureStoreAuthClientStorage(secureStorage),
     secureStorage,
-    room: createWallRoomTransport,
+    room: args.room,
     network: wallWebNetworkStatePort(),
     clipboard: wallWebClipboard(),
     haptics: wallWebHaptics(),
