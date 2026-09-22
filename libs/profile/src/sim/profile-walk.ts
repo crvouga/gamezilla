@@ -7,8 +7,11 @@
  */
 
 import { pollUntil } from '@libs/sim-harness/system/actor-ui';
+import { actorLocalSql } from '@libs/sim-harness/system/identity';
+import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { visible, walkAction } from '@libs/sim-harness/system/walk-action';
 import { Handles } from '@libs/test-ids';
+import { sql } from '@pkgs/sql';
 
 import { openProfileEdit } from './profile-actions';
 
@@ -21,6 +24,20 @@ const SETTLED_SAVE_FACES = [
   'Username is taken',
 ];
 
+async function savedUsernameMatches(
+  s: ProductSim,
+  actorId: string,
+  username: string
+) {
+  const db = actorLocalSql(s, actorId);
+  if (db === null) return false;
+  const rows = await db.query(sql<{ username: string }>`
+    SELECT username FROM profile
+    WHERE username = ${username} AND deleted_at IS NULL
+  `);
+  return rows.length === 1;
+}
+
 export const walkRenameSelf = walkAction({
   name: 'walkRenameSelf',
   applies: async (step) =>
@@ -32,15 +49,35 @@ export const walkRenameSelf = walkAction({
     const input = ui.get(Handles.profileUsernameInput);
     await input.expect.visible();
     await input.clear();
-    await input.input(`${actorId}_w${String(Math.floor(pick * 1_000_000))}`);
+    const username = `${actorId}_w${String(Math.floor(pick * 1_000_000))}`;
+    await input.input(username);
     await ui.get(Handles.profileUsernameSave).tap();
+    let lastFace = '';
     await pollUntil(
       s,
       async () => {
         const face = (await ui.get(Handles.profileUsernameSave).text()) ?? '';
-        return SETTLED_SAVE_FACES.includes(face.trim()) ? face : null;
+        lastFace = face;
+        if (SETTLED_SAVE_FACES.includes(face.trim())) return face;
+        // Saved is transient. If the virtual clock has already cleared it,
+        // require the persisted name before accepting the idle button.
+        if (
+          face.trim() === 'Save' &&
+          (await savedUsernameMatches(s, actorId, username))
+        ) {
+          return 'Saved';
+        }
+        if (!['', 'Save', 'Saving…'].includes(face.trim())) {
+          throw new Error(`Unexpected username save outcome: ${face}`);
+        }
+        return null;
       },
-      { maxMs: WAIT_MS, description: 'username save settled' }
+      {
+        maxMs: WAIT_MS,
+        get description() {
+          return `username save settled (last face: ${lastFace})`;
+        },
+      }
     );
     await ui.get(Handles.profileUsernameCancel).tap();
     await ui.get(Handles.profileEditUsername).expect.visible();
