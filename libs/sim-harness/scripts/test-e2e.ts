@@ -31,14 +31,6 @@ const SOLID_PRELOAD = Bun.resolveSync(
 );
 /** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
 const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
-/**
- * Resolved from this package, which declares it, so a suite need not declare
- * a dependency its own sources never import.
- */
-const SOLID_PRELOAD = Bun.resolveSync(
-  '@pkgs/bun-test-solid/preload',
-  import.meta.dir
-);
 
 /**
  * Arguments pass through to `bun test` in order (`-t name`, `--timeout 1000`
