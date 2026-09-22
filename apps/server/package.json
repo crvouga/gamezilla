@@ -44,7 +44,6 @@
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/observability": "workspace:*",
-    "@pkgs/observability-impl-local-file": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/room-adapter-bun": "workspace:*",
     "@pkgs/s3-server": "workspace:*",

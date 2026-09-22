@@ -15,7 +15,6 @@ import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
@@ -216,7 +215,6 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     tts: shared.tts,
     llm: shared.llm,
     secrets: shared.secrets,
-    observability: createNoopObservability(`sim-${id}`),
     auth: shared.auth,
     secretsEnv: 'dev',
     serverUrl: SIM_SERVER_URL,

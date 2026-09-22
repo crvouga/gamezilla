@@ -18,11 +18,14 @@ import { createHealthOriginAvailability } from '@pkgs/http-client/origin-availab
 import { KvImplWeb } from '@pkgs/kv-web/impl-kv-web';
 import { createLogger } from '@pkgs/logger';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs/wall-browser-fs';
-import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { createWebSecureStorage } from '@pkgs/secure-storage-web';
 import { createWebAudioPlaybackPort } from '@pkgs/sounds/audio-playback/web-audio-playback-port';
+import {
+  pendingInteractionRequestTraceparent,
+  runInInteractionRequestContext,
+} from '@pkgs/sync-engine/client';
 
 import { getServerBaseUrl } from './api-url';
 import { createSecureStoreAuthClientStorage } from './auth-client-storage';
@@ -70,8 +73,19 @@ export type WallClientEnvArgs = {
 
 export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
   const serverUrl = args.serverUrl ?? getServerBaseUrl();
-  const innerFetch = (input: RequestInfo | URL, init?: RequestInit) =>
-    globalThis.fetch(input, init);
+  const innerFetch = (input: RequestInfo | URL, init?: RequestInit) => {
+    const traceparent = pendingInteractionRequestTraceparent();
+    if (traceparent === undefined) return globalThis.fetch(input, init);
+    const headers = new Headers(
+      input instanceof Request ? input.headers : undefined
+    );
+    for (const [key, value] of new Headers(init?.headers)) {
+      headers.set(key, value);
+    }
+    if (!headers.has('traceparent')) headers.set('traceparent', traceparent);
+    const run = () => globalThis.fetch(input, { ...init, headers });
+    return runInInteractionRequestContext(traceparent, run);
+  };
   const availability = createHealthOriginAvailability({
     healthUrl: apiHealthUrl(serverUrl),
     fetch: innerFetch,
@@ -112,7 +126,6 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     audio: createWebAudioPlaybackPort(),
     devMenu: createNoopDevMenuPort(),
     objectStore: createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
-    observability: createNoopObservability('gamezilla-client'),
     serverUrl,
     // The in-house IdP, reached on the API origin through a popup.
     createAuthClient: () =>

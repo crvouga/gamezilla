@@ -58,6 +58,103 @@ type Probe = {
 
 const PROBES: readonly Probe[] = [
   {
+    path: 'libs/zz/src/observability-raw.ts',
+    source: "span.setAttribute('app.mutation.id', id);",
+    message: 'raw observability attribute strings',
+  },
+  {
+    path: 'libs/zz/src/observability-attr.ts',
+    source: 'span.setAttribute(ATTR.APP_MUTATION_ID, id);',
+    message: null,
+  },
+  {
+    path: 'apps/zz/src/console.ts',
+    source: "console.log('temporary debug');",
+    message: 'structured observability instead of console.log',
+  },
+  {
+    path: 'apps/zz/src/console-error.ts',
+    source: "console.error('terminal error surface');",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/observability-deep.ts',
+    source: "import { x } from '@pkgs/observability/core/src/span';",
+    message: 'deep src imports are forbidden',
+  },
+  {
+    path: 'pkgs/observability/src/core/sdk.ts',
+    source:
+      "import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';",
+    message: 'core and query are runtime-agnostic',
+  },
+  {
+    path: 'pkgs/observability/src/query/api.ts',
+    source: "import { trace } from '@opentelemetry/api';",
+    message: null,
+  },
+  {
+    path: 'libs/client-app/src/shell/observability/browser-identity.ts',
+    source: "import { withSpan } from '@pkgs/observability/core';",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/observability-feature.ts',
+    source: "import { withSpan } from '@pkgs/observability/core';",
+    message: 'confined to the ADR boundary-file inventory',
+  },
+  {
+    path: 'apps/client/src/main.tsx',
+    source: "import { createNodeTelemetry } from '@pkgs/observability/node';",
+    message: 'Node observability runtime is restricted',
+  },
+  {
+    path: 'apps/room-server/src/room.ts',
+    source:
+      "import { createBrowserTelemetry } from '@pkgs/observability/browser';",
+    message: 'browser observability runtime is restricted',
+  },
+  {
+    path: 'libs/client-app/src/shell/observability/browser-boundaries.ts',
+    source:
+      "import { createWorkerTelemetry } from '@pkgs/observability/worker';",
+    message: 'Worker observability runtime is restricted',
+  },
+  {
+    path: 'libs/zz/src/observability-legacy.ts',
+    source:
+      "import { createObservability } from '@pkgs/observability/port/create-observability';",
+    message: 'deep src imports are forbidden',
+  },
+  {
+    path: 'libs/zz/src/observability-legacy-package.ts',
+    source:
+      "import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';",
+    message: 'deep src imports are forbidden',
+  },
+  {
+    path: 'libs/zz/src/bad-span.ts',
+    source: "startSpan('request');",
+    message: 'Span names must match domain.action',
+  },
+  {
+    path: 'libs/zz/src/good-span.ts',
+    source: "startSpan('request.handle');",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/using-io.ts',
+    source:
+      "async function run() { using span = startSpan('request.handle'); await http.fetch('/api'); }",
+    message: 'using startSpan scope',
+  },
+  {
+    path: 'libs/zz/src/with-span-io.ts',
+    source:
+      "async function run() { await withSpan('request.handle', () => http.fetch('/api')); }",
+    message: null,
+  },
+  {
     path: 'pkgs/equal/src/view.ts',
     source: "import { createSignal } from 'solid-js';",
     message: 'Framework-agnostic core must not import solid-js',

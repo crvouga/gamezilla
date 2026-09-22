@@ -23,6 +23,7 @@
     "@libs/secrets": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/observability": "workspace:*",
     "@pkgs/secrets-config": "workspace:*"
   },
   "devDependencies": {

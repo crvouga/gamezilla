@@ -74,6 +74,10 @@ export {
   migrateCompositionPostgres,
 } from './migrate/migrate-composition';
 export {
+  type TestFailureSpanOptions,
+  testFailureSpans,
+} from './observability/test-failure-spans';
+export {
   partition,
   resetActor,
   restartApp,

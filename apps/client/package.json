@@ -33,7 +33,9 @@
     "@pkgs/git": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/observability": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tailwind": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "solid-js": "catalog:"

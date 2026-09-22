@@ -12,6 +12,7 @@
     "@libs/secrets": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/observability": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*"
   },

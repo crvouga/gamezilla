@@ -36,6 +36,13 @@ export type StackManifest = {
   readonly s3Endpoint: string | null;
   readonly mqttWssUrl: string | null;
   readonly mqttUrl: string | null;
+  /** Exact OTLP/HTTP traces endpoint, including `/v1/traces`. */
+  readonly observabilityCollectorUrl: string | null;
+  /** Native collector artifact directory; null when LGTM or tracing is off. */
+  readonly observabilityTraceDir: string | null;
+  /** Read-only Tempo HTTP query origin. */
+  readonly observabilityTempoUrl: string | null;
+  readonly observabilityGrafanaUrl: string | null;
   readonly dataDir: string;
 };
 

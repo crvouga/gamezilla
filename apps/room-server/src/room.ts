@@ -3,6 +3,59 @@
 import { createRoomServerDurableObject } from '@libs/room-app/app/create-room-server-durable-object';
 import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock';
+import {
+  createWorkerTelemetry,
+  type WorkerTelemetry,
+} from '@pkgs/observability/worker';
+
+type RoomWorkerEnv = {
+  readonly BUILD_SHA?: string;
+  readonly OBSERVABILITY_COLLECTOR_TOKEN?: string;
+  readonly OBSERVABILITY_COLLECTOR_URL?: string;
+  readonly OBSERVABILITY_ENABLED?: string;
+  readonly SECRETS_ENV?: string;
+};
+
+type RoomTelemetryRuntime = Pick<WorkerTelemetry, 'flushWith'>;
+
+let workerTelemetry: RoomTelemetryRuntime | null = null;
+
+function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
+  if (workerTelemetry !== null) return workerTelemetry;
+  if (env.OBSERVABILITY_ENABLED?.trim() === '0') {
+    workerTelemetry = { flushWith: () => undefined };
+    return workerTelemetry;
+  }
+  const collectorUrl = env.OBSERVABILITY_COLLECTOR_URL?.trim();
+  if (collectorUrl === undefined || collectorUrl.length === 0) {
+    if (env.SECRETS_ENV === 'prd') {
+      throw new Error(
+        'OBSERVABILITY_COLLECTOR_URL is required in production unless OBSERVABILITY_ENABLED=0'
+      );
+    }
+    workerTelemetry = { flushWith: () => undefined };
+    return workerTelemetry;
+  }
+  const buildSha = env.BUILD_SHA?.trim() || 'development';
+  const collectorToken = env.OBSERVABILITY_COLLECTOR_TOKEN?.trim();
+  if (
+    env.SECRETS_ENV === 'prd' &&
+    (collectorToken === undefined || collectorToken.length === 0)
+  ) {
+    throw new Error('OBSERVABILITY_COLLECTOR_TOKEN is required in production');
+  }
+  workerTelemetry = createWorkerTelemetry({
+    serviceName: 'gamezilla-room-server',
+    serviceVersion: buildSha,
+    environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
+    buildSha,
+    otlpUrl: collectorUrl,
+    ...(collectorToken === undefined || collectorToken.length === 0
+      ? {}
+      : { otlpHeaders: { Authorization: `Bearer ${collectorToken}` } }),
+  });
+  return workerTelemetry;
+}
 
 /** DO adapter only uses clock/createId; seed is unused — no random I/O at module load. */
 const env: RoomServerEnv = {
@@ -13,7 +66,10 @@ const env: RoomServerEnv = {
   seed: 1n,
 };
 
-export const RoomServerDurableObject = createRoomServerDurableObject(env);
+export const RoomServerDurableObject = createRoomServerDurableObject(
+  env,
+  ensureWorkerTelemetry
+);
 
 /** Minimal fetch so the Worker script boots; clients reach rooms via API gateway. */
 export default {

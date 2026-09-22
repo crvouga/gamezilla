@@ -1,5 +1,22 @@
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent';
 
+const LOG_EVENT_BRIDGE = Symbol.for('gamezilla.observability.log-event');
+
+type CorrelatedLogRecorder = (event: {
+  readonly severity: Exclude<LogLevel, 'silent'>;
+  readonly message: string;
+  readonly loggerName: string;
+}) => void;
+
+function recordCorrelatedLog(
+  event: Parameters<CorrelatedLogRecorder>[0]
+): void {
+  const host = globalThis as {
+    [LOG_EVENT_BRIDGE]?: CorrelatedLogRecorder;
+  };
+  host[LOG_EVENT_BRIDGE]?.(event);
+}
+
 export interface Logger {
   debug(msg: string, context?: Record<string, unknown>): void;
   info(msg: string, context?: Record<string, unknown>): void;
@@ -7,6 +24,13 @@ export interface Logger {
   error(msg: string, context?: Record<string, unknown>): void;
   child(bindings: Record<string, unknown>): Logger;
 }
+
+export type LogSink = {
+  debug(payload: string): void;
+  info(payload: string): void;
+  warn(payload: string): void;
+  error(payload: string): void;
+};
 
 const LEVEL_VALUE: Record<LogLevel, number> = {
   debug: 0,
@@ -21,6 +45,7 @@ export interface CreateLoggerOptions {
   level?: LogLevel;
   /** Epoch ms — required (no wall-clock fallback). */
   now: () => number;
+  readonly sink?: LogSink;
 }
 
 let defaultLogLevel: LogLevel = 'debug';
@@ -31,12 +56,13 @@ export function setDefaultLogLevel(level: LogLevel): void {
 }
 
 export function createLogger(options: CreateLoggerOptions): Logger {
-  return buildLogger(
-    options.name,
-    options.level ?? defaultLogLevel,
-    {},
-    options.now
-  );
+  return buildLogger({
+    name: options.name,
+    level: options.level ?? defaultLogLevel,
+    bindings: {},
+    now: options.now,
+    sink: options.sink ?? console,
+  });
 }
 
 /** Silent logger for harnesses that need an explicit no-op instance. */
@@ -44,13 +70,16 @@ export function createNoopLogger(): Logger {
   return createLogger({ name: 'noop', level: 'silent', now: () => 0 });
 }
 
-function buildLogger(
-  name: string,
-  level: LogLevel,
-  bindings: Record<string, unknown>,
-  now: () => number
-): Logger {
-  const threshold = LEVEL_VALUE[level];
+type BuildLoggerOptions = {
+  readonly name: string;
+  readonly level: LogLevel;
+  readonly bindings: Record<string, unknown>;
+  readonly now: () => number;
+  readonly sink: LogSink;
+};
+
+function buildLogger(options: BuildLoggerOptions): Logger {
+  const threshold = LEVEL_VALUE[options.level];
 
   function emit(
     lvl: Exclude<LogLevel, 'silent'>,
@@ -59,28 +88,34 @@ function buildLogger(
   ): void {
     if (LEVEL_VALUE[lvl] < threshold) return;
 
+    recordCorrelatedLog({
+      severity: lvl,
+      message: msg,
+      loggerName: options.name,
+    });
+
     const entry = {
       level: lvl,
-      time: new Date(now()).toISOString(),
-      name,
+      time: new Date(options.now()).toISOString(),
+      name: options.name,
       msg,
-      ...bindings,
+      ...options.bindings,
       ...context,
     };
 
     const payload = JSON.stringify(entry);
     switch (lvl) {
       case 'debug':
-        console.debug(payload);
+        options.sink.debug(payload);
         return;
       case 'info':
-        console.info(payload);
+        options.sink.info(payload);
         return;
       case 'warn':
-        console.warn(payload);
+        options.sink.warn(payload);
         return;
       case 'error':
-        console.error(payload);
+        options.sink.error(payload);
     }
   }
 
@@ -89,6 +124,10 @@ function buildLogger(
     info: (msg, context) => emit('info', msg, context),
     warn: (msg, context) => emit('warn', msg, context),
     error: (msg, context) => emit('error', msg, context),
-    child: (extra) => buildLogger(name, level, { ...bindings, ...extra }, now),
+    child: (extra) =>
+      buildLogger({
+        ...options,
+        bindings: { ...options.bindings, ...extra },
+      }),
   };
 }

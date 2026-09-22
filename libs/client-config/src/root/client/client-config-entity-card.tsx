@@ -62,10 +62,6 @@ export function ClientConfigEntityCard(): JSX.Element {
           title={<Trans>EMQX</Trans>}
           value={state.config().emqx_wss_url ?? t`Not set`}
         />
-        <MenuRow
-          title={<Trans>Observability</Trans>}
-          value={state.config().observability_backend}
-        />
       </MenuSection>
       <div class="box gap-2">
         <label class="text textLabel text-text-secondary">

@@ -6,6 +6,8 @@ export const SYNC_ENGINE_WRITE_REJECTIONS = 'sync_engine_write_rejections';
 export const SYNC_ENGINE_SCOPE_META = 'sync_engine_scope_meta';
 export const SYNC_ENGINE_PUSH_APPLIED = 'sync_engine_push_applied';
 export const SYNC_ENGINE_TOPIC_SEQ = 'sync_engine_topic_seq';
+export const SYNC_ENGINE_OBSERVABILITY_EVENTS =
+  'sync_engine_observability_events';
 /** Client-only: peer rows applied from optimistic MQTT (healed on snapshot). */
 export const SYNC_ENGINE_OPTIMISTIC_PEER_ROWS =
   'sync_engine_optimistic_peer_rows';
@@ -59,8 +61,34 @@ export const syncEngineMutations = defineTable({
     args: 'text',
     client_id: 'text',
     seq: 'integer',
+    origin_traceparent: 'text',
+    origin_session_id: 'text',
+    origin_build_sha: 'text',
   },
   indexes: [['client_id', 'seq']],
+});
+
+/** Append-only server event truth for offline mutation causality. */
+export const syncEngineObservabilityEvents = defineTable({
+  domain: 'sync_engine',
+  name: 'sync_engine_observability_events',
+  columns: {
+    event_name: 'text',
+    user_id: 'text',
+    session_id: 'text',
+    device_id: 'text',
+    mutation_id: 'text',
+    trace_id: 'text',
+    build_sha: 'text',
+  },
+  indexes: [
+    'user_id',
+    'session_id',
+    'device_id',
+    'mutation_id',
+    'trace_id',
+    'build_sha',
+  ],
 });
 
 /** Client scope checkpoint metadata — `id` equals `scope_hash`. */
@@ -103,6 +131,7 @@ export const syncEngineServerSchema = registerTables([
   syncEngineMutationsApplied,
   syncEngineWriteRejections,
   syncEngineTopicSeq,
+  syncEngineObservabilityEvents,
 ]);
 export const syncEngineLocalSchema = registerTables([
   syncEngineMutations,

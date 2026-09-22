@@ -176,7 +176,12 @@ suite uses one yet. A stale `localSchemaVersion` fails restore.
 - Plain `test:e2e` keeps `SIM_REPORT=0` (fast, no frames) but always writes
   the package's JUnit. Report ids are namespaced by spec file, and the bundle
   is read from the per-test `report.json` files, so parallel workers never
-  clobber or drop each other's runs.
+  clobber or drop each other's runs. After Bun exits, the runner also turns
+  every failed JUnit testcase into a deterministic `test.failure` span under
+  `.cache/sim-report/traces/`; this is why `bun obs test '<exact test name>'`
+  can recover an ordinary failing assertion without rerunning it. The
+  post-run correlation is intentional: Bun preload hooks do not expose a
+  stable current-test identity for parallel tests.
 - Capture is owned by the packages: `defineProductSystem` declares `defineSnapshot`s
   (`html` per actor via `Driver.snapshotHtml`, `topology`), `openSim` wraps each
   actor's driver in `recordingDriver` so `tap` / `input` / `expect.*` are steps,

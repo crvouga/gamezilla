@@ -8,7 +8,14 @@
  */
 
 import { useTimers } from '@pkgs/clock/solid';
-import { createSignal, ErrorBoundary, type JSX } from 'solid-js';
+import {
+  createSignal,
+  ErrorBoundary,
+  type JSX,
+  onMount,
+  Show,
+  untrack,
+} from 'solid-js';
 
 import { reloadApp } from './boot/reload-app';
 
@@ -66,10 +73,22 @@ function CrashScreen(props: {
   readonly error: Error;
   readonly reset: () => void;
 }): JSX.Element {
+  const [traceId, setTraceId] = createSignal<string>();
+  onMount(() => {
+    const error = untrack(() => props.error);
+    void import('./observability/browser-boundaries').then(
+      ({ reportSolidBoundaryError }) => {
+        setTraceId(reportSolidBoundaryError(error));
+      }
+    );
+  });
   return (
     <div class="crash-root" role="alert" data-component="RootErrorBoundary">
       <h1 class="crash-title">{CRASH_TITLE}</h1>
       <pre class="crash-message">{crashMessage(props.error)}</pre>
+      <Show when={traceId()}>
+        {(traceId) => <p class="crash-message">Trace: {traceId()}</p>}
+      </Show>
       <div class="crash-actions">
         <CopyErrorButton error={props.error} />
         <button type="button" class="crash-copy" onClick={() => props.reset()}>
@@ -88,9 +107,10 @@ export function RootErrorBoundary(props: {
 }): JSX.Element {
   return (
     <ErrorBoundary
-      fallback={(error: unknown, reset) => (
-        <CrashScreen error={toError(error)} reset={reset} />
-      )}
+      fallback={(error: unknown, reset) => {
+        const normalized = toError(error);
+        return <CrashScreen error={normalized} reset={reset} />;
+      }}
     >
       {props.children}
     </ErrorBoundary>

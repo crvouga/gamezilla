@@ -35,7 +35,6 @@
     "pkgs/kv/tests/solid-kv-state.test.tsx",
     "pkgs/logger/src/solid.tsx",
     "pkgs/object-store/src/solid.tsx",
-    "pkgs/observability/src/client/solid.tsx",
     "pkgs/room/src/solid.ts",
     "pkgs/room/tests/solid.test.tsx",
     "pkgs/secure-storage/src/solid.tsx",

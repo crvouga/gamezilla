@@ -65,12 +65,6 @@
       "@libs/test-ids": ["./libs/test-ids/src/index.ts"],
       "@libs/test-ids/*": ["./libs/test-ids/src/*"],
       "@libs/user-search/*": ["./libs/user-search/src/*"],
-      "@pkgs/observability-impl-local-file": [
-        "./pkgs/observability-impl-local-file/src/index.ts"
-      ],
-      "@pkgs/observability-impl-local-file/*": [
-        "./pkgs/observability-impl-local-file/src/*"
-      ],
       "@pkgs/secure-storage-web": ["./pkgs/secure-storage-web/src/index.ts"],
       "@pkgs/secure-storage-web/*": ["./pkgs/secure-storage-web/src/*"],
       "@pkgs/assert-crash-browser": [
@@ -181,7 +175,6 @@
       "@pkgs/object-store-node-fs/*": ["./pkgs/object-store-node-fs/src/*"],
       "@pkgs/object-store-s3/*": ["./pkgs/object-store-s3/src/*"],
       "@pkgs/object-store/*": ["./pkgs/object-store/src/*"],
-      "@pkgs/observability/*": ["./pkgs/observability/src/*"],
       "@pkgs/os": ["./pkgs/os/src/index.ts"],
       "@pkgs/os/*": ["./pkgs/os/src/*"],
       "@pkgs/outbox": ["./pkgs/outbox/src/index.ts"],

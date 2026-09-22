@@ -31,6 +31,7 @@ import { ApiSecretName } from '@libs/server-app/config/secret-names';
 import { createApiSecretStore } from '@libs/server-app/config/secret-store';
 import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origin';
 import { openRequestDb } from '@libs/server-app/db/open-request-db-postgres';
+import { wrapSqlClientForObservability } from '@libs/server-app/observability/wrap-sql-client';
 import { drainAndNotifyOutbox } from '@libs/server-app/sync/outbox-drain';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
 import { AuthProviderConfigError } from '@pkgs/auth/server';
@@ -43,8 +44,16 @@ import {
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
-import { createServerObservability } from '@pkgs/observability/server/create-server-observability';
-import { createLocalFileObservability } from '@pkgs/observability-impl-local-file';
+import {
+  ATTR,
+  context,
+  createWorkerTelemetry,
+  extractRequestContext,
+  injectRequestHeaders,
+  SpanKind,
+  SpanStatusCode,
+  withSpan,
+} from '@pkgs/observability/worker';
 import { isSecretStoreError } from '@pkgs/secret-store';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
 
@@ -78,6 +87,65 @@ type BootState =
 
 let bootState: BootState = { kind: 'pending' };
 let fatalLogged = false;
+type WorkerTelemetryRuntime = {
+  readonly flushWith: (waitUntil: (promise: Promise<unknown>) => void) => void;
+};
+let workerTelemetry: WorkerTelemetryRuntime | null = null;
+
+function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
+  if (workerTelemetry !== null) return workerTelemetry;
+  if (env.OBSERVABILITY_ENABLED?.trim() === '0') {
+    workerTelemetry = { flushWith: () => undefined };
+    return workerTelemetry;
+  }
+  const collectorUrl = env.OBSERVABILITY_COLLECTOR_URL?.trim();
+  if (collectorUrl === undefined || collectorUrl.length === 0) {
+    if (env.SECRETS_ENV === 'prd') {
+      throw new ConfigurationError(
+        'OBSERVABILITY_COLLECTOR_URL is required in production unless OBSERVABILITY_ENABLED=0'
+      );
+    }
+    workerTelemetry = { flushWith: () => undefined };
+    return workerTelemetry;
+  }
+  const buildSha = env.BUILD_SHA?.trim() || 'development';
+  const collectorToken = env.OBSERVABILITY_COLLECTOR_TOKEN?.trim();
+  if (
+    env.SECRETS_ENV === 'prd' &&
+    (collectorToken === undefined || collectorToken.length === 0)
+  ) {
+    throw new ConfigurationError(
+      'OBSERVABILITY_COLLECTOR_TOKEN is required in production'
+    );
+  }
+  workerTelemetry = createWorkerTelemetry({
+    serviceName: 'gamezilla-server',
+    serviceVersion: buildSha,
+    environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
+    buildSha,
+    otlpUrl: collectorUrl,
+    ...(collectorToken === undefined || collectorToken.length === 0
+      ? {}
+      : { otlpHeaders: { Authorization: `Bearer ${collectorToken}` } }),
+  });
+  return workerTelemetry;
+}
+
+function observedFetch(
+  input: RequestInfo | URL,
+  init?: RequestInit
+): Promise<Response> {
+  return withSpan(
+    'http.client.request',
+    () => {
+      const headers = new Headers(init?.headers);
+      injectRequestHeaders(headers);
+      return globalThis.fetch(input, { ...init, headers });
+    },
+    { [ATTR.HTTP_REQUEST_METHOD]: init?.method ?? 'GET' },
+    { kind: SpanKind.CLIENT }
+  );
+}
 
 /**
  * Better Auth (and credentialed browser fetches) require a concrete
@@ -147,7 +215,7 @@ async function createMembershipBilling(
         readSecret: membershipSecretReader(secretStore),
         offer: PLUS_MEMBERSHIP_OFFER,
         now: wallClock.now,
-        fetch: (input, init) => globalThis.fetch(input, init),
+        fetch: observedFetch,
       },
       chooseCheckout: (configured) =>
         resolveCheckoutProvider(readBillingProviderBinding(env), configured),
@@ -171,19 +239,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     now: wallClock.now,
   });
   const dbScope = appPostgresDbScope();
-  const observability = createServerObservability({
-    serviceName: 'gamezilla-server',
-    now: wallClock.now,
-    createId: () => crypto.randomUUID(),
-    envBackend: env.OBSERVABILITY_BACKEND,
-    isProduction: secretsEnv === 'prd',
-    createLocalFile: createLocalFileObservability,
-    ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&
-    env.OBSERVABILITY_COLLECTOR_URL.length > 0
-      ? { collectorUrl: env.OBSERVABILITY_COLLECTOR_URL }
-      : {}),
-  });
-
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
   const localStack = env['LOCALHOST_STACK'] === '1';
@@ -216,12 +271,14 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     tts: localStack ? new InMemoryTtsProvider() : null,
     llm: localStack ? new InMemoryLlmProvider() : null,
     secrets: secretStore,
-    observability,
     auth: APP_AUTH_PROVIDER,
     secretsEnv,
     serverUrl,
+    observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
+    observabilityCollectorToken:
+      env.OBSERVABILITY_COLLECTOR_TOKEN?.trim() || null,
     skipDatabaseUrlPolicy: false,
-    fetch: (input, init) => globalThis.fetch(input, init),
+    fetch: observedFetch,
   };
 
   return await createServer(serverEnv, {
@@ -345,7 +402,7 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
   const opened = await openRequestDb(dbUrl, appPostgresDbScope());
   try {
     const processed = await drainAndNotifyOutbox({
-      db: opened.sqlClient,
+      db: wrapSqlClientForObservability(opened.sqlClient),
       clock: wallClock,
       createId: () => crypto.randomUUID(),
     });
@@ -365,37 +422,80 @@ const workerHandler = {
     env: ApiWorkerEnv,
     ctx: ExecutionContext
   ): Promise<Response> {
+    let telemetry: WorkerTelemetryRuntime = { flushWith: () => undefined };
+    let traceId: string | undefined;
     try {
-      return await handleWorkerFetch(request, env, ctx);
+      telemetry = ensureWorkerTelemetry(env);
+      const parent = extractRequestContext(request.headers);
+      return await context.with(parent, () =>
+        withSpan(
+          'worker.fetch',
+          async (span) => {
+            traceId = span.spanContext().traceId;
+            const response = await handleWorkerFetch(request, env, ctx);
+            span.setAttribute(ATTR.HTTP_RESPONSE_STATUS_CODE, response.status);
+            if (response.status >= 500) {
+              span.setStatus({ code: SpanStatusCode.ERROR });
+            }
+            return response;
+          },
+          {
+            [ATTR.HTTP_REQUEST_METHOD]: request.method,
+            [ATTR.CODE_FILE_PATH]: 'apps/server/src/server.ts',
+            [ATTR.CODE_FUNCTION_NAME]: 'fetch',
+          },
+          { kind: SpanKind.SERVER }
+        )
+      );
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
+      if (err instanceof ConfigurationError) {
+        latchFatal(message);
+        return fatalConfigResponse(request, message);
+      }
       log.error('top-level handler error', { error: message });
 
       if (request.method === 'OPTIONS') {
         return preflightResponse(request);
       }
 
-      return new Response(JSON.stringify({ error: 'Internal server error' }), {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-          ...corsHeadersForRequest(request),
-        },
-      });
+      return new Response(
+        JSON.stringify({
+          error: 'Internal server error',
+          ...(env.SECRETS_ENV === 'prd' || traceId === undefined
+            ? {}
+            : { traceId }),
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store',
+            ...corsHeadersForRequest(request),
+          },
+        }
+      );
+    } finally {
+      telemetry.flushWith(ctx.waitUntil.bind(ctx));
     }
   },
 
   async scheduled(
     _controller: ScheduledController,
     env: ApiWorkerEnv,
-    _ctx: ExecutionContext
+    ctx: ExecutionContext
   ): Promise<void> {
+    const telemetry = ensureWorkerTelemetry(env);
     try {
-      await drainOutboxOnCron(env);
+      await withSpan('outbox.drain', () => drainOutboxOnCron(env), {
+        [ATTR.CODE_FILE_PATH]: 'apps/server/src/server.ts',
+        [ATTR.CODE_FUNCTION_NAME]: 'scheduled',
+      });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       log.error('outbox cron drain failed', { error: message });
+    } finally {
+      telemetry.flushWith(ctx.waitUntil.bind(ctx));
     }
   },
 } satisfies ExportedHandler<ApiWorkerEnv>;

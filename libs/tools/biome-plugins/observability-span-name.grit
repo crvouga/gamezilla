@@ -1,0 +1,24 @@
+language js
+
+// Literal span names must contain at least one domain separator and use only
+// lowercase low-cardinality segments. Dynamic names are reviewed separately.
+file($body) where {
+  $body <: or {
+    includes "startSpan(",
+    includes "withSpan(",
+    includes "startFlushScope("
+  },
+  $body <: contains bubble JsCallExpression() as $call where {
+    $call <: or {
+      `startSpan($name)`,
+      `startSpan($name, $args)`,
+      `withSpan($name, $args)`,
+      `startFlushScope($name, $args)`
+    },
+    $name <: or {
+      r"^['\"][a-z][a-z0-9_]*['\"]$",
+      r"^['\"][^'\"]*(?:[A-Z -]|\.\.|^\.|\.$)[^'\"]*['\"]$"
+    },
+    register_diagnostic(span=$name, message="Span names must match domain.action with lowercase low-cardinality segments.", severity="error")
+  }
+}

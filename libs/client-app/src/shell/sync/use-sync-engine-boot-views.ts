@@ -4,8 +4,6 @@ import type {
 } from '@libs/client-app/sync/sync-api';
 import { useTimers } from '@pkgs/clock/solid';
 import { useLogger } from '@pkgs/logger/solid';
-import { instrumentFetch } from '@pkgs/observability/client/instrument-fetch';
-import { useObservability } from '@pkgs/observability/client/solid';
 import {
   type Accessor,
   createEffect,
@@ -50,8 +48,7 @@ function useSyncBootPromise(args: {
   const loadApp = useAppData();
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
-  const observability = useObservability();
-  const fetchFn: SyncApiFetch = instrumentFetch(observability, env.server);
+  const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
   const auth: SyncClientAuth = {
     getAccountId: () => identity.userId(),

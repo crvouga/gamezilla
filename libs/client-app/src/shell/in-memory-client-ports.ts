@@ -9,20 +9,13 @@ import { createRecordingClipboard } from '@pkgs/device/clipboard';
 import { createRecordingHaptics } from '@pkgs/device/haptics';
 import { createInMemoryNetworkStatePort } from '@pkgs/device/network-state';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 
 import type { ClientEnv } from './client-env';
 
 export type InMemoryClientPorts = Pick<
   ClientEnv,
-  | 'network'
-  | 'clipboard'
-  | 'haptics'
-  | 'audio'
-  | 'devMenu'
-  | 'objectStore'
-  | 'observability'
+  'network' | 'clipboard' | 'haptics' | 'audio' | 'devMenu' | 'objectStore'
 >;
 
 /** Recording {@link DevMenuPort}: keeps every registered item for the sim. */
@@ -36,8 +29,7 @@ function createInMemoryDevMenuPort(): DevMenuPort {
   };
 }
 
-/** `label` names the observability scope (`sim-client:alice`). */
-export function createInMemoryClientPorts(label: string): InMemoryClientPorts {
+export function createInMemoryClientPorts(): InMemoryClientPorts {
   return {
     network: createInMemoryNetworkStatePort(),
     clipboard: createRecordingClipboard(),
@@ -45,6 +37,5 @@ export function createInMemoryClientPorts(label: string): InMemoryClientPorts {
     audio: createInMemoryAudioPlaybackPort(),
     devMenu: createInMemoryDevMenuPort(),
     objectStore: new ObjectStoreImplInMemory(),
-    observability: createNoopObservability(label),
   };
 }

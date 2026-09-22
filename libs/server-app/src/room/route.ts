@@ -1,5 +1,6 @@
 import { BearerAuthResolver } from '@libs/auth/public/bearer-resolve';
 import { ANON_ID_HEADER } from '@libs/auth/public/session-middleware';
+import { injectRequestHeaders } from '@pkgs/observability/worker';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
@@ -59,6 +60,7 @@ export function createRoomApp() {
     const clientId = parseClientId(c.req.raw);
     const stub = ns.get(ns.idFromName(topic));
     const headers = new Headers(c.req.raw.headers);
+    injectRequestHeaders(headers);
     headers.set(ROOM_ACTOR_ID_HEADER, actorId);
     if (clientId !== null) {
       headers.set(ROOM_ACTOR_CLIENT_ID_HEADER, clientId);

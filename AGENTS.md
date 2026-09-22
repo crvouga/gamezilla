@@ -43,6 +43,33 @@
 
 - **Test layout.** Package-level tests live in `tests/` (sibling of `src/`). Colocate `module.test.ts` only next to public entrypoint modules. All tests are black-box against the package `exports` (no exceptions — no deep `src/` imports from tests). Sim harness code either lives in `src/sim/` and is exported as `./sim` (e.g. `@pkgs/sync-engine/sim`), or is peeled into a sibling `-sim` package (e.g. `@pkgs/room-sim`, `@pkgs/matchmaking-sim`, `@pkgs/auth-sim`). **`bun test` is the only test runner** — no Vitest / Jest (Biome `no-vitest.grit`). Solid / DOM tests run in the same `bun test` invocation with `--conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload` (Babel Solid + Lingui transform, happy-dom, jest-dom matchers; types via `@pkgs/bun-test-solid/jest-dom`).
 
+## Debugging with observability
+
+Run `bun obs` before adding logging or rerunning a failed test. The trace artifact is
+the first debugging surface in local development, CI, and production:
+
+- “It just happened” with no identifier → `bun obs last`.
+- Any trace, session, mutation, test, device, or user ID →
+  `bun obs find <identifier>`.
+- Slow behavior → `bun obs slow`; unexplained write →
+  `bun obs mutation <mutation-id>`.
+- Failing e2e → `bun obs test '<test name>' --source <downloaded-artifact>`.
+- Production alert → run the literal `bun obs … --source prod` command in the alert.
+
+Examples:
+
+```sh
+bun obs last --window 10m
+bun obs find 4f2c17d8 --source .observability
+bun obs test 'offline edits converge' --source artifacts
+```
+
+Observability explains interactions, requests, mutations, sync, SQL, and failures. It
+does not replace browser screenshots/devtools for visual or CSS bugs, code reading for
+Solid signal wiring, or compiler output for build/type errors. For visual failures use
+browser tooling plus `bun obs last` to recover the state-changing activity behind the
+render. See [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md).
+
 ## `@pkgs/ui` design system
 
 `@pkgs/ui` is the only design-system surface in the repo. Every component, prop type, hook, and theme helper is implemented in-house under `pkgs/ui/src/components/**` and re-exported from `pkgs/ui/src/index.ts`. There is no adapter indirection, no swappable backend, and no third-party UI library — consumers always do `import { Button, Text, useTheme } from '@pkgs/ui';` and the import resolves to the in-house implementation directly.

@@ -14,12 +14,23 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs';
 import { join } from 'node:path';
+import { wallClock } from '@pkgs/clock';
+import { parseJunit } from '@pkgs/sim';
+import { testFailureSpans } from '../src/observability/test-failure-spans';
 
 const PACKAGE_DIR = process.cwd();
 const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
+const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
+const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-e2e`;
 /** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
 const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
 
@@ -71,7 +82,39 @@ const result = spawnSync(
     ...args,
     ...(namesPath ? [] : ['tests/e2e']),
   ],
-  { cwd: PACKAGE_DIR, stdio: 'inherit', env: process.env }
+  {
+    cwd: PACKAGE_DIR,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      OBS_TRACE_ARTIFACT_DIR: join(REPORT_DIR, 'traces'),
+      OBS_TEST_SERVICE: TEST_SERVICE_NAME,
+    },
+  }
 );
 
+appendFailureTraces();
+
 process.exit(result.status ?? 1);
+
+function appendFailureTraces(): void {
+  if (!existsSync(JUNIT_PATH)) return;
+  const traceDir = join(REPORT_DIR, 'traces');
+  const spans = testFailureSpans(parseJunit(readFileSync(JUNIT_PATH, 'utf8')), {
+    buildSha: process.env['GITHUB_SHA'] ?? 'local',
+    ...(process.env['GITHUB_RUN_ID'] === undefined
+      ? {}
+      : { ciRunId: process.env['GITHUB_RUN_ID'] }),
+    completedAtMs: wallClock.now(),
+    environment: process.env['GITHUB_ACTIONS'] === 'true' ? 'ci' : 'test',
+    packageName: TEST_PACKAGE_NAME,
+    serviceName: TEST_SERVICE_NAME,
+  });
+  if (spans.length === 0) return;
+  mkdirSync(traceDir, { recursive: true });
+  appendFileSync(
+    join(traceDir, 'spans.ndjson'),
+    `${spans.map((span) => JSON.stringify(span)).join('\n')}\n`,
+    'utf8'
+  );
+}

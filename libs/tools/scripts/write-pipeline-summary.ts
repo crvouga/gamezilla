@@ -9,9 +9,15 @@
  * - `PIPELINE_LOG_PATH` — path to the teed step output (optional)
  */
 // @io-wall-ok — CI entry; reads teed pipeline log + writes GITHUB_STEP_SUMMARY
-import { appendFileSync, existsSync, readFileSync } from 'node:fs';
+import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
 import { buildCiDeployFailureLlmFixPromptMarkdown } from '@libs/secrets/shared/build-llm-fix-prompt';
+import {
+  type FailedTestTrace,
+  failedTestTraceMarkdown,
+  failedTestTracesFromNdjson,
+} from './pipeline-observability';
 
 const MAX_LOG_CHARS = 120_000;
 
@@ -45,7 +51,11 @@ function readPipelineLog(): string {
   return `${raw.slice(0, head)}\n\n... (truncated ${String(raw.length - MAX_LOG_CHARS)} chars) ...\n\n${raw.slice(-tail)}`;
 }
 
-function buildStatusMarkdown(name: string, outcome: string): string {
+function buildStatusMarkdown(
+  name: string,
+  outcome: string,
+  failedTests: readonly FailedTestTrace[]
+): string {
   const lines: string[] = [];
   const repo = (process.env['GITHUB_REPOSITORY'] ?? '').trim();
   const runId = (process.env['GITHUB_RUN_ID'] ?? '').trim();
@@ -87,7 +97,40 @@ function buildStatusMarkdown(name: string, outcome: string): string {
     );
   }
   lines.push('');
+  if (outcome === 'failure' && runId !== '') {
+    const failureMarkdown = failedTestTraceMarkdown(failedTests, runId);
+    if (failureMarkdown !== '') lines.push(failureMarkdown, '');
+    else {
+      lines.push('### Query traces', '', '```sh');
+      lines.push(
+        `gh run download ${runId} -n observability-traces-${runId} -D artifacts`
+      );
+      lines.push('bun obs last --source artifacts --errors --window 24h');
+      lines.push('```', '');
+    }
+  }
   return lines.join('\n');
+}
+
+function readFailedTestTraces(): FailedTestTrace[] {
+  const failures: FailedTestTrace[] = [];
+  for (const tier of ['apps', 'libs', 'pkgs']) {
+    if (!existsSync(tier)) continue;
+    for (const entry of readdirSync(tier, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const path = join(
+        tier,
+        entry.name,
+        '.cache/sim-report/traces/spans.ndjson'
+      );
+      if (existsSync(path)) {
+        failures.push(
+          ...failedTestTracesFromNdjson(readFileSync(path, 'utf8'))
+        );
+      }
+    }
+  }
+  return failures;
 }
 
 function writeSummary(markdown: string): void {
@@ -103,7 +146,7 @@ try {
   const name = (process.env['PIPELINE_NAME'] ?? '').trim() || 'pipeline';
   const outcome =
     (process.env['PIPELINE_OUTCOME'] ?? 'unknown').trim() || 'unknown';
-  const status = buildStatusMarkdown(name, outcome);
+  const status = buildStatusMarkdown(name, outcome, readFailedTestTraces());
 
   let llm = '';
   if (outcome === 'failure') {

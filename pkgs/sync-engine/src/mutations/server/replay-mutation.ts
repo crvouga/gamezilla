@@ -1,6 +1,17 @@
+import {
+  ATTR,
+  currentCorrelation,
+  deserializeTraceContext,
+  EVENT,
+  events,
+  SpanStatusCode,
+  trace,
+  withSpan,
+} from '@pkgs/observability/core';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
+import { mutationOriginLink } from '../../shared/mutation-observability';
 import { mutationAppliedId } from '../../shared/schema/tables';
 import {
   parseStandardSchema,
@@ -28,6 +39,11 @@ export type MutationRow = {
   readonly clientId: string;
   readonly seq: number;
   readonly createdAt: string;
+  readonly originTraceparent: string | null;
+  readonly correlation?: {
+    readonly sessionId: string;
+    readonly buildSha: string;
+  };
 };
 
 export type ReplayAuth = {
@@ -57,9 +73,41 @@ export type ReplayOutcome =
       readonly message: string;
     };
 
+function originTraceId(traceparent: string | null): string | null {
+  if (traceparent === null) return null;
+  const origin = deserializeTraceContext(traceparent);
+  return origin === undefined
+    ? null
+    : (trace.getSpanContext(origin)?.traceId ?? null);
+}
+
+async function appendObservabilityEvent(args: {
+  readonly txc: Pick<SqlClient, 'run'>;
+  readonly deps: Pick<ReplayMutationDeps, 'now' | 'createId' | 'auth'>;
+  readonly m: MutationRow;
+  readonly eventName: string;
+}): Promise<void> {
+  const row = managedInsertColumns(args.deps.createId, args.deps.now);
+  const traceId =
+    currentCorrelation().traceId ?? originTraceId(args.m.originTraceparent);
+  await args.txc.run(sql`
+    INSERT INTO sync_engine_observability_events (
+      id, event_name, user_id, session_id, device_id, mutation_id,
+      trace_id, build_sha, created_at, updated_at, deleted_at
+    ) VALUES (
+      ${row.id}, ${args.eventName},
+      ${args.deps.auth.accountId ?? args.deps.auth.actorId},
+      ${args.m.correlation?.sessionId ?? null},
+      ${args.deps.auth.deviceId}, ${args.m.id}, ${traceId},
+      ${args.m.correlation?.buildSha ?? null},
+      ${row.created_at}, ${row.updated_at}, ${null}
+    )
+  `);
+}
+
 async function claimAppliedInTxn(args: {
   readonly txc: Pick<SqlClient, 'query' | 'run'>;
-  readonly deps: Pick<ReplayMutationDeps, 'now' | 'createId'>;
+  readonly deps: Pick<ReplayMutationDeps, 'now' | 'createId' | 'auth'>;
   readonly m: MutationRow;
 }): Promise<boolean> {
   const applied = managedInsertColumns(
@@ -143,6 +191,12 @@ async function applyReplayMutationInTxn(args: {
     }
     throw e;
   }
+  await appendObservabilityEvent({
+    txc,
+    deps,
+    m,
+    eventName: EVENT.MUTATION_PERSISTED,
+  });
   return { status: 'applied' as const, capture: wrapped.getCapture() };
 }
 
@@ -151,7 +205,7 @@ async function applyReplayMutationInTxn(args: {
  * Permanent failures record sync_engine_write_rejections + sync_engine_mutations_applied rejected.
  * Infra errors rethrow for sync retry (idempotency makes retries safe).
  */
-export async function replayMutation(
+async function replayMutationCore(
   deps: ReplayMutationDeps,
   m: MutationRow
 ): Promise<ReplayOutcome> {
@@ -260,8 +314,43 @@ export async function replayMutation(
   }
 }
 
+export function replayMutation(
+  deps: ReplayMutationDeps,
+  m: MutationRow
+): Promise<ReplayOutcome> {
+  const originLink = mutationOriginLink(m.originTraceparent, m.createdAt, m.id);
+  return withSpan(
+    'mutation.replay',
+    async (span) => {
+      const outcome = await replayMutationCore(deps, m);
+      if (outcome.status === 'applied') {
+        events.mutationPersisted(span, m.id);
+      } else if (outcome.status === 'rejected') {
+        events.mutationRejected(span, m.id);
+        span.setStatus({
+          code: SpanStatusCode.ERROR,
+          message: outcome.code,
+        });
+      }
+      return outcome;
+    },
+    {
+      [ATTR.APP_MUTATION_ID]: m.id,
+      [ATTR.USER_ID]: deps.auth.accountId ?? deps.auth.actorId,
+      [ATTR.APP_DEVICE_ID]: deps.auth.deviceId,
+      ...(m.correlation === undefined
+        ? {}
+        : {
+            [ATTR.SESSION_ID]: m.correlation.sessionId,
+            [ATTR.APP_BUILD_SHA]: m.correlation.buildSha,
+          }),
+    },
+    originLink === undefined ? undefined : { links: [originLink] }
+  );
+}
+
 export async function recordMutationRejection(
-  deps: Pick<ReplayMutationDeps, 'serverDb' | 'now' | 'createId'>,
+  deps: Pick<ReplayMutationDeps, 'serverDb' | 'now' | 'createId' | 'auth'>,
   m: MutationRow,
   failure: MutationFailure
 ): Promise<void> {
@@ -274,13 +363,20 @@ async function recordRejectedInTxn(args: {
   readonly txc: Pick<SqlClient, 'query' | 'run'>;
   readonly m: MutationRow;
   readonly failure: MutationFailure;
-  readonly deps: Pick<ReplayMutationDeps, 'now' | 'createId'>;
+  readonly deps: Pick<ReplayMutationDeps, 'now' | 'createId' | 'auth'>;
   readonly claimed?: boolean;
 }): Promise<void> {
   const ownsMarker =
     args.claimed === true ||
     (await claimAppliedInTxn({ txc: args.txc, deps: args.deps, m: args.m }));
   if (!ownsMarker) return;
+
+  await appendObservabilityEvent({
+    txc: args.txc,
+    deps: args.deps,
+    m: args.m,
+    eventName: EVENT.MUTATION_REJECTED,
+  });
 
   await args.txc.run(sql`
     UPDATE sync_engine_mutations_applied

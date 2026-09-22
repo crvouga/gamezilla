@@ -1,0 +1,26 @@
+{
+  "name": "@pkgs/observability-mcp",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "start": "bun run src/cli-io.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "catalog:",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/observability": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -1,0 +1,40 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - http://127.0.0.1:*
+            - http://localhost:*
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+    path: /ready
+
+processors:
+  transform/allowlist:
+    error_mode: propagate
+    trace_statements:
+      - 'keep_keys(resource.attributes, ["service.name", "service.version", "deployment.environment.name", "app.build.sha", "app.test.id", "app.ci.run_id"])'
+      - 'keep_keys(span.attributes, ["user.id", "session.id", "db.system.name", "db.operation.name", "db.query.text", "code.file.path", "code.function.name", "exception.type", "exception.message", "exception.stacktrace", "http.request.method", "http.route", "http.response.status_code", "app.mutation.id", "app.device.id", "app.build.sha", "app.sync.batch_size", "app.test.id", "app.ci.run_id", "app.clock_skew_ms", "app.interaction.outcome", "app.interaction.type", "app.interaction.target", "app.log.severity", "app.log.message", "app.log.name", "app.error.trace_id", "app.room.connection_id", "app.room.message_bytes", "app.room.module", "app.room.outcome", "app.room.topic"])'
+      - 'keep_keys(spanevent.attributes, ["exception.type", "exception.message", "exception.stacktrace", "app.mutation.id", "app.device.id", "app.test.id", "app.log.severity", "app.log.message", "app.log.name", "app.error.trace_id"])'
+  batch:
+
+exporters:
+  file/traces:
+    path: ${env:OBSERVABILITY_ARTIFACT_PATH}
+    append: true
+    flush_interval: 250ms
+    create_directory: true
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [transform/allowlist, batch]
+      exporters: [file/traces]

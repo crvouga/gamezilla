@@ -1,0 +1,16 @@
+language js
+
+// Manual recording is deliberately confined to the boundary-file inventory
+// in docs/adr/0001_OBSERVABILITY.md. The plugin include allowlist names those
+// files; every other production source file is checked by this rule.
+file($body) where {
+  $body <: includes "@pkgs/observability/",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]@pkgs/observability/(?:browser|core|node|query|worker)['\"]$",
+    register_diagnostic(span=$src, message="Manual observability imports are confined to the ADR boundary-file inventory; instrument a shared boundary instead of feature code.", severity="error")
+  }
+}

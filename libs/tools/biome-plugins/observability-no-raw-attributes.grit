@@ -1,0 +1,18 @@
+language js
+
+// Observability vocabulary has one source of truth. Product instrumentation
+// must use ATTR keys so saved agent queries cannot silently drift.
+file($body) where {
+  $body <: or {
+    includes "app.",
+    includes "user.id",
+    includes "session.id",
+    includes "service.name",
+    includes "db.",
+    includes "code."
+  },
+  $body <: contains bubble JsStringLiteralExpression() as $string where {
+    $string <: r"^['\"](?:user\.id|session\.id|service\.(?:name|version)|deployment\.environment\.name|db\.(?:system\.name|operation\.name|query\.text)|code\.(?:file\.path|function\.name)|app\.(?:mutation\.id|device\.id|build\.sha|sync\.batch_size|test\.id|ci\.run_id|clock_skew_ms|interaction\.outcome|error\.trace_id))['\"]$",
+    register_diagnostic(span=$string, message="Use a key from @pkgs/observability/core ATTR; raw observability attribute strings break agent queries.", severity="error")
+  }
+}

@@ -109,13 +109,6 @@
       "@pkgs/message/*": ["../../pkgs/message/src/*"],
       "@pkgs/object-store-node-fs/*": ["../../pkgs/object-store-node-fs/src/*"],
       "@pkgs/object-store/*": ["../../pkgs/object-store/src/*"],
-      "@pkgs/observability-impl-local-file": [
-        "../../pkgs/observability-impl-local-file/src/index.ts"
-      ],
-      "@pkgs/observability-impl-local-file/*": [
-        "../../pkgs/observability-impl-local-file/src/*"
-      ],
-      "@pkgs/observability/*": ["../../pkgs/observability/src/*"],
       "@pkgs/os": ["../../pkgs/os/src/index.ts"],
       "@pkgs/os/*": ["../../pkgs/os/src/*"],
       "@pkgs/permissions": ["../../pkgs/permissions/src/index.ts"],

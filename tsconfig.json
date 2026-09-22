@@ -242,8 +242,6 @@
     "pkgs/ui-testing-solid-dom/src/**/*.tsx",
     "pkgs/ui-testing-bun-webview/src/**/*.ts",
     "pkgs/ui-testing-bun-webview/src/**/*.tsx",
-    "pkgs/observability-impl-local-file/src/**/*.ts",
-    "pkgs/observability-impl-local-file/src/**/*.tsx",
     "pkgs/secure-storage-web/src/**/*.ts",
     "pkgs/secure-storage-web/src/**/*.tsx",
     "pkgs/assert-crash-browser/src/**/*.ts",

@@ -27,6 +27,7 @@
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/observability": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sim": "workspace:*",

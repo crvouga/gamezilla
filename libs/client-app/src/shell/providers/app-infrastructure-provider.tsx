@@ -1,11 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * Cross-cutting platform services: secure storage, logger, config,
- * observability. Clock / ids / HTTP come from `ClientEnvProvider` above.
+ * Cross-cutting platform services: secure storage, logger, and config.
+ * Clock / ids / HTTP come from `ClientEnvProvider` above.
  *
  * The RN `ConfigService` (`getApiUrl`) collapses into `env.serverUrl`; the
- * pre-sync observability is the env's instance (noop in production until the
- * client-config-driven backend arrives with the `/more/client-config` port).
+ * Observability is registered once at the browser composition root and emits
+ * through the global OpenTelemetry API; it is deliberately not a Solid port.
  */
 
 import { ConfigServiceProvider } from '@libs/auth/public/config-service-context';
@@ -13,7 +13,6 @@ import { ClipboardProvider, HapticsProvider } from '@pkgs/device/solid';
 import { OriginAvailabilityProvider } from '@pkgs/http-client/solid';
 import { createLogger } from '@pkgs/logger/logger';
 import { LoggerProvider } from '@pkgs/logger/solid';
-import { ObservabilityProvider } from '@pkgs/observability/client/solid';
 import {
   SecureStorageProvider,
   SecureStorageStoreProvider,
@@ -32,17 +31,15 @@ export function AppInfrastructureProvider(props: {
     <SecureStorageProvider value={env.secureStorage.storage}>
       <SecureStorageStoreProvider value={env.secureStorage}>
         <LoggerProvider value={logger}>
-          <ObservabilityProvider observability={env.observability}>
-            <ConfigServiceProvider value={{ getApiUrl: () => env.serverUrl }}>
-              <OriginAvailabilityProvider value={originAvailabilityFor(env)}>
-                <ClipboardProvider value={env.clipboard}>
-                  <HapticsProvider value={env.haptics}>
-                    {props.children}
-                  </HapticsProvider>
-                </ClipboardProvider>
-              </OriginAvailabilityProvider>
-            </ConfigServiceProvider>
-          </ObservabilityProvider>
+          <ConfigServiceProvider value={{ getApiUrl: () => env.serverUrl }}>
+            <OriginAvailabilityProvider value={originAvailabilityFor(env)}>
+              <ClipboardProvider value={env.clipboard}>
+                <HapticsProvider value={env.haptics}>
+                  {props.children}
+                </HapticsProvider>
+              </ClipboardProvider>
+            </OriginAvailabilityProvider>
+          </ConfigServiceProvider>
         </LoggerProvider>
       </SecureStorageStoreProvider>
     </SecureStorageProvider>
