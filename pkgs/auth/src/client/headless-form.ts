@@ -18,9 +18,17 @@ export type HeadlessForm = {
   readonly action: string;
   readonly method: 'get' | 'post';
   readonly hidden: Readonly<Record<string, string>>;
+  /** Fields a person types into (text, email, password, …). */
   readonly inputNames: readonly string[];
+  /**
+   * What the form submits untouched, as a browser would: every text field's
+   * `value` and every checked radio / checkbox.
+   */
+  readonly defaults: Readonly<Record<string, string>>;
   readonly buttons: readonly HeadlessButton[];
 };
+
+const CHOICE_TYPES = new Set(['radio', 'checkbox']);
 
 function attr(tag: string, name: string): string {
   const match = new RegExp(`${name}="([^"]*)"`, 'i').exec(tag);
@@ -36,23 +44,34 @@ function decodeEntities(raw: string): string {
     .replaceAll('&amp;', '&');
 }
 
+function isChecked(tag: string): boolean {
+  return /\schecked(?:[\s=>/]|$)/i.test(tag);
+}
+
 function parseInputs(body: string): {
   readonly hidden: Record<string, string>;
   readonly inputNames: string[];
+  readonly defaults: Record<string, string>;
 } {
   const hidden: Record<string, string> = {};
   const inputNames: string[] = [];
+  const defaults: Record<string, string> = {};
   for (const match of body.matchAll(/<input\b[^>]*>/gi)) {
     const tag = match[0];
     const name = attr(tag, 'name');
     if (name === '') continue;
-    if (attr(tag, 'type').toLowerCase() === 'hidden') {
-      hidden[name] = decodeEntities(attr(tag, 'value'));
-      continue;
+    const type = attr(tag, 'type').toLowerCase();
+    const value = decodeEntities(attr(tag, 'value'));
+    if (type === 'hidden') {
+      hidden[name] = value;
+    } else if (CHOICE_TYPES.has(type)) {
+      if (isChecked(tag)) defaults[name] = value;
+    } else {
+      inputNames.push(name);
+      if (value.length > 0) defaults[name] = value;
     }
-    inputNames.push(name);
   }
-  return { hidden, inputNames };
+  return { hidden, inputNames, defaults };
 }
 
 function parseButtons(body: string): HeadlessButton[] {
@@ -77,12 +96,13 @@ export function parseFirstForm(html: string): HeadlessForm | null {
   if (match === null) return null;
   const tag = `<form${match[1] ?? ''}>`;
   const body = match[2] ?? '';
-  const { hidden, inputNames } = parseInputs(body);
+  const { hidden, inputNames, defaults } = parseInputs(body);
   return {
     action: decodeEntities(attr(tag, 'action')),
     method: attr(tag, 'method').toLowerCase() === 'get' ? 'get' : 'post',
     hidden,
     inputNames,
+    defaults,
     buttons: parseButtons(body),
   };
 }
@@ -92,10 +112,12 @@ export function formSubmitBody(args: {
   readonly typed: Readonly<Record<string, string>>;
   readonly button: HeadlessButton | null;
 }): string {
-  const params = new URLSearchParams(args.form.hidden);
-  for (const name of args.form.inputNames) {
-    const typed = args.typed[name];
-    if (typed !== undefined) params.set(name, typed);
+  const params = new URLSearchParams({
+    ...args.form.defaults,
+    ...args.form.hidden,
+  });
+  for (const [name, typed] of Object.entries(args.typed)) {
+    if (!(name in args.form.hidden)) params.set(name, typed);
   }
   if (args.button !== null && args.button.name !== '') {
     params.set(args.button.name, args.button.value);

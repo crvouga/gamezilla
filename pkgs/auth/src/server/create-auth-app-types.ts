@@ -3,11 +3,12 @@ import type { HttpClient } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
-import type { GoogleProviderConfig } from './google-oauth';
+import type {
+  OauthProviders,
+  OauthProvidersConfig,
+} from './providers/registry';
 
-export type CreateAuthAppProviders = {
-  readonly google?: GoogleProviderConfig;
-};
+export type CreateAuthAppProviders = OauthProvidersConfig;
 
 export type CreateAuthAppDeps = {
   readonly getSql: () => SqlClient;
@@ -24,4 +25,10 @@ export type CreateAuthAppDeps = {
   readonly publicPathPrefix?: string;
   readonly trustedOrigins: readonly string[];
   readonly providers: CreateAuthAppProviders;
+};
+
+/** What every handler gets: the deps plus the providers built from them once. */
+export type AuthAppCtx = {
+  readonly deps: CreateAuthAppDeps;
+  readonly oauth: OauthProviders;
 };

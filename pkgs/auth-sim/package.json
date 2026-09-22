@@ -17,19 +17,20 @@
   "dependencies": {
     "@pkgs/auth": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/idp-google-sim": "workspace:*",
+    "@pkgs/idp-sim": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
-    "@pkgs/sql-client-sqlite": "workspace:*"
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "fast-check": "catalog:",
+    "hono": "catalog:"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

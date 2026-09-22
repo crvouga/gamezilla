@@ -4,7 +4,7 @@ import { AUTH_SSO_POPUP_BLOCKED_ERROR } from './auth-client-http';
 import type {
   OpenAuthSession,
   OpenAuthSessionResult,
-} from './create-auth-client-adapter';
+} from './auth-client-oauth';
 import {
   formSubmitBody,
   type HeadlessButton,
@@ -25,8 +25,20 @@ export type InProcessOpenAuthSessionConfig = {
   readonly account: { readonly email: string; readonly password: string };
   /** What the simulated person answers on the consent screen (default `allow`). */
   readonly consent?: 'allow' | 'deny';
+  /**
+   * Anything else the person fills in, by field name — Apple's first
+   * authorization asks for a name and "Share / Hide My Email"
+   * (`{ email_choice: 'hide' }`). Unnamed fields keep their defaults.
+   */
+  readonly answers?: Readonly<Record<string, string>>;
   /** Optional fault injection for tests. */
   readonly fault?: InProcessOpenAuthSessionFault;
+  /**
+   * The browser's cookies. Pass one jar per simulated browser so the
+   * provider remembers who signed in last time (its account chooser) — a
+   * fresh jar per sign-in is a private window every time.
+   */
+  readonly jar?: AuthCookieJar;
 };
 
 /** Enough to cover launch → provider screens → callback → app, with slack. */
@@ -59,21 +71,33 @@ function faultResult(
   return null;
 }
 
+/**
+ * Host-scoped cookies, as a browser keeps them: two providers that both call
+ * their cookie `IDP_SID` must never see each other's.
+ */
+export type AuthCookieJar = {
+  header(url: string): string;
+  absorb(url: string, response: Response): void;
+};
+
 /** Cookies are how the provider remembers the browser between screens. */
-function createCookieJar(): {
-  header(): string;
-  absorb(response: Response): void;
-} {
-  const jar = new Map<string, string>();
+export function createAuthCookieJar(): AuthCookieJar {
+  const hosts = new Map<string, Map<string, string>>();
+  const hostOf = (url: string): string => new URL(url).host;
   return {
-    header: () =>
-      [...jar].map(([name, value]) => `${name}=${value}`).join('; '),
-    absorb(response) {
+    header: (url) =>
+      [...(hosts.get(hostOf(url)) ?? new Map<string, string>())]
+        .map(([name, value]) => `${name}=${value}`)
+        .join('; '),
+    absorb(url, response) {
+      const host = hostOf(url);
+      const jar = hosts.get(host) ?? new Map<string, string>();
       for (const raw of response.headers.getSetCookie()) {
         const pair = raw.split(';')[0] ?? '';
         const at = pair.indexOf('=');
         if (at > 0) jar.set(pair.slice(0, at), pair.slice(at + 1));
       }
+      hosts.set(host, jar);
     },
   };
 }
@@ -92,14 +116,14 @@ function pickButton(
 
 function typedFields(
   form: HeadlessForm,
-  account: { readonly email: string; readonly password: string }
+  config: InProcessOpenAuthSessionConfig
 ): Record<string, string> {
   const typed: Record<string, string> = {};
   for (const name of form.inputNames) {
-    if (name.includes('email')) typed[name] = account.email;
-    if (name.includes('password')) typed[name] = account.password;
+    if (name === 'email') typed[name] = config.account.email;
+    if (name.includes('password')) typed[name] = config.account.password;
   }
-  return typed;
+  return { ...typed, ...config.answers };
 }
 
 type Hop = { readonly url: string; readonly init?: RequestInit };
@@ -107,13 +131,16 @@ type Hop = { readonly url: string; readonly init?: RequestInit };
 function submitHop(args: {
   readonly form: HeadlessForm;
   readonly base: string;
-  readonly account: { readonly email: string; readonly password: string };
-  readonly consent: 'allow' | 'deny';
+  readonly config: InProcessOpenAuthSessionConfig;
 }): Hop {
   const body = formSubmitBody({
     form: args.form,
-    typed: typedFields(args.form, args.account),
-    button: pickButton(args.form, args.account.email, args.consent),
+    typed: typedFields(args.form, args.config),
+    button: pickButton(
+      args.form,
+      args.config.account.email,
+      args.config.consent ?? 'allow'
+    ),
   });
   const action = new URL(args.form.action, args.base).toString();
   if (args.form.method === 'get') {
@@ -134,18 +161,18 @@ async function walk(
   authorizationUrl: string,
   callbackUrl: string
 ): Promise<OpenAuthSessionResult> {
-  const jar = createCookieJar();
+  const jar = config.jar ?? createAuthCookieJar();
   let hop: Hop = { url: authorizationUrl };
   for (let step = 0; step < MAX_HOPS; step += 1) {
     const headers = new Headers(hop.init?.headers);
-    const cookies = jar.header();
+    const cookies = jar.header(hop.url);
     if (cookies.length > 0) headers.set('cookie', cookies);
     const response = await config.fetch(hop.url, {
       ...hop.init,
       headers,
       redirect: 'manual',
     });
-    jar.absorb(response);
+    jar.absorb(hop.url, response);
     const location = response.headers.get('location');
     if (location !== null) {
       const next = new URL(location, hop.url).toString();
@@ -156,12 +183,7 @@ async function walk(
     if (!response.ok) return { type: 'cancel' };
     const form = parseFirstForm(await response.text());
     if (form === null) return { type: 'cancel' };
-    hop = submitHop({
-      form,
-      base: hop.url,
-      account: config.account,
-      consent: config.consent ?? 'allow',
-    });
+    hop = submitHop({ form, base: hop.url, config });
   }
   return { type: 'cancel' };
 }

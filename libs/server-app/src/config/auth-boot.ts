@@ -1,4 +1,5 @@
 import {
+  type AppleProviderConfig,
   buildAuthTrustedOrigins,
   type CreateAuthAppProviders,
 } from '@pkgs/auth/server';
@@ -25,6 +26,8 @@ export type AuthBootConfig = {
   readonly googleClientId: string | null;
   readonly googleClientSecret: string | null;
   readonly googleEnabled: boolean;
+  /** Sign in with Apple, backed by the simulated provider (non-prod only). */
+  readonly appleEnabled: boolean;
   /** Where the Google conversation happens — production, or a local stand-in. */
   readonly googleEndpoints: GoogleOauthEndpoints;
   readonly trustedOrigins: readonly string[];
@@ -42,6 +45,36 @@ function googleEndpointsFor(idpOrigin: string | null): GoogleOauthEndpoints {
     authorizeUrl: `${base}/o/oauth2/v2/auth`,
     tokenUrl: `${base}/token`,
     userinfoUrl: `${base}/v1/userinfo`,
+    revokeUrl: `${base}/revoke`,
+  };
+}
+
+/**
+ * The relying-party side of the simulated Apple provider: its origin is the
+ * issuer, and it serves Apple's `/auth/*` paths.
+ */
+export type AppleBootInput = {
+  readonly origin: string;
+  readonly clientId: string;
+  readonly teamId: string;
+  readonly keyId: string;
+  readonly privateJwk: Record<string, unknown>;
+};
+
+function appleProviderFor(apple: AppleBootInput): AppleProviderConfig {
+  const base = apple.origin.replace(/\/$/, '');
+  return {
+    clientId: apple.clientId,
+    teamId: apple.teamId,
+    keyId: apple.keyId,
+    privateJwk: apple.privateJwk,
+    issuer: base,
+    endpoints: {
+      authorizeUrl: `${base}/auth/authorize`,
+      tokenUrl: `${base}/auth/token`,
+      jwksUrl: `${base}/auth/keys`,
+      revokeUrl: `${base}/auth/revoke`,
+    },
   };
 }
 
@@ -51,6 +84,8 @@ export async function loadAuthBootConfig(args: {
   /** Dynamic localhost stack web origin for OAuth callbacks. */
   readonly webClientOrigin?: string | null;
   readonly googleIdpOrigin?: string | null;
+  /** Non-production only: the simulated Apple provider to trust. */
+  readonly apple?: AppleBootInput | null;
 }): Promise<AuthBootConfig> {
   const { secretStore } = args;
   const secret = (
@@ -87,6 +122,7 @@ export async function loadAuthBootConfig(args: {
           },
         }
       : {}),
+    ...(args.apple == null ? {} : { apple: appleProviderFor(args.apple) }),
   };
 
   return {
@@ -96,6 +132,7 @@ export async function loadAuthBootConfig(args: {
     googleClientId,
     googleClientSecret,
     googleEnabled,
+    appleEnabled: args.apple != null,
     googleEndpoints,
     trustedOrigins: buildAuthTrustedOrigins({
       apiBaseURL: baseURL,

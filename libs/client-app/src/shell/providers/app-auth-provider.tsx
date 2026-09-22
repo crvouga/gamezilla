@@ -12,6 +12,7 @@ export function AppAuthProvider(props: {
   const env = useClientEnv();
   const port = createAuthClientAdapter({
     baseURL: env.authBaseURL,
+    clock: env.clock,
     timers: env.timers,
     fetch: env.server,
     storage: env.authStorage,

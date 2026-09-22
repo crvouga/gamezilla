@@ -1,25 +1,44 @@
 /**
- * A stack's simulated Google keeps its own account directory. The person
- * behind each actor needs an account there before they can sign in — the
- * in-process fabric adds one to its IdP node; a stack gets it through the
- * provider's test-only control plane.
+ * A stack's simulated Google and Apple keep their own account directories.
+ * The person behind each actor needs accounts there before they can sign in —
+ * the in-process fabric adds them to its IdP nodes; a stack gets them through
+ * each provider's test-only control plane. Same people as in-process: one
+ * Google account, and two Apple Accounts (the Gmail address and an iCloud
+ * one).
  */
-import { IDP_ADMIN_PREFIX } from '@pkgs/idp-google-sim/shared';
+import { IDP_ADMIN_PREFIX } from '@pkgs/idp-sim/shared';
 
-export async function ensureStackIdpAccount(args: {
-  readonly idpOrigin: string;
-  readonly actorId: string;
-  readonly email: string;
-}): Promise<void> {
-  const { idpOrigin, actorId, email } = args;
-  const response = await fetch(`${idpOrigin}${IDP_ADMIN_PREFIX}/accounts`, {
+export type StackIdpOrigins = {
+  readonly google: string;
+  readonly apple: string;
+};
+
+async function addAccount(
+  origin: string,
+  handle: string,
+  email: string
+): Promise<void> {
+  const response = await fetch(`${origin}${IDP_ADMIN_PREFIX}/accounts`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ handle: actorId, email }),
+    body: JSON.stringify({ handle, email }),
   });
   if (!response.ok) {
     throw new Error(
-      `stack IdP: adding ${actorId} failed (${String(response.status)}: ${await response.text()})`
+      `stack IdP ${origin}: adding ${email} failed (${String(response.status)}: ${await response.text()})`
     );
   }
+}
+
+export async function ensureStackIdpAccounts(args: {
+  readonly idpOrigins: StackIdpOrigins;
+  readonly actorId: string;
+  /** The actor's Gmail address (run-tagged on a stack). */
+  readonly email: string;
+}): Promise<void> {
+  const { idpOrigins, actorId, email } = args;
+  const icloud = `${email.slice(0, email.indexOf('@'))}@icloud.com`;
+  await addAccount(idpOrigins.google, actorId, email);
+  await addAccount(idpOrigins.apple, actorId, email);
+  await addAccount(idpOrigins.apple, actorId, icloud);
 }

@@ -25,8 +25,11 @@ export type StackManifest = {
     readonly origin: string;
   }[];
   readonly webOrigin: string;
-  /** Simulated Google, on its own origin with its own state. */
-  readonly idpOrigin: string;
+  /** Simulated Google and Apple, each on its own origin with its own state. */
+  readonly idpOrigins: {
+    readonly google: string;
+    readonly apple: string;
+  };
   /** The mock payment provider, on its own origin with its own state. */
   readonly billingOrigin: string;
   readonly databaseUrl: string;

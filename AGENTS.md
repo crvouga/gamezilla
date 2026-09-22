@@ -337,8 +337,8 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 **Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are one standalone HTML artifact over every package's e2e suite (`bun run test:report` → `sim-report/index.html`, rendered by `@pkgs/sim-report`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
 **Highest-fidelity local run** — `bun run stack` runs the whole product in the foreground
-loopback: embedded Postgres, S3rver, Aedes MQTT, a **simulated Google IdP on its own
-port with its own internal state** (`@pkgs/idp-google-sim`), N Bun API
+loopback: embedded Postgres, S3rver, Aedes MQTT, **simulated Google and Apple IdPs, each on
+its own port with its own internal state** (`@pkgs/idp-sim`), N Bun API
 instances running the production Worker handler, and a round-robin load
 balancer in front of them (room WebSockets are hashed by topic so a room keeps
 one authority, as a Durable Object does). Every port is OS-assigned and the
@@ -347,13 +347,31 @@ several stacks run concurrently. `bun run --filter @apps/product test:stack` boo
 runs the sim suite against it with `SIM_MODE=stack`, and tears it down. See
 [`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md).
 
-**Sign-in has one provider: Google.** There is no dev/test IdP route in the
-API. Simulations and the localhost stack both run `@pkgs/idp-google-sim`,
-which serves Google's real endpoints (PKCE, code exchange, userinfo, JWKS)
-so the production `google-oauth.ts` path is the path under test. Point it
-somewhere else with the `GOOGLE_IDP_ORIGIN` Worker binding; unset means real
-Google. Its **wire** is Google's; its **screens** deliberately are not — they
-say `OAuth Mock` (`IDP_BRAND` in `pkgs/idp-google-sim/src/shared/brand.ts`),
+**Sign-in providers: Google everywhere, Apple outside production.** There is no
+dev/test IdP route in the API. Simulations and the localhost stack both run
+`@pkgs/idp-sim`, which serves Google's real endpoints (PKCE, code exchange,
+userinfo, JWKS) — or, as a second instance, Sign in with Apple's (`form_post`,
+ES256 client-secret JWT, name-once `user` blob, Hide My Email relays,
+server-to-server notifications) — so the production `providers/google-oauth.ts`
+and `providers/apple-oauth.ts` paths are the paths under test. Point Google
+somewhere else with the `GOOGLE_IDP_ORIGIN` Worker binding (unset means real
+Google). Apple is **mock-only**: it is enabled only by the five `APPLE_*`
+bindings together, and the Worker refuses them when `SECRETS_ENV=prd`.
+Test weird provider behaviour through the mock's faults and control plane
+(`/__idp/*`), never with a stubbed relying party.
+
+**Accounts link, never merge silently.** A user holds any number of provider
+identities, at most one per provider; an identity never moves between users,
+and the last one cannot be removed. A new identity joins an existing account
+by address **only** when both addresses are provider-verified and neither is
+an Apple relay; any other address match parks a pending link the person must
+confirm (sign in to the existing account) or decline (a separate account).
+Linking from Settings needs a link ticket bound to the signed-in session. The
+reference model in `@pkgs/auth-sim` is the oracle for all of it — change the
+policy there first.
+
+Each provider's **wire** is real; its **screens** deliberately are not — they
+say `OAuth Mock` (`IDP_BRAND` in `pkgs/idp-sim/src/shared/brand.ts`),
 with their own mark, palette and shape language. The mock must never pass for a
 real provider: do **not** restore Google's logo, palette, page titles or footer
 links, and do **not** swap in an invented brand that reads as real. It must

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { wallTimers } from '@pkgs/clock';
+import { wallClock, wallTimers } from '@pkgs/clock';
 
 import {
   AUTH_SSO_CANCELLED_ERROR,
@@ -33,6 +33,7 @@ describe('createAuthClientAdapter / oauth', () => {
     let fetchCalled = false;
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: async () => {
         fetchCalled = true;
@@ -72,6 +73,7 @@ describe('createAuthClientAdapter / oauth', () => {
   test('cancel maps to AUTH_SSO_CANCELLED_ERROR', async () => {
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: async () =>
         new Response(JSON.stringify({ token: 't' }), {
@@ -91,6 +93,7 @@ describe('createAuthClientAdapter / oauth', () => {
   test('blocked popup maps to AUTH_SSO_POPUP_BLOCKED_ERROR', async () => {
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: async () => new Response('{}', { status: 404 }),
       storage: createInMemoryAuthClientStorage(),
@@ -108,6 +111,7 @@ describe('createAuthClientAdapter / oauth', () => {
   test('missing code in callback maps to cancelled', async () => {
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: async () =>
         new Response(JSON.stringify({ token: 't' }), {

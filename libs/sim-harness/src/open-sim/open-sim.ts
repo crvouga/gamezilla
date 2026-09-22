@@ -119,7 +119,7 @@ export async function openSim(
   const reporting = simReportEnabled();
   const callSite = reporting ? testCallSite(new Error().stack) : null;
   const s = await system.run({
-    seed: 1,
+    seed: options?.seed ?? 1,
     runtime: resolveHostName(options),
     ...(reporting
       ? {

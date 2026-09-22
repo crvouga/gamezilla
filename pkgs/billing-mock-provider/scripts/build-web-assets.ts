@@ -3,7 +3,7 @@
  * Builds the provider's hosted pages and embeds the result in the server
  * bundle (`src/server/assets.generated.ts`), so every host — a Bun process,
  * an in-process sim node — serves the same files without a filesystem. `--check` rebuilds and compares, which is
- * how a stale bundle is caught (mirrors `@pkgs/idp-google-sim` `build:web`).
+ * how a stale bundle is caught (mirrors `@pkgs/idp-sim` `build:web`).
  *
  * `build({ write: false })` keeps the whole build in memory, so generating and
  * checking are the same code path.

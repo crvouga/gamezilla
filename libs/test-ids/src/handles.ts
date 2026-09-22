@@ -60,6 +60,20 @@ export const Handles = {
   // account
   accountSignIn: 'account-sign-in',
   accountSignOut: 'account-sign-out',
+  /** "Sign out of all devices". */
+  accountSignOutEverywhere: 'account-sign-out-everywhere',
+  accountSignOutEverywhereConfirm: 'account-sign-out-everywhere-confirm',
+  accountSignOutEverywhereDone: 'account-sign-out-everywhere-done',
+  /** The "Sign-in methods" section and its rows / actions, per provider. */
+  accountSignInMethods: 'account-sign-in-methods',
+  accountSignInMethod: (provider: string) =>
+    `account-sign-in-method-${provider}`,
+  accountLinkProvider: (provider: string) =>
+    `account-link-provider-${provider}`,
+  accountUnlinkProvider: (provider: string) =>
+    `account-unlink-provider-${provider}`,
+  accountUnlinkConfirm: 'account-unlink-confirm',
+  accountUnlinkDone: 'account-unlink-done',
 
   // billing
   settingsBilling: 'settings-billing',
@@ -70,6 +84,13 @@ export const Handles = {
 
   // sign-in modal
   authMethodGoogle: 'auth-method-google',
+  authMethodApple: 'auth-method-apple',
+  /** The modal's "Sign-in failed" face (cancelled, provider error, …). */
+  authSignInFailed: 'auth-sign-in-failed',
+  /** "Connect your accounts": prove the matched account, or keep apart. */
+  authLinkRequired: 'auth-link-required',
+  authLinkWith: (provider: string) => `auth-link-with-${provider}`,
+  authLinkSeparate: 'auth-link-separate',
   authSignedInDone: 'auth-signed-in-done',
   authModalClose: 'auth-modal-close',
 

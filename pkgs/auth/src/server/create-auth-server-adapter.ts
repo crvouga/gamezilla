@@ -5,6 +5,8 @@ import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
 import type { AuthUserProfile } from '../shared/user-profile';
 import type { VerifiedSession } from '../shared/verified-session';
 import type { AuthServerPort } from './auth-server-port';
+import { identityJson } from './identity-handlers';
+import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
 
 export type CreateAuthServerAdapterDeps = {
@@ -55,19 +57,23 @@ async function getUserSnapshot(
   deps: CreateAuthServerAdapterDeps,
   externalUserId: string
 ): Promise<Record<string, unknown> | null> {
-  const r = repository(deps);
-  const user = await r.findUserById(externalUserId);
+  const user = await repository(deps).findUserById(externalUserId);
   if (user === null) return null;
-  const accounts = await r.listAccounts(externalUserId);
+  const identities = await new IdentityRepository(
+    deps.getSql(),
+    deps.clock,
+    deps.createId
+  ).listForUser(externalUserId);
   return {
     id: user.id,
     email: user.email,
     name: user.name,
     image: user.image,
-    accounts: accounts.map((account) => ({
-      id: account.id,
-      providerId: account.provider,
-      accountId: account.provider_user_id,
+    accounts: identities.map((row) => ({
+      id: row.id,
+      providerId: row.provider,
+      accountId: row.providerUserId,
+      ...identityJson(row),
     })),
   };
 }

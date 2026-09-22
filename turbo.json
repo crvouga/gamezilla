@@ -26,6 +26,7 @@
     "INFISICAL_*",
     "ACTIONS_ID_TOKEN_*",
     "GOOGLE_IDP_ORIGIN",
+    "APPLE_*",
     "WEB_CLIENT_*",
     "EMQX_*",
     "WEB_CLIENT_ORIGIN",

@@ -19,13 +19,18 @@ export function AppSignInCapabilities(props: {
         get google() {
           return clientConfig.config().google_enabled;
         },
+        get apple() {
+          return clientConfig.config().apple_enabled;
+        },
         // Unlock when methods appear in synced rows, or when any client_config
         // rows have hydrated (definitive empty/disabled). Never unlock on bare
         // paintReady + empty defaults — that is the pre-hydrate stuck state.
         get ready() {
           return resolveSignInCapabilitiesReady({
             isLoading: clientConfig.isLoading(),
-            methodsKnown: clientConfig.config().google_enabled,
+            methodsKnown:
+              clientConfig.config().google_enabled ||
+              clientConfig.config().apple_enabled,
             configRowCount: clientConfig.rows().length,
           });
         },

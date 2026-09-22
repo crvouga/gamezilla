@@ -1,6 +1,6 @@
 /**
  * One actor's web browser, for everything the app hands off to the web: the
- * Google sign-in window (`openAuthSession`) and any page a composed feature
+ * Google / Apple sign-in window (`openAuthSession`) and any page a composed feature
  * serves into it, such as a billing provider's hosted checkout
  * (`openExternalUrl`).
  *
@@ -20,15 +20,14 @@ import type {
   OpenAuthSessionResult,
   ServerHttp,
 } from '@libs/client-app/shell/client-env';
-import {
-  SIM_IDP_URL,
-  SIM_SERVER_URL,
-} from '@libs/feature/public/sim-constants';
+import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
+import { IDP_TEST_IDS } from '@pkgs/idp-sim/shared';
 import type { OpenExternalUrl } from '@pkgs/ui';
 import { type Accessor, createSignal } from 'solid-js';
 
 import type { SimBrowserAppPage } from '../composition';
 import { requestHref } from './sim-http-request';
+import { simIdpOf } from './sim-idp';
 
 /** Redirect hops one load may take (launch → provider → callback → app). */
 const MAX_HOPS = 12;
@@ -62,6 +61,14 @@ export type SimBrowser = {
   readonly fetch: ServerHttp;
   /** Load a document in the open tab (links, form navigations, redirects). */
   readonly navigate: (url: string) => void;
+  /**
+   * Submit a top-level form POST and load what it answers — Apple's
+   * `response_mode=form_post` hand-off back to the app's API.
+   */
+  readonly post: (
+    action: string,
+    fields: Readonly<Record<string, string>>
+  ) => void;
   readonly setAddress: (url: string) => void;
   /** The person closes the window without finishing. */
   readonly close: () => void;
@@ -121,12 +128,40 @@ function isAppUrl(url: URL, appOrigin: string | null): boolean {
   return url.origin === SIM_SERVER_URL && !url.pathname.startsWith('/api/');
 }
 
+/** A POST the browser makes as part of one load (a form submission). */
+type FormPost = {
+  readonly url: URL;
+  readonly fields: Readonly<Record<string, string>>;
+};
+
+/**
+ * A provider's `form_post` hand-off document auto-submits by script; a
+ * browser runs it, so this one does too.
+ */
+function autoSubmitted(url: URL, html: string): FormPost | null {
+  if (!html.includes(IDP_TEST_IDS.formPostPage)) return null;
+  const action = /<form[^>]*action="([^"]*)"/.exec(html)?.[1];
+  if (action === undefined) return null;
+  const fields: Record<string, string> = {};
+  for (const match of html.matchAll(/<input\b[^>]*>/gi)) {
+    const name = /name="([^"]*)"/.exec(match[0])?.[1];
+    const value = /value="([^"]*)"/.exec(match[0])?.[1] ?? '';
+    if (name === undefined) continue;
+    fields[name] = value
+      .replaceAll('&quot;', '"')
+      .replaceAll('&lt;', '<')
+      .replaceAll('&gt;', '>')
+      .replaceAll('&amp;', '&');
+  }
+  return { url: new URL(action.replaceAll('&amp;', '&'), url), fields };
+}
+
 /** What a non-app response is: a redirect hop, an error, or a page to show. */
 async function landedOn(
   url: URL,
   response: Response,
   pages: readonly SimBrowserAppPage[]
-): Promise<SimBrowserPage | URL> {
+): Promise<SimBrowserPage | URL | FormPost> {
   const location = response.headers.get('location');
   if (location !== null) return new URL(location, url);
   if (!response.ok) {
@@ -138,10 +173,22 @@ async function landedOn(
   }
   const page = pages.find((candidate) => candidate.matches(url));
   if (page !== undefined) return { kind: 'app', url: url.href, page };
-  if (url.origin === SIM_IDP_URL) {
-    return { kind: 'idp', url: url.href, html: await response.text() };
+  if (simIdpOf(url.href) !== null) {
+    const html = await response.text();
+    return autoSubmitted(url, html) ?? { kind: 'idp', url: url.href, html };
   }
   return { kind: 'error', url: url.href, message: 'Unsupported page' };
+}
+
+/** A navigation is a GET; an auto-submitted `form_post` is a form POST. */
+function requestInitFor(hop: URL | FormPost): RequestInit {
+  if (hop instanceof URL) return { redirect: 'manual' };
+  return {
+    method: 'POST',
+    redirect: 'manual',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(hop.fields).toString(),
+  };
 }
 
 export function createSimBrowser(args: {
@@ -177,51 +224,57 @@ export function createSimBrowser(args: {
   };
 
   /** Where one hop lands: done (app / callback), a page, or another hop. */
-  const settle = async (url: URL): Promise<SimBrowserPage | 'app' | URL> => {
+  const settle = async (
+    hop: URL | FormPost
+  ): Promise<SimBrowserPage | 'app' | URL | FormPost> => {
+    const url = hop instanceof URL ? hop : hop.url;
     if (pendingAuth !== null && url.href.startsWith(pendingAuth.callbackUrl)) {
       finishAuth({ type: 'success', url: url.href });
       return 'app';
     }
     if (isAppUrl(url, args.appOrigin())) return 'app';
-    const response = await fetch(url.href, { redirect: 'manual' });
+    const response = await fetch(url.href, requestInitFor(hop));
     return await landedOn(url, response, args.pages);
   };
 
-  const load = async (start: string): Promise<void> => {
-    show({ kind: 'loading', url: start });
-    let url = new URL(start);
-    for (let hop = 0; hop < MAX_HOPS; hop += 1) {
-      const next = await settle(url);
+  const load = async (start: URL | FormPost): Promise<void> => {
+    let hop = start;
+    show({ kind: 'loading', url: (hop instanceof URL ? hop : hop.url).href });
+    for (let count = 0; count < MAX_HOPS; count += 1) {
+      const next = await settle(hop);
       if (next === 'app') {
         show(null);
         finishAuth({ type: 'cancel' });
         return;
       }
-      if (next instanceof URL) {
-        url = next;
+      if (next instanceof URL || 'fields' in next) {
+        hop = next;
         continue;
       }
       show(next);
       return;
     }
-    show({ kind: 'error', url: url.href, message: 'Too many redirects' });
+    const last = hop instanceof URL ? hop : hop.url;
+    show({ kind: 'error', url: last.href, message: 'Too many redirects' });
   };
 
-  const navigate = (url: string): void => {
-    void load(url).catch((err: unknown) => {
+  const run = (start: URL | FormPost): void => {
+    void load(start).catch((err: unknown) => {
       show({
         kind: 'error',
-        url,
+        url: (start instanceof URL ? start : start.url).href,
         message: err instanceof Error ? err.message : String(err),
       });
     });
   };
+  const navigate = (url: string): void => run(new URL(url));
 
   return {
     tab,
     address,
     fetch,
     navigate,
+    post: (action, fields) => run({ url: new URL(action), fields }),
     setAddress,
     close: () => {
       show(null);

@@ -90,6 +90,7 @@
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/git": "workspace:*",
         "@pkgs/http-client": "workspace:*",
+        "@pkgs/idp-sim": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
@@ -886,7 +887,7 @@
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
-        "@pkgs/idp-google-sim": "workspace:*",
+        "@pkgs/idp-sim": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/kv-postgres": "workspace:*",
         "@pkgs/kv-web": "workspace:*",
@@ -1138,10 +1139,11 @@
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "hono": "catalog:",
+        "jose": "catalog:",
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/idp-google-sim": "workspace:*",
+        "@pkgs/idp-sim": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sim": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
@@ -1158,19 +1160,20 @@
       "dependencies": {
         "@pkgs/auth": "workspace:*",
         "@pkgs/http-client": "workspace:*",
-        "@pkgs/idp-google-sim": "workspace:*",
+        "@pkgs/idp-sim": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sim": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
+        "fast-check": "catalog:",
+        "hono": "catalog:",
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
-        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1644,8 +1647,8 @@
         "typescript": "catalog:",
       },
     },
-    "pkgs/idp-google-sim": {
-      "name": "@pkgs/idp-google-sim",
+    "pkgs/idp-sim": {
+      "name": "@pkgs/idp-sim",
       "version": "0.0.0",
       "dependencies": {
         "@lingui/core": "catalog:",
@@ -1655,6 +1658,7 @@
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/i18n": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/sql": "workspace:*",
@@ -3755,7 +3759,7 @@
 
     "@pkgs/i18n": ["@pkgs/i18n@workspace:pkgs/i18n"],
 
-    "@pkgs/idp-google-sim": ["@pkgs/idp-google-sim@workspace:pkgs/idp-google-sim"],
+    "@pkgs/idp-sim": ["@pkgs/idp-sim@workspace:pkgs/idp-sim"],
 
     "@pkgs/invariants": ["@pkgs/invariants@workspace:pkgs/invariants"],
 

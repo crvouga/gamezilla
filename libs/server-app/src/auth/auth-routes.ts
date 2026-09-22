@@ -1,5 +1,9 @@
 import type { AuthContext } from '@libs/auth/public/types';
-import { createAuthApp, IdpRepository } from '@pkgs/auth/server';
+import {
+  createAuthApp,
+  IdentityLinker,
+  IdpRepository,
+} from '@pkgs/auth/server';
 import { AUTH_SET_TOKEN_HEADER, IDP_PROVIDER_GOOGLE } from '@pkgs/auth/shared';
 import type { Clock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
@@ -72,26 +76,47 @@ export function createAuthRoutes(args: {
       if (identity === null) {
         return c.json({ error: 'missing_subject' }, 400);
       }
+      const deps = {
+        clock: args.clock,
+        createId: args.createId,
+        secret: args.boot.secret,
+      };
+      // The same linking policy as a real callback, with a Google identity
+      // whose address the test vouches for.
+      const outcome = await store.sqlClient.transaction(
+        async (tx) =>
+          await new IdentityLinker(tx, deps).signIn(
+            {
+              provider: IDP_PROVIDER_GOOGLE,
+              providerUserId: identity.subject,
+              email: identity.email.toLowerCase(),
+              emailVerified: true,
+              isPrivateEmail: false,
+              name: identity.name,
+              picture: null,
+              accessToken: null,
+              refreshToken: null,
+            },
+            null
+          )
+      );
+      if (outcome.kind !== 'signed_in') {
+        return c.json({ error: 'link_required' }, 409);
+      }
       const repo = new IdpRepository(
         store.sqlClient,
         args.clock,
         args.createId,
         args.boot.secret
       );
-      const user = await repo.upsertSocialUser({
-        provider: IDP_PROVIDER_GOOGLE,
-        providerUserId: identity.subject,
-        email: identity.email,
-        name: identity.name,
-        image: null,
-      });
-      const session = await repo.createSession(user.id);
+      const session = await repo.createSession(outcome.userId);
+      const user = await repo.findUserById(outcome.userId);
       c.header(AUTH_SET_TOKEN_HEADER, session.token);
       return c.json(
         {
           token: session.token,
-          userId: user.id,
-          email: user.email ?? identity.email,
+          userId: outcome.userId,
+          email: user?.email ?? identity.email,
         },
         200
       );

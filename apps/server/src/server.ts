@@ -20,6 +20,7 @@ import type { ApiWorkerEnv } from '@libs/server-app/config/env';
 import {
   assertSecretsEnvBinding,
   ConfigurationError,
+  readAppleMockBindings,
   readBillingProviderBinding,
   readMockBillingBindings,
   readOptionalApiUrlOverride,
@@ -190,6 +191,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     apiUrlOverride: serverUrl,
     ...(webClientOrigin === undefined ? {} : { webClientOrigin }),
     googleIdpOrigin: readOptionalGoogleIdpOrigin(env),
+    apple: readAppleMockBindings(env),
   });
 
   const localStack = env['LOCALHOST_STACK'] === '1';

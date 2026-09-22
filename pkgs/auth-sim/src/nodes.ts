@@ -4,24 +4,28 @@ import {
 } from '@pkgs/auth/server/auth-database-migration';
 import { createAuthApp } from '@pkgs/auth/server/create-auth-app';
 import { createAuthServerAdapter } from '@pkgs/auth/server/create-auth-server-adapter';
-import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
-import { idpEndpoints } from '@pkgs/idp-google-sim/shared';
+import type { HttpClient } from '@pkgs/http-client';
+import { idpEndpoints } from '@pkgs/idp-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import type { Ports, Session } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { Hono } from 'hono';
+
 import {
-  createIdpHttpClient,
-  IDP_CLIENT_ID,
-  IDP_CLIENT_SECRET,
-  IDP_ORIGIN,
-  startIdpNode,
+  APPLE_CLIENT_ID,
+  appleRelyingPartyConfig,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_ORIGIN,
+  idpForUrl,
+  startIdpNodes,
 } from './idp-node';
 import {
-  type ActorState,
   AUTH_SYSTEM_BASE_URL,
+  AUTH_SYSTEM_PATH_PREFIX,
   AUTH_SYSTEM_SECRET,
   AUTH_SYSTEM_TRUSTED_ORIGINS,
   type AuthFabric,
@@ -50,71 +54,84 @@ export async function migrateAuthSchema(
   }).migrate({ sqlClient, logger });
 }
 
-const GOOGLE_REDIRECT_URI = `${AUTH_SYSTEM_BASE_URL}/auth/callback/google`;
-
-function buildStore(args: {
-  readonly fabric: AuthFabric;
-  readonly sql: SqlClient;
-  readonly ports: Ports;
-  readonly idp: GoogleIdp;
-}): AuthStore {
-  const { fabric, sql, ports, idp } = args;
-  const app = createAuthApp({
+/** Mounted under `/api`, as the product's API worker mounts it. */
+async function buildAuthApp(
+  sql: SqlClient,
+  ports: Ports,
+  egress: HttpClient
+): Promise<Hono> {
+  const authApp = createAuthApp({
     getSql: () => sql,
     clock: ports.clock,
     createId: ports.createId,
-    http: createIdpHttpClient(idp),
+    http: egress,
     secret: AUTH_SYSTEM_SECRET,
     baseURL: AUTH_SYSTEM_BASE_URL,
+    publicPathPrefix: AUTH_SYSTEM_PATH_PREFIX,
     trustedOrigins: AUTH_SYSTEM_TRUSTED_ORIGINS,
     providers: {
       google: {
-        clientId: IDP_CLIENT_ID,
-        clientSecret: IDP_CLIENT_SECRET,
-        endpoints: idpEndpoints(IDP_ORIGIN),
+        clientId: GOOGLE_CLIENT_ID,
+        clientSecret: GOOGLE_CLIENT_SECRET,
+        endpoints: idpEndpoints(GOOGLE_ORIGIN),
       },
+      apple: await appleRelyingPartyConfig(),
     },
   });
-  const server = createAuthServerAdapter({
-    getSql: () => sql,
-    clock: ports.clock,
-    createId: ports.createId,
-    secret: AUTH_SYSTEM_SECRET,
-  });
-  const wire = async (url: string, init?: RequestInit): Promise<Response> =>
-    url.startsWith(IDP_ORIGIN)
-      ? idp.app.fetch(new Request(url, init))
-      : app.request(url, init);
-  return {
-    fabric,
-    sql,
-    server,
-    idp,
-    fetch: async (path, init) =>
-      app.request(`${AUTH_SYSTEM_BASE_URL}${path}`, init),
-    wire,
-  };
+  return new Hono().route(AUTH_SYSTEM_PATH_PREFIX, authApp);
 }
 
 export async function startStore(
   session: Session,
   opts: { readonly fabric: AuthFabric }
 ): Promise<AuthStore> {
-  const seed =
-    Math.floor(session.ports.rng.fork('sql').next() * 0xffffffff) || 1;
+  const { ports } = session;
+  const seed = Math.floor(ports.rng.fork('sql').next() * 0xffffffff) || 1;
   const sql = openSql(opts.fabric, seed);
   await migrateAuthSchema(opts.fabric, sql);
-  const idp = await startIdpNode({
-    ports: session.ports,
-    redirectUri: GOOGLE_REDIRECT_URI,
+  let app: Hono | null = null;
+  const toApp = async (url: string, init?: RequestInit): Promise<Response> => {
+    if (app === null) throw new Error('auth app is not up yet');
+    return await app.request(url, init);
+  };
+  // The Apple node's notifications go to the auth app; nothing else is routable.
+  const idps = await startIdpNodes({
+    ports,
+    egress: {
+      fetch: (input, init) => toApp(String(input), init),
+    },
   });
-  return buildStore({ fabric: opts.fabric, sql, ports: session.ports, idp });
-}
-
-export function startActor(): ActorState {
+  const wire = async (url: string, init?: RequestInit): Promise<Response> => {
+    const idp = idpForUrl(idps, url);
+    return idp === null
+      ? await toApp(url, init)
+      : await idp.app.fetch(new Request(url, init));
+  };
+  // The auth app's own egress reaches the providers, and only them.
+  app = await buildAuthApp(sql, ports, {
+    async fetch(input, init) {
+      const url = String(input);
+      const idp = idpForUrl(idps, url);
+      if (idp === null) return new Response('not found', { status: 404 });
+      return await idp.app.fetch(new Request(url, init));
+    },
+  });
   return {
-    bearer: null,
-    pendingAuthUrl: null,
-    pendingCode: null,
+    fabric: opts.fabric,
+    sql,
+    server: createAuthServerAdapter({
+      getSql: () => sql,
+      clock: ports.clock,
+      createId: ports.createId,
+      secret: AUTH_SYSTEM_SECRET,
+    }),
+    idps,
+    appleClientId: APPLE_CLIENT_ID,
+    fetch: async (path, init) =>
+      await wire(
+        `${AUTH_SYSTEM_BASE_URL}${AUTH_SYSTEM_PATH_PREFIX}${path}`,
+        init
+      ),
+    wire,
   };
 }

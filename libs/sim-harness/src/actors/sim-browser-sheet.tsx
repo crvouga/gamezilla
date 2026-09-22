@@ -4,7 +4,7 @@
  * browser (the sign-in window, a hosted billing page) looks on a phone.
  *
  * The page body is the page's own UI: the provider's screens
- * (`@pkgs/idp-google-sim/embedded`) or a page a composed feature serves
+ * (`@pkgs/idp-sim/embedded`) or a page a composed feature serves
  * (`SimComposition.browserPages`), on the browser's network. Links
  * inside it are document loads, so a click on one goes to the browser rather
  * than to the host document.
@@ -15,8 +15,8 @@
  * queries the light DOM and happy-dom paints no CSS.
  */
 
-import { IdpEmbeddedPage } from '@pkgs/idp-google-sim/embedded';
-import { IDP_SPA_CSS } from '@pkgs/idp-google-sim/server/assets.generated';
+import { IdpEmbeddedPage } from '@pkgs/idp-sim/embedded';
+import { IDP_SPA_CSS } from '@pkgs/idp-sim/server/assets.generated';
 import { type JSX, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
 import { render } from 'solid-js/web';
 import type {
@@ -77,6 +77,7 @@ function PageBody(props: {
             fetch={props.browser.fetch}
             html={page().html}
             navigate={navigate}
+            post={(action, fields) => props.browser.post(action, fields)}
             onLocationChange={(url) => props.browser.setAddress(url)}
             url={page().url}
           />

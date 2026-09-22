@@ -69,13 +69,25 @@ opens an app link with `SimActor.openLink(path)` and reports its route with
 `currentPath()` — how a guest with only a space's link gets in.
 
 **Sign-in** — there is no dev provider. Every mode signs in through Google
-against `@pkgs/idp-google-sim`, a simulated provider with its own origin,
-account directory, browser sessions and consent grants. In-process runs mount
-it as the `idp` node on `createSimNet` (so it can be partitioned); the
-localhost stack runs it as its own process on its own port. The headless
-"popup" (`createInProcessOpenAuthSession`) parses and submits the provider's
-real HTML forms, so a provider flow change fails the suite instead of
+or Apple against `@pkgs/idp-sim`: two simulated providers, each with its own
+origin, account directory, browser sessions and consent grants. In-process
+runs mount them as the `idp` and `idp-apple` nodes on `createSimNet` (so either
+can be partitioned); the localhost stack runs each as its own process on its
+own port. Every actor holds one Google account (`<actor>@gmail.com`) and two
+Apple Accounts — one on the same Gmail address (linking by email) and one on
+iCloud (only an explicit link joins it). The actor's browser walks the
+provider's real screens (`system/provider-walk.ts`: address, chooser,
+password, consent, Apple's Share / Hide My Email) and auto-submits Apple's
+`form_post` page, so a provider flow change fails the suite instead of
 silently diverging.
+
+Auth actions: `signInWithGoogle` / `signInWithApple` / `signInWithProviderAs`,
+`confirmAccountLink` / `keepSeparateAccount` for the link-required question,
+`abandonSignIn`, `connectSignInMethod` / `removeSignInMethod` /
+`signOutEverywhere` on the account screen, and the provider-side stimuli
+`appleRevokesApp` / `appleDeletesAccount`. `AUTH_WALK_ACTIONS` are their
+monkey steps; each waits until the device's sign-in methods match the
+server's.
 
 **Authoring** — scenarios import `describe` / `test` from `bun:test` and call
 their package's `openSim(testId)`. Drive UI with named `defineAction`s from the

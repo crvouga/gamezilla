@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
-  createGoogleIdpApp,
   createIdpSigningKeys,
+  createIdpSimApp,
   IdpStore,
-} from '@pkgs/idp-google-sim/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-google-sim/shared';
+} from '@pkgs/idp-sim/server';
+import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
@@ -51,12 +51,13 @@ async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
 
   let nextId = 0;
   const idpStore = await IdpStore.open({
+    provider: 'google',
     sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
     clock: wallClock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,
   });
-  const idp = await createGoogleIdpApp({
+  const idp = await createIdpSimApp({
     store: idpStore,
     issuer: IDP_URL,
     clients: [
@@ -111,6 +112,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
     });
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
@@ -132,6 +134,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
     });
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
@@ -152,6 +155,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
     });
     const port = createAuthClientAdapter({
       baseURL: BASE_URL,
+      clock: wallClock,
       timers: wallTimers,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),

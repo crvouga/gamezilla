@@ -19,10 +19,19 @@ export {
   type CreateAuthServerAdapterDeps,
   createAuthServerAdapter,
 } from './create-auth-server-adapter';
+export { identityJson } from './identity-handlers';
+export { IdentityLinker, type LinkOutcome, maskEmail } from './identity-linker';
+export { IdentityRepository, type IdentityRow } from './identity-repository';
+export { IdpRepository } from './idp-repository';
+export {
+  type AppleProviderConfig,
+  appleClientSecret,
+  buildAppleAuthorizationUrl,
+} from './providers/apple-oauth';
 export {
   buildGoogleAuthorizationUrl,
   exchangeGoogleAuthorizationCode,
   type GoogleProviderConfig,
-  type GoogleUserInfo,
-} from './google-oauth';
-export { IdpRepository } from './idp-repository';
+} from './providers/google-oauth';
+export type { ProviderIdentity } from './providers/provider-identity';
+export type { OauthProvidersConfig } from './providers/registry';

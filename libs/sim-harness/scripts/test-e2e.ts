@@ -33,6 +33,20 @@ const namesPath = args.some(
   (arg) => arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)
 );
 
+/**
+ * The preloads belong to this package (it declares them), not to whichever
+ * package is running its suite — resolve them here, so a suite runs under an
+ * isolated install without every feature re-declaring the harness's deps.
+ */
+const SOLID_PRELOAD = Bun.resolveSync(
+  '@pkgs/bun-test-solid/preload',
+  import.meta.dir
+);
+const HARNESS_PRELOAD = Bun.resolveSync(
+  '@libs/sim-harness/preload',
+  import.meta.dir
+);
+
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
 
@@ -43,9 +57,9 @@ const result = spawnSync(
     '--conditions=browser',
     '--conditions=development',
     '--preload',
-    '@pkgs/bun-test-solid/preload',
+    SOLID_PRELOAD,
     '--preload',
-    '@libs/sim-harness/preload',
+    HARNESS_PRELOAD,
     ...(process.env['SIM_PRELOAD'] === undefined
       ? []
       : ['--preload', process.env['SIM_PRELOAD']]),

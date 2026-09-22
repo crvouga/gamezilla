@@ -1,31 +1,42 @@
 /**
- * The identity provider node.
+ * The identity-provider nodes.
  *
- * Production signs in through Google, so the simulation runs a whole
- * simulated Google: its own origin, its own account directory, its own
- * browser sessions and consent grants. Nothing about it is shared with the
- * API — the only way in is the documented OAuth conversation, which means the
- * production exchange path is the one under test.
+ * Production signs in through Google, and non-production also through Sign
+ * in with Apple, so the simulation runs one whole simulated provider of each
+ * flavor: its own origin, its own account directory, its own browser
+ * sessions and consent grants. Nothing about them is shared with the API —
+ * the only way in is each provider's documented OAuth conversation, so the
+ * production exchange paths are the ones under test. The Apple node reaches
+ * back only through the load balancer, with signed server-to-server
+ * notifications, as Apple does.
  *
- * It sits on `createSimNet` like every other node, so it can be partitioned
- * away from a client or from the API and the product has to cope.
+ * Each sits on `createSimNet` like every other node, so it can be
+ * partitioned away from a client or from the API and the product has to cope.
  */
 
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
 import {
+  SIM_APPLE_CLIENT_ID,
+  SIM_APPLE_IDP_URL,
+  SIM_APPLE_KEY_ID,
+  SIM_APPLE_TEAM_ID,
   SIM_BILLING_URL,
   SIM_GOOGLE_CLIENT_ID,
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
   SIM_SERVER_URL,
 } from '@libs/feature/public/sim-constants';
+import type { AppleBootInput } from '@libs/server-app/config/auth-boot';
 import type { Clock } from '@pkgs/clock';
 import {
-  createGoogleIdpApp,
+  type AppleClientKeys,
+  createAppleClientKeys,
   createIdpSigningKeys,
-  type GoogleIdp,
+  createIdpSimApp,
+  type IdpSim,
   IdpStore,
-} from '@pkgs/idp-google-sim/server';
+} from '@pkgs/idp-sim/server';
+import type { IdpProviderKind } from '@pkgs/idp-sim/shared';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -33,30 +44,92 @@ import { type SimBillingProvider, simBillingFetchFrom } from './sim-billing';
 import { requestHref } from './sim-http-request';
 import type { SimNet } from './sim-net';
 
+/** Network node ids, one per provider (partitionable independently). */
 export const SIM_IDP_ID = 'idp';
+export const SIM_APPLE_IDP_ID = 'idp-apple';
 
-/** Where the API's Google callback lands (`createServer` mounts under `/api`). */
+const NODE_IDS: Readonly<Record<IdpProviderKind, string>> = {
+  google: SIM_IDP_ID,
+  apple: SIM_APPLE_IDP_ID,
+};
+
+export type SimIdps = Readonly<Record<IdpProviderKind, IdpSim>>;
+
+/** Where the API's callbacks land (`createServer` mounts under `/api`). */
 export const SIM_GOOGLE_REDIRECT_URI = `${SIM_SERVER_URL}/api/auth/callback/google`;
+export const SIM_APPLE_REDIRECT_URI = `${SIM_SERVER_URL}/api/auth/callback/apple`;
+export const SIM_APPLE_NOTIFICATION_URL = `${SIM_SERVER_URL}/api/auth/apple/notifications`;
 
 /** Every actor signs in as their own Google account. */
 export function simIdpEmail(actorId: string): string {
   return `${actorId}@gmail.com`;
 }
 
-export async function createSimIdp(deps: {
-  readonly clock: Clock;
-  readonly createId: CreateId;
-  /** The host's SQLite (in-memory under the default fabric). */
-  readonly sqlClient: SqlClient;
-}): Promise<GoogleIdp> {
-  const store = await IdpStore.open({
+/**
+ * Every actor also holds two Apple Accounts: one registered with the same
+ * Gmail address (the same person across providers — linking by address) and
+ * one on iCloud (a different address — only an explicit link joins it).
+ */
+export function simAppleEmails(actorId: string): {
+  readonly sameAsGoogle: string;
+  readonly icloud: string;
+} {
+  return {
+    sameAsGoogle: simIdpEmail(actorId),
+    icloud: `${actorId}@icloud.com`,
+  };
+}
+
+/** The sim API's side of its Apple registration. */
+export function simAppleBootInput(keys: AppleClientKeys): AppleBootInput {
+  return {
+    origin: SIM_APPLE_IDP_URL,
+    clientId: SIM_APPLE_CLIENT_ID,
+    teamId: SIM_APPLE_TEAM_ID,
+    keyId: SIM_APPLE_KEY_ID,
+    privateJwk: { ...keys.privateJwk },
+  };
+}
+
+/** One relying-party key per process: minting it is not what any sim tests. */
+let appleKeys: Promise<AppleClientKeys> | null = null;
+
+export function simAppleClientKeys(): Promise<AppleClientKeys> {
+  appleKeys ??= createAppleClientKeys();
+  return appleKeys;
+}
+
+async function openIdpStore(
+  provider: IdpProviderKind,
+  deps: {
+    readonly clock: Clock;
+    readonly createId: CreateId;
+    readonly sqlClient: SqlClient;
+  }
+): Promise<IdpStore> {
+  return await IdpStore.open({
+    provider,
     sqlClient: deps.sqlClient,
     clock: deps.clock,
     createId: deps.createId,
     createKeys: () => createIdpSigningKeys(),
   });
-  return await createGoogleIdpApp({
-    store,
+}
+
+export async function createSimIdps(deps: {
+  readonly clock: Clock;
+  readonly createId: CreateId;
+  /** One SQLite per provider (in-memory under the default fabric). */
+  readonly sqlClients: Readonly<Record<IdpProviderKind, SqlClient>>;
+  readonly appleKeys: AppleClientKeys;
+  /** The Apple node's egress: notifications go through the balancer. */
+  readonly toApi: () => ServerHttp;
+}): Promise<SimIdps> {
+  const google = await createIdpSimApp({
+    store: await openIdpStore('google', {
+      ...deps,
+      sqlClient: deps.sqlClients.google,
+    }),
     issuer: SIM_IDP_URL,
     clients: [
       {
@@ -67,17 +140,71 @@ export async function createSimIdp(deps: {
       },
     ],
   });
+  const apple = await createIdpSimApp({
+    store: await openIdpStore('apple', {
+      ...deps,
+      sqlClient: deps.sqlClients.apple,
+    }),
+    issuer: SIM_APPLE_IDP_URL,
+    http: { fetch: (input, init) => deps.toApi()(input, init) },
+    clients: [
+      {
+        clientId: SIM_APPLE_CLIENT_ID,
+        clientSecret: '',
+        redirectUris: [SIM_APPLE_REDIRECT_URI],
+        appName: 'Gamezilla',
+        apple: {
+          teamId: SIM_APPLE_TEAM_ID,
+          keyId: SIM_APPLE_KEY_ID,
+          publicJwk: { ...deps.appleKeys.publicJwk },
+          notificationUrl: SIM_APPLE_NOTIFICATION_URL,
+        },
+      },
+    ],
+  });
+  return { google, apple };
 }
 
-/** A node's HTTP port to the provider, gated by the network. */
+/** Give an actor their accounts at both providers. */
+export async function addSimIdpAccounts(
+  idps: SimIdps,
+  actorId: string
+): Promise<void> {
+  const apple = simAppleEmails(actorId);
+  await idps.google.addAccount({
+    handle: actorId,
+    email: simIdpEmail(actorId),
+  });
+  await idps.apple.addAccount({ handle: actorId, email: apple.sameAsGoogle });
+  await idps.apple.addAccount({ handle: actorId, email: apple.icloud });
+}
+
+/** The provider an absolute URL belongs to, or `null`. */
+export function simIdpOf(href: string): IdpProviderKind | null {
+  if (href.startsWith(SIM_IDP_URL)) return 'google';
+  if (href.startsWith(SIM_APPLE_IDP_URL)) return 'apple';
+  return null;
+}
+
+/** A node's HTTP port to the providers, each hop gated by the network. */
 export function simIdpFetchFrom(args: {
-  readonly idp: GoogleIdp;
+  readonly idps: SimIdps;
   readonly net: SimNet;
   readonly from: string;
 }): ServerHttp {
-  return args.net.wrapHop(args.from, SIM_IDP_ID, async (input, init) =>
-    args.idp.app.fetch(new Request(requestHref(input), init))
-  );
+  const hops = {
+    google: args.net.wrapHop(args.from, NODE_IDS.google, async (input, init) =>
+      args.idps.google.app.fetch(new Request(requestHref(input), init))
+    ),
+    apple: args.net.wrapHop(args.from, NODE_IDS.apple, async (input, init) =>
+      args.idps.apple.app.fetch(new Request(requestHref(input), init))
+    ),
+  };
+  return async (input, init) => {
+    const provider = simIdpOf(requestHref(input));
+    if (provider === null) return new Response('not found', { status: 404 });
+    return await hops[provider](input, init);
+  };
 }
 
 /**
@@ -86,7 +213,7 @@ export function simIdpFetchFrom(args: {
  * browser.
  */
 export function simBrowserFetch(args: {
-  readonly idp: GoogleIdp;
+  readonly idps: SimIdps;
   readonly billing: SimBillingProvider | null;
   readonly net: SimNet;
   readonly from: string;
@@ -100,7 +227,7 @@ export function simBrowserFetch(args: {
       : simBillingFetchFrom({ billing, net: args.net, from: args.from });
   return async (input, init) => {
     const href = requestHref(input);
-    if (href.startsWith(SIM_IDP_URL)) return toIdp(input, init);
+    if (simIdpOf(href) !== null) return toIdp(input, init);
     if (toBilling !== null && href.startsWith(SIM_BILLING_URL)) {
       return toBilling(input, init);
     }

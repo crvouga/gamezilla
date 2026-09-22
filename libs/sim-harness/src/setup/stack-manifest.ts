@@ -6,10 +6,12 @@
  * and the system under test.
  */
 
+import type { StackIdpOrigins } from './stack-idp-accounts';
+
 export type StackAddresses = {
   readonly apiOrigin: string;
   readonly webOrigin: string;
-  readonly idpOrigin: string;
+  readonly idpOrigins: StackIdpOrigins;
   readonly databaseUrl: string;
 };
 

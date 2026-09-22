@@ -6,11 +6,11 @@ import {
 } from '@pkgs/auth/shared';
 import { wallClock } from '@pkgs/clock';
 import {
-  createGoogleIdpApp,
   createIdpSigningKeys,
+  createIdpSimApp,
   IdpStore,
-} from '@pkgs/idp-google-sim/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-google-sim/shared';
+} from '@pkgs/idp-sim/server';
+import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
@@ -44,12 +44,13 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
   });
   let nextId = 0;
   const idpStore = await IdpStore.open({
+    provider: 'google',
     sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
     clock: wallClock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,
   });
-  const idp = await createGoogleIdpApp({
+  const idp = await createIdpSimApp({
     store: idpStore,
     issuer: IDP_URL,
     clients: [

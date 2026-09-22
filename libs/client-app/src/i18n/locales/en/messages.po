@@ -61,6 +61,11 @@ msgstr "{0} live spaces"
 msgid "{0} matching · {1} local puzzles"
 msgstr "{0} matching · {1} local puzzles"
 
+#. placeholder {0}: name()
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
+msgid "{0} no longer signs in to this account."
+msgstr "{0} no longer signs in to this account."
+
 #. placeholder {0}: count()
 #: libs/spaces/src/root/client/miniplayer/miniplayer-member-count-text.tsx
 msgid "{0} people here"
@@ -226,6 +231,12 @@ msgstr "All"
 msgid "All themes"
 msgstr "All themes"
 
+#. placeholder {0}: props.link.email
+#. placeholder {1}: newProvider()
+#: libs/auth/src/public/sign-in-link-required.tsx
+msgid "An account already uses {0}. Sign in to it to add {1} as another way to sign in, or keep a separate account."
+msgstr "An account already uses {0}. Sign in to it to add {1} as another way to sign in, or keep a separate account."
+
 #: libs/client-app/src/shell/sync/boot-error-screen.tsx
 msgid "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
 msgstr "Another tab stopped sharing the local database. Reload this tab, or reset local data below (your account on the server is unchanged)."
@@ -257,6 +268,10 @@ msgstr "App failed to start"
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Appearance"
 msgstr "Appearance"
+
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "Apple"
+msgstr "Apple"
 
 #: libs/notifications/src/root/client/notifications-filter-bar.tsx
 msgid "Archived"
@@ -345,6 +360,7 @@ msgstr "Build"
 msgid "Build mode"
 msgstr "Build mode"
 
+#: libs/auth/src/public/sign-in-link-required.tsx
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 #: pkgs/ui/src/components/modal/confirmation-modal.tsx
@@ -459,6 +475,15 @@ msgstr "Confirmed"
 msgid "Confirming…"
 msgstr "Confirming…"
 
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+msgid "Connect"
+msgstr "Connect"
+
+#: libs/auth/src/public/sign-in-link-required.tsx
+msgid "Connect your accounts?"
+msgstr "Connect your accounts?"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Connected"
 msgstr "Connected"
@@ -466,6 +491,10 @@ msgstr "Connected"
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Connecting"
 msgstr "Connecting"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+msgid "Connecting…"
+msgstr "Connecting…"
 
 #: libs/client-app/src/screens/more/settings-screen.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
@@ -475,6 +504,10 @@ msgstr "Connection"
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Connectivity"
 msgstr "Connectivity"
+
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
+msgid "Continue with Apple"
+msgstr "Continue with Apple"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
 msgid "Continue with dev IDP"
@@ -538,6 +571,10 @@ msgstr "Couldn't accept"
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
 
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+msgid "Couldn't connect"
+msgstr "Couldn't connect"
+
 #: libs/spaces/src/root/client/space-users/space-share-link-section.tsx
 msgid "Couldn't copy"
 msgstr "Couldn't copy"
@@ -579,6 +616,10 @@ msgstr "Couldn't open checkout"
 msgid "Couldn't remove"
 msgstr "Couldn't remove"
 
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
+msgid "Couldn't remove it"
+msgstr "Couldn't remove it"
+
 #: libs/spaces/src/root/client/rename-space/rename-space-modal.tsx
 msgid "Couldn't rename space"
 msgstr "Couldn't rename space"
@@ -587,6 +628,10 @@ msgstr "Couldn't rename space"
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
+msgid "Couldn't sign out everywhere"
+msgstr "Couldn't sign out everywhere"
 
 #: libs/permissions/src/public/unlock-copy.tsx
 msgid "Create an account"
@@ -809,6 +854,10 @@ msgstr "Ending space…"
 msgid "Error state"
 msgstr "Error state"
 
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
+msgid "Every device signed in to this account, including this one, will be signed out."
+msgstr "Every device signed in to this account, including this one, will be signed out."
+
 #: libs/auth/src/root/client/account-device/account-devices-card.tsx
 msgid "Every install signed into your account shows up here."
 msgstr "Every install signed into your account shows up here."
@@ -948,6 +997,7 @@ msgstr "Go to {0}"
 msgid "Go to Spaces"
 msgstr "Go to Spaces"
 
+#: libs/auth/src/public/auth-flow-messages.tsx
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Google"
 msgstr "Google"
@@ -969,6 +1019,15 @@ msgstr "Has ever synced"
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Has synced"
 msgstr "Has synced"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+msgid "Hidden email · forwarding is off"
+msgstr "Hidden email · forwarding is off"
+
+#. placeholder {0}: props.identity.email ?? ''
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+msgid "Hidden email ({0})"
+msgstr "Hidden email ({0})"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Hide performance monitor"
@@ -1066,6 +1125,10 @@ msgstr "Jump to start"
 #: pkgs/ui/src/components/relative-time/relative-time.tsx
 msgid "just now"
 msgstr "just now"
+
+#: libs/auth/src/public/sign-in-link-required.tsx
+msgid "Keep a separate account"
+msgstr "Keep a separate account"
 
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Last error"
@@ -1353,6 +1416,10 @@ msgstr "Not available"
 #: libs/permissions/src/public/unlock-copy.tsx
 msgid "Not available on this account"
 msgstr "Not available on this account"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+msgid "Not connected"
+msgstr "Not connected"
 
 #: libs/client-app/src/routes/stubs/not-found.tsx
 msgid "Not found"
@@ -1655,10 +1722,17 @@ msgstr "Reload"
 msgid "Reload app"
 msgstr "Reload app"
 
+#: libs/auth/src/root/client/sign-in-methods/sign-in-method-row.tsx
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Remove"
 msgstr "Remove"
+
+#. placeholder {0}: name()
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
+msgid "Remove {0} sign-in?"
+msgstr "Remove {0} sign-in?"
 
 #: libs/friends/src/root/client/use-friend-user-overflow-menu.tsx
 msgid "Remove friend"
@@ -1668,10 +1742,12 @@ msgstr "Remove friend"
 msgid "Remove friend?"
 msgstr "Remove friend?"
 
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Removed"
 msgstr "Removed"
 
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Removing…"
 msgstr "Removing…"
@@ -1910,6 +1986,10 @@ msgid "Sign in to subscribe and keep your progress."
 msgstr "Sign in to subscribe and keep your progress."
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
+msgid "Sign in with Apple"
+msgstr "Sign in with Apple"
+
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
 msgid "Sign in with dev IDP"
 msgstr "Sign in with dev IDP"
 
@@ -1922,9 +2002,25 @@ msgstr "Sign in with Google"
 msgid "Sign out"
 msgstr "Sign out"
 
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
+msgid "Sign out everywhere"
+msgstr "Sign out everywhere"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
+msgid "Sign out of all devices"
+msgstr "Sign out of all devices"
+
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
+msgid "Sign out of all devices?"
+msgstr "Sign out of all devices?"
+
 #: libs/auth/src/public/use-sign-out-confirmation.tsx
 msgid "Sign out?"
 msgstr "Sign out?"
+
+#: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
+msgid "Sign up with Apple"
+msgstr "Sign up with Apple"
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
 msgid "Sign up with dev IDP"
@@ -1946,6 +2042,10 @@ msgstr "Sign-in failed"
 msgid "Sign-in is not available."
 msgstr "Sign-in is not available."
 
+#: libs/auth/src/root/client/sign-in-methods/sign-in-methods-section.tsx
+msgid "Sign-in methods"
+msgstr "Sign-in methods"
+
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Sign-in methods, devices, sign out"
 msgstr "Sign-in methods, devices, sign out"
@@ -1954,6 +2054,7 @@ msgstr "Sign-in methods, devices, sign out"
 msgid "Sign-in providers"
 msgstr "Sign-in providers"
 
+#: libs/auth/src/public/auth-flow-messages.tsx
 #: libs/auth/src/public/sign-in-modal.tsx
 msgid "Sign-in was cancelled or didn't finish."
 msgstr "Sign-in was cancelled or didn't finish."
@@ -1971,6 +2072,10 @@ msgstr "Signed in"
 msgid "Signed out"
 msgstr "Signed out"
 
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
+msgid "Signed out everywhere"
+msgstr "Signed out everywhere"
+
 #: libs/auth/src/public/sign-in-modal.tsx
 #: libs/client-app/src/routes/stubs/sso-callback.tsx
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
@@ -1978,6 +2083,7 @@ msgid "Signing in…"
 msgstr "Signing in…"
 
 #: libs/auth/src/public/use-sign-out-confirmation.tsx
+#: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
 msgid "Signing out…"
 msgstr "Signing out…"
 
@@ -2208,6 +2314,18 @@ msgstr "Target rating: {0}"
 msgid "Text to speech"
 msgstr "Text to speech"
 
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "That account already signs in to a different account here. Sign in with it to use that account instead."
+msgstr "That account already signs in to a different account here. Sign in with it to use that account instead."
+
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "That isn't the account the address matched, so nothing was connected."
+msgstr "That isn't the account the address matched, so nothing was connected."
+
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "That took too long. Start again."
+msgstr "That took too long. Start again."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
@@ -2219,6 +2337,10 @@ msgstr "The host hasn't started a puzzle yet."
 #: libs/spaces/src/root/client/module/games-main-menu.tsx
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
+
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "The sign-in provider couldn't finish. Try again in a moment."
+msgstr "The sign-in provider couldn't finish. Try again in a moment."
 
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/screens/more/theme-screen.tsx
@@ -2241,6 +2363,10 @@ msgstr "They will be removed from your friends list."
 msgid "They won't be able to send you friend requests."
 msgstr "They won't be able to send you friend requests."
 
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "This account already has a sign-in method from that provider. Remove it first to use a different one."
+msgstr "This account already has a sign-in method from that provider. Remove it first to use a different one."
+
 #: libs/auth/src/root/client/account-device/account-device-current-badge.tsx
 msgid "This device"
 msgstr "This device"
@@ -2248,6 +2374,10 @@ msgstr "This device"
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "This field is required"
 msgstr "This field is required"
+
+#: libs/auth/src/public/auth-flow-messages.tsx
+msgid "This is your only way to sign in, so it can't be removed."
+msgstr "This is your only way to sign in, so it can't be removed."
 
 #: libs/auth/src/root/client/account-device/account-device-detail-screen.tsx
 msgid "This link is missing a device id."
@@ -2428,6 +2558,11 @@ msgstr "You have unsaved avatar changes."
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You left the space"
 msgstr "You left the space"
+
+#. placeholder {0}: name()
+#: libs/auth/src/root/client/sign-in-methods/unlink-method-modal.tsx
+msgid "You won't be able to sign in with {0} anymore. You can connect it again later."
+msgstr "You won't be able to sign in with {0} anymore. You can connect it again later."
 
 #: libs/auth/src/public/use-sign-out-confirmation.tsx
 msgid "You'll be signed out on this device."
