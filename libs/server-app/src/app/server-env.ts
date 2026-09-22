@@ -5,7 +5,6 @@ import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import type { LlmProvider } from '@pkgs/llm/server';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { Observability } from '@pkgs/observability/port/observability';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { TtsProvider } from '@pkgs/tts/server';
@@ -24,7 +23,6 @@ export type ServerEnv = {
   readonly tts: TtsProvider | null;
   readonly llm: LlmProvider | null;
   readonly secrets: SecretStore;
-  readonly observability: Observability;
   /**
    * The auth service, as a module this server builds from `secrets`. The
    * server never learns which service it is.
@@ -32,6 +30,10 @@ export type ServerEnv = {
   readonly auth: AuthProviderModule;
   readonly secretsEnv: string;
   readonly serverUrl: string | null;
+  /** Exact OTLP/HTTP traces endpoint used by the browser ingress proxy. */
+  readonly observabilityCollectorUrl?: string | null;
+  /** Write-only Collector credential; never exposed to the browser. */
+  readonly observabilityCollectorToken?: string | null;
   readonly skipDatabaseUrlPolicy: boolean;
   /** Vendor HTTP (OpenAI / ElevenLabs). Not ClientEnv.server. */
   readonly fetch: (

@@ -144,7 +144,7 @@ export function makeSimClientEnv(
         timers,
       });
     },
-    ...createInMemoryClientPorts(`sim-client:${id}`),
+    ...createInMemoryClientPorts(),
     serverUrl: SIM_SERVER_URL,
     // The in-house IdP on the API origin, its window in the actor's browser.
     createAuthClient: () =>

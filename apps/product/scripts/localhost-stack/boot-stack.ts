@@ -152,7 +152,6 @@ function startApiNode(args: {
       [MockBillingBindingKeys.secretKey]: BILLING_SECRET_KEY,
       [MockBillingBindingKeys.webhookSecret]: BILLING_WEBHOOK_SECRET,
       WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
-      OBSERVABILITY_BACKEND: 'noop',
     },
   });
 }
@@ -423,6 +422,10 @@ export async function bootLocalhostStack(
     s3Endpoint: infra.s3Endpoint,
     mqttWssUrl: infra.mqttWssUrl,
     mqttUrl: infra.mqttUrl,
+    observabilityCollectorUrl: infra.observabilityCollectorUrl,
+    observabilityTraceDir: infra.observabilityTraceDir,
+    observabilityTempoUrl: infra.observabilityTempoUrl,
+    observabilityGrafanaUrl: infra.observabilityGrafanaUrl,
     dataDir,
   };
   const path = writeManifest(REPO_ROOT, manifest);

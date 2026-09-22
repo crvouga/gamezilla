@@ -80,7 +80,7 @@ export async function simClientEnv(
         'simClientEnv: room transport not available in shell tests'
       );
     },
-    ...createInMemoryClientPorts('sim-client'),
+    ...createInMemoryClientPorts(),
     serverUrl,
     createAuthClient: () =>
       createInhouseAuthClient({

@@ -14,10 +14,12 @@ import { createSecureStorageItem } from '@pkgs/secure-storage/solid';
 import {
   type Accessor,
   createContext,
+  createEffect,
   createMemo,
   type JSX,
   useContext,
 } from 'solid-js';
+import { setBrowserLocalIdentity } from '../observability/browser-identity';
 
 export type LocalIdentityValue = {
   /** Current local `users.id`; `null` until the local boot lands. */
@@ -47,6 +49,9 @@ export function LocalIdentityProvider(props: {
     deviceId,
     sessionToken,
   };
+  createEffect(() => {
+    setBrowserLocalIdentity(userId(), deviceId());
+  });
   return (
     <LocalIdentityContext.Provider value={value}>
       {props.children}

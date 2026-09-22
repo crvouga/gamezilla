@@ -1,3 +1,4 @@
+import { ATTR, activeSpan } from '@pkgs/observability/core';
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -251,6 +252,9 @@ export function mountMutationsRoute(
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
+    const requestSpan = activeSpan();
+    requestSpan?.setAttribute(ATTR.USER_ID, auth.accountId ?? auth.actorId);
+    requestSpan?.setAttribute(ATTR.APP_DEVICE_ID, auth.deviceId);
     const parsed = parseMutationsBatchBody(await c.req.json());
     if (parsed === null) {
       return c.json({ error: 'invalid_batch' }, 400);
@@ -265,6 +269,8 @@ export function mountMutationsRoute(
       clientId: m.clientId,
       seq: m.seq,
       createdAt: m.createdAt,
+      originTraceparent: m.originTraceparent,
+      ...(m.correlation === undefined ? {} : { correlation: m.correlation }),
     }));
     const prepared = await prepareMutationNotify(deps, auth, mutationRows, db);
     const { result, checkpoints } = prepared;
@@ -273,6 +279,7 @@ export function mountMutationsRoute(
       return c.json(
         {
           ok: result.ok,
+          serverTimeMs: deps.now(),
           verdicts: result.verdicts,
           ackSeq: result.ackSeq,
           topicPushSeqs: Object.fromEntries(checkpoints),
@@ -284,6 +291,7 @@ export function mountMutationsRoute(
     return c.json(
       {
         ok: result.ok,
+        serverTimeMs: deps.now(),
         verdicts: result.verdicts,
         ackSeq: result.ackSeq,
         protocol: SYNC_PROTOCOL_VERSION,

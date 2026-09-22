@@ -1519,10 +1519,6 @@ msgstr "Notifications"
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
 
-#: libs/client-config/src/root/client/client-config-entity-card.tsx
-msgid "Observability"
-msgstr "Observability"
-
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 #: libs/client-app/src/screens/more/performance-screen.tsx
 #: libs/client-app/src/screens/more/settings-screen.tsx

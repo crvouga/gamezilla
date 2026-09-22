@@ -3,7 +3,6 @@ import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
 import { DEFAULT_BILLING_GRACE_PERIOD_MS } from '@libs/client-config/public/client-config-defaults';
-import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
 import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
@@ -14,13 +13,24 @@ import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
 import type { AuthProvider } from '@pkgs/auth/server';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
-import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
+import {
+  ATTR,
+  activeSpan,
+  context,
+  currentCorrelation,
+  deserializeTraceContext,
+  SpanKind,
+  SpanStatusCode,
+  withSpan,
+} from '@pkgs/observability/core';
 import type { SecretStore } from '@pkgs/secret-store';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs';
-import { Hono } from 'hono';
+import { Hono, type MiddlewareHandler } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { routePath } from 'hono/route';
 import { API_PATH_PREFIX, createAuthProvider } from '../config/auth-provider';
 import { ApiSecretName } from '../config/secret-names';
+import { resolveWebClientOrigin } from '../config/web-client-origin';
 import { healthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -41,6 +51,8 @@ function createAppLogger(env: ServerEnv) {
   return createLogger({ name: 'server:app', now: env.clock.now });
 }
 
+const requestTraceIds = new WeakMap<Request, string>();
+
 function isAssertionFailure(err: unknown): err is {
   message: string;
   context?: Record<string, unknown>;
@@ -53,36 +65,101 @@ function isAssertionFailure(err: unknown): err is {
   );
 }
 
-function createApiErrorHandler(log: ReturnType<typeof createAppLogger>) {
-  return (
-    err: unknown,
-    c: { json: (body: { error: string }, status: number) => Response }
-  ) => {
-    if (err instanceof ForbiddenError) {
-      return c.json({ error: err.message }, 403);
-    }
-    if (err instanceof UnauthorizedError) {
-      return c.json({ error: err.message }, 401);
-    }
-    if (err instanceof ValidationError) {
-      return c.json({ error: err.message }, 400);
-    }
-    if (err instanceof HTTPException) {
-      return c.json({ error: err.message }, err.status);
-    }
+type ApiErrorContext = {
+  req: { raw: Request };
+  json: (body: { error: string; traceId?: string }, status: number) => Response;
+};
+
+function expectedApiError(err: unknown, c: ApiErrorContext): Response | null {
+  if (err instanceof ForbiddenError) {
+    return c.json({ error: err.message }, 403);
+  }
+  if (err instanceof UnauthorizedError) {
+    return c.json({ error: err.message }, 401);
+  }
+  if (err instanceof ValidationError) {
+    return c.json({ error: err.message }, 400);
+  }
+  if (err instanceof HTTPException) {
+    return c.json({ error: err.message }, err.status);
+  }
+  return null;
+}
+
+function createApiErrorHandler(
+  log: ReturnType<typeof createAppLogger>,
+  exposeTraceId: boolean
+) {
+  return (err: unknown, c: ApiErrorContext) => {
+    const requestTraceId = requestTraceIds.get(c.req.raw);
+    requestTraceIds.delete(c.req.raw);
+    const expected = expectedApiError(err, c);
+    if (expected !== null) return expected;
     if (isAssertionFailure(err)) {
+      activeSpan()?.recordException(new Error(err.message));
       log.error('assertion failure', {
         error: err.message,
         context: err.context,
       });
-      return c.json({ error: 'Internal server error' }, 500);
+      return c.json(
+        {
+          error: 'Internal server error',
+          ...(exposeTraceId && requestTraceId !== undefined
+            ? { traceId: requestTraceId }
+            : {}),
+        },
+        500
+      );
     }
     const message =
       err instanceof Error ? err.message : 'Internal server error';
+    const span = activeSpan();
+    span?.recordException(err instanceof Error ? err : new Error(String(err)));
+    span?.setStatus({ code: SpanStatusCode.ERROR, message });
+    const traceId = currentCorrelation().traceId ?? requestTraceId;
     log.error('handler error', {
       error: err instanceof Error ? err.message : String(err),
     });
-    return c.json({ error: message }, 500);
+    return c.json(
+      {
+        error: message,
+        ...(exposeTraceId && traceId !== undefined ? { traceId } : {}),
+      },
+      500
+    );
+  };
+}
+
+function createRequestTelemetryMiddleware(): MiddlewareHandler {
+  return async (c, next) => {
+    const traceparent = c.req.header('traceparent');
+    const parent =
+      traceparent === undefined
+        ? undefined
+        : deserializeTraceContext(traceparent);
+    const run = () =>
+      withSpan(
+        'http.server.request',
+        async (span) => {
+          requestTraceIds.set(c.req.raw, span.spanContext().traceId);
+          await next();
+          if (c.res.status >= 500) {
+            span.setStatus({ code: SpanStatusCode.ERROR });
+          }
+          span.setAttribute(ATTR.HTTP_ROUTE, routePath(c));
+          span.setAttribute(ATTR.HTTP_RESPONSE_STATUS_CODE, c.res.status);
+          const outgoing = currentCorrelation().traceparent;
+          if (outgoing !== undefined) c.header('traceparent', outgoing);
+          requestTraceIds.delete(c.req.raw);
+        },
+        {
+          [ATTR.HTTP_REQUEST_METHOD]: c.req.method,
+          [ATTR.CODE_FILE_PATH]: 'libs/server-app/src/app/create-server.ts',
+          [ATTR.CODE_FUNCTION_NAME]: 'createRequestTelemetryMiddleware',
+        },
+        { kind: SpanKind.SERVER }
+      );
+    return parent === undefined ? run() : context.with(parent, run);
   };
 }
 
@@ -143,17 +220,6 @@ async function readOptionalSecretValue(
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function parseObservabilityBackend(
-  raw: string | null
-): ObservabilityBackendName {
-  if (raw === null) return 'noop';
-  const normalized = raw.trim().toLowerCase();
-  if (normalized === 'noop' || normalized === 'console') {
-    return normalized;
-  }
-  return 'noop';
-}
-
 async function resolveEmqxWssUrlForClientConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
@@ -182,18 +248,12 @@ async function buildDesiredClientConfig(args: {
   readonly apiUrlOverride?: string | null;
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
-  const [emqxWssUrl, observabilityRaw] = await Promise.all([
-    resolveEmqxWssUrlForClientConfig({
-      secretStore,
-      ...(args.apiUrlOverride !== undefined
-        ? { apiUrlOverride: args.apiUrlOverride }
-        : {}),
-    }),
-    readOptionalSecretValue(
-      secretStore,
-      ApiSecretName.viteObservabilityBackend
-    ),
-  ]);
+  const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
+    secretStore,
+    ...(args.apiUrlOverride !== undefined
+      ? { apiUrlOverride: args.apiUrlOverride }
+      : {}),
+  });
   return {
     google: auth.signInMethods.includes('google'),
     apple: auth.signInMethods.includes('apple'),
@@ -202,7 +262,6 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    observabilityBackend: parseObservabilityBackend(observabilityRaw),
     permissionPolicy: DEFAULT_PERMISSION_POLICY,
     billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
@@ -230,6 +289,88 @@ function mountAuthHandler(
   shell.all(`${handler.pathPrefix}/*`, (c) => handler.fetch(c.req.raw));
 }
 
+function mountBrowserTelemetryIngress(
+  shell: Hono<ApiHonoEnv<AuthContext>>,
+  env: ServerEnv
+): void {
+  shell.post('/observability/v1/traces', async (c) => {
+    const endpoint = env.observabilityCollectorUrl?.trim();
+    if (endpoint === undefined || endpoint.length === 0) {
+      return c.json({ error: 'observability_unavailable' }, 503);
+    }
+    const expectedOrigin =
+      env.serverUrl === null ? null : resolveWebClientOrigin(env.serverUrl);
+    const requestOrigin = c.req.header('origin')?.replace(/\/$/, '');
+    if (
+      env.secretsEnv === 'prd' &&
+      (expectedOrigin === null || requestOrigin !== expectedOrigin)
+    ) {
+      return c.json({ error: 'observability_origin_denied' }, 403);
+    }
+    const contentType = c.req.header('content-type')?.toLowerCase() ?? '';
+    if (
+      !contentType.startsWith('application/x-protobuf') &&
+      !contentType.startsWith('application/json')
+    ) {
+      return c.json({ error: 'observability_content_type_denied' }, 415);
+    }
+    const body = await readBoundedBody(c.req.raw, 5 * 1024 * 1024);
+    if (body === null) {
+      return c.json({ error: 'observability_payload_too_large' }, 413);
+    }
+    const headers = new Headers({
+      'content-type': contentType,
+    });
+    const contentEncoding = c.req.header('content-encoding');
+    if (contentEncoding !== undefined) {
+      headers.set('content-encoding', contentEncoding);
+    }
+    const collectorToken = env.observabilityCollectorToken?.trim();
+    if (collectorToken !== undefined && collectorToken.length > 0) {
+      headers.set('authorization', `Bearer ${collectorToken}`);
+    }
+    const response = await env.fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body,
+    });
+    return new Response(null, { status: response.status });
+  });
+}
+
+async function readBoundedBody(
+  request: Request,
+  maxBytes: number
+): Promise<ArrayBuffer | null> {
+  const declared = Number(request.headers.get('content-length'));
+  if (Number.isFinite(declared) && declared > maxBytes) return null;
+  if (request.body === null) return new ArrayBuffer(0);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const next = await reader.read();
+      if (next.done) break;
+      total += next.value.byteLength;
+      if (total > maxBytes) {
+        await reader.cancel('observability payload too large');
+        return null;
+      }
+      chunks.push(next.value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return body.buffer as ArrayBuffer;
+}
+
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly auth: AuthProvider;
@@ -241,22 +382,16 @@ function createServerRouter(args: {
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
   const { env, auth, desiredClientConfig, servers, tts, llm, sync, log } = args;
-  const { secrets, observability, secretsEnv } = env;
+  const { secrets, secretsEnv } = env;
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
-    .use(
-      '*',
-      createObservabilityMiddleware(observability, {
-        match: (path) => path.startsWith('/api/'),
-      })
-    )
+    .use('*', createRequestTelemetryMiddleware())
     .use(
       '*',
       createRequestDbMiddleware(secrets, {
         authServer: auth.server,
         apiUrlOverride: env.serverUrl,
         secretsEnv,
-        observability,
         clock: env.clock,
         timers: env.timers,
         createId: env.createId,
@@ -267,6 +402,7 @@ function createServerRouter(args: {
     )
     .use('*', apiCors)
     .route('/', healthApp);
+  mountBrowserTelemetryIngress(shell, env);
   mountAuthHandler(shell, auth);
   shell
     .route(
@@ -307,7 +443,7 @@ function createServerRouter(args: {
     createId: env.createId,
   });
   for (const router of featureRouters) shell.route('/', router);
-  return shell.onError(createApiErrorHandler(log));
+  return shell.onError(createApiErrorHandler(log, secretsEnv !== 'prd'));
 }
 
 export type CreateServerArgs = {

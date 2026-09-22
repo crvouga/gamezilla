@@ -783,7 +783,6 @@
         "**/pkgs/object-store-node-fs/src/**/*.{ts,tsx}",
         "**/pkgs/object-store-opfs/src/**/*.{ts,tsx}",
         "**/pkgs/object-store-s3/src/**/*.{ts,tsx}",
-        "**/pkgs/observability-impl-local-file/src/**/*.{ts,tsx}",
         "**/pkgs/os/src/**/*.{ts,tsx}",
         "**/pkgs/outbox/src/**/*.{ts,tsx}",
         "**/pkgs/permissions/src/**/*.{ts,tsx}",
@@ -821,7 +820,6 @@
         "**/pkgs/kv/src/interface.ts",
         "**/pkgs/kv/src/kv-state-codec.ts",
         "**/pkgs/object-store/src/interface.ts",
-        "**/pkgs/observability/src/client/create-client-observability.ts",
         "**/pkgs/secure-storage/src/interface.ts",
         "**/pkgs/secure-storage/src/secure-storage-store.ts",
         "**/pkgs/sounds/src/audio-playback/in-memory-audio-playback-port.ts",
@@ -1011,6 +1009,135 @@
     {
       "path": "./libs/tools/biome-plugins/no-switch-in-component.grit",
       "includes": ["**/*.tsx"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-no-raw-attributes.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/pkgs/observability/src/core/**",
+        "!**/pkgs/observability/src/query/**",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-no-console-log.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/scripts/**",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-no-deep-imports.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-core-no-runtime.grit",
+      "includes": [
+        "**/pkgs/observability/src/core/**/*.{ts,tsx}",
+        "**/pkgs/observability/src/query/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-boundary-imports.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/pkgs/observability/**",
+        "!**/pkgs/observability-cli/**",
+        "!**/pkgs/observability-mcp/**",
+        "!**/apps/client/src/main.tsx",
+        "!**/apps/room-server/src/room.ts",
+        "!**/apps/server/src/server.ts",
+        "!**/libs/client-app/src/shell/observability/browser-boundaries.ts",
+        "!**/libs/client-app/src/shell/observability/browser-identity.ts",
+        "!**/libs/client-app/src/shell/wall-client-env.ts",
+        "!**/libs/server-app/src/app/create-server.ts",
+        "!**/libs/server-app/src/app/request-db-middleware.ts",
+        "!**/libs/server-app/src/observability/wrap-sql-client.ts",
+        "!**/libs/server-app/src/room/route.ts",
+        "!**/libs/sim-harness/src/observability/test-failure-spans.ts",
+        "!**/libs/sim-harness/src/preload.ts",
+        "!**/pkgs/logger/src/logger.ts",
+        "!**/pkgs/room-adapter-durable-object/src/adapter-base.ts",
+        "!**/pkgs/room-adapter-durable-object/src/observability.ts",
+        "!**/pkgs/sync-engine/src/client/mutation-upload-queue.ts",
+        "!**/pkgs/sync-engine/src/mutations/client/create-mutation-client.ts",
+        "!**/pkgs/sync-engine/src/mutations/server/replay-mutation.ts",
+        "!**/pkgs/sync-engine/src/server/sync-app-mutations-route.ts",
+        "!**/pkgs/sync-engine/src/shared/mutation-observability.ts",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-no-browser-runtime.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/pkgs/observability/**",
+        "!**/apps/client/src/main.tsx",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-no-node-runtime.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/pkgs/observability/**",
+        "!**/pkgs/observability-cli/**",
+        "!**/pkgs/observability-mcp/**",
+        "!**/libs/sim-harness/src/preload.ts",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-no-worker-runtime.grit",
+      "includes": [
+        "**/apps/**/src/**/*.{ts,tsx}",
+        "**/libs/**/src/**/*.{ts,tsx}",
+        "**/pkgs/**/src/**/*.{ts,tsx}",
+        "!**/pkgs/observability/**",
+        "!**/apps/room-server/src/room.ts",
+        "!**/apps/server/src/server.ts",
+        "!**/libs/server-app/src/room/route.ts",
+        "!**/pkgs/room-adapter-durable-object/src/adapter-base.ts",
+        "!**/pkgs/room-adapter-durable-object/src/observability.ts",
+        "!**/tests/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-span-name.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/observability-using-io.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
     }
   ],
   "overrides": [

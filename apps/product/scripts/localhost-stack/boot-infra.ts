@@ -19,12 +19,17 @@ import { runLocalMigrate } from '../../../server/scripts/run-local-postgres-migr
 import { runLocalSeed } from '../../../server/scripts/run-local-postgres-seed';
 import { reservePort } from './free-port';
 import type { StackOptions } from './stack-options';
+import { startObservabilityStack } from './start-observability-stack';
 
 export type InfraHandles = {
   readonly databaseUrl: string;
   readonly s3Endpoint: string | null;
   readonly mqttWssUrl: string | null;
   readonly mqttUrl: string | null;
+  readonly observabilityCollectorUrl: string | null;
+  readonly observabilityTraceDir: string | null;
+  readonly observabilityTempoUrl: string | null;
+  readonly observabilityGrafanaUrl: string | null;
   /** Environment the API instances need to reach all of the above. */
   readonly env: Readonly<Record<string, string>>;
   stop(): Promise<void>;
@@ -75,12 +80,34 @@ export async function bootInfra(args: {
   const postgres = await bootPostgres(args.dataDir);
   const s3 = args.options.withS3 ? await bootS3() : null;
   const mqtt = args.options.withMqtt ? await bootMqtt() : null;
+  let observability: Awaited<
+    ReturnType<typeof startObservabilityStack>
+  > | null = null;
+  try {
+    observability =
+      args.options.observabilityBackend !== 'off'
+        ? await startObservabilityStack({
+            backend: args.options.observabilityBackend,
+            dataDir: join(args.dataDir, 'observability'),
+            instanceId: args.options.instanceId,
+          })
+        : null;
+  } catch (error) {
+    await mqtt?.stop();
+    await s3?.stop();
+    await postgres.stop();
+    throw error;
+  }
 
   return {
     databaseUrl: postgres.url,
     s3Endpoint: s3?.endpoint ?? null,
     mqttWssUrl: mqtt?.wssUrl ?? null,
     mqttUrl: mqtt?.mqttUrl ?? null,
+    observabilityCollectorUrl: observability?.collectorUrl ?? null,
+    observabilityTraceDir: observability?.traceDir ?? null,
+    observabilityTempoUrl: observability?.tempoUrl ?? null,
+    observabilityGrafanaUrl: observability?.grafanaUrl ?? null,
     env: {
       LOCALHOST_STACK: '1',
       DATABASE_URL: postgres.url,
@@ -107,8 +134,14 @@ export async function bootInfra(args: {
             EMQX_MQTT_USER: 'stack',
             EMQX_MQTT_PASS: 'stack',
           }),
+      ...(observability === null
+        ? {}
+        : {
+            OBSERVABILITY_COLLECTOR_URL: observability.collectorUrl,
+          }),
     },
     async stop() {
+      await observability?.stop();
       await mqtt?.stop();
       await s3?.stop();
       await postgres.stop();

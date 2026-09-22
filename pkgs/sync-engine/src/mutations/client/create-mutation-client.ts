@@ -1,8 +1,13 @@
 import { assert } from '@pkgs/assert';
+import { serializeTraceContext } from '@pkgs/observability/core';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import { assertUuid } from '@pkgs/uuid';
+import { assertUuid, createUuidV7 } from '@pkgs/uuid';
+import {
+  mutationCorrelationIdentity,
+  mutationOriginTraceparent,
+} from '../../client/interaction-correlation';
 import { isStorageFullError } from '../../client/storage-full-error';
 import {
   parseStandardSchema,
@@ -99,14 +104,15 @@ async function nextMutationSeq(tx: SqlClient): Promise<number> {
 
 async function nextUniqueMutationId(
   tx: SqlClient,
-  createId: CreateId
+  createId: CreateId,
+  nowMs: number
 ): Promise<string> {
   // Seeded sim streams can reset while `sync_engine_mutations` still holds
   // earlier mints (env remount). Skip forward past collisions; fail fast if
   // `createId` itself is stuck returning the same value.
   const seen = new Set<string>();
   for (let attempt = 0; attempt < 4096; attempt += 1) {
-    const mutationId = createId();
+    const mutationId = createUuidV7(nowMs, createId());
     assertUuid(mutationId, 'sync_engine_mutations id must be a UUID');
     if (seen.has(mutationId)) {
       assert.fail('sync_engine createId returned a duplicate', {
@@ -162,6 +168,9 @@ async function queueMutation<A>(args: {
   readonly env: MutationEnv;
   readonly clientId: string;
   readonly createId: CreateId;
+  readonly originTraceparent: string | null;
+  readonly originSessionId: string | null;
+  readonly originBuildSha: string | null;
 }): Promise<{
   readonly mutationId: string;
   readonly capture: WriteCaptureSnapshot;
@@ -172,7 +181,11 @@ async function queueMutation<A>(args: {
   for (let attempt = 0; attempt < 8 && !queued; attempt += 1) {
     try {
       await args.db.transaction(async (txc) => {
-        mutationId = await nextUniqueMutationId(txc, args.createId);
+        mutationId = await nextUniqueMutationId(
+          txc,
+          args.createId,
+          args.env.now().getTime()
+        );
         const seq = await nextMutationSeq(txc);
         const createdAt = args.env.now().toISOString();
         const wrapped = wrapMutationDb(txc, args.env);
@@ -180,7 +193,8 @@ async function queueMutation<A>(args: {
         capture = wrapped.getCapture();
         await txc.run(sql`
           INSERT INTO sync_engine_mutations (
-            id, name, args, client_id, seq,
+            id, name, args, client_id, seq, origin_traceparent,
+            origin_session_id, origin_build_sha,
             created_at, updated_at, deleted_at
           )
           VALUES (
@@ -189,6 +203,9 @@ async function queueMutation<A>(args: {
             ${JSON.stringify(args.value)},
             ${args.clientId},
             ${seq},
+            ${args.originTraceparent},
+            ${args.originSessionId},
+            ${args.originBuildSha},
             ${createdAt},
             ${createdAt},
             ${null}
@@ -259,6 +276,12 @@ export function createMutationClient(
     drain: () => mutationTail,
 
     async mutate<A>(m: Mutation<A>, args: A): Promise<MutateResult> {
+      // Capture synchronously at the interaction boundary. Browser context
+      // cannot survive the queued Promise tail, and offline upload may happen
+      // hours after the originating span ended.
+      const originTraceparent =
+        mutationOriginTraceparent() ?? serializeTraceContext() ?? null;
+      const correlationIdentity = mutationCorrelationIdentity();
       const mutationEnv = snapshotMutationEnv(env);
       const online = connectivity.isOnline();
       const run = mutationTail.then(async () => {
@@ -291,6 +314,9 @@ export function createMutationClient(
             env: mutationEnv,
             clientId: ids.clientId,
             createId: options.createId,
+            originTraceparent,
+            originSessionId: correlationIdentity?.sessionId ?? null,
+            originBuildSha: correlationIdentity?.buildSha ?? null,
           });
           mutationId = queued.mutationId;
           const capture = queued.capture;

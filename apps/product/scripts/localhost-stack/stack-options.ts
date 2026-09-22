@@ -4,6 +4,7 @@
 
 /** How long the simulated Google provider remembers anything. */
 export type IdpStateMode = 'memory' | 'instance' | 'path';
+export type ObservabilityBackend = 'native' | 'lgtm' | 'off';
 
 export type StackOptions = {
   /** Names the instance's data directory and manifest file. */
@@ -12,6 +13,8 @@ export type StackOptions = {
   readonly apiNodes: number;
   readonly withS3: boolean;
   readonly withMqtt: boolean;
+  /** Native OTLP file collector by default; LGTM is the opt-in Docker UI. */
+  readonly observabilityBackend: ObservabilityBackend;
   /** Serve the built web bundle. Off for API-only runs. */
   readonly withWeb: boolean;
   /**
@@ -75,6 +78,19 @@ function parseIdpState(argv: readonly string[]): {
   return { mode: raw, path };
 }
 
+function parseObservabilityBackend(
+  argv: readonly string[]
+): ObservabilityBackend {
+  if (flag(argv, 'no-observability')) return 'off';
+  const backend = value(argv, 'observability') ?? 'native';
+  if (backend !== 'native' && backend !== 'lgtm' && backend !== 'off') {
+    throw new Error(
+      `--observability must be native, lgtm or off (got '${backend}')`
+    );
+  }
+  return backend;
+}
+
 export function parseStackOptions(argv: readonly string[]): StackOptions {
   const nodes = Number(value(argv, 'api-nodes') ?? '2');
   const idpState = parseIdpState(argv);
@@ -83,6 +99,7 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
     apiNodes: Number.isFinite(nodes) && nodes > 0 ? Math.floor(nodes) : 2,
     withS3: !flag(argv, 'no-s3'),
     withMqtt: !flag(argv, 'no-mqtt'),
+    observabilityBackend: parseObservabilityBackend(argv),
     withWeb: !flag(argv, 'no-web'),
     frozenWeb: flag(argv, 'frozen-web'),
     e2eHooks: flag(argv, 'e2e'),

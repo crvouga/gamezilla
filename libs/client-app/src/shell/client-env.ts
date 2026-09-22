@@ -15,7 +15,6 @@ import type { HapticsPort } from '@pkgs/device/haptics';
 import type { NetworkStatePort } from '@pkgs/device/network-state';
 import type { Kv } from '@pkgs/kv/interface';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import type { Observability } from '@pkgs/observability/port/observability';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { ClientTransport } from '@pkgs/room';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
@@ -82,7 +81,6 @@ export type ClientEnv = {
    * (OPFS / Cache API) is a wall adapter, so the composition root injects it.
    */
   readonly objectStore: ObjectStore;
-  readonly observability: Observability;
   readonly serverUrl: string;
   /**
    * The auth service's client adapter, built fresh for each app tree. The

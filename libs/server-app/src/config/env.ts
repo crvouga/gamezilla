@@ -33,8 +33,11 @@ export type ApiWorkerEnv = {
   S3_BUCKET?: string;
   S3_ENDPOINT?: string;
   S3_REGION?: string;
-  OBSERVABILITY_BACKEND?: string;
   OBSERVABILITY_COLLECTOR_URL?: string;
+  OBSERVABILITY_COLLECTOR_TOKEN?: string;
+  /** Explicit emergency kill switch. Production otherwise fails closed. */
+  OBSERVABILITY_ENABLED?: string;
+  BUILD_SHA?: string;
   ROOM?: RoomNamespace;
   [key: string]: string | RoomNamespace | undefined;
 };

@@ -68,6 +68,7 @@ async function openHost(authorize?: MutationAuthorize) {
             clientId: 'client',
             seq,
             createdAt: CLIENT_AT,
+            originTraceparent: null,
           },
         ],
       }),

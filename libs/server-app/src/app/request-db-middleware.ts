@@ -1,3 +1,4 @@
+import { appAuth } from '@libs/auth/public/auth-context';
 import { SessionAuth } from '@libs/auth/public/session-middleware';
 import type { AuthContext } from '@libs/auth/public/types';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
@@ -11,8 +12,7 @@ import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
-import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
-import type { Observability } from '@pkgs/observability/port/observability';
+import { ATTR, activeSpan, withSpan } from '@pkgs/observability/core';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -56,7 +56,6 @@ export type RequestDbMiddlewareOptions = {
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
-  readonly observability: Observability;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
@@ -68,6 +67,21 @@ export type RequestDbMiddlewareOptions = {
 
 type ClientConfigLatch = { done: boolean };
 
+class ObservedSessionAuth extends SessionAuth {
+  override async resolveAuthContext(
+    db: SqlClient,
+    request: Request
+  ): Promise<Readonly<Record<string, unknown>>> {
+    const context = await super.resolveAuthContext(db, request);
+    const auth = appAuth(context);
+    if (auth !== null) {
+      activeSpan()?.setAttribute(ATTR.USER_ID, auth.accountId ?? auth.myId);
+      activeSpan()?.setAttribute(ATTR.APP_DEVICE_ID, auth.deviceId);
+    }
+    return context;
+  }
+}
+
 type AttachRequestDatabaseArgs = {
   readonly c: Parameters<MiddlewareHandler<ApiHonoEnv<AuthContext>>>[0];
   readonly next: Parameters<MiddlewareHandler<ApiHonoEnv<AuthContext>>>[1];
@@ -77,31 +91,12 @@ type AttachRequestDatabaseArgs = {
 };
 
 async function openObservedSqlClient(
-  observability: Observability,
   openSqlClient: OpenSqlClient
 ): Promise<SqlClient> {
-  if (!isObservabilityActive(observability)) {
-    return openSqlClient();
-  }
-  const span = observability.startSpan({
-    name: 'db.open',
-    kind: 'internal',
-  });
-  return observability.withSpanContextAsync(span.spanContext, async () => {
-    try {
-      const db = await openSqlClient();
-      span.setStatus({ code: 'ok' });
-      return db;
-    } catch (err: unknown) {
-      observability.recordException(err);
-      span.setStatus({
-        code: 'error',
-        message: err instanceof Error ? err.message : String(err),
-      });
-      throw err;
-    } finally {
-      span.end();
-    }
+  return withSpan('db.open', () => openSqlClient(), {
+    [ATTR.DB_SYSTEM_NAME]: 'postgresql',
+    [ATTR.CODE_FILE_PATH]: 'libs/server-app/src/app/request-db-middleware.ts',
+    [ATTR.CODE_FUNCTION_NAME]: 'openObservedSqlClient',
   });
 }
 
@@ -128,16 +123,18 @@ async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
   const { c, next, options, secretStore, clientConfigLatch } = args;
-  const { authServer, observability, clock, timers, createId } = options;
-  const raw = await openObservedSqlClient(observability, options.openSqlClient);
-  const sqlClient = wrapSqlClientForObservability(observability, raw);
+  const { authServer, clock, timers, createId } = options;
+  const raw = await openObservedSqlClient(options.openSqlClient);
+  const sqlClient = wrapSqlClientForObservability(raw);
   const kv = new KvImplPostgres(sqlClient, clock.now);
-  const sessionAuth = new SessionAuth(authServer, { clock, createId });
+  const sessionAuth = new ObservedSessionAuth(authServer, {
+    clock,
+    createId,
+  });
   const store = {
     sqlClient,
     sessionAuth,
     kv,
-    observability,
     secretStore,
     clock,
     timers,
@@ -159,9 +156,12 @@ async function attachRequestDatabase(
       try {
         await sqlClient.disconnect();
       } catch (error: unknown) {
-        observability.recordException(error, {
-          operation: 'request-db-cleanup',
-        });
+        await withSpan('db.disconnect', () => Promise.reject(error), {
+          [ATTR.DB_SYSTEM_NAME]: 'postgresql',
+          [ATTR.CODE_FILE_PATH]:
+            'libs/server-app/src/app/request-db-middleware.ts',
+          [ATTR.CODE_FUNCTION_NAME]: 'disconnect',
+        }).catch(() => undefined);
       }
     }
   });
@@ -176,7 +176,8 @@ export function createRequestDbMiddleware(
   const clientConfigLatch: ClientConfigLatch = { done: false };
   const skipDatabasePolicy = options.skipDatabaseUrlPolicy === true;
   return async (c, next) => {
-    if (new URL(c.req.url).pathname === '/api/health') {
+    const path = new URL(c.req.url).pathname;
+    if (path === '/api/health' || path === '/api/observability/v1/traces') {
       return next();
     }
     if (!skipDatabasePolicy) {
