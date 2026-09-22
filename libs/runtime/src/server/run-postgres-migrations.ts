@@ -1,3 +1,4 @@
+import { BillingCustomerLinkProviderMigration } from '@libs/billing/root/server/billing-customer-link-provider-migration';
 import { ProfileUsernameIntegrityMigration } from '@libs/profile/root/server/profile-username-integrity-migration';
 import { appSchema } from '@libs/runtime/root/app-schema';
 import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
@@ -112,7 +113,8 @@ export class PostgresMigrationRunner {
         })
       )
       .register(new CutoverLegacyAuthToIdpMigration())
-      .register(new PurgeClerkExternalAccountsMigration());
+      .register(new PurgeClerkExternalAccountsMigration())
+      .register(new BillingCustomerLinkProviderMigration());
 
     // Index builds must run outside the advisory-locked transaction so every
     // build is CONCURRENTLY and no long lock is held on a live table.

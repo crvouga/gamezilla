@@ -17,12 +17,16 @@ same" is a test, not a promise.
 
 ## The wire (`src/wire.ts`)
 
-Stripe's object model and semantics, the mock's own identity: customers,
-prices with lookup keys, subscriptions with Stripe's eight statuses and
-item-level periods, invoices, checkout and portal sessions, events, the
-`{ error: { type, code, message } }` envelope, Stripe's magic test payment
-methods (`pm_card_visa`, `pm_card_chargeCustomerFail`, …), and a per-customer
-test clock. Bodies are JSON; ids, host and the signature header are the mock's
+Stripe's object model and semantics, the mock's own identity: customers (with
+a credit `balance`), prices with lookup keys, subscriptions with Stripe's
+eight statuses, item-level periods and `trial_settings`, finalized and
+numbered invoices with proration lines, checkout sessions (`payment_status`,
+`payment_method_collection`) and portal sessions, events, the list envelope,
+`Idempotency-Key` headers, the `{ error: { type, code, decline_code, message } }`
+envelope, Stripe's magic test payment methods (`pm_card_visa`,
+`pm_card_chargeCustomerFail`, `pm_card_authenticationRequired`, …), and a
+per-customer test clock. The adapter sends JSON (the provider also takes
+Stripe's form encoding); ids, host and the signature header are the mock's
 own, so it never passes for Stripe.
 
 ## Signatures (`src/signature.ts`)
@@ -35,5 +39,9 @@ several `v1`s are accepted so a secret can roll.
 
 `readCallback` verifies the signature, then **re-reads the subscription** from
 the provider rather than trusting the payload: the provider (like Stripe)
-delivers duplicates and out of order. An `ended` membership reports when access
-ended (`ended_at`), not the period it lost.
+delivers duplicates and out of order. It projects the same events Stripe's
+adapter does (`customer.subscription.created` / `updated` / `deleted` /
+`paused` / `resumed`); a `deleted` event is final even if the re-read lags; a
+subscription the provider does not know is `ignored`; any other provider
+error throws so the delivery is retried. An `ended` membership reports when
+access ended (`ended_at`), not the period it lost.

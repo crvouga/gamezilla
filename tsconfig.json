@@ -25,6 +25,8 @@
     "pkgs/billing-mock-provider/web/src/**/*.ts",
     "pkgs/billing-mock-provider/web/src/**/*.tsx",
     "pkgs/billing-mock-provider/scripts/**/*.ts",
+    "pkgs/billing-paddle/src/**/*.ts",
+    "pkgs/billing-providers/src/**/*.ts",
     "pkgs/billing-stripe/src/**/*.ts",
     "pkgs/billing-stripe/scripts/**/*.ts",
     "pkgs/llm/src/**/*.tsx",

@@ -4,6 +4,7 @@
 import { describe, expect, test } from 'bun:test';
 import { ROLE } from '@libs/permissions/public/permission-catalog';
 import {
+  governingSubscription,
   type PlanFacts,
   readSubscriptionSnapshot,
   resolvePlanRole,
@@ -20,6 +21,39 @@ function facts(overrides: Partial<PlanFacts>): PlanFacts {
     ...overrides,
   };
 }
+
+describe('governingSubscription', () => {
+  const row = (status: string, end: string) => ({
+    status,
+    current_period_end: end,
+    cancel_at_period_end: 0,
+  });
+
+  test('a live membership at one provider outranks a newer ended one at another', () => {
+    // Newest first: the old provider's late "ended" callback came in last.
+    const snapshot = governingSubscription([
+      row('ended', '2026-12-01T00:00:00.000Z'),
+      row('active', '2026-10-01T00:00:00.000Z'),
+    ]);
+    expect(snapshot?.status).toBe('active');
+  });
+
+  test('unreadable rows grant nothing and hide nothing', () => {
+    expect(
+      governingSubscription([row('past_due', '2026-10-01T00:00:00.000Z')])
+    ).toBeNull();
+    expect(
+      governingSubscription([
+        row('mystery', '2027-01-01T00:00:00.000Z'),
+        row('trialing', '2026-10-01T00:00:00.000Z'),
+      ])?.status
+    ).toBe('trialing');
+  });
+
+  test('no rows, no membership', () => {
+    expect(governingSubscription([])).toBeNull();
+  });
+});
 
 describe('readSubscriptionSnapshot', () => {
   test('an absent, blank or unknown status is no subscription', () => {

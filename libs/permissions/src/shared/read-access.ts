@@ -7,7 +7,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { parsePermissionPolicy } from './parse-permission-policy';
 import type { AppLimit, AppPolicyKey } from './permission-catalog';
 import {
-  readSubscriptionSnapshot,
+  governingSubscription,
   resolveAccessFacts,
   type SubscriptionRow,
 } from './plan';
@@ -83,12 +83,12 @@ export async function readAccessFacts(
         WHERE account_id = ${identity.accountId}
           AND deleted_at IS NULL
         ORDER BY updated_at DESC
-        LIMIT 1
+        LIMIT 50
       `)
     : [];
   return resolveAccessFacts({
     signedIn,
-    subscription: readSubscriptionSnapshot(subscriptions[0]),
+    subscription: governingSubscription(subscriptions),
     nowMs,
     graceMs: await readGraceMs(db),
   });

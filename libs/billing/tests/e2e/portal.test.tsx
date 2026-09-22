@@ -54,7 +54,7 @@ describe('billing portal', () => {
       s,
       (candidate) => candidate.price_key === 'subscription_yearly'
     );
-    // A switch during the trial keeps the trial, as at Stripe.
+    // A switch during the trial keeps the trial at the sim's provider.
     expect(row.status).toBe('trialing');
     expect(await s.read(billingTier, 'alice')).toBe('paid');
   });

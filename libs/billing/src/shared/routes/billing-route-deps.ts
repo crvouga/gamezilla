@@ -2,7 +2,7 @@
  * Dependency contract shared by the billing HTTP routes. Each route class
  * lives in its own use case; this is the composition seam the app satisfies.
  */
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock } from '@pkgs/clock';
 import type { Logger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -28,7 +28,8 @@ export type BillingNotify = (
 
 export type BillingRouteDeps = {
   readonly getSqlClient: () => SqlClient;
-  readonly billing: MembershipBilling | null;
+  /** Every configured provider, or `null` when billing is off. */
+  readonly billing: MembershipProviders | null;
   readonly requireAuth: BillingRequireAuth;
   readonly createId: CreateId;
   readonly clock: Clock;

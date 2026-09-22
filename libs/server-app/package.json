@@ -26,7 +26,6 @@
     "@pkgs/async-local": "workspace:*",
     "@pkgs/auth": "workspace:*",
     "@pkgs/billing": "workspace:*",
-    "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/kv": "workspace:*",

@@ -8,6 +8,7 @@ import type {
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing';
+import { createMembershipProviders } from '@pkgs/billing';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -17,6 +18,7 @@ import { BillingPortalRoutes } from './billing-portal-route';
 const NOW = 1_700_000_000_000;
 
 class StubBilling implements MembershipBilling {
+  readonly provider = 'stub';
   constructor(private readonly url: string) {}
 
   startCheckout(_input: StartCheckoutInput): Promise<StartCheckoutResult> {
@@ -48,21 +50,34 @@ function fakeSql(externalId: string | null): SqlClient {
   return sql;
 }
 
+function providersOf(adapter: MembershipBilling) {
+  return createMembershipProviders({
+    all: [adapter],
+    checkout: adapter.provider,
+  });
+}
+
 function deps(
   externalId: string | null,
   url: string | null = 'https://billing.test/portal/cus_1',
-  overrides: Partial<BillingRouteDeps> = {}
+  overrides: Partial<Omit<BillingRouteDeps, 'billing'>> & {
+    readonly billing?: MembershipBilling | null;
+  } = {}
 ): BillingRouteDeps {
+  const { billing: adapter, ...rest } = overrides;
   return {
     getSqlClient: () => fakeSql(externalId),
-    billing: new StubBilling(url ?? ''),
     requireAuth: () =>
       Promise.resolve({ accountId: 'acc_1', deviceId: 'dev_1' }),
     createId: (() => 'id-1') as never,
     clock: { now: () => NOW },
     log: createNoopLogger(),
     notifyUser: () => Promise.resolve(),
-    ...overrides,
+    ...rest,
+    billing:
+      adapter === null
+        ? null
+        : providersOf(adapter ?? new StubBilling(url ?? '')),
   };
 }
 

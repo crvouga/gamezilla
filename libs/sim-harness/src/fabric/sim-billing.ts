@@ -1,12 +1,12 @@
 /**
  * The payment provider node.
  *
- * Production bills through Stripe, so the simulation runs a whole payment
+ * Production bills through real providers, so the simulation runs a whole payment
  * provider: its own origin, its own customers, subscriptions, invoices and
  * test clocks, its own hosted checkout and portal. Nothing about it is shared
  * with the API — the API reaches it through the membership adapter over the
  * network, and it reaches the API only by delivering signed webhooks through
- * the load balancer, as Stripe does.
+ * the load balancer, as real providers do.
  *
  * It sits on `createSimNet` like every other node, so it can be partitioned
  * away from the API (webhooks retry) or from a client's browser.
@@ -18,8 +18,14 @@ import {
   SIM_BILLING_WEBHOOK_SECRET,
   SIM_SERVER_URL,
 } from '@libs/feature/public/sim-constants';
-import type { PlusMembershipOffer } from '@pkgs/billing';
 import {
+  createMembershipProviders,
+  type MembershipProviders,
+  membershipCallbackPath,
+  type PlusMembershipOffer,
+} from '@pkgs/billing';
+import {
+  MOCK_BILLING_PROVIDER,
   MockMembershipBilling,
   mockBillingCatalogFromOffer,
 } from '@pkgs/billing-mock';
@@ -66,7 +72,7 @@ export async function createSimBillingProvider(deps: {
     catalog: mockBillingCatalogFromOffer(deps.offer),
     secretKey: SIM_BILLING_SECRET_KEY,
     webhook: {
-      url: `${SIM_SERVER_URL}${deps.offer.callbackPath}`,
+      url: `${SIM_SERVER_URL}${membershipCallbackPath(deps.offer, MOCK_BILLING_PROVIDER)}`,
       secret: SIM_BILLING_WEBHOOK_SECRET,
     },
   });
@@ -118,18 +124,19 @@ export async function openSimBillingNode(args: {
 }
 
 /**
- * One API instance's membership adapter — the same one production runs —
- * or `null` when the sim sells nothing.
+ * One API instance's membership providers — the mock provider's adapter, the
+ * same one the stack runs, registered exactly as production registers its
+ * providers — or `null` when the sim sells nothing.
  */
 export function simMembershipBilling(args: {
   readonly billing: SimBillingProvider | null;
   readonly net: SimNet;
   readonly from: string;
   readonly clock: Clock;
-}): MockMembershipBilling | null {
+}): MembershipProviders | null {
   const billing = args.billing;
   if (billing === null) return null;
-  return new MockMembershipBilling({
+  const mock = new MockMembershipBilling({
     origin: SIM_BILLING_URL,
     secretKey: SIM_BILLING_SECRET_KEY,
     webhookSecret: SIM_BILLING_WEBHOOK_SECRET,
@@ -137,4 +144,5 @@ export function simMembershipBilling(args: {
     now: () => args.clock.now(),
     fetch: simBillingFetchFrom({ billing, net: args.net, from: args.from }),
   });
+  return createMembershipProviders({ all: [mock], checkout: mock.provider });
 }

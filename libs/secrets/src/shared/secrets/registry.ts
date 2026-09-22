@@ -10,11 +10,7 @@ import {
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
 } from './auth-secrets';
-import {
-  BILLING_VENDOR_PUBLISHABLE_KEY,
-  BILLING_VENDOR_SECRET_KEY,
-  BILLING_VENDOR_WEBHOOK_SECRET,
-} from './billing-vendor-secrets';
+import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
@@ -56,9 +52,7 @@ export const SECRETS: readonly Secret[] = [
   AUTH_SECRET,
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
-  BILLING_VENDOR_SECRET_KEY,
-  BILLING_VENDOR_PUBLISHABLE_KEY,
-  BILLING_VENDOR_WEBHOOK_SECRET,
+  ...BILLING_VENDOR_SECRETS,
   TURBO_API,
   TURBO_TOKEN,
   S3_ACCESS_KEY_ID,

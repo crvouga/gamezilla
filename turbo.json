@@ -15,6 +15,7 @@
     "DATABASE_URL",
     "AUTH_*",
     "LOCAL_SECRETS",
+    "PADDLE_*",
     "STRIPE_*",
     "CLOUDFLARE_*",
     "RAILWAY_*",

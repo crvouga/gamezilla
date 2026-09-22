@@ -172,6 +172,37 @@ const PROBES: readonly Probe[] = [
     source: "import fc from 'fast-check';",
     message: '@pkgs/sim core (except src/fast-check/ and tests)',
   },
+  {
+    path: 'libs/zz/src/use-cases/pay/server/route.ts',
+    source: "import { PaddleMembershipBilling } from '@pkgs/billing-paddle';",
+    message: 'Product code knows billing only through the @pkgs/billing',
+  },
+  {
+    path: 'libs/zz/src/root/client/screen.tsx',
+    source: "import Stripe from 'stripe';",
+    message: 'Product code knows billing only through the @pkgs/billing',
+  },
+  {
+    path: 'pkgs/billing/src/port.ts',
+    source: "export { STRIPE_PROVIDER } from '@pkgs/billing-stripe';",
+    message: 'Product code knows billing only through the @pkgs/billing',
+  },
+  {
+    path: 'libs/zz/src/use-cases/pay/server/port-route.ts',
+    source: "import type { MembershipProviders } from '@pkgs/billing';",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/sim/provider-driver.ts',
+    source: "import { MOCK_BILLING_PATHS } from '@pkgs/billing-mock';",
+    message: null,
+  },
+  {
+    path: 'apps/server/src/server.ts',
+    source:
+      "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle';",
+    message: null,
+  },
 ];
 
 type Diagnostic = {

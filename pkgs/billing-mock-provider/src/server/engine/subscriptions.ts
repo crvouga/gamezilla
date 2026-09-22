@@ -6,27 +6,46 @@
  *   subscription is created (Checkout refuses the card);
  * - at a period end the next invoice is charged: paid → `active`, declined →
  *   `past_due` with retries; a subscription set to cancel ends instead;
+ * - a trial that ends with no card on file follows
+ *   `trial_settings.end_behavior.missing_payment_method`: cancel, pause, or
+ *   invoice anyway (and go past due);
+ * - a paused subscription resumes into a fresh period, billed at once;
  * - after the last failed retry the subscription is canceled;
- * - an immediate cancel ends it now (`ended_at`), keeping its old period;
- * - a price switch during a trial keeps the trial; otherwise a new interval
- *   restarts the period now and charges the difference at once.
+ * - an immediate cancel ends it now (`ended_at`), keeping its old period.
+ *
+ * Every save emits `customer.subscription.updated` (or `created` /
+ * `deleted`), plus `paused` / `resumed` when it crossed that line.
  */
 import type {
   MockCancellationDetails,
+  MockEventType,
+  MockInvoice,
   MockPrice,
   MockSubscription,
   MockSubscriptionStatus,
+  MockTrialSettings,
 } from '@pkgs/billing-mock/wire';
 
 import { cardDeclined, invalidRequest, resourceMissing } from '../errors';
 import { DAY_S, type Engine, emit, mint, previousAttributes } from './context';
-import { attemptInvoice, createInvoice, openInvoiceOf } from './invoices';
+import type { ChargeOutcome, ChargeSession } from './customers';
+import {
+  attemptInvoice,
+  createInvoice,
+  openInvoiceOf,
+  periodLine,
+} from './invoices';
 import { periodEndS } from './prices';
 
 const NO_CANCELLATION: MockCancellationDetails = {
   reason: null,
   feedback: null,
   comment: null,
+};
+
+/** Stripe's default: a trial that ends without a card cancels. */
+export const DEFAULT_TRIAL_SETTINGS: MockTrialSettings = {
+  end_behavior: { missing_payment_method: 'cancel' },
 };
 
 /** Statuses a subscription never leaves. */
@@ -44,7 +63,13 @@ export function currentPeriodEnd(subscription: MockSubscription): number {
   return subscription.items.data[0]?.current_period_end ?? 0;
 }
 
-function withPeriod(
+/** The invoice id, whether or not a caller expanded it. */
+export function latestInvoiceId(subscription: MockSubscription): string | null {
+  const latest = subscription.latest_invoice;
+  return latest === null || typeof latest === 'string' ? latest : latest.id;
+}
+
+export function withPeriod(
   subscription: MockSubscription,
   args: {
     readonly price: MockPrice;
@@ -80,10 +105,33 @@ export async function requireSubscription(
     'subscription'
   );
   if (subscription === null) throw resourceMissing('subscription', id);
-  return subscription;
+  // Subscriptions stored before these fields existed carry the defaults.
+  return {
+    ...subscription,
+    trial_settings: subscription.trial_settings ?? DEFAULT_TRIAL_SETTINGS,
+    livemode: false,
+  };
 }
 
-/** Stores `after` and emits the matching subscription event. */
+function eventTypes(
+  before: MockSubscription | null,
+  after: MockSubscription
+): readonly MockEventType[] {
+  if (before === null) return ['customer.subscription.created'];
+  if (!TERMINAL.has(before.status) && TERMINAL.has(after.status)) {
+    return ['customer.subscription.deleted'];
+  }
+  const types: MockEventType[] = ['customer.subscription.updated'];
+  if (before.status !== 'paused' && after.status === 'paused') {
+    types.push('customer.subscription.paused');
+  }
+  if (before.status === 'paused' && after.status !== 'paused') {
+    types.push('customer.subscription.resumed');
+  }
+  return types;
+}
+
+/** Stores `after` and emits the matching subscription events. */
 export async function saveSubscription(
   engine: Engine,
   before: MockSubscription | null,
@@ -91,35 +139,30 @@ export async function saveSubscription(
   nowS: number
 ): Promise<MockSubscription> {
   await engine.db.put(after, after.customer);
-  const ended =
-    before !== null &&
-    !TERMINAL.has(before.status) &&
-    TERMINAL.has(after.status);
-  await emit(engine, {
-    type:
-      before === null
-        ? 'customer.subscription.created'
-        : ended
-          ? 'customer.subscription.deleted'
-          : 'customer.subscription.updated',
-    object: after,
-    createdS: nowS,
-    ...(before === null ? {} : { previous: previousAttributes(before, after) }),
-  });
+  for (const type of eventTypes(before, after)) {
+    await emit(engine, {
+      type,
+      object: after,
+      createdS: nowS,
+      ...(before === null
+        ? {}
+        : { previous: previousAttributes(before, after) }),
+    });
+  }
   return after;
 }
 
-function draftSubscription(
-  engine: Engine,
-  args: {
-    readonly customer: string;
-    readonly price: MockPrice;
-    readonly nowS: number;
-    readonly trialDays: number;
-    readonly metadata: Readonly<Record<string, string>>;
-    readonly paymentMethod: string | null;
-  }
-): MockSubscription {
+type StartArgs = {
+  readonly customer: string;
+  readonly price: MockPrice;
+  readonly nowS: number;
+  readonly trialDays: number;
+  readonly trialSettings: MockTrialSettings;
+  readonly metadata: Readonly<Record<string, string>>;
+  readonly paymentMethod: string | null;
+};
+
+function draftSubscription(engine: Engine, args: StartArgs): MockSubscription {
   const trialEnd =
     args.trialDays > 0 ? args.nowS + args.trialDays * DAY_S : null;
   return {
@@ -149,45 +192,76 @@ function draftSubscription(
     cancellation_details: NO_CANCELLATION,
     trial_start: trialEnd === null ? null : args.nowS,
     trial_end: trialEnd,
+    trial_settings: args.trialSettings,
     start_date: args.nowS,
     created: args.nowS,
+    livemode: false,
     latest_invoice: null,
     default_payment_method: args.paymentMethod,
     metadata: args.metadata,
   };
 }
 
+/** Bills one period's lines and charges them. */
+async function invoicePeriod(
+  engine: Engine,
+  subscription: MockSubscription,
+  args: {
+    readonly price: MockPrice;
+    readonly lines: Parameters<typeof createInvoice>[1]['lines'];
+    readonly reason: MockInvoice['billing_reason'];
+    readonly startS: number;
+    readonly endS: number;
+    readonly nowS: number;
+    readonly session: ChargeSession;
+  }
+) {
+  return await attemptInvoice(
+    engine,
+    await createInvoice(engine, {
+      customer: subscription.customer,
+      subscription: subscription.id,
+      currency: args.price.currency,
+      lines: args.lines,
+      reason: args.reason,
+      periodStartS: args.startS,
+      periodEndS: args.endS,
+      nowS: args.nowS,
+    }),
+    { nowS: args.nowS, session: args.session, kind: 'scheduled' }
+  );
+}
+
 /**
- * Starts a subscription. Without a trial the first charge must go through;
- * a declined card creates nothing (and rolls the step back).
+ * Starts a subscription, the customer present (Checkout). Without a trial
+ * the first charge must go through; a declined card creates nothing (and
+ * rolls the step back).
  */
 export async function startSubscription(
   engine: Engine,
-  args: {
-    readonly customer: string;
-    readonly price: MockPrice;
-    readonly nowS: number;
-    readonly trialDays: number;
-    readonly metadata: Readonly<Record<string, string>>;
-    readonly paymentMethod: string | null;
-  }
+  args: StartArgs
 ): Promise<MockSubscription> {
   const draft = draftSubscription(engine, args);
-  const invoice = await attemptInvoice(
-    engine,
-    await createInvoice(engine, {
-      customer: args.customer,
-      subscription: draft.id,
-      price: args.price,
-      amount: args.trialDays > 0 ? 0 : args.price.unit_amount,
-      reason: 'subscription_create',
-      periodStartS: args.nowS,
-      periodEndS: currentPeriodEnd(draft),
-      nowS: args.nowS,
-    }),
-    args.nowS
-  );
-  if (invoice.status !== 'paid') throw cardDeclined();
+  const endS = currentPeriodEnd(draft);
+  const { invoice, outcome } = await invoicePeriod(engine, draft, {
+    price: args.price,
+    lines: [
+      periodLine(engine, {
+        price: args.price,
+        amount: args.trialDays > 0 ? 0 : args.price.unit_amount,
+        startS: args.nowS,
+        endS,
+      }),
+    ],
+    reason: 'subscription_create',
+    startS: args.nowS,
+    endS,
+    nowS: args.nowS,
+    session: 'on_session',
+  });
+  if (outcome !== 'succeeded' || invoice.status !== 'paid') {
+    throw cardDeclined();
+  }
   return await saveSubscription(
     engine,
     null,
@@ -240,6 +314,14 @@ export async function setCancelAtPeriodEnd(
       'cancel_at_period_end'
     );
   }
+  if (subscription.cancel_at_period_end === args.cancel) return subscription;
+  if (subscription.status === 'paused') {
+    // A pause has no running period to see out: cancel it, or resume it.
+    throw invalidRequest(
+      'A paused subscription has no period to cancel at the end of. Cancel it now or resume it.',
+      'cancel_at_period_end'
+    );
+  }
   return await saveSubscription(
     engine,
     subscription,
@@ -260,33 +342,38 @@ export async function setCancelAtPeriodEnd(
   );
 }
 
-/** Charges `amount` for a new period and settles the subscription on it. */
+/**
+ * Starts a new period at `price` from `startS`, billing `lines`, and settles
+ * the subscription on the outcome: paid → `active`, otherwise `past_due`.
+ */
 export async function billPeriod(
   engine: Engine,
   subscription: MockSubscription,
   args: {
     readonly price: MockPrice;
     readonly startS: number;
-    readonly amount: number;
+    readonly lines?: Parameters<typeof createInvoice>[1]['lines'];
     readonly reason: 'subscription_cycle' | 'subscription_update';
     readonly nowS: number;
+    readonly session: ChargeSession;
   }
 ): Promise<MockSubscription> {
   const endS = periodEndS(args.price, args.startS);
-  const invoice = await attemptInvoice(
-    engine,
-    await createInvoice(engine, {
-      customer: subscription.customer,
-      subscription: subscription.id,
-      price: args.price,
-      amount: args.amount,
-      reason: args.reason,
-      periodStartS: args.startS,
-      periodEndS: endS,
-      nowS: args.nowS,
-    }),
-    args.nowS
-  );
+  const full = periodLine(engine, {
+    price: args.price,
+    amount: args.price.unit_amount,
+    startS: args.startS,
+    endS,
+  });
+  const { invoice } = await invoicePeriod(engine, subscription, {
+    price: args.price,
+    lines: [...(args.lines ?? []), full],
+    reason: args.reason,
+    startS: args.startS,
+    endS,
+    nowS: args.nowS,
+    session: args.session,
+  });
   const next = withPeriod(subscription, {
     price: args.price,
     startS: args.startS,
@@ -308,23 +395,63 @@ export async function billPeriod(
 export async function payOpenInvoice(
   engine: Engine,
   subscription: MockSubscription,
-  nowS: number
-): Promise<'paid' | 'declined' | 'nothing_due'> {
+  args: { readonly nowS: number; readonly session: ChargeSession }
+): Promise<ChargeOutcome | 'nothing_due'> {
   const open = await openInvoiceOf(
     engine,
     subscription.customer,
     subscription.id
   );
   if (open === null) return 'nothing_due';
-  const invoice = await attemptInvoice(engine, open, nowS);
-  if (invoice.status !== 'paid') return 'declined';
-  if (subscription.status === 'past_due') {
+  const { invoice, outcome } = await attemptInvoice(engine, open, {
+    ...args,
+    kind: 'on_demand',
+  });
+  if (invoice.status === 'paid' && subscription.status === 'past_due') {
     await saveSubscription(
       engine,
       subscription,
       { ...subscription, status: 'active' },
-      nowS
+      args.nowS
     );
   }
-  return 'paid';
+  return outcome;
+}
+
+/** A trial ended with no card and the settings say pause. */
+export async function pauseSubscription(
+  engine: Engine,
+  subscription: MockSubscription,
+  atS: number
+): Promise<MockSubscription> {
+  return await saveSubscription(
+    engine,
+    subscription,
+    { ...subscription, status: 'paused' },
+    atS
+  );
+}
+
+/**
+ * Resumes a paused subscription: a new period starts now and is billed at
+ * once (Stripe's default `billing_cycle_anchor: now`).
+ */
+export async function resumeSubscription(
+  engine: Engine,
+  subscription: MockSubscription,
+  args: { readonly nowS: number; readonly session: ChargeSession }
+): Promise<MockSubscription> {
+  if (subscription.status !== 'paused') {
+    throw invalidRequest(
+      'Only a paused subscription can be resumed.',
+      'subscription'
+    );
+  }
+  return await billPeriod(engine, subscription, {
+    price: priceOf(subscription),
+    startS: args.nowS,
+    reason: 'subscription_cycle',
+    nowS: args.nowS,
+    session: args.session,
+  });
 }

@@ -1,0 +1,25 @@
+language js
+
+// The app knows billing only through the membership port (@pkgs/billing).
+// A provider package (Stripe, Paddle, the mock) or a vendor SDK is imported
+// only where an adapter is chosen and built — composition roots, sims,
+// scripts, the secret registry — never by product code, so no product path
+// can branch on which provider it holds.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "billing-",
+    includes "stripe"
+  },
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:@pkgs/billing-(?:stripe|paddle|mock|mock-provider|providers)|stripe)(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="Product code knows billing only through the @pkgs/billing membership port. Build provider adapters in a composition root (apps/server/src/server.ts, a sim, a script) and inject them as MembershipProviders.", severity="error")
+  }
+}

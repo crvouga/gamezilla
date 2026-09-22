@@ -1,8 +1,9 @@
 /**
  * Secret names — same keys in `dev` and `prd` configs.
  *
- * Billing vendor secret names live in `@pkgs/billing-stripe` and are read
- * only via `createStripeMembershipBillingFromSecretStore` (not listed here).
+ * Billing provider secret names live in each provider's package
+ * (listed by `@pkgs/billing-providers`) and are read only by that
+ * package's provider module (not listed here).
  */
 export const ApiSecretName = {
   authSecret: 'AUTH_SECRET',

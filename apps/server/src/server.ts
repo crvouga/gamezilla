@@ -21,10 +21,10 @@ import {
   assertSecretsEnvBinding,
   ConfigurationError,
   readBillingProviderBinding,
-  readMockBillingBindings,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
   readOptionalGoogleIdpOrigin,
+  resolveCheckoutProvider,
   workerEnvToSecretRecord,
 } from '@libs/server-app/config/env';
 import { createApiObjectStore } from '@libs/server-app/config/object-store';
@@ -34,9 +34,12 @@ import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origi
 import { openRequestDb } from '@libs/server-app/db/open-request-db-postgres';
 import { drainAndNotifyOutbox } from '@libs/server-app/sync/outbox-drain';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
-import type { MembershipBilling } from '@pkgs/billing';
-import { MockMembershipBilling } from '@pkgs/billing-mock';
-import { createStripeMembershipBillingFromSecretStore } from '@pkgs/billing-stripe';
+import type { MembershipProviders } from '@pkgs/billing';
+import {
+  createConfiguredMembershipProviders,
+  MembershipProviderConfigError,
+  membershipSecretReader,
+} from '@pkgs/billing-providers';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
@@ -129,30 +132,32 @@ function latchFatal(reason: string): void {
 }
 
 /**
- * The membership provider this worker bills through. Stripe and the mock are
- * built the same way — an origin, a secret key, a webhook signing secret —
- * and the app never learns which one it got.
+ * Every membership provider this worker is configured for, and the one new
+ * checkouts go to. Providers are a list this root iterates, never names:
+ * each builds itself from the worker's secrets and bindings, and the app
+ * never learns which it holds.
  */
 async function createMembershipBilling(
   env: ApiWorkerEnv,
   secretStore: ReturnType<typeof createApiSecretStore>
-): Promise<MembershipBilling | null> {
-  if (readBillingProviderBinding(env) === 'mock') {
-    const mock = readMockBillingBindings(env);
-    return new MockMembershipBilling({
-      origin: mock.origin,
-      secretKey: mock.secretKey,
-      webhookSecret: mock.webhookSecret,
-      offer: PLUS_MEMBERSHIP_OFFER,
-      now: wallClock.now,
-      fetch: (input, init) => globalThis.fetch(input, init),
+): Promise<MembershipProviders | null> {
+  try {
+    return await createConfiguredMembershipProviders({
+      env: {
+        readSecret: membershipSecretReader(secretStore),
+        offer: PLUS_MEMBERSHIP_OFFER,
+        now: wallClock.now,
+        fetch: (input, init) => globalThis.fetch(input, init),
+      },
+      chooseCheckout: (configured) =>
+        resolveCheckoutProvider(readBillingProviderBinding(env), configured),
     });
+  } catch (error) {
+    if (error instanceof MembershipProviderConfigError) {
+      throw new ConfigurationError(error.message);
+    }
+    throw error;
   }
-  return await createStripeMembershipBillingFromSecretStore(
-    secretStore,
-    PLUS_MEMBERSHIP_OFFER,
-    wallClock.now
-  );
 }
 
 async function bootApp(env: ApiWorkerEnv): Promise<App> {
@@ -195,7 +200,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const localStack = env['LOCALHOST_STACK'] === '1';
   const billing = await createMembershipBilling(env, secretStore);
   if (billing === null) {
-    log.warn('billing secret key missing; billing routes will return 503');
+    log.warn('no billing provider configured; billing routes will return 503');
   }
 
   const serverEnv: ServerEnv = {

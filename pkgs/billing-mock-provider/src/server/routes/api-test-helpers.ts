@@ -11,17 +11,22 @@ import { settleCustomer } from '../engine/billing-cycle';
 import { customerNowS } from '../engine/context';
 import { requireCustomer } from '../engine/customers';
 import { invalidRequest, resourceMissing } from '../errors';
-import { answer, readBody } from './request';
+import { page } from './list';
+import {
+  answer,
+  optionalInteger,
+  optionalString,
+  readBody,
+  readQuery,
+} from './request';
 import type { ProviderRunner } from './runner';
-
-const MAX_EVENTS = 100;
 
 export function apiTestHelperRoutes(runner: ProviderRunner): Hono {
   return new Hono()
     .post('/v1/test_helpers/customers/:id/advance_clock', async (c) =>
       answer(c, async () => {
-        const frozen = (await readBody(c))['frozen_time'];
-        if (typeof frozen !== 'number' || !Number.isInteger(frozen)) {
+        const frozen = optionalInteger(await readBody(c), 'frozen_time');
+        if (frozen === undefined) {
           throw invalidRequest(
             'frozen_time must be unix seconds.',
             'frozen_time'
@@ -47,20 +52,11 @@ export function apiTestHelperRoutes(runner: ProviderRunner): Hono {
     .get(MOCK_BILLING_PATHS.events, async (c) =>
       answer(c, () =>
         runner.run(async (engine) => {
-          const limit = Math.min(
-            Number(c.req.query('limit') ?? 10),
-            MAX_EVENTS
+          const query = readQuery(c);
+          const events = await engine.db.events(
+            optionalString(query, 'type') ?? null
           );
-          const data = await engine.db.events({
-            type: c.req.query('type') ?? null,
-            limit: Number.isFinite(limit) && limit > 0 ? limit : 10,
-          });
-          return {
-            object: 'list',
-            data,
-            has_more: false,
-            url: MOCK_BILLING_PATHS.events,
-          };
+          return page(MOCK_BILLING_PATHS.events, events, query);
         })
       )
     )

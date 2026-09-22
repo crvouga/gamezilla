@@ -13,6 +13,8 @@
 import { defineContext } from '@pkgs/solid-context/define-context';
 import { type Accessor, createSignal, type JSX } from 'solid-js';
 
+import { GlobalMenuMembershipRoot } from './global-menu-membership-context';
+
 export type GlobalMenuIdentity = {
   readonly username: string | null;
   readonly email: string | null;
@@ -40,7 +42,10 @@ export function useGlobalMenuIdentityPublisher(): GlobalMenuIdentityPublisher {
   return GlobalMenuIdentityPublisherContext.use();
 }
 
-/** Boot stub: holds the signal the live bridge publishes into. */
+/**
+ * Boot stub: holds the signals the live bridges publish into — the identity,
+ * and the membership chip beside it.
+ */
 export function GlobalMenuIdentityRoot(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
@@ -50,7 +55,7 @@ export function GlobalMenuIdentityRoot(props: {
   return (
     <GlobalMenuIdentityContext.Provider value={identity}>
       <GlobalMenuIdentityPublisherContext.Provider value={setIdentity}>
-        {props.children}
+        <GlobalMenuMembershipRoot>{props.children}</GlobalMenuMembershipRoot>
       </GlobalMenuIdentityPublisherContext.Provider>
     </GlobalMenuIdentityContext.Provider>
   );

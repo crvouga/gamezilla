@@ -1,70 +1,58 @@
 /**
  * The provider's REST API (`/v1/*`), for the adapter and for tests. Every
  * call needs the secret key; every call touching a customer first catches
- * that customer up to their test clock.
+ * that customer up to their test clock. Requests may be JSON or Stripe's form
+ * encoding; POSTs honour `Idempotency-Key`; reads honour `expand[]`; lists
+ * paginate with Stripe's cursors.
  */
-import {
-  MOCK_BILLING_PATHS,
-  type MockInvoice,
-  type MockList,
-  type MockSubscription,
-} from '@pkgs/billing-mock/wire';
+import { MOCK_BILLING_PATHS, type MockPrice } from '@pkgs/billing-mock/wire';
 import { type Context, Hono } from 'hono';
 
-import { settleCustomer, switchPrice } from '../engine/billing-cycle';
+import { settleCustomer } from '../engine/billing-cycle';
 import { customerNowS, type Engine } from '../engine/context';
 import {
   attachDefaultPaymentMethod,
   createCustomer,
   requireCustomer,
 } from '../engine/customers';
-import { requireInvoice } from '../engine/invoices';
 import { pricesByLookupKeys, requirePrice } from '../engine/prices';
 import {
   createCheckoutSession,
   createPortalSession,
+  expireCheckoutSession,
   readCheckoutSession,
 } from '../engine/sessions';
-import {
-  endSubscription,
-  payOpenInvoice,
-  requireSubscription,
-  setCancelAtPeriodEnd,
-} from '../engine/subscriptions';
-import { authenticationFailed, cardDeclined, invalidRequest } from '../errors';
+import { authenticationFailed, unrecognizedUrl } from '../errors';
+import { billingRoutes } from './api-billing';
+import { checkoutSessionBody } from './api-checkout-body';
 import { apiTestHelperRoutes } from './api-test-helpers';
+import { expandObject, expandOf } from './expand';
+import { idempotency } from './idempotency';
+import { page } from './list';
 import {
   answer,
+  type Body,
+  optionalBoolean,
   optionalString,
   readBody,
+  readQuery,
   recordField,
   stringField,
+  stringList,
   stringRecord,
 } from './request';
 import type { ProviderRunner } from './runner';
-
-export function list<T>(url: string, data: readonly T[]): MockList<T> {
-  return { object: 'list', data, has_more: false, url };
-}
-
-async function settled(engine: Engine, subscriptionId: string) {
-  const before = await requireSubscription(engine, subscriptionId);
-  await settleCustomer(engine, before.customer);
-  return await requireSubscription(engine, subscriptionId);
-}
 
 function customerRoutes(api: Hono, runner: ProviderRunner): void {
   api.post(MOCK_BILLING_PATHS.customers, async (c) =>
     answer(c, async () => {
       const body = await readBody(c);
+      const email = optionalString(body, 'email');
+      const name = optionalString(body, 'name');
       return await runner.run((engine) =>
         createCustomer(engine, {
-          ...(optionalString(body, 'email') === undefined
-            ? {}
-            : { email: stringField(body, 'email') }),
-          ...(optionalString(body, 'name') === undefined
-            ? {}
-            : { name: stringField(body, 'name') }),
+          ...(email === undefined ? {} : { email }),
+          ...(name === undefined ? {} : { name }),
           metadata: stringRecord(recordField(body, 'metadata')),
         })
       );
@@ -84,6 +72,7 @@ function customerRoutes(api: Hono, runner: ProviderRunner): void {
           : optionalString(settings, 'default_payment_method');
       const id = c.req.param('id');
       return await runner.run(async (engine) => {
+        await settleCustomer(engine, id);
         if (method !== undefined)
           await attachDefaultPaymentMethod(engine, id, method);
         return await requireCustomer(engine, id);
@@ -92,29 +81,34 @@ function customerRoutes(api: Hono, runner: ProviderRunner): void {
   );
 }
 
-/** `lookup_keys` repeated or comma-separated, as either client sends it. */
-function lookupKeysOf(c: Context): readonly string[] | undefined {
-  const raw = c.req.queries('lookup_keys') ?? [];
-  const keys = raw.flatMap((value) => value.split(',')).filter(Boolean);
-  return keys.length === 0 ? undefined : keys;
+/** `lookup_keys` repeated, bracketed or comma-separated, as clients send it. */
+function lookupKeysOf(c: Context): readonly string[] {
+  const repeated = (c.req.queries('lookup_keys') ?? []).flatMap((value) =>
+    value.split(',')
+  );
+  return [...repeated, ...stringList(readQuery(c), 'lookup_keys')].filter(
+    (key, index, all) => key.length > 0 && all.indexOf(key) === index
+  );
+}
+
+async function listPrices(
+  engine: Engine,
+  query: Body,
+  keys: readonly string[]
+) {
+  const active = optionalBoolean(query, 'active');
+  const prices = (
+    keys.length === 0
+      ? await engine.db.all<MockPrice>('price')
+      : await pricesByLookupKeys(engine, keys)
+  ).filter((price) => active === undefined || price.active === active);
+  return page(MOCK_BILLING_PATHS.prices, [...prices].reverse(), query);
 }
 
 function catalogRoutes(api: Hono, runner: ProviderRunner): void {
   api.get(MOCK_BILLING_PATHS.prices, async (c) =>
     answer(c, () =>
-      runner.run(async (engine) => {
-        const keys = lookupKeysOf(c);
-        if (keys === undefined || keys.length === 0) {
-          throw invalidRequest(
-            'Pass lookup_keys to list prices.',
-            'lookup_keys'
-          );
-        }
-        return list(
-          MOCK_BILLING_PATHS.prices,
-          await pricesByLookupKeys(engine, keys)
-        );
-      })
+      runner.run((engine) => listPrices(engine, readQuery(c), lookupKeysOf(c)))
     )
   );
   api.get('/v1/prices/:id', async (c) =>
@@ -128,44 +122,33 @@ function sessionRoutes(api: Hono, runner: ProviderRunner): void {
   api.post(MOCK_BILLING_PATHS.checkoutSessions, async (c) =>
     answer(c, async () => {
       const body = await readBody(c);
-      const items = body['line_items'];
-      const line = Array.isArray(items) ? (items[0] as unknown) : undefined;
-      const price =
-        line !== null && typeof line === 'object'
-          ? stringField(line as Record<string, unknown>, 'price')
-          : stringField({}, 'line_items[0][price]');
-      if (body['mode'] !== 'subscription') {
-        throw invalidRequest('Only `subscription` mode is supported.', 'mode');
-      }
-      const data = recordField(body, 'subscription_data');
-      const trial = data?.['trial_period_days'];
-      return await runner.run((engine) =>
-        createCheckoutSession(engine, {
-          mode: 'subscription',
-          customer: stringField(body, 'customer'),
-          ...(optionalString(body, 'client_reference_id') === undefined
-            ? {}
-            : {
-                client_reference_id: stringField(body, 'client_reference_id'),
-              }),
-          line_items: [{ price, quantity: 1 }],
-          success_url: stringField(body, 'success_url'),
-          cancel_url: stringField(body, 'cancel_url'),
-          subscription_data: {
-            metadata: stringRecord(
-              data === undefined ? undefined : recordField(data, 'metadata')
-            ),
-            ...(typeof trial === 'number' && trial > 0
-              ? { trial_period_days: trial }
-              : {}),
-          },
-        })
+      return await runner.run(async (engine) =>
+        expandObject(
+          engine,
+          await createCheckoutSession(engine, checkoutSessionBody(body)),
+          expandOf(body)
+        )
       );
     })
   );
   api.get('/v1/checkout/sessions/:id', async (c) =>
     answer(c, () =>
-      runner.run((engine) => readCheckoutSession(engine, c.req.param('id')))
+      runner.run(async (engine) =>
+        expandObject(
+          engine,
+          await readCheckoutSession(engine, c.req.param('id')),
+          expandOf(readQuery(c))
+        )
+      )
+    )
+  );
+  api.post('/v1/checkout/sessions/:id/expire', async (c) =>
+    answer(c, () =>
+      runner.run(async (engine) => {
+        const session = await readCheckoutSession(engine, c.req.param('id'));
+        const nowS = await customerNowS(engine, session.customer);
+        return await expireCheckoutSession(engine, session, nowS);
+      })
     )
   );
   api.post(MOCK_BILLING_PATHS.portalSessions, async (c) =>
@@ -177,113 +160,6 @@ function sessionRoutes(api: Hono, runner: ProviderRunner): void {
           return_url: stringField(body, 'return_url'),
         })
       );
-    })
-  );
-}
-
-async function updateSubscription(
-  engine: Engine,
-  id: string,
-  body: Readonly<Record<string, unknown>>
-): Promise<MockSubscription> {
-  let subscription = await settled(engine, id);
-  const nowS = await customerNowS(engine, subscription.customer);
-  const items = body['items'];
-  const item = Array.isArray(items)
-    ? (items[0] as Record<string, unknown> | undefined)
-    : undefined;
-  if (item !== undefined) {
-    const price = await requirePrice(engine, stringField(item, 'price'));
-    subscription = await switchPrice(engine, subscription, { price, nowS });
-  }
-  const cancel = body['cancel_at_period_end'];
-  if (
-    typeof cancel === 'boolean' &&
-    cancel !== subscription.cancel_at_period_end
-  ) {
-    const details = recordField(body, 'cancellation_details');
-    subscription = await setCancelAtPeriodEnd(engine, subscription, {
-      cancel,
-      feedback:
-        details === undefined
-          ? null
-          : (optionalString(details, 'feedback') ?? null),
-      nowS,
-    });
-  }
-  return subscription;
-}
-
-function subscriptionRoutes(api: Hono, runner: ProviderRunner): void {
-  api.get(MOCK_BILLING_PATHS.subscriptions, async (c) =>
-    answer(c, () =>
-      runner.run(async (engine) => {
-        const customer = c.req.query('customer');
-        if (customer === undefined)
-          throw invalidRequest('Pass customer.', 'customer');
-        await requireCustomer(engine, customer);
-        await settleCustomer(engine, customer);
-        return list(
-          MOCK_BILLING_PATHS.subscriptions,
-          await engine.db.list<MockSubscription>('subscription', customer)
-        );
-      })
-    )
-  );
-  api.get('/v1/subscriptions/:id', async (c) =>
-    answer(c, () => runner.run((engine) => settled(engine, c.req.param('id'))))
-  );
-  api.post('/v1/subscriptions/:id', async (c) =>
-    answer(c, async () => {
-      const body = await readBody(c);
-      return await runner.run((engine) =>
-        updateSubscription(engine, c.req.param('id'), body)
-      );
-    })
-  );
-  api.delete('/v1/subscriptions/:id', async (c) =>
-    answer(c, () =>
-      runner.run(async (engine) => {
-        const subscription = await settled(engine, c.req.param('id'));
-        return await endSubscription(engine, subscription, {
-          endedAtS: await customerNowS(engine, subscription.customer),
-          reason: 'cancellation_requested',
-        });
-      })
-    )
-  );
-}
-
-function invoiceRoutes(api: Hono, runner: ProviderRunner): void {
-  api.get(MOCK_BILLING_PATHS.invoices, async (c) =>
-    answer(c, () =>
-      runner.run(async (engine) => {
-        const customer = c.req.query('customer');
-        if (customer === undefined)
-          throw invalidRequest('Pass customer.', 'customer');
-        await settleCustomer(engine, customer);
-        return list(
-          MOCK_BILLING_PATHS.invoices,
-          await engine.db.list<MockInvoice>('invoice', customer)
-        );
-      })
-    )
-  );
-  api.post('/v1/invoices/:id/pay', async (c) =>
-    answer(c, async () => {
-      const id = c.req.param('id');
-      const outcome = await runner.run(async (engine) => {
-        const invoice = await requireInvoice(engine, id);
-        const subscription = await settled(engine, invoice.subscription);
-        return await payOpenInvoice(
-          engine,
-          subscription,
-          await customerNowS(engine, invoice.customer)
-        );
-      });
-      // The failed attempt is recorded before the decline is reported.
-      if (outcome === 'declined') throw cardDeclined();
-      return await runner.run((engine) => requireInvoice(engine, id));
     })
   );
 }
@@ -302,11 +178,14 @@ export function apiRoutes(args: {
     await next();
     return undefined;
   });
+  api.use('/v1/*', idempotency(args.runner));
   customerRoutes(api, args.runner);
   catalogRoutes(api, args.runner);
   sessionRoutes(api, args.runner);
-  subscriptionRoutes(api, args.runner);
-  invoiceRoutes(api, args.runner);
+  billingRoutes(api, args.runner);
   api.route('/', apiTestHelperRoutes(args.runner));
+  api.all('/v1/*', (c: Context) =>
+    c.json(unrecognizedUrl(c.req.method, c.req.path).toBody(), 404)
+  );
   return api;
 }

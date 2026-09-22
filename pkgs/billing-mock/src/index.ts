@@ -11,6 +11,10 @@ export {
   type MockMembershipBillingOptions,
 } from './mock-membership-billing';
 export {
+  MOCK_MEMBERSHIP_PROVIDER,
+  MockBillingBindingKeys,
+} from './provider-module';
+export {
   signMockBillingPayload,
   verifyMockBillingSignature,
 } from './signature';

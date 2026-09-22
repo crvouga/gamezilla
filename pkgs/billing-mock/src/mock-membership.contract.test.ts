@@ -52,16 +52,16 @@ function endedAt(situation: ContractSituation): number | null {
 function wireSubscription(
   subscription: ContractSubscription
 ): MockSubscription {
-  const lookupKey =
+  const catalogPriceId =
     subscription.priceKey === null
       ? 'legacy_price'
-      : (CONTRACT_OFFER.prices[subscription.priceKey]?.lookupKey ?? null);
+      : (CONTRACT_OFFER.prices[subscription.priceKey]?.catalogPriceId ?? null);
   const price = {
-    id: `price_${String(lookupKey)}`,
+    id: `price_${String(catalogPriceId)}`,
     object: 'price' as const,
     active: true,
     product: 'prod_subscription',
-    lookup_key: lookupKey,
+    lookup_key: catalogPriceId,
     nickname: null,
     unit_amount: 700,
     currency: 'usd',
@@ -99,8 +99,10 @@ function wireSubscription(
     cancellation_details: { reason: null, feedback: null, comment: null },
     trial_start: null,
     trial_end: null,
+    trial_settings: { end_behavior: { missing_payment_method: 'cancel' } },
     start_date: 0,
     created: 0,
+    livemode: false,
     latest_invoice: null,
     default_payment_method: null,
     metadata: {},
@@ -110,6 +112,7 @@ function wireSubscription(
 class FakeProvider {
   readonly subscriptions = new Map<string, ContractSubscription>();
   private seq = 0;
+  down = false;
 
   private nextId(prefix: string): string {
     this.seq += 1;
@@ -150,6 +153,14 @@ class FakeProvider {
       new Headers(init?.headers).get('authorization') ===
       `Bearer ${SECRET_KEY}`;
     if (!authorized) return Promise.resolve(Response.json({}, { status: 401 }));
+    if (this.down) {
+      return Promise.resolve(
+        Response.json(
+          { error: { type: 'api_error', message: 'Provider unavailable' } },
+          { status: 500 }
+        )
+      );
+    }
     const body = this.route(init?.method ?? 'GET', url);
     return Promise.resolve(
       body === null
@@ -170,6 +181,8 @@ class FakeProvider {
 const EVENT_TYPE = {
   subscription_changed: 'customer.subscription.updated',
   subscription_ended: 'customer.subscription.deleted',
+  subscription_paused: 'customer.subscription.paused',
+  subscription_resumed: 'customer.subscription.resumed',
   unrelated: 'invoice.paid',
 } as const;
 
@@ -189,7 +202,6 @@ function signedHeaders(signature: ContractSignature, payload: string): Headers {
 function openMockHarness(): Promise<MembershipBillingContractHarness> {
   const provider = new FakeProvider();
   return Promise.resolve({
-    provider: 'mock',
     billing: new MockMembershipBilling({
       origin: ORIGIN,
       secretKey: SECRET_KEY,
@@ -200,6 +212,9 @@ function openMockHarness(): Promise<MembershipBillingContractHarness> {
     }),
     setSubscription: (subscription) => {
       provider.subscriptions.set(subscription.id, subscription);
+    },
+    setUnavailable: (unavailable) => {
+      provider.down = unavailable;
     },
     callback: ({ subscriptionId, kind, signature }) => {
       const current = provider.subscriptions.get(subscriptionId);

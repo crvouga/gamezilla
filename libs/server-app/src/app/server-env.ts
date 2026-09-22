@@ -1,5 +1,5 @@
 import type { OpenSqlClient } from '@libs/feature/public/sync';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
 import type { LlmProvider } from '@pkgs/llm/server';
@@ -21,7 +21,7 @@ export type ServerEnv = {
   readonly events: PubSub | null;
   readonly kv: Kv | null;
   readonly blob: ObjectStore;
-  readonly billing: MembershipBilling | null;
+  readonly billing: MembershipProviders | null;
   readonly tts: TtsProvider | null;
   readonly llm: LlmProvider | null;
   readonly secrets: SecretStore;

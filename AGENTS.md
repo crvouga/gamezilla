@@ -462,7 +462,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 - `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, observability backend) live here — not in `VITE_*` build-time env (API URL / commit provenance / E2E / Watchman stay build-time env).
 - `@libs/profile` — public profile, dicebear avatar editor, username generator (vertical slices: ensure-local, patch-avatar, ensure-online, set-username).
 - `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts` (lifecycle mutations as vertical slices: create/join/leave/end/rename/set-visibility).
-- `@libs/billing` — billing checkout/portal routes and product catalog SPEC (vendor via `@pkgs/billing-stripe`).
+- `@libs/billing` — billing checkout/portal/callback routes and the offer, over the `@pkgs/billing` membership port only. Providers (`@pkgs/billing-stripe`, `@pkgs/billing-paddle`, `@pkgs/billing-mock`) each export one `MembershipProviderModule`; `@pkgs/billing-providers` is the single list composition roots iterate (API boot, `billing:sync`, secret registry) — never name a provider elsewhere (Biome `import-billing-vendor.grit`). Several may run at once (`BILLING_PROVIDER` picks where new checkouts go); every provider secret is optional.
 - `@libs/friends` — friendship graph (vertical slices per mutation: send/accept/decline/cancel/remove/block/unblock).
 
 - `@libs/tools` — repo/CI plumbing: Biome Grit plugins, git hooks, GitHub config-as-code, turbo CI runner, i18n/coverage/static gates.

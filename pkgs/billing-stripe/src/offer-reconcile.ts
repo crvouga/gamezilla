@@ -8,11 +8,33 @@
  *   - portal configuration by `metadata.catalog_portal_configuration_id`
  *   - webhook endpoint by `url`
  */
-import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing';
+import type {
+  CancellationReason,
+  OfferPriceSpec,
+  PlusMembershipOffer,
+} from '@pkgs/billing';
 import type { Logger } from '@pkgs/logger';
 import type Stripe from 'stripe';
 
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from './callback-events';
+
+type StripeCancellationReason =
+  Stripe.BillingPortal.ConfigurationCreateParams.Features.SubscriptionCancel.CancellationReason.Option;
+
+/** Our cancellation reasons in Stripe's words (the same words, today). */
+const STRIPE_CANCELLATION_REASON: Readonly<
+  Record<CancellationReason, StripeCancellationReason>
+> = {
+  too_expensive: 'too_expensive',
+  missing_features: 'missing_features',
+  switched_service: 'switched_service',
+  unused: 'unused',
+  customer_service: 'customer_service',
+  too_complex: 'too_complex',
+  low_quality: 'low_quality',
+  other: 'other',
+};
+
 import {
   currencyOptionsToSnake,
   decidePriceReconcile,
@@ -146,12 +168,12 @@ async function ensureProduct(
 
 async function archiveOrphanPricesForLookup(
   stripe: Stripe,
-  lookupKey: string,
+  catalogPriceId: string,
   canonicalProductId: string,
   log: Logger
 ): Promise<void> {
   const listed = await stripe.prices.list({
-    lookup_keys: [lookupKey],
+    lookup_keys: [catalogPriceId],
     active: true,
     limit: 20,
   });
@@ -160,28 +182,29 @@ async function archiveOrphanPricesForLookup(
     if (pid === null || pid === canonicalProductId) continue;
     await stripe.prices.update(p.id, { active: false });
     log.info(
-      `[${TAG}] archived orphan price ${p.id} (${lookupKey} on ${pid}, canonical product is ${canonicalProductId})`
+      `[${TAG}] archived orphan price ${p.id} (${catalogPriceId} on ${pid}, canonical product is ${canonicalProductId})`
     );
   }
 }
 
 async function findLivePriceForLookup(
   stripe: Stripe,
-  lookupKey: string,
+  catalogPriceId: string,
   productId: string
 ): Promise<{
   readonly live: Stripe.Price | null;
   readonly liveDetail: Stripe.Price | null;
 }> {
   const listed = await stripe.prices.list({
-    lookup_keys: [lookupKey],
+    lookup_keys: [catalogPriceId],
     active: true,
     limit: 20,
   });
   const live =
     listed.data.find(
       (p) =>
-        p.lookup_key === lookupKey && priceProductId(p.product) === productId
+        p.lookup_key === catalogPriceId &&
+        priceProductId(p.product) === productId
     ) ?? null;
   if (live === null) return { live: null, liveDetail: null };
   const liveDetail = await stripe.prices.retrieve(live.id, {
@@ -199,11 +222,16 @@ async function reconcileOnePrice(args: {
 }): Promise<string> {
   const { stripe, priceKey, spec, productId, log } = args;
 
-  await archiveOrphanPricesForLookup(stripe, spec.lookupKey, productId, log);
+  await archiveOrphanPricesForLookup(
+    stripe,
+    spec.catalogPriceId,
+    productId,
+    log
+  );
 
   const { live, liveDetail } = await findLivePriceForLookup(
     stripe,
-    spec.lookupKey,
+    spec.catalogPriceId,
     productId
   );
 
@@ -216,7 +244,7 @@ async function reconcileOnePrice(args: {
   );
 
   if (action === 'noop' && live !== null) {
-    log.info(`[${TAG}] price ${priceKey} (${spec.lookupKey}) unchanged`);
+    log.info(`[${TAG}] price ${priceKey} (${spec.catalogPriceId}) unchanged`);
     return live.id;
   }
 
@@ -226,7 +254,7 @@ async function reconcileOnePrice(args: {
     !priceMatchesSpec(liveSnap, spec, productId)
   ) {
     await stripe.prices.update(live.id, { active: false });
-    log.info(`[${TAG}] archived price ${live.id} (${spec.lookupKey})`);
+    log.info(`[${TAG}] archived price ${live.id} (${spec.catalogPriceId})`);
   }
 
   const created = await stripe.prices.create({
@@ -239,11 +267,11 @@ async function reconcileOnePrice(args: {
         ? {}
         : { trial_period_days: spec.trialPeriodDays }),
     },
-    lookup_key: spec.lookupKey,
+    lookup_key: spec.catalogPriceId,
     transfer_lookup_key: live !== null,
     currency_options: currencyOptionsToSnake(spec.currencyOptions),
   });
-  log.info(`[${TAG}] created price ${created.id} (${spec.lookupKey})`);
+  log.info(`[${TAG}] created price ${created.id} (${spec.catalogPriceId})`);
   return created.id;
 }
 
@@ -267,10 +295,10 @@ function portalFeaturesParam(
       mode: 'at_period_end',
       proration_behavior: 'none',
       cancellation_reason: {
-        enabled: true,
-        options: offer.portal.cancellationReasons as unknown as Array<
-          'customer_service' | 'other'
-        >,
+        enabled: offer.portal.cancellationReasons.length > 0,
+        options: offer.portal.cancellationReasons.map(
+          (reason) => STRIPE_CANCELLATION_REASON[reason]
+        ),
       },
     },
     subscription_update: {
@@ -395,7 +423,13 @@ async function reconcileWebhookEndpoint(args: {
 }): Promise<string> {
   const wantedEvents = Object.keys(STRIPE_MEMBERSHIP_CALLBACK_EVENTS);
   const listed = await args.stripe.webhookEndpoints.list({ limit: 100 });
-  const live = listed.data.find((e) => e.url === args.ctx.callbackUrl) ?? null;
+  // Ours is the one at the callback URL, else the one we described: when the
+  // callback path moves, the endpoint moves with it and keeps its signing
+  // secret, rather than a second endpoint appearing with a new one.
+  const live =
+    listed.data.find((e) => e.url === args.ctx.callbackUrl) ??
+    listed.data.find((e) => e.description === WEBHOOK_DESCRIPTION) ??
+    null;
   if (live === null) {
     const created = await args.stripe.webhookEndpoints.create({
       url: args.ctx.callbackUrl,
@@ -407,6 +441,7 @@ async function reconcileWebhookEndpoint(args: {
     return created.id;
   }
   const drift =
+    live.url !== args.ctx.callbackUrl ||
     !sameStringSet(live.enabled_events, wantedEvents) ||
     live.description !== WEBHOOK_DESCRIPTION ||
     live.status !== 'enabled';
@@ -415,6 +450,7 @@ async function reconcileWebhookEndpoint(args: {
     return live.id;
   }
   await args.stripe.webhookEndpoints.update(live.id, {
+    url: args.ctx.callbackUrl,
     enabled_events:
       wantedEvents as unknown as Stripe.WebhookEndpointUpdateParams.EnabledEvent[],
     description: WEBHOOK_DESCRIPTION,

@@ -1,29 +1,27 @@
-import { billingStripeSecretDefs } from '@pkgs/billing-stripe';
+import type { MembershipProviderSecretDef } from '@pkgs/billing';
+import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers';
 import { cliHttp } from '../cli-io';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
-function wrapDefs(): Secret[] {
-  return billingStripeSecretDefs.map(
-    (def) =>
-      new Secret({
-        name: def.name,
-        hint: def.hint,
-        optional: def.optional === true,
-        pushToApiWorker: def.pushToApiWorker === true,
-        validate: async (input: SecretInput) => {
-          requireNonEmpty(input.secretValue, def.name);
-          await def.validate({
-            secretValue: input.secretValue,
-            fetch: cliHttp.fetch.bind(cliHttp),
-          });
-        },
-      })
-  );
+function wrap(def: MembershipProviderSecretDef): Secret {
+  return new Secret({
+    name: def.name,
+    hint: def.hint,
+    optional: def.optional,
+    pushToApiWorker: def.pushToApiWorker,
+    validate: async (input: SecretInput) => {
+      requireNonEmpty(input.secretValue, def.name);
+      await def.validate({
+        secretValue: input.secretValue,
+        fetch: cliHttp.fetch.bind(cliHttp),
+      });
+    },
+  });
 }
 
-const [secretKey, publishableKey, webhookSecret] = wrapDefs();
-
-/** Re-exported for registry — names/validation owned by `@pkgs/billing-stripe`. */
-export const BILLING_VENDOR_SECRET_KEY = secretKey!;
-export const BILLING_VENDOR_PUBLISHABLE_KEY = publishableKey!;
-export const BILLING_VENDOR_WEBHOOK_SECRET = webhookSecret!;
+/**
+ * Every billing provider's secrets, from the shared provider list — names
+ * and validation owned by each provider package, none of them required.
+ */
+export const BILLING_VENDOR_SECRETS: readonly Secret[] =
+  MEMBERSHIP_PROVIDER_MODULES.flatMap((module) => module.secrets).map(wrap);

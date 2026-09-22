@@ -77,6 +77,13 @@ export const PAGE_TEST_CARDS: readonly PageTestCard[] = [
     label: 'Visa · declined',
     outcome: 'Declined straight away',
   },
+  {
+    paymentMethod: MOCK_TEST_PAYMENT_METHODS.authenticationRequired,
+    brand: 'visa',
+    number: '4000 0027 6000 3184',
+    label: 'Visa · 3D Secure',
+    outcome: 'Authenticates here; renewals need action',
+  },
 ];
 
 export type PageBusiness = {
@@ -93,6 +100,8 @@ export type CheckoutView = {
     readonly cancelUrl: string;
     /** The trial the session grants, or `null` for none. */
     readonly trialPeriodDays: number | null;
+    /** The trial may start without a card (`payment_method_collection`). */
+    readonly cardOptional: boolean;
   };
   /** The session's price first, then the prices it may be switched to. */
   readonly prices: readonly PagePrice[];
@@ -102,7 +111,8 @@ export type CheckoutView = {
 
 export type CheckoutConfirmBody = {
   readonly price: string;
-  readonly paymentMethod: MockTestPaymentMethod;
+  /** `null` starts a trial without a card, where the session allows it. */
+  readonly paymentMethod: MockTestPaymentMethod | null;
 };
 
 export type CheckoutConfirmResult = { readonly redirectUrl: string };
@@ -151,6 +161,7 @@ export type PortalView = {
 export type PortalAction =
   | { readonly kind: 'cancel'; readonly reason: string | null }
   | { readonly kind: 'renew' }
+  | { readonly kind: 'resume' }
   | { readonly kind: 'switch'; readonly price: string }
   | {
       readonly kind: 'update_payment_method';

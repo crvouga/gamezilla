@@ -41,10 +41,12 @@
   "devDependencies": {
     "@pkgs/billing": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

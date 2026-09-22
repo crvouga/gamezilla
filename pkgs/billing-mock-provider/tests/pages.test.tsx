@@ -46,6 +46,7 @@ const CHECKOUT: CheckoutView = {
     successUrl: 'http://app.test/done',
     cancelUrl: 'http://app.test/back',
     trialPeriodDays: 7,
+    cardOptional: false,
   },
   prices: [MONTHLY, YEARLY],
   selectedPriceId: 'price_m',

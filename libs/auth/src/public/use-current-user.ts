@@ -5,7 +5,7 @@ import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';
 import { SESSION_TOKEN_KEY } from './auth-storage-keys';
-import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from './external-account-providers';
+import { BILLING_CUSTOMER_LINK_PREFIX } from './external-account-providers';
 import { parseMetadataEmail } from './linked-account-providers';
 import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
 import { resolveHasAuthSession } from './session-capability';
@@ -61,7 +61,8 @@ export function useCurrentUser(): CurrentUser {
     SELECT external_id
     FROM auth_external_accounts
     WHERE user_id = ${userId()}
-      AND provider = ${EXTERNAL_ACCOUNT_PROVIDER_BILLING}
+      AND provider LIKE ${`${BILLING_CUSTOMER_LINK_PREFIX}%`}
+    ORDER BY updated_at DESC
   `
   );
   const billingRow = createMemo(() => billingRows.rows()[0] ?? null);

@@ -23,7 +23,10 @@ export type Membership = {
 };
 
 export type MembershipChange = {
-  /** The adapter's own identity, stored on the projection row. */
+  /**
+   * The adapter's own identity ({@link MembershipBilling.provider}), stored on
+   * the projection row.
+   */
   readonly provider: string;
   /** The provider customer the change is about. */
   readonly customerId: string;
@@ -36,8 +39,16 @@ export type MembershipChange = {
 
 export type StartCheckoutInput = {
   readonly accountId: string;
-  /** The provider customer already linked to this account, if any. */
+  /**
+   * The provider customer already linked to this account *at this provider*,
+   * if any. Customers never cross providers.
+   */
   readonly customerId: string | null;
+  /**
+   * The account's email, when the app knows it. Some providers cannot mint a
+   * customer without one (Paddle); those refuse a checkout that has none.
+   */
+  readonly email: string | null;
   readonly returnUrl: string;
 };
 
@@ -68,11 +79,19 @@ export type CallbackResult =
  * What the app needs from a payment provider: start a plus membership, let the
  * person manage it, and learn what changed. Nothing else belongs here.
  *
- * Every implementation — Stripe, the mock provider — must pass
+ * Every implementation — Stripe, Paddle, the mock provider — must pass
  * `describeMembershipBillingContract` (`./membership-billing-contract`); the
- * app treats them identically and never asks which one it holds.
+ * app treats them identically and never branches on which one it holds. It
+ * may hold several at once ({@link MembershipProviders}).
  */
 export interface MembershipBilling {
+  /**
+   * The adapter's identity: a lowercase slug (`stripe`, `paddle`, `mock`)
+   * that is stable forever, because it keys stored data — the projection
+   * row, the account's customer link and the callback path. The app treats
+   * it as an opaque key and never compares it to a vendor name.
+   */
+  readonly provider: string;
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult>;
   openPortal(input: OpenPortalInput): Promise<{ readonly url: string }>;
   /**
@@ -80,7 +99,10 @@ export interface MembershipBilling {
    * A verified callback reports the provider's *current* state of the
    * subscription it names, not the payload's snapshot: providers deliver
    * duplicates and out of order, so an adapter re-reads before it answers.
-   * Throws when the provider cannot be reached, so the delivery is retried.
+   * The one exception is a callback saying the subscription ended, which is
+   * final: it reports `ended` even when the re-read lags. A subscription the
+   * provider does not know is `ignored`. Throws when the provider cannot be
+   * reached, so the delivery is retried.
    */
   readCallback(input: ReadCallbackInput): Promise<CallbackResult>;
 }

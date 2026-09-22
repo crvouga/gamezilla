@@ -1,12 +1,16 @@
 import { zValidator } from '@hono/zod-validator';
-import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
-import type { MembershipBilling } from '@pkgs/billing';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import {
+  isMembershipLive,
+  type MembershipBilling,
+  readMembershipStatus,
+} from '@pkgs/billing';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { CustomerLinks } from '../../../shared/memberships/customer-links';
+import { MembershipRepository } from '../../../shared/memberships/membership-repository';
 import {
   type BillingRouteDeps,
   billingNotConfigured,
@@ -18,57 +22,65 @@ const checkoutBodySchema = z.object({
 
 type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
 
-/** Links a freshly minted customer so the account can be found later. */
-async function linkCustomer(args: {
-  readonly sql: SqlClient;
-  readonly accountId: string;
-  readonly customerId: string;
-  readonly createId: BillingRouteDeps['createId'];
-  readonly clock: BillingRouteDeps['clock'];
-}): Promise<void> {
-  await args.sql.transaction(async (tx) => {
-    await new ExternalAccountRepository(tx).insertExternalAccountOrGet({
-      userId: args.accountId,
-      provider: EXTERNAL_ACCOUNT_PROVIDER_BILLING,
-      externalId: args.customerId,
-      now: () => args.clock.now(),
-      createId: args.createId,
-    });
-  });
-}
-
+/**
+ * Starts a membership at the provider new checkouts go to. An account that
+ * is already a member — at any provider — manages that membership instead:
+ * two live memberships would bill one person twice.
+ */
 async function handleBillingCheckout(
   c: Context,
   body: CheckoutValidated,
-  deps: BillingRouteDeps & { readonly billing: MembershipBilling }
+  deps: BillingRouteDeps & { readonly provider: MembershipBilling }
 ): Promise<Response> {
   const sql = deps.getSqlClient();
   const auth = await deps.requireAuth(sql, c.req.raw);
-  const existing = await new ExternalAccountRepository(
-    sql
-  ).readExternalAccountId(auth.accountId, EXTERNAL_ACCOUNT_PROVIDER_BILLING);
-
-  const checkout = await deps.billing.startCheckout({
+  const governing = await new MembershipRepository(sql).governing(
+    auth.accountId
+  );
+  if (
+    governing !== null &&
+    isMembershipLive(readMembershipStatus(governing.status))
+  ) {
+    return c.json({ error: 'This account already has a membership' }, 409);
+  }
+  const { provider } = deps;
+  const links = new CustomerLinks(sql);
+  const existing = await links.customerOf(auth.accountId, provider.provider);
+  const checkout = await provider.startCheckout({
     accountId: auth.accountId,
     customerId: existing,
+    email: await new ExternalAccountRepository(sql).readAccountEmail(
+      auth.accountId
+    ),
     returnUrl: body.returnUrl,
   });
-
   if (existing === null) {
-    await linkCustomer({
-      sql,
-      accountId: auth.accountId,
-      customerId: checkout.customerId,
-      createId: deps.createId,
-      clock: deps.clock,
-    });
+    const owner = await sql.transaction((tx) =>
+      new CustomerLinks(tx).link({
+        accountId: auth.accountId,
+        provider: provider.provider,
+        customerId: checkout.customerId,
+        now: () => deps.clock.now(),
+        createId: deps.createId,
+      })
+    );
+    if (owner !== auth.accountId) {
+      // The provider answered with a customer another account holds: paying
+      // through it would credit that account.
+      deps.log.error('billing checkout: customer belongs to another account', {
+        provider: provider.provider,
+      });
+      return c.json(
+        { error: 'Billing customer belongs to another account' },
+        409
+      );
+    }
     // The customer link is a synced DOMAIN row (the client reads it to decide
     // whether a portal session is possible), so it needs its own push.
     await deps.notifyUser(auth.accountId, 'billing:customer', [
       'auth_external_accounts',
     ]);
   }
-
   if (checkout.url.length === 0) {
     return c.json({ error: 'Billing checkout URL missing' }, 502);
   }
@@ -87,7 +99,7 @@ export class BillingCheckoutRoutes {
         if (deps.billing === null) return billingNotConfigured(c);
         return await handleBillingCheckout(c, c.req.valid('json'), {
           ...deps,
-          billing: deps.billing,
+          provider: deps.billing.checkout,
         });
       }
     );

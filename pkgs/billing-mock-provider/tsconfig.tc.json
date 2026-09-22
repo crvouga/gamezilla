@@ -6,7 +6,12 @@
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
     "./web/**/*.ts",
-    "./web/**/*.tsx"
+    "./web/**/*.tsx",
+    "./tests/**/*.ts",
+    "./tests/**/*.tsx"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "types": ["bun", "node", "@pkgs/bun-test-solid/jest-dom"]
+  }
 }
