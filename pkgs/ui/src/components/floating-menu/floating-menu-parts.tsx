@@ -94,6 +94,9 @@ export function FloatingMenuHeader(props: {
             <HeaderLine value={props.header.subtitle} variant="caption" muted />
           </Show>
         </div>
+        <Show when={props.header.badge !== undefined}>
+          <div class="box shrink-0 self-start">{props.header.badge}</div>
+        </Show>
       </div>
     </div>
   );

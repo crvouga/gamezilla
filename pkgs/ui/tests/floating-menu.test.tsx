@@ -268,3 +268,33 @@ describe('default overflow menus', () => {
     expect(screen.queryByRole('menu')).toBeNull();
   });
 });
+
+describe('FloatingMenu header badge', () => {
+  function renderHeader(badge: JSX.Element | undefined): void {
+    renderUi(() => (
+      <SurfaceStackProvider>
+        <FloatingMenu
+          open
+          onClose={() => {}}
+          anchor={ANCHOR}
+          content={{ header: { title: 'Ada', badge }, rows: [] }}
+          label="Account"
+        />
+      </SurfaceStackProvider>
+    ));
+  }
+
+  test('renders the badge beside the header title', () => {
+    renderHeader(<span data-testid="tier-chip">{'Paid'}</span>);
+    const header = mustQuery('[data-component="FloatingMenuHeader"]');
+    const chip = screen.getByTestId('tier-chip');
+    expect(header.contains(chip)).toBe(true);
+    expect(chip.textContent).toBe('Paid');
+  });
+
+  test('renders no badge slot without one', () => {
+    renderHeader(undefined);
+    expect(screen.queryByTestId('tier-chip')).toBeNull();
+    expect(screen.getByText('Ada')).toBeInTheDocument();
+  });
+});
