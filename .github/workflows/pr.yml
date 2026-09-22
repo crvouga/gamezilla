@@ -65,7 +65,9 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: observability-traces-${{ github.run_id }}
-          path: '**/.cache/sim-report/traces/*.ndjson'
+          # E2e suites live only in libs/*; keep upload-artifact out of the
+          # repository-wide ** walk (node_modules makes that path pathological).
+          path: 'libs/*/.cache/sim-report/traces/*.ndjson'
           if-no-files-found: warn
           include-hidden-files: true
           retention-days: 7
