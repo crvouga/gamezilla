@@ -3,7 +3,7 @@
 import { Button } from '@pkgs/ui/components/button';
 import { Notice } from '@pkgs/ui/components/notice';
 import { TextLink } from '@pkgs/ui/components/text-link';
-import { For, Show } from 'solid-js';
+import { Show } from 'solid-js';
 
 import {
   IDP_AUTHORIZE_CREATE_PATH,
@@ -64,7 +64,6 @@ export function IdentifierScreen(props: Props) {
           inputmode="email"
           invalid={invalid()}
           describedBy={invalid() ? ERROR_ID : HINT_ID}
-          list={IDP_TEST_IDS.identifierAccountsDatalist}
         />
         <FieldHint id={HINT_ID}>
           Any address from the local directory below, or one you create here.
@@ -92,11 +91,6 @@ export function IdentifierScreen(props: Props) {
           />
         </div>
       </form>
-      <datalist id={IDP_TEST_IDS.identifierAccountsDatalist}>
-        <For each={props.state.accounts}>
-          {(account) => <option value={account.email} label={account.name} />}
-        </For>
-      </datalist>
       <DevNote accounts={props.state.accounts} />
     </Page>
   );
