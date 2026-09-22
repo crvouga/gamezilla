@@ -12,7 +12,7 @@ const HARNESS_MIGRATE = {
   key: 'migrate-composition.ts',
 } as const;
 const AUTH_SCHEMA = {
-  dir: 'pkgs/auth/src/shared/schema',
+  dir: 'pkgs/auth-inhouse/src/shared/schema',
   key: 'tables.ts',
 } as const;
 

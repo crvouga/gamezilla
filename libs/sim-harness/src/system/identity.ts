@@ -6,7 +6,7 @@
  */
 import { SESSION_TOKEN_KEY } from '@libs/auth/public/auth-storage-keys';
 import { SIM_AUTH_SECRET } from '@libs/feature/public/sim-constants';
-import { hashAuthSecret } from '@pkgs/auth/shared';
+import { hashAuthSecret } from '@pkgs/auth-inhouse/shared';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 

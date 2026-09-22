@@ -8,7 +8,17 @@
  */
 
 import type { Timers } from '@pkgs/clock';
-import type { OpenAuthSession, OpenAuthSessionResult } from './client-env';
+
+/** Outcome of one sign-in window, as the in-house adapter's hook expects. */
+export type OpenAuthSessionResult = {
+  readonly type: 'success' | 'cancel' | 'dismiss' | 'locked';
+  readonly url?: string | null;
+};
+
+export type OpenAuthSession = (
+  authorizationUrl: string,
+  callbackUrl: string
+) => Promise<OpenAuthSessionResult>;
 
 export const AUTH_POPUP_NAME = 'gamezilla-auth';
 export const AUTH_POPUP_CHANNEL = 'gamezilla-auth';

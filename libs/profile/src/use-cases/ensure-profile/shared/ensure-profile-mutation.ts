@@ -1,4 +1,5 @@
-import { sql } from '@pkgs/sql';
+import { OAUTH_PROVIDER_IDS } from '@pkgs/auth/shared';
+import { join, sql } from '@pkgs/sql';
 import {
   defineMutation,
   type MutationDb,
@@ -90,15 +91,16 @@ type LinkedSubjectRow = {
  * is authoritative and deterministic instead:
  * - anonymous bootstraps, and accounts with no auth record yet, never consume
  *   it (their rows keep the auto name);
- * - when this account has a linked IdP subject (`dev` OAuth subject doubles
- *   as the sim actor username), that subject wins over any passed value (a
- *   foreign pending value is ignored);
+ * - when this account has a linked sign-in identity (its provider subject
+ *   doubles as the sim actor username), that subject wins over any passed
+ *   value (a foreign pending value is ignored);
  * - otherwise (email/create-account flow, no linked subject) the passed value
  *   stands, preserving legacy behavior.
  *
- * `idp_accounts` lives in the server database only, so the subject lookup
- * runs server-side: locally the lookup fails and the passed value stands
- * (legacy local behavior); sync converges the row to the replayed state.
+ * The subject comes from the synced sign-in method mirror
+ * (`auth_external_accounts` rows keyed by `google` / `apple`), never from the
+ * auth service's own storage. Before the mirror syncs, the passed value
+ * stands; sync converges the row to the server's replayed state.
  */
 async function resolveReplayUsername(
   tx: MutationDb,
@@ -118,11 +120,12 @@ async function resolveReplayUsername(
     return undefined;
   }
   const rows = await tx.query<LinkedSubjectRow>(sql`
-    SELECT a.provider_user_id AS subject
-    FROM auth_external_accounts AS e
-    INNER JOIN idp_accounts AS a ON a.user_id = e.external_id
-    WHERE e.user_id = ${profileId}
-    ORDER BY a.provider_user_id ASC
+    SELECT external_id AS subject
+    FROM auth_external_accounts
+    WHERE user_id = ${profileId}
+      AND provider IN (${join(OAUTH_PROVIDER_IDS)})
+      AND deleted_at IS NULL
+    ORDER BY external_id ASC
     LIMIT 1
   `);
   const subject = rows[0]?.subject;

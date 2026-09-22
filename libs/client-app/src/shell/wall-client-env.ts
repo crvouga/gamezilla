@@ -5,7 +5,8 @@
  * their own env (`tests/support/sim-client-env.ts`).
  */
 
-import { oauthClientCallbackUrl } from '@pkgs/auth/shared/oauth-client-callback-url';
+import { createInhouseAuthClient } from '@pkgs/auth-inhouse/client';
+import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse/shared/oauth-client-callback-url';
 import { wallClock, wallTimers } from '@pkgs/clock/wall';
 import {
   wallWebClipboard,
@@ -103,7 +104,6 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
       );
     },
     kv: new KvImplWeb(),
-    authStorage: createSecureStoreAuthClientStorage(secureStorage),
     secureStorage,
     room: args.room,
     network: wallWebNetworkStatePort(),
@@ -114,9 +114,17 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
     objectStore: createBrowserObjectStore({ baseDir: OBJECT_STORE_BASE_DIR }),
     observability: createNoopObservability('gamezilla-client'),
     serverUrl,
-    authBaseURL: serverUrl,
-    authCallbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
-    openAuthSession: createWallOpenAuthSession(wallTimers),
+    // The in-house IdP, reached on the API origin through a popup.
+    createAuthClient: () =>
+      createInhouseAuthClient({
+        baseURL: serverUrl,
+        clock: wallClock,
+        timers: wallTimers,
+        fetch: server,
+        storage: createSecureStoreAuthClientStorage(secureStorage),
+        openAuthSession: createWallOpenAuthSession(wallTimers),
+        callbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
+      }),
     openExternalUrl: (url) => {
       window.location.assign(url);
       return Promise.resolve();

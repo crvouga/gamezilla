@@ -1,9 +1,9 @@
 import {
   AuthPostgresDatabaseMigration,
   AuthSqliteDatabaseMigration,
-} from '@pkgs/auth/server/auth-database-migration';
-import { createAuthApp } from '@pkgs/auth/server/create-auth-app';
-import { createAuthServerAdapter } from '@pkgs/auth/server/create-auth-server-adapter';
+  createAuthApp,
+  createAuthServerAdapter,
+} from '@pkgs/auth-inhouse/server';
 import type { HttpClient } from '@pkgs/http-client';
 import { idpEndpoints } from '@pkgs/idp-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';

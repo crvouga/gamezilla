@@ -11,6 +11,7 @@ import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-p
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';
+import type { AuthProvider } from '@pkgs/auth/server';
 import { createLlmAppFromBindings } from '@pkgs/llm-openai';
 import { createLogger } from '@pkgs/logger';
 import { createObservabilityMiddleware } from '@pkgs/observability/server/middleware';
@@ -18,7 +19,7 @@ import type { SecretStore } from '@pkgs/secret-store';
 import { createTtsAppFromBindings } from '@pkgs/tts-elevenlabs';
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
-import { createAuthRoutes } from '../auth/auth-routes';
+import { API_PATH_PREFIX, createAuthProvider } from '../config/auth-provider';
 import { ApiSecretName } from '../config/secret-names';
 import { healthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
@@ -174,7 +175,7 @@ async function resolveEmqxWssUrlForClientConfig(args: {
 
 async function buildDesiredClientConfig(args: {
   readonly secretStore: SecretStore;
-  readonly auth: ServerEnv['auth'];
+  readonly auth: AuthProvider;
   readonly billingConfigured: boolean;
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
@@ -194,8 +195,8 @@ async function buildDesiredClientConfig(args: {
     ),
   ]);
   return {
-    google: auth.googleEnabled,
-    apple: auth.appleEnabled,
+    google: auth.signInMethods.includes('google'),
+    apple: auth.signInMethods.includes('apple'),
     billing: args.billingConfigured,
     tts: args.ttsConfigured,
     llm: args.llmConfigured,
@@ -216,8 +217,22 @@ function createSyncAppMount(env: ServerEnv, app: ComposedFeatures) {
   });
 }
 
+/**
+ * Endpoints the auth service answers on the API's own origin (a self-hosted
+ * IdP), handed the raw request. A hosted service has none.
+ */
+function mountAuthHandler(
+  shell: Hono<ApiHonoEnv<AuthContext>>,
+  auth: AuthProvider
+): void {
+  const handler = auth.handler;
+  if (handler === undefined) return;
+  shell.all(`${handler.pathPrefix}/*`, (c) => handler.fetch(c.req.raw));
+}
+
 function createServerRouter(args: {
   readonly env: ServerEnv;
+  readonly auth: AuthProvider;
   readonly desiredClientConfig: DesiredClientConfig;
   readonly servers: ComposedFeatureServers;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
@@ -225,8 +240,8 @@ function createServerRouter(args: {
   readonly sync: Awaited<ReturnType<typeof createSyncApp>>;
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
-  const { env, desiredClientConfig, servers, tts, llm, sync, log } = args;
-  const { secrets, observability, auth, secretsEnv } = env;
+  const { env, auth, desiredClientConfig, servers, tts, llm, sync, log } = args;
+  const { secrets, observability, secretsEnv } = env;
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
     .use(
@@ -238,7 +253,7 @@ function createServerRouter(args: {
     .use(
       '*',
       createRequestDbMiddleware(secrets, {
-        auth,
+        authServer: auth.server,
         apiUrlOverride: env.serverUrl,
         secretsEnv,
         observability,
@@ -251,17 +266,9 @@ function createServerRouter(args: {
       })
     )
     .use('*', apiCors)
-    .route('/', healthApp)
-    .route(
-      '/',
-      createAuthRoutes({
-        boot: auth,
-        http: { fetch: env.fetch },
-        clock: env.clock,
-        createId: env.createId,
-        secretsEnv,
-      })
-    )
+    .route('/', healthApp);
+  mountAuthHandler(shell, auth);
+  shell
     .route(
       '/',
       new AuthApiRoutes(env.clock, env.createId, (userId) =>
@@ -319,7 +326,6 @@ export type CreateServerArgs = {
  * serves the whole product and a single bounded context under test.
  */
 export async function createServer(env: ServerEnv, args: CreateServerArgs) {
-  const { auth } = env;
   const log = createAppLogger(env);
   setOutboxConsumerRegistry(args.servers.outboxConsumers);
 
@@ -328,7 +334,16 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   }
 
   const billing = env.billing;
-  const [tts, llm, sync] = await Promise.all([
+  const [auth, tts, llm, sync] = await Promise.all([
+    createAuthProvider({
+      module: env.auth,
+      secretStore: env.secrets,
+      apiUrlOverride: env.serverUrl,
+      secretsEnv: env.secretsEnv,
+      clock: env.clock,
+      createId: env.createId,
+      http: { fetch: env.fetch },
+    }),
     createTtsAppForServer(env),
     createLlmAppForServer(env),
     createSyncAppMount(env, args.app),
@@ -344,9 +359,10 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   });
 
   return new Hono().route(
-    '/api',
+    API_PATH_PREFIX,
     createServerRouter({
       env,
+      auth,
       desiredClientConfig,
       servers: args.servers,
       tts,

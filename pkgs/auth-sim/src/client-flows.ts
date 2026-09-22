@@ -4,12 +4,8 @@
  * end to end: client adapter → auth app → provider → callback → exchange.
  */
 
-import {
-  AUTH_ERROR,
-  AUTH_PENDING_LINK_TTL_MS,
-  type OauthProviderId,
-  strategyForProvider,
-} from '@pkgs/auth/shared';
+import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
+import { AUTH_PENDING_LINK_TTL_MS } from '@pkgs/auth-inhouse/shared';
 
 import { runClient } from './actor';
 import {
@@ -142,9 +138,7 @@ export async function signInFlow(
   const verdict = actor.online
     ? await providerVerdict(s.store, provider, answers, seen)
     : null;
-  const outcome = await runClient(actor, () =>
-    actor.port.signIn(strategyForProvider(provider))
-  );
+  const outcome = await runClient(actor, () => actor.port.signIn(provider));
   // Starting a sign-in drops the device's current session first.
   s.model.sessions.delete(actor.id);
   if (!actor.online) {
@@ -188,7 +182,7 @@ export async function confirmPendingFlow(
     ? await providerVerdict(s.store, provider, answers, seen)
     : null;
   const outcome = await runClient(actor, () =>
-    actor.port.signIn(strategyForProvider(provider), { pendingLink: token })
+    actor.port.signIn(provider, { pendingLink: token })
   );
   s.model.sessions.delete(actor.id);
   if (!actor.online) {

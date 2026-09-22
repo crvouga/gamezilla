@@ -10,9 +10,11 @@
 
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
-import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
+import { assert } from '@pkgs/assert';
+import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';
 import {
   ComposedDatabaseMigration,
+  type DatabaseMigration,
   EnsurePostgresSchemaMigration,
 } from '@pkgs/db-migrate';
 import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema-postgres';
@@ -23,10 +25,18 @@ import { KvPostgresDatabaseMigration } from '@pkgs/kv-postgres/postgres-database
 import { createLogger } from '@pkgs/logger';
 import { OutboxDatabaseMigration } from '@pkgs/outbox';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { migrateLocalSchema } from '@pkgs/sync-engine/client';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 
 import type { MigrateSimPostgres, SimComposition } from '../composition';
+
+/** The simulated deployment signs in through the in-house IdP: its tables. */
+function inhouseIdpMigration(dbScope: PostgresDbScope): DatabaseMigration {
+  const migration = INHOUSE_AUTH_PROVIDER.postgresMigration?.({ dbScope });
+  assert.defined(migration, 'in-house IdP declares its Postgres schema');
+  return migration;
+}
 
 /** Server Postgres: framework + the composition's domain schema + kv/entity + IdP. */
 export function migrateCompositionPostgres(
@@ -47,13 +57,7 @@ export function migrateCompositionPostgres(
       )
       .register(new KvPostgresDatabaseMigration())
       .register(new EntityStorePostgresDatabaseMigration())
-      .register(
-        new AuthPostgresDatabaseMigration({
-          dbScope,
-          skipAdvisoryLock: true,
-          alreadyInTransaction: false,
-        })
-      )
+      .register(inhouseIdpMigration(dbScope))
       .migrate({
         sqlClient: args.sqlClient,
         logger: createLogger({

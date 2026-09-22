@@ -52,6 +52,7 @@
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-indexes": "workspace:*",

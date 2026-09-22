@@ -7,7 +7,7 @@
  * ones exercised.
  */
 
-import type { AppleProviderConfig } from '@pkgs/auth/server';
+import type { AppleProviderConfig } from '@pkgs/auth-inhouse/server';
 import type { HttpClient } from '@pkgs/http-client';
 import {
   type AppleClientKeys,

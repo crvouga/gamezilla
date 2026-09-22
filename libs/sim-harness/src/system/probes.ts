@@ -5,9 +5,9 @@
 
 import type { Client } from '@libs/client-app/shell/create-client';
 import {
-  createAuthClientAdapter,
+  createInhouseAuthClient,
   createInMemoryAuthClientStorage,
-} from '@pkgs/auth/client';
+} from '@pkgs/auth-inhouse/client';
 import { defineAction } from '@pkgs/sim';
 import type { SimSql } from '../fabric/sim-sql';
 import {
@@ -30,18 +30,19 @@ export const googleOauthSignIn = defineAction({
   pool: false,
   act: async (s: ProductSim, actorId: string) => {
     const env = await s.sim.client(actorId);
-    const port = createAuthClientAdapter({
-      baseURL: env.authBaseURL,
+    const browser = s.sim.browser(actorId);
+    // Its own token storage: the probe signs in beside the app, not as it.
+    const port = createInhouseAuthClient({
+      baseURL: env.serverUrl,
       clock: env.clock,
       timers: env.timers,
       fetch: env.server,
       storage: createInMemoryAuthClientStorage(),
-      openAuthSession: env.openAuthSession,
+      openAuthSession: browser.openAuthSession,
       callbackUrl: 'gamezilla://sso-callback',
     });
     const ui = await actorUi(s, actorId);
-    const browser = s.sim.browser(actorId);
-    const signingIn = port.signIn('oauth-google');
+    const signingIn = port.signIn('google');
     await pollUntil(
       s,
       () => Promise.resolve(browser.tab() === null ? null : true),

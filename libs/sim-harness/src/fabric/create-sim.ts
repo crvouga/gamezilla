@@ -3,17 +3,11 @@ import {
   type Client,
   createClient,
 } from '@libs/client-app/shell/create-client';
-import {
-  SIM_AUTH_SECRET,
-  SIM_GOOGLE_CLIENT_ID,
-  SIM_GOOGLE_CLIENT_SECRET,
-  SIM_IDP_URL,
-  SIM_SERVER_URL,
-} from '@libs/feature/public/sim-constants';
+import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
 import type { EnvTime } from '@libs/feature/public/sync';
 import type { ServerEnv } from '@libs/server-app';
-import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import { assert } from '@pkgs/assert';
+import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';
 import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { AppleClientKeys } from '@pkgs/idp-sim/server';
@@ -49,9 +43,9 @@ import {
   createSimIdps,
   SIM_APPLE_IDP_ID,
   type SimIdps,
-  simAppleBootInput,
   simAppleClientKeys,
   simIdpFetchFrom,
+  simIdpSecrets,
 } from './sim-idp';
 import {
   createSimLoadBalancer,
@@ -166,16 +160,14 @@ type SharedServerServices = {
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
 };
 
-async function buildSharedServerServices(
+function buildSharedServerServices(
   serverSql: SimSql,
   appleKeys: AppleClientKeys
-): Promise<SharedServerServices> {
+): SharedServerServices {
   const secrets = createRecordSecretStore({
-    AUTH_SECRET: SIM_AUTH_SECRET,
     DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
-    WEB_CLIENT_GOOGLE_CLIENT_ID: SIM_GOOGLE_CLIENT_ID,
-    WEB_CLIENT_GOOGLE_CLIENT_SECRET: SIM_GOOGLE_CLIENT_SECRET,
+    ...simIdpSecrets(appleKeys),
   });
   return {
     kv: new KvImplInMemory(),
@@ -183,12 +175,8 @@ async function buildSharedServerServices(
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,
-    auth: await loadAuthBootConfig({
-      secretStore: secrets,
-      apiUrlOverride: SIM_SERVER_URL,
-      googleIdpOrigin: SIM_IDP_URL,
-      apple: simAppleBootInput(appleKeys),
-    }),
+    // The simulated deployment signs in through the in-house IdP.
+    auth: INHOUSE_AUTH_PROVIDER,
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
 }
@@ -333,7 +321,7 @@ async function bootSimKernel(
   );
   const idps = idpNodes.idps;
   const serverSql = await openServerSql(session, opts);
-  const shared = await buildSharedServerServices(serverSql, appleKeys);
+  const shared = buildSharedServerServices(serverSql, appleKeys);
   const billingNode = await openSimBillingNode({
     offer: composition.billingOffer,
     clock: session.ports.clock,

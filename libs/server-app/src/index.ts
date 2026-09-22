@@ -2,10 +2,6 @@ export { createServer } from './app/create-server';
 export { serveFetch } from './app/serve-fetch';
 export type { ServerEnv } from './app/server-env';
 export {
-  type AuthBootConfig,
-  loadAuthBootConfig,
-} from './config/auth-boot';
-export {
   absolutizeWebAppLocation,
   resolveWebClientOrigin,
 } from './config/web-client-origin';

@@ -916,6 +916,24 @@
       ]
     },
     {
+      "path": "./libs/tools/biome-plugins/import-auth-vendor.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/auth/src/**/*.{ts,tsx}",
+        "!**/libs/runtime/src/root/server/app-auth-provider.ts",
+        "!**/libs/client-app/src/shell/wall-client-env.ts",
+        "!**/libs/client-app/src/shell/auth-client-storage.ts",
+        "!**/apps/product/**",
+        "!**/libs/sim-harness/src/**",
+        "!**/src/sim/**",
+        "!**/scripts/**",
+        "!**/*.test.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
       "path": "./libs/tools/biome-plugins/import-product-no-sim.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",

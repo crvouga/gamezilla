@@ -172,7 +172,7 @@ export function useMyDeviceId(): Accessor<string> {
 export function useSessionAccountEmail(): Accessor<string | null> {
   const hasSession = useHasAuthSession();
   const userId = useMyId();
-  const provider = useAuthClientPort().providerLabel;
+  const provider = useAuthClientPort().provider;
   const watchId = createMemo(() =>
     hasSession() && userId().length > 0 ? userId() : ''
   );

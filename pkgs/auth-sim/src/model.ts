@@ -19,10 +19,10 @@
 
 import {
   AUTH_ERROR,
-  AUTH_SESSION_TTL_MS,
   type AuthErrorCode,
   type OauthProviderId,
 } from '@pkgs/auth/shared';
+import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse/shared';
 
 /** What the relying party learns about one provider identity. */
 export type SeenIdentity = {

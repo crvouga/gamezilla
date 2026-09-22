@@ -1,5 +1,5 @@
-import type { OauthProviderId, SignInOptions } from '@pkgs/auth/shared';
-import { strategyForProvider } from '@pkgs/auth/shared';
+import type { SignInOptions } from '@pkgs/auth/client';
+import type { OauthProviderId } from '@pkgs/auth/shared';
 
 import { useAuthClientPort } from './auth-client-provider';
 import type { SignInTriggerResult } from './sign-in-trigger';
@@ -21,7 +21,7 @@ export function useSignIn(): {
   const port = useAuthClientPort();
   return {
     signInWith: async (provider, options) => {
-      await port.signIn(strategyForProvider(provider), options);
+      await port.signIn(provider, options);
       return 'completed' as const;
     },
     createSeparateAccount: async (token) => {

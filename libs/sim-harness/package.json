@@ -26,6 +26,7 @@
     "@libs/test-ids": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-mock": "workspace:*",
     "@pkgs/billing-mock-provider": "workspace:*",

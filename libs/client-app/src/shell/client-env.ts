@@ -8,7 +8,7 @@
 
 import type { DevMenuPort } from '@libs/client-app/device/ports';
 import type { OpenSqlClient, ServerHttp } from '@libs/feature/public/sync';
-import type { AuthClientStorage } from '@pkgs/auth/client/bearer-token-store';
+import type { AuthClientPort } from '@pkgs/auth/client';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { ClipboardPort } from '@pkgs/device/clipboard';
 import type { HapticsPort } from '@pkgs/device/haptics';
@@ -24,21 +24,6 @@ import type { OpenExternalUrl } from '@pkgs/ui';
 import type { CreateId, Random } from '@pkgs/uuid/create-id';
 
 export type { ServerHttp };
-
-/**
- * Outcome of an OAuth popup / auth-session round trip. Mirrors the
- * `@pkgs/auth` client contract (`OpenAuthSessionResult`), declared here so
- * the Solid shell never imports the UI-bound adapter module.
- */
-export type OpenAuthSessionResult = {
-  readonly type: 'success' | 'cancel' | 'dismiss' | 'locked';
-  readonly url?: string | null;
-};
-
-export type OpenAuthSession = (
-  authorizationUrl: string,
-  callbackUrl: string
-) => Promise<OpenAuthSessionResult>;
 
 /**
  * Room WebSocket transport factory. Mirrors
@@ -82,7 +67,6 @@ export type ClientEnv = {
   readonly createPubSub: () => PubSub;
   readonly openSqlClient: OpenSqlClient;
   readonly kv: Kv;
-  readonly authStorage: AuthClientStorage;
   readonly secureStorage: SecureStorageStore;
   readonly room: CreateRoomTransport;
   readonly network: NetworkStatePort;
@@ -100,14 +84,13 @@ export type ClientEnv = {
   readonly objectStore: ObjectStore;
   readonly observability: Observability;
   readonly serverUrl: string;
-  readonly authBaseURL: string;
   /**
-   * Absolute OAuth client return URL passed to the IdP at launch
-   * (`https://…/sso-callback`).
+   * The auth service's client adapter, built fresh for each app tree. The
+   * composition root picks the service and owns how it is reached (its
+   * token storage, its sign-in window, its callback URL); the app only ever
+   * holds the `@pkgs/auth` port.
    */
-  readonly authCallbackUrl: string;
-  /** OAuth popup (browser) / in-process stub (sim). */
-  readonly openAuthSession: OpenAuthSession;
+  readonly createAuthClient: () => AuthClientPort;
   /**
    * Leaves the app for a provider-hosted page (the payment provider's
    * checkout or portal). Browser: `location.assign`; sim: the provider's real screens,

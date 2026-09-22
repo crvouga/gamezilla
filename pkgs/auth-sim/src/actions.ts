@@ -5,11 +5,8 @@
  * offline devices, provider-side account changes and provider faults.
  */
 
-import {
-  AUTH_SESSION_TTL_MS,
-  OAUTH_PROVIDER_IDS,
-  type OauthProviderId,
-} from '@pkgs/auth/shared';
+import { OAUTH_PROVIDER_IDS, type OauthProviderId } from '@pkgs/auth/shared';
+import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse/shared';
 import type { IdpFaults } from '@pkgs/idp-sim/shared';
 import { defineAction } from '@pkgs/sim';
 import { gen } from '@pkgs/sim/fast-check';

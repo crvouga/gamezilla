@@ -1,4 +1,5 @@
 import type { OpenSqlClient } from '@libs/feature/public/sync';
+import type { AuthProviderModule } from '@pkgs/auth/server';
 import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { Kv } from '@pkgs/kv/interface';
@@ -8,8 +9,6 @@ import type { Observability } from '@pkgs/observability/port/observability';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { TtsProvider } from '@pkgs/tts/server';
-
-import type { AuthBootConfig } from '../config/auth-boot';
 
 export type ServerEnv = {
   readonly clock: Clock;
@@ -26,7 +25,11 @@ export type ServerEnv = {
   readonly llm: LlmProvider | null;
   readonly secrets: SecretStore;
   readonly observability: Observability;
-  readonly auth: AuthBootConfig;
+  /**
+   * The auth service, as a module this server builds from `secrets`. The
+   * server never learns which service it is.
+   */
+  readonly auth: AuthProviderModule;
   readonly secretsEnv: string;
   readonly serverUrl: string | null;
   readonly skipDatabaseUrlPolicy: boolean;

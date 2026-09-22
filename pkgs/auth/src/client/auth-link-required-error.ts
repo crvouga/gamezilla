@@ -1,4 +1,4 @@
-import type { OauthProviderId } from '../shared/auth-constants';
+import type { OauthProviderId } from '../shared/sign-in-method';
 
 /**
  * The address matched an existing account, but not with both sides verified:

@@ -4,50 +4,25 @@
   "private": true,
   "exports": {
     "./shared": "./src/shared/index.ts",
-    "./server": "./src/server/index.ts",
     "./client": "./src/client/index.ts",
-    "./shared/*": [
-      "./src/shared/*.ts",
-      "./src/shared/*.tsx"
-    ],
-    "./server/*": [
-      "./src/server/*.ts",
-      "./src/server/*.tsx"
-    ],
-    "./client/*": [
-      "./src/client/*.ts",
-      "./src/client/*.tsx"
-    ]
+    "./server": "./src/server/index.ts",
+    "./contract": "./src/contract/index.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload ./src ./tests"
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@noble/hashes": "catalog:",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
-    "@pkgs/db-schema": "workspace:*",
-    "@pkgs/db-schema-postgres": "workspace:*",
-    "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/uuid": "workspace:*",
-    "hono": "catalog:",
-    "jose": "catalog:"
+    "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
-    "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/idp-sim": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/sim": "workspace:*",
-    "@pkgs/sql-client-postgres": "workspace:*",
-    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }
