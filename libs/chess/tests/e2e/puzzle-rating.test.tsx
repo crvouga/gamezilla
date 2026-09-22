@@ -89,13 +89,8 @@ async function enterRatedPuzzles(s: OpenSim, actorId = 'alice'): Promise<void> {
   await enterPuzzles(s, actorId);
 }
 
-/**
- * A failed attempt, then on to the next puzzle. The `wrong` action bar offers
- * Retry / Solution / Skip — Skip is how a person leaves a lost puzzle, and it
- * cannot re-rate it (the play already has its outcome).
- */
-async function failAndAdvance(s: OpenSim, actorId = 'alice'): Promise<void> {
-  await s.apply(playWrongPuzzleMove, actorId);
+/** Alternate wins with zero-credit abandonment to keep the rating near the pool. */
+async function abandonAndAdvance(s: OpenSim, actorId = 'alice'): Promise<void> {
   await s.apply(skipPuzzle, actorId);
   await s.apply(pressPuzzleNext, actorId);
 }
@@ -172,7 +167,7 @@ describe('§8 puzzle rating', () => {
     await enterRatedPuzzles(s);
     const ownerId = required(await s.read(accountIdOf, 'alice'), 'account');
 
-    // Alternate solve / fail so the rating stays near the puzzle pool and RD
+    // Alternate solve / abandon so the rating stays near the puzzle pool and RD
     // actually converges (a runaway rating learns nothing).
     let attempts = 0;
     for (let attempt = 0; attempt < 16; attempt += 1) {
@@ -187,7 +182,7 @@ describe('§8 puzzle rating', () => {
         await s.apply(playUntilSolved, 'alice');
         await s.apply(pressPuzzleNext, 'alice');
       } else {
-        await failAndAdvance(s, 'alice');
+        await abandonAndAdvance(s, 'alice');
       }
       attempts += 1;
       // Invariant asserted every step: one ledger row per attempted puzzle.

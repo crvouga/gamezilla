@@ -55,22 +55,27 @@ export function playOutcome(
 
 /**
  * Rating score of a play from its first outcome (§5): 1 = clean solve,
- * 0.5 = solved after a hint (the P1 hint policy), 0 = failed (first wrong
- * move / solution shown) or abandoned. Rows after the outcome never count.
+ * 0.5 = hinted solve or wrong move, 0 = solution shown or abandoned.
+ * Rows after the outcome never count.
  */
 export function deriveOutcomeScore(
   play: readonly ChessPuzzleInteractionRow[]
 ): 0 | 0.5 | 1 {
   const outcomeAt = play.findIndex((r) => isOutcomeKind(r.kind));
   const outcome = play[outcomeAt];
-  if (outcome?.kind !== CHESS_PUZZLE_INTERACTION_KIND.solved) return 0;
+  if (outcome === undefined) return 0;
   const before = play.slice(0, outcomeAt + 1);
   const { hintsUsed, wrongMoves } = deriveCurrentPlayCounts(
     before,
     outcome.puzzleId
   );
-  if (hintsUsed === 0 && wrongMoves === 0) return 1;
-  return 0.5;
+  if (outcome.kind === CHESS_PUZZLE_INTERACTION_KIND.solved) {
+    return hintsUsed === 0 && wrongMoves === 0 ? 1 : 0.5;
+  }
+  if (outcome.kind === CHESS_PUZZLE_INTERACTION_KIND.failed && wrongMoves > 0) {
+    return 0.5;
+  }
+  return 0;
 }
 
 /** Most-recent N distinct puzzleIds the user has started (for next-puzzle exclusion). */

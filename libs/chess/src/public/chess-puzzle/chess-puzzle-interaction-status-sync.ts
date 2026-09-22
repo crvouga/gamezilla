@@ -34,7 +34,8 @@ type SyncCtx = {
 /**
  * Outcome a status transition decides (§5 / §6), or null. The first of
  * these per play is the rated one: a wrong move or the solution shown before
- * resolution is a loss, a solve is a win, a skip is an abandon.
+ * resolution is recorded as failed; scoring distinguishes the wrong move
+ * (half credit) from showing the solution (zero). A skip is an abandon.
  */
 export function outcomeForTransition(
   prev: RoomStatus | null,

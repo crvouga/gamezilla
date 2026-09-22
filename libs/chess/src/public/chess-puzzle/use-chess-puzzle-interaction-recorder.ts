@@ -124,7 +124,11 @@ export function useChessPuzzleInteractionRecorder(
     if (hasPlayOutcome(untrack(args.interactions), untrack(args.puzzleId))) {
       return;
     }
-    finalizePlay(kind).catch(reportWriteFailure(kind));
+    // The move mutation is still pending: use the transition itself rather
+    // than waiting for its row to arrive in the reactive interaction query.
+    finalizePlay(kind, args.status() === CHESS_PUZZLE_PLAY_STATUS.wrong).catch(
+      reportWriteFailure(kind)
+    );
   };
 
   createEffect(() => {

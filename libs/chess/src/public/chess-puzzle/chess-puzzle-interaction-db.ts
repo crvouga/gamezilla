@@ -35,6 +35,7 @@ export type FinalizePlayInput = {
   readonly solveIdx: number;
   readonly interactions: readonly ChessPuzzleInteractionRow[];
   readonly terminalKind: ChessPuzzleOutcomeKind;
+  readonly wrongMove: boolean;
 };
 
 export class ChessPuzzleInteractionDb {
@@ -109,10 +110,12 @@ export class ChessPuzzleInteractionDb {
       puzzleRatingDeviation: args.puzzleRatingDeviation,
       outcome: args.terminalKind,
       scorePermille: puzzleScorePermille(
-        deriveOutcomeScore([
-          ...sliceCurrentPlay(args.interactions, args.puzzleId),
-          terminal,
-        ])
+        args.wrongMove
+          ? 0.5
+          : deriveOutcomeScore([
+              ...sliceCurrentPlay(args.interactions, args.puzzleId),
+              terminal,
+            ])
       ),
     });
   }
