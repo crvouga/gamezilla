@@ -65,7 +65,17 @@
     },
     "@pkgs/auth#tc": {
       "dependsOn": [
+        "@pkgs/clock#tc",
+        "@pkgs/db-migrate#tc",
+        "@pkgs/http-client#tc",
+        "@pkgs/sql-client#tc",
+        "@pkgs/uuid#tc"
+      ]
+    },
+    "@pkgs/auth-inhouse#tc": {
+      "dependsOn": [
         "@pkgs/assert#tc",
+        "@pkgs/auth#tc",
         "@pkgs/clock#tc",
         "@pkgs/db-migrate#tc",
         "@pkgs/db-schema#tc",

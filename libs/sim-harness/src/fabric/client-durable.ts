@@ -2,7 +2,7 @@
  * Namespaced web durable dumps for product-simulator client checkpoints.
  */
 
-import { clearNamespacedAuthClientStorage } from '@pkgs/auth/client';
+import { clearNamespacedAuthClientStorage } from '@pkgs/auth-inhouse/client';
 import {
   clearNamespacedKvWeb,
   dumpNamespacedKvWeb,

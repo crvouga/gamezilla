@@ -255,6 +255,44 @@ const PROBES: readonly Probe[] = [
     source: 'export const who = (env: { actorId: string }) => env.actorId;',
     message: null,
   },
+  {
+    path: 'libs/zz/src/root/client/sign-in.tsx',
+    source:
+      "import { createInhouseAuthClient } from '@pkgs/auth-inhouse/client';",
+    message: 'Product code knows auth only through the @pkgs/auth port',
+  },
+  {
+    path: 'libs/zz/src/use-cases/me/server/route.ts',
+    source: "import { clerkClient } from '@clerk/backend';",
+    message: 'Product code knows auth only through the @pkgs/auth port',
+  },
+  {
+    path: 'libs/zz/src/root/server/admin.ts',
+    source: "const admin = await import('firebase-admin/auth');",
+    message: 'Product code knows auth only through the @pkgs/auth port',
+  },
+  {
+    path: 'pkgs/auth/src/server/port.ts',
+    source:
+      "export { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';",
+    message: 'Product code knows auth only through the @pkgs/auth port',
+  },
+  {
+    path: 'libs/zz/src/use-cases/me/server/port-route.ts',
+    source: "import type { AuthServerPort } from '@pkgs/auth/server';",
+    message: null,
+  },
+  {
+    path: 'libs/runtime/src/root/server/app-auth-provider.ts',
+    source:
+      "import { INHOUSE_AUTH_PROVIDER } from '@pkgs/auth-inhouse/server';",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/sim/idp-driver.ts',
+    source: "import { IdpRepository } from '@pkgs/auth-inhouse/server';",
+    message: null,
+  },
 ];
 
 type Diagnostic = {

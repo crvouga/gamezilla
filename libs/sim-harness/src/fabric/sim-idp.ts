@@ -20,13 +20,14 @@ import {
   SIM_APPLE_IDP_URL,
   SIM_APPLE_KEY_ID,
   SIM_APPLE_TEAM_ID,
+  SIM_AUTH_SECRET,
   SIM_BILLING_URL,
   SIM_GOOGLE_CLIENT_ID,
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
   SIM_SERVER_URL,
 } from '@libs/feature/public/sim-constants';
-import type { AppleBootInput } from '@libs/server-app/config/auth-boot';
+import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse/server';
 import type { Clock } from '@pkgs/clock';
 import {
   type AppleClientKeys,
@@ -80,14 +81,24 @@ export function simAppleEmails(actorId: string): {
   };
 }
 
-/** The sim API's side of its Apple registration. */
-export function simAppleBootInput(keys: AppleClientKeys): AppleBootInput {
+/**
+ * The in-house IdP's configuration for the sim API: Google and Apple both
+ * pointed at their simulated providers, under the same secret and binding
+ * names a deployed Worker reads.
+ */
+export function simIdpSecrets(
+  keys: AppleClientKeys
+): Readonly<Record<string, string>> {
   return {
-    origin: SIM_APPLE_IDP_URL,
-    clientId: SIM_APPLE_CLIENT_ID,
-    teamId: SIM_APPLE_TEAM_ID,
-    keyId: SIM_APPLE_KEY_ID,
-    privateJwk: { ...keys.privateJwk },
+    [INHOUSE_AUTH_SECRET.secret]: SIM_AUTH_SECRET,
+    [INHOUSE_AUTH_SECRET.googleClientId]: SIM_GOOGLE_CLIENT_ID,
+    [INHOUSE_AUTH_SECRET.googleClientSecret]: SIM_GOOGLE_CLIENT_SECRET,
+    [INHOUSE_AUTH_SECRET.googleIdpOrigin]: SIM_IDP_URL,
+    [INHOUSE_AUTH_SECRET.appleIdpOrigin]: SIM_APPLE_IDP_URL,
+    [INHOUSE_AUTH_SECRET.appleClientId]: SIM_APPLE_CLIENT_ID,
+    [INHOUSE_AUTH_SECRET.appleTeamId]: SIM_APPLE_TEAM_ID,
+    [INHOUSE_AUTH_SECRET.appleKeyId]: SIM_APPLE_KEY_ID,
+    [INHOUSE_AUTH_SECRET.applePrivateJwk]: JSON.stringify(keys.privateJwk),
   };
 }
 

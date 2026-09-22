@@ -349,13 +349,29 @@ several stacks run concurrently. `bun run --filter @apps/product test:stack` boo
 runs the sim suite against it with `SIM_MODE=stack`, and tears it down. See
 [`apps/product/docs/LOCALHOST_STACK.md`](apps/product/docs/LOCALHOST_STACK.md).
 
+**Auth is a port; the in-house IdP is one vendor behind it.** Product code
+(`@libs/auth`, `@libs/server-app`, `@libs/client-app`, every feature) knows
+auth only through `@pkgs/auth`: `AuthClientPort` on the device,
+`AuthServerPort` on the API, and the `AuthProviderModule` a composition root
+builds. The in-house IdP (`@pkgs/auth-inhouse`: its `/auth/*` routes, `idp_*`
+tables, bearer store, Google/Apple exchanges) is treated exactly like a hosted
+service — Clerk, Firebase Auth, WorkOS, Cognito or Better Auth would be a
+sibling `@pkgs/auth-<vendor>` package passing the same
+`@pkgs/auth/contract` suite. It is chosen in one place per side:
+`@libs/runtime/root/server/app-auth-provider.ts` (Worker + migrate runner)
+and the wall / sim `ClientEnv.createAuthClient`. Biome
+`import-auth-vendor.grit` fails `lint` on any other import of
+`@pkgs/auth-inhouse`, `@pkgs/auth-sim` or an auth vendor SDK. Never read
+`idp_*` tables, IdP secrets or `/auth/*` wire shapes from product code — add
+what you need to the port and implement it in the adapter.
+
 **Sign-in providers: Google everywhere, Apple outside production.** There is no
 dev/test IdP route in the API. Simulations and the localhost stack both run
 `@pkgs/idp-sim`, which serves Google's real endpoints (PKCE, code exchange,
 userinfo, JWKS) — or, as a second instance, Sign in with Apple's (`form_post`,
 ES256 client-secret JWT, name-once `user` blob, Hide My Email relays,
-server-to-server notifications) — so the production `providers/google-oauth.ts`
-and `providers/apple-oauth.ts` paths are the paths under test. Point Google
+server-to-server notifications) — so the production `@pkgs/auth-inhouse`
+`providers/google-oauth.ts` and `providers/apple-oauth.ts` paths are the paths under test. Point Google
 somewhere else with the `GOOGLE_IDP_ORIGIN` Worker binding (unset means real
 Google). Apple is **mock-only**: it is enabled only by the five `APPLE_*`
 bindings together, and the Worker refuses them when `SECRETS_ENV=prd`.
@@ -402,7 +418,7 @@ Server SQL migrations are expressed only as `DatabaseMigration` classes (interfa
 
 **Domain tables** are declared with `defineTable` in each feature lib’s `shared/schema/` (exported via `public/schema.ts`), composed by `registerTables` in `@libs/runtime/root/app-schema`, and applied only through `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite` migration classes (no public `reconcile` API). **Do not add raw `.sql` schema files** under `libs/` / `pkgs/` / `apps/`.
 
-**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking) are also declared with `defineTable` + package-local `registerTables`, then applied via package `*DatabaseMigration` wrappers (`PostgresSchemaDatabaseMigration` / `SqliteSchemaDatabaseMigration` / `applySqliteSchema`). They are **not** registered in product `appSchema` (not synced). Soft-delete + managed `id` / timestamps apply; former custom PKs become `uniqueIndexes`. One-shot cutover migrations may rebuild legacy shapes before reconcile. **IdP tables** (`idp_*` in `@pkgs/auth`) use the same `defineTable` pattern and are also **not** in `appSchema`.
+**Framework / infra tables** (sync-engine, outbox, kv, entity-store, matchmaking) are also declared with `defineTable` + package-local `registerTables`, then applied via package `*DatabaseMigration` wrappers (`PostgresSchemaDatabaseMigration` / `SqliteSchemaDatabaseMigration` / `applySqliteSchema`). They are **not** registered in product `appSchema` (not synced). Soft-delete + managed `id` / timestamps apply; former custom PKs become `uniqueIndexes`. One-shot cutover migrations may rebuild legacy shapes before reconcile. **IdP tables** (`idp_*` in `@pkgs/auth-inhouse`, applied through its `AuthProviderModule.postgresMigration`) use the same `defineTable` pattern and are also **not** in `appSchema`.
 
 **Never author `CREATE TABLE` strings** in product or test code — use `defineTable` + `applySqliteSchema` / `applyPostgresSchema` / `*SchemaDatabaseMigration`. The only DDL emitters are `@pkgs/db-schema-postgres` / `@pkgs/db-schema-sqlite` `emit.ts`. Biome grit `no-raw-create-table` enforces this.
 
@@ -477,7 +493,8 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
-- `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite, auth port/adapters + Postgres migrations runner.
+- `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite; maps the auth service's users onto product accounts (`auth_external_accounts`) through the `@pkgs/auth` port only.
+- `@pkgs/auth` — the auth abstraction: client / server ports, the `AuthProviderModule` composition roots build, and the `@pkgs/auth/contract` suite every adapter passes. `@pkgs/auth-inhouse` — the in-house IdP, one adapter behind it ([`pkgs/auth/README.md`](pkgs/auth/README.md)).
 - `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`. Every sim that composes chess seeds puzzles on boot (Node: `libs/chess/fixtures/chess-puzzles.sim.csv`, 3 documented puzzles; web / product-simulator: the inline 50-row fixture in `libs/chess/src/sim/`), so `bun run dev` and scenario tests never need a manual seed. Feed config is one shared signal per chess surface (`ChessPuzzleFeedProvider`); the pool syncs per rating band around the effective rating (`chessPuzzlePoolRangesForRating`). Puzzle scenarios: `bun run --filter @libs/chess test:e2e`.
 - `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, observability backend) live here — not in `VITE_*` build-time env (API URL / commit provenance / E2E / Watchman stay build-time env).
 - `@libs/profile` — public profile, dicebear avatar editor, username generator (vertical slices: ensure-local, patch-avatar, ensure-online, set-username).

@@ -1,14 +1,11 @@
 /**
  * Secret names — same keys in `dev` and `prd` configs.
  *
- * Billing provider secret names live in each provider's package
- * (listed by `@pkgs/billing-providers`) and are read only by that
- * package's provider module (not listed here).
+ * Billing provider and auth service secret names live in each provider's
+ * package and are read only by that package's provider module (not listed
+ * here).
  */
 export const ApiSecretName = {
-  authSecret: 'AUTH_SECRET',
-  webClientGoogleClientId: 'WEB_CLIENT_GOOGLE_CLIENT_ID',
-  webClientGoogleClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   dbUrl: 'DATABASE_URL',
   apiUrl: 'API_URL',
   /**

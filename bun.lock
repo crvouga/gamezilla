@@ -169,6 +169,7 @@
         "@libs/spaces": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async-local": "workspace:*",
+        "@pkgs/auth": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -372,6 +373,7 @@
         "@lingui/solid": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
+        "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/browser": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/device": "workspace:*",
@@ -735,6 +737,7 @@
         "@libs/spaces": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
+        "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-indexes": "workspace:*",
@@ -890,6 +893,7 @@
         "@libs/test-ids": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
+        "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-mock": "workspace:*",
         "@pkgs/billing-mock-provider": "workspace:*",
@@ -1139,7 +1143,24 @@
       "name": "@pkgs/auth",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/sql-client": "workspace:*",
+        "@pkgs/uuid": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/auth-inhouse": {
+      "name": "@pkgs/auth-inhouse",
+      "version": "0.0.0",
+      "dependencies": {
         "@noble/hashes": "catalog:",
+        "@pkgs/auth": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
@@ -1170,6 +1191,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/auth": "workspace:*",
+        "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/idp-sim": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -3742,6 +3764,8 @@
     "@pkgs/attribute": ["@pkgs/attribute@workspace:pkgs/attribute"],
 
     "@pkgs/auth": ["@pkgs/auth@workspace:pkgs/auth"],
+
+    "@pkgs/auth-inhouse": ["@pkgs/auth-inhouse@workspace:pkgs/auth-inhouse"],
 
     "@pkgs/auth-sim": ["@pkgs/auth-sim@workspace:pkgs/auth-sim"],
 

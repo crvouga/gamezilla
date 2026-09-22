@@ -15,12 +15,12 @@
  * app, the close button — returns to the app.
  */
 
+import type { ServerHttp } from '@libs/client-app/shell/client-env';
+import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
 import type {
   OpenAuthSession,
   OpenAuthSessionResult,
-  ServerHttp,
-} from '@libs/client-app/shell/client-env';
-import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
+} from '@pkgs/auth-inhouse/client';
 import { IDP_TEST_IDS } from '@pkgs/idp-sim/shared';
 import type { OpenExternalUrl } from '@pkgs/ui';
 import { type Accessor, createSignal } from 'solid-js';

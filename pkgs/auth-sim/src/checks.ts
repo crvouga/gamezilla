@@ -1,6 +1,6 @@
 /** Comparing what happened to what the model predicted, and recording drift. */
 
-import { hashAuthSecret } from '@pkgs/auth/shared';
+import { hashAuthSecret } from '@pkgs/auth-inhouse/shared';
 import { sql } from '@pkgs/sql';
 
 import {

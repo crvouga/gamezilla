@@ -59,6 +59,7 @@
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/browser": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/device": "workspace:*",

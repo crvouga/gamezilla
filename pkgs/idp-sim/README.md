@@ -142,7 +142,7 @@ walker — takes the same path.
 Bun hosts that render a screen need the same compile contract:
 `bun --conditions=browser --conditions=development --preload
 @pkgs/bun-test-solid/register` (`bun run stack` and this package's `start`;
-`bun test` in this package, `@pkgs/auth` and `@pkgs/auth-sim` preload
+`bun test` in this package, `@pkgs/auth-inhouse` and `@pkgs/auth-sim` preload
 `@pkgs/bun-test-solid/preload`, which includes it).
 
 Navigation is Google's: a back arrow on every screen that is not the first step

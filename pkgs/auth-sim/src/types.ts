@@ -1,6 +1,7 @@
-import type { AuthClientPort, BearerTokenStore } from '@pkgs/auth/client';
-import type { createAuthServerAdapter } from '@pkgs/auth/server/create-auth-server-adapter';
+import type { AuthClientPort } from '@pkgs/auth/client';
 import type { OauthProviderId } from '@pkgs/auth/shared';
+import type { BearerTokenStore } from '@pkgs/auth-inhouse/client';
+import type { createAuthServerAdapter } from '@pkgs/auth-inhouse/server';
 import type { IdpSim } from '@pkgs/idp-sim/server';
 import type { IdpEmailChoice } from '@pkgs/idp-sim/shared';
 import type { Session } from '@pkgs/sim';

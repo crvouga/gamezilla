@@ -1,4 +1,5 @@
-import type { OauthProviderId, SignInOptions } from '@pkgs/auth/shared';
+import type { SignInOptions } from '@pkgs/auth/client';
+import type { OauthProviderId } from '@pkgs/auth/shared';
 import { useLogger } from '@pkgs/logger/solid';
 import {
   type Accessor,

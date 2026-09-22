@@ -70,11 +70,7 @@ export default function SsoCallbackRoute(): JSX.Element {
     if (handoffToParent()) return;
     const settle = delay(SSO_HANDOFF_NAVIGATE_MS, timers.setTimeout)
       .then(() =>
-        (
-          port.completeHostedAuthRedirect ??
-          port.ensureSessionReady ??
-          (() => Promise.resolve(undefined))
-        )()
+        (port.completeHostedAuthRedirect ?? (() => Promise.resolve()))()
       )
       .catch(() => undefined);
     void settle.then(() => {

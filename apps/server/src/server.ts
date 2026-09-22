@@ -12,19 +12,17 @@ import {
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { composeFeatureServers } from '@libs/feature/public/compose-server';
 import { APP } from '@libs/runtime/root/app-features';
+import { APP_AUTH_PROVIDER } from '@libs/runtime/root/server/app-auth-provider';
 import { appFeatureServers } from '@libs/runtime/root/server/app-feature-servers';
 import { createServer } from '@libs/server-app/app/create-server';
 import type { ServerEnv } from '@libs/server-app/app/server-env';
-import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import type { ApiWorkerEnv } from '@libs/server-app/config/env';
 import {
   assertSecretsEnvBinding,
   ConfigurationError,
-  readAppleMockBindings,
   readBillingProviderBinding,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
-  readOptionalGoogleIdpOrigin,
   resolveCheckoutProvider,
   workerEnvToSecretRecord,
 } from '@libs/server-app/config/env';
@@ -35,6 +33,7 @@ import { resolveWebClientOrigin } from '@libs/server-app/config/web-client-origi
 import { openRequestDb } from '@libs/server-app/db/open-request-db-postgres';
 import { drainAndNotifyOutbox } from '@libs/server-app/sync/outbox-drain';
 import { assert, ThrowingCrashHandler } from '@pkgs/assert';
+import { AuthProviderConfigError } from '@pkgs/auth/server';
 import type { MembershipProviders } from '@pkgs/billing';
 import {
   createConfiguredMembershipProviders,
@@ -187,18 +186,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   const serverUrl = readOptionalApiUrlOverride(env);
   const databaseUrlOverride = readOptionalDatabaseUrlOverride(env);
-  const webClientOrigin =
-    typeof env['WEB_CLIENT_ORIGIN'] === 'string'
-      ? env['WEB_CLIENT_ORIGIN']
-      : undefined;
-  const auth = await loadAuthBootConfig({
-    secretStore,
-    apiUrlOverride: serverUrl,
-    ...(webClientOrigin === undefined ? {} : { webClientOrigin }),
-    googleIdpOrigin: readOptionalGoogleIdpOrigin(env),
-    apple: readAppleMockBindings(env),
-  });
-
   const localStack = env['LOCALHOST_STACK'] === '1';
   const billing = await createMembershipBilling(env, secretStore);
   if (billing === null) {
@@ -230,7 +217,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     llm: localStack ? new InMemoryLlmProvider() : null,
     secrets: secretStore,
     observability,
-    auth,
+    auth: APP_AUTH_PROVIDER,
     secretsEnv,
     serverUrl,
     skipDatabaseUrlPolicy: false,
@@ -252,7 +239,11 @@ async function ensureApp(env: ApiWorkerEnv): Promise<App | null> {
     bootState = { kind: 'ready', app };
     return app;
   } catch (err: unknown) {
-    if (err instanceof ConfigurationError || isSecretStoreError(err)) {
+    if (
+      err instanceof ConfigurationError ||
+      err instanceof AuthProviderConfigError ||
+      isSecretStoreError(err)
+    ) {
       latchFatal(err instanceof Error ? err.message : String(err));
       return null;
     }

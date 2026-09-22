@@ -3,7 +3,7 @@
  * Reload so hydrate sees the restored session.
  */
 
-import { AUTH_BEARER_STORAGE_KEY } from '@pkgs/auth/client';
+import { AUTH_BEARER_STORAGE_KEY } from '@pkgs/auth-inhouse/client';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 
 export async function injectWebViewSnapshotAuth(args: {

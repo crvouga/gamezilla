@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { AUTH_SESSION_TTL_MS } from '@pkgs/auth/shared';
+import { AUTH_SESSION_TTL_MS } from '@pkgs/auth-inhouse/shared';
 import {
   auth,
   clientBearers,

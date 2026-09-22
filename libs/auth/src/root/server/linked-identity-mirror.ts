@@ -1,15 +1,16 @@
 /**
- * Mirrors the account's sign-in methods (Google, Apple) from the IdP into the
- * synced `auth_external_accounts` table, one row per provider, so the client
- * reads them from local SQLite like any other synced data.
+ * Mirrors the account's sign-in methods (Google, Apple) from the auth service
+ * (`AuthServerPort.getUser`) into the synced `auth_external_accounts` table,
+ * one row per provider, so the client reads them from local SQLite like any
+ * other synced data.
  *
- * The IdP is the source of truth. A provider the IdP no longer lists is
+ * The auth service is the source of truth. A provider it no longer lists is
  * tombstoned (`deleted_at`), never hard-deleted; relinking revives the
  * user's row for that provider (possibly with a new subject), and an identity
  * that moved from another user is re-homed onto this one.
  */
 
-import { OAUTH_PROVIDER_IDS, type OauthProviderId } from '@pkgs/auth/shared';
+import { type AuthIdentity, OAUTH_PROVIDER_IDS } from '@pkgs/auth/shared';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -19,52 +20,23 @@ import {
   managedUpdatedAtIso,
 } from '../../public/managed-row';
 
-/** One identity as the IdP user snapshot lists it (`accounts[]`). */
-export type SnapshotIdentity = {
-  readonly provider: OauthProviderId;
-  readonly providerUserId: string;
-  readonly metadata: Record<string, unknown>;
-};
-
 type MirrorRow = {
   readonly id: string;
   readonly user_id: string;
   readonly deleted_at: string | null;
 };
 
-function readString(value: unknown): string | null {
-  return typeof value === 'string' && value.length > 0 ? value : null;
-}
-
-/** The provider identities in an IdP user snapshot. */
-export function readSnapshotIdentities(
-  snapshot: Record<string, unknown>
-): SnapshotIdentity[] {
-  const raw = snapshot['accounts'];
-  if (!Array.isArray(raw)) return [];
-  const out: SnapshotIdentity[] = [];
-  for (const entry of raw) {
-    if (entry === null || typeof entry !== 'object') continue;
-    const row = entry as Record<string, unknown>;
-    const provider = readString(row['provider']);
-    const providerUserId = readString(row['providerUserId']);
-    if (provider === null || providerUserId === null) continue;
-    if (!(OAUTH_PROVIDER_IDS as readonly string[]).includes(provider)) continue;
-    out.push({
-      provider: provider as OauthProviderId,
-      providerUserId,
-      metadata: {
-        email: row['email'] ?? null,
-        emailVerified: row['emailVerified'] === true,
-        isPrivateEmail: row['isPrivateEmail'] === true,
-        emailForwarding: row['emailForwarding'] !== false,
-        name: row['name'] ?? null,
-        linkedAt: row['linkedAt'] ?? null,
-        lastSignInAt: row['lastSignInAt'] ?? null,
-      },
-    });
-  }
-  return out;
+/** The synced row's `metadata`: what the account screen renders. */
+function identityMetadata(identity: AuthIdentity): Record<string, unknown> {
+  return {
+    email: identity.email,
+    emailVerified: identity.emailVerified,
+    isPrivateEmail: identity.isPrivateEmail,
+    emailForwarding: identity.emailForwarding,
+    name: identity.name,
+    linkedAt: identity.linkedAt,
+    lastSignInAt: identity.lastSignInAt,
+  };
 }
 
 export class LinkedIdentityMirror {
@@ -78,7 +50,7 @@ export class LinkedIdentityMirror {
 
   async mirror(
     userId: string,
-    identities: readonly SnapshotIdentity[]
+    identities: readonly AuthIdentity[]
   ): Promise<void> {
     for (const provider of OAUTH_PROVIDER_IDS) {
       const identity = identities.find((row) => row.provider === provider);
@@ -100,7 +72,7 @@ export class LinkedIdentityMirror {
   }
 
   private async rowForIdentity(
-    identity: SnapshotIdentity
+    identity: AuthIdentity
   ): Promise<MirrorRow | null> {
     const rows = await this.tx.query(sql<MirrorRow>`
       SELECT id, user_id, deleted_at FROM auth_external_accounts
@@ -114,14 +86,14 @@ export class LinkedIdentityMirror {
   private async write(
     id: string,
     userId: string,
-    identity: SnapshotIdentity
+    identity: AuthIdentity
   ): Promise<void> {
     const nowIso = managedUpdatedAtIso(this.time.now);
     await this.tx.run(sql<void>`
       UPDATE auth_external_accounts
       SET user_id = ${userId},
           external_id = ${identity.providerUserId},
-          metadata = ${JSON.stringify(identity.metadata)},
+          metadata = ${JSON.stringify(identityMetadata(identity))},
           deleted_at = ${null},
           updated_at = ${nowIso}
       WHERE id = ${id}
@@ -133,10 +105,7 @@ export class LinkedIdentityMirror {
    * user's own row for the provider cannot hold `(provider, external_id)`, so
    * the stale one is tombstoned under a retired subject.
    */
-  private async retire(
-    row: MirrorRow,
-    identity: SnapshotIdentity
-  ): Promise<void> {
+  private async retire(row: MirrorRow, identity: AuthIdentity): Promise<void> {
     const nowIso = managedUpdatedAtIso(this.time.now);
     const retired = `${identity.providerUserId}:retired:${this.time.createId()}`;
     await this.tx.run(sql<void>`
@@ -148,10 +117,7 @@ export class LinkedIdentityMirror {
     `);
   }
 
-  private async upsert(
-    userId: string,
-    identity: SnapshotIdentity
-  ): Promise<void> {
+  private async upsert(userId: string, identity: AuthIdentity): Promise<void> {
     const mine = await this.rowFor(userId, identity.provider);
     const elsewhere = await this.rowForIdentity(identity);
     if (mine !== null) {
@@ -175,7 +141,7 @@ export class LinkedIdentityMirror {
       VALUES (
         ${managed.id}, ${managed.created_at}, ${managed.updated_at}, ${userId},
         ${identity.provider}, ${identity.providerUserId},
-        ${JSON.stringify(identity.metadata)}
+        ${JSON.stringify(identityMetadata(identity))}
       )
     `);
   }

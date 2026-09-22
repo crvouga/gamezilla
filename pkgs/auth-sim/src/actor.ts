@@ -1,21 +1,20 @@
 /**
- * One simulated device: the production client port (`createAuthClientAdapter`)
+ * One simulated device: the production client port (`createInhouseAuthClient`)
  * over a headless browser that keeps its cookies between sign-ins (so the
  * providers' account choosers appear exactly when they would), behind a
  * network switch that can take the device offline.
  */
 
+import { AuthFlowError, AuthLinkRequiredError } from '@pkgs/auth/client';
+import { AUTH_ERROR } from '@pkgs/auth/shared';
 import {
   AUTH_SSO_CANCELLED_ERROR,
-  AuthFlowError,
-  AuthLinkRequiredError,
-  createAuthClientAdapter,
   createAuthCookieJar,
   createBearerTokenStore,
+  createInhouseAuthClient,
   createInMemoryAuthClientStorage,
   createInProcessOpenAuthSession,
-} from '@pkgs/auth/client';
-import { AUTH_ERROR } from '@pkgs/auth/shared';
+} from '@pkgs/auth-inhouse/client';
 import { IDP_PASSWORD } from '@pkgs/idp-sim/shared';
 import type { Session } from '@pkgs/sim';
 
@@ -51,7 +50,7 @@ export function startActor(args: {
     const url = input instanceof Request ? input.url : String(input);
     return await args.store.wire(url, init);
   };
-  const port = createAuthClientAdapter({
+  const port = createInhouseAuthClient({
     baseURL: AUTH_SYSTEM_BASE_URL,
     clock: args.session.ports.clock,
     timers: args.session.ports.timers,

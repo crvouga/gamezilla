@@ -1,11 +1,11 @@
 /**
- * Provider-neutral session view returned by {@link ../server/auth-server-port AuthServerPort.verifySessionToken}
- * and surfaced on the client via {@link ../client/auth-client-port AuthClientPort.session}.
+ * Provider-neutral session view returned by `AuthServerPort.verifySessionToken`
+ * and surfaced on the client via `AuthClientPort.session`.
  */
 export type VerifiedSession = {
-  /** Id in the auth provider namespace (external user id from the auth adapter). */
+  /** Id in the auth service's namespace (`AuthUser.externalUserId`). */
   readonly externalUserId: string;
-  /** App-internal account UUID when provisioned; null for anonymous-only flows. */
+  /** Product account UUID when the adapter knows it; usually `null`. */
   readonly accountId: string | null;
   readonly email: string | null;
   readonly expiresAt: Date | null;

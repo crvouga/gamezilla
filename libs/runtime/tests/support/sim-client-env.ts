@@ -8,6 +8,7 @@
 import { createSecureStoreAuthClientStorage } from '@libs/client-app/shell/auth-client-storage';
 import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
+import { createInhouseAuthClient } from '@pkgs/auth-inhouse/client';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { createNoopLogger } from '@pkgs/logger';
 import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
@@ -73,7 +74,6 @@ export async function simClientEnv(
       return client;
     },
     kv: new KvImplInMemory(),
-    authStorage: createSecureStoreAuthClientStorage(secureStorage),
     secureStorage,
     room: () => {
       throw new Error(
@@ -82,9 +82,16 @@ export async function simClientEnv(
     },
     ...createInMemoryClientPorts('sim-client'),
     serverUrl,
-    authBaseURL: serverUrl,
-    authCallbackUrl: `${serverUrl}/sso-callback`,
-    openAuthSession: () => Promise.resolve({ type: 'cancel' }),
+    createAuthClient: () =>
+      createInhouseAuthClient({
+        baseURL: serverUrl,
+        clock,
+        timers,
+        fetch: server.fetch,
+        storage: createSecureStoreAuthClientStorage(secureStorage),
+        openAuthSession: () => Promise.resolve({ type: 'cancel' }),
+        callbackUrl: `${serverUrl}/sso-callback`,
+      }),
     openExternalUrl: () => Promise.resolve(),
     resolveDatabaseName: ({ userId }) => `sim_client_${userId}`,
     mutationSuccessHoldMs: 0,

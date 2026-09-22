@@ -92,7 +92,7 @@
       "@pkgs/async/*": ["./pkgs/async/src/*"],
       "@pkgs/attribute": ["./pkgs/attribute/src/index.ts"],
       "@pkgs/attribute/*": ["./pkgs/attribute/src/*"],
-      "@pkgs/auth": ["./pkgs/auth/src/shared/index.ts"],
+      "@pkgs/auth-inhouse/*": ["./pkgs/auth-inhouse/src/*"],
       "@pkgs/auth-sim": ["./pkgs/auth-sim/src/index.ts"],
       "@pkgs/auth-sim/*": ["./pkgs/auth-sim/src/*"],
       "@pkgs/auth/*": ["./pkgs/auth/src/*"],

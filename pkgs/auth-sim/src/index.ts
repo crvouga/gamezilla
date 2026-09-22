@@ -1,5 +1,5 @@
 /**
- * Test / sim host seam for `@pkgs/auth`: the auth app, a Google-flavored and
+ * Test / sim host seam for the in-house IdP (`@pkgs/auth-inhouse`): the auth app, a Google-flavored and
  * an Apple-flavored mock provider, devices running the production client
  * port, and a reference model every step is checked against.
  * Import from `@pkgs/auth-sim` only — not for product apps/libs.

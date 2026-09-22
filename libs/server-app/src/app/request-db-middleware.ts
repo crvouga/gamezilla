@@ -8,7 +8,7 @@ import {
 } from '@libs/db/public/database-url-policy';
 import type { OpenSqlClient } from '@libs/feature/public/sync';
 import { assert } from '@pkgs/assert';
-import { createAuthServerAdapter } from '@pkgs/auth/server';
+import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplPostgres } from '@pkgs/kv-postgres/impl-postgres';
 import { isObservabilityActive } from '@pkgs/observability/port/is-observability-active';
@@ -17,7 +17,6 @@ import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { MiddlewareHandler } from 'hono';
-import type { AuthBootConfig } from '../config/auth-boot';
 import { ApiSecretName } from '../config/secret-names';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -53,7 +52,7 @@ async function ensureDevDatabasePolicy(
 }
 
 export type RequestDbMiddlewareOptions = {
-  readonly auth: AuthBootConfig;
+  readonly authServer: AuthServerPort;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
   readonly secretsEnv: string;
@@ -129,15 +128,9 @@ async function attachRequestDatabase(
   args: AttachRequestDatabaseArgs
 ): Promise<Response | void> {
   const { c, next, options, secretStore, clientConfigLatch } = args;
-  const { auth: boot, observability, clock, timers, createId } = options;
+  const { authServer, observability, clock, timers, createId } = options;
   const raw = await openObservedSqlClient(observability, options.openSqlClient);
   const sqlClient = wrapSqlClientForObservability(observability, raw);
-  const authServer = createAuthServerAdapter({
-    getSql: () => sqlClient,
-    clock,
-    createId,
-    secret: boot.secret,
-  });
   const kv = new KvImplPostgres(sqlClient, clock.now);
   const sessionAuth = new SessionAuth(authServer, { clock, createId });
   const store = {

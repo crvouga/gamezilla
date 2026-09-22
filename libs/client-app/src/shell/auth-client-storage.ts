@@ -1,11 +1,11 @@
 /**
- * `AuthClientStorage` (bearer-token persistence for `@pkgs/auth`) over the
+ * `AuthClientStorage` (bearer-token persistence for `@pkgs/auth-inhouse`) over the
  * app's `SecureStorageStore`: sync reads hit the in-memory mirror, async
  * reads / writes go through the store so the bearer key stays visible to
  * every secure-storage reader in the tree.
  */
 
-import type { AuthClientStorage } from '@pkgs/auth/client/bearer-token-store';
+import type { AuthClientStorage } from '@pkgs/auth-inhouse/client';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 
 export function createSecureStoreAuthClientStorage(

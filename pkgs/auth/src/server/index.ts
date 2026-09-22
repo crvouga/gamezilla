@@ -1,37 +1,8 @@
-export { IDP_PROVIDER_LABEL } from '../shared/provider-label';
-export { IDP_TABLES, idpSchema } from '../shared/schema/tables';
 export {
-  buildAuthTrustedOrigins,
-  isTrustedCallbackUrl,
-} from '../shared/trusted-origins';
-export {
-  AuthPostgresDatabaseMigration,
-  type AuthPostgresDatabaseMigrationOptions,
-  AuthSqliteDatabaseMigration,
-} from './auth-database-migration';
+  type AuthProvider,
+  AuthProviderConfigError,
+  type AuthProviderEnv,
+  type AuthProviderHandler,
+  type AuthProviderModule,
+} from './auth-provider-module';
 export type { AuthServerPort } from './auth-server-port';
-export {
-  type CreateAuthAppDeps,
-  type CreateAuthAppProviders,
-  createAuthApp,
-} from './create-auth-app';
-export {
-  type CreateAuthServerAdapterDeps,
-  createAuthServerAdapter,
-} from './create-auth-server-adapter';
-export { identityJson } from './identity-handlers';
-export { IdentityLinker, type LinkOutcome, maskEmail } from './identity-linker';
-export { IdentityRepository, type IdentityRow } from './identity-repository';
-export { IdpRepository } from './idp-repository';
-export {
-  type AppleProviderConfig,
-  appleClientSecret,
-  buildAppleAuthorizationUrl,
-} from './providers/apple-oauth';
-export {
-  buildGoogleAuthorizationUrl,
-  exchangeGoogleAuthorizationCode,
-  type GoogleProviderConfig,
-} from './providers/google-oauth';
-export type { ProviderIdentity } from './providers/provider-identity';
-export type { OauthProvidersConfig } from './providers/registry';

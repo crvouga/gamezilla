@@ -1,5 +1,4 @@
-import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
-import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import type { AuthClientPort, AuthSessionState } from '@pkgs/auth/client';
 import { useTimers } from '@pkgs/clock/solid';
 import {
   useHttpClient,

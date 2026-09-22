@@ -1,48 +1,12 @@
-export { buildOauthLaunchUrl, isPopupBlockedError } from './auth-client-http';
-export type { LinkingOps } from './auth-client-linking';
-export {
-  type AuthClientAdapterConfig,
-  type OpenAuthSession,
-  type OpenAuthSessionResult,
-} from './auth-client-oauth';
-export type { AuthClientPort, GetFreshTokenOptions } from './auth-client-port';
-export {
-  AuthFlowError,
-  type CallbackOutcome,
-  readCallbackOutcome,
-} from './auth-errors';
+export type {
+  AuthClientPort,
+  GetFreshTokenOptions,
+  SignInOptions,
+} from './auth-client-port';
+export { AuthFlowError } from './auth-flow-error';
 export { AuthLinkRequiredError } from './auth-link-required-error';
 export {
   AUTH_SESSION_INITIAL,
   type AuthSessionState,
   type AuthSessionStore,
 } from './auth-session-state';
-export {
-  AUTH_BEARER_STORAGE_KEY,
-  type AuthClientStorage,
-  type BearerTokenStore,
-  clearNamespacedAuthClientStorage,
-  createBearerTokenStore,
-  createInMemoryAuthClientStorage,
-  createNamespacedAuthClientStorage,
-} from './bearer-token-store';
-export {
-  AUTH_NETWORK_ERROR,
-  AUTH_SSO_CANCELLED_ERROR,
-  AUTH_SSO_POPUP_BLOCKED_ERROR,
-  clearBearerOnUnauthorizedSession,
-  createAuthClientAdapter,
-} from './create-auth-client-adapter';
-export {
-  formSubmitBody,
-  type HeadlessButton,
-  type HeadlessForm,
-  parseFirstForm,
-} from './headless-form';
-export {
-  type AuthCookieJar,
-  createAuthCookieJar,
-  createInProcessOpenAuthSession,
-  type InProcessOpenAuthSessionConfig,
-  type InProcessOpenAuthSessionFault,
-} from './in-process-open-auth-session';

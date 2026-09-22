@@ -1,17 +1,20 @@
-import type { AuthUserProfile } from '../shared/user-profile';
+import type { AuthUser } from '../shared/auth-user';
 import type { VerifiedSession } from '../shared/verified-session';
 
 /**
- * Server-side auth port. Adapters verify bearer tokens and resolve profiles
- * without importing a specific provider SDK at the port layer.
+ * Server-side auth port: what the product API asks of an auth service. The
+ * product maps the service's users onto its own accounts (one
+ * `auth_external_accounts` row per `(provider, externalUserId)`), so nothing
+ * past this port ever sees a service's own ids, tables or SDK types.
  */
 export interface AuthServerPort {
-  /** Slug stored in `auth_external_accounts.provider` for this adapter. */
-  readonly providerLabel: string;
+  /**
+   * Stable id of the service. It keys the product's link from its account to
+   * the service's user, so it must never change for a deployed service.
+   */
+  readonly provider: string;
+  /** The session a client bearer names, or `null` when unknown / expired / revoked. */
   verifySessionToken(token: string): Promise<VerifiedSession | null>;
-  getUserProfile(externalUserId: string): Promise<AuthUserProfile | null>;
-  /** Serialized auth-provider user payload (e.g. provider `UserJSON`). */
-  getUserSnapshot(
-    externalUserId: string
-  ): Promise<Record<string, unknown> | null>;
+  /** The user with every sign-in method, or `null` when unknown. */
+  getUser(externalUserId: string): Promise<AuthUser | null>;
 }

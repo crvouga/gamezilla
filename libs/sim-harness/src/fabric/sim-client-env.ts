@@ -8,7 +8,10 @@ import type { ClientEnv } from '@libs/client-app/shell/client-env';
 import { createInMemoryClientPorts } from '@libs/client-app/shell/in-memory-client-ports';
 import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
 import { assert } from '@pkgs/assert';
-import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
+import {
+  createInhouseAuthClient,
+  createNamespacedAuthClientStorage,
+} from '@pkgs/auth-inhouse/client';
 import type { Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
@@ -132,7 +135,6 @@ export function makeSimClientEnv(
       return handleBoundSqlClient(handle);
     },
     kv: clientKv(ns),
-    authStorage: createNamespacedAuthClientStorage(ns),
     secureStorage: clientSecureStorage(ns),
     room: (roomArgs) => {
       net.assertReachable(id, SIM_PRIMARY_SERVER_ID);
@@ -144,9 +146,17 @@ export function makeSimClientEnv(
     },
     ...createInMemoryClientPorts(`sim-client:${id}`),
     serverUrl: SIM_SERVER_URL,
-    authBaseURL: SIM_SERVER_URL,
-    authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,
-    openAuthSession: browser.openAuthSession,
+    // The in-house IdP on the API origin, its window in the actor's browser.
+    createAuthClient: () =>
+      createInhouseAuthClient({
+        baseURL: SIM_SERVER_URL,
+        clock: session.ports.clock,
+        timers,
+        fetch: serverFetch,
+        storage: createNamespacedAuthClientStorage(ns),
+        openAuthSession: browser.openAuthSession,
+        callbackUrl: `${SIM_SERVER_URL}/sso-callback`,
+      }),
     openExternalUrl: browser.openExternalUrl,
     resolveDatabaseName: () => ns,
     mutationSuccessHoldMs: 900,
