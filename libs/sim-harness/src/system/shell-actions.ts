@@ -24,6 +24,17 @@ export const openSettings = scenarioAction({
   },
 });
 
+/** Global menu → Account: where sign-in and sign-out live. */
+export const openAccount = scenarioAction({
+  name: 'openAccount',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.tabSpaces).expect.hidden({ timeoutMs: WAIT_MS });
+  },
+});
+
 /** Focus an actor's tree (multi-actor hosts park the others). */
 export const focusActor = scenarioAction({
   name: 'focusActor',

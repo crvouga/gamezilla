@@ -10,7 +10,7 @@ import { BILLING_WALK_ACTIONS } from './billing-walk';
 
 /**
  * Billing in a sim. The offer boots the sim's payment provider node; the
- * server gets the host's adapter to it, exactly as production gets Stripe's.
+ * server gets the host's adapter to it, exactly as production gets its providers'.
  */
 export const BILLING_SIM_SLICE: SimSlice = {
   name: 'billing',

@@ -16,7 +16,7 @@ import type { FeatureClient } from '@libs/feature/public/client';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
 import type { FeatureServer } from '@libs/feature/public/server';
 import type { EnvTime } from '@libs/feature/public/sync';
-import type { MembershipBilling, PlusMembershipOffer } from '@pkgs/billing';
+import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
 import type { RoomActor, RoomState } from '@pkgs/room';
 import type {
   RoomStorageTopicReplace,
@@ -81,7 +81,7 @@ export type SimComposition = {
   readonly clients: readonly FeatureClient[];
   /** Server folds for one API instance, given the host's services. */
   readonly servers: (deps: {
-    readonly billing: MembershipBilling | null;
+    readonly billing: MembershipProviders | null;
   }) => readonly FeatureServer[];
   /** Defaults to {@link migrateCompositionPostgres} over `app.schema`. */
   readonly migratePostgres?: MigrateSimPostgres;

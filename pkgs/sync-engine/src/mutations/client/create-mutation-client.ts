@@ -17,6 +17,7 @@ import type {
   MutationRegistry,
 } from '../core/types';
 import { wrapMutationDb } from '../shared/wrap-mutation-db';
+import type { MutationVerdict } from './mutation-status';
 import { recordOptimisticOwnRows } from './optimistic-own-rows';
 
 export type MutationClientIds = {
@@ -53,7 +54,35 @@ export type CreateMutationClientOptions = {
   }) => void;
   /** Id mint for queued mutation rows (wall or sim). */
   readonly createId: CreateId;
+  /**
+   * Resolves once the server has applied or rejected `mutationId`. With it,
+   * `mutate()` of a `pendingUx: 'pending'` mutation reports the server's
+   * verdict instead of the local apply's (see {@link Mutation.pendingUx}).
+   */
+  readonly awaitVerdict?: (mutationId: string) => Promise<MutationVerdict>;
 };
+
+/**
+ * A `pending` mutation's result is the server's: a local apply can pass a
+ * rule the device cannot fully check (uniqueness against rows outside its
+ * sync scope). Waits outside the mutation tail, so later writes are not
+ * held behind the round trip.
+ */
+async function withServerVerdict<A>(
+  m: Mutation<A>,
+  local: MutateResult,
+  awaitVerdict: CreateMutationClientOptions['awaitVerdict']
+): Promise<MutateResult> {
+  if (!local.ok || m.pendingUx !== 'pending' || awaitVerdict === undefined) {
+    return local;
+  }
+  const verdict = await awaitVerdict(local.mutationId);
+  if (verdict.status !== 'rejected') return local;
+  return {
+    ok: false,
+    failures: [{ rule: m.name, code: verdict.code, message: verdict.message }],
+  };
+}
 
 async function nextMutationSeq(tx: SqlClient): Promise<number> {
   const rows = await tx.query(sql<{ next: number | null }>`
@@ -282,7 +311,7 @@ export function createMutationClient(
         () => undefined,
         () => undefined
       );
-      return run;
+      return withServerVerdict(m, await run, options.awaitVerdict);
     },
   };
 }

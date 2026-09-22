@@ -10,10 +10,13 @@ export type SimMode = 'fast' | 'real' | 'stack';
 
 export type OpenSimOptions = {
   readonly mode?: SimMode;
-  /** The run's seed (default 1): a monkey sweeps several. */
-  readonly seed?: number;
   /** Committed fixture id under <package>/fixtures/snapshots/<id>.json */
   readonly snapshot?: string;
+  /**
+   * The run's seed (default `1`). A suite that walks several independent
+   * random paths through one composition gives each its own.
+   */
+  readonly seed?: number;
 };
 
 export function resolveSimMode(options?: OpenSimOptions): SimMode {

@@ -51,3 +51,31 @@ export async function avatarTraitVisible(
     return false;
   }
 }
+
+/** The username save button's face: `Saved`, or why the name was refused. */
+export async function readUsernameSaveFace(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    const face = await ui.get(Handles.profileUsernameSave).text();
+    return face === null ? null : face.trim();
+  } catch {
+    return null;
+  }
+}
+
+/** The Profile tab's username, read from the tab itself (opens it). */
+export async function readProfileTabUsername(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.tabProfile).tap({ timeoutMs: 2_000 });
+    return await readUsername(s, actorId);
+  } catch {
+    return null;
+  }
+}

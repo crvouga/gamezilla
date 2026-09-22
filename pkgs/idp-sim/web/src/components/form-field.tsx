@@ -23,7 +23,6 @@ export type FormFieldProps = {
   readonly inputmode?: 'email' | 'text' | undefined;
   readonly invalid?: boolean | undefined;
   readonly describedBy?: string | undefined;
-  readonly list?: string | undefined;
 };
 
 /** The DOM already holds what was typed; there is nothing to mirror. */
@@ -42,7 +41,6 @@ export function FormField(props: FormFieldProps) {
       name={props.name}
       autocomplete={props.autocomplete}
       inputmode={props.inputmode}
-      list={props.list}
       autofocus={props.invalid === true ? true : undefined}
       aria-describedby={props.describedBy}
       data-testid={props.testId}

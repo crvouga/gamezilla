@@ -14,10 +14,13 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@pkgs/logger": "workspace:*"
+  },
   "devDependencies": {
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

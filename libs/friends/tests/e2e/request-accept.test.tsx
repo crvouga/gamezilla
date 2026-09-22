@@ -9,13 +9,16 @@ import {
 import {
   friendRequestCardVisible,
   friendRowVisible,
+  handleVisible,
 } from '@libs/friends/sim/friends-ui-reads';
+import { openAcceptedNotification } from '@libs/friends/sim/person-actions';
 import { searchUsername } from '@libs/search/sim/search-actions';
 import { returnToTabs, signInWithGoogle } from '@libs/sim-harness';
 import {
   aliceUsername,
   bobUsername,
 } from '@libs/sim-harness/open-sim/fixtures';
+import { Handles } from '@libs/test-ids';
 import { openSim } from './support/open-friends-sim';
 
 describe('friends request → accept', () => {
@@ -40,5 +43,16 @@ describe('friends request → accept', () => {
       maxMs: 15_000,
     });
     expect(await s.read(friendRowVisible, 'alice', bobUsername)).toBe(true);
+
+    // Alice hears back: the inbox says bob accepted, and takes her to him.
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(openAcceptedNotification, 'alice', bobUsername);
+    expect(
+      await s.read(
+        handleVisible,
+        'alice',
+        Handles.friendStatusFriends(bobUsername)
+      )
+    ).toBe(true);
   });
 });

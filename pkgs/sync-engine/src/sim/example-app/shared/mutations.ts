@@ -139,6 +139,30 @@ export const serverRejectNote = defineMutation({
 });
 
 /**
+ * Like setNote, but `pendingUx: 'pending'`: `mutate()` answers with the
+ * server's verdict. The server refuses the body `refused`, which the client
+ * cannot tell apart locally (a rule only the server can check).
+ */
+export const pendingNote = defineMutation({
+  name: 'pendingNote',
+  args: z.object({ id: z.string(), body: z.string() }),
+  pendingUx: 'pending',
+  async run({ tx, env }, { id, body }) {
+    if (env.serverNow !== undefined && body === 'refused') {
+      throw new MutationError('REFUSED', 'The server refuses this body.');
+    }
+    await tx.run(sql`
+      INSERT INTO notes (id, folder_id, title, body, owner_id)
+      VALUES (${id}, ${null}, ${''}, ${body}, ${env.actorId})
+      ON CONFLICT (id) DO UPDATE SET
+        body = excluded.body,
+        owner_id = excluded.owner_id,
+        deleted_at = NULL
+    `);
+  },
+});
+
+/**
  * Like setNote but requires connectivity — used by requires-online scenarios.
  */
 export const requiresOnlineNote = defineMutation({

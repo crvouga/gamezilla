@@ -52,10 +52,28 @@ export const billingMockClocks = defineTable({
   },
 });
 
+/**
+ * Saved responses of requests sent with an `Idempotency-Key` (the row id),
+ * replayed for a retry with the same parameters for 24 hours.
+ */
+export const billingMockIdempotency = defineTable({
+  domain: 'billing_mock',
+  name: 'billing_mock_idempotency',
+  columns: {
+    /** `METHOD path body` of the first request. */
+    fingerprint: 'text',
+    status: 'integer',
+    response: 'text',
+    /** Provider-clock ms of the first request. */
+    first_seen_ms: 'integer',
+  },
+});
+
 export const BILLING_MOCK_TABLES = [
   billingMockObjects,
   billingMockEvents,
   billingMockClocks,
+  billingMockIdempotency,
 ] as const;
 
 export const billingMockSchema = registerTables(BILLING_MOCK_TABLES);

@@ -9,7 +9,7 @@ import {
 
 const monthlySpec: OfferPriceSpec = {
   key: 'subscription_monthly',
-  lookupKey: 'subscription_monthly',
+  catalogPriceId: 'subscription_monthly',
   unitAmount: 700,
   currency: 'usd',
   interval: 'month',

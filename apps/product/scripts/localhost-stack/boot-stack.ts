@@ -16,7 +16,13 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
-import { mockBillingCatalogFromOffer } from '@pkgs/billing-mock';
+import { membershipCallbackPath } from '@pkgs/billing';
+import {
+  MOCK_BILLING_PROVIDER,
+  MockBillingBindingKeys,
+  mockBillingCatalogFromOffer,
+} from '@pkgs/billing-mock';
+import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers';
 
 import { bootInfra, type InfraHandles } from './boot-infra';
 import {
@@ -57,7 +63,7 @@ function nodeId(index: number): string {
 
 /**
  * The mock payment provider, on its own port with its own SQLite file in the
- * instance directory — reached by the API nodes exactly as they reach Stripe,
+ * instance directory — reached by the API nodes exactly as they reach any provider,
  * and sending its webhooks to the balancer.
  */
 async function startBillingProvider(args: {
@@ -75,7 +81,7 @@ async function startBillingProvider(args: {
         mockBillingCatalogFromOffer(PLUS_MEMBERSHIP_OFFER)
       ),
       BILLING_MOCK_SECRET_KEY: BILLING_SECRET_KEY,
-      BILLING_MOCK_WEBHOOK_URL: `${args.apiOrigin}${PLUS_MEMBERSHIP_OFFER.callbackPath}`,
+      BILLING_MOCK_WEBHOOK_URL: `${args.apiOrigin}${membershipCallbackPath(PLUS_MEMBERSHIP_OFFER, MOCK_BILLING_PROVIDER)}`,
       BILLING_MOCK_WEBHOOK_SECRET: BILLING_WEBHOOK_SECRET,
       BILLING_MOCK_STATE_PATH: join(args.dataDir, 'billing.sqlite'),
     },
@@ -134,10 +140,17 @@ function startApiNode(args: {
       SECRETS_ENV: 'dev',
       API_URL: args.apiOrigin,
       AUTH_SECRET,
-      BILLING_PROVIDER: 'mock',
-      BILLING_MOCK_ORIGIN: args.billingOrigin,
-      BILLING_MOCK_SECRET_KEY: BILLING_SECRET_KEY,
-      BILLING_MOCK_WEBHOOK_SECRET: BILLING_WEBHOOK_SECRET,
+      // The stack bills through the mock alone: no real provider's
+      // credentials from the parent environment are configured beside it.
+      ...Object.fromEntries(
+        MEMBERSHIP_PROVIDER_MODULES.flatMap((module) =>
+          module.secrets.map((secret) => [secret.name, ''])
+        )
+      ),
+      BILLING_PROVIDER: MOCK_BILLING_PROVIDER,
+      [MockBillingBindingKeys.origin]: args.billingOrigin,
+      [MockBillingBindingKeys.secretKey]: BILLING_SECRET_KEY,
+      [MockBillingBindingKeys.webhookSecret]: BILLING_WEBHOOK_SECRET,
       WEB_CLIENT_ORIGIN: args.webOrigin ?? '',
       OBSERVABILITY_BACKEND: 'noop',
     },

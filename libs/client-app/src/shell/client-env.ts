@@ -109,8 +109,8 @@ export type ClientEnv = {
   /** OAuth popup (browser) / in-process stub (sim). */
   readonly openAuthSession: OpenAuthSession;
   /**
-   * Leaves the app for a provider-hosted page (Stripe Checkout / billing
-   * portal). Browser: `location.assign`; sim: the provider's real screens,
+   * Leaves the app for a provider-hosted page (the payment provider's
+   * checkout or portal). Browser: `location.assign`; sim: the provider's real screens,
    * walked headlessly.
    */
   readonly openExternalUrl: OpenExternalUrl;

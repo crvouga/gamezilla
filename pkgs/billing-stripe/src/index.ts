@@ -18,17 +18,17 @@ export {
   STRIPE_PORTAL_CONFIGURATION_ID,
   STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
 } from './offer-reconcile';
+export { STRIPE_MEMBERSHIP_PROVIDER } from './provider-module';
 export {
-  type BillingStripeSecretDef,
-  type BillingStripeSecretValidateInput,
   billingStripeSecretDefs,
   validateStripePublishableKeyValue,
   validateStripeSecretKeyValue,
 } from './secret-defs';
 export { StripeSecretKeys } from './secret-keys';
 export {
+  createStripeClient,
   createStripeMembershipBilling,
-  createStripeMembershipBillingFromSecretStore,
+  STRIPE_PROVIDER,
   StripeMembershipBilling,
   type StripeMembershipTransport,
 } from './stripe-membership';

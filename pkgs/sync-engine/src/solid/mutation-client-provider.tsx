@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 import type { CreateId } from '@pkgs/uuid';
 import { onCleanup, type ParentProps, untrack } from 'solid-js';
-
+import { awaitMutationVerdict } from '../mutations/client/await-mutation-verdict';
 import {
   createMutationClient,
   type MutationClientIds,
@@ -51,6 +51,7 @@ export function MutationClientProvider(
     connectivity: config.connectivity ?? {
       isOnline: () => engine.status.getSnapshot().online,
     },
+    awaitVerdict: (mutationId) => awaitMutationVerdict(engine, mutationId),
     onQueued: ({ mutation, args, capture }) => {
       engine.wakeUploads();
       engine.notifyLocalMutation(mutation, args, capture);

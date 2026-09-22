@@ -1,4 +1,8 @@
-import type { MembershipStatus } from '@pkgs/billing';
+import {
+  governingMembership,
+  type MembershipStatus,
+  readMembershipStatus,
+} from '@pkgs/billing';
 
 import { type Facts, resolveSubject } from '@pkgs/permissions';
 
@@ -19,14 +23,6 @@ export type SubscriptionRow = {
   readonly cancel_at_period_end: number | boolean | null;
 };
 
-const MEMBERSHIP_STATUSES: Readonly<Record<string, MembershipStatus>> = {
-  incomplete: 'incomplete',
-  trialing: 'trialing',
-  active: 'active',
-  delinquent: 'delinquent',
-  ended: 'ended',
-};
-
 /**
  * Maps a synced subscription row to a snapshot. `undefined`, a blank status or
  * a status outside our vocabulary means "no membership" — an unreadable row
@@ -36,8 +32,7 @@ export function readSubscriptionSnapshot(
   row: SubscriptionRow | undefined
 ): SubscriptionSnapshot | null {
   if (row === undefined) return null;
-  const status =
-    row.status === null ? null : (MEMBERSHIP_STATUSES[row.status] ?? null);
+  const status = readMembershipStatus(row.status);
   if (status === null) return null;
   const parsed =
     row.current_period_end === null
@@ -49,6 +44,26 @@ export function readSubscriptionSnapshot(
     cancelAtPeriodEnd:
       row.cancel_at_period_end === true || row.cancel_at_period_end === 1,
   };
+}
+
+/**
+ * The snapshot that decides access among all of an account's rows — one per
+ * provider it ever joined through, more after a resubscribe. The one granting
+ * the most governs, not the newest: a late callback about a membership that
+ * ended at one provider must not hide a live one at another. Rows arrive
+ * newest first, which breaks full ties.
+ */
+export function governingSubscription(
+  rows: readonly SubscriptionRow[]
+): SubscriptionSnapshot | null {
+  const snapshots = rows.flatMap((row) => {
+    const snapshot = readSubscriptionSnapshot(row);
+    return snapshot === null ? [] : [snapshot];
+  });
+  return governingMembership(snapshots, (snapshot) => ({
+    status: snapshot.status,
+    periodEndMs: snapshot.currentPeriodEndMs,
+  }));
 }
 
 export type PlanFacts = {

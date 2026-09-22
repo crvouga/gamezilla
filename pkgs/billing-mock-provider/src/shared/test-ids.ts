@@ -7,6 +7,8 @@
  */
 export const MOCK_BILLING_TEST_IDS = {
   checkoutPay: 'mock-checkout-pay',
+  /** Start a trial without a card, where the session allows it. */
+  checkoutSkipCard: 'mock-checkout-skip-card',
   checkoutCancel: 'mock-checkout-cancel',
   /** A test card to pay with, by magic payment method id. */
   checkoutCard: (paymentMethod: string) =>
@@ -22,6 +24,7 @@ export const MOCK_BILLING_TEST_IDS = {
   portalCancelReason: (reason: string) => `mock-portal-cancel-reason-${reason}`,
   portalCancel: 'mock-portal-cancel',
   portalRenew: 'mock-portal-renew',
+  portalResume: 'mock-portal-resume',
   portalSwitchStart: (lookupKey: string) =>
     `mock-portal-switch-start-${lookupKey}`,
   portalSwitch: (lookupKey: string) => `mock-portal-switch-${lookupKey}`,

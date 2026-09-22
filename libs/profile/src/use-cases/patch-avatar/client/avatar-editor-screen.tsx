@@ -278,7 +278,7 @@ function EditorContent(props: { editor: UseAvatarEditor }): JSX.Element {
       <Show when={props.editor.ready}>
         <div class="box gap-2">
           <AvatarEditorSeedField
-            seed={props.editor.effectiveSeed}
+            seed={props.editor.draft.seed}
             onSeedChange={props.editor.setSeed}
             onRandomize={props.editor.shuffleSeed}
             onCopy={props.editor.copySeed}
@@ -303,6 +303,8 @@ export function AvatarEditorScreen(): JSX.Element {
         variant="destructive"
         onConfirm={editor.confirmDiscard}
         onCancel={() => editor.setShowDiscard(false)}
+        confirmDataSet={{ testid: Handles.profileAvatarDiscardConfirm }}
+        cancelDataSet={{ testid: Handles.profileAvatarDiscardKeep }}
       />
       <ScreenBase
         screenId="avatar-editor"

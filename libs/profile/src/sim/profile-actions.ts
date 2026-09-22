@@ -1,4 +1,8 @@
-import { actorUi, scenarioAction } from '@libs/sim-harness/system/actor-ui';
+import {
+  actorUi,
+  pollUntil,
+  scenarioAction,
+} from '@libs/sim-harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
 
 export const openProfileEdit = scenarioAction({
@@ -87,10 +91,93 @@ export const leaveAvatarEditor = scenarioAction({
   },
 });
 
+/**
+ * Cancel out of an edited avatar: the editor asks first; `discard` answers
+ * Discard (back to Edit profile) or keep editing (the draft stays).
+ */
+export const cancelAvatarEdits = scenarioAction({
+  name: 'cancelAvatarEdits',
+  act: async (s, actorId: string, discard: boolean) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.profileAvatarCancel).tap();
+    if (!discard) {
+      await ui.get(Handles.profileAvatarDiscardKeep).tap();
+      await ui.get(Handles.profileAvatarDiscardKeep).expect.hidden();
+      await ui.get(Handles.profileAvatarSeed).expect.visible();
+      return;
+    }
+    await ui.get(Handles.profileAvatarDiscardConfirm).tap();
+    await ui.get(Handles.profileEditAvatar).expect.visible();
+  },
+});
+
+const SAVE_WAIT_MS = 10_000;
+/** Faces the username save button shows before the server has answered. */
+const UNSETTLED_SAVE_FACES = ['Save', 'Saving…'];
+
+/**
+ * Type `username` into the username screen and press Save, then wait until
+ * the button settles on the answer (`Saved` or the reason it was refused).
+ * Stays on the screen so the face can be read (`readUsernameSaveFace`).
+ */
+export const submitUsername = scenarioAction({
+  name: 'submitUsername',
+  act: async (s, actorId: string, username: string) => {
+    const ui = await actorUi(s, actorId);
+    await s.session.waitForIdle();
+    if (!(await ui.get(Handles.profileUsernameInput).isVisible())) {
+      await ui.get(Handles.profileEditUsername).tap();
+    }
+    const input = ui.get(Handles.profileUsernameInput);
+    await input.expect.visible();
+    await input.clear();
+    await input.input(username);
+    await ui.get(Handles.profileUsernameSave).tap();
+    await pollUntil(
+      s,
+      async () => {
+        const face = (await ui.get(Handles.profileUsernameSave).text()) ?? '';
+        return UNSETTLED_SAVE_FACES.includes(face.trim()) ? null : face;
+      },
+      { maxMs: SAVE_WAIT_MS, description: 'username save settled' }
+    );
+  },
+});
+
+/** Type a draft into the username field without saving it. */
+export const typeUsernameDraft = scenarioAction({
+  name: 'typeUsernameDraft',
+  act: async (s, actorId: string, username: string) => {
+    const ui = await actorUi(s, actorId);
+    await s.session.waitForIdle();
+    await ui.get(Handles.profileEditUsername).tap();
+    const input = ui.get(Handles.profileUsernameInput);
+    await input.expect.visible();
+    await input.clear();
+    await input.input(username);
+  },
+});
+
+/** Cancel out of the username screen, then back out of Edit profile. */
+export const leaveUsernameEditor = scenarioAction({
+  name: 'leaveUsernameEditor',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.profileUsernameCancel).tap();
+    await ui.get(Handles.profileEditUsername).expect.visible();
+    await ui.get(Handles.navBack).tap();
+    await ui.get(Handles.profileEdit).expect.visible();
+  },
+});
+
 /** Registered on every system that composes this feature. */
 export const PROFILE_SIM_ACTIONS = [
   openProfileEdit,
   setUsername,
+  submitUsername,
+  typeUsernameDraft,
+  cancelAvatarEdits,
+  leaveUsernameEditor,
   openAvatarEditor,
   setAvatarSeed,
   setAvatarStyle,

@@ -8,6 +8,8 @@ const STATUS: Readonly<Record<MockErrorType, number>> = {
   invalid_request_error: 400,
   authentication_error: 401,
   card_error: 402,
+  idempotency_error: 400,
+  rate_limit_error: 429,
   api_error: 500,
 };
 
@@ -61,6 +63,44 @@ export function cardDeclined(): ProviderError {
     decline_code: 'generic_decline',
     message: 'Your card was declined.',
   });
+}
+
+/** An off-session charge on a card that needs the customer to authenticate. */
+export function authenticationRequired(): ProviderError {
+  return new ProviderError({
+    type: 'card_error',
+    code: 'authentication_required',
+    decline_code: 'authentication_required',
+    message:
+      'Your card was declined. This transaction requires authentication.',
+  });
+}
+
+export function paymentMethodRequired(): ProviderError {
+  return new ProviderError({
+    type: 'invalid_request_error',
+    code: 'payment_method_required',
+    param: 'payment_method',
+    message: 'This checkout session requires a payment method.',
+  });
+}
+
+/** An `Idempotency-Key` reused with different parameters. */
+export function idempotencyMismatch(key: string): ProviderError {
+  return new ProviderError({
+    type: 'idempotency_error',
+    message: `Keys for idempotent requests can only be used with the same parameters they were first used with. Try using a key other than '${key}' if you meant to execute a different request.`,
+  });
+}
+
+export function unrecognizedUrl(method: string, path: string): ProviderError {
+  return new ProviderError(
+    {
+      type: 'invalid_request_error',
+      message: `Unrecognized request URL (${method}: ${path}).`,
+    },
+    404
+  );
 }
 
 export function authenticationFailed(): ProviderError {

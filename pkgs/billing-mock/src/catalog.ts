@@ -1,11 +1,12 @@
 /**
  * What the mock provider sells, derived from the app's offer — the mock's
- * counterpart of `reconcileStripeOffer`. Stripe gets the offer through
+ * counterpart of the other providers' `reconcile`. They get the offer through
  * `billing:sync`; the mock provider is booted with it.
  */
 import type { PlusMembershipOffer } from '@pkgs/billing';
 
 export type MockBillingCatalogPrice = {
+  /** The mock's own word for a price's stable handle. */
   readonly lookupKey: string;
   readonly nickname: string;
   readonly unitAmount: number;
@@ -41,7 +42,7 @@ export function mockBillingCatalogFromOffer(
       description: offer.product.description,
     },
     prices: Object.values(offer.prices).map((spec) => ({
-      lookupKey: spec.lookupKey,
+      lookupKey: spec.catalogPriceId,
       nickname: spec.interval === 'year' ? 'Yearly' : 'Monthly',
       unitAmount: spec.unitAmount,
       currency: spec.currency,
@@ -51,7 +52,7 @@ export function mockBillingCatalogFromOffer(
     portal: {
       switchableLookupKeys: offer.switchablePriceKeys.flatMap((key) => {
         const spec = offer.prices[key];
-        return spec === undefined ? [] : [spec.lookupKey];
+        return spec === undefined ? [] : [spec.catalogPriceId];
       }),
       cancellationReasons: offer.portal.cancellationReasons,
     },

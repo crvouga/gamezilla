@@ -144,7 +144,7 @@ export {
   completeProviderSignIn,
   type ProviderAnswers,
 } from './system/provider-walk';
-export { focusActor, openSettings } from './system/shell-actions';
+export { focusActor, openAccount, openSettings } from './system/shell-actions';
 export { SHELL_SCENARIO_ACTIONS } from './system/shell-scenario-actions';
 export {
   type ConnectOptions,

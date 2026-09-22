@@ -18,7 +18,6 @@ export const IDP_TEST_IDS = {
   identifierCreateAccount: 'idp-identifier-create-account',
   /** The local-credentials note under the identifier card. */
   identifierAccounts: 'idp-identifier-accounts',
-  identifierAccountsDatalist: 'idp-identifier-accounts-datalist',
   passwordPage: 'idp-password-page',
   passwordInput: 'idp-password-input',
   passwordNext: 'idp-password-next',

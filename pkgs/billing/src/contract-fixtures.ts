@@ -81,7 +81,7 @@ export const CONTRACT_OFFER: PlusMembershipOffer = {
   prices: {
     subscription_monthly: {
       key: 'subscription_monthly',
-      lookupKey: 'subscription_monthly',
+      catalogPriceId: 'subscription_monthly',
       unitAmount: 700,
       currency: 'usd',
       interval: 'month',
@@ -90,7 +90,7 @@ export const CONTRACT_OFFER: PlusMembershipOffer = {
     },
     subscription_yearly: {
       key: 'subscription_yearly',
-      lookupKey: 'subscription_yearly',
+      catalogPriceId: 'subscription_yearly',
       unitAmount: 6000,
       currency: 'usd',
       interval: 'year',

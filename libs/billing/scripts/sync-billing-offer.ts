@@ -1,12 +1,15 @@
 // @io-wall-ok
 /**
- * Billing sync — reconcile the plus membership offer onto the provider.
+ * Billing sync — reconcile the plus membership offer onto every configured
+ * provider, each with its own callback URL. Providers are the shared list,
+ * never named here: one without credentials is skipped; none configured is
+ * an error.
  */
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import {
-  createStripeMembershipBillingFromSecretStore,
-  reconcileStripeOffer,
-} from '@pkgs/billing-stripe';
+  MEMBERSHIP_PROVIDER_MODULES,
+  membershipSecretReader,
+} from '@pkgs/billing-providers';
 import { wallClock } from '@pkgs/clock';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
@@ -22,36 +25,35 @@ async function main(): Promise<void> {
     fetchFn: cliHttp.fetch.bind(cliHttp),
     now: wallClock.now,
   });
-  const billing = await createStripeMembershipBillingFromSecretStore(
-    store,
-    PLUS_MEMBERSHIP_OFFER,
-    wallClock.now
-  );
-  if (billing === null) {
+  const env = {
+    readSecret: membershipSecretReader(store),
+    offer: PLUS_MEMBERSHIP_OFFER,
+    now: wallClock.now,
+    fetch: cliHttp.fetch.bind(cliHttp),
+  };
+  const synced: string[] = [];
+  for (const module of MEMBERSHIP_PROVIDER_MODULES) {
+    if (module.reconcile === undefined) continue;
+    const callbackUrl = await readOfferCallbackUrl(store, module.provider);
+    if (callbackUrl === null) {
+      throw new Error(
+        'API_URL secret is missing or blank — providers need an absolute callback URL'
+      );
+    }
+    const result = await module.reconcile({ ...env, callbackUrl, log });
+    if (result === null) continue;
+    synced.push(module.provider);
+    log.info(`[${SCRIPT_TAG}] ${module.provider} done`, result);
+  }
+  if (synced.length === 0) {
+    const names = MEMBERSHIP_PROVIDER_MODULES.flatMap((m) =>
+      m.secrets.map((s) => s.name)
+    );
     console.error(
-      `[${SCRIPT_TAG}] billing secret key is missing or blank — run under \`bun run libs/secrets/src/scripts/secrets-run.ts\``
+      `[${SCRIPT_TAG}] no billing provider credentials (${names.join(', ')}) — run under \`bun run libs/secrets/src/scripts/secrets-run.ts\``
     );
     process.exit(1);
   }
-  const callbackUrl = await readOfferCallbackUrl(store);
-  if (callbackUrl === null) {
-    console.error(
-      `[${SCRIPT_TAG}] API_URL secret is missing or blank — the provider needs an absolute callback URL`
-    );
-    process.exit(1);
-  }
-  const result = await reconcileStripeOffer(
-    billing.stripe,
-    PLUS_MEMBERSHIP_OFFER,
-    { callbackUrl },
-    log
-  );
-  log.info(`[${SCRIPT_TAG}] done`, {
-    products: result.products.length,
-    prices: result.prices.length,
-    portalConfigurationId: result.portalConfigurationId,
-    webhookEndpointId: result.webhookEndpointId,
-  });
 }
 
 await main().catch((e: unknown) => {

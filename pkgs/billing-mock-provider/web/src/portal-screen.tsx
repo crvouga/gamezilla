@@ -128,6 +128,9 @@ function LivePlan(props: {
         onRenew={() =>
           void props.portal.run({ kind: 'renew' }, 'Your plan was renewed.')
         }
+        onResume={() =>
+          void props.portal.run({ kind: 'resume' }, 'Your plan was resumed.')
+        }
         subscription={props.subscription}
         view={props.view}
       />

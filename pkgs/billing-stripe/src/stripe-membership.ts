@@ -9,19 +9,21 @@ import type {
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing';
-import type { SecretStore } from '@pkgs/secret-store';
 import Stripe from 'stripe';
 
 import { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from './callback-events';
 import { membershipStatusOf } from './membership-status';
-import { StripeSecretKeys } from './secret-keys';
+
+/** The adapter's id: it keys stored data, so it never changes. */
+export const STRIPE_PROVIDER = 'stripe';
 
 /**
  * Where the Stripe client points. Production omits it (real Stripe); sims and
  * the localhost stack can point it at a loopback origin.
  */
 export type StripeMembershipTransport = {
-  readonly origin: string;
+  /** Omitted: Stripe's own API origin. */
+  readonly origin?: string;
   readonly fetch?: (
     input: RequestInfo | URL,
     init?: RequestInit
@@ -79,10 +81,11 @@ function readOfferPriceKey(
   offer: PlusMembershipOffer
 ): string | null {
   const price = asRecord(firstItem(subscription)?.['price']);
-  const lookupKey = price === null ? null : readString(price, 'lookup_key');
-  if (lookupKey === null) return null;
+  const catalogPriceId =
+    price === null ? null : readString(price, 'lookup_key');
+  if (catalogPriceId === null) return null;
   for (const [key, spec] of Object.entries(offer.prices)) {
-    if (spec.lookupKey === lookupKey) return key;
+    if (spec.catalogPriceId === catalogPriceId) return key;
   }
   return null;
 }
@@ -123,8 +126,10 @@ function toMembership(
  * status name, event name or price lookup key.
  */
 export class StripeMembershipBilling implements MembershipBilling {
+  readonly provider = STRIPE_PROVIDER;
+
   constructor(
-    readonly stripe: Stripe,
+    private readonly stripe: Stripe,
     private readonly offer: PlusMembershipOffer,
     private readonly webhookSecret: string | null,
     private readonly now: () => number
@@ -135,6 +140,7 @@ export class StripeMembershipBilling implements MembershipBilling {
       input.customerId ??
       (
         await this.stripe.customers.create({
+          ...(input.email === null ? {} : { email: input.email }),
           metadata: { accountId: input.accountId },
         })
       ).id;
@@ -146,14 +152,14 @@ export class StripeMembershipBilling implements MembershipBilling {
       );
     }
     const prices = await this.stripe.prices.list({
-      lookup_keys: [spec.lookupKey],
+      lookup_keys: [spec.catalogPriceId],
       active: true,
       limit: 1,
     });
     const price = prices.data[0];
     if (price === undefined) {
       throw new Error(
-        `stripe: no active price for lookup key ${spec.lookupKey}`
+        `stripe: no active price for lookup key ${spec.catalogPriceId}`
       );
     }
 
@@ -185,6 +191,25 @@ export class StripeMembershipBilling implements MembershipBilling {
     return { url: portal.url ?? '' };
   }
 
+  /**
+   * The subscription as Stripe reports it now. One Stripe does not know
+   * (`resource_missing`) is nothing to project; any other failure throws so
+   * the delivery is retried.
+   */
+  private async current(id: string): Promise<UnknownRecord | null> {
+    try {
+      return asRecord(await this.stripe.subscriptions.retrieve(id));
+    } catch (error) {
+      if (
+        error instanceof Stripe.errors.StripeInvalidRequestError &&
+        error.statusCode === 404
+      ) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
   async readCallback(input: ReadCallbackInput): Promise<CallbackResult> {
     if (this.webhookSecret === null) return { kind: 'unverified' };
     const signature = input.headers.get('stripe-signature');
@@ -213,14 +238,15 @@ export class StripeMembershipBilling implements MembershipBilling {
     const id = snapshot === null ? null : readString(snapshot, 'id');
     if (id === null) return { kind: 'ignored' };
     // Stripe delivers duplicates and out of order; the payload is a snapshot
-    // from whenever the event fired. Re-read so every delivery reports now.
-    const subscription = asRecord(await this.stripe.subscriptions.retrieve(id));
+    // from whenever the event fired. Re-read so every delivery reports now;
+    // a deletion is final, whatever a lagging read still says.
+    const subscription = await this.current(id);
     if (subscription === null) return { kind: 'ignored' };
     const customerId = readCustomerId(subscription);
     if (customerId === null) return { kind: 'ignored' };
 
     const change: MembershipChange = {
-      provider: 'stripe',
+      provider: this.provider,
       customerId,
       subscriptionId: id,
       offerPriceKey: readOfferPriceKey(subscription, this.offer),
@@ -237,7 +263,7 @@ export class StripeMembershipBilling implements MembershipBilling {
 function stripeClientConfig(
   transport: StripeMembershipTransport | undefined
 ): Pick<Stripe.StripeConfig, 'host' | 'port' | 'protocol'> {
-  if (transport === undefined) return {};
+  if (transport?.origin === undefined) return {};
   const url = new URL(transport.origin);
   const port =
     url.port === '' ? (url.protocol === 'https:' ? 443 : 80) : Number(url.port);
@@ -248,6 +274,17 @@ function stripeClientConfig(
   };
 }
 
+/** A Stripe API client over `transport` (Stripe itself when omitted). */
+export function createStripeClient(
+  secretKey: string,
+  transport?: StripeMembershipTransport
+): Stripe {
+  return new Stripe(secretKey, {
+    httpClient: Stripe.createFetchHttpClient(transport?.fetch),
+    ...stripeClientConfig(transport),
+  });
+}
+
 export function createStripeMembershipBilling(args: {
   readonly secretKey: string;
   readonly webhookSecret: string | null;
@@ -255,42 +292,10 @@ export function createStripeMembershipBilling(args: {
   readonly now: () => number;
   readonly transport?: StripeMembershipTransport;
 }): StripeMembershipBilling {
-  const stripe = new Stripe(args.secretKey, {
-    httpClient: Stripe.createFetchHttpClient(args.transport?.fetch),
-    ...stripeClientConfig(args.transport),
-  });
   return new StripeMembershipBilling(
-    stripe,
+    createStripeClient(args.secretKey, args.transport),
     args.offer,
     args.webhookSecret,
     args.now
   );
-}
-
-/**
- * Build the adapter from a secret store, or null when `STRIPE_SECRET_KEY` is
- * blank. The webhook signing secret is optional: without it callbacks fail
- * closed while checkout/portal keep working.
- */
-export async function createStripeMembershipBillingFromSecretStore(
-  secretStore: SecretStore,
-  offer: PlusMembershipOffer,
-  now: () => number = () => 0
-): Promise<StripeMembershipBilling | null> {
-  const raw = (
-    await secretStore.getOptional(StripeSecretKeys.secretKey)
-  )?.readSecretValue();
-  const trimmed = typeof raw === 'string' ? raw.trim() : '';
-  if (trimmed.length === 0) return null;
-  const webhookRaw = (
-    await secretStore.getOptional(StripeSecretKeys.webhookSecret)
-  )?.readSecretValue();
-  const webhookTrimmed =
-    typeof webhookRaw === 'string' ? webhookRaw.trim() : '';
-  return createStripeMembershipBilling({
-    secretKey: trimmed,
-    webhookSecret: webhookTrimmed.length > 0 ? webhookTrimmed : null,
-    offer,
-    now,
-  });
 }

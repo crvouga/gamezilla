@@ -11,7 +11,6 @@ import {
   getApiWorkerSecrets,
   loadSecretsIntoEnv,
 } from '@libs/secrets/public/secrets';
-import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import { wallTimers } from '@pkgs/clock';
 import {
   EMQX_API_KEY,
@@ -54,8 +53,6 @@ const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
   'S3_REGION',
   'WEB_CLIENT_GOOGLE_CLIENT_ID',
   'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
-  StripeSecretKeys.secretKey,
-  StripeSecretKeys.publishableKey,
   'ELEVEN_LABS_API_KEY',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',

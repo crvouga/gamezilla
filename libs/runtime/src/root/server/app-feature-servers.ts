@@ -4,7 +4,7 @@
  *
  * Features that need a host service — billing needs the membership provider —
  * are factories over it rather than constants, so the same feature runs
- * against Stripe in production and a fake in a simulation without knowing
+ * against real providers in production and a mock in a simulation without knowing
  * which it got.
  */
 
@@ -13,10 +13,10 @@ import type { FeatureServer } from '@libs/feature/public/server';
 import { FRIENDS_SERVER } from '@libs/friends/root/server/feature-server';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications/root/server/feature-server';
 import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipProviders } from '@pkgs/billing';
 
 export type AppFeatureServerDeps = {
-  readonly billing: MembershipBilling | null;
+  readonly billing: MembershipProviders | null;
 };
 
 export function appFeatureServers(

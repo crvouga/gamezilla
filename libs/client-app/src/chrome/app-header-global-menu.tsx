@@ -4,7 +4,8 @@
  * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
  * Theme, Sound. Header shows `@username` + email when signed in (bridged
  * from the sync tree via {@link useGlobalMenuIdentity}). Trigger face is the
- * current user's avatar when available.
+ * current user's avatar when available. The header's trailing chip is the
+ * membership tier a feature published ({@link useGlobalMenuMembership}).
  */
 
 import { Handles } from '@libs/test-ids';
@@ -32,20 +33,26 @@ import {
   type GlobalMenuIdentity,
   useGlobalMenuIdentity,
 } from './global-menu-identity-context';
+import { GlobalMenuMembershipChip } from './global-menu-membership-chip';
+import { useGlobalMenuMembership } from './global-menu-membership-context';
 import { createConnectivity } from './use-connectivity';
 
 const CONNECTIVITY_DOT_SIZE = 14;
 const TRIGGER_AVATAR_SIZE = 32;
 const HEADER_AVATAR_SIZE = 40;
 
-function connectivityStatusLabel(
-  t: ReturnType<typeof useLingui>['t'],
-  status: StatusDotStatus
-): string {
-  if (status === 'online') return t`Online`;
-  if (status === 'offline') return t`Offline`;
-  if (status === 'pending') return t`Syncing`;
-  return t`Sync issue`;
+/**
+ * `t` must come from `useLingui()` in this scope: the macro compiles only
+ * that binding, so a `t` passed in as an argument renders every label empty.
+ */
+function useConnectivityStatusLabel(): (status: StatusDotStatus) => string {
+  const { t } = useLingui();
+  return (status) => {
+    if (status === 'online') return t`Online`;
+    if (status === 'offline') return t`Offline`;
+    if (status === 'pending') return t`Syncing`;
+    return t`Sync issue`;
+  };
 }
 
 function useThemeCaption(): () => string {
@@ -64,6 +71,7 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   const router = useRouter();
   const connectivity = createConnectivity();
   const themeCaption = useThemeCaption();
+  const connectivityStatusLabel = useConnectivityStatusLabel();
   const { muted } = useSoundsPreference();
   const go = (href: string) => () => router.push(href);
   return createMemo(() => [
@@ -78,8 +86,8 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
     {
       id: 'connectivity',
       label: t`Connectivity`,
-      subtitle: connectivityStatusLabel(t, connectivity.status()),
-      'aria-label': connectivityStatusLabel(t, connectivity.status()),
+      subtitle: connectivityStatusLabel(connectivity.status()),
+      'aria-label': connectivityStatusLabel(connectivity.status()),
       leading: (
         <StatusDot
           status={connectivity.status()}
@@ -135,15 +143,22 @@ function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
   const { t } = useLingui();
   const identity = useLocalIdentity();
   const menuIdentity = useGlobalMenuIdentity();
+  const membership = useGlobalMenuMembership();
   return createMemo(() => {
     const current = menuIdentity();
     const { username, email } = current;
     const avatar = accountFace(current, HEADER_AVATAR_SIZE);
+    const published = membership();
+    const badge =
+      published === null ? undefined : (
+        <GlobalMenuMembershipChip membership={published} />
+      );
     if (!identity.isSignedIn()) {
       return {
         title: t`Guest`,
         subtitle: t`Playing as guest`,
         avatar,
+        badge,
       };
     }
     if (username !== null && username.length > 0) {
@@ -151,12 +166,13 @@ function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
         title: `@${username}`,
         subtitle: email ?? undefined,
         avatar,
+        badge,
       };
     }
     if (email !== null && email.length > 0) {
-      return { title: email, avatar };
+      return { title: email, avatar, badge };
     }
-    return { title: t`Account`, avatar };
+    return { title: t`Account`, avatar, badge };
   });
 }
 

@@ -263,6 +263,14 @@
       ]
     },
     {
+      "path": "./libs/tools/biome-plugins/lingui-no-t-parameter.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}"
+      ]
+    },
+    {
       "path": "./libs/tools/biome-plugins/lingui-no-single-variables-to-translate.grit",
       "includes": [
         "**/apps/client/**/*.{ts,tsx}",
@@ -737,6 +745,8 @@
         "**/pkgs/async-local/src/**/*.{ts,tsx}",
         "**/pkgs/attribute/src/**/*.{ts,tsx}",
         "**/pkgs/auth-sim/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-paddle/src/**/*.{ts,tsx}",
+        "**/pkgs/billing-providers/src/**/*.{ts,tsx}",
         "**/pkgs/billing-stripe/src/**/*.{ts,tsx}",
         "**/pkgs/billing/src/**/*.{ts,tsx}",
         "**/pkgs/browser/src/**/*.{ts,tsx}",
@@ -884,6 +894,23 @@
         "!**/libs/pubsub/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
+        "!**/tests/**",
+        "!**/e2e/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-billing-vendor.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/billing/src/**/*.{ts,tsx}",
+        "!**/apps/server/src/server.ts",
+        "!**/apps/product/**",
+        "!**/libs/sim-harness/src/**",
+        "!**/libs/secrets/**",
+        "!**/src/sim/**",
+        "!**/scripts/**",
+        "!**/*.test.{ts,tsx}",
         "!**/tests/**",
         "!**/e2e/**"
       ]

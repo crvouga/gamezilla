@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { PlusMembershipOffer } from '@pkgs/billing';
+import type { CancellationReason, PlusMembershipOffer } from '@pkgs/billing';
 
 import { PLUS_MEMBERSHIP_OFFER } from './plus-membership-offer';
 import { validatePlusMembershipOffer } from './validate-offer';
@@ -16,7 +16,7 @@ type Draft = {
     string,
     {
       key: string;
-      lookupKey: string;
+      catalogPriceId: string;
       unitAmount: number;
       currency: string;
       interval: 'month' | 'year';
@@ -29,7 +29,7 @@ type Draft = {
   portal: {
     defaultReturnUrlPath: string;
     businessProfileHeadline: string;
-    cancellationReasons: string[];
+    cancellationReasons: CancellationReason[];
   };
   callbackPath: string;
 };
@@ -70,7 +70,8 @@ describe('things that would produce a broken provider catalogue', () => {
   test('two prices sharing one provider lookup key', () => {
     const problems = validatePlusMembershipOffer(
       offer((d) => {
-        d.prices['subscription_yearly']!.lookupKey = 'subscription_monthly';
+        d.prices['subscription_yearly']!.catalogPriceId =
+          'subscription_monthly';
       })
     );
     expect(problems.join('\n')).toContain('is already used by');
@@ -128,9 +129,9 @@ describe('things that would produce a broken provider catalogue', () => {
   test('a portal with no cancellation reasons', () => {
     const problems = validatePlusMembershipOffer(
       offer((d) => {
-        d.portal.cancellationReasons = [];
+        d.portal.cancellationReasons = ['other', 'other'];
       })
     );
-    expect(problems.join('\n')).toContain('at least one');
+    expect(problems.join('\n')).toContain('listed twice');
   });
 });

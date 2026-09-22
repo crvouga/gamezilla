@@ -1,5 +1,4 @@
 import { spawnSync } from 'node:child_process';
-import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { which } from '@pkgs/os/command';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
@@ -110,7 +109,6 @@ function runWithInjectedEnv(repoRoot: string, childArgs: string[]): number {
 const INJECTED_SECRET_MARKERS = [
   'DATABASE_URL',
   'CLOUDFLARE_API_TOKEN',
-  StripeSecretKeys.secretKey,
 ] as const;
 
 function hasInjectedSecrets(): boolean {

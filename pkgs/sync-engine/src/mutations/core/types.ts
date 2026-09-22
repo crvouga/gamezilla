@@ -62,7 +62,11 @@ export type Mutation<A> = {
   readonly constraintErrors?: Readonly<
     Record<string, { readonly code: string; readonly message: string }>
   >;
-  /** UX knob consumed by feature UI: default 'instant'. */
+  /**
+   * `'instant'` (default): `mutate()` resolves on the local apply.
+   * `'pending'`: it resolves on the server's verdict, so a rule only the
+   * server can check (uniqueness across users) fails the call itself.
+   */
   readonly pendingUx?: 'instant' | 'pending';
   /** If true, client runner refuses to initiate while offline. */
   readonly requiresOnline?: boolean;

@@ -15,7 +15,7 @@ import {
   appleRevokesApp,
   seedProviderAccount,
 } from './provider-events-actions';
-import { focusActor, openSettings } from './shell-actions';
+import { focusActor, openAccount, openSettings } from './shell-actions';
 import {
   connectSignInMethod,
   removeSignInMethod,
@@ -29,6 +29,7 @@ import {
  */
 export const SHELL_SCENARIO_ACTIONS = [
   openSettings,
+  openAccount,
   focusActor,
   signInWithGoogle,
   signInWithGoogleAsAccount,

@@ -85,7 +85,9 @@
         "@pkgs/aedes-server": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/assert-crash-browser": "workspace:*",
+        "@pkgs/billing": "workspace:*",
         "@pkgs/billing-mock": "workspace:*",
+        "@pkgs/billing-providers": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/git": "workspace:*",
@@ -168,8 +170,7 @@
         "@pkgs/assert": "workspace:*",
         "@pkgs/async-local": "workspace:*",
         "@pkgs/billing": "workspace:*",
-        "@pkgs/billing-mock": "workspace:*",
-        "@pkgs/billing-stripe": "workspace:*",
+        "@pkgs/billing-providers": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
@@ -244,6 +245,8 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
+        "@libs/client-app": "workspace:*",
+        "@libs/client-config": "workspace:*",
         "@libs/feature": "workspace:*",
         "@libs/permissions": "workspace:*",
         "@libs/server-app": "workspace:*",
@@ -254,8 +257,9 @@
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-mock": "workspace:*",
         "@pkgs/billing-mock-provider": "workspace:*",
-        "@pkgs/billing-stripe": "workspace:*",
+        "@pkgs/billing-providers": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
@@ -263,6 +267,7 @@
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/sim": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
@@ -273,8 +278,16 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@lingui/core": "catalog:",
+        "@pkgs/billing-paddle": "workspace:*",
+        "@pkgs/billing-stripe": "workspace:*",
+        "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/sql-client-sqlite": "workspace:*",
+        "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -792,7 +805,8 @@
         "@libs/pubsub": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
-        "@pkgs/billing-stripe": "workspace:*",
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/billing-providers": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/database-url-policy": "workspace:*",
         "@pkgs/emqx-server": "workspace:*",
@@ -806,7 +820,6 @@
         "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
         "picocolors": "catalog:",
-        "stripe": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -829,7 +842,6 @@
         "@pkgs/async-local": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/billing": "workspace:*",
-        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -1180,9 +1192,13 @@
     "pkgs/billing": {
       "name": "@pkgs/billing",
       "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/logger": "workspace:*",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1221,14 +1237,47 @@
       "devDependencies": {
         "@pkgs/billing": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/sim": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@tailwindcss/vite": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
         "vite-plugin-solid": "catalog:",
+      },
+    },
+    "pkgs/billing-paddle": {
+      "name": "@pkgs/billing-paddle",
+      "version": "0.0.0",
+      "dependencies": {
+        "@noble/hashes": "catalog:",
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/billing-providers": {
+      "name": "@pkgs/billing-providers",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/billing": "workspace:*",
+        "@pkgs/billing-mock": "workspace:*",
+        "@pkgs/billing-paddle": "workspace:*",
+        "@pkgs/billing-stripe": "workspace:*",
+        "@pkgs/secret-store": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
       },
     },
     "pkgs/billing-stripe": {
@@ -1237,7 +1286,6 @@
       "dependencies": {
         "@pkgs/billing": "workspace:*",
         "@pkgs/logger": "workspace:*",
-        "@pkgs/secret-store": "workspace:*",
         "stripe": "catalog:",
       },
       "devDependencies": {
@@ -2269,7 +2317,6 @@
       "name": "@pkgs/secret-provider",
       "version": "0.0.0",
       "dependencies": {
-        "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/object-store": "workspace:*",
         "@pkgs/os": "workspace:*",
@@ -3704,6 +3751,10 @@
     "@pkgs/billing-mock": ["@pkgs/billing-mock@workspace:pkgs/billing-mock"],
 
     "@pkgs/billing-mock-provider": ["@pkgs/billing-mock-provider@workspace:pkgs/billing-mock-provider"],
+
+    "@pkgs/billing-paddle": ["@pkgs/billing-paddle@workspace:pkgs/billing-paddle"],
+
+    "@pkgs/billing-providers": ["@pkgs/billing-providers@workspace:pkgs/billing-providers"],
 
     "@pkgs/billing-stripe": ["@pkgs/billing-stripe@workspace:pkgs/billing-stripe"],
 

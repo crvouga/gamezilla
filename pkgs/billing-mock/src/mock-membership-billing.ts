@@ -57,28 +57,38 @@ const MEMBERSHIP_EVENTS: ReadonlySet<MockEventType> = new Set<MockEventType>([
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
+  'customer.subscription.paused',
+  'customer.subscription.resumed',
 ]);
 
-function accessEndMs(subscription: MockSubscription): number | null {
+function accessEndMs(
+  subscription: MockSubscription,
+  ended: boolean
+): number | null {
   const item = subscription.items.data[0];
   const periodEndMs =
     item === undefined ? null : item.current_period_end * 1000;
-  if (membershipStatusOf(subscription.status) !== 'ended') return periodEndMs;
-  if (subscription.ended_at === null) return periodEndMs;
+  if (!ended || subscription.ended_at === null) return periodEndMs;
   const endedAtMs = subscription.ended_at * 1000;
   return periodEndMs === null ? endedAtMs : Math.min(periodEndMs, endedAtMs);
 }
 
-function toMembership(subscription: MockSubscription): Membership {
-  const status = membershipStatusOf(subscription.status);
+/** A deletion is final, whatever a lagging re-read still says. */
+function toMembership(
+  subscription: MockSubscription,
+  deleted: boolean
+): Membership {
+  const status = deleted ? 'ended' : membershipStatusOf(subscription.status);
   return {
     status,
-    periodEndMs: accessEndMs(subscription),
+    periodEndMs: accessEndMs(subscription, status === 'ended'),
     endsAtPeriodEnd: status !== 'ended' && subscription.cancel_at_period_end,
   };
 }
 
 export class MockMembershipBilling implements MembershipBilling {
+  readonly provider = MOCK_BILLING_PROVIDER;
+
   constructor(private readonly options: MockMembershipBillingOptions) {}
 
   private async call<T>(
@@ -107,9 +117,9 @@ export class MockMembershipBilling implements MembershipBilling {
     return payload as T;
   }
 
-  private async priceFor(lookupKey: string): Promise<MockPrice> {
+  private async priceFor(catalogPriceId: string): Promise<MockPrice> {
     const query = new URLSearchParams({
-      lookup_keys: lookupKey,
+      lookup_keys: catalogPriceId,
       active: 'true',
     });
     const prices = await this.call<MockList<MockPrice>>(
@@ -119,7 +129,7 @@ export class MockMembershipBilling implements MembershipBilling {
     const price = prices.data[0];
     if (price === undefined) {
       throw new Error(
-        `mock billing: no active price for lookup key ${lookupKey}`
+        `mock billing: no active price for lookup key ${catalogPriceId}`
       );
     }
     return price;
@@ -130,6 +140,7 @@ export class MockMembershipBilling implements MembershipBilling {
       input.customerId ??
       (
         await this.call<MockCustomer>('POST', MOCK_BILLING_PATHS.customers, {
+          ...(input.email === null ? {} : { email: input.email }),
           metadata: { accountId: input.accountId },
         })
       ).id;
@@ -140,7 +151,7 @@ export class MockMembershipBilling implements MembershipBilling {
         `mock billing: no offer price for key ${offer.defaultPriceKey}`
       );
     }
-    const price = await this.priceFor(spec.lookupKey);
+    const price = await this.priceFor(spec.catalogPriceId);
     const body: CreateCheckoutSessionBody = {
       mode: 'subscription',
       customer,
@@ -198,27 +209,46 @@ export class MockMembershipBilling implements MembershipBilling {
     const lookupKey = subscription.items.data[0]?.price.lookup_key ?? null;
     if (lookupKey === null) return null;
     const match = Object.values(this.options.offer.prices).find(
-      (spec) => spec.lookupKey === lookupKey
+      (spec) => spec.catalogPriceId === lookupKey
     );
     return match?.key ?? null;
+  }
+
+  /**
+   * Deliveries repeat and arrive out of order, so every callback re-reads the
+   * subscription. One the provider does not know (another account's, or
+   * deleted with its customer) is nothing to project; any other failure
+   * throws so the delivery is retried.
+   */
+  private async current(id: string): Promise<MockSubscription | null> {
+    try {
+      return await this.call<MockSubscription>(
+        'GET',
+        MOCK_BILLING_PATHS.subscription(id)
+      );
+    } catch (error) {
+      if (error instanceof MockBillingApiError && error.status === 404) {
+        return null;
+      }
+      throw error;
+    }
   }
 
   async readCallback(input: ReadCallbackInput): Promise<CallbackResult> {
     const event = this.verified(input);
     if (event === null) return { kind: 'unverified' };
     if (!MEMBERSHIP_EVENTS.has(event.type)) return { kind: 'ignored' };
-    const id = event.data.object.id;
-    // Deliveries repeat and arrive out of order; re-read the current state.
-    const subscription = await this.call<MockSubscription>(
-      'GET',
-      MOCK_BILLING_PATHS.subscription(id)
-    );
+    const subscription = await this.current(event.data.object.id);
+    if (subscription === null) return { kind: 'ignored' };
     const change: MembershipChange = {
-      provider: MOCK_BILLING_PROVIDER,
+      provider: this.provider,
       customerId: subscription.customer,
       subscriptionId: subscription.id,
       offerPriceKey: this.offerPriceKey(subscription),
-      membership: toMembership(subscription),
+      membership: toMembership(
+        subscription,
+        event.type === 'customer.subscription.deleted'
+      ),
     };
     return { kind: 'membership', ...change };
   }

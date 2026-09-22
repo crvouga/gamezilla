@@ -39,14 +39,11 @@ export type ApiWorkerEnv = {
   APPLE_KEY_ID?: string;
   APPLE_PRIVATE_JWK?: string;
   /**
-   * Which membership provider to inject: `stripe` or `fake`. Unset means
-   * Stripe-from-secrets; the localhost stack sets `fake` explicitly.
+   * Which configured membership provider new checkouts go to, by provider
+   * id. Required when more than one is configured; members of the others keep
+   * being served there. Each provider reads its own secrets and bindings.
    */
   BILLING_PROVIDER?: string;
-  /** `BILLING_PROVIDER=mock`: where the mock provider runs and its secrets. */
-  BILLING_MOCK_ORIGIN?: string;
-  BILLING_MOCK_SECRET_KEY?: string;
-  BILLING_MOCK_WEBHOOK_SECRET?: string;
   ELEVEN_LABS_API_KEY?: string;
   OPENAI_API_KEY?: string;
   OPENAI_BASE_URL?: string;
@@ -148,32 +145,34 @@ export function readAppleMockBindings(
   };
 }
 
-export function readBillingProviderBinding(
-  env: ApiWorkerEnv
-): 'stripe' | 'mock' | null {
-  const value = readOptionalBinding(env.BILLING_PROVIDER)?.toLowerCase();
-  return value === 'stripe' || value === 'mock' ? value : null;
+export function readBillingProviderBinding(env: ApiWorkerEnv): string | null {
+  return readOptionalBinding(env.BILLING_PROVIDER)?.toLowerCase() ?? null;
 }
 
 /**
- * The mock provider's address and secrets. The mock is reached exactly like
- * Stripe — an origin, a secret key, a webhook signing secret — so all three
- * are required; a partial set is a misconfiguration, not a degraded mode.
+ * The provider new checkouts go to, among the configured ones: the one
+ * `BILLING_PROVIDER` names, else the only one configured. `null` when none
+ * is configured. Naming an unconfigured provider, or leaving the choice open
+ * between several, is a misconfiguration — never a silent pick.
  */
-export function readMockBillingBindings(env: ApiWorkerEnv): {
-  readonly origin: string;
-  readonly secretKey: string;
-  readonly webhookSecret: string;
-} {
-  const origin = readOptionalBinding(env.BILLING_MOCK_ORIGIN);
-  const secretKey = readOptionalBinding(env.BILLING_MOCK_SECRET_KEY);
-  const webhookSecret = readOptionalBinding(env.BILLING_MOCK_WEBHOOK_SECRET);
-  if (origin === null || secretKey === null || webhookSecret === null) {
-    throw new Error(
-      'BILLING_PROVIDER=mock needs BILLING_MOCK_ORIGIN, BILLING_MOCK_SECRET_KEY and BILLING_MOCK_WEBHOOK_SECRET'
+export function resolveCheckoutProvider(
+  binding: string | null,
+  configured: readonly string[]
+): string | null {
+  if (binding !== null) {
+    if (!configured.includes(binding)) {
+      throw new ConfigurationError(
+        `BILLING_PROVIDER=${binding}, but ${binding} is not configured (configured: ${configured.join(', ') || 'none'})`
+      );
+    }
+    return binding;
+  }
+  if (configured.length > 1) {
+    throw new ConfigurationError(
+      `several billing providers are configured (${configured.join(', ')}); set BILLING_PROVIDER to the one new checkouts go to`
     );
   }
-  return { origin, secretKey, webhookSecret };
+  return configured[0] ?? null;
 }
 
 export function readOptionalDatabaseUrlOverride(

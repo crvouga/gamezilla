@@ -7,7 +7,7 @@ import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
 import {
-  readSubscriptionSnapshot,
+  governingSubscription,
   resolveAccessFacts,
   type SubscriptionRow,
 } from '../shared/plan';
@@ -29,13 +29,13 @@ export function useAccessFacts(): Accessor<Facts> {
     FROM billing_subscriptions
     WHERE account_id = ${myId()} AND deleted_at IS NULL
     ORDER BY updated_at DESC
-    LIMIT 1
+    LIMIT 50
   `
   );
   return createMemo(() => {
     return resolveAccessFacts({
       signedIn: signedIn(),
-      subscription: readSubscriptionSnapshot(subscription.rows()[0]),
+      subscription: governingSubscription(subscription.rows()),
       nowMs: clock.now(),
       graceMs: config().billing_grace_period_ms,
     });

@@ -10,7 +10,12 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import { ProviderDb } from './provider-db';
 import { BillingMockSqliteDatabaseMigration } from './schema/sqlite-database-migration';
 
-export type { EventDelivery, PendingEvent, StoredObject } from './provider-db';
+export type {
+  EventDelivery,
+  IdempotentResponse,
+  PendingEvent,
+  StoredObject,
+} from './provider-db';
 export { ProviderDb } from './provider-db';
 
 export class ProviderStore {

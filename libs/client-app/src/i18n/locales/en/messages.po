@@ -183,6 +183,11 @@ msgstr "Accuracy"
 msgid "Action required"
 msgstr "Action required"
 
+#. placeholder {0}: date()
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Active · renews {0}"
+msgstr "Active · renews {0}"
+
 #: libs/auth/src/root/client/account-device/account-device-active-session-line.tsx
 msgid "Active sessions"
 msgstr "Active sessions"
@@ -367,6 +372,19 @@ msgstr "Build mode"
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Cancel"
 msgstr "Cancel"
+
+#. placeholder {0}: date()
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Canceled · access until {0}"
+msgstr "Canceled · access until {0}"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Cancelling…"
+msgstr "Cancelling…"
 
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
@@ -567,6 +585,10 @@ msgstr "Could not start local database"
 msgid "Couldn't accept"
 msgstr "Couldn't accept"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't cancel"
+msgstr "Couldn't cancel"
+
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
@@ -604,11 +626,11 @@ msgstr "Couldn't leave space"
 msgid "Couldn't open"
 msgstr "Couldn't open"
 
-#: libs/billing/src/root/client/billing-screen.tsx
+#: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Couldn't open billing"
 msgstr "Couldn't open billing"
 
-#: libs/billing/src/root/client/billing-screen.tsx
+#: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Couldn't open checkout"
 msgstr "Couldn't open checkout"
 
@@ -629,9 +651,17 @@ msgstr "Couldn't rename space"
 msgid "Couldn't save"
 msgstr "Couldn't save"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't send"
+msgstr "Couldn't send"
+
 #: libs/auth/src/root/client/sign-in-methods/sign-out-everywhere.tsx
 msgid "Couldn't sign out everywhere"
 msgstr "Couldn't sign out everywhere"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't unblock"
+msgstr "Couldn't unblock"
 
 #: libs/permissions/src/public/unlock-copy.tsx
 msgid "Create an account"
@@ -824,6 +854,10 @@ msgstr "Edit profile"
 msgid "Email"
 msgstr "Email"
 
+#: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-seed-field.tsx
+msgid "Empty: your default look"
+msgstr "Empty: your default look"
+
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "EMQX"
 msgstr "EMQX"
@@ -862,6 +896,11 @@ msgstr "Every device signed in to this account, including this one, will be sign
 msgid "Every install signed into your account shows up here."
 msgstr "Every install signed into your account shows up here."
 
+#. placeholder {0}: props.trialDays
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
+msgstr "Every plan starts with a {0}-day free trial. Switch between monthly and yearly or cancel anytime."
+
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Everyone has been returned to the lobby."
@@ -871,6 +910,10 @@ msgstr "Everyone has been returned to the lobby."
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Everything in the free plan, synced across your devices"
+msgstr "Everything in the free plan, synced across your devices"
 
 #: pkgs/ui-devtools/src/json-view/json-view.tsx
 msgid "Expand all"
@@ -924,6 +967,10 @@ msgstr "Find friends by username and send requests."
 msgid "Find people"
 msgstr "Find people"
 
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Finishing checkout…"
+msgstr "Finishing checkout…"
+
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "First seen"
 msgstr "First seen"
@@ -944,9 +991,20 @@ msgstr "fps"
 msgid "Frames per second"
 msgstr "Frames per second"
 
+#: libs/billing/src/root/client/membership-menu-bridge.tsx
 #: libs/permissions/src/public/use-access-label.tsx
 msgid "Free"
 msgstr "Free"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Free plan"
+msgstr "Free plan"
+
+#. placeholder {0}: date()
+#. placeholder {1}: days()
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Free trial · ends {0} ({1} days left)"
+msgstr "Free trial · ends {0} ({1} days left)"
 
 #: libs/friends/src/root/client/friend-request-decision-modal.tsx
 msgid "Friend request"
@@ -1002,6 +1060,7 @@ msgstr "Go to Spaces"
 msgid "Google"
 msgstr "Google"
 
+#: libs/billing/src/root/client/membership-menu-bridge.tsx
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/screens/more/settings-screen.tsx
 #: libs/permissions/src/public/use-access-label.tsx
@@ -1044,6 +1103,10 @@ msgstr "Hint"
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Host"
 msgstr "Host"
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Host as many spaces as you like at once"
+msgstr "Host as many spaces as you like at once"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "hud"
@@ -1217,7 +1280,11 @@ msgstr "Local database did not become ready. Reload the app. If this keeps happe
 msgid "Long tasks"
 msgstr "Long tasks"
 
-#: libs/billing/src/root/client/billing-screen.tsx
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Manage or cancel anytime from the billing portal"
+msgstr "Manage or cancel anytime from the billing portal"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Manage subscription"
 msgstr "Manage subscription"
 
@@ -1241,9 +1308,22 @@ msgstr "Match puzzles to your profile rating ({profileCaption}), plus an optiona
 msgid "Matchmaking"
 msgstr "Matchmaking"
 
+#. placeholder {0}: date()
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Membership ended {0}"
+msgstr "Membership ended {0}"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Memberships aren't available right now."
+msgstr "Memberships aren't available right now."
+
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Model"
 msgstr "Model"
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Monthly"
+msgstr "Monthly"
 
 #: libs/billing/src/root/client/billing-screen.tsx
 #: pkgs/ui/src/components/action-bar/action-bar-parts.tsx
@@ -1364,6 +1444,10 @@ msgstr "No matching styles"
 msgid "No matching themes"
 msgstr "No matching themes"
 
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "No membership yet."
+msgstr "No membership yet."
+
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "No one added yet"
 msgstr "No one added yet"
@@ -1463,6 +1547,7 @@ msgid "Off"
 msgstr "Off"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -1474,6 +1559,7 @@ msgstr "Offline"
 msgid "On"
 msgstr "On"
 
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
@@ -1496,7 +1582,7 @@ msgstr "Open Simulator"
 msgid "Open space {0}"
 msgstr "Open space {0}"
 
-#: libs/billing/src/root/client/billing-screen.tsx
+#: libs/billing/src/root/client/billing-plan-card.tsx
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Opening…"
 msgstr "Opening…"
@@ -1529,6 +1615,15 @@ msgstr "Pagination"
 msgid "Paid"
 msgstr "Paid"
 
+#. placeholder {0}: date()
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Payment failed · access until {0}"
+msgstr "Payment failed · access until {0}"
+
+#: libs/billing/src/root/client/billing-screen-view.tsx
+msgid "Payments are processed securely by our billing provider. We never see your card details."
+msgstr "Payments are processed securely by our billing provider. We never see your card details."
+
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
 msgid "People"
 msgstr "People"
@@ -1541,6 +1636,15 @@ msgstr "People in this space"
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "People with access"
 msgstr "People with access"
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "per month"
+msgstr "per month"
+
+#. placeholder {0}: perMonth()
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "per year · {0}/month"
+msgstr "per year · {0}/month"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "perf"
@@ -1583,10 +1687,6 @@ msgstr "Pick one from the game log."
 msgid "Pick one from the previous screen."
 msgstr "Pick one from the previous screen."
 
-#: libs/billing/src/root/client/billing-screen.tsx
-msgid "Plan"
-msgstr "Plan"
-
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Plan and subscription"
 msgstr "Plan and subscription"
@@ -1608,9 +1708,17 @@ msgstr "Played"
 msgid "Playing"
 msgstr "Playing"
 
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Playing as a guest"
+msgstr "Playing as a guest"
+
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Playing as guest"
 msgstr "Playing as guest"
+
+#: libs/billing/src/root/client/membership-menu-bridge.tsx
+msgid "Plus"
+msgstr "Plus"
 
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Preferences"
@@ -1628,6 +1736,10 @@ msgstr "Previous"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-move-history-nav.tsx
 msgid "Previous move"
 msgstr "Previous move"
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Pricing"
+msgstr "Pricing"
 
 #: libs/spaces/src/root/client/space-users/space-share-people-list.tsx
 msgid "Private spaces only sync for people you add here."
@@ -1803,6 +1915,11 @@ msgstr "Sampled from this tab while the monitor is on."
 msgid "Save"
 msgstr "Save"
 
+#. placeholder {0}: percent()
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Save {0}%"
+msgstr "Save {0}%"
+
 #: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Saved"
@@ -1901,6 +2018,14 @@ msgstr "Select style…"
 msgid "Select…"
 msgstr "Select…"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Sending…"
+msgstr "Sending…"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Sent"
+msgstr "Sent"
+
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Server"
 msgstr "Server"
@@ -1981,7 +2106,11 @@ msgstr "Sign in to see notifications"
 msgid "Sign in to see your devices"
 msgstr "Sign in to see your devices"
 
-#: libs/billing/src/root/client/billing-screen.tsx
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Sign in to subscribe"
+msgstr "Sign in to subscribe"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Sign in to subscribe and keep your progress."
 msgstr "Sign in to subscribe and keep your progress."
 
@@ -2213,6 +2342,11 @@ msgstr "Stable per-device identifier; tap to copy"
 msgid "Start"
 msgstr "Start"
 
+#. placeholder {0}: props.trialDays
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Start {0}-day free trial"
+msgstr "Start {0}-day free trial"
+
 #: libs/spaces/src/root/client/spaces-screen.tsx
 msgid "Start a space"
 msgstr "Start a space"
@@ -2245,7 +2379,7 @@ msgstr "Status"
 msgid "Style"
 msgstr "Style"
 
-#: libs/billing/src/root/client/billing-screen.tsx
+#: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Subscribe"
 msgstr "Subscribe"
 
@@ -2258,6 +2392,7 @@ msgstr "Suggested"
 msgid "Sync"
 msgstr "Sync"
 
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/chrome/offline-indicator.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
@@ -2270,6 +2405,7 @@ msgstr "Synced from the server on first request. Values come from server secrets
 msgid "Synced runtime configuration"
 msgstr "Synced runtime configuration"
 
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Syncing"
 msgstr "Syncing"
@@ -2326,6 +2462,10 @@ msgstr "That isn't the account the address matched, so nothing was connected."
 msgid "That took too long. Start again."
 msgstr "That took too long. Start again."
 
+#: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
+msgid "That username is not allowed"
+msgstr "That username is not allowed"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
@@ -2354,6 +2494,10 @@ msgstr "Themes"
 #: libs/client-app/src/routes/route-stub.tsx
 msgid "There is nothing at this address."
 msgstr "There is nothing at this address."
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "They already asked you"
+msgstr "They already asked you"
 
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 msgid "They will be removed from your friends list."
@@ -2417,6 +2561,10 @@ msgstr "Try a different search term."
 msgid "Try again"
 msgstr "Try again"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Try again later"
+msgstr "Try again later"
+
 #: pkgs/ui/src/components/command-palette/command-palette-input.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
@@ -2438,6 +2586,7 @@ msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
 #: libs/client-app/src/screens/more/about-screen.tsx
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Unavailable"
 msgstr "Unavailable"
 
@@ -2445,9 +2594,21 @@ msgstr "Unavailable"
 msgid "Unblock"
 msgstr "Unblock"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Unblocked"
+msgstr "Unblocked"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Unblocking…"
+msgstr "Unblocking…"
+
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 msgid "Unique handle for search and invites"
 msgstr "Unique handle for search and invites"
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Unlimited access to Gamezilla servers"
+msgstr "Unlimited access to Gamezilla servers"
 
 #: pkgs/ui/src/components/speaking-avatar/speaking-avatar.tsx
 msgid "Unmute coach"
@@ -2465,6 +2626,10 @@ msgstr "Unrated · already played"
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Unseen"
 msgstr "Unseen"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Update payment method"
+msgstr "Update payment method"
 
 #: libs/permissions/src/public/unlock-copy.tsx
 msgid "Upgrade for unlimited puzzles, or come back tomorrow."
@@ -2528,10 +2693,19 @@ msgstr "Waiting for the host"
 msgid "Waiting for the host to start a puzzle."
 msgstr "Waiting for the host to start a puzzle."
 
+#. placeholder {0}: props.productName
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "What {0} includes"
+msgstr "What {0} includes"
+
 #: libs/notifications/src/public/notification-card-default.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal-parts.tsx
 msgid "Working…"
 msgstr "Working…"
+
+#: libs/billing/src/root/client/billing-offer-sections.tsx
+msgid "Yearly"
+msgstr "Yearly"
 
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Yes"
@@ -2604,13 +2778,25 @@ msgstr "you@example.com"
 msgid "Your changes are saved locally and will sync when the connection is healthy again."
 msgstr "Your changes are saved locally and will sync when the connection is healthy again."
 
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Your checkout hasn't finished. Complete it to start your membership."
+msgstr "Your checkout hasn't finished. Complete it to start your membership."
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Your full name"
 msgstr "Your full name"
 
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Your last payment didn't go through. Update your payment method to keep your membership."
+msgstr "Your last payment didn't go through. Update your payment method to keep your membership."
+
 #: libs/spaces/src/root/client/miniplayer/active-spaces-sheet.tsx
 msgid "Your live spaces"
 msgstr "Your live spaces"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Your plan"
+msgstr "Your plan"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Your rating"

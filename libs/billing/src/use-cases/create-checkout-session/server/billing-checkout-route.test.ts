@@ -8,6 +8,7 @@ import type {
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing';
+import { createMembershipProviders } from '@pkgs/billing';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -20,6 +21,7 @@ type FakeRow = Record<string, unknown>;
 
 /** Minimal second provider; asserts the port is all the route depends on. */
 class StubBilling implements MembershipBilling {
+  readonly provider = 'stub';
   readonly calls: StartCheckoutInput[] = [];
 
   constructor(private readonly url: string) {}
@@ -62,17 +64,30 @@ function fakeSql(linkedCustomerId: string | null = null): SqlClient {
   } as unknown as SqlClient;
   return sql;
 }
-function deps(overrides: Partial<BillingRouteDeps> = {}): BillingRouteDeps {
+function providersOf(adapter: MembershipBilling) {
+  return createMembershipProviders({
+    all: [adapter],
+    checkout: adapter.provider,
+  });
+}
+
+function deps(
+  overrides: Partial<Omit<BillingRouteDeps, 'billing'>> & {
+    readonly billing?: MembershipBilling | null;
+  } = {}
+): BillingRouteDeps {
+  const { billing: adapter, ...rest } = overrides;
   return {
     getSqlClient: () => fakeSql(),
-    billing: null,
     requireAuth: () =>
       Promise.resolve({ accountId: 'acc_1', deviceId: 'dev_1' }),
     createId: (() => 'id-1') as never,
     clock: { now: () => NOW },
     log: createNoopLogger(),
     notifyUser: () => Promise.resolve(),
-    ...overrides,
+    ...rest,
+    billing:
+      adapter === null || adapter === undefined ? null : providersOf(adapter),
   };
 }
 
@@ -124,6 +139,7 @@ describe('BillingCheckoutRoutes', () => {
     expect(billing.calls[0]).toEqual({
       accountId: 'acc_1',
       customerId: null,
+      email: null,
       returnUrl: 'https://example.com/return',
     });
     expect(notified).toEqual([{ tables: ['auth_external_accounts'] }]);

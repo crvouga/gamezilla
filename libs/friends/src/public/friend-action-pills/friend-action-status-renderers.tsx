@@ -1,9 +1,13 @@
 import { Handles } from '@libs/test-ids';
-import type { useLingui } from '@lingui/solid/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
-import type { JSX } from 'solid-js';
+import type { Accessor, JSX } from 'solid-js';
 
+import {
+  FRIENDS_BLOCKED,
+  FRIENDS_COOLDOWN,
+  FRIENDS_REQUEST_EXISTS,
+} from '../../shared/friendship/friends-mutation-codes';
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import {
   ConfirmDeletePills,
@@ -11,14 +15,14 @@ import {
 } from './friend-action-pill-buttons';
 import type { FriendActionMutations } from './friend-action-types';
 
-type LinguiT = ReturnType<typeof useLingui>['t'];
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
 function noopOperation(): Promise<void> {
   return Promise.resolve();
 }
 
-function renderBlockedByThem(t: LinguiT): JSX.Element {
+function renderBlockedByThem(): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={noopOperation}
@@ -35,9 +39,9 @@ function renderBlockedByThem(t: LinguiT): JSX.Element {
 function renderBlockedByMe(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  t: LinguiT,
   username: string | undefined
 ): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={wrap(mutations.unblock)}
@@ -74,9 +78,9 @@ function renderPendingIncoming(
 function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  t: LinguiT,
   username: string | undefined
 ): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={wrap(mutations.cancelRequest)}
@@ -92,7 +96,8 @@ function renderPendingOutgoing(
   );
 }
 
-function renderFriends(t: LinguiT, username: string | undefined): JSX.Element {
+function renderFriends(username: string | undefined): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={noopOperation}
@@ -109,19 +114,36 @@ function renderFriends(t: LinguiT, username: string | undefined): JSX.Element {
   );
 }
 
+/**
+ * The Add pill's error face: the reason the server refused, when it gave one.
+ * Every renderer here takes `t` from its own `useLingui()`: the macro compiles
+ * only that binding, and a `t` passed in as an argument renders labels empty.
+ */
+function useSendFailureLabel(): (code: string | null) => string {
+  const { t } = useLingui();
+  return (code) => {
+    if (code === FRIENDS_COOLDOWN) return t`Try again later`;
+    if (code === FRIENDS_BLOCKED) return t`Unavailable`;
+    if (code === FRIENDS_REQUEST_EXISTS) return t`They already asked you`;
+    return t`Couldn't send`;
+  };
+}
+
 function renderNone(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  t: LinguiT,
+  addFailureCode: Accessor<string | null>,
   username: string | undefined
 ): JSX.Element {
+  const { t } = useLingui();
+  const sendFailureLabel = useSendFailureLabel();
   return (
     <SingleActionPill
       operation={wrap(mutations.addFriend)}
       idle={<Trans>Add Friend</Trans>}
       loading={t`Sending…`}
       success={t`Sent`}
-      error={t`Couldn't send`}
+      error={sendFailureLabel(addFailureCode())}
       sounds={{
         success: Sounds.social.friendRequestReceived,
         error: Sounds.feedback.error,
@@ -136,28 +158,28 @@ function renderNone(
 export function renderFriendActionPillsForStatus({
   status,
   mutations,
+  addFailureCode,
   wrap,
-  t,
   username,
 }: {
   status: FriendshipStatus;
   mutations: FriendActionMutations;
+  addFailureCode: Accessor<string | null>;
   wrap: WrapMutation;
-  t: LinguiT;
   username?: string | undefined;
 }): JSX.Element {
   switch (status) {
     case 'blocked_by_them':
-      return renderBlockedByThem(t);
+      return renderBlockedByThem();
     case 'blocked_by_me':
-      return renderBlockedByMe(wrap, mutations, t, username);
+      return renderBlockedByMe(wrap, mutations, username);
     case 'pending_incoming':
       return renderPendingIncoming(wrap, mutations, username);
     case 'pending_outgoing':
-      return renderPendingOutgoing(wrap, mutations, t, username);
+      return renderPendingOutgoing(wrap, mutations, username);
     case 'friends':
-      return renderFriends(t, username);
+      return renderFriends(username);
     default:
-      return renderNone(wrap, mutations, t, username);
+      return renderNone(wrap, mutations, addFailureCode, username);
   }
 }

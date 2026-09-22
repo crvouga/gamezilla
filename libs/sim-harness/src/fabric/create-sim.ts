@@ -14,7 +14,7 @@ import type { EnvTime } from '@libs/feature/public/sync';
 import type { ServerEnv } from '@libs/server-app';
 import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import { assert } from '@pkgs/assert';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
 import type { AppleClientKeys } from '@pkgs/idp-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
@@ -203,7 +203,7 @@ type ServerEnvDeps = {
   /** Outbound vendor HTTP: only the provider node is reachable. */
   readonly vendorFetch: ServerEnv['fetch'];
   /** This instance's membership adapter, or `null` when nothing is sold. */
-  readonly billing: MembershipBilling | null;
+  readonly billing: MembershipProviders | null;
 };
 
 function buildServerEnv(args: ServerEnvDeps): ServerEnv {
