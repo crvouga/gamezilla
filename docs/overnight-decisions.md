@@ -95,10 +95,11 @@ the spec/goal left open, the reading taken, and why. Progress lives in
   keep lacking `billing:subscribe`. `@libs/permissions` only turns raw inputs
   into `Facts` (`auth: anonymous|verified`, `membership: active|none`, grace
   logic moved from `resolvePlanRole` into `resolveAccessFacts`).
-  `usePlanRole` / `resolvePlanRole` stay (billing's own screen imports
-  `usePlanRole`) but now read the role the policy assigned; feature code uses
-  only `usePermissions` / `useCan`. The settings screen's plan label moved
-  into the policy package (`useAccessLabel`, same strings).
+  Later superseded (2026-09-21): `usePlanRole` and `useAccessLabel` are gone
+  and `resolvePlanRole` lives only in `root/access-model` for tests. Roles,
+  plans and facts are private to `@libs/permissions`, billing reads its own
+  membership, and the settings screen and global menu show no plan or
+  sign-in label. See the access hard rule in `AGENTS.md`.
 - **D15 — Snapshot = existing synced rows.** No new endpoint or cache: the
   policy is the synced `client_config.permission_policy` row (now carrying
   `version`, `activeFromMs` and retained `history`), facts come from synced
