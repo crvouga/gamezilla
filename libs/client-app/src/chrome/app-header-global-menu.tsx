@@ -2,10 +2,10 @@
 /**
  * Global dropdown mounted as `AppFrameChromeProvider` `globalTrailing` so
  * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
- * Theme, Sound. Header shows `@username` + email when signed in (bridged
- * from the sync tree via {@link useGlobalMenuIdentity}). Trigger face is the
- * current user's avatar when available. The header's trailing chip is the
- * membership tier a feature published ({@link useGlobalMenuMembership}).
+ * Theme, Sound. Header shows `@username` and an email when one is published
+ * (bridged from the sync tree via {@link useGlobalMenuIdentity}). Trigger face
+ * is the current user's avatar when available. The chrome shows identity only:
+ * it knows nothing of sign-in state or membership, so it cannot branch on them.
  */
 
 import { Handles } from '@libs/test-ids';
@@ -28,13 +28,10 @@ import {
 } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 
-import { useLocalIdentity } from '../shell/identity/identity-context';
 import {
   type GlobalMenuIdentity,
   useGlobalMenuIdentity,
 } from './global-menu-identity-context';
-import { GlobalMenuMembershipChip } from './global-menu-membership-chip';
-import { useGlobalMenuMembership } from './global-menu-membership-context';
 import { createConnectivity } from './use-connectivity';
 
 const CONNECTIVITY_DOT_SIZE = 14;
@@ -141,38 +138,22 @@ function accountFace(identity: GlobalMenuIdentity, size: number): JSX.Element {
 
 function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
   const { t } = useLingui();
-  const identity = useLocalIdentity();
   const menuIdentity = useGlobalMenuIdentity();
-  const membership = useGlobalMenuMembership();
   return createMemo(() => {
     const current = menuIdentity();
     const { username, email } = current;
     const avatar = accountFace(current, HEADER_AVATAR_SIZE);
-    const published = membership();
-    const badge =
-      published === null ? undefined : (
-        <GlobalMenuMembershipChip membership={published} />
-      );
-    if (!identity.isSignedIn()) {
-      return {
-        title: t`Guest`,
-        subtitle: t`Playing as guest`,
-        avatar,
-        badge,
-      };
-    }
     if (username !== null && username.length > 0) {
       return {
         title: `@${username}`,
         subtitle: email ?? undefined,
         avatar,
-        badge,
       };
     }
     if (email !== null && email.length > 0) {
-      return { title: email, avatar, badge };
+      return { title: email, avatar };
     }
-    return { title: t`Account`, avatar, badge };
+    return { title: t`Account`, avatar };
   });
 }
 

@@ -2,8 +2,12 @@ import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
 import type { PermissionPolicy } from '@pkgs/permissions';
 import { type Accessor, createMemo } from 'solid-js';
-import { parsePermissionPolicy } from './parse-permission-policy';
-import type { AppLimit, AppPolicyKey } from './permission-catalog';
+
+import { parsePermissionPolicy } from '../../../shared/parse-permission-policy';
+import type {
+  AppLimit,
+  AppPolicyKey,
+} from '../../../shared/permission-catalog';
 
 /** Live `permission_policy` from synced `client_config`; default when absent. */
 export function usePermissionPolicy(): Accessor<

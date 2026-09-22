@@ -1,5 +1,4 @@
 /** @jsxImportSource solid-js */
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useConfigService } from '@libs/auth/public/config-service-context';
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { useDeviceId } from '@libs/auth/public/use-device-id';
@@ -94,7 +93,6 @@ export function AppNotificationsProvider(props: {
     () => canReceive() && authToken() !== null && deviceId().length > 0
   );
   const deps = useNotificationsClientDeps();
-  const { open: openSignInModal } = useSignInModal();
   const sources = useNotificationSources();
 
   // Nothing arrives for someone who may not receive notifications, whatever
@@ -107,7 +105,6 @@ export function AppNotificationsProvider(props: {
       isAuthReady={isAuthReady()}
       deps={deps}
       providers={providers()}
-      onSignIn={openSignInModal}
     >
       <NotificationsUnreadCountLiveBridge>
         {props.children}

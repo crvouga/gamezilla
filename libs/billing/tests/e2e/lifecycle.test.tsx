@@ -7,6 +7,7 @@ import {
   subscribeToPlus,
 } from '@libs/billing/sim/billing-actions';
 import {
+  billingButtonVisible,
   billingTier,
   type MembershipRowView,
   membershipRow,
@@ -182,12 +183,13 @@ describe('billing lifecycle', () => {
     await waitStatus(s, 'ended');
   });
 
-  test('a guest actor is a guest and a second signed-in actor stays free', async () => {
+  test('a guest is offered the unlock and a second signed-in actor stays free', async () => {
     await using s = await plus('billing-lifecycle-actors');
     await s.apply(spawnActor, 'bob');
     await s.apply(focusActor, 'bob');
     await s.apply(openBilling, 'bob');
-    expect(await s.read(billingTier, 'bob')).toBe('guest');
+    expect(await s.read(billingTier, 'bob')).toBe('free');
+    expect(await s.read(billingButtonVisible, 'bob', 'unlock')).toBe(true);
 
     await s.apply(signInWithGoogle, 'bob');
     await s.apply(openBilling, 'bob');

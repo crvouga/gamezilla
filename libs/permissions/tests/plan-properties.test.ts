@@ -4,13 +4,13 @@
  * samples at fixed points.
  */
 import { describe, expect, test } from 'bun:test';
-import { ROLE } from '@libs/permissions/public/permission-catalog';
 import {
-  type PlanFacts,
+  type AccessInputs,
+  ROLE,
   readSubscriptionSnapshot,
   resolvePlanRole,
   type SubscriptionSnapshot,
-} from '@libs/permissions/public/plan';
+} from '@libs/permissions/root/access-model';
 import type { MembershipStatus } from '@pkgs/billing';
 import fc from 'fast-check';
 
@@ -34,11 +34,12 @@ const snapshotArb: fc.Arbitrary<SubscriptionSnapshot> = fc.record({
   cancelAtPeriodEnd: fc.boolean(),
 });
 
-const factsArb: fc.Arbitrary<PlanFacts> = fc.record({
+const factsArb: fc.Arbitrary<AccessInputs> = fc.record({
   signedIn: fc.boolean(),
   subscription: fc.option(snapshotArb, { nil: null }),
   nowMs: msArb,
   graceMs: graceArb,
+  billingEnabled: fc.boolean(),
 });
 
 describe('plan resolver properties', () => {
@@ -123,7 +124,7 @@ describe('plan resolver properties', () => {
         graceArb,
         fc.boolean(),
         (status, end, graceMs, cancelAtPeriodEnd) => {
-          const base: PlanFacts = {
+          const base: AccessInputs = {
             signedIn: true,
             subscription: {
               status,
@@ -132,6 +133,7 @@ describe('plan resolver properties', () => {
             },
             nowMs: end + graceMs,
             graceMs,
+            billingEnabled: true,
           };
           expect(resolvePlanRole(base)).toBe(ROLE.planPaid);
           expect(resolvePlanRole({ ...base, nowMs: end + graceMs + 1 })).toBe(

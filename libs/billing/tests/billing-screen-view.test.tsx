@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 /**
- * The billing screen rendered for every tier × membership row × billing
+ * The billing screen rendered for every caller × membership row × billing
  * switch × customer link: exactly the controls, notice and status the view
  * model decided, and nothing else.
  */
@@ -23,10 +23,11 @@ import { ThemeProvider } from '@pkgs/ui';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 
 import {
+  CALLERS,
   inputFor,
   ROW_KINDS,
   type RowKind,
-  TIERS,
+  UNLOCK_LABEL,
 } from './support/billing-matrix';
 
 const KINDS = Object.keys(ROW_KINDS) as RowKind[];
@@ -34,7 +35,7 @@ const KINDS = Object.keys(ROW_KINDS) as RowKind[];
 const NO_ACTIONS: BillingActions = {
   subscribe: () => Promise.resolve(),
   manage: () => Promise.resolve(),
-  signIn: () => undefined,
+  unlock: () => undefined,
 };
 
 function renderView(view: BillingView, actions: BillingActions = NO_ACTIONS) {
@@ -64,25 +65,25 @@ function present(testId: string): boolean {
   return screen.queryByTestId(testId) !== null;
 }
 
-describe('billing screen: every tier × row × switch × customer', () => {
-  for (const tier of TIERS) {
+describe('billing screen: every caller × row × switch × customer', () => {
+  for (const caller of CALLERS) {
     for (const kind of KINDS) {
       for (const enabled of [true, false]) {
         for (const hasCustomer of [true, false]) {
-          const name = `${tier} · ${kind} · billing ${enabled ? 'on' : 'off'} · ${hasCustomer ? 'customer' : 'no customer'}`;
+          const name = `${caller} · ${kind} · billing ${enabled ? 'on' : 'off'} · ${hasCustomer ? 'customer' : 'no customer'}`;
           test(name, () => {
             const view = buildBillingView(
-              inputFor(tier, kind, enabled, hasCustomer)
+              inputFor(caller, kind, enabled, hasCustomer)
             );
             renderView(view);
             expect(screen.getByTestId(Handles.billingTier).textContent).toBe(
-              tier
+              view.tier
             );
             expect(present(Handles.billingSubscribe)).toBe(
               view.primary === 'subscribe'
             );
-            expect(present(Handles.billingSignIn)).toBe(
-              view.primary === 'sign_in'
+            expect(present(Handles.billingUnlock)).toBe(
+              view.primary === 'unlock'
             );
             expect(present(Handles.billingManage)).toBe(view.manage);
             expect(present(Handles.billingNotice)).toBe(view.notice !== null);
@@ -101,7 +102,7 @@ describe('billing screen: every tier × row × switch × customer', () => {
 
 describe('billing screen: copy and actions', () => {
   test('a trial says when it ends and how long is left', () => {
-    renderView(buildBillingView(inputFor('paid', 'trialing', true, true)));
+    renderView(buildBillingView(inputFor('account', 'trialing', true, true)));
     expect(screen.getByTestId(Handles.billingStatus).textContent).toBe(
       'Free trial · ends 2026-10-01 (10 days left)'
     );
@@ -109,7 +110,7 @@ describe('billing screen: copy and actions', () => {
   });
 
   test('a failed payment asks for a new card in the portal', () => {
-    renderView(buildBillingView(inputFor('paid', 'delinquent', true, true)));
+    renderView(buildBillingView(inputFor('account', 'delinquent', true, true)));
     expect(screen.getByRole('alert').textContent).toContain(
       "Your last payment didn't go through"
     );
@@ -120,7 +121,7 @@ describe('billing screen: copy and actions', () => {
   });
 
   test('pricing comes from the offer, with the yearly saving', () => {
-    renderView(buildBillingView(inputFor('free', 'none', true, false)));
+    renderView(buildBillingView(inputFor('account', 'none', true, false)));
     const monthly = screen.getByTestId(
       Handles.billingPrice('subscription_monthly')
     );
@@ -138,17 +139,19 @@ describe('billing screen: copy and actions', () => {
   });
 
   test('buttons call their actions', () => {
-    const signIn = mock(() => undefined);
+    const unlock = mock(() => undefined);
     renderView(buildBillingView(inputFor('guest', 'none', true, false)), {
       ...NO_ACTIONS,
-      signIn,
+      unlock,
     });
-    fireEvent.click(screen.getByTestId(Handles.billingSignIn));
-    expect(signIn).toHaveBeenCalledTimes(1);
+    const button = screen.getByTestId(Handles.billingUnlock);
+    expect(button.textContent).toContain(UNLOCK_LABEL);
+    fireEvent.click(button);
+    expect(unlock).toHaveBeenCalledTimes(1);
     cleanup();
 
     const subscribe = mock(() => Promise.resolve());
-    renderView(buildBillingView(inputFor('free', 'none', true, false)), {
+    renderView(buildBillingView(inputFor('account', 'none', true, false)), {
       ...NO_ACTIONS,
       subscribe,
     });

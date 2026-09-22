@@ -1,17 +1,16 @@
 /** @jsxImportSource solid-js */
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
-import { useCan } from '@libs/permissions/public/use-can';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useDecision } from '@libs/permissions/public/use-can';
+import { useLingui } from '@lingui/solid/macro';
 import {
   BellIcon,
   Button,
   CheckIcon,
-  EmptyState,
   ScreenBase,
   useMutationButton,
 } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
-import { useNotificationsShell } from '../../public/notifications-provider-registry';
 import { useNotifications } from '../../public/use-notifications';
 import { useNotificationsActions } from '../../public/use-notifications-actions';
 import type { NotificationFilter } from '../../shared/notifications/notification';
@@ -25,25 +24,15 @@ export type NotificationsScreenProps = {
 function NotificationsPermissionGate(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
-  const { t } = useLingui();
-  const shell = useNotificationsShell();
-  const canReceive = useCan(PERMISSION.notificationsReceive);
+  const decision = useDecision(PERMISSION.notificationsReceive);
   return (
     <Show
-      when={canReceive()}
+      when={decision().allowed}
       fallback={
-        <EmptyState
-          variant="compact"
+        <DenialSurface
+          decision={decision()}
           icon={BellIcon}
-          title={<Trans>Sign in to see notifications</Trans>}
-          body={
-            <Trans>Friend requests and space invites will land here.</Trans>
-          }
-          action={
-            shell.onSignIn !== undefined
-              ? { label: t`Sign in`, onClick: () => shell.onSignIn?.() }
-              : undefined
-          }
+          variant="compact"
         />
       }
     >

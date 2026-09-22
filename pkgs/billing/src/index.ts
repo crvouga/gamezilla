@@ -18,6 +18,7 @@ export {
   governingMembership,
   isMembershipLive,
   type MembershipStanding,
+  membershipGrantsAccess,
   outranksMembership,
   readMembershipStatus,
 } from './precedence';

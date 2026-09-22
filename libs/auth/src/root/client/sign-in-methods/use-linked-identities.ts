@@ -9,7 +9,8 @@ import { sql } from '@pkgs/sql';
 import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
-import { useHasAuthSession, useMyId } from '../../../public/use-current-user';
+import { useHasAuthSession } from '../../../public/access-facts';
+import { useMyId } from '../../../public/use-current-user';
 
 export type LinkedIdentity = {
   readonly provider: OauthProviderId;

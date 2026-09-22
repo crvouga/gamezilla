@@ -16,7 +16,6 @@ export type NotificationsShellContextValue = {
   readonly isAuthReady: boolean;
   readonly deps: NotificationsClientDeps;
   readonly providers: readonly NotificationProvider[];
-  readonly onSignIn?: (() => void) | undefined;
 };
 
 const NotificationsShellContext =
@@ -27,7 +26,6 @@ export type NotificationsProviderRegistryProps = {
   readonly isAuthReady?: boolean | undefined;
   readonly deps: NotificationsClientDeps;
   readonly providers?: readonly NotificationProvider[] | undefined;
-  readonly onSignIn?: (() => void) | undefined;
   readonly children: JSX.Element;
 };
 
@@ -46,9 +44,6 @@ export function NotificationsProviderRegistry(
     },
     get providers() {
       return props.providers ?? [];
-    },
-    get onSignIn() {
-      return props.onSignIn;
     },
   };
   return (

@@ -4,8 +4,10 @@ import {
   type AppAction,
   isQuotaAction,
 } from '@libs/permissions/public/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
-import { resolveAccessFacts } from '@libs/permissions/public/plan';
+import {
+  DEFAULT_PERMISSION_POLICY,
+  resolveAccessFacts,
+} from '@libs/permissions/root/access-model';
 import {
   decide,
   decideQuota,
@@ -102,6 +104,7 @@ describe('catalog resolution under the shipped policy', () => {
           subscription,
           nowMs: NOW,
           graceMs: 7 * DAY,
+          billingEnabled: true,
         });
         const subject = resolveSubject(DEFAULT_PERMISSION_POLICY, facts);
         const planRoles = subject.roles.filter((r) => r.startsWith('plan:'));

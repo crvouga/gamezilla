@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import {
-  UserSearchSignInPrompt,
+  UserSearchDenied,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search/public/use-user-search';
 import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
@@ -86,7 +86,7 @@ function SearchScreenBody(): JSX.Element {
   const state = useDebouncedUserSearchEffect(query, recordSearch);
   const trimmed = () => query().trim();
   const showRecent = () => trimmed().length === 0;
-  const showSignInPrompt = () => !state.canSearch && trimmed().length > 0;
+  const showDenied = () => !state.canSearch && trimmed().length > 0;
   const showResults = () => state.canSearch && trimmed().length > 0;
 
   return (
@@ -114,8 +114,8 @@ function SearchScreenBody(): JSX.Element {
           onClear={clear}
         />
       </Show>
-      <Show when={showSignInPrompt()}>
-        <UserSearchSignInPrompt />
+      <Show when={showDenied()}>
+        <UserSearchDenied />
       </Show>
       <Show when={showResults()}>
         <SearchResults

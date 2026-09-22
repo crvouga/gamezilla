@@ -3,12 +3,11 @@ import { useLingui } from '@lingui/solid/macro';
 import { Button, LogInIcon, LogOutIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
-
+import { useHasAuthSession } from '../../public/access-facts';
 import {
   useSignInModal,
   useSignOutModal,
 } from '../../public/auth-modals-provider';
-import { useHasAuthSession } from '../../public/use-current-user';
 
 const BUTTON_ICON_SIZE = 16;
 

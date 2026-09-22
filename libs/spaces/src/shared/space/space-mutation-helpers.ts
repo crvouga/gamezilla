@@ -1,9 +1,5 @@
-import {
-  type AppPermission,
-  ROLE,
-} from '@libs/permissions/public/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
-import { can, createSubject } from '@pkgs/permissions';
+import { decideInMutation } from '@libs/permissions/public/mutation-permission';
+import type { AppPermission } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
 import {
   type MutationDb,
@@ -85,12 +81,9 @@ export async function requireSpacePermission(
   }
 ): Promise<void> {
   const row = await getSpaceHost(tx, args.spaceId);
-  const role = isHost(env, row) ? ROLE.spaceHost : ROLE.spaceMember;
-  const decision = can(
-    DEFAULT_PERMISSION_POLICY,
-    createSubject([role]),
-    args.permission
-  );
+  const decision = await decideInMutation({ tx, env }, args.permission, {
+    spacePresence: isHost(env, row) ? 'host' : 'guest',
+  });
   if (!decision.allowed) {
     throw new MutationError('SPACE_PERMISSION_DENIED', args.message);
   }

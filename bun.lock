@@ -246,7 +246,6 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
-        "@libs/client-app": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/feature": "workspace:*",
         "@libs/permissions": "workspace:*",
@@ -653,7 +652,6 @@
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
         "@pkgs/attribute": "workspace:*",
-        "@pkgs/auth": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema": "workspace:*",
@@ -969,7 +967,6 @@
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
-        "@pkgs/permissions": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/room-adapter-memory": "workspace:*",

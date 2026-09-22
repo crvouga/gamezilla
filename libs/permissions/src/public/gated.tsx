@@ -2,11 +2,11 @@ import type { Decision } from '@pkgs/permissions';
 import { Button, KeyRoundIcon } from '@pkgs/ui';
 import { createMemo, type JSX, Match, Switch } from 'solid-js';
 
-import type { AppAction } from '../shared/permission-catalog';
+import type { AppPolicyKey } from '../shared/permission-catalog';
 import { usePermissions } from './use-permissions';
 
 export type GatedProps = {
-  readonly action: AppAction;
+  readonly action: AppPolicyKey;
   /** Opens the denial surface for a `lock` tap or a `soft` attempt. */
   readonly onDenied: (decision: Decision) => void;
   readonly children: JSX.Element;

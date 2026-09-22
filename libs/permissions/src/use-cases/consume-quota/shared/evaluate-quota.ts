@@ -10,8 +10,7 @@ import { unitsSince } from '../../../shared/ledger-time';
 import {
   type AccessIdentity,
   type AccessReader,
-  readAccessFacts,
-  readPermissionPolicy,
+  readAccess,
 } from '../../../shared/read-access';
 
 type LedgerRow = { readonly amount: unknown; readonly consumed_at: unknown };
@@ -55,11 +54,9 @@ export async function evaluateQuota(
     readonly amount: number;
   }
 ): Promise<Decision> {
-  const policy = policyAt(await readPermissionPolicy(db), args.clientAtMs);
-  const subject = resolveSubject(
-    policy,
-    await readAccessFacts(db, args.identity, args.nowMs)
-  );
+  const access = await readAccess(db, args.identity, args.nowMs);
+  const policy = policyAt(access.policy, args.clientAtMs);
+  const subject = resolveSubject(policy, access.facts);
   const window = quotaWindowOf(policy, subject, args.quota, {
     nowMs: args.nowMs,
   });

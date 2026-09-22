@@ -33,7 +33,6 @@
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/attribute": "workspace:*",
-    "@pkgs/auth": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",

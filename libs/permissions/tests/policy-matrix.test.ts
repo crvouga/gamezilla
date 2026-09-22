@@ -10,8 +10,9 @@ import {
   LIMIT,
   PERMISSION,
 } from '@libs/permissions/public/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';
 import {
+  decide,
   type Facts,
   limitsOf,
   permissionsOf,
@@ -52,6 +53,7 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.peopleSearch, 'deny', 'allow', 'allow'],
   [PERMISSION.notificationsReceive, 'deny', 'allow', 'allow'],
   [PERMISSION.devicesManage, 'deny', 'allow', 'allow'],
+  [PERMISSION.billingView, 'allow', 'allow', 'allow'],
   [PERMISSION.billingSubscribe, 'deny', 'allow', 'deny'],
   [PERMISSION.billingManage, 'deny', 'allow', 'allow'],
   [PERMISSION.matchmakingUse, 'deny', 'allow', 'allow'],
@@ -131,6 +133,87 @@ describe('shipped policy matrix', () => {
               : 0,
         });
       }
+    }
+  });
+
+  test('restrictions: what each caller is told, with billing on and off', () => {
+    const reason = (facts: Facts, key: string): string => {
+      const decision = decide(
+        DEFAULT_PERMISSION_POLICY,
+        resolveSubject(DEFAULT_PERMISSION_POLICY, facts),
+        key
+      );
+      return decision.allowed ? 'allow' : (decision.reason ?? 'not_granted');
+    };
+    const row = (key: string) => [
+      key,
+      reason({ ...PLANS.guest, billing: 'on' }, key),
+      reason({ ...PLANS.free, billing: 'on' }, key),
+      reason({ ...PLANS.paid, billing: 'on' }, key),
+      reason({ ...PLANS.free, billing: 'off' }, key),
+    ];
+    // [key, guest, free, paid, free with billing off]
+    expect([
+      row(PERMISSION.friendsUse),
+      row(PERMISSION.peopleSearch),
+      row(PERMISSION.notificationsReceive),
+      row(PERMISSION.devicesManage),
+      row(PERMISSION.matchmakingUse),
+      row(PERMISSION.puzzlesCustomizeFeed),
+      row(PERMISSION.billingView),
+      row(PERMISSION.billingSubscribe),
+      row(PERMISSION.billingManage),
+      row(PERMISSION.puzzlesPlay),
+    ]).toEqual([
+      [PERMISSION.friendsUse, 'requires_account', 'allow', 'allow', 'allow'],
+      [PERMISSION.peopleSearch, 'requires_account', 'allow', 'allow', 'allow'],
+      [
+        PERMISSION.notificationsReceive,
+        'requires_account',
+        'allow',
+        'allow',
+        'allow',
+      ],
+      [PERMISSION.devicesManage, 'requires_account', 'allow', 'allow', 'allow'],
+      [
+        PERMISSION.matchmakingUse,
+        'requires_account',
+        'allow',
+        'allow',
+        'allow',
+      ],
+      [
+        PERMISSION.puzzlesCustomizeFeed,
+        'requires_account',
+        'allow',
+        'allow',
+        'allow',
+      ],
+      [PERMISSION.billingView, 'allow', 'allow', 'allow', 'not_granted'],
+      [
+        PERMISSION.billingSubscribe,
+        'requires_account',
+        'allow',
+        'not_granted',
+        'not_granted',
+      ],
+      [PERMISSION.billingManage, 'requires_account', 'allow', 'allow', 'allow'],
+      [PERMISSION.puzzlesPlay, 'allow', 'allow', 'allow', 'allow'],
+    ]);
+  });
+
+  test('every requires_account denial has an unlock to follow', () => {
+    for (const key of Object.values(PERMISSION)) {
+      const decision = decide(
+        DEFAULT_PERMISSION_POLICY,
+        resolveSubject(DEFAULT_PERMISSION_POLICY, PLANS.guest),
+        key
+      );
+      if (decision.reason !== 'requires_account') continue;
+      expect({ key, unlockRef: decision.unlockRef }).toEqual({
+        key,
+        unlockRef: `${key}#requires_account`,
+      });
     }
   });
 });

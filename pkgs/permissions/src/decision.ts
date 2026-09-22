@@ -81,16 +81,15 @@ export function treatmentOf(
 }
 
 /**
- * Boolean grant decision. Restrictions are applied last and always win.
+ * Boolean grant decision. Restrictions always win, and report their reason.
  */
 export function decide(
   policy: PolicyVersion,
   subject: Subject,
   action: string
 ): Decision {
-  if (restrictedOf(policy, subject).has(action)) {
-    return deny(policy, action, 'restricted');
-  }
+  const restricted = restrictedOf(policy, subject).get(action);
+  if (restricted !== undefined) return deny(policy, action, restricted);
   if (!permissionsOf(policy, subject).has(action)) {
     return notGranted(policy, action);
   }
@@ -119,9 +118,8 @@ export function decideQuota(
   quota: string,
   usage: QuotaUsage
 ): Decision {
-  if (restrictedOf(policy, subject).has(quota)) {
-    return deny(policy, quota, 'restricted');
-  }
+  const restricted = restrictedOf(policy, subject).get(quota);
+  if (restricted !== undefined) return deny(policy, quota, restricted);
   const grant = quotasOf(policy, subject).get(quota);
   if (grant === undefined) return notGranted(policy, quota);
   const version = policyVersionOf(policy);

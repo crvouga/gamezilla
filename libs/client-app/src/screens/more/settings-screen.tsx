@@ -4,8 +4,8 @@
  * `MenuRow`s linking to the sub-screens.
  */
 
-import { useClientConfig } from '@libs/client-config/public/use-client-config';
-import { useAccessLabel } from '@libs/permissions/public/use-access-label';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
@@ -33,7 +33,6 @@ import { type Accessor, For, type JSX } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 
 import { APP_VERSION } from '../../config/app-metadata';
-import { useLocalIdentity } from '../../shell/identity/identity-context';
 import { usePerfHudPreference } from '../../shell/perf/perf-hud-preference';
 
 const ROW_ICON_SIZE = 20;
@@ -66,9 +65,7 @@ function useThemeValue(): Accessor<string> {
 
 function useAccountGroup(): Accessor<SettingsGroup> {
   const { t } = useLingui();
-  const { isSignedIn } = useLocalIdentity();
-  const config = useClientConfig();
-  const accessLabel = useAccessLabel();
+  const canViewBilling = useCan(PERMISSION.billingView);
   return () => ({
     key: 'account',
     title: t`Account`,
@@ -76,17 +73,15 @@ function useAccountGroup(): Accessor<SettingsGroup> {
       {
         title: t`Account`,
         caption: t`Sign-in methods, devices, sign out`,
-        value: isSignedIn() ? t`Signed in` : t`Guest`,
         icon: UserIcon,
         href: '/more/account',
         testid: 'settings-account',
       },
-      ...(config.config().billing_enabled
+      ...(canViewBilling()
         ? [
             {
               title: t`Billing`,
               caption: t`Plan and subscription`,
-              value: accessLabel(),
               icon: CreditCardIcon,
               href: '/more/billing',
               testid: Handles.settingsBilling,

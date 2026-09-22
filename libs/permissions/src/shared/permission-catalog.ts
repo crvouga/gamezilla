@@ -6,6 +6,7 @@ export const PERMISSION = defineCatalog({
   peopleSearch: 'people:search',
   notificationsReceive: 'notifications:receive',
   devicesManage: 'devices:manage',
+  billingView: 'billing:view',
   billingSubscribe: 'billing:subscribe',
   billingManage: 'billing:manage',
   matchmakingUse: 'matchmaking:use',
@@ -57,6 +58,9 @@ export type AppGrant = Exclude<AppAction, AppQuota>;
 /** Every key a policy role may list under `permissions`. */
 export type AppPolicyKey = AppPermission | AppAction;
 
+/** Every key that is granted (decided), not consumed. */
+export type AppGrantKey = Exclude<AppPolicyKey, AppQuota>;
+
 export function isQuotaAction(action: string): action is AppQuota {
   return (QUOTA_ACTIONS as readonly string[]).includes(action);
 }
@@ -64,7 +68,8 @@ export function isQuotaAction(action: string): action is AppQuota {
 /**
  * Every role a subject can hold. Roles are policy data: the baseline and plan
  * roles are assigned by their `when` fact predicates (`resolveSubject`), the
- * space roles by presence. Only this package and billing name them.
+ * space roles by presence. Private to this package: nothing outside it names
+ * a role, so no caller can branch on one.
  */
 export const ROLE = defineCatalog({
   baseline: 'baseline',

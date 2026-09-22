@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-19.1';
+export const PERMISSION_POLICY_VERSION = '2026-09-21.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -28,6 +28,35 @@ const ANONYMOUS_RATED: QuotaGrant = {
   window: 'day',
   resetBoundary: 'utcMidnight',
 };
+
+/**
+ * What only an account may do. Anonymous subjects are denied these with
+ * `requires_account`, so every surface that asks gets the same unlock (the
+ * policy's `signup` CTA) without knowing why it was denied.
+ */
+const ACCOUNT_ONLY: readonly AppPermission[] = [
+  PERMISSION.friendsUse,
+  PERMISSION.peopleSearch,
+  PERMISSION.notificationsReceive,
+  PERMISSION.devicesManage,
+  PERMISSION.billingSubscribe,
+  PERMISSION.billingManage,
+  PERMISSION.matchmakingUse,
+  PERMISSION.puzzlesCustomizeFeed,
+];
+
+/**
+ * Off while the deployment has no membership provider. `billing:manage` stays:
+ * it is what lets an account see its own membership, provider or not.
+ */
+const BILLING_OFFER: readonly AppPermission[] = [
+  PERMISSION.billingView,
+  PERMISSION.billingSubscribe,
+];
+
+const SIGN_UP_UNLOCK = {
+  requires_account: { titleKey: 'unlock.account.title', ctaTarget: 'signup' },
+} as const;
 
 const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.friendsUse,
@@ -51,6 +80,10 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
  * fact-matched roles (anonymous: 20/day, accounts: unlimited), never on the
  * baseline. Plan roles are listed explicitly — no inheritance — so the paid
  * role can lack `billing:subscribe`; their `when` predicates are exclusive.
+ *
+ * Restrictions carry what used to be feature code: account-only actions deny
+ * anonymous subjects with `requires_account`, and the membership offer is off
+ * everywhere while the deployment has no provider (`billing: 'off'`).
  */
 export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
   AppPolicyKey,
@@ -68,6 +101,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         ACTION.coachExplanationsView,
         ACTION.coachRefutationView,
         ACTION.statsOverviewView,
+        PERMISSION.billingView,
       ],
       quotas: { [ACTION.puzzlePracticeSolve]: UNLIMITED },
     },
@@ -108,7 +142,50 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       ],
     },
   },
+  restrictions: {
+    accountOnly: {
+      when: { auth: 'anonymous' },
+      deny: ACCOUNT_ONLY,
+      reason: 'requires_account',
+    },
+    billingOff: {
+      when: { billing: 'off' },
+      deny: BILLING_OFFER,
+      reason: 'not_granted',
+    },
+  },
   unlockRefs: {
+    [PERMISSION.friendsUse]: {
+      requires_account: {
+        titleKey: 'unlock.friends.title',
+        bodyKey: 'unlock.friends.body',
+        ctaTarget: 'signup',
+      },
+    },
+    [PERMISSION.peopleSearch]: {
+      requires_account: {
+        titleKey: 'unlock.people-search.title',
+        bodyKey: 'unlock.people-search.body',
+        ctaTarget: 'signup',
+      },
+    },
+    [PERMISSION.notificationsReceive]: {
+      requires_account: {
+        titleKey: 'unlock.notifications.title',
+        bodyKey: 'unlock.notifications.body',
+        ctaTarget: 'signup',
+      },
+    },
+    [PERMISSION.billingSubscribe]: {
+      requires_account: {
+        titleKey: 'unlock.billing-subscribe.title',
+        ctaTarget: 'signup',
+      },
+    },
+    [PERMISSION.devicesManage]: SIGN_UP_UNLOCK,
+    [PERMISSION.billingManage]: SIGN_UP_UNLOCK,
+    [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
+    [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [ACTION.puzzleRatedSolve]: {
       quota_exhausted: {
         titleKey: 'unlock.rated.limit.title',

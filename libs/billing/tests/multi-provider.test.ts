@@ -15,12 +15,12 @@ import { AUTH_TABLES } from '@libs/auth/public/schema';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { BILLING_TABLES } from '@libs/billing/public/schema';
 import { BillingApp } from '@libs/billing/root/server/billing-app';
-import { ROLE } from '@libs/permissions/public/permission-catalog';
 import {
   governingSubscription,
+  ROLE,
   resolvePlanRole,
   type SubscriptionRow,
-} from '@libs/permissions/public/plan';
+} from '@libs/permissions/root/access-model';
 import {
   createMembershipProviders,
   type MembershipBilling,
@@ -244,6 +244,7 @@ class World {
       subscription: governingSubscription(rows),
       nowMs: NOW + 30 * DAY,
       graceMs: GRACE_MS,
+      billingEnabled: true,
     });
   }
 }

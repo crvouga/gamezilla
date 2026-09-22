@@ -87,13 +87,12 @@ export const Handles = {
   billingTier: 'billing-tier',
   billingSubscribe: 'billing-subscribe',
   billingManage: 'billing-manage',
-  billingSignIn: 'billing-sign-in',
+  billingUnlock: 'billing-unlock',
   billingStatus: 'billing-status',
   billingNotice: 'billing-notice',
   billingPricing: 'billing-pricing',
   billingPrice: (priceKey: string) => `billing-price-${priceKey}`,
   billingBenefits: 'billing-benefits',
-  globalMenuMembership: 'global-menu-membership',
 
   // sign-in modal
   authMethodGoogle: 'auth-method-google',
@@ -146,7 +145,7 @@ export const Handles = {
   /** "No people found" state for a settled search. */
   searchEmpty: 'search-empty',
   /** Signed-out prompt in place of people results (`-action`: Sign in). */
-  searchSignInPrompt: 'search-sign-in-prompt',
+  searchDenied: 'search-denied',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,

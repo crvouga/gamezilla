@@ -155,4 +155,13 @@ describe('parsePolicy rejects', () => {
     const found = issues({ roles: { a: 'nope', '': {} } });
     expect(found.length).toBeGreaterThanOrEqual(2);
   });
+
+  test('a restriction reason outside the vocabulary', () => {
+    expect(
+      issues({
+        roles: {},
+        restrictions: { r: { when: 'always', deny: ['a'], reason: 'nope' } },
+      })
+    ).toContain('policy.restrictions["r"].reason must be a denial reason');
+  });
 });

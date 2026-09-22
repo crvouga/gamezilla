@@ -1,5 +1,5 @@
 /**
- * The billing screen's view model over its whole input space: every plan tier
+ * The billing screen's view model over its whole input space: every caller
  * × membership row × billing switch × customer link, against a table written
  * out by hand, plus properties over arbitrary (including unreadable) rows.
  */
@@ -14,21 +14,23 @@ import {
   formatMinorUnits,
   type MembershipRow,
   type MembershipState,
-  membershipMenuEntry,
   summarizeOffer,
 } from '@libs/billing/root/client/billing-view-model';
 import fc from 'fast-check';
 
 import {
+  CALLERS,
+  type Caller,
   DAY,
   inputFor,
+  MEMBER_KINDS,
   NOW,
   PAST_END,
   PERIOD_END,
   ROW_KINDS,
   type RowKind,
   row,
-  TIERS,
+  UNLOCK_LABEL,
 } from './support/billing-matrix';
 
 const KINDS = Object.keys(ROW_KINDS) as RowKind[];
@@ -36,76 +38,75 @@ const KINDS = Object.keys(ROW_KINDS) as RowKind[];
 const FC = { numRuns: 300, seed: 424_242 } as const;
 
 type Expected = {
+  readonly tier: BillingTier;
   readonly state: MembershipState;
   readonly primary: BillingPrimaryAction;
   readonly notice: BillingNotice | null;
 };
 
-/** Billing on: what a free and a paid account see, per row. */
-const SIGNED_IN: Record<RowKind, { free: Expected; paid: Expected }> = {
-  none: {
-    free: { state: 'none', primary: 'subscribe', notice: null },
-    paid: { state: 'none', primary: 'none', notice: null },
-  },
+/** Billing on: what an account sees, per row. */
+const ACCOUNT: Record<RowKind, Expected> = {
+  none: { tier: 'free', state: 'none', primary: 'subscribe', notice: null },
   incomplete: {
-    free: { state: 'incomplete', primary: 'subscribe', notice: 'incomplete' },
-    paid: { state: 'incomplete', primary: 'none', notice: 'incomplete' },
+    tier: 'free',
+    state: 'incomplete',
+    primary: 'subscribe',
+    notice: 'incomplete',
   },
-  trialing: {
-    free: { state: 'trialing', primary: 'none', notice: null },
-    paid: { state: 'trialing', primary: 'none', notice: null },
-  },
-  active: {
-    free: { state: 'active', primary: 'none', notice: null },
-    paid: { state: 'active', primary: 'none', notice: null },
-  },
+  trialing: { tier: 'paid', state: 'trialing', primary: 'none', notice: null },
+  active: { tier: 'paid', state: 'active', primary: 'none', notice: null },
   canceling: {
-    free: { state: 'canceling', primary: 'none', notice: null },
-    paid: { state: 'canceling', primary: 'none', notice: null },
+    tier: 'paid',
+    state: 'canceling',
+    primary: 'none',
+    notice: null,
   },
   delinquent: {
-    free: { state: 'delinquent', primary: 'none', notice: 'delinquent' },
-    paid: { state: 'delinquent', primary: 'none', notice: 'delinquent' },
+    tier: 'paid',
+    state: 'delinquent',
+    primary: 'none',
+    notice: 'delinquent',
   },
-  ended: {
-    free: { state: 'ended', primary: 'subscribe', notice: null },
-    paid: { state: 'ended', primary: 'none', notice: null },
-  },
+  ended: { tier: 'free', state: 'ended', primary: 'subscribe', notice: null },
 };
 
 function expected(
-  tier: BillingTier,
+  caller: Caller,
   kind: RowKind,
   billingEnabled: boolean
 ): Expected {
-  if (tier === 'guest') {
+  if (caller === 'guest') {
     return billingEnabled
-      ? { state: 'none', primary: 'sign_in', notice: null }
-      : { state: 'none', primary: 'none', notice: 'unavailable' };
+      ? { tier: 'free', state: 'none', primary: 'unlock', notice: null }
+      : { tier: 'free', state: 'none', primary: 'none', notice: 'unavailable' };
   }
-  const signedIn = SIGNED_IN[kind][tier];
+  const account = ACCOUNT[kind];
   return billingEnabled
-    ? signedIn
-    : { state: signedIn.state, primary: 'none', notice: 'unavailable' };
+    ? account
+    : { ...account, primary: 'none', notice: 'unavailable' };
 }
 
-describe('billing view: every tier × row × switch × customer', () => {
-  for (const tier of TIERS) {
+describe('billing view: every caller × row × switch × customer', () => {
+  for (const caller of CALLERS) {
     for (const kind of KINDS) {
       for (const enabled of [true, false]) {
         for (const hasCustomer of [true, false]) {
-          const name = `${tier} · ${kind} · billing ${enabled ? 'on' : 'off'} · ${hasCustomer ? 'customer' : 'no customer'}`;
+          const name = `${caller} · ${kind} · billing ${enabled ? 'on' : 'off'} · ${hasCustomer ? 'customer' : 'no customer'}`;
           test(name, () => {
             const view = buildBillingView(
-              inputFor(tier, kind, enabled, hasCustomer)
+              inputFor(caller, kind, enabled, hasCustomer)
             );
             expect({
+              tier: view.tier,
               state: view.state,
               primary: view.primary,
               notice: view.notice,
-            }).toEqual(expected(tier, kind, enabled));
+            }).toEqual(expected(caller, kind, enabled));
+            expect(view.unlockLabel).toBe(
+              view.primary === 'unlock' ? UNLOCK_LABEL : null
+            );
             expect(view.manage).toBe(
-              enabled && tier !== 'guest' && hasCustomer
+              enabled && caller === 'account' && hasCustomer
             );
             expect(view.showPricing).toBe(enabled);
           });
@@ -115,28 +116,46 @@ describe('billing view: every tier × row × switch × customer', () => {
   }
 });
 
+describe('billing view: grace', () => {
+  test('an ended membership stays paid through its grace period', () => {
+    const input = inputFor('account', 'ended', true, true);
+    expect(buildBillingView({ ...input, graceMs: 4 * DAY }).tier).toBe('paid');
+    expect(buildBillingView({ ...input, graceMs: 2 * DAY }).tier).toBe('free');
+  });
+
+  test('every member row reads as paid', () => {
+    for (const kind of MEMBER_KINDS) {
+      expect(buildBillingView(inputFor('account', kind, true, true)).tier).toBe(
+        'paid'
+      );
+    }
+  });
+});
+
 describe('billing view: dates', () => {
   test('a trial counts whole days down to its end', () => {
-    const view = buildBillingView(inputFor('paid', 'trialing', true, true));
+    const view = buildBillingView(inputFor('account', 'trialing', true, true));
     expect(view.periodEndMs).toBe(Date.parse(PERIOD_END));
     expect(view.daysLeft).toBe(10);
   });
 
   test('an end in the past has no days left', () => {
-    const view = buildBillingView(inputFor('free', 'ended', true, true));
+    const view = buildBillingView(inputFor('account', 'ended', true, true));
     expect(view.periodEndMs).toBe(Date.parse(PAST_END));
     expect(view.daysLeft).toBeNull();
   });
 
   test('an incomplete checkout has no date', () => {
-    const view = buildBillingView(inputFor('free', 'incomplete', true, true));
+    const view = buildBillingView(
+      inputFor('account', 'incomplete', true, true)
+    );
     expect(view.periodEndMs).toBeNull();
     expect(view.priceKey).toBe('subscription_monthly');
   });
 
   test('a trialing row set to cancel reads as canceling', () => {
     const view = buildBillingView({
-      ...inputFor('paid', 'trialing', true, true),
+      ...inputFor('account', 'trialing', true, true),
       row: row('trialing', true),
     });
     expect(view.state).toBe('canceling');
@@ -181,23 +200,36 @@ const arbRow: fc.Arbitrary<MembershipRow | null> = fc.option(
 );
 
 const arbInput: fc.Arbitrary<BillingViewInput> = fc.record({
-  tier: fc.constantFrom<BillingTier>('guest', 'free', 'paid'),
-  billingEnabled: fc.boolean(),
+  canView: fc.boolean(),
   canSubscribe: fc.boolean(),
   canManage: fc.boolean(),
+  subscribeUnlockLabel: fc.option(fc.constant(UNLOCK_LABEL), { nil: null }),
   hasCustomer: fc.boolean(),
   row: arbRow,
   nowMs: fc.constant(NOW),
+  graceMs: fc.constantFrom(0, 7 * DAY),
 });
 
 describe('billing view: properties over arbitrary rows', () => {
-  test('a guest is only ever offered sign-in', () => {
+  test('without the manage grant no membership is shown or managed', () => {
     fc.assert(
       fc.property(arbInput, (input) => {
-        const view = buildBillingView({ ...input, tier: 'guest' });
+        const view = buildBillingView({ ...input, canManage: false });
         expect(view.state).toBe('none');
+        expect(view.tier).toBe('free');
         expect(view.manage).toBe(false);
-        expect(view.primary).toBe(input.billingEnabled ? 'sign_in' : 'none');
+      }),
+      FC
+    );
+  });
+
+  test('a denied subscribe offers its unlock, and only then', () => {
+    fc.assert(
+      fc.property(arbInput, (input) => {
+        const view = buildBillingView(input);
+        if (view.primary !== 'unlock') return;
+        expect(input.canSubscribe).toBe(false);
+        expect(view.unlockLabel).toBe(input.subscribeUnlockLabel);
       }),
       FC
     );
@@ -206,9 +238,8 @@ describe('billing view: properties over arbitrary rows', () => {
   test('a paying member is never offered a second checkout', () => {
     fc.assert(
       fc.property(arbInput, (input) => {
-        expect(buildBillingView({ ...input, tier: 'paid' }).primary).not.toBe(
-          'subscribe'
-        );
+        const view = buildBillingView(input);
+        if (view.tier === 'paid') expect(view.primary).toBe('none');
       }),
       FC
     );
@@ -220,9 +251,7 @@ describe('billing view: properties over arbitrary rows', () => {
         const view = buildBillingView(input);
         if (view.state !== 'delinquent') return;
         expect(view.primary).toBe('none');
-        expect(view.notice).toBe(
-          input.billingEnabled ? 'delinquent' : 'unavailable'
-        );
+        expect(view.notice).toBe(input.canView ? 'delinquent' : 'unavailable');
       }),
       FC
     );
@@ -231,7 +260,7 @@ describe('billing view: properties over arbitrary rows', () => {
   test('billing off offers nothing', () => {
     fc.assert(
       fc.property(arbInput, (input) => {
-        const view = buildBillingView({ ...input, billingEnabled: false });
+        const view = buildBillingView({ ...input, canView: false });
         expect(view.primary).toBe('none');
         expect(view.manage).toBe(false);
         expect(view.showPricing).toBe(false);
@@ -309,17 +338,5 @@ describe('offer summary', () => {
   test('minor units format per currency', () => {
     expect(formatMinorUnits(700, 'usd', 'en-US')).toBe('$7.00');
     expect(formatMinorUnits(1050, 'jpy', 'en-US')).toBe('¥1,050');
-  });
-});
-
-describe('global menu chip', () => {
-  test('one chip per tier while billing is on, none while off', () => {
-    for (const tier of TIERS) {
-      expect(membershipMenuEntry(tier, true)).toEqual({
-        tier,
-        highlighted: tier === 'paid',
-      });
-      expect(membershipMenuEntry(tier, false)).toBeNull();
-    }
   });
 });

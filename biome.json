@@ -916,6 +916,38 @@
       ]
     },
     {
+      "path": "./libs/tools/biome-plugins/import-access-facts.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/libs/auth/**",
+        "!**/libs/permissions/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/import-access-model.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "!**/libs/permissions/**",
+        "!**/libs/server-app/src/app/create-server.ts",
+        "!**/*.test.{ts,tsx}",
+        "!**/tests/**"
+      ]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-access-state-vocabulary.grit",
+      "includes": [
+        "**/libs/*/src/**/*.{ts,tsx}",
+        "**/apps/*/src/**/*.{ts,tsx}",
+        "!**/libs/auth/**",
+        "!**/libs/billing/**",
+        "!**/libs/permissions/**",
+        "!**/libs/sim-harness/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
+    {
       "path": "./libs/tools/biome-plugins/import-auth-vendor.grit",
       "includes": [
         "**/apps/**/*.{ts,tsx}",

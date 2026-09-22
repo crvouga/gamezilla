@@ -24,7 +24,6 @@ export type LocalIdentityValue = {
   readonly userId: Accessor<string | null>;
   readonly deviceId: Accessor<string | null>;
   readonly sessionToken: Accessor<string | null>;
-  readonly isSignedIn: Accessor<boolean>;
 };
 
 const LocalIdentityContext = createContext<LocalIdentityValue>();
@@ -47,7 +46,6 @@ export function LocalIdentityProvider(props: {
     userId,
     deviceId,
     sessionToken,
-    isSignedIn: () => sessionToken() !== null,
   };
   return (
     <LocalIdentityContext.Provider value={value}>

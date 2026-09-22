@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { CLIENT_CONFIG_TABLES } from '@libs/client-config/public/schema';
 import { ACTION } from '@libs/permissions/public/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
 import { PERMISSIONS_TABLES } from '@libs/permissions/public/schema';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';
 import { PERMISSIONS_MUTATIONS } from '@libs/permissions/root/mutations';
 import { authorizeAppMutation } from '@libs/permissions/root/server/authorize-app-mutation';
 import { defineTable, registerTables } from '@pkgs/db-schema';

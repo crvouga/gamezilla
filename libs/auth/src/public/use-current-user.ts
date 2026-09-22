@@ -1,29 +1,24 @@
-import { createSecureStorageItem } from '@pkgs/secure-storage/solid';
 import { sql } from '@pkgs/sql';
 
 import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
+import { useHasAuthSession } from './access-facts';
 import { useAuthClientPort } from './auth-client-provider';
-import { SESSION_TOKEN_KEY } from './auth-storage-keys';
 import { BILLING_CUSTOMER_LINK_PREFIX } from './external-account-providers';
 import { parseMetadataEmail } from './linked-account-providers';
-import { resolveIsSignedIn, resolveMyId } from './resolve-client-identity';
-import { resolveHasAuthSession } from './session-capability';
+import { resolveMyId } from './resolve-client-identity';
 import { useCurrentAccountId } from './use-current-account-id';
 import { useDeviceId } from './use-device-id';
-import { useFreshAuthToken } from './use-fresh-auth-token';
 
 export type CurrentUser = {
   /** `users.id` — always set after anon ensure / auth refresh. */
   readonly id: string;
-  readonly isAnon: boolean;
   readonly createdAt: string | null;
   readonly billingCustomerId: string | null;
 };
 
 type UserRow = {
   readonly created_at: string | null;
-  readonly is_anon: number | boolean | string | null;
 };
 
 type BillingLinkRow = {
@@ -34,10 +29,6 @@ type ExternalAccountRow = {
   readonly metadata: unknown;
 };
 
-function readIsAnonFlag(value: unknown): boolean {
-  return value === true || value === 1 || value === '1' || value === 't';
-}
-
 /**
  * Source of truth for "who am I" on the client. Always a real `users` row
  * after auth boot (anon or signed-in). Returns a stub while the `users` row
@@ -47,10 +38,9 @@ function readIsAnonFlag(value: unknown): boolean {
  */
 export function useCurrentUser(): CurrentUser {
   const userId = useMyId();
-  const hasSession = useHasAuthSession();
   const userRows = createQuery(
     () => sql<UserRow>`
-    SELECT created_at, is_anon
+    SELECT created_at
     FROM auth_users
     WHERE id = ${userId()}
   `
@@ -67,18 +57,9 @@ export function useCurrentUser(): CurrentUser {
   );
   const billingRow = createMemo(() => billingRows.rows()[0] ?? null);
 
-  const isAnon = createMemo(
-    () =>
-      !hasSession() &&
-      (userRow() === null ? true : readIsAnonFlag(userRow()?.is_anon))
-  );
-
   return {
     get id() {
       return userId();
-    },
-    get isAnon() {
-      return isAnon();
     },
     get createdAt() {
       return userRow()?.created_at ?? null;
@@ -87,32 +68,6 @@ export function useCurrentUser(): CurrentUser {
       return billingRow()?.external_id ?? null;
     },
   };
-}
-
-/**
- * `true` when bound to a non-anon user with a session token.
- */
-export function useIsSignedIn(): Accessor<boolean> {
-  const accountId = useCurrentAccountId();
-  const token = useFreshAuthToken();
-  const isAnon = useIsAnon();
-  return createMemo(() => resolveIsSignedIn(accountId(), token(), isAnon()));
-}
-
-/**
- * Local-first provider session: hydrated secure storage has a bearer.
- * Does not wait on IdP `useSession`.
- */
-export function useHasAuthSession(): Accessor<boolean> {
-  const item = createSecureStorageItem(SESSION_TOKEN_KEY);
-  return createMemo(() => {
-    const value = item.value();
-    const token = typeof value === 'string' && value.length > 0 ? value : null;
-    return resolveHasAuthSession({
-      storageHydrated: item.isHydrated(),
-      sessionToken: token,
-    });
-  });
 }
 
 /**
@@ -127,34 +82,6 @@ export function useMyId(): Accessor<string> {
 /** Same as {@link useMyId} when bound; `null` before anon ensure. */
 export function useMyAccountId(): Accessor<string | null> {
   return useCurrentAccountId();
-}
-
-/**
- * `true` when the active `users` row is anon (no provider session / link).
- */
-export function useIsAnon(): Accessor<boolean> {
-  const hasSession = useHasAuthSession();
-  const myId = useMyId();
-  const watchId = createMemo(() => {
-    const id = myId();
-    return id.length > 0 ? id : '';
-  });
-  const rows = createQuery(
-    () => sql<{ is_anon: number | boolean | null }>`
-    SELECT is_anon
-    FROM auth_users
-    WHERE id = ${watchId()}
-  `
-  );
-  const row = createMemo(() => rows.rows()[0] ?? null);
-  return createMemo(() => {
-    if (hasSession()) return false;
-    const id = myId();
-    if (id.length === 0) return true;
-    const current = row();
-    if (current === null) return true;
-    return readIsAnonFlag(current.is_anon);
-  });
 }
 
 /**
