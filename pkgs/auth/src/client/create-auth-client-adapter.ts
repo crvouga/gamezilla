@@ -11,7 +11,7 @@ import {
   type SessionBody,
   toVerified,
 } from './auth-client-http';
-import { createLinkingOps } from './auth-client-linking';
+import type { LinkingOps } from './auth-client-linking';
 import {
   type AuthClientAdapterConfig,
   exchangeCode,
@@ -143,7 +143,16 @@ export function createAuthClientAdapter(
     bearerStore,
   });
   const ctx: SignInCtx = { config, bearerStore, callbackUrl, session };
-  const linking = createLinkingOps(ctx, config.clock);
+  // Managing sign-in methods (Settings, link prompts) is off the boot path:
+  // load it on first use. `prepareLink` runs ahead of the tap, so the module
+  // is already resolved when `linkProvider` opens the popup.
+  let linkingOps: Promise<LinkingOps> | null = null;
+  const linking = (): Promise<LinkingOps> => {
+    linkingOps ??= import('./auth-client-linking').then((m) =>
+      m.createLinkingOps(ctx, config.clock)
+    );
+    return linkingOps;
+  };
 
   const signOut = async (): Promise<void> => {
     bearerStore.setSuppressCapture(true);
@@ -176,14 +185,16 @@ export function createAuthClientAdapter(
     },
     signOut,
     async signOutEverywhere() {
-      await linking.signOutEverywhere();
+      await (await linking()).signOutEverywhere();
       await signOut();
     },
-    listIdentities: linking.listIdentities,
-    prepareLink: linking.prepareLink,
-    linkProvider: linking.linkProvider,
-    unlinkProvider: linking.unlinkProvider,
-    createSeparateAccount: linking.createSeparateAccount,
+    listIdentities: async () => (await linking()).listIdentities(),
+    prepareLink: async () => (await linking()).prepareLink(),
+    linkProvider: async (provider) => (await linking()).linkProvider(provider),
+    unlinkProvider: async (provider) =>
+      (await linking()).unlinkProvider(provider),
+    createSeparateAccount: async (pendingLinkToken) =>
+      (await linking()).createSeparateAccount(pendingLinkToken),
     async getFreshToken(options?: GetFreshTokenOptions) {
       // After a 401 the caller asks for a fresh token: re-check the session,
       // which drops a bearer the server no longer honours.
