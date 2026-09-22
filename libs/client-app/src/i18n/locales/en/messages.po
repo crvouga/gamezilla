@@ -362,6 +362,14 @@ msgstr "Cancel"
 msgid "Canceled · access until {0}"
 msgstr "Canceled · access until {0}"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Cancelling…"
+msgstr "Cancelling…"
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
 msgstr "Cannot edit"
@@ -544,6 +552,10 @@ msgstr "Could not start local database"
 msgid "Couldn't accept"
 msgstr "Couldn't accept"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't cancel"
+msgstr "Couldn't cancel"
+
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
@@ -597,6 +609,14 @@ msgstr "Couldn't rename space"
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't send"
+msgstr "Couldn't send"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't unblock"
+msgstr "Couldn't unblock"
 
 #: libs/permissions/src/public/unlock-copy.tsx
 msgid "Create an account"
@@ -788,6 +808,10 @@ msgstr "Edit profile"
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Email"
 msgstr "Email"
+
+#: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-seed-field.tsx
+msgid "Empty: your default look"
+msgstr "Empty: your default look"
 
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "EMQX"
@@ -1456,6 +1480,7 @@ msgid "Off"
 msgstr "Off"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Offline"
 msgstr "Offline"
 
@@ -1467,6 +1492,7 @@ msgstr "Offline"
 msgid "On"
 msgstr "On"
 
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
@@ -1913,6 +1939,14 @@ msgstr "Select style…"
 msgid "Select…"
 msgstr "Select…"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Sending…"
+msgstr "Sending…"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Sent"
+msgstr "Sent"
+
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Server"
 msgstr "Server"
@@ -2249,6 +2283,7 @@ msgstr "Suggested"
 msgid "Sync"
 msgstr "Sync"
 
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/chrome/offline-indicator.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
@@ -2261,6 +2296,7 @@ msgstr "Synced from the server on first request. Values come from server secrets
 msgid "Synced runtime configuration"
 msgstr "Synced runtime configuration"
 
+#: libs/client-app/src/chrome/app-header-global-menu.tsx
 #: libs/client-app/src/screens/more/sync-screen.tsx
 msgid "Syncing"
 msgstr "Syncing"
@@ -2305,6 +2341,10 @@ msgstr "Target rating: {0}"
 msgid "Text to speech"
 msgstr "Text to speech"
 
+#: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
+msgid "That username is not allowed"
+msgstr "That username is not allowed"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "That's all the puzzles for now. The board opens again when your allowance resets."
 msgstr "That's all the puzzles for now. The board opens again when your allowance resets."
@@ -2329,6 +2369,10 @@ msgstr "Themes"
 #: libs/client-app/src/routes/route-stub.tsx
 msgid "There is nothing at this address."
 msgstr "There is nothing at this address."
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "They already asked you"
+msgstr "They already asked you"
 
 #: libs/friends/src/root/client/friend-user-danger-modals.tsx
 msgid "They will be removed from your friends list."
@@ -2384,6 +2428,10 @@ msgstr "Try a different search term."
 msgid "Try again"
 msgstr "Try again"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Try again later"
+msgstr "Try again later"
+
 #: pkgs/ui/src/components/command-palette/command-palette-input.tsx
 msgid "Type a command or search…"
 msgstr "Type a command or search…"
@@ -2405,12 +2453,21 @@ msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
 #: libs/client-app/src/screens/more/about-screen.tsx
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Unavailable"
 msgstr "Unavailable"
 
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Unblock"
 msgstr "Unblock"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Unblocked"
+msgstr "Unblocked"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Unblocking…"
+msgstr "Unblocking…"
 
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 msgid "Unique handle for search and invites"

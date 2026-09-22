@@ -11,27 +11,23 @@ import {
   addFriendOffered,
   friendRequestCardVisible,
   friendRowVisible,
+  handleText,
 } from '@libs/friends/sim/friends-ui-reads';
+import { tapFriendPill } from '@libs/friends/sim/person-actions';
 import { searchUsername } from '@libs/search/sim/search-actions';
-import { returnToTabs, signInWithGoogle } from '@libs/sim-harness';
+import { returnToTabs } from '@libs/sim-harness';
 import {
   aliceUsername,
   bobUsername,
 } from '@libs/sim-harness/open-sim/fixtures';
-import type { OpenSim } from '@libs/sim-harness/open-sim/open-sim';
+import { Handles } from '@libs/test-ids';
 import { openSim } from './support/open-friends-sim';
-
-async function signInBoth(s: OpenSim): Promise<void> {
-  for (const actor of ['alice', 'bob']) {
-    await s.apply(signInWithGoogle, actor);
-    await s.apply(returnToTabs, actor);
-  }
-}
+import { signInPair } from './support/sign-in-pair';
 
 describe('friends request → decline / cancel', () => {
-  test('bob declines: neither is a friend, and alice may ask again', async () => {
+  test('bob declines: neither is a friend, and asking again at once is refused with a reason', async () => {
     await using s = await openSim('decline');
-    await signInBoth(s);
+    await signInPair(s);
     await s.apply(searchUsername, 'alice', bobUsername);
     await s.apply(addFriend, 'alice', bobUsername);
     await s.until((surf) =>
@@ -55,11 +51,22 @@ describe('friends request → decline / cancel', () => {
     );
     await s.apply(openFriendsList, 'alice');
     expect(await s.read(friendRowVisible, 'alice', bobUsername)).toBe(false);
+
+    // Asking again straight away is refused, and the pill says why.
+    await s.apply(returnToTabs, 'alice');
+    await s.apply(searchUsername, 'alice', bobUsername);
+    await s.apply(tapFriendPill, 'alice', Handles.friendAdd(bobUsername));
+    expect(
+      await s.read(handleText, 'alice', Handles.friendAdd(bobUsername))
+    ).toBe('Try again later');
+    expect(await s.read(friendRequestCardVisible, 'bob', aliceUsername)).toBe(
+      false
+    );
   });
 
   test('alice cancels: the request leaves bob’s inbox', async () => {
     await using s = await openSim('cancel');
-    await signInBoth(s);
+    await signInPair(s);
     await s.apply(searchUsername, 'alice', bobUsername);
     await s.apply(addFriend, 'alice', bobUsername);
     await s.until((surf) =>

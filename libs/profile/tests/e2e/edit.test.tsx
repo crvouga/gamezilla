@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import {
+  cancelAvatarEdits,
   leaveAvatarEditor,
   openAvatarEditor,
   openProfileEdit,
@@ -44,6 +45,21 @@ describe('profile edit', () => {
     await s.apply(openAvatarEditor, 'alice');
     expect(await s.read(readAvatarSeed, 'alice')).toBe('sim-seed-guest');
     expect(await s.read(readAvatarStyleLabel, 'alice')).toContain('Bottts');
+  });
+
+  test('avatar edits left with Cancel are not saved', async () => {
+    await using s = await openSim('profile-edit-avatar-cancel');
+    await s.apply(openProfileEdit, 'alice');
+    await s.apply(openAvatarEditor, 'alice');
+    await s.apply(setAvatarSeed, 'alice', 'kept-seed');
+    await s.apply(saveAvatar, 'alice');
+    await s.apply(setAvatarSeed, 'alice', 'discarded-seed');
+    // Cancel asks first; keeping on editing keeps the draft.
+    await s.apply(cancelAvatarEdits, 'alice', false);
+    expect(await s.read(readAvatarSeed, 'alice')).toBe('discarded-seed');
+    await s.apply(cancelAvatarEdits, 'alice', true);
+    await s.apply(openAvatarEditor, 'alice');
+    expect(await s.read(readAvatarSeed, 'alice')).toBe('kept-seed');
   });
 
   test('signed-in updates username', async () => {

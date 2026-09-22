@@ -21,6 +21,7 @@
     "@libs/auth": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/clock": "workspace:*",

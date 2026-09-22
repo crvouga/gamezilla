@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
 import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -19,6 +20,7 @@ export function SearchFriendResultRow(props: {
   return (
     <FriendUserRow
       profile={props.user}
+      pressTestID={Handles.searchUserResultOpen(props.user.username)}
       onPress={() =>
         router.push({
           pathname: '/profile/user/[userId]',

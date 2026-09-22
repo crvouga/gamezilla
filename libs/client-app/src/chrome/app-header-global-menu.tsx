@@ -41,14 +41,18 @@ const CONNECTIVITY_DOT_SIZE = 14;
 const TRIGGER_AVATAR_SIZE = 32;
 const HEADER_AVATAR_SIZE = 40;
 
-function connectivityStatusLabel(
-  t: ReturnType<typeof useLingui>['t'],
-  status: StatusDotStatus
-): string {
-  if (status === 'online') return t`Online`;
-  if (status === 'offline') return t`Offline`;
-  if (status === 'pending') return t`Syncing`;
-  return t`Sync issue`;
+/**
+ * `t` must come from `useLingui()` in this scope: the macro compiles only
+ * that binding, so a `t` passed in as an argument renders every label empty.
+ */
+function useConnectivityStatusLabel(): (status: StatusDotStatus) => string {
+  const { t } = useLingui();
+  return (status) => {
+    if (status === 'online') return t`Online`;
+    if (status === 'offline') return t`Offline`;
+    if (status === 'pending') return t`Syncing`;
+    return t`Sync issue`;
+  };
 }
 
 function useThemeCaption(): () => string {
@@ -67,6 +71,7 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
   const router = useRouter();
   const connectivity = createConnectivity();
   const themeCaption = useThemeCaption();
+  const connectivityStatusLabel = useConnectivityStatusLabel();
   const { muted } = useSoundsPreference();
   const go = (href: string) => () => router.push(href);
   return createMemo(() => [
@@ -81,8 +86,8 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
     {
       id: 'connectivity',
       label: t`Connectivity`,
-      subtitle: connectivityStatusLabel(t, connectivity.status()),
-      'aria-label': connectivityStatusLabel(t, connectivity.status()),
+      subtitle: connectivityStatusLabel(connectivity.status()),
+      'aria-label': connectivityStatusLabel(connectivity.status()),
       leading: (
         <StatusDot
           status={connectivity.status()}

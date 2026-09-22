@@ -5,19 +5,40 @@ import {
   openFriendsList,
   removeFriend,
 } from '@libs/friends/sim/friends-actions';
-import { friendRowVisible } from '@libs/friends/sim/friends-ui-reads';
+import {
+  friendRowVisible,
+  handleVisible,
+  readFriendsCount,
+} from '@libs/friends/sim/friends-ui-reads';
+import {
+  keepFriend,
+  openPersonFromSearch,
+} from '@libs/friends/sim/person-actions';
 import { setupFriendsPair } from '@libs/friends/sim/setup-friends-pair';
 import { returnToTabs } from '@libs/sim-harness';
 import {
   aliceUsername,
   bobUsername,
 } from '@libs/sim-harness/open-sim/fixtures';
+import { Handles } from '@libs/test-ids';
 import { openSim } from './support/open-friends-sim';
 
 describe('friends → remove', () => {
   test('alice removes bob: the friendship is gone for both', async () => {
     await using s = await openSim('remove');
     await setupFriendsPair(s);
+
+    // Changing your mind at the confirm keeps the friendship.
+    await s.apply(openPersonFromSearch, 'alice', bobUsername);
+    await s.apply(keepFriend, 'alice', bobUsername);
+    expect(
+      await s.read(
+        handleVisible,
+        'alice',
+        Handles.friendStatusFriends(bobUsername)
+      )
+    ).toBe(true);
+    await s.apply(returnToTabs, 'alice');
 
     await s.apply(removeFriend, 'alice', bobUsername);
     await s.apply(returnToTabs, 'alice');
@@ -30,5 +51,7 @@ describe('friends → remove', () => {
       pred: (visible) => !visible,
       maxMs: 15_000,
     });
+    expect(await s.read(readFriendsCount, 'alice')).toBe('0');
+    expect(await s.read(readFriendsCount, 'bob')).toBe('0');
   });
 });

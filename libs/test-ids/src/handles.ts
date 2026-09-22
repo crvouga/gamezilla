@@ -47,6 +47,8 @@ export const Handles = {
   friendDecline: (username: string) => `friend-decline-${username}`,
   /** Remove friend pill (scoped by username). */
   friendRemove: (username: string) => `friend-remove-${username}`,
+  /** Remove friend dialog: keep the friend (scoped by username). */
+  friendRemoveCancel: (username: string) => `friend-remove-cancel-${username}`,
   /** Remove friend confirmation button (scoped by username). */
   friendRemoveConfirm: (username: string) =>
     `friend-remove-confirm-${username}`,
@@ -56,6 +58,10 @@ export const Handles = {
   friendBlockConfirm: (username: string) => `friend-block-confirm-${username}`,
   /** Unblock user pill (scoped by username). */
   friendUnblock: (username: string) => `friend-unblock-${username}`,
+  /** The @handle heading on another person's profile screen. */
+  friendUserUsername: 'friend-user-username',
+  /** "No friends yet" empty state on the friends list (`-action`: Find friends). */
+  friendsEmpty: 'friends-empty',
 
   // account
   accountSignIn: 'account-sign-in',
@@ -95,11 +101,17 @@ export const Handles = {
   profileAvatarSeed: 'profile-avatar-seed',
   profileAvatarSave: 'profile-avatar-save',
   profileAvatarCancel: 'profile-avatar-cancel',
+  /** "Discard changes?" → Discard, after Cancel on an edited avatar. */
+  profileAvatarDiscardConfirm: 'profile-avatar-discard-confirm',
+  /** "Discard changes?" → keep editing. */
+  profileAvatarDiscardKeep: 'profile-avatar-discard-keep',
   profileAvatarStyle: 'profile-avatar-style',
   profileAvatarStyleSearch: 'profile-avatar-style-search',
   profileAvatarStyleBottts: 'profile-avatar-style-bottts',
   profileAvatarTrait: 'profile-avatar-trait',
   profileFriendsStats: 'profile-friends-stats',
+  /** The number in the Profile tab's friends stat row. */
+  profileFriendsCount: 'profile-friends-count',
 
   // search
   searchInput: 'search-input',
@@ -107,6 +119,13 @@ export const Handles = {
   searchLoading: 'search-loading',
   /** People search result row scoped by the found user's username. */
   searchUserResult: (username: string) => `search-user-result-${username}`,
+  /** The pressable identity in a people search result (opens their profile). */
+  searchUserResultOpen: (username: string) =>
+    `search-user-result-open-${username}`,
+  /** "No people found" state for a settled search. */
+  searchEmpty: 'search-empty',
+  /** Signed-out prompt in place of people results (`-action`: Sign in). */
+  searchSignInPrompt: 'search-sign-in-prompt',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
@@ -129,6 +148,12 @@ export const Handles = {
   /** Notifications Decline for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestDecline: (fromUsername: string) =>
     `notifications-friend-request-decline-${fromUsername}`,
+  /** "View profile" in the friend-request modal (fromUsername). */
+  notificationsFriendRequestViewProfile: (fromUsername: string) =>
+    `notifications-friend-request-view-profile-${fromUsername}`,
+  /** "@x accepted your friend request" card (the accepter's username). */
+  notificationsFriendAcceptedCard: (username: string) =>
+    `notifications-friend-accepted-card-${username}`,
 
   // chess / spaces games
   gameMenuChess: 'game-menu-chess',
