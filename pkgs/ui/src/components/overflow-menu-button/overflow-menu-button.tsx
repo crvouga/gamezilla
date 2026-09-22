@@ -59,7 +59,7 @@ export type OverflowMenuHeader = {
   title: JSX.Element;
   subtitle?: JSX.Element | undefined;
   avatar?: JSX.Element | undefined;
-  /** Status chip at the header's trailing edge (e.g. a plan tier). */
+  /** Status chip on its own row under the title (e.g. a plan tier). */
   badge?: JSX.Element | undefined;
 };
 

@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * Publishes the caller's plan tier into the shell's global menu, where it
- * shows as a chip beside the account name. Mounts inside the sync tree (the
+ * shows as a chip on its own row under the account name. Mounts inside the sync tree (the
  * tier is read from synced rows); the menu itself sits above the local
  * database gate and only sees the published label. Nothing is published
  * while billing is switched off, so the menu shows no chip.
@@ -23,7 +23,7 @@ export function MembershipMenuBridge(props: {
   const tier = useBillingTier();
   const { config } = useClientConfig();
   const label = (current: BillingTier): string => {
-    if (current === 'paid') return t`Paid`;
+    if (current === 'paid') return t`Plus`;
     if (current === 'free') return t`Free`;
     return t`Guest`;
   };

@@ -8,7 +8,7 @@ export type FloatingMenuHeaderSpec = {
   subtitle?: JSX.Element | undefined;
   /** Optional avatar beside title/subtitle. */
   avatar?: JSX.Element | undefined;
-  /** Optional status chip at the header's trailing edge (e.g. a plan tier). */
+  /** Optional status chip on its own row under the title (e.g. a plan tier). */
   badge?: JSX.Element | undefined;
 };
 

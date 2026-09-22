@@ -284,12 +284,15 @@ describe('FloatingMenu header badge', () => {
     ));
   }
 
-  test('renders the badge beside the header title', () => {
-    renderHeader(<span data-testid="tier-chip">{'Paid'}</span>);
+  test('renders the badge on its own row under the header title', () => {
+    renderHeader(<span data-testid="tier-chip">{'Plus'}</span>);
     const header = mustQuery('[data-component="FloatingMenuHeader"]');
     const chip = screen.getByTestId('tier-chip');
     expect(header.contains(chip)).toBe(true);
-    expect(chip.textContent).toBe('Paid');
+    expect(chip.textContent).toBe('Plus');
+    // Its own row: a direct child of the header, apart from the title's row.
+    expect(chip.parentElement?.parentElement === header).toBe(true);
+    expect(chip.parentElement?.textContent).toBe('Plus');
   });
 
   test('renders no badge slot without one', () => {

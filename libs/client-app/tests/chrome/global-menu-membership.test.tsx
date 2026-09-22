@@ -58,7 +58,7 @@ describe('global menu membership chip', () => {
   for (const membership of [
     { label: 'Guest', highlighted: false },
     { label: 'Free', highlighted: false },
-    { label: 'Paid', highlighted: true },
+    { label: 'Plus', highlighted: true },
   ] as const) {
     test(`shows the ${membership.label} tier`, () => {
       const publish = mount();
@@ -71,13 +71,13 @@ describe('global menu membership chip', () => {
     const publish = mount();
     publish({ label: 'Free', highlighted: false });
     const plain = chip()?.getAttribute('style');
-    publish({ label: 'Paid', highlighted: true });
+    publish({ label: 'Plus', highlighted: true });
     expect(chip()?.getAttribute('style')).not.toBe(plain);
   });
 
   test('withdrawing the tier removes the chip', () => {
     const publish = mount();
-    publish({ label: 'Paid', highlighted: true });
+    publish({ label: 'Plus', highlighted: true });
     publish(null);
     expect(chip()).toBeNull();
   });

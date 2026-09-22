@@ -1544,7 +1544,6 @@ msgstr "Page not found"
 msgid "Pagination"
 msgstr "Pagination"
 
-#: libs/billing/src/root/client/membership-menu-bridge.tsx
 #: libs/permissions/src/public/use-access-label.tsx
 msgid "Paid"
 msgstr "Paid"
@@ -1649,6 +1648,10 @@ msgstr "Playing as a guest"
 #: libs/client-app/src/chrome/app-header-global-menu.tsx
 msgid "Playing as guest"
 msgstr "Playing as guest"
+
+#: libs/billing/src/root/client/membership-menu-bridge.tsx
+msgid "Plus"
+msgstr "Plus"
 
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Preferences"

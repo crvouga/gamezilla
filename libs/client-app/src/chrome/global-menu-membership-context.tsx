@@ -14,7 +14,7 @@ import { defineContext } from '@pkgs/solid-context/define-context';
 import { type Accessor, createSignal, type JSX } from 'solid-js';
 
 export type GlobalMenuMembership = {
-  /** Short, already-translated label ("Free", "Paid"). */
+  /** Short, already-translated label ("Free", "Plus"). */
   readonly label: string;
   /** Draw the chip in the brand tone (a paying member). */
   readonly highlighted: boolean;
