@@ -47,6 +47,7 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
