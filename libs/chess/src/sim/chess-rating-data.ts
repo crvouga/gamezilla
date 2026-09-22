@@ -18,6 +18,7 @@ export type PuzzleProfileRow = {
 export type PuzzleRatingEventRow = {
   readonly puzzle_id: string;
   readonly outcome: string;
+  readonly score_permille: number;
   readonly rating_before: number;
   readonly rating_after: number;
   readonly at: string;
@@ -42,7 +43,7 @@ async function selectRatingEvents(
   ownerId: string
 ): Promise<PuzzleRatingEventRow[]> {
   return db.query(sql<PuzzleRatingEventRow>`
-    SELECT puzzle_id, outcome, rating_before, rating_after, at
+    SELECT puzzle_id, outcome, score_permille, rating_before, rating_after, at
     FROM chess_puzzle_rating_events
     WHERE owner_id = ${ownerId}
       AND deleted_at IS NULL

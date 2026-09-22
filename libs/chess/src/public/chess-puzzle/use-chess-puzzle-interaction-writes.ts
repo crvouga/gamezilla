@@ -27,7 +27,10 @@ export function useChessPuzzleInteractionWrites(args: {
     kind: ChessPuzzleInteractionKind,
     extra?: AppendExtra
   ) => Promise<void>;
-  finalizePlay: (terminalKind: ChessPuzzleOutcomeKind) => Promise<void>;
+  finalizePlay: (
+    terminalKind: ChessPuzzleOutcomeKind,
+    wrongMove: boolean
+  ) => Promise<void>;
 } {
   const myId = useMyId();
   const mutationClient = useMutationClient();
@@ -51,7 +54,8 @@ export function useChessPuzzleInteractionWrites(args: {
   };
 
   const finalizePlay = async (
-    terminalKind: ChessPuzzleOutcomeKind
+    terminalKind: ChessPuzzleOutcomeKind,
+    wrongMove: boolean
   ): Promise<void> => {
     if (myId().length === 0) return;
     await interactionDb.finalizeRatedAttempt({
@@ -62,6 +66,7 @@ export function useChessPuzzleInteractionWrites(args: {
       solveIdx: args.solveIdx(),
       interactions: args.interactions(),
       terminalKind,
+      wrongMove,
     });
   };
 

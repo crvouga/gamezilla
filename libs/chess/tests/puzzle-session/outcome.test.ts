@@ -37,7 +37,7 @@ describe('the play outcome (§5: the first one, once)', () => {
     expect(playOutcome(play)?.kind).toBe('failed');
     expect(hasPlayOutcome(play, 'p1')).toBe(true);
     expect(hasPendingPlay(play, 'p1')).toBe(false);
-    expect(deriveOutcomeScore(play)).toBe(0);
+    expect(deriveOutcomeScore(play)).toBe(0.5);
   });
 
   test('a started play with no outcome is pending (restored, not restarted)', () => {
@@ -47,12 +47,25 @@ describe('the play outcome (§5: the first one, once)', () => {
     expect(hasPendingPlay(play, 'other')).toBe(false);
   });
 
-  test('a clean solve scores 1, a hinted solve 0.5, a fail and an abandon 0', () => {
+  test('clean solve scores 1, assistance 0.5, solution and abandonment 0', () => {
     expect(deriveOutcomeScore([row('started'), row('solved')])).toBe(1);
     expect(
       deriveOutcomeScore([row('started'), row('used-hint'), row('solved')])
     ).toBe(0.5);
+    expect(
+      deriveOutcomeScore([
+        row('started'),
+        row('moved', { correct: false }),
+        row('failed'),
+      ])
+    ).toBe(0.5);
     expect(deriveOutcomeScore([row('started'), row('failed')])).toBe(0);
+    expect(
+      deriveOutcomeScore([row('started'), row('used-hint'), row('failed')])
+    ).toBe(0);
+    expect(
+      deriveOutcomeScore([row('started'), row('used-hint'), row('abandoned')])
+    ).toBe(0);
     expect(deriveOutcomeScore([row('started'), row('abandoned')])).toBe(0);
   });
 
@@ -67,7 +80,7 @@ describe('the play outcome (§5: the first one, once)', () => {
       row('solved'),
     ];
     expect(playOutcome(play)?.kind).toBe('failed');
-    expect(deriveOutcomeScore(play)).toBe(0);
+    expect(deriveOutcomeScore(play)).toBe(0.5);
   });
 });
 
