@@ -12,7 +12,7 @@ browser ──► web (vite preview, /api proxied)
                    │  /api/room upgrades are hashed by topic,
                    │  so a room always lands on one instance
                    ▼
-     Postgres · S3rver · Aedes MQTT · simulated Google (own origin, own state)
+     Postgres · S3rver · Aedes MQTT · simulated Google + Apple (own origins, own state)
 
 Everything is real: the production Worker handler runs unchanged on Bun (only
 the listener and the `ROOM` binding are local), instances share one Postgres /
@@ -51,6 +51,12 @@ chooser and the sign-in hints have a list worth reading:
 - `ed@gmail.com`
 - `fred@gmail.com`
 
+A second provider process speaks **Sign in with Apple** (mock-only; the API
+nodes get `APPLE_*` bindings and a relying-party key minted at boot). It starts
+with `alice@icloud.com`, `bob@icloud.com`, `chris@gmail.com` (the same person
+as Google's `chris` — sign in with both to see account linking) and
+`dan@icloud.com`. Its consent card offers **Hide My Email**.
+
 **Every account uses the password `password`** — there is no per-account secret,
 and the sign-in page says so. New accounts can be created from the sign-in and
 chooser screens (name + email only; the password is always `password`), then
@@ -66,8 +72,8 @@ where that file lives:
 | mode | database | survives |
 | --- | --- | --- |
 | `memory` (default) | in-memory SQLite | nothing; each boot starts clean |
-| `instance` | `<instance data dir>/idp.sqlite` | a stack restart, when `--keep-data` is set |
-| `path` | exactly `--idp-state-path` | everything — stack cleanup never deletes it |
+| `instance` | `<instance data dir>/idp.sqlite` (+ `idp.apple.sqlite`) | a stack restart, when `--keep-data` is set |
+| `path` | exactly `--idp-state-path` (Apple beside it as `<name>.apple.sqlite`) | everything — stack cleanup never deletes it |
 
 A persisted store keeps the same `kid`/JWKS across restarts, so tokens issued
 before a restart still verify.

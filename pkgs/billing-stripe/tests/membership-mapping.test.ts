@@ -205,20 +205,27 @@ describe('Stripe → membership mapping, every combination', () => {
     );
   });
 
-  // One test per Stripe status keeps each well inside the per-test timeout.
+  // One test per Stripe status × event keeps each well inside the per-test
+  // timeout even when the whole gate saturates the CPU (a per-status slice
+  // of 768 signed webhooks did not).
   for (const status of STATUS) {
-    test(`${status[0]}: each case projects as the tables say`, async () => {
-      const rig = openBilling();
-      let n = 0;
-      for (const c of all.filter((candidate) => candidate.status === status)) {
-        n += 1;
-        const result = await projectCase(rig, c, n);
-        expect({ case: label(c), result }).toEqual({
-          case: label(c),
-          result: expected(c),
-        });
-      }
-      expect(n).toBeGreaterThan(0);
-    });
+    for (const event of EVENTS) {
+      test(`${status[0]} × ${event[0]}: each case projects as the tables say`, async () => {
+        const rig = openBilling();
+        let n = 0;
+        for (const c of all.filter(
+          (candidate) =>
+            candidate.status === status && candidate.event === event
+        )) {
+          n += 1;
+          const result = await projectCase(rig, c, n);
+          expect({ case: label(c), result }).toEqual({
+            case: label(c),
+            result: expected(c),
+          });
+        }
+        expect(n).toBeGreaterThan(0);
+      });
+    }
   }
 });

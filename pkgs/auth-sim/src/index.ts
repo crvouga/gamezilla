@@ -1,48 +1,67 @@
 /**
- * Test / sim host seam for `@pkgs/auth`.
+ * Test / sim host seam for `@pkgs/auth`: the auth app, a Google-flavored and
+ * an Apple-flavored mock provider, devices running the production client
+ * port, and a reference model every step is checked against.
  * Import from `@pkgs/auth-sim` only — not for product apps/libs.
  */
 
 export {
-  dispatchOauthApprove,
-  dispatchOauthStart,
-  dispatchSessionExchange,
-  dispatchSignOut,
-  dispatchStealBearer,
-  type OauthProvider,
-} from './dispatch';
+  AUTH_ACTIONS,
+  AUTH_FAULTS,
+  advanceClock,
+  appleAccountDeleted,
+  appleConsentRevoked,
+  appleRelayForwarding,
+  clearProviderFaults,
+  clientIds,
+  confirmPendingLink,
+  declinePendingLink,
+  type FetchAuthArgs,
+  fetchAuth,
+  GHOST_EMAIL,
+  googleEmailChanged,
+  linkProvider,
+  migrateSchema,
+  type ProviderStepArgs,
+  prepareLink,
+  rotateProviderKeys,
+  setOnline,
+  setProviderFault,
+  signIn,
+  signOut,
+  signOutEverywhere,
+  stealBearer,
+  unlinkProvider,
+} from './actions';
+export {
+  APPLE_CLIENT_ID,
+  APPLE_DIRECTORY,
+  DIRECTORIES,
+  GOOGLE_DIRECTORY,
+} from './idp-node';
 export { assertAuthInvariants, authFingerprint } from './invariants';
-export { migrateAuthSchema, startActor, startStore } from './nodes';
-export type { AuthSurface } from './system';
+export { type AuthModel, identityKey } from './model';
+export { migrateAuthSchema, startStore } from './nodes';
 export {
   AUTH_ARGS,
   type AuthArgs,
-  advanceClock,
   arbAuthArgs,
   auth,
-  bearers,
   caps,
   clientBearers,
-  clientIds,
-  type FetchAuthArgs,
   fabric,
-  fetchAuth,
+  identitiesOf,
   invariantsHold,
   invariantViolations,
+  lastOutcome,
   lastStatus,
-  migrateSchema,
-  type OauthApproveArgs,
-  type OauthStartArgs,
-  oauthApprove,
-  oauthStart,
-  sessionExchange,
+  outcomeCounts,
   sessionUser,
-  setGoogleFault,
-  signOut,
-  stealBearer,
+  signedInUser,
   storeFingerprint,
 } from './system';
 export {
+  type ActorOutcome,
   type ActorState,
   AUTH_FABRICS,
   AUTH_SYSTEM_BASE_URL,
@@ -50,6 +69,8 @@ export {
   AUTH_SYSTEM_TRUSTED_ORIGINS,
   type AuthFabric,
   type AuthStore,
+  type AuthSurface,
+  type ProviderAnswers,
   requireActor,
   requireStore,
 } from './types';

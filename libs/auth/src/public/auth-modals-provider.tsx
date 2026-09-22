@@ -1,3 +1,4 @@
+import type { OauthProviderId, SignInOptions } from '@pkgs/auth/shared';
 import { useLogger } from '@pkgs/logger/solid';
 import {
   type Accessor,
@@ -78,9 +79,10 @@ export function AuthModalsProvider(props: {
         onClose={connection.onClose}
         resumePending={connection.resumePending()}
         methodsLoading={connection.methodsLoading()}
-        googleAvailable={connection.googleAvailable()}
+        providers={connection.providers()}
         signInUnavailableReason={connection.signInUnavailableReason()}
-        onSignInWithGoogle={connection.onSignInWithGoogle}
+        onSignIn={connection.onSignIn}
+        onCreateSeparate={connection.onCreateSeparate}
         onError={connection.onError}
       />
       {signOutConfirm.modal}
@@ -99,7 +101,7 @@ function useSignInModalConnection(args: {
   closeSignInModal: () => void;
 }) {
   const apiUrl = useConfigService().getApiUrl();
-  const { signInWithGoogle } = useSignIn();
+  const { signInWith, createSeparateAccount } = useSignIn();
   const capabilities = useSignInCapabilities();
   const signInLog = useLogger('auth-sign-in');
   const { pending, isHydrated } = useSignInPending();
@@ -121,10 +123,14 @@ function useSignInModalConnection(args: {
 
   const apiReachable = apiUrl.trim().length > 0;
   const methodsLoading = createMemo(() => !capabilities.ready);
-  const googleAvailable = createMemo(
-    () => !methodsLoading() && apiReachable && capabilities.google
-  );
-  const anyMethod = createMemo(() => googleAvailable());
+  const providers = createMemo<readonly OauthProviderId[]>(() => {
+    if (methodsLoading() || !apiReachable) return [];
+    return [
+      ...(capabilities.google ? (['google'] as const) : []),
+      ...(capabilities.apple ? (['apple'] as const) : []),
+    ];
+  });
+  const anyMethod = createMemo(() => providers().length > 0);
   const visible = createMemo(() => args.signInModalOpen() || resumePending());
   const signInUnavailableReason = createMemo<string | null>(() =>
     methodsLoading() || anyMethod()
@@ -138,10 +144,13 @@ function useSignInModalConnection(args: {
     onClose: args.closeSignInModal,
     resumePending,
     methodsLoading,
-    googleAvailable,
+    providers,
     signInUnavailableReason,
-    onSignInWithGoogle: async () => {
-      await signInWithGoogle();
+    onSignIn: async (provider: OauthProviderId, options?: SignInOptions) => {
+      await signInWith(provider, options);
+    },
+    onCreateSeparate: async (token: string) => {
+      await createSeparateAccount(token);
     },
     onError,
   };

@@ -12,6 +12,7 @@ export type ClientConfigDbRow = {
 
 export type ClientRuntimeConfig = {
   readonly google_enabled: boolean;
+  readonly apple_enabled: boolean;
   readonly google_web_client_id: string | null;
   readonly billing_enabled: boolean;
   readonly tts_enabled: boolean;
@@ -23,6 +24,7 @@ export type ClientRuntimeConfig = {
 
 export const DEFAULT_CLIENT_RUNTIME_CONFIG: ClientRuntimeConfig = {
   google_enabled: false,
+  apple_enabled: false,
   google_web_client_id: null,
   billing_enabled: false,
   tts_enabled: false,
@@ -108,6 +110,10 @@ export function parseClientConfigRows(
   return {
     google_enabled: parseBool(
       liveValue(byId, ClientConfigKey.googleEnabled),
+      false
+    ),
+    apple_enabled: parseBool(
+      liveValue(byId, ClientConfigKey.appleEnabled),
       false
     ),
     google_web_client_id: parseNullableString(

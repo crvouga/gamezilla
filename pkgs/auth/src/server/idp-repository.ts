@@ -1,9 +1,10 @@
 import type { Clock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
 import {
+  AUTH_LINK_TICKET_TTL_MS,
   AUTH_OAUTH_STATE_TTL_MS,
   AUTH_SESSION_TTL_MS,
 } from '../shared/auth-constants';
@@ -23,17 +24,45 @@ export type IdpSessionRow = {
   readonly expires_at: string;
 };
 
-function isoFromMs(ms: number): string {
+/** What an OAuth round trip is for. */
+export type OauthIntent = 'sign_in' | 'link';
+
+export type OauthStateRow = {
+  readonly id: string;
+  readonly provider: string;
+  readonly code_verifier: string;
+  readonly callback_url: string;
+  readonly expires_at: string;
+  readonly intent: OauthIntent;
+  readonly nonce: string;
+  readonly link_user_id: string | null;
+  readonly pending_link_id: string | null;
+};
+
+export function isoFromMs(ms: number): string {
   return new Date(ms).toISOString();
 }
 
+function isLive(expiresAt: string, nowMs: number): boolean {
+  const expiresMs = Date.parse(expiresAt);
+  return Number.isFinite(expiresMs) && expiresMs > nowMs;
+}
+
+/**
+ * Users, sessions, OAuth round trips and link tickets. Identities live in
+ * {@link IdentityRepository}. Transaction-scoped: callers hand it a `SqlTx`.
+ */
 export class IdpRepository {
   constructor(
-    private readonly db: SqlClient,
+    private readonly db: SqlTx,
     private readonly clock: Clock,
     private readonly createId: CreateId,
     private readonly secret: string
   ) {}
+
+  private nowIso(): string {
+    return isoFromMs(this.clock.now());
+  }
 
   async findUserById(id: string): Promise<IdpUserRow | null> {
     const rows = await this.db.query(sql<IdpUserRow>`
@@ -45,85 +74,25 @@ export class IdpRepository {
     return rows[0] ?? null;
   }
 
-  async findAccountUserId(
-    provider: string,
-    providerUserId: string
-  ): Promise<string | null> {
-    const rows = await this.db.query(sql<{ user_id: string }>`
-      SELECT user_id
-      FROM idp_accounts
-      WHERE provider = ${provider}
-        AND provider_user_id = ${providerUserId}
-        AND deleted_at IS NULL
-      LIMIT 1
-    `);
-    return rows[0]?.user_id ?? null;
-  }
-
-  async upsertSocialUser(args: {
-    readonly provider: string;
-    readonly providerUserId: string;
-    readonly email: string | null;
-    readonly name: string | null;
-    readonly image: string | null;
-    readonly accessToken?: string | null;
-    readonly refreshToken?: string | null;
-  }): Promise<IdpUserRow> {
-    const existingUserId = await this.findAccountUserId(
-      args.provider,
-      args.providerUserId
-    );
-    const now = isoFromMs(this.clock.now());
-    if (existingUserId !== null) {
-      await this.db.run(sql`
-        UPDATE idp_users
-        SET email = ${args.email},
-            name = ${args.name},
-            image = ${args.image},
-            updated_at = ${now}
-        WHERE id = ${existingUserId}
-      `);
-      await this.db.run(sql`
-        UPDATE idp_accounts
-        SET access_token = ${args.accessToken ?? null},
-            refresh_token = ${args.refreshToken ?? null},
-            updated_at = ${now}
-        WHERE provider = ${args.provider}
-          AND provider_user_id = ${args.providerUserId}
-      `);
-      const user = await this.findUserById(existingUserId);
-      if (user === null) {
-        throw new Error('idp user missing after upsert');
-      }
-      return user;
-    }
-
-    const userId = this.createId();
-    const accountId = this.createId();
+  async insertUser(user: IdpUserRow): Promise<void> {
+    const now = this.nowIso();
     await this.db.run(sql`
       INSERT INTO idp_users (id, created_at, updated_at, email, name, image)
       VALUES (
-        ${userId}, ${now}, ${now},
-        ${args.email}, ${args.name}, ${args.image}
+        ${user.id}, ${now}, ${now}, ${user.email}, ${user.name}, ${user.image}
       )
     `);
+  }
+
+  async updateUserProfile(user: IdpUserRow): Promise<void> {
     await this.db.run(sql`
-      INSERT INTO idp_accounts (
-        id, created_at, updated_at, user_id, provider, provider_user_id,
-        access_token, refresh_token
-      )
-      VALUES (
-        ${accountId}, ${now}, ${now}, ${userId}, ${args.provider},
-        ${args.providerUserId}, ${args.accessToken ?? null},
-        ${args.refreshToken ?? null}
-      )
+      UPDATE idp_users
+      SET email = ${user.email},
+          name = ${user.name},
+          image = ${user.image},
+          updated_at = ${this.nowIso()}
+      WHERE id = ${user.id}
     `);
-    return {
-      id: userId,
-      email: args.email,
-      name: args.name,
-      image: args.image,
-    };
   }
 
   async createSession(userId: string): Promise<{
@@ -132,8 +101,7 @@ export class IdpRepository {
   }> {
     const token = this.createId();
     const expiresAtMs = this.clock.now() + AUTH_SESSION_TTL_MS;
-    const now = isoFromMs(this.clock.now());
-    const expiresAt = isoFromMs(expiresAtMs);
+    const now = this.nowIso();
     const tokenHash = hashAuthSecret(this.secret, token);
     await this.db.run(sql`
       INSERT INTO idp_sessions (
@@ -141,7 +109,7 @@ export class IdpRepository {
       )
       VALUES (
         ${this.createId()}, ${now}, ${now}, ${userId},
-        ${tokenHash}, ${expiresAt}
+        ${tokenHash}, ${isoFromMs(expiresAtMs)}
       )
     `);
     return { token, expiresAtMs };
@@ -152,15 +120,7 @@ export class IdpRepository {
     readonly user: IdpUserRow;
   } | null> {
     const tokenHash = hashAuthSecret(this.secret, token);
-    const rows = await this.db.query(sql<{
-      id: string;
-      user_id: string;
-      token_hash: string;
-      expires_at: string;
-      email: string | null;
-      name: string | null;
-      image: string | null;
-    }>`
+    const rows = await this.db.query(sql<IdpSessionRow & IdpUserRow>`
       SELECT s.id, s.user_id, s.token_hash, s.expires_at,
              u.email, u.name, u.image
       FROM idp_sessions s
@@ -171,9 +131,7 @@ export class IdpRepository {
       LIMIT 1
     `);
     const row = rows[0];
-    if (row === undefined) return null;
-    const expiresMs = Date.parse(row.expires_at);
-    if (!Number.isFinite(expiresMs) || expiresMs <= this.clock.now()) {
+    if (row === undefined || !isLive(row.expires_at, this.clock.now())) {
       return null;
     }
     return {
@@ -199,56 +157,62 @@ export class IdpRepository {
     `);
   }
 
+  /** Sign a user out everywhere. */
+  async deleteSessionsForUser(userId: string): Promise<void> {
+    await this.db.run(sql`
+      DELETE FROM idp_sessions WHERE user_id = ${userId}
+    `);
+  }
+
   async createOauthState(args: {
     readonly provider: string;
     readonly callbackUrl: string;
+    readonly intent: OauthIntent;
+    readonly linkUserId: string | null;
+    readonly pendingLinkId: string | null;
   }): Promise<{
     readonly state: string;
     readonly codeVerifier: string;
+    readonly nonce: string;
   }> {
     const state = this.createId();
     const codeVerifier = this.createId();
-    const now = isoFromMs(this.clock.now());
+    const nonce = this.createId();
+    const now = this.nowIso();
     const expiresAt = isoFromMs(this.clock.now() + AUTH_OAUTH_STATE_TTL_MS);
     await this.db.run(sql`
       INSERT INTO idp_oauth_states (
         id, created_at, updated_at, provider, state, code_verifier,
-        callback_url, exchange_code_hash, expires_at, user_id
+        callback_url, exchange_code_hash, expires_at, user_id, intent, nonce,
+        link_user_id, pending_link_id
       )
       VALUES (
         ${this.createId()}, ${now}, ${now}, ${args.provider}, ${state},
-        ${codeVerifier}, ${args.callbackUrl}, ${null}, ${expiresAt}, ${null}
+        ${codeVerifier}, ${args.callbackUrl}, ${null}, ${expiresAt}, ${null},
+        ${args.intent}, ${nonce}, ${args.linkUserId}, ${args.pendingLinkId}
       )
     `);
-    return { state, codeVerifier };
+    return { state, codeVerifier, nonce };
   }
 
-  async findOauthStateByState(state: string): Promise<{
-    readonly id: string;
-    readonly provider: string;
-    readonly code_verifier: string;
-    readonly callback_url: string;
-    readonly expires_at: string;
-  } | null> {
-    const rows = await this.db.query(sql<{
-      id: string;
-      provider: string;
-      code_verifier: string;
-      callback_url: string;
-      expires_at: string;
-    }>`
-      SELECT id, provider, code_verifier, callback_url, expires_at
+  async findOauthStateByState(state: string): Promise<OauthStateRow | null> {
+    const rows = await this.db.query(sql<OauthStateRow>`
+      SELECT id, provider, code_verifier, callback_url, expires_at,
+             intent, nonce, link_user_id, pending_link_id
       FROM idp_oauth_states
       WHERE state = ${state} AND deleted_at IS NULL
       LIMIT 1
     `);
     const row = rows[0];
-    if (row === undefined) return null;
-    const expiresMs = Date.parse(row.expires_at);
-    if (!Number.isFinite(expiresMs) || expiresMs <= this.clock.now()) {
+    if (row === undefined || !isLive(row.expires_at, this.clock.now())) {
       return null;
     }
-    return row;
+    return { ...row, intent: row.intent === 'link' ? 'link' : 'sign_in' };
+  }
+
+  /** A state is single use: an error outcome burns it too. */
+  async deleteOauthState(id: string): Promise<void> {
+    await this.db.run(sql`DELETE FROM idp_oauth_states WHERE id = ${id}`);
   }
 
   async attachExchangeCode(args: {
@@ -257,14 +221,13 @@ export class IdpRepository {
   }): Promise<string> {
     const code = this.createId();
     const codeHash = hashAuthSecret(this.secret, code);
-    const now = isoFromMs(this.clock.now());
     const expiresAt = isoFromMs(this.clock.now() + AUTH_OAUTH_STATE_TTL_MS);
     await this.db.run(sql`
       UPDATE idp_oauth_states
       SET exchange_code_hash = ${codeHash},
           user_id = ${args.userId},
           expires_at = ${expiresAt},
-          updated_at = ${now},
+          updated_at = ${this.nowIso()},
           state = ${`${args.stateId}:used:${this.createId()}`}
       WHERE id = ${args.stateId}
     `);
@@ -285,31 +248,64 @@ export class IdpRepository {
     `);
     const row = rows[0];
     if (row === undefined || row.user_id === null) return null;
-    const expiresMs = Date.parse(row.expires_at);
-    if (!Number.isFinite(expiresMs) || expiresMs <= this.clock.now()) {
-      return null;
-    }
-    await this.db.run(sql`
-      DELETE FROM idp_oauth_states WHERE id = ${row.id}
-    `);
+    if (!isLive(row.expires_at, this.clock.now())) return null;
+    await this.deleteOauthState(row.id);
     return row.user_id;
   }
 
-  async listAccounts(userId: string): Promise<
-    readonly {
-      readonly id: string;
-      readonly provider: string;
-      readonly provider_user_id: string;
-    }[]
-  > {
-    return this.db.query(sql<{
-      id: string;
-      provider: string;
-      provider_user_id: string;
-    }>`
-      SELECT id, provider, provider_user_id
-      FROM idp_accounts
-      WHERE user_id = ${userId} AND deleted_at IS NULL
+  async createLinkTicket(args: {
+    readonly userId: string;
+    /** The bearer of the session asking to link. */
+    readonly sessionToken: string;
+  }): Promise<{
+    readonly ticket: string;
+    readonly expiresAtMs: number;
+  }> {
+    const ticket = this.createId();
+    const expiresAtMs = this.clock.now() + AUTH_LINK_TICKET_TTL_MS;
+    const now = this.nowIso();
+    await this.db.run(sql`
+      INSERT INTO idp_link_tickets (
+        id, created_at, updated_at, token_hash, user_id, expires_at,
+        session_token_hash
+      )
+      VALUES (
+        ${this.createId()}, ${now}, ${now},
+        ${hashAuthSecret(this.secret, ticket)}, ${args.userId},
+        ${isoFromMs(expiresAtMs)},
+        ${hashAuthSecret(this.secret, args.sessionToken)}
+      )
     `);
+    return { ticket, expiresAtMs };
+  }
+
+  /**
+   * The user a ticket was minted for, once — and only while the minting
+   * session is still live; `null` when unknown, stale, or orphaned.
+   */
+  async consumeLinkTicket(ticket: string): Promise<string | null> {
+    const tokenHash = hashAuthSecret(this.secret, ticket);
+    const rows = await this.db.query(sql<{
+      id: string;
+      user_id: string;
+      expires_at: string;
+      session_expires_at: string | null;
+    }>`
+      SELECT t.id, t.user_id, t.expires_at, s.expires_at AS session_expires_at
+      FROM idp_link_tickets t
+      LEFT JOIN idp_sessions s
+        ON s.token_hash = t.session_token_hash
+       AND s.user_id = t.user_id
+       AND s.deleted_at IS NULL
+      WHERE t.token_hash = ${tokenHash}
+      LIMIT 1
+    `);
+    const row = rows[0];
+    if (row === undefined) return null;
+    await this.db.run(sql`DELETE FROM idp_link_tickets WHERE id = ${row.id}`);
+    const nowMs = this.clock.now();
+    const sessionLive =
+      row.session_expires_at !== null && isLive(row.session_expires_at, nowMs);
+    return isLive(row.expires_at, nowMs) && sessionLive ? row.user_id : null;
   }
 }

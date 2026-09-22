@@ -1,16 +1,32 @@
+import type { OauthProviderId, SignInOptions } from '@pkgs/auth/shared';
+import { strategyForProvider } from '@pkgs/auth/shared';
+
 import { useAuthClientPort } from './auth-client-provider';
 import type { SignInTriggerResult } from './sign-in-trigger';
 
-/** Triggers hosted Google sign-in via {@link AuthClientPort.signIn}. */
+/**
+ * Hosted sign-in via {@link AuthClientPort.signIn}. A sign-in whose address
+ * matched another account rejects with `AuthLinkRequiredError`; finish it by
+ * signing in again with `{ pendingLink }`, or with `createSeparateAccount`.
+ */
 export function useSignIn(): {
-  signInWithGoogle: () => Promise<SignInTriggerResult>;
+  signInWith: (
+    provider: OauthProviderId,
+    options?: SignInOptions
+  ) => Promise<SignInTriggerResult>;
+  createSeparateAccount: (
+    pendingLinkToken: string
+  ) => Promise<SignInTriggerResult>;
 } {
   const port = useAuthClientPort();
-
-  const signInWithGoogle = async () => {
-    await port.signIn('oauth-google');
-    return 'completed' as const;
+  return {
+    signInWith: async (provider, options) => {
+      await port.signIn(strategyForProvider(provider), options);
+      return 'completed' as const;
+    },
+    createSeparateAccount: async (token) => {
+      await port.createSeparateAccount(token);
+      return 'completed' as const;
+    },
   };
-
-  return { signInWithGoogle };
 }

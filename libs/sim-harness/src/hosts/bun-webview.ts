@@ -76,7 +76,7 @@ async function openStackExtra(): Promise<
     http: {
       kind: 'stack' as const,
       origin: addresses.apiOrigin,
-      idpOrigin: addresses.idpOrigin,
+      idpOrigins: addresses.idpOrigins,
       accountTag: crypto.randomUUID().slice(0, 8),
     },
   };

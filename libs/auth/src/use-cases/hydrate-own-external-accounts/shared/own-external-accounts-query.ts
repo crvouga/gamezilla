@@ -7,8 +7,8 @@ export const ownExternalAccounts = defineQuery({
   async run(ctx) {
     const rows = await ctx.db.query(sql`
       SELECT
-        provider || ':' || external_id AS id,
-        user_id, 
+        id,
+        user_id,
         provider, 
         external_id, 
         metadata, 

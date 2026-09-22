@@ -1,6 +1,6 @@
 // Chess board sounds: import `@pkgs/sounds/chess-sound-urls` only from chess —
 // keep them off the shell `@pkgs/sounds` barrel (module graph / preload).
-export { getManifestEntry, getManifestVolume, soundManifest } from './manifest';
+export { getManifestEntry, soundManifest } from './manifest';
 export type { SoundManifest, SoundManifestEntry } from './manifest-types';
 export {
   createPlayFromStart,
@@ -19,3 +19,4 @@ export {
 } from './sound-engine';
 export { isSoundId, type SoundId, Sounds } from './sound-id';
 export { type SoundAssetUrlId, soundAssetUrls } from './sound-urls';
+export { getManifestVolume } from './sound-volumes';

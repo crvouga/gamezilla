@@ -1,7 +1,8 @@
 // @io-wall-ok — tools composition root.
 
 /**
- * Boot the whole product on loopback: backing services, a simulated Google,
+ * Boot the whole product on loopback: backing services, simulated Google and
+ * Apple,
  * N API instances, the balancer in front of them, and (optionally) the built
  * web bundle.
  *
@@ -24,15 +25,19 @@ import {
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers';
 
 import { bootInfra, type InfraHandles } from './boot-infra';
-import { reservePort, waitForApiBooted, waitForHttp } from './free-port';
+import {
+  type PortReservation,
+  reservePort,
+  waitForApiBooted,
+  waitForHttp,
+} from './free-port';
 import { startLoadBalancer } from './load-balancer';
 import { type StackManifest, writeManifest } from './manifest';
-import type { IdpStateMode, StackOptions } from './stack-options';
+import type { StackOptions } from './stack-options';
+import { type IdpState, type StackIdps, startStackIdps } from './start-idps';
 
 const REPO_ROOT = join(import.meta.dir, '../../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
-const GOOGLE_CLIENT_ID = 'localhost-stack.apps.googleusercontent.com';
-const GOOGLE_CLIENT_SECRET = 'localhost-stack-google-secret';
 const BILLING_SECRET_KEY = 'sk_test_mock_localhost_stack';
 const BILLING_WEBHOOK_SECRET = 'whsec_mock_localhost_stack';
 /** Product super-app serves both `/` and the always-available `/simulator`. */
@@ -54,43 +59,6 @@ export type LocalhostStack = {
 
 function nodeId(index: number): string {
   return `api-${String.fromCharCode(97 + index)}`;
-}
-
-async function startIdp(args: {
-  readonly apiOrigin: string;
-  readonly port: number;
-  readonly state: { readonly mode: IdpStateMode; readonly path: string | null };
-}): Promise<ChildProcess> {
-  const child = spawn(
-    'bun',
-    [
-      '--conditions=browser',
-      '--conditions=development',
-      '--preload',
-      './pkgs/bun-test-solid/src/register.ts',
-      'pkgs/idp-google-sim/scripts/serve.ts',
-    ],
-    {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        IDP_PORT: String(args.port),
-        IDP_STATE_MODE: args.state.mode,
-        ...(args.state.path === null
-          ? {}
-          : { IDP_STATE_PATH: args.state.path }),
-        IDP_CLIENT_ID: GOOGLE_CLIENT_ID,
-        IDP_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,
-        IDP_REDIRECT_URIS: `${args.apiOrigin}/api/auth/callback/google`,
-        IDP_APP_NAME: 'Gamezilla',
-      },
-    }
-  );
-  await waitForHttp(
-    `http://127.0.0.1:${String(args.port)}/.well-known/openid-configuration`
-  );
-  return child;
 }
 
 /**
@@ -155,7 +123,7 @@ function startApiNode(args: {
   readonly id: string;
   readonly port: number;
   readonly apiOrigin: string;
-  readonly idpOrigin: string;
+  readonly idpEnv: Readonly<Record<string, string>>;
   readonly billingOrigin: string;
   readonly webOrigin: string | null;
   readonly infraEnv: Readonly<Record<string, string>>;
@@ -166,14 +134,12 @@ function startApiNode(args: {
     env: {
       ...process.env,
       ...args.infraEnv,
+      ...args.idpEnv,
       API_NODE_ID: args.id,
       API_NODE_PORT: String(args.port),
       SECRETS_ENV: 'dev',
       API_URL: args.apiOrigin,
       AUTH_SECRET,
-      WEB_CLIENT_GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID,
-      WEB_CLIENT_GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET,
-      GOOGLE_IDP_ORIGIN: args.idpOrigin,
       // The stack bills through the mock alone: no real provider's
       // credentials from the parent environment are configured beside it.
       ...Object.fromEntries(
@@ -218,10 +184,7 @@ async function startWeb(args: {
  * data directory (so `--keep-data` makes it survive, and a wipe takes it with
  * the rest); `path` uses exactly the caller's file and is never removed here.
  */
-function resolveIdpState(
-  options: StackOptions,
-  dataDir: string
-): { readonly mode: IdpStateMode; readonly path: string | null } {
+function resolveIdpState(options: StackOptions, dataDir: string): IdpState {
   if (options.idpStateMode === 'memory') return { mode: 'memory', path: null };
   if (options.idpStateMode === 'instance') {
     return { mode: 'instance', path: join(dataDir, 'idp.sqlite') };
@@ -247,7 +210,7 @@ type ApiTier = {
 async function startApiTier(args: {
   readonly options: StackOptions;
   readonly apiOrigin: string;
-  readonly idpOrigin: string;
+  readonly idpEnv: Readonly<Record<string, string>>;
   readonly billingOrigin: string;
   readonly webOrigin: string | null;
   readonly infra: InfraHandles;
@@ -263,7 +226,7 @@ async function startApiTier(args: {
         id,
         port: reservation.port,
         apiOrigin: args.apiOrigin,
-        idpOrigin: args.idpOrigin,
+        idpEnv: args.idpEnv,
         billingOrigin: args.billingOrigin,
         webOrigin: args.webOrigin,
         infraEnv: args.infra.env,
@@ -284,39 +247,45 @@ async function startApiTier(args: {
   return { children, backends };
 }
 
-/** Boots infra and the simulated IdP, unwinding whichever side succeeded on failure. */
-async function bootInfraAndIdp(args: {
+async function stopIdps(idps: StackIdps): Promise<void> {
+  await Promise.all([stopChild(idps.google), stopChild(idps.apple)]);
+}
+
+/** Boots infra and the simulated IdPs, unwinding whichever side succeeded on failure. */
+async function bootInfraAndIdps(args: {
   readonly options: StackOptions;
   readonly dataDir: string;
   readonly apiOrigin: string;
-  readonly idpPort: number;
-  readonly idpState: {
-    readonly mode: IdpStateMode;
-    readonly path: string | null;
+  /** Freed just before the IdP processes bind them. */
+  readonly idpReservations: {
+    readonly google: PortReservation;
+    readonly apple: PortReservation;
   };
-  /** Frees the reserved IdP port just before the IdP process binds it. */
-  readonly releaseIdpPort: () => Promise<void>;
-}): Promise<{ infra: InfraHandles; idpChild: ChildProcess }> {
+  readonly idpState: IdpState;
+}): Promise<{ infra: InfraHandles; idps: StackIdps }> {
   const infraPromise = bootInfra({
     options: args.options,
     dataDir: args.dataDir,
   });
-  await args.releaseIdpPort();
-  const idpPromise = startIdp({
+  const { google, apple } = args.idpReservations;
+  await google.release();
+  await apple.release();
+  const idpPromise = startStackIdps({
+    repoRoot: REPO_ROOT,
     apiOrigin: args.apiOrigin,
-    port: args.idpPort,
+    ports: { google: google.port, apple: apple.port },
     state: args.idpState,
   });
   try {
-    const [infra, idpChild] = await Promise.all([infraPromise, idpPromise]);
-    return { infra, idpChild };
+    const [infra, idps] = await Promise.all([infraPromise, idpPromise]);
+    return { infra, idps };
   } catch (error) {
     const [infraResult, idpResult] = await Promise.allSettled([
       infraPromise,
       idpPromise,
     ]);
     if (infraResult.status === 'fulfilled') await infraResult.value.stop();
-    if (idpResult.status === 'fulfilled') await stopChild(idpResult.value);
+    if (idpResult.status === 'fulfilled') await stopIdps(idpResult.value);
     throw error;
   }
 }
@@ -330,7 +299,7 @@ type BillingAndApi = {
 async function startBillingAndApi(args: {
   readonly options: StackOptions;
   readonly apiOrigin: string;
-  readonly idpOrigin: string;
+  readonly idpEnv: Readonly<Record<string, string>>;
   readonly billingPort: number;
   readonly releaseBillingPort: () => Promise<void>;
   readonly webOrigin: string | null;
@@ -354,7 +323,7 @@ async function startBillingAndApi(args: {
     const api = await startApiTier({
       options: args.options,
       apiOrigin: args.apiOrigin,
-      idpOrigin: args.idpOrigin,
+      idpEnv: args.idpEnv,
       billingOrigin: `http://127.0.0.1:${String(args.billingPort)}`,
       webOrigin: args.webOrigin,
       infra: args.infra,
@@ -367,39 +336,49 @@ async function startBillingAndApi(args: {
   }
 }
 
+function loopback(port: number): string {
+  return `http://127.0.0.1:${String(port)}`;
+}
+
+/**
+ * Every port up front. The balancer's must be known before anything else
+ * boots: it is the API origin baked into OAuth redirect URIs and the IdP
+ * clients.
+ */
+function reserveStackPorts(options: StackOptions) {
+  return {
+    lbReservation: reservePort(),
+    idpReservations: { google: reservePort(), apple: reservePort() },
+    billingReservation: reservePort(),
+    webReservation: options.withWeb ? reservePort() : null,
+  };
+}
+
 export async function bootLocalhostStack(
   options: StackOptions
 ): Promise<LocalhostStack> {
   const dataDir = instanceDataDir(options);
   const idpState = resolveIdpState(options, dataDir);
-  // The balancer's port must be known before anything else boots: it is the
-  // API origin baked into OAuth redirect URIs and the IdP client.
-  const lbReservation = reservePort();
-  const idpReservation = reservePort();
-  const billingReservation = reservePort();
-  const webReservation = options.withWeb ? reservePort() : null;
+  const { lbReservation, idpReservations, billingReservation, webReservation } =
+    reserveStackPorts(options);
   const webOrigin =
-    webReservation === null
-      ? null
-      : `http://127.0.0.1:${String(webReservation.port)}`;
-  const apiOrigin = `http://127.0.0.1:${String(lbReservation.port)}`;
-  const idpOrigin = `http://127.0.0.1:${String(idpReservation.port)}`;
-  const billingOrigin = `http://127.0.0.1:${String(billingReservation.port)}`;
+    webReservation === null ? null : loopback(webReservation.port);
+  const apiOrigin = loopback(lbReservation.port);
+  const billingOrigin = loopback(billingReservation.port);
 
-  // Infra and the simulated Google boot independently; the product Vite
+  // Infra and the simulated providers boot independently; the product Vite
   // server starts after the API origin is available and serves `/simulator`.
-  const { infra, idpChild } = await bootInfraAndIdp({
+  const { infra, idps } = await bootInfraAndIdps({
     options,
     dataDir,
     apiOrigin,
-    idpPort: idpReservation.port,
+    idpReservations,
     idpState,
-    releaseIdpPort: () => idpReservation.release(),
   });
   const { api, billingChild } = await startBillingAndApi({
     options,
     apiOrigin,
-    idpOrigin,
+    idpEnv: idps.apiEnv,
     billingPort: billingReservation.port,
     releaseBillingPort: () => billingReservation.release(),
     webOrigin,
@@ -407,7 +386,7 @@ export async function bootLocalhostStack(
     dataDir,
     // Unwind what already booted if the provider or an API node fails.
     unwind: async () => {
-      await stopChild(idpChild);
+      await stopIdps(idps);
       await infra.stop();
     },
   });
@@ -435,7 +414,10 @@ export async function bootLocalhostStack(
     apiOrigin: balancer.origin,
     apiNodes: api.backends,
     webOrigin: webOrigin ?? '',
-    idpOrigin,
+    idpOrigins: {
+      google: loopback(idpReservations.google.port),
+      apple: loopback(idpReservations.apple.port),
+    },
     billingOrigin,
     databaseUrl: infra.databaseUrl,
     s3Endpoint: infra.s3Endpoint,
@@ -451,7 +433,7 @@ export async function bootLocalhostStack(
     async stop() {
       if (webChild !== null) await stopChild(webChild);
       await Promise.all(api.children.map((child) => stopChild(child)));
-      await stopChild(idpChild);
+      await stopIdps(idps);
       await stopChild(billingChild);
       await balancer.stop();
       await infra.stop();

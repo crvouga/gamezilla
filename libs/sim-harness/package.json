@@ -34,7 +34,7 @@
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
-    "@pkgs/idp-google-sim": "workspace:*",
+    "@pkgs/idp-sim": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/kv-web": "workspace:*",

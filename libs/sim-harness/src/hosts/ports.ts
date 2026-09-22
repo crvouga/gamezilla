@@ -30,8 +30,8 @@ export type ProductHttp =
   | {
       readonly kind: 'stack';
       readonly origin: string;
-      /** The stack's simulated Google, on its own origin. */
-      readonly idpOrigin: string;
+      /** The stack's simulated Google and Apple, each on its own origin. */
+      readonly idpOrigins: { readonly google: string; readonly apple: string };
       /**
        * A stack outlives one run, so each run brings its own people: actor
        * `alice` signs in as `alice.<tag>@gmail.com`, never as an earlier

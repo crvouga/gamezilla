@@ -11,6 +11,7 @@ import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {
   readonly google: boolean;
+  readonly apple: boolean;
   readonly billing: boolean;
   readonly tts: boolean;
   readonly llm: boolean;
@@ -37,6 +38,10 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
     {
       id: ClientConfigKey.googleEnabled,
       value: desired.google,
+    },
+    {
+      id: ClientConfigKey.appleEnabled,
+      value: desired.apple,
     },
     {
       id: ClientConfigKey.googleWebClientId,

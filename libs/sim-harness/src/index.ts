@@ -84,11 +84,23 @@ export {
 } from './system/actions';
 export { actorUi, pollUntil, scenarioAction } from './system/actor-ui';
 export {
+  type AppleSignInOptions,
+  abandonSignIn,
+  confirmAccountLink,
+  keepSeparateAccount,
   returnToTabs,
+  signInWithApple,
   signInWithGoogle,
   signInWithGoogleAsAccount,
+  signInWithProviderAs,
   signOut,
 } from './system/auth-actions';
+export {
+  AUTH_WALK_ACTIONS,
+  walkManageSignInMethods,
+  walkSignInOrOut,
+  walkSignOutEverywhere,
+} from './system/auth-walk';
 export {
   defineProductSystem,
   globalActionMenuAlwaysVisible,
@@ -97,9 +109,15 @@ export {
   type ProductSystem,
 } from './system/define-product-system';
 export {
+  type AppleAccountKind,
   accountIdOf,
+  actorAppleEmail,
   actorEmail,
   actorLocalSql,
+  localAccountIdOf,
+  localSignInMethodsOf,
+  serverSignInMethodsOf,
+  signedInAccountOf,
 } from './system/identity';
 export {
   actor,
@@ -117,8 +135,24 @@ export {
 } from './system/observations';
 export { PRODUCT_POOL_ACTIONS } from './system/pool-actions';
 export { captureSnapshot, googleOauthSignIn } from './system/probes';
+export {
+  appleDeletesAccount,
+  appleRevokesApp,
+  seedProviderAccount,
+} from './system/provider-events-actions';
+export {
+  completeProviderSignIn,
+  type ProviderAnswers,
+} from './system/provider-walk';
 export { focusActor, openAccount, openSettings } from './system/shell-actions';
 export { SHELL_SCENARIO_ACTIONS } from './system/shell-scenario-actions';
+export {
+  type ConnectOptions,
+  connectSignInMethod,
+  openAccountScreen,
+  removeSignInMethod,
+  signOutEverywhere,
+} from './system/sign-in-method-actions';
 export {
   createProductSim,
   type ProductProbes,

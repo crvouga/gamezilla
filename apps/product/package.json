@@ -66,6 +66,7 @@
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/git": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/idp-sim": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",

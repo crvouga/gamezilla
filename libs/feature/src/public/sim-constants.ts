@@ -23,6 +23,14 @@ export const SIM_IDP_URL = 'http://idp.sim';
 export const SIM_GOOGLE_CLIENT_ID = 'sim.apps.googleusercontent.com';
 export const SIM_GOOGLE_CLIENT_SECRET = 'sim-google-client-secret';
 
+/** Origin of the simulated Apple provider (Sign in with Apple, mock-only). */
+export const SIM_APPLE_IDP_URL = 'http://appleid.sim';
+
+/** The Services ID + developer team + key id the sim API is known by there. */
+export const SIM_APPLE_CLIENT_ID = 'sim.gamezilla.signin';
+export const SIM_APPLE_TEAM_ID = 'SIMTEAM001';
+export const SIM_APPLE_KEY_ID = 'SIMKEY0001';
+
 /** Origin of the mock payment provider node inside a sim. */
 export const SIM_BILLING_URL = 'http://billing.sim';
 

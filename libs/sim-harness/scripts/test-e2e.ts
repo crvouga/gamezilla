@@ -20,15 +20,6 @@ import { join } from 'node:path';
 const PACKAGE_DIR = process.cwd();
 const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
-/**
- * Resolved from here, not from the feature package: `bun test --preload` looks
- * a bare specifier up from its cwd, and a feature does not (and should not)
- * declare the Solid test preload — sim-harness does.
- */
-const SOLID_PRELOAD = Bun.resolveSync(
-  '@pkgs/bun-test-solid/preload',
-  import.meta.dir
-);
 /** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
 const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
 
@@ -40,6 +31,20 @@ const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
 const args = process.argv.slice(2);
 const namesPath = args.some(
   (arg) => arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)
+);
+
+/**
+ * The preloads belong to this package (it declares them), not to whichever
+ * package is running its suite — resolve them here, so a suite runs under an
+ * isolated install without every feature re-declaring the harness's deps.
+ */
+const SOLID_PRELOAD = Bun.resolveSync(
+  '@pkgs/bun-test-solid/preload',
+  import.meta.dir
+);
+const HARNESS_PRELOAD = Bun.resolveSync(
+  '@libs/sim-harness/preload',
+  import.meta.dir
 );
 
 rmSync(REPORT_DIR, { recursive: true, force: true });
@@ -54,7 +59,7 @@ const result = spawnSync(
     '--preload',
     SOLID_PRELOAD,
     '--preload',
-    '@libs/sim-harness/preload',
+    HARNESS_PRELOAD,
     ...(process.env['SIM_PRELOAD'] === undefined
       ? []
       : ['--preload', process.env['SIM_PRELOAD']]),

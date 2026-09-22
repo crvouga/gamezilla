@@ -28,6 +28,17 @@ export type ApiWorkerEnv = {
    */
   GOOGLE_IDP_ORIGIN?: string;
   /**
+   * Sign in with Apple, **non-production only**: the origin of the simulated
+   * Apple provider plus the Services ID registration it knows this app by
+   * (`APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, and the ES256
+   * `APPLE_PRIVATE_JWK` the client secret is signed with). All five, or none.
+   */
+  APPLE_IDP_ORIGIN?: string;
+  APPLE_CLIENT_ID?: string;
+  APPLE_TEAM_ID?: string;
+  APPLE_KEY_ID?: string;
+  APPLE_PRIVATE_JWK?: string;
+  /**
    * Which configured membership provider new checkouts go to, by provider
    * id. Required when more than one is configured; members of the others keep
    * being served there. Each provider reads its own secrets and bindings.
@@ -82,6 +93,56 @@ export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
 
 export function readOptionalGoogleIdpOrigin(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.GOOGLE_IDP_ORIGIN);
+}
+
+export type AppleMockBindings = {
+  readonly origin: string;
+  readonly clientId: string;
+  readonly teamId: string;
+  readonly keyId: string;
+  readonly privateJwk: Record<string, unknown>;
+};
+
+/**
+ * The simulated Apple provider, when configured. Apple sign-in exists only to
+ * run against the mock: in `prd` it is refused outright, and a partial set of
+ * bindings is a misconfiguration, not a degraded mode.
+ */
+export function readAppleMockBindings(
+  env: ApiWorkerEnv
+): AppleMockBindings | null {
+  const values = [
+    env.APPLE_IDP_ORIGIN,
+    env.APPLE_CLIENT_ID,
+    env.APPLE_TEAM_ID,
+    env.APPLE_KEY_ID,
+    env.APPLE_PRIVATE_JWK,
+  ].map(readOptionalBinding);
+  if (values.every((value) => value === null)) return null;
+  if (readSecretsEnvBinding(env) === 'prd') {
+    throw new ConfigurationError(
+      'Sign in with Apple is mock-only: APPLE_* bindings are refused in prd'
+    );
+  }
+  const [origin, clientId, teamId, keyId, jwk] = values;
+  if (
+    origin == null ||
+    clientId == null ||
+    teamId == null ||
+    keyId == null ||
+    jwk == null
+  ) {
+    throw new ConfigurationError(
+      'APPLE_IDP_ORIGIN, APPLE_CLIENT_ID, APPLE_TEAM_ID, APPLE_KEY_ID and APPLE_PRIVATE_JWK go together'
+    );
+  }
+  return {
+    origin,
+    clientId,
+    teamId,
+    keyId,
+    privateJwk: JSON.parse(jwk) as Record<string, unknown>,
+  };
 }
 
 export function readBillingProviderBinding(env: ApiWorkerEnv): string | null {

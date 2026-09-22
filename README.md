@@ -14,6 +14,6 @@ Auth is **token-only**: the API never reads or sets cookies. Every install has a
 
 ### Single session
 
-The client keeps **one current user per install**. Cold start / sign-out runs `POST /identity/anon/ensure` (anon `users` + profile). First Google OAuth sign-in (`@pkgs/auth` IdP) upgrades that anon row in place; a returning provider identity switches to the existing non-anon `users.id`. Local and simulated runs use the same protocol against `@pkgs/idp-google-sim`, a simulated Google on its own origin.
+The client keeps **one current user per install**. Cold start / sign-out runs `POST /identity/anon/ensure` (anon `users` + profile). First Google OAuth sign-in (`@pkgs/auth` IdP) upgrades that anon row in place; a returning provider identity switches to the existing non-anon `users.id`. Local and simulated runs use the same protocol against `@pkgs/idp-sim` — a simulated Google and, outside production, a simulated Sign in with Apple, each on its own origin. A person can hold several sign-in methods on one account (linked by verified email or from Settings).
 
 **Restore multi-account later:** re-add `AuthClientPort.addAccount` / `switchAccount` (+ scoped `signOut`), a Kv roster for inactive display, `account-switch/*` chrome wired to sync boot readiness, warm multi-DB switch (disconnect sync without `disconnectAndClear`), auth-provider multi-session, and a switcher UI. Identity-keyed SQLite naming (`resolveSqliteDbName` + sync pool) already supports per-user files.

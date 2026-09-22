@@ -1,9 +1,17 @@
+export { buildOauthLaunchUrl, isPopupBlockedError } from './auth-client-http';
+export type { LinkingOps } from './auth-client-linking';
 export {
-  buildOauthLaunchUrl,
-  isPopupBlockedError,
-  strategyToOauthProvider,
-} from './auth-client-http';
+  type AuthClientAdapterConfig,
+  type OpenAuthSession,
+  type OpenAuthSessionResult,
+} from './auth-client-oauth';
 export type { AuthClientPort, GetFreshTokenOptions } from './auth-client-port';
+export {
+  AuthFlowError,
+  type CallbackOutcome,
+  readCallbackOutcome,
+} from './auth-errors';
+export { AuthLinkRequiredError } from './auth-link-required-error';
 export {
   AUTH_SESSION_INITIAL,
   type AuthSessionState,
@@ -22,11 +30,8 @@ export {
   AUTH_NETWORK_ERROR,
   AUTH_SSO_CANCELLED_ERROR,
   AUTH_SSO_POPUP_BLOCKED_ERROR,
-  type AuthClientAdapterConfig,
   clearBearerOnUnauthorizedSession,
   createAuthClientAdapter,
-  type OpenAuthSession,
-  type OpenAuthSessionResult,
 } from './create-auth-client-adapter';
 export {
   formSubmitBody,
@@ -35,6 +40,8 @@ export {
   parseFirstForm,
 } from './headless-form';
 export {
+  type AuthCookieJar,
+  createAuthCookieJar,
   createInProcessOpenAuthSession,
   type InProcessOpenAuthSessionConfig,
   type InProcessOpenAuthSessionFault,

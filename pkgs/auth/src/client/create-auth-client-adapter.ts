@@ -1,58 +1,35 @@
-import type { Timers } from '@pkgs/clock';
 import type { HttpFetch } from '@pkgs/http-client';
 
 import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
-import type {
-  SignInCredentials,
-  SignInStrategy,
-} from '../shared/sign-in-strategy';
+import type { SignInOptions, SignInStrategy } from '../shared/sign-in-strategy';
 import {
   AUTH_NETWORK_ERROR,
   AUTH_SSO_CANCELLED_ERROR,
   AUTH_SSO_POPUP_BLOCKED_ERROR,
   apiUrl,
-  buildOauthLaunchUrl,
-  extractCodeFromCallbackUrl,
-  isPopupBlockedError,
   postJson,
   type SessionBody,
-  strategyToOauthProvider,
   toVerified,
 } from './auth-client-http';
+import type { LinkingOps } from './auth-client-linking';
+import {
+  type AuthClientAdapterConfig,
+  exchangeCode,
+  type SignInCtx,
+  signInOauth,
+} from './auth-client-oauth';
 import type { AuthClientPort, GetFreshTokenOptions } from './auth-client-port';
+import { readCallbackOutcome } from './auth-errors';
 import {
   AUTH_SESSION_INITIAL,
   type AuthSessionState,
   type AuthSessionStore,
 } from './auth-session-state';
 import {
-  type AuthClientStorage,
   type BearerTokenStore,
   createBearerTokenStore,
   createInMemoryAuthClientStorage,
 } from './bearer-token-store';
-
-export type OpenAuthSessionResult = {
-  readonly type: 'success' | 'cancel' | 'dismiss' | 'locked';
-  readonly url?: string | null;
-};
-
-export type OpenAuthSession = (
-  authorizationUrl: string,
-  callbackUrl: string
-) => Promise<OpenAuthSessionResult>;
-
-export type AuthClientAdapterConfig = {
-  readonly baseURL: string;
-  readonly timers: Timers;
-  readonly fetch: HttpFetch;
-  readonly storage?: AuthClientStorage;
-  readonly bearerStore?: BearerTokenStore;
-  /** Required for OAuth providers; unused only when every strategy is stubbed. */
-  readonly openAuthSession?: OpenAuthSession;
-  /** Absolute client callback URL (e.g. https://app/sso-callback). */
-  readonly callbackUrl?: string;
-};
 
 export {
   AUTH_NETWORK_ERROR,
@@ -126,7 +103,12 @@ function createAuthSessionStore(args: {
       generation += 1;
       const mine = generation;
       const next = await loadSessionState(args);
-      if (mine === generation) publish(next);
+      if (mine !== generation) return;
+      // Not being able to ask is not an answer: a network error keeps the
+      // session we had (and wakes nobody), or going offline would sign the
+      // device out.
+      if (next.error !== null && state.session !== null) return;
+      publish(next);
     },
   };
 }
@@ -145,100 +127,6 @@ export async function clearBearerOnUnauthorizedSession(
   }
 }
 
-type SignInCtx = {
-  readonly config: AuthClientAdapterConfig;
-  readonly bearerStore: BearerTokenStore;
-  readonly callbackUrl: string;
-  readonly session: AuthSessionStore;
-};
-
-async function persistSessionFromResponse(
-  ctx: SignInCtx,
-  res: Response
-): Promise<void> {
-  ctx.bearerStore.captureFromResponse(res);
-  if (!res.ok) {
-    throw new Error(await signInHttpFailureMessage(res));
-  }
-  const body = (await res.json()) as SessionBody;
-  if (typeof body.token === 'string' && body.token.length > 0) {
-    await ctx.bearerStore.write(body.token);
-  }
-  await ctx.session.refresh();
-}
-
-async function signInHttpFailureMessage(res: Response): Promise<string> {
-  let detail = '';
-  try {
-    const text = (await res.text()).trim();
-    if (text.length > 0) {
-      detail = text.length > 200 ? `${text.slice(0, 200)}…` : text;
-    }
-  } catch {
-    // ignore body read failures
-  }
-  if (detail.length > 0) {
-    return `${AUTH_NETWORK_ERROR} (${String(res.status)}: ${detail})`;
-  }
-  return `${AUTH_NETWORK_ERROR} (${String(res.status)})`;
-}
-
-async function exchangeCode(ctx: SignInCtx, code: string): Promise<void> {
-  const res = await postJson(
-    ctx.config.fetch,
-    apiUrl(ctx.config.baseURL, '/auth/session'),
-    { code }
-  );
-  await persistSessionFromResponse(ctx, res);
-}
-
-async function signInOauth(
-  ctx: SignInCtx,
-  strategy: SignInStrategy
-): Promise<void> {
-  if (ctx.config.openAuthSession === undefined) {
-    throw new Error('openAuthSession is required for OAuth sign-in');
-  }
-  const provider = strategyToOauthProvider(strategy);
-  const launchUrl = buildOauthLaunchUrl(
-    ctx.config.baseURL,
-    provider,
-    ctx.callbackUrl
-  );
-
-  // Open the auth session synchronously from the user gesture — no await first.
-  let sessionPromise: Promise<OpenAuthSessionResult>;
-  try {
-    sessionPromise = ctx.config.openAuthSession(launchUrl, ctx.callbackUrl);
-  } catch (err) {
-    if (isPopupBlockedError(err)) {
-      throw new Error(AUTH_SSO_POPUP_BLOCKED_ERROR);
-    }
-    throw err;
-  }
-
-  await ctx.bearerStore.clear();
-
-  let result: OpenAuthSessionResult;
-  try {
-    result = await sessionPromise;
-  } catch (err) {
-    if (isPopupBlockedError(err)) {
-      throw new Error(AUTH_SSO_POPUP_BLOCKED_ERROR);
-    }
-    throw err;
-  }
-
-  if (result.type !== 'success' || result.url == null) {
-    throw new Error(AUTH_SSO_CANCELLED_ERROR);
-  }
-  const code = extractCodeFromCallbackUrl(result.url);
-  if (code === null) {
-    throw new Error(AUTH_SSO_CANCELLED_ERROR);
-  }
-  await exchangeCode(ctx, code);
-}
-
 /**
  * Isomorphic AuthClientPort. Hosts inject fetch, storage, timers, and
  * openAuthSession — no platform SDK imports in this package.
@@ -255,40 +143,62 @@ export function createAuthClientAdapter(
     bearerStore,
   });
   const ctx: SignInCtx = { config, bearerStore, callbackUrl, session };
+  // Managing sign-in methods (Settings, link prompts) is off the boot path:
+  // load it on first use. `prepareLink` runs ahead of the tap, so the module
+  // is already resolved when `linkProvider` opens the popup.
+  let linkingOps: Promise<LinkingOps> | null = null;
+  const linking = (): Promise<LinkingOps> => {
+    linkingOps ??= import('./auth-client-linking').then((m) =>
+      m.createLinkingOps(ctx, config.clock)
+    );
+    return linkingOps;
+  };
+
+  const signOut = async (): Promise<void> => {
+    bearerStore.setSuppressCapture(true);
+    const token = await bearerStore.read();
+    bearerStore.clearSync();
+    await session.refresh();
+    try {
+      if (token !== null) {
+        await postJson(
+          config.fetch,
+          apiUrl(config.baseURL, '/auth/sign-out'),
+          {},
+          token
+        );
+      }
+    } finally {
+      await bearerStore.clear();
+      await session.refresh();
+      config.timers.setTimeout(() => {
+        bearerStore.setSuppressCapture(false);
+      }, 500);
+    }
+  };
 
   return {
     providerLabel: IDP_PROVIDER_LABEL,
     session,
-    async signIn(strategy: SignInStrategy, _credentials?: SignInCredentials) {
-      if (strategy === 'oauth-google') {
-        await signInOauth(ctx, strategy);
-        return;
-      }
-      throw new Error(`Unsupported sign-in strategy: ${String(strategy)}`);
+    async signIn(strategy: SignInStrategy, options?: SignInOptions) {
+      await signInOauth(ctx, strategy, options);
     },
-    async signOut() {
-      bearerStore.setSuppressCapture(true);
-      const token = await bearerStore.read();
-      bearerStore.clearSync();
-      await session.refresh();
-      try {
-        if (token !== null) {
-          await postJson(
-            config.fetch,
-            apiUrl(config.baseURL, '/auth/sign-out'),
-            {},
-            token
-          );
-        }
-      } finally {
-        await bearerStore.clear();
-        await session.refresh();
-        config.timers.setTimeout(() => {
-          bearerStore.setSuppressCapture(false);
-        }, 500);
-      }
+    signOut,
+    async signOutEverywhere() {
+      await (await linking()).signOutEverywhere();
+      await signOut();
     },
-    async getFreshToken(_options?: GetFreshTokenOptions) {
+    listIdentities: async () => (await linking()).listIdentities(),
+    prepareLink: async () => (await linking()).prepareLink(),
+    linkProvider: async (provider) => (await linking()).linkProvider(provider),
+    unlinkProvider: async (provider) =>
+      (await linking()).unlinkProvider(provider),
+    createSeparateAccount: async (pendingLinkToken) =>
+      (await linking()).createSeparateAccount(pendingLinkToken),
+    async getFreshToken(options?: GetFreshTokenOptions) {
+      // After a 401 the caller asks for a fresh token: re-check the session,
+      // which drops a bearer the server no longer honours.
+      if (options?.skipCache === true) await session.refresh();
       return bearerStore.read();
     },
     async ensureSessionReady() {
@@ -296,9 +206,9 @@ export function createAuthClientAdapter(
     },
     async completeHostedAuthRedirect() {
       if (typeof globalThis.location === 'undefined') return;
-      const code = extractCodeFromCallbackUrl(globalThis.location.href);
-      if (code === null) return;
-      await exchangeCode(ctx, code);
+      const outcome = readCallbackOutcome(globalThis.location.href);
+      if (outcome.kind !== 'code') return;
+      await exchangeCode(ctx, outcome.code);
     },
   };
 }

@@ -35,11 +35,12 @@
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/uuid": "workspace:*",
-    "hono": "catalog:"
+    "hono": "catalog:",
+    "jose": "catalog:"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
-    "@pkgs/idp-google-sim": "workspace:*",
+    "@pkgs/idp-sim": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

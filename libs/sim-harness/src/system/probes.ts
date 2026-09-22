@@ -16,7 +16,8 @@ import {
 } from '../fabric/system-snapshot';
 
 import { actorUi, pollUntil } from './actor-ui';
-import { completeGoogleSignIn } from './auth-actions';
+import { actorEmail } from './identity';
+import { completeProviderSignIn } from './provider-walk';
 import type { ProductSim } from './sim';
 
 /**
@@ -31,6 +32,7 @@ export const googleOauthSignIn = defineAction({
     const env = await s.sim.client(actorId);
     const port = createAuthClientAdapter({
       baseURL: env.authBaseURL,
+      clock: env.clock,
       timers: env.timers,
       fetch: env.server,
       storage: createInMemoryAuthClientStorage(),
@@ -48,10 +50,11 @@ export const googleOauthSignIn = defineAction({
         description: 'the sign-in window',
       }
     );
-    await completeGoogleSignIn({
+    await completeProviderSignIn({
       s,
       ui,
       actorId,
+      answers: { provider: 'google', email: actorEmail(s, actorId) },
       done: () => Promise.resolve(browser.tab() === null),
     });
     await signingIn;

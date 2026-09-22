@@ -1,6 +1,4 @@
-import { AUTH_SESSION_TTL_MS } from '@pkgs/auth/shared/auth-constants';
 import {
-  defineAction,
   defineProperty,
   defineRuntime,
   defineSystem,
@@ -8,36 +6,27 @@ import {
 } from '@pkgs/sim';
 import { gen } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import {
-  dispatchOauthApprove,
-  dispatchOauthStart,
-  dispatchSessionExchange,
-  dispatchSignOut,
-  dispatchStealBearer,
-} from './dispatch';
-import { IDP_SUBJECTS } from './idp-node';
-import { assertAuthInvariants, authFingerprint } from './invariants';
-import { migrateAuthSchema, startActor, startStore } from './nodes';
-import type { AuthFabric, AuthSurface } from './types';
+
+import { AUTH_ACTIONS } from './actions';
+import { startActor } from './actor';
+import { sessionUserOf } from './checks';
+import { DIRECTORIES } from './idp-node';
+import { authFingerprint, authInvariantViolations } from './invariants';
+import { createAuthModel } from './model';
+import { startStore } from './nodes';
+import type { ActorState, AuthFabric, AuthSurface } from './types';
 
 function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
-const SUBJECTS = IDP_SUBJECTS;
-const CALLBACK_URLS = [
-  'http://callback.test/sso',
-  'gamezilla://sso-callback',
-  'https://evil.example/sso',
-] as const;
-
-/** Typed topology for one IdP script. */
+/** Typed topology for one auth run. */
 export type AuthArgs = {
   readonly fabric: AuthFabric;
   readonly clientCount: number;
 };
 
-/** sqlite-mem, two clients. */
+/** sqlite-mem, two devices. */
 export const AUTH_ARGS: AuthArgs = {
   fabric: 'sqlite-mem',
   clientCount: 2,
@@ -53,23 +42,26 @@ export function caps(s: AuthSurface): string[] {
   return [...s.session.caps];
 }
 
-export function clientIds(s: AuthSurface): string[] {
-  return [...s.clients.keys()];
-}
-
 export function fabric(s: AuthSurface): AuthFabric {
   return s.store.fabric;
 }
 
-export function bearers(s: AuthSurface): string[] {
-  return [...s.clients.entries()].map(([id, a]) => `${id}:${a.bearer ?? ''}`);
+/** Per-device bearer (null when signed out on that device). */
+export async function clientBearers(
+  s: AuthSurface
+): Promise<Record<string, string | null>> {
+  const out: Record<string, string | null> = {};
+  for (const [id, actor] of s.clients) out[id] = await actor.bearerStore.read();
+  return out;
 }
 
-/** Per-client bearer token (null when signed out). */
-export function clientBearers(s: AuthSurface): Record<string, string | null> {
-  return Object.fromEntries(
-    [...s.clients.entries()].map(([id, a]) => [id, a.bearer])
-  );
+/** The user a device is signed in as, per the store (null when none). */
+export async function signedInUser(
+  s: AuthSurface,
+  clientId: string
+): Promise<string | null> {
+  const actor = s.clients.get(clientId);
+  return actor === undefined ? null : await sessionUserOf(s, actor);
 }
 
 /** Verified session behind a bearer — null when expired / revoked / unknown. */
@@ -81,7 +73,24 @@ export async function sessionUser(
   return verified === null ? null : { externalUserId: verified.externalUserId };
 }
 
-/** Canonical IdP dump — the determinism fingerprint. */
+/** Flow coverage: how often each predicted outcome was observed. */
+export function outcomeCounts(s: AuthSurface): Record<string, number> {
+  return { ...s.outcomes };
+}
+
+/** How the device's last auth step ended. */
+export function lastOutcome(s: AuthSurface, clientId: string) {
+  return s.clients.get(clientId)?.last ?? null;
+}
+
+/** The sign-in methods on the device's account, as the client lists them. */
+export async function identitiesOf(s: AuthSurface, clientId: string) {
+  const actor = s.clients.get(clientId);
+  if (actor === undefined) return [];
+  return await actor.port.listIdentities().catch(() => []);
+}
+
+/** Canonical store dump — the determinism fingerprint. */
 export async function storeFingerprint(s: AuthSurface): Promise<string> {
   return authFingerprint(s);
 }
@@ -91,138 +100,22 @@ export function lastStatus(s: AuthSurface): number | null {
 }
 
 export async function invariantViolations(s: AuthSurface): Promise<string[]> {
-  try {
-    await assertAuthInvariants(s);
-    return [];
-  } catch (e) {
-    return [e instanceof Error ? e.message : String(e)];
-  }
+  return await authInvariantViolations(s);
 }
-
-export const advanceClock = defineAction({
-  name: 'advanceClock',
-  enabled: (s: AuthSurface) => caps(s).includes('virtualTime'),
-  sample: () => gen(fc.constantFrom(1_000, AUTH_SESSION_TTL_MS + 1)),
-  act: async (s: AuthSurface, ms: number) => {
-    await s.session.advanceTime(ms);
-  },
-});
-
-/** Make the provider's token endpoint fail, the way a real outage would. */
-export const setGoogleFault = defineAction({
-  name: 'setGoogleFault',
-  sample: () => gen(fc.boolean()),
-  act: async (s: AuthSurface, fault: boolean) => {
-    const store = s.store.idp.ctx.store;
-    await store.setFaults({
-      ...(await store.faults()),
-      tokenEndpoint: fault ? 'server_error' : 'ok',
-    });
-  },
-});
-
-export type OauthStartArgs = {
-  readonly clientId: string;
-  readonly callbackUrl: string;
-};
-
-export const oauthStart = defineAction({
-  name: 'oauthStart',
-  enabled: (s: AuthSurface) => clientIds(s).length > 0,
-  weight: 3,
-  sample: (s: AuthSurface) =>
-    gen(
-      fc.record({
-        clientId: fc.constantFrom(...clientIds(s)),
-        callbackUrl: fc.constantFrom(...CALLBACK_URLS),
-      })
-    ),
-  act: async (s: AuthSurface, args: OauthStartArgs) => {
-    await dispatchOauthStart(s, args.clientId, args.callbackUrl);
-  },
-});
-
-export type OauthApproveArgs = {
-  readonly clientId: string;
-  readonly subject: string;
-};
-
-export const oauthApprove = defineAction({
-  name: 'oauthApprove',
-  enabled: (s: AuthSurface) => clientIds(s).length > 0,
-  weight: 3,
-  sample: (s: AuthSurface) =>
-    gen(
-      fc.record({
-        clientId: fc.constantFrom(...clientIds(s)),
-        subject: fc.constantFrom(...SUBJECTS),
-      })
-    ),
-  act: async (s: AuthSurface, args: OauthApproveArgs) => {
-    await dispatchOauthApprove(s, args.clientId, args.subject);
-  },
-});
-
-export const sessionExchange = defineAction({
-  name: 'sessionExchange',
-  enabled: (s: AuthSurface) => clientIds(s).length > 0,
-  weight: 3,
-  sample: (s: AuthSurface) => gen(fc.constantFrom(...clientIds(s))),
-  act: async (s: AuthSurface, clientId: string) => {
-    await dispatchSessionExchange(s, clientId);
-  },
-});
-
-export const signOut = defineAction({
-  name: 'signOut',
-  enabled: (s: AuthSurface) => clientIds(s).length > 0,
-  weight: 3,
-  sample: (s: AuthSurface) => gen(fc.constantFrom(...clientIds(s))),
-  act: async (s: AuthSurface, clientId: string) => {
-    await dispatchSignOut(s, clientId);
-  },
-});
-
-export const stealBearer = defineAction({
-  name: 'stealBearer',
-  enabled: (s: AuthSurface) => clientIds(s).length > 0,
-  weight: 3,
-  sample: (s: AuthSurface) => gen(fc.constantFrom(...clientIds(s))),
-  act: async (s: AuthSurface, clientId: string) => {
-    await dispatchStealBearer(s, clientId, clientId);
-  },
-});
-
-/** Re-run the schema migration against the live store (idempotence pin). */
-export const migrateSchema = defineAction({
-  name: 'migrateSchema',
-  act: async (s: AuthSurface) => {
-    await migrateAuthSchema(s.store.fabric, s.store.sql);
-  },
-});
-
-export type FetchAuthArgs = {
-  readonly path: string;
-  readonly init?: RequestInit;
-};
-
-export const fetchAuth = defineAction({
-  name: 'fetchAuth',
-  act: async (s: AuthSurface, req: FetchAuthArgs) => {
-    const res = await s.store.fetch(req.path, req.init);
-    s.lastStatus = res.status;
-  },
-});
 
 export const invariantsHold = defineProperty({
   name: 'invariants',
   check: async (s: AuthSurface) => {
-    const v = await invariantViolations(s);
-    if (v.length > 0) throw new Error(v[0]!);
+    const violations = await authInvariantViolations(s);
+    if (violations.length > 0) throw new Error(violations.join('\n'));
   },
 });
 
-/** One IdP store (sqlite-mem / postgres-mem) plus `clientCount` actors. */
+/**
+ * One auth app over sqlite-mem / postgres-mem, a Google-flavored and an
+ * Apple-flavored provider, and `clientCount` devices running the production
+ * client port.
+ */
 export const auth = defineSystem<AuthSurface, AuthArgs>({
   name: 'auth.idp',
   args: AUTH_ARGS,
@@ -231,13 +124,27 @@ export const auth = defineSystem<AuthSurface, AuthArgs>({
     const store = await startStore(session.fork('store'), {
       fabric: args.fabric,
     });
-    const clients = new Map(
-      range(args.clientCount).map((i) => [`c${i}`, startActor()] as const)
+    const clients = new Map<string, ActorState>(
+      range(args.clientCount).map((i) => {
+        const id = `c${String(i)}`;
+        return [id, startActor({ id, store, session: session.fork(id) })];
+      })
     );
     return {
       session,
       store,
       clients,
+      model: createAuthModel(),
+      violations: [],
+      outcomes: {},
+      directory: {
+        google: DIRECTORIES.google.map((draft) =>
+          emailOfDraft(draft, 'gmail.com')
+        ),
+        apple: DIRECTORIES.apple.map((draft) =>
+          emailOfDraft(draft, 'icloud.com')
+        ),
+      },
       fingerprint: null,
       lastStatus: null,
     };
@@ -249,18 +156,15 @@ export const auth = defineSystem<AuthSurface, AuthArgs>({
       create: () => virtualTimeRuntime(),
     }),
   ],
-  actions: [
-    advanceClock,
-    setGoogleFault,
-    oauthStart,
-    oauthApprove,
-    sessionExchange,
-    signOut,
-    stealBearer,
-    migrateSchema,
-    fetchAuth,
-  ],
+  actions: [...AUTH_ACTIONS],
   properties: [invariantsHold],
 });
+
+function emailOfDraft(
+  draft: { readonly handle?: string; readonly email?: string },
+  domain: string
+): string {
+  return draft.email ?? `${draft.handle ?? ''}@${domain}`;
+}
 
 export type { AuthSurface };

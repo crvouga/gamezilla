@@ -2,12 +2,16 @@
  * Hosted sign-in surface. Shown from the user menu / commands when the user
  * chooses Sign in.
  *
- * Idle flow is a method picker. Google and Dev both use OAuth auth-session
- * with a durable pending marker across redirect/popup handoff.
+ * Idle flow is a method picker (Google, and Apple where enabled). Every
+ * method uses an OAuth auth-session with a durable pending marker across the
+ * redirect/popup handoff. A sign-in whose address matched another account
+ * lands on "Connect your accounts" instead of an error.
  */
 
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
+import { AuthLinkRequiredError } from '@pkgs/auth/client';
+import type { OauthProviderId, SignInOptions } from '@pkgs/auth/shared';
 import {
   ErrorState,
   FadeSwitch,
@@ -23,9 +27,12 @@ import {
   type JSX,
   Match,
   on,
+  Show,
   Switch,
 } from 'solid-js';
+import { authFlowErrorMessage } from './auth-flow-messages';
 import { SignInIdleBody, SignInIdleFooter } from './sign-in-idle-content';
+import { SignInLinkRequiredContent } from './sign-in-link-required';
 import {
   type SignInPhase,
   useSignInModalLifecycle,
@@ -38,9 +45,15 @@ export type SignInModalProps = {
   resumePending: boolean;
   /** True while synced sign-in method flags are still loading. */
   methodsLoading?: boolean | undefined;
-  googleAvailable: boolean;
+  /** Enabled sign-in methods, in display order. */
+  providers: readonly OauthProviderId[];
   signInUnavailableReason: string | null;
-  onSignInWithGoogle: () => Promise<void>;
+  onSignIn: (
+    provider: OauthProviderId,
+    options?: SignInOptions
+  ) => Promise<void>;
+  /** Decline a pending link: the new sign-in becomes its own account. */
+  onCreateSeparate: (pendingLinkToken: string) => Promise<void>;
   onError?: ((error: Error) => void) | undefined;
 };
 
@@ -83,10 +96,13 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
     reset: lifecycle.reset,
   });
 
-  const anyMethod = () => props.googleAvailable;
-  const trigger = (runner: () => Promise<void>) => {
+  const anyMethod = () => props.providers.length > 0;
+  const trigger = <A extends unknown[]>(
+    runner: (...args: A) => Promise<void>,
+    ...args: A
+  ): void => {
     if (!anyMethod() || lifecycle.phase() === 'loading') return;
-    void lifecycle.start(runner);
+    void lifecycle.start(() => runner(...args));
   };
 
   const dismissModal = () => {
@@ -114,13 +130,19 @@ export function SignInModal(props: SignInModalProps): JSX.Element {
           onClose={props.onClose}
           onDismiss={dismissModal}
           onRetry={lifecycle.reset}
+          onProveLink={(provider, token) => {
+            trigger(props.onSignIn, provider, { pendingLink: token });
+          }}
+          onSeparate={(token) => {
+            trigger(props.onCreateSeparate, token);
+          }}
           idleBody={
             <SignInIdleBody
               methodsLoading={props.methodsLoading}
-              googleAvailable={props.googleAvailable}
+              providers={props.providers}
               signInUnavailableReason={props.signInUnavailableReason}
-              onPressGoogle={() => {
-                trigger(props.onSignInWithGoogle);
+              onPress={(provider) => {
+                trigger(props.onSignIn, provider);
               }}
             />
           }
@@ -137,6 +159,8 @@ function SignInPhaseContent(props: {
   onClose: () => void;
   onDismiss: () => void;
   onRetry: () => void;
+  onProveLink: (provider: OauthProviderId, token: string) => void;
+  onSeparate: (token: string) => void;
   idleBody: JSX.Element;
   idleFooter: JSX.Element;
 }): JSX.Element {
@@ -173,14 +197,32 @@ function SignInPhaseContent(props: {
         </>
       </Match>
       <Match when={props.phase() === 'error'}>
-        <SignInErrorContent
-          error={props.error}
-          onClose={props.onClose}
-          onRetry={props.onRetry}
-        />
+        <Show
+          when={linkRequiredOf(props.error())}
+          fallback={
+            <SignInErrorContent
+              error={props.error}
+              onClose={props.onClose}
+              onRetry={props.onRetry}
+            />
+          }
+        >
+          {(link) => (
+            <SignInLinkRequiredContent
+              link={link()}
+              onProve={(provider) => props.onProveLink(provider, link().token)}
+              onSeparate={() => props.onSeparate(link().token)}
+              onClose={props.onClose}
+            />
+          )}
+        </Show>
       </Match>
     </Switch>
   );
+}
+
+function linkRequiredOf(error: Error | null): AuthLinkRequiredError | null {
+  return error instanceof AuthLinkRequiredError ? error : null;
 }
 
 function SignInErrorContent(props: {
@@ -188,15 +230,17 @@ function SignInErrorContent(props: {
   onClose: () => void;
   onRetry: () => void;
 }): JSX.Element {
-  const { t } = useLingui();
+  const { i18n, t } = useLingui();
+  const message = (): string | null => {
+    const error = props.error();
+    return error === null ? null : authFlowErrorMessage(i18n(), error);
+  };
   return (
-    <>
+    <div class="box" data-testid={Handles.authSignInFailed}>
       <StateArea>
         <ErrorState
           title={t`Sign-in failed`}
-          body={
-            props.error()?.message ?? t`Sign-in was cancelled or didn't finish.`
-          }
+          body={message() ?? t`Sign-in was cancelled or didn't finish.`}
           retry={{ label: t`Try again`, onClick: props.onRetry }}
         />
       </StateArea>
@@ -207,7 +251,7 @@ function SignInErrorContent(props: {
           onClick={props.onClose}
         />
       </ModalFooter>
-    </>
+    </div>
   );
 }
 

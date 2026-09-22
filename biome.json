@@ -17,7 +17,7 @@
       "!!**/.cache",
       "!**/*.lock",
       "!libs/client-app/src/i18n/locales/*/messages.ts",
-      "!pkgs/idp-google-sim/src/server/assets.generated.ts",
+      "!pkgs/idp-sim/src/server/assets.generated.ts",
       "!pkgs/billing-mock-provider/src/server/assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",

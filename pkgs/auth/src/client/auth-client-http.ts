@@ -1,5 +1,5 @@
 import type { HttpFetch } from '@pkgs/http-client';
-import { IDP_PROVIDER_GOOGLE } from '../shared/auth-constants';
+import type { OauthProviderId } from '../shared/auth-constants';
 import type { VerifiedSession } from '../shared/verified-session';
 
 export const AUTH_SSO_CANCELLED_ERROR =
@@ -7,8 +7,6 @@ export const AUTH_SSO_CANCELLED_ERROR =
 export const AUTH_SSO_POPUP_BLOCKED_ERROR =
   'Popup window was blocked by the browser or failed to open. This can happen in mobile browsers when the window.open() method was invoked too long after a user input was fired.';
 export const AUTH_NETWORK_ERROR = 'Network error during sign-in.';
-
-export type OauthProviderId = typeof IDP_PROVIDER_GOOGLE;
 
 export type SessionBody = {
   readonly token?: string;
@@ -44,21 +42,25 @@ export function apiUrl(baseURL: string, path: string): string {
   return `${root}/api${normalized}`;
 }
 
-export function buildOauthLaunchUrl(
-  baseURL: string,
-  provider: OauthProviderId,
-  callbackUrl: string
-): string {
-  const url = new URL(apiUrl(baseURL, '/auth/oauth/launch'));
-  url.searchParams.set('provider', provider);
-  url.searchParams.set('callbackUrl', callbackUrl);
+export function buildOauthLaunchUrl(args: {
+  readonly baseURL: string;
+  readonly provider: OauthProviderId;
+  readonly callbackUrl: string;
+  /** Link to the signed-in account (a ticket from `POST /auth/link/ticket`). */
+  readonly linkTicket?: string | undefined;
+  /** Finish a pending link by proving the matched account. */
+  readonly pendingLink?: string | undefined;
+}): string {
+  const url = new URL(apiUrl(args.baseURL, '/auth/oauth/launch'));
+  url.searchParams.set('provider', args.provider);
+  url.searchParams.set('callbackUrl', args.callbackUrl);
+  if (args.linkTicket !== undefined) {
+    url.searchParams.set('linkTicket', args.linkTicket);
+  }
+  if (args.pendingLink !== undefined) {
+    url.searchParams.set('pendingLink', args.pendingLink);
+  }
   return url.toString();
-}
-
-export function strategyToOauthProvider(
-  _strategy: 'oauth-google'
-): OauthProviderId {
-  return IDP_PROVIDER_GOOGLE;
 }
 
 export function isPopupBlockedError(err: unknown): boolean {
@@ -85,14 +87,4 @@ export async function postJson(
     headers,
     body: JSON.stringify(body),
   });
-}
-
-export function extractCodeFromCallbackUrl(url: string): string | null {
-  try {
-    const parsed = new URL(url);
-    const code = parsed.searchParams.get('code');
-    return code !== null && code.length > 0 ? code : null;
-  } catch {
-    return null;
-  }
 }

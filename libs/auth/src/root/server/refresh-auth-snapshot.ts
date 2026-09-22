@@ -7,6 +7,10 @@ import type { CreateId } from '@pkgs/uuid';
 import { ExternalAccountRepository } from '../../public/external-account-repository';
 import { managedInsertColumns } from '../../public/managed-row';
 import { readPrimaryEmailFromAuthSnapshot } from './auth-user-snapshot';
+import {
+  LinkedIdentityMirror,
+  readSnapshotIdentities,
+} from './linked-identity-mirror';
 
 /**
  * Idempotent server-side upsert run from `POST /identity/refresh`. Given a
@@ -89,6 +93,14 @@ export class AuthSnapshotRefresher {
       now,
       createId,
     });
+    // Only a real snapshot lists sign-in methods; a failed read must not
+    // tombstone the ones already mirrored.
+    if (snapshot !== null) {
+      await new LinkedIdentityMirror(this.db, { now, createId }).mirror(
+        accountId,
+        readSnapshotIdentities(snapshot)
+      );
+    }
   }
 
   private async upsertDeviceRow(args: {

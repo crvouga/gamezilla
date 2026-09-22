@@ -1,15 +1,8 @@
 import type { Context } from 'hono';
 
-import {
-  AUTH_SET_TOKEN_HEADER,
-  IDP_PROVIDER_GOOGLE,
-} from '../shared/auth-constants';
-import { isTrustedCallbackUrl } from '../shared/trusted-origins';
-import type { CreateAuthAppDeps } from './create-auth-app-types';
-import {
-  buildGoogleAuthorizationUrl,
-  exchangeGoogleAuthorizationCode,
-} from './google-oauth';
+import { AUTH_SET_TOKEN_HEADER } from '../shared/auth-constants';
+import type { AuthAppCtx, CreateAuthAppDeps } from './create-auth-app-types';
+import { IdentityRepository } from './identity-repository';
 import { IdpRepository } from './idp-repository';
 
 type SessionUserJson = {
@@ -52,180 +45,68 @@ export function repo(deps: CreateAuthAppDeps): IdpRepository {
   );
 }
 
-export function providerCallbackUri(
-  baseURL: string,
-  publicPathPrefix: string,
-  provider: string
-): string {
-  const origin = baseURL.replace(/\/$/, '');
-  const prefix = publicPathPrefix.replace(/\/$/, '');
-  return `${origin}${prefix}/auth/callback/${provider}`;
+export function identityRepo(deps: CreateAuthAppDeps): IdentityRepository {
+  return new IdentityRepository(deps.getSql(), deps.clock, deps.createId);
 }
 
-export function googleRedirectUri(
-  baseURL: string,
-  publicPathPrefix: string
-): string {
-  return providerCallbackUri(baseURL, publicPathPrefix, IDP_PROVIDER_GOOGLE);
-}
-
-function readStringField(raw: unknown, key: string): string {
+export function readStringField(raw: unknown, key: string): string {
   if (raw === null || typeof raw !== 'object') return '';
   const value = (raw as Record<string, unknown>)[key];
   return typeof value === 'string' ? value : '';
 }
 
-function publicPrefix(deps: CreateAuthAppDeps): string {
-  return deps.publicPathPrefix ?? '';
-}
-
-function isSupportedProvider(provider: string): boolean {
-  return provider === IDP_PROVIDER_GOOGLE;
-}
-
-function providerEnabled(deps: CreateAuthAppDeps, provider: string): boolean {
-  return (
-    provider === IDP_PROVIDER_GOOGLE && deps.providers.google !== undefined
-  );
-}
-
-async function finishOauthCallback(args: {
-  readonly c: Context;
-  readonly deps: CreateAuthAppDeps;
-  readonly oauthState: {
-    readonly id: string;
-    readonly callback_url: string;
-  };
-  readonly user: SessionUserJson;
-}): Promise<Response> {
-  const exchangeCode = await repo(args.deps).attachExchangeCode({
-    stateId: args.oauthState.id,
-    userId: args.user.id,
-  });
-  const redirect = new URL(args.oauthState.callback_url);
-  redirect.searchParams.set('code', exchangeCode);
-  return args.c.redirect(redirect.toString(), 302);
-}
-
-export async function handleOauthLaunch(
+/** The signed-in user behind the request's bearer, or `null`. */
+export async function bearerUserId(
   c: Context,
   deps: CreateAuthAppDeps
-): Promise<Response> {
-  const provider = c.req.query('provider') ?? '';
-  const callbackUrl = c.req.query('callbackUrl') ?? '';
-  if (!isSupportedProvider(provider)) {
-    return c.json({ error: 'unsupported_provider' }, 400);
-  }
-  if (!providerEnabled(deps, provider)) {
-    return c.json({ error: 'provider_disabled' }, 404);
-  }
-  if (
-    callbackUrl.length === 0 ||
-    !isTrustedCallbackUrl(callbackUrl, deps.trustedOrigins)
-  ) {
-    return c.json({ error: 'invalid_callback_url' }, 400);
-  }
-  const r = repo(deps);
-  const { state, codeVerifier } = await r.createOauthState({
-    provider,
-    callbackUrl,
-  });
-  const google = deps.providers.google;
-  if (google === undefined) {
-    return c.json({ error: 'provider_disabled' }, 404);
-  }
-  const authorizationUrl = buildGoogleAuthorizationUrl({
-    google,
-    redirectUri: googleRedirectUri(deps.baseURL, publicPrefix(deps)),
-    state,
-    codeVerifier,
-  });
-  return c.redirect(authorizationUrl, 302);
+): Promise<string | null> {
+  const token = readBearer(c.req.header('authorization'));
+  if (token === null) return null;
+  const found = await repo(deps).findSessionByToken(token);
+  return found?.user.id ?? null;
 }
 
-export async function handleOauthCallback(
+/** Mint a session for `userId` and answer the way `/auth/session` does. */
+export async function respondWithSession(
   c: Context,
-  deps: CreateAuthAppDeps
+  deps: CreateAuthAppDeps,
+  userId: string
 ): Promise<Response> {
-  const provider = c.req.param('provider') ?? '';
-  if (!isSupportedProvider(provider)) {
-    return c.json({ error: 'unsupported_provider' }, 400);
-  }
-  if (!providerEnabled(deps, provider)) {
-    return c.json({ error: 'provider_disabled' }, 404);
-  }
-  const code = c.req.query('code') ?? '';
-  const state = c.req.query('state') ?? '';
-  if (code.length === 0 || state.length === 0) {
-    return c.json({ error: 'missing_code_or_state' }, 400);
-  }
   const r = repo(deps);
-  const oauthState = await r.findOauthStateByState(state);
-  if (oauthState === null || oauthState.provider !== provider) {
-    return c.json({ error: 'invalid_state' }, 400);
+  const user = await r.findUserById(userId);
+  if (user === null) {
+    return c.json({ error: 'user_missing' }, 400);
   }
-
-  const google = deps.providers.google;
-  if (google === undefined) {
-    return c.json({ error: 'provider_disabled' }, 404);
-  }
-  let googleUser: Awaited<ReturnType<typeof exchangeGoogleAuthorizationCode>>;
-  try {
-    googleUser = await exchangeGoogleAuthorizationCode({
-      http: deps.http,
-      google,
-      redirectUri: googleRedirectUri(deps.baseURL, publicPrefix(deps)),
-      code,
-      codeVerifier: oauthState.code_verifier,
-    });
-  } catch {
-    return c.json({ error: 'google_exchange_failed' }, 400);
-  }
-  const user = await r.upsertSocialUser({
-    provider: IDP_PROVIDER_GOOGLE,
-    providerUserId: googleUser.sub,
-    email: googleUser.email,
-    name: googleUser.name,
-    image: googleUser.picture,
-    accessToken: googleUser.accessToken,
-    refreshToken: googleUser.refreshToken,
-  });
-  return finishOauthCallback({ c, deps, oauthState, user });
+  const session = await r.createSession(userId);
+  c.header(AUTH_SET_TOKEN_HEADER, session.token);
+  return c.json(sessionJson(user, session.token, session.expiresAtMs), 200);
 }
 
 export async function handleSessionExchange(
   c: Context,
-  deps: CreateAuthAppDeps
+  ctx: AuthAppCtx
 ): Promise<Response> {
   const raw: unknown = await c.req.json().catch(() => null);
   const code = readStringField(raw, 'code');
   if (code.length === 0) {
     return c.json({ error: 'missing_code' }, 400);
   }
-  const r = repo(deps);
-  const userId = await r.consumeExchangeCode(code);
+  const userId = await repo(ctx.deps).consumeExchangeCode(code);
   if (userId === null) {
     return c.json({ error: 'invalid_code' }, 400);
   }
-  const user = await r.findUserById(userId);
-  if (user === null) {
-    return c.json({ error: 'user_missing' }, 400);
-  }
-  const session = await r.createSession(userId);
-  const body = sessionJson(user, session.token, session.expiresAtMs);
-  c.header(AUTH_SET_TOKEN_HEADER, session.token);
-  return c.json(body, 200);
+  return await respondWithSession(c, ctx.deps, userId);
 }
 
 export async function handleGetSession(
   c: Context,
-  deps: CreateAuthAppDeps
+  ctx: AuthAppCtx
 ): Promise<Response> {
   const token = readBearer(c.req.header('authorization'));
   if (token === null) {
     return c.json({ error: 'unauthorized' }, 401);
   }
-  const found = await repo(deps).findSessionByToken(token);
+  const found = await repo(ctx.deps).findSessionByToken(token);
   if (found === null) {
     return c.json({ error: 'unauthorized' }, 401);
   }
@@ -240,11 +121,24 @@ export async function handleGetSession(
 
 export async function handleSignOut(
   c: Context,
-  deps: CreateAuthAppDeps
+  ctx: AuthAppCtx
 ): Promise<Response> {
   const token = readBearer(c.req.header('authorization'));
   if (token !== null) {
-    await repo(deps).deleteSessionByToken(token);
+    await repo(ctx.deps).deleteSessionByToken(token);
   }
+  return c.json({ ok: true }, 200);
+}
+
+/** Revoke every session the user holds, on every device. */
+export async function handleSignOutAll(
+  c: Context,
+  ctx: AuthAppCtx
+): Promise<Response> {
+  const userId = await bearerUserId(c, ctx.deps);
+  if (userId === null) {
+    return c.json({ error: 'unauthorized' }, 401);
+  }
+  await repo(ctx.deps).deleteSessionsForUser(userId);
   return c.json({ ok: true }, 200);
 }

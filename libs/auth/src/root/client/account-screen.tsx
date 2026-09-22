@@ -6,9 +6,12 @@ import {
   SmartphoneIcon,
   useRouter,
 } from '@pkgs/ui';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
+import { useHasAuthSession } from '../../public/use-current-user';
 import { AccountActionsRow } from './account-actions-row';
+import { SignInMethodsSection } from './sign-in-methods/sign-in-methods-section';
+import { SignOutEverywhereButton } from './sign-in-methods/sign-out-everywhere';
 
 const ROW_ICON_SIZE = 20;
 
@@ -20,6 +23,7 @@ export type AccountScreenProps = {
 export function AccountScreen(props: AccountScreenProps): JSX.Element {
   const { t } = useLingui();
   const router = useRouter();
+  const signedIn = useHasAuthSession();
 
   return (
     <ScreenBase
@@ -33,6 +37,9 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
       content={({ bodyClass }) => (
         <div class={`box ${bodyClass} gap-5`}>
           {props.identity}
+          <Show when={signedIn()}>
+            <SignInMethodsSection />
+          </Show>
           <MenuSection title={<Trans>Security</Trans>}>
             <MenuRow
               title={t`Devices`}
@@ -44,6 +51,9 @@ export function AccountScreen(props: AccountScreenProps): JSX.Element {
             />
           </MenuSection>
           <AccountActionsRow />
+          <Show when={signedIn()}>
+            <SignOutEverywhereButton />
+          </Show>
         </div>
       )}
     />

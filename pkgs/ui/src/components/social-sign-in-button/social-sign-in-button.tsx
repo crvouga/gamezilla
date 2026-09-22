@@ -121,6 +121,8 @@ function LeadingSlot(props: {
         width: `${ICON_SIZE}px`,
         height: `${ICON_SIZE}px`,
         'margin-right': `${ICON_GAP}px`,
+        // Monochrome marks (Apple's) draw in the label's color.
+        color: props.palette.font,
       }}
     >
       <Show

@@ -17,7 +17,7 @@ import {
   type ProductSim,
   productExtra,
 } from '../system/sim';
-import { ensureStackIdpAccount } from './stack-idp-accounts';
+import { ensureStackIdpAccounts } from './stack-idp-accounts';
 
 export type WireProductRuntimeOptions = {
   readonly snapshot?: SimSystemSnapshot;
@@ -38,8 +38,8 @@ export function wireProductRuntime(
   const runtime: ProductRuntime = {
     async launchActor(id) {
       if (extra.http.kind === 'stack') {
-        await ensureStackIdpAccount({
-          idpOrigin: extra.http.idpOrigin,
+        await ensureStackIdpAccounts({
+          idpOrigins: extra.http.idpOrigins,
           actorId: id,
           email: actorEmail(surface, id),
         });

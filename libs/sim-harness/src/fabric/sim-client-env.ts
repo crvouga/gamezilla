@@ -10,7 +10,6 @@ import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
 import { assert } from '@pkgs/assert';
 import { createNamespacedAuthClientStorage } from '@pkgs/auth/client';
 import type { Timers } from '@pkgs/clock';
-import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
 import { createLogger } from '@pkgs/logger';
@@ -28,7 +27,7 @@ import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import type { SimBillingProvider } from './sim-billing';
 import { createSimBrowser, type SimBrowser } from './sim-browser';
 import { simClientNamespace } from './sim-client-namespace';
-import { simBrowserFetch } from './sim-idp';
+import { type SimIdps, simBrowserFetch } from './sim-idp';
 import type { SimLoadBalancer } from './sim-load-balancer';
 import type { SimNet } from './sim-net';
 import { SIM_PRIMARY_SERVER_ID } from './sim-server-nodes';
@@ -47,7 +46,7 @@ export type SimClientEnvDeps = {
   readonly roomNode: SimRoomNode;
   readonly composition: SimComposition;
   readonly loadBalancer: SimLoadBalancer;
-  readonly idp: GoogleIdp;
+  readonly idps: SimIdps;
   readonly billing: SimBillingProvider | null;
 };
 
@@ -81,7 +80,7 @@ export function makeSimClientEnv(
   const ns = simClientNamespace(id);
   const serverFetch = deps.loadBalancer.fetchFrom(id);
   const browserFetch = simBrowserFetch({
-    idp: deps.idp,
+    idps: deps.idps,
     billing: deps.billing,
     net,
     from: id,

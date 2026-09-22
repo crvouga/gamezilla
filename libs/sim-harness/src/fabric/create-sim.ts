@@ -1,4 +1,4 @@
-import type { ClientEnv } from '@libs/client-app/shell/client-env';
+import type { ClientEnv, ServerHttp } from '@libs/client-app/shell/client-env';
 import {
   type Client,
   createClient,
@@ -16,7 +16,7 @@ import { loadAuthBootConfig } from '@libs/server-app/config/auth-boot';
 import { assert } from '@pkgs/assert';
 import type { MembershipProviders } from '@pkgs/billing';
 import type { Clock, Timers } from '@pkgs/clock';
-import type { GoogleIdp } from '@pkgs/idp-google-sim/server';
+import type { AppleClientKeys } from '@pkgs/idp-sim/server';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { createLogger } from '@pkgs/logger';
@@ -44,7 +44,15 @@ import {
 import type { SimBrowser } from './sim-browser';
 import { makeSimClientEnv } from './sim-client-env';
 import { bumpSimClientEpoch } from './sim-client-namespace';
-import { createSimIdp, simIdpEmail, simIdpFetchFrom } from './sim-idp';
+import {
+  addSimIdpAccounts,
+  createSimIdps,
+  SIM_APPLE_IDP_ID,
+  type SimIdps,
+  simAppleBootInput,
+  simAppleClientKeys,
+  simIdpFetchFrom,
+} from './sim-idp';
 import {
   createSimLoadBalancer,
   type SimLoadBalancer,
@@ -95,8 +103,8 @@ export type Sim = {
   readonly net: ReturnType<typeof createSimNet>;
   /** Round-robin ingress every client talks to. */
   readonly loadBalancer: SimLoadBalancer;
-  /** The simulated Google the product signs in against. */
-  readonly idp: GoogleIdp;
+  /** The simulated Google and Apple the product signs in against. */
+  readonly idps: SimIdps;
   /** The payment provider node, when the composition sells something. */
   readonly billing: SimBillingProvider | null;
   /** Auth directory entry + env; the account row is written on first use. */
@@ -159,7 +167,8 @@ type SharedServerServices = {
 };
 
 async function buildSharedServerServices(
-  serverSql: SimSql
+  serverSql: SimSql,
+  appleKeys: AppleClientKeys
 ): Promise<SharedServerServices> {
   const secrets = createRecordSecretStore({
     AUTH_SECRET: SIM_AUTH_SECRET,
@@ -178,6 +187,7 @@ async function buildSharedServerServices(
       secretStore: secrets,
       apiUrlOverride: SIM_SERVER_URL,
       googleIdpOrigin: SIM_IDP_URL,
+      apple: simAppleBootInput(appleKeys),
     }),
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
@@ -245,8 +255,8 @@ function buildRoomServerEnv(args: {
 type SimKernel = {
   readonly session: Session;
   readonly composition: SimComposition;
-  readonly idp: GoogleIdp;
-  readonly idpSql: SimSql;
+  readonly idps: SimIdps;
+  readonly idpSqls: readonly SimSql[];
   readonly billing: SimBillingProvider | null;
   readonly billingSql: SimSql | null;
   readonly seed: bigint;
@@ -260,6 +270,25 @@ type SimKernel = {
   readonly primaryEnv: ServerEnv;
   readonly disposed: { value: boolean };
 };
+
+/** One SQLite per provider node; the Apple node talks back via `toApi`. */
+async function openSimIdps(
+  session: Session,
+  appleKeys: AppleClientKeys,
+  toApi: () => ServerHttp
+): Promise<{ readonly idps: SimIdps; readonly sqls: readonly SimSql[] }> {
+  const clock = session.ports.clock;
+  const google = await openFreshSimClientSql('sim_idp', clock);
+  const apple = await openFreshSimClientSql('sim_idp_apple', clock);
+  const idps = await createSimIdps({
+    clock,
+    createId: session.ports.createId,
+    sqlClients: { google: google.sqlClient, apple: apple.sqlClient },
+    appleKeys,
+    toApi,
+  });
+  return { idps, sqls: [google, apple] };
+}
 
 async function openServerSql(
   session: Session,
@@ -298,14 +327,13 @@ async function bootSimKernel(
     isPartitioned: (a, b) => session.network.isPartitioned(a, b),
   });
   const pubSubBus = createInMemoryBus();
-  const idpSql = await openFreshSimClientSql('sim_idp', session.ports.clock);
-  const idp = await createSimIdp({
-    clock: session.ports.clock,
-    createId: session.ports.createId,
-    sqlClient: idpSql.sqlClient,
-  });
+  const appleKeys = await simAppleClientKeys();
+  const idpNodes = await openSimIdps(session, appleKeys, () =>
+    loadBalancer.fetchFrom(SIM_APPLE_IDP_ID)
+  );
+  const idps = idpNodes.idps;
   const serverSql = await openServerSql(session, opts);
-  const shared = await buildSharedServerServices(serverSql);
+  const shared = await buildSharedServerServices(serverSql, appleKeys);
   const billingNode = await openSimBillingNode({
     offer: composition.billingOffer,
     clock: session.ports.clock,
@@ -330,7 +358,7 @@ async function bootSimKernel(
           timers,
           shared,
           pubSubBus,
-          vendorFetch: simIdpFetchFrom({ idp, net, from: id }),
+          vendorFetch: simIdpFetchFrom({ idps, net, from: id }),
           billing: simMembershipBilling({
             billing,
             net,
@@ -349,8 +377,8 @@ async function bootSimKernel(
   return {
     session,
     composition,
-    idp,
-    idpSql,
+    idps,
+    idpSqls: idpNodes.sqls,
     billing,
     billingSql: billingNode?.sql ?? null,
     seed,
@@ -383,7 +411,7 @@ async function disposeSim(args: {
   kernel.roomNode.dispose();
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
-  await kernel.idpSql.disconnect();
+  for (const handle of kernel.idpSqls) await handle.disconnect();
   await kernel.billingSql?.disconnect();
   await kernel.serverSql.disconnect();
 }
@@ -405,8 +433,8 @@ function createClientEnvs(
     const inFlight = pendingEnvs.get(id);
     if (inFlight !== undefined) return await inFlight;
     const pending = (async (): Promise<ClientEnv> => {
-      // The person behind this actor needs a Google account to sign in with.
-      await kernel.idp.addAccount({ handle: id, email: simIdpEmail(id) });
+      // The person behind this actor holds accounts at both providers.
+      await addSimIdpAccounts(kernel.idps, id);
       const built = makeSimClientEnv(kernel, { id, clientSql });
       browsers.set(id, built.browser);
       clientEnvs.set(id, built.env);
@@ -419,7 +447,8 @@ function createClientEnvs(
 }
 
 function createSimHandle(kernel: SimKernel): Sim {
-  const { session, net, pubSubBus, serverSql, roomNode, servers, idp } = kernel;
+  const { session, net, pubSubBus, serverSql, roomNode, servers, idps } =
+    kernel;
   const clientSql = new Map<string, SimSql>();
   const browsers = new Map<string, SimBrowser>();
   const liveClients = new Map<string, Client>();
@@ -433,7 +462,7 @@ function createSimHandle(kernel: SimKernel): Sim {
     pubSubBus,
     net,
     loadBalancer: kernel.loadBalancer,
-    idp,
+    idps,
     billing: kernel.billing,
     client,
     browser: (id) => {
