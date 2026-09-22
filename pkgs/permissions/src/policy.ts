@@ -27,6 +27,8 @@ export type RoleSpec<
 export type RestrictionSpec = {
   readonly when: FactPredicate;
   readonly deny: readonly string[];
+  /** Reason the denial reports (default `restricted`). */
+  readonly reason?: DenialReason;
 };
 
 /** Machine-readable denial reasons. */

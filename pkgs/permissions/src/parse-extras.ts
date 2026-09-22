@@ -156,7 +156,16 @@ function readRestriction(
     issues.push(`${label} needs "when" and a string "deny" list`);
     return undefined;
   }
-  return { when, deny: [...(deny as string[])] };
+  const reason = value['reason'];
+  if (reason !== undefined && !REASONS.has(reason as string)) {
+    issues.push(`${label}.reason must be a denial reason`);
+    return undefined;
+  }
+  return {
+    when,
+    deny: [...(deny as string[])],
+    ...(reason === undefined ? {} : { reason: reason as DenialReason }),
+  };
 }
 
 function readUnlockEntry(
