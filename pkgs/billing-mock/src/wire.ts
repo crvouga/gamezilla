@@ -7,8 +7,10 @@
  * subscription, invoice, checkout and portal sessions, events), same
  * subscription statuses, same seconds-since-epoch timestamps, same
  * `{ error: { type, code, message } }` envelope, same magic test payment
- * methods. The bodies are JSON rather than form-encoded, and the ids, host
- * and signature header are the mock's own — it never passes for Stripe.
+ * methods, same list envelope with cursor pagination, same `Idempotency-Key`
+ * and `expand[]` request semantics. Requests may be JSON or Stripe's
+ * form encoding; the ids, host and signature header are the mock's own — it
+ * never passes for Stripe.
  */
 
 export const MOCK_BILLING_PROVIDER = 'mock';
@@ -30,6 +32,11 @@ export const MOCK_BILLING_PATHS = {
   portalSessions: '/v1/billing_portal/sessions',
   subscription: (id: string) => `/v1/subscriptions/${id}`,
   subscriptions: '/v1/subscriptions',
+  /** Resume a paused subscription (Stripe's `/resume`). */
+  subscriptionResume: (id: string) => `/v1/subscriptions/${id}/resume`,
+  checkoutSession: (id: string) => `/v1/checkout/sessions/${id}`,
+  /** Expire an open checkout session now (Stripe's `/expire`). */
+  checkoutSessionExpire: (id: string) => `/v1/checkout/sessions/${id}/expire`,
   invoices: '/v1/invoices',
   invoicePay: (id: string) => `/v1/invoices/${id}/pay`,
   events: '/v1/events',
@@ -108,6 +115,12 @@ export const MOCK_TEST_PAYMENT_METHODS = {
   chargeCustomerFail: 'pm_card_chargeCustomerFail',
   /** 4000 0000 0000 0002 — declined as soon as it is used. */
   chargeDeclined: 'pm_card_chargeDeclined',
+  /**
+   * 4000 0027 6000 3184 — every charge needs 3D Secure: one the customer is
+   * present for (checkout, the portal) authenticates; an off-session renewal
+   * fails with `authentication_required`.
+   */
+  authenticationRequired: 'pm_card_authenticationRequired',
 } as const;
 
 export type MockTestPaymentMethod =
@@ -123,6 +136,11 @@ export type MockCustomer = {
   readonly invoice_settings: {
     readonly default_payment_method: string | null;
   };
+  /**
+   * Minor units applied to the next invoice: negative is credit the customer
+   * holds (e.g. unused time from a downgrade), as on Stripe.
+   */
+  readonly balance: number;
   /** The customer's test clock (unix seconds); billing runs on it. */
   readonly test_clock_frozen_time: number;
 };
@@ -146,6 +164,18 @@ export type MockCancellationDetails = {
   readonly comment: string | null;
 };
 
+/** What happens when a trial ends and the customer has no card on file. */
+export type MockMissingPaymentMethodBehavior =
+  | 'cancel'
+  | 'pause'
+  | 'create_invoice';
+
+export type MockTrialSettings = {
+  readonly end_behavior: {
+    readonly missing_payment_method: MockMissingPaymentMethodBehavior;
+  };
+};
+
 export type MockSubscription = {
   readonly id: string;
   readonly object: 'subscription';
@@ -159,9 +189,12 @@ export type MockSubscription = {
   readonly cancellation_details: MockCancellationDetails;
   readonly trial_start: number | null;
   readonly trial_end: number | null;
+  readonly trial_settings: MockTrialSettings;
   readonly start_date: number;
   readonly created: number;
-  readonly latest_invoice: string | null;
+  readonly livemode: false;
+  /** An invoice id, or the invoice itself when expanded. */
+  readonly latest_invoice: string | MockInvoice | null;
   readonly default_payment_method: string | null;
   readonly metadata: Readonly<Record<string, string>>;
 };
@@ -187,17 +220,34 @@ export type MockInvoice = {
   readonly amount_due: number;
   readonly amount_paid: number;
   readonly amount_remaining: number;
+  /** Before `starting_balance`: the sum of the lines. */
+  readonly subtotal: number;
+  readonly total: number;
+  /** The customer's balance before (negative is credit) and after this invoice. */
+  readonly starting_balance: number;
+  readonly ending_balance: number;
+  /** `<customer prefix>-<0001>`, assigned when the invoice is finalized. */
+  readonly number: string | null;
+  readonly attempted: boolean;
   readonly attempt_count: number;
   /** When the next automatic retry runs (unix seconds), or `null`. */
   readonly next_payment_attempt: number | null;
   readonly period_start: number;
   readonly period_end: number;
-  readonly lines: MockList<{
-    readonly description: string;
-    readonly amount: number;
-    readonly price: string;
-  }>;
+  readonly lines: MockList<MockInvoiceLine>;
   readonly created: number;
+  readonly livemode: false;
+};
+
+export type MockInvoiceLine = {
+  readonly id: string;
+  readonly object: 'line_item';
+  readonly description: string;
+  /** Negative for a proration credit. */
+  readonly amount: number;
+  readonly price: string;
+  readonly proration: boolean;
+  readonly period: { readonly start: number; readonly end: number };
 };
 
 export type MockCheckoutSession = {
@@ -205,6 +255,11 @@ export type MockCheckoutSession = {
   readonly object: 'checkout.session';
   readonly mode: 'subscription';
   readonly status: 'open' | 'complete' | 'expired';
+  readonly payment_status: 'unpaid' | 'paid' | 'no_payment_required';
+  /** `if_required` lets a trial start without a card. */
+  readonly payment_method_collection: 'always' | 'if_required';
+  readonly amount_total: number;
+  readonly currency: string;
   readonly url: string | null;
   readonly customer: string;
   readonly client_reference_id: string | null;
@@ -217,8 +272,11 @@ export type MockCheckoutSession = {
   readonly subscription_data: {
     readonly metadata: Readonly<Record<string, string>>;
     readonly trial_period_days: number | null;
+    readonly trial_settings: MockTrialSettings;
   };
-  readonly subscription: string | null;
+  /** A subscription id, or the subscription itself when expanded. */
+  readonly subscription: string | MockSubscription | null;
+  readonly livemode: false;
   readonly expires_at: number;
   readonly created: number;
 };
@@ -236,17 +294,26 @@ export type MockPortalSession = {
 
 export type MockEventType =
   | 'customer.created'
+  | 'customer.updated'
+  | 'payment_method.attached'
   | 'checkout.session.completed'
+  | 'checkout.session.expired'
   | 'customer.subscription.created'
   | 'customer.subscription.updated'
   | 'customer.subscription.deleted'
+  | 'customer.subscription.paused'
+  | 'customer.subscription.resumed'
   | 'customer.subscription.trial_will_end'
   | 'invoice.created'
+  | 'invoice.finalized'
   | 'invoice.paid'
-  | 'invoice.payment_failed';
+  | 'invoice.payment_succeeded'
+  | 'invoice.payment_failed'
+  | 'invoice.payment_action_required';
 
 export type MockEventObject =
   | MockCustomer
+  | MockPaymentMethod
   | MockCheckoutSession
   | MockSubscription
   | MockInvoice;
@@ -270,6 +337,8 @@ export type MockErrorType =
   | 'invalid_request_error'
   | 'authentication_error'
   | 'card_error'
+  | 'idempotency_error'
+  | 'rate_limit_error'
   | 'api_error';
 
 export type MockErrorBody = {
@@ -301,9 +370,11 @@ export type CreateCheckoutSessionBody = {
   ];
   readonly success_url: string;
   readonly cancel_url: string;
+  readonly payment_method_collection?: 'always' | 'if_required';
   readonly subscription_data?: {
     readonly metadata?: Readonly<Record<string, string>>;
     readonly trial_period_days?: number;
+    readonly trial_settings?: MockTrialSettings;
   };
 };
 
@@ -319,6 +390,20 @@ export type UpdateSubscriptionBody = {
   readonly items?: readonly [{ readonly id: string; readonly price: string }];
   readonly proration_behavior?: 'create_prorations' | 'always_invoice' | 'none';
 };
+
+/** Stripe's list cursor parameters, on every list endpoint. */
+export type MockListParams = {
+  /** 1–100, default 10. */
+  readonly limit?: number;
+  readonly starting_after?: string;
+  readonly ending_before?: string;
+};
+
+/** Replays of a request with this header return the first response. */
+export const MOCK_BILLING_IDEMPOTENCY_HEADER = 'idempotency-key';
+
+/** Set on a response that was replayed from an earlier idempotent request. */
+export const MOCK_BILLING_IDEMPOTENT_REPLAYED_HEADER = 'idempotent-replayed';
 
 export type AdvanceClockBody = {
   /** Unix seconds; must not be behind the customer's clock. */

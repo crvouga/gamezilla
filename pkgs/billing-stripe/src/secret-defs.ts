@@ -1,20 +1,8 @@
+import type { MembershipProviderSecretDef } from '@pkgs/billing';
+
 import { StripeSecretKeys } from './secret-keys';
 
-export type BillingStripeSecretValidateInput = {
-  readonly secretValue: string;
-  readonly fetch: (
-    input: RequestInfo | URL,
-    init?: RequestInit
-  ) => Promise<Response>;
-};
-
-export type BillingStripeSecretDef = {
-  readonly name: string;
-  readonly hint: string;
-  readonly optional?: boolean;
-  readonly pushToApiWorker?: boolean;
-  validate(input: BillingStripeSecretValidateInput): Promise<void>;
-};
+type ValidateInput = Parameters<MembershipProviderSecretDef['validate']>[0];
 
 function requireNonEmpty(value: string, label: string): void {
   if (value.trim().length === 0) {
@@ -23,7 +11,7 @@ function requireNonEmpty(value: string, label: string): void {
 }
 
 export async function validateStripeSecretKeyValue(
-  input: BillingStripeSecretValidateInput
+  input: ValidateInput
 ): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, StripeSecretKeys.secretKey);
@@ -49,7 +37,7 @@ export async function validateStripeSecretKeyValue(
 }
 
 export async function validateStripePublishableKeyValue(
-  input: BillingStripeSecretValidateInput
+  input: ValidateInput
 ): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, StripeSecretKeys.publishableKey);
@@ -59,7 +47,7 @@ export async function validateStripePublishableKeyValue(
 }
 
 export function validateStripeWebhookSecretValue(
-  input: BillingStripeSecretValidateInput
+  input: ValidateInput
 ): Promise<void> {
   const v = input.secretValue.trim();
   requireNonEmpty(v, StripeSecretKeys.webhookSecret);
@@ -70,13 +58,15 @@ export function validateStripeWebhookSecretValue(
 }
 
 /**
- * Secret definitions for the infra registry. Callers wrap these with their
- * `Secret` class and inject `fetch` into `validate`.
+ * Secret definitions for the deployment's registry. All optional, like every
+ * provider's: a deployment bills through Stripe only when
+ * `STRIPE_SECRET_KEY` is set.
  */
-export const billingStripeSecretDefs: readonly BillingStripeSecretDef[] = [
+export const billingStripeSecretDefs: readonly MembershipProviderSecretDef[] = [
   {
     name: StripeSecretKeys.secretKey,
     hint: 'Stripe secret API key (sk_live_… or sk_test_…) — Dashboard → Developers → API keys',
+    optional: true,
     pushToApiWorker: true,
     validate: validateStripeSecretKeyValue,
   },
@@ -84,6 +74,7 @@ export const billingStripeSecretDefs: readonly BillingStripeSecretDef[] = [
     name: StripeSecretKeys.publishableKey,
     hint: 'Stripe publishable key (pk_live_… or pk_test_…)',
     optional: true,
+    pushToApiWorker: false,
     validate: validateStripePublishableKeyValue,
   },
   {

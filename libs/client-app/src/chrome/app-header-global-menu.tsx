@@ -4,7 +4,8 @@
  * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
  * Theme, Sound. Header shows `@username` + email when signed in (bridged
  * from the sync tree via {@link useGlobalMenuIdentity}). Trigger face is the
- * current user's avatar when available.
+ * current user's avatar when available. The header's trailing chip is the
+ * membership tier a feature published ({@link useGlobalMenuMembership}).
  */
 
 import { Handles } from '@libs/test-ids';
@@ -32,6 +33,8 @@ import {
   type GlobalMenuIdentity,
   useGlobalMenuIdentity,
 } from './global-menu-identity-context';
+import { GlobalMenuMembershipChip } from './global-menu-membership-chip';
+import { useGlobalMenuMembership } from './global-menu-membership-context';
 import { createConnectivity } from './use-connectivity';
 
 const CONNECTIVITY_DOT_SIZE = 14;
@@ -140,15 +143,22 @@ function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
   const { t } = useLingui();
   const identity = useLocalIdentity();
   const menuIdentity = useGlobalMenuIdentity();
+  const membership = useGlobalMenuMembership();
   return createMemo(() => {
     const current = menuIdentity();
     const { username, email } = current;
     const avatar = accountFace(current, HEADER_AVATAR_SIZE);
+    const published = membership();
+    const badge =
+      published === null ? undefined : (
+        <GlobalMenuMembershipChip membership={published} />
+      );
     if (!identity.isSignedIn()) {
       return {
         title: t`Guest`,
         subtitle: t`Playing as guest`,
         avatar,
+        badge,
       };
     }
     if (username !== null && username.length > 0) {
@@ -156,12 +166,13 @@ function useGlobalMenuHeader(): Accessor<OverflowMenuHeader> {
         title: `@${username}`,
         subtitle: email ?? undefined,
         avatar,
+        badge,
       };
     }
     if (email !== null && email.length > 0) {
-      return { title: email, avatar };
+      return { title: email, avatar, badge };
     }
-    return { title: t`Account`, avatar };
+    return { title: t`Account`, avatar, badge };
   });
 }
 

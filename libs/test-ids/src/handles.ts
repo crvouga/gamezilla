@@ -73,6 +73,13 @@ export const Handles = {
   billingTier: 'billing-tier',
   billingSubscribe: 'billing-subscribe',
   billingManage: 'billing-manage',
+  billingSignIn: 'billing-sign-in',
+  billingStatus: 'billing-status',
+  billingNotice: 'billing-notice',
+  billingPricing: 'billing-pricing',
+  billingPrice: (priceKey: string) => `billing-price-${priceKey}`,
+  billingBenefits: 'billing-benefits',
+  globalMenuMembership: 'global-menu-membership',
 
   // sign-in modal
   authMethodGoogle: 'auth-method-google',

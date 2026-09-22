@@ -1,15 +1,16 @@
 /**
- * Driving the sim's payment provider the way a tester drives Stripe in test
- * mode: through its REST API with the secret key — test clocks, test cards,
+ * Driving the sim's payment provider the way a tester drives any provider in
+ * test mode: through its REST API with the secret key — test clocks, test cards,
  * subscription updates, event resends. Never through the app: whatever
  * changes here reaches the app only as a signed webhook.
  */
-import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from '@libs/auth/public/external-account-providers';
+import { billingCustomerLinkProvider } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
 import type { SimBillingProvider } from '@libs/sim-harness/fabric/sim-billing';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import {
   MOCK_BILLING_PATHS,
+  MOCK_BILLING_PROVIDER,
   MOCK_TEST_PAYMENT_METHODS,
   type MockEvent,
   type MockList,
@@ -72,10 +73,28 @@ export async function customerOf(
 ): Promise<string> {
   const customer = await new ExternalAccountRepository(
     s.sim.serverSql.sqlClient
-  ).readExternalAccountId(accountId, EXTERNAL_ACCOUNT_PROVIDER_BILLING);
+  ).readExternalAccountId(
+    accountId,
+    billingCustomerLinkProvider(MOCK_BILLING_PROVIDER)
+  );
   if (customer === null)
     throw new Error(`billing: ${accountId} has no customer`);
   return customer;
+}
+
+/**
+ * Every subscription the provider holds for `customer`, newest first. Reading
+ * settles the customer (due renewals and retries run), as the provider's API does.
+ */
+export async function providerSubscriptions(
+  s: ProductSim,
+  customer: string
+): Promise<readonly MockSubscription[]> {
+  const list = await providerCall(s)<MockList<MockSubscription>>(
+    'GET',
+    `${MOCK_BILLING_PATHS.subscriptions}?customer=${customer}&status=all&limit=100`
+  );
+  return list.data;
 }
 
 async function latestSubscription(
@@ -84,7 +103,7 @@ async function latestSubscription(
 ): Promise<MockSubscription> {
   const list = await call<MockList<MockSubscription>>(
     'GET',
-    `${MOCK_BILLING_PATHS.subscriptions}?customer=${customer}`
+    `${MOCK_BILLING_PATHS.subscriptions}?customer=${customer}&status=all&limit=100`
   );
   const subscription = list.data[0];
   if (subscription === undefined) throw new Error('billing: no subscription');
@@ -132,8 +151,10 @@ const STEPS: Readonly<Record<BillingObserveKind, Step>> = {
   payment_recovered: async (call, customer) => {
     await useCard(call, customer, MOCK_TEST_PAYMENT_METHODS.visa);
     const invoice = (await latestSubscription(call, customer)).latest_invoice;
-    if (invoice !== null)
-      await call('POST', MOCK_BILLING_PATHS.invoicePay(invoice));
+    if (invoice !== null) {
+      const id = typeof invoice === 'string' ? invoice : invoice.id;
+      await call('POST', MOCK_BILLING_PATHS.invoicePay(id));
+    }
   },
   payment_retries_exhausted: async (call, customer) => {
     // Past the last retry of a failed renewal.
@@ -164,8 +185,8 @@ const STEPS: Readonly<Record<BillingObserveKind, Step>> = {
     const item = subscription.items.data[0];
     const offer = providerOf(s).offer;
     const target = offer.switchablePriceKeys
-      .map((key) => offer.prices[key]?.lookupKey)
-      .find((lookupKey) => lookupKey !== item?.price.lookup_key);
+      .map((key) => offer.prices[key]?.catalogPriceId)
+      .find((catalogPriceId) => catalogPriceId !== item?.price.lookup_key);
     if (item === undefined || target === undefined) {
       throw new Error('billing: no other interval to switch to');
     }

@@ -1,41 +1,117 @@
 /**
- * Time-driven billing: renewals at period ends, dunning retries, and the
- * endings both lead to — plus price switches, which move a period.
+ * Time-driven billing: trial reminders, trial ends, renewals at period ends,
+ * dunning retries and the endings they lead to, and expiring checkout
+ * sessions — plus price switches, which move a period.
  *
  * Every customer bills on its own test clock. {@link settleCustomer} catches a
- * customer's subscriptions up to that clock, one due step at a time in
- * chronological order, so advancing a clock a month through a failed renewal
- * and three retries emits the same events, in the same order, as living
- * through it.
+ * customer up to that clock, one due step at a time in chronological order,
+ * so advancing a clock a month through a failed renewal and three retries
+ * emits the same events, in the same order, as living through it.
  */
-import type { MockPrice, MockSubscription } from '@pkgs/billing-mock/wire';
+import type {
+  MockCheckoutSession,
+  MockPrice,
+  MockSubscription,
+} from '@pkgs/billing-mock/wire';
 
 import { invalidRequest } from '../errors';
-import { customerNowS, DAY_S, type Engine } from './context';
-import { attemptInvoice, openInvoiceOf, RETRY_AFTER_DAYS } from './invoices';
+import { customerNowS, DAY_S, type Engine, emit } from './context';
+import { type ChargeSession, defaultPaymentMethod } from './customers';
+import {
+  attemptInvoice,
+  openInvoiceOf,
+  RETRY_AFTER_DAYS,
+  unusedTimeLine,
+} from './invoices';
+import { expireCheckoutSession } from './sessions';
 import {
   billPeriod,
   currentPeriodEnd,
   endSubscription,
+  pauseSubscription,
   priceOf,
   saveSubscription,
   TERMINAL,
 } from './subscriptions';
 
-/** A step a subscription owes at `atS`. */
+/** A step the customer owes at `atS`. */
 type DueStep = {
   readonly atS: number;
   readonly run: () => Promise<void>;
 };
 
-async function renewalStep(
+/** Stripe sends `trial_will_end` three days before a trial ends. */
+const TRIAL_REMINDER_S = 3 * DAY_S;
+
+/** The marker that a subscription's trial reminder went out. */
+type TrialReminder = { readonly id: string; readonly object: 'reminder' };
+
+function reminderId(subscription: MockSubscription): string {
+  return `twe_${subscription.id}_${String(subscription.trial_end)}`;
+}
+
+async function trialReminderStep(
   engine: Engine,
   subscription: MockSubscription
 ): Promise<DueStep | null> {
+  const trialEnd = subscription.trial_end;
+  if (subscription.status !== 'trialing' || trialEnd === null) return null;
+  const id = reminderId(subscription);
+  if ((await engine.db.get<TrialReminder>(id, 'reminder')) !== null) {
+    return null;
+  }
+  const atS = Math.max(
+    subscription.trial_start ?? subscription.created,
+    trialEnd - TRIAL_REMINDER_S
+  );
+  return {
+    atS,
+    run: async () => {
+      await engine.db.put<TrialReminder>(
+        { id, object: 'reminder' },
+        subscription.customer
+      );
+      await emit(engine, {
+        type: 'customer.subscription.trial_will_end',
+        object: subscription,
+        createdS: atS,
+      });
+    },
+  };
+}
+
+/** A trial ending with no card on file, per the subscription's settings. */
+async function trialEndWithoutCard(
+  engine: Engine,
+  subscription: MockSubscription,
+  endS: number
+): Promise<boolean> {
+  if (subscription.status !== 'trialing') return false;
+  if ((await defaultPaymentMethod(engine, subscription.customer)) !== null) {
+    return false;
+  }
+  const behavior =
+    subscription.trial_settings.end_behavior.missing_payment_method;
+  if (behavior === 'cancel') {
+    await endSubscription(engine, subscription, {
+      endedAtS: endS,
+      reason: null,
+    });
+    return true;
+  }
+  if (behavior === 'pause') {
+    await pauseSubscription(engine, subscription, endS);
+    return true;
+  }
+  return false;
+}
+
+function renewalStep(
+  engine: Engine,
+  subscription: MockSubscription
+): DueStep | null {
   const endS = currentPeriodEnd(subscription);
-  const billable =
-    subscription.status === 'trialing' || subscription.status === 'active';
-  if (subscription.cancel_at_period_end && !TERMINAL.has(subscription.status)) {
+  if (subscription.cancel_at_period_end) {
     return {
       atS: endS,
       run: async () => {
@@ -46,17 +122,19 @@ async function renewalStep(
       },
     };
   }
-  if (!billable) return null;
+  if (subscription.status !== 'trialing' && subscription.status !== 'active') {
+    return null;
+  }
   return {
     atS: endS,
     run: async () => {
-      const price = priceOf(subscription);
+      if (await trialEndWithoutCard(engine, subscription, endS)) return;
       await billPeriod(engine, subscription, {
-        price,
+        price: priceOf(subscription),
         startS: endS,
-        amount: price.unit_amount,
         reason: 'subscription_cycle',
         nowS: endS,
+        session: 'off_session',
       });
     },
   };
@@ -66,7 +144,6 @@ async function retryStep(
   engine: Engine,
   subscription: MockSubscription
 ): Promise<DueStep | null> {
-  if (subscription.status !== 'past_due') return null;
   const invoice = await openInvoiceOf(
     engine,
     subscription.customer,
@@ -94,7 +171,11 @@ async function retryStep(
   return {
     atS,
     run: async () => {
-      const paid = await attemptInvoice(engine, invoice, atS);
+      const { invoice: paid } = await attemptInvoice(engine, invoice, {
+        nowS: atS,
+        session: 'off_session',
+        kind: 'scheduled',
+      });
       if (paid.status === 'paid') {
         await saveSubscription(
           engine,
@@ -107,37 +188,63 @@ async function retryStep(
   };
 }
 
+async function subscriptionSteps(
+  engine: Engine,
+  subscription: MockSubscription
+): Promise<readonly (DueStep | null)[]> {
+  if (TERMINAL.has(subscription.status)) return [];
+  if (subscription.status === 'past_due') {
+    return [await retryStep(engine, subscription)];
+  }
+  return [
+    await trialReminderStep(engine, subscription),
+    renewalStep(engine, subscription),
+  ];
+}
+
+function expiryStep(
+  engine: Engine,
+  session: MockCheckoutSession
+): DueStep | null {
+  if (session.status !== 'open') return null;
+  return {
+    atS: session.expires_at,
+    run: async () => {
+      await expireCheckoutSession(engine, session, session.expires_at);
+    },
+  };
+}
+
 async function nextDueStep(
   engine: Engine,
   customer: string,
   nowS: number
 ): Promise<DueStep | null> {
-  let next: DueStep | null = null;
-  const subscriptions = await engine.db.list<MockSubscription>(
+  const steps: (DueStep | null)[] = [];
+  for (const subscription of await engine.db.list<MockSubscription>(
     'subscription',
     customer
-  );
-  for (const subscription of subscriptions) {
-    if (TERMINAL.has(subscription.status)) continue;
-    const step =
-      subscription.status === 'past_due'
-        ? await retryStep(engine, subscription)
-        : await renewalStep(engine, subscription);
-    if (
-      step !== null &&
-      step.atS <= nowS &&
-      (next === null || step.atS < next.atS)
-    ) {
-      next = step;
-    }
+  )) {
+    steps.push(...(await subscriptionSteps(engine, subscription)));
+  }
+  for (const session of await engine.db.list<MockCheckoutSession>(
+    'checkout.session',
+    customer
+  )) {
+    steps.push(expiryStep(engine, session));
+  }
+  let next: DueStep | null = null;
+  for (const step of steps) {
+    if (step === null || step.atS > nowS) continue;
+    if (next === null || step.atS < next.atS) next = step;
   }
   return next;
 }
 
-/** A bound on steps per settle: a year of monthly renewals and retries. */
-const MAX_STEPS = 64;
+/** A bound on steps per settle: years of monthly renewals and retries. */
+const MAX_STEPS = 256;
 
-/** Catches the customer's subscriptions up to the customer's clock. */
+/** Catches the customer up to the customer's clock. */
 export async function settleCustomer(
   engine: Engine,
   customer: string
@@ -159,15 +266,38 @@ function unusedCredit(subscription: MockSubscription, nowS: number): number {
   return total <= 0 ? 0 : Math.round((item.price.unit_amount * left) / total);
 }
 
+export type ProrationBehavior = 'create_prorations' | 'always_invoice' | 'none';
+
+function swapPrice(
+  subscription: MockSubscription,
+  price: MockPrice
+): MockSubscription {
+  const item = subscription.items.data[0];
+  return {
+    ...subscription,
+    items: {
+      ...subscription.items,
+      data: item === undefined ? [] : [{ ...item, price }],
+    },
+  };
+}
+
 /**
- * Moves the subscription to `price`. During a trial the trial carries on at
- * the new price; otherwise the period restarts now and the new price, minus
- * credit for unused time, is charged at once.
+ * Moves the subscription to `price`. During a trial (or a pause) the period
+ * carries on at the new price; otherwise the new interval restarts the
+ * period now and is invoiced at once, less a proration credit for the unused
+ * time (unless `proration_behavior` is `none`). Credit beyond the new price
+ * stays on the customer's balance for later invoices.
  */
 export async function switchPrice(
   engine: Engine,
   subscription: MockSubscription,
-  args: { readonly price: MockPrice; readonly nowS: number }
+  args: {
+    readonly price: MockPrice;
+    readonly nowS: number;
+    readonly proration: ProrationBehavior;
+    readonly session: ChargeSession;
+  }
 ): Promise<MockSubscription> {
   if (TERMINAL.has(subscription.status)) {
     throw invalidRequest(
@@ -177,29 +307,32 @@ export async function switchPrice(
   }
   const current = priceOf(subscription);
   if (current.id === args.price.id) return subscription;
-  if (subscription.status === 'trialing') {
-    const item = subscription.items.data[0];
+  if (subscription.status === 'trialing' || subscription.status === 'paused') {
     return await saveSubscription(
       engine,
       subscription,
-      {
-        ...subscription,
-        items: {
-          ...subscription.items,
-          data: item === undefined ? [] : [{ ...item, price: args.price }],
-        },
-      },
+      swapPrice(subscription, args.price),
       args.nowS
     );
   }
+  const credit =
+    args.proration === 'none' ? 0 : unusedCredit(subscription, args.nowS);
   return await billPeriod(engine, subscription, {
     price: args.price,
     startS: args.nowS,
-    amount: Math.max(
-      0,
-      args.price.unit_amount - unusedCredit(subscription, args.nowS)
-    ),
+    lines:
+      credit > 0
+        ? [
+            unusedTimeLine(engine, {
+              price: current,
+              credit,
+              fromS: args.nowS,
+              endS: currentPeriodEnd(subscription),
+            }),
+          ]
+        : [],
     reason: 'subscription_update',
     nowS: args.nowS,
+    session: args.session,
   });
 }

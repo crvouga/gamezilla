@@ -12,7 +12,7 @@ const offer: PlusMembershipOffer = {
   prices: {
     subscription_monthly: {
       key: 'subscription_monthly',
-      lookupKey: 'subscription_monthly',
+      catalogPriceId: 'subscription_monthly',
       unitAmount: 700,
       currency: 'usd',
       interval: 'month',
@@ -21,7 +21,7 @@ const offer: PlusMembershipOffer = {
     },
     subscription_yearly: {
       key: 'subscription_yearly',
-      lookupKey: 'subscription_yearly',
+      catalogPriceId: 'subscription_yearly',
       unitAmount: 6000,
       currency: 'usd',
       interval: 'year',
@@ -139,7 +139,7 @@ function stubStripe(store: Store): unknown {
   return stripe;
 }
 
-const ctx = { callbackUrl: 'https://api.test/api/billing/callback' };
+const ctx = { callbackUrl: 'https://api.test/api/billing/callback/stripe' };
 const log = createNoopLogger();
 
 function emptyStore(): Store {
@@ -215,5 +215,20 @@ describe('reconcileStripeOffer', () => {
     expect(store.portalConfigurations).toHaveLength(created.portals);
     expect(store.webhookEndpoints).toHaveLength(created.webhooks);
     expect(second.portalConfigurationId).toBe('bpc_1');
+  });
+
+  test('a moved callback path moves our endpoint, keeping its secret', async () => {
+    const store = emptyStore();
+    const old = { callbackUrl: 'https://api.test/api/billing/callback' };
+    await reconcileStripeOffer(stubStripe(store) as never, offer, old, log);
+    const result = await reconcileStripeOffer(
+      stubStripe(store) as never,
+      offer,
+      ctx,
+      log
+    );
+    expect(store.webhookEndpoints).toHaveLength(1);
+    expect(result.webhookEndpointId).toBe('we_1');
+    expect(store.webhookEndpoints[0]?.['url']).toBe(ctx.callbackUrl);
   });
 });

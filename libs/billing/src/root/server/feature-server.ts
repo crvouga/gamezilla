@@ -2,8 +2,8 @@
  * What billing contributes to a server: checkout, portal and webhook routes.
  *
  * The provider is a port on `ServerEnv`; billing reads it rather than
- * choosing one, so a simulation (the mock provider) and production (Stripe)
- * mount the same routes and take the same code path.
+ * choosing one, so a simulation (the mock provider) and production (whichever
+ * providers are configured) mount the same routes and take the same path.
  */
 
 import { appAuth } from '@libs/auth/public/auth-context';
@@ -13,14 +13,14 @@ import { requirePermission } from '@libs/permissions/root/server/require-permiss
 import { apiRequestAsyncLocalStorage } from '@libs/server-app/request-scope';
 import { notifyUserChannels } from '@libs/server-app/sync/notify-user-channels';
 import { assert } from '@pkgs/assert';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipProviders } from '@pkgs/billing';
 import { createLogger } from '@pkgs/logger';
 import type { CreateId } from '@pkgs/uuid/create-id';
 
 import { BillingApp } from './billing-app';
 
 export function createBillingSubApp(
-  billing: MembershipBilling | null,
+  billing: MembershipProviders | null,
   now: () => number,
   createId: CreateId
 ) {
@@ -62,10 +62,10 @@ export function createBillingSubApp(
 
 /**
  * Billing needs the membership provider the host configured, so it is a
- * factory rather than a constant: the composition root hands it the port —
- * Stripe in production, the mock provider's adapter in a sim or the stack.
+ * factory rather than a constant: the composition root hands it every
+ * configured provider — in production and in a sim alike.
  */
-export function createBillingServer(billing: MembershipBilling | null) {
+export function createBillingServer(billing: MembershipProviders | null) {
   return defineFeatureServer({
     name: 'billing',
     routes: (ctx) =>

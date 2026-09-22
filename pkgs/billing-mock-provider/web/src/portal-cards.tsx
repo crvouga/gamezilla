@@ -25,6 +25,7 @@ import { Badge, Button, Card, Notice } from './ui';
 export type PortalBusy =
   | 'cancel'
   | 'renew'
+  | 'resume'
   | 'payment'
   | `switch:${string}`
   | null;
@@ -74,6 +75,10 @@ function RenewalLine(props: {
         <Match when={props.subscription.status === 'past_due'}>
           Current period ends on <Strong>{end()}</Strong>.
         </Match>
+        <Match when={props.subscription.status === 'paused'}>
+          Paused since <Strong>{end()}</Strong>, when the free trial ended
+          without a card.
+        </Match>
       </Switch>
     </p>
   );
@@ -120,14 +125,41 @@ function OpenInvoiceNotice(props: {
   );
 }
 
+function PausedNotice(props: {
+  readonly busy: PortalBusy;
+  readonly onResume: () => void;
+}) {
+  return (
+    <Notice
+      action={
+        <Button
+          busy={props.busy === 'resume'}
+          onClick={props.onResume}
+          testId={MOCK_BILLING_TEST_IDS.portalResume}
+        >
+          Resume plan
+        </Button>
+      }
+      tone="warning"
+    >
+      Your plan is paused and you have no access. Add a card, then resume — a
+      new billing period starts today.
+    </Notice>
+  );
+}
+
 function PlanNotice(props: {
   readonly subscription: PortalSubscription;
   readonly busy: PortalBusy;
   readonly onRenew: () => void;
   readonly onPay: () => void;
+  readonly onResume: () => void;
 }) {
   return (
     <Switch>
+      <Match when={props.subscription.status === 'paused'}>
+        <PausedNotice busy={props.busy} onResume={props.onResume} />
+      </Match>
       <Match
         when={
           props.subscription.cancelAtPeriodEnd && isLive(props.subscription)
@@ -180,6 +212,7 @@ export function CurrentPlanCard(props: {
   readonly onCancel: () => void;
   readonly onRenew: () => void;
   readonly onPay: () => void;
+  readonly onResume: () => void;
 }) {
   const price = () => priceOf(props.view, props.subscription.priceId);
   const meta = () => statusMeta(props.subscription);
@@ -214,6 +247,7 @@ export function CurrentPlanCard(props: {
           busy={props.busy}
           onPay={props.onPay}
           onRenew={props.onRenew}
+          onResume={props.onResume}
           subscription={props.subscription}
         />
         <Show when={!props.subscription.cancelAtPeriodEnd}>

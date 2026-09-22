@@ -16,7 +16,7 @@ import type { FeatureManifest } from '@libs/feature/public/manifest';
 import type { FeatureServer } from '@libs/feature/public/server';
 import type { EnvTime } from '@libs/feature/public/sync';
 import { PERMISSIONS_FEATURE } from '@libs/permissions/root/feature';
-import type { MembershipBilling, PlusMembershipOffer } from '@pkgs/billing';
+import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
 import type { CatalogAction, CatalogProperty } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { withHome } from './bare-home-client';
@@ -32,7 +32,7 @@ export type SimSlice = {
   readonly feature?: FeatureManifest;
   readonly client?: FeatureClient;
   readonly server?: (deps: {
-    readonly billing: MembershipBilling | null;
+    readonly billing: MembershipProviders | null;
   }) => FeatureServer;
   readonly roomNode?: (env: EnvTime) => SimRoomNode;
   readonly seedServer?: (sqlClient: SqlClient) => Promise<void>;

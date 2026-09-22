@@ -89,18 +89,12 @@ describe('idp page markup', () => {
     expect(
       attrOfTestId(html, IDP_TEST_IDS.identifierEmail, 'autocomplete')
     ).toBe('username');
-    expect(attrOfTestId(html, IDP_TEST_IDS.identifierEmail, 'list')).toBe(
-      IDP_TEST_IDS.identifierAccountsDatalist
+    expect(tagOfTestId(html, IDP_TEST_IDS.identifierEmail)).not.toContain(
+      'list='
     );
-
-    // The datalist lives outside the form, so the headless walker still sees
-    // exactly one form with the same fields.
-    expect(html).toContain(
-      `<datalist id="${IDP_TEST_IDS.identifierAccountsDatalist}">`
-    );
-    expect(html.indexOf('<datalist')).toBeGreaterThan(html.indexOf('</form>'));
-    expect(html).toContain('value="alice@gmail.com"');
-    expect(html).toContain('value="bob@gmail.com"');
+    expect(html).not.toContain('<datalist');
+    expect(html).toContain('alice@gmail.com');
+    expect(html).toContain('bob@gmail.com');
     expect(html).toContain(IDP_TEST_IDS.identifierCreateAccount);
     expect(html).toContain('/o/oauth2/v2/auth/create?request_id=');
 

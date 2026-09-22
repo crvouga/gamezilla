@@ -20,12 +20,14 @@
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --path-ignore-patterns='tests/e2e/**'",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
+    "@libs/client-app": "workspace:*",
+    "@libs/client-config": "workspace:*",
     "@libs/feature": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/server-app": "workspace:*",
@@ -36,8 +38,9 @@
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-mock": "workspace:*",
     "@pkgs/billing-mock-provider": "workspace:*",
-    "@pkgs/billing-stripe": "workspace:*",
+    "@pkgs/billing-providers": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
@@ -45,6 +48,7 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
@@ -55,8 +59,16 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@lingui/core": "catalog:",
+    "@pkgs/billing-paddle": "workspace:*",
+    "@pkgs/billing-stripe": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:"
   }
 }

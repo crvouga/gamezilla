@@ -180,12 +180,23 @@ function PayPanel(props: {
         busy={props.checkout.phase() === 'paying'}
         disabled={props.checkout.phase() === 'done'}
         done={props.checkout.phase() === 'done'}
-        onClick={() => void props.checkout.pay()}
+        onClick={() => void props.checkout.pay(props.checkout.card())}
         size="lg"
         testId={MOCK_BILLING_TEST_IDS.checkoutPay}
       >
         {payLabel(props.checkout.phase(), trial())}
       </Button>
+      <Show when={props.view.session.cardOptional}>
+        <Button
+          block
+          disabled={props.checkout.phase() !== 'idle'}
+          onClick={() => void props.checkout.pay(null)}
+          testId={MOCK_BILLING_TEST_IDS.checkoutSkipCard}
+          variant="ghost"
+        >
+          Start trial without a card
+        </Button>
+      </Show>
       <SecureFootnote>
         Secured by {MOCK_BILLING_BRAND.name} · test mode
       </SecureFootnote>
@@ -203,13 +214,13 @@ function useCheckout(props: CheckoutScreenProps) {
     () =>
       props.view.prices.find((p) => p.id === priceId()) ?? props.view.prices[0]
   );
-  const pay = async () => {
+  const pay = async (paymentMethod: MockTestPaymentMethod | null) => {
     setPhase('paying');
     setError(null);
     try {
       const result = await props.api.confirmCheckout(props.view.session.id, {
         price: priceId(),
-        paymentMethod: card(),
+        paymentMethod,
       });
       setPhase('done');
       props.navigate(result.redirectUrl);

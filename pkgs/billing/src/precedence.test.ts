@@ -1,0 +1,87 @@
+import { describe, expect, test } from 'bun:test';
+import fc from 'fast-check';
+
+import type { MembershipStatus } from './membership';
+import {
+  governingMembership,
+  type MembershipStanding,
+  outranksMembership,
+  readMembershipStatus,
+} from './precedence';
+
+const STATUSES: readonly (MembershipStatus | null)[] = [
+  'active',
+  'trialing',
+  'delinquent',
+  'incomplete',
+  'ended',
+  null,
+];
+
+const standing = fc.record({
+  status: fc.constantFrom(...STATUSES),
+  periodEndMs: fc.option(fc.integer({ min: 0, max: 1_000 }), { nil: null }),
+});
+
+const self = (s: MembershipStanding) => s;
+
+describe('governingMembership', () => {
+  test('a live membership at one provider outranks an ended one at another', () => {
+    const endedLate = { status: 'ended' as const, periodEndMs: 900 };
+    const live = { status: 'active' as const, periodEndMs: 100 };
+    expect(governingMembership([endedLate, live], self)).toBe(live);
+    expect(governingMembership([live, endedLate], self)).toBe(live);
+  });
+
+  test('paid outranks a trial, whatever the order', () => {
+    const trial = { status: 'trialing' as const, periodEndMs: null };
+    const paid = { status: 'active' as const, periodEndMs: null };
+    expect(governingMembership([trial, paid], self)).toBe(paid);
+    expect(governingMembership([paid, trial], self)).toBe(paid);
+  });
+
+  test('none of an empty list', () => {
+    expect(governingMembership([], self)).toBeNull();
+  });
+
+  test('the answer does not depend on row order, up to full ties', () => {
+    fc.assert(
+      fc.property(
+        fc.array(standing, { minLength: 1, maxLength: 6 }),
+        (rows) => {
+          const forward = governingMembership(rows, self);
+          const backward = governingMembership([...rows].reverse(), self);
+          expect(forward).toEqual(backward);
+        }
+      ),
+      { numRuns: 1000 }
+    );
+  });
+
+  test('nothing in the list outranks the answer', () => {
+    fc.assert(
+      fc.property(
+        fc.array(standing, { minLength: 1, maxLength: 6 }),
+        (rows) => {
+          const best = governingMembership(rows, self);
+          if (best === null) throw new Error('non-empty list');
+          for (const row of rows) {
+            expect(outranksMembership(row, best)).toBe(false);
+          }
+        }
+      ),
+      { numRuns: 1000 }
+    );
+  });
+});
+
+describe('readMembershipStatus', () => {
+  test('reads our words and nothing else', () => {
+    for (const status of STATUSES) {
+      if (status !== null) expect(readMembershipStatus(status)).toBe(status);
+    }
+    for (const other of ['past_due', 'canceled', '', null, undefined]) {
+      expect(readMembershipStatus(other)).toBeNull();
+    }
+  });
+});

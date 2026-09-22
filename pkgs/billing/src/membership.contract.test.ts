@@ -84,6 +84,7 @@ function sign(secret: string, t: number, body: string): string {
 
 type OtherProvider = {
   readonly plans: Map<string, Plan>;
+  down: boolean;
   newHolder(): string;
 };
 
@@ -91,6 +92,7 @@ function openOtherProvider(): OtherProvider {
   let holders = 0;
   return {
     plans: new Map(),
+    down: false,
     newHolder: () => {
       holders += 1;
       return `holder-${String(holders)}`;
@@ -99,10 +101,12 @@ function openOtherProvider(): OtherProvider {
 }
 
 class OtherProviderBilling implements MembershipBilling {
-  constructor(private readonly provider: OtherProvider) {}
+  readonly provider = 'other';
+
+  constructor(private readonly world: OtherProvider) {}
 
   startCheckout(input: StartCheckoutInput): Promise<StartCheckoutResult> {
-    const customerId = input.customerId ?? this.provider.newHolder();
+    const customerId = input.customerId ?? this.world.newHolder();
     return Promise.resolve({
       customerId,
       url: `https://other.test/pay?holder=${customerId}`,
@@ -131,21 +135,28 @@ class OtherProviderBilling implements MembershipBilling {
     if (!event.topic.startsWith('plan.')) {
       return Promise.resolve({ kind: 'ignored' });
     }
-    const plan = this.provider.plans.get(event.ref);
+    if (this.world.down) {
+      return Promise.reject(new Error('other provider: 503'));
+    }
+    const plan = this.world.plans.get(event.ref);
     if (plan === undefined) return Promise.resolve({ kind: 'ignored' });
     const offerKey = Object.values(CONTRACT_OFFER.prices).find(
-      (price) => price.lookupKey === plan.sku
+      (price) => price.catalogPriceId === plan.sku
     )?.key;
+    const status =
+      event.topic === 'plan.subscription_ended'
+        ? 'ended'
+        : STATUS_OF[plan.phase];
     return Promise.resolve({
       kind: 'membership',
-      provider: 'other',
+      provider: this.provider,
       customerId: plan.holder,
       subscriptionId: plan.ref,
       offerPriceKey: offerKey ?? null,
       membership: {
-        status: STATUS_OF[plan.phase],
+        status,
         periodEndMs: plan.stoppedAt ?? plan.paidThrough,
-        endsAtPeriodEnd: plan.phase === 'stopping',
+        endsAtPeriodEnd: status !== 'ended' && plan.phase === 'stopping',
       },
     });
   }
@@ -172,7 +183,7 @@ function planOf(subscription: ContractSubscription): Plan {
     sku:
       subscription.priceKey === null
         ? 'legacy_sku'
-        : (CONTRACT_OFFER.prices[subscription.priceKey]?.lookupKey ?? ''),
+        : (CONTRACT_OFFER.prices[subscription.priceKey]?.catalogPriceId ?? ''),
     paidThrough: CONTRACT_PERIOD_END_MS,
     stoppedAt: phase === 'cut_short' ? CONTRACT_ENDED_AT_MS : null,
   };
@@ -181,10 +192,12 @@ function planOf(subscription: ContractSubscription): Plan {
 function openOtherHarness(): Promise<MembershipBillingContractHarness> {
   const provider = openOtherProvider();
   return Promise.resolve({
-    provider: 'other',
     billing: new OtherProviderBilling(provider),
     setSubscription: (subscription) => {
       provider.plans.set(subscription.id, planOf(subscription));
+    },
+    setUnavailable: (unavailable) => {
+      provider.down = unavailable;
     },
     callback: ({ subscriptionId, kind, signature }) => {
       const topic = kind === 'unrelated' ? 'receipt.sent' : `plan.${kind}`;

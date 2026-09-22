@@ -15,7 +15,11 @@ import {
 import { cardDeclined, invalidRequest, resourceMissing } from '../errors';
 import { customerNowS, type Engine, emit, mint } from './context';
 
-type CardBehaviour = 'succeeds' | 'fails_charges' | 'declined';
+type CardBehaviour =
+  | 'succeeds'
+  | 'fails_charges'
+  | 'declined'
+  | 'requires_authentication';
 
 type TestCard = { readonly card: MockCard; readonly behaviour: CardBehaviour };
 
@@ -36,7 +40,24 @@ const TEST_CARDS: Readonly<Record<MockTestPaymentMethod, TestCard>> = {
     card: { brand: 'visa', last4: '0002', exp_month: 12, exp_year: 2034 },
     behaviour: 'declined',
   },
+  [MOCK_TEST_PAYMENT_METHODS.authenticationRequired]: {
+    card: { brand: 'visa', last4: '3184', exp_month: 12, exp_year: 2034 },
+    behaviour: 'requires_authentication',
+  },
 };
+
+/**
+ * What charging a customer's card does. `on_session` is a charge the customer
+ * is present for (checkout, the portal), so a 3D Secure challenge is met;
+ * `off_session` is a renewal or retry nobody is there to authenticate.
+ */
+export type ChargeOutcome =
+  | 'succeeded'
+  | 'declined'
+  | 'authentication_required'
+  | 'no_payment_method';
+
+export type ChargeSession = 'on_session' | 'off_session';
 
 function isTestPaymentMethod(value: string): value is MockTestPaymentMethod {
   return Object.hasOwn(TEST_CARDS, value);
@@ -58,6 +79,8 @@ export async function requireCustomer(
   // The test clock is derived, so a stored copy never goes stale.
   return {
     ...customer,
+    // Customers stored before balances existed hold none.
+    balance: customer.balance ?? 0,
     test_clock_frozen_time: await customerNowS(engine, id),
   };
 }
@@ -80,6 +103,7 @@ export async function createCustomer(
     name: body.name ?? null,
     metadata: body.metadata ?? {},
     invoice_settings: { default_payment_method: null },
+    balance: 0,
     test_clock_frozen_time: nowS,
   };
   await engine.db.put(customer, id);
@@ -119,14 +143,41 @@ export async function attachDefaultPaymentMethod(
     created: nowS,
   };
   await engine.db.put(method, customerId);
-  await engine.db.put(
-    {
-      ...customer,
-      invoice_settings: { default_payment_method: method.id },
-    },
-    customerId
-  );
+  await emit(engine, {
+    type: 'payment_method.attached',
+    object: method,
+    createdS: nowS,
+  });
+  const updated: MockCustomer = {
+    ...customer,
+    invoice_settings: { default_payment_method: method.id },
+  };
+  await engine.db.put(updated, customerId);
+  await emit(engine, {
+    type: 'customer.updated',
+    object: updated,
+    createdS: nowS,
+    previous: { invoice_settings: customer.invoice_settings },
+  });
   return method;
+}
+
+/** Sets the customer's balance, in minor units (negative is credit). */
+export async function adjustBalance(
+  engine: Engine,
+  customerId: string,
+  args: { readonly balance: number; readonly nowS: number }
+): Promise<void> {
+  const customer = await requireCustomer(engine, customerId);
+  if (customer.balance === args.balance) return;
+  const updated: MockCustomer = { ...customer, balance: args.balance };
+  await engine.db.put(updated, customerId);
+  await emit(engine, {
+    type: 'customer.updated',
+    object: updated,
+    createdS: args.nowS,
+    previous: { balance: customer.balance },
+  });
 }
 
 export async function defaultPaymentMethod(
@@ -140,11 +191,18 @@ export async function defaultPaymentMethod(
     : await engine.db.get<MockPaymentMethod>(id, 'payment_method');
 }
 
-/** Whether charging the customer's default card succeeds right now. */
-export async function chargeSucceeds(
+/** What charging the customer's default card does right now. */
+export async function charge(
   engine: Engine,
-  customerId: string
-): Promise<boolean> {
+  customerId: string,
+  session: ChargeSession
+): Promise<ChargeOutcome> {
   const method = await defaultPaymentMethod(engine, customerId);
-  return method !== null && behaviourOf(method.card) === 'succeeds';
+  if (method === null) return 'no_payment_method';
+  const behaviour = behaviourOf(method.card);
+  if (behaviour === 'succeeds') return 'succeeded';
+  if (behaviour === 'requires_authentication') {
+    return session === 'on_session' ? 'succeeded' : 'authentication_required';
+  }
+  return 'declined';
 }

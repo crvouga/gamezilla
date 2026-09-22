@@ -130,13 +130,13 @@ export const resumePlus = scenarioAction({
 export const switchPlusInterval = scenarioAction({
   name: 'switchPlusInterval',
   act: async (s, actorId: string, priceKey: string) => {
-    const lookupKey =
+    const catalogPriceId =
       PLUS_MEMBERSHIP_OFFER.prices[
         priceKey as keyof typeof PLUS_MEMBERSHIP_OFFER.prices
-      ]?.lookupKey ?? priceKey;
+      ]?.catalogPriceId ?? priceKey;
     await inPortal(s, actorId, [
-      MOCK_BILLING_TEST_IDS.portalSwitchStart(lookupKey),
-      MOCK_BILLING_TEST_IDS.portalSwitch(lookupKey),
+      MOCK_BILLING_TEST_IDS.portalSwitchStart(catalogPriceId),
+      MOCK_BILLING_TEST_IDS.portalSwitch(catalogPriceId),
     ]);
   },
 });
@@ -171,7 +171,7 @@ export const checkoutPlusAtProvider = scenarioAction({
       PLUS_MEMBERSHIP_OFFER.prices[PLUS_MEMBERSHIP_OFFER.defaultPriceKey];
     const prices = await call<MockList<MockPrice>>(
       'GET',
-      `${MOCK_BILLING_PATHS.prices}?lookup_keys=${spec.lookupKey}`
+      `${MOCK_BILLING_PATHS.prices}?lookup_keys=${spec.catalogPriceId}`
     );
     const price = prices.data[0]?.id ?? '';
     const session = await call<MockCheckoutSession>(

@@ -1,8 +1,8 @@
 /**
  * The plus membership offer — source of truth for what we sell and how the
- * hosted portal is configured. Reconciled onto the provider by
- * `@pkgs/billing-stripe` in `billing:sync`, on deploy only; the package's
- * tests validate this value in the PR gate without touching the provider.
+ * hosted portal is configured. Reconciled onto every configured provider in
+ * `billing:sync`, on deploy only; the package's tests validate this value in
+ * the PR gate without touching any provider.
  *
  * Currency amounts are integer minor units (e.g. cents). PPP-tier amounts
  * approximate USD purchasing power for each region.
@@ -18,7 +18,7 @@ export const PLUS_MEMBERSHIP_OFFER = {
   prices: {
     subscription_monthly: {
       key: 'subscription_monthly',
-      lookupKey: 'subscription_monthly',
+      catalogPriceId: 'subscription_monthly',
       unitAmount: 700,
       currency: 'usd',
       interval: 'month',
@@ -41,7 +41,7 @@ export const PLUS_MEMBERSHIP_OFFER = {
     },
     subscription_yearly: {
       key: 'subscription_yearly',
-      lookupKey: 'subscription_yearly',
+      catalogPriceId: 'subscription_yearly',
       unitAmount: 6000,
       currency: 'usd',
       interval: 'year',

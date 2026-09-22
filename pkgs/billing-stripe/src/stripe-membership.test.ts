@@ -13,7 +13,7 @@ const offer: PlusMembershipOffer = {
   prices: {
     subscription_monthly: {
       key: 'subscription_monthly',
-      lookupKey: 'subscription_monthly',
+      catalogPriceId: 'subscription_monthly',
       unitAmount: 700,
       currency: 'usd',
       interval: 'month',
@@ -22,7 +22,7 @@ const offer: PlusMembershipOffer = {
     },
     subscription_yearly: {
       key: 'subscription_yearly',
-      lookupKey: 'subscription_yearly',
+      catalogPriceId: 'subscription_yearly',
       unitAmount: 6000,
       currency: 'usd',
       interval: 'year',
@@ -66,9 +66,13 @@ describe('StripeMembershipBilling', () => {
   test('startCheckout resolves the offer price and carries the account id', async () => {
     const sessionInputs: Array<Record<string, unknown>> = [];
     const listInputs: Array<Record<string, unknown>> = [];
+    const customerInputs: Array<Record<string, unknown>> = [];
     const stripe = {
       customers: {
-        create: () => Promise.resolve({ id: 'cus_new' }),
+        create: (input: Record<string, unknown>) => {
+          customerInputs.push(input);
+          return Promise.resolve({ id: 'cus_new' });
+        },
       },
       prices: {
         list: (input: Record<string, unknown>) => {
@@ -97,9 +101,13 @@ describe('StripeMembershipBilling', () => {
     const result = await billing.startCheckout({
       accountId: 'acct-1',
       customerId: null,
+      email: 'person@people.test',
       returnUrl: 'https://app.test/return',
     });
     expect(result.customerId).toBe('cus_new');
+    expect(customerInputs).toEqual([
+      { email: 'person@people.test', metadata: { accountId: 'acct-1' } },
+    ]);
     expect(result.url).toBe('https://pay.test/cs_1');
     expect(listInputs[0]?.['lookup_keys']).toEqual(['subscription_monthly']);
     expect(listInputs[0]?.['active']).toBe(true);
@@ -143,6 +151,7 @@ describe('StripeMembershipBilling', () => {
     const result = await billing.startCheckout({
       accountId: 'acct-1',
       customerId: 'cus_existing',
+      email: null,
       returnUrl: 'https://app.test/return',
     });
     expect(result.customerId).toBe('cus_existing');
@@ -163,6 +172,7 @@ describe('StripeMembershipBilling', () => {
       billing.startCheckout({
         accountId: 'acct-1',
         customerId: 'cus_1',
+        email: null,
         returnUrl: 'https://app.test/return',
       })
     ).rejects.toThrow(

@@ -1,68 +1,71 @@
-import { useCurrentUser } from '@libs/auth/public/use-current-user';
-import { PERMISSION, ROLE } from '@libs/permissions/public/permission-catalog';
-import { useCan } from '@libs/permissions/public/use-can';
-import { usePlanRole } from '@libs/permissions/public/use-plan-role';
-import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import {
-  Button,
-  ScreenBase,
-  useMutationButton,
-  useOpenExternalUrl,
-} from '@pkgs/ui';
-import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+/** @jsxImportSource solid-js */
+/**
+ * `/more/billing` — the membership screen. Reads everything locally (plan
+ * role, the synced membership row, the billing switch) so it renders offline,
+ * and opens the provider's hosted checkout or portal for anything that
+ * changes money.
+ */
 
+import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
+import { useCurrentUser } from '@libs/auth/public/use-current-user';
+import { useClientConfig } from '@libs/client-config/public/use-client-config';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan } from '@libs/permissions/public/use-can';
+import { useLingui as useLinguiRuntime } from '@lingui/solid';
+import { Trans } from '@lingui/solid/macro';
+import { useClock } from '@pkgs/clock/solid';
+import { ScreenBase, useOpenExternalUrl } from '@pkgs/ui';
+import { type Accessor, createMemo, type JSX } from 'solid-js';
+
+import { PLUS_MEMBERSHIP_OFFER } from '../../shared/offer/plus-membership-offer';
+import { useMyMembershipRow } from '../../use-cases/load-my-subscription/client/use-my-membership-row';
 import { useManageSubscription } from '../../use-cases/open-portal-session/client/use-manage-subscription';
+import { BillingScreenView } from './billing-screen-view';
+import { type BillingView, buildBillingView } from './billing-view-model';
+import { useBillingTier } from './use-billing-tier';
 import { useSubscribe } from './use-subscribe';
 
-/** Display label per plan role; the role itself is a policy value. */
-const PLAN_LABEL: Record<string, string> = {
-  [ROLE.planGuest]: 'guest',
-  [ROLE.planFree]: 'free',
-  [ROLE.planPaid]: 'paid',
-};
-
-/** Account billing: current plan, subscribe, and manage the subscription. */
-export function BillingScreen(): JSX.Element {
-  const { t } = useLingui();
-  const planRole = usePlanRole();
+function useBillingView(): Accessor<BillingView> {
+  const tier = useBillingTier();
+  const row = useMyMembershipRow();
+  const currentUser = useCurrentUser();
+  const { config } = useClientConfig();
+  const clock = useClock();
   const canSubscribe = useCan(PERMISSION.billingSubscribe);
   const canManage = useCan(PERMISSION.billingManage);
-  const currentUser = useCurrentUser();
+  return createMemo(() =>
+    buildBillingView({
+      tier: tier(),
+      billingEnabled: config().billing_enabled,
+      canSubscribe: canSubscribe(),
+      canManage: canManage(),
+      hasCustomer: currentUser.billingCustomerId !== null,
+      row: row(),
+      nowMs: clock.now(),
+    })
+  );
+}
+
+export function BillingScreen(): JSX.Element {
+  const view = useBillingView();
+  const { i18n } = useLinguiRuntime();
   const subscribe = useSubscribe();
   const manage = useManageSubscription();
+  const signIn = useSignInModal();
   const openExternalUrl = useOpenExternalUrl();
+  const formatDate = (ms: number): string =>
+    new Intl.DateTimeFormat(i18n().locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(new Date(ms));
 
   const openCheckout = async (): Promise<void> => {
     const url = await subscribe({
-      returnUrl: `${window.location.origin}/more/billing`,
+      returnUrl: `${window.location.origin}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
     });
     await openExternalUrl(url);
   };
-
-  const checkout = useMutationButton({
-    operation: openCheckout,
-    labels: {
-      idle: t`Subscribe`,
-      loading: t`Opening…`,
-      success: t`Opening…`,
-      error: t`Couldn't open checkout`,
-    },
-    get disabled() {
-      return !canSubscribe();
-    },
-  });
-
-  const manageButton = useMutationButton({
-    operation: manage,
-    labels: {
-      idle: t`Manage subscription`,
-      loading: t`Opening…`,
-      success: t`Opening…`,
-      error: t`Couldn't open billing`,
-    },
-  });
 
   return (
     <ScreenBase
@@ -73,33 +76,17 @@ export function BillingScreen(): JSX.Element {
         { name: <Trans>Billing</Trans> },
       ]}
       content={() => (
-        <div class="box gap-4 p-4" data-testid={Handles.billingScreen}>
-          <p class="text textBodyBold">
-            <Trans>Plan</Trans>
-          </p>
-          <p class="text textBody" data-testid={Handles.billingTier}>
-            {PLAN_LABEL[planRole()] ?? planRole()}
-          </p>
-          <Show when={!canManage()}>
-            <p class="text textCaption text-secondary">
-              <Trans>Sign in to subscribe and keep your progress.</Trans>
-            </p>
-          </Show>
-          <Show when={canSubscribe()}>
-            <Button
-              {...checkout.buttonProps}
-              dataSet={{ testid: Handles.billingSubscribe }}
-            />
-          </Show>
-          <Show when={canManage() && currentUser.billingCustomerId !== null}>
-            <Button
-              {...manageButton.buttonProps}
-              intent="neutral"
-              variant="outline"
-              dataSet={{ testid: Handles.billingManage }}
-            />
-          </Show>
-        </div>
+        <BillingScreenView
+          view={view()}
+          offer={PLUS_MEMBERSHIP_OFFER}
+          locale={i18n().locale}
+          formatDate={formatDate}
+          actions={{
+            subscribe: openCheckout,
+            manage,
+            signIn: signIn.open,
+          }}
+        />
       )}
     />
   );

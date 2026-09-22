@@ -1,14 +1,14 @@
 /**
  * Static checks on the offer, with no provider and no credentials.
  *
- * The billing gate used to *reconcile* the offer onto Stripe — the same call
+ * The billing gate used to *reconcile* the offer onto the provider — the same call
  * `billing:sync` makes on deploy — which meant every pull request wrote the
  * live product catalogue, prices, portal configuration and webhook endpoint,
  * and needed production billing credentials to do it. That is a deploy action,
  * not a check, and it is why the gate could never be green without secrets.
  *
  * The reconcile still happens, on deploy, in `billing:sync`. What belongs in
- * the gate is this: the offer is the source of truth Stripe is reconciled
+ * the gate is this: the offer is the source of truth every provider is reconciled
  * *from*, so the things that would produce a broken catalogue are worth
  * catching before anyone deploys — and every one of them is decidable from the
  * value alone.
@@ -22,19 +22,19 @@ function isMinorUnits(value: number): boolean {
 }
 
 function checkPrices(offer: PlusMembershipOffer, out: string[]): void {
-  const lookupKeys = new Map<string, string>();
+  const catalogPriceIds = new Map<string, string>();
   for (const [key, price] of Object.entries(offer.prices)) {
     const at = `prices.${key}`;
     if (price.key !== key) {
       out.push(`${at}: key is '${price.key}', but it is stored under '${key}'`);
     }
-    const seen = lookupKeys.get(price.lookupKey);
+    const seen = catalogPriceIds.get(price.catalogPriceId);
     if (seen !== undefined) {
       out.push(
-        `${at}: lookupKey '${price.lookupKey}' is already used by '${seen}' — the provider treats it as a unique handle`
+        `${at}: catalogPriceId '${price.catalogPriceId}' is already used by '${seen}' — the provider treats it as a unique handle`
       );
     }
-    lookupKeys.set(price.lookupKey, key);
+    catalogPriceIds.set(price.catalogPriceId, key);
     if (!isMinorUnits(price.unitAmount)) {
       out.push(
         `${at}: unitAmount must be a positive integer in minor units, got ${String(price.unitAmount)}`
@@ -117,8 +117,11 @@ export function validatePlusMembershipOffer(
   if (offer.product.catalogProductId.length === 0) {
     out.push('product.catalogProductId: must not be empty');
   }
-  if (offer.portal.cancellationReasons.length === 0) {
-    out.push('portal.cancellationReasons: the provider requires at least one');
+  if (
+    new Set(offer.portal.cancellationReasons).size !==
+    offer.portal.cancellationReasons.length
+  ) {
+    out.push('portal.cancellationReasons: a reason is listed twice');
   }
   checkPrices(offer, out);
   checkPaths(offer, out);

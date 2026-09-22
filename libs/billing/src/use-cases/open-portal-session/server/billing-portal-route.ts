@@ -1,11 +1,12 @@
 import { zValidator } from '@hono/zod-validator';
-import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from '@libs/auth/public/external-account-providers';
-import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
-import type { MembershipBilling } from '@pkgs/billing';
+import type { MembershipProviders } from '@pkgs/billing';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
 
+import { CustomerLinks } from '../../../shared/memberships/customer-links';
+import { MembershipRepository } from '../../../shared/memberships/membership-repository';
 import {
   type BillingRouteDeps,
   billingNotConfigured,
@@ -17,22 +18,54 @@ const portalBodySchema = z.object({
 
 type PortalValidated = z.infer<typeof portalBodySchema>;
 
+/**
+ * Which provider's portal to open: the one holding the membership that
+ * governs the account; failing that, where new checkouts go; failing that,
+ * any configured provider the account is a customer of. A member who joined
+ * before a switch keeps managing their membership where it lives.
+ */
+function portalOrder(
+  providers: MembershipProviders,
+  governingProvider: string | null
+): readonly string[] {
+  const order = [
+    ...(governingProvider === null ? [] : [governingProvider]),
+    providers.checkout.provider,
+    ...providers.byId.keys(),
+  ];
+  return [...new Set(order)].filter((id) => providers.byId.has(id));
+}
+
+async function findCustomer(
+  sql: SqlClient,
+  providers: MembershipProviders,
+  accountId: string
+): Promise<{ readonly provider: string; readonly customerId: string } | null> {
+  const governing = await new MembershipRepository(sql).governing(accountId);
+  const links = new CustomerLinks(sql);
+  for (const provider of portalOrder(providers, governing?.provider ?? null)) {
+    const customerId = await links.customerOf(accountId, provider);
+    if (customerId !== null) return { provider, customerId };
+  }
+  return null;
+}
+
 async function handleBillingPortal(
   c: Context,
   body: PortalValidated,
-  deps: BillingRouteDeps & { readonly billing: MembershipBilling }
+  deps: BillingRouteDeps & { readonly providers: MembershipProviders }
 ): Promise<Response> {
   const sql = deps.getSqlClient();
   const auth = await deps.requireAuth(sql, c.req.raw);
-  const customerId = await new ExternalAccountRepository(
-    sql
-  ).readExternalAccountId(auth.accountId, EXTERNAL_ACCOUNT_PROVIDER_BILLING);
-  if (customerId === null) {
+  const found = await findCustomer(sql, deps.providers, auth.accountId);
+  const billing =
+    found === null ? undefined : deps.providers.byId.get(found.provider);
+  if (found === null || billing === undefined) {
     return c.json({ error: 'No billing customer for this account' }, 404);
   }
-  const portal = await deps.billing.openPortal({
+  const portal = await billing.openPortal({
     accountId: auth.accountId,
-    customerId,
+    customerId: found.customerId,
     returnUrl: body.returnUrl,
   });
   if (portal.url.length === 0) {
@@ -53,7 +86,7 @@ export class BillingPortalRoutes {
         if (deps.billing === null) return billingNotConfigured(c);
         return await handleBillingPortal(c, c.req.valid('json'), {
           ...deps,
-          billing: deps.billing,
+          providers: deps.billing,
         });
       }
     );

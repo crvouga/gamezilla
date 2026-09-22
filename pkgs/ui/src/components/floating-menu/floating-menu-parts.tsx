@@ -95,6 +95,9 @@ export function FloatingMenuHeader(props: {
           </Show>
         </div>
       </div>
+      <Show when={props.header.badge !== undefined}>
+        <div class="box flex-row pt-1">{props.header.badge}</div>
+      </Show>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import type {
   StartCheckoutInput,
   StartCheckoutResult,
 } from '@pkgs/billing';
+import { createMembershipProviders } from '@pkgs/billing';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
@@ -16,6 +17,7 @@ import { BillingCallbackRoutes } from './billing-callback-route';
 const NOW = 1_700_000_000_000;
 
 class StubBilling implements MembershipBilling {
+  readonly provider = 'stub';
   constructor(private readonly result: CallbackResult) {}
 
   startCheckout(_input: StartCheckoutInput): Promise<StartCheckoutResult> {
@@ -62,28 +64,39 @@ function fakeSql(
   return sql;
 }
 
+function providersOf(adapter: MembershipBilling) {
+  return createMembershipProviders({
+    all: [adapter],
+    checkout: adapter.provider,
+  });
+}
+
 function deps(
   result: CallbackResult,
   ownerId: string | null,
   captured: Captured = { statements: [], values: [] },
-  overrides: Partial<BillingRouteDeps> = {}
+  overrides: Partial<Omit<BillingRouteDeps, 'billing'>> & {
+    readonly billing?: MembershipBilling | null;
+  } = {}
 ): BillingRouteDeps {
+  const { billing: adapter, ...rest } = overrides;
   return {
     getSqlClient: () => fakeSql(ownerId, captured),
-    billing: new StubBilling(result),
     requireAuth: () =>
       Promise.resolve({ accountId: 'acc_1', deviceId: 'dev_1' }),
     createId: (() => 'id-1') as never,
     clock: { now: () => NOW },
     log: createNoopLogger(),
     notifyUser: () => Promise.resolve(),
-    ...overrides,
+    ...rest,
+    billing:
+      adapter === null ? null : providersOf(adapter ?? new StubBilling(result)),
   };
 }
 
 const CHANGE: CallbackResult = {
   kind: 'membership',
-  provider: 'stripe',
+  provider: 'stub',
   customerId: 'cus_1',
   subscriptionId: 'sub_1',
   offerPriceKey: 'subscription_monthly',
@@ -95,9 +108,9 @@ const CHANGE: CallbackResult = {
 };
 
 function post(app: ReturnType<BillingCallbackRoutes['build']>) {
-  return app.request('/billing/callback', {
+  return app.request('/billing/callback/stub', {
     method: 'POST',
-    headers: { 'stripe-signature': 'sig' },
+    headers: { 'stub-signature': 'sig' },
     body: '{}',
   });
 }
@@ -167,7 +180,7 @@ describe('BillingCallbackRoutes', () => {
       )
     ).toBe(true);
     expect(captured.values).toContain('acc_1');
-    expect(captured.values).toContain('stripe:sub_1');
+    expect(captured.values).toContain('stub:sub_1');
     expect(captured.values).toContain('subscription_monthly');
     expect(captured.values).toContain('active');
     expect(notified).toEqual([

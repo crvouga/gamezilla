@@ -24,12 +24,14 @@ import { customerNowS, type Engine } from './context';
 import { attachDefaultPaymentMethod, defaultPaymentMethod } from './customers';
 import { openInvoiceOf } from './invoices';
 import { switchablePrices } from './prices';
-import { checkoutPrices, requirePortalSession } from './sessions';
+import { cardOptional, checkoutPrices, requirePortalSession } from './sessions';
 import {
   currentPeriodEnd,
+  endSubscription,
   payOpenInvoice,
   priceOf,
   requireSubscription,
+  resumeSubscription,
   setCancelAtPeriodEnd,
   TERMINAL,
 } from './subscriptions';
@@ -69,6 +71,7 @@ export async function checkoutView(
       successUrl: session.success_url,
       cancelUrl: session.cancel_url,
       trialPeriodDays: session.subscription_data.trial_period_days,
+      cardOptional: cardOptional(session),
     },
     prices: prices.map(pagePrice),
     selectedPriceId: prices[0]?.id ?? '',
@@ -172,6 +175,47 @@ async function liveSubscription(
   return await requireSubscription(engine, subscription.id);
 }
 
+async function updatePaymentMethod(
+  engine: Engine,
+  customer: string,
+  args: { readonly paymentMethod: string; readonly nowS: number }
+): Promise<'ok' | 'declined'> {
+  await attachDefaultPaymentMethod(engine, customer, args.paymentMethod);
+  const subscription = await focusSubscription(engine, customer);
+  if (subscription === null || TERMINAL.has(subscription.status)) return 'ok';
+  // The customer is on the page, so a 3D Secure challenge is met here.
+  const outcome = await payOpenInvoice(engine, subscription, {
+    nowS: args.nowS,
+    session: 'on_session',
+  });
+  return outcome === 'succeeded' || outcome === 'nothing_due'
+    ? 'ok'
+    : 'declined';
+}
+
+async function switchTo(
+  engine: Engine,
+  subscription: MockSubscription,
+  args: { readonly priceId: string; readonly nowS: number }
+): Promise<'ok' | 'declined'> {
+  const price = (await switchablePrices(engine)).find(
+    (p) => p.id === args.priceId
+  );
+  if (price === undefined) {
+    throw invalidRequest(
+      `The price '${args.priceId}' is not offered here.`,
+      'price'
+    );
+  }
+  const switched = await switchPrice(engine, subscription, {
+    price,
+    nowS: args.nowS,
+    proration: 'create_prorations',
+    session: 'on_session',
+  });
+  return switched.status === 'past_due' ? 'declined' : 'ok';
+}
+
 /**
  * Applies one portal action for the session's customer. Returns `declined`
  * when a charge the action made failed — the change itself still stands, as
@@ -187,13 +231,20 @@ export async function portalAct(
   const nowS = await customerNowS(engine, customer);
   const { action } = args;
   if (action.kind === 'update_payment_method') {
-    await attachDefaultPaymentMethod(engine, customer, action.paymentMethod);
-    const subscription = await focusSubscription(engine, customer);
-    if (subscription === null || TERMINAL.has(subscription.status)) return 'ok';
-    const paid = await payOpenInvoice(engine, subscription, nowS);
-    return paid === 'declined' ? 'declined' : 'ok';
+    return await updatePaymentMethod(engine, customer, {
+      paymentMethod: action.paymentMethod,
+      nowS,
+    });
   }
   const subscription = await liveSubscription(engine, customer);
+  if (action.kind === 'cancel' && subscription.status === 'paused') {
+    // Nothing is running to see out, so the portal ends a pause at once.
+    await endSubscription(engine, subscription, {
+      endedAtS: nowS,
+      reason: 'cancellation_requested',
+    });
+    return 'ok';
+  }
   if (action.kind === 'cancel' || action.kind === 'renew') {
     await setCancelAtPeriodEnd(engine, subscription, {
       cancel: action.kind === 'cancel',
@@ -202,15 +253,12 @@ export async function portalAct(
     });
     return 'ok';
   }
-  const price = (await switchablePrices(engine)).find(
-    (p) => p.id === action.price
-  );
-  if (price === undefined) {
-    throw invalidRequest(
-      `The price '${action.price}' is not offered here.`,
-      'price'
-    );
+  if (action.kind === 'resume') {
+    const resumed = await resumeSubscription(engine, subscription, {
+      nowS,
+      session: 'on_session',
+    });
+    return resumed.status === 'past_due' ? 'declined' : 'ok';
   }
-  const switched = await switchPrice(engine, subscription, { price, nowS });
-  return switched.status === 'past_due' ? 'declined' : 'ok';
+  return await switchTo(engine, subscription, { priceId: action.price, nowS });
 }

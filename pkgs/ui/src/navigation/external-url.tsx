@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * External-navigation seam: leaving the app for a provider-hosted page
- * (Stripe Checkout, the Stripe billing portal, …).
+ * (a payment provider's checkout or billing portal, …).
  *
  * The app never owns that page, so the port is a plain function: production
  * assigns the browser location, sims walk the provider's real screens

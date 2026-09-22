@@ -41,7 +41,7 @@ function portalActionOf(body: Body): PortalAction {
   const kind = stringField(body, 'kind');
   if (kind === 'cancel')
     return { kind, reason: optionalString(body, 'reason') ?? null };
-  if (kind === 'renew') return { kind };
+  if (kind === 'renew' || kind === 'resume') return { kind };
   if (kind === 'switch') return { kind, price: stringField(body, 'price') };
   if (kind === 'update_payment_method') {
     return { kind, paymentMethod: paymentMethodField(body) };
@@ -70,7 +70,9 @@ export function pageApiRoutes(runner: ProviderRunner): Hono {
           completeCheckout(engine, {
             sessionId: c.req.param('id') ?? '',
             priceId: stringField(body, 'price'),
-            paymentMethod: paymentMethodField(body),
+            // `null` asks to start the trial without a card.
+            paymentMethod:
+              body['paymentMethod'] === null ? null : paymentMethodField(body),
           })
         );
         return { redirectUrl: session.success_url };

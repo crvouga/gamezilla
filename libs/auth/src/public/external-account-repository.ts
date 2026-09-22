@@ -68,6 +68,27 @@ export class ExternalAccountRepository {
       : null;
   }
 
+  /**
+   * The account's email, as its sign-in provider last reported it: the first
+   * linked identity whose metadata carries one. `null` when none does.
+   */
+  async readAccountEmail(userId: string): Promise<string | null> {
+    const rows = await this.db.query(sql<{ metadata: unknown }>`
+      SELECT metadata
+      FROM auth_external_accounts
+      WHERE user_id = ${userId}
+        AND deleted_at IS NULL
+      ORDER BY created_at ASC
+    `);
+    for (const row of rows) {
+      const email = parseMetadata(row.metadata)['email'];
+      if (typeof email === 'string' && email.trim().length > 0) {
+        return email.trim();
+      }
+    }
+    return null;
+  }
+
   async insertUser(args: {
     readonly userId: string;
     readonly now: () => number;

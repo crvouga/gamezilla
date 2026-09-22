@@ -10,6 +10,14 @@ type BodyRow = { readonly body: string };
 
 export type EventDelivery = 'pending' | 'delivered' | 'failed';
 
+/** A saved answer to a request made with an `Idempotency-Key`. */
+export type IdempotentResponse = {
+  readonly fingerprint: string;
+  readonly status: number;
+  readonly response: string;
+  readonly firstSeenMs: number;
+};
+
 export type PendingEvent = {
   readonly event: MockEvent;
   readonly attempts: number;
@@ -90,6 +98,40 @@ export class ProviderDb {
       ON CONFLICT (id) DO UPDATE SET offset_ms = excluded.offset_ms`);
   }
 
+  async idempotentResponse(key: string): Promise<IdempotentResponse | null> {
+    const rows = await this.db.query(sql<{
+      readonly fingerprint: string;
+      readonly status: number;
+      readonly response: string;
+      readonly first_seen_ms: number;
+    }>`
+      SELECT fingerprint, status, response, first_seen_ms
+      FROM billing_mock_idempotency WHERE id = ${key}`);
+    const row = rows[0];
+    return row === undefined
+      ? null
+      : {
+          fingerprint: row.fingerprint,
+          status: Number(row.status),
+          response: row.response,
+          firstSeenMs: Number(row.first_seen_ms),
+        };
+  }
+
+  async saveIdempotentResponse(
+    key: string,
+    saved: IdempotentResponse
+  ): Promise<void> {
+    await this.db.run(sql`
+      INSERT INTO billing_mock_idempotency
+        (id, fingerprint, status, response, first_seen_ms)
+      VALUES (${key}, ${saved.fingerprint}, ${saved.status}, ${saved.response},
+        ${saved.firstSeenMs})
+      ON CONFLICT (id) DO UPDATE SET fingerprint = excluded.fingerprint,
+        status = excluded.status, response = excluded.response,
+        first_seen_ms = excluded.first_seen_ms`);
+  }
+
   async insertEvent(event: MockEvent, nextAttemptMs: number): Promise<void> {
     const seq = await this.nextSeq('events');
     await this.db.run(sql`
@@ -107,14 +149,11 @@ export class ProviderDb {
   }
 
   /** Newest first, optionally of one type. */
-  async events(args: {
-    readonly type: string | null;
-    readonly limit: number;
-  }): Promise<readonly MockEvent[]> {
+  async events(type: string | null): Promise<readonly MockEvent[]> {
     const rows = await this.db.query(
-      args.type === null
-        ? sql<BodyRow>`SELECT body FROM billing_mock_events ORDER BY seq DESC LIMIT ${args.limit}`
-        : sql<BodyRow>`SELECT body FROM billing_mock_events WHERE event_type = ${args.type} ORDER BY seq DESC LIMIT ${args.limit}`
+      type === null
+        ? sql<BodyRow>`SELECT body FROM billing_mock_events ORDER BY seq DESC`
+        : sql<BodyRow>`SELECT body FROM billing_mock_events WHERE event_type = ${type} ORDER BY seq DESC`
     );
     return rows.map((row) => JSON.parse(row.body) as MockEvent);
   }
