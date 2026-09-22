@@ -8,7 +8,7 @@ import {
 } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
-import { useHasAuthSession } from '../../public/use-current-user';
+import { useHasAuthSession } from '../../public/access-facts';
 import { AccountActionsRow } from './account-actions-row';
 import { SignInMethodsSection } from './sign-in-methods/sign-in-methods-section';
 import { SignOutEverywhereButton } from './sign-in-methods/sign-out-everywhere';

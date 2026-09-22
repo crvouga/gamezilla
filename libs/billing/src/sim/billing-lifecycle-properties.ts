@@ -7,15 +7,10 @@
  * - an account has at most one membership that is not over;
  * - every signed-in device that can reach the server holds exactly the
  *   server's rows (offline devices converge once back);
- * - the tier each device shows is what the plan resolver makes of that
- *   device's own row at the sim clock.
+ * - the tier each device shows is what billing's membership reading makes
+ *   of that device's own rows at the sim clock.
  */
 
-import { ROLE } from '@libs/permissions/public/permission-catalog';
-import {
-  readSubscriptionSnapshot,
-  resolvePlanRole,
-} from '@libs/permissions/public/plan';
 import { accountIdOf, actorLocalSql } from '@libs/sim-harness/system/identity';
 import { actorIds, partitioned } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
@@ -25,6 +20,10 @@ import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
 import { PLUS_MEMBERSHIP_OFFER } from '../public/offer';
+import {
+  governingRow,
+  rowGrantsMembership,
+} from '../shared/memberships/governing-row';
 import {
   BILLING_PAYER,
   BILLING_SECOND_DEVICE,
@@ -49,12 +48,6 @@ type Row = {
   readonly price_key: string | null;
   readonly current_period_end: string | null;
   readonly cancel_at_period_end: number | boolean | null;
-};
-
-const TIER_LABEL: Readonly<Record<string, string>> = {
-  [ROLE.planGuest]: 'guest',
-  [ROLE.planFree]: 'free',
-  [ROLE.planPaid]: 'paid',
 };
 
 function flag(value: Row['cancel_at_period_end']): boolean {
@@ -199,8 +192,8 @@ async function graceMs(db: SqlTx): Promise<number> {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : DEFAULT_GRACE_MS;
 }
 
-export const billingTierMatchesResolver = defineProperty({
-  name: 'billingTierMatchesResolver',
+export const billingTierMatchesMembership = defineProperty({
+  name: 'billingTierMatchesMembership',
   check: async (s: ProductSim, _model: unknown, action: CheckpointAction) => {
     if (!walkStep(action)) return;
     for (const actorId of actorIds(s)) {
@@ -208,22 +201,16 @@ export const billingTierMatchesResolver = defineProperty({
       const local = actorLocalSql(s, actorId);
       if (shown === null || local === null) continue;
       const accountId = await deviceAccount(s, actorId);
-      const latest = await local.query(sql<Row>`
-        SELECT provider_subscription_id, status, price_key, current_period_end,
-          cancel_at_period_end
-        FROM billing_subscriptions
-        WHERE account_id = ${accountId ?? ''} AND deleted_at IS NULL
-        ORDER BY updated_at DESC
-        LIMIT 1`);
-      const role = resolvePlanRole({
-        signedIn: accountId !== null,
-        subscription: readSubscriptionSnapshot(latest[0]),
+      const rows = accountId === null ? [] : await rowsIn(local, accountId);
+      const governing = governingRow(rows);
+      const member = rowGrantsMembership(governing, {
         nowMs: s.session.ports.clock.now(),
         graceMs: await graceMs(local),
       });
-      if (shown !== TIER_LABEL[role]) {
+      const expected = member ? 'paid' : 'free';
+      if (shown !== expected) {
         throw new Error(
-          `${actorId} shows "${shown}", resolver says ${role} for ${JSON.stringify(latest[0] ?? null)} at ${new Date(s.session.ports.clock.now()).toISOString()}`
+          `${actorId} shows "${shown}", membership says ${expected} for ${JSON.stringify(governing)} at ${new Date(s.session.ports.clock.now()).toISOString()}`
         );
       }
     }
@@ -234,5 +221,5 @@ export const BILLING_LIFECYCLE_PROPERTIES = [
   billingServerAgreesWithProvider,
   billingOneLiveMembership,
   billingDevicesConverge,
-  billingTierMatchesResolver,
+  billingTierMatchesMembership,
 ];

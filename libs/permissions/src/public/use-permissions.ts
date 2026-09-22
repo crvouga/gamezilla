@@ -1,4 +1,5 @@
-import { useIsSignedIn, useMyId } from '@libs/auth/public/use-current-user';
+import { useIsSignedIn } from '@libs/auth/public/access-facts';
+import { useMyId } from '@libs/auth/public/use-current-user';
 import { useMutationClient } from '@libs/auth/public/use-mutation-client';
 import { useClock } from '@pkgs/clock/solid';
 import {
@@ -18,20 +19,20 @@ import { useCreateId } from '@pkgs/uuid/solid';
 
 import { unitsSince } from '../shared/ledger-time';
 import {
-  type AppAction,
+  type AppPolicyKey,
   type AppQuota,
   isQuotaAction,
 } from '../shared/permission-catalog';
 import type { QuotaDenialMeta } from '../use-cases/consume-quota/shared/consume-quota-mutation';
 import { consumeQuotaMutation } from '../use-cases/consume-quota/shared/consume-quota-mutation';
 import { evaluateQuota } from '../use-cases/consume-quota/shared/evaluate-quota';
-import { usePermissionPolicy } from './use-permission-policy';
-import { usePermissionSubject } from './use-permission-subject';
+import { usePermissionPolicy } from '../use-cases/decide-access/client/use-permission-policy';
+import { usePermissionSubject } from '../use-cases/decide-access/client/use-permission-subject';
 
 /** The single client permission API (§22.5). Reads are reactive. */
 export type Permissions = {
   /** Decision for doing `action` now (a quota: consuming one more unit). */
-  readonly can: (action: AppAction) => Decision;
+  readonly can: (action: AppPolicyKey) => Decision;
   /** Units left in the current window; `null` = unlimited / not metered. */
   readonly remaining: (quota: AppQuota) => number | null;
   /** Optimistic local consume; the server replay is authoritative. */
@@ -42,11 +43,11 @@ export type Permissions = {
   ) => Promise<Decision>;
   /** `can` + run `onDenied(decision)` when denied; returns `allowed`. */
   readonly gate: (
-    action: AppAction,
+    action: AppPolicyKey,
     onDenied: (decision: Decision) => void
   ) => boolean;
   /** Per-action UI treatment from config. */
-  readonly treatment: (action: AppAction) => UiTreatment;
+  readonly treatment: (action: AppPolicyKey) => UiTreatment;
   /** Config entry a denial's `unlockRef` points at. */
   readonly unlock: (decision: Decision) => UnlockEntry | undefined;
 };
@@ -96,7 +97,7 @@ export function usePermissions(): Permissions {
     return decideQuota(policy(), subject(), quota, { used, nowMs, amount });
   };
 
-  const can = (action: AppAction): Decision =>
+  const can = (action: AppPolicyKey): Decision =>
     isQuotaAction(action)
       ? quotaDecision(action, 1)
       : decide(policy(), subject(), action);

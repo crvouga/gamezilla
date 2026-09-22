@@ -1,7 +1,7 @@
 import type { LimitKey, PermissionKey, RoleId } from './catalog';
 import { RoleCycleError, UnknownRoleError } from './errors';
 import { type Facts, matchesPredicate } from './facts';
-import type { PolicyVersion, RoleSpec } from './policy';
+import type { DenialReason, PolicyVersion, RoleSpec } from './policy';
 import type { QuotaGrant } from './quota-window';
 import type { Subject } from './subject';
 import { createSubject, withRoles } from './subject';
@@ -131,16 +131,22 @@ export function paramsOf(
   return out;
 }
 
-/** Actions denied by restrictions whose predicate matches the subject's facts. */
+/**
+ * Actions denied by restrictions whose predicate matches the subject's facts,
+ * each with the reason its denial reports. The first matching restriction (in
+ * policy key order) names the reason.
+ */
 export function restrictedOf(
   policy: PolicyVersion,
   subject: Subject
-): ReadonlySet<string> {
-  const out = new Set<string>();
+): ReadonlyMap<string, DenialReason> {
+  const out = new Map<string, DenialReason>();
   if (subject.facts === undefined) return out;
   for (const restriction of Object.values(policy.restrictions ?? {})) {
     if (!matchesPredicate(restriction.when, subject.facts)) continue;
-    for (const action of restriction.deny) out.add(action);
+    for (const action of restriction.deny) {
+      if (!out.has(action)) out.set(action, restriction.reason ?? 'restricted');
+    }
   }
   return out;
 }

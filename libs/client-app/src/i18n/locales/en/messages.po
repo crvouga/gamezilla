@@ -663,10 +663,6 @@ msgstr "Couldn't sign out everywhere"
 msgid "Couldn't unblock"
 msgstr "Couldn't unblock"
 
-#: libs/permissions/src/public/unlock-copy.tsx
-msgid "Create an account"
-msgstr "Create an account"
-
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
 msgstr "Created"
@@ -959,7 +955,7 @@ msgstr "Filter fruits…"
 msgid "Find friends"
 msgstr "Find friends"
 
-#: libs/user-search/src/public/use-user-search.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Find friends by username and send requests."
 msgstr "Find friends by username and send requests."
 
@@ -991,11 +987,6 @@ msgstr "fps"
 msgid "Frames per second"
 msgstr "Frames per second"
 
-#: libs/billing/src/root/client/membership-menu-bridge.tsx
-#: libs/permissions/src/public/use-access-label.tsx
-msgid "Free"
-msgstr "Free"
-
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Free plan"
 msgstr "Free plan"
@@ -1010,7 +1001,7 @@ msgstr "Free trial · ends {0} ({1} days left)"
 msgid "Friend request"
 msgstr "Friend request"
 
-#: libs/notifications/src/root/client/notifications-screen.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Friend requests and space invites will land here."
 msgstr "Friend requests and space invites will land here."
 
@@ -1021,7 +1012,7 @@ msgstr "Friend requests and space invites will land here."
 msgid "Friends"
 msgstr "Friends"
 
-#: libs/friends/src/root/client/friends-permission-gate.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Friends let you find each other and jump into shared spaces."
 msgstr "Friends let you find each other and jump into shared spaces."
 
@@ -1059,13 +1050,6 @@ msgstr "Go to Spaces"
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Google"
 msgstr "Google"
-
-#: libs/billing/src/root/client/membership-menu-bridge.tsx
-#: libs/client-app/src/chrome/app-header-global-menu.tsx
-#: libs/client-app/src/screens/more/settings-screen.tsx
-#: libs/permissions/src/public/use-access-label.tsx
-msgid "Guest"
-msgstr "Guest"
 
 #: libs/spaces/src/root/client/members/space-members-guests-block.tsx
 msgid "Guests"
@@ -1493,11 +1477,11 @@ msgstr "No spaces yet"
 msgid "None"
 msgstr "None"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Not available"
 msgstr "Not available"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Not available on this account"
 msgstr "Not available on this account"
 
@@ -1611,10 +1595,6 @@ msgstr "Page not found"
 msgid "Pagination"
 msgstr "Pagination"
 
-#: libs/permissions/src/public/use-access-label.tsx
-msgid "Paid"
-msgstr "Paid"
-
 #. placeholder {0}: date()
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Payment failed · access until {0}"
@@ -1707,18 +1687,6 @@ msgstr "Played"
 #: pkgs/ui/src/components/sound-indicator/sound-indicator.tsx
 msgid "Playing"
 msgstr "Playing"
-
-#: libs/billing/src/root/client/billing-plan-card.tsx
-msgid "Playing as a guest"
-msgstr "Playing as a guest"
-
-#: libs/client-app/src/chrome/app-header-global-menu.tsx
-msgid "Playing as guest"
-msgstr "Playing as guest"
-
-#: libs/billing/src/root/client/membership-menu-bridge.tsx
-msgid "Plus"
-msgstr "Plus"
 
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Preferences"
@@ -1888,11 +1856,11 @@ msgstr "Reset"
 msgid "Reset local data and reload"
 msgstr "Reset local data and reload"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Resets in {hours} h"
 msgstr "Resets in {hours} h"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Resets in {minutes} min"
 msgstr "Resets in {minutes} min"
 
@@ -1987,7 +1955,7 @@ msgstr "Security"
 msgid "See below"
 msgstr "See below"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "See plans"
 msgstr "See plans"
 
@@ -2080,25 +2048,23 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 
 #: libs/auth/src/public/sign-in-modal.tsx
 #: libs/auth/src/root/client/account-actions-row.tsx
-#: libs/friends/src/root/client/friends-permission-gate.tsx
-#: libs/notifications/src/root/client/notifications-screen.tsx
-#: libs/user-search/src/public/use-user-search.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in"
 msgstr "Sign in"
 
-#: libs/friends/src/root/client/friends-permission-gate.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in to add friends"
 msgstr "Sign in to add friends"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in to continue"
 msgstr "Sign in to continue"
 
-#: libs/user-search/src/public/use-user-search.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in to search for people"
 msgstr "Sign in to search for people"
 
-#: libs/notifications/src/root/client/notifications-screen.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in to see notifications"
 msgstr "Sign in to see notifications"
 
@@ -2106,13 +2072,9 @@ msgstr "Sign in to see notifications"
 msgid "Sign in to see your devices"
 msgstr "Sign in to see your devices"
 
-#: libs/billing/src/root/client/billing-plan-card.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in to subscribe"
 msgstr "Sign in to subscribe"
-
-#: libs/billing/src/root/client/billing-plan-card.tsx
-msgid "Sign in to subscribe and keep your progress."
-msgstr "Sign in to subscribe and keep your progress."
 
 #: pkgs/ui/src/components/social-sign-in-button/social-provider-config.tsx
 msgid "Sign in with Apple"
@@ -2193,7 +2155,6 @@ msgid "Sign-out failed"
 msgstr "Sign-out failed"
 
 #: libs/auth/src/public/sign-in-modal.tsx
-#: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Signed in"
 msgstr "Signed in"
 
@@ -2631,7 +2592,7 @@ msgstr "Unseen"
 msgid "Update payment method"
 msgstr "Update payment method"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Upgrade for unlimited puzzles, or come back tomorrow."
 msgstr "Upgrade for unlimited puzzles, or come back tomorrow."
 
@@ -2762,11 +2723,11 @@ msgstr "You're signed out on this device."
 msgid "You've cleared everything in your feed. Widen the filters and let's keep going."
 msgstr "You've cleared everything in your feed. Widen the filters and let's keep going."
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "You've hit today's puzzle limit"
 msgstr "You've hit today's puzzle limit"
 
-#: libs/permissions/src/public/unlock-copy.tsx
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "You've used this for now"
 msgstr "You've used this for now"
 

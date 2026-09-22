@@ -2,22 +2,23 @@
 // goal:always-true:4
 // goal:always-true:5
 import { describe, expect, test } from 'bun:test';
-import { ROLE } from '@libs/permissions/public/permission-catalog';
 import {
+  type AccessInputs,
   governingSubscription,
-  type PlanFacts,
+  ROLE,
   readSubscriptionSnapshot,
   resolvePlanRole,
-} from '@libs/permissions/public/plan';
+} from '@libs/permissions/root/access-model';
 
 const GRACE_MS = 7 * 24 * 60 * 60 * 1000;
 
-function facts(overrides: Partial<PlanFacts>): PlanFacts {
+function facts(overrides: Partial<AccessInputs>): AccessInputs {
   return {
     signedIn: true,
     subscription: null,
     nowMs: 1_000,
     graceMs: GRACE_MS,
+    billingEnabled: true,
     ...overrides,
   };
 }

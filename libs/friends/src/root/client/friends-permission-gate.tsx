@@ -1,40 +1,29 @@
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
-import { useCan } from '@libs/permissions/public/use-can';
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { EmptyState, ScreenBase, UsersIcon } from '@pkgs/ui';
+import { useDecision } from '@libs/permissions/public/use-can';
+import { Trans } from '@lingui/solid/macro';
+import { ScreenBase, UsersIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
 export function FriendsPermissionGate(props: {
   children: JSX.Element;
 }): JSX.Element {
-  const canUseFriends = useCan(PERMISSION.friendsUse);
-  const { open: openSignInModal } = useSignInModal();
-  const { t } = useLingui();
+  const decision = useDecision(PERMISSION.friendsUse);
 
   return (
     <Show
-      when={canUseFriends()}
+      when={decision().allowed}
       fallback={
         <ScreenBase
-          screenId="friends-signed-in-gate"
+          screenId="friends-permission-gate"
           breadcrumbs={[
             { name: <Trans>Profile</Trans>, href: '/profile' },
             { name: <Trans>Friends</Trans> },
           ]}
           content={({ bodyClass }) => (
             <div class={`box ${bodyClass}`}>
-              <EmptyState
-                icon={UsersIcon}
-                title={<Trans>Sign in to add friends</Trans>}
-                body={
-                  <Trans>
-                    Friends let you find each other and jump into shared spaces.
-                  </Trans>
-                }
-                action={{ label: t`Sign in`, onClick: openSignInModal }}
-              />
+              <DenialSurface decision={decision()} icon={UsersIcon} />
             </div>
           )}
         />

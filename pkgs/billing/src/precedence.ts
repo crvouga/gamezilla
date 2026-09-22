@@ -69,6 +69,26 @@ export function isMembershipLive(status: MembershipStatus | null): boolean {
   );
 }
 
+/**
+ * Whether a membership grants member access at `nowMs`: while it is active or
+ * trialing, and — for a delinquent or ended one — until its period end plus
+ * `graceMs` (so a member stays a member while offline). An incomplete or
+ * unreadable membership grants nothing.
+ */
+export function membershipGrantsAccess(
+  standing: MembershipStanding,
+  at: { readonly nowMs: number; readonly graceMs: number }
+): boolean {
+  if (standing.status === 'active' || standing.status === 'trialing') {
+    return true;
+  }
+  if (standing.status === null || standing.status === 'incomplete') {
+    return false;
+  }
+  if (standing.periodEndMs === null) return false;
+  return at.nowMs <= standing.periodEndMs + at.graceMs;
+}
+
 const STATUSES: ReadonlySet<string> = new Set<MembershipStatus>(
   Object.keys(RANK) as MembershipStatus[]
 );

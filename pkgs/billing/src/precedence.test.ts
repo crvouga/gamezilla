@@ -5,6 +5,7 @@ import type { MembershipStatus } from './membership';
 import {
   governingMembership,
   type MembershipStanding,
+  membershipGrantsAccess,
   outranksMembership,
   readMembershipStatus,
 } from './precedence';
@@ -83,5 +84,41 @@ describe('readMembershipStatus', () => {
     for (const other of ['past_due', 'canceled', '', null, undefined]) {
       expect(readMembershipStatus(other)).toBeNull();
     }
+  });
+});
+
+describe('membershipGrantsAccess', () => {
+  const at = { nowMs: 1_000, graceMs: 100 };
+
+  test('active and trialing grant whatever the period says', () => {
+    for (const status of ['active', 'trialing'] as const) {
+      expect(membershipGrantsAccess({ status, periodEndMs: null }, at)).toBe(
+        true
+      );
+      expect(membershipGrantsAccess({ status, periodEndMs: 0 }, at)).toBe(true);
+    }
+  });
+
+  test('delinquent and ended grant until period end plus grace', () => {
+    for (const status of ['delinquent', 'ended'] as const) {
+      expect(membershipGrantsAccess({ status, periodEndMs: 900 }, at)).toBe(
+        true
+      );
+      expect(membershipGrantsAccess({ status, periodEndMs: 899 }, at)).toBe(
+        false
+      );
+      expect(membershipGrantsAccess({ status, periodEndMs: null }, at)).toBe(
+        false
+      );
+    }
+  });
+
+  test('incomplete and unreadable never grant', () => {
+    fc.assert(
+      fc.property(standing, (s) => {
+        if (s.status !== 'incomplete' && s.status !== null) return;
+        expect(membershipGrantsAccess(s, at)).toBe(false);
+      })
+    );
   });
 });

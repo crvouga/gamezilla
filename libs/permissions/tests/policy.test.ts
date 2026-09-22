@@ -1,16 +1,17 @@
 // goal:guest-free-and-paid:1
 // goal:guest-free-and-paid:4
 import { describe, expect, test } from 'bun:test';
-import { parsePermissionPolicy } from '@libs/permissions/public/parse-permission-policy';
-
 import {
   ACTION,
   type AppPermission,
   LIMIT,
   PERMISSION,
-  ROLE,
 } from '@libs/permissions/public/permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
+import {
+  DEFAULT_PERMISSION_POLICY,
+  parsePermissionPolicy,
+  ROLE,
+} from '@libs/permissions/root/access-model';
 import {
   can,
   createSubject,

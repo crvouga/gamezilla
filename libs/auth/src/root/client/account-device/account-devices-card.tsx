@@ -8,7 +8,7 @@ import {
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
-import { useIsSignedIn } from '../../../public/use-current-user';
+import { useIsSignedIn } from '../../../public/access-facts';
 import { useAccountDeviceIds } from '../use-account-device-ids';
 import { AccountDeviceMenuRow } from './account-device-menu-row';
 

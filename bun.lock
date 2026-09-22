@@ -245,7 +245,6 @@
       "dependencies": {
         "@hono/zod-validator": "catalog:",
         "@libs/auth": "workspace:*",
-        "@libs/client-app": "workspace:*",
         "@libs/client-config": "workspace:*",
         "@libs/feature": "workspace:*",
         "@libs/permissions": "workspace:*",
@@ -964,7 +963,6 @@
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/message": "workspace:*",
-        "@pkgs/permissions": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/room-adapter-memory": "workspace:*",

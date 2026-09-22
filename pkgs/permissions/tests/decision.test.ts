@@ -52,10 +52,15 @@ const POLICY: PermissionPolicy = {
       },
       params: { 'stats.days': null },
     },
-    presence: { permissions: ['room.speak'] },
+    presence: { permissions: ['room.speak', 'room.host'] },
   },
   restrictions: {
     shadow: { when: { fairPlay: 'shadow' }, deny: ['sync.enable'] },
+    guestsCannotHost: {
+      when: { auth: 'anonymous' },
+      deny: ['room.host'],
+      reason: 'requires_account',
+    },
   },
   unlockRefs: {
     'puzzle.solve': {
@@ -149,6 +154,17 @@ describe('merge semantics', () => {
       policyVersion: 'v2',
     });
     expect(grantedBy(POLICY, verified, 'puzzle.solve')).toEqual(['verified']);
+  });
+
+  test('a restriction reports the reason it names', () => {
+    const guest = resolveSubject(POLICY, { auth: 'anonymous' }, ['presence']);
+    expect(decide(POLICY, guest, 'room.host')).toEqual({
+      allowed: false,
+      reason: 'requires_account',
+      policyVersion: 'v2',
+    });
+    const verified = resolveSubject(POLICY, VERIFIED, ['presence']);
+    expect(decide(POLICY, verified, 'room.host').allowed).toBe(true);
   });
 });
 

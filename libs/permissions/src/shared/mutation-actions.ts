@@ -1,13 +1,14 @@
-import { type AppPolicyKey, PERMISSION } from './permission-catalog';
+import { type AppGrantKey, PERMISSION } from './permission-catalog';
 
 /**
  * What a server-side mutation requires (§22.6):
  * - an action / permission key: the replay is authorized by `decide` first;
  * - `'quota'`: the mutation body consumes a quota itself (`consumeQuota`);
- * - `'public'`: no permission gate (identity/ownership checks live in the
- *   body, e.g. per-space presence roles).
+ * - `'public'`: no app-wide gate; the body decides itself through
+ *   `requireInMutation` when the action is resource-scoped (per-space
+ *   presence roles) or needs no permission (identity bootstrap).
  */
-export type MutationActionDeclaration = AppPolicyKey | 'public' | 'quota';
+export type MutationActionDeclaration = AppGrantKey | 'public' | 'quota';
 
 /**
  * Every product mutation name → its declaration. The server's authorize hook
@@ -29,7 +30,7 @@ export const MUTATION_ACTIONS: Readonly<
   appendPuzzleInteraction: PERMISSION.puzzlesPlay,
   ratePuzzleAttempt: PERMISSION.puzzlesPlay,
   upsertPuzzleProfile: PERMISSION.puzzlesPlay,
-  // spaces (host / member checks run in the bodies against space roles)
+  // spaces (host / member decisions run in the bodies with presence scope)
   createSpace: PERMISSION.spacesCreate,
   joinSpace: PERMISSION.spacesJoin,
   leaveSpace: 'public',
@@ -40,13 +41,13 @@ export const MUTATION_ACTIONS: Readonly<
   removeSpaceUser: 'public',
   markSpaceJoinAnnounced: 'public',
   // friends
-  sendFriendRequest: 'public',
-  acceptFriendRequest: 'public',
-  declineFriendRequest: 'public',
-  cancelFriendRequest: 'public',
-  removeFriend: 'public',
-  blockUser: 'public',
-  unblockUser: 'public',
+  sendFriendRequest: PERMISSION.friendsUse,
+  acceptFriendRequest: PERMISSION.friendsUse,
+  declineFriendRequest: PERMISSION.friendsUse,
+  cancelFriendRequest: PERMISSION.friendsUse,
+  removeFriend: PERMISSION.friendsUse,
+  blockUser: PERMISSION.friendsUse,
+  unblockUser: PERMISSION.friendsUse,
   // permissions
   consumeQuota: 'quota',
 };

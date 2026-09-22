@@ -10,13 +10,13 @@
  * window or not.
  */
 import { describe, expect, test } from 'bun:test';
-import { ROLE } from '@libs/permissions/public/permission-catalog';
 import {
+  ROLE,
   readSubscriptionSnapshot,
   resolveAccessFacts,
   resolvePlanRole,
   type SubscriptionRow,
-} from '@libs/permissions/public/plan';
+} from '@libs/permissions/root/access-model';
 
 const NOW = Date.parse('2026-09-21T12:00:00.000Z');
 const DAY = 86_400_000;
@@ -176,6 +176,7 @@ describe('membership state space', () => {
         }),
         nowMs: NOW,
         graceMs: c.grace,
+        billingEnabled: true,
       };
       const role = expectedRole(c);
       expect<unknown>({
@@ -187,6 +188,7 @@ describe('membership state space', () => {
         facts: {
           auth: c.signedIn ? 'verified' : 'anonymous',
           membership: role === ROLE.planPaid ? 'active' : 'none',
+          billing: 'on',
         },
         role,
       });

@@ -1,16 +1,20 @@
 /**
- * What the billing screen shows, as a pure function of the caller's plan tier,
- * their synced membership row and the deployment's billing switch. The screen
+ * What the billing screen shows, as a pure function of the caller's synced
+ * membership row and the permission system's decisions. Billing reads its own
+ * membership; it never learns whether the caller is signed in — a subscribe
+ * denial arrives with its unlock label, whatever unlocks it. The screen
  * renders this and nothing else, so every combination is testable without a
  * DOM.
  */
 import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing';
 
+import { rowGrantsMembership } from '../../shared/memberships/governing-row';
 import type { MembershipRow } from '../../use-cases/load-my-subscription/shared/membership-row';
 
 export type { MembershipRow };
 
-export type BillingTier = 'guest' | 'free' | 'paid';
+/** Whether the membership makes the account a member right now. */
+export type BillingTier = 'free' | 'paid';
 
 /** The membership as the person understands it. */
 export type MembershipState =
@@ -22,20 +26,23 @@ export type MembershipState =
   | 'delinquent'
   | 'ended';
 
-export type BillingPrimaryAction = 'subscribe' | 'sign_in' | 'none';
+export type BillingPrimaryAction = 'subscribe' | 'unlock' | 'none';
 
 export type BillingNotice = 'unavailable' | 'delinquent' | 'incomplete';
 
 export type BillingViewInput = {
-  readonly tier: BillingTier;
-  readonly billingEnabled: boolean;
+  /** The live policy grants `billing:view` (denied while billing is off). */
+  readonly canView: boolean;
   /** The live policy grants `billing:subscribe` / `billing:manage`. */
   readonly canSubscribe: boolean;
   readonly canManage: boolean;
+  /** CTA label of the subscribe denial's unlock, when it has one. */
+  readonly subscribeUnlockLabel: string | null;
   /** The account already has a provider customer (it can open the portal). */
   readonly hasCustomer: boolean;
   readonly row: MembershipRow | null;
   readonly nowMs: number;
+  readonly graceMs: number;
 };
 
 export type BillingView = {
@@ -48,6 +55,8 @@ export type BillingView = {
   /** The offer price the membership is on, when known. */
   readonly priceKey: string | null;
   readonly primary: BillingPrimaryAction;
+  /** Label of the `unlock` primary action. */
+  readonly unlockLabel: string | null;
   readonly manage: boolean;
   readonly notice: BillingNotice | null;
   /** The offer's prices and benefits (hidden while billing is off). */
@@ -88,36 +97,39 @@ function periodEndOf(row: MembershipRow | null): number | null {
 
 function primaryOf(
   input: BillingViewInput,
-  state: MembershipState
+  state: MembershipState,
+  tier: BillingTier
 ): BillingPrimaryAction {
-  if (!input.billingEnabled) return 'none';
-  if (input.tier === 'guest') return 'sign_in';
-  if (input.tier === 'paid') return 'none';
+  if (!input.canView || tier === 'paid') return 'none';
   // A delinquent member fixes their card in the portal; a second checkout
   // would start a second subscription.
   const open = state === 'none' || state === 'incomplete' || state === 'ended';
-  return open && input.canSubscribe ? 'subscribe' : 'none';
+  if (!open) return 'none';
+  if (input.canSubscribe) return 'subscribe';
+  return input.subscribeUnlockLabel === null ? 'none' : 'unlock';
 }
 
 function noticeOf(
   input: BillingViewInput,
   state: MembershipState
 ): BillingNotice | null {
-  if (!input.billingEnabled) return 'unavailable';
+  if (!input.canView) return 'unavailable';
   if (state === 'delinquent') return 'delinquent';
   if (state === 'incomplete') return 'incomplete';
   return null;
 }
 
 export function buildBillingView(input: BillingViewInput): BillingView {
-  // A guest has no account, so a row left on the device says nothing about them.
-  const row = input.tier === 'guest' ? null : input.row;
+  // Membership details belong to whoever may manage billing; a row left on
+  // the device says nothing about anyone else.
+  const row = input.canManage ? input.row : null;
   const state = membershipStateOf(row);
+  const tier: BillingTier = rowGrantsMembership(row, input) ? 'paid' : 'free';
   const periodEndMs =
     state === 'none' || state === 'incomplete' ? null : periodEndOf(row);
-  const primary = primaryOf(input, state);
+  const primary = primaryOf(input, state, tier);
   return {
-    tier: input.tier,
+    tier,
     state,
     periodEndMs,
     daysLeft:
@@ -126,13 +138,10 @@ export function buildBillingView(input: BillingViewInput): BillingView {
         : Math.ceil((periodEndMs - input.nowMs) / DAY_MS),
     priceKey: state === 'none' ? null : (row?.price_key ?? null),
     primary,
-    manage:
-      input.billingEnabled &&
-      input.tier !== 'guest' &&
-      input.canManage &&
-      input.hasCustomer,
+    unlockLabel: primary === 'unlock' ? input.subscribeUnlockLabel : null,
+    manage: input.canView && input.canManage && input.hasCustomer,
     notice: noticeOf(input, state),
-    showPricing: input.billingEnabled,
+    showPricing: input.canView,
   };
 }
 
@@ -191,18 +200,4 @@ export function formatMinorUnits(
   });
   const digits = format.resolvedOptions().maximumFractionDigits ?? 2;
   return format.format(amount / 10 ** digits);
-}
-
-export type MembershipMenuEntry = {
-  readonly tier: BillingTier;
-  /** A paying member: the chip takes the brand tone. */
-  readonly highlighted: boolean;
-};
-
-/** The global menu's tier chip, or none while billing is switched off. */
-export function membershipMenuEntry(
-  tier: BillingTier,
-  billingEnabled: boolean
-): MembershipMenuEntry | null {
-  return billingEnabled ? { tier, highlighted: tier === 'paid' } : null;
 }
