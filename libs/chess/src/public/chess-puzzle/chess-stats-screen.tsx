@@ -46,7 +46,7 @@ export function ChessStatsScreen(): JSX.Element {
         dataSet={{ screen: 'chess-stats' }}
       >
         <div
-          class="box gap-4 p-4 pb-8 self-center w-[100%]"
+          class="box gap-4 p-4 pb-8 self-center w-full"
           style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
         >
           <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />

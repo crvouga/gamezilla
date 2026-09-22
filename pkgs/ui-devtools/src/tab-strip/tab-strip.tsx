@@ -165,7 +165,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
       </Show>
       <Show when={showStandaloneAdd()}>
         <button
-          class="clickable clickableTint px-1.5 py-0.5 items-center justify-center rounded-tl-[8px] rounded-tr-[8px] overflow-hidden self-end"
+          class="clickable clickableTint px-1.5 py-0.5 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
           data-component="TabStripAdd"
           type="button"
           style={{ height: `${TAB_MIN_HEIGHT}px` }}

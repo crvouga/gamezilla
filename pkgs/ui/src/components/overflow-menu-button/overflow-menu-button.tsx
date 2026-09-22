@@ -214,7 +214,7 @@ function TriggerFace(props: {
       }
     >
       <button
-        class="clickable clickableTint rounded-[9999px] overflow-hidden"
+        class="clickable clickableTint rounded-full overflow-hidden"
         {...dataAttrs(props.dataSet)}
         type="button"
         onClick={() => props.onOpen()}

@@ -81,7 +81,7 @@ export function ChessPuzzleFeedBar(
 
   return (
     <button
-      class="clickable clickableTint self-stretch min-w-[0] shrink"
+      class="clickable clickableTint self-stretch min-w-0 shrink"
       data-testid="chess-puzzle-feed-summary"
       type="button"
       onClick={props.onOpenFeedSettings}
@@ -91,7 +91,7 @@ export function ChessPuzzleFeedBar(
         horizontal
         flushEdge={false}
         hideScrollbar
-        class="self-stretch min-w-[0]"
+        class="self-stretch min-w-0"
         contentClass="box flex-row items-center justify-start gap-2 px-3 py-1"
         dataSet={{ testid: 'chess-puzzle-board-elo-bar' }}
       >

@@ -18,7 +18,7 @@ export function MiniplayerMemberCountText(
   const label = createMemo(() => t`${count()} people here`);
   return (
     <p
-      class="text textCaption line-clamp-1 shrink-0 min-w-[0]"
+      class="text textCaption line-clamp-1 shrink-0 min-w-0"
       classList={{
         ...(props.class !== undefined ? { [props.class]: true } : {}),
       }}

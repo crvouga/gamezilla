@@ -15,9 +15,9 @@ function BootPaintGateFallback(): JSX.Element {
   const { t } = useLingui();
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <div class="box flex-1 min-h-[0]" data-component="BootPaintGate">
+    <div class="box flex-1 min-h-0" data-component="BootPaintGate">
       <TopBar trailing={globalTrailing()} />
-      <div class="box flex-1 min-h-[0] items-center justify-center bg-background">
+      <div class="box flex-1 min-h-0 items-center justify-center bg-background">
         <LoadingState size="large" caption={t`Downloading…`} />
       </div>
     </div>

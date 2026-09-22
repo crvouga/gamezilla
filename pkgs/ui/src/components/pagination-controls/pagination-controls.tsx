@@ -113,7 +113,7 @@ function PageSlot(props: {
           }}
           aria-hidden="true"
         >
-          <p class="text text-text-secondary text-[12px]">…</p>
+          <p class="text text-text-secondary text-xs">…</p>
         </div>
       }
     >
@@ -132,7 +132,7 @@ function PageSlot(props: {
           >
             <div class="box" style={circleStyle(props.size, active())}>
               <p
-                class="text text-[11px]"
+                class="text text-2xs"
                 style={{
                   color: active()
                     ? colorVar('tint')

@@ -104,7 +104,7 @@ export function Badge(props: BadgeProps): JSX.Element {
 
   return (
     <span
-      class="box inline-flex self-start items-center justify-center rounded-[9999px]"
+      class="box inline-flex self-start items-center justify-center rounded-full"
       {...dataAttrs({ component: 'Badge', ...props.dataSet })}
       style={{
         'background-color': colors().bg,

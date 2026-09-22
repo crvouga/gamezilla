@@ -25,11 +25,11 @@ function MetricChip(props: {
 }): JSX.Element {
   return (
     <div class="box flex-row gap-1 items-baseline shrink-0">
-      <p class="text text-[10px] text-[rgba(255,255,255,0.55)] font-semibold uppercase tracking-wide">
+      <p class="text text-micro text-perf-muted font-semibold uppercase tracking-wide">
         {props.label}
       </p>
       <p
-        class="text text-[11px] font-bold tabular-nums"
+        class="text text-2xs font-bold tabular-nums"
         style={{ color: props.color ?? '#fff' }}
       >
         {props.value}
@@ -45,7 +45,7 @@ function ExpandedMetrics(props: {
   const heapLabel = () =>
     props.snap.heapMb === null ? '—' : `${String(props.snap.heapMb)}MB`;
   return (
-    <div class="box gap-1 px-3 pb-2 border-t border-[rgba(255,255,255,0.1)]">
+    <div class="box gap-1 px-3 pb-2 border-t border-perf-divider">
       <div class="box flex-row flex-wrap gap-x-3 gap-y-0.5 pt-1.5">
         <MetricChip label="slow%" value={String(props.snap.slowFramePct)} />
         <MetricChip label="LTn" value={String(props.snap.longTaskCount)} />
@@ -53,16 +53,12 @@ function ExpandedMetrics(props: {
       </div>
       <Show when={props.snap.longestScript}>
         {(script) => (
-          <p class="text line-clamp-2 text-[9px] text-[rgba(255,255,255,0.8)]">
-            {script()}
-          </p>
+          <p class="text line-clamp-2 text-nano text-perf-text">{script()}</p>
         )}
       </Show>
       <Show when={props.snap.inpTarget}>
         {(target) => (
-          <p class="text line-clamp-2 text-[9px] text-[rgba(255,255,255,0.55)]">
-            {target()}
-          </p>
+          <p class="text line-clamp-2 text-nano text-perf-muted">{target()}</p>
         )}
       </Show>
       <button
@@ -72,7 +68,7 @@ function ExpandedMetrics(props: {
         onClick={() => props.onHide()}
         aria-label="Hide performance monitor"
       >
-        <p class="text text-[10px] text-[#93c5fd] font-semibold">{'Hide'}</p>
+        <p class="text text-micro text-perf-accent font-semibold">{'Hide'}</p>
       </button>
     </div>
   );
@@ -91,7 +87,7 @@ export function PerfHudOverlay(): JSX.Element {
   return (
     <InFlowBanner position="top" visible={enabled()}>
       <div
-        class="box bg-[rgba(0,0,0,0.85)] border-b border-[rgba(255,255,255,0.12)]"
+        class="box bg-perf-background border-b border-perf-border"
         style={{ 'padding-top': 'env(safe-area-inset-top, 0px)' }}
         data-component="PerfHudOverlay"
         data-testid="perf-hud"

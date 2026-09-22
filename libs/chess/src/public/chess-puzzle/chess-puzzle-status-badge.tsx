@@ -7,13 +7,10 @@ export function ChessPuzzleStatusBadge(props: {
 }): JSX.Element {
   return (
     <div
-      class="box w-[20px] h-[20px] rounded-[10px] items-center justify-center"
+      class="box w-5 h-5 rounded-control items-center justify-center"
       style={{ 'background-color': props.bg }}
     >
-      <p
-        class="text text-[12px] font-bold leading-[14px]"
-        style={{ color: props.fg }}
-      >
+      <p class="text text-xs font-bold leading-3.5" style={{ color: props.fg }}>
         {props.mark}
       </p>
     </div>

@@ -218,7 +218,7 @@ export function BillingPlanCard(props: PlanCardProps): JSX.Element {
         <div class="box h-12 w-12 shrink-0 items-center justify-center rounded-full bg-tint-subtle">
           <CreditCardIcon size={24} color="tint" />
         </div>
-        <div class="box min-w-[0] flex-1 gap-1">
+        <div class="box min-w-0 flex-1 gap-1">
           <p class="text textCaption text-text-secondary">
             <Trans>Your plan</Trans>
           </p>

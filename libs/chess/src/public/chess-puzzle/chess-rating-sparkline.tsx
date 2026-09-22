@@ -33,7 +33,7 @@ export function ChessRatingSparkline(
   return (
     <Show when={points().length > 0}>
       <div
-        class="box self-stretch items-center w-[100%] max-w-[280px]"
+        class="box self-stretch items-center w-full max-w-70"
         {...dataAttrs(
           props.testID !== undefined ? { testid: props.testID } : undefined
         )}

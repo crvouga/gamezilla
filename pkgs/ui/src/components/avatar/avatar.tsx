@@ -82,7 +82,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
   });
   return (
     <span
-      class="box inline-flex rounded-[9999px] border-border overflow-hidden items-center justify-center"
+      class="box inline-flex rounded-full border-border overflow-hidden items-center justify-center"
       {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       style={{
         'background-color':

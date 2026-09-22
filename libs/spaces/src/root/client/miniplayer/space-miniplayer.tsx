@@ -68,7 +68,7 @@ function MultiSpaceDock(props: {
       }}
     >
       <button
-        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-3 min-h-[72px] px-3 self-stretch"
+        class="clickable clickableTint flex-1 min-w-0 flex-row items-center gap-3 min-h-18 px-3 self-stretch"
         type="button"
         onClick={props.onPressOpenPicker}
         aria-label={t`Show your live spaces`}
@@ -84,7 +84,7 @@ function MultiSpaceDock(props: {
             )}
           </For>
         </AvatarGroup>
-        <div class="box flex-1 min-w-[0]">
+        <div class="box flex-1 min-w-0">
           <p class="text textBodyBold line-clamp-1 text-on-primary">
             {t`${count()} live spaces`}
           </p>

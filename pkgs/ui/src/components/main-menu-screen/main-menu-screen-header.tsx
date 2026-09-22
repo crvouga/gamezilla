@@ -18,16 +18,16 @@ export function MainMenuScreenHeader(
   return (
     <Show when={hasTitle() || hasSubtitle()}>
       <div
-        class="box gap-1 items-center py-2 min-w-[0] self-stretch"
+        class="box gap-1 items-center py-2 min-w-0 self-stretch"
         {...dataAttrs({ component: 'MainMenuScreenHeader', ...props.dataSet })}
       >
         <Show when={hasTitle()}>
-          <h1 class="text textHeading text-center min-w-[0] max-w-full">
+          <h1 class="text textHeading text-center min-w-0 max-w-full">
             {props.title}
           </h1>
         </Show>
         <Show when={hasSubtitle()}>
-          <p class="text line-clamp-2 text-center opacity-75 min-w-[0] max-w-full text-text-secondary">
+          <p class="text line-clamp-2 text-center opacity-75 min-w-0 max-w-full text-text-secondary">
             {props.subtitle}
           </p>
         </Show>

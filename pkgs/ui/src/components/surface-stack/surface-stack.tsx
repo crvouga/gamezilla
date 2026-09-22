@@ -58,7 +58,7 @@ export function SurfaceStackProvider(
   return (
     <SurfaceStackContext.Provider value={api}>
       <div
-        class="box flex-1 min-w-[0] w-[100%] max-w-[100%] relative"
+        class="box flex-1 min-w-0 w-full max-w-full relative"
         data-component="SurfaceStackRoot"
         style={{ overflow: 'clip' }}
         ref={setRoot}

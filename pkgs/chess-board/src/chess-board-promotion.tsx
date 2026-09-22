@@ -148,7 +148,7 @@ export function ChessBoardPromotion(
     });
   return (
     <div
-      class="box absolute inset-[0]"
+      class="box absolute inset-0"
       style={{ 'background-color': props.theme.promotion.backdrop }}
       data-component="ChessBoardPromotion"
       role="presentation"

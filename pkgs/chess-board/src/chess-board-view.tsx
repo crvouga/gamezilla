@@ -167,7 +167,7 @@ export function ChessBoardView(args: {
     // WAI-ARIA pattern for a keyboard game board trips these two rules.
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      class={`box relative [border-width:2px] border-solid overflow-hidden ${styles['root']}`}
+      class={`box relative border-2 border-solid overflow-hidden ${styles['root']}`}
       style={hostStyle()}
       {...dataAttrs({
         component: 'ChessBoard',

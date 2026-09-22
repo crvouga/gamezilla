@@ -121,11 +121,11 @@ function PuzzlePlayBoardWell(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] overflow-hidden items-center justify-center self-stretch"
+      class="box flex-1 min-h-0 min-w-0 overflow-hidden items-center justify-center self-stretch"
       style={{ 'container-type': 'size' }}
     >
       <div
-        class="box overflow-hidden min-h-[0] min-w-[0] shrink"
+        class="box overflow-hidden min-h-0 min-w-0 shrink"
         style={{
           width: 'min(100cqw, 100cqh)',
           height: 'min(100cqw, 100cqh)',
@@ -168,15 +168,15 @@ function CelebrationLayer(props: {
 /** Single-column: feed + coach + square board + timeline/actions. */
 function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
   return (
-    <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
-      <div class="box shrink-0 min-w-[0]">
+    <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
+      <div class="box shrink-0 min-w-0">
         <Show when={!props.layout.spectator()}>
           <PuzzlePlayFeed
             layout={props.layout}
             openFeedSettings={props.openFeedSettings}
           />
         </Show>
-        <div class="box shrink-0 min-w-[0] overflow-hidden">
+        <div class="box shrink-0 min-w-0 overflow-hidden">
           {props.layout.assistant}
         </div>
       </div>
@@ -207,7 +207,7 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
   };
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden"
+      class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden"
       data-testid="chess-puzzle-play-layout"
       data-screen="chess-puzzle-play"
     >

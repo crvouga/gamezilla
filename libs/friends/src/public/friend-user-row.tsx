@@ -27,7 +27,7 @@ function FriendUserRowIdentity(props: {
   return (
     <>
       <FriendProfileAvatar profile={props.profile} size={44} />
-      <div class="box flex-1 min-w-[0] gap-0.5">
+      <div class="box flex-1 min-w-0 gap-0.5">
         <p class="text textBodyBold line-clamp-1">
           {usernameLabel(props.profile)}
         </p>
@@ -59,7 +59,7 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
       when={props.onPress !== undefined}
       fallback={
         <div
-          class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch"
+          class="box flex-row items-center gap-2 py-2 min-w-0 self-stretch"
           {...rowAttrs()}
         >
           <FriendUserRowIdentity profile={props.profile} />
@@ -67,10 +67,10 @@ export function FriendUserRow(props: FriendUserRowProps): JSX.Element {
         </div>
       }
     >
-      <div class="box flex-row items-center gap-2 py-2 min-w-[0] self-stretch">
+      <div class="box flex-row items-center gap-2 py-2 min-w-0 self-stretch">
         {/* The handle marks what a person presses, so a driver's tap lands. */}
         <button
-          class="clickable clickableTint box flex-1 flex-row items-center gap-2 min-w-[0]"
+          class="clickable clickableTint box flex-1 flex-row items-center gap-2 min-w-0"
           type="button"
           onClick={() => props.onPress?.()}
           {...rowAttrs()}

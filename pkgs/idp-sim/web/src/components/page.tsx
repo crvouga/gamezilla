@@ -62,7 +62,7 @@ export function Page(props: {
   const provider = useIdpProvider();
   return (
     <div class="box min-h-dvh bg-background" data-testid={props.testId}>
-      <div class="box mx-auto w-full max-w-[440px] px-4 pt-4 pb-8 sm:pt-10">
+      <div class="box mx-auto w-full max-w-110 px-4 pt-4 pb-8 sm:pt-10">
         <div class="box h-11 flex-row items-center -ml-2">
           <StepBack href={props.backHref} open={props.open} />
         </div>

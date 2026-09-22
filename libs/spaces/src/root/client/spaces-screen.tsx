@@ -63,7 +63,7 @@ function SpacesList(props: {
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
       <ScreenBodyScrollView
-        contentClass="grid items-start gap-3 pb-[24px]"
+        contentClass="grid items-start gap-3 pb-6"
         contentStyle={{ 'grid-template-columns': 'minmax(0, 1fr)' }}
       >
         <For each={orderedIds()}>

@@ -74,7 +74,7 @@ export function ChessPuzzleCelebrationOverlay(
       closeDataSet={{ testid: 'chess-puzzle-summary-close' }}
       dataSet={{ testid: 'chess-puzzle-summary' }}
     >
-      <div class="box gap-4 self-stretch min-w-[0]">
+      <div class="box gap-4 self-stretch min-w-0">
         <ChessPuzzleSummaryCard
           completion={props.completion}
           displayRating={ratingAnim.displayRating()}

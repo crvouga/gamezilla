@@ -41,14 +41,14 @@ export function Notice(props: NoticeProps): JSX.Element {
     <div
       id={props.id}
       role={isError() ? 'alert' : undefined}
-      class="box flex-row items-start gap-2 rounded-[10px] px-3 py-2.5"
+      class="box flex-row items-start gap-2 rounded-control px-3 py-2.5"
       classList={{
         'bg-destructive-surface': isError(),
         'bg-surface-muted': !isError(),
       }}
       {...dataAttrs({ component: 'Notice', ...props.dataSet })}
     >
-      <div class="box h-[18px] justify-center">
+      <div class="box h-4.5 justify-center">
         <Dynamic
           component={icon()}
           size={NOTICE_ICON_SIZE}

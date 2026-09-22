@@ -5,7 +5,7 @@ import type { JSX } from 'solid-js';
 import type { PageView } from './data-table-page-load';
 
 export const DATA_TABLE_SHELL_CLASS =
-  'flex-1 min-h-0 min-w-0 self-stretch bg-surface border border-border rounded-[14px] overflow-hidden';
+  'flex-1 min-h-0 min-w-0 self-stretch bg-surface border border-border rounded-card overflow-hidden';
 
 export function DataTableStatusBody<T>(props: {
   readonly view: PageView<T>;

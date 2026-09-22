@@ -90,7 +90,7 @@ function ActionBarItemsRow(props: {
   };
   return (
     <div
-      class="box flex-row items-center min-w-[0]"
+      class="box flex-row items-center min-w-0"
       style={{ gap: `${(props.bar.resolved().gap / 4) * 4}px` }}
     >
       <ActionBarTextItems actions={props.bar.layout().inlineText} />

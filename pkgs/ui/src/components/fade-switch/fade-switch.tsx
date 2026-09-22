@@ -16,7 +16,7 @@ export type FadeSwitchProps = {
 export function FadeSwitch(props: FadeSwitchProps): JSX.Element {
   return (
     <div
-      class="box flex-1 min-h-[0]"
+      class="box flex-1 min-h-0"
       {...dataAttrs({
         component: 'FadeSwitch',
         'state-key': props.stateKey,

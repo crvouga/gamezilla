@@ -46,7 +46,7 @@ export function DataTableCellContent<T>(props: {
     <Show
       when={props.column.cell}
       fallback={
-        <p class="text line-clamp-1 text-text text-[12px]">
+        <p class="text line-clamp-1 text-text text-xs">
           {String(props.column.getValue?.(props.row) ?? '')}
         </p>
       }

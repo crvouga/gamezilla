@@ -31,7 +31,7 @@ function NestedChromeDemo(): JSX.Element {
   const [view, setView] = createSignal('ui');
   return (
     <>
-      <p class="text textCaption p-[12px] text-text-secondary">
+      <p class="text textCaption p-3 text-text-secondary">
         {'Nested chrome (folder tabs merge into the panel below)'}
       </p>
       <DemoFrame>
@@ -63,7 +63,7 @@ function NestedChromeDemo(): JSX.Element {
           selectedId={view()}
           onSelect={setView}
         />
-        <div class="box p-[16px] min-h-[72px]">
+        <div class="box p-4 min-h-18">
           <p class="text text-text-secondary">{`${app()} / ${section()} / ${view()}`}</p>
         </div>
       </DemoFrame>
@@ -108,7 +108,7 @@ function ClosableOverflowDemo(): JSX.Element {
       : `Table: ${tables()} · Draft: ${draftId()}`;
   return (
     <>
-      <p class="text textCaption p-[12px] pt-[20px] text-text-secondary">
+      <p class="text textCaption p-3 pt-5 text-text-secondary">
         {'Overflow + closable drafts (hover close on inactive)'}
       </p>
       <DemoFrame>
@@ -125,7 +125,7 @@ function ClosableOverflowDemo(): JSX.Element {
           onSelect={setDraftId}
           onAdd={addDraft}
         />
-        <div class="box p-[16px] min-h-[56px]">
+        <div class="box p-4 min-h-14">
           <p class="text textCaption text-text-secondary">{summary()}</p>
         </div>
       </DemoFrame>
@@ -135,7 +135,7 @@ function ClosableOverflowDemo(): JSX.Element {
 
 function DemoFrame(props: { readonly children: JSX.Element }): JSX.Element {
   return (
-    <div class="box border border-solid border-border rounded-[10px] overflow-hidden bg-background">
+    <div class="box border border-solid border-border rounded-control overflow-hidden bg-background">
       {props.children}
     </div>
   );

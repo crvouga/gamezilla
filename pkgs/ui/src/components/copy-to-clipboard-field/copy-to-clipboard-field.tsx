@@ -96,7 +96,7 @@ export function CopyToClipboardField(
         <label class="text textLabel">{local.label}</label>
       </Show>
       <button
-        class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-[10px] bg-surface-muted py-2.5 px-3 text-left"
+        class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-2.5 px-3 text-left"
         data-component="CopyToClipboardTrigger"
         data-copied={String(copied())}
         type="button"
@@ -124,7 +124,7 @@ export function CopyToClipboardField(
           </Show>
         </div>
       </button>
-      <div class="box min-h-[18px]" role="status" aria-live="polite">
+      <div class="box min-h-4.5" role="status" aria-live="polite">
         <Show
           when={copied()}
           fallback={

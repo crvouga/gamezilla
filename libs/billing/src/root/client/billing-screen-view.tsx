@@ -30,7 +30,7 @@ export function BillingScreenView(props: BillingScreenViewProps): JSX.Element {
   const productName = (): string => props.offer.portal.businessProfileHeadline;
   return (
     <div
-      class="box w-full max-w-[640px] gap-6 self-center p-4"
+      class="box w-full max-w-160 gap-6 self-center p-4"
       data-testid={Handles.billingScreen}
     >
       <BillingPlanCard

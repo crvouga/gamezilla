@@ -67,7 +67,7 @@ function EmptyStateIcon(props: {
       }
     >
       <div
-        class="box rounded-[9999px] bg-surface-muted items-center justify-center mb-1"
+        class="box rounded-full bg-surface-muted items-center justify-center mb-1"
         style={{ width: cssPx(FILL_ICON_DISC), height: cssPx(FILL_ICON_DISC) }}
       >
         <Dynamic

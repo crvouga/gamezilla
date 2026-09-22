@@ -40,7 +40,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
       style={{ gap: `${Math.max(1, Math.round(size() * 0.25) / 4) * 4}px` }}
     >
       <h1
-        class="text font-extrabold tracking-[-0.5px]"
+        class="text font-extrabold tracking-logo"
         style={{
           color: fill(),
           'font-size': `${fontSize()}px`,

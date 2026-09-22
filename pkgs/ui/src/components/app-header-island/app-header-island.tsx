@@ -33,7 +33,7 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
     props.item.active ? 'text' : 'textSecondary';
   return (
     <button
-      class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-[9999px]"
+      class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-full"
       classList={{
         'bg-surface': props.item.active,
         'bg-transparent': !props.item.active,
@@ -94,7 +94,7 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
           'min-height': cssPx(contentHeight()),
         }}
       >
-        <div class="box flex-1 min-w-[0] flex-row items-center justify-start">
+        <div class="box flex-1 min-w-0 flex-row items-center justify-start">
           {props.leading}
         </div>
         <Show when={(props.items?.length ?? 0) > 0}>
@@ -102,7 +102,7 @@ export function AppHeaderIsland(props: AppHeaderIslandProps): JSX.Element {
             <HeaderPillGroup items={props.items ?? []} />
           </div>
         </Show>
-        <div class="box flex-1 min-w-[0] max-w-[45%] flex-row items-center justify-end">
+        <div class="box flex-1 min-w-0 max-w-9/20 flex-row items-center justify-end">
           {trailing()}
         </div>
       </div>

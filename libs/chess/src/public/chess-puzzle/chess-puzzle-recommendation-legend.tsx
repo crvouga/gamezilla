@@ -31,7 +31,7 @@ export function ChessPuzzleRecommendationLegend(props: {
           {(entry) => (
             <div class="box flex-row items-center gap-1 shrink-0">
               <div
-                class="box w-[10px] h-[10px] rounded-[5px]"
+                class="box w-2.5 h-2.5 rounded-full"
                 style={{ 'background-color': props.colorFor(entry.by) }}
               />
               <UserUsername

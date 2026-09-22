@@ -182,7 +182,7 @@ describe('BottomActionBar', () => {
 
     const hintBtn = screen.getByRole('button', { name: 'Hint' });
     expect(hintBtn).toHaveAttribute('aria-pressed', 'true');
-    expect(hintBtn.className).toMatch(/min-h-\[44px\]/);
+    expect(hintBtn.className).toMatch(/min-h-11/);
     fireEvent.click(hintBtn);
     expect(hint).toHaveBeenCalledTimes(1);
 

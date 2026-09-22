@@ -75,7 +75,7 @@ export function SqlNotebookPane(props: {
   };
 
   return (
-    <div class="box flex-1 min-h-[0]">
+    <div class="box flex-1 min-h-0">
       <Switch>
         <Match when={state().status === 'loading'}>
           <div class="box bg-background" style={fillSx}>
@@ -158,7 +158,7 @@ function ReadyNotebook(props: {
 
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] bg-background"
+      class="box flex-1 min-h-0 min-w-0 bg-background"
       data-component="SqlNotebookPane"
     >
       <SqlNotebookToolbar dialect={props.dialect} {...actions.toolbar} />
@@ -262,7 +262,7 @@ function NotebookCells(props: {
   const cellIds = createMemo(() => props.doc().cells.map((c) => c.id));
   return (
     <ScrollView
-      class="flex-1 min-h-[0] bg-background"
+      class="flex-1 min-h-0 bg-background"
       contentClass="gap-2 p-[2px]"
     >
       <For each={cellIds()}>

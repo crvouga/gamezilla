@@ -10,7 +10,7 @@ export default function EmptyStateExample(): JSX.Element {
     <ExampleRoot>
       <label class="text textLabel text-text-secondary">{'Fill'}</label>
       <SchemePreview>
-        <div class="box h-[280px]">
+        <div class="box h-70">
           <EmptyState
             icon={HouseIcon}
             title="No live spaces"

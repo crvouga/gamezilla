@@ -21,7 +21,7 @@ function ReviewBoardSurface(props: {
   const swipe = puzzleSwipeHandlers(model.onNavigate);
   return (
     <div
-      class="box self-stretch flex-1 min-h-[0] min-w-[0]"
+      class="box self-stretch flex-1 min-h-0 min-w-0"
       onPointerDown={swipe.onPointerDown}
       onPointerUp={swipe.onPointerUp}
       onPointerCancel={swipe.onPointerCancel}
@@ -72,7 +72,7 @@ export function ChessPuzzleReviewBoard(props: {
 
   return (
     <div
-      class="box self-stretch gap-2 min-w-[0]"
+      class="box self-stretch gap-2 min-w-0"
       style={{ height: 'min(70vh, 480px)' }}
     >
       <ReviewBoardSurface model={model} />

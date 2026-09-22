@@ -160,7 +160,7 @@ function MenuRowBody(
 }
 
 function rowClass(selected: boolean): string {
-  return selected ? 'rounded-[10px] bg-tint-subtle' : 'rounded-[10px]';
+  return selected ? 'rounded-control bg-tint-subtle' : 'rounded-control';
 }
 
 type MenuRowHost = 'static' | 'action' | 'link' | 'submit';

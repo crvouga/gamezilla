@@ -22,7 +22,7 @@ export function CommandPaletteSection(
       id={props.id}
       role="presentation"
     >
-      <label class="text textLabel text-text-secondary tracking-[0.5px]">
+      <label class="text textLabel text-text-secondary tracking-section">
         {props.title}
       </label>
     </div>

@@ -98,7 +98,7 @@ export default function DataTableExample(): JSX.Element {
         {'Loader-driven table (120 rows, multi-select, quiet row actions)'}
       </label>
       <p class="text textCaption opacity-75">{summary()}</p>
-      <div class="card h-[360px] overflow-hidden p-0">
+      <div class="card h-90 overflow-hidden p-0">
         <DataTable<DemoRow>
           columns={columns}
           loadPage={loadPage}

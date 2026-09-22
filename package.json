@@ -84,6 +84,7 @@
     "@lingui/conf": "catalog:",
     "@lingui/format-po": "catalog:",
     "@lingui/solid": "catalog:",
+    "@shadcn/lint": "^0.1.5",
     "@total-typescript/ts-reset": "catalog:",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",

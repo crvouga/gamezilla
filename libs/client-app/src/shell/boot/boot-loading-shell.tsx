@@ -12,7 +12,7 @@ export function BootLoadingShell(): JSX.Element {
   const { t } = useLingui();
   return (
     <div
-      class="box flex-1 min-h-[0] items-center justify-center bg-background"
+      class="box flex-1 min-h-0 items-center justify-center bg-background"
       data-component="BootLoadingShell"
     >
       <LoadingState size="large" caption={t`Starting…`} />

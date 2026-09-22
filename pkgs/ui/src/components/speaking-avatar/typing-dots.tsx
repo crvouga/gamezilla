@@ -39,7 +39,7 @@ export function TypingDots(props: TypingDotsProps): JSX.Element {
       <For each={DOT_CLASSES}>
         {(dotClass) => (
           <div
-            class="box rounded-[9999px]"
+            class="box rounded-full"
             classList={{
               [String(styles['dot'])]: true,
               [String(dotClass)]: true,

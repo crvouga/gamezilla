@@ -11,7 +11,7 @@ export default function SuccessStateExample(): JSX.Element {
         {'Fill (post-step confirmation)'}
       </label>
       <SchemePreview>
-        <div class="box h-[280px]">
+        <div class="box h-70">
           <SuccessState
             title="Profile updated"
             body="Your changes will be visible to teammates after the next sync."

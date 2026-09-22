@@ -21,7 +21,7 @@ export function SqlCellResults(props: {
       when={props.error() == null}
       fallback={
         <div class="box px-2 py-1">
-          <p class="text text-destructive text-[12px]">{props.error()}</p>
+          <p class="text text-destructive text-xs">{props.error()}</p>
         </div>
       }
     >
@@ -103,7 +103,7 @@ function StatementResult(props: {
   if (result.kind === 'changes') {
     return (
       <div class="box px-2 py-1">
-        <p class="text text-[12px] text-success">{`#${index + 1} · ${result.changes} change${result.changes === 1 ? '' : 's'}`}</p>
+        <p class="text text-xs text-success">{`#${index + 1} · ${result.changes} change${result.changes === 1 ? '' : 's'}`}</p>
       </div>
     );
   }
@@ -119,13 +119,13 @@ function RowsResult(props: {
   const loadPage = createMemo(() => createMemoryPageLoader(() => result.rows));
   const note = result.truncated ? ` (truncated at ${result.rows.length})` : '';
   return (
-    <div class="box gap-0.5 min-h-[0]">
+    <div class="box gap-0.5 min-h-0">
       <p class="text px-2 text-[11px] text-text-secondary">{`#${index + 1} · ${result.rows.length} row${result.rows.length === 1 ? '' : 's'}${note}`}</p>
       {result.columns.length === 0 ? (
-        <p class="text px-2 py-1 text-[12px] text-text-secondary">{'0 rows'}</p>
+        <p class="text px-2 py-1 text-xs text-text-secondary">{'0 rows'}</p>
       ) : (
         <DataTable
-          class="border-0 rounded-none max-h-[240px]"
+          class="border-0 rounded-none max-h-60"
           columns={columns()}
           loadPage={loadPage()}
           getRowId={(_row, i) => `${index}-${i}`}

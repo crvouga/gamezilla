@@ -11,7 +11,7 @@ export default function LoadingStateExample(): JSX.Element {
         {'Fill (default)'}
       </label>
       <SchemePreview>
-        <div class="box h-[240px]">
+        <div class="box h-60">
           <LoadingState size="large" />
         </div>
       </SchemePreview>
@@ -20,7 +20,7 @@ export default function LoadingStateExample(): JSX.Element {
 
       <label class="text textLabel text-text-secondary">{'With caption'}</label>
       <SchemePreview>
-        <div class="box h-[240px]">
+        <div class="box h-60">
           <LoadingState caption="Loading workspace…" />
         </div>
       </SchemePreview>

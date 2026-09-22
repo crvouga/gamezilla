@@ -65,9 +65,9 @@ export function ChessGameLogRow(props: ChessGameLogRowProps): JSX.Element {
       onClick={props.onClick}
       role="button"
     >
-      <div class="box flex-row items-center gap-2 p-3 rounded-[8px] bg-surface-muted">
+      <div class="box flex-row items-center gap-2 p-3 rounded-lg bg-surface-muted">
         <Icon size={18} color={solved ? 'success' : 'destructive'} />
-        <div class="box flex-1 min-w-[0] gap-1">
+        <div class="box flex-1 min-w-0 gap-1">
           <p
             class="text textBodyBold line-clamp-1 text-text"
             data-testid={`chess-game-log-row-${props.entry.puzzleId}-title`}

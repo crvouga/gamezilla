@@ -152,13 +152,13 @@ function Sheet(props: {
   );
   return (
     <div
-      class="absolute inset-0 z-[2147483000] flex flex-col bg-[Canvas] text-[CanvasText] [color-scheme:light_dark]"
+      class="absolute inset-0 z-sim-browser flex flex-col bg-system-canvas text-system-text color-scheme-system"
       data-testid={SIM_BROWSER_TEST_IDS.sheet}
     >
-      <div class="flex h-11 shrink-0 items-center gap-2 border-[CanvasText]/10 border-b bg-[Canvas] px-2">
+      <div class="flex h-11 shrink-0 items-center gap-2 border-system-text/10 border-b bg-system-canvas px-2">
         <button
           aria-label="Close"
-          class="flex size-8 items-center justify-center rounded-full text-lg leading-none hover:bg-[CanvasText]/10"
+          class="flex size-8 items-center justify-center rounded-full text-lg leading-none hover:bg-system-text/10"
           data-testid={SIM_BROWSER_TEST_IDS.close}
           onClick={() => props.browser.close()}
           type="button"
@@ -166,7 +166,7 @@ function Sheet(props: {
           ×
         </button>
         <span
-          class="min-w-0 flex-1 truncate rounded-full bg-[CanvasText]/5 px-3 py-1 text-center text-xs opacity-70"
+          class="min-w-0 flex-1 truncate rounded-full bg-system-text/5 px-3 py-1 text-center text-xs opacity-70"
           data-testid={SIM_BROWSER_TEST_IDS.address}
         >
           {host()}
