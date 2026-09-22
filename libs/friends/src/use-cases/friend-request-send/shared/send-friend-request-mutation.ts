@@ -7,12 +7,12 @@ import {
   MutationError,
 } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
+import { friendsActor } from '../../../shared/friendship/friends-actor';
 import {
   FRIEND_REQUEST_RESEND_COOLDOWN_MS,
   FRIENDS_ALREADY_FRIENDS,
   FRIENDS_BLOCKED,
   FRIENDS_COOLDOWN,
-  FRIENDS_NOT_SIGNED_IN,
   FRIENDS_REQUEST_EXISTS,
   FRIENDS_SELF,
 } from '../../../shared/friendship/friends-mutation-codes';
@@ -27,18 +27,13 @@ type FriendRequestRow = {
   readonly responded_at: string | null;
 };
 
-function actorId(env: MutationEnv): string {
-  if (env.accountId === null || env.isAnon) {
-    throw new MutationError(
-      FRIENDS_NOT_SIGNED_IN,
-      'Sign in to manage friends.'
-    );
-  }
-  return env.actorId;
-}
-
-function otherUserId(env: MutationEnv, userId: string, action: string): string {
-  const currentActorId = actorId(env);
+async function otherUserId(
+  tx: MutationDb,
+  env: MutationEnv,
+  userId: string,
+  action: string
+): Promise<string> {
+  const currentActorId = await friendsActor(tx, env);
   if (currentActorId === userId) {
     throw new MutationError(FRIENDS_SELF, `Cannot ${action} yourself.`);
   }
@@ -143,7 +138,12 @@ export const sendFriendRequestMutation = defineMutation({
     message: z.string().nullable().optional(),
   }),
   async run({ tx, env }, { requestId, toUserId, message }) {
-    const fromUserId = otherUserId(env, toUserId, 'send a friend request to');
+    const fromUserId = await otherUserId(
+      tx,
+      env,
+      toUserId,
+      'send a friend request to'
+    );
     const nowDate = env.now();
     if (!(await validateSendFriendRequest(tx, fromUserId, toUserId, nowDate))) {
       return;

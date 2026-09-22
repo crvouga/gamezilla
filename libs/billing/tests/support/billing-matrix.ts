@@ -1,6 +1,5 @@
 /** The billing screen's input space, shared by the view-model and DOM tests. */
 import type {
-  BillingTier,
   BillingViewInput,
   MembershipRow,
 } from '@libs/billing/root/client/billing-view-model';
@@ -10,7 +9,15 @@ export const DAY = 86_400_000;
 export const PERIOD_END = new Date(NOW + 10 * DAY).toISOString();
 export const PAST_END = new Date(NOW - 3 * DAY).toISOString();
 
-export const TIERS: readonly BillingTier[] = ['guest', 'free', 'paid'];
+/**
+ * Who is looking, as the permission system's decisions describe them: a
+ * caller denied billing with a sign-in unlock, or an account. The screen
+ * never sees which one it is — only the decisions below.
+ */
+export type Caller = 'guest' | 'account';
+export const CALLERS: readonly Caller[] = ['guest', 'account'];
+
+export const UNLOCK_LABEL = 'Sign in';
 
 /** Every membership row the screen distinguishes, by name. */
 export const ROW_KINDS = {
@@ -25,6 +32,14 @@ export const ROW_KINDS = {
 
 export type RowKind = keyof typeof ROW_KINDS;
 
+/** Rows that make an account a member at `NOW` with no grace. */
+export const MEMBER_KINDS: ReadonlySet<RowKind> = new Set<RowKind>([
+  'trialing',
+  'active',
+  'canceling',
+  'delinquent',
+]);
+
 export function row(
   status: string,
   cancel = false,
@@ -38,20 +53,26 @@ export function row(
   };
 }
 
-/** The shipped policy: free may subscribe, any account may manage. */
+/**
+ * The shipped policy's decisions: a guest is denied subscribe with a sign-in
+ * unlock and may not manage; an account may manage, and subscribe while not
+ * a member; billing off denies view and subscribe to everyone.
+ */
 export function inputFor(
-  tier: BillingTier,
+  caller: Caller,
   kind: RowKind,
   billingEnabled: boolean,
   hasCustomer: boolean
 ): BillingViewInput {
+  const account = caller === 'account';
   return {
-    tier,
-    billingEnabled,
-    canSubscribe: tier === 'free',
-    canManage: tier !== 'guest',
+    canView: billingEnabled,
+    canSubscribe: billingEnabled && account && !MEMBER_KINDS.has(kind),
+    canManage: account,
+    subscribeUnlockLabel: account ? null : UNLOCK_LABEL,
     hasCustomer,
     row: ROW_KINDS[kind],
     nowMs: NOW,
+    graceMs: 0,
   };
 }

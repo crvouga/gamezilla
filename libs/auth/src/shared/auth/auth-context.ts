@@ -73,6 +73,61 @@ export function appAuth(
   };
 }
 
+/**
+ * The actor identity the sync engine carries into query / mutation envs.
+ * Built here so the anonymous flag travels from session to the permission
+ * system without any caller in between reading it.
+ */
+export type SyncActor = {
+  readonly actorId: string;
+  readonly deviceId: string;
+  readonly accountId: string | null;
+  readonly isAnon: boolean;
+};
+
+export function syncActorOf(auth: AppAuth): SyncActor {
+  return {
+    actorId: auth.myId,
+    deviceId: auth.deviceId,
+    accountId: auth.accountId,
+    isAnon: auth.isAnon,
+  };
+}
+
+/**
+ * The actor for a server-initiated action taken on an account's behalf (an
+ * inbox card's button): the account itself, on the device that tapped it.
+ */
+export function accountSyncActor(args: {
+  readonly accountId: string;
+  readonly deviceId: string;
+}): SyncActor {
+  return {
+    actorId: args.accountId,
+    deviceId: args.deviceId,
+    accountId: args.accountId,
+    isAnon: false,
+  };
+}
+
+/**
+ * The local device's actor for optimistic applies: the bound account, else
+ * the install's `users.id`; anonymous until a session token is held.
+ */
+export function localSyncActor(args: {
+  readonly accountId: string | null;
+  readonly deviceId: string;
+  readonly userId: string;
+  readonly sessionToken: string | null;
+}): SyncActor {
+  return {
+    actorId: args.accountId ?? args.userId,
+    deviceId: args.deviceId,
+    accountId: args.accountId,
+    isAnon: args.sessionToken === null,
+  };
+}
+
 export type BuildAppAuthContextArgs = {
   readonly deviceId: string;
   readonly accountId: string | null;

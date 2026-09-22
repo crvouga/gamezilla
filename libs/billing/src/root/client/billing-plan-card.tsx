@@ -12,7 +12,7 @@ import {
   type BadgeIntent,
   Button,
   CreditCardIcon,
-  LogInIcon,
+  KeyRoundIcon,
   Notice,
   useMutationButton,
 } from '@pkgs/ui';
@@ -23,7 +23,8 @@ import type { BillingTier, BillingView } from './billing-view-model';
 export type BillingActions = {
   readonly subscribe: () => Promise<void>;
   readonly manage: () => Promise<void>;
-  readonly signIn: () => void;
+  /** Runs the subscribe denial's unlock (the permission system's CTA). */
+  readonly unlock: () => void;
 };
 
 type PlanCardProps = {
@@ -35,14 +36,13 @@ type PlanCardProps = {
 };
 
 const TIER_INTENT: Record<BillingTier, BadgeIntent> = {
-  guest: 'neutral',
   free: 'info',
   paid: 'brand',
 };
 
 /**
- * The tier as a chip. Its text is the tier id itself (`guest` / `free` /
- * `paid`, capitalized by CSS) — the value sims and tests read back.
+ * The tier as a chip. Its text is the tier id itself (`free` / `paid`,
+ * capitalized by CSS) — the value sims and tests read back.
  */
 function TierChip(props: { readonly tier: BillingTier }): JSX.Element {
   return (
@@ -64,9 +64,6 @@ function PlanTitle(props: {
       <Match when={props.tier === 'paid'}>{props.productName}</Match>
       <Match when={props.tier === 'free'}>
         <Trans>Free plan</Trans>
-      </Match>
-      <Match when={props.tier === 'guest'}>
-        <Trans>Playing as a guest</Trans>
       </Match>
     </Switch>
   );
@@ -108,9 +105,6 @@ function StatusLine(props: {
         </Match>
         <Match when={props.view.state === 'incomplete'}>
           <Trans>Finishing checkout…</Trans>
-        </Match>
-        <Match when={props.view.tier === 'guest'}>
-          <Trans>Sign in to subscribe and keep your progress.</Trans>
         </Match>
         <Match when={props.view.state === 'none'}>
           <Trans>No membership yet.</Trans>
@@ -192,14 +186,16 @@ function PlanActions(props: {
           dataSet={{ testid: Handles.billingSubscribe }}
         />
       </Show>
-      <Show when={props.view.primary === 'sign_in'}>
-        <Button
-          title={t`Sign in to subscribe`}
-          icon={LogInIcon}
-          fullWidth
-          onClick={() => props.actions.signIn()}
-          dataSet={{ testid: Handles.billingSignIn }}
-        />
+      <Show when={props.view.primary === 'unlock' && props.view.unlockLabel}>
+        {(label) => (
+          <Button
+            title={label()}
+            icon={KeyRoundIcon}
+            fullWidth
+            onClick={() => props.actions.unlock()}
+            dataSet={{ testid: Handles.billingUnlock }}
+          />
+        )}
       </Show>
       <Show when={props.view.manage}>
         <Button

@@ -23,10 +23,10 @@ describe('friends gates', () => {
   test('a guest is asked to sign in, on search and on the friends list', async () => {
     await using s = await openSim('gates-guest');
     await s.apply(searchUsername, 'alice', 'bob');
-    expect(
-      await s.read(handleVisible, 'alice', Handles.searchSignInPrompt)
-    ).toBe(true);
-    await s.apply(tapFriendPill, 'alice', action(Handles.searchSignInPrompt));
+    expect(await s.read(handleVisible, 'alice', Handles.searchDenied)).toBe(
+      true
+    );
+    await s.apply(tapFriendPill, 'alice', action(Handles.searchDenied));
     expect(await s.read(handleVisible, 'alice', Handles.authMethodGoogle)).toBe(
       true
     );

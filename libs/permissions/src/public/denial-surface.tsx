@@ -1,41 +1,39 @@
 import { useClock } from '@pkgs/clock/solid';
 import type { Decision } from '@pkgs/permissions';
-import { ClockIcon, EmptyState, KeyRoundIcon, useRouter } from '@pkgs/ui';
+import {
+  ClockIcon,
+  EmptyState,
+  type IconComponent,
+  KeyRoundIcon,
+} from '@pkgs/ui';
 import { createMemo, type JSX } from 'solid-js';
 
 import {
   denialReasonTitle,
   resetsInLabel,
   unlockCopy,
-  unlockCtaLabel,
-  unlockCtaRoute,
-} from './unlock-copy';
+} from '../use-cases/decide-access/client/unlock-copy';
+import { useUnlock } from './unlock';
 import { usePermissions } from './use-permissions';
 
 export type DenialSurfaceProps = {
   readonly decision: Decision;
-  /** Override CTA handling; default navigates to the target's route. */
-  readonly onCta?: (target: string) => void;
-  /** `data-testid` for E2E / sim handles. */
+  /** The surface's glyph; defaults to a clock (quota) or a key. */
+  readonly icon?: IconComponent | undefined;
+  readonly variant?: 'fill' | 'compact' | undefined;
+  /** `data-testid` for E2E / sim handles; the CTA is `<testId>-action`. */
   readonly testId?: string;
 };
 
 /**
  * The one denial / unlock surface (§22.5): renders a `Decision` by resolving
- * its `unlockRef` to config copy and CTA. The only place upsell copy renders.
+ * its `unlockRef` to config copy and CTA. The only place upsell or sign-in
+ * copy renders, so a denied feature shows this and nothing of its own.
  */
 export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
   const permissions = usePermissions();
+  const unlock = useUnlock();
   const clock = useClock();
-  const router = useRouter();
-  const openCta = (target: string): void => {
-    if (props.onCta !== undefined) {
-      props.onCta(target);
-      return;
-    }
-    const route = unlockCtaRoute(target);
-    if (route !== undefined) router.push(route);
-  };
   const entry = createMemo(() => permissions.unlock(props.decision));
   const body = createMemo(() => {
     const copy = unlockCopy(entry()?.bodyKey);
@@ -46,21 +44,22 @@ export function DenialSurface(props: DenialSurfaceProps): JSX.Element {
       : resetsInLabel(resetsAt, clock.now());
   });
   const action = createMemo(() => {
-    const label = unlockCtaLabel(entry()?.ctaTarget);
+    const label = unlock.label(props.decision);
     if (label === undefined) return undefined;
     return {
       label: <>{label}</>,
-      onClick: () => {
-        const target = entry()?.ctaTarget;
-        if (target !== undefined) openCta(target);
-      },
+      onClick: () => unlock.run(props.decision),
     };
   });
+  const icon = createMemo(
+    () =>
+      props.icon ??
+      (props.decision.reason === 'quota_exhausted' ? ClockIcon : KeyRoundIcon)
+  );
   return (
     <EmptyState
-      icon={
-        props.decision.reason === 'quota_exhausted' ? ClockIcon : KeyRoundIcon
-      }
+      variant={props.variant}
+      icon={icon()}
       title={
         <>
           {unlockCopy(entry()?.titleKey) ??

@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { MUTATION_ACTIONS } from '@libs/permissions/public/mutation-actions';
 import {
   ACTION,
   PERMISSION,
 } from '@libs/permissions/public/permission-catalog';
+import { MUTATION_ACTIONS } from '@libs/permissions/root/mutation-actions';
 import { APP } from '@libs/runtime/root/app-features';
 
 const KNOWN_KEYS = new Set<string>([

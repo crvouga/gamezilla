@@ -26,4 +26,15 @@ describe('§22.11 no tier coupling outside policy/ and billing/', () => {
       expect(biome).toContain(`"!**/${path}/**"`);
     }
   });
+
+  test('sign-in state and access internals have their own rules', () => {
+    const biome = readFileSync(join(REPO_ROOT, 'biome.json'), 'utf8');
+    for (const plugin of [
+      'import-access-facts.grit',
+      'import-access-model.grit',
+      'no-access-state-vocabulary.grit',
+    ]) {
+      expect(biome).toContain(`./libs/tools/biome-plugins/${plugin}`);
+    }
+  });
 });

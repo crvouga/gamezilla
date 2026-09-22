@@ -10,17 +10,27 @@ const COPY: Readonly<Record<string, () => string>> = {
   'unlock.rated.limit.title': () => t`You've hit today's puzzle limit`,
   'unlock.rated.limit.body': () =>
     t`Upgrade for unlimited puzzles, or come back tomorrow.`,
+  'unlock.account.title': () => t`Sign in to continue`,
+  'unlock.friends.title': () => t`Sign in to add friends`,
+  'unlock.friends.body': () =>
+    t`Friends let you find each other and jump into shared spaces.`,
+  'unlock.people-search.title': () => t`Sign in to search for people`,
+  'unlock.people-search.body': () =>
+    t`Find friends by username and send requests.`,
+  'unlock.notifications.title': () => t`Sign in to see notifications`,
+  'unlock.notifications.body': () =>
+    t`Friend requests and space invites will land here.`,
+  'unlock.billing-subscribe.title': () => t`Sign in to subscribe`,
 };
 
 const CTA: Readonly<Record<string, () => string>> = {
   billing: () => t`See plans`,
-  signup: () => t`Create an account`,
+  signup: () => t`Sign in`,
 };
 
-/** Where a config `ctaTarget` navigates (app routes). */
+/** Where a config `ctaTarget` navigates (app routes); `signup` opens sign-in. */
 const CTA_ROUTE: Readonly<Record<string, string>> = {
   billing: '/more/billing',
-  signup: '/more/account',
 };
 
 export function unlockCtaRoute(target: string): string | undefined {

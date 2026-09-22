@@ -1,16 +1,15 @@
-import { appAuth } from '@libs/auth/public/auth-context';
+import {
+  appAuth,
+  type SyncActor,
+  syncActorOf,
+} from '@libs/auth/public/auth-context';
 import { assert } from '@pkgs/assert';
 import { isAuthErrorBody } from '@pkgs/sync-engine/server';
 import type { AuthErrorBody } from '@pkgs/sync-engine/shared';
 
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 
-export type SessionReplayAuth = {
-  readonly actorId: string;
-  readonly deviceId: string;
-  readonly accountId: string | null;
-  readonly isAnon: boolean;
-};
+export type SessionReplayAuth = SyncActor;
 
 export { isAuthErrorBody };
 
@@ -32,12 +31,7 @@ export async function resolveSessionReplayAuth(
     if (auth === null || auth.deviceId === '' || auth.myId.length === 0) {
       return { error: 'auth', reason: 'expired' };
     }
-    return {
-      actorId: auth.myId,
-      deviceId: auth.deviceId,
-      accountId: auth.accountId,
-      isAnon: auth.isAnon,
-    };
+    return syncActorOf(auth);
   } catch {
     return { error: 'auth', reason: 'expired' };
   }

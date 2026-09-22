@@ -50,11 +50,14 @@ export async function billingTier(
 export async function billingButtonVisible(
   s: ProductSim,
   actorId: string,
-  which: 'subscribe' | 'manage'
+  which: 'subscribe' | 'manage' | 'unlock'
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
-  const handle =
-    which === 'subscribe' ? Handles.billingSubscribe : Handles.billingManage;
+  const handle = {
+    subscribe: Handles.billingSubscribe,
+    manage: Handles.billingManage,
+    unlock: Handles.billingUnlock,
+  }[which];
   return await ui.get(handle).isVisible();
 }
 

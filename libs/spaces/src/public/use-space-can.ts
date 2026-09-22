@@ -1,30 +1,22 @@
 import type { AppPermission } from '@libs/permissions/public/permission-catalog';
-import { resolveSpaceRoles } from '@libs/permissions/public/space-roles';
-import { usePermissionPolicy } from '@libs/permissions/public/use-permission-policy';
-import { usePermissionSubject } from '@libs/permissions/public/use-permission-subject';
-import { can, withRoles } from '@pkgs/permissions';
-import { type Accessor, createMemo } from 'solid-js';
+import { useCan } from '@libs/permissions/public/use-can';
+import type { Accessor } from 'solid-js';
 
 import { useSpacePresence } from './use-space-presence';
 
 /**
- * Whether the caller holds `permission` in `spaceId`: the app-wide subject plus
- * the caller's presence role in that space.
+ * Whether the caller may `permission` in `spaceId`: the permission system's
+ * decision with the caller's presence in that space as scope.
  */
 export function useSpaceCan(
   spaceId: string | Accessor<string>,
   permission: AppPermission
 ): Accessor<boolean> {
-  const policy = usePermissionPolicy();
-  const subject = usePermissionSubject();
   const presence = useSpacePresence(spaceId);
-  return createMemo(() => {
+  return useCan(permission, () => {
     const current = presence();
-    const role = current.status === 'active' ? current.role : null;
-    return can(
-      policy(),
-      withRoles(subject(), resolveSpaceRoles(role)),
-      permission
-    ).allowed;
+    return {
+      spacePresence: current.status === 'active' ? current.role : null,
+    };
   });
 }

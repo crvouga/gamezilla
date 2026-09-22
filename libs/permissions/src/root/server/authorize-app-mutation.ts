@@ -1,14 +1,10 @@
-import { decide, policyAt, resolveSubject } from '@pkgs/permissions';
 import {
   type MutationAuthorize,
   MutationError,
 } from '@pkgs/sync-engine/shared';
 
+import { decideForActor } from '../../shared/decide-for-actor';
 import { MUTATION_ACTIONS } from '../../shared/mutation-actions';
-import {
-  readAccessFacts,
-  readPermissionPolicy,
-} from '../../shared/read-access';
 import {
   applyConsume,
   consumeQuotaArgs,
@@ -71,9 +67,12 @@ export const authorizeAppMutation: MutationAuthorize = async ({
     await consumeWithServerClock({ name, args, tx, env, nowMs, clientAtMs });
     return;
   }
-  const policy = policyAt(await readPermissionPolicy(tx), clientAtMs);
-  const subject = resolveSubject(policy, await readAccessFacts(tx, env, nowMs));
-  const decision = decide(policy, subject, declared);
+  const decision = await decideForActor(tx, {
+    identity: env,
+    key: declared,
+    nowMs,
+    clientAtMs,
+  });
   if (!decision.allowed) {
     throw new MutationError(
       decision.reason ?? 'not_granted',

@@ -203,6 +203,58 @@ const PROBES: readonly Probe[] = [
       "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle';",
     message: null,
   },
+  {
+    path: 'libs/zz/src/root/client/gate.tsx',
+    source: "import { useIsSignedIn } from '@libs/auth/public/access-facts';",
+    message: 'Only @libs/permissions reads sign-in state',
+  },
+  {
+    path: 'libs/permissions/src/use-cases/decide/client/facts.ts',
+    source: "import { useIsSignedIn } from '@libs/auth/public/access-facts';",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/root/client/plan.ts',
+    source: "import { ROLE } from '@libs/permissions/root/access-model';",
+    message: 'Roles, plans and access facts are private to @libs/permissions',
+  },
+  {
+    path: 'libs/zz/tests/plan.test.ts',
+    source: "import { ROLE } from '@libs/permissions/root/access-model';",
+    message: null,
+  },
+  {
+    path: 'libs/server-app/src/app/create-server.ts',
+    source:
+      "import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';",
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/use-cases/act/shared/act-mutation.ts',
+    source: 'export const guest = (env: { isAnon: boolean }) => env.isAnon;',
+    message: 'Sign-in state and membership are read only by auth, billing',
+  },
+  {
+    path: 'libs/zz/src/root/client/banner.tsx',
+    source: 'export const show = (signedIn: boolean) => !signedIn;',
+    message: 'Sign-in state and membership are read only by auth, billing',
+  },
+  {
+    path: 'libs/zz/src/root/client/member-query.ts',
+    source:
+      'export const q = `\n  SELECT status\n  FROM billing_subscriptions\n`;',
+    message: 'Sign-in state and membership are read only by auth, billing',
+  },
+  {
+    path: 'libs/auth/src/root/client/session.ts',
+    source: 'export const guest = (env: { isAnon: boolean }) => env.isAnon;',
+    message: null,
+  },
+  {
+    path: 'libs/zz/src/root/client/actor.ts',
+    source: 'export const who = (env: { actorId: string }) => env.actorId;',
+    message: null,
+  },
 ];
 
 type Diagnostic = {

@@ -1,14 +1,13 @@
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
-import { useCan } from '@libs/permissions/public/use-can';
+import { useCan, useDecision } from '@libs/permissions/public/use-can';
 import { Handles } from '@libs/test-ids';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock/solid';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 import { createQuery, useSyncEngineInstance } from '@pkgs/sync-engine/solid';
-import { EmptyState, UsersIcon } from '@pkgs/ui';
+import { UsersIcon } from '@pkgs/ui';
 import {
   type Accessor,
   createEffect,
@@ -149,18 +148,15 @@ export function useDebouncedUserSearchEffect(
   };
 }
 
-export function UserSearchSignInPrompt(): JSX.Element {
-  const { open: openSignInModal } = useSignInModal();
-  const { t } = useLingui();
-
+/** What a caller who may not search people sees instead of results. */
+export function UserSearchDenied(): JSX.Element {
+  const decision = useDecision(PERMISSION.peopleSearch);
   return (
-    <EmptyState
-      variant="compact"
+    <DenialSurface
+      decision={decision()}
       icon={UsersIcon}
-      title={<Trans>Sign in to search for people</Trans>}
-      body={<Trans>Find friends by username and send requests.</Trans>}
-      action={{ label: t`Sign in`, onClick: openSignInModal }}
-      dataSet={{ testid: Handles.searchSignInPrompt }}
+      variant="compact"
+      testId={Handles.searchDenied}
     />
   );
 }

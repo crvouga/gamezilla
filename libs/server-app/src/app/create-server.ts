@@ -7,7 +7,7 @@ import type { ObservabilityBackendName } from '@libs/client-config/public/client
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
 import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/public/permission-policy';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions/root/access-model';
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import { assert, ForbiddenError, ValidationError } from '@pkgs/assert';

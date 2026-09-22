@@ -1,16 +1,18 @@
 /** @jsxImportSource solid-js */
 /**
- * `/more/billing` — the membership screen. Reads everything locally (plan
- * role, the synced membership row, the billing switch) so it renders offline,
- * and opens the provider's hosted checkout or portal for anything that
- * changes money.
+ * `/more/billing` — the membership screen. Reads everything locally (the
+ * synced membership row, the permission system's decisions) so it renders
+ * offline, and opens the provider's hosted checkout or portal for anything
+ * that changes money. What a denied subscribe unlocks is the permission
+ * system's to say.
  */
 
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
 import { useCurrentUser } from '@libs/auth/public/use-current-user';
 import { useClientConfig } from '@libs/client-config/public/use-client-config';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
-import { useCan } from '@libs/permissions/public/use-can';
+import { useUnlock } from '@libs/permissions/public/unlock';
+import { useCan, useDecision } from '@libs/permissions/public/use-can';
+import type { Decision } from '@libs/permissions/public/use-permissions';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans } from '@lingui/solid/macro';
 import { useClock } from '@pkgs/clock/solid';
@@ -22,36 +24,37 @@ import { useMyMembershipRow } from '../../use-cases/load-my-subscription/client/
 import { useManageSubscription } from '../../use-cases/open-portal-session/client/use-manage-subscription';
 import { BillingScreenView } from './billing-screen-view';
 import { type BillingView, buildBillingView } from './billing-view-model';
-import { useBillingTier } from './use-billing-tier';
 import { useSubscribe } from './use-subscribe';
 
-function useBillingView(): Accessor<BillingView> {
-  const tier = useBillingTier();
+function useBillingView(subscribe: Accessor<Decision>): Accessor<BillingView> {
   const row = useMyMembershipRow();
   const currentUser = useCurrentUser();
   const { config } = useClientConfig();
   const clock = useClock();
-  const canSubscribe = useCan(PERMISSION.billingSubscribe);
+  const unlock = useUnlock();
+  const canView = useCan(PERMISSION.billingView);
   const canManage = useCan(PERMISSION.billingManage);
   return createMemo(() =>
     buildBillingView({
-      tier: tier(),
-      billingEnabled: config().billing_enabled,
-      canSubscribe: canSubscribe(),
+      canView: canView(),
+      canSubscribe: subscribe().allowed,
       canManage: canManage(),
+      subscribeUnlockLabel: unlock.label(subscribe()) ?? null,
       hasCustomer: currentUser.billingCustomerId !== null,
       row: row(),
       nowMs: clock.now(),
+      graceMs: config().billing_grace_period_ms,
     })
   );
 }
 
 export function BillingScreen(): JSX.Element {
-  const view = useBillingView();
+  const subscribeDecision = useDecision(PERMISSION.billingSubscribe);
+  const view = useBillingView(subscribeDecision);
   const { i18n } = useLinguiRuntime();
   const subscribe = useSubscribe();
   const manage = useManageSubscription();
-  const signIn = useSignInModal();
+  const unlock = useUnlock();
   const openExternalUrl = useOpenExternalUrl();
   const formatDate = (ms: number): string =>
     new Intl.DateTimeFormat(i18n().locale, {
@@ -84,7 +87,7 @@ export function BillingScreen(): JSX.Element {
           actions={{
             subscribe: openCheckout,
             manage,
-            signIn: signIn.open,
+            unlock: () => unlock.run(subscribeDecision()),
           }}
         />
       )}

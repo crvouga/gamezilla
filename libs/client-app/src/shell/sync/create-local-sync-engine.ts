@@ -4,6 +4,7 @@
  * watch snapshots notify synchronously (no transition scheduling).
  */
 
+import { localSyncActor } from '@libs/auth/public/auth-context';
 import type { ConfigService } from '@libs/auth/public/config-service-types';
 import {
   createClientPubSub,
@@ -80,13 +81,13 @@ export type CreateAppLocalSyncEnginePoolArgs = Omit<
 >;
 
 function mutationEnv(args: CreateAppLocalSyncEngineArgs) {
-  const actorId = args.auth.getAccountId() ?? args.userId;
-  const deviceId = args.auth.getDeviceId() ?? '';
   return {
-    actorId,
-    deviceId,
-    accountId: args.auth.getAccountId(),
-    isAnon: args.auth.getSessionToken() === null,
+    ...localSyncActor({
+      accountId: args.auth.getAccountId(),
+      deviceId: args.auth.getDeviceId() ?? '',
+      userId: args.userId,
+      sessionToken: args.auth.getSessionToken(),
+    }),
     now: () => new Date(args.clock.now()),
     createId: args.createId,
   };
