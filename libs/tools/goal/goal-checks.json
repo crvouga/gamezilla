@@ -174,6 +174,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
       }
     ]
   },
@@ -183,6 +187,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
       }
     ]
   },
@@ -227,6 +235,10 @@
       {
         "kind": "test",
         "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
       }
     ]
   },
@@ -356,6 +368,10 @@
       {
         "kind": "test",
         "path": "libs/chess/tests/e2e/puzzle-controls.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
       }
     ]
   },
@@ -494,6 +510,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/crash-restart-rehydrates-and-drains-queue.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
       }
     ]
   },
@@ -503,6 +523,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
       }
     ]
   },
@@ -512,6 +536,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
       }
     ]
   },
@@ -579,6 +607,10 @@
       {
         "kind": "test",
         "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
       }
     ]
   },

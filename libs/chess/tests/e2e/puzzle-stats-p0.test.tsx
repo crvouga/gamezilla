@@ -215,7 +215,7 @@ describe('§15 stats P0', () => {
     await enterPuzzles(s);
     const ownerId = required(await s.read(accountIdOf, 'alice'), 'account');
 
-    // Alternate solve / fail (slice 5's convergence recipe) so RD actually
+    // Alternate solve / abandon (zero credit) so RD actually
     // falls instead of the rating running away from the pool.
     let attempts = 0;
     for (let attempt = 0; attempt < 16; attempt += 1) {
@@ -229,7 +229,6 @@ describe('§15 stats P0', () => {
       if (attempt % 2 === 0) {
         await s.apply(playUntilSolved, 'alice');
       } else {
-        await s.apply(playWrongPuzzleMove, 'alice');
         await s.apply(skipPuzzle, 'alice');
       }
       await s.apply(pressPuzzleNext, 'alice');

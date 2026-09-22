@@ -21,7 +21,6 @@ import {
 import {
   openPuzzleFromSpace,
   playUntilSolved,
-  playWrongPuzzleMove,
   pressPuzzleNext,
   skipPuzzle,
 } from '@libs/chess/sim/chess-actions';
@@ -108,7 +107,7 @@ async function attemptAndAdvance(s: OpenSim, solve: boolean): Promise<void> {
   if (solve) {
     await s.apply(playUntilSolved, 'alice');
   } else {
-    await s.apply(playWrongPuzzleMove, 'alice');
+    // Abandon scores zero; wrong moves receive half credit under the goal.
     await s.apply(skipPuzzle, 'alice');
   }
   await s.apply(pressPuzzleNext, 'alice');
