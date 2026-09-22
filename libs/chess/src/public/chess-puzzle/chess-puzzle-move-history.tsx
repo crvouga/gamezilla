@@ -43,7 +43,7 @@ function MoveHistoryScroll(props: ChessPuzzleMoveHistoryProps): JSX.Element {
 
   return (
     <ScrollView
-      class="flex-1 min-w-[0]"
+      class="flex-1 min-w-0"
       contentClass="flex-row flex-nowrap items-center px-3 gap-2"
       contentStyle={{ 'min-height': `${ROW_HEIGHT}px` }}
       horizontal

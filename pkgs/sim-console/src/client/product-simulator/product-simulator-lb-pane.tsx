@@ -41,9 +41,7 @@ function BackendRow(props: {
         size={8}
         label={props.reachable ? 'reachable' : 'unreachable'}
       />
-      <p class="text flex-1 text-text text-[12px] [font-family:mono]">
-        {props.id}
-      </p>
+      <p class="text flex-1 text-text text-xs [font-family:mono]">{props.id}</p>
       <Show when={props.next}>
         <p class="text textCaption text-tint">{'next'}</p>
       </Show>
@@ -59,7 +57,7 @@ function RouteRow(props: {
 }) {
   return (
     <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px]">
-      <p class="text flex-1 min-w-[0] text-text-secondary text-[12px] [font-family:mono]">
+      <p class="text flex-1 min-w-0 text-text-secondary text-xs [font-family:mono]">
         {`${props.route.method} ${props.route.path}`}
       </p>
       <p
@@ -101,7 +99,7 @@ export function ProductSimulatorLoadBalancerPane(props: {
   const recent = () => [...snapshot().recentRoutes].reverse();
 
   return (
-    <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-2">
+    <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-2">
       <BalancerSummary snapshot={snapshot()} />
       <Show
         when={snapshot().backends.length > 0}

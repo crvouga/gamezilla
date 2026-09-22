@@ -30,7 +30,7 @@ export function Switch(props: SwitchProps): JSX.Element {
       {...dataAttrs({ component: 'Switch', ...props.dataSet })}
     >
       <button
-        class="clickable flex-row items-center justify-center min-h-[44px] bg-transparent shrink-0"
+        class="clickable flex-row items-center justify-center min-h-11 bg-transparent shrink-0"
         type="button"
         style={{
           width: `${TRACK_WIDTH}px`,
@@ -44,7 +44,7 @@ export function Switch(props: SwitchProps): JSX.Element {
         onClick={() => props.onValueChange(!props.value)}
       >
         <div
-          class="flex flex-row items-center rounded-[9999px] shrink-0 self-center"
+          class="flex flex-row items-center rounded-full shrink-0 self-center"
           classList={{
             'bg-tint': props.value,
             'bg-disabled': !props.value,
@@ -57,7 +57,7 @@ export function Switch(props: SwitchProps): JSX.Element {
           }}
         >
           <div
-            class="rounded-[9999px] shrink-0 self-center bg-on-primary"
+            class="rounded-full shrink-0 self-center bg-on-primary"
             style={{
               width: `${THUMB}px`,
               height: `${THUMB}px`,

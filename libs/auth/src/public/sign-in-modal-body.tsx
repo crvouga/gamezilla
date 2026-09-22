@@ -25,7 +25,7 @@ export function SignInModalBody(props: {
 
   return (
     <ModalBody>
-      <div class="box mt-[3px] self-stretch gap-2">
+      <div class="box mt-0.75 self-stretch gap-2">
         <Show when={methodsLoading()}>
           <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
         </Show>

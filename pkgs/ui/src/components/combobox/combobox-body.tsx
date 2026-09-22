@@ -51,7 +51,7 @@ function ComboboxEmpty(props: {
 }): JSX.Element {
   return (
     <Show when={props.message !== undefined && props.message !== null}>
-      <div class="box [padding-top:8px;padding-bottom:8px]" role="status">
+      <div class="box py-2" role="status">
         <p class="text textCaption text-text-secondary text-center">
           {props.message}
         </p>

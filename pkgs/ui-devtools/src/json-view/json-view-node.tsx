@@ -210,9 +210,9 @@ function Chevron(props: {
   expanded: boolean;
 }): JSX.Element {
   return (
-    <Show when={props.expandable} fallback={<div class="box w-[14px]" />}>
+    <Show when={props.expandable} fallback={<div class="box w-3.5" />}>
       <div
-        class="box w-[14px] h-[18px] items-center justify-center"
+        class="box w-3.5 h-4.5 items-center justify-center"
         classList={{ '[transform:rotate(90deg)]': props.expanded }}
         data-expanded={props.expanded ? 'true' : 'false'}
       >
@@ -287,7 +287,7 @@ function CopyValueButton(props: {
   const { t } = useLingui();
   return (
     <button
-      class="clickable clickableOpacity w-[22px] h-[22px] items-center justify-center opacity-[0.55] shrink-0"
+      class="clickable clickableOpacity w-5.5 h-5.5 items-center justify-center opacity-muted shrink-0"
       type="button"
       aria-label={t`Copy value`}
       onClick={() => {

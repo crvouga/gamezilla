@@ -48,7 +48,7 @@ function StepperButton(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint min-w-[40px] min-h-[40px] items-center justify-center rounded-[6px]"
+      class="clickable clickableTint min-w-10 min-h-10 items-center justify-center rounded-md"
       data-testid={props.testId}
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
@@ -87,7 +87,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           testId={stepperPartTestId(props.dataSet?.['testid'], 'decrease')}
         />
         <div
-          class="text min-w-[48px] text-center text-text"
+          class="text min-w-12 text-center text-text"
           role="spinbutton"
           data-testid={stepperPartTestId(props.dataSet?.['testid'], 'value')}
           tabIndex={props.disabled === true ? -1 : 0}

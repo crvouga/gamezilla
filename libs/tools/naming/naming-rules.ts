@@ -19,6 +19,7 @@ export const NAMING_EXEMPT = {
     'Makefile',
     'LICENSE',
     'CODEOWNERS',
+    'components.json',
     '__snapshots__',
     '__mocks__',
   ]),

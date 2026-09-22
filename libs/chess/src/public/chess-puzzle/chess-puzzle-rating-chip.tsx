@@ -24,7 +24,7 @@ export function ChessPuzzleRatingChip(
 
   return (
     <div
-      class="box px-2 py-1 rounded-[6px]"
+      class="box px-2 py-1 rounded-md"
       style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
       {...dataAttrs(
         props.testID !== undefined ? { testid: props.testID } : undefined

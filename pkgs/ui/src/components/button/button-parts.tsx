@@ -110,7 +110,7 @@ export function ButtonLabelText(props: {
 }): JSX.Element {
   return (
     <p
-      class="text textBodyBold tracking-[0.1px] whitespace-nowrap"
+      class="text textBodyBold tracking-button whitespace-nowrap"
       style={{
         color: props.foregroundColor,
         'font-size': `${props.size.text.fontSize}px`,

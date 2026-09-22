@@ -36,7 +36,7 @@ function AncestorCrumb(props: {
     <Show when={props.onClick} fallback={text()}>
       {(onClick) => (
         <button
-          class="clickable clickableTint rounded-[6px] px-1 [margin-left:-4px;margin-right:-4px] min-h-[32px]"
+          class="clickable clickableTint rounded-md px-1 -mx-1 min-h-8"
           data-component="ScreenBreadcrumbLink"
           type="button"
           role="link"
@@ -58,7 +58,7 @@ export function ScreenBreadcrumbTrail(
   return (
     <Show when={props.breadcrumbs.length > 0}>
       <nav
-        class="box flex-1 min-w-[0] gap-0.5"
+        class="box flex-1 min-w-0 gap-0.5"
         {...dataAttrs({ component: 'ScreenBreadcrumbTrail', ...props.dataSet })}
         aria-label={t`Breadcrumb`}
       >

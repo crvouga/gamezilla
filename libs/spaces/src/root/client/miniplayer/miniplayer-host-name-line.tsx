@@ -12,7 +12,7 @@ export function MiniplayerHostNameLine(
   props: MiniplayerHostNameLineProps
 ): JSX.Element {
   return (
-    <div class="shrink min-w-[0]">
+    <div class="shrink min-w-0">
       <SpaceHostNameText
         spaceId={props.spaceId}
         variant="caption"

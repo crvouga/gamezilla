@@ -33,7 +33,7 @@ export function ChessBoardEditorTray(props: {
 }): JSX.Element {
   return (
     <div class="box gap-2">
-      <div class="box row gap-1 flex-wrap">
+      <div class="box flex-row gap-1 flex-wrap">
         <For each={[...SPARES]}>
           {(code) => (
             <button
@@ -48,7 +48,7 @@ export function ChessBoardEditorTray(props: {
           )}
         </For>
       </div>
-      <div class="box row gap-2">
+      <div class="box flex-row gap-2">
         <button type="button" onClick={() => props.onClear()}>
           {'Clear'}
         </button>

@@ -34,8 +34,8 @@ export type TabStripTabProps = {
 function shellClass(active: boolean): string {
   return [
     styles['shell'],
-    'box relative shrink-0 flex-row items-center rounded-tl-[8px] rounded-tr-[8px] border border-solid border-b-transparent',
-    active ? 'border-outline bg-background z-[1]' : 'border-transparent z-0',
+    'box relative shrink-0 flex-row items-center rounded-tl-lg rounded-tr-lg border border-solid border-b-transparent',
+    active ? 'border-outline bg-background z-1' : 'border-transparent z-0',
     active ? styles['shellActive'] : '',
   ]
     .filter(Boolean)
@@ -75,7 +75,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
       </Show>
       <div class={shellClass(props.active)} style={shellStyle(closable())}>
         <button
-          class="clickable flex-1 min-w-0 flex-row items-center gap-1.5 pl-2.5 rounded-tl-[8px] rounded-tr-[8px] overflow-hidden bg-transparent"
+          class="clickable flex-1 min-w-0 flex-row items-center gap-1.5 pl-2.5 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent"
           classList={{ clickableTint: !props.active }}
           data-component="TabStripTab"
           data-id={props.item.id}
@@ -103,7 +103,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         </button>
         <Show when={closable()}>
           <button
-            class={`clickable clickableTint rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px] ${styles['close'] ?? ''}`}
+            class={`clickable clickableTint rounded-md items-center justify-center shrink-0 w-5.5 h-5.5 ${styles['close'] ?? ''}`}
             data-component="TabStripClose"
             data-id={props.item.id}
             type="button"
@@ -116,7 +116,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         </Show>
         <Show when={props.active}>
           <div
-            class="box absolute left-px right-px -bottom-px h-0.5 bg-background z-[2] pointer-events-none"
+            class="box absolute left-px right-px -bottom-px h-0.5 bg-background z-2 pointer-events-none"
             aria-hidden="true"
           />
         </Show>

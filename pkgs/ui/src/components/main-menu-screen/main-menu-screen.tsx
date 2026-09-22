@@ -52,9 +52,9 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
   });
   return (
     <ScrollView
-      class="flex-1 self-stretch w-[100%]"
+      class="flex-1 self-stretch w-full"
       dataSet={dataSet()}
-      contentClass="box px-4 pb-8 pt-4 gap-4 self-center w-[100%]"
+      contentClass="box px-4 pb-8 pt-4 gap-4 self-center w-full"
       contentStyle={{ 'max-width': cssPx(MAIN_MENU_SCREEN_MAX_WIDTH) }}
     >
       <MainMenuScreenHeader title={props.title} subtitle={props.subtitle} />

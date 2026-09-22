@@ -30,7 +30,7 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
       size="medium"
       scroll={false}
     >
-      <ScrollView class="max-h-[480px]" contentClass="px-0 gap-3">
+      <ScrollView class="max-h-120" contentClass="px-0 gap-3">
         <SpaceShareLinkSection spaceId={props.spaceId} />
         <Show when={canManageMembers()}>
           <SpaceShareAddPeople

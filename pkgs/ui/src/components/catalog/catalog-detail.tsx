@@ -58,7 +58,7 @@ export function CatalogDetail(props: CatalogDetailProps): JSX.Element {
 
   return (
     <div
-      class="box flex-1 min-h-[0]"
+      class="box flex-1 min-h-0"
       {...dataAttrs({ component: 'CatalogDetail', ...props.dataSet })}
     >
       <Show
@@ -119,7 +119,7 @@ function CatalogDetailBottomBar(props: {
 
   return (
     <div
-      class="box bg-surface border-border [border-top-width:hairline] py-1"
+      class="box bg-surface border-border border-t py-1"
       style={{
         ...(flush()
           ? {

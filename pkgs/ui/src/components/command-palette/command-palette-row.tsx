@@ -36,7 +36,7 @@ export type CommandPaletteRowProps = {
 
 function RowIcon(props: { icon: IconComponent | undefined }): JSX.Element {
   return (
-    <Show when={props.icon} fallback={<div class="box w-[18px]" />}>
+    <Show when={props.icon} fallback={<div class="box w-4.5" />}>
       {(icon) => {
         const Icon = icon();
         return <Icon size={18} color="icon" />;
@@ -69,7 +69,7 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
     normalizeShortcut(props.command.shortcut)?.keys;
   return (
     <button
-      class="clickable clickableTint py-2 px-3 gap-1 text-left [border-left-width:3px] border-l-transparent"
+      class="clickable clickableTint py-2 px-3 gap-1 text-left border-l-3 border-l-transparent"
       classList={{
         'bg-tint-subtle border-l-tint': props.selected,
       }}
@@ -88,9 +88,9 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
       onClick={() => props.onSelect()}
       onMouseEnter={() => props.onHover?.()}
     >
-      <div class="box flex-row items-center gap-2 min-w-[0]">
+      <div class="box flex-row items-center gap-2 min-w-0">
         <RowIcon icon={props.command.icon} />
-        <div class="box flex-1 min-w-[0]">
+        <div class="box flex-1 min-w-0">
           <HighlightedText
             text={props.command.title}
             ranges={ranges()}

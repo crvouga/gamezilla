@@ -30,7 +30,7 @@ export function NotificationsHeaderButton(): JSX.Element {
         <BellIcon size={20} />
       </IconButton>
       <Show when={unreadCount() > 0}>
-        <div class="box absolute top-[-2px] right-[-2px]">
+        <div class="box absolute -top-0.5 -right-0.5">
           <UnreadCountBadge count={unreadCount()} />
         </div>
       </Show>

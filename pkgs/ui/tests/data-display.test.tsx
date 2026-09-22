@@ -29,7 +29,7 @@ describe('Badge', () => {
     expect(root).toHaveTextContent('Beta');
     const css = cssOf(root);
     expect(css).toContain('background-color:var(--ui-color-success)');
-    expect(root.className).toMatch(/rounded-\[9999px\]/);
+    expect(root.className).toMatch(/rounded-full/);
   });
 
   test('sm size uses tighter padding than md', () => {

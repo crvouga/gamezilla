@@ -77,7 +77,7 @@ function FabLabelText(props: {
 }): JSX.Element {
   return (
     <p
-      class="text textBodyBold text-[15px] leading-[20px] font-semibold whitespace-nowrap"
+      class="text textBodyBold text-action font-semibold whitespace-nowrap"
       style={{ color: props.foregroundColor }}
     >
       {props.label}
@@ -133,8 +133,8 @@ function FabContent(props: {
 
 function fabContainerClass(extended: boolean): string {
   return [
-    'items-center justify-center flex-row overflow-hidden rounded-[9999px]',
-    !extended && 'w-[56px]',
+    'items-center justify-center flex-row overflow-hidden rounded-full',
+    !extended && '-14',
   ]
     .filter(Boolean)
     .join(' ');
@@ -204,7 +204,7 @@ export function FloatingActionButton(
     >
       <OnColorProvider value={onColor}>
         <div
-          class="box relative z-[1] flex-row items-center"
+          class="box relative z-1 flex-row items-center"
           style={{ gap: `${spacingScale(FAB_CONTENT_GAP)}px` }}
         >
           <FabContent

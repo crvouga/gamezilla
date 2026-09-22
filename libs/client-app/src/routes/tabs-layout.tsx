@@ -23,8 +23,8 @@ export function TabsLayout(props: RouteSectionProps): JSX.Element {
   const router = useRouter();
   const features = useAppFeatures();
   return (
-    <div class="box flex-1 min-h-[0]" data-component="TabsLayout">
-      <div class="box flex-1 min-h-[0]">{props.children}</div>
+    <div class="box flex-1 min-h-0" data-component="TabsLayout">
+      <div class="box flex-1 min-h-0">{props.children}</div>
       <Suspense fallback={null}>
         <For each={features.tabsDocks}>
           {(Dock) => <Dynamic component={Dock} />}

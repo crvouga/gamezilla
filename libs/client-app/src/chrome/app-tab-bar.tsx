@@ -32,7 +32,7 @@ function AppTabButton(props: {
     props.active ? 'tint' : 'tabIconDefault';
   return (
     <button
-      class="clickable clickableTint flex-1 min-w-[0] items-center justify-center gap-1"
+      class="clickable clickableTint flex-1 min-w-0 items-center justify-center gap-1"
       style={{
         height: `${Math.max(props.height, TAB_MIN_HEIGHT)}px`,
         'min-height': `${TAB_MIN_HEIGHT}px`,

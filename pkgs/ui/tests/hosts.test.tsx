@@ -63,7 +63,7 @@ describe('Switch', () => {
     expect(track?.className).toMatch(/bg-disabled/);
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
-    expect(el.className).toMatch(/min-h-\[44px\]/);
+    expect(el.className).toMatch(/min-h-11/);
     expect(track?.className).toMatch(/bg-tint/);
   });
 });

@@ -90,7 +90,7 @@ function HeaderCell<T>(props: {
   const label = () => `${props.column.header}${marker()}`;
   const justify = () => ALIGN_TO_JUSTIFY[props.column.align ?? 'start'];
   const text = () => (
-    <p class="text line-clamp-1 text-text-secondary font-medium uppercase tracking-[1px] text-[10px]">
+    <p class="text line-clamp-1 text-text-secondary font-medium uppercase tracking-caps text-micro">
       {label()}
     </p>
   );
@@ -104,7 +104,7 @@ function HeaderCell<T>(props: {
         when={sortable()}
         fallback={
           <div
-            class="box flex-row items-center h-[100%]"
+            class="box flex-row items-center h-full"
             style={{
               'min-width': cssPx(props.column.width),
               'justify-content': justify(),
@@ -115,7 +115,7 @@ function HeaderCell<T>(props: {
         }
       >
         <button
-          class="clickable min-h-[40px] flex-row items-center w-[100%]"
+          class="clickable min-h-10 flex-row items-center w-full"
           type="button"
           style={{
             'min-width': cssPx(props.column.width),

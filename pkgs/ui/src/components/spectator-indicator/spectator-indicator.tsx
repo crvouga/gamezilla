@@ -18,7 +18,7 @@ export function SpectatorIndicator(): JSX.Element {
       dataSet={{ component: 'SpectatorIndicator' }}
     >
       <div
-        class="box flex-row items-center gap-1 rounded-[9999px] px-2"
+        class="box flex-row items-center gap-1 rounded-full px-2"
         aria-label="Spectating; controls are disabled"
         data-testid="spectator-indicator"
         style={{

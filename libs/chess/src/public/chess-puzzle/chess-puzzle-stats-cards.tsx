@@ -12,7 +12,7 @@ type StatTileProps = {
 
 function StatTile(props: StatTileProps): JSX.Element {
   return (
-    <div class="box min-w-[0] gap-1 p-3">
+    <div class="box min-w-0 gap-1 p-3">
       <p class="text textCaption line-clamp-1 text-text-secondary">
         {props.label}
       </p>

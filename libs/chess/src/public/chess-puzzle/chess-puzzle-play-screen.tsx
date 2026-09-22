@@ -362,7 +362,7 @@ export function PuzzlePlayScreen(): JSX.Element {
 
   return (
     <div
-      class="box flex-1 min-h-[0] self-stretch"
+      class="box flex-1 min-h-0 self-stretch"
       data-testid="chess-puzzle-play-screen"
     >
       <Show

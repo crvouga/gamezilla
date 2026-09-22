@@ -37,7 +37,7 @@ export function ProductSimulatorRoomDbPane(props: {
     <Show
       when={snap()}
       fallback={
-        <div class="box flex-1 min-h-[0] p-[8px]">
+        <div class="box flex-1 min-h-0 p-[8px]">
           <EmptyState
             variant="compact"
             title="Room gone"
@@ -47,7 +47,7 @@ export function ProductSimulatorRoomDbPane(props: {
       }
     >
       {(current) => (
-        <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-3">
+        <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-3">
           <Section title="Topic" body={current().topic} />
           <Section title={`Roster (${current().roster.length})`}>
             <Show
@@ -93,9 +93,7 @@ function Section(props: {
         {props.title}
       </p>
       {props.body !== undefined ? (
-        <p class="text text-text text-[12px] [font-family:mono]">
-          {props.body}
-        </p>
+        <p class="text text-text text-xs [font-family:mono]">{props.body}</p>
       ) : null}
       {props.children}
     </div>

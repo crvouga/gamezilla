@@ -242,6 +242,18 @@ const SOLID_RULES = {
 export default defineConfig({
   // Nothing runs outside the overrides below: the scope file is the scope.
   plugins: [],
+  jsPlugins: ['@shadcn/lint'],
+  settings: {
+    shadcn: {
+      componentImports: ['^@pkgs/ui$'],
+      note: 'Use the Tailwind theme in pkgs/tailwind/src/tailwind.css and the components exported by @pkgs/ui.',
+    },
+  },
+  rules: {
+    'shadcn/no-arbitrary-values': 'error',
+    'shadcn/no-raw-colors': 'error',
+    'shadcn/no-unknown-classes': 'error',
+  },
   categories: {
     correctness: 'off',
   },
@@ -285,6 +297,12 @@ export default defineConfig({
         'eslint/no-empty-function': 'off',
         'typescript/no-floating-promises': 'off',
       },
+    },
+    {
+      // Provider logos must retain their official brand colors rather than
+      // adapting to the product theme.
+      files: ['pkgs/ui/src/components/brand-icon/svg/brand-logos.tsx'],
+      rules: { 'shadcn/no-raw-colors': 'off' },
     },
   ],
 });

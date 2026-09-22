@@ -72,7 +72,7 @@ function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
       dataSet={{ screen: 'chess-stats-review' }}
     >
       <div
-        class="box gap-4 p-4 pb-8 self-center w-[100%] min-w-[0]"
+        class="box gap-4 p-4 pb-8 self-center w-full min-w-0"
         style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
       >
         <MainMenuScreenHeader
@@ -114,7 +114,7 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
   };
 
   return (
-    <div class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden">
+    <div class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden">
       <DefineBackButton onPress={backToStats} />
       <Show
         when={puzzleId() !== null}

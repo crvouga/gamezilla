@@ -31,7 +31,7 @@ function PriceTile(props: {
     );
   return (
     <div
-      class="box min-w-[0] flex-1 gap-1 rounded-xl border p-4"
+      class="box min-w-0 flex-1 gap-1 rounded-xl border p-4"
       classList={{
         'border-tint bg-tint-subtle': props.current,
         'border-border bg-surface': !props.current,

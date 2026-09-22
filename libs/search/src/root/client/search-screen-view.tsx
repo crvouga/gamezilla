@@ -90,7 +90,7 @@ function SearchScreenBody(): JSX.Element {
   const showResults = () => state.canSearch && trimmed().length > 0;
 
   return (
-    <div class="box flex-1 min-h-[0] gap-4">
+    <div class="box flex-1 min-h-0 gap-4">
       <TextInput
         value={query()}
         onChangeText={setQuery}

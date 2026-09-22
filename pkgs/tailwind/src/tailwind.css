@@ -28,3 +28,7 @@
    (Tailwind 4.3 does not hoist `@scope … to ([data-theme])` in custom
    variants). Product sources do not use `dark:` today. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@utility color-scheme-system {
+  color-scheme: light dark;
+}

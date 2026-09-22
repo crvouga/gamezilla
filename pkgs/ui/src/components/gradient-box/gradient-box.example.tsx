@@ -12,7 +12,7 @@ export default function GradientBoxExample(): JSX.Element {
         {'Default horizontal gradient uses theme tintHover → tintActive.'}
       </p>
 
-      <GradientBox class="p-4 rounded-[16px] min-h-[88px] justify-center">
+      <GradientBox class="p-4 rounded-2xl min-h-22 justify-center">
         <p class="text textBodyBold">{'Primary gradient card'}</p>
         <p class="text textCaption mt-1">
           {'Auto contrast-safe text — no hardcoded color'}
@@ -20,7 +20,7 @@ export default function GradientBoxExample(): JSX.Element {
       </GradientBox>
 
       <GradientBox
-        class="p-4 rounded-[12px]"
+        class="p-4 rounded-xl"
         colors={['#4F46E5', '#7C3AED', '#DB2777']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}

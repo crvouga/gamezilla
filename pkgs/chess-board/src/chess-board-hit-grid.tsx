@@ -52,7 +52,7 @@ export type ChessBoardHitGridProps = {
 
 export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
   return (
-    <div class={`box absolute inset-[0] ${styles['grid']}`}>
+    <div class={`box absolute inset-0 ${styles['grid']}`}>
       <For each={[...DISPLAY_SQUARES[props.orientation]]}>
         {(square) => {
           const own = () =>

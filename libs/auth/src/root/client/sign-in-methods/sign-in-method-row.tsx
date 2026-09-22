@@ -64,7 +64,7 @@ function ConnectButton(props: {
       />
       <Show when={connect.error()}>
         {(error) => (
-          <p class="text textCaption text-danger max-w-[220px] text-right">
+          <p class="text textCaption text-destructive max-w-55 text-right">
             {error().message}
           </p>
         )}

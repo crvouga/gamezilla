@@ -74,7 +74,7 @@ function NavButton(props: {
   const Icon = props.slot.icon;
   return (
     <button
-      class="clickable clickableTint shrink-0 grow-0 px-1 py-0.5 rounded-[4px]"
+      class="clickable clickableTint shrink-0 grow-0 px-1 py-0.5 rounded-sm"
       style={{ opacity: props.slot.disabled ? 0.4 : 1 }}
       type="button"
       disabled={props.slot.disabled}

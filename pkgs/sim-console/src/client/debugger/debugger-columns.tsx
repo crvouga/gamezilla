@@ -29,7 +29,7 @@ export function DebuggerColumn(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-1 min-w-[0] min-h-[0] border border-solid"
+      class="box flex-1 min-w-0 min-h-0 border border-solid"
       classList={{
         'border-border': props.focused !== true,
         'border-tint': props.focused === true,

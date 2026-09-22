@@ -15,7 +15,7 @@ function SpaceStatusPill(props: {
   readonly showDot: boolean;
 }): JSX.Element {
   return (
-    <div class="box flex-row items-center gap-1 bg-on-tint-scrim rounded-[9999px] px-2 py-1 self-start">
+    <div class="box flex-row items-center gap-1 bg-on-tint-scrim rounded-full px-2 py-1 self-start">
       <Show when={props.showDot}>
         <StatusDot status="online" size={8} />
       </Show>

@@ -283,7 +283,7 @@ function ReadyProductSimulatorScreen(props: ReadyScreenProps) {
   };
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] bg-background"
+      class="box flex-1 min-h-0 min-w-0 bg-background"
       style={{ overflow: 'clip' }}
     >
       <ProductSimulatorPaletteRegistrations
@@ -348,7 +348,7 @@ function ProductSimulatorDebuggerShell(props: {
     <DebuggerShell
       onChromePointerDown={props.clearClientFocus}
       kindTrailing={
-        <div class="box flex-row items-center gap-1 min-w-[0]">
+        <div class="box flex-row items-center gap-1 min-w-0">
           <ProductSimulatorTopologyChrome session={props.session} />
           <ProductSimulatorSnapshotChrome session={props.session} />
           <ProductSimulatorExitButton onExit={props.onExit} />

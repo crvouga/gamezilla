@@ -40,7 +40,7 @@ describe('CatalogList', () => {
       'Badge',
       'Misc thing',
     ]);
-    expect(nth(rows, 0).className).toMatch(/min-h-\[44px\]/);
+    expect(nth(rows, 0).className).toMatch(/min-h-11/);
     fireEvent.click(screen.getByRole('button', { name: /Badge/ }));
     expect(onSelect).toHaveBeenCalledWith('badge');
   });
