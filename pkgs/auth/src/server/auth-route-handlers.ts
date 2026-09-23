@@ -2,10 +2,12 @@ import type { Context } from 'hono';
 
 import {
   AUTH_SET_TOKEN_HEADER,
+  IDP_PROVIDER_APPLE,
   IDP_PROVIDER_DEV,
   IDP_PROVIDER_GOOGLE,
 } from '../shared/auth-constants';
 import { isTrustedCallbackUrl } from '../shared/trusted-origins';
+import { buildAppleAuthorizationUrl } from './apple-oauth';
 import type { CreateAuthAppDeps } from './create-auth-app-types';
 import {
   buildDevAuthorizeUrl,
@@ -13,11 +15,13 @@ import {
   devRedirectUri,
   renderDevAuthorizePage,
 } from './dev-oauth';
-import {
-  buildGoogleAuthorizationUrl,
-  exchangeGoogleAuthorizationCode,
-} from './google-oauth';
+import { buildGoogleAuthorizationUrl } from './google-oauth';
 import { IdpRepository } from './idp-repository';
+import {
+  finishOauthCallback,
+  handleAppleCallback,
+  handleGoogleCallback,
+} from './oauth-social';
 
 type SessionUserJson = {
   readonly id: string;
@@ -87,12 +91,19 @@ function publicPrefix(deps: CreateAuthAppDeps): string {
 }
 
 function isSupportedProvider(provider: string): boolean {
-  return provider === IDP_PROVIDER_GOOGLE || provider === IDP_PROVIDER_DEV;
+  return (
+    provider === IDP_PROVIDER_GOOGLE ||
+    provider === IDP_PROVIDER_APPLE ||
+    provider === IDP_PROVIDER_DEV
+  );
 }
 
 function providerEnabled(deps: CreateAuthAppDeps, provider: string): boolean {
   if (provider === IDP_PROVIDER_GOOGLE) {
     return deps.providers.google !== undefined;
+  }
+  if (provider === IDP_PROVIDER_APPLE) {
+    return deps.providers.apple !== undefined;
   }
   if (provider === IDP_PROVIDER_DEV) {
     return deps.providers.dev?.enabled === true;
@@ -100,22 +111,40 @@ function providerEnabled(deps: CreateAuthAppDeps, provider: string): boolean {
   return false;
 }
 
-async function finishOauthCallback(args: {
-  readonly c: Context;
-  readonly deps: CreateAuthAppDeps;
-  readonly oauthState: {
-    readonly id: string;
-    readonly callback_url: string;
+async function callbackFields(c: Context): Promise<{
+  code: string;
+  state: string;
+  idToken: string;
+}> {
+  if (c.req.method === 'GET') {
+    return {
+      code: c.req.query('code') ?? '',
+      state: c.req.query('state') ?? '',
+      idToken: '',
+    };
+  }
+  const body = await c.req.parseBody();
+  const field = (key: string) => {
+    const value = body[key];
+    return typeof value === 'string' ? value.trim() : '';
   };
-  readonly user: SessionUserJson;
-}): Promise<Response> {
-  const exchangeCode = await repo(args.deps).attachExchangeCode({
-    stateId: args.oauthState.id,
-    userId: args.user.id,
-  });
-  const redirect = new URL(args.oauthState.callback_url);
-  redirect.searchParams.set('code', exchangeCode);
-  return args.c.redirect(redirect.toString(), 302);
+  return {
+    code: field('code'),
+    state: field('state'),
+    idToken: field('id_token'),
+  };
+}
+
+async function linkSessionUserId(
+  c: Context,
+  deps: CreateAuthAppDeps
+): Promise<string | null | 'unauthorized'> {
+  if (c.req.query('intent') !== 'link') return null;
+  const token = readBearer(c.req.header('authorization'));
+  if (token === null) return 'unauthorized';
+  const found = await repo(deps).findSessionByToken(token);
+  if (found === null) return 'unauthorized';
+  return found.user.id;
 }
 
 export async function handleOauthLaunch(
@@ -136,12 +165,35 @@ export async function handleOauthLaunch(
   ) {
     return c.json({ error: 'invalid_callback_url' }, 400);
   }
+  const linkUserId = await linkSessionUserId(c, deps);
+  if (linkUserId === 'unauthorized') {
+    return c.json({ error: 'unauthorized' }, 401);
+  }
   const r = repo(deps);
   const { state, codeVerifier } = await r.createOauthState({
     provider,
     callbackUrl,
+    ...(linkUserId !== null ? { userId: linkUserId } : {}),
   });
   const prefix = publicPrefix(deps);
+  if (provider === IDP_PROVIDER_APPLE) {
+    if (deps.providers.apple === undefined) {
+      return c.json({ error: 'provider_disabled' }, 404);
+    }
+    return c.redirect(
+      buildAppleAuthorizationUrl({
+        clientId: deps.providers.apple.clientId,
+        redirectUri: providerCallbackUri(
+          deps.baseURL,
+          prefix,
+          IDP_PROVIDER_APPLE
+        ),
+        state,
+        nonce: codeVerifier,
+      }),
+      302
+    );
+  }
   if (provider === IDP_PROVIDER_GOOGLE) {
     if (deps.providers.google === undefined) {
       return c.json({ error: 'provider_disabled' }, 404);
@@ -228,52 +280,26 @@ export async function handleOauthCallback(
   if (!providerEnabled(deps, provider)) {
     return c.json({ error: 'provider_disabled' }, 404);
   }
-  const code = c.req.query('code') ?? '';
-  const state = c.req.query('state') ?? '';
-  if (code.length === 0 || state.length === 0) {
+  const fields = await callbackFields(c);
+  if (fields.code.length === 0 || fields.state.length === 0) {
     return c.json({ error: 'missing_code_or_state' }, 400);
   }
   const r = repo(deps);
-  const oauthState = await r.findOauthStateByState(state);
+  const oauthState = await r.findOauthStateByState(fields.state);
   if (oauthState === null || oauthState.provider !== provider) {
     return c.json({ error: 'invalid_state' }, 400);
   }
-
   if (provider === IDP_PROVIDER_GOOGLE) {
-    if (deps.providers.google === undefined) {
-      return c.json({ error: 'provider_disabled' }, 404);
-    }
-    let googleUser: Awaited<ReturnType<typeof exchangeGoogleAuthorizationCode>>;
-    try {
-      googleUser = await exchangeGoogleAuthorizationCode({
-        http: deps.http,
-        google: deps.providers.google,
-        redirectUri: googleRedirectUri(deps.baseURL, publicPrefix(deps)),
-        code,
-        codeVerifier: oauthState.code_verifier,
-      });
-    } catch {
-      return c.json({ error: 'google_exchange_failed' }, 400);
-    }
-    const user = await r.upsertSocialUser({
-      provider: IDP_PROVIDER_GOOGLE,
-      providerUserId: googleUser.sub,
-      email: googleUser.email,
-      name: googleUser.name,
-      image: googleUser.picture,
-      accessToken: googleUser.accessToken,
-      refreshToken: googleUser.refreshToken,
-    });
-    return finishOauthCallback({ c, deps, oauthState, user });
+    return handleGoogleCallback(c, deps, fields.code, oauthState);
   }
-
+  if (provider === IDP_PROVIDER_APPLE) {
+    return handleAppleCallback(c, deps, fields.idToken, oauthState);
+  }
   const subject = await r.consumeProviderAuthCode({
-    authCode: code,
+    authCode: fields.code,
     oauthStateId: oauthState.id,
   });
-  if (subject === null) {
-    return c.json({ error: 'invalid_code' }, 400);
-  }
+  if (subject === null) return c.json({ error: 'invalid_code' }, 400);
   const user = await r.upsertSocialUser({
     provider: IDP_PROVIDER_DEV,
     providerUserId: subject,
@@ -327,6 +353,31 @@ export async function handleGetSession(
     },
     200
   );
+}
+
+export async function handleUnlinkAccount(
+  c: Context,
+  deps: CreateAuthAppDeps
+): Promise<Response> {
+  const token = readBearer(c.req.header('authorization'));
+  if (token === null) return c.json({ error: 'unauthorized' }, 401);
+  const found = await repo(deps).findSessionByToken(token);
+  if (found === null) return c.json({ error: 'unauthorized' }, 401);
+  const raw: unknown = await c.req.json().catch(() => null);
+  const provider = readStringField(raw, 'provider');
+  const subject = readStringField(raw, 'subject');
+  if (provider.length === 0 || subject.length === 0) {
+    return c.json({ error: 'missing_provider' }, 400);
+  }
+  const accounts = await repo(deps).listAccounts(found.user.id);
+  const match = accounts.find(
+    (account) =>
+      account.provider === provider && account.provider_user_id === subject
+  );
+  if (match === undefined) return c.json({ error: 'not_linked' }, 404);
+  if (accounts.length <= 1) return c.json({ error: 'last_account' }, 409);
+  await repo(deps).deleteAccount(match.id);
+  return c.json({ ok: true }, 200);
 }
 
 export async function handleSignOut(

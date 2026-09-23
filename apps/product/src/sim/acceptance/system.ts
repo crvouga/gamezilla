@@ -130,8 +130,6 @@ export const acceptanceApi = defineSystem({
     const gate = createBillingGate();
     const billing = sim.server.billing;
     if (billing === null) throw new Error('acceptance billing port missing');
-    // Apple is part of the contract. The auth provider type has no Apple
-    // config yet, so Apple scenarios stay red until the product accepts it.
     const app = await createServer({
       ...sim.server,
       fetch: createVendorFetch({ identity: provider, gate }),
@@ -145,6 +143,10 @@ export const acceptanceApi = defineSystem({
           google: {
             clientId: 'acceptance-google',
             clientSecret: 'fixture-secret',
+          },
+          apple: {
+            clientId: 'acceptance-apple',
+            clientSecret: 'fixture-apple-secret',
           },
           dev: { enabled: true as const },
         },

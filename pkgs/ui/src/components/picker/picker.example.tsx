@@ -6,7 +6,7 @@ import { Picker, type PickerOption } from './index';
 function Swatch(props: { color: string }): JSX.Element {
   return (
     <div
-      class="box w-[28px] h-[28px] rounded-[14px]"
+      class="box w-[28px] h-[28px] rounded-lg"
       style={{ 'background-color': props.color }}
     />
   );

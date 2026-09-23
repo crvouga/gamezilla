@@ -71,7 +71,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
   const showClear = (): boolean => props.onClear !== undefined && hasChips();
   return (
     <div
-      class="box flex-row items-center gap-2 rounded-[10px] border border-outline bg-surface-muted"
+      class="box flex-row items-center gap-2 rounded-md border border-outline bg-surface-muted"
       data-component="ComboboxField"
       style={{
         'padding-left': cssPx(hasChips() ? 8 : 0),
@@ -86,7 +86,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         />
       </Show>
       <button
-        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-left"
+        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-2.5 px-3 py-2.5 rounded-md text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
         style={{ 'min-height': cssPx(COMBOBOX_TRIGGER_MIN_HEIGHT) }}

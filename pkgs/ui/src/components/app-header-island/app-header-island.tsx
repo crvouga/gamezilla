@@ -33,7 +33,7 @@ function HeaderPill(props: { item: AppHeaderIslandItem }): JSX.Element {
     props.item.active ? 'text' : 'textSecondary';
   return (
     <button
-      class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-[9999px]"
+      class="clickable clickableTint flex-row items-center gap-1.5 px-3 rounded-full"
       classList={{
         'bg-surface': props.item.active,
         'bg-transparent': !props.item.active,

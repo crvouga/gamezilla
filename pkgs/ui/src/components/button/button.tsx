@@ -20,21 +20,15 @@
  * ```
  */
 
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
-import {
-  OnColorProvider,
-  type OnColorSet,
-  spacingScale,
-  useThemeTokens,
-} from '../../theme';
 import type { IconComponent } from '../icons';
 import {
-  type ButtonFace,
   type ButtonFeedback,
   type ButtonIntent,
+  type ButtonRenderInput,
   type ButtonVariant,
-  resolveButtonRender,
+  buttonInteraction,
 } from './button-face';
 import {
   BUTTON_SIZES,
@@ -88,58 +82,28 @@ function buttonClass(args: {
     .join(' ');
 }
 
-function buttonStyle(args: {
-  flex: number | undefined;
-  s: ButtonSizeSpec;
-  face: ButtonFace;
-}): JSX.CSSProperties {
+function buttonInput(props: ButtonProps): ButtonRenderInput {
   return {
-    ...(args.flex !== undefined && args.flex !== 1
-      ? { flex: String(args.flex) }
-      : {}),
-    'background-color': args.face.backgroundColor,
-    'border-color': args.face.borderColor,
-    'border-width': `${args.face.borderWidth}px`,
-    'border-style': 'solid',
-    'border-radius': `${args.s.borderRadius}px`,
-    'padding-left': `${spacingScale(args.s.px)}px`,
-    'padding-right': `${spacingScale(args.s.px)}px`,
-    'padding-top': `${spacingScale(args.s.py)}px`,
-    'padding-bottom': `${spacingScale(args.s.py)}px`,
-    'min-height': `${args.s.minHeight}px`,
+    intent: props.intent,
+    variant: props.variant,
+    disabled: props.disabled,
+    loading: props.loading,
+    feedback: props.feedback,
+    onClick: props.onClick,
+    onRetry: props.onRetry,
   };
 }
 
 export function Button(props: ButtonProps): JSX.Element {
-  const tokens = useThemeTokens();
-  const size = (): ButtonSizeSpec => BUTTON_SIZES[props.size ?? 'md'];
-  const render = createMemo(() =>
-    resolveButtonRender(tokens.colors, {
-      intent: props.intent,
-      variant: props.variant,
-      disabled: props.disabled,
-      loading: props.loading,
-      feedback: props.feedback,
-      onClick: props.onClick,
-      onRetry: props.onRetry,
-    })
-  );
-  const fg = (): string => render().face.foregroundColor;
-  // Getter-backed so the provider's single `value` read stays reactive.
-  const onColor: OnColorSet = {
-    get fg() {
-      return fg();
-    },
-    get fgMuted() {
-      return fg();
-    },
-    get icon() {
-      return fg();
-    },
-  };
+  const spec = (): ButtonSizeSpec => BUTTON_SIZES[props.size ?? 'md'];
+  const state = () => buttonInteraction(buttonInput(props));
+  const flexStyle = (): JSX.CSSProperties | undefined =>
+    props.flex !== undefined && props.flex !== 1
+      ? { flex: String(props.flex) }
+      : undefined;
   return (
     <button
-      class={`clickable clickableTint ${buttonClass({
+      class={`clickable clickableTint btn ${buttonClass({
         flex: props.flex,
         fullWidth: props.fullWidth === true,
       })}`}
@@ -147,44 +111,39 @@ export function Button(props: ButtonProps): JSX.Element {
         component: 'Button',
         intent: props.intent ?? 'primary',
         variant: props.variant ?? 'solid',
-        phase: render().phase,
+        size: props.size ?? 'md',
+        phase: state().phase,
+        face: state().face,
         ...props.dataSet,
       })}
       type={props.type}
-      onClick={() => render().handleClick?.()}
-      disabled={render().nonInteractive}
-      aria-busy={render().phase === 'loading' ? true : undefined}
+      onClick={() => state().handleClick?.()}
+      disabled={state().nonInteractive}
+      aria-busy={state().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
-      style={buttonStyle({
-        flex: props.flex,
-        s: size(),
-        face: render().face,
-      })}
+      style={flexStyle()}
     >
-      <OnColorProvider value={onColor}>
-        <ButtonContent
-          labels={{
-            get title() {
-              return props.title;
-            },
-            get loadingLabel() {
-              return props.loadingLabel;
-            },
-            get successLabel() {
-              return props.successLabel;
-            },
-            get errorLabel() {
-              return props.errorLabel;
-            },
-          }}
-          phase={render().phase}
-          size={size()}
-          foregroundColor={fg()}
-          icon={props.icon}
-          startIcon={props.startIcon}
-          endIcon={props.endIcon}
-        />
-      </OnColorProvider>
+      <ButtonContent
+        labels={{
+          get title() {
+            return props.title;
+          },
+          get loadingLabel() {
+            return props.loadingLabel;
+          },
+          get successLabel() {
+            return props.successLabel;
+          },
+          get errorLabel() {
+            return props.errorLabel;
+          },
+        }}
+        phase={state().phase}
+        size={spec()}
+        icon={props.icon}
+        startIcon={props.startIcon}
+        endIcon={props.endIcon}
+      />
     </button>
   );
 }

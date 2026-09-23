@@ -10,25 +10,19 @@
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { Dynamic } from 'solid-js/web';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { spacingScale } from '../../theme';
 import {
-  OnColorProvider,
-  type OnColorSet,
-  spacingScale,
-  useThemeTokens,
-} from '../../theme';
-import {
-  type ButtonFace,
   type ButtonFeedback,
   type ButtonIntent,
+  type ButtonRenderInput,
+  buttonInteraction,
   MUTATION_FEEDBACK_ICONS,
-  resolveButtonRender,
 } from '../button';
 import { type IconComponent, PlusIcon } from '../icons';
 import { Spinner } from '../spinner';
 
 export const FAB_SIZE = 56;
 const FAB_ICON_SIZE = 24;
-const FAB_HORIZONTAL_PADDING = 16;
 /** Spacing-scale steps (1 = 4px): icon/label gap 8px. */
 const FAB_CONTENT_GAP = 2;
 
@@ -71,15 +65,9 @@ export function fabLabelForPhase(
   }
 }
 
-function FabLabelText(props: {
-  label: JSX.Element;
-  foregroundColor: string;
-}): JSX.Element {
+function FabLabelText(props: { label: JSX.Element }): JSX.Element {
   return (
-    <p
-      class="text textBodyBold text-[15px] leading-[20px] font-semibold whitespace-nowrap"
-      style={{ color: props.foregroundColor }}
-    >
+    <p class="text textBodyBold text-[15px] leading-[20px] font-semibold whitespace-nowrap">
       {props.label}
     </p>
   );
@@ -88,7 +76,6 @@ function FabLabelText(props: {
 function FabContent(props: {
   phase: ButtonFeedback;
   icon: IconComponent;
-  foregroundColor: string;
   labels: FabLabels;
 }): JSX.Element {
   const text = (): JSX.Element | undefined =>
@@ -99,11 +86,7 @@ function FabContent(props: {
     <>
       <Switch>
         <Match when={props.phase === 'loading'}>
-          <Spinner
-            decorative
-            color={props.foregroundColor}
-            size={FAB_ICON_SIZE}
-          />
+          <Spinner decorative color="currentColor" size={FAB_ICON_SIZE} />
         </Match>
         <Match when={props.phase === 'success' || props.phase === 'error'}>
           <Dynamic
@@ -113,19 +96,14 @@ function FabContent(props: {
                 : MUTATION_FEEDBACK_ICONS.error
             }
             size={FAB_ICON_SIZE}
-            color={props.foregroundColor}
           />
         </Match>
         <Match when={props.phase === 'idle'}>
-          <Dynamic
-            component={props.icon}
-            size={FAB_ICON_SIZE}
-            color={props.foregroundColor}
-          />
+          <Dynamic component={props.icon} size={FAB_ICON_SIZE} />
         </Match>
       </Switch>
       <Show when={showText()}>
-        <FabLabelText label={text()} foregroundColor={props.foregroundColor} />
+        <FabLabelText label={text()} />
       </Show>
     </>
   );
@@ -133,101 +111,74 @@ function FabContent(props: {
 
 function fabContainerClass(extended: boolean): string {
   return [
-    'items-center justify-center flex-row overflow-hidden rounded-[9999px]',
+    'items-center justify-center flex-row overflow-hidden rounded-full',
     !extended && 'w-[56px]',
   ]
     .filter(Boolean)
     .join(' ');
 }
 
-function fabContainerStyle(
-  extended: boolean,
-  face: ButtonFace
-): JSX.CSSProperties {
+function fabInput(props: FloatingActionButtonProps): ButtonRenderInput {
   return {
-    height: `${FAB_SIZE}px`,
-    'min-height': `${FAB_SIZE}px`,
-    'background-color': face.backgroundColor,
-    'border-color': face.borderColor,
-    'border-width': `${face.borderWidth}px`,
-    'border-style': 'solid',
-    ...(extended
-      ? {
-          'padding-left': `${FAB_HORIZONTAL_PADDING}px`,
-          'padding-right': `${FAB_HORIZONTAL_PADDING}px`,
-        }
-      : {}),
+    intent: props.intent ?? 'primary',
+    variant: 'solid',
+    disabled: props.disabled,
+    loading: props.loading,
+    feedback: props.feedback,
+    onClick: props.onClick,
+    onRetry: props.onRetry,
   };
 }
 
 export function FloatingActionButton(
   props: FloatingActionButtonProps
 ): JSX.Element {
-  const tokens = useThemeTokens();
   const extended = (): boolean => props.label !== undefined;
-  const render = () =>
-    resolveButtonRender(tokens.colors, {
-      intent: props.intent ?? 'primary',
-      variant: 'solid',
-      disabled: props.disabled,
-      loading: props.loading,
-      feedback: props.feedback,
-      onClick: props.onClick,
-      onRetry: props.onRetry,
-    });
-  const fg = (): string => render().face.foregroundColor;
-  const onColor: OnColorSet = {
-    get fg() {
-      return fg();
-    },
-    get fgMuted() {
-      return fg();
-    },
-    get icon() {
-      return fg();
-    },
-  };
+  const state = () => buttonInteraction(fabInput(props));
   return (
     <button
-      class={`clickable clickableTint ${fabContainerClass(extended())}`}
+      class={`clickable clickableTint fab ${fabContainerClass(extended())}`}
       {...dataAttrs({
         component: 'FloatingActionButton',
-        phase: render().phase,
+        intent: props.intent ?? 'primary',
+        phase: state().phase,
+        face: state().face,
+        extended: extended() ? 'true' : 'false',
         ...props.dataSet,
       })}
       type="button"
-      onClick={() => render().handleClick?.()}
-      disabled={render().nonInteractive}
-      aria-busy={render().phase === 'loading' ? true : undefined}
+      onClick={() => state().handleClick?.()}
+      disabled={state().nonInteractive}
+      aria-busy={state().phase === 'loading' ? true : undefined}
       aria-label={props['aria-label']}
-      style={fabContainerStyle(extended(), render().face)}
+      style={{
+        height: `${FAB_SIZE}px`,
+        'min-height': `${FAB_SIZE}px`,
+      }}
     >
-      <OnColorProvider value={onColor}>
-        <div
-          class="box relative z-[1] flex-row items-center"
-          style={{ gap: `${spacingScale(FAB_CONTENT_GAP)}px` }}
-        >
-          <FabContent
-            phase={render().phase}
-            icon={props.icon ?? PlusIcon}
-            foregroundColor={fg()}
-            labels={{
-              get label() {
-                return props.label;
-              },
-              get loadingLabel() {
-                return props.loadingLabel;
-              },
-              get successLabel() {
-                return props.successLabel;
-              },
-              get errorLabel() {
-                return props.errorLabel;
-              },
-            }}
-          />
-        </div>
-      </OnColorProvider>
+      <div
+        class="box relative z-[1] flex-row items-center"
+        style={{ gap: `${spacingScale(FAB_CONTENT_GAP)}px` }}
+      >
+        <FabContent
+          phase={state().phase}
+          icon={props.icon ?? PlusIcon}
+          labels={{
+            get label() {
+              return props.label;
+            },
+            get loadingLabel() {
+              return props.loadingLabel;
+            },
+            get successLabel() {
+              return props.successLabel;
+            },
+            get errorLabel() {
+              return props.errorLabel;
+            },
+          }}
+        />
+      </div>
     </button>
   );
 }

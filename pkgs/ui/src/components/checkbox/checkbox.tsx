@@ -28,7 +28,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
   const filled = () => props.checked || indeterminate();
   return (
     <button
-      class="clickable clickableTint rounded-[4px] flex-row items-center gap-2 min-h-[44px]"
+      class="clickable clickableTint rounded-xs flex-row items-center gap-2 min-h-[44px]"
       {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
       type="button"
       style={{ opacity: props.disabled ? 0.5 : 1 }}
@@ -39,7 +39,7 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
       onClick={() => props.onToggle(indeterminate() ? true : !props.checked)}
     >
       <div
-        class="box rounded-[4px] border-solid items-center justify-center"
+        class="box rounded-xs border-solid items-center justify-center"
         style={{
           width: `${BOX_SIZE}px`,
           height: `${BOX_SIZE}px`,

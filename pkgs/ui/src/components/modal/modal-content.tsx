@@ -73,7 +73,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
   return (
     <OnColorReset>
       <div
-        class="box rounded-[20px] w-full self-center overflow-hidden bg-surface-overlay border border-border"
+        class="box rounded-xl w-full self-center overflow-hidden bg-surface-overlay border border-border"
         {...dataAttrs({
           component: 'ModalContent',
           size: props.size ?? 'medium',

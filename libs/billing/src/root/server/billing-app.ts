@@ -4,6 +4,7 @@ import { Hono } from 'hono';
 import {
   BillingCheckoutRoutes,
   type BillingRequireAuth,
+  type BillingRouteExtras,
 } from '../../use-cases/create-checkout-session/server/billing-checkout-route';
 
 export class BillingApp {
@@ -11,7 +12,10 @@ export class BillingApp {
     private readonly getSqlClient: () => SqlClient,
     private readonly billing: Billing | null,
     private readonly requireAuth: BillingRequireAuth,
-    private readonly now: () => number
+    private readonly deps: {
+      readonly now: () => number;
+      readonly extras?: BillingRouteExtras;
+    }
   ) {}
 
   build(): Hono {
@@ -19,7 +23,7 @@ export class BillingApp {
       this.getSqlClient,
       this.billing,
       this.requireAuth,
-      this.now
+      this.deps
     ).build();
 
     return new Hono().route('/', checkout);

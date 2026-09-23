@@ -17,7 +17,7 @@ export function ProfileFriendsStats(): JSX.Element {
 
   return (
     <button
-      class="clickable clickableTint self-stretch flex-row items-center justify-between gap-3 py-1 rounded-[10px]"
+      class="clickable clickableTint self-stretch flex-row items-center justify-between gap-3 py-1 rounded-md"
       data-testid={Handles.profileFriendsStats}
       type="button"
       onClick={() => navigate(FriendsProfileRoute.Friends)}

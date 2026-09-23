@@ -8,6 +8,7 @@ import {
   handleOauthLaunch,
   handleSessionExchange,
   handleSignOut,
+  handleUnlinkAccount,
 } from './auth-route-handlers';
 import type {
   CreateAuthAppDeps,
@@ -29,6 +30,8 @@ export function createAuthApp(deps: CreateAuthAppDeps): Hono {
     handleDevAuthorizeComplete(c, deps)
   );
   app.get('/auth/callback/:provider', (c) => handleOauthCallback(c, deps));
+  app.post('/auth/callback/:provider', (c) => handleOauthCallback(c, deps));
+  app.post('/auth/accounts/unlink', (c) => handleUnlinkAccount(c, deps));
   app.post('/auth/session', (c) => handleSessionExchange(c, deps));
   app.get('/auth/session', (c) => handleGetSession(c, deps));
   app.post('/auth/sign-out', (c) => handleSignOut(c, deps));

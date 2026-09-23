@@ -134,7 +134,7 @@ function ClosableOverflowDemo(): JSX.Element {
 
 function DemoFrame(props: { readonly children: JSX.Element }): JSX.Element {
   return (
-    <div class="box border border-solid border-border rounded-[10px] overflow-hidden bg-background">
+    <div class="box border border-solid border-border rounded-md overflow-hidden bg-background">
       {props.children}
     </div>
   );

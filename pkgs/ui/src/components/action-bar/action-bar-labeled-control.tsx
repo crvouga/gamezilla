@@ -55,7 +55,7 @@ export function ActionBarLabeledControl(
   };
   return (
     <button
-      class="clickable clickableTint rounded-[10px] items-center justify-center py-0.5 gap-0.5"
+      class="clickable clickableTint rounded-md items-center justify-center py-0.5 gap-0.5"
       {...dataAttrs({ component: 'ActionBarLabeledControl', ...props.dataSet })}
       type="button"
       style={{

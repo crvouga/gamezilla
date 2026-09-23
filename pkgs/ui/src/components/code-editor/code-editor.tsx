@@ -170,7 +170,7 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
       style={props.style}
     >
       <div
-        class="box relative border border-solid rounded-[10px] bg-surface-muted overflow-hidden"
+        class="box relative border border-solid rounded-md bg-surface-muted overflow-hidden"
         style={{
           'border-color': focused() ? colorVar('tint') : colorVar('outline'),
           'min-height': `${height()}px`,

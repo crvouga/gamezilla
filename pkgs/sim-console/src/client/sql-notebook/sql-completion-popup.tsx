@@ -12,7 +12,7 @@ export function SqlCompletionPopup(props: {
 }): JSX.Element {
   return (
     <div
-      class="box border border-outline rounded-[10px] bg-surface max-h-[180px] overflow-hidden"
+      class="box border border-outline rounded-md bg-surface max-h-[180px] overflow-hidden"
       data-component="SqlCompletionPopup"
     >
       <For each={props.result.candidates}>

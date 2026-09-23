@@ -51,6 +51,19 @@ export class AuthSnapshotRefresher {
       now,
       createId,
     });
+    await this.ensureProfileRow(accountId, now);
+  }
+
+  private async ensureProfileRow(
+    accountId: string,
+    now: () => number
+  ): Promise<void> {
+    const createdAt = new Date(now()).toISOString();
+    await this.db.run(sql`
+      INSERT INTO profile (id, created_at, username, username_norm, avatar_config)
+      VALUES (${accountId}, ${createdAt}, '', '', '{}')
+      ON CONFLICT (id) DO NOTHING
+    `);
   }
 
   private async upsertAuthUserFromBearer(args: {

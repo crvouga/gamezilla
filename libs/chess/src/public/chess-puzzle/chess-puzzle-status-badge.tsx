@@ -7,7 +7,7 @@ export function ChessPuzzleStatusBadge(props: {
 }): JSX.Element {
   return (
     <div
-      class="box w-[20px] h-[20px] rounded-[10px] items-center justify-center"
+      class="box w-[20px] h-[20px] rounded-md items-center justify-center"
       style={{ 'background-color': props.bg }}
     >
       <p

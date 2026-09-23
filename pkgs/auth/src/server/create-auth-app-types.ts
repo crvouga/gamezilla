@@ -5,8 +5,14 @@ import type { CreateId } from '@pkgs/uuid';
 
 import type { GoogleProviderConfig } from './google-oauth';
 
+export type AppleProviderConfig = {
+  readonly clientId: string;
+  readonly clientSecret: string;
+};
+
 export type CreateAuthAppProviders = {
   readonly google?: GoogleProviderConfig;
+  readonly apple?: AppleProviderConfig;
   readonly dev?: { readonly enabled: true };
 };
 

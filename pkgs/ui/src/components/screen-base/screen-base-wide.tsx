@@ -116,7 +116,7 @@ function WideIslandBody(props: BodyProps): JSX.Element {
           class="flex-1"
           contentStyle={{
             'flex-grow': 1,
-            padding: 'var(--ui-space-5)',
+            padding: 'var(--ui-space-page)',
             'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
           }}
           dataSet={{ component: 'ScreenBodyScroll' }}

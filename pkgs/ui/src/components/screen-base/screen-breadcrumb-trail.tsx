@@ -36,7 +36,7 @@ function AncestorCrumb(props: {
     <Show when={props.onClick} fallback={text()}>
       {(onClick) => (
         <button
-          class="clickable clickableTint rounded-[6px] px-1 [margin-left:-4px;margin-right:-4px] min-h-[32px]"
+          class="clickable clickableTint rounded-sm px-1 [margin-left:-4px;margin-right:-4px] min-h-[32px]"
           data-component="ScreenBreadcrumbLink"
           type="button"
           role="link"

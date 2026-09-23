@@ -28,6 +28,8 @@ export const easing = {
   accelerate: 'cubic-bezier(0.3, 0, 1, 1)',
   /** Symmetric ease-in-out, useful for shimmer / pulse loops. */
   inOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  /** Slight overshoot for compositor-only presses (transform, not layout). */
+  playful: 'cubic-bezier(0.34, 1.4, 0.64, 1)',
 } as const;
 
 export type EasingKey = keyof typeof easing;

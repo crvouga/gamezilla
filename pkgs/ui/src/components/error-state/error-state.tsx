@@ -190,7 +190,7 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
 function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-start gap-3 p-3 border border-destructive bg-destructive-surface rounded-[10px]"
+      class="box flex-row items-start gap-3 p-3 border border-destructive bg-destructive-surface rounded-md"
       {...dataAttrs({ component: 'ErrorState', ...props.dataSet })}
       role="alert"
     >

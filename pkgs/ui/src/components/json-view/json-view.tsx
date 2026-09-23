@@ -130,7 +130,7 @@ export function JsonView(props: JsonViewProps): JSX.Element {
 
   return (
     <div
-      class="box bg-surface-muted border border-border rounded-[10px]"
+      class="box bg-surface-muted border border-border rounded-md"
       classList={{ [String(local.class)]: true }}
       style={local.style}
       {...dataAttrs({ component: 'JsonView', ...local.dataSet })}
@@ -235,7 +235,7 @@ function ToolbarButton(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-[44px] rounded-[6px]"
+      class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-[44px] rounded-sm"
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}

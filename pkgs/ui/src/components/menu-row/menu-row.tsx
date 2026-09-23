@@ -142,7 +142,7 @@ function MenuRowBody(
 }
 
 function rowClass(selected: boolean): string {
-  return selected ? 'rounded-[10px] bg-tint-subtle' : 'rounded-[10px]';
+  return selected ? 'rounded-md bg-tint-subtle' : 'rounded-md';
 }
 
 export function MenuRow(props: MenuRowProps): JSX.Element {

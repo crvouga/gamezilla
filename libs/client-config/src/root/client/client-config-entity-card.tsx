@@ -71,7 +71,7 @@ export function ClientConfigEntityCard(): JSX.Element {
         <label class="text textLabel text-text-secondary">
           {<Trans>Snapshot (JSON)</Trans>}
         </label>
-        <div class="box bg-surface-muted rounded-[10px] p-3">
+        <div class="box bg-surface-muted rounded-md p-3">
           <code class="text textMono select-text">{jsonPreview()}</code>
         </div>
       </div>

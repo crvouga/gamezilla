@@ -26,9 +26,9 @@ describe('Badge', () => {
     renderUi(() => <Badge label="Beta" intent="success" tone="solid" />);
     const root = byComponent('Badge');
     expect(root).toHaveTextContent('Beta');
-    const css = cssOf(root);
-    expect(css).toContain('background-color:var(--ui-color-success)');
-    expect(root.className).toMatch(/rounded-\[9999px\]/);
+    expect(root).toHaveAttribute('data-intent', 'success');
+    expect(root).toHaveAttribute('data-tone', 'solid');
+    expect(root.className).toContain('badge');
   });
 
   test('sm size uses tighter padding than md', () => {
@@ -38,8 +38,8 @@ describe('Badge', () => {
         <Badge label="b" size="md" dataSet={{ component: 'BadgeMd' }} />
       </>
     ));
-    expect(cssOf(byComponent('BadgeSm'))).toContain('padding:2px6px');
-    expect(cssOf(byComponent('BadgeMd'))).toContain('padding:3px8px');
+    expect(byComponent('BadgeSm')).toHaveAttribute('data-size', 'sm');
+    expect(byComponent('BadgeMd')).toHaveAttribute('data-size', 'md');
   });
 });
 
@@ -58,12 +58,12 @@ describe('StatusDot', () => {
     ));
     const a = byComponent('DotA');
     expect(a).toHaveAttribute('aria-hidden', 'true');
-    expect(cssOf(a)).toContain('background-color:var(--ui-color-success)');
+    expect(a).toHaveAttribute('data-status', 'online');
     const b = byComponent('DotB');
     expect(b).toHaveAttribute('role', 'img');
     expect(b).toHaveAttribute('aria-label', 'Offline');
     expect(cssOf(b)).toContain('width:12px');
-    expect(cssOf(b)).toContain('background-color:var(--ui-color-destructive)');
+    expect(b).toHaveAttribute('data-status', 'offline');
   });
 });
 

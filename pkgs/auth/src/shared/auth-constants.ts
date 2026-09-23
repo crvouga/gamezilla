@@ -9,4 +9,10 @@ export const GOOGLE_OAUTH_USERINFO_URL =
   'https://openidconnect.googleapis.com/v1/userinfo';
 
 export const IDP_PROVIDER_GOOGLE = 'google';
+export const IDP_PROVIDER_APPLE = 'apple';
 export const IDP_PROVIDER_DEV = 'dev';
+
+export const APPLE_OAUTH_AUTHORIZE_URL =
+  'https://appleid.apple.com/auth/authorize';
+export const APPLE_OAUTH_KEYS_URL = 'https://appleid.apple.com/auth/keys';
+export const APPLE_ISSUER = 'https://appleid.apple.com';

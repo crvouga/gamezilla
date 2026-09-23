@@ -41,7 +41,7 @@ function SchemePane(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-1 p-4 gap-3 bg-background border border-solid border-border rounded-[14px] text-text"
+      class="box flex-1 p-4 gap-3 bg-background border border-solid border-border rounded-lg text-text"
       data-component="SchemePane"
       data-scheme={props.scheme}
       data-theme={props.scheme}

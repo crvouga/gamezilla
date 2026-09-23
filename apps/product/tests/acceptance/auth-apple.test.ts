@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'bun:test';
 import { acceptanceApi } from '@apps/product/sim/acceptance/system';
 import { appleCallback, appleLogin } from './apple-support';
-import { aliceIdentity, applied, login, query } from './support';
+import {
+  aliceIdentity,
+  applied,
+  CALLBACK,
+  call,
+  headers,
+  login,
+  query,
+} from './support';
 
 describe('Apple identity', () => {
   for (const privateEmail of [false, true]) {
@@ -89,10 +97,23 @@ describe('Apple identity', () => {
     });
     const google = await login(s, 2, aliceIdentity);
     expect(google.accountId).not.toBe(apple.accountId);
-    const linked = await login(s, 1, aliceIdentity, apple);
-    expect(linked.accountId).toBe(apple.accountId);
+    const launch = await call(s, {
+      path: `/auth/oauth/launch?provider=google&intent=link&callbackUrl=${encodeURIComponent(CALLBACK)}`,
+      method: 'GET',
+      headers: headers(apple),
+    });
+    expect(launch.status).toBe(302);
+    const state = new URL(launch.headers['location']!).searchParams.get(
+      'state'
+    );
+    const conflict = await call(s, {
+      path: `/auth/callback/google?state=${state}&code=fixture-code`,
+      method: 'GET',
+    });
+    expect(conflict.status).toBe(409);
+    expect((await login(s, 3, aliceIdentity)).accountId).toBe(google.accountId);
     expect(
-      (await appleLogin(s, 3, { sub: 'apple-shared-email' })).accountId
+      (await appleLogin(s, 4, { sub: 'apple-shared-email' })).accountId
     ).toBe(apple.accountId);
   });
 

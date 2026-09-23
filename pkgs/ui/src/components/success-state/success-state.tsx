@@ -94,7 +94,7 @@ function SuccessStateFill(props: SuccessStateProps): JSX.Element {
 function SuccessStateCompact(props: SuccessStateProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-start gap-3 p-3 border border-success bg-success-surface rounded-[10px]"
+      class="box flex-row items-start gap-3 p-3 border border-success bg-success-surface rounded-md"
       {...dataAttrs({ component: 'SuccessState', ...props.dataSet })}
       role="status"
     >

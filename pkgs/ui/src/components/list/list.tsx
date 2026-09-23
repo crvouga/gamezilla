@@ -92,7 +92,7 @@ function ListItemContent(props: {
 }
 
 function selectedClass(selected: boolean): string {
-  return selected ? 'bg-tint-subtle rounded-[10px]' : '';
+  return selected ? 'bg-tint-subtle rounded-md' : '';
 }
 
 export function ListItem(props: ListItemProps): JSX.Element {

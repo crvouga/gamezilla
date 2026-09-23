@@ -126,7 +126,21 @@ async function createLlmAppForServer(env: ServerEnv) {
   return result;
 }
 
-function createBillingSubApp(billing: Billing | null, now: () => number) {
+function createBillingSubApp(
+  billing: Billing | null,
+  env: {
+    readonly clock: { readonly now: () => number };
+    readonly createId: () => string;
+    readonly fetch: (
+      input: RequestInfo | URL,
+      init?: RequestInit
+    ) => Promise<Response>;
+    readonly secrets: {
+      getOptional(name: string): Promise<{ readSecretValue(): string } | null>;
+    };
+    readonly auth: { readonly trustedOrigins: readonly string[] };
+  }
+) {
   return new BillingApp(
     () => {
       const s = apiRequestAsyncLocalStorage.getStore();
@@ -146,7 +160,18 @@ function createBillingSubApp(billing: Billing | null, now: () => number) {
       }
       return { accountId: auth.accountId, deviceId: auth.deviceId };
     },
-    now
+    {
+      now: () => env.clock.now(),
+      extras: {
+        fetch: env.fetch,
+        trustedOrigins: env.auth.trustedOrigins,
+        createId: env.createId,
+        readWebhookSecret: async () => {
+          const secret = await env.secrets.getOptional('STRIPE_WEBHOOK_SECRET');
+          return secret?.readSecretValue() ?? null;
+        },
+      },
+    }
   ).build();
 }
 
@@ -288,10 +313,7 @@ function createServerRouter(args: {
     .route('/', createPubSubTokenRoutes())
     .route('/', tts.app)
     .route('/', llm.app)
-    .route(
-      '/',
-      createBillingSubApp(billing, () => env.clock.now())
-    )
+    .route('/', createBillingSubApp(billing, env))
     .route('/', createRoomApp())
     .route('/matchmaking', createMatchmakingSubApp())
     .route(

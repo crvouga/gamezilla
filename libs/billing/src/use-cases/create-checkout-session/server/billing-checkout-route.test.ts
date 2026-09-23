@@ -19,7 +19,7 @@ describe('BillingCheckoutRoutes', () => {
       async () => {
         throw new Error('should not be called');
       },
-      () => 0
+      { now: () => 0 }
     ).build();
 
     const res = await app.request('/billing/checkout', {
@@ -49,7 +49,7 @@ describe('BillingCheckoutRoutes', () => {
       () => sql,
       billing,
       async () => ({ accountId: 'acc_1', deviceId: 'dev_1' }),
-      () => 0
+      { now: () => 0 }
     ).build();
 
     const res = await app.request('/billing/portal', {

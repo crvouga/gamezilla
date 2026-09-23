@@ -103,7 +103,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         </button>
         <Show when={closable()}>
           <button
-            class={`clickable clickableTint rounded-[6px] items-center justify-center shrink-0 w-[22px] h-[22px] ${styles['close'] ?? ''}`}
+            class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-[22px] h-[22px] ${styles['close'] ?? ''}`}
             data-component="TabStripClose"
             data-id={props.item.id}
             type="button"

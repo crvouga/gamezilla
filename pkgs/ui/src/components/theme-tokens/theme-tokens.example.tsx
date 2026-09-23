@@ -143,7 +143,7 @@ function ColorSwatch(props: { token: keyof ColorTokens }): JSX.Element {
   const theme = useThemeTokens();
   const value = () => theme.colors[props.token];
   return (
-    <div class="box w-[132px] rounded-[10px] border border-solid border-border overflow-hidden">
+    <div class="box w-[132px] rounded-md border border-solid border-border overflow-hidden">
       <div class="box h-[56px]" style={{ 'background-color': value() }} />
       <div class="box px-2 py-1 bg-surface">
         <p class="text textCaption line-clamp-1 text-text">{props.token}</p>
@@ -190,7 +190,7 @@ function SpacingRow(): JSX.Element {
               {entry.key}
             </p>
             <div
-              class="box h-[10px] bg-tint rounded-[4px]"
+              class="box h-[10px] bg-tint rounded-xs"
               style={{ width: cssPx(Math.max(entry.value, 1)) }}
             />
             <p class="text textCaption text-text-secondary">{`${entry.value}px`}</p>
@@ -208,7 +208,7 @@ function ElevationRow(): JSX.Element {
         {(level) => (
           <div class="box items-center gap-1">
             <div
-              class={`box w-[88px] h-[64px] rounded-[10px] bg-elevation-${level}`}
+              class={`box w-[88px] h-[64px] rounded-md bg-elevation-${level}`}
             />
             <p class="text textCaption text-text-secondary">{`level ${level}`}</p>
           </div>

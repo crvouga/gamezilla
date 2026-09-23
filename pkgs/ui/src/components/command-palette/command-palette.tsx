@@ -119,7 +119,7 @@ function PaletteCard(props: {
   const running = (): boolean => reg.runningId() !== null;
   return (
     <div
-      class="box rounded-[20px] border border-border overflow-hidden bg-surface-overlay"
+      class="box rounded-xl border border-border overflow-hidden bg-surface-overlay"
       data-component="CommandPaletteCard"
     >
       <Show when={running()} fallback={<div class="box h-[2px]" />}>

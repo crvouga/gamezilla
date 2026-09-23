@@ -35,7 +35,7 @@ export function PickerLabel(props: { label: JSX.Element }): JSX.Element {
 function triggerClass(compact: boolean): string {
   return [
     'clickable clickableTint flex-row items-center min-w-0 w-full text-left',
-    'rounded-[10px] border border-solid border-outline bg-surface-muted',
+    'rounded-md border border-solid border-outline bg-surface-muted',
     compact ? 'h-8 gap-1.5 px-2' : 'min-h-11 gap-2.5 px-3 py-2.5',
   ]
     .filter(Boolean)

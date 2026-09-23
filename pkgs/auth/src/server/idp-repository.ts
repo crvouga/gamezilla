@@ -77,9 +77,9 @@ export class IdpRepository {
     if (existingUserId !== null) {
       await this.db.run(sql`
         UPDATE idp_users
-        SET email = ${args.email},
-            name = ${args.name},
-            image = ${args.image},
+        SET email = COALESCE(${args.email}, email),
+            name = COALESCE(${args.name}, name),
+            image = COALESCE(${args.image}, image),
             updated_at = ${now}
         WHERE id = ${existingUserId}
       `);
@@ -202,6 +202,7 @@ export class IdpRepository {
   async createOauthState(args: {
     readonly provider: string;
     readonly callbackUrl: string;
+    readonly userId?: string | null;
   }): Promise<{
     readonly state: string;
     readonly codeVerifier: string;
@@ -217,7 +218,8 @@ export class IdpRepository {
       )
       VALUES (
         ${this.createId()}, ${now}, ${now}, ${args.provider}, ${state},
-        ${codeVerifier}, ${args.callbackUrl}, ${null}, ${expiresAt}, ${null}
+        ${codeVerifier}, ${args.callbackUrl}, ${null}, ${expiresAt},
+        ${args.userId ?? null}
       )
     `);
     return { state, codeVerifier };
@@ -229,6 +231,7 @@ export class IdpRepository {
     readonly code_verifier: string;
     readonly callback_url: string;
     readonly expires_at: string;
+    readonly user_id: string | null;
   } | null> {
     const rows = await this.db.query(sql<{
       id: string;
@@ -236,8 +239,9 @@ export class IdpRepository {
       code_verifier: string;
       callback_url: string;
       expires_at: string;
+      user_id: string | null;
     }>`
-      SELECT id, provider, code_verifier, callback_url, expires_at
+      SELECT id, provider, code_verifier, callback_url, expires_at, user_id
       FROM idp_oauth_states
       WHERE state = ${state} AND deleted_at IS NULL
       LIMIT 1
@@ -310,6 +314,33 @@ export class IdpRepository {
       SELECT id, provider, provider_user_id
       FROM idp_accounts
       WHERE user_id = ${userId} AND deleted_at IS NULL
+    `);
+  }
+
+  async attachAccount(args: {
+    readonly userId: string;
+    readonly provider: string;
+    readonly providerUserId: string;
+    readonly accessToken?: string | null;
+    readonly refreshToken?: string | null;
+  }): Promise<void> {
+    const now = isoFromMs(this.clock.now());
+    await this.db.run(sql`
+      INSERT INTO idp_accounts (
+        id, created_at, updated_at, user_id, provider, provider_user_id,
+        access_token, refresh_token
+      )
+      VALUES (
+        ${this.createId()}, ${now}, ${now}, ${args.userId}, ${args.provider},
+        ${args.providerUserId}, ${args.accessToken ?? null},
+        ${args.refreshToken ?? null}
+      )
+    `);
+  }
+
+  async deleteAccount(accountId: string): Promise<void> {
+    await this.db.run(sql`
+      DELETE FROM idp_accounts WHERE id = ${accountId}
     `);
   }
 

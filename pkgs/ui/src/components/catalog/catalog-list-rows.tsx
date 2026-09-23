@@ -70,7 +70,7 @@ function CatalogRow(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint py-3 px-4 min-h-[44px] bg-surface rounded-[10px] flex-row justify-between items-center text-left"
+      class="clickable clickableTint py-3 px-4 min-h-[44px] bg-surface rounded-md flex-row justify-between items-center text-left"
       type="button"
       onClick={() => props.onSelect(props.item.id)}
     >

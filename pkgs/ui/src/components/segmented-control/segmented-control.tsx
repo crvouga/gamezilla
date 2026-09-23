@@ -72,7 +72,7 @@ function SegmentButton<K extends string>(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable rounded-[6px] flex-1 items-center py-3 px-3.5 bg-transparent relative z-1"
+      class="clickable rounded-sm flex-1 items-center py-3 px-3.5 bg-transparent relative z-1"
       classList={{
         clickableTint: !props.isActive,
       }}
@@ -112,7 +112,7 @@ export function SegmentedControl<K extends string = string>(
     segmentIndicatorCss(selectedIndex(), props.segments.length);
   return (
     <div
-      class="box flex-row bg-surface-muted rounded-[10px] border border-border relative"
+      class="box flex-row bg-surface-muted rounded-md border border-border relative"
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
       style={{
         padding: cssPx(CONTAINER_PADDING),
@@ -123,7 +123,7 @@ export function SegmentedControl<K extends string = string>(
     >
       <Show when={props.segments.length > 0}>
         <div
-          class="box absolute rounded-[6px] bg-surface-elevated border border-border pointer-events-none"
+          class="box absolute rounded-sm bg-surface-elevated border border-border pointer-events-none"
           data-component="SegmentIndicator"
           style={{
             top: cssPx(CONTAINER_PADDING),

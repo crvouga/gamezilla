@@ -150,7 +150,7 @@ async function buildSharedServerServices(
   return {
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
-    billing: new InMemoryBilling({ baseUrl: serverUrl }),
+    billing: new InMemoryBilling(),
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,

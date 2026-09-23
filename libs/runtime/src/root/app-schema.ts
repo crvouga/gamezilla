@@ -1,4 +1,5 @@
 import { AUTH_TABLES } from '@libs/auth/public/schema';
+import { BILLING_TABLES } from '@libs/billing/public/schema';
 import { CHESS_TABLES } from '@libs/chess/public/schema';
 import { CLIENT_CONFIG_TABLES } from '@libs/client-config/public/schema';
 import { FRIENDS_TABLES } from '@libs/friends/public/schema';
@@ -9,6 +10,7 @@ import { domainsFromTables, registerTables } from '@pkgs/db-schema';
 
 const ALL_TABLES = [
   ...AUTH_TABLES,
+  ...BILLING_TABLES,
   ...PROFILE_TABLES,
   ...SPACES_TABLES,
   ...FRIENDS_TABLES,

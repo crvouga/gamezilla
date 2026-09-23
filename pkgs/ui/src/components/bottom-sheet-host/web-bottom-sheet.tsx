@@ -29,7 +29,7 @@ function DragHandle(): JSX.Element {
       data-component="BottomSheetHandle"
       aria-hidden="true"
     >
-      <div class="box w-[36px] h-[4px] rounded-[9999px] bg-border" />
+      <div class="box w-[36px] h-[4px] rounded-full bg-border" />
     </div>
   );
 }

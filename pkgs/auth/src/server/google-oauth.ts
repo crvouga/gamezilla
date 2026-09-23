@@ -17,6 +17,7 @@ export type GoogleUserInfo = {
   readonly email: string | null;
   readonly name: string | null;
   readonly picture: string | null;
+  readonly emailVerified: boolean;
   readonly accessToken: string | null;
   readonly refreshToken: string | null;
 };
@@ -107,6 +108,8 @@ export async function exchangeGoogleAuthorizationCode(args: {
       typeof (profile as { picture?: unknown }).picture === 'string'
         ? (profile as { picture: string }).picture
         : null,
+    emailVerified:
+      (profile as { email_verified?: unknown }).email_verified !== false,
     accessToken,
     refreshToken,
   };

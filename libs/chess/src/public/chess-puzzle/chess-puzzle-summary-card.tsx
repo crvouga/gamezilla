@@ -6,7 +6,7 @@ import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 
 function StreakBadge(props: { streak: number }): JSX.Element {
   return (
-    <div class="box px-3 py-1 rounded-[999px] bg-success-surface">
+    <div class="box px-3 py-1 rounded-full bg-success-surface">
       <p class="text textBodyBold text-success">
         {<Trans>{props.streak} puzzle streak</Trans>}
       </p>
