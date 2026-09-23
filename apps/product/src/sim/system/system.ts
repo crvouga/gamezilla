@@ -26,7 +26,12 @@ import { PRODUCT_WALK_ACTIONS } from './pool-actions';
 import { captureSnapshot, devOauthSignIn } from './probes';
 import { productScenarioActions } from './scenario-actions';
 import { productServerActions } from './server-actions';
-import { createProductSim, type ProductSim, productExtra } from './sim';
+import {
+  createProductSim,
+  type ProductSim,
+  productExtra,
+  type SimActor,
+} from './sim';
 
 export { nextPuzzleDifferent } from './chess-properties';
 
@@ -93,13 +98,36 @@ export const noErrorBoundaryAnyActor = defineProperty(
   noErrorBoundary(anyActor)
 );
 
+/** Wall-clock actors may be mid boot canvas (identity / database swap). */
+const WALL_MENU_SETTLE_MS = 10_000;
+
+async function menuVisible(
+  s: ProductSim,
+  id: string,
+  ui: SimActor['ui']
+): Promise<boolean> {
+  const menu = ui.get(Handles.statusCurrentUser);
+  if (await menu.isVisible()) return true;
+  if (productExtra(s).ui.kind !== 'bun-webview') return false;
+  try {
+    await menu.expect.visible({
+      timeoutMs: WALL_MENU_SETTLE_MS,
+      description: `global action menu for actor ${id}`,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Focused UI must expose the global action menu trigger
  * (`Handles.statusCurrentUser`) — including inside an active space on compact.
  *
  * The in-process Solid DOM session parks non-focused actors, so only the
- * active tree is probed.
- * Bun-webview actors each own a window and are all checked.
+ * active tree is probed; virtual time has already drained, so a snapshot
+ * read is the verdict. Bun-webview actors each own a window and are all
+ * checked; on wall time a transient boot canvas gets time to settle.
  */
 export const globalActionMenuAlwaysVisible = defineProperty({
   name: 'globalActionMenuAlwaysVisible',
@@ -112,9 +140,7 @@ export const globalActionMenuAlwaysVisible = defineProperty({
     const missing: string[] = [];
     for (const [id, handle] of s.actors) {
       if (activeId !== undefined && id !== activeId) continue;
-      if (!(await handle.ui.get(Handles.statusCurrentUser).isVisible())) {
-        missing.push(id);
-      }
+      if (!(await menuVisible(s, id, handle.ui))) missing.push(id);
     }
     if (missing.length > 0) {
       throw new Error(
@@ -153,7 +179,7 @@ export const searchDoesNotHang = defineProperty({
  * instance behind the round-robin load balancer. UI actors spawn lazily via
  * spawnActor; `spawnServerNode` / `dropServerNode` resize the API fleet.
  * Profiles are registered runtimes: `in-process` (default),
- * `localhost:mocked`, and `localhost`.
+ * `localhost:mocked`, and `localhost` (the full system under `bun e2e`).
  */
 export const product = defineSystem<ProductSim>({
   name: 'sim.product',
@@ -205,9 +231,6 @@ export const product = defineSystem<ProductSim>({
     const extra = extraOf(session);
     const sim = await createSim(session, {
       serverSql: extra.sql,
-      ...(extra.serverServices !== undefined
-        ? { serverServices: extra.serverServices }
-        : {}),
       ...(extra.http.kind === 'localhost'
         ? {
             serverUrl:
@@ -220,7 +243,9 @@ export const product = defineSystem<ProductSim>({
     // Virtual-time ticks must drain in-process Hono; otherwise UI polls
     // burn their budget while serialized /api/* requests are still queued.
     extra.drainServerHttp.current = () => sim.drainServerFetch();
-    await sim.spawnServer();
+    // The full stack serves the API from the real Worker; the in-process
+    // fleet stays empty and the sim only holds the harness SQL handle.
+    if (extra.http.kind !== 'full-stack') await sim.spawnServer();
     await seedSimChessPuzzles(sim.serverSql.sqlClient);
     const surface = createProductSim(session, sim);
     // Default actor runtime so `system.explore` / `spawnActor` work without

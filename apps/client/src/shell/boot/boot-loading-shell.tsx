@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import { LoadingState } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -14,6 +16,7 @@ export function BootLoadingShell(): JSX.Element {
     <div
       class="box flex-1 min-h-[0] items-center justify-center bg-background"
       data-component="BootLoadingShell"
+      data-testid={Handles.bootLoading}
     >
       <LoadingState size="large" caption={t`Starting…`} />
     </div>

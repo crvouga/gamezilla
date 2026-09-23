@@ -7,21 +7,20 @@ properties do not change with the profile.
 | Profile | Start command | Test command | HTTP / SQL | Vendor ports |
 | --- | --- | --- | --- | --- |
 | `in-process` (default) | `bun start:in-process` (`/simulator`) | `bun run --filter @apps/product test` | In-process Hono, seeded postgres-mem and sqlite-mem, virtual time | In-memory |
-| `localhost:mocked` | `bun start:localhost:mocked` | `bun run --filter @apps/product test:localhost:mocked` | Loopback Hono and built web client on OS-assigned ports; seeded postgres-mem | In-memory |
-| `localhost` | — | `bun run --filter @apps/product test:localhost` | Loopback Hono and built web client on pinned `:8787` / `:5173`; embedded Postgres | Google OAuth, Stripe test, S3/MinIO, live TTS/LLM when configured |
+| `localhost:mocked` | `bun start:localhost:mocked` | `bun test:localhost:mocked` | Sim Hono behind a loopback listener, built web client on OS-assigned ports; seeded postgres-mem | In-memory |
+| `localhost` (full system) | `bun start:localhost` | `bun e2e` | Real API + room Workers (`wrangler dev`) on `:8788` / `:8789`, built web client on `:5173`; embedded Postgres (`e2e` database), MinIO, EMQX | Dev IdP; dev secrets otherwise |
 
-`bun start:localhost` runs the API Worker and browser app with embedded services;
-it is the normal local app command. The API in both test localhost profiles is
-the product Hono app behind the System's load balancer. The mocked test command
-runs the same `tests/` suite as the in-process profile. The normal localhost
-command runs a browser boot smoke test because it has no dev sign-in. Pass test
-file paths to focus a run without changing the test code. Network partition
-actions require a profile with the `partition` capability.
+All three run the **same** `tests/` with no edits — scenarios never pick a
+fabric. `bun-preload.ts` reads `SIM_PROFILE` and calls
+`product.useRuntime(profile)`, so every run that names no runtime (`openSim`,
+`product.explore`, `product.replay`) lands on the selected one. `bun check`
+stays in-process; `bun e2e` is the full-system run. Pass test file paths to
+focus a run without changing the test code (`bun e2e tests/shell-boot.test.tsx`).
+Network partition actions require a profile with the `partition` capability.
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
 helper over `product.run({ seed, runtime })` (plus snapshot restore + reporter).
-The default is `in-process`; choose another profile with
-`SIM_PROFILE=localhost:mocked` / `SIM_PROFILE=localhost` or
+The harness-selected profile runs (default `in-process`); pin one run with
 `openSim(id, { profile: 'localhost:mocked' })`. Standing properties are registered with
 `product.property`.
 
@@ -97,12 +96,23 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   port. The model network still supports crash/partition. Tests drive
   `Bun.WebView`; its actor id is sent as `x-sim-actor`. Test bundles use SQLite
   worker memory because Bun WebView cannot open the OPFS SyncAccessHandle pool.
-- **`localhost`** — wall time and pinned ports. It boots embedded Postgres,
-  MinIO, and EMQX, loads dev vendor credentials, and disables network
-  partition. Both localhost profiles serve the built client through
-  `e2e/serve-localhost-web.ts` for tests. Snapshot auth KV is injected per
-  actor WebView before hydrate. Manual starts use the normal persistent browser
-  SQLite backend.
+  The built client is served through `e2e/serve-localhost-web.ts`.
+- **`localhost`** — the full system. `bun e2e` (`scripts/e2e.ts`) boots
+  `tools/scripts/local-app-stack.ts` in its `e2e` profile — the same stack as
+  `bun start:localhost`, plus its own `e2e` database, `E2E_DEV_AUTH=1` on the
+  API Worker (Dev IdP; refused unless `SECRETS_ENV=dev`) and a `VITE_E2E`
+  client served by `scripts/serve-e2e-web.ts` — then runs `tests/` with
+  `SIM_PROFILE=localhost`. The harness serves no API traffic: the in-process
+  fleet stays empty and the sim holds only a SQL handle on the `e2e` database,
+  used to truncate it per run (all tables but `client_config`, which the
+  Worker materializes once per isolate) and to seed the fixture puzzles. No
+  network model, so no `partition` capability. Bun.WebView has no popups, so
+  the E2E client posts the Dev IdP authorization URL to
+  `/api/__sim/auth-session` on the web origin and the harness completes the
+  chooser for the actor (`x-sim-actor`), echoing the subject as the signup
+  username (as in-process). Wall-time actors join `s.actors` only after chrome
+  settles (a fresh install paints, swaps to the server identity behind the
+  boot canvas, then repaints).
 
 **Reports** (`SIM_REPORT`) — standalone HTML, Playwright-trace style:
 

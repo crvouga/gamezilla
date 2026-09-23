@@ -40,9 +40,29 @@ export type RoomServerInspect = {
   readonly storage: RoomStorageTopicSnapshot | null;
 };
 
+/** A browser socket bridged into a topic (sim loopback listener). */
+export type RoomSocketArgs = {
+  readonly topic: string;
+  /** Actor id the API route resolved (signed-in account or install id). */
+  readonly actorId: string;
+  /** Per-tab id; minted when the client sent none. */
+  readonly clientId: string | null;
+  readonly send: (payload: unknown) => void;
+};
+
+export type RoomSocket = {
+  message(raw: unknown): Promise<void>;
+  close(): void;
+};
+
 export type RoomServerApp = {
   readonly env: RoomServerEnv;
   readonly createTransport: CreateRoomTransport;
+  /**
+   * Accept a WebSocket the way the room Durable Object does: supersede any
+   * live connection for the same actor + client, then route frames.
+   */
+  connectSocket(args: RoomSocketArgs): Promise<RoomSocket>;
   listTopics(): readonly string[];
   inspect(topic: string): RoomServerInspect | null;
   exportTopic(topic: string): RoomStorageTopicSnapshot | null;
@@ -144,6 +164,33 @@ function buildLoopbackTransport(
   return withReadyGate(transport, entry.ready);
 }
 
+async function connectRoomSocket(
+  env: RoomServerEnv,
+  entry: TopicEntry,
+  args: RoomSocketArgs
+): Promise<RoomSocket> {
+  await entry.ready;
+  const clientId = args.clientId ?? env.createId();
+  for (const stale of entry.server.connectionIdsForActor(
+    args.actorId,
+    clientId
+  )) {
+    entry.server.unregisterConnection(stale);
+  }
+  const connectionId = env.createId();
+  entry.server.registerConnection(connectionId, args.send, {
+    id: args.actorId,
+    clientId,
+  });
+  return {
+    message: (raw) =>
+      entry.server.handleClientMessage(connectionId, args.actorId, raw),
+    close: () => {
+      entry.server.unregisterConnection(connectionId);
+    },
+  };
+}
+
 /**
  * The only room-server constructor for the in-process host — wall and sim
  * pass different {@link RoomServerEnv} implementations. Wall DO path uses
@@ -185,6 +232,10 @@ export function createRoomServer(env: RoomServerEnv): RoomServerApp {
         getOrCreate(`space:${args.spaceId}`),
         args
       );
+    },
+    connectSocket: (args) => {
+      if (disposed) throw new Error('RoomServerApp: disposed');
+      return connectRoomSocket(env, getOrCreate(args.topic), args);
     },
     listTopics: () => [...topics.keys()],
     inspect(topic) {

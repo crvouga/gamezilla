@@ -6,7 +6,7 @@
 
 import { Handles } from '@libs/test-ids';
 
-import { actorUi, scenarioAction } from './actor-ui';
+import { actorUi, openGlobalMenu, scenarioAction } from './actor-ui';
 
 const WAIT_MS = 15_000;
 
@@ -18,7 +18,7 @@ export const openSettings = scenarioAction({
   name: 'openSettings',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await openGlobalMenu(ui, Handles.globalMenuSettings, WAIT_MS);
     await ui.get(Handles.globalMenuSettings).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.tabSpaces).expect.hidden({ timeoutMs: WAIT_MS });
   },

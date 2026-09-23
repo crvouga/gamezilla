@@ -162,10 +162,20 @@ async function readOptionalSecretValue(
   return trimmed.length > 0 ? trimmed : null;
 }
 
+/**
+ * Broker URL for clients. Only advertised when this API can mint pubsub
+ * tokens: a client handed a broker it cannot authenticate against retries
+ * `/api/pubsub/token` (503) forever instead of staying poll-only.
+ */
 async function resolveEmqxWssUrlForClientConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
 }): Promise<string | null> {
+  const jwtSecret = await readOptionalSecretValue(
+    args.secretStore,
+    PubsubSecretName.jwtSecret
+  );
+  if (jwtSecret === null) return null;
   const apiUrl =
     args.apiUrlOverride?.trim() ||
     (await readOptionalSecretValue(args.secretStore, ApiSecretName.apiUrl)) ||

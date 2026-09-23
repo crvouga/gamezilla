@@ -28,6 +28,21 @@ import type {
 import { isWaitTextCondition } from '@pkgs/ui-testing/driver/driver';
 import { formatTestIdPath } from '@pkgs/ui-testing/selector/format';
 import type { BunWebviewHost } from './bun-webview-host';
+import {
+  dragScript,
+  focusFieldScript,
+  isVisibleScript,
+  layoutScript,
+  markTapTargetScript,
+  obstructionScript,
+  scrollScript,
+  TAP_TARGET_ATTR,
+  textScript,
+  visibleTestIdsScript,
+} from './page-scripts';
+
+const DEFAULT_WAIT_MS = 5_000;
+const TAP_ATTEMPT_MS = 1_000;
 
 function cssPath(path: readonly string[]): string {
   return path.map((id) => `[data-testid=${JSON.stringify(id)}]`).join(' ');
@@ -49,76 +64,89 @@ export class BunWebviewDriverNode implements DriverNode {
     return new BunWebviewDriverNode(this.host, [...this.path, testId]);
   }
 
+  /**
+   * Native click on the resolved node. A re-render can swap the node out
+   * between resolve and click (the native click then waits on a detached
+   * target), so attempts are short and each one re-waits and re-resolves.
+   */
   async tap(options?: UiWaitOptions): Promise<void> {
-    await this.waitVisible(options);
-    await this.host.view.click(cssPath(this.path));
+    const timeoutMs = options?.timeoutMs ?? DEFAULT_WAIT_MS;
+    const deadline = wallClock.now() + timeoutMs;
+    let lastError: unknown = null;
+    for (;;) {
+      const remaining = Math.max(deadline - wallClock.now(), 0);
+      await this.waitVisible({ timeoutMs: remaining });
+      const marked = await this.host.view.evaluate(
+        markTapTargetScript(this.selector)
+      );
+      if (marked === true) {
+        try {
+          await this.host.view.click(`[${TAP_TARGET_ATTR}]`, {
+            timeout: Math.max(Math.min(TAP_ATTEMPT_MS, remaining), 1),
+          });
+          return;
+        } catch (err) {
+          lastError = err;
+        }
+      }
+      if (wallClock.now() >= deadline) {
+        throw await this.tapError(lastError, timeoutMs);
+      }
+    }
   }
 
   async tapAt(position: TapPosition): Promise<void> {
     await this.waitVisible();
     const box = await this.requireBox();
-    const x = box.x + box.width * position.xRatio;
-    const y = box.y + box.height * position.yRatio;
-    await this.host.view.evaluate(
-      `(function(){ const el = document.elementFromPoint(${x}, ${y}); el?.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: ${x}, clientY: ${y} })); })()`
+    await this.host.view.click(
+      box.x + box.width * position.xRatio,
+      box.y + box.height * position.yRatio
     );
   }
 
   async drag(from: TapPosition, to: TapPosition): Promise<void> {
     await this.waitVisible();
     const box = await this.requireBox();
-    const sx = box.x + box.width * from.xRatio;
-    const sy = box.y + box.height * from.yRatio;
-    const ex = box.x + box.width * to.xRatio;
-    const ey = box.y + box.height * to.yRatio;
     await this.host.view.evaluate(
-      `(function(){
-        const t = document.elementFromPoint(${sx}, ${sy});
-        if (!t) return;
-        t.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: ${sx}, clientY: ${sy} }));
-        t.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: ${ex}, clientY: ${ey} }));
-        t.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, clientX: ${ex}, clientY: ${ey} }));
-      })()`
+      dragScript(
+        this.selector,
+        {
+          x: box.x + box.width * from.xRatio,
+          y: box.y + box.height * from.yRatio,
+        },
+        {
+          x: box.x + box.width * to.xRatio,
+          y: box.y + box.height * to.yRatio,
+        }
+      )
     );
   }
 
   async layout(): Promise<ElementLayout | null> {
-    const box = await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; })()`
-    );
+    const box = await this.host.view.evaluate(layoutScript(this.selector));
     if (box === null || typeof box !== 'object') return null;
     return box as ElementLayout;
   }
 
   async input(text: string, options?: UiWaitOptions): Promise<void> {
     await this.waitVisible(options);
-    const sel = JSON.stringify(cssPath(this.path));
-    const value = JSON.stringify(text);
-    await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${sel}); if (!el) return; el.focus(); if ('value' in el) { el.value = ${value}; el.dispatchEvent(new Event('input', { bubbles: true })); } })()`
-    );
+    await this.focusField('end');
+    await this.host.view.type(text);
   }
 
   async clear(): Promise<void> {
-    const sel = JSON.stringify(cssPath(this.path));
-    await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${sel}); if (!el) return; if ('value' in el) { el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true })); } })()`
-    );
+    await this.focusField('select');
+    await this.host.view.press('Backspace');
   }
 
   async key(key: DriverKey): Promise<void> {
-    const domKey = DRIVER_KEY_TO_DOM[key];
-    const sel = JSON.stringify(cssPath(this.path));
-    await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${sel}); el?.dispatchEvent(new KeyboardEvent('keydown', { key: ${JSON.stringify(domKey)}, bubbles: true })); })()`
-    );
+    await this.host.view.press(DRIVER_KEY_TO_DOM[key]);
   }
 
   async scroll(direction: ScrollDirection, amount = 100): Promise<void> {
     const delta = scrollDelta(direction, amount);
-    const sel = JSON.stringify(cssPath(this.path));
     await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${sel}); el?.scrollBy(${delta.x}, ${delta.y}); })()`
+      scrollScript(this.selector, delta.x, delta.y)
     );
   }
 
@@ -126,7 +154,7 @@ export class BunWebviewDriverNode implements DriverNode {
     state: WaitState | WaitTextCondition,
     options?: DriverWaitOptions
   ): Promise<void> {
-    const timeoutMs = options?.timeoutMs ?? 5_000;
+    const timeoutMs = options?.timeoutMs ?? DEFAULT_WAIT_MS;
     const description =
       options?.description ??
       `${formatTestIdPath(this.path)} wait ${JSON.stringify(state)}`;
@@ -138,7 +166,7 @@ export class BunWebviewDriverNode implements DriverNode {
             if (text === null) return false;
             return state.exact === false
               ? text.includes(state.text)
-              : text.trim() === state.text;
+              : text === state.text;
           }
           const visible = await this.isVisible();
           return state === 'visible' ? visible : !visible;
@@ -151,26 +179,65 @@ export class BunWebviewDriverNode implements DriverNode {
         }
       );
     } catch (err) {
-      if (err instanceof TimeoutError) throw err;
-      throw new TimeoutError(description, timeoutMs, { cause: err });
+      const onScreen = await this.visibleTestIds();
+      const context = `${description} (visible: ${onScreen})`;
+      throw new TimeoutError(context, timeoutMs, {
+        cause: err instanceof TimeoutError ? err.cause : err,
+      });
     }
   }
 
   async isVisible(): Promise<boolean> {
-    const result = await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return false; const s = getComputedStyle(el); return s.display !== 'none' && s.visibility !== 'hidden' && s.opacity !== '0'; })()`
+    return (
+      (await this.host.view.evaluate(isVisibleScript(this.selector))) === true
     );
-    return result === true;
   }
 
   async text(): Promise<string | null> {
-    const result = await this.host.view.evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if ('value' in el && typeof el.value === 'string') return el.value; return el.innerText ?? el.textContent; })()`
-    );
-    if (result === null) {
+    const result = await this.host.view.evaluate(textScript(this.selector));
+    if (result === null || typeof result !== 'object') {
       throw new ElementNotFoundError(formatTestIdPath(this.path));
     }
-    return typeof result === 'string' ? result : String(result);
+    const value = (result as { readonly text?: unknown }).text;
+    return typeof value === 'string' ? value : null;
+  }
+
+  private async tapError(cause: unknown, timeoutMs: number): Promise<Error> {
+    const covered = await this.host.view
+      .evaluate(obstructionScript(this.selector))
+      .catch(() => 'n/a');
+    const blocker =
+      typeof covered === 'string' ? `covered by ${covered}` : 'not stable';
+    return new TimeoutError(
+      `${formatTestIdPath(this.path)} tap: not clickable, ${blocker} (visible: ${await this.visibleTestIds()})`,
+      timeoutMs,
+      { cause }
+    );
+  }
+
+  private async visibleTestIds(): Promise<string> {
+    try {
+      const ids = await this.host.view.evaluate(visibleTestIdsScript());
+      return Array.isArray(ids) ? ids.slice(0, 40).join(', ') : 'n/a';
+    } catch {
+      return 'n/a';
+    }
+  }
+
+  private get selector(): string {
+    return cssPath(this.path);
+  }
+
+  private async focusField(caret: 'end' | 'select'): Promise<void> {
+    const focused = await this.host.view.evaluate(
+      focusFieldScript(this.selector, caret)
+    );
+    if (focused !== true) {
+      throw new ElementNotFoundError(
+        formatTestIdPath(this.path),
+        'no <input> / <textarea> under matched element'
+      );
+    }
   }
 
   private async waitVisible(options?: UiWaitOptions): Promise<void> {

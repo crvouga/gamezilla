@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 
-import { actorUi, scenarioAction } from './actor-ui';
+import { actorUi, pressBackUntilVisible, scenarioAction } from './actor-ui';
 
 const WAIT_MS = 10_000;
 const HIDDEN_MS = 5_000;
@@ -31,7 +31,7 @@ export const openFriendsList = scenarioAction({
       !(await ui.get(Handles.tabProfile).isVisible()) &&
       (await ui.get(Handles.navBack).isVisible())
     ) {
-      await ui.get(Handles.navBack).tap();
+      await pressBackUntilVisible(ui, Handles.tabProfile, WAIT_MS);
     }
     await ui.get(Handles.tabProfile).tap();
     await ui.get(Handles.profileFriendsStats).expect.visible({

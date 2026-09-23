@@ -13,6 +13,7 @@ import type { ServerHttp } from '@apps/client/shell/client-env';
 import { createServer, type ServerEnv, serveFetch } from '@apps/server';
 import { serializeFetch } from './sim-fetch';
 import { nextSimNodeId, normalizeSimNodeId } from './sim-node-name';
+import { createSimRoomNamespace } from './sim-room-namespace';
 
 export const SIM_PRIMARY_SERVER_ID = 'server-a';
 
@@ -50,6 +51,7 @@ export function createSimServerNodes(args: {
   readonly disposed: () => boolean;
 }): SimServerNodes {
   const envs = new Map<string, ServerEnv>();
+  const bindings = { ROOM: createSimRoomNamespace() };
   const nodes = new Map<string, SimServerNode>();
   const order: string[] = [];
 
@@ -75,7 +77,7 @@ export function createSimServerNodes(args: {
       }
       const env = await ensureEnv(instanceId);
       const app = await createServer(env);
-      const raw = serveFetch((request) => app.fetch(request));
+      const raw = serveFetch((request) => app.fetch(request, bindings));
       const serialized = serializeFetch(async (input, init) => {
         if (args.disposed()) {
           throw new Error(`createSim: server '${instanceId}' disposed`);

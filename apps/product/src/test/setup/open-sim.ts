@@ -28,11 +28,7 @@ import {
   clearNodeLocalStoragePolyfill,
   ensureNodeLocalStoragePolyfill,
 } from './node-local-storage-polyfill';
-import {
-  type OpenSimOptions,
-  type ProductProfile,
-  resolveProductProfile,
-} from './profile';
+import type { OpenSimOptions, ProductProfile } from './profile';
 import { simNodeTimers } from './sim-actor-overrides';
 import {
   getReportStore,
@@ -89,12 +85,11 @@ export async function openSim(
   options?: OpenSimOptions
 ): Promise<OpenSim> {
   ensureNodeLocalStoragePolyfill();
-  const profile = resolveProductProfile(options);
   const reporting = simReportEnabled();
   const callSite = reporting ? testCallSite(new Error().stack) : null;
   const s = await product.run({
     seed: 1,
-    runtime: profile,
+    ...(options?.profile !== undefined ? { runtime: options.profile } : {}),
     ...(reporting
       ? {
           report: {

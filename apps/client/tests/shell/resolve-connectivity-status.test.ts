@@ -10,7 +10,7 @@ const base = {
 } as const;
 
 describe('resolveConnectivityStatus', () => {
-  test('device offline wins', () => {
+  test('device offline wins over anything but a live connection', () => {
     expect(
       resolveConnectivityStatus({
         ...base,
@@ -18,6 +18,19 @@ describe('resolveConnectivityStatus', () => {
         syncError: true,
       })
     ).toBe('offline');
+    expect(
+      resolveConnectivityStatus({
+        ...base,
+        browserOnline: false,
+        hasSynced: false,
+      })
+    ).toBe('offline');
+  });
+
+  test('a live synced connection is online even if the browser says offline', () => {
+    expect(resolveConnectivityStatus({ ...base, browserOnline: false })).toBe(
+      'online'
+    );
   });
 
   test('sync error → warning', () => {

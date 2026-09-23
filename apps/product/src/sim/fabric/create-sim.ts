@@ -12,6 +12,10 @@ import {
   SIM_AUTH_SECRET,
   SIM_POSTGRES_MEM_DATABASE_URL,
   SIM_SERVER_URL,
+  SIM_STRIPE_SECRET_KEY,
+  SIM_STRIPE_SECRET_KEY_NAME,
+  SIM_STRIPE_WEBHOOK_SECRET,
+  SIM_STRIPE_WEBHOOK_SECRET_NAME,
 } from '@apps/server/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
 import { InMemoryBilling } from '@pkgs/billing';
@@ -52,23 +56,16 @@ import {
 export type CreateSimOptions = {
   /** Override virtual timers (hosts that need wall timers for a live UI). */
   readonly timers?: Timers;
-  /** Real-mode host injects embedded Postgres; product-simulator uses sqlBackend server SQL. */
+  /** Host-supplied server SQL; product-simulator uses sqlBackend server SQL. */
   readonly serverSql?: SimSql;
   /** Public API origin presented to browser actors on a localhost profile. */
   readonly serverUrl?: string;
-  readonly serverServices?: LocalhostServerServices;
   /**
    * Post-migrate server seed bytes (PGMM). When set (and
    * `serverSql` is not), opens by import and skips {@link migrateSimPostgres}.
    */
   readonly serverSqlSeedBytes?: Uint8Array;
 };
-
-/** Vendor ports supplied by the localhost composition root. */
-export type LocalhostServerServices = Pick<
-  ServerEnv,
-  'billing' | 'blob' | 'secrets' | 'auth' | 'tts' | 'llm' | 'fetch'
-> & { readonly createEvents: () => ServerEnv['events'] };
 
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 
@@ -137,25 +134,18 @@ type SharedServerServices = {
   readonly secrets: ServerEnv['secrets'];
   readonly auth: ServerEnv['auth'];
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
-  readonly createEvents?: () => ServerEnv['events'];
 };
 
 async function buildSharedServerServices(
   serverSql: SimSql,
-  serverUrl: string,
-  live?: LocalhostServerServices
+  serverUrl: string
 ): Promise<SharedServerServices> {
-  if (live !== undefined) {
-    return {
-      kv: new KvImplInMemory(),
-      ...live,
-      sqlClient: sharedSqlClient(serverSql.sqlClient),
-    };
-  }
   const secrets = createRecordSecretStore({
     AUTH_SECRET: SIM_AUTH_SECRET,
     DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
     API_URL: serverUrl,
+    [SIM_STRIPE_SECRET_KEY_NAME]: SIM_STRIPE_SECRET_KEY,
+    [SIM_STRIPE_WEBHOOK_SECRET_NAME]: SIM_STRIPE_WEBHOOK_SECRET,
   });
   return {
     kv: new KvImplInMemory(),
@@ -180,7 +170,6 @@ function buildServerEnv(args: {
   readonly timers: Timers;
   readonly shared: SharedServerServices;
   readonly serverUrl: string;
-  readonly fetch?: ServerEnv['fetch'];
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
 }): ServerEnv {
   const { id, session, seed, timers, shared, pubSubBus, serverUrl } = args;
@@ -191,7 +180,7 @@ function buildServerEnv(args: {
     random: session.ports.random,
     seed,
     openSqlClient: () => Promise.resolve(shared.sqlClient),
-    events: shared.createEvents?.() ?? createInMemoryPubSub({ bus: pubSubBus }),
+    events: createInMemoryPubSub({ bus: pubSubBus }),
     kv: shared.kv,
     blob: shared.blob,
     billing: shared.billing,
@@ -210,12 +199,10 @@ function buildServerEnv(args: {
     secretsEnv: 'dev',
     serverUrl,
     skipDatabaseUrlPolicy: true,
-    fetch:
-      args.fetch ??
-      (() =>
-        Promise.reject(
-          new Error('sim ServerEnv.fetch: vendor HTTP not configured')
-        )),
+    fetch: () =>
+      Promise.reject(
+        new Error('sim ServerEnv.fetch: vendor HTTP not configured')
+      ),
   };
 }
 
@@ -286,11 +273,7 @@ async function bootSimKernel(
   const pubSubBus = createInMemoryBus();
   const serverSql = await openServerSql(session, opts);
   const serverUrl = opts?.serverUrl ?? SIM_SERVER_URL;
-  const shared = await buildSharedServerServices(
-    serverSql,
-    serverUrl,
-    opts?.serverServices
-  );
+  const shared = await buildSharedServerServices(serverSql, serverUrl);
   const roomNode = createRoomServer(
     buildRoomServerEnv({ session, seed, timers })
   );
@@ -306,9 +289,6 @@ async function bootSimKernel(
           shared,
           pubSubBus,
           serverUrl,
-          ...(opts?.serverServices !== undefined
-            ? { fetch: opts.serverServices.fetch }
-            : {}),
         })
       ),
     disposed: () => disposed.value,

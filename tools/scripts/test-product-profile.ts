@@ -9,7 +9,7 @@ if (profile === 'in-process') {
 } else if (profile === 'localhost:mocked') {
   args = ['run', '--filter', '@apps/product', 'test:localhost:mocked'];
 } else if (profile === 'localhost') {
-  args = ['run', '--filter', '@apps/product', 'test:localhost'];
+  args = ['run', 'e2e'];
 } else {
   throw new Error(`invalid SIM_PROFILE: ${profile}`);
 }

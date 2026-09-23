@@ -23,6 +23,7 @@ import type { ApiWorkerEnv } from './config/env';
 import {
   assertSecretsEnvBinding,
   ConfigurationError,
+  readE2eDevAuth,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
   workerEnvToSecretRecord,
@@ -141,7 +142,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const auth = await loadAuthBootConfig({
     secretStore,
     apiUrlOverride: serverUrl,
-    enableDev: false,
+    enableDev: readE2eDevAuth(env, secretsEnv),
   });
 
   const billing = await createStripeBillingFromSecretStore(secretStore);

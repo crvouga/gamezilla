@@ -261,11 +261,20 @@ export async function createAppLocalSyncEngine(
   try {
     const db = await openAppLocalDb(args);
     const engine = await buildEngine(args, db, syncLease.isOwner);
-    emqxUrlHolderFor(args.databaseName).url =
-      await readEmqxWssUrlFromLocalDb(db);
+    const emqxUrlHolder = emqxUrlHolderFor(args.databaseName);
+    emqxUrlHolder.url = await readEmqxWssUrlFromLocalDb(db);
     const disconnect = engine.disconnect.bind(engine);
+    const ensurePush = engine.ensurePush.bind(engine);
     return {
       ...engine,
+      // A fresh install / account DB connects before `client_config` syncs,
+      // so push starts poll-only; re-read the broker URL, then attach.
+      ensurePush: () => {
+        void readEmqxWssUrlFromLocalDb(db).then((url) => {
+          emqxUrlHolder.url = url;
+          ensurePush();
+        });
+      },
       disconnect: async () => {
         try {
           await disconnect();

@@ -95,6 +95,12 @@ function readApiUrlForDevVars(): string {
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }
 
+/** `bun e2e` points the Worker at its own database on the embedded cluster. */
+function readDatabaseUrlForDevVars(): string {
+  const override = process.env['LOCAL_STACK_DATABASE_URL']?.trim() ?? '';
+  return override.length > 0 ? override : LOCAL_POSTGRES_DATABASE_URL;
+}
+
 function ensureAuthSecret(): string {
   const existing = process.env['AUTH_SECRET']?.trim() ?? '';
   if (existing.length >= 32) return existing;
@@ -149,15 +155,21 @@ async function main(): Promise<void> {
   // Best-effort Infisical overlay; local Postgres/MinIO/EMQX always win below.
   await loadOptionalSecretsOverlay();
 
-  await assertNonProdDatabaseUrlForTooling(LOCAL_POSTGRES_DATABASE_URL, {
+  const databaseUrl = readDatabaseUrlForDevVars();
+  await assertNonProdDatabaseUrlForTooling(databaseUrl, {
     surface: 'setup-dev-vars',
     secretsEnv,
   });
 
   const lines: string[] = [`SECRETS_ENV=${encodeDevVarValue(secretsEnv)}`];
   lines.push(`API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`);
-  lines.push(`DATABASE_URL=${encodeDevVarValue(LOCAL_POSTGRES_DATABASE_URL)}`);
+  lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrl)}`);
   const written = new Set<string>(['SECRETS_ENV', 'API_URL', 'DATABASE_URL']);
+  if (process.env['E2E_DEV_AUTH'] === '1') {
+    lines.push(`E2E_DEV_AUTH=${encodeDevVarValue('1')}`);
+    written.add('E2E_DEV_AUTH');
+    process.stdout.write('[setup-dev-vars] E2E_DEV_AUTH → Dev IdP enabled.\n');
+  }
 
   process.stdout.write(
     '[setup-dev-vars] DATABASE_URL → loopback embedded Postgres (Infisical ignored).\n'

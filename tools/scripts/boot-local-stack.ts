@@ -1,7 +1,7 @@
 // @io-wall-ok
 /**
  * Boot loopback Postgres + MinIO + EMQX for the localhost profile / CI.
- * Used by `bun start:localhost`.
+ * Used by `bun start:localhost` and `bun e2e`.
  */
 
 import { wallClock, wallTimers } from '@pkgs/clock';
@@ -14,10 +14,24 @@ import { runLocalMigrate } from '../../apps/server/scripts/run-local-postgres-mi
 import { runLocalSeed } from '../../apps/server/scripts/run-local-postgres-seed';
 
 export type LocalStackHandle = {
+  /** Migrated database the Workers should use. */
+  readonly databaseUrl: string;
   stop(): Promise<void>;
 };
 
-export async function bootLocalStack(): Promise<LocalStackHandle> {
+export type BootLocalStackOptions = {
+  /**
+   * Database on the embedded cluster. Default is the dev database; `bun e2e`
+   * passes its own so per-test resets never touch dev data.
+   */
+  readonly database?: string;
+  /** Load the full chess puzzle file (dev only; e2e seeds its fixtures). */
+  readonly seed?: boolean;
+};
+
+export async function bootLocalStack(
+  options: BootLocalStackOptions = {}
+): Promise<LocalStackHandle> {
   const postgres = await startEmbeddedPostgres();
   let minio: Awaited<ReturnType<typeof startMinioServer>> | undefined;
   let emqx: Awaited<ReturnType<typeof startEmqxServer>> | undefined;
@@ -29,9 +43,14 @@ export async function bootLocalStack(): Promise<LocalStackHandle> {
       timers: wallTimers,
       http: createGlobalHttpClient(),
     });
-    await runLocalMigrate();
-    await runLocalSeed();
+    const databaseUrl =
+      options.database === undefined
+        ? postgres.url
+        : await postgres.ensureDatabase(options.database);
+    await runLocalMigrate(databaseUrl);
+    if (options.seed !== false) await runLocalSeed(databaseUrl);
     return {
+      databaseUrl,
       async stop() {
         await emqx?.stop();
         minio?.stop();

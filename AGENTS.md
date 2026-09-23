@@ -112,7 +112,7 @@ When adding a new check, assign it to `//#check` (fast) or `//#check:full` (slow
 
 **Run locally with `start:*` only.** `bun start:localhost` runs the browser app, API and room Workers with embedded Postgres, MinIO, EMQX, and dev vendor credentials. `bun start:in-process` runs **`@apps/product`** (app at `/`, Simulator at `/simulator`) with in-memory services. Sim test reports are standalone HTML artifacts (`bun run test:product:report` → `apps/product/sim-report/index.html`).
 
-Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus the `localhost` product System profile for embedded real Postgres (+ MinIO/EMQX) and dev vendor adapters. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus the `localhost` product System profile — the full system (real API + room Workers, built client, embedded Postgres + MinIO/EMQX) driven by `bun e2e`. Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/minio-server`, `@pkgs/emqx-server` and are booted from tests/CI (`tools/scripts/boot-local-stack.ts`, `tools/scripts/boot-embedded-postgres.ts`).
 
 `@apps/product` migrates the mem fabric **once** (`seed:sim-db` → `apps/product/.cache/sim-backend-seed.pgmm.json`) and clones per `openSim`. Mem-engine wishlist: [`docs/sim-mem-engine-wishlist.md`](docs/sim-mem-engine-wishlist.md). Suite notes: [`apps/product/src/test/setup/TESTING.md`](apps/product/src/test/setup/TESTING.md).
 
@@ -120,7 +120,8 @@ Production (`SECRETS_ENV=prd`) uses Infisical Neon + Cloudflare R2 (+ Railway EM
 
 - **`bun start:in-process`** — `@apps/product` super-app (`/` = real client, `/simulator` = Simulator; `?simulator` on `/` hands off). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
 - **`bun start:localhost:mocked`** — product System with dynamic loopback web/API ports and mocked vendor ports.
-- **`bun start:localhost`** — browser app, API and room Workers with pinned ports, embedded Postgres/MinIO/EMQX, Google OAuth, and dev/sandbox vendor adapters. Dev sign-in is available only in the mocked and in-process profiles.
+- **`bun start:localhost`** — browser app, API and room Workers with pinned ports, embedded Postgres/MinIO/EMQX, Google OAuth, and dev/sandbox vendor adapters. Dev sign-in is available only in the mocked and in-process profiles, and on the `bun e2e` stack.
+- **`bun e2e`** — full-system e2e: boots the same stack as `bun start:localhost` (`tools/scripts/local-app-stack.ts`, profile `e2e`) with its own `e2e` database, the Dev IdP on the Worker (`E2E_DEV_AUTH=1`, refused unless `SECRETS_ENV=dev`) and a `VITE_E2E` client, then runs the **same** `apps/product/tests` on the `localhost` profile (`SIM_PROFILE=localhost` → `product.useRuntime`). Scenarios never pick a fabric; the harness swaps it. Not part of `bun check`.
 - **Sign-in in the simulator** — Dev social against the in-process sim API.
 - **Optional clouds** — still degrade in the real API Worker when secrets are missing.
 - **`bun db:migrate`** — migrates `DATABASE_URL` (CI / after booting embedded Postgres). Not part of daily `bun start:localhost`.
@@ -203,7 +204,7 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@apps/product` — www super-app (`/` wall client, `/simulator` Simulator), shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered profiles (`in-process`, `localhost:mocked`, `localhost`), plus the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot.
+- `@apps/product` — www super-app (`/` wall client, `/simulator` Simulator), shared product System + fabric (`createSim`, SQL engines, net/fetch, snapshots) and registered profiles (`in-process`, `localhost:mocked`, `localhost` = full stack under `bun e2e`), plus the test harness (`openSim` / scenarios). Console and test call `product.run({ runtime })` only; neither owns a parallel boot. Tests take the runtime the harness selects (`SIM_PROFILE` → `product.useRuntime`).
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 

@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 
-import { actorUi, pollUntil } from './actor-ui';
+import { actorUi, pollUntil, pressBackUntilVisible } from './actor-ui';
 import type { ProductSim } from './sim';
 
 export const SPACE_WAIT_MS = 10_000;
@@ -18,7 +18,7 @@ export async function showSpacesTab(
     !(await ui.get(Handles.tabSpaces).isVisible()) &&
     (await ui.get(Handles.navBack).isVisible())
   ) {
-    await ui.get(Handles.navBack).tap();
+    await pressBackUntilVisible(ui, Handles.tabSpaces, SPACE_WAIT_MS);
   }
   await ui.get(Handles.tabSpaces).tap({ timeoutMs: SPACE_WAIT_MS });
   await ui
@@ -102,12 +102,21 @@ export async function reenterSpace(
   await waitActiveSpace(s, actorId);
 }
 
+/**
+ * Tap a space chrome action. The action bar measures its width, so on a real
+ * layout actions that do not fit collapse into the overflow menu (same test
+ * id on the menu row) — open it first, as a user would.
+ */
 export async function tapChromeAction(
   s: ProductSim,
   actorId: string,
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  const overflow = ui.get(Handles.spaceChromeOverflow);
+  if (!(await ui.get(handle).isVisible()) && (await overflow.isVisible())) {
+    await overflow.tap({ timeoutMs: SPACE_WAIT_MS });
+  }
   await ui.get(handle).expect.visible({ timeoutMs: SPACE_WAIT_MS });
   await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
 }

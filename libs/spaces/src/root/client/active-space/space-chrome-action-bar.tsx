@@ -234,7 +234,7 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
         gap={chrome().gap}
         slotWidth={chrome().slotWidth}
         showInlineLabels={chrome().showInlineLabels}
-        overflowDataSet={{ testid: 'space-chrome-overflow-menu' }}
+        overflowDataSet={{ testid: Handles.spaceChromeOverflow }}
       />
       <SpaceMembersListModal
         spaceId={sessionUi.spaceId}

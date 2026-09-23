@@ -6,36 +6,22 @@
  */
 
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
-import { createInProcessOpenAuthSession } from '@pkgs/auth/client';
+import {
+  readSimRoomAccept,
+  type SimRoomAccept,
+} from '@apps/product/sim/fabric/sim-room-namespace';
+import type { RoomSocket } from '@apps/room-server/app/create-room-server';
+import type { ServerWebSocket } from 'bun';
+
+import {
+  completeDevAuthSession,
+  isDevAuthSessionRequest,
+} from './dev-auth-session';
 
 const DEFAULT_PORT = 8787;
 const ACTOR_HEADER = 'x-sim-actor';
 /** Caller id for wire requests that carry no actor header. */
 const BROWSER_INGRESS_ID = 'browser';
-
-async function completeSimAuthSession(
-  sim: Sim,
-  req: Request,
-  actorId: string
-): Promise<Response> {
-  const body: unknown = await req.json();
-  if (
-    body === null ||
-    typeof body !== 'object' ||
-    !('authorizationUrl' in body) ||
-    !('callbackUrl' in body) ||
-    typeof body.authorizationUrl !== 'string' ||
-    typeof body.callbackUrl !== 'string'
-  ) {
-    return new Response('invalid auth session request', { status: 400 });
-  }
-  const complete = createInProcessOpenAuthSession({
-    fetch: (input, init) =>
-      sim.loadBalancer.fetchFrom(actorId)(new Request(input, init)),
-    subject: actorId,
-  });
-  return Response.json(await complete(body.authorizationUrl, body.callbackUrl));
-}
 
 export type SimHttpListener = {
   readonly apiUrl: string;
@@ -63,30 +49,83 @@ function isSimNetFault(err: unknown): boolean {
   );
 }
 
+type RoomSocketData = {
+  readonly accept: SimRoomAccept;
+  socket: Promise<RoomSocket> | null;
+};
+
+function isWebSocketUpgrade(req: Request): boolean {
+  return req.headers.get('upgrade')?.toLowerCase() === 'websocket';
+}
+
+/**
+ * Room frames between a browser socket and the in-process room server. The
+ * API route already resolved the actor; see `createSimRoomNamespace`.
+ */
+function roomSocketHandlers(sim: Sim) {
+  return {
+    open(ws: ServerWebSocket<RoomSocketData>) {
+      ws.data.socket = sim.roomNode.connectSocket({
+        ...ws.data.accept,
+        send: (payload) => {
+          ws.send(JSON.stringify(payload));
+        },
+      });
+    },
+    async message(ws: ServerWebSocket<RoomSocketData>, frame: string | Buffer) {
+      const text = typeof frame === 'string' ? frame : frame.toString('utf8');
+      let raw: unknown;
+      try {
+        raw = JSON.parse(text);
+      } catch {
+        ws.close(1007, 'invalid JSON frame');
+        return;
+      }
+      await (await ws.data.socket)?.message(raw);
+    },
+    async close(ws: ServerWebSocket<RoomSocketData>) {
+      (await ws.data.socket)?.close();
+    },
+  };
+}
+
 /** Bind the sim balancer to `localhost:<port>` (default 8787). */
 export async function listenSimHttpServer(sim: Sim): Promise<SimHttpListener> {
   await sim.spawnServer();
   const port = Number(process.env['SIM_HTTP_PORT'] ?? DEFAULT_PORT);
-  const server = Bun.serve({
+  const server = Bun.serve<RoomSocketData>({
     port,
     hostname: 'localhost',
-    async fetch(req) {
+    async fetch(req, bun) {
       const actorId = req.headers.get(ACTOR_HEADER);
       const from =
         actorId != null && actorId !== '' ? actorId : BROWSER_INGRESS_ID;
       try {
-        if (
-          new URL(req.url).pathname === '/api/__sim/auth-session' &&
-          req.method === 'POST'
-        ) {
-          return await completeSimAuthSession(sim, req, from);
+        if (isDevAuthSessionRequest(req)) {
+          return await completeDevAuthSession(
+            req,
+            (input, init) =>
+              sim.loadBalancer.fetchFrom(from)(new Request(input, init)),
+            from
+          );
         }
-        return await sim.loadBalancer.fetchFrom(from)(req);
+        const response = await sim.loadBalancer.fetchFrom(from)(req);
+        const accept = isWebSocketUpgrade(req)
+          ? readSimRoomAccept(response)
+          : null;
+        if (
+          accept !== null &&
+          bun.upgrade(req, { data: { accept, socket: null } })
+        ) {
+          return undefined;
+        }
+        return response;
       } catch (err) {
         if (isSimNetFault(err)) return partitionedResponse(err);
         throw err;
       }
     },
+    websocket: roomSocketHandlers(sim),
   });
   const apiUrl = server.url.origin;
   process.env['VITE_API_URL'] = apiUrl;

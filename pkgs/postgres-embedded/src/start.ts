@@ -3,15 +3,18 @@ import {
   createEmbeddedPostgres,
   ensureAppDatabase,
   ensureClusterInitialised,
+  ensureDatabase,
   formatUnknownError,
   LOCAL_DATABASE_URL,
   wipeClusterData,
 } from './cluster';
-import { POSTGRES_PORT } from './ports';
+import { localDatabaseUrl, POSTGRES_PORT } from './ports';
 
 export type EmbeddedPostgresHandle = {
   readonly url: typeof LOCAL_DATABASE_URL;
   readonly port: number;
+  /** Create `name` on this cluster when missing; returns its wire URL. */
+  ensureDatabase(name: string): Promise<string>;
   stop(): Promise<void>;
 };
 
@@ -52,6 +55,10 @@ export async function startEmbeddedPostgres(): Promise<EmbeddedPostgresHandle> {
   return {
     url: LOCAL_DATABASE_URL,
     port: POSTGRES_PORT,
+    async ensureDatabase(name) {
+      await ensureDatabase(pg, name);
+      return localDatabaseUrl(name);
+    },
     async stop() {
       if (stopped) return;
       stopped = true;

@@ -1,8 +1,5 @@
 import type { JSX } from 'solid-js';
-
-const E2E_ENABLED =
-  typeof process !== 'undefined' &&
-  (process.env['VITE_E2E'] === '1' || process.env['NODE_ENV'] === 'test');
+import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
 
 export type ChessPuzzleE2ELoadingStatusProps = {
   myId: string;
@@ -29,7 +26,7 @@ function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
 export function ChessPuzzleE2ELoadingStatus(
   props: ChessPuzzleE2ELoadingStatusProps
 ): JSX.Element {
-  if (!E2E_ENABLED) return <></>;
+  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
   return (
     <p
       class="text absolute w-[1px] h-[1px] opacity-0"

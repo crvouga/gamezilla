@@ -9,12 +9,18 @@
 import { defineAction, type Rng } from '@pkgs/sim';
 
 import { caps, clientIds, serverIds } from './observations';
-import type { ProductSim } from './sim';
+import { type ProductSim, productExtra } from './sim';
+
+/** The full stack runs the real Worker; the harness owns no API fleet there. */
+function ownsApiFleet(s: ProductSim): boolean {
+  return productExtra(s).http.kind !== 'full-stack';
+}
 
 /** Scale out: boot another stateless API instance into the rotation. */
 export const spawnServerNode = defineAction({
   name: 'spawnServerNode',
-  weight: (s: ProductSim) => (serverIds(s).length < 3 ? 1 : 0),
+  weight: (s: ProductSim) =>
+    ownsApiFleet(s) && serverIds(s).length < 3 ? 1 : 0,
   act: async (s: ProductSim) => {
     await s.sim.spawnServer();
   },

@@ -1,7 +1,8 @@
 // @io-wall-ok
 /**
- * Run definitive `@libs/runtime` Postgres migrations against the local embedded
- * DATABASE_URL (in-process — apps must not import other `@apps/*` packages).
+ * Run definitive `@libs/runtime` Postgres migrations against a local embedded
+ * database — the dev `DATABASE_URL` unless another loopback URL is passed
+ * (in-process — apps must not import other `@apps/*` packages).
  */
 
 import { appPostgresDbScope } from '@libs/db/public/scope';
@@ -11,15 +12,17 @@ import { createLogger } from '@pkgs/logger';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
-export async function runLocalMigrate(): Promise<void> {
-  process.stdout.write('[postgres] migrating…\n');
+export async function runLocalMigrate(
+  databaseUrl: string = LOCAL_DATABASE_URL
+): Promise<void> {
+  process.stdout.write(`[postgres] migrating ${databaseUrl}\n`);
   const dbScope = appPostgresDbScope();
   const logger = createLogger({
     name: 'postgres:migrate',
     now: wallClock.now,
   });
   const { pool, sqlClient } = createPgPool({
-    connectionString: LOCAL_DATABASE_URL,
+    connectionString: databaseUrl,
     dbScope,
     max: 1,
   });

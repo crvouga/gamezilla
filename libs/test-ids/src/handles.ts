@@ -5,6 +5,8 @@
  */
 export const Handles = {
   // status / chrome
+  /** Full-bleed boot canvas while identity binds or local SQLite opens. */
+  bootLoading: 'boot-loading',
   statusCurrentUser: 'status-current-user',
   /** "Account" row inside the current-user avatar menu. */
   globalMenuAccount: 'global-menu-account',
@@ -23,6 +25,8 @@ export const Handles = {
   spaceJoin: 'space-join',
   spaceEnded: 'space-ended',
   spaceClose: 'space-close',
+  /** Space chrome overflow trigger — actions that do not fit collapse here. */
+  spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',
   spaceEnd: 'space-end',
   spaceLeaveConfirm: 'space-leave-confirm',
@@ -101,6 +105,8 @@ export const Handles = {
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
   chessPuzzlePickStatus: 'chess-puzzle-pick-status',
   chessPuzzleSummary: 'chess-puzzle-summary',
+  /** Close control of the solved / abandoned summary modal. */
+  chessPuzzleSummaryClose: 'chess-puzzle-summary-close',
   /** Board-well block shown when the feed has no puzzle to place. */
   chessPuzzleEmptyPool: 'chess-puzzle-empty-pool',
   /** Secondary "Adjust feed" button under the exhausted-pool block. */

@@ -1,6 +1,11 @@
 import { Handles } from '@libs/test-ids';
 
-import { actorUi, scenarioAction } from './actor-ui';
+import {
+  actorUi,
+  openGlobalMenu,
+  pressBackUntilVisible,
+  scenarioAction,
+} from './actor-ui';
 
 const WAIT_MS = 15_000;
 
@@ -12,7 +17,7 @@ export const signInWithDev = scenarioAction({
   name: 'signInWithDev',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.statusCurrentUser).tap({ timeoutMs: WAIT_MS });
+    await openGlobalMenu(ui, Handles.globalMenuAccount, WAIT_MS);
     await ui.get(Handles.globalMenuAccount).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.accountSignIn).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.authMethodDev).tap({ timeoutMs: WAIT_MS });
@@ -45,7 +50,6 @@ export const returnToTabs = scenarioAction({
   name: 'returnToTabs',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.navBack).tap();
-    await ui.get(Handles.tabProfile).expect.visible();
+    await pressBackUntilVisible(ui, Handles.tabProfile, WAIT_MS);
   },
 });

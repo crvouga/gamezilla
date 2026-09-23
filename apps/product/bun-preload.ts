@@ -117,3 +117,12 @@ console.error = (...args: unknown[]) => {
   if (text.includes('createSim: server disposed')) return;
   origError(...args);
 };
+
+// `SIM_PROFILE` swaps the fabric (in-process → localhost:mocked → full stack)
+// for every run that names no runtime; scenarios never pick one themselves.
+if (process.env['SIM_PROFILE'] !== undefined) {
+  const { applyProductProfileFromEnv } = await import(
+    './src/test/setup/profile'
+  );
+  applyProductProfileFromEnv();
+}

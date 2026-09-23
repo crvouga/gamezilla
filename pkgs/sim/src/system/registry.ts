@@ -61,6 +61,22 @@ export function getSystemRegistry<S>(
   return reg as SystemRegistry<S>;
 }
 
+/** Harness-selected runtime for runs that name none (see `System.useRuntime`). */
+const selectedRuntimes = new WeakMap<object, string>();
+
+export function selectDefaultRuntime<S>(
+  system: SystemCore<S, unknown>,
+  name: string
+): void {
+  const reg = getSystemRegistry(system);
+  if (!reg.runtimeEntries.some((entry) => entry.name === name)) {
+    throw new Error(
+      `system '${system.name}': unknown runtime '${name}' (have: ${reg.runtimeEntries.map((h) => h.name).join(', ')})`
+    );
+  }
+  selectedRuntimes.set(system as object, name);
+}
+
 export function poolActions<S>(
   system: SystemCore<S, unknown>
 ): CatalogAction<S>[] {
@@ -108,7 +124,8 @@ export async function resolveRuntime(
     return { name: runtime.name, runtime: await runtime.create() };
   }
   const reg = getSystemRegistry(system);
-  const name = runtime ?? reg.defaultRuntimeName;
+  const name =
+    runtime ?? selectedRuntimes.get(system as object) ?? reg.defaultRuntimeName;
   const entry = reg.runtimeEntries.find((h) => h.name === name);
   if (entry === undefined) {
     throw new Error(

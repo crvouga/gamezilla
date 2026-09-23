@@ -1,9 +1,10 @@
 import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
+import type { Driver } from '@pkgs/ui-testing';
 import { Chess } from 'chess.js';
 
-import { actorUi, pollUntil } from './actor-ui';
+import { actorUi, pollUntil, pressBackUntilVisible } from './actor-ui';
 import type { ProductSim } from './sim';
 import { waitActiveSpace } from './space-ui';
 
@@ -235,11 +236,23 @@ export async function readActivePuzzleId(
   return value;
 }
 
+/**
+ * The solved / abandoned summary is a modal over the board chrome. On a real
+ * layout it intercepts taps, so a user closes it before using the chrome.
+ */
+async function dismissPuzzleSummary(ui: Driver): Promise<void> {
+  const summary = ui.get(Handles.chessPuzzleSummary);
+  if (!(await summary.isVisible())) return;
+  await ui.get(Handles.chessPuzzleSummaryClose).tap({ timeoutMs: WAIT_MS });
+  await summary.expect.hidden({ timeoutMs: WAIT_MS });
+}
+
 export async function pressPuzzleNext(
   s: ProductSim,
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  await dismissPuzzleSummary(ui);
   await ui.get(Handles.chessPuzzleActionNext).tap({ timeoutMs: WAIT_MS });
 }
 
@@ -423,8 +436,8 @@ export async function pressPuzzleBackToChessMenu(
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
-  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await dismissPuzzleSummary(ui);
+  await pressBackUntilVisible(ui, Handles.chessMenuPuzzle, WAIT_MS);
 }
 
 export async function openChessStats(

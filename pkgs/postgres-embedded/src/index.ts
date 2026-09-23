@@ -6,11 +6,13 @@ export {
   DATABASE_DIR,
   ensureAppDatabase,
   ensureClusterInitialised,
+  ensureDatabase,
   formatUnknownError,
   LOCAL_DATABASE_URL,
   wipeClusterData,
 } from './cluster';
 export {
+  localDatabaseUrl,
   POSTGRES_DATABASE,
   POSTGRES_LOCAL_PORTS,
   POSTGRES_PASSWORD,

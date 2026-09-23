@@ -107,20 +107,27 @@ export async function ensureClusterInitialised(
   }
 }
 
-export async function ensureAppDatabase(pg: EmbeddedPostgres): Promise<void> {
+export async function ensureDatabase(
+  pg: EmbeddedPostgres,
+  name: string
+): Promise<void> {
   const client = pg.getPgClient();
   try {
     await client.connect();
     const found = await client.query(
       'SELECT 1 FROM pg_database WHERE datname = $1',
-      [POSTGRES_DATABASE]
+      [name]
     );
     if (found.rowCount !== 0) return;
   } finally {
     await client.end();
   }
-  await pg.createDatabase(POSTGRES_DATABASE);
-  process.stdout.write(`[postgres] created database ${POSTGRES_DATABASE}\n`);
+  await pg.createDatabase(name);
+  process.stdout.write(`[postgres] created database ${name}\n`);
+}
+
+export function ensureAppDatabase(pg: EmbeddedPostgres): Promise<void> {
+  return ensureDatabase(pg, POSTGRES_DATABASE);
 }
 
 export function formatUnknownError(error: unknown): string {

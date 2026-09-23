@@ -1,13 +1,7 @@
-// @io-wall-ok — localhost profile test entry: build web, serve it, run the DSL.
+// @io-wall-ok — `localhost:mocked` test entry: build web, serve it, run the suite.
 import { createServer } from 'node:net';
-import { startLocalhostServices } from './localhost-services-process';
 
-const selection = process.argv[2];
-if (selection !== 'mocked' && selection !== 'localhost') {
-  throw new Error('usage: test-localhost.ts mocked|localhost [test files...]');
-}
-const mocked = selection === 'mocked';
-process.env['SIM_PROFILE'] = mocked ? 'localhost:mocked' : 'localhost';
+process.env['SIM_PROFILE'] = 'localhost:mocked';
 process.env['SIM_WITH_DOM'] = '0';
 process.env['VITE_E2E'] = '1';
 
@@ -25,8 +19,8 @@ async function dynamicPort(): Promise<number> {
   return address.port;
 }
 
-const apiPort = mocked ? await dynamicPort() : 8787;
-const webPort = mocked ? await dynamicPort() : 5173;
+const apiPort = await dynamicPort();
+const webPort = await dynamicPort();
 process.env['SIM_HTTP_PORT'] = String(apiPort);
 process.env['SIM_API_ORIGIN'] = `http://localhost:${String(apiPort)}`;
 process.env['PREVIEW_PORT'] = String(webPort);
@@ -36,9 +30,8 @@ process.env['LOCAL_PREVIEW_API_ORIGIN'] = process.env['SIM_API_ORIGIN'];
 
 const origin = process.env['SIM_WEB_ORIGIN'];
 const pkgRoot = `${import.meta.dir}/..`;
-const args = process.argv.slice(3);
-const testFiles =
-  args.length > 0 ? args : mocked ? ['tests'] : ['tests/shell-boot.test.tsx'];
+const args = process.argv.slice(2);
+const testFiles = args.length > 0 ? args : ['tests'];
 
 try {
   await fetch(origin, { signal: AbortSignal.timeout(1_000) });
@@ -79,7 +72,6 @@ const web = Bun.spawn(['bun', './e2e/serve-localhost-web.ts'], {
 });
 
 let exitCode = 1;
-let stack: Awaited<ReturnType<typeof startLocalhostServices>> | null = null;
 try {
   await Promise.race([
     waitForHttp(origin),
@@ -87,11 +79,6 @@ try {
       throw new Error(`web preview exited before ready (${String(code)})`);
     }),
   ]);
-  if (!mocked) {
-    stack = await startLocalhostServices();
-    process.env['SIM_STACK_EXTERNAL'] = '1';
-    process.env['SIM_OBJECT_STORE_ORIGIN'] = stack.origin;
-  }
   const test = Bun.spawn(
     [
       'bun',
@@ -121,6 +108,5 @@ try {
 } finally {
   web.kill();
   await web.exited;
-  await stack?.stop();
 }
 process.exit(exitCode);

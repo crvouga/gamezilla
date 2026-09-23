@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
 import { ResponsiveSurface } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
@@ -59,8 +60,8 @@ export function ChessPuzzleCelebrationOverlay(
       title={celebrationTitle(props.completion.outcome)}
       presentation="modal"
       size="small"
-      closeDataSet={{ testid: 'chess-puzzle-summary-close' }}
-      dataSet={{ testid: 'chess-puzzle-summary' }}
+      closeDataSet={{ testid: Handles.chessPuzzleSummaryClose }}
+      dataSet={{ testid: Handles.chessPuzzleSummary }}
     >
       <ChessPuzzleSummaryCard
         completion={props.completion}

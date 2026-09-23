@@ -1,9 +1,11 @@
-import { useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 import { createMemo } from 'solid-js';
 
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
-import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
+import {
+  renderFriendActionPillsForStatus,
+  useFriendActionLabels,
+} from './friend-action-status-renderers';
 import type { FriendActionMutations } from './friend-action-types';
 
 export function FriendActionPillsForStatus(props: {
@@ -12,7 +14,7 @@ export function FriendActionPillsForStatus(props: {
   onChanged?: (() => void) | undefined;
   username?: string | undefined;
 }): JSX.Element {
-  const { t } = useLingui();
+  const labels = useFriendActionLabels();
   const wrap = (fn: () => Promise<void>) => async () => {
     await fn();
     props.onChanged?.();
@@ -27,7 +29,7 @@ export function FriendActionPillsForStatus(props: {
       status,
       mutations: props.mutations,
       wrap,
-      t,
+      labels,
       username: props.username,
     });
     if (status === 'blocked_by_them') {

@@ -341,6 +341,14 @@ msgstr "Build mode"
 msgid "Cancel"
 msgstr "Cancel"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Cancelled"
+msgstr "Cancelled"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Cancelling…"
+msgstr "Cancelling…"
+
 #: pkgs/ui/src/components/text-input/text-input.example.tsx
 msgid "Cannot edit"
 msgstr "Cannot edit"
@@ -523,6 +531,10 @@ msgstr "Could not start local database"
 msgid "Couldn't accept"
 msgstr "Couldn't accept"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't cancel"
+msgstr "Couldn't cancel"
+
 #: libs/friends/src/public/friend-action-pills/friend-action-pill-buttons.tsx
 msgid "Couldn't confirm"
 msgstr "Couldn't confirm"
@@ -568,6 +580,14 @@ msgstr "Couldn't rename space"
 #: libs/profile/src/use-cases/patch-avatar/client/avatar-editor-screen.tsx
 msgid "Couldn't save"
 msgstr "Couldn't save"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't send"
+msgstr "Couldn't send"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Couldn't unblock"
+msgstr "Couldn't unblock"
 
 #: libs/auth/src/root/client/account-device/account-device-meta-grid.tsx
 msgid "Created"
@@ -1313,16 +1333,13 @@ msgstr "Notifications"
 msgid "Notifications you archive are kept here."
 msgstr "Notifications you archive are kept here."
 
-#: libs/client-config/src/root/client/client-config-entity-card.tsx
-msgid "Observability"
-msgstr "Observability"
-
 #: apps/client/src/screens/more/performance-screen.tsx
 #: apps/client/src/screens/more/settings-screen.tsx
 #: libs/client-config/src/root/client/client-config-entity-card.tsx
 msgid "Off"
 msgstr "Off"
 
+#: apps/client/src/chrome/app-header-global-menu.tsx
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-status-header.tsx
 msgid "Offline"
 msgstr "Offline"
@@ -1335,6 +1352,7 @@ msgstr "Offline"
 msgid "On"
 msgstr "On"
 
+#: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/screens/more/sync-screen.tsx
 msgid "Online"
 msgstr "Online"
@@ -1716,6 +1734,14 @@ msgstr "Select style…"
 msgid "Select…"
 msgstr "Select…"
 
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Sending…"
+msgstr "Sending…"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Sent"
+msgstr "Sent"
+
 #: apps/client/src/chrome/app-header-global-menu.tsx
 msgid "Server"
 msgstr "Server"
@@ -2012,6 +2038,7 @@ msgstr "Style"
 msgid "Sync"
 msgstr "Sync"
 
+#: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/chrome/offline-indicator.tsx
 msgid "Sync issue"
 msgstr "Sync issue"
@@ -2024,6 +2051,7 @@ msgstr "Synced from the server on first request. Values come from server secrets
 msgid "Synced runtime configuration"
 msgstr "Synced runtime configuration"
 
+#: apps/client/src/chrome/app-header-global-menu.tsx
 #: apps/client/src/screens/more/sync-screen.tsx
 msgid "Syncing"
 msgstr "Syncing"
@@ -2160,12 +2188,21 @@ msgid "UI explorer, debug tools."
 msgstr "UI explorer, debug tools."
 
 #: apps/client/src/screens/more/about-screen.tsx
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Unavailable"
 msgstr "Unavailable"
 
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 msgid "Unblock"
 msgstr "Unblock"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Unblocked"
+msgstr "Unblocked"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Unblocking…"
+msgstr "Unblocking…"
 
 #: libs/profile/src/root/client/profile-edit-screen.tsx
 msgid "Unique handle for search and invites"

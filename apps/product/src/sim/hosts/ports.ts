@@ -1,5 +1,5 @@
-import type { LocalhostServerServices } from '@apps/product/sim/fabric/create-sim';
 import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
+import type { HttpFetch } from '@pkgs/http-client';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom';
 
 export const SIM_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
@@ -23,13 +23,25 @@ export type ProductUi =
       readonly webOrigin: string;
     };
 
+/**
+ * Where the API runs.
+ * - `in-process` — sim Hono called directly (virtual time)
+ * - `localhost` — sim Hono behind a loopback listener the harness binds
+ * - `full-stack` — the real API Worker (`wrangler dev`) booted by `bun e2e`;
+ *   the harness never serves API traffic
+ */
 export type ProductHttp =
   | { readonly kind: 'in-process' }
-  | { readonly kind: 'localhost'; readonly origin: string };
+  | { readonly kind: 'localhost'; readonly origin: string }
+  | {
+      readonly kind: 'full-stack';
+      readonly origin: string;
+      /** Wire HTTP for harness-side calls against the real Worker. */
+      readonly fetch: HttpFetch;
+    };
 
 export type ProductExtra = {
   readonly sql: SimSql;
-  readonly serverServices?: LocalhostServerServices;
   readonly ui: ProductUi;
   readonly http: ProductHttp;
   /**

@@ -1,6 +1,8 @@
 import { Handles } from '@libs/test-ids';
 
-import { actorUi, scenarioAction } from './actor-ui';
+import { actorUi, pressBackUntilVisible, scenarioAction } from './actor-ui';
+
+const WAIT_MS = 5_000;
 
 export const openProfileEdit = scenarioAction({
   name: 'openProfileEdit',
@@ -27,8 +29,7 @@ export const setUsername = scenarioAction({
     await ui.get(Handles.profileUsernameSave).expect.text('Saved');
     await ui.get(Handles.profileUsernameCancel).tap();
     await ui.get(Handles.profileEditUsername).expect.visible();
-    await ui.get(Handles.navBack).tap();
-    await ui.get(Handles.profileEdit).expect.visible();
+    await pressBackUntilVisible(ui, Handles.profileEdit, WAIT_MS);
   },
 });
 

@@ -16,6 +16,10 @@ export const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';
 export {
   SIM_AUTH_SECRET,
   SIM_SERVER_URL,
+  SIM_STRIPE_SECRET_KEY,
+  SIM_STRIPE_SECRET_KEY_NAME,
+  SIM_STRIPE_WEBHOOK_SECRET,
+  SIM_STRIPE_WEBHOOK_SECRET_NAME,
 } from './sim-constants';
 
 /** Applies framework + domain + kv/entity/outbox + IdP (Postgres dialect). */

@@ -11,24 +11,40 @@ import {
 import {
   createAuthClientAdapter,
   createInMemoryAuthClientStorage,
+  createInProcessOpenAuthSession,
 } from '@pkgs/auth/client';
 import { defineAction } from '@pkgs/sim';
 
-import type { ProductSim } from './sim';
+import { type ProductSim, productExtra } from './sim';
 
-/** Sign in through the client auth port wired to the in-process sim server. */
+/**
+ * Sign in through the client auth port: against the sim server, or against
+ * the real API Worker on the full stack (Dev IdP completed by the harness).
+ */
 export const devOauthSignIn = defineAction({
   name: 'devOauthSignIn',
   pool: false,
   act: async (s: ProductSim, actorId: string) => {
     const env = s.sim.client(actorId);
+    const http = productExtra(s).http;
     const port = createAuthClientAdapter({
-      baseURL: env.authBaseURL,
       timers: env.timers,
-      fetch: env.server,
       storage: createInMemoryAuthClientStorage(),
-      openAuthSession: env.openAuthSession,
       callbackUrl: 'gamezilla://sso-callback',
+      ...(http.kind === 'full-stack'
+        ? {
+            baseURL: http.origin,
+            fetch: http.fetch,
+            openAuthSession: createInProcessOpenAuthSession({
+              fetch: http.fetch,
+              subject: actorId,
+            }),
+          }
+        : {
+            baseURL: env.authBaseURL,
+            fetch: env.server,
+            openAuthSession: env.openAuthSession,
+          }),
     });
     await port.signIn('oauth-dev');
     const token = await port.getFreshToken();

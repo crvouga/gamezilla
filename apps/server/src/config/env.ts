@@ -19,6 +19,11 @@ export type ApiWorkerEnv = {
    */
   API_URL?: string;
   DATABASE_URL?: string;
+  /**
+   * `1` enables the Dev IdP chooser for the full-system e2e stack
+   * (`bun e2e`). Refused unless `SECRETS_ENV` is `dev`.
+   */
+  E2E_DEV_AUTH?: string;
   AUTH_SECRET?: string;
   WEB_CLIENT_GOOGLE_CLIENT_ID?: string;
   WEB_CLIENT_GOOGLE_CLIENT_SECRET?: string;
@@ -72,6 +77,17 @@ export function readOptionalDatabaseUrlOverride(
   env: ApiWorkerEnv
 ): string | null {
   return readOptionalBinding(env.DATABASE_URL);
+}
+
+/** Dev IdP for the e2e stack only; a `prd` Worker with the flag is misconfigured. */
+export function readE2eDevAuth(env: ApiWorkerEnv, secretsEnv: string): boolean {
+  if (readOptionalBinding(env.E2E_DEV_AUTH) !== '1') return false;
+  if (secretsEnv !== 'dev') {
+    throw new ConfigurationError(
+      `E2E_DEV_AUTH is only allowed with SECRETS_ENV=dev (got ${secretsEnv}).`
+    );
+  }
+  return true;
 }
 
 export function workerEnvToSecretRecord(

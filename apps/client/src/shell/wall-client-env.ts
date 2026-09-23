@@ -30,6 +30,7 @@ import {
   type CreateRoomTransport,
   createNoopDevMenuPort,
 } from './client-env';
+import { createE2eOpenAuthSession } from './e2e-open-auth-session';
 import { setOriginAvailability } from './origin-availability-for-env';
 import {
   getMainSqliteDbName,
@@ -103,7 +104,6 @@ export function wallClientEnv(args?: {
     seed: mintWallSeed(),
     server,
     events: createInMemoryPubSub(),
-    createPubSub: () => createInMemoryPubSub(),
     openSqlClient: (openArgs) =>
       openMainSqlClient(openArgs?.userId ?? 'pending', wallTimers),
     kv: new KvImplWeb(),
@@ -121,21 +121,7 @@ export function wallClientEnv(args?: {
     authCallbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
     openAuthSession:
       VITE_E2E === '1'
-        ? async (authorizationUrl, callbackUrl) => {
-            const response = await innerFetch(
-              `${serverUrl}/api/__sim/auth-session`,
-              {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ authorizationUrl, callbackUrl }),
-              }
-            );
-            if (!response.ok)
-              throw new Error(`auth session failed: ${response.status}`);
-            return (await response.json()) as Awaited<
-              ReturnType<ClientEnv['openAuthSession']>
-            >;
-          }
+        ? createE2eOpenAuthSession(innerFetch, readBrowserOrigin() ?? serverUrl)
         : createWallOpenAuthSession(wallTimers, () => crypto.randomUUID()),
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId),
     mutationSuccessHoldMs: 900,

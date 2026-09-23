@@ -5,6 +5,8 @@ import type { BunWebView } from './bun-webview-host';
 function createFakeView(): BunWebView & {
   navigate: ReturnType<typeof mock>;
   click: ReturnType<typeof mock>;
+  type: ReturnType<typeof mock>;
+  press: ReturnType<typeof mock>;
   evaluate: ReturnType<typeof mock>;
   screenshot: ReturnType<typeof mock>;
   close: ReturnType<typeof mock>;
@@ -12,15 +14,18 @@ function createFakeView(): BunWebView & {
   return {
     navigate: mock(() => Promise.resolve()),
     click: mock(() => Promise.resolve()),
+    type: mock(() => Promise.resolve()),
+    press: mock(() => Promise.resolve()),
     evaluate: mock(async (script: string) => {
-      if (script.includes('getComputedStyle')) return true;
+      if (script.includes('outerHTML')) return '<html><body>ok</body></html>';
+      if (script.includes('return visible(el)')) return true;
       if (script.includes('getBoundingClientRect')) {
         return { x: 0, y: 0, width: 100, height: 100 };
       }
-      if (script.includes('innerText') || script.includes('.value')) {
-        return 'typed';
-      }
-      if (script.includes('outerHTML')) return '<html><body>ok</body></html>';
+      if (script.includes('return { text: text(el) }'))
+        return { text: 'typed' };
+      if (script.includes('anyField(el)')) return true;
+      if (script.includes('data-bun-webview-target')) return true;
       return undefined;
     }),
     screenshot: mock(() => Promise.resolve(new Uint8Array())),
@@ -40,10 +45,12 @@ describe('BunWebviewDriver', () => {
     expect(view.navigate).toHaveBeenCalledWith('http://localhost:3000');
 
     await driver.get('submit').tap();
-    expect(view.click).toHaveBeenCalledWith('[data-testid="submit"]');
+    expect(view.click).toHaveBeenCalledWith('[data-bun-webview-target]', {
+      timeout: 1_000,
+    });
 
     await driver.get('board').tapAt({ xRatio: 0.5, yRatio: 0.25 });
-    expect(view.evaluate).toHaveBeenCalled();
+    expect(view.click).toHaveBeenCalledWith(50, 25);
 
     await driver
       .get('board')
@@ -57,8 +64,11 @@ describe('BunWebviewDriver', () => {
     });
 
     await driver.get('email').input('a@b.c');
+    expect(view.type).toHaveBeenCalledWith('a@b.c');
     await driver.get('email').clear();
+    expect(view.press).toHaveBeenCalledWith('Backspace');
     await driver.key('enter');
+    expect(view.press).toHaveBeenCalledWith('Enter');
     await driver.get('list').scroll('down', 50);
     await driver.get('go').wait('visible');
 
@@ -75,8 +85,16 @@ describe('BunWebviewDriver', () => {
     const driver = new BunWebviewDriver({ view });
 
     await driver.get('parent').get('child').tap();
-    expect(view.click).toHaveBeenCalledWith(
-      '[data-testid="parent"] [data-testid="child"]'
-    );
+    const scripts = view.evaluate.mock.calls.map((call) => String(call[0]));
+    expect(
+      scripts.some((script) =>
+        script.includes(
+          JSON.stringify('[data-testid="parent"] [data-testid="child"]')
+        )
+      )
+    ).toBe(true);
+    expect(view.click).toHaveBeenCalledWith('[data-bun-webview-target]', {
+      timeout: 1_000,
+    });
   });
 });
