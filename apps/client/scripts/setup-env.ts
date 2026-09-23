@@ -209,7 +209,8 @@ async function main(): Promise<void> {
   const commitDate = resolveViteCommitDate();
   const e2eFlag = trimStringOrNull(process.env['VITE_E2E']);
 
-  // Runtime EMQX config comes from synced `client_config`.
+  // Runtime knobs (EMQX / observability backend) come from synced
+  // `client_config`, not build env — do not write them here.
   let body =
     `VITE_API_URL=${JSON.stringify(origin)}\n` +
     `VITE_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +

@@ -5,7 +5,7 @@
  * API integration check orchestrator: ensures wrangler on :8788 is healthy,
  * then runs `@apps/server` `test:integration`.
  *
- * When `/api/health` is already OK (`bun start:localhost`), runs tests
+ * When `/api/health` is already OK (`bun dev` / `bun preview`), runs tests
  * immediately. Otherwise starts `preview:serve`, waits, runs tests, then
  * frees the API port. Self-contained for CI and local — the deploy turbo
  * graph no longer has a separate "Start API preview" workflow step.

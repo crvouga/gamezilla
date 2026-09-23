@@ -19,7 +19,6 @@
     "@pkgs/ui-testing": "workspace:*"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

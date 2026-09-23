@@ -17,7 +17,7 @@ const DEV_PORTS = [
   5173, // Vite web dev / static preview (PREVIEW_PORT)
   5174, // legacy Vite web dev
   8799, // observability collector
-  1883, // EMQX MQTT TCP (localhost / CI)
+  1883, // EMQX MQTT TCP (fidelity-max / CI)
   8083, // EMQX MQTT WebSocket
   18083, // EMQX dashboard / HTTP API
   15432, // embedded Postgres

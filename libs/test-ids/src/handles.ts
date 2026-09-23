@@ -5,6 +5,8 @@
  */
 export const Handles = {
   // status / chrome
+  /** Full-bleed boot canvas while identity binds or local SQLite opens. */
+  bootLoading: 'boot-loading',
   statusCurrentUser: 'status-current-user',
   /** "Account" row inside the current-user avatar menu. */
   globalMenuAccount: 'global-menu-account',
@@ -23,6 +25,8 @@ export const Handles = {
   spaceJoin: 'space-join',
   spaceEnded: 'space-ended',
   spaceClose: 'space-close',
+  /** Space chrome overflow trigger — actions that do not fit collapse here. */
+  spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',
   spaceEnd: 'space-end',
   spaceLeaveConfirm: 'space-leave-confirm',

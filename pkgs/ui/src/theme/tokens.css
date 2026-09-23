@@ -19,10 +19,12 @@
   --ui-space-section: 24px;
   --ui-space-page: 20px;
   --ui-font-sans: Nunito, ui-sans-serif, system-ui, sans-serif;
-  --ui-font-serif: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --ui-font-serif:
+    ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
   --ui-font-rounded: Nunito, ui-sans-serif, system-ui, sans-serif;
   --ui-font-display: Nunito, ui-sans-serif, system-ui, sans-serif;
-  --ui-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --ui-font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
   --ui-font-size-xs: 12px;
   --ui-font-size-sm: 14px;
   --ui-font-size-base: 16px;
@@ -76,7 +78,7 @@
   --ui-color-tint-hover: hsla(217, 72%, 38%, 1);
   --ui-color-tint-active: hsla(217, 74%, 40%, 1);
   --ui-color-tint-subtle: hsla(217, 70%, 44%, 0.12);
-  --ui-color-tint-muted: hsla(217, 70%, 44%, 0.20);
+  --ui-color-tint-muted: hsla(217, 70%, 44%, 0.2);
   --ui-color-tint-highlight: hsla(217, 70%, 44%, 0.16);
   --ui-color-on-primary: hsla(0, 0%, 100%, 1);
   --ui-color-on-destructive: hsla(0, 0%, 100%, 1);
@@ -89,7 +91,7 @@
   --ui-color-border: hsla(220, 10%, 14%, 0.08);
   --ui-color-outline: hsla(220, 10%, 14%, 0.14);
   --ui-color-focus-ring: hsla(217, 70%, 44%, 0.45);
-  --ui-color-tab-icon-default: hsla(220, 5%, 40%, 0.70);
+  --ui-color-tab-icon-default: hsla(220, 5%, 40%, 0.7);
   --ui-color-tab-icon-selected: hsla(217, 70%, 44%, 1);
   --ui-color-destructive: hsla(0, 68%, 46%, 1);
   --ui-color-destructive-active: hsla(0, 70%, 40%, 1);
@@ -180,10 +182,10 @@
   --ui-color-on-success: hsla(222, 16%, 12%, 1);
   --ui-color-on-warning: hsla(222, 16%, 12%, 1);
   --ui-color-on-info: hsla(222, 16%, 12%, 1);
-  --ui-color-on-tint-scrim: hsla(0, 0%, 0%, 0.40);
+  --ui-color-on-tint-scrim: hsla(0, 0%, 0%, 0.4);
   --ui-color-interactive-hover: hsla(210, 16%, 97%, 0.06);
   --ui-color-interactive-press: hsla(210, 16%, 97%, 0.12);
-  --ui-color-border: hsla(210, 14%, 96%, 0.10);
+  --ui-color-border: hsla(210, 14%, 96%, 0.1);
   --ui-color-outline: hsla(210, 14%, 96%, 0.16);
   --ui-color-focus-ring: hsla(213, 92%, 68%, 0.55);
   --ui-color-tab-icon-default: hsla(215, 6%, 70%, 0.65);
@@ -199,7 +201,7 @@
   --ui-color-info-surface: hsla(199, 84%, 58%, 0.16);
   --ui-color-disabled: hsla(220, 5%, 22%, 1);
   --ui-color-scrim: hsla(220, 14%, 4%, 0.72);
-  --ui-color-shadow-color: hsla(220, 14%, 2%, 0.50);
+  --ui-color-shadow-color: hsla(220, 14%, 2%, 0.5);
   --ui-elevation-1: hsla(220, 7%, 13%, 1);
   --ui-elevation-2: hsla(220, 7%, 13%, 1);
   --ui-elevation-3: hsla(220, 6%, 18%, 1);
@@ -255,4 +257,3 @@
   --ui-on-icon: var(--ui-color-icon);
   color-scheme: dark;
 }
-

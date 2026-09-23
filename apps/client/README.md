@@ -1,8 +1,9 @@
 # Gamezilla Client (Solid + Vite)
 
-Run the app from the repository root with `bun start:localhost`. For the
-in-memory app, use `bun start:localhost:mocked`. Client setup prepares the
-`VITE_*` build variables and SQL worker assets.
+`bun run dev` starts the Vite app using `vite.config.mts`. `bun run setup`
+writes local `VITE_*` build variables and prepares the SQL worker assets.
+Local setup refuses the production API unless explicitly opted in with
+`VITE_ALLOW_PRODUCTION_API_URL=1`.
 
 ## Progressive Web App (PWA)
 

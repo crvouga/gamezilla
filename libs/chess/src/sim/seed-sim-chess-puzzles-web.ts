@@ -1,5 +1,5 @@
 /**
- * Browser-safe chess puzzle seed for the web sim host (`bun start:in-process` /
+ * Browser-safe chess puzzle seed for the web sim host (`bun run dev` /
  * product-simulator). Parses the inline CSV fixture and inserts through the
  * same fast path the Node load-file seeder uses, so the dev pool matches the
  * shape of production rows. Avoids `@libs/chess` seeder modules that pull

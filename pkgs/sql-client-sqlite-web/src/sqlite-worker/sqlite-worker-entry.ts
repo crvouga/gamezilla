@@ -19,9 +19,6 @@ import {
 } from './sqlite-worker-host';
 
 function pickBackend(sqlite3: Sqlite3Static): SqliteWorkerBackend {
-  if (new URL(globalThis.location.href).searchParams.has('memory')) {
-    return createMemorySqliteWorkerBackend(sqlite3);
-  }
   if (isOpfsSahPoolSupported()) {
     return new OpfsSahPoolBackend(sqlite3);
   }

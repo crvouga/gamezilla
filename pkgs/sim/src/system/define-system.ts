@@ -9,19 +9,9 @@ import type { RuntimeDef } from './define-runtime';
 import { type CatalogAction, type CatalogProperty, SYSTEM_TAG } from './effect';
 import type { Gen } from './gen';
 import type { Recording } from './recording';
-import {
-  attachSystemRegistry,
-  type SystemCore,
-  selectDefaultRuntime,
-} from './registry';
+import { attachSystemRegistry, type SystemCore } from './registry';
 
 export type System<S, Args = void> = SystemCore<S, Args> & {
-  /**
-   * Swap the fabric for every `run` / `explore` / `replay` that names no
-   * runtime — how a harness runs the same scenarios in-process or against a
-   * full stack without touching them.
-   */
-  useRuntime(name: string): void;
   run(opts: RunOptions<S, Args>): Promise<Run<S>>;
   explore(opts?: ExploreOptions<S, Args>): Promise<Report>;
   replay(
@@ -56,9 +46,6 @@ export function defineSystem<S, Args = void>(def: {
     create: def.create,
     args: def.args as Args | undefined,
     sample: def.sample as (() => Gen<Args>) | undefined,
-    useRuntime(name: string): void {
-      selectDefaultRuntime(system as SystemCore<S, unknown>, name);
-    },
     async run(opts: RunOptions<S, Args>): Promise<Run<S>> {
       const { run } = await import('../run/run');
       return run(system, opts);
