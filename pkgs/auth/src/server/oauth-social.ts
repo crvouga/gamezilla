@@ -75,8 +75,8 @@ async function resolveProviderUser(
         userId: args.linkUserId,
         provider: args.provider,
         providerUserId: args.providerUserId,
-        accessToken: args.accessToken,
-        refreshToken: args.refreshToken,
+        accessToken: args.accessToken ?? null,
+        refreshToken: args.refreshToken ?? null,
       });
     }
     return r.findUserById(args.linkUserId);

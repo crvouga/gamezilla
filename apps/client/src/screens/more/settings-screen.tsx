@@ -7,6 +7,7 @@
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
+  CreditCardIcon,
   GaugeIcon,
   type Href,
   type IconComponent,
@@ -74,6 +75,13 @@ function useAccountGroup(): Accessor<SettingsGroup> {
         icon: UserIcon,
         href: '/more/account',
         testid: 'settings-account',
+      },
+      {
+        title: t`Billing`,
+        caption: t`Subscriptions and membership`,
+        icon: CreditCardIcon,
+        href: '/more/billing',
+        testid: 'settings-billing',
       },
     ],
   });

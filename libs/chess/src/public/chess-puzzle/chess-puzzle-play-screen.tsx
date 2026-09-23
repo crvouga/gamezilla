@@ -9,6 +9,7 @@ import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
+import { ChessPuzzleClock } from './chess-puzzle-clock';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
@@ -19,6 +20,7 @@ import {
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import type { SolveStatus } from './use-chess-puzzle-solver';
+import { usePuzzleClock } from './use-puzzle-clock';
 import { usePuzzlePlayScreenState } from './use-puzzle-play-screen-state';
 import {
   type PuzzlePlayerChromeModel,
@@ -84,6 +86,11 @@ function PuzzlePlayerChrome(props: {
 }): JSX.Element {
   const p = props.model;
   const avatarSize = usePuzzleAvatarSize();
+  const clock = usePuzzleClock({
+    puzzleId: p.puzzleId,
+    layoutKey: p.layoutKey,
+    status: p.status,
+  });
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
@@ -92,7 +99,12 @@ function PuzzlePlayerChrome(props: {
       assistant={
         <SpeakingAvatarAssistant
           assistant={p.assistant()}
-          header={<ChessPuzzleStatusHeader kind={p.statusKind()} />}
+          header={
+            <ChessPuzzleStatusHeader
+              kind={p.statusKind()}
+              trailing={<ChessPuzzleClock elapsedMs={clock.elapsedMs} />}
+            />
+          }
           numberOfLines={2}
           avatarSize={avatarSize()}
         />

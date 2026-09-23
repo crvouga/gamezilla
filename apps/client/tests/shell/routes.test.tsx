@@ -25,6 +25,7 @@ const LINKING_CONFIG_PATHS: readonly string[] = [
   '/more/server-status',
   '/more/client-config',
   '/more/account',
+  '/more/billing',
   '/more/account/providers',
   '/more/account/devices',
   '/more/account/device/device-1',

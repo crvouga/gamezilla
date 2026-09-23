@@ -2,7 +2,7 @@
 /**
  * Global dropdown mounted as `AppFrameChromeProvider` `globalTrailing` so
  * every top bar shares it. Rows: Settings, Connectivity, Server, Account,
- * Theme, Sound. Header shows `@username` + email when signed in (bridged
+ * Billing, Theme, Sound. Header shows `@username` + email when signed in (bridged
  * from the sync tree via {@link useGlobalMenuIdentity}). Trigger face is the
  * current user's avatar when available.
  */
@@ -12,6 +12,7 @@ import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
+  CreditCardIcon,
   type OverflowMenuAction,
   OverflowMenuButton,
   type OverflowMenuHeader,
@@ -103,8 +104,16 @@ function useGlobalMenuActions(): Accessor<readonly OverflowMenuAction[]> {
       label: t`Account`,
       icon: UserIcon,
       onClick: go('/more/account'),
-      endsGroup: true,
       dataSet: { testid: Handles.globalMenuAccount },
+    },
+    {
+      id: 'billing',
+      label: t`Billing`,
+      subtitle: t`Subscriptions and membership`,
+      icon: CreditCardIcon,
+      onClick: go('/more/billing'),
+      endsGroup: true,
+      dataSet: { testid: 'global-menu-billing' },
     },
     {
       id: 'theme',

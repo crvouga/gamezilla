@@ -14,9 +14,11 @@ import {
   ChevronsLeft,
   ChevronsRight,
   CircleCheck,
+  Clock,
   Code,
   Columns2,
   Copy,
+  CreditCard,
   Database,
   DoorOpen,
   Ellipsis,
@@ -89,6 +91,7 @@ export const ChevronLeftIcon = createIcon(ChevronLeft);
 export const ChevronsLeftIcon = createIcon(ChevronsLeft);
 export const ChevronsRightIcon = createIcon(ChevronsRight);
 export const ChevronDownIcon = createIcon(ChevronDown);
+export const ClockIcon = createIcon(Clock);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);
@@ -104,6 +107,7 @@ export const MenuIcon = createIcon(Menu);
 export const DatabaseIcon = createIcon(Database);
 export const DoorOpenIcon = createIcon(DoorOpen);
 export const CopyIcon = createIcon(Copy);
+export const CreditCardIcon = createIcon(CreditCard);
 export const CircleCheckIcon = createIcon(CircleCheck);
 export const XIcon = createIcon(X);
 export const Volume2Icon = createIcon(Volume2);

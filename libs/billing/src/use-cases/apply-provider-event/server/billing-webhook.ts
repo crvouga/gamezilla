@@ -310,22 +310,3 @@ async function applySubscription(
   });
   return 'applied';
 }
-
-export function subscriptionEntitled(
-  row: {
-    readonly status: string;
-    readonly trial_end: string | null;
-    readonly current_period_end: string | null;
-    readonly grace_until: string | null;
-  } | null,
-  nowMs: number
-): boolean {
-  if (row === null) return false;
-  const until = (value: string | null) =>
-    value !== null && Date.parse(value) > nowMs;
-  if (row.status === 'trialing') return until(row.trial_end);
-  if (row.status === 'active') return until(row.current_period_end);
-  if (row.status === 'past_due') return until(row.grace_until);
-  if (row.status === 'canceled') return until(row.current_period_end);
-  return false;
-}

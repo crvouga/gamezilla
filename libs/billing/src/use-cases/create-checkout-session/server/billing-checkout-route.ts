@@ -12,10 +12,8 @@ import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 import { CATALOG_PRICE_KEYS } from '../../../shared/catalog/catalog-spec';
-import {
-  applyBillingEvent,
-  subscriptionEntitled,
-} from '../../apply-provider-event/server/billing-webhook';
+import { subscriptionEntitled } from '../../../shared/membership/subscription-entitled';
+import { applyBillingEvent } from '../../apply-provider-event/server/billing-webhook';
 
 export type BillingAuthContext = {
   readonly accountId: string;

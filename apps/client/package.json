@@ -62,6 +62,7 @@
   "dependencies": {
     "@apps/server": "workspace:*",
     "@libs/auth": "workspace:*",
+    "@libs/billing": "workspace:*",
     "@libs/chess": "workspace:*",
     "@libs/client-config": "workspace:*",
     "@libs/db": "workspace:*",

@@ -29,7 +29,7 @@ export function buildAppleAuthorizationUrl(args: {
   return url.toString();
 }
 
-function bytesFromBase64Url(value: string): Uint8Array {
+function bytesFromBase64Url(value: string): Uint8Array<ArrayBuffer> {
   const padded = value.replace(/-/g, '+').replace(/_/g, '/');
   const pad =
     padded.length % 4 === 0 ? '' : '='.repeat(4 - (padded.length % 4));

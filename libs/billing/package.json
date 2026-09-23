@@ -22,12 +22,15 @@
   "dependencies": {
     "@hono/zod-validator": "catalog:",
     "@libs/auth": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
@@ -36,6 +39,7 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",
+    "solid-js": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

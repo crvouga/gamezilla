@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
 import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
 import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
-import { registerTables } from '@pkgs/db-schema';
+import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -43,8 +43,26 @@ function makeFakeAuthServer(args: {
   };
 }
 
+/**
+ * `@libs/profile` owns `profile`; auth may not import it, so mirror the
+ * columns `ensureProfileRow` writes.
+ */
+const PROFILE_TABLE = defineTable({
+  domain: 'profile',
+  name: 'profile',
+  columns: {
+    username: 'text',
+    avatar_config: 'json',
+    username_changed_at: 'timestamp',
+    username_norm: 'text',
+  },
+});
+
 async function migrateAuthTables(db: SqlClient): Promise<void> {
-  await applySqliteSchema(db, registerTables([...AUTH_TABLES]));
+  await applySqliteSchema(
+    db,
+    registerTables([...AUTH_TABLES, PROFILE_TABLE])
+  );
 }
 
 async function readPrimaryAuthExternalAccount(

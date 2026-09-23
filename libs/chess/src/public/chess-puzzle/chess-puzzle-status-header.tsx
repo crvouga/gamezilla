@@ -34,6 +34,8 @@ function statusLabel(kind: ChessPuzzleStatusKind): JSX.Element | null {
 
 export type ChessPuzzleStatusHeaderProps = {
   kind: ChessPuzzleStatusKind;
+  /** Right-aligned slot, e.g. the puzzle clock. */
+  trailing?: JSX.Element | undefined;
 };
 
 export function ChessPuzzleStatusHeader(
@@ -48,6 +50,7 @@ export function ChessPuzzleStatusHeader(
       <p class="text textBodyBold flex-1 text-text">
         {statusLabel(props.kind)}
       </p>
+      {props.trailing}
     </div>
   );
 }

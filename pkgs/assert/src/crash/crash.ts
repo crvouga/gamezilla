@@ -41,7 +41,19 @@ export function crash(
   dispatchCrash(message, context);
 }
 
+/**
+ * Test runners (`bun test` / vitest set `NODE_ENV=test`) exercise crashes on
+ * purpose via `toThrow`; the thrown value already carries message + context,
+ * so the stderr echo is noise there.
+ */
+function isTestRun(): boolean {
+  if (typeof process === 'undefined') return false;
+  const env = (process as { env?: { NODE_ENV?: string } }).env;
+  return env?.NODE_ENV === 'test';
+}
+
 function log(message: string, context?: Record<string, unknown>) {
+  if (isTestRun()) return;
   console.error('[ASSERT]', message);
   if (context !== undefined) console.error('[CONTEXT]', context);
   console.error(new Error().stack);

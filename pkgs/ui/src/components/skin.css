@@ -101,11 +101,16 @@
 
   .btn[data-face="primary"],
   .fab[data-face="primary"] {
-    background: var(--ui-color-tint);
+    background: var(--ui-color-tint-active);
     color: var(--ui-color-on-primary);
     --ui-on-fg: var(--ui-color-on-primary);
     --ui-on-fg-muted: var(--ui-color-on-primary);
     --ui-on-icon: var(--ui-color-on-primary);
+  }
+
+  .btn[data-face="primary"] .text,
+  .fab[data-face="primary"] .text {
+    color: var(--ui-color-on-primary);
   }
 
   .btn[data-face="danger"],
