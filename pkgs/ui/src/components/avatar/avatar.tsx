@@ -74,7 +74,9 @@ export function Avatar(props: AvatarProps): JSX.Element {
   const size = () => props.size ?? DEFAULT_SIZE;
   const background = () => props.background ?? DEFAULT_BACKGROUND;
   const foreground = createMemo((): string => {
-    if (props.foreground !== undefined) return props.foreground;
+    if (props.foreground !== undefined) {
+      return resolveColor(props.foreground, tokens.colors) ?? props.foreground;
+    }
     const raw = resolveColor(background(), tokens.palette()) ?? background();
     return bestOnColor(raw).fg;
   });
@@ -83,7 +85,8 @@ export function Avatar(props: AvatarProps): JSX.Element {
       class="box inline-flex rounded-full border-border overflow-hidden items-center justify-center"
       {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       style={{
-        'background-color': background(),
+        'background-color':
+          resolveColor(background(), tokens.colors) ?? background(),
         width: cssPx(size()),
         height: cssPx(size()),
         'border-width': cssPx(AVATAR_BORDER_WIDTH),

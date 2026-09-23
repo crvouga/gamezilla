@@ -4,9 +4,9 @@ import {
   createBoundaryFaultController,
   type EdgeFaultController,
 } from './edge-faults';
-import { bindSimHttpServer } from './http-bridge';
+import { bindSimHttpLoadBalancer } from './http-bridge';
 import type { SyncNetwork } from './network';
-import { openSimServer } from './server';
+import { openSimServerCluster } from './server-cluster';
 import {
   type BootRuntime,
   createBootRuntime,
@@ -50,7 +50,7 @@ export function bootSimInfra(args: {
   return { deps, boundaryFaults, runtime };
 }
 
-/** In-memory SQLite server + HTTP bind on top of {@link bootSimInfra}. */
+/** Shared-DB server nodes plus the round-robin HTTP ingress. */
 export async function bootSimServer(args: {
   readonly infra: SimInfra;
   readonly clientOpts: SimClientOpts;
@@ -62,7 +62,7 @@ export async function bootSimServer(args: {
   const authStatusByDevice = new Map<string, SimAuthStatus>();
   const serverPub = runtime.broker.createPubSub(SERVER_PUB);
   const nextId = makeNextId(rng);
-  const server = await openSimServer({
+  const serverNodes = await openSimServerCluster({
     now: () => runtime.nowFor(SIM_SERVER_NODE_ID),
     createId: nextId,
     pubsub: serverPub,
@@ -74,6 +74,7 @@ export async function bootSimServer(args: {
     faults: boundaryFaults,
     ...(domain.topicMap !== undefined ? { topicMap: domain.topicMap } : {}),
   });
+  const server = serverNodes[0]!.server;
 
   const kernel: BootedSimKernel = {
     rng,
@@ -83,6 +84,7 @@ export async function bootSimServer(args: {
     timers: runtime.timers,
     network: runtime.network,
     server,
+    serverNodes,
     broker: runtime.broker,
     clients: new Map(),
     metas: new Map(),
@@ -100,10 +102,13 @@ export async function bootSimServer(args: {
     nextId,
   };
 
-  kernel.unbindHttp = bindSimHttpServer({
+  kernel.unbindHttp = bindSimHttpLoadBalancer({
     network: runtime.network,
-    serverId: SERVER_HTTP,
-    handlers: server.handlers,
+    balancerId: SERVER_HTTP,
+    nodes: serverNodes.map((node) => ({
+      id: node.endpointId,
+      handlers: node.server.handlers,
+    })),
     faults: boundaryFaults,
     onMutationsAccepted: async (clientNodeId) => {
       await fireCrashIfArmed(

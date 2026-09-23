@@ -11,7 +11,6 @@ import {
   getApiWorkerSecrets,
   loadSecretsIntoEnv,
 } from '@libs/secrets/public/secrets';
-import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import { wallTimers } from '@pkgs/clock';
 import {
   EMQX_API_KEY,
@@ -20,13 +19,6 @@ import {
   EMQX_JWT_SECRET,
   EMQX_WS_PORT,
 } from '@pkgs/emqx-server';
-import {
-  MINIO_BUCKET,
-  MINIO_ENDPOINT,
-  MINIO_REGION,
-  MINIO_ROOT_PASSWORD,
-  MINIO_ROOT_USER,
-} from '@pkgs/minio-server';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded';
 import { resolveSecretsScope } from '@pkgs/secrets-config/index';
@@ -49,24 +41,18 @@ const LOCAL_EMQX_DEV_SECRETS: Readonly<Record<string, string>> = {
 
 const LOCAL_POSTGRES_DATABASE_URL = LOCAL_DATABASE_URL;
 
-/** Loopback MinIO when CI boots `@pkgs/minio-server`. */
-const LOCAL_MINIO_S3_SECRETS: Readonly<Record<string, string>> = {
-  S3_ACCESS_KEY_ID: MINIO_ROOT_USER,
-  S3_SECRET_ACCESS_KEY: MINIO_ROOT_PASSWORD,
-  S3_BUCKET: MINIO_BUCKET,
-  S3_ENDPOINT: MINIO_ENDPOINT,
-  S3_REGION: MINIO_REGION,
-};
-
 /**
  * Worker secrets that enable optional cloud features. Missing values are skipped
  * so local boot can degrade those features instead of failing setup.
  */
 const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
+  'S3_ACCESS_KEY_ID',
+  'S3_SECRET_ACCESS_KEY',
+  'S3_BUCKET',
+  'S3_ENDPOINT',
+  'S3_REGION',
   'WEB_CLIENT_GOOGLE_CLIENT_ID',
   'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
-  StripeSecretKeys.secretKey,
-  StripeSecretKeys.publishableKey,
   'ELEVEN_LABS_API_KEY',
   'OPENAI_API_KEY',
   'OPENAI_BASE_URL',
@@ -75,7 +61,6 @@ const OPTIONAL_FEATURE_WORKER_SECRETS: ReadonlySet<string> = new Set([
   'EMQX_API_KEY',
   'EMQX_API_SECRET',
   'EMQX_JWT_SECRET',
-  'OBSERVABILITY_BACKEND',
   'API_URL',
   'VITE_API_URL',
   'LOCAL_PREVIEW_API_ORIGIN',
@@ -93,12 +78,6 @@ function readApiUrlForDevVars(): string {
     return normalizeLoopbackOriginToLocalhost(vite);
   }
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
-}
-
-/** `bun e2e` points the Worker at its own database on the embedded cluster. */
-function readDatabaseUrlForDevVars(): string {
-  const override = process.env['LOCAL_STACK_DATABASE_URL']?.trim() ?? '';
-  return override.length > 0 ? override : LOCAL_POSTGRES_DATABASE_URL;
 }
 
 function ensureAuthSecret(): string {
@@ -152,35 +131,21 @@ async function loadOptionalSecretsOverlay(): Promise<void> {
 async function main(): Promise<void> {
   const { env: secretsEnv } = await resolveSecretsScope(configStore);
   assertDevSecretsEnv(secretsEnv);
-  // Best-effort Infisical overlay; local Postgres/MinIO/EMQX always win below.
+  // Best-effort Infisical overlay; local Postgres/EMQX always win below.
   await loadOptionalSecretsOverlay();
 
-  const databaseUrl = readDatabaseUrlForDevVars();
-  await assertNonProdDatabaseUrlForTooling(databaseUrl, {
+  await assertNonProdDatabaseUrlForTooling(LOCAL_POSTGRES_DATABASE_URL, {
     surface: 'setup-dev-vars',
     secretsEnv,
   });
 
   const lines: string[] = [`SECRETS_ENV=${encodeDevVarValue(secretsEnv)}`];
   lines.push(`API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`);
-  lines.push(`DATABASE_URL=${encodeDevVarValue(databaseUrl)}`);
+  lines.push(`DATABASE_URL=${encodeDevVarValue(LOCAL_POSTGRES_DATABASE_URL)}`);
   const written = new Set<string>(['SECRETS_ENV', 'API_URL', 'DATABASE_URL']);
-  if (process.env['E2E_DEV_AUTH'] === '1') {
-    lines.push(`E2E_DEV_AUTH=${encodeDevVarValue('1')}`);
-    written.add('E2E_DEV_AUTH');
-    process.stdout.write('[setup-dev-vars] E2E_DEV_AUTH → Dev IdP enabled.\n');
-  }
 
   process.stdout.write(
     '[setup-dev-vars] DATABASE_URL → loopback embedded Postgres (Infisical ignored).\n'
-  );
-
-  for (const [name, value] of Object.entries(LOCAL_MINIO_S3_SECRETS)) {
-    lines.push(`${name}=${encodeDevVarValue(value)}`);
-    written.add(name);
-  }
-  process.stdout.write(
-    '[setup-dev-vars] S3_* → loopback MinIO (Infisical ignored).\n'
   );
 
   for (const [name, value] of Object.entries(LOCAL_EMQX_DEV_SECRETS)) {

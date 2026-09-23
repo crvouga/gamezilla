@@ -85,8 +85,10 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       cssCodeSplit: true,
       assetsInlineLimit: 0,
-      // The separately budgeted game and avatar routes load large assets lazily.
-      chunkSizeWarningLimit: 2_500,
+      // node-sql-parser is one atomic browser module (~2.4 MB raw / ~428 KB
+      // gzip); it cannot be split further. Its compressed size is covered by
+      // the lazy bundle budgets below this raw-size reporter threshold.
+      chunkSizeWarningLimit: 2600,
       // Do not inject <link rel="modulepreload"> for dynamic-import targets into
       // index.html. Vite's default preloads the sync-engine / mutations /
       // dicebear / games graphs on every cold load and blew Slow-4G LCP (~35s).

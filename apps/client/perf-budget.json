@@ -26,70 +26,10 @@
     }
   },
   "deferredPathMustNotMatch": ["sql-workers", ".wasm"],
-  "criticalPath": {
-    "eagerDynamicImportMode": "warn"
-  },
-  "lighthouse": {
-    "mode": "warn",
-    "iterations": 3,
-    "cpuSlowdownMultiplier": 4,
-    "throttlingPreset": "slow4G",
-    "routes": [
-      { "id": "shell", "path": "/" },
-      { "id": "more", "path": "/more" },
-      { "id": "profile", "path": "/profile" }
-    ],
-    "metrics": {
-      "shell": {
-        "lcpMs": 5000,
-        "tbtMs": 600,
-        "ttiMs": 5500,
-        "speedIndexMs": 4500,
-        "totalByteWeightKb": 2500,
-        "cls": 0.1
-      },
-      "default": {
-        "lcpMs": 4500,
-        "tbtMs": 800,
-        "ttiMs": 6000,
-        "speedIndexMs": 5500,
-        "totalByteWeightKb": 3000,
-        "cls": 0.1
-      }
-    },
-    "bannedFetchBeforeInteraction": [
-      "sql-workers",
-      ".wasm",
-      "sqlite3",
-      "game-plugins"
-    ]
-  },
   "thirdParty": {
-    "indexHtmlScriptAllowlist": [],
-    "maxBlockingMs": 50
+    "indexHtmlScriptAllowlist": []
   },
   "fonts": {
-    "allowedFontDisplay": ["swap", "optional"],
-    "preferSystemStack": true
-  },
-  "memory": {
-    "mode": "warn",
-    "shellJsHeapMb": 60,
-    "afterNavJsHeapMb": 90
-  },
-  "firstLoadApi": {
-    "mode": "warn",
-    "totalGzipKb": 50
-  },
-  "serviceWorker": {
-    "precacheWarnKb": 2048
-  },
-  "pwaChrome": {
-    "splashTotalWarnMb": 16
-  },
-  "images": {
-    "mode": "warn",
-    "assetPngJpegMaxRawKb": 40,
-    "assetHardMaxRawKb": 100
+    "allowedFontDisplay": ["swap", "optional"]
   }
 }

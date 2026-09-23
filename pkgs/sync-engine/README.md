@@ -125,7 +125,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 | `@pkgs/sync-engine/solid` | Solid bindings: `SyncEngineProvider`, `createQuery`, `useSyncEngine`, `MutationClientProvider` / `useMutationClient` |
 
 Full contract map, cutover runbook, authoring drift close-out, and refactor-freedom
-checklist: [`CONTRACTS.md`](./CONTRACTS.md). Checked-in API reports:
+checklist: [`docs/CONTRACTS.md`](./docs/CONTRACTS.md). Checked-in API reports:
 [`api-reports/`](./api-reports/).
 
 ### Contract classes (what you may depend on)
@@ -724,12 +724,6 @@ single-flight (it does) — mainly HTTP/server load then.
 
 ---
 
-## App wiring
-
-See [`docs/sync-engine-app-wiring.md`](../../docs/sync-engine-app-wiring.md) for product composition.
-
----
-
 ## Directory map
 
 ```text
@@ -793,7 +787,7 @@ protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
 `src/sim/example-app/system.ts`; boot lives in `src/sim/scenario/boot.ts` — see
 also `pkgs/sim/README.md`).
 When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
-add a named scenario, and log in repo-root `PBT_FINDINGS.md`.
+add a named scenario, and log in `docs/PBT_FINDINGS.md`.
 
 ```bash
 # all sync-engine PBT (pinned seed)

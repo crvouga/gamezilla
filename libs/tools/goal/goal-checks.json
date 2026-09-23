@@ -1,0 +1,671 @@
+{
+  "the-bar:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+      }
+    ]
+  },
+  "the-bar:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/check-goals.ts"
+      }
+    ]
+  },
+  "the-bar:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
+      }
+    ]
+  },
+  "the-bar:4": {
+    "status": "proven",
+    "note": "pubsub-emqx test:contract loud-skips without a broker.",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/biome-plugins/no-skipped-tests.grit"
+      }
+    ]
+  },
+  "the-bar:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sql-client-postgres/src/postgres.contract.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/object-store-s3/src/object-store.s3.contract.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/pubsub-emqx/src/emqx.contract.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/db-indexes-postgres/tests/postgres.contract.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/db-schema-postgres/tests/postgres-reconcile.contract.test.ts"
+      }
+    ]
+  },
+  "the-bar:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/check-goals.ts"
+      }
+    ]
+  },
+  "spaces:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-guest-host.test.tsx"
+      }
+    ]
+  },
+  "spaces:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/spaces/tests/guest-space-join.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
+      }
+    ]
+  },
+  "spaces:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/space-host-select-game.test.tsx"
+      }
+    ]
+  },
+  "spaces:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-live-presence.test.tsx"
+      }
+    ]
+  },
+  "spaces:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-disconnect-reconnect.test.tsx"
+      }
+    ]
+  },
+  "spaces:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-lifecycle.test.tsx"
+      }
+    ]
+  },
+  "spaces:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-friend-join.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/friend-in-open-space.test.tsx"
+      }
+    ]
+  },
+  "works-offline:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "apps/product/scripts/sw-policy.test.ts"
+      }
+    ]
+  },
+  "works-offline:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-offline.test.tsx"
+      }
+    ]
+  },
+  "works-offline:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/puzzle-session/feed-sync-bands.test.ts"
+      }
+    ]
+  },
+  "works-offline:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
+      }
+    ]
+  },
+  "works-offline:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+      }
+    ]
+  },
+  "works-offline:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/requires-online-fails-offline-without-queue.test.ts"
+      }
+    ]
+  },
+  "works-offline:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
+      }
+    ]
+  },
+  "social:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-play.test.tsx"
+      }
+    ]
+  },
+  "social:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/auth/src/root/server/anon-user-service.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+      }
+    ]
+  },
+  "social:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/username-integrity.test.ts"
+      }
+    ]
+  },
+  "social:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/username-integrity.test.ts"
+      }
+    ]
+  },
+  "social:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/request-accept.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/request-decline-cancel.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/remove.test.tsx"
+      }
+    ]
+  },
+  "social:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/spaces/src/root/client/my-live-space-seat-sql.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/friends/tests/e2e/friend-in-open-space.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-play.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-stats.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-feed.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-feed.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-exhaust.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:8": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/puzzle-session/opponent-stager.test.ts"
+      }
+    ]
+  },
+  "chess-puzzles:9": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-controls.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:10": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/chess-board/tests/chess-board.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:11": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-stats.test.tsx"
+      }
+    ]
+  },
+  "chess-puzzles:12": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-spectator.test.tsx"
+      }
+    ]
+  },
+  "guest-free-and-paid:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/permissions/tests/policy.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/permissions/tests/policy.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/permissions/tests/evaluate-performance.test.ts"
+      }
+    ]
+  },
+  "guest-free-and-paid:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-limit-upgrade.test.tsx"
+      }
+    ]
+  },
+  "guest-free-and-paid:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/billing/src/use-cases/create-checkout-session/server/billing-checkout-route.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/billing/tests/e2e/subscribe.test.tsx"
+      }
+    ]
+  },
+  "guest-free-and-paid:8": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/billing/src/use-cases/open-portal-session/server/billing-portal-route.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/billing/tests/e2e/portal.test.tsx"
+      }
+    ]
+  },
+  "guest-free-and-paid:9": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/billing-stripe/src/stripe-membership.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/billing/tests/e2e/lifecycle.test.tsx"
+      }
+    ]
+  },
+  "guest-free-and-paid:10": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/permissions/tests/plan.test.ts"
+      }
+    ]
+  },
+  "always-true:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/crash-restart-rehydrates-and-drains-queue.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+      }
+    ]
+  },
+  "always-true:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+      }
+    ]
+  },
+  "always-true:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
+      }
+    ]
+  },
+  "always-true:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/permissions/tests/plan.test.ts"
+      }
+    ]
+  },
+  "always-true:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/permissions/tests/plan.test.ts"
+      }
+    ]
+  },
+  "always-true:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
+      }
+    ]
+  },
+  "always-true:7": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-spectator.test.tsx"
+      }
+    ]
+  },
+  "always-true:8": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      }
+    ]
+  },
+  "always-true:9": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/username-integrity.test.ts"
+      }
+    ]
+  },
+  "always-true:10": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/auth/src/root/server/anon-user-service.test.ts"
+      },
+      {
+        "kind": "test",
+        "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
+      },
+      {
+        "kind": "test",
+        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+      }
+    ]
+  },
+  "room-to-grow:1": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/games/tests/game-plugin-contract.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:2": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/games/tests/game-plugin-contract.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:3": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/permissions/tests/evaluate.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:4": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "pkgs/billing/src/membership.contract.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:5": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "test",
+        "path": "libs/sim-harness/tests/hosts-smoke.test.ts"
+      }
+    ]
+  },
+  "room-to-grow:6": {
+    "status": "proven",
+    "proofs": [
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/ci-i18n.ts"
+      }
+    ]
+  }
+}

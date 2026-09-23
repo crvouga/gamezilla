@@ -1,0 +1,82 @@
+name: PR
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # One job, one check: `bun run check` — the same //#check leaf set the CD
+  # gate runs. New checks belong in //#check in turbo.json (or a `ci:*` root
+  # task), not in a new job here.
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    # Hard ceiling for the whole job: setup + the check step + summary. The
+    # check step has its own tighter limit below.
+    timeout-minutes: 30
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      # libs/tools/scripts/check-static.ts scopes gitleaks to this PR's commit range
+      # when the event is a pull_request and both refs are present.
+      GH_EVENT: ${{ github.event_name }}
+      PR_BASE: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: check
+        id: check
+        # Above `CI_RUN_DEADLINE_SECONDS` (libs/tools/scripts/check-budget.ts)
+        # on purpose: turbo-ci-run hits its own deadline first and names the
+        # task that wedged, instead of GitHub cancelling the step silently.
+        timeout-minutes: 25
+        run: |
+          set -euo pipefail
+          bun run check 2>&1 | tee "${RUNNER_TEMP}/check.log"
+
+      - name: Upload queryable trace artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: observability-traces-${{ github.run_id }}
+          # E2e suites live only in libs/*; keep upload-artifact out of the
+          # repository-wide ** walk (node_modules makes that path pathological).
+          path: 'libs/*/.cache/sim-report/traces/*.ndjson'
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 7
+
+      - name: Write pipeline summary
+        if: always()
+        env:
+          PIPELINE_NAME: check
+          PIPELINE_OUTCOME: ${{ steps.check.outcome }}
+          PIPELINE_LOG_PATH: ${{ runner.temp }}/check.log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run libs/tools/scripts/write-pipeline-summary.ts

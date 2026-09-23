@@ -22,6 +22,7 @@ export function ChessPuzzleActionBar(
       onBack: props.onBack,
       onForward: props.onForward,
       onRetry: props.onRetry,
+      onSkip: props.onSkip,
       onNext: props.onNext,
     })
   );

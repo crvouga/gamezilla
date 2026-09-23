@@ -114,7 +114,7 @@ function TooltipAnchor(props: {
     >
       {props.children}
       <div
-        class="box bg-surface-elevated rounded-sm px-2 py-1 w-max"
+        class="box bg-surface-elevated rounded-md px-2 py-1 w-max"
         classList={{
           [styles['bubble'] ?? '']: true,
           [styles['top'] ?? '']: tooltipSide(props.placement()) === 'top',

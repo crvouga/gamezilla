@@ -8,7 +8,7 @@ const ITEMS = Array.from({ length: 20 }, (_, i) => i + 1);
 export default function ScrollViewExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <div class="box h-[200px] border border-solid border-border rounded-sm">
+      <div class="box h-50 border border-solid border-border rounded-lg">
         <ScrollView
           contentStyle={{
             padding: 'var(--ui-space-3)',
@@ -17,7 +17,7 @@ export default function ScrollViewExample(): JSX.Element {
         >
           <For each={ITEMS}>
             {(n) => (
-              <div class="box p-3 bg-surface rounded-sm">
+              <div class="box p-3 bg-surface rounded-md">
                 <p class="text">{`Item ${n}`}</p>
               </div>
             )}

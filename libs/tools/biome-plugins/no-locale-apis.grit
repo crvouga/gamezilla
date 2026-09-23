@@ -1,0 +1,22 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "localeCompare",
+    includes "Intl",
+    includes "toLocaleString"
+  },
+  $body <: contains bubble or {
+    `$x.localeCompare($args)` as $call where {
+      register_diagnostic(span=$call, message="Do not use localeCompare in shared/domain/sync — use code-unit compares (a < b). See docs/DETERMINISM.md.", severity="error")
+    },
+    `Intl.$method` as $intl where {
+      register_diagnostic(span=$intl, message="Do not use Intl in shared/domain/sync — locale APIs are nondeterministic. See docs/DETERMINISM.md.", severity="error")
+    },
+    `$x.toLocaleString($args)` as $call where {
+      register_diagnostic(span=$call, message="Do not use toLocaleString in shared/domain/sync — locale APIs are nondeterministic. See docs/DETERMINISM.md.", severity="error")
+    }
+  }
+}

@@ -1,9 +1,9 @@
+import { describe, expect, it, mock } from 'bun:test';
 import {
   createPointerSession,
   MOUSE_DRAG_THRESHOLD_PX,
   TOUCH_DRAG_THRESHOLD_PX,
 } from '@pkgs/chess-board/pointer-session';
-import { describe, expect, it, vi } from 'vitest';
 
 function fakeInteraction(owns = true) {
   let selected: string | null = null;
@@ -26,11 +26,11 @@ function fakeInteraction(owns = true) {
     cancelDrag: () => {
       dragFrom = null;
     },
-    drop: vi.fn((from: string, to: string) => {
+    drop: mock((from: string, to: string) => {
       dragFrom = null;
       return { kind: 'applied' as const, result: { from, to } };
     }),
-    tap: vi.fn((sq: string) => {
+    tap: mock((sq: string) => {
       selected = selected === sq ? null : sq;
     }),
   };

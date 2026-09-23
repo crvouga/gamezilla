@@ -1,0 +1,13 @@
+id,fen,moves,rating,rating_deviation,popularity,nb_plays,themes,game_url,opening_tags
+008aL,7k/6p1/1r5p/5p2/P2Rp3/4P3/5PPP/6K1 w - - 0 39,a4a5 b6b1 d4d1 b1d1,1470,75,95,400,"[""backRankMate"",""endgame"",""mate"",""mateIn2"",""rookEndgame"",""short""]",https://lichess.org/j2ECU5ud#77,[]
+008cl,r3k2r/ppp2p1p/2n1pp2/7q/2PN2b1/2BP1Pb1/PP2B1P1/R2Q1RK1 w kq - 1 16,f3g4 h5h2,1490,75,95,400,"[""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/K27KSt2D#31,"[""Scandinavian_Defense"",""Scandinavian_Defense_Mieses-Kotroc_Variation""]"
+008rw,rn2kb1r/pp2pppp/2p2n2/4q3/8/2N4Q/PPPPBPPP/R1B1K2R b KQkq - 2 8,g7g6 h3c8,1510,75,95,400,"[""mate"",""mateIn1"",""oneMove"",""opening""]",https://lichess.org/t8GAyoIk/black#16,"[""Scandinavian_Defense"",""Scandinavian_Defense_Main_Line""]"
+009bn,2kr2r1/ppb2ppp/3qbn2/2Np2B1/P7/2P2Q1P/1PB2PP1/R4RK1 w - - 5 18,c5e6 d6h2,1530,75,95,400,"[""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/Zw4AxPzS#35,"[""Caro-Kann_Defense"",""Caro-Kann_Defense_Exchange_Variation""]"
+00A8H,1k6/1pb2p2/p1p1p3/2P5/PP6/1KB5/4q3/1R1R4 b - - 1 38,c7e5 d1d8 b8a7 b1e1 e2e1 c3e1,1495,75,10,400,"[""clearance"",""crushing"",""endgame"",""long""]",https://lichess.org/rMR9LIY8/black#76,[]
+00A9Q,2rq1rk1/1p3p1p/p1pn2p1/P2p4/1P1PnP2/3NP3/5PBP/R1Q3RK w - - 2 22,d3c5 e4f2,1500,75,0,400,"[""kingsideAttack"",""master"",""mate"",""mateIn1"",""middlegame"",""oneMove"",""smotheredMate""]",https://lichess.org/Eek8XUCN#43,[]
+00AEM,r4rk1/p2q1p1p/1p3Qp1/2p4P/3p4/5R2/PPP2PP1/4R1K1 b - - 0 22,d7d8 e1e7 d8e7 f6e7,1505,75,-20,400,"[""crushing"",""endgame"",""short""]",https://lichess.org/xJtWPx56/black#44,[]
+00AfZ,2r3kR/Q7/5q2/1brpN3/5Pp1/4P1P1/6K1/1B6 b - - 2 43,f6h8 a7f7,1515,75,95,1,"[""master"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/xSsuq2RP/black#86,[]
+00BNd,1rr3k1/3bppbp/3p1np1/1B1N4/P2BP3/5P2/P2R2PP/R5K1 b - - 0 21,d7b5 d5e7 g8f8 e7c8,1525,75,95,0,"[""advantage"",""fork"",""middlegame"",""short""]",https://lichess.org/52dQ8pN2/black#42,[]
+00Bot,8/5p2/p3kP2/8/5r2/R1P5/4P3/4K3 b - - 2 52,f4f6 a3a6 e6e5 a6f6,1800,75,95,400,"[""crushing"",""endgame"",""rookEndgame"",""short""]",https://lichess.org/FWA12ElZ/black#104,[]
+00C8e,8/5p1k/5Ppb/2p3P1/1p6/8/KB5Q/3q4 b - - 4 58,d1a4 a2b1 a4d1 b2c1,1850,75,95,400,"[""endgame"",""equality"",""pin"",""short""]",https://lichess.org/YqVcRoWF/black#116,[]
+00CYP,3rk2r/p1p2pp1/1p6/2pQ1b2/2Pn1P2/8/PP1P1KBq/R1B1R3 b - - 3 25,e8f8 d5d8,1900,75,95,400,"[""hangingPiece"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/LywFPEls/black#50,[]

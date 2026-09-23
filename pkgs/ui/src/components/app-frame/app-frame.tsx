@@ -33,7 +33,7 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
   return (
     <ContentEdgePaddingProvider step={0}>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] w-[100%]"
+        class="box flex-1 min-h-0 min-w-0 w-full"
         style={{
           'max-width': `min(${cssPx(APP_MAX_WIDTH)}, 100%)`,
           'margin-left': 'auto',
@@ -46,7 +46,7 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
         }}
       >
         {header()}
-        <div class="box flex-1 min-h-[0] min-w-[0]">{props.children}</div>
+        <div class="box flex-1 min-h-0 min-w-0">{props.children}</div>
       </div>
     </ContentEdgePaddingProvider>
   );
@@ -55,7 +55,7 @@ function AppFrameWideColumn(props: AppFrameProps): JSX.Element {
 function AppFrameWide(props: AppFrameProps): JSX.Element {
   return (
     <main
-      class="box flex-1 min-h-[0] min-w-[0] w-[100%] max-w-[100%] bg-background"
+      class="box flex-1 min-h-0 min-w-0 w-full max-w-full bg-background"
       data-component="AppFrame"
       data-mode="wide"
       style={{ overflow: 'clip' }}
@@ -70,7 +70,7 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
 function AppFrameCompact(props: AppFrameProps): JSX.Element {
   return (
     <main
-      class="box flex-1 min-h-[0]"
+      class="box flex-1 min-h-0"
       data-component="AppFrame"
       data-mode="compact"
     >

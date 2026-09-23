@@ -1,0 +1,38 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "resolveNow",
+    includes "resolveTimers",
+    includes "resolveCreateId",
+    includes "resolveRandom",
+    includes "resolveClock",
+    includes "cryptoCreateId",
+    includes "mathRandom"
+  },
+  $body <: contains bubble or {
+    `resolveNow` as $id where {
+      register_diagnostic(span=$id, message="resolveNow is removed — inject Clock via constructor or useClock.", severity="error")
+    },
+    `resolveTimers` as $id where {
+      register_diagnostic(span=$id, message="resolveTimers is removed — inject Timers via constructor or useTimers.", severity="error")
+    },
+    `resolveCreateId` as $id where {
+      register_diagnostic(span=$id, message="resolveCreateId is removed — inject createId via constructor or useCreateId.", severity="error")
+    },
+    `resolveRandom` as $id where {
+      register_diagnostic(span=$id, message="resolveRandom is removed — inject random via constructor.", severity="error")
+    },
+    `resolveClock` as $id where {
+      register_diagnostic(span=$id, message="resolveClock is removed — inject Clock via constructor or useClock.", severity="error")
+    },
+    `cryptoCreateId` as $id where {
+      register_diagnostic(span=$id, message="cryptoCreateId is removed — use crypto.randomUUID only at @io-wall-ok roots.", severity="error")
+    },
+    `mathRandom` as $id where {
+      register_diagnostic(span=$id, message="mathRandom is removed — use Math.random only at @io-wall-ok roots.", severity="error")
+    }
+  }
+}

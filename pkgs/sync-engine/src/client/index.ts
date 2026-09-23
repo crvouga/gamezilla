@@ -21,6 +21,16 @@ export {
   createLocalSyncEngine,
   type SyncEnginePushOptions,
 } from './create-local-sync-engine';
+export {
+  clearPendingInteractionCorrelation,
+  mutationCorrelationIdentity,
+  mutationOriginTraceparent,
+  pendingInteractionRequestTraceparent,
+  runInInteractionRequestContext,
+  setInteractionRequestRunner,
+  setMutationCorrelationIdentity,
+  setPendingInteractionCorrelation,
+} from './interaction-correlation';
 export type { LocalDomainSchema } from './local-schema-migrate';
 export {
   clearLocalCache,

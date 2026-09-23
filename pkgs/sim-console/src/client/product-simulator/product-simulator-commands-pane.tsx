@@ -12,7 +12,7 @@ export function ProductSimulatorCommandsPane(props: {
   const commands = () => props.session.listCommands();
 
   return (
-    <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-3">
+    <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-3">
       <p class="text textCaption text-text-secondary">
         {'Faults / partitions / skew / snapshots → command palette (⌘K).'}
       </p>
@@ -58,7 +58,7 @@ function CommandRow(props: {
   });
 
   return (
-    <div class="box gap-1.5 p-[3px] border border-border rounded-md bg-surface">
+    <div class="box gap-1.5 p-[3px] border border-border rounded-control bg-surface">
       <p class="text text-text text-[13px] font-semibold">{props.label}</p>
       <p class="text textCaption text-text-secondary [font-family:mono]">
         {props.commandId}

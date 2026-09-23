@@ -91,7 +91,7 @@ describe('db-schema data-loss pins', () => {
           name: 'notes',
           columns: { body: 'text' },
           indexes: ['body'],
-          deprecations: [['extra', 'unused']],
+          retiredColumns: [{ name: 'extra', type: 'text', note: 'unused' }],
         }),
       ]);
       await sqlite(v2, client).reconcile();
@@ -133,7 +133,7 @@ describe('db-schema data-loss pins', () => {
           columns: {
             display_name: { type: 'text', renamedFrom: 'name' },
           },
-          deprecations: [['name', 'renamed']],
+          retiredColumns: [{ name: 'name', type: 'text', note: 'renamed' }],
         }),
       ]);
       await sqlite(v2, client).reconcile();

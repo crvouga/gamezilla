@@ -11,18 +11,31 @@
  */
 
 @theme {
-  --font-sans: var(--ui-font-sans);
-  --font-display: var(--ui-font-display);
-  --font-mono: var(--ui-font-mono);
-  --font-serif: var(--ui-font-serif);
-  --radius-xs: var(--ui-radius-xs);
-  --radius-sm: var(--ui-radius-sm);
-  --radius-md: var(--ui-radius-md);
-  --radius-lg: var(--ui-radius-lg);
-  --radius-xl: var(--ui-radius-xl);
-  --radius-2xl: var(--ui-radius-2xl);
-  --radius-3xl: var(--ui-radius-2xl);
-  --radius-4xl: var(--ui-radius-full);
+  --radius-control: 10px;
+  --radius-card: 14px;
+  --radius-panel: 18px;
+  --radius-sheet: 20px;
+  --text-2xs: 11px;
+  --text-micro: 10px;
+  --text-nano: 9px;
+  --text-caption: 13px;
+  --text-caption--line-height: 18px;
+  --text-action: 15px;
+  --text-action--line-height: 20px;
+  --tracking-logo: -0.5px;
+  --tracking-button: 0.1px;
+  --tracking-section: 0.5px;
+  --tracking-caps: 1px;
+  --opacity-muted: 55%;
+  --color-perf-background: rgba(0, 0, 0, 0.85);
+  --color-perf-border: rgba(255, 255, 255, 0.12);
+  --color-perf-divider: rgba(255, 255, 255, 0.1);
+  --color-perf-muted: rgba(255, 255, 255, 0.55);
+  --color-perf-text: rgba(255, 255, 255, 0.8);
+  --color-perf-accent: #93c5fd;
+  --color-system-canvas: Canvas;
+  --color-system-text: CanvasText;
+  --z-index-sim-browser: 2147483000;
   --color-background: var(--ui-color-background);
   --color-surface: var(--ui-color-surface);
   --color-surface-sunken: var(--ui-color-surface-sunken);

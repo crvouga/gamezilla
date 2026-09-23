@@ -12,6 +12,7 @@ import { cssPx } from '../../css/css-px';
 
 import type { JSX } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { type ColorTokenName, colorVar } from '../../theme';
 
 export type StatusDotStatus = 'online' | 'offline' | 'warning' | 'pending';
 
@@ -25,19 +26,23 @@ export type StatusDotProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
+const STATUS_COLOR: Record<StatusDotStatus, ColorTokenName> = {
+  online: 'success',
+  offline: 'destructive',
+  warning: 'warning',
+  pending: 'info',
+};
+
 const DEFAULT_SIZE = 10;
 
 export function StatusDot(props: StatusDotProps): JSX.Element {
   const size = () => props.size ?? DEFAULT_SIZE;
   return (
     <span
-      class="statusDot inline-block shrink-0 rounded-full"
-      {...dataAttrs({
-        component: 'StatusDot',
-        status: props.status,
-        ...props.dataSet,
-      })}
+      class="inline-block shrink-0 rounded-full"
+      {...dataAttrs({ component: 'StatusDot', ...props.dataSet })}
       style={{
+        'background-color': colorVar(STATUS_COLOR[props.status]),
         width: cssPx(size()),
         height: cssPx(size()),
       }}

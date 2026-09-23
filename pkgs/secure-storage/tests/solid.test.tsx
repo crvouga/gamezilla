@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import type { SecureStorage } from '@pkgs/secure-storage/interface';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import {
@@ -7,7 +9,6 @@ import {
 } from '@pkgs/secure-storage/solid';
 import { render, screen, waitFor } from '@solidjs/testing-library';
 import { type JSX, untrack } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 function createMemoryStorage(
   initial: Record<string, string> = {}

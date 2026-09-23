@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import {
   buildPaletteRows,
   clampPaletteSelection,
@@ -23,7 +24,6 @@ import {
   isMacPlatform,
   type WebKeyboardEventLike,
 } from '@pkgs/ui/components/keyboard-shortcuts';
-import { describe, expect, test } from 'vitest';
 
 function cmd(
   id: string,

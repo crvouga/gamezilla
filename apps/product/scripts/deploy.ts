@@ -24,7 +24,7 @@ import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 const log = createLogger({ name: 'product:deploy', now: wallClock.now });
 
@@ -76,6 +76,9 @@ function writeDistIsolationHeaders(): void {
     '/*',
     `\tCross-Origin-Opener-Policy: ${SQLITE_WEB_COOP}`,
     `\tCross-Origin-Embedder-Policy: ${SQLITE_WEB_COEP}`,
+    '',
+    '/sso-callback',
+    '\tCross-Origin-Opener-Policy: same-origin-allow-popups',
     '',
   ].join('\n');
   writeFileSync(join(productDir, 'dist', '_headers'), body, 'utf8');

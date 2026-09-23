@@ -352,8 +352,8 @@ export function createPostgresPort(
     hypopgReady = (async () => {
       try {
         const available = await client.query(
-          unsafe<{ name: string }>(
-            `SELECT name FROM pg_available_extensions WHERE name = 'hypopg'`
+          unsafe<{ default_version: string | null }>(
+            `SELECT default_version FROM pg_available_extensions WHERE name = 'hypopg'`
           )
         );
         if (available.length === 0) return false;

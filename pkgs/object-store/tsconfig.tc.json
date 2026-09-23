@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "../ts-reset/src/index.ts",
-    "../../tools/src/deploy-mode.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./src/**/*.d.ts"

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { afterEach, describe, expect, test } from 'bun:test';
 import {
   createMultiAppSolidDomSession,
   createSolidDomDriver,
@@ -6,7 +8,6 @@ import {
   type MultiAppSolidDomSession,
 } from '@pkgs/ui-testing-solid-dom';
 import { createSignal, type JSX, onCleanup } from 'solid-js';
-import { afterEach, describe, expect, test } from 'vitest';
 import { createDemoClock, DemoApp, DemoProviders } from './support/demo-app';
 
 function actorContainer(actorId: string): Element | null {
@@ -21,7 +22,7 @@ describe('createMultiAppSolidDomSession', () => {
     session = undefined;
   });
 
-  test('mounts one actor at a time and reports focus hooks', () => {
+  test('shows one actor at a time and reports focus hooks', () => {
     const events: string[] = [];
     session = createMultiAppSolidDomSession({
       onActorFocus: (id) => events.push(`focus:${id}`),
@@ -68,8 +69,8 @@ describe('createMultiAppSolidDomSession', () => {
     await bob.get('count').expect.text('0');
     expect(session.activeActorId()).toBe('bob');
 
-    // Parked actors dispose their Solid root: state resets on refocus.
-    await alice.get('count').expect.text('0');
+    // Parked actors keep running: alice's state survives bob's turn.
+    await alice.get('count').expect.text('1');
     await alice.close();
     expect(session.activeActorId()).toBeUndefined();
     await bob.close();
@@ -143,13 +144,15 @@ describe('createMultiAppSolidDomSession', () => {
     };
     const app = session.mountActor('alice', () => <Tracked />);
     session.mountActor('bob', () => <Tracked />);
-    expect(disposed).toBe(1);
+    // Parking alice does not dispose her root.
+    expect(disposed).toBe(0);
     session.unmountActor('bob');
-    expect(disposed).toBe(2);
+    expect(disposed).toBe(1);
     expect(session.activeActorId()).toBeUndefined();
     expect(app.query('tracked')).toBeNull();
     session.unmountActor('missing');
     session.dispose();
+    expect(disposed).toBe(2);
     expect(
       document.querySelector('[data-component="MultiAppHost"]')
     ).toBeNull();

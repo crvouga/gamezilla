@@ -4,4 +4,4 @@
 export {
   awaitProductSimulatorMutationDrain,
   reconcileServerProfilesFromClients,
-} from '@apps/product/sim/fabric/snapshot-sync';
+} from '@libs/sim-harness/fabric/snapshot-sync';

@@ -14,6 +14,7 @@
 
 import { type JSX, Show } from 'solid-js';
 import { type ComponentDataSet, dataAttrs } from '../../component-id';
+import { colorVar } from '../../theme';
 
 export type ChipProps = {
   label: JSX.Element;
@@ -39,12 +40,17 @@ export function Chip(props: ChipProps): JSX.Element {
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
     <button
-      class="clickable clickableTint chip self-start flex-row items-center justify-center gap-1.5"
+      class="clickable clickableTint self-start flex-row items-center justify-center gap-1.5 px-3 rounded-full border border-solid"
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
       type="button"
       style={{
+        'border-color': selected() ? colorVar('tint') : colorVar('border'),
+        'background-color': selected()
+          ? colorVar('tintHighlight')
+          : colorVar('surface'),
         height: `${CHIP_HEIGHT}px`,
         'min-width': `${CHIP_MIN_WIDTH}px`,
+        opacity: props.disabled === true ? 0.5 : 1,
       }}
       role={role()}
       aria-pressed={role() === 'button' ? selected() : undefined}
@@ -60,7 +66,14 @@ export function Chip(props: ChipProps): JSX.Element {
           {props.startIcon}
         </div>
       </Show>
-      <span class="text textLabel line-clamp-1">{props.label}</span>
+      <span
+        class="text textLabel line-clamp-1 text-caption font-semibold"
+        style={{
+          color: selected() ? colorVar('tint') : colorVar('text'),
+        }}
+      >
+        {props.label}
+      </span>
     </button>
   );
 }

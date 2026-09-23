@@ -110,7 +110,7 @@ columns. CI: `bun run --filter @pkgs/matchmaking test`.
 
 ```bash
 bun run --filter @pkgs/matchmaking test
-bun run --filter @pkgs/matchmaking test:sim
+bun run --filter @pkgs/matchmaking-sim test
 ```
 
 Hosts drive pairing via `Matchmaking.tick()` / `POST /tick`. Concurrent

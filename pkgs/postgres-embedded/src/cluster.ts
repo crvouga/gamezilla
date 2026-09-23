@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { wallOsFs } from '@pkgs/os';
 import EmbeddedPostgres from 'embedded-postgres';
 import {
-  LOCAL_DATABASE_URL,
+  databaseUrlFor,
   POSTGRES_DATABASE,
   POSTGRES_PASSWORD,
   POSTGRES_PORT,
@@ -13,14 +13,33 @@ const osFs = wallOsFs();
 
 export const APP_DIR = join(import.meta.dirname, '..');
 
+/**
+ * One cluster on disk. Port and directory are parameters so several clusters
+ * can run side by side — that is what lets two full local stacks exist at
+ * once without either knowing about the other.
+ */
+export type ClusterConfig = {
+  readonly port: number;
+  readonly dataDir: string;
+};
+
 export function resolveDataDir(): string {
   const fromEnv = process.env['POSTGRES_EMBEDDED_DATA_DIR']?.trim();
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
   return join(APP_DIR, 'data');
 }
 
-export const DATA_DIR = resolveDataDir();
-export const DATABASE_DIR = join(DATA_DIR, 'db');
+export function defaultClusterConfig(): ClusterConfig {
+  return { port: POSTGRES_PORT, dataDir: resolveDataDir() };
+}
+
+export function clusterUrl(config: ClusterConfig): string {
+  return databaseUrlFor(config.port);
+}
+
+export function databaseDir(config: ClusterConfig): string {
+  return join(config.dataDir, 'db');
+}
 
 /** Subdirs every initdb cluster must have (detect interrupted / wiped clusters). */
 const REQUIRED_CLUSTER_DIRS = [
@@ -32,13 +51,15 @@ const REQUIRED_CLUSTER_DIRS = [
   'pg_xact',
 ] as const;
 
-export function createEmbeddedPostgres(): EmbeddedPostgres {
-  osFs.mkdirpSync(DATA_DIR);
+export function createEmbeddedPostgres(
+  config: ClusterConfig = defaultClusterConfig()
+): EmbeddedPostgres {
+  osFs.mkdirpSync(config.dataDir);
   return new EmbeddedPostgres({
-    databaseDir: DATABASE_DIR,
+    databaseDir: databaseDir(config),
     user: POSTGRES_USER,
     password: POSTGRES_PASSWORD,
-    port: POSTGRES_PORT,
+    port: config.port,
     persistent: true,
     // Wrangler HMR used to orphan per-request TCP clients up to the default
     // max_connections=100. Shared loopback pool + higher ceiling + idle reclaim.
@@ -67,21 +88,25 @@ export function createEmbeddedPostgres(): EmbeddedPostgres {
   });
 }
 
-/** True when initdb has produced a usable cluster under {@link DATABASE_DIR}. */
-export function clusterLooksHealthy(): boolean {
-  if (!osFs.pathExists(join(DATABASE_DIR, 'PG_VERSION'))) return false;
-  for (const dir of REQUIRED_CLUSTER_DIRS) {
-    if (!osFs.pathExists(join(DATABASE_DIR, dir))) return false;
+/** True when initdb has produced a usable cluster. */
+export function clusterLooksHealthy(
+  config: ClusterConfig = defaultClusterConfig()
+): boolean {
+  const dir = databaseDir(config);
+  if (!osFs.pathExists(join(dir, 'PG_VERSION'))) return false;
+  for (const required of REQUIRED_CLUSTER_DIRS) {
+    if (!osFs.pathExists(join(dir, required))) return false;
   }
   return true;
 }
 
-export function wipeClusterData(): void {
-  if (!osFs.pathExists(DATABASE_DIR)) return;
-  process.stdout.write(
-    `[postgres] wiping incomplete cluster at ${DATABASE_DIR}\n`
-  );
-  osFs.rmrfSync(DATABASE_DIR);
+export function wipeClusterData(
+  config: ClusterConfig = defaultClusterConfig()
+): void {
+  const dir = databaseDir(config);
+  if (!osFs.pathExists(dir)) return;
+  process.stdout.write(`[postgres] wiping incomplete cluster at ${dir}\n`);
+  osFs.rmrfSync(dir);
 }
 
 /**
@@ -90,19 +115,19 @@ export function wipeClusterData(): void {
  * crashed first boot or partial data wipe.
  */
 export async function ensureClusterInitialised(
-  pg: EmbeddedPostgres
+  pg: EmbeddedPostgres,
+  config: ClusterConfig = defaultClusterConfig()
 ): Promise<void> {
-  if (clusterLooksHealthy()) {
-    return;
-  }
-  if (osFs.pathExists(join(DATABASE_DIR, 'PG_VERSION'))) {
-    wipeClusterData();
+  if (clusterLooksHealthy(config)) return;
+  const dir = databaseDir(config);
+  if (osFs.pathExists(join(dir, 'PG_VERSION'))) {
+    wipeClusterData(config);
   }
   process.stdout.write('[postgres] initialising cluster…\n');
   await pg.initialise();
-  if (!clusterLooksHealthy()) {
+  if (!clusterLooksHealthy(config)) {
     throw new Error(
-      `[postgres] initdb finished but cluster is still incomplete under ${DATABASE_DIR}`
+      `[postgres] initdb finished but cluster is still incomplete under ${dir}`
     );
   }
 }
@@ -141,5 +166,3 @@ export function formatUnknownError(error: unknown): string {
     return String(error);
   }
 }
-
-export { LOCAL_DATABASE_URL };

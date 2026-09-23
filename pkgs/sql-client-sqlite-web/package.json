@@ -12,28 +12,22 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/e2e/**'",
-    "test:e2e": "bun ./scripts/build-web-workers.ts && bun ./e2e/run-e2e.ts"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@sqlite.org/sqlite-wasm": "catalog:"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "catalog:",
-    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "esbuild": "catalog:",
-    "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

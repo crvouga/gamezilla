@@ -74,7 +74,7 @@ function ChessScreenSwitch(props: ChessMainMenuProps): JSX.Element {
 export function ChessMainMenu(props: ChessMainMenuProps): JSX.Element {
   return (
     <ChessPuzzleFeedProvider>
-      <div class="box flex-1 min-h-[0] self-stretch">
+      <div class="box flex-1 min-h-0 self-stretch">
         <ChessScreenSwitch onBackToGames={props.onBackToGames} />
       </div>
     </ChessPuzzleFeedProvider>
@@ -95,7 +95,7 @@ function RootMainMenu(props: ChessMainMenuProps): JSX.Element {
     {
       key: 'stats',
       title: <Trans>Stats</Trans>,
-      caption: <Trans>Elo trend and game log</Trans>,
+      caption: <Trans>Rating trend and game log</Trans>,
       dataSet: { testid: 'chess-menu-stats' },
       onClick: () =>
         dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.stats })),

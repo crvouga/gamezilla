@@ -1,12 +1,18 @@
+import { BillingCustomerLinkProviderMigration } from '@libs/billing/root/server/billing-customer-link-provider-migration';
+import { ProfileUsernameIntegrityMigration } from '@libs/profile/root/server/profile-username-integrity-migration';
 import { appSchema } from '@libs/runtime/root/app-schema';
-import { AuthPostgresDatabaseMigration } from '@pkgs/auth/server';
+import { APP_AUTH_PROVIDER } from '@libs/runtime/root/server/app-auth-provider';
 import type { Clock } from '@pkgs/clock';
 import {
   ComposedDatabaseMigration,
+  type DatabaseMigration,
   EnsurePostgresSchemaMigration,
   PostgresAdvisoryLockedTransactionMigration,
 } from '@pkgs/db-migrate';
-import { PostgresSchemaDatabaseMigration } from '@pkgs/db-schema-postgres';
+import {
+  PostgresSchemaDatabaseMigration,
+  PostgresSchemaIndexReconcileMigration,
+} from '@pkgs/db-schema-postgres';
 import { EntityStorePostgresDatabaseMigration } from '@pkgs/entity-store/postgres-database-migration';
 import { KvPostgresDatabaseMigration } from '@pkgs/kv-postgres/postgres-database-migration';
 import type { Logger } from '@pkgs/logger';
@@ -15,6 +21,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { PostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SyncEngineDatabaseMigration } from '@pkgs/sync-engine/shared';
 import { CutoverLegacyAuthToIdpMigration } from './cutover-legacy-auth-to-idp-migration';
+import { DomainSchemaIntegerWidthMigration } from './domain-schema-integer-width-migration';
 import { DomainSchemaNullabilityMigration } from './domain-schema-nullability-migration';
 import { HardCutoverDropLegacyTablesMigration } from './hard-cutover-drop-legacy-tables-migration';
 import { PostgresIndexesDatabaseMigration } from './postgres-indexes-database-migration';
@@ -26,6 +33,18 @@ import { PurgeClerkExternalAccountsMigration } from './purge-clerk-external-acco
  * migrates (api + `@pkgs/postgres-embedded` boot, parallel CI jobs) so they wait instead
  * of thrashing on DDL `lock_timeout`. Distinct from the matchmaking tick lock id.
  */
+/**
+ * The tables the auth service keeps in this database, if it keeps any (a
+ * self-hosted IdP does; a hosted service does not).
+ */
+function authServiceMigration(dbScope: PostgresDbScope): DatabaseMigration {
+  return (
+    APP_AUTH_PROVIDER.postgresMigration?.({ dbScope }) ?? {
+      migrate: () => Promise.resolve(),
+    }
+  );
+}
+
 export const POSTGRES_MIGRATE_ADVISORY_LOCK_ID = '872014001234567890';
 
 export type PostgresMigrationRunnerDeps = {
@@ -70,10 +89,15 @@ export class PostgresMigrationRunner {
       .register(new SyncEngineDatabaseMigration())
       .register(new OutboxDatabaseMigration())
       .register(new DomainSchemaNullabilityMigration())
+      .register(new DomainSchemaIntegerWidthMigration(appSchema.snapshot()))
+      .register(new ProfileUsernameIntegrityMigration())
       .register(
         new PostgresSchemaDatabaseMigration(appSchema, dbScope, {
           skipAdvisoryLock: true,
           alreadyInTransaction: !skipAdvisoryLock,
+          // When the concurrent index phase below is registered, it owns every
+          // appSchema index; otherwise this call must create them itself.
+          indexPhase: skipIndexReconcile ? 'inline' : 'skip',
         })
       )
       .register(new KvPostgresDatabaseMigration())
@@ -94,15 +118,18 @@ export class PostgresMigrationRunner {
               inner: locked,
             })
       )
-      .register(
-        new AuthPostgresDatabaseMigration({
-          dbScope,
-          skipAdvisoryLock: true,
-          alreadyInTransaction: false,
-        })
-      )
+      .register(authServiceMigration(dbScope))
       .register(new CutoverLegacyAuthToIdpMigration())
-      .register(new PurgeClerkExternalAccountsMigration());
+      .register(new PurgeClerkExternalAccountsMigration())
+      .register(new BillingCustomerLinkProviderMigration());
+
+    // Index builds must run outside the advisory-locked transaction so every
+    // build is CONCURRENTLY and no long lock is held on a live table.
+    if (!skipIndexReconcile) {
+      databaseMigration.register(
+        new PostgresSchemaIndexReconcileMigration(appSchema, dbScope)
+      );
+    }
 
     if (!skipIndexReconcile) {
       if (clock === undefined) {

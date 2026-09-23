@@ -6,7 +6,7 @@
 import { ChessGame } from '@pkgs/chess-board-core/game';
 import { isSquare } from '@pkgs/chess-board-core/geometry';
 import type { Square } from '@pkgs/chess-board-core/types';
-import { parseUci } from '@pkgs/chess-board-core/uci';
+import { parseUci } from '@pkgs/chess-rules/uci';
 
 /**
  * Plan budgets (see docs/AUDIT.md). Used as documentation constants and for

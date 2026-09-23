@@ -1,8 +1,7 @@
 // @io-wall-ok
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
+import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Clock, Timers } from '@pkgs/clock';
-import type { HttpClient } from '@pkgs/http-client';
 import { ensureEmqxBin } from '../scripts/ensure-emqx';
 import {
   EMQX_API_KEY,
@@ -10,127 +9,150 @@ import {
   EMQX_DASHBOARD_PASS,
   EMQX_DASHBOARD_PORT,
   EMQX_DASHBOARD_USER,
-  EMQX_JWT_SECRET,
+  EMQX_MQTT_PASS,
+  EMQX_MQTT_PORT,
+  EMQX_MQTT_USER,
+  EMQX_WS_PORT,
 } from './ports';
 
 export type EmqxServerHandle = {
   readonly dashboardPort: number;
-  stop(): Promise<void>;
+  readonly mqttPort: number;
+  readonly wsPort: number;
+  readonly dataDir: string;
+  stop(): void;
+};
+
+export type StartEmqxServerOptions = {
+  readonly mqttPort?: number;
+  readonly wsPort?: number;
+  readonly dashboardPort?: number;
+  /** A distinct directory + node name is what allows a second broker. */
+  readonly dataDir?: string;
+  readonly nodeName?: string;
 };
 
 const APP_DIR = join(import.meta.dirname, '..');
-const DATA_DIR = join(APP_DIR, 'data');
-const ETC_DIR = join(DATA_DIR, 'etc');
-const API_URL = `http://127.0.0.1:${String(EMQX_DASHBOARD_PORT)}`;
+/** Tail of broker output kept for the report when it dies unexpectedly. */
+const OUTPUT_TAIL_BYTES = 64 * 1024;
+const DEFAULT_DATA_DIR = join(APP_DIR, 'data');
 
-export type EmqxStartIo = {
-  readonly clock: Clock;
-  readonly timers: Timers;
-  readonly http: HttpClient;
-};
+/** Seed the config + bootstrap files a fresh data directory needs. */
+export function ensureEmqxDataDir(dataDir: string): void {
+  const etcDir = join(dataDir, 'etc');
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(etcDir, { recursive: true });
 
-async function apiReady(io: EmqxStartIo): Promise<boolean> {
-  try {
-    const auth = btoa(`${EMQX_API_KEY}:${EMQX_API_SECRET}`);
-    const response = await io.http.fetch(`${API_URL}/api/v5/clients?limit=1`, {
-      headers: { authorization: `Basic ${auth}` },
-    });
-    if (response.status === 401) {
-      throw new Error('EMQX rejected the local API key');
-    }
-    return response.ok;
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('rejected')) {
-      throw error;
-    }
-    return false;
+  const bootstrap = join(dataDir, 'api-keys.bootstrap');
+  if (!existsSync(bootstrap)) {
+    writeFileSync(bootstrap, `${EMQX_API_KEY}:${EMQX_API_SECRET}\n`, 'utf8');
+  }
+  copyFileSync(join(APP_DIR, 'config', 'emqx.conf'), join(etcDir, 'emqx.conf'));
+
+  // EMQX `bootstrap_type = plain` CSV: header row, then one user per line.
+  const users = join(dataDir, 'auth-built-in-db-bootstrap.csv');
+  if (!existsSync(users)) {
+    writeFileSync(
+      users,
+      `user_id,password,is_superuser\n${EMQX_MQTT_USER},${EMQX_MQTT_PASS},false\n`,
+      'utf8'
+    );
   }
 }
 
-async function waitForApi(
-  io: EmqxStartIo,
-  exitCode: () => number | null
-): Promise<void> {
-  const deadline = io.clock.now() + 30_000;
-  while (io.clock.now() < deadline) {
-    if (exitCode() !== null)
-      throw new Error('EMQX exited before its API was ready');
-    if (await apiReady(io)) return;
-    await new Promise<void>((resolve) => io.timers.setTimeout(resolve, 250));
-  }
-  throw new Error('EMQX API did not become ready within 30 seconds');
+function listenerEnv(args: {
+  readonly mqttPort: number;
+  readonly wsPort: number;
+  readonly dashboardPort: number;
+}): Record<string, string> {
+  return {
+    EMQX_LISTENERS__TCP__DEFAULT__BIND: `0.0.0.0:${String(args.mqttPort)}`,
+    EMQX_LISTENERS__WS__DEFAULT__BIND: `0.0.0.0:${String(args.wsPort)}`,
+    EMQX_DASHBOARD__LISTENERS__HTTP__BIND: `0.0.0.0:${String(args.dashboardPort)}`,
+  };
+}
+
+function authEnv(dataDir: string): Record<string, string> {
+  return {
+    EMQX_AUTHENTICATION__1__MECHANISM: 'password_based',
+    EMQX_AUTHENTICATION__1__BACKEND: 'built_in_database',
+    EMQX_AUTHENTICATION__1__ENABLE: 'true',
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE: 'plain',
+    EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE: join(
+      dataDir,
+      'auth-built-in-db-bootstrap.csv'
+    ),
+  };
 }
 
 export async function startEmqxServer(
-  io: EmqxStartIo
+  options?: StartEmqxServerOptions
 ): Promise<EmqxServerHandle> {
+  const dataDir = options?.dataDir ?? DEFAULT_DATA_DIR;
+  const mqttPort = options?.mqttPort ?? EMQX_MQTT_PORT;
+  const wsPort = options?.wsPort ?? EMQX_WS_PORT;
+  const dashboardPort = options?.dashboardPort ?? EMQX_DASHBOARD_PORT;
+  ensureEmqxDataDir(dataDir);
   const bin = ensureEmqxBin();
-  try {
-    const response = await io.http.fetch(`${API_URL}/api/v5/status`);
-    if (response.ok) {
-      if (!(await apiReady(io))) throw new Error('EMQX API is unavailable');
-      process.stdout.write('[emqx] using running local broker\n');
-      return {
-        dashboardPort: EMQX_DASHBOARD_PORT,
-        stop: () => Promise.resolve(),
-      };
-    }
-  } catch (error) {
-    if (error instanceof Error && error.message.startsWith('EMQX')) {
-      throw new Error(
-        `${error.message}; stop the stale local EMQX node before starting the app`
-      );
-    }
+  // Drop ambient EMQX_AUTHENTICATION_* from secrets-run so Infisical JWT
+  // chain entries cannot override the local password bootstrap.
+  const cleanEnv: Record<string, string> = {};
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value === undefined) continue;
+    if (key.startsWith('EMQX_AUTHENTICATION_')) continue;
+    cleanEnv[key] = value;
   }
+  // The broker's own log is noise while it works; it is buffered and printed
+  // only if the broker exits without being asked to (the parent's failure).
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
-    stdio: 'inherit',
+    // stdin stays inherited: an Erlang node in `foreground` halts when its
+    // stdin hits EOF, so `ignore` (/dev/null) kills the broker at boot.
+    stdio: ['inherit', 'pipe', 'pipe'],
     env: {
-      ...process.env,
-      EMQX_NODE__DATA_DIR: DATA_DIR,
-      EMQX_NODE__ETC_DIR: ETC_DIR,
-      EMQX_NODE__NAME: 'emqx@127.0.0.1',
+      ...cleanEnv,
+      EMQX_NODE__DATA_DIR: dataDir,
+      EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
+      EMQX_NODE__NAME: options?.nodeName ?? 'emqx@127.0.0.1',
       EMQX_NODE__COOKIE: 'emqx_local',
-      EMQX_API_KEY__BOOTSTRAP_FILE: join(DATA_DIR, 'api-keys.bootstrap'),
+      EMQX_API_KEY__BOOTSTRAP_FILE: join(dataDir, 'api-keys.bootstrap'),
       EMQX_DASHBOARD__DEFAULT_USERNAME: EMQX_DASHBOARD_USER,
       EMQX_DASHBOARD__DEFAULT_PASSWORD: EMQX_DASHBOARD_PASS,
-      EMQX_AUTHENTICATION__1__MECHANISM: 'jwt',
-      EMQX_AUTHENTICATION__1__FROM: 'password',
-      EMQX_AUTHENTICATION__1__ENABLE: 'true',
-      EMQX_AUTHENTICATION__1__USE_JWKS: 'false',
-      EMQX_AUTHENTICATION__1__ALGORITHM: 'hmac-based',
-      EMQX_AUTHENTICATION__1__SECRET: EMQX_JWT_SECRET,
-      EMQX_AUTHENTICATION__1__SECRET_BASE64_ENCODED: 'false',
-      EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: 'acl',
-      EMQX_AUTHENTICATION__2__MECHANISM: 'password_based',
-      EMQX_AUTHENTICATION__2__BACKEND: 'built_in_database',
-      EMQX_AUTHENTICATION__2__ENABLE: 'true',
-      EMQX_AUTHENTICATION__2__BOOTSTRAP_FILE: join(
-        DATA_DIR,
-        'auth-built-in-db-bootstrap.csv'
-      ),
+      ...listenerEnv({ mqttPort, wsPort, dashboardPort }),
+      ...authEnv(dataDir),
     },
   });
+
+  let tail = '';
+  const keep = (chunk: Buffer): void => {
+    tail = (tail + chunk.toString('utf8')).slice(-OUTPUT_TAIL_BYTES);
+  };
+  emqx.stdout.on('data', keep);
+  emqx.stderr.on('data', keep);
+  let stopping = false;
 
   emqx.on('error', (err) => {
     process.stderr.write(`[emqx] failed to start ${String(err)}\n`);
   });
+  emqx.on('exit', (code, signal) => {
+    if (stopping) return;
+    process.stderr.write(
+      `[emqx] exited unexpectedly (code=${String(code)} signal=${String(signal)}); last output:\n${tail}\n`
+    );
+  });
 
-  try {
-    await waitForApi(io, () => emqx.exitCode);
-  } catch (error) {
-    emqx.kill('SIGTERM');
-    throw error;
-  }
   return {
-    dashboardPort: EMQX_DASHBOARD_PORT,
-    async stop() {
-      spawnSync(bin, ['stop'], { cwd: APP_DIR, stdio: 'ignore' });
-      if (emqx.exitCode === null) {
+    dashboardPort,
+    mqttPort,
+    wsPort,
+    dataDir,
+    stop() {
+      stopping = true;
+      if (emqx.exitCode !== null || emqx.killed) return;
+      try {
         emqx.kill('SIGTERM');
-        await new Promise<void>((resolve) => {
-          emqx.once('exit', () => resolve());
-        });
+      } catch {
+        // already gone
       }
     },
   };

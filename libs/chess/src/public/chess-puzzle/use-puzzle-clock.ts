@@ -8,65 +8,50 @@ import {
 } from 'solid-js';
 
 import {
-  nextPuzzleClockAnchor,
-  type PuzzleClockAnchor,
+  isPuzzleClockRunning,
   puzzleElapsedMs,
 } from '../../shared/puzzle-session/puzzle-clock';
-import type { SolveStatus } from '../../shared/puzzle-session/solve-status';
+import type { ChessPuzzlePlayStatus } from '../chess-puzzle-play';
 
 const TICK_MS = 250;
 
 /**
- * Stopwatch for the puzzle on screen. The anchor lives with this view: it
- * starts when the attempt is solving, keeps running through a wrong move,
- * and freezes once the puzzle is solved or invalid.
+ * Synced stopwatch for the live attempt. The anchors come from the room's
+ * server-stamped times; only the tick reads the injected client clock, so
+ * every viewer shows (nearly) the same number and the sim shows the same one
+ * exactly.
  */
 export function usePuzzleClock(args: {
-  readonly puzzleId: Accessor<string>;
-  readonly layoutKey: Accessor<number>;
-  readonly status: Accessor<SolveStatus>;
-}): { readonly elapsedMs: Accessor<number | null> } {
+  readonly status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
+  readonly startedAtMs: Accessor<number | null>;
+  readonly endedAtMs: Accessor<number | null>;
+}): {
+  elapsedMs: Accessor<number | null>;
+  running: Accessor<boolean>;
+} {
   const clock = useClock();
   const timers = useTimers();
   const [nowMs, setNowMs] = createSignal(clock.now());
-  const [anchor, setAnchor] = createSignal<PuzzleClockAnchor | null>(null);
-
-  createEffect(() => {
-    const next = nextPuzzleClockAnchor({
-      previous: anchor(),
-      puzzleId: args.puzzleId(),
-      layoutKey: args.layoutKey(),
-      status: args.status(),
-      nowMs: clock.now(),
-    });
-    if (next !== anchor()) setAnchor(next);
-  });
-
-  const running = createMemo(() => {
-    const current = anchor();
-    return current !== null && current.endedAtMs === null;
-  });
-
+  const running = createMemo(
+    () =>
+      isPuzzleClockRunning(args.status()) &&
+      args.startedAtMs() !== null &&
+      args.endedAtMs() === null
+  );
   createEffect(() => {
     setNowMs(clock.now());
     if (!running()) return;
-    const handle = timers.setInterval(() => {
-      setNowMs(clock.now());
-    }, TICK_MS);
-    onCleanup(() => {
-      timers.clearInterval(handle);
-    });
+    const handle = timers.setInterval(() => setNowMs(clock.now()), TICK_MS);
+    onCleanup(() => timers.clearInterval(handle));
   });
-
   return {
-    elapsedMs: createMemo(() => {
-      const current = anchor();
-      if (current === null) return null;
-      return puzzleElapsedMs({
-        startedAtMs: current.startedAtMs,
-        endedAtMs: current.endedAtMs,
+    elapsedMs: createMemo(() =>
+      puzzleElapsedMs({
+        startedAtMs: args.startedAtMs(),
+        endedAtMs: args.endedAtMs(),
         nowMs: nowMs(),
-      });
-    }),
+      })
+    ),
+    running,
   };
 }

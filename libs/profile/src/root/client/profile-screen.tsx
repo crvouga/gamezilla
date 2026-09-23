@@ -40,7 +40,7 @@ function ProfileScreenContent(props: {
     <div class="box gap-6 pt-2">
       <div class="box items-center gap-3">
         <MyProfileAvatar size={96} />
-        <div class="box items-center gap-1 self-stretch min-w-[0]">
+        <div class="box items-center gap-1 self-stretch min-w-0">
           <MyUsername variant="heading" numberOfLines={1} class="text-center" />
         </div>
         <div class="box flex-row gap-2 self-stretch mt-2">
@@ -62,7 +62,7 @@ function ProfileScreenContent(props: {
           ? props.friendsStats
           : null}
         {props.friendsActions !== undefined && props.friendsActions !== null ? (
-          <div class="box flex-row flex-wrap gap-2 min-w-[0]">
+          <div class="box flex-row flex-wrap gap-2 min-w-0">
             {props.friendsActions}
           </div>
         ) : null}

@@ -5,9 +5,9 @@ import {
   defineDialogueTree,
   INTENT,
 } from '@pkgs/assistant/shared';
-import type { AssistantSpeakingUpdate } from '../src/client/_internal/assistant-speaking-bridge';
-import { subscribeAssistantSpeaking } from '../src/client/_internal/assistant-speaking-bridge';
 import { createAssistantDialogueTreeRenderer } from '../src/client/create-dialogue-tree-renderer';
+import type { AssistantSpeakingUpdate } from '../src/client/internal/assistant-speaking-bridge';
+import { subscribeAssistantSpeaking } from '../src/client/internal/assistant-speaking-bridge';
 
 function createFakeClock(): AssistantClock & {
   readonly advance: (ms: number) => void;

@@ -41,7 +41,7 @@ export function StateBlock(props: StateBlockProps): JSX.Element {
       }}
       role={props.role}
     >
-      <div class="box w-full max-w-[420px] items-center justify-center gap-2">
+      <div class="box w-full max-w-105 items-center justify-center gap-2">
         {props.children}
       </div>
     </div>

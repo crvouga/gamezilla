@@ -1,6 +1,0 @@
-language js
-
-`import $mod from $src` where {
-  $src <: r"^['\"]zod(?:/.*)?['\"]$",
-  register_diagnostic(span=$src, message="@pkgs must not import zod — use Standard Schema (@standard-schema/spec). Author with zod only in libs/apps/tests.", severity="error")
-}

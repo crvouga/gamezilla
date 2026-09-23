@@ -33,7 +33,7 @@ export function ChessSettingsDeveloperUiComponentDetailScreen(): JSX.Element {
   };
 
   return (
-    <div class="box self-stretch flex-1 min-h-[0]">
+    <div class="box self-stretch flex-1 min-h-0">
       <DefineBackButton onPress={back} />
       {selectedName() === null ? (
         <EmptyState

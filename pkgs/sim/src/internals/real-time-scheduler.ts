@@ -66,12 +66,16 @@ export function createWallScheduler(opts?: {
       nowMs = Date.now();
       return true;
     },
+    // Wall time cannot run ahead of the work it is waiting for, so nothing
+    // here is ever a starved advance.
+    starvedAdvances: () => 0,
   } as VirtualScheduler;
 
   return {
     virtual: false,
     clock,
     underlying,
+    starvedAdvances: () => 0,
     schedule(task, atMs) {
       let t: ReturnType<typeof setTimeout> | undefined;
       if (atMs === undefined) {

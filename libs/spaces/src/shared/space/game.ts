@@ -12,6 +12,16 @@ export type GameRouterEntry<TCtx, TReturn> = {
 };
 
 /**
+ * Context every game command handler receives from the composed space module.
+ * `identity` is the room actor id; `ts` is the server-stamped commit time of
+ * the command being handled (the only deterministic time source in a handler).
+ */
+export type GameCommandContext = {
+  readonly identity: string;
+  readonly ts: number;
+};
+
+/**
  * Shared definition of a playable game inside a space. Implementations live
  * in feature packages (e.g. `@libs/chess/shared/chess-game`) and are
  * wired into the composed `SpaceModule` at the composition root
@@ -22,7 +32,10 @@ export type GameDefinition = {
   /** Stable wire id (e.g. `'chess'`). Mirrored in room state + URLs. */
   readonly id: string;
   /** Command sub-routers this game contributes (one per namespace). */
-  readonly commandRouters: readonly GameRouterEntry<string, HandleResult>[];
+  readonly commandRouters: readonly GameRouterEntry<
+    GameCommandContext,
+    HandleResult
+  >[];
   /** Event sub-routers this game contributes (one per namespace). */
   readonly eventRouters: readonly GameRouterEntry<void, RoomState>[];
   /**

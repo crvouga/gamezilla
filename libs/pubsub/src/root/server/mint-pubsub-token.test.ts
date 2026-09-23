@@ -5,12 +5,12 @@ import { jwtVerify } from 'jose';
 import { mintPubSubToken } from './mint-pubsub-token';
 
 describe('mintPubSubToken', () => {
-  test('embeds subscribe+publish ACL for user and rooms', async () => {
+  test('embeds subscribe+publish ACL for the actor and whatever features granted', async () => {
     const secret = 'test-secret';
     const { token, expiresAt } = await mintPubSubToken({
       secret,
       actorId: 'actor1',
-      spaceIds: ['space_a', 'space_b'],
+      featureTopics: ['room:space_a', 'room:space_b'],
       now: wallClock.now,
     });
     const { payload } = await jwtVerify(

@@ -5,4 +5,4 @@ export {
   clearProductSimulatorClientDurable,
   dumpProductSimulatorClientDurable,
   restoreProductSimulatorClientDurable,
-} from '@apps/product/sim/fabric/client-durable';
+} from '@libs/sim-harness/fabric/client-durable';

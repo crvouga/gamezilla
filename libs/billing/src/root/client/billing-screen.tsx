@@ -1,41 +1,95 @@
 /** @jsxImportSource solid-js */
 /**
- * `/more/billing` — membership and the Unlimited subscription plans.
- * Reads the synced subscription row locally and opens hosted checkout or
- * the billing portal to change it.
+ * `/more/billing` — the membership screen. Reads everything locally (the
+ * synced membership row, the permission system's decisions) so it renders
+ * offline, and opens the provider's hosted checkout or portal for anything
+ * that changes money. What a denied subscribe unlocks is the permission
+ * system's to say.
  */
 
+import { useCurrentUser } from '@libs/auth/public/use-current-user';
+import { useClientConfig } from '@libs/client-config/public/use-client-config';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useUnlock } from '@libs/permissions/public/unlock';
+import { useCan, useDecision } from '@libs/permissions/public/use-can';
+import type { Decision } from '@libs/permissions/public/use-permissions';
+import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans } from '@lingui/solid/macro';
-import { ScreenBase } from '@pkgs/ui';
-import type { JSX } from 'solid-js';
+import { useClock } from '@pkgs/clock/solid';
+import { ScreenBase, useOpenExternalUrl } from '@pkgs/ui';
+import { type Accessor, createMemo, type JSX } from 'solid-js';
 
-import { BillingMembershipSection } from './billing-membership-section';
-import { BillingPlansSection } from './billing-plans-section';
+import { PLUS_MEMBERSHIP_OFFER } from '../../shared/offer/plus-membership-offer';
+import { useMyMembershipRow } from '../../use-cases/load-my-subscription/client/use-my-membership-row';
+import { useManageSubscription } from '../../use-cases/open-portal-session/client/use-manage-subscription';
+import { BillingScreenView } from './billing-screen-view';
+import { type BillingView, buildBillingView } from './billing-view-model';
+import { useSubscribe } from './use-subscribe';
+
+function useBillingView(subscribe: Accessor<Decision>): Accessor<BillingView> {
+  const row = useMyMembershipRow();
+  const currentUser = useCurrentUser();
+  const { config } = useClientConfig();
+  const clock = useClock();
+  const unlock = useUnlock();
+  const canView = useCan(PERMISSION.billingView);
+  const canManage = useCan(PERMISSION.billingManage);
+  return createMemo(() =>
+    buildBillingView({
+      canView: canView(),
+      canSubscribe: subscribe().allowed,
+      canManage: canManage(),
+      subscribeUnlockLabel: unlock.label(subscribe()) ?? null,
+      hasCustomer: currentUser.billingCustomerId !== null,
+      row: row(),
+      nowMs: clock.now(),
+      graceMs: config().billing_grace_period_ms,
+    })
+  );
+}
 
 export function BillingScreen(): JSX.Element {
+  const subscribeDecision = useDecision(PERMISSION.billingSubscribe);
+  const view = useBillingView(subscribeDecision);
+  const { i18n } = useLinguiRuntime();
+  const subscribe = useSubscribe();
+  const manage = useManageSubscription();
+  const unlock = useUnlock();
+  const openExternalUrl = useOpenExternalUrl();
+  const formatDate = (ms: number): string =>
+    new Intl.DateTimeFormat(i18n().locale, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(new Date(ms));
+
+  const openCheckout = async (): Promise<void> => {
+    const url = await subscribe({
+      returnUrl: `${window.location.origin}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
+    });
+    await openExternalUrl(url);
+  };
+
   return (
     <ScreenBase
       screenId="billing"
+      surface="canvas"
       breadcrumbs={[
-        { name: <Trans>Spaces</Trans>, href: '/' },
-        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>More</Trans>, href: '/more' },
         { name: <Trans>Billing</Trans> },
       ]}
-      scroll
-      content={({ bodyClass }) => (
-        <div class={`box ${bodyClass} gap-5`} data-testid="billing-screen">
-          <p class="text textBody text-text-secondary">
-            <Trans>Get unlimited access to Gamezilla servers.</Trans>
-          </p>
-          <BillingMembershipSection />
-          <BillingPlansSection />
-          <p class="text textCaption text-text-secondary">
-            <Trans>
-              Payments are processed by our billing provider. We never see your
-              card.
-            </Trans>
-          </p>
-        </div>
+      content={() => (
+        <BillingScreenView
+          view={view()}
+          offer={PLUS_MEMBERSHIP_OFFER}
+          locale={i18n().locale}
+          formatDate={formatDate}
+          actions={{
+            subscribe: openCheckout,
+            manage,
+            unlock: () => unlock.run(subscribeDecision()),
+          }}
+        />
       )}
     />
   );

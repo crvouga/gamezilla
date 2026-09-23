@@ -5,7 +5,7 @@ import type { CreateId } from '@pkgs/uuid';
 import { MAX_MUTATIONS_BATCH } from '../../queries/shared/bounds';
 
 import type { WriteCaptureSnapshot } from '../../sql-ast';
-import type { MutationRegistry } from '../core/types';
+import type { MutationAuthorize, MutationRegistry } from '../core/types';
 import {
   type MutationRow,
   type ReplayAuth,
@@ -44,6 +44,7 @@ export type ProcessMutationsBatchDeps = {
   readonly now: () => number;
   readonly createId: CreateId;
   readonly serverNow?: () => Date;
+  readonly authorize?: MutationAuthorize;
   /**
    * Called after each mutation attempt (applied/rejected/duplicate).
    * Sim uses this for in-txn fault injection at the replay loop boundary.
@@ -77,6 +78,7 @@ export async function processMutationsBatch(
         now: deps.now,
         createId: deps.createId,
         ...(deps.serverNow !== undefined ? { serverNow: deps.serverNow } : {}),
+        ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
       },
       row
     );

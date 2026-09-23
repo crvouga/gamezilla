@@ -13,7 +13,9 @@ import { persistReport } from './persist';
 import type {
   RecordStepMeta,
   ReportFrame,
+  ReportSnapshotBlob,
   ReportStep,
+  ReportStepHit,
   ReportStepStatus,
   ReportTestStatus,
   RunReport,
@@ -73,6 +75,7 @@ export class RunReporter {
   private open: OpenStep | null = null;
   private frameSeq = 0;
   private lastFrameHash = '';
+  private lastBlobs: readonly ReportSnapshotBlob[] = [];
   private flushed = false;
   private status: ReportTestStatus = 'passed';
   private failure: { readonly error: string; readonly stack?: string } | null =
@@ -192,7 +195,7 @@ export class RunReporter {
     this.open = open;
     try {
       if (meta.snapshotBefore === true && meta.skipSnapshot !== true) {
-        await this.captureOntoOpen(open);
+        await this.captureOntoOpen(open, meta.hit);
       }
       await fn();
       if (meta.snapshotBefore !== true && meta.skipSnapshot !== true) {
@@ -229,7 +232,6 @@ export class RunReporter {
       ...(meta.actorId !== undefined ? { actorId: meta.actorId } : {}),
       ...(meta.selector !== undefined ? { selector: meta.selector } : {}),
       ...(meta.detail !== undefined ? { detail: meta.detail } : {}),
-      ...(meta.hit !== undefined ? { hit: meta.hit } : {}),
       ...(meta.action !== undefined ? { action: meta.action } : {}),
       ...(meta.args !== undefined ? { args: meta.args } : {}),
       ...(outcome.cause !== undefined
@@ -263,7 +265,10 @@ export class RunReporter {
     };
   }
 
-  private async captureOntoOpen(open: OpenStep): Promise<void> {
+  private async captureOntoOpen(
+    open: OpenStep,
+    hit?: ReportStepHit
+  ): Promise<void> {
     if (this.snapshots.length === 0) return;
     const capturedAtMs = this.now();
     const { parts, frameHash } = await captureSnapshotParts(
@@ -271,7 +276,14 @@ export class RunReporter {
       this.surface
     );
     if (parts.length === 0) return;
-    if (frameHash === this.lastFrameHash) return;
+    if (frameHash === this.lastFrameHash) {
+      // Unchanged UI: reuse the stored blobs so a press still gets its own
+      // frame to show the target on; otherwise skip the duplicate.
+      if (hit !== undefined && this.lastBlobs.length > 0) {
+        this.pushFrame(open, capturedAtMs, this.lastBlobs, hit);
+      }
+      return;
+    }
     this.lastFrameHash = frameHash;
     const blobs = await persistSnapshotParts({
       parts,
@@ -283,10 +295,21 @@ export class RunReporter {
         return this.frameSeq;
       },
     });
+    this.lastBlobs = blobs;
+    this.pushFrame(open, capturedAtMs, blobs, hit);
+  }
+
+  private pushFrame(
+    open: OpenStep,
+    capturedAtMs: number,
+    snapshots: readonly ReportSnapshotBlob[],
+    hit: ReportStepHit | undefined
+  ): void {
     open.frames.push({
       index: open.frames.length + 1,
       capturedAtMs,
-      snapshots: blobs,
+      snapshots,
+      ...(hit !== undefined ? { hit } : {}),
     });
   }
 }

@@ -6,7 +6,7 @@ import {
 } from '@pkgs/message';
 import type { HandleResult, RoomState } from '@pkgs/room';
 
-import type { GameDefinition } from './game';
+import type { GameCommandContext, GameDefinition } from './game';
 
 export type SelectedGameId = string | null;
 
@@ -46,22 +46,21 @@ export const GameSelected = gamesEvtNs('selected', validateSelectGamePayload);
  */
 export function createGamesCommandRouter(games: readonly GameDefinition[]) {
   const allowedIds = new Set(games.map((g) => g.id));
-  return createMessageRouter<RoomState, string, HandleResult>(gamesCmdNs).on(
-    SelectGame,
-    (_state, _identity, cmd) => {
-      const game = cmd.payload.game;
-      if (game !== null && !allowedIds.has(game)) {
-        return {
-          ok: true,
-          events: [GameSelected({ game: null })],
-        };
-      }
+  return createMessageRouter<RoomState, GameCommandContext, HandleResult>(
+    gamesCmdNs
+  ).on(SelectGame, (_state, _identity, cmd) => {
+    const game = cmd.payload.game;
+    if (game !== null && !allowedIds.has(game)) {
       return {
         ok: true,
-        events: [GameSelected({ game })],
+        events: [GameSelected({ game: null })],
       };
     }
-  );
+    return {
+      ok: true,
+      events: [GameSelected({ game })],
+    };
+  });
 }
 
 /**

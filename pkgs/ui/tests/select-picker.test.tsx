@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import {
@@ -15,7 +17,6 @@ import { Select } from '@pkgs/ui/components/select';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { mustQuery, renderUi } from './support/render';
 
 const FRUIT: PickerOption[] = [
@@ -122,7 +123,7 @@ describe('Picker', () => {
   });
 
   test('opens a dialog with a listbox, marks the current option and picks on click', () => {
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Harness onChange={onChange} />, { width: 1200 });
     fireEvent.click(screen.getByRole('button', { name: 'Fruit' }));
     expect(screen.getByRole('dialog', { name: 'Fruit' })).toBeInTheDocument();
@@ -156,7 +157,7 @@ describe('Picker', () => {
 
   test('arrow keys rove over enabled options, Enter picks, Escape closes', async () => {
     const user = userEvent.setup();
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(() => <Harness onChange={onChange} />, { width: 1200 });
     fireEvent.click(screen.getByRole('button', { name: 'Fruit' }));
     expect(screen.getByRole('option', { name: 'Banana' })).toHaveFocus();
@@ -225,7 +226,7 @@ describe('Picker', () => {
 
 describe('Select', () => {
   test('is a Picker tagged as Select and picks a value', () => {
-    const onChange = vi.fn();
+    const onChange = mock();
     renderUi(
       () => (
         <SurfaceStackProvider>

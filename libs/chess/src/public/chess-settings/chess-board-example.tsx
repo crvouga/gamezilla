@@ -35,7 +35,7 @@ export default function ChessBoardExample(): JSX.Element {
 
   return (
     <div
-      class="box gap-3 items-stretch w-[100%] max-w-[360px] min-w-[0]"
+      class="box gap-3 items-stretch w-full max-w-90 min-w-0"
       ref={setHostEl}
     >
       <p class="text textCaption text-text-secondary">

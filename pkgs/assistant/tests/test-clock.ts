@@ -1,4 +1,4 @@
-import type { AssistantClock } from '../src/shared/_internal/clock';
+import type { AssistantClock } from '../src/shared/internal/clock';
 
 /** Minimal clock for engine tests (no delayed callbacks). */
 export function createTestClock(now: () => number): AssistantClock {

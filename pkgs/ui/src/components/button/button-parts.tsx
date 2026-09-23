@@ -33,34 +33,33 @@ export type ButtonSizeSpec = {
   iconGap: number;
 };
 
-/** Icon geometry. Paint (radius, padding, type) lives in `skin.css`. */
 export const BUTTON_SIZES: Record<ButtonSize, ButtonSizeSpec> = {
   sm: {
     py: 1.5,
-    px: 3.5,
-    borderRadius: 16,
-    minHeight: 36,
-    text: { fontSize: 15, lineHeight: 20, fontWeight: '700' },
+    px: 3,
+    borderRadius: 10,
+    minHeight: 32,
+    text: { fontSize: 15, lineHeight: 20, fontWeight: '600' },
     iconSize: 18,
     iconStrokeWidth: 2.25,
     iconGap: 1.5,
   },
   md: {
     py: 2.5,
-    px: 4.5,
-    borderRadius: 22,
-    minHeight: 44,
-    text: { fontSize: 16, lineHeight: 22, fontWeight: '700' },
+    px: 4,
+    borderRadius: 12,
+    minHeight: 40,
+    text: { fontSize: 16, lineHeight: 22, fontWeight: '600' },
     iconSize: 20,
     iconStrokeWidth: 2.25,
     iconGap: 2,
   },
   lg: {
     py: 3,
-    px: 5.5,
-    borderRadius: 28,
-    minHeight: 52,
-    text: { fontSize: 17, lineHeight: 24, fontWeight: '800' },
+    px: 5,
+    borderRadius: 14,
+    minHeight: 48,
+    text: { fontSize: 17, lineHeight: 24, fontWeight: '600' },
     iconSize: 22,
     iconStrokeWidth: 2.25,
     iconGap: 2,
@@ -78,6 +77,7 @@ export type ButtonContentProps = {
   labels: ButtonLabels;
   phase: ButtonFeedback;
   size: ButtonSizeSpec;
+  foregroundColor: string;
   /** Sized leading icon (preferred over `startIcon`). */
   icon?: IconComponent | undefined;
   startIcon?: JSX.Element | undefined;
@@ -103,8 +103,24 @@ function iconSidePad(size: ButtonSizeSpec): number {
   return size.iconSize + spacingScale(size.iconGap);
 }
 
-export function ButtonLabelText(props: { label: JSX.Element }): JSX.Element {
-  return <p class="text textBodyBold whitespace-nowrap">{props.label}</p>;
+export function ButtonLabelText(props: {
+  label: JSX.Element;
+  size: ButtonSizeSpec;
+  foregroundColor: string;
+}): JSX.Element {
+  return (
+    <p
+      class="text textBodyBold tracking-button whitespace-nowrap"
+      style={{
+        color: props.foregroundColor,
+        'font-size': `${props.size.text.fontSize}px`,
+        'line-height': `${props.size.text.lineHeight}px`,
+        'font-weight': props.size.text.fontWeight,
+      }}
+    >
+      {props.label}
+    </p>
+  );
 }
 
 function IconSlot(props: { size: ButtonSizeSpec; children: JSX.Element }) {
@@ -170,6 +186,7 @@ function SizedLeadingIcon(props: ButtonContentProps): JSX.Element {
             component={icon()}
             size={props.size.iconSize}
             strokeWidth={props.size.iconStrokeWidth}
+            color={props.foregroundColor}
           />
         </IconSlot>
       )}
@@ -192,7 +209,11 @@ function ButtonIdleContent(props: ButtonContentProps): JSX.Element {
           <IconSlot size={props.size}>{props.startIcon}</IconSlot>
         </Show>
       </Show>
-      <ButtonLabelText label={props.labels.title} />
+      <ButtonLabelText
+        label={props.labels.title}
+        size={props.size}
+        foregroundColor={props.foregroundColor}
+      />
       <Show when={hasTrailing()}>
         <IconSlot size={props.size}>{props.endIcon}</IconSlot>
       </Show>
@@ -204,6 +225,7 @@ function StatusGlyph(props: {
   spinner?: boolean | undefined;
   icon?: IconComponent | undefined;
   size: ButtonSizeSpec;
+  foregroundColor: string;
 }): JSX.Element {
   return (
     <Show
@@ -213,10 +235,15 @@ function StatusGlyph(props: {
           component={props.icon ?? XIcon}
           size={props.size.iconSize}
           strokeWidth={props.size.iconStrokeWidth}
+          color={props.foregroundColor}
         />
       }
     >
-      <Spinner decorative color="currentColor" size={props.size.iconSize} />
+      <Spinner
+        decorative
+        color={props.foregroundColor}
+        size={props.size.iconSize}
+      />
     </Show>
   );
 }
@@ -225,6 +252,7 @@ function ButtonStatusContent(props: {
   spinner?: boolean | undefined;
   icon?: IconComponent | undefined;
   size: ButtonSizeSpec;
+  foregroundColor: string;
   label: JSX.Element | undefined;
 }): JSX.Element {
   const hasLabel = (): boolean =>
@@ -247,7 +275,11 @@ function ButtonStatusContent(props: {
           </IconRail>
         }
       >
-        <ButtonLabelText label={props.label} />
+        <ButtonLabelText
+          label={props.label}
+          size={props.size}
+          foregroundColor={props.foregroundColor}
+        />
       </CenteredLabelRow>
     </Show>
   );
@@ -267,6 +299,7 @@ function ButtonFeedbackFace(props: ButtonContentProps): JSX.Element {
         <ButtonStatusContent
           spinner
           size={props.size}
+          foregroundColor={props.foregroundColor}
           label={props.labels.loadingLabel}
         />
       </Match>
@@ -278,6 +311,7 @@ function ButtonFeedbackFace(props: ButtonContentProps): JSX.Element {
               : MUTATION_FEEDBACK_ICONS.error
           }
           size={props.size}
+          foregroundColor={props.foregroundColor}
           label={feedbackLabel()}
         />
       </Match>

@@ -101,6 +101,11 @@ type MutationUploadRow = {
   readonly clientId: string;
   readonly seq: number;
   readonly createdAt: string;
+  readonly originTraceparent: string | null;
+  readonly correlation?: {
+    readonly sessionId: string;
+    readonly buildSha: string;
+  };
 };
 
 async function buildFanoutRows(
@@ -205,6 +210,8 @@ export function createHandleMutations(
       clientId: m.clientId,
       seq: m.seq,
       createdAt: m.createdAt,
+      originTraceparent: m.originTraceparent,
+      ...(m.correlation === undefined ? {} : { correlation: m.correlation }),
     }));
     const failAfter = opts?.failInsideTxnAfter;
     const result = await ctx.db.transaction(async (tx) =>
@@ -237,6 +244,7 @@ export function createHandleMutations(
     });
     return {
       ok: true as const,
+      serverTimeMs: ctx.now(),
       verdicts: [...result.verdicts],
       ackSeq: result.ackSeq,
       ...(checkpoints.size > 0

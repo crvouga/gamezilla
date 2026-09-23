@@ -21,14 +21,14 @@ import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { readDevVarsDatabaseUrl } from './dev-vars';
 
 const log = createLogger({ name: 'server:deploy', now: wallClock.now });
 
 const apiDir = join(REPO_ROOT, 'apps/server');
 
-const WORKER_EXTRA_ENV_KEYS = ['SECRETS_ENV', 'OBSERVABILITY_BACKEND'] as const;
+const WORKER_EXTRA_ENV_KEYS = ['SECRETS_ENV', 'OBSERVABILITY_ENABLED'] as const;
 
 let deploySecretsLoaded = false;
 
@@ -76,6 +76,18 @@ async function buildWorkerSecretBulkPayload(): Promise<Record<string, string>> {
     const value = (process.env[key] ?? '').trim();
     if (value.length > 0) {
       payload[key] = value;
+    }
+  }
+
+  if (scope === 'prd' && payload['OBSERVABILITY_ENABLED'] !== '0') {
+    for (const required of [
+      'OBSERVABILITY_COLLECTOR_URL',
+      'OBSERVABILITY_COLLECTOR_TOKEN',
+    ]) {
+      assert.nonEmptyString(
+        payload[required],
+        `Worker deploy: ${required} is required in prd unless OBSERVABILITY_ENABLED=0`
+      );
     }
   }
 

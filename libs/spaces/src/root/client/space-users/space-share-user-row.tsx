@@ -9,7 +9,7 @@ export function SpaceShareUserRow(props: {
   return (
     <div class="box flex-row items-center gap-2 py-2">
       <UserProfileAvatar profileId={props.userId} size={44} />
-      <div class="box flex-1 min-w-[0]">
+      <div class="box flex-1 min-w-0">
         <UserUsername
           profileId={props.userId}
           variant="bodyBold"

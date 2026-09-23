@@ -1,0 +1,136 @@
+name: Deploy
+
+# `main` is what ships, in two stages:
+#
+#   deploy-dev — dev-scope rehearsal. Builds the real production bundle,
+#                applies migrations to the dev database and runs
+#                `wrangler deploy --dry-run` for all three workers. It serves
+#                no traffic: prod is still the first environment to receive
+#                worker code.
+#   deploy-prd — applies to production, then runs @apps/server#smoke
+#                (HTTP probes against the client URL, /simulator and
+#                /api/health). Runs only when deploy-dev succeeded.
+#
+# SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
+# `deploy:prd` aliases, which force TURBO_UI=tui (a TTY UI).
+#
+# This never runs on pull requests: the dev scope is a shared singleton and
+# @libs/runtime#migrate / @libs/secrets#provision are not dry-run gated, so
+# concurrent PRs would clobber each other's dev migrations and secret state.
+# PRs get `bun run check` in .github/workflows/pr.yml instead.
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+  # Pre-checkout guard reads PR association for the pushed commit
+  # (GET /repos/{owner}/{repo}/commits/{sha}/pulls → "Pull requests": read).
+  pull-requests: read
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: false
+
+jobs:
+  deploy-dev:
+    name: deploy:dev
+    runs-on: ubuntu-latest
+    # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
+    # turbo-ci-run's own deadline fires first and names what wedged.
+    timeout-minutes: 55
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      # `main` only moves through a merged PR. Branch protection enforces that
+      # (libs/tools/github-config/main-protection.json, applied by `bun run
+      # github:config`); this guard is the pipeline's own layer, so a direct
+      # push can never ship even if protection drifts. Fails before checkout:
+      # the deploy steps themselves never run.
+      - name: Assert the commit came from a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          prs="$(gh api "repos/${{ github.repository }}/commits/${GITHUB_SHA}/pulls" --jq 'length')"
+          if [ "$prs" -eq 0 ]; then
+            echo "::error::${GITHUB_SHA} is not associated with a pull request — main only moves through merged PRs."
+            exit 1
+          fi
+          echo "guard: ${GITHUB_SHA} arrived through ${prs} pull request(s)"
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: setup
+        uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: deploy:dev
+        id: deploy
+        run: |
+          set -euo pipefail
+          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+
+      - name: Write pipeline summary
+        if: always() && steps.setup.outcome == 'success'
+        env:
+          PIPELINE_NAME: deploy:dev
+          PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
+          PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run libs/tools/scripts/write-pipeline-summary.ts
+
+  deploy-prd:
+    name: deploy:prd
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    environment: production
+    env:
+      SECRETS_ENV: prd
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: setup
+        uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: prd
+
+      - name: deploy:prd
+        id: deploy
+        run: |
+          set -euo pipefail
+          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+
+      - name: Write pipeline summary
+        if: always() && steps.setup.outcome == 'success'
+        env:
+          PIPELINE_NAME: deploy:prd
+          PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
+          PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run libs/tools/scripts/write-pipeline-summary.ts

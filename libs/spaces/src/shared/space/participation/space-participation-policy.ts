@@ -14,7 +14,7 @@ export type SpaceAccessInput = {
   readonly hostId: string;
   readonly hostAccountId: string | null;
   readonly hostMemberId: string;
-  readonly viewerAccountId: string;
+  readonly viewerAccountId: string | null;
   readonly viewerDeviceId: string;
   readonly viewerMemberId: string;
   /** Viewer already has a spaces_users ACL row. */
@@ -22,10 +22,6 @@ export type SpaceAccessInput = {
   /** Viewer is friends with the space host. */
   readonly isFriendOfHost: boolean;
 };
-
-export type EndSpaceDecision =
-  | { readonly allowed: true }
-  | { readonly allowed: false; readonly code: 'SPACE_HOST_REQUIRED' };
 
 export type PresenceRole = 'host' | 'guest';
 
@@ -94,7 +90,7 @@ function decideJoinVisibility(input: SpaceAccessInput): SpaceAccessDecision {
  * Whether the viewer may open a live space.
  *
  * Space owners (member / creating device / host account) may always reopen.
- * Existing ACL (`spaces_users`) may reopen. Public is open to signed-in users
+ * Existing ACL (`spaces_users`) may reopen. Public is open to anyone
  * (self-grant on join). Private requires an ACL row, friendship with the host,
  * or host identity.
  */
@@ -115,15 +111,6 @@ export function decideJoin(input: SpaceAccessInput): SpaceAccessDecision {
     return { allowed: true, reason: 'already' };
   }
   return decideJoinVisibility(input);
-}
-
-export function decideEndSpace(args: {
-  readonly isHostActor: boolean;
-}): EndSpaceDecision {
-  if (!args.isHostActor) {
-    return { allowed: false, code: 'SPACE_HOST_REQUIRED' };
-  }
-  return { allowed: true };
 }
 
 export function resolvePresenceRole(args: {

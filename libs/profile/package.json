@@ -10,37 +10,50 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx'"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --pass-with-no-tests --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",
     "@libs/auth": "workspace:*",
+    "@libs/client-app": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/device": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@pkgs/word-filter": "workspace:*",
     "solid-js": "catalog:",
     "unique-names-generator": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
-    "@solidjs/testing-library": "catalog:",
+    "@libs/billing": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

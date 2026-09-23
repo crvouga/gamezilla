@@ -1,0 +1,20 @@
+[
+  {
+    "id": "puzzle-wrong-move-half-credit",
+    "summary": "Wrong moves scored zero instead of the agreed half credit; the recorder also read the move before its reactive row was available. Fixed using the board transition and guarded through offline replay.",
+    "guard": {
+      "kind": "test",
+      "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx",
+      "marker": "goal:chess-puzzles:9"
+    }
+  },
+  {
+    "id": "puzzle-profile-volatility-sync",
+    "summary": "The profile snapshot omitted Glicko volatility, leaving another device with incomplete rating state. Fixed by syncing volatility_micros and comparing complete profiles after guest sign-in.",
+    "guard": {
+      "kind": "test",
+      "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx",
+      "marker": "goal:always-true:2"
+    }
+  }
+]

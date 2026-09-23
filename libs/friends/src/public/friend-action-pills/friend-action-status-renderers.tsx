@@ -1,8 +1,13 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
-import type { JSX } from 'solid-js';
+import type { Accessor, JSX } from 'solid-js';
 
+import {
+  FRIENDS_BLOCKED,
+  FRIENDS_COOLDOWN,
+  FRIENDS_REQUEST_EXISTS,
+} from '../../shared/friendship/friends-mutation-codes';
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
 import {
   ConfirmDeletePills,
@@ -10,78 +15,21 @@ import {
 } from './friend-action-pill-buttons';
 import type { FriendActionMutations } from './friend-action-types';
 
-/** Pill feedback strings (loading / success / error faces). */
-export type FriendActionLabels = {
-  readonly unavailable: string;
-  readonly unblocking: string;
-  readonly unblocked: string;
-  readonly unblockFailed: string;
-  readonly cancelling: string;
-  readonly cancelled: string;
-  readonly cancelFailed: string;
-  readonly friends: string;
-  readonly sending: string;
-  readonly sent: string;
-  readonly sendFailed: string;
-};
-
-/**
- * `t` must come from `useLingui()` in this scope: the Lingui macro only
- * compiles tagged templates on its own binding, so a `t` threaded through as
- * a parameter renders ''. Getters keep the labels locale-reactive.
- */
-export function useFriendActionLabels(): FriendActionLabels {
-  const { t } = useLingui();
-  return {
-    get unavailable() {
-      return t`Unavailable`;
-    },
-    get unblocking() {
-      return t`Unblocking…`;
-    },
-    get unblocked() {
-      return t`Unblocked`;
-    },
-    get unblockFailed() {
-      return t`Couldn't unblock`;
-    },
-    get cancelling() {
-      return t`Cancelling…`;
-    },
-    get cancelled() {
-      return t`Cancelled`;
-    },
-    get cancelFailed() {
-      return t`Couldn't cancel`;
-    },
-    get friends() {
-      return t`Friends`;
-    },
-    get sending() {
-      return t`Sending…`;
-    },
-    get sent() {
-      return t`Sent`;
-    },
-    get sendFailed() {
-      return t`Couldn't send`;
-    },
-  };
-}
 type WrapMutation = (fn: () => Promise<void>) => () => Promise<void>;
 
 function noopOperation(): Promise<void> {
   return Promise.resolve();
 }
 
-function renderBlockedByThem(labels: FriendActionLabels): JSX.Element {
+function renderBlockedByThem(): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={noopOperation}
-      idle={labels.unavailable}
-      loading={labels.unavailable}
-      success={labels.unavailable}
-      error={labels.unavailable}
+      idle={t`Unavailable`}
+      loading={t`Unavailable`}
+      success={t`Unavailable`}
+      error={t`Unavailable`}
       variant="outline"
       disabled
     />
@@ -91,15 +39,19 @@ function renderBlockedByThem(labels: FriendActionLabels): JSX.Element {
 function renderBlockedByMe(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  labels: FriendActionLabels
+  username: string | undefined
 ): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={wrap(mutations.unblock)}
       idle={<Trans>Unblock</Trans>}
-      loading={labels.unblocking}
-      success={labels.unblocked}
-      error={labels.unblockFailed}
+      loading={t`Unblocking…`}
+      success={t`Unblocked`}
+      error={t`Couldn't unblock`}
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendUnblock(username) }
+        : {})}
     />
   );
 }
@@ -114,7 +66,10 @@ function renderPendingIncoming(
       onConfirm={wrap(mutations.confirmRequest)}
       onDelete={wrap(mutations.deleteRequest)}
       {...(username !== undefined && username.length > 0
-        ? { confirmTestID: Handles.friendConfirm(username) }
+        ? {
+            confirmTestID: Handles.friendConfirm(username),
+            deleteTestID: Handles.friendDecline(username),
+          }
         : {})}
     />
   );
@@ -123,31 +78,33 @@ function renderPendingIncoming(
 function renderPendingOutgoing(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  labels: FriendActionLabels
+  username: string | undefined
 ): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={wrap(mutations.cancelRequest)}
       idle={<Trans>Requested</Trans>}
-      loading={labels.cancelling}
-      success={labels.cancelled}
-      error={labels.cancelFailed}
+      loading={t`Cancelling…`}
+      success={t`Cancelled`}
+      error={t`Couldn't cancel`}
       variant="outline"
+      {...(username !== undefined && username.length > 0
+        ? { testID: Handles.friendCancel(username) }
+        : {})}
     />
   );
 }
 
-function renderFriends(
-  labels: FriendActionLabels,
-  username: string | undefined
-): JSX.Element {
+function renderFriends(username: string | undefined): JSX.Element {
+  const { t } = useLingui();
   return (
     <SingleActionPill
       operation={noopOperation}
       idle={<Trans>Friends</Trans>}
-      loading={labels.friends}
-      success={labels.friends}
-      error={labels.friends}
+      loading={t`Friends`}
+      success={t`Friends`}
+      error={t`Friends`}
       variant="outline"
       disabled
       {...(username !== undefined && username.length > 0
@@ -157,19 +114,36 @@ function renderFriends(
   );
 }
 
+/**
+ * The Add pill's error face: the reason the server refused, when it gave one.
+ * Every renderer here takes `t` from its own `useLingui()`: the macro compiles
+ * only that binding, and a `t` passed in as an argument renders labels empty.
+ */
+function useSendFailureLabel(): (code: string | null) => string {
+  const { t } = useLingui();
+  return (code) => {
+    if (code === FRIENDS_COOLDOWN) return t`Try again later`;
+    if (code === FRIENDS_BLOCKED) return t`Unavailable`;
+    if (code === FRIENDS_REQUEST_EXISTS) return t`They already asked you`;
+    return t`Couldn't send`;
+  };
+}
+
 function renderNone(
   wrap: WrapMutation,
   mutations: FriendActionMutations,
-  labels: FriendActionLabels,
+  addFailureCode: Accessor<string | null>,
   username: string | undefined
 ): JSX.Element {
+  const { t } = useLingui();
+  const sendFailureLabel = useSendFailureLabel();
   return (
     <SingleActionPill
       operation={wrap(mutations.addFriend)}
       idle={<Trans>Add Friend</Trans>}
-      loading={labels.sending}
-      success={labels.sent}
-      error={labels.sendFailed}
+      loading={t`Sending…`}
+      success={t`Sent`}
+      error={sendFailureLabel(addFailureCode())}
       sounds={{
         success: Sounds.social.friendRequestReceived,
         error: Sounds.feedback.error,
@@ -184,28 +158,28 @@ function renderNone(
 export function renderFriendActionPillsForStatus({
   status,
   mutations,
+  addFailureCode,
   wrap,
-  labels,
   username,
 }: {
   status: FriendshipStatus;
   mutations: FriendActionMutations;
+  addFailureCode: Accessor<string | null>;
   wrap: WrapMutation;
-  labels: FriendActionLabels;
   username?: string | undefined;
 }): JSX.Element {
   switch (status) {
     case 'blocked_by_them':
-      return renderBlockedByThem(labels);
+      return renderBlockedByThem();
     case 'blocked_by_me':
-      return renderBlockedByMe(wrap, mutations, labels);
+      return renderBlockedByMe(wrap, mutations, username);
     case 'pending_incoming':
       return renderPendingIncoming(wrap, mutations, username);
     case 'pending_outgoing':
-      return renderPendingOutgoing(wrap, mutations, labels);
+      return renderPendingOutgoing(wrap, mutations, username);
     case 'friends':
-      return renderFriends(labels, username);
+      return renderFriends(username);
     default:
-      return renderNone(wrap, mutations, labels, username);
+      return renderNone(wrap, mutations, addFailureCode, username);
   }
 }

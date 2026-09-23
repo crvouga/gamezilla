@@ -10,12 +10,14 @@ import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {
   readonly google: boolean;
-  readonly devOauth: boolean;
+  readonly apple: boolean;
   readonly billing: boolean;
   readonly tts: boolean;
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
   readonly emqxWssUrl: string | null;
+  readonly permissionPolicy: unknown;
+  readonly billingGracePeriodMs: number;
 };
 
 type DesiredRow = {
@@ -36,12 +38,12 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: desired.google,
     },
     {
-      id: ClientConfigKey.googleWebClientId,
-      value: trimOrNull(desired.googleWebClientId),
+      id: ClientConfigKey.appleEnabled,
+      value: desired.apple,
     },
     {
-      id: ClientConfigKey.devOauthEnabled,
-      value: desired.devOauth,
+      id: ClientConfigKey.googleWebClientId,
+      value: trimOrNull(desired.googleWebClientId),
     },
     {
       id: ClientConfigKey.billingEnabled,
@@ -58,6 +60,14 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
     {
       id: ClientConfigKey.emqxWssUrl,
       value: trimOrNull(desired.emqxWssUrl),
+    },
+    {
+      id: ClientConfigKey.permissionPolicy,
+      value: desired.permissionPolicy,
+    },
+    {
+      id: ClientConfigKey.billingGracePeriodMs,
+      value: desired.billingGracePeriodMs,
     },
   ];
 }

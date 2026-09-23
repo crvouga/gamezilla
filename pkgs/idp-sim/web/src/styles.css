@@ -1,0 +1,26 @@
+/*
+ * The IdP's own stylesheet: Tailwind plus the `@pkgs/ui` design system —
+ * its token map, its host classes, and the utilities its components and these
+ * screens use.
+ *
+ * It compiles on its own (source detection off, sources listed) rather than
+ * through `@pkgs/tailwind`: that entry scans every workspace tier, and this
+ * bundle is embedded in the server as a string, so it carries only what the
+ * screens render.
+ */
+@import "tailwindcss" source(none);
+@import "../../../ui/codemod/theme.css";
+@import "../../../ui/src/theme/tokens.css";
+@import "../../../ui/src/components/hosts.css";
+
+@source "../";
+@source "../../../ui/src";
+
+/* The repo themes with `[data-theme]`, not `prefers-color-scheme`. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+  }
+}

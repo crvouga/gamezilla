@@ -17,7 +17,11 @@ import {
   RoomDurableObjectAdapterBase,
 } from './adapter-base';
 import { DurableObjectRoomStorage } from './storage';
-import type { DurableObjectClass, DurableObjectInstanceState } from './types';
+import type {
+  DurableObjectClass,
+  DurableObjectInstanceState,
+  DurableObjectTelemetry,
+} from './types';
 
 const DEFAULT_IDENTITY_HEADER = 'x-actor-id' as const;
 const DEFAULT_CLIENT_ID_HEADER = 'x-actor-client-id' as const;
@@ -70,6 +74,8 @@ export type CreateDurableObjectAdapterOptions<
   createId: CreateId;
   /** Extra effect handlers after the built-in DO Schedule/CancelSchedule handler. */
   effectHandlers?: readonly RoomEffectHandler[];
+  /** Resolve the OTel runtime from the concrete Worker's environment bindings. */
+  telemetry: (env: Env) => DurableObjectTelemetry;
 };
 
 function defaultParseIdentity<Identity>(raw: string): Identity | null {
@@ -118,6 +124,7 @@ function resolveOptions<
     clock: options.clock,
     createId: options.createId,
     effectHandlers: options.effectHandlers ?? [],
+    telemetry: options.telemetry,
   };
 }
 

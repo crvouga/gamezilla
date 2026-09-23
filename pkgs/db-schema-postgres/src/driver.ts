@@ -1,7 +1,8 @@
 import type { ServerOperation } from '@pkgs/db-schema/core/operations';
 import { planServer } from '@pkgs/db-schema/core/plan';
 import type { Schema } from '@pkgs/db-schema/core/types';
-import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
+import { ident, raw, sql } from '@pkgs/sql';
+import type { PostgresSqlClient, SqlClient } from '@pkgs/sql-client/interface';
 import {
   advisoryLockSql,
   advisoryUnlockSql,
@@ -9,6 +10,9 @@ import {
   readPostgresCatalog,
 } from './catalog';
 import { emitServerOperation, isConcurrentlyUnsupportedError } from './emit';
+
+/** Rows per backfill batch (bounded row locks, cursor-monotone). */
+export const BACKFILL_BATCH_ROWS = 1000;
 
 export type PostgresDriverOptions = {
   /**
@@ -18,10 +22,15 @@ export type PostgresDriverOptions = {
   readonly skipAdvisoryLock?: boolean;
   /**
    * When true, run table DDL on the injected client without opening a nested
-   * transaction (caller already provides a transaction). Index ops still use
-   * non-CONCURRENTLY emit when `indexesInTransaction` is also true.
+   * transaction (caller already provides a transaction).
    */
   readonly alreadyInTransaction?: boolean;
+  /**
+   * `inline` (default): reconcile tables and indexes here, CONCURRENTLY when
+   * not nested. `skip`: table DDL only — a separate phase owns indexes.
+   * `only`: index DDL only, always outside a transaction.
+   */
+  readonly indexPhase?: 'inline' | 'skip' | 'only';
 };
 
 export type PostgresDriver = {
@@ -37,12 +46,6 @@ const TABLE_TX_KINDS = new Set<ServerOperation['kind']>([
   'create_table',
   'add_column',
   'backfill',
-  'add_check',
-  'add_foreign_key',
-  'create_view',
-  'replace_view',
-  'create_enum',
-  'add_enum_value',
 ]);
 
 async function runIndexOp(
@@ -63,9 +66,43 @@ async function runIndexOp(
 }
 
 /**
+ * Backfill in bounded PK-cursor batches. A full-table `UPDATE` holds a row lock
+ * per matching row for the whole statement; batching keeps each lock window
+ * small. The cursor is monotone on `id`, so an expression that yields NULL
+ * still terminates instead of re-selecting the same rows forever. Each UPDATE
+ * targets the batch's `id` range (two binds, a PK range scan) rather than an
+ * `IN` list of every id.
+ */
+async function runBatchedBackfill(
+  client: SqlClient,
+  table: string,
+  column: string,
+  expression: string
+): Promise<void> {
+  let cursor: string | null = null;
+  for (;;) {
+    const batch: readonly { id: string }[] =
+      cursor === null
+        ? await client.query<{ id: string }>(
+            sql`SELECT id FROM ${ident(table)} WHERE ${ident(column)} IS NULL ORDER BY id LIMIT ${BACKFILL_BATCH_ROWS}`
+          )
+        : await client.query<{ id: string }>(
+            sql`SELECT id FROM ${ident(table)} WHERE ${ident(column)} IS NULL AND id > ${cursor} ORDER BY id LIMIT ${BACKFILL_BATCH_ROWS}`
+          );
+    if (batch.length === 0) return;
+    const first = batch[0]!.id;
+    const last = batch[batch.length - 1]!.id;
+    await client.run(
+      sql`UPDATE ${ident(table)} SET ${ident(column)} = ${raw(expression)} WHERE id >= ${first} AND id <= ${last} AND ${ident(column)} IS NULL`
+    );
+    cursor = last;
+  }
+}
+
+/**
  * Postgres schema reconciler. Non-destructive by construction: only create
- * table / add column / backfill / create|drop package-prefixed indexes /
- * expand portable objects. Never DROP TABLE/COLUMN, ALTER TYPE, or RENAME.
+ * table / add column / backfill / create|drop package-prefixed indexes.
+ * Never DROP TABLE/COLUMN, ALTER TYPE, or RENAME.
  */
 export function postgres(
   schema: Schema,
@@ -74,6 +111,9 @@ export function postgres(
 ): PostgresDriver {
   const skipAdvisoryLock = options?.skipAdvisoryLock ?? false;
   const alreadyInTransaction = options?.alreadyInTransaction ?? false;
+  const indexPhase = options?.indexPhase ?? 'inline';
+  const planSelection =
+    indexPhase === 'only' ? 'index' : indexPhase === 'skip' ? 'table' : 'all';
 
   return {
     async reconcile(): Promise<void> {
@@ -87,7 +127,9 @@ export function postgres(
         await client.run(createSchemaSql(schemaName));
 
         const catalog = await readPostgresCatalog(client, declared);
-        const plan = planServer(declared, catalog);
+        const plan = planServer(declared, catalog, {
+          operations: planSelection,
+        });
         if (!plan.ok) {
           const detail = plan.drift
             .map((d) => `${d.path}: ${d.message}`)
@@ -104,19 +146,25 @@ export function postgres(
         );
 
         if (tableOps.length > 0) {
-          const runTableOps = async (tx: PostgresSqlClient): Promise<void> => {
+          const runTableOps = async (tx: SqlClient): Promise<void> => {
             for (const op of tableOps) {
-              const stmt = emitServerOperation(op, { concurrently: false });
-              // Skip no-op portable enum SELECT 1 when not native.
-              if (op.kind === 'create_enum' && !op.nativePostgres) continue;
-              await tx.run(stmt);
+              if (op.kind === 'backfill') {
+                await runBatchedBackfill(
+                  tx,
+                  op.table,
+                  op.column,
+                  op.expression
+                );
+                continue;
+              }
+              await tx.run(emitServerOperation(op, { concurrently: false }));
             }
           };
           if (alreadyInTransaction) {
             await runTableOps(client);
           } else {
             await client.transaction(async (tx) => {
-              await runTableOps(Object.assign(tx, { dbScope: client.dbScope }));
+              await runTableOps(tx);
             });
           }
         }

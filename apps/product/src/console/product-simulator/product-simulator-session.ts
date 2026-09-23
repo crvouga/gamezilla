@@ -2,8 +2,6 @@
  * Session façade over createSim + room node + snapshot store.
  */
 
-import type { Client } from '@apps/client/shell/create-client';
-import { readEmbeddedHref } from '@apps/client/shell/embedded-href';
 import {
   captureCheckpoint,
   restoreCheckpoint,
@@ -39,14 +37,18 @@ import {
   type SnapshotSessionCtx,
 } from '@apps/product/product-simulator/product-simulator-snapshots';
 import { installProductSimulatorStickyAutosave } from '@apps/product/product-simulator/product-simulator-sticky-autosave';
-import { clearProductSimulatorClientDurable } from '@apps/product/sim/fabric/client-durable';
-import type { Sim } from '@apps/product/sim/fabric/create-sim';
-import { simClientNamespace } from '@apps/product/sim/fabric/sim-client-namespace';
+import type { Client } from '@libs/client-app/shell/create-client';
+import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
+import { simActorApp } from '@libs/sim-harness/actors/solid-actor-root';
+import { clearProductSimulatorClientDurable } from '@libs/sim-harness/fabric/client-durable';
+import type { Sim } from '@libs/sim-harness/fabric/create-sim';
+import type { SimBrowser } from '@libs/sim-harness/fabric/sim-browser';
+import { simClientNamespace } from '@libs/sim-harness/fabric/sim-client-namespace';
 import {
   nextSimNodeId,
   normalizeSimNodeId,
-} from '@apps/product/sim/fabric/sim-node-name';
-import type { ProductHostName } from '@apps/product/sim/hosts/ports';
+} from '@libs/sim-harness/fabric/sim-node-name';
+import { createLogger } from '@pkgs/logger';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
@@ -80,10 +82,10 @@ function productSimulatorClock(sim: Sim): ProductSimulatorSession['clock'] {
 export type BootProductSimulatorOptions = {
   readonly skipSnapshotLoad?: boolean;
   /**
-   * System profile. Default `in-process` (Solid DOM / mem SQL).
-   * Localhost profiles embed actor URLs against a loopback sidecar.
+   * Product host. Default `in-process` (Solid DOM / mem SQL).
+   * `bun-webview` embeds actor URLs (iframe) against a localhost sidecar.
    */
-  readonly runtime?: ProductHostName;
+  readonly runtime?: 'in-process' | 'bun-webview';
 };
 
 export type ProductSimulatorSessionBuildArgs = {
@@ -108,6 +110,7 @@ function liveToActor(args: {
   logs: ReturnType<typeof createProductSimulatorLogBuffer>;
   sqlClient: ProductSimulatorActor['sqlClient'];
   history: ProductSimulatorMemoryHistory;
+  browser: SimBrowser;
   actorWebOrigin?: string;
 }): ProductSimulatorActor {
   return {
@@ -118,7 +121,15 @@ function liveToActor(args: {
     view:
       args.actorWebOrigin !== undefined
         ? { kind: 'url', url: args.actorWebOrigin }
-        : { kind: 'solid', App: args.live.App, history: args.history },
+        : {
+            kind: 'solid',
+            App: simActorApp({
+              live: args.live,
+              browser: args.browser,
+              isolateStyles: true,
+            }),
+            history: args.history,
+          },
   };
 }
 
@@ -155,7 +166,13 @@ async function runProductSimulatorCommand(
 ): Promise<void> {
   const cmd = commands.find((c) => c.id === id);
   if (cmd === undefined) throw new Error(`unknown command '${id}'`);
-  const publishPeer = createInMemoryPublishOnlyPubSub(buildArgs.sim.pubSubBus);
+  const publishPeer = createInMemoryPublishOnlyPubSub({
+    bus: buildArgs.sim.pubSubBus,
+    logger: createLogger({
+      name: 'product-simulator:pubsub',
+      now: () => buildArgs.sim.clock.now(),
+    }),
+  });
   try {
     await cmd.run({
       serverSql: buildArgs.sim.serverSql.sqlClient,
@@ -202,8 +219,8 @@ async function spawnClient(
   }
   args.sim.restart(instanceId);
   const actorLogs = createProductSimulatorLogBuffer();
-  const base = args.sim.client(instanceId);
-  const live = args.sim.spawnClient(instanceId, {
+  const base = await args.sim.client(instanceId);
+  const live = await args.sim.spawnClient(instanceId, {
     ...base,
     server: loggingFetch(base.server, actorLogs, args.balancerLogs, () =>
       args.sim.clock.now()
@@ -222,6 +239,7 @@ async function spawnClient(
     logs: actorLogs,
     sqlClient: handle.sqlClient,
     history,
+    browser: args.sim.browser(instanceId),
     ...(args.actorWebOrigin !== undefined
       ? { actorWebOrigin: args.actorWebOrigin }
       : {}),

@@ -1,7 +1,7 @@
 /**
- * E2E probes render in `VITE_E2E=1` web bundles and under bun:test.
- * `import.meta.env` is Vite's build-time env in the browser and Bun's
- * `process.env` in tests — a bare `process` check never fires in a browser.
+ * Test-only puzzle probes render in browser E2E builds (`VITE_E2E=1`, e.g. a
+ * localhost stack under test) and under bun:test — never for end users.
+ * `import.meta.env` is Vite's env in a browser and `process.env` under Bun.
  */
 const env = import.meta.env as { VITE_E2E?: string; NODE_ENV?: string };
 

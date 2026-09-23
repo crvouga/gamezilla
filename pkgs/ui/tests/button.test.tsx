@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { BackIconButton } from '@pkgs/ui/components/back-icon-button';
 import {
   Button,
@@ -23,12 +25,11 @@ import {
 } from '@pkgs/ui/components/overflow-menu-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 describe('Button', () => {
   test('renders a native button, fires onClick, and applies size', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => <Button title="Save" onClick={onClick} size="sm" />);
     const el = screen.getByRole('button', { name: 'Save' });
     expect(el.tagName).toBe('BUTTON');
@@ -63,7 +64,7 @@ describe('Button', () => {
   });
 
   test('disabled and loading block clicks; loading is aria-busy', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <>
         <Button title="Off" disabled onClick={onClick} />
@@ -132,13 +133,13 @@ function MutationHarness(props: {
 describe('useMutationButton', () => {
   test('idle → loading → success → idle with the sim clock', async () => {
     let resolve: () => void = () => {};
-    const operation = vi.fn(
+    const operation = mock(
       () =>
         new Promise<void>((r) => {
           resolve = r;
         })
     );
-    const onSuccess = vi.fn();
+    const onSuccess = mock();
     const phases: string[] = [];
     const { clock } = renderUi(() => (
       <MutationHarness
@@ -172,8 +173,7 @@ describe('useMutationButton', () => {
   });
 
   test('error phase shows the error face and retries on click', async () => {
-    const operation = vi
-      .fn<() => Promise<void>>()
+    const operation = mock<() => Promise<void>>()
       .mockRejectedValueOnce(new Error('nope'))
       .mockResolvedValueOnce(undefined);
     renderUi(() => <MutationHarness operation={operation} />);
@@ -190,7 +190,7 @@ describe('useMutationButton', () => {
 
 describe('IconButton family', () => {
   test('IconButton is a ≥44px button named by its label with a tooltip', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <IconButton label="Settings" size={32} onClick={onClick}>
         <SettingsIcon size={16} />
@@ -207,7 +207,7 @@ describe('IconButton family', () => {
   });
 
   test('tooltip="none" skips the bubble; disabled blocks clicks', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <IconButton label="Muted" tooltip="none" disabled onClick={onClick}>
         <SettingsIcon size={16} />
@@ -235,8 +235,8 @@ describe('IconButton family', () => {
   });
 
   test('Back / Close icon buttons have localized names', () => {
-    const back = vi.fn();
-    const close = vi.fn();
+    const back = mock();
+    const close = mock();
     renderUi(() => (
       <>
         <BackIconButton onClick={back} />
@@ -252,7 +252,7 @@ describe('IconButton family', () => {
 
 describe('FloatingActionButton', () => {
   test('round FAB is ≥56px and extended FAB shows its label', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <>
         <FloatingActionButton aria-label="New" onClick={onClick} />
@@ -269,7 +269,7 @@ describe('FloatingActionButton', () => {
   });
 
   test('feedback="loading" is aria-busy and inert', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <FloatingActionButton
         aria-label="Go"
@@ -286,10 +286,10 @@ describe('FloatingActionButton', () => {
 
 describe('OverflowMenuButton', () => {
   test('exposes a menu trigger and hands content to renderMenu', () => {
-    const renderMenu = vi.fn<(menu: OverflowMenuRenderProps) => JSX.Element>(
+    const renderMenu = mock<(menu: OverflowMenuRenderProps) => JSX.Element>(
       () => null
     );
-    const onAction = vi.fn();
+    const onAction = mock();
     renderUi(() => (
       <OverflowMenuButton
         aria-label="More"

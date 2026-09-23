@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { screen } from '@solidjs/testing-library';
-import { describe, expect, test } from 'vitest';
 import { renderUi } from './support/render';
 
 describe('box host class', () => {

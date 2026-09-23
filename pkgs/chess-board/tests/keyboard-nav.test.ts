@@ -1,8 +1,8 @@
+import { describe, expect, it } from 'bun:test';
 import {
   defaultCursorSquare,
   moveCursor,
 } from '@pkgs/chess-board/keyboard-nav';
-import { describe, expect, it } from 'vitest';
 
 describe('keyboard-nav', () => {
   it('starts at the viewer bottom-left', () => {

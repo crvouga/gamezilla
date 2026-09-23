@@ -1,3 +1,4 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
 import {
@@ -15,10 +16,10 @@ import {
 import type { JSX } from 'solid-js';
 import { createMemo, createSignal } from 'solid-js';
 import { useSpacesNavBack } from '../../../public/nav/spaces-nav-context';
+import { useSpaceCan } from '../../../public/use-space-can';
 import { SpaceMembersListModal } from '../members/space-members-list-modal';
 import { SpacePresenceStrip } from '../members/space-presence-strip';
 import { SpaceShareSheet } from '../space-users/space-share-sheet';
-import { useCurrentSpaceRole } from '../use-current-space-role';
 import { useSpaceSessionUi } from './space-session-ui-context';
 
 type SpaceChromeNavCallbacks = {
@@ -70,12 +71,12 @@ function buildLeadingItems(args: {
 }
 
 function hostLeaveItem(args: {
-  isHost: boolean;
+  canEnd: boolean;
   end: JSX.Element;
   leave: JSX.Element;
   callbacks: SpaceChromeTrailingCallbacks;
 }): ActionBarItem {
-  if (args.isHost) {
+  if (args.canEnd) {
     return {
       id: 'end-space',
       label: args.end,
@@ -100,7 +101,8 @@ function hostLeaveItem(args: {
 }
 
 function buildTrailingItems(args: {
-  isHost: boolean;
+  canRename: boolean;
+  canEndSpace: boolean;
   spaceId: string;
   avatarSize: number;
   labels: {
@@ -113,7 +115,8 @@ function buildTrailingItems(args: {
   };
   callbacks: SpaceChromeTrailingCallbacks;
 }): ActionBarItem[] {
-  const { isHost, spaceId, avatarSize, labels, callbacks } = args;
+  const { canRename, canEndSpace, spaceId, avatarSize, labels, callbacks } =
+    args;
   const items: ActionBarItem[] = [
     {
       id: 'members',
@@ -123,7 +126,12 @@ function buildTrailingItems(args: {
       onClick: callbacks.onPressMembers,
       overflow: 'never',
       priority: 90,
-      children: <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />,
+      dataSet: { testid: Handles.spaceMembersButton },
+      children: (
+        <div data-testid={Handles.spacePresenceStrip}>
+          <SpacePresenceStrip spaceId={spaceId} size={avatarSize} />
+        </div>
+      ),
     },
     {
       id: 'share',
@@ -136,7 +144,7 @@ function buildTrailingItems(args: {
     },
   ];
 
-  if (isHost) {
+  if (canRename) {
     items.push({
       id: 'rename',
       label: labels.rename,
@@ -150,7 +158,7 @@ function buildTrailingItems(args: {
 
   items.push(
     hostLeaveItem({
-      isHost,
+      canEnd: canEndSpace,
       end: labels.end,
       leave: labels.leave,
       callbacks,
@@ -193,8 +201,14 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
   const [shareOpen, setShareOpen] = createSignal(false);
   const chrome = useActionBarChrome();
   const onPressBack = useSpacesNavBack();
-  const role = useCurrentSpaceRole(() => sessionUi.spaceId);
-  const isHost = createMemo(() => role() === 'host');
+  const canRename = useSpaceCan(
+    () => sessionUi.spaceId,
+    PERMISSION.spacesRename
+  );
+  const canEndSpace = useSpaceCan(
+    () => sessionUi.spaceId,
+    PERMISSION.spacesEnd
+  );
   const avatarSize = createMemo(() =>
     iconButtonAvatarContentSize(chrome().buttonSize)
   );
@@ -211,7 +225,8 @@ export function SpaceChromeTrailingActionBar(): JSX.Element {
   );
   const items = createMemo(() =>
     buildTrailingItems({
-      isHost: isHost(),
+      canRename: canRename(),
+      canEndSpace: canEndSpace(),
       spaceId: sessionUi.spaceId,
       avatarSize: avatarSize(),
       labels: {

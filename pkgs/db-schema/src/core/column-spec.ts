@@ -1,18 +1,11 @@
-import { assertDialectSqlShape, type DialectSql } from './dialect-sql';
+import { assertDialectSqlShape } from './dialect-sql';
 import {
   assertPhysicalPostgres,
   assertPhysicalSqlite,
   normalizePhysicalSqlite,
 } from './physical-types';
 import { assertSnakeCaseIdent } from './snake-case';
-import type {
-  BackfillSpec,
-  ColumnType,
-  DeclaredColumn,
-  DeprecationDef,
-  ForeignKeyRef,
-  GeneratedSpec,
-} from './types';
+import type { BackfillSpec, ColumnType, DeclaredColumn } from './types';
 import { COLUMN_TYPE_SET, MANAGED_IMPLICIT_SET } from './types';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
@@ -26,15 +19,8 @@ export type ColumnSpecInput =
       readonly renamedFrom?: string;
       readonly widenedFrom?: string;
       readonly backfill?: BackfillSpec;
-      readonly references?: ForeignKeyRef;
-      readonly generated?: {
-        readonly expr: DialectSql;
-        readonly stored?: boolean;
-      };
       readonly postgres?: string;
       readonly sqlite?: string;
-      readonly enumName?: string;
-      readonly arrayOf?: ColumnType;
     };
 
 const COLUMN_SPEC_KEYS = new Set([
@@ -42,12 +28,12 @@ const COLUMN_SPEC_KEYS = new Set([
   'renamedFrom',
   'widenedFrom',
   'backfill',
-  'references',
-  'generated',
   'postgres',
   'sqlite',
-  'enumName',
-  'arrayOf',
+  // Already-parsed DeclaredColumn keys: `registerTables` re-validates the
+  // columns `defineTable` built, so both spellings must be accepted.
+  'physicalPostgres',
+  'physicalSqlite',
 ]);
 
 function parseBackfill(value: unknown, path: string): BackfillSpec {
@@ -68,32 +54,7 @@ function parseBackfill(value: unknown, path: string): BackfillSpec {
   throw new Error(`${path}: backfill must be { from } or { sql }`);
 }
 
-function parseGenerated(value: unknown, path: string): GeneratedSpec {
-  if (!isPlainObject(value) || value['expr'] === undefined) {
-    throw new Error(`${path}: generated must be { expr, stored? }`);
-  }
-  return {
-    expr: assertDialectSqlShape(value['expr'], `${path}.expr`),
-    stored: value['stored'] === undefined ? true : Boolean(value['stored']),
-  };
-}
-
-function parseReferences(value: unknown, path: string): ForeignKeyRef {
-  if (!isPlainObject(value)) {
-    throw new Error(`${path}: references must be { table, column }`);
-  }
-  if (
-    typeof value['table'] !== 'string' ||
-    typeof value['column'] !== 'string'
-  ) {
-    throw new Error(`${path}: references.table and references.column required`);
-  }
-  assertSnakeCaseIdent(value['table'], `${path}.table`);
-  assertSnakeCaseIdent(value['column'], `${path}.column`);
-  return { table: value['table'], column: value['column'] };
-}
-
-function assertColumnType(token: unknown, path: string): ColumnType {
+export function assertColumnType(token: unknown, path: string): ColumnType {
   if (typeof token !== 'string' || !COLUMN_TYPE_SET.has(token)) {
     throw new Error(
       `${path}: column type must be one of ${[...COLUMN_TYPE_SET].join('|')}`
@@ -123,12 +84,6 @@ function assertLifecycleIdents(
   if (typeof raw['widenedFrom'] === 'string') {
     assertSnakeCaseIdent(raw['widenedFrom'], `${path}.widenedFrom`);
   }
-  if (typeof raw['enumName'] === 'string') {
-    assertSnakeCaseIdent(raw['enumName'], `${path}.enumName`);
-  }
-  if (raw['arrayOf'] !== undefined) {
-    assertColumnType(raw['arrayOf'], `${path}.arrayOf`);
-  }
 }
 
 function buildObjectColumn(
@@ -147,24 +102,16 @@ function buildObjectColumn(
     ...(raw['backfill'] !== undefined
       ? { backfill: parseBackfill(raw['backfill'], `${path}.backfill`) }
       : {}),
-    ...(raw['references'] !== undefined
-      ? { references: parseReferences(raw['references'], `${path}.references`) }
-      : {}),
-    ...(raw['generated'] !== undefined
-      ? { generated: parseGenerated(raw['generated'], `${path}.generated`) }
-      : {}),
     ...(typeof raw['postgres'] === 'string'
       ? { physicalPostgres: raw['postgres'] }
-      : {}),
+      : typeof raw['physicalPostgres'] === 'string'
+        ? { physicalPostgres: raw['physicalPostgres'] }
+        : {}),
     ...(typeof raw['sqlite'] === 'string'
       ? { physicalSqlite: normalizePhysicalSqlite(raw['sqlite']) }
-      : {}),
-    ...(typeof raw['enumName'] === 'string'
-      ? { enumName: raw['enumName'] }
-      : {}),
-    ...(typeof raw['arrayOf'] === 'string'
-      ? { arrayOf: raw['arrayOf'] as ColumnType }
-      : {}),
+      : typeof raw['physicalSqlite'] === 'string'
+        ? { physicalSqlite: normalizePhysicalSqlite(raw['physicalSqlite']) }
+        : {}),
   };
 }
 
@@ -178,26 +125,32 @@ function assertPhysicalOverrides(
   if (typeof raw['sqlite'] === 'string') {
     assertPhysicalSqlite(raw['sqlite'], `${path}.sqlite`);
   }
+  if (typeof raw['physicalPostgres'] === 'string') {
+    assertPhysicalPostgres(raw['physicalPostgres'], `${path}.physicalPostgres`);
+  }
+  if (typeof raw['physicalSqlite'] === 'string') {
+    assertPhysicalSqlite(raw['physicalSqlite'], `${path}.physicalSqlite`);
+  }
 }
 
 function validateLifecycleSource(args: {
   readonly path: string;
   readonly source: string;
   readonly liveCols: ReadonlySet<string>;
-  readonly deprecatedCols: ReadonlySet<string>;
+  readonly retiredCols: ReadonlySet<string>;
 }): void {
-  const { path, source, liveCols, deprecatedCols } = args;
+  const { path, source, liveCols, retiredCols } = args;
   if (MANAGED_IMPLICIT_SET.has(source)) {
     throw new Error(`${path}: lifecycle source '${source}' is engine-owned`);
   }
   if (liveCols.has(source)) {
     throw new Error(
-      `${path}: lifecycle source '${source}' is still declared — remove it and add a deprecation tombstone`
+      `${path}: lifecycle source '${source}' is still declared — remove it and add a retiredColumns tombstone`
     );
   }
-  if (!deprecatedCols.has(source)) {
+  if (!retiredCols.has(source)) {
     throw new Error(
-      `${path}: lifecycle source '${source}' requires a matching deprecation entry`
+      `${path}: lifecycle source '${source}' requires a matching retiredColumns entry`
     );
   }
 }
@@ -207,13 +160,13 @@ function validateBackfillFrom(args: {
   readonly from: string;
   readonly tableName: string;
   readonly liveCols: ReadonlySet<string>;
-  readonly deprecatedCols: ReadonlySet<string>;
+  readonly retiredCols: ReadonlySet<string>;
 }): void {
-  const { path, from, tableName, liveCols, deprecatedCols } = args;
+  const { path, from, tableName, liveCols, retiredCols } = args;
   if (MANAGED_IMPLICIT_SET.has(from)) {
     throw new Error(`${path}.backfill.from: '${from}' is engine-owned`);
   }
-  if (!liveCols.has(from) && !deprecatedCols.has(from)) {
+  if (!liveCols.has(from) && !retiredCols.has(from)) {
     throw new Error(
       `${path}.backfill.from: unknown column '${from}' on table '${tableName}'`
     );
@@ -225,16 +178,16 @@ function validateDeclaredColumnLifecycle(args: {
   readonly colName: string;
   readonly col: DeclaredColumn;
   readonly liveCols: ReadonlySet<string>;
-  readonly deprecatedCols: ReadonlySet<string>;
+  readonly retiredCols: ReadonlySet<string>;
 }): void {
-  const { tableName, colName, col, liveCols, deprecatedCols } = args;
+  const { tableName, colName, col, liveCols, retiredCols } = args;
   const path = `tables.${tableName}.${colName}`;
   if (col.renamedFrom !== undefined && col.widenedFrom !== undefined) {
     throw new Error(`${path}: cannot declare both renamedFrom and widenedFrom`);
   }
   const source = col.renamedFrom ?? col.widenedFrom;
   if (source !== undefined) {
-    validateLifecycleSource({ path, source, liveCols, deprecatedCols });
+    validateLifecycleSource({ path, source, liveCols, retiredCols });
   }
   if (col.renamedFrom !== undefined && col.backfill !== undefined) {
     throw new Error(
@@ -247,36 +200,29 @@ function validateDeclaredColumnLifecycle(args: {
       from: col.backfill.from,
       tableName,
       liveCols,
-      deprecatedCols,
+      retiredCols,
     });
   }
 }
 
 /**
- * Validate lifecycle metadata against declared + deprecated columns.
- * Call after all columns and deprecations for a table are known.
+ * Validate lifecycle metadata against declared + retired columns.
+ * Call after all columns and retiredColumns for a table are known.
  */
 export function validateColumnLifecycle(args: {
   readonly tableName: string;
   readonly columns: Record<string, DeclaredColumn>;
-  readonly deprecations: readonly DeprecationDef[];
+  readonly retiredCols: ReadonlySet<string>;
 }): void {
-  const { tableName, columns, deprecations } = args;
-  const deprecatedCols = new Set<string>();
-  for (const dep of deprecations) {
-    if (dep.length === 3 && dep[0] === tableName) {
-      deprecatedCols.add(dep[1]);
-    }
-  }
+  const { tableName, columns, retiredCols } = args;
   const liveCols = new Set(Object.keys(columns));
-
   for (const [colName, col] of Object.entries(columns)) {
     validateDeclaredColumnLifecycle({
       tableName,
       colName,
       col,
       liveCols,
-      deprecatedCols,
+      retiredCols,
     });
   }
 }

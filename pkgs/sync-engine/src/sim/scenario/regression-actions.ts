@@ -86,6 +86,35 @@ export const mutate = defineAction({
   },
 });
 
+/**
+ * `mutate` without awaiting it: for `pendingUx: 'pending'` mutations, whose
+ * call resolves only when the server answers — which needs the run's clock
+ * to move, so an action cannot sit on it. Clears the client's last result;
+ * poll `lastMutationSettled`, then read it as usual.
+ */
+export const startMutate = defineAction({
+  name: 'startMutate',
+  act: (
+    s: SyncSim,
+    clientId: string,
+    named: Mutation<unknown> | string,
+    args: unknown
+  ) => {
+    const mutation = resolveMutation(s, named);
+    s.runtime.lastMutation.delete(clientId);
+    void requireClient(s, clientId)
+      .mutate(mutation, args)
+      .then((result) => {
+        s.runtime.lastMutation.set(
+          clientId,
+          result.ok
+            ? { ok: true, mutationId: result.mutationId, failures: [] }
+            : { ok: false, mutationId: null, failures: result.failures }
+        );
+      });
+  },
+});
+
 export const connect = defineAction({
   name: 'connect',
   act: async (s: SyncSim, clientId: string) => {

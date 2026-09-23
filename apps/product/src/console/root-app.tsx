@@ -56,7 +56,7 @@ function ConsoleShell(props: { readonly ports: SimConsolePorts }): JSX.Element {
         <OverlayPortalProvider>
           <SurfaceStackProvider>
             <DismissibleBannerPortalProvider>
-              <div class="box flex-1 min-h-[0] min-w-[0]">
+              <div class="box flex-1 min-h-0 min-w-0">
                 <ConsoleBody ports={props.ports} />
               </div>
             </DismissibleBannerPortalProvider>

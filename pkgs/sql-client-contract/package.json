@@ -9,23 +9,25 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
-    "@pkgs/sql-client-sim": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/db-schema-postgres": "workspace:*",
+    "@pkgs/postgres-sqlite-compat": "workspace:*",
+    "@pkgs/sim": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

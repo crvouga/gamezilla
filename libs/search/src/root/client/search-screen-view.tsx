@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids';
 import {
-  UserSearchSignInPrompt,
+  UserSearchDenied,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search/public/use-user-search';
 import type { UserSearchResult } from '@libs/user-search/public/user-search-types';
@@ -43,6 +43,7 @@ function SearchResults(props: {
           icon={SearchIcon}
           title={<Trans>No people found for “{props.query}”</Trans>}
           body={<Trans>Check the spelling or try a different username.</Trans>}
+          dataSet={{ testid: Handles.searchEmpty }}
         />
       </Match>
       <Match when={true}>
@@ -85,11 +86,11 @@ function SearchScreenBody(): JSX.Element {
   const state = useDebouncedUserSearchEffect(query, recordSearch);
   const trimmed = () => query().trim();
   const showRecent = () => trimmed().length === 0;
-  const showSignInPrompt = () => !state.signedIn && trimmed().length > 0;
-  const showResults = () => state.signedIn && trimmed().length > 0;
+  const showDenied = () => !state.canSearch && trimmed().length > 0;
+  const showResults = () => state.canSearch && trimmed().length > 0;
 
   return (
-    <div class="box flex-1 min-h-[0] gap-4">
+    <div class="box flex-1 min-h-0 gap-4">
       <TextInput
         value={query()}
         onChangeText={setQuery}
@@ -113,8 +114,8 @@ function SearchScreenBody(): JSX.Element {
           onClear={clear}
         />
       </Show>
-      <Show when={showSignInPrompt()}>
-        <UserSearchSignInPrompt />
+      <Show when={showDenied()}>
+        <UserSearchDenied />
       </Show>
       <Show when={showResults()}>
         <SearchResults

@@ -11,6 +11,7 @@ import type { Timers } from '../client/sim-ports';
 import { SIM_QUERY_RECONCILE_INTERVAL_MS } from '../client/subscription-constants';
 import type { SyncEngine } from '../client/sync-engine-port';
 import { SyncApiAuthError } from '../client/sync-http-client';
+import { awaitMutationVerdict } from '../mutations/client/await-mutation-verdict';
 import {
   createMutationClient,
   type MutationClient,
@@ -189,16 +190,19 @@ export type CreateMutationSideArgs = {
 export function createMutationSide(
   args: CreateMutationSideArgs
 ): MutationClient {
-  return createMutationClient({
+  const client = createMutationClient({
     db: args.db,
     registry: args.mutations,
     env: args.getEnv(),
     ids: { clientId: args.deviceId },
     connectivity: { isOnline: () => args.lifecycle.lifecycle.isOnline() },
     createId: args.createId,
+    awaitVerdict: (mutationId) => awaitMutationVerdict(args.engine, mutationId),
     onQueued: ({ mutation, args: mutationArgs, capture }) => {
       args.engine.wakeUploads();
       args.engine.notifyLocalMutation(mutation, mutationArgs, capture);
     },
   });
+  args.engine.registerMutationDrain(() => client.drain());
+  return client;
 }

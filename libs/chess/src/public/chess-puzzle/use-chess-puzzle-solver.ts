@@ -3,6 +3,7 @@ import {
   useSpaceRoomSelector,
 } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { formatUci } from '@pkgs/chess-rules/uci';
 import { type Accessor, createMemo } from 'solid-js';
 
 import {
@@ -15,7 +16,6 @@ import {
   ChessPuzzlePlayAttr,
   SubmitChessPuzzleMove,
 } from '../chess-puzzle-play';
-import { uciFromMove } from './chess-puzzle-play-chess-utils';
 import { usePuzzleOpponentMoveStage } from './use-puzzle-opponent-move-stage';
 
 export type { SolveStatus } from '../../shared/puzzle-session/solve-status';
@@ -88,7 +88,7 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   const room = useChessPuzzlePlayRoomSelectors();
 
   const onMove = (m: Move): void => {
-    dispatch(SubmitChessPuzzleMove({ uci: uciFromMove(m) }));
+    dispatch(SubmitChessPuzzleMove({ uci: formatUci(m) }));
   };
 
   const status = createMemo<SolveStatus>(() =>
@@ -101,10 +101,12 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
 
   const totalTokens = createMemo(() => countMoveTokens(room.roomMoves()));
 
+  // Nothing paints until the room holds this puzzle: a previous puzzle's
+  // position (and orientation) never flashes first (§5 no visible flip).
   const opponentInput = createMemo(() => ({
     startFen: room.startFen(),
     moves: room.roomMoves(),
-    displayFen: room.displayFen(),
+    displayFen: status() === 'loading' ? null : room.displayFen(),
     solveIdx: room.solveIdx(),
     furthestSolveIdx: room.furthestSolveIdx(),
     status: status(),

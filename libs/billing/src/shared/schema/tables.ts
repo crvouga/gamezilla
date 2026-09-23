@@ -1,30 +1,23 @@
 import { defineTable } from '@pkgs/db-schema';
 
+/**
+ * Provider-neutral subscription projection. Written by the vendor webhook and
+ * synced to every device so access can be evaluated locally and offline.
+ */
 export const billingSubscriptions = defineTable({
   domain: 'billing',
   name: 'billing_subscriptions',
   columns: {
     account_id: 'text',
-    status: 'text',
+    provider: 'text',
+    provider_subscription_id: 'text',
     price_key: 'text',
-    customer_id: 'text',
-    subscription_id: 'text',
-    trial_end: 'timestamp',
+    status: 'text',
     current_period_end: 'timestamp',
-    grace_until: 'timestamp',
     cancel_at_period_end: 'boolean',
-    action_required: 'boolean',
   },
-  uniqueIndexes: ['account_id'],
+  indexes: ['account_id'],
+  uniqueIndexes: [['provider', 'provider_subscription_id']],
 });
 
-export const billingEvents = defineTable({
-  domain: 'billing',
-  name: 'billing_events',
-  columns: {
-    event_id: 'text',
-  },
-  uniqueIndexes: ['event_id'],
-});
-
-export const BILLING_TABLES = [billingSubscriptions, billingEvents] as const;
+export const BILLING_TABLES = [billingSubscriptions] as const;

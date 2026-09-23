@@ -78,7 +78,7 @@ function ListItemContent(props: {
   trailing: JSX.Element | undefined;
 }): JSX.Element {
   return (
-    <div class="box flex-row items-center py-3 px-4 gap-3 min-h-[44px]">
+    <div class="box flex-row items-center py-3 px-4 gap-3 min-h-11">
       {props.leading}
       <div class="box flex-1 min-w-0 items-start">
         <p class="text text-text">{props.title}</p>
@@ -92,7 +92,7 @@ function ListItemContent(props: {
 }
 
 function selectedClass(selected: boolean): string {
-  return selected ? 'bg-tint-subtle rounded-md' : '';
+  return selected ? 'bg-tint-subtle rounded-control' : '';
 }
 
 export function ListItem(props: ListItemProps): JSX.Element {

@@ -1,6 +1,7 @@
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
 import { createRng, type Rng } from '../internals/rng';
+
 import type { Gen } from '../system/gen';
 
 export {
@@ -13,6 +14,8 @@ export {
   arbJsonObject,
   arbJsonValue,
 } from './json';
+/** Shared fast-check instance for packages that consume assertProperty. */
+export { fc };
 
 /**
  * pure-rand-compatible RandomGenerator over our Rng, so every fast-check

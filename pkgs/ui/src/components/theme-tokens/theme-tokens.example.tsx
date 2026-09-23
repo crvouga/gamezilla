@@ -143,8 +143,8 @@ function ColorSwatch(props: { token: keyof ColorTokens }): JSX.Element {
   const theme = useThemeTokens();
   const value = () => theme.colors[props.token];
   return (
-    <div class="box w-[132px] rounded-md border border-solid border-border overflow-hidden">
-      <div class="box h-[56px]" style={{ 'background-color': value() }} />
+    <div class="box w-33 rounded-control border border-solid border-border overflow-hidden">
+      <div class="box h-14" style={{ 'background-color': value() }} />
       <div class="box px-2 py-1 bg-surface">
         <p class="text textCaption line-clamp-1 text-text">{props.token}</p>
         <p class="text textCaption line-clamp-1 text-text-secondary">
@@ -169,7 +169,7 @@ function RadiusSample(props: { radiusKey: BorderRadiusKey }): JSX.Element {
   return (
     <div class="box items-center gap-1">
       <div
-        class="box w-[64px] h-[64px] bg-tint-subtle border border-solid border-tint"
+        class="box w-16 h-16 bg-tint-subtle border border-solid border-tint"
         style={{
           'border-radius': value() === 9999 ? '9999px' : cssPx(value()),
         }}
@@ -186,11 +186,9 @@ function SpacingRow(): JSX.Element {
       <For each={SPACING_ENTRIES}>
         {(entry) => (
           <div class="box flex-row items-center gap-2">
-            <p class="text textCaption text-text-secondary w-[32px]">
-              {entry.key}
-            </p>
+            <p class="text textCaption text-text-secondary w-8">{entry.key}</p>
             <div
-              class="box h-[10px] bg-tint rounded-xs"
+              class="box w-2.5 bg-tint rounded-sm"
               style={{ width: cssPx(Math.max(entry.value, 1)) }}
             />
             <p class="text textCaption text-text-secondary">{`${entry.value}px`}</p>
@@ -208,7 +206,7 @@ function ElevationRow(): JSX.Element {
         {(level) => (
           <div class="box items-center gap-1">
             <div
-              class={`box w-[88px] h-[64px] rounded-md bg-elevation-${level}`}
+              class={`box w-22 h-16 rounded-control bg-elevation-${level}`}
             />
             <p class="text textCaption text-text-secondary">{`level ${level}`}</p>
           </div>
@@ -225,7 +223,7 @@ function MotionRow(): JSX.Element {
       <For each={DURATIONS}>
         {([k, v]) => (
           <div class="box flex-row items-center gap-2">
-            <p class="text textCaption text-text w-[80px]">{k}</p>
+            <p class="text textCaption text-text w-20">{k}</p>
             <p class="text textCaption text-text-secondary">{`${v}ms`}</p>
           </div>
         )}
@@ -234,7 +232,7 @@ function MotionRow(): JSX.Element {
       <For each={EASINGS}>
         {([k, v]) => (
           <div class="box flex-row gap-2">
-            <p class="text textCaption text-text w-[80px]">{k}</p>
+            <p class="text textCaption text-text w-20">{k}</p>
             <p class="text textCaption line-clamp-1 text-text-secondary">{v}</p>
           </div>
         )}

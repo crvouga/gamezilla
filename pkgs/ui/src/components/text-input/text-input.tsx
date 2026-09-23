@@ -29,6 +29,12 @@ export type TextInputProps = Omit<
   label?: JSX.Element | undefined;
   /** Error message shown below the input. */
   error?: LocalizedString | undefined;
+  /**
+   * Error styling and `aria-invalid` without a message of its own — for a
+   * field whose error is announced elsewhere (a form-level alert it points at
+   * through `aria-describedby`). Implied by `error`.
+   */
+  invalid?: boolean | undefined;
   /** Helper text shown below the input (hidden when error is present). */
   helperText?: LocalizedString | undefined;
   placeholder?: LocalizedString | undefined;
@@ -182,6 +188,7 @@ export function TextInput(props: TextInputProps): JSX.Element {
     [
       'label',
       'error',
+      'invalid',
       'helperText',
       'startAdornment',
       'class',
@@ -218,7 +225,7 @@ export function TextInput(props: TextInputProps): JSX.Element {
       <div class="box relative">
         <Field
           {...field}
-          hasError={local.error !== undefined}
+          hasError={local.error !== undefined || local.invalid === true}
           hasAdornment={hasAdornment()}
           rest={rest}
         />

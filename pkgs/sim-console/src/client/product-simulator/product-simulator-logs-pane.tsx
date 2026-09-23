@@ -27,7 +27,7 @@ export function ProductSimulatorLogsPane(props: {
     <Show
       when={entries().length > 0}
       fallback={
-        <div class="box flex-1 min-h-[0] p-[8px] bg-background">
+        <div class="box flex-1 min-h-0 p-[8px] bg-background">
           <EmptyState
             variant="compact"
             title="No logs yet"
@@ -37,7 +37,7 @@ export function ProductSimulatorLogsPane(props: {
       }
     >
       <ScrollView
-        class="flex-1 min-h-[0] bg-background"
+        class="flex-1 min-h-0 bg-background"
         contentClass="p-[6px] gap-1"
       >
         <For each={newestFirst()}>{(entry) => <LogRow entry={entry} />}</For>
@@ -56,12 +56,10 @@ function LogRow(props: { readonly entry: ProductSimulatorLogEntry }) {
   };
   return (
     <div class="box flex-row gap-2 [padding-top:3px;padding-bottom:3px] border-b border-border items-start">
-      <p
-        class={`text text-[10px] font-semibold w-[40px] shrink-0 ${levelClass()}`}
-      >
+      <p class={`text text-micro font-semibold w-10 shrink-0 ${levelClass()}`}>
         {entry.level.toUpperCase()}
       </p>
-      <p class="text text-text-secondary text-[10px] w-[72px] shrink-0">
+      <p class="text text-text-secondary text-micro w-18 shrink-0">
         {formatTime(entry.at)}
       </p>
       <p class="text text-text text-[11px] flex-1">{entry.msg}</p>

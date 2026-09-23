@@ -2,19 +2,27 @@ import { createMessageRouter } from '@pkgs/message';
 import type { RoomState } from '@pkgs/room';
 
 import {
+  clearRecommendation,
+  recommendMove,
+} from '../puzzle-session/recommendations';
+import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
 } from './chess-puzzle-play-attr';
 import {
   ChessPuzzleHintRevealed,
   ChessPuzzleHostReclaimed,
+  ChessPuzzleMoveRecommended,
   ChessPuzzlePlayCleared,
   ChessPuzzlePlayMoveAccepted,
   ChessPuzzlePlayMoveRejected,
   ChessPuzzlePlayResetEvt,
+  ChessPuzzlePlaySkipped,
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
+  ChessPuzzleRecommendationCleared,
   ChessPuzzleSolutionRevealed,
+  ChessPuzzleSolutionShown,
   chessPuzzlePlayEvtNs,
 } from './chess-puzzle-play-messages';
 
@@ -32,7 +40,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.moves(p.moves),
       ...ChessPuzzlePlayAttr.hostIdentity(p.hostIdentity),
       ...ChessPuzzlePlayAttr.displayFen(p.displayFen),
-      ...ChessPuzzlePlayAttr.previousDisplayFen(null),
       ...ChessPuzzlePlayAttr.orientation(p.orientation),
       ...ChessPuzzlePlayAttr.status(p.status),
       ...ChessPuzzlePlayAttr.solveIdx(p.solveIdx),
@@ -43,6 +50,9 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.expectedFromSquare(null),
       ...ChessPuzzlePlayAttr.expectedToSquare(null),
       ...ChessPuzzlePlayAttr.solutionRevealed(0),
+      ...ChessPuzzlePlayAttr.startedAtMs(p.startedAtMs),
+      ...ChessPuzzlePlayAttr.endedAtMs(null),
+      ...ChessPuzzlePlayAttr.recommendations({}),
     };
   })
   .on(ChessPuzzlePlayMoveAccepted, (state, _ctx, ev) => {
@@ -50,8 +60,8 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     const nextFurthest = Math.max(prevFurthest, ev.payload.solveIdx);
     return {
       ...state,
+      ...ChessPuzzlePlayAttr.moves(ev.payload.moves),
       ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-      ...ChessPuzzlePlayAttr.previousDisplayFen(null),
       ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
       ...ChessPuzzlePlayAttr.furthestSolveIdx(nextFurthest),
       ...ChessPuzzlePlayAttr.status(ev.payload.status),
@@ -60,12 +70,15 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
       ...ChessPuzzlePlayAttr.expectedFromSquare(null),
       ...ChessPuzzlePlayAttr.expectedToSquare(null),
       ...ChessPuzzlePlayAttr.solutionRevealed(0),
+      ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
+      // The position the suggestions were made for is gone.
+      ...ChessPuzzlePlayAttr.recommendations({}),
     };
   })
+  // The wrong move is never applied: the display stays put, so the dragged
+  // piece snaps back (layoutKey remounts the board on the same FEN).
   .on(ChessPuzzlePlayMoveRejected, (state, _ctx, ev) => ({
     ...state,
-    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(ev.payload.previousDisplayFen),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.wrong),
     ...ChessPuzzlePlayAttr.wrongFromSquare(ev.payload.wrongFromSquare),
@@ -77,7 +90,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   .on(ChessPuzzlePlayResetEvt, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.furthestSolveIdx(ev.payload.furthestSolveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
@@ -91,7 +103,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
   .on(ChessPuzzlePlayStepped, (state, _ctx, ev) => ({
     ...state,
     ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
     ...ChessPuzzlePlayAttr.status(ev.payload.status),
     ...ChessPuzzlePlayAttr.layoutKey(ev.payload.layoutKey),
@@ -100,6 +111,52 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
     ...ChessPuzzlePlayAttr.solutionRevealed(0),
+  }))
+  .on(ChessPuzzleSolutionShown, (state, _ctx, ev) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.displayFen(ev.payload.displayFen),
+    ...ChessPuzzlePlayAttr.solveIdx(ev.payload.solveIdx),
+    ...ChessPuzzlePlayAttr.furthestSolveIdx(ev.payload.solveIdx),
+    ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.revealed),
+    ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
+    ...ChessPuzzlePlayAttr.recommendations({}),
+  }))
+  .on(ChessPuzzlePlaySkipped, (state, _ctx, ev) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.skipped),
+    ...ChessPuzzlePlayAttr.endedAtMs(ev.payload.endedAtMs),
+    ...ChessPuzzlePlayAttr.wrongFromSquare(null),
+    ...ChessPuzzlePlayAttr.wrongToSquare(null),
+    ...ChessPuzzlePlayAttr.expectedFromSquare(null),
+    ...ChessPuzzlePlayAttr.expectedToSquare(null),
+    ...ChessPuzzlePlayAttr.solutionRevealed(0),
+    ...ChessPuzzlePlayAttr.recommendations({}),
+  }))
+  .on(ChessPuzzleMoveRecommended, (state, _ctx, ev) => {
+    const next = recommendMove({
+      current: ChessPuzzlePlayAttr.recommendations.from(state),
+      by: ev.payload.by,
+      from: ev.payload.from,
+      to: ev.payload.to,
+    });
+    return {
+      ...state,
+      ...ChessPuzzlePlayAttr.recommendations(next),
+    };
+  })
+  .on(ChessPuzzleRecommendationCleared, (state, _ctx, ev) => ({
+    ...state,
+    ...ChessPuzzlePlayAttr.recommendations(
+      clearRecommendation(
+        ChessPuzzlePlayAttr.recommendations.from(state),
+        ev.payload.by
+      )
+    ),
   }))
   .on(ChessPuzzleHintRevealed, (state, _ctx, ev) => ({
     ...state,
@@ -123,7 +180,6 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.moves(''),
     ...ChessPuzzlePlayAttr.hostIdentity(null),
     ...ChessPuzzlePlayAttr.displayFen(null),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.orientation('white'),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),
@@ -134,6 +190,9 @@ export const chessPuzzlePlayEventReducer = createMessageRouter<
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
     ...ChessPuzzlePlayAttr.solutionRevealed(0),
+    ...ChessPuzzlePlayAttr.startedAtMs(null),
+    ...ChessPuzzlePlayAttr.endedAtMs(null),
+    ...ChessPuzzlePlayAttr.recommendations({}),
   }));
 
 /** Default values to seed in `SpaceModule.initialState()`. */
@@ -144,7 +203,6 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.moves(''),
     ...ChessPuzzlePlayAttr.hostIdentity(null),
     ...ChessPuzzlePlayAttr.displayFen(null),
-    ...ChessPuzzlePlayAttr.previousDisplayFen(null),
     ...ChessPuzzlePlayAttr.orientation('white'),
     ...ChessPuzzlePlayAttr.status(CHESS_PUZZLE_PLAY_STATUS.idle),
     ...ChessPuzzlePlayAttr.solveIdx(0),
@@ -155,5 +213,8 @@ export function chessPuzzlePlayInitialAttrs(): RoomState {
     ...ChessPuzzlePlayAttr.expectedFromSquare(null),
     ...ChessPuzzlePlayAttr.expectedToSquare(null),
     ...ChessPuzzlePlayAttr.solutionRevealed(0),
+    ...ChessPuzzlePlayAttr.startedAtMs(null),
+    ...ChessPuzzlePlayAttr.endedAtMs(null),
+    ...ChessPuzzlePlayAttr.recommendations({}),
   };
 }

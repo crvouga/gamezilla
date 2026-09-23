@@ -11,20 +11,33 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/permissions": "workspace:*",
+    "@libs/server-app": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
+    "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/async-local": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

@@ -1,32 +1,47 @@
 // @io-wall-ok
 import {
+  type ClusterConfig,
+  clusterUrl,
   createEmbeddedPostgres,
+  defaultClusterConfig,
   ensureAppDatabase,
   ensureClusterInitialised,
-  ensureDatabase,
   formatUnknownError,
-  LOCAL_DATABASE_URL,
   wipeClusterData,
 } from './cluster';
-import { localDatabaseUrl, POSTGRES_PORT } from './ports';
 
 export type EmbeddedPostgresHandle = {
-  readonly url: typeof LOCAL_DATABASE_URL;
+  readonly url: string;
   readonly port: number;
-  /** Create `name` on this cluster when missing; returns its wire URL. */
-  ensureDatabase(name: string): Promise<string>;
+  readonly dataDir: string;
   stop(): Promise<void>;
+};
+
+export type StartEmbeddedPostgresOptions = {
+  /** Listen port. Defaults to the shared local port. */
+  readonly port?: number;
+  /** Cluster directory. A distinct directory means a distinct database. */
+  readonly dataDir?: string;
 };
 
 /**
  * Start embedded Postgres (no product migrate/seed). Caller migrates.
+ *
+ * Port and data directory are parameters, so several clusters can run at once.
  */
-export async function startEmbeddedPostgres(): Promise<EmbeddedPostgresHandle> {
-  let pg = createEmbeddedPostgres();
+export async function startEmbeddedPostgres(
+  options?: StartEmbeddedPostgresOptions
+): Promise<EmbeddedPostgresHandle> {
+  const defaults = defaultClusterConfig();
+  const config: ClusterConfig = {
+    port: options?.port ?? defaults.port,
+    dataDir: options?.dataDir ?? defaults.dataDir,
+  };
+  let pg = createEmbeddedPostgres(config);
   let stopped = false;
 
   async function startCluster(): Promise<void> {
-    await ensureClusterInitialised(pg);
+    await ensureClusterInitialised(pg, config);
     try {
       await pg.start();
     } catch (error) {
@@ -39,9 +54,9 @@ export async function startEmbeddedPostgres(): Promise<EmbeddedPostgresHandle> {
       } catch {
         // already down
       }
-      wipeClusterData();
-      pg = createEmbeddedPostgres();
-      await ensureClusterInitialised(pg);
+      wipeClusterData(config);
+      pg = createEmbeddedPostgres(config);
+      await ensureClusterInitialised(pg, config);
       await pg.start();
     }
   }
@@ -49,16 +64,13 @@ export async function startEmbeddedPostgres(): Promise<EmbeddedPostgresHandle> {
   await startCluster();
   await ensureAppDatabase(pg);
   process.stdout.write(
-    `[postgres] listening postgresql://127.0.0.1:${String(POSTGRES_PORT)}/…\n`
+    `[postgres] listening postgresql://127.0.0.1:${String(config.port)}/…\n`
   );
 
   return {
-    url: LOCAL_DATABASE_URL,
-    port: POSTGRES_PORT,
-    async ensureDatabase(name) {
-      await ensureDatabase(pg, name);
-      return localDatabaseUrl(name);
-    },
+    url: clusterUrl(config),
+    port: config.port,
+    dataDir: config.dataDir,
     async stop() {
       if (stopped) return;
       stopped = true;

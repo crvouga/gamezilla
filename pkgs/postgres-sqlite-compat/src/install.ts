@@ -10,7 +10,7 @@
  */
 
 import { assert } from '@pkgs/assert';
-import { type Sql, unsafe } from '@pkgs/sql';
+import { type Sql, sql, unsafe } from '@pkgs/sql';
 import { SQLITE_JSON_INSTALL_STATEMENTS } from './json-functions-sql';
 
 /**
@@ -20,6 +20,8 @@ import { SQLITE_JSON_INSTALL_STATEMENTS } from './json-functions-sql';
 export type PostgresSqliteCompatSqlClient = {
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]>;
   run(query: Sql<unknown>): Promise<unknown>;
+  /** Postgres clients expose dbScope; SQLite clients do not. */
+  readonly dbScope?: unknown;
 };
 
 export type InstallPostgresSqliteCompatOptions = {
@@ -28,12 +30,21 @@ export type InstallPostgresSqliteCompatOptions = {
 
 /**
  * True when the client is not SQLite.
- * Postgres clients carry their pinned schema; SQLite clients do not.
+ *
+ * Raw Postgres clients expose `dbScope`, so normal startup avoids sending a
+ * deliberately invalid SQLite function to Postgres (which logs an ERROR).
+ * The fallback keeps this leaf usable with third-party structural clients.
  */
 export async function isPostgresSqlClient(
   sqlClient: PostgresSqliteCompatSqlClient
 ): Promise<boolean> {
-  return 'dbScope' in sqlClient;
+  if (sqlClient.dbScope !== undefined) return true;
+  try {
+    await sqlClient.query(sql<{ v: string }>`SELECT sqlite_version() AS v`);
+    return false;
+  } catch {
+    return true;
+  }
 }
 
 /**

@@ -16,6 +16,16 @@ export type ChessPuzzleE2EHintsProps = {
   hintStage: Accessor<string>;
   /** Current display FEN so drivers can compute legal (wrong) moves. */
   displayFen: Accessor<string | null>;
+  /** Watcher view: no controls, suggestions only. */
+  spectating: Accessor<boolean>;
+  spaceRole: Accessor<'host' | 'guest' | 'unknown'>;
+  statusKind: Accessor<string>;
+  clockElapsedMs: Accessor<number | null>;
+  /** Current puzzle metadata for deterministic feed assertions. */
+  puzzleRating: Accessor<number>;
+  themes: Accessor<readonly string[]>;
+  /** `by:fromto` pairs, comma separated, oldest first. */
+  recommendations: Accessor<string>;
 };
 
 function buildUci(from: string | null, to: string | null): string | null {
@@ -30,6 +40,16 @@ function resolveSolutionUci(props: ChessPuzzleE2EHintsProps): string | null {
     return solution;
   }
   return buildUci(props.expectedFromSquare(), props.expectedToSquare());
+}
+
+function spectatorProbe(props: ChessPuzzleE2EHintsProps): string {
+  return [
+    `spectating=${props.spectating() ? '1' : '0'}`,
+    `role=${props.spaceRole()}`,
+    `kind=${props.statusKind()}`,
+    `clock=${props.clockElapsedMs() ?? '-'}`,
+    `recs=${props.recommendations()}`,
+  ].join(' ');
 }
 
 export function ChessPuzzleE2EHints(
@@ -60,9 +80,16 @@ export function ChessPuzzleE2EHints(
         class="text"
         style={hintStyle}
         data-testid="chess-puzzle-e2e-debug"
-      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}`}</p>
+      >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}|${props.puzzleRating()}|${props.themes().join(',')}`}</p>
       <p class="text" style={hintStyle} data-testid="chess-puzzle-e2e-fen">
         {props.displayFen() ?? ''}
+      </p>
+      <p
+        class="text"
+        style={hintStyle}
+        data-testid="chess-puzzle-e2e-spectator"
+      >
+        {spectatorProbe(props)}
       </p>
     </>
   );

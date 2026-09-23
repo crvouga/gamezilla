@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { AVATAR_BORDER_WIDTH, Avatar } from '@pkgs/ui/components/avatar';
 import { AvatarGroup } from '@pkgs/ui/components/avatar-group';
 import { AvatarHero } from '@pkgs/ui/components/avatar-hero';
@@ -12,7 +14,6 @@ import { SpeakingAvatar } from '@pkgs/ui/components/speaking-avatar';
 import { StatusDot } from '@pkgs/ui/components/status-dot';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 function byComponent(name: string): HTMLElement {
@@ -26,9 +27,9 @@ describe('Badge', () => {
     renderUi(() => <Badge label="Beta" intent="success" tone="solid" />);
     const root = byComponent('Badge');
     expect(root).toHaveTextContent('Beta');
-    expect(root).toHaveAttribute('data-intent', 'success');
-    expect(root).toHaveAttribute('data-tone', 'solid');
-    expect(root.className).toContain('badge');
+    const css = cssOf(root);
+    expect(css).toContain('background-color:var(--ui-color-success)');
+    expect(root.className).toMatch(/rounded-full/);
   });
 
   test('sm size uses tighter padding than md', () => {
@@ -38,8 +39,8 @@ describe('Badge', () => {
         <Badge label="b" size="md" dataSet={{ component: 'BadgeMd' }} />
       </>
     ));
-    expect(byComponent('BadgeSm')).toHaveAttribute('data-size', 'sm');
-    expect(byComponent('BadgeMd')).toHaveAttribute('data-size', 'md');
+    expect(cssOf(byComponent('BadgeSm'))).toContain('padding:2px6px');
+    expect(cssOf(byComponent('BadgeMd'))).toContain('padding:3px8px');
   });
 });
 
@@ -58,12 +59,12 @@ describe('StatusDot', () => {
     ));
     const a = byComponent('DotA');
     expect(a).toHaveAttribute('aria-hidden', 'true');
-    expect(a).toHaveAttribute('data-status', 'online');
+    expect(cssOf(a)).toContain('background-color:var(--ui-color-success)');
     const b = byComponent('DotB');
     expect(b).toHaveAttribute('role', 'img');
     expect(b).toHaveAttribute('aria-label', 'Offline');
     expect(cssOf(b)).toContain('width:12px');
-    expect(b).toHaveAttribute('data-status', 'offline');
+    expect(cssOf(b)).toContain('background-color:var(--ui-color-destructive)');
   });
 });
 
@@ -113,7 +114,7 @@ describe('AvatarGroup', () => {
   });
 
   test('becomes a button when onClick is provided', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <AvatarGroup onClick={onClick} aria-label="Members">
         <Avatar initials="A" />
@@ -127,7 +128,7 @@ describe('AvatarGroup', () => {
 
 describe('AvatarHero', () => {
   test('renders the corner action as a 44px button', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <AvatarHero
         size={96}
@@ -176,7 +177,7 @@ describe('SpeakingAvatar', () => {
   });
 
   test('with a speaker, the head toggles mute (aria-pressed)', () => {
-    const speaker = vi.fn(() => ({
+    const speaker = mock(() => ({
       isLoading: () => false,
       isSpeaking: () => false,
     }));
@@ -220,7 +221,7 @@ describe('List / ListItem', () => {
   });
 
   test('interactive items are buttons and report selection', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <List>
         <ListItem title="Pick" onClick={onClick} selected />
@@ -235,7 +236,7 @@ describe('List / ListItem', () => {
 
 describe('MenuRow / MenuList / MenuSection', () => {
   test('rows are menuitems inside role=menu with a chevron', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <MenuSection title="Account" footer="Manage your account">
         <MenuRow title="Profile" onClick={onClick} />
@@ -270,7 +271,7 @@ describe('MenuRow / MenuList / MenuSection', () => {
 
 describe('PaginationControls', () => {
   test('page buttons carry aria-current and nav buttons clamp', () => {
-    const onPageChange = vi.fn();
+    const onPageChange = mock();
     renderUi(() => (
       <PaginationControls
         pageIndex={0}

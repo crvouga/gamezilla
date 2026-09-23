@@ -1,0 +1,19 @@
+language js
+
+// client/ code may not import server/ code.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "server",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:[^'\"]*/)?(?:server)(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="client/ must not import server/ code (and server/ must not import client/).", severity="error")
+  }
+}

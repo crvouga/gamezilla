@@ -1,25 +1,37 @@
 import type { JSX } from 'solid-js';
+import type { PuzzlePickSource } from '../../shared/puzzle-session/next-puzzle-selection';
+import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
 
 export type ChessPuzzleE2ELoadingStatusProps = {
   myId: string;
   nextId: string | null;
   activePuzzleId: string | null;
+  pickState: PuzzlePickState;
   bandedCount: number;
   fallbackCount: number;
   poolReady: boolean;
   loading: boolean;
+  /** §9 half-window the pick used (widens with RD). */
+  halfWindow: number;
+  /** Where the pick came from: `unseen` / `widened` / `exhausted`. */
+  source: PuzzlePickSource | null;
+  /** False once this puzzle has already moved the rating (§8 / §9). */
+  rated: boolean;
 };
 
 function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
   return [
-    `myId=${props.myId.length > 0 ? 'set' : 'empty'}`,
     `pick=${props.nextId ?? 'null'}`,
+    `pickState=${props.pickState}`,
     `active=${props.activePuzzleId ?? 'null'}`,
     `banded=${String(props.bandedCount)}`,
     `fallback=${String(props.fallbackCount)}`,
     `pool=${props.poolReady ? 'ready' : 'pending'}`,
     `loading=${props.loading ? '1' : '0'}`,
+    `window=${String(props.halfWindow)}`,
+    `source=${props.source ?? 'none'}`,
+    `rated=${props.rated ? '1' : '0'}`,
   ].join(' ');
 }
 
@@ -29,7 +41,7 @@ export function ChessPuzzleE2ELoadingStatus(
   if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
   return (
     <p
-      class="text absolute w-[1px] h-[1px] opacity-0"
+      class="text absolute w-0.25 h-0.25 opacity-0"
       data-testid="chess-puzzle-pick-status"
     >
       {pickStatusLabel(props)}

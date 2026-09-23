@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
-import type { VerifiedSession } from '@pkgs/auth/shared/verified-session';
-import { defineTable, registerTables } from '@pkgs/db-schema';
+import type { AuthServerPort } from '@pkgs/auth/server';
+import type { AuthUser, VerifiedSession } from '@pkgs/auth/shared';
+import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
@@ -16,53 +16,34 @@ const adapters = createSimAdapters({ seed: 1 });
 const PRIMARY_AUTH_PROVIDER = 'idp';
 
 function makeFakeAuthServer(args: {
-  providerLabel?: string;
+  provider?: string;
   session?: VerifiedSession | null;
-  snapshot?: Record<string, unknown> | null;
+  user?: AuthUser | null;
   verifyThrows?: boolean;
-  snapshotThrows?: boolean;
+  userThrows?: boolean;
 }): AuthServerPort {
-  const providerLabel = args.providerLabel ?? PRIMARY_AUTH_PROVIDER;
+  const provider = args.provider ?? PRIMARY_AUTH_PROVIDER;
   const session = args.session ?? null;
-  const snapshot = args.snapshot ?? null;
+  const user = args.user ?? null;
   return {
-    providerLabel,
+    provider,
     verifySessionToken: async () => {
       if (args.verifyThrows === true) {
         throw new Error('boom');
       }
       return session;
     },
-    getUserProfile: async () => null,
-    getUserSnapshot: async () => {
-      if (args.snapshotThrows === true) {
+    getUser: async () => {
+      if (args.userThrows === true) {
         throw new Error('boom');
       }
-      return snapshot;
+      return user;
     },
   };
 }
 
-/**
- * `@libs/profile` owns `profile`; auth may not import it, so mirror the
- * columns `ensureProfileRow` writes.
- */
-const PROFILE_TABLE = defineTable({
-  domain: 'profile',
-  name: 'profile',
-  columns: {
-    username: 'text',
-    avatar_config: 'json',
-    username_changed_at: 'timestamp',
-    username_norm: 'text',
-  },
-});
-
 async function migrateAuthTables(db: SqlClient): Promise<void> {
-  await applySqliteSchema(
-    db,
-    registerTables([...AUTH_TABLES, PROFILE_TABLE])
-  );
+  await applySqliteSchema(db, registerTables([...AUTH_TABLES]));
 }
 
 async function readPrimaryAuthExternalAccount(
@@ -116,10 +97,12 @@ const ACCOUNT_ID = '11111111-1111-4111-8111-111111111111';
 const DEVICE_ID = '22222222-2222-4222-8222-222222222222';
 const EXTERNAL_USER_ID = 'user_external_1';
 
-const AUTH_SNAPSHOT = {
-  id: EXTERNAL_USER_ID,
+const AUTH_USER: AuthUser = {
+  externalUserId: EXTERNAL_USER_ID,
   email: 'alice@example.com',
-  accounts: [],
+  displayName: null,
+  avatarUrl: null,
+  identities: [],
 };
 
 const DEVICE_ATTRS: Record<string, string | null> = {
@@ -150,7 +133,7 @@ describe('AuthSnapshotRefresher', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
-      snapshot: AUTH_SNAPSHOT,
+      user: AUTH_USER,
     });
 
     await new AuthSnapshotRefresher(sqlClient, authServer).refresh({
@@ -178,7 +161,7 @@ describe('AuthSnapshotRefresher', () => {
         email: 'alice@example.com',
         expiresAt: null,
       },
-      snapshot: AUTH_SNAPSHOT,
+      user: AUTH_USER,
     });
 
     const refresher = new AuthSnapshotRefresher(sqlClient, authServer);
@@ -211,7 +194,7 @@ describe('AuthSnapshotRefresher', () => {
         email: null,
         expiresAt: null,
       },
-      snapshot: AUTH_SNAPSHOT,
+      user: AUTH_USER,
     });
 
     const now = new Date(adapters.clock.now()).toISOString();
@@ -259,10 +242,10 @@ describe('AuthSnapshotRefresher', () => {
     expect(metadata['email']).toBe('alice@example.com');
   });
 
-  test('survives verifySessionToken / getUserSnapshot failures', async () => {
+  test('survives verifySessionToken / getUser failures', async () => {
     const authServer = makeFakeAuthServer({
       verifyThrows: true,
-      snapshotThrows: true,
+      userThrows: true,
     });
 
     await new AuthSnapshotRefresher(sqlClient, authServer).refresh({

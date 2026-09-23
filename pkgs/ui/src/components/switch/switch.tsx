@@ -30,7 +30,7 @@ export function Switch(props: SwitchProps): JSX.Element {
       {...dataAttrs({ component: 'Switch', ...props.dataSet })}
     >
       <button
-        class="clickable flex-row items-center justify-center min-h-[44px] bg-transparent shrink-0"
+        class="clickable flex-row items-center justify-center min-h-11 bg-transparent shrink-0"
         type="button"
         style={{
           width: `${TRACK_WIDTH}px`,

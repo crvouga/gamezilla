@@ -1,5 +1,4 @@
 import { DefineBackButton } from '@libs/spaces/public/nav/spaces-nav-context';
-import { Island, spacingScale } from '@pkgs/ui';
 import {
   type Accessor,
   createMemo,
@@ -18,9 +17,7 @@ import { ChessPuzzleMoveHistoryBar } from './chess-puzzle-move-history-bar';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 import type { SolveStatus } from './use-chess-puzzle-solver';
 
-const noopElo = (): void => {};
-/** Tight inset so the square board can fill its well. */
-const BOARD_WELL_PADDING_PX = spacingScale(2);
+const noopRating = (): void => {};
 
 type PlayChromeProps = {
   layout: PuzzlePlayLayoutProps;
@@ -57,9 +54,12 @@ export type PuzzlePlayLayoutProps = {
   onBack: () => void;
   onForward: () => void;
   onRetry: () => void;
+  onSkip: () => void;
   onNext: () => void;
   onFeedConfigApplied: () => void;
   completion: Accessor<PuzzleCompletion | null>;
+  spectator: Accessor<boolean>;
+  recommendationLegend?: JSX.Element;
   e2eHints?: JSX.Element;
   e2eLoadingStatus?: JSX.Element;
 };
@@ -94,6 +94,7 @@ function PuzzlePlayActions(props: {
       onBack={p.onBack}
       onForward={p.onForward}
       onRetry={p.onRetry}
+      onSkip={p.onSkip}
       onNext={p.onNext}
     />
   );
@@ -111,8 +112,8 @@ function PuzzlePlayBoard(props: {
 }
 
 /**
- * Largest square that fits the pane. Leftover space stays around the board
- * (app background), not as a blank mat above a bottom-aligned board.
+ * Largest square that fits the pane, flush with its edges (no inset or
+ * island mat). Leftover space stays around the board (app background).
  */
 function PuzzlePlayBoardWell(props: {
   boardSlot: (size: number, chrome: PuzzlePlayBoardChrome) => JSX.Element;
@@ -120,27 +121,27 @@ function PuzzlePlayBoardWell(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] overflow-hidden items-center justify-center self-stretch"
+      class="box flex-1 min-h-0 min-w-0 overflow-hidden items-center justify-center self-stretch"
       style={{ 'container-type': 'size' }}
     >
-      <Island
-        class="overflow-hidden min-h-[0] min-w-[0] shrink"
+      <div
+        class="box overflow-hidden min-h-0 min-w-0 shrink"
         style={{
           width: 'min(100cqw, 100cqh)',
           height: 'min(100cqw, 100cqh)',
           'max-width': '100%',
           'max-height': '100%',
-          padding: `${BOARD_WELL_PADDING_PX}px`,
         }}
       >
         <PuzzlePlayBoard boardSlot={props.boardSlot} chrome={props.chrome} />
-      </Island>
+      </div>
     </div>
   );
 }
 
 function CelebrationLayer(props: {
   completion: Accessor<PuzzleCompletion | null>;
+  onNext: () => void;
 }): JSX.Element {
   const [dismissedKey, setDismissedKey] = createSignal<string | null>(null);
   const completion = createMemo(() => props.completion());
@@ -156,7 +157,8 @@ function CelebrationLayer(props: {
           completion={current()}
           visible={visible()}
           onClose={() => setDismissedKey(completionKey(current()))}
-          onDisplayEloChange={noopElo}
+          onNext={props.onNext}
+          onDisplayRatingChange={noopRating}
         />
       )}
     </Show>
@@ -166,13 +168,15 @@ function CelebrationLayer(props: {
 /** Single-column: feed + coach + square board + timeline/actions. */
 function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
   return (
-    <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
-      <div class="box shrink-0 min-w-[0]">
-        <PuzzlePlayFeed
-          layout={props.layout}
-          openFeedSettings={props.openFeedSettings}
-        />
-        <div class="box shrink-0 min-w-[0] overflow-hidden">
+    <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
+      <div class="box shrink-0 min-w-0">
+        <Show when={!props.layout.spectator()}>
+          <PuzzlePlayFeed
+            layout={props.layout}
+            openFeedSettings={props.openFeedSettings}
+          />
+        </Show>
+        <div class="box shrink-0 min-w-0 overflow-hidden">
           {props.layout.assistant}
         </div>
       </div>
@@ -180,11 +184,14 @@ function PuzzlePlayStack(props: PlayChromeProps): JSX.Element {
         boardSlot={props.layout.boardSlot}
         chrome={{ openFeedSettings: props.openFeedSettings }}
       />
+      {props.layout.recommendationLegend}
       <div class="box shrink-0">
         <ChessPuzzleMoveHistoryBar />
       </div>
       <div class="box self-stretch shrink-0">
-        <PuzzlePlayActions layout={props.layout} />
+        <Show when={!props.layout.spectator()}>
+          <PuzzlePlayActions layout={props.layout} />
+        </Show>
       </div>
     </div>
   );
@@ -200,14 +207,14 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
   };
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden"
+      class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden"
       data-testid="chess-puzzle-play-layout"
       data-screen="chess-puzzle-play"
     >
       <DefineBackButton onPress={props.backToRoot} />
       {props.e2eLoadingStatus}
       <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
-      <CelebrationLayer completion={props.completion} />
+      <CelebrationLayer completion={props.completion} onNext={props.onNext} />
       {props.e2eHints}
       <ChessPuzzleFeedSettingsModal
         visible={feedSettingsOpen()}

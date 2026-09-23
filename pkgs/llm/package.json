@@ -23,8 +23,8 @@
     "./solid": "./src/solid/index.tsx"
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
@@ -34,7 +34,6 @@
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
-    "@pkgs/secret-store": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "hono": "catalog:",

@@ -17,7 +17,7 @@ export function ActionBarInlineCaption(props: {
   caption: JSX.Element;
 }): JSX.Element {
   return (
-    <p class="text textCaption line-clamp-1 text-text-secondary text-center w-[100%]">
+    <p class="text textCaption line-clamp-1 text-text-secondary text-center w-full">
       {props.caption}
     </p>
   );
@@ -55,7 +55,7 @@ export function ActionBarLabeledControl(
   };
   return (
     <button
-      class="clickable clickableTint rounded-md items-center justify-center py-0.5 gap-0.5"
+      class="clickable clickableTint rounded-control items-center justify-center py-0.5 gap-0.5"
       {...dataAttrs({ component: 'ActionBarLabeledControl', ...props.dataSet })}
       type="button"
       style={{
@@ -70,7 +70,7 @@ export function ActionBarLabeledControl(
       aria-label={resolveActionA11yLabel(props.label, props['aria-label'])}
     >
       <div
-        class="box w-[100%] items-center justify-center"
+        class="box w-full items-center justify-center"
         style={{ height: cssPx(props.buttonSize) }}
       >
         {props.children}

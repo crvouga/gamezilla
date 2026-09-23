@@ -6,7 +6,12 @@
 import { readObjectBytes } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-import { runManifestKey, testFrameKey, testReportKey } from '../keys';
+import {
+  runManifestKey,
+  testFrameKey,
+  testPrefix,
+  testReportKey,
+} from '../keys';
 import { readStoreJson, suiteStatus } from '../persist';
 import type {
   ReportStep,
@@ -79,9 +84,20 @@ async function readTestBlobs(
   return blobs;
 }
 
+/** `runs/<runId>/tests/<testId>/report.json` → `<testId>`, else null. */
+function reportTestId(runId: string, key: string): string | null {
+  const head = `${testPrefix(runId, '')}`;
+  const tail = '/report.json';
+  if (!key.startsWith(head) || !key.endsWith(tail)) return null;
+  const testId = key.slice(head.length, key.length - tail.length);
+  return testId.length > 0 && !testId.includes('/') ? testId : null;
+}
+
 /**
- * Read one run (`runs/<runId>/…`) into an in-memory bundle. Tests listed in
- * the manifest whose `report.json` is missing are skipped.
+ * Read one run (`runs/<runId>/…`) into an in-memory bundle. The tests are the
+ * `report.json` files under the run, not the manifest's list: `bun test
+ * --parallel` workers each read-modify-write the manifest, so it can lose a
+ * test another worker wrote at the same moment; a report file cannot.
  */
 export async function readRunBundle(
   store: ObjectStore,
@@ -91,11 +107,14 @@ export async function readRunBundle(
     store,
     runManifestKey(runId)
   );
+  const testIds = (await store.listKeys(testPrefix(runId, '')))
+    .map((key) => reportTestId(runId, key))
+    .filter((id): id is string => id !== null);
   const tests: HtmlReportTest[] = [];
-  for (const summary of manifest?.tests ?? []) {
+  for (const testId of testIds) {
     const report = await readStoreJson<RunReport>(
       store,
-      testReportKey(runId, summary.testId)
+      testReportKey(runId, testId)
     );
     if (report === null) continue;
     tests.push({ report, blobs: await readTestBlobs(store, runId, report) });
@@ -103,7 +122,39 @@ export async function readRunBundle(
   return {
     runId,
     status: suiteStatus(tests.map((t) => t.report.meta)),
-    updatedAtMs: manifest?.updatedAtMs ?? 0,
+    updatedAtMs: Math.max(
+      manifest?.updatedAtMs ?? 0,
+      ...tests.map((t) => t.report.meta.endedAtMs)
+    ),
+    tests,
+  };
+}
+
+/**
+ * Fold several runs into one bundle — one report over every package's e2e
+ * suite. Each test id is prefixed with its run's label (`libs/chess`), since
+ * two packages may both name a test `monkey`.
+ */
+export function mergeRunBundles(
+  runId: string,
+  runs: readonly { readonly label: string; readonly bundle: HtmlReportBundle }[]
+): HtmlReportBundle {
+  const tests = runs.flatMap(({ label, bundle }) =>
+    bundle.tests.map((test) => ({
+      ...test,
+      report: {
+        ...test.report,
+        meta: {
+          ...test.report.meta,
+          testId: `${label}/${test.report.meta.testId}`,
+        },
+      },
+    }))
+  );
+  return {
+    runId,
+    status: suiteStatus(tests.map((t) => t.report.meta)),
+    updatedAtMs: Math.max(0, ...runs.map((r) => r.bundle.updatedAtMs)),
     tests,
   };
 }

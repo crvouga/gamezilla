@@ -15,7 +15,7 @@ export default function ErrorStateExample(): JSX.Element {
     <ExampleRoot>
       <SectionLabel label="Fill (full-screen failure)" />
       <SchemePreview>
-        <div class="box h-[280px]">
+        <div class="box h-70">
           <ErrorState
             title="Simulator failed to start"
             body="UnknownDatabaseError: cannot open snapshot at /tmp/db.sqlite"
@@ -39,7 +39,7 @@ export default function ErrorStateExample(): JSX.Element {
 
       <SectionLabel label="Fill with copy (body present)" />
       <SchemePreview>
-        <div class="box h-[280px]">
+        <div class="box h-70">
           <ErrorState
             title="Failed to boot simulator"
             body="no such table-valued function: pragma_table_info"

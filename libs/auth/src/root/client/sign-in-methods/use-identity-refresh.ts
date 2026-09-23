@@ -1,0 +1,32 @@
+/**
+ * Re-run `/identity/refresh` for the current session so the mirrored
+ * sign-in methods catch up with a change made at the IdP (an unlink keeps
+ * the bearer, so the auth bridge would not notice on its own).
+ */
+
+import { useHttpClient } from '@pkgs/http-client/solid';
+
+import { useAuthClientPort } from '../../../public/auth-client-provider';
+import { useConfigService } from '../../../public/config-service-context';
+import { useDeviceId } from '../../../public/use-device-id';
+import { collectDeviceSnapshot } from '../collect-device-snapshot';
+import { refreshAuth } from '../refresh-auth-fetch';
+
+export function useIdentityRefresh(): () => Promise<void> {
+  const port = useAuthClientPort();
+  const apiUrl = useConfigService().getApiUrl();
+  const deviceId = useDeviceId();
+  const http = useHttpClient();
+  return async () => {
+    const token = await port.getFreshToken();
+    const device = deviceId();
+    if (token === null || device.length === 0) return;
+    await refreshAuth({
+      apiUrl,
+      bearerToken: token,
+      deviceId: device,
+      fetchFn: http.fetch,
+      deviceSnapshot: collectDeviceSnapshot(),
+    });
+  };
+}

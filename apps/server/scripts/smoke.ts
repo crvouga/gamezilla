@@ -4,7 +4,7 @@ import { runHttpSmokeTests } from '@libs/secrets/shared/smoke-tests';
 // @io-wall-ok
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 const log = createLogger({ name: 'server:smoke', now: wallClock.now });
 

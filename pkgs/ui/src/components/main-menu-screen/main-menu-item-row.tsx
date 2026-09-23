@@ -70,14 +70,14 @@ function ItemBody(props: {
     disabled() && props.item.caption !== undefined;
   return (
     <div
-      class="box py-4 px-4 justify-center rounded-lg border border-solid border-border bg-surface-elevated overflow-hidden"
+      class="box py-4 px-4 justify-center rounded-card border border-solid border-border bg-surface-elevated overflow-hidden"
       style={{
         'min-height': cssPx(MENU_ITEM_MIN_HEIGHT),
         opacity: disabled() ? 0.5 : 1,
       }}
     >
       <GradientBox
-        class="absolute inset-[0] pointer-events-none"
+        class="absolute inset-0 pointer-events-none"
         aria-hidden="true"
         colors={[gradient().top, gradient().bottom]}
         start={{ x: 0.5, y: 0 }}
@@ -124,7 +124,7 @@ export function MainMenuItemRow(props: { item: MainMenuItem }): JSX.Element {
     >
       {(onClick) => (
         <button
-          class="clickable clickableTint rounded-lg items-stretch"
+          class="clickable clickableTint rounded-card items-stretch"
           {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
           type="button"
           onClick={() => onClick()()}

@@ -61,7 +61,7 @@ export function CommandPaletteKbd(props: CommandPaletteKbdProps): JSX.Element {
       >
         <For each={parts()}>
           {(part) => (
-            <div class="box px-1.5 py-0.5 rounded-xs border border-border bg-surface-muted">
+            <div class="box px-1.5 py-0.5 rounded-sm border border-border bg-surface-muted">
               <p class="text textCaption text-text-secondary">{part}</p>
             </div>
           )}

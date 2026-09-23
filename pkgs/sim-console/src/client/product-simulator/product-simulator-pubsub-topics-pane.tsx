@@ -30,7 +30,7 @@ export function ProductSimulatorPubSubTopicsPane(props: {
     <Show
       when={stats().length > 0}
       fallback={
-        <div class="box flex-1 min-h-[0] p-[8px]">
+        <div class="box flex-1 min-h-0 p-[8px]">
           <EmptyState
             variant="compact"
             title="No topics"
@@ -39,11 +39,11 @@ export function ProductSimulatorPubSubTopicsPane(props: {
         </div>
       }
     >
-      <ScrollView class="flex-1 min-h-[0]" contentClass="p-[6px] gap-1">
+      <ScrollView class="flex-1 min-h-0" contentClass="p-[6px] gap-1">
         <For each={stats()}>
           {(row) => (
             <div class="box flex-row items-center gap-2 [padding-top:1.5px;padding-bottom:1.5px] border-b border-border">
-              <p class="text flex-1 text-text text-[12px] [font-family:mono]">
+              <p class="text flex-1 text-text text-xs [font-family:mono]">
                 {row.topic}
               </p>
               <p class="text textCaption text-text-secondary">{`${row.subscriberCount} sub`}</p>

@@ -1,0 +1,28 @@
+language js
+
+// A gate leaf must reach the same verdict on every machine: a green `bun check`
+// has to mean a green PR check. Wired to `scripts/check-*.ts` (`biome.json`
+// plugin `includes`); a script that reads CI only to change how it reports is
+// exempted there by path, with the reason in a comment beside the read.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "CI",
+    includes "GITHUB_ACTIONS"
+  },
+  $body <: contains bubble or {
+    `process.env[$name]` where {
+      $name <: or {
+        `'CI'`,
+        `"CI"`,
+        `'GITHUB_ACTIONS'`,
+        `"GITHUB_ACTIONS"`
+      }
+    },
+    `process.env.CI`,
+    `process.env.GITHUB_ACTIONS`
+  } as $read where {
+    register_diagnostic(span=$read, message="A check script may not branch on CI / GITHUB_ACTIONS — that is how a laptop reports green over a check CI fails. Adapt resources (concurrency, log order) in turbo-ci-run instead.", severity="error")
+  }
+}

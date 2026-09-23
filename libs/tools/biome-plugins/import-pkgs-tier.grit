@@ -1,0 +1,22 @@
+language js
+
+// pkgs/ is the leaf tier: reusable and app-agnostic, it may not import libs/ or apps/.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "libs/",
+    includes "apps/"
+  },
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:@libs/|@apps/|(?:\.\./)+(?:libs|apps)/)[^'\"]*['\"]$",
+    register_diagnostic(span=$src, message="pkgs/ must not import libs/ or apps/ (tier boundary). Move the importer to libs/, or invert the dependency.", severity="error")
+  }
+}

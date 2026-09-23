@@ -13,6 +13,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CircleAlert,
   CircleCheck,
   Clock,
   Code,
@@ -22,6 +23,8 @@ import {
   Database,
   DoorOpen,
   Ellipsis,
+  Eye,
+  EyeOff,
   FlaskConical,
   Gamepad2,
   Gauge,
@@ -74,6 +77,7 @@ import {
 import { createIcon } from './create-icon';
 
 export { createIcon, type IconComponent, type IconProps } from './create-icon';
+export const CreditCardIcon = createIcon(CreditCard);
 
 export const HouseIcon = createIcon(House);
 export const FlaskConicalIcon = createIcon(FlaskConical);
@@ -90,14 +94,16 @@ export const ChevronRightIcon = createIcon(ChevronRight);
 export const ChevronLeftIcon = createIcon(ChevronLeft);
 export const ChevronsLeftIcon = createIcon(ChevronsLeft);
 export const ChevronsRightIcon = createIcon(ChevronsRight);
-export const ChevronDownIcon = createIcon(ChevronDown);
 export const ClockIcon = createIcon(Clock);
+export const ChevronDownIcon = createIcon(ChevronDown);
 export const LightbulbIcon = createIcon(Lightbulb);
 export const ListChecksIcon = createIcon(ListChecks);
 export const PaintbrushIcon = createIcon(Paintbrush);
 export const PauseIcon = createIcon(Pause);
 export const PlayIcon = createIcon(Play);
 export const EllipsisIcon = createIcon(Ellipsis);
+export const EyeIcon = createIcon(Eye);
+export const EyeOffIcon = createIcon(EyeOff);
 export const SettingsIcon = createIcon(Settings);
 export const WifiIcon = createIcon(Wifi);
 export const LogInIcon = createIcon(LogIn);
@@ -107,7 +113,7 @@ export const MenuIcon = createIcon(Menu);
 export const DatabaseIcon = createIcon(Database);
 export const DoorOpenIcon = createIcon(DoorOpen);
 export const CopyIcon = createIcon(Copy);
-export const CreditCardIcon = createIcon(CreditCard);
+export const CircleAlertIcon = createIcon(CircleAlert);
 export const CircleCheckIcon = createIcon(CircleCheck);
 export const XIcon = createIcon(X);
 export const Volume2Icon = createIcon(Volume2);

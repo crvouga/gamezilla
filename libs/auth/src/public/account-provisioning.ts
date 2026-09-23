@@ -1,4 +1,4 @@
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock } from '@pkgs/clock';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
@@ -40,7 +40,7 @@ export class AccountProvisioningService {
     const { externalUserId, upgradeUserId } = args;
     const now = args.now ?? this.time.clock.now;
     const createId = args.createId ?? this.time.createId;
-    const provider = this.authServer.providerLabel;
+    const provider = this.authServer.provider;
 
     const externalAccounts = new ExternalAccountRepository(this.tx);
     const anonUsers = new AnonUserService(this.tx, this.time);

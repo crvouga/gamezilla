@@ -1,3 +1,4 @@
+import { DEFAULT_BILLING_GRACE_PERIOD_MS } from './client-config-defaults';
 import { ClientConfigKey } from './client-config-keys';
 
 export type ClientConfigDbRow = {
@@ -8,22 +9,24 @@ export type ClientConfigDbRow = {
 
 export type ClientRuntimeConfig = {
   readonly google_enabled: boolean;
+  readonly apple_enabled: boolean;
   readonly google_web_client_id: string | null;
-  readonly dev_oauth_enabled: boolean;
   readonly billing_enabled: boolean;
   readonly tts_enabled: boolean;
   readonly llm_enabled: boolean;
   readonly emqx_wss_url: string | null;
+  readonly billing_grace_period_ms: number;
 };
 
 export const DEFAULT_CLIENT_RUNTIME_CONFIG: ClientRuntimeConfig = {
   google_enabled: false,
+  apple_enabled: false,
   google_web_client_id: null,
-  dev_oauth_enabled: false,
   billing_enabled: false,
   tts_enabled: false,
   llm_enabled: false,
   emqx_wss_url: null,
+  billing_grace_period_ms: DEFAULT_BILLING_GRACE_PERIOD_MS,
 };
 
 /** SQLite stores booleans as 0/1; Postgres returns real booleans. */
@@ -71,9 +74,14 @@ function parseNullableString(raw: unknown | undefined): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function parseGracePeriodMs(raw: unknown): number {
+  if (typeof raw === 'number' && Number.isFinite(raw) && raw >= 0) return raw;
+  return DEFAULT_BILLING_GRACE_PERIOD_MS;
+}
+
 /**
  * Parse synced `client_config` rows into a typed runtime view.
- * Unknown / invalid rows are ignored; missing keys default to disabled / null.
+ * Unknown / invalid rows are ignored; missing keys default to disabled / null / noop.
  */
 export function parseClientConfigRows(
   rows: readonly ClientConfigDbRow[]
@@ -89,12 +97,12 @@ export function parseClientConfigRows(
       liveValue(byId, ClientConfigKey.googleEnabled),
       false
     ),
+    apple_enabled: parseBool(
+      liveValue(byId, ClientConfigKey.appleEnabled),
+      false
+    ),
     google_web_client_id: parseNullableString(
       liveValue(byId, ClientConfigKey.googleWebClientId)
-    ),
-    dev_oauth_enabled: parseBool(
-      liveValue(byId, ClientConfigKey.devOauthEnabled),
-      false
     ),
     billing_enabled: parseBool(
       liveValue(byId, ClientConfigKey.billingEnabled),
@@ -104,6 +112,9 @@ export function parseClientConfigRows(
     llm_enabled: parseBool(liveValue(byId, ClientConfigKey.llmEnabled), false),
     emqx_wss_url: parseNullableString(
       liveValue(byId, ClientConfigKey.emqxWssUrl)
+    ),
+    billing_grace_period_ms: parseGracePeriodMs(
+      liveValue(byId, ClientConfigKey.billingGracePeriodMs)
     ),
   };
 }

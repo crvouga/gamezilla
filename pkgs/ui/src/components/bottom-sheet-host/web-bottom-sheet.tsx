@@ -29,7 +29,7 @@ function DragHandle(): JSX.Element {
       data-component="BottomSheetHandle"
       aria-hidden="true"
     >
-      <div class="box w-[36px] h-[4px] rounded-full bg-border" />
+      <div class="box w-9 h-1 rounded-full bg-border" />
     </div>
   );
 }
@@ -53,7 +53,7 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
           {...dataAttrs({ component: 'BottomSheetScrim' })}
         />
         <div
-          class="box absolute left-0 right-0 bottom-0 bg-surface rounded-tl-[20px] rounded-tr-[20px] border border-border overflow-hidden"
+          class="box absolute left-0 right-0 bottom-0 bg-surface rounded-tl-sheet rounded-tr-sheet border border-border overflow-hidden"
           style={{
             ...(props.height !== undefined
               ? { height: cssPx(props.height) }
@@ -70,7 +70,7 @@ export function WebBottomSheet(props: BottomSheetHostSheetProps): JSX.Element {
           <OnColorReset>
             <ModalTitleIdProvider id={titleId}>
               <FocusTrap
-                class="min-h-[0] shrink overflow-hidden"
+                class="min-h-0 shrink overflow-hidden"
                 layout="sheet"
                 active={active()}
                 onEscape={active() ? props.onClose : undefined}

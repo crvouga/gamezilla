@@ -1,4 +1,3 @@
-import { resolveSpaceMemberId } from '../../../shared/space/participation/participation-ids';
 import { parseSpaceVisibility } from '../../../shared/space/space-visibility';
 import { decideSpaceJoinAccess } from './decide-space-join-access';
 
@@ -28,6 +27,7 @@ export type ResolveSpaceJoinSnapshotInput = {
   readonly hasSpaceUser: boolean;
   readonly isFriendOfHost: boolean;
   readonly viewerAccountId: string | null;
+  readonly viewerMemberId: string;
   readonly viewerDeviceId: string;
 };
 
@@ -35,20 +35,16 @@ function snapshotFromLiveRow(
   row: SpaceJoinLocalRow,
   input: ResolveSpaceJoinSnapshotInput
 ): SpaceJoinSnapshot {
-  if (input.viewerAccountId === null || input.viewerAccountId.length === 0) {
-    return { status: 'live', joinable: false };
-  }
   const hostId = row.host_id ?? '';
   const hostMemberId = row.host_member_id ?? row.host_account_id ?? hostId;
-  const viewerAccountId = input.viewerAccountId;
   const decision = decideSpaceJoinAccess({
     visibility: parseSpaceVisibility(row.visibility ?? 'private'),
     hostId,
     hostAccountId: row.host_account_id,
     hostMemberId,
-    viewerAccountId,
+    viewerAccountId: input.viewerAccountId,
     viewerDeviceId: input.viewerDeviceId,
-    viewerMemberId: resolveSpaceMemberId(viewerAccountId),
+    viewerMemberId: input.viewerMemberId,
     hasSpaceUser: input.hasSpaceUser,
     isFriendOfHost: input.isFriendOfHost,
   });

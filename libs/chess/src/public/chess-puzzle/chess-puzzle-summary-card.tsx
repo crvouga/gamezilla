@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
 
-import { ChessPuzzleEloDelta } from './chess-puzzle-elo-delta';
+import { ChessPuzzleRatingDelta } from './chess-puzzle-rating-delta';
 import type { PuzzleCompletion } from './use-chess-puzzle-completion';
 
 function StreakBadge(props: { streak: number }): JSX.Element {
@@ -30,6 +30,7 @@ function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
 export type ChessPuzzleSummaryCardProps = {
   completion: PuzzleCompletion;
   displayRating: number;
+  provisional: boolean;
 };
 
 /** Body for the celebration modal (title lives on {@link ResponsiveSurface}). */
@@ -37,12 +38,14 @@ export function ChessPuzzleSummaryCard(
   props: ChessPuzzleSummaryCardProps
 ): JSX.Element {
   return (
-    <div class="box gap-3 items-center self-stretch min-w-[0]">
-      <ChessPuzzleEloDelta
+    <div class="box gap-3 items-center self-stretch min-w-0">
+      <ChessPuzzleRatingDelta
         ratingBefore={props.completion.ratingBefore}
         ratingAfter={props.completion.ratingAfter}
         delta={props.completion.delta}
         displayRating={props.displayRating}
+        rated={props.completion.rated}
+        provisional={props.provisional}
       />
       <SummaryMeta completion={props.completion} />
     </div>

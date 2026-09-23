@@ -1,3 +1,3 @@
-import { billingSubscription } from '../use-cases/read-subscription/shared/billing-subscription-query';
+import { mySubscription } from '../use-cases/load-my-subscription/shared/my-subscription-query';
 
-export const BILLING_QUERIES = [billingSubscription] as const;
+export const BILLING_QUERIES = [mySubscription] as const;

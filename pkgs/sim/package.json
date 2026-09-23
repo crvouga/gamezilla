@@ -8,14 +8,12 @@
     "./fast-check": "./src/fast-check/index.ts"
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
-    "@pkgs/invariants": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/uuid": "workspace:*"
   },
@@ -23,7 +21,6 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "happy-dom": "catalog:",
     "typescript": "catalog:"
   },
   "peerDependencies": {

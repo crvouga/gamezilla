@@ -1,0 +1,25 @@
+language js
+
+// Production code may not import tests or test helpers.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes ".test",
+    includes ".spec",
+    includes "/tests/",
+    includes "/e2e/"
+  },
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"][^'\"]*(?:\.test|\.spec|/tests/|/e2e/)[^'\"]*['\"]$",
+    not $src <: r".*smoke-tests.*",
+    register_diagnostic(span=$src, message="Production code must not import test code (*.test / *.spec / tests/ / e2e/).", severity="error")
+  }
+}

@@ -1,0 +1,45 @@
+import { dataAttrs } from '@pkgs/ui';
+import type { JSX } from 'solid-js';
+
+import { formatPuzzleRating } from '../chess-puzzle-rating';
+
+export type ChessPuzzleRatingChipProps = {
+  rating: number;
+  /** §8: append the "?" marker while the rating is still provisional. */
+  provisional?: boolean;
+  variant?: 'primary' | 'muted';
+  testID?: string;
+};
+
+export function ChessPuzzleRatingChip(
+  props: ChessPuzzleRatingChipProps
+): JSX.Element {
+  const isPrimary = () =>
+    props.variant === undefined || props.variant === 'primary';
+  const label = () =>
+    formatPuzzleRating({
+      rating: props.rating,
+      provisional: props.provisional === true,
+    });
+
+  return (
+    <div
+      class="box px-2 py-1 rounded-md"
+      style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
+      {...dataAttrs(
+        props.testID !== undefined ? { testid: props.testID } : undefined
+      )}
+    >
+      <p
+        class="text"
+        classList={{
+          textBodyBold: isPrimary(),
+          textCaption: !isPrimary(),
+        }}
+        style={{ color: isPrimary() ? 'tint' : 'textSecondary' }}
+      >
+        {label()}
+      </p>
+    </div>
+  );
+}

@@ -12,6 +12,7 @@ export * from '../shared/puzzle-session/opponent-stager';
 export * from '../shared/puzzle-session/pick-state';
 export * from '../shared/puzzle-session/puzzle-clock';
 export * from '../shared/puzzle-session/puzzle-nav';
+export * from '../shared/puzzle-session/recommendations';
 export * from '../shared/puzzle-session/session-start-policy';
 export * from '../shared/puzzle-session/solve-projection';
 export * from '../shared/puzzle-session/solve-status';

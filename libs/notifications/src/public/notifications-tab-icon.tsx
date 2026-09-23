@@ -27,7 +27,7 @@ export function NotificationsTabIcon(props: IconProps): JSX.Element {
     <div class="box relative shrink-0" classList={{ 'pr-2.5': hasUnread() }}>
       <BellIcon color={props.color} size={props.size ?? 24} />
       <Show when={hasUnread()}>
-        <div class="box absolute top-[-4px] right-0">
+        <div class="box absolute -top-1 right-0">
           <UnreadCountBadge count={unreadCount()} />
         </div>
       </Show>

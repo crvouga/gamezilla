@@ -40,12 +40,12 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
       style={{ gap: `${Math.max(1, Math.round(size() * 0.25) / 4) * 4}px` }}
     >
       <h1
-        class="text appLogo font-extrabold"
-        classList={{ 'text-tint': props.color === undefined }}
+        class="text font-extrabold tracking-logo"
         style={{
-          ...(props.color !== undefined ? { color: fill() } : {}),
+          color: fill(),
           'font-size': `${fontSize()}px`,
           'line-height': `${Math.round(fontSize() * 1.1)}px`,
+          'font-family': tokens.fonts.rounded,
         }}
       >
         {'gamezilla'}

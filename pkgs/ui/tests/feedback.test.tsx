@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   DismissibleBanner,
   DismissibleBannerPortalProvider,
@@ -21,7 +23,6 @@ import { Tooltip } from '@pkgs/ui/components/tooltip';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, Show } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 function mustParent(el: Element): HTMLElement {
@@ -119,7 +120,7 @@ describe('State blocks', () => {
   });
 
   test('EmptyState renders title/body and fires the action', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <EmptyState
         title="No spaces yet"
@@ -133,7 +134,7 @@ describe('State blocks', () => {
   });
 
   test('SuccessState renders as a status region with an action', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <SuccessState title="Saved" action={{ label: 'Continue', onClick }} />
     ));
@@ -143,8 +144,8 @@ describe('State blocks', () => {
   });
 
   test('ErrorState is an alert, retries, and copies the message', async () => {
-    const retry = vi.fn();
-    const copy = vi.fn(async (_text: string) => {});
+    const retry = mock();
+    const copy = mock(async (_text: string) => {});
     const { clock } = renderUi(() => (
       <ErrorState
         title="Failed to load"
@@ -239,8 +240,8 @@ describe('InFlowBanner', () => {
 
 describe('DismissibleBanner', () => {
   test('renders into the in-flow portal host, dismisses, and fires the action', () => {
-    const onDismiss = vi.fn();
-    const onAction = vi.fn();
+    const onDismiss = mock();
+    const onAction = mock();
     renderUi(() => (
       <DismissibleBannerPortalProvider>
         <p data-testid="body">{'body'}</p>

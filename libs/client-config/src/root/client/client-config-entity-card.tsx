@@ -42,10 +42,6 @@ export function ClientConfigEntityCard(): JSX.Element {
             ? { caption: state.config().google_web_client_id }
             : {})}
         />
-        <MenuRow
-          title={<Trans>Dev OAuth</Trans>}
-          value={onOff(state.config().dev_oauth_enabled, t`On`, t`Off`)}
-        />
       </MenuSection>
       <MenuSection title={<Trans>Features</Trans>}>
         <MenuRow
@@ -71,7 +67,7 @@ export function ClientConfigEntityCard(): JSX.Element {
         <label class="text textLabel text-text-secondary">
           {<Trans>Snapshot (JSON)</Trans>}
         </label>
-        <div class="box bg-surface-muted rounded-md p-3">
+        <div class="box bg-surface-muted rounded-control p-3">
           <code class="text textMono select-text">{jsonPreview()}</code>
         </div>
       </div>

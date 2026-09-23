@@ -17,6 +17,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 const fs = wallNodeFs();
 const chessRoot = new URL('../../../libs/chess', import.meta.url).pathname;
 
+/** `databaseUrl` defaults to the shared local cluster; a stack passes its own. */
 export async function runLocalSeed(
   databaseUrl: string = LOCAL_DATABASE_URL
 ): Promise<void> {

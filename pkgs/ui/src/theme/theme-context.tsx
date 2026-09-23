@@ -84,21 +84,6 @@ export type ThemeProviderProps = {
 
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
-/** Host overrides for `--ui-font-*`. Omitted when the caller keeps defaults. */
-function themeFontStyle(
-  overrides: Partial<FontStacks> | undefined,
-  merged: FontStacks
-): JSX.CSSProperties | undefined {
-  if (overrides === undefined) return undefined;
-  return {
-    '--ui-font-sans': merged.sans,
-    '--ui-font-serif': merged.serif,
-    '--ui-font-rounded': merged.rounded,
-    '--ui-font-display': merged.display,
-    '--ui-font-mono': merged.mono,
-  };
-}
-
 function createHostLayout(
   host: () => HTMLElement | undefined,
   fixed: ThemeLayout | undefined
@@ -157,11 +142,9 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   }
 
   // Static options: read once by design.
-  // eslint-disable-next-line solid/reactivity -- static configuration
+  // oxlint-disable-next-line solid/reactivity -- static configuration
   const mergedFonts: FontStacks = { ...fonts, ...props.fonts };
-  // eslint-disable-next-line solid/reactivity -- static configuration
-  const fontStyle = themeFontStyle(props.fonts, mergedFonts);
-  // eslint-disable-next-line solid/reactivity -- static configuration
+  // oxlint-disable-next-line solid/reactivity -- static configuration
   const textCasing = props.textCasing ?? defaultTextCasing;
 
   const tokens: ThemeTokens = {
@@ -175,7 +158,7 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   };
 
   const [host, setHost] = createSignal<HTMLElement>();
-  // eslint-disable-next-line solid/reactivity -- static configuration
+  // oxlint-disable-next-line solid/reactivity -- static configuration
   const layout = createHostLayout(host, props.fixedLayout);
   const breakpoint = createMemo(() => getBreakpoint(layout().width));
   const layoutValue: ThemeLayoutValue = { layout, breakpoint };
@@ -185,10 +168,20 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
       <ThemeLayoutContext.Provider value={layoutValue}>
         <div
           ref={setHost}
-          class="themeHost"
           data-theme={colorScheme()}
           data-component="ThemeProvider"
-          style={fontStyle}
+          style={{
+            display: 'flex',
+            'flex-direction': 'column',
+            flex: '1 1 0%',
+            'min-height': '0',
+            'min-width': '0',
+            overflow: 'clip',
+            'overflow-anchor': 'none',
+            'font-family': mergedFonts.sans,
+            color: tokens.colors.text,
+            background: tokens.colors.background,
+          }}
         >
           {props.children}
         </div>

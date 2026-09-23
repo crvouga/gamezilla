@@ -227,6 +227,8 @@ export async function createInMemorySyncEngine(
     pendingMutationCount: async () => 0,
     wakeUploads: () => undefined,
     notifyLocalMutation: () => undefined,
+    // Sim mutations are awaited by the harness scheduler; nothing to drain.
+    registerMutationDrain: () => () => undefined,
     ensurePush: () => undefined,
   };
 }

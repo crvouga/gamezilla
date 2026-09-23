@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import {
   AppFrame,
   AppFrameChromeProvider,
@@ -9,7 +11,6 @@ import {
   useSetAppFrameHeader,
 } from '@pkgs/ui';
 import { screen } from '@solidjs/testing-library';
-import { describe, expect, test } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 describe('layout host classes', () => {
@@ -121,7 +122,7 @@ describe('TopBar', () => {
     if (row === null) throw new Error('missing row');
     const trailing = row.lastElementChild;
     if (trailing === null) throw new Error('missing trailing');
-    expect(trailing.className).toMatch(/max-w-\[50%\]/);
+    expect(trailing.className).toMatch(/max-w-1\/2/);
     expect(trailing.className).toMatch(/min-w-0/);
     expect(screen.getByRole('heading', { level: 1 }).className).toMatch(
       /line-clamp-1/
