@@ -19,7 +19,8 @@ import type { Clock, Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { InMemoryLlmProvider } from '@pkgs/llm/server';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
-import { createNoopObservability } from '@pkgs/observability/impl-noop/impl-noop';
+import { createLoggerObservability } from '@pkgs/observability/impl-logger/impl-logger';
+import { createAsyncLocalSpanContextStorage } from '@pkgs/observability/server/context-storage';
 import {
   createInMemoryBus,
   createInMemoryPubSub,
@@ -27,6 +28,7 @@ import {
 import { createRecordSecretStore } from '@pkgs/secret-store/record-secret-store';
 import type { Session } from '@pkgs/sim';
 import { InMemoryTtsProvider } from '@pkgs/tts/server';
+import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import { makeSimClientEnv } from './sim-client-env';
 import { bumpSimClientEpoch } from './sim-client-namespace';
 import {
@@ -52,12 +54,21 @@ export type CreateSimOptions = {
   readonly timers?: Timers;
   /** Real-mode host injects embedded Postgres; product-simulator uses sqlBackend server SQL. */
   readonly serverSql?: SimSql;
+  /** Public API origin presented to browser actors on a localhost profile. */
+  readonly serverUrl?: string;
+  readonly serverServices?: LocalhostServerServices;
   /**
    * Post-migrate server seed bytes (PGMM). When set (and
    * `serverSql` is not), opens by import and skips {@link migrateSimPostgres}.
    */
   readonly serverSqlSeedBytes?: Uint8Array;
 };
+
+/** Vendor ports supplied by the localhost composition root. */
+export type LocalhostServerServices = Pick<
+  ServerEnv,
+  'billing' | 'blob' | 'secrets' | 'auth' | 'tts' | 'llm' | 'fetch'
+> & { readonly createEvents: () => ServerEnv['events'] };
 
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 
@@ -126,27 +137,37 @@ type SharedServerServices = {
   readonly secrets: ServerEnv['secrets'];
   readonly auth: ServerEnv['auth'];
   readonly sqlClient: Awaited<ReturnType<ServerEnv['openSqlClient']>>;
+  readonly createEvents?: () => ServerEnv['events'];
 };
 
 async function buildSharedServerServices(
-  serverSql: SimSql
+  serverSql: SimSql,
+  serverUrl: string,
+  live?: LocalhostServerServices
 ): Promise<SharedServerServices> {
+  if (live !== undefined) {
+    return {
+      kv: new KvImplInMemory(),
+      ...live,
+      sqlClient: sharedSqlClient(serverSql.sqlClient),
+    };
+  }
   const secrets = createRecordSecretStore({
     AUTH_SECRET: SIM_AUTH_SECRET,
     DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
-    API_URL: SIM_SERVER_URL,
+    API_URL: serverUrl,
   });
   return {
     kv: new KvImplInMemory(),
     blob: new ObjectStoreImplInMemory(),
-    billing: new InMemoryBilling({ baseUrl: SIM_SERVER_URL }),
+    billing: new InMemoryBilling({ baseUrl: serverUrl }),
     tts: new InMemoryTtsProvider(),
     llm: new InMemoryLlmProvider(),
     secrets,
     auth: await loadAuthBootConfig({
       secretStore: secrets,
-      apiUrlOverride: SIM_SERVER_URL,
-      secretsEnv: 'dev',
+      apiUrlOverride: serverUrl,
+      enableDev: true,
     }),
     sqlClient: sharedSqlClient(serverSql.sqlClient),
   };
@@ -158,9 +179,11 @@ function buildServerEnv(args: {
   readonly seed: bigint;
   readonly timers: Timers;
   readonly shared: SharedServerServices;
+  readonly serverUrl: string;
+  readonly fetch?: ServerEnv['fetch'];
   readonly pubSubBus: ReturnType<typeof createInMemoryBus>;
 }): ServerEnv {
-  const { id, session, seed, timers, shared, pubSubBus } = args;
+  const { id, session, seed, timers, shared, pubSubBus, serverUrl } = args;
   return {
     clock: session.ports.clock,
     timers,
@@ -168,22 +191,31 @@ function buildServerEnv(args: {
     random: session.ports.random,
     seed,
     openSqlClient: () => Promise.resolve(shared.sqlClient),
-    events: createInMemoryPubSub({ bus: pubSubBus }),
+    events: shared.createEvents?.() ?? createInMemoryPubSub({ bus: pubSubBus }),
     kv: shared.kv,
     blob: shared.blob,
     billing: shared.billing,
     tts: shared.tts,
     llm: shared.llm,
     secrets: shared.secrets,
-    observability: createNoopObservability(`sim-${id}`),
+    observability: createLoggerObservability({
+      serviceName: `sim-server:${id}`,
+      now: session.ports.clock.now,
+      createId: createSeededCreateId(
+        createSeededRng(`${seed.toString()}:observability:server:${id}`).random
+      ),
+      storage: createAsyncLocalSpanContextStorage(),
+    }),
     auth: shared.auth,
     secretsEnv: 'dev',
-    serverUrl: SIM_SERVER_URL,
+    serverUrl,
     skipDatabaseUrlPolicy: true,
-    fetch: () =>
-      Promise.reject(
-        new Error('sim ServerEnv.fetch: vendor HTTP not configured')
-      ),
+    fetch:
+      args.fetch ??
+      (() =>
+        Promise.reject(
+          new Error('sim ServerEnv.fetch: vendor HTTP not configured')
+        )),
   };
 }
 
@@ -253,7 +285,12 @@ async function bootSimKernel(
   });
   const pubSubBus = createInMemoryBus();
   const serverSql = await openServerSql(session, opts);
-  const shared = await buildSharedServerServices(serverSql);
+  const serverUrl = opts?.serverUrl ?? SIM_SERVER_URL;
+  const shared = await buildSharedServerServices(
+    serverSql,
+    serverUrl,
+    opts?.serverServices
+  );
   const roomNode = createRoomServer(
     buildRoomServerEnv({ session, seed, timers })
   );
@@ -261,7 +298,18 @@ async function bootSimKernel(
   const servers = createSimServerNodes({
     buildEnv: (id) =>
       Promise.resolve(
-        buildServerEnv({ id, session, seed, timers, shared, pubSubBus })
+        buildServerEnv({
+          id,
+          session,
+          seed,
+          timers,
+          shared,
+          pubSubBus,
+          serverUrl,
+          ...(opts?.serverServices !== undefined
+            ? { fetch: opts.serverServices.fetch }
+            : {}),
+        })
       ),
     disposed: () => disposed.value,
   });

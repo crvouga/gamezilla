@@ -1,5 +1,6 @@
 // @io-wall-ok
 import { type ChildProcess, spawn } from 'node:child_process';
+import { connect } from 'node:net';
 import { join } from 'node:path';
 import { ensureLocalBucket, waitForMinioReady } from '../scripts/ensure-bucket';
 import { ensureMinioBin } from '../scripts/ensure-minio';
@@ -19,7 +20,37 @@ export type MinioServerHandle = {
 const APP_DIR = join(import.meta.dirname, '..');
 const DATA_DIR = join(APP_DIR, 'data');
 
+async function portOpen(port: number): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    const socket = connect(port, '127.0.0.1');
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('error', (error: NodeJS.ErrnoException) => {
+      socket.destroy();
+      if (error.code === 'ECONNREFUSED') resolve(false);
+      else reject(error);
+    });
+  });
+}
+
 export async function startMinioServer(): Promise<MinioServerHandle> {
+  const [apiOpen, consoleOpen] = await Promise.all([
+    portOpen(MINIO_API_PORT),
+    portOpen(MINIO_CONSOLE_PORT),
+  ]);
+  if (apiOpen !== consoleOpen) {
+    throw new Error(
+      'MinIO ports are partly occupied; stop the stale local server'
+    );
+  }
+  if (apiOpen) {
+    await waitForMinioReady(2_000);
+    await ensureLocalBucket();
+    process.stdout.write('[minio] using running local server\n');
+    return { endpoint: MINIO_ENDPOINT, stop: () => undefined };
+  }
   const bin = ensureMinioBin();
   const minio = spawn(
     bin,
@@ -49,8 +80,13 @@ export async function startMinioServer(): Promise<MinioServerHandle> {
     process.stderr.write(`[minio] failed to start ${String(err)}\n`);
   });
 
-  await waitForMinioReady();
-  await ensureLocalBucket();
+  try {
+    await waitForMinioReady();
+    await ensureLocalBucket();
+  } catch (error) {
+    killChild(minio, 'SIGTERM');
+    throw error;
+  }
 
   return {
     endpoint: MINIO_ENDPOINT,

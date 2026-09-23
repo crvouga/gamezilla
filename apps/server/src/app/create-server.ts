@@ -4,7 +4,6 @@ import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
 import { BillingApp } from '@libs/billing/root/server/billing-app';
-import type { ObservabilityBackendName } from '@libs/client-config/public/client-config-keys';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import { PubsubSecretName } from '@libs/pubsub/public/secret-names';
 import { setHttpPubSubOverride } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
@@ -163,17 +162,6 @@ async function readOptionalSecretValue(
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function parseObservabilityBackend(
-  raw: string | null
-): ObservabilityBackendName {
-  if (raw === null) return 'noop';
-  const normalized = raw.trim().toLowerCase();
-  if (normalized === 'noop' || normalized === 'console') {
-    return normalized;
-  }
-  return 'noop';
-}
-
 async function resolveEmqxWssUrlForClientConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
@@ -197,18 +185,12 @@ async function buildDesiredClientConfig(args: {
   readonly apiUrlOverride?: string | null;
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
-  const [emqxWssUrl, observabilityRaw] = await Promise.all([
-    resolveEmqxWssUrlForClientConfig({
-      secretStore,
-      ...(args.apiUrlOverride !== undefined
-        ? { apiUrlOverride: args.apiUrlOverride }
-        : {}),
-    }),
-    readOptionalSecretValue(
-      secretStore,
-      ApiSecretName.viteObservabilityBackend
-    ),
-  ]);
+  const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
+    secretStore,
+    ...(args.apiUrlOverride !== undefined
+      ? { apiUrlOverride: args.apiUrlOverride }
+      : {}),
+  });
   return {
     google: auth.googleEnabled,
     devOauth: auth.enableDev,
@@ -217,7 +199,6 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    observabilityBackend: parseObservabilityBackend(observabilityRaw),
   };
 }
 

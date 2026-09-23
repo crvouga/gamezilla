@@ -1,11 +1,10 @@
 /**
  * Open a product UI simulation: `product.run` on a registered host
- * (`in-process` / `bun-webview`).
+ * (`in-process` / `localhost:mocked` / `localhost`).
  */
 
 import type {
   ProductExtra,
-  ProductHostName,
   ProductSim,
   Sim,
   SimActor,
@@ -25,11 +24,15 @@ import { defineAction } from '@pkgs/sim';
 import type { SimSystemSnapshot } from '@pkgs/sim-console/shared/sim-system-snapshot';
 
 import { wireProductRuntime } from '../../sim/setup/wire-product-runtime';
-import { type OpenSimOptions, resolveSimMode, type SimMode } from './mode';
 import {
   clearNodeLocalStoragePolyfill,
   ensureNodeLocalStoragePolyfill,
 } from './node-local-storage-polyfill';
+import {
+  type OpenSimOptions,
+  type ProductProfile,
+  resolveProductProfile,
+} from './profile';
 import { simNodeTimers } from './sim-actor-overrides';
 import {
   getReportStore,
@@ -41,10 +44,6 @@ import { readSimSystemSnapshot } from './sim-snapshot-fixture';
 
 export type { SimActor };
 export type OpenSim = Run<ProductSim>;
-
-function resolveHostName(options: OpenSimOptions | undefined): ProductHostName {
-  return resolveSimMode(options) === 'real' ? 'bun-webview' : 'in-process';
-}
 
 async function restoreSnapshot(
   sim: Sim,
@@ -90,15 +89,12 @@ export async function openSim(
   options?: OpenSimOptions
 ): Promise<OpenSim> {
   ensureNodeLocalStoragePolyfill();
-  const mode = resolveSimMode(options);
-  if (mode === 'real') {
-    process.env['SIM_MODE'] = 'real';
-  }
+  const profile = resolveProductProfile(options);
   const reporting = simReportEnabled();
   const callSite = reporting ? testCallSite(new Error().stack) : null;
   const s = await product.run({
     seed: 1,
-    runtime: resolveHostName(options),
+    runtime: profile,
     ...(reporting
       ? {
           report: {
@@ -143,4 +139,4 @@ export async function openSim(
   return s;
 }
 
-export type { OpenSimOptions, ProductExtra, SimMode };
+export type { OpenSimOptions, ProductExtra, ProductProfile };

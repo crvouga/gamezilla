@@ -57,7 +57,7 @@ export function getServerBaseUrl(): string {
   const raw = viteEnv().VITE_API_URL;
   assert.nonEmptyString(
     raw,
-    'VITE_API_URL is required; run `bun run dev` (with secret store) or set apps/client/.env.local'
+    'VITE_API_URL is required; run `bun start:localhost` from the repository root or set apps/client/.env.local'
   );
   const origin = normalizeLoopbackOriginToLocalhost(
     coerceDevBundleApiOrigin(parseOrigin(raw))

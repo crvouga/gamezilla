@@ -1,5 +1,24 @@
 # gamezilla.app
 
+## Run locally
+
+Run one command:
+
+| Command | Use |
+| --- | --- |
+| `bun start:localhost` | App, API and room Workers, Postgres, MinIO, EMQX, Google sign-in, and Stripe test mode |
+| `bun start:localhost:mocked` | App with in-memory services and the dev account chooser |
+| `bun start:in-process` | App and simulator at `/simulator` with in-memory services |
+
+Each command prints its URL. Google sign-in needs dev credentials.
+
+## Test
+
+`bun test:product` runs the app tests in process. Set
+`SIM_PROFILE=localhost:mocked` to run the same test cases against the built
+browser app and mocked local API. The direct command is
+`bun test:localhost:mocked`.
+
 ## Architecture
 
 <!-- TODO: update architecture diagram -->
@@ -14,6 +33,6 @@ Auth is **token-only**: the API never reads or sets cookies. Every install has a
 
 ### Single session
 
-The client keeps **one current user per install**. Cold start / sign-out runs `POST /identity/anon/ensure` (anon `users` + profile). First Google OAuth sign-in (`@pkgs/auth` IdP) upgrades that anon row in place; a returning provider identity switches to the existing non-anon `users.id`. Dev social uses the same OAuth launch → callback → session exchange protocol for local/sim.
+The client keeps **one current user per install**. Cold start / sign-out runs `POST /identity/anon/ensure` (anon `users` + profile). First Google OAuth sign-in (`@pkgs/auth` IdP) upgrades that anon row in place; a returning provider identity switches to the existing non-anon `users.id`. The dev account chooser is available in mocked and in-process runs.
 
 **Restore multi-account later:** re-add `AuthClientPort.addAccount` / `switchAccount` (+ scoped `signOut`), a Kv roster for inactive display, `account-switch/*` chrome wired to sync boot readiness, warm multi-DB switch (disconnect sync without `disconnectAndClear`), auth-provider multi-session, and a switcher UI. Identity-keyed SQLite naming (`resolveSqliteDbName` + sync pool) already supports per-user files.

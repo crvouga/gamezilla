@@ -13,20 +13,11 @@ import {
   resolveObservabilityBackend,
 } from '../shared/backend';
 
-declare const __DEV__: boolean | undefined;
-
-function isDevBuild(): boolean {
-  return typeof __DEV__ !== 'undefined'
-    ? __DEV__
-    : process.env['NODE_ENV'] !== 'production';
-}
-
 export type CreateClientObservabilityArgs = {
   readonly serviceName: string;
   readonly now: () => number;
   readonly createId: CreateId;
   readonly backendEnv?: string | undefined;
-  readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
   /** Required when the resolved backend is `local-file`. */
   readonly createLocalFile?: ObservabilityBackendFactory;
@@ -39,11 +30,7 @@ export type CreateClientObservabilityArgs = {
 export function createClientObservability(
   args: CreateClientObservabilityArgs
 ): Observability {
-  const backend = resolveObservabilityBackend({
-    envBackend: args.backendEnv,
-    isProduction: !isDevBuild(),
-    ...(args.forceNoop === true ? { forceNoop: true } : {}),
-  });
+  const backend = resolveObservabilityBackend(args.backendEnv);
   if (backend === 'local-file') {
     return requireBackendFactory(
       args.createLocalFile,

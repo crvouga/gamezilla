@@ -6,11 +6,36 @@
  */
 
 import type { Sim } from '@apps/product/sim/fabric/create-sim';
+import { createInProcessOpenAuthSession } from '@pkgs/auth/client';
 
 const DEFAULT_PORT = 8787;
 const ACTOR_HEADER = 'x-sim-actor';
 /** Caller id for wire requests that carry no actor header. */
 const BROWSER_INGRESS_ID = 'browser';
+
+async function completeSimAuthSession(
+  sim: Sim,
+  req: Request,
+  actorId: string
+): Promise<Response> {
+  const body: unknown = await req.json();
+  if (
+    body === null ||
+    typeof body !== 'object' ||
+    !('authorizationUrl' in body) ||
+    !('callbackUrl' in body) ||
+    typeof body.authorizationUrl !== 'string' ||
+    typeof body.callbackUrl !== 'string'
+  ) {
+    return new Response('invalid auth session request', { status: 400 });
+  }
+  const complete = createInProcessOpenAuthSession({
+    fetch: (input, init) =>
+      sim.loadBalancer.fetchFrom(actorId)(new Request(input, init)),
+    subject: actorId,
+  });
+  return Response.json(await complete(body.authorizationUrl, body.callbackUrl));
+}
 
 export type SimHttpListener = {
   readonly apiUrl: string;
@@ -38,18 +63,24 @@ function isSimNetFault(err: unknown): boolean {
   );
 }
 
-/** Bind the sim balancer to `127.0.0.1:<port>` (default 8787). */
+/** Bind the sim balancer to `localhost:<port>` (default 8787). */
 export async function listenSimHttpServer(sim: Sim): Promise<SimHttpListener> {
   await sim.spawnServer();
   const port = Number(process.env['SIM_HTTP_PORT'] ?? DEFAULT_PORT);
   const server = Bun.serve({
     port,
-    hostname: '127.0.0.1',
+    hostname: 'localhost',
     async fetch(req) {
       const actorId = req.headers.get(ACTOR_HEADER);
       const from =
         actorId != null && actorId !== '' ? actorId : BROWSER_INGRESS_ID;
       try {
+        if (
+          new URL(req.url).pathname === '/api/__sim/auth-session' &&
+          req.method === 'POST'
+        ) {
+          return await completeSimAuthSession(sim, req, from);
+        }
         return await sim.loadBalancer.fetchFrom(from)(req);
       } catch (err) {
         if (isSimNetFault(err)) return partitionedResponse(err);

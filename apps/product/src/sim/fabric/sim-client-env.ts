@@ -16,6 +16,7 @@ import {
 import type { Timers } from '@pkgs/clock';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import { KvImplWebNamespaced } from '@pkgs/kv-web/impl-kv-web-namespaced';
+import { createLoggerObservability } from '@pkgs/observability/impl-logger/impl-logger';
 import {
   type createInMemoryBus,
   createInMemoryPubSub,
@@ -114,6 +115,7 @@ export function makeSimClientEnv(
       return liveEvents;
     },
     createPubSub,
+    reconcileIntervalMs: 500,
     openSqlClient: async () => {
       let handle = clientSql.get(id);
       if (handle === undefined) {
@@ -133,6 +135,13 @@ export function makeSimClientEnv(
       return roomNode.createTransport(roomArgs);
     },
     ...createInMemoryClientPorts(`sim-client:${id}`),
+    observability: createLoggerObservability({
+      serviceName: `sim-client:${id}`,
+      now: session.ports.clock.now,
+      createId: createSeededCreateId(
+        createSeededRng(`${seed.toString()}:observability:client:${ns}`).random
+      ),
+    }),
     serverUrl: SIM_SERVER_URL,
     authBaseURL: SIM_SERVER_URL,
     authCallbackUrl: `${SIM_SERVER_URL}/sso-callback`,

@@ -65,7 +65,6 @@ export async function launchActor(args: {
   if (args.ui.kind === 'bun-webview') {
     const webOrigin = args.ui.webOrigin;
     const view = new Bun.WebView({
-      url: webOrigin,
       width: 390,
       height: 844,
     });

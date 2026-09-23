@@ -4,8 +4,7 @@
  * observability. Clock / ids / HTTP come from `ClientEnvProvider` above.
  *
  * The RN `ConfigService` (`getApiUrl`) collapses into `env.serverUrl`; the
- * pre-sync observability is the env's instance (noop in production until the
- * client-config-driven backend arrives with the `/more/client-config` port).
+ * Observability is supplied by the client env for each host.
  */
 
 import { ConfigServiceProvider } from '@libs/auth/public/config-service-context';

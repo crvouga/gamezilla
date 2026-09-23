@@ -8,9 +8,8 @@ import {
 } from '@pkgs/sim';
 import { noErrorBoundary } from '@pkgs/ui-testing/explore';
 import { createSimIds } from '@pkgs/uuid';
-
-import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
+import { localhostRuntime } from '../hosts/localhost';
 import type { ProductExtra } from '../hosts/ports';
 import { simReportTopology } from '../setup/sim-report-topology';
 import { wireProductRuntime } from '../setup/wire-product-runtime';
@@ -49,7 +48,7 @@ const SIM_CHESS_WEB_SEED_NOW_MS = 1_700_000_000_000;
  * Every sim host boots with puzzles so the chess surface is playable without
  * a manual seed step. Node hosts load the tiny DST CSV (3 documented puzzles
  * the scenario tests exhaust on purpose); the web host (product-simulator /
- * `bun run dev`) inserts the inline 50-row fixture.
+ * `bun start:in-process`) inserts the inline 50-row fixture.
  */
 async function seedSimChessPuzzles(sqlClient: {
   readonly query: unknown;
@@ -153,7 +152,8 @@ export const searchDoesNotHang = defineProperty({
  * Product system: one sim on the opened session, booted with a single API
  * instance behind the round-robin load balancer. UI actors spawn lazily via
  * spawnActor; `spawnServerNode` / `dropServerNode` resize the API fleet.
- * Hosts are registered runtimes: `in-process` (default), `bun-webview`.
+ * Profiles are registered runtimes: `in-process` (default),
+ * `localhost:mocked`, and `localhost`.
  */
 export const product = defineSystem<ProductSim>({
   name: 'sim.product',
@@ -164,8 +164,12 @@ export const product = defineSystem<ProductSim>({
       create: () => inProcessRuntime(),
     }),
     defineRuntime({
-      name: 'bun-webview',
-      create: () => bunWebviewRuntime(),
+      name: 'localhost:mocked',
+      create: () => localhostRuntime('localhost:mocked'),
+    }),
+    defineRuntime({
+      name: 'localhost',
+      create: () => localhostRuntime('localhost'),
     }),
   ],
   properties: [
@@ -201,6 +205,17 @@ export const product = defineSystem<ProductSim>({
     const extra = extraOf(session);
     const sim = await createSim(session, {
       serverSql: extra.sql,
+      ...(extra.serverServices !== undefined
+        ? { serverServices: extra.serverServices }
+        : {}),
+      ...(extra.http.kind === 'localhost'
+        ? {
+            serverUrl:
+              extra.ui.kind === 'bun-webview'
+                ? extra.ui.webOrigin
+                : extra.http.origin,
+          }
+        : {}),
     });
     // Virtual-time ticks must drain in-process Hono; otherwise UI polls
     // burn their budget while serialized /api/* requests are still queued.

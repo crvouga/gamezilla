@@ -10,7 +10,7 @@
  */
 
 import { assert } from '@pkgs/assert';
-import { type Sql, sql, unsafe } from '@pkgs/sql';
+import { type Sql, unsafe } from '@pkgs/sql';
 import { SQLITE_JSON_INSTALL_STATEMENTS } from './json-functions-sql';
 
 /**
@@ -28,18 +28,12 @@ export type InstallPostgresSqliteCompatOptions = {
 
 /**
  * True when the client is not SQLite.
- * Uses portable `sqlite_version()` — succeeds only on SQLite; failure ⇒ Postgres
- * (or other). Avoids `pg_catalog` so probes work under agnostic SQL bans.
+ * Postgres clients carry their pinned schema; SQLite clients do not.
  */
 export async function isPostgresSqlClient(
   sqlClient: PostgresSqliteCompatSqlClient
 ): Promise<boolean> {
-  try {
-    await sqlClient.query(sql<{ v: string }>`SELECT sqlite_version() AS v`);
-    return false;
-  } catch {
-    return true;
-  }
+  return 'dbScope' in sqlClient;
 }
 
 /**

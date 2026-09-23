@@ -38,8 +38,12 @@ export async function openMainSqlClient(
   userId: string,
   timers: Timers
 ): Promise<SqlClient> {
+  const { VITE_E2E } = import.meta.env;
   const client = createWebSqlClient(getMainSqliteDbName(userId), {
     timers,
+    ...(VITE_E2E === '1'
+      ? { sqliteWorkerUrl: '/sql-workers/sqlite-worker.js?memory=1' }
+      : {}),
   });
   await client.connect();
   return client;

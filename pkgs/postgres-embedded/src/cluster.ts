@@ -108,20 +108,19 @@ export async function ensureClusterInitialised(
 }
 
 export async function ensureAppDatabase(pg: EmbeddedPostgres): Promise<void> {
+  const client = pg.getPgClient();
   try {
-    await pg.createDatabase(POSTGRES_DATABASE);
-    process.stdout.write(`[postgres] created database ${POSTGRES_DATABASE}\n`);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    if (
-      /already exists/i.test(message) ||
-      /duplicate/i.test(message) ||
-      /exists/i.test(message)
-    ) {
-      return;
-    }
-    throw error;
+    await client.connect();
+    const found = await client.query(
+      'SELECT 1 FROM pg_database WHERE datname = $1',
+      [POSTGRES_DATABASE]
+    );
+    if (found.rowCount !== 0) return;
+  } finally {
+    await client.end();
   }
+  await pg.createDatabase(POSTGRES_DATABASE);
+  process.stdout.write(`[postgres] created database ${POSTGRES_DATABASE}\n`);
 }
 
 export function formatUnknownError(error: unknown): string {

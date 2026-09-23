@@ -22,7 +22,7 @@ export type AuthBootConfig = {
   readonly googleClientSecret: string | null;
   readonly googleEnabled: boolean;
   readonly trustedOrigins: readonly string[];
-  /** Dev social OAuth (JSON POST) — enabled when secretsEnv is `dev`. */
+  /** Local account chooser, enabled only by simulated profiles. */
   readonly enableDev: boolean;
   readonly providers: CreateAuthAppProviders;
 };
@@ -30,9 +30,9 @@ export type AuthBootConfig = {
 export async function loadAuthBootConfig(args: {
   readonly secretStore: SecretStore;
   readonly apiUrlOverride?: string | null;
-  readonly secretsEnv: string;
+  readonly enableDev: boolean;
 }): Promise<AuthBootConfig> {
-  const { secretStore, secretsEnv } = args;
+  const { secretStore, enableDev } = args;
   const secret = (
     await secretStore.getRequired(ApiSecretName.authSecret)
   ).readSecretValue();
@@ -47,7 +47,6 @@ export async function loadAuthBootConfig(args: {
     )?.readSecretValue()
   );
   const googleEnabled = googleClientId !== null && googleClientSecret !== null;
-  const enableDev = secretsEnv === 'dev';
 
   const override = args.apiUrlOverride?.trim();
   const baseURL =

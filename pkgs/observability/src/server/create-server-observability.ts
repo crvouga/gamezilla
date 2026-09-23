@@ -17,9 +17,7 @@ export type CreateServerObservabilityOptions = {
   readonly now: () => number;
   readonly createId: CreateId;
   readonly envBackend?: string | undefined | null;
-  readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
-  readonly isProduction?: boolean;
   /** Required when the resolved backend is `local-file`. */
   readonly createLocalFile?: ObservabilityBackendFactory;
 };
@@ -27,11 +25,7 @@ export type CreateServerObservabilityOptions = {
 export function createServerObservability(
   options: CreateServerObservabilityOptions
 ): Observability {
-  const backend = resolveObservabilityBackend({
-    envBackend: options.envBackend,
-    isProduction: options.isProduction === true,
-    ...(options.forceNoop === true ? { forceNoop: true } : {}),
-  });
+  const backend = resolveObservabilityBackend(options.envBackend);
   const storage = createAsyncLocalSpanContextStorage();
   if (backend === 'local-file') {
     return requireBackendFactory(

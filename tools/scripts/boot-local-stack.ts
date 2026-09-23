@@ -1,9 +1,12 @@
 // @io-wall-ok
 /**
- * Boot loopback Postgres + MinIO + EMQX for CI / fidelity-max tests.
- * Not used by `bun dev`.
+ * Boot loopback Postgres + MinIO + EMQX for the localhost profile / CI.
+ * Used by `bun start:localhost`.
  */
+
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { startEmqxServer } from '@pkgs/emqx-server';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { startMinioServer } from '@pkgs/minio-server';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
 
@@ -16,17 +19,31 @@ export type LocalStackHandle = {
 
 export async function bootLocalStack(): Promise<LocalStackHandle> {
   const postgres = await startEmbeddedPostgres();
-  const minio = await startMinioServer();
-  const emqx = await startEmqxServer();
-  await runLocalMigrate();
-  await runLocalSeed();
-  return {
-    async stop() {
-      emqx.stop();
-      minio.stop();
-      await postgres.stop();
-    },
-  };
+  let minio: Awaited<ReturnType<typeof startMinioServer>> | undefined;
+  let emqx: Awaited<ReturnType<typeof startEmqxServer>> | undefined;
+  try {
+    minio = await startMinioServer();
+    await import('../../pkgs/emqx-server/scripts/setup');
+    emqx = await startEmqxServer({
+      clock: wallClock,
+      timers: wallTimers,
+      http: createGlobalHttpClient(),
+    });
+    await runLocalMigrate();
+    await runLocalSeed();
+    return {
+      async stop() {
+        await emqx?.stop();
+        minio?.stop();
+        await postgres.stop();
+      },
+    };
+  } catch (error) {
+    await emqx?.stop();
+    minio?.stop();
+    await postgres.stop();
+    throw error;
+  }
 }
 
 if (import.meta.main) {

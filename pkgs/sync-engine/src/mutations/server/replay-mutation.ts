@@ -72,29 +72,32 @@ async function applyReplayMutationInTxn(args: {
   const wrapped = wrapMutationDb(txc, env);
   await mutation.run({ tx: wrapped.tx, env }, parsedValue);
   const capture = wrapped.getCapture();
+  return { status: 'applied' as const, capture };
+}
 
+async function claimMutationInTxn(
+  txc: Pick<SqlClient, 'query'>,
+  m: MutationRow,
+  deps: Pick<ReplayMutationDeps, 'now' | 'createId'>,
+  status: 'applied' | 'rejected'
+): Promise<boolean> {
   const managed = managedInsertColumns(
     deps.createId,
     deps.now,
     mutationAppliedId(m.id)
   );
-  await txc.run(sql`
+  const claimed = await txc.query(sql<{ id: string }>`
     INSERT INTO sync_engine_mutations_applied (
       id, mutation_id, client_id, seq, status,
       created_at, updated_at, deleted_at
+    ) VALUES (
+      ${managed.id}, ${m.id}, ${m.clientId}, ${m.seq}, ${status},
+      ${managed.created_at}, ${managed.updated_at}, ${null}
     )
-    VALUES (
-      ${managed.id},
-      ${m.id},
-      ${m.clientId},
-      ${m.seq},
-      ${'applied'},
-      ${managed.created_at},
-      ${managed.updated_at},
-      ${null}
-    )
+    ON CONFLICT (id) DO NOTHING
+    RETURNING id
   `);
-  return { status: 'applied' as const, capture };
+  return claimed.length > 0;
 }
 
 /**
@@ -108,12 +111,9 @@ export async function replayMutation(
 ): Promise<ReplayOutcome> {
   try {
     return await deps.serverDb.transaction(async (txc) => {
-      const seen = await txc.query(sql<{ one: number }>`
-        SELECT 1 AS one FROM sync_engine_mutations_applied
-        WHERE mutation_id = ${m.id}
-          AND deleted_at IS NULL
-      `);
-      if (seen.length > 0) return { status: 'duplicate' as const };
+      if (!(await claimMutationInTxn(txc, m, deps, 'applied'))) {
+        return { status: 'duplicate' as const };
+      }
 
       const mutation = deps.registry[m.name];
       if (mutation === undefined) {
@@ -122,7 +122,10 @@ export async function replayMutation(
           code: 'UNKNOWN_MUTATION',
           message: 'Unknown operation.',
         };
-        await recordRejectedInTxn(txc, m, failure, deps);
+        await recordRejectedInTxn(txc, m, failure, {
+          deps,
+          alreadyClaimed: true,
+        });
         return {
           status: 'rejected' as const,
           code: failure.code,
@@ -140,7 +143,10 @@ export async function replayMutation(
             code: 'INVALID_ARGS',
             message: 'Malformed mutation args.',
           };
-          await recordRejectedInTxn(txc, m, failure, deps);
+          await recordRejectedInTxn(txc, m, failure, {
+            deps,
+            alreadyClaimed: true,
+          });
           return {
             status: 'rejected' as const,
             code: failure.code,
@@ -153,7 +159,10 @@ export async function replayMutation(
       const parsed = await parseStandardSchema(mutation.args, rawArgs);
       if (!parsed.ok) {
         const failure = schemaIssuesToFailures(parsed.issues, m.name)[0]!;
-        await recordRejectedInTxn(txc, m, failure, deps);
+        await recordRejectedInTxn(txc, m, failure, {
+          deps,
+          alreadyClaimed: true,
+        });
         return {
           status: 'rejected' as const,
           code: failure.code,
@@ -199,7 +208,10 @@ export async function recordMutationRejection(
   failure: MutationFailure
 ): Promise<void> {
   await deps.serverDb.transaction(async (txc) => {
-    await recordRejectedInTxn(txc, m, failure, deps);
+    await recordRejectedInTxn(txc, m, failure, {
+      deps,
+      alreadyClaimed: false,
+    });
   });
 }
 
@@ -207,36 +219,21 @@ async function recordRejectedInTxn(
   txc: Pick<SqlClient, 'query' | 'run'>,
   m: MutationRow,
   failure: MutationFailure,
-  deps: Pick<ReplayMutationDeps, 'now' | 'createId'>
+  options: {
+    readonly deps: Pick<ReplayMutationDeps, 'now' | 'createId'>;
+    readonly alreadyClaimed: boolean;
+  }
 ): Promise<void> {
-  const seen = await txc.query(sql<{ one: number }>`
-    SELECT 1 AS one FROM sync_engine_mutations_applied
-    WHERE mutation_id = ${m.id}
-      AND deleted_at IS NULL
-  `);
-  if (seen.length > 0) return;
-
-  const applied = managedInsertColumns(
-    deps.createId,
-    deps.now,
-    mutationAppliedId(m.id)
-  );
-  await txc.run(sql`
-    INSERT INTO sync_engine_mutations_applied (
-      id, mutation_id, client_id, seq, status,
-      created_at, updated_at, deleted_at
-    )
-    VALUES (
-      ${applied.id},
-      ${m.id},
-      ${m.clientId},
-      ${m.seq},
-      ${'rejected'},
-      ${applied.created_at},
-      ${applied.updated_at},
-      ${null}
-    )
-  `);
+  const { deps, alreadyClaimed } = options;
+  if (alreadyClaimed) {
+    await txc.run(sql`
+      UPDATE sync_engine_mutations_applied
+      SET status = ${'rejected'}, updated_at = ${new Date(deps.now()).toISOString()}
+      WHERE id = ${mutationAppliedId(m.id)}
+    `);
+  } else if (!(await claimMutationInTxn(txc, m, deps, 'rejected'))) {
+    return;
+  }
 
   const rejection = managedInsertColumns(deps.createId, deps.now);
   const metaJson =

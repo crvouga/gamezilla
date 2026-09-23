@@ -46,6 +46,7 @@ import {
   nextSimNodeId,
   normalizeSimNodeId,
 } from '@apps/product/sim/fabric/sim-node-name';
+import type { ProductHostName } from '@apps/product/sim/hosts/ports';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub/in-memory';
 import type { Topic } from '@pkgs/pubsub/interface';
@@ -79,10 +80,10 @@ function productSimulatorClock(sim: Sim): ProductSimulatorSession['clock'] {
 export type BootProductSimulatorOptions = {
   readonly skipSnapshotLoad?: boolean;
   /**
-   * Product host. Default `in-process` (Solid DOM / mem SQL).
-   * `bun-webview` embeds actor URLs (iframe) against a localhost sidecar.
+   * System profile. Default `in-process` (Solid DOM / mem SQL).
+   * Localhost profiles embed actor URLs against a loopback sidecar.
    */
-  readonly runtime?: 'in-process' | 'bun-webview';
+  readonly runtime?: ProductHostName;
 };
 
 export type ProductSimulatorSessionBuildArgs = {

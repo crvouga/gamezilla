@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { Handles } from '@libs/test-ids';
 import {
+  caps,
   createSpace,
   isEmptyPoolVisible,
   partition,
@@ -28,6 +29,7 @@ const tap = (actorId: string, handle: string) => ({
 describe('chess puzzle offline', () => {
   test('offline with no local pool shows the offline block; reconnect recovers', async () => {
     await using s = await openSim('chess-puzzle-offline');
+    if (!(await s.read(caps)).includes('partition')) return;
     await s.apply(signInWithDev, 'alice');
     await s.apply(returnToTabs, 'alice');
     await s.apply(createSpace, 'alice');

@@ -7,20 +7,14 @@ export function parseObservabilityBackend(
 ): ObservabilityBackend | null {
   const v = raw?.trim().toLowerCase() ?? '';
   if (v === '') return null;
-  if (v === 'noop' || v === 'none') return 'noop';
+  if (v === 'noop') return 'noop';
   if (v === 'local-file') return 'local-file';
-  if (v === 'logger' || v === 'console') return 'logger';
-  // Legacy `sentry` (and unknown values) → noop.
+  if (v === 'logger') return 'logger';
   return 'noop';
 }
 
-export function resolveObservabilityBackend(args: {
-  readonly envBackend: string | undefined | null;
-  readonly forceNoop?: boolean;
-  readonly isProduction?: boolean;
-}): ObservabilityBackend {
-  if (args.forceNoop === true) return 'noop';
-  const explicit = parseObservabilityBackend(args.envBackend);
-  if (explicit !== null) return explicit;
-  return 'noop';
+export function resolveObservabilityBackend(
+  envBackend: string | undefined | null
+): ObservabilityBackend {
+  return parseObservabilityBackend(envBackend) ?? 'noop';
 }

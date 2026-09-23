@@ -13,7 +13,6 @@ const ObservabilityContext = defineContext<Observability>('Observability');
 export type ObservabilityProviderProps = ParentProps<{
   readonly serviceName?: string;
   readonly backendEnv?: string | undefined;
-  readonly forceNoop?: boolean;
   readonly collectorUrl?: string;
   /** Pre-built instance (sims / tests); skips backend resolution. */
   readonly observability?: Observability;
@@ -39,9 +38,6 @@ export function ObservabilityProvider(
         now: clock.now,
         createId,
         backendEnv: props.backendEnv,
-        ...(props.forceNoop !== undefined
-          ? { forceNoop: props.forceNoop }
-          : {}),
         ...(props.collectorUrl !== undefined
           ? { collectorUrl: props.collectorUrl }
           : {}),

@@ -133,12 +133,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     now: wallClock.now,
     createId: () => crypto.randomUUID(),
     envBackend: env.OBSERVABILITY_BACKEND,
-    isProduction: secretsEnv === 'prd',
     createLocalFile: createLocalFileObservability,
-    ...(env.OBSERVABILITY_COLLECTOR_URL !== undefined &&
-    env.OBSERVABILITY_COLLECTOR_URL.length > 0
-      ? { collectorUrl: env.OBSERVABILITY_COLLECTOR_URL }
-      : {}),
   });
 
   const serverUrl = readOptionalApiUrlOverride(env);
@@ -146,7 +141,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const auth = await loadAuthBootConfig({
     secretStore,
     apiUrlOverride: serverUrl,
-    secretsEnv,
+    enableDev: false,
   });
 
   const billing = await createStripeBillingFromSecretStore(secretStore);

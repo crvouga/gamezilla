@@ -3,7 +3,7 @@
  * Product libs / createServer never import engines — only this fabric.
  *
  * Always postgres-mem server + sqlite-mem clients. Embedded Postgres is
- * wired only via fidelity-max hosts (`SIM_MODE=real`), not this fabric.
+ * wired only by the `localhost` profile, not this fabric.
  */
 
 import type { Clock } from '@pkgs/clock';

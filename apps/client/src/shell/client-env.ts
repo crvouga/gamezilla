@@ -83,6 +83,8 @@ export type ClientEnv = {
    */
   readonly createPubSub: () => PubSub;
   readonly openSqlClient: OpenSqlClient;
+  /** Sim may shorten the sync safety-net interval. Wall uses the engine default. */
+  readonly reconcileIntervalMs?: number;
   readonly kv: Kv;
   readonly authStorage: AuthClientStorage;
   readonly secureStorage: SecureStorageStore;

@@ -82,6 +82,7 @@ const createWallRoomTransport: CreateRoomTransport = (args) => {
 export function wallClientEnv(args?: {
   readonly serverUrl?: string | undefined;
 }): ClientEnv {
+  const { VITE_E2E } = import.meta.env;
   const serverUrl = args?.serverUrl ?? getServerBaseUrl();
   const innerFetch = (input: RequestInfo | URL, init?: RequestInit) =>
     globalThis.fetch(input, init);
@@ -118,7 +119,24 @@ export function wallClientEnv(args?: {
     serverUrl,
     authBaseURL: serverUrl,
     authCallbackUrl: oauthClientCallbackUrl(readBrowserOrigin()),
-    openAuthSession: createWallOpenAuthSession(wallTimers),
+    openAuthSession:
+      VITE_E2E === '1'
+        ? async (authorizationUrl, callbackUrl) => {
+            const response = await innerFetch(
+              `${serverUrl}/api/__sim/auth-session`,
+              {
+                method: 'POST',
+                headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ authorizationUrl, callbackUrl }),
+              }
+            );
+            if (!response.ok)
+              throw new Error(`auth session failed: ${response.status}`);
+            return (await response.json()) as Awaited<
+              ReturnType<ClientEnv['openAuthSession']>
+            >;
+          }
+        : createWallOpenAuthSession(wallTimers, () => crypto.randomUUID()),
     resolveDatabaseName: ({ userId }) => getMainSqliteDbName(userId),
     mutationSuccessHoldMs: 900,
   };

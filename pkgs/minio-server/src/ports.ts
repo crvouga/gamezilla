@@ -16,7 +16,7 @@ export const MINIO_ENDPOINT =
   `http://127.0.0.1:${String(MINIO_API_PORT)}` as const;
 
 /**
- * Pinned community MinIO binary from dl.min.io archive.
- * @see https://dl.min.io/server/minio/release/
+ * Pinned community MinIO release used by local sidecars.
+ * @see https://github.com/minio/minio/releases
  */
-export const MINIO_RELEASE = 'RELEASE.2025-09-07T16-13-09Z';
+export const MINIO_RELEASE = 'RELEASE.2025-10-15T17-29-55Z';

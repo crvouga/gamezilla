@@ -1,3 +1,4 @@
+import type { LocalhostServerServices } from '@apps/product/sim/fabric/create-sim';
 import type { SimSql } from '@apps/product/sim/fabric/sim-sql';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom';
 
@@ -28,6 +29,7 @@ export type ProductHttp =
 
 export type ProductExtra = {
   readonly sql: SimSql;
+  readonly serverServices?: LocalhostServerServices;
   readonly ui: ProductUi;
   readonly http: ProductHttp;
   /**
@@ -39,4 +41,4 @@ export type ProductExtra = {
 };
 
 /** Registered host names on the product system. */
-export type ProductHostName = 'in-process' | 'bun-webview';
+export type ProductHostName = 'in-process' | 'localhost:mocked' | 'localhost';

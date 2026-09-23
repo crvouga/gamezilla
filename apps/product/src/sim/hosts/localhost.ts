@@ -6,12 +6,7 @@ import {
 import type { Ports, Runtime } from '@pkgs/sim';
 import { realTimeRuntime } from '@pkgs/sim';
 
-import type { ProductExtra } from './ports';
-
-function isRealMode(): boolean {
-  const mode = process.env['SIM_MODE']?.trim();
-  return mode === 'real' || mode === 'max';
-}
+import type { ProductExtra, ProductHostName } from './ports';
 
 async function openSeededServerSql(): Promise<SimSql> {
   const { wallClock } = await import('@pkgs/clock');
@@ -46,11 +41,12 @@ async function openRealPostgresSql(): Promise<SimSql> {
 
 /**
  * Bun.WebView product host: wall time, localhost HTTP API + web origin.
- * `SIM_MODE=real` uses real Postgres (no partition); otherwise seeded SQL
- * with the model network (partition).
+ * The profile selects the SQL and network ports explicitly.
  */
-export function bunWebviewRuntime(): Runtime<Ports & ProductExtra> {
-  const real = isRealMode();
+export function localhostRuntime(
+  profile: Exclude<ProductHostName, 'in-process'>
+): Runtime<Ports & ProductExtra> {
+  const real = profile === 'localhost';
   return realTimeRuntime({ network: real ? 'none' : 'model' }).with(
     async () => {
       const sql = real
@@ -58,9 +54,16 @@ export function bunWebviewRuntime(): Runtime<Ports & ProductExtra> {
         : await openSeededServerSql();
       const webOrigin =
         process.env['SIM_WEB_ORIGIN'] ?? 'http://127.0.0.1:8081';
-      const apiOrigin = process.env['VITE_API_URL'] ?? 'http://127.0.0.1:8787';
+      const apiOrigin =
+        process.env['SIM_API_ORIGIN'] ?? 'http://localhost:8787';
+      const serverServices = real
+        ? await (
+            await import('../setup/localhost-server-services')
+          ).createLocalhostServerServices(webOrigin)
+        : undefined;
       return {
         sql,
+        ...(serverServices !== undefined ? { serverServices } : {}),
         ui: { kind: 'bun-webview' as const, webOrigin },
         http: { kind: 'localhost' as const, origin: apiOrigin },
         drainServerHttp: { current: () => Promise.resolve() },

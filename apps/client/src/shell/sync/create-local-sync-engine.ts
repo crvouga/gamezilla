@@ -77,6 +77,7 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly mutationRegistry: MutationRegistry;
   /** Sim override; defaults to the OPFS broker client. */
   readonly openSqlClient?: OpenSqlClient | undefined;
+  readonly reconcileIntervalMs?: number;
   /** Sim override; defaults to EMQX from client_config URL. */
   readonly createPubSub?: (() => PubSub) | undefined;
   readonly waitUntilAvailable?:
@@ -235,9 +236,9 @@ function buildEngine(
     timers: args.timers,
     createId: args.createId,
     enableMutationUpload: isOwner,
-    // Injected openSqlClient marks sim/product-simulator — use the short reconcile
-    // safety net so missed OOB notifies heal inside DST wait budgets.
-    ...(args.openSqlClient !== undefined ? { reconcileIntervalMs: 500 } : {}),
+    ...(args.reconcileIntervalMs !== undefined
+      ? { reconcileIntervalMs: args.reconcileIntervalMs }
+      : {}),
     ...(args.waitUntilAvailable !== undefined
       ? { waitUntilAvailable: args.waitUntilAvailable }
       : {}),

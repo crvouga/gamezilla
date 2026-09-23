@@ -22,10 +22,7 @@ import {
   OPENAI_API_KEY,
   OPENAI_BASE_URL,
 } from './llm-tts-secrets';
-import {
-  OBSERVABILITY_BACKEND,
-  VITE_OBSERVABILITY_BACKEND,
-} from './observability-secrets';
+import { OBSERVABILITY_BACKEND } from './observability-secrets';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -84,7 +81,6 @@ export const SECRETS: readonly Secret[] = [
   VITE_COMMIT_HASH,
   VITE_COMMIT_DATE,
   OBSERVABILITY_BACKEND,
-  VITE_OBSERVABILITY_BACKEND,
   RAILWAY_TOKEN,
   EMQX_API_URL,
   EMQX_WSS_URL,

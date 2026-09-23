@@ -24,7 +24,7 @@ describe('topology partition', () => {
       } catch (e) {
         threw = e instanceof ActionNotEnabled;
       }
-      assert.ok(threw, 'bun-webview real mode: partition is not enabled');
+      assert.ok(threw, 'localhost profile: partition is not enabled');
       return;
     }
 

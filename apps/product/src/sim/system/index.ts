@@ -1,5 +1,6 @@
 /**
- * Product system. Hosts are registered runtimes (`in-process`, `bun-webview`).
+ * Product system. Profiles are registered runtimes (`in-process`,
+ * `localhost:mocked`, `localhost`).
  * Consumers call `product.run({ seed, runtime })`.
  */
 

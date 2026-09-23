@@ -97,43 +97,14 @@ describe('parseClientConfigRows', () => {
     expect(config.google_web_client_id).toBeNull();
   });
 
-  test('parses emqx and observability scalars', () => {
+  test('parses emqx scalar', () => {
     const config = parseClientConfigRows([
       {
         id: ClientConfigKey.emqxWssUrl,
         value: 'ws://127.0.0.1:8083/mqtt',
         deleted_at: null,
       },
-      {
-        id: ClientConfigKey.observabilityBackend,
-        value: 'console',
-        deleted_at: null,
-      },
     ]);
     expect(config.emqx_wss_url).toBe('ws://127.0.0.1:8083/mqtt');
-    expect(config.observability_backend).toBe('console');
-  });
-
-  test('legacy sentry backend falls back to noop', () => {
-    const config = parseClientConfigRows([
-      {
-        id: ClientConfigKey.observabilityBackend,
-        value: 'sentry',
-        deleted_at: null,
-      },
-    ]);
-    expect(config.observability_backend).toBe('noop');
-  });
-
-  test('observability defaults to noop when missing or invalid', () => {
-    expect(parseClientConfigRows([]).observability_backend).toBe('noop');
-    const invalid = parseClientConfigRows([
-      {
-        id: ClientConfigKey.observabilityBackend,
-        value: 'not-a-backend',
-        deleted_at: null,
-      },
-    ]);
-    expect(invalid.observability_backend).toBe('noop');
   });
 });

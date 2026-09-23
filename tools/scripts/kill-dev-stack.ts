@@ -19,7 +19,7 @@ const DEV_PORTS = [
   4177, // @pkgs/sql-client-sqlite-web e2e harness
   4178, // @pkgs/auth OAuth e2e harness
   8799, // observability collector
-  1883, // EMQX MQTT TCP (fidelity-max / CI)
+  1883, // EMQX MQTT TCP (localhost / CI)
   8083, // EMQX MQTT WebSocket
   18083, // EMQX dashboard / HTTP API
   15432, // embedded Postgres

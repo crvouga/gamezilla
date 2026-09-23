@@ -1,21 +1,32 @@
 # Sim tests
 
-Product system + fabric live in **`@apps/product/sim`**. Hosts are registered
-runtimes on that System:
+Product system + fabric live in **`@apps/product/sim`**. A profile is a named
+runtime on the same `product` System; actions, observations, and standing
+properties do not change with the profile.
 
-| Host name | Factory | Command | UI | SQL / HTTP |
+| Profile | Start command | Test command | HTTP / SQL | Vendor ports |
 | --- | --- | --- | --- | --- |
-| `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
-| `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
+| `in-process` (default) | `bun start:in-process` (`/simulator`) | `bun run --filter @apps/product test` | In-process Hono, seeded postgres-mem and sqlite-mem, virtual time | In-memory |
+| `localhost:mocked` | `bun start:localhost:mocked` | `bun run --filter @apps/product test:localhost:mocked` | Loopback Hono and built web client on OS-assigned ports; seeded postgres-mem | In-memory |
+| `localhost` | — | `bun run --filter @apps/product test:localhost` | Loopback Hono and built web client on pinned `:8787` / `:5173`; embedded Postgres | Google OAuth, Stripe test, S3/MinIO, live TTS/LLM when configured |
+
+`bun start:localhost` runs the API Worker and browser app with embedded services;
+it is the normal local app command. The API in both test localhost profiles is
+the product Hono app behind the System's load balancer. The mocked test command
+runs the same `tests/` suite as the in-process profile. The normal localhost
+command runs a browser boot smoke test because it has no dev sign-in. Pass test
+file paths to focus a run without changing the test code. Network partition
+actions require a profile with the `partition` capability.
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
 helper over `product.run({ seed, runtime })` (plus snapshot restore + reporter).
-Host name is `in-process` unless `SIM_MODE=real` / `{ mode: 'real' }` (then
-`bun-webview`). Standing properties (`noErrorBoundary`) are registered with
+The default is `in-process`; choose another profile with
+`SIM_PROFILE=localhost:mocked` / `SIM_PROFILE=localhost` or
+`openSim(id, { profile: 'localhost:mocked' })`. Standing properties are registered with
 `product.property`.
 
 ProductSimulator (`@apps/product`) also calls `product.run` only — default
-`runtime: 'in-process'`; optional `bun-webview` when a localhost web sidecar is up.
+`runtime: 'in-process'`; localhost profiles use the Node host and a web sidecar.
 Neither console nor test opens a Session / `createSim` outside `@apps/product/sim`.
 
 **Authoring** — scenarios import `describe` / `test` from `bun:test` and call
@@ -42,13 +53,13 @@ describe('space create', () => {
 ```
 
 Faults (partition / restoreNetwork) are `defineAction`s gated by the `caps` read.
-On the bun-webview real-mode host (no `partition` cap), `s.apply(partition, …)`
+On `localhost` (no `partition` cap), `s.apply(partition, …)`
 throws `ActionNotEnabled`.
 
 **SQL fabric** — in-process sim always uses **postgres-mem** + **sqlite-mem**
 (checkpoint format `mixed-pgmm-sqlm`). Seed:
-`apps/product/.cache/sim-backend-seed.pgmm.json`. Fidelity-max /
-`SIM_MODE=real` uses **postgres-embedded** (+ MinIO/EMQX) outside this fabric.
+`apps/product/.cache/sim-backend-seed.pgmm.json`. `localhost` uses
+**postgres-embedded** (+ MinIO/EMQX) outside this fabric.
 
 Engine selection lives in `@apps/product/sim` (`getSimSqlEngines` / fabric) — not in
 product libs. ProductSimulator web may still load SQLite WASM from
@@ -82,13 +93,16 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   in the document, parked actors keep their route via a per-actor
   `MemoryHistory` and re-mount on focus. Waits are pump-driven
   (`createSimWaitPump` → `runFor`), deadlines on the wall clock.
-- **`bun-webview`** — wall time. Default: model network + seed SQL.
-  `listenSimHttpServer` binds Hono on `127.0.0.1:8787` and enforces createSimNet
-  crash/partition (actor id via `x-sim-actor`). Tests drive `Bun.WebView`;
-  product-simulator embeds the web origin URL. `SIM_MODE=real` boots sidecars via
-  `ensureMaxFidelityStack` (real Postgres + MinIO/EMQX), serves web web
-  (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
-  is injected per actor WebView before hydrate.
+- **`localhost:mocked`** — wall time with an OS-assigned loopback API and web
+  port. The model network still supports crash/partition. Tests drive
+  `Bun.WebView`; its actor id is sent as `x-sim-actor`. Test bundles use SQLite
+  worker memory because Bun WebView cannot open the OPFS SyncAccessHandle pool.
+- **`localhost`** — wall time and pinned ports. It boots embedded Postgres,
+  MinIO, and EMQX, loads dev vendor credentials, and disables network
+  partition. Both localhost profiles serve the built client through
+  `e2e/serve-localhost-web.ts` for tests. Snapshot auth KV is injected per
+  actor WebView before hydrate. Manual starts use the normal persistent browser
+  SQLite backend.
 
 **Reports** (`SIM_REPORT`) — standalone HTML, Playwright-trace style:
 
@@ -118,4 +132,4 @@ Mem-engine wishlist:
 [`docs/sim-mem-engine-wishlist.md`](../../../docs/sim-mem-engine-wishlist.md).
 
 Do not use a local Wrangler + API Worker stack for manual feature work. That is
-CI / production, not `bun dev`.
+CI / production, not `bun start:in-process`.

@@ -112,6 +112,9 @@ function runWranglerOnce(): Promise<WranglerRun> {
         String(API_PORT),
         '--inspector-port',
         String(INSPECTOR_PORT),
+        '--test-scheduled',
+        '--log-level',
+        'warn',
       ],
       {
         cwd: API_DIR,

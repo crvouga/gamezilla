@@ -28,11 +28,7 @@ const log = createLogger({ name: 'server:deploy', now: wallClock.now });
 
 const apiDir = join(REPO_ROOT, 'apps/server');
 
-const WORKER_EXTRA_ENV_KEYS = [
-  'SECRETS_ENV',
-  'OBSERVABILITY_BACKEND',
-  'OBSERVABILITY_COLLECTOR_URL',
-] as const;
+const WORKER_EXTRA_ENV_KEYS = ['SECRETS_ENV', 'OBSERVABILITY_BACKEND'] as const;
 
 let deploySecretsLoaded = false;
 

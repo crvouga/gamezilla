@@ -17,9 +17,7 @@ function ensureBootstrap(): void {
   mkdirSync(ETC_DIR, { recursive: true });
 
   const bootstrap = join(DATA_DIR, 'api-keys.bootstrap');
-  if (!existsSync(bootstrap)) {
-    writeFileSync(bootstrap, `${EMQX_API_KEY}:${EMQX_API_SECRET}\n`, 'utf8');
-  }
+  writeFileSync(bootstrap, `${EMQX_API_KEY}:${EMQX_API_SECRET}\n`, 'utf8');
 
   const confSrc = join(APP_DIR, 'config', 'emqx.conf');
   const confDest = join(ETC_DIR, 'emqx.conf');
@@ -37,4 +35,4 @@ function ensureBootstrap(): void {
 }
 
 ensureBootstrap();
-console.warn('[emqx] setup complete', { data: DATA_DIR });
+process.stdout.write('[emqx] local configuration ready\n');

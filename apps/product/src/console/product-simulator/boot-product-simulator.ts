@@ -81,7 +81,7 @@ export async function bootProductSimulatorSession(
   env: ProductSimulatorBootEnv,
   opts?: BootProductSimulatorOptions
 ): Promise<ProductSimulatorSession> {
-  const host: 'in-process' | 'bun-webview' = opts?.runtime ?? 'in-process';
+  const host = opts?.runtime ?? 'in-process';
   const run = await product.run({ seed: 1, runtime: host });
   const surface = await pinSim(run);
   const extra = productExtra(surface);

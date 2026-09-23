@@ -1,6 +1,6 @@
 /**
  * Sim SQL fabric id. In-process sim always uses postgres-mem + sqlite-mem.
- * Fidelity-max / `SIM_MODE=real` uses postgres-embedded outside this fabric.
+ * The `localhost` profile uses postgres-embedded outside this fabric.
  */
 
 export type SimSqlBackend = 'mem';

@@ -9,6 +9,7 @@ import { useClock, useTimers } from '@pkgs/clock/solid';
 import { LoadingState, useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { onMount } from 'solid-js';
+import { handOffPopupAuthCallback } from '../../shell/wall-open-auth-session';
 
 const SSO_HANDOFF_NAVIGATE_MS = 800;
 
@@ -28,6 +29,7 @@ export default function SsoCallbackRoute(): JSX.Element {
   const timers = useTimers();
 
   onMount(() => {
+    if (handOffPopupAuthCallback(timers)) return;
     const settle = (
       port.completeHostedAuthRedirect ??
       port.ensureSessionReady ??

@@ -7,7 +7,6 @@ export const ClientConfigKey = {
   ttsEnabled: 'tts_enabled',
   llmEnabled: 'llm_enabled',
   emqxWssUrl: 'emqx_wss_url',
-  observabilityBackend: 'observability_backend',
 } as const;
 
 export type ClientConfigKeyId =
@@ -21,7 +20,4 @@ export const CLIENT_CONFIG_KEYS: readonly ClientConfigKeyId[] = [
   ClientConfigKey.ttsEnabled,
   ClientConfigKey.llmEnabled,
   ClientConfigKey.emqxWssUrl,
-  ClientConfigKey.observabilityBackend,
 ];
-
-export type ObservabilityBackendName = 'noop' | 'console';

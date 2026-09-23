@@ -2,7 +2,8 @@
  * @apps/product/sim — shared product simulation fabric + System.
  *
  * Console and test couple only to this package's public API (`product.run`,
- * actions, reads). Hosts are registered runtimes: `in-process`, `bun-webview`.
+ * actions, reads). Profiles are registered runtimes: `in-process`,
+ * `localhost:mocked`, and `localhost`.
  *
  * Isomorphism: fabric + `in-process` + system/actions must run under web
  * (product-simulator). Node-only seed / HTTP helpers live under `setup/` and
@@ -48,8 +49,8 @@ export {
   restoreSystemSnapshot,
   type SystemSnapshotCtx,
 } from './fabric/system-snapshot';
-export { bunWebviewRuntime } from './hosts/bun-webview';
 export { inProcessRuntime } from './hosts/in-process';
+export { localhostRuntime } from './hosts/localhost';
 export {
   ACTOR_HEADER,
   listenSimHttpServer,

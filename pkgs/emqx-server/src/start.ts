@@ -1,8 +1,12 @@
 // @io-wall-ok
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { join } from 'node:path';
+import type { Clock, Timers } from '@pkgs/clock';
+import type { HttpClient } from '@pkgs/http-client';
 import { ensureEmqxBin } from '../scripts/ensure-emqx';
 import {
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
   EMQX_DASHBOARD_PASS,
   EMQX_DASHBOARD_PORT,
   EMQX_DASHBOARD_USER,
@@ -11,15 +15,73 @@ import {
 
 export type EmqxServerHandle = {
   readonly dashboardPort: number;
-  stop(): void;
+  stop(): Promise<void>;
 };
 
 const APP_DIR = join(import.meta.dirname, '..');
 const DATA_DIR = join(APP_DIR, 'data');
 const ETC_DIR = join(DATA_DIR, 'etc');
+const API_URL = `http://127.0.0.1:${String(EMQX_DASHBOARD_PORT)}`;
 
-export async function startEmqxServer(): Promise<EmqxServerHandle> {
+export type EmqxStartIo = {
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly http: HttpClient;
+};
+
+async function apiReady(io: EmqxStartIo): Promise<boolean> {
+  try {
+    const auth = btoa(`${EMQX_API_KEY}:${EMQX_API_SECRET}`);
+    const response = await io.http.fetch(`${API_URL}/api/v5/clients?limit=1`, {
+      headers: { authorization: `Basic ${auth}` },
+    });
+    if (response.status === 401) {
+      throw new Error('EMQX rejected the local API key');
+    }
+    return response.ok;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('rejected')) {
+      throw error;
+    }
+    return false;
+  }
+}
+
+async function waitForApi(
+  io: EmqxStartIo,
+  exitCode: () => number | null
+): Promise<void> {
+  const deadline = io.clock.now() + 30_000;
+  while (io.clock.now() < deadline) {
+    if (exitCode() !== null)
+      throw new Error('EMQX exited before its API was ready');
+    if (await apiReady(io)) return;
+    await new Promise<void>((resolve) => io.timers.setTimeout(resolve, 250));
+  }
+  throw new Error('EMQX API did not become ready within 30 seconds');
+}
+
+export async function startEmqxServer(
+  io: EmqxStartIo
+): Promise<EmqxServerHandle> {
   const bin = ensureEmqxBin();
+  try {
+    const response = await io.http.fetch(`${API_URL}/api/v5/status`);
+    if (response.ok) {
+      if (!(await apiReady(io))) throw new Error('EMQX API is unavailable');
+      process.stdout.write('[emqx] using running local broker\n');
+      return {
+        dashboardPort: EMQX_DASHBOARD_PORT,
+        stop: () => Promise.resolve(),
+      };
+    }
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('EMQX')) {
+      throw new Error(
+        `${error.message}; stop the stale local EMQX node before starting the app`
+      );
+    }
+  }
   const emqx = spawn(bin, ['foreground'], {
     cwd: APP_DIR,
     stdio: 'inherit',
@@ -54,14 +116,21 @@ export async function startEmqxServer(): Promise<EmqxServerHandle> {
     process.stderr.write(`[emqx] failed to start ${String(err)}\n`);
   });
 
+  try {
+    await waitForApi(io, () => emqx.exitCode);
+  } catch (error) {
+    emqx.kill('SIGTERM');
+    throw error;
+  }
   return {
     dashboardPort: EMQX_DASHBOARD_PORT,
-    stop() {
-      if (emqx.exitCode !== null || emqx.killed) return;
-      try {
+    async stop() {
+      spawnSync(bin, ['stop'], { cwd: APP_DIR, stdio: 'ignore' });
+      if (emqx.exitCode === null) {
         emqx.kill('SIGTERM');
-      } catch {
-        // already gone
+        await new Promise<void>((resolve) => {
+          emqx.once('exit', () => resolve());
+        });
       }
     },
   };

@@ -64,6 +64,9 @@ function useSyncBootPromise(args: {
     }
     const engine = pool.getOrCreate({
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
+      ...(env.reconcileIntervalMs !== undefined
+        ? { reconcileIntervalMs: env.reconcileIntervalMs }
+        : {}),
       createPubSub: () => env.createPubSub(),
       config: { getApiUrl: () => env.serverUrl },
       fetchFn,

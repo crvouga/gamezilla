@@ -5,7 +5,6 @@ import {
   CLIENT_CONFIG_KEYS,
   ClientConfigKey,
   type ClientConfigKeyId,
-  type ObservabilityBackendName,
 } from '../../../shared/client-config/client-config-keys';
 import { ClientConfigRepository } from './client-config-repository';
 
@@ -17,7 +16,6 @@ export type DesiredClientConfig = {
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
   readonly emqxWssUrl: string | null;
-  readonly observabilityBackend: ObservabilityBackendName;
 };
 
 type DesiredRow = {
@@ -60,10 +58,6 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
     {
       id: ClientConfigKey.emqxWssUrl,
       value: trimOrNull(desired.emqxWssUrl),
-    },
-    {
-      id: ClientConfigKey.observabilityBackend,
-      value: desired.observabilityBackend,
     },
   ];
 }

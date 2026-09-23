@@ -24,6 +24,8 @@ import type { SqlOwner } from './sql-owner';
 
 export type WebSqlClientOptions = {
   readonly timers: Timers;
+  /** Dedicated SQLite worker URL; useful for an isolated test backend. */
+  readonly sqliteWorkerUrl?: string;
   /** Absolute URL of the SharedWorker script (default `/sql-workers/db-host-shared-worker.js`). */
   readonly sharedWorkerUrl?: string;
   /** Force leader-election path (tests / no SharedWorker). */
@@ -70,6 +72,9 @@ function buildOwnerRuntimeFactory(
       ...(options.migrate !== undefined ? { migrate: options.migrate } : {}),
       ...(options.sharedWorkerUrl !== undefined
         ? { sharedWorkerUrl: options.sharedWorkerUrl }
+        : {}),
+      ...(options.sqliteWorkerUrl !== undefined
+        ? { sqliteWorkerUrl: options.sqliteWorkerUrl }
         : {}),
     };
     return base(ownerArgs);

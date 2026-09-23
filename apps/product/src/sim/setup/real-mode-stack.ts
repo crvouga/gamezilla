@@ -39,6 +39,10 @@ function applyEnv(): void {
 
 /** Boot sidecars once per Jest/Bun process. Does not stop them (CI job teardown). */
 export function ensureMaxFidelityStack(): Promise<void> {
+  if (process.env['SIM_STACK_EXTERNAL'] === '1') {
+    applyEnv();
+    return Promise.resolve();
+  }
   started ??= (async () => {
     await bootLocalStack();
     applyEnv();
