@@ -1,5 +1,5 @@
 /**
- * Explicit coverage set: every catalog id that has a smoke/contract fixture.
+ * Explicit coverage set: every catalog id that has a basic/contract fixture.
  * Populated from catalog-fixtures-data (one fixture per id).
  */
 

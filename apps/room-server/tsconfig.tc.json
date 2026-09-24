@@ -5,7 +5,7 @@
     "./src/**/*.ts",
     "./src/**/*.d.ts",
     "./scripts/**/*.ts",
-    "./smoke/**/*.ts"
+    "./health/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

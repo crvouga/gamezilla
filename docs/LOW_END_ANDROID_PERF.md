@@ -29,7 +29,7 @@ Measured on the **initial** route graph: Vite manifest entry + static `imports` 
 | Uncompressed initial JS | **400 KB** |
 | Lazy route graph (default) | **200 KB** gzip; overrides for game-plugins / chess / ui-explorer / profile-avatar + profile-dicebear-avatar (dicebear) / sync-engine boot (`create-local-sync-engine`, `sync-engine-ready-tree`) |
 
-Brotli sizes are **reported** (Cloudflare edge prefers brotli); CI enforces **gzip** for determinism. Production `Content-Encoding` is smoke-checked separately.
+Brotli sizes are **reported** (Cloudflare edge prefers brotli); CI enforces **gzip** for determinism. Production `Content-Encoding` is checked separately (`apps/client/scripts/check-production-compression.ts`).
 
 Deferred: `sqlite3.wasm` / `sql-workers/**` must not appear on the initial graph or entry HTML preloads. SW precache of WASM is allowed for offline.
 

@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (production client assets Worker).
+// @io-wall-ok — live health probe (production client assets Worker).
 import { describe, expect, test } from 'bun:test';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { productionClientOrigin } from '@libs/secrets/shared/deploy-origins';

@@ -98,30 +98,30 @@ describe('turbo-ci-run aggregator flatten', () => {
     const withDeploy = {
       ...tasks,
       '//#deploy': {
-        dependsOn: ['tc', '//#smoke'],
+        dependsOn: ['tc', '//#health'],
       },
-      '//#smoke': { dependsOn: ['smoke'] },
+      '//#health': { dependsOn: ['health'] },
     };
     expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
       'tc',
-      'smoke',
+      'health',
     ]);
     expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
       'tc',
-      'smoke',
+      'health',
     ]);
   });
 });
 
 describe('turbo-ci-run run mode', () => {
-  test('standalone smoke runs only the probes (--only skips the deploy chain)', () => {
-    for (const arg of ['smoke', '//#smoke', '//:smoke']) {
-      expect(resolveRunMode([arg])).toBe('smoke');
+  test('standalone health runs only the probes (--only skips the deploy chain)', () => {
+    for (const arg of ['health', '//#health', '//:health']) {
+      expect(resolveRunMode([arg])).toBe('health');
     }
-    expect(runModeFlags('smoke')).toEqual(['--only']);
+    expect(runModeFlags('health')).toEqual(['--only']);
   });
 
-  test('deploy keeps the dependency chain so smoke runs after it', () => {
+  test('deploy keeps the dependency chain so health runs after it', () => {
     expect(resolveRunMode(['//#deploy'])).toBe('deploy');
     expect(runModeFlags('deploy')).toEqual([]);
   });

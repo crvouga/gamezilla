@@ -63,7 +63,7 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
  */
 export const CI_RUN_DEADLINE_SECONDS = 1200;
 
-/** `deploy` adds provision → migrate → three worker deploys → smoke. */
+/** `deploy` adds provision → migrate → three worker deploys → health. */
 export const DEPLOY_RUN_DEADLINE_SECONDS = 2700;
 
 /** Overrides the wall-clock deadline (seconds); `0` is rejected, not "off". */

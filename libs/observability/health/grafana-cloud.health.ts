@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (Grafana Cloud OTLP ingest + Tempo query).
+// @io-wall-ok — live health probe (Grafana Cloud OTLP ingest + Tempo query).
 import { describe, expect, test } from 'bun:test';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';
 import {

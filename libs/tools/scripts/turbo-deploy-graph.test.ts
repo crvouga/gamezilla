@@ -60,15 +60,14 @@ const CHECK_LEAVES = [
   '@apps/room-server#check:worker-bundle',
   '@apps/server#check:worker-bundle',
   '@libs/runtime#check:schema-evolution',
-  '@libs/secrets#check',
   '@libs/tools#check:static',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
-const DEPLOY_ONLY = ['@apps/server#check:api', '//#smoke'] as const;
+const DEPLOY_ONLY = ['@apps/server#check:api', '//#health'] as const;
 
-/** `//#smoke` flattens to the per-package live-resource probes. */
-const SMOKE_LEAVES = ['smoke'] as const;
+/** `//#health` flattens to the per-package live-resource probes. */
+const HEALTH_LEAVES = ['health'] as const;
 
 /** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
 function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
@@ -128,7 +127,7 @@ describe('turbo check/deploy graph invariants', () => {
     expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
       ...CHECK_LEAVES,
       '@apps/server#check:api',
-      ...SMOKE_LEAVES,
+      ...HEALTH_LEAVES,
     ]);
   });
 
@@ -136,7 +135,7 @@ describe('turbo check/deploy graph invariants', () => {
     const scripts = loadRootScripts();
     expect(turboCiRunTaskArgs(scripts['check'] ?? '')).toEqual(['check']);
     expect(turboCiRunTaskArgs(scripts['deploy'] ?? '')).toEqual(['//#deploy']);
-    expect(turboCiRunTaskArgs(scripts['smoke'] ?? '')).toEqual(['smoke']);
+    expect(turboCiRunTaskArgs(scripts['health'] ?? '')).toEqual(['health']);
   });
 
   test('check flattens to its leaves', () => {
@@ -145,19 +144,19 @@ describe('turbo check/deploy graph invariants', () => {
     );
   });
 
-  test('//#smoke is exactly the per-package smoke task', () => {
+  test('//#health is exactly the per-package health task', () => {
     const tasks = loadTasks();
-    expect(tasks['//#smoke']?.dependsOn).toEqual([...SMOKE_LEAVES]);
-    expect(flattenCheckAggregators(['smoke'], tasks)).toEqual([
-      ...SMOKE_LEAVES,
+    expect(tasks['//#health']?.dependsOn).toEqual([...HEALTH_LEAVES]);
+    expect(flattenCheckAggregators(['health'], tasks)).toEqual([
+      ...HEALTH_LEAVES,
     ]);
   });
 
-  test('smoke probes live resources: never cached, ordered after the deploy', () => {
-    const smoke = loadTasks()['smoke'];
-    expect(smoke?.cache).toBe(false);
-    expect(smoke?.dependsOn).toContain('@apps/product#deploy');
-    expect(smoke?.dependsOn).toContain('@libs/billing#billing:sync');
+  test('health probes live resources: never cached, ordered after the deploy', () => {
+    const health = loadTasks()['health'];
+    expect(health?.cache).toBe(false);
+    expect(health?.dependsOn).toContain('@apps/product#deploy');
+    expect(health?.dependsOn).toContain('@libs/billing#billing:sync');
   });
 
   test('secrets provision runs after install:cli (avoid infisical race)', () => {

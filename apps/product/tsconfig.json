@@ -7,7 +7,7 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
-    "./smoke/**/*.ts",
+    "./health/**/*.ts",
     "./vite.config.mts"
   ],
   "compilerOptions": {

@@ -6,6 +6,6 @@
     "./src/**/*.d.ts",
     "./tests/**/*.ts",
     "./scripts/**/*.ts",
-    "./smoke/**/*.ts"
+    "./health/**/*.ts"
   ]
 }

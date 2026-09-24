@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (production API Worker, DNS, TLS).
+// @io-wall-ok — live health probe (production API Worker, DNS, TLS).
 import { describe, expect, test } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';
 import { connect } from 'node:tls';

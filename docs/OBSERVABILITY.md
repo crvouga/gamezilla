@@ -103,8 +103,8 @@ bun run secrets:seed -- --env prd GRAFANA_CLOUD_API_TOKEN
 `secrets:seed` prompts with echo off, validates, and writes to Infisical; with
 no names it walks every missing manual secret in the registry.
 
-`bun run smoke:prd` (and the hourly `smoke.yml`) verifies it live:
-`@libs/observability#smoke` checks the ingest endpoint shape, that the write
+`bun run health:prd` (and the hourly `health.yml`) verifies it live:
+`@libs/observability#health` checks the ingest endpoint shape, that the write
 token can ingest, and that the read token can query Tempo.
 
 Keep ingest and query authority separate:

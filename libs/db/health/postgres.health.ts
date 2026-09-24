@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (process root against the env's Postgres).
+// @io-wall-ok — live health probe (process root against the env's Postgres).
 import { describe, expect, test } from 'bun:test';
 import { wallTimers } from '@pkgs/clock';
 import { pingPostgres } from '@pkgs/sql-client-postgres/ping';

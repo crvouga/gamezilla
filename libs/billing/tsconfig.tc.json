@@ -9,7 +9,7 @@
     "./scripts/**/*.ts",
     "./tests/**/*.ts",
     "./tests/**/*.tsx",
-    "./smoke/**/*.ts"
+    "./health/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

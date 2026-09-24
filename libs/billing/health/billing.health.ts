@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (billing vendor configuration per env).
+// @io-wall-ok — live health probe (billing vendor configuration per env).
 import { describe, expect, test } from 'bun:test';
 import { PaddleSecretKeys } from '@pkgs/billing-paddle/secret-keys';
 import { StripeSecretKeys } from '@pkgs/billing-stripe/secret-keys';

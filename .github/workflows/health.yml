@@ -1,10 +1,10 @@
-name: Smoke
+name: Health
 
-# Live-resource health between deploys: `bun run smoke` runs every package's
-# `smoke` task (turbo `//#smoke` with `--only`, so nothing is deployed) against
+# Live-resource health between deploys: `bun run health` runs every package's
+# `health` task (turbo `//#health` with `--only`, so nothing is deployed) against
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
 # vendor credentials, the Workers, DNS and TLS. Deploy runs the same probes as
-# its last step (`//#deploy` → `//#smoke`); this schedule catches drift in
+# its last step (`//#deploy` → `//#health`); this schedule catches drift in
 # between (expired tokens, revoked keys, a dead Railway service).
 #
 # Prd-only probes skip themselves under dev.
@@ -22,12 +22,12 @@ env:
   TURBO_UI: stream
 
 concurrency:
-  group: smoke
+  group: health
   cancel-in-progress: false
 
 jobs:
-  smoke-prd:
-    name: smoke:prd
+  health-prd:
+    name: health:prd
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production
@@ -47,11 +47,11 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: prd
 
-      - name: smoke:prd
-        run: bun run smoke
+      - name: health:prd
+        run: bun run health
 
-  smoke-dev:
-    name: smoke:dev
+  health-dev:
+    name: health:dev
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -70,5 +70,5 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: dev
 
-      - name: smoke:dev
-        run: bun run smoke
+      - name: health:dev
+        run: bun run health

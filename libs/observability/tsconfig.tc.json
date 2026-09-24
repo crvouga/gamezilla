@@ -4,7 +4,7 @@
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
     "./tests/**/*.ts",
-    "./smoke/**/*.ts"
+    "./health/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -44,7 +44,7 @@ runs:
       shell: bash
       run: bun install --frozen-lockfile
 
-    # check:secrets (and other admin secret I/O) shells out to the secrets
+    # `bun health` (and other admin secret I/O) shells out to the secrets
     # backend CLI. secrets-auth injects secret values + SECRETS_IDENTITY_ID
     # (for OIDC → INFISICAL_TOKEN); secrets-run passes them to children.
     # Export of both `dev` and `prd` still needs the CLI on PATH.

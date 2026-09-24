@@ -670,7 +670,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "libs/sim-harness/tests/hosts-smoke.test.ts"
+        "path": "libs/sim-harness/tests/hosts-compile.test.ts"
       }
     ]
   },

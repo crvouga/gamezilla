@@ -1,6 +1,6 @@
 /**
  * Fixture sources for every edge-case catalog id.
- * Smoke only: transform (or map) must not throw; contracts are light.
+ * Basic only: transform (or map) must not throw; contracts are light.
  */
 
 import type { CatalogFamily } from './edge-case-catalog';
@@ -585,7 +585,7 @@ export const CATALOG_FIXTURES: readonly CatalogFixture[] = [
     { expectConverted: true }
   ),
 
-  // E hosts (smoke — may be untouched until host converters land)
+  // E hosts (basic — may be untouched until host converters land)
   t(
     'E.scrollview-sx-only',
     'E',

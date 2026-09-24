@@ -30,7 +30,7 @@ runs:
         domain: ${{ inputs.endpoint != '' && inputs.endpoint || 'https://app.infisical.com' }}
 
     # Infisical/secrets-action injects secret *values* only. Admin CLI
-    # paths (`check:secrets`, `infra provision`) re-auth via OIDC using
+    # paths (`bun health`, `infra provision`) re-auth via OIDC using
     # `resolveInfisicalAccessTokenForWrites`, which needs the machine
     # identity id in the job env (not merely as this action's input).
     #

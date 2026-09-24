@@ -17,8 +17,6 @@ export type SecretsCacheMeta = {
 };
 
 const META_KEY = `${SECRETS_CACHE_PREFIX}/meta.json`;
-const FINGERPRINT_KEY = `${SECRETS_CACHE_PREFIX}/fingerprint`;
-
 function envMapKey(env: SecretsCacheEnv): string {
   return `${SECRETS_CACHE_PREFIX}/${env}.json`;
 }
@@ -173,26 +171,6 @@ export async function writeSecretsCacheMeta(
   await store.put(META_KEY, encodeUtf8(body), 'application/json');
 }
 
-export async function readSecretsCacheFingerprint(
-  store: ObjectStore
-): Promise<string | null> {
-  const raw = await readUtf8(store, FINGERPRINT_KEY);
-  if (raw === null) return null;
-  const fp = raw.trim();
-  return fp.length > 0 ? fp : null;
-}
-
-export async function writeSecretsCacheFingerprint(
-  store: ObjectStore,
-  fingerprint: string
-): Promise<void> {
-  await store.put(
-    FINGERPRINT_KEY,
-    encodeUtf8(`${fingerprint.trim()}\n`),
-    'text/plain; charset=utf-8'
-  );
-}
-
 /**
  * True when `pulledAt` is missing/unparseable or older than `ttlMs`
  * relative to `nowMs` (injected clock).
@@ -225,8 +203,4 @@ export function secretsCacheRelPath(env: SecretsCacheEnv): string {
 
 export function secretsCacheMetaRelPath(): string {
   return META_KEY;
-}
-
-export function secretsCacheFingerprintRelPath(): string {
-  return FINGERPRINT_KEY;
 }

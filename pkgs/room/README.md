@@ -369,7 +369,7 @@ Connectivity triad — do not conflate:
 
 | Fixture | Purpose |
 |---------|---------|
-| `TestCounterModule` | Increment/Decrement; hash converge smoke |
+| `TestCounterModule` | Increment/Decrement; hash converge check |
 | `DeadlineFixtureModule` | Start → Schedule(Expire); Act vs Expire races (M6/M7) |
 | `MatchClockFixtureModule` | Dual banks; Move reschedules; FlagFall terminal (MC-01..06) |
 | `AuthzFixtureModule` | Claim/Bump owner authz across reconnect (M5) |
@@ -484,7 +484,7 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 | `down-then-restoreNetwork.sim.test.ts` | E1 | `net.down` drops frames; soft cycle + restoreNetwork → converge |
 | `down-during-welcome.sim.test.ts` | E1/E3 | Join under down; reconnect → converge |
 | `hold-during-sync.sim.test.ts` | E1/E3 | Long hold then release mid catch-up → converge |
-| `triad-matrix-smoke.sim.test.ts` | E1/E6 | Soft disconnect ∩ hold ∩ down remain independent |
+| `triad-matrix.sim.test.ts` | E1/E6 | Soft disconnect ∩ hold ∩ down remain independent |
 | `lossy-profile-converge.sim.test.ts` | E1/E9 | Mild delay/loss/reorder/dup + soft cycle → converge |
 | `n-client-partition.sim.test.ts` | E1 | Selective holds across ≥4 clients → converge |
 | `sync-after-long-partition.sim.test.ts` | E1/E3 | 20 commits behind hold → catch-up converge |
@@ -547,7 +547,7 @@ File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 
 | File | ID | Asserts / use case |
 |------|----|--------------------|
-| `purity-and-seed.sim.test.ts` | M1/M8 | `runModuleConformance` smoke on counter |
+| `purity-and-seed.sim.test.ts` | M1/M8 | `runModuleConformance` on counter |
 | `hash-canonicality.sim.test.ts` | M2 | Hash independent of key insertion order |
 | `totality-sweep.sim.test.ts` | M3 | Handle never throws across corpus; ok ⇒ non-empty events |
 | `fold-closure.sim.test.ts` | M4 | Reduce over ordered log stays valid |

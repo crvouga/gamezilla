@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (Infisical export + every vendor credential).
+// @io-wall-ok — live health probe (Infisical export + every vendor credential).
 import { describe, expect, test } from 'bun:test';
 import { SECRETS } from '@libs/secrets/shared/secrets/registry';
 import {

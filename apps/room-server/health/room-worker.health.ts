@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (Cloudflare API: room Durable Object wiring).
+// @io-wall-ok — live health probe (Cloudflare API: room Durable Object wiring).
 import { describe, expect, test } from 'bun:test';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { createGlobalHttpClient } from '@pkgs/http-client';

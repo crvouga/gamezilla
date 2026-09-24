@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (EMQX broker on Railway).
+// @io-wall-ok — live health probe (EMQX broker on Railway).
 import { describe, expect, test } from 'bun:test';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
 import { createHttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
@@ -40,7 +40,7 @@ describe('emqx', () => {
       apiKey: requireEnv(Name.apiKey),
       apiSecret: requireEnv(Name.apiSecret),
     });
-    await pubsub.publish('smoke-ping', { ok: true });
+    await pubsub.publish('health-ping', { ok: true });
   });
 
   test('client WSS URL points at the broker host', () => {

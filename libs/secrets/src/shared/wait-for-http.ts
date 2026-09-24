@@ -21,7 +21,7 @@ function isProbeHealthy(result: HealthResult): boolean {
 
 /**
  * Poll until `rawUrl` answers acceptably (default: any non-5xx status) and
- * return that response. Post-deploy custom-domain warmup and smoke probes.
+ * return that response. Post-deploy custom-domain warmup and `bun health` probes.
  */
 export async function waitForHttp(
   rawUrl: string,

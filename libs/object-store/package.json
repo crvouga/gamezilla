@@ -10,7 +10,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "provision": "bun run src/scripts/provision.ts",
-    "smoke": "bun test --timeout 60000 ./smoke/*.smoke.ts",
+    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {

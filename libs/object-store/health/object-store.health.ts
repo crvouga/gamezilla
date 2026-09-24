@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (process root against the env's R2 bucket).
+// @io-wall-ok — live health probe (process root against the env's R2 bucket).
 import { describe, expect, test } from 'bun:test';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
@@ -30,13 +30,13 @@ describe('object store (R2)', () => {
       region: process.env[S3SecretName.region]?.trim() || 'auto',
       rootPrefix: `${PRODUCT_CONFIG.objectStore.namespace}/`,
     });
-    const key = 'smoke/round-trip.txt';
-    const bytes = new TextEncoder().encode('smoke');
+    const key = 'health/round-trip.txt';
+    const bytes = new TextEncoder().encode('health');
     await store.put(key, bytes, 'text/plain');
     try {
       const stored = await store.get(key);
       expect(stored).not.toBeNull();
-      expect(await new Response(stored?.body).text()).toBe('smoke');
+      expect(await new Response(stored?.body).text()).toBe('health');
     } finally {
       await store.delete(key);
     }

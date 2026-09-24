@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (synced client_config rows in the env's Postgres).
+// @io-wall-ok — live health probe (synced client_config rows in the env's Postgres).
 import { describe, expect, test } from 'bun:test';
 import {
   CLIENT_CONFIG_KEYS,

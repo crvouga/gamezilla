@@ -46,10 +46,6 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import {
-  CHECK_SECRETS_FINGERPRINT_ENV,
-  computeCheckSecretsFingerprint,
-} from '@libs/secrets/shared/secrets/check-secrets-fingerprint';
-import {
   DEFAULT_TURBO_API,
   TURBO_TEAM,
 } from '@libs/secrets/shared/secrets/turbo-token';
@@ -70,8 +66,7 @@ import {
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
 const DEPLOY_AGGREGATOR = '//#deploy';
-const SMOKE_AGGREGATOR = '//#smoke';
-const SECRETS_CHECK_TASK = '@libs/secrets#check';
+const HEALTH_AGGREGATOR = '//#health';
 
 const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
@@ -102,18 +97,18 @@ const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
   deploy: DEPLOY_AGGREGATOR,
   '//#deploy': DEPLOY_AGGREGATOR,
   '//:deploy': DEPLOY_AGGREGATOR,
-  smoke: SMOKE_AGGREGATOR,
-  '//#smoke': SMOKE_AGGREGATOR,
-  '//:smoke': SMOKE_AGGREGATOR,
+  health: HEALTH_AGGREGATOR,
+  '//#health': HEALTH_AGGREGATOR,
+  '//:health': HEALTH_AGGREGATOR,
 };
 
 /**
- * `deploy`: the full release graph. `smoke`: live-resource probes only —
- * the `smoke` tasks declare the deploy chain in `dependsOn` so deploy orders
- * them last, and a standalone smoke run passes turbo's `--only` so it probes
+ * `deploy`: the full release graph. `health`: live-resource probes only —
+ * the `health` tasks declare the deploy chain in `dependsOn` so deploy orders
+ * them last, and a standalone health run passes turbo's `--only` so it probes
  * what is live without deploying anything. `plain`: everything else.
  */
-export type RunMode = 'deploy' | 'smoke' | 'plain';
+export type RunMode = 'deploy' | 'health' | 'plain';
 
 export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
   const requested = new Set(
@@ -122,13 +117,13 @@ export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
       .map((arg) => AGGREGATOR_ALIASES[arg])
   );
   if (requested.has(DEPLOY_AGGREGATOR)) return 'deploy';
-  if (requested.has(SMOKE_AGGREGATOR)) return 'smoke';
+  if (requested.has(HEALTH_AGGREGATOR)) return 'health';
   return 'plain';
 }
 
-/** Turbo flags a run mode adds: `--only` keeps standalone smoke off deploy. */
+/** Turbo flags a run mode adds: `--only` keeps standalone health off deploy. */
 export function runModeFlags(mode: RunMode): readonly string[] {
-  return mode === 'smoke' ? ['--only'] : [];
+  return mode === 'health' ? ['--only'] : [];
 }
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
@@ -256,8 +251,8 @@ export function flattenCheckAggregators(
     out.push(leaf);
   }
 
-  // Bare script names (`check`, `smoke`) are aliases only on the command
-  // line; inside `dependsOn` they are package tasks (`//#smoke` → `smoke`),
+  // Bare script names (`check`, `health`) are aliases only on the command
+  // line; inside `dependsOn` they are package tasks (`//#health` → `health`),
   // so nested deps expand only when they name a root aggregator.
   function expand(arg: string, commandLine: boolean): void {
     const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
@@ -281,26 +276,6 @@ export function flattenCheckAggregators(
   return out;
 }
 
-function needsSecretsFingerprint(
-  taskArgs: readonly string[],
-  mode: RunMode
-): boolean {
-  return taskArgs.includes(SECRETS_CHECK_TASK) || mode === 'deploy';
-}
-
-async function ensureSecretsFingerprint(
-  env: NodeJS.ProcessEnv,
-  taskArgs: readonly string[],
-  mode: RunMode
-): Promise<void> {
-  if (!needsSecretsFingerprint(taskArgs, mode)) return;
-  console.log(
-    'turbo-ci-run: computing secrets fingerprint (local cache or Infisical)…'
-  );
-  env[CHECK_SECRETS_FINGERPRINT_ENV] = await computeCheckSecretsFingerprint();
-  console.log('turbo-ci-run: secrets fingerprint ready.');
-}
-
 function requireRemoteCredsInCi(hasRemote: boolean): void {
   if (hasRemote || !inCi()) return;
   console.error(
@@ -318,50 +293,14 @@ function warnLocalCacheOnly(hasRemote: boolean): void {
   );
 }
 
-type OfflineTaskArgs = {
-  readonly taskArgs: readonly string[];
-  /** Leaves this machine cannot run; the gate is incomplete without them. */
-  readonly skipped: readonly string[];
-};
-
-/**
- * Leaves that need real credentials still come out of the set when there are
- * none — running them would only fail at the fingerprint, before any other
- * check got to speak. What must not happen is the run then reporting green:
- * that is the bug where a laptop passes and CI fails on the same commit. The
- * names come back so `main` can fail the run and say which leaves are missing.
- */
-function applyOfflineTaskArgs(
-  taskArgs: readonly string[],
-  hasRemote: boolean,
-  mode: RunMode
-): OfflineTaskArgs {
-  if (hasRemote) return { taskArgs: [...taskArgs], skipped: [] };
-  if (mode === 'deploy') {
-    console.error(
-      'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
-        'Run `bun run secrets:pull` then retry via secrets-run.'
-    );
-    process.exit(1);
-  }
-  if (!taskArgs.includes(SECRETS_CHECK_TASK)) {
-    return { taskArgs: [...taskArgs], skipped: [] };
-  }
-  return {
-    taskArgs: taskArgs.filter((arg) => arg !== SECRETS_CHECK_TASK),
-    skipped: [SECRETS_CHECK_TASK],
-  };
-}
-
-/** A run that could not execute every leaf is not a green gate. */
-function reportIncompleteGate(skipped: readonly string[]): void {
+/** Deploy writes remote artifacts CI reuses; it never runs cache-local. */
+function requireRemoteCredsForDeploy(hasRemote: boolean, mode: RunMode): void {
+  if (hasRemote || mode !== 'deploy') return;
   console.error(
-    `turbo-ci-run: gate incomplete — ${String(skipped.length)} leaf(s) could ` +
-      `not run on this machine: ${skipped.join(', ')}.\n` +
-      'Everything else passed, but this run does not prove the PR check is ' +
-      'green, so it does not exit 0. Run `infisical login` then ' +
-      '`bun run secrets:pull` to run the whole gate.'
+    'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
+      'Run `bun run secrets:pull` then retry via secrets-run.'
   );
+  process.exit(1);
 }
 
 async function main(): Promise<void> {
@@ -400,12 +339,8 @@ async function main(): Promise<void> {
   }
 
   const mode = resolveRunMode(rawTaskArgs);
-  const { taskArgs, skipped } = applyOfflineTaskArgs(
-    flattenCheckAggregators(rawTaskArgs),
-    remote,
-    mode
-  );
-  await ensureSecretsFingerprint(env, taskArgs, mode);
+  requireRemoteCredsForDeploy(remote, mode);
+  const taskArgs = flattenCheckAggregators(rawTaskArgs);
   exportGitHead(env);
 
   const slowRunner = inCi();
@@ -430,7 +365,7 @@ async function main(): Promise<void> {
   ];
   const plan = planOrNull(fullRunArgs, cache, env);
   if (plan !== null && plan.toExecute.length === 0) {
-    process.exit(finalExitCode({ status: 0, slowRunner, skipped, ran: false }));
+    process.exit(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
   if (plan !== null) await prefetchRemoteHits(plan, REPO_ROOT, env);
   const runArgs =
@@ -446,7 +381,7 @@ async function main(): Promise<void> {
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(finalExitCode({ status, slowRunner, skipped, ran: true }));
+  process.exit(finalExitCode({ status, slowRunner, ran: true }));
 }
 
 /**
@@ -540,13 +475,11 @@ function startHeartbeat(): () => void {
 }
 
 /**
- * Zero only when turbo passed, every executed task was inside its budget, and
- * the gate ran end to end. A skipped leaf is not a pass.
+ * Zero only when turbo passed and every executed task was inside its budget.
  */
 function finalExitCode(args: {
   readonly status: number;
   readonly slowRunner: boolean;
-  readonly skipped: readonly string[];
   /** False when the plan found nothing to execute: no summary to measure. */
   readonly ran: boolean;
 }): number {
@@ -554,10 +487,7 @@ function finalExitCode(args: {
   // someone is reading the log and wants to know where the time went.
   const budget = args.ran ? enforceTaskBudgets(args.slowRunner) : 0;
   if (args.status !== 0) return args.status;
-  if (budget !== 0) return budget;
-  if (args.skipped.length === 0) return 0;
-  reportIncompleteGate(args.skipped);
-  return 1;
+  return budget;
 }
 
 /**

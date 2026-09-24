@@ -2,8 +2,8 @@
   "extends": "./tsconfig.base.json",
   "include": [
     "pkgs/ts-reset/src/index.ts",
-    "apps/*/smoke/**/*.ts",
-    "libs/*/smoke/**/*.ts",
+    "apps/*/health/**/*.ts",
+    "libs/*/health/**/*.ts",
     "apps/server/src/**/*.ts",
     "apps/server/src/**/*.d.ts",
     "apps/server/tests/**/*.ts",

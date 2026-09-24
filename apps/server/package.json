@@ -16,7 +16,7 @@
     "preview": "bun run scripts/preview.ts",
     "preview:serve": "bun run scripts/preview-serve.ts",
     "setup": "bun run scripts/setup-dev-vars.ts",
-    "smoke": "bun test --timeout 60000 ./smoke/*.smoke.ts",
+    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='**/integration/**'",
     "test:integration": "bun test src/integration/"

@@ -15,7 +15,7 @@
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "smoke": "bun test --timeout 60000 ./smoke/*.smoke.ts",
+    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {

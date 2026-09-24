@@ -1,7 +1,7 @@
 /**
  * Single source of truth for every managed secret the app needs.
  * Registry lives in {@link ./registry}; anything not listed there is an orphan
- * and will be purged on provision (`check:secrets` allows orphans).
+ * and will be purged on provision (`bun health` allows orphans).
  */
 
 export type SecretsEnv = 'dev' | 'prd';

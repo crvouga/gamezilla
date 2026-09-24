@@ -52,7 +52,7 @@ Baseline written from code analysis of `@pkgs/chess-board` + `@pkgs/chess-board-
 4. 64 square paints every theme/selection path instead of one background + overlay highlights.
 5. Single premove only (`BoardInteraction.premove`).
 6. No circle shapes; brushes limited to arrow color keys.
-7. Thin UI gesture tests relative to core unit coverage (pointer-session + mount smoke only).
+7. Thin UI gesture tests relative to core unit coverage (pointer-session + mount checks only).
 8. `getBoundingClientRect` / reactive drag coupling risk under 4× throttle (*pending trace*).
 
 ## Baseline metrics

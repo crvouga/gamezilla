@@ -1,7 +1,7 @@
 /**
  * The full composition: every feature the product ships, folded exactly as
  * production folds them. The product simulator and the full-composition
- * suites (`libs/runtime/tests/e2e`: smoke, the whole-app monkey, explore) run
+ * suites (`libs/runtime/tests/e2e`: shell boot, the whole-app monkey, explore) run
  * this; a feature's own e2e runs its slice from its own package.
  */
 

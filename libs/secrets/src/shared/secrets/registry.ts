@@ -15,11 +15,6 @@ import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
 import {
-  ELEVEN_LABS_API_KEY,
-  OPENAI_API_KEY,
-  OPENAI_BASE_URL,
-} from './llm-tts-secrets';
-import {
   GRAFANA_CLOUD_API_TOKEN,
   OBS_TEMPO_TOKEN,
   OBS_TEMPO_URL,
@@ -44,11 +39,12 @@ import {
   S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
 import type { Secret } from './secret';
+import { ELEVEN_LABS_API_KEY } from './tts-secrets';
 import { TURBO_API, TURBO_TOKEN } from './turbo-token';
 
 /**
  * Exhaustive registry of every managed secret. Orphans (stored keys not in
- * this list) are purged on provision; `check:secrets` allows them.
+ * this list) are purged on provision; `bun health` allows them.
  */
 export const SECRETS: readonly Secret[] = [
   CLOUDFLARE_API_TOKEN,
@@ -66,8 +62,6 @@ export const SECRETS: readonly Secret[] = [
   S3_ENDPOINT,
   S3_REGION,
   ELEVEN_LABS_API_KEY,
-  OPENAI_API_KEY,
-  OPENAI_BASE_URL,
   GRAFANA_CLOUD_API_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,
   OBSERVABILITY_COLLECTOR_USER,

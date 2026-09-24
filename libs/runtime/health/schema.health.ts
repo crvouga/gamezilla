@@ -1,4 +1,4 @@
-// @io-wall-ok — live smoke probe (process root against the env's Postgres).
+// @io-wall-ok — live health probe (process root against the env's Postgres).
 import { describe, expect, test } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { appSchema } from '@libs/runtime/root/app-schema';
