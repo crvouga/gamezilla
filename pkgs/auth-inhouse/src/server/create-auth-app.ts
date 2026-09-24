@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { SYNTHETIC_MONITOR_CODE_PATH } from '../shared/synthetic-monitor';
 import { handleAppleNotification } from './apple-notification-handler';
 import {
   handleGetSession,
@@ -19,6 +20,7 @@ import {
 } from './identity-handlers';
 import { handleOauthCallback, handleOauthLaunch } from './oauth-handlers';
 import { createOauthProviders } from './providers/registry';
+import { handleSyntheticMonitorCode } from './synthetic-monitor';
 
 export type { CreateAuthAppDeps, CreateAuthAppProviders };
 
@@ -51,6 +53,9 @@ export function createAuthApp(deps: CreateAuthAppDeps): Hono {
   app.post('/auth/link/ticket', (c) => handleLinkTicket(c, ctx));
   app.post('/auth/link/separate', (c) => handleCreateSeparate(c, ctx));
   app.post('/auth/apple/notifications', (c) => handleAppleNotification(c, ctx));
+  app.post(SYNTHETIC_MONITOR_CODE_PATH, (c) =>
+    handleSyntheticMonitorCode(c, ctx)
+  );
 
   return app;
 }

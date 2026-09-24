@@ -93,5 +93,10 @@
     "id": "deploy-health-self-cycle",
     "summary": "`//#health` depended on bare `health`, which the root `health` script resolves back to `//#health`, so turbo refused to plan `//#deploy` (\"//#health depends on itself\") and every deploy failed. Fixed by dropping the one-dep `//#health` aggregator; `//#deploy` depends on `health` directly, and a graph test fails `bun check` on any root-task cycle.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "webview-input-wrapper-noop",
+    "summary": "The Bun.WebView driver typed only into a node that held a `value`, but `@pkgs/ui` TextInput puts its test id on the wrapper `<div>`, so `input` / `clear` / `text` on every TextInput were silent no-ops in a real browser (the Solid DOM driver resolved the nested field). Fixed by resolving the wrapper's `<input>` / `<textarea>` like the Solid DOM driver.",
+    "regressionTest": "pkgs/ui-testing-bun-webview/tests/text-field.test.ts"
   }
 ]

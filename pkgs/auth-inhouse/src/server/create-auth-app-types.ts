@@ -7,6 +7,7 @@ import type {
   OauthProviders,
   OauthProvidersConfig,
 } from './providers/registry';
+import type { SyntheticMonitorConfig } from './synthetic-monitor';
 
 export type CreateAuthAppProviders = OauthProvidersConfig;
 
@@ -25,6 +26,8 @@ export type CreateAuthAppDeps = {
   readonly publicPathPrefix?: string;
   readonly trustedOrigins: readonly string[];
   readonly providers: CreateAuthAppProviders;
+  /** Hidden synthetic-monitor sign-in; absent → its route answers 404. */
+  readonly syntheticMonitor?: SyntheticMonitorConfig;
 };
 
 /** What every handler gets: the deps plus the providers built from them once. */

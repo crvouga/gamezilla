@@ -1,0 +1,99 @@
+/**
+ * Steps the critical journeys share. Everything here is a bare {@link Driver}
+ * gesture — no sim, no session — so the same step runs on pumped virtual
+ * time in `bun check` and on a real browser against production.
+ */
+
+import {
+  openGlobalMenu,
+  pressBackUntilVisible,
+} from '@libs/sim-harness/system/driver-gestures';
+import { Handles } from '@libs/test-ids';
+import type { Driver } from '@pkgs/ui-testing';
+
+/**
+ * Wall-time budget for one step against production (network round trips,
+ * cold Worker). Virtual time in the sim makes it free there.
+ */
+export const JOURNEY_WAIT_MS = 20_000;
+/** A modal's submit hides once the mutation settles. */
+const MUTATION_SETTLE_MS = 10_000;
+
+/** Journey assertion: plain `Error`, never disabled by an assert switch. */
+export function check(condition: boolean, message: string): asserts condition {
+  if (!condition) throw new Error(message);
+}
+
+export async function atTabShell(ui: Driver): Promise<void> {
+  await ui.get(Handles.statusCurrentUser).expect.visible({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function tap(ui: Driver, testId: string): Promise<void> {
+  await ui.get(testId).tap({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+export async function expectVisible(ui: Driver, testId: string): Promise<void> {
+  await ui.get(testId).expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+}
+
+/**
+ * The runner's sign-in took: the account screen offers "Sign out" (not
+ * "Sign in"). Ends back on the tab shell, where every journey starts.
+ */
+export async function confirmSignedIn(ui: Driver): Promise<void> {
+  await atTabShell(ui);
+  await openGlobalMenu(ui, Handles.globalMenuAccount, JOURNEY_WAIT_MS);
+  await tap(ui, Handles.globalMenuAccount);
+  await expectVisible(ui, Handles.accountSignOut);
+  await pressBackUntilVisible(ui, Handles.tabProfile, JOURNEY_WAIT_MS);
+}
+
+/** Open a bottom tab, backing out of a pushed screen first if needed. */
+export async function openTab(ui: Driver, tab: string): Promise<void> {
+  await atTabShell(ui);
+  if (!(await ui.get(tab).isVisible())) {
+    await pressBackUntilVisible(ui, tab, JOURNEY_WAIT_MS);
+  }
+  await tap(ui, tab);
+}
+
+async function endActiveSpace(ui: Driver): Promise<void> {
+  await tap(ui, Handles.spaceEnd);
+  await tap(ui, Handles.spaceEndConfirm);
+  await ui
+    .get(Handles.spaceEndConfirm)
+    .expect.hidden({ timeoutMs: MUTATION_SETTLE_MS });
+  await tap(ui, Handles.spaceMutationDismiss);
+  await ui
+    .get(Handles.spaceMutationDismiss)
+    .expect.hidden({ timeoutMs: MUTATION_SETTLE_MS });
+  await expectVisible(ui, Handles.spaceEnded);
+}
+
+/**
+ * Host a space, run `body` inside it, then end it — also when `body` fails,
+ * so a broken run never leaves a live space behind (free accounts may host
+ * one at a time). The first failure wins.
+ */
+export async function withHostedSpace(
+  ui: Driver,
+  body: () => Promise<void>
+): Promise<void> {
+  await openTab(ui, Handles.tabSpaces);
+  await tap(ui, Handles.spaceCreate);
+  await expectVisible(ui, Handles.spaceClose);
+  let failure: unknown = null;
+  try {
+    await body();
+  } catch (error) {
+    failure = error;
+  }
+  try {
+    await endActiveSpace(ui);
+  } catch (error) {
+    failure ??= error;
+  }
+  if (failure !== null) throw failure;
+}
