@@ -213,7 +213,7 @@ function PlanActions(props: {
 
 export function BillingPlanCard(props: PlanCardProps): JSX.Element {
   return (
-    <section class="box gap-4 rounded-2xl border border-border bg-surface p-5 shadow-sm">
+    <section class="box gap-4 rounded-card border border-border bg-surface p-5 shadow-sm">
       <div class="box flex-row items-center gap-3">
         <div class="box h-12 w-12 shrink-0 items-center justify-center rounded-full bg-tint-subtle">
           <CreditCardIcon size={24} color="tint" />

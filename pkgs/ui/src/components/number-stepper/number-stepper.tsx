@@ -48,7 +48,7 @@ function StepperButton(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint min-w-10 min-h-10 items-center justify-center rounded-md"
+      class="clickable clickableTint min-w-10 min-h-10 items-center justify-center rounded-sm"
       data-testid={props.testId}
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}

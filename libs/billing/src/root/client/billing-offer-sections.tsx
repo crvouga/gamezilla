@@ -31,7 +31,7 @@ function PriceTile(props: {
     );
   return (
     <div
-      class="box min-w-0 flex-1 gap-1 rounded-xl border p-4"
+      class="box min-w-0 flex-1 gap-1 rounded-sm border p-4"
       classList={{
         'border-tint bg-tint-subtle': props.current,
         'border-border bg-surface': !props.current,
@@ -124,7 +124,7 @@ export function BillingBenefits(props: {
 }): JSX.Element {
   return (
     <section
-      class="box gap-4 rounded-2xl border border-border bg-surface p-5"
+      class="box gap-4 rounded-card border border-border bg-surface p-5"
       data-testid={Handles.billingBenefits}
     >
       <p class="text textSubtitle">

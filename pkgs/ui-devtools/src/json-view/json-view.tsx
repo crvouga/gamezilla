@@ -239,7 +239,7 @@ function ToolbarButton(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-11 rounded-md"
+      class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-11 rounded-sm"
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
       onClick={() => props.onClick()}

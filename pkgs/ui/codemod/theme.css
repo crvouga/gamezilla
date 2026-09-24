@@ -11,10 +11,22 @@
  */
 
 @theme {
-  --radius-control: 10px;
-  --radius-card: 14px;
-  --radius-panel: 18px;
-  --radius-sheet: 20px;
+  --font-sans: var(--ui-font-sans);
+  --font-display: var(--ui-font-display);
+  --font-mono: var(--ui-font-mono);
+  --font-serif: var(--ui-font-serif);
+  --radius-xs: var(--ui-radius-xs);
+  --radius-sm: var(--ui-radius-sm);
+  --radius-md: var(--ui-radius-md);
+  --radius-lg: var(--ui-radius-lg);
+  --radius-xl: var(--ui-radius-xl);
+  --radius-2xl: var(--ui-radius-2xl);
+  --radius-3xl: var(--ui-radius-2xl);
+  --radius-4xl: var(--ui-radius-full);
+  --radius-control: var(--ui-radius-md);
+  --radius-card: var(--ui-radius-lg);
+  --radius-panel: var(--ui-radius-lg);
+  --radius-sheet: var(--ui-radius-xl);
   --text-2xs: 11px;
   --text-micro: 10px;
   --text-nano: 9px;

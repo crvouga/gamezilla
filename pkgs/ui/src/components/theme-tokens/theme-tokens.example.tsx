@@ -188,7 +188,7 @@ function SpacingRow(): JSX.Element {
           <div class="box flex-row items-center gap-2">
             <p class="text textCaption text-text-secondary w-8">{entry.key}</p>
             <div
-              class="box w-2.5 bg-tint rounded-sm"
+              class="box h-2.5 bg-tint rounded-xs"
               style={{ width: cssPx(Math.max(entry.value, 1)) }}
             />
             <p class="text textCaption text-text-secondary">{`${entry.value}px`}</p>

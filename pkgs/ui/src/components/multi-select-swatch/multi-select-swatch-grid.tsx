@@ -61,7 +61,7 @@ export function toggleSwatch(value: readonly string[], hex: string): string[] {
 function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
   return (
     <button
-      class="clickable clickableTint px-3 py-2 rounded-lg border bg-surface"
+      class="clickable clickableTint px-3 py-2 rounded-sm border bg-surface"
       data-component="SwatchRandom"
       type="button"
       style={{
@@ -91,7 +91,7 @@ function DefaultSwatch(props: {
     props.hex.toLowerCase() === props.transparentToken.toLowerCase();
   return (
     <button
-      class="clickable clickableTint w-9 h-9 rounded-panel border-2 overflow-hidden"
+      class="clickable clickableTint w-9 h-9 rounded-full border-2 overflow-hidden"
       data-component="Swatch"
       data-hex={props.hex}
       type="button"
