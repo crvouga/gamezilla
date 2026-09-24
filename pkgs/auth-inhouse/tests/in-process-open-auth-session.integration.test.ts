@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import { createSimClock, type SimClockBundle } from '@pkgs/clock';
 import {
   createIdpSigningKeys,
   createIdpSimApp,
@@ -30,6 +30,8 @@ const CALLBACK = 'gamezilla://sso-callback';
 const SECRET = 'auth-system-secret-0123456789abcdef';
 const CLIENT_ID = 'sim.apps.googleusercontent.com';
 const CLIENT_SECRET = 'sim-google-client-secret';
+/** 2026-01-01T00:00:00Z — every node shares one virtual clock. */
+const START_MS = 1_767_225_600_000;
 const REDIRECT_URI = `${BASE_URL}/api/auth/callback/google`;
 
 type WireFetch = (
@@ -41,7 +43,11 @@ type WireFetch = (
  * Two nodes on one machine: the auth app and a simulated Google. The
  * headless session walks between them exactly as a browser would.
  */
-async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
+async function bootNodes(): Promise<{
+  readonly wire: WireFetch;
+  readonly sim: SimClockBundle;
+}> {
+  const sim = createSimClock({ startMs: START_MS });
   const sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
   await new AuthPostgresDatabaseMigration({
     dbScope: createPostgresDbScope('public'),
@@ -53,7 +59,7 @@ async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
   const idpStore = await IdpStore.open({
     provider: 'google',
     sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
-    clock: wallClock,
+    clock: sim.clock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,
   });
@@ -82,7 +88,7 @@ async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
 
   const authApp = createAuthApp({
     getSql: () => sqlClient,
-    clock: wallClock,
+    clock: sim.clock,
     createId: () => `id-${(nextId += 1)}`,
     http: { fetch: (input, requestInit) => wire(input, requestInit) },
     secret: SECRET,
@@ -100,20 +106,19 @@ async function bootNodes(): Promise<{ readonly wire: WireFetch }> {
   const app = new Hono();
   app.route('/api', authApp);
 
-  return { wire };
+  return { wire, sim };
 }
 
 describe('createInProcessOpenAuthSession / sim parity', () => {
   test('walks the provider screens and exchanges a session', async () => {
-    const { wire } = await bootNodes();
+    const { wire, sim } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
       account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      clock: wallClock,
-      timers: wallTimers,
+      ...sim,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,
@@ -127,15 +132,14 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
   });
 
   test('a wrong password never reaches a session', async () => {
-    const { wire } = await bootNodes();
+    const { wire, sim } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
       account: { email: 'alice@gmail.com', password: 'wrong' },
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      clock: wallClock,
-      timers: wallTimers,
+      ...sim,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,
@@ -147,7 +151,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
   });
 
   test('denying consent on the provider returns the app to an error', async () => {
-    const { wire } = await bootNodes();
+    const { wire, sim } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
       account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
@@ -155,8 +159,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      clock: wallClock,
-      timers: wallTimers,
+      ...sim,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,

@@ -7,6 +7,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/property';
 import * as fc from 'fast-check';
 import ts from 'typescript';
 import { parseArgs } from '../cli-io';
@@ -100,7 +101,8 @@ describe('property-based transform invariants', () => {
   test(
     'generated valid inputs parse, never throw, and are idempotent',
     async () => {
-      await fc.assert(
+      await assertProperty(
+        'generated valid inputs parse, never throw, and are idempotent',
         fc.property(sourceArb, ({ source }) => {
           const first = transformFile('generated.tsx', source);
           expect(first.parseError).toBeUndefined();
@@ -119,7 +121,8 @@ describe('property-based transform invariants', () => {
   test(
     'runCodemod preserves one output per input and stable counts',
     async () => {
-      await fc.assert(
+      await assertProperty(
+        'runCodemod preserves one output per input and stable counts',
         fc.property(
           fc.array(sourceArb, { minLength: 1, maxLength: 20 }),
           (cases) => {
@@ -173,7 +176,8 @@ describe('model-based migration pipeline', () => {
   test(
     'write is permitted exactly when parse, stability, and completeness gates pass',
     async () => {
-      await fc.assert(
+      await assertProperty(
+        'write is permitted exactly when parse, stability, and completeness gates pass',
         fc.property(sourceArb, fc.boolean(), ({ source }, write) => {
           const state = modelPipeline(source, write);
           const result = runCodemod(

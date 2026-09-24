@@ -9,6 +9,7 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/property';
 import * as fc from 'fast-check';
 import ts from 'typescript';
 import { transformFile } from '../transform';
@@ -88,7 +89,8 @@ describe('valid TSX property', () => {
   test(
     'output always parses; converted nodes drop sx and imports',
     async () => {
-      await fc.assert(
+      await assertProperty(
+        'output always parses; converted nodes drop sx and imports',
         fc.property(arbUsage, ({ source }) => {
           const result = transformFile('prop.tsx', source);
           expect(result.parseError).toBe(undefined);
@@ -109,7 +111,8 @@ describe('idempotence property', () => {
   test(
     'second run is a byte-identical no-op',
     async () => {
-      await fc.assert(
+      await assertProperty(
+        'second run is a byte-identical no-op',
         fc.property(arbUsage, ({ source }) => {
           const first = transformFile('prop.tsx', source);
           expect(first.parseError).toBe(undefined);
@@ -129,7 +132,8 @@ describe('preservation property', () => {
   test(
     'passthrough attributes and children survive verbatim',
     async () => {
-      await fc.assert(
+      await assertProperty(
+        'passthrough attributes and children survive verbatim',
         fc.property(arbUsage, ({ source }) => {
           const result = transformFile('prop.tsx', source);
           for (const kept of [
@@ -163,7 +167,8 @@ describe('preservation property', () => {
         expect(result.manual).toEqual([]);
         expect(result.text).not.toContain('TODO(sx-codemod)');
       }
-      await fc.assert(
+      await assertProperty(
+        'former Tier C inputs convert or stay silent — never TODO',
         fc.property(fc.constantFrom(...cases), (source) => {
           const first = transformFile('tierc.tsx', source);
           const second = transformFile('tierc.tsx', first.text);

@@ -13,8 +13,7 @@
     "install:deps": "bun run scripts/install-deps.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "setup": "bun run scripts/setup.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
     "@pkgs/os": "workspace:*",

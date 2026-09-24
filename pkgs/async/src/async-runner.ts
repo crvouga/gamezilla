@@ -174,7 +174,10 @@ class AsyncRunnerImpl<TResult, TArgs extends unknown[]>
       this.options.onError?.(normalized, args);
       throw normalized;
     } finally {
-      this.inFlight.delete(key);
+      // Only evict our own entry: after cancelAll/reset a newer run may own `key`.
+      if (this.inFlight.get(key)?.abortController === abortController) {
+        this.inFlight.delete(key);
+      }
     }
   }
 

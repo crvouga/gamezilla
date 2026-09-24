@@ -1,5 +1,5 @@
 {
-  "$schema": "https://v2-11-2.turborepo.dev/schema.json",
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
   "ui": "stream",
   "concurrency": "50%",
   "globalDependencies": ["tsconfig.base.json"],
@@ -134,6 +134,8 @@
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
         "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
         "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
         "$TURBO_ROOT$/libs/tools/naming/**",
@@ -288,6 +290,28 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "check:worker-bundle": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/tools/scripts/check-worker-bundle.ts"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@apps/product#check:offline-shell": {
+      "dependsOn": ["@apps/product#build"],
+      "inputs": [
+        "dist/**",
+        "!dist/**/*.map",
+        "scripts/check-offline-shell.ts",
+        "scripts/dist-graph.ts",
+        "scripts/sw-policy.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "@libs/runtime#check:schema-evolution": {
       "dependsOn": ["tc"],
       "env": ["PR_BASE"],
@@ -337,6 +361,9 @@
         "test:contract",
         "test:e2e",
         "@apps/client#check:bundle-budget",
+        "@apps/product#check:offline-shell",
+        "@apps/room-server#check:worker-bundle",
+        "@apps/server#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
         "@libs/secrets#check",
         "@libs/tools#check:static"

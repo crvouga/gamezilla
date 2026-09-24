@@ -1,0 +1,33 @@
+language js
+
+// goal:the-bar:4 — a test's verdict is a function of the code, and a test is
+// fast. Wall time, real sleeps and unseeded randomness make it neither: a
+// real 30 ms sleep before an assert fails on a loaded runner and costs 30 ms
+// on an idle one. Tests run on virtual time (`createSimClock`,
+// `createSimAdapters`, `virtualTimeRuntime`) with seeded ids and randomness.
+// Contract tests (`*.contract.test.ts`) drive real engines and are exempt.
+file($body) where {
+  $body <: or {
+    includes "Date",
+    includes "performance",
+    includes "setTimeout",
+    includes "setInterval",
+    includes "random",
+    includes "wallClock",
+    includes "wallTimers"
+  },
+  $body <: contains bubble or {
+    `Date.now()`,
+    `new Date()`,
+    `performance.now()`,
+    `setTimeout($args)`,
+    `setInterval($args)`,
+    `globalThis.setTimeout($args)`,
+    `Math.random()`,
+    `crypto.randomUUID()`,
+    `wallClock`,
+    `wallTimers`
+  } as $node where {
+    register_diagnostic(span=$node, message="Tests run on virtual time with seeded randomness — use createSimClock / createSimAdapters and a deterministic createId instead of wall clocks, real timers, Math.random or crypto.randomUUID. Only *.contract.test.ts may touch the wall.", severity="error")
+  }
+}

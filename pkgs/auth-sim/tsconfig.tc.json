@@ -4,7 +4,8 @@
     "../ts-reset/src/index.ts",
     "../ui/src/css-modules.d.ts",
     "./src/**/*.ts",
-    "./src/**/*.d.ts"
+    "./src/**/*.d.ts",
+    "./tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

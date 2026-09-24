@@ -2,10 +2,10 @@
 // @io-wall-ok — lint CLI entry root (scripts/**).
 /**
  * Lint one package: path naming, Biome (which also carries the import-boundary
- * rules), the Solid oxlint scope, the package-boundary rules and the goal
- * proofs that live in it, over that package's files and nothing else. The
- * external tools run concurrently: a package's lint costs its slowest tool,
- * not the sum.
+ * rules), the Solid oxlint scope, the package-boundary rules, the `tc` scope
+ * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`) and the goal proofs that live in it, over that
+ * package's files and nothing else. The external tools run concurrently: a
+ * package's lint costs its slowest tool, not the sum.
  *
  * Every package's `lint` script runs this from its own directory, so turbo
  * caches lint per package and a PR re-lints only what it touched (plus its
@@ -24,6 +24,8 @@ import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
+import { tcProject, tcScopeViolations } from './tc-scope';
+import { testScriptViolations } from './test-scripts';
 import { unusedWorkspaceDependencies } from './unused-dependencies';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
@@ -95,6 +97,14 @@ function solidTargets(pkg: string): readonly string[] {
   ].filter((path) => path.startsWith(`${pkg}/`));
 }
 
+function readText(path: string): string | null {
+  try {
+    return readFileSync(path, 'utf8');
+  } catch {
+    return null;
+  }
+}
+
 function readJson<T>(path: string): T {
   return JSON.parse(readFileSync(join(REPO_ROOT, path), 'utf8')) as T;
 }
@@ -153,6 +163,30 @@ async function lintPackage(pkg: string): Promise<boolean> {
   if (unused.length > 0) {
     console.error(
       `${pkg}: declares workspace dependencies nothing in it uses — each reruns this package's checks on every change to it; remove them:\n  ${unused.join('\n  ')}`
+    );
+    ok = false;
+  }
+  const scripts =
+    readJson<{ scripts?: Record<string, string> }>(`${pkg}/package.json`)
+      .scripts ?? {};
+  const pkgFiles = (files ?? []).map((path) => path.slice(pkg.length + 1));
+  const project = tcProject(scripts['tc']);
+  const tcScope = tcScopeViolations({
+    tcScript: scripts['tc'],
+    tsconfigText:
+      project === null ? null : readText(join(REPO_ROOT, pkg, project)),
+    files: pkgFiles,
+  });
+  if (tcScope.length > 0) {
+    console.error(
+      `${pkg}: every TypeScript file is type-checked by the package's \`tc\`:\n  ${tcScope.join('\n  ')}`
+    );
+    ok = false;
+  }
+  const testScripts = testScriptViolations({ scripts, files: pkgFiles });
+  if (testScripts.length > 0) {
+    console.error(
+      `${pkg}: test scripts must run every test the package owns, once, with no escape hatch:\n  ${testScripts.join('\n  ')}`
     );
     ok = false;
   }

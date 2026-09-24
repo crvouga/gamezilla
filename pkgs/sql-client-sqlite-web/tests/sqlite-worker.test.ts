@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { wallTimers } from '@pkgs/clock';
+import { createSimClock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import {
   attachSqliteWorkerHost,
@@ -204,6 +204,11 @@ describe('sqlite worker protocol (memory backend)', () => {
   });
 });
 
+/**
+ * The owner's timers only bound open / close with a timeout. Every case here
+ * settles through the in-process MessageChannel first, so the virtual clock is
+ * never advanced and no timeout can fire.
+ */
 describe('createSqliteWorkerSqlOwner', () => {
   function createTrackedSpawner(backend: SqliteWorkerBackend) {
     const events: string[] = [];
@@ -225,7 +230,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: wallTimers,
+      timers: createSimClock().timers,
     });
     expect(owner.getOpenInfo()).toBeNull();
 
@@ -251,7 +256,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: wallTimers,
+      timers: createSimClock().timers,
     });
     const client = await owner.open();
     await client.disconnect();
@@ -265,7 +270,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: wallTimers,
+      timers: createSimClock().timers,
     });
     await owner.open();
     await owner.open();
@@ -287,7 +292,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: wallTimers,
+      timers: createSimClock().timers,
     });
     await owner.open();
     await owner.resetStore();
@@ -310,7 +315,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
       spawnWorker,
-      timers: wallTimers,
+      timers: createSimClock().timers,
     });
     const failed = await rejectionOf(owner.open());
     expect(failed.message).toBe('cannot create file');
@@ -326,7 +331,7 @@ describe('createSqliteWorkerSqlOwner', () => {
     };
     const owner = createSqliteWorkerSqlOwner({
       dbName: 'user_a',
-      timers: wallTimers,
+      timers: createSimClock().timers,
       spawnWorker: () => {
         const handle = createFakeWorker(backend);
         captured = handle;

@@ -6,7 +6,9 @@
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
     "./web/**/*.ts",
-    "./web/**/*.tsx"
+    "./web/**/*.tsx",
+    "./tests/**/*.ts",
+    "./vite.config.mts"
   ],
   "exclude": ["node_modules"]
 }

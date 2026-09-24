@@ -12,6 +12,7 @@ import {
   type SubscriptionSnapshot,
 } from '@libs/permissions/root/access-model';
 import type { MembershipStatus } from '@pkgs/billing';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 const PARAMS = { seed: 424_242, numRuns: 400 } as const;
@@ -44,7 +45,8 @@ const factsArb: fc.Arbitrary<AccessInputs> = fc.record({
 
 describe('plan resolver properties', () => {
   test('signed out is always a guest; a guest is always signed out', () => {
-    fc.assert(
+    assertProperty(
+      'signed out is always a guest; a guest is always signed out',
       fc.property(factsArb, (facts) => {
         const role = resolvePlanRole(facts);
         expect(role === ROLE.planGuest).toBe(!facts.signedIn);
@@ -54,7 +56,8 @@ describe('plan resolver properties', () => {
   });
 
   test('paid implies signed in with a readable membership', () => {
-    fc.assert(
+    assertProperty(
+      'paid implies signed in with a readable membership',
       fc.property(factsArb, (facts) => {
         if (resolvePlanRole(facts) !== ROLE.planPaid) return;
         expect(facts.signedIn).toBe(true);
@@ -65,7 +68,8 @@ describe('plan resolver properties', () => {
   });
 
   test('an incomplete membership never grants', () => {
-    fc.assert(
+    assertProperty(
+      'an incomplete membership never grants',
       fc.property(factsArb, snapshotArb, (facts, snapshot) => {
         const subscription = { ...snapshot, status: 'incomplete' as const };
         expect(resolvePlanRole({ ...facts, subscription })).not.toBe(
@@ -84,7 +88,8 @@ describe('plan resolver properties', () => {
       'delinquent',
       'ended',
     ]);
-    fc.assert(
+    assertProperty(
+      'a status outside our vocabulary reads as no membership',
       fc.property(
         fc.string().filter((s) => !known.has(s)),
         fc.option(fc.string(), { nil: null }),
@@ -103,7 +108,8 @@ describe('plan resolver properties', () => {
   });
 
   test('for one row, access is monotone in time: once lost, never regained', () => {
-    fc.assert(
+    assertProperty(
+      'for one row, access is monotone in time: once lost, never regained',
       fc.property(factsArb, msArb, msArb, (facts, a, b) => {
         const [early, late] = a <= b ? [a, b] : [b, a];
         const paidLate =
@@ -117,7 +123,8 @@ describe('plan resolver properties', () => {
   });
 
   test('delinquent and ended grant exactly through end + grace, inclusive', () => {
-    fc.assert(
+    assertProperty(
+      'delinquent and ended grant exactly through end + grace, inclusive',
       fc.property(
         fc.constantFrom<MembershipStatus>('delinquent', 'ended'),
         msArb,
@@ -146,7 +153,8 @@ describe('plan resolver properties', () => {
   });
 
   test('the cancel flag never changes the role', () => {
-    fc.assert(
+    assertProperty(
+      'the cancel flag never changes the role',
       fc.property(factsArb, snapshotArb, (facts, snapshot) => {
         const with_ = {
           ...facts,
@@ -163,7 +171,8 @@ describe('plan resolver properties', () => {
   });
 
   test('a longer grace window never takes access away', () => {
-    fc.assert(
+    assertProperty(
+      'a longer grace window never takes access away',
       fc.property(factsArb, graceArb, (facts, extra) => {
         if (resolvePlanRole(facts) !== ROLE.planPaid) return;
         expect(

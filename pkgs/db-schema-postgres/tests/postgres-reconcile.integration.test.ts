@@ -3,7 +3,7 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import { defineSchema } from '@pkgs/db-schema/core/define-schema';
 import { createRecordingSqlClient } from '@pkgs/db-schema/test/fake-sql-client';
 import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { raw, sql } from '@pkgs/sql';
+import { sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';

@@ -9,6 +9,7 @@ import {
   verifyPaddleSignature,
 } from '@pkgs/billing-paddle';
 import { FakePaddle } from '@pkgs/billing-paddle/sim';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 const NOW = 1_800_000_000_000;
@@ -49,7 +50,8 @@ describe('membershipStatusOf', () => {
 
 describe('Paddle signatures', () => {
   test('a signature verifies only for its secret, body and time', () => {
-    fc.assert(
+    assertProperty(
+      'a signature verifies only for its secret, body and time',
       fc.property(
         fc.string(),
         fc.integer({ min: 1_600_000_000, max: 2_000_000_000 }),

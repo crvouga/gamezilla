@@ -8,7 +8,8 @@
     "./web/**/*.ts",
     "./web/**/*.tsx",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx"
+    "./tests/**/*.tsx",
+    "./vite.config.mts"
   ],
   "exclude": ["node_modules"],
   "compilerOptions": {

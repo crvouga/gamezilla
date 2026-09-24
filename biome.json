@@ -736,6 +736,14 @@
       "includes": ["**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
     },
     {
+      "path": "./libs/tools/biome-plugins/no-wall-time-in-tests.grit",
+      "includes": ["**/*.test.{ts,tsx}", "!**/*.contract.test.{ts,tsx}"]
+    },
+    {
+      "path": "./libs/tools/biome-plugins/no-unpinned-property.grit",
+      "includes": ["**/*.{ts,tsx}", "!**/pkgs/property/src/**"]
+    },
+    {
       "path": "./libs/tools/biome-plugins/import-no-ui-framework.grit",
       "includes": [
         "**/libs/chess/src/shared/puzzle-session/**/*.{ts,tsx}",

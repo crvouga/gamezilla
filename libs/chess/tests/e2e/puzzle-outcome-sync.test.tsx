@@ -59,6 +59,8 @@ function normalized(events: readonly PuzzleRatingEventRow[]) {
   }));
 }
 
+// regression: puzzle-wrong-move-half-credit — a wrong move scores 0.5, not 0,
+// locally and after the offline outcome replays.
 describe('puzzle outcome scoring survives offline replay', () => {
   for (const entry of CASES) {
     test(`${entry.name} has the goal's score locally and after reconnect`, async () => {

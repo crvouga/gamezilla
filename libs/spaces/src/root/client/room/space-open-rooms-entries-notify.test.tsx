@@ -80,8 +80,10 @@ function mount(node: () => JSX.Element): () => void {
   return () => view.unmount();
 }
 
-const flush = (): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, 0));
+/** Solid commits synchronously; drain the microtasks its effects queue. */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 10; i++) await Promise.resolve();
+}
 
 describe('SpaceOpenRoomsStoreProvider entries notify', () => {
   it('re-renders useSpaceOpenRoomEntry after registry commit', async () => {

@@ -1,6 +1,8 @@
 /**
- * Pin for BUG-1: JS engine `Cannot convert BigInt to number` on Postgres int8.
- * Every default backend must return safe integers as number (never bigint).
+ * Every default backend returns safe integers as number, never bigint: the
+ * product simulator's hydrate once died with `Cannot convert BigInt to number`
+ * when postgres-mem returned `bigint` for domain `integer` (physical `bigint`)
+ * columns. Fixed by `normalizePgInt8Value` (decimal text, engine-safe).
  */
 import { describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
@@ -12,7 +14,8 @@ import { ALWAYS_FACTORIES, openBackend } from './helpers/backends';
 import { dropTables } from './helpers/backends/drop-tables';
 import { assertWireSafeRows, assertWireSafeRunResult } from './helpers/oracles';
 
-describe('bug-bigint-int8.pbt', () => {
+describe('int8 rows are wire-safe numbers', () => {
+  // regression: sql-int8-rows-bigint
   test('int8 / INTEGER / COUNT(*) never surface as bigint', async () => {
     for (const factory of ALWAYS_FACTORIES) {
       const backend = await openBackend(factory);

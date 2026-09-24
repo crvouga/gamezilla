@@ -786,8 +786,9 @@ protocol cut, flicker). `*.pbt.test.ts` files explore the fault state space with
 `exampleSystem.explore(...)` (the system is a literal `defineSystem` in
 `src/sim/example-app/system.ts`; boot lives in `src/sim/scenario/boot.ts` — see
 also `pkgs/sim/README.md`).
-When a property fails, capture `seed` / `path` / `replayPath`, pin `examples`,
-add a named scenario, and log in `docs/PBT_FINDINGS.md`.
+When a property fails, capture `seed` / `path` / `replayPath`, pin the shrunk
+case as a named example test marked `// regression: <id>`, and register it in
+`libs/tools/goal/known-bugs.json` ([`docs/TESTING.md`](../../docs/TESTING.md) § 3).
 
 ```bash
 # all sync-engine PBT (pinned seed)

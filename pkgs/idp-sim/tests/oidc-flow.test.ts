@@ -149,7 +149,7 @@ describe('simulated google idp', () => {
     const tokens = (await first.json()) as Record<string, string>;
     const replay = await exchange(browser.fetch, code);
     expect(replay.status).toBe(400);
-    expect((await replay.json())['error']).toBe('invalid_grant');
+    expect(await replay.json()).toMatchObject({ error: 'invalid_grant' });
 
     const after = await browser.fetch('/v1/userinfo', {
       headers: { authorization: `Bearer ${tokens['access_token'] ?? ''}` },
@@ -167,7 +167,9 @@ describe('simulated google idp', () => {
       { code_verifier: 'b'.repeat(64) }
     );
     expect(res.status).toBe(400);
-    expect((await res.json())['error_description']).toContain('verifier');
+    expect(await res.json()).toMatchObject({
+      error_description: expect.stringContaining('verifier'),
+    });
   });
 
   test('expired codes are rejected', async () => {
@@ -179,6 +181,8 @@ describe('simulated google idp', () => {
       browser.fetch,
       back.searchParams.get('code') ?? ''
     );
-    expect((await res.json())['error_description']).toContain('expired');
+    expect(await res.json()).toMatchObject({
+      error_description: expect.stringContaining('expired'),
+    });
   });
 });

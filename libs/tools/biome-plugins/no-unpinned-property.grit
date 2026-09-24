@@ -1,0 +1,24 @@
+language js
+
+// goal:the-bar:4 — a property's verdict is a function of the code alone.
+// `fc.assert` / `fc.check` / `fc.sample` / `fc.statistics` draw from an
+// unseeded generator unless the caller remembers to pass one, so the same
+// tree can pass on one run and fail on the next — and turbo caches whichever
+// verdict it saw first. `assertProperty` (`@pkgs/property`) is the one entry
+// point: it pins the seed and run count for every machine. Importing the
+// runners by name (`import { assert } from 'fast-check'`) is the same escape.
+or {
+  `fc.$method($args)` as $call where {
+    $method <: or {
+      `assert`,
+      `check`,
+      `sample`,
+      `statistics`
+    },
+    register_diagnostic(span=$call, message="Run properties through assertProperty from @pkgs/property — raw fc.assert / fc.check / fc.sample / fc.statistics are unseeded, so a cached verdict would depend on the run, not the code. Compose generators with .chain / .map instead of sampling inside a property.", severity="error")
+  },
+  JsImport() as $import where {
+    $import <: r"(?s)import\s*(?:type\s*)?\{[^}]*\b(?:assert|check|sample|statistics)\b[^}]*\}\s*from\s*['\"]fast-check['\"].*",
+    register_diagnostic(span=$import, message="Run properties through assertProperty from @pkgs/property — importing fast-check's runners by name bypasses the pinned seed.", severity="error")
+  }
+}

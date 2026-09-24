@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/sim/fast-check';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 import { isOwnedName, ownedIndexName } from '../src/core/naming';
 import { planIndexes } from '../src/core/plan';
@@ -11,32 +11,38 @@ describe('ownership PBT', () => {
     const now = 1_700_000_000_000;
     await assertProperty(
       'ownership',
-      fc.asyncProperty(genSchema, async (schema) => {
-        const state = await fc.sample(genDbState(schema, now), 1)[0]!;
-        const manifest = await fc.sample(genSmallManifest(schema), 1)[0]!;
-        const db = new RecordingPort({
-          indexes: state.indexes,
-          tables: state.tables,
-          usage: state.usage,
-          metas: state.metas,
-          defaultImprovement: 10,
-        });
-        const plan = await planIndexes({
-          manifest,
-          db,
-          clock: fixedClock(now),
-          config: { minTableRows: 1, maxIndexesPerTable: 6 },
-        });
-        for (const a of plan.actions) {
-          expect(isOwnedName(a.name)).toBe(true);
-          expect(a.name.startsWith('ix_')).toBe(false);
-          expect(a.name.startsWith('ux_')).toBe(false);
-          const ix = state.indexes.find((x) => x.name === a.name);
-          if (ix?.isUnique) {
-            throw new Error(`action on unique imposter ${a.name}`);
+      fc.asyncProperty(
+        genSchema.chain((schema) =>
+          fc.record({
+            state: genDbState(schema, now),
+            manifest: genSmallManifest(schema),
+          })
+        ),
+        async ({ state, manifest }) => {
+          const db = new RecordingPort({
+            indexes: state.indexes,
+            tables: state.tables,
+            usage: state.usage,
+            metas: state.metas,
+            defaultImprovement: 10,
+          });
+          const plan = await planIndexes({
+            manifest,
+            db,
+            clock: fixedClock(now),
+            config: { minTableRows: 1, maxIndexesPerTable: 6 },
+          });
+          for (const a of plan.actions) {
+            expect(isOwnedName(a.name)).toBe(true);
+            expect(a.name.startsWith('ix_')).toBe(false);
+            expect(a.name.startsWith('ux_')).toBe(false);
+            const ix = state.indexes.find((x) => x.name === a.name);
+            if (ix?.isUnique) {
+              throw new Error(`action on unique imposter ${a.name}`);
+            }
           }
         }
-      }),
+      ),
       { numRuns: 20 }
     );
   });

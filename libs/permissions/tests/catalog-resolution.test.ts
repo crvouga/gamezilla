@@ -16,6 +16,7 @@ import {
   quotasOf,
   resolveSubject,
 } from '@pkgs/permissions';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 const NOW = Date.parse('2026-09-19T12:00:00.000Z');
@@ -97,7 +98,8 @@ describe('catalog resolution under the shipped policy', () => {
       }),
       { nil: null }
     );
-    fc.assert(
+    assertProperty(
+      'property: raw inputs → facts → exactly one plan-shaped role, quota always defined',
       fc.property(fc.boolean(), snapshot, (signedIn, subscription) => {
         const facts = resolveAccessFacts({
           signedIn,

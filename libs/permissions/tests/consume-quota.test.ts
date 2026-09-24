@@ -7,6 +7,7 @@ import { PERMISSIONS_MUTATIONS } from '@libs/permissions/root/mutations';
 import { authorizeAppMutation } from '@libs/permissions/root/server/authorize-app-mutation';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
+import { assertProperty } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
@@ -146,7 +147,8 @@ describe('consumeQuota', () => {
   });
 
   test('property: retries and duplicated replays never double-charge', async () => {
-    await fc.assert(
+    await assertProperty(
+      'property: retries and duplicated replays never double-charge',
       fc.asyncProperty(
         fc.array(fc.integer({ min: 0, max: 7 }), {
           minLength: 1,

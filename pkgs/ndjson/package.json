@@ -17,9 +17,8 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
-  "dependencies": {},
   "devDependencies": {
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

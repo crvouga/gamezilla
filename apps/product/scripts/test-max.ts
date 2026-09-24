@@ -26,7 +26,7 @@ async function waitForHttp(url: string, timeoutMs = 60_000): Promise<void> {
   throw new Error(`timed out waiting for ${url}`);
 }
 
-const web = Bun.spawn(['bun', './e2e/serve-max-web.ts'], {
+const web = Bun.spawn(['bun', './scripts/serve-max-web.ts'], {
   cwd: pkgRoot,
   stdout: 'inherit',
   stderr: 'inherit',

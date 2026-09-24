@@ -2,19 +2,61 @@
   {
     "id": "puzzle-wrong-move-half-credit",
     "summary": "Wrong moves scored zero instead of the agreed half credit; the recorder also read the move before its reactive row was available. Fixed using the board transition and guarded through offline replay.",
-    "guard": {
-      "kind": "test",
-      "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx",
-      "marker": "goal:chess-puzzles:9"
-    }
+    "regressionTest": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
   },
   {
     "id": "puzzle-profile-volatility-sync",
     "summary": "The profile snapshot omitted Glicko volatility, leaving another device with incomplete rating state. Fixed by syncing volatility_micros and comparing complete profiles after guest sign-in.",
-    "guard": {
-      "kind": "test",
-      "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx",
-      "marker": "goal:always-true:2"
-    }
+    "regressionTest": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+  },
+  {
+    "id": "sql-int8-rows-bigint",
+    "summary": "postgres-mem returned bigint for domain integer (physical bigint) columns, so the product simulator's hydrate died with `Cannot convert BigInt to number`. Fixed by normalizing int8 values through decimal text.",
+    "regressionTest": "pkgs/sql-client-contract/tests/bug-bigint-int8.test.ts"
+  },
+  {
+    "id": "sql-int8-increment-bigint-mix",
+    "summary": "An int8 counter upsert (`n = n + 1`) mixed a JS number and a bigint inside postgres-mem and threw, so every second push on a topic failed. Fixed in the engine; allocateTopicPushSeq also uses the portable `CAST(1 AS BIGINT)`.",
+    "regressionTest": "pkgs/sql-client-contract/tests/bug-bigint-increment.test.ts"
+  },
+  {
+    "id": "word-filter-repeat-bypass",
+    "summary": "Repeated letters slipped past the username filter: runs of 3+ collapsed to one letter and doubles were never collapsed, so `faggggot` and `fuuck` were accepted. Fixed by matching each letter run in a term as that many or more.",
+    "regressionTest": "pkgs/word-filter/tests/match.test.ts"
+  },
+  {
+    "id": "word-filter-accent-bypass",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "regressionTest": "pkgs/word-filter/tests/match.test.ts"
+  },
+  {
+    "id": "ndjson-undefined-rejection",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
+  },
+  {
+    "id": "uuid-v7-mixed-case",
+    "summary": "createUuidV7 copied upper-case entropy verbatim, minting mixed-case ids whose string order disagreed with the canonical lower-case form. Fixed by lower-casing the entropy.",
+    "regressionTest": "pkgs/uuid/tests/uuid-v7.test.ts"
+  },
+  {
+    "id": "avatar-array-key-order",
+    "summary": "Avatar config serialization kept object key order inside arrays, so equal configs compared unequal and the editor could report unsaved changes. Fixed by canonicalizing recursively.",
+    "regressionTest": "libs/profile/tests/avatar-config.test.ts"
+  },
+  {
+    "id": "avatar-proto-key",
+    "summary": "Avatar config serialization silently dropped a `__proto__` option key (assignment set the prototype). Fixed by building the result with Object.fromEntries.",
+    "regressionTest": "libs/profile/tests/avatar-config.test.ts"
+  },
+  {
+    "id": "stale-inflight-delete",
+    "summary": "createAsyncRunner: a cancelled run settling late deleted the newer run's in-flight entry for the same key, so the next run started a duplicate operation. Fixed by evicting only the entry the settling run owns.",
+    "regressionTest": "pkgs/async/tests/async-runner.test.ts"
+  },
+  {
+    "id": "invariant-dirty-read",
+    "summary": "The sync-engine sim's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
+    "regressionTest": "pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts"
   }
 ]

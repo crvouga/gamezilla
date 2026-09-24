@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 import {
@@ -86,7 +87,8 @@ const arbOpponent = fc.record({
 
 describe('glicko2 properties', () => {
   test('a win never lowers the rating, a loss never raises it', () => {
-    fc.assert(
+    assertProperty(
+      'a win never lowers the rating, a loss never raises it',
       fc.property(arbRating, arbOpponent, (player, opponent) => {
         const won = glicko2Update(player, [{ ...opponent, score: 1 }]);
         const lost = glicko2Update(player, [{ ...opponent, score: 0 }]);
@@ -99,7 +101,8 @@ describe('glicko2 properties', () => {
   });
 
   test('RD never grows past the maximum and the result is always finite', () => {
-    fc.assert(
+    assertProperty(
+      'RD never grows past the maximum and the result is always finite',
       fc.property(
         arbRating,
         arbOpponent,
@@ -122,7 +125,8 @@ describe('glicko2 properties', () => {
    * that is what volatility is for.)
    */
   test('a near-rated game leaves the player more certain than sitting out', () => {
-    fc.assert(
+    assertProperty(
+      'a near-rated game leaves the player more certain than sitting out',
       fc.property(
         arbRating,
         fc.integer({ min: -300, max: 300 }),
@@ -144,7 +148,8 @@ describe('glicko2 properties', () => {
   });
 
   test('the update is a pure function of its inputs', () => {
-    fc.assert(
+    assertProperty(
+      'the update is a pure function of its inputs',
       fc.property(
         arbRating,
         arbOpponent,
@@ -178,7 +183,8 @@ describe('glicko2 properties', () => {
   });
 
   test('a solve and a fail against the same puzzle bracket the start', () => {
-    fc.assert(
+    assertProperty(
+      'a solve and a fail against the same puzzle bracket the start',
       fc.property(arbRating, arbOpponent, (player, opponent) => {
         const drew = glicko2Update(player, [{ ...opponent, score: 0.5 }]);
         const won = glicko2Update(player, [{ ...opponent, score: 1 }]);

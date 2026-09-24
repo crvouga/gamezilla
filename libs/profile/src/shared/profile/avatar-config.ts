@@ -128,12 +128,19 @@ export function configsEqual(a: AvatarConfig, b: AvatarConfig): boolean {
   return serializeAvatarConfig(a) === serializeAvatarConfig(b);
 }
 
+/**
+ * Canonical key order at every depth, including objects nested in arrays, so
+ * two logically equal configs always serialize to the same string.
+ */
+function canonicalize(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(canonicalize);
+  return isPlainObject(v) && !(v instanceof Date) ? sortKeysDeep(v) : v;
+}
+
 function sortKeysDeep(obj: Record<string, unknown>): Record<string, unknown> {
-  const keys = Object.keys(obj).sort();
-  const out: Record<string, unknown> = {};
-  for (const k of keys) {
-    const v = obj[k];
-    out[k] = isPlainObject(v) && !(v instanceof Date) ? sortKeysDeep(v) : v;
-  }
-  return out;
+  return Object.fromEntries(
+    Object.keys(obj)
+      .sort()
+      .map((k) => [k, canonicalize(obj[k])])
+  );
 }

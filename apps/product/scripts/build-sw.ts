@@ -8,11 +8,16 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 
+import { readDistGraph } from './dist-graph';
 import {
-  LAZY_SHELL_CACHE_MAX_AGE_SECONDS,
-  LAZY_SHELL_CACHE_RULES,
+  keepInPrecache,
+  PRECACHE_BUDGET_BYTES,
   PRECACHE_GLOB_IGNORES,
+  PRECACHE_GLOB_PATTERNS,
+  wallReachable,
 } from './sw-policy';
 
 const require = createRequire(import.meta.url);
@@ -55,19 +60,36 @@ const log = createLogger({ name: 'product:build-sw', now: wallClock.now });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const distDir = resolve(__dirname, '..', 'dist');
+const wallFiles = new Set(
+  wallReachable(
+    await readDistGraph(
+      createNodeFsObjectStore({
+        rootDir: distDir,
+        fs: wallNodeFs(),
+        layout: 'tree',
+      })
+    )
+  )
+);
 
 const { count, size, warnings } = await generateSW({
   swDest: join(distDir, 'sw.js'),
   globDirectory: distDir,
   /**
-   * Offline shell: HTML/JS/CSS/WASM/fonts/icons only. Cap at 1 MiB so DiceBear,
-   * mutation hubs, and CanvasKit stay out of first-install precache.
-   * Apple splash PNGs are device-specific (runtime image cache), not precache.
-   * Every excluded chunk gets a runtime rule from `sw-policy.ts`.
+   * Offline shell (`sw-policy.ts`): precache every file the wall client can
+   * load — lazy chunks included — and drop what only the simulator reaches.
+   * No per-file cap below the total budget, so Workbox never silently skips
+   * a large chunk; `check:offline-shell` enforces the budget on the result.
    */
-  maximumFileSizeToCacheInBytes: 1024 * 1024,
-  globPatterns: ['**/*.{html,js,css,wasm,ttf,woff2,svg,ico,webmanifest,json}'],
+  maximumFileSizeToCacheInBytes: PRECACHE_BUDGET_BYTES,
+  globPatterns: [...PRECACHE_GLOB_PATTERNS],
   globIgnores: [...PRECACHE_GLOB_IGNORES],
+  manifestTransforms: [
+    (entries) => ({
+      manifest: entries.filter((entry) => keepInPrecache(entry.url, wallFiles)),
+      warnings: [],
+    }),
+  ],
   navigateFallback: '/index.html',
   // Keep SharedWorker + OPFS wipe assets as real static files (not the SPA shell).
   navigateFallbackDenylist: [/^\/api\//, /^\/sql-workers\//],
@@ -84,14 +106,6 @@ const { count, size, warnings } = await generateSW({
         expiration: { maxEntries: 200, maxAgeSeconds: 30 * 24 * 3600 },
       },
     },
-    ...LAZY_SHELL_CACHE_RULES.map((rule) => ({
-      urlPattern: rule.urlPattern,
-      handler: 'StaleWhileRevalidate' as const,
-      options: {
-        cacheName: rule.cacheName,
-        expiration: { maxAgeSeconds: LAZY_SHELL_CACHE_MAX_AGE_SECONDS },
-      },
-    })),
   ],
   cleanupOutdatedCaches: true,
   clientsClaim: false,

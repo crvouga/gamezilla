@@ -4,7 +4,8 @@ import { assertUuid } from './uuid';
 export function createUuidV7(nowMs: number, entropyUuid: string): string {
   assertUuid(entropyUuid, 'UUIDv7 entropy must be a UUID');
   const timestamp = BigInt(Math.max(0, Math.floor(nowMs))) & 0xffffffffffffn;
-  const entropy = entropyUuid.replaceAll('-', '');
+  // Lower-case so the id is canonical even when the entropy uuid is not.
+  const entropy = entropyUuid.toLowerCase().replaceAll('-', '');
   const timeHex = timestamp.toString(16).padStart(12, '0');
   const randomA = `7${entropy.slice(13, 16)}`;
   const variant = (Number.parseInt(entropy[16] ?? '0', 16) & 0x3) | 0x8;

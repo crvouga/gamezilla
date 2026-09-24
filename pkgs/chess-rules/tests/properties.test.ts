@@ -6,6 +6,7 @@ import {
   perft,
   uciFromSan,
 } from '@pkgs/chess-rules/moves';
+import { assertProperty } from '@pkgs/property';
 import { Chess } from 'chess.js';
 import fc from 'fast-check';
 
@@ -57,7 +58,8 @@ describe('random legal walks (seeded)', () => {
     ['kiwipete', KIWIPETE],
   ] as const) {
     test(`${name}: FEN round-trip, SAN↔UCI round-trip, perft(1) = move count, no self-check`, () => {
-      fc.assert(
+      assertProperty(
+        `${name}: FEN round-trip, SAN↔UCI round-trip, perft(1) = move count, no self-check`,
         fc.property(
           fc.array(fc.nat(), { minLength: 1, maxLength: 40 }),
           (picks) => {

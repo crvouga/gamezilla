@@ -158,7 +158,7 @@ describe('idp faults', () => {
     });
     const res = await fixture.browser().fetch('/token', formBody({}));
     expect(res.status).toBe(500);
-    expect((await res.json())['error']).toBe('internal_failure');
+    expect(await res.json()).toMatchObject({ error: 'internal_failure' });
   });
 
   test('consent can be forced to deny', async () => {

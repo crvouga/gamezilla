@@ -80,6 +80,8 @@ function openPullRequests(repo: string): string[] {
   const listed = gh([
     'pr',
     'list',
+    '--repo',
+    repo,
     '--state',
     'open',
     '--limit',

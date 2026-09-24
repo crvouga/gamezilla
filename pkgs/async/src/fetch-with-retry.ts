@@ -29,6 +29,12 @@ export async function fetchWithRetry(
   options: FetchRetryOptions
 ): Promise<Response> {
   const attempts = options.attempts ?? DEFAULT_ATTEMPTS;
+  if (!Number.isInteger(attempts) || attempts < 1) {
+    // Zero attempts used to skip the fetch and throw `undefined`.
+    throw new RangeError(
+      `fetchWithRetry: attempts must be an integer >= 1, got ${String(attempts)}`
+    );
+  }
   const delayMs = options.delayMs ?? DEFAULT_DELAY_MS;
   const shouldRetry = options.shouldRetry ?? defaultShouldRetry;
   const fetchFn = options.fetch;

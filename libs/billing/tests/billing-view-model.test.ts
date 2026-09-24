@@ -16,6 +16,7 @@ import {
   type MembershipState,
   summarizeOffer,
 } from '@libs/billing/root/client/billing-view-model';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 import {
@@ -212,7 +213,8 @@ const arbInput: fc.Arbitrary<BillingViewInput> = fc.record({
 
 describe('billing view: properties over arbitrary rows', () => {
   test('without the manage grant no membership is shown or managed', () => {
-    fc.assert(
+    assertProperty(
+      'without the manage grant no membership is shown or managed',
       fc.property(arbInput, (input) => {
         const view = buildBillingView({ ...input, canManage: false });
         expect(view.state).toBe('none');
@@ -224,7 +226,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('a denied subscribe offers its unlock, and only then', () => {
-    fc.assert(
+    assertProperty(
+      'a denied subscribe offers its unlock, and only then',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
         if (view.primary !== 'unlock') return;
@@ -236,7 +239,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('a paying member is never offered a second checkout', () => {
-    fc.assert(
+    assertProperty(
+      'a paying member is never offered a second checkout',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
         if (view.tier === 'paid') expect(view.primary).toBe('none');
@@ -246,7 +250,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('a failed payment always shows the notice and never a checkout', () => {
-    fc.assert(
+    assertProperty(
+      'a failed payment always shows the notice and never a checkout',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
         if (view.state !== 'delinquent') return;
@@ -258,7 +263,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('billing off offers nothing', () => {
-    fc.assert(
+    assertProperty(
+      'billing off offers nothing',
       fc.property(arbInput, (input) => {
         const view = buildBillingView({ ...input, canView: false });
         expect(view.primary).toBe('none');
@@ -271,7 +277,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('checkout needs the subscribe grant, the portal the manage grant', () => {
-    fc.assert(
+    assertProperty(
+      'checkout needs the subscribe grant, the portal the manage grant',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
         if (view.primary === 'subscribe') expect(input.canSubscribe).toBe(true);
@@ -284,7 +291,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('an unreadable status reads as no membership', () => {
-    fc.assert(
+    assertProperty(
+      'an unreadable status reads as no membership',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
         const known = [
@@ -305,7 +313,8 @@ describe('billing view: properties over arbitrary rows', () => {
   });
 
   test('days left is never negative and only with a future end', () => {
-    fc.assert(
+    assertProperty(
+      'days left is never negative and only with a future end',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
         if (view.daysLeft === null) return;

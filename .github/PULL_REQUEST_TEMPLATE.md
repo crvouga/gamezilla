@@ -19,7 +19,8 @@ Check a box only when it is true.
 ## Verification
 
 <!--
-One line: the surface exercised and its result (`bun check` → green).
+One line: the automated checks exercised and their result (`bun check` →
+green). Never a manual step — we do not test by hand.
 One line — required: what this PR does NOT prove.
 -->
 
@@ -33,7 +34,7 @@ One line: low | medium | high, blast radius, rollback. Add deploy ordering
 ## Provenance
 
 <!--
-One line: human | `/pr-merge` agent (model), plus any open question a human
+One line: human | `/pr-ready` agent (model), plus any open question a human
 must decide before merging.
 -->
 
@@ -42,7 +43,7 @@ must decide before merging.
 - [ ] CI (`bun check`) is green on this PR.
 - [ ] Every touched package ran `bun run --filter <pkg> tc` and `test` locally.
 - [ ] No check was weakened: no deleted or skipped tests, no loosened assertion, no `@ts-ignore`, no disabled lint rule.
-- [ ] Changed behavior is covered by a test, or Verification states why it cannot be.
+- [ ] Changed behavior is covered by a property- or model-based test; every bug fixed has an example regression test (`// regression: <id>`) in `libs/tools/goal/known-bugs.json`. Nothing was verified by hand.
 - [ ] No deprecated code left behind: replaced APIs are deleted and every call site migrated here.
 - [ ] Nondeterministic I/O stays injected (Clock/Timers/http/createId/random); no bare `Date.now`, `setTimeout`, `fetch`, or `crypto.randomUUID` in product code.
 - [ ] Schema changes use `defineTable` + a registered migration; no raw `CREATE TABLE` and no new `.sql` schema files.
@@ -51,4 +52,4 @@ must decide before merging.
 - [ ] Any new secret is registered in `@libs/secrets` and provisioned for dev and prd.
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
-- [ ] Merged only once every check is green — `/pr-merge` or a human; never `--admin`, auto-merge or merge queue.
+- [ ] Merged by a human only once every check is green; never `--admin` or merge queue.

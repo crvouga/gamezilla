@@ -11,8 +11,7 @@ Afterwards the branch, `origin/<branch>` and local `main` are all current with t
 Your only job is the commit message.
 
 It is the one way this repo commits, pushes and syncs with trunk. Use it to checkpoint and
-stay current with `main` between units of work. `bun pr` runs it before it dispatches CI, and
-`/pr-merge` (`.agents/commands/pr-merge.md`) runs it at every commit, push and sync step.
+stay current with `main` between units of work. `bun pr` runs it before it dispatches CI.
 
 ## Run
 
@@ -39,7 +38,7 @@ message.
 Message rules: the header is `<type>(<scope>): <summary>`. The type is one of
 `feat|fix|refactor|test|chore|docs|perf|ci`. The header is at most 72 characters, has no
 trailing full stop, and is followed by a blank line before any body. They are the same
-Conventional Commit rules as the PR title in `/pr-merge` (enforced in `libs/tools/scripts/git-sync.ts`).
+Conventional Commit rules as the PR title (enforced in `libs/tools/scripts/git-sync.ts`).
 
 That is the whole flow. Do not invent other git steps, and do not hand-run fetch, merge or push
 around the script.
@@ -89,6 +88,5 @@ branch into trunk, or merges a PR.
 ## On failure
 
 Report the script's `ERROR:` output verbatim. Do not force-push, stash, amend, open a PR, or
-continue after a failed merge. If the merge with `origin/main` conflicted, resolve it through
-`/pr-merge` §4 (conflict agent): rerun with `--leave-conflicts`, resolve, then run
-`bun run git-sync` again.
+continue after a failed merge. If the merge with `origin/main` conflicted, rerun with
+`--leave-conflicts`, resolve every conflict, then run `bun run git-sync` again.

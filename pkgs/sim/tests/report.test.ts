@@ -44,7 +44,7 @@ function makeKv() {
         capture: (s: Kv) => {
           const map: Record<string, string> = {};
           for (const id of s.clients) {
-            map[id] = `<html><body>${id}:${s.values.x ?? ''}</body></html>`;
+            map[id] = `<html><body>${id}:${s.values['x'] ?? ''}</body></html>`;
           }
           return map;
         },

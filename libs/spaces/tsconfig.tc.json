@@ -5,7 +5,8 @@
     "../client-app/src/vite-env.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./src/**/*.d.ts"
+    "./src/**/*.d.ts",
+    "./tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

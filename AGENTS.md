@@ -2,6 +2,8 @@
 
 ## Hard Rules
 
+- **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally", not once. Running the app (`bun run dev`, `bun run stack`, the Simulator) is for building and debugging, never evidence. If you want to look at the app to know a change works, a check is missing: write it. If no check can reach the behavior, change the product until one can. **Exploratory tests are property-based or model-based** (`assertProperty` from `@pkgs/property` — raw `fc.assert` / `fc.sample` are banned as unseeded; `fc.commands` models; `@pkgs/sim` systems and monkeys). **Regression tests are example-based**: every bug found gets the literal failing input pinned as an example test marked `// regression: <bug-id>` and an entry in `libs/tools/goal/known-bugs.json` — a property is never the guard. Delete example tests a property subsumes unless they pin a bug or a decided value. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries, no test file outside a gate script. Tests are in-process on virtual time and must be fast. Policy and enforcement: [`docs/TESTING.md`](docs/TESTING.md).
+
 - **Never leave deprecated code.** Do not add `@deprecated` markers, deprecated aliases, shim re-exports, or “kept for migration” optional fields. Delete the old API and update all call sites in the same change. Soft-deprecation / compatibility leftovers are banned.
 
 - **Access is decided only by `@libs/permissions`.** Feature gates, usage limits, upsells and "sign in to…" prompts all come from a permission decision: `useCan` / `useDecision` / `usePermissions` on the client, `requireInMutation` / `decideInMutation` in mutation bodies (same synced rows locally and on replay), `requirePermission` in server routes. What a denial unlocks (sign in, see plans) is policy config (`unlockRefs`), rendered by `DenialSurface` or run by `useUnlock` — never a feature's own branch. Sign-in state and membership are facts private to auth, billing and permissions: no product code outside them reads `isAnon` / `isSignedIn`, imports `@libs/auth/public/access-facts`, queries `is_anon` / `billing_subscriptions`, or names a role or plan (`@libs/permissions/root/access-model` is for tests and the policy-materializing root only). Billing shows its own membership; the shell chrome shows identity, never a tier or signed-in label. Account-only actions deny anonymous subjects through a policy restriction (`reason: 'requires_account'`), not code. CI: Biome plugins `import-access-facts.grit`, `import-access-model.grit`, `no-access-state-vocabulary.grit`, `no-tier-vocabulary*.grit` (via `bun run lint`).
@@ -236,7 +238,7 @@ green.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + fingerprint + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@libs/runtime#check:schema-evolution`, `@libs/secrets#check` and `@libs/tools#check:static`. A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. PR CI and the deploy gate run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path test + bundle-budget; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --env production --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/secrets#check` and `@libs/tools#check:static`. A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. PR CI and the deploy gate run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and `@apps/server#smoke`, which pulls provision → migrate → room deploy → API deploy → product deploy → billing sync. Low-end device gates are **static** (critical-path test + bundle-budget; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
 **Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, provision, migrate, deploy, smoke, OTA) always re-run.
 
@@ -286,10 +288,9 @@ Every PR check is required by GitHub, not by convention:
 `libs/tools/github-config/main-protection.json` (applied with `bun run github:config`)
 requires everything that reports on the PR — ours and third-party apps' — against
 the latest `main`, so GitHub itself refuses the merge until all of it is green.
-**Agents merge only through `/pr-merge`**, and only once every required check
-is green on the verified head commit (`gh pr merge --merge --match-head-commit`)
-— never `--admin`, never auto-merge, never the merge queue, never a red,
-pending or draft PR.
+**Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge
+button and stops; a human merges — never `--admin`, never the merge queue,
+never a red, pending or draft PR.
 
 **`main` only moves through a merged PR.** GitHub enforces it — every setting
 this repo applies on GitHub lives in `libs/tools/github-config/` as the REST payload,
@@ -310,7 +311,7 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
   base. `allow_auto_merge` is on so a **human** can queue a PR to merge once
   its required checks pass; it is only safe because those checks are required
   (`github:config:check` reports a protection with none). Agents never enable
-  it — `/pr-merge` merges directly after verifying the checks itself.
+  it.
 
 Two local layers back it up: `libs/tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
@@ -345,13 +346,12 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   until it finishes (exit code = verdict); Ctrl-C cancels the run on GitHub. `bun run git-sync`
   (`/git-sync`, `.agents/commands/git-sync.md`) is the one commit/push/trunk-sync step: it
   pushes the branch, merges the latest `origin/main`, pushes, and fast-forwards local `main`,
-  and `bun pr` and `/pr-merge` both go through it. Every PR body follows
-  `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-merge`
-  (`.agents/commands/pr-merge.md`) — the single PR command: it gets
-  `bun check` green locally first, then commits, syncs with `main` (re-running
-  `bun check` on anything the merge brings in), pushes, opens/updates the PR,
-  addresses review comments, drives the PR check green, and merges the PR
-  once every check passes.
+  and `bun pr` goes through it. Every PR body follows
+  `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-ready`
+  (a user-level skill, not a repo command) — the single PR command: it syncs
+  with the base, clears conflicts, opens/updates the PR, drives every check
+  green and resolves review threads until Ready to merge is green. It does not
+  merge; a human does.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only place a slash command is written. `bun run
   agents:sync` projects it into every harness: `.claude/commands`,

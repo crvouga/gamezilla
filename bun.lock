@@ -22,7 +22,7 @@
         "oxlint-tsgolint": "catalog:",
         "sort-package-json": "catalog:",
         "syncpack": "catalog:",
-        "turbo": "^2.11.2",
+        "turbo": "^2.11.3",
         "typescript": "catalog:",
       },
     },
@@ -124,6 +124,7 @@
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/os": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite-web": "workspace:*",
         "@pkgs/vite-workspace-resolver": "workspace:*",
         "@tailwindcss/vite": "catalog:",
@@ -287,6 +288,7 @@
         "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -356,6 +358,7 @@
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
         "@types/pg": "catalog:",
@@ -542,7 +545,10 @@
       },
       "devDependencies": {
         "@libs/billing": "workspace:*",
+        "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sim": "workspace:*",
+        "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -635,6 +641,7 @@
       },
       "devDependencies": {
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -674,9 +681,11 @@
       "devDependencies": {
         "@libs/billing": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -991,6 +1000,7 @@
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/keyword": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1019,6 +1029,8 @@
       "devDependencies": {
         "@pkgs/assert": "workspace:*",
         "@pkgs/equal": "workspace:*",
+        "@pkgs/property": "workspace:*",
+        "fast-check": "catalog:",
       },
     },
     "libs/user-search": {
@@ -1116,9 +1128,11 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1182,7 +1196,7 @@
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/idp-sim": "workspace:*",
         "@pkgs/logger": "workspace:*",
-        "@pkgs/sim": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-postgres": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
@@ -1222,6 +1236,7 @@
         "@pkgs/logger": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1263,7 +1278,7 @@
       "devDependencies": {
         "@pkgs/billing": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/sim": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@tailwindcss/vite": "catalog:",
         "@types/bun": "catalog:",
@@ -1284,6 +1299,7 @@
         "@pkgs/logger": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1404,6 +1420,7 @@
         "chess.js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1490,6 +1507,7 @@
         "node-sql-parser": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@pkgs/sim": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -1669,8 +1687,10 @@
       "name": "@pkgs/equal",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1690,6 +1710,7 @@
       "name": "@pkgs/glicko2",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1787,7 +1808,7 @@
         "@pkgs/assert": "workspace:*",
       },
       "devDependencies": {
-        "@pkgs/sim": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -1981,7 +2002,7 @@
       "name": "@pkgs/ndjson",
       "version": "0.0.0",
       "devDependencies": {
-        "@pkgs/sim": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -2142,6 +2163,7 @@
       "name": "@pkgs/permissions",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -2181,6 +2203,18 @@
         "@crvouga/postgres-mem": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/sql": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/property": {
+      "name": "@pkgs/property",
+      "version": "0.0.0",
+      "dependencies": {
+        "fast-check": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2263,6 +2297,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -2312,8 +2347,10 @@
         "@pkgs/room": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2339,6 +2376,7 @@
         "@pkgs/attribute": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/message": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@pkgs/room": "workspace:*",
         "@pkgs/room-adapter-memory": "workspace:*",
         "@pkgs/sim": "workspace:*",
@@ -2600,7 +2638,7 @@
       "devDependencies": {
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/postgres-sqlite-compat": "workspace:*",
-        "@pkgs/sim": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -2746,6 +2784,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
@@ -2771,8 +2810,10 @@
       "name": "@pkgs/task-dag",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -2844,6 +2885,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@testing-library/user-event": "catalog:",
         "@types/bun": "catalog:",
@@ -2930,6 +2972,7 @@
         "solid-js": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -2952,8 +2995,10 @@
       "name": "@pkgs/word-filter",
       "version": "0.0.0",
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -4007,6 +4052,8 @@
 
     "@pkgs/postgres-sqlite-compat": ["@pkgs/postgres-sqlite-compat@workspace:pkgs/postgres-sqlite-compat"],
 
+    "@pkgs/property": ["@pkgs/property@workspace:pkgs/property"],
+
     "@pkgs/pubsub": ["@pkgs/pubsub@workspace:pkgs/pubsub"],
 
     "@pkgs/pubsub-aedes": ["@pkgs/pubsub-aedes@workspace:pkgs/pubsub-aedes"],
@@ -4247,17 +4294,17 @@
 
     "@total-typescript/ts-reset": ["@total-typescript/ts-reset@0.6.1", "", {}, "sha512-cka47fVSo6lfQDIATYqb/vO1nvFfbPw7uWLayIXIhGETj0wcOOlrlkobOMDNQOFr9QOafegUPq13V2+6vtD7yg=="],
 
-    "@turbo/darwin-64": ["@turbo/darwin-64@2.11.2", "", { "os": "darwin", "cpu": "x64" }, "sha512-0pGfE4Lpxrbd+6gUD9z025Tn4z9uMaSNZ3VX0H/hkUPZkjY5xrCa1NfTqocs09NM5NiYE3wEVcoYBadrhayRCA=="],
+    "@turbo/darwin-64": ["@turbo/darwin-64@2.11.3", "", { "os": "darwin", "cpu": "x64" }, "sha512-D4EIKTgPpxFQL5aZNbNqy57XOiRldM+mwP1ME9ZLM4DJoV3oNK7GKyQWVusz1umjiFNmLvunNGw7Jq4RUyYL3A=="],
 
-    "@turbo/darwin-arm64": ["@turbo/darwin-arm64@2.11.2", "", { "os": "darwin", "cpu": "arm64" }, "sha512-Ub7hTbu0bPSiW156ciuLCexG5/SfuZM/QWeBBh9o8P4XyKiZwKqubT6Y9DdJjdp4ZY2wS47Prdl06Xxzt0q6zw=="],
+    "@turbo/darwin-arm64": ["@turbo/darwin-arm64@2.11.3", "", { "os": "darwin", "cpu": "arm64" }, "sha512-WOvgWIO86LzBQmL9aRFekROing1CZMVDjmdD7Dk6R65qFAFdrlKkufojenjW1AbUAqytpG6xsXzq8UEScdSdDQ=="],
 
-    "@turbo/linux-64": ["@turbo/linux-64@2.11.2", "", { "os": [ "linux", "android", ], "cpu": "x64" }, "sha512-8ipdmgmvSomfQ8E9afUsefO+BLO6QMW7srrHqMOCXD3BPX4FlYqqWAJY1GvbQotZMWKzNohdVkevrUYM6ZzYKA=="],
+    "@turbo/linux-64": ["@turbo/linux-64@2.11.3", "", { "os": [ "linux", "android", ], "cpu": "x64" }, "sha512-zIgNl9KkMnsdU54JrnazELatpMJDSktKjD3kjKVliUNMl/5uhFRrqQ+Z1qaACKw/2ybL7xzlsHir9s5q7sYlQg=="],
 
-    "@turbo/linux-arm64": ["@turbo/linux-arm64@2.11.2", "", { "os": [ "linux", "android", ], "cpu": "arm64" }, "sha512-tsftYXAzgc+GdosqyRP8+Zzk2evJ8ej7Otal7/DU+6GVekVZ3kqM/z7zlGuF4TSHeetWxX04KN1I64LkmvYzgg=="],
+    "@turbo/linux-arm64": ["@turbo/linux-arm64@2.11.3", "", { "os": [ "linux", "android", ], "cpu": "arm64" }, "sha512-aJToWHx5JYvpPwIrAt1DuYrHWcpQGjGf0XVPRMKQBHou//JUYR6oowHeUZp9Oq7e3XDWA75E37C2GnNaBqCVnA=="],
 
-    "@turbo/windows-64": ["@turbo/windows-64@2.11.2", "", { "os": "win32", "cpu": "x64" }, "sha512-p5LDVcGmC8W6FCrJPehr1t0ZvYqM8xvG3Va+LkwtDMK3Rl0NhSsJOYbYZVBfMbkm+9RKcCvekFCbSVtQ9Eyuqg=="],
+    "@turbo/windows-64": ["@turbo/windows-64@2.11.3", "", { "os": "win32", "cpu": "x64" }, "sha512-hu5biiwVGdMvHB/vvaoPjtudNBn3TqcsKK2A06ap3O0wnSZwAtTXe92tKTckpecDeVs+IC+4r8s2wXpbdSPWoA=="],
 
-    "@turbo/windows-arm64": ["@turbo/windows-arm64@2.11.2", "", { "os": "win32", "cpu": "arm64" }, "sha512-u0M3m1aXo9lpDM/2iQhxlGzgWjHFq/MC4TqHn1YAvxk8g1wGtzRB2QBx/SLqRChhPhC29mzaB8eLcxKh/pcM1g=="],
+    "@turbo/windows-arm64": ["@turbo/windows-arm64@2.11.3", "", { "os": "win32", "cpu": "arm64" }, "sha512-naDEb/31UmOOJOChi+LebLMKWKa1kId0yig1yTRZzDViDg1lBw1Ptu5iQYCvOfOOrx6swUUucf3zPWuPGWz7Jw=="],
 
     "@types/aria-query": ["@types/aria-query@5.0.4", "", {}, "sha512-rfT93uj5s0PRL7EzccGMs3brplhcrghnDoV26NqKhCAS1hVo+WdNsPvE/yb6ilfr5hi2MEk6d5EWJTKdxg8jVw=="],
 
@@ -5353,7 +5400,7 @@
 
     "tsscmp": ["tsscmp@1.0.6", "", {}, "sha512-LxhtAkPDTkVCMQjt2h6eBVY28KCjikZqZfMcC15YBeNjkgUpdCfBu5HoiOTDu86v6smE8yOjyEktJ8hlbANHQA=="],
 
-    "turbo": ["turbo@2.11.2", "", { "optionalDependencies": { "@turbo/darwin-64": "2.11.2", "@turbo/darwin-arm64": "2.11.2", "@turbo/linux-64": "2.11.2", "@turbo/linux-arm64": "2.11.2", "@turbo/windows-64": "2.11.2", "@turbo/windows-arm64": "2.11.2" }, "bin": { "turbo": "bin/turbo" } }, "sha512-s0GhnWXlAAN+wb2GRMQxnZgFweRWTAceRWW/4Lk9iHj7QuLZMjDxQQqu+Xoh7Nckuy8UiSim520w6yqP2+ertw=="],
+    "turbo": ["turbo@2.11.3", "", { "optionalDependencies": { "@turbo/darwin-64": "2.11.3", "@turbo/darwin-arm64": "2.11.3", "@turbo/linux-64": "2.11.3", "@turbo/linux-arm64": "2.11.3", "@turbo/windows-64": "2.11.3", "@turbo/windows-arm64": "2.11.3" }, "bin": { "turbo": "bin/turbo" } }, "sha512-Pfg2dWNOUPwJYbR+eYAcjoBbo4Kmoc8uQb80hzKrBgNEQtxvwf2ucXG7C28MyLVhV/zJSKvChrR+2CP/BONpoA=="],
 
     "type-check": ["type-check@0.4.0", "", { "dependencies": { "prelude-ls": "^1.2.1" } }, "sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew=="],
 
