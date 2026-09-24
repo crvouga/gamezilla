@@ -1,12 +1,12 @@
 import { runDbSchemaContractTests } from '@pkgs/db-schema/test/contract-suite';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { sqlite } from '../src/driver';
 
 runDbSchemaContractTests({
-  name: 'sqlite-mem',
+  name: 'mockingbird-sqlite',
   dialect: 'sqlite',
   async open() {
-    const client = SqlClientImplSqliteMem.open();
+    const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
     return {
       client,

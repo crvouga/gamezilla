@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import {
   createSyncApp,
   syncEngineServerSchema,
@@ -22,7 +22,7 @@ const CLIENT_AT = '2026-09-19T08:00:00.000Z';
 type Verdict = { readonly status: string; readonly code?: string };
 
 async function openHost(authorize?: MutationAuthorize) {
-  const db = SqlClientImplSqliteMem.open();
+  const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await applySqliteSchema(db, syncEngineServerSchema, {
     ownership: 'declared-only',

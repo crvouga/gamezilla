@@ -1,16 +1,16 @@
 /**
- * {@link SqlClient} backed by `@crvouga/postgres-mem` — pure TypeScript
+ * {@link SqlClient} backed by `@crvouga/mockingbird-service-postgres` — pure TypeScript
  * in-memory PostgreSQL for hermetic sim / product-simulator server DBs.
  *
- * Prefer this over sqlite-mem for the **server** half of product sims so
- * dialect matches production Postgres. Clients stay on sqlite-mem.
+ * Prefer this over mockingbird-sqlite for the **server** half of product sims so
+ * dialect matches production Postgres. Clients stay on mockingbird-sqlite.
  *
  * Snapshots are PGMM blobs wrapped in a JSON envelope (not `pg_dump`).
  */
 
-import { Database, Snapshot } from '@crvouga/postgres-mem';
+import { Database, Snapshot } from '@crvouga/mockingbird-service-postgres';
 import { assert } from '@pkgs/assert';
-import { installPostgresMemSqliteCompat } from '@pkgs/postgres-sqlite-compat/install-postgres-mem';
+import { installMockingbirdPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat/install-mockingbird-postgres';
 import type { Sql, Value } from '@pkgs/sql';
 import type {
   PostgresSqlClient,
@@ -25,15 +25,15 @@ import {
   quotePgIdent,
 } from '@pkgs/sql-client/postgres-db-scope';
 import { readLastInsertRowid } from './impl-pg-shared';
+import {
+  encodeMockingbirdPostgresSnapshotEnvelope,
+  parseMockingbirdPostgresSnapshotEnvelope,
+} from './mockingbird-postgres-snapshot';
 import { normalizePgInt8Rows } from './normalize-pg-int8';
 import type { Pool, PoolClient, QueryResult } from './pg-types';
-import {
-  encodePostgresMemSnapshotEnvelope,
-  parsePostgresMemSnapshotEnvelope,
-} from './postgres-mem-snapshot';
-import { repairPostgresMemPgmmBigintSlots } from './repair-pgmm-bigint-slots';
+import { repairMockingbirdPostgresPgmmBigintSlots } from './repair-pgmm-bigint-slots';
 
-type PostgresMemBind =
+type MockingbirdPostgresBind =
   | string
   | number
   | boolean
@@ -42,7 +42,7 @@ type PostgresMemBind =
   | Uint8Array
   | Date;
 
-export type PostgresMemOpenOptions = {
+export type MockingbirdPostgresOpenOptions = {
   readonly now?: () => Date;
   readonly seed?: number | bigint;
   readonly dbScope?: PostgresDbScope;
@@ -50,14 +50,14 @@ export type PostgresMemOpenOptions = {
   readonly installSqliteCompat?: boolean;
 };
 
-export type PostgresMemSqlClientBundle = {
+export type MockingbirdPostgresSqlClientBundle = {
   readonly db: Database;
-  readonly sqlClient: SqlClientImplPostgresMem;
+  readonly sqlClient: SqlClientImplMockingbirdPostgres;
   /** Pool-shaped facade for Better Auth / Kysely migrate. */
   readonly pool: Pool;
 };
 
-function toBinds(values: readonly Value[]): PostgresMemBind[] {
+function toBinds(values: readonly Value[]): MockingbirdPostgresBind[] {
   return values.map((v) => {
     if (v === undefined) return null;
     if (
@@ -86,7 +86,7 @@ function execOnDb(
   if (/^DO\s+\$\$/i.test(trimmed)) {
     return execDoBlock(db, trimmed);
   }
-  const noop = tryPostgresMemNoop(trimmed, db, vals as Value[]);
+  const noop = tryMockingbirdPostgresNoop(trimmed, db, vals as Value[]);
   if (noop !== null) return noop;
   const isSelect =
     /^\s*(select|with|show|values)\b/i.test(trimmed) ||
@@ -99,7 +99,7 @@ function execOnDb(
     return { rows: normalizePgInt8Rows(rows), rowCount: rows.length };
   }
   if (vals.length === 0 && /;\s*\S/.test(trimmed)) {
-    // Multi-statement DDL scripts (no binds) — postgres-mem `exec`.
+    // Multi-statement DDL scripts (no binds) — mockingbird-postgres `exec`.
     db.exec(text);
     return { rows: [], rowCount: db.changes };
   }
@@ -108,10 +108,10 @@ function execOnDb(
 }
 
 /**
- * Storage / UNLOGGED tweaks are real-Postgres only. Mirror postgres-mem intercepts so
+ * Storage / UNLOGGED tweaks are real-Postgres only. Mirror mockingbird-postgres intercepts so
  * package migrates succeed on the dialect emulator.
  */
-function tryPostgresMemNoop(
+function tryMockingbirdPostgresNoop(
   trimmed: string,
   db: Database,
   vals: readonly Value[]
@@ -138,7 +138,7 @@ function tryPostgresMemNoop(
 }
 
 /**
- * postgres-mem rejects PL/pgSQL `DO` blocks. Expand known migrate DO loops
+ * mockingbird-postgres rejects PL/pgSQL `DO` blocks. Expand known migrate DO loops
  * (DROP DEFAULT / DROP NOT NULL) into plain ALTER statements.
  */
 function execDoBlock(
@@ -159,7 +159,7 @@ function execDoBlock(
     return execDropNotNullDo(db, doSql);
   }
   throw new Error(
-    `SqlClientImplPostgresMem: unsupported DO $$ block (PL/pgSQL). Rewrite as plain SQL or expand in the adapter.\n${doSql.slice(0, 200)}`
+    `SqlClientImplMockingbirdPostgres: unsupported DO $$ block (PL/pgSQL). Rewrite as plain SQL or expand in the adapter.\n${doSql.slice(0, 200)}`
   );
 }
 
@@ -193,7 +193,7 @@ function execDropNotNullDo(
   const tableMatch = /c\.table_name = '([a-z0-9_]+)'/.exec(doSql);
   if (tableMatch === null) {
     throw new Error(
-      `SqlClientImplPostgresMem: DROP NOT NULL DO missing table_name\n${doSql.slice(0, 200)}`
+      `SqlClientImplMockingbirdPostgres: DROP NOT NULL DO missing table_name\n${doSql.slice(0, 200)}`
     );
   }
   const table = tableMatch[1]!;
@@ -271,10 +271,10 @@ function createSessionClient(db: Database): SqlClient {
 }
 
 /**
- * Minimal `pg.Pool` facade over a single postgres-mem {@link Database}.
+ * Minimal `pg.Pool` facade over a single mockingbird-postgres {@link Database}.
  * Enough for Better Auth Kysely migrate (`pool.query` / `pool.connect`).
  */
-export function adaptPostgresMemAsPool(getDb: () => Database): Pool {
+export function adaptMockingbirdPostgresAsPool(getDb: () => Database): Pool {
   const runQuery = (text: string, values?: unknown[]): Promise<QueryResult> => {
     try {
       const { rows, rowCount } = execOnDb(
@@ -341,35 +341,42 @@ export function adaptPostgresMemAsPool(getDb: () => Database): Pool {
   return poolAdapter as unknown as Pool;
 }
 
-function postgresMemEngineOptions(options?: PostgresMemOpenOptions) {
+function mockingbirdPostgresEngineOptions(
+  options?: MockingbirdPostgresOpenOptions
+) {
   return {
     seed: options?.seed ?? 1,
     ...(options?.now !== undefined ? { now: options.now } : {}),
   };
 }
 
-export class SqlClientImplPostgresMem implements PostgresSqlClient {
+export class SqlClientImplMockingbirdPostgres implements PostgresSqlClient {
   private db: Database | null;
 
   private constructor(
     db: Database,
     readonly dbScope: PostgresDbScope,
-    private readonly openOptions: PostgresMemOpenOptions | undefined
+    private readonly openOptions: MockingbirdPostgresOpenOptions | undefined
   ) {
     this.db = db;
   }
 
-  static open(options?: PostgresMemOpenOptions): SqlClientImplPostgresMem {
+  static open(
+    options?: MockingbirdPostgresOpenOptions
+  ): SqlClientImplMockingbirdPostgres {
     const dbScope = options?.dbScope ?? createPostgresDbScope('public');
-    const db = new Database(postgresMemEngineOptions(options));
+    const db = new Database(mockingbirdPostgresEngineOptions(options));
     if (options?.installSqliteCompat !== false) {
-      installPostgresMemSqliteCompat({ db });
+      installMockingbirdPostgresSqliteCompat({ db });
     }
-    return new SqlClientImplPostgresMem(db, dbScope, options);
+    return new SqlClientImplMockingbirdPostgres(db, dbScope, options);
   }
 
   private requireDb(): Database {
-    assert.ok(this.db != null, 'SqlClientImplPostgresMem: database is closed');
+    assert.ok(
+      this.db != null,
+      'SqlClientImplMockingbirdPostgres: database is closed'
+    );
     return this.db;
   }
 
@@ -404,17 +411,17 @@ export class SqlClientImplPostgresMem implements PostgresSqlClient {
   }
 
   exportDatabaseBytes(): Uint8Array {
-    return encodePostgresMemSnapshotEnvelope(
+    return encodeMockingbirdPostgresSnapshotEnvelope(
       this.requireDb().snapshot().encode()
     );
   }
 
   importDatabaseBytes(bytes: Uint8Array): void {
-    const pgmm = parsePostgresMemSnapshotEnvelope(bytes);
+    const pgmm = parseMockingbirdPostgresSnapshotEnvelope(bytes);
     const next = Snapshot.decode(pgmm).open(
-      postgresMemEngineOptions(this.openOptions)
+      mockingbirdPostgresEngineOptions(this.openOptions)
     );
-    repairPostgresMemPgmmBigintSlots(next);
+    repairMockingbirdPostgresPgmmBigintSlots(next);
     const prev = this.requireDb();
     this.db = next;
     prev.close();
@@ -476,13 +483,13 @@ export class SqlClientImplPostgresMem implements PostgresSqlClient {
 }
 
 /**
- * Mints a fresh in-memory Postgres and a {@link SqlClientImplPostgresMem} over it.
+ * Mints a fresh in-memory Postgres and a {@link SqlClientImplMockingbirdPostgres} over it.
  * Call `sqlClient.disconnect()` when done.
  */
-export function createPostgresMemSqlClient(
-  options?: PostgresMemOpenOptions
-): PostgresMemSqlClientBundle {
-  const sqlClient = SqlClientImplPostgresMem.open(options);
-  const pool = adaptPostgresMemAsPool(() => sqlClient.rawDb);
+export function createMockingbirdPostgresSqlClient(
+  options?: MockingbirdPostgresOpenOptions
+): MockingbirdPostgresSqlClientBundle {
+  const sqlClient = SqlClientImplMockingbirdPostgres.open(options);
+  const pool = adaptMockingbirdPostgresAsPool(() => sqlClient.rawDb);
   return { db: sqlClient.rawDb, sqlClient, pool };
 }

@@ -18,3 +18,11 @@ export function base64UrlEncode(bytes: Uint8Array): string {
 export function pkceS256Challenge(verifier: string): string {
   return base64UrlEncode(sha256(utf8ToBytes(verifier)));
 }
+
+/**
+ * RFC 7636 `code_verifier` (43 unreserved chars) derived from injected id
+ * entropy. A bare UUID is 36 chars — below the 43-char minimum IdPs enforce.
+ */
+export function pkceCodeVerifier(entropy: string): string {
+  return base64UrlEncode(sha256(utf8ToBytes(entropy)));
+}

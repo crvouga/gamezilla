@@ -4,9 +4,9 @@ export {
   BUN_SQLITE_FACTORY,
   factoriesForDialect,
   loadAvailableFactories,
+  MOCKINGBIRD_POSTGRES_FACTORY,
+  MOCKINGBIRD_SQLITE_FACTORY,
   openBackend,
-  POSTGRES_MEM_FACTORY,
-  SQLITE_MEM_FACTORY,
 } from './registry';
 export type {
   BackendFactory,

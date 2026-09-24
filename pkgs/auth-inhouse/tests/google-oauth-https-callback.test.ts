@@ -15,7 +15,7 @@ import {
 } from '@pkgs/idp-sim/server';
 import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { createInProcessOpenAuthSession } from '../src/client/in-process-open-auth-session';
 
 /**
@@ -42,7 +42,7 @@ type Wire = (
 ) => Promise<Response>;
 
 async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
-  const sql = SqlClientImplSqliteMem.open({ seed: 1 });
+  const sql = SqlClientImplMockingbirdSqlite.open({ seed: 1 });
   await new AuthSqliteDatabaseMigration().migrate({
     sqlClient: sql,
     logger: createNoopLogger(),
@@ -51,7 +51,7 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
   const { clock } = createSimClock({ startMs: START_MS });
   const idpStore = await IdpStore.open({
     provider: 'google',
-    sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
+    sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 2 }),
     clock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,

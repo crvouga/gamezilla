@@ -9,11 +9,11 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { AuthModel } from './model';
 
-export type AuthFabric = 'sqlite-mem' | 'postgres-mem';
+export type AuthFabric = 'mockingbird-sqlite' | 'mockingbird-postgres';
 
 export const AUTH_FABRICS: readonly AuthFabric[] = [
-  'sqlite-mem',
-  'postgres-mem',
+  'mockingbird-sqlite',
+  'mockingbird-postgres',
 ];
 
 export const AUTH_SYSTEM_BASE_URL = 'http://auth.test';

@@ -3,14 +3,14 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import { createRecordingPostgresClient } from '@pkgs/db-schema/test/fake-sql-client';
 import { join, sql } from '@pkgs/sql';
 import { postgres } from '../src/driver';
-import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
+import { createMockingbirdPostgresTestClient } from '../src/test/mockingbird-postgres-test-client';
 
 const ROWS = 2500;
 const CHUNK = 500;
 
 describe('postgres batched backfill', () => {
   test('backfills every matching row in more than one UPDATE', async () => {
-    const harness = await createPostgresMemTestClient('backfill_batch');
+    const harness = await createMockingbirdPostgresTestClient('backfill_batch');
     try {
       const v1 = registerTables([
         defineTable({
@@ -68,11 +68,11 @@ describe('postgres batched backfill', () => {
     } finally {
       await harness.close();
     }
-    // 2500 rows through postgres-mem: ~3s alone, past 10s under turbo load.
+    // 2500 rows through mockingbird-postgres: ~3s alone, past 10s under turbo load.
   }, 60_000);
 
   test('NULL-yielding backfill terminates and leaves the target NULL', async () => {
-    const harness = await createPostgresMemTestClient('backfill_null');
+    const harness = await createMockingbirdPostgresTestClient('backfill_null');
     try {
       const v1 = registerTables([
         defineTable({

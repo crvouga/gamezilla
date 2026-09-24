@@ -1,3 +1,5 @@
+import type { HttpClient } from '@pkgs/http-client';
+
 /** Secret names for S3-compatible object storage. */
 export const S3SecretName = {
   accessKeyId: 'S3_ACCESS_KEY_ID',
@@ -15,4 +17,6 @@ export type S3ObjectStoreConfig = {
   readonly region: string;
   /** Wire-key root prefix (e.g. `gamezilla/`). Injected at the composition root. */
   readonly rootPrefix: string;
+  /** Transport for every S3 request (wall client, or a mock fetch handler). */
+  readonly http: HttpClient;
 };

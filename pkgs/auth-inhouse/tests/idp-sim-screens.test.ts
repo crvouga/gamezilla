@@ -18,7 +18,7 @@ import {
   IDP_TEST_IDS,
   type IdpClient,
 } from '@pkgs/idp-sim/shared';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import {
   formSubmitBody,
   type HeadlessButton,
@@ -47,7 +47,7 @@ type Wire = (input: string, init?: RequestInit) => Promise<Response>;
 async function bootIdp(): Promise<Wire> {
   const store = await IdpStore.open({
     provider: 'google',
-    sqlClient: SqlClientImplSqliteMem.open({ seed: 3 }),
+    sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 3 }),
     clock: { now: () => Date.parse('2024-06-01T00:00:00.000Z') },
     createId: (() => {
       let n = 0;

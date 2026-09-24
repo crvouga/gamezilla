@@ -29,14 +29,14 @@
 
 | Backend | Usage |
 | --- | --- |
-| `sqlite-mem` | dialect contract matrix + pure planner pins |
+| `mockingbird-sqlite` | dialect contract matrix + pure planner pins |
 | `bun:sqlite` (`SqlClientImplBunSqlite`) | SQLite behavior pins incl. rebuild recovery |
-| `postgres-mem` | dialect contract matrix + Postgres behavior pins |
+| `mockingbird-postgres` | dialect contract matrix + Postgres behavior pins |
 | live `pg` | Postgres integration pin when `DATABASE_URL` is set |
 
 Postgres catalog FK/enum introspection does not exist — the portable-object
 layer is intentionally out of scope. Catalog invalid-index detection falls back
-to `[]` on engines without `pg_index` (postgres-mem).
+to `[]` on engines without `pg_index` (mockingbird-postgres).
 
 ## Regenerating the contract snapshot
 

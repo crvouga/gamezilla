@@ -1,7 +1,7 @@
 /**
  * Postgres migrate for product UI sims / in-process product-simulator server DB.
  * Uses {@link PostgresMigrationRunner} with advisory-lock + PL/pgSQL compat
- * skipped (postgres-mem has no PL/pgSQL; JSON1 shims install at SqlClient open).
+ * skipped (mockingbird-postgres has no PL/pgSQL; JSON1 shims install at SqlClient open).
  */
 
 import { appPostgresDbScope } from '@libs/db/public/scope';
@@ -21,7 +21,8 @@ import { PostgresMigrationRunner } from '../../server/run-postgres-migrations';
 export const SIM_MIGRATE_SOURCE_DIR = 'libs/runtime/src/root/sim';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
-export const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';
+export const SIM_MOCKINGBIRD_POSTGRES_DATABASE_URL =
+  'postgresql://mockingbird-postgres/sim';
 
 export {
   SIM_AUTH_SECRET,

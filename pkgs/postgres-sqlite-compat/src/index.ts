@@ -6,8 +6,8 @@
  *
  * Real Postgres: {@link installPostgresSqliteCompat} (DDL from
  * `json-functions-sql.ts`).
- * postgres-mem: {@link installPostgresMemSqliteCompat} (same statement list,
- * mem-safe `json_valid` — also applied by SqlClientImplPostgresMem.open).
+ * mockingbird-postgres: {@link installMockingbirdPostgresSqliteCompat} (same statement list,
+ * mem-safe `json_valid` — also applied by SqlClientImplMockingbirdPostgres.open).
  */
 
 export {
@@ -17,6 +17,6 @@ export {
   type PostgresSqliteCompatSqlClient,
 } from './install';
 export {
-  type InstallPostgresMemSqliteCompatOptions,
-  installPostgresMemSqliteCompat,
-} from './install-postgres-mem';
+  type InstallMockingbirdPostgresSqliteCompatOptions,
+  installMockingbirdPostgresSqliteCompat,
+} from './install-mockingbird-postgres';

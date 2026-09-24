@@ -73,7 +73,7 @@ export class KvImplPostgres implements Kv {
     assertKvRecord(hotAssert(), value, 'kv postgres put');
     const iso = new Date(this.now()).toISOString();
     const payload = JSON.stringify(value);
-    // Avoid ON CONFLICT … DO UPDATE — postgres-mem mishandles excluded.* on
+    // Avoid ON CONFLICT … DO UPDATE — mockingbird-postgres mishandles excluded.* on
     // second upsert. UPDATE-then-INSERT matches soft-delete resurrect semantics.
     const updated = await this.sqlClient.run(
       sql<void>`

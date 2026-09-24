@@ -3,10 +3,10 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 export type SqlDialect = 'sqlite' | 'postgres';
 
 export type BackendKind =
-  | 'sqlite-mem'
+  | 'mockingbird-sqlite'
   | 'bun-sqlite'
   | 'sqlite-wasm'
-  | 'postgres-mem'
+  | 'mockingbird-postgres'
   | 'pg-pool'
   | 'pg-client'
   | 'bun-postgres';

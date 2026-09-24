@@ -1,5 +1,5 @@
 /**
- * Mem fabric: postgres-mem server + sqlite-mem clients.
+ * Mem fabric: mockingbird-postgres server + mockingbird-sqlite clients.
  * Only imported from {@link getSimSqlEngines}.
  */
 
@@ -7,36 +7,36 @@ import type { Clock } from '@pkgs/clock';
 import type { SimCheckpointSqlFormat } from '@pkgs/sim-console/shared/sim-checkpoint';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import {
-  adaptPostgresMemAsPool,
-  SqlClientImplPostgresMem,
-} from '@pkgs/sql-client-postgres/impl-postgres-mem';
+  adaptMockingbirdPostgresAsPool,
+  SqlClientImplMockingbirdPostgres,
+} from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
-import { openSimPostgresMemFromSeed } from '@pkgs/sql-client-sim/open-sim-postgres-mem-from-seed';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { openSimMockingbirdPostgresFromSeed } from '@pkgs/sql-client-sim/open-sim-mockingbird-postgres-from-seed';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { nextSimSqlDatabaseName, type SimSql } from './sim-sql-types';
 
-function openSqliteMem(clock: Clock): SqlClientImplSqliteMem {
-  return SqlClientImplSqliteMem.open({
+function openMockingbirdSqlite(clock: Clock): SqlClientImplMockingbirdSqlite {
+  return SqlClientImplMockingbirdSqlite.open({
     seed: 1,
     now: () => new Date(clock.now()),
   });
 }
 
-function openPostgresMem(clock: Clock): {
-  client: SqlClientImplPostgresMem;
+function openMockingbirdPostgres(clock: Clock): {
+  client: SqlClientImplMockingbirdPostgres;
   pool: Pool;
 } {
-  const client = SqlClientImplPostgresMem.open({
+  const client = SqlClientImplMockingbirdPostgres.open({
     seed: 1,
     now: () => new Date(clock.now()),
     dbScope: createPostgresDbScope('public'),
   });
-  return { client, pool: adaptPostgresMemAsPool(() => client.rawDb) };
+  return { client, pool: adaptMockingbirdPostgresAsPool(() => client.rawDb) };
 }
 
 export function openMemClientSql(logicalName: string, clock: Clock): SimSql {
   let databaseName = nextSimSqlDatabaseName(logicalName);
-  let live = openSqliteMem(clock);
+  let live = openMockingbirdSqlite(clock);
   return {
     get sqlClient() {
       return live;
@@ -48,7 +48,7 @@ export function openMemClientSql(logicalName: string, clock: Clock): SimSql {
     reset: async () => {
       const prev = live;
       databaseName = nextSimSqlDatabaseName(logicalName);
-      live = openSqliteMem(clock);
+      live = openMockingbirdSqlite(clock);
       await live.connect();
       await prev.disconnect();
     },
@@ -62,7 +62,7 @@ export function openMemClientSql(logicalName: string, clock: Clock): SimSql {
 
 export function openMemServerSql(logicalName: string, clock: Clock): SimSql {
   let databaseName = nextSimSqlDatabaseName(logicalName);
-  let live = openPostgresMem(clock);
+  let live = openMockingbirdPostgres(clock);
   return {
     get sqlClient() {
       return live.client;
@@ -77,7 +77,7 @@ export function openMemServerSql(logicalName: string, clock: Clock): SimSql {
     reset: async () => {
       const prev = live;
       databaseName = nextSimSqlDatabaseName(logicalName);
-      live = openPostgresMem(clock);
+      live = openMockingbirdPostgres(clock);
       await live.client.connect();
       await prev.client.disconnect();
     },
@@ -95,7 +95,7 @@ export async function openMemServerSqlFromSeed(
   seedBytes: Uint8Array
 ): Promise<SimSql> {
   let databaseName = nextSimSqlDatabaseName(logicalName);
-  let live = openSimPostgresMemFromSeed({ seedBytes, clock });
+  let live = openSimMockingbirdPostgresFromSeed({ seedBytes, clock });
   await live.sqlClient.connect();
   return {
     get sqlClient() {
@@ -111,7 +111,7 @@ export async function openMemServerSqlFromSeed(
     reset: async () => {
       const prev = live;
       databaseName = nextSimSqlDatabaseName(logicalName);
-      live = openSimPostgresMemFromSeed({ seedBytes, clock });
+      live = openSimMockingbirdPostgresFromSeed({ seedBytes, clock });
       await live.sqlClient.connect();
       await prev.disconnect();
     },

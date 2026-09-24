@@ -1,5 +1,5 @@
 /**
- * Sim SQL fabric id. In-process sim always uses postgres-mem + sqlite-mem.
+ * Sim SQL fabric id. In-process sim always uses mockingbird-postgres + mockingbird-sqlite.
  * Fidelity-max / `SIM_MODE=real` uses postgres-embedded outside this fabric.
  */
 
@@ -21,7 +21,7 @@ export function resolveSimSqlRuntime(): SimSqlRuntime {
   return 'node';
 }
 
-/** Always `mem` — in-process sim fabric is postgres-mem only. */
+/** Always `mem` — in-process sim fabric is mockingbird-postgres only. */
 export function resolveSimSqlBackend(
   _env?: NodeJS.ProcessEnv | Record<string, string | undefined>
 ): SimSqlBackend {

@@ -9,7 +9,7 @@ passes. Repo-wide testing policy: [`docs/TESTING.md`](../../../docs/TESTING.md).
 | --- | --- | --- |
 | Interface contract | `tests/interface.test.ts`, `tests/txn.test.ts`, `tests/sqlite-contract/` | model: every backend behaves the same |
 | Round-trip | `tests/roundtrip.test.ts` | property: generated schema + row survives insert → select |
-| Cross-dialect agreement | `tests/agreement-portable.test.ts` | property: sqlite-mem ↔ postgres-mem agree after type-map + dump codec |
+| Cross-dialect agreement | `tests/agreement-portable.test.ts` | property: mockingbird-sqlite ↔ mockingbird-postgres agree after type-map + dump codec |
 | Compat corpus | `tests/postgres-sqlite-compat-corpus.test.ts` | example corpus of the Postgres ↔ SQLite dialect bridge |
 | Regressions | `tests/bug-*.test.ts` | example: one pinned input per bug ([`known-bugs.json`](../../../libs/tools/goal/known-bugs.json)) |
 | Live Postgres | `@pkgs/sql-client-postgres` `test:contract` | the same contract against embedded Postgres |
@@ -20,7 +20,7 @@ Invariants the properties check:
    succeeds.
 2. **Intra-dialect agreement** — SQLite engines agree; Postgres engines agree
    (canonical dump).
-3. **Cross-dialect agreement** — sqlite-mem ↔ postgres-mem after type-map +
+3. **Cross-dialect agreement** — mockingbird-sqlite ↔ mockingbird-postgres after type-map +
    dump codec.
 
 Generators live under `tests/helpers/generators/`, oracles under

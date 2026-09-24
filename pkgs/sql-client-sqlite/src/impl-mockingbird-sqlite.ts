@@ -1,11 +1,11 @@
 /**
- * In-memory {@link SqlClient} backed by `@crvouga/sqlite-mem`.
+ * In-memory {@link SqlClient} backed by `@crvouga/mockingbird-service-sqlite`.
  *
  * Browser product-simulator sims use this instead of the web OPFS SQLite. Snapshots are
- * sqlite-mem SQLM blobs wrapped with `PRAGMA user_version` (not encoded in SQLM).
+ * mockingbird-sqlite SQLM blobs wrapped with `PRAGMA user_version` (not encoded in SQLM).
  */
 
-import { Database, Snapshot } from '@crvouga/sqlite-mem';
+import { Database, Snapshot } from '@crvouga/mockingbird-service-sqlite';
 import { assert } from '@pkgs/assert';
 import type { Sql, Value } from '@pkgs/sql';
 import type {
@@ -20,9 +20,9 @@ const SQLM_MAGIC1 = 0x51;
 const SQLM_MAGIC2 = 0x4c;
 const SQLM_MAGIC3 = 0x4d;
 
-const SNAPSHOT_KIND = 'sqlite-mem';
+const SNAPSHOT_KIND = 'mockingbird-sqlite';
 
-type SqliteMemBind =
+type MockingbirdSqliteBind =
   | string
   | number
   | boolean
@@ -31,13 +31,15 @@ type SqliteMemBind =
   | Uint8Array
   | ArrayBuffer;
 
-export type SqliteMemOpenOptions = {
+export type MockingbirdSqliteOpenOptions = {
   readonly now?: () => Date;
   readonly seed?: number;
 };
 
-function toBinds(values: readonly Value[]): SqliteMemBind[] {
-  return values.map((v) => (v === undefined ? null : (v as SqliteMemBind)));
+function toBinds(values: readonly Value[]): MockingbirdSqliteBind[] {
+  return values.map((v) =>
+    v === undefined ? null : (v as MockingbirdSqliteBind)
+  );
 }
 
 function toRunResult(result: {
@@ -82,7 +84,7 @@ function readUserVersion(db: Database): number {
   return rows[0]?.user_version ?? 0;
 }
 
-/** sqlite-mem does not yet parse `IS TRUE` / `IS FALSE` (column name TRUE). */
+/** mockingbird-sqlite does not yet parse `IS TRUE` / `IS FALSE` (column name TRUE). */
 function adaptSql(sqlText: string): string {
   return sqlText
     .replace(/\bIS\s+NOT\s+TRUE\b/gi, '!= 1')
@@ -93,7 +95,7 @@ function adaptSql(sqlText: string): string {
 
 /**
  * STRICT / PRIMARY KEY columns are NOT NULL in SQLite `table_info`.
- * sqlite-mem currently reports `notnull: 0` for TEXT PRIMARY KEY.
+ * mockingbird-sqlite currently reports `notnull: 0` for TEXT PRIMARY KEY.
  */
 function patchTableInfoRows<T extends Record<string, unknown>>(
   sqlText: string,
@@ -123,7 +125,7 @@ function parseSnapshotPayload(bytes: Uint8Array): {
     payload = JSON.parse(new TextDecoder().decode(bytes)) as typeof payload;
   } catch {
     throw new Error(
-      'SqlClientImplSqliteMem.importDatabaseBytes: expected JSON sqlite-mem snapshot'
+      'SqlClientImplMockingbirdSqlite.importDatabaseBytes: expected JSON mockingbird-sqlite snapshot'
     );
   }
   if (
@@ -134,18 +136,18 @@ function parseSnapshotPayload(bytes: Uint8Array): {
     typeof payload.sqlmB64 !== 'string'
   ) {
     throw new Error(
-      'SqlClientImplSqliteMem.importDatabaseBytes: unsupported snapshot format'
+      'SqlClientImplMockingbirdSqlite.importDatabaseBytes: unsupported snapshot format'
     );
   }
   const sqlm = base64ToBytes(payload.sqlmB64);
   assert.ok(
     hasSqlmMagic(sqlm),
-    'SqlClientImplSqliteMem.importDatabaseBytes: missing SQLM magic'
+    'SqlClientImplMockingbirdSqlite.importDatabaseBytes: missing SQLM magic'
   );
   return { userVersion: payload.userVersion, sqlm };
 }
 
-function applyImportedSqliteMemPragmas(
+function applyImportedMockingbirdSqlitePragmas(
   db: Database,
   userVersion: number
 ): void {
@@ -156,7 +158,7 @@ function applyImportedSqliteMemPragmas(
   db.prepare('PRAGMA user_version = ?').run(userVersion);
 }
 
-/** sqlite-mem rejects nested BEGIN; overlap (merge + push) must serialize. */
+/** mockingbird-sqlite rejects nested BEGIN; overlap (merge + push) must serialize. */
 function createPromiseChain(): <T>(fn: () => Promise<T>) => Promise<T> {
   let chain: Promise<unknown> = Promise.resolve();
   return <T>(fn: () => Promise<T>): Promise<T> => {
@@ -169,22 +171,30 @@ function createPromiseChain(): <T>(fn: () => Promise<T>) => Promise<T> {
   };
 }
 
-export class SqlClientImplSqliteMem implements SqlClient {
+export class SqlClientImplMockingbirdSqlite implements SqlClient {
   private db: Database | null;
-  private readonly openOptions: SqliteMemOpenOptions | undefined;
+  private readonly openOptions: MockingbirdSqliteOpenOptions | undefined;
   private readonly enqueueTxn = createPromiseChain();
 
-  private constructor(db: Database, openOptions?: SqliteMemOpenOptions) {
+  private constructor(
+    db: Database,
+    openOptions?: MockingbirdSqliteOpenOptions
+  ) {
     this.db = db;
     this.openOptions = openOptions;
   }
 
-  static open(options?: SqliteMemOpenOptions): SqlClientImplSqliteMem {
-    return new SqlClientImplSqliteMem(new Database(options), options);
+  static open(
+    options?: MockingbirdSqliteOpenOptions
+  ): SqlClientImplMockingbirdSqlite {
+    return new SqlClientImplMockingbirdSqlite(new Database(options), options);
   }
 
   private requireDb(): Database {
-    assert.ok(this.db != null, 'SqlClientImplSqliteMem: database is closed');
+    assert.ok(
+      this.db != null,
+      'SqlClientImplMockingbirdSqlite: database is closed'
+    );
     return this.db;
   }
 
@@ -232,7 +242,7 @@ export class SqlClientImplSqliteMem implements SqlClient {
     const prev = this.requireDb();
     this.db = next;
     prev.close();
-    applyImportedSqliteMemPragmas(next, userVersion);
+    applyImportedMockingbirdSqlitePragmas(next, userVersion);
   }
 
   query<T extends Record<string, unknown>>(query: Sql<T>): Promise<T[]> {

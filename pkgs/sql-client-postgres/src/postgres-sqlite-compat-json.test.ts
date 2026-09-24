@@ -1,6 +1,6 @@
 /**
- * Golden matrix: same JSON1 SQL snippets on Bun SQLite vs postgres-mem after
- * JSON1 shims (installed by SqlClientImplPostgresMem.open).
+ * Golden matrix: same JSON1 SQL snippets on Bun SQLite vs mockingbird-postgres after
+ * JSON1 shims (installed by SqlClientImplMockingbirdPostgres.open).
  */
 
 import { Database } from 'bun:sqlite';
@@ -10,7 +10,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { SqlClientImplPostgresMem } from './impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from './impl-mockingbird-postgres';
 
 type Backend = {
   readonly name: string;
@@ -31,13 +31,13 @@ async function openSqlite(): Promise<Backend> {
 }
 
 async function openPostgresCompat(): Promise<Backend> {
-  const client = SqlClientImplPostgresMem.open({
+  const client = SqlClientImplMockingbirdPostgres.open({
     seed: 1,
     dbScope: createPostgresDbScope('public'),
   });
   await client.connect();
   return {
-    name: 'postgres-mem+compat',
+    name: 'mockingbird-postgres+compat',
     client,
     close: () => client.disconnect(),
   };
@@ -100,8 +100,8 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
 
   test('json_valid', async () => {
     for (const b of backends) {
-      // postgres-mem rejects invalid JSON text binds in the shim path.
-      if (b.name.startsWith('postgres-mem')) continue;
+      // mockingbird-postgres rejects invalid JSON text binds in the shim path.
+      if (b.name.startsWith('mockingbird-postgres')) continue;
       const ok = await b.client.query(
         sql<{ v: number | boolean }>`
           SELECT json_valid(${'{"a":1}'}) AS v`
@@ -127,8 +127,8 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
 
   test('json_each over object', async () => {
     for (const b of backends) {
-      // postgres-mem JSON1 SRF bind path is incomplete for text JSON binds.
-      if (b.name.startsWith('postgres-mem')) continue;
+      // mockingbird-postgres JSON1 SRF bind path is incomplete for text JSON binds.
+      if (b.name.startsWith('mockingbird-postgres')) continue;
       const rows = await b.client.query(
         sql<{ key: string | number; atom: string | number | null }>`
           SELECT key, atom FROM json_each(${'{"x":1,"y":"z"}'})
@@ -149,7 +149,7 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
 
   test('json_each over array', async () => {
     for (const b of backends) {
-      if (b.name.startsWith('postgres-mem')) continue;
+      if (b.name.startsWith('mockingbird-postgres')) continue;
       const rows = await b.client.query(
         sql<{ key: string | number; atom: string | number | null }>`
           SELECT key, atom FROM json_each(${'[10,20]'})
@@ -169,7 +169,7 @@ describe('postgres-sqlite-compat JSON1 goldens', () => {
   });
 
   test('install is idempotent', async () => {
-    const pg = backends.find((b) => b.name === 'postgres-mem+compat');
+    const pg = backends.find((b) => b.name === 'mockingbird-postgres+compat');
     expect(pg).toBeDefined();
     assertDefined(pg);
     await installPostgresSqliteCompat({ sqlClient: pg.client });

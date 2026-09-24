@@ -1,9 +1,10 @@
 /**
  * Profile's monkey step: rename. The name is drawn per step and carries the
  * actor id, so two actors in one walk never race for the same username. A
- * rename can legitimately be refused — usernames have a change cooldown — so
- * the step accepts any outcome a person could see on the save button, and
- * fails only when the save never resolves to one.
+ * rename can legitimately be refused — usernames have a change cooldown and
+ * claiming one needs a connection — so the step accepts any outcome a person
+ * could see on the save button, and fails only when the save never resolves
+ * to one.
  */
 
 import { pollUntil } from '@libs/sim-harness/system/actor-ui';
@@ -22,6 +23,8 @@ const SETTLED_SAVE_FACES = [
   'Saved',
   'Username was changed recently',
   'Username is taken',
+  // Claiming a username needs a connection; the walk partitions actors.
+  "You're offline",
 ];
 
 async function savedUsernameMatches(

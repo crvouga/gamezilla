@@ -10,7 +10,7 @@ import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { assertProperty } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import {
   type MutationEnv,
   MutationError,
@@ -35,7 +35,7 @@ const DAY0 = Date.parse('2026-09-19T10:00:00.000Z');
 const HOUR = 3_600_000;
 
 async function openDb(): Promise<SqlClient> {
-  const db = SqlClientImplSqliteMem.open();
+  const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await applySqliteSchema(
     db,

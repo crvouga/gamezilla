@@ -158,7 +158,7 @@ export async function recordPushApplied(
   if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return;
   const ts = managedUpdatedAtIso(clock.now);
   const id = topicRowId(topic);
-  // Same sqlite-mem rowid-allocation workaround as touchScopeMeta: UPDATE
+  // Same mockingbird-sqlite rowid-allocation workaround as touchScopeMeta: UPDATE
   // first, then INSERT with an explicit MAX(rowid)+1.
   const updated = await db.run(sql`
     UPDATE sync_engine_push_applied SET
