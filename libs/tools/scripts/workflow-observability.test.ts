@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import {
   failedTestTraceMarkdown,
   failedTestTracesFromNdjson,
-} from './pipeline-observability';
+} from './workflow-observability';
 
 const TRACE_ID = '11111111111111111111111111111111';
 const SPAN_ID = '2222222222222222';

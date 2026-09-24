@@ -11,7 +11,7 @@ Afterwards the branch, `origin/<branch>` and local `main` are all current with t
 Your only job is the commit message.
 
 It is the one way this repo commits, pushes and syncs with trunk. Use it to checkpoint and
-stay current with `main` between units of work. `bun pr` runs it before it dispatches CI.
+stay current with `main` between units of work. `bun check:remote` runs it before it dispatches the Check workflow.
 
 ## Run
 

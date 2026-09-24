@@ -128,7 +128,7 @@ An older client must keep working. Every schema change therefore has to pass
 |`unique-index-added` (may fail on duplicate legacy rows)|warning|
 |`physical-override-added` (narrows portability)|warning|
 
-Two committed artifacts enforce it in PR CI (`//#check`):
+Two committed artifacts enforce it in the Check workflow (`//#check`):
 
 - [`libs/runtime/schema-snapshot.json`](../../libs/runtime/schema-snapshot.json) +
   `bun run --filter @libs/runtime check:schema-evolution` — the committed

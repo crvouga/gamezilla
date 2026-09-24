@@ -27,7 +27,7 @@ PR instead — `/pr-ready` takes it to a green Ready to merge button, then a
 human merges it.
 
 `--no-verify` is not a fix: a commit pushed straight to main is not associated
-with a pull request, so the deploy pipeline rejects it and nothing ships.
+with a pull request, so the Deploy workflow rejects it and nothing ships.
 MSG
   exit 1
 fi

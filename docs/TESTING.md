@@ -31,8 +31,8 @@ Nobody verifies anything by hand: not before a merge, not before a release, not
 ## 2. `bun check` is the release decision
 
 `bun check` is the one command. It runs every package's `tc`, `lint`, `test`,
-`test:contract` and `test:e2e`, plus the root leaves, and PR CI and the deploy
-gate run exactly that set. Its verdict must be:
+`test:contract` and `test:e2e`, plus the root leaves, and the Check and Deploy
+workflows run exactly that set. Its verdict must be:
 
 - **Complete** — every test the repo owns runs. No skips, no `.only`, no
   `.todo`, no conditional `.if`, no expected-failure `.failing`, no test file

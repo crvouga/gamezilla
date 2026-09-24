@@ -68,7 +68,7 @@ describe('resolveRunDeadlineSeconds', () => {
 
   test('CI gets its own absolute ceiling, never a scaled one', () => {
     // Scaling the run deadline by the runner multiplier is what let a wedged
-    // PR check sit for 90 minutes. The multiplier is for per-task budgets.
+    // Check run sit for 90 minutes. The multiplier is for per-task budgets.
     expect(
       resolveRunDeadlineSeconds({}, { isDeploy: false, slowRunner: true })
     ).toBe(CI_RUN_DEADLINE_SECONDS);
@@ -83,13 +83,13 @@ describe('resolveRunDeadlineSeconds', () => {
   test('the CI deadline fires before the workflow step timeout', () => {
     // Otherwise GitHub kills the job first and nobody learns which task hung.
     const workflow = readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/pr.yml'),
+      join(import.meta.dirname, '../../../.github/workflows/check.yml'),
       'utf8'
     );
     const step = /- name: check\n(?:.*\n)*?\s+timeout-minutes:\s*(\d+)/.exec(
       workflow
     );
-    expect(step, 'pr.yml check step has a timeout-minutes').not.toBeNull();
+    expect(step, 'check.yml check step has a timeout-minutes').not.toBeNull();
     expect(Number(step?.[1]) * 60).toBeGreaterThan(CI_RUN_DEADLINE_SECONDS);
   });
 

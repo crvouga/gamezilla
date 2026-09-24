@@ -131,14 +131,14 @@ Nothing in the gate may run unbounded:
 | Whole `check` run, laptop | 10 min | `DEFAULT_RUN_DEADLINE_SECONDS` |
 | Whole `check` run, CI | 20 min | `CI_RUN_DEADLINE_SECONDS` |
 | Whole `deploy` run | 45 min | `DEPLOY_RUN_DEADLINE_SECONDS` |
-| PR `check` step | 25 min | `timeout-minutes`, `.github/workflows/pr.yml` |
-| PR `check` job | 30 min | `timeout-minutes`, `.github/workflows/pr.yml` |
-| Deploy jobs | 55 min | `timeout-minutes`, `.github/workflows/deploy.yml` |
+| Check workflow `check` step | 25 min | `timeout-minutes`, `.github/workflows/check.yml` |
+| Check workflow `check` job | 30 min | `timeout-minutes`, `.github/workflows/check.yml` |
+| Deploy workflow jobs | 55 min | `timeout-minutes`, `.github/workflows/deploy.yml` |
 | One task | 300 s (×2 on CI) | `DEFAULT_TASK_BUDGET_SECONDS` |
 
 The run deadlines are **absolute** — never scaled by `SLOW_RUNNER_MULTIPLIER`,
 which corrects per-task budgets only; scaling the run deadline is what once let
-a wedged PR check sit for 90 minutes. Each in-process deadline sits **below**
+a wedged Check run sit for 90 minutes. Each in-process deadline sits **below**
 its workflow `timeout-minutes`, so `turbo-ci-run` kills the run and names the
 task still running before GitHub cancels the step and says nothing
 (`check-budget.test.ts` asserts the ordering). Per-task budgets are read back
@@ -220,7 +220,7 @@ that depend on everything, kept small on purpose. Run a subset with
 `bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`; one
 aggregated HTML report over every suite with `bun run test:report`.
 
-**A green `bun check` must mean a green PR check.** The gate is only worth
+**A green `bun check` must mean a green Check workflow.** The gate is only worth
 running if the two agree, so a check leaf's **verdict** may not depend on which
 machine runs it. Do not branch on `CI` / `GITHUB_ACTIONS` to decide pass, fail
 or skip — `scripts/check-*.ts` may not read them at all, and the
@@ -237,22 +237,29 @@ green.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --env production --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution` and `@libs/tools#check:static`. A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. PR CI and the deploy gate run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull provision → migrate → room deploy → API deploy → product deploy → billing sync before they run.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --env production --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution` and `@libs/tools#check:static`. A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull provision → migrate → room deploy → API deploy → product deploy → billing sync before they run.
 
-**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; prd-only probes `skipIf(!isProductionSecretsEnv())`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. `.github/workflows/health.yml` runs it hourly against `prd` and `dev`.
+**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; prd-only probes `skipIf(!isProductionSecretsEnv())`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against `prd` and `dev`.
 
 Low-end device gates are **static** (critical-path test + bundle-budget; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
-**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the deployment pipeline reuses those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for PR CI; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, provision, migrate, deploy, health, OTA) always re-run.
+**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the Check and Deploy workflows reuse those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for the Check workflow; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, provision, migrate, deploy, health, OTA) always re-run.
 
-Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Cloudflare R2 (`gamezilla-production`). Provision uses `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to ensure R2 buckets and mint per-env S3 API tokens (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). After renaming Worker secret keys, delete any stale bindings not in the registry once (`wrangler secret bulk` does not remove old names). Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun health` runs `@libs/secrets#health` (validates every registry secret live against the vendor, per secrets env; deploy and the hourly workflow cover `dev` and `prd`).
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Cloudflare R2 (`gamezilla-production`). Provision uses `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to ensure R2 buckets and mint per-env S3 API tokens (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). After renaming Worker secret keys, delete any stale bindings not in the registry once (`wrangler secret bulk` does not remove old names). Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun health` runs `@libs/secrets#health` (validates every registry secret live against the vendor, per secrets env; the Deploy and Health workflows cover `dev` and `prd`).
 
-## CI/CD job layout
+## Workflows
 
-Two workflow files, both on GitHub-hosted `ubuntu-latest` (the repo is private on
-a plan without larger runners):
+Exactly three GitHub Actions workflows, all on GitHub-hosted `ubuntu-latest`
+(the repo is private on a plan without larger runners). Use these names
+everywhere; never add a fourth:
 
-1. **PRs run exactly one check.** `.github/workflows/pr.yml` has a single job
+| Workflow | File | Question it answers |
+| --- | --- | --- |
+| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check`, on every PR) |
+| **Deploy** | `.github/workflows/deploy.yml` | Ship the code (`bun run deploy`, on `main`) |
+| **Health** | `.github/workflows/health.yml` | Is the deployment good? (`bun health`, hourly) |
+
+1. **Check runs exactly one job.** `.github/workflows/check.yml` has a single job
    named `check` that runs `bun run check` with `SECRETS_ENV=dev` — the same
    `//#check` leaf set as the deploy gate, nothing more. Never split the
    check surface into per-check jobs: assign a new check to `//#check` in
@@ -263,7 +270,7 @@ a plan without larger runners):
    product deploy → billing sync), so it is never listed as a `dependsOn` of
    another aggregator. Live-resource probes go in a package's `health` script,
    never in `//#check`.
-2. **`main` deploys in two stages.** `.github/workflows/deploy.yml` runs
+2. **Deploy ships `main` in two stages.** `.github/workflows/deploy.yml` runs
    `deploy:dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
    succeeds, `deploy:prd` (`SECRETS_ENV=prd bun run deploy`,
    `environment: production`). Both jobs invoke `bun run deploy` with
@@ -274,6 +281,10 @@ a plan without larger runners):
    traffic — prod is still the first environment to receive worker code.
    `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
    `@libs/runtime#migrate` / `@libs/secrets#provision` are not dry-run gated.
+   Deploy ends with every package's `health` task.
+3. **Health checks the live deployment between deploys.**
+   `.github/workflows/health.yml` runs `bun health` hourly for `prd` and `dev`
+   (the same probes Deploy runs last) and deploys nothing.
 
 UI tests run in-process, in happy-dom, inside each package's `test` leaf —
 `bun check` drives no real browser. UI suites are written against the
@@ -288,7 +299,7 @@ to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 `@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
 wildcard to a `.tsx` file) fails on the runner while passing locally.
 
-Every PR check is required by GitHub, not by convention:
+Every check that reports on a PR is required by GitHub, not by convention:
 `libs/tools/github-config/main-protection.json` (applied with `bun run github:config`)
 requires everything that reports on the PR — ours and third-party apps' — against
 the latest `main`, so GitHub itself refuses the merge until all of it is green.
@@ -304,8 +315,8 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
   force-pushes and deletions are rejected, admins included. **Required checks are
   never named here**: the script reads what actually reports on open PRs
   (`gh pr checks`, third-party apps included) and requires all of it, strictly
-  (the branch must be up to date). Add, rename or drop a PR check and
-  `bun run github:config` follows; pushed-only checks (the deploy jobs) are
+  (the branch must be up to date). Add, rename or drop a check on PRs and
+  `bun run github:config` follows; the Deploy and Health workflows are
   excluded because they never report on a PR. Verified by pushing to a protected
   branch with the local hook bypassed: `remote: - Changes must be made through a
   pull request.`
@@ -319,12 +330,12 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
 
 Two local layers back it up: `libs/tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
-`bun run hooks:install`), and `.github/workflows/deploy.yml` fails before it
-deploys any commit that is not associated with a pull request — that job also
+`bun run hooks:install`), and the Deploy workflow fails before it
+deploys any commit that is not associated with a pull request — it also
 re-runs the whole `check` leaf set first, so a merged-but-red PR cannot
 ship. The other hook, `libs/tools/githooks/pre-commit` (repo-wide
 `lint tc --affected`), is opt-in per commit (`GIT_LINT_PRECOMMIT=1 git commit …`):
-checks belong to PR CI, and `--affected` spans every package while a global
+checks belong to the Check workflow, and `--affected` spans every package while a global
 dependency is dirty.
 
 ## Superset workspaces
@@ -342,15 +353,15 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (`1883`/`8083`/`18083`) and the wrangler preview (`8788`) stay machine-wide
   singletons: at most one workspace at a time may run something that binds them
   (fidelity-max sims, `test:contract`, `check:api`).
-- **Checks.** `bun check` is the whole gate (the same leaf set PR CI runs).
+- **Checks.** `bun check` is the whole gate (the same leaf set the Check workflow runs).
   While iterating, prefer `bun fmt` plus `bun run --filter <pkg> tc` and
-  `bun run --filter <pkg> test`. `bun pr` runs the real PR workflow
-  (`.github/workflows/pr.yml`) on GitHub for the current branch: it runs
+  `bun run --filter <pkg> test`. `bun check:remote` runs the real Check workflow
+  (`.github/workflows/check.yml`) on GitHub for the current branch: it runs
   `git-sync` (`--message` commits a dirty tree), dispatches the run and blocks
   until it finishes (exit code = verdict); Ctrl-C cancels the run on GitHub. `bun run git-sync`
   (`/git-sync`, `.agents/commands/git-sync.md`) is the one commit/push/trunk-sync step: it
   pushes the branch, merges the latest `origin/main`, pushes, and fast-forwards local `main`,
-  and `bun pr` goes through it. Every PR body follows
+  and `bun check:remote` goes through it. Every PR body follows
   `.github/PULL_REQUEST_TEMPLATE.md` (not CI-enforced). Then run `/pr-ready`
   (a user-level skill, not a repo command) — the single PR command: it syncs
   with the base, clears conflicts, opens/updates the PR, drives every check

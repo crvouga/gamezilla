@@ -7,7 +7,7 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 /**
  * Idempotent setup for CI → secrets-backend OIDC auth.
  *
- * The deployment pipeline authenticates via GitHub Actions OIDC
+ * The Check, Deploy and Health workflows authenticate via GitHub Actions OIDC
  * (see `.github/actions/secrets-auth`). That requires two GitHub Actions
  * repository variables that are NOT stored in the secret store:
  *

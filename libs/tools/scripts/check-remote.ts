@@ -1,12 +1,13 @@
 #!/usr/bin/env bun
 // @io-wall-ok — gh CLI entry
 /**
- * `bun pr`: run `.github/workflows/pr.yml` on GitHub for the current branch
- * and block until it finishes. The exit code is the run's verdict. Ctrl-C /
- * SIGTERM / SIGHUP cancel the run on GitHub before exiting (SIGKILL cannot be
- * caught — cancel that run with `gh run cancel <id>`).
+ * `bun check:remote`: run the Check workflow (`.github/workflows/check.yml`)
+ * on GitHub for the current branch and block until it finishes. The exit code
+ * is the run's verdict. Ctrl-C / SIGTERM / SIGHUP cancel the run on GitHub
+ * before exiting (SIGKILL cannot be caught — cancel that run with
+ * `gh run cancel <id>`).
  *
- *   bun pr [--message "type(scope): description"]
+ *   bun check:remote [--message "type(scope): description"]
  *
  * First it runs `/git-sync` (`git-sync.ts`): commits a dirty tree with
  * `--message`, merges `origin/<branch>` and the latest `origin/main`
@@ -18,12 +19,12 @@ import { type ChildProcess, spawn } from 'node:child_process';
 
 import { gitSync, parseGitSyncArgs, SyncError } from './git-sync';
 
-const WORKFLOW = 'pr.yml';
+const WORKFLOW = 'check.yml';
 const FIND_RUN_ATTEMPTS = 30;
 const FIND_RUN_INTERVAL_MS = 2000;
 const FAILED_LOG_LINES = 200;
 
-class PrRunError extends Error {}
+class CheckRemoteError extends Error {}
 
 type Run = {
   readonly code: number;
@@ -43,7 +44,7 @@ function run(cmd: readonly string[]): Run {
 function must(cmd: readonly string[]): string {
   const result = run(cmd);
   if (result.code !== 0) {
-    throw new PrRunError(
+    throw new CheckRemoteError(
       `${cmd.join(' ')} failed: ${result.err || result.out}`
     );
   }
@@ -92,9 +93,12 @@ function syncBranch(argv: readonly string[]): {
   readonly sha: string;
 } {
   const options = parseGitSyncArgs(argv);
-  if (options.trunkOnly) throw new PrRunError('--trunk-only is not a PR run.');
+  if (options.trunkOnly)
+    throw new CheckRemoteError('--trunk-only is not a Check run.');
   if (must(['git', 'branch', '--show-current']) === 'main') {
-    throw new PrRunError('refusing to run on main: use a feature branch.');
+    throw new CheckRemoteError(
+      'refusing to run on main: use a feature branch.'
+    );
   }
   const branch = gitSync(options);
   return { branch, sha: must(['git', 'rev-parse', 'HEAD']) };
@@ -110,19 +114,19 @@ async function waitForRun(
     if (found !== undefined) return found.databaseId;
     await Bun.sleep(FIND_RUN_INTERVAL_MS);
   }
-  throw new PrRunError(
+  throw new CheckRemoteError(
     `dispatched ${WORKFLOW} but no run for ${sha.slice(0, 9)} appeared; see ` +
       `\`gh run list --workflow ${WORKFLOW} --branch ${branch}\`.`
   );
 }
 
 function cancelRun(runId: number): void {
-  console.error(`\npr: cancelling run ${String(runId)} on GitHub…`);
+  console.error(`\ncheck:remote: cancelling run ${String(runId)} on GitHub…`);
   const result = run(['gh', 'run', 'cancel', String(runId)]);
   console.error(
     result.code === 0
-      ? 'pr: cancelled.'
-      : `pr: cancel failed: ${result.err || result.out}`
+      ? 'check:remote: cancelled.'
+      : `check:remote: cancel failed: ${result.err || result.out}`
   );
 }
 
@@ -155,7 +159,7 @@ function printFailedLog(runId: number): void {
   const result = run(['gh', 'run', 'view', String(runId), '--log-failed']);
   const lines = result.out.split('\n');
   console.error(
-    `\npr: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
+    `\ncheck:remote: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
   );
   console.error(lines.slice(-FAILED_LOG_LINES).join('\n'));
 }
@@ -172,7 +176,9 @@ async function main(): Promise<number> {
   cancelOnSignals(state);
 
   must(['gh', 'workflow', 'run', WORKFLOW, '--ref', branch]);
-  console.log(`pr: dispatched ${WORKFLOW} on ${branch} @ ${sha.slice(0, 9)}`);
+  console.log(
+    `check:remote: dispatched ${WORKFLOW} on ${branch} @ ${sha.slice(0, 9)}`
+  );
   state.runId = await waitForRun(branch, sha, knownIds);
   const url = must([
     'gh',
@@ -184,7 +190,7 @@ async function main(): Promise<number> {
     '--jq',
     '.url',
   ]);
-  console.log(`pr: ${url}`);
+  console.log(`check:remote: ${url}`);
 
   // Own process group: the terminal's Ctrl-C reaches only this script, which
   // cancels the run before the watcher goes away.
@@ -198,7 +204,7 @@ async function main(): Promise<number> {
     watcher.on('close', (exitCode) => resolve(exitCode ?? 1));
   });
   if (code !== 0) printFailedLog(state.runId);
-  console.log(`pr: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+  console.log(`check:remote: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
   return code;
 }
 
@@ -206,10 +212,10 @@ if (import.meta.main) {
   try {
     process.exit(await main());
   } catch (error) {
-    if (!(error instanceof PrRunError || error instanceof SyncError)) {
+    if (!(error instanceof CheckRemoteError || error instanceof SyncError)) {
       throw error;
     }
-    console.error(`pr: ${error.message}`);
+    console.error(`check:remote: ${error.message}`);
     process.exit(1);
   }
 }
