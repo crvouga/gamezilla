@@ -29,6 +29,11 @@ export {
   idpSessions,
   idpUsers,
 } from './schema/tables';
+export {
+  requestSyntheticMonitorRedirect,
+  SYNTHETIC_MONITOR_CODE_PATH,
+  type SyntheticMonitorRedirectArgs,
+} from './synthetic-monitor';
 export { hashAuthSecret } from './token-hash';
 export {
   buildAuthTrustedOrigins,

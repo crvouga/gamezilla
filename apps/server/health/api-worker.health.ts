@@ -44,6 +44,28 @@ function certificateValidTo(host: string): Promise<number> {
   });
 }
 
+/** `application/health+json` body of `/api/health/ready`. */
+type ReadinessJson = {
+  readonly status?: string;
+  readonly checks?: Record<
+    string,
+    readonly { readonly status?: string; readonly output?: string }[]
+  >;
+};
+
+/** `name: output` for every readiness check that did not pass. */
+function failingChecks(body: ReadinessJson): string[] {
+  const failing: string[] = [];
+  for (const [name, results] of Object.entries(body.checks ?? {})) {
+    for (const check of results) {
+      if (check.status !== 'pass') {
+        failing.push(`${name}: ${check.output ?? check.status}`);
+      }
+    }
+  }
+  return failing;
+}
+
 describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   for (const host of HOSTS) {
     test(`DNS resolves ${host}`, async () => {
@@ -64,6 +86,21 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
         maxWaitMs: WARMUP_MS,
       });
       expect(result.status).toBe(200);
+    },
+    WARMUP_MS + 30_000
+  );
+
+  test(
+    '/api/health/ready: every hard dependency passes (health+json)',
+    async () => {
+      const result = await waitForHttp(
+        `${productionApiOrigin()}/api/health/ready`,
+        { label: 'API /api/health/ready', maxWaitMs: WARMUP_MS }
+      );
+      const body = JSON.parse(result.body ?? '{}') as ReadinessJson;
+      expect(failingChecks(body), 'failing readiness checks').toEqual([]);
+      expect(result.status).toBe(200);
+      expect(body.status).toBe('pass');
     },
     WARMUP_MS + 30_000
   );

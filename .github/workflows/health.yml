@@ -8,7 +8,9 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # Health: is the deployment good? Live-resource health between deploys: `bun run health` runs every package's
 # `health` task (turbo `health` with `--only`, so nothing is deployed) against
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
-# vendor credentials, the Workers, DNS and TLS. The Deploy workflow runs the same
+# vendor credentials, the Workers, DNS and TLS — plus the critical user
+# journeys, driven in a real browser (the runner's preinstalled Chrome)
+# against the production web client. The Deploy workflow runs the same
 # probes as its last step (`//#deploy` → `health`); this schedule catches drift in
 # between (expired tokens, revoked keys, a dead Railway service).
 #
@@ -54,6 +56,18 @@ jobs:
 
       - name: health:prd
         run: bun run health
+
+      # Critical journeys (apps/product/health/critical-journeys.health.ts)
+      # save a screenshot, the page HTML and the browser console per failure.
+      - name: Upload critical journey evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: critical-journeys-${{ github.run_id }}
+          path: apps/product/.cache/critical-journeys/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
 
   health-dev:
     name: health:dev

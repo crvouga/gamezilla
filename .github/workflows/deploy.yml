@@ -135,6 +135,17 @@ jobs:
           set -euo pipefail
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
+      # The deploy ends with every `health` task, the critical journeys too.
+      - name: Upload critical journey evidence
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: critical-journeys-${{ github.run_id }}
+          path: apps/product/.cache/critical-journeys/
+          if-no-files-found: ignore
+          include-hidden-files: true
+          retention-days: 14
+
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:

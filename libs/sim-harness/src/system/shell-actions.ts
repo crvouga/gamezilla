@@ -6,7 +6,8 @@
 
 import { Handles } from '@libs/test-ids';
 
-import { actorUi, openGlobalMenu, scenarioAction } from './actor-ui';
+import { actorUi, scenarioAction } from './actor-ui';
+import { openGlobalMenu } from './driver-gestures';
 
 const WAIT_MS = 15_000;
 

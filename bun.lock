@@ -88,6 +88,7 @@
         "@pkgs/aedes-server": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/assert-crash-browser": "workspace:*",
+        "@pkgs/auth-inhouse": "workspace:*",
         "@pkgs/billing": "workspace:*",
         "@pkgs/billing-mock": "workspace:*",
         "@pkgs/billing-providers": "workspace:*",
@@ -111,6 +112,7 @@
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/tailwind": "workspace:*",
         "@pkgs/ui": "workspace:*",
+        "@pkgs/ui-testing-bun-webview": "workspace:*",
         "@pkgs/uuid": "workspace:*",
         "@solidjs/router": "catalog:",
         "better-sqlite3": "catalog:",
@@ -784,6 +786,7 @@
         "@pkgs/db-schema": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/kv-postgres": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
@@ -795,6 +798,7 @@
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
+        "@pkgs/ui-testing": "workspace:*",
       },
       "devDependencies": {
         "@libs/test-ids": "workspace:*",
@@ -913,6 +917,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -2966,6 +2971,7 @@
         "@pkgs/ui-testing": "workspace:*",
       },
       "devDependencies": {
+        "@happy-dom/global-registrator": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

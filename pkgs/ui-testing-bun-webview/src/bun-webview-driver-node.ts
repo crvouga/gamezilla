@@ -32,6 +32,16 @@ import { isWaitTextCondition } from '@pkgs/ui-testing/driver/driver';
 import { formatTestIdPath } from '@pkgs/ui-testing/selector/format';
 import type { BunWebView, BunWebviewHost } from './bun-webview-host';
 
+/**
+ * Page-side expression for the text field under selector `sel`: the matched
+ * node when it holds a value, else its first `<input>` / `<textarea>` — a
+ * design-system `TextInput` puts its test id on the wrapper, like the Solid
+ * DOM driver's `findTextField`.
+ */
+function textFieldExpr(sel: string): string {
+  return `(function(){ const host = document.querySelector(${sel}); if (!host) return null; return 'value' in host ? host : host.querySelector('input, textarea'); })()`;
+}
+
 /** Page-side counters of trusted `pointerdown`s / `pointerup`s (installed once per document). */
 const ARM_POINTER_COUNTER = `(function () {
   if (window.__uiTestingPointerCounts === undefined) {
@@ -222,14 +232,14 @@ export class BunWebviewDriverNode implements DriverNode {
     const sel = JSON.stringify(cssPath(this.path));
     const value = JSON.stringify(text);
     await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${sel}); if (!el) return; el.focus(); if ('value' in el) { el.value = ${value}; el.dispatchEvent(new Event('input', { bubbles: true })); } })()`
+      `(function(){ const el = ${textFieldExpr(sel)}; if (!el) return; el.focus(); el.value = el.value + ${value}; el.dispatchEvent(new Event('input', { bubbles: true })); })()`
     );
   }
 
   async clear(): Promise<void> {
     const sel = JSON.stringify(cssPath(this.path));
     await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${sel}); if (!el) return; if ('value' in el) { el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true })); } })()`
+      `(function(){ const el = ${textFieldExpr(sel)}; if (!el) return; el.value = ''; el.dispatchEvent(new Event('input', { bubbles: true })); })()`
     );
   }
 
@@ -302,7 +312,7 @@ export class BunWebviewDriverNode implements DriverNode {
 
   async text(): Promise<string | null> {
     const result = await (await this.view()).evaluate(
-      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if ('value' in el && typeof el.value === 'string') return el.value; return el.innerText ?? el.textContent; })()`
+      `(function(){ const el = document.querySelector(${JSON.stringify(cssPath(this.path))}); if (!el) return null; if ('value' in el && typeof el.value === 'string') return el.value; const fields = el.querySelectorAll('input, textarea'); if (fields.length === 1) return fields[0].value; return el.innerText ?? el.textContent; })()`
     );
     if (result === null) {
       throw new ElementNotFoundError(formatTestIdPath(this.path));
