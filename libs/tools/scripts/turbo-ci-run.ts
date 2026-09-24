@@ -66,7 +66,12 @@ import {
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
 const DEPLOY_AGGREGATOR = '//#deploy';
-const HEALTH_AGGREGATOR = '//#health';
+/**
+ * The per-package live-resource probes. Deliberately no `//#health` root
+ * task: the root `health` script would make a bare `health` dependency
+ * resolve to that root task itself, a cycle turbo refuses to plan.
+ */
+const HEALTH_TASK = 'health';
 
 const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
@@ -97,9 +102,6 @@ const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
   deploy: DEPLOY_AGGREGATOR,
   '//#deploy': DEPLOY_AGGREGATOR,
   '//:deploy': DEPLOY_AGGREGATOR,
-  health: HEALTH_AGGREGATOR,
-  '//#health': HEALTH_AGGREGATOR,
-  '//:health': HEALTH_AGGREGATOR,
 };
 
 /**
@@ -117,7 +119,7 @@ export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
       .map((arg) => AGGREGATOR_ALIASES[arg])
   );
   if (requested.has(DEPLOY_AGGREGATOR)) return 'deploy';
-  if (requested.has(HEALTH_AGGREGATOR)) return 'health';
+  if (rawTaskArgs.includes(HEALTH_TASK)) return 'health';
   return 'plain';
 }
 
@@ -251,9 +253,9 @@ export function flattenCheckAggregators(
     out.push(leaf);
   }
 
-  // Bare script names (`check`, `health`) are aliases only on the command
-  // line; inside `dependsOn` they are package tasks (`//#health` → `health`),
-  // so nested deps expand only when they name a root aggregator.
+  // Bare script names (`check`, `deploy`) are aliases only on the command
+  // line; inside `dependsOn` a bare name is a package task, so nested deps
+  // expand only when they name a root aggregator.
   function expand(arg: string, commandLine: boolean): void {
     const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
     const canonical =

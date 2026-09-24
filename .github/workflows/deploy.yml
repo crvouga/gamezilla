@@ -8,7 +8,7 @@ name: Deploy
 #                no traffic: prod is still the first environment to receive
 #                worker code.
 #   deploy-prd — applies to production, then runs every package's `health`
-#                task (`//#health`: live probes of Workers, DNS/TLS, Postgres,
+#                task (`health`: live probes of Workers, DNS/TLS, Postgres,
 #                R2, EMQX, Grafana Cloud, vendor credentials). Runs only when
 #                deploy-dev succeeded. deploy-dev runs the dev-scope probes.
 #                .github/workflows/health.yml runs the same probes hourly.
