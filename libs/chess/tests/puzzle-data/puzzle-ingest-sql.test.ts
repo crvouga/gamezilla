@@ -11,7 +11,7 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
 const HEADER =
   'PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags';
@@ -31,7 +31,7 @@ const CSV = [
 let idSeq = 0;
 
 async function openDb(): Promise<SqlClient> {
-  const db = SqlClientImplSqliteMem.open();
+  const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await applySqliteSchema(db, registerTables([...CHESS_TABLES]), {
     ownership: 'declared-only',

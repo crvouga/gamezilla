@@ -20,7 +20,7 @@ import {
   type IdpScreenState,
 } from '@pkgs/idp-sim/shared';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
 export const TEST_CLIENT: IdpClient = {
   clientId: 'test-client.apps.googleusercontent.com',
@@ -123,7 +123,7 @@ export async function openIdpFixture(
 export async function createIdpFixture(
   overrides: Omit<OpenIdpFixtureArgs, 'sqlClient'> = {}
 ): Promise<IdpFixture> {
-  const sqlClient = SqlClientImplSqliteMem.open({ seed: 1 });
+  const sqlClient = SqlClientImplMockingbirdSqlite.open({ seed: 1 });
   return await openIdpFixture({ ...overrides, sqlClient });
 }
 

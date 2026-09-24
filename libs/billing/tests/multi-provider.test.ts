@@ -35,7 +35,7 @@ import { createNoopLogger } from '@pkgs/logger';
 import { assertProperty } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import fc from 'fast-check';
 import { Hono } from 'hono';
 
@@ -251,7 +251,7 @@ class World {
 }
 
 async function openWorld(): Promise<World> {
-  const db = SqlClientImplSqliteMem.open();
+  const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await applySqliteSchema(
     db,

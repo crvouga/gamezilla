@@ -363,7 +363,7 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 
 ## Local development
 
-**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **postgres-mem** server + **sqlite-mem** clients). Sim test reports are one standalone HTML artifact over every package's e2e suite (`bun run test:report` → `sim-report/index.html`, rendered by `@pkgs/sim-report`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
+**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Simulator at `/simulator` — flat sibling screens linked only through their command palettes (`Open Simulator` / `Exit simulator`), no tab bar or console chrome; default SQL fabric for sims is **mockingbird-postgres** server + **mockingbird-sqlite** clients). Sim test reports are one standalone HTML artifact over every package's e2e suite (`bun run test:report` → `sim-report/index.html`, rendered by `@pkgs/sim-report`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
 **Highest-fidelity local run** — `bun run stack` runs the whole product in the foreground
 loopback: embedded Postgres, S3rver, Aedes MQTT, **simulated Google and Apple IdPs, each on
@@ -424,7 +424,7 @@ also stay a **high-fidelity** mock of social sign-in — keep flow parity with
 Google / Apple (address step, account chooser, password, consent with scopes,
 create-account, refusal); saying "mock" is not licence to make it a toy.
 
-Representativeness of production is **port contract matrices** (postgres-mem / sqlite-mem vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ S3rver/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/s3-server`, `@pkgs/aedes-server`, `@pkgs/emqx-server` and are booted from tests/CI (`apps/server/scripts/boot-local-stack.ts`, `apps/server/scripts/boot-embedded-postgres.ts`).
+Representativeness of production is **port contract matrices** (mockingbird-postgres / mockingbird-sqlite vs live engines, Kv, ObjectStore, PubSub, billing/TTS/LLM stubs) plus `@apps/product` `openSim({ fidelity: 'max' })` / `SIM_FIDELITY=max` for embedded real Postgres (+ S3rver/EMQX). Sidecar processes live in `@pkgs/postgres-embedded`, `@pkgs/s3-server`, `@pkgs/aedes-server`, `@pkgs/emqx-server` and are booted from tests/CI (`apps/server/scripts/boot-local-stack.ts`, `apps/server/scripts/boot-embedded-postgres.ts`).
 
 The sim harness (`@libs/sim-harness`) migrates each composition's mem fabric **once** into `<package>/.cache/sim-seed-<composition>.pgmm.json` and clones it per `openSim`. Suite notes: [`libs/sim-harness/README.md`](libs/sim-harness/README.md).
 

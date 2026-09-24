@@ -29,7 +29,7 @@ import type { JSX } from 'solid-js';
 
 import type { ProductSim } from './system/sim';
 
-/** Server-side migrate of a fresh sim Postgres (postgres-mem or embedded). */
+/** Server-side migrate of a fresh sim Postgres (mockingbird-postgres or embedded). */
 export type MigrateSimPostgres = (args: {
   readonly sqlClient: SqlClient;
   readonly pool: Pool;

@@ -81,6 +81,8 @@ function usernameErrorLabel(
       return <Trans>Username is required</Trans>;
     case 'USERNAME_BLOCKED':
       return <Trans>That username is not allowed</Trans>;
+    case 'OFFLINE':
+      return <Trans>You're offline</Trans>;
     default:
       return <Trans>Couldn't save</Trans>;
   }

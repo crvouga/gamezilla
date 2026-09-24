@@ -58,7 +58,7 @@ folds in production's order. Run one package's suite with
 
 | Host name | Factory | UI | SQL / HTTP |
 | --- | --- | --- | --- |
-| `in-process` (default) | `inProcessRuntime({ composition })` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seeded postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
+| `in-process` (default) | `inProcessRuntime({ composition })` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seeded mockingbird-postgres + mockingbird-sqlite; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime({ composition })` — registered on every product system | `Bun.WebView` per actor | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + S3rver/EMQX (booted by the app that registers `registerRealStackBooter` — `@apps/product`'s `test:max` preload) and no `partition` cap; `SIM_MODE=stack` attaches to a separately booted [localhost stack](../../apps/product/docs/LOCALHOST_STACK.md) |
 
 Open a run with `openSim(system, testId, options)` from
@@ -101,7 +101,7 @@ Faults (partition / restoreNetwork) are `defineAction`s gated by the `caps` read
 On the bun-webview real-mode host (no `partition` cap), `s.apply(partition, …)`
 throws `ActionNotEnabled`.
 
-**SQL fabric** — in-process sim always uses **postgres-mem** + **sqlite-mem**
+**SQL fabric** — in-process sim always uses **mockingbird-postgres** + **mockingbird-sqlite**
 (checkpoint format `mixed-pgmm-sqlm`). Each composition migrates once into a
 seed, `<package>/.cache/sim-seed-<composition>.pgmm.json`, fingerprinted by its
 schema and migrate; every `openSim` clones it. The default migrate

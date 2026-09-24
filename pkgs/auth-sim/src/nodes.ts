@@ -10,8 +10,8 @@ import { createNoopLogger } from '@pkgs/logger';
 import type { Ports, Session } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
 
 import {
@@ -33,9 +33,9 @@ import {
 } from './types';
 
 function openSql(fabric: AuthFabric, seed: number): SqlClient {
-  return fabric === 'sqlite-mem'
-    ? SqlClientImplSqliteMem.open({ seed })
-    : SqlClientImplPostgresMem.open({ seed });
+  return fabric === 'mockingbird-sqlite'
+    ? SqlClientImplMockingbirdSqlite.open({ seed })
+    : SqlClientImplMockingbirdPostgres.open({ seed });
 }
 
 export async function migrateAuthSchema(
@@ -43,7 +43,7 @@ export async function migrateAuthSchema(
   sqlClient: SqlClient
 ): Promise<void> {
   const logger = createNoopLogger();
-  if (fabric === 'sqlite-mem') {
+  if (fabric === 'mockingbird-sqlite') {
     await new AuthSqliteDatabaseMigration().migrate({ sqlClient, logger });
     return;
   }

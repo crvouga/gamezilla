@@ -66,7 +66,8 @@ import {
 } from './sim-sql';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
-const SIM_POSTGRES_MEM_DATABASE_URL = 'postgresql://postgres-mem/sim';
+const SIM_MOCKINGBIRD_POSTGRES_DATABASE_URL =
+  'postgresql://mockingbird-postgres/sim';
 
 export type CreateSimOptions = {
   /** The features this sim boots. */
@@ -164,7 +165,7 @@ function buildSharedServerServices(
   appleKeys: AppleClientKeys
 ): SharedServerServices {
   const secrets = createRecordSecretStore({
-    DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
+    DATABASE_URL: SIM_MOCKINGBIRD_POSTGRES_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
     ...simIdpSecrets(appleKeys),
   });
@@ -521,7 +522,7 @@ function createSimHandle(kernel: SimKernel): Sim {
  * Bumps the client durable epoch so each sim gets a fresh
  * `sim_client_${id}_eN` secure-storage / auth namespace. Without this, a prior
  * openSim that signed in leaves `sessionToken` under `e0` and the next guest
- * boot POSTs `/identity/refresh` against a dead JWT (fresh postgres-mem).
+ * boot POSTs `/identity/refresh` against a dead JWT (fresh mockingbird-postgres).
  */
 export async function createSim(
   session: Session,

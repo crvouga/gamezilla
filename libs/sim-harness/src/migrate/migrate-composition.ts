@@ -1,7 +1,7 @@
 /**
  * Migrate a fresh sim database for exactly the features a composition runs.
  *
- * A subsystem sim starts from an empty postgres-mem, so none of the
+ * A subsystem sim starts from an empty mockingbird-postgres, so none of the
  * production runner's cutovers (legacy tables, integer widths, Clerk purges)
  * have anything to do; they belong to the full composition, which passes the
  * production runner as `migratePostgres`. What every composition needs is the

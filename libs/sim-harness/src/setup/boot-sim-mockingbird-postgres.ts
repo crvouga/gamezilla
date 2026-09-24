@@ -1,5 +1,5 @@
 /**
- * Sim postgres-mem boot: one migrated PGMM dump per composition, cached under
+ * Sim mockingbird-postgres boot: one migrated PGMM dump per composition, cached under
  * the running package's `.cache/` and rebuilt when its fingerprint changes.
  */
 
@@ -8,9 +8,9 @@ import { wallClock } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import {
-  computeSimPostgresMemSeedFingerprint,
-  ensureSimPostgresMemSeedBuffer,
-} from '@pkgs/sql-client-sim/boot-sim-postgres-mem';
+  computeSimMockingbirdPostgresSeedFingerprint,
+  ensureSimMockingbirdPostgresSeedBuffer,
+} from '@pkgs/sql-client-sim/boot-sim-mockingbird-postgres';
 import type { SimComposition } from '../composition';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
 import { simPostgresSeedFingerprintSource } from './sim-postgres-seed-fingerprint';
@@ -31,10 +31,10 @@ export function simSeedPgmmPath(composition: SimComposition): string {
 }
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */
-export async function computeSimPostgresMemSeedFp(
+export async function computeSimMockingbirdPostgresSeedFp(
   composition: SimComposition
 ): Promise<string> {
-  return computeSimPostgresMemSeedFingerprint({
+  return computeSimMockingbirdPostgresSeedFingerprint({
     fingerprintSource: await simPostgresSeedFingerprintSource(
       REPO_ROOT,
       composition
@@ -46,13 +46,13 @@ export async function computeSimPostgresMemSeedFp(
  * Ensure disk + process seed matches fingerprint. Rebuilds via migrate when
  * missing or stale; the first sim of a composition in a process pays for it.
  */
-export async function ensureSimPostgresMemSeed(
+export async function ensureSimMockingbirdPostgresSeed(
   composition: SimComposition
 ): Promise<{
   readonly seedBytes: Uint8Array;
   readonly didMigrate: boolean;
 }> {
-  return ensureSimPostgresMemSeedBuffer({
+  return ensureSimMockingbirdPostgresSeedBuffer({
     store: createNodeFsObjectStore({
       rootDir: cacheDir(),
       fs: wallNodeFs(),
