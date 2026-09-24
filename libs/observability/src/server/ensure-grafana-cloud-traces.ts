@@ -9,6 +9,7 @@ import {
   GrafanaCloudApi,
   type GrafanaStack,
 } from './grafana-cloud-api';
+import { GrafanaCloudApiError } from './grafana-cloud-api-error';
 
 export type GrafanaCloudTracesConfig = {
   readonly grafanaStackSlug: string;
@@ -43,12 +44,36 @@ function sleep(timers: Timers, ms: number): Promise<void> {
   });
 }
 
+/**
+ * Grafana answers 403 (not 404) for a slug that exists in another org, so a
+ * forbidden read means the configured stack is not the token's to manage.
+ */
+async function getOwnStack(
+  api: GrafanaCloudApi,
+  slug: string
+): Promise<GrafanaStack | null> {
+  try {
+    return await api.getStack(slug);
+  } catch (error) {
+    if (!(error instanceof GrafanaCloudApiError) || error.status !== 403) {
+      throw error;
+    }
+    throw new Error(
+      `Grafana Cloud stack ${slug} is not in the org GRAFANA_CLOUD_API_TOKEN ` +
+        'belongs to (or the token lacks stacks:read). Point ' +
+        'PRODUCT_CONFIG.observability.grafanaStackSlug at a stack in that org ' +
+        "(or an unused slug to create one), or mint the token in the stack's org.",
+      { cause: error }
+    );
+  }
+}
+
 async function ensureStack(
   api: GrafanaCloudApi,
   input: EnsureGrafanaCloudTracesInput
 ): Promise<GrafanaStack> {
   const slug = input.config.grafanaStackSlug;
-  let stack = await api.getStack(slug);
+  let stack = await getOwnStack(api, slug);
   if (stack === null) {
     input.log(`· creating Grafana Cloud stack ${slug}`);
     stack = await api.createStack({ slug, region: input.config.grafanaRegion });
@@ -60,7 +85,7 @@ async function ensureStack(
       );
     }
     await sleep(input.timers, STACK_READY_INTERVAL_MS);
-    stack = (await api.getStack(slug)) ?? stack;
+    stack = (await getOwnStack(api, slug)) ?? stack;
   }
   return stack;
 }

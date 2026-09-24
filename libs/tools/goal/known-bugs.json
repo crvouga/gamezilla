@@ -93,5 +93,10 @@
     "id": "deploy-health-self-cycle",
     "summary": "`//#health` depended on bare `health`, which the root `health` script resolves back to `//#health`, so turbo refused to plan `//#deploy` (\"//#health depends on itself\") and every deploy failed. Fixed by dropping the one-dep `//#health` aggregator; `//#deploy` depends on `health` directly, and a graph test fails `bun check` on any root-task cycle.",
     "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
+  },
+  {
+    "id": "grafana-stack-in-foreign-org",
+    "summary": "PRODUCT_CONFIG pointed Grafana provisioning at stack shortawning2091, which lives in a different org than GRAFANA_CLOUD_API_TOKEN; Grafana answers 403 for another org's slug, so Deploy died on `get stack failed: HTTP 403`. Fixed by using a slug the token's org owns and turning the 403 into an org-mismatch error.",
+    "regressionTest": "libs/observability/tests/ensure-grafana-cloud-traces.test.ts"
   }
 ]

@@ -55,8 +55,11 @@ export const PRODUCT_CONFIG = {
    * seeds `OBSERVABILITY_COLLECTOR_*` / `OBS_TEMPO_*` into secrets env `prd`.
    */
   observability: {
-    /** Stack slug → `https://<slug>.grafana.net`; globally unique. */
-    grafanaStackSlug: 'shortawning2091',
+    /**
+     * Stack slug → `https://<slug>.grafana.net`; globally unique, and must live
+     * in the org that `GRAFANA_CLOUD_API_TOKEN` was minted in.
+     */
+    grafanaStackSlug: 'gamezilla',
     /** Region used only when the stack must be created. */
     grafanaRegion: 'prod-us-west-0',
     ingestPolicyName: 'gamezilla-traces-write',
