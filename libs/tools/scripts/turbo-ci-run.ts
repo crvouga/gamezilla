@@ -391,6 +391,7 @@ async function main(): Promise<void> {
 }
 
 const PLAN_SHARDS_FLAG = '--plan-shards';
+const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
 
 /**
  * `--plan-shards`: split the misses across CI runners (`check-shards.ts`) and
@@ -406,7 +407,11 @@ function writeShardPlanAndExit(
       ? { shards: [[...taskArgs]], costs: [0] }
       : planShards(plan, readTaskCosts());
   console.log(formatShardPlan(shardPlan));
-  const outputPath = process.env['GITHUB_OUTPUT'];
+  // Not `$GITHUB_OUTPUT`: this job loads every secret, the runner masks each
+  // stored value (one is `1`), and it silently drops any job output holding a
+  // masked value — `[0,1,…]` always does. The workflow publishes this file
+  // from a job that loads no secrets.
+  const outputPath = process.env[SHARD_PLAN_PATH_ENV];
   if (outputPath !== undefined && outputPath !== '') {
     appendFileSync(outputPath, shardPlanOutputs(shardPlan));
   }

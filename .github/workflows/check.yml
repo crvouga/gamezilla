@@ -31,6 +31,9 @@ jobs:
   #
   #   check:plan   dry-run the gate once; split the cache misses across shards
   #                (libs/tools/scripts/check-shards.ts)
+  #   check:matrix publish the split as job outputs, from a job with no secrets:
+  #                the runner masks every Infisical value in a job that loads
+  #                them and drops any output containing one (`[0,1,…]` does)
   #   check:shard  one runner per shard runs its task ids through turbo
   #   check        the one required check: green only if the plan and every
   #                shard are green
@@ -38,9 +41,6 @@ jobs:
     name: check:plan
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    outputs:
-      shards: ${{ steps.plan.outputs.shards }}
-      assignment: ${{ steps.plan.outputs.assignment }}
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -65,13 +65,40 @@ jobs:
           environment: dev
 
       - name: plan
-        id: plan
+        env:
+          SHARD_PLAN_PATH: ${{ runner.temp }}/shard-plan.txt
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards check
+
+      - name: Upload shard plan
+        uses: actions/upload-artifact@v6
+        with:
+          name: shard-plan
+          path: ${{ runner.temp }}/shard-plan.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  check-matrix:
+    name: check:matrix
+    needs: check-plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      shards: ${{ steps.publish.outputs.shards }}
+      assignment: ${{ steps.publish.outputs.assignment }}
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: shard-plan
+          path: ${{ runner.temp }}
+
+      - name: publish
+        id: publish
+        run: cat "${RUNNER_TEMP}/shard-plan.txt" >> "$GITHUB_OUTPUT"
 
   check-shard:
     name: check:shard
-    needs: check-plan
-    if: needs.check-plan.outputs.shards != '[]'
+    needs: check-matrix
+    if: needs.check-matrix.outputs.shards != '[]'
     runs-on: ubuntu-latest
     # Hard ceiling for the whole job: setup + the check step + summary. The
     # check step has its own tighter limit below.
@@ -80,14 +107,14 @@ jobs:
       # Keep every shard running: one red shard should not hide another's.
       fail-fast: false
       matrix:
-        shard: ${{ fromJSON(needs.check-plan.outputs.shards) }}
+        shard: ${{ fromJSON(needs.check-matrix.outputs.shards) }}
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       GH_EVENT: ${{ github.event_name }}
       PR_BASE: ${{ github.event.pull_request.base.sha }}
       PR_HEAD: ${{ github.event.pull_request.head.sha }}
-      SHARD_TASKS: ${{ join(fromJSON(needs.check-plan.outputs.assignment)[matrix.shard], ' ') }}
+      SHARD_TASKS: ${{ join(fromJSON(needs.check-matrix.outputs.assignment)[matrix.shard], ' ') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -138,7 +165,7 @@ jobs:
 
   check:
     name: check
-    needs: [check-plan, check-shard]
+    needs: [check-plan, check-matrix, check-shard]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -146,10 +173,12 @@ jobs:
       - name: verdict
         env:
           PLAN: ${{ needs.check-plan.result }}
+          MATRIX: ${{ needs.check-matrix.result }}
           SHARDS: ${{ needs.check-shard.result }}
-          SHARD_COUNT: ${{ needs.check-plan.outputs.shards }}
+          SHARD_COUNT: ${{ needs.check-matrix.outputs.shards }}
         # Skipped shards are green only when the plan found nothing to run.
         run: |
-          echo "check:plan=$PLAN check:shard=$SHARDS shards=$SHARD_COUNT"
+          echo "check:plan=$PLAN check:matrix=$MATRIX check:shard=$SHARDS shards=$SHARD_COUNT"
           test "$PLAN" = success
+          test "$MATRIX" = success
           test "$SHARDS" = success || { test "$SHARDS" = skipped && test "$SHARD_COUNT" = '[]'; }

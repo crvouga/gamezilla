@@ -267,7 +267,9 @@ everywhere; never add a fourth:
    runner: `check:plan` dry-runs the gate and splits the cache misses across up
    to `MAX_SHARDS` `check:shard` runners
    ([`check-shards.ts`](libs/tools/scripts/check-shards.ts), balanced by the
-   measured `check-task-costs.json`), each shard runs its task ids through
+   measured `check-task-costs.json`; published by `check:matrix`, a job that
+   loads no secrets, because the runner drops any job output that contains a
+   masked Infisical value), each shard runs its task ids through
    `turbo-ci-run` (turbo restores the `dependsOn` closure from the shared remote
    cache or builds it), and the `check` job is green only when the plan and
    every shard are. `check` is the one required check. The verdict is still
