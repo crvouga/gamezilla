@@ -1,6 +1,7 @@
 // @io-wall-ok — live health probe (process root against the env's R2 bucket).
 import { describe, expect, test } from 'bun:test';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
 import { S3SecretName } from '@pkgs/object-store-s3/s3-config';
 import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
@@ -29,6 +30,7 @@ describe('object store (R2)', () => {
       endpoint: requireEnv(S3SecretName.endpoint),
       region: process.env[S3SecretName.region]?.trim() || 'auto',
       rootPrefix: `${PRODUCT_CONFIG.objectStore.namespace}/`,
+      http: createGlobalHttpClient(),
     });
     const key = 'health/round-trip.txt';
     const bytes = new TextEncoder().encode('health');
