@@ -295,7 +295,8 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/libs/tools/scripts/check-worker-bundle.ts"
+        "$TURBO_ROOT$/libs/tools/scripts/check-worker-bundle.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/worker-compat-date.ts"
       ],
       "outputLogs": "errors-only",
       "outputs": []
