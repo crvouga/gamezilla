@@ -98,5 +98,10 @@
     "id": "grafana-stack-in-foreign-org",
     "summary": "PRODUCT_CONFIG pointed Grafana provisioning at stack shortawning2091, which lives in a different org than GRAFANA_CLOUD_API_TOKEN; Grafana answers 403 for another org's slug, so Deploy died on `get stack failed: HTTP 403`. Fixed by using a slug the token's org owns and turning the 403 into an org-mismatch error.",
     "regressionTest": "libs/observability/tests/ensure-grafana-cloud-traces.test.ts"
+  },
+  {
+    "id": "check-deadline-kill-silent",
+    "summary": "When the Check run hit its hard deadline, turbo-ci-run SIGKILLed turbo and claimed turbo prints the tasks still running; it cannot, so the log said only \"deadline reached\" and a 207-task cache miss on a 2-core runner was indistinguishable from a wedged task. Fixed by snapshotting the process tree before the kill and printing each running task with its elapsed time and package.",
+    "regressionTest": "libs/tools/scripts/running-tasks.test.ts"
   }
 ]

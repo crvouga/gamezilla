@@ -42,7 +42,7 @@
  *   finishes. Both live in `check-budget.ts`.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -57,6 +57,13 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
+import {
+  formatShardPlan,
+  planShards,
+  readTaskCosts,
+  shardPlanOutputs,
+} from './check-shards';
+import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   dryRunPlan,
@@ -325,7 +332,10 @@ async function main(): Promise<void> {
     ...(ui !== undefined ? [`--ui=${ui}`] : []),
   ] as const;
 
-  const rawTaskArgs = process.argv.slice(2);
+  const planShardsOnly = process.argv.includes(PLAN_SHARDS_FLAG);
+  const rawTaskArgs = process.argv
+    .slice(2)
+    .filter((arg) => arg !== PLAN_SHARDS_FLAG);
   if (rawTaskArgs.length === 0) {
     console.error(
       'usage: bun run libs/tools/scripts/turbo-ci-run.ts <turbo run args…>'
@@ -359,6 +369,7 @@ async function main(): Promise<void> {
     ...runModeFlags(mode),
   ];
   const plan = planOrNull(fullRunArgs, cache, env);
+  if (planShardsOnly) writeShardPlanAndExit(plan, taskArgs);
   if (plan !== null && plan.toExecute.length === 0) {
     process.exit(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
@@ -379,14 +390,39 @@ async function main(): Promise<void> {
   process.exit(finalExitCode({ status, slowRunner, ran: true }));
 }
 
+const PLAN_SHARDS_FLAG = '--plan-shards';
+
+/**
+ * `--plan-shards`: split the misses across CI runners (`check-shards.ts`) and
+ * hand the split to the workflow instead of running anything. Without a plan
+ * (the dry run failed) one shard runs the whole requested set unplanned.
+ */
+function writeShardPlanAndExit(
+  plan: RunPlan | null,
+  taskArgs: readonly string[]
+): never {
+  const shardPlan =
+    plan === null
+      ? { shards: [[...taskArgs]], costs: [0] }
+      : planShards(plan, readTaskCosts());
+  console.log(formatShardPlan(shardPlan));
+  const outputPath = process.env['GITHUB_OUTPUT'];
+  if (outputPath !== undefined && outputPath !== '') {
+    appendFileSync(outputPath, shardPlanOutputs(shardPlan));
+  }
+  process.exit(0);
+}
+
 /**
  * Exclude the root workspace from package tasks so root scripts like `lint`
  * (which themselves call turbo-ci-run) are never scheduled.
  */
 function rootExcludeFiltersFor(taskArgs: readonly string[]): string[] {
   const hasExplicitFilter = taskArgs.some((a) => a.startsWith('--filter='));
+  // `pkg#task` ids name their package already; only bare task names need
+  // the root workspace excluded.
   const hasPackageTasks = taskArgs.some(
-    (a) => !a.startsWith('//') && !a.startsWith('--')
+    (a) => !a.startsWith('//') && !a.startsWith('--') && !a.includes('#')
   );
   if (hasExplicitFilter || !hasPackageTasks) return [];
   const filters = [
@@ -549,9 +585,18 @@ function armDeadline(child: ChildProcess, deadlineSeconds: number): () => void {
   process.on('SIGTERM', onTerm);
   const timer = setTimeout(() => {
     console.error(
-      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; killing the run. ` +
-        'Find the task that wedged (turbo prints the ones still running), fix it, ' +
-        `or raise the deadline in libs/tools/scripts/check-budget.ts.`
+      `turbo-ci-run: hard deadline of ${String(deadlineSeconds)}s reached; killing the run.`
+    );
+    // SIGKILL leaves turbo no chance to report, so name the running tasks
+    // first: one long-running task is a wedge to fix; many short ones mean the
+    // run had more work than the deadline allows (a wide cache miss).
+    if (child.pid !== undefined) {
+      console.error(describeRunningTasks(child.pid, REPO_ROOT));
+    }
+    console.error(
+      'turbo-ci-run: tasks that finished before the kill are cached, so a ' +
+        'rerun resumes from here. Fix a wedged task, or raise the deadline in ' +
+        'libs/tools/scripts/check-budget.ts with the measurement.'
     );
     killTree(child, 'SIGKILL');
   }, deadlineSeconds * 1000);

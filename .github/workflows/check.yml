@@ -24,23 +24,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Check: is the code good? One job, one check: `bun run check` — the same //#check leaf set the CD
-  # gate runs. New checks belong in //#check in turbo.json (or a `ci:*` root
-  # task), not in a new job here.
-  check:
-    name: check
+  # Check: is the code good? One gate — the //#check leaf set `bun run check`
+  # runs — spread over several runners, because a GitHub-hosted runner has 2
+  # cores and a wide change misses ~200 tasks. New checks belong in //#check in
+  # turbo.json (or a `ci:*` root task), never in a new job here.
+  #
+  #   check:plan   dry-run the gate once; split the cache misses across shards
+  #                (libs/tools/scripts/check-shards.ts)
+  #   check:shard  one runner per shard runs its task ids through turbo
+  #   check        the one required check: green only if the plan and every
+  #                shard are green
+  check-plan:
+    name: check:plan
     runs-on: ubuntu-latest
-    # Hard ceiling for the whole job: setup + the check step + summary. The
-    # check step has its own tighter limit below.
-    timeout-minutes: 30
+    timeout-minutes: 10
+    outputs:
+      shards: ${{ steps.plan.outputs.shards }}
+      assignment: ${{ steps.plan.outputs.assignment }}
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       # libs/tools/scripts/secrets-scan-range.ts scopes the gitleaks scan
-      # (@libs/tools#check:secrets) to the commits this PR adds.
+      # (@libs/tools#check:secrets) to the commits this PR adds. The plan
+      # hashes it too, so plan and shards must see the same range.
       GH_EVENT: ${{ github.event_name }}
       PR_BASE: ${{ github.event.pull_request.base.sha }}
       PR_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: plan
+        id: plan
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards check
+
+  check-shard:
+    name: check:shard
+    needs: check-plan
+    if: needs.check-plan.outputs.shards != '[]'
+    runs-on: ubuntu-latest
+    # Hard ceiling for the whole job: setup + the check step + summary. The
+    # check step has its own tighter limit below.
+    timeout-minutes: 30
+    strategy:
+      # Keep every shard running: one red shard should not hide another's.
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.check-plan.outputs.shards) }}
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      GH_EVENT: ${{ github.event_name }}
+      PR_BASE: ${{ github.event.pull_request.base.sha }}
+      PR_HEAD: ${{ github.event.pull_request.head.sha }}
+      SHARD_TASKS: ${{ join(fromJSON(needs.check-plan.outputs.assignment)[matrix.shard], ' ') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -63,25 +110,46 @@ jobs:
         timeout-minutes: 25
         run: |
           set -euo pipefail
-          bun run check 2>&1 | tee "${RUNNER_TEMP}/check.log"
+          # shellcheck disable=SC2086 # one word per task id
+          bun run libs/secrets/src/scripts/secrets-run.ts -- \
+            bun run libs/tools/scripts/turbo-ci-run.ts $SHARD_TASKS 2>&1 \
+            | tee "${RUNNER_TEMP}/check.log"
 
       - name: Upload queryable trace artifacts
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: observability-traces-${{ github.run_id }}
+          name: observability-traces-${{ github.run_id }}-shard-${{ matrix.shard }}
           # E2e suites live only in libs/*; keep upload-artifact out of the
           # repository-wide ** walk (node_modules makes that path pathological).
           path: 'libs/*/.cache/sim-report/traces/*.ndjson'
-          if-no-files-found: warn
+          if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7
 
       - name: Write workflow summary
         if: always()
         env:
-          WORKFLOW_JOB: check
+          WORKFLOW_JOB: check:shard ${{ matrix.shard }}
           WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
           WORKFLOW_LOG_PATH: ${{ runner.temp }}/check.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
+
+  check:
+    name: check
+    needs: [check-plan, check-shard]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: verdict
+        env:
+          PLAN: ${{ needs.check-plan.result }}
+          SHARDS: ${{ needs.check-shard.result }}
+          SHARD_COUNT: ${{ needs.check-plan.outputs.shards }}
+        # Skipped shards are green only when the plan found nothing to run.
+        run: |
+          echo "check:plan=$PLAN check:shard=$SHARDS shards=$SHARD_COUNT"
+          test "$PLAN" = success
+          test "$SHARDS" = success || { test "$SHARDS" = skipped && test "$SHARD_COUNT" = '[]'; }
