@@ -88,13 +88,16 @@ export function FloatingMenuHeader(props: {
     >
       <div class="box flex-row items-center gap-2">
         {props.header.avatar}
-        <div class="box flex-1 min-w-[0] gap-0.5">
+        <div class="box flex-1 min-w-0 gap-0.5">
           <HeaderLine value={props.header.title} variant="bodyBold" />
           <Show when={props.header.subtitle !== undefined}>
             <HeaderLine value={props.header.subtitle} variant="caption" muted />
           </Show>
         </div>
       </div>
+      <Show when={props.header.badge !== undefined}>
+        <div class="box flex-row pt-1">{props.header.badge}</div>
+      </Show>
     </div>
   );
 }
@@ -102,7 +105,7 @@ export function FloatingMenuHeader(props: {
 export function FloatingMenuDivider(): JSX.Element {
   return (
     <div
-      class="box h-[1px] bg-border my-1"
+      class="box h-0.25 bg-border my-1"
       data-component="FloatingMenuDivider"
       role="separator"
     />
@@ -137,7 +140,7 @@ export function FloatingMenuItem(props: {
           />
         }
       >
-        <div class="box shrink-0 items-center justify-center w-[18px] h-[18px]">
+        <div class="box shrink-0 items-center justify-center w-4.5 h-4.5">
           {props.row.leading}
         </div>
       </Show>
@@ -145,7 +148,7 @@ export function FloatingMenuItem(props: {
         {resolveItemLabel(props.row)}
       </p>
       <Show when={props.row.subtitle !== undefined}>
-        <p class="text textCaption line-clamp-1 text-text-secondary shrink-0 max-w-[45%] text-right">
+        <p class="text textCaption line-clamp-1 text-text-secondary shrink-0 max-w-9/20 text-right">
           {props.row.subtitle}
         </p>
       </Show>

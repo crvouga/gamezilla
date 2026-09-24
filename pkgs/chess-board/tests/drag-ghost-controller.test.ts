@@ -1,6 +1,6 @@
+import { describe, expect, it, mock } from 'bun:test';
 import { CELL_UNITS } from '@pkgs/chess-board/board-units';
 import { createDragGhostController } from '@pkgs/chess-board/drag-ghost-controller';
-import { describe, expect, it, vi } from 'vitest';
 
 function createFrameGate() {
   let nextId = 1;
@@ -62,7 +62,7 @@ describe('createDragGhostController', () => {
   });
 
   it('cancelFrame is called on end while a frame is pending', () => {
-    const cancel = vi.fn();
+    const cancel = mock();
     let id = 0;
     const schedule = (_cb: FrameRequestCallback) => {
       id += 1;

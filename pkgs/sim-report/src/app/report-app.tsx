@@ -1,4 +1,5 @@
 import { createMemo, Show } from 'solid-js';
+import { CommandPalette } from '../components/command-palette';
 import { Header } from '../components/header';
 import { HelpModal } from '../components/help-modal';
 import type { ReportData } from '../types';
@@ -32,7 +33,7 @@ export function SimReportApp(props: SimReportAppProps) {
         <Show when={nav.showHelp()}>
           <HelpModal onClose={() => nav.toggleHelp()} />
         </Show>
-        <div class="sr-hints">← → scrub · Space play · ? help</div>
+        <CommandPalette nav={nav} />
       </div>
     </ReportProvider>
   );

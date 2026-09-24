@@ -1,5 +1,8 @@
 import type { Timers } from '@pkgs/clock';
-import { createOwnerRuntime, type OwnerRuntime } from './owner-runtime';
+import type {
+  OwnerRuntime,
+  TransportOwnerRuntimeFactory,
+} from './owner-runtime';
 import {
   awaitRpcResponse,
   type BrokerToTabMessage,
@@ -35,7 +38,7 @@ class LeaderTransportImpl implements LeaderTransport {
   private readonly dbName: string;
   private readonly timers: Timers;
   private readonly tabId: string;
-  private readonly createFn: typeof createOwnerRuntime;
+  private readonly createFn: TransportOwnerRuntimeFactory;
   private readonly nextId: () => string;
   private readonly pending = new Map<string, PendingRpc>();
   private readonly changeListeners = new Set<
@@ -54,7 +57,7 @@ class LeaderTransportImpl implements LeaderTransport {
     readonly dbName: string;
     readonly timers: Timers;
     readonly tabId: string;
-    readonly createOwnerRuntime: typeof createOwnerRuntime;
+    readonly createOwnerRuntime: TransportOwnerRuntimeFactory;
   }) {
     this.dbName = args.dbName;
     this.timers = args.timers;
@@ -270,12 +273,12 @@ export function createLeaderTransport(args: {
   readonly dbName: string;
   readonly timers: Timers;
   readonly tabId: string;
-  readonly createOwnerRuntime?: typeof createOwnerRuntime;
+  readonly createOwnerRuntime: TransportOwnerRuntimeFactory;
 }): LeaderTransport {
   return new LeaderTransportImpl({
     dbName: args.dbName,
     timers: args.timers,
     tabId: args.tabId,
-    createOwnerRuntime: args.createOwnerRuntime ?? createOwnerRuntime,
+    createOwnerRuntime: args.createOwnerRuntime,
   });
 }

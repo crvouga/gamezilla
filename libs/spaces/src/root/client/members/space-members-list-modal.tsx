@@ -1,10 +1,10 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import { UserUsername } from '@libs/profile/public/user-username';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { groupRosterByParticipant } from '@pkgs/collab';
 import { PresenceRosterList, type PresenceRosterRow } from '@pkgs/collab-ui';
-import { asLocalized } from '@pkgs/i18n';
 import { useNamedRoomRoster } from '@pkgs/room/solid';
 import { Badge, ResponsiveSurface, ScrollView } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -41,7 +41,7 @@ export function SpaceMembersListModal(
       for (const client of participant.clients) {
         out.push({
           client,
-          title: asLocalized(client.id),
+          title: <UserUsername profileId={client.id} withAt={false} />,
           isYou: participant.isYou,
           isThisTab: client.clientId === selfClientId(),
           badges: (
@@ -52,17 +52,18 @@ export function SpaceMembersListModal(
               isThisTab={client.clientId === selfClientId()}
             />
           ),
+          dataSet: { testid: Handles.spaceMemberRow(client.id) },
         });
       }
     }
     return out;
   });
 
+  // A person reads names: "You" for themself, everyone else's username.
   const titledRows = createMemo<readonly PresenceRosterRow[]>(() =>
-    rows().map((row) => ({
-      ...row,
-      title: asLocalized(row.client.id === myId() ? t`You` : row.client.id),
-    }))
+    rows().map((row) =>
+      row.client.id === myId() ? { ...row, title: t`You` } : row
+    )
   );
 
   return (
@@ -71,8 +72,9 @@ export function SpaceMembersListModal(
       onClose={props.onClose}
       title={<Trans>People in this space</Trans>}
       scroll={false}
+      closeDataSet={{ testid: Handles.spaceMembersClose }}
     >
-      <ScrollView class="max-h-[420px]" contentClass="px-0">
+      <ScrollView class="max-h-105" contentClass="px-0">
         <Show
           when={titledRows().length > 0}
           fallback={<Trans>No one connected yet</Trans>}
@@ -85,6 +87,13 @@ export function SpaceMembersListModal(
             )}
           />
         </Show>
+        <span
+          data-testid={Handles.spacePresenceCount}
+          class="hidden"
+          aria-hidden="true"
+        >
+          {titledRows().length}
+        </span>
       </ScrollView>
     </ResponsiveSurface>
   );
@@ -123,7 +132,6 @@ function SpaceMemberBadges(props: {
           size="sm"
         />
       </Show>
-      <UserUsername profileId={props.memberId} />
     </div>
   );
 }

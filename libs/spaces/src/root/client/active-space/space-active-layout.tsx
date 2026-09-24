@@ -22,7 +22,7 @@ function SpaceChromeTitle(props: {
   readonly variant: 'subtitle' | 'navigationTitle';
 }): JSX.Element {
   return (
-    <div class="box shrink min-w-[0]">
+    <div class="box shrink min-w-0">
       <SpaceTitleText
         spaceId={props.spaceId}
         variant={props.variant}
@@ -40,8 +40,8 @@ function SpaceChromeTitle(props: {
 function SpaceTrailingWithGlobal(): JSX.Element {
   const globalTrailing = useAppFrameGlobalTrailing();
   return (
-    <div class="box flex-1 min-w-[0] flex-row items-center gap-2">
-      <div class="box flex-1 min-w-[0]">
+    <div class="box flex-1 min-w-0 flex-row items-center gap-2">
+      <div class="box flex-1 min-w-0">
         <SpaceChromeTrailingActionBar />
       </div>
       {globalTrailing()}
@@ -55,19 +55,19 @@ function SpaceActiveLayoutWide(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] overflow-hidden"
+      class="box flex-1 min-h-0 min-w-0 overflow-hidden"
       style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
     >
       <AppHeaderIsland
         leading={
-          <div class="box flex-1 min-w-[0] flex-row items-center gap-4">
+          <div class="box flex-1 min-w-0 flex-row items-center gap-4">
             <SpaceChromeLeadingActionBar />
             <SpaceChromeTitle spaceId={props.spaceId} variant="subtitle" />
           </div>
         }
         trailing={<SpaceTrailingWithGlobal />}
       />
-      <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
+      <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
         {props.children}
       </div>
     </div>
@@ -79,7 +79,7 @@ function SpaceActiveLayoutCompact(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <div class="box flex-1 min-h-[0]">
+    <div class="box flex-1 min-h-0">
       <TopBar
         leading={<SpaceChromeLeadingActionBar />}
         center={
@@ -88,7 +88,7 @@ function SpaceActiveLayoutCompact(props: {
         trailing={<SpaceTrailingWithGlobal />}
         centerPosition="flex"
       />
-      <div class="box flex-1 min-h-[0] min-w-[0] overflow-hidden">
+      <div class="box flex-1 min-h-0 min-w-0 overflow-hidden">
         {props.children}
       </div>
     </div>

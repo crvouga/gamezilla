@@ -3,18 +3,18 @@ import { defineTable, registerTables } from '@pkgs/db-schema';
 import { defineSchema } from '@pkgs/db-schema/core/define-schema';
 import { createRecordingSqlClient } from '@pkgs/db-schema/test/fake-sql-client';
 import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
-import { raw, sql } from '@pkgs/sql';
+import { sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { createMockingbirdPostgresTestClient } from '../src/test/mockingbird-postgres-test-client';
+import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
 
 describe('postgres reconcile integration', () => {
   let sqlClient: PostgresSqlClient;
   let close: () => Promise<void>;
 
   beforeAll(async () => {
-    const harness = await createMockingbirdPostgresTestClient('app_schema');
+    const harness = await createPostgresMemTestClient('app_schema');
     sqlClient = harness.sqlClient;
     close = harness.close;
   });
@@ -128,8 +128,7 @@ describe('postgres reconcile integration', () => {
     expect(stillThere.length).toBe(1);
   });
 
-  // mockingbird-postgres lacks ALTER COLUMN SET NOT NULL — re-home on postgres-embedded.
-  test.skip('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
+  test('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
     await applyPostgresSchema(
       sqlClient,
       registerTables([
@@ -141,9 +140,6 @@ describe('postgres reconcile integration', () => {
       ]),
       sqlClient.dbScope
     );
-    await sqlClient.run(
-      raw(`ALTER TABLE clash ALTER COLUMN weird SET NOT NULL`)
-    );
     const before = await sqlClient.query<{ column_name: string }>(sql`
       SELECT column_name FROM information_schema.columns
       WHERE table_schema = ${sqlClient.dbScope.schema}
@@ -151,8 +147,12 @@ describe('postgres reconcile integration', () => {
       ORDER BY column_name
     `);
 
+    // Redeclaring the pre-existing column with a different type is a shape
+    // collision that must be refused with zero DDL. postgres-mem cannot
+    // ALTER COLUMN SET NOT NULL ("this ALTER COLUMN form is not supported"),
+    // so the mismatch is a declared type change, not a nullability one.
     const schema = defineSchema({
-      tables: { clash: { body: 'text' } },
+      tables: { clash: { weird: 'text' } },
     });
     await expect(postgres(schema, sqlClient).reconcile()).rejects.toThrow(
       /drift/
@@ -178,50 +178,6 @@ describe('postgres reconcile integration', () => {
       WHERE table_name = 'scoped_t'
     `);
     expect(rows[0]?.table_schema).toBe('app_schema');
-  });
-
-  test.skip('legacy NOT NULL and int4 columns reconcile after nullability fix', async () => {
-    await applyPostgresSchema(
-      sqlClient,
-      registerTables([
-        defineTable({
-          domain: 'legacy_puzzle_shape',
-          name: 'legacy_puzzle_shape',
-          columns: { rating: 'integer', body: 'text' },
-        }),
-      ]),
-      sqlClient.dbScope
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`)
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body SET NOT NULL`)
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating DROP NOT NULL`)
-    );
-    await sqlClient.run(
-      raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN body DROP NOT NULL`)
-    );
-
-    const schema = defineSchema({
-      tables: {
-        legacy_puzzle_shape: { rating: 'integer', body: 'text' },
-      },
-    });
-    await postgres(schema, sqlClient).reconcile();
-
-    const catalog = await readPostgresCatalog(sqlClient, schema._declared);
-    const rating = catalog.tables
-      .get('legacy_puzzle_shape')
-      ?.columns.find((c) => c.name === 'rating');
-    const body = catalog.tables
-      .get('legacy_puzzle_shape')
-      ?.columns.find((c) => c.name === 'body');
-    expect(rating?.type).toBe('integer');
-    expect(rating?.nullable).toBe(true);
-    expect(body?.nullable).toBe(true);
   });
 
   test('concurrent reconcile serializes via advisory lock', async () => {

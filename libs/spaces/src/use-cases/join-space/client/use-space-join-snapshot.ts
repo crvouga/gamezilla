@@ -1,6 +1,7 @@
 import {
   useMyAccountId,
   useMyDeviceId,
+  useMyId,
 } from '@libs/auth/public/use-current-user';
 import { sql } from '@pkgs/sql';
 
@@ -26,6 +27,7 @@ export function useSpaceJoinSnapshot(
   const resolveId = (): string =>
     typeof spaceId === 'string' ? spaceId : spaceId();
   const viewerAccountId = useMyAccountId();
+  const viewerMemberId = useMyId();
   const viewerDeviceId = useMyDeviceId();
   const query = createQuery(
     () => sql<SpaceJoinLocalRow>`
@@ -37,11 +39,11 @@ export function useSpaceJoinSnapshot(
   const row = createMemo(() => query.rows()[0] ?? null);
   const hostAccountId = createMemo(() => row()?.host_account_id ?? null);
   const hostMemberId = createMemo(() => row()?.host_member_id ?? null);
-  const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerAccountId);
+  const hasSpaceUser = useHasSpaceUserLocal(spaceId, viewerMemberId);
   const isFriendOfHost = useIsFriendOfHostLocal(
     hostAccountId,
     hostMemberId,
-    viewerAccountId
+    viewerMemberId
   );
 
   return createMemo(() =>
@@ -52,6 +54,7 @@ export function useSpaceJoinSnapshot(
       hasSpaceUser: hasSpaceUser(),
       isFriendOfHost: isFriendOfHost(),
       viewerAccountId: viewerAccountId(),
+      viewerMemberId: viewerMemberId(),
       viewerDeviceId: viewerDeviceId(),
     })
   );

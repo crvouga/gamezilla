@@ -1,9 +1,0 @@
-#!/usr/bin/env bash
-# Opt-in: git config core.hooksPath tools/githooks
-set -euo pipefail
-
-ROOT="$(git rev-parse --show-toplevel)"
-cd "$ROOT"
-
-echo "pre-commit: turbo run lint tc --affected"
-bunx turbo run lint tc --affected

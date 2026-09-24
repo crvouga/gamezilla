@@ -32,7 +32,7 @@ export function ActiveSpacesSheet(props: ActiveSpacesSheetProps): JSX.Element {
       stackId="active-spaces-sheet"
       scroll={false}
     >
-      <ScrollView class="max-h-[420px]" contentClass="px-0">
+      <ScrollView class="max-h-105" contentClass="px-0">
         <For each={props.spaceIds}>
           {(spaceId) => (
             <ActiveSpaceSheetRow

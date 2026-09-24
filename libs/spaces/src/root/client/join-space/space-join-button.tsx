@@ -1,4 +1,3 @@
-import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
 import { useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
@@ -18,9 +17,7 @@ export type SpaceJoinButtonProps = {
 export function SpaceJoinButton(props: SpaceJoinButtonProps): JSX.Element {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
-  const signedIn = useIsSignedIn();
-  const disabled = (): boolean =>
-    !signedIn() || !props.joinable || props.spaceId.length === 0;
+  const disabled = (): boolean => !props.joinable || props.spaceId.length === 0;
   const engine = useOptionalSoundEngine();
 
   const join = useMutationButton({

@@ -12,6 +12,8 @@ export type RoomSocketAttachment = {
   readonly clientId: string;
   readonly moduleName: RoomModuleName;
   readonly topic: string;
+  /** OTel connection context; null when application export is disabled. */
+  readonly traceparent: string | null;
 };
 
 /**
@@ -71,8 +73,11 @@ export function readRoomSocketAttachment(
   const identityRaw = readNonEmptyString(raw, 'identityRaw');
   const topic = readNonEmptyString(raw, 'topic');
   const moduleNameRaw = raw['moduleName'];
+  const traceparentRaw = raw['traceparent'];
   if (connId === null || identityRaw === null || topic === null) return null;
   if (typeof moduleNameRaw !== 'string') return null;
+  if (traceparentRaw !== null && typeof traceparentRaw !== 'string')
+    return null;
   const moduleName = parseRoomModuleName(moduleNameRaw);
   if (moduleName === null) return null;
   return {
@@ -81,5 +86,6 @@ export function readRoomSocketAttachment(
     clientId: resolveAttachmentClientId(raw, connId),
     moduleName,
     topic,
+    traceparent: traceparentRaw,
   };
 }

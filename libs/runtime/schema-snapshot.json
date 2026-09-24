@@ -1,0 +1,219 @@
+{
+  "release": 5,
+  "snapshot": {
+    "tables": {
+      "auth_devices": {
+        "account_id": "text",
+        "app_build_number": "text",
+        "app_version": "text",
+        "device_brand": "text",
+        "device_model_name": "text",
+        "device_name": "text",
+        "first_seen_at": "timestamp",
+        "last_seen_at": "timestamp",
+        "os_name": "text",
+        "os_version": "text",
+        "platform": "text",
+        "user_agent": "text",
+        "user_id": "text"
+      },
+      "auth_external_accounts": {
+        "external_id": "text",
+        "metadata": "json",
+        "provider": "text",
+        "user_id": "text"
+      },
+      "auth_users": {
+        "is_anon": "boolean"
+      },
+      "billing_subscriptions": {
+        "account_id": "text",
+        "cancel_at_period_end": "boolean",
+        "current_period_end": "timestamp",
+        "price_key": "text",
+        "provider": "text",
+        "provider_subscription_id": "text",
+        "status": "text"
+      },
+      "chess_puzzle_interactions": {
+        "at": "timestamp",
+        "correct": "boolean",
+        "kind": "text",
+        "owner_id": "text",
+        "puzzle_id": "text",
+        "puzzle_rating": "integer",
+        "solve_idx": "integer",
+        "uci": "text"
+      },
+      "chess_puzzle_load": {
+        "cursor": "text",
+        "finished_at": "timestamp",
+        "source_etag": "text"
+      },
+      "chess_puzzle_profiles": {
+        "last_interaction_at": "timestamp",
+        "owner_id": "text",
+        "rating": "integer",
+        "rating_deviation": "integer",
+        "volatility_micros": "integer"
+      },
+      "chess_puzzle_rating_events": {
+        "at": "timestamp",
+        "outcome": "text",
+        "owner_id": "text",
+        "puzzle_id": "text",
+        "puzzle_rating": "integer",
+        "rating_after": "integer",
+        "rating_before": "integer",
+        "rating_deviation_after": "integer",
+        "rating_deviation_before": "integer",
+        "score_permille": "integer",
+        "volatility_micros_after": "integer"
+      },
+      "chess_puzzles": {
+        "fen": "text",
+        "game_url": "text",
+        "moves": "text",
+        "nb_plays": "integer",
+        "opening_tags": "json",
+        "popularity": "integer",
+        "position_key": "text",
+        "rating": "integer",
+        "rating_deviation": "integer",
+        "themes": "json"
+      },
+      "client_config": {
+        "value": "json"
+      },
+      "friends_blocks": {
+        "blocked_id": "text",
+        "blocker_id": "text"
+      },
+      "friends_friendships": {
+        "source_request_id": "text",
+        "user_high": "text",
+        "user_low": "text"
+      },
+      "friends_requests": {
+        "from_user_id": "text",
+        "message": "text",
+        "responded_at": "timestamp",
+        "status": "text",
+        "to_user_id": "text"
+      },
+      "notifications": {
+        "actions": "json",
+        "active": "boolean",
+        "archived_at": "timestamp",
+        "avatar_config": "text",
+        "avatar_fallback_label": "text",
+        "body": "text",
+        "category": "text",
+        "deep_link_params": "json",
+        "deep_link_path": "text",
+        "dismissed_at": "timestamp",
+        "expires_at": "timestamp",
+        "group_key": "text",
+        "icon_key": "text",
+        "payload": "json",
+        "priority": "integer",
+        "read_at": "timestamp",
+        "source_id": "text",
+        "source_namespace": "text",
+        "source_type": "text",
+        "subtitle": "text",
+        "title": "text",
+        "user_id": "text"
+      },
+      "permissions_quota_ledger": {
+        "amount": "integer",
+        "consumed_at": "timestamp",
+        "idempotency_key": "text",
+        "owner_id": "text",
+        "policy_version": "text",
+        "quota": "text"
+      },
+      "profile": {
+        "avatar_config": "json",
+        "username": "text",
+        "username_changed_at": "timestamp",
+        "username_norm": "text"
+      },
+      "spaces": {
+        "ended_at": "timestamp",
+        "host_account_id": "text",
+        "host_id": "text",
+        "host_member_id": "text",
+        "title": "text",
+        "visibility": "text"
+      },
+      "spaces_open_sessions": {
+        "device_id": "text",
+        "join_announced": "boolean",
+        "opened_at": "timestamp",
+        "space_id": "text"
+      },
+      "spaces_users": {
+        "created_by_account_id": "text",
+        "space_id": "text",
+        "user_id": "text"
+      }
+    },
+    "physicalOverrides": {},
+    "retiredColumns": {
+      "chess_puzzle_interactions": {
+        "rating_after": {
+          "type": "integer",
+          "note": "per-attempt rating lives in chess_puzzle_rating_events"
+        },
+        "rating_before": {
+          "type": "integer",
+          "note": "per-attempt rating lives in chess_puzzle_rating_events"
+        }
+      },
+      "chess_puzzles": {
+        "sync_pool": {
+          "type": "boolean",
+          "note": "not needed anymore"
+        }
+      },
+      "client_config": {
+        "enabled": {
+          "type": "boolean",
+          "note": "unused — use *_enabled / null scalar rows"
+        },
+        "google_web_client_id": {
+          "type": "text",
+          "note": "unused column — value lives in row id=google_web_client_id"
+        }
+      }
+    },
+    "retiredTables": [],
+    "indexes": [
+      ["billing_subscriptions", "account_id"],
+      ["chess_puzzle_rating_events", "owner_id"],
+      ["chess_puzzles", "popularity"],
+      ["chess_puzzles", "rating"],
+      ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"]
+    ],
+    "uniqueIndexes": [
+      ["auth_external_accounts", "provider", "external_id"],
+      ["auth_external_accounts", "user_id", "provider"],
+      ["billing_subscriptions", "provider", "provider_subscription_id"],
+      ["chess_puzzles", "position_key"],
+      ["friends_blocks", "blocker_id", "blocked_id"],
+      ["friends_friendships", "user_low", "user_high"],
+      [
+        "notifications",
+        "user_id",
+        "source_namespace",
+        "source_type",
+        "source_id"
+      ],
+      ["permissions_quota_ledger", "owner_id", "idempotency_key"],
+      ["profile", "username_norm"],
+      ["spaces_open_sessions", "device_id", "space_id"],
+      ["spaces_users", "space_id", "user_id"]
+    ]
+  }
+}

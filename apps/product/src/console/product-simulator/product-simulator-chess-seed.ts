@@ -4,7 +4,7 @@
  * for sessions restored from older snapshots that predate the auto-seed.
  */
 
-import { seedSimChessPuzzlesWeb } from '@apps/product/sim/setup/seed-sim-chess-puzzles-web';
+import { seedSimChessPuzzlesWeb } from '@libs/chess/sim/seed-sim-chess-puzzles-web';
 import type { ProductSimulatorCommand } from '@pkgs/sim-console/client';
 
 export function createProductSimulatorChessCommands(): ProductSimulatorCommand[] {

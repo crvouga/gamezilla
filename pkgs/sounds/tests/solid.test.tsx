@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { describe, expect, test } from 'bun:test';
 import { createSimClock } from '@pkgs/clock/sim-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
@@ -15,7 +16,6 @@ import {
 } from '@pkgs/sounds/solid';
 import { render, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 function Shell(props: { readonly children: JSX.Element }): JSX.Element {
   const { clock, timers } = createSimClock();

@@ -92,7 +92,7 @@ function resolveAriaLabel(
 }
 
 function hitBoxClass(): string {
-  return 'items-center justify-center rounded-[9999px] bg-transparent';
+  return 'items-center justify-center rounded-full bg-transparent';
 }
 
 function hitBoxStyle(size: number, disabled: boolean): JSX.CSSProperties {

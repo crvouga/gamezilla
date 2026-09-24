@@ -59,6 +59,8 @@ export type OverflowMenuHeader = {
   title: JSX.Element;
   subtitle?: JSX.Element | undefined;
   avatar?: JSX.Element | undefined;
+  /** Status chip on its own row under the title (e.g. a plan tier). */
+  badge?: JSX.Element | undefined;
 };
 
 export type OverflowMenuContentRow =
@@ -212,7 +214,7 @@ function TriggerFace(props: {
       }
     >
       <button
-        class="clickable clickableTint rounded-[9999px] overflow-hidden"
+        class="clickable clickableTint rounded-full overflow-hidden"
         {...dataAttrs(props.dataSet)}
         type="button"
         onClick={() => props.onOpen()}

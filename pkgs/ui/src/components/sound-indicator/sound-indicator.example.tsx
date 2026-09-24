@@ -69,7 +69,7 @@ export default function SoundIndicatorExample(): JSX.Element {
 
       <p class="text textCaption">{'Click to toggle mute'}</p>
       <button
-        class="clickable clickableTint self-start min-w-[44px] min-h-[44px]"
+        class="clickable clickableTint self-start min-w-11 min-h-11"
         type="button"
         onClick={() => setTappedMuted((m) => !m)}
         aria-label={tappedMuted() ? 'Unmute' : 'Mute'}

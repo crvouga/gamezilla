@@ -43,7 +43,7 @@ export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
 
   return (
     <SpaceSessionUiProvider value={sessionUi}>
-      <div class="box flex-1 min-h-[0]">
+      <div class="box flex-1 min-h-0">
         <SpaceActiveLayout>
           <GamesMainMenu />
         </SpaceActiveLayout>

@@ -1,4 +1,4 @@
-import { TabStrip, type TabStripItem } from '@pkgs/ui';
+import { TabStrip, type TabStripItem } from '@pkgs/ui-devtools';
 import { type JSX, mergeProps } from 'solid-js';
 import type { DebuggerViewId } from '../../shared/debugger-views';
 import { coerceSimChromeKind, type SimChromeKind } from '../../shared/sim-node';
@@ -60,7 +60,7 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
         {layout.compactChrome &&
         props.kindTrailing !== undefined &&
         props.unifiedNodes === undefined ? (
-          <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-[0]">
+          <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-0">
             {props.kindTrailing}
           </div>
         ) : null}
@@ -105,7 +105,7 @@ export function DebuggerShell(input: DebuggerShellProps): JSX.Element {
         ) : null}
       </div>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ overflow: 'clip' }}
       >
         {props.children}
@@ -133,7 +133,7 @@ function KindChrome(props: {
           trailing={props.kindTrailing}
         />
       ) : props.kindTrailing === undefined ? null : (
-        <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-[0]">
+        <div class="box flex-row items-center px-4 py-2 border-b border-border bg-surface-muted min-w-0">
           {props.kindTrailing}
         </div>
       )}

@@ -13,6 +13,7 @@ import {
 import { createEffect, createMemo, type JSX, Show } from 'solid-js';
 
 import {
+  type ChessPuzzleAutoAdvance,
   type ChessPuzzleFeedConfig,
   type ChessPuzzleFeedHistoryFilter,
   type ChessPuzzleFeedMode,
@@ -98,6 +99,29 @@ function PuzzleFeedHistorySection(props: {
   );
 }
 
+function PuzzleAutoAdvanceSection(props: {
+  autoAdvance: ChessPuzzleAutoAdvance;
+  onSelect: (autoAdvance: ChessPuzzleAutoAdvance) => void;
+}): JSX.Element {
+  const segments: Array<{ key: ChessPuzzleAutoAdvance; label: string }> = [
+    { key: 'off', label: t`Off` },
+    { key: 'after1s', label: t`After 1 s` },
+    { key: 'immediate', label: t`Immediately` },
+  ];
+  return (
+    <div class="box gap-2">
+      <label class="text textLabel">{t`Auto-advance`}</label>
+      <SegmentedControl
+        segments={segments}
+        selected={props.autoAdvance}
+        onSelect={props.onSelect}
+        dataSet={{ testid: 'chess-puzzle-feed-auto-advance' }}
+      />
+      <p class="text textCaption">{t`Move on to the next puzzle by itself after a solve.`}</p>
+    </div>
+  );
+}
+
 function PuzzleFeedThemesSection(props: {
   themes: readonly ChessPuzzleTheme[];
   onChange: (themes: ChessPuzzleTheme[]) => void;
@@ -106,6 +130,7 @@ function PuzzleFeedThemesSection(props: {
     value: theme,
     label: formatChessPuzzleThemeLabel(theme),
     searchText: formatChessPuzzleThemeLabel(theme),
+    dataSet: { testid: `chess-puzzle-feed-theme-${theme}` },
   }));
   return (
     <Combobox
@@ -120,6 +145,9 @@ function PuzzleFeedThemesSection(props: {
       searchPlaceholder={t`Search themes…`}
       emptyMessage={t`No matching themes`}
       surfaceTitle={t`Themes`}
+      triggerDataSet={{ testid: 'chess-puzzle-feed-theme-trigger' }}
+      searchDataSet={{ testid: 'chess-puzzle-feed-theme-search' }}
+      doneDataSet={{ testid: 'chess-puzzle-feed-theme-done' }}
     />
   );
 }
@@ -174,6 +202,74 @@ export type ChessPuzzleFeedSettingsModalProps = {
   onFeedConfigApplied?: () => void;
 };
 
+type FeedConfigEditors = {
+  onSelectMode: (mode: ChessPuzzleFeedMode) => void;
+  onChangeCustomRating: (rating: number) => void;
+  onChangeAutoOffset: (offset: number) => void;
+  onSelectHistory: (filter: ChessPuzzleFeedHistoryFilter) => void;
+  onChangeThemes: (themes: ChessPuzzleTheme[]) => void;
+  onSelectAutoAdvance: (autoAdvance: ChessPuzzleAutoAdvance) => void;
+};
+
+/** One edit per field, each a patch on the persisted feed config. */
+function feedConfigEditors(
+  setConfig: ReturnType<typeof useChessPuzzleFeedConfig>[1]
+): FeedConfigEditors {
+  return {
+    onSelectMode: (mode) => setConfig((prev) => ({ ...prev, mode })),
+    onChangeCustomRating: (customRating) =>
+      setConfig((prev) => ({
+        ...prev,
+        customRating: clampPuzzleFeedRating(customRating),
+      })),
+    onChangeAutoOffset: (autoOffset) =>
+      setConfig((prev) => ({
+        ...prev,
+        autoOffset: clampPuzzleFeedAutoOffset(autoOffset),
+      })),
+    onSelectHistory: (historyFilter) =>
+      setConfig((prev) => ({ ...prev, historyFilter })),
+    onChangeThemes: (themes) => setConfig((prev) => ({ ...prev, themes })),
+    onSelectAutoAdvance: (autoAdvance) =>
+      setConfig((prev) => ({ ...prev, autoAdvance })),
+  };
+}
+
+function PuzzleFeedSections(props: {
+  config: ChessPuzzleFeedConfig;
+  profileCaption: string;
+  targetRating: number;
+  editors: FeedConfigEditors;
+}): JSX.Element {
+  return (
+    <>
+      <PuzzleFeedModeSection
+        config={props.config}
+        profileCaption={props.profileCaption}
+        onSelectMode={props.editors.onSelectMode}
+      />
+      <PuzzleFeedRatingSection
+        config={props.config}
+        targetRating={props.targetRating}
+        onChangeCustomRating={props.editors.onChangeCustomRating}
+        onChangeAutoOffset={props.editors.onChangeAutoOffset}
+      />
+      <PuzzleFeedHistorySection
+        historyFilter={props.config.historyFilter}
+        onSelect={props.editors.onSelectHistory}
+      />
+      <PuzzleFeedThemesSection
+        themes={props.config.themes}
+        onChange={props.editors.onChangeThemes}
+      />
+      <PuzzleAutoAdvanceSection
+        autoAdvance={props.config.autoAdvance}
+        onSelect={props.editors.onSelectAutoAdvance}
+      />
+    </>
+  );
+}
+
 export function ChessPuzzleFeedSettingsModal(
   props: ChessPuzzleFeedSettingsModalProps
 ): JSX.Element {
@@ -201,29 +297,7 @@ export function ChessPuzzleFeedSettingsModal(
     }
   });
 
-  const onSelectMode = (mode: ChessPuzzleFeedMode): void => {
-    setConfig((prev) => ({ ...prev, mode }));
-  };
-  const onChangeCustomRating = (customRating: number): void => {
-    setConfig((prev) => ({
-      ...prev,
-      customRating: clampPuzzleFeedRating(customRating),
-    }));
-  };
-  const onChangeAutoOffset = (autoOffset: number): void => {
-    setConfig((prev) => ({
-      ...prev,
-      autoOffset: clampPuzzleFeedAutoOffset(autoOffset),
-    }));
-  };
-  const onSelectHistory = (
-    historyFilter: ChessPuzzleFeedHistoryFilter
-  ): void => {
-    setConfig((prev) => ({ ...prev, historyFilter }));
-  };
-  const onChangeThemes = (themes: ChessPuzzleTheme[]): void => {
-    setConfig((prev) => ({ ...prev, themes }));
-  };
+  const editors = feedConfigEditors(setConfig);
 
   const onDone = (): void => {
     const opened = openFingerprintRef.current;
@@ -254,24 +328,11 @@ export function ChessPuzzleFeedSettingsModal(
             <label class="text textLabel">{t`Your rating`}</label>
             <p class="text textBodyBold">{profileCaption}</p>
           </div>
-          <PuzzleFeedModeSection
+          <PuzzleFeedSections
             config={config()}
             profileCaption={profileCaption}
-            onSelectMode={onSelectMode}
-          />
-          <PuzzleFeedRatingSection
-            config={config()}
             targetRating={targetRating()}
-            onChangeCustomRating={onChangeCustomRating}
-            onChangeAutoOffset={onChangeAutoOffset}
-          />
-          <PuzzleFeedHistorySection
-            historyFilter={config().historyFilter}
-            onSelect={onSelectHistory}
-          />
-          <PuzzleFeedThemesSection
-            themes={config().themes}
-            onChange={onChangeThemes}
+            editors={editors}
           />
         </div>
       </ModalBody>

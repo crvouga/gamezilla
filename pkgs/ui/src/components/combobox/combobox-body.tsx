@@ -37,6 +37,8 @@ export type ComboboxBodyProps<T extends ComboboxValue> = {
   onDone: () => void;
   onSearchKeyDown: (event: ComboboxKeyEvent) => void;
   searchDataSet: ComponentDataSet | undefined;
+  /** Identifier for the multi-select `Done` footer button. */
+  doneDataSet: ComponentDataSet | undefined;
   renderOption: ComboboxRenderOption<T> | undefined;
   loading: boolean;
   error: JSX.Element | undefined;
@@ -49,7 +51,7 @@ function ComboboxEmpty(props: {
 }): JSX.Element {
   return (
     <Show when={props.message !== undefined && props.message !== null}>
-      <div class="box [padding-top:8px;padding-bottom:8px]" role="status">
+      <div class="box py-2" role="status">
         <p class="text textCaption text-text-secondary text-center">
           {props.message}
         </p>
@@ -121,7 +123,11 @@ export function ComboboxBody<T extends ComboboxValue>(
       <ComboboxOptions {...props} />
       <Show when={props.multiple}>
         <ModalFooter>
-          <ModalButton label={t`Done`} onClick={() => props.onDone()} />
+          <ModalButton
+            label={t`Done`}
+            onClick={() => props.onDone()}
+            dataSet={props.doneDataSet}
+          />
         </ModalFooter>
       </Show>
     </div>

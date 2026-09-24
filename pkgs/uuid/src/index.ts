@@ -7,3 +7,4 @@ export {
 export { createSeededRng, type SeededRng } from './seeded-rng';
 export { createSimAdapters, type SimAdapters } from './sim-adapters';
 export { assertUuid, isUuid, UUID_REGEX } from './uuid';
+export { createUuidV7 } from './uuid-v7';

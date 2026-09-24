@@ -76,19 +76,45 @@ describe('nextSolutionUci', () => {
 describe('hintStageFromRoom', () => {
   test('escalates none -> highlight -> solution', () => {
     expect(
-      hintStageFromRoom({ expectedFromSquare: null, solutionRevealed: false })
+      hintStageFromRoom({
+        status: 'solving',
+        expectedFromSquare: null,
+        solutionRevealed: false,
+      })
     ).toBe('none');
     expect(
-      hintStageFromRoom({ expectedFromSquare: 'e2', solutionRevealed: false })
+      hintStageFromRoom({
+        status: 'solving',
+        expectedFromSquare: 'e2',
+        solutionRevealed: false,
+      })
     ).toBe('highlight');
     expect(
-      hintStageFromRoom({ expectedFromSquare: 'e2', solutionRevealed: true })
+      hintStageFromRoom({
+        status: 'solving',
+        expectedFromSquare: 'e2',
+        solutionRevealed: true,
+      })
+    ).toBe('solution');
+  });
+
+  test('a shown solution (revealed review) reads as solution', () => {
+    expect(
+      hintStageFromRoom({
+        status: 'revealed',
+        expectedFromSquare: null,
+        solutionRevealed: false,
+      })
     ).toBe('solution');
   });
 
   test('solution flag without a square still reads as none', () => {
     expect(
-      hintStageFromRoom({ expectedFromSquare: null, solutionRevealed: true })
+      hintStageFromRoom({
+        status: 'solving',
+        expectedFromSquare: null,
+        solutionRevealed: true,
+      })
     ).toBe('none');
   });
 });

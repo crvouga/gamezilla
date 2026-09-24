@@ -2,14 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "resolveJsonModule": true,
-    "types": ["bun", "node", "@testing-library/jest-dom/vitest"]
+    "types": ["bun", "node", "@pkgs/bun-test-solid/jest-dom"]
   },
   "include": [
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./src/**/*.d.ts",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx"
+    "./tests/**/*.tsx",
+    "./scripts/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

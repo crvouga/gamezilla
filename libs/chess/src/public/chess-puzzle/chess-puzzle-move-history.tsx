@@ -1,8 +1,14 @@
 import { ScrollView } from '@pkgs/ui';
 import { createEffect, createSignal, For, type JSX, Show } from 'solid-js';
 
+import type { ChessMoveNotation } from '../../shared/chess/chess-puzzle-notation';
 import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
+import {
+  ChessPuzzleMoveNav,
+  type ChessPuzzleMoveNavProps,
+} from './chess-puzzle-move-history-nav';
 import { HistoryPlyCluster } from './chess-puzzle-move-history-ply';
+import { puzzleSwipeHandlers } from './puzzle-swipe-handlers';
 
 const ROW_HEIGHT = 28;
 
@@ -11,14 +17,12 @@ export type ChessPuzzleMoveHistoryProps = {
   selectedSolveIdx: number;
   interactive: boolean;
   onSeek: (solveIdx: number) => void;
+  /** §7 jump-to-start / jump-to-end (and step controls on review). */
+  nav: ChessPuzzleMoveNavProps;
+  notation: ChessMoveNotation;
 };
 
-function MoveHistoryScroll(props: {
-  plies: readonly PuzzleHistoryPly[];
-  selectedSolveIdx: number;
-  interactive: boolean;
-  onSeek: (solveIdx: number) => void;
-}): JSX.Element {
+function MoveHistoryScroll(props: ChessPuzzleMoveHistoryProps): JSX.Element {
   const [selectedEl, setSelectedEl] = createSignal<HTMLElement>();
 
   createEffect(() => {
@@ -38,30 +42,44 @@ function MoveHistoryScroll(props: {
   };
 
   return (
+    <ScrollView
+      class="flex-1 min-w-0"
+      contentClass="flex-row flex-nowrap items-center px-3 gap-2"
+      contentStyle={{ 'min-height': `${ROW_HEIGHT}px` }}
+      horizontal
+      hideScrollbar
+    >
+      <For each={props.plies}>
+        {(ply) => (
+          <HistoryPlyCluster
+            ply={ply}
+            selectedSolveIdx={props.selectedSolveIdx}
+            interactive={props.interactive}
+            notation={props.notation}
+            onSeek={props.onSeek}
+            selectedRef={resolveRef(ply)}
+          />
+        )}
+      </For>
+    </ScrollView>
+  );
+}
+
+/** Nav buttons, the scrubbable move list, and a horizontal swipe over both. */
+function MoveHistoryRow(props: ChessPuzzleMoveHistoryProps): JSX.Element {
+  const swipe = puzzleSwipeHandlers((intent) => props.nav.onNavigate(intent));
+  return (
     <div
-      class="box self-stretch justify-center"
+      class="box flex-row items-center self-stretch justify-center"
       style={{ height: `${ROW_HEIGHT}px` }}
       data-testid="chess-puzzle-move-history"
+      onPointerDown={swipe.onPointerDown}
+      onPointerUp={swipe.onPointerUp}
+      onPointerCancel={swipe.onPointerCancel}
     >
-      <ScrollView
-        class="flex-1 min-w-[0]"
-        contentClass="flex-row flex-nowrap items-center px-3 gap-2"
-        contentStyle={{ 'min-height': `${ROW_HEIGHT}px` }}
-        horizontal
-        hideScrollbar
-      >
-        <For each={props.plies}>
-          {(ply) => (
-            <HistoryPlyCluster
-              ply={ply}
-              selectedSolveIdx={props.selectedSolveIdx}
-              interactive={props.interactive}
-              onSeek={props.onSeek}
-              selectedRef={resolveRef(ply)}
-            />
-          )}
-        </For>
-      </ScrollView>
+      <ChessPuzzleMoveNav side="leading" nav={props.nav} />
+      <MoveHistoryScroll {...props} />
+      <ChessPuzzleMoveNav side="trailing" nav={props.nav} />
     </div>
   );
 }
@@ -80,12 +98,7 @@ export function ChessPuzzleMoveHistory(
         />
       }
     >
-      <MoveHistoryScroll
-        plies={props.plies}
-        selectedSolveIdx={props.selectedSolveIdx}
-        interactive={props.interactive}
-        onSeek={props.onSeek}
-      />
+      <MoveHistoryRow {...props} />
     </Show>
   );
 }

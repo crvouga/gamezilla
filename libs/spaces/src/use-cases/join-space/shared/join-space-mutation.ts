@@ -3,7 +3,6 @@ import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { areFriends } from '../../../shared/space/friendship-sql';
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
 import {
-  accountId,
   getSpaceHost,
   isHost,
   memberId,
@@ -14,7 +13,7 @@ export const joinSpaceMutation = defineMutation({
   name: 'joinSpace',
   args: spaceIdArgs,
   async run({ tx, env }, { spaceId }) {
-    const actorAccountId = accountId(env);
+    const actorAccountId = env.accountId;
     const row = await getSpaceHost(tx, spaceId);
     if (row.ended_at !== null) {
       throw new MutationError('SPACE_ENDED', 'This space has ended.');

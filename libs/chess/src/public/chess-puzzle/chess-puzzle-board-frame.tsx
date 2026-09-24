@@ -49,19 +49,19 @@ export function ChessPuzzleBoardFrame(
 
   return (
     <div
-      class="box flex-1 min-h-[0] min-w-[0] self-stretch items-center justify-center overflow-hidden"
+      class="box flex-1 min-h-0 min-w-0 self-stretch items-center justify-center overflow-hidden"
       data-testid="chess-puzzle-board-frame"
       ref={setHostEl}
     >
       <Show when={size() > 0}>
-        <div class="box min-w-[0]" style={{ width: `${size()}px` }}>
+        <div class="box min-w-0" style={{ width: `${size()}px` }}>
           <Show when={reserveTop() > 0} fallback={props.topAccessory}>
             <div class="box" style={{ height: `${reserveTop()}px` }}>
               {props.topAccessory}
             </div>
           </Show>
           <div
-            class="box relative min-w-[0]"
+            class="box relative min-w-0"
             style={{ width: `${size()}px`, height: `${size()}px` }}
           >
             {props.children(size())}

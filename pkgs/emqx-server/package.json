@@ -11,10 +11,9 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "setup": "bun run scripts/setup.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
@@ -26,6 +25,7 @@
     "picocolors": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",

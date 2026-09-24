@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { BackIconButton } from '@pkgs/ui/components/back-icon-button';
 import {
   Button,
@@ -23,19 +25,20 @@ import {
 } from '@pkgs/ui/components/overflow-menu-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 describe('Button', () => {
   test('renders a native button, fires onClick, and applies size', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => <Button title="Save" onClick={onClick} size="sm" />);
     const el = screen.getByRole('button', { name: 'Save' });
     expect(el.tagName).toBe('BUTTON');
     expect(el).toHaveAttribute('data-phase', 'idle');
+    expect(el).toHaveAttribute('data-size', 'sm');
+    expect(el).toHaveAttribute('data-face', 'primary');
+    expect(el.className).toContain('btn');
     fireEvent.click(el);
     expect(onClick).toHaveBeenCalledTimes(1);
-    expect(cssOf(el)).toContain('min-height:32px');
   });
 
   test('variants change the surface: solid fills, outline borders', () => {
@@ -46,19 +49,22 @@ describe('Button', () => {
         <Button title="Ghost" variant="ghost" />
       </>
     ));
-    expect(cssOf(screen.getByRole('button', { name: 'Solid' }))).toContain(
-      'background-color:var(--ui-color-tint)'
+    expect(screen.getByRole('button', { name: 'Solid' })).toHaveAttribute(
+      'data-face',
+      'primary'
     );
-    const outline = cssOf(screen.getByRole('button', { name: 'Outline' }));
-    expect(outline).toContain('border-width:1px');
-    expect(outline).toContain('background-color:transparent');
-    expect(cssOf(screen.getByRole('button', { name: 'Ghost' }))).toContain(
-      'border-width:0px'
+    expect(screen.getByRole('button', { name: 'Outline' })).toHaveAttribute(
+      'data-face',
+      'primary-outline'
+    );
+    expect(screen.getByRole('button', { name: 'Ghost' })).toHaveAttribute(
+      'data-face',
+      'primary-ghost'
     );
   });
 
   test('disabled and loading block clicks; loading is aria-busy', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <>
         <Button title="Off" disabled onClick={onClick} />
@@ -94,12 +100,10 @@ describe('Button', () => {
     expect(end.querySelector('svg')?.getAttribute('stroke')).toBe(
       'var(--ui-on-icon)'
     );
-    const onIcon = [
-      ...screen.getByRole('button', { name: 'Next' }).querySelectorAll('div'),
-    ]
-      .map((el) => el.style.getPropertyValue('--ui-on-icon'))
-      .find((value) => value.length > 0);
-    expect(onIcon).toBe('var(--ui-color-on-success)');
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute(
+      'data-face',
+      'success'
+    );
   });
 });
 
@@ -129,13 +133,13 @@ function MutationHarness(props: {
 describe('useMutationButton', () => {
   test('idle → loading → success → idle with the sim clock', async () => {
     let resolve: () => void = () => {};
-    const operation = vi.fn(
+    const operation = mock(
       () =>
         new Promise<void>((r) => {
           resolve = r;
         })
     );
-    const onSuccess = vi.fn();
+    const onSuccess = mock();
     const phases: string[] = [];
     const { clock } = renderUi(() => (
       <MutationHarness
@@ -169,8 +173,7 @@ describe('useMutationButton', () => {
   });
 
   test('error phase shows the error face and retries on click', async () => {
-    const operation = vi
-      .fn<() => Promise<void>>()
+    const operation = mock<() => Promise<void>>()
       .mockRejectedValueOnce(new Error('nope'))
       .mockResolvedValueOnce(undefined);
     renderUi(() => <MutationHarness operation={operation} />);
@@ -187,7 +190,7 @@ describe('useMutationButton', () => {
 
 describe('IconButton family', () => {
   test('IconButton is a ≥44px button named by its label with a tooltip', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <IconButton label="Settings" size={32} onClick={onClick}>
         <SettingsIcon size={16} />
@@ -204,7 +207,7 @@ describe('IconButton family', () => {
   });
 
   test('tooltip="none" skips the bubble; disabled blocks clicks', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <IconButton label="Muted" tooltip="none" disabled onClick={onClick}>
         <SettingsIcon size={16} />
@@ -232,8 +235,8 @@ describe('IconButton family', () => {
   });
 
   test('Back / Close icon buttons have localized names', () => {
-    const back = vi.fn();
-    const close = vi.fn();
+    const back = mock();
+    const close = mock();
     renderUi(() => (
       <>
         <BackIconButton onClick={back} />
@@ -249,7 +252,7 @@ describe('IconButton family', () => {
 
 describe('FloatingActionButton', () => {
   test('round FAB is ≥56px and extended FAB shows its label', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <>
         <FloatingActionButton aria-label="New" onClick={onClick} />
@@ -266,7 +269,7 @@ describe('FloatingActionButton', () => {
   });
 
   test('feedback="loading" is aria-busy and inert', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <FloatingActionButton
         aria-label="Go"
@@ -283,10 +286,10 @@ describe('FloatingActionButton', () => {
 
 describe('OverflowMenuButton', () => {
   test('exposes a menu trigger and hands content to renderMenu', () => {
-    const renderMenu = vi.fn<(menu: OverflowMenuRenderProps) => JSX.Element>(
+    const renderMenu = mock<(menu: OverflowMenuRenderProps) => JSX.Element>(
       () => null
     );
-    const onAction = vi.fn();
+    const onAction = mock();
     renderUi(() => (
       <OverflowMenuButton
         aria-label="More"

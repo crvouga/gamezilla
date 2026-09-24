@@ -5,19 +5,19 @@ import {
   CLIENT_CONFIG_KEYS,
   ClientConfigKey,
   type ClientConfigKeyId,
-  type ObservabilityBackendName,
 } from '../../../shared/client-config/client-config-keys';
 import { ClientConfigRepository } from './client-config-repository';
 
 export type DesiredClientConfig = {
   readonly google: boolean;
-  readonly devOauth: boolean;
+  readonly apple: boolean;
   readonly billing: boolean;
   readonly tts: boolean;
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
   readonly emqxWssUrl: string | null;
-  readonly observabilityBackend: ObservabilityBackendName;
+  readonly permissionPolicy: unknown;
+  readonly billingGracePeriodMs: number;
 };
 
 type DesiredRow = {
@@ -38,12 +38,12 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: desired.google,
     },
     {
-      id: ClientConfigKey.googleWebClientId,
-      value: trimOrNull(desired.googleWebClientId),
+      id: ClientConfigKey.appleEnabled,
+      value: desired.apple,
     },
     {
-      id: ClientConfigKey.devOauthEnabled,
-      value: desired.devOauth,
+      id: ClientConfigKey.googleWebClientId,
+      value: trimOrNull(desired.googleWebClientId),
     },
     {
       id: ClientConfigKey.billingEnabled,
@@ -62,8 +62,12 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
       value: trimOrNull(desired.emqxWssUrl),
     },
     {
-      id: ClientConfigKey.observabilityBackend,
-      value: desired.observabilityBackend,
+      id: ClientConfigKey.permissionPolicy,
+      value: desired.permissionPolicy,
+    },
+    {
+      id: ClientConfigKey.billingGracePeriodMs,
+      value: desired.billingGracePeriodMs,
     },
   ];
 }

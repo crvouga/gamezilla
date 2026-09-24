@@ -7,9 +7,9 @@
  * - Tailwind's default `text-xs…4xl` scale is byte-identical to ours
  *   (12/14/16/18/20/24/30/36), so named sizes map to utilities.
  * - Named `lineHeight`s resolve to numbers that `sx-to-css` emits with a
- *   `px` suffix (`tight` → `1.25px`, matching `tokens.css`). The codemod
- *   preserves that quirk verbatim via `leading-[1.25px]` rather than
- *   "fixing" it to unitless.
+ *   `px` suffix (`tight` → `1.25px`). `tokens.css` emits the ratio unitless.
+ *   The codemod keeps `leading-[1.25px]` so already-migrated class strings
+ *   stay stable.
  * - `fontWeight` 100–900 map to Tailwind's named weights (identical values).
  * - `fontFamily` always goes to `style` (even when static): arbitrary-value
  *   quoting of comma-separated stacks is not exactly reversible.

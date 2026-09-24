@@ -25,12 +25,12 @@ import {
   quotePgIdent,
 } from '@pkgs/sql-client/postgres-db-scope';
 import { readLastInsertRowid } from './impl-pg-shared';
-import { normalizePgInt8Rows } from './normalize-pg-int8';
-import type { Pool, PoolClient, QueryResult } from './pg-types';
 import {
   encodeMockingbirdPostgresSnapshotEnvelope,
   parseMockingbirdPostgresSnapshotEnvelope,
 } from './mockingbird-postgres-snapshot';
+import { normalizePgInt8Rows } from './normalize-pg-int8';
+import type { Pool, PoolClient, QueryResult } from './pg-types';
 import { repairMockingbirdPostgresPgmmBigintSlots } from './repair-pgmm-bigint-slots';
 
 type MockingbirdPostgresBind =
@@ -341,7 +341,9 @@ export function adaptMockingbirdPostgresAsPool(getDb: () => Database): Pool {
   return poolAdapter as unknown as Pool;
 }
 
-function mockingbirdPostgresEngineOptions(options?: MockingbirdPostgresOpenOptions) {
+function mockingbirdPostgresEngineOptions(
+  options?: MockingbirdPostgresOpenOptions
+) {
   return {
     seed: options?.seed ?? 1,
     ...(options?.now !== undefined ? { now: options.now } : {}),
@@ -359,7 +361,9 @@ export class SqlClientImplMockingbirdPostgres implements PostgresSqlClient {
     this.db = db;
   }
 
-  static open(options?: MockingbirdPostgresOpenOptions): SqlClientImplMockingbirdPostgres {
+  static open(
+    options?: MockingbirdPostgresOpenOptions
+  ): SqlClientImplMockingbirdPostgres {
     const dbScope = options?.dbScope ?? createPostgresDbScope('public');
     const db = new Database(mockingbirdPostgresEngineOptions(options));
     if (options?.installSqliteCompat !== false) {
@@ -369,7 +373,10 @@ export class SqlClientImplMockingbirdPostgres implements PostgresSqlClient {
   }
 
   private requireDb(): Database {
-    assert.ok(this.db != null, 'SqlClientImplMockingbirdPostgres: database is closed');
+    assert.ok(
+      this.db != null,
+      'SqlClientImplMockingbirdPostgres: database is closed'
+    );
     return this.db;
   }
 

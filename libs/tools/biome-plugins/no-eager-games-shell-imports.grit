@@ -1,0 +1,30 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "@libs/games/game-plugins.client",
+    includes "@libs/chess"
+  },
+  $body <: contains bubble or {
+    `import $_ from $source` where {
+      $source <: or {
+        `'@libs/games/game-plugins.client'`,
+        `"@libs/games/game-plugins.client"`,
+        `'@libs/games/game-plugins.client/$rest'`,
+        `"@libs/games/game-plugins.client/$rest"`
+      },
+      register_diagnostic(span=$source, message="low-end Android budget: do not statically import game-plugins.client from the shell — lazy-load games off the critical path.", severity="error")
+    },
+    `import $_ from $source` where {
+      $source <: or {
+        `'@libs/chess'`,
+        `"@libs/chess"`,
+        `'@libs/chess/$rest'`,
+        `"@libs/chess/$rest"`
+      },
+      register_diagnostic(span=$source, message="low-end Android budget: do not statically import @libs/chess from the shell — lazy-load games off the critical path.", severity="error")
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test } from 'bun:test';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth/server';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
@@ -13,14 +13,11 @@ import { AUTH_TABLES } from '../../public/schema';
 
 const adapters = createSimAdapters({ seed: 1 });
 
-function makeFakeAuthServer(
-  snapshot: Record<string, unknown> | null
-): AuthServerPort {
+function makeFakeAuthServer(): AuthServerPort {
   return {
-    providerLabel: PRIMARY_AUTH_PROVIDER,
+    provider: PRIMARY_AUTH_PROVIDER,
     verifySessionToken: async () => null,
-    getUserProfile: async () => null,
-    getUserSnapshot: async () => snapshot,
+    getUser: async () => null,
   };
 }
 
@@ -73,7 +70,7 @@ describe('AccountProvisioningService', () => {
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
       adapters,
-      makeFakeAuthServer(null)
+      makeFakeAuthServer()
     ).execute({
       externalUserId: EXTERNAL_USER_ID,
     });
@@ -86,7 +83,7 @@ describe('AccountProvisioningService', () => {
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
       adapters,
-      makeFakeAuthServer({ id: EXTERNAL_USER_ID, email: 'a@b.c' })
+      makeFakeAuthServer()
     ).execute({
       externalUserId: EXTERNAL_USER_ID,
     });
@@ -110,10 +107,7 @@ describe('AccountProvisioningService', () => {
     // asserts idempotency + single link. Race adoption is covered by
     // insertExternalAccountOrGet + the adopt-existing test below; Postgres
     // serializes concurrent callers via unique (provider, external_id).
-    const authServer = makeFakeAuthServer({
-      id: EXTERNAL_USER_ID,
-      email: 'a@b.c',
-    });
+    const authServer = makeFakeAuthServer();
     const provisioning = new EnsureInternalAccountUseCase(
       sqlClient,
       adapters,
@@ -175,7 +169,7 @@ describe('AccountProvisioningService', () => {
     const resolved = await new EnsureInternalAccountUseCase(
       sqlClient,
       adapters,
-      makeFakeAuthServer({ id: EXTERNAL_USER_ID })
+      makeFakeAuthServer()
     ).execute({
       externalUserId: EXTERNAL_USER_ID,
     });

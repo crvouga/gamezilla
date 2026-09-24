@@ -9,7 +9,10 @@ import type {
 } from '@pkgs/room';
 import type { RoomStorage } from '@pkgs/room/server';
 import type { CreateId } from '@pkgs/uuid';
-import type { DurableObjectInstanceState } from './types';
+import type {
+  DurableObjectInstanceState,
+  DurableObjectTelemetry,
+} from './types';
 
 /**
  * Resolved configuration handed to a {@link RoomDurableObjectAdapterBase}
@@ -36,4 +39,5 @@ export type ResolvedAdapterConfig<
   createId: CreateId;
   /** Extra effect handlers composed after the built-in DO Schedule handler. */
   effectHandlers: readonly RoomEffectHandler[];
+  telemetry: (env: Env) => DurableObjectTelemetry;
 };

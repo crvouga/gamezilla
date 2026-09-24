@@ -10,16 +10,13 @@
     ]
   },
   "scripts": {
-    "check": "bun run scripts/check-catalog.ts",
-    "lint": "bunx biome check --error-on-warnings .",
-    "sync": "bun run scripts/sync-catalog.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "dependencies": {
     "@pkgs/billing": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/secret-store": "workspace:*",
     "stripe": "catalog:"
   },
   "devDependencies": {

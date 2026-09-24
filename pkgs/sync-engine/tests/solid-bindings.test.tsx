@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { type Sql, sql } from '@pkgs/sql';
 import type { SyncEngine, WatchSubscription } from '@pkgs/sync-engine/client';
 import {
@@ -9,7 +11,6 @@ import {
 } from '@pkgs/sync-engine/solid';
 import { render, screen } from '@solidjs/testing-library';
 import { createSignal, For } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 type Row = { id: string };
 

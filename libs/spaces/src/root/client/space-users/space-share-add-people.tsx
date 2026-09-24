@@ -1,6 +1,6 @@
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
 import {
-  UserSearchSignInPrompt,
+  UserSearchDenied,
   useDebouncedUserSearchEffect,
 } from '@libs/user-search/public/use-user-search';
 import { Trans, useLingui } from '@lingui/solid/macro';
@@ -46,11 +46,11 @@ export function SpaceShareAddPeople(props: {
 
   return (
     <Show
-      when={search.signedIn}
+      when={search.canSearch}
       fallback={
         <div class="box gap-2">
           <label class="text textLabel">{<Trans>Add people</Trans>}</label>
-          <UserSearchSignInPrompt />
+          <UserSearchDenied />
         </div>
       }
     >

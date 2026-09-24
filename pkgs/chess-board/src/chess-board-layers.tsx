@@ -27,6 +27,7 @@ import { ChessBoardSquares } from './chess-board-squares';
 import type { DragGhostController } from './drag-ghost-controller';
 
 export type ChessBoardLayersProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly theme: BoardTheme;
   readonly position: Position;
@@ -57,6 +58,7 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
     <>
       <ChessBoardBackground />
       <ChessBoardSquares
+        boardTestId={props.boardTestId}
         orientation={props.orientation}
         position={props.position}
         lastMove={props.lastMove}
@@ -71,6 +73,7 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
         premoveTo={props.premoveTo}
       />
       <ChessBoardPieces
+        boardTestId={props.boardTestId}
         orientation={props.orientation}
         rows={props.rows}
         captureGhost={props.captureGhost}
@@ -82,12 +85,14 @@ export function ChessBoardLayers(props: ChessBoardLayersProps): JSX.Element {
         premoveCode={props.premoveCode}
       />
       <ChessBoardShapes
+        boardTestId={props.boardTestId}
         orientation={props.orientation}
         theme={props.theme}
         shapes={props.shapes}
         arrows={props.arrows}
       />
       <ChessBoardFeedback
+        boardTestId={props.boardTestId}
         orientation={props.orientation}
         theme={props.theme}
         cellFeedback={props.cellFeedback}

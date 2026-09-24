@@ -44,7 +44,9 @@ export type EnsureSimMockingbirdPostgresSeedArgs = {
   /** Extra fingerprint bytes (e.g. migrate composer source). */
   readonly fingerprintSource: Buffer | string;
   readonly seedVersion?: number;
-  readonly migrate: (handle: SimMockingbirdPostgresMigrateHandle) => Promise<void>;
+  readonly migrate: (
+    handle: SimMockingbirdPostgresMigrateHandle
+  ) => Promise<void>;
   /** Clock for migrate logging / DB `now`. */
   readonly now?: () => number;
 };

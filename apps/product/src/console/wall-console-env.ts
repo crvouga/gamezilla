@@ -1,5 +1,5 @@
 // @io-wall-ok
-import { i18n } from '@apps/client/shell/i18n';
+import { i18n } from '@libs/client-app/shell/i18n';
 import { wallClock, wallTimers } from '@pkgs/clock/wall';
 import { createGlobalHttpClient } from '@pkgs/http-client/global';
 import { createBrowserObjectStore } from '@pkgs/object-store-opfs/wall-browser-fs';

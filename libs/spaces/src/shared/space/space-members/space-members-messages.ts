@@ -6,6 +6,7 @@ import {
   type MessageRouter,
 } from '@pkgs/message';
 import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
+import type { GameCommandContext } from '../game';
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0;
@@ -67,11 +68,13 @@ function readSeats(state: RoomState): SpaceSeatsMap {
 
 export const spaceMembersCommandRouter: MessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
-> = createMessageRouter<RoomState, string, HandleResult>(spaceMembersCmdNs)
-  .on(JoinSpaceSeat, (_state, identity, cmd) => {
-    if (cmd.payload.memberId !== identity) {
+> = createMessageRouter<RoomState, GameCommandContext, HandleResult>(
+  spaceMembersCmdNs
+)
+  .on(JoinSpaceSeat, (_state, ctx, cmd) => {
+    if (cmd.payload.memberId !== ctx.identity) {
       return {
         ok: false,
         error: {
@@ -85,8 +88,8 @@ export const spaceMembersCommandRouter: MessageRouter<
       events: [SpaceSeatJoined({ memberId: cmd.payload.memberId })],
     };
   })
-  .on(LeaveSpaceSeat, (_state, identity, cmd) => {
-    if (cmd.payload.memberId !== identity) {
+  .on(LeaveSpaceSeat, (_state, ctx, cmd) => {
+    if (cmd.payload.memberId !== ctx.identity) {
       return {
         ok: false,
         error: {

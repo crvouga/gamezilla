@@ -1,27 +1,23 @@
-import type { Billing } from '@pkgs/billing';
-import type { SqlClient } from '@pkgs/sql-client/interface';
 import { Hono } from 'hono';
-import {
-  BillingCheckoutRoutes,
-  type BillingRequireAuth,
-} from '../../use-cases/create-checkout-session/server/billing-checkout-route';
 
+import type { BillingRouteDeps } from '../../shared/routes/billing-route-deps';
+import { BillingCallbackRoutes } from '../../use-cases/apply-subscription-state/server/billing-callback-route';
+import { BillingCheckoutRoutes } from '../../use-cases/create-checkout-session/server/billing-checkout-route';
+import { BillingPortalRoutes } from '../../use-cases/open-portal-session/server/billing-portal-route';
+
+export type { BillingRouteDeps } from '../../shared/routes/billing-route-deps';
+
+/**
+ * Checkout, portal and callback — the same three routes whichever provider
+ * the host configured. Nothing here knows which one it is.
+ */
 export class BillingApp {
-  constructor(
-    private readonly getSqlClient: () => SqlClient,
-    private readonly billing: Billing | null,
-    private readonly requireAuth: BillingRequireAuth,
-    private readonly now: () => number
-  ) {}
+  constructor(private readonly deps: BillingRouteDeps) {}
 
   build(): Hono {
-    const checkout = new BillingCheckoutRoutes(
-      this.getSqlClient,
-      this.billing,
-      this.requireAuth,
-      this.now
-    ).build();
-
-    return new Hono().route('/', checkout);
+    return new Hono()
+      .route('/', new BillingCheckoutRoutes(this.deps).build())
+      .route('/', new BillingPortalRoutes(this.deps).build())
+      .route('/', new BillingCallbackRoutes(this.deps).build());
   }
 }

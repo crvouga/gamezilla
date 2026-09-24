@@ -2,7 +2,7 @@
 // @io-wall-ok
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { ensureObjectStoreBuckets } from '../shared/ensure-buckets';
 
 const log = createLogger({

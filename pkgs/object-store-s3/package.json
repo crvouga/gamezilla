@@ -9,9 +9,8 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test:contract": "bun test src/object-store.s3.contract.test.ts"
   },
   "dependencies": {
@@ -23,7 +22,7 @@
     "@pkgs/object-store": "workspace:*"
   },
   "devDependencies": {
-    "@crvouga/mockingbird-service-s3": "catalog:",
+    "@pkgs/s3-server": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

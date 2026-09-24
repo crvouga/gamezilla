@@ -18,23 +18,42 @@
     "./server/*": [
       "./src/server/*.ts",
       "./src/server/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "check:schema-evolution": "bun run scripts/check-schema-evolution.ts",
+    "db:wipe:dev": "bun run scripts/wipe-dev-db.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "migrate": "bun run scripts/migrate-cli.ts --wait",
+    "schema:snapshot": "bun run scripts/schema-snapshot.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/billing": "workspace:*",
     "@libs/chess": "workspace:*",
+    "@libs/client-app": "workspace:*",
     "@libs/client-config": "workspace:*",
+    "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
+    "@libs/games": "workspace:*",
     "@libs/notifications": "workspace:*",
+    "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/search": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
+    "@pkgs/billing": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-indexes": "workspace:*",
     "@pkgs/db-indexes-postgres": "workspace:*",
@@ -43,21 +62,31 @@
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
-    "@pkgs/llm": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store": "workspace:*",
-    "@pkgs/observability": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sync-engine": "workspace:*",
-    "@pkgs/tts": "workspace:*"
+    "@pkgs/sync-engine": "workspace:*"
   },
   "devDependencies": {
+    "@libs/test-ids": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/sim": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:"
+    "solid-js": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

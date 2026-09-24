@@ -70,7 +70,7 @@ function SnapshotOptionRow(props: {
   readonly onPick: () => void;
 }) {
   const body = (
-    <div class="box flex-1 min-w-[0] [padding-top:12px;padding-bottom:12px] gap-0.5">
+    <div class="box flex-1 min-w-0 py-3 gap-0.5">
       <p class="text text-text">
         {formatSnapshotTitle(props.snap.createdAtMs)}
       </p>
@@ -79,7 +79,7 @@ function SnapshotOptionRow(props: {
   );
   return (
     <div
-      class="box flex-row items-center gap-3 min-w-[0]"
+      class="box flex-row items-center gap-3 min-w-0"
       style={{
         ...(props.selected && !props.outdated
           ? {}
@@ -101,7 +101,7 @@ function SnapshotOptionRow(props: {
         body
       ) : (
         <button
-          class="clickable clickableTint flex-1 min-w-[0]"
+          class="clickable clickableTint flex-1 min-w-0"
           type="button"
           onClick={props.onPick}
         >

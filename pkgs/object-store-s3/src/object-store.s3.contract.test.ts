@@ -1,16 +1,19 @@
-/**
- * Dual-backend contract: the same suite against the in-process
- * `@crvouga/mockingbird-service-s3` mock (always) and live S3-compatible
- * storage (local MinIO / R2) when `S3_ENDPOINT` + credentials are present.
- */
+// goal:the-bar:5 — S3-compatible object store contract runs against
+// local S3rver or externally supplied S3/R2 env vars.
 
-import { describe } from 'bun:test';
-import { createRuntime } from '@crvouga/mockingbird-service-s3';
-import { createSettableClock, wallClock } from '@pkgs/clock';
-import type { HttpClient } from '@pkgs/http-client';
-import type { ObjectStore } from '@pkgs/object-store/interface';
+import { afterAll, describe } from 'bun:test';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { runObjectStoreContractTests } from '@pkgs/object-store/object-store-contract';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store/prefixes';
+import {
+  S3_ACCESS_KEY_ID,
+  S3_BUCKET,
+  S3_REGION,
+  S3_SECRET_ACCESS_KEY,
+  startS3Server,
+} from '@pkgs/s3-server';
 import { createSimAdapters } from '@pkgs/uuid';
 import { createS3ObjectStore } from './impl-s3';
 
@@ -18,54 +21,50 @@ const endpoint = process.env['S3_ENDPOINT']?.trim() ?? '';
 const accessKeyId = process.env['S3_ACCESS_KEY_ID']?.trim() ?? '';
 const secretAccessKey = process.env['S3_SECRET_ACCESS_KEY']?.trim() ?? '';
 const bucket = process.env['S3_BUCKET']?.trim() ?? '';
-const region = process.env['S3_REGION']?.trim() ?? 'us-east-1';
-const HAS_S3 =
-  endpoint.length > 0 &&
-  accessKeyId.length > 0 &&
-  secretAccessKey.length > 0 &&
-  bucket.length > 0;
+const region = process.env['S3_REGION']?.trim() ?? S3_REGION;
 
-const MOCK_ENDPOINT = 'http://s3.mockingbird.test';
-const MOCK_BUCKET = 'contract';
+let s3Config: {
+  endpoint: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  bucket: string;
+  region: string;
+};
+let stopS3: (() => Promise<void>) | undefined;
 
-/** Real S3 adapter over a fresh in-process mockingbird S3 runtime. */
-async function createMockingbirdS3Store(): Promise<ObjectStore> {
-  const s3 = createRuntime({ clock: createSettableClock(wallClock) });
-  const http: HttpClient = {
-    fetch: (input, init) => s3.fetch(new Request(input, init)),
+// When no S3 endpoint is supplied, start local S3rver.
+if (!endpoint) {
+  const dir = join(tmpdir(), `s3-contract-${randomUUID()}`);
+  const handle = await startS3Server({ directory: dir });
+  s3Config = {
+    endpoint: handle.endpoint,
+    accessKeyId: S3_ACCESS_KEY_ID,
+    secretAccessKey: S3_SECRET_ACCESS_KEY,
+    bucket: S3_BUCKET,
+    region: S3_REGION,
   };
-  await http.fetch(`${MOCK_ENDPOINT}/${MOCK_BUCKET}`, { method: 'PUT' });
-  return createS3ObjectStore({
-    // Mockingbird's default fixture credential pair.
-    accessKeyId: 'fixture',
-    secretAccessKey: 'fixture',
-    bucket: MOCK_BUCKET,
-    endpoint: MOCK_ENDPOINT,
-    region: 'us-east-1',
-    rootPrefix: 'dst-contract/',
-    http,
-  });
+  stopS3 = () => handle.stop();
+} else {
+  s3Config = {
+    endpoint,
+    accessKeyId,
+    secretAccessKey,
+    bucket,
+    region,
+  };
 }
 
-describe('ObjectStore S3/mockingbird (contract)', () => {
-  runObjectStoreContractTests(createMockingbirdS3Store);
-});
-
-describe.skipIf(!HAS_S3)('ObjectStore S3/MinIO (contract)', () => {
+describe('ObjectStore S3-compatible (contract)', () => {
   const adapters = createSimAdapters({ seed: 1 });
   const prefix = normalizeObjectStoreRootPrefix(
     `dst-contract/${adapters.createId()}/`
   );
 
   runObjectStoreContractTests(() =>
-    createS3ObjectStore({
-      accessKeyId,
-      secretAccessKey,
-      bucket,
-      endpoint,
-      region,
-      rootPrefix: prefix,
-      http: { fetch: (input, init) => globalThis.fetch(input, init) },
-    })
+    createS3ObjectStore({ ...s3Config, rootPrefix: prefix })
   );
+});
+
+afterAll(async () => {
+  await stopS3?.();
 });

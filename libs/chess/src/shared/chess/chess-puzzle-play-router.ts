@@ -1,3 +1,5 @@
+import type { GameCommandContext } from '@libs/spaces/public/game';
+import { applyUci } from '@pkgs/chess-rules/moves';
 import { createMessageRouter } from '@pkgs/message';
 import {
   type HandleResult,
@@ -5,15 +7,12 @@ import {
   type RoomError,
   type RoomState,
 } from '@pkgs/room';
-import { Chess } from 'chess.js';
 
+import { setupPuzzleStart, tokenize, uciToSquares } from './chess-puzzle-fsm';
 import {
-  applyUciToChess,
-  applyUciToChessSan,
-  setupPuzzleStart,
-  tokenize,
-  uciToSquares,
-} from './chess-puzzle-fsm';
+  judgePuzzleMove,
+  type PuzzleMoveAccepted,
+} from './chess-puzzle-move-judge';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
@@ -32,17 +31,29 @@ import {
   ChessPuzzlePlayStarted,
   ChessPuzzlePlayStepped,
   ClearChessPuzzlePlay,
+  ClearChessPuzzleRecommendation,
   chessPuzzlePlayCmdNs,
   ReclaimChessPuzzlePlay,
+  RecommendChessPuzzleMove,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
   SeekChessPuzzlePlay,
+  ShowChessPuzzleSolution,
+  SkipChessPuzzlePlay,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from './chess-puzzle-play-messages';
+import {
+  handleClearRecommendation,
+  handleRecommend,
+} from './chess-puzzle-play-recommendation-handlers';
+import {
+  handleShowSolution,
+  handleSkip,
+} from './chess-puzzle-play-terminal-handlers';
 import {
   fenAtSolveIdx,
   nextForwardSolveIdx,
@@ -73,31 +84,11 @@ function isHostOf(state: RoomState, identity: string): boolean {
   return host !== null && host === identity;
 }
 
-function loadChessFromDisplayFen(
-  displayFen: string | null
-): Chess | { error: HandleResult } {
-  if (displayFen === null) {
-    return { error: internal('cannot apply move without a display fen') };
-  }
-  const chess = new Chess();
-  try {
-    chess.load(displayFen);
-  } catch {
-    return { error: internal('display fen failed to load') };
-  }
-  return chess;
-}
-
-/**
- * Applies the host's `actual` UCI to `chess` and (if more solution remains)
- * the canned opponent reply. Returns the {@link ChessPuzzlePlayMoveAccepted}
- * payload or an error envelope.
- */
-function applyAcceptedMove(args: {
-  chess: Chess;
-  actual: string;
-  tokens: readonly string[];
+/** Payload of an accepted solver move: its own ply plus any opponent reply. */
+function acceptedMovePayload(args: {
+  accepted: PuzzleMoveAccepted;
   idx: number;
+  ts: number;
 }):
   | {
       uci: string;
@@ -105,57 +96,52 @@ function applyAcceptedMove(args: {
       displayFen: string;
       solveIdx: number;
       status: ChessPuzzlePlayStatus;
+      endedAtMs: number | null;
+      moves: string;
     }
   | { error: HandleResult } {
-  const { chess, actual, tokens, idx } = args;
-  const san = applyUciToChessSan(chess, actual);
-  if (san === null) {
+  const { accepted, idx, ts } = args;
+  const base = {
+    uci: accepted.uci,
+    san: accepted.san,
+    moves: accepted.line.join(' '),
+  };
+  const replyIdx = idx + 1;
+  const reply = accepted.line[replyIdx];
+  if (accepted.ends || reply === undefined) {
     return {
-      error: reject({
-        type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: 'illegal move for current position',
-      }),
-    };
-  }
-  let nextIdx = idx + 1;
-  if (nextIdx >= tokens.length) {
-    return {
-      uci: actual,
-      san,
-      displayFen: chess.fen(),
-      solveIdx: nextIdx,
+      ...base,
+      displayFen: accepted.fen,
+      solveIdx: replyIdx,
       status: CHESS_PUZZLE_PLAY_STATUS.solved,
+      endedAtMs: ts,
     };
   }
-  const reply = tokens[nextIdx];
-  if (reply === undefined) {
-    return { error: internal('no opponent reply at next index') };
-  }
-  if (!applyUciToChess(chess, reply)) {
+  const replied = applyUci(accepted.fen, reply);
+  if (!replied.ok) {
     return {
       error: internal('opponent reply did not apply to current position'),
     };
   }
-  nextIdx += 1;
-  const status =
-    nextIdx >= tokens.length
-      ? CHESS_PUZZLE_PLAY_STATUS.solved
-      : CHESS_PUZZLE_PLAY_STATUS.solving;
+  const solveIdx = replyIdx + 1;
+  const solved = solveIdx >= accepted.line.length;
   return {
-    uci: actual,
-    san,
-    displayFen: chess.fen(),
-    solveIdx: nextIdx,
-    status,
+    ...base,
+    displayFen: replied.fen,
+    solveIdx,
+    status: solved
+      ? CHESS_PUZZLE_PLAY_STATUS.solved
+      : CHESS_PUZZLE_PLAY_STATUS.solving,
+    endedAtMs: solved ? ts : null,
   };
 }
 
 function handleSubmitMove(
   state: RoomState,
-  identity: string,
+  ctx: GameCommandContext,
   uci: string
 ): HandleResult {
-  if (!isHostOf(state, identity)) {
+  if (!isHostOf(state, ctx.identity)) {
     return unauthorized('only the puzzle host may submit moves');
   }
   const status = ChessPuzzlePlayAttr.status.from(state);
@@ -164,23 +150,22 @@ function handleSubmitMove(
   }
   const tokens = tokenize(ChessPuzzlePlayAttr.moves.from(state));
   const idx = ChessPuzzlePlayAttr.solveIdx.from(state);
-  const expected = tokens[idx];
-  if (expected === undefined) {
+  const fen = ChessPuzzlePlayAttr.displayFen.from(state);
+  if (tokens[idx] === undefined) {
     return internal('no expected move at current solve index');
   }
-  const actual = uci.trim().toLowerCase();
-  const previousDisplayFen = ChessPuzzlePlayAttr.displayFen.from(state);
-  if (actual !== expected) {
-    return handleWrongMove({ state, actual, previousDisplayFen });
+  if (fen === null) return internal('cannot apply move without a display fen');
+  const verdict = judgePuzzleMove({ fen, tokens, idx, uci });
+  if (verdict.kind === 'illegal') {
+    return reject({
+      type: ROOM_ERROR_TYPE.invalidCommand,
+      reason: 'illegal move for current position',
+    });
   }
-  const chessOrErr = loadChessFromDisplayFen(previousDisplayFen);
-  if ('error' in chessOrErr) return chessOrErr.error;
-  const applied = applyAcceptedMove({
-    chess: chessOrErr,
-    actual,
-    tokens,
-    idx,
-  });
+  if (verdict.kind === 'wrong') {
+    return handleWrongMove(state, verdict.uci, verdict.san);
+  }
+  const applied = acceptedMovePayload({ accepted: verdict, idx, ts: ctx.ts });
   if ('error' in applied) return applied.error;
   return {
     ok: true,
@@ -189,46 +174,31 @@ function handleSubmitMove(
 }
 
 /**
- * Handle a syntactically-valid but wrong UCI: apply it to the board so the
- * player sees the position they reached, then capture both the new and the
- * pre-move FEN so `Retry` can revert just the wrong ply.
+ * A legal but wrong move is never applied: the display keeps the position
+ * the solver moved from, so the piece returns; the from / to squares are
+ * flagged red and the attempt turns `wrong` (§5).
  */
-function handleWrongMove(args: {
-  state: RoomState;
-  actual: string;
-  previousDisplayFen: string | null;
-}): HandleResult {
-  const { state, actual, previousDisplayFen } = args;
-  const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
-  const squares = uciToSquares(actual);
+function handleWrongMove(
+  state: RoomState,
+  uci: string,
+  san: string
+): HandleResult {
+  const squares = uciToSquares(uci);
   if (squares === null) {
     return reject({
       type: ROOM_ERROR_TYPE.invalidCommand,
       reason: 'malformed uci for rejected move',
     });
   }
-  const chessOrErr = loadChessFromDisplayFen(previousDisplayFen);
-  if ('error' in chessOrErr) return chessOrErr.error;
-  const san = applyUciToChessSan(chessOrErr, actual);
-  if (san === null) {
-    return reject({
-      type: ROOM_ERROR_TYPE.invalidCommand,
-      reason: 'illegal move for current position',
-    });
-  }
-  // `previousDisplayFen` is non-null here: `loadChessFromDisplayFen` rejects null.
-  const prev = previousDisplayFen ?? '';
   return {
     ok: true,
     events: [
       ChessPuzzlePlayMoveRejected({
-        uci: actual,
+        uci,
         san,
-        layoutKey,
+        layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
         wrongFromSquare: squares.from,
         wrongToSquare: squares.to,
-        displayFen: chessOrErr.fen(),
-        previousDisplayFen: prev,
       }),
     ],
   };
@@ -236,7 +206,7 @@ function handleWrongMove(args: {
 
 function handleStart(
   state: RoomState,
-  identity: string,
+  ctx: GameCommandContext,
   payload: { puzzleId: string; fen: string; moves: string }
 ): HandleResult {
   if (ChessPuzzlePlayAttr.hostIdentity.from(state) !== null) {
@@ -252,11 +222,12 @@ function handleStart(
           puzzleId,
           fen,
           moves,
-          hostIdentity: identity,
+          hostIdentity: ctx.identity,
           displayFen: null,
           orientation: 'white',
           status: CHESS_PUZZLE_PLAY_STATUS.invalid,
           solveIdx: 0,
+          startedAtMs: ctx.ts,
         }),
       ],
     };
@@ -268,11 +239,12 @@ function handleStart(
         puzzleId,
         fen,
         moves,
-        hostIdentity: identity,
+        hostIdentity: ctx.identity,
         displayFen: setup.displayFen,
         orientation: setup.orientation,
         status: setup.status,
         solveIdx: 1,
+        startedAtMs: ctx.ts,
       }),
     ],
   };
@@ -288,25 +260,21 @@ function handleReset(state: RoomState, identity: string): HandleResult {
   }
   const layoutKey = ChessPuzzlePlayAttr.layoutKey.from(state) + 1;
 
-  // Wrong-move retry: undo just the wrong move, keep `solveIdx` so the
-  // player picks back up where the puzzle expected the same correct move.
+  // Wrong-move retry: the wrong move was never applied, so keep the position
+  // and `solveIdx`; the player picks back up at the same expected move.
   if (status === CHESS_PUZZLE_PLAY_STATUS.wrong) {
-    const previous = ChessPuzzlePlayAttr.previousDisplayFen.from(state);
-    if (previous !== null) {
-      const solveIdx = ChessPuzzlePlayAttr.solveIdx.from(state);
-      return {
-        ok: true,
-        events: [
-          ChessPuzzlePlayResetEvt({
-            displayFen: previous,
-            solveIdx,
-            furthestSolveIdx: ChessPuzzlePlayAttr.furthestSolveIdx.from(state),
-            status: CHESS_PUZZLE_PLAY_STATUS.solving,
-            layoutKey,
-          }),
-        ],
-      };
-    }
+    return {
+      ok: true,
+      events: [
+        ChessPuzzlePlayResetEvt({
+          displayFen: ChessPuzzlePlayAttr.displayFen.from(state),
+          solveIdx: ChessPuzzlePlayAttr.solveIdx.from(state),
+          furthestSolveIdx: ChessPuzzlePlayAttr.furthestSolveIdx.from(state),
+          status: CHESS_PUZZLE_PLAY_STATUS.solving,
+          layoutKey,
+        }),
+      ],
+    };
   }
 
   const fen = ChessPuzzlePlayAttr.fen.from(state);
@@ -350,7 +318,8 @@ function assertCanSeekLine(
   const status = ChessPuzzlePlayAttr.status.from(state);
   if (
     status !== CHESS_PUZZLE_PLAY_STATUS.solving &&
-    status !== CHESS_PUZZLE_PLAY_STATUS.solved
+    status !== CHESS_PUZZLE_PLAY_STATUS.solved &&
+    status !== CHESS_PUZZLE_PLAY_STATUS.revealed
   ) {
     return conflict(`cannot step while status is ${status}`);
   }
@@ -370,7 +339,12 @@ function emitSeekToSolveIdx(state: RoomState, nextIdx: number): HandleResult {
       ChessPuzzlePlayStepped({
         displayFen,
         solveIdx: nextIdx,
-        status: statusAtSolveIdx(nextIdx, puzzleTokensLength(moves)),
+        // Review after "Show solution" stays review while scrubbing.
+        status:
+          ChessPuzzlePlayAttr.status.from(state) ===
+          CHESS_PUZZLE_PLAY_STATUS.revealed
+            ? CHESS_PUZZLE_PLAY_STATUS.revealed
+            : statusAtSolveIdx(nextIdx, puzzleTokensLength(moves)),
         layoutKey: ChessPuzzlePlayAttr.layoutKey.from(state) + 1,
       }),
     ],
@@ -448,34 +422,42 @@ function handleReclaim(state: RoomState, identity: string): HandleResult {
 
 export const chessPuzzlePlayCommandRouter = createMessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
 >(chessPuzzlePlayCmdNs)
-  .on(StartChessPuzzlePlay, (state, identity, c) =>
-    handleStart(state, identity, c.payload)
+  .on(StartChessPuzzlePlay, (state, ctx, c) =>
+    handleStart(state, ctx, c.payload)
   )
-  .on(SubmitChessPuzzleMove, (state, identity, c) =>
-    handleSubmitMove(state, identity, c.payload.uci)
+  .on(SubmitChessPuzzleMove, (state, ctx, c) =>
+    handleSubmitMove(state, ctx, c.payload.uci)
   )
-  .on(ResetChessPuzzlePlay, (state, identity) => handleReset(state, identity))
-  .on(StepBackChessPuzzlePlay, (state, identity) =>
-    handleStepSeek(state, identity, 'back')
+  .on(ResetChessPuzzlePlay, (state, ctx) => handleReset(state, ctx.identity))
+  .on(StepBackChessPuzzlePlay, (state, ctx) =>
+    handleStepSeek(state, ctx.identity, 'back')
   )
-  .on(StepForwardChessPuzzlePlay, (state, identity) =>
-    handleStepSeek(state, identity, 'forward')
+  .on(StepForwardChessPuzzlePlay, (state, ctx) =>
+    handleStepSeek(state, ctx.identity, 'forward')
   )
-  .on(SeekChessPuzzlePlay, (state, identity, c) =>
-    handleSeek(state, identity, c.payload.solveIdx)
+  .on(SeekChessPuzzlePlay, (state, ctx, c) =>
+    handleSeek(state, ctx.identity, c.payload.solveIdx)
   )
-  .on(ClearChessPuzzlePlay, (state, identity) => handleClear(state, identity))
-  .on(RequestChessPuzzleHint, (state, identity) =>
-    handleRequestHint(state, identity)
+  .on(ClearChessPuzzlePlay, (state, ctx) => handleClear(state, ctx.identity))
+  .on(RequestChessPuzzleHint, (state, ctx) =>
+    handleRequestHint(state, ctx.identity)
   )
-  .on(RevealChessPuzzleSolution, (state, identity) =>
-    handleRevealSolution(state, identity)
+  .on(RevealChessPuzzleSolution, (state, ctx) =>
+    handleRevealSolution(state, ctx.identity)
   )
-  .on(ReclaimChessPuzzlePlay, (state, identity) =>
-    handleReclaim(state, identity)
+  .on(ReclaimChessPuzzlePlay, (state, ctx) =>
+    handleReclaim(state, ctx.identity)
+  )
+  .on(SkipChessPuzzlePlay, (state, ctx) => handleSkip(state, ctx))
+  .on(ShowChessPuzzleSolution, (state, ctx) => handleShowSolution(state, ctx))
+  .on(RecommendChessPuzzleMove, (state, ctx, c) =>
+    handleRecommend(state, ctx.identity, c.payload)
+  )
+  .on(ClearChessPuzzleRecommendation, (state, ctx) =>
+    handleClearRecommendation(state, ctx.identity)
   );
 
 export {

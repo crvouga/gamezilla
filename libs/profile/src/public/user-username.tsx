@@ -57,7 +57,7 @@ function UserUsernameInner(props: {
   });
   return (
     <p
-      class="text min-w-[0]"
+      class="text min-w-0"
       classList={{
         textBodyBold: String(props.variant) === 'bodyBold',
         textCaption: String(props.variant) === 'caption',

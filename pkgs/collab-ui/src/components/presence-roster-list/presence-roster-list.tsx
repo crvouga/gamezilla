@@ -18,12 +18,15 @@ import { ParticipantColorRing } from '../participant-color-ring';
 
 export type PresenceRosterRow = {
   readonly client: RoomActor;
-  readonly title: LocalizedString;
+  /** Who this is — a name, never a raw id. */
+  readonly title: JSX.Element;
   readonly subtitle?: LocalizedString;
   readonly isYou?: boolean;
   readonly isThisTab?: boolean;
   readonly isHost?: boolean;
   readonly badges?: JSX.Element;
+  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  readonly dataSet?: Record<string, string> | undefined;
 };
 
 export type PresenceRosterListProps = {
@@ -64,6 +67,7 @@ export function PresenceRosterList(
               </div>
             }
             trailing={row.badges}
+            {...(row.dataSet !== undefined ? { dataSet: row.dataSet } : {})}
           />
         )}
       </For>

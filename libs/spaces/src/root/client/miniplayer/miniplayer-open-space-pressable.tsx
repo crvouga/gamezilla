@@ -19,7 +19,7 @@ export function MiniplayerOpenSpacePressable(
   const { t } = useLingui();
   return (
     <button
-      class="clickable clickableTint flex-1 self-stretch flex-row items-center gap-2 min-w-[0]"
+      class="clickable clickableTint flex-1 self-stretch flex-row items-center gap-2 min-w-0"
       type="button"
       onClick={() => {
         openSpaceDetail(router, props.spaceId);

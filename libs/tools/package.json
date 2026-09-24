@@ -1,0 +1,26 @@
+{
+  "name": "@libs/tools",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check:static": "bun run scripts/check-static.ts",
+    "install:cli": "bun run scripts/install-cli.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test scripts/*.test.ts"
+  },
+  "dependencies": {
+    "@libs/secrets": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/equal": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "fast-check": "catalog:"
+  }
+}

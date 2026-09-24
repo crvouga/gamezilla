@@ -36,7 +36,10 @@ export const MOCKINGBIRD_SQLITE_FACTORY: BackendFactory = {
   dialect: 'sqlite',
   always: true,
   open: async () => {
-    const client = SqlClientImplMockingbirdSqlite.open({ seed: 1, now: FIXED_NOW });
+    const client = SqlClientImplMockingbirdSqlite.open({
+      seed: 1,
+      now: FIXED_NOW,
+    });
     await client.connect();
     return ephemeral({
       kind: 'mockingbird-sqlite',
@@ -148,7 +151,10 @@ export async function openBackend(
   factory: BackendFactory
 ): Promise<MatrixBackend> {
   const backend = await factory.open();
-  if (factory.dialect === 'postgres' && factory.kind === 'mockingbird-postgres') {
+  if (
+    factory.dialect === 'postgres' &&
+    factory.kind === 'mockingbird-postgres'
+  ) {
     // mockingbird-postgres installs mem JSON1 shims in open().
     return backend;
   }

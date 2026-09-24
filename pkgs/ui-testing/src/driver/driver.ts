@@ -33,6 +33,15 @@ export type TapPosition = {
   yRatio: number;
 };
 
+/** Which pointer button a coordinate gesture presses. */
+export type PointerButton = 'primary' | 'secondary';
+
+/** Options for coordinate gestures ({@link DriverNode.tapAt} / `drag`). */
+export type GestureOptions = {
+  /** Default `'primary'`. `'secondary'` is a right-click / right-drag. */
+  readonly button?: PointerButton;
+};
+
 /** Element bounding box in host coordinates (pixels). */
 export type ElementLayout = {
   readonly x: number;
@@ -98,13 +107,17 @@ export type DriverNode = {
    * Tap at a relative position within the element.
    * Useful for canvases / boards where the hit target is a region, not a node.
    */
-  tapAt(position: TapPosition): Promise<void>;
+  tapAt(position: TapPosition, options?: GestureOptions): Promise<void>;
 
   /**
    * Drag from one relative position to another within the element.
    * Useful for canvases / boards that use pan gestures.
    */
-  drag(from: TapPosition, to: TapPosition): Promise<void>;
+  drag(
+    from: TapPosition,
+    to: TapPosition,
+    options?: GestureOptions
+  ): Promise<void>;
 
   /**
    * Read the element's bounding box, or `null` when the host cannot measure.

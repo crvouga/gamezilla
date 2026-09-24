@@ -1,24 +1,31 @@
 import { Handles } from '@libs/test-ids';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
+import type { OauthProviderId } from '@pkgs/auth/shared';
 import { LoadingState, ModalBody, SocialSignInButton } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
-import { Show } from 'solid-js';
+import { For, Show } from 'solid-js';
+
+/** The sign-in button test id for a provider. */
+export function signInMethodTestId(provider: OauthProviderId): string {
+  return provider === 'apple'
+    ? Handles.authMethodApple
+    : Handles.authMethodGoogle;
+}
 
 export function SignInModalBody(props: {
   methodsLoading?: boolean | undefined;
-  googleAvailable: boolean;
-  devOauthAvailable: boolean;
+  /** Enabled sign-in methods, in display order. */
+  providers: readonly OauthProviderId[];
   signInUnavailableReason: string | null;
-  onPressGoogle: () => void;
-  onPressDev: () => void;
+  onPress: (provider: OauthProviderId) => void;
 }): JSX.Element {
   const methodsLoading = () => props.methodsLoading === true;
-  const anyMethod = () => props.googleAvailable || props.devOauthAvailable;
+  const anyMethod = () => props.providers.length > 0;
 
   return (
     <ModalBody>
-      <div class="box mt-[3px] self-stretch gap-2">
+      <div class="box mt-0.75 self-stretch gap-2">
         <Show when={methodsLoading()}>
           <LoadingState caption={<Trans>Loading sign-in methods…</Trans>} />
         </Show>
@@ -29,23 +36,18 @@ export function SignInModalBody(props: {
           </p>
         </Show>
 
-        <Show when={!methodsLoading() && props.googleAvailable}>
-          <SocialSignInButton
-            provider="google"
-            action="signIn"
-            theme="light"
-            onClick={() => props.onPressGoogle()}
-          />
-        </Show>
-
-        <Show when={!methodsLoading() && props.devOauthAvailable}>
-          <SocialSignInButton
-            provider="dev"
-            action="signIn"
-            theme="neutral"
-            onClick={() => props.onPressDev()}
-            dataSet={{ testid: Handles.authMethodDev }}
-          />
+        <Show when={!methodsLoading()}>
+          <For each={props.providers}>
+            {(provider) => (
+              <SocialSignInButton
+                provider={provider}
+                action="signIn"
+                theme={provider === 'apple' ? 'dark' : 'light'}
+                onClick={() => props.onPress(provider)}
+                dataSet={{ testid: signInMethodTestId(provider) }}
+              />
+            )}
+          </For>
         </Show>
 
         <Show when={!methodsLoading() && !anyMethod()}>

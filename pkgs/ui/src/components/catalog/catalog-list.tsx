@@ -39,7 +39,7 @@ export function CatalogList(props: CatalogListProps): JSX.Element {
 
   return (
     <div
-      class="box flex-1 min-h-[0] gap-3"
+      class="box flex-1 min-h-0 gap-3"
       {...dataAttrs({ component: 'CatalogList', ...props.dataSet })}
       style={bleed() ? undefined : { padding: '16px' }}
     >

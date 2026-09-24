@@ -44,5 +44,7 @@ describe('token color utilities', () => {
     } finally {
       await rm(scratch, { recursive: true, force: true });
     }
-  });
+    // Scans the whole monorepo: ~3 s alone, past bun's 5 s default under a
+    // parallel turbo run.
+  }, 30_000);
 });

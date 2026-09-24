@@ -119,10 +119,10 @@ function PaletteCard(props: {
   const running = (): boolean => reg.runningId() !== null;
   return (
     <div
-      class="box rounded-[20px] border border-border overflow-hidden bg-surface-overlay"
+      class="box rounded-sheet border border-border overflow-hidden bg-surface-overlay"
       data-component="CommandPaletteCard"
     >
-      <Show when={running()} fallback={<div class="box h-[2px]" />}>
+      <Show when={running()} fallback={<div class="box h-0.5" />}>
         <ProgressBar indeterminate height={2} color="tint" />
       </Show>
       <div class="box px-3 py-2">
@@ -169,7 +169,7 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
       label={t`Command palette`}
       dataSet={{ component: 'CommandPalette', ...props.dataSet }}
     >
-      <div class="box flex-1 w-[100%] h-[100%]">
+      <div class="box flex-1 w-full h-full">
         <div
           class="box absolute inset-0 bg-scrim"
           data-component="ModalScrim"

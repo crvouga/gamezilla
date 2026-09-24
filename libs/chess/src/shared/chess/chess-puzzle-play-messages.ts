@@ -1,11 +1,14 @@
+import type { Square } from '@pkgs/chess-board-core/types';
 import { createMessageNamespace, isPlainRecord } from '@pkgs/message';
 
+import { isBoardSquare } from '../puzzle-session/recommendations';
 import type { ChessPuzzleOrientation } from './chess-puzzle-fsm';
 import {
   type ChessPuzzlePlayStatus,
   isNonEmptyString,
   isNonNegativeInteger,
   isNullOrNonEmptyString,
+  isNullOrNonNegativeInteger,
   isOrientation,
   isStatus,
 } from './chess-puzzle-play-attr';
@@ -46,6 +49,7 @@ function validateStartedPayload(payload: unknown): payload is {
   orientation: ChessPuzzleOrientation;
   status: ChessPuzzlePlayStatus;
   solveIdx: number;
+  startedAtMs: number;
 } {
   if (!isPlainRecord(payload)) return false;
   return (
@@ -56,7 +60,8 @@ function validateStartedPayload(payload: unknown): payload is {
     isNullOrNonEmptyString(payload['displayFen']) &&
     isOrientation(payload['orientation']) &&
     isStatus(payload['status']) &&
-    isNonNegativeInteger(payload['solveIdx'])
+    isNonNegativeInteger(payload['solveIdx']) &&
+    isNonNegativeInteger(payload['startedAtMs'])
   );
 }
 
@@ -66,14 +71,19 @@ function validateMoveAcceptedPayload(payload: unknown): payload is {
   displayFen: string;
   solveIdx: number;
   status: ChessPuzzlePlayStatus;
+  endedAtMs: number | null;
+  /** Line the room follows from here (rewritten on alternative mate / transposition). */
+  moves: string;
 } {
   if (!isPlainRecord(payload)) return false;
   return (
     isNonEmptyString(payload['uci']) &&
+    isNonEmptyString(payload['moves']) &&
     isNonEmptyString(payload['san']) &&
     isNonEmptyString(payload['displayFen']) &&
     isNonNegativeInteger(payload['solveIdx']) &&
-    isStatus(payload['status'])
+    isStatus(payload['status']) &&
+    isNullOrNonNegativeInteger(payload['endedAtMs'])
   );
 }
 
@@ -83,10 +93,6 @@ function validateMoveRejectedPayload(payload: unknown): payload is {
   layoutKey: number;
   wrongFromSquare: string;
   wrongToSquare: string;
-  /** FEN after the wrong move was applied; what the board now renders. */
-  displayFen: string;
-  /** FEN before the wrong move; what `Retry` should restore. */
-  previousDisplayFen: string;
 } {
   if (!isPlainRecord(payload)) return false;
   return (
@@ -94,9 +100,7 @@ function validateMoveRejectedPayload(payload: unknown): payload is {
     isNonEmptyString(payload['san']) &&
     isNonNegativeInteger(payload['layoutKey']) &&
     isNonEmptyString(payload['wrongFromSquare']) &&
-    isNonEmptyString(payload['wrongToSquare']) &&
-    isNonEmptyString(payload['displayFen']) &&
-    isNonEmptyString(payload['previousDisplayFen'])
+    isNonEmptyString(payload['wrongToSquare'])
   );
 }
 
@@ -143,6 +147,52 @@ function validateSteppedPayload(payload: unknown): payload is {
     isStatus(payload['status']) &&
     isNonNegativeInteger(payload['layoutKey'])
   );
+}
+
+function validateSolutionShownPayload(payload: unknown): payload is {
+  displayFen: string;
+  solveIdx: number;
+  endedAtMs: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['displayFen']) &&
+    isNonNegativeInteger(payload['solveIdx']) &&
+    isNonNegativeInteger(payload['endedAtMs'])
+  );
+}
+
+function validateSkippedEvtPayload(payload: unknown): payload is {
+  endedAtMs: number;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return isNonNegativeInteger(payload['endedAtMs']);
+}
+
+function validateRecommendMovePayload(payload: unknown): payload is {
+  from: Square;
+  to: Square;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return isBoardSquare(payload['from']) && isBoardSquare(payload['to']);
+}
+
+function validateRecommendedPayload(payload: unknown): payload is {
+  by: string;
+  from: Square;
+  to: Square;
+} {
+  if (!isPlainRecord(payload)) return false;
+  return (
+    isNonEmptyString(payload['by']) &&
+    isBoardSquare(payload['from']) &&
+    isBoardSquare(payload['to'])
+  );
+}
+
+function validateClearedPayload(payload: unknown): payload is { by: string } {
+  if (!isPlainRecord(payload)) return false;
+  return isNonEmptyString(payload['by']);
 }
 
 export const chessPuzzlePlayCmdNs = createMessageNamespace(
@@ -229,6 +279,36 @@ export const ReclaimChessPuzzlePlay = chessPuzzlePlayCmdNs(
   validateEmptyPayload
 );
 
+/**
+ * Host asks to see the solution (§6): the rest of the line is played out and
+ * the attempt enters review (`revealed`, terminal).
+ */
+export const ShowChessPuzzleSolution = chessPuzzlePlayCmdNs(
+  'show-solution',
+  validateEmptyPayload
+);
+
+/** Host gives up on the current attempt without solving it (terminal). */
+export const SkipChessPuzzlePlay = chessPuzzlePlayCmdNs(
+  'skip',
+  validateEmptyPayload
+);
+
+/**
+ * Any room member suggests a move for the live position. Suggestions are
+ * annotations only — they never advance the puzzle.
+ */
+export const RecommendChessPuzzleMove = chessPuzzlePlayCmdNs(
+  'recommend-move',
+  validateRecommendMovePayload
+);
+
+/** A member withdraws their own suggestion. */
+export const ClearChessPuzzleRecommendation = chessPuzzlePlayCmdNs(
+  'clear-recommendation',
+  validateEmptyPayload
+);
+
 export const chessPuzzlePlayEvtNs = createMessageNamespace(
   'chess-puzzle-play-evt'
 );
@@ -283,4 +363,24 @@ function validateHostReclaimedPayload(
 export const ChessPuzzleHostReclaimed = chessPuzzlePlayEvtNs(
   'host-reclaimed',
   validateHostReclaimedPayload
+);
+
+export const ChessPuzzleSolutionShown = chessPuzzlePlayEvtNs(
+  'solution-shown',
+  validateSolutionShownPayload
+);
+
+export const ChessPuzzlePlaySkipped = chessPuzzlePlayEvtNs(
+  'skipped',
+  validateSkippedEvtPayload
+);
+
+export const ChessPuzzleMoveRecommended = chessPuzzlePlayEvtNs(
+  'move-recommended',
+  validateRecommendedPayload
+);
+
+export const ChessPuzzleRecommendationCleared = chessPuzzlePlayEvtNs(
+  'recommendation-cleared',
+  validateClearedPayload
 );

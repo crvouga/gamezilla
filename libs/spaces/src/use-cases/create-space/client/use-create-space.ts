@@ -5,6 +5,11 @@ import type { SpaceVisibility } from '../../../shared/space/space-visibility';
 import { createSpaceMutation } from '../shared/create-space-mutation';
 
 export type CreateSpaceOptions = {
+  /**
+   * Default `public`: anyone with the link may join, a guest included
+   * (docs/GOAL.md §2). Public is not listed — strangers find a space only
+   * through its link; friends see it in their lobby either way.
+   */
   readonly visibility?: SpaceVisibility;
 };
 
@@ -19,7 +24,7 @@ export function useCreateSpace() {
     const spaceId = createId();
     const result = await mutationClient.mutate(createSpaceMutation, {
       spaceId,
-      visibility: options?.visibility ?? ('private' as const),
+      visibility: options?.visibility ?? ('public' as const),
     });
     if (!result.ok) throw new Error(result.failures[0]?.message);
     onCreated?.(spaceId);

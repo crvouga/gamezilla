@@ -21,11 +21,6 @@ function columnDdl(col: CreateTableColumn): Sql<void> {
   if (col.isPrimaryKey) {
     return sql`${ident(col.name)} ${typeSql} primary key`;
   }
-  if (col.generatedExpr !== undefined) {
-    const stored =
-      col.generatedStored === false ? raw('VIRTUAL') : raw('STORED');
-    return sql`${ident(col.name)} ${typeSql} GENERATED ALWAYS AS (${raw(col.generatedExpr)}) ${stored}`;
-  }
   return sql`${ident(col.name)} ${typeSql}`;
 }
 
@@ -64,47 +59,12 @@ export function emitServerOperation(
       }
       return sql`DROP INDEX IF EXISTS ${ident(op.name)}`;
     }
-    case 'add_check': {
-      return sql`ALTER TABLE ${ident(op.table)} ADD CONSTRAINT ${ident(op.name)} CHECK (${raw(op.expression)})`;
-    }
-    case 'add_foreign_key': {
-      return sql`ALTER TABLE ${ident(op.table)} ADD CONSTRAINT ${ident(op.name)} FOREIGN KEY (${ident(op.column)}) REFERENCES ${ident(op.refTable)} (${ident(op.refColumn)})`;
-    }
-    case 'create_view': {
-      return sql`CREATE VIEW ${ident(op.name)} AS ${raw(op.expression)}`;
-    }
-    case 'replace_view': {
-      return sql`CREATE OR REPLACE VIEW ${ident(op.name)} AS ${raw(op.expression)}`;
-    }
-    case 'create_enum': {
-      if (op.nativePostgres) {
-        const vals = op.values
-          .map((v) => `'${v.replace(/'/g, "''")}'`)
-          .join(', ');
-        return raw(
-          `DO $$ BEGIN CREATE TYPE "${String(op.name).replace(/"/g, '""')}" AS ENUM (${vals}); EXCEPTION WHEN duplicate_object THEN NULL; END $$;`
-        );
-      }
-      // Portable TEXT+CHECK enums are applied as table checks, not types.
-      return sql`SELECT 1`;
-    }
-    case 'add_enum_value': {
-      return raw(
-        `ALTER TYPE "${op.name.replace(/"/g, '""')}" ADD VALUE IF NOT EXISTS '${op.value.replace(/'/g, "''")}'`
-      );
-    }
   }
 }
 
 export function isConcurrentlyUnsupportedError(err: unknown): boolean {
   const message = err instanceof Error ? err.message : String(err);
   return /concurrently/i.test(message);
-}
-
-export function emitServerOperations(
-  ops: readonly ServerOperation[]
-): Sql<unknown>[] {
-  return ops.map((op) => emitServerOperation(op));
 }
 
 /** Destructive DDL patterns that must never appear in server output. */

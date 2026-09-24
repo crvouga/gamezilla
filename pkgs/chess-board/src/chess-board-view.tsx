@@ -4,7 +4,10 @@
 import { speakMove } from '@pkgs/chess-board-core/a11y/speak-move';
 import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import { pieceCode } from '@pkgs/chess-board-core/piece-svgs';
-import { DEFAULT_CHESS_BOARD_TEST_ID } from '@pkgs/chess-board-core/probe';
+import {
+  chessBoardLiveRegionTestId,
+  DEFAULT_CHESS_BOARD_TEST_ID,
+} from '@pkgs/chess-board-core/probe';
 import type { PieceCode, Square } from '@pkgs/chess-board-core/types';
 import { dataAttrs } from '@pkgs/ui';
 import {
@@ -87,8 +90,12 @@ function BoardBody(args: {
   const liveMessage = useSpokenLastMove(() => args.ctrl);
   return (
     <>
-      <ChessBoardLiveRegion message={liveMessage} />
+      <ChessBoardLiveRegion
+        testId={chessBoardLiveRegionTestId(args.boardTestId())}
+        message={liveMessage}
+      />
       <ChessBoardLayers
+        boardTestId={args.boardTestId()}
         orientation={args.ctrl.orientation()}
         theme={args.ctrl.theme()}
         position={game().position}
@@ -115,6 +122,8 @@ function BoardBody(args: {
       />
       <ChessBoardHitGrid
         boardTestId={args.boardTestId()}
+        orientation={args.ctrl.orientation()}
+        onSquareFocus={(square) => args.ctrl.onSquareFocus(square)}
         cursor={args.ctrl.cursor()}
         position={game().position}
         turn={game().turn}
@@ -156,9 +165,9 @@ export function ChessBoardView(args: {
     // arrow keys move the cursor and pointer events drive drags. jsx-a11y
     // classifies `application` as non-interactive, so the standard
     // WAI-ARIA pattern for a keyboard game board trips these two rules.
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      class={`box relative [border-width:2px] border-solid overflow-hidden ${styles['root']}`}
+      class={`box relative border-2 border-solid overflow-hidden ${styles['root']}`}
       style={hostStyle()}
       {...dataAttrs({
         component: 'ChessBoard',
@@ -172,7 +181,7 @@ export function ChessBoardView(args: {
       onPointerCancel={() => args.ctrl.onPointerCancel()}
       onKeyDown={(e) => args.ctrl.onKeyDown(e)}
       onContextMenu={(e) => args.ctrl.onContextMenu(e)}
-      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       role="application"
       aria-label="Chess board"

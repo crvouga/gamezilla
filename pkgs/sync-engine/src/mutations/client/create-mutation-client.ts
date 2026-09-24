@@ -1,8 +1,13 @@
 import { assert } from '@pkgs/assert';
+import { serializeTraceContext } from '@pkgs/observability/core';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-import { assertUuid } from '@pkgs/uuid';
+import { assertUuid, createUuidV7 } from '@pkgs/uuid';
+import {
+  mutationCorrelationIdentity,
+  mutationOriginTraceparent,
+} from '../../client/interaction-correlation';
 import { isStorageFullError } from '../../client/storage-full-error';
 import {
   parseStandardSchema,
@@ -17,6 +22,7 @@ import type {
   MutationRegistry,
 } from '../core/types';
 import { wrapMutationDb } from '../shared/wrap-mutation-db';
+import type { MutationVerdict } from './mutation-status';
 import { recordOptimisticOwnRows } from './optimistic-own-rows';
 
 export type MutationClientIds = {
@@ -30,6 +36,13 @@ export type MutationConnectivity = {
 export type MutationClient = {
   readonly query: SqlClient['query'];
   readonly mutate: <A>(m: Mutation<A>, args: A) => Promise<MutateResult>;
+  /**
+   * Resolves once every mutation queued so far has finished its local apply.
+   * Hosts await this before closing the SQL client so teardown can never write
+   * to a closed database (fire-and-forget bootstrap mutations outlive the
+   * component tree).
+   */
+  readonly drain: () => Promise<void>;
 };
 
 export type CreateMutationClientOptions = {
@@ -46,7 +59,35 @@ export type CreateMutationClientOptions = {
   }) => void;
   /** Id mint for queued mutation rows (wall or sim). */
   readonly createId: CreateId;
+  /**
+   * Resolves once the server has applied or rejected `mutationId`. With it,
+   * `mutate()` of a `pendingUx: 'pending'` mutation reports the server's
+   * verdict instead of the local apply's (see {@link Mutation.pendingUx}).
+   */
+  readonly awaitVerdict?: (mutationId: string) => Promise<MutationVerdict>;
 };
+
+/**
+ * A `pending` mutation's result is the server's: a local apply can pass a
+ * rule the device cannot fully check (uniqueness against rows outside its
+ * sync scope). Waits outside the mutation tail, so later writes are not
+ * held behind the round trip.
+ */
+async function withServerVerdict<A>(
+  m: Mutation<A>,
+  local: MutateResult,
+  awaitVerdict: CreateMutationClientOptions['awaitVerdict']
+): Promise<MutateResult> {
+  if (!local.ok || m.pendingUx !== 'pending' || awaitVerdict === undefined) {
+    return local;
+  }
+  const verdict = await awaitVerdict(local.mutationId);
+  if (verdict.status !== 'rejected') return local;
+  return {
+    ok: false,
+    failures: [{ rule: m.name, code: verdict.code, message: verdict.message }],
+  };
+}
 
 async function nextMutationSeq(tx: SqlClient): Promise<number> {
   const rows = await tx.query(sql<{ next: number | null }>`
@@ -63,14 +104,15 @@ async function nextMutationSeq(tx: SqlClient): Promise<number> {
 
 async function nextUniqueMutationId(
   tx: SqlClient,
-  createId: CreateId
+  createId: CreateId,
+  nowMs: number
 ): Promise<string> {
   // Seeded sim streams can reset while `sync_engine_mutations` still holds
   // earlier mints (env remount). Skip forward past collisions; fail fast if
   // `createId` itself is stuck returning the same value.
   const seen = new Set<string>();
   for (let attempt = 0; attempt < 4096; attempt += 1) {
-    const mutationId = createId();
+    const mutationId = createUuidV7(nowMs, createId());
     assertUuid(mutationId, 'sync_engine_mutations id must be a UUID');
     if (seen.has(mutationId)) {
       assert.fail('sync_engine createId returned a duplicate', {
@@ -126,6 +168,9 @@ async function queueMutation<A>(args: {
   readonly env: MutationEnv;
   readonly clientId: string;
   readonly createId: CreateId;
+  readonly originTraceparent: string | null;
+  readonly originSessionId: string | null;
+  readonly originBuildSha: string | null;
 }): Promise<{
   readonly mutationId: string;
   readonly capture: WriteCaptureSnapshot;
@@ -136,7 +181,11 @@ async function queueMutation<A>(args: {
   for (let attempt = 0; attempt < 8 && !queued; attempt += 1) {
     try {
       await args.db.transaction(async (txc) => {
-        mutationId = await nextUniqueMutationId(txc, args.createId);
+        mutationId = await nextUniqueMutationId(
+          txc,
+          args.createId,
+          args.env.now().getTime()
+        );
         const seq = await nextMutationSeq(txc);
         const createdAt = args.env.now().toISOString();
         const wrapped = wrapMutationDb(txc, args.env);
@@ -144,7 +193,8 @@ async function queueMutation<A>(args: {
         capture = wrapped.getCapture();
         await txc.run(sql`
           INSERT INTO sync_engine_mutations (
-            id, name, args, client_id, seq,
+            id, name, args, client_id, seq, origin_traceparent,
+            origin_session_id, origin_build_sha,
             created_at, updated_at, deleted_at
           )
           VALUES (
@@ -153,6 +203,9 @@ async function queueMutation<A>(args: {
             ${JSON.stringify(args.value)},
             ${args.clientId},
             ${seq},
+            ${args.originTraceparent},
+            ${args.originSessionId},
+            ${args.originBuildSha},
             ${createdAt},
             ${createdAt},
             ${null}
@@ -210,8 +263,8 @@ function snapshotMutationEnv(env: MutationEnv): MutationEnv {
 }
 
 /**
- * THE client write API. Exposes read-only `query` and `mutate` only —
- * never a writable transaction outside a mutation's `run`.
+ * THE client write API. Exposes read-only `query`, `mutate`, and teardown
+ * `drain` only — never a writable transaction outside a mutation's `run`.
  */
 export function createMutationClient(
   options: CreateMutationClientOptions
@@ -220,8 +273,15 @@ export function createMutationClient(
   let mutationTail: Promise<void> = Promise.resolve();
   return {
     query: db.query.bind(db) as SqlClient['query'],
+    drain: () => mutationTail,
 
     async mutate<A>(m: Mutation<A>, args: A): Promise<MutateResult> {
+      // Capture synchronously at the interaction boundary. Browser context
+      // cannot survive the queued Promise tail, and offline upload may happen
+      // hours after the originating span ended.
+      const originTraceparent =
+        mutationOriginTraceparent() ?? serializeTraceContext() ?? null;
+      const correlationIdentity = mutationCorrelationIdentity();
       const mutationEnv = snapshotMutationEnv(env);
       const online = connectivity.isOnline();
       const run = mutationTail.then(async () => {
@@ -254,6 +314,9 @@ export function createMutationClient(
             env: mutationEnv,
             clientId: ids.clientId,
             createId: options.createId,
+            originTraceparent,
+            originSessionId: correlationIdentity?.sessionId ?? null,
+            originBuildSha: correlationIdentity?.buildSha ?? null,
           });
           mutationId = queued.mutationId;
           const capture = queued.capture;
@@ -274,7 +337,7 @@ export function createMutationClient(
         () => undefined,
         () => undefined
       );
-      return run;
+      return withServerVerdict(m, await run, options.awaitVerdict);
     },
   };
 }

@@ -1,0 +1,13 @@
+language js
+
+file($body) where {
+  $body <: includes "@pkgs/observability/node",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]@pkgs/observability/node['\"]$",
+    register_diagnostic(span=$src, message="The Node observability runtime is restricted to Node process composition roots.", severity="error")
+  }
+}

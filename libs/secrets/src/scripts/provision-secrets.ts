@@ -5,7 +5,7 @@ import { ensureObjectStoreBuckets } from '@libs/object-store/shared/ensure-bucke
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../../tools/src/deploy-mode';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { ok, warn } from '../shared/fmt';
 import {
   applySeededS3ToEnv,
@@ -38,57 +38,6 @@ import {
 const log = createLogger({ name: 'secrets:provision', now: wallClock.now });
 
 const legacyWwwApiOrigin = (): string => `https://www.${PRODUCT_CONFIG.domain}`;
-
-async function migrateTurboCacheInAllEnvs(): Promise<void> {
-  const entry = SECRETS.find((s) => s.name === 'TURBO_CACHE');
-  if (entry?.seed === undefined) return;
-  const active = activeSecretsEnv();
-
-  for (const env of SECRETS_ENVS) {
-    const stored = await exportSecretsMapLive(env);
-    const current = (stored.get('TURBO_CACHE') ?? '').trim();
-    if (current.length === 0 || current.includes('remote:')) continue;
-
-    try {
-      const value = await entry.seed({ env, secrets: stored });
-      await setSecretIn(env, 'TURBO_CACHE', value);
-      if (env === active) {
-        process.env['TURBO_CACHE'] = value;
-      }
-      ok('TURBO_CACHE', `upgraded secrets env ${env} → ${value}`);
-    } catch (e) {
-      console.warn(
-        `TURBO_CACHE migrate (${env}) failed: ${e instanceof Error ? e.message : String(e)}`
-      );
-    }
-  }
-}
-
-/** Vercel team slug → self-hosted Turbo team slug. */
-async function migrateTurboTeamToLocalInAllEnvs(): Promise<void> {
-  const active = activeSecretsEnv();
-  const next = 'local';
-
-  for (const env of SECRETS_ENVS) {
-    const stored = await exportSecretsMapLive(env);
-    const current = (stored.get('TURBO_TEAM') ?? '').trim();
-    if (current.length === 0 || current === next) continue;
-    // Only rewrite the known Vercel slug; leave other custom slugs alone.
-    if (current !== 'crvouga') continue;
-
-    try {
-      await setSecretIn(env, 'TURBO_TEAM', next);
-      if (env === active) {
-        process.env['TURBO_TEAM'] = next;
-      }
-      ok('TURBO_TEAM', `migrated secrets env ${env}: crvouga → ${next}`);
-    } catch (e) {
-      console.warn(
-        `TURBO_TEAM migrate (${env}) failed: ${e instanceof Error ? e.message : String(e)}`
-      );
-    }
-  }
-}
 
 /**
  * IdP rename: BETTER_AUTH_SECRET → AUTH_SECRET.
@@ -183,9 +132,6 @@ async function seedSecrets(): Promise<void> {
       `seedInAllEnvs failed: ${e instanceof Error ? e.message : String(e)}`
     );
   }
-
-  await migrateTurboCacheInAllEnvs();
-  await migrateTurboTeamToLocalInAllEnvs();
 
   const storedActive = new Map(await exportSecretsMapLive(active));
   for (const entry of getSeedableSecrets()) {

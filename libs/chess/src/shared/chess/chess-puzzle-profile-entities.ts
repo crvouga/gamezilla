@@ -1,5 +1,17 @@
 import { createAttrNamespace } from '@pkgs/attribute';
 
+import {
+  PUZZLE_RATING_DEFAULT,
+  PUZZLE_RATING_DEFAULT_RD,
+  PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  PUZZLE_RATING_MAX,
+  PUZZLE_RATING_MIN,
+  PUZZLE_RATING_RD_MAX,
+  PUZZLE_RATING_RD_MIN,
+  PUZZLE_VOLATILITY_MICROS_MAX,
+  PUZZLE_VOLATILITY_MICROS_MIN,
+} from './chess-puzzle-rating';
+
 /** Sync entity type for per-user puzzle rating cache (one row per user). */
 export const CHESS_PUZZLE_PROFILE_ENTITY_TYPE = 'chess.puzzle.profile';
 
@@ -32,18 +44,34 @@ function readBoundedInt(args: {
 
 const profNs = createAttrNamespace('chess', 'puzzle', 'profile');
 
-/** Denormalized rating cache — recomputed from interaction history fold on terminal events. */
+/** §8 Glicko-2 state, written only by the `ratePuzzleAttempt` mutation. */
 export const ChessPuzzleProfileAttr = {
   /** Indexed: profile rows are looked up by ownerId on every play start. */
   ownerId: profNs.text('owner-id', readNonEmptyString).indexed(),
   rating: profNs.integer(
     'rating',
-    readBoundedInt({ min: 400, max: 3000, dflt: 1200 })
+    readBoundedInt({
+      min: PUZZLE_RATING_MIN,
+      max: PUZZLE_RATING_MAX,
+      dflt: PUZZLE_RATING_DEFAULT,
+    })
   ),
-  /** Stub column — Elo formula no longer uses RD. */
   ratingDev: profNs.integer(
     'rating-deviation',
-    readBoundedInt({ min: 0, max: 500, dflt: 0 })
+    readBoundedInt({
+      min: PUZZLE_RATING_RD_MIN,
+      max: PUZZLE_RATING_RD_MAX,
+      dflt: PUZZLE_RATING_DEFAULT_RD,
+    })
+  ),
+  /** Glicko-2 volatility × 1e6 (integers only on the wire). */
+  volatilityMicros: profNs.integer(
+    'volatility-micros',
+    readBoundedInt({
+      min: PUZZLE_VOLATILITY_MICROS_MIN,
+      max: PUZZLE_VOLATILITY_MICROS_MAX,
+      dflt: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+    })
   ),
   lastInteractionAt: profNs.timestamp('last-interaction-at', readString),
 } as const;

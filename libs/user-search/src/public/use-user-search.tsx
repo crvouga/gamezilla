@@ -1,11 +1,13 @@
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
-import { useIsSignedIn, useMyId } from '@libs/auth/public/use-current-user';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useMyId } from '@libs/auth/public/use-current-user';
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useCan, useDecision } from '@libs/permissions/public/use-can';
+import { Handles } from '@libs/test-ids';
 import { useTimers } from '@pkgs/clock/solid';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
 import { createQuery, useSyncEngineInstance } from '@pkgs/sync-engine/solid';
-import { EmptyState, UsersIcon } from '@pkgs/ui';
+import { UsersIcon } from '@pkgs/ui';
 import {
   type Accessor,
   createEffect,
@@ -51,13 +53,13 @@ function searchHitsSql(myId: string, query: string): Sql<SearchHitRow> {
       AND p.username_norm <> ''
       AND p.username_norm LIKE ${likeQuery}
       AND NOT EXISTS (
+        -- Someone who blocked me cannot be found by me. Someone I blocked
+        -- still can: their row is where I unblock them (there is no other).
         SELECT 1
         FROM friends_blocks AS b
         WHERE b.deleted_at IS NULL
-          AND (
-            (b.blocker_id = ${myId} AND b.blocked_id = p.id)
-            OR (b.blocker_id = p.id AND b.blocked_id = ${myId})
-          )
+          AND b.blocker_id = p.id
+          AND b.blocked_id = ${myId}
       )
     ORDER BY p.username_norm ASC
     LIMIT ${USER_SEARCH_MAX_RESULTS}
@@ -76,7 +78,7 @@ export function useDebouncedUserSearchEffect(
   query: Accessor<string>,
   onCompleted?: (query: string) => void
 ) {
-  const signedIn = useIsSignedIn();
+  const canSearch = useCan(PERMISSION.peopleSearch);
   const myId = useMyId();
   const timers = useTimers();
   const sync = useSyncEngineInstance();
@@ -85,7 +87,7 @@ export function useDebouncedUserSearchEffect(
 
   createEffect(() => {
     const trimmed = query().trim();
-    if (!signedIn() || trimmed.length === 0) {
+    if (!canSearch() || trimmed.length === 0) {
       setDebouncedQuery('');
       setAwaitingSync(false);
       return;
@@ -102,7 +104,7 @@ export function useDebouncedUserSearchEffect(
 
   createEffect(() => {
     const initialQuery = debouncedQuery();
-    if (!signedIn() || initialQuery.length === 0) {
+    if (!canSearch() || initialQuery.length === 0) {
       setAwaitingSync(false);
       return;
     }
@@ -137,26 +139,24 @@ export function useDebouncedUserSearchEffect(
     },
     get searching() {
       const trimmed = query().trim();
-      if (!signedIn() || trimmed.length === 0) return false;
+      if (!canSearch() || trimmed.length === 0) return false;
       return trimmed !== debouncedQuery() || awaitingSync();
     },
-    get signedIn() {
-      return signedIn();
+    get canSearch() {
+      return canSearch();
     },
   };
 }
 
-export function UserSearchSignInPrompt(): JSX.Element {
-  const { open: openSignInModal } = useSignInModal();
-  const { t } = useLingui();
-
+/** What a caller who may not search people sees instead of results. */
+export function UserSearchDenied(): JSX.Element {
+  const decision = useDecision(PERMISSION.peopleSearch);
   return (
-    <EmptyState
-      variant="compact"
+    <DenialSurface
+      decision={decision()}
       icon={UsersIcon}
-      title={<Trans>Sign in to search for people</Trans>}
-      body={<Trans>Find friends by username and send requests.</Trans>}
-      action={{ label: t`Sign in`, onClick: openSignInModal }}
+      variant="compact"
+      testId={Handles.searchDenied}
     />
   );
 }

@@ -15,15 +15,15 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "provision": "bun run src/scripts/provision.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
   },
   "dependencies": {
     "@libs/client-config": "workspace:*",
     "@libs/db": "workspace:*",
-    "@libs/runtime": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
@@ -32,8 +32,7 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/sql": "workspace:*",
-    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*",
     "jose": "catalog:"
   },
   "devDependencies": {

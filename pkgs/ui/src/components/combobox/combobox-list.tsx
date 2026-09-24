@@ -50,7 +50,7 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint w-[100%] flex-row items-center gap-3 [padding-top:12px;padding-bottom:12px] [padding-left:16px;padding-right:16px] text-left"
+      class="clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left"
       classList={{ 'bg-tint-highlight': props.highlighted }}
       {...dataAttrs({ component: 'ComboboxOption', ...props.option.dataSet })}
       type="button"
@@ -63,7 +63,7 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
       <Show when={props.option.preview !== undefined}>
         <div class="box shrink-0">{props.option.preview}</div>
       </Show>
-      <p class="text line-clamp-1 flex-1 min-w-[0]">{props.option.label}</p>
+      <p class="text line-clamp-1 flex-1 min-w-0">{props.option.label}</p>
       <Show when={props.selected}>
         <CheckIcon size={18} color="tint" />
       </Show>

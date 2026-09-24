@@ -56,6 +56,9 @@ const bus = createEmqxPubSub({
     username: 'device',
     password: await fetchJwt(),
   }),
+  timers, // injected @pkgs/clock Timers
+  random, // injected RNG for reconnect jitter
+  logger, // injected @pkgs/logger Logger
   keepaliveSec: 30,
 });
 
@@ -99,7 +102,7 @@ export EMQX_TEST_API_KEY=...
 export EMQX_TEST_API_SECRET=...
 export EMQX_TEST_MQTT_USER=...
 export EMQX_TEST_MQTT_PASS=...
-bun run --filter @pkgs/pubsub-emqx test:broker
+bun run --filter @pkgs/pubsub-emqx test:contract
 ```
 
 `disruptTransport` uses `DELETE /api/v5/clients/{clientid}` to exercise reconnect + session resume / re-SUBSCRIBE.

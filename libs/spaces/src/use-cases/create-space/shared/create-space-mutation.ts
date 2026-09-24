@@ -1,9 +1,8 @@
 import { sql } from '@pkgs/sql';
-import { defineMutation } from '@pkgs/sync-engine/shared';
+import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
 import {
-  accountId,
   memberId,
   openSession,
   visibilityArgs,
@@ -12,17 +11,26 @@ export const createSpaceMutation = defineMutation({
   name: 'createSpace',
   args: z.object({ spaceId: z.string().min(1), visibility: visibilityArgs }),
   async run({ tx, env }, { spaceId, visibility }) {
-    const actorAccountId = accountId(env);
+    const actorAccountId = env.accountId;
     const actorMemberId = memberId(env);
     const now = env.now().toISOString();
+    const existing = await tx.query<{ host_account_id: string }>(sql`
+      SELECT host_account_id
+      FROM spaces
+      WHERE id = ${spaceId} AND deleted_at IS NULL
+      LIMIT 1
+    `);
+    const owner = existing[0]?.host_account_id;
+    if (owner !== undefined && owner !== actorAccountId) {
+      throw new MutationError(
+        'SPACE_TAKEN',
+        'This space already belongs to another account.'
+      );
+    }
     await tx.run(sql`
       INSERT INTO spaces (id, host_id, host_member_id, host_account_id, visibility, created_at, ended_at)
       VALUES (${spaceId}, ${env.deviceId}, ${actorMemberId}, ${actorAccountId}, ${visibility}, ${now}, ${null})
-      ON CONFLICT (id) DO UPDATE SET
-        host_id = excluded.host_id,
-        host_member_id = excluded.host_member_id,
-        host_account_id = excluded.host_account_id,
-        visibility = excluded.visibility
+      ON CONFLICT (id) DO NOTHING
     `);
     await tx.run(sql`
       INSERT INTO spaces_users (

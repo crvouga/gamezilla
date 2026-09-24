@@ -1,5 +1,11 @@
 import { assert } from '@pkgs/assert';
 import { HttpNetworkError } from '@pkgs/http-client';
+import {
+  ATTR,
+  events,
+  SpanStatusCode,
+  withSpan,
+} from '@pkgs/observability/core';
 import { join, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { clearOptimisticRowsForMutation } from '../mutations/client/optimistic-own-rows';
@@ -10,6 +16,7 @@ import type {
 } from '../protocol';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import { MAX_MUTATIONS_BATCH } from '../queries/shared/bounds';
+import { mutationOriginLink } from '../shared/mutation-observability';
 import { recordPushApplied } from './push-applied';
 import type { Timers } from './sim-ports';
 import { parseRateLimitRetryMs } from './sync-http-rate-limit-error';
@@ -37,6 +44,9 @@ type StoredMutation = {
   readonly client_id: string;
   readonly seq: number;
   readonly created_at: string;
+  readonly origin_traceparent: string | null;
+  readonly origin_session_id: string | null;
+  readonly origin_build_sha: string | null;
 };
 
 export type MutationUploadQueueOptions = {
@@ -67,6 +77,15 @@ function toWireRow(row: StoredMutation): MutationUploadRow {
     clientId: row.client_id,
     seq: row.seq,
     createdAt: row.created_at,
+    originTraceparent: row.origin_traceparent,
+    ...(row.origin_session_id === null || row.origin_build_sha === null
+      ? {}
+      : {
+          correlation: {
+            sessionId: row.origin_session_id,
+            buildSha: row.origin_build_sha,
+          },
+        }),
   };
 }
 
@@ -75,7 +94,8 @@ async function readPending(
   clientId: string
 ): Promise<readonly StoredMutation[]> {
   const rows = await db.query(sql<StoredMutation>`
-    SELECT id, name, args, client_id, seq, created_at
+    SELECT id, name, args, client_id, seq, created_at, origin_traceparent,
+      origin_session_id, origin_build_sha
     FROM sync_engine_mutations
     WHERE client_id = ${clientId}
       AND deleted_at IS NULL
@@ -187,6 +207,28 @@ async function applyUploadResult(
     }
   }
   options.bus.emit(['sync_engine_mutations', 'sync_engine_write_rejections']);
+
+  for (const verdict of result.verdicts) {
+    if (verdict.status !== 'rejected') continue;
+    const origin = pending.find((row) => row.id === verdict.mutationId);
+    const link =
+      origin === undefined
+        ? undefined
+        : mutationOriginLink(
+            origin.origin_traceparent,
+            origin.created_at,
+            verdict.mutationId
+          );
+    await withSpan(
+      'mutation.rejected',
+      (span) => {
+        events.mutationRejected(span, verdict.mutationId);
+        span.setStatus({ code: SpanStatusCode.ERROR, message: verdict.code });
+      },
+      { [ATTR.APP_MUTATION_ID]: verdict.mutationId },
+      link === undefined ? undefined : { links: [link] }
+    );
+  }
 }
 
 /**
@@ -311,14 +353,36 @@ export class MutationUploadQueue {
     if (!this.running || pending.length === 0) return false;
     await this.options.waitUntilAvailable?.(this.availabilityAbort?.signal);
     if (!this.running) return false;
-    const result = await raceUntilAborted(
-      this.options.postBatch(pending.map(toWireRow)),
-      this.availabilityAbort?.signal ?? null
+    const links = pending.flatMap((row) => {
+      if (row.origin_traceparent === null) return [];
+      const link = mutationOriginLink(
+        row.origin_traceparent,
+        row.created_at,
+        row.id
+      );
+      return link === undefined ? [] : [link];
+    });
+    return withSpan(
+      'sync.batch.flush',
+      async (span) => {
+        for (const row of pending) events.mutationSent(span, row.id);
+        const result = await raceUntilAborted(
+          this.options.postBatch(pending.map(toWireRow)),
+          this.availabilityAbort?.signal ?? null
+        );
+        if (result === null || !this.running) return false;
+        await applyUploadResult(this.options, pending, result, this.now);
+        events.syncClockSkewObserved(span, result.serverTimeMs - this.now());
+        for (const verdict of result.verdicts) {
+          events.mutationAcked(span, verdict.mutationId);
+        }
+        events.syncBatchFlushed(span, pending.length);
+        this.errorAttempts = 0;
+        return true;
+      },
+      { [ATTR.APP_SYNC_BATCH_SIZE]: pending.length },
+      links.length === 0 ? undefined : { links }
     );
-    if (result === null || !this.running) return false;
-    await applyUploadResult(this.options, pending, result, this.now);
-    this.errorAttempts = 0;
-    return true;
   }
 
   private async runLoop(): Promise<void> {

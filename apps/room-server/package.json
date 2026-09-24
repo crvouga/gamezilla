@@ -12,23 +12,19 @@
   },
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
+    "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "deploy": "bun run scripts/deploy.ts",
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
     "@libs/db": "workspace:*",
-    "@libs/games": "workspace:*",
-    "@libs/runtime": "workspace:*",
+    "@libs/room-app": "workspace:*",
     "@libs/secrets": "workspace:*",
-    "@libs/spaces": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/message": "workspace:*",
-    "@pkgs/room": "workspace:*",
-    "@pkgs/room-adapter-durable-object": "workspace:*",
-    "@pkgs/room-adapter-memory": "workspace:*"
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/secrets-config": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

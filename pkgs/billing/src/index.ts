@@ -1,28 +1,36 @@
 export type {
-  Billing,
-  CreatePortalSessionInput,
-  PortalSession,
-} from './billing';
+  CallbackResult,
+  Membership,
+  MembershipBilling,
+  MembershipChange,
+  MembershipStatus,
+  OpenPortalInput,
+  ReadCallbackInput,
+  StartCheckoutInput,
+  StartCheckoutResult,
+} from './membership';
 export type {
-  CatalogPriceSyncEntry,
-  CatalogProductSyncEntry,
-  CatalogSpec,
-  CatalogSyncResult,
-  CurrencyOptionSpec,
-  PriceSpec,
-  ProductSpec,
-} from './catalog';
+  CancellationReason,
+  OfferPriceSpec,
+  PlusMembershipOffer,
+} from './offer';
 export {
-  currencyOptionsToSnake,
-  decidePriceReconcile,
-  type LivePriceSnapshot,
-  normalizeCurrencyOptions,
-  normalizeSnakeCurrencyOptions,
-  type PriceReconcileAction,
-  priceMatchesSpec,
-  priceProductId,
-} from './catalog-reconcile';
+  governingMembership,
+  isMembershipLive,
+  type MembershipStanding,
+  membershipGrantsAccess,
+  outranksMembership,
+  readMembershipStatus,
+} from './precedence';
+export type {
+  MembershipProviderEnv,
+  MembershipProviderFetch,
+  MembershipProviderModule,
+  MembershipProviderSecretDef,
+} from './provider-module';
 export {
-  InMemoryBilling,
-  type InMemoryBillingOptions,
-} from './in-memory-billing';
+  createMembershipProviders,
+  isMembershipProviderId,
+  type MembershipProviders,
+  membershipCallbackPath,
+} from './providers';

@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import {
   computeFloatingMenuPosition,
   estimateFloatingMenuHeight,
@@ -5,7 +6,6 @@ import {
   nextMenuItemIndex,
 } from '@pkgs/ui/components/floating-menu';
 import { SettingsIcon } from '@pkgs/ui/components/icons';
-import { describe, expect, test } from 'vitest';
 
 const viewport = { width: 1000, height: 800 };
 const insets = { top: 0, bottom: 0 };

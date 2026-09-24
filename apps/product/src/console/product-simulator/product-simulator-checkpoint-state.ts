@@ -4,7 +4,7 @@
 export type {
   CheckpointSessionCtx,
   CheckpointSessionMaps,
-} from '@apps/product/sim/fabric/checkpoint-state';
+} from '@libs/sim-harness/fabric/checkpoint-state';
 export {
   applyCheckpointFaults,
   collectFaultFields,
@@ -14,4 +14,4 @@ export {
   resetSimClock,
   restoreCheckpointKv,
   restoreCheckpointRooms,
-} from '@apps/product/sim/fabric/checkpoint-state';
+} from '@libs/sim-harness/fabric/checkpoint-state';

@@ -6,9 +6,9 @@ import type { MutationRegistry } from '../mutations/core/types';
 import type { QueryRegistry } from '../queries/core/types';
 import type { SimClient } from './client-factory';
 import { SIM_SERVER_NODE_ID } from './clock-skew';
-import { bindSimHttpServer } from './http-bridge';
+import { bindSimHttpLoadBalancer } from './http-bridge';
 import { isDbOpen } from './invariants';
-import { openSimServer } from './server';
+import { openSimServerCluster } from './server-cluster';
 import { resolveAuthForDevice } from './sim-boot-parts';
 import {
   crashClientImpl,
@@ -167,7 +167,7 @@ export async function restartServerImpl(
     };
   }
 
-  k.server = await openSimServer({
+  const serverNodes = await openSimServerCluster({
     now: () => k.nowFor(SIM_SERVER_NODE_ID),
     createId: k.nextId,
     pubsub: k.serverPub,
@@ -183,10 +183,15 @@ export async function restartServerImpl(
       : {}),
     ...(checkpointFloor > 0n ? { checkpointFloor } : {}),
   });
-  k.unbindHttp = bindSimHttpServer({
+  k.serverNodes = serverNodes;
+  k.server = serverNodes[0]!.server;
+  k.unbindHttp = bindSimHttpLoadBalancer({
     network: k.network,
-    serverId: SERVER_HTTP,
-    handlers: k.server.handlers,
+    balancerId: SERVER_HTTP,
+    nodes: serverNodes.map((node) => ({
+      id: node.endpointId,
+      handlers: node.server.handlers,
+    })),
     faults: k.faults,
     onMutationsAccepted: async (clientNodeId) => {
       await fireCrashIfArmed(k, clientNodeId, 'afterNextMutationsPostAccepted');

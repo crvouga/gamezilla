@@ -14,7 +14,7 @@ import { useBlockUser } from '../../use-cases/block-user/client/use-block-user';
 import { useRemoveFriend } from '../../use-cases/remove-friend/client/use-remove-friend';
 import { createFriendUserDangerHandlers } from './friend-user-danger-modals';
 import { FriendUserScreenContent } from './friend-user-screen-content';
-import { FriendsSignedInGate } from './friends-signed-in-gate';
+import { FriendsPermissionGate } from './friends-permission-gate';
 import { useFriendUserOverflowMenu } from './use-friend-user-overflow-menu';
 import {
   friendUserBreadcrumbName,
@@ -49,7 +49,8 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
   const menuActions = useFriendUserOverflowMenu(
     status,
     () => setRemoveOpen(true),
-    () => setBlockOpen(true)
+    () => setBlockOpen(true),
+    () => userProfile.profile().username
   );
   const headerActions = createMemo((): ScreenBaseAction[] => {
     return menuActions().map((action) => ({
@@ -58,6 +59,7 @@ function FriendUserScreenBody(props: { userId: string }): JSX.Element {
       onClick: action.onPress,
       overflow: 'always' as const,
       ...(action.endsGroup === true ? { endsGroup: true } : {}),
+      dataSet: action.dataSet,
     }));
   });
   const breadcrumbs = createMemo(() => [
@@ -95,10 +97,10 @@ export function FriendUserScreen(): JSX.Element {
   const params = useLocalSearchParams<{ userId: string }>();
   const userId = () => readRouteParam(params().userId);
   return (
-    <FriendsSignedInGate>
+    <FriendsPermissionGate>
       <Show when={userId()} keyed>
         {(id) => <FriendUserScreenBody userId={id} />}
       </Show>
-    </FriendsSignedInGate>
+    </FriendsPermissionGate>
   );
 }

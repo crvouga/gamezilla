@@ -26,7 +26,9 @@ export function parseHash(hash = location.hash): Route {
     params[key] = value;
   }
   if (parts[0] === 'test' && parts[1]) {
-    return { view: 'test', testId: parts[1], params };
+    // `buildHash` encodes the id; an aggregated report's ids carry slashes
+    // (`libs/chess/monkey`), so the encoded form must be read back.
+    return { view: 'test', testId: decodeURIComponent(parts[1]), params };
   }
   return { view: 'list', params };
 }

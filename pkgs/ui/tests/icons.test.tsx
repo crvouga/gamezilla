@@ -1,7 +1,8 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { HouseIcon, OnColorProvider, XIcon } from '@pkgs/ui';
 import { screen } from '@solidjs/testing-library';
-import { describe, expect, test } from 'vitest';
 import { renderUi } from './support/render';
 
 describe('icons', () => {

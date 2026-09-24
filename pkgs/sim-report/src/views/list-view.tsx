@@ -89,6 +89,9 @@ export function ListView(props: { nav: ReportNav }) {
                     return (
                       <div
                         class="sr-row"
+                        role="link"
+                        tabindex="0"
+                        aria-label={`Open ${m.title}`}
                         onClick={() =>
                           props.nav.navigate({
                             view: 'test',
@@ -96,6 +99,15 @@ export function ListView(props: { nav: ReportNav }) {
                             params: {},
                           })
                         }
+                        onKeyDown={(e) => {
+                          if (e.key !== 'Enter' && e.key !== ' ') return;
+                          e.preventDefault();
+                          props.nav.navigate({
+                            view: 'test',
+                            testId: m.testId,
+                            params: {},
+                          });
+                        }}
                       >
                         <span class={`sr-dot ${m.status}`} />
                         <div>

@@ -1,0 +1,7 @@
+# generated from .agents/commands by `bun run agents:sync` — do not edit
+description = "Sync the branch with trunk — commit and push local work, merge the latest origin/main in, push, and fast-forward local main — one script call, you only write the commit message"
+prompt = """
+@{.agents/commands/git-sync.md}
+
+Follow the command above exactly. Arguments: {{args}}
+"""

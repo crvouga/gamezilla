@@ -10,10 +10,7 @@ import {
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
 } from './auth-secrets';
-import {
-  BILLING_VENDOR_PUBLISHABLE_KEY,
-  BILLING_VENDOR_SECRET_KEY,
-} from './billing-vendor-secrets';
+import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
@@ -23,8 +20,8 @@ import {
   OPENAI_BASE_URL,
 } from './llm-tts-secrets';
 import {
-  OBSERVABILITY_BACKEND,
-  VITE_OBSERVABILITY_BACKEND,
+  OBSERVABILITY_COLLECTOR_TOKEN,
+  OBSERVABILITY_COLLECTOR_URL,
 } from './observability-secrets';
 import {
   EMQX_API_KEY,
@@ -42,14 +39,7 @@ import {
   S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
 import type { Secret } from './secret';
-import {
-  TURBO_API,
-  TURBO_CACHE,
-  TURBO_LOG_ORDER,
-  TURBO_TEAM,
-  TURBO_TELEMETRY_DISABLED,
-  TURBO_TOKEN,
-} from './turbo-token';
+import { TURBO_API, TURBO_TOKEN } from './turbo-token';
 
 /**
  * Exhaustive registry of every managed secret. Orphans (stored keys not in
@@ -62,14 +52,9 @@ export const SECRETS: readonly Secret[] = [
   AUTH_SECRET,
   WEB_CLIENT_GOOGLE_CLIENT_ID,
   WEB_CLIENT_GOOGLE_CLIENT_SECRET,
-  BILLING_VENDOR_SECRET_KEY,
-  BILLING_VENDOR_PUBLISHABLE_KEY,
+  ...BILLING_VENDOR_SECRETS,
   TURBO_API,
   TURBO_TOKEN,
-  TURBO_TEAM,
-  TURBO_CACHE,
-  TURBO_LOG_ORDER,
-  TURBO_TELEMETRY_DISABLED,
   S3_ACCESS_KEY_ID,
   S3_SECRET_ACCESS_KEY,
   S3_BUCKET,
@@ -78,13 +63,13 @@ export const SECRETS: readonly Secret[] = [
   ELEVEN_LABS_API_KEY,
   OPENAI_API_KEY,
   OPENAI_BASE_URL,
+  OBSERVABILITY_COLLECTOR_URL,
+  OBSERVABILITY_COLLECTOR_TOKEN,
   API_URL,
   VITE_API_URL,
   LOCAL_PREVIEW_API_ORIGIN,
   VITE_COMMIT_HASH,
   VITE_COMMIT_DATE,
-  OBSERVABILITY_BACKEND,
-  VITE_OBSERVABILITY_BACKEND,
   RAILWAY_TOKEN,
   EMQX_API_URL,
   EMQX_WSS_URL,

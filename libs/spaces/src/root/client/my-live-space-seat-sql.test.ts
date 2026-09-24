@@ -1,3 +1,4 @@
+// goal:social:6
 import { beforeEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
@@ -15,6 +16,7 @@ const FRIEND_HOST_SPACE = 'space-friend-host-1';
 const DEVICE_ID = 'device-aaaaaaaa-0000';
 const ACCOUNT_ID = 'account-bbbbbbbb-1111';
 const OTHER_ACCOUNT = 'account-other-cccc-2222';
+const FRIEND_GUEST = 'account-friend-guest-3333';
 
 /** Mirrors @libs/friends schema (spaces→friends would cycle). */
 const friendsFriendships = defineTable({
@@ -167,6 +169,26 @@ describe('my-live-space-seat-sql — host / spaces_users lobby', () => {
     expect(sharedIds).toContain(FRIEND_HOST_SPACE);
   });
 
+  test('a friend seated in someone else\u2019s live space appears in shared list', async () => {
+    await seedSpace(db, {
+      id: SHARED_SPACE,
+      hostAccountId: OTHER_ACCOUNT,
+      visibility: 'private',
+      endedAt: null,
+      createdAt: '2026-01-05T00:00:00.000Z',
+    });
+    await seedSpaceUser(db, SHARED_SPACE, FRIEND_GUEST);
+    await db.run(sql<void>`
+      INSERT INTO friends_friendships (id, user_low, user_high, deleted_at, created_at)
+      VALUES ('friendship-2', ${ACCOUNT_ID}, ${FRIEND_GUEST}, ${null}, ${'2026-01-01T00:00:00.000Z'})
+    `);
+
+    const sharedIds = await queryIds(
+      db,
+      sharedLiveSpaceIdsSql({ memberId: ACCOUNT_ID })
+    );
+    expect(sharedIds).toContain(SHARED_SPACE);
+  });
   test('buildCurrentSpaceEntries uses live joined rows', () => {
     expect(
       buildCurrentSpaceEntries(

@@ -2,9 +2,9 @@
 
 import { type ChildProcess, spawn } from 'node:child_process';
 import { join } from 'node:path';
+import { migratePostgresApp } from '@libs/runtime/root/server/migrate';
 import { wallTimers } from '@pkgs/clock';
 import { killListenersOnPorts } from '@pkgs/os/kill-port';
-import { migratePostgresApp } from '../src/db/migrate';
 
 /**
  * Foreground entry for `@apps/server dev`. Runs migrate → wrangler under one

@@ -1,5 +1,5 @@
 import type { DialectCaps } from './dialect-caps';
-import { sqlitePhysicalOf } from './type-map';
+import { normalizePgPhysical, PG_TYPE_SQL, sqlitePhysicalOf } from './type-map';
 import type {
   ColumnType,
   DeclaredColumn,
@@ -8,11 +8,11 @@ import type {
   IntrospectedColumn,
   IntrospectedTable,
   ReadonlyDeclaredSchema,
+  RetiredColumn,
 } from './types';
 import {
   MANAGED_IMPLICIT_COLUMN_NAMES,
   MANAGED_IMPLICIT_COLUMNS,
-  MANAGED_IMPLICIT_SET,
 } from './types';
 
 export type DeltaKind = 'additive' | 'expand' | 'contract_client' | 'forbidden';
@@ -29,11 +29,13 @@ export type ClassifiedColumnDelta = {
 export type ClassifiedDelta = {
   readonly drift: readonly DriftError[];
   readonly columnDeltas: readonly ClassifiedColumnDelta[];
-  readonly deprecatedExtras: readonly {
+  /** Client: undeclared columns preserved verbatim across rebuilds. */
+  readonly preservedExtras: readonly {
     readonly table: string;
     readonly column: string;
   }[];
-  readonly forbiddenExtras: readonly {
+  /** Retired columns still physically present. */
+  readonly retiredExtras: readonly {
     readonly table: string;
     readonly column: string;
   }[];
@@ -42,18 +44,23 @@ export type ClassifiedDelta = {
 type MutableClassified = {
   drift: DriftError[];
   columnDeltas: ClassifiedColumnDelta[];
-  deprecatedExtras: { table: string; column: string }[];
-  forbiddenExtras: { table: string; column: string }[];
+  preservedExtras: { table: string; column: string }[];
+  retiredExtras: { table: string; column: string }[];
 };
 
-function isInvisibleUnderscore(name: string): boolean {
-  return name.startsWith('_') && !MANAGED_IMPLICIT_SET.has(name);
+/**
+ * Tombstones for one table, in declaration order.
+ */
+export function retiredColumnsOf(
+  declared: ReadonlyDeclaredSchema,
+  tableName: string
+): readonly RetiredColumn[] {
+  const out: RetiredColumn[] = [];
+  for (const [key, entry] of declared.retiredColumns) {
+    if (key.slice(0, key.lastIndexOf('.')) === tableName) out.push(entry);
+  }
+  return out;
 }
-
-export function columnVisibleForDrift(name: string): boolean {
-  return !isInvisibleUnderscore(name);
-}
-
 export function desiredColumns(
   declared: ReadonlyDeclaredSchema,
   table: string
@@ -75,22 +82,45 @@ export function findColumn(
   return table.columns.find((c) => c.name === name);
 }
 
+/**
+ * Compare a declared logical type against an introspected physical type for
+ * one dialect. `actual` is the engine's physical type name (Postgres
+ * `udt_name`, SQLite STRICT affinity).
+ */
+/**
+ * The engine type a declared column is expected to have. Drift compares
+ * physical types, so this is also what a mismatch must report: the logical
+ * token alone reads as `expected 'integer', found 'integer'` when a declared
+ * `integer` (physical `bigint`) meets an `int4` column.
+ */
+export function expectedPhysicalOf(
+  expected: ColumnType,
+  mode: 'postgres' | 'sqlite',
+  declared?: DeclaredColumn
+): string {
+  if (mode === 'sqlite') {
+    return declared?.physicalSqlite ?? sqlitePhysicalOf(expected);
+  }
+  return normalizePgPhysical(
+    declared?.physicalPostgres ?? pgPhysicalOf(expected)
+  );
+}
+
 export function logicalTypeMatch(
   expected: ColumnType,
   actual: string,
   mode: 'postgres' | 'sqlite',
   declared?: DeclaredColumn
 ): boolean {
+  const expectedPhysical = expectedPhysicalOf(expected, mode, declared);
   if (mode === 'sqlite') {
-    if (declared?.physicalSqlite !== undefined) {
-      return declared.physicalSqlite.toUpperCase() === actual.toUpperCase();
-    }
-    return sqlitePhysicalOf(expected) === actual.toUpperCase();
+    return expectedPhysical.toUpperCase() === actual.toUpperCase();
   }
-  if (declared?.physicalPostgres !== undefined) {
-    return declared.physicalPostgres.toLowerCase() === actual.toLowerCase();
-  }
-  return expected === actual;
+  return expectedPhysical === normalizePgPhysical(actual);
+}
+
+function pgPhysicalOf(token: ColumnType): string {
+  return PG_TYPE_SQL[token];
 }
 
 export function nullabilityOk(col: IntrospectedColumn): boolean {
@@ -108,36 +138,86 @@ function hasLifecycleSource(col: DeclaredColumn): boolean {
   );
 }
 
+function retiredColumnsForTable(
+  declared: ReadonlyDeclaredSchema,
+  tableName: string
+): Map<string, RetiredColumn> {
+  const out = new Map<string, RetiredColumn>();
+  for (const [key, entry] of declared.retiredColumns) {
+    const separator = key.lastIndexOf('.');
+    if (key.slice(0, separator) === tableName) {
+      out.set(entry.name, entry);
+    }
+  }
+  return out;
+}
+
+function classifyRetiredColumn(args: {
+  tableName: string;
+  col: IntrospectedColumn;
+  retired: RetiredColumn;
+  caps: DialectCaps;
+  mode: 'postgres' | 'sqlite';
+  out: MutableClassified;
+}): void {
+  const { tableName, col, retired, caps, mode, out } = args;
+  out.retiredExtras.push({ table: tableName, column: col.name });
+  const declared: DeclaredColumn = { type: retired.type };
+  if (!logicalTypeMatch(retired.type, col.physical, mode, declared)) {
+    const wanted = expectedPhysicalOf(retired.type, mode, declared);
+    out.drift.push({
+      path: `${tableName}.${col.name}`,
+      message: `retired column changed shape: expected '${retired.type}' (${wanted}), found '${String(col.type)}' (${col.physical}) — old clients still read it`,
+    });
+    out.columnDeltas.push({
+      table: tableName,
+      column: col.name,
+      kind: 'forbidden',
+      reason: 'retired column shape changed',
+      existing: col,
+    });
+    return;
+  }
+  if (!caps.dropRetired) return;
+  out.columnDeltas.push({
+    table: tableName,
+    column: col.name,
+    kind: 'contract_client',
+    reason: 'retired column may be dropped on the client',
+    existing: col,
+  });
+}
+
 function classifyExtraColumn(args: {
   tableName: string;
   col: IntrospectedColumn;
   declared: ReadonlyDeclaredSchema;
   caps: DialectCaps;
+  mode: 'postgres' | 'sqlite';
   out: MutableClassified;
 }): void {
-  const { tableName, col, declared, caps, out } = args;
-  if (declared.deprecatedColumns.has(`${tableName}.${col.name}`)) {
-    out.deprecatedExtras.push({ table: tableName, column: col.name });
-    if (!caps.dropDeprecated) return;
-    out.columnDeltas.push({
-      table: tableName,
-      column: col.name,
-      kind: 'contract_client',
-      reason: 'deprecated column may be dropped on client',
-      existing: col,
-    });
+  const { tableName, col, declared, caps, mode, out } = args;
+  const retired = retiredColumnsForTable(declared, tableName).get(col.name);
+  if (retired !== undefined) {
+    classifyRetiredColumn({ tableName, col, retired, caps, mode, out });
     return;
   }
-  out.forbiddenExtras.push({ table: tableName, column: col.name });
+  if (caps.dropRetired) {
+    // Client: local SQLite is a cache. Undeclared columns are preserved
+    // verbatim rather than treated as drift, so a stale bundle never bricks.
+    out.preservedExtras.push({ table: tableName, column: col.name });
+    return;
+  }
   out.drift.push({
     path: `${tableName}.${col.name}`,
-    message: `add a [${tableName}, ${col.name}, note] deprecation entry`,
+    message:
+      'column not declared by this build — either this build is older than the database, or the column was removed without a retiredColumns entry',
   });
   out.columnDeltas.push({
     table: tableName,
     column: col.name,
     kind: 'forbidden',
-    reason: 'extra column without deprecation',
+    reason: 'extra column without a retiredColumns tombstone',
     existing: col,
   });
 }
@@ -146,17 +226,17 @@ function classifyTypeMismatch(args: {
   tableName: string;
   col: IntrospectedColumn;
   expected: DeclaredColumn;
-  caps: DialectCaps;
+  mode: 'postgres' | 'sqlite';
   out: MutableClassified;
 }): void {
-  const { tableName, col, expected, out } = args;
-  void args.caps;
+  const { tableName, col, expected, mode, out } = args;
   const hint = hasLifecycleSource(expected)
-    ? ` (use a new column + widenedFrom/renamedFrom + deprecate the old one; never ALTER TYPE)`
+    ? ' (use a new column + widenedFrom/renamedFrom + retire the old one; never ALTER TYPE)'
     : '';
+  const wanted = expectedPhysicalOf(expected.type, mode, expected);
   out.drift.push({
     path: `${tableName}.${col.name}`,
-    message: `column type mismatch: expected '${expected.type}', found '${col.type}'${hint}`,
+    message: `column type mismatch: expected '${expected.type}' (${wanted}), found '${String(col.type)}' (${col.physical})${hint}`,
   });
   out.columnDeltas.push({
     table: tableName,
@@ -174,14 +254,13 @@ function classifyNullability(args: {
   tableName: string;
   col: IntrospectedColumn;
   expected: DeclaredColumn;
-  caps: DialectCaps;
   out: MutableClassified;
 }): void {
   const { tableName, col, expected, out } = args;
-  void args.caps;
   out.drift.push({
     path: `${tableName}.${col.name}`,
-    message: `column nullability mismatch (non-PK columns must be nullable; id must be NOT NULL)`,
+    message:
+      'column nullability mismatch (non-PK columns must be nullable; id must be NOT NULL)',
   });
   out.columnDeltas.push({
     table: tableName,
@@ -204,17 +283,23 @@ function classifyExistingColumns(args: {
 }): void {
   const { tableName, existing, desired, declared, caps, mode, out } = args;
   for (const col of existing.columns) {
-    if (!columnVisibleForDrift(col.name)) continue;
     if (!desired.has(col.name)) {
-      classifyExtraColumn({ tableName, col, declared, caps, out });
+      classifyExtraColumn({
+        tableName,
+        col,
+        declared,
+        caps,
+        mode,
+        out,
+      });
       continue;
     }
     const expected = desired.get(col.name)!;
-    if (!logicalTypeMatch(expected.type, col.type, mode, expected)) {
-      classifyTypeMismatch({ tableName, col, expected, caps, out });
+    if (!logicalTypeMatch(expected.type, col.physical, mode, expected)) {
+      classifyTypeMismatch({ tableName, col, expected, mode, out });
     }
     if (!nullabilityOk(col)) {
-      classifyNullability({ tableName, col, expected, caps, out });
+      classifyNullability({ tableName, col, expected, out });
     }
   }
 }
@@ -244,36 +329,6 @@ function classifyMissingColumns(args: {
   }
 }
 
-function classifyMissingDeprecated(args: {
-  declared: ReadonlyDeclaredSchema;
-  catalog: IntrospectedCatalog;
-  caps: DialectCaps;
-  out: MutableClassified;
-}): void {
-  const { declared, catalog, caps, out } = args;
-  if (caps.dropDeprecated) return;
-  const anyDeclaredPresent = Object.keys(declared.tables).some((t) =>
-    catalog.tables.has(t)
-  );
-  if (!anyDeclaredPresent) return;
-  for (const tableName of declared.deprecatedTables) {
-    if (!catalog.tables.has(tableName)) {
-      out.drift.push({
-        path: tableName,
-        message: `deprecated table is missing from the database (deprecation never means "may not exist")`,
-      });
-    }
-  }
-  for (const viewName of declared.deprecatedViews) {
-    if (!(catalog.views ?? []).some((v) => v.name === viewName)) {
-      out.drift.push({
-        path: viewName,
-        message: `deprecated view is missing from the database`,
-      });
-    }
-  }
-}
-
 /**
  * Pure compatibility classifier. Planners turn this into dialect operations
  * using {@link DialectCaps}; they never invent safety rules themselves.
@@ -288,8 +343,8 @@ export function classifyDelta(args: {
   const out: MutableClassified = {
     drift: [],
     columnDeltas: [],
-    deprecatedExtras: [],
-    forbiddenExtras: [],
+    preservedExtras: [],
+    retiredExtras: [],
   };
   for (const tableName of Object.keys(declared.tables)) {
     const existing = catalog.tables.get(tableName);
@@ -306,6 +361,5 @@ export function classifyDelta(args: {
     });
     classifyMissingColumns({ tableName, existing, desired, out });
   }
-  classifyMissingDeprecated({ declared, catalog, caps, out });
   return out;
 }

@@ -1,22 +1,26 @@
-import type { createAuthServerAdapter } from '@pkgs/auth/server/create-auth-server-adapter';
+import type { AuthClientPort } from '@pkgs/auth/client';
+import type { OauthProviderId } from '@pkgs/auth/shared';
+import type { BearerTokenStore } from '@pkgs/auth-inhouse/client';
+import type { createAuthServerAdapter } from '@pkgs/auth-inhouse/server';
+import type { IdpSim } from '@pkgs/idp-sim/server';
+import type { IdpEmailChoice } from '@pkgs/idp-sim/shared';
 import type { Session } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import type { MockingbirdGoogle } from './mockingbird-google';
 
-export type AuthFabric = 'mockingbird-sqlite' | 'mockingbird-postgres';
+import type { AuthModel } from './model';
+
+export type AuthFabric = 'sqlite-mem' | 'postgres-mem';
 
 export const AUTH_FABRICS: readonly AuthFabric[] = [
-  'mockingbird-sqlite',
-  'mockingbird-postgres',
+  'sqlite-mem',
+  'postgres-mem',
 ];
 
 export const AUTH_SYSTEM_BASE_URL = 'http://auth.test';
+/** Where the auth app is mounted, as in production (`/api/auth/*`). */
+export const AUTH_SYSTEM_PATH_PREFIX = '/api';
 export const AUTH_SYSTEM_SECRET = 'auth-system-secret-0123456789abcdef';
-export const AUTH_SYSTEM_GOOGLE_CLIENT = {
-  clientId: 'cid',
-  clientSecret: 'csecret',
-} as const;
-export const AUTH_SYSTEM_SUBJECTS = ['alice', 'bob', 'carol'] as const;
+export const AUTH_SYSTEM_CALLBACK_URL = 'gamezilla://sso-callback';
 export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
   AUTH_SYSTEM_BASE_URL,
   'gamezilla://',
@@ -24,25 +28,77 @@ export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
   'http://callback.test',
 ];
 
-/** Per-actor client session bag (zero-endpoint). */
+/** What a person does on the provider's screens during one round trip. */
+export type ProviderAnswers = {
+  /** A directory address on that provider. */
+  readonly email: string;
+  readonly consent: 'allow' | 'deny';
+  /** Apple's first authorization only. */
+  readonly emailChoice: IdpEmailChoice;
+};
+
+/** How the last auth action this actor took ended, as the client saw it. */
+export type ActorOutcome =
+  | { readonly kind: 'ok' }
+  | { readonly kind: 'error'; readonly code: string }
+  | { readonly kind: 'link_required'; readonly token: string }
+  | { readonly kind: 'failed'; readonly message: string };
+
+/**
+ * One device: a real client port over a browser that keeps its cookies,
+ * plus the network switch that takes it offline.
+ */
 export type ActorState = {
+  readonly id: string;
+  readonly port: AuthClientPort;
+  /** The port's bearer storage, read directly by checks (and thieves). */
+  readonly bearerStore: BearerTokenStore;
+  online: boolean;
+  /** What the person will answer on the next provider screens. */
+  answers: ProviderAnswers;
+  /**
+   * A parked identity waiting to be proven or declined, with the sign-in
+   * methods (and their addresses) that can prove the account it matched.
+   */
+  pendingLink: {
+    readonly token: string;
+    readonly providers: readonly OauthProviderId[];
+    readonly emails: readonly string[];
+  } | null;
+  last: ActorOutcome | null;
+  /**
+   * The model's copy of the port's cached link ticket: minted under
+   * `bearer`, reusable until a minute before `expiresAtMs`.
+   */
+  ticket: { readonly bearer: string; readonly expiresAtMs: number } | null;
+  /** The bearer as last read back from the port (for stealing / checks). */
   bearer: string | null;
-  pendingAuthUrl: string | null;
-  pendingCode: string | null;
 };
 
 export type AuthStore = {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
   readonly server: ReturnType<typeof createAuthServerAdapter>;
-  readonly google: MockingbirdGoogle;
+  /** One provider node per flavor, each with its own accounts and faults. */
+  readonly idps: Readonly<Record<OauthProviderId, IdpSim>>;
+  readonly appleClientId: string;
   readonly fetch: (path: string, init?: RequestInit) => Promise<Response>;
+  /** Absolute-URL fetch across every node, for the actors' browsers. */
+  readonly wire: (url: string, init?: RequestInit) => Promise<Response>;
 };
 
 export type AuthSurface = {
   readonly session: Session;
   readonly store: AuthStore;
   readonly clients: ReadonlyMap<string, ActorState>;
+  /** The reference model every step is checked against. */
+  readonly model: AuthModel;
+  /** Divergences between the system and the model, newest last. */
+  readonly violations: string[];
+  /** How often each predicted outcome occurred — the walk's flow coverage. */
+  readonly outcomes: Record<string, number>;
+  /** The addresses each provider's directory holds right now (for sampling). */
+  readonly directory: Record<OauthProviderId, readonly string[]>;
   fingerprint: string | null;
   /** Status of the last `fetchAuth` action, read back via `lastStatus`. */
   lastStatus: number | null;

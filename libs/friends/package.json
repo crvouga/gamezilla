@@ -10,17 +10,27 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/feature": "workspace:*",
     "@libs/notifications": "workspace:*",
+    "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
+    "@libs/search": "workspace:*",
+    "@libs/server-app": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
@@ -29,7 +39,6 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
-    "@pkgs/device": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/outbox": "workspace:*",
@@ -44,7 +53,12 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@libs/billing": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/sim": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"

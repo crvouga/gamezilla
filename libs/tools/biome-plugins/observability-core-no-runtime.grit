@@ -1,0 +1,12 @@
+language js
+
+file($body) where {
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:@opentelemetry/(?:context-[^'\"]+|exporter-[^'\"]+|instrumentation(?:-[^'\"]+)?|resources|sdk-[^'\"]+)|\.\./(?:browser|node|runtime|worker)(?:/[^'\"]*)?)['\"]$",
+    register_diagnostic(span=$src, message="Observability core and query are runtime-agnostic; import only @opentelemetry/api and semantic conventions.", severity="error")
+  }
+}

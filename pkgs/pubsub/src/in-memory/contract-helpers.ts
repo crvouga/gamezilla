@@ -61,6 +61,26 @@ export function collect(
   return { items, unsub };
 }
 
+/**
+ * Resolve once `ps`'s subscription to `topic` is live at the broker, then
+ * clear the probe from `items`. `subscribe` is fire-and-forget; a self-publish
+ * travels the subscriber's own connection behind its SUBSCRIBE, so once it
+ * echoes back, a publish from any other connection will be delivered instead
+ * of dropped for lack of a subscriber.
+ */
+export async function awaitSubscriptionLive(
+  ps: PubSub,
+  topic: string,
+  items: unknown[]
+): Promise<void> {
+  const probe = { probe: topic };
+  await ps.publish(topic, probe);
+  const seen = (): boolean =>
+    items.some((item) => JSON.stringify(item) === JSON.stringify(probe));
+  await waitUntil(seen, 5000);
+  items.length = 0;
+}
+
 export async function expectRejects(
   fn: () => unknown | Promise<unknown>
 ): Promise<unknown> {

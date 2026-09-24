@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import { asKeyword, asKeywordRecord } from '@pkgs/keyword/keyword';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import {
@@ -6,7 +7,6 @@ import {
   jsonKvCodec,
 } from '@pkgs/kv/kv-state-codec';
 import { decodePersistedRecord } from '@pkgs/kv/solid';
-import { describe, expect, test } from 'vitest';
 
 const VALUE_ATTR = asKeyword('ui.prefs/value');
 const ROW_KEY = asKeyword('ui.prefs/test-row');

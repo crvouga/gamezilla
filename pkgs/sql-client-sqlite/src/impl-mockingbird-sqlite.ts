@@ -37,7 +37,9 @@ export type MockingbirdSqliteOpenOptions = {
 };
 
 function toBinds(values: readonly Value[]): MockingbirdSqliteBind[] {
-  return values.map((v) => (v === undefined ? null : (v as MockingbirdSqliteBind)));
+  return values.map((v) =>
+    v === undefined ? null : (v as MockingbirdSqliteBind)
+  );
 }
 
 function toRunResult(result: {
@@ -174,17 +176,25 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
   private readonly openOptions: MockingbirdSqliteOpenOptions | undefined;
   private readonly enqueueTxn = createPromiseChain();
 
-  private constructor(db: Database, openOptions?: MockingbirdSqliteOpenOptions) {
+  private constructor(
+    db: Database,
+    openOptions?: MockingbirdSqliteOpenOptions
+  ) {
     this.db = db;
     this.openOptions = openOptions;
   }
 
-  static open(options?: MockingbirdSqliteOpenOptions): SqlClientImplMockingbirdSqlite {
+  static open(
+    options?: MockingbirdSqliteOpenOptions
+  ): SqlClientImplMockingbirdSqlite {
     return new SqlClientImplMockingbirdSqlite(new Database(options), options);
   }
 
   private requireDb(): Database {
-    assert.ok(this.db != null, 'SqlClientImplMockingbirdSqlite: database is closed');
+    assert.ok(
+      this.db != null,
+      'SqlClientImplMockingbirdSqlite: database is closed'
+    );
     return this.db;
   }
 

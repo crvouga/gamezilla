@@ -1,0 +1,49 @@
+language js
+
+// Sign-in state and membership are access input, read only inside their own
+// contexts (auth, billing) and the permission system that turns them into
+// decisions. Product code outside those names neither — no `isAnon` /
+// `isSignedIn` flag, no permission internals, no query of `is_anon` or
+// `billing_subscriptions` — and gates through `useCan` / `usePermissions` /
+// `requireInMutation` instead.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "isAnon",
+    includes "ignedIn",
+    includes "oggedIn",
+    includes "useIsAnon",
+    includes "useHasAuthSession",
+    includes "useAccessFacts",
+    includes "usePermissionSubject",
+    includes "usePermissionPolicy",
+    includes "is_anon",
+    includes "billing_subscriptions"
+  },
+  $body <: contains bubble or {
+    JsIdentifierBinding() as $n,
+    JsReferenceIdentifier() as $n,
+    JsName() as $n,
+    JsLiteralMemberName() as $n,
+    JsTemplateChunkElement() as $n,
+    JsStringLiteralExpression() as $n
+  } where {
+    $n <: or {
+      "isAnon",
+      "isSignedIn",
+      "signedIn",
+      "isLoggedIn",
+      "loggedIn",
+      "useIsSignedIn",
+      "useIsAnon",
+      "useHasAuthSession",
+      "useAccessFacts",
+      "usePermissionSubject",
+      "usePermissionPolicy",
+      r"(?s).*\bis_anon\b.*",
+      r"(?s).*\bbilling_subscriptions\b.*"
+    },
+    register_diagnostic(span=$n, message="Sign-in state and membership are read only by auth, billing and @libs/permissions. Gate with useCan / usePermissions / requireInMutation from @libs/permissions/public.", severity="error")
+  }
+}
