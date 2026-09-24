@@ -1,6 +1,8 @@
 /** @jsxImportSource solid-js */
 /**
- * Promotion overlay + E2E probe for {@link ChessBoardView}.
+ * Promotion overlay + E2E probe for {@link ChessBoardView}. The probe (a
+ * chess.js parse + JSON of the whole board state) exists only in dev / E2E
+ * builds, so production pays nothing for it.
  */
 
 import {
@@ -8,10 +10,7 @@ import {
   type ChessBoardProbeInteraction,
   chessBoardProbeTestId,
 } from '@pkgs/chess-board-core/probe';
-import type {
-  BoardOrientation,
-  BoardTheme,
-} from '@pkgs/chess-board-core/types';
+import { COMPONENT_IDS_ENABLED } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 
@@ -38,12 +37,11 @@ function probeInteraction(ctrl: BoardController): ChessBoardProbeInteraction {
   };
 }
 
-export function ChessBoardOverlays(args: {
+function ChessBoardProbe(args: {
   readonly ctrl: BoardController;
   readonly boardTestId: Accessor<string>;
   readonly size: number | undefined;
 }): JSX.Element {
-  const pending = () => args.ctrl.model.interaction().pendingPromotion;
   const probeJson = createMemo(() =>
     JSON.stringify(
       buildChessBoardProbe({
@@ -55,6 +53,23 @@ export function ChessBoardOverlays(args: {
     )
   );
   return (
+    <div
+      class={`box ${styles['probe']}`}
+      data-testid={chessBoardProbeTestId(args.boardTestId())}
+      aria-hidden="true"
+    >
+      {probeJson()}
+    </div>
+  );
+}
+
+export function ChessBoardOverlays(args: {
+  readonly ctrl: BoardController;
+  readonly boardTestId: Accessor<string>;
+  readonly size: number | undefined;
+}): JSX.Element {
+  const pending = () => args.ctrl.model.interaction().pendingPromotion;
+  return (
     <>
       <Show when={pending()}>
         {(p) => (
@@ -64,26 +79,18 @@ export function ChessBoardOverlays(args: {
             to={p().to}
             orientation={args.ctrl.orientation()}
             theme={args.ctrl.theme()}
-            onPick={(promo) => {
-              // Read before picking: the pick closes this <Show>.
-              const to = p().to;
-              args.ctrl.model.actions.pickPromotion(promo);
-              args.ctrl.model.markSnap(to);
-            }}
+            onPick={(promo) => args.ctrl.model.actions.pickPromotion(promo)}
             onCancel={() => args.ctrl.model.actions.cancelPromotion()}
           />
         )}
       </Show>
-      <div
-        class={`box ${styles['probe']}`}
-        data-testid={chessBoardProbeTestId(args.boardTestId())}
-        aria-hidden="true"
-      >
-        {probeJson()}
-      </div>
+      <Show when={COMPONENT_IDS_ENABLED}>
+        <ChessBoardProbe
+          ctrl={args.ctrl}
+          boardTestId={args.boardTestId}
+          size={args.size}
+        />
+      </Show>
     </>
   );
 }
-
-export type HostTheme = BoardTheme;
-export type HostOrientation = BoardOrientation;

@@ -1,9 +1,11 @@
 /** @jsxImportSource solid-js */
 /**
- * E2E paint token: an unpainted, zero-size SVG `<text>` naming what its
- * parent node paints, so a UI driver reads a layer's text as the painted
- * board. (`<title>` would be `display: none`, i.e. not user-visible text.)
- * Omitted from production builds (same gate as `data-component`).
+ * E2E paint tokens: unpainted text naming what their parent node paints, so
+ * a UI driver reads a layer's text as the painted board. `PaintToken` sits
+ * in SVG (a zero-size `<text>` — `<title>` would be `display: none`, i.e.
+ * not user-visible text); `HtmlPaintToken` sits in an HTML cell. Omitted
+ * from production builds (same gate as `data-component`): there the
+ * components are a no-op chosen at load, so they cost nothing at all.
  */
 
 import {
@@ -11,22 +13,44 @@ import {
   chessBoardPaintToken,
 } from '@pkgs/chess-board-core/probe';
 import { COMPONENT_IDS_ENABLED } from '@pkgs/ui';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from 'solid-js';
 
-export function PaintToken(props: {
+import styles from './chess-board.module.css';
+
+type PaintTokenProps = {
   readonly kind: ChessBoardPaintKind;
   readonly at: string;
   readonly detail?: string | undefined;
-}): JSX.Element {
+};
+
+function SvgToken(props: PaintTokenProps): JSX.Element {
   return (
-    <Show when={COMPONENT_IDS_ENABLED}>
-      <text font-size="0" fill="none" stroke="none">
-        {chessBoardPaintToken({
-          kind: props.kind,
-          at: props.at,
-          detail: props.detail,
-        })}
-      </text>
-    </Show>
+    <text font-size="0" fill="none" stroke="none">
+      {chessBoardPaintToken({
+        kind: props.kind,
+        at: props.at,
+        detail: props.detail,
+      })}
+    </text>
   );
 }
+
+function HtmlToken(props: PaintTokenProps): JSX.Element {
+  return (
+    <span class={styles['token']}>
+      {chessBoardPaintToken({
+        kind: props.kind,
+        at: props.at,
+        detail: props.detail,
+      })}
+    </span>
+  );
+}
+
+/** Production: renders nothing and creates nothing (not even a `<Show>`). */
+function NoToken(_props: PaintTokenProps): JSX.Element {
+  return null;
+}
+
+export const PaintToken = COMPONENT_IDS_ENABLED ? SvgToken : NoToken;
+export const HtmlPaintToken = COMPONENT_IDS_ENABLED ? HtmlToken : NoToken;

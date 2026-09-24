@@ -183,6 +183,30 @@ export class BoardInteraction {
     });
   }
 
+  /**
+   * Escape / right-click (chess.com): drop the selection, a drag, an open
+   * promotion picker and every queued premove.
+   */
+  cancelAll(): void {
+    const s = this.snapshot;
+    const hadPromotion = s.pendingPromotion !== null;
+    const idle =
+      s.selected === null &&
+      s.dragFrom === null &&
+      !hadPromotion &&
+      s.premves.length === 0;
+    if (idle) return;
+    this.premoveCtl.clear();
+    this.publish({
+      selected: null,
+      dragFrom: null,
+      pendingPromotion: null,
+      premove: null,
+      premves: [],
+    });
+    if (hadPromotion) this.hooks.onPromotionCancel?.();
+  }
+
   /** Gestures are ignored while off or while the promotion picker is open. */
   private acceptsGestures(): boolean {
     return this.snapshot.interactive && this.snapshot.pendingPromotion === null;

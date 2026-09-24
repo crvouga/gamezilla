@@ -12,7 +12,7 @@ import type {
 } from '@pkgs/chess-board-core/types';
 import { For, type JSX, Show } from 'solid-js';
 
-import { pieceImageUri } from './piece-images';
+import styles from './chess-board.module.css';
 
 type PromotionKind = NonNullable<Move['promotion']>;
 const ORDERED: readonly PromotionKind[] = ['q', 'r', 'b', 'n'];
@@ -123,11 +123,9 @@ function PromotionStack(props: {
             data-testid={chessBoardPromotionTestId(props.boardTestId, kind)}
             onClick={() => props.onPick(kind)}
           >
-            <img
-              class="block w-full h-full"
-              src={pieceImageUri(props.color, kind)}
-              alt=""
-              draggable={false}
+            <span
+              class={`${styles['piece']} ${styles['promotionPiece']}`}
+              data-piece={`${props.color}${kind}`}
             />
           </button>
         )}
@@ -148,15 +146,16 @@ export function ChessBoardPromotion(
     });
   return (
     <div
-      class="box absolute inset-0"
+      class={`box absolute inset-0 ${styles['promotion']}`}
       style={{ 'background-color': props.theme.promotion.backdrop }}
       data-component="ChessBoardPromotion"
       role="presentation"
       // The picker is modal: board gestures under it must not start a drag,
-      // select a square or capture the pointer away from these buttons.
-      onPointerDown={(e) => e.stopPropagation()}
-      onPointerMove={(e) => e.stopPropagation()}
-      onPointerUp={(e) => e.stopPropagation()}
+      // select a square or capture the pointer away from these buttons. The
+      // board listens natively on its host, so these must be native too
+      // (delegated handlers would run after the host's).
+      on:pointerdown={(e) => e.stopPropagation()}
+      on:contextmenu={(e) => e.preventDefault()}
       onClick={() => props.onCancel()}
       onKeyDown={(e) => {
         if (e.key === 'Escape') props.onCancel();

@@ -116,12 +116,18 @@ export type BoardTheme = {
   lightSquare: string;
   darkSquare: string;
   border: string;
+  /** Translucent wash over the last move's from / to squares. */
   lastMove: string;
+  /** Translucent wash over the selected / dragged piece's square. */
   selected: string;
+  /** Translucent wash over every queued premove's from / to squares. */
+  premove: string;
+  /** Inset ring on the square under a dragged piece. */
+  hover: string;
   legalMoveDot: string;
   legalMoveCaptureRing: string;
+  /** Radial glow under a king in check. */
   check: string;
-  coordinates: string;
   feedback: Record<CellFeedbackKind, string>;
   arrows: BoardArrowPalette;
   promotion: BoardPromotionPalette;

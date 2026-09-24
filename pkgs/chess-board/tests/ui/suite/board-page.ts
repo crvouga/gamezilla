@@ -108,6 +108,13 @@ export class BoardPage {
     ) as unknown[];
   }
 
+  /** Slides the board started, as `piece:from>to@ms` (`hand` / `mid` froms). */
+  async slides(): Promise<readonly string[]> {
+    return JSON.parse(
+      (await this.ui.get(HarnessIds.slides).text()) ?? '[]'
+    ) as string[];
+  }
+
   async spoken(): Promise<string> {
     return (
       (await this.ui.get(chessBoardLiveRegionTestId(this.testId)).text()) ?? ''
@@ -263,9 +270,10 @@ export function expectedSquarePaint(
   };
   put(probe.selected, 'selected');
   if (probe.inCheck) put(kingSquare(probe), 'check');
-  const premove = probe.premoves[0];
-  put(premove?.from, 'premove');
-  put(premove?.to, 'premove');
+  for (const premove of probe.premoves) {
+    put(premove.from, 'premove');
+    put(premove.to, 'premove');
+  }
   if (options.highlightLastMove !== false) {
     put(probe.lastMove?.from, 'last-move');
     put(probe.lastMove?.to, 'last-move');

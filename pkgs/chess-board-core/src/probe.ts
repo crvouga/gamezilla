@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js';
 
 import { squareCenter, squareFromIndex } from './geometry';
-import { pieceCode } from './piece-svgs';
+import { pieceCode } from './piece-code';
 import { positionFromChess } from './position';
 import type {
   BoardOrientation,
@@ -43,7 +43,7 @@ export function chessBoardLiveRegionTestId(boardTestId: string): string {
   return `${boardTestId}-live`;
 }
 
-/** Painted SVG layers, each readable as a list of {@link ChessBoardPaint} tokens. */
+/** Painted layers, each readable as a list of {@link ChessBoardPaint} tokens. */
 export type ChessBoardLayer =
   | 'squares'
   | 'pieces'
@@ -67,14 +67,13 @@ export function chessBoardLayerTestId(
 }
 
 /**
- * What a painted SVG node shows, in E2E builds only: each node carries a
- * `<title>` token so a driver reads the painted board as text.
+ * What a painted node shows, in E2E builds only: each node carries an
+ * unpainted text token so a driver reads the painted board as text.
  */
 export type ChessBoardPaintKind =
   | 'piece'
   | 'capture-ghost'
   | 'premove-ghost'
-  | 'drag-origin'
   | 'selected'
   | 'check'
   | 'premove'
@@ -84,6 +83,7 @@ export type ChessBoardPaintKind =
   | 'ring'
   | 'circle'
   | 'arrow'
+  | 'arrow-preview'
   | 'feedback';
 
 /** A single painted node, e.g. `piece:wp@e4`, `dot@e4`, `arrow:primary@e2-e4`. */

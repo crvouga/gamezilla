@@ -73,7 +73,11 @@ function defaultPromotionPalette(squares: {
   };
 }
 
-/** Chess.com-adjacent cream / olive board; last-move olive wash. */
+/**
+ * Cream / brown board. Square washes are translucent (chess.com-style) so a
+ * highlighted square keeps its light / dark tone; coordinates take the
+ * opposite square color.
+ */
 export function defaultBoardTheme(scheme: BoardColorScheme): BoardTheme {
   const lightSquare = '#f0d9b5';
   const darkSquare = '#b58863';
@@ -81,12 +85,13 @@ export function defaultBoardTheme(scheme: BoardColorScheme): BoardTheme {
     lightSquare,
     darkSquare,
     border: '#7a6248',
-    lastMove: '#cdd26a',
-    selected: '#f6eb79',
-    legalMoveDot: 'rgba(26, 90, 36, 0.42)',
-    legalMoveCaptureRing: 'rgba(26, 90, 36, 0.72)',
-    check: '#e45c5c',
-    coordinates: scheme === 'dark' ? '#f0e0c4' : '#4a3220',
+    lastMove: 'rgba(255, 255, 51, 0.5)',
+    selected: 'rgba(255, 255, 51, 0.5)',
+    premove: 'rgba(244, 42, 50, 0.55)',
+    hover: 'rgba(255, 255, 255, 0.65)',
+    legalMoveDot: 'rgba(0, 0, 0, 0.14)',
+    legalMoveCaptureRing: 'rgba(0, 0, 0, 0.14)',
+    check: 'rgba(255, 0, 0, 0.9)',
     feedback: defaultFeedbackPalette(scheme),
     arrows: defaultArrowPalette(scheme),
     promotion: defaultPromotionPalette({ lightSquare, darkSquare }),
@@ -112,7 +117,10 @@ export function mergeBoardTheme(
   };
 }
 
-/** Host CSS custom properties for square / overlay / chrome colors. */
+/**
+ * Host CSS custom properties — only the ones the stylesheet reads (badge and
+ * arrow colours are SVG attributes, not variables).
+ */
 export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
   return {
     '--chess-sq-light': theme.lightSquare,
@@ -120,21 +128,10 @@ export function boardThemeToCssVars(theme: BoardTheme): Record<string, string> {
     '--chess-border': theme.border,
     '--chess-last-move': theme.lastMove,
     '--chess-selected': theme.selected,
+    '--chess-premove': theme.premove,
+    '--chess-hover': theme.hover,
     '--chess-check': theme.check,
     '--chess-legal-dot': theme.legalMoveDot,
     '--chess-legal-ring': theme.legalMoveCaptureRing,
-    '--chess-coords': theme.coordinates,
-    '--chess-feedback-check': theme.feedback.check,
-    '--chess-feedback-cross': theme.feedback.cross,
-    '--chess-feedback-exclamation': theme.feedback.exclamation,
-    '--chess-feedback-double-exclam': theme.feedback.doubleExclam,
-    '--chess-feedback-question': theme.feedback.question,
-    '--chess-feedback-question-exclam': theme.feedback.questionExclam,
-    '--chess-feedback-dot': theme.feedback.dot,
-    '--chess-arrow-primary': theme.arrows.primary,
-    '--chess-arrow-secondary': theme.arrows.secondary,
-    '--chess-arrow-alt': theme.arrows.alt,
-    '--chess-arrow-danger': theme.arrows.danger,
-    '--chess-arrow-muted': theme.arrows.muted,
   };
 }

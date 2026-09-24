@@ -1,14 +1,14 @@
 /** @jsxImportSource solid-js */
 /**
- * Repeatable board perf page: scripted drag timing, 200-ply FEN scrub, and a
- * 20-board mount. Uses injected {@link useClock} / {@link useTimers}.
+ * Board perf page: a 200-ply FEN scrub (every ply slides) and a 20-board
+ * mount. Uses injected {@link useClock} / {@link useTimers}.
  */
 
 import type { Clock, Timers } from '@pkgs/clock';
 import { useClock, useTimers } from '@pkgs/clock/solid';
 import { createSignal, For, type JSX, Show } from 'solid-js';
 
-import { SmartChessBoard } from '../smart-chess-board';
+import { ChessBoard } from '../chess-board';
 import {
   BOARD_PERF_BUDGETS,
   generatePlyFens,
@@ -24,25 +24,6 @@ type PushLine = (label: string, detail: string) => void;
 
 function formatMs(n: number): string {
   return `${n.toFixed(2)}ms`;
-}
-
-/** Cheap work so drag-sim measureSync is not a pure no-op. */
-const DRAG_SIM_WORK = 64 * 100;
-
-function runDragSim(clock: Clock, pushLine: PushLine): void {
-  const measure = measureSync(
-    () => {
-      let acc = 0;
-      for (let i = 0; i < DRAG_SIM_WORK; i += 1) acc += i;
-      return acc;
-    },
-    120,
-    clock.now
-  );
-  pushLine(
-    'Run drag sim',
-    `mean ${formatMs(measure.meanMs)} max ${formatMs(measure.maxMs)} (budget frame ${formatMs(BOARD_PERF_BUDGETS.frameBudgetMs)})`
-  );
 }
 
 function scrubPlies(
@@ -88,16 +69,12 @@ function mountTwenty(
 }
 
 function BenchToolbar(props: {
-  readonly onDragSim: () => void;
   readonly onScrub: () => void;
   readonly onMountTwenty: () => void;
   readonly onReset: () => void;
 }): JSX.Element {
   return (
     <div class="flex flex-wrap gap-2">
-      <button type="button" onClick={() => props.onDragSim()}>
-        Run drag sim
-      </button>
       <button type="button" onClick={() => props.onScrub()}>
         Scrub 200 plies
       </button>
@@ -124,7 +101,6 @@ export function ChessBoardBenchPage(): JSX.Element {
   return (
     <div data-component="ChessBoardBenchPage" class="flex flex-col gap-3 p-3">
       <BenchToolbar
-        onDragSim={() => runDragSim(clock, pushLine)}
         onScrub={() => scrubPlies(clock, timers, setFen, pushLine)}
         onMountTwenty={() => mountTwenty(clock, setBoardCount, pushLine)}
         onReset={() => {
@@ -140,14 +116,7 @@ export function ChessBoardBenchPage(): JSX.Element {
       </p>
       <div class="flex flex-wrap gap-2">
         <For each={[...Array(boardCount()).keys()]}>
-          {() => (
-            <SmartChessBoard
-              size={160}
-              fen={fen()}
-              animations={false}
-              interactive={false}
-            />
-          )}
+          {() => <ChessBoard size={160} fen={fen()} interactive={false} />}
         </For>
       </div>
       <Show when={lines().length > 0}>

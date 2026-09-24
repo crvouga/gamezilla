@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/solid/macro';
-import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
+import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import {
   createEffect,
   createSignal,
@@ -42,7 +42,7 @@ export default function ChessBoardExample(): JSX.Element {
         <Trans>Interactive Solid chess board.</Trans>
       </p>
       <Show when={size() > 0}>
-        <SmartChessBoard
+        <ChessBoard
           fen={SAMPLE_FEN}
           size={size()}
           interactive

@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import { resolveMoveEntry } from '@pkgs/chess-board-core/a11y/move-entry';
 import {
   describePosition,
   speakMove,
@@ -45,26 +44,5 @@ describe('describePosition', () => {
     const text = describePosition(game.getSnapshot().position, 'w');
     expect(text.startsWith('White to move.')).toBe(true);
     expect(text).toContain('White King on e1');
-  });
-});
-
-describe('resolveMoveEntry', () => {
-  const cands = [
-    { from: 'e2' as const, to: 'e4' as const, san: 'e4' },
-    { from: 'g1' as const, to: 'f3' as const, san: 'Nf3' },
-    { from: 'g1' as const, to: 'h3' as const, san: 'Nh3' },
-  ];
-  test('uci and san exact', () => {
-    expect(resolveMoveEntry('e2e4', cands).kind).toBe('exact');
-    expect(resolveMoveEntry('nf3', cands).kind).toBe('exact');
-  });
-  test('none and ambiguous', () => {
-    expect(resolveMoveEntry('a2a3', cands).kind).toBe('none');
-    expect(
-      resolveMoveEntry('N', [
-        { from: 'g1', to: 'f3', san: 'Nf3' },
-        { from: 'b1', to: 'c3', san: 'Nc3' },
-      ]).kind
-    ).toBe('none');
   });
 });

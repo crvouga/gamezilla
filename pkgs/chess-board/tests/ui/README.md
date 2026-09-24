@@ -27,11 +27,14 @@ Only what a driver can read by test id:
   status, selection, legal targets, last move, open promotion, premove queue,
   keyboard cursor.
 - **Paint tokens** (`<board>-layer-{squares,pieces,shapes,arrows,feedback}`):
-  in E2E builds every painted SVG node carries an invisible `⟦kind:detail@at⟧`
+  in E2E builds every painted node carries an invisible `⟦kind:detail@at⟧`
   token, so a layer's text is what is actually drawn (`piece:wp@e4`,
   `selected@e2`, `dot@e3`, `arrow:primary@e2-e4`, …). `BoardPage.expectConsistent`
   asserts painted pieces and overlays match the probe.
-- **Harness logs**: emitted moves, sounds played (recording audio port), user arrows.
+- **Harness logs**: emitted moves, sounds played (recording audio port), user
+  arrows, and slides started (recording motion environment:
+  `piece:from>to@ms`, with `hand` for a piece the pointer left and `mid` for
+  one caught mid-flight).
 
 ## Adding a scenario
 

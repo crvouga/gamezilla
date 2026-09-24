@@ -11,6 +11,7 @@ import { defineAnnotationScenarios } from './scenarios/annotations';
 import { defineKeyboardScenarios } from './scenarios/keyboard';
 import { defineLifecycleScenarios } from './scenarios/lifecycle';
 import { defineModelBasedScenarios } from './scenarios/model-based';
+import { defineMotionScenarios } from './scenarios/motion';
 import { defineMoveScenarios } from './scenarios/moves';
 import { defineParentSyncScenarios } from './scenarios/parent-sync';
 import { definePremoveScenarios } from './scenarios/premoves';
@@ -32,6 +33,7 @@ export function defineChessBoardSuite(host: ChessBoardHost): void {
     defineAnnotationScenarios(host);
     defineUserShapeScenarios(host);
     defineLifecycleScenarios(host);
+    defineMotionScenarios(host);
     defineModelBasedScenarios(host);
   });
 }

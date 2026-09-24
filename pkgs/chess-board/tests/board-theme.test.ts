@@ -33,8 +33,10 @@ describe('boardThemeToCssVars', () => {
     expect(vars['--chess-check']).toBe(theme.check);
     expect(vars['--chess-legal-dot']).toBe(theme.legalMoveDot);
     expect(vars['--chess-legal-ring']).toBe(theme.legalMoveCaptureRing);
-    expect(vars['--chess-coords']).toBe(theme.coordinates);
-    expect(vars['--chess-feedback-check']).toBe(theme.feedback.check);
-    expect(vars['--chess-arrow-primary']).toBe(theme.arrows.primary);
+    expect(vars['--chess-premove']).toBe(theme.premove);
+    expect(vars['--chess-hover']).toBe(theme.hover);
+    // Only what the stylesheet reads.
+    expect(Object.keys(vars).every((k) => k.startsWith('--chess-'))).toBe(true);
+    expect(vars['--chess-feedback-check']).toBeUndefined();
   });
 });

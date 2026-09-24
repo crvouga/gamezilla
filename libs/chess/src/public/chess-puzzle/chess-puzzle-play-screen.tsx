@@ -2,8 +2,8 @@ import { useMyId } from '@libs/auth/public/use-current-user';
 import type { Decision } from '@libs/permissions/public/use-permissions';
 import { t } from '@lingui/core/macro';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
-import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
+import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
 import { SpeakingAvatar, SpectatorIndicator, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
@@ -62,7 +62,7 @@ function PuzzleBoardSlot(props: {
       when={props.displayFen() !== null && props.displayFen()!.length > 0}
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
-      <SmartChessBoard
+      <ChessBoard
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}

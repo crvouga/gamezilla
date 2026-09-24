@@ -1,4 +1,4 @@
-import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
+import { ChessBoard } from '@pkgs/chess-board/chess-board';
 import { useDocumentShortcuts } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
 
@@ -32,7 +32,7 @@ function ReviewBoardSurface(props: {
             when={model.ready()}
             fallback={<ChessPuzzleBoardLoadingState size={size} />}
           >
-            <SmartChessBoard
+            <ChessBoard
               dataSet={{ testid: 'chess-puzzle-review-board' }}
               size={size}
               fen={model.displayFen()}

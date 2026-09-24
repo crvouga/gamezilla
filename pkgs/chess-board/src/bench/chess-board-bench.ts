@@ -9,22 +9,15 @@ import type { Square } from '@pkgs/chess-board-core/types';
 import { parseUci } from '@pkgs/chess-rules/uci';
 
 /**
- * Plan budgets (see docs/AUDIT.md). Used as documentation constants and for
- * bench-page comparisons; Chrome traces fill the measured columns.
+ * Budgets the bench page reports against.
  */
 export const BOARD_PERF_BUDGETS = {
   /** Mount scripting on desktop. */
   mountScriptingMs: 5,
-  /** Pointer-down → visual feedback (one frame @ 60 Hz). */
-  pointerDownToPaintMs: 16,
   /** Interaction INP ceiling. */
   inpMs: 50,
   /** No long tasks above this during scrub / flip / resize. */
   longTaskMs: 50,
-  /** Target frame interval during scripted drag. */
-  frameBudgetMs: 1000 / 60,
-  /** Board JS gzip excluding piece SVG payloads. */
-  boardJsGzipKb: 35,
 } as const;
 
 export type SyncMeasure = {

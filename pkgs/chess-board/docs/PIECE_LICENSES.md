@@ -1,6 +1,6 @@
 # Piece artwork licenses
 
-## Cburnett (`PIECE_SVGS_CBURNETT`)
+## Cburnett (`.piece` backgrounds in `src/chess-board.module.css`)
 
 SVG chess pieces by Colin M.L. Burnett ("Cburnett"), as distributed by lichess.
 Licensed under CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/),
