@@ -39,13 +39,13 @@ function defaultWithDom(): boolean {
 
 async function openSeededServerSql(clock: Clock): Promise<SimSql> {
   // Lazy: Node seed modules use `__dirname` / node:fs — never load in the web bundle.
-  const { ensureSimPostgresMemSeed } = await import(
-    '../setup/boot-sim-postgres-mem'
+  const { ensureSimMockingbirdPostgresSeed } = await import(
+    '../setup/boot-sim-mockingbird-postgres'
   );
   return openSimServerSqlFromSeedBytes(
     'sim_server',
     clock,
-    (await ensureSimPostgresMemSeed()).seedBytes
+    (await ensureSimMockingbirdPostgresSeed()).seedBytes
   );
 }
 

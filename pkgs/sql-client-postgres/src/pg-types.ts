@@ -1,6 +1,6 @@
 /**
  * Isomorphic Postgres pool / client shapes used across Worker, sims, and
- * web (postgres-mem). Hand-written so the bundler never resolves `node-postgres`
+ * web (mockingbird-postgres). Hand-written so the bundler never resolves `node-postgres`
  * (`pg`) via type re-exports — that package is Node-only and crashes in the
  * browser (`util.deprecate`).
  *
@@ -18,7 +18,7 @@ export type QueryResult<R extends QueryResultRow = QueryResultRow> = {
 
 /**
  * `pg.Client#query` / `Pool#query` / `PoolClient#query` overload surface.
- * Kept loose so wall `pg` instances and postgres-mem pools both assign.
+ * Kept loose so wall `pg` instances and mockingbird-postgres pools both assign.
  */
 // biome-ignore lint/suspicious/noExplicitAny: mirrors node-postgres query overloads
 export type PgQueryFn = (...args: any[]) => any;

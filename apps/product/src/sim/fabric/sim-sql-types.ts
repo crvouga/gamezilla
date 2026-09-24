@@ -3,7 +3,7 @@ import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
 
 /**
  * Opaque SQL handle for sim server / actor DBs.
- * Dump format is `mixed-pgmm-sqlm` (postgres-mem + sqlite-mem).
+ * Dump format is `mixed-pgmm-sqlm` (mockingbird-postgres + mockingbird-sqlite).
  */
 export type SimSql = {
   readonly sqlClient: SqlClient;

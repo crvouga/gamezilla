@@ -1,16 +1,22 @@
 import type { createAuthServerAdapter } from '@pkgs/auth/server/create-auth-server-adapter';
 import type { Session } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
+import type { MockingbirdGoogle } from './mockingbird-google';
 
-export type AuthFabric = 'sqlite-mem' | 'postgres-mem';
+export type AuthFabric = 'mockingbird-sqlite' | 'mockingbird-postgres';
 
 export const AUTH_FABRICS: readonly AuthFabric[] = [
-  'sqlite-mem',
-  'postgres-mem',
+  'mockingbird-sqlite',
+  'mockingbird-postgres',
 ];
 
 export const AUTH_SYSTEM_BASE_URL = 'http://auth.test';
 export const AUTH_SYSTEM_SECRET = 'auth-system-secret-0123456789abcdef';
+export const AUTH_SYSTEM_GOOGLE_CLIENT = {
+  clientId: 'cid',
+  clientSecret: 'csecret',
+} as const;
+export const AUTH_SYSTEM_SUBJECTS = ['alice', 'bob', 'carol'] as const;
 export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
   AUTH_SYSTEM_BASE_URL,
   'gamezilla://',
@@ -29,10 +35,7 @@ export type AuthStore = {
   readonly fabric: AuthFabric;
   readonly sql: SqlClient;
   readonly server: ReturnType<typeof createAuthServerAdapter>;
-  readonly sim: {
-    googleFault: boolean;
-    googleSubjects: Map<string, string>;
-  };
+  readonly google: MockingbirdGoogle;
   readonly fetch: (path: string, init?: RequestInit) => Promise<Response>;
 };
 

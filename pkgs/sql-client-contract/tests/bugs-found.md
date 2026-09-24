@@ -4,10 +4,10 @@
 
 - **Property / pin:** `bug-bigint-int8.pbt` / `wire-safety.pbt` / portable contract
 - **Symptom:** Web product-simulator hydrate logged `Cannot convert BigInt to number`
-  when postgres-mem returned `bigint` for domain `integer` (physical
+  when mockingbird-postgres returned `bigint` for domain `integer` (physical
   `bigint`) columns. The engine rejects `Number(bigint)` / `JSON.stringify(bigint)`.
 - **Fix:** `normalizePgInt8Value` converts via decimal text (engine-safe);
-  applied on postgres-mem and shared `pgQueryRows` (node-pg).
+  applied on mockingbird-postgres and shared `pgQueryRows` (node-pg).
 - **Pin:** `src/tests/pbt/bug-bigint-int8.pbt.test.ts`,
   `src/tests/contract/portable-contract.ts`, live int8 case in
   `src/postgres/postgres.contract.test.ts`.
@@ -21,10 +21,10 @@
   `Invalid mix of BigInt and other type in addition`) during
   `ON CONFLICT … SET n = n + 1` on physical `bigint` columns
   (`allocateTopicPushSeq` / client-config notify).
-- **Cause:** postgres-mem `toI8` returns a raw JS `number` when the value is
+- **Cause:** mockingbird-postgres `toI8` returns a raw JS `number` when the value is
   already typed int8; `addI` then does `number + bigint`. Wire normalize cannot
   help — throw is inside the engine.
-- **Upstream:** `docs/sim-mem-engine-wishlist.md` (copy-paste repro). Engine fix:
+- **Upstream:** file on crvouga/mockingbird (copy-paste repro). Engine fix:
   always `BigInt(v)` for int8 slots.
 - **Product pin / workaround:** `n + CAST(1 AS BIGINT)` in allocate SQL
   (portable; `::bigint` is Postgres-only); pins assert two-shot upsert does

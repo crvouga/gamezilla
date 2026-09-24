@@ -23,6 +23,7 @@
     "@pkgs/object-store": "workspace:*"
   },
   "devDependencies": {
+    "@crvouga/mockingbird-service-s3": "catalog:",
     "@pkgs/uuid": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

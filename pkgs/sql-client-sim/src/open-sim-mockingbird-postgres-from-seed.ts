@@ -1,36 +1,36 @@
 /**
- * Open a postgres-mem DB from a post-migrate PGMM seed.
- * Kept separate from {@link ./boot-sim-postgres-mem.ts} so the browser
+ * Open a mockingbird-postgres DB from a post-migrate PGMM seed.
+ * Kept separate from {@link ./boot-sim-mockingbird-postgres.ts} so the browser
  * can restore seeds without bundling `node:crypto`.
  */
 
 import type { Clock } from '@pkgs/clock';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import {
-  adaptPostgresMemAsPool,
-  SqlClientImplPostgresMem,
-} from '@pkgs/sql-client-postgres/impl-postgres-mem';
+  adaptMockingbirdPostgresAsPool,
+  SqlClientImplMockingbirdPostgres,
+} from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
 
-export type OpenSimPostgresMemFromSeedArgs = {
+export type OpenSimMockingbirdPostgresFromSeedArgs = {
   readonly seedBytes: Uint8Array;
   readonly clock: Clock;
   readonly logicalName?: string;
 };
 
-export type SimPostgresMemSqlBundle = {
-  readonly sqlClient: SqlClientImplPostgresMem;
+export type SimMockingbirdPostgresSqlBundle = {
+  readonly sqlClient: SqlClientImplMockingbirdPostgres;
   readonly pool: Pool;
   disconnect(): Promise<void>;
   exportBytes(): Uint8Array;
   importBytes(bytes: Uint8Array): void;
 };
 
-/** Open a fresh postgres-mem DB restored from a post-migrate seed envelope. */
-export function openSimPostgresMemFromSeed(
-  args: OpenSimPostgresMemFromSeedArgs
-): SimPostgresMemSqlBundle {
-  const client = SqlClientImplPostgresMem.open({
+/** Open a fresh mockingbird-postgres DB restored from a post-migrate seed envelope. */
+export function openSimMockingbirdPostgresFromSeed(
+  args: OpenSimMockingbirdPostgresFromSeedArgs
+): SimMockingbirdPostgresSqlBundle {
+  const client = SqlClientImplMockingbirdPostgres.open({
     seed: 1,
     now: () => new Date(args.clock.now()),
     dbScope: createPostgresDbScope('public'),
@@ -38,7 +38,7 @@ export function openSimPostgresMemFromSeed(
     installSqliteCompat: false,
   });
   client.importDatabaseBytes(args.seedBytes);
-  const pool = adaptPostgresMemAsPool(() => client.rawDb);
+  const pool = adaptMockingbirdPostgresAsPool(() => client.rawDb);
   return {
     sqlClient: client,
     pool,

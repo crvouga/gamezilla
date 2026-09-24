@@ -7,14 +7,14 @@ import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
+import { createMockingbirdPostgresTestClient } from '../src/test/mockingbird-postgres-test-client';
 
 describe('postgres reconcile integration', () => {
   let sqlClient: PostgresSqlClient;
   let close: () => Promise<void>;
 
   beforeAll(async () => {
-    const harness = await createPostgresMemTestClient('app_schema');
+    const harness = await createMockingbirdPostgresTestClient('app_schema');
     sqlClient = harness.sqlClient;
     close = harness.close;
   });
@@ -128,7 +128,7 @@ describe('postgres reconcile integration', () => {
     expect(stillThere.length).toBe(1);
   });
 
-  // postgres-mem lacks ALTER COLUMN SET NOT NULL — re-home on postgres-embedded.
+  // mockingbird-postgres lacks ALTER COLUMN SET NOT NULL — re-home on postgres-embedded.
   test.skip('collision with mismatched shape is drift and leaves catalog unchanged', async () => {
     await applyPostgresSchema(
       sqlClient,

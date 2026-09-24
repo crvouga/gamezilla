@@ -12,6 +12,10 @@ export {
   type OauthProvider,
 } from './dispatch';
 export { assertAuthInvariants, authFingerprint } from './invariants';
+export {
+  createMockingbirdGoogle,
+  type MockingbirdGoogle,
+} from './mockingbird-google';
 export { migrateAuthSchema, startActor, startStore } from './nodes';
 export type { AuthSurface } from './system';
 export {
@@ -46,7 +50,9 @@ export {
   type ActorState,
   AUTH_FABRICS,
   AUTH_SYSTEM_BASE_URL,
+  AUTH_SYSTEM_GOOGLE_CLIENT,
   AUTH_SYSTEM_SECRET,
+  AUTH_SYSTEM_SUBJECTS,
   AUTH_SYSTEM_TRUSTED_ORIGINS,
   type AuthFabric,
   type AuthStore,

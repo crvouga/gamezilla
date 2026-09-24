@@ -5,11 +5,11 @@ import { raw, sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { runSqlDataSnapshotContractTests } from '@pkgs/sql-client/sql-data-snapshot/contract';
 import {
-  createPostgresMemSqlClient,
-  SqlClientImplPostgresMem,
-} from './impl-postgres-mem';
+  createMockingbirdPostgresSqlClient,
+  SqlClientImplMockingbirdPostgres,
+} from './impl-mockingbird-postgres';
 
-const openClients: SqlClientImplPostgresMem[] = [];
+const openClients: SqlClientImplMockingbirdPostgres[] = [];
 
 afterEach(async () => {
   while (openClients.length > 0) {
@@ -18,8 +18,8 @@ afterEach(async () => {
   }
 });
 
-async function openMem(): Promise<SqlClientImplPostgresMem> {
-  const client = SqlClientImplPostgresMem.open({ seed: 1 });
+async function openMem(): Promise<SqlClientImplMockingbirdPostgres> {
+  const client = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
   await client.connect();
   openClients.push(client);
   return client;
@@ -34,7 +34,7 @@ async function applyTables(
   });
 }
 
-describe('SqlClientImplPostgresMem lifecycle', () => {
+describe('SqlClientImplMockingbirdPostgres lifecycle', () => {
   test('instances are isolated', async () => {
     const alice = await openMem();
     const bob = await openMem();
@@ -63,7 +63,7 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
   });
 
   test('parameterized query + explicit uuid id', async () => {
-    const { sqlClient } = createPostgresMemSqlClient({ seed: 1 });
+    const { sqlClient } = createMockingbirdPostgresSqlClient({ seed: 1 });
     openClients.push(sqlClient);
     await sqlClient.connect();
     await applyTables(sqlClient, [
@@ -172,8 +172,8 @@ describe('SqlClientImplPostgresMem lifecycle', () => {
   });
 });
 
-describe('SqlDataSnapshot postgres-mem', () => {
+describe('SqlDataSnapshot mockingbird-postgres', () => {
   runSqlDataSnapshotContractTests(() =>
-    SqlClientImplPostgresMem.open({ seed: 1 })
+    SqlClientImplMockingbirdPostgres.open({ seed: 1 })
   );
 });

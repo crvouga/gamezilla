@@ -5,7 +5,7 @@ runtimes on that System:
 
 | Host name | Factory | Command | UI | SQL / HTTP |
 | --- | --- | --- | --- | --- |
-| `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed postgres-mem + sqlite-mem; in-process Hono `fetch`; caps include `partition` |
+| `in-process` (default) | `inProcessRuntime` | `bun run --filter @apps/product test` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-simulator) | Seed mockingbird-postgres + mockingbird-sqlite; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime` | `SIM_MODE=real` / `bun run --filter @apps/product test:max` | `Bun.WebView` per actor (tests); product-simulator embeds actor **URL** (iframe) | Seed SQL + model network by default; `SIM_MODE=real` uses real Postgres + MinIO/EMQX and no `partition` cap. Hono on loopback HTTP via `listenSimHttpServer` |
 
 Open a run with `openSim` from `apps/product/src/test/setup/open-sim.ts` — a thin
@@ -45,7 +45,7 @@ Faults (partition / restoreNetwork) are `defineAction`s gated by the `caps` read
 On the bun-webview real-mode host (no `partition` cap), `s.apply(partition, …)`
 throws `ActionNotEnabled`.
 
-**SQL fabric** — in-process sim always uses **postgres-mem** + **sqlite-mem**
+**SQL fabric** — in-process sim always uses **mockingbird-postgres** + **mockingbird-sqlite**
 (checkpoint format `mixed-pgmm-sqlm`). Seed:
 `apps/product/.cache/sim-backend-seed.pgmm.json`. Fidelity-max /
 `SIM_MODE=real` uses **postgres-embedded** (+ MinIO/EMQX) outside this fabric.
@@ -114,8 +114,8 @@ Catalog: `signed-in-alice`, `signed-in-pair`, `friends-pair`, `both-in-space`.
   (sim Babel leaves class names unhashed). `TestViewportProvider` feeds
   `ThemeProvider.fixedLayout` so modal sizes match the 390×844 actor frame.
 
-Mem-engine wishlist:
-[`docs/sim-mem-engine-wishlist.md`](../../../docs/sim-mem-engine-wishlist.md).
+Engine gaps are filed upstream on
+[crvouga/mockingbird](https://github.com/crvouga/mockingbird/blob/main/docs/REPORTING_ISSUES.md).
 
 Do not use a local Wrangler + API Worker stack for manual feature work. That is
 CI / production, not `bun dev`.

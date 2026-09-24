@@ -56,7 +56,7 @@ export const arbSqlClientWebArgs = (): fc.Arbitrary<SqlClientWebArgs> =>
     tabCount: fc.integer({ min: 1, max: 3 }),
     poolCapacity: fc.constantFrom(2, 6),
     schemaEpoch: fc.constant(1),
-    backend: fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'sqlite-mem'),
+    backend: fc.constantFrom<SqlClientWebBackend>('web-sim-opfs', 'mockingbird-sqlite'),
   });
 
 export function caps(s: SqlClientWebSurface): string[] {

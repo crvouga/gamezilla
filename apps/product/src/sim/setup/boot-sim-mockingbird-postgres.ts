@@ -1,5 +1,5 @@
 /**
- * Product UI-sim postgres-mem boot: wraps `@pkgs/sql-client` seeded PGMM with
+ * Product UI-sim mockingbird-postgres boot: wraps `@pkgs/sql-client` seeded PGMM with
  * this package's cache/fingerprint paths.
  */
 
@@ -11,11 +11,11 @@ import { wallClock } from '@pkgs/clock';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import {
-  computeSimPostgresMemSeedFingerprint,
-  ensureSimPostgresMemSeedBuffer,
-  openSimPostgresMemFromSeed,
-  type SimPostgresMemSqlBundle,
-} from '@pkgs/sql-client-sim/boot-sim-postgres-mem';
+  computeSimMockingbirdPostgresSeedFingerprint,
+  ensureSimMockingbirdPostgresSeedBuffer,
+  openSimMockingbirdPostgresFromSeed,
+  type SimMockingbirdPostgresSqlBundle,
+} from '@pkgs/sql-client-sim/boot-sim-mockingbird-postgres';
 
 import { simPostgresSeedFingerprintSource } from './sim-postgres-seed-fingerprint';
 
@@ -26,8 +26,8 @@ export const SIM_SEED_PGMM_PATH = join(CACHE_DIR, SEED_KEY);
 const REPO_ROOT = join(__dirname, '../../../../..');
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */
-export async function computeSimPostgresMemSeedFp(): Promise<string> {
-  return computeSimPostgresMemSeedFingerprint({
+export async function computeSimMockingbirdPostgresSeedFp(): Promise<string> {
+  return computeSimMockingbirdPostgresSeedFingerprint({
     fingerprintSource: await simPostgresSeedFingerprintSource(REPO_ROOT),
   });
 }
@@ -36,11 +36,11 @@ export async function computeSimPostgresMemSeedFp(): Promise<string> {
  * Ensure disk + process seed matches fingerprint. Rebuilds via migrate when
  * missing or stale. Safe to call from Jest globalSetup / `seed:sim-db`.
  */
-export async function ensureSimPostgresMemSeed(): Promise<{
+export async function ensureSimMockingbirdPostgresSeed(): Promise<{
   readonly seedBytes: Uint8Array;
   readonly didMigrate: boolean;
 }> {
-  return ensureSimPostgresMemSeedBuffer({
+  return ensureSimMockingbirdPostgresSeedBuffer({
     store: createNodeFsObjectStore({
       rootDir: CACHE_DIR,
       fs: wallNodeFs(),
@@ -69,18 +69,19 @@ function uniqueName(base: string): string {
 
 /**
  * Open a SimSql from the cached post-migrate PGMM seed (no migrate).
- * Call {@link ensureSimPostgresMemSeed} first (globalSetup) or rely on lazy ensure.
+ * Call {@link ensureSimMockingbirdPostgresSeed} first (globalSetup) or rely on lazy ensure.
  */
 export async function openSeededSimServerSql(
   logicalName: string,
   clock: Clock
 ): Promise<SimSql> {
-  const { seedBytes } = await ensureSimPostgresMemSeed();
+  const { seedBytes } = await ensureSimMockingbirdPostgresSeed();
   let databaseName = uniqueName(logicalName);
-  let live: SimPostgresMemSqlBundle = openSimPostgresMemFromSeed({
-    seedBytes,
-    clock,
-  });
+  let live: SimMockingbirdPostgresSqlBundle =
+    openSimMockingbirdPostgresFromSeed({
+      seedBytes,
+      clock,
+    });
   await live.sqlClient.connect();
   return {
     get sqlClient() {
@@ -96,7 +97,7 @@ export async function openSeededSimServerSql(
     reset: async () => {
       const prev = live;
       databaseName = uniqueName(logicalName);
-      live = openSimPostgresMemFromSeed({ seedBytes, clock });
+      live = openSimMockingbirdPostgresFromSeed({ seedBytes, clock });
       await live.sqlClient.connect();
       await prev.disconnect();
     },

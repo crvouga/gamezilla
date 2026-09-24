@@ -22,13 +22,16 @@ import {
 } from './dispatch';
 import { assertAuthInvariants, authFingerprint } from './invariants';
 import { migrateAuthSchema, startActor, startStore } from './nodes';
-import type { AuthFabric, AuthSurface } from './types';
+import {
+  AUTH_SYSTEM_SUBJECTS,
+  type AuthFabric,
+  type AuthSurface,
+} from './types';
 
 function range(n: number): number[] {
   return Array.from({ length: n }, (_, i) => i);
 }
 
-const SUBJECTS = ['alice', 'bob', 'carol'] as const;
 const PROVIDERS = [IDP_PROVIDER_GOOGLE, IDP_PROVIDER_DEV] as const;
 const CALLBACK_URLS = [
   'http://callback.test/sso',
@@ -44,9 +47,9 @@ export type AuthArgs = {
   readonly enableGoogle: boolean;
 };
 
-/** sqlite-mem, two clients, both providers on. */
+/** mockingbird-sqlite, two clients, both providers on. */
 export const AUTH_ARGS: AuthArgs = {
-  fabric: 'sqlite-mem',
+  fabric: 'mockingbird-sqlite',
   clientCount: 2,
   enableDev: true,
   enableGoogle: true,
@@ -54,7 +57,10 @@ export const AUTH_ARGS: AuthArgs = {
 
 export const arbAuthArgs = (): fc.Arbitrary<AuthArgs> =>
   fc.record({
-    fabric: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
+    fabric: fc.constantFrom<AuthFabric>(
+      'mockingbird-sqlite',
+      'mockingbird-postgres'
+    ),
     clientCount: fc.integer({ min: 1, max: 3 }),
     enableDev: fc.boolean(),
     enableGoogle: fc.boolean(),
@@ -123,7 +129,7 @@ export const setGoogleFault = defineAction({
   name: 'setGoogleFault',
   sample: () => gen(fc.boolean()),
   act: (s: AuthSurface, fault: boolean) => {
-    s.store.sim.googleFault = fault;
+    s.store.google.setTokenFault(fault);
   },
 });
 
@@ -165,7 +171,7 @@ export const oauthApprove = defineAction({
       fc.record({
         clientId: fc.constantFrom(...clientIds(s)),
         provider: fc.constantFrom(...PROVIDERS),
-        subject: fc.constantFrom(...SUBJECTS),
+        subject: fc.constantFrom(...AUTH_SYSTEM_SUBJECTS),
       })
     ),
   act: async (s: AuthSurface, args: OauthApproveArgs) => {
@@ -232,7 +238,7 @@ export const invariantsHold = defineProperty({
   },
 });
 
-/** One IdP store (sqlite-mem / postgres-mem) plus `clientCount` actors. */
+/** One IdP store (mockingbird-sqlite / mockingbird-postgres) plus `clientCount` actors. */
 export const auth = defineSystem<AuthSurface, AuthArgs>({
   name: 'auth.idp',
   args: AUTH_ARGS,

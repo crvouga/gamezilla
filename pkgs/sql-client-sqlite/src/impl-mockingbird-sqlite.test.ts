@@ -3,9 +3,9 @@ import { defineTable, registerTables, type TableDef } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { raw, sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from './impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from './impl-mockingbird-sqlite';
 
-const openClients: SqlClientImplSqliteMem[] = [];
+const openClients: SqlClientImplMockingbirdSqlite[] = [];
 
 afterEach(async () => {
   while (openClients.length > 0) {
@@ -14,8 +14,8 @@ afterEach(async () => {
   }
 });
 
-async function openMem(): Promise<SqlClientImplSqliteMem> {
-  const client = SqlClientImplSqliteMem.open();
+async function openMem(): Promise<SqlClientImplMockingbirdSqlite> {
+  const client = SqlClientImplMockingbirdSqlite.open();
   await client.connect();
   openClients.push(client);
   return client;
@@ -28,7 +28,7 @@ async function applyTables(
   await applySqliteSchema(client, registerTables(tables));
 }
 
-describe('SqlClientImplSqliteMem lifecycle', () => {
+describe('SqlClientImplMockingbirdSqlite lifecycle', () => {
   test('instances are isolated', async () => {
     const alice = await openMem();
     const bob = await openMem();
@@ -57,7 +57,7 @@ describe('SqlClientImplSqliteMem lifecycle', () => {
   });
 
   test('disconnect then a new instance is empty', async () => {
-    const first = SqlClientImplSqliteMem.open();
+    const first = SqlClientImplMockingbirdSqlite.open();
     await first.connect();
     await applyTables(first, [
       defineTable({ domain: 't', name: 't', columns: {} }),

@@ -15,7 +15,9 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
+    "@crvouga/mockingbird-service-oauth": "catalog:",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/sim": "workspace:*",

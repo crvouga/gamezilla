@@ -2,11 +2,11 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { applyPostgresSchema } from '@pkgs/db-schema-postgres';
 import { ident, sql } from '@pkgs/sql';
-import { SqlClientImplPostgresMem } from './impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from './impl-mockingbird-postgres';
 
 const TS = '2020-01-01T00:00:00.000Z';
 
-const openClients: SqlClientImplPostgresMem[] = [];
+const openClients: SqlClientImplMockingbirdPostgres[] = [];
 
 afterEach(async () => {
   while (openClients.length > 0) {
@@ -15,9 +15,9 @@ afterEach(async () => {
   }
 });
 
-describe('repairPostgresMemPgmmBigintSlots', () => {
+describe('repairMockingbirdPostgresPgmmBigintSlots', () => {
   test('PGMM round-trip SELECT * of timestamptz and int8 n+1 do not mix', async () => {
-    const client = SqlClientImplPostgresMem.open({
+    const client = SqlClientImplMockingbirdPostgres.open({
       seed: 1,
       now: () => new Date(TS),
     });
@@ -57,7 +57,7 @@ describe('repairPostgresMemPgmmBigintSlots', () => {
     `);
 
     const bytes = client.exportDatabaseBytes();
-    const restored = SqlClientImplPostgresMem.open({
+    const restored = SqlClientImplMockingbirdPostgres.open({
       seed: 1,
       now: () => new Date(TS),
     });

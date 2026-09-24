@@ -1,6 +1,6 @@
 /**
  * In-process Postgres for `@pkgs/db-schema` integration tests (no Docker).
- * Uses postgres-mem with pinned `dbScope` / `search_path`.
+ * Uses mockingbird-postgres with pinned `dbScope` / `search_path`.
  */
 
 import { raw } from '@pkgs/sql';
@@ -9,18 +9,18 @@ import {
   createPostgresDbScope,
   quotePgIdent,
 } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 
-export type PostgresMemTestClientBundle = {
+export type MockingbirdPostgresTestClientBundle = {
   readonly sqlClient: PostgresSqlClient;
   close(): Promise<void>;
 };
 
-export async function createPostgresMemTestClient(
+export async function createMockingbirdPostgresTestClient(
   schema = 'app_schema'
-): Promise<PostgresMemTestClientBundle> {
+): Promise<MockingbirdPostgresTestClientBundle> {
   const dbScope = createPostgresDbScope(schema);
-  const base = SqlClientImplPostgresMem.open({
+  const base = SqlClientImplMockingbirdPostgres.open({
     seed: 1,
     dbScope,
     installSqliteCompat: false,

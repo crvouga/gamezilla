@@ -7,6 +7,7 @@ import {
   AUTH_OAUTH_STATE_TTL_MS,
   AUTH_SESSION_TTL_MS,
 } from '../shared/auth-constants';
+import { pkceCodeVerifier } from '../shared/pkce';
 import { hashAuthSecret } from '../shared/token-hash';
 
 export type IdpUserRow = {
@@ -207,7 +208,7 @@ export class IdpRepository {
     readonly codeVerifier: string;
   }> {
     const state = this.createId();
-    const codeVerifier = this.createId();
+    const codeVerifier = pkceCodeVerifier(this.createId());
     const now = isoFromMs(this.clock.now());
     const expiresAt = isoFromMs(this.clock.now() + AUTH_OAUTH_STATE_TTL_MS);
     await this.db.run(sql`

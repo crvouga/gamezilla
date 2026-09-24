@@ -126,6 +126,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
   const objectStore = await createApiObjectStore(secretStore, {
     secretsEnv,
     now: wallClock.now,
+    http: { fetch: (input, init) => globalThis.fetch(input, init) },
   });
   const dbScope = appPostgresDbScope();
   const observability = createServerObservability({

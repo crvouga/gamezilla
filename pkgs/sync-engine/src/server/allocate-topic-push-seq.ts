@@ -14,7 +14,7 @@ import { topicRowId } from '../shared/schema/tables';
  * with exact-next contiguous checks.
  *
  * Use `+ CAST(1 AS BIGINT)` (not bare `+ 1`): domain `integer` is physical
- * Postgres `bigint`, and postgres-mem `toI8` can leave JS numbers in int8
+ * Postgres `bigint`, and mockingbird-postgres `toI8` can leave JS numbers in int8
  * slots so `number + bigint` throws in V8. `CAST` is portable (SQLite +
  * Postgres); `1::bigint` is Postgres-only and fails on sim SQLite servers.
  */

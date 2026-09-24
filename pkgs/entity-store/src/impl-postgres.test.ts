@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { createLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { createSimAdapters } from '@pkgs/uuid';
 import { EntityStoreImplPostgres } from './impl-postgres';
 
@@ -11,7 +11,7 @@ describe('EntityStoreImplPostgres', () => {
   let sqlClient: SqlClient;
 
   beforeAll(async () => {
-    sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
+    sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
     await sqlClient.connect();
   });
 

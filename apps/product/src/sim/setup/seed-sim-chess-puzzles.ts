@@ -1,7 +1,7 @@
 /**
  * Inserts the tiny DST chess-puzzle CSV into the live sim server DB.
  *
- * Not part of the PGMM dump: postgres-mem snapshot round-trip corrupts
+ * Not part of the PGMM dump: mockingbird-postgres snapshot round-trip corrupts
  * int8 column slots so `WHERE rating …` fails after import. Three rows are
  * cheap to insert on each {@link openSim}.
  *

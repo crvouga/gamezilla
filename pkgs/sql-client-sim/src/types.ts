@@ -6,7 +6,7 @@ import type { SimOpfsStore } from '@pkgs/sql-client-sqlite-web/owners/sim-opfs-s
 /** Single logical database every simulated tab competes for. */
 export const SIM_DB_NAME = 'kv';
 
-export type SqlClientWebBackend = 'web-sim-opfs' | 'sqlite-mem';
+export type SqlClientWebBackend = 'web-sim-opfs' | 'mockingbird-sqlite';
 
 export type SqlWebTab = {
   readonly id: string;

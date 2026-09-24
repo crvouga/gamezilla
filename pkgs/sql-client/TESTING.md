@@ -16,14 +16,14 @@
 
 Default backends (always on in bun):
 
-- `sqlite-mem`, `bun-sqlite`
-- `postgres-mem`
+- `mockingbird-sqlite`, `bun-sqlite`
+- `mockingbird-postgres`
 
 Invariants:
 
 1. **Wire-safety** — no `bigint` in query rows / `RunResult`; `JSON.stringify` succeeds; numbers work with `Math.max` (engine stand-in).
 2. **Intra-dialect agreement** — SQLite engines agree; Postgres engines agree (canonical dump).
-3. **Cross-dialect agreement** — sqlite-mem ↔ postgres-mem after type-map + dump codec.
+3. **Cross-dialect agreement** — mockingbird-sqlite ↔ mockingbird-postgres after type-map + dump codec.
 
 Generators live under `src/tests/generators/`. Oracles under `src/tests/oracles/`.
 
@@ -38,7 +38,7 @@ bun run test:pbt:random
 
 | Backend | Notes |
 | --- | --- |
-| postgres-mem | Fresh instance per sample; in-memory Postgres for unit / PBT |
+| mockingbird-postgres | Fresh instance per sample; in-memory Postgres for unit / PBT |
 | better-sqlite3 / WASM | Optional; skipped when the engine cannot load |
 | Live `pg` / Bun postgres | Int8 pin in `postgres.contract.test.ts` when `DATABASE_URL` is set |
 

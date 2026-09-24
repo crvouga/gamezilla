@@ -2,71 +2,38 @@ import { describe, expect, test } from 'bun:test';
 import { AuthSqliteDatabaseMigration, createAuthApp } from '@pkgs/auth/server';
 import {
   AUTH_NATIVE_SSO_CALLBACK_URL,
-  GOOGLE_OAUTH_TOKEN_URL,
-  GOOGLE_OAUTH_USERINFO_URL,
   oauthClientCallbackUrl,
 } from '@pkgs/auth/shared';
+import {
+  AUTH_SYSTEM_GOOGLE_CLIENT,
+  createMockingbirdGoogle,
+  type MockingbirdGoogle,
+} from '@pkgs/auth-sim';
 import { wallClock } from '@pkgs/clock';
-import type { HttpClient } from '@pkgs/http-client';
 import { createNoopLogger } from '@pkgs/logger';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
 const BASE_URL = 'https://api.gamezilla.app';
 const PREFIX = '/api';
 const SECRET = 'auth-system-secret-0123456789abcdef';
 const HTTPS_CALLBACK = oauthClientCallbackUrl('https://www.gamezilla.app');
 
-function fakeGoogleHttp(subjects: Map<string, string>): HttpClient {
-  return {
-    async fetch(input, init) {
-      const url = String(input);
-      if (url === GOOGLE_OAUTH_TOKEN_URL) {
-        const params = new URLSearchParams(
-          typeof init?.body === 'string' ? init.body : ''
-        );
-        const code = params.get('code') ?? '';
-        return new Response(
-          JSON.stringify({
-            access_token: `access-${code}`,
-            refresh_token: `refresh-${code}`,
-            token_type: 'Bearer',
-          }),
-          { status: 200, headers: { 'content-type': 'application/json' } }
-        );
-      }
-      if (url === GOOGLE_OAUTH_USERINFO_URL) {
-        const auth =
-          init?.headers instanceof Headers
-            ? (init.headers.get('authorization') ?? '')
-            : typeof init?.headers === 'object' && init.headers !== null
-              ? ((init.headers as Record<string, string>)['authorization'] ??
-                '')
-              : '';
-        const code = auth.replace(/^Bearer\s+access-/i, '');
-        const sub = subjects.get(code) ?? `sub-${code}`;
-        return new Response(
-          JSON.stringify({
-            sub,
-            email: `${sub}@gmail.test`,
-            name: sub,
-            picture: null,
-          }),
-          { status: 200, headers: { 'content-type': 'application/json' } }
-        );
-      }
-      return new Response('not found', { status: 404 });
-    },
-  };
-}
+type AuthFetch = (
+  input: string | URL | Request,
+  init?: RequestInit
+) => Promise<Response>;
 
-async function bootGoogleAuth(subjects: Map<string, string>): Promise<{
-  readonly fetch: (
-    input: string | URL | Request,
-    init?: RequestInit
-  ) => Promise<Response>;
-  readonly createId: () => string;
+async function bootGoogleAuth(): Promise<{
+  readonly fetch: AuthFetch;
+  readonly google: MockingbirdGoogle;
 }> {
-  const sql = SqlClientImplSqliteMem.open({ seed: 1 });
+  const google = createMockingbirdGoogle({
+    ...AUTH_SYSTEM_GOOGLE_CLIENT,
+    clock: wallClock,
+    redirectUri: `${BASE_URL}${PREFIX}/auth/callback/google`,
+    subjects: ['alice-google'],
+  });
+  const sql = SqlClientImplMockingbirdSqlite.open({ seed: 1 });
   await new AuthSqliteDatabaseMigration().migrate({
     sqlClient: sql,
     logger: createNoopLogger(),
@@ -77,7 +44,7 @@ async function bootGoogleAuth(subjects: Map<string, string>): Promise<{
     getSql: () => sql,
     clock: wallClock,
     createId,
-    http: fakeGoogleHttp(subjects),
+    http: google.http,
     secret: SECRET,
     baseURL: BASE_URL,
     publicPathPrefix: PREFIX,
@@ -88,12 +55,12 @@ async function bootGoogleAuth(subjects: Map<string, string>): Promise<{
       'gamezilla://',
     ],
     providers: {
-      google: { clientId: 'cid', clientSecret: 'csecret' },
+      google: AUTH_SYSTEM_GOOGLE_CLIENT,
     },
   });
   return {
-    createId,
-    fetch: (input, init) => {
+    google,
+    fetch: async (input, init) => {
       const href =
         typeof input === 'string'
           ? input.startsWith('http')
@@ -112,13 +79,9 @@ async function bootGoogleAuth(subjects: Map<string, string>): Promise<{
 }
 
 async function completeGoogleRoundTrip(args: {
-  readonly fetch: (
-    input: string | URL | Request,
-    init?: RequestInit
-  ) => Promise<Response>;
-  readonly createId: () => string;
+  readonly fetch: AuthFetch;
+  readonly google: MockingbirdGoogle;
   readonly callbackUrl: string;
-  readonly subjects: Map<string, string>;
 }): Promise<string> {
   const launch = await args.fetch(
     `/auth/oauth/launch?provider=google&callbackUrl=${encodeURIComponent(args.callbackUrl)}`,
@@ -132,13 +95,18 @@ async function completeGoogleRoundTrip(args: {
   expect(authorizeUrl.searchParams.get('redirect_uri')).toBe(
     `${BASE_URL}${PREFIX}/auth/callback/google`
   );
-  const state = authorizeUrl.searchParams.get('state');
-  expect(state).toBeTruthy();
-
-  const googleCode = args.createId();
-  args.subjects.set(googleCode, 'alice-google');
+  const idpCallback = await args.google.approve(
+    authorizeUrl.href,
+    'alice-google'
+  );
+  expect(idpCallback).toBeTruthy();
+  const idpCallbackUrl = new URL(idpCallback ?? '');
+  expect(idpCallbackUrl.searchParams.get('state')).toBe(
+    authorizeUrl.searchParams.get('state')
+  );
+  expect(idpCallbackUrl.pathname).toBe(`${PREFIX}/auth/callback/google`);
   const callback = await args.fetch(
-    `/auth/callback/google?code=${encodeURIComponent(googleCode)}&state=${encodeURIComponent(state ?? '')}`,
+    `${idpCallbackUrl.pathname.slice(PREFIX.length)}${idpCallbackUrl.search}`,
     { method: 'GET', redirect: 'manual' }
   );
   expect(callback.status).toBe(302);
@@ -162,25 +130,21 @@ async function completeGoogleRoundTrip(args: {
 
 describe('google oauth https callback (black-box)', () => {
   test('https www callback completes launch → callback → session', async () => {
-    const subjects = new Map<string, string>();
-    const { fetch, createId } = await bootGoogleAuth(subjects);
+    const { fetch, google } = await bootGoogleAuth();
     const token = await completeGoogleRoundTrip({
       fetch,
-      createId,
+      google,
       callbackUrl: HTTPS_CALLBACK,
-      subjects,
     });
     expect(token.length).toBeGreaterThan(0);
   });
 
   test('native scheme callback still completes', async () => {
-    const subjects = new Map<string, string>();
-    const { fetch, createId } = await bootGoogleAuth(subjects);
+    const { fetch, google } = await bootGoogleAuth();
     const token = await completeGoogleRoundTrip({
       fetch,
-      createId,
+      google,
       callbackUrl: AUTH_NATIVE_SSO_CALLBACK_URL,
-      subjects,
     });
     expect(token.length).toBeGreaterThan(0);
   });

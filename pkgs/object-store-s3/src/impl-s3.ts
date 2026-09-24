@@ -10,6 +10,7 @@ import { ObjectStoreWithPrefix } from '@pkgs/object-store/impl-with-prefix';
 import type { ObjectStore, StoredObject } from '@pkgs/object-store/interface';
 import { assertRemoteObjectKey } from '@pkgs/object-store/namespace-guard';
 import { normalizeObjectStoreRootPrefix } from '@pkgs/object-store/prefixes';
+import { createFetchRequestHandler } from './fetch-request-handler';
 import type { S3ObjectStoreConfig } from './s3-config';
 
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
@@ -143,6 +144,7 @@ class ObjectStoreImplS3 implements ObjectStore {
         secretAccessKey: config.secretAccessKey,
       },
       forcePathStyle: true,
+      requestHandler: createFetchRequestHandler(config.http),
       // MinIO / older S3-compat reject default flexible checksums (501).
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',

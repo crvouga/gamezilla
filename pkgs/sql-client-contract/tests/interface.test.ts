@@ -6,7 +6,7 @@ import { raw, sql } from '@pkgs/sql';
 import { SqlClientWithPubSub } from '@pkgs/sql-client/impl-with-pub-sub';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { createSimAdapters } from '@pkgs/uuid';
 
 const adapters = createSimAdapters({ seed: 1 });
@@ -30,9 +30,9 @@ async function loadImplementations(): Promise<
         Promise.resolve(SqlClientImplBunSqlite.open(':memory:')),
     },
     {
-      name: 'SqlClientImplSqliteMem',
+      name: 'SqlClientImplMockingbirdSqlite',
       createClient: async () => {
-        const client = SqlClientImplSqliteMem.open();
+        const client = SqlClientImplMockingbirdSqlite.open();
         await client.connect();
         return client;
       },

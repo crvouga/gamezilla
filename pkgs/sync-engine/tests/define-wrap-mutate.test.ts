@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { sql } from '@pkgs/sql';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { migrateLocalSchema } from '@pkgs/sync-engine/client';
 import {
   defineMutation,
@@ -26,7 +26,7 @@ function testEnv() {
 
 describe('public API: defineMutation + wrapMutationDb', () => {
   test('managed-column inject + RETURNING capture on upsert', async () => {
-    const db = SqlClientImplSqliteMem.open();
+    const db = SqlClientImplMockingbirdSqlite.open();
     await db.connect();
     await migrateLocalSchema(db, exampleLocalSchema);
     const env = testEnv();
@@ -61,7 +61,7 @@ describe('public API: defineMutation + wrapMutationDb', () => {
   });
 
   test('softDeleteById tombstones; LIVE_ROW_SQL excludes it', async () => {
-    const db = SqlClientImplSqliteMem.open();
+    const db = SqlClientImplMockingbirdSqlite.open();
     await db.connect();
     await migrateLocalSchema(db, exampleLocalSchema);
     const env = testEnv();
@@ -90,7 +90,7 @@ describe('public API: defineMutation + wrapMutationDb', () => {
   });
 
   test('domain hard DELETE throws NO_HARD_DELETE', async () => {
-    const db = SqlClientImplSqliteMem.open();
+    const db = SqlClientImplMockingbirdSqlite.open();
     await db.connect();
     await migrateLocalSchema(db, exampleLocalSchema);
     const env = testEnv();

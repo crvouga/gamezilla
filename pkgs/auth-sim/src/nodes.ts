@@ -8,22 +8,24 @@ import { createNoopLogger } from '@pkgs/logger';
 import type { Ports, Session } from '@pkgs/sim';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
-import { createFakeGoogleHttp } from './fake-google';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
+import { createMockingbirdGoogle } from './mockingbird-google';
 import {
   type ActorState,
   AUTH_SYSTEM_BASE_URL,
+  AUTH_SYSTEM_GOOGLE_CLIENT,
   AUTH_SYSTEM_SECRET,
+  AUTH_SYSTEM_SUBJECTS,
   AUTH_SYSTEM_TRUSTED_ORIGINS,
   type AuthFabric,
   type AuthStore,
 } from './types';
 
 function openSql(fabric: AuthFabric, seed: number): SqlClient {
-  return fabric === 'sqlite-mem'
-    ? SqlClientImplSqliteMem.open({ seed })
-    : SqlClientImplPostgresMem.open({ seed });
+  return fabric === 'mockingbird-sqlite'
+    ? SqlClientImplMockingbirdSqlite.open({ seed })
+    : SqlClientImplMockingbirdPostgres.open({ seed });
 }
 
 export async function migrateAuthSchema(
@@ -31,7 +33,7 @@ export async function migrateAuthSchema(
   sqlClient: SqlClient
 ): Promise<void> {
   const logger = createNoopLogger();
-  if (fabric === 'sqlite-mem') {
+  if (fabric === 'mockingbird-sqlite') {
     await new AuthSqliteDatabaseMigration().migrate({ sqlClient, logger });
     return;
   }
@@ -50,19 +52,22 @@ function buildStore(args: {
   readonly enableGoogle: boolean;
 }): AuthStore {
   const { fabric, sql, ports } = args;
-  const sim = { googleFault: false, googleSubjects: new Map<string, string>() };
+  const google = createMockingbirdGoogle({
+    ...AUTH_SYSTEM_GOOGLE_CLIENT,
+    clock: ports.clock,
+    redirectUri: `${AUTH_SYSTEM_BASE_URL}/auth/callback/google`,
+    subjects: AUTH_SYSTEM_SUBJECTS,
+  });
   const app = createAuthApp({
     getSql: () => sql,
     clock: ports.clock,
     createId: ports.createId,
-    http: createFakeGoogleHttp(sim),
+    http: google.http,
     secret: AUTH_SYSTEM_SECRET,
     baseURL: AUTH_SYSTEM_BASE_URL,
     trustedOrigins: AUTH_SYSTEM_TRUSTED_ORIGINS,
     providers: {
-      ...(args.enableGoogle
-        ? { google: { clientId: 'cid', clientSecret: 'csecret' } }
-        : {}),
+      ...(args.enableGoogle ? { google: AUTH_SYSTEM_GOOGLE_CLIENT } : {}),
       ...(args.enableDev ? { dev: { enabled: true as const } } : {}),
     },
   });
@@ -76,7 +81,7 @@ function buildStore(args: {
     fabric,
     sql,
     server,
-    sim,
+    google,
     fetch: async (path, init) =>
       app.request(`${AUTH_SYSTEM_BASE_URL}${path}`, init),
   };

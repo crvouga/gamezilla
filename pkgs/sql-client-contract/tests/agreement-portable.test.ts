@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/sim/fast-check';
 import fc from 'fast-check';
-import { POSTGRES_MEM_FACTORY, SQLITE_MEM_FACTORY } from './helpers/backends';
+import { MOCKINGBIRD_POSTGRES_FACTORY, MOCKINGBIRD_SQLITE_FACTORY } from './helpers/backends';
 import { forEachBackendSample } from './helpers/for-each-backend';
 import {
   arbLogicalSchema,
@@ -13,10 +13,10 @@ import {
 import { canonicalizeRows, stableJson } from './helpers/oracles/canonical-dump';
 import { assertWireSafeRows } from './helpers/oracles/wire-safety';
 
-const PORTABLE_FACTORIES = [SQLITE_MEM_FACTORY, POSTGRES_MEM_FACTORY] as const;
+const PORTABLE_FACTORIES = [MOCKINGBIRD_SQLITE_FACTORY, MOCKINGBIRD_POSTGRES_FACTORY] as const;
 
 describe('agreement-portable.pbt', () => {
-  test('sqlite-mem and postgres-mem agree after type-map + dump codec', async () => {
+  test('mockingbird-sqlite and mockingbird-postgres agree after type-map + dump codec', async () => {
     await assertProperty(
       'portable cross-dialect agreement',
       fc.asyncProperty(

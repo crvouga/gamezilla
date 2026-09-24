@@ -1,5 +1,5 @@
 /**
- * Seeded `@crvouga/postgres-mem` boot for in-process simulations.
+ * Seeded `@crvouga/mockingbird-service-postgres` boot for in-process simulations.
  *
  * Migrated schema is cached via an injected {@link ObjectStore}. Each open
  * clones that seed (import PGMM envelope) instead of re-running migrations.
@@ -17,26 +17,26 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import {
-  adaptPostgresMemAsPool,
-  SqlClientImplPostgresMem,
-} from '@pkgs/sql-client-postgres/impl-postgres-mem';
+  adaptMockingbirdPostgresAsPool,
+  SqlClientImplMockingbirdPostgres,
+} from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import type { Pool } from '@pkgs/sql-client-postgres/pg-types';
 
 export type {
-  OpenSimPostgresMemFromSeedArgs,
-  SimPostgresMemSqlBundle,
-} from './open-sim-postgres-mem-from-seed';
-export { openSimPostgresMemFromSeed } from './open-sim-postgres-mem-from-seed';
+  OpenSimMockingbirdPostgresFromSeedArgs,
+  SimMockingbirdPostgresSqlBundle,
+} from './open-sim-mockingbird-postgres-from-seed';
+export { openSimMockingbirdPostgresFromSeed } from './open-sim-mockingbird-postgres-from-seed';
 
 /** Bump when seed format / restore semantics change outside migrate source. */
-export const SIM_POSTGRES_MEM_SEED_VERSION = 3;
+export const SIM_MOCKINGBIRD_POSTGRES_SEED_VERSION = 3;
 
-export type SimPostgresMemMigrateHandle = {
+export type SimMockingbirdPostgresMigrateHandle = {
   readonly sqlClient: SqlClient;
   readonly pool: Pool;
 };
 
-export type EnsureSimPostgresMemSeedArgs = {
+export type EnsureSimMockingbirdPostgresSeedArgs = {
   /** Object store for seed + fingerprint keys. */
   readonly store: ObjectStore;
   /** Seed object key (default `sim-backend-seed.pgmm.json`). */
@@ -44,7 +44,7 @@ export type EnsureSimPostgresMemSeedArgs = {
   /** Extra fingerprint bytes (e.g. migrate composer source). */
   readonly fingerprintSource: Buffer | string;
   readonly seedVersion?: number;
-  readonly migrate: (handle: SimPostgresMemMigrateHandle) => Promise<void>;
+  readonly migrate: (handle: SimMockingbirdPostgresMigrateHandle) => Promise<void>;
   /** Clock for migrate logging / DB `now`. */
   readonly now?: () => number;
 };
@@ -65,11 +65,11 @@ function cacheKey(seedKey: string, fingerprint: string): string {
 }
 
 /** Fingerprint of migrate inputs — rebuild seed when this changes. */
-export function computeSimPostgresMemSeedFingerprint(args: {
+export function computeSimMockingbirdPostgresSeedFingerprint(args: {
   readonly fingerprintSource: Buffer | string;
   readonly seedVersion?: number;
 }): string {
-  const version = args.seedVersion ?? SIM_POSTGRES_MEM_SEED_VERSION;
+  const version = args.seedVersion ?? SIM_MOCKINGBIRD_POSTGRES_SEED_VERSION;
   const source =
     typeof args.fingerprintSource === 'string'
       ? Buffer.from(args.fingerprintSource)
@@ -84,12 +84,12 @@ export function computeSimPostgresMemSeedFingerprint(args: {
  * Ensure stored seed matches fingerprint. Rebuilds via `migrate` when missing
  * or stale. Returns the seed bytes and whether migrate ran.
  */
-export async function ensureSimPostgresMemSeedBuffer(
-  args: EnsureSimPostgresMemSeedArgs
+export async function ensureSimMockingbirdPostgresSeedBuffer(
+  args: EnsureSimMockingbirdPostgresSeedArgs
 ): Promise<{ readonly seedBytes: Uint8Array; readonly didMigrate: boolean }> {
   const seedKey = args.seedKey ?? 'sim-backend-seed.pgmm.json';
   const fingerprintKey = fingerprintKeyFor(seedKey);
-  const fingerprint = computeSimPostgresMemSeedFingerprint({
+  const fingerprint = computeSimMockingbirdPostgresSeedFingerprint({
     fingerprintSource: args.fingerprintSource,
     ...(args.seedVersion !== undefined
       ? { seedVersion: args.seedVersion }
@@ -113,13 +113,13 @@ export async function ensureSimPostgresMemSeedBuffer(
   }
 
   const nowMs = args.now ?? (() => 0);
-  const client = SqlClientImplPostgresMem.open({
+  const client = SqlClientImplMockingbirdPostgres.open({
     seed: 1,
     now: () => new Date(nowMs()),
     dbScope: createPostgresDbScope('public'),
   });
   await client.connect();
-  const pool = adaptPostgresMemAsPool(() => client.rawDb);
+  const pool = adaptMockingbirdPostgresAsPool(() => client.rawDb);
   try {
     await args.migrate({ sqlClient: client, pool });
     const seedBytes = client.exportDatabaseBytes();
@@ -133,6 +133,6 @@ export async function ensureSimPostgresMemSeedBuffer(
 }
 
 /** Clear process seed cache (tests). */
-export function clearSimPostgresMemSeedProcessCache(): void {
+export function clearSimMockingbirdPostgresSeedProcessCache(): void {
   processCaches.clear();
 }

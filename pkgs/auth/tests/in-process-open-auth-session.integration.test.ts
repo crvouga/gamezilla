@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { Hono } from 'hono';
 import { createInMemoryAuthClientStorage } from '../src/client/bearer-token-store';
 import { createAuthClientAdapter } from '../src/client/create-auth-client-adapter';
@@ -17,7 +17,7 @@ const SECRET = 'auth-system-secret-0123456789abcdef';
 async function bootAuthFetch(): Promise<{
   readonly fetch: typeof appFetch;
 }> {
-  const sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
+  const sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
   await new AuthPostgresDatabaseMigration({
     dbScope: createPostgresDbScope('public'),
     skipAdvisoryLock: true,

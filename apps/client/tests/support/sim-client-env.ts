@@ -1,7 +1,7 @@
 /**
  * `simClientEnv()` — deterministic `ClientEnv` for shell tests and sim hosts:
  * `@pkgs/sim` virtual clock / timers / ids, in-memory kv / secure storage /
- * pubsub / object store / network / audio, sqlite-mem local database and a
+ * pubsub / object store / network / audio, mockingbird-sqlite local database and a
  * stub product API (`sim-server-fetch.ts`). No wall I/O.
  */
 
@@ -13,7 +13,7 @@ import { createInMemoryPubSub } from '@pkgs/pubsub/in-memory';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage/impl-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { type Session, virtualTimeRuntime } from '@pkgs/sim';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
 import { createSimServerFetch } from './sim-server-fetch';
 
@@ -51,7 +51,7 @@ export async function simClientEnv(
   const { clock, timers } = session.ports;
   const server = createSimServerFetch(serverUrl);
   const secureStorage = createSecureStorageStore(createInMemorySecureStorage());
-  const sqlClients: SqlClientImplSqliteMem[] = [];
+  const sqlClients: SqlClientImplMockingbirdSqlite[] = [];
 
   const env: ClientEnv = {
     clock,
@@ -63,7 +63,7 @@ export async function simClientEnv(
     events: createInMemoryPubSub(),
     createPubSub: () => createInMemoryPubSub(),
     openSqlClient: async () => {
-      const client = SqlClientImplSqliteMem.open({
+      const client = SqlClientImplMockingbirdSqlite.open({
         seed: 1,
         now: () => new Date(clock.now()),
       });

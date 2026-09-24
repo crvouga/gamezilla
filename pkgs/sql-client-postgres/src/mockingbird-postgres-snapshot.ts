@@ -5,7 +5,7 @@ const PGMM_MAGIC1 = 0x47; // G
 const PGMM_MAGIC2 = 0x4d; // M
 const PGMM_MAGIC3 = 0x4d; // M
 
-const SNAPSHOT_KIND = 'postgres-mem';
+const SNAPSHOT_KIND = 'mockingbird-postgres';
 
 function hasPgmmMagic(bytes: Uint8Array): boolean {
   return (
@@ -35,7 +35,7 @@ function base64ToBytes(b64: string): Uint8Array {
 }
 
 /** JSON envelope around a PGMM blob (not `pg_dump`). */
-export function encodePostgresMemSnapshotEnvelope(
+export function encodeMockingbirdPostgresSnapshotEnvelope(
   pgmm: Uint8Array
 ): Uint8Array {
   const payload = {
@@ -46,7 +46,7 @@ export function encodePostgresMemSnapshotEnvelope(
   return new TextEncoder().encode(JSON.stringify(payload));
 }
 
-export function parsePostgresMemSnapshotEnvelope(
+export function parseMockingbirdPostgresSnapshotEnvelope(
   bytes: Uint8Array
 ): Uint8Array {
   let payload: {
@@ -58,7 +58,7 @@ export function parsePostgresMemSnapshotEnvelope(
     payload = JSON.parse(new TextDecoder().decode(bytes)) as typeof payload;
   } catch {
     throw new Error(
-      'SqlClientImplPostgresMem.importDatabaseBytes: expected JSON postgres-mem snapshot'
+      'SqlClientImplMockingbirdPostgres.importDatabaseBytes: expected JSON mockingbird-postgres snapshot'
     );
   }
   if (
@@ -67,13 +67,13 @@ export function parsePostgresMemSnapshotEnvelope(
     typeof payload.pgmmB64 !== 'string'
   ) {
     throw new Error(
-      'SqlClientImplPostgresMem.importDatabaseBytes: unsupported snapshot format'
+      'SqlClientImplMockingbirdPostgres.importDatabaseBytes: unsupported snapshot format'
     );
   }
   const pgmm = base64ToBytes(payload.pgmmB64);
   assert.ok(
     hasPgmmMagic(pgmm),
-    'SqlClientImplPostgresMem.importDatabaseBytes: missing PGMM magic'
+    'SqlClientImplMockingbirdPostgres.importDatabaseBytes: missing PGMM magic'
   );
   return pgmm;
 }

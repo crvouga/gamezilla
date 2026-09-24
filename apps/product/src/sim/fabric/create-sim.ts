@@ -10,7 +10,7 @@ import { loadAuthBootConfig } from '@apps/server/config/auth-boot';
 import {
   migrateSimPostgres,
   SIM_AUTH_SECRET,
-  SIM_POSTGRES_MEM_DATABASE_URL,
+  SIM_MOCKINGBIRD_POSTGRES_DATABASE_URL,
   SIM_SERVER_URL,
 } from '@apps/server/sim/migrate-sim-postgres';
 import { assert } from '@pkgs/assert';
@@ -133,7 +133,7 @@ async function buildSharedServerServices(
 ): Promise<SharedServerServices> {
   const secrets = createRecordSecretStore({
     AUTH_SECRET: SIM_AUTH_SECRET,
-    DATABASE_URL: SIM_POSTGRES_MEM_DATABASE_URL,
+    DATABASE_URL: SIM_MOCKINGBIRD_POSTGRES_DATABASE_URL,
     API_URL: SIM_SERVER_URL,
   });
   return {
@@ -391,7 +391,7 @@ function createSimHandle(kernel: SimKernel): Sim {
  * Bumps the client durable epoch so each sim gets a fresh
  * `sim_client_${id}_eN` secure-storage / auth namespace. Without this, a prior
  * openSim that signed in leaves `sessionToken` under `e0` and the next guest
- * boot POSTs `/identity/refresh` against a dead JWT (fresh postgres-mem).
+ * boot POSTs `/identity/refresh` against a dead JWT (fresh mockingbird-postgres).
  */
 export async function createSim(
   session: Session,

@@ -346,15 +346,15 @@ function registerViewEnumTests(factory: DbSchemaContractFactory): void {
   });
 }
 
-export function postgresMemFactory(): DbSchemaContractFactory {
+export function mockingbirdPostgresFactory(): DbSchemaContractFactory {
   return {
-    name: 'postgres-mem',
+    name: 'mockingbird-postgres',
     dialect: 'postgres',
     async open() {
-      const { SqlClientImplPostgresMem } = await import(
-        '@pkgs/sql-client-postgres/impl-postgres-mem'
+      const { SqlClientImplMockingbirdPostgres } = await import(
+        '@pkgs/sql-client-postgres/impl-mockingbird-postgres'
       );
-      const client = SqlClientImplPostgresMem.open({
+      const client = SqlClientImplMockingbirdPostgres.open({
         dbScope: createPostgresDbScope('public'),
         seed: 1,
       });
@@ -371,15 +371,15 @@ export function postgresMemFactory(): DbSchemaContractFactory {
   };
 }
 
-export function sqliteMemFactory(): DbSchemaContractFactory {
+export function mockingbirdSqliteFactory(): DbSchemaContractFactory {
   return {
-    name: 'sqlite-mem',
+    name: 'mockingbird-sqlite',
     dialect: 'sqlite',
     async open() {
-      const { SqlClientImplSqliteMem } = await import(
-        '@pkgs/sql-client-sqlite/impl-sqlite-mem'
+      const { SqlClientImplMockingbirdSqlite } = await import(
+        '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite'
       );
-      const client = SqlClientImplSqliteMem.open();
+      const client = SqlClientImplMockingbirdSqlite.open();
       await client.connect();
       return {
         client,

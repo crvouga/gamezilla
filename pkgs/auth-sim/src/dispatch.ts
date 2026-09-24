@@ -44,14 +44,19 @@ async function googleApprove(
 ): Promise<void> {
   if (actor.pendingAuthUrl === null) return;
   const store = surface.store;
-  const state = new URL(actor.pendingAuthUrl).searchParams.get('state') ?? '';
-  const code = surface.session.ports.createId();
-  store.sim.googleSubjects.set(code, subject);
-  const query = `code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
-  const res = await store.fetch(`/auth/callback/google?${query}`, {
-    method: 'GET',
-    redirect: 'manual',
-  });
+  const callback = await store.google.approve(actor.pendingAuthUrl, subject);
+  if (callback === null) {
+    actor.pendingCode = null;
+    return;
+  }
+  const callbackUrl = new URL(callback);
+  const res = await store.fetch(
+    `${callbackUrl.pathname}${callbackUrl.search}`,
+    {
+      method: 'GET',
+      redirect: 'manual',
+    }
+  );
   const location = res.headers.get('location');
   if (location === null) {
     actor.pendingCode = null;

@@ -14,7 +14,7 @@
     "test": "bun test --pass-with-no-tests"
   },
   "dependencies": {
-    "@crvouga/sqlite-mem": "catalog:",
+    "@crvouga/mockingbird-service-sqlite": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",

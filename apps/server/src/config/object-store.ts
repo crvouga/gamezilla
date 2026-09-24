@@ -1,4 +1,5 @@
 import { appObjectStoreRootPrefix } from '@libs/db/public/scope';
+import type { HttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store/interface';
@@ -31,6 +32,8 @@ export type CreateApiObjectStoreOptions = {
   readonly secretsEnv?: string | null;
   /** Injected clock from the worker composition root. */
   readonly now: () => number;
+  /** Transport for S3 requests, injected at the worker composition root. */
+  readonly http: HttpClient;
   /**
    * When true, missing S3 secrets throw instead of falling back to in-memory.
    * Use for durable stores (product-simulator snapshots); leave unset for API caches.
@@ -66,5 +69,6 @@ export async function createApiObjectStore(
     endpoint: secrets[S3SecretName.endpoint]!.readSecretValue(),
     region: secrets[S3SecretName.region]!.readSecretValue(),
     rootPrefix: appObjectStoreRootPrefix(),
+    http: options.http,
   });
 }

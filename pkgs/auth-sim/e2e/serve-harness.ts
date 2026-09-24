@@ -7,21 +7,23 @@ import { AuthSqliteDatabaseMigration } from '@pkgs/auth/server/auth-database-mig
 import { createAuthApp } from '@pkgs/auth/server/create-auth-app';
 import { createNoopLogger } from '@pkgs/logger';
 import { virtualTimeRuntime } from '@pkgs/sim';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
-import { createFakeGoogleHttp } from '../src/fake-google';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
+import { createMockingbirdGoogle } from '../src/mockingbird-google';
+import { AUTH_SYSTEM_GOOGLE_CLIENT, AUTH_SYSTEM_SUBJECTS } from '../src/types';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PORT = 4178;
 const API_ORIGIN = `http://127.0.0.1:${PORT}`;
 const AUTH_SECRET = 'auth-system-secret-0123456789abcdef';
 
-const authState = {
-  googleSubjects: new Map<string, string>(),
-  googleFault: false,
-};
-
 const session = await virtualTimeRuntime().open(1);
-const sql = SqlClientImplSqliteMem.open({ seed: 1 });
+const google = createMockingbirdGoogle({
+  ...AUTH_SYSTEM_GOOGLE_CLIENT,
+  clock: session.ports.clock,
+  redirectUri: `${API_ORIGIN}/auth/callback/google`,
+  subjects: AUTH_SYSTEM_SUBJECTS,
+});
+const sql = SqlClientImplMockingbirdSqlite.open({ seed: 1 });
 await new AuthSqliteDatabaseMigration().migrate({
   sqlClient: sql,
   logger: createNoopLogger(),
@@ -31,7 +33,7 @@ const app = createAuthApp({
   getSql: () => sql,
   clock: session.ports.clock,
   createId: session.ports.createId,
-  http: createFakeGoogleHttp(authState),
+  http: google.http,
   secret: AUTH_SECRET,
   baseURL: API_ORIGIN,
   trustedOrigins: [
@@ -42,7 +44,7 @@ const app = createAuthApp({
     'http://callback.test',
   ],
   providers: {
-    google: { clientId: 'cid', clientSecret: 'csecret' },
+    google: AUTH_SYSTEM_GOOGLE_CLIENT,
     dev: { enabled: true },
   },
 });
