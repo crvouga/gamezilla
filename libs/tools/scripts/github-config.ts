@@ -10,9 +10,11 @@
  *   repo-settings.json    PATCH repos/<owner>/<repo>
  *
  * The required-check list is **observed, never named by hand**: the script reads
- * the check runs that actually ran on recent pull requests (ours and any app's —
- * GitGuardian included) and requires all of them. Add, rename or drop a check on PRs
- * and `bun run github:config` follows; nothing here needs editing.
+ * the check runs our workflows reported on recent pull requests and requires
+ * all of them. Add, rename or drop a job on PRs and `bun run github:config`
+ * follows; nothing here needs editing. Checks from GitHub Apps (no workflow)
+ * are never required — the Check workflow is the one gate, secret scanning
+ * included (`@libs/tools#check:secrets`).
  *
  *   bun run github:config          apply every spec
  *   bun run github:config:check    exit 1 if GitHub drifted from the specs
@@ -96,8 +98,8 @@ function openPullRequests(repo: string): string[] {
 }
 
 /**
- * Every check a pull request reports — ours and any GitHub App's, which no
- * workflow file names. Read from open PRs only: a merged PR's head becomes
+ * Every check our workflows report on a pull request. A GitHub App's check has
+ * no workflow and is skipped. Read from open PRs only: a merged PR's head becomes
  * `main`, so its commit also carries the push-triggered deploy jobs, which never
  * report on a PR and would block every merge if required.
  */
@@ -109,9 +111,9 @@ function observedPullRequestChecks(repo: string): string[] {
       'checks',
       number,
       '--json',
-      'name',
+      'name,workflow',
       '--jq',
-      '.[].name',
+      '.[] | select(.workflow != "") | .name',
     ]);
     for (const line of listed.stdout.split('\n')) {
       const name = line.trim();

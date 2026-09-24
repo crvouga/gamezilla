@@ -1,5 +1,10 @@
 name: Health
 
+# Run title, identical shape in every workflow (enforced by
+# libs/tools/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
+
 # Health: is the deployment good? Live-resource health between deploys: `bun run health` runs every package's
 # `health` task (turbo `health` with `--only`, so nothing is deployed) against
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,

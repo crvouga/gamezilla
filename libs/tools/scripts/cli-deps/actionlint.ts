@@ -33,7 +33,7 @@ function prependLocalBinToPath(): void {
   }
 }
 
-/** Install pinned actionlint if missing (check:static fallback). */
+/** Install pinned actionlint if missing (check:actionlint fallback). */
 export async function ensureActionlint(): Promise<void> {
   prependLocalBinToPath();
   if (!which('actionlint')) {

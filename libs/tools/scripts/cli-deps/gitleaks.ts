@@ -38,7 +38,7 @@ function prependLocalBinToPath(): void {
   }
 }
 
-/** Install pinned gitleaks if missing (check:static fallback). */
+/** Install pinned gitleaks if missing (check:secrets fallback). */
 export async function ensureGitleaks(): Promise<void> {
   prependLocalBinToPath();
   if (!which('gitleaks')) {

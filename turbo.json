@@ -321,20 +321,22 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/tools#check:static": {
-      "env": [
-        "CHECK_GIT_HEAD",
-        "GH_EVENT",
-        "GITHUB_EVENT_NAME",
-        "PR_BASE",
-        "PR_HEAD",
-        "GITLEAKS_VERSION"
-      ],
+    "@libs/tools#check:actionlint": {
       "inputs": [
-        "scripts/check-static.ts",
-        "scripts/cli-deps/**",
-        "$TURBO_ROOT$/.gitleaks.toml",
+        "scripts/check-actionlint.ts",
+        "scripts/cli-deps/actionlint.ts",
         "$TURBO_ROOT$/.github/workflows/**"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "@libs/tools#check:secrets": {
+      "env": ["CHECK_SECRETS_RANGE", "GITLEAKS_VERSION"],
+      "inputs": [
+        "scripts/check-secrets.ts",
+        "scripts/secrets-scan-range.ts",
+        "scripts/cli-deps/gitleaks.ts",
+        "$TURBO_ROOT$/.gitleaks.toml"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
@@ -361,7 +363,8 @@
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
-        "@libs/tools#check:static"
+        "@libs/tools#check:actionlint",
+        "@libs/tools#check:secrets"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
