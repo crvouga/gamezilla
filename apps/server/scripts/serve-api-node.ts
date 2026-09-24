@@ -15,7 +15,7 @@
  */
 
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
-import type { ApiWorkerEnv } from '@libs/server-app/config/env';
+import type { ApiWorkerEnv, RoomNamespace } from '@libs/server-app/config/env';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
@@ -38,35 +38,44 @@ const rooms = createBunRoomHost({
 
 const pendingUpgrades = new Map<string, BunRoomSocketData>();
 
+/** The room topic each opaque namespace id stands for. */
+const roomTopics = new WeakMap<object, string>();
+
+function answerRoomUpgrade(topic: string, request: Request): Response {
+  const url = new URL(request.url);
+  const ticket = request.headers.get(UPGRADE_HEADER) ?? '';
+  const data = rooms.accept({
+    topic,
+    moduleName: url.searchParams.get('module') ?? '',
+    actorId: request.headers.get('x-actor-id') ?? '',
+    clientId: request.headers.get('x-actor-client-id') ?? crypto.randomUUID(),
+  });
+  if (data === null || ticket.length === 0) {
+    return new Response('unknown room module', { status: 400 });
+  }
+  pendingUpgrades.set(ticket, data);
+  return new Response(null, { status: 101 });
+}
+
 /**
  * The `ROOM` binding, shaped like a Durable Object namespace. The stub cannot
  * upgrade the socket itself — only the Bun server can — so it records what
  * the upgrade should be and answers 101; the listener finishes the job.
  */
-const roomNamespace = {
-  idFromName: (name: string) => ({ name }),
-  get: (id: { name: string }) => ({
-    fetch(request: Request): Response {
-      const url = new URL(request.url);
-      const ticket = request.headers.get(UPGRADE_HEADER) ?? '';
-      const data = rooms.accept({
-        topic: id.name,
-        moduleName: url.searchParams.get('module') ?? '',
-        actorId: request.headers.get('x-actor-id') ?? '',
-        clientId:
-          request.headers.get('x-actor-client-id') ?? crypto.randomUUID(),
-      });
-      if (data === null || ticket.length === 0) {
-        return new Response('unknown room module', { status: 400 });
-      }
-      pendingUpgrades.set(ticket, data);
-      return new Response(null, { status: 101 });
-    },
+const roomNamespace: RoomNamespace = {
+  idFromName: (name) => {
+    const id = { name };
+    roomTopics.set(id, name);
+    return id;
+  },
+  get: (id) => ({
+    fetch: (request) =>
+      Promise.resolve(answerRoomUpgrade(roomTopics.get(id) ?? '', request)),
   }),
 };
 
 function workerEnv(): ApiWorkerEnv {
-  return { ...process.env, ROOM: roomNamespace } as ApiWorkerEnv;
+  return { ...process.env, ROOM: roomNamespace };
 }
 
 const executionContext = {
@@ -76,7 +85,7 @@ const executionContext = {
   passThroughOnException: () => undefined,
 } as unknown as ExecutionContext;
 
-const server = Bun.serve<BunRoomSocketData, Record<string, never>>({
+const server = Bun.serve<BunRoomSocketData>({
   port: PORT,
   hostname: '127.0.0.1',
   idleTimeout: 60,

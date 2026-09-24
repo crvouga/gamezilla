@@ -21,10 +21,17 @@ export type GoalCheckEntry =
 
 export type GoalChecks = Readonly<Record<string, GoalCheckEntry>>;
 
+/**
+ * A bug that was found and fixed. Its guard is always an example-based
+ * regression test: the concrete input that broke, pinned forever. Properties
+ * and models explore; they are not guards, because a pinned seed that happens
+ * to reach the bug today may not after the generator changes.
+ */
 export type KnownBug = {
   readonly id: string;
   readonly summary: string;
-  readonly guard: GoalProof;
+  /** Repo-relative test file carrying `regression: <id>` beside the test. */
+  readonly regressionTest: string;
 };
 
 export type GoalGateInput = {
@@ -125,6 +132,42 @@ function validateEntry(
   }
 }
 
+const TEST_FILE = /\.test\.tsx?$/;
+const PROPERTY_FILE = /\.property\.test\.tsx?$/;
+
+export function regressionMarker(bugId: string): string {
+  return `regression: ${bugId}`;
+}
+
+function validateRegressionTest(
+  bug: KnownBug,
+  files: ProofFiles,
+  errors: string[]
+): void {
+  const label = `known-bugs:${bug.id}`;
+  const path = bug.regressionTest;
+  if (typeof path !== 'string' || !TEST_FILE.test(path)) {
+    errors.push(`${label}: regressionTest must be a *.test.ts(x) file`);
+    return;
+  }
+  if (PROPERTY_FILE.test(path)) {
+    errors.push(
+      `${label}: ${path} is a property test — a regression guard is an example test that pins the input that broke`
+    );
+    return;
+  }
+  if (!files.owns(path)) return;
+  const body = files.read(path);
+  if (body === null) {
+    errors.push(`${label}: regression test not found: ${path}`);
+    return;
+  }
+  const marker = regressionMarker(bug.id);
+  if (!body.includes(marker)) {
+    errors.push(`${label}: ${path} does not contain marker "${marker}"`);
+  }
+}
+
 function validateKnownBugs(
   bugs: readonly KnownBug[],
   files: ProofFiles,
@@ -136,10 +179,13 @@ function validateKnownBugs(
       errors.push(`known-bugs: duplicate id "${bug.id}"`);
     }
     seen.add(bug.id);
-    if (bug.id.trim().length === 0 || bug.summary.trim().length === 0) {
-      errors.push(`known-bugs: entry "${bug.id}" needs id and summary`);
+    if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(bug.id)) {
+      errors.push(`known-bugs: id "${bug.id}" must be lower-kebab-case`);
     }
-    validateProof(`known-bugs:${bug.id}`, bug.guard, files, errors);
+    if (bug.summary.trim().length === 0) {
+      errors.push(`known-bugs: entry "${bug.id}" needs a summary`);
+    }
+    validateRegressionTest(bug, files, errors);
   }
 }
 
@@ -181,7 +227,7 @@ export function validateProofFiles(input: {
     }
   }
   for (const bug of input.knownBugs) {
-    validateProof(`known-bugs:${bug.id}`, bug.guard, input.files, errors);
+    validateRegressionTest(bug, input.files, errors);
   }
   return errors;
 }

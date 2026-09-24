@@ -7,7 +7,7 @@ import {
   AUTH_NATIVE_SSO_CALLBACK_URL,
   oauthClientCallbackUrl,
 } from '@pkgs/auth-inhouse/shared';
-import { wallClock } from '@pkgs/clock';
+import { createSimClock } from '@pkgs/clock';
 import {
   createIdpSigningKeys,
   createIdpSimApp,
@@ -32,6 +32,8 @@ const SECRET = 'auth-system-secret-0123456789abcdef';
 const HTTPS_CALLBACK = oauthClientCallbackUrl('https://www.gamezilla.app');
 const CLIENT_ID = 'cid.apps.googleusercontent.com';
 const CLIENT_SECRET = 'csecret';
+/** 2026-01-01T00:00:00Z — IdP and relying party share one virtual clock. */
+const START_MS = 1_767_225_600_000;
 const ACCOUNT = { email: 'alice@gmail.com', password: IDP_PASSWORD };
 
 type Wire = (
@@ -46,10 +48,11 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
     logger: createNoopLogger(),
   });
   let nextId = 0;
+  const { clock } = createSimClock({ startMs: START_MS });
   const idpStore = await IdpStore.open({
     provider: 'google',
     sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
-    clock: wallClock,
+    clock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,
   });
@@ -66,7 +69,7 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
     ],
     accounts: [{ handle: 'alice' }],
   });
-  const wire: Wire = (input, init) => {
+  const wire: Wire = async (input, init) => {
     const href =
       typeof input === 'string'
         ? input.startsWith('http')
@@ -84,7 +87,7 @@ async function bootGoogleAuth(): Promise<{ readonly wire: Wire }> {
   };
   const authApp = createAuthApp({
     getSql: () => sql,
-    clock: wallClock,
+    clock,
     createId: () => `id-${(nextId += 1)}`,
     http: { fetch: (input, init) => wire(input, init) },
     secret: SECRET,
@@ -133,7 +136,7 @@ async function completeGoogleRoundTrip(args: {
   });
   const result = await openAuthSession(launchUrl, args.callbackUrl);
   expect(result.type).toBe('success');
-  const appLocation = result.type === 'success' ? result.url : '';
+  const appLocation = result.type === 'success' ? (result.url ?? '') : '';
   expect(appLocation.startsWith(args.callbackUrl)).toBe(true);
   const exchangeCode = new URL(appLocation).searchParams.get('code');
   expect(exchangeCode).toBeTruthy();

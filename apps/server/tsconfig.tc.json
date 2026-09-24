@@ -4,6 +4,7 @@
     "../../libs/server-app/src/app/cloudflare.d.ts",
     "./src/**/*.ts",
     "./src/**/*.d.ts",
-    "./tests/**/*.ts"
+    "./tests/**/*.ts",
+    "./scripts/**/*.ts"
   ]
 }

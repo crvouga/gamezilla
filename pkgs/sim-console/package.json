@@ -14,7 +14,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx'"
+    "test": "bun test --path-ignore-patterns='**/*.test.tsx'"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",

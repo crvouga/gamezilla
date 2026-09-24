@@ -9,6 +9,7 @@ import {
   puzzleNavIntentFromSwipe,
   resolvePuzzleNavTarget,
 } from '@libs/chess/public/puzzle-session';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 const SEED = 20260919;
@@ -119,7 +120,8 @@ describe('§7 seek targets', () => {
       PUZZLE_NAV_INTENT.forward,
       PUZZLE_NAV_INTENT.end,
     ];
-    fc.assert(
+    assertProperty(
+      'a target never leaves the reached line (seeded)',
       fc.property(
         fc.constantFrom(...intents),
         fc.integer({ min: 0, max: 40 }),

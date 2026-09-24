@@ -1,71 +1,333 @@
 /**
- * Service-worker caching policy for the super-app shell.
+ * Service-worker precache policy for the super-app, and the analysis that
+ * proves it (pure: text in, verdict out).
  *
- * First-install precache is capped at 1 MiB, so heavy lazy chunks are excluded
- * from `globIgnores`. Every excluded *chunk* still needs a runtime cache rule —
- * otherwise a post-deploy offline open can fail fetching it. This module keeps
- * the two lists in one place and exposes the invariant the check asserts.
+ * GOAL §3: "Once the app has been opened once, it opens and works with no
+ * connection." A service worker only guarantees that for files it precaches —
+ * a runtime cache rule helps only a chunk that happened to be fetched while
+ * online, and a lazy chunk never opened online is simply absent offline. So
+ * the policy is one rule: **precache every file the wall client can load**
+ * (`index.html`, its whole static + lazy module graph, the URL-loaded SQL
+ * workers) and nothing the simulator alone reaches. `build-sw.ts` applies it
+ * to Workbox's manifest; `check-offline-shell.ts` re-derives it from the
+ * emitted `dist/sw.js` and fails on any gap or on {@link PRECACHE_BUDGET_BYTES}.
+ *
+ * The module graph is read from the build output itself, the way the browser
+ * sees it:
+ *
+ * - static edges: `import … from "./x.js"`, `import "./x.js"`, `export … from`
+ * - dynamic edges: `import("./x.js")`
+ * - Vite preload lists: `__vite__mapDeps([i, …])` over the chunk's
+ *   `m.f=["assets/x.js", …]` table (this is where lazy CSS lives). Vite puts
+ *   the imported chunk first in each list, so the rest are attributed to that
+ *   chunk — they load only when it does. A list whose head is not one of the
+ *   chunk's dynamic imports is attributed to the importer (conservative).
+ * - the entry: `index.html` `<script src>`, `modulepreload` and stylesheet
+ *   links.
+ *
+ * The simulator (`/simulator`) is a dev surface booted by one lazy chunk,
+ * identified by its *source* path through Vite's manifest (not by a chunk-name
+ * glob). That chunk is never entered, so what only the simulator reaches
+ * (in-browser Postgres, sim seeds, the sim console) stays out of first-install
+ * precache, while anything the wall client also reaches is still required.
  */
 
-export type LazyShellCacheRule = {
-  readonly cacheName: string;
-  readonly globs: readonly string[];
-  readonly urlPattern: RegExp;
-};
+/** Vite's build manifest (source module → emitted chunk), `build.manifest`. */
+export const VITE_MANIFEST = '.vite/manifest.json';
 
-/** First-install precache exclusions (assets + heavy lazy chunks). */
+/** The `/simulator` boot; its exclusive subgraph is not part of the wall client. */
+export const SIMULATOR_BOOT_SOURCE =
+  'src/console/product-simulator/boot-product-simulator.ts';
+
+/** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */
+export const URL_LOADED_DIRS: readonly string[] = ['sql-workers/'];
+
+/** Files Workbox considers for precache before the wall-reachability filter. */
+export const PRECACHE_GLOB_PATTERNS: readonly string[] = [
+  '**/*.{html,js,mjs,css,wasm,ttf,woff2,svg,ico,webmanifest,json}',
+];
+
+/**
+ * Never precached: device-specific Apple splash PNGs (runtime image cache),
+ * the dev-only raw sqlite-wasm copy (workers ship their own), source maps.
+ */
 export const PRECACHE_GLOB_IGNORES: readonly string[] = [
   '**/apple-splash-*.png',
   '**/generated/**',
-  '**/*dicebear*.js',
-  '**/*with-framework-mutations*.js',
-  '**/*game-plugins*.js',
-  '**/*create-local-sync-engine*.js',
   '**/*.map',
 ];
 
-/** Ignore entries that are never fetched at runtime as shell chunks. */
-export const PRECACHE_IGNORE_EXEMPT: readonly string[] = [
-  '**/apple-splash-*.png',
-  '**/generated/**',
-  '**/*.map',
-];
+/**
+ * First-install precache ceiling, raw bytes (what Workbox downloads and
+ * stores). The wall shell is ~8.3 MB raw / ~2.4 MB gzip today, dominated by
+ * node-sql-parser (mutation SQL capture, ~2.4 MB raw), DiceBear (~2 MB) and
+ * sqlite3.wasm (~0.9 MB). On a low-end Android over Slow 3G
+ * (docs/LOW_END_ANDROID_PERF.md) the service worker installs it in the
+ * background after first paint, so it never gates interactivity — but it is
+ * data and storage the person pays for once. 9 MiB leaves ~14% headroom so
+ * growth is a deliberate decision: shrink the heavy chunks before raising it.
+ * Also the per-file Workbox cap: no single file can exceed the whole budget,
+ * so Workbox never drops a large chunk silently.
+ */
+export const PRECACHE_BUDGET_BYTES = 9 * 1024 * 1024;
 
-export const LAZY_SHELL_CACHE_MAX_AGE_SECONDS = 30 * 24 * 3600;
+export type DistFile = {
+  readonly path: string;
+  readonly bytes: number;
+};
 
-/** Runtime rules for lazy shell chunks that stay out of first-install precache. */
-export const LAZY_SHELL_CACHE_RULES: readonly LazyShellCacheRule[] = [
-  {
-    cacheName: 'lazy-shell-dicebear',
-    globs: ['**/*dicebear*.js'],
-    urlPattern: /dicebear[^/]*\.js$/,
-  },
-  {
-    cacheName: 'lazy-shell-mutations',
-    globs: ['**/*with-framework-mutations*.js'],
-    urlPattern: /with-framework-mutations[^/]*\.js$/,
-  },
-  {
-    cacheName: 'lazy-shell-game-plugins',
-    globs: ['**/*game-plugins*.js'],
-    urlPattern: /game-plugins[^/]*\.js$/,
-  },
-  {
-    cacheName: 'lazy-shell-sync-engine',
-    globs: ['**/*create-local-sync-engine*.js'],
-    urlPattern: /create-local-sync-engine[^/]*\.js$/,
-  },
-];
+export type ChunkImports = {
+  readonly static: readonly string[];
+  readonly dynamic: readonly string[];
+  /** Preload deps keyed by the chunk they load with (`null` = the importer). */
+  readonly preload: readonly PreloadList[];
+};
 
-/** Ignore entries that no rule covers and that are not explicitly exempt. */
-export function uncoveredLazyShellIgnores(args: {
-  readonly ignores: readonly string[];
-  readonly exempt: readonly string[];
-  readonly rules: readonly LazyShellCacheRule[];
-}): readonly string[] {
-  const exempt = new Set(args.exempt);
-  const covered = new Set(args.rules.flatMap((rule) => rule.globs));
-  return args.ignores.filter(
-    (entry) => !exempt.has(entry) && !covered.has(entry)
+export type PreloadList = {
+  readonly target: string | null;
+  readonly deps: readonly string[];
+};
+
+export type OfflineShellInput = {
+  readonly files: readonly DistFile[];
+  /** Source text of every `.js` chunk, keyed by dist-relative path. */
+  readonly chunkSources: ReadonlyMap<string, string>;
+  readonly indexHtml: string;
+  readonly swSource: string;
+  /** Chunks whose subgraph is not part of the wall client (the simulator). */
+  readonly excludedRoots: readonly string[];
+  /** Files the wall client loads by URL rather than by import (workers). */
+  readonly extraRoots: readonly string[];
+};
+
+export type OfflineShellReport = {
+  /** Files the wall client can load (entry, JS, CSS, extra roots), sorted. */
+  readonly reachable: readonly string[];
+  /** Reachable files missing from the precache manifest, sorted. */
+  readonly notPrecached: readonly string[];
+  /** Referenced files that do not exist in `dist/`, sorted. */
+  readonly dangling: readonly string[];
+  readonly precachedBytes: number;
+  readonly precachedCount: number;
+};
+
+export const ENTRY_HTML = 'index.html';
+
+const SHELL_FILE = /\.(?:m?js|css)$/;
+const STATIC_IMPORT =
+  /(?:\bfrom|\bimport)\s*(["'`])((?:\.{1,2}\/|\/)[^"'`\s]+)\1/g;
+const DYNAMIC_IMPORT =
+  /\bimport\(\s*(["'`])((?:\.{1,2}\/|\/)[^"'`\s]+)\1\s*\)/g;
+const PRELOAD_TABLE = /m\.f\|\|\(m\.f=\[([^\]]*)\]/;
+const PRELOAD_CALL = /__vite__mapDeps\(\[([\d,\s]*)\]/g;
+const QUOTED = /(["'`])([^"'`]+)\1/g;
+const PRECACHE_URL = /["']?url["']?\s*:\s*(["'])([^"']+)\1/g;
+const HTML_TAG = /<(?:script|link)\b[^>]*>/g;
+const HTML_ATTR = /\b(src|href|rel)\s*=\s*(["'])([^"']*)\2/g;
+const HTML_LOADS = new Set(['modulepreload', 'stylesheet']);
+
+export function isShellFile(path: string): boolean {
+  return SHELL_FILE.test(path);
+}
+
+/** Resolves `spec` against the dist-relative file `from` (`/x` = dist root). */
+export function resolveDistPath(from: string, spec: string): string {
+  const withoutQuery = spec.replace(/[?#].*$/, '');
+  const parts = withoutQuery.startsWith('/')
+    ? []
+    : from.split('/').slice(0, -1);
+  for (const segment of withoutQuery.split('/')) {
+    if (segment === '' || segment === '.') continue;
+    if (segment === '..') parts.pop();
+    else parts.push(segment);
+  }
+  return parts.join('/');
+}
+
+function captures(source: string, pattern: RegExp, group: number): string[] {
+  return [...source.matchAll(pattern)].map((match) => match[group] ?? '');
+}
+
+function preloadLists(
+  source: string,
+  dynamic: readonly string[]
+): PreloadList[] {
+  const table = PRELOAD_TABLE.exec(source);
+  if (table === null) return [];
+  const entries = captures(table[1] ?? '', QUOTED, 2).map((path) =>
+    resolveDistPath('', path)
   );
+  const dynamicTargets = new Set(dynamic);
+  return captures(source, PRELOAD_CALL, 1).map((indices) => {
+    const deps = indices
+      .split(',')
+      .filter((index) => index.trim() !== '')
+      .map((index) => entries[Number(index)])
+      .filter((path): path is string => path !== undefined);
+    const head = deps[0];
+    const target = head !== undefined && dynamicTargets.has(head) ? head : null;
+    return { target, deps: target === null ? deps : deps.slice(1) };
+  });
+}
+
+/** Import edges of one built chunk, as dist-relative paths. */
+export function parseChunkImports(
+  chunkPath: string,
+  source: string
+): ChunkImports {
+  const resolve = (spec: string): string => resolveDistPath(chunkPath, spec);
+  const dynamic = captures(source, DYNAMIC_IMPORT, 2).map(resolve);
+  const staticImports = captures(source, STATIC_IMPORT, 2).map(resolve);
+  return {
+    static: staticImports.filter(isShellFile),
+    dynamic: dynamic.filter(isShellFile),
+    preload: preloadLists(source, dynamic),
+  };
+}
+
+/** Files `index.html` loads at boot: module scripts, modulepreloads, CSS. */
+export function parseEntryHtml(html: string): string[] {
+  const out: string[] = [];
+  for (const [tag] of html.matchAll(HTML_TAG)) {
+    const attrs = new Map(
+      [...tag.matchAll(HTML_ATTR)].map((m) => [m[1] ?? '', m[3] ?? ''])
+    );
+    const isScript = tag.startsWith('<script');
+    const url = isScript ? attrs.get('src') : attrs.get('href');
+    const loads = isScript || HTML_LOADS.has(attrs.get('rel') ?? '');
+    if (url !== undefined && loads) out.push(resolveDistPath('', url));
+  }
+  return out;
+}
+
+/** Dist-relative URLs in the Workbox `precacheAndRoute([...])` manifest. */
+export function parsePrecacheManifest(swSource: string): string[] {
+  const start = swSource.indexOf('precacheAndRoute(');
+  if (start === -1) return [];
+  return captures(swSource.slice(start), PRECACHE_URL, 2).map((url) =>
+    resolveDistPath('', url)
+  );
+}
+
+function edgesOf(sources: ReadonlyMap<string, string>): Map<string, string[]> {
+  const edges = new Map<string, string[]>();
+  const add = (from: string, to: readonly string[]): void => {
+    edges.set(from, [...(edges.get(from) ?? []), ...to]);
+  };
+  for (const [path, source] of sources) {
+    const imports = parseChunkImports(path, source);
+    add(path, [...imports.static, ...imports.dynamic]);
+    for (const list of imports.preload) add(list.target ?? path, list.deps);
+  }
+  return edges;
+}
+
+/** Every node reachable from `roots` without entering `excluded`. */
+export function reachableFrom(args: {
+  readonly edges: ReadonlyMap<string, readonly string[]>;
+  readonly roots: readonly string[];
+  readonly excluded: ReadonlySet<string>;
+}): Set<string> {
+  const seen = new Set<string>();
+  const stack = args.roots.filter((root) => !args.excluded.has(root));
+  while (stack.length > 0) {
+    const node = stack.pop() as string;
+    if (seen.has(node)) continue;
+    seen.add(node);
+    for (const next of args.edges.get(node) ?? []) {
+      if (!seen.has(next) && !args.excluded.has(next)) stack.push(next);
+    }
+  }
+  return seen;
+}
+
+function sorted(values: Iterable<string>): string[] {
+  return [...values].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+}
+
+/** Files the wall client can load: `index.html`, its graph, extra roots. */
+export function wallReachable(
+  input: Omit<OfflineShellInput, 'swSource' | 'files'>
+): string[] {
+  const roots = [
+    ENTRY_HTML,
+    ...parseEntryHtml(input.indexHtml),
+    ...input.extraRoots,
+  ];
+  return sorted(
+    reachableFrom({
+      edges: edgesOf(input.chunkSources),
+      roots,
+      excluded: new Set(input.excludedRoots),
+    })
+  );
+}
+
+export function analyzeOfflineShell(
+  input: OfflineShellInput
+): OfflineShellReport {
+  const sizes = new Map(input.files.map((file) => [file.path, file.bytes]));
+  const precached = new Set(parsePrecacheManifest(input.swSource));
+  const reachable = wallReachable(input);
+  let precachedBytes = 0;
+  for (const url of precached) precachedBytes += sizes.get(url) ?? 0;
+  return {
+    reachable,
+    notPrecached: reachable.filter(
+      (path) => sizes.has(path) && !precached.has(path)
+    ),
+    dangling: reachable.filter((path) => !sizes.has(path)),
+    precachedBytes,
+    precachedCount: precached.size,
+  };
+}
+
+/**
+ * Workbox `manifestTransforms` filter: a JS/CSS file stays in the precache
+ * only when the wall client can load it; every other globbed file (icons,
+ * fonts, manifest) stays.
+ */
+export function keepInPrecache(
+  url: string,
+  wallFiles: ReadonlySet<string>
+): boolean {
+  return !isShellFile(url) || wallFiles.has(resolveDistPath('', url));
+}
+
+function formatBytes(bytes: number): string {
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MiB (${String(bytes)} B)`;
+}
+
+/** Every reason the build breaks the offline-shell policy (empty = pass). */
+export function offlineShellFailures(
+  report: OfflineShellReport,
+  budgetBytes: number
+): string[] {
+  const failures: string[] = [];
+  if (report.reachable.length <= 1) {
+    failures.push('no wall-client chunks found from index.html — parse broke?');
+  }
+  for (const path of report.notPrecached) {
+    failures.push(`not precached (unavailable offline): ${path}`);
+  }
+  for (const path of report.dangling) {
+    failures.push(`referenced but missing from dist/: ${path}`);
+  }
+  if (report.precachedBytes > budgetBytes) {
+    failures.push(
+      `precache ${formatBytes(report.precachedBytes)} exceeds budget ${formatBytes(budgetBytes)}`
+    );
+  }
+  return failures;
+}
+
+export function formatOfflineShellSummary(
+  report: OfflineShellReport,
+  budgetBytes: number
+): string {
+  return [
+    `wall-client files: ${String(report.reachable.length)}`,
+    `precached: ${String(report.precachedCount)} entries, ${formatBytes(report.precachedBytes)}`,
+    `budget: ${formatBytes(budgetBytes)}`,
+  ].join('\n');
 }

@@ -1,7 +1,10 @@
 import { describe, expect, it, mock } from 'bun:test';
-import { wallTimers } from '@pkgs/clock';
+import { createSimClock } from '@pkgs/clock';
 import { BunWebviewDriver } from './bun-webview-driver';
 import type { BunWebView } from './bun-webview-host';
+
+/** Popup-load timeouts only; the fake view settles first, so none fire. */
+const timers = createSimClock().timers;
 
 type PointerCounts = { down: number; up: number };
 
@@ -50,7 +53,7 @@ describe('BunWebviewDriver', () => {
     const driver = new BunWebviewDriver({
       view,
       baseUrl: 'http://localhost:3000',
-      timers: wallTimers,
+      timers,
     });
 
     await driver.launch();
@@ -91,7 +94,7 @@ describe('BunWebviewDriver', () => {
 
   it('secondary tapAt is a native right click', async () => {
     const view = createFakeView();
-    const driver = new BunWebviewDriver({ view, timers: wallTimers });
+    const driver = new BunWebviewDriver({ view, timers });
     await driver
       .get('board')
       .tapAt({ xRatio: 0.5, yRatio: 0.5 }, { button: 'secondary' });
@@ -104,7 +107,7 @@ describe('BunWebviewDriver', () => {
       view.pointer.down += 1;
       return Promise.resolve();
     });
-    const driver = new BunWebviewDriver({ view, timers: wallTimers });
+    const driver = new BunWebviewDriver({ view, timers });
     await driver
       .get('board')
       .tapAt({ xRatio: 0.5, yRatio: 0.5 }, { button: 'secondary' });
@@ -122,7 +125,7 @@ describe('BunWebviewDriver', () => {
       }
       return deliver?.(...args) ?? Promise.resolve();
     });
-    const driver = new BunWebviewDriver({ view, timers: wallTimers });
+    const driver = new BunWebviewDriver({ view, timers });
     await driver.get('board').tapAt({ xRatio: 0.5, yRatio: 0.5 });
     expect(view.click).toHaveBeenCalledTimes(2);
   });
@@ -141,7 +144,7 @@ describe('BunWebviewDriver', () => {
       view.pointer.up += next.up;
       return Promise.resolve();
     });
-    const driver = new BunWebviewDriver({ view, timers: wallTimers });
+    const driver = new BunWebviewDriver({ view, timers });
     await driver.get('board').tapAt({ xRatio: 0.5, yRatio: 0.5 });
     expect(view.click).toHaveBeenCalledTimes(2);
   });
@@ -160,14 +163,14 @@ describe('BunWebviewDriver', () => {
       view.pointer.up += next.up;
       return Promise.resolve();
     });
-    const driver = new BunWebviewDriver({ view, timers: wallTimers });
+    const driver = new BunWebviewDriver({ view, timers });
     await driver.get('board').tapAt({ xRatio: 0.5, yRatio: 0.5 });
     expect(view.click).toHaveBeenCalledTimes(3);
   });
 
   it('chains nested get via descendant data-testid selectors', async () => {
     const view = createFakeView();
-    const driver = new BunWebviewDriver({ view, timers: wallTimers });
+    const driver = new BunWebviewDriver({ view, timers });
 
     await driver.get('parent').get('child').tap();
     expect(view.click).toHaveBeenCalledWith(

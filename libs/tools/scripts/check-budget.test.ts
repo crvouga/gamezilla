@@ -34,7 +34,9 @@ describe('taskBudgetSeconds', () => {
 
   test('listed tasks get their own budget', () => {
     const listed = '@pkgs/sql-client-postgres#test:contract';
-    expect(taskBudgetSeconds(listed, false)).toBe(TASK_BUDGET_SECONDS[listed]);
+    expect(taskBudgetSeconds(listed, false)).toBe(
+      TASK_BUDGET_SECONDS[listed] ?? Number.NaN
+    );
   });
 
   test('slow runners scale every budget by the same factor', () => {

@@ -390,6 +390,91 @@ const PROBES: readonly Probe[] = [
     source: "import { IdpRepository } from '@pkgs/auth-inhouse/server';",
     message: null,
   },
+  {
+    path: 'pkgs/zz/tests/unpinned.test.ts',
+    source: 'fc.assert(fc.property(fc.nat(), (n) => n >= 0));',
+    message: 'Run properties through assertProperty',
+  },
+  {
+    path: 'pkgs/zz/tests/sampled.test.ts',
+    source: 'const [x] = fc.sample(fc.nat(), 1);',
+    message: 'Run properties through assertProperty',
+  },
+  {
+    path: 'pkgs/zz/tests/pinned.test.ts',
+    source: "assertProperty('n', fc.property(fc.nat(), (n) => n >= 0));",
+    message: null,
+  },
+  {
+    path: 'pkgs/property/src/zz.ts',
+    source: 'fc.assert(property, params);',
+    message: null,
+  },
+  {
+    path: 'pkgs/zz/tests/aliased.test.ts',
+    source: "import { assert as run } from 'fast-check';",
+    message: 'importing fast-check',
+  },
+  {
+    path: 'pkgs/zz/tests/arbitraries.test.ts',
+    source: "import { type Arbitrary } from 'fast-check';",
+    message: null,
+  },
+  {
+    path: 'pkgs/zz/tests/skip.test.ts',
+    source: "test.skip('x', () => {});",
+    message: 'Skipped tests are banned',
+  },
+  {
+    path: 'pkgs/zz/tests/todo.test.ts',
+    source: "it.todo('x');",
+    message: 'Skipped tests are banned',
+  },
+  {
+    path: 'pkgs/zz/tests/conditional.test.ts',
+    source: "describe.if(ok)('x', () => {});",
+    message: 'Skipped tests are banned',
+  },
+  {
+    path: 'pkgs/zz/tests/only.test.ts',
+    source: "test.only('x', () => {});",
+    message: 'Focused tests are banned',
+  },
+  {
+    path: 'pkgs/zz/tests/failing.test.ts',
+    source: "test.failing('x', () => {});",
+    message: 'Expected-failure tests are banned',
+  },
+  {
+    path: 'pkgs/zz/tests/plain.test.ts',
+    source: "test('x', () => {});",
+    message: null,
+  },
+  {
+    path: 'pkgs/zz/tests/sleep.test.ts',
+    source: 'await new Promise((r) => setTimeout(r, 30));',
+    message: 'Tests run on virtual time',
+  },
+  {
+    path: 'pkgs/zz/tests/wall.test.ts',
+    source: 'const clock = wallClock;',
+    message: 'Tests run on virtual time',
+  },
+  {
+    path: 'pkgs/zz/tests/now.test.ts',
+    source: 'const at = new Date();',
+    message: 'Tests run on virtual time',
+  },
+  {
+    path: 'pkgs/zz/tests/virtual.test.ts',
+    source: 'sim.timers.setTimeout(done, 30);',
+    message: null,
+  },
+  {
+    path: 'pkgs/zz/tests/broker.contract.test.ts',
+    source: 'const clock = wallClock;',
+    message: null,
+  },
 ];
 
 type Diagnostic = {

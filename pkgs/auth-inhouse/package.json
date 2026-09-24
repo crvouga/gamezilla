@@ -43,7 +43,7 @@
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/idp-sim": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",

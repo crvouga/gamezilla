@@ -198,8 +198,11 @@ export function uciFromSan(fen: string, san: string): string | null {
 }
 
 function perftOf(chess: Chess, depth: number): number {
+  // Leaves are counted, not built: `legalMovesOf` maps chess.js's moves one to
+  // one, and skipping the verbose objects (each carries two FENs) makes perft
+  // ~7x cheaper — cheap enough to stay far inside a test's time budget.
+  if (depth === 1) return chess.moves().length;
   const moves = legalMovesOf(chess);
-  if (depth === 1) return moves.length;
   let nodes = 0;
   for (const m of moves) {
     chess.move(m.promotion === undefined ? { from: m.from, to: m.to } : m);

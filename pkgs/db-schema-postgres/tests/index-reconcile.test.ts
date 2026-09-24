@@ -142,7 +142,9 @@ describe('postgres index-only planner', () => {
 
     // The invalid index still occupies its name, so its drop must come before
     // the create that reclaims the name.
-    const order = plan.operations.map((o) => `${o.kind}:${o.name}`);
+    const order = plan.operations.map(
+      (o) => `${o.kind}:${'name' in o ? o.name : o.table}`
+    );
     const dropAt = order.indexOf(`drop_index:${declaredIndex}`);
     const createAt = order.indexOf(`create_index:${declaredIndex}`);
     expect(dropAt).toBeGreaterThanOrEqual(0);

@@ -29,7 +29,7 @@ describe('naming rules', () => {
     ['.env.local', true],
     ['docs/GOAL.md', true],
     ['pkgs/x/README.md', true],
-    ['.agents/commands/pr-merge.md', true],
+    ['.agents/commands/git-sync.md', true],
     ['libs/pubsub/emqx-deploy/Dockerfile', true],
     ['.superset/attachments/Design Shot.png', true],
     ['src/fooBar.ts', false],

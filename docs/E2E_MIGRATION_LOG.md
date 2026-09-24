@@ -114,4 +114,4 @@ feature that hosts a signed-in screen.
 | `product-explore` | `system.explore` search over the action pool | `libs/runtime/tests/e2e/explore` (smoke) |
 | `topology-partition` | partition an actor from the server, then restore, and still sign up | `libs/runtime/tests/e2e/topology-partition` (platform) |
 | `non-web-host-smoke` | the bun-webview host builds and is exported | `libs/sim-harness/tests/hosts-smoke` (ordinary test) |
-| `sw-policy` | service-worker precache/runtime rule coverage — static, no sim | `apps/product/scripts/sw-policy.test.ts` (ordinary test) |
+| `sw-policy` | every wall-client file is precached (graph over the built `dist/`, plus `check:offline-shell`) | `apps/product/scripts/sw-policy.test.ts` (ordinary test) |

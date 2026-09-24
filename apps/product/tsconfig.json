@@ -6,7 +6,8 @@
     "../../pkgs/ui/src/css-modules.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx",
-    "./scripts/**/*.ts"
+    "./scripts/**/*.ts",
+    "./vite.config.mts"
   ],
   "compilerOptions": {
     "types": ["bun", "node"]

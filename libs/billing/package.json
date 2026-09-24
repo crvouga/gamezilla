@@ -64,6 +64,7 @@
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",

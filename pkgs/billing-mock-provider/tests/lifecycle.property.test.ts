@@ -24,7 +24,7 @@ import {
   MOCK_BILLING_PAGE_API,
   type PortalAction,
 } from '@pkgs/billing-mock-provider/shared';
-import { assertProperty, fc } from '@pkgs/sim/fast-check';
+import { assertProperty, fc } from '@pkgs/property';
 import {
   type Delivered,
   openRig,

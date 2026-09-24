@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "test": "bun test"
   },
   "dependencies": {
     "@pkgs/db-schema": "workspace:*",
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

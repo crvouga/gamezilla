@@ -14,7 +14,7 @@
     "fetch:assets": "bun run scripts/fetch-kenney-packs.ts && bun run scripts/curate-sounds.ts && bun run scripts/generate-manifest.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --pass-with-no-tests",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
     "verify:licenses": "bun run scripts/verify-licenses.ts"
   },
   "dependencies": {

@@ -290,8 +290,7 @@ Scripts:
 ```bash
 bun run --filter @pkgs/room test       # all package tests
 bun run --filter @pkgs/room-sim test  # system scenarios + kit only
-bun run test:pbt                       # all pkgs/libs *.pbt.test.ts (pinned FC_SEED)
-bun run test:pbt:random                # nightly random exploration
+bun run test:pbt:random                # hunt beyond the pinned seed (not the gate)
 ```
 
 ### Shrinking system kernel (`@pkgs/room-sim` `src/scenario/`)
@@ -343,7 +342,8 @@ await expectInSync(s);
 
 On find: `explore` returns a shrunk `Recording`; replay it with
 `counterSystem.replay(repro)` → pin in `room-system.scenario.pbt.test.ts` or a
-named `.sim.test.ts` → log in [`docs/PBT_FINDINGS.md`](../../docs/PBT_FINDINGS.md).
+named example test marked `// regression: <id>` → register it in
+[`known-bugs.json`](../../libs/tools/goal/known-bugs.json) ([`docs/TESTING.md`](../../docs/TESTING.md) § 3).
 
 ### System five concepts (room-shaped)
 

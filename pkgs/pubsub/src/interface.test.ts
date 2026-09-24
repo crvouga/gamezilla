@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import { type Clock, createSimClock, type Timers } from '@pkgs/clock';
 import { createNoopLogger, type Logger } from '@pkgs/logger';
 import {
   createInMemoryBus,
@@ -11,6 +11,45 @@ import { decodePayload, encodePayload, PAYLOAD_MAX_BYTES } from './payload';
 import { assertValidTopic } from './topic';
 
 const logger = createNoopLogger();
+
+async function flushMicrotasks(): Promise<void> {
+  for (let i = 0; i < 32; i += 1) await Promise.resolve();
+}
+
+/**
+ * Virtual clock whose timers fire as soon as the microtask queue is quiet:
+ * the contract's `waitMs` / `waitUntil` run on virtual time, never the wall.
+ * The in-memory bus delivers synchronously, so nothing is outrun.
+ */
+function selfAdvancingSimClock(): { clock: Clock; timers: Timers } {
+  const sim = createSimClock();
+  let pumping = false;
+  const pump = async (): Promise<void> => {
+    if (pumping) return;
+    pumping = true;
+    try {
+      for (;;) {
+        await flushMicrotasks();
+        const due = sim.clock.nextDueAt();
+        if (due === null) return;
+        sim.clock.set(Math.max(due, sim.clock.now()));
+      }
+    } finally {
+      pumping = false;
+    }
+  };
+  return {
+    clock: sim.clock,
+    timers: {
+      ...sim.timers,
+      setTimeout: (fn, ms) => {
+        const handle = sim.timers.setTimeout(fn, ms);
+        void pump();
+        return handle;
+      },
+    },
+  };
+}
 
 runPubSubContractTests(
   'in-memory',
@@ -24,8 +63,7 @@ runPubSubContractTests(
         }
         subscriber.deliverRawForTest(topic, 'not-json{{{');
       },
-      clock: wallClock,
-      timers: wallTimers,
+      ...selfAdvancingSimClock(),
       teardown: async () => undefined,
     };
   },

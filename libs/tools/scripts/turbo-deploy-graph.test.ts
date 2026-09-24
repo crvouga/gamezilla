@@ -56,6 +56,9 @@ const CHECK_LEAVES = [
   'test:contract',
   'test:e2e',
   '@apps/client#check:bundle-budget',
+  '@apps/product#check:offline-shell',
+  '@apps/room-server#check:worker-bundle',
+  '@apps/server#check:worker-bundle',
   '@libs/runtime#check:schema-evolution',
   '@libs/secrets#check',
   '@libs/tools#check:static',
@@ -103,7 +106,14 @@ describe('turbo check/deploy graph invariants', () => {
     // An enumerated input list is how a fixture or a tests/ tsconfig include
     // silently falls out of the hash and a stale pass gets served.
     const tasks = loadTasks();
-    for (const task of ['tc', 'lint', 'test', 'test:contract', 'test:e2e']) {
+    for (const task of [
+      'tc',
+      'lint',
+      'test',
+      'test:contract',
+      'test:e2e',
+      'check:worker-bundle',
+    ]) {
       expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');
     }
   });

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/sim/fast-check';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 import { ALWAYS_FACTORIES } from './helpers/backends';
 import { forEachBackendSample } from './helpers/for-each-backend';

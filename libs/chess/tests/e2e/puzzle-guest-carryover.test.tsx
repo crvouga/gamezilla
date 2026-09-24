@@ -30,6 +30,8 @@ import { sql } from '@pkgs/sql';
 import { openSim } from './support/open-chess-sim';
 
 describe('guest puzzle progress carryover', () => {
+  // regression: puzzle-profile-volatility-sync — the synced profile carries
+  // Glicko volatility, so the second device's rating state is complete.
   test('an offline guest solve survives Google sign-in and reaches a second device once', async () => {
     await using s = await openSim('puzzle-guest-offline-carryover');
     await s.apply(createSpace, 'alice');

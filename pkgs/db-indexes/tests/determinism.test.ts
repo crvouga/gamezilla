@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/sim/fast-check';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 import { compareNames } from '../src/core/compare';
 import { planIndexes } from '../src/core/plan';
-import { genSchema, genSmallManifest } from './generators';
+import { genSchemaWithManifest } from './generators';
 import { fixedClock, RecordingPort } from './helpers/recording-port';
 
 function canonicalizePlan(plan: Awaited<ReturnType<typeof planIndexes>>) {
@@ -23,8 +23,7 @@ describe('analyzer determinism PBT', () => {
   test('same inputs → identical plan JSON', async () => {
     await assertProperty(
       'plan determinism',
-      fc.asyncProperty(genSchema, async (schema) => {
-        const manifest = await fc.sample(genSmallManifest(schema), 1)[0]!;
+      fc.asyncProperty(genSchemaWithManifest, async ({ schema, manifest }) => {
         const tables = schema.tables.map((t) => ({
           name: t.name,
           estimatedRows: Math.max(t.estimatedRows, 10_000),
@@ -49,34 +48,36 @@ describe('analyzer determinism PBT', () => {
   test('shuffled query order → identical after canonicalize', async () => {
     await assertProperty(
       'order independent',
-      fc.asyncProperty(genSchema, async (schema) => {
-        const base = await fc.sample(genSmallManifest(schema), 1)[0]!;
-        if (base.queries.length < 2) return;
-        const shuffled = {
-          version: 1 as const,
-          queries: [...base.queries].reverse(),
-        };
-        const tables = schema.tables.map((t) => ({
-          name: t.name,
-          estimatedRows: Math.max(t.estimatedRows, 10_000),
-        }));
-        const clock = fixedClock(1_700_000_000_000);
-        const mk = () =>
-          new RecordingPort({
-            indexes: [],
-            tables,
-            usage: [],
-            metas: [],
-            defaultImprovement: 10,
+      fc.asyncProperty(
+        genSchemaWithManifest,
+        async ({ schema, manifest: base }) => {
+          if (base.queries.length < 2) return;
+          const shuffled = {
+            version: 1 as const,
+            queries: [...base.queries].reverse(),
+          };
+          const tables = schema.tables.map((t) => ({
+            name: t.name,
+            estimatedRows: Math.max(t.estimatedRows, 10_000),
+          }));
+          const clock = fixedClock(1_700_000_000_000);
+          const mk = () =>
+            new RecordingPort({
+              indexes: [],
+              tables,
+              usage: [],
+              metas: [],
+              defaultImprovement: 10,
+            });
+          const a = await planIndexes({ manifest: base, db: mk(), clock });
+          const b = await planIndexes({
+            manifest: shuffled,
+            db: mk(),
+            clock,
           });
-        const a = await planIndexes({ manifest: base, db: mk(), clock });
-        const b = await planIndexes({
-          manifest: shuffled,
-          db: mk(),
-          clock,
-        });
-        expect(canonicalizePlan(a)).toBe(canonicalizePlan(b));
-      }),
+          expect(canonicalizePlan(a)).toBe(canonicalizePlan(b));
+        }
+      ),
       { numRuns: 10 }
     );
   });

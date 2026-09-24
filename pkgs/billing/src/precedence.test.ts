@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 import type { MembershipStatus } from './membership';
@@ -46,7 +47,8 @@ describe('governingMembership', () => {
   });
 
   test('the answer does not depend on row order, up to full ties', () => {
-    fc.assert(
+    assertProperty(
+      'the answer does not depend on row order, up to full ties',
       fc.property(
         fc.array(standing, { minLength: 1, maxLength: 6 }),
         (rows) => {
@@ -60,7 +62,8 @@ describe('governingMembership', () => {
   });
 
   test('nothing in the list outranks the answer', () => {
-    fc.assert(
+    assertProperty(
+      'nothing in the list outranks the answer',
       fc.property(
         fc.array(standing, { minLength: 1, maxLength: 6 }),
         (rows) => {
@@ -114,7 +117,8 @@ describe('membershipGrantsAccess', () => {
   });
 
   test('incomplete and unreadable never grant', () => {
-    fc.assert(
+    assertProperty(
+      'incomplete and unreadable never grant',
       fc.property(standing, (s) => {
         if (s.status !== 'incomplete' && s.status !== null) return;
         expect(membershipGrantsAccess(s, at)).toBe(false);

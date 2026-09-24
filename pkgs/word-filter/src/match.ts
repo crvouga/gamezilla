@@ -15,26 +15,34 @@ const SUBSTITUTIONS: Readonly<Record<string, string>> = {
   '|': 'i',
 };
 
-const REPEATED_RUN = /(.)\1{2,}/g;
-
 /**
- * Canonical form for matching: NFKC, lower-case, leetspeak folded, separators
- * dropped, and runs of 3+ identical characters collapsed to one. Disguises
- * such as `f.u_c-k` or `fuuuck` collapse to `fuck`.
+ * Canonical form for matching: NFKD (so accents split off and are dropped),
+ * lower-case, leetspeak folded, separators dropped. Disguises such as
+ * `f.u_c-k`, `FüCK` or `5h1t` fold to plain letters. Repeated letters are kept:
+ * {@link containsBlockedTerm} matches every letter run as "that run or longer".
  */
 export function normalizeForMatch(raw: string): string {
   return raw
-    .normalize('NFKC')
+    .normalize('NFKD')
     .toLowerCase()
-    .replace(/[^a-z]/g, (char) => SUBSTITUTIONS[char] ?? '')
-    .replace(REPEATED_RUN, '$1');
+    .replace(/[^a-z]/g, (char) => SUBSTITUTIONS[char] ?? '');
 }
 
-const NORMALIZED_BLOCKED_TERMS = BLOCKED_TERMS.map(normalizeForMatch);
+/**
+ * Each run of a letter in the term matches that many or more of it, so
+ * `fuuck` and `faggggot` match while `fagot` / `niger` (a shorter run than the
+ * term's) stay clean.
+ */
+function termPattern(term: string): RegExp {
+  const runs = normalizeForMatch(term).match(/([a-z])\1*/g) ?? [];
+  return new RegExp(runs.map((run) => `${run[0]}{${run.length},}`).join(''));
+}
+
+const BLOCKED_PATTERNS = BLOCKED_TERMS.map(termPattern);
 
 /** True when the text contains a blocked term, disguised or not. */
 export function containsBlockedTerm(raw: string): boolean {
   const normalized = normalizeForMatch(raw);
   if (normalized.length === 0) return false;
-  return NORMALIZED_BLOCKED_TERMS.some((term) => normalized.includes(term));
+  return BLOCKED_PATTERNS.some((pattern) => pattern.test(normalized));
 }

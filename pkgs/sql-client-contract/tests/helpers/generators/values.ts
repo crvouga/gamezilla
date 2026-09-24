@@ -1,4 +1,4 @@
-import { arbJsonValue } from '@pkgs/sim/fast-check';
+import { arbJsonValue } from '@pkgs/property';
 import fc from 'fast-check';
 import type { LogicalColumnType } from '../oracles/canonical-dump';
 

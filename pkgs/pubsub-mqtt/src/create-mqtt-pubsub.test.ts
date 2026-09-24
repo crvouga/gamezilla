@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
-import { wallTimers } from '@pkgs/clock';
+import { createSimClock, type SimClockBundle } from '@pkgs/clock';
 import { createNoopLogger, type Logger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
@@ -65,29 +65,45 @@ class FakeMqttClient extends EventEmitter {
   }
 }
 
-async function waitUntil(pred: () => boolean, ms = 2000): Promise<void> {
-  const deadline = Date.now() + ms;
-  while (Date.now() < deadline) {
-    if (pred()) return;
-    await new Promise<void>((resolve) => {
-      wallTimers.setTimeout(resolve, 5);
-    });
-  }
-  throw new Error('waitUntil timed out');
+const SETTLE_STEPS = 2000;
+
+async function flushMicrotasks(): Promise<void> {
+  for (let i = 0; i < 32; i += 1) await Promise.resolve();
 }
 
-type BootResult = { ps: PubSub; lastOpts: IClientOptions | null };
+/**
+ * Drain microtasks, then step virtual time 1 ms, until `pred` holds. The fake
+ * client lives in-process, so no wall time is ever needed.
+ */
+async function waitUntil(
+  sim: SimClockBundle,
+  pred: () => boolean
+): Promise<void> {
+  for (let step = 0; step < SETTLE_STEPS; step += 1) {
+    await flushMicrotasks();
+    if (pred()) return;
+    sim.clock.advance(1);
+  }
+  throw new Error(`waitUntil timed out at t=${sim.clock.now()}ms`);
+}
+
+type BootResult = {
+  ps: PubSub;
+  lastOpts: IClientOptions | null;
+  sim: SimClockBundle;
+};
 
 async function boot(
   fake: FakeMqttClient,
   extra?: Partial<Parameters<typeof createMqttPubSub>[0]>
 ): Promise<BootResult> {
   let lastOpts: IClientOptions | null = null;
+  const sim = createSimClock();
   const ps = createMqttPubSub({
     url: 'ws://x/mqtt',
     auth: async () => ({ username: 'u', password: 'p' }),
     clientIdPrefix: 'device-1',
-    timers: wallTimers,
+    timers: sim.timers,
     random: () => 0,
     logger: createNoopLogger(),
     connectFn: (_url: string, opts: IClientOptions) => {
@@ -96,10 +112,10 @@ async function boot(
     },
     ...extra,
   });
-  await waitUntil(() => fake.listenerCount('connect') > 0);
+  await waitUntil(sim, () => fake.listenerCount('connect') > 0);
   fake.simulateConnect();
-  await waitUntil(() => ps.status() === 'connected');
-  return { ps, lastOpts };
+  await waitUntil(sim, () => ps.status() === 'connected');
+  return { ps, lastOpts, sim };
 }
 
 describe('createMqttPubSub', () => {
@@ -146,6 +162,7 @@ describe('createMqttPubSub', () => {
     const fakes: FakeMqttClient[] = [];
     let authCalls = 0;
     const optsList: IClientOptions[] = [];
+    const sim = createSimClock();
     const ps = createMqttPubSub({
       url: 'ws://x/mqtt',
       auth: async () => {
@@ -153,7 +170,7 @@ describe('createMqttPubSub', () => {
         return { username: 'u', password: `p-${authCalls}` };
       },
       clientIdPrefix: 'stable-id',
-      timers: wallTimers,
+      timers: sim.timers,
       random: () => 0,
       logger: createNoopLogger(),
       reconnect: { baseMs: 1, maxMs: 1 },
@@ -166,7 +183,7 @@ describe('createMqttPubSub', () => {
       },
     });
     ps.subscribe('keep', () => undefined);
-    await waitUntil(() => ps.status() === 'connected');
+    await waitUntil(sim, () => ps.status() === 'connected');
     expect(authCalls).toBe(1);
     expect(optsList[0]).toMatchObject({
       clientId: 'stable-id',
@@ -177,7 +194,7 @@ describe('createMqttPubSub', () => {
     ]);
 
     fakes[0]?.emit('close');
-    await waitUntil(() => optsList.length >= 2);
+    await waitUntil(sim, () => optsList.length >= 2);
     expect(authCalls).toBe(2);
     expect(optsList[1]).toMatchObject({
       clientId: 'stable-id',

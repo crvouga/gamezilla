@@ -26,6 +26,7 @@
   "scripts": {
     "prebuild": "bun run --cwd ../.. i18n:compile",
     "build": "vite build && bun run scripts/build-sw.ts",
+    "check:offline-shell": "bun run scripts/check-offline-shell.ts",
     "check:production-dist": "bun run scripts/production-bundle-guard-cli.ts check-dist",
     "check:production-env": "bun run scripts/production-bundle-guard-cli.ts check-env",
     "deploy": "bun run scripts/deploy.ts",
@@ -95,6 +96,7 @@
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/os": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-sqlite-web": "workspace:*",
     "@pkgs/vite-workspace-resolver": "workspace:*",
     "@tailwindcss/vite": "catalog:",

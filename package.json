@@ -55,7 +55,6 @@
     "secrets:pull": "bun run libs/secrets/src/scripts/secrets-pull.ts",
     "sims:open": "bun run apps/product/scripts/sims/open-sims.ts",
     "stack": "bun run apps/product/scripts/localhost-stack/cli.ts",
-    "test:pbt": "bun run apps/product/scripts/test-pbt-random.ts",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
     "test:report": "bun run libs/sim-harness/scripts/report.ts --open",
     "wipe": "git clean -xfd"
@@ -96,7 +95,7 @@
     "oxlint-tsgolint": "catalog:",
     "sort-package-json": "catalog:",
     "syncpack": "catalog:",
-    "turbo": "^2.11.2",
+    "turbo": "^2.11.3",
     "typescript": "catalog:"
   },
   "packageManager": "bun@1.4.2",

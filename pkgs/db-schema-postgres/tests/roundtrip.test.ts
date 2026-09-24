@@ -25,7 +25,7 @@ describe('db-schema roundtrip PBT pins', () => {
         }),
       ]);
       await sqlite(schema, client).reconcile();
-      const catalog = await readSqliteCatalog(client, schema._declared);
+      const catalog = await readSqliteCatalog(client);
       const plan = planClient(schema._declared, catalog);
       expect(plan.ok).toBe(true);
       if (!plan.ok) return;
@@ -99,7 +99,7 @@ describe('db-schema data-loss pins', () => {
         raw(`SELECT id, body FROM notes ORDER BY id`)
       );
       expect(rows).toEqual([{ id: 'a', body: 'hello' }]);
-      const catalog = await readSqliteCatalog(client, v2._declared);
+      const catalog = await readSqliteCatalog(client);
       expect(catalog.indexes.some((ix) => ix.name.startsWith('ix_'))).toBe(
         true
       );

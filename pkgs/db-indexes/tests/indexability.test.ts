@@ -5,7 +5,7 @@ import {
   fingerprintSql,
   pkSchemaIndexes,
 } from '@pkgs/db-indexes';
-import { assertProperty } from '@pkgs/sim/fast-check';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 import type { WorkloadManifest } from '../src/core/types';
 

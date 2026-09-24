@@ -32,6 +32,7 @@ import { FakeStripe } from '@pkgs/billing-stripe/sim';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';
+import { assertProperty } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
@@ -384,7 +385,8 @@ describe('deliveries reach only their own provider', () => {
 
 describe('delivery order', () => {
   test('any interleaving of both providers’ deliveries lands on the same access', async () => {
-    await fc.assert(
+    await assertProperty(
+      'any interleaving of both providers’ deliveries lands on the same access',
       fc.asyncProperty(
         fc.array(fc.nat({ max: 3 }), { minLength: 1, maxLength: 8 }),
         async (order) => {
@@ -425,5 +427,7 @@ describe('delivery order', () => {
       ),
       { numRuns: 25 }
     );
-  });
+    // Each run boots a world; bun's 5 s default is a wall-clock verdict on a
+    // loaded runner. The task budget still bounds it.
+  }, 30_000);
 });

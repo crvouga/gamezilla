@@ -19,7 +19,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --pass-with-no-tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -60,6 +60,7 @@
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/keyword": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

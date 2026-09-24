@@ -18,6 +18,7 @@
     "@pkgs/logger": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/property": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

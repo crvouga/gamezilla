@@ -8,6 +8,7 @@
   "scripts": {
     "build": "bun -e \"process.exit(0)\"",
     "check:api": "bun run scripts/check-api.ts",
+    "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "contract:write": "bun run scripts/contract-manifest.ts",
     "deploy": "bun run scripts/deploy.ts",
     "kill": "bun run scripts/kill-dev.ts",
@@ -17,8 +18,8 @@
     "setup": "bun run scripts/setup-dev-vars.ts",
     "smoke": "bun run scripts/smoke.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/integration/**'",
-    "test:integration": "bun test --pass-with-no-tests src/integration/"
+    "test": "bun test --path-ignore-patterns='**/integration/**'",
+    "test:integration": "bun test src/integration/"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",

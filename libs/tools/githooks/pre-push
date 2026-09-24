@@ -23,8 +23,8 @@ if [ "$refused" -eq 1 ]; then
 pre-push: refusing to update refs/heads/main.
 
 main only moves through a merged pull request. Push a feature branch and open a
-PR instead — `/pr-merge` (.agents/commands/pr-merge.md) does exactly that and
-merges the PR once every check is green.
+PR instead — `/pr-ready` takes it to a green Ready to merge button, then a
+human merges it.
 
 `--no-verify` is not a fix: a commit pushed straight to main is not associated
 with a pull request, so the deploy pipeline rejects it and nothing ships.

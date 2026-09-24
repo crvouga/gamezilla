@@ -18,6 +18,7 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/message": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-memory": "workspace:*",
     "@pkgs/sim": "workspace:*",

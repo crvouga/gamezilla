@@ -4,19 +4,6 @@ import { createRng, type Rng } from '../internals/rng';
 
 import type { Gen } from '../system/gen';
 
-export {
-  type AssertPropertyParams,
-  assertProperty,
-} from './assert-property';
-export {
-  arbFiniteNumber,
-  arbJsonKey,
-  arbJsonObject,
-  arbJsonValue,
-} from './json';
-/** Shared fast-check instance for packages that consume assertProperty. */
-export { fc };
-
 /**
  * pure-rand-compatible RandomGenerator over our Rng, so every fast-check
  * value is a function of recorded draws.

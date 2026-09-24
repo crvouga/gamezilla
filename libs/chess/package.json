@@ -21,7 +21,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='tests/e2e/**'",
+    "test": "bun test --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts",
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
@@ -83,6 +83,7 @@
     "@libs/notifications": "workspace:*",
     "@libs/search": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",

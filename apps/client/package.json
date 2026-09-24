@@ -19,7 +19,7 @@
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
     "start": "bun run dev",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --pass-with-no-tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",

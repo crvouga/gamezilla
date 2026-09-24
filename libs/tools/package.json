@@ -6,7 +6,8 @@
     "check:static": "bun run scripts/check-static.ts",
     "install:cli": "bun run scripts/install-cli.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "test": "bun test --pass-with-no-tests scripts/*.test.ts"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test scripts/*.test.ts"
   },
   "dependencies": {
     "@libs/secrets": "workspace:*",
@@ -18,6 +19,8 @@
   },
   "devDependencies": {
     "@pkgs/assert": "workspace:*",
-    "@pkgs/equal": "workspace:*"
+    "@pkgs/equal": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "fast-check": "catalog:"
   }
 }

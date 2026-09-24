@@ -12,7 +12,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel=1 --timeout 120000 --pass-with-no-tests tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel=1 --timeout 120000 tests"
   },
   "dependencies": {
     "@pkgs/auth": "workspace:*",

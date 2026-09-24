@@ -28,11 +28,26 @@
   },
   "the-bar:4": {
     "status": "proven",
-    "note": "pubsub-emqx test:contract loud-skips without a broker.",
     "proofs": [
       {
         "kind": "gate",
         "path": "libs/tools/biome-plugins/no-skipped-tests.grit"
+      },
+      {
+        "kind": "gate",
+        "path": "libs/tools/biome-plugins/no-unpinned-property.grit"
+      },
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/test-scripts.ts"
+      },
+      {
+        "kind": "gate",
+        "path": "libs/tools/biome-plugins/no-wall-time-in-tests.grit"
+      },
+      {
+        "kind": "gate",
+        "path": "libs/tools/scripts/tc-scope.ts"
       }
     ]
   },
@@ -443,7 +458,7 @@
     "proofs": [
       {
         "kind": "test",
-        "path": "pkgs/permissions/tests/evaluate-performance.test.ts"
+        "path": "pkgs/permissions/tests/evaluate-cost.property.test.ts"
       }
     ]
   },

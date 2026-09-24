@@ -120,19 +120,10 @@ describe('public-api', () => {
     expect(kernel).not.toHaveProperty('createScriptedDraws');
   });
 
-  test('@pkgs/sim/fast-check exports adapters, assertProperty, JSON arbs', () => {
+  test('@pkgs/sim/fast-check exports only the Gen ↔ Arbitrary adapters', () => {
+    // assertProperty and the JSON arbitraries live in the leaf @pkgs/property.
     expect(Object.keys(fcAdapter).sort()).toEqual(
-      [
-        'arbitrary',
-        'fc',
-        'gen',
-        'randomGeneratorOver',
-        'assertProperty',
-        'arbFiniteNumber',
-        'arbJsonKey',
-        'arbJsonObject',
-        'arbJsonValue',
-      ].sort()
+      ['arbitrary', 'gen', 'randomGeneratorOver'].sort()
     );
   });
 });

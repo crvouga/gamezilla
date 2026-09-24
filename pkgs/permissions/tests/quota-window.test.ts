@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-
 import { type QuotaGrant, quotaWindowBounds } from '@pkgs/permissions';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 
 const HOUR = 3_600_000;
@@ -98,7 +98,8 @@ describe('quotaWindowBounds', () => {
       'Asia/Kolkata',
       'Australia/Lord_Howe',
     ];
-    fc.assert(
+    assertProperty(
+      'property: every instant lies in [start, reset) and reset is the next start',
       fc.property(
         fc.integer({
           min: Date.parse('2025-01-01'),

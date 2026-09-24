@@ -1,10 +1,10 @@
 import { describe, expect, test } from 'bun:test';
-
 import { validateLichessPuzzleRow } from '@libs/chess/public/puzzle-data';
 import { partitionPuzzleBatch } from '@libs/chess/root/server/seed-chess-puzzles/puzzle-ingest';
 import { puzzleTableRowOf } from '@libs/chess/root/server/seed-chess-puzzles/row';
 import { START_FEN, sideToMoveOf } from '@pkgs/chess-rules/fen';
 import { legalMovesOf, playUci } from '@pkgs/chess-rules/moves';
+import { assertProperty } from '@pkgs/property';
 import { Chess } from 'chess.js';
 import fc from 'fast-check';
 
@@ -50,7 +50,8 @@ const arbPicks = (min: number, max: number) =>
 
 describe('validation pass over random legal lines (seeded DST)', () => {
   test('even legal lines validate; solver = inverted side to move; odd lines are rejected', () => {
-    fc.assert(
+    assertProperty(
+      'even legal lines validate; solver = inverted side to move; odd lines are rejected',
       fc.property(arbPicks(0, 30), arbPicks(2, 9), (prefix, linePicks) => {
         const start = walk(START_FEN, prefix).fen;
         const { line } = walk(start, linePicks);
@@ -81,7 +82,8 @@ describe('validation pass over random legal lines (seeded DST)', () => {
   }, 120_000);
 
   test('a batch never lands two rows with one id or one position key', () => {
-    fc.assert(
+    assertProperty(
+      'a batch never lands two rows with one id or one position key',
       fc.property(
         fc.array(fc.tuple(fc.nat(3), arbPicks(0, 6)), { maxLength: 12 }),
         (specs) => {

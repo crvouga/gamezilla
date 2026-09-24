@@ -17,7 +17,7 @@ import {
   readPuzzleRatingState,
 } from '@libs/chess/public/chess-puzzle-rating';
 import { chessPuzzleRatingEventId } from '@libs/chess/public/chess-puzzle-rating-event';
-import { assertProperty, fc } from '@pkgs/sim/fast-check';
+import { assertProperty, fc } from '@pkgs/property';
 
 const PUZZLE = { rating: 1500, ratingDeviation: 80 };
 

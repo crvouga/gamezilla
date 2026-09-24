@@ -27,23 +27,24 @@ export async function* streamParallelIndexed<T>(
   runAtIndex: (index: number) => Promise<T>,
   mapError: NdjsonErrorMapper
 ): AsyncIterable<NdjsonFrame<T>> {
-  type Pending = Promise<{
-    readonly index: number;
-    readonly result?: T;
-    readonly error?: unknown;
-  }>;
+  // `ok` discriminates, not `error !== undefined`: a unit may reject with
+  // `undefined`, and that is still a failure the client must see.
+  type Pending = Promise<
+    | { readonly index: number; readonly ok: true; readonly result: T }
+    | { readonly index: number; readonly ok: false; readonly error: unknown }
+  >;
   const pending = new Map<number, Pending>();
   for (let i = 0; i < count; i++) {
     const index = i;
     const p: Pending = runAtIndex(index)
-      .then((result) => ({ index, result }))
-      .catch((error: unknown) => ({ index, error }));
+      .then((result) => ({ index, ok: true as const, result }))
+      .catch((error: unknown) => ({ index, ok: false as const, error }));
     pending.set(index, p);
   }
   while (pending.size > 0) {
     const winner = await Promise.race(pending.values());
     pending.delete(winner.index);
-    if (winner.error !== undefined) {
+    if (!winner.ok) {
       yield mapError(winner.index, winner.error);
       continue;
     }

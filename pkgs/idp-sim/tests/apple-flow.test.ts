@@ -230,7 +230,7 @@ describe('apple-flavored idp: token endpoint', () => {
     const first = await firstAuthorization(fixture, 'bob@icloud.com');
     fixture.advance(5 * 60 * 1000 + 1);
     const late = await appleExchange(fixture, { code: first['code'] ?? '' });
-    expect((await late.json())['error']).toBe('invalid_grant');
+    expect(await late.json()).toMatchObject({ error: 'invalid_grant' });
 
     const browser = fixture.browser();
     const consent = await appleSignIn(
@@ -244,7 +244,7 @@ describe('apple-flavored idp: token endpoint', () => {
       ] ?? '';
     expect((await appleExchange(fixture, { code })).status).toBe(200);
     const replay = await appleExchange(fixture, { code });
-    expect((await replay.json())['error']).toBe('invalid_grant');
+    expect(await replay.json()).toMatchObject({ error: 'invalid_grant' });
   });
 
   test('the refresh grant returns an id_token and no new refresh token', async () => {

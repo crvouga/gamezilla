@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/sim/fast-check';
+import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 import { planIndexes } from '../src/core/plan';
 import { reconcileIndexes } from '../src/core/reconcile';
-import { genSchema, genSmallManifest } from './generators';
+import { genSchemaWithManifest } from './generators';
 import { fixedClock, RecordingPort } from './helpers/recording-port';
 
 describe('analyzer idempotence PBT', () => {
   test('apply creates → re-plan → empty actions', async () => {
     await assertProperty(
       'idempotence',
-      fc.asyncProperty(genSchema, async (schema) => {
-        const manifest = await fc.sample(genSmallManifest(schema), 1)[0]!;
+      fc.asyncProperty(genSchemaWithManifest, async ({ schema, manifest }) => {
         const tables = schema.tables.map((t) => ({
           name: t.name,
           estimatedRows: Math.max(t.estimatedRows, 10_000),

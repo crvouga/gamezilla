@@ -106,7 +106,7 @@ describe('idp step RPC', () => {
     // The RPC path and the form path reach the same store: the code names the
     // account the form would have signed in.
     const alice = await fixture.store.accountByEmail('alice@gmail.com');
-    expect(String(profile['sub'])).toBe(alice?.sub);
+    expect(alice?.sub).toBe(String(profile['sub']));
     expect(profile['email']).toBe('alice@gmail.com');
   });
 

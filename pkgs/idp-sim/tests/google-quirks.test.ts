@@ -132,6 +132,6 @@ describe('google-flavored quirks relying parties must survive', () => {
       '/token',
       exchangeBody({ code: codeOf(back) })
     );
-    expect((await res.json())['error']).toBe('invalid_grant');
+    expect(await res.json()).toMatchObject({ error: 'invalid_grant' });
   });
 });
