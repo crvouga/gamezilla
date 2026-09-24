@@ -9,6 +9,8 @@ export type ChessPuzzleRatingChipProps = {
   provisional?: boolean;
   variant?: 'primary' | 'muted';
   testID?: string;
+  /** Hide the chip without dropping its box, so a later rating cannot reflow the row. */
+  invisible?: boolean;
 };
 
 export function ChessPuzzleRatingChip(
@@ -24,14 +26,15 @@ export function ChessPuzzleRatingChip(
 
   return (
     <div
-      class="box px-2 py-1 rounded-md"
+      class="box px-2 py-1 rounded-sm shrink-0"
+      classList={{ invisible: props.invisible === true }}
       style={{ background: isPrimary() ? 'tintMuted' : 'surfaceMuted' }}
       {...dataAttrs(
         props.testID !== undefined ? { testid: props.testID } : undefined
       )}
     >
       <p
-        class="text"
+        class="text min-w-8 tabular-nums text-center whitespace-nowrap"
         classList={{
           textBodyBold: isPrimary(),
           textCaption: !isPrimary(),

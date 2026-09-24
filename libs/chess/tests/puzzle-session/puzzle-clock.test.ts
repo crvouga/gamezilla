@@ -34,5 +34,7 @@ describe('puzzle clock', () => {
     expect(isPuzzleClockRunning('skipped')).toBe(false);
     expect(isPuzzleClockRunning('solved')).toBe(false);
     expect(isPuzzleClockRunning('loading')).toBe(false);
+    expect(isPuzzleClockRunning('invalid')).toBe(false);
+    expect(isPuzzleClockRunning('idle')).toBe(false);
   });
 });
