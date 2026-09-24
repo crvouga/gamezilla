@@ -17,6 +17,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "provision": "bun run src/scripts/provision.ts",
+    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
@@ -29,8 +30,10 @@
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secrets-config": "workspace:*",
     "jose": "catalog:"

@@ -146,6 +146,7 @@
         "@libs/room-app": "workspace:*",
         "@libs/secrets": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
@@ -435,6 +436,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/feature": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -445,8 +447,10 @@
         "@pkgs/object-store": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sql-client-postgres": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "hono": "catalog:",
@@ -609,8 +613,27 @@
         "@libs/db": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-s3": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/observability": {
+      "name": "@libs/observability",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/db": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
       },
       "devDependencies": {
@@ -701,8 +724,10 @@
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
+        "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
         "jose": "catalog:",
@@ -817,6 +842,7 @@
         "@aws-sdk/client-s3": "catalog:",
         "@libs/db": "workspace:*",
         "@libs/object-store": "workspace:*",
+        "@libs/observability": "workspace:*",
         "@libs/pubsub": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
@@ -3703,6 +3729,8 @@
     "@libs/notifications": ["@libs/notifications@workspace:libs/notifications"],
 
     "@libs/object-store": ["@libs/object-store@workspace:libs/object-store"],
+
+    "@libs/observability": ["@libs/observability@workspace:libs/observability"],
 
     "@libs/permissions": ["@libs/permissions@workspace:libs/permissions"],
 

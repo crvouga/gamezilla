@@ -19,7 +19,6 @@ file($body) where {
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
     $src <: r"^['\"][^'\"]*(?:\.test|\.spec|/tests/|/e2e/)[^'\"]*['\"]$",
-    not $src <: r".*smoke-tests.*",
     register_diagnostic(span=$src, message="Production code must not import test code (*.test / *.spec / tests/ / e2e/).", severity="error")
   }
 }

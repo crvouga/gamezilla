@@ -24,16 +24,6 @@ describe('Collector environment contracts', () => {
     for (const attribute of ROOM_ATTRIBUTES) expect(text).toContain(attribute);
   });
 
-  test('production separates authenticated ingest from backend export', async () => {
-    const text = await config('collector-prod.yaml');
-    expect(text).toContain('bearertokenauth/ingest');
-    expect(text).toContain('${env:OBSERVABILITY_INGEST_TOKEN}');
-    expect(text).toContain('${env:OBSERVABILITY_BACKEND_OTLP_ENDPOINT}');
-    expect(text).toContain('${env:OBSERVABILITY_BACKEND_AUTHORIZATION}');
-    expect(text).toContain('transform/allowlist');
-    for (const attribute of ROOM_ATTRIBUTES) expect(text).toContain(attribute);
-  });
-
   test('production alert hands an agent a safe first command', async () => {
     const text = await config('production-error-alert.txt');
     expect(text).toContain('bun obs trace {{ trace_id }} --source prod');

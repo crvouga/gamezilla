@@ -15,18 +15,19 @@ import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
 import {
-  ELEVEN_LABS_API_KEY,
-  OPENAI_API_KEY,
-  OPENAI_BASE_URL,
-} from './llm-tts-secrets';
-import {
+  GRAFANA_CLOUD_API_TOKEN,
+  OBS_TEMPO_TOKEN,
+  OBS_TEMPO_URL,
+  OBS_TEMPO_USER,
   OBSERVABILITY_COLLECTOR_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,
+  OBSERVABILITY_COLLECTOR_USER,
 } from './observability-secrets';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
   EMQX_API_URL,
+  EMQX_DASHBOARD_PASSWORD,
   EMQX_JWT_SECRET,
   EMQX_WSS_URL,
 } from './pubsub-emqx-secrets';
@@ -39,11 +40,12 @@ import {
   S3_SECRET_ACCESS_KEY,
 } from './s3-credentials';
 import type { Secret } from './secret';
+import { ELEVEN_LABS_API_KEY } from './tts-secrets';
 import { TURBO_API, TURBO_TOKEN } from './turbo-token';
 
 /**
  * Exhaustive registry of every managed secret. Orphans (stored keys not in
- * this list) are purged on provision; `check:secrets` allows them.
+ * this list) are purged on provision; `bun health` allows them.
  */
 export const SECRETS: readonly Secret[] = [
   CLOUDFLARE_API_TOKEN,
@@ -61,10 +63,13 @@ export const SECRETS: readonly Secret[] = [
   S3_ENDPOINT,
   S3_REGION,
   ELEVEN_LABS_API_KEY,
-  OPENAI_API_KEY,
-  OPENAI_BASE_URL,
+  GRAFANA_CLOUD_API_TOKEN,
   OBSERVABILITY_COLLECTOR_URL,
+  OBSERVABILITY_COLLECTOR_USER,
   OBSERVABILITY_COLLECTOR_TOKEN,
+  OBS_TEMPO_URL,
+  OBS_TEMPO_USER,
+  OBS_TEMPO_TOKEN,
   API_URL,
   VITE_API_URL,
   LOCAL_PREVIEW_API_ORIGIN,
@@ -76,6 +81,7 @@ export const SECRETS: readonly Secret[] = [
   EMQX_API_KEY,
   EMQX_API_SECRET,
   EMQX_JWT_SECRET,
+  EMQX_DASHBOARD_PASSWORD,
 ];
 
 export function getSecretMap(): readonly Secret[] {

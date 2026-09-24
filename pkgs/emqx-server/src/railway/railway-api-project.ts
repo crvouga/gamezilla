@@ -11,6 +11,7 @@ import {
   ProjectCreateMutation,
   ServiceCreateMutation,
   ServiceInstanceUpdateMutation,
+  ServiceVariablesQuery,
   VariableUpsertMutation,
 } from './railway-graphql/documents';
 
@@ -168,6 +169,8 @@ export async function upsertVariables(options: {
   readonly environmentId: string;
   readonly serviceId: string;
   readonly variables: Readonly<Record<string, string>>;
+  /** Stage the values without Railway redeploying once per variable. */
+  readonly skipDeploys?: boolean;
 }): Promise<void> {
   for (const [name, value] of Object.entries(options.variables)) {
     await railwayGql(options.token, VariableUpsertMutation, {
@@ -177,7 +180,23 @@ export async function upsertVariables(options: {
         serviceId: options.serviceId,
         name,
         value,
+        ...(options.skipDeploys === true ? { skipDeploys: true } : {}),
       },
     });
   }
+}
+
+/** The service's current (unrendered) variables. */
+export async function readServiceVariables(options: {
+  readonly token: string;
+  readonly projectId: string;
+  readonly environmentId: string;
+  readonly serviceId: string;
+}): Promise<Readonly<Record<string, string>>> {
+  const data = await railwayGql(options.token, ServiceVariablesQuery, {
+    projectId: options.projectId,
+    environmentId: options.environmentId,
+    serviceId: options.serviceId,
+  });
+  return (data.variables ?? {}) as Record<string, string>;
 }

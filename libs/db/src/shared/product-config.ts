@@ -49,6 +49,19 @@ export const PRODUCT_CONFIG = {
       production: 'gamezilla-production',
     },
   },
+  /**
+   * Grafana Cloud (traces via Tempo). `@libs/observability#provision` ensures
+   * the stack, a write-only ingest policy, and a read-only query policy, then
+   * seeds `OBSERVABILITY_COLLECTOR_*` / `OBS_TEMPO_*` into secrets env `prd`.
+   */
+  observability: {
+    /** Stack slug → `https://<slug>.grafana.net`; globally unique. */
+    grafanaStackSlug: 'shortawning2091',
+    /** Region used only when the stack must be created. */
+    grafanaRegion: 'prod-us-west-0',
+    ingestPolicyName: 'gamezilla-traces-write',
+    queryPolicyName: 'gamezilla-traces-read',
+  },
   emqx: {
     hostname: 'emqx.gamezilla.app',
     railwayProjectName: 'gamezilla',

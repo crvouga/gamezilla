@@ -1,10 +1,5 @@
 import { cliHttp } from '../cli-io';
-import {
-  requireHttpsUrl,
-  requireNonEmpty,
-  Secret,
-  type SecretInput,
-} from './secret';
+import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 async function validateElevenLabsApiKey(input: SecretInput): Promise<void> {
   const v = input.secretValue.trim();
@@ -34,22 +29,4 @@ export const ELEVEN_LABS_API_KEY = new Secret({
   hint: 'ElevenLabs API key for TTS synthesis',
   pushToApiWorker: true,
   validate: validateElevenLabsApiKey,
-});
-
-export const OPENAI_API_KEY = new Secret({
-  name: 'OPENAI_API_KEY',
-  hint: 'OpenAI API key for LLM routes',
-  pushToApiWorker: true,
-  validate: async (input) => {
-    requireNonEmpty(input.secretValue.trim(), 'OPENAI_API_KEY');
-  },
-});
-
-export const OPENAI_BASE_URL = new Secret({
-  name: 'OPENAI_BASE_URL',
-  hint: 'OpenAI API base URL, e.g. https://api.openai.com',
-  pushToApiWorker: true,
-  validate: async (input) => {
-    requireHttpsUrl(input.secretValue, 'OPENAI_BASE_URL');
-  },
 });

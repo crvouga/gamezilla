@@ -1,0 +1,74 @@
+name: Health
+
+# Live-resource health between deploys: `bun run health` runs every package's
+# `health` task (turbo `//#health` with `--only`, so nothing is deployed) against
+# the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
+# vendor credentials, the Workers, DNS and TLS. Deploy runs the same probes as
+# its last step (`//#deploy` → `//#health`); this schedule catches drift in
+# between (expired tokens, revoked keys, a dead Railway service).
+#
+# Prd-only probes skip themselves under dev.
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+env:
+  TURBO_UI: stream
+
+concurrency:
+  group: health
+  cancel-in-progress: false
+
+jobs:
+  health-prd:
+    name: health:prd
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      SECRETS_ENV: prd
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - id: setup
+        uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: prd
+
+      - name: health:prd
+        run: bun run health
+
+  health-dev:
+    name: health:dev
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - id: setup
+        uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: health:dev
+        run: bun run health

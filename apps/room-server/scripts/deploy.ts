@@ -7,7 +7,7 @@ import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { ok } from '@libs/secrets/shared/fmt';
 import {
   activeSecretsEnv,
-  loadSecretsIntoEnv,
+  refreshSecretsIntoEnv,
 } from '@libs/secrets/shared/secrets/secrets';
 import { runAsync } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
@@ -20,12 +20,13 @@ const log = createLogger({ name: 'room-server:deploy', now: wallClock.now });
 const roomDir = join(import.meta.dirname, '..');
 
 async function pushRoomWorkerBindings(): Promise<void> {
-  await loadSecretsIntoEnv();
+  await refreshSecretsIntoEnv();
   const payload: Record<string, string> = {
     SECRETS_ENV: activeSecretsEnv(),
   };
   for (const key of [
     'OBSERVABILITY_COLLECTOR_URL',
+    'OBSERVABILITY_COLLECTOR_USER',
     'OBSERVABILITY_COLLECTOR_TOKEN',
   ] as const) {
     const value = process.env[key]?.trim() ?? '';

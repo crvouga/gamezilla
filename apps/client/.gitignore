@@ -1,4 +1,4 @@
-# Web build smoke-test outputs
+# Web build check outputs
 .check-dist-dev/
 public/sql-workers/**/*.js
 public/sql-workers/**/*.html

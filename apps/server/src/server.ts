@@ -50,6 +50,7 @@ import {
   createWorkerTelemetry,
   extractRequestContext,
   injectRequestHeaders,
+  otlpAuthorization,
   SpanKind,
   SpanStatusCode,
   withSpan,
@@ -118,15 +119,19 @@ function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
       'OBSERVABILITY_COLLECTOR_TOKEN is required in production'
     );
   }
+  const authorization = otlpAuthorization({
+    user: env.OBSERVABILITY_COLLECTOR_USER,
+    token: collectorToken,
+  });
   workerTelemetry = createWorkerTelemetry({
     serviceName: 'gamezilla-server',
     serviceVersion: buildSha,
     environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
     buildSha,
     otlpUrl: collectorUrl,
-    ...(collectorToken === undefined || collectorToken.length === 0
+    ...(authorization === undefined
       ? {}
-      : { otlpHeaders: { Authorization: `Bearer ${collectorToken}` } }),
+      : { otlpHeaders: { Authorization: authorization } }),
   });
   return workerTelemetry;
 }
@@ -278,6 +283,8 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
     observabilityCollectorToken:
       env.OBSERVABILITY_COLLECTOR_TOKEN?.trim() || null,
+    observabilityCollectorUser:
+      env.OBSERVABILITY_COLLECTOR_USER?.trim() || null,
     skipDatabaseUrlPolicy: false,
     fetch: observedFetch,
   };

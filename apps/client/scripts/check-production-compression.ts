@@ -48,7 +48,7 @@ async function main(): Promise<void> {
         }
       }
     }
-    // Always exit 0 in warn-only smoke.
+    // Always exit 0 in warn-only mode.
     void failed;
     process.exit(0);
   } catch (err) {

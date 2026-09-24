@@ -2,7 +2,7 @@
 /**
  * One-shot: rename BETTER_AUTH_SECRET → AUTH_SECRET (if present), then
  * seed AUTH_SECRET in any env still missing it. Safe to re-run.
- * Needed because `@libs/secrets#check` runs before provision can seed.
+ * For a fresh secrets env, before the first provision has seeded it.
  * Allowlisted for better-auth vocabulary (legacy secret name only).
  */
 import { ok } from '../shared/fmt';

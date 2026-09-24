@@ -109,3 +109,17 @@ export async function loadSecretsIntoEnv(): Promise<
 
   return results;
 }
+
+/**
+ * Overwrite `process.env` with the secret store's live value of every
+ * registry secret. `secrets-run` injects values once at process start;
+ * provision steps later in the same deploy may rotate them (EMQX credentials,
+ * Grafana tokens), so Worker deploys refresh before pushing bindings.
+ */
+export async function refreshSecretsIntoEnv(): Promise<void> {
+  const live = await exportSecretsMapLive(activeSecretsEnv());
+  for (const { name } of SECRETS) {
+    const value = live.get(name)?.trim() ?? '';
+    if (value.length > 0) process.env[name] = value;
+  }
+}

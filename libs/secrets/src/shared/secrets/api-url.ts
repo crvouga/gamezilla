@@ -28,7 +28,7 @@ async function validateApiOrigin(
 export const API_URL = new Secret({
   name: 'API_URL',
   hint: 'Public origin of the API Worker (https://api.…), no path',
-  // Seeded on provision when absent; optional so check:secrets does not fail
+  // Seeded on provision when absent; optional so `bun health` does not fail
   // before the first `infra provision` writes the derived default.
   optional: true,
   pushToApiWorker: true,

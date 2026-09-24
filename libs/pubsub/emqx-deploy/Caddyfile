@@ -1,13 +1,19 @@
-# Caddyfile used when CADDY_CONFIG=Caddyfile (default entrypoint uses Caddyfile.json).
-# Kept as documentation of the route table.
+# Public route table on Railway $PORT. Only the MQTT WebSocket, the HTTP API
+# and the healthcheck are exposed; the dashboard UI is not.
 :{$PORT} {
   handle /mqtt* {
     reverse_proxy 127.0.0.1:8083
   }
+  # Railway healthcheck: answered by EMQX itself (503 unless the node runs),
+  # never by Caddy alone.
   handle /healthz {
-    respond "ok" 200
+    rewrite * /api/v5/status
+    reverse_proxy 127.0.0.1:18083
+  }
+  handle /api/v5/* {
+    reverse_proxy 127.0.0.1:18083
   }
   handle {
-    reverse_proxy 127.0.0.1:18083
+    respond 404
   }
 }

@@ -63,7 +63,7 @@ function conformanceApp<
 }
 
 /**
- * Parameterized module-contract suite (M1–M8 smoke via real engine + pure checks).
+ * Parameterized module-contract suite (M1–M8 checks via real engine + pure checks).
  */
 export async function runModuleConformance<
   S extends RoomState,

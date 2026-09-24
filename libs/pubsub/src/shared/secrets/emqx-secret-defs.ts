@@ -14,9 +14,14 @@ export type PubsubEmqxSecretDef = {
   readonly optional?: boolean;
   readonly pushToApiWorker?: boolean;
   readonly mirrorToDev?: boolean;
+  /** Provision task that mints this value (never seeded from a constant). */
+  readonly provisionedBy?: string;
   validate(input: PubsubEmqxSecretValidateInput): Promise<void>;
   seed?(input: PubsubEmqxSecretSeedInput): Promise<string>;
 };
+
+/** Mints and rotates the broker credentials (API key/secret, JWT HMAC secret). */
+export const PUBSUB_PROVISION_TASK = '@libs/pubsub#provision';
 
 function emqxHostname(): string {
   return PRODUCT_CONFIG.emqx.hostname;
@@ -76,22 +81,6 @@ async function seedWssUrl(_input: PubsubEmqxSecretSeedInput): Promise<string> {
   return `wss://${emqxHostname()}/mqtt`;
 }
 
-async function seedApiKey(_input: PubsubEmqxSecretSeedInput): Promise<string> {
-  return 'pubsub-test';
-}
-
-async function seedApiSecret(
-  _input: PubsubEmqxSecretSeedInput
-): Promise<string> {
-  return 'pubsub-test-secret';
-}
-
-async function seedJwtSecret(
-  _input: PubsubEmqxSecretSeedInput
-): Promise<string> {
-  return 'local-emqx-jwt-secret-change-me';
-}
-
 /**
  * Secret definitions for the infra registry. Callers wrap these with their
  * `Secret` class (`@libs/secrets`).
@@ -108,9 +97,9 @@ export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
   },
   {
     name: 'EMQX_WSS_URL',
-    hint: `wss://${emqxHostname()}/mqtt`,
+    hint: `wss://${emqxHostname()}/mqtt — the API Worker materializes it into synced client_config`,
     optional: true,
-    pushToApiWorker: false,
+    pushToApiWorker: true,
     mirrorToDev: true,
     validate: validateEmqxWssUrl,
     seed: seedWssUrl,
@@ -122,7 +111,7 @@ export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
     pushToApiWorker: true,
     mirrorToDev: true,
     validate: (i) => validateNonEmpty('EMQX_API_KEY', i),
-    seed: seedApiKey,
+    provisionedBy: PUBSUB_PROVISION_TASK,
   },
   {
     name: 'EMQX_API_SECRET',
@@ -131,7 +120,7 @@ export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
     pushToApiWorker: true,
     mirrorToDev: true,
     validate: (i) => validateNonEmpty('EMQX_API_SECRET', i),
-    seed: seedApiSecret,
+    provisionedBy: PUBSUB_PROVISION_TASK,
   },
   {
     name: 'EMQX_JWT_SECRET',
@@ -140,6 +129,15 @@ export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
     pushToApiWorker: true,
     mirrorToDev: true,
     validate: (i) => validateNonEmpty('EMQX_JWT_SECRET', i),
-    seed: seedJwtSecret,
+    provisionedBy: PUBSUB_PROVISION_TASK,
+  },
+  {
+    name: 'EMQX_DASHBOARD_PASSWORD',
+    hint: 'EMQX dashboard `admin` password; set on every broker boot. Never on a Worker.',
+    optional: true,
+    pushToApiWorker: false,
+    mirrorToDev: true,
+    validate: (i) => validateNonEmpty('EMQX_DASHBOARD_PASSWORD', i),
+    provisionedBy: PUBSUB_PROVISION_TASK,
   },
 ];

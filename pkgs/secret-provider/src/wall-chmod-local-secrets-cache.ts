@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import { wallOsFs } from '@pkgs/os/wall-os-fs';
 import {
   type SecretsCacheEnv,
-  secretsCacheFingerprintRelPath,
   secretsCacheMetaRelPath,
   secretsCacheRelPath,
 } from './local-secrets-cache';
@@ -18,7 +17,6 @@ export function chmodLocalSecretsCacheFiles(repoRoot: string): void {
   const paths = [
     ...CACHE_ENVS.map((env) => join(repoRoot, secretsCacheRelPath(env))),
     join(repoRoot, secretsCacheMetaRelPath()),
-    join(repoRoot, secretsCacheFingerprintRelPath()),
   ];
   for (const absolutePath of paths) {
     try {
