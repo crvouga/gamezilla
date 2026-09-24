@@ -3,7 +3,7 @@ import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 /**
  * Optional until EMQX is provisioned. When set, live-probe Railway so
- * `check:secrets` / provision catch bad tokens and account holds (past-due
+ * `bun health` / provision catch bad tokens and account holds (past-due
  * bills return GraphQL "Not Authorized") before Ensure: emqx.
  * Requires an account token — workspace tokens fail `me { id }`.
  */

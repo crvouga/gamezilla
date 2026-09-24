@@ -8,8 +8,8 @@ import {
 import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-sim/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
 import { createInMemoryAuthClientStorage } from '../src/client/bearer-token-store';
 import { createInhouseAuthClient } from '../src/client/create-inhouse-auth-client';
@@ -48,7 +48,7 @@ async function bootNodes(): Promise<{
   readonly sim: SimClockBundle;
 }> {
   const sim = createSimClock({ startMs: START_MS });
-  const sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
+  const sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
   await new AuthPostgresDatabaseMigration({
     dbScope: createPostgresDbScope('public'),
     skipAdvisoryLock: true,
@@ -58,7 +58,7 @@ async function bootNodes(): Promise<{
   let nextId = 0;
   const idpStore = await IdpStore.open({
     provider: 'google',
-    sqlClient: SqlClientImplSqliteMem.open({ seed: 2 }),
+    sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 2 }),
     clock: sim.clock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,

@@ -1,14 +1,14 @@
 import { runDbSchemaContractTests } from '@pkgs/db-schema/test/contract-suite';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { postgres } from '../src/driver';
 
 runDbSchemaContractTests({
-  name: 'postgres-mem',
+  name: 'mockingbird-postgres',
   dialect: 'postgres',
   async open() {
-    const client = SqlClientImplPostgresMem.open({
+    const client = SqlClientImplMockingbirdPostgres.open({
       dbScope: createPostgresDbScope('contract'),
       seed: 1,
     });

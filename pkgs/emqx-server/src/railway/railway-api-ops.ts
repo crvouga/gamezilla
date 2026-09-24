@@ -133,6 +133,22 @@ export async function redeployService(options: {
   });
 }
 
+/** Deploy `commitSha` (or the branch tip) with the service's current variables. */
+export async function deployServiceCommit(options: {
+  readonly token: string;
+  readonly serviceId: string;
+  readonly environmentId: string;
+  readonly commitSha?: string;
+}): Promise<void> {
+  await railwayGql(options.token, ServiceInstanceDeployV2Mutation, {
+    serviceId: options.serviceId,
+    environmentId: options.environmentId,
+    ...(options.commitSha === undefined
+      ? {}
+      : { commitSha: options.commitSha }),
+  });
+}
+
 export async function deleteService(
   token: string,
   serviceId: string

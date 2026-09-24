@@ -146,6 +146,7 @@
         "@libs/room-app": "workspace:*",
         "@libs/secrets": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/observability": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
@@ -435,6 +436,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@libs/auth": "workspace:*",
+        "@libs/db": "workspace:*",
         "@libs/feature": "workspace:*",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
@@ -445,8 +447,10 @@
         "@pkgs/object-store": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
+        "@pkgs/sql-client-postgres": "workspace:*",
         "@pkgs/sync-engine": "workspace:*",
         "@pkgs/ui": "workspace:*",
         "hono": "catalog:",
@@ -609,8 +613,27 @@
         "@libs/db": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
         "@pkgs/object-store-s3": "workspace:*",
+        "@pkgs/secrets-config": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/observability": {
+      "name": "@libs/observability",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/db": "workspace:*",
+        "@pkgs/clock": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
+        "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
+        "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
       },
       "devDependencies": {
@@ -701,8 +724,10 @@
         "@pkgs/emqx-server": "workspace:*",
         "@pkgs/http-client": "workspace:*",
         "@pkgs/logger": "workspace:*",
+        "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
         "@pkgs/pubsub-emqx": "workspace:*",
+        "@pkgs/secret-provider": "workspace:*",
         "@pkgs/secret-store": "workspace:*",
         "@pkgs/secrets-config": "workspace:*",
         "jose": "catalog:",
@@ -817,6 +842,7 @@
         "@aws-sdk/client-s3": "catalog:",
         "@libs/db": "workspace:*",
         "@libs/object-store": "workspace:*",
+        "@libs/observability": "workspace:*",
         "@libs/pubsub": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
@@ -2204,7 +2230,7 @@
       "name": "@pkgs/postgres-sqlite-compat",
       "version": "0.0.0",
       "dependencies": {
-        "@crvouga/postgres-mem": "catalog:",
+        "@crvouga/mockingbird-service-postgres": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/sql": "workspace:*",
       },
@@ -2653,7 +2679,7 @@
       "name": "@pkgs/sql-client-postgres",
       "version": "0.0.0",
       "dependencies": {
-        "@crvouga/postgres-mem": "catalog:",
+        "@crvouga/mockingbird-service-postgres": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
         "@pkgs/postgres-sqlite-compat": "workspace:*",
@@ -2700,7 +2726,7 @@
       "name": "@pkgs/sql-client-sqlite",
       "version": "0.0.0",
       "dependencies": {
-        "@crvouga/sqlite-mem": "catalog:",
+        "@crvouga/mockingbird-service-sqlite": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/sql": "workspace:*",
         "@pkgs/sql-client": "workspace:*",
@@ -3045,8 +3071,8 @@
     "@babel/runtime": "^7.29.7",
     "@biomejs/biome": "2.5.7",
     "@clack/prompts": "^1.7.0",
-    "@crvouga/postgres-mem": "^1.1.1",
-    "@crvouga/sqlite-mem": "^1.14.0",
+    "@crvouga/mockingbird-service-postgres": "^0.3.0",
+    "@crvouga/mockingbird-service-sqlite": "^0.3.0",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@happy-dom/global-registrator": "^20.0.0",
@@ -3432,9 +3458,9 @@
 
     "@colors/colors": ["@colors/colors@1.5.0", "", {}, "sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ=="],
 
-    "@crvouga/postgres-mem": ["@crvouga/postgres-mem@1.1.2", "", {}, "sha512-ZuPYcaUroolpRZYk3blsuFnk6h2m1xIs6VWJcyCP52kxmMSKV8ZkxLN1Y6gmTAtRNmhlYcJFeaQbDvztMzGG4A=="],
+    "@crvouga/mockingbird-service-postgres": ["@crvouga/mockingbird-service-postgres@0.3.0", "", {}, "sha512-7r2j5w+zDSB3SxrcFHmTqw8yELd6rRL7P0AZuNGfu0imp+IUQzMPDDWBm96GgeuRFkALpHAYpz+UhE2uot2/Ag=="],
 
-    "@crvouga/sqlite-mem": ["@crvouga/sqlite-mem@1.15.0", "", {}, "sha512-fGvrB7q+95l4h9v1QVcXpLeYhwOUMT6xcvUQy0/wagP8lhHwVj5bWdJZMljnrZW9LlFYOo7TmgYTE+j6H5xA3w=="],
+    "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@0.3.0", "", {}, "sha512-3ULGmlWaBprKZgVMkqrMZL1wAvwz+Dcq58jqKT/k+fKT4JpcG9OInycz7pXJnsShEjVd4uV2gFy49r3BnXnFnA=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 
@@ -3707,6 +3733,8 @@
     "@libs/notifications": ["@libs/notifications@workspace:libs/notifications"],
 
     "@libs/object-store": ["@libs/object-store@workspace:libs/object-store"],
+
+    "@libs/observability": ["@libs/observability@workspace:libs/observability"],
 
     "@libs/permissions": ["@libs/permissions@workspace:libs/permissions"],
 

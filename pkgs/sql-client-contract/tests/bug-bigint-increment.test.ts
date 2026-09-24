@@ -1,5 +1,5 @@
 /**
- * An int8 counter upsert increments on every default backend. postgres-mem's
+ * An int8 counter upsert increments on every default backend. mockingbird-postgres's
  * `toI8` can leave a JS number in an int8 slot, so `n = t.n + 1` did
  * `number + bigint` inside the engine and threw `Cannot mix BigInt and other
  * types` — every second push on a topic failed in the product simulator.

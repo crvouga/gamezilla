@@ -1,6 +1,6 @@
 /**
  * Validate product-simulator snapshots and delete ones that fail the dump schema
- * (postgres-mem server + sqlite-mem clients). Schema-version mismatches stay
+ * (mockingbird-postgres server + mockingbird-sqlite clients). Schema-version mismatches stay
  * listed as incompatible (not auto-deleted).
  */
 
@@ -8,11 +8,11 @@ import {
   type ProductSimulatorSnapshotIndex,
   parseJsonBytesWithSchema,
   parseJsonWithSchema,
-  productSimulatorPostgresMemDumpSchema,
+  productSimulatorMockingbirdPostgresDumpSchema,
+  productSimulatorMockingbirdSqliteDumpSchema,
   productSimulatorSnapshotIndexSchema,
   productSimulatorSnapshotInfoSchema,
   productSimulatorSnapshotManifestSchema,
-  productSimulatorSqliteMemDumpSchema,
 } from '@apps/product/product-simulator/product-simulator-snapshot-schema';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { ProductSimulatorSnapshotInfo } from '@pkgs/sim-console/client';
@@ -93,7 +93,7 @@ async function deleteSnapshotTree(
   }
 }
 
-async function isSqliteMemBlob(
+async function isMockingbirdSqliteBlob(
   store: ObjectStore,
   key: string
 ): Promise<boolean> {
@@ -102,8 +102,10 @@ async function isSqliteMemBlob(
   const bytes = await readBody(obj.body);
   if (bytes.byteLength === 0) return false;
   if (
-    parseJsonBytesWithSchema(bytes, productSimulatorSqliteMemDumpSchema) !==
-    null
+    parseJsonBytesWithSchema(
+      bytes,
+      productSimulatorMockingbirdSqliteDumpSchema
+    ) !== null
   ) {
     return true;
   }
@@ -120,8 +122,10 @@ async function isServerSqlBlob(
   const bytes = await readBody(obj.body);
   if (bytes.byteLength === 0) return false;
   if (
-    parseJsonBytesWithSchema(bytes, productSimulatorPostgresMemDumpSchema) !==
-    null
+    parseJsonBytesWithSchema(
+      bytes,
+      productSimulatorMockingbirdPostgresDumpSchema
+    ) !== null
   ) {
     return true;
   }
@@ -145,7 +149,7 @@ async function isStructurallyValidSnapshot(
   for (const clientId of manifest.clientIds) {
     const key = manifest.keys.clientSql[clientId];
     if (key === undefined) return false;
-    if (!(await isSqliteMemBlob(store, key))) return false;
+    if (!(await isMockingbirdSqliteBlob(store, key))) return false;
   }
   return true;
 }
@@ -248,7 +252,7 @@ function indexEntryShape(info: ProductSimulatorSnapshotInfo): {
 }
 
 /**
- * Drop index / object trees that fail the mixed postgres-mem / sqlite-mem
+ * Drop index / object trees that fail the mixed mockingbird-postgres / mockingbird-sqlite
  * snapshot schema.
  * Recovers orphan trees with a valid manifest into the index.
  * Schema-mismatched dumps are kept and marked incompatible.

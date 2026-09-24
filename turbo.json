@@ -21,7 +21,6 @@
     "RAILWAY_*",
     "S3_*",
     "ELEVEN_LABS_*",
-    "OPENAI_*",
     "PS_*",
     "SECRETS_*",
     "INFISICAL_*",
@@ -31,7 +30,9 @@
     "WEB_CLIENT_*",
     "EMQX_*",
     "WEB_CLIENT_ORIGIN",
+    "GRAFANA_*",
     "OBSERVABILITY_*",
+    "OBS_*",
     "TURBO_*",
     "IDP_*",
     "TMPDIR"
@@ -320,12 +321,6 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@libs/secrets#check": {
-      "env": ["CHECK_SECRETS_FINGERPRINT"],
-      "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
     "@libs/tools#check:static": {
       "env": [
         "CHECK_GIT_HEAD",
@@ -366,7 +361,6 @@
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",
         "@libs/runtime#check:schema-evolution",
-        "@libs/secrets#check",
         "@libs/tools#check:static"
       ],
       "outputs": [],
@@ -392,11 +386,16 @@
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
+    "@libs/observability#provision": {
+      "cache": false,
+      "dependsOn": ["@libs/secrets#provision"]
+    },
     "@libs/runtime#migrate": {
       "cache": false,
       "dependsOn": [
         "@libs/db#provision",
         "@libs/object-store#provision",
+        "@libs/observability#provision",
         "@libs/pubsub#provision"
       ]
     },
@@ -416,13 +415,20 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
-    "@apps/server#smoke": {
+    "health": {
       "cache": false,
-      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"]
+      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"],
+      "outputLogs": "errors-only"
+    },
+    "//#health": {
+      "cache": false,
+      "dependsOn": ["health"],
+      "outputs": [],
+      "outputLogs": "errors-only"
     },
     "//#deploy": {
       "cache": false,
-      "dependsOn": ["//#check", "@apps/server#check:api", "@apps/server#smoke"],
+      "dependsOn": ["//#check", "@apps/server#check:api", "//#health"],
       "outputs": [],
       "outputLogs": "errors-only"
     },

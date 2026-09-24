@@ -1,5 +1,5 @@
 // goal:the-bar:5 — legacy NOT NULL/int4 columns reconcile correctly
-// against real Postgres (postgres-mem rejects ALTER COLUMN SET NOT NULL).
+// against real Postgres (mockingbird-postgres rejects ALTER COLUMN SET NOT NULL).
 
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
@@ -60,7 +60,7 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
       sqlClient.dbScope
     );
 
-    // Simulate legacy DDL that postgres-mem cannot run.
+    // Simulate legacy DDL that mockingbird-postgres cannot run.
     await sqlClient.run(
       raw(`ALTER TABLE legacy_puzzle_shape ALTER COLUMN rating SET NOT NULL`)
     );

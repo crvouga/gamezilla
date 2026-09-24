@@ -9,13 +9,13 @@ import {
   ensureService,
   ensureServiceDomain,
   ensureVolume,
-  upsertVariables,
   validateRailwayToken,
 } from '@pkgs/emqx-server/railway/railway-api';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { cfHeadersForZones, upsertDnsRecord } from '../shared/provision/cf-dns';
+import { ensureBrokerCredentials } from './ensure-broker-credentials';
 
 const log = createLogger({ name: 'pubsub:provision', now: wallClock.now });
 
@@ -72,17 +72,6 @@ async function provision(): Promise<void> {
   });
   log.info(`✓ Railway service — ${service.name} (${service.id})`);
 
-  await upsertVariables({
-    token,
-    projectId: project.id,
-    environmentId: project.environmentId,
-    serviceId: service.id,
-    variables: {
-      PORT: String(cfg.targetPort),
-      EMQX_API_KEY__BOOTSTRAP_FILE: '/opt/emqx/data/api-keys.bootstrap',
-    },
-  });
-
   await ensureVolume({
     token,
     projectId: project.id,
@@ -127,6 +116,19 @@ async function provision(): Promise<void> {
   }
 
   log.info(`✓ EMQX domain — ${cfg.hostname}`);
+
+  await ensureBrokerCredentials({
+    service: {
+      token,
+      projectId: project.id,
+      environmentId: project.environmentId,
+      serviceId: service.id,
+    },
+    apiUrl: `https://${cfg.hostname}`,
+    baseVariables: { PORT: String(cfg.targetPort) },
+    http,
+    log,
+  });
 }
 
 if (!isProductionSecretsEnv()) {

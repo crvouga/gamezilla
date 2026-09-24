@@ -14,7 +14,7 @@ import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import {
   activeSecretsEnv,
   getApiWorkerSecrets,
-  loadSecretsIntoEnv,
+  refreshSecretsIntoEnv,
 } from '@libs/secrets/shared/secrets/secrets';
 import { runAsync } from '@libs/secrets/shared/subprocess';
 import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
@@ -43,7 +43,7 @@ async function ensureDeploySecretsLoaded(): Promise<void> {
   deploySecretsLoaded = true;
 
   if (!preferLocalSecretsOnly()) {
-    await loadSecretsIntoEnv();
+    await refreshSecretsIntoEnv();
   }
 
   if (!(process.env['DATABASE_URL'] ?? '').trim()) {

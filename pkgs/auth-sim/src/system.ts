@@ -26,15 +26,18 @@ export type AuthArgs = {
   readonly clientCount: number;
 };
 
-/** sqlite-mem, two devices. */
+/** mockingbird-sqlite, two devices. */
 export const AUTH_ARGS: AuthArgs = {
-  fabric: 'sqlite-mem',
+  fabric: 'mockingbird-sqlite',
   clientCount: 2,
 };
 
 export const arbAuthArgs = (): fc.Arbitrary<AuthArgs> =>
   fc.record({
-    fabric: fc.constantFrom<AuthFabric>('sqlite-mem', 'postgres-mem'),
+    fabric: fc.constantFrom<AuthFabric>(
+      'mockingbird-sqlite',
+      'mockingbird-postgres'
+    ),
     clientCount: fc.integer({ min: 1, max: 3 }),
   });
 
@@ -112,7 +115,7 @@ export const invariantsHold = defineProperty({
 });
 
 /**
- * One auth app over sqlite-mem / postgres-mem, a Google-flavored and an
+ * One auth app over mockingbird-sqlite / mockingbird-postgres, a Google-flavored and an
  * Apple-flavored provider, and `clientCount` devices running the production
  * client port.
  */

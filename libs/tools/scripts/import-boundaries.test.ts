@@ -175,8 +175,8 @@ const PROBES: readonly Probe[] = [
     message: 'Production code must not import test code',
   },
   {
-    path: 'libs/zz/src/uses-smoke.ts',
-    source: "import { s } from './smoke-tests/run';",
+    path: 'libs/zz/src/uses-fixtures.ts',
+    source: "import { s } from './fixture-tests/run';",
     message: null,
   },
   {

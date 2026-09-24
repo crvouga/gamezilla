@@ -12,7 +12,7 @@ import { appPostgresDbScope } from '@libs/db/public/scope';
 import { appSchema } from '@libs/runtime/root/app-schema';
 import { migrateSimPostgres } from '@libs/runtime/root/sim/migrate-sim-postgres';
 import { unsafe } from '@pkgs/sql';
-import { createPostgresMemSqlClient } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { createMockingbirdPostgresSqlClient } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 
 function declaredIntegerColumns(): { table: string; column: string }[] {
   const snapshot = appSchema.snapshot();
@@ -36,7 +36,7 @@ function declaredIntegerColumns(): { table: string; column: string }[] {
 }
 
 async function udtNames(
-  sqlClient: ReturnType<typeof createPostgresMemSqlClient>['sqlClient']
+  sqlClient: ReturnType<typeof createMockingbirdPostgresSqlClient>['sqlClient']
 ): Promise<Map<string, string>> {
   const rows = await sqlClient.query<{
     table_name: string;
@@ -56,7 +56,7 @@ async function udtNames(
 
 describe('migrate: legacy int4 integer columns', () => {
   test('widens every declared integer column narrowed to int4', async () => {
-    const { sqlClient, pool } = createPostgresMemSqlClient({
+    const { sqlClient, pool } = createMockingbirdPostgresSqlClient({
       seed: 1,
       dbScope: appPostgresDbScope(),
     });
@@ -84,5 +84,6 @@ describe('migrate: legacy int4 integer columns', () => {
       );
     }
     await sqlClient.disconnect();
-  });
+    // Full schema migrate on the in-memory engine; slow under parallel CI load.
+  }, 30_000);
 });

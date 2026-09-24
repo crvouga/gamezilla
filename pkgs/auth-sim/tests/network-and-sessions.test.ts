@@ -69,7 +69,7 @@ describe('auth sim: sessions', () => {
   test('sign out everywhere ends every device of the account', async () => {
     await using s = await auth.run({
       seed: 212,
-      args: { fabric: 'sqlite-mem', clientCount: 3 },
+      args: { fabric: 'mockingbird-sqlite', clientCount: 3 },
     });
     await s.apply(signIn, step('c0', 'google', 'bob@gmail.com'));
     await s.apply(signIn, step('c1', 'google', 'bob@gmail.com'));

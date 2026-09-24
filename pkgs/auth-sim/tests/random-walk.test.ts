@@ -42,7 +42,7 @@ describe('auth sim: random walk', () => {
     for (const seed of SEEDS) {
       await using s = await auth.run({
         seed,
-        args: { fabric: 'sqlite-mem', clientCount: 3 },
+        args: { fabric: 'mockingbird-sqlite', clientCount: 3 },
       });
       const report = await s.randomActions({
         steps: STEPS,
@@ -65,7 +65,7 @@ describe('auth sim: random walk', () => {
     for (const seed of [21, 22, 23, 24]) {
       await using s = await auth.run({
         seed,
-        args: { fabric: 'postgres-mem', clientCount: 3 },
+        args: { fabric: 'mockingbird-postgres', clientCount: 3 },
       });
       const report = await s.randomActions({
         steps: 150,

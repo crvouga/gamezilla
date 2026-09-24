@@ -19,6 +19,7 @@ import {
   context,
   currentCorrelation,
   deserializeTraceContext,
+  otlpAuthorization,
   SpanKind,
   SpanStatusCode,
   withSpan,
@@ -325,9 +326,12 @@ function mountBrowserTelemetryIngress(
     if (contentEncoding !== undefined) {
       headers.set('content-encoding', contentEncoding);
     }
-    const collectorToken = env.observabilityCollectorToken?.trim();
-    if (collectorToken !== undefined && collectorToken.length > 0) {
-      headers.set('authorization', `Bearer ${collectorToken}`);
+    const authorization = otlpAuthorization({
+      user: env.observabilityCollectorUser,
+      token: env.observabilityCollectorToken,
+    });
+    if (authorization !== undefined) {
+      headers.set('authorization', authorization);
     }
     const response = await env.fetch(endpoint, {
       method: 'POST',

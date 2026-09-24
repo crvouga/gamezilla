@@ -32,8 +32,10 @@ export type ServerEnv = {
   readonly serverUrl: string | null;
   /** Exact OTLP/HTTP traces endpoint used by the browser ingress proxy. */
   readonly observabilityCollectorUrl?: string | null;
-  /** Write-only Collector credential; never exposed to the browser. */
+  /** Write-only OTLP ingest credential; never exposed to the browser. */
   readonly observabilityCollectorToken?: string | null;
+  /** Basic-auth user for OTLP ingest (Grafana Cloud stack id); null → Bearer. */
+  readonly observabilityCollectorUser?: string | null;
   readonly skipDatabaseUrlPolicy: boolean;
   /** Vendor HTTP (OpenAI / ElevenLabs). Not ClientEnv.server. */
   readonly fetch: (

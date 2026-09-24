@@ -38,10 +38,10 @@ export async function openMainSqlClient(
  * the bundler co-locate shared helpers into that chunk and pull it eager.
  */
 export async function openDisposableSqlClient(): Promise<SqlClient> {
-  const { SqlClientImplSqliteMem } = await import(
-    '@pkgs/sql-client-sqlite/impl-sqlite-mem'
+  const { SqlClientImplMockingbirdSqlite } = await import(
+    '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite'
   );
-  const client = SqlClientImplSqliteMem.open();
+  const client = SqlClientImplMockingbirdSqlite.open();
   await client.connect();
   return client;
 }

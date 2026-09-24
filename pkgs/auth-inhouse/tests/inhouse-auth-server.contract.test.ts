@@ -16,7 +16,7 @@ import {
 import { createSimClock } from '@pkgs/clock';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { createSimIds } from '@pkgs/uuid';
 
 const SECRET = 'contract-secret-contract-secret-contract';
@@ -30,7 +30,7 @@ const SECRETS: Readonly<Record<string, string>> = {
 };
 
 async function openInhouseHarness(): Promise<AuthServerContractHarness> {
-  const sqlClient = SqlClientImplPostgresMem.open({ seed: 1 });
+  const sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
   const migration = INHOUSE_AUTH_PROVIDER.postgresMigration?.({
     dbScope: createPostgresDbScope('public'),
   });

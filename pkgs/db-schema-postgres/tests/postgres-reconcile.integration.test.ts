@@ -7,14 +7,14 @@ import { sql } from '@pkgs/sql';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
+import { createMockingbirdPostgresTestClient } from '../src/test/mockingbird-postgres-test-client';
 
 describe('postgres reconcile integration', () => {
   let sqlClient: PostgresSqlClient;
   let close: () => Promise<void>;
 
   beforeAll(async () => {
-    const harness = await createPostgresMemTestClient('app_schema');
+    const harness = await createMockingbirdPostgresTestClient('app_schema');
     sqlClient = harness.sqlClient;
     close = harness.close;
   });
@@ -148,7 +148,7 @@ describe('postgres reconcile integration', () => {
     `);
 
     // Redeclaring the pre-existing column with a different type is a shape
-    // collision that must be refused with zero DDL. postgres-mem cannot
+    // collision that must be refused with zero DDL. mockingbird-postgres cannot
     // ALTER COLUMN SET NOT NULL ("this ALTER COLUMN form is not supported"),
     // so the mismatch is a declared type change, not a nullability one.
     const schema = defineSchema({

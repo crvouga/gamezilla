@@ -109,9 +109,9 @@ feature that hosts a signed-in screen.
 
 | Spec | Covers | Home |
 | --- | --- | --- |
-| `shell-boot` | two actors boot through the paint gate into the tab shell; focus switching | `libs/runtime/tests/e2e/shell-boot` (smoke) |
+| `shell-boot` | two actors boot through the paint gate into the tab shell; focus switching | `libs/runtime/tests/e2e/shell-boot` (basic) |
 | `product-walk` | random walk over every feature's walks | `libs/runtime/tests/e2e/monkey` (and one monkey per subsystem suite) |
-| `product-explore` | `system.explore` search over the action pool | `libs/runtime/tests/e2e/explore` (smoke) |
+| `product-explore` | `system.explore` search over the action pool | `libs/runtime/tests/e2e/explore` (basic) |
 | `topology-partition` | partition an actor from the server, then restore, and still sign up | `libs/runtime/tests/e2e/topology-partition` (platform) |
-| `non-web-host-smoke` | the bun-webview host builds and is exported | `libs/sim-harness/tests/hosts-smoke` (ordinary test) |
+| `non-web-host-compile` | the bun-webview host builds and is exported | `libs/sim-harness/tests/hosts-compile` (ordinary test) |
 | `sw-policy` | every wall-client file is precached (graph over the built `dist/`, plus `check:offline-shell`) | `apps/product/scripts/sw-policy.test.ts` (ordinary test) |

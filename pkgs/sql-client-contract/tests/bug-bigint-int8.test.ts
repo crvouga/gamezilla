@@ -1,7 +1,7 @@
 /**
  * Every default backend returns safe integers as number, never bigint: the
  * product simulator's hydrate once died with `Cannot convert BigInt to number`
- * when postgres-mem returned `bigint` for domain `integer` (physical `bigint`)
+ * when mockingbird-postgres returned `bigint` for domain `integer` (physical `bigint`)
  * columns. Fixed by `normalizePgInt8Value` (decimal text, engine-safe).
  */
 import { describe, expect, test } from 'bun:test';

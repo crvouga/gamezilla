@@ -25,7 +25,7 @@ export function persistImage(
   requireStore(state).image = snapshotting.exportDatabaseBytes();
 }
 
-/** `sqlite-mem` backend: no pool model, but the same durable-image semantics. */
+/** `mockingbird-sqlite` backend: no pool model, but the same durable-image semantics. */
 function memoryBackedOwner(store: SimOpfsStore): SqlOwner {
   const inner = createMemorySqlOwner({ dbName: SIM_DB_NAME });
   return {
@@ -53,7 +53,7 @@ function memoryBackedOwner(store: SimOpfsStore): SqlOwner {
 export function createTabOwner(state: SqlClientWebState): SqlOwner {
   const store = requireStore(state);
   const inner =
-    state.backend === 'sqlite-mem'
+    state.backend === 'mockingbird-sqlite'
       ? memoryBackedOwner(store)
       : createSimOpfsSqlOwner({ dbName: SIM_DB_NAME, store });
   return {

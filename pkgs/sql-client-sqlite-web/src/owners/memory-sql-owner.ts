@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import type { SqlOwner } from '../sql-owner';
 
 /**
@@ -9,7 +9,7 @@ import type { SqlOwner } from '../sql-owner';
 export function createMemorySqlOwner(args: {
   readonly dbName: string;
 }): SqlOwner {
-  let client: SqlClientImplSqliteMem | null = null;
+  let client: SqlClientImplMockingbirdSqlite | null = null;
   void args.dbName;
 
   return {
@@ -21,7 +21,7 @@ export function createMemorySqlOwner(args: {
           // ignore
         }
       }
-      client = SqlClientImplSqliteMem.open();
+      client = SqlClientImplMockingbirdSqlite.open();
       await client.connect();
       return client;
     },
@@ -48,5 +48,5 @@ export function createMemorySqlOwner(args: {
 }
 
 export function isMemorySqlClient(client: SqlClient): boolean {
-  return client instanceof SqlClientImplSqliteMem;
+  return client instanceof SqlClientImplMockingbirdSqlite;
 }

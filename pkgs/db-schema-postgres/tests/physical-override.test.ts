@@ -4,7 +4,7 @@ import { defineSchema } from '@pkgs/db-schema/core/define-schema';
 import { planServer } from '@pkgs/db-schema/core/plan';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
+import { createMockingbirdPostgresTestClient } from '../src/test/mockingbird-postgres-test-client';
 
 describe('postgres logical type vs physical catalog type', () => {
   test('logical integer matches bigint, not int4', () => {
@@ -38,7 +38,8 @@ describe('postgres logical type vs physical catalog type', () => {
 
 describe('postgres physical override end-to-end', () => {
   test('catalog reports the raw physical type and drives drift', async () => {
-    const harness = await createPostgresMemTestClient('physical_override');
+    const harness =
+      await createMockingbirdPostgresTestClient('physical_override');
     try {
       const schema = defineSchema({
         tables: { metrics: { rating: { type: 'integer', postgres: 'int4' } } },

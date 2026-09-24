@@ -1,8 +1,8 @@
 import { installPostgresSqliteCompat } from '@pkgs/postgres-sqlite-compat';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { dropTables } from './drop-tables';
 import type { BackendFactory, MatrixBackend } from './types';
 
@@ -30,17 +30,20 @@ function ephemeral(args: EphemeralArgs): MatrixBackend {
   };
 }
 
-export const SQLITE_MEM_FACTORY: BackendFactory = {
-  kind: 'sqlite-mem',
-  name: 'sqlite-mem',
+export const MOCKINGBIRD_SQLITE_FACTORY: BackendFactory = {
+  kind: 'mockingbird-sqlite',
+  name: 'mockingbird-sqlite',
   dialect: 'sqlite',
   always: true,
   open: async () => {
-    const client = SqlClientImplSqliteMem.open({ seed: 1, now: FIXED_NOW });
+    const client = SqlClientImplMockingbirdSqlite.open({
+      seed: 1,
+      now: FIXED_NOW,
+    });
     await client.connect();
     return ephemeral({
-      kind: 'sqlite-mem',
-      name: 'sqlite-mem',
+      kind: 'mockingbird-sqlite',
+      name: 'mockingbird-sqlite',
       dialect: 'sqlite',
       client,
       disconnect: () => client.disconnect(),
@@ -66,21 +69,21 @@ export const BUN_SQLITE_FACTORY: BackendFactory = {
   },
 };
 
-export const POSTGRES_MEM_FACTORY: BackendFactory = {
-  kind: 'postgres-mem',
-  name: 'postgres-mem',
+export const MOCKINGBIRD_POSTGRES_FACTORY: BackendFactory = {
+  kind: 'mockingbird-postgres',
+  name: 'mockingbird-postgres',
   dialect: 'postgres',
   always: true,
   open: async () => {
-    const client = SqlClientImplPostgresMem.open({
+    const client = SqlClientImplMockingbirdPostgres.open({
       seed: 1,
       now: FIXED_NOW,
       dbScope: createPostgresDbScope('public'),
     });
     await client.connect();
     return ephemeral({
-      kind: 'postgres-mem',
-      name: 'postgres-mem',
+      kind: 'mockingbird-postgres',
+      name: 'mockingbird-postgres',
       dialect: 'postgres',
       client,
       disconnect: () => client.disconnect(),
@@ -117,9 +120,9 @@ async function trySqliteWasm(): Promise<BackendFactory | null> {
 
 /** Factories that should always load in bun unit / PBT. */
 export const ALWAYS_FACTORIES: readonly BackendFactory[] = [
-  SQLITE_MEM_FACTORY,
+  MOCKINGBIRD_SQLITE_FACTORY,
   BUN_SQLITE_FACTORY,
-  POSTGRES_MEM_FACTORY,
+  MOCKINGBIRD_POSTGRES_FACTORY,
 ];
 
 let cachedAvailable: BackendFactory[] | null = null;
@@ -148,8 +151,11 @@ export async function openBackend(
   factory: BackendFactory
 ): Promise<MatrixBackend> {
   const backend = await factory.open();
-  if (factory.dialect === 'postgres' && factory.kind === 'postgres-mem') {
-    // postgres-mem installs mem JSON1 shims in open().
+  if (
+    factory.dialect === 'postgres' &&
+    factory.kind === 'mockingbird-postgres'
+  ) {
+    // mockingbird-postgres installs mem JSON1 shims in open().
     return backend;
   }
   if (factory.dialect === 'postgres') {

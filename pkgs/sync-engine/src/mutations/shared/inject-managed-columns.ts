@@ -144,7 +144,7 @@ function injectUpdate(
 ): Sql<unknown> {
   const text = query.sql;
   // Prefer AST column list; also scan SQL text so we never double-assign
-  // `updated_at` (real Postgres rejects that; postgres-mem did not).
+  // `updated_at` (real Postgres rejects that; mockingbird-postgres did not).
   if (setCols.includes('updated_at') || /\bupdated_at\s*=/i.test(text)) {
     return query;
   }

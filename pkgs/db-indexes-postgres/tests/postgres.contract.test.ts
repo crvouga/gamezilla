@@ -133,7 +133,7 @@ describe('postgres port contract', () => {
 
 describe('postgres live differential', () => {
   test(
-    'createPostgresPort smoke with real DATABASE_URL',
+    'createPostgresPort round-trip with real DATABASE_URL',
     async () => {
       const { createPostgresPort } = await import('@pkgs/db-indexes-postgres');
       const clock = createSimClock(0);

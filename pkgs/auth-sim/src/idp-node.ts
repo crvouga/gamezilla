@@ -24,7 +24,7 @@ import {
   type IdpProviderKind,
 } from '@pkgs/idp-sim/shared';
 import type { Ports } from '@pkgs/sim';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
 import { AUTH_SYSTEM_BASE_URL, AUTH_SYSTEM_PATH_PREFIX } from './types';
 
@@ -108,7 +108,7 @@ async function openStore(
     Math.floor(ports.rng.fork(`idp-sql-${provider}`).next() * 0xffffffff) || 1;
   return await IdpStore.open({
     provider,
-    sqlClient: SqlClientImplSqliteMem.open({ seed }),
+    sqlClient: SqlClientImplMockingbirdSqlite.open({ seed }),
     clock: ports.clock,
     createId: ports.createId,
     createKeys: sharedSigningKeys,

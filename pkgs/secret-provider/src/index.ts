@@ -18,12 +18,10 @@ export {
   isSecretsCacheStale,
   mergeSecretsIntoEnv,
   parseInfisicalExportJson,
-  readSecretsCacheFingerprint,
   readSecretsCacheMap,
   readSecretsCacheMeta,
   SECRETS_CACHE_PREFIX,
   SECRETS_CACHE_TTL_MS,
-  writeSecretsCacheFingerprint,
   writeSecretsCacheMap,
   writeSecretsCacheMeta,
 } from './local-secrets-cache';

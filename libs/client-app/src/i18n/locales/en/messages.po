@@ -2704,6 +2704,7 @@ msgid "You're all caught up"
 msgstr "You're all caught up"
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-empty-pool-state.tsx
+#: libs/profile/src/use-cases/claim-username/client/profile-handle-screen.tsx
 msgid "You're offline"
 msgstr "You're offline"
 

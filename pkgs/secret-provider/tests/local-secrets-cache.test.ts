@@ -4,10 +4,8 @@ import {
   isSecretsCacheStale,
   mergeSecretsIntoEnv,
   parseInfisicalExportJson,
-  readSecretsCacheFingerprint,
   readSecretsCacheMap,
   readSecretsCacheMeta,
-  writeSecretsCacheFingerprint,
   writeSecretsCacheMap,
   writeSecretsCacheMeta,
 } from '../src/local-secrets-cache';
@@ -33,7 +31,7 @@ describe('parseInfisicalExportJson', () => {
 });
 
 describe('local secrets cache ObjectStore round-trip', () => {
-  it('writes and reads env maps, meta, and fingerprint', async () => {
+  it('writes and reads env maps and meta', async () => {
     const store = new ObjectStoreImplInMemory();
     const map = new Map([
       ['A', '1'],
@@ -46,7 +44,6 @@ describe('local secrets cache ObjectStore round-trip', () => {
       projectId: 'proj',
       envs: ['dev', 'prd'],
     });
-    await writeSecretsCacheFingerprint(store, 'abc123');
 
     const dev = await readSecretsCacheMap(store, 'dev');
     expect(dev?.get('A')).toBe('1');
@@ -56,7 +53,6 @@ describe('local secrets cache ObjectStore round-trip', () => {
     const meta = await readSecretsCacheMeta(store);
     expect(meta?.projectId).toBe('proj');
     expect(meta?.envs).toEqual(['dev', 'prd']);
-    expect(await readSecretsCacheFingerprint(store)).toBe('abc123');
   });
 });
 

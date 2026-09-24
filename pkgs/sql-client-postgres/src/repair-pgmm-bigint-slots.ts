@@ -1,6 +1,6 @@
 /**
  * PGMM hydrate packs int8 / timestamptz micros that fit float64 as JS
- * `number` (PACK_INT). postgres-mem arithmetic and timestamp format then
+ * `number` (PACK_INT). mockingbird-postgres arithmetic and timestamp format then
  * throw `Cannot mix BigInt and other types` (V8) / `Invalid mix of BigInt`
  * (Bun). Coerce those slots back to bigint after snapshot open.
  */
@@ -47,7 +47,7 @@ const SEQUENCE_BIGINT_KEYS = [
   'lastValue',
 ] as const;
 
-export function repairPostgresMemPgmmBigintSlots(db: object): void {
+export function repairMockingbirdPostgresPgmmBigintSlots(db: object): void {
   const state = readRepairState(db);
   if (state == null) return;
   for (const schema of state.schemas.values()) {

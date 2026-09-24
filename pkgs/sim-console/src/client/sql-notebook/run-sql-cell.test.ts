@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { raw } from '@pkgs/sql';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
 import { runSqlCell } from './run-sql-cell';
 
 describe('runSqlCell', () => {
   test('select and dml in one cell transaction', async () => {
-    const client = SqlClientImplSqliteMem.open();
+    const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
     await client.run(raw('CREATE TABLE t (id INTEGER PRIMARY KEY, n INTEGER)'));
     const now = (() => {

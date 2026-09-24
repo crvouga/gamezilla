@@ -7,9 +7,11 @@ name: Deploy
 #                `wrangler deploy --dry-run` for all three workers. It serves
 #                no traffic: prod is still the first environment to receive
 #                worker code.
-#   deploy-prd — applies to production, then runs @apps/server#smoke
-#                (HTTP probes against the client URL, /simulator and
-#                /api/health). Runs only when deploy-dev succeeded.
+#   deploy-prd — applies to production, then runs every package's `health`
+#                task (`//#health`: live probes of Workers, DNS/TLS, Postgres,
+#                R2, EMQX, Grafana Cloud, vendor credentials). Runs only when
+#                deploy-dev succeeded. deploy-dev runs the dev-scope probes.
+#                .github/workflows/health.yml runs the same probes hourly.
 #
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
 # `deploy:prd` aliases, which force TURBO_UI=tui (a TTY UI).

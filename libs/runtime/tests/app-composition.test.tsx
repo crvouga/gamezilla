@@ -80,7 +80,7 @@ describe('app composition', () => {
     expect(bootChromeNode()).not.toBeNull();
     expect(screenNode('spaces')).toBeNull();
 
-    // Identity + local sqlite-mem engine boot are promise-driven; virtual
+    // Identity + local mockingbird-sqlite engine boot are promise-driven; virtual
     // time advances anything the engine scheduled on the injected timers.
     await sim.session.advanceTime(1_000);
     await sim.session.waitForIdle();

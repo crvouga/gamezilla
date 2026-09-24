@@ -91,7 +91,7 @@ async function readInvalidIndexNames(
     `);
     return new Set(rows.map((r) => r.name));
   } catch {
-    // Engines without pg_index (postgres-mem) cannot report a failed
+    // Engines without pg_index (mockingbird-postgres) cannot report a failed
     // CONCURRENTLY build; nothing is marked invalid.
     return new Set<string>();
   }

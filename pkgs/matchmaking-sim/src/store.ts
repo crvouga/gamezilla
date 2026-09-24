@@ -1,11 +1,11 @@
 /**
- * Shared SQL store for matchmaking sim replicas (sqlite or postgres-mem).
+ * Shared SQL store for matchmaking sim replicas (sqlite or mockingbird-postgres).
  */
 
 import { Database } from 'bun:sqlite';
 import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplPostgresMem } from '@pkgs/sql-client-postgres/impl-postgres-mem';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import type { MatchmakingSimBackend } from './sim-api';
 
@@ -30,7 +30,7 @@ export async function openSimStore(
       },
     };
   }
-  const client = SqlClientImplPostgresMem.open({ seed: 1 });
+  const client = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
   await client.connect();
   const shared = new SqlClientImplAgnostic(client);
   return {

@@ -19,7 +19,7 @@ import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import type { MutationEnv } from '@pkgs/sync-engine/shared';
 
 const OWNER = 'user_1';
@@ -36,7 +36,7 @@ function env(atMs: number): MutationEnv {
 }
 
 async function openDb(): Promise<SqlClient> {
-  const db = SqlClientImplSqliteMem.open();
+  const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await applySqliteSchema(db, registerTables([...CHESS_TABLES]), {
     ownership: 'declared-only',

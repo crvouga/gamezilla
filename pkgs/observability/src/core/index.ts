@@ -36,6 +36,7 @@ export type {
   NarrateSpan,
 } from './narrate';
 export { narrate } from './narrate';
+export { otlpAuthorization } from './otlp-auth';
 export type { AttributeRedactor } from './redaction';
 export { allowlistedAttributes, createAllowlistRedactor } from './redaction';
 export type {

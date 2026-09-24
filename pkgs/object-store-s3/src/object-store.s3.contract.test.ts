@@ -61,7 +61,11 @@ describe('ObjectStore S3-compatible (contract)', () => {
   );
 
   runObjectStoreContractTests(() =>
-    createS3ObjectStore({ ...s3Config, rootPrefix: prefix })
+    createS3ObjectStore({
+      ...s3Config,
+      rootPrefix: prefix,
+      http: { fetch: (input, init) => globalThis.fetch(input, init) },
+    })
   );
 });
 
