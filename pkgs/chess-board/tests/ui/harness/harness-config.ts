@@ -19,8 +19,6 @@ export type HarnessParentMode =
   /** Parent keeps its FEN; the board holds the optimistic move. */
   | 'ignore';
 
-export type HarnessBoardKind = 'smart' | 'controlled';
-
 export type HarnessToggle =
   | 'interactive'
   | 'premoves'
@@ -29,10 +27,10 @@ export type HarnessToggle =
   | 'highlightLastMove'
   | 'highlightLegalMoves'
   | 'enableUserArrows'
-  | 'autoPromoteQueen';
+  | 'autoPromoteQueen'
+  | 'reducedMotion';
 
 export type HarnessConfig = {
-  readonly board?: HarnessBoardKind;
   readonly testId?: string;
   readonly fen?: string;
   readonly orientation?: BoardOrientation;
@@ -46,6 +44,13 @@ export type HarnessConfig = {
   readonly interactive?: boolean;
   readonly premoves?: boolean;
   readonly animations?: boolean;
+  readonly animationDurationMs?: number;
+  /** The OS asks for reduced motion (live: toggle `reducedMotion`). */
+  readonly reducedMotion?: boolean;
+  /** Device reports as low-end (few cores / little memory / Save-Data). */
+  readonly lowEnd?: boolean;
+  /** Engine has Web Animations (default true). */
+  readonly webAnimations?: boolean;
   readonly showCoordinates?: boolean;
   readonly highlightLastMove?: boolean;
   readonly highlightLegalMoves?: boolean;
@@ -71,6 +76,7 @@ export const HarnessIds = {
   moves: 'harness-moves',
   sounds: 'harness-sounds',
   userArrows: 'harness-user-arrows',
+  slides: 'harness-slides',
   parentFen: 'harness-parent-fen',
   toggle: (name: HarnessToggle) => `harness-toggle-${name}`,
 } as const;

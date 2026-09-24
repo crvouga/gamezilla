@@ -9,19 +9,22 @@
 
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
+import { BoardMotionProvider } from '@pkgs/chess-board/board-motion-context';
 import { ChessBoard } from '@pkgs/chess-board/chess-board';
-import type {
-  BoardArrow,
-  Move,
-  Square,
-} from '@pkgs/chess-board/chess-board-types';
-import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
-import { ClockProvider } from '@pkgs/clock/solid';
+import type { BoardArrow, Move } from '@pkgs/chess-board/chess-board-types';
+import { ClockProvider, useClock, useTimers } from '@pkgs/clock/solid';
 import type { Clock, Timers } from '@pkgs/clock/types';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
 import { ThemeProvider } from '@pkgs/ui';
 import { Chess } from 'chess.js';
-import { createSignal, For, type JSX, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createSignal,
+  For,
+  type JSX,
+  Show,
+  untrack,
+} from 'solid-js';
 
 import {
   HARNESS_BOARD_TEST_ID,
@@ -30,6 +33,7 @@ import {
   type HarnessToggle,
 } from './harness-config';
 import { createRecordingAudio } from './recording-audio';
+import { createRecordingMotion } from './recording-motion';
 
 const FRAME_WIDTH_PX = 360;
 const DEFAULT_SIZE_PX = 320;
@@ -43,6 +47,7 @@ const TOGGLE_DEFAULTS: Readonly<Record<HarnessToggle, boolean>> = {
   highlightLegalMoves: true,
   enableUserArrows: false,
   autoPromoteQueen: false,
+  reducedMotion: false,
 };
 
 const TOGGLES = Object.keys(TOGGLE_DEFAULTS) as HarnessToggle[];
@@ -174,30 +179,14 @@ function HarnessBoard(props: {
       props.state.onUserArrowsChange(a),
   };
   return (
-    <Show
-      when={props.config.board === 'controlled'}
-      fallback={
-        <SmartChessBoard
-          {...shared}
-          fen={props.state.fen()}
-          fenSyncKey={props.state.syncKey()}
-          interactive={t().interactive}
-          animations={t().animations}
-        />
-      }
-    >
-      <ChessBoard
-        {...shared}
-        fen={props.state.fen()}
-        viewOnly={!t().interactive}
-        movable={
-          t().interactive
-            ? { color: 'both', dests: new Map<Square, readonly Square[]>() }
-            : undefined
-        }
-        animation={{ enabled: t().animations }}
-      />
-    </Show>
+    <ChessBoard
+      {...shared}
+      fen={props.state.fen()}
+      fenSyncKey={props.state.syncKey()}
+      interactive={t().interactive}
+      animations={t().animations}
+      animationDurationMs={props.config.animationDurationMs}
+    />
   );
 }
 
@@ -266,6 +255,7 @@ function HarnessControls(props: { readonly state: HarnessState }): JSX.Element {
 function HarnessLogs(props: {
   readonly state: HarnessState;
   readonly sounds: () => readonly string[];
+  readonly slides: () => readonly string[];
 }): JSX.Element {
   return (
     <div>
@@ -279,6 +269,9 @@ function HarnessLogs(props: {
         {JSON.stringify(props.state.userArrows())}
       </pre>
       <pre data-testid={HarnessIds.parentFen}>{props.state.fen() ?? ''}</pre>
+      <pre data-testid={HarnessIds.slides}>
+        {JSON.stringify(props.slides())}
+      </pre>
     </div>
   );
 }
@@ -289,22 +282,38 @@ export function ChessBoardHarness(props: {
 }): JSX.Element {
   const audio = createRecordingAudio();
   // A scenario's config is fixed for the life of the page.
-  const state = createHarnessState(untrack(() => props.config));
+  const config = untrack(() => props.config);
+  const state = createHarnessState(config);
+  const motion = createRecordingMotion({
+    clock: useClock(),
+    timers: useTimers(),
+    orientation: state.orientation,
+    reducedMotion: config.reducedMotion === true,
+    lowEnd: config.lowEnd === true,
+    webAnimations: config.webAnimations !== false,
+  });
+  createEffect(() => motion.setReducedMotion(state.toggles().reducedMotion));
   return (
-    <AudioPlaybackProvider value={audio.port}>
-      <div data-testid={HarnessIds.root} class="flex flex-col gap-2 p-2">
-        <div
-          data-testid={HarnessIds.frame}
-          style={{ width: `${props.config.frameWidth ?? FRAME_WIDTH_PX}px` }}
-        >
-          <Show when={state.mounted() ? state.mountKey() : false} keyed>
-            <HarnessBoard config={props.config} state={state} />
-          </Show>
+    <BoardMotionProvider value={motion.env}>
+      <AudioPlaybackProvider value={audio.port}>
+        <div data-testid={HarnessIds.root} class="flex flex-col gap-2 p-2">
+          <div
+            data-testid={HarnessIds.frame}
+            style={{ width: `${props.config.frameWidth ?? FRAME_WIDTH_PX}px` }}
+          >
+            <Show when={state.mounted() ? state.mountKey() : false} keyed>
+              <HarnessBoard config={props.config} state={state} />
+            </Show>
+          </div>
+          <HarnessControls state={state} />
+          <HarnessLogs
+            state={state}
+            sounds={audio.played}
+            slides={motion.slides}
+          />
         </div>
-        <HarnessControls state={state} />
-        <HarnessLogs state={state} sounds={audio.played} />
-      </div>
-    </AudioPlaybackProvider>
+      </AudioPlaybackProvider>
+    </BoardMotionProvider>
   );
 }
 

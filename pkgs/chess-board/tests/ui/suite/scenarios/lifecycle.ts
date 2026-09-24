@@ -36,21 +36,6 @@ export function defineLifecycleScenarios(host: ChessBoardHost): void {
       await board.drag('e2', 'e4');
       await board.expectFen(play(FEN.start, 'e2e4'));
     });
-
-    test('a view-only controlled board ignores gestures; a movable one plays', async () => {
-      const board = await openBoard(host, {
-        board: 'controlled',
-        interactive: false,
-        parent: 'confirm',
-      });
-      await board.drag('e2', 'e4');
-      await board.expectFen(FEN.start);
-      await board.toggle('interactive');
-      await board.drag('e2', 'e4');
-      await board.expectFen(play(FEN.start, 'e2e4'));
-      expect(await board.moves()).toHaveLength(1);
-      await board.expectConsistent();
-    });
   });
 
   describe('mounting', () => {

@@ -1,6 +1,7 @@
 /**
- * Right-click shapes: arrows (drag) and circles (click same square), with
- * modifier-key brushes. Builds on {@link toggleShape}.
+ * Right-button shapes: drag draws an arrow (previewed live, snapping to
+ * squares), a click on one square rings it; modifier keys pick the brush.
+ * Drawing the same shape again erases it ({@link toggleShape}).
  */
 
 import {
@@ -10,20 +11,28 @@ import {
   toggleShape,
 } from '@pkgs/chess-board-core/shapes/board-shapes';
 import type { BoardArrow, Square } from '@pkgs/chess-board-core/types';
-import { type Accessor, createSignal } from 'solid-js';
+import { type Accessor, createMemo, createSignal } from 'solid-js';
+
+/** The arrow being drawn, from its origin to the square under the pointer. */
+export type ShapePreview = {
+  readonly from: Square;
+  readonly to: Square;
+  readonly color: string;
+};
 
 export type UserShapes = {
   readonly shapes: Accessor<readonly BoardShape[]>;
   readonly arrows: Accessor<readonly BoardArrow[]>;
+  /** Arrow under construction (only once it leaves its origin square). */
+  readonly preview: Accessor<ShapePreview | null>;
   readonly begin: (from: Square, brush: ShapeBrush) => void;
+  /** The pointer is over `square` (null: off the board). */
+  readonly hover: (square: Square | null) => void;
   readonly end: (to: Square | null) => void;
+  /** Abandon the stroke in progress. */
+  readonly abort: () => void;
   readonly clear: () => void;
-  readonly setShapes: (shapes: readonly BoardShape[]) => void;
 };
-
-function brushToColorKey(brush: ShapeBrush): string {
-  return brush;
-}
 
 function shapesToArrows(shapes: readonly BoardShape[]): readonly BoardArrow[] {
   const out: BoardArrow[] = [];
@@ -35,11 +44,7 @@ function shapesToArrows(shapes: readonly BoardShape[]): readonly BoardArrow[] {
       color: s.color,
       id: s.id ?? `${s.from}-${s.to}`,
     };
-    if (s.knight !== undefined) {
-      out.push({ ...arrow, knight: s.knight });
-    } else {
-      out.push(arrow);
-    }
+    out.push(s.knight === undefined ? arrow : { ...arrow, knight: s.knight });
   }
   return out;
 }
@@ -48,33 +53,48 @@ export function createUserShapes(args?: {
   readonly onChange?: ((shapes: readonly BoardShape[]) => void) | undefined;
 }): UserShapes {
   const [shapes, setShapes] = createSignal<readonly BoardShape[]>([]);
-  let from: Square | null = null;
-  let brush: ShapeBrush = 'primary';
+  const [stroke, setStroke] = createSignal<{
+    readonly from: Square;
+    readonly brush: ShapeBrush;
+    readonly to: Square | null;
+  } | null>(null);
 
   const commit = (next: readonly BoardShape[]): void => {
     setShapes(next);
     args?.onChange?.(next);
   };
 
+  const preview = createMemo((): ShapePreview | null => {
+    const s = stroke();
+    if (s === null) return null;
+    if (s.to === null || s.to === s.from) return null;
+    return { from: s.from, to: s.to, color: s.brush };
+  });
+  const arrows = createMemo(() => shapesToArrows(shapes()));
+
   return {
     shapes,
-    arrows: () => shapesToArrows(shapes()),
-    begin(square, nextBrush) {
-      from = square;
-      brush = nextBrush;
+    arrows,
+    preview,
+    begin(square, brush) {
+      setStroke({ from: square, brush, to: square });
+    },
+    hover(square) {
+      const s = stroke();
+      if (s === null || s.to === square) return;
+      setStroke({ ...s, to: square });
     },
     end(to) {
-      const origin = from;
-      from = null;
-      if (origin === null || to === null) return;
-      const color = brushToColorKey(brush);
-      if (to === origin) {
+      const s = stroke();
+      setStroke(null);
+      if (s === null || to === null) return;
+      if (to === s.from) {
         commit(
           toggleShape(shapes(), {
             kind: 'circle',
-            square: origin,
-            color,
-            id: `c-${origin}`,
+            square: s.from,
+            color: s.brush,
+            id: `c-${s.from}`,
           })
         );
         return;
@@ -82,20 +102,20 @@ export function createUserShapes(args?: {
       commit(
         toggleShape(shapes(), {
           kind: 'arrow',
-          from: origin,
+          from: s.from,
           to,
-          color,
-          id: `${origin}-${to}`,
+          color: s.brush,
+          id: `${s.from}-${to}`,
         })
       );
     },
+    abort() {
+      setStroke(null);
+    },
     clear() {
-      from = null;
+      setStroke(null);
       if (shapes().length === 0) return;
       commit([]);
-    },
-    setShapes(next) {
-      commit(next);
     },
   };
 }

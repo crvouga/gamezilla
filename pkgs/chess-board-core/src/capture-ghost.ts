@@ -5,7 +5,7 @@
 
 import { indexFromSquare } from './geometry';
 import { inferLastMoveFromPositionDiff } from './infer-move';
-import { pieceCode } from './piece-svgs';
+import { pieceCode } from './piece-code';
 import { positionsEqual } from './position';
 import type { Move, PieceCode, PieceColor, Position, Square } from './types';
 

@@ -138,6 +138,35 @@ export function definePremoveScenarios(host: ChessBoardHost): void {
       expect((await board.probe()).selected).toBeNull();
     });
 
+    test('escape cancels the selection and every queued premove', async () => {
+      const board = await openBoard(host, premoveConfig(['e7e5']));
+      await board.drag('e2', 'e4');
+      await board.drag('g1', 'f3');
+      await board.drag('f1', 'c4');
+      await board.tap('d2');
+      expect((await board.probe()).premoves).toHaveLength(2);
+      await board.key('escape');
+      expect(await board.probe()).toMatchObject({
+        premoves: [],
+        selected: null,
+      });
+      await board.expectConsistent();
+      await board.next();
+      await board.expectFen(play(AFTER_E4, 'e7e5'));
+      expect(await board.moves()).toHaveLength(1);
+    });
+
+    test('a right-click anywhere cancels every queued premove, like chess.com', async () => {
+      const board = await openBoard(host, premoveConfig(['e7e5']));
+      await board.drag('e2', 'e4');
+      await board.drag('g1', 'f3');
+      await board.drag('f1', 'c4');
+      await board.rightClick('h6');
+      expect((await board.probe()).premoves).toEqual([]);
+      await board.expectConsistent();
+      expect(await board.layer('pieces')).not.toContain('premove-ghost:wn@f3');
+    });
+
     test('turning premoves off drops the queue', async () => {
       const board = await openBoard(host, premoveConfig(['e7e5']));
       await board.drag('e2', 'e4');

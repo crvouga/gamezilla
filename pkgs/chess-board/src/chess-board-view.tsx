@@ -1,14 +1,14 @@
 /** @jsxImportSource solid-js */
-/** Presentational shell for {@link ChessBoard}. */
+/** Presentational shell for {@link ChessBoard}: host element + paint stack. */
 
 import { speakMove } from '@pkgs/chess-board-core/a11y/speak-move';
 import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
-import { pieceCode } from '@pkgs/chess-board-core/piece-svgs';
+import { pieceCode } from '@pkgs/chess-board-core/piece-code';
 import {
   chessBoardLiveRegionTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
 } from '@pkgs/chess-board-core/probe';
-import type { PieceCode, Square } from '@pkgs/chess-board-core/types';
+import type { Position, Square } from '@pkgs/chess-board-core/types';
 import { dataAttrs } from '@pkgs/ui';
 import {
   type Accessor,
@@ -21,20 +21,18 @@ import {
 
 import { boardThemeToCssVars } from './board-theme';
 import styles from './chess-board.module.css';
-import {
-  type BoardController,
-  MOVE_DURATION_MS,
-} from './chess-board-controller';
+import { ChessBoardBackground } from './chess-board-background';
+import type { BoardController } from './chess-board-controller';
+import { ChessBoardFeedback } from './chess-board-feedback';
 import { ChessBoardHitGrid } from './chess-board-hit-grid';
-import { ChessBoardLayers } from './chess-board-layers';
 import { ChessBoardLiveRegion } from './chess-board-live-region';
 import { ChessBoardOverlays } from './chess-board-overlays';
-import type { SmartChessBoardProps } from './smart-chess-board-types';
+import { ChessBoardPieces, type PremoveGhost } from './chess-board-pieces';
+import { ChessBoardShapes } from './chess-board-shapes';
+import { ChessBoardSquares, squareWashes } from './chess-board-squares';
+import type { ChessBoardProps } from './chess-board-types';
 
-function findKingSquare(
-  position: readonly ({ color: 'w' | 'b'; type: string } | null)[],
-  color: 'w' | 'b'
-): Square | null {
+function findKingSquare(position: Position, color: 'w' | 'b'): Square | null {
   for (let i = 0; i < 64; i += 1) {
     const p = position[i];
     if (p?.type === 'k' && p.color === color) {
@@ -67,26 +65,48 @@ function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
   return liveMessage;
 }
 
-function premovePieceCode(ctrl: BoardController): PieceCode | null {
-  const p = ctrl.model.interaction().premove;
-  if (p === null) return null;
-  const piece = ctrl.model.game().position[indexFromSquare(p.from)];
-  if (piece === null || piece === undefined) return null;
-  return pieceCode(piece.color, piece.type);
+/** Square washes: selection (or the dragged piece's origin), check, premoves, last move. */
+function useWashes(
+  props: ChessBoardProps,
+  ctrl: BoardController
+): Accessor<readonly string[]> {
+  return createMemo(() => {
+    const g = ctrl.model.game();
+    const ix = ctrl.model.interaction();
+    return squareWashes({
+      lastMove: g.lastMove,
+      selected: ix.selected ?? ix.dragFrom,
+      checkSquare: g.inCheck ? findKingSquare(g.position, g.turn) : null,
+      highlightLastMove: props.highlightLastMove !== false,
+      premoveSquares: ix.premves.flatMap((p) => [p.from, p.to]),
+    });
+  });
+}
+
+/** Faint piece on every queued premove's destination. */
+function usePremoveGhosts(
+  ctrl: BoardController
+): Accessor<readonly PremoveGhost[]> {
+  return createMemo(() => {
+    const position = ctrl.model.game().position;
+    return ctrl.model.interaction().premves.flatMap((p) => {
+      const piece = position[indexFromSquare(p.from)];
+      const code =
+        piece === null || piece === undefined
+          ? null
+          : pieceCode(piece.color, piece.type);
+      return code === null ? [] : [{ to: p.to, code }];
+    });
+  });
 }
 
 function BoardBody(args: {
-  readonly props: SmartChessBoardProps;
+  readonly props: ChessBoardProps;
   readonly ctrl: BoardController;
   readonly boardTestId: () => string;
 }): JSX.Element {
-  const checkSquare = createMemo(() => {
-    const s = args.ctrl.model.game();
-    return s.inCheck ? findKingSquare(s.position, s.turn) : null;
-  });
   const game = () => args.ctrl.model.game();
   const ix = () => args.ctrl.model.interaction();
-  const premove = () => ix().premove;
   const liveMessage = useSpokenLastMove(() => args.ctrl);
   return (
     <>
@@ -94,40 +114,46 @@ function BoardBody(args: {
         testId={chessBoardLiveRegionTestId(args.boardTestId())}
         message={liveMessage}
       />
-      <ChessBoardLayers
+      <ChessBoardBackground />
+      <ChessBoardSquares
+        boardTestId={args.boardTestId()}
+        orientation={args.ctrl.orientation}
+        position={() => game().position}
+        washes={useWashes(args.props, args.ctrl)}
+        legalTargets={() => ix().legalTargets}
+        cellHighlights={() => args.props.cellHighlights}
+        showCoordinates={() => args.props.showCoordinates !== false}
+        highlightLegalMoves={() => args.props.highlightLegalMoves !== false}
+        setHover={args.ctrl.setHover}
+      />
+      <ChessBoardPieces
+        boardTestId={args.boardTestId()}
+        orientation={args.ctrl.orientation}
+        rows={args.ctrl.model.rows}
+        captureGhost={args.ctrl.model.captureGhost}
+        premoveGhosts={usePremoveGhosts(args.ctrl)}
+        animator={args.ctrl.animator}
+        motion={args.ctrl.motion}
+      />
+      <ChessBoardShapes
+        boardTestId={args.boardTestId()}
+        orientation={args.ctrl.orientation}
+        theme={args.ctrl.theme}
+        shapes={args.ctrl.userShapes.shapes}
+        arrows={args.ctrl.arrows}
+        preview={args.ctrl.userShapes.preview}
+      />
+      <ChessBoardFeedback
         boardTestId={args.boardTestId()}
         orientation={args.ctrl.orientation()}
         theme={args.ctrl.theme()}
-        position={game().position}
-        lastMove={game().lastMove}
-        selected={ix().selected}
-        legalTargets={ix().legalTargets}
-        checkSquare={checkSquare()}
-        cellHighlights={args.props.cellHighlights}
         cellFeedback={args.props.cellFeedback}
-        showCoordinates={args.props.showCoordinates !== false}
-        highlightLastMove={args.props.highlightLastMove !== false}
-        highlightLegalMoves={args.props.highlightLegalMoves !== false}
-        rows={args.ctrl.model.rows}
-        captureGhost={args.ctrl.model.captureGhost}
-        snapSquare={args.ctrl.model.snapSquare}
-        dragFrom={() => ix().dragFrom}
-        dragGhost={args.ctrl.ghost}
-        animated={args.ctrl.animated}
-        arrows={args.ctrl.arrows()}
-        shapes={args.ctrl.shapes()}
-        premoveFrom={premove()?.from ?? null}
-        premoveTo={premove()?.to ?? null}
-        premoveCode={premovePieceCode(args.ctrl)}
       />
       <ChessBoardHitGrid
         boardTestId={args.boardTestId()}
         orientation={args.ctrl.orientation()}
         onSquareFocus={(square) => args.ctrl.onSquareFocus(square)}
         cursor={args.ctrl.cursor()}
-        position={game().position}
-        turn={game().turn}
-        legalTargets={ix().legalTargets}
       />
       <ChessBoardOverlays
         ctrl={args.ctrl}
@@ -138,26 +164,44 @@ function BoardBody(args: {
   );
 }
 
+/**
+ * Colours whose pieces a press would pick up (`w`, `b`, `wb`), for the grab
+ * cursor — one host attribute per move instead of a class per square.
+ */
+function grabColors(
+  props: ChessBoardProps,
+  ctrl: BoardController
+): string | undefined {
+  const ix = ctrl.model.interaction();
+  if (!ix.interactive || ix.pendingPromotion !== null) return undefined;
+  const turn = ctrl.model.game().turn;
+  if (props.premoves !== true) return turn;
+  const player = ctrl.orientation() === 'white' ? 'w' : 'b';
+  return player === turn ? turn : `${turn}${player}`;
+}
+
 export function ChessBoardView(args: {
-  readonly props: SmartChessBoardProps;
+  readonly props: ChessBoardProps;
   readonly ctrl: BoardController;
 }): JSX.Element {
   const boardTestId = () =>
     args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
+  const themeVars = createMemo(() => boardThemeToCssVars(args.ctrl.theme()));
   const hostStyle = () => {
-    const px = args.ctrl.boardPx();
+    // A fill-width board sizes by CSS: its measured width is not read here,
+    // so resizing it never rebuilds the host style.
     const size =
       args.props.size === undefined
         ? { width: '100%' as const, 'aspect-ratio': 1 as const }
         : {
-            width: `${px}px`,
-            height: `${px}px`,
+            width: `${args.ctrl.boardPx()}px`,
+            height: `${args.ctrl.boardPx()}px`,
           };
     return {
       ...size,
-      ...boardThemeToCssVars(args.ctrl.theme()),
+      ...themeVars(),
       'border-color': 'var(--chess-border)',
-      '--chess-move-ms': `${MOVE_DURATION_MS}ms`,
+      '--chess-move-ms': `${args.ctrl.motion().durationMs}ms`,
     };
   };
   return (
@@ -167,20 +211,17 @@ export function ChessBoardView(args: {
     // WAI-ARIA pattern for a keyboard game board trips these two rules.
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      class={`box relative border-2 border-solid overflow-hidden ${styles['root']}`}
+      class={`box border-2 border-solid ${styles['root']}`}
+      classList={{ [styles['lite'] ?? '']: !args.ctrl.motion().effects }}
       style={hostStyle()}
       {...dataAttrs({
         component: 'ChessBoard',
         testid: boardTestId(),
         ...args.props.dataSet,
       })}
+      data-grab={grabColors(args.props, args.ctrl)}
       ref={args.ctrl.setHost}
-      onPointerDown={(e) => args.ctrl.onPointerDown(e)}
-      onPointerMove={(e) => args.ctrl.onPointerMove(e)}
-      onPointerUp={(e) => args.ctrl.onPointerUp(e)}
-      onPointerCancel={() => args.ctrl.onPointerCancel()}
       onKeyDown={(e) => args.ctrl.onKeyDown(e)}
-      onContextMenu={(e) => args.ctrl.onContextMenu(e)}
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabIndex={0}
       role="application"

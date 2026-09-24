@@ -33,12 +33,14 @@
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@pkgs/ui-testing": "workspace:*",
     "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "chess.js": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

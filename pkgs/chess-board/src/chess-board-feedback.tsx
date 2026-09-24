@@ -11,8 +11,8 @@ import type {
   CellFeedback,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { For, type JSX, Show } from 'solid-js';
-import { fmtUnits } from './board-units';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import { BOARD_VIEW_BOX, fmtUnits } from './board-units';
 import styles from './chess-board.module.css';
 import {
   BADGE_FONT_SIZE,
@@ -101,17 +101,23 @@ function FeedbackMark(props: {
 export function ChessBoardFeedback(
   props: ChessBoardFeedbackProps
 ): JSX.Element {
-  const badges = () => feedbackBadges(props.cellFeedback, props.orientation);
+  const badges = createMemo(() =>
+    feedbackBadges(props.cellFeedback, props.orientation)
+  );
+  // No badges, no layer: an empty full-board SVG above the pieces would
+  // still be composited over every sliding piece.
   return (
-    <svg
-      class={`${styles['layer']} ${styles['svgLayer']}`}
-      viewBox="0 0 800 800"
-      aria-hidden="true"
-      data-testid={chessBoardLayerTestId(props.boardTestId, 'feedback')}
-    >
-      <For each={[...badges()]}>
-        {(badge) => <FeedbackMark badge={badge} theme={props.theme} />}
-      </For>
-    </svg>
+    <Show when={badges().length > 0}>
+      <svg
+        class={`${styles['layer']} ${styles['svgLayer']} ${styles['feedback']}`}
+        viewBox={BOARD_VIEW_BOX}
+        aria-hidden="true"
+        data-testid={chessBoardLayerTestId(props.boardTestId, 'feedback')}
+      >
+        <For each={[...badges()]}>
+          {(badge) => <FeedbackMark badge={badge} theme={props.theme} />}
+        </For>
+      </svg>
+    </Show>
   );
 }
