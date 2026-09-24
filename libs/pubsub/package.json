@@ -17,6 +17,7 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "provision": "bun run src/scripts/provision.ts",
+    "smoke": "bun test --timeout 60000 ./smoke/*.smoke.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },

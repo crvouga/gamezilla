@@ -64,8 +64,11 @@ const CHECK_LEAVES = [
   '@libs/tools#check:static',
 ];
 
-/** Deploy runs the whole check surface, then the two leaves that need a live env. */
-const DEPLOY_ONLY = ['@apps/server#check:api', '@apps/server#smoke'] as const;
+/** Deploy runs the whole check surface, then the leaves that need a live env. */
+const DEPLOY_ONLY = ['@apps/server#check:api', '//#smoke'] as const;
+
+/** `//#smoke` flattens to the per-package live-resource probes. */
+const SMOKE_LEAVES = ['smoke'] as const;
 
 /** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
 function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
@@ -124,7 +127,8 @@ describe('turbo check/deploy graph invariants', () => {
     expect(tasks['//#deploy']?.dependsOn).toEqual(['//#check', ...DEPLOY_ONLY]);
     expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
       ...CHECK_LEAVES,
-      ...DEPLOY_ONLY,
+      '@apps/server#check:api',
+      ...SMOKE_LEAVES,
     ]);
   });
 
@@ -132,6 +136,7 @@ describe('turbo check/deploy graph invariants', () => {
     const scripts = loadRootScripts();
     expect(turboCiRunTaskArgs(scripts['check'] ?? '')).toEqual(['check']);
     expect(turboCiRunTaskArgs(scripts['deploy'] ?? '')).toEqual(['//#deploy']);
+    expect(turboCiRunTaskArgs(scripts['smoke'] ?? '')).toEqual(['smoke']);
   });
 
   test('check flattens to its leaves', () => {
@@ -140,9 +145,19 @@ describe('turbo check/deploy graph invariants', () => {
     );
   });
 
-  test('smoke runs after the product deploy', () => {
-    const deps = loadTasks()['@apps/server#smoke']?.dependsOn;
-    expect(deps).toContain('@apps/product#deploy');
+  test('//#smoke is exactly the per-package smoke task', () => {
+    const tasks = loadTasks();
+    expect(tasks['//#smoke']?.dependsOn).toEqual([...SMOKE_LEAVES]);
+    expect(flattenCheckAggregators(['smoke'], tasks)).toEqual([
+      ...SMOKE_LEAVES,
+    ]);
+  });
+
+  test('smoke probes live resources: never cached, ordered after the deploy', () => {
+    const smoke = loadTasks()['smoke'];
+    expect(smoke?.cache).toBe(false);
+    expect(smoke?.dependsOn).toContain('@apps/product#deploy');
+    expect(smoke?.dependsOn).toContain('@libs/billing#billing:sync');
   });
 
   test('secrets provision runs after install:cli (avoid infisical race)', () => {

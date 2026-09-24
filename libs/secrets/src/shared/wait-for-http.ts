@@ -2,7 +2,7 @@ import { assert } from '@pkgs/assert';
 import { createLogger } from '@pkgs/logger';
 import { cliClock, cliTimers } from './cli-io';
 import { fmtElapsed } from './fmt';
-import { httpProbe } from './http-probe';
+import { type HealthResult, httpProbe } from './http-probe';
 
 const log = createLogger({ name: 'secrets:wait-for-http', now: cliClock.now });
 
@@ -14,14 +14,15 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => cliTimers.setTimeout(resolve, ms));
 }
 
-function isProbeHealthy(
-  result: Awaited<ReturnType<typeof httpProbe>>
-): boolean {
+function isProbeHealthy(result: HealthResult): boolean {
   const status = result.status;
   return result.ok && status !== undefined && status > 0;
 }
 
-/** Poll until `rawUrl` returns a successful HTTP status (post-deploy custom domain warmup). */
+/**
+ * Poll until `rawUrl` answers acceptably (default: any non-5xx status) and
+ * return that response. Post-deploy custom-domain warmup and smoke probes.
+ */
 export async function waitForHttp(
   rawUrl: string,
   opts: {
@@ -29,8 +30,10 @@ export async function waitForHttp(
     maxWaitMs?: number;
     retryMs?: number;
     probeTimeoutMs?: number;
+    accept?: (result: HealthResult) => boolean;
   } = {}
-): Promise<void> {
+): Promise<HealthResult> {
+  const accept = opts.accept ?? isProbeHealthy;
   const label = opts.label ?? rawUrl;
   const maxWaitMs = opts.maxWaitMs ?? DEFAULT_MAX_WAIT_MS;
   const retryMs = opts.retryMs ?? DEFAULT_RETRY_MS;
@@ -44,11 +47,11 @@ export async function waitForHttp(
     const elapsedStr = fmtElapsed(elapsed);
     const result = await httpProbe(rawUrl, probeTimeoutMs);
 
-    if (isProbeHealthy(result)) {
+    if (accept(result)) {
       log.info(
         `${label} ${rawUrl} — HTTP ${result.status} OK (${elapsedStr}).`
       );
-      return;
+      return result;
     }
 
     if (elapsed >= maxWaitMs) {

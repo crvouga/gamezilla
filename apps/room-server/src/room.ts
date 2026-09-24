@@ -5,6 +5,7 @@ import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createWorkerTelemetry,
+  otlpAuthorization,
   type WorkerTelemetry,
 } from '@pkgs/observability/worker';
 
@@ -12,6 +13,7 @@ type RoomWorkerEnv = {
   readonly BUILD_SHA?: string;
   readonly OBSERVABILITY_COLLECTOR_TOKEN?: string;
   readonly OBSERVABILITY_COLLECTOR_URL?: string;
+  readonly OBSERVABILITY_COLLECTOR_USER?: string;
   readonly OBSERVABILITY_ENABLED?: string;
   readonly SECRETS_ENV?: string;
 };
@@ -44,15 +46,19 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
   ) {
     throw new Error('OBSERVABILITY_COLLECTOR_TOKEN is required in production');
   }
+  const authorization = otlpAuthorization({
+    user: env.OBSERVABILITY_COLLECTOR_USER,
+    token: collectorToken,
+  });
   workerTelemetry = createWorkerTelemetry({
     serviceName: 'gamezilla-room-server',
     serviceVersion: buildSha,
     environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
     buildSha,
     otlpUrl: collectorUrl,
-    ...(collectorToken === undefined || collectorToken.length === 0
+    ...(authorization === undefined
       ? {}
-      : { otlpHeaders: { Authorization: `Bearer ${collectorToken}` } }),
+      : { otlpHeaders: { Authorization: authorization } }),
   });
   return workerTelemetry;
 }

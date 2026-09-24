@@ -70,8 +70,8 @@ import {
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
 const DEPLOY_AGGREGATOR = '//#deploy';
+const SMOKE_AGGREGATOR = '//#smoke';
 const SECRETS_CHECK_TASK = '@libs/secrets#check';
-const SMOKE_TASK = '@apps/server#smoke';
 
 const PLATFORM_KEY_PATH = join(REPO_ROOT, 'turbo-platform-key.json');
 
@@ -102,7 +102,34 @@ const AGGREGATOR_ALIASES: Readonly<Record<string, string>> = {
   deploy: DEPLOY_AGGREGATOR,
   '//#deploy': DEPLOY_AGGREGATOR,
   '//:deploy': DEPLOY_AGGREGATOR,
+  smoke: SMOKE_AGGREGATOR,
+  '//#smoke': SMOKE_AGGREGATOR,
+  '//:smoke': SMOKE_AGGREGATOR,
 };
+
+/**
+ * `deploy`: the full release graph. `smoke`: live-resource probes only —
+ * the `smoke` tasks declare the deploy chain in `dependsOn` so deploy orders
+ * them last, and a standalone smoke run passes turbo's `--only` so it probes
+ * what is live without deploying anything. `plain`: everything else.
+ */
+export type RunMode = 'deploy' | 'smoke' | 'plain';
+
+export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
+  const requested = new Set(
+    rawTaskArgs
+      .filter((arg) => Object.hasOwn(AGGREGATOR_ALIASES, arg))
+      .map((arg) => AGGREGATOR_ALIASES[arg])
+  );
+  if (requested.has(DEPLOY_AGGREGATOR)) return 'deploy';
+  if (requested.has(SMOKE_AGGREGATOR)) return 'smoke';
+  return 'plain';
+}
+
+/** Turbo flags a run mode adds: `--only` keeps standalone smoke off deploy. */
+export function runModeFlags(mode: RunMode): readonly string[] {
+  return mode === 'smoke' ? ['--only'] : [];
+}
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;
 const TURBO_UI_VALUES = new Set(['tui', 'stream']);
@@ -229,39 +256,44 @@ export function flattenCheckAggregators(
     out.push(leaf);
   }
 
-  function expand(arg: string): void {
-    const canonical = Object.hasOwn(AGGREGATOR_ALIASES, arg)
-      ? AGGREGATOR_ALIASES[arg]
-      : undefined;
+  // Bare script names (`check`, `smoke`) are aliases only on the command
+  // line; inside `dependsOn` they are package tasks (`//#smoke` → `smoke`),
+  // so nested deps expand only when they name a root aggregator.
+  function expand(arg: string, commandLine: boolean): void {
+    const isAlias = Object.hasOwn(AGGREGATOR_ALIASES, arg);
+    const canonical =
+      isAlias && (commandLine || arg.startsWith('//'))
+        ? AGGREGATOR_ALIASES[arg]
+        : undefined;
     if (canonical === undefined) {
       pushLeaf(arg);
       return;
     }
     for (const dep of taskDependsOn(tasks, canonical)) {
-      expand(dep);
+      expand(dep, false);
     }
   }
 
   for (const arg of taskArgs) {
-    expand(arg);
+    expand(arg, true);
   }
 
   return out;
 }
 
-function isDeployLeafSet(taskArgs: readonly string[]): boolean {
-  return taskArgs.includes(SMOKE_TASK);
-}
-
-function needsSecretsFingerprint(taskArgs: readonly string[]): boolean {
-  return taskArgs.includes(SECRETS_CHECK_TASK) || isDeployLeafSet(taskArgs);
+function needsSecretsFingerprint(
+  taskArgs: readonly string[],
+  mode: RunMode
+): boolean {
+  return taskArgs.includes(SECRETS_CHECK_TASK) || mode === 'deploy';
 }
 
 async function ensureSecretsFingerprint(
   env: NodeJS.ProcessEnv,
-  taskArgs: readonly string[]
+  taskArgs: readonly string[],
+  mode: RunMode
 ): Promise<void> {
-  if (!needsSecretsFingerprint(taskArgs)) return;
+  if (!needsSecretsFingerprint(taskArgs, mode)) return;
   console.log(
     'turbo-ci-run: computing secrets fingerprint (local cache or Infisical)…'
   );
@@ -301,10 +333,11 @@ type OfflineTaskArgs = {
  */
 function applyOfflineTaskArgs(
   taskArgs: readonly string[],
-  hasRemote: boolean
+  hasRemote: boolean,
+  mode: RunMode
 ): OfflineTaskArgs {
   if (hasRemote) return { taskArgs: [...taskArgs], skipped: [] };
-  if (isDeployLeafSet(taskArgs)) {
+  if (mode === 'deploy') {
     console.error(
       'turbo-ci-run: deploy requires TURBO_TOKEN. ' +
         'Run `bun run secrets:pull` then retry via secrets-run.'
@@ -366,16 +399,18 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  const mode = resolveRunMode(rawTaskArgs);
   const { taskArgs, skipped } = applyOfflineTaskArgs(
     flattenCheckAggregators(rawTaskArgs),
-    remote
+    remote,
+    mode
   );
-  await ensureSecretsFingerprint(env, taskArgs);
+  await ensureSecretsFingerprint(env, taskArgs, mode);
   exportGitHead(env);
 
   const slowRunner = inCi();
   const deadlineSeconds = resolveRunDeadlineSeconds(process.env, {
-    isDeploy: isDeployLeafSet(taskArgs),
+    isDeploy: mode === 'deploy',
     slowRunner,
   });
 
@@ -387,7 +422,12 @@ async function main(): Promise<void> {
         : ' (local cache only)')
   );
 
-  const fullRunArgs = ['run', ...taskArgs, ...rootExcludeFiltersFor(taskArgs)];
+  const fullRunArgs = [
+    'run',
+    ...taskArgs,
+    ...rootExcludeFiltersFor(taskArgs),
+    ...runModeFlags(mode),
+  ];
   const plan = planOrNull(fullRunArgs, cache, env);
   if (plan !== null && plan.toExecute.length === 0) {
     process.exit(finalExitCode({ status: 0, slowRunner, skipped, ran: false }));

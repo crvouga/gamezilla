@@ -69,26 +69,51 @@ Use `--no-observability` only when tracing is intentionally outside the task.
 
 CI uses [`collector-ci.yaml`](../pkgs/observability/configs/collector-ci.yaml):
 100% OTLP ingest, ingest allowlisting, and newline-delimited OTLP JSON at
-`OBSERVABILITY_ARTIFACT_PATH`. Production uses
-[`collector-prod.yaml`](../pkgs/observability/configs/collector-prod.yaml): an
-authenticated OTLP receiver, the same default-deny allowlist, buffering/retry,
-and one OTLP/HTTP backend exporter. Its backend credential is the complete
-`OBSERVABILITY_BACKEND_AUTHORIZATION` header value, so Bearer and Grafana Cloud
-Basic authentication require no application change. A backend change edits
-only that exporter configuration or its endpoint/credential values. Validate both templates with
+`OBSERVABILITY_ARTIFACT_PATH`. Validate it with
 `bun run --filter @pkgs/observability check:collector-configs` while Docker is
 running.
 
-For Grafana Cloud ingest, set `OBSERVABILITY_BACKEND_AUTHORIZATION` to
-`Basic <base64(instance-id:traces-write-token)>`. Treat the encoded value as a
-secret; do not generate it in a command that prints the token. Other OTLP
-backends can supply their complete `Bearer …` or `Basic …` value unchanged.
+## Production: Grafana Cloud
+
+Production has no self-hosted Collector. Both Workers and the browser ingress
+export OTLP/HTTP straight to the Grafana Cloud OTLP gateway; the SDK's
+`RedactingSpanProcessor` applies the same default-deny attribute allowlist
+before export. Traces land in the stack's Tempo.
+
+`@libs/observability#provision` (part of `bun run deploy`, `prd` only)
+reconciles everything from one bootstrap credential, `GRAFANA_CLOUD_API_TOKEN`:
+
+- the stack (`PRODUCT_CONFIG.observability.grafanaStackSlug`, created if
+  missing),
+- a write-only `traces:write` access policy and a read-only `traces:read`
+  policy scoped to that stack,
+- tokens for both (kept while they still authenticate, rotated otherwise),
+- the secrets `OBSERVABILITY_COLLECTOR_URL` / `_USER` / `_TOKEN` (Worker
+  ingest, Basic auth) and `OBS_TEMPO_URL` / `_USER` / `_TOKEN` (agent queries),
+  written to secrets env `prd`.
+
+One-time setup: in Grafana Cloud create an access policy on your org realm
+with `stacks:read`, `stacks:write`, `accesspolicies:read`,
+`accesspolicies:write`, `accesspolicies:delete`, add a token, then run
+
+```sh
+bun run secrets:seed -- --env prd GRAFANA_CLOUD_API_TOKEN
+```
+
+`secrets:seed` prompts with echo off, validates, and writes to Infisical; with
+no names it walks every missing manual secret in the registry.
+
+`bun run smoke:prd` (and the hourly `smoke.yml`) verifies it live:
+`@libs/observability#smoke` checks the ingest endpoint shape, that the write
+token can ingest, and that the read token can query Tempo.
 
 Keep ingest and query authority separate:
 
 - `OBSERVABILITY_COLLECTOR_URL` is the exact HTTPS production ingest endpoint
   ending in `/v1/traces`; `OBSERVABILITY_COLLECTOR_TOKEN` is write-only and is
-  available only to the API Worker. The browser never receives it.
+  available only to the Workers. With `OBSERVABILITY_COLLECTOR_USER` set the
+  Workers send Basic auth, otherwise Bearer (local / CI Collector). The browser
+  never receives either.
 - `OBS_TEMPO_URL` is the Tempo query origin used by `bun obs --source prod`.
   `OBS_TEMPO_TOKEN` belongs only in the agent/CI query environment and must be
   a read-only token. `OBS_TEMPO_USER` is Grafana Cloud's stack/user id and
@@ -96,15 +121,14 @@ Keep ingest and query authority separate:
   provision a dedicated access policy
   with only `traces:read`; for self-managed Tempo, terminate authentication in
   a reverse proxy because Tempo itself has no authentication layer.
-- Never reuse the Collector ingest token for agent queries, and never expose a
-  Grafana administrator or Collector administration credential to an agent.
+- Never reuse the ingest token for agent queries, and never expose
+  `GRAFANA_CLOUD_API_TOKEN` or a Grafana administrator credential to an agent.
 
 Production alerting systems use
 [`production-error-alert.txt`](../pkgs/observability/configs/production-error-alert.txt).
 It hands the agent a copy-pasteable `bun obs trace … --source prod` command and
-an identifier-free fallback. Install that template in the chosen alert vendor
-when provisioning the backend; vendor credentials and notification targets are
-intentionally not stored in this repository. Production deployment fails
+an identifier-free fallback. Install that template in Grafana Alerting; notification
+targets are intentionally not stored in this repository. Production deployment fails
 closed when the Collector URL or write token is absent. Set
 `OBSERVABILITY_ENABLED=0` only as the explicit emergency kill switch.
 

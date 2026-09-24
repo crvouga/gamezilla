@@ -35,6 +35,7 @@ export type ApiWorkerEnv = {
   S3_REGION?: string;
   OBSERVABILITY_COLLECTOR_URL?: string;
   OBSERVABILITY_COLLECTOR_TOKEN?: string;
+  OBSERVABILITY_COLLECTOR_USER?: string;
   /** Explicit emergency kill switch. Production otherwise fails closed. */
   OBSERVABILITY_ENABLED?: string;
   BUILD_SHA?: string;

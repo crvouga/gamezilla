@@ -31,7 +31,9 @@
     "WEB_CLIENT_*",
     "EMQX_*",
     "WEB_CLIENT_ORIGIN",
+    "GRAFANA_*",
     "OBSERVABILITY_*",
+    "OBS_*",
     "TURBO_*",
     "IDP_*",
     "TMPDIR"
@@ -392,11 +394,16 @@
       "cache": false,
       "dependsOn": ["@libs/secrets#provision"]
     },
+    "@libs/observability#provision": {
+      "cache": false,
+      "dependsOn": ["@libs/secrets#provision"]
+    },
     "@libs/runtime#migrate": {
       "cache": false,
       "dependsOn": [
         "@libs/db#provision",
         "@libs/object-store#provision",
+        "@libs/observability#provision",
         "@libs/pubsub#provision"
       ]
     },
@@ -416,13 +423,20 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
-    "@apps/server#smoke": {
+    "smoke": {
       "cache": false,
-      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"]
+      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"],
+      "outputLogs": "errors-only"
+    },
+    "//#smoke": {
+      "cache": false,
+      "dependsOn": ["smoke"],
+      "outputs": [],
+      "outputLogs": "errors-only"
     },
     "//#deploy": {
       "cache": false,
-      "dependsOn": ["//#check", "@apps/server#check:api", "@apps/server#smoke"],
+      "dependsOn": ["//#check", "@apps/server#check:api", "//#smoke"],
       "outputs": [],
       "outputLogs": "errors-only"
     },

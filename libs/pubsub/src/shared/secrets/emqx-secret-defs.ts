@@ -108,9 +108,9 @@ export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
   },
   {
     name: 'EMQX_WSS_URL',
-    hint: `wss://${emqxHostname()}/mqtt`,
+    hint: `wss://${emqxHostname()}/mqtt — the API Worker materializes it into synced client_config`,
     optional: true,
-    pushToApiWorker: false,
+    pushToApiWorker: true,
     mirrorToDev: true,
     validate: validateEmqxWssUrl,
     seed: seedWssUrl,

@@ -26,6 +26,7 @@ async function pushRoomWorkerBindings(): Promise<void> {
   };
   for (const key of [
     'OBSERVABILITY_COLLECTOR_URL',
+    'OBSERVABILITY_COLLECTOR_USER',
     'OBSERVABILITY_COLLECTOR_TOKEN',
   ] as const) {
     const value = process.env[key]?.trim() ?? '';

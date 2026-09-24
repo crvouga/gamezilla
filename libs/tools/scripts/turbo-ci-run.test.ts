@@ -8,6 +8,8 @@ import {
   flattenCheckAggregators,
   hasRemoteCreds,
   resolveCacheFlag,
+  resolveRunMode,
+  runModeFlags,
   turboChildEnv,
 } from './turbo-ci-run';
 
@@ -96,16 +98,38 @@ describe('turbo-ci-run aggregator flatten', () => {
     const withDeploy = {
       ...tasks,
       '//#deploy': {
-        dependsOn: ['tc', '@apps/server#smoke'],
+        dependsOn: ['tc', '//#smoke'],
       },
+      '//#smoke': { dependsOn: ['smoke'] },
     };
     expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
       'tc',
-      '@apps/server#smoke',
+      'smoke',
     ]);
     expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
       'tc',
-      '@apps/server#smoke',
+      'smoke',
     ]);
+  });
+});
+
+describe('turbo-ci-run run mode', () => {
+  test('standalone smoke runs only the probes (--only skips the deploy chain)', () => {
+    for (const arg of ['smoke', '//#smoke', '//:smoke']) {
+      expect(resolveRunMode([arg])).toBe('smoke');
+    }
+    expect(runModeFlags('smoke')).toEqual(['--only']);
+  });
+
+  test('deploy keeps the dependency chain so smoke runs after it', () => {
+    expect(resolveRunMode(['//#deploy'])).toBe('deploy');
+    expect(runModeFlags('deploy')).toEqual([]);
+  });
+
+  test('check and bare tasks are plain runs', () => {
+    expect(resolveRunMode(['check'])).toBe('plain');
+    expect(resolveRunMode(['lint', 'tc'])).toBe('plain');
+    expect(resolveRunMode(['constructor'])).toBe('plain');
+    expect(runModeFlags('plain')).toEqual([]);
   });
 });

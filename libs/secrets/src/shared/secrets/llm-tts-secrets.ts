@@ -36,13 +36,42 @@ export const ELEVEN_LABS_API_KEY = new Secret({
   validate: validateElevenLabsApiKey,
 });
 
+function openAiModelsUrl(baseUrl: string): string {
+  const base = baseUrl.trim().replace(/\/+$/, '');
+  return base.endsWith('/v1') ? `${base}/models` : `${base}/v1/models`;
+}
+
+/** Live probe: the key must list models at `OPENAI_BASE_URL`. */
+async function validateOpenAiApiKey(input: SecretInput): Promise<void> {
+  const v = input.secretValue.trim();
+  requireNonEmpty(v, 'OPENAI_API_KEY');
+  const baseUrl = input.secrets.get('OPENAI_BASE_URL')?.trim() ?? '';
+  if (baseUrl.length === 0) return;
+  let res: Response;
+  try {
+    res = await cliHttp.fetch(openAiModelsUrl(baseUrl), {
+      headers: { Authorization: `Bearer ${v}` },
+    });
+  } catch (e) {
+    throw new Error(
+      `OpenAI unreachable: ${e instanceof Error ? e.message : String(e)}`
+    );
+  }
+  if (res.status === 401 || res.status === 403) {
+    throw new Error(
+      `OpenAI rejected OPENAI_API_KEY — HTTP ${String(res.status)}`
+    );
+  }
+  if (!res.ok) {
+    throw new Error(`OpenAI /models returned HTTP ${String(res.status)}`);
+  }
+}
+
 export const OPENAI_API_KEY = new Secret({
   name: 'OPENAI_API_KEY',
   hint: 'OpenAI API key for LLM routes',
   pushToApiWorker: true,
-  validate: async (input) => {
-    requireNonEmpty(input.secretValue.trim(), 'OPENAI_API_KEY');
-  },
+  validate: validateOpenAiApiKey,
 });
 
 export const OPENAI_BASE_URL = new Secret({

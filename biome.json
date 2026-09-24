@@ -190,6 +190,7 @@
       "includes": [
         "**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -212,6 +213,7 @@
         "**/pkgs/tts/**/*.{ts,tsx}",
         "**/pkgs/llm/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -234,6 +236,7 @@
         "**/pkgs/tts/**/*.{ts,tsx}",
         "**/pkgs/llm/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -257,6 +260,7 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -277,6 +281,7 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -302,6 +307,7 @@
         "**/pkgs/room/src/types.ts",
         "**/pkgs/room/src/hash-room-state.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -325,6 +331,7 @@
         "**/pkgs/room/src/types.ts",
         "**/pkgs/room/src/hash-room-state.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -334,6 +341,7 @@
         "**/libs/**/mutations/**/*.{ts,tsx}",
         "**/pkgs/**/mutations/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -366,6 +374,7 @@
         "**/apps/*/src/**/*.{ts,tsx}",
         "!**/libs/secrets/src/shared/**",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -456,6 +465,7 @@
         "**/apps/client/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -471,6 +481,7 @@
       "includes": [
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -507,6 +518,7 @@
         "!**/pkgs/clock/src/index.ts",
         "!**/pkgs/polyfill/src/crypto.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -569,6 +581,7 @@
         "!**/sql-host-entry.ts",
         "!**/cf-dns.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -639,6 +652,7 @@
         "!**/bun-webview-driver-node.ts",
         "!**/sql-host-entry.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -661,6 +675,7 @@
         "!**/demo-app.*",
         "!**/serialize-host-tree-html*",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -718,6 +733,7 @@
         "!**/dist/**",
         "!**/build/**",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}",
         "!**/src/sim/**",
         "!**/libs/sim-harness/src/**"
@@ -849,6 +865,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -867,6 +884,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -901,6 +919,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -918,6 +937,7 @@
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -938,7 +958,8 @@
         "!**/libs/permissions/**",
         "!**/libs/server-app/src/app/create-server.ts",
         "!**/*.test.{ts,tsx}",
-        "!**/tests/**"
+        "!**/tests/**",
+        "!**/smoke/**"
       ]
     },
     {
@@ -968,6 +989,7 @@
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -983,6 +1005,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -996,6 +1019,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -1011,6 +1035,7 @@
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/e2e/**"
       ]
     },
@@ -1027,6 +1052,7 @@
         "!**/pkgs/observability/src/core/**",
         "!**/pkgs/observability/src/query/**",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -1038,6 +1064,7 @@
         "**/pkgs/**/src/**/*.{ts,tsx}",
         "!**/scripts/**",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -1086,6 +1113,7 @@
         "!**/pkgs/sync-engine/src/server/sync-app-mutations-route.ts",
         "!**/pkgs/sync-engine/src/shared/mutation-observability.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -1098,6 +1126,7 @@
         "!**/pkgs/observability/**",
         "!**/apps/client/src/main.tsx",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -1112,6 +1141,7 @@
         "!**/pkgs/observability-mcp/**",
         "!**/libs/sim-harness/src/preload.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },
@@ -1128,6 +1158,7 @@
         "!**/pkgs/room-adapter-durable-object/src/adapter-base.ts",
         "!**/pkgs/room-adapter-durable-object/src/observability.ts",
         "!**/tests/**",
+        "!**/smoke/**",
         "!**/*.test.{ts,tsx}"
       ]
     },

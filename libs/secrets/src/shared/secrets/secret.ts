@@ -32,6 +32,11 @@ export type SecretConfig = {
    * when each env should have its own value (e.g. signing secrets).
    */
   readonly seedInAllEnvs?: boolean;
+  /**
+   * Provision task that owns this value (e.g. `@libs/observability#provision`).
+   * `bun run secrets:seed` skips it unless named explicitly.
+   */
+  readonly provisionedBy?: string;
   validate(input: SecretInput): Promise<void>;
   seed?(input: SecretSeedInput): Promise<string>;
 };
@@ -43,6 +48,7 @@ export class Secret {
   readonly pushToApiWorker: boolean;
   readonly mirrorToDev: boolean;
   readonly seedInAllEnvs: boolean;
+  readonly provisionedBy: string | null;
   readonly validate: (input: SecretInput) => Promise<void>;
   readonly seed?: (input: SecretSeedInput) => Promise<string>;
 
@@ -53,6 +59,7 @@ export class Secret {
     this.pushToApiWorker = config.pushToApiWorker === true;
     this.mirrorToDev = config.mirrorToDev === true;
     this.seedInAllEnvs = config.seedInAllEnvs === true;
+    this.provisionedBy = config.provisionedBy ?? null;
     this.validate = config.validate.bind(config);
     if (config.seed !== undefined) {
       this.seed = config.seed.bind(config);

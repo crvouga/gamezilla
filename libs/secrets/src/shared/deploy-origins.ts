@@ -14,19 +14,3 @@ export function productionApiOrigin(): string {
 export function productionEmqxOrigin(): string {
   return `https://${PRODUCT_CONFIG.emqx.hostname}`;
 }
-
-export type DeployOutputs = {
-  readonly client_url: string;
-  readonly api_url: string;
-  readonly emqx_url: string;
-  readonly cloudflare_nameservers: string;
-};
-
-export function deployOutputs(nameservers?: readonly string[]): DeployOutputs {
-  return {
-    client_url: productionClientOrigin(),
-    api_url: productionApiOrigin(),
-    emqx_url: productionEmqxOrigin(),
-    cloudflare_nameservers: (nameservers ?? []).join(', '),
-  };
-}

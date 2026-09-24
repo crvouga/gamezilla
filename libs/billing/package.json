@@ -19,6 +19,7 @@
   "scripts": {
     "billing:sync": "bun run scripts/sync-billing-offer.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "smoke": "bun test --timeout 60000 ./smoke/*.smoke.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
