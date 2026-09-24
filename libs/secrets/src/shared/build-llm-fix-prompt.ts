@@ -187,7 +187,7 @@ const CHECK_LOCAL_PROMPT: LocalPromptOptions = {
   title: `Fix local check failures for ${PRODUCT_CONFIG.domain}`,
   failureIntro: 'The checks failed when run locally via `bun run check`.',
   fixInstructions:
-    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:api`).',
+    'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run --filter @libs/tools check:secrets`, `bun run check:api`).',
   constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 
@@ -197,7 +197,7 @@ const LOCAL_BUN_CHECK_PROMPT: LocalPromptOptions = {
   failureIntro:
     'The `bun check` gates failed (lint, gates, tc, tests, scoped contracts/e2e, builds, secrets, static). An agent should fix every failing step below in one pass.',
   fixInstructions:
-    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` (or the matching step from the repo root `package.json`, e.g. `bun run check:static`). Live `check:api` is deploy-only.',
+    'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check` (or the matching step from the repo root `package.json`, e.g. `bun run --filter @libs/tools check:secrets`). Live `check:api` is deploy-only.',
   constraints: LOCAL_CHECK_CONSTRAINTS,
 };
 

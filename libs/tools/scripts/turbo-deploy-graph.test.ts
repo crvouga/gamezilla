@@ -60,7 +60,8 @@ const CHECK_LEAVES = [
   '@apps/room-server#check:worker-bundle',
   '@apps/server#check:worker-bundle',
   '@libs/runtime#check:schema-evolution',
-  '@libs/tools#check:static',
+  '@libs/tools#check:actionlint',
+  '@libs/tools#check:secrets',
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "check:static": "bun run scripts/check-static.ts",
+    "check:actionlint": "bun run scripts/check-actionlint.ts",
+    "check:secrets": "bun run scripts/check-secrets.ts",
     "install:cli": "bun run scripts/install-cli.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",

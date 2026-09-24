@@ -1,5 +1,10 @@
 name: Check
 
+# Run title, identical shape in every workflow (enforced by
+# libs/tools/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Check · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
+
 permissions:
   contents: read
   actions: write
@@ -31,8 +36,8 @@ jobs:
     env:
       SECRETS_ENV: dev
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-      # libs/tools/scripts/check-static.ts scopes gitleaks to this PR's commit range
-      # when the event is a pull_request and both refs are present.
+      # libs/tools/scripts/secrets-scan-range.ts scopes the gitleaks scan
+      # (@libs/tools#check:secrets) to the commits this PR adds.
       GH_EVENT: ${{ github.event_name }}
       PR_BASE: ${{ github.event.pull_request.base.sha }}
       PR_HEAD: ${{ github.event.pull_request.head.sha }}

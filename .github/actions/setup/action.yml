@@ -51,8 +51,8 @@ runs:
     # GITHUB_TOKEN authenticates GitHub API fallbacks when resolving the
     # secrets-backend CLI release (shared runner IPs often exhaust unauth quota).
     # Cache the user-local binaries so CI jobs skip the GitHub CDN downloads on
-    # hit: the secrets backend CLI (installed below) and check:static's
-    # gitleaks / actionlint, which it installs on first use when missing. The
+    # hit: the secrets backend CLI (installed below) and check:secrets' gitleaks /
+    # check:actionlint's actionlint, which they install on first use when missing. The
     # key hashes their pinned versions and has no restore-keys fallback, since
     # a stale binary would be kept (the installers only act when missing); bump
     # the suffix when the secrets CLI must be force-upgraded.

@@ -15,8 +15,8 @@
  * - No affected-package filter: every gate task is cached per package, so an
  *   unchanged package is a cache hit, which is the same saving without a
  *   second notion of "what changed" to keep correct. The one input turbo
- *   cannot see — which commits exist — is exported as `CHECK_GIT_HEAD` for the
- *   tasks that scan git history (`check:static`).
+ *   cannot see — which commits a change adds — is exported as
+ *   `CHECK_SECRETS_RANGE` (`<merge-base>..<head>`) for `check:secrets`.
  * - Plan first (`turbo-preflight.ts`): `--dry=json` asks both caches about
  *   every task (~1s). All hits → the gate already passed for these inputs, so
  *   turbo is not run at all. Otherwise turbo runs only the missed task ids
@@ -41,7 +41,7 @@
  *   task that executed is checked against its per-task budget once the run
  *   finishes. Both live in `check-budget.ts`.
  */
-import { type ChildProcess, execFileSync, spawn } from 'node:child_process';
+import { type ChildProcess, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
@@ -57,6 +57,7 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
+import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   dryRunPlan,
   prefetchRemoteHits,
@@ -210,14 +211,6 @@ export function turboChildEnv(
   return env;
 }
 
-/** `check:static` scans commits; the sha is its cache key for them. */
-function exportGitHead(env: NodeJS.ProcessEnv): void {
-  env['CHECK_GIT_HEAD'] = execFileSync('git', ['rev-parse', 'HEAD'], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
-  }).trim();
-}
-
 function loadTurboTasks(): TurboTasks {
   const turboJson = JSON.parse(
     readFileSync(join(REPO_ROOT, 'turbo.json'), 'utf8')
@@ -343,7 +336,7 @@ async function main(): Promise<void> {
   const mode = resolveRunMode(rawTaskArgs);
   requireRemoteCredsForDeploy(remote, mode);
   const taskArgs = flattenCheckAggregators(rawTaskArgs);
-  exportGitHead(env);
+  env[SECRETS_RANGE_ENV] = secretsScanRange(env);
 
   const slowRunner = inCi();
   const deadlineSeconds = resolveRunDeadlineSeconds(process.env, {
