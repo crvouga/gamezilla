@@ -193,7 +193,7 @@
     "websocket-stream": "^5.5.2",
     "workbox-build": "^7.4.0",
     "workbox-window": "^7.4.0",
-    "wrangler": "^4.54.0",
+    "wrangler": "^4.137.0",
     "zod": "^4.3.6"
   },
   "trustedDependencies": [

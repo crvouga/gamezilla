@@ -26,12 +26,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -58,5 +58,10 @@
     "id": "invariant-dirty-read",
     "summary": "The sync-engine sim's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
     "regressionTest": "pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts"
+  },
+  {
+    "id": "worker-compat-date-ahead-of-workerd",
+    "summary": "The Workers' compatibility_date (2026-09-22) ran ahead of the pinned wrangler 4.87's workerd (supports up to 2026-05-07), so check:api's local preview refused to boot and every deploy failed while bun check stayed green. Fixed by bumping wrangler and holding the date at or below workerd's in check:worker-bundle.",
+    "regressionTest": "libs/tools/scripts/worker-compat-date.test.ts"
   }
 ]

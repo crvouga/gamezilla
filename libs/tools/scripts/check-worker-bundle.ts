@@ -10,11 +10,22 @@
  * cannot resolve, or a bundle past the upload limit, passed the gate and
  * failed the release. Offline (no Cloudflare credentials), ~3 s, and cached
  * per package like every other check.
+ *
+ * It first holds `wrangler.toml`'s `compatibility_date` at or below what the
+ * pinned workerd supports (see `worker-compat-date.ts`): the dry-run bundles
+ * a Worker whose date the runtime would refuse to boot.
  */
 import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, rmSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
+
+import {
+  compatibilityDateProblem,
+  readCompatibilityDate,
+  readWorkerdSupportedDate,
+} from './worker-compat-date';
 
 /**
  * Cloudflare's Workers Free upload limit (compressed). Paid allows 10 MiB;
@@ -23,6 +34,27 @@ import { gzipSync } from 'node:zlib';
 const WORKER_GZIP_LIMIT_BYTES = 3 * 1024 * 1024;
 
 const pkgDir = process.cwd();
+
+// workerd is wrangler's dependency, so resolve it from wrangler's location.
+const wranglerPkg = createRequire(join(pkgDir, 'package.json')).resolve(
+  'wrangler/package.json'
+);
+const workerdMain = createRequire(wranglerPkg).resolve('workerd');
+const configured = readCompatibilityDate(
+  readFileSync(join(pkgDir, 'wrangler.toml'), 'utf8')
+);
+const supported = readWorkerdSupportedDate(readFileSync(workerdMain, 'utf8'));
+if (configured === null || supported === null) {
+  console.error(
+    `worker bundle: could not read compatibility dates (wrangler.toml: ${configured}, ${workerdMain}: ${supported})`
+  );
+  process.exit(1);
+}
+const dateProblem = compatibilityDateProblem(configured, supported);
+if (dateProblem !== null) {
+  console.error(`worker bundle: ${dateProblem}`);
+  process.exit(1);
+}
 const outDir = join(pkgDir, '.cache/worker-bundle');
 rmSync(outDir, { recursive: true, force: true });
 
