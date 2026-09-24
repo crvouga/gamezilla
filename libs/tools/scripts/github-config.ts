@@ -11,8 +11,11 @@
  *
  * The required-check list is **observed, never named by hand**: the script reads
  * the check runs our workflows reported on recent pull requests and requires
- * all of them. Add, rename or drop a job on PRs and `bun run github:config`
- * follows; nothing here needs editing. Checks from GitHub Apps (no workflow)
+ * each workflow's gate job — the one named after the workflow (`check` in
+ * Check). The other jobs (`check:plan`, one `check:shard` per runner, however
+ * many a run needs) feed that job's verdict and are never required
+ * themselves, or a PR that needed fewer shards would wait forever. Add or
+ * rename a workflow on PRs and `bun run github:config` follows. Checks from GitHub Apps (no workflow)
  * are never required — the Check workflow is the one gate, secret scanning
  * included (`@libs/tools#check:secrets`).
  *
@@ -98,8 +101,8 @@ function openPullRequests(repo: string): string[] {
 }
 
 /**
- * Every check our workflows report on a pull request. A GitHub App's check has
- * no workflow and is skipped. Read from open PRs only: a merged PR's head becomes
+ * Every gate job our workflows report on a pull request: the job named after
+ * its workflow. A GitHub App's check has no workflow and is skipped. Read from open PRs only: a merged PR's head becomes
  * `main`, so its commit also carries the push-triggered deploy jobs, which never
  * report on a PR and would block every merge if required.
  */
@@ -113,7 +116,7 @@ function observedPullRequestChecks(repo: string): string[] {
       '--json',
       'name,workflow',
       '--jq',
-      '.[] | select(.workflow != "") | .name',
+      '.[] | select(.workflow != "" and .name == (.workflow | ascii_downcase)) | .name',
     ]);
     for (const line of listed.stdout.split('\n')) {
       const name = line.trim();

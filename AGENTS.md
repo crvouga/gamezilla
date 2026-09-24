@@ -261,12 +261,25 @@ everywhere; never add a fourth:
 | **Deploy** | `.github/workflows/deploy.yml` | Ship the code (`bun run deploy`, on `main`) |
 | **Health** | `.github/workflows/health.yml` | Is the deployment good? (`bun health`, hourly) |
 
-1. **Check runs exactly one job.** `.github/workflows/check.yml` has a single job
-   named `check` that runs `bun run check` with `SECRETS_ENV=dev` — the same
-   `//#check` leaf set as the deploy gate, nothing more. Never split the
-   check surface into per-check jobs: assign a new check to `//#check` in
-   `turbo.json` — preferably as a test or lint rule inside the package it is
-   about — and it rides along in that one job. `//#deploy` depends on
+1. **Check is one gate, sharded across runners.** `.github/workflows/check.yml`
+   runs the `//#check` leaf set `bun run check` runs, with `SECRETS_ENV=dev` —
+   the same set as the deploy gate, nothing more — but not on one 2-core
+   runner: `check:plan` dry-runs the gate and splits the cache misses across up
+   to `MAX_SHARDS` `check:shard` runners
+   ([`check-shards.ts`](libs/tools/scripts/check-shards.ts), balanced by the
+   measured `check-task-costs.json`; published by `check:matrix`, a job that
+   loads no secrets, because the runner drops any job output that contains a
+   masked Infisical value), each shard runs its task ids through
+   `turbo-ci-run` (turbo restores the `dependsOn` closure from the shared remote
+   cache or builds it), and the `check` job is green only when the plan and
+   every shard are. `check` is the one required check. The verdict is still
+   turbo's: a plan-time HIT is a passed task and every MISS runs on exactly one
+   shard. Refresh the cost table from a cold run summary
+   (`bun run libs/tools/scripts/check-shards.ts --write-costs <summary.json>`)
+   when shards drift out of balance — stale costs slow a run, never change it.
+   Never split the check *surface* into per-check jobs: assign a new check to
+   `//#check` in `turbo.json` — preferably as a test or lint rule inside the
+   package it is about — and the planner schedules it. `//#deploy` depends on
    `//#check` and adds `@apps/server#check:api` and `health` (whose
    per-package tasks pull provision → migrate → room deploy → API deploy →
    product deploy → billing sync), so it is never listed as a `dependsOn` of
@@ -301,10 +314,11 @@ to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 `@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
 wildcard to a `.tsx` file) fails on the runner while passing locally.
 
-Every check that reports on a PR is required by GitHub, not by convention:
+The gate is required by GitHub, not by convention:
 `libs/tools/github-config/main-protection.json` (applied with `bun run github:config`)
-requires everything that reports on the PR — ours and third-party apps' — against
-the latest `main`, so GitHub itself refuses the merge until all of it is green.
+requires each PR workflow's gate job (`check`) against the latest `main`, so
+GitHub itself refuses the merge until it is green — and it is green only when
+the plan and every shard are.
 **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge
 button and stops; a human merges — never `--admin`, never the merge queue,
 never a red, pending or draft PR.
@@ -315,10 +329,12 @@ applied by `bun run github:config` (drift check `bun run github:config:check`):
 
 - `main-protection.json` — a PR is required to change `main`, and direct pushes,
   force-pushes and deletions are rejected, admins included. **Required checks are
-  never named here**: the script reads what actually reports on open PRs
-  (`gh pr checks`, third-party apps included) and requires all of it, strictly
-  (the branch must be up to date). Add, rename or drop a check on PRs and
-  `bun run github:config` follows; the Deploy and Health workflows are
+  never named here**: the script reads what our workflows report on open PRs
+  (`gh pr checks`) and requires each one's gate job — the job named after its
+  workflow — strictly (the branch must be up to date). `check:plan` and the
+  `check:shard` runners are never required: their count varies per run, and a
+  PR that needed fewer shards would wait forever on the missing ones. Add or
+  rename a PR workflow and `bun run github:config` follows; the Deploy and Health workflows are
   excluded because they never report on a PR. Verified by pushing to a protected
   branch with the local hook bypassed: `remote: - Changes must be made through a
   pull request.`

@@ -160,4 +160,28 @@ describe('ensureGrafanaCloudTraces', () => {
       { type: 'stack', identifier: '42', labelPolicies: [] },
     ]);
   });
+
+  // regression: grafana-stack-in-foreign-org
+  test('names the org mismatch when the stack slug belongs to another org', async () => {
+    const http: HttpClient = {
+      fetch: () =>
+        Promise.resolve(
+          json(
+            { code: 'Forbidden', message: 'You do not have permission' },
+            403
+          )
+        ),
+    };
+    const run = ensureGrafanaCloudTraces({
+      http,
+      timers: noTimers,
+      apiToken: 'bootstrap',
+      config: CONFIG,
+      stored: new Map(),
+      log: () => undefined,
+    });
+    await expect(run).rejects.toThrow(
+      'Grafana Cloud stack demo is not in the org GRAFANA_CLOUD_API_TOKEN belongs to'
+    );
+  });
 });
