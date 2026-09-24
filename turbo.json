@@ -420,15 +420,9 @@
       "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"],
       "outputLogs": "errors-only"
     },
-    "//#health": {
-      "cache": false,
-      "dependsOn": ["health"],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
     "//#deploy": {
       "cache": false,
-      "dependsOn": ["//#check", "@apps/server#check:api", "//#health"],
+      "dependsOn": ["//#check", "@apps/server#check:api", "health"],
       "outputs": [],
       "outputLogs": "errors-only"
     },

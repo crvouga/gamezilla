@@ -98,16 +98,18 @@ describe('turbo-ci-run aggregator flatten', () => {
     const withDeploy = {
       ...tasks,
       '//#deploy': {
-        dependsOn: ['tc', '//#health'],
+        dependsOn: ['tc', '//#check', 'health'],
       },
-      '//#health': { dependsOn: ['health'] },
+      '//#check': { dependsOn: ['lint'] },
     };
     expect(flattenCheckAggregators(['deploy'], withDeploy)).toEqual([
       'tc',
+      'lint',
       'health',
     ]);
     expect(flattenCheckAggregators(['//#deploy'], withDeploy)).toEqual([
       'tc',
+      'lint',
       'health',
     ]);
   });
@@ -115,9 +117,7 @@ describe('turbo-ci-run aggregator flatten', () => {
 
 describe('turbo-ci-run run mode', () => {
   test('standalone health runs only the probes (--only skips the deploy chain)', () => {
-    for (const arg of ['health', '//#health', '//:health']) {
-      expect(resolveRunMode([arg])).toBe('health');
-    }
+    expect(resolveRunMode(['health'])).toBe('health');
     expect(runModeFlags('health')).toEqual(['--only']);
   });
 
