@@ -36,3 +36,8 @@ export {
 } from './providers/google-oauth';
 export type { ProviderIdentity } from './providers/provider-identity';
 export type { OauthProvidersConfig } from './providers/registry';
+export {
+  SYNTHETIC_MONITOR_PROVIDER,
+  SYNTHETIC_MONITOR_USER,
+  type SyntheticMonitorConfig,
+} from './synthetic-monitor';

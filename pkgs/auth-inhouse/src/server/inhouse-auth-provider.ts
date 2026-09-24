@@ -40,6 +40,9 @@ async function createInhouseAuthProvider(
       clientWebOrigins: env.clientOrigins,
     }),
     providers: config.providers,
+    ...(config.syntheticMonitor === undefined
+      ? {}
+      : { syntheticMonitor: config.syntheticMonitor }),
   });
   // The handler receives the request's full URL, prefix included.
   const hosted =

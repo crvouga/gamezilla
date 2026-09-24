@@ -32,7 +32,7 @@ import { routePath } from 'hono/route';
 import { API_PATH_PREFIX, createAuthProvider } from '../config/auth-provider';
 import { ApiSecretName } from '../config/secret-names';
 import { resolveWebClientOrigin } from '../config/web-client-origin';
-import { healthApp } from '../health/route';
+import { createHealthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
 import { createRoomApp } from '../room/route';
@@ -405,7 +405,7 @@ function createServerRouter(args: {
       })
     )
     .use('*', apiCors)
-    .route('/', healthApp);
+    .route('/', createHealthApp({ clock: env.clock, timers: env.timers }));
   mountBrowserTelemetryIngress(shell, env);
   mountAuthHandler(shell, auth);
   shell

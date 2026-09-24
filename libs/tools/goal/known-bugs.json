@@ -103,5 +103,10 @@
     "id": "check-deadline-kill-silent",
     "summary": "When the Check run hit its hard deadline, turbo-ci-run SIGKILLed turbo and claimed turbo prints the tasks still running; it cannot, so the log said only \"deadline reached\" and a 207-task cache miss on a 2-core runner was indistinguishable from a wedged task. Fixed by snapshotting the process tree before the kill and printing each running task with its elapsed time and package.",
     "regressionTest": "libs/tools/scripts/running-tasks.test.ts"
+  },
+  {
+    "id": "webview-input-wrapper-noop",
+    "summary": "The Bun.WebView driver typed only into a node that held a `value`, but `@pkgs/ui` TextInput puts its test id on the wrapper `<div>`, so `input` / `clear` / `text` on every TextInput were silent no-ops in a real browser (the Solid DOM driver resolved the nested field). Fixed by resolving the wrapper's `<input>` / `<textarea>` like the Solid DOM driver.",
+    "regressionTest": "pkgs/ui-testing-bun-webview/tests/text-field.test.ts"
   }
 ]

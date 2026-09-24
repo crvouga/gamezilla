@@ -2,9 +2,13 @@
  * DOM component identifiers.
  *
  * Every host renders `data-component="<Name>"` in development and E2E builds
- * so the inspector and browser E2E drivers can locate design-system nodes.
- * `import.meta.env.DEV` folds to `false` in production, so the attributes
- * never ship to end users unless `VITE_E2E=1`.
+ * so the inspector can locate design-system nodes. `import.meta.env.DEV`
+ * folds to `false` in production, so `data-component` never ships to end
+ * users unless `VITE_E2E=1`.
+ *
+ * Call-site identifiers (`dataSet={{ testid }}`) always ship: production
+ * synthetic journeys drive the real bundle by `data-testid`, so a host must
+ * never drop them in one build and keep them in another.
  *
  * Merge rule: the outer call site wins. Each component contributes
  * `{ component: name }` as a default, then spreads `incoming` over it so a
@@ -23,8 +27,8 @@ export const COMPONENT_IDS_ENABLED: boolean =
 
 /**
  * `data-*` attribute fragment with `component: name` merged under any
- * incoming keys. Returns `{}` when identifiers are disabled so callers can
- * safely spread the result.
+ * incoming keys. When component ids are disabled (production) only the
+ * incoming keys remain, so callers can always spread the result.
  *
  * For design-system hosts only. Migrated plain elements use {@link dataAttrs}
  * so they do not get a synthetic `data-component`.
@@ -33,14 +37,8 @@ export function componentDataAttrs(
   name: string,
   incoming: ComponentDataSet | undefined
 ): ComponentDataAttrs {
-  if (!COMPONENT_IDS_ENABLED) return {};
-  const out: ComponentDataAttrs = { 'data-component': name };
-  if (incoming !== undefined) {
-    for (const [key, value] of Object.entries(incoming)) {
-      out[`data-${key}`] = value;
-    }
-  }
-  return out;
+  if (!COMPONENT_IDS_ENABLED) return dataAttrs(incoming);
+  return { 'data-component': name, ...dataAttrs(incoming) };
 }
 
 /**

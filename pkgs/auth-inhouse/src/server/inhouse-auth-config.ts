@@ -15,6 +15,7 @@ import {
 import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
 import type { AppleProviderConfig } from './providers/apple-oauth';
 import type { OauthProvidersConfig } from './providers/registry';
+import type { SyntheticMonitorConfig } from './synthetic-monitor';
 
 /** Every secret or binding the in-house IdP reads. */
 export const INHOUSE_AUTH_SECRET = {
@@ -37,11 +38,20 @@ export const INHOUSE_AUTH_SECRET = {
   appleTeamId: 'APPLE_TEAM_ID',
   appleKeyId: 'APPLE_KEY_ID',
   applePrivateJwk: 'APPLE_PRIVATE_JWK',
+  /**
+   * Bearer secret for the hidden synthetic-monitor sign-in (≥ 32 chars).
+   * Unset disables the route. See `synthetic-monitor.ts`.
+   */
+  syntheticMonitorToken: 'SYNTHETIC_MONITOR_TOKEN',
 } as const;
+
+/** Shorter tokens are refused: the route is reachable from the internet. */
+const MIN_SYNTHETIC_MONITOR_TOKEN_LENGTH = 32;
 
 export type InhouseAuthConfig = {
   readonly secret: string;
   readonly providers: OauthProvidersConfig;
+  readonly syntheticMonitor?: SyntheticMonitorConfig;
 };
 
 function configError(message: string): AuthProviderConfigError {
@@ -146,6 +156,21 @@ async function readApple(
   };
 }
 
+async function readSyntheticMonitor(
+  env: AuthProviderEnv
+): Promise<SyntheticMonitorConfig | undefined> {
+  const token = (
+    await env.readSecret(INHOUSE_AUTH_SECRET.syntheticMonitorToken)
+  )?.trim();
+  if (token === undefined || token.length === 0) return undefined;
+  if (token.length < MIN_SYNTHETIC_MONITOR_TOKEN_LENGTH) {
+    throw configError(
+      `${INHOUSE_AUTH_SECRET.syntheticMonitorToken} must be at least ${String(MIN_SYNTHETIC_MONITOR_TOKEN_LENGTH)} characters`
+    );
+  }
+  return { token };
+}
+
 export async function readInhouseAuthConfig(
   env: AuthProviderEnv
 ): Promise<InhouseAuthConfig> {
@@ -153,12 +178,17 @@ export async function readInhouseAuthConfig(
   if (secret === null) {
     throw configError(`${INHOUSE_AUTH_SECRET.secret} is required`);
   }
-  const [google, apple] = await Promise.all([readGoogle(env), readApple(env)]);
+  const [google, apple, syntheticMonitor] = await Promise.all([
+    readGoogle(env),
+    readApple(env),
+    readSyntheticMonitor(env),
+  ]);
   return {
     secret,
     providers: {
       ...(google === undefined ? {} : { google }),
       ...(apple === undefined ? {} : { apple }),
     },
+    ...(syntheticMonitor === undefined ? {} : { syntheticMonitor }),
   };
 }
