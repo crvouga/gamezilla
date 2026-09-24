@@ -1,14 +1,14 @@
 #!/usr/bin/env bun
 /**
- * Always-run CI helper: append a pipeline status block (and, on failure, a
+ * Always-run CI helper: append a workflow job status block (and, on failure, a
  * copy-pasteable LLM fix prompt) to `GITHUB_STEP_SUMMARY`.
  *
  * Expects:
- * - `PIPELINE_NAME` — step label, e.g. `check` / `deploy:dev`
- * - `PIPELINE_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
- * - `PIPELINE_LOG_PATH` — path to the teed step output (optional)
+ * - `WORKFLOW_JOB` — job label, e.g. `check` / `deploy:dev`
+ * - `WORKFLOW_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
+ * - `WORKFLOW_LOG_PATH` — path to the teed step output (optional)
  */
-// @io-wall-ok — CI entry; reads teed pipeline log + writes GITHUB_STEP_SUMMARY
+// @io-wall-ok — CI entry; reads teed job log + writes GITHUB_STEP_SUMMARY
 import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
@@ -17,7 +17,7 @@ import {
   type FailedTestTrace,
   failedTestTraceMarkdown,
   failedTestTracesFromNdjson,
-} from './pipeline-observability';
+} from './workflow-observability';
 
 const MAX_LOG_CHARS = 120_000;
 
@@ -36,10 +36,10 @@ function iconFor(result: string): string {
   }
 }
 
-function readPipelineLog(): string {
-  const path = (process.env['PIPELINE_LOG_PATH'] ?? '').trim();
+function readJobLog(): string {
+  const path = (process.env['WORKFLOW_LOG_PATH'] ?? '').trim();
   if (path === '' || !existsSync(path)) {
-    return '(no log captured — PIPELINE_LOG_PATH missing or empty)';
+    return '(no log captured — WORKFLOW_LOG_PATH missing or empty)';
   }
   const raw = stripVTControlCharacters(readFileSync(path, 'utf8'));
   if (raw.trim() === '') {
@@ -143,9 +143,9 @@ function writeSummary(markdown: string): void {
 }
 
 try {
-  const name = (process.env['PIPELINE_NAME'] ?? '').trim() || 'pipeline';
+  const name = (process.env['WORKFLOW_JOB'] ?? '').trim() || 'job';
   const outcome =
-    (process.env['PIPELINE_OUTCOME'] ?? 'unknown').trim() || 'unknown';
+    (process.env['WORKFLOW_OUTCOME'] ?? 'unknown').trim() || 'unknown';
   const status = buildStatusMarkdown(name, outcome, readFailedTestTraces());
 
   let llm = '';
@@ -153,19 +153,19 @@ try {
     llm = buildCiDeployFailureLlmFixPromptMarkdown([
       {
         stepId: name,
-        output: readPipelineLog(),
+        output: readJobLog(),
       },
     ]);
   }
 
   writeSummary(llm === '' ? status : `${llm}\n${status}`);
   console.log(
-    `write-pipeline-summary: wrote ${outcome} summary` +
+    `write-workflow-summary: wrote ${outcome} summary` +
       (llm === '' ? '' : ' + LLM fix prompt')
   );
 } catch (e) {
   const msg = e instanceof Error ? e.message : String(e);
-  console.error(`write-pipeline-summary: ${msg}`);
+  console.error(`write-workflow-summary: ${msg}`);
   // Best-effort — never fail the job solely because the summary writer broke.
   process.exit(0);
 }

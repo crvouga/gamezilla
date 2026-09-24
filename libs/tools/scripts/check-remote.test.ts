@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
-import { findNewRun } from './pr-run';
+import { findNewRun } from './check-remote';
 
 describe('findNewRun', () => {
   const runs = [

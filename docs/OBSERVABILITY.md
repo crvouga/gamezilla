@@ -134,7 +134,7 @@ closed when the Collector URL or write token is absent. Set
 
 The Bun sim harness writes each package's e2e spans to
 `.cache/sim-report/traces/spans.ndjson` and force-flushes after every test with
-a two-second ceiling, including failed tests. PR CI uploads those files as the
+a two-second ceiling, including failed tests. The Check workflow uploads those files as the
 `observability-traces-<run-id>` artifact and prints download/query commands in
 the failure summary. Bun's hooks do not currently expose a stable full test ID
 to preloads. The shared e2e runner therefore treats JUnit as the authoritative

@@ -7,6 +7,7 @@ import {
   EMQX_STOCK_DASHBOARD_PASSWORD,
 } from '@libs/pubsub/shared/secrets/emqx-credentials';
 import { createGlobalHttpClient } from '@pkgs/http-client';
+import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 const http = createGlobalHttpClient();
 
@@ -20,7 +21,13 @@ function basicAuth(): string {
   return `Basic ${btoa(`${requireEnv(Name.apiKey)}:${requireEnv(Name.apiSecret)}`)}`;
 }
 
-describe('emqx', () => {
+/**
+ * One Railway broker serves both secrets envs, and only prd's
+ * `@libs/pubsub#provision` (which runs before prd `health`) mints its
+ * credentials and mirrors them into dev. Probing it from dev would gate
+ * `deploy:dev` on state only `deploy:prd` can fix, so only prd is checked.
+ */
+describe.skipIf(!isProductionSecretsEnv())('emqx (prd)', () => {
   test('HTTP API authenticates and every node is running', async () => {
     const res = await http.fetch(`${requireEnv(Name.apiUrl)}/api/v5/nodes`, {
       headers: { Authorization: basicAuth(), Accept: 'application/json' },

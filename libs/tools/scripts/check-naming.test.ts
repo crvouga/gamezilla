@@ -24,7 +24,7 @@ describe('naming rules', () => {
     ['src/assets.d.ts', true],
     ['src/foo.sim.test.ts', true],
     ['img/icon@2x.png', true],
-    ['.github/workflows/pr.yml', true],
+    ['.github/workflows/check.yml', true],
     ['.gitignore', true],
     ['.env.local', true],
     ['docs/GOAL.md', true],

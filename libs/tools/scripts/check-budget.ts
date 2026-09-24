@@ -2,7 +2,7 @@
  * Hard time limits for the `bun check` / `bun run deploy` gate.
  *
  * Two limits, both enforced by `turbo-ci-run.ts` so every surface that runs
- * the gate (local `bun check`, PR CI, the deploy job) gets them:
+ * the gate (local `bun check`, the Check workflow, the Deploy workflow) gets them:
  *
  * 1. A wall-clock **deadline** on the whole turbo run. Before it, one wedged
  *    task took the run with it — `@apps/product#test` once ran 2104s as a
@@ -38,7 +38,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
 };
 
 /**
- * PR CI and the deploy job run on 2-core GitHub-hosted runners; the budgets
+ * The Check and Deploy workflows run on 2-core GitHub-hosted runners; the budgets
  * above are measured on a dev laptop. It is a runner correction for
  * *per-task* budgets only, not slack for slower checks, and it never touches
  * the run deadline.
@@ -49,7 +49,7 @@ export const SLOW_RUNNER_MULTIPLIER = 2;
  * Wall-clock ceiling for a whole `check` run on a laptop.
  *
  * These are absolute, never scaled by {@link SLOW_RUNNER_MULTIPLIER}. Scaling
- * the *run* deadline is what let PR CI sit on a wedged check for 90 minutes
+ * the *run* deadline is what let a Check run sit on a wedged task for 90 minutes
  * (`1800 × 3`) with nobody told why. The multiplier corrects per-task budgets
  * for a slower machine; the run deadline is the promise that a gate finishes.
  */
@@ -57,7 +57,7 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
 
 /**
  * The same ceiling on CI's 2-core runner. It must stay **below** the check
- * step's `timeout-minutes` in `.github/workflows/pr.yml`, so this process kills
+ * step's `timeout-minutes` in `.github/workflows/check.yml`, so this process kills
  * the run and names the task still running before GitHub kills the job and
  * says nothing.
  */

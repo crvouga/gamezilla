@@ -1,6 +1,6 @@
 name: Deploy
 
-# `main` is what ships, in two stages:
+# Deploy: ships the code. `main` is what ships, in two stages:
 #
 #   deploy-dev — dev-scope rehearsal. Builds the real production bundle,
 #                applies migrations to the dev database and runs
@@ -11,7 +11,8 @@ name: Deploy
 #                task (`health`: live probes of Workers, DNS/TLS, Postgres,
 #                R2, EMQX, Grafana Cloud, vendor credentials). Runs only when
 #                deploy-dev succeeded. deploy-dev runs the dev-scope probes.
-#                .github/workflows/health.yml runs the same probes hourly.
+#                The Health workflow (.github/workflows/health.yml) runs the
+#                same probes hourly.
 #
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
 # `deploy:prd` aliases, which force TURBO_UI=tui (a TTY UI).
@@ -19,7 +20,8 @@ name: Deploy
 # This never runs on pull requests: the dev scope is a shared singleton and
 # @libs/runtime#migrate / @libs/secrets#provision are not dry-run gated, so
 # concurrent PRs would clobber each other's dev migrations and secret state.
-# PRs get `bun run check` in .github/workflows/pr.yml instead.
+# PRs get `bun run check` in the Check workflow (.github/workflows/check.yml)
+# instead.
 
 permissions:
   contents: read
@@ -54,7 +56,7 @@ jobs:
     steps:
       # `main` only moves through a merged PR. Branch protection enforces that
       # (libs/tools/github-config/main-protection.json, applied by `bun run
-      # github:config`); this guard is the pipeline's own layer, so a direct
+      # github:config`); this guard is the Deploy workflow's own layer, so a direct
       # push can never ship even if protection drifts. Fails before checkout:
       # the deploy steps themselves never run.
       - name: Assert the commit came from a pull request
@@ -89,14 +91,14 @@ jobs:
           set -euo pipefail
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
-      - name: Write pipeline summary
+      - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
-          PIPELINE_NAME: deploy:dev
-          PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
-          PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
+          WORKFLOW_JOB: deploy:dev
+          WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
+          WORKFLOW_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bun run libs/tools/scripts/write-pipeline-summary.ts
+        run: bun run libs/tools/scripts/write-workflow-summary.ts
 
   deploy-prd:
     name: deploy:prd
@@ -128,11 +130,11 @@ jobs:
           set -euo pipefail
           bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
 
-      - name: Write pipeline summary
+      - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
-          PIPELINE_NAME: deploy:prd
-          PIPELINE_OUTCOME: ${{ steps.deploy.outcome }}
-          PIPELINE_LOG_PATH: ${{ runner.temp }}/deploy.log
+          WORKFLOW_JOB: deploy:prd
+          WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
+          WORKFLOW_LOG_PATH: ${{ runner.temp }}/deploy.log
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bun run libs/tools/scripts/write-pipeline-summary.ts
+        run: bun run libs/tools/scripts/write-workflow-summary.ts

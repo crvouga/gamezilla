@@ -33,7 +33,7 @@ export const ghCliDep = defineCliDep({
     }
     // A failed upgrade keeps the installed binary: `brew upgrade` fails hard
     // when Homebrew cannot run (e.g. unsigned Xcode license) even though the
-    // existing `gh` is still usable for `bun pr` / deploy / provision.
+    // existing `gh` is still usable for `bun check:remote` / deploy / provision.
     try {
       ghInstaller.upgrade();
     } catch (error) {

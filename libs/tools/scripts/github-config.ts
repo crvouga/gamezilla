@@ -11,7 +11,7 @@
  *
  * The required-check list is **observed, never named by hand**: the script reads
  * the check runs that actually ran on recent pull requests (ours and any app's —
- * GitGuardian included) and requires all of them. Add, rename or drop a PR check
+ * GitGuardian included) and requires all of them. Add, rename or drop a check on PRs
  * and `bun run github:config` follows; nothing here needs editing.
  *
  *   bun run github:config          apply every spec

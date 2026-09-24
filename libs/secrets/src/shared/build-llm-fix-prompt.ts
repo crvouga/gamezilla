@@ -1,7 +1,7 @@
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import { PIPELINE_REPORT_USER_AGENT } from '../constants';
+import { WORKFLOW_REPORT_USER_AGENT } from '../constants';
 import { cliHttp } from './cli-io';
-import type { NeedState } from './pipeline-needs';
+import type { NeedState } from './workflow-needs';
 
 /**
  * Builds a copy-pasteable LLM prompt that aggregates the failing-step logs of
@@ -62,7 +62,7 @@ async function fetchAllRunJobs(ctx: PromptCtx): Promise<RunJob[]> {
         Authorization: `Bearer ${ctx.token}`,
         Accept: 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
-        'User-Agent': PIPELINE_REPORT_USER_AGENT,
+        'User-Agent': WORKFLOW_REPORT_USER_AGENT,
       },
     });
     if (!res.ok) {
@@ -82,7 +82,7 @@ async function fetchJobLog(ctx: PromptCtx, jobId: number): Promise<string> {
       Authorization: `Bearer ${ctx.token}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': PIPELINE_REPORT_USER_AGENT,
+      'User-Agent': WORKFLOW_REPORT_USER_AGENT,
     },
     redirect: 'follow',
   });
@@ -183,10 +183,9 @@ const LOCAL_CHECK_CONSTRAINTS = [
   'After edits, re-run the failing step(s) to verify before finishing.',
 ] as const;
 
-const DEPLOYMENT_PIPELINE_LOCAL_PROMPT: LocalPromptOptions = {
-  title: `Fix local pipeline failures for ${PRODUCT_CONFIG.domain}`,
-  failureIntro:
-    'The Deployment Pipeline checks failed when run locally via `bun run check`.',
+const CHECK_LOCAL_PROMPT: LocalPromptOptions = {
+  title: `Fix local check failures for ${PRODUCT_CONFIG.domain}`,
+  failureIntro: 'The checks failed when run locally via `bun run check`.',
   fixInstructions:
     'For each failing job below, identify the root cause from the captured output and fix it — do not just suppress the rule. After fixing, re-run `bun run check` or the matching `bun run <script>` from the repo root `package.json` (e.g. `bun run check:static`, `bun run check:api`).',
   constraints: LOCAL_CHECK_CONSTRAINTS,
@@ -261,7 +260,7 @@ function renderPromptBody(
   }
   lines.push('');
   lines.push(
-    `The Deployment Pipeline failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run \`bun run check\` (the whole check surface) or the matching \`bun run ...\` command locally to verify (e.g. \`bun run --filter <pkg> lint\`, \`bun run --filter <pkg> test\`, \`bun run ci:syncpack\`).`
+    `The workflow run failed on ${String(sections.length)} job(s). For each job, identify the root cause from the logs below and fix it -- do not just suppress the rule. After fixing, run \`bun run check\` (the whole check surface) or the matching \`bun run ...\` command locally to verify (e.g. \`bun run --filter <pkg> lint\`, \`bun run --filter <pkg> test\`, \`bun run ci:syncpack\`).`
   );
   lines.push('');
   for (const s of sections) {
@@ -308,9 +307,9 @@ function renderMarkdownSection(
 }
 
 const CI_DEPLOY_FAILURE_PROMPT: LocalPromptOptions = {
-  title: `Fix Deployment Pipeline failure for ${PRODUCT_CONFIG.domain}`,
+  title: `Fix Deploy workflow failure for ${PRODUCT_CONFIG.domain}`,
   failureIntro:
-    'The GitHub Actions Deployment Pipeline failed. An agent should fix every failing step below in one pass.',
+    'The Deploy workflow failed. An agent should fix every failing step below in one pass.',
   fixInstructions:
     'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run deploy` (or the matching package script, e.g. `bun run --filter @apps/server deploy`) locally with `SECRETS_ENV=dev` dry-run when safe, or push and let CI verify.',
   constraints: LOCAL_CHECK_CONSTRAINTS,
@@ -438,14 +437,14 @@ export function buildLocalLlmFixPromptMarkdown(
 ): string {
   if (failures.length === 0) return '';
   return renderMarkdownSection(
-    renderLocalPromptBody(failures, DEPLOYMENT_PIPELINE_LOCAL_PROMPT),
-    'Click to expand. Copy the entire fenced block into an LLM to fix all local pipeline failures.'
+    renderLocalPromptBody(failures, CHECK_LOCAL_PROMPT),
+    'Click to expand. Copy the entire fenced block into an LLM to fix all local check failures.'
   );
 }
 
 /**
  * Plain-text prompt body for local check / heal step failures (used by
- * `check:heal` and `run-deployment-pipeline-checks`).
+ * `check:heal`).
  */
 export function buildLocalCheckFixPromptBody(
   failures: ReadonlyArray<{ readonly stepId: string; readonly output: string }>
