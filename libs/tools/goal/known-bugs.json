@@ -63,5 +63,10 @@
     "id": "worker-compat-date-ahead-of-workerd",
     "summary": "The Workers' compatibility_date (2026-09-22) ran ahead of the pinned wrangler 4.87's workerd (supports up to 2026-05-07), so check:api's local preview refused to boot and every deploy failed while bun check stayed green. Fixed by bumping wrangler and holding the date at or below workerd's in check:worker-bundle.",
     "regressionTest": "libs/tools/scripts/worker-compat-date.test.ts"
+  },
+  {
+    "id": "deploy-health-self-cycle",
+    "summary": "`//#health` depended on bare `health`, which the root `health` script resolves back to `//#health`, so turbo refused to plan `//#deploy` (\"//#health depends on itself\") and every deploy failed. Fixed by dropping the one-dep `//#health` aggregator; `//#deploy` depends on `health` directly, and a graph test fails `bun check` on any root-task cycle.",
+    "regressionTest": "libs/tools/scripts/turbo-deploy-graph.test.ts"
   }
 ]

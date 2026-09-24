@@ -64,10 +64,7 @@ const CHECK_LEAVES = [
 ];
 
 /** Deploy runs the whole check surface, then the leaves that need a live env. */
-const DEPLOY_ONLY = ['@apps/server#check:api', '//#health'] as const;
-
-/** `//#health` flattens to the per-package live-resource probes. */
-const HEALTH_LEAVES = ['health'] as const;
+const DEPLOY_ONLY = ['@apps/server#check:api', 'health'] as const;
 
 /** The config turbo applies to `task`: `pkg#name` if defined, else `name`. */
 function configFor(tasks: Tasks, task: string): TaskConfig | undefined {
@@ -91,7 +88,51 @@ function reachableFromCheck(tasks: Tasks): ReadonlySet<string> {
   return seen;
 }
 
+/**
+ * Cycles among declared root tasks. Inside a root task's `dependsOn`, a bare
+ * `name` resolves to `//#name` whenever that root task is declared (the root
+ * package runs its own `name` too), and `//#name` names it directly — so a
+ * root aggregator that depends on the bare name of itself, or on a root task
+ * that leads back to it, is a cycle turbo refuses to plan. Returns each
+ * cycle as the path that closes it.
+ */
+function rootTaskCycles(tasks: Tasks): string[][] {
+  const roots = Object.keys(tasks).filter((task) => task.startsWith('//#'));
+  const rootDeps = (task: string): string[] =>
+    (tasks[task]?.dependsOn ?? []).flatMap((dep) => {
+      if (dep.startsWith('^')) return [];
+      const id = dep.includes('#') ? dep : `//#${dep}`;
+      return tasks[id] !== undefined && id.startsWith('//#') ? [id] : [];
+    });
+  const cycles: string[][] = [];
+  const done = new Set<string>();
+  function visit(task: string, path: readonly string[]): void {
+    const at = path.indexOf(task);
+    if (at >= 0) {
+      cycles.push([...path.slice(at), task]);
+      return;
+    }
+    if (done.has(task)) return;
+    for (const dep of rootDeps(task)) visit(dep, [...path, task]);
+    done.add(task);
+  }
+  for (const task of roots) visit(task, []);
+  return cycles;
+}
+
 describe('turbo check/deploy graph invariants', () => {
+  test('root-task cycle detection catches a self-dependent aggregator', () => {
+    expect(rootTaskCycles({ '//#health': { dependsOn: ['health'] } })).toEqual([
+      ['//#health', '//#health'],
+    ]);
+    expect(
+      rootTaskCycles({
+        '//#a': { dependsOn: ['//#b'] },
+        '//#b': { dependsOn: ['a'] },
+      })
+    ).toEqual([['//#a', '//#b', '//#a']]);
+  });
+
   test('//#check is exactly the check surface', () => {
     expect(loadTasks()['//#check']?.dependsOn).toEqual(CHECK_LEAVES);
   });
@@ -126,8 +167,7 @@ describe('turbo check/deploy graph invariants', () => {
     expect(tasks['//#deploy']?.dependsOn).toEqual(['//#check', ...DEPLOY_ONLY]);
     expect(flattenCheckAggregators(['deploy'], tasks)).toEqual([
       ...CHECK_LEAVES,
-      '@apps/server#check:api',
-      ...HEALTH_LEAVES,
+      ...DEPLOY_ONLY,
     ]);
   });
 
@@ -144,12 +184,17 @@ describe('turbo check/deploy graph invariants', () => {
     );
   });
 
-  test('//#health is exactly the per-package health task', () => {
-    const tasks = loadTasks();
-    expect(tasks['//#health']?.dependsOn).toEqual([...HEALTH_LEAVES]);
-    expect(flattenCheckAggregators(['health'], tasks)).toEqual([
-      ...HEALTH_LEAVES,
+  test('bun health runs only the per-package health task', () => {
+    expect(flattenCheckAggregators(['health'], loadTasks())).toEqual([
+      'health',
     ]);
+  });
+
+  // regression: deploy-health-self-cycle — `//#health` depended on bare
+  // `health`, which the root `health` script resolves back to `//#health`;
+  // turbo refused to plan `//#deploy` ("//#health depends on itself").
+  test('root tasks form no dependency cycle', () => {
+    expect(rootTaskCycles(loadTasks())).toEqual([]);
   });
 
   test('health probes live resources: never cached, ordered after the deploy', () => {
