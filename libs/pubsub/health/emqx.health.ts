@@ -2,7 +2,10 @@
 import { describe, expect, test } from 'bun:test';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
 import { createHttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
-import { pubsubEmqxSecretDefs } from '@libs/pubsub/shared/secrets/emqx-secret-defs';
+import {
+  COMMITTED_EMQX_CREDENTIALS,
+  EMQX_STOCK_DASHBOARD_PASSWORD,
+} from '@libs/pubsub/shared/secrets/emqx-credentials';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 
 const http = createGlobalHttpClient();
@@ -15,12 +18,6 @@ function requireEnv(name: string): string {
 
 function basicAuth(): string {
   return `Basic ${btoa(`${requireEnv(Name.apiKey)}:${requireEnv(Name.apiSecret)}`)}`;
-}
-
-/** Committed bootstrap values (`emqx-deploy/config`) that must never be live. */
-async function committedDefault(name: string): Promise<string> {
-  const def = pubsubEmqxSecretDefs.find((d) => d.name === name);
-  return (await def?.seed?.({ secrets: new Map() })) ?? '';
 }
 
 describe('emqx', () => {
@@ -49,9 +46,26 @@ describe('emqx', () => {
     expect(wss.hostname).toBe(new URL(requireEnv(Name.apiUrl)).hostname);
   });
 
-  for (const name of [Name.apiKey, Name.apiSecret, Name.jwtSecret]) {
-    test(`${name} is not the committed bootstrap default`, async () => {
-      expect(requireEnv(name)).not.toBe(await committedDefault(name));
+  test('dashboard rejects the stock admin login', async () => {
+    const res = await http.fetch(`${requireEnv(Name.apiUrl)}/api/v5/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: 'admin',
+        password: EMQX_STOCK_DASHBOARD_PASSWORD,
+      }),
+    });
+    expect(res.status).toBe(401);
+  });
+
+  for (const name of [
+    Name.apiKey,
+    Name.apiSecret,
+    Name.jwtSecret,
+    Name.dashboardPassword,
+  ]) {
+    test(`${name} is not a committed (public) credential`, () => {
+      expect(COMMITTED_EMQX_CREDENTIALS.has(requireEnv(name))).toBe(false);
     });
   }
 });

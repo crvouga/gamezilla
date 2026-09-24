@@ -83,6 +83,21 @@ export const ServiceInstanceUpdateMutation = graphql(`
   }
 `);
 
+export const ServiceVariablesQuery = graphql(`
+  query ServiceVariables(
+    $projectId: String!
+    $environmentId: String!
+    $serviceId: String!
+  ) {
+    variables(
+      projectId: $projectId
+      environmentId: $environmentId
+      serviceId: $serviceId
+      unrendered: true
+    )
+  }
+`);
+
 export const VariableUpsertMutation = graphql(`
   mutation VariableUpsert($input: VariableUpsertInput!) {
     variableUpsert(input: $input)
@@ -163,10 +178,12 @@ export const ServiceInstanceDeployV2Mutation = graphql(`
   mutation ServiceInstanceDeployV2(
     $serviceId: String!
     $environmentId: String!
+    $commitSha: String
   ) {
     serviceInstanceDeployV2(
       serviceId: $serviceId
       environmentId: $environmentId
+      commitSha: $commitSha
     )
   }
 `);

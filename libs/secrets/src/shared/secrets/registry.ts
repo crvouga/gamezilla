@@ -27,6 +27,7 @@ import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
   EMQX_API_URL,
+  EMQX_DASHBOARD_PASSWORD,
   EMQX_JWT_SECRET,
   EMQX_WSS_URL,
 } from './pubsub-emqx-secrets';
@@ -80,6 +81,7 @@ export const SECRETS: readonly Secret[] = [
   EMQX_API_KEY,
   EMQX_API_SECRET,
   EMQX_JWT_SECRET,
+  EMQX_DASHBOARD_PASSWORD,
 ];
 
 export function getSecretMap(): readonly Secret[] {

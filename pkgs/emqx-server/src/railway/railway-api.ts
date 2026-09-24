@@ -6,6 +6,7 @@ export {
 } from './railway-api-core';
 export {
   deleteService,
+  deployServiceCommit,
   ensureCustomDomain,
   ensureServiceDomain,
   ensureVolume,
@@ -15,5 +16,6 @@ export {
   ensureProject,
   ensureService,
   listProjects,
+  readServiceVariables,
   upsertVariables,
 } from './railway-api-project';

@@ -9,6 +9,9 @@ function wrapDefs(): Secret[] {
       optional: def.optional === true,
       pushToApiWorker: def.pushToApiWorker === true,
       mirrorToDev: def.mirrorToDev === true,
+      ...(def.provisionedBy === undefined
+        ? {}
+        : { provisionedBy: def.provisionedBy }),
       validate: async (input: SecretInput) => {
         await def.validate({ secretValue: input.secretValue });
       },
@@ -23,7 +26,8 @@ function wrapDefs(): Secret[] {
   });
 }
 
-const [apiUrl, wssUrl, apiKey, apiSecret, jwtSecret] = wrapDefs();
+const [apiUrl, wssUrl, apiKey, apiSecret, jwtSecret, dashboardPassword] =
+  wrapDefs();
 
 /** Re-exported for registry — names/validation owned by `@libs/pubsub`. */
 export const EMQX_API_URL = apiUrl!;
@@ -31,3 +35,4 @@ export const EMQX_WSS_URL = wssUrl!;
 export const EMQX_API_KEY = apiKey!;
 export const EMQX_API_SECRET = apiSecret!;
 export const EMQX_JWT_SECRET = jwtSecret!;
+export const EMQX_DASHBOARD_PASSWORD = dashboardPassword!;
