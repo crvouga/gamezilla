@@ -84,10 +84,7 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
   }
 
   async key(key: DriverKey): Promise<void> {
-    const domKey = DRIVER_KEY_TO_DOM[key];
-    await this.view.evaluate(
-      `(function(){ const e = new KeyboardEvent('keydown', { key: ${JSON.stringify(domKey)}, bubbles: true }); document.activeElement?.dispatchEvent(e); })()`
-    );
+    await this.view.press(DRIVER_KEY_TO_DOM[key]);
   }
 
   async snapshotHtml(): Promise<string | null> {

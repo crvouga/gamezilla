@@ -13,7 +13,6 @@ import { type AppTabSpec, useAppTabs } from '../routes/app-tabs';
 import { isAppTabActive } from '../routes/is-app-tab-active';
 
 const TAB_ICON_SIZE = 24;
-const TAB_LABEL_FONT_SIZE = 13;
 const TAB_VERTICAL_PADDING = 5;
 const TAB_MIN_HEIGHT = 44;
 
@@ -57,7 +56,6 @@ function AppTabButton(props: {
           'text-tint': props.active,
           'text-tab-icon-default': !props.active,
         }}
-        style={{ 'font-size': `${TAB_LABEL_FONT_SIZE}px` }}
       >
         {props.tab.label}
       </p>

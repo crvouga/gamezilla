@@ -20,7 +20,7 @@ function EmailChoice(props: {
   readonly checked: boolean;
 }) {
   return (
-    <label class="box flex-row items-start gap-3 rounded-md border border-border p-3">
+    <label class="box flex-row items-start gap-3 rounded-sm border border-border p-3">
       <input
         type="radio"
         name="email_choice"

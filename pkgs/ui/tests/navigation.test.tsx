@@ -147,7 +147,8 @@ describe('brand + providers', () => {
     renderUi(() => <AppLogo size={40} />);
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1).toHaveTextContent('gamezilla');
-    expect(h1.getAttribute('style')).toContain('var(--ui-color-tint)');
+    expect(h1.className).toContain('appLogo');
+    expect(h1.className).toContain('text-tint');
   });
 
   test('BrandIcon renders fixed-color vendor svg', () => {

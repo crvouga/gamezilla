@@ -54,7 +54,7 @@ describe('hosts.css coverage', () => {
       '.box': ['display: flex', 'flex-direction: column', 'min-width: 0'],
       '.text': ['white-space: pre-wrap', 'font-size: var(--ui-font-size-base)'],
       '.textHeading': ['font-weight: 800'],
-      '.textMono': ['SFMono-Regular'],
+      '.textMono': ['var(--ui-font-mono)'],
       '.clickable': ['cursor: pointer', 'appearance: none'],
       '.clickableTint::after': ['pointer-events: none'],
       '.scroll': ['overflow-y: auto'],

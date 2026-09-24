@@ -51,7 +51,8 @@ export function createRoomApp() {
       return c.json({ error: 'missing topic query parameter' }, 400);
     }
 
-    const ns = c.env.ROOM;
+    // Hosts that serve the app without Worker bindings have no `c.env`.
+    const ns = (c.env as ApiHonoEnv['Bindings'] | undefined)?.ROOM;
     if (ns === undefined || ns === null) {
       return c.json({ error: 'ROOM binding not configured' }, 503);
     }

@@ -146,6 +146,84 @@ export function buttonPhase(input: ButtonRenderInput): ButtonFeedback {
   return input.loading === true ? 'loading' : 'idle';
 }
 
+/** CSS `data-face` value. Paint lives in `skin.css`, not inline styles. */
+export type ButtonFaceName =
+  | 'primary'
+  | 'danger'
+  | 'success'
+  | 'neutral'
+  | 'primary-outline'
+  | 'danger-outline'
+  | 'success-outline'
+  | 'neutral-outline'
+  | 'primary-ghost'
+  | 'danger-ghost'
+  | 'success-ghost'
+  | 'neutral-ghost'
+  | 'disabled'
+  | 'disabled-outline'
+  | 'disabled-ghost'
+  | 'feedback-success'
+  | 'feedback-error';
+
+const SOLID_FACE = {
+  primary: 'primary',
+  danger: 'danger',
+  success: 'success',
+  neutral: 'neutral',
+} as const satisfies Record<ButtonIntent, ButtonFaceName>;
+
+const OUTLINE_FACE = {
+  primary: 'primary-outline',
+  danger: 'danger-outline',
+  success: 'success-outline',
+  neutral: 'neutral-outline',
+} as const satisfies Record<ButtonIntent, ButtonFaceName>;
+
+const GHOST_FACE = {
+  primary: 'primary-ghost',
+  danger: 'danger-ghost',
+  success: 'success-ghost',
+  neutral: 'neutral-ghost',
+} as const satisfies Record<ButtonIntent, ButtonFaceName>;
+
+export function buttonFaceName(input: ButtonRenderInput): ButtonFaceName {
+  const phase = buttonPhase(input);
+  if (phase === 'success') return 'feedback-success';
+  if (phase === 'error') return 'feedback-error';
+  const variant = input.variant ?? 'solid';
+  const intent = input.intent ?? 'primary';
+  const disabled = (input.disabled ?? false) || phase === 'loading';
+  if (disabled && variant === 'outline') return 'disabled-outline';
+  if (disabled && variant === 'ghost') return 'disabled-ghost';
+  if (disabled) return 'disabled';
+  if (variant === 'outline') return OUTLINE_FACE[intent];
+  if (variant === 'ghost') return GHOST_FACE[intent];
+  return SOLID_FACE[intent];
+}
+
+export type ButtonInteraction = {
+  phase: ButtonFeedback;
+  face: ButtonFaceName;
+  nonInteractive: boolean;
+  handleClick: (() => void) | undefined;
+};
+
+/** Phase, hit testing, and the CSS face. No color lookup. */
+export function buttonInteraction(input: ButtonRenderInput): ButtonInteraction {
+  const phase = buttonPhase(input);
+  const nonInteractive =
+    (input.disabled ?? false) || phase === 'loading' || phase === 'success';
+  const handleClick =
+    phase === 'error' ? (input.onRetry ?? input.onClick) : input.onClick;
+  return {
+    phase,
+    face: buttonFaceName(input),
+    nonInteractive,
+    handleClick,
+  };
+}
+
 export function resolveButtonRender(
   c: ColorTokens,
   input: ButtonRenderInput

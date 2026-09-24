@@ -9,10 +9,12 @@ import { useChessPuzzleFeedSubscription } from './use-chess-puzzle-feed-subscrip
  * puzzle pool subscribed around the effective rating it resolves to.
  */
 export function ChessPuzzleFeedProvider(props: ParentProps): JSX.Element {
-  const [config, setConfig] = createChessPuzzleFeedConfigState();
+  const [config, setConfig, configReady] = createChessPuzzleFeedConfigState();
   const poolReady = useChessPuzzleFeedSubscription(config);
   return (
-    <ChessPuzzleFeedContext.Provider value={{ config, setConfig, poolReady }}>
+    <ChessPuzzleFeedContext.Provider
+      value={{ config, setConfig, poolReady, configReady }}
+    >
       {props.children}
     </ChessPuzzleFeedContext.Provider>
   );

@@ -47,7 +47,7 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
   };
   return (
     <button
-      class="clickable px-1.5 py-0.5 rounded-sm"
+      class="clickable px-1.5 py-0.5 rounded-xs"
       style={{ background: props.selected ? 'successSurface' : 'transparent' }}
       data-testid={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
       type="button"

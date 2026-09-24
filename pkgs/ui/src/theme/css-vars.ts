@@ -13,14 +13,17 @@
 
 import { COLOR_PALETTE } from './colors/color-palette';
 import type { ColorScheme, ColorTokenName, ColorTokens } from './colors/types';
+import { fonts } from './fonts';
 import { duration, easing } from './motion';
 import {
   borderRadius,
   type ElevationLevel,
   type ElevationStyle,
+  fontLeading,
   fontSize,
   lineHeight,
   makeElevation,
+  spaceRole,
   spacing,
 } from './scale';
 
@@ -88,11 +91,20 @@ function scaleBlock(): string {
   for (const [key, value] of Object.entries(spacing)) {
     lines.push(`  --ui-space-${key.replace('.', '-')}: ${value}px;`);
   }
+  for (const [key, value] of Object.entries(spaceRole)) {
+    lines.push(`  --ui-space-${key}: ${value}px;`);
+  }
+  for (const [key, value] of Object.entries(fonts)) {
+    lines.push(`  --ui-font-${key}: ${value};`);
+  }
   for (const [key, value] of Object.entries(fontSize)) {
     lines.push(`  --ui-font-size-${key}: ${value}px;`);
   }
+  for (const [key, value] of Object.entries(fontLeading)) {
+    lines.push(`  --ui-leading-${key}: ${value}px;`);
+  }
   for (const [key, value] of Object.entries(lineHeight)) {
-    lines.push(`  --ui-line-height-${key}: ${value}px;`);
+    lines.push(`  --ui-line-height-${key}: ${value};`);
   }
   for (const [key, value] of Object.entries(borderRadius)) {
     lines.push(`  --ui-radius-${key}: ${value}px;`);

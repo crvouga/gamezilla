@@ -13,6 +13,8 @@ export type BunWebView = {
     y: number,
     options?: { readonly button?: 'left' | 'right' | 'middle' }
   ): Promise<void>;
+  /** Native key press (`Enter`, `Backspace`, `Escape`, …). */
+  press(key: string): Promise<void>;
   evaluate(script: string): Promise<unknown>;
   screenshot(): Promise<Blob | Uint8Array | Buffer>;
   close(): void;

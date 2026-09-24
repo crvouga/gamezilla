@@ -61,10 +61,13 @@ export type ClientEnv = {
   /**
    * Mint a fresh PubSub for sync push. Remake closes the previous instance —
    * must not return a closed singleton (see attachPush remake contract).
-   * Sim: shared in-memory bus; wall: unused (EMQX path owns createPubSub).
+   * Sim injects its shared in-memory bus. Wall omits it: push then uses the
+   * EMQX broker from synced `client_config`.
    */
-  readonly createPubSub: () => PubSub;
+  readonly createPubSub?: () => PubSub;
   readonly openSqlClient: OpenSqlClient;
+  /** Sim may shorten the sync safety-net interval. Wall uses the engine default. */
+  readonly reconcileIntervalMs?: number;
   readonly kv: Kv;
   readonly secureStorage: SecureStorageStore;
   readonly room: CreateRoomTransport;

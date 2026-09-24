@@ -9,6 +9,7 @@ function createFakeView(): BunWebView & {
   pointer: PointerCounts;
   navigate: ReturnType<typeof mock>;
   click: ReturnType<typeof mock>;
+  press: ReturnType<typeof mock>;
   evaluate: ReturnType<typeof mock>;
   screenshot: ReturnType<typeof mock>;
   close: ReturnType<typeof mock>;
@@ -23,6 +24,7 @@ function createFakeView(): BunWebView & {
       pointer.up += 1;
       return Promise.resolve();
     }),
+    press: mock(() => Promise.resolve()),
     evaluate: mock(async (script: string) => {
       if (script.includes('__uiTestingPointerCounts')) {
         return [pointer.down, pointer.up];
@@ -75,6 +77,7 @@ describe('BunWebviewDriver', () => {
     await driver.get('email').input('a@b.c');
     await driver.get('email').clear();
     await driver.key('enter');
+    expect(view.press).toHaveBeenCalledWith('Enter');
     await driver.get('list').scroll('down', 50);
     await driver.get('go').wait('visible');
 

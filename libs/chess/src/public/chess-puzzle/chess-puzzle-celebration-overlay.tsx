@@ -1,4 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
 import { Button, ChevronRightIcon, ResponsiveSurface } from '@pkgs/ui';
 import type { Accessor, JSX } from 'solid-js';
@@ -71,8 +72,8 @@ export function ChessPuzzleCelebrationOverlay(
       title={celebrationTitle(props.completion.outcome)}
       presentation="modal"
       size="small"
-      closeDataSet={{ testid: 'chess-puzzle-summary-close' }}
-      dataSet={{ testid: 'chess-puzzle-summary' }}
+      closeDataSet={{ testid: Handles.chessPuzzleSummaryClose }}
+      dataSet={{ testid: Handles.chessPuzzleSummary }}
     >
       <div class="box gap-4 self-stretch min-w-0">
         <ChessPuzzleSummaryCard
@@ -87,7 +88,7 @@ export function ChessPuzzleCelebrationOverlay(
           fullWidth
           endIcon={<ChevronRightIcon />}
           onClick={props.onNext}
-          dataSet={{ testid: 'chess-puzzle-summary-next' }}
+          dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
         />
       </div>
     </ResponsiveSurface>

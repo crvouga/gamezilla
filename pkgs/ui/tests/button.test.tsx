@@ -34,9 +34,11 @@ describe('Button', () => {
     const el = screen.getByRole('button', { name: 'Save' });
     expect(el.tagName).toBe('BUTTON');
     expect(el).toHaveAttribute('data-phase', 'idle');
+    expect(el).toHaveAttribute('data-size', 'sm');
+    expect(el).toHaveAttribute('data-face', 'primary');
+    expect(el.className).toContain('btn');
     fireEvent.click(el);
     expect(onClick).toHaveBeenCalledTimes(1);
-    expect(cssOf(el)).toContain('min-height:32px');
   });
 
   test('variants change the surface: solid fills, outline borders', () => {
@@ -47,14 +49,17 @@ describe('Button', () => {
         <Button title="Ghost" variant="ghost" />
       </>
     ));
-    expect(cssOf(screen.getByRole('button', { name: 'Solid' }))).toContain(
-      'background-color:var(--ui-color-tint)'
+    expect(screen.getByRole('button', { name: 'Solid' })).toHaveAttribute(
+      'data-face',
+      'primary'
     );
-    const outline = cssOf(screen.getByRole('button', { name: 'Outline' }));
-    expect(outline).toContain('border-width:1px');
-    expect(outline).toContain('background-color:transparent');
-    expect(cssOf(screen.getByRole('button', { name: 'Ghost' }))).toContain(
-      'border-width:0px'
+    expect(screen.getByRole('button', { name: 'Outline' })).toHaveAttribute(
+      'data-face',
+      'primary-outline'
+    );
+    expect(screen.getByRole('button', { name: 'Ghost' })).toHaveAttribute(
+      'data-face',
+      'primary-ghost'
     );
   });
 
@@ -95,12 +100,10 @@ describe('Button', () => {
     expect(end.querySelector('svg')?.getAttribute('stroke')).toBe(
       'var(--ui-on-icon)'
     );
-    const onIcon = [
-      ...screen.getByRole('button', { name: 'Next' }).querySelectorAll('div'),
-    ]
-      .map((el) => el.style.getPropertyValue('--ui-on-icon'))
-      .find((value) => value.length > 0);
-    expect(onIcon).toBe('var(--ui-color-on-success)');
+    expect(screen.getByRole('button', { name: 'Next' })).toHaveAttribute(
+      'data-face',
+      'success'
+    );
   });
 });
 

@@ -58,7 +58,7 @@ function CommandRow(props: {
   });
 
   return (
-    <div class="box gap-1.5 p-[3px] border border-border rounded-control bg-surface">
+    <div class="box gap-1.5 p-[3px] border border-border rounded-md bg-surface">
       <p class="text text-text text-[13px] font-semibold">{props.label}</p>
       <p class="text textCaption text-text-secondary [font-family:mono]">
         {props.commandId}

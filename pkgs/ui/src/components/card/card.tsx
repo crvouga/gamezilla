@@ -38,7 +38,7 @@ export function Card(props: CardProps): JSX.Element {
       component={props.as ?? 'section'}
       id={props.id}
       tabIndex={props.tabIndex}
-      class="box gap-4 rounded-2xl border border-border bg-surface px-5 py-6 shadow-sm outline-none sm:px-8 sm:pt-8 sm:pb-7"
+      class="box gap-4 rounded-card border border-border bg-surface px-5 py-6 shadow-sm outline-none sm:px-8 sm:pt-8 sm:pb-7"
       classList={{ [String(props.class)]: props.class !== undefined }}
       {...dataAttrs({ component: 'Card', ...props.dataSet })}
     >
