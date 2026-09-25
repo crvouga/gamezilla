@@ -26,12 +26,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -113,5 +113,10 @@
     "id": "product-deploy-wrangler-not-on-path",
     "summary": "After the global CLI installer was replaced by mise, @apps/product's deploy spawned `wrangler` without declaring it, so `bun run` never put the bin on PATH and Deploy failed with `Executable not found in $PATH: \"wrangler\"`. Fixed by declaring wrangler in every package that spawns it; lint-package now fails a package that spawns an undeclared npm CLI.",
     "regressionTest": "libs/tools/scripts/spawned-clis.test.ts"
+  },
+  {
+    "id": "turbo-strips-tofu-secrets",
+    "summary": "Deploy failed at @libs/infra#apply:foundation with `missing secrets for the foundation stack`: secrets-run injected TOFU_STATE_* and NEON_API_KEY, but turbo's strict env mode dropped them because globalPassThroughEnv did not name them (SYNTHETIC_MONITOR_TOKEN too). Fixed by passing them through; every registry secret is now asserted to pass through.",
+    "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
   }
 ]
