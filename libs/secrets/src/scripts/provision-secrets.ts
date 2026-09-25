@@ -281,7 +281,27 @@ async function purgeOrphans(): Promise<void> {
   }
 }
 
+/**
+ * Generated (`seedInAllEnvs`) secrets are minted into the active env even on
+ * a dev dry-run. Otherwise a newly registered one deadlocks the pipeline:
+ * deploy:dev fails on the missing value before deploy:prd (the only other
+ * seeder) ever runs. Additive and idempotent; never overwrites.
+ */
+async function seedGeneratedSecretsInActiveEnv(): Promise<void> {
+  try {
+    const results = await ensureSeedInAllEnvsSecrets([activeSecretsEnv()]);
+    for (const r of results) {
+      if (r.action === 'seeded') ok(r.name, `seeded in secrets env ${r.env}`);
+    }
+  } catch (e) {
+    console.warn(
+      `seedInAllEnvs (${activeSecretsEnv()}) failed: ${e instanceof Error ? e.message : String(e)}`
+    );
+  }
+}
+
 if (!isProductionSecretsEnv()) {
+  await seedGeneratedSecretsInActiveEnv();
   log.info('[secrets:provision] dry-run (SECRETS_ENV is not prd)');
   process.exit(0);
 }

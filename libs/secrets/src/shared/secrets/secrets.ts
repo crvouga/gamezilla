@@ -46,17 +46,18 @@ export type SeedInAllEnvsResult = {
 
 /**
  * For registry secrets with `seedInAllEnvs`, mint a value into every secrets
- * env that is still missing it. Does not overwrite existing values.
+ * env in `envs` (default: all) that is still missing it. Does not overwrite
+ * existing values.
  */
-export async function ensureSeedInAllEnvsSecrets(): Promise<
-  readonly SeedInAllEnvsResult[]
-> {
+export async function ensureSeedInAllEnvsSecrets(
+  envs: readonly SecretsEnv[] = SECRETS_ENVS
+): Promise<readonly SeedInAllEnvsResult[]> {
   const active = activeSecretsEnv();
   const results: SeedInAllEnvsResult[] = [];
 
   for (const entry of getSeedInAllEnvsSecrets()) {
     if (entry.seed === undefined) continue;
-    for (const env of SECRETS_ENVS) {
+    for (const env of envs) {
       const stored = new Map(await exportSecretsMapLive(env));
       const current = (stored.get(entry.name) ?? '').trim();
       if (current.length > 0) {
