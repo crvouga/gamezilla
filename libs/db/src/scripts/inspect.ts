@@ -91,10 +91,7 @@ function ensureDuckdbOnPath(): void {
   const probe = spawnSync('duckdb', ['--version'], { encoding: 'utf8' });
   if (probe.error !== undefined || probe.status !== 0) {
     console.error('`duckdb` not found on PATH.');
-    console.error('Install:');
-    console.error('  bun run infra setup');
-    console.error('  macOS:  brew install duckdb');
-    console.error('  Linux:  curl https://install.duckdb.org | sh');
+    console.error('Install the pinned version: mise install');
     process.exit(1);
   }
 }

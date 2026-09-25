@@ -31,7 +31,7 @@ JWT ACL grants subscribe **and** publish on the actor's topic set (`user:{self}`
 membership `room:*`, `system:client_config`). Clients publish mutation fanout on
 those topics; server pushes still use the HTTP publish API.
 
-Fallback local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
+Local broker: `@pkgs/emqx-server` runs the EMQX release pinned in the repo's `mise.toml` (`mise install`).
 
 ## Offline session behavior
 
