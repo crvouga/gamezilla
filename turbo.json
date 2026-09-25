@@ -36,6 +36,9 @@
     "OBS_*",
     "TURBO_*",
     "IDP_*",
+    "TOFU_*",
+    "NEON_*",
+    "SYNTHETIC_MONITOR_TOKEN",
     "TMPDIR"
   ],
   "tasks": {
