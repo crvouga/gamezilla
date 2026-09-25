@@ -153,6 +153,50 @@ function membershipErrorMeansExists(json: unknown): boolean {
   return /already|exists|member/i.test(message);
 }
 
+function membershipRoleSlugs(json: unknown): readonly string[] {
+  if (json === null || typeof json !== 'object') return [];
+  const membership = (json as Record<string, unknown>)['identityMembership'];
+  if (membership === null || typeof membership !== 'object') return [];
+  const roles = (membership as Record<string, unknown>)['roles'];
+  if (!Array.isArray(roles)) return [];
+  return roles.map((r) => {
+    const rec = r as Record<string, unknown>;
+    const custom = rec['customRoleSlug'];
+    return typeof custom === 'string' && custom.length > 0
+      ? custom
+      : String(rec['role'] ?? '');
+  });
+}
+
+/**
+ * An existing membership keeps whatever role it was given by hand; provision
+ * mints new secrets in every env, so anything narrower than a permanent
+ * `admin` (a viewer role, a custom role scoped away from `prd`, a temporary
+ * grant) fails deploy with `You are not allowed to create on secrets`.
+ */
+async function ensureAdminRole(args: {
+  readonly ctx: InfisicalCtx;
+  readonly path: string;
+  readonly log: ReconcileLog;
+  readonly fail: ReconcileFail;
+}): Promise<void> {
+  const current = await infisicalRequest(args.ctx, 'GET', args.path);
+  const roles = membershipRoleSlugs(current.json);
+  if (current.status === 200 && roles.length === 1 && roles[0] === 'admin') {
+    args.log('Identity already a project admin — skipping.');
+    return;
+  }
+  const { status } = await infisicalRequest(args.ctx, 'PATCH', args.path, {
+    roles: [{ role: 'admin', isTemporary: false }],
+  });
+  if (status !== 200) {
+    args.fail(
+      `Identity is a project member with roles [${roles.join(', ')}] but setting it to admin failed (HTTP ${status}).`
+    );
+  }
+  args.log(`Set identity project role to admin (was [${roles.join(', ')}]).`);
+}
+
 async function ensureProjectMembership(args: {
   readonly ctx: InfisicalCtx;
   readonly identityId: string;
@@ -176,7 +220,7 @@ async function ensureProjectMembership(args: {
       status === 409 ||
       (status === 400 && membershipErrorMeansExists(json))
     ) {
-      args.log('Identity already a project member — skipping.');
+      await ensureAdminRole({ ...args, path });
       return;
     }
   }
