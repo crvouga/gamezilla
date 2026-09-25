@@ -5,7 +5,7 @@
   "scripts": {
     "check:actionlint": "bun run scripts/check-actionlint.ts",
     "check:secrets": "bun run scripts/check-secrets.ts",
-    "install:cli": "bun run scripts/install-cli.ts",
+    "install:cli": "mise install",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test scripts/*.test.ts"
@@ -15,8 +15,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/observability": "workspace:*",
-    "@pkgs/os": "workspace:*",
-    "@pkgs/secret-provider": "workspace:*"
+    "@pkgs/os": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/assert": "workspace:*",

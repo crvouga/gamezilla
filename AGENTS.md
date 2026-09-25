@@ -309,7 +309,7 @@ and is used only by the opt-in live-browser product sims
 (`SIM_MODE=real|stack`); swapping hosts is a driver choice, never a suite
 rewrite.
 
-CI pins Bun `1.4.2` (`packageManager`, `.github/actions/setup`). Do not downgrade
+CI pins Bun `1.4.2` (`mise.toml`, mirrored in `packageManager`). Do not downgrade
 to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 `@pkgs/*/solid` (and every import that resolves through a tsconfig `paths`
 wildcard to a `.tsx` file) fails on the runner while passing locally.

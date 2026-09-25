@@ -1,24 +1,29 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-action.json
-name: Setup repo (Node + Bun + deps)
-description: Node 22, Bun, cached node_modules, bun install (run actions/checkout first)
+name: Setup repo (mise tools + deps)
+description: mise-pinned tools (Bun, Node, CLIs), cached node_modules, bun install (run actions/checkout first)
 
 runs:
   using: composite
   steps:
-    - name: Setup Node.js
-      uses: actions/setup-node@v6
-      with:
-        node-version: '22'
+    # Every system tool — Bun, Node, gh, gitleaks, actionlint, the secrets
+    # backend CLI, EMQX — at the version pinned in the repo's mise.toml, the
+    # same file a laptop runs `mise install` against. Installs are cached on
+    # a key over mise.toml; the action puts the tools on PATH for later steps.
+    # Later steps (check:actionlint, check:secrets) `mise exec` against the
+    # same file, so trust the checkout for the whole job.
+    - name: Trust mise.toml
+      shell: bash
+      run: echo "MISE_TRUSTED_CONFIG_PATHS=${GITHUB_WORKSPACE}" >> "$GITHUB_ENV"
 
-    - name: Setup Bun
-      uses: oven-sh/setup-bun@v2
+    - name: Install pinned tools (mise.toml)
+      uses: jdx/mise-action@v4
       with:
-        bun-version: '1.4.2'
+        version: 2026.9.13
 
     # The installed trees, not just the package store: restoring the store and
     # then linking ~1GB of node_modules out of it cost ~13s a run; one extract
     # of the finished trees leaves `bun install` a no-op check. Exact key only
-    # (this file is hashed so a Bun upgrade re-keys it); on a miss the store
+    # (mise.toml is hashed so a Bun upgrade re-keys it); on a miss the store
     # cache below makes the install cheap and the post step saves new trees.
     - name: Cache node_modules
       id: node-modules
@@ -29,7 +34,7 @@ runs:
           apps/*/node_modules
           libs/*/node_modules
           pkgs/*/node_modules
-        key: node-modules-${{ runner.os }}-${{ hashFiles('bun.lock', '.github/actions/setup/action.yml') }}
+        key: node-modules-${{ runner.os }}-${{ hashFiles('bun.lock', 'mise.toml', '.github/actions/setup/action.yml') }}
 
     - name: Cache Bun install store
       if: steps.node-modules.outputs.cache-hit != 'true'
@@ -43,50 +48,3 @@ runs:
     - name: Install dependencies
       shell: bash
       run: bun install --frozen-lockfile
-
-    # `bun health` (and other admin secret I/O) shells out to the secrets
-    # backend CLI. secrets-auth injects secret values + SECRETS_IDENTITY_ID
-    # (for OIDC → INFISICAL_TOKEN); secrets-run passes them to children.
-    # Export of both `dev` and `prd` still needs the CLI on PATH.
-    # GITHUB_TOKEN authenticates GitHub API fallbacks when resolving the
-    # secrets-backend CLI release (shared runner IPs often exhaust unauth quota).
-    # Cache the user-local binaries so CI jobs skip the GitHub CDN downloads on
-    # hit: the secrets backend CLI (installed below) and check:secrets' gitleaks /
-    # check:actionlint's actionlint, which they install on first use when missing. The
-    # key hashes their pinned versions and has no restore-keys fallback, since
-    # a stale binary would be kept (the installers only act when missing); bump
-    # the suffix when the secrets CLI must be force-upgraded.
-    - name: Cache CLI binaries
-      uses: actions/cache@v5
-      with:
-        # Binary basenames are owned by their installers
-        # (secrets-backend adapter, libs/tools/scripts/cli-deps).
-        path: |
-          ~/.local/bin/infisical
-          ~/.local/bin/gitleaks
-          ~/.local/bin/actionlint
-        key: cli-bin-${{ runner.os }}-${{ hashFiles('libs/tools/scripts/cli-deps/gitleaks.ts', 'libs/tools/scripts/cli-deps/actionlint.ts') }}-v1
-
-    # This step is a composition root: the GitHub-release installer it falls
-    # back to on Linux (no Homebrew) needs an injected OsFs, and `bun -e` is
-    # not wrapped by the repo's wall-injection entrypoints.
-    - name: Install secrets backend CLI
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      run: |
-        set -euo pipefail
-        mkdir -p "$HOME/.local/bin"
-        echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-        export PATH="$HOME/.local/bin:$PATH"
-        bun -e '
-          import { wallOsFs } from "@pkgs/os";
-          import { createSecretBackendCli } from "@pkgs/secret-provider";
-          const cli = createSecretBackendCli({ osFs: wallOsFs() });
-          const status = cli.check();
-          if (!status.ok) {
-            cli.install();
-          }
-          cli.verify();
-          console.log(`secrets-backend-cli: ${cli.version() ?? "unknown"}`);
-        '

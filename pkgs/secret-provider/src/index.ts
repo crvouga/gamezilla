@@ -35,11 +35,3 @@ export type { ResolveWriteAccessTokenOptions } from './resolve-write-access-toke
 export { resolveWriteAccessToken } from './resolve-write-access-token';
 export type { RunWithSecretsOptions } from './run-with-secrets';
 export { runWithSecrets } from './run-with-secrets';
-export type {
-  SecretBackendCli,
-  SecretBackendCliStatus,
-} from './secret-backend-cli';
-export {
-  createSecretBackendCli,
-  getSecretsDashboardUrl,
-} from './secret-backend-cli';

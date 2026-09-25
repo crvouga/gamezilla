@@ -29,6 +29,7 @@
     "APPLE_*",
     "WEB_CLIENT_*",
     "EMQX_*",
+    "MISE_*",
     "WEB_CLIENT_ORIGIN",
     "GRAFANA_*",
     "OBSERVABILITY_*",
@@ -324,18 +325,18 @@
     "@libs/tools#check:actionlint": {
       "inputs": [
         "scripts/check-actionlint.ts",
-        "scripts/cli-deps/actionlint.ts",
+        "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/.github/workflows/**"
       ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
     "@libs/tools#check:secrets": {
-      "env": ["CHECK_SECRETS_RANGE", "GITLEAKS_VERSION"],
+      "env": ["CHECK_SECRETS_RANGE"],
       "inputs": [
         "scripts/check-secrets.ts",
         "scripts/secrets-scan-range.ts",
-        "scripts/cli-deps/gitleaks.ts",
+        "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/.gitleaks.toml"
       ],
       "outputs": [],

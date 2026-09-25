@@ -2,7 +2,7 @@
 import { spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ensureEmqxBin } from '../scripts/ensure-emqx';
+import { resolveEmqxBin } from './emqx-bin';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -93,7 +93,7 @@ export async function startEmqxServer(
   const wsPort = options?.wsPort ?? EMQX_WS_PORT;
   const dashboardPort = options?.dashboardPort ?? EMQX_DASHBOARD_PORT;
   ensureEmqxDataDir(dataDir);
-  const bin = ensureEmqxBin();
+  const bin = resolveEmqxBin();
   // Drop ambient EMQX_AUTHENTICATION_* from secrets-run so Infisical JWT
   // chain entries cannot override the local password bootstrap.
   const cleanEnv: Record<string, string> = {};

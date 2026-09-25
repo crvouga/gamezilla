@@ -5,6 +5,16 @@
 set -euo pipefail
 cd "${SUPERSET_WORKSPACE_PATH:-$(git rev-parse --show-toplevel)}"
 
+# System tools (Bun, Node, gh, gitleaks, actionlint, infisical, duckdb, EMQX)
+# are pinned in mise.toml. Each worktree is a new path, so trust it first.
+if command -v mise >/dev/null 2>&1; then
+  echo "==> mise install"
+  mise trust --quiet mise.toml
+  mise install || echo "!!! mise install failed; run 'mise install' in this workspace"
+else
+  echo "!!! mise not found; install it (https://mise.jdx.dev) and run 'mise install'"
+fi
+
 echo "==> bun install"
 if ! bun install; then
   # `better-sqlite3` (and other native postinstalls) can fail on a machine
