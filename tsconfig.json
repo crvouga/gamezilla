@@ -238,6 +238,8 @@
     "libs/observability/src/**/*.ts",
     "libs/observability/tests/**/*.ts",
     "libs/pubsub/src/**/*.ts",
+    "libs/infra/src/**/*.ts",
+    "libs/infra/scripts/**/*.ts",
     "libs/secrets/src/**/*.ts",
     "apps/room-server/src/**/*.ts",
     "apps/room-server/scripts/**/*.ts",

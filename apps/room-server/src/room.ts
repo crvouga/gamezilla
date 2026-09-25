@@ -5,6 +5,7 @@ import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createWorkerTelemetry,
+  deploymentTelemetryEnvironment,
   otlpAuthorization,
   type WorkerTelemetry,
 } from '@pkgs/observability/worker';
@@ -15,6 +16,8 @@ type RoomWorkerEnv = {
   readonly OBSERVABILITY_COLLECTOR_URL?: string;
   readonly OBSERVABILITY_COLLECTOR_USER?: string;
   readonly OBSERVABILITY_ENABLED?: string;
+  /** Stamped by libs/infra render-wrangler on deployed Workers only. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string;
   readonly SECRETS_ENV?: string;
 };
 
@@ -53,7 +56,7 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
   workerTelemetry = createWorkerTelemetry({
     serviceName: 'gamezilla-room-server',
     serviceVersion: buildSha,
-    environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
+    environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,
     otlpUrl: collectorUrl,
     ...(authorization === undefined

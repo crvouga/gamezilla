@@ -1,7 +1,9 @@
 /**
- * Single source of truth for every managed secret the app needs.
- * Registry lives in {@link ./registry}; anything not listed there is an orphan
- * and will be purged on provision (`bun health` allows orphans).
+ * Every secret the app needs. Registry lives in {@link ./registry}.
+ *
+ * A secret is either entered by a person (`bun run secrets:seed`) or written
+ * by OpenTofu (`managedBy: 'tofu'` — generated once or derived from a
+ * resource; see `libs/infra/tofu/stacks/foundation/secrets.json`).
  */
 
 export type SecretsEnv = 'dev' | 'prd';
@@ -13,32 +15,18 @@ export type SecretInput = {
   readonly secrets: ReadonlyMap<string, string>;
 };
 
-export type SecretSeedInput = {
-  readonly env: SecretsEnv;
-  readonly secrets: ReadonlyMap<string, string>;
-};
-
 export type SecretConfig = {
   readonly name: string;
   readonly hint: string;
   readonly optional?: boolean;
   /** Include in wrangler secret bulk + `.dev.vars` worker payload. */
   readonly pushToApiWorker?: boolean;
-  /** When provisioning under `prd`, mirror this value into secrets env `dev`. */
-  readonly mirrorToDev?: boolean;
   /**
-   * When true, `seed` runs independently in every {@link SECRETS_ENVS} env if
-   * the secret is missing there (setup + provision). Prefer over `mirrorToDev`
-   * when each env should have its own value (e.g. signing secrets).
-   */
-  readonly seedInAllEnvs?: boolean;
-  /**
-   * Provision task that owns this value (e.g. `@libs/observability#provision`).
+   * `tofu`: written by `@libs/infra#apply:foundation` (never by a person);
    * `bun run secrets:seed` skips it unless named explicitly.
    */
-  readonly provisionedBy?: string;
+  readonly managedBy?: 'tofu';
   validate(input: SecretInput): Promise<void>;
-  seed?(input: SecretSeedInput): Promise<string>;
 };
 
 export class Secret {
@@ -46,24 +34,16 @@ export class Secret {
   readonly hint: string;
   readonly optional: boolean;
   readonly pushToApiWorker: boolean;
-  readonly mirrorToDev: boolean;
-  readonly seedInAllEnvs: boolean;
-  readonly provisionedBy: string | null;
+  readonly managedBy: 'tofu' | null;
   readonly validate: (input: SecretInput) => Promise<void>;
-  readonly seed?: (input: SecretSeedInput) => Promise<string>;
 
   constructor(config: SecretConfig) {
     this.name = config.name;
     this.hint = config.hint;
     this.optional = config.optional === true;
     this.pushToApiWorker = config.pushToApiWorker === true;
-    this.mirrorToDev = config.mirrorToDev === true;
-    this.seedInAllEnvs = config.seedInAllEnvs === true;
-    this.provisionedBy = config.provisionedBy ?? null;
+    this.managedBy = config.managedBy ?? null;
     this.validate = config.validate.bind(config);
-    if (config.seed !== undefined) {
-      this.seed = config.seed.bind(config);
-    }
   }
 }
 

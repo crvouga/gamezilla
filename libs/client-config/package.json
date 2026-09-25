@@ -31,7 +31,6 @@
     "@pkgs/object-store": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

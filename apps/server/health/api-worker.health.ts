@@ -1,28 +1,20 @@
-// @io-wall-ok — live health probe (production API Worker, DNS, TLS).
+// @io-wall-ok — live health probe (the environment's API Worker, DNS, TLS).
 import { describe, expect, test } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';
 import { connect } from 'node:tls';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import {
-  productionApiOrigin,
-  productionClientOrigin,
-} from '@libs/secrets/shared/deploy-origins';
+import { envHostnames, envOrigins } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { wallClock } from '@pkgs/clock';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 /** Right after a deploy the custom domain may still be warming up. */
 const WARMUP_MS = 5 * 60 * 1000;
 const MIN_CERT_DAYS = 14;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const domain = PRODUCT_CONFIG.domain;
-const HOSTS = [
-  domain,
-  `www.${domain}`,
-  `api.${domain}`,
-  PRODUCT_CONFIG.emqx.hostname,
-] as const;
+const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+const origins = envOrigins(env);
+const HOSTS = envHostnames(env);
 
 async function addresses(host: string): Promise<string[]> {
   const settled = await Promise.allSettled([resolve4(host), resolve6(host)]);
@@ -66,7 +58,7 @@ function failingChecks(body: ReadinessJson): string[] {
   return failing;
 }
 
-describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
+describe(`api worker (${env.env})`, () => {
   for (const host of HOSTS) {
     test(`DNS resolves ${host}`, async () => {
       expect(await addresses(host)).not.toEqual([]);
@@ -81,7 +73,7 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   test(
     '/api/health answers',
     async () => {
-      const result = await waitForHttp(`${productionApiOrigin()}/api/health`, {
+      const result = await waitForHttp(`${origins.api}/api/health`, {
         label: 'API /api/health',
         maxWaitMs: WARMUP_MS,
       });
@@ -93,10 +85,10 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   test(
     '/api/health/ready: every hard dependency passes (health+json)',
     async () => {
-      const result = await waitForHttp(
-        `${productionApiOrigin()}/api/health/ready`,
-        { label: 'API /api/health/ready', maxWaitMs: WARMUP_MS }
-      );
+      const result = await waitForHttp(`${origins.api}/api/health/ready`, {
+        label: 'API /api/health/ready',
+        maxWaitMs: WARMUP_MS,
+      });
       const body = JSON.parse(result.body ?? '{}') as ReadinessJson;
       expect(failingChecks(body), 'failing readiness checks').toEqual([]);
       expect(result.status).toBe(200);
@@ -108,8 +100,8 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   test(
     'Worker booted: Google OAuth launch redirects with the API callback',
     async () => {
-      const api = productionApiOrigin();
-      const callbackUrl = `${productionClientOrigin()}/sso-callback`;
+      const api = origins.api;
+      const callbackUrl = `${origins.web}/sso-callback`;
       const launch = `${api}/api/auth/oauth/launch?provider=google&callbackUrl=${encodeURIComponent(callbackUrl)}`;
       const result = await waitForHttp(launch, {
         label: 'Google OAuth launch',

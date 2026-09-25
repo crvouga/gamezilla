@@ -1,5 +1,4 @@
 // @io-wall-ok
-import { randomBytes } from 'node:crypto';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
 
 const MIN_AUTH_SECRET_LENGTH = 32;
@@ -38,9 +37,8 @@ export const AUTH_SECRET = new Secret({
   name: 'AUTH_SECRET',
   hint: 'IdP signing secret (≥32 chars)',
   pushToApiWorker: true,
-  seedInAllEnvs: true,
+  managedBy: 'tofu',
   validate: validateAuthSecret,
-  seed: async () => randomBytes(32).toString('base64url'),
 });
 
 /**
@@ -52,9 +50,8 @@ export const SYNTHETIC_MONITOR_TOKEN = new Secret({
   name: 'SYNTHETIC_MONITOR_TOKEN',
   hint: 'Synthetic-monitor sign-in bearer (≥32 chars)',
   pushToApiWorker: true,
-  seedInAllEnvs: true,
+  managedBy: 'tofu',
   validate: validateSyntheticMonitorToken,
-  seed: async () => randomBytes(32).toString('base64url'),
 });
 
 export const WEB_CLIENT_GOOGLE_CLIENT_ID = new Secret({

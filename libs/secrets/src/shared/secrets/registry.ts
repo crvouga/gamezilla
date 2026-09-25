@@ -16,6 +16,12 @@ import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
 import {
+  NEON_API_KEY,
+  TOFU_STATE_ACCESS_KEY_ID,
+  TOFU_STATE_PASSPHRASE,
+  TOFU_STATE_SECRET_ACCESS_KEY,
+} from './infra-secrets';
+import {
   GRAFANA_CLOUD_API_TOKEN,
   OBS_TEMPO_TOKEN,
   OBS_TEMPO_URL,
@@ -45,8 +51,8 @@ import { ELEVEN_LABS_API_KEY } from './tts-secrets';
 import { TURBO_API, TURBO_TOKEN } from './turbo-token';
 
 /**
- * Exhaustive registry of every managed secret. Orphans (stored keys not in
- * this list) are purged on provision; `bun health` allows them.
+ * Exhaustive registry of every secret. Keys in the store that are not listed
+ * are reported, never deleted (a human-entered value cannot be recovered).
  */
 export const SECRETS: readonly Secret[] = [
   CLOUDFLARE_API_TOKEN,
@@ -84,6 +90,10 @@ export const SECRETS: readonly Secret[] = [
   EMQX_API_SECRET,
   EMQX_JWT_SECRET,
   EMQX_DASHBOARD_PASSWORD,
+  TOFU_STATE_PASSPHRASE,
+  TOFU_STATE_ACCESS_KEY_ID,
+  TOFU_STATE_SECRET_ACCESS_KEY,
+  NEON_API_KEY,
 ];
 
 export function getSecretMap(): readonly Secret[] {
@@ -98,14 +108,7 @@ export function getApiWorkerSecrets(): readonly Secret[] {
   return SECRETS.filter((s) => s.pushToApiWorker);
 }
 
-export function getMirrorToDevSecrets(): readonly Secret[] {
-  return SECRETS.filter((s) => s.mirrorToDev);
-}
-
-export function getSeedableSecrets(): readonly Secret[] {
-  return SECRETS.filter((s) => s.seed !== undefined);
-}
-
-export function getSeedInAllEnvsSecrets(): readonly Secret[] {
-  return SECRETS.filter((s) => s.seedInAllEnvs && s.seed !== undefined);
+/** Secrets OpenTofu writes (`libs/infra/tofu/stacks/foundation/secrets.json`). */
+export function getTofuManagedSecrets(): readonly Secret[] {
+  return SECRETS.filter((s) => s.managedBy === 'tofu');
 }

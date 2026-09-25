@@ -1,3 +1,6 @@
+# Env-agnostic code config. The deployed name, the ROOM `script_name` and the
+# public hostname come from libs/infra (render-wrangler + the OpenTofu edge
+# stack); the values here serve local `wrangler dev` only.
 name = "gamezilla-api"
 main = "src/server.ts"
 compatibility_date = "2026-09-21"
@@ -5,7 +8,7 @@ compatibility_flags = ["nodejs_compat", "no_handle_cross_request_promise_resolut
 workers_dev = false
 preview_urls = false
 
-# RoomServerDurableObject lives on @apps/room-server (gamezilla-room). API binds cross-script.
+# RoomServerDurableObject lives on @apps/room-server. API binds cross-script.
 [[durable_objects.bindings]]
 name = "ROOM"
 class_name = "RoomServerDurableObject"
@@ -22,13 +25,3 @@ head_sampling_rate = 1
 [observability.logs]
 enabled = true
 invocation_logs = true
-
-[env.production]
-routes = [
-  { pattern = "api.gamezilla.app", custom_domain = true },
-]
-
-[[env.production.durable_objects.bindings]]
-name = "ROOM"
-class_name = "RoomServerDurableObject"
-script_name = "gamezilla-room-production"

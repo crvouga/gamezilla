@@ -13,3 +13,14 @@ description = "DI documentation prose in docs/LLM.md"
 paths = ['''(?:^|/)docs/LLM\.md$''']
 regexes = ['''typed tokens,\s+parent/child\s+scoping''']
 regexTarget = "line"
+
+# False positive: OpenTofu adoption ids in the environment files. A Cloudflare
+# import id is `<32-hex account id>/<hex resource id>` — public identifiers,
+# not credentials — and the `"api"` custom-domain key makes the default
+# `generic-api-key` rule score it. Only that exact id shape, only in the env
+# files, is allowed; a real secret in these files is still caught.
+[[allowlists]]
+description = "Cloudflare resource ids in libs/infra/tofu env files"
+paths = ['''(?:^|/)libs/infra/tofu/envs/[a-z0-9-]+\.tfvars\.json$''']
+regexes = ['''"[a-z_]+":\s*"[0-9a-f]{32}/[0-9a-f]{32,40}"''']
+regexTarget = "line"

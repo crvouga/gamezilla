@@ -2,7 +2,8 @@
 // @io-wall-ok — check CLI entry (scripts/**).
 /**
  * `check:worker-bundle`: bundle this package's Cloudflare Worker exactly as
- * deploy ships it (`wrangler deploy --env production --dry-run`) and hold the
+ * deploy ships it (`wrangler deploy --dry-run`; `wrangler.toml` is env-agnostic,
+ * libs/infra only renames it per environment) and hold the
  * result under the platform's size limit.
  *
  * Without it `bun check` never bundles a Worker — `build` is a no-op for the
@@ -60,7 +61,7 @@ rmSync(outDir, { recursive: true, force: true });
 
 const result = spawnSync(
   'wrangler',
-  ['deploy', '--env', 'production', '--dry-run', '--outdir', outDir],
+  ['deploy', '--dry-run', '--outdir', outDir],
   {
     cwd: pkgDir,
     encoding: 'utf8',

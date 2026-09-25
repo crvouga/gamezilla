@@ -16,13 +16,9 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/os": "workspace:*",
-    "gql.tada": "catalog:",
-    "graphql": "catalog:",
     "picocolors": "catalog:"
   },
   "devDependencies": {

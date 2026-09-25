@@ -9,7 +9,6 @@ import {
   parseClientConfigRows,
 } from '@libs/client-config/public/parse-client-config';
 import { appPostgresDbScope } from '@libs/db/public/scope';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { sql } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
@@ -32,10 +31,10 @@ async function liveRows(): Promise<readonly ClientConfigDbRow[]> {
 
 /**
  * The API Worker materializes `client_config` from its bindings on its first
- * database request, so only prd (the env with a deployed Worker) is checked.
+ * database request; every environment has a deployed Worker by `health`.
  * Values are read through the same parser the client uses.
  */
-describe.skipIf(!isProductionSecretsEnv())('client config (prd)', () => {
+describe('client config', () => {
   test('every client config key is materialized', async () => {
     const ids = new Set((await liveRows()).map((r) => r.id));
     expect(CLIENT_CONFIG_KEYS.filter((k) => !ids.has(k))).toEqual([]);

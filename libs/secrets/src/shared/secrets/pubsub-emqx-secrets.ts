@@ -1,5 +1,5 @@
 import { pubsubEmqxSecretDefs } from '@libs/pubsub/shared/secrets/emqx-secret-defs';
-import { Secret, type SecretInput, type SecretSeedInput } from './secret';
+import { Secret, type SecretInput } from './secret';
 
 function wrapDefs(): Secret[] {
   return pubsubEmqxSecretDefs.map((def) => {
@@ -8,19 +8,10 @@ function wrapDefs(): Secret[] {
       hint: def.hint,
       optional: def.optional === true,
       pushToApiWorker: def.pushToApiWorker === true,
-      mirrorToDev: def.mirrorToDev === true,
-      ...(def.provisionedBy === undefined
-        ? {}
-        : { provisionedBy: def.provisionedBy }),
+      managedBy: 'tofu' as const,
       validate: async (input: SecretInput) => {
         await def.validate({ secretValue: input.secretValue });
       },
-      ...(def.seed === undefined
-        ? {}
-        : {
-            seed: async (input: SecretSeedInput) =>
-              def.seed!({ secrets: input.secrets }),
-          }),
     };
     return new Secret(config);
   });

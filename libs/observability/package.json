@@ -11,22 +11,15 @@
     ]
   },
   "scripts": {
+    "health": "bun test --timeout 900000 ./health/*.health.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "provision": "bun run src/scripts/provision.ts",
-    "health": "bun test --timeout 60000 ./health/*.health.ts",
-    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@libs/db": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store-node-fs": "workspace:*",
-    "@pkgs/secret-provider": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*"
+    "@pkgs/http-client": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/clock": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

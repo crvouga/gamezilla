@@ -1,4 +1,6 @@
 # Room server Durable Object Worker — owns RoomServerDurableObject (not @apps/server).
+# Env-agnostic code config: the deployed name comes from libs/infra
+# (render-wrangler). Migrations may add or rename classes, never delete one.
 name = "gamezilla-room"
 main = "src/room.ts"
 compatibility_date = "2026-09-21"
@@ -29,21 +31,3 @@ head_sampling_rate = 1
 [observability.logs]
 enabled = true
 invocation_logs = true
-
-# Production publishes as gamezilla-room-production (see PROJECT_CONFIG).
-[env.production]
-
-[[env.production.durable_objects.bindings]]
-name = "ROOM"
-class_name = "RoomServerDurableObject"
-
-[[env.production.migrations]]
-tag = "v1-room"
-new_sqlite_classes = ["Room"]
-
-[[env.production.migrations]]
-tag = "v2-room-server-durable-object"
-
-  [[env.production.migrations.renamed_classes]]
-  from = "Room"
-  to = "RoomServerDurableObject"

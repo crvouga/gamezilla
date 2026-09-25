@@ -1,0 +1,38 @@
+{
+  "name": "@libs/infra",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./public/*": [
+      "./src/public/*.ts"
+    ],
+    "./scripts/worker-deploy": "./scripts/worker-deploy.ts"
+  },
+  "scripts": {
+    "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",
+    "apply:edge": "bun run scripts/tofu.ts apply --stack edge",
+    "apply:foundation": "bun run scripts/tofu.ts apply --stack foundation",
+    "health": "bun test --timeout 600000 ./health/*.health.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts && bun run scripts/lint-tofu.ts",
+    "plan:bootstrap": "bun run scripts/tofu.ts plan --stack bootstrap",
+    "plan:edge": "bun run scripts/tofu.ts plan --stack edge",
+    "plan:foundation": "bun run scripts/tofu.ts plan --stack foundation",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "catalog:",
+    "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/os": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@libs/secrets": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

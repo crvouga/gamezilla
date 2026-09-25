@@ -22,16 +22,14 @@ import { describe, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { envOrigins } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 import {
   CRITICAL_JOURNEYS,
   type CriticalJourney,
   confirmSignedIn,
   type JourneyBrowser,
 } from '@libs/runtime/sim/critical-journeys';
-import {
-  productionApiOrigin,
-  productionClientOrigin,
-} from '@libs/secrets/shared/deploy-origins';
 import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
@@ -241,8 +239,8 @@ async function runJourney(
 
 describe.skipIf(!isProductionSecretsEnv())('critical journeys (prd)', () => {
   const target: Target = {
-    webOrigin: productionClientOrigin(),
-    apiOrigin: productionApiOrigin(),
+    webOrigin: envOrigins(envFile('prd')).web,
+    apiOrigin: envOrigins(envFile('prd')).api,
     http: createGlobalHttpClient(),
   };
   for (const journey of CRITICAL_JOURNEYS) {
