@@ -20,12 +20,12 @@
     "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "gql.tada": "catalog:",
     "graphql": "catalog:",
     "picocolors": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@types/node": "catalog:",
     "@typescript/native": "catalog:",

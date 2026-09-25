@@ -43,7 +43,7 @@
     "i18n:compile": "lingui compile --typescript --strict && bun run libs/tools/scripts/ensure-trailing-newline.ts libs/client-app/src/i18n/locales/en/messages.ts",
     "i18n:extract": "lingui extract --clean --overwrite",
     "inspect": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/db/src/scripts/inspect.ts",
-    "install:cli": "bun run --filter @libs/tools install:cli",
+    "install:cli": "mise install",
     "kill": "bun run libs/tools/scripts/kill-dev-stack.ts",
     "lint": "bun run libs/tools/scripts/turbo-ci-run.ts lint //#lint:root",
     "lint:naming": "bun run libs/tools/scripts/check-naming.ts",
