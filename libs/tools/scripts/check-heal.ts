@@ -6,13 +6,13 @@
  * Requires CURSOR_API_KEY from the secret store (`bun run check:heal` uses secrets-run).
  */
 import { join } from 'node:path';
-import { buildCheckHealPromptBody } from '@libs/secrets/shared/build-llm-fix-prompt';
 import {
   describeApiKeySource,
   invokeAgent,
   requireApiKey,
 } from './check-heal/invoke-agent';
 import { formatDuration, healLog } from './check-heal/log';
+import { buildCheckHealPromptBody } from './check-heal/prompt';
 import { runStep } from './check-heal/run-step';
 import { CHECK_HEAL_STEPS } from './check-heal/steps';
 

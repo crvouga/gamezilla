@@ -92,17 +92,13 @@ jobs:
 
       - name: deploy:dev
         id: deploy
-        run: |
-          set -euo pipefail
-          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+        run: bun run deploy
 
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
           WORKFLOW_JOB: deploy:dev
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
-          WORKFLOW_LOG_PATH: ${{ runner.temp }}/deploy.log
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
 
   deploy-prd:
@@ -131,9 +127,7 @@ jobs:
 
       - name: deploy:prd
         id: deploy
-        run: |
-          set -euo pipefail
-          bun run deploy 2>&1 | tee "${RUNNER_TEMP}/deploy.log"
+        run: bun run deploy
 
       # The deploy ends with every `health` task, the critical journeys too.
       - name: Upload critical journey evidence
@@ -151,6 +145,4 @@ jobs:
         env:
           WORKFLOW_JOB: deploy:prd
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
-          WORKFLOW_LOG_PATH: ${{ runner.temp }}/deploy.log
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts

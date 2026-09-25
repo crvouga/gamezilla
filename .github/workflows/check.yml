@@ -136,11 +136,8 @@ jobs:
         # task that wedged, instead of GitHub cancelling the step silently.
         timeout-minutes: 25
         run: |
-          set -euo pipefail
           # shellcheck disable=SC2086 # one word per task id
-          bun run libs/secrets/src/scripts/secrets-run.ts -- \
-            bun run libs/tools/scripts/turbo-ci-run.ts $SHARD_TASKS 2>&1 \
-            | tee "${RUNNER_TEMP}/check.log"
+          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts $SHARD_TASKS
 
       - name: Upload queryable trace artifacts
         if: always()
@@ -159,8 +156,6 @@ jobs:
         env:
           WORKFLOW_JOB: check:shard ${{ matrix.shard }}
           WORKFLOW_OUTCOME: ${{ steps.check.outcome }}
-          WORKFLOW_LOG_PATH: ${{ runner.temp }}/check.log
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts
 
   check:
