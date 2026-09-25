@@ -138,6 +138,7 @@
         "vite": "catalog:",
         "vite-plugin-solid": "catalog:",
         "workbox-build": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "apps/room-server": {
@@ -871,6 +872,7 @@
         "@types/node": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "libs/server-app": {
@@ -1061,6 +1063,7 @@
         "@pkgs/equal": "workspace:*",
         "@pkgs/property": "workspace:*",
         "fast-check": "catalog:",
+        "wrangler": "catalog:",
       },
     },
     "libs/user-search": {

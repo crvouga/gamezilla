@@ -384,7 +384,10 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
   (a user-level skill, not a repo command) — the single PR command: it syncs
   with the base, clears conflicts, opens/updates the PR, drives every check
   green and resolves review threads until Ready to merge is green. It does not
-  merge; a human does.
+  merge; a human does. `/ci-green` (`.agents/commands/ci-green.md`) widens
+  that to all three workflows: it surveys Check, Deploy and Health, fixes
+  every red root cause on the one PR (reproduced locally first, since Deploy
+  and Health only run from `main`), and loops until they are green.
 - **Agent commands.** `.agents/commands/<name>.md` (with `description:`
   frontmatter) is the only place a slash command is written. `bun run
   agents:sync` projects it into every harness: `.claude/commands`,

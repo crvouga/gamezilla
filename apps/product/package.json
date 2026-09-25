@@ -110,6 +110,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
-    "workbox-build": "catalog:"
+    "workbox-build": "catalog:",
+    "wrangler": "catalog:"
   }
 }

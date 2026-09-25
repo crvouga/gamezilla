@@ -3,7 +3,8 @@
 /**
  * Lint one package: path naming, Biome (which also carries the import-boundary
  * rules), the Solid oxlint scope, the package-boundary rules, the `tc` scope
- * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`) and the goal proofs that live in it, over that
+ * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`), the spawned-CLI
+ * rule (`spawned-clis.ts`) and the goal proofs that live in it, over that
  * package's files and nothing else. The external tools run concurrently: a
  * package's lint costs its slowest tool, not the sum.
  *
@@ -24,6 +25,7 @@ import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
+import { spawnedCliViolations } from './spawned-clis';
 import { tcProject, tcScopeViolations } from './tc-scope';
 import { testScriptViolations } from './test-scripts';
 import { unusedWorkspaceDependencies } from './unused-dependencies';
@@ -129,6 +131,17 @@ function goalProofsOk(pkg: string): boolean {
   return errors.length === 0;
 }
 
+/** Print one rule's violations under its reason; true when there are none. */
+function clean(
+  pkg: string,
+  reason: string,
+  violations: readonly string[]
+): boolean {
+  if (violations.length === 0) return true;
+  console.error(`${pkg}: ${reason}:\n  ${violations.join('\n  ')}`);
+  return false;
+}
+
 async function lintPackage(pkg: string): Promise<boolean> {
   const files = listFiles(['--', pkg]);
   const tools = [run('biome', ['check', '--error-on-warnings', pkg])];
@@ -137,67 +150,64 @@ async function lintPackage(pkg: string): Promise<boolean> {
     // Type-aware rules run through oxlint-tsgolint (`options.typeAware`).
     tools.push(run('oxlint', ['--deny-warnings', ...solid]));
   }
-  let ok = files !== null && namingOk(files);
-  ok = goalProofsOk(pkg) && ok;
-  const untranslated = macrosOutsideCatalog(
-    (files ?? [])
-      .filter((path) => /\.tsx?$/.test(path))
-      .map((path) => ({
-        path,
-        text: readFileSync(join(REPO_ROOT, path), 'utf8'),
-      }))
-  );
-  if (untranslated.length > 0) {
-    console.error(
-      `${pkg}: Lingui macros outside the catalog sources render hashed ids in production — add the package's src dir to libs/tools/scripts/lingui-scope.ts:\n  ${untranslated.join('\n  ')}`
-    );
-    ok = false;
-  }
-  const unused =
-    files === null
-      ? []
-      : unusedWorkspaceDependencies(
-          join(REPO_ROOT, pkg),
-          files.map((path) => path.slice(pkg.length + 1))
-        );
-  if (unused.length > 0) {
-    console.error(
-      `${pkg}: declares workspace dependencies nothing in it uses — each reruns this package's checks on every change to it; remove them:\n  ${unused.join('\n  ')}`
-    );
-    ok = false;
-  }
-  const scripts =
-    readJson<{ scripts?: Record<string, string> }>(`${pkg}/package.json`)
-      .scripts ?? {};
   const pkgFiles = (files ?? []).map((path) => path.slice(pkg.length + 1));
+  const sources = pkgFiles
+    .filter((path) => /\.tsx?$/.test(path))
+    .map((path) => ({
+      path,
+      text: readFileSync(join(REPO_ROOT, pkg, path), 'utf8'),
+    }));
+  const manifest = readJson<{
+    scripts?: Record<string, string>;
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  }>(`${pkg}/package.json`);
+  const scripts = manifest.scripts ?? {};
   const project = tcProject(scripts['tc']);
-  const tcScope = tcScopeViolations({
-    tcScript: scripts['tc'],
-    tsconfigText:
-      project === null ? null : readText(join(REPO_ROOT, pkg, project)),
-    files: pkgFiles,
-  });
-  if (tcScope.length > 0) {
-    console.error(
-      `${pkg}: every TypeScript file is type-checked by the package's \`tc\`:\n  ${tcScope.join('\n  ')}`
-    );
-    ok = false;
-  }
-  const testScripts = testScriptViolations({ scripts, files: pkgFiles });
-  if (testScripts.length > 0) {
-    console.error(
-      `${pkg}: test scripts must run every test the package owns, once, with no escape hatch:\n  ${testScripts.join('\n  ')}`
-    );
-    ok = false;
-  }
-  const boundaries = packageBoundaryViolations(join(REPO_ROOT, pkg));
-  if (boundaries.length > 0) {
-    console.error(
-      `${pkg}: package boundaries violated — turbo builds its graph from package.json, so this is a cache invalidation everywhere downstream:\n  ${boundaries.join('\n  ')}`
-    );
-    ok = false;
-  }
-  return (await Promise.all(tools)).every(Boolean) && ok;
+  const results = [
+    files !== null && namingOk(files),
+    goalProofsOk(pkg),
+    clean(
+      pkg,
+      "Lingui macros outside the catalog sources render hashed ids in production — add the package's src dir to libs/tools/scripts/lingui-scope.ts",
+      macrosOutsideCatalog(
+        sources.map((s) => ({ path: `${pkg}/${s.path}`, text: s.text }))
+      )
+    ),
+    clean(
+      pkg,
+      "declares workspace dependencies nothing in it uses — each reruns this package's checks on every change to it; remove them",
+      files === null
+        ? []
+        : unusedWorkspaceDependencies(join(REPO_ROOT, pkg), pkgFiles)
+    ),
+    clean(
+      pkg,
+      "every TypeScript file is type-checked by the package's `tc`",
+      tcScopeViolations({
+        tcScript: scripts['tc'],
+        tsconfigText:
+          project === null ? null : readText(join(REPO_ROOT, pkg, project)),
+        files: pkgFiles,
+      })
+    ),
+    clean(
+      pkg,
+      'test scripts must run every test the package owns, once, with no escape hatch',
+      testScriptViolations({ scripts, files: pkgFiles })
+    ),
+    clean(
+      pkg,
+      '`bun run` puts only declared bins on PATH — declare every npm CLI the package spawns',
+      spawnedCliViolations({ manifest, sources })
+    ),
+    clean(
+      pkg,
+      'package boundaries violated — turbo builds its graph from package.json, so this is a cache invalidation everywhere downstream',
+      packageBoundaryViolations(join(REPO_ROOT, pkg))
+    ),
+  ];
+  return (await Promise.all(tools)).every(Boolean) && results.every(Boolean);
 }
 
 /** Paths outside apps/ libs/ pkgs/ — root config, editor and agent settings. */

@@ -15,9 +15,13 @@
  * Check). The other jobs (`check:plan`, one `check:shard` per runner, however
  * many a run needs) feed that job's verdict and are never required
  * themselves, or a PR that needed fewer shards would wait forever. Add or
- * rename a workflow on PRs and `bun run github:config` follows. Checks from GitHub Apps (no workflow)
- * are never required — the Check workflow is the one gate, secret scanning
- * included (`@libs/tools#check:secrets`).
+ * rename a workflow on PRs and `bun run github:config` follows.
+ *
+ * The Check workflow is the one gate, secret scanning included
+ * (`@libs/tools#check:secrets`), so no GitHub App may report a check on a PR
+ * (GitGuardian once did): `--check` reports any as drift. An app installation
+ * is account-level and the REST API cannot remove it with a user token —
+ * uninstall it at https://github.com/settings/installations.
  *
  *   bun run github:config          apply every spec
  *   bun run github:config:check    exit 1 if GitHub drifted from the specs
@@ -117,6 +121,32 @@ function observedPullRequestChecks(repo: string): string[] {
       'name,workflow',
       '--jq',
       '.[] | select(.workflow != "" and .name == (.workflow | ascii_downcase)) | .name',
+    ]);
+    for (const line of listed.stdout.split('\n')) {
+      const name = line.trim();
+      if (name !== '') names.add(name);
+    }
+  }
+  return [...names].sort();
+}
+
+/**
+ * Checks on open pull requests that no workflow of ours reported — a GitHub
+ * App's (`workflow` is empty), e.g. `GitGuardian Security Checks`.
+ */
+function foreignPullRequestChecks(repo: string): string[] {
+  const names = new Set<string>();
+  for (const number of openPullRequests(repo)) {
+    const listed = gh([
+      'pr',
+      'checks',
+      number,
+      '--repo',
+      repo,
+      '--json',
+      'name,workflow',
+      '--jq',
+      '.[] | select(.workflow == "") | .name',
     ]);
     for (const line of listed.stdout.split('\n')) {
       const name = line.trim();
@@ -305,6 +335,12 @@ function check(repo: string): void {
     for (const diff of spec.compare(parsed, live, contexts)) {
       drifted.push(`${spec.file}: ${diff}`);
     }
+  }
+
+  for (const name of foreignPullRequestChecks(repo)) {
+    drifted.push(
+      `pull request check "${name}" comes from a GitHub App, not a workflow — \`bun check\` is the only gate; uninstall the app for this repo at https://github.com/settings/installations`
+    );
   }
 
   if (drifted.length > 0) {

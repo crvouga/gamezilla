@@ -108,5 +108,10 @@
     "id": "webview-input-wrapper-noop",
     "summary": "The Bun.WebView driver typed only into a node that held a `value`, but `@pkgs/ui` TextInput puts its test id on the wrapper `<div>`, so `input` / `clear` / `text` on every TextInput were silent no-ops in a real browser (the Solid DOM driver resolved the nested field). Fixed by resolving the wrapper's `<input>` / `<textarea>` like the Solid DOM driver.",
     "regressionTest": "pkgs/ui-testing-bun-webview/tests/text-field.test.ts"
+  },
+  {
+    "id": "product-deploy-wrangler-not-on-path",
+    "summary": "After the global CLI installer was replaced by mise, @apps/product's deploy spawned `wrangler` without declaring it, so `bun run` never put the bin on PATH and Deploy failed with `Executable not found in $PATH: \"wrangler\"`. Fixed by declaring wrangler in every package that spawns it; lint-package now fails a package that spawns an undeclared npm CLI.",
+    "regressionTest": "libs/tools/scripts/spawned-clis.test.ts"
   }
 ]

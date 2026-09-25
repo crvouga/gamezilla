@@ -21,6 +21,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/property": "workspace:*",
-    "fast-check": "catalog:"
+    "fast-check": "catalog:",
+    "wrangler": "catalog:"
   }
 }
