@@ -9,9 +9,8 @@ import {
   parseClientConfigRows,
 } from '@libs/client-config/public/parse-client-config';
 import { appPostgresDbScope } from '@libs/db/public/scope';
-import { envOrigins } from '@libs/infra/public/env-file';
-import { envFile } from '@libs/infra/public/envs';
-import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
+import { wallClock, wallTimers } from '@pkgs/clock';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { sql } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
@@ -35,28 +34,39 @@ async function liveRows(): Promise<readonly ClientConfigDbRow[]> {
 /** Right after a deploy the custom domain may still be warming up. */
 const WARMUP_MS = 5 * 60 * 1000;
 
+/** Any Worker answer means the middleware ran; 502/504 and network errors are warmup. */
+async function answeredByWorker(url: string): Promise<boolean> {
+  try {
+    const res = await createGlobalHttpClient().fetch(url);
+    return res.status !== 502 && res.status !== 504;
+  } catch {
+    return false;
+  }
+}
+
+async function wakeApiWorker(): Promise<void> {
+  const api = process.env['API_URL']?.trim() ?? '';
+  expect(api, 'API_URL missing from secrets env').not.toBe('');
+  const url = `${api}/api/health/ready`;
+  const deadline = wallClock.now() + WARMUP_MS;
+  while (!(await answeredByWorker(url))) {
+    expect(wallClock.now(), `${url} never answered`).toBeLessThan(deadline);
+    await new Promise<void>((resolve) => {
+      wallTimers.setTimeout(() => resolve(), 5_000);
+    });
+  }
+}
+
 /**
  * The API Worker materializes `client_config` from its bindings on its first
  * database request, so a fresh deploy has no rows until something calls it.
- * `/api/health/ready` runs behind the request-db middleware — answering it
- * means the Worker has materialized. Values are read through the
- * same parser the client uses.
+ * `/api/health/ready` runs behind the request-db middleware — any answer from
+ * it means the Worker has materialized. A failing readiness dependency is
+ * api-worker.health's to report. Values are read through the same parser the
+ * client uses.
  */
 describe('client config', () => {
-  beforeAll(async () => {
-    const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
-    await waitForHttp(`${envOrigins(env).api}/api/health/ready`, {
-      label: 'API /api/health/ready (materializes client_config)',
-      maxWaitMs: WARMUP_MS,
-      // Any Worker answer means the middleware ran; 502/504 are still warmup.
-      // A failing readiness dependency is api-worker.health's to report.
-      accept: (r) =>
-        r.status !== undefined &&
-        r.status > 0 &&
-        r.status !== 502 &&
-        r.status !== 504,
-    });
-  }, WARMUP_MS + 30_000);
+  beforeAll(wakeApiWorker, WARMUP_MS + 30_000);
 
   test('every client config key is materialized', async () => {
     const ids = new Set((await liveRows()).map((r) => r.id));
