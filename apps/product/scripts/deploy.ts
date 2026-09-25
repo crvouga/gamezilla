@@ -81,10 +81,10 @@ async function buildProductWeb(
 
   await runAsync(
     'bun',
-    ['run', 'check:production-env', '--', `--expected-origin=${apiUrl}`],
+    ['run', 'check:live-env', '--', `--expected-origin=${apiUrl}`],
     {
       cwd: productDir,
-      label: 'product-worker: production build env gate',
+      label: 'product-worker: live build env gate',
       env: buildEnv,
     }
   );
@@ -97,11 +97,15 @@ async function buildProductWeb(
 
   writeDistIsolationHeaders();
 
-  await runAsync('bun', ['run', 'check:production-dist'], {
-    cwd: productDir,
-    label: 'product-worker: production web dist API URL gate',
-    env: buildEnv,
-  });
+  await runAsync(
+    'bun',
+    ['run', 'check:live-dist', '--', `--expected-origin=${apiUrl}`],
+    {
+      cwd: productDir,
+      label: 'product-worker: live web dist API URL gate',
+      env: buildEnv,
+    }
+  );
 }
 
 const commitHash = resolveCommitHash();
