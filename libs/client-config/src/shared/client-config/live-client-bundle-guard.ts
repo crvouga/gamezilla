@@ -4,7 +4,7 @@ import { assert } from '@pkgs/assert';
 import { readUtf8 } from '@pkgs/object-store/helpers';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 
-/** Production API origin — must match `productionApiOrigin()` in `@libs/secrets`. */
+/** Production API origin — the default expected origin for live-bundle checks. */
 export function productionClientApiOrigin(): string {
   return `https://${APP_IDENTITY.apiHost}`;
 }
@@ -31,14 +31,14 @@ export function extractInlinedApiUrlFromBundleSource(
  * (`https://<hosts.api>` from `libs/infra/tofu/envs/<env>.tfvars.json`);
  * it defaults to production's.
  */
-export function assertProductionClientBuildEnv(
+export function assertLiveClientBuildEnv(
   env: NodeJS.ProcessEnv = process.env,
   expected: string = productionClientApiOrigin()
 ): void {
   const raw = env['VITE_API_URL'];
   assert.nonEmptyString(
     raw,
-    'VITE_API_URL is required for a production client build'
+    'VITE_API_URL is required for a live client build'
   );
   let origin = '';
   assert.notThrows(
@@ -50,13 +50,13 @@ export function assertProductionClientBuildEnv(
   );
   assert.ok(
     !isLocalApiOrigin(origin),
-    'Production client build must not target a loopback API origin',
+    'Live client build must not target a loopback API origin',
     { origin, raw }
   );
   assert.equals(
     origin,
     expected,
-    'Production client build VITE_API_URL must match the deployed API origin',
+    'Live client build VITE_API_URL must match the deployed API origin',
     { expected, got: origin, raw }
   );
 }
@@ -67,12 +67,16 @@ async function listBundleFiles(store: ObjectStore): Promise<readonly string[]> {
 }
 
 /**
- * Scans a production client bundle tree (ObjectStore) for baked-in API URL and
+ * Scans a live client bundle tree (ObjectStore) for baked-in API URL and
  * jsx-source markers. Construct at the call site — do not export free functions
- * that take {@link ObjectStore}.
+ * that take {@link ObjectStore}. `expected` is the built environment's API
+ * origin; it defaults to production's.
  */
-export class ProductionBundleGuard {
-  constructor(private readonly store: ObjectStore) {}
+export class LiveBundleGuard {
+  constructor(
+    private readonly store: ObjectStore,
+    private readonly expected: string = productionClientApiOrigin()
+  ) {}
 
   async assert(label: string): Promise<void> {
     const files = await listBundleFiles(this.store);
@@ -84,10 +88,10 @@ export class ProductionBundleGuard {
       assert.defined(source, `${label}: bundle disappeared during scan`, {
         file,
       });
-      // Dev/E2E `data-src` path markers must not ship in production bundles.
+      // Dev/E2E `data-src` path markers must not ship in live bundles.
       assert.ok(
         !source.includes('data-src') && !/"src":"[^"]+\.tsx?:\d+"/.test(source),
-        `${label}: production bundle still contains data-src markers`,
+        `${label}: live bundle still contains data-src markers`,
         { file }
       );
       if (!source.includes(INLINED_API_URL_SENTINEL)) continue;
@@ -101,13 +105,13 @@ export class ProductionBundleGuard {
       assert.ok(
         !isLocalApiOrigin(inlined),
         `${label}: bundle bakes a loopback API origin (refusing to ship)`,
-        { file, inlined, expected: productionClientApiOrigin() }
+        { file, inlined, expected: this.expected }
       );
       assert.equals(
         inlined,
-        productionClientApiOrigin(),
-        `${label}: bundle inlined VITE_API_URL does not match production origin`,
-        { file, inlined, expected: productionClientApiOrigin() }
+        this.expected,
+        `${label}: bundle inlined VITE_API_URL does not match deployed API origin`,
+        { file, inlined, expected: this.expected }
       );
     }
 
