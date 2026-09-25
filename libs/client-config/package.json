@@ -28,6 +28,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/equal": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
