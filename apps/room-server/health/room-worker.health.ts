@@ -1,8 +1,8 @@
 // @io-wall-ok — live health probe (Cloudflare API: room Durable Object wiring).
 import { describe, expect, test } from 'bun:test';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { envFile } from '@libs/infra/public/envs';
+import { workerName } from '@libs/infra/public/wrangler';
 import { createGlobalHttpClient } from '@pkgs/http-client';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 const CF_API = 'https://api.cloudflare.com/client/v4';
 const ROOM_CLASS = 'RoomServerDurableObject';
@@ -40,8 +40,11 @@ function scriptBindings(script: string): Promise<readonly Binding[]> {
   ).then((r) => r.bindings);
 }
 
-describe.skipIf(!isProductionSecretsEnv())('room worker (prd)', () => {
-  const { roomWorker, apiWorker } = PRODUCT_CONFIG.cloudflare;
+const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+
+describe(`room worker (${env.env})`, () => {
+  const roomWorker = workerName(env, 'room');
+  const apiWorker = workerName(env, 'api');
 
   test(`${roomWorker} hosts the ${ROOM_CLASS} namespace`, async () => {
     const bindings = await scriptBindings(roomWorker);

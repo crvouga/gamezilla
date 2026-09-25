@@ -9,7 +9,7 @@
  *   printf %s "$TOKEN" | bun run secrets:seed -- --env prd NAME   # non-interactive
  *
  * Values are read with echo off and validated with the registry `validate`
- * before writing. Secrets with a `seed` or a `provisionedBy` task are skipped
+ * before writing. Secrets OpenTofu writes (`managedBy: 'tofu'`) are skipped
  * unless named explicitly. Run `bun run secrets:pull` afterwards to refresh
  * the offline cache.
  */
@@ -65,9 +65,7 @@ function selectSecrets(
   }
   return SECRETS.filter(
     (s) =>
-      s.seed === undefined &&
-      s.provisionedBy === null &&
-      (stored.get(s.name) ?? '').trim().length === 0
+      s.managedBy === null && (stored.get(s.name) ?? '').trim().length === 0
   );
 }
 
@@ -120,8 +118,11 @@ async function seedOne(
     ok(secret.name, `already set in ${args.env} (use --force to overwrite)`);
     return true;
   }
-  if (secret.provisionedBy !== null) {
-    warn(secret.name, `normally written by ${secret.provisionedBy}`);
+  if (secret.managedBy !== null) {
+    warn(
+      secret.name,
+      'normally written by @libs/infra#apply:foundation (OpenTofu)'
+    );
   }
   const interactive = process.stdin.isTTY === true;
   if (interactive) {

@@ -58,6 +58,23 @@ type Probe = {
 
 const PROBES: readonly Probe[] = [
   {
+    path: 'libs/zz/src/provision-bucket.ts',
+    source:
+      'await fetch(`https://api.cloudflare.com/client/v4/accounts/${id}/r2/buckets`, { method: "POST" });',
+    message: "Infrastructure is OpenTofu's",
+  },
+  {
+    path: 'libs/zz/src/provision-railway.ts',
+    source: "const url = 'https://backboard.railway.com/graphql/v2';",
+    message: "Infrastructure is OpenTofu's",
+  },
+  {
+    path: 'libs/zz/src/verify-token.ts',
+    source:
+      "const url = 'https://api.cloudflare.com/client/v4/user/tokens/verify';",
+    message: null,
+  },
+  {
     path: 'libs/zz/src/observability-raw.ts',
     source: "span.setAttribute('app.mutation.id', id);",
     message: 'raw observability attribute strings',

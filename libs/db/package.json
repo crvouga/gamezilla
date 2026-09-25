@@ -17,9 +17,8 @@
     ]
   },
   "scripts": {
-    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "provision": "bun run src/scripts/provision-postgres.ts",
     "health": "bun test --timeout 60000 ./health/*.health.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
@@ -31,10 +30,8 @@
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
-    "@pkgs/os": "workspace:*",
     "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

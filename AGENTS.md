@@ -14,6 +14,8 @@
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree.
 
+- **Infrastructure is OpenTofu, and stateful resources are never destroyed.** Every deployed resource (Workers' hostnames, R2 buckets and credentials, DNS, the EMQX broker on Railway, the Grafana Cloud stack, the secrets OpenTofu derives) is declared in `libs/infra/tofu` — env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`. Never create, change or delete infrastructure from TypeScript, a script or a console (Biome `no-infra-outside-tofu.grit` fails `lint` on vendor admin endpoints). Never delete or replace anything that may hold data: stateful resources carry `prevent_destroy`, and `libs/infra/policy/stateful.rego` (run on every plan by `libs/infra/scripts/tofu.ts`) allow-lists the only types that may ever be deleted — add a new type to `deletable` only if losing it loses no data. Retire a stateful resource with `removed { lifecycle { destroy = false } }`. What code must never create (the Neon project and its per-environment branches, human secrets) is asserted by data sources, never managed. There is no destroy path. Guide: [`docs/INFRA.md`](docs/INFRA.md).
+
 - **Never disable structural size limits for app code.** The Tiger-Style caps in root [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing. Do **not** add new size-rule `'off'` overrides in `biome.json`, and do **not** add `biome-ignore` comments for those rules in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemptions are the test / known-path `overrides` already wired in `biome.json`.
 
 - **Local SQLite + defineQuery/mutations is the default for client reads and writes.** Client UI reads local SQLite via `useQuery` (table-change reactivity). Status / paint gate come from `useSyncEngine()` (`status`, `paintReady`); writes go through `useMutationClient()` / `mutate()`. Server mounts one `createSyncApp` (query + mutations). Hydration uses event-driven `POST /api/query` (batch body: `{ queries }` → `{ responses }`) on initial connect plus pubsub pushes — not periodic polling; client mutations drain through `POST /api/mutations`. Do **not** add feature REST GET/POST for data that is (or can be) in the user’s sync scope. Absolute REST exceptions only: billing/external APIs. Prefer shrinking that list, never growing it casually. Username claims go through the `claimUsername` mutation (not REST). Profile bootstrap uses the `ensureProfile` mutation (auto username on upload). Sync wire is protocol v3 (`x-sync-protocol: 3`); pre-cut clients get `upgrade_required` without a local DB wipe. Mutation/query authoring derives write sets and wake topics from SQL AST capture + `defineTopicMap` (no hand-declared write/invalidate lists). `@pkgs/sync-engine` public API is five entrypoints only: `client`, `server`, `shared`, `sim`, `solid` (Solid bindings: `SyncEngineProvider` / `createQuery` / `useSyncEngine` / `useMutationClient`; hook-only `useMutationClient` may import `@pkgs/sync-engine/solid/mutation-client` so lazy routes do not pull `createMutationClient` / `node-sql-parser`).
@@ -237,17 +239,17 @@ green.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --env production --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull provision → migrate → room deploy → API deploy → product deploy → billing sync before they run.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
 
-**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; prd-only probes `skipIf(!isProductionSecretsEnv())`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against `prd` and `dev`.
+**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica), and `@libs/infra#health` asserts live infrastructure has no drift from `libs/infra/tofu`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against `prd` and `dev`.
 
 **Critical journeys are synthetic monitoring.** The user flows that must never break (app boots, Google sign-in hands off, sign in/out, host and end a space, open a chess puzzle, save a profile change, people search answers) are `CRITICAL_JOURNEYS` in `@libs/runtime/sim/critical-journeys`: each is one `@pkgs/ui-testing` `Driver` script over `data-testid`s, with the access it needs (`anonymous` / `signed-in`) set up by its runner. The same scripts run twice: in `bun check` against the full composition (`libs/runtime/tests/e2e/critical-journeys.test.tsx`, simulated Google sign-in), and in `@apps/product#health` (`apps/product/health/critical-journeys.health.ts`) in a real browser (`Bun.WebView`: WebKit on macOS, the runner's Chrome elsewhere) against the production web client and API, one fresh device per journey. A production failure saves a screenshot, the page HTML and the browser console under `apps/product/.cache/critical-journeys/<journey>/`, which the Health and Deploy workflows upload. Signed-in journeys sign in as a fixed synthetic-monitor user: the runner trades `SYNTHETIC_MONITOR_TOKEN` (registry secret, pushed to the API Worker) at the hidden `POST /api/auth/synthetic-monitor/code` for a one-time `/sso-callback?code=` URL, and the browser finishes the real sign-in path. The route answers 404 without the secret and can never mint a session for anyone else (`pkgs/auth-inhouse/src/server/synthetic-monitor.ts`). A new must-never-break flow is a new journey. It must pass in the sim first, and its writes clean up after themselves. The API also serves **readiness** at `GET /api/health/ready` (`application/health+json`, `503` when Postgres fails `SELECT 1` within 3 s) beside liveness at `GET /api/health`; `apps/server/health` probes both.
 
 Low-end device gates are **static** (critical-path test + bundle-budget; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
-**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the Check and Deploy workflows reuse those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for the Check workflow; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, provision, migrate, deploy, health, OTA) always re-run.
+**Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the Check and Deploy workflows reuse those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for the Check workflow; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, infra apply, migrate, deploy, health, OTA) always re-run.
 
-Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. **Production** uses Infisical → Cloudflare R2 (`gamezilla-production`). Provision uses `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` to ensure R2 buckets and mint per-env S3 API tokens (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). After renaming Worker secret keys, delete any stale bindings not in the registry once (`wrangler secret bulk` does not remove old names). Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun health` runs `@libs/secrets#health` (validates every registry secret live against the vendor, per secrets env; the Deploy and Health workflows cover `dev` and `prd`).
+Object storage (TTS audio cache, etc.) uses **S3-compatible** storage via `@pkgs/object-store-s3/impl-s3`. The API Worker reads `S3_ACCESS_KEY_ID` / `S3_SECRET_ACCESS_KEY` plus `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and injects a namespaced store through `createS3ObjectStore`, which always applies the injected root prefix (from `PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before feature-level prefixes (e.g. `tts-audio/`). The S3 transport layer rejects any wire key that does not start with that root prefix. **CI / fidelity-max** may boot **`@pkgs/minio-server`** (`http://127.0.0.1:9000`). Missing S3 secrets still fall back to an in-memory store so the Worker can boot. Each environment's R2 bucket and its bucket-scoped S3 credential are OpenTofu resources (`libs/infra/tofu/modules/object-store`), written into that environment's Infisical secrets (endpoint `https://<accountid>.r2.cloudflarestorage.com`, region `auto`). Worker secrets upload with the version (`wrangler deploy --secrets-file`), which never removes old names — after renaming a Worker secret key, delete the stale binding once. Every secret the app needs is defined in `libs/secrets/src/shared/secrets/registry.ts`; `bun health` runs `@libs/secrets#health` (validates every registry secret live against the vendor, per secrets env; the Deploy and Health workflows cover `dev` and `prd`).
 
 ## Workflows
 
@@ -281,7 +283,7 @@ everywhere; never add a fourth:
    `//#check` in `turbo.json` — preferably as a test or lint rule inside the
    package it is about — and the planner schedules it. `//#deploy` depends on
    `//#check` and adds `@apps/server#check:api` and `health` (whose
-   per-package tasks pull provision → migrate → room deploy → API deploy →
+   per-package tasks pull infra apply (foundation) → migrate → room deploy → API deploy →
    product deploy → billing sync), so it is never listed as a `dependsOn` of
    another aggregator. Live-resource probes go in a package's `health` script,
    never in `//#check`.
@@ -290,12 +292,11 @@ everywhere; never add a fourth:
    succeeds, `deploy:prd` (`SECRETS_ENV=prd bun run deploy`,
    `environment: production`). Both jobs invoke `bun run deploy` with
    `SECRETS_ENV` set at the job level rather than the `deploy:dev` /
-   `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage is a
-   rehearsal: it builds the real product bundle, applies migrations to the dev
-   database and `wrangler deploy --dry-run`s all three workers, but serves no
-   traffic — prod is still the first environment to receive worker code.
-   `deploy:dev` never runs on PRs; the dev scope is a shared singleton and
-   `@libs/runtime#migrate` / `@libs/secrets#provision` are not dry-run gated.
+   `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage deploys the
+   full dev replica (`libs/infra/tofu/envs/dev.tfvars.json`: its own Workers,
+   bucket, broker and Grafana stack on the dev hostnames) with the same chain
+   as prd, so every change runs in a real environment before production.
+   `deploy:dev` never runs on PRs; the dev environment is a shared singleton.
    Deploy ends with every package's `health` task.
 3. **Health checks the live deployment between deploys.**
    `.github/workflows/health.yml` runs `bun health` hourly for `prd` and `dev`
@@ -315,8 +316,8 @@ to 1.3.x: that resolver does not fall back to `.tsx` for wildcard subpaths, so
 wildcard to a `.tsx` file) fails on the runner while passing locally.
 
 The gate is required by GitHub, not by convention:
-`libs/tools/github-config/main-protection.json` (applied with `bun run github:config`)
-requires each PR workflow's gate job (`check`) against the latest `main`, so
+the OpenTofu bootstrap stack (`libs/infra/tofu/modules/repository`, applied with
+`bun run infra:bootstrap`) requires each PR workflow's gate job (`check`) against the latest `main`, so
 GitHub itself refuses the merge until it is green — and it is green only when
 the plan and every shard are.
 **Agents never merge.** `/pr-ready` takes a PR to a green Ready to merge
@@ -324,27 +325,24 @@ button and stops; a human merges — never `--admin`, never the merge queue,
 never a red, pending or draft PR.
 
 **`main` only moves through a merged PR.** GitHub enforces it — every setting
-this repo applies on GitHub lives in `libs/tools/github-config/` as the REST payload,
-applied by `bun run github:config` (drift check `bun run github:config:check`):
+this repo applies on GitHub is an OpenTofu resource in the bootstrap stack
+(`libs/infra/tofu/modules/repository`, applied by a person with
+`bun run infra:bootstrap`, which also owns the CI's Infisical OIDC identity and
+the Actions variables it reads):
 
-- `main-protection.json` — a PR is required to change `main`, and direct pushes,
-  force-pushes and deletions are rejected, admins included. **Required checks are
-  never named here**: the script reads what our workflows report on open PRs
-  (`gh pr checks`) and requires each one's gate job — the job named after its
-  workflow — strictly (the branch must be up to date). `check:plan` and the
-  `check:shard` runners are never required: their count varies per run, and a
-  PR that needed fewer shards would wait forever on the missing ones. Add or
-  rename a PR workflow and `bun run github:config` follows; the Deploy and Health workflows are
-  excluded because they never report on a PR. Verified by pushing to a protected
-  branch with the local hook bypassed: `remote: - Changes must be made through a
-  pull request.`
-- `repo-settings.json` — `delete_branch_on_merge`, so merging a PR cleans up its
+- `github_branch_protection.main` — a PR is required to change `main`, and
+  direct pushes, force-pushes and deletions are rejected, admins included.
+  Required checks are `global.tfvars.json` `github.required_checks`, strict
+  (the branch must be up to date); `libs/infra/tests/global-file.test.ts`
+  fails `bun check` unless they are exactly the gate job — the job named after
+  its workflow — of every workflow that runs on pull requests. `check:plan`
+  and the `check:shard` runners are never required: their count varies per
+  run, and a PR that needed fewer shards would wait forever on the missing
+  ones. The Deploy and Health workflows never report on a PR.
+- `github_repository` — `delete_branch_on_merge`, so merging a PR cleans up its
   branch, plus the merge-method policy: **merge commits only** — squash and
   rebase merges are disabled, so `main` keeps every PR's commit graph and merge
-  base. `allow_auto_merge` is on so a **human** can queue a PR to merge once
-  its required checks pass; it is only safe because those checks are required
-  (`github:config:check` reports a protection with none). Agents never enable
-  it.
+  base. Auto-merge is off; a human merges.
 
 Two local layers back it up: `libs/tools/githooks/pre-push` refuses pushes to
 `refs/heads/main` (`core.hooksPath` is set by `.superset/setup.sh`, or
@@ -464,7 +462,7 @@ Representativeness of production is **port contract matrices** (mockingbird-post
 
 The sim harness (`@libs/sim-harness`) migrates each composition's mem fabric **once** into `<package>/.cache/sim-seed-<composition>.pgmm.json` and clones it per `openSim`. Suite notes: [`libs/sim-harness/README.md`](libs/sim-harness/README.md).
 
-Production (`SECRETS_ENV=prd`) uses Infisical Neon + Cloudflare R2 (+ Railway EMQX) only.
+Deployed environments (`SECRETS_ENV=dev|prd`, one `libs/infra/tofu/envs/<env>.tfvars.json` each) use Neon + Cloudflare R2 + Railway EMQX + Grafana Cloud, all declared in `libs/infra/tofu` ([`docs/INFRA.md`](docs/INFRA.md)).
 
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
 - **`bun run dev`** — `@apps/product` super-app (`/` = real client, `/simulator` = Simulator; `?simulator` on `/` hands off). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).

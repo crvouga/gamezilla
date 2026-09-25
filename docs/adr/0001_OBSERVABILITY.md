@@ -32,9 +32,9 @@ test is gone. Dashboards and metrics are not part of this decision.
 - Previous telemetry used `@pkgs/logger` plus a proprietary tracing facade and
   local file collector. The server already had Hono and SQL wrappers; the
   browser already had fetch wrapping. This change deletes those tracing APIs.
-- PostgreSQL monitoring: `libs/db/src/scripts/enable-pg-monitoring.ts` provisions
-  `pg_stat_statements` and slow-statement/`auto_explain` settings when the target
-  permits them. Provider statement-log access is not assumed by agent tooling.
+- PostgreSQL monitoring: the `pg_stat_statements` extension is an OpenTofu
+  resource (`libs/infra/tofu/modules/database`); server settings such as
+  `auto_explain` are the managed provider's (Neon does not permit `ALTER SYSTEM`). Provider statement-log access is not assumed by agent tooling.
 - CI/e2e: one Bun-based simulation harness, package-owned e2e suites, GitHub
   Actions artifacts, and no Playwright runner. The design therefore integrates
   with the existing recording driver/test harness instead of introducing a

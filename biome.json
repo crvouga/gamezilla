@@ -21,8 +21,6 @@
       "!pkgs/billing-mock-provider/src/server/assets.generated.ts",
       "!apps/product/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
-      "!pkgs/emqx-server/src/railway/railway-graphql/schema.graphql",
-      "!pkgs/emqx-server/src/railway/railway-graphql/graphql-env.d.ts",
       "!qa",
       "!!pkgs/postgres/.postgres"
     ]
@@ -476,6 +474,16 @@
       "includes": ["**/libs/client-app/src/shell/**/*.{ts,tsx}"]
     },
     "./libs/tools/biome-plugins/no-vitest.grit",
+    {
+      "path": "./libs/tools/biome-plugins/no-infra-outside-tofu.grit",
+      "includes": [
+        "**/apps/**/*.{ts,tsx}",
+        "**/libs/**/*.{ts,tsx}",
+        "**/pkgs/**/*.{ts,tsx}",
+        "!**/dist/**",
+        "!**/*.test.{ts,tsx}"
+      ]
+    },
     {
       "path": "./libs/tools/biome-plugins/no-zod-in-pkgs.grit",
       "includes": [
@@ -1215,10 +1223,7 @@
       }
     },
     {
-      "includes": [
-        "libs/secrets/src/shared/**/*.ts",
-        "pkgs/emqx-server/src/railway/**/*.ts"
-      ],
+      "includes": ["libs/secrets/src/shared/**/*.ts"],
       "linter": {
         "rules": {
           "complexity": {

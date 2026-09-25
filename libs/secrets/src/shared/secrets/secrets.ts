@@ -1,10 +1,5 @@
-import {
-  getApiWorkerSecrets,
-  getSecretMap,
-  getSeedInAllEnvsSecrets,
-  SECRETS,
-} from './registry';
-import { activeSecretsEnv, SECRETS_ENVS, type SecretsEnv } from './secret';
+import { getApiWorkerSecrets, getSecretMap, SECRETS } from './registry';
+import { activeSecretsEnv } from './secret';
 import {
   deleteSecret,
   deleteSecretIn,
@@ -37,49 +32,6 @@ export {
   setSecret,
   setSecretIn,
 };
-
-export type SeedInAllEnvsResult = {
-  readonly name: string;
-  readonly env: SecretsEnv;
-  readonly action: 'seeded' | 'present';
-};
-
-/**
- * For registry secrets with `seedInAllEnvs`, mint a value into every secrets
- * env in `envs` (default: all) that is still missing it. Does not overwrite
- * existing values.
- */
-export async function ensureSeedInAllEnvsSecrets(
-  envs: readonly SecretsEnv[] = SECRETS_ENVS
-): Promise<readonly SeedInAllEnvsResult[]> {
-  const active = activeSecretsEnv();
-  const results: SeedInAllEnvsResult[] = [];
-
-  for (const entry of getSeedInAllEnvsSecrets()) {
-    if (entry.seed === undefined) continue;
-    for (const env of envs) {
-      const stored = new Map(await exportSecretsMapLive(env));
-      const current = (stored.get(entry.name) ?? '').trim();
-      if (current.length > 0) {
-        results.push({ name: entry.name, env, action: 'present' });
-        if (env === active && !process.env[entry.name]?.trim()) {
-          process.env[entry.name] = current;
-        }
-        continue;
-      }
-      const value = (await entry.seed({ env, secrets: stored })).trim();
-      if (value.length === 0) continue;
-      await setSecretIn(env, entry.name, value);
-      stored.set(entry.name, value);
-      if (env === active) {
-        process.env[entry.name] = value;
-      }
-      results.push({ name: entry.name, env, action: 'seeded' });
-    }
-  }
-
-  return results;
-}
 
 export async function loadSecretsIntoEnv(): Promise<
   Array<{

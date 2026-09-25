@@ -14,7 +14,9 @@ const fs = wallNodeFs();
 
 const USAGE = `usage: production-bundle-guard-cli.ts <check-env|check-dist>
 
-  check-env          Assert VITE_API_URL is the production API origin.
+  check-env [--expected-origin=<url>]
+                     Assert VITE_API_URL is the deployed environment's API
+                     origin (default: production).
   check-dist         Scan apps/product/dist for a loopback inlined API URL.
 `;
 
@@ -29,12 +31,18 @@ if (subcommand === undefined) {
 }
 
 switch (subcommand) {
-  case 'check-env':
-    assertProductionClientBuildEnv();
+  case 'check-env': {
+    const flag = process.argv.find((a) => a.startsWith('--expected-origin='));
+    const expected =
+      flag === undefined
+        ? productionClientApiOrigin()
+        : flag.slice('--expected-origin='.length);
+    assertProductionClientBuildEnv(process.env, expected);
     process.stdout.write(
-      `[production-bundle-guard] VITE_API_URL=${productionClientApiOrigin()}\n`
+      `[production-bundle-guard] VITE_API_URL=${expected}\n`
     );
     break;
+  }
   case 'check-dist':
     await new ProductionBundleGuard(dirStore(join(productRoot, 'dist'))).assert(
       'production web dist'

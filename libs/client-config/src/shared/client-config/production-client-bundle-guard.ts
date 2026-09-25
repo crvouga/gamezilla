@@ -26,8 +26,14 @@ export function extractInlinedApiUrlFromBundleSource(
   return null;
 }
 
+/**
+ * `expected` is the API origin of the environment being built
+ * (`https://<hosts.api>` from `libs/infra/tofu/envs/<env>.tfvars.json`);
+ * it defaults to production's.
+ */
 export function assertProductionClientBuildEnv(
-  env: NodeJS.ProcessEnv = process.env
+  env: NodeJS.ProcessEnv = process.env,
+  expected: string = productionClientApiOrigin()
 ): void {
   const raw = env['VITE_API_URL'];
   assert.nonEmptyString(
@@ -47,7 +53,6 @@ export function assertProductionClientBuildEnv(
     'Production client build must not target a loopback API origin',
     { origin, raw }
   );
-  const expected = productionClientApiOrigin();
   assert.equals(
     origin,
     expected,

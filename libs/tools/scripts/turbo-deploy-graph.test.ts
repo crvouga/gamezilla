@@ -201,12 +201,29 @@ describe('turbo check/deploy graph invariants', () => {
   test('health probes live resources: never cached, ordered after the deploy', () => {
     const health = loadTasks()['health'];
     expect(health?.cache).toBe(false);
-    expect(health?.dependsOn).toContain('@apps/product#deploy');
+    expect(health?.dependsOn).toContain('@libs/infra#apply:edge');
     expect(health?.dependsOn).toContain('@libs/billing#billing:sync');
   });
 
-  test('secrets provision runs after install:cli (avoid infisical race)', () => {
-    const deps = loadTasks()['@libs/secrets#provision']?.dependsOn;
+  test('infrastructure applies after install:cli (tofu, conftest, infisical)', () => {
+    const deps = loadTasks()['@libs/infra#apply:foundation']?.dependsOn;
     expect(deps).toContain('@libs/tools#install:cli');
+  });
+
+  test('deploy order: foundation → migrate → room → api → web → edge', () => {
+    const tasks = loadTasks();
+    const edges: readonly (readonly [string, string])[] = [
+      ['@libs/runtime#migrate', '@libs/infra#apply:foundation'],
+      ['@apps/room-server#deploy', '@libs/runtime#migrate'],
+      ['@apps/server#deploy', '@apps/room-server#deploy'],
+      ['@apps/product#deploy', '@apps/server#deploy'],
+      ['@libs/infra#apply:edge', '@apps/product#deploy'],
+    ];
+    for (const [task, after] of edges) {
+      expect({ task, dependsOn: tasks[task]?.dependsOn }).toEqual({
+        task,
+        dependsOn: [after],
+      });
+    }
   });
 });

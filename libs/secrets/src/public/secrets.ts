@@ -6,7 +6,6 @@ export {
 export {
   deleteSecret,
   deleteSecretIn,
-  ensureSeedInAllEnvsSecrets,
   exportSecretsMap,
   exportSecretsMapLive,
   fetchSecret,
