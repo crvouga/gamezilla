@@ -7,7 +7,7 @@
  * bucket, its credential and the store entries exist — migrates the state
  * into the bucket and deletes the local copy. Every later run is plain S3.
  */
-import { rmSync, writeFileSync } from 'node:fs';
+import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   localBackendOverride,
@@ -27,6 +27,16 @@ export function localStatePath(paths: TofuPaths): string {
   return join(paths.cacheDir, 'bootstrap-first-run.tfstate');
 }
 
+/**
+ * A local first-run state that was never moved into the bucket (the first
+ * apply failed partway). It is the only record of what that apply created,
+ * so every later run resumes from it — even once the state credential is in
+ * the secrets store — until it has been migrated.
+ */
+export function hasUnmigratedLocalState(paths: TofuPaths): boolean {
+  return existsSync(localStatePath(paths));
+}
+
 export function useLocalBackend(paths: TofuPaths): void {
   writeFileSync(
     join(stackDir(paths, 'bootstrap'), OVERRIDE),
@@ -40,7 +50,11 @@ export function dropLocalBackend(paths: TofuPaths): void {
 
 type Outputs = Record<string, { readonly value: unknown }>;
 
-/** After the first apply: move state into the bucket it just created. */
+/**
+ * After a first-run apply — successful or not — move the local state into
+ * the bucket, provided the apply got as far as creating the bucket and its
+ * credential. Otherwise the local state stays for the next run to resume.
+ */
 export async function migrateToBucket(
   paths: TofuPaths,
   target: Target,
@@ -53,12 +67,20 @@ export async function migrateToBucket(
   if (shown.status !== 0)
     fail(`bootstrap: tofu output failed: ${shown.stderr}`);
   const outputs = JSON.parse(shown.stdout) as Outputs;
+  const accessKeyId = String(outputs['state_access_key_id']?.value ?? '');
+  const secretAccessKey = String(
+    outputs['state_secret_access_key']?.value ?? ''
+  );
+  if (accessKeyId.length === 0 || secretAccessKey.length === 0) {
+    console.log(
+      `[infra] bootstrap: state bucket not created yet; state stays at ${localStatePath(paths)} for the next run`
+    );
+    return;
+  }
   const credentials = {
     ...env,
-    AWS_ACCESS_KEY_ID: String(outputs['state_access_key_id']?.value ?? ''),
-    AWS_SECRET_ACCESS_KEY: String(
-      outputs['state_secret_access_key']?.value ?? ''
-    ),
+    AWS_ACCESS_KEY_ID: accessKeyId,
+    AWS_SECRET_ACCESS_KEY: secretAccessKey,
   };
   dropLocalBackend(paths);
   // A new R2 credential can take a few seconds to become valid.

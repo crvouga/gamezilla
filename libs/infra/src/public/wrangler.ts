@@ -93,7 +93,16 @@ export function renderWranglerConfig(
       'wrangler.toml must stay env-agnostic: no [env.*], routes or route (hostnames belong to libs/infra/tofu edge).'
     );
   }
-  const rendered: WranglerConfig = { ...base, name: workerName(env, role) };
+  const rendered: WranglerConfig = {
+    ...base,
+    name: workerName(env, role),
+    // Absent in local `wrangler dev`: tells deployed telemetry which
+    // environment it is (every environment shares one trace stack).
+    vars: {
+      ...((base['vars'] as Record<string, string> | undefined) ?? {}),
+      DEPLOYMENT_ENVIRONMENT: env.env,
+    },
+  };
   if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);
   if ('assets' in base) rendered['assets'] = rerootedAssets(base['assets']);
   if ('durable_objects' in base) {

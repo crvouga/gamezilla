@@ -38,6 +38,8 @@ export type ApiWorkerEnv = {
   OBSERVABILITY_COLLECTOR_USER?: string;
   /** Explicit emergency kill switch. Production otherwise fails closed. */
   OBSERVABILITY_ENABLED?: string;
+  /** Stamped by libs/infra render-wrangler on deployed Workers only. */
+  DEPLOYMENT_ENVIRONMENT?: string;
   BUILD_SHA?: string;
   ROOM?: RoomNamespace;
   [key: string]: string | RoomNamespace | undefined;

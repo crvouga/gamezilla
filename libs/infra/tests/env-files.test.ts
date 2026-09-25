@@ -3,6 +3,7 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { envHostnames, sharedIdentities } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
+import { GLOBAL } from '@libs/infra/public/global';
 import { envResourceNames } from '@libs/infra/public/naming';
 
 const ENVS_DIR = join(import.meta.dirname, '../tofu/envs');
@@ -61,11 +62,8 @@ describe('environment files', () => {
   });
 
   // regression: grafana-stack-in-foreign-org
-  test('every environment names its own Grafana stack slug, one the token org owns', () => {
-    const slugs = Object.fromEntries(
-      Object.values(ENV_FILES).map((env) => [env.env, env.grafana.stack_slug])
-    );
-    expect(slugs['prd']).toBe('gamezilla');
-    expect(Object.values(slugs)).not.toContain('shortawning2091');
+  test('the shared Grafana stack is the one the token org owns, adopted not created', () => {
+    expect(GLOBAL.grafana.stack_slug).toBe('shortawning2091');
+    expect(GLOBAL.global_imports?.grafana_stack).toBe('shortawning2091');
   });
 });

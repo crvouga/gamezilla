@@ -40,6 +40,7 @@ import {
 } from '@libs/infra/public/tofu-command';
 import {
   dropLocalBackend,
+  hasUnmigratedLocalState,
   migrateToBucket,
   useLocalBackend,
 } from './bootstrap-backend';
@@ -140,28 +141,31 @@ async function run(
   if (command === 'plan') return;
 
   if (!firstRun) await backupState({ target, env });
-  if (tofu(applyArgs(PATHS, target), env) !== 0)
-    fail(`${label}: tofu apply failed`);
-  console.log(`[infra] ${label}: applied`);
+  const applied = tofu(applyArgs(PATHS, target), env) === 0;
+  // A partial first-run apply still created things; its state must reach the
+  // bucket (or stay local for the next run) before this process exits.
   if (firstRun) await migrateToBucket(PATHS, target, env);
+  if (!applied) fail(`${label}: tofu apply failed`);
+  console.log(`[infra] ${label}: applied`);
 }
 
 async function main(): Promise<void> {
   const { command, stack } = parseCli(process.argv.slice(2));
   const target = targetFor(stack);
   mkdirSync(PATHS.cacheDir, { recursive: true });
-  const firstRun = stack === 'bootstrap' && !stateBackendExists(process.env);
+  const firstRun =
+    stack === 'bootstrap' &&
+    (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));
   if (!firstRun) return run(command, target, false);
 
   console.log(
-    '[infra] bootstrap: no state bucket credential yet — first run uses a local backend'
+    '[infra] bootstrap: first run (or resuming one) — using the local backend'
   );
   useLocalBackend(PATHS);
-  try {
-    await run(command, target, command === 'apply');
-  } finally {
-    dropLocalBackend(PATHS);
-  }
+  // `fail` exits the process, which skips `finally`: a stray override would
+  // point a later run at local state, so it is removed on every exit.
+  process.on('exit', () => dropLocalBackend(PATHS));
+  await run(command, target, command === 'apply');
 }
 
 await main();

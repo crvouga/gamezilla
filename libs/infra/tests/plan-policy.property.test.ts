@@ -12,7 +12,8 @@ const PKG = join(import.meta.dirname, '..');
 const POLICY = join(PKG, 'policy');
 
 const conftest: ConftestRunner = ({ args, stdin }) => {
-  const r = Bun.spawnSync(['conftest', ...args], {
+  // The conftest pinned in mise.toml, whether or not mise is on PATH.
+  const r = Bun.spawnSync(['mise', 'exec', '--', 'conftest', ...args], {
     stdin: Buffer.from(stdin),
     stdout: 'pipe',
     stderr: 'pipe',

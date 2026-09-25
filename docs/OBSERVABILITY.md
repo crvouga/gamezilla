@@ -84,8 +84,11 @@ OpenTofu owns all of it (`libs/infra/tofu/modules/observability`, applied by
 `@libs/infra#apply:foundation` for every environment) with one provider
 credential, `GRAFANA_CLOUD_API_TOKEN`:
 
-- the stack (`grafana.stack_slug` in `libs/infra/tofu/envs/<env>.tfvars.json`;
-  stateful — `prevent_destroy` + Grafana delete protection),
+- one stack for every environment (`grafana.stack_slug` in
+  `libs/infra/tofu/global.tfvars.json`, adopted by the bootstrap stack —
+  Grafana's free plan allows one; stateful — `prevent_destroy` + Grafana
+  delete protection). Spans carry `deployment.environment.name` (`prod` /
+  `dev`, stamped on deployed Workers as `DEPLOYMENT_ENVIRONMENT`),
 - a write-only `traces:write` access policy and a read-only `traces:read`
   policy scoped to that stack,
 - a token for each,

@@ -19,6 +19,13 @@ variable "infisical" {
   })
 }
 
+variable "grafana" {
+  type = object({
+    stack_slug = string
+    region     = string
+  })
+}
+
 variable "neon_project" {
   type = any
 }
@@ -37,6 +44,7 @@ variable "global_imports" {
     github_repository        = optional(string)
     github_branch_protection = optional(string)
     github_variables         = optional(list(string), [])
+    grafana_stack            = optional(string)
   })
   default = {}
 }

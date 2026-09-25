@@ -48,6 +48,7 @@ import {
   ATTR,
   context,
   createWorkerTelemetry,
+  deploymentTelemetryEnvironment,
   extractRequestContext,
   injectRequestHeaders,
   otlpAuthorization,
@@ -126,7 +127,7 @@ function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
   workerTelemetry = createWorkerTelemetry({
     serviceName: 'gamezilla-server',
     serviceVersion: buildSha,
-    environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
+    environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,
     otlpUrl: collectorUrl,
     ...(authorization === undefined

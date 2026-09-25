@@ -16,6 +16,12 @@ export const globalFileSchema = z
       .object({ org_id: id, project_id: id, project_slug: id })
       .strict(),
     neon_project: z.object({ project_id: id }).strict(),
+    grafana: z
+      .object({
+        stack_slug: z.string().regex(/^[a-z][a-z0-9]*$/),
+        region: id,
+      })
+      .strict(),
     github: z
       .object({ owner: id, repo: id, required_checks: z.array(id).min(1) })
       .strict(),
@@ -25,6 +31,7 @@ export const globalFileSchema = z
         github_repository: id.optional(),
         github_branch_protection: id.optional(),
         github_variables: z.array(id).optional(),
+        grafana_stack: id.optional(),
       })
       .strict()
       .optional(),

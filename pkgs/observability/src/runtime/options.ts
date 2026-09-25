@@ -7,13 +7,14 @@ import type {
 } from '@opentelemetry/sdk-trace-base';
 
 import type { Attributes } from '../core/attributes';
+import type { TelemetryEnvironment } from '../core/deployment-environment';
 import type { IdentitySource } from '../core/identity';
 import type { AttributeRedactor } from '../core/redaction';
 
 export type TelemetryOptions = {
   readonly serviceName: string;
   readonly serviceVersion: string;
-  readonly environment: 'local' | 'ci' | 'prod' | 'test';
+  readonly environment: TelemetryEnvironment;
   readonly buildSha: string;
   readonly exporter?: SpanExporter;
   /** Exact OTLP/HTTP trace endpoint, including `/v1/traces`. */

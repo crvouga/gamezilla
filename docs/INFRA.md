@@ -22,7 +22,8 @@ libs/infra/
       object-store/   R2 bucket (stateful) + bucket-scoped S3 credential
       pubsub/         Railway project + EMQX service/volume (stateful), variables,
                       custom domain, Cloudflare DNS
-      observability/  Grafana Cloud stack (stateful), access policies, tokens
+      trace-stack/    the ONE Grafana Cloud stack (stateful; free plan = 1 stack)
+      observability/  per-env access policies + tokens on that stack
       database/       Neon: ASSERT-ONLY (one project, a branch per env) +
                       the pg_stat_statements extension
       secrets/        Infisical: asserts human secrets, keeps generated ones,
@@ -136,7 +137,8 @@ are in the environment.
 
 1. Create `libs/infra/tofu/envs/<env>.tfvars.json` (copy `dev`): a new
    `suffix`, hostnames one level under the zone (Universal SSL), a new
-   Railway project name, a new Grafana stack slug, the env's Neon branch id.
+   Railway project name, the env's Neon branch id. (All environments share
+   one Grafana stack; spans carry `deployment.environment.name`.)
    Register it in `libs/infra/src/public/envs.ts`.
 2. `bun run infra:bootstrap` creates the environment's Infisical environment
    and its state credential. By hand, create what code never creates: a Neon
@@ -166,6 +168,12 @@ The chicken-and-egg problems and how each is broken:
 | Custom domains need their Worker | Edge runs after the Worker deploys; wrangler (with no `routes`) never touches existing custom domains in between. |
 | A new broker / stack takes minutes to come up | The EMQX and Grafana health probes poll through a warm-up window. |
 
+Health checks for the human-managed settings (`bun health`, every
+environment, hourly): `apps/server/health/google-oauth.health.ts` asks Google
+whether it accepts the environment's OAuth callback and, if not, names the
+exact redirect URI to add; `@libs/infra#health` plans every stack and fails on
+drift or on a missing / inactive Grafana stack or Neon branch.
+
 Runbook:
 
 1. Seed human secrets in every environment: `TOFU_STATE_PASSPHRASE` (same
@@ -180,7 +188,8 @@ Runbook:
    gate refuses anything else anyway.
 4. Merge. The Deploy workflow applies dev (a new replica) and then prd.
 
-The first prd apply creates the Grafana stack and a new S3 credential
+Bootstrap adopts the shared Grafana stack (`shortawning2091`, the org's one free-plan stack); the first prd apply creates prd's
+trace tokens and a new S3 credential
 (Workers pick it up in the same deploy; the old token keeps working until a
 person deletes it) and re-sends the broker's Railway variables with their
 current values, which redeploys the broker once (MQTT clients reconnect).

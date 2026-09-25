@@ -1,8 +1,8 @@
-# Traces: a Grafana Cloud stack, a write-only ingest policy and a read-only
-# query policy, each with one token.
-#
-# STATEFUL: the stack holds trace history. `delete_protection` on the Grafana
-# side, `prevent_destroy` here, and the plan policy all refuse to delete it.
+# Traces for one environment: a write-only ingest policy and a read-only
+# query policy on the shared stack, each with its own token, so one
+# environment's tokens are revoked or rotated without touching another's.
+# Both are scoped to the whole (shared) stack; spans carry
+# `deployment.environment.name` to tell environments apart.
 
 terraform {
   required_providers {
@@ -12,7 +12,7 @@ terraform {
 
 variable "stack_slug" {
   type        = string
-  description = "Globally unique stack slug → https://<slug>.grafana.net."
+  description = "The shared stack (global.tfvars.json `grafana.stack_slug`)."
 }
 
 variable "region" {
@@ -27,16 +27,18 @@ variable "read_policy_name" {
   type = string
 }
 
-resource "grafana_cloud_stack" "this" {
-  name              = var.stack_slug
-  slug              = var.stack_slug
-  region_slug       = var.region
-  delete_protection = true
+# The shared stack (bootstrap stack, modules/trace-stack): asserted, never
+# managed here.
+data "grafana_cloud_stack" "this" {
+  slug = var.stack_slug
 
   lifecycle {
-    prevent_destroy = true
-    # The display name is edited in the Grafana UI; identity is the slug.
-    ignore_changes = [name, description, labels]
+    postcondition {
+      # Free-plan stacks pause when idle and resume on use; OpenTofu cannot
+      # resume one. Anything else (missing, deleting) blocks the apply.
+      condition     = contains(["active", "paused"], self.status)
+      error_message = "Grafana Cloud stack ${var.stack_slug} is ${self.status} — run `bun run infra:bootstrap`, or resume it in the Grafana UI."
+    }
   }
 }
 
@@ -47,7 +49,7 @@ resource "grafana_cloud_access_policy" "write" {
 
   realm {
     type       = "stack"
-    identifier = grafana_cloud_stack.this.id
+    identifier = data.grafana_cloud_stack.this.id
   }
 }
 
@@ -58,7 +60,7 @@ resource "grafana_cloud_access_policy" "read" {
 
   realm {
     type       = "stack"
-    identifier = grafana_cloud_stack.this.id
+    identifier = data.grafana_cloud_stack.this.id
   }
 }
 
@@ -75,8 +77,8 @@ resource "grafana_cloud_access_policy_token" "read" {
 }
 
 locals {
-  otlp_base  = trimsuffix(trimsuffix(grafana_cloud_stack.this.otlp_url, "/"), "/otlp")
-  tempo_base = trimsuffix(trimsuffix(grafana_cloud_stack.this.traces_url, "/"), "/tempo")
+  otlp_base  = trimsuffix(trimsuffix(data.grafana_cloud_stack.this.otlp_url, "/"), "/otlp")
+  tempo_base = trimsuffix(trimsuffix(data.grafana_cloud_stack.this.traces_url, "/"), "/tempo")
 }
 
 output "collector_url" {
@@ -84,7 +86,7 @@ output "collector_url" {
 }
 
 output "collector_user" {
-  value = tostring(grafana_cloud_stack.this.id)
+  value = tostring(data.grafana_cloud_stack.this.id)
 }
 
 output "collector_token" {
@@ -97,7 +99,7 @@ output "tempo_url" {
 }
 
 output "tempo_user" {
-  value = tostring(grafana_cloud_stack.this.traces_user_id)
+  value = tostring(data.grafana_cloud_stack.this.traces_user_id)
 }
 
 output "tempo_token" {

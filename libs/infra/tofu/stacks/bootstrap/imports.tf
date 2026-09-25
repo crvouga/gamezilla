@@ -19,6 +19,13 @@ import {
   id       = each.value
 }
 
+# The org's one free-plan stack, created in the Grafana UI before OpenTofu.
+import {
+  for_each = var.global_imports.grafana_stack == null ? toset([]) : toset([var.global_imports.grafana_stack])
+  to       = module.trace_stack.grafana_cloud_stack.this
+  id       = each.value
+}
+
 import {
   for_each = toset(var.global_imports.github_variables)
   to       = module.repository.github_actions_variable.this[each.value]

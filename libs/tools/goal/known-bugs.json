@@ -96,7 +96,7 @@
   },
   {
     "id": "grafana-stack-in-foreign-org",
-    "summary": "PRODUCT_CONFIG pointed Grafana provisioning at stack shortawning2091, which lives in a different org than GRAFANA_CLOUD_API_TOKEN; Grafana answers 403 for another org's slug, so Deploy died on `get stack failed: HTTP 403`. Fixed by using a slug the token's org owns and turning the 403 into an org-mismatch error. The imperative provisioner is gone; each environment now names its own stack slug in libs/infra/tofu/envs, created by OpenTofu in the token's org and pinned per environment.",
+    "summary": "Deploy died on `get stack failed: HTTP 403` for stack shortawning2091, which was read as \"the stack lives in another org\" and fixed by switching the slug to gamezilla. The real cause was GRAFANA_CLOUD_API_TOKEN's access policy lacking stacks:read/stacks:write: shortawning2091 is the org's own (and, on the free plan, only) stack, and creating gamezilla failed with 403 at the plan limit. Fixed by granting the stacks scopes and adopting shortawning2091 as the shared stack (libs/infra/tofu/global.tfvars.json).",
     "regressionTest": "libs/infra/tests/env-files.test.ts"
   },
   {

@@ -29,9 +29,6 @@ export const envFileSchema = z
       })
       .strict(),
     railway: z.object({ workspace_id: id, project_name: id }).strict(),
-    grafana: z
-      .object({ stack_slug: z.string().regex(/^[a-z][a-z0-9]*$/), region: id })
-      .strict(),
     neon: z.object({ branch_id: id }).strict(),
     secrets: z
       .object({ regenerate: z.array(z.string()).optional() })
@@ -78,7 +75,6 @@ export function statefulIdentities(
     env: env.env,
     suffix: env.suffix,
     'railway.project_name': `${env.railway.workspace_id}/${env.railway.project_name}`,
-    'grafana.stack_slug': env.grafana.stack_slug,
     'neon.branch_id': env.neon.branch_id,
   };
   for (const host of envHostnames(env)) identities[`host:${host}`] = host;

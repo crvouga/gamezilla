@@ -52,6 +52,12 @@ resource "infisical_secret" "state_access" {
   value_wo_version = parseint(substr(sha256(local.state_secret_values[each.value.name]), 0, 12), 16)
 }
 
+module "trace_stack" {
+  source = "../../modules/trace-stack"
+  slug   = var.grafana.stack_slug
+  region = var.grafana.region
+}
+
 module "ci_identity" {
   source            = "../../modules/ci-identity"
   org_id            = var.infisical.org_id

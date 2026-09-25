@@ -202,6 +202,7 @@
       },
       "devDependencies": {
         "@libs/games": "workspace:*",
+        "@pkgs/http-client": "workspace:*",
         "@pkgs/os": "workspace:*",
         "@types/better-sqlite3": "catalog:",
         "@types/bun": "catalog:",

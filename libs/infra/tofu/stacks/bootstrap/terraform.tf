@@ -14,6 +14,7 @@ terraform {
     cloudflare = { source = "cloudflare/cloudflare", version = "~> 5.25" }
     infisical  = { source = "infisical/infisical", version = "~> 0.19" }
     github     = { source = "integrations/github", version = "~> 6.0" }
+    grafana    = { source = "grafana/grafana", version = "~> 4.46" }
   }
 
   backend "s3" {
@@ -50,9 +51,12 @@ terraform {
   }
 }
 
-# CLOUDFLARE_API_TOKEN and GITHUB_TOKEN (a repository admin token) arrive from
+# CLOUDFLARE_API_TOKEN, GRAFANA_CLOUD_ACCESS_POLICY_TOKEN and GITHUB_TOKEN (a
+# repository admin token) arrive from
 # `secrets-run`; see scripts/tofu.ts.
 provider "cloudflare" {}
+
+provider "grafana" {}
 
 provider "github" {
   owner = var.github.owner

@@ -39,26 +39,6 @@ import {
 }
 
 import {
-  for_each = var.imports.foundation.grafana_stack == null ? toset([]) : toset([var.imports.foundation.grafana_stack])
-  to       = module.observability.grafana_cloud_stack.this
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.grafana_write == null ? toset([]) : toset([var.imports.foundation.grafana_write])
-  to       = module.observability.grafana_cloud_access_policy.write
-  id       = each.value
-}
-
-import {
-  for_each = var.imports.foundation.grafana_read == null ? toset([]) : toset([var.imports.foundation.grafana_read])
-  to       = module.observability.grafana_cloud_access_policy.read
-  id       = each.value
-}
-
-# Secrets OpenTofu now writes that already exist in the store: adopted, so the
-# first apply never collides with ("already exists") or loses a stored value.
-import {
   for_each = toset(var.imports.foundation.secrets)
   to       = module.secrets.infisical_secret.managed[each.value]
   id       = "write-only:${var.infisical.project_id}:${var.env}:/:${each.value}"

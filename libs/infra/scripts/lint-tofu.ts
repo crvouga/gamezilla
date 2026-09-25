@@ -14,6 +14,7 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { STACKS } from '@libs/infra/public/tofu-command';
+import { pinnedTool } from './tofu-process';
 
 const PKG_DIR = join(import.meta.dirname, '..');
 const CACHE = join(PKG_DIR, '.cache/tofu');
@@ -24,7 +25,8 @@ function step(
   cmd: readonly string[],
   env: Record<string, string> = {}
 ): boolean {
-  const result = Bun.spawnSync([...cmd], {
+  const [bin = '', ...rest] = cmd;
+  const result = Bun.spawnSync([...pinnedTool(bin), ...rest], {
     cwd: PKG_DIR,
     env: { ...process.env, TF_IN_AUTOMATION: '1', TF_INPUT: '0', ...env },
     stdout: 'pipe',
