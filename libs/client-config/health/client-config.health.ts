@@ -1,5 +1,5 @@
 // @io-wall-ok — live health probe (synced client_config rows in the env's Postgres).
-import { describe, expect, test } from 'bun:test';
+import { beforeAll, describe, expect, test } from 'bun:test';
 import {
   CLIENT_CONFIG_KEYS,
   ClientConfigKey,
@@ -9,6 +9,9 @@ import {
   parseClientConfigRows,
 } from '@libs/client-config/public/parse-client-config';
 import { appPostgresDbScope } from '@libs/db/public/scope';
+import { envOrigins } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
+import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { sql } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 
@@ -29,12 +32,32 @@ async function liveRows(): Promise<readonly ClientConfigDbRow[]> {
   }
 }
 
+/** Right after a deploy the custom domain may still be warming up. */
+const WARMUP_MS = 5 * 60 * 1000;
+
 /**
  * The API Worker materializes `client_config` from its bindings on its first
- * database request; every environment has a deployed Worker by `health`.
- * Values are read through the same parser the client uses.
+ * database request, so a fresh deploy has no rows until something calls it.
+ * `/api/health/ready` runs behind the request-db middleware — answering it
+ * means the Worker has materialized. Values are read through the
+ * same parser the client uses.
  */
 describe('client config', () => {
+  beforeAll(async () => {
+    const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+    await waitForHttp(`${envOrigins(env).api}/api/health/ready`, {
+      label: 'API /api/health/ready (materializes client_config)',
+      maxWaitMs: WARMUP_MS,
+      // Any Worker answer means the middleware ran; 502/504 are still warmup.
+      // A failing readiness dependency is api-worker.health's to report.
+      accept: (r) =>
+        r.status !== undefined &&
+        r.status > 0 &&
+        r.status !== 502 &&
+        r.status !== 504,
+    });
+  }, WARMUP_MS + 30_000);
+
   test('every client config key is materialized', async () => {
     const ids = new Set((await liveRows()).map((r) => r.id));
     expect(CLIENT_CONFIG_KEYS.filter((k) => !ids.has(k))).toEqual([]);
