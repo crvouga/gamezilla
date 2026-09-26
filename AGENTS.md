@@ -309,7 +309,10 @@ everywhere; never add a fourth:
    dev replica, so a green local run is a green `deploy:dev` job. Deploy stops
    at the first failure; once the deploy steps pass, `SECRETS_ENV=dev bun run
    health` re-probes without deploying and reports every failing probe in one
-   pass. Merge only when both are green. Caveat: the Railway broker builds from
+   pass. Merge only when both are green, and merge right after: a rehearsal
+   that adopts or creates resources puts them in the env's state, so until
+   the branch lands `main`'s Deploy plans to delete them — the stateful
+   policy refuses, and `main` stays red for that env. Caveat: the Railway broker builds from
    `main` (`libs/infra/tofu/modules/pubsub`), so broker image changes only
    reach dev after merge — test them with `docker build` + a root-owned volume.
 3. **Health checks the live deployment between deploys.**

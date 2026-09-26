@@ -154,7 +154,8 @@ async function run(
 async function main(): Promise<void> {
   const { command, stack } = parseCli(process.argv.slice(2));
   const target = targetFor(stack);
-  mkdirSync(PATHS.cacheDir, { recursive: true });
+  // TF_PLUGIN_CACHE_DIR must exist; a fresh CI checkout has no .cache.
+  mkdirSync(join(PATHS.cacheDir, 'plugins'), { recursive: true });
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));
