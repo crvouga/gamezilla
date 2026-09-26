@@ -4,7 +4,9 @@
 #               OpenTofu never writes or deletes them.
 #   generated — minted once (random_password), then kept forever: a value
 #               already in the store wins over the generator, so adopting an
-#               existing environment never rotates it. STATEFUL.
+#               existing environment never rotates it — unless the stored
+#               value is a `placeholder` (committed to git, hence public),
+#               which is replaced by the generator. STATEFUL.
 #   derived   — outputs of other resources (tokens, URLs); rewritten whenever
 #               their producer changes.
 #
@@ -41,6 +43,12 @@ variable "regenerate" {
   type        = list(string)
   default     = []
   description = "Generated names whose stored value is never adopted (it came from another environment)."
+}
+
+variable "placeholders" {
+  type        = list(string)
+  default     = []
+  description = "Values committed to git (local sidecar credentials); a stored generated secret equal to one is never adopted."
 }
 
 variable "derived_names" {
@@ -94,9 +102,15 @@ resource "random_password" "generated" {
 locals {
   stored = data.infisical_secrets.current.secrets
 
+  stored_generated = {
+    for name in var.generated : name => trimspace(try(local.stored[name].value, ""))
+  }
+
   generated_values = {
     for name in var.generated : name => (
-      !contains(var.regenerate, name) && length(trimspace(try(local.stored[name].value, ""))) > 0
+      !contains(var.regenerate, name)
+      && length(local.stored_generated[name]) > 0
+      && !contains(var.placeholders, local.stored_generated[name])
       ? local.stored[name].value
       : random_password.generated[name].result
     )

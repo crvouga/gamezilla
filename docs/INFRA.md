@@ -110,7 +110,7 @@ stack touches:
 |---|---|---|
 | shared | a person, once, in the `shared` environment (`bun run secrets:seed`) | Google OAuth client, provider API tokens, `TOFU_STATE_PASSPHRASE` |
 | human | a person, per environment (asserted present) | none today |
-| generated | OpenTofu once; an existing value always wins | `AUTH_SECRET`, EMQX credentials |
+| generated | OpenTofu once; an existing value wins unless it is a committed placeholder (`secrets.json` `placeholders`) | `AUTH_SECRET`, EMQX credentials |
 | derived | OpenTofu, from resource outputs | `DATABASE_URL`, `S3_*`, `API_URL`, `OBSERVABILITY_*` |
 
 Account-wide credentials live once in the `shared` Infisical environment
@@ -187,7 +187,7 @@ The chicken-and-egg problems and how each is broken:
 | State needs a bucket; the bucket is a resource | The bootstrap stack's first apply uses a local backend, creates the bucket and its credential, writes the credential to the shared secrets environment, then migrates its own state into the bucket (`scripts/bootstrap-backend.ts`). Detected by `TOFU_STATE_ACCESS_KEY_ID` being absent. |
 | State is encrypted; the key cannot come from state | `TOFU_STATE_PASSPHRASE` is a human secret, seeded before anything runs. |
 | CI authenticates to Infisical with the identity the bootstrap stack manages | Bootstrap is applied by a person with their own credentials, never by CI. It creates a new OIDC identity (the provider cannot import an existing OIDC binding) and repoints `SECRETS_IDENTITY_ID`; runs in flight keep using the old identity, which a person deletes afterwards. |
-| Generated secrets already exist | A stored value always wins over the generator, so adopting never rotates `AUTH_SECRET` or broker credentials. `secrets.regenerate` lists values that were copied from another environment (dev's broker credentials came from prd) and must be minted fresh. |
+| Generated secrets already exist | A stored value wins over the generator, so adopting never rotates `AUTH_SECRET` or broker credentials. Two exceptions are minted fresh: `secrets.regenerate` lists names whose value was copied from another environment (dev's broker credentials came from prd), and `stacks/foundation/secrets.json` `placeholders` lists the values committed to git for local sidecars (the EMQX sidecar's keys), which are public and must never reach a deployed broker. `@libs/pubsub#health` re-reads the store before probing, so a rotation lands in the same deploy. |
 | Secrets OpenTofu writes already exist | Imported (`imports.foundation.secrets`), so the first apply updates rather than colliding with "already exists". |
 | Custom domains need their Worker | Edge runs after the Worker deploys; wrangler (with no `routes`) never touches existing custom domains in between. |
 | A new broker / stack takes minutes to come up | The EMQX and Grafana health probes poll through a warm-up window. |

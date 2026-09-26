@@ -42,6 +42,7 @@ module "secrets" {
   human         = local.secret_names.human
   generated     = local.secret_names.generated
   regenerate    = var.secrets.regenerate
+  placeholders  = local.secret_names.placeholders
   derived_names = local.secret_names.derived
   derived = {
     DATABASE_URL                  = module.database.database_url
