@@ -14,7 +14,8 @@
     "./sim/*": [
       "./src/sim/*.ts",
       "./src/sim/*.tsx"
-    ]
+    ],
+    "./steps/*": "./tests/steps/*.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",

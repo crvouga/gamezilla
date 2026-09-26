@@ -189,6 +189,16 @@ describe('validateGoalGate', () => {
       );
     });
 
+    test('a feature must tag the pinned scenario `@regression:<id>`', () => {
+      const bug = { id: 'bug-1', summary: 'x', regressionTest: 'a.feature' };
+      expect(gate(bug, 'Feature: x\n  # regression: bug-1\n')).toContain(
+        'does not contain marker "@regression:bug-1"'
+      );
+      expect(
+        gate(bug, 'Feature: x\n  @regression:bug-1\n  Scenario: y\n')
+      ).not.toContain('known-bugs');
+    });
+
     test('a property test is not a regression guard', () => {
       expect(
         gate(
@@ -204,7 +214,7 @@ describe('validateGoalGate', () => {
           { id: 'bug-1', summary: 'x', regressionTest: 'src/a.ts' },
           '// regression: bug-1'
         )
-      ).toContain('regressionTest must be a *.test.ts(x) file');
+      ).toContain('regressionTest must be a *.test.ts(x) or *.feature file');
     });
   });
 });

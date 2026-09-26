@@ -1,0 +1,117 @@
+/**
+ * The World a product scenario runs in: one sim per scenario, opened before
+ * the first step and disposed after the last, with every sim call recorded
+ * so a failure names what the world was asked to do.
+ */
+
+import { type ScenarioContext, setWorld } from '@pkgs/gherkin/registry';
+import type { Run } from '@pkgs/sim';
+import type { OpenSim } from '../open-sim/open-sim';
+
+export type SimWorld = {
+  /** The run. Steps call `s.apply` / `s.read` / `s.until` on it. */
+  readonly s: OpenSim;
+  readonly ctx: ScenarioContext;
+  /** Values a step hands to a later step (a space link, an account id). */
+  readonly memo: Map<string, unknown>;
+  readonly calls: string[];
+};
+
+const ARG_PREVIEW_MAX = 60;
+
+function preview(value: unknown): string {
+  if (typeof value === 'function') {
+    const source = value.name.length > 0 ? value.name : value.toString();
+    return source.replace(/\s+/g, ' ').slice(0, ARG_PREVIEW_MAX);
+  }
+  const text = JSON.stringify(value);
+  return text.length > ARG_PREVIEW_MAX
+    ? `${text.slice(0, ARG_PREVIEW_MAX)}…`
+    : text;
+}
+
+function nameOf(fn: unknown): string {
+  if (typeof fn !== 'function') return String(fn);
+  return fn.name.length > 0 ? fn.name : preview(fn);
+}
+
+/** `s` with `apply` / `read` / `until` / `never` / `advanceTime` recorded. */
+export function recordingRun(s: OpenSim, calls: string[]): OpenSim {
+  const recorded: OpenSim = {
+    ...s,
+    apply: (action, ...args) => {
+      calls.push(
+        `apply ${(action as { readonly name: string }).name}(${args.map(preview).join(', ')})`
+      );
+      return s.apply(action, ...args);
+    },
+    read: (read, ...args) => {
+      calls.push(`read ${nameOf(read)}(${args.map(preview).join(', ')})`);
+      return s.read(read, ...args);
+    },
+    until: (read, opts) => {
+      const detail = [
+        opts?.maxMs === undefined ? '' : `maxMs: ${String(opts.maxMs)}`,
+        opts?.pred === undefined ? '' : `pred: ${preview(opts.pred)}`,
+      ]
+        .filter((part) => part.length > 0)
+        .join(', ');
+      calls.push(
+        `until ${nameOf(read)}${detail.length > 0 ? ` { ${detail} }` : ''}`
+      );
+      return s.until(read, opts);
+    },
+    never: (read, opts) => {
+      calls.push(`never ${nameOf(read)} { forMs: ${String(opts.forMs)} }`);
+      return s.never(read, opts);
+    },
+    advanceTime: (ms) => {
+      calls.push(`advanceTime(${String(ms)})`);
+      return s.advanceTime(ms);
+    },
+    [Symbol.asyncDispose]: () => s[Symbol.asyncDispose](),
+  };
+  return recorded;
+}
+
+/**
+ * Memo key of the account a step signed `actor` into, for a later step that
+ * checks they are still (or no longer) in it.
+ */
+export function signedInAccountKey(actor: string): string {
+  return `signed-in-account:${actor}`;
+}
+
+/** Remember a value for a later step. */
+export function remember<T>(w: SimWorld, key: string, value: T): T {
+  w.memo.set(key, value);
+  return value;
+}
+
+/** Recall a value an earlier step remembered; fails loudly when missing. */
+export function recall(w: SimWorld, key: string): unknown {
+  if (!w.memo.has(key)) {
+    throw new Error(`no earlier step remembered "${key}"`);
+  }
+  return w.memo.get(key);
+}
+
+/**
+ * Register the sim world for this package's features: `openSim` is the
+ * package's composition (`tests/e2e/support/open-<feature>-sim.ts`).
+ */
+export function useSimWorld(
+  openSim: (testId: string) => Promise<OpenSim>
+): void {
+  setWorld<SimWorld>({
+    create: async (ctx) => {
+      const calls: string[] = [];
+      const s = recordingRun(await openSim(ctx.testId), calls);
+      return { s, ctx, memo: new Map(), calls };
+    },
+    dispose: (w) => w.s[Symbol.asyncDispose](),
+    calls: (w) => w.calls,
+  });
+}
+
+export type { Run };

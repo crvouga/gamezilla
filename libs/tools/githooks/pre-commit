@@ -9,12 +9,16 @@
 # heavy and is what keeps direct pushes to `main` out of the repo.
 set -euo pipefail
 
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# Always on and cheap: a commit never mixes `features/**` (the spec writer's)
+# with code (the implementer's). See docs/SPEC_DRIVEN_DEVELOPMENT.md.
+bun run libs/tools/scripts/check-spec-ownership.ts --staged
+
 if [ "${GIT_LINT_PRECOMMIT:-}" != '1' ]; then
   exit 0
 fi
-
-ROOT="$(git rev-parse --show-toplevel)"
-cd "$ROOT"
 
 echo "pre-commit: naming gate"
 bun run libs/tools/scripts/check-naming.ts

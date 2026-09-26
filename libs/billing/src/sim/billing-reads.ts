@@ -106,3 +106,14 @@ export async function serverMembershipRow(
     LIMIT 1`);
   return normalizeRow(rows[0]);
 }
+
+/** Live membership rows on the server across every account. */
+export async function serverMembershipCount(s: ProductSim): Promise<number> {
+  const rows = await s.sim.serverSql.sqlClient.query(sql<{
+    readonly n: number | string;
+  }>`
+    SELECT COUNT(*) AS n
+    FROM billing_subscriptions
+    WHERE deleted_at IS NULL`);
+  return Number(rows[0]?.n ?? 0);
+}

@@ -6,11 +6,19 @@
  *
  *   "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
  *
- * It wipes the package's report bucket (`.cache/sim-report`), runs
- * `bun test --parallel tests/e2e` (or the test paths given) with a JUnit report
- * written into that bucket, and exits with the runner's status. With
- * `SIM_REPORT=1` the sims also record frames there; `bun run test:report`
- * (root) folds every package's bucket into one HTML report.
+ * It wipes the package's report bucket (`.cache/sim-report`), turns every
+ * `features/**\/*.feature` into a `bun test` stub under `.cache/spec/`, runs
+ * `bun test --parallel` over those stubs plus `tests/e2e` (or the paths
+ * given) with a JUnit report written into the bucket, and exits with the
+ * runner's status. With `SIM_REPORT=1` the sims also record frames there;
+ * `bun run test:report` (root) folds every package's bucket into one HTML
+ * report.
+ *
+ *   test:e2e                                   everything
+ *   test:e2e features/remove-friend.feature    one feature
+ *   test:e2e -t 'ends the friendship'          scenarios by name
+ *   test:e2e --tags '@goal:social:5'           scenarios by tag expression
+ *   test:e2e tests/e2e/monkey.test.tsx         one code test
  */
 
 import { spawnSync } from 'node:child_process';
@@ -20,29 +28,113 @@ import {
   mkdirSync,
   readFileSync,
   rmSync,
+  writeFileSync,
 } from 'node:fs';
-import { join } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
+import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
 import { parseJunit } from '@pkgs/sim';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
 
 const PACKAGE_DIR = process.cwd();
 const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
+const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec');
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
+const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-e2e`;
 /** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
 const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
 
+type Cli = {
+  readonly bunArgs: string[];
+  readonly featurePaths: string[];
+  readonly testPaths: string[];
+  readonly tags: string | undefined;
+};
+
 /**
- * Arguments pass through to `bun test` in order (`-t name`, `--timeout 1000`
- * keep their values). The default scope `tests/e2e` applies only when none of
- * them names a test path, so a narrowed run never widens to unit tests.
+ * `--tags` is ours; everything else passes through to `bun test` in order
+ * (`-t name`, `--timeout 1000` keep their values). The default scope (every
+ * feature + `tests/e2e`) applies only when nothing names a feature or test
+ * path, so a narrowed run never widens.
  */
-const args = process.argv.slice(2);
-const namesPath = args.some(
-  (arg) => arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)
-);
+function parseCli(argv: readonly string[]): Cli {
+  const bunArgs: string[] = [];
+  const featurePaths: string[] = [];
+  const testPaths: string[] = [];
+  let tags: string | undefined;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i] ?? '';
+    if (arg === '--tags') {
+      tags = argv[++i];
+    } else if (arg.startsWith('--tags=')) {
+      tags = arg.slice('--tags='.length);
+    } else if (arg.endsWith('.feature')) {
+      featurePaths.push(arg);
+    } else if (arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)) {
+      testPaths.push(arg);
+    } else {
+      bunArgs.push(arg);
+    }
+  }
+  return { bunArgs, featurePaths, testPaths, tags };
+}
+
+function listFeatures(): readonly string[] {
+  const dir = join(PACKAGE_DIR, 'features');
+  if (!existsSync(dir)) return [];
+  return [...new Bun.Glob('**/*.feature').scanSync({ cwd: dir })]
+    .sort()
+    .map((file) => join(dir, file));
+}
+
+/** Absolute feature paths to run: the ones named, else all. */
+function selectFeatures(cli: Cli): readonly string[] {
+  const all = listFeatures();
+  if (cli.featurePaths.length === 0) {
+    return cli.testPaths.length === 0 ? all : [];
+  }
+  return cli.featurePaths.map((given) => {
+    const abs = resolve(PACKAGE_DIR, given);
+    if (!all.includes(abs)) {
+      console.error(`test-e2e: no such feature: ${given}`);
+      process.exit(1);
+    }
+    return abs;
+  });
+}
+
+/** Write the stubs for `features` and return their `bun test` paths. */
+function writeStubs(features: readonly string[]): readonly string[] {
+  rmSync(SPEC_STUB_DIR, { recursive: true, force: true });
+  if (features.length === 0) return [];
+  if (!existsSync(STEPS_ENTRY)) {
+    console.error(
+      `test-e2e: ${relative(PACKAGE_DIR, STEPS_ENTRY)} is missing — a package with features/ needs a steps entry that imports its step definitions and calls useSimWorld()`
+    );
+    process.exit(1);
+  }
+  mkdirSync(SPEC_STUB_DIR, { recursive: true });
+  const bridge = Bun.resolveSync('@pkgs/gherkin/bun-test', import.meta.dir);
+  const out: string[] = [];
+  for (const featurePath of features) {
+    const featureUri = relative(PACKAGE_DIR, featurePath);
+    const file = join(SPEC_STUB_DIR, stubFileName(featureUri));
+    writeFileSync(
+      file,
+      stubSource({
+        packageName: TEST_PACKAGE_NAME,
+        featurePath,
+        featureUri,
+        stepsEntry: STEPS_ENTRY,
+        bridge,
+      })
+    );
+    out.push(`./${relative(PACKAGE_DIR, file)}`);
+  }
+  return out;
+}
 
 /**
  * The preloads belong to this package (it declares them), not to whichever
@@ -57,6 +149,17 @@ const HARNESS_PRELOAD = Bun.resolveSync(
   '@libs/sim-harness/preload',
   import.meta.dir
 );
+
+const cli = parseCli(process.argv.slice(2));
+const stubs = writeStubs(selectFeatures(cli));
+const scope =
+  cli.featurePaths.length === 0 && cli.testPaths.length === 0
+    ? [...stubs, 'tests/e2e']
+    : [...stubs, ...cli.testPaths];
+if (scope.length === 0) {
+  console.error('test-e2e: nothing to run');
+  process.exit(1);
+}
 
 rmSync(REPORT_DIR, { recursive: true, force: true });
 mkdirSync(REPORT_DIR, { recursive: true });
@@ -79,14 +182,15 @@ const result = spawnSync(
     '--parallel',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,
-    ...args,
-    ...(namesPath ? [] : ['tests/e2e']),
+    ...cli.bunArgs,
+    ...scope,
   ],
   {
     cwd: PACKAGE_DIR,
     stdio: 'inherit',
     env: {
       ...process.env,
+      ...(cli.tags === undefined ? {} : { SPEC_TAGS: cli.tags }),
       OBS_TRACE_ARTIFACT_DIR: join(REPORT_DIR, 'traces'),
       OBS_TEST_SERVICE: TEST_SERVICE_NAME,
     },

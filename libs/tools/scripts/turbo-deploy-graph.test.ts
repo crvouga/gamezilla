@@ -50,6 +50,8 @@ const CHECK_LEAVES = [
   '//#ci:i18n',
   '//#ci:agent-commands',
   '//#ci:goals',
+  '//#ci:specs',
+  '//#ci:spec-ownership',
   'tc',
   'lint',
   'test',

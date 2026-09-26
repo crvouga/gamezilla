@@ -217,7 +217,7 @@ seeded random walk over the platform's steps and the suite's feature
 task is `@libs/runtime#test:e2e` (the composition root): the few
 full-composition sims (shell boot, partition, the whole-app monkey, explore)
 that depend on everything, kept small on purpose. Run a subset with
-`bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`; one
+`bun run --filter @libs/chess test:e2e features/puzzles/puzzle-play.feature`; one
 aggregated HTML report over every suite with `bun run test:report`.
 
 **A green `bun check` must mean a green Check workflow.** The gate is only worth
@@ -600,6 +600,18 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 `pkgs/` packages are the foundation: they must work in any monorepo, with no references to `gamezilla`, `apps/server`, `@libs/*`, or any product surface (in code, comments, or default config strings).
 
 **Other layering rules:**
+
+### Gherkin acceptance specifications
+
+Acceptance scenarios live in each owning package's `features/` directory and
+run through that package's `test:e2e` task. Feature text is owned by the spec
+writer and changes only in isolated `spec:` commits; implementers treat it as
+read-only. Step definitions live in `tests/steps/`, call deterministic sim
+actions and reads, and are catalogued in generated `STEPS_CATALOG.md` files.
+See [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md) and
+[`GLOSSARY.md`](GLOSSARY.md). `bun run spec:check` enforces ownership-neutral
+structure and vocabulary; `bun run spec --tags '<expression>'` runs matching
+scenarios across packages. The release decision remains only `bun check`.
 
 - `@apps/product` composes product apps (the product-simulator, the live-browser runners). libs/pkgs must not import `@apps/*`.
 - `@apps/<name>` may import other `@apps/<other>` (e.g. client composing the in-process sim Hono factory). Same-package deep imports and type-only `import type` are fine.

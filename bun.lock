@@ -361,6 +361,7 @@
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
@@ -946,6 +947,7 @@
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/idp-sim": "workspace:*",
         "@pkgs/kv": "workspace:*",
         "@pkgs/kv-postgres": "workspace:*",
@@ -1057,8 +1059,10 @@
         "@pkgs/os": "workspace:*",
       },
       "devDependencies": {
+        "@libs/sim-harness": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/equal": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
         "fast-check": "catalog:",
       },
@@ -1725,6 +1729,21 @@
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/gherkin": {
+      "name": "@pkgs/gherkin",
+      "version": "0.0.0",
+      "dependencies": {
+        "@cucumber/cucumber-expressions": "catalog:",
+        "@cucumber/gherkin": "catalog:",
+        "@cucumber/messages": "catalog:",
+        "@cucumber/tag-expressions": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3078,6 +3097,10 @@
     "@clack/prompts": "^1.7.0",
     "@crvouga/mockingbird-service-postgres": "^0.3.0",
     "@crvouga/mockingbird-service-sqlite": "^0.3.0",
+    "@cucumber/cucumber-expressions": "^20.1.0",
+    "@cucumber/gherkin": "^42.0.1",
+    "@cucumber/messages": "^34.2.1",
+    "@cucumber/tag-expressions": "^11.0.1",
     "@dicebear/collection": "^9.4.2",
     "@dicebear/core": "^9.4.2",
     "@happy-dom/global-registrator": "^20.0.0",
@@ -3468,6 +3491,14 @@
     "@crvouga/mockingbird-service-sqlite": ["@crvouga/mockingbird-service-sqlite@0.3.0", "", {}, "sha512-3ULGmlWaBprKZgVMkqrMZL1wAvwz+Dcq58jqKT/k+fKT4JpcG9OInycz7pXJnsShEjVd4uV2gFy49r3BnXnFnA=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
+
+    "@cucumber/cucumber-expressions": ["@cucumber/cucumber-expressions@20.1.0", "", { "dependencies": { "regexp-match-indices": "1.0.2" } }, "sha512-KXQJChHTyHdg6HI7fHy3zpjfoS205vV1B/aJQKB82VFgMGbdVdiaSy7sTtap/5Q787anLmZt25Tg0FqQ2n4fqw=="],
+
+    "@cucumber/gherkin": ["@cucumber/gherkin@42.0.1", "", { "dependencies": { "@cucumber/messages": ">=34.0.0 <35" } }, "sha512-Kqg0ULhWqbXp/a1c04ND4sS4KTlIL831tQ0NhZLXWdEhT6LiNsZ5LFRzy/lBy7QQpcKhroKp/i3C2WdEnRBKNg=="],
+
+    "@cucumber/messages": ["@cucumber/messages@34.2.1", "", {}, "sha512-aj2iCAG9ZOpMVcMxcgShifv5fbR96b7SMgdWcPXXh2QbFp7OEcAnQ5MC5YfWUDSDasmw7FU5NJEsOrXdTQOU1A=="],
+
+    "@cucumber/tag-expressions": ["@cucumber/tag-expressions@11.0.1", "", {}, "sha512-x0AssM2HKLoxw8gSeAsYo0QK9wImODYBNDO423/K1Pfk2vwA/MdecRS1ky5i3Rl84kohaG0uUXhIBR+HTu/Qjg=="],
 
     "@dabh/diagnostics": ["@dabh/diagnostics@2.0.9", "", { "dependencies": { "@so-ric/colorspace": "^1.1.6", "enabled": "2.0.x", "kuler": "^2.0.0" } }, "sha512-R6siwR65Hm+3yfgP7o8DKhNvputQAwfoz9zTc3kyDudnomj2/BcLmD+uGQQPICjuFUp8ounPBU+jmKsocwVVAg=="],
 
@@ -4024,6 +4055,8 @@
     "@pkgs/entity-store": ["@pkgs/entity-store@workspace:pkgs/entity-store"],
 
     "@pkgs/equal": ["@pkgs/equal@workspace:pkgs/equal"],
+
+    "@pkgs/gherkin": ["@pkgs/gherkin@workspace:pkgs/gherkin"],
 
     "@pkgs/git": ["@pkgs/git@workspace:pkgs/git"],
 
@@ -5244,6 +5277,10 @@
     "regenerate": ["regenerate@1.4.2", "", {}, "sha512-zrceR/XhGYU/d/opr2EKO7aRHUeiBI8qjtfHqADTwZd6Szfy16la6kqD0MIUs5z5hx6AaKa+PixpPrR289+I0A=="],
 
     "regenerate-unicode-properties": ["regenerate-unicode-properties@10.2.2", "", { "dependencies": { "regenerate": "^1.4.2" } }, "sha512-m03P+zhBeQd1RGnYxrGyDAPpWX/epKirLrp8e3qevZdVkKtnCrjjWczIbYc8+xd6vcTStVlqfycTx1KR4LOr0g=="],
+
+    "regexp-match-indices": ["regexp-match-indices@1.0.2", "", { "dependencies": { "regexp-tree": "^0.1.11" } }, "sha512-DwZuAkt8NF5mKwGGER1EGh2PRqyvhRhhLviH+R8y8dIuaQROlUfXjt4s9ZTXstIsSkptf06BSvwcEmmfheJJWQ=="],
+
+    "regexp-tree": ["regexp-tree@0.1.27", "", { "bin": { "regexp-tree": "bin/regexp-tree" } }, "sha512-iETxpjK6YoRWJG5o6hXLwvjYAoW+FEZn9os0PD/b6AP6xQwsa/Y7lCVgIixBbUPMfhu+i2LtdeAqVTgGlQarfA=="],
 
     "regexp.prototype.flags": ["regexp.prototype.flags@1.5.4", "", { "dependencies": { "call-bind": "^1.0.8", "define-properties": "^1.2.1", "es-errors": "^1.3.0", "get-proto": "^1.0.1", "gopd": "^1.2.0", "set-function-name": "^2.0.2" } }, "sha512-dYqgNSZbDwkaJ2ceRd9ojCGjBq+mOm9LmtXnAnEGyHhN/5R7iDW2TRw3h+o/jCFxus3P2LfWIIiwowAjANm7IA=="],
 

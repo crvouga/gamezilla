@@ -110,3 +110,14 @@ export async function handleText(
     return null;
   }
 }
+
+/** `actorId`'s friends list badges the friend with account `hostAccountId` as in a live space. */
+export async function friendLiveBadgeVisible(
+  s: ProductSim,
+  actorId: string,
+  hostAccountId: string
+): Promise<boolean> {
+  const ui = s.actors.get(actorId)?.ui;
+  if (ui === undefined) return false;
+  return await ui.get(Handles.friendLiveSpace(hostAccountId)).isVisible();
+}

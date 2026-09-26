@@ -87,7 +87,8 @@ sources:
 
 1. **A bug that happened.** Once a property, model or anything else finds a
    bug, the shrunk counterexample becomes an example test marked
-   `// regression: <bug-id>` and an entry in
+   `// regression: <bug-id>` (or, for an acceptance scenario, a scenario
+   tagged `@regression:<bug-id>` in the owning `.feature`) and an entry in
    [`libs/tools/goal/known-bugs.json`](../libs/tools/goal/known-bugs.json)
    (`regressionTest` → that file). The goal gate fails if the file or the
    marker is missing, or if the guard is a `*.property.test.ts` — a pinned

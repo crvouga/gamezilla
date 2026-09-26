@@ -36,6 +36,7 @@ export const NAMING_EXEMPT = {
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [
     '.agents/commands/',
+    '.claude/agents/',
     '.cursor/commands/',
     '.claude/commands/',
     '.github/prompts/',

@@ -148,7 +148,12 @@ export {
   completeProviderSignIn,
   type ProviderAnswers,
 } from './system/provider-walk';
-export { focusActor, openAccount, openSettings } from './system/shell-actions';
+export {
+  backToTabs,
+  focusActor,
+  openAccount,
+  openSettings,
+} from './system/shell-actions';
 export { SHELL_SCENARIO_ACTIONS } from './system/shell-scenario-actions';
 export {
   type ConnectOptions,
@@ -164,4 +169,4 @@ export {
   productExtra,
   type SimActor,
 } from './system/sim';
-export { tabsVisible } from './system/ui-reads';
+export { onScreen, tabsVisible } from './system/ui-reads';
