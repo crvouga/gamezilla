@@ -8,6 +8,8 @@ export { mutationRegistry } from '../mutations/core/registry';
 export {
   type MutateResult,
   type Mutation,
+  type MutationAuthorize,
+  type MutationAuthorizeCtx,
   type MutationCtx,
   type MutationDb,
   type MutationEnv,
@@ -68,6 +70,7 @@ export {
   type AssertQueryRegistryIndexableOpts,
   assertQueryRegistryIndexable,
   type EnvFixture,
+  extractQueryTables,
   extractWorkload,
 } from './extract-workload';
 export {

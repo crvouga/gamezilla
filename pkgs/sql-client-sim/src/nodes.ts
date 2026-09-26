@@ -1,3 +1,4 @@
+import { createLogger } from '@pkgs/logger';
 import type { Session } from '@pkgs/sim';
 import {
   type BrokerCore,
@@ -63,6 +64,10 @@ export function startTab(
   const runtime = createOwnerRuntime({
     dbName: SIM_DB_NAME,
     timers: session.ports.timers,
+    logger: createLogger({
+      name: 'sqlite-web',
+      now: () => session.ports.clock.now(),
+    }),
     createOwner: () => createTabOwner(board),
     migrate: (client) => migrateToyKv(client, board),
   });

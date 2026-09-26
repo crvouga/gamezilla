@@ -1,4 +1,4 @@
-import type { GetFreshTokenOptions } from '@pkgs/auth/client/auth-client-port';
+import type { GetFreshTokenOptions } from '@pkgs/auth/client';
 import { createSecureStorageItem } from '@pkgs/secure-storage/solid';
 import type { Accessor } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';

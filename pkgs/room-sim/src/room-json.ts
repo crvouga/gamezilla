@@ -1,4 +1,4 @@
-import { arbJsonValue } from '@pkgs/sim/fast-check';
+import { arbJsonValue } from '@pkgs/property';
 import type { Arbitrary } from 'fast-check';
 import fc from 'fast-check';
 

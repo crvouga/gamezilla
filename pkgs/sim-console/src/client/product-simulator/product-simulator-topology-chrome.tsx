@@ -27,14 +27,14 @@ function NodeRowView(props: {
   readonly onRemove: (row: NodeRow) => void;
 }) {
   return (
-    <div class="box flex-row items-center gap-2 min-w-[0]">
+    <div class="box flex-row items-center gap-2 min-w-0">
       <Show
         when={props.row.kind === 'client'}
         fallback={<ServerIcon size={GLYPH_SIZE} color="icon" />}
       >
         <MonitorIcon size={GLYPH_SIZE} color="icon" />
       </Show>
-      <p class="text flex-1 min-w-[0] text-text text-[12px] [font-family:mono]">
+      <p class="text flex-1 min-w-0 text-text text-xs [font-family:mono]">
         {props.row.id}
       </p>
       <IconButton

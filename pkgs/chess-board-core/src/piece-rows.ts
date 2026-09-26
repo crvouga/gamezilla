@@ -10,7 +10,7 @@
 
 import { squareFromIndex } from './geometry';
 import { inferLastMoveFromPositionDiff } from './infer-move';
-import { pieceCode } from './piece-svgs';
+import { pieceCode } from './piece-code';
 import { positionsEqual } from './position';
 import type { Move, PieceCode, Position, Square } from './types';
 

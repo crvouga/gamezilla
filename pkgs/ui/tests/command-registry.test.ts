@@ -1,3 +1,4 @@
+import { describe, expect, mock, test } from 'bun:test';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
 import {
   COMMAND_HISTORY_DEFAULT_LIMIT,
@@ -6,7 +7,6 @@ import {
   HistoryStore,
   type RegisteredCommand,
 } from '@pkgs/ui/components/command-palette';
-import { describe, expect, test, vi } from 'vitest';
 
 function cmd(id: string, title = id): RegisteredCommand {
   return { id, title, run: () => {}, _version: 0 };
@@ -16,7 +16,7 @@ describe('CommandRegistryStore', () => {
   test('upsert / remove notify subscribers and bump the snapshot', () => {
     const store = createCommandRegistryStore();
     expect(store).toBeInstanceOf(CommandRegistryStore);
-    const listener = vi.fn();
+    const listener = mock();
     const unsubscribe = store.subscribe(listener);
     const before = store.getSnapshot();
 
@@ -60,7 +60,7 @@ describe('CommandRegistryStore', () => {
 describe('HistoryStore', () => {
   test('touch moves ids to the front, dedupes, and caps at the limit', () => {
     const history = new HistoryStore({ limit: 3 });
-    const listener = vi.fn();
+    const listener = mock();
     history.subscribe(listener);
     history.touch('a');
     history.touch('b');

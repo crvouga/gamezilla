@@ -1,55 +1,65 @@
 /** @jsxImportSource solid-js */
 /**
- * Invisible 8×8 button grid for hit-testing / focus / test ids. SVG layers
- * sit underneath with `pointer-events: none`.
+ * 8×8 grid of square buttons for focus, screen readers and test ids. It is
+ * static: 64 buttons created once in a8 → h1 order, never reordered (black's
+ * orientation rotates the grid 180° in CSS), with one native `focusin`
+ * listener for all of them and a selector so moving the cursor touches only
+ * the two buttons whose `tabIndex` changes. It takes no pointer events (the
+ * board host handles those) and sits under the pieces, so a sliding piece
+ * never has a layer above it to composite.
  */
 
-import { indexFromSquare } from '@pkgs/chess-board-core/geometry';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core/probe';
 import type {
+  BoardOrientation,
   FileChar,
-  PieceColor,
-  Position,
   RankChar,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { For, type JSX } from 'solid-js';
+import { createSelector, For, type JSX } from 'solid-js';
 
 import styles from './chess-board.module.css';
 
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
-const RANKS: readonly RankChar[] = ['1', '2', '3', '4', '5', '6', '7', '8'];
-export const BOARD_SQUARES: readonly Square[] = FILES.flatMap((f) =>
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- tsc widens the template to string; the assertion is load-bearing
-  RANKS.map((r) => `${f}${r}` as Square)
+const RANKS: readonly RankChar[] = ['8', '7', '6', '5', '4', '3', '2', '1'];
+
+/** White's view, top-left first. */
+const SQUARES_A8_TO_H1: readonly Square[] = RANKS.flatMap((r) =>
+  FILES.map((f): Square => `${f}${r}`)
 );
 
 export type ChessBoardHitGridProps = {
   readonly boardTestId: string;
+  readonly orientation: BoardOrientation;
+  /** A square button took focus (tab, screen reader, roving focus). */
+  readonly onSquareFocus: (square: Square) => void;
   readonly cursor: Square;
-  readonly position: Position;
-  readonly turn: PieceColor;
-  readonly legalTargets: readonly Square[];
 };
 
 export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
+  const isCursor = createSelector(() => props.cursor);
   return (
-    <div class={`box absolute inset-[0] ${styles['grid']}`}>
-      <For each={[...BOARD_SQUARES]}>
-        {(square) => {
-          const own = () =>
-            props.position[indexFromSquare(square)]?.color === props.turn;
-          const target = () => props.legalTargets.includes(square);
-          return (
-            <button
-              type="button"
-              class={`${styles['square']}${own() ? ` ${styles['squareOwn']}` : ''}${target() ? ` ${styles['squareTarget']}` : ''}`}
-              data-testid={chessBoardSquareTestId(props.boardTestId, square)}
-              aria-label={square}
-              tabIndex={props.cursor === square ? 0 : -1}
-            />
-          );
-        }}
+    <div
+      class={`box absolute inset-0 ${styles['grid']}`}
+      classList={{
+        [styles['gridFlipped'] ?? '']: props.orientation === 'black',
+      }}
+      on:focusin={(e) => {
+        const square = (e.target as HTMLElement).dataset['square'];
+        if (square !== undefined) props.onSquareFocus(square as Square);
+      }}
+    >
+      <For each={SQUARES_A8_TO_H1}>
+        {(square) => (
+          <button
+            type="button"
+            class={styles['square']}
+            data-testid={chessBoardSquareTestId(props.boardTestId, square)}
+            data-square={square}
+            aria-label={square}
+            tabIndex={isCursor(square) ? 0 : -1}
+          />
+        )}
       </For>
     </div>
   );

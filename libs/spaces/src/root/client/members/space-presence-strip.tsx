@@ -1,5 +1,5 @@
 /**
- * Connected-client presence strip for space chrome (one face per client).
+ * Connected-member presence strip for space chrome (one face per member).
  */
 
 import { UserProfileAvatar } from '@libs/profile/public/user-profile-avatar';
@@ -30,10 +30,11 @@ export function SpacePresenceStrip(
   const colors = useSpaceParticipantColors(props.spaceId);
   const selfClientId = useSpaceRoomClientId();
 
-  // Expand grouped participants back to a flat per-client list so the strip
-  // shows one face per connected client (same avatar repeated when needed).
+  // One face per participant: a member connected from two tabs is one person.
   const clients = createMemo(() =>
-    groupRosterByParticipant(roster(), selfClientId()).flatMap((p) => p.clients)
+    groupRosterByParticipant(roster(), selfClientId()).flatMap((participant) =>
+      participant.clients.slice(0, 1)
+    )
   );
 
   return (

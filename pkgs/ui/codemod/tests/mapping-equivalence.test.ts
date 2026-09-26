@@ -13,8 +13,9 @@
  * (`flex:1` ≡ `flex:1 1 0%`, `font-weight:bold` ≡ `700`) before comparing.
  */
 
+import { describe, expect, test } from 'bun:test';
+import { assertProperty } from '@pkgs/property';
 import * as fc from 'fast-check';
-import { describe, expect, test } from 'vitest';
 import { CSS_VAR_COLORS, cssVarElevation } from '../../src/theme/css-vars';
 import { sxToCss } from '../legacy-sx-to-css';
 import { compileStaticTransform } from '../sx-map-effect';
@@ -326,7 +327,8 @@ const arbRecord: fc.Arbitrary<Record<string, string | number | boolean>> = fc
 
 describe('style equivalence vs the sx runtime', () => {
   test('arbitrary sx records compile to identical declarations', async () => {
-    await fc.assert(
+    await assertProperty(
+      'arbitrary sx records compile to identical declarations',
       fc.property(arbRecord, (record) => {
         const oracle = parseDeclarations(
           sxToCss(record, {

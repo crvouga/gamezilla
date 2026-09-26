@@ -1,4 +1,5 @@
 import { FriendLiveSpaceBadge } from '@libs/spaces/public/friend-live-space-badge';
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   EmptyState,
@@ -13,7 +14,7 @@ import type { JSX } from 'solid-js';
 import { FriendUserRow } from '../../public/friend-user-row';
 import type { Friend } from '../../shared/friendship/friends-types';
 import { useFriends } from '../../use-cases/list-friends/client/use-friends';
-import { FriendsSignedInGate } from './friends-signed-in-gate';
+import { FriendsPermissionGate } from './friends-permission-gate';
 
 function FriendsEmptyState(): JSX.Element {
   const { t } = useLingui();
@@ -26,6 +27,7 @@ function FriendsEmptyState(): JSX.Element {
         <Trans>Search for people by username to send a friend request.</Trans>
       }
       action={{ label: t`Find friends`, onClick: () => router.push('/search') }}
+      dataSet={{ testid: Handles.friendsEmpty }}
     />
   );
 }
@@ -83,8 +85,8 @@ function FriendsListBody(): JSX.Element {
 
 export function FriendsListScreen(): JSX.Element {
   return (
-    <FriendsSignedInGate>
+    <FriendsPermissionGate>
       <FriendsListBody />
-    </FriendsSignedInGate>
+    </FriendsPermissionGate>
   );
 }

@@ -18,6 +18,17 @@ function escapeInline(text: string): string {
   return text.replace(/<\//g, '<\\/').replace(/<!--/g, '<\\!--');
 }
 
+/**
+ * Safe to inline in a `<script type="application/json">` body and still be
+ * valid JSON. Escaping every `<` as `\u003c` neutralises both `</script` and
+ * the legacy `<!--` comment opener (Solid markers render literal `<!---->`),
+ * where the `escapeInline` backslash tricks would emit `<\!--`, which is not a
+ * JSON escape sequence.
+ */
+function escapeInlineJson(json: string): string {
+  return json.replace(/</g, '\\u003c');
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -45,7 +56,7 @@ export function renderHtmlReport(
     '</head>',
     '<body style="margin:0;height:100vh">',
     '<sim-report></sim-report>',
-    `<script id="report-data" type="application/json">${escapeInline(json)}</script>`,
+    `<script id="report-data" type="application/json">${escapeInlineJson(json)}</script>`,
     `<script id="frame-css" type="text/css">${escapeInline(frameCss)}</script>`,
     `<script>${escapeInline(ARTIFACT_JS)}</script>`,
     '</body>',

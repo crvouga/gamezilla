@@ -4,9 +4,9 @@
  * asserted only for the migration corpus, not implementation internals.
  */
 
+import { describe, expect, test } from 'bun:test';
 import { readdir, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { describe, expect, test } from 'vitest';
 import { DEFAULT_GLOBS } from '../cli-io';
 import { runCodemod } from '../run-codemod';
 
@@ -65,10 +65,5 @@ describe('corpus round-trip', () => {
     const gateKinds = new Set(result!.gateHits.map((hit) => hit.kind));
     expect(gateKinds).not.toContain('todo');
     expect(gateKinds).toBeDefined();
-    process.stdout.write(
-      `corpus: scanned=${paths.length} candidates=${Object.keys(inputs).length} ` +
-        `A=${result!.summary.totalConvertedA} B=${result!.summary.totalConvertedB} ` +
-        `gateHits=${result!.gateHits.length} manual=0\n`
-    );
   }, 120000);
 });

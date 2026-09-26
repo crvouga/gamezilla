@@ -53,7 +53,7 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
         <Show when={props.action}>
           {(action) => (
             <button
-              class="clickable clickableTint absolute right-[0] bottom-[0] rounded-[9999px] border border-border bg-surface items-center justify-center"
+              class="clickable clickableTint absolute right-0 bottom-0 rounded-full border border-border bg-surface items-center justify-center"
               type="button"
               style={{
                 width: cssPx(ACTION_SIZE),

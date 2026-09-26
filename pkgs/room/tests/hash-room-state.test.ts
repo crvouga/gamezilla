@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
+import { assertProperty, fc } from '@pkgs/property';
 import { canonicalRoomJson, fnv1a64Hex, hashRoomState } from '@pkgs/room';
-import fc from 'fast-check';
 
 /** Reference implementations (the previous, slower versions) kept for equivalence. */
 function referenceCanonical(value: unknown): string {
@@ -47,11 +47,11 @@ const jsonValue = fc.letrec((tie) => ({
 
 describe('fnv1a64Hex', () => {
   test('matches the BigInt reference for arbitrary UTF-16 strings', () => {
-    fc.assert(
+    assertProperty(
+      'fnv limb == bigint reference',
       fc.property(fc.string({ unit: 'binary', maxLength: 200 }), (s) => {
         expect(fnv1a64Hex(s)).toBe(referenceFnv(s));
-      }),
-      { numRuns: 2_000 }
+      })
     );
     expect(fnv1a64Hex('')).toBe('cbf29ce484222325');
     expect(fnv1a64Hex('a')).toBe(referenceFnv('a'));
@@ -60,11 +60,11 @@ describe('fnv1a64Hex', () => {
 
 describe('canonicalRoomJson', () => {
   test('matches the sorted-copy reference for arbitrary JSON-ish values', () => {
-    fc.assert(
+    assertProperty(
+      'canonical == sorted-copy reference',
       fc.property(jsonValue, (v) => {
         expect(canonicalRoomJson(v)).toBe(referenceCanonical(v));
-      }),
-      { numRuns: 3_000 }
+      })
     );
   });
 

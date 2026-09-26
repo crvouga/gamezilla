@@ -1,0 +1,27 @@
+{
+  "name": "@libs/observability",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./public/*": [
+      "./src/public/*.ts"
+    ],
+    "./server/*": [
+      "./src/server/*.ts"
+    ]
+  },
+  "scripts": {
+    "health": "bun test --timeout 900000 ./health/*.health.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/http-client": "workspace:*"
+  },
+  "devDependencies": {
+    "@pkgs/clock": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

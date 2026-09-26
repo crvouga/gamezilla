@@ -50,7 +50,7 @@ function SingleSummary<T extends ComboboxValue>(props: {
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <label
-        class="text textLabel line-clamp-1 flex-1 min-w-[0]"
+        class="text textLabel line-clamp-1 flex-1 min-w-0"
         classList={{
           'text-text': props.selected !== undefined,
           'text-text-secondary': props.selected === undefined,
@@ -71,7 +71,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
   const showClear = (): boolean => props.onClear !== undefined && hasChips();
   return (
     <div
-      class="box flex-row items-center gap-2 rounded-[10px] border border-outline bg-surface-muted"
+      class="box flex-row items-center gap-2 rounded-control border border-outline bg-surface-muted"
       data-component="ComboboxField"
       style={{
         'padding-left': cssPx(hasChips() ? 8 : 0),
@@ -86,7 +86,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         />
       </Show>
       <button
-        class="clickable clickableTint flex-1 min-w-[0] flex-row items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-left"
+        class="clickable clickableTint flex-1 min-w-0 flex-row items-center gap-2.5 px-3 py-2.5 rounded-control text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
         style={{ 'min-height': cssPx(COMBOBOX_TRIGGER_MIN_HEIGHT) }}
@@ -107,7 +107,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
             />
           }
         >
-          <label class="text textLabel line-clamp-1 flex-1 min-w-[0] text-text-secondary">
+          <label class="text textLabel line-clamp-1 flex-1 min-w-0 text-text-secondary">
             {hasChips() ? t`Add…` : props.placeholder}
           </label>
         </Show>

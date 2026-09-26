@@ -222,6 +222,9 @@ describe('createTtsApp', () => {
         return Promise.resolve(null);
       },
     });
+    // Hosts own error mapping (`app.onError`); without one Hono prints the
+    // expected rejection to stderr.
+    guarded.onError((_err, c) => c.text('Internal Server Error', 500));
 
     const unauthed = await guarded.fetch(
       jsonRequest('/tts/synthesize', VALID_BODY)

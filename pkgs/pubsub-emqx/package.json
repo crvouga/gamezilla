@@ -10,21 +10,23 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
-    "test:broker": "bun test src/emqx.contract.test.ts",
-    "test:contract": "bun test src/emqx.contract.test.ts"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts'",
+    "test:contract": "bun test --timeout 60000 src/emqx.contract.test.ts"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/logger": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
-    "mqtt": "catalog:"
+    "@pkgs/pubsub-mqtt": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/emqx-server": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "mqtt": "catalog:",
     "typescript": "catalog:"
   }
 }

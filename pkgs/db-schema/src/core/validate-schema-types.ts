@@ -74,26 +74,6 @@ type ColumnNames<T, Table extends string> =
   | DeclaredColumnNames<T, Table>
   | ManagedImplicitColumn;
 
-type DepEntries<T> = T extends { readonly deprecations: readonly (infer D)[] }
-  ? D
-  : never;
-
-type IsTableDep<T, Table extends string> =
-  DepEntries<T> extends infer D
-    ? D extends readonly [Table, string, string]
-      ? false
-      : D extends readonly [Table, string]
-        ? true
-        : false
-    : false;
-
-type IsColDep<T, Table extends string, Col extends string> =
-  DepEntries<T> extends infer D
-    ? D extends readonly [Table, Col, string]
-      ? true
-      : false
-    : false;
-
 type ValidateIndexCol<
   T,
   Table extends string,
@@ -103,11 +83,9 @@ type ValidateIndexCol<
 > = Col extends 'id'
   ? ErrorBrand<`${Path}: cannot index primary key 'id' (already unique via PK)`>
   : Col extends ColumnNames<T, Table>
-    ? true extends IsColDep<T, Table, Col>
-      ? ErrorBrand<`${Path}: column '${Table}.${Col}' is deprecated and cannot be indexed`>
-      : Rest extends readonly string[]
-        ? ValidateIndexRest<T, Table, Rest, Path>
-        : unknown
+    ? Rest extends readonly string[]
+      ? ValidateIndexRest<T, Table, Rest, Path>
+      : unknown
     : ErrorBrand<`${Path}: unknown column '${Col}' on table '${Table}'`>;
 
 type ValidateIndexEntry<T, Idx, Path extends string> = Idx extends readonly [
@@ -116,15 +94,13 @@ type ValidateIndexEntry<T, Idx, Path extends string> = Idx extends readonly [
   ...infer Rest,
 ]
   ? Table extends TableNames<T>
-    ? true extends IsTableDep<T, Table>
-      ? ErrorBrand<`${Path}: table '${Table}' is deprecated and cannot be indexed`>
-      : ValidateIndexCol<
-          T,
-          Table,
-          Col,
-          Path,
-          Rest extends readonly string[] ? Rest : []
-        >
+    ? ValidateIndexCol<
+        T,
+        Table,
+        Col,
+        Path,
+        Rest extends readonly string[] ? Rest : []
+      >
     : ErrorBrand<`${Path}: unknown table '${Table}'`>
   : ErrorBrand<`${Path}: index must be [table, ...columns]`>;
 
@@ -137,9 +113,7 @@ type ValidateIndexRest<
   ? C extends 'id'
     ? ErrorBrand<`${Path}: cannot index primary key 'id' (already unique via PK)`>
     : C extends ColumnNames<T, Table>
-      ? true extends IsColDep<T, Table, C>
-        ? ErrorBrand<`${Path}: column '${Table}.${C}' is deprecated and cannot be indexed`>
-        : ValidateIndexRest<T, Table, R, Path>
+      ? ValidateIndexRest<T, Table, R, Path>
       : ErrorBrand<`${Path}: unknown column '${C}' on table '${Table}'`>
   : unknown;
 
@@ -167,46 +141,41 @@ type ValidateUniqueIndexesArr<T> = T extends {
     }[number]
   : unknown;
 
-type ValidateDepEntry<T, Dep, Path extends string> = Dep extends readonly [
-  infer Table extends string,
-  infer Col extends string,
-  infer _Note extends string,
-]
+/** A retired column must not still be declared in the same table. */
+type ValidateRetiredEntry<
+  T,
+  Table extends string,
+  Retired,
+  Path extends string,
+> = Retired extends { readonly name: infer Name extends string }
   ? Table extends TableNames<T>
-    ? Col extends ColumnNames<T, Table>
-      ? ErrorBrand<`${Path}: column '${Table}.${Col}' is still declared — remove it from tables and keep only the deprecation entry`>
+    ? Name extends DeclaredColumnNames<T, Table>
+      ? ErrorBrand<`${Path}: column '${Table}.${Name}' is still declared — remove it from columns and keep only the retiredColumns entry`>
       : unknown
     : ErrorBrand<`${Path}: unknown table '${Table}'`>
-  : Dep extends readonly [
-        infer Table extends string,
-        infer _Note extends string,
-      ]
-    ? Table extends TableNames<T>
-      ? unknown
-      : ErrorBrand<`${Path}: unknown table '${Table}'`>
-    : ErrorBrand<`${Path}: deprecation must be [table, note] or [table, column, note]`>;
+  : ErrorBrand<`${Path}: retired column must be { name, type, note }`>;
 
-type ValidateDepsArr<T> = T extends {
-  readonly deprecations: infer Deps extends readonly unknown[];
+type ValidateRetiredColumnsMap<T> = T extends {
+  readonly retiredColumns: infer Retired extends Record<
+    string,
+    readonly unknown[]
+  >;
 }
   ? {
-      [I in keyof Deps]: ValidateDepEntry<
-        T,
-        Deps[I],
-        `deprecations[${I & string}]`
-      >;
-    }[number]
+      [Table in keyof Retired & string]: {
+        [I in keyof Retired[Table]]: ValidateRetiredEntry<
+          T,
+          Table,
+          Retired[Table][I],
+          `retiredColumns.${Table}[${I & string}]`
+        >;
+      }[number];
+    }[keyof Retired & string]
   : unknown;
 
 type UnknownKeys<T> = Exclude<
   keyof T & string,
-  | 'tables'
-  | 'indexes'
-  | 'uniqueIndexes'
-  | 'deprecations'
-  | 'checks'
-  | 'views'
-  | 'enums'
+  'tables' | 'indexes' | 'uniqueIndexes' | 'retiredColumns' | 'retiredTables'
 >;
 
 /**
@@ -225,9 +194,9 @@ export type ValidateSchema<T> = [UnknownKeys<T>] extends [never]
           : ValidateUniqueIndexesArr<T> extends infer Ux
             ? Ux extends { readonly __error: string }
               ? Ux
-              : ValidateDepsArr<T> extends infer Dep
-                ? Dep extends { readonly __error: string }
-                  ? Dep
+              : ValidateRetiredColumnsMap<T> extends infer Ret
+                ? Ret extends { readonly __error: string }
+                  ? Ret
                   : T
                 : T
             : T
@@ -247,8 +216,17 @@ export type SchemaLiteral = {
   readonly tables: Record<string, Record<string, string | { type: string }>>;
   readonly indexes?: readonly (readonly [string, ...string[]])[];
   readonly uniqueIndexes?: readonly (readonly [string, ...string[]])[];
-  readonly deprecations?: readonly (
-    | readonly [string, string]
-    | readonly [string, string, string]
-  )[];
+  readonly retiredColumns?: Record<
+    string,
+    readonly {
+      readonly name: string;
+      readonly type: string;
+      readonly note: string;
+    }[]
+  >;
+  readonly retiredTables?: readonly {
+    readonly domain: string;
+    readonly name: string;
+    readonly note: string;
+  }[];
 };

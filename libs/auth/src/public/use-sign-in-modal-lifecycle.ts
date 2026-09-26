@@ -14,7 +14,7 @@
  * found on mount).
  */
 
-import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import type { AuthSessionState } from '@pkgs/auth/client';
 import { useClock, useTimers } from '@pkgs/clock/solid';
 import type { SecureStorageStore } from '@pkgs/secure-storage/secure-storage-store';
 import { useSecureStorageStore } from '@pkgs/secure-storage/solid';

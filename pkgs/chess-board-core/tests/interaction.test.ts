@@ -166,6 +166,34 @@ describe('BoardInteraction promotion flow', () => {
   });
 });
 
+describe('BoardInteraction reselect and promotion modality', () => {
+  test('tapping another own piece moves the selection instead of moving', () => {
+    const { game, interaction, events } = setup();
+    interaction.tap('g1');
+    interaction.tap('b1');
+    expect(interaction.getSnapshot().selected).toBe('b1');
+    expect([...interaction.getSnapshot().legalTargets].sort()).toEqual([
+      'a3',
+      'c3',
+    ]);
+    expect(game.getSnapshot().lastMove).toBeNull();
+    expect(events).toEqual(['select:g1', 'select:b1']);
+  });
+
+  test('while a promotion is pending, taps and drags are ignored', () => {
+    const { game, interaction } = setup('1n5k/P7/8/8/8/8/8/6K1 w - - 0 1');
+    expect(interaction.drop('a7', 'a8').kind).toBe('promotion');
+    const fen = game.getSnapshot().fen;
+    interaction.tap('g1');
+    expect(interaction.getSnapshot().selected).toBeNull();
+    expect(interaction.canDrag('g1')).toBe(false);
+    expect(interaction.beginDrag('g1')).toBe(false);
+    expect(game.getSnapshot().fen).toBe(fen);
+    expect(interaction.pickPromotion('n')).toBe(true);
+    expect(game.getSnapshot().fen).toContain('N');
+  });
+});
+
 describe('BoardInteraction premoves', () => {
   test('queues a premove on your piece while the opponent is to move', () => {
     const { game, interaction } = setup();
@@ -215,6 +243,47 @@ describe('BoardInteraction premoves', () => {
   });
 });
 
+describe('BoardInteraction premove queue', () => {
+  test('flushPremmove keeps the queue while the opponent is still to move', () => {
+    const { game, interaction } = setup();
+    interaction.setPremovesEnabled(true);
+    interaction.setPlayerColor('w');
+    interaction.tap('e2');
+    interaction.tap('e4');
+    interaction.drop('g1', 'f3');
+    interaction.drop('f1', 'c4');
+    expect(interaction.flushPremmove()).toBeNull();
+    expect(interaction.getSnapshot().premves).toHaveLength(2);
+
+    game.tryMove({ from: 'e7', to: 'e5' });
+    expect(interaction.flushPremmove()?.kind).toBe('applied');
+    // Now black to move again: the second premove waits for its turn.
+    expect(interaction.flushPremmove()).toBeNull();
+    expect(interaction.getSnapshot().premves).toEqual([
+      { from: 'f1', to: 'c4' },
+    ]);
+
+    game.tryMove({ from: 'b8', to: 'c6' });
+    expect(interaction.flushPremmove()?.kind).toBe('applied');
+    expect(game.getSnapshot().lastMove).toMatchObject({ from: 'f1', to: 'c4' });
+    expect(interaction.getSnapshot().premves).toEqual([]);
+  });
+
+  test('a premove whose piece was captured is dropped on your turn', () => {
+    // Black to move; white queues Ba2-d5, then black's knight takes a2.
+    const { game, interaction, events } = setup(
+      '4k3/8/8/8/8/2n5/B7/4K3 b - - 0 1'
+    );
+    interaction.setPremovesEnabled(true);
+    interaction.setPlayerColor('w');
+    expect(interaction.drop('a2', 'd5').kind).toBe('premove');
+    game.tryMove({ from: 'c3', to: 'a2' });
+    expect(interaction.flushPremmove()).toBeNull();
+    expect(interaction.getSnapshot().premves).toEqual([]);
+    expect(events).toEqual([]);
+  });
+});
+
 describe('BoardInteraction autoPromoteQueen', () => {
   test('applies queen without parking pendingPromotion', () => {
     const { game, interaction, events } = setup('8/P7/8/8/8/8/8/k6K w - - 0 1');
@@ -224,5 +293,24 @@ describe('BoardInteraction autoPromoteQueen', () => {
     expect(interaction.getSnapshot().pendingPromotion).toBeNull();
     expect(game.getSnapshot().fen.includes('Q')).toBe(true);
     expect(events).toEqual(['applied:a7a8']);
+  });
+});
+
+describe('BoardInteraction castling input', () => {
+  const fen = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
+
+  test('tap king then own rook castles instead of re-selecting the rook', () => {
+    const { interaction, events } = setup(fen);
+    interaction.tap('e1');
+    interaction.tap('h1');
+    expect(events).toEqual(['select:e1', 'applied:e1g1']);
+  });
+
+  test('dragging the king onto its rook castles', () => {
+    const { interaction, events } = setup(fen);
+    expect(interaction.beginDrag('e1')).toBe(true);
+    const outcome = interaction.drop('e1', 'a1');
+    expect(outcome.kind).toBe('applied');
+    expect(events).toEqual(['applied:e1c1']);
   });
 });

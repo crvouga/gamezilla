@@ -20,6 +20,13 @@ const linguiConfig = getConfig({
 /** `.superset/port.sh` exports `VITE_PORT` so parallel workspaces don't collide. */
 const DEV_PORT = Number(process.env['VITE_PORT'] ?? 5173);
 
+/**
+ * A localhost stack under test serves a fixed snapshot of the app: no HMR, no
+ * file watching, so an edit in the working tree cannot reload a browser that
+ * a test is driving.
+ */
+const FROZEN = process.env['PRODUCT_DEV_FROZEN'] === '1';
+
 export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
@@ -51,6 +58,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: DEV_PORT,
       strictPort: true,
+      ...(FROZEN ? { hmr: false, watch: null } : {}),
     },
     preview: {
       port: DEV_PORT,

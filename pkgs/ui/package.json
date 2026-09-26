@@ -19,8 +19,9 @@
   },
   "scripts": {
     "codemod": "bun run ./codemod/cli-io.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "vitest run",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel tests codemod/tests",
     "tokens:check": "bun run ./scripts/generate-tokens-css.ts --check",
     "tokens:generate": "bun run ./scripts/generate-tokens-css.ts"
   },
@@ -43,15 +44,14 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@solidjs/testing-library": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
     "@testing-library/user-event": "catalog:",
     "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "happy-dom": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:"
   }
 }

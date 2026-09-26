@@ -24,7 +24,7 @@
  * `pdb_idx_chess_puzzle__*` declarative indexes already exist. Run the
  * standard migration step first (`bun run db:migrate`)
  * before invoking this script on a fresh database. Keeping migrations out
- * of the seed lets `@libs/chess` stay independent of `@apps/server`
+ * of the seed lets `@libs/chess` stay independent of `@libs/server-app`
  * and avoids a workspace-level dependency cycle.
  *
  * Connection model: the seed opens **exactly one** TCP session to Postgres
@@ -37,10 +37,10 @@
  * `SET …` statements that need to persist across the seed's batches).
  *
  * Dev (secrets env `dev`, local `@pkgs/postgres-embedded` or resolved DATABASE_URL):
- *   SECRETS_ENV=dev bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
+ *   SECRETS_ENV=dev bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Production (secrets env `prd`, `DATABASE_URL` → Postgres):
- *   SECRETS_ENV=prd bun run tools/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
+ *   SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/chess seed:puzzles
  *
  * Options: `--profile auto|fast|managed` (default `auto`), `--source`,
  *   `--cache-dir`, `--batch-size`, `--limit`, `--no-resume`, `--dry-run`,
@@ -52,16 +52,9 @@
 
 import { join } from 'node:path';
 import type { Clock, Timers } from '@pkgs/clock';
-import {
-  assertDevSecretsEnv,
-  PRODUCTION_SECRETS_ENV,
-} from '@pkgs/database-url-policy';
-import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
 import type { HttpClient } from '@pkgs/http-client';
 import { createLogger, type Logger } from '@pkgs/logger';
 import type { ObjectStore } from '@pkgs/object-store/interface';
-import { createScriptSecretStore } from '@pkgs/secret-store';
-import { resolveSecretsScope } from '@pkgs/secrets-config/index';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
@@ -81,13 +74,14 @@ import {
   type ResolvedSeedProfile,
   resolveSeedProfile,
 } from './profile';
+import { PuzzleIngestTally } from './puzzle-ingest';
 import {
   type IteratePuzzleRowsOptions,
   PuzzleRowIterator,
 } from './puzzle-row-iterator';
 import { PuzzleSeedReporter } from './reporter';
-import { rowToPuzzleBatchEntry } from './row';
 import { PuzzleArchiveCache, type ResolvedSource } from './streaming';
+import { resolveToolingDatabaseUrl } from './tooling-database-url';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../../..');
 
@@ -312,21 +306,23 @@ export class ChessPuzzleSeeder {
     reporter.phase('Dry run — parse CSV only (no database writes)', {
       path: resolved.displayPath,
     });
-    let n = 0;
+    const tally = new PuzzleIngestTally();
     try {
       await new PuzzleRowIterator().iterate(
         resolved,
         async (row) => {
-          if (rowToPuzzleBatchEntry(row) === null) return true;
-          n += 1;
-          return cli.limit === null || n < cli.limit;
+          if (tally.accept(row) === null) return true;
+          return cli.limit === null || tally.accepted < cli.limit;
         },
         this.#iterateProgressOptions(reporter)
       );
     } finally {
       reporter.endParseProgressLine();
     }
-    reporter.phase('Dry run complete', { validPuzzleRowsSeen: n });
+    reporter.phase('Dry run complete', {
+      validPuzzleRowsSeen: tally.accepted,
+      skipped: tally.skipped(),
+    });
   }
 
   #shouldSkipResumedRow(
@@ -382,18 +378,22 @@ export class ChessPuzzleSeeder {
   }): Promise<boolean> {
     const { ctx, rowState, row } = args;
     if (this.#shouldSkipResumedRow(row, ctx.resumeCursor)) return true;
-    const entry = rowToPuzzleBatchEntry(row);
-    if (entry === null) return true;
-    rowState.state.batch.push(entry);
+    const tableRow = rowState.state.tally.accept(row);
+    if (tableRow === null) return true;
+    rowState.state.batch.push({ puzzleId: tableRow.id, row: tableRow });
     rowState.state.processed += 1;
-    rowState.state.lastPuzzleId = entry.puzzleId;
+    rowState.state.lastPuzzleId = tableRow.id;
     await this.#maybeFlushBatch({ ctx, rowState });
     return ctx.cli.limit === null || rowState.state.processed < ctx.cli.limit;
   }
 
   async #streamPuzzles(ctx: StreamContext): Promise<SeedStats> {
     const rowState: StreamRowState = {
-      state: createSeedStats(ctx.resumeCursor, this.#clock.now),
+      state: createSeedStats(
+        ctx.resumeCursor,
+        this.#clock.now,
+        new PuzzleIngestTally()
+      ),
       lastProgressBatchIdx: 0,
     };
     ctx.reporter.phase('Stream puzzles into chess_puzzles (fast path)', {
@@ -504,6 +504,7 @@ export class ChessPuzzleSeeder {
     reporter.phase('seed:puzzles: done', {
       processed: stats.processed,
       rowsInserted: stats.rowsInserted,
+      skipped: stats.tally.skipped(),
       batchesFlushed: stats.batchesFlushed,
       totalMs: Math.round(this.#clock.now() - stats.startedAt),
       etagPreview:
@@ -522,27 +523,12 @@ export class ChessPuzzleSeeder {
     reporter.phase('Connect database (single TCP session)', {
       note: 'Schema (chess_puzzles + chess_puzzle_load) must already exist; run `bun run db:migrate` first on a fresh database.',
     });
-    const store = createScriptSecretStore();
-    const secretsEnv =
-      process.env['SECRETS_ENV']?.trim() ||
-      (await resolveSecretsScope(this.#stores.configStore)).env;
-    if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
-      assertDevSecretsEnv(secretsEnv);
-    }
-    const databaseUrl = (
-      await store.getRequired('DATABASE_URL')
-    ).readSecretValue();
-    await assertDatabaseUrlAllowedForSecretsEnvForTooling(
-      databaseUrl,
-      secretsEnv,
-      {
-        deps: {
-          repoRoot: REPO_ROOT,
-          fetchFn: (input, init) => this.#http.fetch(input, init),
-        },
-        context: { surface: 'chess:seed-puzzles' },
-      }
-    );
+    const { databaseUrl } = await resolveToolingDatabaseUrl({
+      configStore: this.#stores.configStore,
+      http: this.#http,
+      repoRoot: REPO_ROOT,
+      surface: 'chess:seed-puzzles',
+    });
     const { db: sqlClient } = await this.#createSqlClient(databaseUrl);
     const fastPath = new PuzzleSeedFastPath(sqlClient, {
       timers: this.#timers,

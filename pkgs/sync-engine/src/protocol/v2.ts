@@ -66,6 +66,12 @@ export type MutationRequestItem = {
   readonly clientId: string;
   readonly seq: number;
   readonly createdAt: string;
+  /** W3C context of the interaction that originated this offline-capable write. */
+  readonly originTraceparent: string | null;
+  readonly correlation?: {
+    readonly sessionId: string;
+    readonly buildSha: string;
+  };
 };
 
 export type MutationBatchRequest = {
@@ -83,6 +89,7 @@ export type MutationVerdict =
 
 export type MutationBatchResponse = {
   readonly ok: true;
+  readonly serverTimeMs: number;
   readonly verdicts: MutationVerdict[];
   readonly ackSeq: number;
   /**

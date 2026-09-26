@@ -8,19 +8,17 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "provision": "bun run src/scripts/provision.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "health": "bun test --timeout 60000 ./health/*.health.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
     "@libs/db": "workspace:*",
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/logger": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store-s3": "workspace:*"
   },
   "devDependencies": {
+    "@libs/infra": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

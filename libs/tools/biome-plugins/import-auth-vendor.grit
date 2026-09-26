@@ -1,0 +1,30 @@
+language js
+
+// The app knows auth only through the auth port (@pkgs/auth). The in-house
+// IdP (@pkgs/auth-inhouse, @pkgs/auth-sim) and every hosted auth service's
+// SDK (Clerk, Firebase, WorkOS, Cognito / Amplify, Better Auth) are imported
+// only where an adapter is chosen and built — composition roots, sims,
+// scripts, tests — never by product code, so no product path can branch on
+// which auth service it holds.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "auth-",
+    includes "clerk",
+    includes "firebase",
+    includes "workos",
+    includes "cognito",
+    includes "amplify"
+  },
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:@pkgs/auth-(?:inhouse|sim)|@clerk/[^'\"]+|firebase|firebase-admin|@workos-inc/[^'\"]+|amazon-cognito-identity-js|@aws-sdk/client-cognito-identity-provider|aws-amplify|@aws-amplify/[^'\"]+|better-auth)(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="Product code knows auth only through the @pkgs/auth port. Build the auth service's adapter in a composition root (libs/runtime/src/root/server/app-auth-provider.ts, a wall or sim ClientEnv, a script) and inject it as an AuthProviderModule / AuthClientPort.", severity="error")
+  }
+}

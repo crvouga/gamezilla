@@ -1,153 +1,13 @@
-import type { HtmlReportTest, ReportSnapshotBlob, ReportStep } from '@pkgs/sim';
-import {
-  createEffect,
-  createSignal,
-  For,
-  onCleanup,
-  onMount,
-  Show,
-} from 'solid-js';
-import { useReport } from '../app/report-context';
+import type { HtmlReportTest } from '@pkgs/sim';
+import { createMemo, For, Show } from 'solid-js';
 import type { ReportNav } from '../app/use-report-nav';
 import type { FlatFrame } from '../lib/frames';
-import { showPress, zoomMode } from '../lib/hash';
-import { PHONE_H, PHONE_W, zoomScale } from '../lib/phone';
-import {
-  applyPhoneScale,
-  type PhoneLayers,
-  paintPhoneBlob,
-} from '../lib/phone-paint';
+import { orderedUiBlobs } from '../lib/frames';
+import { showPress } from '../lib/hash';
+import { PhonePanel } from './phone-panel';
 
-function PressOverlay(props: {
-  step: ReportStep | null;
-  nodeId: string;
-  route: ReturnType<ReportNav['route']>;
-  scale: number;
-}) {
-  const hit = () => {
-    const step = props.step;
-    if (!showPress(props.route) || !step?.hit?.rect) return null;
-    if (step.actorId && props.nodeId && step.actorId !== props.nodeId) {
-      return null;
-    }
-    return step.hit;
-  };
-  return (
-    <Show when={hit()}>
-      {(h) => {
-        const r = h().rect;
-        if (!r) return null;
-        const pr = h().point || { xRatio: 0.5, yRatio: 0.5 };
-        return (
-          <div
-            class="sr-press-overlay"
-            style={{
-              transform: `scale(${props.scale})`,
-              'transform-origin': 'top left',
-              width: `${PHONE_W}px`,
-              height: `${PHONE_H}px`,
-            }}
-          >
-            <div
-              class="sr-press-ring"
-              style={{
-                left: `${r.x}px`,
-                top: `${r.y}px`,
-                width: `${r.width}px`,
-                height: `${r.height}px`,
-              }}
-            />
-            <div
-              class="sr-press-point"
-              style={{
-                left: `${r.x + r.width * pr.xRatio}px`,
-                top: `${r.y + r.height * pr.yRatio}px`,
-              }}
-            />
-          </div>
-        );
-      }}
-    </Show>
-  );
-}
-
-function PhonePanel(props: {
-  test: HtmlReportTest;
-  blob: ReportSnapshotBlob;
-  step: ReportStep | null;
-  nav: ReportNav;
-  active: boolean;
-  focused: boolean;
-  onFocus: () => void;
-}) {
-  const report = useReport();
-  let wrapEl: HTMLDivElement | undefined;
-  let frameEl: HTMLDivElement | undefined;
-  const [scale, setScale] = createSignal(0.4);
-  const layers: PhoneLayers = {
-    frameEl: document.createElement('div'),
-    paintGen: 0,
-  };
-
-  createEffect(() => {
-    if (!frameEl) return;
-    layers.frameEl = frameEl;
-    paintPhoneBlob({
-      layers,
-      test: props.test,
-      blob: props.blob,
-      route: props.nav.route(),
-      stepActorId: props.step?.actorId,
-      hit: props.step?.hit,
-      frameCss: report.frameCss,
-    });
-    applyPhoneScale(frameEl, scale());
-  });
-
-  onMount(() => {
-    const fit = () => {
-      if (!wrapEl || !frameEl) return;
-      const s = zoomScale(
-        zoomMode(props.nav.route()),
-        wrapEl.clientWidth,
-        wrapEl.clientHeight
-      );
-      setScale(s);
-      applyPhoneScale(frameEl, s);
-    };
-    fit();
-    const ro =
-      typeof ResizeObserver === 'function' ? new ResizeObserver(fit) : null;
-    if (ro && wrapEl) ro.observe(wrapEl);
-    else window.addEventListener('resize', fit);
-    onCleanup(() => {
-      ro?.disconnect();
-      window.removeEventListener('resize', fit);
-    });
-  });
-
-  return (
-    <div
-      class="sr-client"
-      classList={{ active: props.active, focused: props.focused }}
-      onClick={() => props.onFocus()}
-    >
-      <div class="sr-client-label">
-        <span class={`sr-dot ${props.active ? 'passed' : ''}`} />
-        <span class="actor">{props.blob.nodeId || props.blob.name}</span>
-      </div>
-      <div class="sr-phone" ref={wrapEl}>
-        <div class="frame" ref={frameEl}>
-          <PressOverlay
-            step={props.step}
-            nodeId={props.blob.nodeId || ''}
-            route={props.nav.route()}
-            scale={scale()}
-          />
-        </div>
-      </div>
-    </div>
-  );
+function sameIds(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((id, i) => id === b[i]);
 }
 
 export function PhoneStage(props: {
@@ -156,21 +16,35 @@ export function PhoneStage(props: {
   nav: ReportNav;
   mode: 'single' | 'multi';
   node: string | null;
-  blobs: ReportSnapshotBlob[];
 }) {
-  const list = () => {
-    if (props.mode === 'single') {
+  const slots = createMemo(() => orderedUiBlobs(props.selected, props.test));
+  // Panels are keyed by actor id (strings), so scrubbing never remounts them:
+  // each panel keeps its iframe and repaints in place.
+  const ids = createMemo(
+    () => {
+      const all = slots();
+      if (props.mode === 'multi') return all.map((s) => s.nodeId);
       const one =
-        props.blobs.find((b) => (b.nodeId || '') === (props.node || '')) ||
-        props.blobs[0];
-      return one ? [one] : [];
-    }
-    return props.blobs;
+        all.find((s) => s.nodeId === (props.node || '')) ||
+        all.find((s) => s.blob) ||
+        all[0];
+      return one ? [one.nodeId] : [];
+    },
+    [],
+    { equals: sameIds }
+  );
+  const slotFor = (id: string) => slots().find((s) => s.nodeId === id);
+  const hitFor = (id: string) => {
+    const frame = props.selected;
+    const hit = frame?.frame.hit;
+    if (!hit || !showPress(props.nav.route())) return null;
+    const actor = frame.step.actorId;
+    return !actor || actor === id ? hit : null;
   };
 
   return (
     <Show
-      when={list().length > 0}
+      when={ids().length > 0}
       fallback={
         <div class="sr-nodata">
           {props.selected
@@ -185,27 +59,24 @@ export function PhoneStage(props: {
           single: props.mode === 'single',
           multi: props.mode === 'multi',
         }}
+        aria-label={
+          props.mode === 'multi' ? 'Client snapshots' : 'Client snapshot'
+        }
       >
-        <For each={list()}>
-          {(blob) => {
-            const active = () =>
-              (blob.nodeId || '') === (props.node || '') ||
-              props.selected?.step.actorId === blob.nodeId;
-            const focused = () => (blob.nodeId || '') === (props.node || '');
-            return (
-              <PhonePanel
-                test={props.test}
-                blob={blob}
-                step={props.selected?.step ?? null}
-                nav={props.nav}
-                active={active()}
-                focused={focused()}
-                onFocus={() =>
-                  props.nav.goFrame(props.selected, blob.nodeId || '')
-                }
-              />
-            );
-          }}
+        <For each={ids()}>
+          {(id) => (
+            <PhonePanel
+              test={props.test}
+              blob={slotFor(id)?.blob ?? null}
+              stale={slotFor(id)?.stale ?? true}
+              nodeId={id}
+              hit={hitFor(id)}
+              zoom={props.nav.route().params['zoom'] || 'fit'}
+              active={props.selected?.step.actorId === id}
+              focused={id === (props.node || '')}
+              onFocus={() => props.nav.goFrame(props.selected, id)}
+            />
+          )}
         </For>
       </div>
     </Show>

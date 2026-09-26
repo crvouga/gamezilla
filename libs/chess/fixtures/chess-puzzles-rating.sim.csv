@@ -1,0 +1,15 @@
+id,fen,moves,rating,rating_deviation,popularity,nb_plays,themes,game_url,opening_tags
+000rZ,2kr1b1r/p1p2pp1/2pqb3/7p/3N2n1/2NPB3/PPP2PPP/R2Q1RK1 w - - 2 13,d4e6 d6h2,1490,75,95,400,"[""kingsideAttack"",""mate"",""mateIn1"",""oneMove"",""opening""]",https://lichess.org/seIMDWkD#25,"[""Scandinavian_Defense"",""Scandinavian_Defense_Modern_Variation""]"
+001KR,6Qk/p1p3pp/4N3/1p6/2q1r1n1/2B5/PP4PP/3R1R1K b - - 0 28,h8g8 f1f8,1495,75,95,400,"[""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/TaT1Zl7z/black#56,[]
+002Q2,7k/p4R1p/3p3r/2pN1n2/2PbBBb1/3P2P1/P3r3/5R1K w - - 1 28,f4h6 f5g3,1500,75,95,400,"[""cornerMate"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/yqAJ1jMv#55,[]
+002X3,6k1/2q2p1p/4pPp1/4P3/p1pP1P2/RrP5/6QP/4B1K1 b - - 0 33,b3a3 g2a8 c7b8 a8b8,1505,75,95,400,"[""endgame"",""mate"",""mateIn2"",""short""]",https://lichess.org/yshS3bLB/black#66,[]
+002vV,8/6k1/2R4p/5p1P/5P1K/6P1/8/r7 w - - 2 58,c6b6 a1h1,1510,75,95,400,"[""endgame"",""master"",""mate"",""mateIn1"",""oneMove"",""rookEndgame""]",https://lichess.org/KB7FAntf#115,[]
+004yJ,r4rk1/1bp2ppp/p1q1pn2/2P5/8/3B1N2/P1P1QPPP/R4RK1 w - - 0 16,f3e5 c6g2,1515,75,95,400,"[""kingsideAttack"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/8N3Hfj05#31,"[""French_Defense"",""French_Defense_Exchange_Variation""]"
+005Ep,5kr1/ppR3p1/3R3p/8/1r1n4/8/1P3PPP/2K5 b - - 4 31,d4b5 d6d8,1520,75,95,400,"[""endgame"",""mate"",""mateIn1"",""oneMove""]",https://lichess.org/ttFEoJfQ/black#62,[]
+005YX,2rr4/2N2pk1/p1Q1b1pp/1p4q1/3pP3/1B1P4/PPP3PP/6RK w - - 7 25,c7e6 f7e6 c6b7 g7h8,1525,75,95,400,"[""defensiveMove"",""equality"",""middlegame"",""short""]",https://lichess.org/zbi5w5Qy#49,[]
+005gP,8/8/3p4/2kP4/1p4P1/2pK4/P7/8 w - - 1 42,g4g5 c5d5 g5g6 d5e6 g6g7 e6f7 a2a4 b4a3 g7g8r f7g8,1530,75,95,400,"[""crushing"",""endgame"",""enPassant"",""pawnEndgame"",""veryLong""]",https://lichess.org/I76OvKQT#83,[]
+005x9,r1b1kb1Q/ppp4p/6pB/3P4/2pn4/8/PPP1qPPP/RN1K3R w q - 2 13,d1c1 e2c2,1535,75,95,400,"[""mate"",""mateIn1"",""middlegame"",""oneMove"",""queensideAttack""]",https://lichess.org/TiwHxq8n#25,"[""Italian_Game"",""Italian_Game_Rousseau_Gambit""]"
+007AH,3r1n2/1bp1bkpp/p1q2n2/1p6/3P4/P1N3B1/1PP2PPP/R2QR1K1 w - - 5 18,d1e2 c6g2,1540,75,95,400,"[""kingsideAttack"",""master"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/MCM1Gmz4#35,"[""Scandinavian_Defense"",""Scandinavian_Defense_Valencian_Variation""]"
+007QU,2rq1rk1/1b3p1p/p3p3/1p1pB1p1/2nP2N1/1RP1PP2/P1Q3PP/3R2K1 b - - 1 22,f7f5 g4h6,1545,75,95,400,"[""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/ZduvBU6U/black#44,[]
+007mr,5k2/p2r3p/1p4pP/3r1q2/3Rp3/2P5/PP3PQ1/K3R3 w - - 0 33,d4e4 d5d1 e1d1 d7d1,1550,75,95,400,"[""backRankMate"",""endgame"",""mate"",""mateIn2"",""short""]",https://lichess.org/J12UnEgz#65,[]
+0082f,r4rk1/2q2ppp/3pp3/4Pb1N/pp6/1B4Q1/PPP3PP/1K1RR3 b - - 0 21,a4b3 g3g7,1555,75,95,400,"[""kingsideAttack"",""mate"",""mateIn1"",""middlegame"",""oneMove""]",https://lichess.org/fHfmODEz/black#42,[]

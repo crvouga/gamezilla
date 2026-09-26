@@ -44,7 +44,7 @@ function makeKv() {
         capture: (s: Kv) => {
           const map: Record<string, string> = {};
           for (const id of s.clients) {
-            map[id] = `<html><body>${id}:${s.values.x ?? ''}</body></html>`;
+            map[id] = `<html><body>${id}:${s.values['x'] ?? ''}</body></html>`;
           }
           return map;
         },
@@ -110,6 +110,29 @@ describe('run reporting', () => {
     expect(outer.steps.map((c) => c.title)).toEqual(['tap', 'put("x", "1")']);
     expect(outer.steps[0]!.selector).toBe('x');
     expect(outer.steps[1]!.kind).toBe('apply');
+  });
+
+  test('press hit lands only on the pre-action frame, even when unchanged', async () => {
+    const { sys, put } = makeKv();
+    await using s = await sys.run({ seed: 1, report: true });
+    await s.apply(put, 'x', '1');
+    const hit = { path: ['home', 'ok'], point: { xRatio: 0.5, yRatio: 0.5 } };
+    await s.record(
+      { kind: 'ui', title: 'tap', hit, snapshotBefore: true },
+      async () => {
+        await s.apply(put, 'x', '2');
+      }
+    );
+    const report = s.report()!;
+    const tap = report.steps[1]!;
+    // UI did not change since the last apply, yet the press keeps its frame.
+    expect(tap.frames[0]!.hit).toEqual(hit);
+    expect(tap.frames[0]!.snapshots).toEqual(
+      report.steps[0]!.frames.at(-1)!.snapshots
+    );
+    const after = tap.steps[0]!.frames;
+    expect(after.length).toBeGreaterThan(0);
+    expect(after.every((f) => f.hit === undefined)).toBe(true);
   });
 
   test('describe names the apply step; failures mark the run', async () => {

@@ -1,9 +1,9 @@
+import { describe, expect, test } from 'bun:test';
 import {
   MODAL_WIDTH_PX,
   resolveModalLayoutMaxHeight,
   resolveModalLayoutWidth,
 } from '@pkgs/ui';
-import { describe, expect, test } from 'vitest';
 
 describe('resolveModalLayoutWidth', () => {
   const margin = 16;

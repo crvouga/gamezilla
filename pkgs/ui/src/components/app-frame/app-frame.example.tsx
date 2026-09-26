@@ -19,7 +19,7 @@ function OverrideDemo(): JSX.Element {
 
 export default function AppFrameExample(): JSX.Element {
   return (
-    <ExampleRoot class="flex-1 min-h-[320px] gap-4">
+    <ExampleRoot class="flex-1 min-h-80 gap-4">
       <AppFrameChromeProvider
         globalTrailing={<p class="text textCaption">{'Avatar'}</p>}
       >

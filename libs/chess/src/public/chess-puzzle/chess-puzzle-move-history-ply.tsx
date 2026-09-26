@@ -1,11 +1,17 @@
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
+import {
+  type ChessMoveNotation,
+  formatSanNotation,
+} from '../../shared/chess/chess-puzzle-notation';
 import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
+import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
 
 type HistoryPlyChipProps = {
   ply: PuzzleHistoryPly;
   selected: boolean;
   interactive: boolean;
+  notation: ChessMoveNotation;
   onSeek: (solveIdx: number) => void;
 };
 
@@ -41,7 +47,7 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
   };
   return (
     <button
-      class="clickable px-1.5 py-0.5 rounded-[4px]"
+      class="clickable px-1.5 py-0.5 rounded-xs"
       style={{ background: props.selected ? 'successSurface' : 'transparent' }}
       data-testid={`chess-puzzle-move-ply-${props.ply.plyIndex}`}
       type="button"
@@ -58,9 +64,31 @@ function HistoryPlyChip(props: HistoryPlyChipProps): JSX.Element {
           'font-weight': props.selected ? '700' : '600',
         }}
       >
-        {props.ply.san}
+        {formatSanNotation(props.ply.san, props.notation)}
       </code>
     </button>
+  );
+}
+
+/**
+ * Test-only marker on whichever chip the move list is highlighting, rendered
+ * from the same `selected` branch as the highlight itself — so a scenario
+ * asserts the §7 "current move highlighted" rule, not a parallel signal.
+ */
+function SelectedPlyProbe(props: {
+  ply: PuzzleHistoryPly;
+  selected: boolean;
+}): JSX.Element {
+  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
+  return (
+    <Show when={props.selected}>
+      <span
+        style={{ position: 'absolute', width: '1px', height: '1px' }}
+        data-testid="chess-puzzle-move-ply-selected"
+      >
+        {`${props.ply.plyIndex}|${props.ply.san}`}
+      </span>
+    </Show>
   );
 }
 
@@ -68,6 +96,7 @@ export function HistoryPlyCluster(props: {
   ply: PuzzleHistoryPly;
   selectedSolveIdx: number;
   interactive: boolean;
+  notation: ChessMoveNotation;
   onSeek: (solveIdx: number) => void;
   selectedRef?: (el: HTMLElement) => void;
 }): JSX.Element {
@@ -87,7 +116,12 @@ export function HistoryPlyCluster(props: {
         ply={props.ply}
         selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
         interactive={props.interactive}
+        notation={props.notation}
         onSeek={props.onSeek}
+      />
+      <SelectedPlyProbe
+        ply={props.ply}
+        selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
       />
     </div>
   );

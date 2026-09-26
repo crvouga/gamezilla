@@ -1,8 +1,5 @@
 import { assert } from '@pkgs/assert';
 
-export const PRODUCTION_SECRETS_ENV = 'prd' as const;
-export const DEVELOPMENT_SECRETS_ENV = 'dev' as const;
-
 export type DatabaseUrlPolicyOptions = {
   readonly productionHostnames?: readonly string[];
 };
@@ -13,16 +10,20 @@ export function productionDatabaseUrlTigerExceptionEnabled(): boolean {
 }
 
 /**
- * Tiger invariant: non-deploy scripts must run under secrets env `dev`, never `prd`.
+ * Tiger invariant: non-deploy scripts never run under a production secrets
+ * env. Which environments are production is the caller's decision.
  */
-export function assertDevSecretsEnv(config: string): void {
-  if (config === DEVELOPMENT_SECRETS_ENV) return;
+export function assertNonProductionSecretsEnv(
+  secretsEnv: string,
+  productionEnvs: readonly string[]
+): void {
+  if (secretsEnv.length > 0 && !productionEnvs.includes(secretsEnv)) return;
   assert.fail(
-    'Tiger invariant: local / development database access requires secrets env `dev`. ' +
-      `Got ${config.length > 0 ? JSON.stringify(config) : 'empty'}. ` +
-      'Set SECRETS_ENV=dev or run secrets-run. ' +
-      'Production deploy uses SECRETS_ENV=prd.',
-    { secretsEnv: config }
+    'Tiger invariant: local / development database access requires a non-production secrets env. ' +
+      `Got ${secretsEnv.length > 0 ? JSON.stringify(secretsEnv) : 'empty'} ` +
+      `(production: ${productionEnvs.join(', ') || 'none'}). ` +
+      'Set SECRETS_ENV to a non-production environment or run secrets-run.',
+    { secretsEnv, productionEnvs }
   );
 }
 
@@ -85,21 +86,22 @@ function assertHostnameNotProductionOnly(
   }
 }
 
-function assertDiffersFromProductionUrl(
+function assertDiffersFromProductionUrls(
   url: string,
-  prodUrl: string | null,
+  prodUrls: readonly string[],
   context: Record<string, unknown>
 ): void {
-  if (prodUrl === null || !isPostgresWireUrl(prodUrl)) return;
   const normalized = normalizeDatabaseUrlForCompare(url);
-  const normalizedProd = normalizeDatabaseUrlForCompare(prodUrl);
-  if (normalized === normalizedProd) {
-    assert.fail(
-      'Tiger invariant: DATABASE_URL matches production `DATABASE_URL`. ' +
-        'Non-deploy contexts must use secrets env `dev` only. ' +
-        'If intentional, set ALLOW_PRODUCTION_DATABASE_URL=1.',
-      context
-    );
+  for (const prodUrl of prodUrls) {
+    if (!isPostgresWireUrl(prodUrl)) continue;
+    if (normalized === normalizeDatabaseUrlForCompare(prodUrl)) {
+      assert.fail(
+        'Tiger invariant: DATABASE_URL matches a production `DATABASE_URL`. ' +
+          'Non-deploy contexts must use a non-production secrets env only. ' +
+          'If intentional, set ALLOW_PRODUCTION_DATABASE_URL=1.',
+        context
+      );
+    }
   }
 }
 
@@ -110,7 +112,8 @@ export async function assertNonProdDatabaseUrl(
   url: string,
   context: Record<string, unknown> = {},
   options?: {
-    readonly productionUrl?: string | null;
+    /** Every production environment's `DATABASE_URL` the caller could read. */
+    readonly productionUrls?: readonly string[];
     readonly productionHostnames?: readonly string[];
   }
 ): Promise<void> {
@@ -124,21 +127,5 @@ export async function assertNonProdDatabaseUrl(
     context
   );
 
-  const prodUrl =
-    options?.productionUrl !== undefined ? options.productionUrl : null;
-  assertDiffersFromProductionUrl(url, prodUrl, context);
-}
-
-/**
- * Validates `DATABASE_URL` against the active secrets env scope.
- * `prd` is allowed (deploy); everything else runs {@link assertNonProdDatabaseUrl}.
- */
-export async function assertDatabaseUrlAllowedForSecretsEnv(
-  url: string,
-  secretsEnv: string,
-  context: Record<string, unknown> = {},
-  options?: DatabaseUrlPolicyOptions
-): Promise<void> {
-  if (secretsEnv === PRODUCTION_SECRETS_ENV) return;
-  await assertNonProdDatabaseUrl(url, { ...context, secretsEnv }, options);
+  assertDiffersFromProductionUrls(url, options?.productionUrls ?? [], context);
 }

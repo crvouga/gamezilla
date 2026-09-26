@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-action.json
+name: Inject secrets via Infisical OIDC
+description: Provider adapter — Infisical machine identity OIDC → GITHUB_ENV
+
+inputs:
+  identity-id:
+    description: Infisical machine identity ID for OIDC
+    required: true
+  project-id:
+    description: Infisical project slug / id
+    required: true
+  environment:
+    description: Infisical environment slug (dev or prd)
+    required: true
+  endpoint:
+    description: Infisical API domain (empty → Infisical Cloud default)
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Fetch secrets from Infisical
+      uses: Infisical/secrets-action@v1.0.16
+      with:
+        method: oidc
+        identity-id: ${{ inputs.identity-id }}
+        project-slug: ${{ inputs.project-id }}
+        env-slug: ${{ inputs.environment }}
+        domain: ${{ inputs.endpoint != '' && inputs.endpoint || 'https://app.infisical.com' }}
+
+    # Infisical/secrets-action injects secret *values* only. Admin CLI
+    # paths (`bun health`, `@libs/infra` OpenTofu applies) re-auth via OIDC using
+    # `resolveInfisicalAccessTokenForWrites`, which needs the machine
+    # identity id in the job env (not merely as this action's input).
+    #
+    # `inputs.project-id` is the Infisical *slug* (secrets-action
+    # `project-slug`). Export the workspace UUID from `.secrets.json` as
+    # `SECRETS_PROJECT_ID` — machine-identity `infisical export` 404s on a slug.
+    - name: Export secrets auth coords for admin CLI
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "SECRETS_IDENTITY_ID=${{ inputs.identity-id }}" >> "$GITHUB_ENV"
+        project_id="$(jq -r '.projectId // empty' .secrets.json)"
+        if [ -z "$project_id" ] || [ "$project_id" = "null" ]; then
+          echo "::error::.secrets.json missing projectId (Infisical workspace UUID)"
+          exit 1
+        fi
+        echo "SECRETS_PROJECT_ID=${project_id}" >> "$GITHUB_ENV"

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import {
   AppLogo,
   type AppRouter,
@@ -21,7 +23,6 @@ import {
   type ParentProps,
   useContext,
 } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 import { renderUi } from './support/render';
 
 describe('hrefToPath', () => {
@@ -146,7 +147,8 @@ describe('brand + providers', () => {
     renderUi(() => <AppLogo size={40} />);
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1).toHaveTextContent('gamezilla');
-    expect(h1.getAttribute('style')).toContain('var(--ui-color-tint)');
+    expect(h1.className).toContain('appLogo');
+    expect(h1.className).toContain('text-tint');
   });
 
   test('BrandIcon renders fixed-color vendor svg', () => {

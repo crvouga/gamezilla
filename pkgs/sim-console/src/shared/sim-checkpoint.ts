@@ -1,9 +1,9 @@
 /**
  * Full run checkpoint for product-simulator time travel and DST report replay.
  * ProductSimulator capture stores opaque server/client bytes:
- * - `mixed-pgmm-sqlm` — postgres-mem PGMM + sqlite-mem SQLM (sim fabric)
+ * - `mixed-pgmm-sqlm` — mockingbird-postgres PGMM + mockingbird-sqlite SQLM (sim fabric)
  * DST reports may still store native sqlite images; the console converts those
- * to SQLM before restore when on the mem fabric.
+ * to SQLM before restore when on the mockingbird SQL fabric.
  */
 
 export type SimCheckpointSqlFormat =

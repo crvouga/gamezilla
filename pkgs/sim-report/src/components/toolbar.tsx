@@ -1,90 +1,45 @@
-import type { HtmlReportTest } from '@pkgs/sim';
 import { For, Show } from 'solid-js';
 
 import type { ReportNav } from '../app/use-report-nav';
-import { fmtMs } from '../lib/format';
-import type { FlatFrame } from '../lib/frames';
-import { frameHasUi } from '../lib/frames';
-import { showAside, showPress } from '../lib/hash';
+import { showAside, showPress, viewMode, zoomMode } from '../lib/hash';
 
+const ZOOMS = ['fit', '50', '75', '100'] as const;
+
+/** View controls only; navigation lives in the scrubber transport. */
 export function Toolbar(props: {
-  test: HtmlReportTest;
-  frames: FlatFrame[];
-  selected: FlatFrame | null;
   nav: ReportNav;
+  ui: boolean;
+  hasData: boolean;
 }) {
-  const idx = () => (props.selected ? props.selected.index : -1);
-  const ui = () => frameHasUi(props.selected);
   const route = () => props.nav.route();
-
-  const segOn = (cur: string | undefined, value: string, fallback: string) =>
-    (cur || fallback) === value;
-
   return (
-    <div class="sr-toolbar">
-      <button
-        type="button"
-        class="sr-navbtn"
-        disabled={idx() <= 0}
-        data-scrub-prev=""
-        onClick={() => props.nav.stepFrame(-1)}
-      >
-        ◂
-      </button>
-      <button
-        type="button"
-        class="sr-navbtn"
-        disabled={idx() < 0 || idx() >= props.frames.length - 1}
-        data-scrub-next=""
-        onClick={() => props.nav.stepFrame(1)}
-      >
-        ▸
-      </button>
-      <span class="meta" data-frame-meta="">
-        {props.selected
-          ? `Frame ${idx() + 1} / ${props.frames.length} · ${props.selected.step.title}`
-          : 'No frames'}
-      </span>
-      <Show when={props.selected}>
-        {(sel) => (
-          <span class="meta" data-frame-time="">
-            {`+${fmtMs(sel().frame.capturedAtMs - props.test.report.meta.startedAtMs)}`}
-          </span>
-        )}
-      </Show>
-      <span class="grow" />
-      <Show when={ui()}>
-        <div class="sr-seg">
+    <Show when={props.ui}>
+      <div class="sr-toolbar">
+        <div class="sr-seg" role="group" aria-label="Clients">
           <button
             type="button"
-            class="tab"
-            classList={{
-              on: segOn(route().params['view'], 'multi', 'multi'),
-            }}
+            classList={{ on: viewMode(route()) === 'multi' }}
+            title="All clients (M)"
             onClick={() => props.nav.setParam('view', '')}
           >
-            Multi
+            All clients
           </button>
           <button
             type="button"
-            class="tab"
-            classList={{
-              on: segOn(route().params['view'], 'single', 'multi'),
-            }}
+            classList={{ on: viewMode(route()) === 'single' }}
+            title="Focused client only (M)"
             onClick={() => props.nav.setParam('view', 'single')}
           >
-            Single
+            Focused
           </button>
         </div>
-        <div class="sr-seg">
-          <For each={['fit', '50', '75', '100']}>
+        <div class="sr-seg" role="group" aria-label="Zoom">
+          <For each={[...ZOOMS]}>
             {(z) => (
               <button
                 type="button"
-                class="tab"
-                classList={{
-                  on: segOn(route().params['zoom'], z, 'fit'),
-                }}
+                classList={{ on: zoomMode(route()) === z }}
+                title="Zoom (F)"
                 onClick={() => props.nav.setParam('zoom', z === 'fit' ? '' : z)}
               >
                 {z === 'fit' ? 'Fit' : `${z}%`}
@@ -92,30 +47,34 @@ export function Toolbar(props: {
             )}
           </For>
         </div>
-        <button
-          type="button"
-          class="sr-navbtn"
-          classList={{ on: showAside(route()) }}
-          onClick={() =>
-            props.nav.setParam('aside', showAside(route()) ? '0' : '')
-          }
-        >
-          Snapshots
-        </button>
+        <span class="grow" />
         <button
           type="button"
           class="sr-navbtn"
           classList={{ on: showPress(route()) }}
+          aria-pressed={showPress(route())}
+          title="Highlight the pressed element (P)"
           onClick={() =>
             props.nav.setParam('press', showPress(route()) ? '0' : '')
           }
         >
-          Press
+          Highlight press
         </button>
-      </Show>
-      <span class="meta">
-        <kbd>?</kbd> shortcuts
-      </span>
-    </div>
+        <Show when={props.hasData}>
+          <button
+            type="button"
+            class="sr-navbtn"
+            classList={{ on: showAside(route()) }}
+            aria-pressed={showAside(route())}
+            title="Show state snapshots (A)"
+            onClick={() =>
+              props.nav.setParam('aside', showAside(route()) ? '0' : '')
+            }
+          >
+            State
+          </button>
+        </Show>
+      </div>
+    </Show>
   );
 }

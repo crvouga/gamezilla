@@ -1,5 +1,4 @@
-import type { AuthClientPort } from '@pkgs/auth/client/auth-client-port';
-import type { AuthSessionState } from '@pkgs/auth/client/auth-session-state';
+import type { AuthClientPort, AuthSessionState } from '@pkgs/auth/client';
 import { useTimers } from '@pkgs/clock/solid';
 import {
   useHttpClient,
@@ -243,6 +242,28 @@ function useRefreshOnAppForeground(args: {
 }
 
 /**
+ * How often a signed-in device re-checks its session with the server. A
+ * session can end elsewhere — "sign out of all devices", the account holder
+ * revoking the app at Apple — and a device that never asks would keep
+ * showing itself signed in.
+ */
+export const SESSION_REVALIDATE_MS = 60_000;
+
+function useRevalidateSession(args: {
+  enabled: Accessor<boolean>;
+  port: AuthClientPort;
+}): void {
+  const timers = useTimers();
+  createEffect(() => {
+    if (!args.enabled()) return;
+    const id = timers.setInterval(() => {
+      void args.port.session.refresh();
+    }, SESSION_REVALIDATE_MS);
+    onCleanup(() => timers.clearInterval(id));
+  });
+}
+
+/**
  * Reconciles local session capability (`sessionToken` + meta) with identity
  * refresh. IdP `useSession` is a ceremony/reconcile trigger only —
  * chrome reads secure storage.
@@ -313,6 +334,7 @@ export function AuthBridge(props: ParentProps): JSX.Element {
     externalUserId,
     deps,
   });
+  useRevalidateSession({ enabled: refreshEnabled, port });
 
   return <>{props.children}</>;
 }

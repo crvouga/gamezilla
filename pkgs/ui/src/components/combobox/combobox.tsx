@@ -89,6 +89,7 @@ export function Combobox<T extends ComboboxValue = string>(
           onDone={c.handleClose}
           onSearchKeyDown={c.onKey}
           searchDataSet={props.searchDataSet}
+          doneDataSet={props.doneDataSet}
           renderOption={props.renderOption}
           loading={props.loading === true}
           error={props.error}

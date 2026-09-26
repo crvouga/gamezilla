@@ -1,12 +1,11 @@
-export type { Secret, SecretInput, SecretsEnv } from '../shared/secrets/secret';
+export type { Secret, SecretInput } from '../shared/secrets/secret';
 export {
-  activeSecretsEnv,
+  activeEnvFile,
   validateSecretOrError,
 } from '../shared/secrets/secret';
 export {
   deleteSecret,
   deleteSecretIn,
-  ensureSeedInAllEnvsSecrets,
   exportSecretsMap,
   exportSecretsMapLive,
   fetchSecret,

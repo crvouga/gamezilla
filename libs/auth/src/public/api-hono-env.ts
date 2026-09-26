@@ -1,4 +1,4 @@
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth/server';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import type { ApiWorkerBindings } from './api-worker-bindings';

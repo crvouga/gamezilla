@@ -1,3 +1,4 @@
+// goal:always-true:1
 import { describe, test } from 'bun:test';
 import {
   addClient,

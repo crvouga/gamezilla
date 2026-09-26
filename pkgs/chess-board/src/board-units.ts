@@ -1,8 +1,14 @@
 /**
- * The SVG layers draw in a fixed user-unit space (`0 0 800 800`, 100 units
- * per cell) and scale to the host box, so nothing needs a pixel measurement
- * to render. Arrow geometry's minimum stroke / head sizes are tuned for
- * roughly pixel-sized units, which 100 units per cell satisfies.
+ * Two coordinate systems, neither of which needs a pixel measurement to
+ * render:
+ *
+ * - HTML layers (pieces, square washes, hints) are one-cell boxes anchored
+ *   top-left and placed with `translate(col·100%, row·100%)`, so a resize
+ *   never rewrites a transform and every slide is a compositor animation.
+ * - SVG layers (arrows, circles, badges, coordinates) draw in a fixed
+ *   user-unit space (`0 0 800 800`, 100 units per cell). Arrow geometry's
+ *   minimum stroke / head sizes are tuned for roughly pixel-sized units,
+ *   which 100 units per cell satisfies.
  */
 
 import { squareToXY } from '@pkgs/chess-board-core/geometry';
@@ -21,9 +27,22 @@ export function squareOrigin(
   return { x, y };
 }
 
-/** Board-local pixel point → board units for the given rendered width. */
-export function pxToUnits(px: number, boardPx: number): number {
-  return boardPx <= 0 ? 0 : (px * BOARD_UNITS) / boardPx;
+/** Screen cell of `square`: column / row from the top-left, 0..7. */
+export function displayCell(
+  square: Square,
+  orientation: BoardOrientation
+): { col: number; row: number } {
+  const { x, y } = squareToXY(square, 8, orientation);
+  return { col: x, row: y };
+}
+
+/** Resting transform of a one-cell HTML box standing on `square`. */
+export function cellTransform(
+  square: Square,
+  orientation: BoardOrientation
+): string {
+  const { col, row } = displayCell(square, orientation);
+  return `translate(${col * 100}%, ${row * 100}%)`;
 }
 
 export function fmtUnits(n: number): string {

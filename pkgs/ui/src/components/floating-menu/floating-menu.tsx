@@ -150,7 +150,7 @@ function FloatingMenuPanel(props: {
   };
   return (
     <div
-      class="box absolute z-[1]"
+      class="box absolute z-1"
       style={{
         top: `${props.position.top}px`,
         left: `${props.position.left}px`,
@@ -160,7 +160,7 @@ function FloatingMenuPanel(props: {
     >
       <OnColorReset>
         <div
-          class="box rounded-[14px] border border-border py-2 bg-surface-overlay"
+          class="box rounded-card border border-border py-2 bg-surface-overlay"
           ref={(el) => {
             hostEl = el;
           }}

@@ -1,0 +1,19 @@
+language js
+
+// Session / @pkgs/sim is harness-only: product code receives unpacked clock / timers / createId / random / http.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "@pkgs/sim",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]@pkgs/sim(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="@pkgs/sim is harness-only. Product apps and non-test product libs receive unpacked clock/timers/createId/random/http; only src/sim/, tests and @apps/product may import @pkgs/sim.", severity="error")
+  }
+}

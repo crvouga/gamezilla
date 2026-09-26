@@ -2,7 +2,7 @@
  * In-memory product-simulator run checkpoint capture / restore.
  */
 
-import type { CheckpointSessionCtx } from '@apps/product/sim/fabric/checkpoint-state';
+import type { CheckpointSessionCtx } from '@libs/sim-harness/fabric/checkpoint-state';
 import {
   applyCheckpointFaults,
   collectFaultFields,
@@ -13,20 +13,20 @@ import {
   restoreCheckpointKv,
   restoreCheckpointRooms,
   restoreCheckpointServers,
-} from '@apps/product/sim/fabric/checkpoint-state';
-import { getSimSqlEngines } from '@apps/product/sim/fabric/sim-sql-engines';
-import { awaitProductSimulatorMutationDrain } from '@apps/product/sim/fabric/snapshot-sync';
+} from '@libs/sim-harness/fabric/checkpoint-state';
+import { getSimSqlEngines } from '@libs/sim-harness/fabric/sim-sql-engines';
+import { awaitProductSimulatorMutationDrain } from '@libs/sim-harness/fabric/snapshot-sync';
 import type { SimCheckpoint } from '@pkgs/sim-console/client';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 
-export type { CheckpointSessionCtx } from '@apps/product/sim/fabric/checkpoint-state';
+export type { CheckpointSessionCtx } from '@libs/sim-harness/fabric/checkpoint-state';
 
 export async function captureCheckpoint(
   ctx: CheckpointSessionCtx,
   label?: string
 ): Promise<SimCheckpoint> {
   const clientIds = [...ctx.maps.clients.keys()];
-  const roomTopics = [...ctx.roomNode.listTopics()];
+  const roomTopics = [...ctx.sim.roomNode.listTopics()];
   await awaitProductSimulatorMutationDrain(ctx, clientIds);
   const blobs = await collectSqlAndKv(ctx, clientIds);
   const capturedAtMs = ctx.clock.now();

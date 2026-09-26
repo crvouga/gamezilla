@@ -1,0 +1,120 @@
+#!/usr/bin/env bun
+// @io-wall-ok — CLI: one package's e2e suite (`test:e2e`), run from its root.
+/**
+ * Every package's `test:e2e` is this script, so every subsystem suite runs
+ * under the same compile contract, preloads, timeout and reporting:
+ *
+ *   "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
+ *
+ * It wipes the package's report bucket (`.cache/sim-report`), runs
+ * `bun test --parallel tests/e2e` (or the test paths given) with a JUnit report
+ * written into that bucket, and exits with the runner's status. With
+ * `SIM_REPORT=1` the sims also record frames there; `bun run test:report`
+ * (root) folds every package's bucket into one HTML report.
+ */
+
+import { spawnSync } from 'node:child_process';
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+} from 'node:fs';
+import { join } from 'node:path';
+import { wallClock } from '@pkgs/clock';
+import { parseJunit } from '@pkgs/sim';
+import { testFailureSpans } from '../src/observability/test-failure-spans';
+
+const PACKAGE_DIR = process.cwd();
+const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
+const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
+const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
+const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-e2e`;
+/** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
+const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
+
+/**
+ * Arguments pass through to `bun test` in order (`-t name`, `--timeout 1000`
+ * keep their values). The default scope `tests/e2e` applies only when none of
+ * them names a test path, so a narrowed run never widens to unit tests.
+ */
+const args = process.argv.slice(2);
+const namesPath = args.some(
+  (arg) => arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)
+);
+
+/**
+ * The preloads belong to this package (it declares them), not to whichever
+ * package is running its suite — resolve them here, so a suite runs under an
+ * isolated install without every feature re-declaring the harness's deps.
+ */
+const SOLID_PRELOAD = Bun.resolveSync(
+  '@pkgs/bun-test-solid/preload',
+  import.meta.dir
+);
+const HARNESS_PRELOAD = Bun.resolveSync(
+  '@libs/sim-harness/preload',
+  import.meta.dir
+);
+
+rmSync(REPORT_DIR, { recursive: true, force: true });
+mkdirSync(REPORT_DIR, { recursive: true });
+
+const result = spawnSync(
+  'bun',
+  [
+    'test',
+    '--conditions=browser',
+    '--conditions=development',
+    '--preload',
+    SOLID_PRELOAD,
+    '--preload',
+    HARNESS_PRELOAD,
+    ...(process.env['SIM_PRELOAD'] === undefined
+      ? []
+      : ['--preload', process.env['SIM_PRELOAD']]),
+    '--timeout',
+    String(TIMEOUT_MS),
+    '--parallel',
+    '--reporter=junit',
+    `--reporter-outfile=${JUNIT_PATH}`,
+    ...args,
+    ...(namesPath ? [] : ['tests/e2e']),
+  ],
+  {
+    cwd: PACKAGE_DIR,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      OBS_TRACE_ARTIFACT_DIR: join(REPORT_DIR, 'traces'),
+      OBS_TEST_SERVICE: TEST_SERVICE_NAME,
+    },
+  }
+);
+
+appendFailureTraces();
+
+process.exit(result.status ?? 1);
+
+function appendFailureTraces(): void {
+  if (!existsSync(JUNIT_PATH)) return;
+  const traceDir = join(REPORT_DIR, 'traces');
+  const spans = testFailureSpans(parseJunit(readFileSync(JUNIT_PATH, 'utf8')), {
+    buildSha: process.env['GITHUB_SHA'] ?? 'local',
+    ...(process.env['GITHUB_RUN_ID'] === undefined
+      ? {}
+      : { ciRunId: process.env['GITHUB_RUN_ID'] }),
+    completedAtMs: wallClock.now(),
+    environment: process.env['GITHUB_ACTIONS'] === 'true' ? 'ci' : 'test',
+    packageName: TEST_PACKAGE_NAME,
+    serviceName: TEST_SERVICE_NAME,
+  });
+  if (spans.length === 0) return;
+  mkdirSync(traceDir, { recursive: true });
+  appendFileSync(
+    join(traceDir, 'spans.ndjson'),
+    `${spans.map((span) => JSON.stringify(span)).join('\n')}\n`,
+    'utf8'
+  );
+}

@@ -31,7 +31,10 @@ export async function checkClientSeqs(
   for (const c of clients.values()) {
     let seq: InvariantViolation | null;
     try {
-      seq = await checkClientFrameworkInvariants(c.db);
+      // Read through the client's serialized transaction queue: a bare query
+      // on the shared connection can observe an in-flight transaction
+      // half-applied (rejection stored, queue row not yet acked).
+      seq = await c.db.transaction((tx) => checkClientFrameworkInvariants(tx));
     } catch (error) {
       if (isClosedDatabaseError(error)) continue;
       if (error instanceof Error && error.name === 'SqliteStorageFullError') {

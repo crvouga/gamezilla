@@ -1,42 +1,41 @@
 #!/usr/bin/env bun
-// @io-wall-ok
+// @io-wall-ok — deploy CLI entry.
+/**
+ * Ships the room Durable Object Worker's code to the environment in
+ * `SECRETS_ENV`. Its migrations may add or rename classes only
+ * (`@libs/infra/public/wrangler` refuses a deleted class), and a migration
+ * error fails the deploy — the Worker is never deleted to "fix" it.
+ */
 import { join } from 'node:path';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { deployWorker } from '@libs/infra/scripts/worker-deploy';
 import { ok } from '@libs/secrets/shared/fmt';
-import { runAsync } from '@libs/secrets/shared/subprocess';
-import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
-import { wallClock } from '@pkgs/clock';
-import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '../../../tools/src/deploy-mode';
+import {
+  activeEnvFile,
+  refreshSecretsIntoEnv,
+} from '@libs/secrets/shared/secrets/secrets';
 
-const log = createLogger({ name: 'room-server:deploy', now: wallClock.now });
-
-const roomDir = join(import.meta.dirname, '..');
-
-async function deploy(dryRun: boolean): Promise<void> {
-  const args = dryRun
-    ? wranglerArgs('deploy', '--dry-run')
-    : wranglerArgs('deploy');
-  const label = dryRun
-    ? 'room-worker: Cloudflare Workers deploy (dry-run)'
-    : 'room-worker: Cloudflare Workers deploy';
-
-  await runAsync('wrangler', args, {
-    cwd: roomDir,
-    env: wranglerEnv(),
-    label,
-  });
-
-  if (dryRun) {
-    ok('room-worker dry-run', 'room durable object worker validated locally');
-    return;
+async function workerSecrets(): Promise<Record<string, string>> {
+  await refreshSecretsIntoEnv();
+  // Production-ness reaches the Worker as the rendered DEPLOYMENT_PROTECTION
+  // var (`@libs/infra/public/wrangler`), not as a secret.
+  const payload: Record<string, string> = {};
+  for (const key of [
+    'OBSERVABILITY_COLLECTOR_URL',
+    'OBSERVABILITY_COLLECTOR_USER',
+    'OBSERVABILITY_COLLECTOR_TOKEN',
+    'OBSERVABILITY_ENABLED',
+  ] as const) {
+    const value = process.env[key]?.trim() ?? '';
+    if (value.length > 0) payload[key] = value;
   }
-
-  log.info(`Room Worker deployed (${PRODUCT_CONFIG.cloudflare.roomWorker}).`);
+  const buildSha = process.env['VITE_COMMIT_HASH']?.trim() ?? '';
+  if (buildSha.length > 0) payload['BUILD_SHA'] = buildSha;
+  return payload;
 }
 
-const dryRun = !isProductionSecretsEnv();
-if (dryRun) {
-  log.info('[room-server:deploy] dry-run (SECRETS_ENV is not prd)');
-}
-await deploy(dryRun);
+deployWorker({
+  appDir: join(import.meta.dirname, '..'),
+  role: 'room',
+  secrets: await workerSecrets(),
+});
+ok('Room Worker', `deployed to ${activeEnvFile().env}`);

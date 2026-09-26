@@ -5,13 +5,10 @@
  * (`createSubscriptionSignal`) binds to it without duplicating game logic.
  */
 
-import {
-  Chess,
-  type Move as ChessJsMove,
-  type Square as ChessSquare,
-} from 'chess.js';
+import { castlingFromRookInput } from '@pkgs/chess-rules/moves';
+import { Chess, type Move as ChessJsMove, validateFen } from 'chess.js';
 import { moveFromChessJs } from './chess-js-move';
-import { isSquare } from './geometry';
+import { type Destination, destinationsFrom } from './destinations';
 import { inferLastMoveFromPositionDiff } from './infer-move';
 import { positionFromChess } from './position';
 import type { Move, PieceColor, Position, Square } from './types';
@@ -52,65 +49,57 @@ export type ChessGameSnapshot = {
   readonly isGameOver: boolean;
 };
 
-/**
- * Apply a move to a live chess.js instance without touching game snapshot
- * state (drop path only needs check + game-over; avoids the fan-out of
- * isCheckmate / isStalemate / isDraw which each re-scan moves).
- */
-export function tryMoveOnChess(chess: Chess, m: MoveInput): TryMoveResult {
+function playOnChess(chess: Chess, m: MoveInput): ChessJsMove {
+  const input = {
+    from: m.from,
+    to: m.to,
+    ...(m.promotion ? { promotion: m.promotion } : {}),
+  };
   try {
-    const result = chess.move({
-      from: m.from,
-      to: m.to,
-      ...(m.promotion ? { promotion: m.promotion } : {}),
-    });
-    const move = moveFromChessJs(result);
-    const inCheck = chess.inCheck();
-    const isGameOver = chess.isGameOver();
-    return {
-      ok: true,
-      move,
-      inCheck,
-      isCheckmate: isGameOver && inCheck,
-      isStalemate: false,
-      isDraw: isGameOver && !inCheck,
-      isGameOver,
-    };
-  } catch {
-    return { ok: false };
+    return chess.move(input);
+  } catch (error) {
+    // A king dropped on its own rook stands for that castle (spec §3).
+    const castle = castlingFromRookInput(chess, input);
+    if (castle === null) throw error;
+    return chess.move(castle);
   }
 }
 
 /**
- * Load an external FEN onto a live chess.js instance. Same-FEN is a no-op
- * (`null`). When the new position is a single ply away, `moved` carries that
- * move for SFX / last-move highlights.
+ * Game status with a single legal-move generation. Checkmate (in check) and
+ * stalemate (not in check) are exclusive, so at most one of them scans
+ * moves; the other draw rules are counters (`isDraw` itself would re-run
+ * the stalemate scan).
  */
-export function applyExternalFenToChess(
-  chess: Chess,
-  nextFen: string
-): ApplyExternalFenResult | null {
-  if (nextFen === chess.fen()) return null;
-  const prev = positionFromChess(chess);
-  chess.load(nextFen);
-  const moved = inferLastMoveFromPositionDiff(prev, positionFromChess(chess));
-  return { moved, inCheck: chess.inCheck(), isGameOver: chess.isGameOver() };
+function statusOf(chess: Chess) {
+  const inCheck = chess.inCheck();
+  const isCheckmate = inCheck && chess.isCheckmate();
+  const isStalemate = !inCheck && chess.isStalemate();
+  const isDraw =
+    isStalemate ||
+    chess.isInsufficientMaterial() ||
+    chess.isDrawByFiftyMoves() ||
+    chess.isThreefoldRepetition();
+  return {
+    inCheck,
+    isCheckmate,
+    isStalemate,
+    isDraw,
+    isGameOver: isCheckmate || isDraw,
+  };
 }
 
-function snapshotOf(chess: Chess, lastMove: Move | null): ChessGameSnapshot {
-  const inCheck = chess.inCheck();
-  const isCheckmate = chess.isCheckmate();
-  const isDraw = chess.isDraw();
+function snapshotOf(
+  chess: Chess,
+  lastMove: Move | null,
+  position: Position = positionFromChess(chess)
+): ChessGameSnapshot {
   return {
     fen: chess.fen(),
     turn: chess.turn(),
-    position: positionFromChess(chess),
+    position,
     lastMove,
-    inCheck,
-    isCheckmate,
-    isStalemate: chess.isStalemate(),
-    isDraw,
-    isGameOver: isCheckmate || isDraw,
+    ...statusOf(chess),
   };
 }
 
@@ -119,8 +108,13 @@ export class ChessGame {
   private snapshot: ChessGameSnapshot;
   private readonly listeners = new Set<() => void>();
 
+  /** A malformed `initialFen` falls back to the start position. */
   constructor(initialFen?: string) {
-    this.chess = new Chess(initialFen);
+    this.chess = new Chess(
+      initialFen !== undefined && validateFen(initialFen).ok
+        ? initialFen
+        : undefined
+    );
     this.snapshot = snapshotOf(this.chess, null);
   }
 
@@ -133,19 +127,46 @@ export class ChessGame {
     };
   };
 
-  private commit(lastMove: Move | null): void {
-    this.snapshot = snapshotOf(this.chess, lastMove);
+  private commit(lastMove: Move | null, position?: Position): void {
+    this.publish(snapshotOf(this.chess, lastMove, position));
+  }
+
+  private publish(snapshot: ChessGameSnapshot): void {
+    if (snapshot.fen !== this.snapshot.fen) {
+      this.destinations.clear();
+      this.premoveTargets.clear();
+    }
+    this.snapshot = snapshot;
     for (const listener of [...this.listeners]) listener();
   }
 
-  /** Distinct destination squares reachable from `from` (promotions deduped). */
+  /** Per-position cache: a selection re-reads its targets on every publish. */
+  private destinations = new Map<Square, readonly Destination[]>();
+  private premoveTargets = new Map<Square, readonly Square[]>();
+
+  private destinationsOf(from: Square): readonly Destination[] {
+    const cached = this.destinations.get(from);
+    if (cached !== undefined) return cached;
+    const fresh = destinationsFrom(this.chess, from);
+    this.destinations.set(from, fresh);
+    return fresh;
+  }
+
+  /**
+   * Distinct destination squares reachable from `from` (promotions deduped).
+   * A king also lists its own rook's square for every legal castle, so a tap
+   * or drop on the rook castles instead of re-selecting the rook.
+   */
   legalMovesFrom(from: Square): readonly Square[] {
-    const moves = this.chess.moves({
-      square: from as unknown as ChessSquare,
-      verbose: true,
-    }) as ChessJsMove[];
-    const targets = new Set(moves.map((m) => String(m.to)));
-    return [...targets].filter(isSquare);
+    const out: Square[] = [];
+    for (const d of this.destinationsOf(from)) {
+      out.push(d.to);
+      if (d.castle !== null) {
+        const rook = `${d.castle === 'k' ? 'h' : 'a'}${from[1]}` as Square;
+        if (!out.includes(rook)) out.push(rook);
+      }
+    }
+    return out;
   }
 
   /**
@@ -153,48 +174,48 @@ export class ChessGame {
    * your pieces show targets while the opponent is to move.
    */
   premoveTargetsFrom(from: Square): readonly Square[] {
-    const parts = this.chess.fen().split(' ');
+    const cached = this.premoveTargets.get(from);
+    if (cached !== undefined) return cached;
+    const fresh = this.computePremoveTargets(from);
+    this.premoveTargets.set(from, fresh);
+    return fresh;
+  }
+
+  private computePremoveTargets(from: Square): readonly Square[] {
+    const parts = this.snapshot.fen.split(' ');
     if (parts.length < 2) return [];
     parts[1] = parts[1] === 'w' ? 'b' : 'w';
     try {
       const tmp = new Chess(parts.join(' '));
-      const moves = tmp.moves({
-        square: from as unknown as ChessSquare,
-        verbose: true,
-      }) as ChessJsMove[];
-      const targets = new Set(moves.map((m) => String(m.to)));
-      return [...targets].filter(isSquare);
+      return destinationsFrom(tmp, from).map((d) => d.to);
     } catch {
       return [];
     }
   }
 
   moveRequiresPromotion(from: Square, to: Square): boolean {
-    const piece = this.chess.get(from as unknown as ChessSquare);
-    if (!piece || piece.type !== 'p') return false;
-    const toRank = to[1];
-    if (piece.color === 'w' ? toRank !== '8' : toRank !== '1') return false;
-    const moves = this.chess.moves({
-      square: from,
-      verbose: true,
-    }) as ChessJsMove[];
-    return moves.some((m) => String(m.to) === to && m.promotion !== undefined);
+    return this.destinationsOf(from).some((d) => d.to === to && d.promotion);
   }
 
-  /** Apply without publishing a snapshot (caller follows with {@link commitMove}). */
-  tryMoveSilent(m: MoveInput): TryMoveResult {
-    return tryMoveOnChess(this.chess, m);
-  }
-
-  /** Publish the snapshot after a silent move. */
-  commitMove(move: Move): void {
-    this.commit(move);
-  }
-
+  /** Play `m`; status comes from the one snapshot the move publishes. */
   tryMove(m: MoveInput): TryMoveResult {
-    const r = this.tryMoveSilent(m);
-    if (r.ok) this.commit(r.move);
-    return r;
+    let move: Move;
+    try {
+      move = moveFromChessJs(playOnChess(this.chess, m));
+    } catch {
+      return { ok: false };
+    }
+    this.commit(move);
+    const s = this.snapshot;
+    return {
+      ok: true,
+      move,
+      inCheck: s.inCheck,
+      isCheckmate: s.isCheckmate,
+      isStalemate: s.isStalemate,
+      isDraw: s.isDraw,
+      isGameOver: s.isGameOver,
+    };
   }
 
   /** Load `nextFen` (or the start position); same-FEN echo is a no-op. */
@@ -209,16 +230,31 @@ export class ChessGame {
   }
 
   /** Controlled / external FEN path; caller sets last move when a single ply. */
+  /**
+   * Load an external FEN. Same-FEN is a no-op (`null`); a malformed FEN
+   * (parent / server data) keeps the current position. When the new
+   * position is a single ply away, `moved` carries that move for SFX /
+   * last-move highlights. One snapshot, one legal-move generation.
+   */
   applyExternalFen(nextFen: string): ApplyExternalFenResult | null {
-    const result = applyExternalFenToChess(this.chess, nextFen);
-    if (result === null) return null;
-    this.commit(result.moved);
-    return result;
+    if (nextFen === this.snapshot.fen) return null;
+    if (!validateFen(nextFen).ok) return null;
+    const prev = this.snapshot.position;
+    this.chess.load(nextFen);
+    const position = positionFromChess(this.chess);
+    const moved = inferLastMoveFromPositionDiff(prev, position);
+    this.commit(moved, position);
+    return {
+      moved,
+      inCheck: this.snapshot.inCheck,
+      isGameOver: this.snapshot.isGameOver,
+    };
   }
 
+  /** Only the highlight changes: no position / status recompute. */
   clearLastMove(): void {
     if (this.snapshot.lastMove === null) return;
-    this.commit(null);
+    this.publish({ ...this.snapshot, lastMove: null });
   }
 
   undo(): boolean {

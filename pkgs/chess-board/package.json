@@ -14,14 +14,15 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "vitest run"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests"
   },
   "dependencies": {
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/chess-board-core": "workspace:*",
+    "@pkgs/chess-rules": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
@@ -29,14 +30,18 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/conf": "catalog:",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
+    "@pkgs/ui-testing-solid-dom": "workspace:*",
     "@solidjs/testing-library": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
-    "@testing-library/user-event": "catalog:",
     "@types/bun": "catalog:",
-    "happy-dom": "catalog:",
+    "@typescript/native": "catalog:",
+    "chess.js": "catalog:",
+    "fast-check": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:"
   }
 }

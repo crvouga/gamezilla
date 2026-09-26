@@ -1,8 +1,8 @@
 import type { AudioPlaybackPort } from './audio-playback/ports';
-import { getManifestVolume } from './manifest';
 import { playAudioOrIgnoreAutoplayBlock } from './safe-audio-play';
 import type { SoundId } from './sound-id';
 import { type SoundAssetUrlId, soundAssetUrls } from './sound-urls';
+import { getManifestVolume } from './sound-volumes';
 
 export type SoundEngineOptions = {
   readonly muted?: boolean;

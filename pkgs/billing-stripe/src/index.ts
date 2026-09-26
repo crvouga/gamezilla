@@ -1,17 +1,34 @@
+export { STRIPE_MEMBERSHIP_CALLBACK_EVENTS } from './callback-events';
+export { membershipStatusOf } from './membership-status';
 export {
-  reconcileStripeCatalog,
+  currencyOptionsToSnake,
+  decidePriceReconcile,
+  type LivePriceSnapshot,
+  normalizeCurrencyOptions,
+  normalizeSnakeCurrencyOptions,
+  type PriceReconcileAction,
+  priceMatchesSpec,
+  priceProductId,
+} from './offer-price-compare';
+export {
+  type OfferReconcileContext,
+  type OfferReconcileResult,
+  reconcileStripeOffer,
   STRIPE_CATALOG_PRODUCT_METADATA_KEY,
-} from './catalog-sync';
+  STRIPE_PORTAL_CONFIGURATION_ID,
+  STRIPE_PORTAL_CONFIGURATION_METADATA_KEY,
+} from './offer-reconcile';
+export { STRIPE_MEMBERSHIP_PROVIDER } from './provider-module';
 export {
-  type BillingStripeSecretDef,
-  type BillingStripeSecretValidateInput,
   billingStripeSecretDefs,
   validateStripePublishableKeyValue,
   validateStripeSecretKeyValue,
 } from './secret-defs';
 export { StripeSecretKeys } from './secret-keys';
 export {
-  createStripeBilling,
-  createStripeBillingFromSecretStore,
-  StripeBilling,
-} from './stripe-billing';
+  createStripeClient,
+  createStripeMembershipBilling,
+  STRIPE_PROVIDER,
+  StripeMembershipBilling,
+  type StripeMembershipTransport,
+} from './stripe-membership';

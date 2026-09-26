@@ -1,0 +1,13 @@
+language js
+
+file($body) where {
+  $body <: includes "@pkgs/observability/worker",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]@pkgs/observability/worker['\"]$",
+    register_diagnostic(span=$src, message="The Worker observability runtime is restricted to Worker and Durable Object boundaries.", severity="error")
+  }
+}

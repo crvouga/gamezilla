@@ -29,7 +29,7 @@ export function BottomActionBarAction(props: {
     (typeof props.item.label === 'string' ? props.item.label : undefined);
   return (
     <button
-      class="clickable clickableTint flex-1 rounded-[10px] items-center justify-center min-w-[0] min-h-[44px] py-1 gap-0.5"
+      class="clickable clickableTint flex-1 rounded-control items-center justify-center min-w-0 min-h-11 py-1 gap-0.5"
       {...dataAttrs({
         component: 'BottomActionBarAction',
         ...props.item.dataSet,
@@ -48,7 +48,7 @@ export function BottomActionBarAction(props: {
         color={iconColor()}
       />
       <p
-        class="text textCaption line-clamp-1 text-center font-bold w-[100%] text-[13px] leading-[18px]"
+        class="text textCaption line-clamp-1 text-center font-bold w-full text-caption"
         classList={{
           'text-tint': selected(),
           'text-text-secondary': !selected(),
@@ -66,7 +66,7 @@ export function BottomActionBarButton(props: {
 }): JSX.Element {
   return (
     <div
-      class="box items-stretch justify-center min-w-[0]"
+      class="box items-stretch justify-center min-w-0"
       data-component="BottomActionBarButton"
       style={{ flex: props.item.flex ?? 1 }}
     >

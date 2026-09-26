@@ -1,5 +1,6 @@
 /** @jsxImportSource solid-js */
 
+import { describe, expect, test } from 'bun:test';
 import { createSimClock } from '@pkgs/clock/sim-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { asKeyword } from '@pkgs/keyword/keyword';
@@ -8,7 +9,6 @@ import { booleanKvCodec } from '@pkgs/kv/kv-state-codec';
 import { createKvState, KvProvider, useKvOptional } from '@pkgs/kv/solid';
 import { render, screen, waitFor } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 const KEY = asKeyword('ui.prefs/test-flag');
 const CODEC = booleanKvCodec(asKeyword('ui.prefs/value'));
@@ -96,6 +96,50 @@ describe('createKvState', () => {
     await Promise.resolve();
     await Promise.resolve();
     expect(button).toHaveTextContent('on');
+  });
+
+  test('onHydrated fires after the persisted read settles', async () => {
+    const kv = createFakeKv();
+    let hydrated = 0;
+    function Flag(): JSX.Element {
+      const [flag] = createKvState<boolean>({
+        key: KEY,
+        default: false,
+        codec: CODEC,
+        onHydrated: () => {
+          hydrated += 1;
+        },
+      });
+      return <span>{flag() ? 'on' : 'off'}</span>;
+    }
+    render(() =>
+      withClock(() => (
+        <KvProvider value={kv}>
+          <Flag />
+        </KvProvider>
+      ))
+    );
+    expect(hydrated).toBe(0);
+    kv.resolveGet(CODEC.encode(true));
+    await waitFor(() => expect(hydrated).toBe(1));
+    expect(screen.getByText('on')).toBeTruthy();
+  });
+
+  test('onHydrated fires without a provider', async () => {
+    let hydrated = 0;
+    function Flag(): JSX.Element {
+      createKvState<boolean>({
+        key: KEY,
+        default: false,
+        codec: CODEC,
+        onHydrated: () => {
+          hydrated += 1;
+        },
+      });
+      return null;
+    }
+    render(() => withClock(() => <Flag />));
+    await waitFor(() => expect(hydrated).toBe(1));
   });
 
   test('falls back to in-memory state without a provider', () => {

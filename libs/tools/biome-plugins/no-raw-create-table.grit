@@ -1,0 +1,17 @@
+language js
+
+// Ban authored CREATE TABLE string/template literals.
+// Only string and template literal nodes are tested: matching every node with
+// a `(?s)` regex made this the slowest plugin in `lint` (+2.3s on pkgs/ui).
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "CREATE TABLE",
+  $body <: contains bubble or {
+    JsStringLiteralExpression() as $node,
+    JsTemplateExpression() as $node
+  } where {
+    $node <: r"(?s).*CREATE TABLE.*",
+    register_diagnostic(span=$node, message="Do not author CREATE TABLE by hand — use defineTable + applySqliteSchema/applyPostgresSchema (or SchemaDatabaseMigration). Only @pkgs/db-schema-postgres / @pkgs/db-schema-sqlite emit.ts may emit CREATE TABLE.", severity="error")
+  }
+}

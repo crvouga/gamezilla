@@ -3,17 +3,16 @@ import { sql } from '@pkgs/sql';
 import {
   defineMutation,
   type MutationDb,
-  type MutationEnv,
   MutationError,
 } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 
 import { canonicalUserPair } from '../../../shared/friendship/canonical-pair';
+import { friendsActor } from '../../../shared/friendship/friends-actor';
 import {
   FRIENDS_BLOCKED,
   FRIENDS_FORBIDDEN,
   FRIENDS_NOT_FOUND,
-  FRIENDS_NOT_SIGNED_IN,
 } from '../../../shared/friendship/friends-mutation-codes';
 import { FriendRequestAccepted } from '../../../shared/friendship/friends-outbox-messages';
 import { pairId } from '../../../shared/friendship/pair-id';
@@ -25,16 +24,6 @@ type FriendRequestRow = {
   readonly status: string;
   readonly responded_at: string | null;
 };
-
-function actorId(env: MutationEnv): string {
-  if (env.accountId === null || env.isAnon) {
-    throw new MutationError(
-      FRIENDS_NOT_SIGNED_IN,
-      'Sign in to manage friends.'
-    );
-  }
-  return env.actorId;
-}
 
 async function findRequest(
   tx: MutationDb,
@@ -72,7 +61,7 @@ export const acceptFriendRequestMutation = defineMutation({
   name: 'acceptFriendRequest',
   args: z.object({ requestId: z.string().min(1) }),
   async run({ tx, env }, { requestId }) {
-    const actor = actorId(env);
+    const actor = await friendsActor(tx, env);
     const request = await findRequest(tx, requestId);
     if (request.to_user_id !== actor) {
       throw new MutationError(FRIENDS_FORBIDDEN, 'Cannot accept this request.');

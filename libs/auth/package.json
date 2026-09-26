@@ -13,10 +13,12 @@
     ]
   },
   "scripts": {
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx'"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
   },
   "dependencies": {
+    "@libs/feature": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
@@ -28,11 +30,7 @@
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/device": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/i18n": "workspace:*",
-    "@pkgs/keyword": "workspace:*",
     "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store": "workspace:*",
-    "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
@@ -41,16 +39,14 @@
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "@pkgs/uuid": "workspace:*",
+    "@pkgs/word-filter": "workspace:*",
     "hono": "catalog:",
     "jose": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
-    "@solidjs/testing-library": "catalog:",
     "@typescript/native": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   }
 }

@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   MAIN_MENU_SCREEN_MAX_WIDTH,
   MainMenuScreen,
@@ -6,7 +8,6 @@ import {
 } from '@pkgs/ui/components/main-menu-screen';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, mustQuery, renderUi } from './support/render';
 
 describe('MainMenuScreen', () => {
@@ -43,8 +44,8 @@ describe('MainMenuScreen', () => {
 
   test('rows with onClick are buttons; disabled rows do not fire', async () => {
     const user = userEvent.setup();
-    const onChess = vi.fn();
-    const onLocked = vi.fn();
+    const onChess = mock();
+    const onLocked = mock();
     renderUi(() => (
       <MainMenuScreen
         items={[

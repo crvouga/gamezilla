@@ -1,3 +1,4 @@
+import type { GameCommandContext } from '@libs/spaces/public/game';
 import { createAttrNamespace } from '@pkgs/attribute';
 import {
   createMessageNamespace,
@@ -157,7 +158,7 @@ export const ChessPuzzleReviewSeekSet = chessEvtNs(
 
 export const chessMainMenuCommandRouter = createMessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
 >(chessCmdNs)
   .on(SetChessMainMenuScreen, (_state, _identity, cmd) => ({

@@ -1,7 +1,7 @@
 /**
  * Worker `Bindings` shape for `ApiHonoEnv`. Duplicated from
- * `apps/server/src/config/env.ts` (`ApiWorkerEnv`) so `@libs/auth` does not
- * depend on `@apps/server` (avoids a package cycle). Keep fields in sync.
+ * `libs/server-app/src/config/env.ts` (`ApiWorkerEnv`) so `@libs/auth` does not
+ * depend on `@libs/server-app` (avoids a package cycle). Keep fields in sync.
  */
 export type RoomNamespace = {
   idFromName(name: string): object;

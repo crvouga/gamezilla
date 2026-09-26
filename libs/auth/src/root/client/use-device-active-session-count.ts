@@ -1,10 +1,8 @@
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
 
-import {
-  useHasAuthSession,
-  useMyDeviceId,
-} from '../../public/use-current-user';
+import { useHasAuthSession } from '../../public/access-facts';
+import { useMyDeviceId } from '../../public/use-current-user';
 
 /**
  * Count of currently-active sessions for the given device. Only the current

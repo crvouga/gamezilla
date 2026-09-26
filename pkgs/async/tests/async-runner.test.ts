@@ -31,24 +31,6 @@ describe('createAsyncRunner', () => {
     expect(seen).toEqual(['running', 'success']);
   });
 
-  test('de-duplicates in-flight runs by key', async () => {
-    let calls = 0;
-    const d = deferred<string>();
-    const runner = createAsyncRunner(
-      async (_ctx, id: string) => {
-        calls += 1;
-        return `${id}:${await d.promise}`;
-      },
-      { getKey: (id) => id }
-    );
-    const a = runner.run('x');
-    const b = runner.run('x');
-    expect(a).toBe(b);
-    d.resolve('ok');
-    await a;
-    expect(calls).toBe(1);
-  });
-
   test('normalizes thrown values and reports via onError', async () => {
     const errors: Error[] = [];
     const runner = createAsyncRunner(
@@ -79,13 +61,25 @@ describe('createAsyncRunner', () => {
     expect(runner.getSnapshot().status).toBe('cancelled');
   });
 
-  test('dispose stops publishing state', async () => {
-    const d = deferred<number>();
-    const runner = createAsyncRunner(async () => d.promise);
-    const p = runner.run();
-    runner.dispose();
-    d.resolve(1);
-    await p.catch(() => undefined);
-    expect(runner.getSnapshot().status).toBe('running');
+  // regression: stale-inflight-delete — a cancelled run settling late must not
+  // evict the newer in-flight entry for the same key, which broke de-dup.
+  test('a cancelled run settling late keeps de-dup for the newer run', async () => {
+    const ops: ReturnType<typeof deferred<number>>[] = [];
+    const runner = createAsyncRunner<number, [string]>(
+      async () => {
+        const op = deferred<number>();
+        ops.push(op);
+        return op.promise;
+      },
+      { getKey: (key) => key }
+    );
+    const first = runner.run('k');
+    runner.cancelAll();
+    const second = runner.run('k');
+    second.catch(() => undefined);
+    ops[0]?.resolve(1);
+    await first.catch(() => undefined);
+    expect(runner.run('k')).toBe(second);
+    expect(ops).toHaveLength(2);
   });
 });

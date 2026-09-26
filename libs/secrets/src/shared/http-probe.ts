@@ -14,6 +14,14 @@ export type HealthResult = {
   location?: string;
 };
 
+/**
+ * Response bytes kept for callers that assert on the body. An app shell with
+ * its modulepreload list is ~8 KiB and grows with the bundle graph, so the cap
+ * sits well above any HTML document we serve — a smaller cap made body checks
+ * pass or fail depending on how the edge chunked the response.
+ */
+const MAX_BODY_CHARS = 1024 * 1024;
+
 export async function httpProbe(
   rawUrl: string,
   timeoutMs = 5000
@@ -71,7 +79,7 @@ export async function httpProbe(
               ? locationHeader[0]
               : undefined;
         res.on('data', (chunk: string) => {
-          if (body.length < 4096) body += chunk;
+          if (body.length < MAX_BODY_CHARS) body += chunk;
         });
         res.on('end', () => {
           const durationMs = cliClock.now() - start;

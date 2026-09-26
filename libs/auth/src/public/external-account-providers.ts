@@ -1,4 +1,12 @@
-/** Provider slug for the billing customer id on an account. */
-export const EXTERNAL_ACCOUNT_PROVIDER_BILLING = 'billing' as const;
+/**
+ * Billing customer links live in `auth_external_accounts` under one provider
+ * slug per payment provider (`billing:stripe`, `billing:paddle`, …): a
+ * customer id means nothing outside the provider that minted it, so an
+ * account holds at most one link per provider and several across providers.
+ */
+export const BILLING_CUSTOMER_LINK_PREFIX = 'billing:' as const;
 
-export type ExternalAccountProvider = typeof EXTERNAL_ACCOUNT_PROVIDER_BILLING;
+/** The link slug for customers minted by membership provider `provider`. */
+export function billingCustomerLinkProvider(provider: string): string {
+  return `${BILLING_CUSTOMER_LINK_PREFIX}${provider}`;
+}

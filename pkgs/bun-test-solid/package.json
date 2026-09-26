@@ -1,0 +1,37 @@
+{
+  "name": "@pkgs/bun-test-solid",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./jest-dom": "./src/jest-dom.d.ts",
+    "./preload": "./src/preload.ts",
+    "./register": "./src/register.ts",
+    "./render": "./src/render.tsx"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@babel/core": "catalog:",
+    "@babel/plugin-transform-explicit-resource-management": "catalog:",
+    "@babel/preset-typescript": "catalog:",
+    "@happy-dom/global-registrator": "catalog:",
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@lingui/conf": "catalog:",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@solidjs/testing-library": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "babel-preset-solid": "catalog:",
+    "happy-dom": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/babel__core": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

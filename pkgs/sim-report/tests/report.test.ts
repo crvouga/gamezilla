@@ -1,5 +1,7 @@
 import { describe, expect, test } from 'bun:test';
+import type { HtmlReportTest } from '@pkgs/sim';
 import { fileLabel, fmtMs } from '../src/lib/format';
+import { orderedUiBlobs, testFrames } from '../src/lib/frames';
 import { buildHash, parseHash } from '../src/lib/hash';
 import { renderHtmlReport } from '../src/render';
 import type { ReportData } from '../src/types';
@@ -19,6 +21,20 @@ describe('hash', () => {
       expect(testRoute.params['frame']).toBe('2');
     }
   });
+
+  test('an aggregated report id with slashes survives the round trip', () => {
+    // `bun run test:report` prefixes ids with the package (`libs/chess/…`).
+    const hash = buildHash({
+      view: 'test',
+      testId: 'libs/chess/monkey.monkey',
+      params: {},
+    });
+    const route = parseHash(hash);
+    expect(route.view).toBe('test');
+    if (route.view === 'test') {
+      expect(route.testId).toBe('libs/chess/monkey.monkey');
+    }
+  });
 });
 
 describe('format', () => {
@@ -27,6 +43,55 @@ describe('format', () => {
     expect(fmtMs(2500)).toBe('2.5s');
     expect(fileLabel('pkgs/sim/tests/foo.test.ts')).toBe('foo.test.ts');
     expect(fileLabel(undefined)).toBe('Other');
+  });
+});
+
+describe('multi-client timeline ordering', () => {
+  test('keeps actor slots stable when snapshot order changes', () => {
+    const test = {
+      report: {
+        meta: { actorIds: ['alice', 'bob'] },
+        steps: [
+          {
+            index: 0,
+            frames: [
+              {
+                index: 0,
+                capturedAtMs: 1,
+                snapshots: [
+                  { nodeId: 'alice', media: 'html', name: 'ui', file: 'a' },
+                  { nodeId: 'bob', media: 'html', name: 'ui', file: 'b' },
+                ],
+              },
+              {
+                index: 1,
+                capturedAtMs: 2,
+                snapshots: [
+                  { nodeId: 'bob', media: 'html', name: 'ui', file: 'c' },
+                  { nodeId: 'alice', media: 'html', name: 'ui', file: 'd' },
+                ],
+              },
+            ],
+            steps: [],
+          },
+        ],
+      },
+      blobs: {},
+    } as unknown as HtmlReportTest;
+
+    const frames = testFrames(test);
+    expect(
+      orderedUiBlobs(frames[0] ?? null, test).map((entry) => entry.nodeId)
+    ).toEqual(['alice', 'bob']);
+    expect(
+      orderedUiBlobs(frames[1] ?? null, test).map((entry) => entry.nodeId)
+    ).toEqual(['alice', 'bob']);
+    expect(
+      orderedUiBlobs(frames[0] ?? null, test).map((entry) => entry.blob?.file)
+    ).toEqual(['a', 'b']);
+    expect(
+      orderedUiBlobs(frames[1] ?? null, test).map((entry) => entry.blob?.file)
+    ).toEqual(['d', 'c']);
   });
 });
 

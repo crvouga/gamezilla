@@ -1,0 +1,19 @@
+language js
+
+// Framework-agnostic core may not import a UI framework stack. Scope: the includes of this plugin in biome.json.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "solid",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:solid-js|@solidjs/[^'\"]+|@lingui/solid|lucide-solid|@tanstack/solid-[^'\"]+)(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="Framework-agnostic core must not import solid-js / the Solid stack. Move the Solid binding to a `solid.ts(x)` module outside this scope.", severity="error")
+  }
+}

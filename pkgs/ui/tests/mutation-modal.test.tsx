@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { SurfaceStackProvider } from '@pkgs/ui';
 import {
   MutationModal,
@@ -8,7 +10,6 @@ import {
 } from '@pkgs/ui/components/mutation-modal';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
 import { mustQuery, renderUi } from './support/render';
 
 function mount(args: {
@@ -43,8 +44,8 @@ function mount(args: {
 describe('MutationModal', () => {
   test('idle → loading → success; Done dismisses and fires onSuccess', async () => {
     const user = userEvent.setup();
-    const onClose = vi.fn();
-    const onSuccess = vi.fn();
+    const onClose = mock();
+    const onSuccess = mock();
     const phases: string[] = [];
     // Resolves on the injected sim timers so the phase flip is clock-driven.
     const r = mount({
@@ -91,10 +92,9 @@ describe('MutationModal', () => {
   });
 
   test('error phase is retryable and cancel closes', async () => {
-    const onClose = vi.fn();
-    const onError = vi.fn();
-    const operation = vi
-      .fn<() => Promise<void>>()
+    const onClose = mock();
+    const onError = mock();
+    const operation = mock<() => Promise<void>>()
       .mockRejectedValueOnce(new Error('room is locked'))
       .mockResolvedValueOnce(undefined);
     renderUi(() => (
@@ -151,8 +151,8 @@ describe('MutationModal', () => {
 
   test('re-exports the shared lifecycle and resolves surface close per phase', () => {
     expect(typeof useMutationLifecycle).toBe('function');
-    const onClose = vi.fn();
-    const dismissSuccess = vi.fn();
+    const onClose = mock();
+    const dismissSuccess = mock();
     resolveMutationSurfaceClose({ phase: 'loading', onClose, dismissSuccess });
     expect(onClose).not.toHaveBeenCalled();
     resolveMutationSurfaceClose({ phase: 'success', onClose, dismissSuccess });

@@ -12,7 +12,7 @@ export function SqlCompletionPopup(props: {
 }): JSX.Element {
   return (
     <div
-      class="box border border-outline rounded-[10px] bg-surface max-h-[180px] overflow-hidden"
+      class="box border border-outline rounded-md bg-surface max-h-45 overflow-hidden"
       data-component="SqlCompletionPopup"
     >
       <For each={props.result.candidates}>
@@ -46,7 +46,7 @@ function CompletionRow(props: {
       onClick={onPress}
       onMouseEnter={onHover}
     >
-      <code class="text textMono flex-1 text-[12px] text-text">
+      <code class="text textMono flex-1 text-xs text-text">
         {candidate.label}
       </code>
       <Badge label={candidate.kind} intent="neutral" size="sm" />

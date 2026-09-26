@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { createNoopLogger, type Logger } from '@pkgs/logger';
 import {
   isLikelyOpfsLockError,
   openWithWaitRetry,
@@ -21,10 +22,16 @@ describe('open-retry', () => {
       setInterval: () => 0,
       clearInterval: () => undefined,
     };
+    const warnings: string[] = [];
+    const logger: Logger = {
+      ...createNoopLogger(),
+      warn: (msg) => warnings.push(msg),
+    };
     let attempts = 0;
     const result = await openWithWaitRetry({
       databaseName: 'db',
       timers,
+      logger,
       delaysMs: [10, 20],
       openOnce: async () => {
         attempts += 1;
@@ -36,6 +43,10 @@ describe('open-retry', () => {
     });
     expect(result).toBe('ok');
     expect(attempts).toBe(3);
+    expect(warnings).toEqual([
+      'open locked; retrying',
+      'open locked; retrying',
+    ]);
     expect(delays.filter((d) => d === 10 || d === 20).length).toBeGreaterThan(
       0
     );

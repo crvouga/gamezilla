@@ -1,8 +1,7 @@
 /**
- * Controlled (view-only) prop contract for {@link ChessBoard}. Legal dests and
- * position come from the parent; the board emits intents and does not own
- * chess.js. Prefer {@link SmartChessBoard} when you want an embedded rules
- * adapter.
+ * Public prop contract for {@link ChessBoard}. The board embeds the rules
+ * (chess.js via `ChessGame`): the parent passes a FEN, hears `onMove`, and
+ * confirms by passing the next FEN (or rejects by bumping `fenSyncKey`).
  */
 
 import type {
@@ -12,8 +11,6 @@ import type {
   CellFeedback,
   CellHighlight,
   Move,
-  PieceColor,
-  Position,
   Square,
 } from '@pkgs/chess-board-core/types';
 import type { ComponentDataSet } from '@pkgs/ui';
@@ -39,31 +36,21 @@ export type {
   Square,
 } from '@pkgs/chess-board-core/types';
 
-export type ChessBoardMovable = {
-  /** Side that may move; omit / null = none. `'both'` for free play / editor. */
-  readonly color?: PieceColor | 'both' | null;
-  /** Legal destinations keyed by origin square. */
-  readonly dests: ReadonlyMap<Square, readonly Square[]>;
-};
-
-export type ChessBoardAnimationConfig = {
-  readonly enabled?: boolean;
-  /** Slide duration in ms. Default 150. */
-  readonly durationMs?: number;
-};
-
 export type ChessBoardProps = {
-  /** Flat 64-square position (index 0 = a1). Preferred over `fen`. */
-  position?: Position | undefined;
-  /** Display FEN when `position` is omitted (parsed for paint only). */
+  /**
+   * Position FEN. When provided with optional `fenSyncKey`, re-syncs the local
+   * rules instance on change. Moves still apply locally (optimistically) so
+   * the piece moves at once; the parent confirms by updating `fen`, or
+   * rejects by bumping `fenSyncKey` with the same FEN.
+   */
   fen?: string | undefined;
+  /** Bumps to re-apply the current `fen` when the string is unchanged. */
+  fenSyncKey?: number | undefined;
+  onMove?: ((m: Move) => void) | undefined;
   orientation?: BoardOrientation | undefined;
-  turnColor?: PieceColor | undefined;
-  movable?: ChessBoardMovable | undefined;
-  lastMove?: Move | null | undefined;
-  check?: Square | null | undefined;
-  viewOnly?: boolean | undefined;
+  /** Fixed side in px. Omit to fill the parent width (square via `aspect-ratio`). */
   size?: number | undefined;
+  interactive?: boolean | undefined;
   showCoordinates?: boolean | undefined;
   highlightLastMove?: boolean | undefined;
   highlightLegalMoves?: boolean | undefined;
@@ -74,11 +61,13 @@ export type ChessBoardProps = {
   arrows?: readonly BoardArrow[] | undefined;
   enableUserArrows?: boolean | undefined;
   onUserArrowsChange?: ((arrows: readonly BoardArrow[]) => void) | undefined;
-  animation?: ChessBoardAnimationConfig | boolean | undefined;
+  /**
+   * Piece slides (default on). Always off under the OS / browser "reduce
+   * motion" setting, whatever this says.
+   */
+  animations?: boolean | undefined;
+  /** Slide duration in ms (default 150, chess.com's speed); 0 = snap. */
+  animationDurationMs?: number | undefined;
   premoves?: boolean | undefined;
   autoPromoteQueen?: boolean | undefined;
-  onMove?: ((m: Move) => void) | undefined;
-  onSelect?: ((square: Square | null) => void) | undefined;
-  onPremove?: ((m: Move) => void) | undefined;
-  onPremoveCancel?: (() => void) | undefined;
 };

@@ -23,6 +23,3 @@ export const EMQX_JWT_SECRET = 'local-emqx-jwt-secret-change-me';
  */
 export const EMQX_DASHBOARD_USER = 'admin';
 export const EMQX_DASHBOARD_PASS = 'public12';
-
-/** Pinned open-source EMQX release for tarball fallback. */
-export const EMQX_VERSION = '5.8.6';

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { createSyncApp } from '@pkgs/sync-engine/server';
 import {
   defineQuery,
@@ -70,7 +70,7 @@ async function postQuery(
 
 describe('public API: createSyncApp query not_modified', () => {
   test('identical snapshot → not_modified; row/column reorder is hash-stable', async () => {
-    const db = SqlClientImplSqliteMem.open();
+    const db = SqlClientImplMockingbirdSqlite.open();
     await db.connect();
     let cp = 0;
     const app = createSyncApp({

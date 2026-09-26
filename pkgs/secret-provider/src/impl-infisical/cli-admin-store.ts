@@ -47,6 +47,19 @@ function infisicalEnv(): NodeJS.ProcessEnv {
   return { ...process.env, INFISICAL_DISABLE_MIGRATION_NOTICE: '1' };
 }
 
+/**
+ * `secrets set` carries `NAME=value` in argv — never echo a value into an
+ * error message (deploy logs print it verbatim).
+ */
+function redactArgs(args: readonly string[]): string {
+  return args
+    .map((a) => {
+      const eq = a.indexOf('=');
+      return eq > 0 && !a.startsWith('-') ? `${a.slice(0, eq)}=<redacted>` : a;
+    })
+    .join(' ');
+}
+
 function runInfisical(args: string[]): string {
   const result = spawnSync(INFISICAL_CLI_BIN, args, {
     encoding: 'utf8',
@@ -60,7 +73,7 @@ function runInfisical(args: string[]): string {
   if (result.status !== 0) {
     const stderr = (result.stderr ?? '').trim();
     throw new Error(
-      `${INFISICAL_CLI_BIN} ${args.join(' ')} exited ${result.status}: ${stderr}`
+      `${INFISICAL_CLI_BIN} ${redactArgs(args)} exited ${result.status}: ${stderr}`
     );
   }
   return (result.stdout ?? '').trim();
@@ -123,6 +136,19 @@ class InfisicalCliAdminStore implements SecretAdminStore {
       'export',
       ...infisicalBaseArgs(coords),
       '--format=json',
+    ]);
+    return parseInfisicalExportJson(raw);
+  }
+
+  async exportOwnSecrets(
+    envOverride?: string
+  ): Promise<ReadonlyMap<string, string>> {
+    const coords = await resolveSecretsCoords(this.configStore, envOverride);
+    const raw = runInfisical([
+      'export',
+      ...infisicalBaseArgs(coords),
+      '--format=json',
+      '--include-imports=false',
     ]);
     return parseInfisicalExportJson(raw);
   }

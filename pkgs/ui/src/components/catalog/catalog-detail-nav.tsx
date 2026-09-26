@@ -52,7 +52,7 @@ function NavButton(props: {
       }}
     >
       <div
-        class="box rounded-[9999px] items-center justify-center"
+        class="box rounded-full items-center justify-center"
         style={{
           width: cssPx(NAV_VISUAL_SIZE),
           height: cssPx(NAV_VISUAL_SIZE),

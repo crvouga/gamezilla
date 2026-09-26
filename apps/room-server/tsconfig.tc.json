@@ -2,9 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "include": [
     "../../pkgs/ts-reset/src/index.ts",
-    "../../tools/src/deploy-mode.ts",
     "./src/**/*.ts",
-    "./src/**/*.d.ts"
+    "./src/**/*.d.ts",
+    "./scripts/**/*.ts",
+    "./health/**/*.ts",
+    "./tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

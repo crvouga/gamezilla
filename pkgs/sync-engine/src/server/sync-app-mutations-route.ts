@@ -1,9 +1,14 @@
+import { ATTR, activeSpan } from '@pkgs/observability/core';
 import type { PubSub, Topic } from '@pkgs/pubsub/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { Hono } from 'hono';
 
-import type { MutationEnv, MutationRegistry } from '../mutations/core/types';
+import type {
+  MutationAuthorize,
+  MutationEnv,
+  MutationRegistry,
+} from '../mutations/core/types';
 import { processMutationsBatch } from '../mutations/server/process-mutations-batch';
 import type { MutationRow } from '../mutations/server/replay-mutation';
 import type { AuthErrorBody, QueryRow } from '../protocol';
@@ -41,15 +46,6 @@ function asNestedTxClient(tx: SqlClient): SqlClient {
     prepare: (q) => tx.prepare(q),
   };
 }
-
-/**
- * Per-user serialization relies on the outer request transaction + unique
- * mutation idempotency keys. No pg_advisory_* (not portable).
- */
-async function acquireLock(_tx: SqlClient, _lockUserId: string): Promise<void> {
-  // Portable path: no-op.
-}
-
 function mergeCaptures(
   captures: readonly WriteCaptureSnapshot[]
 ): WriteCaptureSnapshot {
@@ -147,7 +143,6 @@ async function prepareMutationNotify(
   db: SqlClient
 ): Promise<PreparedMutationNotify> {
   return db.transaction(async (tx) => {
-    await acquireLock(tx, auth.actorId);
     const nested = asNestedTxClient(tx);
     const result = await processMutationsBatch({
       serverDb: nested,
@@ -156,6 +151,7 @@ async function prepareMutationNotify(
       mutations: mutationRows,
       now: deps.now,
       createId: deps.createId,
+      ...(deps.authorize !== undefined ? { authorize: deps.authorize } : {}),
     });
     if (result.applied.length === 0 || deps.pubsub === undefined) {
       return {
@@ -241,6 +237,7 @@ export type MountMutationsRouteDeps = {
   /** When true, publish post-replay row images on pushes (default false). */
   readonly rowImageFanout?: boolean;
   readonly topicMap?: TopicMap;
+  readonly authorize?: MutationAuthorize;
 };
 
 export function mountMutationsRoute(
@@ -255,6 +252,9 @@ export function mountMutationsRoute(
     if (isAuthErrorBody(auth)) {
       return c.json(auth, 401);
     }
+    const requestSpan = activeSpan();
+    requestSpan?.setAttribute(ATTR.USER_ID, auth.accountId ?? auth.actorId);
+    requestSpan?.setAttribute(ATTR.APP_DEVICE_ID, auth.deviceId);
     const parsed = parseMutationsBatchBody(await c.req.json());
     if (parsed === null) {
       return c.json({ error: 'invalid_batch' }, 400);
@@ -269,6 +269,8 @@ export function mountMutationsRoute(
       clientId: m.clientId,
       seq: m.seq,
       createdAt: m.createdAt,
+      originTraceparent: m.originTraceparent,
+      ...(m.correlation === undefined ? {} : { correlation: m.correlation }),
     }));
     const prepared = await prepareMutationNotify(deps, auth, mutationRows, db);
     const { result, checkpoints } = prepared;
@@ -277,6 +279,7 @@ export function mountMutationsRoute(
       return c.json(
         {
           ok: result.ok,
+          serverTimeMs: deps.now(),
           verdicts: result.verdicts,
           ackSeq: result.ackSeq,
           topicPushSeqs: Object.fromEntries(checkpoints),
@@ -288,6 +291,7 @@ export function mountMutationsRoute(
     return c.json(
       {
         ok: result.ok,
+        serverTimeMs: deps.now(),
         verdicts: result.verdicts,
         ackSeq: result.ackSeq,
         protocol: SYNC_PROTOCOL_VERSION,

@@ -1,7 +1,7 @@
 import { asKeyword } from '@pkgs/keyword/keyword';
 import type { KvStateCodec } from '@pkgs/kv/kv-state-codec';
 import { createKvState, type KvStateSetter } from '@pkgs/kv/solid';
-import type { Accessor } from 'solid-js';
+import { type Accessor, createSignal } from 'solid-js';
 
 import {
   type ChessPuzzleFeedConfig,
@@ -29,12 +29,16 @@ const PUZZLE_FEED_CODEC: KvStateCodec<ChessPuzzleFeedConfig> = {
 export function createChessPuzzleFeedConfigState(): [
   Accessor<ChessPuzzleFeedConfig>,
   KvStateSetter<ChessPuzzleFeedConfig>,
+  Accessor<boolean>,
 ] {
-  return createKvState<ChessPuzzleFeedConfig>({
+  const [configReady, setConfigReady] = createSignal(false);
+  const state = createKvState<ChessPuzzleFeedConfig>({
     key: PUZZLE_FEED_ROW_KEY,
     default: DEFAULT_CHESS_PUZZLE_FEED_CONFIG,
     codec: PUZZLE_FEED_CODEC,
+    onHydrated: () => setConfigReady(true),
   });
+  return [state[0], state[1], configReady];
 }
 
 /** Shared feed config for the mounted chess surface (see the feed provider). */

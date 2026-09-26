@@ -8,8 +8,10 @@ import {
   defineSnapshot,
   defineSystem,
   matchJunitCase,
+  mergeRunBundles,
   parseJunit,
   readRunBundle,
+  runManifestKey,
   virtualTimeRuntime,
 } from '@pkgs/sim';
 
@@ -41,7 +43,9 @@ const sys = defineSystem({
       name: 'html',
       media: 'html',
       capture: (s: Kv) => ({
-        alice: `<html><head></head><body>alice sees ${s.values['x'] ?? ''}</body></html>`,
+        // Solid renders literal `<!---->` markers, and product markup can
+        // carry a `</script>`; both must survive the inline data script.
+        alice: `<html><head></head><body>alice sees <!---->${s.values['x'] ?? ''}<!----><script>x</script></body></html>`,
       }),
     }),
     defineSnapshot({
@@ -69,6 +73,37 @@ async function seedRun(store: ObjectStoreImplInMemory): Promise<void> {
 }
 
 describe('html report', () => {
+  test('a test the manifest lost is still in the bundle', async () => {
+    // `bun test --parallel` workers read-modify-write one manifest; the
+    // report files are the record of what ran.
+    const store = new ObjectStoreImplInMemory();
+    await seedRun(store);
+    await store.put(
+      runManifestKey('r1'),
+      new TextEncoder().encode(JSON.stringify({ tests: [], updatedAtMs: 0 })),
+      'application/json'
+    );
+    const bundle = await readRunBundle(store, 'r1');
+    expect(bundle.tests.map((t) => t.report.meta.testId)).toEqual(['kv-put']);
+  });
+
+  test('merged runs keep every test, prefixed by the run label', async () => {
+    const a = new ObjectStoreImplInMemory();
+    const b = new ObjectStoreImplInMemory();
+    await seedRun(a);
+    await seedRun(b);
+    const merged = mergeRunBundles('all', [
+      { label: 'libs/chess', bundle: await readRunBundle(a, 'r1') },
+      { label: 'libs/friends', bundle: await readRunBundle(b, 'r1') },
+    ]);
+    expect(merged.runId).toBe('all');
+    expect(merged.status).toBe('passed');
+    expect(merged.tests.map((t) => t.report.meta.testId)).toEqual([
+      'libs/chess/kv-put',
+      'libs/friends/kv-put',
+    ]);
+  });
+
   test('bundle embeds text frames inline and binary frames as base64', async () => {
     const store = new ObjectStoreImplInMemory();
     await seedRun(store);
@@ -81,7 +116,7 @@ describe('html report', () => {
     const files = Object.keys(test0.blobs);
     expect(files.some((f) => f.endsWith('.html'))).toBe(true);
     const html = files.find((f) => f.endsWith('.html'))!;
-    expect(test0.blobs[html]!.text).toContain('alice sees hello');
+    expect(test0.blobs[html]!.text).toContain('alice sees <!---->hello');
     const png = files.find((f) => f.endsWith('.png'))!;
     expect(test0.blobs[png]!.base64).toBe('iVBORw==');
   });
@@ -104,7 +139,7 @@ describe('html report', () => {
     expect(html).toContain('.x{color:red}');
     expect(html).toContain('<sim-report></sim-report>');
     expect(html).toContain('customElements');
-    expect(html).toContain('sr-press-overlay');
+    expect(html).toContain('sr-frame-css');
     expect(html).toContain('Keyboard shortcuts');
     expect(html).toContain('sim-report-root');
     const m =
@@ -112,14 +147,23 @@ describe('html report', () => {
         html!
       );
     expect(m).not.toBeNull();
-    const data = JSON.parse(m![1]!.replace(/<\\\//g, '</')) as {
+    // The embedded data script is parsed verbatim by the browser: no
+    // unescaping step, and no `<` survives to close it or open a comment.
+    const data = JSON.parse(m![1]!) as {
       title: string;
-      tests: { report: { meta: { testId: string } } }[];
+      tests: {
+        report: { meta: { testId: string } };
+        blobs: Record<string, { text?: string }>;
+      }[];
     };
     expect(data.title).toBe('My run');
     expect(data.tests[0]!.report.meta.testId).toBe('kv-put');
-    // Embedded frame markup must not terminate the data script early.
-    expect(m![1]).not.toContain('</script>');
+    expect(m![1]).not.toContain('<');
+    const frame = Object.entries(data.tests[0]!.blobs).find(([f]) =>
+      f.endsWith('.html')
+    )!;
+    expect(frame[1].text).toContain('<!---->hello<!---->');
+    expect(frame[1].text).toContain('<script>x</script>');
   });
 
   test('junit outcomes override in-run status and titles', async () => {

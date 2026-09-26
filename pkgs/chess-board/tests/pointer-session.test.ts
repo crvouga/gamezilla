@@ -1,9 +1,9 @@
+import { describe, expect, it, mock } from 'bun:test';
 import {
   createPointerSession,
   MOUSE_DRAG_THRESHOLD_PX,
   TOUCH_DRAG_THRESHOLD_PX,
 } from '@pkgs/chess-board/pointer-session';
-import { describe, expect, it, vi } from 'vitest';
 
 function fakeInteraction(owns = true) {
   let selected: string | null = null;
@@ -26,37 +26,43 @@ function fakeInteraction(owns = true) {
     cancelDrag: () => {
       dragFrom = null;
     },
-    drop: vi.fn((from: string, to: string) => {
+    drop: mock((from: string, to: string) => {
       dragFrom = null;
       return { kind: 'applied' as const, result: { from, to } };
     }),
-    tap: vi.fn((sq: string) => {
+    tap: mock((sq: string) => {
       selected = selected === sq ? null : sq;
     }),
   };
 }
 
 describe('createPointerSession', () => {
-  it('keeps an owned mouse press below the threshold as a tap', () => {
+  it('picks an owned piece up on press, before any movement', () => {
     const interaction = fakeInteraction();
     const session = createPointerSession(interaction as never);
     session.down('e2', 100, 100, 'mouse');
-    expect(session.state().kind).toBe('press');
-    expect(interaction.getSnapshot().dragFrom).toBeNull();
-    session.move(100 + MOUSE_DRAG_THRESHOLD_PX - 1, 100);
-    expect(session.state().kind).toBe('press');
-    session.up('e2');
+    expect(session.state().kind).toBe('drag');
+    expect(interaction.getSnapshot().dragFrom).toBe('e2');
+  });
+
+  it('a release before the threshold is a tap on the pressed square, wherever it lands', () => {
+    const interaction = fakeInteraction();
+    const session = createPointerSession(interaction as never);
+    session.down('e2', 100, 100, 'mouse');
+    expect(session.move(100 + MOUSE_DRAG_THRESHOLD_PX - 1, 100)).toBe(false);
+    // The finger wobbled across the square edge: still a tap on e2.
+    session.up('f2');
+    expect(interaction.drop).not.toHaveBeenCalled();
     expect(interaction.tap).toHaveBeenCalledWith('e2');
     expect(session.state().kind).toBe('idle');
   });
 
-  it('promotes mouse drag after crossing the mouse threshold then drops', () => {
+  it('past the mouse threshold a release drops', () => {
     const interaction = fakeInteraction();
     const session = createPointerSession(interaction as never);
     session.down('e2', 100, 100, 'mouse');
     expect(session.move(100 + MOUSE_DRAG_THRESHOLD_PX + 1, 100)).toBe(true);
-    expect(session.state().kind).toBe('drag');
-    expect(interaction.getSnapshot().dragFrom).toBe('e2');
+    expect(session.move(100 + MOUSE_DRAG_THRESHOLD_PX + 9, 100)).toBe(false);
     session.up('e4');
     expect(interaction.drop).toHaveBeenCalledWith('e2', 'e4');
   });
@@ -66,12 +72,15 @@ describe('createPointerSession', () => {
     const session = createPointerSession(interaction as never);
     session.down('e2', 100, 100, 'touch');
     expect(session.move(100 + MOUSE_DRAG_THRESHOLD_PX + 1, 100)).toBe(false);
-    expect(session.state().kind).toBe('press');
+    session.up('e3');
+    expect(interaction.drop).not.toHaveBeenCalled();
+    session.down('e2', 100, 100, 'touch');
     expect(session.move(100 + TOUCH_DRAG_THRESHOLD_PX + 1, 100)).toBe(true);
-    expect(session.state().kind).toBe('drag');
+    session.up('e3');
+    expect(interaction.drop).toHaveBeenCalledWith('e2', 'e3');
   });
 
-  it('degrades same-square drag release to a tap', () => {
+  it('a drag released on its own square is a tap', () => {
     const interaction = fakeInteraction();
     const session = createPointerSession(interaction as never);
     session.down('e2', 10, 10, 'mouse');

@@ -1,5 +1,6 @@
 import { useSpaceRoomDispatch } from '@libs/spaces/public/room/use-space-room-selector';
 import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { formatUci } from '@pkgs/chess-rules/uci';
 import type { Accessor } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
@@ -11,15 +12,16 @@ import {
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
+  ShowChessPuzzleSolution,
+  SkipChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
 } from '../chess-puzzle-play';
-import { uciFromMove } from './chess-puzzle-play-chess-utils';
 
 /**
- * A rated attempt is in flight only while the player is still moving or has
- * just gone wrong. Solved plays are closed; idle / invalid / loading rooms
- * have nothing to forfeit.
+ * An attempt is in flight while the player is still moving or has just gone
+ * wrong. Leaving it keeps it pending in the room (restored on return, §5);
+ * only Skip forfeits it.
  */
 export function isUnfinishedPuzzleStatus(
   status: ChessPuzzlePlayStatus | 'loading'
@@ -30,13 +32,25 @@ export function isUnfinishedPuzzleStatus(
   );
 }
 
+/** Next is offered once the attempt is over (or the puzzle cannot be played). */
+export function isFinishedPuzzleStatus(
+  status: ChessPuzzlePlayStatus | 'loading'
+): boolean {
+  return (
+    status === CHESS_PUZZLE_PLAY_STATUS.solved ||
+    status === CHESS_PUZZLE_PLAY_STATUS.revealed ||
+    status === CHESS_PUZZLE_PLAY_STATUS.skipped ||
+    status === CHESS_PUZZLE_PLAY_STATUS.invalid
+  );
+}
+
 type HandlersArgs = {
+  puzzleId: Accessor<string>;
   status: Accessor<ChessPuzzlePlayStatus | 'loading'>;
   hintStage: Accessor<HintStage>;
   onMoveRaw: (m: Move) => void;
   setLastUci: (uci: string) => void;
   appendUsedHint: () => Promise<void>;
-  appendAbandoned: () => Promise<void>;
   onRequestNext: () => void;
 };
 
@@ -55,16 +69,15 @@ function useHintSolutionHandlers(args: {
     }
     if (hintStage === 'highlight') {
       dispatch(RevealChessPuzzleSolution({}));
+      return;
     }
+    // Already arrowed: the last step of the same button is §6 "Show solution".
+    dispatch(ShowChessPuzzleSolution({}));
   };
 
+  /** §6 "Show solution": the room plays the rest of the line out, then review. */
   const onSolution = (): void => {
-    const hintStage = args.hintStage();
-    if (hintStage === 'solution') return;
-    if (hintStage === 'none') {
-      void args.appendUsedHint();
-    }
-    dispatch(RevealChessPuzzleSolution({}));
+    dispatch(ShowChessPuzzleSolution({}));
   };
 
   return { onHint, onSolution };
@@ -75,6 +88,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   onHint: () => void;
   onSolution: () => void;
   onRetry: () => void;
+  onSkip: () => void;
   onNext: () => void;
   onBack: () => void;
   onForward: () => void;
@@ -87,29 +101,38 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
   });
 
   const onMove = (m: Move): void => {
-    args.setLastUci(uciFromMove(m));
+    args.setLastUci(formatUci(m));
     args.onMoveRaw(m);
   };
 
-  /** Leaving an unfinished attempt (Back / Next / Retry) forfeits it. */
-  const abandonIfUnfinished = (): void => {
-    if (!isUnfinishedPuzzleStatus(args.status())) return;
-    void args.appendAbandoned();
-  };
-
+  /** An unfinished attempt stays pending in the room; a finished one is cleared. */
   const backToRoot = (): void => {
-    abandonIfUnfinished();
-    dispatch(ClearChessPuzzlePlay({}));
+    if (!isUnfinishedPuzzleStatus(args.status())) {
+      dispatch(ClearChessPuzzlePlay({}));
+    }
     dispatch(SetChessMainMenuScreen({ screen: CHESS_SCREEN.root }));
   };
 
   const onRetry = (): void => {
-    abandonIfUnfinished();
     dispatch(ResetChessPuzzlePlay({}));
   };
 
+  /** Skip is a terminal forfeit; the recorder finalizes it from `skipped`. */
+  const onSkip = (): void => {
+    if (!isUnfinishedPuzzleStatus(args.status())) return;
+    dispatch(SkipChessPuzzlePlay({}));
+  };
+
+  /**
+   * One advance per finished puzzle: a second tap (double tap, or the result
+   * panel and the action bar both pressed) before the next puzzle lands is
+   * ignored.
+   */
+  const nextRequestedForRef: { current: string | null } = { current: null };
   const onNext = (): void => {
-    abandonIfUnfinished();
+    if (!isFinishedPuzzleStatus(args.status())) return;
+    if (nextRequestedForRef.current === args.puzzleId()) return;
+    nextRequestedForRef.current = args.puzzleId();
     dispatch(ClearChessPuzzlePlay({}));
     args.onRequestNext();
   };
@@ -127,6 +150,7 @@ export function usePuzzlePlayerHandlers(args: HandlersArgs): {
     onHint,
     onSolution,
     onRetry,
+    onSkip,
     onNext,
     onBack,
     onForward,

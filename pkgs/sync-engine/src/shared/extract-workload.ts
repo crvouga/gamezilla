@@ -153,6 +153,36 @@ export async function extractWorkload(
   return { version: 1, queries };
 }
 
+/**
+ * Every domain table a query registry touches — the read side of a feature's
+ * table surface, derived from the SQL AST rather than declared by hand.
+ *
+ * `hydrates` names the tables a query returns; the classified `FROM` list adds
+ * the ones it only joins through. A feature boundary check compares this
+ * against what the feature declared it owns.
+ */
+export async function extractQueryTables(
+  registry: QueryRegistry,
+  envFixtures?: readonly EnvFixture[]
+): Promise<ReadonlyMap<string, readonly string[]>> {
+  const manifest = await extractWorkload(registry, envFixtures);
+  const out = new Map<string, readonly string[]>();
+  for (const query of manifest.queries) {
+    const tables = new Set<string>(query.hydrates);
+    for (const statement of query.statements) {
+      const classified = classify({
+        sql: statement.sql,
+        text: statement.text,
+        params: [],
+      } as unknown as Sql<unknown>);
+      if (classified.kind !== 'read') continue;
+      for (const table of classified.tables) tables.add(table);
+    }
+    out.set(query.name, [...tables].sort());
+  }
+  return out;
+}
+
 export type AssertQueryRegistryIndexableOpts = {
   readonly schemaIndexes: readonly SchemaIndex[];
   readonly catalogTables: ReadonlySet<string>;

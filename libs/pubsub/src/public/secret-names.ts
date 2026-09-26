@@ -4,6 +4,8 @@ export const PubsubSecretName = {
   apiKey: 'EMQX_API_KEY',
   apiSecret: 'EMQX_API_SECRET',
   jwtSecret: 'EMQX_JWT_SECRET',
+  /** Broker dashboard `admin` password (provision-only; manages API keys). */
+  dashboardPassword: 'EMQX_DASHBOARD_PASSWORD',
   /** Client MQTT WSS URL materialized into synced `client_config`. */
   wssUrl: 'EMQX_WSS_URL',
 } as const;

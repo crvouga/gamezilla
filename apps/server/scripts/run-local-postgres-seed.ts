@@ -17,11 +17,14 @@ import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 const fs = wallNodeFs();
 const chessRoot = new URL('../../../libs/chess', import.meta.url).pathname;
 
-export async function runLocalSeed(): Promise<void> {
-  process.stdout.write(`[postgres] seed start ${LOCAL_DATABASE_URL}\n`);
+/** `databaseUrl` defaults to the shared local cluster; a stack passes its own. */
+export async function runLocalSeed(
+  databaseUrl: string = LOCAL_DATABASE_URL
+): Promise<void> {
+  process.stdout.write(`[postgres] seed start ${databaseUrl}\n`);
   const logger = createLogger({ name: 'postgres:seed', now: wallClock.now });
   const { pool, sqlClient } = createPgPool({
-    connectionString: LOCAL_DATABASE_URL,
+    connectionString: databaseUrl,
     dbScope: appPostgresDbScope(),
     max: 1,
   });

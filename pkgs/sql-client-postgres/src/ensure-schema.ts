@@ -1,5 +1,5 @@
 /**
- * Isomorphic Postgres schema ensure — safe for web / postgres-mem migrate.
+ * Isomorphic Postgres schema ensure — safe for web / mockingbird-postgres migrate.
  *
  * Lives outside {@link ./connect} so the bundler never loads wall `pg` via
  * `EnsurePostgresSchemaMigration` → `ensurePostgresSchema`.

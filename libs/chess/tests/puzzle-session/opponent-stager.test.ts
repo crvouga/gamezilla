@@ -1,9 +1,11 @@
+// goal:chess-puzzles:8
 import { describe, expect, test } from 'bun:test';
 import {
   PUZZLE_OPENING_PREVIEW_MS,
   PUZZLE_OPPONENT_UNLOCK_BUFFER_MS,
   PUZZLE_PIECE_MOVE_MS,
   PUZZLE_REPLY_PREVIEW_MS,
+  PUZZLE_SOLUTION_STEP_MS,
 } from '@libs/chess/public/chess-puzzle-opponent-stage';
 import { fenAtSolveIdx } from '@libs/chess/public/chess-puzzle-step';
 import {
@@ -132,6 +134,61 @@ describe('createPuzzleOpponentStager', () => {
     );
     expect(stager.getSnapshot()).toEqual({
       boardFen: fenAt(3),
+      opponentAnimating: false,
+    });
+  });
+
+  // §5: the pre-setup position holds 400–600 ms, the reply 300–500 ms.
+  test('the spec timings are what the board waits', () => {
+    expect(PUZZLE_OPENING_PREVIEW_MS).toBeGreaterThanOrEqual(400);
+    expect(PUZZLE_OPENING_PREVIEW_MS).toBeLessThanOrEqual(600);
+    expect(PUZZLE_REPLY_PREVIEW_MS).toBeGreaterThanOrEqual(300);
+    expect(PUZZLE_REPLY_PREVIEW_MS).toBeLessThanOrEqual(500);
+  });
+
+  test('input stays locked for the whole opening hold and slide', () => {
+    const { timers, advance } = createManualTimers();
+    const stager = createPuzzleOpponentStager(timers);
+    stager.update(input({}));
+    for (const step of [100, 100, 100, 100, 99]) {
+      advance(step);
+      expect(stager.getSnapshot().opponentAnimating).toBe(true);
+    }
+    advance(1 + PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS);
+    expect(stager.getSnapshot().opponentAnimating).toBe(false);
+  });
+
+  // §6 "Show solution": every remaining ply plays out, then review.
+  test('a shown solution plays the rest of the line ply by ply', () => {
+    const { timers, advance } = createManualTimers();
+    const stager = createPuzzleOpponentStager(timers);
+    stager.update(input({}));
+    advance(10_000);
+
+    stager.update(
+      input({
+        displayFen: fenAt(4),
+        solveIdx: 4,
+        furthestSolveIdx: 4,
+        status: 'revealed',
+      })
+    );
+    expect(stager.getSnapshot()).toEqual({
+      boardFen: fenAt(1),
+      opponentAnimating: true,
+    });
+    advance(PUZZLE_SOLUTION_STEP_MS);
+    expect(stager.getSnapshot().boardFen).toBe(fenAt(2));
+    advance(PUZZLE_SOLUTION_STEP_MS);
+    expect(stager.getSnapshot().boardFen).toBe(fenAt(3));
+    advance(PUZZLE_SOLUTION_STEP_MS);
+    expect(stager.getSnapshot()).toEqual({
+      boardFen: fenAt(4),
+      opponentAnimating: true,
+    });
+    advance(PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS);
+    expect(stager.getSnapshot()).toEqual({
+      boardFen: fenAt(4),
       opponentAnimating: false,
     });
   });

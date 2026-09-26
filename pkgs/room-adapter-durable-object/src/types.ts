@@ -47,6 +47,8 @@ export interface DurableObjectInstanceState {
   getWebSockets(tag?: string): WebSocket[];
   readonly storage: DurableObjectKvStorage;
   blockConcurrencyWhile<T>(fn: () => Promise<T>): Promise<T>;
+  /** Extends the current DO event for post-response/callback telemetry flushes. */
+  waitUntil(promise: Promise<unknown>): void;
 }
 
 /** Shape every Durable Object class instance must satisfy. */
@@ -61,9 +63,15 @@ export interface DurableObjectInstance {
     code: number,
     reason: string
   ): void | Promise<void>;
+  webSocketError?(ws: WebSocket, error: unknown): void | Promise<void>;
   /** DO alarm wake — fires due Schedule effects into RoomServer.injectCommand. */
   alarm?(): void | Promise<void>;
 }
+
+/** Request-lifetime telemetry runtime supplied by the Worker composition root. */
+export type DurableObjectTelemetry = {
+  readonly flushWith: (waitUntil: (promise: Promise<unknown>) => void) => void;
+};
 
 /**
  * Constructor signature for a Durable Object class as referenced by

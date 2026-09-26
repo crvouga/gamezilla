@@ -9,17 +9,15 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.contract.test.ts'",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='**/*.contract.test.ts'",
     "test:contract": "bun test src/postgres.contract.test.ts"
   },
   "dependencies": {
-    "@crvouga/postgres-mem": "catalog:",
+    "@crvouga/mockingbird-service-postgres": "catalog:",
     "@pkgs/assert": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/object-store": "workspace:*",
     "@pkgs/postgres-sqlite-compat": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
@@ -27,6 +25,7 @@
     "pg": "catalog:"
   },
   "devDependencies": {
+    "@pkgs/postgres-embedded": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

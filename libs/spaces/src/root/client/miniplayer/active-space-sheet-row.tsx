@@ -29,19 +29,19 @@ export function ActiveSpaceSheetRow(
   props: ActiveSpaceSheetRowProps
 ): JSX.Element {
   return (
-    <div class="box flex-row items-center gap-3 min-h-[72px] border-b border-border">
+    <div class="box flex-row items-center gap-3 min-h-18 border-b border-border">
       <MiniplayerOpenSpacePressable
         spaceId={props.spaceId}
         onAfterOpen={props.onOpen}
       >
         <div
-          class="box flex-row items-center gap-3 flex-1 min-w-[0] py-3 self-stretch"
+          class="box flex-row items-center gap-3 flex-1 min-w-0 py-3 self-stretch"
           style={{ 'padding-left': `${ROW_EDGE_PADDING_STEP * 4}px` }}
         >
           <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
-          <div class="box flex-1 min-w-[0] gap-0.5">
+          <div class="box flex-1 min-w-0 gap-0.5">
             <MiniplayerSpaceTitle spaceId={props.spaceId} />
-            <div class="box flex-row items-center gap-1.5 min-w-[0]">
+            <div class="box flex-row items-center gap-1.5 min-w-0">
               <MiniplayerHostNameLine spaceId={props.spaceId} />
               <p class="text textCaption">{'·'}</p>
               <MiniplayerMemberCountText spaceId={props.spaceId} />

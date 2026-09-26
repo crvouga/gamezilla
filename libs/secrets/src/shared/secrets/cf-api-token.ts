@@ -42,15 +42,6 @@ async function probeAccountPermissions(
         `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces`
       ),
     },
-    {
-      label:
-        'Workers R2 Storage Edit (Account permission — object-store provision)',
-      probe: probeCfPermission(
-        headers,
-        'GET',
-        `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets`
-      ),
-    },
   ];
 
   const zonesRes = await fetchWithRetry(
@@ -65,15 +56,6 @@ async function probeAccountPermissions(
     const zoneId = zonesBody.result?.[0]?.id;
     if (zoneId) {
       checks.push(
-        {
-          label: 'DNS Write              (Zone permission — for CNAME records)',
-          probe: probeCfPermission(
-            headers,
-            'POST',
-            `https://api.cloudflare.com/client/v4/zones/${zoneId}/dns_records`,
-            { type: 'TXT', name: '_cf-probe', content: 'probe', ttl: 1 }
-          ),
-        },
         {
           label:
             'Zone Settings Write    (Zone permission — for redirect rulesets)',

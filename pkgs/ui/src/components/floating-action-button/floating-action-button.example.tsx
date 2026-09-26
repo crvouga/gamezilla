@@ -42,7 +42,7 @@ function FabDemo(): JSX.Element {
 
 export default function FloatingActionButtonExample(): JSX.Element {
   return (
-    <ExampleRoot class="min-h-[200px]">
+    <ExampleRoot class="min-h-50">
       <FabDemo />
     </ExampleRoot>
   );

@@ -12,9 +12,9 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "vitest run"
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
@@ -25,14 +25,12 @@
   "devDependencies": {
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/ui": "workspace:*",
-    "@pkgs/vitest-solid": "workspace:*",
-    "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "happy-dom": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:"
   }
 }

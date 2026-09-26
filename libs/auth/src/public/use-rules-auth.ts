@@ -1,11 +1,7 @@
+import { useIsAnon } from './access-facts';
 import type { AppRulesAuth } from './app-rules-auth';
 import { mapAppAuthToRulesAuth } from './map-app-auth-to-rules-auth';
-import {
-  useIsAnon,
-  useMyAccountId,
-  useMyDeviceId,
-  useMyId,
-} from './use-current-user';
+import { useMyAccountId, useMyDeviceId, useMyId } from './use-current-user';
 
 export function useRulesAuth(): AppRulesAuth {
   const deviceId = useMyDeviceId();

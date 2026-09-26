@@ -8,7 +8,32 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 export const SECRETS_CACHE_PREFIX = '.cache/secrets';
 export const SECRETS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-export type SecretsCacheEnv = 'dev' | 'prd';
+/**
+ * A secrets environment slug (`dev`, `prd`, `staging`, …). Which environments
+ * exist is the caller's decision; this only keeps the slug safe to use as a
+ * cache file name.
+ */
+export type SecretsCacheEnv = string;
+
+const ENV_SLUG = /^[a-z0-9][a-z0-9-]*$/;
+
+export function isSecretsCacheEnv(value: string): boolean {
+  return ENV_SLUG.test(value);
+}
+
+/**
+ * The secrets environments a repo has — the caller's decision (this package
+ * knows no environment by name).
+ */
+export type SecretsEnvs = {
+  /** Every environment; `secrets:pull` caches one map per env. */
+  readonly all: readonly SecretsCacheEnv[];
+  /**
+   * Production environments: `secrets-run` never serves them from the local
+   * cache (Infisical or injected env only) and warns when one is active.
+   */
+  readonly production: readonly SecretsCacheEnv[];
+};
 
 export type SecretsCacheMeta = {
   readonly pulledAt: string;
@@ -17,9 +42,12 @@ export type SecretsCacheMeta = {
 };
 
 const META_KEY = `${SECRETS_CACHE_PREFIX}/meta.json`;
-const FINGERPRINT_KEY = `${SECRETS_CACHE_PREFIX}/fingerprint`;
-
 function envMapKey(env: SecretsCacheEnv): string {
+  if (!isSecretsCacheEnv(env)) {
+    throw new Error(
+      `secrets cache: ${JSON.stringify(env)} is not an environment slug (${String(ENV_SLUG)})`
+    );
+  }
   return `${SECRETS_CACHE_PREFIX}/${env}.json`;
 }
 
@@ -156,7 +184,7 @@ export async function readSecretsCacheMeta(
     if (!Array.isArray(envs)) return null;
     const cacheEnvs: SecretsCacheEnv[] = [];
     for (const e of envs) {
-      if (e === 'dev' || e === 'prd') cacheEnvs.push(e);
+      if (typeof e === 'string' && isSecretsCacheEnv(e)) cacheEnvs.push(e);
     }
     if (cacheEnvs.length === 0) return null;
     return { pulledAt, projectId, envs: cacheEnvs };
@@ -171,26 +199,6 @@ export async function writeSecretsCacheMeta(
 ): Promise<void> {
   const body = `${JSON.stringify(meta, null, 2)}\n`;
   await store.put(META_KEY, encodeUtf8(body), 'application/json');
-}
-
-export async function readSecretsCacheFingerprint(
-  store: ObjectStore
-): Promise<string | null> {
-  const raw = await readUtf8(store, FINGERPRINT_KEY);
-  if (raw === null) return null;
-  const fp = raw.trim();
-  return fp.length > 0 ? fp : null;
-}
-
-export async function writeSecretsCacheFingerprint(
-  store: ObjectStore,
-  fingerprint: string
-): Promise<void> {
-  await store.put(
-    FINGERPRINT_KEY,
-    encodeUtf8(`${fingerprint.trim()}\n`),
-    'text/plain; charset=utf-8'
-  );
 }
 
 /**
@@ -225,8 +233,4 @@ export function secretsCacheRelPath(env: SecretsCacheEnv): string {
 
 export function secretsCacheMetaRelPath(): string {
   return META_KEY;
-}
-
-export function secretsCacheFingerprintRelPath(): string {
-  return FINGERPRINT_KEY;
 }

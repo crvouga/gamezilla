@@ -1,0 +1,9 @@
+language js
+
+file($body) where {
+  $body <: includes "console.log",
+  $body <: contains bubble JsCallExpression() as $call where {
+    $call <: `console.log($args)`,
+    register_diagnostic(span=$call, message="Use structured observability instead of console.log in runtime code.", severity="error")
+  }
+}

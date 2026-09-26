@@ -1,6 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
-import { wallClock, wallTimers } from '@pkgs/clock';
+import { createSimClock, type SimClockBundle } from '@pkgs/clock';
+import { createNoopLogger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
 import {
@@ -9,9 +10,8 @@ import {
   EMQX_SESSION_EXPIRY_SEC,
 } from './create-emqx-pubsub';
 
-const now = wallClock.now;
-const timers = wallTimers;
-const random = Math.random;
+/** Pinned jitter source: reconnect backoff is deterministic. */
+const random = (): number => 0;
 
 class FakeMqttClient extends EventEmitter {
   connected = false;
@@ -68,15 +68,26 @@ class FakeMqttClient extends EventEmitter {
   }
 }
 
-async function waitUntil(pred: () => boolean, ms = 2000): Promise<void> {
-  const deadline = now() + ms;
-  while (now() < deadline) {
+const SETTLE_STEPS = 3000;
+
+async function flushMicrotasks(): Promise<void> {
+  for (let i = 0; i < 32; i += 1) await Promise.resolve();
+}
+
+/**
+ * Drain microtasks, then step virtual time 1 ms, until `pred` holds. The fake
+ * client lives in-process, so no wall time is ever needed.
+ */
+async function waitUntil(
+  sim: SimClockBundle,
+  pred: () => boolean
+): Promise<void> {
+  for (let step = 0; step < SETTLE_STEPS; step += 1) {
+    await flushMicrotasks();
     if (pred()) return;
-    await new Promise<void>((r) => {
-      timers.setTimeout(() => r(), 5);
-    });
+    sim.clock.advance(1);
   }
-  throw new Error('waitUntil timed out');
+  throw new Error(`waitUntil timed out at t=${sim.clock.now()}ms`);
 }
 
 type BootResult = {
@@ -89,21 +100,23 @@ async function boot(
   extra?: Partial<Parameters<typeof createEmqxPubSub>[0]>
 ): Promise<BootResult> {
   let lastOpts: IClientOptions | null = null;
+  const sim = createSimClock();
   const ps = createEmqxPubSub({
     url: 'wss://x/mqtt',
     auth: async () => ({ username: 'u', password: 'p' }),
     clientIdPrefix: 'device-1',
-    timers,
+    timers: sim.timers,
     random,
+    logger: createNoopLogger(),
     connectFn: (_url: string, opts: IClientOptions) => {
       lastOpts = opts;
       return fake as unknown as MqttClient;
     },
     ...extra,
   });
-  await waitUntil(() => fake.listenerCount('connect') > 0);
+  await waitUntil(sim, () => fake.listenerCount('connect') > 0);
   fake.simulateConnect();
-  await waitUntil(() => ps.status() === 'connected');
+  await waitUntil(sim, () => ps.status() === 'connected');
   return { ps, lastOpts };
 }
 
@@ -210,12 +223,14 @@ describe('createEmqxPubSub', () => {
   test('reconnect reuses the same clientId', async () => {
     const fakes: FakeMqttClient[] = [];
     const optsList: IClientOptions[] = [];
+    const sim = createSimClock();
     const ps = createEmqxPubSub({
       url: 'wss://x/mqtt',
       auth: async () => ({ username: 'u', password: 'p' }),
       clientIdPrefix: 'stable-id',
-      timers,
+      timers: sim.timers,
       random,
+      logger: createNoopLogger(),
       reconnect: { baseMs: 1, maxMs: 1 },
       connectFn: (_url, opts) => {
         optsList.push(opts);
@@ -228,11 +243,11 @@ describe('createEmqxPubSub', () => {
         return fake as unknown as MqttClient;
       },
     });
-    await waitUntil(() => ps.status() === 'connected');
+    await waitUntil(sim, () => ps.status() === 'connected');
     expect(optsList[0]?.clientId).toBe('stable-id');
 
     fakes[0]!.emit('close');
-    await waitUntil(() => optsList.length >= 2, 3000);
+    await waitUntil(sim, () => optsList.length >= 2);
     expect(optsList[1]?.clientId).toBe('stable-id');
     expect(optsList[1]?.clean).toBe(false);
     ps.close();

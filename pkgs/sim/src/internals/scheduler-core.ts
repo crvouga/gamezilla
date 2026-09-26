@@ -3,7 +3,9 @@ import type { VirtualClock } from './clock';
 import { waitQuiescence } from './idle';
 import {
   advanceToNextDue,
+  assertDrainBudget,
   assertQuiescentBudget,
+  type DrainBudget,
   withinRunUntilBudget,
 } from './scheduler-limits';
 import type { InFlightTask, Task } from './scheduler-types';
@@ -18,7 +20,23 @@ export type DrainContext = {
   readonly choiceRng?: SeededRng;
   readonly trace?: TraceRecorder;
   readonly inFlight: InFlightTask[];
+  /** Fired-Task counter for this drain; bounds every drain loop. */
+  readonly budget: DrainBudget;
+  /** Shared across drains; see {@link DrainStats}. */
+  readonly stats: DrainStats;
 };
+
+/**
+ * Counts advances the drain made while wall work was still in flight.
+ *
+ * `drainInFlightWallWork` gives a starved process only so many macrotask turns
+ * before it moves virtual time anyway, to avoid deadlocking on a task that is
+ * really waiting for a future timer. On a contended machine that guess is
+ * wrong often enough to matter: virtual time runs ahead of the work, and a
+ * scenario's `until` budget drains without the system having progressed. The
+ * count lets a waiter tell that apart from "the product never got there".
+ */
+export type DrainStats = { starvedAdvances: number };
 
 export function pushTask(heap: Task[], item: Task): void {
   heap.push(item);
@@ -103,6 +121,9 @@ export async function fireOneDue(ctx: DrainContext): Promise<boolean> {
   const due = dueAt(ctx.heap, now);
   if (due.length === 0) return false;
 
+  ctx.budget.steps += 1;
+  assertDrainBudget(ctx.budget, ctx.heap);
+
   const picked =
     ctx.choiceRng !== undefined
       ? choose(ctx.choiceRng, 'scheduler/next', due, ctx.trace)
@@ -137,9 +158,25 @@ export async function fireDueTasks(ctx: DrainContext): Promise<number> {
  * record and replay — advancing while that work is still pending makes
  * `scheduleAfter` deadlines drift and breaks Trace replay.
  *
+ * A probe is one macrotask, so the ceiling is really "how many event-loop
+ * turns can that I/O need". 64 was enough on an idle machine and not enough on
+ * a busy one: with the sim suites running in parallel, a contended process
+ * spent its 64 turns without the SQLite round-trip landing, virtual time moved
+ * anyway, and scenario deadlines burned while nothing progressed — a flake
+ * that looked like a slow product rather than a starved drain.
+ *
+ * The number is patience, not a deadline: the loop exits on the first probe
+ * once the work has settled, so a high ceiling costs nothing on an idle
+ * machine and only spends microseconds of macrotask turns on a starved one.
+ * It is sized for the worst runner the gate runs on — two shared cores — not
+ * for the laptop that writes the scenario. Deadlock is still caught, by
+ * `settleOrDeadlock` and by the drain's fired-task budget. Raising it further
+ * did not help: 4096 measured the same as 512, because past a point the drain
+ * is no longer what is starved.
+ *
  * TODO(dst-audit): D4 — replace with registered Effects (Phase 3.3).
  */
-const MAX_WALL_SPINS_BEFORE_ADVANCE = 64;
+const MAX_WALL_SPINS_BEFORE_ADVANCE = 512;
 
 function throwIfInFlightError(ctx: DrainContext): void {
   const err = firstInFlightError(ctx);
@@ -190,6 +227,9 @@ async function settleOrDeadlock(
     if (end !== undefined && nextAt > end) {
       throw new Error(deadlockMessage(ctx));
     }
+    // Moving the clock with work still in flight: the drain ran out of
+    // patience, not the simulation out of things to do.
+    ctx.stats.starvedAdvances += 1;
     ctx.clock.set(nextAt);
     await fireOneDue(ctx);
   }

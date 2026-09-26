@@ -9,10 +9,9 @@
     "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts"
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx' && vitest run",
-    "test:sim": "bun run --filter @pkgs/room-sim test",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
     "bench": "bun tests/bench/hot-paths.bench.ts"
   },
   "dependencies": {
@@ -27,15 +26,13 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/sim": "workspace:*",
-    "@pkgs/vitest-solid": "workspace:*",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/property": "workspace:*",
     "@solidjs/testing-library": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   },
   "peerDependencies": {}
 }

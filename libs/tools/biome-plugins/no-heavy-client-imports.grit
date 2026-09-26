@@ -1,0 +1,50 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "lodash",
+    includes "moment",
+    includes "jquery",
+    includes "rxjs"
+  },
+  $body <: contains bubble or {
+    `import $_ from $source` where {
+      $source <: or {
+        `'lodash'`,
+        `"lodash"`,
+        `'lodash-es'`,
+        `"lodash-es"`
+      },
+      register_diagnostic(span=$source, message="low-end Android budget: do not import lodash — use a per-method import or a small local helper.", severity="error")
+    },
+    `import $_ from $source` where {
+      $source <: or {
+        `'moment'`,
+        `"moment"`,
+        `'moment/$rest'`,
+        `"moment/$rest"`
+      },
+      register_diagnostic(span=$source, message="low-end Android budget: do not import moment — use injected Clock / Timers or a tiny date helper.", severity="error")
+    },
+    `import $_ from $source` where {
+      $source <: or {
+        `'jquery'`,
+        `"jquery"`,
+        `'jquery/$rest'`,
+        `"jquery/$rest"`
+      },
+      register_diagnostic(span=$source, message="low-end Android budget: do not import jquery.", severity="error")
+    },
+    `import $_ from $source` where {
+      $source <: or {
+        `'rxjs'`,
+        `"rxjs"`,
+        `'rxjs/$rest'`,
+        `"rxjs/$rest"`
+      },
+      register_diagnostic(span=$source, message="low-end Android budget: do not import rxjs.", severity="error")
+    }
+  }
+}

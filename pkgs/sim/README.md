@@ -5,7 +5,7 @@ choices ⇒ the same timeline. Packages declare a **System** that boots a typed
 surface `S` behind a **Runtime**; the framework drives **Actions**, checks
 **Properties**, captures **Snapshots**, and records a **Recording** for replay.
 The algebra does not know about clients, browsers, SQL, rooms, or networks — a
-Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
+Runtime supplies those. Root policy: [`docs/DETERMINISM.md`](../../docs/DETERMINISM.md).
 
 ---
 
@@ -44,7 +44,7 @@ Runtime supplies those. Root policy: [`DETERMINISM.md`](../../DETERMINISM.md).
 | `@pkgs/sim` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `readRunBundle`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
 | `@pkgs/sim-report` | Solid+Vite report viewer (`SimReportApp`, `<sim-report>` web component) + `writeHtmlReport` / `renderHtmlReport` standalone HTML artifacts |
 | `@pkgs/sim/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
-| `@pkgs/sim/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver`, JSON arbs |
+| `@pkgs/sim/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` (`assertProperty` and JSON arbs live in the leaf `@pkgs/property`) |
 
 Free `explore` / `replay` / `run` are **not** exported from the root — use
 `system.explore` / `system.replay` / `system.run`. Catalog nouns use

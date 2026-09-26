@@ -101,14 +101,14 @@ function WideIslandBody(props: BodyProps): JSX.Element {
     <Show
       when={props.scroll}
       fallback={
-        <Island class="flex-1 min-h-[0]">
-          <div class="box flex-1 min-h-[0]">
+        <Island class="flex-1 min-h-0">
+          <div class="box flex-1 min-h-0">
             <WideBodyContent {...props} />
           </div>
         </Island>
       }
     >
-      <Island class="flex-1 min-h-[0] p-0">
+      <Island class="flex-1 min-h-0 p-0">
         <ScrollView
           // The island has `p: 0`; the scroller owns the padding itself, so it
           // must not also cancel the island's edge step.
@@ -116,7 +116,7 @@ function WideIslandBody(props: BodyProps): JSX.Element {
           class="flex-1"
           contentStyle={{
             'flex-grow': 1,
-            padding: 'var(--ui-space-5)',
+            padding: 'var(--ui-space-page)',
             'padding-bottom': `${SCREEN_SCROLL_BOTTOM_PADDING}px`,
           }}
           dataSet={{ component: 'ScreenBodyScroll' }}
@@ -139,7 +139,7 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
       when={props.scroll}
       fallback={
         <div
-          class="box flex-1 min-h-[0]"
+          class="box flex-1 min-h-0"
           style={{ gap: `${ISLAND_GAP_STEP * 4}px` }}
         >
           {inner}
@@ -189,7 +189,7 @@ function WideShell(
   );
   return (
     <div
-      class="box flex-1 min-h-[0]"
+      class="box flex-1 min-h-0"
       {...dataAttrs({
         component: 'ScreenBase',
         mode: 'wide',

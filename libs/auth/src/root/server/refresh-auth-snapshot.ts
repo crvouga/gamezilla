@@ -1,12 +1,13 @@
 import { assertDeviceId, assertUuid } from '@libs/auth/public/device-id';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth/server';
+import type { AuthUser, VerifiedSession } from '@pkgs/auth/shared';
 import { join, raw, sql, type Value } from '@pkgs/sql';
 
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { ExternalAccountRepository } from '../../public/external-account-repository';
 import { managedInsertColumns } from '../../public/managed-row';
-import { readPrimaryEmailFromAuthSnapshot } from './auth-user-snapshot';
+import { LinkedIdentityMirror } from './linked-identity-mirror';
 
 /**
  * Idempotent server-side upsert run from `POST /identity/refresh`. Given a
@@ -61,8 +62,7 @@ export class AuthSnapshotRefresher {
   }): Promise<void> {
     const { bearerToken, accountId, now, createId } = args;
 
-    let session: Awaited<ReturnType<AuthServerPort['verifySessionToken']>> =
-      null;
+    let session: VerifiedSession | null = null;
     try {
       session = await this.authServer.verifySessionToken(bearerToken);
     } catch {
@@ -70,25 +70,31 @@ export class AuthSnapshotRefresher {
     }
     if (session === null) return;
 
-    let snapshot: Record<string, unknown> | null = null;
+    let user: AuthUser | null = null;
     try {
-      snapshot = await this.authServer.getUserSnapshot(session.externalUserId);
+      user = await this.authServer.getUser(session.externalUserId);
     } catch {
-      snapshot = null;
+      user = null;
     }
-    const data = snapshot ?? { id: session.externalUserId };
-    const email =
-      session.email ?? readPrimaryEmailFromAuthSnapshot(data) ?? undefined;
+    const email = session.email ?? user?.email ?? undefined;
 
     const externalAccounts = new ExternalAccountRepository(this.db);
     await externalAccounts.upsertExternalAccount({
       userId: accountId,
-      provider: this.authServer.providerLabel,
+      provider: this.authServer.provider,
       externalId: session.externalUserId,
       metadata: email === undefined ? {} : { email },
       now,
       createId,
     });
+    // Only a real read lists sign-in methods; a failed one must not
+    // tombstone the ones already mirrored.
+    if (user !== null) {
+      await new LinkedIdentityMirror(this.db, { now, createId }).mirror(
+        accountId,
+        user.identities
+      );
+    }
   }
 
   private async upsertDeviceRow(args: {

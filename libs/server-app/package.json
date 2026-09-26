@@ -1,0 +1,64 @@
+{
+  "name": "@libs/server-app",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/client-config": "workspace:*",
+    "@libs/db": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/permissions": "workspace:*",
+    "@libs/pubsub": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/async-local": "workspace:*",
+    "@pkgs/auth": "workspace:*",
+    "@pkgs/billing": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/kv-postgres": "workspace:*",
+    "@pkgs/llm": "workspace:*",
+    "@pkgs/llm-openai": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/matchmaking": "workspace:*",
+    "@pkgs/matchmaking-sql": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/object-store-s3": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/outbox": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/s3-server": "workspace:*",
+    "@pkgs/secret-store": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/tts": "workspace:*",
+    "@pkgs/tts-elevenlabs": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "better-sqlite3": "catalog:",
+    "hono": "catalog:",
+    "jose": "catalog:",
+    "pg": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/property": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  }
+}

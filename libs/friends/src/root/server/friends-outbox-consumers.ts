@@ -139,6 +139,7 @@ export const friendRequestAcceptedNotifyConsumer = defineOutboxConsumer({
       payload: {
         requestId: payload.requestId,
         toUserId: payload.toUserId,
+        toUsername: accepterProfile.username,
       },
       groupKey: 'friends:accepted',
       priority: 5,

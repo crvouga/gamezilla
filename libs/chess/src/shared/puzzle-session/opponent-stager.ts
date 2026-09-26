@@ -110,7 +110,7 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
       return;
     }
 
-    const plan = planOpponentStage({
+    const stage = planOpponentStage({
       startFen: input.startFen,
       moves: input.moves,
       displayFen: input.displayFen,
@@ -118,17 +118,18 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
       furthestSolveIdx: input.furthestSolveIdx,
       prevSolveIdx: this.prev.solveIdx,
       prevFurthestSolveIdx: this.prev.furthestSolveIdx,
+      revealed: input.status === 'revealed',
     });
     this.prev = {
       solveIdx: input.solveIdx,
       furthestSolveIdx: input.furthestSolveIdx,
     };
 
-    if (plan.kind === 'snap') {
+    if (stage.kind === 'snap') {
       this.setPhase(null);
       return;
     }
-    this.runAnimate(plan);
+    this.runAnimate(stage);
   };
 
   dispose = (): void => {
@@ -136,19 +137,23 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
     this.listeners.clear();
   };
 
-  private runAnimate(plan: AnimatePlan): void {
-    this.setPhase({ fen: plan.fromFen, locked: true });
+  private runAnimate(stage: AnimatePlan): void {
+    this.setPhase({ fen: stage.fromFen, locked: true });
     const moveMs = PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS;
-    const t1 = this.timers.setTimeout(() => {
-      this.setPhase({ fen: plan.toFen, locked: true });
-    }, plan.holdMs);
-    const t2 = this.timers.setTimeout(() => {
-      this.cancelTimers = null;
-      this.setPhase(null);
-    }, plan.holdMs + moveMs);
+    const handles = stage.frames.map((frame) =>
+      this.timers.setTimeout(() => {
+        this.setPhase({ fen: frame.fen, locked: true });
+      }, frame.atMs)
+    );
+    const lastAtMs = stage.frames[stage.frames.length - 1]?.atMs ?? 0;
+    handles.push(
+      this.timers.setTimeout(() => {
+        this.cancelTimers = null;
+        this.setPhase(null);
+      }, lastAtMs + moveMs)
+    );
     this.cancelTimers = () => {
-      this.timers.clearTimeout(t1);
-      this.timers.clearTimeout(t2);
+      for (const handle of handles) this.timers.clearTimeout(handle);
     };
   }
 

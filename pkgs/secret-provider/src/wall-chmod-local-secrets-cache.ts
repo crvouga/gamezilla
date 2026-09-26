@@ -3,22 +3,21 @@ import { join } from 'node:path';
 import { wallOsFs } from '@pkgs/os/wall-os-fs';
 import {
   type SecretsCacheEnv,
-  secretsCacheFingerprintRelPath,
   secretsCacheMetaRelPath,
   secretsCacheRelPath,
 } from './local-secrets-cache';
 
 const SECRET_FILE_MODE = 0o600;
 
-const CACHE_ENVS: readonly SecretsCacheEnv[] = ['dev', 'prd'];
-
-/** Restrict local secrets dump files to owner read/write only. */
-export function chmodLocalSecretsCacheFiles(repoRoot: string): void {
+/** Restrict local secrets dump files (`envs`' maps + meta) to owner read/write only. */
+export function chmodLocalSecretsCacheFiles(
+  repoRoot: string,
+  envs: readonly SecretsCacheEnv[]
+): void {
   const osFs = wallOsFs();
   const paths = [
-    ...CACHE_ENVS.map((env) => join(repoRoot, secretsCacheRelPath(env))),
+    ...envs.map((env) => join(repoRoot, secretsCacheRelPath(env))),
     join(repoRoot, secretsCacheMetaRelPath()),
-    join(repoRoot, secretsCacheFingerprintRelPath()),
   ];
   for (const absolutePath of paths) {
     try {

@@ -17,6 +17,7 @@ import type {
   DriverNode,
   DriverWaitOptions,
   ElementLayout,
+  GestureOptions,
   ScrollDirection,
   TapPosition,
   UiWaitOptions,
@@ -69,14 +70,20 @@ export class SolidDomDriverNode implements DriverNode {
     await this.host.requireApp().tap(this.requireElement());
   }
 
-  async tapAt(position: TapPosition): Promise<void> {
+  async tapAt(position: TapPosition, options?: GestureOptions): Promise<void> {
     await this.waitVisible();
-    await this.host.requireApp().tapAt(this.requireElement(), position);
+    await this.host
+      .requireApp()
+      .tapAt(this.requireElement(), position, options);
   }
 
-  async drag(from: TapPosition, to: TapPosition): Promise<void> {
+  async drag(
+    from: TapPosition,
+    to: TapPosition,
+    options?: GestureOptions
+  ): Promise<void> {
     await this.waitVisible();
-    await this.host.requireApp().drag(this.requireElement(), from, to);
+    await this.host.requireApp().drag(this.requireElement(), from, to, options);
   }
 
   async layout(): Promise<ElementLayout | null> {
@@ -96,7 +103,9 @@ export class SolidDomDriverNode implements DriverNode {
 
   async key(key: DriverKey): Promise<void> {
     await this.host.activate();
-    await this.host.requireApp().pressKey(DRIVER_KEY_TO_DOM[key]);
+    await this.host
+      .requireApp()
+      .pressKey(DRIVER_KEY_TO_DOM[key], this.requireElement());
   }
 
   async scroll(

@@ -71,7 +71,7 @@ function DefaultOverflowPill(props: {
 }): JSX.Element {
   return (
     <div
-      class="box rounded-[9999px] items-center justify-center overflow-hidden bg-outline"
+      class="box rounded-full items-center justify-center overflow-hidden bg-outline"
       style={{
         'border-color': props.metrics.ringColor,
         width: `${props.metrics.size}px`,
@@ -150,7 +150,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
     <Show when={props.onClick} fallback={strip()}>
       {(onClick) => (
         <button
-          class="clickable clickableTint self-start rounded-[9999px]"
+          class="clickable clickableTint self-start rounded-full"
           {...dataAttrs({ component: 'AvatarGroup', ...props.dataSet })}
           type="button"
           onClick={() => onClick()()}
