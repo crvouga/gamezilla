@@ -123,5 +123,10 @@
     "id": "signed-in-health-before-tab-shell",
     "summary": "Production signed-in health journeys left the initial app route immediately after document navigation, so Chrome could retain its aborted lazy import as a pending promise and return from auth to a tab shell with an empty body. Fixed by waiting for the initial tab shell before starting hosted sign-in.",
     "regressionTest": "apps/product/src/sim/prepare-critical-journey-access.test.ts"
+  },
+  {
+    "id": "eager-perf-sampler-bundle",
+    "summary": "The disabled performance HUD eagerly bundled its browser sampler and web-vitals attribution into the client boot path, leaving the cross-platform bundle budget without enough headroom. Fixed by loading the sampler only when the HUD is enabled.",
+    "regressionTest": "libs/client-app/tests/shell/create-lazy-perf-sampler.test.ts"
   }
 ]
