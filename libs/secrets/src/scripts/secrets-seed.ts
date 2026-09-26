@@ -9,7 +9,8 @@
  *   printf %s "$TOKEN" | bun run secrets:seed -- --env prd NAME   # non-interactive
  *
  * Values are read with echo off and validated with the registry `validate`
- * before writing. Secrets OpenTofu writes (`managedBy: 'tofu'`) are skipped
+ * before writing. Account-wide secrets (`secrets.json` `shared`) are written
+ * to the shared environment every environment imports, whatever `--env` is. Secrets OpenTofu writes (`managedBy: 'tofu'`) are skipped
  * unless named explicitly. Run `bun run secrets:pull` afterwards to refresh
  * the offline cache.
  */
@@ -23,6 +24,10 @@ import {
   exportSecretsMapLive,
   setSecretIn,
 } from '../shared/secrets/secrets-io';
+import {
+  isSharedSecret,
+  SHARED_SECRETS_ENV,
+} from '../shared/secrets/shared-secrets';
 
 type SeedArgs = {
   readonly env: EnvFile;
@@ -141,9 +146,12 @@ async function seedOne(
     console.error(`${secret.name}: ${err} — not written`);
     return false;
   }
-  await setSecretIn(args.env.env, secret.name, value);
+  const target = isSharedSecret(secret.name)
+    ? SHARED_SECRETS_ENV
+    : args.env.env;
+  await setSecretIn(target, secret.name, value);
   stored.set(secret.name, value);
-  ok(secret.name, `written to secrets env ${args.env.env}`);
+  ok(secret.name, `written to secrets env ${target}`);
   return true;
 }
 

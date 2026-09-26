@@ -14,7 +14,7 @@
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree.
 
-- **Infrastructure is OpenTofu, and stateful resources are never destroyed.** Every deployed resource (Workers' hostnames, R2 buckets and credentials, DNS, the EMQX broker on Railway, the Grafana Cloud stack, the secrets OpenTofu derives) is declared in `libs/infra/tofu` — env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`. Never create, change or delete infrastructure from TypeScript, a script or a console (Biome `no-infra-outside-tofu.grit` fails `lint` on vendor admin endpoints). Never delete or replace anything that may hold data: stateful resources carry `prevent_destroy`, and `libs/infra/policy/stateful.rego` (run on every plan by `libs/infra/scripts/tofu.ts`) allow-lists the only types that may ever be deleted — add a new type to `deletable` only if losing it loses no data. Retire a stateful resource with `removed { lifecycle { destroy = false } }`. What code must never create (the Neon project and its per-environment branches, human secrets) is asserted by data sources, never managed. There is no destroy path. Guide: [`docs/INFRA.md`](docs/INFRA.md).
+- **Infrastructure is OpenTofu, and stateful resources are never destroyed.** Every deployed resource (Workers' hostnames, R2 buckets and credentials, DNS, the EMQX broker on Railway, the Grafana Cloud stack, the secrets OpenTofu derives) is declared in `libs/infra/tofu` — env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`. Never create, change or delete infrastructure from TypeScript, a script or a console (Biome `no-infra-outside-tofu.grit` fails `lint` on vendor admin endpoints). Never delete or replace anything that may hold data: stateful resources carry `prevent_destroy`, and `libs/infra/policy/stateful.rego` (run on every plan by `libs/infra/scripts/tofu.ts`) allow-lists the only types that may ever be deleted — add a new type to `deletable` only if losing it loses no data. Retire a stateful resource with `removed { lifecycle { destroy = false } }`. What code must never create (the Neon project and its root branch, shared secrets, the one Google OAuth redirect URI) is set once by a person and asserted, never managed; everything per-environment — Infisical environment and shared-secret import (`fleet` stack), Neon branch + endpoint + `DATABASE_URL`, buckets, broker, tokens — comes from the env file, so a new `envs/<env>.tfvars.json` needs no manual step anywhere. There is no destroy path. Guide: [`docs/INFRA.md`](docs/INFRA.md).
 
 - **Never disable structural size limits for app code.** The Tiger-Style caps in root [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing. Do **not** add new size-rule `'off'` overrides in `biome.json`, and do **not** add `biome-ignore` comments for those rules in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemptions are the test / known-path `overrides` already wired in `biome.json`.
 
@@ -478,7 +478,7 @@ Representativeness of production is **port contract matrices** (mockingbird-post
 
 The sim harness (`@libs/sim-harness`) migrates each composition's mem fabric **once** into `<package>/.cache/sim-seed-<composition>.pgmm.json` and clones it per `openSim`. Suite notes: [`libs/sim-harness/README.md`](libs/sim-harness/README.md).
 
-Deployed environments (`SECRETS_ENV=dev|prd`, one `libs/infra/tofu/envs/<env>.tfvars.json` each) use Neon + Cloudflare R2 + Railway EMQX + Grafana Cloud, all declared in `libs/infra/tofu` ([`docs/INFRA.md`](docs/INFRA.md)).
+Deployed environments (`SECRETS_ENV=<env>`, one `libs/infra/tofu/envs/<env>.tfvars.json` each; production-ness is its `protection`, never its name) use Neon + Cloudflare R2 + Railway EMQX + Grafana Cloud, all declared in `libs/infra/tofu` ([`docs/INFRA.md`](docs/INFRA.md)).
 
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
 - **`bun run dev`** — `@apps/product` super-app (`/` = real client, `/simulator` = Simulator; `?simulator` on `/` hands off). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
@@ -505,11 +505,11 @@ Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema —
 
 Non-deploy contexts must never reach production Postgres. Guards live in `@libs/db/public/database-url-policy`:
 
-1. **`assertDevSecretsEnv`** — scripts exit unless `SECRETS_ENV === 'dev'`.
-2. **`assertNonProdDatabaseUrl`** — rejects URLs equal to secrets env `prd` `DATABASE_URL` and production-only hostnames (dual-fetch at setup/migrate time). Loopback (`@pkgs/postgres-embedded`) is allowed for `dev`.
-3. **API worker** — when `SECRETS_ENV` binding is `dev`, the first DB request asserts non-prod URL.
-4. **Review** — every DATABASE_URL entrypoint must wire `assertDevSecretsEnv` / `assertNonProdDatabaseUrl` from `@libs/db/public/database-url-policy`.
-5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `VITE_ALLOW_PRODUCTION_API_URL` for the API). `db:wipe:dev` refuses this hatch and requires a live `prd` dual-fetch before any destructive SQL.
+1. **`assertNonProductionSecretsEnv`** — scripts exit unless `SECRETS_ENV` names a `protection: "standard"` env.
+2. **`assertNonProdDatabaseUrl`** — rejects URLs equal to any production env's `DATABASE_URL` and production-only hostnames (dual-fetch at setup/migrate time). Loopback (`@pkgs/postgres-embedded`) is allowed for non-production envs.
+3. **API worker** — on a non-production deployment (`DEPLOYMENT_PROTECTION`, rendered from the env file), the first DB request asserts a non-prod URL.
+4. **Review** — every DATABASE_URL entrypoint must wire `assertNonProductionSecretsEnv` / `assertNonProdDatabaseUrl` from `@libs/db/public/database-url-policy`.
+5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `VITE_ALLOW_PRODUCTION_API_URL` for the API). `db:wipe:dev` refuses this hatch and requires a live dual-fetch of every production env before any destructive SQL.
 
 ## Per-feature package layout
 

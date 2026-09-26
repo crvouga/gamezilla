@@ -26,9 +26,19 @@ describe('OpenTofu secrets ↔ @libs/secrets registry', () => {
     }
   });
 
-  test('a secret is generated, derived or human — never two of them', () => {
+  test('every shared secret is a registry secret a person enters', () => {
+    for (const name of FOUNDATION_SECRETS.shared) {
+      expect({ name, managedBy: byName.get(name)?.managedBy }).toEqual({
+        name,
+        managedBy: null,
+      });
+    }
+  });
+
+  test('a secret is shared, generated, derived or human — never two of them', () => {
     const all = [
       ...FOUNDATION_SECRETS.human,
+      ...FOUNDATION_SECRETS.shared,
       ...FOUNDATION_SECRETS.generated,
       ...FOUNDATION_SECRETS.derived,
       ...FOUNDATION_SECRETS.bootstrap,

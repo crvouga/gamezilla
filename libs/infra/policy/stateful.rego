@@ -21,6 +21,7 @@ deletable := {
 	"grafana_cloud_access_policy",
 	"grafana_cloud_access_policy_token",
 	"infisical_secret",
+	"infisical_secret_import",
 	"railway_custom_domain",
 	"railway_service_domain",
 	"railway_variable",

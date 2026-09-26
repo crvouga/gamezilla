@@ -36,7 +36,6 @@ function syntheticEnv(
         broker: `emqx-${name}.example.test`,
       },
       railway: { workspace_id: 'ws', project_name: `gamezilla-${name}` },
-      neon: { branch_id: `br-${name}` },
     },
     `synthetic ${name}.tfvars.json`
   );

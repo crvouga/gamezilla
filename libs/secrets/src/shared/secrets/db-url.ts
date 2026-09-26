@@ -54,7 +54,8 @@ async function validateDatabaseUrl(input: SecretInput): Promise<void> {
 
 export const DATABASE_URL = new Secret({
   name: 'DATABASE_URL',
-  hint: 'Postgres connection URL (postgresql://…)',
+  hint: "Postgres connection URL — derived by OpenTofu from the env's Neon branch endpoint (libs/infra/tofu/modules/database).",
   pushToApiWorker: true,
+  managedBy: 'tofu',
   validate: validateDatabaseUrl,
 });

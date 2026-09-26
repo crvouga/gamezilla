@@ -24,14 +24,17 @@ libs/infra/
                       custom domain, Cloudflare DNS
       trace-stack/    the ONE Grafana Cloud stack (stateful; free plan = 1 stack)
       observability/  per-env access policies + tokens on that stack
-      database/       Neon: ASSERT-ONLY (one project, a branch per env) +
-                      the pg_stat_statements extension
+      database/       Neon: the env's branch of the one project (production
+                      runs on the root branch) + its read-write endpoint →
+                      DATABASE_URL, and the pg_stat_statements extension
       secrets/        Infisical: asserts human secrets, keeps generated ones,
                       writes derived ones
       edge/           public hostnames → Workers (custom domains)
     stacks/
-      bootstrap/      global, applied by a person: state, secrets environments,
-                      CI identity, repository
+      bootstrap/      global, applied by a person: state, the shared secrets
+                      environment, CI identity, repository
+      fleet/          global, applied by Deploy: every env file's secrets
+                      environment + its import of the shared one
       foundation/     everything before Worker code ships (+ secrets.json)
       edge/           custom domains, after the Workers exist
     envs/
@@ -91,11 +94,12 @@ secrets OpenTofu writes are exactly the registry's `managedBy: 'tofu'` ones.
 
 ## State
 
-S3 backend on the R2 bucket named in the env file (`state.bucket`), key
-`<stack>/<env>.tfstate`, native lockfile, OpenTofu state + plan encryption
-(pbkdf2 → AES-GCM) keyed by `TOFU_STATE_PASSPHRASE`. The bucket and its
-credentials (`TOFU_STATE_ACCESS_KEY_ID` / `TOFU_STATE_SECRET_ACCESS_KEY`) are
-created by hand once and never managed by the stack.
+S3 backend on the R2 bucket named in `global.tfvars.json` (`state.bucket`),
+key `<stack>/<env>.tfstate` (`<stack>/global.tfstate` for bootstrap and
+fleet), native lockfile, OpenTofu state + plan encryption (pbkdf2 → AES-GCM)
+keyed by `TOFU_STATE_PASSPHRASE`. The bootstrap stack creates the bucket and
+its credential (`TOFU_STATE_ACCESS_KEY_ID` / `TOFU_STATE_SECRET_ACCESS_KEY`)
+and writes the credential once, to the shared secrets environment.
 
 ## Secrets
 
@@ -104,12 +108,19 @@ stack touches:
 
 | Kind | Who writes it | Examples |
 |---|---|---|
-| human | a person, `bun run secrets:seed` (asserted present) | `DATABASE_URL`, Google OAuth, provider API tokens |
+| shared | a person, once, in the `shared` environment (`bun run secrets:seed`) | Google OAuth client, provider API tokens, `TOFU_STATE_PASSPHRASE` |
+| human | a person, per environment (asserted present) | none today |
 | generated | OpenTofu once; an existing value always wins | `AUTH_SECRET`, EMQX credentials |
-| derived | OpenTofu, from resource outputs | `S3_*`, `API_URL`, `OBSERVABILITY_*` |
+| derived | OpenTofu, from resource outputs | `DATABASE_URL`, `S3_*`, `API_URL`, `OBSERVABILITY_*` |
 
-OpenTofu never deletes a human secret, and unknown keys in the store are left
-alone.
+Account-wide credentials live once in the `shared` Infisical environment
+(created by bootstrap); the fleet stack gives every environment an import of
+it, so a new environment inherits them and a rotation is one edit. A copy
+held by an environment would shadow the import:
+`libs/secrets/src/scripts/secrets-reconcile-shared.ts` (Deploy's
+`deploy:fleet` job) promotes unanimous copies into `shared` and deletes the
+rest, failing on any copy that disagrees. OpenTofu never deletes a human
+secret, and unknown keys in the store are left alone.
 
 ## What stays outside OpenTofu, and why
 
@@ -118,12 +129,14 @@ alone.
 | Worker code + Durable Object migrations | `wrangler deploy` in each app's `deploy` | The Cloudflare provider does not apply DO migrations reliably (cloudflare/terraform-provider-cloudflare#5701, #5898). Names come from `@libs/infra`; hostnames are the edge stack's. |
 | Postgres tables | `@libs/runtime#migrate` | Application schema, versioned with the code. |
 | Billing catalog (Stripe/Paddle products, prices, webhooks) | `@libs/billing#billing:sync` | Paddle has no provider, and the offer is product data the code reads. |
-| The Neon project and its branches, the Cloudflare zone, human secrets, `TOFU_STATE_PASSPHRASE` | a person | Must never be created (or rotated) by code; asserted instead. |
+| The Neon project (and its root branch), the Cloudflare zone, shared secrets, `TOFU_STATE_PASSPHRASE` | a person, once | Must never be created (or rotated) by code; asserted instead. |
+| The Google OAuth client and its ONE redirect URI (the production API's callback) | a person, once | Google's console has no API. Every environment sends that callback and tags its OAuth state; production forwards to the owner (`@pkgs/auth-inhouse` `oauth-callback-relay.ts`), so a new environment needs no console edit. |
 
 ## Commands
 
 ```sh
 bun run infra:bootstrap                         # global stack; a person, rarely
+bun run infra:fleet                             # global; Deploy runs it first
 bun run --filter @libs/infra plan:foundation   # SECRETS_ENV picks the env
 bun run --filter @libs/infra plan:edge
 bun run --filter @libs/infra apply:foundation  # deploy runs these; CI only
@@ -135,22 +148,29 @@ are in the environment.
 
 ## Adding an environment (staging, a replica, …)
 
-1. Create `libs/infra/tofu/envs/<env>.tfvars.json` (copy `dev`): a new
-   `suffix`, hostnames one level under the zone (Universal SSL), a new
-   Railway project name, the env's Neon branch id. (All environments share
-   one Grafana stack; spans carry `deployment.environment.name`.)
-   Register it in `libs/infra/src/public/envs.ts`.
-2. `bun run infra:bootstrap` creates the environment's Infisical environment
-   and its state credential. By hand, create what code never creates: a Neon
-   branch of the project (and its `DATABASE_URL`), Google OAuth redirect URIs
-   for the new API host. Seed human secrets with
-   `bun run secrets:seed -- --env <env>`.
-3. `bun check` proves the new file is valid and isolated from every other
-   environment; the first deploy with `SECRETS_ENV=<env>` creates the rest.
-   No workflow edit: the Deploy and Health workflows read the env files
+1. Create `libs/infra/tofu/envs/<env>.tfvars.json` (copy `dev`, drop its
+   `imports`): a new `env`, `display_name` and `suffix`, `protection:
+   "standard"`, hostnames one level under the zone (Universal SSL), a new
+   Railway project name. Register it in `libs/infra/src/public/envs.ts`.
+2. Merge. Nothing else — no console, no seeding:
+   - `deploy:fleet` creates the env's Infisical environment and its import of
+     the shared credentials;
+   - `deploy:<env>` (foundation) creates its Neon branch of production's
+     root branch (a copy of production's data) and endpoint, derives
+     `DATABASE_URL`, mints its generated secrets, R2 bucket, broker and trace
+     tokens, then migrates, ships the Workers, binds the hostnames and runs
+     `health`;
+   - Google sign-in works immediately: the env's Workers are rendered with
+     the shared OAuth callback and their own state tag, and production learns
+     the new env on its next deploy (the same run).
+   No workflow edit: Deploy and Health read the env files
    (`scripts/workflow-env-matrix.ts`). Deploy runs every `protection:
    "standard"` env in parallel, then — only if all succeeded — every
    `"production"` env; Health probes every env hourly.
+
+To rehearse before merging: `bun run infra:fleet`, then
+`SECRETS_ENV=<env> bun run deploy` (see AGENTS.md). There is no destroy path
+yet: Neon branches, buckets and brokers carry `prevent_destroy`.
 
 ## First deployment (adopting what already exists)
 
@@ -164,7 +184,7 @@ The chicken-and-egg problems and how each is broken:
 
 | Problem | Resolution |
 |---|---|
-| State needs a bucket; the bucket is a resource | The bootstrap stack's first apply uses a local backend, creates the bucket and its credential, writes the credential to every environment's secrets, then migrates its own state into the bucket (`scripts/bootstrap-backend.ts`). Detected by `TOFU_STATE_ACCESS_KEY_ID` being absent. |
+| State needs a bucket; the bucket is a resource | The bootstrap stack's first apply uses a local backend, creates the bucket and its credential, writes the credential to the shared secrets environment, then migrates its own state into the bucket (`scripts/bootstrap-backend.ts`). Detected by `TOFU_STATE_ACCESS_KEY_ID` being absent. |
 | State is encrypted; the key cannot come from state | `TOFU_STATE_PASSPHRASE` is a human secret, seeded before anything runs. |
 | CI authenticates to Infisical with the identity the bootstrap stack manages | Bootstrap is applied by a person with their own credentials, never by CI. It creates a new OIDC identity (the provider cannot import an existing OIDC binding) and repoints `SECRETS_IDENTITY_ID`; runs in flight keep using the old identity, which a person deletes afterwards. |
 | Generated secrets already exist | A stored value always wins over the generator, so adopting never rotates `AUTH_SECRET` or broker credentials. `secrets.regenerate` lists values that were copied from another environment (dev's broker credentials came from prd) and must be minted fresh. |
@@ -174,9 +194,10 @@ The chicken-and-egg problems and how each is broken:
 
 Health checks for the human-managed settings (`bun health`, every
 environment, hourly): `apps/server/health/google-oauth.health.ts` asks Google
-whether it accepts the environment's OAuth callback and, if not, names the
-exact redirect URI to add; `@libs/infra#health` plans every stack and fails on
-drift or on a missing / inactive Grafana stack or Neon branch.
+whether it accepts the one shared OAuth callback and, if not, names the exact
+redirect URI to add, and production's API health proves it relays each other
+environment's callbacks; `@libs/infra#health` plans every stack and fails on
+drift or on a missing / inactive Grafana stack.
 
 Runbook:
 

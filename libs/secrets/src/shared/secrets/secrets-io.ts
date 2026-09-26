@@ -91,6 +91,13 @@ export async function exportSecretsMap(
   return exportSecretsMapLive(envOverride);
 }
 
+/** An environment's own secrets, live — none it reads through an import. */
+export async function exportOwnSecretsLive(
+  env: string
+): Promise<ReadonlyMap<string, string>> {
+  return (await getAdminStore()).exportOwnSecrets(env);
+}
+
 export async function listSecretNames(
   envOverride?: string
 ): Promise<ReadonlyArray<string>> {

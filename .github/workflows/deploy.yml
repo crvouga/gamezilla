@@ -115,11 +115,16 @@ jobs:
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
           environment: ${{ needs.deploy-matrix.outputs.shared }}
 
+      # Promote first: the fleet apply reads its state passphrase from shared.
+      - name: promote shared secrets
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/secrets/src/scripts/secrets-reconcile-shared.ts promote
+
       - name: apply fleet
         run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra apply:fleet
 
-      - name: reconcile shared secrets
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/secrets/src/scripts/secrets-reconcile-shared.ts
+      # Only now does every env import shared: drop the copies that shadow it.
+      - name: prune shadowing copies
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/secrets/src/scripts/secrets-reconcile-shared.ts prune
 
   deploy-standard:
     name: deploy:${{ matrix.env }}

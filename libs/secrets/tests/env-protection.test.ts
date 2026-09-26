@@ -4,6 +4,7 @@ import { ENV_FILES, PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
 import { ObservabilitySecretName } from '@libs/observability/public/secret-names';
 import { SECRETS, validateSecretOrError } from '@libs/secrets/public/secrets';
 import { REPO_SECRETS_ENVS } from '@libs/secrets/shared/secrets/secrets-envs';
+import { SHARED_SECRETS_ENV } from '@libs/secrets/shared/secrets/shared-secrets';
 
 function synthetic(name: string, protection: EnvFile['protection']): EnvFile {
   const dev = ENV_FILES['dev'];
@@ -19,11 +20,14 @@ const collector = SECRETS.find(
 );
 
 describe('secrets and environment protection', () => {
-  test('every env file is a secrets env; production ones are the protected ones', () => {
+  test('every env file is a secrets env, plus the shared one; production ones and shared are never cached', () => {
     expect([...REPO_SECRETS_ENVS.all].sort()).toEqual(
-      Object.keys(ENV_FILES).sort()
+      [...Object.keys(ENV_FILES), SHARED_SECRETS_ENV].sort()
     );
-    expect(REPO_SECRETS_ENVS.production).toEqual(PRODUCTION_ENV_NAMES);
+    expect(REPO_SECRETS_ENVS.production).toEqual([
+      ...PRODUCTION_ENV_NAMES,
+      SHARED_SECRETS_ENV,
+    ]);
   });
 
   test('validators treat a new standard env as non-production, whatever its name', async () => {

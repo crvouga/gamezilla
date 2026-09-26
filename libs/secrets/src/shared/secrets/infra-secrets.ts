@@ -49,8 +49,18 @@ export const TOFU_STATE_SECRET_ACCESS_KEY = new Secret({
 export const NEON_API_KEY = new Secret({
   name: 'NEON_API_KEY',
   hint: [
-    'Neon → Account settings → API keys. Read access is enough: OpenTofu only',
-    "asserts the environment's Neon project exists and DATABASE_URL points at it.",
+    'Neon → Account settings → API keys (read/write): OpenTofu creates each',
+    "non-production environment's branch and endpoint and derives DATABASE_URL.",
   ].join('\n'),
   validate: (input) => validateMinLength(input, 'NEON_API_KEY', 16),
+});
+
+export const GITHUB_ADMIN_TOKEN = new Secret({
+  name: 'GITHUB_ADMIN_TOKEN',
+  hint: [
+    'GitHub token with repository admin rights: the bootstrap stack manages the',
+    'repository, branch protection and Actions variables (libs/infra/tofu/modules/repository).',
+  ].join('\n'),
+  optional: true,
+  validate: (input) => validateMinLength(input, 'GITHUB_ADMIN_TOKEN', 20),
 });

@@ -50,6 +50,8 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'infisical_identity_oidc_auth',
   'infisical_project_environment',
   'infisical_project_identity',
+  'neon_branch',
+  'neon_endpoint',
   'postgresql_extension',
   'random_password',
   'railway_project',
