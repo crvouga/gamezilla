@@ -36,6 +36,13 @@ export type {
   ClientTransportHandlers,
 } from './client/core/transport';
 export {
+  COMMITTED_LOG_SEGMENT_SIZE,
+  type CommittedLogBlobs,
+  type CommittedLogManifest,
+  createSegmentedCommittedLog,
+  type SegmentedCommittedLog,
+} from './client/storage/segmented-committed-log';
+export {
   CancelScheduleEffect,
   ROOM_SCHEDULER_IDENTITY,
   ScheduleEffect,
@@ -63,6 +70,7 @@ export {
   fnv1a64Hex,
   hashRoomState,
 } from './hash-room-state';
+export { plainDeepEqual } from './plain-deep-equal';
 export { newCommandId } from './protocol/ids';
 export {
   type ClientToServerWire,

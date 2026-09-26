@@ -23,6 +23,10 @@ export {
   linkFromTraceparent,
   serializeTraceContext,
 } from './correlation';
+export {
+  deploymentTelemetryEnvironment,
+  type TelemetryEnvironment,
+} from './deployment-environment';
 export type { EventAttributes } from './events';
 export { addEvent, EVENT, events } from './events';
 export type { IdentitySource, ObservabilityIdentity } from './identity';

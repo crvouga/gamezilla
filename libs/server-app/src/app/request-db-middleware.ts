@@ -3,10 +3,7 @@ import { SessionAuth } from '@libs/auth/public/session-middleware';
 import type { AuthContext } from '@libs/auth/public/types';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import { EnsureClientConfigMaterialized } from '@libs/client-config/root/server/ensure-client-config-materialized';
-import {
-  assertDatabaseUrlAllowedForSecretsEnv,
-  DEVELOPMENT_SECRETS_ENV,
-} from '@libs/db/public/database-url-policy';
+import { assertNonProdDatabaseUrl } from '@libs/db/public/database-url-policy';
 import type { OpenSqlClient } from '@libs/feature/public/sync';
 import { assert } from '@pkgs/assert';
 import type { AuthServerPort } from '@pkgs/auth/server';
@@ -17,6 +14,7 @@ import type { SecretStore } from '@pkgs/secret-store';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import type { MiddlewareHandler } from 'hono';
+import type { DeploymentProtection } from '../config/env';
 import { ApiSecretName } from '../config/secret-names';
 import { wrapSqlClientForObservability } from '../observability/wrap-sql-client';
 import { apiRequestAsyncLocalStorage } from '../request-scope';
@@ -38,15 +36,17 @@ async function resolveRequestDatabaseUrl(
 /** Per middleware-instance latch (not process-global) for multi-app sims. */
 type PolicyLatch = { checked: boolean };
 
-async function ensureDevDatabasePolicy(
+/** Every non-production deployment refuses a production-looking database. */
+async function ensureNonProductionDatabasePolicy(
   databaseUrl: string,
-  secretsEnv: string,
+  protection: DeploymentProtection,
   latch: PolicyLatch
 ): Promise<void> {
-  if (secretsEnv !== DEVELOPMENT_SECRETS_ENV) return;
+  if (protection === 'production') return;
   if (latch.checked) return;
-  await assertDatabaseUrlAllowedForSecretsEnv(databaseUrl, secretsEnv, {
+  await assertNonProdDatabaseUrl(databaseUrl, {
     surface: 'api-worker',
+    protection,
   });
   latch.checked = true;
 }
@@ -55,7 +55,7 @@ export type RequestDbMiddlewareOptions = {
   readonly authServer: AuthServerPort;
   readonly apiUrlOverride?: string | null | undefined;
   readonly databaseUrlOverride?: string | null | undefined;
-  readonly secretsEnv: string;
+  readonly protection: DeploymentProtection;
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
@@ -171,7 +171,7 @@ export function createRequestDbMiddleware(
   secretStore: SecretStore,
   options: RequestDbMiddlewareOptions
 ): MiddlewareHandler<ApiHonoEnv<AuthContext>> {
-  const { databaseUrlOverride = null, secretsEnv } = options;
+  const { databaseUrlOverride = null, protection } = options;
   const policyLatch: PolicyLatch = { checked: false };
   const clientConfigLatch: ClientConfigLatch = { done: false };
   const skipDatabasePolicy = options.skipDatabaseUrlPolicy === true;
@@ -186,7 +186,7 @@ export function createRequestDbMiddleware(
         databaseUrlOverride
       );
       assert.nonEmptyString(dbUrl, 'DATABASE_URL must be a non-empty string');
-      await ensureDevDatabasePolicy(dbUrl, secretsEnv, policyLatch);
+      await ensureNonProductionDatabasePolicy(dbUrl, protection, policyLatch);
     }
     return attachRequestDatabase({
       c,

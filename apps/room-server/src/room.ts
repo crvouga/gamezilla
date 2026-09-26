@@ -5,6 +5,7 @@ import type { RoomServerEnv } from '@libs/room-app/app/room-server-env';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   createWorkerTelemetry,
+  deploymentTelemetryEnvironment,
   otlpAuthorization,
   type WorkerTelemetry,
 } from '@pkgs/observability/worker';
@@ -15,8 +16,23 @@ type RoomWorkerEnv = {
   readonly OBSERVABILITY_COLLECTOR_URL?: string;
   readonly OBSERVABILITY_COLLECTOR_USER?: string;
   readonly OBSERVABILITY_ENABLED?: string;
-  readonly SECRETS_ENV?: string;
+  /** Stamped by libs/infra render-wrangler on deployed Workers only. */
+  readonly DEPLOYMENT_ENVIRONMENT?: string;
+  /**
+   * The env file's `protection` (`production` / `standard`), stamped by
+   * libs/infra render-wrangler on deployed Workers; absent (standard) locally.
+   */
+  readonly DEPLOYMENT_PROTECTION?: string;
 };
+
+function isProductionDeployment(env: RoomWorkerEnv): boolean {
+  const raw = env.DEPLOYMENT_PROTECTION?.trim() ?? '';
+  if (raw === '' || raw === 'standard') return false;
+  if (raw === 'production') return true;
+  throw new Error(
+    `DEPLOYMENT_PROTECTION must be "production" or "standard", got ${JSON.stringify(raw)}`
+  );
+}
 
 type RoomTelemetryRuntime = Pick<WorkerTelemetry, 'flushWith'>;
 
@@ -28,9 +44,10 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
     workerTelemetry = { flushWith: () => undefined };
     return workerTelemetry;
   }
+  const production = isProductionDeployment(env);
   const collectorUrl = env.OBSERVABILITY_COLLECTOR_URL?.trim();
   if (collectorUrl === undefined || collectorUrl.length === 0) {
-    if (env.SECRETS_ENV === 'prd') {
+    if (production) {
       throw new Error(
         'OBSERVABILITY_COLLECTOR_URL is required in production unless OBSERVABILITY_ENABLED=0'
       );
@@ -41,7 +58,7 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
   const buildSha = env.BUILD_SHA?.trim() || 'development';
   const collectorToken = env.OBSERVABILITY_COLLECTOR_TOKEN?.trim();
   if (
-    env.SECRETS_ENV === 'prd' &&
+    production &&
     (collectorToken === undefined || collectorToken.length === 0)
   ) {
     throw new Error('OBSERVABILITY_COLLECTOR_TOKEN is required in production');
@@ -53,7 +70,7 @@ function ensureWorkerTelemetry(env: RoomWorkerEnv): RoomTelemetryRuntime {
   workerTelemetry = createWorkerTelemetry({
     serviceName: 'gamezilla-room-server',
     serviceVersion: buildSha,
-    environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
+    environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,
     otlpUrl: collectorUrl,
     ...(authorization === undefined

@@ -80,17 +80,21 @@ export OTLP/HTTP straight to the Grafana Cloud OTLP gateway; the SDK's
 `RedactingSpanProcessor` applies the same default-deny attribute allowlist
 before export. Traces land in the stack's Tempo.
 
-`@libs/observability#provision` (part of `bun run deploy`, `prd` only)
-reconciles everything from one bootstrap credential, `GRAFANA_CLOUD_API_TOKEN`:
+OpenTofu owns all of it (`libs/infra/tofu/modules/observability`, applied by
+`@libs/infra#apply:foundation` for every environment) with one provider
+credential, `GRAFANA_CLOUD_API_TOKEN`:
 
-- the stack (`PRODUCT_CONFIG.observability.grafanaStackSlug`, created if
-  missing),
+- one stack for every environment (`grafana.stack_slug` in
+  `libs/infra/tofu/global.tfvars.json`, adopted by the bootstrap stack —
+  Grafana's free plan allows one; stateful — `prevent_destroy` + Grafana
+  delete protection). Spans carry `deployment.environment.name` (`prod` /
+  `dev`, stamped on deployed Workers as `DEPLOYMENT_ENVIRONMENT`),
 - a write-only `traces:write` access policy and a read-only `traces:read`
   policy scoped to that stack,
-- tokens for both (kept while they still authenticate, rotated otherwise),
+- a token for each,
 - the secrets `OBSERVABILITY_COLLECTOR_URL` / `_USER` / `_TOKEN` (Worker
   ingest, Basic auth) and `OBS_TEMPO_URL` / `_USER` / `_TOKEN` (agent queries),
-  written to secrets env `prd`.
+  written to that environment's secrets.
 
 One-time setup: in Grafana Cloud create an access policy on your org realm
 with `stacks:read`, `stacks:write`, `accesspolicies:read`,
@@ -103,7 +107,7 @@ bun run secrets:seed -- --env prd GRAFANA_CLOUD_API_TOKEN
 `secrets:seed` prompts with echo off, validates, and writes to Infisical; with
 no names it walks every missing manual secret in the registry.
 
-`bun run health:prd` (and the hourly `health.yml`) verifies it live:
+`bun health` / `bun run health:prd` (and the hourly `health.yml`) verify it live:
 `@libs/observability#health` checks the ingest endpoint shape, that the write
 token can ingest, and that the read token can query Tempo.
 

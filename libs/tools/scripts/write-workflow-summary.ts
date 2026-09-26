@@ -1,25 +1,20 @@
 #!/usr/bin/env bun
 /**
- * Always-run CI helper: append a workflow job status block (and, on failure, a
- * copy-pasteable LLM fix prompt) to `GITHUB_STEP_SUMMARY`.
+ * Always-run CI helper: append a workflow job status block (and, on failure,
+ * the failed tests' trace queries) to `GITHUB_STEP_SUMMARY`.
  *
  * Expects:
  * - `WORKFLOW_JOB` — job label, e.g. `check` / `deploy:dev`
  * - `WORKFLOW_OUTCOME` — `success` | `failure` | `cancelled` | `skipped`
- * - `WORKFLOW_LOG_PATH` — path to the teed step output (optional)
  */
-// @io-wall-ok — CI entry; reads teed job log + writes GITHUB_STEP_SUMMARY
+// @io-wall-ok — CI entry; reads trace artifacts + writes GITHUB_STEP_SUMMARY
 import { appendFileSync, existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { stripVTControlCharacters } from 'node:util';
-import { buildCiDeployFailureLlmFixPromptMarkdown } from '@libs/secrets/shared/build-llm-fix-prompt';
 import {
   type FailedTestTrace,
   failedTestTraceMarkdown,
   failedTestTracesFromNdjson,
 } from './workflow-observability';
-
-const MAX_LOG_CHARS = 120_000;
 
 function iconFor(result: string): string {
   switch (result) {
@@ -34,21 +29,6 @@ function iconFor(result: string): string {
     default:
       return '❔';
   }
-}
-
-function readJobLog(): string {
-  const path = (process.env['WORKFLOW_LOG_PATH'] ?? '').trim();
-  if (path === '' || !existsSync(path)) {
-    return '(no log captured — WORKFLOW_LOG_PATH missing or empty)';
-  }
-  const raw = stripVTControlCharacters(readFileSync(path, 'utf8'));
-  if (raw.trim() === '') {
-    return '(log was empty — task may have failed before writing output)';
-  }
-  if (raw.length <= MAX_LOG_CHARS) return raw;
-  const head = Math.floor(MAX_LOG_CHARS * 0.15);
-  const tail = MAX_LOG_CHARS - head;
-  return `${raw.slice(0, head)}\n\n... (truncated ${String(raw.length - MAX_LOG_CHARS)} chars) ...\n\n${raw.slice(-tail)}`;
 }
 
 function buildStatusMarkdown(
@@ -148,21 +128,8 @@ try {
     (process.env['WORKFLOW_OUTCOME'] ?? 'unknown').trim() || 'unknown';
   const status = buildStatusMarkdown(name, outcome, readFailedTestTraces());
 
-  let llm = '';
-  if (outcome === 'failure') {
-    llm = buildCiDeployFailureLlmFixPromptMarkdown([
-      {
-        stepId: name,
-        output: readJobLog(),
-      },
-    ]);
-  }
-
-  writeSummary(llm === '' ? status : `${llm}\n${status}`);
-  console.log(
-    `write-workflow-summary: wrote ${outcome} summary` +
-      (llm === '' ? '' : ' + LLM fix prompt')
-  );
+  writeSummary(status);
+  console.log(`write-workflow-summary: wrote ${outcome} summary`);
 } catch (e) {
   const msg = e instanceof Error ? e.message : String(e);
   console.error(`write-workflow-summary: ${msg}`);

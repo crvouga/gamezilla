@@ -27,6 +27,9 @@ import type { DurableObjectKvStorage } from './types';
 export class DurableObjectRoomStorage implements RoomStorage {
   private readonly ns: RoomDoKeyNs;
   private migratePromise: Promise<void> | null = null;
+  private migrated = false;
+  /** Cached `meta.lastSeq`; this storage is the topic's single writer. */
+  private lastSeq: number | null = null;
 
   constructor(
     private readonly kv: DurableObjectKvStorage,
@@ -35,17 +38,18 @@ export class DurableObjectRoomStorage implements RoomStorage {
     this.ns = roomDoKeyNs(moduleName);
   }
 
-  private async ensureV3(): Promise<void> {
+  private ensureV3(): Promise<void> | void {
+    if (this.migrated) return;
     if (this.migratePromise === null) {
       this.migratePromise = this.runMigrateIfNeeded();
     }
-    await this.migratePromise;
+    return this.migratePromise;
   }
 
   private async runMigrateIfNeeded(): Promise<void> {
     const meta = await this.kv.get<RoomDoMeta>(this.ns.meta);
-    if (meta !== undefined) return;
-    await migrateLegacyBlobToV3(this.kv, this.ns);
+    if (meta === undefined) await migrateLegacyBlobToV3(this.kv, this.ns);
+    this.migrated = true;
   }
 
   async loadEventsAfter(_topic: string, afterSeq: number): Promise<LogEntry[]> {
@@ -83,6 +87,7 @@ export class DurableObjectRoomStorage implements RoomStorage {
     const lastSeq = newEntries[newEntries.length - 1]!.seq;
     batch[this.ns.meta] = { lastSeq } satisfies RoomDoMeta;
     await putEntriesBatched(this.kv, batch);
+    this.lastSeq = lastSeq;
   }
 
   async getDedupOutcome(
@@ -106,7 +111,10 @@ export class DurableObjectRoomStorage implements RoomStorage {
   }
 
   private async readLastSeq(): Promise<number> {
+    if (this.lastSeq !== null) return this.lastSeq;
     const meta = await this.kv.get<RoomDoMeta>(this.ns.meta);
-    return meta?.lastSeq ?? 0;
+    const lastSeq = meta?.lastSeq ?? 0;
+    this.lastSeq = lastSeq;
+    return lastSeq;
   }
 }

@@ -26,12 +26,12 @@
   },
   {
     "id": "word-filter-accent-bypass",
-    "summary": "Accented letters slipped past the username filter: NFKC kept `\u00fc` composed and then dropped it as a separator, so `f\u00fcck` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
+    "summary": "Accented letters slipped past the username filter: NFKC kept `ü` composed and then dropped it as a separator, so `fück` read as `fck`. Fixed by NFKD, which strips the accent and keeps the letter.",
     "regressionTest": "pkgs/word-filter/tests/match.test.ts"
   },
   {
     "id": "ndjson-undefined-rejection",
-    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` \u2014 no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
+    "summary": "streamParallelIndexed dropped a work unit that rejected with `undefined` — no frame was sent, so the client reported a missing result instead of the error. Fixed with an explicit ok flag.",
     "regressionTest": "pkgs/ndjson/tests/stream-parallel.test.ts"
   },
   {
@@ -96,8 +96,8 @@
   },
   {
     "id": "grafana-stack-in-foreign-org",
-    "summary": "PRODUCT_CONFIG pointed Grafana provisioning at stack shortawning2091, which lives in a different org than GRAFANA_CLOUD_API_TOKEN; Grafana answers 403 for another org's slug, so Deploy died on `get stack failed: HTTP 403`. Fixed by using a slug the token's org owns and turning the 403 into an org-mismatch error.",
-    "regressionTest": "libs/observability/tests/ensure-grafana-cloud-traces.test.ts"
+    "summary": "Deploy died on `get stack failed: HTTP 403` for stack shortawning2091, which was read as \"the stack lives in another org\" and fixed by switching the slug to gamezilla. The real cause was GRAFANA_CLOUD_API_TOKEN's access policy lacking stacks:read/stacks:write: shortawning2091 is the org's own (and, on the free plan, only) stack, and creating gamezilla failed with 403 at the plan limit. Fixed by granting the stacks scopes and adopting shortawning2091 as the shared stack (libs/infra/tofu/global.tfvars.json).",
+    "regressionTest": "libs/infra/tests/env-files.test.ts"
   },
   {
     "id": "check-deadline-kill-silent",
@@ -108,5 +108,25 @@
     "id": "webview-input-wrapper-noop",
     "summary": "The Bun.WebView driver typed only into a node that held a `value`, but `@pkgs/ui` TextInput puts its test id on the wrapper `<div>`, so `input` / `clear` / `text` on every TextInput were silent no-ops in a real browser (the Solid DOM driver resolved the nested field). Fixed by resolving the wrapper's `<input>` / `<textarea>` like the Solid DOM driver.",
     "regressionTest": "pkgs/ui-testing-bun-webview/tests/text-field.test.ts"
+  },
+  {
+    "id": "product-deploy-wrangler-not-on-path",
+    "summary": "After the global CLI installer was replaced by mise, @apps/product's deploy spawned `wrangler` without declaring it, so `bun run` never put the bin on PATH and Deploy failed with `Executable not found in $PATH: \"wrangler\"`. Fixed by declaring wrangler in every package that spawns it; lint-package now fails a package that spawns an undeclared npm CLI.",
+    "regressionTest": "libs/tools/scripts/spawned-clis.test.ts"
+  },
+  {
+    "id": "turbo-strips-tofu-secrets",
+    "summary": "Deploy failed at @libs/infra#apply:foundation with `missing secrets for the foundation stack`: secrets-run injected TOFU_STATE_* and NEON_API_KEY, but turbo's strict env mode dropped them because globalPassThroughEnv did not name them (SYNTHETIC_MONITOR_TOKEN too). Fixed by passing them through; every registry secret is now asserted to pass through.",
+    "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
+  },
+  {
+    "id": "signed-in-health-before-tab-shell",
+    "summary": "Production signed-in health journeys left the initial app route immediately after document navigation, so Chrome could retain its aborted lazy import as a pending promise and return from auth to a tab shell with an empty body. Fixed by waiting for the initial tab shell before starting hosted sign-in.",
+    "regressionTest": "apps/product/src/sim/prepare-critical-journey-access.test.ts"
+  },
+  {
+    "id": "eager-perf-sampler-bundle",
+    "summary": "The disabled performance HUD eagerly bundled its browser sampler and web-vitals attribution into the client boot path, leaving the cross-platform bundle budget without enough headroom. Fixed by loading the sampler only when the HUD is enabled.",
+    "regressionTest": "libs/client-app/tests/shell/create-lazy-perf-sampler.test.ts"
   }
 ]

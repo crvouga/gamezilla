@@ -56,6 +56,9 @@ export default defineConfig({
     tailwindcss(),
   ],
   root: 'web',
+  // Hermetic: the bundle is checked in (`assets.generated.ts`), so it must not
+  // inline the product's `VITE_*` build env that deploy/check shells carry.
+  envPrefix: 'IDP_SIM_WEB_',
   build: {
     target: 'es2022',
     outDir: '../dist/web',

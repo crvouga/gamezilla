@@ -5,14 +5,15 @@ import type { SecretStore } from '@pkgs/secret-store';
 import type { CreateId } from '@pkgs/uuid';
 
 import { requireRequestStore } from '../request-scope';
+import type { DeploymentProtection } from './env';
 import { ApiSecretName } from './secret-names';
 import { resolveWebClientOrigin } from './web-client-origin';
 
 /** The path the API serves under; the auth service's routes sit beneath it. */
 export const API_PATH_PREFIX = '/api';
 
-/** Binding for the web origin sign-in redirects return to (localhost stack). */
-const WEB_CLIENT_ORIGIN_BINDING = 'WEB_CLIENT_ORIGIN';
+/** Binding for the web origin sign-in redirects return to (rendered per env by `@libs/infra`; the localhost stack sets its own). */
+export const WEB_CLIENT_ORIGIN_BINDING = 'WEB_CLIENT_ORIGIN';
 
 async function readOptional(
   secretStore: SecretStore,
@@ -44,7 +45,7 @@ export async function createAuthProvider(args: {
   readonly module: AuthProviderModule;
   readonly secretStore: SecretStore;
   readonly apiUrlOverride: string | null;
-  readonly secretsEnv: string;
+  readonly protection: DeploymentProtection;
   readonly clock: Clock;
   readonly createId: CreateId;
   readonly http: HttpClient;
@@ -56,7 +57,7 @@ export async function createAuthProvider(args: {
     resolveWebClientOrigin(apiOrigin);
   return await args.module.create({
     readSecret: (name) => readOptional(secretStore, name),
-    isProduction: args.secretsEnv === 'prd',
+    isProduction: args.protection === 'production',
     apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
     clientOrigins: [webClientOrigin],

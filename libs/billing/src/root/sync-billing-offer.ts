@@ -27,7 +27,7 @@ export async function syncBillingOffer(
     const problems = validatePlusMembershipOffer(PLUS_MEMBERSHIP_OFFER);
     if (problems.length > 0) throw new Error(problems.join('\n'));
     log.info(
-      '[billing sync] dry-run (SECRETS_ENV is not prd) — offer validated'
+      '[billing sync] dry-run (not a production environment) — offer validated'
     );
     return;
   }

@@ -49,7 +49,7 @@ must decide before merging.
 - [ ] Schema changes use `defineTable` + a registered migration; no raw `CREATE TABLE` and no new `.sql` schema files.
 - [ ] Domain removals are soft deletes (`deleted_at`); no `DELETE FROM` on domain tables.
 - [ ] Client reads/writes go through local SQLite queries and mutations; no new data REST endpoint.
-- [ ] Any new secret is registered in `@libs/secrets` and provisioned for dev and prd.
+- [ ] Any new secret is registered in `@libs/secrets` and either seeded for every environment or written by OpenTofu (`libs/infra/tofu/stacks/foundation/secrets.json`).
 - [ ] Docs updated wherever behavior, conventions, or operations changed.
 - [ ] No long-running local process still holds a machine-wide singleton port (EMQX `1883`/`8083`/`18083`, wrangler `8788`).
 - [ ] Merged by a human only once every check is green; never `--admin` or merge queue.

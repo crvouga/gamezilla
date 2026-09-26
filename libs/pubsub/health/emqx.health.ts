@@ -1,15 +1,38 @@
 // @io-wall-ok — live health probe (EMQX broker on Railway).
-import { describe, expect, test } from 'bun:test';
+import { beforeAll, describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
 import { createHttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   COMMITTED_EMQX_CREDENTIALS,
   EMQX_STOCK_DASHBOARD_PASSWORD,
-} from '@libs/pubsub/shared/secrets/emqx-credentials';
+} from '@pkgs/emqx-server/ports';
 import { createGlobalHttpClient } from '@pkgs/http-client';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
+import { createSecretAdminStore } from '@pkgs/secret-provider';
 
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 const http = createGlobalHttpClient();
+
+/**
+ * `secrets-run` injected this process's env once, at the start of the deploy;
+ * `apply:foundation` may have replaced the broker credentials since (a
+ * placeholder or `regenerate`d value), so probe with the store's live values.
+ */
+async function refreshBrokerSecrets(): Promise<void> {
+  const store = await createSecretAdminStore({
+    repoRoot: REPO_ROOT,
+    configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
+  });
+  const live = await store.exportSecrets(process.env['SECRETS_ENV']);
+  for (const name of Object.values(Name)) {
+    const value = live.get(name)?.trim() ?? '';
+    if (value.length > 0) process.env[name] = value;
+  }
+}
+
+beforeAll(refreshBrokerSecrets);
 
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim() ?? '';
@@ -22,21 +45,52 @@ function basicAuth(): string {
 }
 
 /**
- * One Railway broker serves both secrets envs, and only prd's
- * `@libs/pubsub#provision` (which runs before prd `health`) mints its
- * credentials and mirrors them into dev. Probing it from dev would gate
- * `deploy:dev` on state only `deploy:prd` can fix, so only prd is checked.
+ * Every environment runs its own broker (libs/infra/tofu/modules/pubsub);
+ * OpenTofu writes its credentials before `health` runs.
  */
-describe.skipIf(!isProductionSecretsEnv())('emqx (prd)', () => {
-  test('HTTP API authenticates and every node is running', async () => {
+/** A broker OpenTofu just created (or restarted) builds for a few minutes. */
+const WARMUP_MS = 10 * 60 * 1000;
+const RETRY_MS = 10_000;
+
+async function nodeStatuses(): Promise<readonly string[] | null> {
+  try {
     const res = await http.fetch(`${requireEnv(Name.apiUrl)}/api/v5/nodes`, {
       headers: { Authorization: basicAuth(), Accept: 'application/json' },
     });
-    expect(res.status).toBe(200);
+    if (res.status !== 200) return null;
     const nodes = (await res.json()) as ReadonlyArray<{ node_status?: string }>;
-    expect(nodes.length).toBeGreaterThan(0);
-    expect(nodes.map((n) => n.node_status)).toEqual(nodes.map(() => 'running'));
-  });
+    return nodes.map((n) => n.node_status ?? 'unknown');
+  } catch {
+    return null;
+  }
+}
+
+async function runningNodes(): Promise<readonly string[] | null> {
+  const deadline = wallClock.now() + WARMUP_MS;
+  for (;;) {
+    const statuses = await nodeStatuses();
+    const ready =
+      statuses !== null &&
+      statuses.length > 0 &&
+      statuses.every((s) => s === 'running');
+    if (ready || wallClock.now() >= deadline) return statuses;
+    await new Promise<void>((resolve) => {
+      wallTimers.setTimeout(() => resolve(), RETRY_MS);
+    });
+  }
+}
+
+describe('emqx', () => {
+  test(
+    'HTTP API authenticates and every node is running',
+    async () => {
+      const statuses = await runningNodes();
+      expect(statuses, 'EMQX API never authenticated').not.toBeNull();
+      expect(statuses?.length ?? 0).toBeGreaterThan(0);
+      expect(statuses).toEqual((statuses ?? []).map(() => 'running'));
+    },
+    WARMUP_MS + 60_000
+  );
 
   test('server publish path accepts a message', async () => {
     const pubsub = createHttpPubSubFromSecretStore({

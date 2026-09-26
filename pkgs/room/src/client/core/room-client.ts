@@ -1,7 +1,5 @@
-import type { Assert } from '@pkgs/assert';
 import { hotAssert } from '@pkgs/assert';
 import type { Clock, Timers } from '@pkgs/clock';
-import { isNamespacedKeyword } from '@pkgs/keyword';
 import { isMessageEnvelope } from '@pkgs/message';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -9,6 +7,7 @@ import { MAX_PENDING_OUTBOUND_COMMANDS } from '../../bounds';
 import type { RoomEffectHandler } from '../../effects/handler';
 import { newCommandId } from '../../protocol/ids';
 import {
+  type ClientToServerWire,
   parseServerToClientWire,
   ROOM_WIRE_KIND,
   WIRE_VERSION,
@@ -25,19 +24,28 @@ import {
   type RoomState,
 } from '../../types';
 import {
-  appendCommittedEntriesBatch,
-  foldDispatchDisplay,
-  rebuildOptimisticFromQueue,
-} from './room-client-fold';
-import { createRoomClientIoSerial } from './room-client-io';
+  appendCommitted,
+  applyDispatch,
+  type ClientCore,
+  createClientCore,
+  rebase,
+  resetCommitted,
+} from './room-client-core';
 import {
-  applyCommittedWire,
-  applyRejectedWire,
-  applyWelcomeWire,
-  type RoomClientWireHost,
+  createRoomClientPersist,
+  type RoomClientPersist,
+} from './room-client-persist';
+import {
+  createSnapshotCache,
+  readSnapshot,
+  type SnapshotCache,
+} from './room-client-snapshot';
+import {
+  applyCommitted,
+  applyRejected,
+  applyWelcome,
+  type WireEnv,
 } from './room-client-wire';
-import { foldEntries } from './room-fold';
-import { RoomMetaAttr, roomAttrNamespace } from './room-meta';
 import { OptimisticEffectSession } from './room-optimistic-effects';
 import type { ClientRoomStorage, QueuedCommand } from './storage';
 import type { ClientTransport } from './transport';
@@ -61,11 +69,36 @@ export type RoomClientConfig<
   effectHandlers?: readonly RoomEffectHandler[];
 };
 
+const EMPTY_ROSTER: readonly RoomActor[] = Object.freeze([]);
+
+/** Local cache must be a contiguous log from seq 1; anything else is corrupt. */
+function assertHydratable(entries: readonly LogEntry[]): void {
+  for (let i = 0; i < entries.length; i++) {
+    if (entries[i]!.seq !== i + 1) {
+      throw new Error(
+        `persisted committed log must be contiguous from seq 1 (index=${String(i)} seq=${String(entries[i]!.seq)})`
+      );
+    }
+  }
+}
+
+function commandFrame(cmd: QueuedCommand): ClientToServerWire {
+  return {
+    v: WIRE_VERSION,
+    kind: ROOM_WIRE_KIND.command,
+    id: cmd.id,
+    ts: cmd.ts,
+    payload: cmd.payload,
+  };
+}
+
 /**
  * Client room: optimistic commands + durable queue; server is source of truth.
  *
- * Durable queue appends and inbound welcome/committed/rejected share one IO
- * serial so acks cannot race ahead of `appendQueued` (ghost-queue bug).
+ * Every inbound frame and every dispatch is applied to memory synchronously
+ * (parse → fold → notify) so UI latency is one reduce, not a storage round
+ * trip. Durable writes ride a write-behind serial ({@link RoomClientPersist})
+ * whose queue snapshot semantics make the ghost-queue race impossible.
  */
 export class RoomClient<
   S extends RoomState,
@@ -101,156 +134,117 @@ export class RoomClient<
     return r;
   }
 
-  async untilSynced(timeoutMs = 2000): Promise<void> {
-    const start = this.clock.now();
-    while (!RoomMetaAttr.isSynced.from(this.snapshot)) {
-      if (this.clock.now() - start > timeoutMs) {
-        throw new Error('RoomClient.untilSynced: timeout waiting for welcome');
-      }
-      await new Promise<void>((resolve) => {
-        this.timers.setTimeout(resolve, 2);
+  /** Resolves on the first synced snapshot; rejects after `timeoutMs` (injected timers). */
+  untilSynced(timeoutMs = 2000): Promise<void> {
+    if (this.core.synced) return Promise.resolve();
+    return new Promise<void>((resolve, reject) => {
+      let timer: unknown = null;
+      const unsubscribe = this.subscribe(() => {
+        if (!this.core.synced) return;
+        if (timer !== null) this.timers.clearTimeout(timer);
+        unsubscribe();
+        resolve();
       });
-    }
+      timer = this.timers.setTimeout(() => {
+        unsubscribe();
+        reject(
+          new Error('RoomClient.untilSynced: timeout waiting for welcome')
+        );
+      }, timeoutMs);
+    });
   }
 
-  private readonly module: RoomModule<S, C, E, Identity>;
+  private readonly core: ClientCore<S, C, E, Identity>;
+  private readonly persist: RoomClientPersist;
+  private readonly env: WireEnv<S, C, E, Identity>;
   private readonly storage: ClientRoomStorage;
   private readonly transport: ClientTransport;
-  private readonly identity: Identity;
   private readonly onError: ((err: RoomError | Error) => void) | undefined;
   private readonly clock: Clock;
   private readonly timers: Timers;
   private readonly createId: CreateId;
-  private readonly effectHandlers: readonly RoomEffectHandler[];
-  private readonly effectSession: OptimisticEffectSession;
-  private readonly io: ReturnType<typeof createRoomClientIoSerial>;
-
-  private committedState: S;
-  private committedEntries: LogEntry<E>[] = [];
-  private roster: readonly RoomActor[] = [];
-  private lastSeq = 0;
-  private pendingQueue: QueuedCommand[] = [];
-  private readonly optimistic = new Map<string, E[]>();
-  private synced = false;
-  private destroyed = false;
-  private lastError: RoomError | Error | null = null;
-  private snapshot: S;
+  private readonly snapshot: SnapshotCache<S>;
   private readonly subscribers = new Set<() => void>();
+
+  private roster: readonly RoomActor[] = EMPTY_ROSTER;
+  private lastError: RoomError | Error | null = null;
+  private destroyed = false;
   private unsubTransport: (() => void) | null = null;
   private unsubHandlers: (() => void) | null = null;
 
   private constructor(config: RoomClientConfig<S, C, E, Identity>) {
-    this.module = config.module;
     this.storage = config.storage;
     this.transport = config.transport;
-    this.identity = config.identity;
     this.onError = config.onError;
     this.clock = config.clock;
     this.timers = config.timers;
     this.createId = config.createId;
-    this.effectHandlers = config.effectHandlers ?? [];
-    this.io = createRoomClientIoSerial({
+    const handlers = config.effectHandlers ?? [];
+    const effects =
+      handlers.length === 0
+        ? null
+        : new OptimisticEffectSession(
+            config.topic,
+            config.clock,
+            handlers,
+            (args) => {
+              this.dispatch(args.payload as C);
+            }
+          );
+    this.core = createClientCore({
+      module: config.module,
+      identity: config.identity,
+      effects,
+    });
+    this.persist = createRoomClientPersist({
+      storage: config.storage,
+      readQueue: () => this.core.queue,
       onError: (err) => {
         this.reportError(err);
         this.notify();
       },
     });
-    this.effectSession = new OptimisticEffectSession(
-      config.topic,
-      config.clock,
-      this.effectHandlers,
-      (args) => {
-        this.dispatch(args.payload as C);
-      }
-    );
-    this.committedState = config.module.initialState();
-    this.snapshot = this.computeSnapshot();
+    this.env = {
+      core: this.core,
+      persist: this.persist,
+      sendSync: () => this.sendSync(),
+      flushOutbound: () => this.flushOutbound(),
+      reportError: (err) => this.reportError(err),
+      notify: () => this.notify(),
+    };
+    this.snapshot = createSnapshotCache<S>(hotAssert().isEnabled());
+    this.captureSnapshotInputs();
   }
 
   /** In-memory outbound command ids (DST durable-queue invariant). */
   getPendingQueueIds(): readonly string[] {
-    return this.pendingQueue.map((q) => q.id);
+    const queue = this.core.queue;
+    const ids = new Array<string>(queue.length);
+    for (let i = 0; i < queue.length; i++) ids[i] = queue[i]!.id;
+    return ids;
   }
 
   /** Committed tip seq (DST post-converge lastSeq check). */
   getLastSeq(): number {
-    return this.lastSeq;
+    return this.core.lastSeq;
   }
 
-  /** Await durable-queue + inbound wire IO (tests). */
-  async flushIo(): Promise<void> {
-    await this.io.flush();
+  /** Await durable-queue + committed-log persistence (tests). */
+  flushIo(): Promise<void> {
+    return this.persist.flush();
   }
 
-  private wireHost(): RoomClientWireHost {
-    const c = this;
-    return {
-      get lastSeq() {
-        return c.lastSeq;
-      },
-      get committedEntries() {
-        return c.committedEntries;
-      },
-      applyCommittedBatch: (entries) =>
-        c.applyCommittedBatch(entries as LogEntry<E>[]),
-      applyOptimisticRebuild: () => c.applyOptimisticRebuild(),
-      resetCommittedToEmpty: () => c.resetCommittedToEmpty(),
-      saveCommitted: () =>
-        c.storage.saveCommitted(c.lastSeq, c.committedEntries),
-      dropQueued: (id) => c.dropQueued(id),
-      removeQueued: (id) => c.storage.removeQueued(id),
-      sendSync: () => c.sendSync(),
-      flushOutboundQueue: () => c.flushOutboundQueue(),
-      setSynced: (v) => {
-        c.synced = v;
-      },
-      setRoster: (clients) => {
-        c.roster = clients;
-      },
-      reportError: (err) => c.reportError(err),
-      notify: () => c.notify(),
-    };
-  }
-
-  private computeSnapshot(): S {
-    const display = foldDispatchDisplay(
-      this.module,
-      this.committedState,
-      this.pendingQueue,
-      this.optimistic
-    );
-    const a: Assert = hotAssert();
-    this.assertDisplayKeys(a, display as Record<string, unknown>);
-    const merged = {
-      ...(display as Record<string, unknown>),
-      ...RoomMetaAttr.isSynced(this.synced),
-      ...RoomMetaAttr.isConnected(this.transport.isConnected),
-      ...RoomMetaAttr.lastError(this.lastError),
-    };
-    return a.isEnabled()
-      ? (Object.freeze(merged) as unknown as S)
-      : (merged as unknown as S);
-  }
-
-  private assertDisplayKeys(a: Assert, display: Record<string, unknown>): void {
-    if (!a.isEnabled()) return;
-    for (const k of Object.keys(display)) {
-      a.ok(
-        !roomAttrNamespace.ownsKey(k),
-        'Tiger: domain room module state must not use room/* keys (reserved for RoomMetaAttr)',
-        { k }
-      );
-      a.ok(
-        isNamespacedKeyword(k),
-        'Tiger: room module state keys must be Clojure-style namespaced keywords (prefix/local)',
-        { k }
-      );
-    }
+  private captureSnapshotInputs(): void {
+    const s = this.snapshot;
+    s.display = this.core.display;
+    s.synced = this.core.synced;
+    s.connected = this.transport.isConnected;
+    s.lastError = this.lastError;
   }
 
   private notify(): void {
-    this.snapshot = this.computeSnapshot();
-    for (const fn of [...this.subscribers]) fn();
+    this.captureSnapshotInputs();
+    for (const fn of this.subscribers) fn();
   }
 
   private reportError(err: RoomError | Error): void {
@@ -259,15 +253,10 @@ export class RoomClient<
   }
 
   private resetToEmptyLocalState(): void {
-    this.committedState = this.module.initialState();
-    this.committedEntries = [];
-    this.lastSeq = 0;
-    this.pendingQueue = [];
-    this.optimistic.clear();
-    this.effectSession.clear();
-    void this.effectSession.refresh([]);
-    this.synced = false;
-    this.snapshot = this.computeSnapshot();
+    resetCommitted(this.core);
+    this.core.queue.length = 0;
+    rebase(this.core);
+    this.captureSnapshotInputs();
   }
 
   private async hydrateLocal(): Promise<void> {
@@ -279,30 +268,17 @@ export class RoomClient<
         );
       }
     }
-    const folded = foldEntries(this.module, entries as LogEntry<E>[]);
-    this.committedState = folded.state;
-    this.committedEntries = [...(entries as LogEntry<E>[])];
-    this.lastSeq =
-      folded.lastSeq > 0 ? folded.lastSeq : Math.max(0, Math.floor(lastSeq));
-    this.pendingQueue = await this.storage.loadQueued();
-    this.applyOptimisticRebuild();
-    this.snapshot = this.computeSnapshot();
-  }
-
-  private applyOptimisticRebuild(): void {
-    const rebuilt = rebuildOptimisticFromQueue({
-      module: this.module,
-      committed: this.committedState,
-      queue: this.pendingQueue,
-      identity: this.identity,
-    });
-    this.optimistic.clear();
-    this.effectSession.clear();
-    for (const [id, events] of rebuilt.optimistic) {
-      this.optimistic.set(id, events);
-      this.effectSession.remember(id, rebuilt.effectsById.get(id) ?? []);
+    assertHydratable(entries);
+    const queued = await this.storage.loadQueued();
+    resetCommitted(this.core);
+    if (entries.length > 0) {
+      appendCommitted(this.core, entries as LogEntry<E>[]);
+    } else {
+      this.core.lastSeq = Math.max(0, Math.floor(lastSeq));
     }
-    void this.effectSession.refresh(this.pendingQueue.map((q) => q.id));
+    this.core.queue = queued;
+    rebase(this.core);
+    this.captureSnapshotInputs();
   }
 
   private attachTransport(): void {
@@ -315,7 +291,7 @@ export class RoomClient<
         this.notify();
       },
       onClose: () => {
-        this.synced = false;
+        this.core.synced = false;
         this.notify();
       },
       onError: (err) => {
@@ -329,140 +305,71 @@ export class RoomClient<
     this.transport.sendJson({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.sync,
-      fromSeq: this.lastSeq,
+      fromSeq: this.core.lastSeq,
     });
   }
 
-  private applyCommittedBatch(entries: LogEntry<E>[]): void {
-    const next = appendCommittedEntriesBatch({
-      module: this.module,
-      committedState: this.committedState,
-      committedEntries: this.committedEntries,
-      lastSeq: this.lastSeq,
-      entries,
-    });
-    this.committedState = next.committedState;
-    this.committedEntries = next.committedEntries;
-    this.lastSeq = next.lastSeq;
+  private flushOutbound(): void {
+    if (!this.transport.isConnected || !this.core.synced) return;
+    const queue = this.core.queue;
+    for (let i = 0; i < queue.length; i++) {
+      this.transport.sendJson(commandFrame(queue[i]!));
+    }
   }
 
-  private async resetCommittedToEmpty(): Promise<void> {
-    this.committedState = this.module.initialState();
-    this.committedEntries = [];
-    this.lastSeq = 0;
-    this.synced = false;
-    await this.storage.saveCommitted(0, []);
-    this.applyOptimisticRebuild();
-    this.notify();
-  }
-
-  private dropQueued(commandId: string): void {
-    this.optimistic.delete(commandId);
-    this.effectSession.forget(commandId);
-    this.pendingQueue = this.pendingQueue.filter((c) => c.id !== commandId);
-  }
-
-  /**
-   * Inbound welcome/committed/rejected join the same IO serial as
-   * `appendQueued` so removeQueued cannot race ahead of persist.
-   */
+  /** Inbound frames apply synchronously; persistence is write-behind. */
   private onWire(raw: unknown): void {
     if (this.destroyed) return;
     const msg = parseServerToClientWire(raw);
     if (msg === null) return;
-    if (msg.kind === ROOM_WIRE_KIND.pong) return;
-    if (msg.kind === ROOM_WIRE_KIND.roster) {
-      this.roster = msg.clients;
-      this.notify();
-      return;
-    }
-    this.io.enqueue(async () => {
-      if (this.destroyed) return;
-      const host = this.wireHost();
-      if (msg.kind === ROOM_WIRE_KIND.welcome)
-        await applyWelcomeWire(host, msg);
-      else if (msg.kind === ROOM_WIRE_KIND.committed)
-        await applyCommittedWire(host, msg);
-      else await applyRejectedWire(host, msg);
-    });
-  }
-
-  private async flushOutboundQueue(): Promise<void> {
-    if (!this.transport.isConnected || !this.synced) return;
-    for (const c of this.pendingQueue) {
-      this.transport.sendJson({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.command,
-        id: c.id,
-        ts: c.ts,
-        payload: c.payload,
-      });
+    switch (msg.kind) {
+      case ROOM_WIRE_KIND.pong:
+        return;
+      case ROOM_WIRE_KIND.roster:
+        this.roster = msg.clients;
+        this.notify();
+        return;
+      case ROOM_WIRE_KIND.welcome:
+        applyWelcome(this.env, msg);
+        return;
+      case ROOM_WIRE_KIND.committed:
+        applyCommitted(this.env, msg);
+        return;
+      case ROOM_WIRE_KIND.rejected:
+        applyRejected(this.env, msg);
+        return;
+      default:
+        return;
     }
   }
 
   /**
-   * Hot path: sync apply + notify + send. Durable persist is serialized so
-   * concurrent dispatch / ack cannot drop or ghost a queued command.
+   * Hot path: one `handle`, O(events) reduces, one notify, one send. The
+   * durable queue snapshot is persisted write-behind.
    */
   dispatch(payload: C): void {
     if (this.destroyed) return;
+    if (this.core.queue.length >= MAX_PENDING_OUTBOUND_COMMANDS) {
+      this.reportError({ type: ROOM_ERROR_TYPE.rateLimited });
+      this.notify();
+      return;
+    }
     const cmd: RoomCommand<C> = {
       id: newCommandId(this.createId),
       ts: this.clock.now(),
       payload,
     };
-    const row = this.applyDispatchCommandSync(cmd);
-    if (row === null) return;
-    this.io.enqueue(async () => {
-      // Skip persist if already acked (committed/rejected raced ahead of us).
-      if (!this.pendingQueue.some((q) => q.id === row.id)) return;
-      await this.storage.appendQueued(row);
-    });
-  }
-
-  private applyDispatchCommandSync(cmd: RoomCommand<C>): QueuedCommand | null {
-    if (this.destroyed) return null;
-    if (this.pendingQueue.length >= MAX_PENDING_OUTBOUND_COMMANDS) {
-      this.reportError({ type: ROOM_ERROR_TYPE.rateLimited });
-      this.notify();
-      return null;
-    }
-    const st = foldDispatchDisplay(
-      this.module,
-      this.committedState,
-      this.pendingQueue,
-      this.optimistic
-    );
-    const res = this.module.handle(st, cmd, this.identity);
+    const res = applyDispatch(this.core, cmd);
     if (!res.ok) {
       this.reportError(res.error);
       this.notify();
-      return null;
+      return;
     }
-    if ((res.effects?.length ?? 0) > 0 && this.effectHandlers.length === 0) {
-      throw new Error(
-        'Tiger: handle produced effects but RoomClient has no effectHandlers'
-      );
-    }
-    const row: QueuedCommand = {
-      id: cmd.id,
-      ts: cmd.ts,
-      payload: cmd.payload,
-    };
-    this.pendingQueue = [...this.pendingQueue, row];
-    this.optimistic.set(cmd.id, res.events);
-    void this.effectSession.applyNew(cmd.id, res.effects ?? []);
+    this.persist.queueChanged();
     this.notify();
-    if (this.transport.isConnected && this.synced) {
-      this.transport.sendJson({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.command,
-        id: cmd.id,
-        ts: cmd.ts,
-        payload: cmd.payload,
-      });
+    if (this.transport.isConnected && this.core.synced) {
+      this.transport.sendJson(commandFrame(cmd));
     }
-    return row;
   }
 
   subscribe(listener: () => void): () => void {
@@ -472,12 +379,16 @@ export class RoomClient<
     };
   }
 
+  /** Display state (committed ⊕ optimistic) plus `room/*` meta; stable ref while unchanged. */
   getSnapshot(): S {
-    return this.snapshot;
+    return readSnapshot(this.snapshot);
   }
 
+  /** Committed log; a fresh array only after the log actually changed (copy-on-read). */
   getLog(): readonly LogEntry<E>[] {
-    return this.committedEntries;
+    const core = this.core;
+    if (core.logView === null) core.logView = core.entries.slice();
+    return core.logView;
   }
 
   getRoster(): readonly RoomActor[] {

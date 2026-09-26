@@ -24,21 +24,21 @@
     ]
   },
   "scripts": {
+    "prebuild": "bun run --cwd ../.. i18n:compile",
     "build": "vite build && bun run scripts/build-sw.ts",
     "check:offline-shell": "bun run scripts/check-offline-shell.ts",
-    "check:production-dist": "bun run scripts/production-bundle-guard-cli.ts check-dist",
-    "check:production-env": "bun run scripts/production-bundle-guard-cli.ts check-env",
+    "check:live-dist": "bun run scripts/live-bundle-guard-cli.ts check-dist",
+    "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
     "deploy": "bun run scripts/deploy.ts",
+    "predev": "bun run --silent setup",
     "dev": "vite",
+    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "prebuild": "bun run --cwd ../.. i18n:compile",
-    "predev": "bun run --silent setup",
     "setup": "bun run --silent scripts/setup-env.ts && bun run --silent --cwd ../.. i18n:compile",
-    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p tsconfig.json",
-    "test": "bun test scripts/sims scripts/sw-policy.test.ts src/console/console-nav src/console/product-simulator/product-simulator-snapshot-prune.test.ts",
+    "test": "bun test scripts/sims scripts/sw-policy.test.ts src/console/console-nav src/console/product-simulator/product-simulator-snapshot-prune.test.ts src/sim/prepare-critical-journey-access.test.ts tests/wrangler-config.test.ts",
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:stack": "bun run scripts/test-stack.ts"
@@ -51,7 +51,7 @@
     "@libs/chess": "workspace:*",
     "@libs/client-app": "workspace:*",
     "@libs/client-config": "workspace:*",
-    "@libs/db": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@libs/runtime": "workspace:*",
     "@libs/secrets": "workspace:*",
     "@libs/sim-harness": "workspace:*",
@@ -79,7 +79,6 @@
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/s3-server": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
-    "@pkgs/secrets-config": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sim-console": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
@@ -110,6 +109,7 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-solid": "catalog:",
-    "workbox-build": "catalog:"
+    "workbox-build": "catalog:",
+    "wrangler": "catalog:"
   }
 }

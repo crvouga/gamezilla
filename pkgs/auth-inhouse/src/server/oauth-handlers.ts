@@ -22,6 +22,7 @@ import { repo } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';
 import { IdentityLinker, type LinkOutcome } from './identity-linker';
 import type { OauthStateRow } from './idp-repository';
+import { relayTarget } from './oauth-callback-relay';
 import { PendingLinkRepository } from './pending-link-repository';
 import type {
   OauthProviderAdapter,
@@ -38,9 +39,10 @@ export function providerCallbackUri(
   return `${origin}${prefix}/auth/callback/${provider}`;
 }
 
+/** The registered callback: the relay's when one is shared, else our own. */
 function redirectUriOf(ctx: AuthAppCtx, provider: OauthProviderId): string {
   return providerCallbackUri(
-    ctx.deps.baseURL,
+    ctx.deps.callbackRelay?.callbackOrigin ?? ctx.deps.baseURL,
     ctx.deps.publicPathPrefix ?? '',
     provider
   );
@@ -122,6 +124,7 @@ export async function handleOauthLaunch(
     provider: provider.id,
     callbackUrl,
     ...intent,
+    stateTag: ctx.deps.callbackRelay?.stateTag ?? null,
   });
   const url = await provider.authorizationUrl({
     redirectUri: redirectUriOf(ctx, provider.id),
@@ -202,6 +205,15 @@ export async function handleOauthCallback(
   if ('error' in provider)
     return c.json({ error: provider.error }, provider.status);
   const params = await callbackParams(c);
+  const forward = relayTarget({
+    relay: ctx.deps.callbackRelay,
+    state: params['state'] ?? '',
+    requestUrl: c.req.url,
+  });
+  // 307 keeps a `form_post` callback a POST with its body.
+  if (forward !== null) {
+    return c.redirect(forward, c.req.method === 'POST' ? 307 : 302);
+  }
   const r = repo(ctx.deps);
   const oauthState = await r.findOauthStateByState(params['state'] ?? '');
   if (oauthState === null || oauthState.provider !== provider.id) {

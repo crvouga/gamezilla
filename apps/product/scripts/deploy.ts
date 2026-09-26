@@ -1,46 +1,26 @@
 #!/usr/bin/env bun
-// @io-wall-ok — composition-root wall FS via ObjectStore migration pending
+// @io-wall-ok — deploy CLI entry.
 /**
- * Super-app deploy: Vite build of `@apps/product` (App at `/`, Simulator at `/simulator`) → Cloudflare assets Worker on gamezilla.app / www. Deletes the retired console Worker scripts on prd apply.
+ * Super-app deploy for the environment in `SECRETS_ENV`: Vite build of
+ * `@apps/product` (App at `/`, Simulator at `/simulator`) against that
+ * environment's API, then the assets-only Worker. Its hostnames are bound by
+ * the OpenTofu edge stack afterwards; `health` checks they serve.
  */
 import { rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-import {
-  deleteLegacyWorkerScripts,
-  deleteWorkerByName,
-} from '@libs/secrets/shared/cloudflare-worker-lifecycle';
-import {
-  productionApiOrigin,
-  productionClientOrigin,
-} from '@libs/secrets/shared/deploy-origins';
+import { activeEnvFile, deployWorker } from '@libs/infra/scripts/worker-deploy';
 import { ok } from '@libs/secrets/shared/fmt';
 import { withNodeMaxOldSpaceSize } from '@libs/secrets/shared/node-options';
 import { REPO_ROOT } from '@libs/secrets/shared/paths';
 import { runAsync, runCapture } from '@libs/secrets/shared/subprocess';
-import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
-import { wranglerArgs, wranglerEnv } from '@libs/secrets/shared/wrangler-env';
 import { assert } from '@pkgs/assert';
-import { wallClock } from '@pkgs/clock';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
-import { createLogger } from '@pkgs/logger';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
-
-const log = createLogger({ name: 'product:deploy', now: wallClock.now });
 
 const productDir = join(import.meta.dirname, '..');
 
 /** COOP/COEP for SharedArrayBuffer (sqlite-wasm OPFS SAH pool) on Workers assets. */
 const SQLITE_WEB_COOP = 'same-origin';
 const SQLITE_WEB_COEP = 'require-corp';
-
-/** Retired console + pre-cutover sim Workers — delete on every prd apply. */
-const RETIRED_WORKER_SCRIPT_NAMES = [
-  'gamezilla-console',
-  'gamezilla-console-production',
-  'gamezilla-sim',
-  'gamezilla-sim-production',
-] as const;
 
 const PRODUCT_EXPORT_MAX_OLD_SPACE_MB = 8192;
 
@@ -88,7 +68,7 @@ async function buildProductWeb(
   commitHash: string,
   commitDate: string
 ): Promise<void> {
-  const apiUrl = productionApiOrigin();
+  const apiUrl = `https://${activeEnvFile().hosts.api}`;
   const buildEnv = withNodeMaxOldSpaceSize(
     {
       ...process.env,
@@ -99,11 +79,15 @@ async function buildProductWeb(
     PRODUCT_EXPORT_MAX_OLD_SPACE_MB
   );
 
-  await runAsync('bun', ['run', 'check:production-env'], {
-    cwd: productDir,
-    label: 'product-worker: production build env gate',
-    env: buildEnv,
-  });
+  await runAsync(
+    'bun',
+    ['run', 'check:live-env', '--', `--expected-origin=${apiUrl}`],
+    {
+      cwd: productDir,
+      label: 'product-worker: live build env gate',
+      env: buildEnv,
+    }
+  );
 
   await runAsync('bun', ['run', 'build'], {
     cwd: productDir,
@@ -113,68 +97,25 @@ async function buildProductWeb(
 
   writeDistIsolationHeaders();
 
-  await runAsync('bun', ['run', 'check:production-dist'], {
-    cwd: productDir,
-    label: 'product-worker: production web dist API URL gate',
-    env: buildEnv,
-  });
-}
-
-function deleteRetiredWorkerScripts(): void {
-  for (const name of RETIRED_WORKER_SCRIPT_NAMES) {
-    deleteWorkerByName(name);
-  }
-}
-
-async function deploy(dryRun: boolean): Promise<void> {
-  const commitHash = resolveCommitHash();
-  const commitDate = resolveCommitDate();
-
-  await buildProductWeb(commitHash, commitDate);
-
-  if (!dryRun) {
-    deleteLegacyWorkerScripts();
-  }
-
-  const wranglerDeployArgs = dryRun
-    ? wranglerArgs('deploy', '--dry-run')
-    : wranglerArgs('deploy');
-  const label = dryRun
-    ? 'product-worker: Cloudflare Workers deploy (dry-run)'
-    : 'product-worker: Cloudflare Workers deploy (static assets)';
-
-  try {
-    await runAsync('wrangler', wranglerDeployArgs, {
+  await runAsync(
+    'bun',
+    ['run', 'check:live-dist', '--', `--expected-origin=${apiUrl}`],
+    {
       cwd: productDir,
-      env: wranglerEnv(),
-      label,
-    });
-  } finally {
-    cleanupProductDist();
-  }
-
-  if (dryRun) {
-    ok(
-      'product-worker dry-run',
-      'super-app bundle + assets-only worker validated'
-    );
-    return;
-  }
-
-  deleteRetiredWorkerScripts();
-
-  await waitForHttp(productionClientOrigin(), { label: 'Client' });
-  await waitForHttp(`${productionClientOrigin()}/simulator`, {
-    label: 'Simulator',
-  });
-
-  log.info(
-    `Super-app Worker deployed (${PRODUCT_CONFIG.cloudflare.clientWorker}) on gamezilla.app / www.gamezilla.app (App + /simulator).`
+      label: 'product-worker: live web dist API URL gate',
+      env: buildEnv,
+    }
   );
 }
 
-const dryRun = !isProductionSecretsEnv();
-if (dryRun) {
-  log.info('[product:deploy] dry-run (SECRETS_ENV is not prd)');
+const commitHash = resolveCommitHash();
+await buildProductWeb(commitHash, resolveCommitDate());
+try {
+  deployWorker({ appDir: productDir, role: 'web', secrets: {} });
+} finally {
+  cleanupProductDist();
 }
-await deploy(dryRun);
+ok(
+  'Super-app Worker',
+  `deployed to ${activeEnvFile().env} (${commitHash.slice(0, 12)})`
+);

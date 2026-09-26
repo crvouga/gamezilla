@@ -29,6 +29,7 @@
     "@libs/auth": "workspace:*",
     "@libs/billing": "workspace:*",
     "@libs/feature": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/sim-harness": "workspace:*",

@@ -69,14 +69,12 @@ async function validateTurboToken(input: SecretInput): Promise<void> {
 export const TURBO_API = new Secret({
   name: 'TURBO_API',
   hint: `Self-hosted Turborepo remote cache origin (${DEFAULT_TURBO_API})`,
-  mirrorToDev: true,
+  optional: true,
   validate: validateTurboApi,
-  seed: async () => DEFAULT_TURBO_API,
 });
 
 export const TURBO_TOKEN = new Secret({
   name: 'TURBO_TOKEN',
   hint: `Shared Bearer token for self-hosted Turbo remote cache (${DEFAULT_TURBO_API})`,
-  mirrorToDev: true,
   validate: validateTurboToken,
 });

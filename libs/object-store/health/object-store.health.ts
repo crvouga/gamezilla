@@ -1,10 +1,11 @@
 // @io-wall-ok — live health probe (process root against the env's R2 bucket).
 import { describe, expect, test } from 'bun:test';
 import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
+import { envFile } from '@libs/infra/public/envs';
+import { envResourceNames } from '@libs/infra/public/naming';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createS3ObjectStore } from '@pkgs/object-store-s3/impl-s3';
 import { S3SecretName } from '@pkgs/object-store-s3/s3-config';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim() ?? '';
@@ -13,8 +14,8 @@ function requireEnv(name: string): string {
 }
 
 function expectedBucket(): string {
-  const { buckets } = PRODUCT_CONFIG.objectStore;
-  return isProductionSecretsEnv() ? buckets.production : buckets.development;
+  const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+  return envResourceNames(env).bucket;
 }
 
 describe('object store (R2)', () => {

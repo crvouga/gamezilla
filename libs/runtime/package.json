@@ -45,6 +45,7 @@
     "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/games": "workspace:*",
+    "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",

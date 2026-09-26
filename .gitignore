@@ -106,3 +106,6 @@ turbo-platform-key.json
 
 /.data/
 **/.data/
+
+# OpenTofu: the bootstrap stack's first-run local backend (libs/infra/scripts/bootstrap-backend.ts)
+libs/infra/tofu/stacks/*/*_override.tf

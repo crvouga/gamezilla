@@ -11,7 +11,7 @@ export type RoomNamespace = {
 };
 
 export type ApiWorkerEnv = {
-  /** `dev` or `prd` — used by DB-safety guards. */
+  /** The secrets environment's name (`dev`, `prd`, …) — a label only. */
   SECRETS_ENV?: string;
   /**
    * Loopback wrangler origin written into `.dev.vars` when turbo
@@ -38,6 +38,13 @@ export type ApiWorkerEnv = {
   OBSERVABILITY_COLLECTOR_USER?: string;
   /** Explicit emergency kill switch. Production otherwise fails closed. */
   OBSERVABILITY_ENABLED?: string;
+  /** Stamped by libs/infra render-wrangler on deployed Workers only. */
+  DEPLOYMENT_ENVIRONMENT?: string;
+  /**
+   * The env file's `protection` (`production` / `standard`), stamped by
+   * libs/infra render-wrangler on deployed Workers; absent locally.
+   */
+  DEPLOYMENT_PROTECTION?: string;
   BUILD_SHA?: string;
   ROOM?: RoomNamespace;
   [key: string]: string | RoomNamespace | undefined;
@@ -58,6 +65,28 @@ function readOptionalBinding(value: string | undefined): string | null {
   return t.length > 0 ? t : null;
 }
 
+/** Binding the deployed Worker learns its environment's protection from. */
+export const DEPLOYMENT_PROTECTION_BINDING = 'DEPLOYMENT_PROTECTION';
+
+/**
+ * Whether this deployment is production — the one question every
+ * production-only runtime branch asks. Deployed Workers carry their env
+ * file's `protection`; local runs (wrangler dev, the localhost stack, sims)
+ * carry none and are `standard`.
+ */
+export type DeploymentProtection = 'production' | 'standard';
+
+export function readDeploymentProtection(
+  env: Pick<ApiWorkerEnv, 'DEPLOYMENT_PROTECTION'>
+): DeploymentProtection {
+  const raw = readOptionalBinding(env.DEPLOYMENT_PROTECTION);
+  if (raw === null || raw === 'standard') return 'standard';
+  if (raw === 'production') return 'production';
+  throw new ConfigurationError(
+    `${DEPLOYMENT_PROTECTION_BINDING} must be "production" or "standard", got ${JSON.stringify(raw)}`
+  );
+}
+
 export function readSecretsEnvBinding(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.SECRETS_ENV);
 }
@@ -75,6 +104,9 @@ export function assertSecretsEnvBinding(env: ApiWorkerEnv): string {
 export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.API_URL);
 }
+
+/** Rendered per env by `@libs/infra` from the env file's `billing.provider`. */
+export const BILLING_PROVIDER_BINDING = 'BILLING_PROVIDER';
 
 export function readBillingProviderBinding(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.BILLING_PROVIDER)?.toLowerCase() ?? null;

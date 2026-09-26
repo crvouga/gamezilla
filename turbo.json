@@ -36,6 +36,9 @@
     "OBS_*",
     "TURBO_*",
     "IDP_*",
+    "TOFU_*",
+    "NEON_*",
+    "SYNTHETIC_MONITOR_TOKEN",
     "TMPDIR"
   ],
   "tasks": {
@@ -408,34 +411,13 @@
       "cache": false,
       "outputLogs": "errors-only"
     },
-    "@libs/secrets#provision": {
+    "@libs/infra#apply:foundation": {
       "cache": false,
       "dependsOn": ["@libs/tools#install:cli"]
     },
-    "@libs/db#provision": {
-      "cache": false,
-      "dependsOn": ["@libs/secrets#provision"]
-    },
-    "@libs/object-store#provision": {
-      "cache": false,
-      "dependsOn": ["@libs/secrets#provision"]
-    },
-    "@libs/pubsub#provision": {
-      "cache": false,
-      "dependsOn": ["@libs/secrets#provision"]
-    },
-    "@libs/observability#provision": {
-      "cache": false,
-      "dependsOn": ["@libs/secrets#provision"]
-    },
     "@libs/runtime#migrate": {
       "cache": false,
-      "dependsOn": [
-        "@libs/db#provision",
-        "@libs/object-store#provision",
-        "@libs/observability#provision",
-        "@libs/pubsub#provision"
-      ]
+      "dependsOn": ["@libs/infra#apply:foundation"]
     },
     "@apps/room-server#deploy": {
       "cache": false,
@@ -449,13 +431,17 @@
       "cache": false,
       "dependsOn": ["@apps/server#deploy"]
     },
+    "@libs/infra#apply:edge": {
+      "cache": false,
+      "dependsOn": ["@apps/product#deploy"]
+    },
     "@libs/billing#billing:sync": {
       "cache": false,
-      "dependsOn": ["@apps/server#deploy"]
+      "dependsOn": ["@libs/infra#apply:edge"]
     },
     "health": {
       "cache": false,
-      "dependsOn": ["@apps/product#deploy", "@libs/billing#billing:sync"],
+      "dependsOn": ["@libs/infra#apply:edge", "@libs/billing#billing:sync"],
       "outputLogs": "errors-only"
     },
     "//#deploy": {
@@ -474,6 +460,45 @@
         "$TURBO_ROOT$/biome.json",
         "$TURBO_ROOT$/.github/workflows/**"
       ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@libs/infra#lint": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/biome.json",
+        "$TURBO_ROOT$/libs/tools/biome-plugins/**",
+        "$TURBO_ROOT$/oxlint.config.mts",
+        "$TURBO_ROOT$/components.json",
+        "$TURBO_ROOT$/pkgs/tailwind/src/lint.css",
+        "$TURBO_ROOT$/pkgs/tailwind/src/tailwind.css",
+        "$TURBO_ROOT$/pkgs/ui/codemod/theme.css",
+        "$TURBO_ROOT$/pkgs/ui/src/components/hosts.css",
+        "$TURBO_ROOT$/libs/tools/port/*.json",
+        "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/unused-dependencies.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/lingui-scope.ts",
+        "$TURBO_ROOT$/libs/tools/naming/**",
+        "$TURBO_ROOT$/libs/tools/goal/**",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
+    "@libs/infra#test": {
+      "dependsOn": ["tc"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/.github/workflows/**"
+      ],
+      "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     }

@@ -22,23 +22,22 @@ import { describe, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { prepareCriticalJourneyAccess } from '@apps/product/sim/prepare-critical-journey-access';
+import { envOrigins, isProductionEnv } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 import {
+  atTabShell,
   CRITICAL_JOURNEYS,
   type CriticalJourney,
   confirmSignedIn,
   type JourneyBrowser,
 } from '@libs/runtime/sim/critical-journeys';
-import {
-  productionApiOrigin,
-  productionClientOrigin,
-} from '@libs/secrets/shared/deploy-origins';
 import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
 import { resolveE2eBrowser } from '@pkgs/ui-testing-bun-webview/e2e-browser';
 
@@ -220,8 +219,16 @@ async function runJourney(
 ): Promise<void> {
   const device = await openDevice(target);
   try {
-    await device.driver.launch();
-    if (journey.access === 'signed-in') await signIn(device, target);
+    // `launch()` only waits for document navigation. Let the initial lazy tab
+    // route settle before leaving for the hosted-auth callback; otherwise
+    // Chrome can retain its aborted import as a pending promise, and the
+    // callback's return to `/` has an empty route body forever.
+    await prepareCriticalJourneyAccess({
+      access: journey.access,
+      launch: () => device.driver.launch(),
+      waitForTabShell: () => atTabShell(device.driver),
+      signIn: () => signIn(device, target),
+    });
     await journey.run({
       ui: device.driver,
       runId: RUN_ID,
@@ -239,10 +246,13 @@ async function runJourney(
   }
 }
 
-describe.skipIf(!isProductionSecretsEnv())('critical journeys (prd)', () => {
+/** Journeys sign in and write for real: production environments only. */
+const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+
+describe.skipIf(!isProductionEnv(env))(`critical journeys (${env.env})`, () => {
   const target: Target = {
-    webOrigin: productionClientOrigin(),
-    apiOrigin: productionApiOrigin(),
+    webOrigin: envOrigins(env).web,
+    apiOrigin: envOrigins(env).api,
     http: createGlobalHttpClient(),
   };
   for (const journey of CRITICAL_JOURNEYS) {

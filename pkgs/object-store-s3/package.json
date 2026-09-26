@@ -15,8 +15,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "catalog:",
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*"

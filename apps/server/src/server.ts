@@ -5,10 +5,7 @@
 import './install-native-als';
 
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
-import {
-  assertDatabaseUrlAllowedForSecretsEnv,
-  DEVELOPMENT_SECRETS_ENV,
-} from '@libs/db/public/database-url-policy';
+import { assertNonProdDatabaseUrl } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { composeFeatureServers } from '@libs/feature/public/compose-server';
 import { APP } from '@libs/runtime/root/app-features';
@@ -21,6 +18,7 @@ import {
   assertSecretsEnvBinding,
   ConfigurationError,
   readBillingProviderBinding,
+  readDeploymentProtection,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
   resolveCheckoutProvider,
@@ -48,6 +46,7 @@ import {
   ATTR,
   context,
   createWorkerTelemetry,
+  deploymentTelemetryEnvironment,
   extractRequestContext,
   injectRequestHeaders,
   otlpAuthorization,
@@ -99,9 +98,10 @@ function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
     workerTelemetry = { flushWith: () => undefined };
     return workerTelemetry;
   }
+  const production = readDeploymentProtection(env) === 'production';
   const collectorUrl = env.OBSERVABILITY_COLLECTOR_URL?.trim();
   if (collectorUrl === undefined || collectorUrl.length === 0) {
-    if (env.SECRETS_ENV === 'prd') {
+    if (production) {
       throw new ConfigurationError(
         'OBSERVABILITY_COLLECTOR_URL is required in production unless OBSERVABILITY_ENABLED=0'
       );
@@ -112,7 +112,7 @@ function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
   const buildSha = env.BUILD_SHA?.trim() || 'development';
   const collectorToken = env.OBSERVABILITY_COLLECTOR_TOKEN?.trim();
   if (
-    env.SECRETS_ENV === 'prd' &&
+    production &&
     (collectorToken === undefined || collectorToken.length === 0)
   ) {
     throw new ConfigurationError(
@@ -126,7 +126,7 @@ function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
   workerTelemetry = createWorkerTelemetry({
     serviceName: 'gamezilla-server',
     serviceVersion: buildSha,
-    environment: env.SECRETS_ENV === 'prd' ? 'prod' : 'local',
+    environment: deploymentTelemetryEnvironment(env.DEPLOYMENT_ENVIRONMENT),
     buildSha,
     otlpUrl: collectorUrl,
     ...(authorization === undefined
@@ -134,6 +134,19 @@ function ensureWorkerTelemetry(env: ApiWorkerEnv): WorkerTelemetryRuntime {
       : { otlpHeaders: { Authorization: authorization } }),
   });
   return workerTelemetry;
+}
+
+/**
+ * Whether a 500 hides its trace id, as production does. Never throws — the
+ * last-resort error path must answer even when misconfigured — and an
+ * unreadable protection hides it too.
+ */
+function hidesErrorDetail(env: ApiWorkerEnv): boolean {
+  try {
+    return readDeploymentProtection(env) === 'production';
+  } catch {
+    return true;
+  }
 }
 
 function observedFetch(
@@ -278,7 +291,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     llm: localStack ? new InMemoryLlmProvider() : null,
     secrets: secretStore,
     auth: APP_AUTH_PROVIDER,
-    secretsEnv,
+    protection: readDeploymentProtection(env),
     serverUrl,
     observabilityCollectorUrl: env.OBSERVABILITY_COLLECTOR_URL?.trim() || null,
     observabilityCollectorToken:
@@ -402,9 +415,10 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
     override !== null && override.length > 0
       ? override
       : (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
-  if (secretsEnv === DEVELOPMENT_SECRETS_ENV) {
-    await assertDatabaseUrlAllowedForSecretsEnv(dbUrl, secretsEnv, {
+  if (readDeploymentProtection(env) !== 'production') {
+    await assertNonProdDatabaseUrl(dbUrl, {
       surface: 'api-worker-cron',
+      secretsEnv,
     });
   }
   const opened = await openRequestDb(dbUrl, appPostgresDbScope());
@@ -470,7 +484,7 @@ const workerHandler = {
       return new Response(
         JSON.stringify({
           error: 'Internal server error',
-          ...(env.SECRETS_ENV === 'prd' || traceId === undefined
+          ...(hidesErrorDetail(env) || traceId === undefined
             ? {}
             : { traceId }),
         }),

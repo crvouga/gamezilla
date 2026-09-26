@@ -20,6 +20,7 @@ import {
   type RoomCommand,
   type RoomCommandPayload,
   type RoomEffect,
+  type RoomError,
   type RoomEvent,
   type RoomModule,
   type RoomState,
@@ -55,11 +56,35 @@ export type RoomConnection = {
   readonly actor: RoomActor;
 };
 
+type CommandFrame = Extract<
+  ClientToServerWire,
+  { kind: typeof ROOM_WIRE_KIND.command }
+>;
+
+type CommitArgs<E extends RoomEvent> = {
+  readonly actor: RoomActor;
+  readonly commandId: string;
+  readonly events: E[];
+  readonly effects: readonly RoomEffect[];
+};
+
+const PONG_FRAME = Object.freeze({
+  v: WIRE_VERSION,
+  kind: ROOM_WIRE_KIND.pong,
+});
+
+function rejectedFrame(commandId: string, error: RoomError): unknown {
+  return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.rejected, commandId, error };
+}
+
 /**
  * Single-threaded authoritative room (run inside one DO or one test harness).
  *
- * Welcome load/send shares {@link storageChain} with commits + inject so
- * tip/entries come from one serialized snapshot (no dual getLastSeq race).
+ * All storage-touching work (commands, injects, welcome loads) rides one
+ * serial chain, so the in-memory tip / state and the log never diverge and a
+ * welcome always sees a consistent snapshot. The committed tip is cached
+ * after hydrate, so a commit costs exactly two storage writes (log + dedup)
+ * and one dedup read — no tip reads on the hot path.
  */
 export class RoomServer<
   S extends RoomState,
@@ -74,10 +99,10 @@ export class RoomServer<
   private readonly clock: Clock;
   private readonly effectHandlers: readonly RoomEffectHandler[];
   private readonly connections = new Map<string, RoomConnection>();
-  private readonly commandChains = new Map<string, Promise<void>>();
-  /** Serializes inject + welcome against the same single-thread model as commits. */
-  private storageChain: Promise<void> = Promise.resolve();
+  private chain: Promise<void> = Promise.resolve();
   private committedState: S;
+  private lastSeq = 0;
+  private tipKnown = false;
 
   constructor(config: RoomServerConfig<S, C, E, Identity>) {
     this.topic = config.topic;
@@ -105,6 +130,11 @@ export class RoomServer<
       state = this.module.reduce(state, e.event as E);
     }
     this.committedState = state;
+    this.lastSeq =
+      entries.length > 0
+        ? entries[entries.length - 1]!.seq
+        : await this.storage.getLastSeq(this.topic);
+    this.tipKnown = true;
   }
 
   registerConnection(
@@ -126,9 +156,7 @@ export class RoomServer<
       );
     }
     this.connections.set(id, { id, send, actor });
-    if (options?.silent !== true) {
-      this.broadcastRoster();
-    }
+    if (options?.silent !== true) this.broadcastRoster();
   }
 
   hasConnection(id: string): boolean {
@@ -147,12 +175,14 @@ export class RoomServer<
 
   unregisterConnection(id: string): void {
     if (!this.connections.delete(id)) return;
-    this.commandChains.delete(id);
     this.broadcastRoster();
   }
 
   getRoster(): readonly RoomActor[] {
-    return [...this.connections.values()].map((c) => c.actor);
+    const out = new Array<RoomActor>(this.connections.size);
+    let i = 0;
+    for (const conn of this.connections.values()) out[i++] = conn.actor;
+    return out;
   }
 
   broadcastRoster(): void {
@@ -163,30 +193,23 @@ export class RoomServer<
     });
   }
 
-  private broadcast(payload: unknown): void {
-    broadcastToConnections(this.connections, this.commandChains, payload);
+  private broadcast(frame: unknown): void {
+    broadcastToConnections(this.connections, frame);
   }
 
-  private enqueueStorage(work: () => Promise<void>): Promise<void> {
-    const run = this.storageChain.catch(() => undefined).then(work);
-    this.storageChain = run.then(
-      () => undefined,
-      () => undefined
-    );
+  /** Serialize storage-touching work; the returned promise carries the work's outcome. */
+  private enqueue(work: () => Promise<void>): Promise<void> {
+    const run = this.chain.then(work);
+    this.chain = run.then(noop, noop);
     return run;
   }
 
-  /**
-   * Load + send welcome on the storage serial so tip/entries share one
-   * snapshot with concurrent appends. Caps batch size; client re-syncs.
-   */
-  private async sendWelcomeTo(
-    connectionId: string,
-    fromSeq: number
-  ): Promise<void> {
-    await this.enqueueStorage(() =>
-      this.sendWelcomeSerial(connectionId, fromSeq)
-    );
+  private async tip(): Promise<number> {
+    if (!this.tipKnown) {
+      this.lastSeq = await this.storage.getLastSeq(this.topic);
+      this.tipKnown = true;
+    }
+    return this.lastSeq;
   }
 
   private async sendWelcomeSerial(
@@ -201,6 +224,7 @@ export class RoomServer<
       fromSeq,
       send: conn.send,
       roster: this.getRoster(),
+      tip: () => this.tip(),
     });
   }
 
@@ -217,45 +241,33 @@ export class RoomServer<
         entries: prior.entries,
       });
     } else {
-      send({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.rejected,
-        commandId,
-        error: prior.error,
-      });
+      send(rejectedFrame(commandId, prior.error));
     }
   }
 
-  private async authorizeCommandOrReject(
-    send: Sender,
-    identity: Identity,
-    command: RoomCommand<C>,
-    commandId: string
-  ): Promise<boolean> {
-    if (this.authorize === undefined) return true;
-    const a = await this.authorize(identity, this.topic, command);
-    if (a.ok) return true;
-    const err = { type: ROOM_ERROR_TYPE.unauthorized, reason: a.reason };
+  private async reject(
+    commandId: string,
+    error: RoomError,
+    send: Sender | null
+  ): Promise<void> {
     await this.storage.putDedupOutcome(this.topic, commandId, {
       kind: 'rejected',
-      error: err,
+      error,
     });
-    send({
-      v: WIRE_VERSION,
-      kind: ROOM_WIRE_KIND.rejected,
-      commandId,
-      error: err,
-    });
-    return false;
+    if (send !== null) send(rejectedFrame(commandId, error));
   }
 
-  private async commitCommandSuccess(args: {
-    readonly actor: RoomActor;
-    readonly commandId: string;
-    readonly lastSeqBefore: number;
-    readonly events: E[];
-    readonly effects: readonly RoomEffect[];
-  }): Promise<void> {
+  private async authorizeOrNull(
+    identity: Identity,
+    command: RoomCommand<C>
+  ): Promise<RoomError | null> {
+    if (this.authorize === undefined) return null;
+    const a = await this.authorize(identity, this.topic, command);
+    if (a.ok) return null;
+    return { type: ROOM_ERROR_TYPE.unauthorized, reason: a.reason };
+  }
+
+  private async commit(args: CommitArgs<E>): Promise<void> {
     crash.ok(args.events.length > 0, 'handle must produce events on success');
     for (const event of args.events) {
       crash.ok(
@@ -265,20 +277,27 @@ export class RoomServer<
       );
     }
     const ts = this.clock.now();
-    const entries: LogEntry<E>[] = args.events.map((event, i) => ({
-      seq: args.lastSeqBefore + i + 1,
-      event,
-      actor: args.actor,
-      ts,
-    }));
+    const base = this.tipKnown ? this.lastSeq : await this.tip();
+    const entries = new Array<LogEntry<E>>(args.events.length);
+    for (let i = 0; i < args.events.length; i++) {
+      entries[i] = {
+        seq: base + i + 1,
+        event: args.events[i]!,
+        actor: args.actor,
+        ts,
+      };
+    }
     await this.storage.appendCommittedEntries(this.topic, entries);
+    this.lastSeq = base + entries.length;
+    let state = this.committedState;
+    for (let i = 0; i < entries.length; i++) {
+      state = this.module.reduce(state, entries[i]!.event);
+    }
+    this.committedState = state;
     await this.storage.putDedupOutcome(this.topic, args.commandId, {
       kind: 'committed',
       entries,
     });
-    for (const e of entries) {
-      this.committedState = this.module.reduce(this.committedState, e.event);
-    }
     this.broadcast({
       v: WIRE_VERSION,
       kind: ROOM_WIRE_KIND.committed,
@@ -310,15 +329,16 @@ export class RoomServer<
     });
   }
 
-  async injectCommand(args: {
+  /** Socket-less command (scheduler wake / host-injected); same dedup + authz + commit path. */
+  injectCommand(args: {
     readonly id: string;
     readonly payload: C;
     readonly identity: Identity;
   }): Promise<void> {
-    await this.enqueueStorage(() => this.injectCommandSerial(args));
+    return this.enqueue(() => this.injectSerial(args));
   }
 
-  private async injectCommandSerial(args: {
+  private async injectSerial(args: {
     readonly id: string;
     readonly payload: C;
     readonly identity: Identity;
@@ -327,52 +347,40 @@ export class RoomServer<
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
     if (prior !== null) return;
     if (!isMessageEnvelope(args.payload)) return;
-
-    const lastSeqBefore = await this.storage.getLastSeq(this.topic);
     const command: RoomCommand<C> = {
       id: commandId,
       ts: this.clock.now(),
       payload: args.payload,
     };
-
-    if (this.authorize !== undefined) {
-      const a = await this.authorize(args.identity, this.topic, command);
-      if (!a.ok) {
-        await this.storage.putDedupOutcome(this.topic, commandId, {
-          kind: 'rejected',
-          error: { type: ROOM_ERROR_TYPE.unauthorized, reason: a.reason },
-        });
-        return;
-      }
+    const denied = await this.authorizeOrNull(args.identity, command);
+    if (denied !== null) {
+      await this.reject(commandId, denied, null);
+      return;
     }
-
     const result = this.module.handle(
       this.committedState,
       command,
       args.identity
     );
     if (!result.ok) {
-      await this.storage.putDedupOutcome(this.topic, commandId, {
-        kind: 'rejected',
-        error: result.error,
-      });
+      await this.reject(commandId, result.error, null);
       return;
     }
-
-    await this.commitCommandSuccess({
+    await this.commit({
       actor: { id: String(args.identity), clientId: 'scheduler' },
       commandId,
-      lastSeqBefore,
       events: result.events,
       effects: result.effects ?? [],
     });
   }
 
-  private async handleParsedCommand(
-    conn: RoomConnection,
+  private async commandSerial(
+    connectionId: string,
     identity: Identity,
-    parsed: Extract<ClientToServerWire, { kind: typeof ROOM_WIRE_KIND.command }>
+    parsed: CommandFrame
   ): Promise<void> {
+    const conn = this.connections.get(connectionId);
+    if (conn === undefined) return;
     const send = conn.send;
     const commandId = parsed.id;
     const prior = await this.storage.getDedupOutcome(this.topic, commandId);
@@ -380,107 +388,68 @@ export class RoomServer<
       this.sendDedupReplay(send, commandId, prior);
       return;
     }
-
-    const lastSeqBefore = await this.storage.getLastSeq(this.topic);
     if (!isMessageEnvelope(parsed.payload)) {
-      const err = {
-        type: ROOM_ERROR_TYPE.invalidCommand,
-        reason: 'not a valid message envelope',
-      };
-      await this.storage.putDedupOutcome(this.topic, commandId, {
-        kind: 'rejected',
-        error: err,
-      });
-      send({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.rejected,
+      await this.reject(
         commandId,
-        error: err,
-      });
+        {
+          type: ROOM_ERROR_TYPE.invalidCommand,
+          reason: 'not a valid message envelope',
+        },
+        send
+      );
       return;
     }
-
     const command: RoomCommand<C> = {
       id: commandId,
       ts: parsed.ts,
       payload: parsed.payload as C,
     };
-
-    const ok = await this.authorizeCommandOrReject(
-      send,
-      identity,
-      command,
-      commandId
-    );
-    if (!ok) return;
-
-    const result = this.module.handle(this.committedState, command, identity);
-    if (!result.ok) {
-      await this.storage.putDedupOutcome(this.topic, commandId, {
-        kind: 'rejected',
-        error: result.error,
-      });
-      send({
-        v: WIRE_VERSION,
-        kind: ROOM_WIRE_KIND.rejected,
-        commandId,
-        error: result.error,
-      });
+    const denied = await this.authorizeOrNull(identity, command);
+    if (denied !== null) {
+      await this.reject(commandId, denied, send);
       return;
     }
-
-    await this.commitCommandSuccess({
+    const result = this.module.handle(this.committedState, command, identity);
+    if (!result.ok) {
+      await this.reject(commandId, result.error, send);
+      return;
+    }
+    await this.commit({
       actor: conn.actor,
       commandId,
-      lastSeqBefore,
       events: result.events,
       effects: result.effects ?? [],
     });
   }
 
-  async handleClientMessage(
-    connectionId: string,
-    identity: Identity,
-    raw: unknown
-  ): Promise<void> {
-    const prev = this.commandChains.get(connectionId) ?? Promise.resolve();
-    const run = prev
-      .catch(() => undefined)
-      .then(() => this.handleClientMessageSerial(connectionId, identity, raw));
-    this.commandChains.set(
-      connectionId,
-      run.then(
-        () => undefined,
-        () => undefined
-      )
-    );
-    await run;
-  }
-
-  private async handleClientMessageSerial(
+  /**
+   * Parse synchronously; `ping` answers immediately, `sync` / `command` join
+   * the storage serial in arrival order. Resolves when the frame is fully
+   * processed; rejects with the storage / module failure.
+   */
+  handleClientMessage(
     connectionId: string,
     identity: Identity,
     raw: unknown
   ): Promise<void> {
     const conn = this.connections.get(connectionId);
-    if (conn === undefined) return;
-
+    if (conn === undefined) return Promise.resolve();
     const parsed = parseClientToServerWire(raw);
-    if (parsed === null) return;
-
-    if (parsed.kind === ROOM_WIRE_KIND.ping) {
-      conn.send({ v: WIRE_VERSION, kind: ROOM_WIRE_KIND.pong });
-      return;
+    if (parsed === null) return Promise.resolve();
+    switch (parsed.kind) {
+      case ROOM_WIRE_KIND.ping:
+        conn.send(PONG_FRAME);
+        return Promise.resolve();
+      case ROOM_WIRE_KIND.sync:
+        return this.enqueue(() =>
+          this.sendWelcomeSerial(connectionId, parsed.fromSeq)
+        );
+      default:
+        return this.enqueue(() =>
+          this.commandSerial(connectionId, identity, parsed)
+        );
     }
-
-    if (parsed.kind === ROOM_WIRE_KIND.sync) {
-      await this.sendWelcomeTo(connectionId, parsed.fromSeq);
-      return;
-    }
-
-    // Commands also go through storageChain so they cannot interleave with welcome.
-    await this.enqueueStorage(() =>
-      this.handleParsedCommand(conn, identity, parsed)
-    );
   }
 }
+
+function noop(): void {}

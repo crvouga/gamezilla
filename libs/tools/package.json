@@ -12,8 +12,6 @@
   },
   "dependencies": {
     "@libs/secrets": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/logger": "workspace:*",
     "@pkgs/observability": "workspace:*",
     "@pkgs/os": "workspace:*"
   },
@@ -23,6 +21,7 @@
     "@pkgs/equal": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
     "@pkgs/property": "workspace:*",
-    "fast-check": "catalog:"
+    "fast-check": "catalog:",
+    "wrangler": "catalog:"
   }
 }

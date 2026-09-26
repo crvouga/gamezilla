@@ -217,7 +217,7 @@ function buildServerEnv(args: ServerEnvDeps): ServerEnv {
     llm: shared.llm,
     secrets: shared.secrets,
     auth: shared.auth,
-    secretsEnv: 'dev',
+    protection: 'standard',
     serverUrl: SIM_SERVER_URL,
     skipDatabaseUrlPolicy: true,
     fetch: args.vendorFetch,

@@ -37,7 +37,7 @@ export type CreateSyncAppDeps = {
   readonly topicMap?: TopicMap;
   /**
    * When true, query hard-limit clips throw instead of silently truncating.
-   * Product API sets this when SECRETS_ENV=dev; sim sets true.
+   * Product API sets this outside production; sim sets true.
    */
   readonly strictQueryLimits?: boolean;
   /**

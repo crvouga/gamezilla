@@ -140,6 +140,19 @@ class InfisicalCliAdminStore implements SecretAdminStore {
     return parseInfisicalExportJson(raw);
   }
 
+  async exportOwnSecrets(
+    envOverride?: string
+  ): Promise<ReadonlyMap<string, string>> {
+    const coords = await resolveSecretsCoords(this.configStore, envOverride);
+    const raw = runInfisical([
+      'export',
+      ...infisicalBaseArgs(coords),
+      '--format=json',
+      '--include-imports=false',
+    ]);
+    return parseInfisicalExportJson(raw);
+  }
+
   async listSecretNames(envOverride?: string): Promise<readonly string[]> {
     return [...(await this.exportSecrets(envOverride)).keys()];
   }

@@ -1,28 +1,27 @@
-// @io-wall-ok — live health probe (production API Worker, DNS, TLS).
+// @io-wall-ok — live health probe (the environment's API Worker, DNS, TLS).
 import { describe, expect, test } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';
 import { connect } from 'node:tls';
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import {
-  productionApiOrigin,
-  productionClientOrigin,
-} from '@libs/secrets/shared/deploy-origins';
+  envHostnames,
+  envOrigins,
+  oauthRelayEnv,
+} from '@libs/infra/public/env-file';
+import { ENV_FILES, envFile } from '@libs/infra/public/envs';
+import { httpProbe } from '@libs/secrets/shared/http-probe';
 import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { wallClock } from '@pkgs/clock';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 
 /** Right after a deploy the custom domain may still be warming up. */
 const WARMUP_MS = 5 * 60 * 1000;
 const MIN_CERT_DAYS = 14;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const domain = PRODUCT_CONFIG.domain;
-const HOSTS = [
-  domain,
-  `www.${domain}`,
-  `api.${domain}`,
-  PRODUCT_CONFIG.emqx.hostname,
-] as const;
+const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+const origins = envOrigins(env);
+const HOSTS = envHostnames(env);
+const RELAY = oauthRelayEnv(Object.values(ENV_FILES));
+const GOOGLE_CALLBACK_PATH = '/api/auth/callback/google';
 
 async function addresses(host: string): Promise<string[]> {
   const settled = await Promise.allSettled([resolve4(host), resolve6(host)]);
@@ -66,7 +65,7 @@ function failingChecks(body: ReadinessJson): string[] {
   return failing;
 }
 
-describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
+describe(`api worker (${env.env})`, () => {
   for (const host of HOSTS) {
     test(`DNS resolves ${host}`, async () => {
       expect(await addresses(host)).not.toEqual([]);
@@ -81,7 +80,7 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   test(
     '/api/health answers',
     async () => {
-      const result = await waitForHttp(`${productionApiOrigin()}/api/health`, {
+      const result = await waitForHttp(`${origins.api}/api/health`, {
         label: 'API /api/health',
         maxWaitMs: WARMUP_MS,
       });
@@ -93,10 +92,10 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   test(
     '/api/health/ready: every hard dependency passes (health+json)',
     async () => {
-      const result = await waitForHttp(
-        `${productionApiOrigin()}/api/health/ready`,
-        { label: 'API /api/health/ready', maxWaitMs: WARMUP_MS }
-      );
+      const result = await waitForHttp(`${origins.api}/api/health/ready`, {
+        label: 'API /api/health/ready',
+        maxWaitMs: WARMUP_MS,
+      });
       const body = JSON.parse(result.body ?? '{}') as ReadinessJson;
       expect(failingChecks(body), 'failing readiness checks').toEqual([]);
       expect(result.status).toBe(200);
@@ -106,10 +105,10 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
   );
 
   test(
-    'Worker booted: Google OAuth launch redirects with the API callback',
+    'Worker booted: Google OAuth launch redirects with the shared callback',
     async () => {
-      const api = productionApiOrigin();
-      const callbackUrl = `${productionClientOrigin()}/sso-callback`;
+      const api = origins.api;
+      const callbackUrl = `${origins.web}/sso-callback`;
       const launch = `${api}/api/auth/oauth/launch?provider=google&callbackUrl=${encodeURIComponent(callbackUrl)}`;
       const result = await waitForHttp(launch, {
         label: 'Google OAuth launch',
@@ -129,9 +128,29 @@ describe.skipIf(!isProductionSecretsEnv())('api worker (prd)', () => {
       const authorize = new URL(result.location ?? '');
       expect(authorize.hostname).toBe('accounts.google.com');
       expect(authorize.searchParams.get('redirect_uri')).toBe(
-        `${api}/api/auth/callback/google`
+        `${envOrigins(RELAY).api}${GOOGLE_CALLBACK_PATH}`
       );
+      expect(
+        authorize.searchParams.get('state')?.startsWith(`${env.env}.`)
+      ).toBe(true);
     },
     WARMUP_MS + 30_000
   );
+
+  // The relay is probed from its own deploy: a replica deploys before the
+  // relay learns about it, so its own health must not depend on the relay.
+  const others = Object.values(ENV_FILES).filter((o) => o.env !== env.env);
+  for (const other of env.env === RELAY.env ? others : []) {
+    test(`relays ${other.env}'s Google callbacks to ${other.hosts.api}`, async () => {
+      const query = `?state=${other.env}.health&code=health`;
+      const result = await httpProbe(
+        `${origins.api}${GOOGLE_CALLBACK_PATH}${query}`,
+        15_000
+      );
+      expect(result.status).toBe(302);
+      expect(result.location).toBe(
+        `${envOrigins(other).api}${GOOGLE_CALLBACK_PATH}${query}`
+      );
+    });
+  }
 });
