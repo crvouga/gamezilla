@@ -11,7 +11,8 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
+    "bench": "bun tests/bench/hot-paths.bench.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",

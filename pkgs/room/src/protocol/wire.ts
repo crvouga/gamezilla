@@ -78,8 +78,25 @@ export type ServerToClientWire =
       clients: readonly RoomActor[];
     };
 
+const PING_FRAME: ClientToServerWire = Object.freeze({
+  v: WIRE_VERSION,
+  kind: ROOM_WIRE_KIND.ping,
+});
+const PONG_FRAME: ServerToClientWire = Object.freeze({
+  v: WIRE_VERSION,
+  kind: ROOM_WIRE_KIND.pong,
+});
+
 function isRecord(v: unknown): v is Record<string, unknown> {
   return v !== null && typeof v === 'object' && !Array.isArray(v);
+}
+
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === 'string' && v.length > 0;
+}
+
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v);
 }
 
 function isRoomErrorWire(value: unknown): value is RoomError {
@@ -88,61 +105,39 @@ function isRoomErrorWire(value: unknown): value is RoomError {
   if (typeof t !== 'string') return false;
   if (!isNamespacedKeyword(t)) return false;
   if (!ROOM_ERROR_TYPES.has(t)) return false;
-  if (t === ROOM_ERROR_TYPE.rateLimited) {
-    return true;
-  }
+  if (t === ROOM_ERROR_TYPE.rateLimited) return true;
   // All other variants carry a `reason` (required for invalid-command,
   // unauthorized, conflict; optional for internal). Be strict on the wire:
   // any non-rate-limited tag must carry a string reason if present.
-  if ('reason' in value && typeof value['reason'] !== 'string') return false;
-  if (t !== ROOM_ERROR_TYPE.internal && typeof value['reason'] !== 'string') {
-    return false;
-  }
-  return true;
+  const reason = value['reason'];
+  if (reason === undefined) return t === ROOM_ERROR_TYPE.internal;
+  return typeof reason === 'string';
 }
 
 function isRoomActorWire(value: unknown): value is RoomActor {
-  if (!isRecord(value)) return false;
-  const id = value['id'];
-  const clientId = value['clientId'];
   return (
-    typeof id === 'string' &&
-    id.length > 0 &&
-    typeof clientId === 'string' &&
-    clientId.length > 0
+    isRecord(value) &&
+    isNonEmptyString(value['id']) &&
+    isNonEmptyString(value['clientId'])
   );
-}
-
-function isOptionalActorField(value: Record<string, unknown>): boolean {
-  if (!('actor' in value) || value['actor'] === undefined) return true;
-  return isRoomActorWire(value['actor']);
-}
-
-function isOptionalTsField(value: Record<string, unknown>): boolean {
-  if (!('ts' in value) || value['ts'] === undefined) return true;
-  const ts = value['ts'];
-  return typeof ts === 'number' && Number.isFinite(ts);
 }
 
 function isLogEntryWire(value: unknown): value is LogEntry {
   if (!isRecord(value)) return false;
   const seq = value['seq'];
-  if (typeof seq !== 'number' || !Number.isFinite(seq) || seq < 0) return false;
+  if (!isFiniteNumber(seq) || seq < 0) return false;
   if (!isMessageEnvelope(value['event'])) return false;
-  return isOptionalActorField(value) && isOptionalTsField(value);
-}
-
-function parseClientPing(): ClientToServerWire {
-  return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.ping };
+  const actor = value['actor'];
+  if (actor !== undefined && !isRoomActorWire(actor)) return false;
+  const ts = value['ts'];
+  return ts === undefined || isFiniteNumber(ts);
 }
 
 function parseClientSync(
   raw: Record<string, unknown>
 ): ClientToServerWire | null {
   const fromSeq = raw['fromSeq'];
-  if (typeof fromSeq !== 'number' || !Number.isFinite(fromSeq) || fromSeq < 0) {
-    return null;
-  }
+  if (!isFiniteNumber(fromSeq) || fromSeq < 0) return null;
   return {
     v: WIRE_VERSION,
     kind: ROOM_WIRE_KIND.sync,
@@ -155,8 +150,7 @@ function parseClientCommand(
 ): ClientToServerWire | null {
   const id = raw['id'];
   const ts = raw['ts'];
-  if (typeof id !== 'string' || id.length === 0) return null;
-  if (typeof ts !== 'number' || !Number.isFinite(ts)) return null;
+  if (!isNonEmptyString(id) || !isFiniteNumber(ts)) return null;
   if (!('payload' in raw)) return null;
   // Note: payload envelope is intentionally not validated here so the server
   // can echo a `rejected` frame to the client when malformed; see
@@ -174,18 +168,22 @@ export function parseClientToServerWire(
   raw: unknown
 ): ClientToServerWire | null {
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
-  const kind = raw['kind'];
-  if (typeof kind !== 'string') return null;
-  if (kind === ROOM_WIRE_KIND.ping) return parseClientPing();
-  if (kind === ROOM_WIRE_KIND.sync) return parseClientSync(raw);
-  if (kind === ROOM_WIRE_KIND.command) return parseClientCommand(raw);
-  return null;
+  switch (raw['kind']) {
+    case ROOM_WIRE_KIND.ping:
+      return PING_FRAME;
+    case ROOM_WIRE_KIND.sync:
+      return parseClientSync(raw);
+    case ROOM_WIRE_KIND.command:
+      return parseClientCommand(raw);
+    default:
+      return null;
+  }
 }
 
 function parseEntriesWire(raw: unknown): LogEntry[] | null {
   if (!Array.isArray(raw)) return null;
-  for (const e of raw) {
-    if (!isLogEntryWire(e)) return null;
+  for (let i = 0; i < raw.length; i++) {
+    if (!isLogEntryWire(raw[i])) return null;
   }
   return raw as LogEntry[];
 }
@@ -195,8 +193,7 @@ function parseWelcomeWire(
 ): ServerToClientWire | null {
   const fromSeq = raw['fromSeq'];
   const lastSeq = raw['lastSeq'];
-  if (typeof fromSeq !== 'number' || !Number.isFinite(fromSeq)) return null;
-  if (typeof lastSeq !== 'number' || !Number.isFinite(lastSeq)) return null;
+  if (!isFiniteNumber(fromSeq) || !isFiniteNumber(lastSeq)) return null;
   const entries = parseEntriesWire(raw['entries']);
   if (entries === null) return null;
   return {
@@ -215,14 +212,15 @@ function parseCommittedWire(
   if (entries === null) return null;
   const commandId = raw['commandId'];
   if (commandId !== undefined && typeof commandId !== 'string') return null;
-  return {
-    v: WIRE_VERSION,
-    kind: ROOM_WIRE_KIND.committed,
-    ...(typeof commandId === 'string' && commandId.length > 0
-      ? { commandId }
-      : {}),
-    entries,
-  };
+  if (isNonEmptyString(commandId)) {
+    return {
+      v: WIRE_VERSION,
+      kind: ROOM_WIRE_KIND.committed,
+      commandId,
+      entries,
+    };
+  }
+  return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.committed, entries };
 }
 
 function parseRejectedWire(
@@ -230,14 +228,8 @@ function parseRejectedWire(
 ): ServerToClientWire | null {
   const commandId = raw['commandId'];
   const error = raw['error'];
-  if (typeof commandId !== 'string' || commandId.length === 0) return null;
-  if (!isRoomErrorWire(error)) return null;
-  return {
-    v: WIRE_VERSION,
-    kind: ROOM_WIRE_KIND.rejected,
-    commandId,
-    error,
-  };
+  if (!isNonEmptyString(commandId) || !isRoomErrorWire(error)) return null;
+  return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.rejected, commandId, error };
 }
 
 function parseRosterWire(
@@ -245,8 +237,8 @@ function parseRosterWire(
 ): ServerToClientWire | null {
   const clients = raw['clients'];
   if (!Array.isArray(clients)) return null;
-  for (const c of clients) {
-    if (!isRoomActorWire(c)) return null;
+  for (let i = 0; i < clients.length; i++) {
+    if (!isRoomActorWire(clients[i])) return null;
   }
   return {
     v: WIRE_VERSION,
@@ -259,14 +251,18 @@ export function parseServerToClientWire(
   raw: unknown
 ): ServerToClientWire | null {
   if (!isRecord(raw) || raw['v'] !== WIRE_VERSION) return null;
-  const kind = raw['kind'];
-  if (typeof kind !== 'string') return null;
-  if (kind === ROOM_WIRE_KIND.pong) {
-    return { v: WIRE_VERSION, kind: ROOM_WIRE_KIND.pong };
+  switch (raw['kind']) {
+    case ROOM_WIRE_KIND.pong:
+      return PONG_FRAME;
+    case ROOM_WIRE_KIND.welcome:
+      return parseWelcomeWire(raw);
+    case ROOM_WIRE_KIND.committed:
+      return parseCommittedWire(raw);
+    case ROOM_WIRE_KIND.rejected:
+      return parseRejectedWire(raw);
+    case ROOM_WIRE_KIND.roster:
+      return parseRosterWire(raw);
+    default:
+      return null;
   }
-  if (kind === ROOM_WIRE_KIND.welcome) return parseWelcomeWire(raw);
-  if (kind === ROOM_WIRE_KIND.committed) return parseCommittedWire(raw);
-  if (kind === ROOM_WIRE_KIND.rejected) return parseRejectedWire(raw);
-  if (kind === ROOM_WIRE_KIND.roster) return parseRosterWire(raw);
-  return null;
 }

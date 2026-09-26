@@ -30,14 +30,52 @@ effects on the wire, real chess competition UI clocks.
 
 ---
 
+## Performance model
+
+The engine is built for mouse-movement-rate traffic on Durable Objects and
+low-end phones. Every steady-state step is **O(what changed)**, never O(log)
+or O(queue):
+
+| Hot path | Cost | How |
+|----------|------|-----|
+| `dispatch` | 1 `handle` + O(events) `reduce` + 1 notify + 1 send | `display` (= committed ⊕ optimistic) is maintained incrementally; no refold per read |
+| Own-command echo (`committed` with our `commandId` at the queue head) | O(events) | Committed events are compared structurally with the optimistic prediction; when equal the rebase is skipped and the snapshot **reference is unchanged** (Solid does no work) |
+| Foreign `committed` | O(pending queue) re-`handle` | Inherent optimistic rebase; nothing else is touched |
+| Persistence | write-behind, coalesced | `ClientRoomStorage.appendCommitted` appends only the new entries; the outbound queue is persisted as a snapshot (ghost rows are impossible by construction) |
+| `getLog()` | O(log) **only when read after a change** | Copy-on-read; the internal log is appended in place |
+| Server commit | 1 dedup read + 2 writes | Tip is cached after hydrate; no `getLastSeq` per command |
+| Server broadcast | 1 `JSON.stringify` per frame | One frame object fans out to every socket; the DO adapter memoizes its JSON per object |
+| `hashRoomState` | sorted-copy + native stringify + FNV-1a on 32-bit limbs | No `BigInt`, no dictionary-mode objects |
+
+Dev builds additionally validate state keys once per **new key** (cached
+`Set`), not per reduce; production builds skip the check (hot asserts).
+
+What stays inherent: a fresh joiner still replays the committed log from
+`fromSeq` in 512-entry welcome pages, and the client keeps the full log in
+memory / local storage for `getLog()` (segmented on disk, so appends stay
+bounded). Rooms that log every cursor move grow without bound; snapshot /
+compaction or an unlogged presence channel would be a protocol addition, not
+an engine optimization.
+
+Measure with `bun run --filter @pkgs/room bench` (`tests/bench/hot-paths.bench.ts`).
+To compare against a previous engine, snapshot it and point `ROOM_OLD_SRC` at
+its `src` (default `<repo>/.bench-old-room/src`):
+
+```bash
+mkdir -p .bench-old-room && git archive <sha> pkgs/room/src | tar -x -C .bench-old-room --strip-components=2
+bun run --filter @pkgs/room bench
+```
+
+---
+
 ## Mental model
 
 ```text
 ┌──────────── client ────────────┐         ┌──────── server (RoomServer) ────────┐
 │ RoomClient.open + ClientTransport    │  wire   │ authenticate / authorize            │
-│ optimistic fold + command queue│◄───────►│ append events (seq), dedup commandId│
-│ ClientRoomStorage (local cache)│         │ RoomStorage (committed log)         │
-│ display = committed ⊕ queued   │         │ broadcast welcome / committed       │
+│ incremental display + queue    │◄───────►│ append events (seq), dedup commandId│
+│ ClientRoomStorage (write-behind)│        │ RoomStorage (committed log)         │
+│ display = committed ⊕ queued   │         │ broadcast one frame / committed     │
 │ optional effectHandlers        │         │ effectHandlers after successful ok  │
 │  (io.timers Schedule)          │         │  (DO alarm / sim timers Schedule)   │
 └────────────────────────────────┘         └─────────────────────────────────────┘
@@ -101,13 +139,18 @@ and drive runs with `system.run` / `.explore` / `.replay`, not deep relative
 ```text
 pkgs/room/
 ├── src/
-│   ├── client/core/          RoomClient engine, fold, meta, ports, optimistic effects
-│   ├── client/adapters/      key-value storage (async `Kv`)
+│   ├── client/core/          RoomClient + core bookkeeping (`room-client-core`),
+│   │                         wire appliers, write-behind persist, snapshot cache,
+│   │                         meta, ports, optimistic effects
+│   ├── client/storage/       segmented committed-log codec (shared by adapters)
+│   ├── client/adapters/      key-value storage (async `Kv`, segmented)
 │   ├── client/solid/         snapshot + registry hooks
-│   ├── server/core/          RoomServer, auth/storage ports, injectCommand
+│   ├── server/core/          RoomServer (one storage serial, cached tip), fan-out, ports
 │   ├── protocol/             wire frames + ids
-│   └── effects/              Schedule/CancelSchedule + RoomEffectHandler port
-└── tests/                    black-box against package exports
+│   ├── effects/              Schedule/CancelSchedule + RoomEffectHandler port
+│   ├── hash-room-state.ts    canonical JSON + FNV-1a (32-bit limbs)
+│   └── plain-deep-equal.ts   structural equality for the ack fast path
+└── tests/                    black-box against package exports (+ `bench/`)
 
 pkgs/room-adapter-web/            websocket transport + localStorage storage
 pkgs/room-adapter-memory/         in-memory room/client storage + loopback transport
@@ -255,7 +298,7 @@ replays are idempotent.
 | Port | Role |
 |------|------|
 | `ClientTransport` | connect / sendJson / subscribe / lifecycle handlers |
-| `ClientRoomStorage` | committed tail + queued commands |
+| `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted` + `loadQueued` / `saveQueued` (queue snapshot). Every call is O(what changed); adapters use `createSegmentedCommittedLog` over a `CommittedLogBlobs` port |
 | `RoomStorage` | append/load log, lastSeq, command dedup |
 | `RoomAuth` | upgrade auth; optional per-command `authorize` |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
@@ -453,8 +496,9 @@ When proposing a change, check:
   `MAX_WELCOME_ENTRIES_PER_FRAME`, `MAX_ROSTER_SIZE` — over-bound command
   enqueue → `room.error/rate-limited`; welcome batches truncate and client
   re-syncs; roster register throws when full.
-- Client durable queue + inbound welcome/committed/rejected share one IO
-  serial (no ghost queue when ack races ahead of `appendQueued`).
+- Client memory is applied synchronously per frame; durable writes ride one
+  write-behind serial and the queue is persisted as a snapshot of memory, so
+  an ack can never leave a ghost durable row.
 
 ## Security posture
 
@@ -601,10 +645,23 @@ File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 | `room-adapter-web` `websocket-transport.test.ts` | WS transport | Heartbeat ping; reconnect on missed pong; `probeLiveness`; pong clears miss |
 | `client/adapters/storage/key-value/storage.test.ts` | KV storage | Corrupt committed/queued blobs load empty and are zapped |
 
+### Engine unit (`pkgs/room/tests/`)
+
+| File | Kind | Asserts / use case |
+|------|------|--------------------|
+| `room-client-engine.test.ts` | Unit (fake transport) | Welcome flushes offline queue; own-echo skips rebase + keeps snapshot ref; foreign commit rebases; `getLog` copy-on-read; append-only coalesced persistence, no ghost row; reject / stale welcome / gap; hydrate + corrupt-cache wipe; rate limit; event-driven `untilSynced` |
+| `room-server.test.ts` | Unit | One shared frame object per broadcast; cached tip (no `getLastSeq` per command); dedup replay; envelope / unknown reject; ping / capped welcome; `injectCommand` actor; hydrate + roster |
+| `key-value-storage.test.ts` | Unit | Segmented `Kv` log: multi-segment append + reload, reset, corrupt segment / queue wipe |
+| `room-adapter-web/tests/client-storage.test.ts` | Unit | Segmented `localStorage` log: tail-only writes, legacy blob + corrupt segment cleared |
+| `room-adapter-memory/tests/client-storage.test.ts` | Unit | Append / reset / queue snapshot isolation |
+| `bench/hot-paths.bench.ts` | Bench (not a test) | Old vs current µs/op: dispatch, echo round trip, foreign commit, 5k-log commit, welcome-512, hash |
+
 ### Pure helpers
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
+| `tests/hash-room-state.test.ts` | PBT | Limb FNV == BigInt reference; canonical JSON == sorted-copy reference (incl. index-like keys, `undefined`, functions, `__proto__`) |
+| `tests/wire.test.ts` | Unit | Frame round-trip; garbage / bad error / bad roster rejected |
 | `hash-room-state.test.ts` | Unit | Canonical JSON key sort; insertion-order-independent FNV hash |
 | `hash-room-state.pbt.test.ts` | PBT | Key-order + array significance + integer-like insertion independence |
 | `protocol/wire.pbt.test.ts` | PBT | Client/server wire JSON round-trip; garbage → null; rate-limited error |

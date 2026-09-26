@@ -5,77 +5,83 @@ import { InMemoryClientStorage } from '@pkgs/room-adapter-memory';
 
 const TYPE = asKeyword('test/cmd');
 
-/** Reference model: committed tail is last-write-wins; queue is an ordered list. */
-type Model = { lastSeq: number; entries: LogEntry[]; queue: QueuedCommand[] };
+/** Reference model: committed log is append-only until reset; queue is a replaced snapshot. */
+type Model = { entries: LogEntry[]; queue: QueuedCommand[] };
 type Real = InMemoryClientStorage;
 type Cmd = fc.AsyncCommand<Model, Real>;
 
 async function expectAgrees(m: Model, r: Real): Promise<void> {
   const committed = await r.loadCommitted();
-  expect(committed).toEqual({ lastSeq: m.lastSeq, entries: m.entries });
+  const lastSeq = m.entries.length === 0 ? 0 : m.entries.at(-1)!.seq;
+  expect(committed).toEqual({ lastSeq, entries: m.entries });
   expect(await r.loadQueued()).toEqual(m.queue);
   // Loaded arrays are snapshots: mutating them must not reach storage.
   committed.entries.length = 0;
   (await r.loadQueued()).length = 0;
 }
 
-function saveCommitted(lastSeq: number, seqs: number[]): Cmd {
+function append(count: number): Cmd {
   return {
     check: (): boolean => true,
     async run(m: Model, r: Real): Promise<void> {
-      const entries = seqs.map(
-        (seq): LogEntry => ({ seq, event: { type: TYPE, payload: seq } })
-      );
-      await r.saveCommitted(lastSeq, entries);
-      m.lastSeq = lastSeq;
-      m.entries = [...entries];
+      const base = m.entries.length === 0 ? 0 : m.entries.at(-1)!.seq;
+      const entries: LogEntry[] = [];
+      for (let i = 1; i <= count; i++) {
+        entries.push({
+          seq: base + i,
+          event: { type: TYPE, payload: base + i },
+        });
+      }
+      await r.appendCommitted(entries);
+      m.entries = [...m.entries, ...entries];
       entries.length = 0;
       await expectAgrees(m, r);
     },
-    toString: (): string => `save(${lastSeq},[${seqs}])`,
+    toString: (): string => `append(${count})`,
   };
 }
 
-function append(id: string, ts: number): Cmd {
+function reset(): Cmd {
   return {
     check: (): boolean => true,
     async run(m: Model, r: Real): Promise<void> {
-      const cmd: QueuedCommand = {
+      await r.resetCommitted();
+      m.entries = [];
+      await expectAgrees(m, r);
+    },
+    toString: (): string => 'reset()',
+  };
+}
+
+function saveQueue(ids: string[], ts: number): Cmd {
+  return {
+    check: (): boolean => true,
+    async run(m: Model, r: Real): Promise<void> {
+      const queue: QueuedCommand[] = ids.map((id, i) => ({
         id,
-        ts,
-        payload: { type: TYPE, payload: ts },
-      };
-      await r.appendQueued(cmd);
-      m.queue.push(cmd);
+        ts: ts + i,
+        payload: { type: TYPE, payload: ts + i },
+      }));
+      await r.saveQueued(queue);
+      m.queue = [...queue];
+      queue.length = 0;
       await expectAgrees(m, r);
     },
-    toString: (): string => `append(${id},${ts})`,
-  };
-}
-
-function remove(id: string): Cmd {
-  return {
-    check: (): boolean => true,
-    async run(m: Model, r: Real): Promise<void> {
-      await r.removeQueued(id);
-      m.queue = m.queue.filter((c) => c.id !== id);
-      await expectAgrees(m, r);
-    },
-    toString: (): string => `remove(${id})`,
+    toString: (): string => `saveQueue([${ids}],${ts})`,
   };
 }
 
 const arbId = fc.constantFrom('q1', 'q2', 'q3');
 const arbCommand: fc.Arbitrary<Cmd> = fc.oneof(
+  fc.nat({ max: 4 }).map((n): Cmd => append(n)),
+  fc.constant(reset()),
   fc
-    .tuple(fc.nat({ max: 20 }), fc.array(fc.nat({ max: 20 }), { maxLength: 4 }))
-    .map(([s, xs]): Cmd => saveCommitted(s, xs)),
-  fc.tuple(arbId, fc.nat({ max: 1000 })).map(([id, ts]): Cmd => append(id, ts)),
-  arbId.map((id): Cmd => remove(id))
+    .tuple(fc.uniqueArray(arbId, { maxLength: 3 }), fc.nat({ max: 1000 }))
+    .map(([ids, ts]): Cmd => saveQueue(ids, ts))
 );
 
 describe('InMemoryClientStorage model', () => {
-  test('committed tail and outbound queue agree with the reference model', async () => {
+  test('committed log and outbound queue agree with the reference model', async () => {
     await assertProperty(
       'client storage model',
       fc.asyncProperty(
@@ -83,7 +89,7 @@ describe('InMemoryClientStorage model', () => {
         async (cmds) => {
           await fc.asyncModelRun(
             () => ({
-              model: { lastSeq: 0, entries: [], queue: [] },
+              model: { entries: [], queue: [] },
               real: new InMemoryClientStorage(),
             }),
             cmds

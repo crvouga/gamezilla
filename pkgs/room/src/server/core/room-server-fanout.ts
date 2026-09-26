@@ -6,8 +6,8 @@ import type { RoomStorage } from './storage';
 type Sender = (payload: unknown) => void;
 
 /**
- * Single-snapshot welcome: load events once, tip from batch (or getLastSeq
- * only when empty). Caps entries; client re-syncs for the rest.
+ * Single-snapshot welcome: load events once, tip from batch (or the server's
+ * cached tip only when empty). Caps entries; client re-syncs for the rest.
  */
 export async function sendWelcomeFrame(args: {
   readonly storage: RoomStorage;
@@ -15,13 +15,11 @@ export async function sendWelcomeFrame(args: {
   readonly fromSeq: number;
   readonly send: Sender;
   readonly roster: readonly RoomActor[];
+  readonly tip: () => Promise<number>;
 }): Promise<void> {
   try {
     const all = await args.storage.loadEventsAfter(args.topic, args.fromSeq);
-    const tip =
-      all.length > 0
-        ? all[all.length - 1]!.seq
-        : await args.storage.getLastSeq(args.topic);
+    const tip = all.length > 0 ? all[all.length - 1]!.seq : await args.tip();
     const entries =
       all.length > MAX_WELCOME_ENTRIES_PER_FRAME
         ? all.slice(0, MAX_WELCOME_ENTRIES_PER_FRAME)
@@ -51,22 +49,23 @@ export async function sendWelcomeFrame(args: {
   }
 }
 
-/** Fan-out; drop sockets whose `send` throws (never swallow). */
+/**
+ * Fan-out of ONE frame object to every connection (adapters may memoize its
+ * serialization per object); drop sockets whose `send` throws (never swallow).
+ */
 export function broadcastToConnections(
   connections: Map<string, { readonly id: string; readonly send: Sender }>,
-  commandChains: Map<string, Promise<void>>,
   payload: unknown
 ): void {
-  const dead: string[] = [];
+  let dead: string[] | null = null;
   for (const conn of connections.values()) {
     try {
       conn.send(payload);
     } catch {
-      dead.push(conn.id);
+      (dead ??= []).push(conn.id);
     }
   }
-  for (const id of dead) {
-    connections.delete(id);
-    commandChains.delete(id);
+  if (dead !== null) {
+    for (const id of dead) connections.delete(id);
   }
 }

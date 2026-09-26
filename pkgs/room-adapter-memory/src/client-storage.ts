@@ -1,31 +1,37 @@
 import type { ClientRoomStorage, LogEntry, QueuedCommand } from '@pkgs/room';
+
 /**
  * Volatile per-process {@link ClientRoomStorage} for tests and the loopback
  * testkit. Not safe across reloads or app restarts.
+ *
+ * Every operation is O(what changed); loads hand out copies so the engine's
+ * in-place mutation never aliases the "durable" arrays.
  */
 export class InMemoryClientStorage implements ClientRoomStorage {
-  private lastSeq = 0;
   private entries: LogEntry[] = [];
-  private queue: QueuedCommand[] = [];
+  private queue: readonly QueuedCommand[] = [];
 
   async loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {
-    return { lastSeq: this.lastSeq, entries: [...this.entries] };
+    const n = this.entries.length;
+    return {
+      lastSeq: n === 0 ? 0 : this.entries[n - 1]!.seq,
+      entries: this.entries.slice(),
+    };
   }
 
-  async saveCommitted(lastSeq: number, entries: LogEntry[]): Promise<void> {
-    this.lastSeq = lastSeq;
-    this.entries = [...entries];
+  async appendCommitted(entries: readonly LogEntry[]): Promise<void> {
+    for (let i = 0; i < entries.length; i++) this.entries.push(entries[i]!);
+  }
+
+  async resetCommitted(): Promise<void> {
+    this.entries = [];
   }
 
   async loadQueued(): Promise<QueuedCommand[]> {
-    return [...this.queue];
+    return this.queue.slice();
   }
 
-  async appendQueued(cmd: QueuedCommand): Promise<void> {
-    this.queue.push(cmd);
-  }
-
-  async removeQueued(id: string): Promise<void> {
-    this.queue = this.queue.filter((c) => c.id !== id);
+  async saveQueued(queue: readonly QueuedCommand[]): Promise<void> {
+    this.queue = queue.slice();
   }
 }

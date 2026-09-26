@@ -1,0 +1,395 @@
+// @io-wall-ok — benchmark script (not a test): wall timers are the measurement.
+/**
+ * Hot-path microbenchmarks for `@pkgs/room`, old engine vs current engine in
+ * one process (same JIT). The previous implementation is imported from an
+ * untracked snapshot; pass its path via `ROOM_OLD_SRC` (defaults to
+ * `<repo>/.bench-old-room/src`). When the snapshot is absent, only the
+ * current engine is measured.
+ *
+ * Run: `bun run --filter @pkgs/room bench`
+ */
+import type { Message } from '@pkgs/message';
+import * as current from '@pkgs/room';
+import * as currentServer from '@pkgs/room/server';
+import { oldMemoryClientStorage } from '../helpers/bench-old-client-storage';
+import { CursorModule, Move, Moved } from '../helpers/cursor-module';
+import { FakeTransport } from '../helpers/fake-transport';
+import { MemoryRoomStorage } from '../helpers/memory-room-storage';
+import { CountingClientStorage } from '../helpers/memory-storage';
+import { testPorts } from '../helpers/ports';
+
+type Engine = {
+  readonly name: string;
+  readonly RoomClient: typeof current.RoomClient;
+  readonly RoomServer: typeof currentServer.RoomServer;
+  readonly hashRoomState: typeof current.hashRoomState;
+  readonly canonicalRoomJson: typeof current.canonicalRoomJson;
+  readonly clientStorage: () => unknown;
+};
+
+async function loadEngines(): Promise<Engine[]> {
+  const engines: Engine[] = [
+    {
+      name: 'current',
+      RoomClient: current.RoomClient,
+      RoomServer: currentServer.RoomServer,
+      hashRoomState: current.hashRoomState,
+      canonicalRoomJson: current.canonicalRoomJson,
+      clientStorage: () => new CountingClientStorage(),
+    },
+  ];
+  const oldRoot =
+    process.env['ROOM_OLD_SRC'] ??
+    new URL('../../../../.bench-old-room/src', import.meta.url).pathname;
+  try {
+    const oldIndex = (await import(`${oldRoot}/index.ts`)) as typeof current;
+    const oldServer = (await import(
+      `${oldRoot}/server.ts`
+    )) as typeof currentServer;
+    engines.unshift({
+      name: 'old',
+      RoomClient: oldIndex.RoomClient,
+      RoomServer: oldServer.RoomServer,
+      hashRoomState: oldIndex.hashRoomState,
+      canonicalRoomJson: oldIndex.canonicalRoomJson,
+      clientStorage: () => oldMemoryClientStorage(),
+    });
+  } catch {
+    process.stdout.write(`(old engine snapshot not found at ${oldRoot})\n`);
+  }
+  return engines;
+}
+
+// ---------------------------------------------------------------------------
+// Harness
+// ---------------------------------------------------------------------------
+
+type Result = { usPerOp: number };
+
+async function measure(
+  fn: () => Promise<void> | void,
+  iters: number,
+  warmup: number
+): Promise<Result> {
+  for (let i = 0; i < warmup; i++) await fn();
+  Bun.gc(true);
+  const start = Bun.nanoseconds();
+  for (let i = 0; i < iters; i++) await fn();
+  const ns = Bun.nanoseconds() - start;
+  return { usPerOp: ns / iters / 1000 };
+}
+
+function fmt(n: number): string {
+  return n >= 100 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2);
+}
+
+const rows: { scenario: string; byEngine: Map<string, Result> }[] = [];
+
+async function scenario(
+  name: string,
+  engines: Engine[],
+  build: (e: Engine) => Promise<{
+    run: () => Promise<void> | void;
+    iters: number;
+    warmup?: number;
+  }>
+): Promise<void> {
+  const byEngine = new Map<string, Result>();
+  for (const e of engines) {
+    const { run, iters, warmup } = await build(e);
+    byEngine.set(
+      e.name,
+      await measure(run, iters, warmup ?? Math.ceil(iters / 5))
+    );
+  }
+  rows.push({ scenario: name, byEngine });
+}
+
+function print(engines: Engine[]): void {
+  const names = engines.map((e) => e.name);
+  const w = Math.max(28, ...rows.map((r) => r.scenario.length));
+  const header = `${'scenario'.padEnd(w)}${names.map((n) => `${n} µs/op`.padStart(16)).join('')}${names.length > 1 ? 'speedup'.padStart(10) : ''}`;
+  process.stdout.write(`\n${header}\n${'-'.repeat(header.length)}\n`);
+  for (const r of rows) {
+    const cells = names.map((n) =>
+      fmt(r.byEngine.get(n)!.usPerOp).padStart(16)
+    );
+    let speed = '';
+    if (names.length > 1) {
+      const old = r.byEngine.get(names[0]!)!.usPerOp;
+      const cur = r.byEngine.get(names[names.length - 1]!)!.usPerOp;
+      speed = `${(old / cur).toFixed(1)}x`.padStart(10);
+    }
+    process.stdout.write(`${r.scenario.padEnd(w)}${cells.join('')}${speed}\n`);
+  }
+  process.stdout.write('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+
+const ACTOR = { id: 'alice', clientId: 'tab' };
+type AnyClient = current.RoomClient<
+  current.RoomState,
+  Message,
+  Message,
+  string
+>;
+type AnyServer = currentServer.RoomServer<
+  current.RoomState,
+  Message,
+  Message,
+  string
+>;
+
+async function openClient(
+  e: Engine,
+  opts: { connected: boolean; module?: typeof CursorModule }
+): Promise<{ room: AnyClient; transport: FakeTransport }> {
+  const ports = testPorts();
+  const transport = new FakeTransport();
+  const room = await e.RoomClient.open<
+    current.RoomState,
+    Message,
+    Message,
+    string
+  >({
+    topic: 'bench',
+    module: opts.module ?? CursorModule,
+    storage: e.clientStorage() as current.ClientRoomStorage,
+    transport,
+    identity: 'alice',
+    clock: ports.clock,
+    timers: ports.timers,
+    createId: ports.createId,
+  });
+  if (opts.connected) {
+    transport.deliver({
+      v: current.WIRE_VERSION,
+      kind: 'welcome',
+      fromSeq: 0,
+      lastSeq: 0,
+      entries: [],
+    });
+  }
+  return { room, transport };
+}
+
+function movedEntry(seq: number, id: string, x: number) {
+  return { seq, event: Moved({ id, x, y: seq }), actor: ACTOR, ts: seq };
+}
+
+/** Wire a client transport straight into a RoomServer (no network). */
+async function loopback(e: Engine, connections: number) {
+  const ports = testPorts();
+  const storage = new MemoryRoomStorage();
+  const server: AnyServer = new e.RoomServer({
+    topic: 'bench',
+    module: CursorModule,
+    storage,
+    clock: ports.clock,
+  });
+  await server.hydrateFromStorage();
+  const transport = new FakeTransport();
+  let pending: Promise<void> = Promise.resolve();
+  transport.onSend = (payload) => {
+    pending = server.handleClientMessage('c0', 'alice', payload);
+  };
+  server.registerConnection('c0', (f) => transport.deliver(f), ACTOR);
+  const sinks: string[] = [];
+  for (let i = 1; i < connections; i++) {
+    server.registerConnection(
+      `c${String(i)}`,
+      (f) => sinks.push(JSON.stringify(f)),
+      {
+        id: `peer${String(i)}`,
+        clientId: `c${String(i)}`,
+      }
+    );
+  }
+  const room = await e.RoomClient.open<
+    current.RoomState,
+    Message,
+    Message,
+    string
+  >({
+    topic: 'bench',
+    module: CursorModule,
+    storage: e.clientStorage() as current.ClientRoomStorage,
+    transport,
+    identity: 'alice',
+    clock: ports.clock,
+    timers: ports.timers,
+    createId: ports.createId,
+  });
+  await pending;
+  return { room, server, transport, flush: () => pending, sinks };
+}
+
+function bigState(): current.RoomState {
+  const positions: Record<string, { x: number; y: number }> = {};
+  for (let i = 0; i < 40; i++)
+    positions[`player-${String(i)}`] = { x: i * 3, y: i * 7 };
+  const state: Record<string, unknown> = {
+    'cursor/positions': positions,
+    'cursor/moves': 1234,
+  };
+  for (let i = 0; i < 20; i++)
+    state[`game/slot-${String(i)}`] = {
+      seat: i,
+      ready: i % 2 === 0,
+      tags: ['a', 'b'],
+    };
+  return state as current.RoomState;
+}
+
+// ---------------------------------------------------------------------------
+// Scenarios
+// ---------------------------------------------------------------------------
+
+const engines = await loadEngines();
+
+await scenario(
+  'dispatch offline, queue depth 1..200 (per dispatch)',
+  engines,
+  async (e) => {
+    let opened = await openClient(e, { connected: false });
+    let n = 0;
+    return {
+      iters: 4_000,
+      warmup: 400,
+      run: async () => {
+        if (n === 200) {
+          opened.room.destroy();
+          opened = await openClient(e, { connected: false });
+          n = 0;
+        }
+        opened.room.dispatch(Move({ x: n, y: 1 }));
+        n += 1;
+      },
+    };
+  }
+);
+
+await scenario(
+  'dispatch → server commit → echo (1 peer)',
+  engines,
+  async (e) => {
+    const lb = await loopback(e, 1);
+    let x = 0;
+    return {
+      iters: 4_000,
+      run: async () => {
+        lb.room.dispatch(Move({ x: x++, y: 0 }));
+        await lb.flush();
+      },
+    };
+  }
+);
+
+await scenario(
+  'dispatch → server commit → echo (8 peers, JSON sinks)',
+  engines,
+  async (e) => {
+    const lb = await loopback(e, 8);
+    let x = 0;
+    return {
+      iters: 4_000,
+      run: async () => {
+        lb.room.dispatch(Move({ x: x++, y: 0 }));
+        await lb.flush();
+        lb.sinks.length = 0;
+      },
+    };
+  }
+);
+
+await scenario(
+  'foreign committed frame, 4 pending commands',
+  engines,
+  async (e) => {
+    const { room, transport } = await openClient(e, { connected: true });
+    for (let i = 0; i < 4; i++) room.dispatch(Move({ x: i, y: 0 }));
+    let seq = 0;
+    return {
+      iters: 8_000,
+      run: async () => {
+        seq += 1;
+        transport.deliver({
+          v: current.WIRE_VERSION,
+          kind: 'committed',
+          entries: [movedEntry(seq, 'bob', seq)],
+        });
+        await room.flushIo();
+      },
+    };
+  }
+);
+
+await scenario(
+  'foreign committed frame after 5k-entry log',
+  engines,
+  async (e) => {
+    const { room, transport } = await openClient(e, { connected: true });
+    const warm: unknown[] = [];
+    for (let s = 1; s <= 5_000; s++) warm.push(movedEntry(s, 'bob', s));
+    for (let i = 0; i < 5_000; i += 500) {
+      transport.deliver({
+        v: current.WIRE_VERSION,
+        kind: 'committed',
+        entries: warm.slice(i, i + 500),
+      });
+    }
+    await room.flushIo();
+    let seq = 5_000;
+    return {
+      iters: 2_000,
+      warmup: 200,
+      run: async () => {
+        seq += 1;
+        transport.deliver({
+          v: current.WIRE_VERSION,
+          kind: 'committed',
+          entries: [movedEntry(seq, 'bob', seq)],
+        });
+        await room.flushIo();
+      },
+    };
+  }
+);
+
+await scenario('welcome apply, 512 entries', engines, async (e) => {
+  const entries: unknown[] = [];
+  for (let s = 1; s <= 512; s++)
+    entries.push(movedEntry(s, `p${String(s % 8)}`, s));
+  let opened = await openClient(e, { connected: false });
+  return {
+    iters: 300,
+    warmup: 30,
+    run: async () => {
+      opened.transport.deliver({
+        v: current.WIRE_VERSION,
+        kind: 'welcome',
+        fromSeq: 0,
+        lastSeq: 512,
+        entries,
+      });
+      await opened.room.flushIo();
+      opened.room.destroy();
+      opened = await openClient(e, { connected: false });
+    },
+  };
+});
+
+await scenario('hashRoomState, 60-key nested state', engines, async (e) => {
+  const state = bigState();
+  return { iters: 20_000, run: () => void e.hashRoomState(state) };
+});
+
+await scenario('canonicalRoomJson, 60-key nested state', engines, async (e) => {
+  const state = bigState();
+  return { iters: 20_000, run: () => void e.canonicalRoomJson(state) };
+});
+
+print(engines);

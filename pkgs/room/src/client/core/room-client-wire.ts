@@ -1,109 +1,154 @@
 import { assert } from '@pkgs/assert';
 
 import type { ROOM_WIRE_KIND, ServerToClientWire } from '../../protocol/wire';
-import type { LogEntry, RoomActor, RoomError } from '../../types';
+import type {
+  LogEntry,
+  RoomCommandPayload,
+  RoomError,
+  RoomEvent,
+  RoomState,
+} from '../../types';
+import {
+  appendCommitted,
+  type ClientCore,
+  dropQueued,
+  rebase,
+  resetCommitted,
+  tryFastAck,
+} from './room-client-core';
+import type { RoomClientPersist } from './room-client-persist';
 
-/** Mutable host surface for welcome / committed / rejected application. */
-export type RoomClientWireHost = {
-  readonly lastSeq: number;
-  readonly committedEntries: LogEntry[];
-  applyCommittedBatch(entries: LogEntry[]): void;
-  applyOptimisticRebuild(): void;
-  resetCommittedToEmpty(): Promise<void>;
-  saveCommitted(): Promise<void>;
-  dropQueued(commandId: string): void;
-  removeQueued(commandId: string): Promise<void>;
-  sendSync(): void;
-  flushOutboundQueue(): Promise<void>;
-  setSynced(v: boolean): void;
-  setRoster(clients: readonly RoomActor[]): void;
-  reportError(err: RoomError | Error): void;
-  notify(): void;
+/**
+ * Everything a wire applier needs, built once per client (not per frame).
+ * Frames are applied synchronously; only persistence is deferred.
+ */
+export type WireEnv<
+  S extends RoomState,
+  C extends RoomCommandPayload,
+  E extends RoomEvent,
+  Identity,
+> = {
+  readonly core: ClientCore<S, C, E, Identity>;
+  readonly persist: RoomClientPersist;
+  readonly sendSync: () => void;
+  readonly flushOutbound: () => void;
+  readonly reportError: (err: RoomError | Error) => void;
+  readonly notify: () => void;
 };
 
-export async function applyWelcomeWire(
-  host: RoomClientWireHost,
-  msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.welcome }>
-): Promise<void> {
-  const suffix = msg.entries.filter((e) => e.seq > host.lastSeq);
+type AnyWireEnv = WireEnv<RoomState, RoomCommandPayload, RoomEvent, unknown>;
+type Welcome = Extract<
+  ServerToClientWire,
+  { kind: typeof ROOM_WIRE_KIND.welcome }
+>;
+type Committed = Extract<
+  ServerToClientWire,
+  { kind: typeof ROOM_WIRE_KIND.committed }
+>;
+type Rejected = Extract<
+  ServerToClientWire,
+  { kind: typeof ROOM_WIRE_KIND.rejected }
+>;
+
+function resetToEmpty(env: AnyWireEnv): void {
+  resetCommitted(env.core);
+  env.persist.resetCommitted();
+  rebase(env.core);
+  env.notify();
+}
+
+function welcomeSuffix(
+  entries: readonly LogEntry[],
+  lastSeq: number
+): LogEntry[] {
+  const out: LogEntry[] = [];
+  for (let i = 0; i < entries.length; i++) {
+    const e = entries[i]!;
+    if (e.seq > lastSeq) out.push(e);
+  }
+  return out;
+}
+
+export function applyWelcome(env: AnyWireEnv, msg: Welcome): void {
+  const core = env.core;
+  const suffix = welcomeSuffix(msg.entries, core.lastSeq);
   const suffixContiguous =
-    suffix.length === 0 || suffix[0]!.seq === host.lastSeq + 1;
-  const serverBehind = msg.lastSeq < host.lastSeq;
+    suffix.length === 0 || suffix[0]!.seq === core.lastSeq + 1;
+  const serverBehind = msg.lastSeq < core.lastSeq;
   const behindWithoutEntries =
-    suffix.length === 0 && msg.lastSeq > host.lastSeq;
+    suffix.length === 0 && msg.lastSeq > core.lastSeq;
 
   if (serverBehind || !suffixContiguous) {
-    await host.resetCommittedToEmpty();
-    host.sendSync();
+    resetToEmpty(env);
+    env.sendSync();
     return;
   }
 
   if (behindWithoutEntries) {
-    if (msg.fromSeq === 0 && host.lastSeq === 0) {
+    if (msg.fromSeq === 0 && core.lastSeq === 0) {
       assert.ok(false, 'welcome lastSeq must match last applied entry seq', {
-        lastSeq: host.lastSeq,
+        lastSeq: core.lastSeq,
         msgLastSeq: msg.lastSeq,
       });
     }
-    if (host.lastSeq !== 0) await host.resetCommittedToEmpty();
-    host.sendSync();
+    if (core.lastSeq !== 0) resetToEmpty(env);
+    env.sendSync();
     return;
   }
 
-  host.applyCommittedBatch(suffix);
-  if (msg.lastSeq !== host.lastSeq) {
+  appendCommitted(core, suffix);
+  env.persist.appendCommitted(suffix);
+  rebase(core);
+  if (msg.lastSeq !== core.lastSeq) {
     // Partial welcome (bounded batch) — keep progress, ask for the rest.
-    await host.saveCommitted();
-    host.applyOptimisticRebuild();
-    host.notify();
-    host.sendSync();
+    env.notify();
+    env.sendSync();
     return;
   }
-  await host.saveCommitted();
-  host.applyOptimisticRebuild();
-  host.setSynced(true);
-  host.notify();
-  await host.flushOutboundQueue();
+  core.synced = true;
+  env.notify();
+  env.flushOutbound();
 }
 
-export async function applyCommittedWire(
-  host: RoomClientWireHost,
-  msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.committed }>
-): Promise<void> {
+function ackQueued(env: AnyWireEnv, commandId: string): void {
+  if (dropQueued(env.core, commandId) === 'overlay') rebase(env.core);
+  env.persist.queueChanged();
+}
+
+export function applyCommitted(env: AnyWireEnv, msg: Committed): void {
+  const core = env.core;
   const first = msg.entries[0];
+  const commandId = msg.commandId;
   if (first !== undefined) {
-    if (first.seq <= host.lastSeq) {
-      if (typeof msg.commandId === 'string' && msg.commandId.length > 0) {
-        host.dropQueued(msg.commandId);
-        await host.removeQueued(msg.commandId);
-        host.notify();
+    if (first.seq <= core.lastSeq) {
+      // Duplicate / already-applied batch (dedup replay): only settle the ack.
+      if (commandId !== undefined) {
+        ackQueued(env, commandId);
+        env.notify();
       }
       return;
     }
-    if (first.seq !== host.lastSeq + 1) {
-      host.setSynced(false);
-      host.sendSync();
-      host.notify();
+    if (first.seq !== core.lastSeq + 1) {
+      core.synced = false;
+      env.sendSync();
+      env.notify();
       return;
     }
   }
-  host.applyCommittedBatch(msg.entries);
-  await host.saveCommitted();
-  if (typeof msg.commandId === 'string' && msg.commandId.length > 0) {
-    host.dropQueued(msg.commandId);
-    await host.removeQueued(msg.commandId);
+  appendCommitted(core, msg.entries);
+  env.persist.appendCommitted(msg.entries);
+  if (commandId !== undefined && tryFastAck(core, commandId, msg.entries)) {
+    env.persist.queueChanged();
+  } else {
+    if (commandId !== undefined) dropQueued(core, commandId);
+    rebase(core);
+    if (commandId !== undefined) env.persist.queueChanged();
   }
-  host.applyOptimisticRebuild();
-  host.notify();
+  env.notify();
 }
 
-export async function applyRejectedWire(
-  host: RoomClientWireHost,
-  msg: Extract<ServerToClientWire, { kind: typeof ROOM_WIRE_KIND.rejected }>
-): Promise<void> {
-  host.dropQueued(msg.commandId);
-  await host.removeQueued(msg.commandId);
-  host.applyOptimisticRebuild();
-  host.reportError(msg.error);
-  host.notify();
+export function applyRejected(env: AnyWireEnv, msg: Rejected): void {
+  ackQueued(env, msg.commandId);
+  env.reportError(msg.error);
+  env.notify();
 }

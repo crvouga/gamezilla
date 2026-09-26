@@ -1,79 +1,121 @@
 import { Assert } from '@pkgs/assert';
-
-import type { ClientRoomStorage, LogEntry, QueuedCommand } from '@pkgs/room';
+import {
+  type ClientRoomStorage,
+  type CommittedLogBlobs,
+  type CommittedLogManifest,
+  createSegmentedCommittedLog,
+  type LogEntry,
+  type QueuedCommand,
+  type SegmentedCommittedLog,
+} from '@pkgs/room';
 
 const crash: Assert = Assert.crash();
 
-function readJson<T>(raw: string | null): T | null {
+type WebStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
+
+function readJson(raw: string | null): unknown {
   if (raw === null || raw.length === 0) return null;
   try {
-    return JSON.parse(raw) as T;
+    return JSON.parse(raw) as unknown;
   } catch {
     return null;
   }
 }
 
+function isNonNegativeInt(v: unknown): v is number {
+  return typeof v === 'number' && Number.isInteger(v) && v >= 0;
+}
+
+function parseManifest(raw: unknown): CommittedLogManifest | null {
+  if (raw === null || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const lastSeq = o['lastSeq'];
+  const segments = o['segments'];
+  if (!isNonNegativeInt(lastSeq) || !isNonNegativeInt(segments)) return null;
+  return { lastSeq, segments };
+}
+
+function parseEntries(raw: unknown): LogEntry[] | null {
+  if (!Array.isArray(raw)) return null;
+  for (const item of raw) {
+    if (item === null || typeof item !== 'object') return null;
+    if (typeof (item as { seq?: unknown }).seq !== 'number') return null;
+  }
+  return raw as LogEntry[];
+}
+
+/** Blob port over synchronous `localStorage` (wrapped async for the codec). */
+function webCommittedLogBlobs(
+  storage: WebStorage,
+  prefix: string
+): CommittedLogBlobs {
+  const manifestKey = `${prefix}:committed`;
+  const segmentKey = (i: number): string => `${prefix}:committed.${String(i)}`;
+  return {
+    readManifest: async () => {
+      const parsed = parseManifest(readJson(storage.getItem(manifestKey)));
+      if (parsed === null) storage.removeItem(manifestKey);
+      return parsed;
+    },
+    writeManifest: async (manifest) => {
+      storage.setItem(manifestKey, JSON.stringify(manifest));
+    },
+    removeManifest: async () => {
+      storage.removeItem(manifestKey);
+    },
+    readSegment: async (i) =>
+      parseEntries(readJson(storage.getItem(segmentKey(i)))),
+    writeSegment: async (i, entries) => {
+      storage.setItem(segmentKey(i), JSON.stringify(entries));
+    },
+    removeSegment: async (i) => {
+      storage.removeItem(segmentKey(i));
+    },
+  };
+}
+
 /**
  * Synchronous `localStorage`-backed room cache (topic-scoped keys). Web only.
+ *
+ * The committed log is persisted in fixed-size segments, so an append costs
+ * one small segment write instead of re-serializing the whole history.
  *
  * Use {@link KeyValueClientRoomStorage} instead when the same code must run
  * in a non-DOM environment — `localStorage` is not available there.
  */
 export class WebClientStorage implements ClientRoomStorage {
+  private readonly log: SegmentedCommittedLog;
+  private readonly queueKey: string;
+
   constructor(
-    private readonly prefix: string,
-    private readonly storage: Pick<
-      Storage,
-      'getItem' | 'setItem' | 'removeItem'
-    >
+    prefix: string,
+    private readonly storage: WebStorage
   ) {
     crash.nonEmptyString(prefix, 'WebClientStorage prefix must be non-empty');
-  }
-
-  private committedKey(): string {
-    return `${this.prefix}:committed`;
-  }
-
-  private queueKey(): string {
-    return `${this.prefix}:queue`;
-  }
-
-  async loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {
-    const raw = this.storage.getItem(this.committedKey());
-    const parsed = readJson<{ lastSeq: number; entries: LogEntry[] }>(raw);
-    if (parsed === null) {
-      return { lastSeq: 0, entries: [] };
-    }
-    const lastSeq =
-      typeof parsed.lastSeq === 'number' && Number.isFinite(parsed.lastSeq)
-        ? Math.floor(parsed.lastSeq)
-        : 0;
-    const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
-    return { lastSeq, entries };
-  }
-
-  async saveCommitted(lastSeq: number, entries: LogEntry[]): Promise<void> {
-    this.storage.setItem(
-      this.committedKey(),
-      JSON.stringify({ lastSeq, entries })
+    this.log = createSegmentedCommittedLog(
+      webCommittedLogBlobs(storage, prefix)
     );
+    this.queueKey = `${prefix}:queue`;
+  }
+
+  loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {
+    return this.log.loadCommitted();
+  }
+
+  appendCommitted(entries: readonly LogEntry[]): Promise<void> {
+    return this.log.appendCommitted(entries);
+  }
+
+  resetCommitted(): Promise<void> {
+    return this.log.resetCommitted();
   }
 
   async loadQueued(): Promise<QueuedCommand[]> {
-    const raw = this.storage.getItem(this.queueKey());
-    const parsed = readJson<QueuedCommand[]>(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = readJson(this.storage.getItem(this.queueKey));
+    return Array.isArray(parsed) ? (parsed as QueuedCommand[]) : [];
   }
 
-  async appendQueued(cmd: QueuedCommand): Promise<void> {
-    const cur = await this.loadQueued();
-    cur.push(cmd);
-    this.storage.setItem(this.queueKey(), JSON.stringify(cur));
-  }
-
-  async removeQueued(id: string): Promise<void> {
-    const cur = await this.loadQueued();
-    const next = cur.filter((c) => c.id !== id);
-    this.storage.setItem(this.queueKey(), JSON.stringify(next));
+  async saveQueued(queue: readonly QueuedCommand[]): Promise<void> {
+    this.storage.setItem(this.queueKey, JSON.stringify(queue));
   }
 }

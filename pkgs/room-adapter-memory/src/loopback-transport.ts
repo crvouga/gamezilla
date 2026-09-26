@@ -98,7 +98,7 @@ export class LoopbackRoomTransport implements ClientTransport {
 
   /** Server → client (broadcast or unicast). */
   deliverToClient(payload: unknown): void {
-    for (const h of [...this.handlers]) {
+    for (const h of this.handlers) {
       h(payload);
     }
   }
