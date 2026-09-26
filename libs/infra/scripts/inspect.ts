@@ -1,11 +1,14 @@
 #!/usr/bin/env bun
 // @io-wall-ok — process entry: DuckDB UI inspect launcher (env from secrets-run).
 /**
- * Boots DuckDB UI wired to **both** Infisical envs at once:
- * - Postgres: `pg_prd` / `pg_dev` (whichever have DATABASE_URL)
- * - S3: `s3_prd` / `s3_dev` (+ macros `s3_prd_objects()` / `s3_dev_objects()`)
+ * Boots DuckDB UI wired to **every** environment (one per
+ * `tofu/envs/<env>.tfvars.json`) at once:
+ * - Postgres: `pg_<env>` (each env that has a DATABASE_URL)
+ * - S3: `s3_<env>` (+ macro `s3_<env>_objects()`)
  *
- * Launch: `bun run inspect` (secrets-run for Infisical auth; both envs loaded
+ * Env names become SQL identifiers with `-` → `_`.
+ *
+ * Launch: `bun run inspect` (secrets-run for Infisical auth; every env loaded
  * via secret admin). Do not run bare.
  */
 import { spawn, spawnSync } from 'node:child_process';
@@ -19,10 +22,13 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+import { ENV_FILES } from '@libs/infra/public/envs';
 import {
   type EnvBundle,
+  envIdent,
   type HelperQuery,
-  loadBothEnvs,
+  INSPECT_ENV_PREFIX,
+  loadEnvs,
   type PgVars,
   parseDatabaseUrl,
   pgChildEnv,
@@ -33,11 +39,11 @@ import {
   wireS3,
 } from './inspect-sql.ts';
 
-const REPO_ROOT = join(import.meta.dirname, '../../../..');
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEFAULT_DB_PATH = '.local/inspect.duckdb';
 const INSPECT_SHORTHAND = 'bun run inspect';
 const INSPECT_FULL =
-  'SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/db/src/scripts/inspect.ts';
+  'SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/infra/scripts/inspect.ts';
 const UI_URL = 'http://localhost:4213';
 const SECRET_KEY_RE = /secret|password|token|key/i;
 
@@ -68,7 +74,7 @@ function parseCli(argv: readonly string[]): CliFlags {
 function printLoadError(message: string): void {
   console.error(message);
   console.error('');
-  console.error('Likely fix (needs Infisical login + both envs seeded):');
+  console.error('Likely fix (needs Infisical login + every env seeded):');
   console.error(`  ${INSPECT_SHORTHAND}`);
   console.error(`  ${INSPECT_FULL}`);
   console.error(
@@ -151,21 +157,12 @@ function buildChildEnv(input: {
 function collectEnvNames(childEnv: NodeJS.ProcessEnv): readonly string[] {
   const names: string[] = [];
   for (const key of Object.keys(childEnv)) {
-    if (
-      key.startsWith('S3_DEV_') ||
-      key.startsWith('S3_PRD_') ||
-      key.startsWith('INSPECT_PG_')
-    ) {
-      names.push(key);
-    }
+    if (key.startsWith(INSPECT_ENV_PREFIX)) names.push(key);
   }
   return names.sort();
 }
 
-function planResources(both: {
-  readonly dev: EnvBundle;
-  readonly prd: EnvBundle;
-}): {
+function planResources(bundles: readonly EnvBundle[]): {
   readonly s3Stores: readonly WiredS3[];
   readonly postgresEnvs: readonly {
     readonly envName: SecretsEnvName;
@@ -173,14 +170,14 @@ function planResources(both: {
   }[];
 } {
   const s3Stores: WiredS3[] = [];
-  for (const bundle of [both.prd, both.dev]) {
+  for (const bundle of bundles) {
     if (bundle.s3 !== null) s3Stores.push(wireS3(bundle.envName, bundle.s3));
   }
   const postgresEnvs: {
     readonly envName: SecretsEnvName;
     readonly vars: PgVars;
   }[] = [];
-  for (const bundle of [both.prd, both.dev]) {
+  for (const bundle of bundles) {
     if (bundle.databaseUrl === undefined) continue;
     postgresEnvs.push({
       envName: bundle.envName,
@@ -224,37 +221,41 @@ function printAttachSummary(input: {
   readonly postgresEnvs: readonly { readonly envName: SecretsEnvName }[];
 }): void {
   for (const pg of input.postgresEnvs) {
-    console.log(`Postgres: pg_${pg.envName} (READ_ONLY)`);
+    console.log(`Postgres: pg_${envIdent(pg.envName)} (READ_ONLY)`);
   }
   if (input.postgresEnvs.length === 0) {
-    console.log('Postgres: none (no DATABASE_URL in dev or prd)');
+    console.log('Postgres: none (no DATABASE_URL in any env)');
   }
   for (const s3 of input.s3Stores) {
+    const ident = envIdent(s3.envName);
     console.log(
-      `S3: s3_${s3.envName} bucket=${s3.s3.bucket ?? '<none>'} — FROM s3_${s3.envName}_objects();`
+      `S3: s3_${ident} bucket=${s3.s3.bucket ?? '<none>'} — FROM s3_${ident}_objects();`
     );
   }
   if (input.s3Stores.length === 0) {
-    console.log('S3: none (missing S3 credentials in both envs)');
+    console.log('S3: none (missing S3 credentials in every env)');
   }
 }
 
 async function main(): Promise<number> {
   const flags = parseCli(process.argv.slice(2));
 
-  let both: { readonly dev: EnvBundle; readonly prd: EnvBundle };
+  const envNames = Object.keys(ENV_FILES);
+  let bundles: readonly EnvBundle[];
   try {
-    both = await loadBothEnvs(REPO_ROOT);
+    bundles = await loadEnvs(REPO_ROOT, envNames);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    printLoadError(`Failed to load Infisical secrets for dev+prd: ${message}`);
+    printLoadError(
+      `Failed to load Infisical secrets for ${envNames.join(', ')}: ${message}`
+    );
     return 1;
   }
 
-  const { s3Stores, postgresEnvs } = planResources(both);
+  const { s3Stores, postgresEnvs } = planResources(bundles);
   if (s3Stores.length === 0 && postgresEnvs.length === 0) {
     printLoadError(
-      'No usable Postgres or S3 secrets found in Infisical envs `dev` or `prd`.'
+      `No usable Postgres or S3 secrets found in Infisical envs ${envNames.join(', ')}.`
     );
     return 1;
   }

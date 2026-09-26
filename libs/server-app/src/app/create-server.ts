@@ -273,7 +273,7 @@ function createSyncAppMount(env: ServerEnv, app: ComposedFeatures) {
     app,
     now: () => env.clock.now(),
     createId: env.createId,
-    ...(env.secretsEnv === 'dev' ? { strictQueryLimits: true } : {}),
+    ...(env.protection === 'production' ? {} : { strictQueryLimits: true }),
   });
 }
 
@@ -303,7 +303,7 @@ function mountBrowserTelemetryIngress(
       env.serverUrl === null ? null : resolveWebClientOrigin(env.serverUrl);
     const requestOrigin = c.req.header('origin')?.replace(/\/$/, '');
     if (
-      env.secretsEnv === 'prd' &&
+      env.protection === 'production' &&
       (expectedOrigin === null || requestOrigin !== expectedOrigin)
     ) {
       return c.json({ error: 'observability_origin_denied' }, 403);
@@ -386,7 +386,7 @@ function createServerRouter(args: {
   readonly log: ReturnType<typeof createAppLogger>;
 }) {
   const { env, auth, desiredClientConfig, servers, tts, llm, sync, log } = args;
-  const { secrets, secretsEnv } = env;
+  const { secrets, protection } = env;
 
   const shell = new Hono<ApiHonoEnv<AuthContext>>()
     .use('*', createRequestTelemetryMiddleware())
@@ -395,7 +395,7 @@ function createServerRouter(args: {
       createRequestDbMiddleware(secrets, {
         authServer: auth.server,
         apiUrlOverride: env.serverUrl,
-        secretsEnv,
+        protection,
         clock: env.clock,
         timers: env.timers,
         createId: env.createId,
@@ -447,7 +447,7 @@ function createServerRouter(args: {
     createId: env.createId,
   });
   for (const router of featureRouters) shell.route('/', router);
-  return shell.onError(createApiErrorHandler(log, secretsEnv !== 'prd'));
+  return shell.onError(createApiErrorHandler(log, protection !== 'production'));
 }
 
 export type CreateServerArgs = {
@@ -479,7 +479,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
       module: env.auth,
       secretStore: env.secrets,
       apiUrlOverride: env.serverUrl,
-      secretsEnv: env.secretsEnv,
+      protection: env.protection,
       clock: env.clock,
       createId: env.createId,
       http: { fetch: env.fetch },

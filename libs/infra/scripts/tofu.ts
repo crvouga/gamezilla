@@ -7,6 +7,7 @@
  *   bun run scripts/tofu.ts apply --stack foundation   # plan → policy → apply
  *   bun run scripts/tofu.ts drift --stack edge         # fails on any change
  *   bun run scripts/tofu.ts apply --stack bootstrap    # global; run by a person
+ *   bun run scripts/tofu.ts apply --stack fleet        # global; Deploy runs it
  *
  * `foundation` / `edge` run for the environment in `SECRETS_ENV` (whose
  * secrets `secrets-run` injected). Every apply:
@@ -28,6 +29,7 @@ import {
 } from '@libs/infra/public/plan-policy';
 import {
   applyArgs,
+  GLOBAL_STACKS,
   initArgs,
   planArgs,
   STACKS,
@@ -69,7 +71,7 @@ function parseCli(argv: readonly string[]): { command: Command; stack: Stack } {
 }
 
 function targetFor(stack: Stack): Target {
-  if (stack === 'bootstrap') return { stack, env: null };
+  if (GLOBAL_STACKS.includes(stack)) return { stack, env: null };
   const env = (process.env['SECRETS_ENV'] ?? '').trim();
   if (env.length === 0)
     fail('SECRETS_ENV is required (run through secrets-run)');
@@ -152,7 +154,8 @@ async function run(
 async function main(): Promise<void> {
   const { command, stack } = parseCli(process.argv.slice(2));
   const target = targetFor(stack);
-  mkdirSync(PATHS.cacheDir, { recursive: true });
+  // TF_PLUGIN_CACHE_DIR must exist; a fresh CI checkout has no .cache.
+  mkdirSync(join(PATHS.cacheDir, 'plugins'), { recursive: true });
   const firstRun =
     stack === 'bootstrap' &&
     (hasUnmigratedLocalState(PATHS) || !stateBackendExists(process.env));

@@ -102,6 +102,8 @@ export async function handleSyntheticMonitorCode(
     intent: 'sign_in',
     linkUserId: null,
     pendingLinkId: null,
+    // Never leaves this deployment: no provider round trip to relay.
+    stateTag: null,
   });
   const oauthState = await r.findOauthStateByState(state);
   if (oauthState === null) {

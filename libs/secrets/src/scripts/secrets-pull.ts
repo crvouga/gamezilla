@@ -1,6 +1,7 @@
 /**
- * Online step: export Infisical secrets for `dev` + `prd` into
- * `.cache/secrets/` so `bun check` can run offline-first.
+ * Online step: export Infisical secrets for every environment (one per
+ * `libs/infra/tofu/envs/<env>.tfvars.json`) into `.cache/secrets/` so
+ * `bun check` can run offline-first.
  *
  * Usage: `bun run secrets:pull`
  */
@@ -20,15 +21,15 @@ import { resolveInfisicalEndpoint } from '@pkgs/secret-provider/impl-infisical/r
 import {
   SECRETS_CACHE_PREFIX,
   SECRETS_CACHE_TTL_MS,
-  type SecretsCacheEnv,
   writeSecretsCacheMap,
   writeSecretsCacheMeta,
 } from '@pkgs/secret-provider/local-secrets-cache';
 import { chmodLocalSecretsCacheFiles } from '@pkgs/secret-provider/wall-chmod-local-secrets-cache';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
+import { REPO_SECRETS_ENVS } from '../shared/secrets/secrets-envs';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
-const CACHE_ENVS: readonly SecretsCacheEnv[] = ['dev', 'prd'];
+const CACHE_ENVS = REPO_SECRETS_ENVS.all;
 
 async function main(): Promise<number> {
   if (!which(INFISICAL_CLI_BIN)) {
@@ -74,7 +75,7 @@ async function main(): Promise<number> {
     projectId: scope.projectId,
     envs: CACHE_ENVS,
   });
-  chmodLocalSecretsCacheFiles(REPO_ROOT);
+  chmodLocalSecretsCacheFiles(REPO_ROOT, CACHE_ENVS);
 
   const ttlHours = SECRETS_CACHE_TTL_MS / (60 * 60 * 1000);
   console.log(

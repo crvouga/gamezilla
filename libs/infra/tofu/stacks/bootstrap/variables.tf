@@ -16,6 +16,7 @@ variable "infisical" {
     org_id       = string
     project_id   = string
     project_slug = string
+    shared_env   = string
   })
 }
 

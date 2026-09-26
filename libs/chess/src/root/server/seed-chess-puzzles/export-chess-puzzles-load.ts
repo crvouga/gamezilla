@@ -8,9 +8,9 @@
 
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { isProductionEnv } from '@libs/infra/public/env-file';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
-import { PRODUCTION_SECRETS_ENV } from '@pkgs/database-url-policy';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 import { createLogger } from '@pkgs/logger';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
@@ -86,15 +86,15 @@ export async function exportChessPuzzlesLoadFile(
     name: 'chess:export-puzzles-load',
     now: wallClock.now,
   });
-  const { databaseUrl, secretsEnv } = await resolveToolingDatabaseUrl({
+  const { databaseUrl, env } = await resolveToolingDatabaseUrl({
     configStore,
     http: createGlobalHttpClient(),
     repoRoot: REPO_ROOT,
     surface: 'chess:export-puzzles-load',
-    guardSecretsEnv: (env) => {
-      if (env === PRODUCTION_SECRETS_ENV && !confirmProd) {
+    guardEnv: (active) => {
+      if (isProductionEnv(active) && !confirmProd) {
         assert.fail(
-          'export:puzzles-load: refusing SECRETS_ENV=prd without --confirm-prod'
+          `export:puzzles-load: refusing production SECRETS_ENV=${active.env} without --confirm-prod`
         );
       }
     },
@@ -122,7 +122,7 @@ export async function exportChessPuzzlesLoadFile(
       outPath,
       rowCount: rows.length,
       skipped: tally.skipped(),
-      secretsEnv,
+      secretsEnv: env.env,
     });
     return { outPath, rowCount: rows.length };
   } finally {

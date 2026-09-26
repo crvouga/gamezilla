@@ -5,7 +5,7 @@
  */
 import dev from '../../tofu/envs/dev.tfvars.json';
 import prd from '../../tofu/envs/prd.tfvars.json';
-import { type EnvFile, parseEnvFile } from './env-file';
+import { type EnvFile, parseEnvFile, productionEnvNames } from './env-file';
 
 export const ENV_FILES: Readonly<Record<string, EnvFile>> = {
   dev: parseEnvFile(dev, 'tofu/envs/dev.tfvars.json'),
@@ -21,3 +21,8 @@ export function envFile(name: string): EnvFile {
   }
   return file;
 }
+
+/** Names of every production environment (`protection: "production"`). */
+export const PRODUCTION_ENV_NAMES: readonly string[] = productionEnvNames(
+  Object.values(ENV_FILES)
+);

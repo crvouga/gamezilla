@@ -13,8 +13,10 @@ export { createSecretAdminStore } from './create-secret-admin-store';
 export type {
   SecretsCacheEnv,
   SecretsCacheMeta,
+  SecretsEnvs,
 } from './local-secrets-cache';
 export {
+  isSecretsCacheEnv,
   isSecretsCacheStale,
   mergeSecretsIntoEnv,
   parseInfisicalExportJson,

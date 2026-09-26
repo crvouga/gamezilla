@@ -1,19 +1,21 @@
 // @io-wall-ok
 /**
- * Wipe SECRETS_ENV=dev Postgres (DROP SCHEMA public) then remigrate.
+ * Wipe a non-production environment's Postgres (DROP SCHEMA public) then
+ * remigrate (`bun run db:wipe:dev` targets `dev`).
  * Prefers `.dev.vars` (loopback embedded Postgres) then secrets-run env.
  * No confirm flags — every guard exists only to block production.
  */
 
 import { join } from 'node:path';
 import {
-  assertDevSecretsEnv,
   assertNonProdDatabaseUrl,
+  assertNonProductionSecretsEnv,
   normalizeDatabaseUrlForCompare,
 } from '@libs/db/public/database-url-policy';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { readDevVarsDatabaseUrl } from '@libs/db/scripts/dev-vars';
 import { fetchSecretFrom } from '@libs/db/shared/secret-io';
+import { PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
 import { assert } from '@pkgs/assert';
 import { wallClock } from '@pkgs/clock';
 import { createLogger } from '@pkgs/logger';
@@ -61,13 +63,42 @@ function resolveDatabaseUrlForWipe(): string {
 }
 
 /**
- * Fail-closed Tiger policy for wipe: secrets env `dev` only, refuse the
- * production escape hatch, require a live `prd` DATABASE_URL dual-fetch, then
- * run the shared non-prod URL checks.
+ * Live `DATABASE_URL` of every production environment. Fail-closed: a wipe
+ * never runs without comparing against all of them.
+ */
+async function fetchProductionDatabaseUrls(
+  secretsEnv: string
+): Promise<readonly string[]> {
+  const urls: string[] = [];
+  for (const env of PRODUCTION_ENV_NAMES) {
+    let url = '';
+    try {
+      url = (await fetchSecretFrom(env, 'DATABASE_URL')).trim();
+    } catch (error) {
+      assert.fail(
+        `db:wipe:dev requires fetching secrets env \`${env}\` DATABASE_URL for ` +
+          'dual-compare before any destructive SQL. Fetch failed.',
+        { surface: 'api:wipe-dev', secretsEnv, error }
+      );
+    }
+    assert.nonEmptyString(
+      url,
+      `db:wipe:dev: secrets env \`${env}\` DATABASE_URL must be non-empty for dual-compare`,
+      { surface: 'api:wipe-dev', secretsEnv }
+    );
+    urls.push(url);
+  }
+  return urls;
+}
+
+/**
+ * Fail-closed Tiger policy for wipe: a non-production secrets env only,
+ * refuse the production escape hatch, require a live dual-fetch of every
+ * production DATABASE_URL, then run the shared non-prod URL checks.
  */
 async function assertWipeDatabasePolicy(databaseUrl: string): Promise<void> {
   const secretsEnv = await resolveSecretsEnvForWipe();
-  assertDevSecretsEnv(secretsEnv);
+  assertNonProductionSecretsEnv(secretsEnv, PRODUCTION_ENV_NAMES);
 
   if (process.env['ALLOW_PRODUCTION_DATABASE_URL'] === '1') {
     assert.fail(
@@ -77,26 +108,10 @@ async function assertWipeDatabasePolicy(databaseUrl: string): Promise<void> {
     );
   }
 
-  let productionUrl = '';
-  try {
-    productionUrl = (await fetchSecretFrom('prd', 'DATABASE_URL')).trim();
-  } catch (error) {
-    assert.fail(
-      'db:wipe:dev requires fetching secrets env `prd` DATABASE_URL for ' +
-        'dual-compare before any destructive SQL. Fetch failed.',
-      { surface: 'api:wipe-dev', secretsEnv, error }
-    );
-  }
-  assert.nonEmptyString(
-    productionUrl,
-    'db:wipe:dev: secrets env `prd` DATABASE_URL must be non-empty for dual-compare',
-    { surface: 'api:wipe-dev', secretsEnv }
-  );
-
   await assertNonProdDatabaseUrl(
     databaseUrl,
     { surface: 'api:wipe-dev', secretsEnv },
-    { productionUrl }
+    { productionUrls: await fetchProductionDatabaseUrls(secretsEnv) }
   );
 }
 

@@ -16,6 +16,7 @@ import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
 import {
+  GITHUB_ADMIN_TOKEN,
   NEON_API_KEY,
   TOFU_STATE_ACCESS_KEY_ID,
   TOFU_STATE_PASSPHRASE,
@@ -94,6 +95,7 @@ export const SECRETS: readonly Secret[] = [
   TOFU_STATE_ACCESS_KEY_ID,
   TOFU_STATE_SECRET_ACCESS_KEY,
   NEON_API_KEY,
+  GITHUB_ADMIN_TOKEN,
 ];
 
 export function getSecretMap(): readonly Secret[] {

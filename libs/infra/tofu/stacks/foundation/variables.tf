@@ -26,9 +26,10 @@ variable "infisical" {
 
 variable "neon_project" {
   type = object({
-    project_id = string
+    project_id     = string
+    root_branch_id = string
   })
-  description = "The one Neon project every environment is a branch of."
+  description = "The one Neon project every environment is a branch of, and its root branch (production's)."
 }
 
 variable "github" {
@@ -88,18 +89,16 @@ variable "railway" {
   })
 }
 
+variable "billing" {
+  type        = any
+  description = "Read by TypeScript only: rendered into the API Worker (BILLING_PROVIDER)."
+}
+
 variable "grafana" {
   type = object({
     stack_slug = string
     region     = string
   })
-}
-
-variable "neon" {
-  type = object({
-    branch_id = string
-  })
-  description = "This environment's Neon branch (created by a person, asserted here)."
 }
 
 variable "secrets" {
@@ -119,6 +118,8 @@ variable "imports" {
       railway_domain    = optional(string)
       broker_dns        = optional(string)
       broker_dns_verify = optional(string)
+      neon_branch       = optional(string)
+      neon_endpoint     = optional(string)
       secrets           = optional(list(string), [])
     }), {})
     edge = optional(any)

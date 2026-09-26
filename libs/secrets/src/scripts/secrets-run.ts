@@ -13,6 +13,7 @@ import { join } from 'node:path';
 import { wallClock } from '@pkgs/clock/wall';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { runWithSecrets } from '@pkgs/secret-provider';
+import { REPO_SECRETS_ENVS } from '../shared/secrets/secrets-envs';
 
 const REPO_ROOT = join(import.meta.dirname, '../../../..');
 const childArgs = process.argv.slice(2);
@@ -24,6 +25,7 @@ process.exit(
     repoRoot: REPO_ROOT,
     configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
     childArgs,
+    envs: REPO_SECRETS_ENVS,
     nowMs,
     nowIso: new Date(nowMs).toISOString(),
   })

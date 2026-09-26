@@ -29,7 +29,11 @@ export const envFileSchema = z
       })
       .strict(),
     railway: z.object({ workspace_id: id, project_name: id }).strict(),
-    neon: z.object({ branch_id: id }).strict(),
+    /**
+     * Where new checkouts go when several providers' keys are present
+     * (rendered into the API Worker as `BILLING_PROVIDER`).
+     */
+    billing: z.object({ provider: z.enum(['stripe', 'paddle']) }).strict(),
     secrets: z
       .object({ regenerate: z.array(z.string()).optional() })
       .strict()
@@ -51,6 +55,24 @@ export const envFileSchema = z
   .strict();
 
 export type EnvFile = z.infer<typeof envFileSchema>;
+
+/** How carefully an environment is treated: `production` or `standard`. */
+export type EnvProtection = EnvFile['protection'];
+
+/**
+ * Whether an environment is production. Derived from its `protection`, never
+ * its name, so a new env file decides this for itself.
+ */
+export function isProductionEnv(env: EnvFile): boolean {
+  return env.protection === 'production';
+}
+
+/** Names of the production environments among `envs`. */
+export function productionEnvNames(
+  envs: readonly EnvFile[]
+): readonly string[] {
+  return envs.filter(isProductionEnv).map((env) => env.env);
+}
 
 export function parseEnvFile(raw: unknown, source: string): EnvFile {
   const result = envFileSchema.safeParse(raw);
@@ -75,7 +97,6 @@ export function statefulIdentities(
     env: env.env,
     suffix: env.suffix,
     'railway.project_name': `${env.railway.workspace_id}/${env.railway.project_name}`,
-    'neon.branch_id': env.neon.branch_id,
   };
   for (const host of envHostnames(env)) identities[`host:${host}`] = host;
   return identities;
@@ -116,5 +137,47 @@ export function envOrigins(env: EnvFile): EnvOrigins {
     web: `https://${env.hosts.web}`,
     api: `https://${env.hosts.api}`,
     broker: `https://${env.hosts.broker}`,
+  };
+}
+
+/**
+ * The environment that hosts the one OAuth callback registered with
+ * providers (Google's console cannot be reconciled from code): the
+ * production environment, the only replica that is never torn down. Every
+ * other environment's sign-ins return through it — see
+ * `@pkgs/auth-inhouse` `oauth-callback-relay.ts`.
+ */
+export function oauthRelayEnv(envs: readonly EnvFile[]): EnvFile {
+  const production = envs.filter(isProductionEnv);
+  const [relay] = production;
+  if (relay === undefined || production.length > 1) {
+    throw new Error(
+      `exactly one environment must have protection "production" (found ${String(production.length)})`
+    );
+  }
+  return relay;
+}
+
+/**
+ * Plain-text vars the API Worker boots with, derived from the env files so a
+ * new replica needs no hand-set configuration. Names match the bindings
+ * `@libs/server-app` and `@pkgs/auth-inhouse` read
+ * (`apps/server/tests/wrangler-config.test.ts` pins them).
+ */
+export function apiWorkerVars(
+  env: EnvFile,
+  envs: readonly EnvFile[]
+): Readonly<Record<string, string>> {
+  const relay = oauthRelayEnv(envs);
+  const forwardTo: Record<string, string> = {};
+  for (const other of envs) {
+    if (other.env !== env.env) forwardTo[other.env] = envOrigins(other).api;
+  }
+  return {
+    WEB_CLIENT_ORIGIN: envOrigins(env).web,
+    OAUTH_CALLBACK_ORIGIN: envOrigins(relay).api,
+    OAUTH_STATE_TAG: env.env,
+    OAUTH_RELAY_TARGETS: JSON.stringify(forwardTo),
+    BILLING_PROVIDER: env.billing.provider,
   };
 }

@@ -9,8 +9,8 @@ Get all three workflows green, and do it in **one pull request** on the current 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
 | **Check** (`.github/workflows/check.yml`) | the code is bad | every PR — `bun check` |
-| **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main` — `bun run deploy`, dev then prd |
-| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly — `bun health` for `prd` and `dev` |
+| **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main` — `bun run deploy`, every standard env then production |
+| **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly — `bun health` for every env |
 
 Deploy and Health only run from `main`, so a fix for them reaches CI only after a
 human merges the PR. Agents never merge. The loop therefore ends with a green Check

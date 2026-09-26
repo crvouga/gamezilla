@@ -67,7 +67,7 @@ export type AttrValue = {
   'session.id': string;
   'service.name': string;
   'service.version': string;
-  'deployment.environment.name': 'local' | 'ci' | 'dev' | 'prod' | 'test';
+  'deployment.environment.name': string;
   'db.system.name': string;
   'db.operation.name': string;
   'db.query.text': string;

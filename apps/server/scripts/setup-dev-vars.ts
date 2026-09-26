@@ -5,8 +5,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/public/local-api-origin';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/client-config/public/local-preview-api-origin';
-import { assertDevSecretsEnv } from '@libs/db/public/database-url-policy';
+import { assertNonProductionSecretsEnv } from '@libs/db/public/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/db/public/database-url-policy-tooling';
+import { PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
 import {
   getApiWorkerSecrets,
   loadSecretsIntoEnv,
@@ -129,14 +130,15 @@ async function loadOptionalSecretsOverlay(): Promise<void> {
 
 async function main(): Promise<void> {
   const { env: secretsEnv } = await resolveSecretsScope(configStore);
-  assertDevSecretsEnv(secretsEnv);
+  assertNonProductionSecretsEnv(secretsEnv, PRODUCTION_ENV_NAMES);
   // Best-effort Infisical overlay; local Postgres/EMQX always win below.
   await loadOptionalSecretsOverlay();
 
-  await assertNonProdDatabaseUrlForTooling(LOCAL_POSTGRES_DATABASE_URL, {
-    surface: 'setup-dev-vars',
-    secretsEnv,
-  });
+  await assertNonProdDatabaseUrlForTooling(
+    LOCAL_POSTGRES_DATABASE_URL,
+    PRODUCTION_ENV_NAMES,
+    { surface: 'setup-dev-vars', secretsEnv }
+  );
 
   const lines: string[] = [`SECRETS_ENV=${encodeDevVarValue(secretsEnv)}`];
   lines.push(`API_URL=${encodeDevVarValue(readApiUrlForDevVars())}`);

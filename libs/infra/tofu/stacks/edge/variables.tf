@@ -75,11 +75,12 @@ variable "railway" {
   type = any
 }
 
-variable "grafana" {
-  type = any
+variable "billing" {
+  type        = any
+  description = "Read by TypeScript only: rendered into the API Worker (BILLING_PROVIDER)."
 }
 
-variable "neon" {
+variable "grafana" {
   type = any
 }
 

@@ -13,6 +13,10 @@ import {
   type GoogleOauthEndpoints,
 } from '../shared/auth-constants';
 import { IDP_PROVIDER_LABEL } from '../shared/provider-label';
+import {
+  type OauthCallbackRelay,
+  STATE_TAG_PATTERN,
+} from './oauth-callback-relay';
 import type { AppleProviderConfig } from './providers/apple-oauth';
 import type { OauthProvidersConfig } from './providers/registry';
 import type { SyntheticMonitorConfig } from './synthetic-monitor';
@@ -43,6 +47,15 @@ export const INHOUSE_AUTH_SECRET = {
    * Unset disables the route. See `synthetic-monitor.ts`.
    */
   syntheticMonitorToken: 'SYNTHETIC_MONITOR_TOKEN',
+  /**
+   * Shared provider callback (see `oauth-callback-relay.ts`): the origin
+   * whose callback is registered with providers, this deployment's state tag,
+   * and a JSON `{ tag: apiOrigin }` of the deployments it forwards to. Origin
+   * and tag go together; unset means providers call this deployment back.
+   */
+  oauthCallbackOrigin: 'OAUTH_CALLBACK_ORIGIN',
+  oauthStateTag: 'OAUTH_STATE_TAG',
+  oauthRelayTargets: 'OAUTH_RELAY_TARGETS',
 } as const;
 
 /** Shorter tokens are refused: the route is reachable from the internet. */
@@ -52,6 +65,7 @@ export type InhouseAuthConfig = {
   readonly secret: string;
   readonly providers: OauthProvidersConfig;
   readonly syntheticMonitor?: SyntheticMonitorConfig;
+  readonly callbackRelay?: OauthCallbackRelay;
 };
 
 function configError(message: string): AuthProviderConfigError {
@@ -171,6 +185,68 @@ async function readSyntheticMonitor(
   return { token };
 }
 
+function httpOrigin(raw: string, name: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    throw configError(`${name}: "${raw}" is not a URL`);
+  }
+  const bare = trimOrigin(raw);
+  if (!/^https?:$/.test(url.protocol) || url.origin !== bare) {
+    throw configError(`${name}: "${raw}" must be a bare http(s) origin`);
+  }
+  return url.origin;
+}
+
+function parseRelayTargets(raw: string | null): Record<string, string> {
+  const name = INHOUSE_AUTH_SECRET.oauthRelayTargets;
+  if (raw === null) return {};
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw configError(`${name} is not JSON`);
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw configError(`${name} must be a JSON object of tag → origin`);
+  }
+  const targets: Record<string, string> = {};
+  for (const [tag, origin] of Object.entries(parsed)) {
+    if (!STATE_TAG_PATTERN.test(tag) || typeof origin !== 'string') {
+      throw configError(`${name}: bad entry "${tag}"`);
+    }
+    targets[tag] = httpOrigin(origin, `${name}.${tag}`);
+  }
+  return targets;
+}
+
+async function readCallbackRelay(
+  env: AuthProviderEnv
+): Promise<OauthCallbackRelay | undefined> {
+  const [origin, tag, targets] = await Promise.all([
+    env.readSecret(INHOUSE_AUTH_SECRET.oauthCallbackOrigin),
+    env.readSecret(INHOUSE_AUTH_SECRET.oauthStateTag),
+    env.readSecret(INHOUSE_AUTH_SECRET.oauthRelayTargets),
+  ]);
+  if (origin === null && tag === null && targets === null) return undefined;
+  if (origin === null || tag === null) {
+    throw configError(
+      `${INHOUSE_AUTH_SECRET.oauthCallbackOrigin} and ${INHOUSE_AUTH_SECRET.oauthStateTag} go together`
+    );
+  }
+  if (!STATE_TAG_PATTERN.test(tag)) {
+    throw configError(
+      `${INHOUSE_AUTH_SECRET.oauthStateTag}: "${tag}" must be a slug`
+    );
+  }
+  return {
+    callbackOrigin: httpOrigin(origin, INHOUSE_AUTH_SECRET.oauthCallbackOrigin),
+    stateTag: tag,
+    forwardTo: parseRelayTargets(targets),
+  };
+}
+
 export async function readInhouseAuthConfig(
   env: AuthProviderEnv
 ): Promise<InhouseAuthConfig> {
@@ -178,10 +254,11 @@ export async function readInhouseAuthConfig(
   if (secret === null) {
     throw configError(`${INHOUSE_AUTH_SECRET.secret} is required`);
   }
-  const [google, apple, syntheticMonitor] = await Promise.all([
+  const [google, apple, syntheticMonitor, callbackRelay] = await Promise.all([
     readGoogle(env),
     readApple(env),
     readSyntheticMonitor(env),
+    readCallbackRelay(env),
   ]);
   return {
     secret,
@@ -190,5 +267,6 @@ export async function readInhouseAuthConfig(
       ...(apple === undefined ? {} : { apple }),
     },
     ...(syntheticMonitor === undefined ? {} : { syntheticMonitor }),
+    ...(callbackRelay === undefined ? {} : { callbackRelay }),
   };
 }

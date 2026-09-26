@@ -1,11 +1,4 @@
 locals {
-  envs_dir = "${path.module}/../../envs"
-  # Every environment file in tofu/envs — a new replica is picked up here
-  # without editing this stack.
-  envs = {
-    for file in fileset(local.envs_dir, "*.tfvars.json") :
-    jsondecode(file("${local.envs_dir}/${file}")).env => jsondecode(file("${local.envs_dir}/${file}"))
-  }
   state_secret_names = jsondecode(file("${path.module}/../foundation/secrets.json")).bootstrap
 }
 
@@ -22,34 +15,46 @@ module "state" {
   bucket     = var.state.bucket
 }
 
-# STATEFUL: a secrets environment holds every human-entered secret.
-resource "infisical_project_environment" "this" {
-  for_each = local.envs
-
+# STATEFUL: the account-wide credentials every environment imports (the
+# fleet stack creates each environment and its import of this one).
+resource "infisical_project_environment" "shared" {
   project_id = var.infisical.project_id
-  slug       = each.key
-  name       = each.value.display_name
+  slug       = var.infisical.shared_env
+  name       = "Shared"
 
   lifecycle {
     prevent_destroy = true
   }
 }
 
-# The state credential, in every environment: each deploy reads its own
-# environment's secrets only.
-resource "infisical_secret" "state_access" {
-  for_each = {
-    for pair in setproduct(keys(local.envs), local.state_secret_names) :
-    "${pair[0]}/${pair[1]}" => { env = pair[0], name = pair[1] }
+# Per-environment secrets environments moved to the fleet stack (it adopts
+# them by id), and the per-environment copies of the state credential gave
+# way to the one below: forget, never delete.
+removed {
+  from = infisical_project_environment.this
+  lifecycle {
+    destroy = false
   }
+}
+
+removed {
+  from = infisical_secret.state_access
+  lifecycle {
+    destroy = false
+  }
+}
+
+# The state credential, once, in the shared environment.
+resource "infisical_secret" "state_shared" {
+  for_each = toset(local.state_secret_names)
 
   workspace_id = var.infisical.project_id
-  env_slug     = infisical_project_environment.this[each.value.env].slug
+  env_slug     = infisical_project_environment.shared.slug
   folder_path  = "/"
-  name         = each.value.name
-  value_wo     = local.state_secret_values[each.value.name]
+  name         = each.key
+  value_wo     = local.state_secret_values[each.key]
   # Write-only (never in state); the digest version rewrites it on change.
-  value_wo_version = parseint(substr(sha256(local.state_secret_values[each.value.name]), 0, 12), 16)
+  value_wo_version = parseint(substr(sha256(local.state_secret_values[each.key]), 0, 12), 16)
 }
 
 module "trace_stack" {

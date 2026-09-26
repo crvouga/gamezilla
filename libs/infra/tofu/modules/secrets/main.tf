@@ -123,8 +123,3 @@ output "generated" {
   value     = local.generated_values
   sensitive = true
 }
-
-output "database_url" {
-  value     = try(local.stored["DATABASE_URL"].value, "")
-  sensitive = true
-}

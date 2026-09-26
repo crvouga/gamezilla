@@ -1,3 +1,4 @@
+import { isProductionEnv } from '@libs/infra/public/env-file';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';
 import {
   requireHttpsUrl,
@@ -22,8 +23,8 @@ async function validateCollectorUrl(input: SecretInput): Promise<void> {
       `${Name.collectorUrl} must be an OTLP HTTP endpoint ending in /v1/traces`
     );
   }
-  if (input.env === 'prd' && url.protocol !== 'https:') {
-    throw new Error(`${Name.collectorUrl} must use https:// in prd`);
+  if (isProductionEnv(input.env) && url.protocol !== 'https:') {
+    throw new Error(`${Name.collectorUrl} must use https:// in production`);
   }
   if (url.protocol !== 'https:' && url.protocol !== 'http:') {
     throw new Error(`${Name.collectorUrl} must use http:// or https://`);

@@ -13,9 +13,14 @@ export const globalFileSchema = z
     project: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
     state: z.object({ account_id: id, bucket: id }).strict(),
     infisical: z
-      .object({ org_id: id, project_id: id, project_slug: id })
+      .object({
+        org_id: id,
+        project_id: id,
+        project_slug: id,
+        shared_env: z.string().regex(/^[a-z0-9][a-z0-9-]*$/),
+      })
       .strict(),
-    neon_project: z.object({ project_id: id }).strict(),
+    neon_project: z.object({ project_id: id, root_branch_id: id }).strict(),
     grafana: z
       .object({
         stack_slug: z.string().regex(/^[a-z][a-z0-9]*$/),

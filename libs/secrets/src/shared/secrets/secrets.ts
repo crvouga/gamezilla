@@ -1,5 +1,5 @@
 import { getApiWorkerSecrets, getSecretMap, SECRETS } from './registry';
-import { activeSecretsEnv } from './secret';
+import { activeEnvFile } from './secret';
 import {
   deleteSecret,
   deleteSecretIn,
@@ -14,8 +14,8 @@ import {
   setSecretIn,
 } from './secrets-io';
 
-export type { Secret, SecretInput, SecretsEnv } from './secret';
-export { activeSecretsEnv, validateSecretOrError } from './secret';
+export type { Secret, SecretInput } from './secret';
+export { activeEnvFile, validateSecretOrError } from './secret';
 export {
   deleteSecret,
   deleteSecretIn,
@@ -70,7 +70,7 @@ export async function loadSecretsIntoEnv(): Promise<
  * Grafana tokens), so Worker deploys refresh before pushing bindings.
  */
 export async function refreshSecretsIntoEnv(): Promise<void> {
-  const live = await exportSecretsMapLive(activeSecretsEnv());
+  const live = await exportSecretsMapLive(activeEnvFile().env);
   for (const { name } of SECRETS) {
     const value = live.get(name)?.trim() ?? '';
     if (value.length > 0) process.env[name] = value;

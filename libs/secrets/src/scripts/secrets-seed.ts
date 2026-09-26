@@ -9,26 +9,28 @@
  *   printf %s "$TOKEN" | bun run secrets:seed -- --env prd NAME   # non-interactive
  *
  * Values are read with echo off and validated with the registry `validate`
- * before writing. Secrets OpenTofu writes (`managedBy: 'tofu'`) are skipped
+ * before writing. Account-wide secrets (`secrets.json` `shared`) are written
+ * to the shared environment every environment imports, whatever `--env` is. Secrets OpenTofu writes (`managedBy: 'tofu'`) are skipped
  * unless named explicitly. Run `bun run secrets:pull` afterwards to refresh
  * the offline cache.
  */
 // @io-wall-ok — composition root (stdin TTY + Infisical admin CLI)
+import type { EnvFile } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 import { ok, warn } from '../shared/fmt';
 import { SECRETS } from '../shared/secrets/registry';
-import {
-  isSecretsEnv,
-  type Secret,
-  type SecretsEnv,
-  validateSecretOrError,
-} from '../shared/secrets/secret';
+import { type Secret, validateSecretOrError } from '../shared/secrets/secret';
 import {
   exportSecretsMapLive,
   setSecretIn,
 } from '../shared/secrets/secrets-io';
+import {
+  isSharedSecret,
+  SHARED_SECRETS_ENV,
+} from '../shared/secrets/shared-secrets';
 
 type SeedArgs = {
-  readonly env: SecretsEnv;
+  readonly env: EnvFile;
   readonly force: boolean;
   readonly names: readonly string[];
 };
@@ -44,10 +46,7 @@ function parseArgs(argv: readonly string[]): SeedArgs {
     else if (arg.startsWith('--env=')) env = arg.slice('--env='.length);
     else if (arg !== '--') names.push(arg);
   }
-  if (!isSecretsEnv(env)) {
-    throw new Error(`--env must be "dev" or "prd", got ${JSON.stringify(env)}`);
-  }
-  return { env, force, names };
+  return { env: envFile(env), force, names };
 }
 
 function selectSecrets(
@@ -115,7 +114,10 @@ async function seedOne(
 ): Promise<boolean> {
   const present = (stored.get(secret.name) ?? '').trim().length > 0;
   if (present && !args.force) {
-    ok(secret.name, `already set in ${args.env} (use --force to overwrite)`);
+    ok(
+      secret.name,
+      `already set in ${args.env.env} (use --force to overwrite)`
+    );
     return true;
   }
   if (secret.managedBy !== null) {
@@ -126,7 +128,7 @@ async function seedOne(
   }
   const interactive = process.stdin.isTTY === true;
   if (interactive) {
-    console.log(`\n${secret.name} (${args.env})\n${secret.hint}`);
+    console.log(`\n${secret.name} (${args.env.env})\n${secret.hint}`);
   }
   const value = interactive
     ? await readHiddenLine(`${secret.name} (empty to skip): `)
@@ -144,18 +146,21 @@ async function seedOne(
     console.error(`${secret.name}: ${err} — not written`);
     return false;
   }
-  await setSecretIn(args.env, secret.name, value);
+  const target = isSharedSecret(secret.name)
+    ? SHARED_SECRETS_ENV
+    : args.env.env;
+  await setSecretIn(target, secret.name, value);
   stored.set(secret.name, value);
-  ok(secret.name, `written to secrets env ${args.env}`);
+  ok(secret.name, `written to secrets env ${target}`);
   return true;
 }
 
 async function main(): Promise<number> {
   const args = parseArgs(process.argv.slice(2));
-  const stored = new Map(await exportSecretsMapLive(args.env));
+  const stored = new Map(await exportSecretsMapLive(args.env.env));
   const targets = selectSecrets(args, stored);
   if (targets.length === 0) {
-    ok('secrets:seed', `no missing manual secrets in ${args.env}`);
+    ok('secrets:seed', `no missing manual secrets in ${args.env.env}`);
     return 0;
   }
   if (process.stdin.isTTY !== true && targets.length !== 1) {

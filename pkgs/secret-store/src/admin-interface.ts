@@ -16,5 +16,8 @@ export interface SecretAdminStore {
 
   exportSecrets(envOverride?: string): Promise<ReadonlyMap<string, string>>;
 
+  /** Only the environment's own secrets — none it reads through an import. */
+  exportOwnSecrets(envOverride?: string): Promise<ReadonlyMap<string, string>>;
+
   listSecretNames(envOverride?: string): Promise<readonly string[]>;
 }

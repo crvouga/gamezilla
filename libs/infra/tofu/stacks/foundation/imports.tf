@@ -39,6 +39,18 @@ import {
 }
 
 import {
+  for_each = var.imports.foundation.neon_branch == null ? toset([]) : toset([var.imports.foundation.neon_branch])
+  to       = module.database.neon_branch.this[0]
+  id       = each.value
+}
+
+import {
+  for_each = var.imports.foundation.neon_endpoint == null ? toset([]) : toset([var.imports.foundation.neon_endpoint])
+  to       = module.database.neon_endpoint.this
+  id       = each.value
+}
+
+import {
   for_each = toset(var.imports.foundation.secrets)
   to       = module.secrets.infisical_secret.managed[each.value]
   id       = "write-only:${var.infisical.project_id}:${var.env}:/:${each.value}"

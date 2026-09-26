@@ -36,7 +36,7 @@ export type RunQueryDeps = {
   readonly nextCheckpoint: () => string;
   /**
    * When true, clipping a snapshot to the query limit throws instead of
-   * silently truncating (sim + SECRETS_ENV=dev).
+   * silently truncating (sim + non-production deployments).
    */
   readonly strictQueryLimits?: boolean;
 };

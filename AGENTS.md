@@ -14,7 +14,7 @@
 
 - **Never patch dependencies.** Do not use `bun patch`, `patch-package`, `pnpm patch`, or any other dependency-patching mechanism. Do not add a `patches/` directory or a `patchedDependencies` / `pnpm.patchedDependencies` / `resolutions` field to `package.json`. If a third-party library has a bug, work around it in our own code or accept the behavior — never fork the dep in-tree.
 
-- **Infrastructure is OpenTofu, and stateful resources are never destroyed.** Every deployed resource (Workers' hostnames, R2 buckets and credentials, DNS, the EMQX broker on Railway, the Grafana Cloud stack, the secrets OpenTofu derives) is declared in `libs/infra/tofu` — env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`. Never create, change or delete infrastructure from TypeScript, a script or a console (Biome `no-infra-outside-tofu.grit` fails `lint` on vendor admin endpoints). Never delete or replace anything that may hold data: stateful resources carry `prevent_destroy`, and `libs/infra/policy/stateful.rego` (run on every plan by `libs/infra/scripts/tofu.ts`) allow-lists the only types that may ever be deleted — add a new type to `deletable` only if losing it loses no data. Retire a stateful resource with `removed { lifecycle { destroy = false } }`. What code must never create (the Neon project and its per-environment branches, human secrets) is asserted by data sources, never managed. There is no destroy path. Guide: [`docs/INFRA.md`](docs/INFRA.md).
+- **Infrastructure is OpenTofu, and stateful resources are never destroyed.** Every deployed resource (Workers' hostnames, R2 buckets and credentials, DNS, the EMQX broker on Railway, the Grafana Cloud stack, the secrets OpenTofu derives) is declared in `libs/infra/tofu` — env-agnostic modules and stacks; per-environment values only in `libs/infra/tofu/envs/<env>.tfvars.json`. Never create, change or delete infrastructure from TypeScript, a script or a console (Biome `no-infra-outside-tofu.grit` fails `lint` on vendor admin endpoints). Never delete or replace anything that may hold data: stateful resources carry `prevent_destroy`, and `libs/infra/policy/stateful.rego` (run on every plan by `libs/infra/scripts/tofu.ts`) allow-lists the only types that may ever be deleted — add a new type to `deletable` only if losing it loses no data. Retire a stateful resource with `removed { lifecycle { destroy = false } }`. What code must never create (the Neon project and its root branch, shared secrets, the one Google OAuth redirect URI) is set once by a person and asserted, never managed; everything per-environment — Infisical environment and shared-secret import (`fleet` stack), Neon branch + endpoint + `DATABASE_URL`, buckets, broker, tokens — comes from the env file, so a new `envs/<env>.tfvars.json` needs no manual step anywhere. There is no destroy path. Guide: [`docs/INFRA.md`](docs/INFRA.md).
 
 - **Never disable structural size limits for app code.** The Tiger-Style caps in root [`biome.json`](biome.json) (`noExcessiveLinesPerFile`, `noExcessiveLinesPerFunction`, `useMaxParams`, `noExcessiveNestedCallbacks`, `noExcessiveCognitiveComplexity`, `noExcessiveClassesPerFile`) are load-bearing. Do **not** add new size-rule `'off'` overrides in `biome.json`, and do **not** add `biome-ignore` comments for those rules in source files. If a function tripped the cap, refactor it: extract sub-components, helper hooks, or pure helpers. The cap is the constraint, not a suggestion. The only legitimate exemptions are the test / known-path `overrides` already wired in `biome.json`.
 
@@ -241,7 +241,7 @@ green.
 
 **One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
 
-**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica), and `@libs/infra#health` asserts live infrastructure has no drift from `libs/infra/tofu`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against `prd` and `dev`.
+**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica), and `@libs/infra#health` asserts live infrastructure has no drift from `libs/infra/tofu`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against every environment.
 
 **Critical journeys are synthetic monitoring.** The user flows that must never break (app boots, Google sign-in hands off, sign in/out, host and end a space, open a chess puzzle, save a profile change, people search answers) are `CRITICAL_JOURNEYS` in `@libs/runtime/sim/critical-journeys`: each is one `@pkgs/ui-testing` `Driver` script over `data-testid`s, with the access it needs (`anonymous` / `signed-in`) set up by its runner. The same scripts run twice: in `bun check` against the full composition (`libs/runtime/tests/e2e/critical-journeys.test.tsx`, simulated Google sign-in), and in `@apps/product#health` (`apps/product/health/critical-journeys.health.ts`) in a real browser (`Bun.WebView`: WebKit on macOS, the runner's Chrome elsewhere) against the production web client and API, one fresh device per journey. A production failure saves a screenshot, the page HTML and the browser console under `apps/product/.cache/critical-journeys/<journey>/`, which the Health and Deploy workflows upload. Signed-in journeys sign in as a fixed synthetic-monitor user: the runner trades `SYNTHETIC_MONITOR_TOKEN` (registry secret, pushed to the API Worker) at the hidden `POST /api/auth/synthetic-monitor/code` for a one-time `/sso-callback?code=` URL, and the browser finishes the real sign-in path. The route answers 404 without the secret and can never mint a session for anyone else (`pkgs/auth-inhouse/src/server/synthetic-monitor.ts`). A new must-never-break flow is a new journey. It must pass in the sim first, and its writes clean up after themselves. The API also serves **readiness** at `GET /api/health/ready` (`application/health+json`, `503` when Postgres fails `SELECT 1` within 3 s) beside liveness at `GET /api/health`; `apps/server/health` probes both.
 
@@ -287,17 +287,21 @@ everywhere; never add a fourth:
    product deploy → billing sync), so it is never listed as a `dependsOn` of
    another aggregator. Live-resource probes go in a package's `health` script,
    never in `//#check`.
-2. **Deploy ships `main` in two stages.** `.github/workflows/deploy.yml` runs
-   `deploy:dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
-   succeeds, `deploy:prd` (`SECRETS_ENV=prd bun run deploy`,
-   `environment: production`). Both jobs invoke `bun run deploy` with
-   `SECRETS_ENV` set at the job level rather than the `deploy:dev` /
-   `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage deploys the
-   full dev replica (`libs/infra/tofu/envs/dev.tfvars.json`: its own Workers,
-   bucket, broker and Grafana stack on the dev hostnames) with the same chain
-   as prd, so every change runs in a real environment before production.
-   `deploy:dev` never runs on PRs; the dev environment is a shared singleton.
-   Deploy ends with every package's `health` task.
+2. **Deploy ships `main` to every env file, standard envs first.**
+   `.github/workflows/deploy.yml` is data-driven: `deploy:matrix` (no
+   secrets; it also runs the merged-PR guard) reads
+   `libs/infra/tofu/envs/*.tfvars.json` via
+   [`workflow-env-matrix.ts`](libs/infra/scripts/workflow-env-matrix.ts), then
+   one `deploy:<env>` job per `protection: "standard"` env runs in parallel
+   (`fail-fast: false`) and, only when all of them succeed, one `deploy:<env>`
+   job per `protection: "production"` env (`environment: production`). Adding
+   an env file needs no workflow edit. Every job runs `bun run deploy` with
+   `SECRETS_ENV=<env>` at the job level (not the `deploy:dev` / `deploy:prd`
+   aliases, which force `TURBO_UI=tui`). Each standard env is a full replica
+   (its own Workers, bucket, broker on its own hostnames) deployed with the
+   same chain as prd, so every change runs in a real environment before
+   production. Deploy never runs on PRs; each environment is a shared
+   singleton. Deploy ends with every package's `health` task.
    **Rehearse it locally before merging** anything that touches deploy, infra,
    secrets, Workers or `health`: `mise install`, then `bun run deploy:dev` from
    the PR branch. It is the exact `//#deploy` graph the Deploy job runs
@@ -305,12 +309,17 @@ everywhere; never add a fourth:
    dev replica, so a green local run is a green `deploy:dev` job. Deploy stops
    at the first failure; once the deploy steps pass, `SECRETS_ENV=dev bun run
    health` re-probes without deploying and reports every failing probe in one
-   pass. Merge only when both are green. Caveat: the Railway broker builds from
+   pass. Merge only when both are green, and merge right after: a rehearsal
+   that adopts or creates resources puts them in the env's state, so until
+   the branch lands `main`'s Deploy plans to delete them — the stateful
+   policy refuses, and `main` stays red for that env. Caveat: the Railway broker builds from
    `main` (`libs/infra/tofu/modules/pubsub`), so broker image changes only
    reach dev after merge — test them with `docker build` + a root-owned volume.
 3. **Health checks the live deployment between deploys.**
-   `.github/workflows/health.yml` runs `bun health` hourly for `prd` and `dev`
-   (the same probes Deploy runs last) and deploys nothing.
+   `.github/workflows/health.yml` runs `bun health` hourly as one
+   `health:<env>` matrix job per env file (production envs in the GitHub
+   `production` environment; the same probes Deploy runs last) and deploys
+   nothing.
 
 UI tests run in-process, in happy-dom, inside each package's `test` leaf —
 `bun check` drives no real browser. UI suites are written against the
@@ -472,7 +481,7 @@ Representativeness of production is **port contract matrices** (mockingbird-post
 
 The sim harness (`@libs/sim-harness`) migrates each composition's mem fabric **once** into `<package>/.cache/sim-seed-<composition>.pgmm.json` and clones it per `openSim`. Suite notes: [`libs/sim-harness/README.md`](libs/sim-harness/README.md).
 
-Deployed environments (`SECRETS_ENV=dev|prd`, one `libs/infra/tofu/envs/<env>.tfvars.json` each) use Neon + Cloudflare R2 + Railway EMQX + Grafana Cloud, all declared in `libs/infra/tofu` ([`docs/INFRA.md`](docs/INFRA.md)).
+Deployed environments (`SECRETS_ENV=<env>`, one `libs/infra/tofu/envs/<env>.tfvars.json` each; production-ness is its `protection`, never its name) use Neon + Cloudflare R2 + Railway EMQX + Grafana Cloud, all declared in `libs/infra/tofu` ([`docs/INFRA.md`](docs/INFRA.md)).
 
 - **`bun run sims:open`** — multiselect project sims and open Simulator.app.
 - **`bun run dev`** — `@apps/product` super-app (`/` = real client, `/simulator` = Simulator; `?simulator` on `/` hands off). Press **`i`** or **Shift+I** to open the project iPad in the simulator (bypasses the default simulator picker).
@@ -499,11 +508,11 @@ Do not add ad-hoc `migrateUp` / free-function DDL entrypoints for new schema —
 
 Non-deploy contexts must never reach production Postgres. Guards live in `@libs/db/public/database-url-policy`:
 
-1. **`assertDevSecretsEnv`** — scripts exit unless `SECRETS_ENV === 'dev'`.
-2. **`assertNonProdDatabaseUrl`** — rejects URLs equal to secrets env `prd` `DATABASE_URL` and production-only hostnames (dual-fetch at setup/migrate time). Loopback (`@pkgs/postgres-embedded`) is allowed for `dev`.
-3. **API worker** — when `SECRETS_ENV` binding is `dev`, the first DB request asserts non-prod URL.
-4. **Review** — every DATABASE_URL entrypoint must wire `assertDevSecretsEnv` / `assertNonProdDatabaseUrl` from `@libs/db/public/database-url-policy`.
-5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `VITE_ALLOW_PRODUCTION_API_URL` for the API). `db:wipe:dev` refuses this hatch and requires a live `prd` dual-fetch before any destructive SQL.
+1. **`assertNonProductionSecretsEnv`** — scripts exit unless `SECRETS_ENV` names a `protection: "standard"` env.
+2. **`assertNonProdDatabaseUrl`** — rejects URLs equal to any production env's `DATABASE_URL` and production-only hostnames (dual-fetch at setup/migrate time). Loopback (`@pkgs/postgres-embedded`) is allowed for non-production envs.
+3. **API worker** — on a non-production deployment (`DEPLOYMENT_PROTECTION`, rendered from the env file), the first DB request asserts a non-prod URL.
+4. **Review** — every DATABASE_URL entrypoint must wire `assertNonProductionSecretsEnv` / `assertNonProdDatabaseUrl` from `@libs/db/public/database-url-policy`.
+5. **Escape hatch** — `ALLOW_PRODUCTION_DATABASE_URL=1` (mirrors `VITE_ALLOW_PRODUCTION_API_URL` for the API). `db:wipe:dev` refuses this hatch and requires a live dual-fetch of every production env before any destructive SQL.
 
 ## Per-feature package layout
 

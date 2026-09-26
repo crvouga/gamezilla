@@ -10,13 +10,15 @@ import { join } from 'node:path';
 import { deployWorker } from '@libs/infra/scripts/worker-deploy';
 import { ok } from '@libs/secrets/shared/fmt';
 import {
-  activeSecretsEnv,
+  activeEnvFile,
   refreshSecretsIntoEnv,
 } from '@libs/secrets/shared/secrets/secrets';
 
 async function workerSecrets(): Promise<Record<string, string>> {
   await refreshSecretsIntoEnv();
-  const payload: Record<string, string> = { SECRETS_ENV: activeSecretsEnv() };
+  // Production-ness reaches the Worker as the rendered DEPLOYMENT_PROTECTION
+  // var (`@libs/infra/public/wrangler`), not as a secret.
+  const payload: Record<string, string> = {};
   for (const key of [
     'OBSERVABILITY_COLLECTOR_URL',
     'OBSERVABILITY_COLLECTOR_USER',
@@ -36,4 +38,4 @@ deployWorker({
   role: 'room',
   secrets: await workerSecrets(),
 });
-ok('Room Worker', `deployed to ${activeSecretsEnv()}`);
+ok('Room Worker', `deployed to ${activeEnvFile().env}`);

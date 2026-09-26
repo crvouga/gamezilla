@@ -2,8 +2,8 @@ import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
 import { assert } from '@pkgs/assert';
 
 import {
-  assertDevSecretsEnv,
   assertNonProdDatabaseUrl,
+  assertNonProductionSecretsEnv,
   normalizeDatabaseUrlForCompare,
   productionDatabaseUrlTigerExceptionEnabled,
 } from './database-url-policy';
@@ -49,36 +49,60 @@ describe('normalizeDatabaseUrlForCompare', () => {
   });
 });
 
-describe('assertDevSecretsEnv', () => {
-  test('accepts dev', () => {
-    expect(() => assertDevSecretsEnv('dev')).not.toThrow();
+describe('assertNonProductionSecretsEnv', () => {
+  const PRODUCTION = ['live', 'live-eu'] as const;
+
+  test('accepts any environment the caller does not call production', () => {
+    for (const env of ['dev', 'staging', 'preview-42']) {
+      expect(() =>
+        assertNonProductionSecretsEnv(env, PRODUCTION)
+      ).not.toThrow();
+    }
   });
 
-  test('rejects prd', () => {
-    expect(() => assertDevSecretsEnv('prd')).toThrow(/secrets env `dev`/);
+  test('rejects every production environment', () => {
+    for (const env of PRODUCTION) {
+      expect(() => assertNonProductionSecretsEnv(env, PRODUCTION)).toThrow(
+        /non-production secrets env/
+      );
+    }
   });
 
   test('rejects empty', () => {
-    expect(() => assertDevSecretsEnv('')).toThrow(/secrets env `dev`/);
+    expect(() => assertNonProductionSecretsEnv('', PRODUCTION)).toThrow(
+      /non-production secrets env/
+    );
   });
 });
 
 describe('assertNonProdDatabaseUrl', () => {
   test('allows distinct dev URL when prod reference differs', async () => {
     await expect(
-      assertNonProdDatabaseUrl(DEV_URL, {}, { productionUrl: PROD_URL })
+      assertNonProdDatabaseUrl(DEV_URL, {}, { productionUrls: [PROD_URL] })
     ).resolves.toBeUndefined();
   });
 
   test('blocks URL equal to prod reference', async () => {
     await expect(
-      assertNonProdDatabaseUrl(PROD_URL, {}, { productionUrl: PROD_URL })
-    ).rejects.toThrow(/matches production/);
+      assertNonProdDatabaseUrl(PROD_URL, {}, { productionUrls: [PROD_URL] })
+    ).rejects.toThrow(/matches a production/);
+  });
+
+  test('blocks URL equal to any of several production references', async () => {
+    const OTHER_PROD =
+      'postgres://u:p@prod-eu.example.com:5432/postgres?sslmode=require';
+    await expect(
+      assertNonProdDatabaseUrl(
+        OTHER_PROD,
+        {},
+        { productionUrls: [PROD_URL, OTHER_PROD] }
+      )
+    ).rejects.toThrow(/matches a production/);
   });
 
   test('allows loopback (@pkgs/postgres-embedded)', async () => {
     await expect(
-      assertNonProdDatabaseUrl(LOOPBACK_URL, {}, { productionUrl: PROD_URL })
+      assertNonProdDatabaseUrl(LOOPBACK_URL, {}, { productionUrls: [PROD_URL] })
     ).resolves.toBeUndefined();
   });
 
@@ -88,7 +112,7 @@ describe('assertNonProdDatabaseUrl', () => {
     try {
       expect(productionDatabaseUrlTigerExceptionEnabled()).toBe(true);
       await expect(
-        assertNonProdDatabaseUrl(PROD_URL, {}, { productionUrl: PROD_URL })
+        assertNonProdDatabaseUrl(PROD_URL, {}, { productionUrls: [PROD_URL] })
       ).resolves.toBeUndefined();
     } finally {
       if (prev === undefined) {

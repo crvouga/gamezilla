@@ -13,10 +13,6 @@
  */
 
 import { join } from 'node:path';
-import {
-  assertDevSecretsEnv,
-  DEVELOPMENT_SECRETS_ENV,
-} from '@libs/db/public/database-url-policy';
 import { assertNonProdDatabaseUrlForTooling } from '@libs/db/public/database-url-policy-tooling';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { readDevVarsDatabaseUrl } from '@libs/db/scripts/dev-vars';
@@ -25,6 +21,8 @@ import {
   transientMigrateRetryReason,
 } from '@libs/db/server/migrate-transient-errors';
 import { fetchSecret } from '@libs/db/shared/secret-io';
+import { isProductionEnv } from '@libs/infra/public/env-file';
+import { envFile, PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
 import { assert } from '@pkgs/assert';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import { createLogger, type Logger } from '@pkgs/logger';
@@ -102,13 +100,14 @@ async function resolveDatabaseUrlForMigrate(
   return (await store.getRequired('DATABASE_URL')).readSecretValue();
 }
 
+/**
+ * A production environment's deploy migrates its own database; every other
+ * environment must not be pointed at a production one.
+ */
 async function assertMigrateDatabasePolicy(databaseUrl: string): Promise<void> {
   const secretsEnv = await resolveSecretsEnvForMigrate();
-  if (secretsEnv !== DEVELOPMENT_SECRETS_ENV) {
-    return;
-  }
-  assertDevSecretsEnv(secretsEnv);
-  await assertNonProdDatabaseUrlForTooling(databaseUrl, {
+  if (isProductionEnv(envFile(secretsEnv))) return;
+  await assertNonProdDatabaseUrlForTooling(databaseUrl, PRODUCTION_ENV_NAMES, {
     surface: 'api:db:migrate',
     secretsEnv,
   });

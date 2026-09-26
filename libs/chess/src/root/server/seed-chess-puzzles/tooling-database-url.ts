@@ -1,14 +1,13 @@
 /**
  * `DATABASE_URL` for the puzzle tooling scripts (seed, load-file export,
- * validation job), behind the repo's database-url policy: `dev` must be a
- * non-production URL; `prd` is allowed (the scripts are how production gets
- * seeded and checked).
+ * validation job), behind the repo's database-url policy: a non-production
+ * environment must not point at any production database; a production one is
+ * allowed (the scripts are how production gets seeded and checked).
+ * Production-ness is the env file's `protection`, never the env's name.
  */
-import {
-  assertDevSecretsEnv,
-  PRODUCTION_SECRETS_ENV,
-} from '@pkgs/database-url-policy';
-import { assertDatabaseUrlAllowedForSecretsEnvForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
+import { type EnvFile, isProductionEnv } from '@libs/infra/public/env-file';
+import { envFile, PRODUCTION_ENV_NAMES } from '@libs/infra/public/envs';
+import { assertNonProdDatabaseUrlForTooling } from '@pkgs/database-url-policy/database-url-policy-tooling';
 import type { HttpClient } from '@pkgs/http-client';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { createScriptSecretStore } from '@pkgs/secret-store';
@@ -21,32 +20,30 @@ export type ToolingDatabaseUrlArgs = {
   /** Policy surface label (`chess:seed-puzzles`, …). */
   readonly surface: string;
   /** Called with the resolved env before the URL is read (extra guards). */
-  readonly guardSecretsEnv?: (secretsEnv: string) => void;
+  readonly guardEnv?: (env: EnvFile) => void;
 };
 
 export async function resolveToolingDatabaseUrl(
   args: ToolingDatabaseUrlArgs
-): Promise<{ readonly databaseUrl: string; readonly secretsEnv: string }> {
-  const secretsEnv =
+): Promise<{ readonly databaseUrl: string; readonly env: EnvFile }> {
+  const env = envFile(
     process.env['SECRETS_ENV']?.trim() ||
-    (await resolveSecretsScope(args.configStore)).env;
-  args.guardSecretsEnv?.(secretsEnv);
-  if (secretsEnv !== PRODUCTION_SECRETS_ENV) {
-    assertDevSecretsEnv(secretsEnv);
-  }
+      (await resolveSecretsScope(args.configStore)).env
+  );
+  args.guardEnv?.(env);
   const databaseUrl = (
     await createScriptSecretStore().getRequired('DATABASE_URL')
   ).readSecretValue();
-  await assertDatabaseUrlAllowedForSecretsEnvForTooling(
-    databaseUrl,
-    secretsEnv,
-    {
-      deps: {
+  if (!isProductionEnv(env)) {
+    await assertNonProdDatabaseUrlForTooling(
+      databaseUrl,
+      {
         repoRoot: args.repoRoot,
         fetchFn: (input, init) => args.http.fetch(input, init),
+        productionEnvs: PRODUCTION_ENV_NAMES,
       },
-      context: { surface: args.surface },
-    }
-  );
-  return { databaseUrl, secretsEnv };
+      { surface: args.surface, secretsEnv: env.env }
+    );
+  }
+  return { databaseUrl, env };
 }

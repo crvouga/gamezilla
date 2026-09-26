@@ -47,7 +47,7 @@ export async function createSyncApp(deps: {
   readonly app: ComposedFeatures;
   readonly now: () => number;
   readonly createId: () => string;
-  /** Enables dev-only query limit strictness (injected from `ServerEnv.secretsEnv`). */
+  /** Enables dev-only query limit strictness (on unless `ServerEnv.protection` is `production`). */
   readonly strictQueryLimits?: boolean;
 }) {
   let checkpointSeq = 0;
