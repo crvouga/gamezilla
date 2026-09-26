@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import { GLOBAL } from '@libs/infra/public/global';
+import { COMMITTED_EMQX_CREDENTIALS } from '@pkgs/emqx-server/ports';
 import secretNames from '../tofu/stacks/foundation/secrets.json';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -58,6 +59,22 @@ describe('secret adoption in env files', () => {
           generated: true,
         });
       }
+    }
+  });
+});
+
+describe('secret placeholders', () => {
+  test('every committed sidecar credential is a placeholder OpenTofu never adopts', () => {
+    expect(new Set(secretNames.placeholders)).toEqual(
+      new Set(COMMITTED_EMQX_CREDENTIALS)
+    );
+  });
+
+  test('placeholders are values, not secret names', () => {
+    const names = new Set([...secretNames.generated, ...secretNames.derived]);
+    for (const value of secretNames.placeholders) {
+      expect(value.trim().length).toBeGreaterThan(0);
+      expect(names.has(value)).toBe(false);
     }
   });
 });

@@ -1,15 +1,38 @@
 // @io-wall-ok — live health probe (EMQX broker on Railway).
-import { describe, expect, test } from 'bun:test';
+import { beforeAll, describe, expect, test } from 'bun:test';
+import { join } from 'node:path';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
 import { createHttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   COMMITTED_EMQX_CREDENTIALS,
   EMQX_STOCK_DASHBOARD_PASSWORD,
-} from '@libs/pubsub/shared/secrets/emqx-credentials';
-import { wallClock, wallTimers } from '@pkgs/clock';
+} from '@pkgs/emqx-server/ports';
 import { createGlobalHttpClient } from '@pkgs/http-client';
+import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
+import { createSecretAdminStore } from '@pkgs/secret-provider';
 
+const REPO_ROOT = join(import.meta.dirname, '../../..');
 const http = createGlobalHttpClient();
+
+/**
+ * `secrets-run` injected this process's env once, at the start of the deploy;
+ * `apply:foundation` may have replaced the broker credentials since (a
+ * placeholder or `regenerate`d value), so probe with the store's live values.
+ */
+async function refreshBrokerSecrets(): Promise<void> {
+  const store = await createSecretAdminStore({
+    repoRoot: REPO_ROOT,
+    configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
+  });
+  const live = await store.exportSecrets(process.env['SECRETS_ENV']);
+  for (const name of Object.values(Name)) {
+    const value = live.get(name)?.trim() ?? '';
+    if (value.length > 0) process.env[name] = value;
+  }
+}
+
+beforeAll(refreshBrokerSecrets);
 
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim() ?? '';

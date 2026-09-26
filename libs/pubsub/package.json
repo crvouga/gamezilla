@@ -26,8 +26,10 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
     "@pkgs/http-client": "workspace:*",
+    "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
+    "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "jose": "catalog:"
   },
