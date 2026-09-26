@@ -131,9 +131,17 @@ export function resolveRunMode(rawTaskArgs: readonly string[]): RunMode {
   return 'plain';
 }
 
-/** Turbo flags a run mode adds: `--only` keeps standalone health off deploy. */
+/**
+ * Turbo flags a run mode adds. Standalone health: `--only` keeps it off the
+ * deploy chain, and `--continue` lets every probe report instead of stopping at
+ * the first failure (probes are independent and deploy nothing). Deploy keeps
+ * turbo's stop-on-first-failure: its deploy steps do not depend on the check
+ * leaves, so continuing past a failed check could ship.
+ */
 export function runModeFlags(mode: RunMode): readonly string[] {
-  return mode === 'health' ? ['--only'] : [];
+  return mode === 'health'
+    ? ['--only', '--continue=dependencies-successful']
+    : [];
 }
 
 const TURBO_CACHE_RE = /^(local|remote):(r|rw|w)?(,(local|remote):(r|rw|w)?)?$/;

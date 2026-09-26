@@ -298,6 +298,16 @@ everywhere; never add a fourth:
    as prd, so every change runs in a real environment before production.
    `deploy:dev` never runs on PRs; the dev environment is a shared singleton.
    Deploy ends with every package's `health` task.
+   **Rehearse it locally before merging** anything that touches deploy, infra,
+   secrets, Workers or `health`: `mise install`, then `bun run deploy:dev` from
+   the PR branch. It is the exact `//#deploy` graph the Deploy job runs
+   (check → tofu apply → migrate → Workers → billing sync → health) against the
+   dev replica, so a green local run is a green `deploy:dev` job. Deploy stops
+   at the first failure; once the deploy steps pass, `SECRETS_ENV=dev bun run
+   health` re-probes without deploying and reports every failing probe in one
+   pass. Merge only when both are green. Caveat: the Railway broker builds from
+   `main` (`libs/infra/tofu/modules/pubsub`), so broker image changes only
+   reach dev after merge — test them with `docker build` + a root-owned volume.
 3. **Health checks the live deployment between deploys.**
    `.github/workflows/health.yml` runs `bun health` hourly for `prd` and `dev`
    (the same probes Deploy runs last) and deploys nothing.
