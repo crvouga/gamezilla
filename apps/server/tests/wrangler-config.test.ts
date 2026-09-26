@@ -16,6 +16,7 @@ import {
 } from '@libs/infra/public/wrangler';
 import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/server-app/config/auth-provider';
 import {
+  BILLING_PROVIDER_BINDING,
   DEPLOYMENT_PROTECTION_BINDING,
   readDeploymentProtection,
 } from '@libs/server-app/config/env';
@@ -84,6 +85,7 @@ describe('wrangler.toml', () => {
         string
       >;
       expect(vars[WEB_CLIENT_ORIGIN_BINDING]).toBe(envOrigins(env).web);
+      expect(vars[BILLING_PROVIDER_BINDING]).toBe(env.billing.provider);
       expect(vars[INHOUSE_AUTH_SECRET.oauthCallbackOrigin]).toBe(
         envOrigins(relay).api
       );

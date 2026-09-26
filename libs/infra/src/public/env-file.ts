@@ -29,6 +29,11 @@ export const envFileSchema = z
       })
       .strict(),
     railway: z.object({ workspace_id: id, project_name: id }).strict(),
+    /**
+     * Where new checkouts go when several providers' keys are present
+     * (rendered into the API Worker as `BILLING_PROVIDER`).
+     */
+    billing: z.object({ provider: z.enum(['stripe', 'paddle']) }).strict(),
     secrets: z
       .object({ regenerate: z.array(z.string()).optional() })
       .strict()
@@ -173,5 +178,6 @@ export function apiWorkerVars(
     OAUTH_CALLBACK_ORIGIN: envOrigins(relay).api,
     OAUTH_STATE_TAG: env.env,
     OAUTH_RELAY_TARGETS: JSON.stringify(forwardTo),
+    BILLING_PROVIDER: env.billing.provider,
   };
 }

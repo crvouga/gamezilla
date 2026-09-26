@@ -89,6 +89,11 @@ variable "railway" {
   })
 }
 
+variable "billing" {
+  type        = any
+  description = "Read by TypeScript only: rendered into the API Worker (BILLING_PROVIDER)."
+}
+
 variable "grafana" {
   type = object({
     stack_slug = string

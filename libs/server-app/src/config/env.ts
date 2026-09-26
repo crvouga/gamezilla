@@ -105,6 +105,9 @@ export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.API_URL);
 }
 
+/** Rendered per env by `@libs/infra` from the env file's `billing.provider`. */
+export const BILLING_PROVIDER_BINDING = 'BILLING_PROVIDER';
+
 export function readBillingProviderBinding(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.BILLING_PROVIDER)?.toLowerCase() ?? null;
 }
