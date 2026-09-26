@@ -120,8 +120,27 @@ locals {
 }
 
 # Write-only: the value is sent to Infisical but never stored in state. The
-# version is a digest of the value, so a changed value is always written and
-# an unchanged one never shows up as drift.
+# provider requires `value_wo_version` to only ever grow (it refuses a lower
+# one), so a digest of the value cannot serve as the version: a rotated value
+# may hash lower than its predecessor. Instead each secret carries a stamp that
+# is minted at plan time and frozen until the value's digest changes, which
+# replaces the stamp with a newer one. An unchanged value never shows up as
+# drift; a changed value is always written with a strictly greater version.
+#
+# The stamp is `YYYYMMDDhhmmss` followed by four zeros (~2e17): above any
+# version the retired 12-hex-digit digest scheme could have produced (<2.9e14),
+# so the first apply after the cut-over is an update, never a refusal.
+resource "terraform_data" "version" {
+  for_each = nonsensitive(toset(keys(local.managed)))
+
+  triggers_replace = sha256(local.managed[each.key])
+  input            = parseint("${formatdate("YYYYMMDDhhmmss", plantimestamp())}0000", 10)
+
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
+
 resource "infisical_secret" "managed" {
   for_each = nonsensitive(toset(keys(local.managed)))
 
@@ -130,7 +149,7 @@ resource "infisical_secret" "managed" {
   folder_path      = "/"
   name             = each.key
   value_wo         = local.managed[each.key]
-  value_wo_version = parseint(substr(sha256(local.managed[each.key]), 0, 12), 16)
+  value_wo_version = terraform_data.version[each.key].output
 }
 
 output "generated" {
