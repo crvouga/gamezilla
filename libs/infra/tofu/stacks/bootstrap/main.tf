@@ -45,16 +45,30 @@ removed {
 }
 
 # The state credential, once, in the shared environment.
+#
+# Write-only (never in state). Its version must only ever grow, so it is a
+# plan-time stamp frozen until the value's digest changes (see the secrets
+# module for the full rationale).
+resource "terraform_data" "state_shared_version" {
+  for_each = toset(local.state_secret_names)
+
+  triggers_replace = sha256(local.state_secret_values[each.key])
+  input            = parseint("${formatdate("YYYYMMDDhhmmss", plantimestamp())}0000", 10)
+
+  lifecycle {
+    ignore_changes = [input]
+  }
+}
+
 resource "infisical_secret" "state_shared" {
   for_each = toset(local.state_secret_names)
 
-  workspace_id = var.infisical.project_id
-  env_slug     = infisical_project_environment.shared.slug
-  folder_path  = "/"
-  name         = each.key
-  value_wo     = local.state_secret_values[each.key]
-  # Write-only (never in state); the digest version rewrites it on change.
-  value_wo_version = parseint(substr(sha256(local.state_secret_values[each.key]), 0, 12), 16)
+  workspace_id     = var.infisical.project_id
+  env_slug         = infisical_project_environment.shared.slug
+  folder_path      = "/"
+  name             = each.key
+  value_wo         = local.state_secret_values[each.key]
+  value_wo_version = terraform_data.state_shared_version[each.key].output
 }
 
 module "trace_stack" {
