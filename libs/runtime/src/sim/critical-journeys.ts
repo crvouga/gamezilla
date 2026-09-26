@@ -24,7 +24,7 @@ import {
   appBoots,
   googleSignInStarts,
 } from './critical-journeys/anonymous-journeys';
-import { confirmSignedIn } from './critical-journeys/journey-steps';
+import { atTabShell, confirmSignedIn } from './critical-journeys/journey-steps';
 import type { CriticalJourney } from './critical-journeys/journey-types';
 import {
   chessPuzzleOpens,
@@ -37,7 +37,7 @@ export type {
   JourneyBrowser,
   JourneyContext,
 } from './critical-journeys/journey-types';
-export { confirmSignedIn };
+export { atTabShell, confirmSignedIn };
 
 /** Every critical journey, in the order runners execute them. */
 export const CRITICAL_JOURNEYS: readonly CriticalJourney[] = [

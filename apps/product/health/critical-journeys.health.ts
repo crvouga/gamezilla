@@ -22,9 +22,11 @@ import { describe, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { prepareCriticalJourneyAccess } from '@apps/product/sim/prepare-critical-journey-access';
 import { envOrigins, isProductionEnv } from '@libs/infra/public/env-file';
 import { envFile } from '@libs/infra/public/envs';
 import {
+  atTabShell,
   CRITICAL_JOURNEYS,
   type CriticalJourney,
   confirmSignedIn,
@@ -217,8 +219,16 @@ async function runJourney(
 ): Promise<void> {
   const device = await openDevice(target);
   try {
-    await device.driver.launch();
-    if (journey.access === 'signed-in') await signIn(device, target);
+    // `launch()` only waits for document navigation. Let the initial lazy tab
+    // route settle before leaving for the hosted-auth callback; otherwise
+    // Chrome can retain its aborted import as a pending promise, and the
+    // callback's return to `/` has an empty route body forever.
+    await prepareCriticalJourneyAccess({
+      access: journey.access,
+      launch: () => device.driver.launch(),
+      waitForTabShell: () => atTabShell(device.driver),
+      signIn: () => signIn(device, target),
+    });
     await journey.run({
       ui: device.driver,
       runId: RUN_ID,

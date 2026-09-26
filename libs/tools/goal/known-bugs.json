@@ -118,5 +118,10 @@
     "id": "turbo-strips-tofu-secrets",
     "summary": "Deploy failed at @libs/infra#apply:foundation with `missing secrets for the foundation stack`: secrets-run injected TOFU_STATE_* and NEON_API_KEY, but turbo's strict env mode dropped them because globalPassThroughEnv did not name them (SYNTHETIC_MONITOR_TOKEN too). Fixed by passing them through; every registry secret is now asserted to pass through.",
     "regressionTest": "libs/tools/scripts/turbo-secrets-passthrough.test.ts"
+  },
+  {
+    "id": "signed-in-health-before-tab-shell",
+    "summary": "Production signed-in health journeys left the initial app route immediately after document navigation, so Chrome could retain its aborted lazy import as a pending promise and return from auth to a tab shell with an empty body. Fixed by waiting for the initial tab shell before starting hosted sign-in.",
+    "regressionTest": "apps/product/src/sim/prepare-critical-journey-access.test.ts"
   }
 ]
