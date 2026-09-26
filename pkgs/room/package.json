@@ -12,7 +12,8 @@
     "lint": "bunx biome check --error-on-warnings .",
     "tc": "tsc --noEmit -p ./tsconfig.tc.json",
     "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx' && vitest run",
-    "test:sim": "bun run --filter @pkgs/room-sim test"
+    "test:sim": "bun run --filter @pkgs/room-sim test",
+    "bench": "bun tests/bench/hot-paths.bench.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
