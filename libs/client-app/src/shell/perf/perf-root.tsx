@@ -9,13 +9,13 @@
 import { useTimers } from '@pkgs/clock/solid';
 import { type JSX, untrack } from 'solid-js';
 
+import { createLazyPerfSampler } from '../create-lazy-perf-sampler';
 import {
   PerfHudPreferenceProvider,
   usePerfHudPreference,
 } from './perf-hud-preference';
 import { PerfSamplerProvider } from './perf-sampler-context';
 import type { PerfSampler } from './types';
-import { createWallPerfSampler } from './wall';
 
 function PerfHudGate(props: {
   readonly sampler: PerfSampler;
@@ -37,7 +37,11 @@ export function PerfRoot(props: {
   const timers = useTimers();
   // Composition-root configuration: read once, not tracked.
   const sampler =
-    untrack(() => props.sampler) ?? createWallPerfSampler({ timers });
+    untrack(() => props.sampler) ??
+    createLazyPerfSampler(async () => {
+      const { createWallPerfSampler } = await import('./wall');
+      return createWallPerfSampler({ timers });
+    });
   return (
     <PerfHudPreferenceProvider>
       <PerfHudGate sampler={sampler}>{props.children}</PerfHudGate>
