@@ -4,7 +4,7 @@
 
 locals {
   secret_names = jsondecode(file("${path.module}/secrets.json"))
-  github_repo  = "crvouga/gamezilla"
+  github_repo  = "${var.github.owner}/${var.github.repo}"
 }
 
 module "names" {

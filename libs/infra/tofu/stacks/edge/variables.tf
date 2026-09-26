@@ -79,10 +79,6 @@ variable "grafana" {
   type = any
 }
 
-variable "neon" {
-  type = any
-}
-
 variable "imports" {
   type = object({
     foundation = optional(any)
