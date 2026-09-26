@@ -44,6 +44,7 @@ module "secrets" {
   regenerate    = var.secrets.regenerate
   derived_names = local.secret_names.derived
   derived = {
+    DATABASE_URL                  = module.database.database_url
     API_URL                       = "https://${var.hosts.api}"
     VITE_API_URL                  = "https://${var.hosts.api}"
     S3_BUCKET                     = module.object_store.bucket
@@ -82,6 +83,7 @@ module "pubsub" {
 module "database" {
   source          = "../../modules/database"
   neon_project_id = var.neon_project.project_id
-  neon_branch_id  = var.neon.branch_id
-  database_url    = module.secrets.database_url
+  root_branch_id  = var.neon_project.root_branch_id
+  production      = var.protection == "production"
+  branch_name     = var.suffix
 }

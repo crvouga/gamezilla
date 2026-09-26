@@ -3,14 +3,25 @@
  * target. The wrapper (`scripts/tofu.ts`) is the only caller; keeping this
  * pure lets tests pin exactly what reaches `tofu`.
  *
- *   bootstrap   global: state bucket, secrets environments, CI identity, repo
+ *   bootstrap   global, by a person: state bucket, shared secrets
+ *               environment, CI identity, repo
+ *   fleet       global, by CI: every env file's secrets environment and its
+ *               import of the shared one
  *   foundation  per environment, before Worker code ships
  *   edge        per environment, after Worker code ships
  */
 
-export type Stack = 'bootstrap' | 'foundation' | 'edge';
+export type Stack = 'bootstrap' | 'fleet' | 'foundation' | 'edge';
 
-export const STACKS: readonly Stack[] = ['bootstrap', 'foundation', 'edge'];
+export const STACKS: readonly Stack[] = [
+  'bootstrap',
+  'fleet',
+  'foundation',
+  'edge',
+];
+
+/** Stacks with one state object for the whole project, not one per env. */
+export const GLOBAL_STACKS: readonly Stack[] = ['bootstrap', 'fleet'];
 
 /** The per-environment stacks the deploy chain applies. */
 export const ENV_STACKS: readonly Stack[] = ['foundation', 'edge'];
@@ -22,7 +33,7 @@ export type TofuPaths = {
   readonly cacheDir: string;
 };
 
-/** A stack plus the environment it runs for (`null` for bootstrap). */
+/** A stack plus the environment it runs for (`null` for a global stack). */
 export type Target = {
   readonly stack: Stack;
   readonly env: string | null;
@@ -142,6 +153,10 @@ export const CREDENTIAL_ENV: Readonly<
     RAILWAY_TOKEN: 'RAILWAY_TOKEN',
     NEON_API_KEY: 'NEON_API_KEY',
     GRAFANA_CLOUD_ACCESS_POLICY_TOKEN: 'GRAFANA_CLOUD_API_TOKEN',
+  },
+  fleet: {
+    TF_VAR_state_passphrase: 'TOFU_STATE_PASSPHRASE',
+    ...STATE_CREDENTIALS,
   },
   // The state credential is optional here: bootstrap creates it.
   bootstrap: {

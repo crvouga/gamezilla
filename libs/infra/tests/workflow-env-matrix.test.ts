@@ -41,9 +41,9 @@ describe('workflow env matrix', () => {
   });
 
   test('outputs are JSON arrays; an empty list is `[]`', () => {
-    expect(workflowEnvOutputs({ standard: [], production: ['prd'] })).toBe(
-      'standard=[]\nproduction=["prd"]\nall=["prd"]'
-    );
+    expect(
+      workflowEnvOutputs({ standard: [], production: ['prd'] }, 'shared')
+    ).toBe('standard=[]\nproduction=["prd"]\nall=["prd"]\nshared=shared');
   });
 });
 
@@ -60,6 +60,11 @@ describe.each(['deploy.yml', 'health.yml'])('%s', (file) => {
       job.env?.['SECRETS_ENV'] === undefined ? [] : [job.env['SECRETS_ENV']]
     );
     expect(secretsEnvs.length).toBeGreaterThan(0);
-    for (const value of secretsEnvs) expect(value).toBe('${{ matrix.env }}');
+    for (const value of secretsEnvs) {
+      expect([
+        '${{ matrix.env }}',
+        '${{ needs.deploy-matrix.outputs.shared }}',
+      ]).toContain(value as string);
+    }
   });
 });

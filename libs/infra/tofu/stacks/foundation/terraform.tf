@@ -70,21 +70,14 @@ provider "infisical" {
 
 provider "random" {}
 
-# The environment's own database, reached with its DATABASE_URL (direct host:
-# DDL does not go through the pooler).
-locals {
-  database = regex(
-    "^postgres(?:ql)?://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^/:?]+)(?::[0-9]+)?/(?P<name>[^?]+)",
-    module.secrets.database_url,
-  )
-}
-
+# The environment's own database, on its direct host (DDL does not go
+# through the pooler).
 provider "postgresql" {
-  host            = replace(local.database.host, "-pooler.", ".")
+  host            = module.database.connection.host
   port            = 5432
-  database        = local.database.name
-  username        = local.database.user
-  password        = local.database.password
+  database        = module.database.connection.database
+  username        = module.database.connection.user
+  password        = module.database.connection.password
   sslmode         = "require"
   superuser       = false
   connect_timeout = 15

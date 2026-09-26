@@ -63,6 +63,7 @@ jobs:
     outputs:
       standard: ${{ steps.envs.outputs.standard }}
       production: ${{ steps.envs.outputs.production }}
+      shared: ${{ steps.envs.outputs.shared }}
     steps:
       # `main` only moves through a merged PR. Branch protection enforces that
       # (libs/infra/tofu/modules/repository, applied by `bun run
@@ -90,9 +91,39 @@ jobs:
         id: envs
         run: bun run libs/infra/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
+  # Every env file's secrets environment and its import of the shared
+  # credentials (libs/infra/tofu/stacks/fleet), then no env may keep a local
+  # copy that would shadow a shared one. A new env file gets its secrets
+  # environment here, before its first deploy reads it.
+  deploy-fleet:
+    name: deploy:fleet
+    needs: deploy-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SECRETS_ENV: ${{ needs.deploy-matrix.outputs.shared }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: ${{ needs.deploy-matrix.outputs.shared }}
+
+      - name: apply fleet
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra apply:fleet
+
+      - name: reconcile shared secrets
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/secrets/src/scripts/secrets-reconcile-shared.ts
+
   deploy-standard:
     name: deploy:${{ matrix.env }}
-    needs: deploy-matrix
+    needs: [deploy-matrix, deploy-fleet]
     if: needs.deploy-matrix.outputs.standard != '[]'
     runs-on: ubuntu-latest
     # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
@@ -134,12 +165,13 @@ jobs:
 
   deploy-production:
     name: deploy:${{ matrix.env }}
-    needs: [deploy-matrix, deploy-standard]
+    needs: [deploy-matrix, deploy-fleet, deploy-standard]
     # Every standard env deployed — or there is none (the standard job is
     # skipped on an empty list, and a skipped `needs` would skip this job).
     if: >-
       !cancelled()
       && needs.deploy-matrix.result == 'success'
+      && needs.deploy-fleet.result == 'success'
       && needs.deploy-matrix.outputs.production != '[]'
       && (needs.deploy-standard.result == 'success'
         || (needs.deploy-standard.result == 'skipped'

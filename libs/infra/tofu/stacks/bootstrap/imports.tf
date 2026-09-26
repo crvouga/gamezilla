@@ -2,12 +2,6 @@
 # `global_imports`); entries are deleted once in state.
 
 import {
-  for_each = var.global_imports.infisical_environments
-  to       = infisical_project_environment.this[each.key]
-  id       = each.value
-}
-
-import {
   for_each = var.global_imports.github_repository == null ? toset([]) : toset([var.global_imports.github_repository])
   to       = module.repository.github_repository.this
   id       = each.value

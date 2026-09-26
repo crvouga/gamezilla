@@ -10,12 +10,14 @@
  *   standard=["dev"]        deployed first, in parallel
  *   production=["prd"]      deployed only once every standard env is green
  *   all=["dev","prd"]       probed by the Health workflow
+ *   shared=shared           the secrets env the fleet stack applies with
  *
  * Every list is a JSON array; an empty one is `[]` (the workflows skip the
  * matrix job instead of handing GitHub an empty matrix).
  */
 import type { EnvFile } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
+import { GLOBAL } from '@libs/infra/public/global';
 
 export type WorkflowEnvMatrix = {
   readonly standard: readonly string[];
@@ -37,16 +39,28 @@ export function workflowEnvMatrix(envs: readonly EnvFile[]): WorkflowEnvMatrix {
   return { standard: names('standard'), production: names('production') };
 }
 
-/** `GITHUB_OUTPUT` lines: `standard`, `production` and `all` (standard first). */
-export function workflowEnvOutputs(matrix: WorkflowEnvMatrix): string {
+/**
+ * `GITHUB_OUTPUT` lines: `standard`, `production` and `all` (standard first),
+ * plus `shared`, the secrets env holding the account-wide credentials.
+ */
+export function workflowEnvOutputs(
+  matrix: WorkflowEnvMatrix,
+  sharedEnv: string
+): string {
   const all = [...matrix.standard, ...matrix.production];
   return [
     `standard=${JSON.stringify(matrix.standard)}`,
     `production=${JSON.stringify(matrix.production)}`,
     `all=${JSON.stringify(all)}`,
+    `shared=${sharedEnv}`,
   ].join('\n');
 }
 
 if (import.meta.main) {
-  console.log(workflowEnvOutputs(workflowEnvMatrix(Object.values(ENV_FILES))));
+  console.log(
+    workflowEnvOutputs(
+      workflowEnvMatrix(Object.values(ENV_FILES)),
+      GLOBAL.infisical.shared_env
+    )
+  );
 }
