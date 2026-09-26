@@ -219,7 +219,7 @@ seeded random walk over the platform's steps and the suite's feature
 task is `@libs/runtime#test:e2e` (the composition root): the few
 full-composition sims (shell boot, partition, the whole-app monkey, explore)
 that depend on everything, kept small on purpose. Run a subset with
-`bun run --filter @libs/chess test:e2e features/puzzles/puzzle-play.feature`; one
+`bun run spec specs/chess/puzzle-play.feature`; one
 aggregated HTML report over every suite with `bun run test:report`.
 
 **A green `bun check` must mean a green Check workflow.** The gate is only worth
@@ -623,8 +623,11 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 ### Gherkin acceptance specifications
 
-Acceptance scenarios live in each owning package's `features/` directory and
-run through that package's `test:e2e` task. Feature text is owned by the spec
+Every acceptance scenario lives in the flat top-level tree
+`specs/<domain>/<feature>.feature` — one directory per `@domain`, no nesting.
+A package runs the domains its `package.json` lists in `specDomains` (each
+domain exactly one package; its `turbo.json` adds `$TURBO_ROOT$/specs/<domain>/**`
+to `test:e2e` inputs) through its `test:e2e` task. Feature text is owned by the spec
 writer and changes only in isolated `spec:` commits; implementers treat it as
 read-only. Step definitions live in `tests/steps/`, call deterministic sim
 actions and reads, and are catalogued in generated `STEPS_CATALOG.md` files.

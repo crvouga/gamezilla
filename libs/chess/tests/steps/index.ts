@@ -1,5 +1,6 @@
 /**
- * Steps entry for `features/**`: registers the world (this package's sim
+ * Steps entry for the `specs/<domain>/` features this package runs
+ * (`specDomains`): registers the world (this package's sim
  * composition) and every step definition its features may use — the shared
  * platform steps, this package's own, and the profile and friends steps it
  * reuses (a second device, friendship, and joining a space).

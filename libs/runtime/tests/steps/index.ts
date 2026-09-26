@@ -1,5 +1,6 @@
 /**
- * Steps entry for `features/**`: registers the world (the full app
+ * Steps entry for the `specs/<domain>/` features this package runs
+ * (`specDomains`): registers the world (the full app
  * composition) and every step definition its features may use — the shared
  * platform steps and this package's own.
  */

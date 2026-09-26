@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI gate entry (`bun run spec:check`, `//#ci:specs`).
 /**
- * The spec gate: every `features/**` scenario binds to exactly one step
+ * The spec gate: every `specs/<domain>/*.feature` scenario binds to exactly one step
  * definition, no definition is unused or pending, every scenario carries its
  * `@domain` and known `@goal`s, every goal a feature proves is tagged there,
  * step text says intent (no UI mechanics), and the catalogs are current.
@@ -25,6 +25,7 @@ import {
   REPO_ROOT,
   sharedSteps,
   specPackages,
+  specsLayoutProblems,
 } from './spec-packages';
 
 const strictDuplicates = process.argv.includes('--strict-duplicates');
@@ -46,14 +47,12 @@ for (const [id, entry] of Object.entries(checks)) {
   if (entry.status !== 'proven') continue;
   for (const proof of entry.proofs) {
     if (proof.kind !== 'spec') continue;
-    const pkg = packages.find((p) => proof.path.startsWith(`${p.dir}/`));
-    const uri =
-      pkg === undefined ? proof.path : proof.path.slice(pkg.dir.length + 1);
-    goalSpecProofs.set(id, [...(goalSpecProofs.get(id) ?? []), uri]);
+    goalSpecProofs.set(id, [...(goalSpecProofs.get(id) ?? []), proof.path]);
   }
 }
 
 const errors: string[] = [
+  ...specsLayoutProblems(packages),
   ...shared.problems,
   ...packages.flatMap((pkg) => pkg.problems),
   ...external.problems,

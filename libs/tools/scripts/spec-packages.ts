@@ -1,8 +1,10 @@
 /**
- * Discovery for the spec gates: every workspace package with a `features/`
- * directory, its parsed features, the step definitions its `tests/steps/**`
- * declare (read statically), and the step files of other packages its steps
- * entry imports. Shared with `check-specs.ts` and `spec-catalog.ts`.
+ * Discovery for the spec gates. Every feature lives in the flat top-level
+ * tree `specs/<domain>/<feature>.feature`; a workspace package runs the
+ * domains its `package.json` lists in `specDomains`. For each such package:
+ * its parsed features, the step definitions its `tests/steps/**` declare
+ * (read statically), and the step files of other packages its steps entry
+ * imports. Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -17,6 +19,7 @@ import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const SHARED_STEPS_DIR = 'libs/sim-harness/src/spec/steps';
+export const SPECS_DIR = 'specs';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 
 export type SpecPackage = PackageSpecs & {
@@ -30,6 +33,8 @@ export type SpecPackage = PackageSpecs & {
 type Manifest = {
   readonly name?: string;
   readonly exports?: Record<string, unknown>;
+  /** The `specs/<domain>/` directories this package runs. */
+  readonly specDomains?: readonly string[];
 };
 
 function listFiles(dir: string, suffix: string, out: string[] = []): string[] {
@@ -79,13 +84,21 @@ export function sharedSteps(): {
   return readSteps(stepFiles(SHARED_STEPS_DIR));
 }
 
-function readFeatures(pkgDir: string): readonly SpecFeature[] {
-  return listFiles(join(REPO_ROOT, pkgDir, 'features'), '.feature').map(
-    (file) =>
-      parseFeature(
-        readFileSync(file, 'utf8'),
-        relative(join(REPO_ROOT, pkgDir), file)
-      )
+/** Repo-relative paths of the features in `specs/<domain>/`, flat. */
+export function domainFeaturePaths(domain: string): readonly string[] {
+  const dir = join(REPO_ROOT, SPECS_DIR, domain);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.feature'))
+    .map((entry) => `${SPECS_DIR}/${domain}/${entry.name}`)
+    .sort();
+}
+
+function readFeatures(domains: readonly string[]): readonly SpecFeature[] {
+  return domains.flatMap((domain) =>
+    domainFeaturePaths(domain).map((uri) =>
+      parseFeature(readFileSync(join(REPO_ROOT, uri), 'utf8'), uri)
+    )
   );
 }
 
@@ -121,22 +134,25 @@ function packageDirs(): readonly string[] {
   return out.sort();
 }
 
-/** Every package with a `features/` directory, in path order. */
+function readManifest(dir: string): Manifest {
+  return JSON.parse(
+    readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
+  ) as Manifest;
+}
+
+/** Every package that runs spec domains (`specDomains`), in path order. */
 export function specPackages(): readonly SpecPackage[] {
   const dirs = packageDirs();
   const byName = new Map<string, string>();
   for (const dir of dirs) {
-    const manifest = JSON.parse(
-      readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
-    ) as Manifest;
+    const manifest = readManifest(dir);
     if (manifest.name !== undefined) byName.set(manifest.name, dir);
   }
   const out: SpecPackage[] = [];
   for (const dir of dirs) {
-    if (!existsSync(join(REPO_ROOT, dir, 'features'))) continue;
-    const manifest = JSON.parse(
-      readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
-    ) as Manifest;
+    const manifest = readManifest(dir);
+    const domains = manifest.specDomains ?? [];
+    if (domains.length === 0) continue;
     const name = manifest.name ?? dir;
     const entryPath = `${dir}/tests/steps/index.ts`;
     const stepsEntry = existsSync(join(REPO_ROOT, entryPath))
@@ -160,18 +176,99 @@ export function specPackages(): readonly SpecPackage[] {
         imports.push(file);
       }
     } else {
-      problems.push(`${dir}: has features/ but no tests/steps/index.ts`);
+      problems.push(`${dir}: runs specDomains but has no tests/steps/index.ts`);
     }
     out.push({
       name,
       dir,
-      domain: dir.replace(/^.*\//, ''),
-      features: readFeatures(dir),
+      domains,
+      features: readFeatures(domains),
       definitions: own.steps,
       imports,
       stepsEntry,
       problems,
     });
+  }
+  return out;
+}
+
+/**
+ * The `specs/` tree is flat and fully owned: only `specs/<domain>/*.feature`,
+ * every domain directory run by exactly one package, every claimed domain
+ * present, and no package keeping a `features/` directory of its own.
+ */
+export function specsLayoutProblems(
+  packages: readonly SpecPackage[]
+): readonly string[] {
+  const out: string[] = [];
+  const root = join(REPO_ROOT, SPECS_DIR);
+  const runners = new Map<string, string[]>();
+  for (const pkg of packages) {
+    for (const domain of pkg.domains) {
+      runners.set(domain, [...(runners.get(domain) ?? []), pkg.name]);
+    }
+  }
+  const present = existsSync(root)
+    ? readdirSync(root, { withFileTypes: true })
+    : [];
+  for (const entry of present) {
+    const path = `${SPECS_DIR}/${entry.name}`;
+    if (!entry.isDirectory()) {
+      out.push(`${path}: only specs/<domain>/ directories belong in specs/`);
+      continue;
+    }
+    for (const inner of readdirSync(join(root, entry.name), {
+      withFileTypes: true,
+    })) {
+      if (!inner.isFile() || !inner.name.endsWith('.feature')) {
+        out.push(
+          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/<feature>.feature`
+        );
+      }
+    }
+    const owners = runners.get(entry.name) ?? [];
+    if (owners.length === 0) {
+      out.push(
+        `${path}/: no package lists "${entry.name}" in its package.json specDomains`
+      );
+    } else if (owners.length > 1) {
+      out.push(`${path}/: run by several packages (${owners.join(', ')})`);
+    }
+  }
+  const names = new Set(
+    present.filter((e) => e.isDirectory()).map((e) => e.name)
+  );
+  for (const [domain, owners] of runners) {
+    if (!names.has(domain)) {
+      out.push(
+        `${owners.join(', ')}: specDomains lists "${domain}" but ${SPECS_DIR}/${domain}/ does not exist`
+      );
+    }
+  }
+  for (const pkg of packages) {
+    const turbo = join(REPO_ROOT, pkg.dir, 'turbo.json');
+    const inputs = existsSync(turbo)
+      ? ((
+          JSON.parse(readFileSync(turbo, 'utf8')) as {
+            readonly tasks?: Record<string, { readonly inputs?: string[] }>;
+          }
+        ).tasks?.['test:e2e']?.inputs ?? [])
+      : [];
+    for (const domain of pkg.domains) {
+      const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/**`;
+      if (!inputs.includes(input)) {
+        out.push(
+          `${pkg.dir}/turbo.json: test:e2e inputs must include "${input}" so a spec change re-runs ${pkg.name}`
+        );
+      }
+    }
+  }
+  for (const dir of packageDirs()) {
+    if (existsSync(join(REPO_ROOT, dir, 'features'))) {
+      out.push(
+        `${dir}/features: features live in ${SPECS_DIR}/<domain>/ — move them and list the domain in specDomains`
+      );
+    }
   }
   return out;
 }
@@ -192,9 +289,9 @@ export function importedSteps(
 }
 
 /**
- * Definitions in step files some package imports from a package that has no
- * `features/` of its own (so it is not a spec package), e.g. profile's steps
- * reused by friends before profile has features.
+ * Definitions in step files some package imports from a package that runs
+ * no spec domains (so it is not a spec package), e.g. profile's steps reused
+ * by friends before profile had specs.
  */
 export function externalSteps(packages: readonly SpecPackage[]): {
   readonly steps: readonly ExtractedStep[];

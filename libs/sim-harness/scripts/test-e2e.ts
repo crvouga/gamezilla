@@ -7,7 +7,9 @@
  *   "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
  *
  * It wipes the package's report bucket (`.cache/sim-report`), turns every
- * `features/**\/*.feature` into a `bun test` stub under `.cache/spec/`, runs
+ * feature of the domains the package's `specDomains` lists
+ * (`specs/<domain>/*.feature` at the repo root) into a `bun test` stub under
+ * `.cache/spec/`, runs
  * `bun test --parallel` over those stubs plus `tests/e2e` (or the paths
  * given) with a JUnit report written into the bucket, and exits with the
  * runner's status. With `SIM_REPORT=1` the sims also record frames there;
@@ -15,7 +17,7 @@
  * report.
  *
  *   test:e2e                                   everything
- *   test:e2e features/remove-friend.feature    one feature
+ *   test:e2e specs/friends/friend-remove.feature   one feature (repo-relative)
  *   test:e2e -t 'ends the friendship'          scenarios by name
  *   test:e2e --tags '@goal:social:5'           scenarios by tag expression
  *   test:e2e tests/e2e/monkey.test.tsx         one code test
@@ -41,6 +43,8 @@ const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
 const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec');
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
+const REPO_ROOT = resolve(import.meta.dir, '../../..');
+const SPECS_DIR = join(REPO_ROOT, 'specs');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-e2e`;
 /** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
@@ -81,12 +85,25 @@ function parseCli(argv: readonly string[]): Cli {
   return { bunArgs, featurePaths, testPaths, tags };
 }
 
+/** The `specs/<domain>/` directories this package runs (`specDomains`). */
+function specDomains(): readonly string[] {
+  const manifestPath = join(PACKAGE_DIR, 'package.json');
+  if (!existsSync(manifestPath)) return [];
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+    readonly specDomains?: readonly string[];
+  };
+  return manifest.specDomains ?? [];
+}
+
+/** Absolute paths of every feature in this package's domains (flat). */
 function listFeatures(): readonly string[] {
-  const dir = join(PACKAGE_DIR, 'features');
-  if (!existsSync(dir)) return [];
-  return [...new Bun.Glob('**/*.feature').scanSync({ cwd: dir })]
-    .sort()
-    .map((file) => join(dir, file));
+  return specDomains().flatMap((domain) => {
+    const dir = join(SPECS_DIR, domain);
+    if (!existsSync(dir)) return [];
+    return [...new Bun.Glob('*.feature').scanSync({ cwd: dir })]
+      .sort()
+      .map((file) => join(dir, file));
+  });
 }
 
 /** Absolute feature paths to run: the ones named, else all. */
@@ -96,9 +113,12 @@ function selectFeatures(cli: Cli): readonly string[] {
     return cli.testPaths.length === 0 ? all : [];
   }
   return cli.featurePaths.map((given) => {
-    const abs = resolve(PACKAGE_DIR, given);
-    if (!all.includes(abs)) {
-      console.error(`test-e2e: no such feature: ${given}`);
+    const candidates = [resolve(REPO_ROOT, given), resolve(PACKAGE_DIR, given)];
+    const abs = candidates.find((path) => all.includes(path));
+    if (abs === undefined) {
+      console.error(
+        `test-e2e: ${given} is not a feature of ${TEST_PACKAGE_NAME}'s specDomains (${specDomains().join(', ')})`
+      );
       process.exit(1);
     }
     return abs;
@@ -111,7 +131,7 @@ function writeStubs(features: readonly string[]): readonly string[] {
   if (features.length === 0) return [];
   if (!existsSync(STEPS_ENTRY)) {
     console.error(
-      `test-e2e: ${relative(PACKAGE_DIR, STEPS_ENTRY)} is missing — a package with features/ needs a steps entry that imports its step definitions and calls useSimWorld()`
+      `test-e2e: ${relative(PACKAGE_DIR, STEPS_ENTRY)} is missing — a package with specDomains needs a steps entry that imports its step definitions and calls useSimWorld()`
     );
     process.exit(1);
   }
@@ -119,7 +139,7 @@ function writeStubs(features: readonly string[]): readonly string[] {
   const bridge = Bun.resolveSync('@pkgs/gherkin/bun-test', import.meta.dir);
   const out: string[] = [];
   for (const featurePath of features) {
-    const featureUri = relative(PACKAGE_DIR, featurePath);
+    const featureUri = relative(REPO_ROOT, featurePath);
     const file = join(SPEC_STUB_DIR, stubFileName(featureUri));
     writeFileSync(
       file,

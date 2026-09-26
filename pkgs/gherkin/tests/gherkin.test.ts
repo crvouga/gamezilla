@@ -33,7 +33,7 @@ Feature: Requests
       | Bob    |
       | Carol  |
 `,
-      'features/requests.feature'
+      'specs/friends/requests.feature'
     );
 
     expect(feature.name).toBe('Requests');
@@ -138,17 +138,17 @@ describe('tags and catalogs', () => {
   });
 
   test('generates stable test stubs', () => {
-    expect(stubFileName('features/spaces/live-presence.feature')).toBe(
+    expect(stubFileName('specs/spaces/live-presence.feature')).toBe(
       'spaces-live-presence.feature.test.ts'
     );
     const source = stubSource({
       bridge: '/repo/pkgs/gherkin/src/bun-test.ts',
-      featurePath: '/repo/libs/friends/features/remove.feature',
-      featureUri: 'features/remove.feature',
+      featurePath: '/repo/specs/friends/remove.feature',
+      featureUri: 'specs/friends/remove.feature',
       packageName: '@libs/friends',
       stepsEntry: '/repo/libs/friends/tests/steps/index.ts',
     });
     expect(source).toContain('import { runFeature }');
-    expect(source).toContain('features/remove.feature');
+    expect(source).toContain('specs/friends/remove.feature');
   });
 });

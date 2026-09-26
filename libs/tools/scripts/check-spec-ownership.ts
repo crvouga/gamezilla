@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI gate entry (`//#ci:spec-ownership`) and pre-commit check.
 /**
- * `**\/features/**` belongs to the spec writer. An implementer never edits a
+ * Every `.feature` file (they live in `specs/<domain>/`) belongs to the spec writer. An implementer never edits a
  * feature file, so a commit that touches one is a spec commit and nothing
  * else: its subject starts with `spec:` (or `spec(scope):`) and it changes
  * only feature files, catalogs, the glossary and docs. A commit that mixes a
@@ -19,7 +19,7 @@ export type Commit = {
   readonly files: readonly string[];
 };
 
-const FEATURE_FILE = /(^|\/)features\/.*\.feature$/;
+const FEATURE_FILE = /\.feature$/;
 const SPEC_SUBJECT = /^spec(\([^)]*\))?!?:/;
 /** What a spec commit may touch besides features. */
 const SPEC_SIDE_FILES = [
@@ -55,7 +55,7 @@ export function ownershipViolations(
     }
     if (!SPEC_SUBJECT.test(commit.subject)) {
       out.push(
-        `${label}: changes ${features.join(', ')} but is not a spec commit — features/** is the spec writer's; commit spec changes separately with a "spec:" subject`
+        `${label}: changes ${features.join(', ')} but is not a spec commit — specs/** is the spec writer's; commit spec changes separately with a "spec:" subject`
       );
     }
     if (other.length > 0) {

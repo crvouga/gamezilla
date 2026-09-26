@@ -9,7 +9,7 @@ export type StubInput = {
   readonly packageName: string;
   /** Absolute path of the feature file. */
   readonly featurePath: string;
-  /** Package-relative uri used in reports (`features/remove-friend.feature`). */
+  /** Repo-relative uri used in reports (`specs/friends/friend-remove.feature`). */
   readonly featureUri: string;
   /** Absolute path of the steps entry module. */
   readonly stepsEntry: string;
@@ -19,7 +19,7 @@ export type StubInput = {
 
 export function stubFileName(featureUri: string): string {
   return `${featureUri
-    .replace(/^features\//, '')
+    .replace(/^specs\//, '')
     .replace(/\.feature$/, '')
     .replace(/[^a-zA-Z0-9]+/g, '-')}.feature.test.ts`;
 }

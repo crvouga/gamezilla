@@ -2,16 +2,16 @@
 
 ## Status (2026-09-26): product-level Section A migrated
 
-Every product package in Section A now runs its acceptance scenarios from
-`features/` and its ported `tests/e2e` files are deleted:
+Every product package in Section A now runs its acceptance scenarios from the
+flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 
-| package | features | kept in code |
+| package | runs | kept in code |
 |---|---|---|
-| libs/profile | `libs/profile/features/` | `auth-monkey`, `monkey`, `auth-oauth-port` (port mechanics) |
-| libs/friends | `libs/friends/features/` | `monkey` |
-| libs/billing | `libs/billing/features/` | `monkey`, `lifecycle-walk` |
-| libs/chess | `libs/chess/features/` (incl. `puzzle-spectator.sim.test.ts`) | `monkey` |
-| libs/runtime | `libs/runtime/features/` | `critical-journeys` (proves the production health-probe journey list), `explore`, `monkey` |
+| libs/profile | `specs/profile/` | `auth-monkey`, `monkey`, `auth-oauth-port` (port mechanics) |
+| libs/friends | `specs/friends/`, `specs/spaces/` | `monkey` |
+| libs/billing | `specs/billing/` | `monkey`, `lifecycle-walk` |
+| libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | `monkey` |
+| libs/runtime | `specs/runtime/` | `critical-journeys` (proves the production health-probe journey list), `explore`, `monkey` |
 
 Still open:
 

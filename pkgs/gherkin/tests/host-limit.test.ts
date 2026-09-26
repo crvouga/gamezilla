@@ -36,7 +36,10 @@ runFeature(
     When the host-limit step cannot run here
     Then the host-limit step after it runs
 `,
-  { packageName: '@pkgs/gherkin', featureUri: 'features/host-limit.feature' }
+  {
+    packageName: '@pkgs/gherkin',
+    featureUri: 'specs/gherkin/host-limit.feature',
+  }
 );
 
 test('the scenario stopped at the host limit and passed', () => {

@@ -8,7 +8,7 @@ import type { SpecFeature } from './parse';
 
 export type CatalogPackage = {
   readonly name: string;
-  readonly domain: string;
+  readonly domains: readonly string[];
   readonly definitions: readonly ExtractedStep[];
   readonly imports: readonly string[];
   readonly features: readonly SpecFeature[];
@@ -77,11 +77,11 @@ export function renderPackageCatalog(
     CATALOG_HEADER,
     `# Step catalog — ${pkg.name}`,
     '',
-    `Tag every scenario \`@domain:${pkg.domain}\` and its \`@goal:<section>:<n>\` from \`docs/GOAL.md\`. Features: ${String(pkg.features.length)}, scenarios: ${String(scenarioCount)}. Steps used here: ${String(counts.size)} distinct wordings.`,
+    `Tag every scenario with the \`@domain\` of its \`specs/<domain>/\` directory (${pkg.domains.map((d) => `\`@domain:${d}\``).join(', ')}) and its \`@goal:<section>:<n>\` from \`docs/GOAL.md\`. Features: ${String(pkg.features.length)}, scenarios: ${String(scenarioCount)}. Steps used here: ${String(counts.size)} distinct wordings.`,
     '',
     `## Steps of ${pkg.name}`,
     '',
-    table(definitionRows(pkg.definitions, pkg.domain)),
+    table(definitionRows(pkg.definitions, pkg.domains.join(', '))),
     '',
     '## Shared steps (every package)',
     '',
@@ -104,22 +104,22 @@ export function renderPackageCatalog(
   return `${sections.join('\n')}\n`;
 }
 
-/** The root index: every package, its domain, counts, and the catalog path. */
+/** The root index: every package, the spec domains it runs, counts, and the catalog path. */
 export function renderCatalogIndex<P extends CatalogPackage>(
   packages: readonly P[],
   catalogPathOf: (pkg: P) => string
 ): string {
   const rows = packages.map(
     (pkg) =>
-      `| ${pkg.name} | \`@domain:${pkg.domain}\` | ${String(pkg.features.length)} | ${String(pkg.features.reduce((n, f) => n + f.scenarios.length, 0))} | ${String(pkg.definitions.length)} | [catalog](${catalogPathOf(pkg)}) |`
+      `| ${pkg.name} | ${pkg.domains.map((d) => `\`specs/${d}/\``).join(', ')} | ${String(pkg.features.length)} | ${String(pkg.features.reduce((n, f) => n + f.scenarios.length, 0))} | ${String(pkg.definitions.length)} | [catalog](${catalogPathOf(pkg)}) |`
   );
   return `${[
     CATALOG_HEADER,
     '# Step catalogs',
     '',
-    'One catalog per package with a `features/` directory. Spec writers read these and `GLOSSARY.md`; they never read `src/` or `tests/`.',
+    'Features live in `specs/<domain>/<feature>.feature`. One catalog per package that runs spec domains (its `specDomains`). Spec writers read these and `GLOSSARY.md`; they never read `src/` or `tests/`.',
     '',
-    '| Package | Domain tag | Features | Scenarios | Own steps | Catalog |',
+    '| Package | Runs | Features | Scenarios | Own steps | Catalog |',
     '| --- | --- | --- | --- | --- | --- |',
     ...rows,
   ].join('\n')}\n`;

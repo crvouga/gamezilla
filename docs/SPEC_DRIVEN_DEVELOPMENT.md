@@ -1,7 +1,17 @@
 # Spec-driven development
 
-Product acceptance behavior lives in Gherkin under the owning package's
-`features/` directory. Code tests remain the right home for units, contracts,
+Product acceptance behavior lives in Gherkin in one flat top-level tree:
+
+```text
+specs/<domain>/<feature>.feature
+```
+
+One directory per domain, no subdirectories, and every scenario tagged with
+that directory's `@domain`. The package whose steps run a domain lists it in
+its `package.json` `specDomains` (for example `@libs/friends` runs `friends`
+and `spaces`) and adds `$TURBO_ROOT$/specs/<domain>/**` to its `test:e2e`
+inputs in its `turbo.json`; `bun run spec:check` enforces all of this. Code
+tests remain the right home for units, contracts,
 properties, model walks, and framework mechanics.
 
 ## Roles
@@ -23,8 +33,9 @@ public vocabulary for spec authors.
 ## Workflow
 
 1. Read [`STEPS_CATALOG.md`](STEPS_CATALOG.md) and `GLOSSARY.md`.
-2. Write intent-focused scenarios tagged with one `@domain:<domain>` and any
-   relevant `@goal:<section>:<number>` tags.
+2. Write intent-focused scenarios in `specs/<domain>/`, tagged with that
+   `@domain:<domain>` and any relevant `@goal:<section>:<number>` tags. A new
+   domain needs an implementer to claim it in some package's `specDomains`.
 3. Commit the feature-only change with a `spec:` subject.
 4. Implement step definitions through exported sim actions and reads.
 5. Run `bun run spec:check`, a focused `bun run spec --package <workspace>`,
@@ -34,6 +45,7 @@ Useful commands:
 
 ```sh
 bun run spec --tags '@goal:social:5'
+bun run spec specs/friends/friend-block.feature
 bun run spec --package @libs/friends -t 'ends the friendship'
 bun run spec:catalog
 bun run spec:check

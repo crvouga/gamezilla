@@ -1,6 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI entry (`bun run spec`).
-/** Run Gherkin features across every package that owns a `features/` tree. */
+/**
+ * Run Gherkin features across every package that runs `specs/<domain>/`
+ * domains. A feature path (`specs/chess/puzzle-play.feature`) goes only to
+ * the package whose `specDomains` lists its domain.
+ */
 
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -38,10 +42,25 @@ function hasE2eScript(dir: string): boolean {
   return manifest.scripts?.['test:e2e'] !== undefined;
 }
 
+function domainOfPath(arg: string): string | null {
+  return (
+    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.feature$/.exec(arg)?.[1] ?? null
+  );
+}
+
 const cli = parseCli(process.argv.slice(2));
 const discovered = specPackages();
+const featureDomains = new Set(
+  cli.runnerArgs.flatMap((arg) => {
+    const domain = domainOfPath(arg);
+    return domain === null ? [] : [domain];
+  })
+);
 const selected = discovered.filter(
-  (pkg) => cli.packages.size === 0 || cli.packages.has(pkg.name)
+  (pkg) =>
+    (cli.packages.size === 0 || cli.packages.has(pkg.name)) &&
+    (featureDomains.size === 0 ||
+      pkg.domains.some((domain) => featureDomains.has(domain)))
 );
 const known = new Set(discovered.map((pkg) => pkg.name));
 const unknown = [...cli.packages].filter((name) => !known.has(name));
@@ -50,17 +69,20 @@ if (unknown.length > 0) {
     `unknown spec package${unknown.length === 1 ? '' : 's'}: ${unknown.join(', ')}`
   );
 }
-if (selected.length === 0)
-  throw new Error('no packages with features/ selected');
+if (selected.length === 0) throw new Error('no spec packages selected');
 
 for (const pkg of selected) {
   if (!hasE2eScript(pkg.dir)) {
-    throw new Error(`${pkg.name} owns features/ but has no test:e2e script`);
+    throw new Error(`${pkg.name} runs specDomains but has no test:e2e script`);
   }
   console.log(`spec: ${pkg.name}`);
+  const args = cli.runnerArgs.filter((arg) => {
+    const domain = domainOfPath(arg);
+    return domain === null || pkg.domains.includes(domain);
+  });
   const result = spawnSync(
     'bun',
-    ['run', '--filter', pkg.name, 'test:e2e', ...cli.runnerArgs],
+    ['run', '--filter', pkg.name, 'test:e2e', ...args],
     { cwd: REPO_ROOT, env: process.env, stdio: 'inherit' }
   );
   if (result.status !== 0) process.exit(result.status ?? 1);

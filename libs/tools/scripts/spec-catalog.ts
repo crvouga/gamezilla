@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI entry (`bun run spec:catalog`).
 /**
- * Step catalogs: `<package>/STEPS_CATALOG.md` for every package with
- * `features/`, plus the root index `docs/STEPS_CATALOG.md`. Generated from
+ * Step catalogs: `<package>/STEPS_CATALOG.md` for every package that runs
+ * spec domains (`specDomains`), plus the root index `docs/STEPS_CATALOG.md`. Generated from
  * `tests/steps/**` so spec writers read wording without reading `tests/`.
  * `check-specs.ts` fails on drift; `bun run spec:catalog` rewrites.
  */

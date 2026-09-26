@@ -1,5 +1,6 @@
 /**
- * Steps entry for `features/**`: registers the world (billing on the
+ * Steps entry for the `specs/<domain>/` features this package runs
+ * (`specDomains`): registers the world (billing on the
  * platform alone) and every step definition its features may use — the
  * shared platform steps and this package's own.
  */

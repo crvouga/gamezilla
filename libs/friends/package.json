@@ -23,6 +23,10 @@
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
+  "specDomains": [
+    "friends",
+    "spaces"
+  ],
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/feature": "workspace:*",

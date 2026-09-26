@@ -35,6 +35,9 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
+  "specDomains": [
+    "runtime"
+  ],
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/billing": "workspace:*",

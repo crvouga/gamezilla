@@ -19,11 +19,10 @@ export type PackageSpecs = {
   /** Workspace name, e.g. `@libs/friends`. */
   readonly name: string;
   /**
-   * `@domain` value every scenario must carry (last name segment). A feature
-   * under `features/<other>/` may carry `@domain:<other>` instead: a domain
-   * hosted here because only this package composes it.
+   * The `specs/<domain>/` directories this package runs. A scenario carries
+   * the `@domain` of the directory its feature lives in.
    */
-  readonly domain: string;
+  readonly domains: readonly string[];
   readonly features: readonly SpecFeature[];
   /** Definitions in this package's own `tests/steps/**`. */
   readonly definitions: readonly ExtractedStep[];
@@ -111,13 +110,13 @@ function visibleTo(pkg: PackageSpecs, compiled: Compiled): boolean {
   );
 }
 
-/** `@domain` values a feature at `uri` may carry in `pkg`. */
+/** `@domain` values a feature at `uri` (`specs/<domain>/<name>.feature`) may carry. */
 export function allowedDomains(
   pkg: PackageSpecs,
   uri: string
 ): readonly string[] {
-  const hosted = /^features\/([a-z0-9-]+)\//.exec(uri)?.[1];
-  return hosted === undefined ? [pkg.domain] : [pkg.domain, hosted];
+  const dir = /^specs\/([a-z0-9-]+)\/[^/]+\.feature$/.exec(uri)?.[1];
+  return dir === undefined ? pkg.domains : [dir];
 }
 
 type ScenarioStepCheck = {
@@ -183,7 +182,7 @@ function checkScenarioTags(
       );
     } else if (!allowed.includes(domain)) {
       errors.push(
-        `${where}: @domain:${domain} but the feature lives in ${pkg.name} (expected @domain:${allowed.join(' or @domain:')})`
+        `${where}: @domain:${domain} but the feature lives in ${feature.uri} (expected @domain:${allowed.join(' or @domain:')})`
       );
     }
     for (const goal of goalsOf(scenario.tags)) {

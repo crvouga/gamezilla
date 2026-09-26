@@ -7,17 +7,17 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
-  test('recognizes only Gherkin files below a features directory', () => {
+  test('recognizes every Gherkin file, wherever it is', () => {
+    expect(isFeatureFile('specs/friends/friend-remove.feature')).toBe(true);
     expect(isFeatureFile('libs/friends/features/remove.feature')).toBe(true);
-    expect(isFeatureFile('features/nested/remove.feature')).toBe(true);
-    expect(isFeatureFile('libs/friends/features/README.md')).toBe(false);
+    expect(isFeatureFile('specs/README.md')).toBe(false);
   });
 
   test('requires feature-only spec commits', () => {
     expect(
       ownershipViolations([
         {
-          files: ['libs/friends/features/remove.feature'],
+          files: ['specs/friends/friend-remove.feature'],
           sha: '1234567890abcdef',
           subject: 'feat: remove friends',
         },
@@ -27,7 +27,7 @@ describe('spec ownership', () => {
       ownershipViolations([
         {
           files: [
-            'libs/friends/features/remove.feature',
+            'specs/friends/friend-remove.feature',
             'libs/friends/STEPS_CATALOG.md',
             'docs/SPEC_DRIVEN_DEVELOPMENT.md',
           ],
@@ -41,11 +41,11 @@ describe('spec ownership', () => {
   test('rejects a staged mixture of feature and implementation files', () => {
     expect(
       stagedViolations([
-        'libs/friends/features/remove.feature',
+        'specs/friends/friend-remove.feature',
         'libs/friends/tests/steps/friends.steps.ts',
       ])
     ).toHaveLength(1);
-    expect(stagedViolations(['libs/friends/features/remove.feature'])).toEqual(
+    expect(stagedViolations(['specs/friends/friend-remove.feature'])).toEqual(
       []
     );
   });
