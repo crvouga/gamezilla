@@ -26,5 +26,7 @@ ENV EMQX_NODE__DATA_DIR=/opt/emqx/data \
     PORT=8080
 
 EXPOSE 8080
-USER emqx
+# Starts as root on purpose: Railway mounts the data volume root-owned at run
+# time (the chown above only covers the image layer), so the entrypoint fixes
+# ownership and then drops to `emqx` before starting anything.
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

@@ -116,9 +116,12 @@ describe('turbo-ci-run aggregator flatten', () => {
 });
 
 describe('turbo-ci-run run mode', () => {
-  test('standalone health runs only the probes (--only skips the deploy chain)', () => {
+  test('standalone health runs only the probes and reports every failure', () => {
     expect(resolveRunMode(['health'])).toBe('health');
-    expect(runModeFlags('health')).toEqual(['--only']);
+    expect(runModeFlags('health')).toEqual([
+      '--only',
+      '--continue=dependencies-successful',
+    ]);
   });
 
   test('deploy keeps the dependency chain so health runs after it', () => {
