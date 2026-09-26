@@ -5,30 +5,35 @@ name: Deploy
 #   <Workflow> · <trigger>
 run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Deploy: ships the code. `main` is what ships, in two stages:
+# Deploy: ships the code. `main` is what ships, to every environment in
+# libs/infra/tofu/envs/<env>.tfvars.json — adding an env file needs no edit
+# here:
 #
-#   deploy-dev — the full dev replica (libs/infra/tofu/envs/dev.tfvars.json):
-#                OpenTofu foundation apply → migrations → the three Workers →
-#                OpenTofu edge apply → billing sync → every `health` task.
-#   deploy-prd — the same chain for production. Runs only when deploy-dev
-#                succeeded, so every change has run in a real environment
-#                first. `health` probes Workers, DNS/TLS, Postgres, R2, EMQX,
-#                Grafana Cloud, vendor credentials and OpenTofu drift; the
-#                Health workflow (.github/workflows/health.yml) runs the same
-#                probes hourly.
+#   deploy:matrix  reads the env files (libs/infra/scripts/workflow-env-matrix.ts)
+#                  from a job with no secrets and publishes the env lists.
+#   deploy:<env>   one job per `protection: "standard"` env, in parallel: the
+#                  full replica's OpenTofu foundation apply → migrations → the
+#                  three Workers → OpenTofu edge apply → billing sync → every
+#                  `health` task.
+#   deploy:<env>   then one job per `protection: "production"` env (GitHub
+#                  environment `production`), the same chain. Runs only when
+#                  every standard env deployed, so every change has run in a
+#                  real environment first. `health` probes Workers, DNS/TLS,
+#                  Postgres, R2, EMQX, Grafana Cloud, vendor credentials and
+#                  OpenTofu drift; the Health workflow
+#                  (.github/workflows/health.yml) runs the same probes hourly.
 #
 # Infrastructure changes only through libs/infra/scripts/tofu.ts: plan to a
 # file, refuse it if libs/infra/policy/stateful.rego denies it (deleting or
 # replacing anything that may hold data), then apply exactly that plan.
 #
 # SECRETS_ENV is set at the job level rather than through the `deploy:dev` /
-# `deploy:prd` aliases, which force TURBO_UI=tui (a TTY UI).
+# `deploy:prd` package.json aliases, which force TURBO_UI=tui (a TTY UI).
 #
-# This never runs on pull requests: the dev environment is a shared
-# singleton, so concurrent PRs would clobber each other's dev infrastructure,
-# migrations and secrets.
-# PRs get `bun run check` in the Check workflow (.github/workflows/check.yml)
-# instead.
+# This never runs on pull requests: each environment is a shared singleton,
+# so concurrent PRs would clobber each other's infrastructure, migrations and
+# secrets. PRs get `bun run check` in the Check workflow
+# (.github/workflows/check.yml) instead.
 
 permissions:
   contents: read
@@ -51,21 +56,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy-dev:
-    name: deploy:dev
+  deploy-matrix:
+    name: deploy:matrix
     runs-on: ubuntu-latest
-    # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
-    # turbo-ci-run's own deadline fires first and names what wedged.
-    timeout-minutes: 55
-    env:
-      SECRETS_ENV: dev
-      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    timeout-minutes: 10
+    outputs:
+      standard: ${{ steps.envs.outputs.standard }}
+      production: ${{ steps.envs.outputs.production }}
     steps:
       # `main` only moves through a merged PR. Branch protection enforces that
       # (libs/infra/tofu/modules/repository, applied by `bun run
-      # infra:bootstrap`); this guard is the Deploy workflow's own layer, so a direct
-      # push can never ship even if protection drifts. Fails before checkout:
-      # the deploy steps themselves never run.
+      # infra:bootstrap`); this guard is the Deploy workflow's own layer, so a
+      # direct push can never ship even if protection drifts. Every deploy job
+      # needs this one, so it fails before any deploy checks out.
       - name: Assert the commit came from a pull request
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,37 +83,28 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
-      - id: setup
-        uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup
 
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
+      - name: envs
+        id: envs
+        run: bun run libs/infra/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
-      - name: deploy:dev
-        id: deploy
-        run: bun run deploy
-
-      - name: Write workflow summary
-        if: always() && steps.setup.outcome == 'success'
-        env:
-          WORKFLOW_JOB: deploy:dev
-          WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
-        run: bun run libs/tools/scripts/write-workflow-summary.ts
-
-  deploy-prd:
-    name: deploy:prd
-    needs: deploy-dev
+  deploy-standard:
+    name: deploy:${{ matrix.env }}
+    needs: deploy-matrix
+    if: needs.deploy-matrix.outputs.standard != '[]'
     runs-on: ubuntu-latest
+    # Above `DEPLOY_RUN_DEADLINE_SECONDS` (45 min) plus setup, so
+    # turbo-ci-run's own deadline fires first and names what wedged.
     timeout-minutes: 55
-    environment: production
+    strategy:
+      # One red environment should not cancel (and hide) another's deploy.
+      fail-fast: false
+      matrix:
+        env: ${{ fromJSON(needs.deploy-matrix.outputs.standard) }}
     env:
-      SECRETS_ENV: prd
+      SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
@@ -125,9 +119,57 @@ jobs:
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: prd
+          environment: ${{ matrix.env }}
 
-      - name: deploy:prd
+      - name: deploy:${{ matrix.env }}
+        id: deploy
+        run: bun run deploy
+
+      - name: Write workflow summary
+        if: always() && steps.setup.outcome == 'success'
+        env:
+          WORKFLOW_JOB: deploy:${{ matrix.env }}
+          WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
+        run: bun run libs/tools/scripts/write-workflow-summary.ts
+
+  deploy-production:
+    name: deploy:${{ matrix.env }}
+    needs: [deploy-matrix, deploy-standard]
+    # Every standard env deployed — or there is none (the standard job is
+    # skipped on an empty list, and a skipped `needs` would skip this job).
+    if: >-
+      !cancelled()
+      && needs.deploy-matrix.result == 'success'
+      && needs.deploy-matrix.outputs.production != '[]'
+      && (needs.deploy-standard.result == 'success'
+        || (needs.deploy-standard.result == 'skipped'
+          && needs.deploy-matrix.outputs.standard == '[]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    environment: production
+    strategy:
+      fail-fast: false
+      matrix:
+        env: ${{ fromJSON(needs.deploy-matrix.outputs.production) }}
+    env:
+      SECRETS_ENV: ${{ matrix.env }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - id: setup
+        uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: ${{ matrix.env }}
+
+      - name: deploy:${{ matrix.env }}
         id: deploy
         run: bun run deploy
 
@@ -136,7 +178,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v6
         with:
-          name: critical-journeys-${{ github.run_id }}
+          name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}
           path: apps/product/.cache/critical-journeys/
           if-no-files-found: ignore
           include-hidden-files: true
@@ -145,6 +187,6 @@ jobs:
       - name: Write workflow summary
         if: always() && steps.setup.outcome == 'success'
         env:
-          WORKFLOW_JOB: deploy:prd
+          WORKFLOW_JOB: deploy:${{ matrix.env }}
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
         run: bun run libs/tools/scripts/write-workflow-summary.ts

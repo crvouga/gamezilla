@@ -65,6 +65,9 @@
       "@libs/infra/scripts/worker-deploy": [
         "./libs/infra/scripts/worker-deploy.ts"
       ],
+      "@libs/infra/scripts/workflow-env-matrix": [
+        "./libs/infra/scripts/workflow-env-matrix.ts"
+      ],
       "@libs/secrets/public/*": ["./libs/secrets/src/public/*.ts"],
       "@libs/secrets/shared/*": ["./libs/secrets/src/shared/*.ts"],
       "@libs/spaces/*": ["./libs/spaces/src/*"],

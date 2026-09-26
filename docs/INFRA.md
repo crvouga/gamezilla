@@ -147,6 +147,10 @@ are in the environment.
    `bun run secrets:seed -- --env <env>`.
 3. `bun check` proves the new file is valid and isolated from every other
    environment; the first deploy with `SECRETS_ENV=<env>` creates the rest.
+   No workflow edit: the Deploy and Health workflows read the env files
+   (`scripts/workflow-env-matrix.ts`). Deploy runs every `protection:
+   "standard"` env in parallel, then — only if all succeeded — every
+   `"production"` env; Health probes every env hourly.
 
 ## First deployment (adopting what already exists)
 
@@ -186,7 +190,7 @@ Runbook:
    `SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra plan:foundation`
    (and `plan:edge`, and `SECRETS_ENV=dev`). Expect imports and updates, **0 to destroy**; the policy
    gate refuses anything else anyway.
-4. Merge. The Deploy workflow applies dev (a new replica) and then prd.
+4. Merge. The Deploy workflow applies every standard env (dev, a new replica) and then prd.
 
 Bootstrap adopts the shared Grafana stack (`shortawning2091`, the org's one free-plan stack); the first prd apply creates prd's
 trace tokens and a new S3 credential

@@ -241,7 +241,7 @@ green.
 
 **One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
 
-**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica), and `@libs/infra#health` asserts live infrastructure has no drift from `libs/infra/tofu`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against `prd` and `dev`.
+**Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica), and `@libs/infra#health` asserts live infrastructure has no drift from `libs/infra/tofu`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against every environment.
 
 **Critical journeys are synthetic monitoring.** The user flows that must never break (app boots, Google sign-in hands off, sign in/out, host and end a space, open a chess puzzle, save a profile change, people search answers) are `CRITICAL_JOURNEYS` in `@libs/runtime/sim/critical-journeys`: each is one `@pkgs/ui-testing` `Driver` script over `data-testid`s, with the access it needs (`anonymous` / `signed-in`) set up by its runner. The same scripts run twice: in `bun check` against the full composition (`libs/runtime/tests/e2e/critical-journeys.test.tsx`, simulated Google sign-in), and in `@apps/product#health` (`apps/product/health/critical-journeys.health.ts`) in a real browser (`Bun.WebView`: WebKit on macOS, the runner's Chrome elsewhere) against the production web client and API, one fresh device per journey. A production failure saves a screenshot, the page HTML and the browser console under `apps/product/.cache/critical-journeys/<journey>/`, which the Health and Deploy workflows upload. Signed-in journeys sign in as a fixed synthetic-monitor user: the runner trades `SYNTHETIC_MONITOR_TOKEN` (registry secret, pushed to the API Worker) at the hidden `POST /api/auth/synthetic-monitor/code` for a one-time `/sso-callback?code=` URL, and the browser finishes the real sign-in path. The route answers 404 without the secret and can never mint a session for anyone else (`pkgs/auth-inhouse/src/server/synthetic-monitor.ts`). A new must-never-break flow is a new journey. It must pass in the sim first, and its writes clean up after themselves. The API also serves **readiness** at `GET /api/health/ready` (`application/health+json`, `503` when Postgres fails `SELECT 1` within 3 s) beside liveness at `GET /api/health`; `apps/server/health` probes both.
 
@@ -287,17 +287,21 @@ everywhere; never add a fourth:
    product deploy → billing sync), so it is never listed as a `dependsOn` of
    another aggregator. Live-resource probes go in a package's `health` script,
    never in `//#check`.
-2. **Deploy ships `main` in two stages.** `.github/workflows/deploy.yml` runs
-   `deploy:dev` (`SECRETS_ENV=dev bun run deploy`) and, only when that job
-   succeeds, `deploy:prd` (`SECRETS_ENV=prd bun run deploy`,
-   `environment: production`). Both jobs invoke `bun run deploy` with
-   `SECRETS_ENV` set at the job level rather than the `deploy:dev` /
-   `deploy:prd` aliases, which force `TURBO_UI=tui`. The dev stage deploys the
-   full dev replica (`libs/infra/tofu/envs/dev.tfvars.json`: its own Workers,
-   bucket, broker and Grafana stack on the dev hostnames) with the same chain
-   as prd, so every change runs in a real environment before production.
-   `deploy:dev` never runs on PRs; the dev environment is a shared singleton.
-   Deploy ends with every package's `health` task.
+2. **Deploy ships `main` to every env file, standard envs first.**
+   `.github/workflows/deploy.yml` is data-driven: `deploy:matrix` (no
+   secrets; it also runs the merged-PR guard) reads
+   `libs/infra/tofu/envs/*.tfvars.json` via
+   [`workflow-env-matrix.ts`](libs/infra/scripts/workflow-env-matrix.ts), then
+   one `deploy:<env>` job per `protection: "standard"` env runs in parallel
+   (`fail-fast: false`) and, only when all of them succeed, one `deploy:<env>`
+   job per `protection: "production"` env (`environment: production`). Adding
+   an env file needs no workflow edit. Every job runs `bun run deploy` with
+   `SECRETS_ENV=<env>` at the job level (not the `deploy:dev` / `deploy:prd`
+   aliases, which force `TURBO_UI=tui`). Each standard env is a full replica
+   (its own Workers, bucket, broker on its own hostnames) deployed with the
+   same chain as prd, so every change runs in a real environment before
+   production. Deploy never runs on PRs; each environment is a shared
+   singleton. Deploy ends with every package's `health` task.
    **Rehearse it locally before merging** anything that touches deploy, infra,
    secrets, Workers or `health`: `mise install`, then `bun run deploy:dev` from
    the PR branch. It is the exact `//#deploy` graph the Deploy job runs
@@ -309,8 +313,10 @@ everywhere; never add a fourth:
    `main` (`libs/infra/tofu/modules/pubsub`), so broker image changes only
    reach dev after merge — test them with `docker build` + a root-owned volume.
 3. **Health checks the live deployment between deploys.**
-   `.github/workflows/health.yml` runs `bun health` hourly for `prd` and `dev`
-   (the same probes Deploy runs last) and deploys nothing.
+   `.github/workflows/health.yml` runs `bun health` hourly as one
+   `health:<env>` matrix job per env file (production envs in the GitHub
+   `production` environment; the same probes Deploy runs last) and deploys
+   nothing.
 
 UI tests run in-process, in happy-dom, inside each package's `test` leaf —
 `bun check` drives no real browser. UI suites are written against the

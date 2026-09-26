@@ -6,7 +6,8 @@
     "./public/*": [
       "./src/public/*.ts"
     ],
-    "./scripts/worker-deploy": "./scripts/worker-deploy.ts"
+    "./scripts/worker-deploy": "./scripts/worker-deploy.ts",
+    "./scripts/workflow-env-matrix": "./scripts/workflow-env-matrix.ts"
   },
   "scripts": {
     "apply:bootstrap": "bun run scripts/tofu.ts apply --stack bootstrap",

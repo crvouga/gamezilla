@@ -14,7 +14,12 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # probes as its last step (`//#deploy` → `health`); this schedule catches drift in
 # between (expired tokens, revoked keys, a dead Railway service).
 #
-# Prd-only probes skip themselves under dev.
+# One job per environment in libs/infra/tofu/envs/<env>.tfvars.json
+# (health:matrix reads them — libs/infra/scripts/workflow-env-matrix.ts — from
+# a job with no secrets); adding an env file needs no edit here. Envs with
+# `protection: "production"` run in the GitHub `production` environment and
+# keep their critical-journey evidence on failure. Prd-only probes skip
+# themselves elsewhere.
 
 permissions:
   contents: read
@@ -33,13 +38,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  health-prd:
-    name: health:prd
+  health-matrix:
+    name: health:matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      production: ${{ steps.envs.outputs.production }}
+      all: ${{ steps.envs.outputs.all }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - name: envs
+        id: envs
+        run: bun run libs/infra/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+
+  health-env:
+    name: health:${{ matrix.env }}
+    needs: health-matrix
+    if: needs.health-matrix.outputs.all != '[]'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: production
+    # No GitHub environment ('') for a standard env.
+    environment: ${{ contains(fromJSON(needs.health-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    strategy:
+      # One unhealthy environment should not cancel (and hide) another's probes.
+      fail-fast: false
+      matrix:
+        env: ${{ fromJSON(needs.health-matrix.outputs.all) }}
     env:
-      SECRETS_ENV: prd
+      SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
     steps:
       - name: Checkout
@@ -52,42 +82,19 @@ jobs:
         with:
           identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: prd
+          environment: ${{ matrix.env }}
 
-      - name: health:prd
+      - name: health:${{ matrix.env }}
         run: bun run health
 
       # Critical journeys (apps/product/health/critical-journeys.health.ts)
       # save a screenshot, the page HTML and the browser console per failure.
       - name: Upload critical journey evidence
-        if: failure()
+        if: failure() && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env)
         uses: actions/upload-artifact@v6
         with:
-          name: critical-journeys-${{ github.run_id }}
+          name: critical-journeys-${{ github.run_id }}-${{ matrix.env }}
           path: apps/product/.cache/critical-journeys/
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
-
-  health-dev:
-    name: health:dev
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      SECRETS_ENV: dev
-      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - id: setup
-        uses: ./.github/actions/setup
-
-      - uses: ./.github/actions/secrets-auth
-        with:
-          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          project-id: ${{ vars.SECRETS_PROJECT_ID }}
-          environment: dev
-
-      - name: health:dev
-        run: bun run health
