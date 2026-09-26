@@ -182,7 +182,7 @@ export class RoomDurableObjectAdapterBase<
     if (routed === null) return;
     const { server, meta } = routed;
     const text =
-      typeof message === 'string' ? message : new TextDecoder().decode(message);
+      typeof message === 'string' ? message : utf8Decoder.decode(message);
     const parsed = parseJsonOrNull(text);
     if (parsed === null) {
       ws.close(WS_CLOSE.invalidFrame, 'invalid JSON frame');
@@ -362,6 +362,8 @@ export class RoomDurableObjectAdapterBase<
   }
 }
 
+const utf8Decoder = new TextDecoder();
+
 function parseJsonOrNull(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
@@ -371,12 +373,30 @@ function parseJsonOrNull(text: string): unknown {
 }
 
 /**
+ * One serialization per broadcast: {@link RoomServer} fans out a single frame
+ * object to every connection, so the JSON text is memoized per object and
+ * N sockets cost one `JSON.stringify`.
+ */
+const frameJson = new WeakMap<object, string>();
+
+function serializeFrame(payload: unknown): string {
+  if (typeof payload !== 'object' || payload === null) {
+    return JSON.stringify(payload);
+  }
+  const cached = frameJson.get(payload);
+  if (cached !== undefined) return cached;
+  const text = JSON.stringify(payload);
+  frameJson.set(payload, text);
+  return text;
+}
+
+/**
  * Best-effort JSON broadcast to a connected socket. A throw here means the
  * peer is mid-close; the matching `webSocketClose` will unregister cleanly.
  */
 function sendJson(ws: WebSocket, payload: unknown): void {
   try {
-    ws.send(JSON.stringify(payload));
+    ws.send(serializeFrame(payload));
   } catch {
     // socket is closing
   }

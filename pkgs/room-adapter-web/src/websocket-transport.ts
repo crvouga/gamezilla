@@ -58,6 +58,7 @@ export class WebSocketRoomTransport implements ClientTransport {
   private openGeneration = 0;
   private lastResolvedUrl = '';
   private messageHandlers = new Set<(raw: unknown) => void>();
+  private readonly decoder = new TextDecoder();
   private handlerSets: ClientTransportHandlers[] = [];
   private readonly heartbeat: HeartbeatTimers = {
     interval: null,
@@ -266,7 +267,7 @@ export class WebSocketRoomTransport implements ClientTransport {
       const raw =
         typeof ev.data === 'string'
           ? ev.data
-          : new TextDecoder().decode(ev.data as ArrayBuffer);
+          : this.decoder.decode(ev.data as ArrayBuffer);
       let parsed: unknown;
       try {
         parsed = JSON.parse(raw) as unknown;
@@ -280,7 +281,7 @@ export class WebSocketRoomTransport implements ClientTransport {
         }
         return;
       }
-      for (const h of [...this.messageHandlers]) {
+      for (const h of this.messageHandlers) {
         h(parsed);
       }
     };
