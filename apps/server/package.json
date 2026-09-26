@@ -37,6 +37,7 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/async-local": "workspace:*",
     "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
     "@pkgs/billing": "workspace:*",
     "@pkgs/billing-providers": "workspace:*",
     "@pkgs/clock": "workspace:*",

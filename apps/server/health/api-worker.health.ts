@@ -2,8 +2,13 @@
 import { describe, expect, test } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';
 import { connect } from 'node:tls';
-import { envHostnames, envOrigins } from '@libs/infra/public/env-file';
-import { envFile } from '@libs/infra/public/envs';
+import {
+  envHostnames,
+  envOrigins,
+  oauthRelayEnv,
+} from '@libs/infra/public/env-file';
+import { ENV_FILES, envFile } from '@libs/infra/public/envs';
+import { httpProbe } from '@libs/secrets/shared/http-probe';
 import { waitForHttp } from '@libs/secrets/shared/wait-for-http';
 import { wallClock } from '@pkgs/clock';
 
@@ -15,6 +20,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
 const origins = envOrigins(env);
 const HOSTS = envHostnames(env);
+const RELAY = oauthRelayEnv(Object.values(ENV_FILES));
+const GOOGLE_CALLBACK_PATH = '/api/auth/callback/google';
 
 async function addresses(host: string): Promise<string[]> {
   const settled = await Promise.allSettled([resolve4(host), resolve6(host)]);
@@ -98,7 +105,7 @@ describe(`api worker (${env.env})`, () => {
   );
 
   test(
-    'Worker booted: Google OAuth launch redirects with the API callback',
+    'Worker booted: Google OAuth launch redirects with the shared callback',
     async () => {
       const api = origins.api;
       const callbackUrl = `${origins.web}/sso-callback`;
@@ -121,9 +128,29 @@ describe(`api worker (${env.env})`, () => {
       const authorize = new URL(result.location ?? '');
       expect(authorize.hostname).toBe('accounts.google.com');
       expect(authorize.searchParams.get('redirect_uri')).toBe(
-        `${api}/api/auth/callback/google`
+        `${envOrigins(RELAY).api}${GOOGLE_CALLBACK_PATH}`
       );
+      expect(
+        authorize.searchParams.get('state')?.startsWith(`${env.env}.`)
+      ).toBe(true);
     },
     WARMUP_MS + 30_000
   );
+
+  // The relay is probed from its own deploy: a replica deploys before the
+  // relay learns about it, so its own health must not depend on the relay.
+  const others = Object.values(ENV_FILES).filter((o) => o.env !== env.env);
+  for (const other of env.env === RELAY.env ? others : []) {
+    test(`relays ${other.env}'s Google callbacks to ${other.hosts.api}`, async () => {
+      const query = `?state=${other.env}.health&code=health`;
+      const result = await httpProbe(
+        `${origins.api}${GOOGLE_CALLBACK_PATH}${query}`,
+        15_000
+      );
+      expect(result.status).toBe(302);
+      expect(result.location).toBe(
+        `${envOrigins(other).api}${GOOGLE_CALLBACK_PATH}${query}`
+      );
+    });
+  }
 });

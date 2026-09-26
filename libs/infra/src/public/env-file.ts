@@ -118,3 +118,44 @@ export function envOrigins(env: EnvFile): EnvOrigins {
     broker: `https://${env.hosts.broker}`,
   };
 }
+
+/**
+ * The environment that hosts the one OAuth callback registered with
+ * providers (Google's console cannot be reconciled from code): the
+ * production environment, the only replica that is never torn down. Every
+ * other environment's sign-ins return through it — see
+ * `@pkgs/auth-inhouse` `oauth-callback-relay.ts`.
+ */
+export function oauthRelayEnv(envs: readonly EnvFile[]): EnvFile {
+  const production = envs.filter((env) => env.protection === 'production');
+  const [relay] = production;
+  if (relay === undefined || production.length > 1) {
+    throw new Error(
+      `exactly one environment must have protection "production" (found ${String(production.length)})`
+    );
+  }
+  return relay;
+}
+
+/**
+ * Plain-text vars the API Worker boots with, derived from the env files so a
+ * new replica needs no hand-set configuration. Names match the bindings
+ * `@libs/server-app` and `@pkgs/auth-inhouse` read
+ * (`apps/server/tests/wrangler-config.test.ts` pins them).
+ */
+export function apiWorkerVars(
+  env: EnvFile,
+  envs: readonly EnvFile[]
+): Readonly<Record<string, string>> {
+  const relay = oauthRelayEnv(envs);
+  const forwardTo: Record<string, string> = {};
+  for (const other of envs) {
+    if (other.env !== env.env) forwardTo[other.env] = envOrigins(other).api;
+  }
+  return {
+    WEB_CLIENT_ORIGIN: envOrigins(env).web,
+    OAUTH_CALLBACK_ORIGIN: envOrigins(relay).api,
+    OAUTH_STATE_TAG: env.env,
+    OAUTH_RELAY_TARGETS: JSON.stringify(forwardTo),
+  };
+}

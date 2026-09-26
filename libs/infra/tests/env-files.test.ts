@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { envHostnames, sharedIdentities } from '@libs/infra/public/env-file';
+import {
+  envHostnames,
+  oauthRelayEnv,
+  sharedIdentities,
+} from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import { GLOBAL } from '@libs/infra/public/global';
 import { envResourceNames } from '@libs/infra/public/naming';
@@ -18,6 +22,12 @@ describe('environment files', () => {
     for (const [name, env] of Object.entries(ENV_FILES)) {
       expect(env.env).toBe(name);
     }
+  });
+
+  test('exactly one production environment hosts the shared OAuth callback', () => {
+    expect(oauthRelayEnv(Object.values(ENV_FILES)).protection).toBe(
+      'production'
+    );
   });
 
   test('no two environments share a stateful identity or hostname', () => {

@@ -11,8 +11,8 @@ import { resolveWebClientOrigin } from './web-client-origin';
 /** The path the API serves under; the auth service's routes sit beneath it. */
 export const API_PATH_PREFIX = '/api';
 
-/** Binding for the web origin sign-in redirects return to (localhost stack). */
-const WEB_CLIENT_ORIGIN_BINDING = 'WEB_CLIENT_ORIGIN';
+/** Binding for the web origin sign-in redirects return to (rendered per env by `@libs/infra`; the localhost stack sets its own). */
+export const WEB_CLIENT_ORIGIN_BINDING = 'WEB_CLIENT_ORIGIN';
 
 async function readOptional(
   secretStore: SecretStore,

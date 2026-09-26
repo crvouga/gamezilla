@@ -9,6 +9,7 @@ import {
   AUTH_SESSION_TTL_MS,
 } from '../shared/auth-constants';
 import { hashAuthSecret } from '../shared/token-hash';
+import { tagState } from './oauth-callback-relay';
 
 export type IdpUserRow = {
   readonly id: string;
@@ -170,12 +171,14 @@ export class IdpRepository {
     readonly intent: OauthIntent;
     readonly linkUserId: string | null;
     readonly pendingLinkId: string | null;
+    /** Prefix naming the deployment that owns the state (callback relay). */
+    readonly stateTag: string | null;
   }): Promise<{
     readonly state: string;
     readonly codeVerifier: string;
     readonly nonce: string;
   }> {
-    const state = this.createId();
+    const state = tagState(args.stateTag, this.createId());
     const codeVerifier = this.createId();
     const nonce = this.createId();
     const now = this.nowIso();

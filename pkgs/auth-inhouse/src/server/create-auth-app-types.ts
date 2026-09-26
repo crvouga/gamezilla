@@ -2,7 +2,7 @@ import type { Clock } from '@pkgs/clock';
 import type { HttpClient } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
-
+import type { OauthCallbackRelay } from './oauth-callback-relay';
 import type {
   OauthProviders,
   OauthProvidersConfig,
@@ -26,6 +26,8 @@ export type CreateAuthAppDeps = {
   readonly publicPathPrefix?: string;
   readonly trustedOrigins: readonly string[];
   readonly providers: CreateAuthAppProviders;
+  /** Shared provider callback; absent → providers call back `baseURL`. */
+  readonly callbackRelay?: OauthCallbackRelay;
   /** Hidden synthetic-monitor sign-in; absent → its route answers 404. */
   readonly syntheticMonitor?: SyntheticMonitorConfig;
 };

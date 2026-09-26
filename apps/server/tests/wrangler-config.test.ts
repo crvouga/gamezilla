@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { envOrigins, oauthRelayEnv } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import {
   deletedDurableObjectClasses,
@@ -8,6 +9,8 @@ import {
   type WranglerConfig,
   workerName,
 } from '@libs/infra/public/wrangler';
+import { WEB_CLIENT_ORIGIN_BINDING } from '@libs/server-app/config/auth-provider';
+import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse/server';
 
 const base = Bun.TOML.parse(
   readFileSync(join(import.meta.dirname, '../wrangler.toml'), 'utf8')
@@ -31,6 +34,31 @@ describe('wrangler.toml', () => {
           },
         ],
       });
+    }
+  });
+
+  test('boots every environment with its web origin and the shared OAuth callback', () => {
+    const envs = Object.values(ENV_FILES);
+    const relay = oauthRelayEnv(envs);
+    for (const env of envs) {
+      const vars = renderWranglerConfig(base, env, 'api')['vars'] as Record<
+        string,
+        string
+      >;
+      expect(vars[WEB_CLIENT_ORIGIN_BINDING]).toBe(envOrigins(env).web);
+      expect(vars[INHOUSE_AUTH_SECRET.oauthCallbackOrigin]).toBe(
+        envOrigins(relay).api
+      );
+      expect(vars[INHOUSE_AUTH_SECRET.oauthStateTag]).toBe(env.env);
+      const targets = JSON.parse(
+        vars[INHOUSE_AUTH_SECRET.oauthRelayTargets] ?? '{}'
+      ) as Record<string, string>;
+      expect(Object.keys(targets).sort()).toEqual(
+        envs
+          .filter((other) => other.env !== env.env)
+          .map((other) => other.env)
+          .sort()
+      );
     }
   });
 });

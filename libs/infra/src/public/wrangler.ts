@@ -9,7 +9,8 @@
  * The rendered file is written to `<app>/.cache/`, one directory below the
  * TOML, so relative paths are re-rooted by one level.
  */
-import type { EnvFile } from './env-file';
+import { apiWorkerVars, type EnvFile } from './env-file';
+import { ENV_FILES } from './envs';
 import { envResourceNames } from './naming';
 
 export type WorkerRole = 'api' | 'room' | 'web';
@@ -101,6 +102,7 @@ export function renderWranglerConfig(
     vars: {
       ...((base['vars'] as Record<string, string> | undefined) ?? {}),
       DEPLOYMENT_ENVIRONMENT: env.env,
+      ...(role === 'api' ? apiWorkerVars(env, Object.values(ENV_FILES)) : {}),
     },
   };
   if (typeof base['main'] === 'string') rendered['main'] = reroot(base['main']);

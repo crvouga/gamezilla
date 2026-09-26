@@ -1,20 +1,23 @@
 // @io-wall-ok — live health probe (Google OAuth client configuration).
 /**
- * Google accepts this environment's OAuth callback. The redirect URIs live
- * in the Google Cloud console — a human-managed setting no provider can
- * reconcile — so this probe is what notices a missing one. It asks Google's
- * authorize endpoint directly (no Worker, no sign-in): a registered
- * redirect_uri is answered with the sign-in page; an unregistered one with
- * Google's error page carrying `redirect_uri_mismatch`.
+ * Google accepts the OAuth callback this environment sends. Every
+ * environment sends the same one — the relay environment's (see
+ * `oauthRelayEnv`) — so a new replica needs no console edit; the relay's
+ * registration is the one human-managed setting, and this probe is what
+ * notices if it goes missing. It asks Google's authorize endpoint directly
+ * (no Worker, no sign-in): a registered redirect_uri is answered with the
+ * sign-in page; an unregistered one with Google's error page carrying
+ * `redirect_uri_mismatch`.
  */
 import { describe, expect, test } from 'bun:test';
-import { envOrigins } from '@libs/infra/public/env-file';
-import { envFile } from '@libs/infra/public/envs';
+import { envOrigins, oauthRelayEnv } from '@libs/infra/public/env-file';
+import { ENV_FILES, envFile } from '@libs/infra/public/envs';
 import { createGlobalHttpClient } from '@pkgs/http-client';
 
 const http = createGlobalHttpClient();
 const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
-const callback = `${envOrigins(env).api}/api/auth/callback/google`;
+const relay = oauthRelayEnv(Object.values(ENV_FILES));
+const callback = `${envOrigins(relay).api}/api/auth/callback/google`;
 
 type Verdict =
   | 'accepted'
