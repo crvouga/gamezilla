@@ -5,6 +5,7 @@
  *
  *   - `tofu fmt -check`       formatting
  *   - `tofu validate`         each stack, after `init -backend=false`
+ *   - `tflint`                language errors across stacks and local modules
  *   - `conftest verify`       the policy's own Rego unit tests
  *   - `conftest fmt --check`  policy formatting
  *
@@ -49,6 +50,14 @@ const results = [
   ]),
   step('conftest verify', ['conftest', 'verify', '--policy', 'policy']),
   step('conftest fmt --check', ['conftest', 'fmt', '--check', 'policy']),
+  step('tflint', [
+    'tflint',
+    '--config',
+    join(PKG_DIR, 'tflint.hcl'),
+    '--recursive',
+    '--chdir',
+    'tofu',
+  ]),
 ];
 for (const stack of STACKS) {
   const env = {
@@ -65,4 +74,4 @@ for (const stack of STACKS) {
   );
 }
 if (results.includes(false)) process.exit(1);
-console.log('tofu: fmt, validate and policy tests pass');
+console.log('tofu: fmt, validate, tflint and policy tests pass');
