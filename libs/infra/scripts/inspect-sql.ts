@@ -1,8 +1,21 @@
-// @io-wall-ok — inspect SQL + dual-env secret loading helpers.
+// @io-wall-ok — inspect SQL + every-env secret loading helpers.
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
 
-export type SecretsEnvName = 'dev' | 'prd';
+/** A secrets environment's name (`dev`, `prd`, `staging`, …; one per env file). */
+export type SecretsEnvName = string;
+
+/** SQL identifier form of an env name (`pg_<ident>`, `s3_<ident>`). */
+export function envIdent(envName: SecretsEnvName): string {
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(envName)) {
+    throw new Error(`inspect: ${JSON.stringify(envName)} is not an env slug`);
+  }
+  return envName.replace(/-/g, '_');
+}
+
+function envVarSuffix(envName: SecretsEnvName): string {
+  return envIdent(envName).toUpperCase();
+}
 
 export type S3Config = {
   readonly accessKeyId: string;
@@ -99,12 +112,15 @@ export function parseDatabaseUrl(databaseUrl: string): PgVars {
   };
 }
 
+/** Every env var inspect hands duckdb starts with this. */
+export const INSPECT_ENV_PREFIX = 'INSPECT_';
+
 export function s3EnvPrefix(envName: SecretsEnvName): string {
-  return envName === 'dev' ? 'S3_DEV' : 'S3_PRD';
+  return `${INSPECT_ENV_PREFIX}S3_${envVarSuffix(envName)}`;
 }
 
 export function pgEnvPrefix(envName: SecretsEnvName): string {
-  return envName === 'dev' ? 'INSPECT_PG_DEV' : 'INSPECT_PG_PRD';
+  return `${INSPECT_ENV_PREFIX}PG_${envVarSuffix(envName)}`;
 }
 
 /** Discrete PG_* fields for CREATE SECRET … getenv (ATTACH cannot take getenv). */
@@ -164,15 +180,14 @@ async function loadOneEnv(
   };
 }
 
-/** Load both Infisical envs (dev + prd) for a dual-attach inspect session. */
-export async function loadBothEnvs(
-  repoRoot: string
-): Promise<{ readonly dev: EnvBundle; readonly prd: EnvBundle }> {
-  const [dev, prd] = await Promise.all([
-    loadOneEnv(repoRoot, 'dev'),
-    loadOneEnv(repoRoot, 'prd'),
-  ]);
-  return { dev, prd };
+/** Load every environment's secrets for one inspect session attaching them all. */
+export async function loadEnvs(
+  repoRoot: string,
+  envNames: readonly SecretsEnvName[]
+): Promise<readonly EnvBundle[]> {
+  return await Promise.all(
+    envNames.map((envName) => loadOneEnv(repoRoot, envName))
+  );
 }
 
 function renderNamedS3Secret(input: {
@@ -204,9 +219,10 @@ function renderNamedS3Secret(input: {
 
 function renderS3Block(wired: WiredS3): string {
   const p = s3EnvPrefix(wired.envName);
+  const ident = envIdent(wired.envName);
   const parts = [
     renderNamedS3Secret({
-      name: `s3_${wired.envName}`,
+      name: `s3_${ident}`,
       keyIdEnv: `${p}_ACCESS_KEY_ID`,
       secretEnv: `${p}_SECRET_ACCESS_KEY`,
       regionEnv: `${p}_REGION`,
@@ -216,7 +232,7 @@ function renderS3Block(wired: WiredS3): string {
     }),
   ];
   if (wired.s3.bucket !== undefined) {
-    parts.push(`CREATE OR REPLACE MACRO s3_${wired.envName}_objects() AS TABLE
+    parts.push(`CREATE OR REPLACE MACRO s3_${ident}_objects() AS TABLE
 SELECT * FROM glob('s3://' || getenv('${p}_BUCKET') || '/**');`);
   }
   return parts.join('\n\n');
@@ -260,7 +276,7 @@ function appendPgHelpers(
   queries: HelperQuery[],
   envName: SecretsEnvName
 ): void {
-  const alias = `pg_${envName}`;
+  const alias = `pg_${envIdent(envName)}`;
   queries.push(
     {
       name: `${alias}_schemas_tables_sizes`,
@@ -281,9 +297,10 @@ ORDER BY s.total_bytes DESC NULLS LAST`,
 
 function appendS3Helpers(queries: HelperQuery[], wired: WiredS3): void {
   if (wired.s3.bucket === undefined) return;
-  const macro = `s3_${wired.envName}_objects`;
+  const ident = envIdent(wired.envName);
+  const macro = `s3_${ident}_objects`;
   queries.push({
-    name: `s3_${wired.envName}_prefix_bytes`,
+    name: `s3_${ident}_prefix_bytes`,
     description: `${wired.envName} S3: count/bytes by top-level prefix`,
     sql: `SELECT split_part(file, '/', 4) AS top_prefix, count(*) AS object_count, sum(size) AS total_bytes
 FROM ${macro}()
@@ -329,7 +346,7 @@ function buildHelperQueries(input: {
 }
 
 function renderPostgresBlock(envName: SecretsEnvName): string {
-  const alias = `pg_${envName}`;
+  const alias = `pg_${envIdent(envName)}`;
   const secret = `${alias}_secret`;
   const p = pgEnvPrefix(envName);
   return `CREATE OR REPLACE SECRET ${secret} (

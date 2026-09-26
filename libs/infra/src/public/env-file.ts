@@ -51,6 +51,24 @@ export const envFileSchema = z
 
 export type EnvFile = z.infer<typeof envFileSchema>;
 
+/** How carefully an environment is treated: `production` or `standard`. */
+export type EnvProtection = EnvFile['protection'];
+
+/**
+ * Whether an environment is production. Derived from its `protection`, never
+ * its name, so a new env file decides this for itself.
+ */
+export function isProductionEnv(env: EnvFile): boolean {
+  return env.protection === 'production';
+}
+
+/** Names of the production environments among `envs`. */
+export function productionEnvNames(
+  envs: readonly EnvFile[]
+): readonly string[] {
+  return envs.filter(isProductionEnv).map((env) => env.env);
+}
+
 export function parseEnvFile(raw: unknown, source: string): EnvFile {
   const result = envFileSchema.safeParse(raw);
   if (result.success) return result.data;
@@ -125,7 +143,7 @@ export function envOrigins(env: EnvFile): EnvOrigins {
  * `@pkgs/auth-inhouse` `oauth-callback-relay.ts`.
  */
 export function oauthRelayEnv(envs: readonly EnvFile[]): EnvFile {
-  const production = envs.filter((env) => env.protection === 'production');
+  const production = envs.filter(isProductionEnv);
   const [relay] = production;
   if (relay === undefined || production.length > 1) {
     throw new Error(

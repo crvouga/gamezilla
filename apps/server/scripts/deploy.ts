@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { deployWorker } from '@libs/infra/scripts/worker-deploy';
 import { ok } from '@libs/secrets/shared/fmt';
 import {
-  activeSecretsEnv,
+  activeEnvFile,
   getApiWorkerSecrets,
   refreshSecretsIntoEnv,
 } from '@libs/secrets/shared/secrets/secrets';
@@ -19,7 +19,7 @@ const WORKER_EXTRA_ENV_KEYS = ['OBSERVABILITY_ENABLED'] as const;
 
 async function workerSecrets(): Promise<Record<string, string>> {
   await refreshSecretsIntoEnv();
-  const scope = activeSecretsEnv();
+  const scope = activeEnvFile().env;
   const payload: Record<string, string> = { SECRETS_ENV: scope };
   for (const entry of getApiWorkerSecrets()) {
     const value = (process.env[entry.name] ?? '').trim();
@@ -42,5 +42,5 @@ const secrets = await workerSecrets();
 deployWorker({ appDir: join(import.meta.dirname, '..'), role: 'api', secrets });
 ok(
   'API Worker',
-  `deployed to ${activeSecretsEnv()} with ${String(Object.keys(secrets).length)} secrets`
+  `deployed to ${activeEnvFile().env} with ${String(Object.keys(secrets).length)} secrets`
 );

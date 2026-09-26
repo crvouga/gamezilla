@@ -6,13 +6,10 @@
 
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
-import {
-  readSecretsCacheMap,
-  type SecretsCacheEnv,
-} from '@pkgs/secret-provider/local-secrets-cache';
+import { readSecretsCacheMap } from '@pkgs/secret-provider/local-secrets-cache';
 import type { SecretAdminStore } from '@pkgs/secret-store';
 import { REPO_ROOT } from '../paths';
-import { activeSecretsEnv, isSecretsEnv } from './secret';
+import { activeEnvFile } from './secret';
 
 let adminStorePromise: Promise<SecretAdminStore> | null = null;
 
@@ -69,9 +66,8 @@ export async function setSecretIn(
 async function readCachedSecretsMap(
   env: string
 ): Promise<ReadonlyMap<string, string> | null> {
-  if (!isSecretsEnv(env)) return null;
   const store = createRepoTreeObjectStore({ rootDir: REPO_ROOT });
-  return readSecretsCacheMap(store, env as SecretsCacheEnv);
+  return readSecretsCacheMap(store, env);
 }
 
 /** Always hit Infisical admin CLI (ignore local `.cache/secrets`). */
@@ -89,7 +85,7 @@ export async function exportSecretsMapLive(
 export async function exportSecretsMap(
   envOverride?: string
 ): Promise<ReadonlyMap<string, string>> {
-  const env = envOverride ?? activeSecretsEnv();
+  const env = envOverride ?? activeEnvFile().env;
   const cached = await readCachedSecretsMap(env);
   if (cached !== null) return cached;
   return exportSecretsMapLive(envOverride);

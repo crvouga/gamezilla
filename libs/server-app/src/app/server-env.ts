@@ -8,6 +8,7 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { SecretStore } from '@pkgs/secret-store';
 import type { TtsProvider } from '@pkgs/tts/server';
+import type { DeploymentProtection } from '../config/env';
 
 export type ServerEnv = {
   readonly clock: Clock;
@@ -28,7 +29,11 @@ export type ServerEnv = {
    * server never learns which service it is.
    */
   readonly auth: AuthProviderModule;
-  readonly secretsEnv: string;
+  /**
+   * Whether this deployment is production (the env file's `protection`).
+   * Production-only behavior branches on this, never on an env name.
+   */
+  readonly protection: DeploymentProtection;
   readonly serverUrl: string | null;
   /** Exact OTLP/HTTP traces endpoint used by the browser ingress proxy. */
   readonly observabilityCollectorUrl?: string | null;

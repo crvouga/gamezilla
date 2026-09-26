@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'bun:test';
+import { FOUNDATION_SECRETS } from '@libs/infra/public/foundation-secrets';
 import { SECRETS } from '@libs/secrets/public/secrets';
-import secretNames from '../tofu/stacks/foundation/secrets.json';
 
 const byName = new Map(SECRETS.map((s) => [s.name, s]));
 
 describe('OpenTofu secrets ↔ @libs/secrets registry', () => {
   test('the secrets OpenTofu writes are exactly the registry secrets marked managedBy tofu', () => {
     const written = [
-      ...secretNames.generated,
-      ...secretNames.derived,
-      ...secretNames.bootstrap,
+      ...FOUNDATION_SECRETS.generated,
+      ...FOUNDATION_SECRETS.derived,
+      ...FOUNDATION_SECRETS.bootstrap,
     ].sort();
     const managed = SECRETS.filter((s) => s.managedBy === 'tofu')
       .map((s) => s.name)
@@ -18,7 +18,7 @@ describe('OpenTofu secrets ↔ @libs/secrets registry', () => {
   });
 
   test('every human secret OpenTofu asserts is a registry secret a person enters', () => {
-    for (const name of secretNames.human) {
+    for (const name of FOUNDATION_SECRETS.human) {
       expect({ name, managedBy: byName.get(name)?.managedBy }).toEqual({
         name,
         managedBy: null,
@@ -28,10 +28,10 @@ describe('OpenTofu secrets ↔ @libs/secrets registry', () => {
 
   test('a secret is generated, derived or human — never two of them', () => {
     const all = [
-      ...secretNames.human,
-      ...secretNames.generated,
-      ...secretNames.derived,
-      ...secretNames.bootstrap,
+      ...FOUNDATION_SECRETS.human,
+      ...FOUNDATION_SECRETS.generated,
+      ...FOUNDATION_SECRETS.derived,
+      ...FOUNDATION_SECRETS.bootstrap,
     ];
     expect(all.length).toBe(new Set(all).size);
   });

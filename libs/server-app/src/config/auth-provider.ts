@@ -5,6 +5,7 @@ import type { SecretStore } from '@pkgs/secret-store';
 import type { CreateId } from '@pkgs/uuid';
 
 import { requireRequestStore } from '../request-scope';
+import type { DeploymentProtection } from './env';
 import { ApiSecretName } from './secret-names';
 import { resolveWebClientOrigin } from './web-client-origin';
 
@@ -44,7 +45,7 @@ export async function createAuthProvider(args: {
   readonly module: AuthProviderModule;
   readonly secretStore: SecretStore;
   readonly apiUrlOverride: string | null;
-  readonly secretsEnv: string;
+  readonly protection: DeploymentProtection;
   readonly clock: Clock;
   readonly createId: CreateId;
   readonly http: HttpClient;
@@ -56,7 +57,7 @@ export async function createAuthProvider(args: {
     resolveWebClientOrigin(apiOrigin);
   return await args.module.create({
     readSecret: (name) => readOptional(secretStore, name),
-    isProduction: args.secretsEnv === 'prd',
+    isProduction: args.protection === 'production',
     apiOrigin,
     apiPathPrefix: API_PATH_PREFIX,
     clientOrigins: [webClientOrigin],

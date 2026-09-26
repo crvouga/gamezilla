@@ -9,8 +9,9 @@ export const PRODUCT_CONFIG = {
     /** Application tables live in the standard Postgres `public` schema. */
     schema: 'public',
     /**
-     * Hostnames that must never appear when `SECRETS_ENV !== 'prd'`.
-     * Primary prod detection is dual-fetch against secrets env `prd` `DATABASE_URL`.
+     * Hostnames that must never appear in a non-production environment.
+     * Primary prod detection is dual-fetch against every production
+     * environment's `DATABASE_URL`.
      */
     productionHostnames: [] as const,
   },

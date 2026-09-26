@@ -22,7 +22,7 @@ import { describe, test } from 'bun:test';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { envOrigins } from '@libs/infra/public/env-file';
+import { envOrigins, isProductionEnv } from '@libs/infra/public/env-file';
 import { envFile } from '@libs/infra/public/envs';
 import {
   CRITICAL_JOURNEYS,
@@ -36,7 +36,6 @@ import { createGlobalHttpClient, type HttpClient } from '@pkgs/http-client';
 import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
-import { isProductionSecretsEnv } from '@pkgs/secrets-config/deploy-mode';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
 import { resolveE2eBrowser } from '@pkgs/ui-testing-bun-webview/e2e-browser';
 
@@ -237,10 +236,13 @@ async function runJourney(
   }
 }
 
-describe.skipIf(!isProductionSecretsEnv())('critical journeys (prd)', () => {
+/** Journeys sign in and write for real: production environments only. */
+const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
+
+describe.skipIf(!isProductionEnv(env))(`critical journeys (${env.env})`, () => {
   const target: Target = {
-    webOrigin: envOrigins(envFile('prd')).web,
-    apiOrigin: envOrigins(envFile('prd')).api,
+    webOrigin: envOrigins(env).web,
+    apiOrigin: envOrigins(env).api,
     http: createGlobalHttpClient(),
   };
   for (const journey of CRITICAL_JOURNEYS) {

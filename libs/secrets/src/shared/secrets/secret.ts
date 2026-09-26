@@ -6,10 +6,12 @@
  * resource; see `libs/infra/tofu/stacks/foundation/secrets.json`).
  */
 
-export type SecretsEnv = 'dev' | 'prd';
+import type { EnvFile } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 
 export type SecretInput = {
-  readonly env: SecretsEnv;
+  /** The environment the value is for (production-ness is its `protection`). */
+  readonly env: EnvFile;
   readonly secretValue: string;
   /** All values already fetched for this env — for cross-secret checks. */
   readonly secrets: ReadonlyMap<string, string>;
@@ -88,16 +90,10 @@ export function requireHttpsUrl(value: string, label?: string): void {
   }
 }
 
-export const SECRETS_ENVS: readonly SecretsEnv[] = ['dev', 'prd'] as const;
-
-export function isSecretsEnv(value: string): value is SecretsEnv {
-  return value === 'dev' || value === 'prd';
-}
-
-export function activeSecretsEnv(): SecretsEnv {
-  const raw = (process.env['SECRETS_ENV'] ?? 'dev').trim();
-  if (isSecretsEnv(raw)) return raw;
-  throw new Error(
-    `SECRETS_ENV must be "dev" or "prd", got ${JSON.stringify(raw)}`
-  );
+/**
+ * The environment `SECRETS_ENV` names (default `dev`). Any environment with a
+ * `libs/infra/tofu/envs/<env>.tfvars.json` is valid; anything else throws.
+ */
+export function activeEnvFile(): EnvFile {
+  return envFile((process.env['SECRETS_ENV'] ?? 'dev').trim());
 }

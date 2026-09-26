@@ -41,7 +41,7 @@
     "i18n:extract": "lingui extract --clean --overwrite",
     "infra:bootstrap": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra apply:bootstrap",
     "infra:fleet": "SECRETS_ENV=shared bun run libs/secrets/src/scripts/secrets-run.ts -- bun run --filter @libs/infra apply:fleet",
-    "inspect": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/db/src/scripts/inspect.ts",
+    "inspect": "SECRETS_ENV=prd bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/infra/scripts/inspect.ts",
     "install:cli": "mise install",
     "kill": "bun run libs/tools/scripts/kill-dev-stack.ts",
     "lint": "bun run libs/tools/scripts/turbo-ci-run.ts lint //#lint:root",

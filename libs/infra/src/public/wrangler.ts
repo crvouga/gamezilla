@@ -98,10 +98,14 @@ export function renderWranglerConfig(
     ...base,
     name: workerName(env, role),
     // Absent in local `wrangler dev`: tells deployed telemetry which
-    // environment it is (every environment shares one trace stack).
+    // environment it is (every environment shares one trace stack), and the
+    // runtime whether it is production — read from the env file's
+    // `protection`, never inferred from the environment's name. Absent means
+    // non-production.
     vars: {
       ...((base['vars'] as Record<string, string> | undefined) ?? {}),
       DEPLOYMENT_ENVIRONMENT: env.env,
+      DEPLOYMENT_PROTECTION: env.protection,
       ...(role === 'api' ? apiWorkerVars(env, Object.values(ENV_FILES)) : {}),
     },
   };

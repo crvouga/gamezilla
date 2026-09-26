@@ -27,7 +27,7 @@ const S3_SECRET_NAMES = [
  * deploy-time `s3-bucket` resource check.
  */
 export type CreateApiObjectStoreOptions = {
-  /** Secrets env (`dev` / `prd`). Reserved for callers; no longer gates in-memory. */
+  /** Secrets env name (`dev`, `prd`, …). Reserved for callers; no longer gates in-memory. */
   readonly secretsEnv?: string | null;
   /** Injected clock from the worker composition root. */
   readonly now: () => number;

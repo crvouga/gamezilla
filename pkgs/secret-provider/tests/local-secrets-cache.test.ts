@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store/impl-in-memory';
 import {
+  isSecretsCacheEnv,
   isSecretsCacheStale,
   mergeSecretsIntoEnv,
   parseInfisicalExportJson,
@@ -8,7 +9,7 @@ import {
   readSecretsCacheMeta,
   writeSecretsCacheMap,
   writeSecretsCacheMeta,
-} from '../src/local-secrets-cache';
+} from '@pkgs/secret-provider/local-secrets-cache';
 
 describe('parseInfisicalExportJson', () => {
   it('parses Infisical export array into a map', () => {
@@ -53,6 +54,38 @@ describe('local secrets cache ObjectStore round-trip', () => {
     const meta = await readSecretsCacheMeta(store);
     expect(meta?.projectId).toBe('proj');
     expect(meta?.envs).toEqual(['dev', 'prd']);
+  });
+});
+
+describe('secrets cache environments', () => {
+  it('caches any environment slug the caller names', async () => {
+    const store = new ObjectStoreImplInMemory();
+    await writeSecretsCacheMap(store, 'staging', new Map([['A', 'stg']]));
+    await writeSecretsCacheMap(store, 'preview-42', new Map([['A', 'pr']]));
+    await writeSecretsCacheMeta(store, {
+      pulledAt: '2026-01-01T00:00:00.000Z',
+      projectId: 'proj',
+      envs: ['dev', 'staging', 'preview-42'],
+    });
+    expect((await readSecretsCacheMap(store, 'staging'))?.get('A')).toBe('stg');
+    expect((await readSecretsCacheMap(store, 'preview-42'))?.get('A')).toBe(
+      'pr'
+    );
+    expect((await readSecretsCacheMeta(store))?.envs).toEqual([
+      'dev',
+      'staging',
+      'preview-42',
+    ]);
+  });
+
+  it('refuses a name that is not a slug (it becomes a file path)', async () => {
+    const store = new ObjectStoreImplInMemory();
+    for (const bad of ['../prd', 'Staging', '', 'a/b']) {
+      expect(isSecretsCacheEnv(bad)).toBe(false);
+      await expect(readSecretsCacheMap(store, bad)).rejects.toThrow(
+        /not an environment slug/
+      );
+    }
   });
 });
 
