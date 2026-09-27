@@ -46,6 +46,11 @@ The spec writer edits only `.feature` files, generated step catalogs,
 `GLOSSARY.md`, and documentation. They describe observable intent and never
 read implementation or step-definition source. A spec commit starts with
 `spec:` and never contains implementation files.
+How to write a spec — strict BDD, behavior only, no implementation details
+(no vendors, protocols, storage, internals, UI mechanics or test harness) —
+is the [`write-specs`](../.agents/skills/write-specs/SKILL.md) skill. It
+applies to the live domains too: a health check states the promise the live
+product keeps, never the resource that keeps it.
 
 The implementer treats feature text as read-only. They add or reuse typed step
 definitions and sim actions until the scenarios pass. If wording is missing or

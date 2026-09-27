@@ -632,7 +632,9 @@ writer and changes only in isolated `spec:` commits; implementers treat it as
 read-only. Step definitions live in `tests/steps/`, call deterministic sim
 actions and reads, and are catalogued in generated `STEPS_CATALOG.md` files.
 See [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md) and
-[`GLOSSARY.md`](GLOSSARY.md). `bun run spec:check` enforces ownership-neutral
+[`GLOSSARY.md`](GLOSSARY.md). Every spec is written with the
+[`write-specs`](.agents/skills/write-specs/SKILL.md) skill: strict BDD,
+product behavior only, no implementation details. `bun run spec:check` enforces ownership-neutral
 structure and vocabulary; `bun run spec --tags '<expression>'` runs matching
 scenarios across packages. The release decision remains only `bun check`.
 
