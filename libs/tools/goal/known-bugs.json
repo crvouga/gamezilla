@@ -128,5 +128,10 @@
     "id": "eager-perf-sampler-bundle",
     "summary": "The disabled performance HUD eagerly bundled its browser sampler and web-vitals attribution into the client boot path, leaving the cross-platform bundle budget without enough headroom. Fixed by loading the sampler only when the HUD is enabled.",
     "regressionTest": "libs/client-app/tests/shell/create-lazy-perf-sampler.test.ts"
+  },
+  {
+    "id": "auth-responses-missing-cors",
+    "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The sim is same-origin, so bun check could not see it. Fixed by writing the CORS headers onto the final response after next().",
+    "regressionTest": "libs/server-app/src/app/cors.test.ts"
   }
 ]
