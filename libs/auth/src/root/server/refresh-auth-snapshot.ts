@@ -7,6 +7,7 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { ExternalAccountRepository } from '../../public/external-account-repository';
 import { managedInsertColumns } from '../../public/managed-row';
+import { AccountDeviceMembership } from '../../shared/auth/writes/account-device-membership';
 import { LinkedIdentityMirror } from './linked-identity-mirror';
 
 /**
@@ -20,6 +21,7 @@ export class AuthSnapshotRefresher {
     private readonly authServer: AuthServerPort
   ) {}
 
+  /** Returns the other accounts the device left by signing into this one. */
   async refresh(args: {
     bearerToken: string;
     accountId: string;
@@ -27,7 +29,7 @@ export class AuthSnapshotRefresher {
     deviceAttributes: Record<string, string | null>;
     now: () => number;
     createId: CreateId;
-  }): Promise<void> {
+  }): Promise<readonly string[]> {
     const {
       bearerToken,
       accountId,
@@ -45,6 +47,7 @@ export class AuthSnapshotRefresher {
       now,
       createId,
     });
+    const fromAccountId = await this.accountHoldingDevice(deviceId);
     await this.upsertDeviceRow({
       deviceId,
       userId: accountId,
@@ -52,6 +55,34 @@ export class AuthSnapshotRefresher {
       now,
       createId,
     });
+    return await new AccountDeviceMembership(this.db, { now, createId }).move({
+      deviceId,
+      fromAccountId,
+      toUserId: accountId,
+      toIsAccount: true,
+    });
+  }
+
+  /** The signed-in (non-guest) account the device is bound to, if any. */
+  private async accountHoldingDevice(deviceId: string): Promise<string | null> {
+    const rows = await this.db.query(sql<{
+      readonly user_id: string;
+      readonly is_anon: unknown;
+    }>`
+      SELECT d.user_id, u.is_anon
+      FROM auth_devices d
+      JOIN auth_users u ON u.id = d.user_id
+      WHERE d.id = ${deviceId}
+      LIMIT 1
+    `);
+    const row = rows[0];
+    if (row === undefined) return null;
+    const anon =
+      row.is_anon === true ||
+      row.is_anon === 1 ||
+      row.is_anon === '1' ||
+      row.is_anon === 't';
+    return anon ? null : row.user_id;
   }
 
   private async upsertAuthUserFromBearer(args: {

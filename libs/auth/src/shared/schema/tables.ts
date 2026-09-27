@@ -43,8 +43,24 @@ export const authExternalAccounts = defineTable({
   ],
 });
 
+/**
+ * A device's time in an account: live while it is signed in there,
+ * tombstoned when it leaves. `auth_devices.user_id` moves with the install,
+ * so this is how the account it left hears that it left.
+ */
+export const authAccountDevices = defineTable({
+  domain: 'auth',
+  name: 'auth_account_devices',
+  columns: {
+    user_id: 'text',
+    device_id: 'text',
+  },
+  uniqueIndexes: [['user_id', 'device_id']],
+});
+
 export const AUTH_TABLES = [
   authUsers,
   authDevices,
   authExternalAccounts,
+  authAccountDevices,
 ] as const;

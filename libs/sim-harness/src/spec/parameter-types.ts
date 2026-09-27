@@ -7,6 +7,8 @@
  * - `{username}` — `@robert_1` → `robert_1`, a name someone picks or types.
  * - `{person}` — either of the above, as the object of a step (`shows Bob`,
  *   `shows @robert_1`), transformed to the username the UI displays.
+ * - `{provider}` — one way a person signs in (`Google` or `Apple`),
+ *   transformed to its provider id (`google`, `apple`).
  * - `{methods}` — the ways a person signs in (`Google`, `Apple`, or
  *   `Google and Apple`), transformed to the sorted provider ids
  *   (`['apple', 'google']`).
@@ -74,6 +76,11 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     regexp: new RegExp(`${Object.keys(ACTOR_IDS).join('|')}|@[a-z0-9_]+`),
     transformer: (text: string) =>
       text.startsWith('@') ? text.slice(1) : actorId(text),
+  },
+  {
+    name: 'provider',
+    regexp: /Google|Apple/,
+    transformer: (text: string) => text.toLowerCase(),
   },
   {
     name: 'methods',

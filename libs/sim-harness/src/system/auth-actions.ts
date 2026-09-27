@@ -166,6 +166,24 @@ export const keepSeparateAccount = scenarioAction({
 });
 
 /**
+ * The actor is being asked to sign in: the sign-in methods are on their
+ * screen. Waiting on an absent id brings the actor's phone to the front
+ * first, so a parked actor's screen does not read as empty.
+ */
+export async function signInAsked(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    await ui.get('sim-focus-probe').expect.hidden({ timeoutMs: 1 });
+    return await ui.get(Handles.authMethodGoogle).isVisible();
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Start a sign-in and walk away from it: the provider window never finishes
  * (the network is down, or the person closes it). The modal is left to show
  * whatever the app makes of that.

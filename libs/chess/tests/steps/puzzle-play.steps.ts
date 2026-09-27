@@ -55,7 +55,6 @@ import {
 } from '@libs/sim-harness/spec/define';
 import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
 import { remember } from '@libs/sim-harness/spec/world';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
 import {
   createSpace,
   reenterActiveSpace,
@@ -663,10 +662,6 @@ When('{actor} returns to their space', async (w, actor: Actor) => {
 });
 
 // ------------------------------------------------------------------ account
-
-Then('{actor} (still )has no account', async (w, actor: Actor) => {
-  expect(await w.s.read(accountIdOf, actor)).toBeNull();
-});
 
 Given(
   '{actor} has since come back online and signed in with Google',

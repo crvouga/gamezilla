@@ -67,15 +67,22 @@ export function useAccountDeviceIds(
     () => sql<DeviceRow>`
     SELECT id, last_seen_at, created_at
     FROM auth_devices
-    WHERE id = ${scopedDeviceId()}
+    WHERE id = ${scopedDeviceId()} AND deleted_at IS NULL
   `
   );
 
+  // A device that left the account (signed out, or into another account)
+  // keeps its old owner in this copy of `auth_devices`: its tombstoned
+  // `auth_account_devices` row is what takes it off the list.
   const remoteRows = createQuery(
     () => sql<DeviceRow>`
-    SELECT id, last_seen_at, created_at
-    FROM auth_devices
-    WHERE user_id = ${scopedAccountId()}
+    SELECT d.id, d.last_seen_at, d.created_at
+    FROM auth_devices d
+    LEFT JOIN auth_account_devices m
+      ON m.device_id = d.id AND m.user_id = d.user_id
+    WHERE d.user_id = ${scopedAccountId()}
+      AND d.deleted_at IS NULL
+      AND (m.id IS NULL OR m.deleted_at IS NULL)
     LIMIT 500
   `
   );

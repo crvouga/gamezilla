@@ -7,6 +7,7 @@ import './profile.steps';
 import './auth.steps';
 import './sign-in-methods.steps';
 import './sessions.steps';
-import './offline-sign-in.steps';
+import './abandoned-sign-in.steps';
+import './devices.steps';
 
 useSimWorld(openSim);

@@ -101,7 +101,7 @@ export class AuthApiRoutes {
     private readonly clock: Clock,
     private readonly createId: CreateId,
     private readonly onUserDomainWrite?: (
-      userId: string
+      userIds: readonly string[]
     ) => void | Promise<void>
   ) {}
 
@@ -121,7 +121,10 @@ export class AuthApiRoutes {
           ...(body.userId !== undefined ? { userId: body.userId } : {}),
         });
 
-        await this.onUserDomainWrite?.(result.userId);
+        await this.onUserDomainWrite?.([
+          result.userId,
+          ...result.leftAccountIds,
+        ]);
 
         return c.json(
           { userId: result.userId, accountId: result.userId, isAnon: true },
@@ -148,7 +151,10 @@ export class AuthApiRoutes {
         const rawBody: unknown = await c.req.json().catch(() => null);
         const body = readRefreshBody(rawBody);
 
-        await new AuthSnapshotRefresher(sql, authServer).refresh({
+        const leftAccountIds = await new AuthSnapshotRefresher(
+          sql,
+          authServer
+        ).refresh({
           bearerToken,
           accountId,
           deviceId,
@@ -157,7 +163,7 @@ export class AuthApiRoutes {
           createId: resolved.createId,
         });
 
-        await this.onUserDomainWrite?.(accountId);
+        await this.onUserDomainWrite?.([accountId, ...leftAccountIds]);
 
         return c.json({ accountId, userId: accountId, isAnon: false }, 200);
       });

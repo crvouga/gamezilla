@@ -191,11 +191,3 @@ export async function friendsEmptyShown(
 ): Promise<boolean> {
   return await handleVisible(s, actorId, Handles.friendsEmpty);
 }
-
-/** The actor is being asked to sign in (focuses the actor). */
-export async function signInAsked(
-  s: ProductSim,
-  actorId: string
-): Promise<boolean> {
-  return await handleVisible(s, actorId, Handles.authMethodGoogle);
-}

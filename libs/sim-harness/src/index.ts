@@ -93,6 +93,7 @@ export {
   confirmAccountLink,
   keepSeparateAccount,
   returnToTabs,
+  signInAsked,
   signInWithApple,
   signInWithGoogle,
   signInWithGoogleAsAccount,
