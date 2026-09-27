@@ -2003,6 +2003,8 @@
       },
       "devDependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
