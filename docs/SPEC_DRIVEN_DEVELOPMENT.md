@@ -81,14 +81,17 @@ terms:
     model: [host, hostOf]
   - term: Plus member
     from: billing                        # borrowed: billing defines it
+    model: [unlimited]                   # this context's own Quint name for it
   - term: checkmate
     source: FIDE Laws of Chess, Article 5.1.1
 ```
 
 - A term has a `definition`, an outside `source` (chess rules come from the
   FIDE Laws of Chess and are cited, not redefined), or `from: <domain>`, which
-  borrows the upstream context's definition, `avoid` and `model` and makes the
-  dependency visible.
+  borrows the upstream context's definition and `avoid` and makes the
+  dependency visible. A borrowed term's `model` names are this context's own:
+  the lender's Quint names never cross the boundary; only its published
+  `events.qnt` does.
 - Definitions say what the product does, never how it is built: "a draw
   offer lapses when the opponent moves" belongs; "a draw offer is stored
   until the next move event" does not.

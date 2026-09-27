@@ -117,7 +117,7 @@ export function renderCatalogIndex<P extends CatalogPackage>(
     CATALOG_HEADER,
     '# Step catalogs',
     '',
-    'Features live in `specs/<domain>/<feature>.feature`. One catalog per package that runs spec domains (its `specDomains` against the sim, its `liveDomains` against a deployment). Spec writers read these and their context's `specs/<domain>/glossary.yaml`; they never read `src/` or `tests/`.',
+    'Features live in `specs/<domain>/<feature>.feature`. One catalog per package that runs spec domains (its `specDomains` against the sim, its `liveDomains` against a deployment). Spec writers read these and their context\'s `specs/<domain>/glossary.yaml`; they never read `src/` or `tests/`.',
     '',
     '| Package | Runs | Features | Scenarios | Own steps | Catalog |',
     '| --- | --- | --- | --- | --- | --- |',

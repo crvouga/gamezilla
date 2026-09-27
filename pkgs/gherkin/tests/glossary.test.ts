@@ -56,7 +56,7 @@ const RATINGS = glossary('ratings', {
   purpose: 'How strong each player is.',
   terms: [
     { term: 'rating', definition: 'A strength number.', model: 'ratings' },
-    { term: 'game', from: 'play' },
+    { term: 'game', from: 'play', model: 'ratedGames' },
   ],
 });
 
@@ -103,6 +103,7 @@ const RATINGS_MODEL = quint(
   'specs/ratings/updates.qnt',
   [
     ['var', 'ratings'],
+    ['var', 'ratedGames'],
     ['action', 'GameEnded'],
   ],
   ['../play/events']
@@ -141,13 +142,13 @@ describe('glossary files', () => {
     ]);
   });
 
-  test('a borrowed term keeps its owner definition, avoid and model', () => {
+  test('a borrowed term keeps its owner definition and avoid', () => {
     const parsed = parseGlossary(
       {
         context: 'X',
         purpose: 'Y',
         terms: [
-          { term: 'game', from: 'play', definition: 'Mine.', model: 'g' },
+          { term: 'game', from: 'play', definition: 'Mine.', avoid: 'g' },
         ],
       },
       'specs/x/glossary.yaml',
@@ -231,6 +232,7 @@ describe('ubiquitous language', () => {
       [
         ['type', 'Person'],
         ['var', 'ratings'],
+        ['var', 'ratedGames'],
       ],
       ['../play/game']
     );

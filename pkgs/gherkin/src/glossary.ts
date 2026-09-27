@@ -26,7 +26,10 @@ export type GlossaryTerm = {
   readonly forms: readonly string[];
   /** Synonyms people reach for that the specs must not use. */
   readonly avoid: readonly string[];
-  /** The Quint names this term is in the context's models. */
+  /**
+   * The Quint names this term is in this context's models — for a borrowed
+   * term too: the lender's model names never cross the boundary.
+   */
   readonly model: readonly string[];
 };
 
@@ -139,9 +142,9 @@ function parseTerm(
         `${at}: a borrowed term (from: ${parsed.from}) takes its definition from there; drop "definition" / "source"`
       );
     }
-    if (parsed.avoid.length > 0 || parsed.model.length > 0) {
+    if (parsed.avoid.length > 0) {
       problems.push(
-        `${at}: a borrowed term keeps its owner's "avoid" and "model"; declare them in ${parsed.from}'s glossary`
+        `${at}: a borrowed term keeps its owner's "avoid"; declare it in ${parsed.from}'s glossary`
       );
     }
   } else if (parsed.definition === null && parsed.source === null) {
@@ -380,8 +383,12 @@ function checkQuintSpec(
   input: LanguageInput,
   errors: string[]
 ): void {
-  const vocabulary = vocabularyOf(spec.domain, input);
-  const allowed = new Set(vocabulary.terms.flatMap((t) => t.model));
+  // A context names borrowed concepts in its own models; the lender's model
+  // names are its own business and never cross the boundary.
+  const allowed = new Set([
+    ...input.kernel.terms.flatMap((t) => t.model),
+    ...(input.glossaries.get(spec.domain)?.terms ?? []).flatMap((t) => t.model),
+  ]);
   const isEvents = spec.uri.endsWith(`/${EVENTS_MODULE}.qnt`);
   for (const imported of spec.imports) {
     const where = `${spec.uri}:${String(imported.line)}`;
