@@ -5,6 +5,7 @@ import { useOptionalSoundEngine } from '@pkgs/sounds/solid';
 import { Button, useMutationButton } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
+import { useCheckConnection } from '../use-check-connection';
 import { useJoinSpace } from './use-join-space';
 
 export type SpaceJoinButtonProps = {
@@ -12,16 +13,25 @@ export type SpaceJoinButtonProps = {
   joinable: boolean;
   /** Stretch within a footer row (matches FormActionsFooter submit). */
   flex?: number;
+  /** Joining needs the server; called instead of joining without one. */
+  onOffline: () => void;
 };
 
 export function SpaceJoinButton(props: SpaceJoinButtonProps): JSX.Element {
   const { t } = useLingui();
   const joinSpace = useJoinSpace();
+  const checkConnection = useCheckConnection();
   const disabled = (): boolean => !props.joinable || props.spaceId.length === 0;
   const engine = useOptionalSoundEngine();
 
   const join = useMutationButton({
-    operation: () => joinSpace(props.spaceId),
+    operation: async () => {
+      if (!(await checkConnection())) {
+        props.onOffline();
+        return;
+      }
+      await joinSpace(props.spaceId);
+    },
     labels: {
       idle: t`Join space`,
       loading: t`Joining…`,

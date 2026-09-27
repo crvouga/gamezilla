@@ -8,7 +8,10 @@
  */
 import type { OfferPriceSpec, PlusMembershipOffer } from '@pkgs/billing';
 
-import { rowGrantsMembership } from '../../shared/memberships/governing-row';
+import {
+  rowGrantsMembership,
+  rowMembershipLapsesAtMs,
+} from '../../shared/memberships/governing-row';
 import type { MembershipRow } from '../../use-cases/load-my-subscription/shared/membership-row';
 
 export type { MembershipRow };
@@ -28,7 +31,12 @@ export type MembershipState =
 
 export type BillingPrimaryAction = 'subscribe' | 'unlock' | 'none';
 
-export type BillingNotice = 'unavailable' | 'delinquent' | 'incomplete';
+export type BillingNotice =
+  | 'unavailable'
+  | 'delinquent'
+  | 'incomplete'
+  /** Subscribing is on offer, but the device cannot reach the server. */
+  | 'offline';
 
 export type BillingViewInput = {
   /** The live policy grants `billing:view` (denied while billing is off). */
@@ -43,6 +51,10 @@ export type BillingViewInput = {
   readonly row: MembershipRow | null;
   readonly nowMs: number;
   readonly graceMs: number;
+  /** When the server last confirmed the row (`null`: never on record). */
+  readonly confirmedAtMs: number | null;
+  /** The device can reach the server right now. */
+  readonly online: boolean;
 };
 
 export type BillingView = {
@@ -114,12 +126,21 @@ function primaryOf(
 
 function noticeOf(
   input: BillingViewInput,
-  state: MembershipState
+  state: MembershipState,
+  primary: BillingPrimaryAction
 ): BillingNotice | null {
   if (!input.canView) return 'unavailable';
+  // Checkout happens at the provider: offline, say so before the press.
+  if (primary === 'subscribe' && !input.online) return 'offline';
   if (state === 'delinquent') return 'delinquent';
   if (state === 'incomplete') return 'incomplete';
   return null;
+}
+
+/** When the view would change with only time passing, or `null`. */
+export function billingViewChangesAtMs(input: BillingViewInput): number | null {
+  const row = input.canManage ? input.row : null;
+  return rowMembershipLapsesAtMs(row, input);
 }
 
 export function buildBillingView(input: BillingViewInput): BillingView {
@@ -143,7 +164,7 @@ export function buildBillingView(input: BillingViewInput): BillingView {
     primary,
     unlockLabel: primary === 'unlock' ? input.subscribeUnlockLabel : null,
     manage: input.canView && input.canManage && input.hasCustomer,
-    notice: noticeOf(input, state),
+    notice: noticeOf(input, state, primary),
     showPricing: input.canView,
   };
 }

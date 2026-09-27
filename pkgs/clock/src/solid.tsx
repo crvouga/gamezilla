@@ -1,6 +1,14 @@
 /** @jsxImportSource solid-js */
 import { defineContext } from '@pkgs/solid-context/define-context';
-import type { JSX, ParentProps } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+  onCleanup,
+  type ParentProps,
+} from 'solid-js';
 
 import type { Clock, Timers } from './types';
 
@@ -36,4 +44,35 @@ export function useClock(): Clock {
 
 export function useTimers(): Timers {
   return ClockContext.use().timers;
+}
+
+/**
+ * A reactive value that depends on the time. `compute` reads the clock fresh
+ * whenever its own inputs change, and `changesAt` names the next instant the
+ * value would change with nothing else changing; a single timer re-reads it
+ * then. No polling: a value time never changes costs no timer at all.
+ */
+export function createTimedValue<T>(
+  compute: (nowMs: number) => T,
+  changesAt: (value: T, nowMs: number) => number | null
+): Accessor<T> {
+  const clock = useClock();
+  const timers = useTimers();
+  const [tick, setTick] = createSignal(0);
+  const reading = createMemo(() => {
+    tick();
+    const nowMs = clock.now();
+    const value = compute(nowMs);
+    return { value, nowMs, at: changesAt(value, nowMs) };
+  });
+  createEffect(() => {
+    const { at, nowMs } = reading();
+    if (at === null) return;
+    const handle = timers.setTimeout(
+      () => setTick((n) => n + 1),
+      Math.max(0, at - nowMs)
+    );
+    onCleanup(() => timers.clearTimeout(handle));
+  });
+  return () => reading().value;
 }

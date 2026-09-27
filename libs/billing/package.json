@@ -14,7 +14,8 @@
     "./sim/*": [
       "./src/sim/*.ts",
       "./src/sim/*.tsx"
-    ]
+    ],
+    "./steps/*": "./tests/steps/*.ts"
   },
   "scripts": {
     "billing:sync": "bun run scripts/sync-billing-offer.ts",

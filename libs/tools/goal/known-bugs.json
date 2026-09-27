@@ -148,5 +148,75 @@
     "id": "sqlite-web-navigation-dead-owner",
     "summary": "A same-tab navigation (the sign-in callback, a reload) left the previous page owning the local database: discarded before its async disconnect told the SharedWorker broker, or frozen in the back/forward cache still holding its OPFS handles. The next page waited on the dead owner and boot hung on \"Starting…\" (~15s of locked-handle retries, then \"did not become ready\"). Fixed by releasing the store (terminating the sqlite worker) and leaving the broker synchronously on every pagehide.",
     "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
+  },
+  {
+    "id": "signed-out-device-stays-listed",
+    "summary": "A device that signed out stayed on its old account's devices list: the device row's owner moves with the install and synced rows are never removed. Fixed with a tombstoned account-device record and notifying the account the device left.",
+    "regressionTest": "libs/auth/src/root/server/anon-user-service.test.ts"
+  },
+  {
+    "id": "ui-switch-testid-on-wrapper",
+    "summary": "Switch put its test id on a wrapper around the toggle, so activating it by id changed nothing. Fixed by moving the identifiers onto the toggle button.",
+    "regressionTest": "pkgs/ui/tests/hosts.test.tsx"
+  },
+  {
+    "id": "offline-member-kept-paid-forever",
+    "summary": "An active or trialing membership granted paid access on a device however long it had gone without confirming it. Fixed: access lapses 7 days (the grace) after the last sync and returns on the next one.",
+    "regressionTest": "libs/permissions/tests/plan.test.ts"
+  },
+  {
+    "id": "refund-kept-grace",
+    "summary": "A refunded membership ended at its period end and kept paid access through the 7-day grace. Fixed: a refunded membership ends with no paid time, so no grace applies.",
+    "regressionTest": "pkgs/billing-mock/tests/refund-mapping.test.ts"
+  },
+  {
+    "id": "grace-end-never-reached-open-screen",
+    "summary": "Access facts and the billing tier read the clock once, so grace running out never updated a screen left open. Fixed with createTimedValue, which re-reads at the instant access lapses.",
+    "regressionTest": "pkgs/clock/tests/timed-value.test.tsx"
+  },
+  {
+    "id": "puzzle-offline-band-wait",
+    "summary": "Offline, once the rating crossed a band edge the feed waited forever for rating bands that could not download. Fixed: offline it falls back to the puzzles on the device.",
+    "regressionTest": "libs/chess/tests/puzzle-session/next-puzzle-selection.test.ts"
+  },
+  {
+    "id": "space-hosting-limit-unenforced",
+    "summary": "Guests had no hosting limit and nothing enforced the free account limit of one hosted space. Fixed: guest and free are capped at 1 through the permissions evaluation on device and server; Plus is unlimited.",
+    "regressionTest": "libs/permissions/tests/hosting-limit.test.ts"
+  },
+  {
+    "id": "puzzle-feed-settings-device-local",
+    "summary": "Feed choices were stored only on the device and never reached the player's other devices. Fixed with synced feed settings written by a mutation.",
+    "regressionTest": "specs/chess/puzzle-feed-sticks.feature"
+  },
+  {
+    "id": "guest-feed-customization-ungated",
+    "summary": "Guests could open and change the feed settings although customizing the feed is for accounts. Fixed: guests get the sign-in invitation instead.",
+    "regressionTest": "specs/chess/puzzle-feed-gates.feature"
+  },
+  {
+    "id": "people-search-offline-hangs",
+    "summary": "People search waited forever without a connection. Fixed: it says search needs a connection.",
+    "regressionTest": "specs/friends/social-needs-connection.feature"
+  },
+  {
+    "id": "friend-request-offline-queued",
+    "summary": "A friend request sent offline was quietly queued and delivered later without the sender knowing. Fixed: it says friend requests need a connection and sends nothing.",
+    "regressionTest": "specs/friends/social-needs-connection.feature"
+  },
+  {
+    "id": "space-offline-create-queued",
+    "summary": "Creating a space offline was quietly queued. Fixed: it says spaces need a connection.",
+    "regressionTest": "specs/spaces/space-needs-connection.feature"
+  },
+  {
+    "id": "space-link-not-found-premature",
+    "summary": "A link to a missing space said it was unavailable before anything had answered, and the same while offline. Fixed: it says the space cannot be found once known, offers the way back, and offline says spaces need a connection.",
+    "regressionTest": "specs/spaces/space-links.feature"
+  },
+  {
+    "id": "ci-i18n-rewrites-committed-catalog",
+    "summary": "ci:i18n re-extracted and recompiled the committed Lingui catalogs in place, so a tc running beside it could read a half-written messages.ts and fail with \"is not a module\". Fixed: the check regenerates into .cache/ci-i18n and compares.",
+    "regressionTest": "libs/tools/scripts/ci-i18n.test.ts"
   }
 ]

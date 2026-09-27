@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-
+import { scratchConfigSource } from './ci-i18n';
 import {
   LINGUI_CATALOG_SOURCES,
   macrosOutsideCatalog,
@@ -42,4 +42,14 @@ describe('lingui catalog scope', () => {
       .sort();
     expect(sources).toEqual([...LINGUI_CATALOG_SOURCES].sort());
   });
+});
+
+test('the freshness check regenerates into scratch, never the committed catalog', () => {
+  // regression: ci-i18n-rewrites-committed-catalog
+  const source = scratchConfigSource('/repo');
+  expect(source).toContain(
+    "path: '<rootDir>/.cache/ci-i18n/{locale}/messages'"
+  );
+  expect(source).not.toContain('libs/client-app/src/i18n/locales');
+  expect(source).toContain('rootDir: "/repo"');
 });

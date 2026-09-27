@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { ChevronRightIcon, MenuRow, SmartphoneIcon } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
@@ -43,6 +44,7 @@ export function AccountDeviceMenuRow(
         </div>
       }
       onClick={() => props.onOpenDevice(props.deviceId)}
+      dataSet={{ testid: Handles.accountDevice(props.deviceId) }}
     />
   );
 }

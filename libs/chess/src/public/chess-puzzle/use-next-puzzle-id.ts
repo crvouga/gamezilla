@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
-import { createQuery } from '@pkgs/sync-engine/solid';
+import { createQuery, useSyncEngine } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
 import {
@@ -85,6 +85,7 @@ export function useNextPuzzleId(args: {
   localPuzzleTotal: Accessor<number>;
 } {
   const myId = useMyId();
+  const { status } = useSyncEngine();
   const [config] = useChessPuzzleFeedConfig();
   const rating = useEffectivePuzzleRating();
   const { profileRd } = useChessPuzzleProfileRatings(myId);
@@ -124,6 +125,7 @@ export function useNextPuzzleId(args: {
       puzzleId: puzzleId(),
       localPuzzleTotal: localPuzzleTotal(),
       poolReady: args.poolReady(),
+      online: status().online,
     })
   );
 

@@ -59,7 +59,27 @@ const MEMBERSHIP_EVENTS: ReadonlySet<MockEventType> = new Set<MockEventType>([
   'customer.subscription.deleted',
   'customer.subscription.paused',
   'customer.subscription.resumed',
+  'charge.refunded',
 ]);
+
+/** The subscription an event is about: its object, or a refund's subscription. */
+function subscriptionIdOf(event: MockEvent): string {
+  const object = event.data.object;
+  return object.object === 'refund' ? object.subscription : object.id;
+}
+
+/**
+ * The subscription's last payment went back to the customer in full: they
+ * have their money back, so no paid time remains — not even grace.
+ */
+function lastPaymentRefunded(subscription: MockSubscription): boolean {
+  const invoice = subscription.latest_invoice;
+  // Unexpanded (an id) or absent: nothing says the payment came back.
+  if (typeof invoice !== 'object' || invoice === null) return false;
+  return (
+    invoice.amount_paid > 0 && invoice.amount_refunded >= invoice.amount_paid
+  );
+}
 
 function accessEndMs(
   subscription: MockSubscription,
@@ -73,11 +93,17 @@ function accessEndMs(
   return periodEndMs === null ? endedAtMs : Math.min(periodEndMs, endedAtMs);
 }
 
-/** A deletion is final, whatever a lagging re-read still says. */
+/**
+ * A deletion is final, whatever a lagging re-read still says. A refunded
+ * membership has ended with no paid time left (`periodEndMs: null`).
+ */
 function toMembership(
   subscription: MockSubscription,
   deleted: boolean
 ): Membership {
+  if (lastPaymentRefunded(subscription)) {
+    return { status: 'ended', periodEndMs: null, endsAtPeriodEnd: false };
+  }
   const status = deleted ? 'ended' : membershipStatusOf(subscription.status);
   return {
     status,
@@ -224,7 +250,7 @@ export class MockMembershipBilling implements MembershipBilling {
     try {
       return await this.call<MockSubscription>(
         'GET',
-        MOCK_BILLING_PATHS.subscription(id)
+        `${MOCK_BILLING_PATHS.subscription(id)}?expand[]=latest_invoice`
       );
     } catch (error) {
       if (error instanceof MockBillingApiError && error.status === 404) {
@@ -238,7 +264,7 @@ export class MockMembershipBilling implements MembershipBilling {
     const event = this.verified(input);
     if (event === null) return { kind: 'unverified' };
     if (!MEMBERSHIP_EVENTS.has(event.type)) return { kind: 'ignored' };
-    const subscription = await this.current(event.data.object.id);
+    const subscription = await this.current(subscriptionIdOf(event));
     if (subscription === null) return { kind: 'ignored' };
     const change: MembershipChange = {
       provider: this.provider,

@@ -12,6 +12,7 @@ import {
   searchUsername,
 } from '@libs/search/sim/search-actions';
 import {
+  searchNeedsConnection,
   searchResultVisible,
   searchShowsNobody,
 } from '@libs/search/sim/search-ui-reads';
@@ -65,5 +66,14 @@ Then(
   async (w, actor: Actor, other: Actor, seconds: number) => {
     await w.s.apply(backToTabs, actor);
     await w.s.apply(searchUntilAddOffered, actor, other, seconds * SECOND_MS);
+  }
+);
+
+Then(
+  '{actor} is told search needs a connection within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((surf) => searchNeedsConnection(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
   }
 );

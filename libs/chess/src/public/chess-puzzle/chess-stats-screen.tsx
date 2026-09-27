@@ -17,6 +17,7 @@ import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
 import { ChessGameLog } from './chess-game-log';
 import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
 import { ChessPuzzleStatsCards } from './chess-puzzle-stats-cards';
+import { ChessRatingHistory } from './chess-rating-history';
 import { ChessRatingSparkline } from './chess-rating-sparkline';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
@@ -62,6 +63,7 @@ export function ChessStatsScreen(): JSX.Element {
               testID="chess-stats-sparkline"
             />
           </div>
+          <ChessRatingHistory entries={history.gameLog()} />
           <ChessPuzzleStatsCards stats={history.stats()} />
           <h3 class="text textHeading text-text">{<Trans>Game log</Trans>}</h3>
           <ChessGameLog

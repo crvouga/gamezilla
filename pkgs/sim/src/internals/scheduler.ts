@@ -6,6 +6,7 @@ import {
   runForDuration,
   runUntilPred,
   runUntilQuiescentHeap,
+  sleepForDuration,
   type Task,
   type TaskBody,
 } from './scheduler-core';
@@ -28,6 +29,11 @@ export type Scheduler = {
   /** Drop all pending Tasks and reset virtual time to `atMs`. */
   readonly reset: (atMs: number) => void;
   readonly runFor: (durationMs: number) => Promise<void>;
+  /**
+   * Jump `durationMs` with nothing running meanwhile; every Task that fell
+   * due fires once on waking (see `sleepForDuration`).
+   */
+  readonly sleep: (durationMs: number) => Promise<void>;
   /** Advances made while wall work was still in flight; see `DrainStats`. */
   readonly starvedAdvances: () => number;
   readonly runUntilQuiescent: (opts?: {
@@ -75,12 +81,7 @@ export function createScheduler(
     }
     const taskId = seq++;
     pushTask(heap, { at, id: taskId, run, label });
-    trace?.record({
-      type: 'task_create',
-      taskId,
-      at,
-      label,
-    });
+    trace?.record({ type: 'task_create', taskId, at, label });
   };
 
   const withDrainGate = async <T>(fn: () => Promise<T>): Promise<T> => {
@@ -107,6 +108,8 @@ export function createScheduler(
     starvedAdvances: () => stats.starvedAdvances,
     runFor: (durationMs) =>
       withDrainGate(() => runForDuration(makeCtx(), durationMs)),
+    sleep: (durationMs) =>
+      withDrainGate(() => sleepForDuration(makeCtx(), durationMs)),
     runUntilQuiescent: (opts) =>
       withDrainGate(() => runUntilQuiescentHeap(makeCtx(), opts)),
     runUntil: (pred, opts) =>

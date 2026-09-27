@@ -1,7 +1,7 @@
 /**
  * Test-mode helpers, behind the same secret key as the API: move a
- * customer's test clock (Stripe's test clocks) and resend an event (Stripe's
- * "resend"). They drive the provider through time without touching the
+ * customer's test clock (Stripe's test clocks), let a card pass its expiry,
+ * and resend an event (Stripe's "resend"). They drive the provider through time without touching the
  * provider's own clock or any other customer.
  */
 import { MOCK_BILLING_PATHS } from '@pkgs/billing-mock/wire';
@@ -9,7 +9,7 @@ import { Hono } from 'hono';
 
 import { settleCustomer } from '../engine/billing-cycle';
 import { customerNowS } from '../engine/context';
-import { requireCustomer } from '../engine/customers';
+import { expirePaymentMethod, requireCustomer } from '../engine/customers';
 import { invalidRequest, resourceMissing } from '../errors';
 import { page } from './list';
 import {
@@ -67,6 +67,11 @@ export function apiTestHelperRoutes(runner: ProviderRunner): Hono {
           if (event === null) throw resourceMissing('event', c.req.param('id'));
           return event;
         })
+      )
+    )
+    .post('/v1/test_helpers/payment_methods/:id/expire', async (c) =>
+      answer(c, () =>
+        runner.run((engine) => expirePaymentMethod(engine, c.req.param('id')))
       )
     )
     .post('/v1/test_helpers/events/:id/resend', async (c) =>

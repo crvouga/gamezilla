@@ -11,7 +11,9 @@ import {
   expectAvatarSeed,
   expectGamesOffered,
   expectGoogleHandOff,
+  expectNextPuzzleReady,
   expectNoSearchResults,
+  expectPlusPrices,
   expectPuzzlePlayable,
   expectSignInOffered,
   expectSpaceEnded,
@@ -21,8 +23,10 @@ import {
   saveAvatar,
   searchPeople,
   signOut,
+  solveChessPuzzle,
   startChessPuzzle,
   startGoogleSignIn,
+  viewBillingPlans,
 } from '@libs/runtime/sim/critical-journeys';
 import { hostLimit, stepsFor } from '@pkgs/gherkin/registry';
 
@@ -41,6 +45,13 @@ function realBrowser(w: JourneyWorld): JourneyBrowser {
     throw hostLimit('no real browser to follow the identity provider');
   }
   return w.journey.browser;
+}
+
+/** Solving needs the puzzle's answer, which only a test build shows. */
+function answersShown(w: JourneyWorld): void {
+  if (!w.journey.showsPuzzleAnswers) {
+    throw hostLimit('this app build does not show puzzle answers');
+  }
 }
 
 Step('a person opens the app on a fresh device', async (w) => {
@@ -106,6 +117,19 @@ When('they start a chess puzzle in the space', async (w) => {
   await w.journey.act('startChessPuzzle', startChessPuzzle);
 });
 
+Given('they have started a chess puzzle in the space', async (w) => {
+  await w.journey.act('startChessPuzzle', startChessPuzzle);
+});
+
+When('they solve the puzzle', async (w) => {
+  answersShown(w);
+  await w.journey.act('solveChessPuzzle', solveChessPuzzle);
+});
+
+Then('the next puzzle is ready to play', async (w) => {
+  await w.journey.act('expectNextPuzzleReady', expectNextPuzzleReady);
+});
+
 Then('a puzzle board is laid out and ready to play', async (w) => {
   await w.journey.act('expectPuzzlePlayable', expectPuzzlePlayable);
 });
@@ -127,4 +151,12 @@ When('they search for people with a name nobody has', async (w) => {
 
 Then('the search settles on no results', async (w) => {
   await w.journey.act('expectNoSearchResults', expectNoSearchResults);
+});
+
+When('they look at the billing plans', async (w) => {
+  await w.journey.act('viewBillingPlans', viewBillingPlans);
+});
+
+Then('Plus is offered at its monthly and yearly prices', async (w) => {
+  await w.journey.act('expectPlusPrices', expectPlusPrices);
 });

@@ -16,8 +16,10 @@ opens, and it serves:
 | `/v1/subscriptions`, `/v1/subscriptions/:id` | list (`status`, default excludes canceled), read, update (cancel at period end, switch price with `proration_behavior`), `DELETE` to cancel now |
 | `/v1/subscriptions/:id/resume` | resume a paused subscription (new period, billed now) |
 | `/v1/invoices`, `/v1/invoices/:id`, `/v1/invoices/:id/pay` | list (by customer / subscription), read, pay an open invoice |
+| `/v1/refunds` | refund a paid invoice in full (`{ invoice }`) |
 | `/v1/events`, `/v1/events/:id` | the event log |
 | `/v1/test_helpers/customers/:id/advance_clock` | move one customer's test clock |
+| `/v1/test_helpers/payment_methods/:id/expire` | let a card on file pass its expiry date |
 | `/v1/test_helpers/events/:id/resend` | deliver an event again |
 | `/c/pay/:id`, `/p/session/:id` | the hosted checkout and portal (Solid SPA) |
 | `/pages/api/*` | what those pages call, authorized by their session id |
@@ -83,6 +85,14 @@ with `code` / `decline_code`, `idempotency_error` 400).
   `payment_method.attached` and `customer.updated`. Charges use the
   customer's default card (a simplification: Stripe would prefer the
   subscription's own `default_payment_method`).
+- **Expired cards**: every charge checks the card's expiry against the
+  customer's clock; a card past it declines with `expired_card`. The
+  `expire` test helper moves a card's expiry to the month before the clock,
+  as years on file would.
+- **Refunds** pay a paid invoice back in full (`charge.refunded`). The mock
+  has no charge objects, so the refund is recorded on the invoice
+  (`amount_refunded`) and names its invoice and subscription. As on Stripe, a
+  refund alone leaves the subscription as it is.
 - **Test clocks** are per customer: billing time is the provider's clock plus
   that customer's offset, so advancing one customer a month runs their
   renewals and retries in order without moving anyone else.

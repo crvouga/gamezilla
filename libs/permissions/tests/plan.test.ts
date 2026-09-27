@@ -18,6 +18,7 @@ function facts(overrides: Partial<AccessInputs>): AccessInputs {
     subscription: null,
     nowMs: 1_000,
     graceMs: GRACE_MS,
+    confirmedAtMs: null,
     billingEnabled: true,
     ...overrides,
   };
@@ -134,6 +135,33 @@ describe('resolvePlanRole', () => {
         )
       ).toBe(ROLE.planPaid);
     }
+  });
+
+  // regression: offline-member-kept-paid-forever
+  test('a member offline six days is paid; eight days, free; back online, paid', () => {
+    const day = 24 * 60 * 60 * 1000;
+    const offlineSince = 1_000;
+    const member = facts({
+      subscription: {
+        status: 'trialing',
+        currentPeriodEndMs: offlineSince + 7 * day,
+        cancelAtPeriodEnd: false,
+      },
+      confirmedAtMs: offlineSince,
+    });
+    expect(resolvePlanRole({ ...member, nowMs: offlineSince + 6 * day })).toBe(
+      ROLE.planPaid
+    );
+    expect(resolvePlanRole({ ...member, nowMs: offlineSince + 8 * day })).toBe(
+      ROLE.planFree
+    );
+    expect(
+      resolvePlanRole({
+        ...member,
+        nowMs: offlineSince + 8 * day,
+        confirmedAtMs: offlineSince + 8 * day,
+      })
+    ).toBe(ROLE.planPaid);
   });
 
   test('an ended plan keeps paid access through the grace window', () => {

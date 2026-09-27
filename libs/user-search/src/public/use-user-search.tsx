@@ -6,7 +6,11 @@ import { Handles } from '@libs/test-ids';
 import { useTimers } from '@pkgs/clock/solid';
 import type { Sql } from '@pkgs/sql';
 import { sql } from '@pkgs/sql';
-import { createQuery, useSyncEngineInstance } from '@pkgs/sync-engine/solid';
+import {
+  createQuery,
+  useSyncEngine,
+  useSyncEngineInstance,
+} from '@pkgs/sync-engine/solid';
 import { UsersIcon } from '@pkgs/ui';
 import {
   type Accessor,
@@ -82,6 +86,7 @@ export function useDebouncedUserSearchEffect(
   const myId = useMyId();
   const timers = useTimers();
   const sync = useSyncEngineInstance();
+  const engine = useSyncEngine();
   const [debouncedQuery, setDebouncedQuery] = createSignal('');
   const [awaitingSync, setAwaitingSync] = createSignal(false);
 
@@ -133,6 +138,8 @@ export function useDebouncedUserSearchEffect(
       .map(mapSearchHit)
   );
 
+  const online = createMemo(() => engine.status().online);
+
   return {
     get results() {
       return results();
@@ -140,7 +147,13 @@ export function useDebouncedUserSearchEffect(
     get searching() {
       const trimmed = query().trim();
       if (!canSearch() || trimmed.length === 0) return false;
-      return trimmed !== debouncedQuery() || awaitingSync();
+      if (trimmed !== debouncedQuery()) return true;
+      // Offline the server cannot answer: not "Searching…" forever.
+      return awaitingSync() && online();
+    },
+    /** The search went out offline and is waiting on a server it cannot reach. */
+    get needsConnection() {
+      return canSearch() && awaitingSync() && !online();
     },
     get canSearch() {
       return canSearch();

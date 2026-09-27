@@ -124,6 +124,35 @@ describe('billing view: grace', () => {
     expect(buildBillingView({ ...input, graceMs: 2 * DAY }).tier).toBe('free');
   });
 
+  // regression: offline-member-kept-paid-forever
+  test('a member the server has not confirmed for longer than grace reads as free', () => {
+    for (const kind of MEMBER_KINDS) {
+      const input = {
+        ...inputFor('account', kind, true, true),
+        graceMs: 7 * DAY,
+      };
+      expect(
+        buildBillingView({ ...input, confirmedAtMs: NOW - 7 * DAY }).tier
+      ).toBe('paid');
+      expect(
+        buildBillingView({ ...input, confirmedAtMs: NOW - 7 * DAY - 1 }).tier
+      ).toBe('free');
+    }
+  });
+
+  test('offline, a screen offering to subscribe says it needs a connection', () => {
+    const input = inputFor('account', 'none', true, true);
+    const view = buildBillingView({ ...input, online: false });
+    expect(view.primary).toBe('subscribe');
+    expect(view.notice).toBe('offline');
+    expect(
+      buildBillingView({
+        ...inputFor('account', 'active', true, true),
+        online: false,
+      }).notice
+    ).toBeNull();
+  });
+
   test('an ended membership in grace is paid and offered a new checkout', () => {
     const input = inputFor('account', 'ended', true, true);
     const view = buildBillingView({ ...input, graceMs: 4 * DAY });
@@ -217,6 +246,8 @@ const arbInput: fc.Arbitrary<BillingViewInput> = fc.record({
   row: arbRow,
   nowMs: fc.constant(NOW),
   graceMs: fc.constantFrom(0, 7 * DAY),
+  confirmedAtMs: fc.option(fc.constantFrom(NOW, NOW - 8 * DAY), { nil: null }),
+  online: fc.boolean(),
 });
 
 describe('billing view: properties over arbitrary rows', () => {

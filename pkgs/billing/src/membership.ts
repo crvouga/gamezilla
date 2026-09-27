@@ -14,7 +14,9 @@ export type Membership = {
    * When access runs out (epoch ms): the end of the paid period the provider
    * last confirmed, or — for an `ended` membership — the moment it ended, when
    * that came before the period end (an immediate cancellation). Never a
-   * period the person no longer has.
+   * period the person no longer has: an `ended` membership whose last
+   * payment was refunded has none (`null`), so it keeps no access at all —
+   * the grace after a period end is for time that was paid for.
    */
   readonly periodEndMs: number | null;
   /** True while the provider will stop at `periodEndMs`. */

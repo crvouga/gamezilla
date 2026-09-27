@@ -27,3 +27,7 @@ Feature: Who may move, and when
   Scenario: Pieces cannot be moved once the puzzle is over
     When Alice solves the puzzle
     Then Alice cannot move pieces
+
+  Scenario: Picking up a piece shows where it can go
+    When Alice picks up the rook on a1
+    Then Alice's board shows the rook on a1 can go to a2, a3, a4, a5, a6, b1, c1 and d1

@@ -20,3 +20,7 @@ Feature: Showing the solution
     When Alice shows the solution
     Then Alice's game log records that puzzle as failed
     And Alice's stats show 1 played, 0 solved, and 0% accuracy
+
+  Scenario: Showing the solution drops the rating
+    When Alice shows the solution
+    Then Alice's puzzle rating is below 1500

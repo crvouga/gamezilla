@@ -13,10 +13,7 @@ export type LeaveSpaceConfirmModalProps = {
   operation: () => Promise<void>;
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: (() => void) | undefined;
-  /**
-   * Host leave ends the space for everyone (I4). UI normally routes hosts to
-   * End; this copy covers the leave write path when the actor is still host.
-   */
+  /** Host leave ends the space for everyone (I4); the copy says so. */
   asHost?: boolean;
 };
 
@@ -72,11 +69,14 @@ export function LeaveSpaceConfirmModal(
       <MutationModal
         visible={props.visible}
         onClose={props.onClose}
-        title={<Trans>End space?</Trans>}
+        title={<Trans>Leave and end the space?</Trans>}
         message={
-          <Trans>Everyone will leave this space. This cannot be undone.</Trans>
+          <Trans>
+            You're the host, so leaving ends the space for everyone. This cannot
+            be undone.
+          </Trans>
         }
-        submitLabel={<Trans>End space</Trans>}
+        submitLabel={<Trans>Leave and end</Trans>}
         variant="destructive"
         operation={() => props.operation()}
         onSuccess={onSuccess}
@@ -86,7 +86,7 @@ export function LeaveSpaceConfirmModal(
         successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
         errorTitle={<Trans>Couldn't end space</Trans>}
         stackId="leave-space-confirm-as-host"
-        submitDataSet={{ testid: Handles.spaceEndConfirm }}
+        submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
         dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
       />
     </Show>

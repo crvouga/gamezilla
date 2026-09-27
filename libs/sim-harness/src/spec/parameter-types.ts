@@ -7,6 +7,8 @@
  * - `{username}` — `@robert_1` → `robert_1`, a name someone picks or types.
  * - `{person}` — either of the above, as the object of a step (`shows Bob`,
  *   `shows @robert_1`), transformed to the username the UI displays.
+ * - `{provider}` — one way a person signs in (`Google` or `Apple`),
+ *   transformed to its provider id (`google`, `apple`).
  * - `{methods}` — the ways a person signs in (`Google`, `Apple`, or
  *   `Google and Apple`), transformed to the sorted provider ids
  *   (`['apple', 'google']`).
@@ -14,6 +16,8 @@
  * - `{end}` — `start` or `end` of a line.
  * - `{finish}` — how a player finishes a puzzle (`solving it cleanly`,
  *   `skipping it`, …), transformed to the chess sim's name for it.
+ * - `{squares}` — chessboard squares as a list (`a2, a3 and b1`),
+ *   transformed to the squares, sorted.
  * - `{device}` — one of a person's devices (`Alice's app`, `Alice's phone`,
  *   `Alice's tablet`), transformed to `{ actor, kind }`.
  * - `{deviceKind}` — `phone` or `tablet`.
@@ -83,6 +87,11 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
       text.startsWith('@') ? text.slice(1) : actorId(text),
   },
   {
+    name: 'provider',
+    regexp: /Google|Apple/,
+    transformer: (text: string) => text.toLowerCase(),
+  },
+  {
     name: 'methods',
     regexp: /Google and Apple|Google|Apple/,
     transformer: (text: string) =>
@@ -120,5 +129,10 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     name: 'finish',
     regexp: new RegExp(Object.keys(PUZZLE_FINISHES).join('|')),
     transformer: (text: string) => puzzleFinish(text),
+  },
+  {
+    name: 'squares',
+    regexp: /[a-h][1-8](?:(?:, | and )[a-h][1-8])*/,
+    transformer: (text: string) => text.split(/, | and /).sort(),
   },
 ];

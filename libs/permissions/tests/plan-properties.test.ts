@@ -40,6 +40,7 @@ const factsArb: fc.Arbitrary<AccessInputs> = fc.record({
   subscription: fc.option(snapshotArb, { nil: null }),
   nowMs: msArb,
   graceMs: graceArb,
+  confirmedAtMs: fc.option(msArb, { nil: null }),
   billingEnabled: fc.boolean(),
 });
 
@@ -140,12 +141,43 @@ describe('plan resolver properties', () => {
             },
             nowMs: end + graceMs,
             graceMs,
+            confirmedAtMs: null,
             billingEnabled: true,
           };
           expect(resolvePlanRole(base)).toBe(ROLE.planPaid);
           expect(resolvePlanRole({ ...base, nowMs: end + graceMs + 1 })).toBe(
             ROLE.planFree
           );
+        }
+      ),
+      PARAMS
+    );
+  });
+
+  test('a member unconfirmed for longer than grace is free, whatever the row says', () => {
+    assertProperty(
+      'a member unconfirmed for longer than grace is free, whatever the row says',
+      fc.property(
+        fc.constantFrom<MembershipStatus>('active', 'trialing'),
+        msArb,
+        graceArb,
+        (status, confirmedAtMs, graceMs) => {
+          const base: AccessInputs = {
+            signedIn: true,
+            subscription: {
+              status,
+              currentPeriodEndMs: null,
+              cancelAtPeriodEnd: false,
+            },
+            nowMs: confirmedAtMs + graceMs,
+            graceMs,
+            confirmedAtMs,
+            billingEnabled: true,
+          };
+          expect(resolvePlanRole(base)).toBe(ROLE.planPaid);
+          expect(
+            resolvePlanRole({ ...base, nowMs: confirmedAtMs + graceMs + 1 })
+          ).toBe(ROLE.planFree);
         }
       ),
       PARAMS

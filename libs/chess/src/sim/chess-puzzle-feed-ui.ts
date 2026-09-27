@@ -222,3 +222,20 @@ export async function waitFeedTargetRating(
     }
   );
 }
+
+/**
+ * The feed settings invite the person to sign in instead of offering the
+ * feed choices (a guest cannot customize the feed): the invitation shows,
+ * its call to action reads "Sign in", and no choice is on offer.
+ */
+export async function isFeedSignInInviteVisible(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  if (!(await ui.get(Handles.chessPuzzleFeedLocked).isVisible())) return false;
+  if (await ui.get(Handles.chessPuzzleFeedPool).isVisible()) return false;
+  const action = ui.get(`${Handles.chessPuzzleFeedLocked}-action`);
+  if (!(await action.isVisible())) return false;
+  return (await action.text())?.trim() === 'Sign in';
+}

@@ -5,7 +5,11 @@ export type SpaceJoinSnapshotStatus =
   | 'loading'
   | 'live'
   | 'ended'
-  | 'unavailable';
+  | 'unavailable'
+  /** The server answered for the link and there is no such space. */
+  | 'missing'
+  /** Not on this device and the server cannot be reached to ask. */
+  | 'offline';
 
 export type SpaceJoinSnapshot = {
   readonly status: SpaceJoinSnapshotStatus;
@@ -24,6 +28,9 @@ export type ResolveSpaceJoinSnapshotInput = {
   readonly enabled: boolean;
   readonly rowLoading: boolean;
   readonly row: SpaceJoinLocalRow | null;
+  /** The server has answered the link's query (see `useSpaceByLink`). */
+  readonly linkAnswered: boolean;
+  readonly online: boolean;
   readonly hasSpaceUser: boolean;
   readonly isFriendOfHost: boolean;
   readonly viewerAccountId: string | null;
@@ -66,7 +73,9 @@ function snapshotFromResolvedRow(
 
 /**
  * Derives join-screen status from local SQLite. Private spaces appear for
- * hosts, ACL members, and friends of the host.
+ * hosts, ACL members, and friends of the host. With no row, the link's
+ * answer decides: the server said there is none (`missing`), it cannot be
+ * asked (`offline`), or it has not answered yet (`loading`).
  */
 export function resolveSpaceJoinSnapshot(
   input: ResolveSpaceJoinSnapshotInput
@@ -80,5 +89,7 @@ export function resolveSpaceJoinSnapshot(
   if (input.row !== null) {
     return snapshotFromResolvedRow(input.row, input);
   }
-  return { status: 'unavailable', joinable: false };
+  if (input.linkAnswered) return { status: 'missing', joinable: false };
+  if (!input.online) return { status: 'offline', joinable: false };
+  return { status: 'loading', joinable: false };
 }

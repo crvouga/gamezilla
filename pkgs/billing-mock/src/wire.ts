@@ -39,10 +39,18 @@ export const MOCK_BILLING_PATHS = {
   checkoutSessionExpire: (id: string) => `/v1/checkout/sessions/${id}/expire`,
   invoices: '/v1/invoices',
   invoicePay: (id: string) => `/v1/invoices/${id}/pay`,
+  /** Refund a paid invoice in full (the mock has no separate charges). */
+  refunds: '/v1/refunds',
   events: '/v1/events',
   /** Test helper: move one customer's clock forward (Stripe's test clocks). */
   advanceCustomerClock: (id: string) =>
     `/v1/test_helpers/customers/${id}/advance_clock`,
+  /**
+   * Test helper: the card passes its expiry date (its expiry moves to the
+   * month before the customer's clock), as a card on file does in time.
+   */
+  expirePaymentMethod: (id: string) =>
+    `/v1/test_helpers/payment_methods/${id}/expire`,
   /** Test helper: deliver an event again (Stripe's "resend"). */
   resendEvent: (id: string) => `/v1/test_helpers/events/${id}/resend`,
   /** Hosted pages: a checkout session and a portal session. */
@@ -220,6 +228,12 @@ export type MockInvoice = {
   readonly amount_due: number;
   readonly amount_paid: number;
   readonly amount_remaining: number;
+  /**
+   * How much of `amount_paid` went back to the customer. The mock has no
+   * charge objects, so a refund is recorded on the invoice it pays back
+   * (Stripe records it on the invoice's charge).
+   */
+  readonly amount_refunded: number;
   /** Before `starting_balance`: the sum of the lines. */
   readonly subtotal: number;
   readonly total: number;
@@ -248,6 +262,24 @@ export type MockInvoiceLine = {
   readonly price: string;
   readonly proration: boolean;
   readonly period: { readonly start: number; readonly end: number };
+};
+
+/** A refund of a paid invoice, in full. */
+export type MockRefund = {
+  readonly id: string;
+  readonly object: 'refund';
+  readonly amount: number;
+  readonly currency: string;
+  readonly customer: string;
+  readonly invoice: string;
+  readonly subscription: string;
+  readonly status: 'succeeded';
+  readonly created: number;
+};
+
+export type CreateRefundBody = {
+  /** The paid invoice to refund. */
+  readonly invoice: string;
 };
 
 export type MockCheckoutSession = {
@@ -309,14 +341,16 @@ export type MockEventType =
   | 'invoice.paid'
   | 'invoice.payment_succeeded'
   | 'invoice.payment_failed'
-  | 'invoice.payment_action_required';
+  | 'invoice.payment_action_required'
+  | 'charge.refunded';
 
 export type MockEventObject =
   | MockCustomer
   | MockPaymentMethod
   | MockCheckoutSession
   | MockSubscription
-  | MockInvoice;
+  | MockInvoice
+  | MockRefund;
 
 export type MockEvent = {
   readonly id: string;

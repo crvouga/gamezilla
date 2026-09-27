@@ -1,5 +1,6 @@
 export {
   CHESS_TABLES,
+  chessPuzzleFeedSettings,
   chessPuzzleInteractions,
   chessPuzzleLoad,
   chessPuzzleProfiles,

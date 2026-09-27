@@ -8,6 +8,7 @@ export {
 export {
   type Decision,
   decide,
+  decideLimit,
   decideQuota,
   grantedBy,
   type QuotaUsage,

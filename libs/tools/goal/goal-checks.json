@@ -104,6 +104,10 @@
       {
         "kind": "spec",
         "path": "specs/spaces/space-guest-link-join.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/spaces/space-links.feature"
       }
     ]
   },
@@ -131,6 +135,10 @@
       {
         "kind": "spec",
         "path": "specs/spaces/space-disconnect-reconnect.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/spaces/space-host-leaves.feature"
       }
     ]
   },
@@ -162,6 +170,10 @@
       {
         "kind": "test",
         "path": "apps/product/scripts/sw-policy.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/runtime/offline-open.feature"
       }
     ]
   },
@@ -171,6 +183,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-offline.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-offline-days.feature"
       }
     ]
   },
@@ -180,6 +196,10 @@
       {
         "kind": "test",
         "path": "libs/chess/tests/puzzle-session/feed-sync-bands.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-offline-days.feature"
       }
     ]
   },
@@ -197,6 +217,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-offline-days.feature"
       }
     ]
   },
@@ -210,6 +234,14 @@
       {
         "kind": "spec",
         "path": "specs/sync/notes-across-devices.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed-sticks.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/devices.feature"
       }
     ]
   },
@@ -219,6 +251,14 @@
       {
         "kind": "spec",
         "path": "specs/sync/online-only-actions.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/friends/social-needs-connection.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/spaces/space-needs-connection.feature"
       }
     ]
   },
@@ -245,6 +285,10 @@
       {
         "kind": "spec",
         "path": "specs/profile/sign-in.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/runtime/app-shell.feature"
       }
     ]
   },
@@ -283,6 +327,14 @@
       {
         "kind": "spec",
         "path": "specs/profile/username-rules.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/friends/people-search.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/friends/friends-profile-changes.feature"
       }
     ]
   },
@@ -313,6 +365,18 @@
       {
         "kind": "spec",
         "path": "specs/friends/friend-remove.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/friends/friend-profile.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/friends/friend-block.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/friends/friend-request-inbox.feature"
       }
     ]
   },
@@ -335,6 +399,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-play.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-solve-session.feature"
       }
     ]
   },
@@ -344,6 +412,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-stats.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-rating.feature"
       }
     ]
   },
@@ -353,6 +425,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-feed.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-selection.feature"
       }
     ]
   },
@@ -362,6 +438,14 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-feed.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed-gates.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed-sticks.feature"
       }
     ]
   },
@@ -380,6 +464,14 @@
       {
         "kind": "test",
         "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-chess-rules.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-move-rules.feature"
       }
     ]
   },
@@ -389,6 +481,10 @@
       {
         "kind": "test",
         "path": "libs/chess/src/shared/chess/chess-puzzle-play.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-chess-rules.feature"
       }
     ]
   },
@@ -398,6 +494,10 @@
       {
         "kind": "test",
         "path": "libs/chess/tests/puzzle-session/opponent-stager.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-flow.feature"
       }
     ]
   },
@@ -411,6 +511,14 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-outcome-sync.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-show-solution.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-flow.feature"
       }
     ]
   },
@@ -420,6 +528,10 @@
       {
         "kind": "test",
         "path": "pkgs/chess-board/tests/chess-board.test.tsx"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/solve-flow.feature"
       }
     ]
   },
@@ -429,6 +541,14 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-stats.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-stats-summary.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-review.feature"
       }
     ]
   },
@@ -438,6 +558,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-spectator.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-late-watcher.feature"
       }
     ]
   },
@@ -447,6 +571,14 @@
       {
         "kind": "test",
         "path": "libs/permissions/tests/policy.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed-gates.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/spaces/space-host-limit.feature"
       }
     ]
   },
@@ -456,6 +588,14 @@
       {
         "kind": "test",
         "path": "pkgs/permissions/tests/evaluate.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-limits-by-kind.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/spaces/space-host-limit.feature"
       }
     ]
   },
@@ -465,6 +605,10 @@
       {
         "kind": "test",
         "path": "pkgs/permissions/tests/evaluate.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-limits-by-kind.feature"
       }
     ]
   },
@@ -492,6 +636,14 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-limit-upgrade.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed-gates.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/spaces/space-host-limit.feature"
       }
     ]
   },
@@ -505,6 +657,10 @@
       {
         "kind": "spec",
         "path": "specs/billing/subscribe.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/billing-plans.feature"
       }
     ]
   },
@@ -518,6 +674,10 @@
       {
         "kind": "spec",
         "path": "specs/billing/billing-portal.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/billing-plans.feature"
       }
     ]
   },
@@ -547,6 +707,18 @@
       {
         "kind": "spec",
         "path": "specs/billing/payment-failures.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/expired-card.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/grace-ends.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/refunds.feature"
       }
     ]
   },
@@ -560,6 +732,10 @@
       {
         "kind": "spec",
         "path": "specs/billing/billing-offline-grace.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/grace-ends.feature"
       }
     ]
   },
@@ -577,6 +753,10 @@
       {
         "kind": "spec",
         "path": "specs/sync/notes-after-a-crash.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/runtime/app-updates.feature"
       }
     ]
   },
@@ -620,6 +800,10 @@
       {
         "kind": "test",
         "path": "libs/permissions/tests/plan.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/grace-ends.feature"
       }
     ]
   },
@@ -629,6 +813,14 @@
       {
         "kind": "test",
         "path": "libs/permissions/tests/plan.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/grace-ends.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/refunds.feature"
       }
     ]
   },
@@ -638,6 +830,10 @@
       {
         "kind": "test",
         "path": "pkgs/permissions/tests/evaluate.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-limits-by-kind.feature"
       }
     ]
   },
@@ -647,6 +843,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-spectator.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/chess/puzzle-late-watcher.feature"
       }
     ]
   },
@@ -682,6 +882,10 @@
       {
         "kind": "spec",
         "path": "specs/chess/puzzle-guest-carryover.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/sign-in-abandoned.feature"
       }
     ]
   },

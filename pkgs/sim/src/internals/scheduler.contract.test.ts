@@ -7,6 +7,22 @@ import { createTimers } from './timers';
 import { createTraceRecorder } from './trace';
 
 describe('Scheduler contract', () => {
+  test('sleep jumps the clock and fires each overdue task once', async () => {
+    const clock = createVirtualClock(0);
+    const sched = createScheduler(clock);
+    const timers = createTimers(sched);
+    const ticks: number[] = [];
+    const late: number[] = [];
+    timers.setInterval(() => ticks.push(clock.now()), 100);
+    timers.setTimeout(() => late.push(clock.now()), 5_000);
+    await sched.sleep(86_400_000);
+    expect(clock.now()).toBe(86_400_000);
+    expect(ticks).toEqual([86_400_000]);
+    expect(late).toEqual([86_400_000]);
+    await sched.runFor(100);
+    expect(ticks).toEqual([86_400_000, 86_400_100]);
+  });
+
   test('same-at tasks fire in insertion order without choiceRng', async () => {
     const clock = createVirtualClock(0);
     const sched = createScheduler(clock);
@@ -206,5 +222,34 @@ describe('rng fork isolation', () => {
     a.fork('net').next();
     a.fork('net').next();
     expect(a.fork('id').next()).toBe(b.fork('id').next());
+  });
+});
+
+describe('Scheduler sleep', () => {
+  test('sleep jumps the clock and fires what fell due once, in due order', async () => {
+    const clock = createVirtualClock(0);
+    const sched = createScheduler(clock);
+    const timers = createTimers(sched);
+    const fired: string[] = [];
+    timers.setInterval(() => {
+      fired.push(`tick@${clock.now()}`);
+    }, 1_000);
+    timers.setTimeout(() => {
+      fired.push(`late@${clock.now()}`);
+    }, 50_000);
+    timers.setTimeout(() => {
+      fired.push(`early@${clock.now()}`);
+    }, 10_000);
+    const DAY_MS = 86_400_000;
+    await sched.sleep(DAY_MS);
+    expect(clock.now()).toBe(DAY_MS);
+    // One tick, not a day of them; overdue timeouts keep their order.
+    expect(fired).toEqual([
+      `tick@${DAY_MS}`,
+      `early@${DAY_MS}`,
+      `late@${DAY_MS}`,
+    ]);
+    await sched.runFor(1_000);
+    expect(fired.at(-1)).toBe(`tick@${DAY_MS + 1_000}`);
   });
 });

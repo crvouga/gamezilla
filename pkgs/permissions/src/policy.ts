@@ -35,6 +35,7 @@ export type RestrictionSpec = {
 export type DenialReason =
   | 'not_granted'
   | 'quota_exhausted'
+  | 'limit_reached'
   | 'requires_account'
   | 'restricted';
 

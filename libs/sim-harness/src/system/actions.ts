@@ -51,6 +51,37 @@ export const restoreNetwork = defineAction({
   },
 });
 
+/** How far one jump of {@link letTimePass} moves the world. */
+const TIME_PASS_HOP_MS = 60 * 60 * 1000;
+/** After each jump: long enough for the requests it set off to answer. */
+const TIME_PASS_SETTLE_MS = 2_000;
+
+/**
+ * Days go by for everyone — devices, servers, the payment provider — in
+ * hour-long jumps, as a sleeping machine sees them: each jump fires whatever
+ * fell due once, then lets the answers land. Stepping every heartbeat through
+ * a week of virtual time would take minutes; this takes a few seconds and
+ * still wakes each device every hour. Needs virtual time.
+ */
+export const letTimePass = defineAction({
+  name: 'letTimePass',
+  pool: false,
+  enabled: (s: ProductSim) => s.session.caps.has('virtualTime'),
+  act: async (s: ProductSim, ms: number) => {
+    const end = s.session.ports.clock.now() + ms;
+    for (;;) {
+      await s.session.waitForIdle();
+      const left = end - s.session.ports.clock.now();
+      if (left <= TIME_PASS_SETTLE_MS) break;
+      const hop = Math.min(TIME_PASS_HOP_MS, left - TIME_PASS_SETTLE_MS);
+      await s.session.scheduler.underlying.sleep(hop);
+      await s.session.advanceTime(TIME_PASS_SETTLE_MS);
+    }
+    const left = end - s.session.ports.clock.now();
+    if (left > 0) await s.session.advanceTime(left);
+  },
+});
+
 export type { UiOp };
 
 /** Replay / report of a concrete UI op. */
