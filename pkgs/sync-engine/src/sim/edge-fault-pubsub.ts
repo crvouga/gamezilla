@@ -5,6 +5,8 @@ export type SimPubsubFault =
   | {
       readonly kind: 'corruptPubsubPayload';
       readonly variant: SimCorruptionVariant;
+      /** Only the next publish on this topic (default: the next publish). */
+      readonly topic?: Topic;
     }
   | {
       readonly kind: 'dropTopic';
@@ -19,20 +21,25 @@ export type SimPubsubFault =
 export type PubsubFaultArms = {
   readonly arm: (fault: SimPubsubFault) => void;
   readonly clear: () => void;
-  readonly takeCorruption: () => SimCorruptionVariant | undefined;
+  readonly takeCorruption: (topic: Topic) => SimCorruptionVariant | undefined;
   readonly shouldDropTopic: (topic: Topic) => boolean;
   readonly duplicatePublishCount: () => number;
 };
 
 export function createPubsubFaultArms(): PubsubFaultArms {
-  let pubsubCorruption: SimCorruptionVariant | undefined;
+  let pubsubCorruption:
+    | { readonly variant: SimCorruptionVariant; readonly topic?: Topic }
+    | undefined;
   const topicDropRemaining = new Map<Topic, number>();
   let duplicatePublishRemaining = 0;
 
   return {
     arm(fault) {
       if (fault.kind === 'corruptPubsubPayload') {
-        pubsubCorruption = fault.variant;
+        pubsubCorruption =
+          fault.topic === undefined
+            ? { variant: fault.variant }
+            : { variant: fault.variant, topic: fault.topic };
         return;
       }
       if (fault.kind === 'dropTopic') {
@@ -46,11 +53,12 @@ export function createPubsubFaultArms(): PubsubFaultArms {
       topicDropRemaining.clear();
       duplicatePublishRemaining = 0;
     },
-    takeCorruption() {
+    takeCorruption(topic) {
       if (pubsubCorruption === undefined) return undefined;
-      const variant = pubsubCorruption;
+      const armed = pubsubCorruption;
+      if (armed.topic !== undefined && armed.topic !== topic) return undefined;
       pubsubCorruption = undefined;
-      return variant;
+      return armed.variant;
     },
     shouldDropTopic(topic) {
       const remaining = topicDropRemaining.get(topic);

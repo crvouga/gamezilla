@@ -11,6 +11,7 @@ import { unsafe } from '@pkgs/sql';
 import type { Mutation } from '../../mutations/core/types';
 import { pumpInSync } from '../sim-pump';
 import type { AddClientArgs } from '../sim-types';
+import type { StoragePressureKind } from '../storage-pressure';
 import { prepareClientsForInSync, resetClockSkews } from './pool-support';
 import {
   driveToSettled,
@@ -83,6 +84,42 @@ export const mutate = defineAction({
         ? { ok: true, mutationId: result.mutationId, failures: [] }
         : { ok: false, mutationId: null, failures: result.failures }
     );
+  },
+});
+
+/**
+ * `s.apply(mutateWhileFull, 'bob', { pressure: 'sqliteFull', mutation:
+ * setNote, args: { id: 'n1' } })`: the device is too full to save at the
+ * moment the person writes. The arm and the write happen in one step, so
+ * nothing else consumes the arm; it is cleared after, whatever the write did.
+ */
+export const mutateWhileFull = defineAction({
+  name: 'mutateWhileFull',
+  act: async (
+    s: SyncSim,
+    clientId: string,
+    write: {
+      readonly pressure: StoragePressureKind;
+      readonly mutation: Mutation<unknown> | string;
+      readonly args: unknown;
+    }
+  ) => {
+    const mutation = resolveMutation(s, write.mutation);
+    s.armStoragePressure(clientId, write.pressure);
+    try {
+      const result = await requireClient(s, clientId).mutate(
+        mutation,
+        write.args
+      );
+      s.runtime.lastMutation.set(
+        clientId,
+        result.ok
+          ? { ok: true, mutationId: result.mutationId, failures: [] }
+          : { ok: false, mutationId: null, failures: result.failures }
+      );
+    } finally {
+      s.clearStoragePressure(clientId);
+    }
   },
 });
 

@@ -15,4 +15,4 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | @pkgs/db-indexes | `specs/index-tuning/` | 1 | 7 | 17 | [catalog](../pkgs/db-indexes/STEPS_CATALOG.md) |
 | @pkgs/matchmaking-sim | `specs/matchmaking/` | 3 | 11 | 28 | [catalog](../pkgs/matchmaking-sim/STEPS_CATALOG.md) |
 | @pkgs/room-sim | `specs/rooms/` | 4 | 23 | 43 | [catalog](../pkgs/room-sim/STEPS_CATALOG.md) |
-| @pkgs/sync-engine | `specs/sync/` | 13 | 32 | 49 | [catalog](../pkgs/sync-engine/STEPS_CATALOG.md) |
+| @pkgs/sync-engine | `specs/sync/` | 13 | 36 | 53 | [catalog](../pkgs/sync-engine/STEPS_CATALOG.md) |
