@@ -29,6 +29,10 @@ function webAnimate(): AnimateTransform | null {
       [{ transform: from }, { transform: to }],
       { duration: durationMs, easing: SLIDE_EASING }
     );
+    // `cancel()` rejects `finished` with an AbortError. Browsers mark that
+    // rejection handled; happy-dom does not, so a cancelled slide would
+    // surface as an unhandled rejection. Cancelling is expected here.
+    animation.finished.catch(() => undefined);
     return {
       cancel: () => animation.cancel(),
       onFinish: (callback) => {

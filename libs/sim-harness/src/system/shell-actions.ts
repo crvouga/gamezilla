@@ -46,3 +46,22 @@ export const focusActor = scenarioAction({
     });
   },
 });
+
+/**
+ * Back to the tab bar from wherever the actor is: pops stack screens until
+ * the Profile tab is addressable. A no-op when already there, unlike
+ * `returnToTabs`, which asserts one pop.
+ */
+export const backToTabs = scenarioAction({
+  name: 'backToTabs',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    for (let pops = 0; pops < 4; pops++) {
+      if (await ui.get(Handles.tabProfile).isVisible()) break;
+      if (!(await ui.get(Handles.navBack).isVisible())) break;
+      await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+      await s.session.waitForIdle();
+    }
+    await ui.get(Handles.tabProfile).expect.visible({ timeoutMs: WAIT_MS });
+  },
+});

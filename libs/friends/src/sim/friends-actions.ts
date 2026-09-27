@@ -164,7 +164,18 @@ export const addFriend = scenarioAction({
   },
 });
 
+/** On the friends list: tap a friend's live-space badge; lands on the join prompt. */
+export const openFriendLiveSpace = scenarioAction({
+  name: 'openFriendLiveSpace',
+  act: async (s, actorId: string, hostAccountId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.friendLiveSpace(hostAccountId)).tap();
+    await ui.get(Handles.spaceJoin).expect.visible({ timeoutMs: WAIT_MS });
+  },
+});
+
 export const FRIENDS_SIM_ACTIONS = [
+  openFriendLiveSpace,
   addFriend,
   acceptFriendRequest,
   declineFriendRequest,

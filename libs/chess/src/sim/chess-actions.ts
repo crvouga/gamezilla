@@ -32,12 +32,14 @@ import {
   openChessStats,
   openPuzzleFromChessMenu,
   openPuzzlePlay,
+  openPuzzlePlayNoWait,
   openReviewFromGameLog,
   playWrongMove,
   pressPuzzleBackToChessMenu,
   pressPuzzleHint,
   pressPuzzleRetry,
   pressPuzzleSolution,
+  returnToPuzzles,
   settleAfterPuzzleNext,
   solvePuzzle,
   tapEmptyPoolPrimaryAction,
@@ -52,10 +54,22 @@ export const openPuzzleFromSpace = scenarioAction({
   act: openPuzzlePlay,
 });
 
+/** Open the puzzle screen without waiting for a board (the feed may be empty). */
+export const openPuzzleFromSpaceNoWait = scenarioAction({
+  name: 'openPuzzleFromSpaceNoWait',
+  act: openPuzzlePlayNoWait,
+});
+
 /** Back on the board from the chess main menu (a pending attempt is restored). */
 export const reopenPuzzleFromChessMenu = scenarioAction({
   name: 'reopenPuzzleFromChessMenu',
   act: openPuzzleFromChessMenu,
+});
+
+/** Back to the puzzle screen from the chess choices or an interruption. */
+export const returnToPuzzleScreen = scenarioAction({
+  name: 'returnToPuzzleScreen',
+  act: returnToPuzzles,
 });
 
 export const playUntilSolved = scenarioAction({
@@ -300,6 +314,7 @@ export const bumpPuzzleFeedCustomRating = scenarioAction({
 /** Registered on every system that composes this feature. */
 export const CHESS_SIM_ACTIONS = [
   openPuzzleFromSpace,
+  openPuzzleFromSpaceNoWait,
   playUntilSolved,
   playPuzzleMove,
   tapPuzzleMove,
@@ -308,6 +323,7 @@ export const CHESS_SIM_ACTIONS = [
   setPuzzleAutoAdvance,
   pressPuzzleNextTwice,
   reopenPuzzleFromChessMenu,
+  returnToPuzzleScreen,
   pressPuzzleNext,
   pressPuzzleNextNoWait,
   playWrongPuzzleMove,

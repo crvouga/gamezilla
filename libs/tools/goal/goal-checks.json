@@ -89,8 +89,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-guest-host.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-guest-host.feature"
       }
     ]
   },
@@ -102,8 +102,8 @@
         "path": "libs/spaces/tests/guest-space-join.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-guest-link-join.feature"
       }
     ]
   },
@@ -111,8 +111,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/space-host-select-game.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/space-host-select-game.feature"
       }
     ]
   },
@@ -120,8 +120,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-live-presence.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-live-presence.feature"
       }
     ]
   },
@@ -129,8 +129,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-disconnect-reconnect.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-disconnect-reconnect.feature"
       }
     ]
   },
@@ -138,8 +138,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-lifecycle.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-lifecycle.feature"
       }
     ]
   },
@@ -147,12 +147,12 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-friend-join.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-friend-join.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/friend-in-open-space.test.tsx"
+        "kind": "spec",
+        "path": "specs/friends/friends-live-space.feature"
       }
     ]
   },
@@ -169,8 +169,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-offline.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-offline.feature"
       }
     ]
   },
@@ -191,8 +191,8 @@
         "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-outcome-sync.feature"
       }
     ]
   },
@@ -204,8 +204,8 @@
         "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       }
     ]
   },
@@ -231,12 +231,16 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/space-guest-link-join.test.tsx"
+        "kind": "spec",
+        "path": "specs/spaces/space-guest-link-join.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-guest-play.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-play.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/sign-in.feature"
       }
     ]
   },
@@ -248,12 +252,12 @@
         "path": "libs/auth/src/root/server/anon-user-service.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/profile/sign-in.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       }
     ]
   },
@@ -263,6 +267,18 @@
       {
         "kind": "test",
         "path": "libs/profile/tests/username-integrity.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/profile-defaults.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/profile-edit.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/username-rules.feature"
       }
     ]
   },
@@ -272,6 +288,10 @@
       {
         "kind": "test",
         "path": "libs/profile/tests/username-integrity.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/profile/username-rules.feature"
       }
     ]
   },
@@ -279,16 +299,16 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/request-accept.test.tsx"
+        "kind": "spec",
+        "path": "specs/friends/friend-request-accept.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/request-decline-cancel.test.tsx"
+        "kind": "spec",
+        "path": "specs/friends/friend-request-decline-cancel.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/remove.test.tsx"
+        "kind": "spec",
+        "path": "specs/friends/friend-remove.feature"
       }
     ]
   },
@@ -300,8 +320,8 @@
         "path": "libs/spaces/src/root/client/my-live-space-seat-sql.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/friends/tests/e2e/friend-in-open-space.test.tsx"
+        "kind": "spec",
+        "path": "specs/friends/friends-live-space.feature"
       }
     ]
   },
@@ -309,8 +329,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-play.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-play.feature"
       }
     ]
   },
@@ -318,8 +338,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-stats.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-stats.feature"
       }
     ]
   },
@@ -327,8 +347,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-feed.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed.feature"
       }
     ]
   },
@@ -336,8 +356,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-feed.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-feed.feature"
       }
     ]
   },
@@ -345,8 +365,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-exhaust.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-exhaust.feature"
       }
     ]
   },
@@ -381,12 +401,12 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-controls.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-controls.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-outcome-sync.feature"
       }
     ]
   },
@@ -403,8 +423,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-stats.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-stats.feature"
       }
     ]
   },
@@ -412,8 +432,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-spectator.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-spectator.feature"
       }
     ]
   },
@@ -466,8 +486,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-limit-upgrade.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-limit-upgrade.feature"
       }
     ]
   },
@@ -479,8 +499,8 @@
         "path": "libs/billing/src/use-cases/create-checkout-session/server/billing-checkout-route.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/billing/tests/e2e/subscribe.test.tsx"
+        "kind": "spec",
+        "path": "specs/billing/subscribe.feature"
       }
     ]
   },
@@ -492,8 +512,8 @@
         "path": "libs/billing/src/use-cases/open-portal-session/server/billing-portal-route.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/billing/tests/e2e/portal.test.tsx"
+        "kind": "spec",
+        "path": "specs/billing/billing-portal.feature"
       }
     ]
   },
@@ -505,8 +525,24 @@
         "path": "pkgs/billing-stripe/src/stripe-membership.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/billing/tests/e2e/lifecycle.test.tsx"
+        "kind": "spec",
+        "path": "specs/billing/billing-access-per-person.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/membership-cancellation.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/membership-interval-switch.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/membership-renewal.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/payment-failures.feature"
       }
     ]
   },
@@ -516,6 +552,10 @@
       {
         "kind": "test",
         "path": "libs/permissions/tests/plan.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/billing/billing-offline-grace.feature"
       }
     ]
   },
@@ -527,8 +567,8 @@
         "path": "pkgs/sync-engine/tests/crash-restart-rehydrates-and-drains-queue.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       }
     ]
   },
@@ -540,8 +580,8 @@
         "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       }
     ]
   },
@@ -553,8 +593,8 @@
         "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-outcome-sync.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-outcome-sync.feature"
       }
     ]
   },
@@ -589,8 +629,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-spectator.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-spectator.feature"
       }
     ]
   },
@@ -620,12 +660,12 @@
         "path": "libs/auth/src/root/server/anon-user-service.test.ts"
       },
       {
-        "kind": "test",
-        "path": "libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/profile/sign-in.feature"
       },
       {
-        "kind": "test",
-        "path": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       }
     ]
   },

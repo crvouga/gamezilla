@@ -130,6 +130,21 @@ export async function openPuzzlePlay(
   await expectPlayReady(s, actorId);
 }
 
+/**
+ * The same route to the puzzle screen without waiting for a board: offline
+ * with no local pool, the screen says the feed is empty instead.
+ */
+export async function openPuzzlePlayNoWait(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
+}
+
 /** §5 result panel CTA: "Next puzzle" inside the summary. */
 export async function pressPuzzleSummaryNext(
   s: ProductSim,
@@ -148,6 +163,26 @@ export async function openPuzzleFromChessMenu(
   await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
   await ui.get(Handles.chessMenuPuzzle).tap({ timeoutMs: WAIT_MS });
   await expectPlayReady(s, actorId);
+}
+
+/**
+ * Back to the puzzle screen: from the chess choices through the puzzle
+ * entry, or one step back from wherever an interruption (signing in) left
+ * the actor. A pending attempt comes back as it was.
+ */
+export async function returnToPuzzles(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.chessMenuPuzzle).isVisible()) {
+    await openPuzzleFromChessMenu(s, actorId);
+    return;
+  }
+  await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.chessPuzzlePlayScreen).expect.visible({
+    timeoutMs: WAIT_MS,
+  });
 }
 
 async function waitExpectedUci(

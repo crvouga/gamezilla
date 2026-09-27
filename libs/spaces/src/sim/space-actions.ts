@@ -120,6 +120,9 @@ export const openSpaceLink = scenarioAction({
     if (actor === undefined) throw new Error(`actor ${actorId} missing`);
     await actor.openLink(link);
     const ui = await actorUi(s, actorId);
+    // Bring the actor to the front: a parked actor's screen reads as empty,
+    // and nothing carries this id, so the wait returns at once.
+    await ui.get('sim-focus-probe').expect.hidden({ timeoutMs: 1 });
     await pollUntil(
       s,
       async () =>
@@ -143,8 +146,38 @@ export const closeSpaceMembers = scenarioAction({
   },
 });
 
+/** Step out of the space screen (the ✕), staying a member. */
+export const closeSpaceScreen = scenarioAction({
+  name: 'closeSpaceScreen',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.spaceClose).tap({ timeoutMs: SPACE_WAIT_MS });
+    await ui
+      .get(Handles.spaceClose)
+      .expect.hidden({ timeoutMs: SPACE_WAIT_MS });
+  },
+});
+
+/**
+ * Open a space link after the app restarted: someone already seated may land
+ * straight in the space, or on the join prompt — either way they end up in it.
+ */
+export const reopenSpaceLink = scenarioAction({
+  name: 'reopenSpaceLink',
+  act: async (s, actorId: string, link: string) => {
+    await Promise.resolve(openSpaceLink.act(s, actorId, link));
+    const ui = await actorUi(s, actorId);
+    if (await ui.get(Handles.spaceJoin).isVisible()) {
+      await Promise.resolve(joinFromPrompt.act(s, actorId));
+    }
+    await waitActiveSpace(s, actorId);
+  },
+});
+
 /** Registered on every system that composes this feature. */
 export const SPACES_SIM_ACTIONS = [
+  closeSpaceScreen,
+  reopenSpaceLink,
   openSpacesTab,
   createSpace,
   returnToLobby,

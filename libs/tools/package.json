@@ -16,8 +16,10 @@
     "@pkgs/os": "workspace:*"
   },
   "devDependencies": {
+    "@libs/sim-harness": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/equal": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/property": "workspace:*",
     "fast-check": "catalog:",
     "wrangler": "catalog:"

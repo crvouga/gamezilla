@@ -1,10 +1,14 @@
 /**
  * Ask turbo what a run would do before paying for it.
  *
- * `turbo run --dry=json` hashes every task and asks the local and remote
- * caches whether that hash exists — ~1s for the whole gate. Turbo only caches
- * a task that succeeded, so a HIT is that task's green verdict for exactly
- * these inputs. Two things follow:
+ * `turbo run --dry=json` hashes every task and asks the cache whether that
+ * hash exists. Turbo only caches a task that succeeded, so a HIT is that
+ * task's green verdict for exactly these inputs. The dry run asks the *local*
+ * cache only (~4s): with `remote:` in `--cache` turbo also asks the remote
+ * about every task one request at a time, ~70s for the whole gate even when
+ * every task is a local hit. The remote is then asked only about the local
+ * misses, in parallel (`HEAD /v8/artifacts/<hash>`, `resolveRemoteHits`).
+ * Two things follow:
  *
  * - **Nothing to execute → nothing to run.** When every task is a HIT the gate
  *   has already passed; replaying ~400 cache restores would only re-print it.
@@ -105,9 +109,14 @@ export function planFromDryRun(json: string): RunPlan {
   if (!Array.isArray(parsed.tasks)) {
     throw new Error('turbo --dry=json: missing tasks array');
   }
-  const tasks = (parsed.tasks as DryRunTask[])
-    .map(toPlannedTask)
-    .filter((task): task is PlannedTask => task !== null);
+  return planFromTasks(
+    (parsed.tasks as DryRunTask[])
+      .map(toPlannedTask)
+      .filter((task): task is PlannedTask => task !== null)
+  );
+}
+
+function planFromTasks(tasks: readonly PlannedTask[]): RunPlan {
   const toExecute = tasks.filter((task) => !task.hit);
   const byId = new Map(tasks.map((task) => [task.taskId, task]));
   return {
@@ -119,11 +128,84 @@ export function planFromDryRun(json: string): RunPlan {
   };
 }
 
+/**
+ * The `local:` part of a `--cache` flag (what the dry run asks), or `null`
+ * when the local cache is off and the dry run must ask the remote itself.
+ */
+export function localCacheFlag(cache: string): string | null {
+  const local = cache.split(',').find((part) => part.startsWith('local:'));
+  return local === undefined || local === 'local:' ? null : local;
+}
+
+/** Whether a `--cache` flag reads the remote cache. */
+export function readsRemoteCache(cache: string): boolean {
+  return cache
+    .split(',')
+    .some(
+      (part) =>
+        part.startsWith('remote:') && part.slice('remote:'.length).includes('r')
+    );
+}
+
+/**
+ * Ask the remote about each of the local plan's misses, in parallel; a hash
+ * the remote has is a REMOTE hit, as turbo's own remote lookup would report.
+ * A lookup that fails counts as a miss: the task just runs.
+ */
+export async function resolveRemoteHits(
+  plan: RunPlan,
+  remoteHas: (hash: string) => Promise<boolean>,
+  concurrency: number
+): Promise<RunPlan> {
+  const misses = plan.toExecute;
+  const found = new Set<string>();
+  let next = 0;
+  async function worker(): Promise<void> {
+    while (next < misses.length) {
+      const task = misses[next] as PlannedTask;
+      next += 1;
+      const has = await remoteHas(task.hash).catch(() => false);
+      if (has) found.add(task.taskId);
+    }
+  }
+  const workers = Math.max(1, Math.min(concurrency, misses.length));
+  await Promise.all(Array.from({ length: workers }, worker));
+  if (found.size === 0) return plan;
+  return planFromTasks(
+    plan.tasks.map((task) =>
+      found.has(task.taskId)
+        ? { ...task, hit: true, source: 'REMOTE' as const }
+        : task
+    )
+  );
+}
+
 /** Remote cache artifact URL, as turbo addresses it (`slug` unless `team_…`). */
 export function artifactUrl(api: string, team: string, hash: string): string {
   const param = team.startsWith('team_') ? 'teamId' : 'slug';
   return `${api.replace(/\/+$/, '')}/v8/artifacts/${hash}?${param}=${encodeURIComponent(team)}`;
 }
+
+const REMOTE_LOOKUP_TIMEOUT_MS = 10_000;
+
+/** Wall `HEAD` against the self-hosted remote cache: does it hold `hash`? */
+export function wallRemoteHas(
+  env: NodeJS.ProcessEnv
+): (hash: string) => Promise<boolean> {
+  const api = env['TURBO_API'] ?? '';
+  const team = env['TURBO_TEAM'] ?? '';
+  const token = env['TURBO_TOKEN'] ?? '';
+  return async (hash) => {
+    const res = await fetch(artifactUrl(api, team, hash), {
+      method: 'HEAD',
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
+    });
+    return res.ok;
+  };
+}
+
+export const REMOTE_LOOKUP_CONCURRENCY = 32;
 
 export type PrefetchIo = {
   /** Artifact bytes, or `null` when the remote does not have it. */

@@ -17,8 +17,9 @@
  *   second notion of "what changed" to keep correct. The one input turbo
  *   cannot see — which commits a change adds — is exported as
  *   `CHECK_SECRETS_RANGE` (`<merge-base>..<head>`) for `check:secrets`.
- * - Plan first (`turbo-preflight.ts`): `--dry=json` asks both caches about
- *   every task (~1s). All hits → the gate already passed for these inputs, so
+ * - Plan first (`turbo-preflight.ts`): `--dry=json` asks the local cache
+ *   about every task (~4s), then the remote about the local misses only, in
+ *   parallel. All hits → the gate already passed for these inputs, so
  *   turbo is not run at all. Otherwise turbo runs only the missed task ids
  *   (plus their `dependsOn` closure, same hashes), after the closure's remote
  *   hits are prefetched in parallel into the local cache — so `--concurrency`
@@ -40,6 +41,8 @@
  * - Time limits: the run is killed at a hard wall-clock deadline, and every
  *   task that executed is checked against its per-task budget once the run
  *   finishes. Both live in `check-budget.ts`.
+ * - Durations: every exit prints the run's wall time and each phase's share
+ *   (plan, prefetch, turbo), cache-hit-only runs included.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -67,8 +70,13 @@ import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   dryRunPlan,
+  localCacheFlag,
   prefetchRemoteHits,
+  REMOTE_LOOKUP_CONCURRENCY,
   type RunPlan,
+  readsRemoteCache,
+  resolveRemoteHits,
+  wallRemoteHas,
 } from './turbo-preflight';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -313,6 +321,46 @@ function requireRemoteCredsForDeploy(hasRemote: boolean, mode: RunMode): void {
   process.exit(1);
 }
 
+/** Each phase's wall time, in the order the phases ran. */
+export type PhaseDurations = readonly (readonly [phase: string, ms: number])[];
+
+function formatSeconds(ms: number): string {
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
+/** `turbo-ci-run: finished in 9.1s (plan 1.2s, prefetch 0.3s, turbo 7.6s)` */
+export function formatDurations(
+  totalMs: number,
+  phases: PhaseDurations
+): string {
+  const parts = phases.map(([phase, ms]) => `${phase} ${formatSeconds(ms)}`);
+  return (
+    `turbo-ci-run: finished in ${formatSeconds(totalMs)}` +
+    (parts.length > 0 ? ` (${parts.join(', ')})` : '')
+  );
+}
+
+const STARTED = process.hrtime.bigint();
+const phases: [phase: string, ms: number][] = [];
+
+function msSince(start: bigint): number {
+  return Number((process.hrtime.bigint() - start) / 1_000_000n);
+}
+
+async function timed<T>(phase: string, run: () => T | Promise<T>): Promise<T> {
+  const start = process.hrtime.bigint();
+  try {
+    return await run();
+  } finally {
+    phases.push([phase, msSince(start)]);
+  }
+}
+
+function exitWithDurations(code: number): never {
+  console.log(formatDurations(msSince(STARTED), phases));
+  process.exit(code);
+}
+
 async function main(): Promise<void> {
   const env = turboChildEnv();
   writePlatformCacheKey();
@@ -376,26 +424,28 @@ async function main(): Promise<void> {
     ...rootExcludeFiltersFor(taskArgs),
     ...runModeFlags(mode),
   ];
-  const plan = planOrNull(fullRunArgs, cache, env);
+  const plan = await timed('plan', () => planOrNull(fullRunArgs, cache, env));
   if (planShardsOnly) writeShardPlanAndExit(plan, taskArgs);
   if (plan !== null && plan.toExecute.length === 0) {
-    process.exit(finalExitCode({ status: 0, slowRunner, ran: false }));
+    exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
-  if (plan !== null) await prefetchRemoteHits(plan, REPO_ROOT, env);
+  if (plan !== null && plan.remoteHits.length > 0) {
+    await timed('prefetch', () => prefetchRemoteHits(plan, REPO_ROOT, env));
+  }
   const runArgs =
     plan === null
       ? fullRunArgs
       : ['run', ...plan.toExecute.map((task) => task.taskId)];
 
   const stopHeartbeat = startHeartbeat();
-  const status = await runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, {
-    deadlineSeconds,
-  });
+  const status = await timed('turbo', () =>
+    runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, { deadlineSeconds })
+  );
   stopHeartbeat();
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(finalExitCode({ status, slowRunner, ran: true }));
+  exitWithDurations(finalExitCode({ status, slowRunner, ran: true }));
 }
 
 const PLAN_SHARDS_FLAG = '--plan-shards';
@@ -454,22 +504,33 @@ const LISTED_MISSES = 25;
  * run itself fails: the real run then goes ahead unplanned — the verdict is
  * always the real run's, the plan only decides how much of it to skip.
  */
-function planOrNull(
+async function planOrNull(
   runArgs: readonly string[],
   cache: string,
   env: NodeJS.ProcessEnv
-): RunPlan | null {
+): Promise<RunPlan | null> {
   // The misses are re-run by id alone, so a caller's own turbo flags
   // (`--force`, `--continue`, …) would be dropped: plan only plain task sets.
   const flags = runArgs.filter((arg) => arg.startsWith('-'));
   if (flags.some((flag) => !flag.startsWith('--filter='))) return null;
+  // Turbo's own remote lookup is one request per task, in series; ask the
+  // local cache here and the remote about the local misses, in parallel.
+  const local = localCacheFlag(cache);
+  const askRemote = local !== null && readsRemoteCache(cache);
   let plan: RunPlan;
   try {
     plan = dryRunPlan(
-      [...runArgs, `--cache=${cache}`, '--framework-inference=false'],
+      [...runArgs, `--cache=${local ?? cache}`, '--framework-inference=false'],
       REPO_ROOT,
       env
     );
+    if (askRemote && plan.toExecute.length > 0) {
+      plan = await resolveRemoteHits(
+        plan,
+        wallRemoteHas(env),
+        REMOTE_LOOKUP_CONCURRENCY
+      );
+    }
   } catch (error) {
     console.warn(
       `turbo-ci-run: dry run failed (${String(error)}); running unplanned.`

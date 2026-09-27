@@ -9,8 +9,13 @@
 
 import type { GoalStatement } from './goal-statements';
 
+/**
+ * `test`: a code test carrying `goal:<id>`; `gate`: a CI script carrying it;
+ * `spec`: a `.feature` file with a scenario tagged `@goal:<id>` (the spec
+ * check also verifies the tag sits on a scenario, not just in the text).
+ */
 export type GoalProof = {
-  readonly kind: 'test' | 'gate';
+  readonly kind: 'test' | 'gate' | 'spec';
   readonly path: string;
   readonly marker?: string;
 };
@@ -30,7 +35,10 @@ export type GoalChecks = Readonly<Record<string, GoalCheckEntry>>;
 export type KnownBug = {
   readonly id: string;
   readonly summary: string;
-  /** Repo-relative test file carrying `regression: <id>` beside the test. */
+  /**
+   * Repo-relative test file carrying `regression: <id>` beside the test, or
+   * a `.feature` whose pinned scenario is tagged `@regression:<id>`.
+   */
   readonly regressionTest: string;
 };
 
@@ -63,11 +71,23 @@ function validateProof(
   files: ProofFiles,
   errors: string[]
 ): void {
-  if (proof.kind !== 'test' && proof.kind !== 'gate') {
-    errors.push(`${label}: proof kind must be "test" or "gate"`);
+  if (proof.kind !== 'test' && proof.kind !== 'gate' && proof.kind !== 'spec') {
+    errors.push(`${label}: proof kind must be "test", "gate" or "spec"`);
   }
   if (typeof proof.path !== 'string' || proof.path.length === 0) {
     errors.push(`${label}: proof path is required`);
+    return;
+  }
+  if (proof.kind === 'spec' && !proof.path.endsWith('.feature')) {
+    errors.push(
+      `${label}: a spec proof must be a .feature file: ${proof.path}`
+    );
+    return;
+  }
+  if (proof.kind !== 'spec' && proof.path.endsWith('.feature')) {
+    errors.push(
+      `${label}: ${proof.path} is a feature file — use proof kind "spec"`
+    );
     return;
   }
   if (!files.owns(proof.path)) return;
@@ -79,7 +99,7 @@ function validateProof(
   const marker =
     proof.marker !== undefined && proof.marker.length > 0
       ? proof.marker
-      : `goal:${label}`;
+      : `${proof.kind === 'spec' ? '@' : ''}goal:${label}`;
   if (!body.includes(marker)) {
     errors.push(`${label}: ${proof.path} does not contain marker "${marker}"`);
   }
@@ -134,9 +154,15 @@ function validateEntry(
 
 const TEST_FILE = /\.test\.tsx?$/;
 const PROPERTY_FILE = /\.property\.test\.tsx?$/;
+const FEATURE_FILE = /\.feature$/;
 
 export function regressionMarker(bugId: string): string {
   return `regression: ${bugId}`;
+}
+
+/** The scenario tag that pins a known bug in a `.feature` file. */
+export function regressionTag(bugId: string): string {
+  return `@regression:${bugId}`;
 }
 
 function validateRegressionTest(
@@ -146,8 +172,11 @@ function validateRegressionTest(
 ): void {
   const label = `known-bugs:${bug.id}`;
   const path = bug.regressionTest;
-  if (typeof path !== 'string' || !TEST_FILE.test(path)) {
-    errors.push(`${label}: regressionTest must be a *.test.ts(x) file`);
+  const feature = typeof path === 'string' && FEATURE_FILE.test(path);
+  if (typeof path !== 'string' || !(feature || TEST_FILE.test(path))) {
+    errors.push(
+      `${label}: regressionTest must be a *.test.ts(x) or *.feature file`
+    );
     return;
   }
   if (PROPERTY_FILE.test(path)) {
@@ -162,7 +191,7 @@ function validateRegressionTest(
     errors.push(`${label}: regression test not found: ${path}`);
     return;
   }
-  const marker = regressionMarker(bug.id);
+  const marker = feature ? regressionTag(bug.id) : regressionMarker(bug.id);
   if (!body.includes(marker)) {
     errors.push(`${label}: ${path} does not contain marker "${marker}"`);
   }

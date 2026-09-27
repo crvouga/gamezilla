@@ -14,7 +14,8 @@
     "./sim/*": [
       "./src/sim/*.ts",
       "./src/sim/*.tsx"
-    ]
+    ],
+    "./steps/*": "./tests/steps/*.ts"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
@@ -22,6 +23,9 @@
     "test": "bun test --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
+  "specDomains": [
+    "profile"
+  ],
   "dependencies": {
     "@dicebear/collection": "catalog:",
     "@dicebear/core": "catalog:",

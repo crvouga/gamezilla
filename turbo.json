@@ -279,6 +279,42 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "//#ci:specs": {
+      "dependsOn": ["@libs/tools#tc", "@pkgs/gherkin#tc"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!apps/**",
+        "!libs/**",
+        "!pkgs/**",
+        "specs/**",
+        "libs/*/package.json",
+        "libs/*/turbo.json",
+        "libs/*/tests/steps/**",
+        "libs/*/STEPS_CATALOG.md",
+        "pkgs/*/package.json",
+        "pkgs/*/turbo.json",
+        "pkgs/*/tests/steps/**",
+        "pkgs/*/STEPS_CATALOG.md",
+        "apps/*/package.json",
+        "apps/*/turbo.json",
+        "apps/*/tests/steps/**",
+        "apps/*/STEPS_CATALOG.md",
+        "libs/sim-harness/src/spec/**",
+        "pkgs/gherkin/src/**",
+        "libs/tools/scripts/check-specs.ts",
+        "libs/tools/scripts/spec-catalog.ts",
+        "libs/tools/scripts/spec-packages.ts",
+        "libs/tools/goal/**"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
+    "//#ci:spec-ownership": {
+      "env": ["PR_BASE", "PR_HEAD"],
+      "inputs": ["libs/tools/scripts/check-spec-ownership.ts"],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "@apps/client#check:bundle-budget": {
       "dependsOn": ["@apps/client#build"],
       "inputs": [
@@ -357,6 +393,8 @@
         "//#ci:i18n",
         "//#ci:agent-commands",
         "//#ci:goals",
+        "//#ci:specs",
+        "//#ci:spec-ownership",
         "tc",
         "lint",
         "test",
