@@ -4,7 +4,7 @@
  * every model's binding.
  */
 
-import './puzzle-session.binding';
+import './puzzle-attempt.binding';
 
 import { useQuintSim } from '@libs/sim-harness/quint/world';
 import { openSim } from '../e2e/support/open-chess-sim';

@@ -1,5 +1,5 @@
 /**
- * `specs/chess/puzzle-session.qnt` against the chess composition: a guest
+ * `specs/chess/puzzle-attempt.qnt` against the chess composition: a guest
  * hosting a space plays puzzles through the chess sim actions while another
  * guest in the space watches, and the model's state is read back off both
  * views. Puzzle ids are opaque, so each is numbered in the order it first
@@ -91,7 +91,7 @@ function hostDoes(
 }
 
 bindQuintModel<QuintSimWorld>({
-  model: 'puzzle-session',
+  model: 'puzzle-attempt',
   traces: 6,
   maxSteps: 12,
   // Two views read after every step: a trace runs ~10s alone, but several

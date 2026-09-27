@@ -354,6 +354,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 ## Features
 
+- `specs/chess/puzzle-attempt-resume.feature` — A puzzle attempt survives leaving the puzzle and closing the app (5 scenarios)
 - `specs/chess/puzzle-controls.feature` — Retry, hint and solution (7 scenarios)
 - `specs/chess/puzzle-exhaust.feature` — An exhausted feed (4 scenarios)
 - `specs/chess/puzzle-feed-gates.feature` — Customizing the feed is for people with an account (2 scenarios)
@@ -374,7 +375,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/chess/puzzle-review.feature` — Reviewing a puzzle's line (12 scenarios)
 - `specs/chess/puzzle-selection.feature` — Choosing the next puzzle (3 scenarios)
 - `specs/chess/puzzle-skip-clock.feature` — Puzzle clock and skipping (5 scenarios)
-- `specs/chess/puzzle-solve-session.feature` — A puzzle attempt survives leaving the puzzle and closing the app (5 scenarios)
 - `specs/chess/puzzle-spectator.feature` — Friends watch a puzzle (8 scenarios)
 - `specs/chess/puzzle-stats-summary.feature` — Rating, puzzles solved, and accuracy (3 scenarios)
 - `specs/chess/puzzle-stats.feature` — Puzzle stats and game log (4 scenarios)

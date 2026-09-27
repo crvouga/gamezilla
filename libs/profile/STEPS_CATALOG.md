@@ -10,7 +10,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} and {actor} are on fresh devices | {actor}, {actor} | profile |
 | Given | {actor} has abandoned signing in with {provider} | {actor}, {provider} | profile |
 | Given | {actor} has an account they sign into with Google at an unverified address | {actor} | profile |
-| Given | {actor} has connected Apple to their Google account | {actor} | profile |
+| Given | {actor} has connected Apple to their account | {actor} | profile |
 | Given | {actor} has saved an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
 | Given | {actor} has signed out on their other device | {actor} | profile |
 | Given | {actor} has stopped using Sign in with Apple for the app | {actor} | profile |
