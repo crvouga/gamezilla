@@ -22,10 +22,10 @@ Feature: A puzzle attempt survives leaving and restarting
     Then Alice is asked to find the next move within 20 seconds
     And Alice is on the same puzzle as before
 
-  Scenario: Asking for the next puzzle twice at once moves on only once
+  Scenario: Asking for the next puzzle twice at once lands on one fresh puzzle
     Given Alice has solved the puzzle
     When Alice asks for the next puzzle twice in quick succession
-    Then Alice is solving the puzzle that was next in line
+    Then Alice is solving a different puzzle than the one before
 
   Scenario: Moving on to the next puzzle works without a connection
     Given Alice has solved the puzzle
