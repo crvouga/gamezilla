@@ -31,10 +31,10 @@ top of three role skills. Load each one when its phase starts:
 | Audit the result, and demote non-behavior | `fix-specs` |
 
 Status and remaining scope: [`docs/SPEC_MIGRATION_INVENTORY.md`](../../../docs/SPEC_MIGRATION_INVENTORY.md).
-Product packages (Section A) are done. The framework-level sims
+Product packages (Section A) and the framework-level sims
 (`pkgs/sync-engine`, `pkgs/room-sim`, `pkgs/matchmaking-sim`,
-`pkgs/auth-sim`, `pkgs/db-indexes`) are the open wave. Update that doc as
-you port.
+`pkgs/auth-sim`, `pkgs/db-indexes`) are ported. Use this skill for any new
+legacy test that turns up, and update that doc as you port.
 
 ## 1. Inventory
 
@@ -50,7 +50,7 @@ Sort every legacy `test(...)` into exactly one destination:
 | Scripted example of something a person could observe (Alice's edit reaches Bob's other device, signing in offline fails cleanly) | **Gherkin scenario** in `specs/<domain>/` |
 | One `test` that runs several phases (act → assert → act → assert) | **Several scenarios**, one per rule. Earlier phases become `Given` facts |
 | `test.each` over seeds, seed loops, `randomActions`, `explore`, walks or "monkeys" | **Quint model.** Seeds never go in Gherkin. Quint draws the walks from `FC_SEED` |
-| Stateful internals: convergence, exactly-once, idempotent replay, rebase order, fault recovery, fanout caps | **Quint model** over the package's own actors, run package-locally (see step 2) |
+| Stateful internals: convergence, exactly-once, idempotent replay, rebase order, fault recovery, fanout caps | **Quint model** in `specs/<domain>/`, over the package's public observables (see step 2) |
 | Standing `defineProperty` checks on the system | **Stay on `defineSystem`** (they run under every scenario and trace). Mirror them as `val inv<Name>` when a model observes that state |
 | Same-seed-twice determinism, replay, hash canonicality, `@pkgs/sim` / `sim-report` / `sql-client-sim` self-tests | **Stay code tests**, as framework contracts |
 | Storage rows, wire frames, error codes (`NO_HARD_DELETE`, malformed frames) | **Contract test** asserting through the package's reads (`docs/TESTING.md`) |
@@ -78,12 +78,14 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
   "Bob's laptop shows it within 5 seconds". Steps live in the package's own
   `tests/steps/` on `@pkgs/gherkin`. A `pkgs/` package never imports
   `libs/sim-harness` steps.
-- **Internal invariants** get a Quint model in `pkgs/<pkg>/tests/quint/<model>.qnt`,
-  with its binding beside it. The model runs from the package's `test` through
-  `@pkgs/quint/bun-test` `runQuintModel`, in the same way as
-  `pkgs/quint/tests/bun-test.test.ts`. This is the "model-based property test"
-  the policy asks for. Its variables are the package's public observables (a
-  client's live rows, the server's rows, a room's hash), not queues or epochs.
+- **Internal invariants** get a Quint model in `specs/<domain>/<model>.qnt`,
+  like every other `.feature` and `.qnt`: no Gherkin or Quint lives outside
+  `specs/`. Its names come from the context's glossary, its binding is
+  `tests/quint/<model>.binding.ts` in the package, and the package's
+  `test:e2e` runs it as it runs `specs/rooms/*.qnt` for `@pkgs/room-sim`.
+  This is the "model-based property test" the policy asks for. Its variables
+  are the package's public observables (a person's notes on a device, a
+  room's count, who is matched), not queues or epochs.
 - Turbo inputs: add `$TURBO_ROOT$/specs/<domain>/**` to the task that runs
   them.
 
