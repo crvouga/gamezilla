@@ -24,7 +24,7 @@ import {
   uiOp,
 } from './actions';
 import { anyActor } from './observations';
-import { captureSnapshot, googleOauthSignIn } from './probes';
+import { captureSnapshot } from './probes';
 import { productServerActions } from './server-actions';
 import { SHELL_SCENARIO_ACTIONS } from './shell-scenario-actions';
 import { createProductSim, type ProductSim, productExtra } from './sim';
@@ -137,7 +137,6 @@ export function defineProductSystem(composition: SimComposition) {
       partition,
       restoreNetwork,
       uiOp,
-      googleOauthSignIn,
       captureSnapshot,
       ...productServerActions,
       ...SHELL_SCENARIO_ACTIONS,

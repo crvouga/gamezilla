@@ -1,11 +1,10 @@
 /**
  * Solve-flow stimuli and reads (§5 / §6 / §3): board probe, arbitrary move
- * input, the promotion picker, "Show solution", the restored-attempt reads
- * (interaction log, haptics) and an app restart that keeps the device.
+ * input, the promotion picker, "Show solution", haptics, and an app restart
+ * that keeps the device.
  */
 
 import { actorUi, pollUntil } from '@libs/sim-harness/system/actor-ui';
-import { actorLocalSql } from '@libs/sim-harness/system/identity';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
@@ -13,7 +12,6 @@ import type { ChessBoardProbe } from '@pkgs/chess-board-core/probe';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core/probe';
 import type { Square } from '@pkgs/chess-board-core/types';
 import type { RecordingHaptics } from '@pkgs/device/haptics';
-import { sql } from '@pkgs/sql';
 import { Chess } from 'chess.js';
 import { readPuzzleStatus } from './chess-puzzle-ui';
 
@@ -166,52 +164,6 @@ export async function readPuzzlePrompt(
   } catch {
     return null;
   }
-}
-
-export type PuzzleInteractionRowView = {
-  readonly kind: string;
-  readonly uci: string | null;
-  readonly correct: number | null;
-};
-
-/** This actor's local interaction log for one puzzle, oldest first. */
-export async function readPuzzleInteractions(
-  s: ProductSim,
-  actorId: string,
-  puzzleId: string
-): Promise<PuzzleInteractionRowView[]> {
-  const db = actorLocalSql(s, actorId);
-  if (db === null) return [];
-  return db.query(sql<PuzzleInteractionRowView>`
-    SELECT kind, uci, correct
-    FROM chess_puzzle_interactions
-    WHERE puzzle_id = ${puzzleId} AND deleted_at IS NULL
-    ORDER BY at ASC, kind ASC
-  `);
-}
-
-/** Outcome rows (`solved` / `failed` / `abandoned`) recorded for a puzzle. */
-export async function readPuzzleOutcomes(
-  s: ProductSim,
-  actorId: string,
-  puzzleId: string
-): Promise<string[]> {
-  const rows = await readPuzzleInteractions(s, actorId, puzzleId);
-  return rows
-    .map((row) => row.kind)
-    .filter(
-      (kind) => kind === 'solved' || kind === 'failed' || kind === 'abandoned'
-    );
-}
-
-/** How many `started` rows this actor logged for a puzzle. */
-export async function countPuzzleStarts(
-  s: ProductSim,
-  actorId: string,
-  puzzleId: string
-): Promise<number> {
-  const rows = await readPuzzleInteractions(s, actorId, puzzleId);
-  return rows.filter((row) => row.kind === 'started').length;
 }
 
 /** Haptic calls the actor's device recorded, in order. */

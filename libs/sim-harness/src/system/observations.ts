@@ -111,11 +111,6 @@ export async function actorHtml(
   );
 }
 
-/** Token length recorded by the `googleOauthSignIn` action (`null` = no token). */
-export function oauthTokenLength(s: ProductSim): number | null {
-  return s.probes.oauthTokenLength;
-}
-
 /**
  * Snapshot recorded by the `captureSnapshot` action. `SimSystemSnapshot` is
  * structurally JSON but declared with readonly arrays.

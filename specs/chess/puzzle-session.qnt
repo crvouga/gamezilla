@@ -7,12 +7,14 @@
 // wrong), show the solution, or skip it. After a wrong move, a solve or a
 // shown solution she may retry the same puzzle from the start. Once the
 // puzzle is over (solved, skipped or its solution shown) she is offered Next,
-// which puts a different puzzle on the board, and she is solving it.
+// which puts a different puzzle on the board, and she is solving it; asking
+// for Next twice at once still moves on just one puzzle.
 //
 // She can leave the board for the chess choices, and step back from there to
 // the space's game menu. A puzzle she left unfinished (solving, or wrong) is
 // the one she comes back to, as it was; a puzzle she left over is not: coming
-// back starts the next one.
+// back starts the next one. She can close the app on the board and open it
+// again, back in the space: the board is as she left it.
 //
 // Bob only watches: what the space plays belongs to the space, so his screen
 // follows Alice's — the same screen, the same puzzle, in the same state — but
@@ -22,9 +24,10 @@
 // just played; once all three were played the feed comes round to the one
 // played longest ago. Each first start of a puzzle uses one unit of the
 // guest's daily allowance of 20 rated puzzle starts; a puzzle served again
-// once the pool is played through is unrated and uses none. So a guest here
-// uses at most three starts, and never reaches the daily limit — the limit
-// itself (`puzzle-quota.feature`) is out of this model's reach.
+// once the pool is played through is unrated and uses none, and coming back
+// to a puzzle (after leaving it or closing the app) is no start at all. So a
+// guest here uses at most three starts, and never reaches the daily limit —
+// the limit itself (`puzzle-quota.feature`) is out of this model's reach.
 module puzzle_session {
   type Person = str
 
@@ -154,6 +157,20 @@ module puzzle_session {
     moveTo(Board, "solving", served + 1),
   }
 
+  /// Next asked for twice at once: still just one different puzzle.
+  action moveOnTwiceAtOnce: bool = all {
+    at == Board,
+    isOver(attempt),
+    moveTo(Board, "solving", served + 1),
+  }
+
+  /// Close the app on the board, open it again and return to the space: the
+  /// board is as it was.
+  action reopenApp: bool = all {
+    at == Board,
+    moveTo(Board, attempt, served),
+  }
+
   action step = any {
     openBoard,
     reopenBoard,
@@ -165,6 +182,8 @@ module puzzle_session {
     skip,
     retry,
     moveOn,
+    moveOnTwiceAtOnce,
+    reopenApp,
   }
 
   /// A guest here never uses more than the daily allowance.
