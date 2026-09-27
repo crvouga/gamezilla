@@ -15,6 +15,7 @@ export {
   SCHEMA_EPOCH,
 } from '../queries/client/local-schema';
 export type { SimDomainPack, SimSessionQuery } from './domain-pack';
+export type { SimHttpFault } from './edge-faults';
 export { emptySimPushChannels } from './domain-pack';
 export * from './example-app';
 export { RELIABLE_FAULTS } from './faults';

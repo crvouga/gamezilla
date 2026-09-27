@@ -91,6 +91,7 @@ export {
   partitioned,
   pending,
   pendingEventCount,
+  queuedEdits,
   postOutcome,
   pubsubRemakeCount,
   quiet,

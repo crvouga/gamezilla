@@ -777,9 +777,9 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Behavior (Gherkin) | `specs/sync/*.feature` | What people observe on the example domain (writes reach everyone, survive offline / crashes / lost replies, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/sim`; `bun run --filter @pkgs/sync-engine test:e2e` |
-| Model (Quint) | `tests/quint/note-replication.qnt` | Replication rules under any interleaving of writes, deletes, offline, lost replies + retries, crashes, a lossy live channel and silent edits; traces replay against `exampleSystem` (`note-replication.quint.test.ts`, seed `FC_SEED`) |
-| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (fanout cap, schema epoch, local-only columns, scope / topics, hard delete), explore-pool determinism, model-based properties |
+| Behavior (Gherkin) | `specs/sync/*.feature` | What people observe on the example domain (writes reach everyone quickly, survive offline / crashes / lost replies / app updates, writes that wait for an answer, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/sim` |
+| Model (Quint) | `specs/sync/note-replication.qnt` | Replication rules under any interleaving of writes, deletes, offline, stalled networks, lost replies + retries, save and refresh hiccups, crashes (also mid-save), app updates, damaged or cleared app data, wrong clocks, lossy / garbled / paused live updates, outages, a second window and silent team edits, for three people; binding in `tests/quint/`, traces drawn from `FC_SEED` |
+| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (fanout cap, schema drift, scope / topics, hard delete), explore-pool determinism and the pool slice the model does not draw, the peer-visibility budget, the invariant-check regression |
 | Public unit helper | `@pkgs/sync-engine/sim` | `createInMemorySyncEngine` (no full kit surface) |
 
 Specs policy: [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
@@ -788,9 +788,10 @@ the step, the differing variables (model vs product) and the sim calls; decide
 which is wrong — never loosen `observe`.
 
 ```bash
-bun run --filter @pkgs/sync-engine test       # contracts + the Quint model
-bun run --filter @pkgs/sync-engine test:e2e   # specs/sync features
+bun run --filter @pkgs/sync-engine test       # contracts
+bun run --filter @pkgs/sync-engine test:e2e   # specs/sync features and the Quint model
 bun run spec specs/sync/note-writing.feature
+bun run spec specs/sync/note-replication.qnt
 ```
 
 | Pool action layer | Actions (`pool.*` in `sim/scenario/sync-actions.ts`) |
@@ -1285,7 +1286,7 @@ Three distinct monotonic sequences — do not conflate them:
 
 Behavior lives in [`specs/sync/`](../../specs/sync/) (one feature per
 capability, steps listed in [`STEPS_CATALOG.md`](./STEPS_CATALOG.md)); the
-replication rules in [`tests/quint/note-replication.qnt`](./tests/quint/note-replication.qnt)
+replication rules in [`specs/sync/note-replication.qnt`](../../specs/sync/note-replication.qnt)
 (invariants `invNoDoubleApply`, `invInOrderPerPerson`, `invNoLostWrites`,
 `invTombstonesKept`, `invOnlyForbiddenRefused`, `invOnlineAgree`,
 `invRetryIsDuplicate`, `invHealConverges`); contracts under `tests/`.

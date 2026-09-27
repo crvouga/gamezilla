@@ -145,16 +145,21 @@ export const serverRejectNote = defineMutation({
  */
 export const pendingNote = defineMutation({
   name: 'pendingNote',
-  args: z.object({ id: z.string(), body: z.string() }),
+  args: z.object({
+    id: z.string(),
+    body: z.string(),
+    title: z.string().optional(),
+  }),
   pendingUx: 'pending',
-  async run({ tx, env }, { id, body }) {
+  async run({ tx, env }, { id, body, title }) {
     if (env.serverNow !== undefined && body === 'refused') {
       throw new MutationError('REFUSED', 'The server refuses this body.');
     }
     await tx.run(sql`
       INSERT INTO notes (id, folder_id, title, body, owner_id)
-      VALUES (${id}, ${null}, ${''}, ${body}, ${env.actorId})
+      VALUES (${id}, ${null}, ${title ?? ''}, ${body}, ${env.actorId})
       ON CONFLICT (id) DO UPDATE SET
+        title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
         deleted_at = NULL

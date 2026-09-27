@@ -49,6 +49,7 @@ export {
   pauseNetwork,
   pending,
   pendingEventCount,
+  queuedEdits,
   pool,
   postMutations,
   postOutcome,
@@ -249,5 +250,4 @@ export {
   type UntilExampleOpts,
   untilExample,
 } from './until';
-export { type WalkThenInSyncOpts, walkThenInSync } from './walk-in-sync';
 export { writeNoteBody } from './write-note-body';
