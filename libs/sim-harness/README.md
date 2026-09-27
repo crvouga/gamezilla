@@ -9,9 +9,11 @@ uses.
 
 ## Where an e2e goes
 
-A feature's e2e lives in that feature: `libs/<feature>/tests/e2e/`, run by the
-package's `test:e2e`, against a composition of only the slices it needs. A
-change to a feature the suite does not compose leaves it cached.
+A feature's e2e lives in that feature: the specs of the package's
+`specDomains` (`specs/<domain>/*.feature`, `*.qnt`) and
+`libs/<feature>/tests/e2e/`, run by the package's `test:e2e`, against a
+composition of only the slices it needs. A change to a feature the suite does
+not compose leaves it cached.
 
 | Suite | Composes | Why it is where it is |
 | --- | --- | --- |
@@ -19,17 +21,16 @@ change to a feature the suite does not compose leaves it cached.
 | `libs/friends/tests/e2e` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
 | `libs/profile/tests/e2e` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
 | `libs/billing/tests/e2e` | billing | the membership lifecycle through the payment provider node |
-| `libs/runtime/tests/e2e` | everything (`APP_COMPOSITION`) | shell boot, partition, the whole-app monkey, explore — small on purpose |
+| `libs/runtime/tests/e2e` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
 
-Every suite has a `monkey.test.tsx`: `runMonkey(s, { walks })` from
-`@libs/sim-harness/open-sim/monkey` is a seeded random walk over the platform's
-steps (spawn, sign in, partition, restore, resize the API fleet, navigate) and
-the suite's feature walks — `walkAction`s from each feature's
-`src/sim/*-walk.ts`, which act only when their screen allows it and fail
-loudly when a control that is there does not work. Every standing property is
-checked after each step; a violation throws with the step trace, and a walk
-that never took one of its suite's own steps fails rather than passing
-vacuously.
+There are no product random walks. A feature's state machine is a Quint model
+(`specs/<domain>/<model>.qnt`) and its binding (`tests/quint/<model>.binding.ts`,
+registered with `useQuintSim(openSim)` from `@libs/sim-harness/quint/world` in
+`tests/quint/index.ts`): Quint draws the walks, each drawn step runs through
+the binding's sim actions, and the product's state, read back by the
+binding's `observe`, must equal the model's after every step — with every
+standing property checked, since each action is an `s.apply`. See
+[`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
 
 The package graph decides a suite's home: turbo rejects dependency cycles, so a
 suite lives in a package that may depend on every feature it composes. Two
@@ -85,17 +86,14 @@ Auth actions: `signInWithGoogle` / `signInWithApple` / `signInWithProviderAs`,
 `confirmAccountLink` / `keepSeparateAccount` for the link-required question,
 `abandonSignIn`, `connectSignInMethod` / `removeSignInMethod` /
 `signOutEverywhere` on the account screen, and the provider-side stimuli
-`appleRevokesApp` / `appleDeletesAccount`. `AUTH_WALK_ACTIONS` are their
-monkey steps; each waits until the device's sign-in methods match the
-server's.
+`appleRevokesApp` / `appleDeletesAccount`.
 
-**Authoring** — scenarios import `describe` / `test` from `bun:test` and call
-their package's `openSim(testId)`. Drive UI with named `defineAction`s from the
-harness and the features' `sim/*` (`s.apply(signInWithGoogle, 'alice')`). Smart monkey / explore walks are
-**only** `defineAction` catalogs: `s.randomActions({ actions: PRODUCT_POOL_ACTIONS })`
-or `product.explore({ actions: PRODUCT_POOL_ACTIONS })`. Standing properties
-(`noErrorBoundary`, …) run after every checkpoint. Do not use UI-inventory
-tap/fill helpers for product monkey testing.
+**Authoring** — scenarios are Gherkin steps and Quint bindings over the
+package's `openSim(testId)`; code tests import `describe` / `test` from
+`bun:test` and call it directly. Drive UI with named `defineAction`s from the
+harness and the features' `sim/*` (`s.apply(signInWithGoogle, 'alice')`).
+Standing properties (`noErrorBoundary`, …) run after every checkpoint. Do not
+use UI-inventory tap/fill helpers in product tests.
 
 Faults (partition / restoreNetwork) are `defineAction`s gated by the `caps` read.
 On the bun-webview real-mode host (no `partition` cap), `s.apply(partition, …)`
@@ -163,21 +161,28 @@ suite uses one yet. A stale `localSchemaVersion` fails restore.
   (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 
-**Reports** (`SIM_REPORT`) — standalone HTML, Playwright-trace style:
+**Reports** — standalone HTML, Playwright-trace style:
 
+- Every sim writes its `report.json` into the package's bucket
+  (`<pkg>/.cache/sim-report`): each Gherkin step and Quint trace step as a
+  labelled step with the sim calls and UI ops under it, its outcome and
+  error. Quint models also leave their drawn traces
+  (`quint/<model>/*.itf.json`). `test:e2e` declares the bucket as its turbo
+  `outputs`, so the report is cached (remotely too) with the verdict.
 - `bun run test:report` (repo root) runs every package's `test:e2e` through
-  turbo with `SIM_REPORT=1` (cached suites restore their buckets instead of
-  rerunning), then folds every package's bucket (`<pkg>/.cache/sim-report`,
-  its JUnit outcomes overlaid) into one **`sim-report/index.html`** and opens
-  it — every subsystem's specs and monkey walks and the whole-app suite in one
-  self-contained viewer: tests grouped by file, step tree with press hits,
-  multi-client phone panels, scrubber + filmstrip, view controls, keyboard
-  shortcuts (`?`). `--no-run` renders the buckets already on disk.
-- Plain `test:e2e` keeps `SIM_REPORT=0` (fast, no frames) but always writes
-  the package's JUnit. Report ids are namespaced by spec file, and the bundle
-  is read from the per-test `report.json` files, so parallel workers never
-  clobber or drop each other's runs. After Bun exits, the runner also turns
-  every failed JUnit testcase into a deterministic `test.failure` span under
+  `turbo-ci-run --restore-outputs` — the same hashes as `bun check`, so a
+  suite that ran for this code anywhere restores its bucket and only changed
+  suites run — then folds every bucket (its JUnit outcomes overlaid) into one
+  **`sim-report/index.html`** and opens it: every subsystem's scenarios and
+  model traces in one self-contained viewer — tests grouped by file, step
+  tree with press hits, multi-client phone panels, scrubber + filmstrip, view
+  controls, keyboard shortcuts (`?`). `--frames` (`SIM_FRAMES=1`) also
+  captures UI frames on every step: slower, and its own cache entry.
+  `--no-run` renders the buckets already on disk.
+- Report ids are namespaced by spec, and the bundle is read from the per-test
+  `report.json` files, so parallel workers never clobber or drop each
+  other's runs. After Bun exits, the runner also turns every failed JUnit
+  testcase into a deterministic `test.failure` span under
   `.cache/sim-report/traces/`; this is why `bun obs test '<exact test name>'`
   can recover an ordinary failing assertion without rerunning it. The
   post-run correlation is intentional: Bun preload hooks do not expose a
