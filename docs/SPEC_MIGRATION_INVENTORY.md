@@ -85,11 +85,22 @@ reopening the app), and code tests in `libs/chess/tests/puzzle-session/`;
 watcher-refusal scenarios now assert what the host and watcher see (nothing
 changes), not the room's refusal.
 
+(2026-09-27) `pkgs/db-indexes` runs the `index-tuning` domain
+(`specDomains`): `specs/index-tuning/index-tuning.feature` (declared lookups
+get a tuned index, tuning again changes nothing, unneeded indexes retire before
+removal, a used retiring index is kept, the team's own index is never touched)
+and the Quint model `specs/index-tuning/index-tuning.qnt`, which replaces the
+known-seed `explore` corpus. The tuning sim moved from `tests/scenario/` to
+`src/sim/index-tuning-system.ts` (`@pkgs/db-indexes/sim`); `tests/scenario/`
+is deleted. Kept in code: the same-seed replay pin (`determinism.test.ts`,
+framework contract) and the `SimDb` adapter contract (`sim-db.test.ts`);
+`sim-db.test.ts`'s fixpoint and plan-determinism examples are deleted as
+subsumed by the `idempotence` and `determinism` properties.
+
 Still open:
 
-- **Framework-level sims** (`pkgs/db-indexes`): deferred to a later wave,
-  as marked below (`pkgs/room-sim`, `pkgs/matchmaking-sim` and
-  `pkgs/auth-sim` are ported).
+- **Framework-level sims**: all ported (`pkgs/room-sim`, `pkgs/matchmaking-sim`,
+  `pkgs/auth-sim`, `pkgs/db-indexes`; 2026-09-27).
 - **`pkgs/sync-engine`**: ported except four files (see its section).
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
@@ -283,11 +294,11 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `pkgs/auth-sim/tests/provider-behaviour.test.ts` | — | revoking the app at Apple signs the account out everywhere<br>deleting the Apple Account: the only way in is gone, so is the session<br>deleting the Apple Account keeps a session that has Google too<br>relay forwarding switched off at Apple is recorded<br>a changed Google address keeps the account and updates the identity<br>${fault}: sign-in fails, nothing changes, and recovers<br>${fault}: tolerated<br>a denied consent is a cancellation<br>key rotation: the relying party refetches the JWKS | framework-level sim; port in a later wave |
 | `pkgs/auth-sim/tests/sign-in.test.ts` | — | google: launch → provider screens → callback → session<br>apple: form_post callback, hidden email, session | framework-level sim; port in a later wave |
 
-### pkgs/db-indexes (1) — framework-level sim; port in a later wave
+### pkgs/db-indexes (1) — framework-level sim; ported 2026-09-27
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | framework-level sim (no product UI); port in a later wave |
+| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | ported 2026-09-27 to `specs/index-tuning/` (replay pin stays in `determinism.test.ts`) |
 
 ### pkgs/matchmaking-sim — ported (2026-09-27)
 
