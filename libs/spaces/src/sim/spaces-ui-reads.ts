@@ -86,3 +86,29 @@ export async function readSpacePresenceCount(
     return null;
   }
 }
+
+/** The actor's app says the space they were in has ended. */
+export async function spaceEndedShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return await ui.get(Handles.spaceEnded).isVisible();
+  } catch {
+    return false;
+  }
+}
+
+/** The actor's app offers to join a space. */
+export async function joinOffered(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return await ui.get(Handles.spaceJoin).isVisible();
+  } catch {
+    return false;
+  }
+}

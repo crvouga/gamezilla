@@ -20,3 +20,46 @@ export async function searchResultVisible(
     return false;
   }
 }
+
+/** Bring the actor's app to the front without asserting anything on it. */
+async function focused(s: ProductSim, actorId: string) {
+  const ui = await actorUi(s, actorId);
+  await ui.get('sim-focus-probe').expect.hidden({ timeoutMs: 1 });
+  return ui;
+}
+
+async function shown(
+  s: ProductSim,
+  actorId: string,
+  handle: string
+): Promise<boolean> {
+  try {
+    return await (await focused(s, actorId)).get(handle).isVisible();
+  } catch {
+    return false;
+  }
+}
+
+/** Search has settled and found nobody (focuses the actor). */
+export async function searchShowsNobody(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await shown(s, actorId, Handles.searchEmpty);
+}
+
+/** Search says it needs an account, in place of results (focuses the actor). */
+export async function searchNeedsAccount(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await shown(s, actorId, Handles.searchDenied);
+}
+
+/** People search is open and ready for a name (focuses the actor). */
+export async function peopleSearchOpen(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await shown(s, actorId, Handles.searchInput);
+}

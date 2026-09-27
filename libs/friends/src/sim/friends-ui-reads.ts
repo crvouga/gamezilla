@@ -121,3 +121,81 @@ export async function friendLiveBadgeVisible(
   if (ui === undefined) return false;
   return await ui.get(Handles.friendLiveSpace(hostAccountId)).isVisible();
 }
+
+/** The username another person's profile shows (`@name`), or null (focuses the actor). */
+export async function personProfileShown(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  return await handleText(s, actorId, Handles.friendUserUsername);
+}
+
+/** The label on `username`'s Add pill — "Try again later" when refused (focuses the actor). */
+export async function addFriendLabel(
+  s: ProductSim,
+  actorId: string,
+  username: string
+): Promise<string | null> {
+  return await handleText(s, actorId, Handles.friendAdd(username));
+}
+
+/** The screen shows `username` as a friend (focuses the actor). */
+export async function friendStatusShown(
+  s: ProductSim,
+  actorId: string,
+  username: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendStatusFriends(username));
+}
+
+/** The screen offers to confirm `fromUsername`'s request (focuses the actor). */
+export async function confirmOffered(
+  s: ProductSim,
+  actorId: string,
+  fromUsername: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendConfirm(fromUsername));
+}
+
+/** The screen offers to withdraw the request to `toUsername` (focuses the actor). */
+export async function withdrawOffered(
+  s: ProductSim,
+  actorId: string,
+  toUsername: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendCancel(toUsername));
+}
+
+/** The screen offers to ask `username` (Add) (focuses the actor). */
+export async function askOffered(
+  s: ProductSim,
+  actorId: string,
+  username: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendAdd(username));
+}
+
+/** The screen offers to unblock `username` (focuses the actor). */
+export async function unblockOffered(
+  s: ProductSim,
+  actorId: string,
+  username: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendUnblock(username));
+}
+
+/** The friends list says there are no friends yet (focuses the actor). */
+export async function friendsEmptyShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendsEmpty);
+}
+
+/** The actor is being asked to sign in (focuses the actor). */
+export async function signInAsked(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.authMethodGoogle);
+}
