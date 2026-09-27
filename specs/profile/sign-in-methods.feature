@@ -10,13 +10,13 @@ Feature: Manage sign-in methods
     Then Alice's sign-in methods are Google and Apple
 
   Scenario: A connected Apple account signs Alice into the same account
-    Given Alice has connected Apple to their Google account
+    Given Alice has connected Apple to their account
     And Alice has signed out
     When Alice signs in with Apple
     Then Alice is signed into the same account
 
   Scenario: A connected Apple account can be removed
-    Given Alice has connected Apple to their Google account
+    Given Alice has connected Apple to their account
     When Alice removes Apple from their account
     Then Alice's sign-in methods are Google
 

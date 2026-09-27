@@ -139,7 +139,7 @@ module space_hosting {
   }
 
   /// Nobody is in a space that is not open.
-  val invOnlyLiveSpaces = PEOPLE.forall(p =>
+  val invOnlyOpenSpaces = PEOPLE.forall(p =>
     hostOf(whereabouts.get(p)) == "" or openSpaces.contains(hostOf(whereabouts.get(p)))
   )
 

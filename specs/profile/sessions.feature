@@ -28,7 +28,7 @@ Feature: Sign out everywhere
 
   @regression:apple-delete-stale-sign-in-methods
   Scenario: Deleting a connected Apple account makes Google the only sign-in method
-    Given Alice has connected Apple to their Google account
+    Given Alice has connected Apple to their account
     When Alice deletes their Apple account
     Then Alice is still signed into the same account
     And Alice's sign-in methods are Google within 20 seconds

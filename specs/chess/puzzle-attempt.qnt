@@ -28,7 +28,7 @@
 // (after leaving it or closing the app) is no start at all. So a guest here
 // uses at most three puzzle starts, and never reaches the daily puzzle limit
 // — the limit itself (`puzzle-quota.feature`) is out of this model's reach.
-module puzzle_session {
+module puzzle_attempt {
   type Person = str
 
   /// The host, who drives the puzzle.
@@ -191,7 +191,7 @@ module puzzle_session {
 
   /// Moving on is offered only to the host, once the puzzle on the board is
   /// over.
-  val invNextOnlyWhenOver = PEOPLE.forall(p =>
+  val invMoveOnOnlyWhenOver = PEOPLE.forall(p =>
     moveOnOffered.get(p) implies (p == HOST and view.get(p) == Board and isOver(puzzleState.get(p)))
   )
 
