@@ -33,11 +33,7 @@ When("the view switches to {actor}'s device", async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
 });
 
-Then('{actor} is on Settings', async (w, actor: Actor) => {
-  await w.s.until((sim) => onScreen(sim, actor, SETTINGS));
-});
-
-Then('{actor} is still on Settings', async (w, actor: Actor) => {
+Then('{actor} is (still )on Settings', async (w, actor: Actor) => {
   // Look at the person's own device; switching to it must not move them.
   await w.s.apply(focusActor, actor);
   await w.s.until((sim) => onScreen(sim, actor, SETTINGS));

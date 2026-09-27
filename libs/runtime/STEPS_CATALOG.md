@@ -11,9 +11,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | a person is signed in on a fresh device | — | runtime, journeys |
 | Given | they are hosting a space | — | runtime, journeys |
 | Step | a person opens the app on a fresh device | — | runtime, journeys |
-| Then | {actor} is on Settings | {actor} | runtime, journeys |
+| Then | {actor} is (still )on Settings | {actor} | runtime, journeys |
 | Then | {actor} is on Spaces | {actor} | runtime, journeys |
-| Then | {actor} is still on Settings | {actor} | runtime, journeys |
 | Then | {actor} sees the tabs | {actor} | runtime, journeys |
 | Then | a puzzle board is laid out and ready to play | — | runtime, journeys |
 | Then | editing their avatar again shows the new one | — | runtime, journeys |
