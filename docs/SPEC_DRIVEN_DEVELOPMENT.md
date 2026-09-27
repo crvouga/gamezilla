@@ -58,6 +58,9 @@ misread a spec whose every word is defined.
 | Published language | `specs/<domain>/events.qnt`: `module events`, types and values only |
 | Context integration | Gherkin in the consuming context, in borrowed terms; its Quint imports only `../<upstream>/events` |
 
+Which context owns which concept, and what crosses each boundary, is the
+[context map](CONTEXT_MAP.md).
+
 Keep everything in product terms: "aggregate", "command" and "event" are
 modeling ideas here, never classes, repositories or message queues.
 
