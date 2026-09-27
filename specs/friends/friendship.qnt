@@ -1,151 +1,151 @@
 // Becoming friends, and no longer.
 //
 // Alice, Bob and Carol are signed in. Anyone can look up someone they can
-// find and ask them to be friends; while the request waits, the one who asked
-// sees it as requested and can withdraw it, and the one asked finds it in
-// their inbox, where they can accept or turn it down, or do the same from the
-// asker's profile. Accepting makes both friends; either can later remove the
-// other. Once turned down, the asker cannot ask that person again for a day:
-// the request is refused and nothing reaches the other person.
+// find and ask them to be friends; while the friend request waits, the asker
+// sees it as sent and can cancel it, and the person asked finds it in their
+// inbox, where they can accept or decline it, or do the same from the
+// asker's profile. Accepting starts a friendship; either friend can later
+// remove the other. Once declined, the asker cannot ask that person again
+// for a day: the ask is refused and nothing reaches the other person.
 //
 // A person can block a friend, or someone who asked them, from that person's
-// profile: the friendship ends, or the request goes away, and the blocked person
-// can no longer find the one who blocked them. The one who blocked can still
-// find them and unblock, after which either can ask again.
+// profile: the friendship ends, or the friend request goes away, and the
+// blocked person can no longer find the blocker. The blocker can still find
+// them and unblock, after which they are strangers and either can ask again.
 //
-// What each person sees of each other person is one of: nothing between them
-// (they can ask), friends, a request they sent, a request they received, a
-// block they placed, or nobody (that person blocked them).
+// Each person's friendship status with each other person is one of: a
+// stranger (they can ask), a friend, a friend request they sent, one they
+// received, someone they blocked, or hidden (that person blocked them).
 module friendship {
   type Person = str
 
   /// Three signed-in people.
   pure val PEOPLE: Set[Person] = Set("alice", "bob", "carol")
 
-  /// What a person sees of another.
-  type Tie =
-    | Unrelated
-    | Friends
-    | Requested
-    | Asked
+  /// Where a person stands with another, as they see it.
+  type FriendshipStatus =
+    | Stranger
+    | Friend
+    | RequestSent
+    | RequestReceived
     | Blocking
     | Hidden
 
-  /// What each person sees of each other person.
-  var sees: Person -> (Person -> Tie)
+  /// Each person's friendship status with each other person.
+  var friendshipStatus: Person -> (Person -> FriendshipStatus)
 
-  /// Pairs of friends.
-  var friends: Set[Set[Person]]
-  /// Waiting requests, (from, to).
-  var pending: Set[(Person, Person)]
-  /// Blocks, (blocker, blocked).
+  /// Friendships, each a pair of friends.
+  var friendships: Set[Set[Person]]
+  /// Waiting friend requests, (asker, person asked).
+  var friendRequests: Set[(Person, Person)]
+  /// Blocks, (blocker, blocked person).
   var blocks: Set[(Person, Person)]
-  /// Requests turned down today, (from, to): asking again is refused.
+  /// Friend requests declined today, (asker, person asked): asking again is refused.
   var declined: Set[(Person, Person)]
 
-  pure def others(p: Person): Set[Person] = PEOPLE.exclude(Set(p))
+  pure def _others(p: Person): Set[Person] = PEOPLE.exclude(Set(p))
 
-  pure def tie(
+  pure def _status(
     friends: Set[Set[Person]],
     pending: Set[(Person, Person)],
     blocks: Set[(Person, Person)],
     p: Person,
     q: Person,
-  ): Tie =
+  ): FriendshipStatus =
     if (blocks.contains((p, q))) Blocking
     else if (blocks.contains((q, p))) Hidden
-    else if (friends.contains(Set(p, q))) Friends
-    else if (pending.contains((p, q))) Requested
-    else if (pending.contains((q, p))) Asked
-    else Unrelated
+    else if (friends.contains(Set(p, q))) Friend
+    else if (pending.contains((p, q))) RequestSent
+    else if (pending.contains((q, p))) RequestReceived
+    else Stranger
 
-  action update(
+  action _update(
     newFriends: Set[Set[Person]],
     newPending: Set[(Person, Person)],
     newBlocks: Set[(Person, Person)],
     newDeclined: Set[(Person, Person)],
   ): bool = all {
-    friends' = newFriends,
-    pending' = newPending,
+    friendships' = newFriends,
+    friendRequests' = newPending,
     blocks' = newBlocks,
     declined' = newDeclined,
-    sees' = PEOPLE.mapBy(p =>
-      others(p).mapBy(q => tie(newFriends, newPending, newBlocks, p, q))
+    friendshipStatus' = PEOPLE.mapBy(p =>
+      _others(p).mapBy(q => _status(newFriends, newPending, newBlocks, p, q))
     ),
   }
 
-  action init = update(Set(), Set(), Set(), Set())
+  action init = _update(Set(), Set(), Set(), Set())
 
-  pure def between(pending: Set[(Person, Person)], a: Person, b: Person): Set[(Person, Person)] =
+  pure def _between(pending: Set[(Person, Person)], a: Person, b: Person): Set[(Person, Person)] =
     pending.filter(r => r == (a, b) or r == (b, a))
 
-  pure def seen(sees: Person -> (Person -> Tie), p: Person, q: Person): Tie =
-    if (p == q) Unrelated else sees.get(p).get(q)
+  pure def _seen(sees: Person -> (Person -> FriendshipStatus), p: Person, q: Person): FriendshipStatus =
+    if (p == q) Stranger else sees.get(p).get(q)
 
   /// Look someone up and ask them. Refused, with nothing sent, when they
-  /// turned this person down today.
+  /// declined this person today.
   action ask(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Unrelated,
+    _seen(friendshipStatus, person, other) == Stranger,
     if (declined.contains((person, other)))
-      update(friends, pending, blocks, declined)
+      _update(friendships, friendRequests, blocks, declined)
     else
-      update(friends, pending.union(Set((person, other))), blocks, declined),
+      _update(friendships, friendRequests.union(Set((person, other))), blocks, declined),
   }
 
-  /// Withdraw a request one sent.
+  /// Cancel a friend request one sent.
   action cancel(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Requested,
-    update(friends, pending.exclude(Set((person, other))), blocks, declined),
+    _seen(friendshipStatus, person, other) == RequestSent,
+    _update(friendships, friendRequests.exclude(Set((person, other))), blocks, declined),
   }
 
-  pure def accepted(friends: Set[Set[Person]], a: Person, b: Person): Set[Set[Person]] =
+  pure def _accepted(friends: Set[Set[Person]], a: Person, b: Person): Set[Set[Person]] =
     friends.union(Set(Set(a, b)))
 
-  /// Accept a request from the inbox.
+  /// Accept a friend request from the inbox.
   action accept(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Asked,
-    update(accepted(friends, person, other), pending.exclude(Set((other, person))), blocks, declined),
+    _seen(friendshipStatus, person, other) == RequestReceived,
+    _update(_accepted(friendships, person, other), friendRequests.exclude(Set((other, person))), blocks, declined),
   }
 
-  /// Confirm a request from the asker's profile.
-  action confirm(person: Person, other: Person): bool = all {
+  /// Accept a friend request from the asker's profile.
+  action acceptFromProfile(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Asked,
-    update(accepted(friends, person, other), pending.exclude(Set((other, person))), blocks, declined),
+    _seen(friendshipStatus, person, other) == RequestReceived,
+    _update(_accepted(friendships, person, other), friendRequests.exclude(Set((other, person))), blocks, declined),
   }
 
-  /// Turn a request down from the inbox.
+  /// Decline a friend request from the inbox.
   action decline(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Asked,
-    update(friends, pending.exclude(Set((other, person))), blocks, declined.union(Set((other, person)))),
+    _seen(friendshipStatus, person, other) == RequestReceived,
+    _update(friendships, friendRequests.exclude(Set((other, person))), blocks, declined.union(Set((other, person)))),
   }
 
-  /// Turn a request down from the asker's profile.
-  action turnDown(person: Person, other: Person): bool = all {
+  /// Decline a friend request from the asker's profile.
+  action declineFromProfile(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Asked,
-    update(friends, pending.exclude(Set((other, person))), blocks, declined.union(Set((other, person)))),
+    _seen(friendshipStatus, person, other) == RequestReceived,
+    _update(friendships, friendRequests.exclude(Set((other, person))), blocks, declined.union(Set((other, person)))),
   }
 
   /// Remove a friend.
   action remove(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Friends,
-    update(friends.exclude(Set(Set(person, other))), pending, blocks, declined),
+    _seen(friendshipStatus, person, other) == Friend,
+    _update(friendships.exclude(Set(Set(person, other))), friendRequests, blocks, declined),
   }
 
-  /// Block a friend, or someone who asked, from their profile: their
-  /// friendship, or the waiting request, ends.
+  /// Block a friend, or someone who asked, from their profile: the
+  /// friendship, or the waiting friend request, ends.
   action block(person: Person, other: Person): bool = all {
     person != other,
-    Set(Friends, Asked).contains(seen(sees, person, other)),
-    update(
-      friends.exclude(Set(Set(person, other))),
-      pending.exclude(between(pending, person, other)),
+    Set(Friend, RequestReceived).contains(_seen(friendshipStatus, person, other)),
+    _update(
+      friendships.exclude(Set(Set(person, other))),
+      friendRequests.exclude(_between(friendRequests, person, other)),
       blocks.union(Set((person, other))),
       declined,
     ),
@@ -154,8 +154,8 @@ module friendship {
   /// Unblock someone one blocked.
   action unblock(person: Person, other: Person): bool = all {
     person != other,
-    seen(sees, person, other) == Blocking,
-    update(friends, pending, blocks.exclude(Set((person, other))), declined),
+    _seen(friendshipStatus, person, other) == Blocking,
+    _update(friendships, friendRequests, blocks.exclude(Set((person, other))), declined),
   }
 
   action step = {
@@ -165,9 +165,9 @@ module friendship {
       ask(person, other),
       cancel(person, other),
       accept(person, other),
-      confirm(person, other),
+      acceptFromProfile(person, other),
       decline(person, other),
-      turnDown(person, other),
+      declineFromProfile(person, other),
       remove(person, other),
       block(person, other),
       unblock(person, other),
@@ -175,22 +175,22 @@ module friendship {
   }
 
   /// Friendship is mutual.
-  val invFriendsBothWays = PEOPLE.forall(p => others(p).forall(q =>
-    (seen(sees, p, q) == Friends) == (seen(sees, q, p) == Friends)
+  val invFriendsBothWays = PEOPLE.forall(p => _others(p).forall(q =>
+    (_seen(friendshipStatus, p, q) == Friend) == (_seen(friendshipStatus, q, p) == Friend)
   ))
 
-  /// A sent request is a received one on the other side.
-  val invRequestsPair = PEOPLE.forall(p => others(p).forall(q =>
-    (seen(sees, p, q) == Requested) == (seen(sees, q, p) == Asked)
+  /// A friend request sent is one received on the other side.
+  val invRequestsPair = PEOPLE.forall(p => _others(p).forall(q =>
+    (_seen(friendshipStatus, p, q) == RequestSent) == (_seen(friendshipStatus, q, p) == RequestReceived)
   ))
 
-  /// The person blocked cannot find the one who blocked them.
-  val invBlockedCannotFind = PEOPLE.forall(p => others(p).forall(q =>
-    (seen(sees, p, q) == Blocking) == (seen(sees, q, p) == Hidden)
+  /// The blocked person cannot find the blocker.
+  val invBlockedCannotFind = PEOPLE.forall(p => _others(p).forall(q =>
+    (_seen(friendshipStatus, p, q) == Blocking) == (_seen(friendshipStatus, q, p) == Hidden)
   ))
 
-  /// Nobody is friends with, or waiting on, someone a block stands between.
+  /// A block leaves no friendship and no friend request between the two.
   val invBlockEndsTies = blocks.forall(b =>
-    not(friends.contains(Set(b._1, b._2))) and between(pending, b._1, b._2) == Set()
+    not(friendships.contains(Set(b._1, b._2))) and _between(friendRequests, b._1, b._2) == Set()
   )
 }

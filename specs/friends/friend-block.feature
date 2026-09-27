@@ -1,6 +1,9 @@
 @domain:friends @goal:social:5
 Feature: Block and unblock
-  Blocking ends a friendship and hides you from the person blocked; unblocking lets you start over.
+  When a person no longer wants someone to reach them, they want to block
+  that person, ending any friendship or friend request between them and
+  hiding from them, so the blocked person cannot find them. The blocker can
+  unblock later and start over.
 
   Rule: Blocking ends the friendship and hides the blocker
 
@@ -37,8 +40,8 @@ Feature: Block and unblock
       When Alice searches for "bob"
       Then Alice can unblock Bob
 
-    Scenario: After unblocking, the blocker can add them again
+    Scenario: After unblocking, the blocker can ask them again
       Given Alice and Bob are friends
       And Alice has blocked Bob
       When Alice unblocks Bob
-      Then Alice's search offers to add Bob
+      Then Alice's search offers to ask Bob

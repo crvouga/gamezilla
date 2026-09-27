@@ -1,7 +1,7 @@
 @domain:spaces
 Feature: Create a space
-  A space is where people play together. Creating one should put it in front of
-  its host straight away, ready to find again.
+  When a person creates a space, they want it in their lobby straight away, so
+  they can return to it whenever they step out.
 
   Scenario: A host's space is listed in their lobby
     Given Alice is signed in

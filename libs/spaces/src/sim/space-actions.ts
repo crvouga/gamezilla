@@ -8,6 +8,7 @@ import { Handles } from '@libs/test-ids';
 import {
   confirmSpaceMutation,
   leaveToLobby,
+  reenterOwnSpace,
   reenterSpace,
   SPACE_WAIT_MS,
   showSpacesTab,
@@ -110,6 +111,15 @@ export const joinFromLobby = scenarioAction({
 export const reenterActiveSpace = scenarioAction({
   name: 'reenterActiveSpace',
   act: reenterSpace,
+});
+
+/**
+ * Back into the one space the actor is in, from wherever the app opened,
+ * through its lobby card.
+ */
+export const returnToOwnSpace = scenarioAction({
+  name: 'returnToOwnSpace',
+  act: reenterOwnSpace,
 });
 
 /**
@@ -298,6 +308,7 @@ export const reopenSpaceLink = scenarioAction({
 export const SPACES_SIM_ACTIONS = [
   startSpace,
   reopenLiveSpace,
+  returnToOwnSpace,
   joinViaLink,
   renameSpace,
   openSpaceMenu,

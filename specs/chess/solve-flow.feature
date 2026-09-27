@@ -1,10 +1,12 @@
 @domain:chess @goal:chess-puzzles:8 @goal:chess-puzzles:9 @goal:chess-puzzles:10
 Feature: The solve flow
-  A puzzle opens with the opponent's setup move already played and the board
-  facing the solver, who is prompted to move. Each correct move is answered
-  by the opponent's reply, played by itself. Finishing the line solves the
-  puzzle, and a wrong move is called out at once and stays the attempt's
-  outcome, however the puzzle is solved afterwards.
+  When a solver opens a puzzle, they want to know at once whose move it is
+  and whether each move was right, so solving feels like playing. A puzzle
+  opens with the opponent's setup move already played and the board facing
+  the solver, who is prompted to move. Each correct move is answered by the
+  opponent's reply, played by itself. Finishing the line solves the puzzle,
+  and a wrong move is called out at once and stays the attempt's outcome,
+  however the puzzle is solved afterwards.
 
   Scenario: The puzzle opens after the opponent's setup move, facing the solver
     Given Alice is signed in

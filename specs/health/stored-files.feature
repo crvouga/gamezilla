@@ -1,7 +1,8 @@
 @domain:health
 Feature: Stored files
-  Files the app keeps, such as what people upload, are kept, read back and
-  removed, and stay apart from every other environment's files.
+  When people upload something, they want the app to keep it as a stored
+  file, apart from every other environment's, so it is there when they come
+  back to it.
 
   Scenario: This environment's files are its own
     Then this environment keeps its files apart from every other environment's

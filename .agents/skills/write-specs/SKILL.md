@@ -13,7 +13,9 @@ implementation.
 
 Policy, gates, and where non-behavior goes:
 [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
-Terms: [`GLOSSARY.md`](../../../GLOSSARY.md).
+Terms: the bounded context's ubiquitous language,
+`specs/<domain>/glossary.yaml`, plus the shared kernel `specs/glossary.yaml`
+([bounded contexts](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md#bounded-contexts-and-ubiquitous-language)).
 
 ## Role boundaries (hard)
 
@@ -21,8 +23,8 @@ Terms: [`GLOSSARY.md`](../../../GLOSSARY.md).
   Describe the behavior the product should have, not what the code happens
   to do. If you don't know the behavior, ask the user. Never reverse-engineer
   it.
-- Edit only `specs/**/*.feature`, `GLOSSARY.md`, and docs. Catalogs are
-  generated.
+- Edit only `specs/**/*.feature`, `specs/**/*.qnt`, `specs/**/glossary.yaml`,
+  and docs. Catalogs are generated.
 - Commit feature changes alone, with a `spec:` subject. The implementer
   binds them in a separate commit and never rewords them.
 
@@ -134,9 +136,13 @@ Feature: Block and unblock
 Apply BRIEF (Rose & Nagy): **B**usiness language, **R**eal data,
 **I**ntention revealing, **E**ssential, **F**ocused, **B**rief.
 
-- **Business language**: `GLOSSARY.md` terms, exactly. If you need a new
-  product term, add it to the glossary in the same `spec:` commit. Never add
-  a technical term.
+- **Business language**: the context's ubiquitous language, exactly — its
+  `glossary.yaml` terms, the terms it borrows (`from: <domain>`), and the
+  shared kernel. If you need a new product term, add it to the context's
+  glossary in the same `spec:` commit; if another context already owns it,
+  borrow it rather than redefine it. Never add a technical term. Every Quint
+  type, variant, variable, action and definition is a term's `model` name
+  (or a `_`-prefixed model helper).
 - **Real data**: concrete values that expose the rule ("1500?", "the yearly
   plan"). No placeholder values ("test user 123"), and no dependence on
   specific production records.
@@ -187,7 +193,8 @@ test, not a spec. Tell the user rather than disguise it.
 ## 7. Workflow
 
 1. **Discover** (§1) and resolve open questions with the user.
-2. **Check the vocabulary.** Read `GLOSSARY.md` and
+2. **Check the vocabulary.** Read the context's `glossary.yaml` (and the
+   kernel's) and
    [`docs/STEPS_CATALOG.md`](../../../docs/STEPS_CATALOG.md) (it links each
    package's catalog). Reuse a phrase only when it passes both tests. A
    catalogued phrase that leaks implementation isn't vocabulary: write the
@@ -216,7 +223,8 @@ test, not a spec. Tell the user rather than disguise it.
       `When`/`Then`.
 - [ ] Data is concrete and essential. Outlines vary only values that change
       the outcome.
-- [ ] Terms match `GLOSSARY.md`, and any new product term was added there.
+- [ ] Every term is in the context's glossary (own, borrowed, or kernel), no
+      `avoid` synonym appears, and any new product term was added there.
 - [ ] Tags: `@domain` everywhere, `@goal` on each goal proven, `@regression`
       with its bug entry.
 - [ ] Non-behavior (formulas, invariants, storage, wire, wiring) went to code

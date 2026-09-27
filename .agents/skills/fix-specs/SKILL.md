@@ -25,8 +25,12 @@ Scope to what you were asked for (one feature, one domain, or all of
 bun run spec:check --strict-duplicates   # errors, smells, near-duplicate wording
 ```
 
-Then read each in-scope feature and its step definitions and record every
-smell below. Also note each scenario's `@goal` and `@regression` tags, and
+Then read each in-scope feature beside its context's `glossary.yaml` (and
+the shared kernel `specs/glossary.yaml`) and its step definitions, and record
+every smell below. The gate catches avoided synonyms, unborrowed terms and
+stray Quint names; only a reader catches a word used but never defined, or
+used in another sense than its definition — list each as a proposed
+glossary addition. Also note each scenario's `@goal` and `@regression` tags, and
 look them up in `libs/tools/goal/goal-checks.json` and
 `libs/tools/goal/known-bugs.json`.
 
@@ -46,6 +50,7 @@ look them up in `libs/tools/goal/goal-checks.json` and
 | Missing why | feature without a description, or one that says how it runs | one to three sentences on why it matters |
 | Narrator, UI mechanics | "I", "the user", "click", "button" | persona and intent (the gate already fails these) |
 | Duplicate behavior | two scenarios failing for the same reason | keep the clearer one |
+| Outside the language | a word the context's `glossary.yaml` does not define, an `avoid` synonym, another context's term not borrowed, a Quint name that is no term's `model` | use the glossary term; borrow (`from: <domain>`); or add the term to the glossary for the person to approve |
 
 ### Step-definition smells
 
@@ -114,7 +119,7 @@ Rules for the replacement:
 
 1. **Implementation commit (tests first):** add the replacement tests and
    update `goal-checks.json` and `known-bugs.json`. Run them green.
-2. **`spec:` commit:** only `.feature`, `GLOSSARY.md`, and docs. Rewrite,
+2. **`spec:` commit:** only `.feature`, `.qnt`, `glossary.yaml`, and docs. Rewrite,
    split, or remove scenarios per `write-specs`. Write the new wording from
    the product's point of view, never from what the step code does.
 3. **Implementation commit (rebind):** move step bodies to the new wording,

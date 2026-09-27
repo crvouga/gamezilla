@@ -3,76 +3,80 @@
 // The room keeps the one true count, and Alice and Bob each change it by one,
 // up or down. While a person is online their device shows the room's count.
 // While they are offline, or their network has stalled, their device shows the
-// count it last showed plus the changes they have made since; those changes
-// wait on the device and reach the room once the person is back. A person's
-// app can crash: while it is down it shows nothing, but it keeps the changes
-// still waiting on it and sends them once it restarts. The room can crash and
-// restart too: it comes back with the count it had, and anyone who was
-// offline reconnects as it comes back.
+// count it last showed plus the changes they have made since; those waiting
+// changes stay on the device and reach the room once the person is back. A
+// person's app can crash: while it is down it shows nothing, but it keeps the
+// changes still waiting on it and sends them once it restarts. The room can
+// crash and restart too: it comes back with the count it had, and anyone who
+// was offline reconnects as it comes back.
 //
-// Every change a device sends carries an id, and the room counts an id once,
-// however many times it arrives: when a device resends a change under an id
-// it already sent, or when a person's session is taken over by a new one of
-// theirs. A change the room does not understand, and something that is not a
-// change at all, alter nothing; neither does a session being taken over.
+// The room counts each change once, however many times it arrives: when a
+// device resends a change it already sent, or when a person comes into the
+// room again as a newer arrival. A change the room does not understand, and
+// something garbled that is not a change at all, alter nothing; neither does
+// a newer arrival.
 module shared_counter {
   type Person = str
 
   pure val PEOPLE: Set[Person] = Set("alice", "bob")
-  /// Ids a device can send a change under.
-  pure val COMMAND_IDS: Set[str] = Set("x1", "x2")
+  /// Changes a device can send the room, and send again.
+  pure val CHANGES: Set[str] = Set("x1", "x2")
 
-  /// How a person's device reaches the room.
-  type Link =
+  /// Where a person's device stands with the room.
+  type DeviceState =
     | Online
     | Offline
-    | Paused
+    | Stalled
     | Crashed
 
   /// The room's count.
-  var room: int
+  var roomCount: int
   /// The count each device that is running shows.
-  var views: Person -> int
-  /// How each device reaches the room.
-  var links: Person -> Link
+  var shownCount: Person -> int
+  /// Where each device stands with the room.
+  var deviceState: Person -> DeviceState
 
   /// Changes each device has made that the room has not seen yet.
-  var waiting: Person -> int
-  /// The count each device last showed (kept while it is crashed).
-  var shown: Person -> int
-  /// Ids of the changes the room has counted.
-  var applied: Set[str]
+  var waitingChanges: Person -> int
+  /// The count each device last showed (kept while its app is crashed).
+  var _lastShown: Person -> int
+  /// The changes the room has counted.
+  var _counted: Set[str]
   /// The sum of every change anyone has made.
-  var made: int
+  var _made: int
 
-  pure def running(links: Person -> Link): Set[Person] =
-    PEOPLE.filter(p => links.get(p) != Crashed)
+  pure def _running(deviceState: Person -> DeviceState): Set[Person] =
+    PEOPLE.filter(p => deviceState.get(p) != Crashed)
 
   /// Every action changes the state through here, which also sets what each
   /// running device shows.
-  action update(
-    newRoom: int,
-    newLinks: Person -> Link,
-    newWaiting: Person -> int,
-    newShown: Person -> int,
-    newApplied: Set[str],
+  action _update(
+    newRoomCount: int,
+    newDeviceState: Person -> DeviceState,
+    newWaitingChanges: Person -> int,
+    newLastShown: Person -> int,
+    newCounted: Set[str],
     newMade: int,
   ): bool = all {
-    room' = newRoom,
-    links' = newLinks,
-    waiting' = newWaiting,
-    shown' = newShown,
-    applied' = newApplied,
-    made' = newMade,
-    views' = running(newLinks).mapBy(p => newShown.get(p)),
+    roomCount' = newRoomCount,
+    deviceState' = newDeviceState,
+    waitingChanges' = newWaitingChanges,
+    _lastShown' = newLastShown,
+    _counted' = newCounted,
+    _made' = newMade,
+    shownCount' = _running(newDeviceState).mapBy(p => newLastShown.get(p)),
   }
 
   /// What each device shows once online devices have caught up with the
   /// room's count.
-  pure def caughtUp(links: Person -> Link, shown: Person -> int, count: int): Person -> int =
-    PEOPLE.mapBy(p => if (links.get(p) == Online) count else shown.get(p))
+  pure def _caughtUp(
+    deviceState: Person -> DeviceState,
+    lastShown: Person -> int,
+    count: int,
+  ): Person -> int =
+    PEOPLE.mapBy(p => if (deviceState.get(p) == Online) count else lastShown.get(p))
 
-  action init = update(
+  action init = _update(
     0,
     PEOPLE.mapBy(_ => Online),
     PEOPLE.mapBy(_ => 0),
@@ -82,136 +86,167 @@ module shared_counter {
   )
 
   /// A change of `delta` made on `person`'s device.
-  action change(person: Person, delta: int): bool = all {
-    links.get(person) != Crashed,
-    if (links.get(person) == Online)
-      update(room + delta, links, waiting, caughtUp(links, shown, room + delta), applied, made + delta)
+  action _change(person: Person, delta: int): bool = all {
+    deviceState.get(person) != Crashed,
+    if (deviceState.get(person) == Online)
+      _update(
+        roomCount + delta,
+        deviceState,
+        waitingChanges,
+        _caughtUp(deviceState, _lastShown, roomCount + delta),
+        _counted,
+        _made + delta,
+      )
     else
-      update(
-        room,
-        links,
-        waiting.set(person, waiting.get(person) + delta),
-        shown.set(person, shown.get(person) + delta),
-        applied,
-        made + delta,
+      _update(
+        roomCount,
+        deviceState,
+        waitingChanges.set(person, waitingChanges.get(person) + delta),
+        _lastShown.set(person, _lastShown.get(person) + delta),
+        _counted,
+        _made + delta,
       ),
   }
 
-  action increment(person: Person): bool = change(person, 1)
+  action increment(person: Person): bool = _change(person, 1)
 
-  action decrement(person: Person): bool = change(person, -1)
+  action decrement(person: Person): bool = _change(person, -1)
 
   /// `person` comes back online: what waited on their device reaches the room.
-  action backOnline(person: Person): bool = {
-    val count = room + waiting.get(person)
-    val newLinks = links.set(person, Online)
-    update(count, newLinks, waiting.set(person, 0), caughtUp(newLinks, shown, count), applied, made)
+  action _comesBack(person: Person): bool = {
+    val count = roomCount + waitingChanges.get(person)
+    val newDeviceState = deviceState.set(person, Online)
+    _update(
+      count,
+      newDeviceState,
+      waitingChanges.set(person, 0),
+      _caughtUp(newDeviceState, _lastShown, count),
+      _counted,
+      _made,
+    )
   }
 
-  action disconnect(person: Person): bool = all {
-    links.get(person) == Online,
-    update(room, links.set(person, Offline), waiting, shown, applied, made),
+  action goOffline(person: Person): bool = all {
+    deviceState.get(person) == Online,
+    _update(roomCount, deviceState.set(person, Offline), waitingChanges, _lastShown, _counted, _made),
   }
 
-  action connect(person: Person): bool = all {
-    links.get(person) == Offline,
-    backOnline(person),
+  action reconnect(person: Person): bool = all {
+    deviceState.get(person) == Offline,
+    _comesBack(person),
   }
 
-  action pauseNetwork(person: Person): bool = all {
-    links.get(person) == Online,
-    update(room, links.set(person, Paused), waiting, shown, applied, made),
+  action networkStalls(person: Person): bool = all {
+    deviceState.get(person) == Online,
+    _update(roomCount, deviceState.set(person, Stalled), waitingChanges, _lastShown, _counted, _made),
   }
 
-  action resumeNetwork(person: Person): bool = all {
-    links.get(person) == Paused,
-    backOnline(person),
+  action networkRecovers(person: Person): bool = all {
+    deviceState.get(person) == Stalled,
+    _comesBack(person),
   }
 
-  action crash(person: Person): bool = all {
-    Set(Online, Offline).contains(links.get(person)),
-    update(room, links.set(person, Crashed), waiting, shown, applied, made),
+  action appCrashes(person: Person): bool = all {
+    Set(Online, Offline).contains(deviceState.get(person)),
+    _update(roomCount, deviceState.set(person, Crashed), waitingChanges, _lastShown, _counted, _made),
   }
 
-  action restart(person: Person): bool = all {
-    links.get(person) == Crashed,
-    backOnline(person),
+  action appRestarts(person: Person): bool = all {
+    deviceState.get(person) == Crashed,
+    _comesBack(person),
   }
 
   /// The room crashes and restarts: it comes back with the count it had, and
   /// everyone who was offline reconnects, bringing the changes waiting on
   /// their devices.
   action roomRestarts: bool = {
-    val count = room + PEOPLE.fold(0, (sum, p) =>
-      if (links.get(p) == Offline) sum + waiting.get(p) else sum
+    val count = roomCount + PEOPLE.fold(0, (sum, p) =>
+      if (deviceState.get(p) == Offline) sum + waitingChanges.get(p) else sum
     )
-    val newLinks = PEOPLE.mapBy(p => if (links.get(p) == Offline) Online else links.get(p))
-    val newWaiting = PEOPLE.mapBy(p => if (links.get(p) == Offline) 0 else waiting.get(p))
-    update(count, newLinks, newWaiting, caughtUp(newLinks, shown, count), applied, made)
+    val newDeviceState =
+      PEOPLE.mapBy(p => if (deviceState.get(p) == Offline) Online else deviceState.get(p))
+    val newWaitingChanges =
+      PEOPLE.mapBy(p => if (deviceState.get(p) == Offline) 0 else waitingChanges.get(p))
+    _update(
+      count,
+      newDeviceState,
+      newWaitingChanges,
+      _caughtUp(newDeviceState, _lastShown, count),
+      _counted,
+      _made,
+    )
   }
 
-  /// `person`'s device sends an increment under `id`, or resends it; an id
+  /// `person`'s device sends the increment `change`, or resends it; a change
   /// the room has already counted changes nothing.
-  action sendCommand(person: Person, id: str): bool = all {
-    links.get(person) == Online,
-    if (applied.contains(id))
-      update(room, links, waiting, shown, applied, made)
+  action resend(person: Person, change: str): bool = all {
+    deviceState.get(person) == Online,
+    if (_counted.contains(change))
+      _update(roomCount, deviceState, waitingChanges, _lastShown, _counted, _made)
     else
-      update(room + 1, links, waiting, caughtUp(links, shown, room + 1), applied.union(Set(id)), made + 1),
+      _update(
+        roomCount + 1,
+        deviceState,
+        waitingChanges,
+        _caughtUp(deviceState, _lastShown, roomCount + 1),
+        _counted.union(Set(change)),
+        _made + 1,
+      ),
   }
 
-  /// A new session of `person`'s takes over their earlier one: nothing
-  /// changes.
+  /// `person` comes into the room again as a newer arrival, taking over from
+  /// their earlier one: nothing changes.
   action takeOver(person: Person): bool = all {
-    links.get(person) == Online,
-    update(room, links, waiting, shown, applied, made),
+    deviceState.get(person) == Online,
+    _update(roomCount, deviceState, waitingChanges, _lastShown, _counted, _made),
   }
 
-  /// `person` makes a change the room does not understand: it is refused on
-  /// their device and nothing changes.
-  action sendUnknownCommand(person: Person): bool = all {
-    links.get(person) != Crashed,
-    update(room, links, waiting, shown, applied, made),
+  /// `person` makes a change the room does not understand: it is refused as
+  /// invalid on their device and nothing changes.
+  action makeInvalidChange(person: Person): bool = all {
+    deviceState.get(person) != Crashed,
+    _update(roomCount, deviceState, waitingChanges, _lastShown, _counted, _made),
   }
 
-  /// `person`'s device sends the room something that is not a change at
-  /// all: nothing changes.
-  action sendMalformedFrame(person: Person): bool = all {
-    links.get(person) == Online,
-    update(room, links, waiting, shown, applied, made),
+  /// `person`'s device sends the room something garbled that is not a change
+  /// at all: nothing changes.
+  action sendGarbledChange(person: Person): bool = all {
+    deviceState.get(person) == Online,
+    _update(roomCount, deviceState, waitingChanges, _lastShown, _counted, _made),
   }
 
   action step = {
     nondet person = PEOPLE.oneOf()
-    nondet id = COMMAND_IDS.oneOf()
+    nondet change = CHANGES.oneOf()
     any {
       increment(person),
       decrement(person),
-      disconnect(person),
-      connect(person),
-      pauseNetwork(person),
-      resumeNetwork(person),
-      crash(person),
-      restart(person),
+      goOffline(person),
+      reconnect(person),
+      networkStalls(person),
+      networkRecovers(person),
+      appCrashes(person),
+      appRestarts(person),
       roomRestarts,
-      sendCommand(person, id),
+      resend(person, change),
       takeOver(person),
-      sendUnknownCommand(person),
-      sendMalformedFrame(person),
+      makeInvalidChange(person),
+      sendGarbledChange(person),
     }
   }
 
   /// Everyone online agrees with the room.
   val invOnlineAgree = PEOPLE.forall(p =>
-    links.get(p) == Online implies shown.get(p) == room
+    deviceState.get(p) == Online implies _lastShown.get(p) == roomCount
   )
 
   /// Only a device that cannot reach the room has changes waiting on it.
   val invWaitingOnlyWhenApart = PEOPLE.forall(p =>
-    waiting.get(p) != 0 implies links.get(p) != Online
+    waitingChanges.get(p) != 0 implies deviceState.get(p) != Online
   )
 
   /// The room's count plus what still waits on devices is every change
   /// anyone made: no change is lost or counted twice.
-  val invNothingLost = room + PEOPLE.fold(0, (sum, p) => sum + waiting.get(p)) == made
+  val invNothingLost =
+    roomCount + PEOPLE.fold(0, (sum, p) => sum + waitingChanges.get(p)) == _made
 }

@@ -1,11 +1,11 @@
 @domain:sync
 Feature: Notes across devices
-  People write on whichever device is at hand. Every device a person uses must
-  end up with all of their notes, even when they wrote on each one while it
-  was apart from the others.
+  When a person writes notes on whichever device is at hand, even one that is
+  offline, they want every device they use to have all of their notes once
+  the devices are back online.
 
   @goal:works-offline:5 @goal:always-true:2
-  Scenario: Notes written on two devices end up on both
+  Scenario: Notes written on two devices show on both
     Given Alice uses the app on a phone and a tablet
     And Alice's tablet is offline
     And Alice has written the note "Groceries" on their phone

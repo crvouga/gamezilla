@@ -126,13 +126,6 @@ When(
 );
 
 When(
-  "the provider repeats its last news about {actor}'s membership",
-  async (w, actor: Actor) => {
-    await observe(w, actor, 'redeliver_last_event');
-  }
-);
-
-When(
   "{actor}'s membership is canceled immediately",
   async (w, actor: Actor) => {
     await observe(w, actor, 'cancel_now');

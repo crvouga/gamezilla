@@ -1,6 +1,7 @@
 @domain:spaces
 Feature: End a space
-  Ending a space closes it for everyone, so nobody keeps finding a space that is over.
+  When a host ends their space, their friends want it gone from their lobby,
+  so nobody keeps finding a space that is over.
 
   Scenario: When the host ends the space, a friend's lobby stops listing it
     Given Alice and Bob are friends

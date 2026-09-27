@@ -149,7 +149,7 @@ When('they search for people with a name nobody has', async (w) => {
   );
 });
 
-Then('the search settles on no results', async (w) => {
+Then('the search finishes with no results', async (w) => {
   await w.journey.act('expectNoSearchResults', expectNoSearchResults);
 });
 

@@ -1,7 +1,8 @@
 @domain:billing @goal:guest-free-and-paid:9
 Feature: Paid access belongs to one person
-  One person's membership never grants paid access to anyone else, whether a
-  guest or someone who signs in with their own account on the same device.
+  When someone else uses a Plus member's device, as a guest or signed in with
+  their own account, the Plus member wants their membership to stay theirs,
+  so paid access goes only to the person who paid for it.
 
   Scenario: A guest is asked to sign in before subscribing
     Given Bob is a guest

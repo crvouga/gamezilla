@@ -1,4 +1,5 @@
 import { actorUi, pollUntil } from '@libs/sim-harness/system/actor-ui';
+import { actorHtml } from '@libs/sim-harness/system/observations';
 import { backToTabs } from '@libs/sim-harness/system/shell-actions';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
@@ -85,6 +86,48 @@ export async function leaveToLobby(
   await ui
     .get(Handles.spaceCreate)
     .expect.visible({ timeoutMs: SPACE_WAIT_MS });
+}
+
+/** Coming back after the app reopened can take longer than a tap. */
+const OWN_SPACE_WAIT_MS = 15_000;
+const OWN_SPACE_POLL_MS = 250;
+
+/** The lobby card of the one space the actor is in, from the Spaces tab. */
+export async function ownSpaceCard(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  await showSpacesTab(s, actorId);
+  const html = await actorHtml(s, actorId);
+  const cards = [
+    ...(html ?? '').matchAll(/data-testid="(space-card-[^"]+)"/g),
+  ].map((match) => match[1] ?? '');
+  return cards.length === 1 ? (cards[0] ?? null) : null;
+}
+
+/**
+ * Back into the one space the actor is in, from wherever the app opened
+ * (the space itself, or the tabs with the space open behind them), through
+ * its lobby card. Works for a guest too, whose card carries a username the
+ * scenario never chose.
+ */
+export async function reenterOwnSpace(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui
+    .get(Handles.statusCurrentUser)
+    .expect.visible({ timeoutMs: OWN_SPACE_WAIT_MS });
+  if (!(await ui.get(Handles.spaceClose).isVisible())) {
+    const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
+      maxMs: OWN_SPACE_WAIT_MS,
+      stepMs: OWN_SPACE_POLL_MS,
+      description: `${actorId}'s own space card`,
+    });
+    await ui.get(card).tap({ timeoutMs: OWN_SPACE_WAIT_MS });
+  }
+  await waitActiveSpace(s, actorId);
 }
 
 export async function reenterSpace(

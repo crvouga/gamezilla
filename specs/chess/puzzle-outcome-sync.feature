@@ -1,8 +1,8 @@
 @domain:chess @goal:chess-puzzles:9 @goal:works-offline:4 @goal:always-true:3
 Feature: Puzzles finished offline count once
-  However a puzzle ends offline (a clean solve, a hint, a wrong move, the
-  solution, or a skip), it is logged the same way once the connection is
-  back, and it counts exactly once, without the player doing anything.
+  When a puzzle finishes offline (a clean solve, a hint, a wrong move, the
+  solution, or a skip), the solver wants it logged the same way once the
+  connection is back, so it counts exactly once without their doing anything.
 
   Scenario Outline: A puzzle finished offline by <finish> is logged as <outcome>, once
     Given Alice is signed in

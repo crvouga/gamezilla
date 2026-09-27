@@ -7,12 +7,16 @@ import {
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
-  test('recognizes every Gherkin file, wherever it is, and every model', () => {
+  test('recognizes every Gherkin file, wherever it is, every model and every glossary', () => {
     expect(isSpecFile('specs/friends/friend-remove.feature')).toBe(true);
     expect(isSpecFile('libs/friends/features/remove.feature')).toBe(true);
     expect(isSpecFile('specs/spaces/space-hosting.qnt')).toBe(true);
     expect(isSpecFile('pkgs/quint/tests/fixtures/door.qnt')).toBe(false);
     expect(isSpecFile('specs/README.md')).toBe(false);
+    expect(isSpecFile('specs/glossary.yaml')).toBe(true);
+    expect(isSpecFile('specs/billing/glossary.yaml')).toBe(true);
+    expect(isSpecFile('specs/billing/events.qnt')).toBe(true);
+    expect(isSpecFile('libs/billing/glossary.yaml')).toBe(false);
   });
 
   test('requires feature-only spec commits', () => {

@@ -402,7 +402,7 @@
       },
       {
         "kind": "spec",
-        "path": "specs/chess/puzzle-solve-session.feature"
+        "path": "specs/chess/puzzle-attempt-resume.feature"
       }
     ]
   },

@@ -14,7 +14,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | live spaces can run in this environment | — | health, journeys |
 | Then | live updates are ready to reach people | — | health, journeys |
 | Then | nobody can take over live updates with a publicly known password | — | health, journeys |
-| Then | nobody can take over live updates with the default admin password | — | health, journeys |
+| Then | nobody can take over live updates with the default password | — | health, journeys |
 | Then | payments in this environment are real exactly when it is a production environment | — | health, journeys |
 | Then | people are offered Google sign-in and not Apple sign-in | — | health, journeys |
 | Then | people can find the app at every one of its addresses | — | health, journeys |
@@ -31,9 +31,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | the app can send a live update | — | health, journeys |
 | Then | the app has access to every service it relies on | — | health, journeys |
 | Then | the app is given every setting it needs | — | health, journeys |
+| Then | the app on the web hears whether the sign-in worked | — | health, journeys |
 | Then | the team can look up what a request did | — | health, journeys |
 | Then | the team can open the Simulator at its address | — | health, journeys |
-| Then | the web app hears whether the sign-in worked | — | health, journeys |
 | Then | this environment is exactly as the team declared it | — | health, journeys |
 | Then | this environment keeps its files apart from every other environment's | — | health, journeys |
 | Then | what people saved is ready for this version of the app | — | health, journeys |
@@ -76,7 +76,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | Plus is offered at its monthly and yearly prices | — | runtime |
 | Then | the app finishes booting into the tabs | — | runtime |
 | Then | the next puzzle is ready to play | — | runtime |
-| Then | the search settles on no results | — | runtime |
+| Then | the search finishes with no results | — | runtime |
 | Then | the space offers games to play | — | runtime |
 | Then | the space shows it has ended | — | runtime |
 | Then | their account offers to sign in again | — | runtime |
@@ -92,7 +92,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 ## Features
 
-- `specs/health/connected-services.feature` — Connected services (1 scenarios)
+- `specs/health/connected-services.feature` — Outside services (1 scenarios)
 - `specs/health/declared-environment.feature` — Declared environment (1 scenarios)
 - `specs/health/live-updates.feature` — Live updates (4 scenarios)
 - `specs/health/payments.feature` — Payments (2 scenarios)

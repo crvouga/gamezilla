@@ -1,8 +1,10 @@
 @domain:profile @goal:social:3 @goal:social:4
 Feature: Username rules
-  Names are readable, unique, and safe to show to other people.
+  When a person renames themselves, they want a username that is readable,
+  unique and safe to show to other people, so everyone can tell who they
+  are.
 
-  Scenario Outline: A username refused as "<reason>" leaves the name unchanged
+  Scenario Outline: A username change refused as "<reason>" keeps the username unchanged
     Given Alice's username is @alice_one
     When Alice tries to use username "<name>"
     Then Alice's username change is refused with "<reason>"
@@ -14,7 +16,7 @@ Feature: Username rules
       | xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx | Username is too long                          |
       | no spaces!                        | Username can only use letters, numbers, and _ |
 
-  Scenario: A disguised offensive username is refused
+  Scenario: A disguised offensive username change is refused
     Given Alice is a guest
     When Alice tries to use username "sh1thead_99"
     Then Alice's username change is refused with "That username is not allowed"
@@ -24,7 +26,7 @@ Feature: Username rules
     When Alice tries to use username "Chess_Fan_7"
     Then Alice's profile shows @chess_fan_7
 
-  Scenario: Leaving a username draft without saving keeps the saved name
+  Scenario: A username draft left without saving keeps the saved username
     Given Alice's username is @alice_one
     When Alice starts renaming themselves to @never_saved and leaves without saving
     Then Alice's profile shows @alice_one

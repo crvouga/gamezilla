@@ -1,6 +1,7 @@
 @domain:profile @goal:social:3
 Feature: Edit a profile
-  A person can make their profile their own, and saved changes remain on it.
+  When a person wants to be recognized, they want to choose their own
+  username and avatar, so their profile shows what they saved.
 
   Scenario: A guest changes their username
     Given Alice is a guest
@@ -24,7 +25,7 @@ Feature: Edit a profile
     Then Alice's saved avatar has seed "moonbeam"
     And Alice's saved avatar uses style "Bottts"
 
-  Scenario: Leaving an edited avatar without saving keeps the prior avatar
+  Scenario: An avatar draft left without saving keeps the saved avatar
     Given Alice has saved an avatar with seed "kept-seed" and style "Bottts"
     When Alice changes the avatar seed to "discarded-seed" and leaves without saving
     Then Alice's saved avatar has seed "kept-seed"

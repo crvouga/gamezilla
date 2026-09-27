@@ -1,0 +1,72 @@
+# The Journeys context's ubiquitous language (specs/journeys/): the critical
+# journeys across every context, told in the terms those contexts publish
+# (from: <domain>). The shared kernel is specs/glossary.yaml. Map:
+# docs/CONTEXT_MAP.md.
+context: Journeys
+purpose: >-
+  The flows people rely on most, followed end to end as a person lives them,
+  which must never break anywhere people use the app.
+
+terms:
+  - term: critical journey
+    definition: >-
+      A flow people rely on most, followed from a fresh device through to what
+      the person gets out of it. It must never break anywhere people use the
+      app.
+    forms: [critical journeys]
+    avoid: [smoke test, synthetic monitor, happy path, e2e test]
+
+  - term: boot screen
+    definition: >-
+      What the app shows while it is opening, before the person reaches the
+      tabs. A critical journey never stops there.
+    forms: [booting, finishes booting]
+    avoid: [splash screen, loading screen, spinner]
+
+  # Borrowed from App.
+  - term: tabs
+    from: runtime
+
+  # Borrowed from Identity.
+  - term: guest
+    from: profile
+  - term: account
+    from: profile
+  - term: sign in
+    from: profile
+  - term: sign out
+    from: profile
+  - term: avatar
+    from: profile
+  - term: Google
+    from: profile
+
+  # Borrowed from Spaces.
+  - term: space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: end a space
+    from: spaces
+
+  # Borrowed from Friends.
+  - term: people search
+    from: friends
+
+  # Borrowed from Chess.
+  - term: game
+    from: chess
+  - term: chess
+    from: chess
+  - term: puzzle
+    from: chess
+  - term: board
+    from: chess
+  - term: solve
+    from: chess
+
+  # Borrowed from Billing.
+  - term: Plus
+    from: billing
+  - term: billing plans
+    from: billing

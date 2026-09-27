@@ -239,7 +239,7 @@ Then(
 );
 
 Then(
-  '{actor} watches {person} appear in their friends list within {int} seconds',
+  '{actor} sees {person} appear in their friends list within {int} seconds',
   async (w, actor: Actor, person: string, seconds: number) => {
     await w.s.apply(focusActor, actor);
     await w.s.until((surf) => friendRowVisible(surf, actor, person), {
@@ -341,9 +341,9 @@ When(
 );
 
 When(
-  "{actor} confirms {actor}'s request from {actor}'s profile",
+  "{actor} accepts {actor}'s request from {actor}'s profile",
   async (w, actor: Actor, from: Actor, whose: Actor) => {
-    sameActor(from, whose, 'confirms … from profile');
+    sameActor(from, whose, 'accepts … from profile');
     await w.s.apply(confirmFromProfile, actor, from);
   }
 );
@@ -364,14 +364,14 @@ Then(
 );
 
 Then(
-  "{actor} is offered to confirm {actor}'s request",
+  "{actor} is offered to accept {actor}'s request",
   async (w, actor: Actor, from: Actor) => {
     expect(await w.s.read(confirmOffered, actor, from)).toBe(true);
   }
 );
 
 Then(
-  "{actor} is offered to confirm {actor}'s request within {int} seconds",
+  "{actor} is offered to accept {actor}'s request within {int} seconds",
   async (w, actor: Actor, from: Actor, seconds: number) => {
     await w.s.until((surf) => confirmOffered(surf, actor, from), {
       maxMs: seconds * SECOND_MS,
@@ -380,7 +380,7 @@ Then(
 );
 
 Then(
-  '{actor} can withdraw the request to {actor}',
+  '{actor} can cancel the request to {actor}',
   async (w, actor: Actor, to: Actor) => {
     expect(await w.s.read(withdrawOffered, actor, to)).toBe(true);
   }

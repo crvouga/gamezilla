@@ -1,7 +1,7 @@
 @domain:sync
 Feature: Notes count once
-  Word that a note was saved can get lost on the way back. The app must still
-  get the note to everyone, and never show it twice to anybody.
+  When the app does not hear back about a note it wrote, a person wants the
+  note still to reach everyone and never to show twice to anybody.
 
   Background:
     Given Alice and Bob are in the shared space "Trip"

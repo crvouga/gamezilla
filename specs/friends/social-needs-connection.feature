@@ -1,7 +1,8 @@
 @domain:friends @goal:works-offline:6
 Feature: Friends need a connection
-  Everything social happens between people, so it needs a connection.
-  Without one, the app says so plainly and nothing is quietly lost.
+  When a person is offline and tries to search or ask someone, they want the
+  app to say plainly that it needs a connection, so nothing they meant to do
+  is quietly lost. Friends happen between people, so they need a connection.
 
   @regression:people-search-offline-hangs
   Scenario: Searching for people without a connection says it needs one

@@ -1,6 +1,8 @@
 @domain:friends @goal:social:5
 Feature: Friend request accepted
-  Asking someone to be your friend, and them saying yes from their inbox.
+  When someone a person wants as a friend asks them, the person wants to
+  accept from their inbox, so both become friends at once and the asker
+  finds out from a notice.
 
   Background:
     Given Alice and Bob are signed in

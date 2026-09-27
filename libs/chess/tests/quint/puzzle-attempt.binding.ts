@@ -1,8 +1,8 @@
 /**
- * `specs/chess/puzzle-session.qnt` against the chess composition: a guest
+ * `specs/chess/puzzle-attempt.qnt` against the chess composition: a guest
  * hosting a space plays puzzles through the chess sim actions while another
  * guest in the space watches, and the model's state is read back off both
- * screens. Puzzle ids are opaque, so each is numbered in the order it first
+ * views. Puzzle ids are opaque, so each is numbered in the order it first
  * reached the host's board.
  */
 
@@ -65,19 +65,20 @@ function numberOf(w: QuintSimWorld, id: string | null): number {
   return n === -1 ? -2 : n;
 }
 
-type Screen = 'Board' | 'ChessMenu' | 'GameMenu' | 'Elsewhere';
+type View = 'Board' | 'ChessChoices' | 'GameChoice' | 'Elsewhere';
 
-async function screenOf(s: ProductSim, actorId: string): Promise<Screen> {
+async function viewOf(s: ProductSim, actorId: string): Promise<View> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.chessPuzzlePlayScreen])) {
     return 'Board';
   }
-  if (await visible(s, actorId, [Handles.chessMenuPuzzle])) return 'ChessMenu';
-  if (await visible(s, actorId, [Handles.gameMenuChess])) return 'GameMenu';
+  if (await visible(s, actorId, [Handles.chessMenuPuzzle]))
+    return 'ChessChoices';
+  if (await visible(s, actorId, [Handles.gameMenuChess])) return 'GameChoice';
   return 'Elsewhere';
 }
 
-/** The host drives: bring her screen to the front, then act on it. */
+/** The host drives: bring her view to the front, then act on it. */
 function hostDoes(
   act: (w: QuintSimWorld) => Promise<void>,
   landsOnBoard = false
@@ -90,10 +91,10 @@ function hostDoes(
 }
 
 bindQuintModel<QuintSimWorld>({
-  model: 'puzzle-session',
+  model: 'puzzle-attempt',
   traces: 6,
   maxSteps: 12,
-  // Two screens read after every step: a trace runs ~10s alone, but several
+  // Two views read after every step: a trace runs ~10s alone, but several
   // times that beside the rest of the package's suite.
   timeoutMs: 180_000,
   actions: {
@@ -105,13 +106,15 @@ bindQuintModel<QuintSimWorld>({
       await w.s.apply(openSpaceLink, WATCHER, link);
       await w.s.apply(joinFromPrompt, WATCHER);
     },
-    openBoard: hostDoes((w) => w.s.apply(openPuzzleFromSpace, HOST), true),
-    reopenBoard: hostDoes(
+    openPuzzles: hostDoes((w) => w.s.apply(openPuzzleFromSpace, HOST), true),
+    goBackToPuzzles: hostDoes(
       (w) => w.s.apply(reopenPuzzleFromChessMenu, HOST),
       true
     ),
-    leaveBoard: hostDoes((w) => w.s.apply(leavePuzzleToChessMenu, HOST)),
-    backToGameMenu: hostDoes((w) => w.s.apply(leaveChessMenuToGameMenu, HOST)),
+    leavePuzzle: hostDoes((w) => w.s.apply(leavePuzzleToChessMenu, HOST)),
+    backToGameChoice: hostDoes((w) =>
+      w.s.apply(leaveChessMenuToGameMenu, HOST)
+    ),
     solve: hostDoes((w) => w.s.apply(playUntilSolved, HOST)),
     playWrongMove: hostDoes((w) => w.s.apply(playWrongPuzzleMove, HOST)),
     showSolution: hostDoes((w) => w.s.apply(showPuzzleSolutionLine, HOST)),
@@ -128,22 +131,22 @@ bindQuintModel<QuintSimWorld>({
     }),
   },
   observe: async (w) => {
-    const screen = new Map<QuintValue, QuintValue>();
-    const status = new Map<QuintValue, QuintValue>();
-    const nextOffered = new Map<QuintValue, QuintValue>();
+    const view = new Map<QuintValue, QuintValue>();
+    const puzzleState = new Map<QuintValue, QuintValue>();
+    const moveOnOffered = new Map<QuintValue, QuintValue>();
     const puzzle = new Map<QuintValue, QuintValue>();
-    const starts = new Map<QuintValue, QuintValue>();
+    const puzzleStarts = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
-      const shown = await w.quiet.read(screenOf, actor);
+      const shown = await w.quiet.read(viewOf, actor);
       const onBoard = shown === 'Board';
-      screen.set(actor, variant(shown));
-      status.set(
+      view.set(actor, variant(shown));
+      puzzleState.set(
         actor,
         onBoard
           ? ((await w.quiet.read(readPuzzleStatus, actor)) ?? 'unknown')
           : 'none'
       );
-      nextOffered.set(
+      moveOnOffered.set(
         actor,
         await w.quiet.read(visible, actor, [Handles.chessPuzzleActionNext])
       );
@@ -154,11 +157,11 @@ bindQuintModel<QuintSimWorld>({
           onBoard ? await w.quiet.read(readActivePuzzleId, actor) : null
         )
       );
-      starts.set(
+      puzzleStarts.set(
         actor,
         (await w.quiet.read(readLocalPuzzleStartLedger, actor)).length
       );
     }
-    return { screen, status, nextOffered, puzzle, starts };
+    return { view, puzzleState, moveOnOffered, puzzle, puzzleStarts };
   },
 });

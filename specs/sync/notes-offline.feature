@@ -1,8 +1,8 @@
 @domain:sync
 Feature: Notes written offline
-  People write notes wherever they are, connected or not. What they write
-  offline must show for them right away and reach everyone else once they are
-  back online, without them having to do anything.
+  When a person writes notes offline, they want them to show at once and to
+  reach everyone else once they are back online, with nothing for them to
+  do.
 
   Background:
     Given Alice and Bob are in the shared space "Trip"

@@ -55,14 +55,14 @@ Then(
 );
 
 Then(
-  "{actor}'s search offers to add {actor}",
+  "{actor}'s search offers to ask {actor}",
   async (w, actor: Actor, other: Actor) => {
     expect(await w.s.read(addFriendOffered, actor, other)).toBe(true);
   }
 );
 
 Then(
-  "{actor}'s search offers to add {actor} again within {int} seconds",
+  "{actor}'s search offers to ask {actor} again within {int} seconds",
   async (w, actor: Actor, other: Actor, seconds: number) => {
     await w.s.apply(backToTabs, actor);
     await w.s.apply(searchUntilAddOffered, actor, other, seconds * SECOND_MS);

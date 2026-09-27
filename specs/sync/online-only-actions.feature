@@ -1,9 +1,9 @@
 @domain:sync
 Feature: Online-only actions
-  A few things truly need a connection, such as an announcement, which goes
-  out to everyone the moment it is written. Trying one offline must say so
-  clearly, must not quietly happen later, and must work as soon as the
-  connection is back.
+  When a person tries an online-only action offline, such as writing an
+  announcement, they want to be told it needs a connection, not to have it
+  happen later on its own, and to be able to do it once the connection is
+  back.
 
   Background:
     Given Alice and Bob are in the shared space "Trip"

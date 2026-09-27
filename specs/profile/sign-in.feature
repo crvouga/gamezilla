@@ -1,7 +1,8 @@
 @domain:profile @goal:social:1
 Feature: Sign in and out
-  A person can connect an account and later sign out on this device, and
-  their profile goes with the account wherever they sign in.
+  When a person signs in, they want their profile to go with their account
+  to every device they sign in on, and to sign out of this device whenever
+  they choose.
 
   @goal:social:2 @goal:always-true:10
   Scenario: A guest keeps their profile when signing in
@@ -12,7 +13,7 @@ Feature: Sign in and out
     Then Alice's profile shows @alice_guest
     And Alice's saved avatar has seed "harbor"
 
-  Scenario: Signing out leaves this device signed out
+  Scenario: Signing out signs this device out
     Given Alice is signed in with Google
     When Alice signs out
     Then Alice is signed out

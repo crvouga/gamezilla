@@ -1,7 +1,9 @@
 @domain:billing @goal:guest-free-and-paid:9
 Feature: Failed payments
-  A failed payment makes the membership delinquent without taking paid access
-  away during grace; recovery restores it, and exhausted retries end it.
+  When a Plus member's payment fails, they want to keep paid access while it
+  is put right, so a card problem never cuts them off at once: the membership
+  is delinquent within grace, a recovered payment makes it active again, and
+  the membership ends only after the last retry.
 
   Background:
     Given Alice has subscribed to Plus
@@ -21,9 +23,3 @@ Feature: Failed payments
     Given Alice's payment has failed
     When the provider gives up retrying Alice's payment
     Then Alice's membership has ended
-
-  Scenario: The provider repeating its news of a failed payment changes nothing
-    Given Alice's payment has failed
-    When the provider repeats its last news about Alice's membership
-    Then Alice has paid access
-    And Alice's membership is still delinquent

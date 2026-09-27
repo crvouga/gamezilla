@@ -1,7 +1,7 @@
 @domain:health
 Feature: Reaching the app
-  People find the app at its addresses and reach it securely, and they will
-  for weeks to come, so an address never lapses unnoticed.
+  When people go to the app's address, they want to find the app and reach
+  it securely, now and for weeks to come, so no address lapses unnoticed.
 
   Scenario: People can find the app at every one of its addresses
     Then people can find the app at every one of its addresses
@@ -15,5 +15,5 @@ Feature: Reaching the app
   Scenario: The team can open the Simulator at its address
     Then the team can open the Simulator at its address
 
-  Scenario: Leaving out "www" still leads people to the app
+  Scenario: The address without "www" still leads people to the app
     Then the address without "www" leads people to the app

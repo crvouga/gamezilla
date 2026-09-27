@@ -1,0 +1,53 @@
+# The shared kernel: the few terms every bounded context in specs/ may use
+# without borrowing them. Keep it small — a term belongs here only when every
+# context means exactly the same thing by it. Anything one context owns lives
+# in that context's specs/<domain>/glossary.yaml, and other contexts borrow it
+# from there (from: <domain>).
+context: Shared kernel
+purpose: >-
+  The people who use the product, the devices and app they use it on, and
+  whether those devices can reach everyone else.
+
+terms:
+  - term: person
+    definition: >-
+      Someone who uses the app, named in a scenario (Alice, Bob) or described
+      by a role (a guest, a member). Scenarios never say "I" or "the user".
+    forms: [people, person's, people's]
+    avoid: [user, customer, visitor]
+    model: [Person]
+
+  - term: the team
+    definition: >-
+      The people who run the product. They observe it from outside, as
+      people do, plus the records and declarations they keep for it.
+    avoid: [admin, operator, ops]
+
+  - term: device
+    definition: >-
+      One phone, tablet or computer a person uses the app on. A person may
+      use several; each keeps its own place.
+    forms: [phone, tablet, computer, another device, other device]
+    avoid: [client, browser]
+    model: [Device]
+
+  - term: fresh device
+    definition: >-
+      A device that has never opened the app: nothing kept on it and nobody
+      signed in.
+
+  - term: the app
+    definition: >-
+      The product as a person holds it on a device. It can close or crash and
+      be opened again ("reopens"), and it still has everything it had.
+    forms: [app, the app's, app's, reopens, reopen, reopened]
+    avoid: [frontend, website, web app, application]
+
+  - term: connection
+    definition: >-
+      Whether a device can reach everyone else. A device with no connection is
+      offline; once it has one again it is back online. What a person does
+      offline shows for them at once; what needs other people waits for the
+      connection, with nothing for the person to do.
+    forms: [offline, online, back online, connected, disconnected]
+    avoid: [network error, socket]

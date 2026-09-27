@@ -1,7 +1,9 @@
 @domain:journeys @production
 Feature: Critical journeys
-  The flows people rely on most. They must never break, anywhere people use
-  the app.
+  When a person reaches for what they rely on most (opening the app, signing
+  in and out, hosting a space, solving a puzzle, searching for people, seeing
+  what Plus offers), they want it to work every time, so no critical journey
+  ever breaks anywhere people use the app.
 
   Scenario: The app opens past the boot screen into the tabs
     When a person opens the app on a fresh device
@@ -36,10 +38,10 @@ Feature: Critical journeys
     When they save a new avatar
     Then editing their avatar again shows the new one
 
-  Scenario: Searching for people settles on an answer
+  Scenario: Searching for people finishes with an answer
     Given a person is signed in on a fresh device
     When they search for people with a name nobody has
-    Then the search settles on no results
+    Then the search finishes with no results
 
   Scenario: A guest solves a puzzle and the next one is ready
     Given a person opens the app on a fresh device

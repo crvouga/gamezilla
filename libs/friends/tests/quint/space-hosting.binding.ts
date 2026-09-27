@@ -42,12 +42,13 @@ function hostKey(link: string): string {
   return `space-host:${link}`;
 }
 
-type Screen = 'ended' | 'members' | 'space' | 'lobby' | 'elsewhere';
+type Screen = 'ended' | 'viewingPresence' | 'space' | 'lobby' | 'elsewhere';
 
 async function screenOf(s: ProductSim, actorId: string): Promise<Screen> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.spaceEnded])) return 'ended';
-  if (await visible(s, actorId, [Handles.spaceMembersClose])) return 'members';
+  if (await visible(s, actorId, [Handles.spaceMembersClose]))
+    return 'viewingPresence';
   if (await visible(s, actorId, [Handles.spaceClose])) return 'space';
   if (await visible(s, actorId, [Handles.spaceCreate])) return 'lobby';
   return 'elsewhere';
@@ -69,7 +70,7 @@ bindQuintModel<QuintSimWorld>({
       await setupFriendsPair(w.s, 'alice', 'bob');
       for (const actor of PEOPLE) await w.s.apply(openSpacesTab, actor);
     },
-    create: async (w, picks) => {
+    createSpace: async (w, picks) => {
       const actor = person(picks);
       await w.s.apply(focusActor, actor);
       await w.s.apply(createSpace, actor);
@@ -77,7 +78,7 @@ bindQuintModel<QuintSimWorld>({
       if (link === null) throw new Error(`${actor} opened no space`);
       w.memo.set(hostKey(link), actor);
     },
-    reopen: async (w, picks) => {
+    returnToSpace: async (w, picks) => {
       const actor = person(picks);
       await w.s.apply(focusActor, actor);
       await w.s.apply(reenterActiveSpace, actor, actor);
@@ -93,49 +94,52 @@ bindQuintModel<QuintSimWorld>({
     leave: async (w, picks) => {
       await w.s.apply(leaveSpace, person(picks));
     },
-    openMembers: async (w, picks) => {
+    viewPresence: async (w, picks) => {
       await w.s.apply(openSpaceMembers, person(picks));
     },
-    closeMembers: async (w, picks) => {
+    stopViewingPresence: async (w, picks) => {
       await w.s.apply(closeSpaceMembers, person(picks));
     },
-    end: async (w, picks) => {
+    endSpace: async (w, picks) => {
       const actor = person(picks);
       await w.s.apply(focusActor, actor);
       await w.s.apply(endSpace, actor);
     },
-    backToLobby: async (w, picks) => {
+    goBackToLobby: async (w, picks) => {
       await w.s.apply(openSpacesTab, person(picks));
     },
   },
   observe: async (w) => {
-    const place = new Map<QuintValue, QuintValue>();
-    const listed = new Map<QuintValue, QuintValue>();
-    const present = new Map<QuintValue, QuintValue>();
+    const whereabouts = new Map<QuintValue, QuintValue>();
+    const lobby = new Map<QuintValue, QuintValue>();
+    const presence = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
       const screen = await w.quiet.read(screenOf, actor);
       if (screen === 'lobby') {
-        place.set(actor, variant('Lobby'));
+        whereabouts.set(actor, variant('Lobby'));
         const hosts = new Set<QuintValue>();
         for (const host of PEOPLE) {
           if (await w.quiet.read(lobbyCardVisible, actor, host))
             hosts.add(host);
         }
-        listed.set(actor, hosts);
+        lobby.set(actor, hosts);
       } else if (screen === 'space') {
-        place.set(actor, variant('InSpace', await hostHere(w, actor)));
-      } else if (screen === 'members') {
-        place.set(actor, variant('Members', await hostHere(w, actor)));
-        present.set(
+        whereabouts.set(actor, variant('InSpace', await hostHere(w, actor)));
+      } else if (screen === 'viewingPresence') {
+        whereabouts.set(
+          actor,
+          variant('ViewingPresence', await hostHere(w, actor))
+        );
+        presence.set(
           actor,
           (await w.quiet.read(readSpacePresenceCount, actor)) ?? -1
         );
       } else if (screen === 'ended') {
-        place.set(actor, variant('Ended'));
+        whereabouts.set(actor, variant('Ended'));
       } else {
-        place.set(actor, variant('Elsewhere'));
+        whereabouts.set(actor, variant('Elsewhere'));
       }
     }
-    return { place, listed, present };
+    return { whereabouts, lobby, presence };
   },
 });

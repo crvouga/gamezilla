@@ -1,13 +1,13 @@
 @domain:rooms
 Feature: Refused changes
-  A room refuses a change it does not understand and a change from someone it
-  turns away. The sender learns their change was refused, and nothing changes
-  for anyone, so a bad or unwelcome change can never spoil what everyone
-  shares.
+  When someone makes a change the room does not understand, or the room turns
+  them away, everyone in the room wants what they share to stay as it was, and
+  the sender wants to be told it is a refused change, so a bad or unwelcome
+  change can never spoil what everyone shares.
 
   Rule: A change the room does not understand is refused as invalid
 
-    Scenario: A change the room does not understand is refused and changes nothing
+    Scenario: A change the room does not understand is refused as invalid and changes nothing
       Given Alice is in a shared counter room
       When Alice makes a change the room does not understand
       Then Alice's change is refused as invalid

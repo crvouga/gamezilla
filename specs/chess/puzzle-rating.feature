@@ -1,12 +1,12 @@
 @domain:chess @goal:chess-puzzles:2
 Feature: Puzzle rating
-  Each player has a running puzzle rating that moves after every rated
-  puzzle, online or offline, so they can see how they are doing. A new
-  player starts at 1500 with a "?" until the rating settles. Every device
-  shows the same rating, and a puzzle moves it at most once, ever. A wrong
-  move earns half credit, just like a hint.
+  When a solver plays puzzles, they want a running puzzle rating that moves
+  after every rated puzzle, online or offline, so they can see how they are
+  doing. A new solver starts at 1500 with a "?" until the rating settles.
+  Every device shows the same rating, and a puzzle moves it at most once,
+  ever. A wrong move earns half credit, just like a hint.
 
-  Scenario: The "?" leaves the rating once it settles
+  Scenario: The "?" goes once the rating settles
     Given Alice is signed in
     And Alice's puzzle rating is one rated puzzle from settling
     And Alice is playing puzzles in their space

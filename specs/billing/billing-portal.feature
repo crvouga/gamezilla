@@ -1,7 +1,8 @@
 @domain:billing @goal:guest-free-and-paid:8
 Feature: Manage a membership in the billing portal
-  A paid person manages their own membership through the provider's billing
-  portal, and each change reaches their device.
+  When a Plus member wants to change their membership, they want to do it
+  themselves in the billing portal, so each change reaches their devices
+  with nobody else involved.
 
   Background:
     Given Alice has subscribed to Plus

@@ -1,8 +1,8 @@
 @domain:runtime
-Feature: App shell
-  Opening the app lands a person on the tabs, from where they can reach
-  Settings. Several people can use the app side by side, and each person's
-  app stays where they left it.
+Feature: The tabs and Settings
+  When a person opens the app, they want to land on the tabs and reach
+  Settings from there, so they can get anywhere in the app. Each device keeps
+  its own place in the app, whoever else is using theirs.
 
   @goal:social:1
   Scenario: A person who opens the app lands on Spaces

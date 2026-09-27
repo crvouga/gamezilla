@@ -1,7 +1,7 @@
 @domain:profile @goal:works-offline:5
 Feature: The devices on an account
-  A person can see every device signed into their account, so they notice one
-  they do not recognize and know where they are signed in.
+  When a person wonders where they are signed in, they want to see every
+  device on their account, so a device they do not recognize stands out.
 
   Scenario: Alice sees each device signed into their account
     Given Alice is signed in with Google
@@ -10,7 +10,7 @@ Feature: The devices on an account
     Then Alice sees 2 devices on their account
     And Alice's devices mark the one Alice is using
 
-  Scenario: A device that signs out leaves the list
+  Scenario: A device that signs out is no longer among the devices on the account
     Given Alice is signed in with Google
     And Alice is also signed in on another device
     And Alice has signed out on their other device

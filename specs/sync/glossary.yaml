@@ -1,0 +1,135 @@
+# The ubiquitous language of Notes (specs/sync/): notes people write and
+# share across devices and shared spaces, even offline. Notes stands alone
+# (docs/CONTEXT_MAP.md): it borrows nothing from another context. A shared
+# space is not a Spaces space, and a notice here is not a Friends notice.
+context: Notes
+purpose: >-
+  Notes people write and share, on every device they use and with everyone in
+  a shared space, that show at once, survive the app crashing and being
+  offline, and count exactly once.
+
+terms:
+  # --- Notes ------------------------------------------------------------------
+
+  - term: note
+    definition: >-
+      A piece of writing a person keeps: a title (such as "Groceries") and a
+      body (such as "milk"). A note shows at once on its writer's device and
+      reaches everyone it is shared with.
+    avoid: [memo, document]
+
+  - term: title
+    definition: >-
+      A note's name, such as "Groceries". Writing a note with a title that
+      already exists replaces its body.
+
+  - term: body
+    definition: >-
+      What a note says, such as "milk" in 'the note "Groceries" saying
+      "milk"'.
+    forms: [saying]
+
+  - term: write
+    definition: >-
+      Write a note: give it a title and a body. Writing a note with a title
+      that already exists replaces its body and makes the writer its owner;
+      writing a deleted note again brings it back for everyone.
+    forms: [writes, wrote, written, writing, writer, writer's]
+
+  - term: delete a note
+    definition: >-
+      The owner of a note removes it for everyone. Only the owner of a note
+      may delete it.
+    forms:
+      - deletes the note
+      - deleted the note
+      - deleting the note
+      - delete the note
+      - deleted note
+      - deleting notes
+
+  - term: owner of a note
+    definition: >-
+      Whoever last wrote the note. Only they may delete it.
+    forms: [owns, owned]
+
+  - term: shared space
+    definition: >-
+      A group of people who share notes. Anyone can create one, join it, or
+      leave it, even offline; every note written by someone in it reaches
+      everyone in it.
+    avoid: [space, group]
+
+  - term: join a shared space
+    definition: >-
+      Become one of the people in a shared space, or come back to one: every
+      note written in it, including those missed while away, reaches them.
+    forms:
+      - joins the shared space
+      - joined the shared space
+      - joining the shared space
+      - rejoin
+      - rejoins
+      - rejoined
+      - rejoining
+
+  - term: leave a shared space
+    definition: >-
+      Stop being one of the people in a shared space. New notes written there
+      stop reaching them, but they keep every note they already had.
+    forms:
+      - leaves the shared space
+      - left the shared space
+      - leave the shared space
+      - leaving the shared space
+
+  # --- Devices, connection, crashes -------------------------------------------
+
+  - term: crash
+    definition: >-
+      The app stops without warning. When it reopens it still has every note
+      it had, including notes that had not yet reached anyone else.
+    forms: [crashes, crashed]
+
+  - term: hear back
+    definition: >-
+      The app learning that a note it wrote has been kept for everyone. Word
+      can get lost on the way back; the note still counts exactly once.
+    forms: [hears back]
+
+  - term: online-only action
+    definition: >-
+      Something that truly needs a connection, such as writing an
+      announcement. Tried offline, it tells the person it needs a connection,
+      and it is not done later on its own.
+    forms: [online-only actions]
+
+  - term: announcement
+    definition: >-
+      A note that goes out to everyone in the shared space the moment it is
+      written, so it can only be written while connected. Once written it
+      shows like any other note.
+
+  # --- Refused edits ------------------------------------------------------------
+
+  - term: refused edit
+    definition: >-
+      Writing or deleting a note that the person's device accepted but that
+      breaks the rules once it reaches everyone else, such as deleting a note
+      offline that someone else has since written and so now owns. It is
+      undone on its author's device and never reaches anyone else. A delete
+      the device already knows is not allowed simply does not happen, and
+      leaves no notice.
+    forms: [was refused, been refused, refusal]
+
+  - term: notice
+    definition: >-
+      A notice of a refused edit tells its author that their edit was refused.
+      It stays until the author acknowledges it, and then it is gone.
+    forms: [notices]
+
+  - term: acknowledge
+    definition: >-
+      The author of a refused edit says they have seen its notice, which
+      then goes away.
+    forms: [acknowledges, acknowledged, acknowledging]

@@ -1,0 +1,265 @@
+# The ubiquitous language of Billing: Plus and the memberships that pay for it.
+# Upstream of Spaces, Chess, Operations and Journeys, which borrow Plus, Plus
+# member, free account and paid access (docs/CONTEXT_MAP.md).
+context: Billing
+purpose: >-
+  A signed-in person can pay for Plus, keeps exactly the paid access they paid
+  for (plus a short grace, online or offline), and manages their own
+  membership without ever asking the team.
+
+terms:
+  # --- Published language -------------------------------------------------
+
+  - term: Plus
+    definition: >-
+      What a signed-in person pays for to lift the free account's limits.
+      Subscribing starts a monthly free trial.
+    avoid: [premium, pro, subscription tier]
+    published: true
+
+  - term: Plus member
+    definition: >-
+      A person with paid access: their newest membership is live, or ended
+      recently enough to be within grace.
+    forms: [Plus members, Plus member's]
+    avoid: [subscriber, paying user, premium user]
+    published: true
+
+  - term: free account
+    definition: >-
+      The account of a signed-in person without paid access. Everything a
+      guest may do, a free account may do; Plus lifts its limits.
+    forms: [free accounts]
+    published: true
+
+  - term: paid access
+    definition: >-
+      What a Plus member has on every device they are signed in on, whether
+      or not it has a connection. It lasts while their newest membership is
+      live and through grace after that; a refund takes it away at once.
+      Without it a person has free access.
+    avoid: [tier, billing tier, entitlement, premium access]
+    model: [accessOn, BillingEvent, PaidAccessStarted, PaidAccessEnded]
+    published: true
+
+  # --- Billing's own language ---------------------------------------------
+
+  - term: free access
+    definition: >-
+      What a guest or a free account has: everything but what Plus adds.
+    avoid: [free plan, free tier]
+
+  - term: membership
+    definition: >-
+      One run of Plus for one person, from subscribing until it ends: its
+      membership status, its Plus plan, and whether it is set to end at the
+      period end. A person may have several over time; the newest is the one
+      that counts, and every older one has ended. Each device a person is
+      signed in on knows their memberships, and one without a connection
+      keeps what it last knew.
+    forms: [memberships, membership's, Plus membership]
+    avoid: [subscription, plan record]
+    model: [Membership, memberships, membershipsOnPhone]
+
+  - term: membership status
+    definition: >-
+      Where a membership stands: in its free trial (trialing), paid and
+      current (active), its last payment failed while the payment provider
+      still retries (delinquent), or over (ended).
+    forms: [membership statuses, trialing, delinquent]
+    model: [MembershipStatus]
+
+  - term: live membership
+    definition: >-
+      A membership that is trialing or active. Nobody has two at once: the
+      billing plans never offer a second one on top of a live one.
+    forms: [live memberships, live one]
+    model: [isLive]
+
+  - term: subscribe
+    definition: >-
+      A signed-in person with no live membership paying for Plus at checkout.
+      It starts a new membership on its free trial, on the monthly plan; a
+      person whose membership ended may subscribe again.
+    forms: [subscribes, subscribed, subscribing, subscribe again]
+    avoid: [purchase, buy, sign up, upgrade]
+    model: [subscribe, resubscribe]
+
+  - term: checkout
+    definition: >-
+      Where a signed-in person pays to subscribe. Leaving it without paying
+      changes nothing.
+
+  - term: billing plans
+    definition: >-
+      Where the app shows what Plus offers: the Plus plans and a way to
+      subscribe to someone without a live membership, a way to manage it to a
+      Plus member, and to a guest, that they need to sign in first.
+      Subscribing there needs a connection, and it says so.
+    avoid: [pricing page, paywall, plans screen]
+    published: true
+
+  - term: asked to sign in before subscribing
+    definition: >-
+      What the billing plans tell a guest instead of letting them subscribe:
+      Plus belongs to an account, so they sign in first.
+
+  - term: Plus plan
+    definition: >-
+      How often a membership is paid for: the monthly plan or the yearly
+      plan. A Plus member may switch between them in the billing portal.
+    forms: [Plus plans, monthly plan, yearly plan]
+    avoid: [billing interval, interval, billing cycle]
+    model: [Plan, switchPlan]
+
+  - term: free trial
+    definition: >-
+      The first billing period of a new membership, which is not charged.
+      When it ends the membership becomes active on its first paid renewal.
+    forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended]
+
+  - term: billing period
+    definition: >-
+      The span a membership has paid (or, in the free trial, not paid) for:
+      the free trial, a month, or a year. At its period end the membership
+      renews, or ends if it is set to end at the period end.
+    forms: [billing periods, period end, period ends, billing period ends, billing period has ended, period has ended]
+    model: [periodEnd]
+
+  - term: renewal
+    definition: >-
+      The payment provider charging a membership for its next billing period
+      at the period end: credit pays first, the card the rest. A paid renewal
+      leaves the membership active and moves its renewal date later; a
+      declined one leaves it delinquent.
+    forms: [renewals, renewal date, renewal dates]
+    model: [renew]
+
+  - term: Plus credit
+    definition: >-
+      Money a Plus member has left over from switching Plus plans, which pays
+      their next renewals before their card is charged. It is never below
+      nothing.
+    model: [credit]
+
+  - term: card
+    definition: >-
+      The payment card a Plus member pays with. A card may be declined, for
+      example once it has expired, and then cannot pay a renewal; a new card
+      can.
+    forms: [cards, new card, expired card, card has expired, declined card]
+    model: [cardDeclines]
+
+  - term: failed payment
+    definition: >-
+      A renewal the card could not pay. The membership becomes delinquent and
+      keeps paid access within grace while the payment provider retries.
+    forms: [failed payments, payment fails, payment failed, payment has failed]
+    model: [paymentFailed]
+
+  - term: recovered payment
+    definition: >-
+      A failed payment later paid, by a retry or a new card: the membership is
+      active again.
+    forms: [payment recovers, payment recovered]
+    model: [paymentRecovered]
+
+  - term: last retry
+    definition: >-
+      The payment provider's final attempt at a failed payment. When it fails
+      too, the provider gives up retrying and the membership ends.
+    forms: [gives up retrying, exhausted retries]
+    model: [paymentRetriesExhausted]
+
+  - term: grace
+    definition: >-
+      The 7 days after a delinquent or ended membership's period end during
+      which its Plus member keeps paid access. A device without a connection
+      also keeps paid access for 7 days. A refund has no grace.
+    forms: [offline grace]
+    avoid: [grace window, buffer]
+
+  - term: refund
+    definition: >-
+      A Plus member's payment given back to them. The membership ends at
+      once and paid access goes with it, with no grace.
+    forms: [refunds, refunded]
+
+  - term: billing portal
+    definition: >-
+      Where a Plus member manages their own membership, at the payment
+      provider: cancel it, renew it after canceling, switch Plus plans, or pay
+      with a new card. Every change there reaches their devices.
+    forms: [billing portals, portal, manage their membership]
+    avoid: [customer portal, account page, dashboard]
+
+  - term: cancel
+    definition: >-
+      A Plus member deciding, in the billing portal, that their membership
+      ends at the period end instead of renewing. It stays live, with paid
+      access, until then.
+    forms: [cancels, canceled, canceling, set to end at the period end]
+    avoid: [unsubscribe, cancelled, cancelling]
+    model: [cancel]
+
+  - term: renew in the billing portal
+    definition: >-
+      A Plus member taking back a cancel before the period end: the
+      membership is no longer set to end and carries on as it was.
+    forms: [renews the membership in the billing portal, renewing in the portal]
+    model: [renewInBillingPortal]
+
+  - term: end of a membership
+    definition: >-
+      A membership being over: at the period end after a cancel, at once when
+      canceled immediately or refunded, or after the last retry. An ended
+      membership never becomes live again; subscribing again starts a new
+      one. Paid access lasts through its grace, unless it was refunded.
+    forms:
+      - membership ends
+      - ended membership
+      - membership ended
+      - membership has ended
+      - membership is ending
+      - ends the membership
+      - ends it at once
+      - ends right away
+      - ends after the last retry
+
+  - term: leave checkout
+    definition: >-
+      Going back from checkout without paying. Nothing changes: the person
+      still has free access and is still offered to subscribe.
+    forms: [leaves checkout, leaving checkout]
+
+  - term: cancel immediately
+    definition: >-
+      Ending a membership at once rather than at the period end.
+    forms: [canceled immediately, canceling now]
+    model: [cancelImmediately]
+
+  - term: payment provider
+    definition: >-
+      Who takes Plus payments for the product: it runs checkout and the
+      billing portal, charges renewals, and retries failed payments. It tells
+      the product about each change to a membership, sometimes the same news
+      twice; hearing it again changes nothing.
+    forms: [the provider, provider, provider's, repeats its last news, repeats its last news about]
+    model: [providerRepeatsNews]
+
+  # --- Borrowed -----------------------------------------------------------
+
+  - term: guest
+    from: profile
+
+  - term: account
+    from: profile
+
+  - term: sign in
+    from: profile
+
+  - term: sign out
+    from: profile
+
+  - term: Google
+    from: profile

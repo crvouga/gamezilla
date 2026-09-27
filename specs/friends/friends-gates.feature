@@ -1,7 +1,9 @@
 @domain:friends
 Feature: Friends are for people with an account
-  A guest who reaches for friends is asked to sign in, right there; a signed-in
-  person with no friends yet is pointed at people search.
+  When a guest reaches for friends, they want to be asked to sign in right
+  there, so they know friends need an account. When a signed-in person has no
+  friends yet, they want to be pointed at people search, so they can find
+  some.
 
   Rule: A guest is asked to sign in
 

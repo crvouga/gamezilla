@@ -10,7 +10,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} and {actor} are on fresh devices | {actor}, {actor} | profile |
 | Given | {actor} has abandoned signing in with {provider} | {actor}, {provider} | profile |
 | Given | {actor} has an account they sign into with Google at an unverified address | {actor} | profile |
-| Given | {actor} has connected Apple to their Google account | {actor} | profile |
+| Given | {actor} has connected Apple to their account | {actor} | profile |
 | Given | {actor} has saved an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
 | Given | {actor} has signed out on their other device | {actor} | profile |
 | Given | {actor} has stopped using Sign in with Apple for the app | {actor} | profile |
@@ -93,8 +93,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/profile/offline-sign-in.feature` — Sign-in while offline (3 scenarios)
 - `specs/profile/profile-defaults.feature` — Profile defaults (1 scenarios)
 - `specs/profile/profile-edit.feature` — Edit a profile (5 scenarios)
-- `specs/profile/sessions.feature` — End account sessions (5 scenarios)
-- `specs/profile/sign-in-abandoned.feature` — Changing one's mind about signing in (2 scenarios)
+- `specs/profile/sessions.feature` — Sign out everywhere (5 scenarios)
+- `specs/profile/sign-in-abandoned.feature` — Abandon signing in (2 scenarios)
 - `specs/profile/sign-in-methods.feature` — Manage sign-in methods (8 scenarios)
 - `specs/profile/sign-in.feature` — Sign in and out (5 scenarios)
 - `specs/profile/username-rules.feature` — Username rules (7 scenarios)

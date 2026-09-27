@@ -1,6 +1,7 @@
 @domain:spaces @goal:spaces:1
 Feature: A guest can host
-  Anyone, including a guest with no account, can create a space and host it.
+  When a guest wants to be somewhere with other people, they want to create a
+  space and host it without an account, so nobody has to sign in first.
 
   Scenario: A guest creates a space and hosts it
     Given Alice is a guest

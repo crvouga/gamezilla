@@ -17,6 +17,11 @@ Test rules: [`docs/TESTING.md`](../../../docs/TESTING.md).
   implementation, stop and hand it back to the spec writer (`write-specs`)
   with the scenario, the problem, and a suggested behavioral wording. Never
   "fix" a feature in an implementation commit.
+- **Bindings speak the model's language.** A Quint binding's `actions` keys
+  and `observe` keys are the model's action and variable names, which are
+  its context's glossary `model` names; when a `spec:` commit renames them,
+  rename the binding's keys to match and keep the behavior. Name step
+  helpers and sim reads the binding adds after glossary terms too.
 - **Never weaken a check to go green.** A failing scenario means either the
   product or the sim is wrong. Find which (see the `debug-trace` skill).
 - **Deterministic only.** Sim steps run on virtual time: wait with

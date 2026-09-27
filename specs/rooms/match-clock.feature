@@ -1,9 +1,9 @@
 @domain:rooms
 Feature: Match clock
-  White and Black each have a bank of time. The room's own clock runs down
-  the bank of the side to move and ends the match the moment it runs out, so
-  a slow, cut-off, or offline player can neither dodge their flag nor end the
-  match early by claiming it.
+  When White and Black play a timed match, each wants the room's own match
+  clock to run down the bank of the side to move and to end the match the
+  moment it runs out, so nobody who is slow, on a stalled network or offline
+  can dodge their flag or end the match early by claiming it.
 
   Rule: The side whose time runs out loses
 
@@ -38,9 +38,9 @@ Feature: Match clock
       When 110 ms pass
       Then White and Black both see White win on time
 
-  Rule: A player whose network stalls cannot move after their flag fell
+  Rule: A move on a stalled network after the flag fell does not count
 
-    Scenario: A cut-off player cannot move after their flag fell
+    Scenario: White cannot move on a stalled network after their flag fell
       Given White and Black have started a match with 40 ms for White and 40 ms for Black
       And White's network has stalled
       When 50 ms pass
@@ -63,9 +63,9 @@ Feature: Match clock
       When 90 ms pass
       Then White and Black both see Black win on time
 
-  Rule: A player who was offline when their flag fell sees the result
+  Rule: Whoever was offline when their flag fell sees the result once back online
 
-    Scenario: A player who reconnects after their flag fell sees the result
+    Scenario: White sees the result on reconnecting after their flag fell
       Given White and Black have started a match with 40 ms for White and 40 ms for Black
       And White's device is offline
       When 50 ms pass

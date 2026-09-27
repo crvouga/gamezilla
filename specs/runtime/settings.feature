@@ -1,9 +1,10 @@
 @domain:runtime
 Feature: Settings that stick
-  People set the app up the way they like it once. Their look and sound
-  choices are kept on the device after the app closes.
+  When a person has set their preferences, how the app looks and sounds, they
+  want them kept on the device after the app closes, so they only set the app
+  up once.
 
-  Scenario: A chosen theme is kept after the app closes
+  Scenario: A chosen dark theme is kept after the app closes
     Given Alice has chosen the dark theme
     When Alice closes and reopens the app
     Then Alice's app is dark

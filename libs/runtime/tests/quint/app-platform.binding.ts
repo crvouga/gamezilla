@@ -1,11 +1,11 @@
 /**
  * `specs/runtime/app-platform.qnt` against the full production composition:
  * people opening the app, moving between tabs and Settings, signing in,
- * searching for each other and hosting spaces, while their connections drop
- * and come back and the API fleet grows and shrinks. Every step also checks
- * the composition's standing properties (no error boundary, the global menu
- * reachable, search never hangs, …). The model's state is read back off each
- * device's screen, the server's sessions and the fleet.
+ * searching for each other and hosting spaces, while they are cut off and
+ * reconnect and the app's serving capacity grows and shrinks. Every step also
+ * checks the composition's standing properties (no error boundary, the global
+ * menu reachable, search never hangs, …). The model's state is read back off
+ * each person's place in the app, their account and the app's capacity.
  */
 
 import { searchUsername } from '@libs/search/sim/search-actions';
@@ -23,13 +23,13 @@ import { signedInAccountOf } from '@libs/sim-harness/system/identity';
 import {
   actorIds,
   bringToFront,
-  serverIds,
+  serverIds as capacityParts,
   visible,
 } from '@libs/sim-harness/system/observations';
 import {
-  dropServerNode,
-  partitionLoadBalancer,
-  spawnServerNode,
+  partitionLoadBalancer as cutOffOnTheWay,
+  spawnServerNode as gainCapacityPart,
+  dropServerNode as loseCapacityPart,
 } from '@libs/sim-harness/system/server-actions';
 import {
   backToTabs,
@@ -63,10 +63,10 @@ function pick(picks: Picks, name: string): string {
   return String(picks[name]);
 }
 
-type Screen = 'Ended' | 'InSpace' | 'Settings' | 'Search' | Tab | 'Elsewhere';
+type Place = 'Ended' | 'InSpace' | 'Settings' | 'Search' | Tab | 'Elsewhere';
 
-/** What the actor's device shows, most specific first (stack screens keep the tab below mounted). */
-async function screenOf(s: ProductSim, actorId: string): Promise<Screen> {
+/** The actor's place in the app, most specific first (stack screens keep the tab below mounted). */
+async function placeOf(s: ProductSim, actorId: string): Promise<Place> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.spaceEnded])) return 'Ended';
   if (await visible(s, actorId, [Handles.spaceClose])) return 'InSpace';
@@ -153,43 +153,40 @@ bindQuintModel<QuintSimWorld>({
     cutOff: async (w, picks) => {
       await w.s.apply(partition, pick(picks, 'person'));
     },
-    cutAtBalancer: async (w, picks) => {
-      await w.s.apply(partitionLoadBalancer, pick(picks, 'person'));
+    cutOffOnTheWay: async (w, picks) => {
+      await w.s.apply(cutOffOnTheWay, pick(picks, 'person'));
     },
     reconnect: async (w) => {
       await w.s.apply(restoreNetwork);
     },
-    addServer: async (w) => {
-      await w.s.apply(spawnServerNode);
+    gainCapacity: async (w) => {
+      await w.s.apply(gainCapacityPart);
     },
-    dropServer: async (w, picks) => {
-      const ids = await w.s.read(serverIds);
-      const id = ids[Number(picks['node'])];
-      if (id === undefined)
-        throw new Error(`no server #${String(picks['node'])}`);
-      await w.s.apply(dropServerNode, id);
+    loseCapacity: async (w, picks) => {
+      const parts = await w.s.read(capacityParts);
+      const part = parts[Number(picks['part'])];
+      if (part === undefined)
+        throw new Error(`no capacity part #${String(picks['part'])}`);
+      await w.s.apply(loseCapacityPart, part);
     },
   },
   observe: async (w) => {
     const opened = new Set<QuintValue>(await w.quiet.read(actorIds));
-    const screen = new Map<QuintValue, QuintValue>();
+    const place = new Map<QuintValue, QuintValue>();
     const lookup = new Map<QuintValue, QuintValue>();
     const signedIn = new Set<QuintValue>();
     for (const actor of PEOPLE) {
       if (!opened.has(actor)) continue;
-      const shows = await w.quiet.read(screenOf, actor);
-      screen.set(
-        actor,
-        isTab(shows) ? variant('OnTab', shows) : variant(shows)
-      );
-      if (shows === 'Search') {
+      const at = await w.quiet.read(placeOf, actor);
+      place.set(actor, isTab(at) ? variant('OnTab', at) : variant(at));
+      if (at === 'Search') {
         lookup.set(actor, await w.quiet.read(lookupOf, actor));
       }
       if ((await w.quiet.read(signedInAccountOf, actor)) !== null) {
         signedIn.add(actor);
       }
     }
-    const servers = (await w.quiet.read(serverIds)).length;
-    return { opened, screen, signedIn, lookup, servers };
+    const capacity = (await w.quiet.read(capacityParts)).length;
+    return { opened, place, signedIn, lookup, capacity };
   },
 });

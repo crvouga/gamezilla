@@ -1,6 +1,8 @@
 @domain:friends
 Feature: Friends in an open space
-  The friends list says which friends are in an open space right now, and takes you in.
+  When a friend is in an open space, a person wants their friends list to
+  show that friend as live and take them into the space, so they can join
+  them without asking where.
 
   Background:
     Given Alice and Bob are friends

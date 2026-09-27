@@ -1,8 +1,8 @@
 @domain:chess @goal:chess-puzzles:12 @goal:always-true:7
 Feature: Arriving while a puzzle is under way
-  Someone who arrives mid-puzzle, or whose connection drops while watching,
-  sees the position the host is actually in, never an older one. Guests can
-  watch as well as friends.
+  When someone arrives mid-puzzle, or their connection drops while watching,
+  they want the position the host is actually in, never an older one, so they
+  can follow along. Guests can watch as well as friends.
 
   Background:
     Given Alice and Bob are guests

@@ -1,10 +1,12 @@
 @domain:chess
 Feature: The daily rated puzzle allowance
-  A guest may start 20 rated puzzles a day. Reaching the limit mid-puzzle
-  lets that puzzle finish; the next one is refused, and signing in lifts the
-  limit and carries on where the guest left off. Coming back to a puzzle
-  already started, after leaving it or closing the app, never uses another
-  of the day's puzzle starts.
+  When a guest reaches the daily puzzle limit, they want to finish the puzzle
+  on the board and know how to carry on. A guest may start 20 rated puzzles a
+  day. Reaching the limit mid-puzzle lets that puzzle finish; the next one
+  does not start, and signing in lifts the limit and carries on where the
+  guest stopped. Going back to a puzzle already started, after
+  leaving the puzzle or closing the app, never uses another of the day's
+  puzzle starts.
 
   Scenario: A guest's twentieth puzzle of the day still starts
     Given Alice is a guest who has played 19 puzzles today
@@ -18,7 +20,7 @@ Feature: The daily rated puzzle allowance
     Then Alice's puzzle is solved
     And Alice is not shown the puzzle limit
 
-  Scenario: The next puzzle past the limit is refused
+  Scenario: The next puzzle past the limit does not start
     Given Alice is a guest who has finished today's last allowed puzzle
     When Alice asks for another puzzle
     Then Alice is shown the puzzle limit within 15 seconds
@@ -31,7 +33,7 @@ Feature: The daily rated puzzle allowance
     Then Alice has a puzzle on the board within 30 seconds
     And Alice is not shown the puzzle limit
 
-  Scenario: Coming back to a puzzle left at the limit uses no further start
+  Scenario: Going back to a puzzle unfinished at the limit uses no further start
     Given Alice is a guest who reached today's puzzle limit while solving a puzzle
     And Alice has left the puzzle for the chess choices
     When Alice goes back to the puzzles

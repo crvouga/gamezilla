@@ -1,13 +1,14 @@
 @domain:friends @goal:social:3
 Feature: Profile changes reach other people
-  A profile is what other people see of you: rename yourself and your friends'
-  lists show the new name, and search finds you by it, not by the name you gave up.
+  When a person changes their username, they want their friends' lists to
+  show the new one and people search to find them by it, not by the one they
+  gave up, so everyone knows them by the name they chose.
 
   Scenario: A friend's new name appears in an open friends list
     Given Alice and Bob are friends
     And Alice is viewing their friends list with Bob in it
     When Bob renames themselves to @robert_1
-    Then Alice watches @robert_1 appear in their friends list within 15 seconds
+    Then Alice sees @robert_1 appear in their friends list within 15 seconds
     And @bob is gone from Alice's open friends list
 
   Scenario: Search finds a renamed person by the new name

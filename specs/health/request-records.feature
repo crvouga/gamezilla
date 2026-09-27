@@ -1,7 +1,7 @@
 @domain:health @observability
 Feature: Request records
-  The app keeps a record of what each request did, and the team can look it up
-  when something goes wrong.
+  When a person runs into trouble, the team wants request records of
+  what each request did, so they can find out what happened.
 
   Scenario: The app records what each request did
     Then the app can record what each request did

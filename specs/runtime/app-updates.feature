@@ -1,9 +1,10 @@
 @domain:runtime @goal:always-true:1
 Feature: An app too old for the product
-  When the product moves on, a person with an old version of the app is asked
-  to update rather than shown errors, and nothing they did is lost.
+  When a person's version of the app is too old for the product, they want
+  to be asked to update the app rather than shown errors, so they can carry on
+  with nothing they did lost.
 
-  Scenario: An outdated app asks the person to update
+  Scenario: A person on an outdated app is asked to update the app
     Given Alice's app became outdated while Alice was offline
     When the connection comes back
     Then Alice is asked to update the app within 15 seconds

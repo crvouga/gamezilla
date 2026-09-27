@@ -46,7 +46,7 @@ Given(
 );
 
 Given(
-  '{actor} has connected Apple to their Google account',
+  '{actor} has connected Apple to their account',
   async (w, actor: Actor) => {
     await w.s.apply(signInWithGoogle, actor);
     await rememberAccount(w, actor);

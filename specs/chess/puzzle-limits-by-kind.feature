@@ -1,9 +1,10 @@
 @domain:chess @goal:guest-free-and-paid:2 @goal:guest-free-and-paid:3 @goal:always-true:6
 Feature: The puzzle limit holds everywhere, and only for guests
-  Free accounts and Plus members never meet a puzzle limit. A guest's daily
-  limit holds exactly the same offline as online: puzzles played offline
-  count, and the answer does not change when the connection does. A new day
-  brings a fresh allowance.
+  When people play many puzzles in a day, they want the daily puzzle limit to
+  be the same wherever they play: free accounts and Plus members never meet
+  it, and a guest's daily limit holds exactly the same offline as online.
+  Puzzles played offline count, the answer does not change when the
+  connection does, and a new day brings a fresh allowance.
 
   Scenario Outline: Someone who <kind> and is past twenty puzzles in a day is never shown a limit
     Given Alice <kind>
@@ -17,7 +18,7 @@ Feature: The puzzle limit holds everywhere, and only for guests
       | is signed in           |
       | has subscribed to Plus |
 
-  Scenario: A guest at the limit is still refused while offline
+  Scenario: A guest at the limit still gets no new puzzle while offline
     Given Alice is a guest who has finished today's last allowed puzzle
     And Alice is offline
     When Alice asks for another puzzle

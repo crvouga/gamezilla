@@ -1,7 +1,8 @@
 @domain:profile @goal:social:3
 Feature: Profile defaults
-  Everyone gets a name and a face the moment they arrive, so they can play
-  and be found without setting anything up.
+  When a newcomer opens the app, they want a username and avatar of their
+  own straight away, so they can play and be found without setting anything
+  up.
 
   Scenario: Every newcomer gets a username and avatar of their own
     Given Alice and Bob are on fresh devices

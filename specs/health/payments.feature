@@ -1,6 +1,7 @@
 @domain:health
 Feature: Payments
-  Only production takes real money; every other environment only pretends to.
+  When people pay for Plus, the team wants real payments taken only in a
+  production environment, so no other environment ever takes real money.
 
   @production
   Scenario: People can pay for Plus in production

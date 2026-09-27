@@ -1,9 +1,9 @@
 /**
  * `specs/profile/username-changes.qnt` against the profile composition: each
- * save through the username screen (the answer its save button settles on
- * kept for `observe`), the connection cut and healed through the network,
- * and each person's name read back from their own device's copy and the
- * server's.
+ * username change saved through the username screen (the result it settles
+ * on kept for `observe`), the connection lost and returned through the
+ * network, and each person's username read back as everyone else sees it
+ * and as their own device shows it.
  *
  * Time is the one thing the model leaves implicit: a step's saves happen "a
  * while after" the person's last one, so the binding lets more than the
@@ -40,16 +40,18 @@ const PEOPLE = [...SIGNED_IN, GUEST] as const;
 /** Long enough for a device to notice its connection went or came back. */
 const NOTICE_MS = 2_000;
 
-const ANSWERS: Readonly<Record<string, string>> = {
-  Saved: 'Saved',
-  'Username is taken': 'Taken',
+/** What a username change shows, by its model result. */
+const USERNAME_CHANGE_RESULTS: Readonly<Record<string, string>> = {
+  Saved: 'UsernameSaved',
+  'Username is taken': 'UsernameTaken',
   'Username was changed recently': 'ChangedRecently',
-  "You're offline": 'Offline',
+  "You're offline": 'RefusedOffline',
 };
 
 const profileIdKey = (actor: string) => `profile-id:${actor}`;
 const generatedKey = (actor: string) => `generated-username:${actor}`;
-const answerKey = (actor: string) => `answer:${actor}`;
+const lastUsernameChangeKey = (actor: string) =>
+  `last-username-change:${actor}`;
 
 function person(picks: Picks): string {
   return String(picks['person']);
@@ -73,7 +75,7 @@ async function localProfileIds(
   return rows.map((row) => row.id);
 }
 
-async function localUsername(
+async function usernameOnDevice(
   s: ProductSim,
   actor: string,
   profileId: string
@@ -86,7 +88,7 @@ async function localUsername(
   return rows[0]?.username ?? null;
 }
 
-async function serverUsername(
+async function username(
   s: ProductSim,
   profileId: string
 ): Promise<string | null> {
@@ -98,17 +100,17 @@ async function serverUsername(
   return rows[0]?.username ?? null;
 }
 
-/** Save `typed` on a fresh username screen; keep what the button said. */
+/** Save `typed` on a fresh username screen; keep the result it shows. */
 async function save(w: QuintSimWorld, actor: string, typed: string) {
   await w.s.apply(focusActor, actor);
   await w.s.apply(openProfileEdit, actor);
   await w.s.apply(submitUsername, actor, typed);
   const face = await w.s.read(readUsernameSaveFace, actor);
-  w.memo.set(answerKey(actor), face);
+  w.memo.set(lastUsernameChangeKey(actor), face);
   await w.s.apply(leaveUsernameEditor, actor);
 }
 
-function asModelName(w: QuintSimWorld, actor: string, name: string | null) {
+function asModelUsername(w: QuintSimWorld, actor: string, name: string | null) {
   if (name === null) return '(no profile)';
   return name === w.memo.get(generatedKey(actor)) ? 'generated' : name;
 }
@@ -135,7 +137,7 @@ bindQuintModel<QuintSimWorld>({
       if (guestId === undefined) throw new Error(`${GUEST} has no profile`);
       w.memo.set(profileIdKey(GUEST), guestId);
       const generated = await w.s.until(
-        (s: ProductSim) => serverUsername(s, guestId),
+        (s: ProductSim) => username(s, guestId),
         { pred: (name) => name !== null }
       );
       w.memo.set(generatedKey(GUEST), generated);
@@ -159,27 +161,35 @@ bindQuintModel<QuintSimWorld>({
     },
   },
   observe: async (w) => {
-    const server = new Map<QuintValue, QuintValue>();
-    const device = new Map<QuintValue, QuintValue>();
-    const answer = new Map<QuintValue, QuintValue>();
+    const usernames = new Map<QuintValue, QuintValue>();
+    const usernamesOnDevice = new Map<QuintValue, QuintValue>();
+    const lastUsernameChange = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
       const id = profileIdOf(w, actor);
-      server.set(
+      usernames.set(
         actor,
-        asModelName(w, actor, await w.quiet.read(serverUsername, id))
+        asModelUsername(w, actor, await w.quiet.read(username, id))
       );
-      device.set(
+      usernamesOnDevice.set(
         actor,
-        asModelName(w, actor, await w.quiet.read(localUsername, actor, id))
+        asModelUsername(
+          w,
+          actor,
+          await w.quiet.read(usernameOnDevice, actor, id)
+        )
       );
-      const face = w.memo.get(answerKey(actor));
-      answer.set(
+      const face = w.memo.get(lastUsernameChangeKey(actor));
+      lastUsernameChange.set(
         actor,
         typeof face === 'string'
-          ? variant(ANSWERS[face] ?? `Unexpected(${face})`)
-          : variant('NoAnswer')
+          ? variant(USERNAME_CHANGE_RESULTS[face] ?? `Unexpected(${face})`)
+          : variant('NoUsernameChange')
       );
     }
-    return { server, device, answer };
+    return {
+      username: usernames,
+      usernameOnDevice: usernamesOnDevice,
+      lastUsernameChange,
+    };
   },
 });

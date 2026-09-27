@@ -1,8 +1,9 @@
 @domain:spaces @goal:guest-free-and-paid:1 @goal:guest-free-and-paid:2 @goal:guest-free-and-paid:6
 Feature: How many spaces a person can host
-  Guests and free accounts host one space at a time and Plus members host as
-  many as they like, so hosting more is something worth paying for. Reaching
-  the limit is an invitation to Plus, never an error.
+  When a person already hosts as many spaces as their hosting limit allows and
+  wants another, they want to be invited to Plus rather than stopped by an
+  error, so hosting more is something worth paying for. Guests and free
+  accounts host one space at a time; Plus members host as many as they like.
 
   Rule: Guests and free accounts host one space at a time
 
@@ -30,7 +31,7 @@ Feature: How many spaces a person can host
   Rule: Plus members never reach a hosting limit
 
     Scenario: A Plus member hosts a second space at once
-      Given Alice has subscribed to Plus
+      Given Alice is a Plus member
       And Alice is hosting a space
       When Alice creates another space
       Then Alice is in the space

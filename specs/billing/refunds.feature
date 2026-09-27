@@ -1,7 +1,8 @@
 @domain:billing @goal:guest-free-and-paid:9 @goal:always-true:5
 Feature: Refunds
-  A refunded person has their money back, so their membership ends at once
-  and paid access goes with it, with no grace.
+  When a Plus member is refunded, they have their money back, so their
+  membership ends at once and paid access goes with it, with no grace; they
+  may subscribe again later.
 
   Background:
     Given Alice has subscribed to Plus

@@ -109,9 +109,15 @@ export function domainFeaturePaths(domain: string): readonly string[] {
   return domainSpecPaths(domain, '.feature');
 }
 
-/** Repo-relative paths of the Quint models in `specs/<domain>/`, flat. */
+/**
+ * Repo-relative paths of the Quint models in `specs/<domain>/`, flat. A
+ * context's `events.qnt` is its published language — types other contexts
+ * import — not a model, so it is never run.
+ */
 export function domainModelPaths(domain: string): readonly string[] {
-  return domainSpecPaths(domain, '.qnt');
+  return domainSpecPaths(domain, '.qnt').filter(
+    (path) => !path.endsWith('/events.qnt')
+  );
 }
 
 const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/g;
@@ -288,8 +294,9 @@ function runnersBy(
 }
 
 /**
- * The `specs/` tree is flat and fully owned: only `specs/<domain>/*.feature`
- * and `specs/<domain>/*.qnt`, every domain directory run by some package — by
+ * The `specs/` tree is flat and fully owned: the shared kernel's
+ * `specs/glossary.yaml`, and in each bounded context only its
+ * `glossary.yaml`, `*.feature` and `*.qnt`; every domain directory run by some package — by
  * at most one against the sim (`specDomains`) and at most one live
  * (`liveDomains`) — every claimed domain present, and no package keeping a
  * `features/` directory of its own.
@@ -308,7 +315,11 @@ export function specsLayoutProblems(
   for (const entry of present) {
     const path = `${SPECS_DIR}/${entry.name}`;
     if (!entry.isDirectory()) {
-      out.push(`${path}: only specs/<domain>/ directories belong in specs/`);
+      if (entry.name !== 'glossary.yaml') {
+        out.push(
+          `${path}: only specs/<domain>/ directories and the shared kernel's specs/glossary.yaml belong in specs/`
+        );
+      }
       continue;
     }
     for (const inner of readdirSync(join(root, entry.name), {
@@ -316,10 +327,14 @@ export function specsLayoutProblems(
     })) {
       if (
         !inner.isFile() ||
-        !(inner.name.endsWith('.feature') || inner.name.endsWith('.qnt'))
+        !(
+          inner.name.endsWith('.feature') ||
+          inner.name.endsWith('.qnt') ||
+          inner.name === 'glossary.yaml'
+        )
       ) {
         out.push(
-          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/<feature>.feature and specs/<domain>/<model>.qnt`
+          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/glossary.yaml, <feature>.feature and <model>.qnt`
         );
       }
     }

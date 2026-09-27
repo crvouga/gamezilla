@@ -1,8 +1,9 @@
 @domain:friends @goal:social:5
 Feature: Friend requests reach the inbox
-  A request is only useful if the person asked finds out. It arrives in their
-  inbox while they are using the app, and a guest, who has no friends, is
-  invited to sign in instead of shown an empty inbox.
+  When someone asks a person to be friends, the person asked wants the friend
+  request to reach their inbox while they are using the app, so they find
+  out without looking for it. A guest, who has no friends, is asked to sign
+  in instead of shown an empty inbox.
 
   Scenario: A friend request arrives in the inbox of the person asked
     Given Alice and Bob are signed in

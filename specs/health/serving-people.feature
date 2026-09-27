@@ -1,7 +1,8 @@
 @domain:health
 Feature: Serving people
-  The app can answer people right now, with everything it needs in place and
-  what people saved ready for this version of the app.
+  When people use the app, they want it to answer people right now, so it
+  needs everything in place and what people saved ready for this version of
+  the app.
 
   Scenario: The app answers people
     Then the app answers people
