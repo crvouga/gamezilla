@@ -9,7 +9,7 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 |---|---|---|
 | libs/profile | `specs/profile/` | — (`auth-oauth-port` retired 2026-09-27: every Google sign-in scenario walks the same port) |
 | libs/friends | `specs/friends/`, `specs/spaces/` | — |
-| libs/billing | `specs/billing/` | — |
+| libs/billing | `specs/billing/` | `multi-provider.test.ts` (wire and storage contracts of two providers) |
 | libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
 | libs/runtime | `specs/runtime/`, `specs/journeys/` | — |
 
@@ -30,6 +30,23 @@ MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
 `purity-and-seed`. `pkgs/room` still runs `tests/room-server.feature` and
 `tests/room-client.feature` beside its tests (engine wire behavior, not yet
 demoted to contract tests).
+
+(2026-09-27) `libs/billing/tests/multi-provider.test.ts` (two providers
+at once) is ported: what a person sees when the team switches payment
+provider, and back, is `specs/billing/payment-provider-switch.feature`, and
+its "any interleaving of both providers' news" property is the Quint model
+`specs/billing/payment-provider-switch.qnt`. The sim can switch payment
+provider (`switchPaymentProvider`, a second mock provider node beside the
+first). The file keeps only wire and storage contracts: a delivery on another
+provider's path is unverified, an unconfigured provider has no callback
+route, a customer id is matched only among its own provider's customers,
+a checkout mints a customer only at the checkout provider and reuses it on
+return, and a second checkout is refused while a membership is live at
+another provider. A sweep of `libs/` and `apps/` finds no other
+sim-scripted test (`s.apply(`, `.run(`, `explore(`, `randomActions`); the
+remaining scenario-named suites there test pure functions or storage
+(view models, plan resolvers, policies, decision tables, SQL) and stay code
+tests.
 
 (2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,
