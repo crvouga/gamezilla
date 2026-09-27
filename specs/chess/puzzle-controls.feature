@@ -1,7 +1,8 @@
 @domain:chess @goal:chess-puzzles:9
 Feature: Retry, hint and solution
-  A wrong move gets clear feedback. The player can retry, take a hint, or see
-  the solution, and the first wrong move stays the attempt's outcome.
+  When a solver is stuck on a puzzle, they want a retry, a hint or the
+  solution, so they can learn the line. A wrong move is called out at once,
+  and it stays the attempt's outcome whatever help follows.
 
   Background:
     Given Alice is signed in

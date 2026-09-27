@@ -1,9 +1,9 @@
 @domain:chess @goal:chess-puzzles:11
 Feature: Rating, puzzles solved, and accuracy
-  The stats show the current rating, the number of puzzles played and
-  solved, and the overall accuracy, so a player can see how they are doing.
-  They count each puzzle's first rated attempt only. A provisional rating
-  shows a "?" after it.
+  When a solver wants to know how they are doing, they want stats showing
+  the current rating, the number of puzzles played and solved, and the
+  overall accuracy. They count each puzzle's first rated attempt only. A
+  provisional rating shows a "?" after it.
 
   Scenario: Before any puzzle, the stats show the seed rating, provisional, and nothing played
     Given Alice is signed in

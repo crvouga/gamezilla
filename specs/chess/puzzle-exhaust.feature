@@ -1,10 +1,10 @@
 @domain:chess @goal:chess-puzzles:5
 Feature: An exhausted feed
-  The pool is never a dead end. A player is not shown the same puzzle again
-  while fresh ones remain; once every puzzle is played the feed comes round
-  to the puzzle attempted longest ago, and that attempt is unrated. Only a
-  filter that matches nothing leaves the feed empty, and widening the filter
-  recovers.
+  When a solver has played every puzzle in the pool, they want the feed to
+  keep serving, so it never runs dry. No puzzle comes back while unplayed ones
+  remain; after that the feed comes round to the puzzle attempted longest ago,
+  and that attempt is unrated. Only a theme filter no puzzle fits empties
+  the feed, and widening the history filter brings puzzles back.
 
   Background:
     Given the puzzle pool holds just three puzzles
@@ -21,7 +21,7 @@ Feature: An exhausted feed
     Then Alice's feed comes round to the first puzzle they played within 15 seconds
     And Alice is told the attempt is unrated
 
-  Scenario: A theme filter that matches nothing leaves the feed empty
+  Scenario: A theme filter no puzzle fits empties the feed
     When Alice limits the feed to the "zugzwang" theme
     Then Alice is told the feed is empty within 15 seconds
     And Alice has no puzzle on the board

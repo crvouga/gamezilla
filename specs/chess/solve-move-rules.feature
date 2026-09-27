@@ -1,7 +1,8 @@
 @domain:chess @goal:chess-puzzles:6
 Feature: Who may move, and when
-  Only the side to move can move, and only legally. An illegal move is no move
-  at all: the piece goes back and nothing is held against the player. Pieces
+  When a solver moves a piece, they want only legal moves by the side to move
+  to count, so a slip is never held against them. An illegal move is no move
+  at all: the piece goes back and nothing is held against the solver. Pieces
   cannot be moved while a wrong move is waiting for a retry, or once the
   puzzle is over.
 
@@ -14,7 +15,7 @@ Feature: Who may move, and when
     Then Alice is still asked to find the next move
     And Alice's board is unchanged
 
-  Scenario: An illegal move goes back and is not held against the player
+  Scenario: An illegal move goes back and is not held against the solver
     When Alice tries the illegal move a1-a8
     Then Alice's board is unchanged
     And Alice is still asked to find the next move

@@ -1,8 +1,9 @@
 @domain:chess
 Feature: Puzzle clock and skipping
-  A started puzzle's clock runs until the puzzle ends and then stops. A
-  skipped puzzle is over and logged as abandoned; the next puzzle starts
-  fresh.
+  When a solver gives up on a puzzle, they want to skip it and start fresh,
+  with a puzzle clock that counts only the time spent solving. A started
+  puzzle's clock runs until the puzzle is over and then stops. A skipped
+  puzzle is over and logged as abandoned; the next puzzle starts fresh.
 
   Background:
     Given Alice is signed in
@@ -17,7 +18,7 @@ Feature: Puzzle clock and skipping
     When 30 seconds pass
     Then Alice's puzzle clock has not moved since the solve
 
-  Scenario: Skipping ends the puzzle and logs it as abandoned
+  Scenario: A skipped puzzle is over and logged as abandoned
     When Alice skips the puzzle
     Then Alice's puzzle is skipped
     And Alice's game log records that puzzle as abandoned

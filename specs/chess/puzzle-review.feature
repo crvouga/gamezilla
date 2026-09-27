@@ -1,9 +1,9 @@
 @domain:chess @goal:chess-puzzles:11
 Feature: Reviewing a puzzle's line
-  After a puzzle, the player can review its whole line from the game log.
-  The review opens on the final position; stepping one move animates, and
-  jumping snaps straight to the position. The current move is always the
-  highlighted one.
+  When a solver has played a puzzle, they want to review its whole line from
+  the game log, so they can see how it goes. The review opens on the final
+  position; stepping one move animates, and jumping snaps straight to the
+  position. The current move is always the highlighted one.
 
   The puzzle here is a mate in two whose line is four moves long: Kh4 g5+
   Kg3 Rg2#. Move 1 is the position after the opponent's setup move, and
@@ -30,13 +30,13 @@ Feature: Reviewing a puzzle's line
       | back    | 4    | 3  |
       | forward | 3    | 4  |
 
-  Scenario Outline: Jumping to the <end> of the review snaps
+  Scenario Outline: Jumping to the <edge> of the review snaps
     Given Alice is reviewing the solved puzzle at move <from>
-    When Alice jumps to the <end> of the review
+    When Alice jumps to the <edge> of the review
     Then Alice's review is at move <to> of 4, reached without animation
 
     Examples:
-      | end   | from | to |
+      | edge  | from | to |
       | start | 4    | 1  |
       | end   | 1    | 4  |
 

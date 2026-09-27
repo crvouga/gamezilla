@@ -1,8 +1,9 @@
 @domain:chess @goal:chess-puzzles:2 @goal:chess-puzzles:11
 Feature: Puzzle stats and game log
-  A player can see their rating and every puzzle they played. A solve raises
-  the rating and is logged as solved; a wrong move is itself the loss, drops
-  the rating at once, and is logged as failed.
+  When a solver has played puzzles, they want to see their rating and every
+  puzzle they played. A solve raises the rating and is logged as solved; a
+  wrong move is itself the failure, drops the rating at once, and is logged
+  as failed.
 
   Background:
     Given Alice is signed in

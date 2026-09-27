@@ -1,7 +1,7 @@
 @domain:chess @goal:social:1
 Feature: Puzzles without an account
-  People can play without an account: a guest hosts a space and solves
-  puzzles without ever being asked to sign in.
+  When someone wants to try puzzles, they want to play at once, so a guest
+  hosts a space and solves puzzles without ever having to sign in.
 
   Scenario: A guest solves puzzles in their own space without signing in
     Given Alice is a guest

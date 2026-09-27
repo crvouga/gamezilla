@@ -1,15 +1,16 @@
 @domain:chess @goal:chess-puzzles:1
-Feature: A puzzle attempt survives leaving and restarting
-  A puzzle in progress comes back as the same attempt when the player leaves
-  it or the app closes: no free skip and no fresh start. Moving on advances
-  exactly one puzzle, works without a connection, and auto-advance moves on
-  by itself after a solve.
+Feature: A puzzle attempt survives leaving the puzzle and closing the app
+  When a solver steps away mid-puzzle, they want the same attempt waiting
+  when they go back, so there is no free skip and no fresh start, whether
+  they left the puzzle or the app closed. Moving on advances exactly one
+  puzzle, works without a connection, and auto-advance moves on by itself
+  after a solve.
 
   Background:
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: Coming back to a puzzle left mid-attempt resumes the same attempt
+  Scenario: Going back to an unfinished puzzle resumes the same attempt
     Given Alice has played a wrong move
     And Alice has left the puzzle for the chess choices
     When Alice goes back to the puzzles

@@ -1,9 +1,9 @@
 @domain:chess @goal:chess-puzzles:3
 Feature: Choosing the next puzzle
-  The feed serves puzzles suited to the player's rating, the nearest ones
-  first, and never serves a puzzle that fails the quality bar, so every
-  puzzle is worth playing. Once the rating has settled, the feed stays within
-  100 of it while it has puzzles there.
+  When a solver moves on, they want a next puzzle suited to their rating and
+  worth playing. The feed serves the nearest ones first and never serves a
+  low-quality puzzle. Once the rating has settled, the feed stays within 100
+  of it while it has puzzles there.
 
   Background:
     Given the puzzle pool also holds:

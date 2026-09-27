@@ -1,10 +1,12 @@
 @domain:chess @goal:chess-puzzles:6 @goal:chess-puzzles:7
 Feature: Chess rules in puzzles
-  Every rule of chess is honored and every correct solution is accepted:
-  underpromotion, capture-promotion, en passant, any mate on the final move,
-  a faster mate, and a transposed move order. Promoting always asks which
-  piece; the queen is never chosen for the player. When Black solves, the
-  board, the prompt, and the promotion choice follow Black.
+  When a solver finds a correct solution, they want it to count whatever
+  chess rule it uses, so a correct move is never called wrong. Every rule of
+  chess is honored and every correct solution counts: underpromotion,
+  capture-promotion, en passant, any mate on the final move, a faster mate,
+  and a transposed move order. Promoting always asks which piece; the queen
+  is never chosen for the solver. When Black solves, the board, the prompt,
+  and the promotion choice follow Black.
 
   Background:
     Given Alice is signed in
@@ -24,22 +26,22 @@ Feature: Chess rules in puzzles
     When Alice plays e7-e8 and promotes to a knight
     Then Alice's puzzle is solved within 20 seconds
 
-  Scenario: A capture-promotion that mates with a piece other than the queen is accepted
+  Scenario: A capture-promotion that mates with a piece other than the queen solves the puzzle
     Given Alice is solving the capture-promotion puzzle
     When Alice plays g7-h8 and promotes to a rook
     Then Alice's puzzle is solved within 20 seconds
 
-  Scenario: En passant is accepted as the solution
+  Scenario: En passant counts as the solution
     Given Alice is solving the en passant puzzle
     When Alice plays e5-d6
     Then Alice's puzzle is solved within 20 seconds
 
-  Scenario: A different mate on the final move is accepted
+  Scenario: A different mate on the final move solves the puzzle
     Given Alice is solving the puzzle with more than one mate on the final move
     When Alice plays a7-a8
     Then Alice's puzzle is solved within 20 seconds
 
-  Scenario: A faster mate on a move before the last ends the puzzle as solved
+  Scenario: A faster mate on a move before the last solves the puzzle
     Given Alice is solving the hook-mate puzzle
     When Alice plays b7-b8
     Then Alice's puzzle is solved within 20 seconds

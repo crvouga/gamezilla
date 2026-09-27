@@ -1,8 +1,8 @@
 @domain:chess @goal:works-offline:2 @goal:works-offline:3 @goal:works-offline:4
 Feature: Days of puzzles without a connection
-  Once a player has puzzles on their device they can keep playing for days
-  with no connection: no errors, no blocked screens, and nothing lost or
-  counted twice when the connection comes back.
+  When a solver has puzzles on their device and no connection for days, they
+  want to keep playing, so there are no errors, nothing blocked, and nothing
+  lost or counted twice once the connection comes back.
 
   Background:
     Given Alice is signed in
@@ -10,7 +10,7 @@ Feature: Days of puzzles without a connection
     And Alice is playing puzzles in their space
     And Alice is offline
 
-  Scenario: Three days offline still leaves a puzzle to play
+  Scenario: After three days offline there is still a puzzle to play
     When Alice solves 10 puzzles a day for 3 days
     Then Alice has a puzzle on the board
     And Alice is not told the feed is empty

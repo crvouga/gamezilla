@@ -1,8 +1,8 @@
 @domain:chess
 Feature: Guest puzzle progress carries over
-  A guest's puzzle progress, even progress made offline, is never lost: it
-  survives the app closing, is kept when they sign in with Google, and
-  reaches their other devices exactly once.
+  When a guest has played puzzles, even offline, they want that progress
+  kept, so it survives the app closing, is kept when they sign in with Google,
+  and reaches their other devices exactly once.
 
   @goal:always-true:1
   Scenario: A guest's offline solve survives the app closing before the connection comes back

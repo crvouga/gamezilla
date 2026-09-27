@@ -1,7 +1,8 @@
 @domain:chess @goal:chess-puzzles:9
 Feature: Showing the solution
-  Showing the solution plays out the rest of the line, ends play, and counts
-  as a fail.
+  When a solver cannot find the line, they want to see the solution played
+  out, so they learn it. Showing the solution plays out the rest of the line,
+  stops play, and counts as a fail.
 
   Background:
     Given Alice is signed in
@@ -11,7 +12,7 @@ Feature: Showing the solution
     When Alice shows the solution
     Then Alice's board reaches checkmate at move 4 of the line within 20 seconds
 
-  Scenario: Showing the solution ends play
+  Scenario: Showing the solution stops play
     When Alice shows the solution
     Then Alice's puzzle shows the revealed solution within 20 seconds
     And Alice cannot move pieces

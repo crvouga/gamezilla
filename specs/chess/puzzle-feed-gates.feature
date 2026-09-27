@@ -1,8 +1,8 @@
 @domain:chess @goal:chess-puzzles:4 @goal:guest-free-and-paid:1 @goal:guest-free-and-paid:6
 Feature: Customizing the feed is for people with an account
-  Guests play the feed as it comes; customizing it is one of the things an
-  account unlocks, and a guest who reaches for it is invited to sign in rather
-  than shown an error.
+  When a guest reaches for the feed settings, they want an invitation to sign
+  in rather than an error, so customizing the feed is something an account
+  unlocks. Until then a guest plays the feed as it comes.
 
   @regression:guest-feed-customization-ungated
   Scenario: A guest reaching for the feed settings is invited to sign in
