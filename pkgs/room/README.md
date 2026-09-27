@@ -263,7 +263,8 @@ broadcast, then apply nested effects. Actor metadata uses
 
 Reference fixtures: `DeadlineFixtureModule` (Schedule → `Expire`),
 `MatchClockFixtureModule` (dual banks + `FlagFall`). Scenarios: kit M6/M7,
-`match-clock-schedule.sim.test.ts` (MC-01..06).
+`specs/rooms/match-clock.feature` and the
+`specs/rooms/match-clock.qnt` model.
 
 ```mermaid
 flowchart LR
@@ -516,76 +517,25 @@ When proposing a change, check:
 Complete inventory of what this package currently proves. Prefer adding rows
 here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 
-### Engine sim — connectivity / converge (`tests/)
+### Room specs (`specs/rooms/`, run by `@pkgs/room-sim`)
 
-| File | ID | Asserts / use case |
-|------|----|--------------------|
-| `single-client-increment.sim.test.ts` | E1 | One client increments; settles; domain count/hash matches server |
-| `two-client-converge.sim.test.ts` | E1 | Alice+Bob mutual increments → equal hashes, count=3, roster size 2 |
-| `partition-then-restoreNetwork.sim.test.ts` | E1 | `net(bob).hold` during Alice write → Bob `never` sees update → restoreNetwork → converge |
-| `offline-dispatch-then-sync.sim.test.ts` | E1/E6 | Soft disconnect → optimistic increment → peer `never` sees → reconnect → converge |
-| `hold-during-flush.sim.test.ts` | E1/E6 | Offline queue + peer hold during flush → restoreNetwork → converge |
-| `down-then-restoreNetwork.sim.test.ts` | E1 | `net.down` drops frames; soft cycle + restoreNetwork → converge |
-| `down-during-welcome.sim.test.ts` | E1/E3 | Join under down; reconnect → converge |
-| `hold-during-sync.sim.test.ts` | E1/E3 | Long hold then release mid catch-up → converge |
-| `triad-matrix.sim.test.ts` | E1/E6 | Soft disconnect ∩ hold ∩ down remain independent |
-| `lossy-profile-converge.sim.test.ts` | E1/E9 | Mild delay/loss/reorder/dup + soft cycle → converge |
-| `n-client-partition.sim.test.ts` | E1 | Selective holds across ≥4 clients → converge |
-| `sync-after-long-partition.sim.test.ts` | E1/E3 | 20 commits behind hold → catch-up converge |
-| `stale-welcome-recover.sim.test.ts` | E3 | Stale tip welcome inject + soft storms → resync |
-| `asymmetric-link.sim.test.ts` | P2 | Directional `toClient` hold vs `toServer` ok |
-| `two-topic-shared-storage.sim.test.ts` | H | Shared storage, two topics; A faults leave B alone |
-| `spectator-fanout-no-domain-perturb.sim.test.ts` | E1/H | Extra joiners do not change domain hash |
+`@pkgs/room-sim` claims the `rooms` spec domain: its `test:e2e` runs the
+features through `tests/steps/` and replays the models' traces through
+`tests/quint/` (seeded by `FC_SEED`; the sim must reach the model's state
+after every step).
 
-### Engine sim — ordering / offline queues / chaos
+| Spec | Covers |
+|------|--------|
+| `shared-counter.feature` | A change reaches the room and the device; two people's changes all count and both are present; an offline change shows only on its author's device, then reaches everyone; a stalled network sees nothing new, then catches up; a waiting change survives an app crash; a crashed room is down and comes back with its count; a crash right after a confirmed change recovers |
+| `refusals.feature` | A change the room does not understand is refused as invalid, nothing waits, nothing changes; a person the room turns away is refused as not allowed |
+| `match-clock.feature` | Flag falls on the room clock; a move passes the clock; a stalled or offline player can neither move after nor beat the flag; an early flag claim does not end the match |
+| `shared-counter.qnt` | Model: increments / decrements across offline, stalled networks, app crash and restart, room restart, resent command ids and session take-over (exactly once), unknown and malformed messages |
+| `match-clock.qnt` | Model: start / move / claim flag / wait on the room clock; status, turn, both banks, winner, what each device shows |
 
-| File | ID | Asserts / use case |
-|------|----|--------------------|
-| `concurrent-increment-burst.sim.test.ts` | E1/E5 | Three-client burst under mild faults → count + hashes |
-| `offline-queues-interleave.sim.test.ts` | E5/E6 | Dual offline queues + interim peer commits → server order |
-| `inc-dec-conflict-order.sim.test.ts` | E5 | Inc/dec under jitter → final equals server fold |
-| `seeded-workload-determinism.sim.test.ts` | E9 | Same seed (`SIM_SEED`) → identical multi-client hash twice (incl. mid hold) |
-| `long-chaos-determinism.sim.test.ts` | E1/E9 | ≥3 clients seeded chaos (hold/down/soft) → hash ×2 |
-| `crash-restart.sim.test.ts` | E8 | Client crash keeps queue; server crash+hydrate; boundary arm; invariants |
-
-### Engine sim — shrinking PBT / fault catalogs (`tests/*.pbt.test.ts)
-
-| File | Asserts / use case |
-|------|--------------------|
-| `room-world.pbt.test.ts` | `fc.commands` over counter + library chaos → converge; pin slots (incl. ghost-queue) |
-| `net-faults.pbt.test.ts` | Exhaust hold/down/asymmetric/`NET_FAULT_PROFILES` → converge |
-| `malformedMessages-wire.pbt.test.ts` | Exhaust `MALFORMED_MESSAGE_INJECT_KINDS` → settle restores server hash |
-| `session-lifecycle.pbt.test.ts` | takeOver / crash / clearLocalData / serverCrash / commandId / multi-tab |
-| `schedule-anticheat.pbt.test.ts` | MatchClock start/move/flag under hold; early FlagFall; lagging move |
-| `authz-graph.pbt.test.ts` | Owner claim+bump; non-owner bump rejected across reconnect/takeOver |
-| `long-chaos.pbt.test.ts` | `runRoomSeed` determinism + converge (replaces ad-hoc chaos loop) |
-| `arm-crash-at.pbt.test.ts` | Scripted `armCrashAt` slice (out of random pool) → settle staysInSync |
-
-### Engine sim — identity / dedup / authz / adversarial
-
-| File | ID | Asserts / use case |
-|------|----|--------------------|
-| `command-id-replay-dedup.sim.test.ts` | E2 | Same `commandId` across take-over storm applies once |
-| `session-takeover-sim.sim.test.ts` | E2/E7 | `node.takeOver` mid-command → no double-apply |
-| `replay-flood-dedup.sim.test.ts` | E2 | 50× same `commandId` → single apply |
-| `multi-tab-same-identity.sim.test.ts` | E7 | Same identity, different `clientId` → equal domain hashes |
-| `malformed-frame-reject.sim.test.ts` | E4 | Non-Message / unknown kind → reject or ignore; no mutate |
-| `authorize-reject.sim.test.ts` | E4/E7 | World `authorize` denies → unauthorized; no mutate |
-| `unknown-command-reject.sim.test.ts` | E4 | Unknown message type → invalid-command |
-| `malformedMessages-committed-inject.sim.test.ts` | E1/E3 | Forged committed → soft cycle restores server truth |
-
-### Engine sim — match-clock / Schedule anti-cheat
-
-File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
-
-| ID | Asserts |
-|----|---------|
-| MC-01 | Start arms schedule; `runFor` past flag → server `FlagFall` → terminal; clients converge on `serverSnapshot` |
-| MC-02 | Move before flag cancels old schedule; opponent’s clock becomes active |
-| MC-03 | Lagging held client cannot move after server flag (reject); hashes = server |
-| MC-04 | Client early `FlagFall` → reject; server still flags at true `at` |
-| MC-05 | Soft disconnect during tick; reconnect after flag → same terminal |
-| MC-06 | Seeded clock workload ×2 identical `serverHash` |
+Code tests in `pkgs/room-sim/tests/`: `determinism.test.ts` (same seed
+twice, counter and match clock), `malformed-messages.test.ts` (non-Message
+payload refused, unknown kind ignored), `standalone-room.test.ts`
+(`openLoopbackRoom`).
 
 ### Module kit sim (`/room/sim` kit)
 
@@ -620,7 +570,6 @@ File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
-| `room.test.ts` | Loopback | Welcome + increment staysInSync; unknown command rejected locally |
 | `room-roster.test.ts` | Loopback | Roster grow/shrink; multi-tab same actor; actor+ts stamped on log |
 | `client/core/room-offline-dispatch.test.ts` | Offline fake transport | `RoomClient.open` survives connect throw; optimistic queue while disconnected |
 | `client/core/room-server-reset.test.ts` | Loopback / reset | Ignore duplicate committed ≤ tip; recover short/stale welcome; idempotent re-welcome |
@@ -649,8 +598,8 @@ File: `tests/match-clock-schedule.test.ts` (`MatchClockFixtureModule`).
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
-| `room-client-engine.test.ts` | Unit (fake transport) | Welcome flushes offline queue; own-echo skips rebase + keeps snapshot ref; foreign commit rebases; `getLog` copy-on-read; append-only coalesced persistence, no ghost row; reject / stale welcome / gap; hydrate + corrupt-cache wipe; rate limit; event-driven `untilSynced` |
-| `room-server.test.ts` | Unit | One shared frame object per broadcast; cached tip (no `getLastSeq` per command); dedup replay; envelope / unknown reject; ping / capped welcome; `injectCommand` actor; hydrate + roster |
+| `room-client.feature` | Gherkin (fake transport) | Welcome flushes offline queue; own-echo skips rebase + keeps snapshot ref; foreign commit rebases; `getLog` copy-on-read; append-only coalesced persistence, no ghost row; reject / stale welcome / gap; hydrate + corrupt-cache wipe; rate limit; event-driven `untilSynced` |
+| `room-server.feature` | Gherkin | One shared frame object per broadcast; cached tip (no `getLastSeq` per command); dedup replay; envelope / unknown reject; ping / capped welcome; `injectCommand` actor; hydrate + roster |
 | `key-value-storage.test.ts` | Unit | Segmented `Kv` log: multi-segment append + reload, reset, corrupt segment / queue wipe |
 | `room-adapter-web/tests/client-storage.test.ts` | Unit | Segmented `localStorage` log: tail-only writes, legacy blob + corrupt segment cleared |
 | `room-adapter-memory/tests/client-storage.test.ts` | Unit | Append / reset / queue snapshot isolation |
