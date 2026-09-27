@@ -27,9 +27,19 @@ scenario tests are deleted. Kept in code, as framework contracts:
 `determinism.test.ts` (same seed twice, was seeded-workload-determinism and
 MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
 (the loopback host seam, was `room.test.ts`), `hash-canonicality`,
-`purity-and-seed`. `pkgs/room` still runs `tests/room-server.feature` and
-`tests/room-client.feature` beside its tests (engine wire behavior, not yet
-demoted to contract tests).
+`purity-and-seed`. `pkgs/room`'s package-local `tests/room-server.feature`
+and `tests/room-client.feature` (and their `tests/steps/` runner) are gone:
+the one room rule they held that no rooms spec already stated, that someone
+whose device goes offline is no longer present, is
+`specs/rooms/presence.feature`; everything else was wire frames, log
+sequence numbers, frame and snapshot identity, device storage batches, the
+outbound queue bound and `untilSynced`, and is now contract tests in
+`pkgs/room/tests/room-server.contract.test.ts` and
+`room-client.contract.test.ts`, claim for claim. Nothing in `pkgs/room`,
+`pkgs/room-adapter-*` or `pkgs/room-sim` drives a sim script or a feature
+outside `specs/rooms/` any more; `malformed-messages.test.ts` stays a
+wire-frame contract (its one observable claim, that something garbled
+changes nothing, is `sendGarbledChange` in `specs/rooms/shared-counter.qnt`).
 
 (2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,
