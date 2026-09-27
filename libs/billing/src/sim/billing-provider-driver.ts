@@ -6,12 +6,14 @@
  */
 import { billingCustomerLinkProvider } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
-import type { SimBillingProvider } from '@libs/sim-harness/fabric/sim-billing';
+import type {
+  SimBillingProvider,
+  SimBillingProviders,
+} from '@libs/sim-harness/fabric/sim-billing';
 import { letTimePass } from '@libs/sim-harness/system/actions';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import {
   MOCK_BILLING_PATHS,
-  MOCK_BILLING_PROVIDER,
   MOCK_TEST_PAYMENT_METHODS,
   type MockCustomer,
   type MockEvent,
@@ -47,16 +49,17 @@ export type BillingObserveKind = (typeof BILLING_OBSERVE_KINDS)[number];
 
 type Call = <T>(method: string, path: string, body?: unknown) => Promise<T>;
 
-function providerOf(s: ProductSim): SimBillingProvider {
-  const provider = s.sim.billing;
-  if (provider === null) {
+/** Every payment provider the sim has booted, and where checkouts go. */
+export function billingProviders(s: ProductSim): SimBillingProviders {
+  const providers = s.sim.billing;
+  if (providers === null) {
     throw new Error('billing: this sim composes no payment provider');
   }
-  return provider;
+  return providers;
 }
 
-export function providerCall(s: ProductSim): Call {
-  const provider = providerOf(s);
+/** One provider's REST API, with its secret key. */
+export function providerCall(provider: SimBillingProvider): Call {
   return async <T>(method: string, path: string, body?: unknown) => {
     const response = await provider.fetch(`${provider.origin}${path}`, {
       method,
@@ -69,42 +72,97 @@ export function providerCall(s: ProductSim): Call {
     const payload = (await response.json()) as unknown;
     if (!response.ok) {
       throw new Error(
-        `billing provider ${method} ${path} → ${String(response.status)}: ${JSON.stringify(payload)}`
+        `billing provider ${provider.id} ${method} ${path} → ${String(response.status)}: ${JSON.stringify(payload)}`
       );
     }
     return payload as T;
   };
 }
 
-/** The provider customer the app linked to this account at checkout. */
-export async function customerOf(
+/** The customer the app linked to this account at `provider`, if any. */
+export async function customerAt(
+  s: ProductSim,
+  accountId: string,
+  provider: SimBillingProvider
+): Promise<string | null> {
+  return await new ExternalAccountRepository(
+    s.sim.serverSql.sqlClient
+  ).readExternalAccountId(accountId, billingCustomerLinkProvider(provider.id));
+}
+
+/**
+ * Where the account's membership lives, as a tester looking at every
+ * provider's dashboard sees it: the provider holding its membership that has
+ * not ended; failing that, the provider new checkouts go to.
+ */
+export async function membershipProviderOf(
   s: ProductSim,
   accountId: string
+): Promise<SimBillingProvider> {
+  const providers = billingProviders(s);
+  for (const provider of providers.all()) {
+    const customer = await customerAt(s, accountId, provider);
+    if (customer === null) continue;
+    const latest = (await providerSubscriptions(customer, provider))[0];
+    if (latest !== undefined && !ENDED_STATUSES.has(latest.status)) {
+      return provider;
+    }
+  }
+  return providers.checkout();
+}
+
+/**
+ * The provider customer the app linked to this account — at `provider`, or
+ * where its membership lives.
+ */
+export async function customerOf(
+  s: ProductSim,
+  accountId: string,
+  provider?: SimBillingProvider
 ): Promise<string> {
-  const customer = await new ExternalAccountRepository(
-    s.sim.serverSql.sqlClient
-  ).readExternalAccountId(
-    accountId,
-    billingCustomerLinkProvider(MOCK_BILLING_PROVIDER)
-  );
-  if (customer === null)
-    throw new Error(`billing: ${accountId} has no customer`);
+  const at = provider ?? (await membershipProviderOf(s, accountId));
+  const customer = await customerAt(s, accountId, at);
+  if (customer === null) {
+    throw new Error(`billing: ${accountId} has no customer at ${at.id}`);
+  }
   return customer;
 }
 
 /**
- * Every subscription the provider holds for `customer`, newest first. Reading
+ * Every subscription `provider` holds for `customer`, newest first. Reading
  * settles the customer (due renewals and retries run), as the provider's API does.
  */
 export async function providerSubscriptions(
-  s: ProductSim,
-  customer: string
+  customer: string,
+  provider: SimBillingProvider
 ): Promise<readonly MockSubscription[]> {
-  const list = await providerCall(s)<MockList<MockSubscription>>(
+  const list = await providerCall(provider)<MockList<MockSubscription>>(
     'GET',
     `${MOCK_BILLING_PATHS.subscriptions}?customer=${customer}&status=all&limit=100`
   );
   return list.data;
+}
+
+/** The account's subscriptions at every provider it is a customer of. */
+export async function subscriptionsEverywhere(
+  s: ProductSim,
+  accountId: string
+): Promise<
+  readonly {
+    readonly provider: SimBillingProvider;
+    readonly subscriptions: readonly MockSubscription[];
+  }[]
+> {
+  const found = [];
+  for (const provider of billingProviders(s).all()) {
+    const customer = await customerAt(s, accountId, provider);
+    if (customer === null) continue;
+    found.push({
+      provider,
+      subscriptions: await providerSubscriptions(customer, provider),
+    });
+  }
+  return found;
 }
 
 async function latestSubscription(
@@ -140,7 +198,11 @@ async function advanceTo(call: Call, customer: string, frozenS: number) {
   });
 }
 
-type Step = (call: Call, customer: string, s: ProductSim) => Promise<void>;
+type Step = (
+  call: Call,
+  customer: string,
+  provider: SimBillingProvider
+) => Promise<void>;
 
 const STEPS: Readonly<Record<BillingObserveKind, Step>> = {
   period_end: async (call, customer) => {
@@ -190,10 +252,10 @@ const STEPS: Readonly<Record<BillingObserveKind, Step>> = {
     const { id } = await latestSubscription(call, customer);
     await call('DELETE', MOCK_BILLING_PATHS.subscription(id));
   },
-  switch_interval: async (call, customer, s) => {
+  switch_interval: async (call, customer, provider) => {
     const subscription = await latestSubscription(call, customer);
     const item = subscription.items.data[0];
-    const offer = providerOf(s).offer;
+    const offer = provider.offer;
     const target = offer.switchablePriceKeys
       .map((key) => offer.prices[key]?.catalogPriceId)
       .find((catalogPriceId) => catalogPriceId !== item?.price.lookup_key);
@@ -227,7 +289,25 @@ export async function driveProvider(
   accountId: string,
   kind: BillingObserveKind
 ): Promise<void> {
-  await STEPS[kind](providerCall(s), await customerOf(s, accountId), s);
+  const at = await atMembershipProvider(s, accountId);
+  await STEPS[kind](at.call, at.customer, at.provider);
+}
+
+/** The provider holding the account's membership, its API and customer. */
+async function atMembershipProvider(
+  s: ProductSim,
+  accountId: string
+): Promise<{
+  readonly provider: SimBillingProvider;
+  readonly call: Call;
+  readonly customer: string;
+}> {
+  const provider = await membershipProviderOf(s, accountId);
+  return {
+    provider,
+    call: providerCall(provider),
+    customer: await customerOf(s, accountId, provider),
+  };
 }
 
 /**
@@ -238,8 +318,7 @@ export async function refundLastPayment(
   s: ProductSim,
   accountId: string
 ): Promise<void> {
-  const call = providerCall(s);
-  const customer = await customerOf(s, accountId);
+  const { call, customer } = await atMembershipProvider(s, accountId);
   const invoices = await call<MockList<MockInvoice>>(
     'GET',
     `${MOCK_BILLING_PATHS.invoices}?customer=${customer}&limit=100`
@@ -260,10 +339,11 @@ export async function expireCardOnFile(
   s: ProductSim,
   accountId: string
 ): Promise<void> {
-  const call = providerCall(s);
+  const at = await atMembershipProvider(s, accountId);
+  const call = at.call;
   const customer = await call<MockCustomer>(
     'GET',
-    MOCK_BILLING_PATHS.customer(await customerOf(s, accountId))
+    MOCK_BILLING_PATHS.customer(at.customer)
   );
   const card = customer.invoice_settings.default_payment_method;
   if (card === null) throw new Error('billing: no card on file');
@@ -280,8 +360,7 @@ export async function runOutBillingPeriod(
   s: ProductSim,
   accountId: string
 ): Promise<void> {
-  const call = providerCall(s);
-  const customer = await customerOf(s, accountId);
+  const { call, customer } = await atMembershipProvider(s, accountId);
   const endS = periodEnd(await latestSubscription(call, customer));
   const clock = await call<{ test_clock_frozen_time: number }>(
     'GET',
@@ -291,4 +370,49 @@ export async function runOutBillingPeriod(
   if (gapMs > 0) await Promise.resolve(letTimePass.act(s, gapMs));
   // Reading the customer's subscriptions runs what fell due at the provider.
   await latestSubscription(call, customer);
+}
+
+/** Which earlier news a provider repeats about a customer's memberships. */
+export type EarlierNews =
+  /** The news `back` pieces before its latest (0 = the latest; clamped). */
+  | { readonly back: number }
+  /** Its latest news that a membership ended. */
+  | { readonly ended: true };
+
+function aboutCustomer(event: MockEvent, customer: string): boolean {
+  if (!event.type.startsWith('customer.subscription.')) return false;
+  const object = event.data.object as { readonly customer?: unknown };
+  return object.customer === customer;
+}
+
+/**
+ * The provider `providerId` delivers again one piece of news it already sent
+ * about the account's memberships there, exactly as it sent it then — late,
+ * and possibly stale. Nothing happens when it has no such news.
+ */
+export async function repeatEarlierNews(
+  s: ProductSim,
+  accountId: string,
+  providerId: string,
+  news: EarlierNews
+): Promise<void> {
+  const provider = billingProviders(s).get(providerId);
+  if (provider === undefined) {
+    throw new Error(`billing: no payment provider ${providerId}`);
+  }
+  const customer = await customerAt(s, accountId, provider);
+  if (customer === null) return;
+  const call = providerCall(provider);
+  const events = (
+    await call<MockList<MockEvent>>(
+      'GET',
+      `${MOCK_BILLING_PATHS.events}?limit=100`
+    )
+  ).data.filter((event) => aboutCustomer(event, customer));
+  const event =
+    'ended' in news
+      ? events.find((e) => e.type === 'customer.subscription.deleted')
+      : events[Math.min(news.back, events.length - 1)];
+  if (event === undefined) return;
+  await call('POST', MOCK_BILLING_PATHS.resendEvent(event.id));
 }

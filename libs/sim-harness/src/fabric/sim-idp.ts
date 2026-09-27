@@ -21,7 +21,6 @@ import {
   SIM_APPLE_KEY_ID,
   SIM_APPLE_TEAM_ID,
   SIM_AUTH_SECRET,
-  SIM_BILLING_URL,
   SIM_GOOGLE_CLIENT_ID,
   SIM_GOOGLE_CLIENT_SECRET,
   SIM_IDP_URL,
@@ -41,7 +40,7 @@ import type { IdpProviderKind } from '@pkgs/idp-sim/shared';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 
-import { type SimBillingProvider, simBillingFetchFrom } from './sim-billing';
+import { type SimBillingProviders, simBillingFetchFrom } from './sim-billing';
 import { requestHref } from './sim-http-request';
 import type { SimNet } from './sim-net';
 
@@ -225,22 +224,24 @@ export function simIdpFetchFrom(args: {
  */
 export function simBrowserFetch(args: {
   readonly idps: SimIdps;
-  readonly billing: SimBillingProvider | null;
+  readonly billing: SimBillingProviders | null;
   readonly net: SimNet;
   readonly from: string;
   readonly server: ServerHttp;
 }): ServerHttp {
   const toIdp = simIdpFetchFrom(args);
   const billing = args.billing;
-  const toBilling =
-    billing === null
-      ? null
-      : simBillingFetchFrom({ billing, net: args.net, from: args.from });
   return async (input, init) => {
     const href = requestHref(input);
     if (simIdpOf(href) !== null) return toIdp(input, init);
-    if (toBilling !== null && href.startsWith(SIM_BILLING_URL)) {
-      return toBilling(input, init);
+    const provider = billing?.at(href);
+    if (provider !== undefined) {
+      const hop = simBillingFetchFrom({
+        billing: provider,
+        net: args.net,
+        from: args.from,
+      });
+      return hop(input, init);
     }
     return args.server(input, init);
   };

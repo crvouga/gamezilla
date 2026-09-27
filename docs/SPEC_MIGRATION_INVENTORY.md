@@ -9,7 +9,7 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 |---|---|---|
 | libs/profile | `specs/profile/` | — (`auth-oauth-port` retired 2026-09-27: every Google sign-in scenario walks the same port) |
 | libs/friends | `specs/friends/`, `specs/spaces/` | — |
-| libs/billing | `specs/billing/` | — |
+| libs/billing | `specs/billing/` | `multi-provider.test.ts` (wire and storage contracts of two providers) |
 | libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
 | libs/runtime | `specs/runtime/`, `specs/journeys/` | — |
 
@@ -27,9 +27,53 @@ scenario tests are deleted. Kept in code, as framework contracts:
 `determinism.test.ts` (same seed twice, was seeded-workload-determinism and
 MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
 (the loopback host seam, was `room.test.ts`), `hash-canonicality`,
-`purity-and-seed`. `pkgs/room` still runs `tests/room-server.feature` and
-`tests/room-client.feature` beside its tests (engine wire behavior, not yet
-demoted to contract tests).
+`purity-and-seed`. `pkgs/room`'s package-local `tests/room-server.feature`
+and `tests/room-client.feature` (and their `tests/steps/` runner) are gone:
+the one room rule they held that no rooms spec already stated, that someone
+whose device goes offline is no longer present, is
+`specs/rooms/presence.feature`; everything else was wire frames, log
+sequence numbers, frame and snapshot identity, device storage batches, the
+outbound queue bound and `untilSynced`, and is now contract tests in
+`pkgs/room/tests/room-server.contract.test.ts` and
+`room-client.contract.test.ts`, claim for claim. Nothing in `pkgs/room`,
+`pkgs/room-adapter-*` or `pkgs/room-sim` drives a sim script or a feature
+outside `specs/rooms/` any more; `malformed-messages.test.ts` stays a
+wire-frame contract (its one observable claim, that something garbled
+changes nothing, is `sendGarbledChange` in `specs/rooms/shared-counter.qnt`).
+
+(2026-09-27) `libs/billing/tests/multi-provider.test.ts` (two providers
+at once) is ported: what a person sees when the team switches payment
+provider, and back, is `specs/billing/payment-provider-switch.feature`, and
+its "any interleaving of both providers' news" property is the Quint model
+`specs/billing/payment-provider-switch.qnt`. The sim can switch payment
+provider (`switchPaymentProvider`, a second mock provider node beside the
+first). The file keeps only wire and storage contracts: a delivery on another
+provider's path is unverified, an unconfigured provider has no callback
+route, a customer id is matched only among its own provider's customers,
+a checkout mints a customer only at the checkout provider and reuses it on
+return, and a second checkout is refused while a membership is live at
+another provider. A sweep of `libs/` and `apps/` finds no other
+sim-scripted test (`s.apply(`, `.run(`, `explore(`, `randomActions`); the
+remaining scenario-named suites there test pure functions or storage
+(view models, plan resolvers, policies, decision tables, SQL) and stay code
+tests.
+
+(2026-09-27) `pkgs/auth-sim` runs the new `sign-in` domain (`specDomains`;
+a bounded context that borrows Identity's published terms, see
+`docs/CONTEXT_MAP.md`): `specs/sign-in/address-match.feature`,
+`sign-in-methods.feature`, `copied-sign-in.feature`, `sign-in-ends.feature`,
+`at-google-and-apple.feature`, `failing-provider.feature`, and the Quint model
+`specs/sign-in/outside-accounts.qnt`, which replaces the random walk (16 seeds
+x 150 steps, the Postgres fabric, `explore`): 40 traces of up to 30 steps,
+even traces on Postgres, with the sim's reference model still checked as a
+standing property on every step. Legacy claims already proven by
+`specs/profile/` (Google then Apple at a verified address, hidden address,
+confirm/decline a match, connect, refuse another account's Apple account, last
+method, offline sign-in, revoking Sign in with Apple, deleting a connected
+Apple account, plain Google/Apple sign-in) are not restated. Kept in code, as
+a wire-level contract: `tests/provider-protocol.contract.test.ts` (the eight
+refused provider answers, the two tolerated quirks, signing-key rotation).
+The five legacy test files and `support.ts` are deleted.
 
 (2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,
@@ -41,11 +85,22 @@ reopening the app), and code tests in `libs/chess/tests/puzzle-session/`;
 watcher-refusal scenarios now assert what the host and watcher see (nothing
 changes), not the room's refusal.
 
+(2026-09-27) `pkgs/db-indexes` runs the `index-tuning` domain
+(`specDomains`): `specs/index-tuning/index-tuning.feature` (declared lookups
+get a tuned index, tuning again changes nothing, unneeded indexes retire before
+removal, a used retiring index is kept, the team's own index is never touched)
+and the Quint model `specs/index-tuning/index-tuning.qnt`, which replaces the
+known-seed `explore` corpus. The tuning sim moved from `tests/scenario/` to
+`src/sim/index-tuning-system.ts` (`@pkgs/db-indexes/sim`); `tests/scenario/`
+is deleted. Kept in code: the same-seed replay pin (`determinism.test.ts`,
+framework contract) and the `SimDb` adapter contract (`sim-db.test.ts`);
+`sim-db.test.ts`'s fixpoint and plan-determinism examples are deleted as
+subsumed by the `idempotence` and `determinism` properties.
+
 Still open:
 
-- **Framework-level sims** (`pkgs/auth-sim`, `pkgs/db-indexes`,
-  `pkgs/matchmaking-sim`, `pkgs/room-sim`): deferred to a later wave, as
-  marked below.
+- **Framework-level sims**: all ported (`pkgs/room-sim`, `pkgs/matchmaking-sim`,
+  `pkgs/auth-sim`, `pkgs/db-indexes`; 2026-09-27).
 - **`pkgs/sync-engine`**: ported (see its section); what stays in code is a
   contract, determinism, a budget or a framework regression, each with its
   reason.
@@ -232,7 +287,7 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `libs/runtime/tests/e2e/shell-boot.test.tsx` | — | two actors boot into the tab shell, open Settings, switch focus | multi-behavior test — split (boot / open Settings / switch focus) |
 | `libs/runtime/tests/e2e/topology-partition.test.tsx` | — | partition alice–server then restoreNetwork still allows sign-up | |
 
-### pkgs/auth-sim (4) — framework-level sim (no product UI); port in a later wave
+### pkgs/auth-sim (4) — ported 2026-09-27 to `specs/sign-in/` (see Status)
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
@@ -241,19 +296,29 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `pkgs/auth-sim/tests/provider-behaviour.test.ts` | — | revoking the app at Apple signs the account out everywhere<br>deleting the Apple Account: the only way in is gone, so is the session<br>deleting the Apple Account keeps a session that has Google too<br>relay forwarding switched off at Apple is recorded<br>a changed Google address keeps the account and updates the identity<br>${fault}: sign-in fails, nothing changes, and recovers<br>${fault}: tolerated<br>a denied consent is a cancellation<br>key rotation: the relying party refetches the JWKS | framework-level sim; port in a later wave |
 | `pkgs/auth-sim/tests/sign-in.test.ts` | — | google: launch → provider screens → callback → session<br>apple: form_post callback, hidden email, session | framework-level sim; port in a later wave |
 
-### pkgs/db-indexes (1) — framework-level sim; port in a later wave
+### pkgs/db-indexes (1) — framework-level sim; ported 2026-09-27
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | framework-level sim (no product UI); port in a later wave |
+| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | ported 2026-09-27 to `specs/index-tuning/` (replay pin stays in `determinism.test.ts`) |
 
-### pkgs/matchmaking-sim (3) — framework-level sim; port in a later wave
+### pkgs/matchmaking-sim — ported (2026-09-27)
 
-| File | Goal tags | Scenarios | Notes |
-|---|---|---|---|
-| `pkgs/matchmaking-sim/tests/join-status-leave.test.ts` | — | round-trips participant data through status while waiting<br>status returns null for unknown id<br>leave removes the row<br>ready() is idempotent<br>leave on unknown id returns removed:false<br>leave on matched participant returns removed:false | framework-level sim; port in a later wave |
-| `pkgs/matchmaking-sim/tests/replicas-shared-db.test.ts` | — | join r0 / status r1 / leave r2 see the same store<br>updateFormulas on a different replica than join<br>ready() is idempotent on every replica | framework-level sim; port in a later wave |
-| `pkgs/matchmaking-sim/tests/seeded-workload.test.ts` | — | same seed yields identical match fingerprint twice | seeded-workload determinism (keep in code); framework-level sim |
+Behavior moved to the new Matchmaking context, `specs/matchmaking/`
+(`glossary.yaml`, a context-map row): `waiting-for-a-match.feature`,
+`being-matched.feature`, `entrances.feature`, and the model
+`matching.qnt` (waiting, stopping, changing reach, matching rounds and an
+entrance opening again, each landing at any of three entrances; every
+entrance must agree on everyone's standing after every step). Run by
+`@pkgs/matchmaking-sim` `test:e2e` (`specDomains: ["matchmaking"]`; steps in
+`tests/steps/`, binding in `tests/quint/matching.binding.ts`).
+
+| File | Destination |
+|---|---|
+| `join-status-leave.test.ts` (deleted) | `waiting-for-a-match.feature` (all five rules); `ready()` idempotence → `entrances.feature` "every entrance opens again" + `matching.qnt` `entranceOpensAgain` |
+| `replicas-shared-db.test.ts` (deleted) | `entrances.feature` (same waits everywhere, a change of reach counts wherever it lands, opening again); `being-matched.feature` (one wide reach alone does not make a match) |
+| `seeded-workload.test.ts` (kept) | same-seed determinism contract; its implied property (consistent pairs within reach, agreed by every entrance, under any interleaving across entrances) is `matching.qnt` |
+| `schema-drift.test.ts` (kept) | error-code contract (`MatchmakingSchemaDriftError`); no person observes it |
 
 ### pkgs/room-sim (12) — framework-level sim; port in a later wave
 

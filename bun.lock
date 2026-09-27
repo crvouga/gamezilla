@@ -1256,6 +1256,8 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -1540,11 +1542,13 @@
         "@noble/hashes": "catalog:",
         "@pkgs/assert": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/sim": "workspace:*",
         "node-sql-parser": "catalog:",
       },
       "devDependencies": {
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
-        "@pkgs/sim": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -2003,6 +2007,8 @@
       },
       "devDependencies": {
         "@pkgs/clock": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",
@@ -2355,7 +2361,6 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
-        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",

@@ -102,6 +102,12 @@ export async function appleRelayForwardingFlow(
   }
 }
 
+/** The address a Google account moves to when its holder changes it. */
+export function movedGoogleEmail(email: string): string {
+  const at = email.indexOf('@');
+  return `${email.slice(0, at)}.moved${email.slice(at)}`;
+}
+
 /** The holder changes their Google address; the subject stays. */
 export async function googleEmailChangedFlow(
   s: AuthSurface,
@@ -111,7 +117,7 @@ export async function googleEmailChangedFlow(
   const account = await store.accountByEmail(email);
   if (account === null) return;
   const at = email.indexOf('@');
-  const moved = `${email.slice(0, at)}.moved${email.slice(at)}`;
+  const moved = movedGoogleEmail(email);
   await store.upsertAccount({
     sub: account.sub,
     handle: email.slice(0, at),

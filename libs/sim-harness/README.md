@@ -116,11 +116,16 @@ product libs. ProductSimulator web may still load SQLite WASM from
 slice) gets a **payment provider node** (`fabric/sim-billing.ts`,
 `@pkgs/billing-mock-provider`) at `SIM_BILLING_URL`, with its own SQLite state,
 the way it gets the simulated Google. Every API instance holds the production
-adapter to it (`MockMembershipBilling`, registered as the only entry of its
+adapter to it (`MockMembershipBilling`, registered in its
 `MembershipProviders`) through the network; the provider delivers **signed
 webhooks** back through the load balancer to `/api/billing/callback/mock`,
 and billing's only write path is that callback route — exactly how every
-real provider reaches production. The
+real provider reaches production. The team can **switch payment provider**
+(`SimBillingProviders.switchCheckout`, billing's `switchPaymentProvider`
+action): a second provider node boots with its own id, origin
+(`simBillingOrigin`), keys and state, new checkouts go there, and every
+earlier provider keeps serving its members — each API instance re-reads the
+registry per request, as a redeploy with the new configuration would. The
 actor's browser loads the provider's hosted checkout and portal from its own
 origin, so `subscribeToPlus` / `cancelPlus` / `resumePlus` /
 `switchPlusInterval` are the same walk at every fidelity.

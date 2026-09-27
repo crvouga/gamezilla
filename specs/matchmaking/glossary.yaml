@@ -1,0 +1,117 @@
+# The ubiquitous language of Matchmaking: people waiting to be paired with
+# someone close to their rating. Matchmaking stands alone
+# (docs/CONTEXT_MAP.md): it borrows nothing from another context, and
+# publishes nothing yet.
+context: Matchmaking
+purpose: >-
+  People wait for a match and are paired with someone they accept who
+  accepts them back, and they get the same answer wherever their requests
+  land.
+
+terms:
+  - term: matchmaking
+    definition: >-
+      Finding each person who is waiting someone to be paired with: someone
+      close enough to their rating whom they accept and who accepts them.
+
+  - term: wait for a match
+    definition: >-
+      A person asks to be matched and waits, with their details, until a
+      matching round pairs them. A person has one wait at a time; once
+      matched, or once they stop waiting, they may wait for a match again.
+    forms:
+      - waits for a match
+      - waiting for a match
+      - waited for a match
+      - waiting
+      - waits
+      - wait
+    avoid: [queue, join the queue, ticket, participant, enqueue]
+    model: [waitForMatch, Waiting]
+
+  - term: details
+    definition: >-
+      What a person waits with: their rating and their name. A person
+      waiting sees their details shown back to them.
+
+  - term: rating
+    definition: >-
+      A number saying how strong a person is. People are matched with others
+      whose rating is close to theirs.
+    forms: [ratings, points]
+
+  - term: reach
+    definition: >-
+      How far from their own rating a person accepts someone, in rating
+      points: "within 5 points" is a narrow reach, "within 200 points" a
+      wide one.
+    forms: [narrow reach, wide reach, within reach]
+    model: [Reach, Narrow, Wide]
+
+  - term: accept
+    definition: >-
+      A person accepts someone whose rating is within their reach. Two people
+      are matched only when each accepts the other; one wide reach alone is
+      not enough.
+    forms: [accepts, accepting, accepted, accept each other]
+
+  - term: change reach
+    definition: >-
+      A person who is waiting widens or narrows their reach, and is told the
+      change counted. It counts for every matching round from then on. A
+      person who is not waiting has no reach to change.
+    forms: [widens, widen, widened, narrows, narrowed]
+    model: [changeReach]
+
+  - term: matching round
+    definition: >-
+      Matchmaking looks at everyone waiting and pairs each two people who
+      accept each other. Rounds run on their own, and a round may run at any
+      entrance.
+    forms: [matching rounds, round, rounds]
+    model: [matchingRound]
+
+  - term: matched
+    definition: >-
+      Paired with one other person by a matching round. Each of the two is
+      then matched with the other, and stays matched.
+    forms: [match, matches, matched with, matched with each other, paired]
+    model: [Matched]
+
+  - term: stop waiting
+    definition: >-
+      A person who is waiting gives up their wait and is no longer waiting;
+      they are told they stopped waiting. A person who is matched, or who is
+      not waiting, has nothing to stop and is told so; a matched person
+      stays matched.
+    forms: [stops waiting, stopped waiting, stopping]
+    avoid: [leave the queue, dequeue, cancel]
+    model: [stopWaiting]
+
+  - term: not waiting
+    definition: >-
+      A person with no wait: they never waited for a match, or they stopped
+      waiting. Asking after a wait nobody started finds nothing.
+    model: [NotWaiting]
+
+  - term: standing
+    definition: >-
+      Where a person stands with matchmaking: not waiting, waiting, or
+      matched with someone.
+    model: [Standing, standing]
+
+  - term: entrance
+    definition: >-
+      Matchmaking takes people's requests at several entrances at once.
+      Which entrance a request lands at is out of anyone's hands, and every
+      entrance sees the same waits and matches, so a wait started at one
+      can be checked, changed or stopped at any other.
+    forms: [entrances, every entrance, another entrance]
+    avoid: [replica, server, instance, node, worker]
+
+  - term: opens again
+    definition: >-
+      An entrance starts up again. Everyone's standing is as it was, and
+      people can go on waiting for a match through it.
+    forms: [open again, opened again, opening again]
+    model: [entranceOpensAgain]

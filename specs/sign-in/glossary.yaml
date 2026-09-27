@@ -1,0 +1,219 @@
+# The ubiquitous language of Sign-in: how the outside accounts people already
+# have at Google and Apple get them into accounts, whatever those companies
+# do. It is the capability any app built on this product's sign-in has;
+# Identity (specs/profile/) is this product's use of it. Sign-in borrows
+# Identity's published terms (account, sign in, sign out, sign-in method,
+# Google, Apple) and publishes none of its own; see docs/CONTEXT_MAP.md.
+context: Sign-in
+purpose: >-
+  People get into their accounts with the outside accounts they already have
+  at Google and Apple: each outside account gets into exactly one account, an
+  address match is proven before it counts, a sign-in lasts until it is
+  signed out or lapses, and nothing Google or Apple does lets anyone into the
+  wrong account.
+
+terms:
+  # --- Borrowed -----------------------------------------------------------------
+
+  - term: account
+    from: profile
+    model: [accountCount]
+
+  - term: sign in
+    from: profile
+    model: [signIn, signedInto]
+
+  - term: sign out
+    from: profile
+    model: [signOut]
+
+  - term: sign-in method
+    from: profile
+    model: [signInMethods]
+
+  - term: Google
+    from: profile
+
+  - term: Apple
+    from: profile
+
+  - term: connection
+    from: kernel
+    model: [offline, loseConnection, connectionReturns]
+
+  # --- Outside accounts ------------------------------------------------------------
+
+  - term: outside account
+    definition: >-
+      A person's own account with Google or with Apple, which the app does
+      not run ("Alice's Google account"). Each gets into at most one account
+      in the app, and an account has at most one from each provider.
+    forms: [outside accounts, Google account, Google accounts, Apple account, Apple accounts, second Google account]
+    avoid: [identity, identities, provider account, third-party account, external account]
+    model: [OutsideAccount, ownerOf]
+
+  - term: provider
+    definition: >-
+      Google or Apple, as the company that runs an outside account and
+      vouches to the app for who is signing in.
+    forms: [providers]
+    avoid: [identity provider, IdP]
+    model: [Provider, providerOf]
+
+  - term: email address
+    definition: >-
+      The email address of an outside account, as its provider gives it to
+      the app. The sign-in method shows it; when the person changes it at
+      the provider, the sign-in method shows the new one from their next
+      sign-in.
+    forms: [email addresses, same email address, new email address]
+    avoid: [email, mail address]
+    model: [sameEmailAddress]
+
+  - term: verified email address
+    definition: >-
+      An email address the provider has confirmed belongs to the person. One
+      it has not confirmed is unverified.
+    forms: [verified email addresses, verified, unverified email address, unverified]
+    model: [verifiedEmailAddress]
+
+  # --- Address matches -------------------------------------------------------------
+
+  - term: address match
+    definition: >-
+      A new outside account at the same email address as an outside account
+      of an existing account that has no sign-in method from the same
+      provider yet. When both email addresses are verified it gets into that
+      account at once; otherwise the person is asked to prove the match
+      first, or keeps the accounts separate. A private Apple email address
+      never makes one.
+    forms: [address matches, the match]
+    model: [addressMatch]
+
+  - term: prove the match
+    definition: >-
+      Answer an address match by signing in with an outside account of the
+      matched account. The new outside account then becomes one of its
+      sign-in methods and the person is signed into it. Proving it with an
+      outside account of any other account fails, and leaves the person
+      signed out.
+    forms: [proves the match, proved the match, proving the match, could not be proven, asked to prove an address match, being asked to prove an address match, was asked to prove an address match]
+    model: [proveMatch, askedToProve]
+
+  - term: keep the accounts separate
+    definition: >-
+      Answer an address match by starting a new account with the new outside
+      account instead.
+    forms: [keeps the accounts separate, kept the accounts separate]
+    model: [keepSeparate]
+
+  - term: lapse
+    definition: >-
+      Run out of time. An address match not proven within 10 minutes lapses,
+      and the person is told so; a sign-in lapses 30 days after it starts,
+      and the device is signed out.
+    forms: [lapses, lapsed, has lapsed]
+    avoid: [expire, expires, expired]
+    model: [proofsLapse, signInsLapse]
+
+  # --- Managing sign-in methods ----------------------------------------------------
+
+  - term: connect a sign-in method
+    definition: >-
+      While signed in, add an outside account to one's account as a sign-in
+      method ("Alice connects Apple"). An outside account of another account
+      cannot be connected, nor a second one from a provider the account
+      already has, and connecting needs a connection. Connecting starts a new
+      sign-in on that device in place of the old one.
+    forms: [connects Apple, connected Apple, connect Apple, tries to connect, connecting]
+    avoid: [link, links, linked, linking]
+    model: [connectSignInMethod]
+
+  - term: remove a sign-in method
+    definition: >-
+      Take an outside account off one's account. The last sign-in method
+      cannot be removed, and removing needs a connection. The removed outside
+      account no longer gets into the account: signing in with it later
+      starts a new account.
+    forms: [removes Apple, removed Apple, remove Apple]
+    avoid: [unlink, unlinks, unlinked]
+    model: [removeSignInMethod]
+
+  # --- Sign-ins --------------------------------------------------------------------
+
+  - term: sign out everywhere
+    definition: >-
+      End every sign-in into one's account, on every device, at once. Other
+      accounts' devices stay signed in. It needs a connection.
+    forms: [signs out everywhere, signed out everywhere]
+    model: [signOutEverywhere]
+
+  - term: copied sign-in
+    definition: >-
+      Another device holding the very sign-in a person's device holds, as if
+      copied from it ("Eve copies Alice's sign-in"). It gets into the same
+      account until that sign-in is over: the person signing out with a
+      connection, signing out everywhere, connecting a sign-in method, or the
+      sign-in lapsing. Signing out offline only forgets the sign-in on the
+      person's own device, so a copy keeps working.
+    forms: [copied sign-ins, copies, copied, copy]
+    avoid: [stolen token, bearer, session token]
+    model: [copySignIn]
+
+  - term: shared device
+    definition: >-
+      A device more than one person uses, one after another.
+    forms: [shared devices, that device]
+
+  # --- What happens at Google and Apple --------------------------------------------
+
+  - term: failing provider
+    definition: >-
+      Google or Apple failing to vouch for who is signing in. Signing in,
+      connecting or proving a match with it fails, the person is told so, and
+      nothing changes, until it recovers.
+    forms: [is failing, was failing, recovers, has recovered]
+    model: [providerFails, providerRecovers]
+
+  - term: decline the app
+    definition: >-
+      Refuse, on the provider's own screens, to let the app use one's outside
+      account. Signing in is cancelled and nothing changes.
+    forms: [declines the app, declined the app]
+
+  - term: stop using Sign in with Apple
+    definition: >-
+      At Apple, stop letting the app use one's Apple account. Every device of
+      the account it gets into is signed out; signing in with Apple later
+      still gets into the same account.
+    forms: [stops using Sign in with Apple, stopped using Sign in with Apple]
+    model: [stopUsingSignInWithApple]
+
+  - term: delete an Apple account
+    definition: >-
+      At Apple, delete one's Apple account for good. It is no longer a
+      sign-in method, can never sign in again, and an account left with no
+      sign-in method is signed out everywhere.
+    forms: [deletes their Apple account, deleted their Apple account]
+    model: [deleteAppleAccount]
+
+  - term: hide their email address
+    definition: >-
+      At their first sign-in with Apple, choose to keep one's email address
+      from the app; the app gets a private Apple email address instead.
+    forms: [hides their email address, hid their email address, hidden email address]
+
+  - term: private Apple email address
+    definition: >-
+      An email address Apple makes up for a person who hides theirs. Mail
+      sent to it reaches them while Apple forwards it. It never makes an
+      address match.
+    forms: [private Apple email addresses]
+    avoid: [relay address, relay email]
+
+  - term: mail forwarding
+    definition: >-
+      Apple passing mail sent to a private Apple email address on to the
+      person. They can stop and restart it at Apple, and their Apple sign-in
+      method shows whether mail is forwarded.
+    forms: [forwards mail, forwarding mail, stops forwarding mail, stopped forwarding mail, mail is forwarded, mail is not forwarded]
