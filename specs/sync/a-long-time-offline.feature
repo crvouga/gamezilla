@@ -7,6 +7,6 @@ Feature: A long time offline
   Scenario: Many notes filed offline in new folders all reach others in their folders
     Given Alice and Bob use the app
     And Alice's app is offline
-    And Alice has filed 30 notes offline, each in a new folder made just before it
+    And Alice has filed 40 notes offline, each in a new folder made just before it
     When Alice's app comes back online
-    Then Bob sees all 30 notes, each in its folder
+    Then Bob sees all 40 notes, each in its folder
