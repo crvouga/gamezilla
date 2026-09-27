@@ -230,11 +230,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are friends | {actor}, {actor} | friends |
 | Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends |
+| Given | {actor} has been without a connection for {int} minutes | {actor}, {int} | friends |
 | Given | {actor} has blocked {actor} | {actor}, {actor} | friends |
 | Given | {actor} has come back to the space after closing the app | {actor} | friends |
 | Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends |
 | Given | {actor} has ended the space | {actor} | friends |
 | Given | {actor} has gone back to the lobby | {actor} | friends |
+| Given | {actor} has hosted a space and ended it | {actor} | friends |
 | Given | {actor} has lost the connection long enough to drop out of the space | {actor} | friends |
 | Given | {actor} has opened {actor}'s profile from their request | {actor}, {actor} | friends |
 | Given | {actor} has renamed themselves to {username} | {actor}, {username} | friends |
@@ -247,22 +249,33 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is viewing {actor}'s profile | {actor}, {actor} | friends |
 | Given | {actor} is viewing their empty friends list | {actor} | friends |
 | Given | {actor} is viewing their friends list with {person} in it | {actor}, {person} | friends |
+| Given | {actor} is viewing their inbox | {actor} | friends |
 | Given | {actor}'s friends list shows {actor} as live | {actor}, {actor} | friends |
 | Then | {actor} can ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends |
+| Then | {actor} can go back to Spaces | {actor} | friends |
+| Then | {actor} can rename the space | {actor} | friends |
 | Then | {actor} can search for people | {actor} | friends |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends |
 | Then | {actor} can withdraw the request to {actor} | {actor}, {actor} | friends |
+| Then | {actor} cannot rename the space | {actor} | friends |
+| Then | {actor} hosts {int} space(s) | {actor}, {int} | friends |
 | Then | {actor} is in the space | {actor} | friends |
+| Then | {actor} is invited to get Plus to host more spaces | {actor} | friends |
 | Then | {actor} is not in a space | {actor} | friends |
+| Then | {actor} is not invited to get Plus | {actor} | friends |
 | Then | {actor} is not offered to join | {actor} | friends |
 | Then | {actor} is offered to confirm {actor}'s request | {actor}, {actor} | friends |
 | Then | {actor} is offered to confirm {actor}'s request within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor} is shown {actor}'s profile | {actor}, {actor} | friends |
+| Then | {actor} is told friend requests need a connection within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} is told search needs an account | {actor} | friends |
+| Then | {actor} is told spaces need a connection within {int} seconds | {actor}, {int} | friends |
+| Then | {actor} is told the space cannot be found within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} is told they have no friends yet within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} sees {actor} as a friend | {actor}, {actor} | friends |
 | Then | {actor} sees {int} people/person in the space within {int} seconds | {actor}, {int}, {int} | friends |
 | Then | {actor} sees the space has ended within {int} seconds | {actor}, {int} | friends |
+| Then | {actor} sees the space is called {string} within {int} seconds | {actor}, {string}, {int} | friends |
 | Then | {actor} watches {person} appear in their friends list within {int} seconds | {actor}, {person}, {int} | friends |
 | Then | {actor}'s friend count is {int} | {actor}, {int} | friends |
 | Then | {actor}'s friends list does not show {person} | {actor}, {person} | friends |
@@ -272,8 +285,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s friends list stops showing {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor}'s friends list stops showing {person} within {int} seconds | {actor}, {person}, {int} | friends |
 | Then | {actor}'s inbox does not show a friend request from {actor} | {actor}, {actor} | friends |
+| Then | {actor}'s inbox shows a friend request from {actor} within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor}'s inbox stops showing the friend request from {actor} within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor}'s lobby lists {actor}'s space | {actor}, {actor} | friends |
+| Then | {actor}'s lobby lists {actor}'s space as {string} within {int} seconds | {actor}, {actor}, {string}, {int} | friends |
 | Then | {actor}'s lobby stops listing {actor}'s space within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor}'s request to {actor} is refused with {string} | {actor}, {actor}, {string} | friends |
 | Then | {person} is gone from {actor}'s open friends list | {person}, {actor} | friends |
@@ -286,6 +301,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} chooses to sign in from search | {actor} | friends |
 | When | {actor} confirms {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} creates a space | {actor} | friends |
+| When | {actor} creates another space | {actor} | friends |
 | When | {actor} declines {actor}'s friend request | {actor}, {actor} | friends |
 | When | {actor} declines {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} ends the space | {actor} | friends |
@@ -295,10 +311,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} joins the space from the link | {actor} | friends |
 | When | {actor} leaves the space | {actor} | friends |
 | When | {actor} looks up {actor} | {actor}, {actor} | friends |
+| When | {actor} opens a link to a space that does not exist | {actor} | friends |
 | When | {actor} opens the notice that {actor} accepted | {actor}, {actor} | friends |
 | When | {actor} opens the space link again | {actor} | friends |
 | When | {actor} opens their friends list | {actor} | friends |
+| When | {actor} opens their inbox | {actor} | friends |
 | When | {actor} removes {actor} | {actor}, {actor} | friends |
+| When | {actor} renames the space to {string} | {actor}, {string} | friends |
 | When | {actor} reopens their live space | {actor} | friends |
 | When | {actor} sends {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} starts removing {actor} but keeps them | {actor}, {actor} | friends |

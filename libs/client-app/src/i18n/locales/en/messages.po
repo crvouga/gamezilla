@@ -36,6 +36,11 @@ msgstr "{0, plural, one {# device} other {# devices}}"
 msgid "{0, plural, one {friend} other {friends}}"
 msgstr "{0, plural, one {friend} other {friends}}"
 
+#. placeholder {0}: hosted()
+#: libs/spaces/src/root/client/spaces-notices.tsx
+msgid "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
+msgstr "{0, plural, one {Hosting # space} other {Hosting # spaces}}"
+
 #. placeholder {0}: props.puzzleId
 #. placeholder {1}: props.rating
 #. placeholder {1}: props.timeLabel
@@ -324,6 +329,7 @@ msgid "Back to spaces"
 msgstr "Back to spaces"
 
 #: libs/spaces/src/root/client/join-space/space-join-ended-state.tsx
+#: libs/spaces/src/root/client/join-space/space-join-prompt.tsx
 msgid "Back to Spaces"
 msgstr "Back to Spaces"
 
@@ -869,13 +875,11 @@ msgstr "End"
 
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
-#: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 #: libs/spaces/src/root/client/miniplayer/space-end-or-leave-button.tsx
 msgid "End space"
 msgstr "End space"
 
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
-#: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "End space?"
 msgstr "End space?"
 
@@ -907,7 +911,6 @@ msgid "Everyone has been returned to the lobby."
 msgstr "Everyone has been returned to the lobby."
 
 #: libs/spaces/src/root/client/end-space/end-space-confirm-modal.tsx
-#: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "Everyone will leave this space. This cannot be undone."
 msgstr "Everyone will leave this space. This cannot be undone."
 
@@ -1010,6 +1013,10 @@ msgid "Friend requests and space invites will land here."
 msgstr "Friend requests and space invites will land here."
 
 #: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Friend requests need a connection. Try again once you're online."
+msgstr "Friend requests need a connection. Try again once you're online."
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
 #: libs/friends/src/root/client/friends-list-screen-view.tsx
 #: libs/friends/src/root/client/friends-permission-gate.tsx
 #: libs/profile/src/root/client/profile-screen.tsx
@@ -1035,6 +1042,10 @@ msgstr "Games"
 #: libs/client-app/src/shell/sync/boot-error-screen.tsx
 msgid "Gamezilla is open in another tab"
 msgstr "Gamezilla is open in another tab"
+
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "Get Plus to host more spaces"
+msgstr "Get Plus to host more spaces"
 
 #: libs/spaces/src/root/client/rename-space/rename-space-modal.tsx
 #: pkgs/ui/src/components/mutation-modal/mutation-modal.example.tsx
@@ -1199,6 +1210,14 @@ msgstr "Latest expires {0}"
 msgid "Leave"
 msgstr "Leave"
 
+#: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
+msgid "Leave and end"
+msgstr "Leave and end"
+
+#: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
+msgid "Leave and end the space?"
+msgstr "Leave and end the space?"
+
 #: libs/spaces/src/root/client/active-space/space-chrome-action-bar.tsx
 #: libs/spaces/src/root/client/miniplayer/space-end-or-leave-button.tsx
 msgid "Leave space"
@@ -1340,6 +1359,10 @@ msgstr "Name"
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Navigation"
 msgstr "Navigation"
+
+#: libs/friends/src/public/friend-action-pills/friend-action-status-renderers.tsx
+msgid "Needs a connection"
+msgstr "Needs a connection"
 
 #: libs/client-app/src/screens/more/settings-screen.tsx
 msgid "Network reachability and server health"
@@ -1929,6 +1952,10 @@ msgid "Search for people by username to send a friend request."
 msgstr "Search for people by username to send a friend request."
 
 #: libs/search/src/root/client/search-screen-view.tsx
+msgid "Search needs a connection"
+msgstr "Search needs a connection"
+
+#: libs/search/src/root/client/search-screen-view.tsx
 msgid "Search people"
 msgstr "Search people"
 
@@ -2296,6 +2323,10 @@ msgstr "Space renamed"
 msgid "Spaces"
 msgstr "Spaces"
 
+#: libs/spaces/src/root/client/spaces-notices.tsx
+msgid "Spaces need a connection. Connect to the internet and try again."
+msgstr "Spaces need a connection. Connect to the internet and try again."
+
 #: pkgs/ui/src/components/spectator-indicator/spectator-indicator.tsx
 msgid "Spectating"
 msgstr "Spectating"
@@ -2452,6 +2483,10 @@ msgstr "The host hasn't started a puzzle yet."
 msgid "The host picks the game for this space."
 msgstr "The host picks the game for this space."
 
+#: libs/spaces/src/root/client/join-space/space-join-prompt.tsx
+msgid "The link may be wrong, or the space may never have existed."
+msgstr "The link may be wrong, or the space may never have existed."
+
 #: libs/auth/src/public/auth-flow-messages.tsx
 msgid "The sign-in provider couldn't finish. Try again in a moment."
 msgstr "The sign-in provider couldn't finish. Try again in a moment."
@@ -2508,6 +2543,10 @@ msgstr "This puzzle is not in your local feed yet. Try again after sync."
 #: libs/client-app/src/routes/route-stub.tsx
 msgid "This screen has not been ported to the web app yet."
 msgstr "This screen has not been ported to the web app yet."
+
+#: libs/spaces/src/root/client/join-space/space-join-prompt.tsx
+msgid "This space can't be found"
+msgstr "This space can't be found"
 
 #: libs/spaces/src/root/client/join-space/space-join-ended-state.tsx
 msgid "This space has ended"
@@ -2699,6 +2738,10 @@ msgstr "Yes"
 msgid "You"
 msgstr "You"
 
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
+msgstr "You can host one space at a time. End it to start another, or get Plus to host as many as you like."
+
 #: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
 msgid "You can rejoin from the invite link if the space is still live."
 msgstr "You can rejoin from the invite link if the space is still live."
@@ -2733,6 +2776,10 @@ msgstr "You're all caught up"
 msgid "You're offline"
 msgstr "You're offline"
 
+#: libs/search/src/root/client/search-screen-view.tsx
+msgid "You're offline. Search again once you're back online."
+msgstr "You're offline. Search again once you're back online."
+
 #: libs/auth/src/public/sign-in-modal.tsx
 msgid "You're signed in on this device."
 msgstr "You're signed in on this device."
@@ -2741,6 +2788,10 @@ msgstr "You're signed in on this device."
 msgid "You're signed out on this device."
 msgstr "You're signed out on this device."
 
+#: libs/spaces/src/root/client/leave-space/leave-space-confirm-modal.tsx
+msgid "You're the host, so leaving ends the space for everyone. This cannot be undone."
+msgstr "You're the host, so leaving ends the space for everyone. This cannot be undone."
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-play-screen.tsx
 msgid "You've cleared everything in your feed. Widen the filters and let's keep going."
 msgstr "You've cleared everything in your feed. Widen the filters and let's keep going."
@@ -2748,6 +2799,10 @@ msgstr "You've cleared everything in your feed. Widen the filters and let's keep
 #: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "You've hit today's puzzle limit"
 msgstr "You've hit today's puzzle limit"
+
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "You've reached your limit"
+msgstr "You've reached your limit"
 
 #: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "You've used this for now"

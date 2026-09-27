@@ -16,43 +16,57 @@ import {
 } from '@libs/sim-harness/spec/define';
 import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
 import { recall, remember } from '@libs/sim-harness/spec/world';
-import { restartApp } from '@libs/sim-harness/system/actions';
+import { letTimePass, restartApp } from '@libs/sim-harness/system/actions';
 import {
   closeSpaceMembers,
   createSpace,
   endSpace,
-  joinFromPrompt,
+  joinFromLobby,
+  joinViaLink,
   leaveSpace,
-  openLobbyCard,
   openSpaceLink,
   openSpaceMembers,
+  openSpaceMenu,
   openSpacesTab,
-  reenterActiveSpace,
+  renameSpace,
+  reopenLiveSpace,
   reopenSpaceLink,
   returnToLobby,
+  startSpace,
 } from '@libs/spaces/sim/space-actions';
 import {
   activeSpaceVisible,
+  backToSpacesOffered,
+  hostedSpaceCount,
+  hostingLimitShown,
   joinOffered,
+  lobbyCardText,
   lobbyCardVisible,
   readSpaceLink,
   readSpacePresenceCount,
+  renameOffered,
   spaceEndedShown,
+  spaceNotFoundShown,
+  spacesNeedConnectionShown,
+  spaceTitleShown,
 } from '@libs/spaces/sim/spaces-ui-reads';
 
 const SECOND_MS = 1_000;
+const MINUTE_MS = 60 * SECOND_MS;
+/** A link to a space that was never created. */
+const NO_SUCH_SPACE_LINK = '/space/no-such-space';
 const SPACE_LINK = 'spaceLink';
 const SPACE_HOST = 'spaceHost';
 
-async function joinFromLobby(
+/** Into `host`'s live space from `actor`'s lobby card, once it lists it. */
+async function joinHostFromLobby(
   w: SimWorld,
   actor: Actor,
   host: Actor
 ): Promise<void> {
   await w.s.apply(openSpacesTab, actor);
   await w.s.until((surf) => lobbyCardVisible(surf, actor, host));
-  await w.s.apply(openLobbyCard, actor, host);
-  await w.s.apply(joinFromPrompt, actor);
+  await w.s.apply(joinFromLobby, actor, host);
 }
 
 async function shareLink(w: SimWorld, host: Actor): Promise<string> {
@@ -94,8 +108,44 @@ Given('{actor} is hosting a space', async (w, actor: Actor) => {
 
 When('{actor} creates a space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.apply(createSpace, actor);
+  await w.s.apply(startSpace, actor);
 });
+
+When('{actor} creates another space', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(startSpace, actor);
+});
+
+Given('{actor} has hosted a space and ended it', async (w, actor: Actor) => {
+  await hostSpace(w, actor);
+  await w.s.apply(endSpace, actor);
+});
+
+Then(
+  '{actor} is invited to get Plus to host more spaces',
+  async (w, actor: Actor) => {
+    expect(await w.s.read(hostingLimitShown, actor)).toBe(true);
+  }
+);
+
+Then('{actor} is not invited to get Plus', async (w, actor: Actor) => {
+  expect(await w.s.read(hostingLimitShown, actor)).toBe(false);
+});
+
+// The Spaces screen says how many live spaces the host has.
+Then('{actor} hosts {int} space(s)', async (w, actor: Actor, count: number) => {
+  await w.s.apply(openSpacesTab, actor);
+  expect(await w.s.read(hostedSpaceCount, actor)).toBe(count);
+});
+
+Then(
+  '{actor} is told spaces need a connection within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((surf) => spacesNeedConnectionShown(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
 
 When('{actor} goes back to the lobby', async (w, actor: Actor) => {
   await w.s.apply(returnToLobby, actor);
@@ -106,7 +156,7 @@ Given('{actor} has gone back to the lobby', async (w, actor: Actor) => {
 });
 
 When('{actor} reopens their live space', async (w, actor: Actor) => {
-  await w.s.apply(reenterActiveSpace, actor, actor);
+  await w.s.apply(reopenLiveSpace, actor, recall(w, SPACE_LINK) as string);
 });
 
 Then(
@@ -140,13 +190,12 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ joining
 
-/** `actor` opens the shared space link and joins from its prompt. */
+/** `actor` opens the shared space link and joins when it offers to. */
 export async function joinSpaceFromLink(
   w: SimWorld,
   actor: Actor
 ): Promise<void> {
-  await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
-  await w.s.apply(joinFromPrompt, actor);
+  await w.s.apply(joinViaLink, actor, recall(w, SPACE_LINK) as string);
 }
 
 When('{actor} joins the space from the link', async (w, actor: Actor) => {
@@ -160,16 +209,35 @@ When('{actor} opens the space link again', async (w, actor: Actor) => {
 When(
   "{actor} joins {actor}'s space from the lobby",
   async (w, actor: Actor, host: Actor) => {
-    await joinFromLobby(w, actor, host);
+    await joinHostFromLobby(w, actor, host);
   }
 );
+
+When(
+  '{actor} opens a link to a space that does not exist',
+  async (w, actor: Actor) => {
+    await w.s.apply(openSpaceLink, actor, NO_SUCH_SPACE_LINK);
+  }
+);
+
+Then(
+  '{actor} is told the space cannot be found within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((surf) => spaceNotFoundShown(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then('{actor} can go back to Spaces', async (w, actor: Actor) => {
+  expect(await w.s.read(backToSpacesOffered, actor)).toBe(true);
+});
 
 Given(
   '{actor} is hosting a space that {actor} joined from the link',
   async (w, host: Actor, guest: Actor) => {
     await w.s.apply(createSpace, host);
-    await w.s.apply(openSpaceLink, guest, await shareLink(w, host));
-    await w.s.apply(joinFromPrompt, guest);
+    await w.s.apply(joinViaLink, guest, await shareLink(w, host));
     // Precondition: both are there before the scenario acts.
     await untilPresence(w, host, 2, PRESENCE_SETTLES_MS);
   }
@@ -178,8 +246,8 @@ Given(
 Given(
   '{actor} is hosting a space that {actor} joined from the lobby',
   async (w, host: Actor, guest: Actor) => {
-    await w.s.apply(createSpace, host);
-    await joinFromLobby(w, guest, host);
+    await hostSpace(w, host);
+    await joinHostFromLobby(w, guest, host);
   }
 );
 
@@ -193,6 +261,14 @@ Given(
     const host = recall(w, SPACE_HOST) as Actor;
     await cutConnection(w, actor);
     await untilPresence(w, host, 1, PRESENCE_SETTLES_MS);
+  }
+);
+
+Given(
+  '{actor} has been without a connection for {int} minutes',
+  async (w, actor: Actor, minutes: number) => {
+    await cutConnection(w, actor);
+    await w.s.apply(letTimePass, minutes * MINUTE_MS);
   }
 );
 
@@ -233,4 +309,51 @@ Then(
 
 Then('{actor} is not offered to join', async (w, actor: Actor) => {
   expect(await w.s.read(joinOffered, actor)).toBe(false);
+});
+
+// ------------------------------------------------------------------ rename
+
+When(
+  '{actor} renames the space to {string}',
+  async (w, actor: Actor, title: string) => {
+    await w.s.apply(renameSpace, actor, title);
+  }
+);
+
+Then(
+  '{actor} sees the space is called {string} within {int} seconds',
+  async (w, actor: Actor, title: string, seconds: number) => {
+    await w.s.apply(focusActor, actor);
+    await w.s.until((surf) => spaceTitleShown(surf, actor), {
+      pred: (shown) => shown === title,
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then(
+  "{actor}'s lobby lists {actor}'s space as {string} within {int} seconds",
+  async (
+    w,
+    ...[actor, host, title, seconds]: [Actor, Actor, string, number]
+  ) => {
+    await w.s.apply(openSpacesTab, actor);
+    await w.s.until((surf) => lobbyCardText(surf, actor, host), {
+      pred: (text) => text?.includes(title) === true,
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+// Renaming lives in the space's menu; the observer opens it to look.
+Then('{actor} can rename the space', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(openSpaceMenu, actor);
+  expect(await w.s.read(renameOffered, actor)).toBe(true);
+});
+
+Then('{actor} cannot rename the space', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(openSpaceMenu, actor);
+  expect(await w.s.read(renameOffered, actor)).toBe(false);
 });

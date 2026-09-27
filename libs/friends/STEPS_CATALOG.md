@@ -9,11 +9,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are friends | {actor}, {actor} | friends, spaces |
 | Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends, spaces |
+| Given | {actor} has been without a connection for {int} minutes | {actor}, {int} | friends, spaces |
 | Given | {actor} has blocked {actor} | {actor}, {actor} | friends, spaces |
 | Given | {actor} has come back to the space after closing the app | {actor} | friends, spaces |
 | Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | Given | {actor} has ended the space | {actor} | friends, spaces |
 | Given | {actor} has gone back to the lobby | {actor} | friends, spaces |
+| Given | {actor} has hosted a space and ended it | {actor} | friends, spaces |
 | Given | {actor} has lost the connection long enough to drop out of the space | {actor} | friends, spaces |
 | Given | {actor} has opened {actor}'s profile from their request | {actor}, {actor} | friends, spaces |
 | Given | {actor} has renamed themselves to {username} | {actor}, {username} | friends, spaces |
@@ -26,22 +28,34 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is viewing {actor}'s profile | {actor}, {actor} | friends, spaces |
 | Given | {actor} is viewing their empty friends list | {actor} | friends, spaces |
 | Given | {actor} is viewing their friends list with {person} in it | {actor}, {person} | friends, spaces |
+| Given | {actor} is viewing their inbox | {actor} | friends, spaces |
 | Given | {actor}'s friends list shows {actor} as live | {actor}, {actor} | friends, spaces |
 | Then | {actor} can ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
+| Then | {actor} can go back to Spaces | {actor} | friends, spaces |
+| Then | {actor} can rename the space | {actor} | friends, spaces |
 | Then | {actor} can search for people | {actor} | friends, spaces |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends, spaces |
 | Then | {actor} can withdraw the request to {actor} | {actor}, {actor} | friends, spaces |
+| Then | {actor} cannot rename the space | {actor} | friends, spaces |
+| Then | {actor} hosts {int} space(s) | {actor}, {int} | friends, spaces |
 | Then | {actor} is in the space | {actor} | friends, spaces |
+| Then | {actor} is invited to get Plus to host more spaces | {actor} | friends, spaces |
 | Then | {actor} is not in a space | {actor} | friends, spaces |
+| Then | {actor} is not invited to get Plus | {actor} | friends, spaces |
 | Then | {actor} is not offered to join | {actor} | friends, spaces |
 | Then | {actor} is offered to confirm {actor}'s request | {actor}, {actor} | friends, spaces |
 | Then | {actor} is offered to confirm {actor}'s request within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor} is shown {actor}'s profile | {actor}, {actor} | friends, spaces |
+| Then | {actor} is told friend requests need a connection within {int} seconds | {actor}, {int} | friends, spaces |
+| Then | {actor} is told search needs a connection within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} is told search needs an account | {actor} | friends, spaces |
+| Then | {actor} is told spaces need a connection within {int} seconds | {actor}, {int} | friends, spaces |
+| Then | {actor} is told the space cannot be found within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} is told they have no friends yet within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} sees {actor} as a friend | {actor}, {actor} | friends, spaces |
 | Then | {actor} sees {int} people/person in the space within {int} seconds | {actor}, {int}, {int} | friends, spaces |
 | Then | {actor} sees the space has ended within {int} seconds | {actor}, {int} | friends, spaces |
+| Then | {actor} sees the space is called {string} within {int} seconds | {actor}, {string}, {int} | friends, spaces |
 | Then | {actor} watches {person} appear in their friends list within {int} seconds | {actor}, {person}, {int} | friends, spaces |
 | Then | {actor}'s friend count is {int} | {actor}, {int} | friends, spaces |
 | Then | {actor}'s friends list does not show {person} | {actor}, {person} | friends, spaces |
@@ -51,8 +65,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s friends list stops showing {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor}'s friends list stops showing {person} within {int} seconds | {actor}, {person}, {int} | friends, spaces |
 | Then | {actor}'s inbox does not show a friend request from {actor} | {actor}, {actor} | friends, spaces |
+| Then | {actor}'s inbox shows a friend request from {actor} within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor}'s inbox stops showing the friend request from {actor} within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor}'s lobby lists {actor}'s space | {actor}, {actor} | friends, spaces |
+| Then | {actor}'s lobby lists {actor}'s space as {string} within {int} seconds | {actor}, {actor}, {string}, {int} | friends, spaces |
 | Then | {actor}'s lobby stops listing {actor}'s space within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor}'s request to {actor} is refused with {string} | {actor}, {actor}, {string} | friends, spaces |
 | Then | {actor}'s search does not show {person} | {actor}, {person} | friends, spaces |
@@ -71,6 +87,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} chooses to sign in from search | {actor} | friends, spaces |
 | When | {actor} confirms {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends, spaces |
 | When | {actor} creates a space | {actor} | friends, spaces |
+| When | {actor} creates another space | {actor} | friends, spaces |
 | When | {actor} declines {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | When | {actor} declines {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends, spaces |
 | When | {actor} ends the space | {actor} | friends, spaces |
@@ -80,10 +97,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} joins the space from the link | {actor} | friends, spaces |
 | When | {actor} leaves the space | {actor} | friends, spaces |
 | When | {actor} looks up {actor} | {actor}, {actor} | friends, spaces |
+| When | {actor} opens a link to a space that does not exist | {actor} | friends, spaces |
 | When | {actor} opens the notice that {actor} accepted | {actor}, {actor} | friends, spaces |
 | When | {actor} opens the space link again | {actor} | friends, spaces |
 | When | {actor} opens their friends list | {actor} | friends, spaces |
+| When | {actor} opens their inbox | {actor} | friends, spaces |
 | When | {actor} removes {actor} | {actor}, {actor} | friends, spaces |
+| When | {actor} renames the space to {string} | {actor}, {string} | friends, spaces |
 | When | {actor} reopens their live space | {actor} | friends, spaces |
 | When | {actor} searches for {string} | {actor}, {string} | friends, spaces |
 | When | {actor} sends {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends, spaces |
@@ -113,6 +133,24 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} loses the connection | {actor} | shared |
 | When | {actor} signs in with Google | {actor} | shared |
 | When | the connection comes back | — | shared |
+
+## Steps imported from @libs/billing
+
+| Kind | Step | Parameters | Domain |
+| --- | --- | --- | --- |
+| Given | {actor} has subscribed to Plus | {actor} | billing |
+| Then | {actor} has free access | {actor} | billing |
+| Then | {actor} has free access on {actor}'s device | {actor}, {actor} | billing |
+| Then | {actor} has paid access | {actor} | billing |
+| Then | {actor} is asked to sign in before subscribing | {actor} | billing |
+| Then | {actor} is not offered to subscribe | {actor} | billing |
+| Then | {actor} is offered to manage their membership | {actor} | billing |
+| Then | {actor} is offered to subscribe | {actor} | billing |
+| Then | {actor} is told subscribing needs a connection | {actor} | billing |
+| When | {actor} leaves checkout without paying | {actor} | billing |
+| When | {actor} signs in with Google on {actor}'s device | {actor}, {actor} | billing |
+| When | {actor} subscribes to Plus | {actor} | billing |
+| When | {actor} views the billing plans | {actor} | billing |
 
 ## Steps imported from @libs/profile
 

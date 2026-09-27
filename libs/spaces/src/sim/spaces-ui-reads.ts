@@ -1,6 +1,8 @@
 import { actorUi } from '@libs/sim-harness/system/actor-ui';
+import { actorLocalSql } from '@libs/sim-harness/system/identity';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
+import { sql } from '@pkgs/sql';
 
 export async function lobbyCardVisible(
   s: ProductSim,
@@ -111,4 +113,121 @@ export async function joinOffered(
   } catch {
     return false;
   }
+}
+
+async function shows(
+  s: ProductSim,
+  actorId: string,
+  handle: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return await ui.get(handle).isVisible();
+  } catch {
+    return false;
+  }
+}
+
+async function textOf(
+  s: ProductSim,
+  actorId: string,
+  handle: string
+): Promise<string | null> {
+  try {
+    const ui = await actorUi(s, actorId);
+    if (!(await ui.get(handle).isVisible())) return null;
+    return await ui.get(handle).text();
+  } catch {
+    return null;
+  }
+}
+
+/** The actor is invited to Plus after reaching the hosting limit. */
+export function hostingLimitShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spacesHostingLimit);
+}
+
+/** The actor's app says spaces need a connection. */
+export function spacesNeedConnectionShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spacesNeedConnection);
+}
+
+/** How many live spaces the actor's Spaces screen says they host. */
+export async function hostedSpaceCount(
+  s: ProductSim,
+  actorId: string
+): Promise<number> {
+  const raw = await textOf(s, actorId, Handles.spacesHostingCount);
+  const n = Number.parseInt(/\d+/.exec(raw ?? '')?.[0] ?? '0', 10);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** The actor's app says the space behind a link cannot be found. */
+export function spaceNotFoundShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceNotFound);
+}
+
+/** The actor's app offers the way back to Spaces from a dead link. */
+export function backToSpacesOffered(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceNotFoundBack);
+}
+
+/** The name the actor's open space shows, or `null` outside a space. */
+export function spaceTitleShown(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  return textOf(s, actorId, Handles.spaceTitle);
+}
+
+/** What the actor's lobby card for `hostUsername`'s space reads. */
+export function lobbyCardText(
+  s: ProductSim,
+  actorId: string,
+  hostUsername: string
+): Promise<string | null> {
+  return textOf(s, actorId, Handles.spaceCard(hostUsername));
+}
+
+/** The actor's open space menu offers to rename the space. */
+export function renameOffered(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return shows(s, actorId, Handles.spaceRename);
+}
+
+/**
+ * The username a space's lobby card is labelled with (its host's), from the
+ * actor's synced copy of the space at `link` (`/space/<id>`): what resolves
+ * the card's handle when the host is a guest with a generated name.
+ */
+export async function localSpaceHostUsername(
+  s: ProductSim,
+  actorId: string,
+  link: string
+): Promise<string | null> {
+  const local = actorLocalSql(s, actorId);
+  const spaceId = /^\/space\/([^/?#]+)/.exec(link)?.[1];
+  if (local === null || spaceId === undefined) return null;
+  const rows = await local.query(sql<{ readonly username: string | null }>`
+    SELECT p.username
+    FROM spaces AS s
+    INNER JOIN profile AS p
+      ON p.id = COALESCE(s.host_account_id, s.host_member_id)
+    WHERE s.id = ${spaceId}
+    LIMIT 1`);
+  return rows[0]?.username ?? null;
 }
