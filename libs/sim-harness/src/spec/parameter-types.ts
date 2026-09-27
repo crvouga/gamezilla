@@ -23,6 +23,9 @@ export const ACTOR_IDS = {
   Bob: 'bob',
   Carol: 'carol',
   Dave: 'dave',
+  Eve: 'eve',
+  White: 'white',
+  Black: 'black',
 } as const;
 
 export type ActorName = keyof typeof ACTOR_IDS;

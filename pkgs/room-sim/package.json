@@ -12,8 +12,12 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test tests"
+    "test": "bun test tests",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
+  "specDomains": [
+    "rooms"
+  ],
   "dependencies": {
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
@@ -25,7 +29,9 @@
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/keyword": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
