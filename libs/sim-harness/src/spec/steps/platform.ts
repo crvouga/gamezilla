@@ -116,6 +116,10 @@ When('the connection comes back', async (w) => {
   await w.s.apply(restoreNetwork);
 });
 
+Given('{actor} has closed and reopened the app', async (w, actor: Actor) => {
+  await w.s.apply(restartApp, actor);
+});
+
 When('{actor} closes and reopens the app', async (w, actor: Actor) => {
   await w.s.apply(restartApp, actor);
 });

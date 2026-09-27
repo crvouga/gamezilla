@@ -676,7 +676,3 @@ Given(
     await w.s.apply(signInWithGoogle, actor);
   }
 );
-
-Given('{actor} has closed and reopened the app', async (w, actor: Actor) => {
-  await w.s.apply(restartApp, actor);
-});

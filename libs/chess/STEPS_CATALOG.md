@@ -7,7 +7,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
-| Given | {actor} has closed and reopened the app | {actor} | chess |
 | Given | {actor} has finished the puzzle offline by {finish} | {actor}, {finish} | chess |
 | Given | {actor} has left the puzzle for the chess choices | {actor} | chess |
 | Given | {actor} has limited the feed to the {string} theme and it is empty | {actor}, {string} | chess |
@@ -175,6 +174,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
 | Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
+| Given | {actor} has closed and reopened the app | {actor} | shared |
 | Given | {actor} has signed out | {actor} | shared |
 | Given | {actor} is a guest | {actor} | shared |
 | Given | {actor} is also signed in on another device | {actor} | shared |
@@ -195,7 +195,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} and {actor} are friends | {actor}, {actor} | friends |
 | Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends |
 | Given | {actor} has blocked {actor} | {actor}, {actor} | friends |
-| Given | {actor} has closed and reopened the app | {actor} | friends |
 | Given | {actor} has come back to the space after closing the app | {actor} | friends |
 | Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends |
 | Given | {actor} has ended the space | {actor} | friends |
@@ -217,7 +216,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} can search for people | {actor} | friends |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends |
 | Then | {actor} can withdraw the request to {actor} | {actor}, {actor} | friends |
-| Then | {actor} has a link to the space | {actor} | friends |
 | Then | {actor} is asked to sign in | {actor} | friends |
 | Then | {actor} is asked to sign in within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} is in the space | {actor} | friends |

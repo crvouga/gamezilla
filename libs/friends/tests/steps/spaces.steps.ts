@@ -140,12 +140,6 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ joining
 
-// Chess still asserts the link this way; spaces' own scenarios get the link
-// from `{actor} is hosting a space`.
-Then('{actor} has a link to the space', async (w, host: Actor) => {
-  expect(await shareLink(w, host)).toMatch(/^\/space\/.+/);
-});
-
 When('{actor} joins the space from the link', async (w, actor: Actor) => {
   await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
   await w.s.apply(joinFromPrompt, actor);
@@ -193,10 +187,6 @@ Given(
     await untilPresence(w, host, 1, PRESENCE_SETTLES_MS);
   }
 );
-
-Given('{actor} has closed and reopened the app', async (w, actor: Actor) => {
-  await w.s.apply(restartApp, actor);
-});
 
 Given(
   '{actor} has come back to the space after closing the app',

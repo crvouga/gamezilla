@@ -45,6 +45,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
 | Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
+| Given | {actor} has closed and reopened the app | {actor} | shared |
 | Given | {actor} has signed out | {actor} | shared |
 | Given | {actor} is a guest | {actor} | shared |
 | Given | {actor} is also signed in on another device | {actor} | shared |

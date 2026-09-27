@@ -10,7 +10,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} and {actor} are friends | {actor}, {actor} | friends, spaces |
 | Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | Given | {actor} has blocked {actor} | {actor}, {actor} | friends, spaces |
-| Given | {actor} has closed and reopened the app | {actor} | friends, spaces |
 | Given | {actor} has come back to the space after closing the app | {actor} | friends, spaces |
 | Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends, spaces |
 | Given | {actor} has ended the space | {actor} | friends, spaces |
@@ -32,7 +31,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} can search for people | {actor} | friends, spaces |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends, spaces |
 | Then | {actor} can withdraw the request to {actor} | {actor}, {actor} | friends, spaces |
-| Then | {actor} has a link to the space | {actor} | friends, spaces |
 | Then | {actor} is asked to sign in | {actor} | friends, spaces |
 | Then | {actor} is asked to sign in within {int} seconds | {actor}, {int} | friends, spaces |
 | Then | {actor} is in the space | {actor} | friends, spaces |
@@ -101,6 +99,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
 | Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
+| Given | {actor} has closed and reopened the app | {actor} | shared |
 | Given | {actor} has signed out | {actor} | shared |
 | Given | {actor} is a guest | {actor} | shared |
 | Given | {actor} is also signed in on another device | {actor} | shared |
