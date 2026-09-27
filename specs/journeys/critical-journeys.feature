@@ -40,3 +40,15 @@ Feature: Critical journeys
     Given a person is signed in on a fresh device
     When they search for people with a name nobody has
     Then the search settles on no results
+
+  Scenario: A guest solves a puzzle and the next one is ready
+    Given a person opens the app on a fresh device
+    And they are hosting a space
+    And they have started a chess puzzle in the space
+    When they solve the puzzle
+    Then the next puzzle is ready to play
+
+  Scenario: A signed-in person can see what Plus offers
+    Given a person is signed in on a fresh device
+    When they look at the billing plans
+    Then Plus is offered at its monthly and yearly prices

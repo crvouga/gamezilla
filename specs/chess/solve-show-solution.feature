@@ -19,3 +19,7 @@ Feature: Showing the solution
   Scenario: Showing the solution counts as a fail
     When Alice shows the solution
     Then Alice's game log records that puzzle as failed
+
+  Scenario: Showing the solution drops the rating
+    When Alice shows the solution
+    Then Alice's puzzle rating is below 1500

@@ -18,3 +18,10 @@ Feature: Rating, puzzles solved, and accuracy
     And Alice has solved 2 puzzles and failed 1
     When Alice opens their stats
     Then Alice's stats show 3 played, 2 solved, and 67% accuracy
+
+  Scenario: The stats show how the rating moved over time
+    Given Alice is signed in
+    And Alice is playing puzzles in their space
+    And Alice has solved 2 puzzles and failed 1
+    When Alice opens their stats
+    Then Alice's stats show their rating after each of those 3 puzzles
