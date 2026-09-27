@@ -12,7 +12,6 @@ import {
   spaceOpenSessionEntityId,
 } from './participation/participation-ids';
 import { isSpaceHostActor } from './participation/space-participation-policy';
-import { SPACE_VISIBILITIES } from './space-visibility';
 
 type SpaceHostRow = {
   readonly host_id: string | null;
@@ -23,7 +22,6 @@ type SpaceHostRow = {
 };
 
 export const spaceIdArgs = z.object({ spaceId: z.string().min(1) });
-export const visibilityArgs = z.enum(SPACE_VISIBILITIES);
 
 /**
  * Space actor id: the signed-in account, or the install's `users.id` for a

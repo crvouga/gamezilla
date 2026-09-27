@@ -21,6 +21,9 @@ const COPY: Readonly<Record<string, () => string>> = {
   'unlock.notifications.body': () =>
     t`Friend requests and space invites will land here.`,
   'unlock.billing-subscribe.title': () => t`Sign in to subscribe`,
+  'unlock.hosted-spaces.title': () => t`Get Plus to host more spaces`,
+  'unlock.hosted-spaces.body': () =>
+    t`You can host one space at a time. End it to start another, or get Plus to host as many as you like.`,
 };
 
 const CTA: Readonly<Record<string, () => string>> = {
@@ -39,6 +42,7 @@ export function unlockCtaRoute(target: string): string | undefined {
 
 const REASON_TITLE: Readonly<Record<DenialReason, () => string>> = {
   quota_exhausted: () => t`You've used this for now`,
+  limit_reached: () => t`You've reached your limit`,
   not_granted: () => t`Not available`,
   requires_account: () => t`Sign in to continue`,
   restricted: () => t`Not available on this account`,

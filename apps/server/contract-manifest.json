@@ -24,7 +24,6 @@
     "renameSpace",
     "savePuzzleFeedSettings",
     "sendFriendRequest",
-    "setVisibility",
     "unblockUser",
     "upsertPuzzleProfile"
   ],

@@ -675,11 +675,31 @@ async function ownSpaceCard(
 }
 
 /**
+ * Into a space to reach the game menu: the account's live space when its
+ * lobby lists one (a free account hosts one at a time, so another device of
+ * it goes into that one), a new one otherwise.
+ */
+async function enterOrStartSpace(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  const card = await ownSpaceCard(s, actorId);
+  if (card !== null) {
+    await ui.get(card).tap({ timeoutMs: WAIT_MS });
+    // Another device of the host goes in through the join prompt.
+    await ui.get(Handles.spaceJoin).tap({ timeoutMs: WAIT_MS });
+    return;
+  }
+  await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+}
+
+/**
  * The stats screen, from wherever the device is: the chess choices, the
  * puzzle board, the space's game menu, a screen an interruption (signing in)
  * left open, the tabs with the space still open behind them, or the tabs
- * with no space (a device outside any space opens its own). Reading
- * stats changes nothing.
+ * with no space (a device outside any space goes into its account's live
+ * space, or opens one). Reading stats changes nothing.
  */
 export async function showChessStats(
   s: ProductSim,
@@ -707,8 +727,7 @@ export async function showChessStats(
         await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
       } else if (!createdSpace) {
         createdSpace = true;
-        await showSpacesTab(s, actorId);
-        await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+        await enterOrStartSpace(s, actorId);
       }
       return null;
     },

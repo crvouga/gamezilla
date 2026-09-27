@@ -7,7 +7,6 @@ import { leaveSpaceMutation } from '../use-cases/leave-space/shared/leave-space-
 import { markSpaceJoinAnnouncedMutation } from '../use-cases/mark-join-announced/shared/mark-join-announced-mutation';
 import { removeSpaceUserMutation } from '../use-cases/remove-space-user/shared/remove-space-user-mutation';
 import { renameSpaceMutation } from '../use-cases/rename-space/shared/rename-space-mutation';
-import { setVisibilityMutation } from '../use-cases/set-visibility/shared/set-visibility-mutation';
 
 export const SPACE_MUTATIONS = [
   createSpaceMutation,
@@ -15,7 +14,6 @@ export const SPACE_MUTATIONS = [
   leaveSpaceMutation,
   endSpaceMutation,
   renameSpaceMutation,
-  setVisibilityMutation,
   addSpaceUserMutation,
   removeSpaceUserMutation,
   markSpaceJoinAnnouncedMutation,
@@ -32,5 +30,4 @@ export {
   markSpaceJoinAnnouncedMutation,
   removeSpaceUserMutation,
   renameSpaceMutation,
-  setVisibilityMutation,
 };

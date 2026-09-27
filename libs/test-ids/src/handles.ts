@@ -62,6 +62,22 @@ export const Handles = {
   spacePresenceCount: 'space-presence-count',
   /** Close control of the space members modal. */
   spaceMembersClose: 'space-members-close',
+  /** How many live spaces the viewer hosts, on the Spaces screen. */
+  spacesHostingCount: 'spaces-hosting-count',
+  /** Spaces screen / link: this needs a connection. */
+  spacesNeedConnection: 'spaces-need-connection',
+  /** Spaces screen: the hosting limit's invitation to Plus. */
+  spacesHostingLimit: 'spaces-hosting-limit',
+  /** A space link that leads nowhere. */
+  spaceNotFound: 'space-not-found',
+  /** Its way back to Spaces (the EmptyState action of `spaceNotFound`). */
+  spaceNotFoundBack: 'space-not-found-action',
+  /** The space's name in its chrome. */
+  spaceTitle: 'space-title',
+  /** Rename action in the space chrome (host only). */
+  spaceRename: 'space-rename',
+  spaceRenameInput: 'space-rename-input',
+  spaceRenameConfirm: 'space-rename-confirm',
   /** Cancel outgoing friend request pill (scoped by username). */
   friendCancel: (username: string) => `friend-cancel-${username}`,
   /** Decline incoming friend request pill (scoped by username). */
@@ -179,9 +195,13 @@ export const Handles = {
   searchEmpty: 'search-empty',
   /** Signed-out prompt in place of people results (`-action`: Sign in). */
   searchDenied: 'search-denied',
+  /** In place of results for a search made offline: search needs a connection. */
+  searchNeedsConnection: 'search-needs-connection',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
+  /** Why an Add did nothing offline: friend requests need a connection. */
+  friendRequestNeedsConnection: 'friend-request-needs-connection',
   /** Confirm (accept incoming request) pill scoped by peer username. */
   friendConfirm: (username: string) => `friend-confirm-${username}`,
   /** Disabled Friends status pill scoped by peer username. */
@@ -195,13 +215,9 @@ export const Handles = {
   /** Notifications friend-request summary card (fromUsername). */
   notificationsFriendRequestCard: (fromUsername: string) =>
     `notifications-friend-request-card-${fromUsername}`,
-  /** In place of results for a search made offline: search needs a connection. */
-  searchNeedsConnection: 'search-needs-connection',
   /** Notifications Accept for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestAccept: (fromUsername: string) =>
     `notifications-friend-request-accept-${fromUsername}`,
-  /** Why an Add did nothing offline: friend requests need a connection. */
-  friendRequestNeedsConnection: 'friend-request-needs-connection',
   /** Notifications Decline for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestDecline: (fromUsername: string) =>
     `notifications-friend-request-decline-${fromUsername}`,

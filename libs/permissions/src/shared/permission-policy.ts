@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-26.2';
+export const PERMISSION_POLICY_VERSION = '2026-09-27.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -75,7 +75,10 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
 /**
  * Shipped policy (the fallback when no `permission_policy` row is synced).
  * Permissive baseline: every catalogued Phase-1 grant is on for everyone and
- * practice is unlimited. The only limit is the anonymous rated-puzzle quota;
+ * practice is unlimited. Guests and free accounts host one live space at a
+ * time, Plus members any number (`spaces:hosted`, decided with `decideLimit`
+ * against the live spaces the actor hosts; reaching it invites to Plus). The
+ * only quota is the anonymous rated-puzzle quota;
  * because quotas merge to the maximum, `puzzle.rated.solve` lives on the
  * fact-matched roles (anonymous: 20/day, accounts: unlimited), never on the
  * baseline. Plan roles are listed explicitly — no inheritance — and their
@@ -116,7 +119,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.spacesJoin,
         PERMISSION.spacesWatch,
       ],
-      limits: { [LIMIT.hostedSpaces]: null },
+      limits: { [LIMIT.hostedSpaces]: 1 },
       quotas: { [ACTION.puzzleRatedSolve]: ANONYMOUS_RATED },
     },
     [ROLE.planFree]: {
@@ -139,7 +142,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       permissions: [
         PERMISSION.spacesRename,
         PERMISSION.spacesEnd,
-        PERMISSION.spacesSetVisibility,
         PERMISSION.spacesManageMembers,
         PERMISSION.spacesSelectGame,
       ],
@@ -189,6 +191,14 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [PERMISSION.billingManage]: SIGN_UP_UNLOCK,
     [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
+    [LIMIT.hostedSpaces]: {
+      // Guests and free accounts alike: hosting more is what Plus is for.
+      limit_reached: {
+        titleKey: 'unlock.hosted-spaces.title',
+        bodyKey: 'unlock.hosted-spaces.body',
+        ctaTarget: 'billing',
+      },
+    },
     [ACTION.puzzleRatedSolve]: {
       quota_exhausted: {
         titleKey: 'unlock.rated.limit.title',

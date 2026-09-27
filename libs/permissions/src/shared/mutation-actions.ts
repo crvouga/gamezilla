@@ -37,7 +37,6 @@ export const MUTATION_ACTIONS: Readonly<
   leaveSpace: 'public',
   endSpace: 'public',
   renameSpace: 'public',
-  setVisibility: 'public',
   addSpaceUser: 'public',
   removeSpaceUser: 'public',
   markSpaceJoinAnnounced: 'public',

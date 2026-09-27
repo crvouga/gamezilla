@@ -10,11 +10,17 @@ import {
   useRouter,
 } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
-import { createMemo, For, Show } from 'solid-js';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import { openSpaceDetail } from '../../public/space-routes';
 import { useCreateSpace } from '../../use-cases/create-space/client/use-create-space';
 import { useOpenSpaceSessionIds } from '../../use-cases/list-open-sessions/client/use-open-space-session-ids';
 import { SpaceCard } from './card/space-card';
+import {
+  SpacesAttemptNotice,
+  SpacesHostingCount,
+  type SpacesNotice,
+} from './spaces-notices';
+import { useCheckConnection } from './use-check-connection';
 import { useJoinableLiveSpaceIds } from './use-joinable-live-space-ids';
 
 function sortCurrentSpacesFirst(
@@ -74,16 +80,38 @@ function SpacesList(props: {
   );
 }
 
-export function SpacesScreen(): JSX.Element {
+/**
+ * Start a space, or say why not: offline (spaces need the server) or at the
+ * hosting limit (an invitation to Plus). Neither is an error.
+ */
+function useStartSpace(): {
+  readonly start: () => Promise<void>;
+  readonly notice: () => SpacesNotice | null;
+} {
   const router = useRouter();
   const createSpace = useCreateSpace();
-  const { t } = useLingui();
-
-  const startSpace = async (): Promise<void> => {
-    await createSpace((id) => {
-      openSpaceDetail(router, id);
-    });
+  const checkConnection = useCheckConnection();
+  const [notice, setNotice] = createSignal<SpacesNotice | null>(null);
+  const start = async (): Promise<void> => {
+    setNotice(null);
+    if (!(await checkConnection())) {
+      setNotice({ kind: 'offline' });
+      return;
+    }
+    const result = await createSpace();
+    if (result.kind === 'limited') {
+      setNotice({ kind: 'limited', decision: result.decision });
+      return;
+    }
+    openSpaceDetail(router, result.spaceId);
   };
+  return { start, notice };
+}
+
+export function SpacesScreen(): JSX.Element {
+  const { t } = useLingui();
+  const attempt = useStartSpace();
+  const startSpace = attempt.start;
 
   const primaryAction = createMemo((): ScreenBasePrimaryAction => {
     return {
@@ -112,7 +140,9 @@ export function SpacesScreen(): JSX.Element {
       primaryAction={primaryAction()}
       content={({ bodyClass }) => (
         // Lobby cards are cards already — never nest them inside an Island.
-        <div class={`box ${bodyClass}`}>
+        <div class={`box gap-3 ${bodyClass}`}>
+          <SpacesHostingCount />
+          <SpacesAttemptNotice notice={attempt.notice()} />
           <SpacesList onCreateSpace={onCreateSpace} />
         </div>
       )}

@@ -66,7 +66,6 @@ const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
   [PERMISSION.spacesLeave, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesRename, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesEnd, 'deny', 'deny', 'deny'],
-  [PERMISSION.spacesSetVisibility, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesManageMembers, 'deny', 'deny', 'deny'],
   [PERMISSION.spacesSelectGame, 'deny', 'deny', 'deny'],
   [ACTION.puzzleRatedSolve, '20/day', 'unlimited/day', 'unlimited/day'],
@@ -110,7 +109,7 @@ describe('shipped policy matrix', () => {
       limitCell('guest', LIMIT.hostedSpaces),
       limitCell('free', LIMIT.hostedSpaces),
       limitCell('paid', LIMIT.hostedSpaces),
-    ]).toEqual(['unlimited', '1', 'unlimited']);
+    ]).toEqual(['1', '1', 'unlimited']);
   });
 
   test('each fact combination resolves to exactly one plan role', () => {
