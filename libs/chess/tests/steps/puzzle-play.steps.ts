@@ -58,7 +58,6 @@ import {
 } from '@libs/sim-harness/spec/define';
 import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
 import { remember } from '@libs/sim-harness/spec/world';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
 import { createSpace } from '@libs/spaces/sim/space-actions';
 import type { Square } from '@pkgs/chess-board-core/types';
 import { NAMED_PUZZLES } from './puzzle-fixtures';

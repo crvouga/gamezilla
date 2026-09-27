@@ -673,6 +673,26 @@ async function ownSpaceCard(
 }
 
 /**
+ * Into a space to reach the game menu: the account's live space when its
+ * lobby lists one (a free account hosts one at a time, so another device of
+ * it goes into that one), a new one otherwise.
+ */
+async function enterOrStartSpace(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  const card = await ownSpaceCard(s, actorId);
+  if (card !== null) {
+    await ui.get(card).tap({ timeoutMs: WAIT_MS });
+    // Another device of the host goes in through the join prompt.
+    await ui.get(Handles.spaceJoin).tap({ timeoutMs: WAIT_MS });
+    return;
+  }
+  await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+}
+
+/**
  * Back into the one space the actor is in, from wherever the app opened
  * (the space itself, or the tabs with the space open behind them), through
  * its lobby card. Works for a guest too, whose card carries a username the
