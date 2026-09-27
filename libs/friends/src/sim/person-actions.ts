@@ -77,10 +77,20 @@ async function tapPill(
   await s.session.waitForIdle();
 }
 
-/** On `username`'s profile (or a search row for them): Add. */
+/**
+ * On `username`'s profile: Add. Someone not already looking at it goes there
+ * the way a person does, through search.
+ */
 export const sendRequestFromProfile = scenarioAction({
   name: 'sendRequestFromProfile',
   act: async (s, actorId: string, username: string) => {
+    const ui = await actorUi(s, actorId);
+    const onProfile =
+      (await ui.get(Handles.friendUserUsername).isVisible()) &&
+      (await ui.get(Handles.friendUserUsername).text()) === `@${username}`;
+    if (!onProfile) {
+      await Promise.resolve(openPersonFromSearch.act(s, actorId, username));
+    }
     await tapPill(s, actorId, Handles.friendAdd(username));
   },
 });

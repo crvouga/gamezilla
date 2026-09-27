@@ -24,6 +24,7 @@ import {
   confirmOffered,
   friendLiveBadgeVisible,
   friendRequestCardVisible,
+  friendRequestNeedsConnection,
   friendRowVisible,
   friendStatusShown,
   friendsEmptyShown,
@@ -46,6 +47,7 @@ import {
   viewProfileFromRequest,
 } from '@libs/friends/sim/person-actions';
 import { setupFriendsPair } from '@libs/friends/sim/setup-friends-pair';
+import { openInbox } from '@libs/notifications/sim/notifications-actions';
 import {
   openProfileEdit,
   setUsername,
@@ -161,6 +163,15 @@ When('{actor} asks {actor} again', async (w, actor: Actor, other: Actor) => {
 });
 
 Then(
+  '{actor} is told friend requests need a connection within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((surf) => friendRequestNeedsConnection(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
+
+Then(
   "{actor}'s request to {actor} is refused with {string}",
   async (w, actor: Actor, other: Actor, reason: string) => {
     expect(await w.s.read(addFriendLabel, actor, other)).toBe(reason);
@@ -252,6 +263,23 @@ Then(
 );
 
 // ------------------------------------------------------------------- inbox
+
+Given('{actor} is viewing their inbox', async (w, actor: Actor) => {
+  await w.s.apply(openInbox, actor);
+});
+
+When('{actor} opens their inbox', async (w, actor: Actor) => {
+  await w.s.apply(openInbox, actor);
+});
+
+Then(
+  "{actor}'s inbox shows a friend request from {actor} within {int} seconds",
+  async (w, actor: Actor, from: Actor, seconds: number) => {
+    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
 
 Then(
   "{actor}'s inbox does not show a friend request from {actor}",

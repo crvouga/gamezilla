@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 import { DenialSurface } from '@libs/permissions/public/denial-surface';
 import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useUnlock } from '@libs/permissions/public/unlock';
 import { useDecision } from '@libs/permissions/public/use-can';
 import { useLingui } from '@lingui/solid/macro';
 import {
@@ -10,7 +11,7 @@ import {
   ScreenBase,
   useMutationButton,
 } from '@pkgs/ui';
-import { type JSX, Show } from 'solid-js';
+import { type JSX, onMount, Show } from 'solid-js';
 import { useNotifications } from '../../public/use-notifications';
 import { useNotificationsActions } from '../../public/use-notifications-actions';
 import type { NotificationFilter } from '../../shared/notifications/notification';
@@ -21,21 +22,26 @@ export type NotificationsScreenProps = {
   readonly initialFilter?: NotificationFilter | undefined;
 };
 
+/**
+ * Someone who may not have an inbox (a guest) is invited to unlock it the
+ * moment they arrive — signing in, right there — with the denial surface
+ * behind the invitation instead of an empty inbox.
+ */
+function NotificationsDenied(): JSX.Element {
+  const decision = useDecision(PERMISSION.notificationsReceive);
+  const unlock = useUnlock();
+  onMount(() => unlock.run(decision()));
+  return (
+    <DenialSurface decision={decision()} icon={BellIcon} variant="compact" />
+  );
+}
+
 function NotificationsPermissionGate(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const decision = useDecision(PERMISSION.notificationsReceive);
   return (
-    <Show
-      when={decision().allowed}
-      fallback={
-        <DenialSurface
-          decision={decision()}
-          icon={BellIcon}
-          variant="compact"
-        />
-      }
-    >
+    <Show when={decision().allowed} fallback={<NotificationsDenied />}>
       {props.children}
     </Show>
   );
