@@ -35,7 +35,7 @@ Feature: Waiting for a match
   Rule: A matched person stays matched
 
     Scenario: Alice cannot stop waiting once she is matched with Bob
-      Given Alice and Bob are matched with each other
+      Given Alice has been matched with Bob
       When Alice stops waiting
       Then Alice is told there was nothing to stop
       And Alice is matched with Bob
