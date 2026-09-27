@@ -89,6 +89,30 @@ terms:
       - left the shared space
       - leave the shared space
       - leaving the shared space
+      - leaves
+      - left
+      - leaving
+
+  - term: end a shared space
+    definition: >-
+      A shared space coming to an end for everyone in it. New notes written
+      for it reach nobody any more; everyone keeps the notes they had, and
+      nobody's live updates for anything else are interrupted.
+    forms: [end, ends, ended, ending]
+
+  - term: open a shared space
+    definition: >-
+      Look at the notes of a shared space. Opening, or closing, one the
+      person is not in shows them nothing of it and never costs them the
+      notes they already have.
+    forms: [opens, opened, opening, close, closes, closed, closing, not in]
+
+  - term: catch up
+    definition: >-
+      The app fetching what it missed, so it shows the shared notes again.
+      A device that cannot send cannot catch up until it can send again,
+      though live updates still reach it.
+    forms: [catches up, caught up, catching up]
 
   # --- Devices, connection, crashes -------------------------------------------
 
@@ -176,6 +200,21 @@ terms:
       and only they may delete it.
     forms: [folders, file, files, filed, filing]
     model: [folders, writeFolder, WriteFolder, deleteFolder, DeleteFolder]
+
+  - term: colour
+    definition: >-
+      A colour a note can be given, such as green, in versions of the app
+      that have colours. A note keeps its colour through edits from earlier
+      versions and through going back to an earlier version; the app shows
+      it once it is on a version that has colours.
+    forms: [colours, coloured, given the colour]
+
+  - term: tag
+    definition: >-
+      A word a note can be given, such as "shopping", in versions of the app
+      that tag notes. Like a colour, a note keeps its tags through earlier
+      versions.
+    forms: [tags, tagged]
 
   - term: checked note
     definition: >-
