@@ -1,9 +1,10 @@
 @domain:billing @goal:guest-free-and-paid:7
 Feature: Subscribe to Plus
-  A signed-in person can subscribe and has paid access as soon as checkout
-  succeeds, starting with a monthly trial.
+  When a signed-in person decides to pay for Plus, they want paid access as
+  soon as checkout succeeds, so they can use Plus right away, starting with a
+  monthly free trial.
 
-  Scenario: A signed-in person starts on the free plan
+  Scenario: A signed-in person starts with free access
     Given Alice is signed in with Google
     When Alice views the billing plans
     Then Alice has free access

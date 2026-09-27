@@ -1,15 +1,16 @@
 @domain:billing @goal:guest-free-and-paid:9
 Feature: An expired card
-  A card that has expired cannot pay a renewal. The member is treated like
-  any other failed payment: delinquent but still paid while the provider
-  retries, and back to active once a working card pays.
+  When a Plus member's card expires, they want it treated like any other
+  failed payment, so they keep paid access while the payment provider
+  retries: the membership is delinquent until a working card pays, then
+  active again.
 
   Background:
     Given Alice has subscribed to Plus
     And Alice's free trial has ended
     And Alice's card has expired
 
-  Scenario: A renewal on an expired card leaves the membership delinquent but paid
+  Scenario: A renewal on an expired card makes the membership delinquent but still paid
     When Alice's billing period ends
     Then Alice's membership is delinquent
     And Alice has paid access

@@ -1,10 +1,10 @@
 @domain:billing @goal:guest-free-and-paid:10
 Feature: Paid access while offline
-  A member who loses their connection keeps paid access, even while a failed
-  payment is being retried, so going offline never takes away what they paid
-  for.
+  When a Plus member loses their connection, even while a failed payment is
+  being retried, they want to keep paid access, so going offline never takes
+  away what they paid for.
 
-  Scenario: A member whose payment failed keeps paid access while offline
+  Scenario: A Plus member whose payment failed keeps paid access while offline
     Given Alice has subscribed to Plus
     And Alice's payment has failed
     When Alice loses the connection

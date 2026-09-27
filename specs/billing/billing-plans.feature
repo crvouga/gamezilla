@@ -1,11 +1,12 @@
 @domain:billing @goal:guest-free-and-paid:7 @goal:guest-free-and-paid:8
 Feature: What the billing plans offer
-  The plans always offer the next sensible step: Plus to someone without it,
-  managing the membership to someone who has it, and never a second
-  membership on top of a live one. Leaving checkout without paying changes
-  nothing.
+  When a person looks at the billing plans, they want to be offered the next
+  sensible step, so they never pay twice or lose anything by looking: Plus to
+  someone without a live membership, managing it to a Plus member, never a
+  second membership on top of a live one. Leaving checkout without paying
+  changes nothing.
 
-  Scenario: A member is offered to manage their membership, not to subscribe again
+  Scenario: A Plus member is offered to manage their membership, not to subscribe again
     Given Alice has subscribed to Plus
     When Alice views the billing plans
     Then Alice is offered to manage their membership

@@ -1,7 +1,9 @@
 @domain:billing @goal:guest-free-and-paid:9 @goal:guest-free-and-paid:10 @goal:always-true:4 @goal:always-true:5
 Feature: When paid access runs out
-  Nobody keeps paid access beyond what they paid for plus the 7-day grace,
-  and nobody who paid loses it early, online or offline.
+  When a membership ends or a Plus member goes offline, the person wants paid
+  access to last exactly what they paid for plus the 7 days of grace, so
+  nobody keeps it longer and nobody who paid loses it early, online or
+  offline.
 
   Rule: A canceled membership keeps paid access for 7 days, and no longer
 
@@ -19,21 +21,21 @@ Feature: When paid access runs out
       When 8 days pass
       Then Alice has free access
 
-  Rule: A member offline keeps paid access for 7 days
+  Rule: A Plus member offline keeps paid access for 7 days
 
-    Scenario: A member offline for six days keeps paid access
+    Scenario: A Plus member offline for six days keeps paid access
       Given Alice has subscribed to Plus
       And Alice is offline
       When 6 days pass
       Then Alice has paid access
 
-    Scenario: A member offline for eight days falls back to free access
+    Scenario: A Plus member offline for eight days falls back to free access
       Given Alice has subscribed to Plus
       And Alice is offline
       When 8 days pass
       Then Alice has free access
 
-    Scenario: A member back online after a long time away has paid access again
+    Scenario: A Plus member back online after a long time away has paid access again
       Given Alice has subscribed to Plus
       And Alice has been offline for 8 days
       When the connection comes back

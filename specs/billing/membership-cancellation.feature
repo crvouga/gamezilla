@@ -1,8 +1,11 @@
 @domain:billing @goal:guest-free-and-paid:9
 Feature: Cancel and subscribe again
-  A canceled membership ends at the period end and keeps paid access through
-  grace, canceling now ends it at once, and a person whose membership ended can
-  start again right away.
+  When a Plus member no longer wants Plus, they want to choose when their
+  membership ends and to come back whenever they like, so canceling never
+  costs them what they already paid for: a canceled membership ends at the
+  period end and keeps paid access through grace, canceling immediately
+  ends the membership at once, and a person whose membership ended can subscribe again right
+  away.
 
   Background:
     Given Alice has subscribed to Plus

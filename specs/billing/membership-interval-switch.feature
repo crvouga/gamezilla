@@ -1,7 +1,8 @@
 @domain:billing @goal:guest-free-and-paid:9
-Feature: Switch billing interval
-  Switching from monthly to yearly after the trial starts a paid year right
-  away, so the person is on the plan they chose from that day.
+Feature: Switch Plus plans
+  When a Plus member switches from the monthly plan to the yearly plan after
+  the free trial, they want the paid year to start right away, so they are on
+  the Plus plan they chose from that day.
 
   Background:
     Given Alice has subscribed to Plus
