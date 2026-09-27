@@ -4,6 +4,7 @@ export {
   NameAttr,
   RatingAttr,
   RegionAttr,
+  ratingWithin,
   registerTestCrashHandler,
   SkillAttr,
   testNs,

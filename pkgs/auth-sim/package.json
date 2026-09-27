@@ -12,8 +12,12 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel=1 --timeout 120000 tests"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --parallel=1 --timeout 120000 tests",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
+  "specDomains": [
+    "sign-in"
+  ],
   "dependencies": {
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-inhouse": "workspace:*",
@@ -30,6 +34,8 @@
   },
   "devDependencies": {
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

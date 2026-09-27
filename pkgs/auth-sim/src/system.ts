@@ -5,6 +5,7 @@ import {
   virtualTimeRuntime,
 } from '@pkgs/sim';
 import { gen } from '@pkgs/sim/fast-check';
+import { sql } from '@pkgs/sql';
 import fc from 'fast-check';
 
 import { AUTH_ACTIONS } from './actions';
@@ -91,6 +92,47 @@ export async function identitiesOf(s: AuthSurface, clientId: string) {
   const actor = s.clients.get(clientId);
   if (actor === undefined) return [];
   return await actor.port.listIdentities().catch(() => []);
+}
+
+/** Whether the device is being asked to prove an address match. */
+export function awaitingProof(s: AuthSurface, clientId: string): boolean {
+  return (s.clients.get(clientId)?.pendingLink ?? null) !== null;
+}
+
+/** One account on record and the outside accounts that get into it. */
+export type AccountOnRecord = {
+  readonly id: string;
+  readonly methods: readonly {
+    readonly provider: string;
+    readonly email: string | null;
+  }[];
+};
+
+/**
+ * Every account on record, oldest first, with its sign-in methods — what
+ * each account holder's own devices list, read without needing any device
+ * to be online.
+ */
+export async function accountsOnRecord(
+  s: AuthSurface
+): Promise<AccountOnRecord[]> {
+  const users = await s.store.sql.query(sql<{ id: string }>`
+    SELECT id FROM idp_users ORDER BY created_at, id
+  `);
+  const rows = await s.store.sql.query(sql<{
+    user_id: string;
+    provider: string;
+    email: string | null;
+  }>`
+    SELECT user_id, provider, email FROM idp_accounts
+    ORDER BY provider, provider_user_id
+  `);
+  return users.map(({ id }) => ({
+    id,
+    methods: rows
+      .filter((row) => row.user_id === id)
+      .map(({ provider, email }) => ({ provider, email })),
+  }));
 }
 
 /** Canonical store dump — the determinism fingerprint. */

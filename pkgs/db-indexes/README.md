@@ -36,7 +36,8 @@ const report = await reconcileIndexes({
 
 ## Testing
 
-See [`TESTING.md`](./docs/TESTING.md) for PBT / DST layers, known-seed corpus, and
+See [`TESTING.md`](./docs/TESTING.md) for the property layers, the acceptance
+specs in `specs/index-tuning/` (feature + Quint model, run by `test:e2e`), and
 the invariant → assert / sim / property map.
 
 ## Ownership

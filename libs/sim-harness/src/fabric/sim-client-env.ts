@@ -28,7 +28,7 @@ import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import type { SimComposition, SimRoomNode } from '../composition';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
 import { appBuildFetch, type SimAppBuilds } from './sim-app-build';
-import type { SimBillingProvider } from './sim-billing';
+import type { SimBillingProviders } from './sim-billing';
 import { createSimBrowser, type SimBrowser } from './sim-browser';
 import { simClientNamespace } from './sim-client-namespace';
 import { type SimIdps, simBrowserFetch } from './sim-idp';
@@ -51,7 +51,7 @@ export type SimClientEnvDeps = {
   readonly composition: SimComposition;
   readonly loadBalancer: SimLoadBalancer;
   readonly idps: SimIdps;
-  readonly billing: SimBillingProvider | null;
+  readonly billing: SimBillingProviders | null;
   readonly appBuilds: SimAppBuilds;
 };
 
