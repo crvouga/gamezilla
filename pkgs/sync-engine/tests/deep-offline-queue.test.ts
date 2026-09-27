@@ -18,7 +18,7 @@ const CHAIN = 60;
 
 const pad = (i: number): string => String(i).padStart(3, '0');
 
-describe('deep pending chain rebases in seq order', () => {
+describe('deep offline queue', () => {
   test('50+ pending folders+notes rebase in seq order to server truth', async () => {
     await using s = await exampleSystem.run({
       seed: 822,
