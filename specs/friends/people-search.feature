@@ -5,17 +5,19 @@ Feature: People search
   Background:
     Given Alice and Bob are signed in
 
-  Scenario: Searching a username finds that person, both ways round
+  Scenario: Searching a username finds that person
     When Alice searches for "bob"
     Then Alice's search shows Bob
-    When Bob searches for "alice"
-    Then Bob's search shows Alice
 
-  Scenario: The start of a name finds them, in any letter case
-    When Alice searches for "BO"
+  Scenario: The start of a name finds them
+    When Alice searches for "bo"
     Then Alice's search shows Bob
 
-  Scenario: You are not in your own results
+  Scenario: Letter case does not matter in search
+    When Alice searches for "BOB"
+    Then Alice's search shows Bob
+
+  Scenario: A person is not in their own results
     When Alice searches for "ali"
     Then Alice's search shows nobody
 

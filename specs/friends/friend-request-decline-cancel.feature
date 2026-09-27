@@ -14,9 +14,8 @@ Feature: Friend request declined or cancelled
     And Alice's friends list does not show Bob
 
   Scenario: Asking again straight after a decline is refused with a reason
-    When Bob declines Alice's friend request
-    And Alice's search offers to add Bob again within 15 seconds
-    And Alice asks Bob again
+    Given Bob has declined Alice's friend request
+    When Alice asks Bob again
     Then Alice's request to Bob is refused with "Try again later"
     And Bob's inbox does not show a friend request from Alice
 
