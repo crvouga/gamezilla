@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 
+import { checkSpecs } from '@pkgs/gherkin/check';
 import { extractStepImports, extractSteps } from '@pkgs/gherkin/extract';
 import { parseFeature } from '@pkgs/gherkin/parse';
 import {
@@ -49,6 +50,55 @@ Feature: Requests
       'Alice is signed in',
       'Alice asks Bob',
       'Bob sees Alice',
+    ]);
+  });
+});
+
+describe('step wording', () => {
+  test('rejects UI mechanics and implementation words, not product names', () => {
+    const feature = parseFeature(
+      `@domain:health
+Feature: Signing in
+  Scenario: Leaks
+    When Alice clicks the sign-in button
+    Then the API redirects to Google with the OAuth callback
+    And the Postgres schema has every column
+
+  Scenario: Behavior
+    Then people are offered Google sign-in and not Apple sign-in
+`,
+      'specs/health/sign-in.feature'
+    );
+    const { steps } = extractSteps(
+      `
+When('Alice clicks the sign-in button', () => undefined);
+Then('the API redirects to Google with the OAuth callback', () => undefined);
+Then('the Postgres schema has every column', () => undefined);
+Then('people are offered Google sign-in and not Apple sign-in', () => undefined);
+`,
+      'tests/steps/index.ts'
+    );
+
+    const errors = checkSpecs({
+      packages: [
+        {
+          name: '@apps/product',
+          domains: ['health'],
+          features: [feature],
+          definitions: steps,
+          imports: [],
+        },
+      ],
+      shared: [],
+      parameterTypes: parameterTypeRegistryFrom([]),
+      goalIds: new Set(),
+      goalSpecProofs: new Map(),
+    });
+
+    expect(errors).toEqual([
+      'specs/health/sign-in.feature:4: step "Alice clicks the sign-in button" describes UI mechanics ("clicks"); say the intent instead',
+      'specs/health/sign-in.feature:5: step "the API redirects to Google with the OAuth callback" names implementation ("API"); say the product behavior instead',
+      'specs/health/sign-in.feature:6: step "the Postgres schema has every column" names implementation ("Postgres"); say the product behavior instead',
     ]);
   });
 });

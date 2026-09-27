@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: Grafana Cloud OTLP ingest and Tempo query.
-/** `specs/health/traces.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
+/** `specs/health/request-records.feature` (skipped with `OBSERVABILITY_ENABLED=0`). */
 
 import { expect } from 'bun:test';
 import { ObservabilitySecretName as Name } from '@libs/observability/public/secret-names';
@@ -25,13 +25,11 @@ function foundationSecret(name: string): string {
   }
 }
 
-Then('the trace ingest address is the Grafana OTLP gateway', () => {
+/** The Workers send traces to the Grafana OTLP gateway, with a write token it accepts. */
+Then('the app can record what each request did', async (w) => {
   const url = new URL(foundationSecret(Name.collectorUrl));
   expect(url.protocol).toBe('https:');
   expect(url.pathname).toEndWith('/otlp/v1/traces');
-});
-
-Then("the Workers' write token can ingest traces", async (w) => {
   const ok = await eventually(
     () =>
       probeIngest(
@@ -45,7 +43,8 @@ Then("the Workers' write token can ingest traces", async (w) => {
   expect(ok, 'OTLP ingest rejected the write token').toBe(true);
 });
 
-Then("the agents' read token can query Tempo", async (w) => {
+/** The agents' read token can query Tempo. */
+Then('the team can look up what a request did', async (w) => {
   const ok = await eventually(
     () =>
       probeQuery(

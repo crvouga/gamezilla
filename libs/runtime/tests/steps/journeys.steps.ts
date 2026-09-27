@@ -60,9 +60,12 @@ When('they start signing in with Google', async (w) => {
   await w.journey.act('startGoogleSignIn', startGoogleSignIn);
 });
 
-Then('our sign-in launch hands them to Google with our callback', async (w) => {
-  await expectGoogleHandOff(realBrowser(w));
-});
+Then(
+  'Google is asked to sign them in and send them back to the app',
+  async (w) => {
+    await expectGoogleHandOff(realBrowser(w));
+  }
+);
 
 When('they sign out of their account', async (w) => {
   await w.journey.act('signOut', signOut);

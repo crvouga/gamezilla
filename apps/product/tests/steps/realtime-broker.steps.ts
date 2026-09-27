@@ -1,8 +1,10 @@
 // @io-wall-ok — live health: the environment's EMQX broker.
-/** `specs/health/realtime-broker.feature`. */
+/** `specs/health/live-updates.feature`. */
 
 import { expect } from 'bun:test';
 import { join } from 'node:path';
+import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
+import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
 import { createHttpPubSubFromSecretStore } from '@libs/pubsub/root/server/create-http-pubsub-from-secret-store';
 import {
@@ -12,8 +14,9 @@ import {
 import type { HttpClient } from '@pkgs/http-client';
 import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
 import { createSecretAdminStore } from '@pkgs/secret-provider';
-import { eventually, Given, Then } from './define';
-import { requireSecret } from './live-world';
+import { awaitApiAnswered, liveRows } from './client-config.steps';
+import { eventually, Then } from './define';
+import { type LiveWorld, requireSecret } from './live-world';
 import { wallWait } from './wall-wait';
 
 const REPO_ROOT = join(import.meta.dir, '../../../..');
@@ -45,7 +48,10 @@ async function nodeStatuses(
  * `apply:foundation` may have replaced the broker credentials since (a
  * placeholder or `regenerate`d value), so probe with the store's live values.
  */
-Given('the broker credentials are current from the secret store', async () => {
+const BROKER_CREDENTIALS = 'broker-credentials-current';
+
+async function useCurrentBrokerCredentials(w: LiveWorld): Promise<void> {
+  if (w.memo.has(BROKER_CREDENTIALS)) return;
   const store = await createSecretAdminStore({
     repoRoot: REPO_ROOT,
     configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
@@ -55,9 +61,12 @@ Given('the broker credentials are current from the secret store', async () => {
     const value = live.get(name)?.trim() ?? '';
     if (value.length > 0) process.env[name] = value;
   }
-});
+  w.memo.set(BROKER_CREDENTIALS, true);
+}
 
-Then("the broker's API authenticates and every node is running", async (w) => {
+/** The broker's API authenticates and every node is running. */
+Then('live updates are ready to reach people', async (w) => {
+  await useCurrentBrokerCredentials(w);
   const seen: { statuses: readonly string[] | null } = { statuses: null };
   await eventually(
     async () => {
@@ -76,7 +85,9 @@ Then("the broker's API authenticates and every node is running", async (w) => {
   expect(last).toEqual((last ?? []).map(() => 'running'));
 });
 
-Then("the server's publish path accepts a message", async () => {
+/** The server's publish path accepts a message. */
+Then('the app can send a live update', async (w) => {
+  await useCurrentBrokerCredentials(w);
   const pubsub = createHttpPubSubFromSecretStore({
     apiBaseUrl: requireSecret(Name.apiUrl),
     apiKey: requireSecret(Name.apiKey),
@@ -85,31 +96,55 @@ Then("the server's publish path accepts a message", async () => {
   await pubsub.publish('health-ping', { ok: true });
 });
 
-Then("the clients' WSS address points at the broker's host", () => {
-  const wss = new URL(requireSecret(Name.wssUrl));
-  expect(wss.protocol).toBe('wss:');
-  expect(wss.hostname).toBe(new URL(requireSecret(Name.apiUrl)).hostname);
-});
+/**
+ * Clients are given the broker's WSS address from the secret store, and it
+ * points at the broker's host.
+ */
+Then(
+  "people's apps are pointed at this environment's live updates",
+  async (w) => {
+    await useCurrentBrokerCredentials(w);
+    await awaitApiAnswered(w);
+    const wss = new URL(requireSecret(Name.wssUrl));
+    expect(wss.protocol).toBe('wss:');
+    expect(wss.hostname).toBe(new URL(requireSecret(Name.apiUrl)).hostname);
+    const config = parseClientConfigRows(await liveRows());
+    expect(config[ClientConfigKey.emqxWssUrl]).toBe(requireSecret(Name.wssUrl));
+  }
+);
 
-Then('the broker dashboard refuses the stock admin login', async (w) => {
-  const res = await w.http.fetch(`${requireSecret(Name.apiUrl)}/api/v5/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      username: 'admin',
-      password: EMQX_STOCK_DASHBOARD_PASSWORD,
-    }),
-  });
-  await res.body?.cancel();
-  expect(res.status).toBe(401);
-});
+/** The broker dashboard refuses the stock admin login. */
+Then(
+  'nobody can take over live updates with the default admin password',
+  async (w) => {
+    await useCurrentBrokerCredentials(w);
+    const res = await w.http.fetch(
+      `${requireSecret(Name.apiUrl)}/api/v5/login`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: 'admin',
+          password: EMQX_STOCK_DASHBOARD_PASSWORD,
+        }),
+      }
+    );
+    await res.body?.cancel();
+    expect(res.status).toBe(401);
+  }
+);
 
-Then('no broker credential is one of the committed public credentials', () => {
-  const committed = [
-    Name.apiKey,
-    Name.apiSecret,
-    Name.jwtSecret,
-    Name.dashboardPassword,
-  ].filter((name) => COMMITTED_EMQX_CREDENTIALS.has(requireSecret(name)));
-  expect(committed).toEqual([]);
-});
+/** No broker credential is one of the committed public credentials. */
+Then(
+  'nobody can take over live updates with a publicly known password',
+  async (w) => {
+    await useCurrentBrokerCredentials(w);
+    const committed = [
+      Name.apiKey,
+      Name.apiSecret,
+      Name.jwtSecret,
+      Name.dashboardPassword,
+    ].filter((name) => COMMITTED_EMQX_CREDENTIALS.has(requireSecret(name)));
+    expect(committed).toEqual([]);
+  }
+);

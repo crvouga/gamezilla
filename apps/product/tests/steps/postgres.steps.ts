@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's Postgres.
-/** `specs/health/postgres.feature`. */
+/** `specs/health/serving-people.feature`. */
 
 import { expect } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db/public/scope';
@@ -13,11 +13,11 @@ import { pingPostgres } from '@pkgs/sql-client-postgres/ping';
 import { Then } from './define';
 import { requireSecret } from './live-world';
 
-Then('the database answers a read-only query', async () => {
+Then('the app can look up what people saved', async () => {
   await pingPostgres(requireSecret('DATABASE_URL'), wallTimers);
 });
 
-Then('the database has every table and column the app declares', async () => {
+Then('what people saved is ready for this version of the app', async () => {
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: requireSecret('DATABASE_URL'),

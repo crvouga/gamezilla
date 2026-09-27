@@ -1,7 +1,7 @@
 /**
  * The spec check, pure over parsed features and statically extracted step
  * definitions. Fails on: undefined / ambiguous / pending steps, unused
- * definitions, UI mechanics in step text, missing or foreign `@domain`,
+ * definitions, UI mechanics or implementation words in step text, missing or foreign `@domain`,
  * unknown `@goal`, a goal proven by a feature that no scenario tags, and
  * duplicate scenario names. Near-duplicate wording is `similarity.ts`,
  * reported separately as a warning.
@@ -68,6 +68,75 @@ export const MECHANICS_WORDS = [
 ] as const;
 
 const MECHANICS = new RegExp(`\\b(${MECHANICS_WORDS.join('|')})\\b`, 'i');
+
+/**
+ * Words that name how the product is built — storage, transport, hosting,
+ * vendors, internals — rather than what it does. A spec must read the same
+ * after any rewrite of the implementation.
+ */
+export const IMPLEMENTATION_WORDS = [
+  'api',
+  'apis',
+  'bucket',
+  'cache',
+  'cached',
+  'callback',
+  'callbacks',
+  'certificate',
+  'column',
+  'columns',
+  'cookie',
+  'cookies',
+  'cors',
+  'credential',
+  'credentials',
+  'database',
+  'databases',
+  'dns',
+  'emqx',
+  'endpoint',
+  'endpoints',
+  'env var',
+  'grafana',
+  'header',
+  'headers',
+  'http',
+  'https',
+  'indexeddb',
+  'json',
+  'localstorage',
+  'migration',
+  'migrations',
+  'mqtt',
+  'oauth',
+  'opentofu',
+  'otlp',
+  'postgres',
+  'redirect',
+  'redirects',
+  'schema',
+  'secret store',
+  'service worker',
+  'sql',
+  'sqlite',
+  'tempo',
+  'terraform',
+  'tls',
+  'token',
+  'tokens',
+  'webhook',
+  'webhooks',
+  'websocket',
+  'websockets',
+  'worker',
+  'workers',
+  'wss',
+] as const;
+
+const IMPLEMENTATION = new RegExp(
+  `\\b(${IMPLEMENTATION_WORDS.join('|')})\\b`,
+  'i'
+);
 
 type Compiled = {
   readonly step: ExtractedStep;
@@ -202,6 +271,12 @@ function checkStepWording(feature: SpecFeature, errors: string[]): void {
       if (hit !== null) {
         errors.push(
           `${feature.uri}:${String(step.line)}: step "${step.text}" describes UI mechanics ("${hit[1] ?? ''}"); say the intent instead`
+        );
+      }
+      const leak = IMPLEMENTATION.exec(step.text);
+      if (leak !== null) {
+        errors.push(
+          `${feature.uri}:${String(step.line)}: step "${step.text}" names implementation ("${leak[1] ?? ''}"); say the product behavior instead`
         );
       }
     }

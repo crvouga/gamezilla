@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: Cloudflare API, room Durable Object wiring.
-/** `specs/health/rooms.feature`. */
+/** `specs/health/spaces.feature`. */
 
 import { expect } from 'bun:test';
 import { workerName } from '@libs/infra/public/wrangler';
@@ -35,7 +35,7 @@ async function scriptBindings(
     .result.bindings;
 }
 
-Then('the room Worker hosts the room Durable Object namespace', async (w) => {
+Then('live spaces can run in this environment', async (w) => {
   const bindings = await scriptBindings(w.http, workerName(w.env, 'room'));
   expect(bindings).toContainEqual(
     expect.objectContaining({
@@ -46,7 +46,7 @@ Then('the room Worker hosts the room Durable Object namespace', async (w) => {
   );
 });
 
-Then('the API Worker binds its rooms to the room Worker', async (w) => {
+Then('the app can reach the live spaces', async (w) => {
   const bindings = await scriptBindings(w.http, workerName(w.env, 'api'));
   expect(bindings).toContainEqual(
     expect.objectContaining({

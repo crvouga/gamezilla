@@ -16,8 +16,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} sees the tabs | {actor} | runtime, journeys |
 | Then | a puzzle board is laid out and ready to play | — | runtime, journeys |
 | Then | editing their avatar again shows the new one | — | runtime, journeys |
+| Then | Google is asked to sign them in and send them back to the app | — | runtime, journeys |
 | Then | only {actor} and {actor} are using the app | {actor}, {actor} | runtime, journeys |
-| Then | our sign-in launch hands them to Google with our callback | — | runtime, journeys |
 | Then | the app finishes booting into the tabs | — | runtime, journeys |
 | Then | the search settles on no results | — | runtime, journeys |
 | Then | the space offers games to play | — | runtime, journeys |

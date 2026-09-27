@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: Google OAuth client configuration.
 /**
- * `specs/health/google-oauth.feature`. Asks Google's authorize endpoint
+ * `specs/health/sign-in.feature`. Asks Google's authorize endpoint
  * directly (no Worker, no sign-in): a registered redirect_uri is answered
  * with the sign-in page; an unregistered one with Google's error page
  * carrying `redirect_uri_mismatch`.
@@ -53,18 +53,21 @@ async function authorize(
   return verdictOf(location);
 }
 
-Then('Google accepts the shared callback for our OAuth client', async (w) => {
-  const relay = oauthRelayEnv(Object.values(ENV_FILES));
-  const callback = `${envOrigins(relay).api}/api/auth/callback/google`;
-  const verdict = await authorize(
-    w.http,
-    requireSecret('WEB_CLIENT_GOOGLE_CLIENT_ID'),
-    callback
-  );
-  expect(
-    verdict,
-    verdict === 'redirect_uri_mismatch'
-      ? `Add "${callback}" to the OAuth client's Authorized redirect URIs: https://console.cloud.google.com/apis/credentials`
-      : `Google rejected the OAuth client (${verdict})`
-  ).toBe('accepted');
-});
+Then(
+  'Google agrees to send people back to the app after they sign in',
+  async (w) => {
+    const relay = oauthRelayEnv(Object.values(ENV_FILES));
+    const callback = `${envOrigins(relay).api}/api/auth/callback/google`;
+    const verdict = await authorize(
+      w.http,
+      requireSecret('WEB_CLIENT_GOOGLE_CLIENT_ID'),
+      callback
+    );
+    expect(
+      verdict,
+      verdict === 'redirect_uri_mismatch'
+        ? `Add "${callback}" to the OAuth client's Authorized redirect URIs: https://console.cloud.google.com/apis/credentials`
+        : `Google rejected the OAuth client (${verdict})`
+    ).toBe('accepted');
+  }
+);

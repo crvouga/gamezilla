@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: plans both OpenTofu stacks against the environment.
-/** `specs/health/infrastructure.feature`. */
+/** `specs/health/declared-environment.feature`. */
 
 import { expect } from 'bun:test';
 import { join } from 'node:path';
@@ -11,17 +11,17 @@ const TOFU_SCRIPT = join(
 );
 const STACKS = ['foundation', 'edge'] as const;
 
-Then(
-  'the {string} stack plans no changes and passes the stateful policy',
-  (_w, stack: string) => {
-    expect(STACKS).toContain(stack as (typeof STACKS)[number]);
+/** Every stack plans no changes and passes the stateful policy. */
+Then('this environment is exactly as the team declared it', () => {
+  for (const stack of STACKS) {
     const result = Bun.spawnSync(
       ['bun', 'run', TOFU_SCRIPT, 'drift', '--stack', stack],
       { env: process.env, stdout: 'pipe', stderr: 'pipe' }
     );
     const output = `${result.stdout.toString()}${result.stderr.toString()}`;
-    expect({ exitCode: result.exitCode, output }).toMatchObject({
+    expect({ stack, exitCode: result.exitCode, output }).toMatchObject({
+      stack,
       exitCode: 0,
     });
   }
-);
+});

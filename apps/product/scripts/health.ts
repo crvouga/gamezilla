@@ -13,7 +13,7 @@
  *   @observability  not with OBSERVABILITY_ENABLED=0
  *
  *   health                                     everything
- *   health specs/health/api.feature            one feature (repo-relative)
+ *   health specs/health/sign-in.feature        one feature (repo-relative)
  *   health --tags '@domain:journeys'           narrowed further by tags
  */
 

@@ -1,6 +1,6 @@
 // @io-wall-ok — live health: synced client_config rows in the env's Postgres.
 /**
- * `specs/health/client-config.feature`. `/api/health/ready` runs behind the
+ * `specs/health/serving-people.feature` and `sign-in.feature`. `/api/health/ready` runs behind the
  * request-db middleware, so any answer from it means the Worker has
  * materialized the rows; a failing readiness dependency is the API
  * feature's to report.
@@ -18,13 +18,13 @@ import {
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { sql } from '@pkgs/sql';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
-import { eventually, Given, Then, WARMUP_MS } from './define';
-import { requireSecret } from './live-world';
+import { eventually, Then, WARMUP_MS } from './define';
+import { type LiveWorld, requireSecret } from './live-world';
 import { wallWait } from './wall-wait';
 
 const RETRY_MS = 5_000;
 
-async function liveRows(): Promise<readonly ClientConfigDbRow[]> {
+export async function liveRows(): Promise<readonly ClientConfigDbRow[]> {
   const { pool, sqlClient } = createPgPool({
     connectionString: requireSecret('DATABASE_URL'),
     dbScope: appPostgresDbScope(),
@@ -39,7 +39,15 @@ async function liveRows(): Promise<readonly ClientConfigDbRow[]> {
   }
 }
 
-Given('the API has answered since its deploy', async (w) => {
+const API_ANSWERED = 'api-answered';
+
+/**
+ * The API materializes the synced client config on its first database
+ * request, so a fresh deploy has none until something wakes it: wait (once
+ * per scenario) until the API has answered.
+ */
+export async function awaitApiAnswered(w: LiveWorld): Promise<void> {
+  if (w.memo.has(API_ANSWERED)) return;
   const url = `${w.origins.api}/api/health/ready`;
   const answered = await eventually(
     async () => {
@@ -55,24 +63,18 @@ Given('the API has answered since its deploy', async (w) => {
     { maxWaitMs: WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
   );
   expect(answered, `${url} never answered`).toBe(true);
-});
+  w.memo.set(API_ANSWERED, true);
+}
 
-Then('every client config key is stored', async () => {
+/** Every client config key is stored. */
+Then('the app is given every setting it needs', async (w) => {
+  await awaitApiAnswered(w);
   const ids = new Set((await liveRows()).map((r) => r.id));
   expect(CLIENT_CONFIG_KEYS.filter((k) => !ids.has(k))).toEqual([]);
 });
 
-Then(
-  "clients are given the broker's WSS address from the secret store",
-  async () => {
-    const config = parseClientConfigRows(await liveRows());
-    expect(config[ClientConfigKey.emqxWssUrl]).toBe(
-      requireSecret('EMQX_WSS_URL')
-    );
-  }
-);
-
-Then('clients are offered Google sign-in and not Apple sign-in', async () => {
+Then('people are offered Google sign-in and not Apple sign-in', async (w) => {
+  await awaitApiAnswered(w);
   const config = parseClientConfigRows(await liveRows());
   expect(config[ClientConfigKey.googleEnabled]).toBe(true);
   expect(config[ClientConfigKey.appleEnabled]).toBe(false);

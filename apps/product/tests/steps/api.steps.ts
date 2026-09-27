@@ -1,5 +1,5 @@
 // @io-wall-ok — live health: the environment's API Worker, DNS and TLS.
-/** `specs/health/api.feature`. */
+/** `specs/health/reaching-the-app.feature`, `serving-people.feature` and `sign-in.feature`. */
 
 import { expect } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';
@@ -62,7 +62,7 @@ function failingChecks(body: ReadinessJson): string[] {
   return failing;
 }
 
-Then('every host of this environment resolves in DNS', async (w) => {
+Then('people can find the app at every one of its addresses', async (w) => {
   const unresolved: string[] = [];
   for (const host of envHostnames(w.env)) {
     if ((await addresses(host)).length === 0) unresolved.push(host);
@@ -71,7 +71,7 @@ Then('every host of this environment resolves in DNS', async (w) => {
 });
 
 Then(
-  'every host of this environment has a TLS certificate valid for {int} more days',
+  'people reach every address of the app securely for {int} more days',
   async (w, minDays: number) => {
     const expiring: string[] = [];
     for (const host of envHostnames(w.env)) {
@@ -85,7 +85,7 @@ Then(
   }
 );
 
-Then('the API answers its health check', async (w) => {
+Then('the app answers people', async (w) => {
   const result = await waitForHttp(`${w.origins.api}/api/health`, {
     label: 'API /api/health',
     maxWaitMs: WARMUP_MS,
@@ -93,7 +93,7 @@ Then('the API answers its health check', async (w) => {
   expect(result.status).toBe(200);
 });
 
-Then('the API reports every hard dependency ready', async (w) => {
+Then('everything the app needs to answer people is ready', async (w) => {
   const result = await waitForHttp(`${w.origins.api}/api/health/ready`, {
     label: 'API /api/health/ready',
     maxWaitMs: WARMUP_MS,
@@ -109,7 +109,7 @@ Then('the API reports every hard dependency ready', async (w) => {
  * code is refused, but the refusal must still be readable cross-origin — a
  * missing `Access-Control-Allow-Origin` silently breaks every sign-in.
  */
-When('the web app exchanges a sign-in code with the API', async (w) => {
+When('a person on the web completes a sign-in', async (w) => {
   const res = await w.http.fetch(`${w.origins.api}/api/auth/session`, {
     method: 'POST',
     headers: { origin: w.origins.web, 'content-type': 'application/json' },
@@ -119,7 +119,7 @@ When('the web app exchanges a sign-in code with the API', async (w) => {
   w.memo.set(SIGN_IN_ANSWER, res);
 });
 
-Then('the answer is readable by the web app', (w) => {
+Then('the web app receives their signed-in session', (w) => {
   const res = w.memo.get(SIGN_IN_ANSWER) as Response;
   expect(res.status, 'the API did not answer the exchange').toBeLessThan(500);
   expect(res.headers.get('access-control-allow-origin')).toBe(w.origins.web);
@@ -130,7 +130,7 @@ Then('the answer is readable by the web app', (w) => {
 });
 
 Then(
-  "the API's Google sign-in launch redirects to Google with the shared callback",
+  'starting a Google sign-in hands the person to Google with the way back to the app',
   async (w) => {
     const callbackUrl = `${w.origins.web}/sso-callback`;
     const launch = `${w.origins.api}/api/auth/oauth/launch?provider=google&callbackUrl=${encodeURIComponent(callbackUrl)}`;
@@ -166,7 +166,7 @@ Then(
  * depend on the relay.
  */
 Then(
-  "the API forwards every other environment's Google callbacks to that environment",
+  'Google sign-ins started in any other environment return to that environment',
   async (w) => {
     const others = Object.values(ENV_FILES).filter((o) => o.env !== w.env.env);
     for (const other of others) {
