@@ -337,33 +337,25 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
-| Given | {actor} has claimed username {string} | {actor}, {string} | profile |
+| Given | {actor} and {actor} are on fresh devices | {actor}, {actor} | profile |
 | Given | {actor} has saved an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
-| Given | {actor} is editing their profile | {actor} | profile |
-| Given | {actor}'s current username is recorded | {actor} | profile |
-| Then | {actor} can sign in again | {actor} | profile |
-| Then | {actor} has a generated avatar seed | {actor} | profile |
-| Then | {actor} sees the phone's username {string} | {actor}, {string} | profile |
-| Then | {actor}'s phone shows username {string} | {actor}, {string} | profile |
-| Then | {actor}'s profile keeps the loaded username | {actor} | profile |
+| Given | {actor}'s username is {username} | {actor}, {username} | profile |
+| Then | {actor} already has an avatar | {actor} | profile |
+| Then | {actor} and {actor} have different usernames | {actor}, {actor} | profile |
+| Then | {actor}'s other device shows {username} | {actor}, {username} | profile |
 | Then | {actor}'s profile shows {username} | {actor}, {username} | profile |
-| Then | {actor}'s profile shows username {string} | {actor}, {string} | profile |
-| Then | {actor}'s profile still shows the loaded username | {actor} | profile |
+| Then | {actor}'s profile shows {username} within {int} seconds | {actor}, {username}, {int} | profile |
 | Then | {actor}'s saved avatar has seed {string} | {actor}, {string} | profile |
 | Then | {actor}'s saved avatar uses style {string} | {actor}, {string} | profile |
-| Then | {actor}'s saved profile avatar has seed {string} | {actor}, {string} | profile |
 | Then | {actor}'s username change is refused with {string} | {actor}, {string} | profile |
-| Then | {actor}'s username change is saved | {actor} | profile |
-| Then | each has their own generated username | — | profile |
+| When | {actor} and {actor} open the app | {actor}, {actor} | profile |
 | When | {actor} changes the avatar seed to {string} and leaves without saving | {actor}, {string} | profile |
-| When | {actor} drafts username {string} and cancels | {actor}, {string} | profile |
 | When | {actor} renames themselves to {username} | {actor}, {username} | profile |
-| When | {actor} returns to the tabs | {actor} | profile |
+| When | {actor} renames themselves to {username} on their other device | {actor}, {username} | profile |
 | When | {actor} saves an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
-| When | {actor} signs out | {actor} | profile |
+| When | {actor} starts renaming themselves to {username} and leaves without saving | {actor}, {username} | profile |
 | When | {actor} tries to use username {string} | {actor}, {string} | profile |
 | When | {actor}'s account opens on another device | {actor} | profile |
-| When | {actor}'s phone changes username to {string} | {actor}, {string} | profile |
 
 ## Features
 

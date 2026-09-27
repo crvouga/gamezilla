@@ -39,9 +39,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
 | Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
+| Given | {actor} has signed out | {actor} | shared |
 | Given | {actor} is a guest | {actor} | shared |
+| Given | {actor} is also signed in on another device | {actor} | shared |
+| Given | {actor} is offline | {actor} | shared |
 | Given | {actor} is signed in | {actor} | shared |
 | Given | {actor} is signed in with Google | {actor} | shared |
+| Given | the connection has come back | — | shared |
 | Then | {actor} has a signed-in account | {actor} | shared |
 | When | {actor} closes and reopens the app | {actor} | shared |
 | When | {actor} loses the connection | {actor} | shared |

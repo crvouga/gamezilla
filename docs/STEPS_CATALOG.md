@@ -9,5 +9,5 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | @libs/billing | `specs/billing/` | 8 | 21 | 43 | [catalog](../libs/billing/STEPS_CATALOG.md) |
 | @libs/chess | `specs/chess/` | 24 | 105 | 221 | [catalog](../libs/chess/STEPS_CATALOG.md) |
 | @libs/friends | `specs/friends/`, `specs/spaces/` | 17 | 49 | 87 | [catalog](../libs/friends/STEPS_CATALOG.md) |
-| @libs/profile | `specs/profile/` | 8 | 31 | 68 | [catalog](../libs/profile/STEPS_CATALOG.md) |
+| @libs/profile | `specs/profile/` | 8 | 38 | 49 | [catalog](../libs/profile/STEPS_CATALOG.md) |
 | @libs/runtime | `specs/runtime/`, `specs/journeys/` | 3 | 11 | 25 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
