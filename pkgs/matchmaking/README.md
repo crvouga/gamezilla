@@ -108,9 +108,17 @@ expect(await s.read(statusOf, 'a')).not.toBeNull();
 Scenarios assert only port observables — never SQL tables or claim
 columns. CI: `bun run --filter @pkgs/matchmaking test`.
 
+The acceptance behavior (waiting, stopping, being matched, the same answer
+at every replica) is the Matchmaking context in `specs/matchmaking/`
+(Gherkin features plus the `matching.qnt` model), run by
+`@pkgs/matchmaking-sim`'s `test:e2e` through `tests/steps/` and
+`tests/quint/`. The package `test` keeps the same-seed determinism and
+schema-drift contracts.
+
 ```bash
 bun run --filter @pkgs/matchmaking test
 bun run --filter @pkgs/matchmaking-sim test
+bun run spec --package @pkgs/matchmaking-sim
 ```
 
 Hosts drive pairing via `Matchmaking.tick()` / `POST /tick`. Concurrent
