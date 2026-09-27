@@ -42,6 +42,7 @@
     "mySubscription",
     "notificationsActive",
     "openSpaceSessions",
+    "ownAccountDevices",
     "ownDevices",
     "ownExternalAccounts",
     "ownProfile",
