@@ -18,11 +18,24 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 `specs/<domain>/*.qnt`, so the rows below that say "keep in code" for them
 are history.
 
+(2026-09-27) `pkgs/room-sim` runs the `rooms` domain (`specDomains`):
+`specs/rooms/shared-counter.feature`, `refusals.feature`, `match-clock.feature`,
+and the Quint models `specs/rooms/shared-counter.qnt` (convergence across
+offline, stalled networks, crashes and room restarts; exactly-once on resent
+and taken-over commands) and `specs/rooms/match-clock.qnt`. Its legacy
+scenario tests are deleted. Kept in code, as framework contracts:
+`determinism.test.ts` (same seed twice, was seeded-workload-determinism and
+MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
+(the loopback host seam, was `room.test.ts`), `hash-canonicality`,
+`purity-and-seed`. `pkgs/room` still runs `tests/room-server.feature` and
+`tests/room-client.feature` beside its tests (engine wire behavior, not yet
+demoted to contract tests).
+
 Still open:
 
 - **Framework-level sims** (`pkgs/auth-sim`, `pkgs/db-indexes`,
-  `pkgs/matchmaking-sim`, `pkgs/room-sim`, `pkgs/sync-engine`): deferred to a
-  later wave, as marked below.
+  `pkgs/matchmaking-sim`, `pkgs/sync-engine`): deferred to a later wave, as
+  marked below.
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
   - `puzzle-limit-upgrade`'s old title promised "open billing plans", but only
