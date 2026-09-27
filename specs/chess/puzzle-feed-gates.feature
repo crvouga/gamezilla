@@ -4,6 +4,7 @@ Feature: Customizing the feed is for people with an account
   account unlocks, and a guest who reaches for it is invited to sign in rather
   than shown an error.
 
+  @regression:guest-feed-customization-ungated
   Scenario: A guest reaching for the feed settings is invited to sign in
     Given Alice is a guest
     And Alice is playing puzzles in their space

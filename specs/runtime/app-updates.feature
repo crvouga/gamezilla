@@ -4,7 +4,7 @@ Feature: An app too old for the product
   to update rather than shown errors, and nothing they did is lost.
 
   Scenario: An outdated app asks the person to update
-    Given Alice's app is older than the product accepts
+    Given Alice's app became outdated while Alice was offline
     When the connection comes back
     Then Alice is asked to update the app within 15 seconds
 

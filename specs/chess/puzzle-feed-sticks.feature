@@ -13,6 +13,7 @@ Feature: Feed choices stick
     And Alice returns to their space
     Then Alice's feed targets a custom 1550
 
+  @regression:puzzle-feed-settings-device-local
   Scenario: The feed choices reach the player's other device
     When Alice's account opens on another device
     Then Alice's other device's feed targets a custom 1550 within 30 seconds

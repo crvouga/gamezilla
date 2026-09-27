@@ -3,6 +3,7 @@ Feature: Spaces need a connection
   Spaces are live and shared, so they need a connection. Without one, the app
   says so plainly instead of failing silently or waiting forever.
 
+  @regression:space-offline-create-queued
   Scenario: Creating a space without a connection says it needs one
     Given Alice is signed in
     And Alice is offline

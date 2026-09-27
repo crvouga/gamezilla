@@ -6,4 +6,9 @@ Feature: Addresses that lead nowhere
   Scenario: An address the app does not have says so and offers the way back
     When Alice opens an address the app does not have
     Then Alice is told there is nothing at that address
-    And Alice can go back to Spaces
+    And Alice is offered the way back to Spaces
+
+  Scenario: The way back from an address that leads nowhere reaches Spaces
+    Given Alice has opened an address the app does not have
+    When Alice takes the way back to Spaces
+    Then Alice is on Spaces

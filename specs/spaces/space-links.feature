@@ -11,11 +11,12 @@ Feature: What a space's link leads to
     Then Bob sees the space has ended within 15 seconds
     And Bob is not offered to join
 
+  @regression:space-link-not-found-premature
   Scenario: A link to a space that never existed says so
     Given Bob is a guest
     When Bob opens a link to a space that does not exist
     Then Bob is told the space cannot be found within 15 seconds
-    And Bob can go back to Spaces
+    And Bob is offered the way back to Spaces
 
   Scenario: Someone who stepped out returns to the space once
     Given Alice and Bob are friends
