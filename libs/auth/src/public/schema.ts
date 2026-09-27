@@ -1,5 +1,6 @@
 export {
   AUTH_TABLES,
+  authAccountDevices,
   authDevices,
   authExternalAccounts,
   authUsers,

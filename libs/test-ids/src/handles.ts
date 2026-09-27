@@ -84,6 +84,16 @@ export const Handles = {
     `account-unlink-provider-${provider}`,
   accountUnlinkConfirm: 'account-unlink-confirm',
   accountUnlinkDone: 'account-unlink-done',
+  /** The account screen's "Devices" row. */
+  accountDevices: 'account-devices',
+  /** "2 devices" above the devices list. */
+  accountDevicesCount: 'account-devices-count',
+  /** The devices screen's guest state (`-action`: Sign in). */
+  accountDevicesSignIn: 'account-devices-sign-in',
+  /** One row of the devices list, by device id. */
+  accountDevice: (deviceId: string) => `account-device-${deviceId}`,
+  /** The "This device" mark inside a device row. */
+  accountDeviceCurrent: 'account-device-current',
 
   // billing
   settingsBilling: 'settings-billing',

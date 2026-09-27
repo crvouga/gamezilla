@@ -26,6 +26,11 @@ msgstr "?"
 msgid "chess.puzzleStatus.skippedMark"
 msgstr "»"
 
+#. placeholder {0}: deviceIds().length
+#: libs/auth/src/root/client/account-device/account-devices-card.tsx
+msgid "{0, plural, one {# device} other {# devices}}"
+msgstr "{0, plural, one {# device} other {# devices}}"
+
 #. placeholder {0}: friendsState.friends().length
 #: libs/friends/src/root/client/profile-friends-stats-view.tsx
 msgid "{0, plural, one {friend} other {friends}}"
@@ -786,7 +791,6 @@ msgstr "Device name"
 msgid "Device not found"
 msgstr "Device not found"
 
-#: libs/auth/src/root/client/account-device/account-devices-card.tsx
 #: libs/auth/src/root/client/account-device/account-devices-screen.tsx
 #: libs/auth/src/root/client/account-screen.tsx
 msgid "Devices"
@@ -2044,6 +2048,7 @@ msgstr "Shows a live FPS / INP top banner. Useful for diagnosing jank on low-end
 
 #: libs/auth/src/public/sign-in-modal.tsx
 #: libs/auth/src/root/client/account-actions-row.tsx
+#: libs/auth/src/root/client/account-device/account-devices-card.tsx
 #: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in"
 msgstr "Sign in"

@@ -415,8 +415,8 @@ function createServerRouter(args: {
   shell
     .route(
       '/',
-      new AuthApiRoutes(env.clock, env.createId, (userId) =>
-        notifyUserChannels([userId], 'auth-domain-write')
+      new AuthApiRoutes(env.clock, env.createId, (userIds) =>
+        notifyUserChannels(userIds, 'auth-domain-write')
       ).build()
     )
     .use('*', async (c, next) => {

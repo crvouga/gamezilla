@@ -11,6 +11,11 @@ export const AUTH_TOPIC_MAP = {
       return [`user:${ctx.actorId}`];
     },
   },
+  auth_account_devices: {
+    topics(row, ctx) {
+      return [`user:${String(row['user_id'] ?? ctx.actorId)}`];
+    },
+  },
   auth_external_accounts: {
     topics(_row, ctx) {
       return [`user:${ctx.actorId}`];

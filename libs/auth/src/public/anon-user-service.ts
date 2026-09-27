@@ -3,6 +3,7 @@ import { join, raw, sql, type Value } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { assertDeviceId, assertUuid } from '../shared/auth/device-id';
+import { AccountDeviceMembership } from '../shared/auth/writes/account-device-membership';
 
 import { managedInsertColumns, managedUpdatedAtIso } from './managed-row';
 
@@ -22,6 +23,8 @@ function isAnonFlag(value: unknown): boolean {
 export type EnsureAnonUserResult = {
   readonly userId: string;
   readonly isAnon: true;
+  /** Signed-in accounts this device just left (their devices lists change). */
+  readonly leftAccountIds: readonly string[];
 };
 
 /** Transaction-scoped anon user helpers. Open a transaction in a use case. */
@@ -60,7 +63,11 @@ export class AnonUserService {
         const anon = await this.readUserIsAnon(boundUserId);
         if (anon === true) {
           assertUuid(boundUserId, 'userId must be UUID');
-          return { userId: boundUserId, isAnon: true as const };
+          return {
+            userId: boundUserId,
+            isAnon: true as const,
+            leftAccountIds: [],
+          };
         }
       }
     }
@@ -68,8 +75,13 @@ export class AnonUserService {
     const userId = await this.resolveMintUserId(args.userId, createId);
     assertUuid(userId, 'userId must be UUID');
     await this.insertAnonUser(userId, now, createId);
-    await this.bindDeviceToUser({ deviceId, userId, now, createId });
-    return { userId, isAnon: true as const };
+    const leftAccountIds = await this.bindDeviceToUser({
+      deviceId,
+      userId,
+      now,
+      createId,
+    });
+    return { userId, isAnon: true as const, leftAccountIds };
   }
 
   /** Uses a client-proposed id when unbound (or forceNew), unless it is a non-anon user. */
@@ -151,7 +163,29 @@ export class AnonUserService {
     `);
   }
 
+  /** Binds the device to (anon) `userId`; returns the accounts it left. */
   private async bindDeviceToUser(args: {
+    readonly deviceId: string;
+    readonly userId: string;
+    readonly now: () => number;
+    readonly createId: CreateId;
+  }): Promise<readonly string[]> {
+    const { deviceId, userId, now, createId } = args;
+    const previous = await this.readDeviceUserId(deviceId);
+    const fromAccountId =
+      previous !== null && (await this.readUserIsAnon(previous)) === false
+        ? previous
+        : null;
+    await this.writeDeviceUser({ deviceId, userId, now, createId });
+    return await new AccountDeviceMembership(this.tx, { now, createId }).move({
+      deviceId,
+      fromAccountId,
+      toUserId: userId,
+      toIsAccount: false,
+    });
+  }
+
+  private async writeDeviceUser(args: {
     readonly deviceId: string;
     readonly userId: string;
     readonly now: () => number;

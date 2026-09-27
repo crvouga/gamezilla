@@ -29,7 +29,6 @@ import {
   friendsEmptyShown,
   personProfileShown,
   readFriendsCount,
-  signInAsked,
   unblockOffered,
   withdrawOffered,
 } from '@libs/friends/sim/friends-ui-reads';
@@ -433,19 +432,6 @@ Given(
 When('{actor} chooses to sign in from search', async (w, actor: Actor) => {
   await w.s.apply(followSearchSignIn, actor);
 });
-
-Then('{actor} is asked to sign in', async (w, actor: Actor) => {
-  expect(await w.s.read(signInAsked, actor)).toBe(true);
-});
-
-Then(
-  '{actor} is asked to sign in within {int} seconds',
-  async (w, actor: Actor, seconds: number) => {
-    await w.s.until((surf) => signInAsked(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-    });
-  }
-);
 
 Then(
   '{actor} is told they have no friends yet within {int} seconds',

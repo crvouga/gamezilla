@@ -1,4 +1,5 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Handles } from '@libs/test-ids';
+import { Plural, Trans, useLingui } from '@lingui/solid/macro';
 import { useClipboard } from '@pkgs/device/solid';
 import {
   CopyToClipboardField,
@@ -9,6 +10,7 @@ import {
 import type { JSX } from 'solid-js';
 import { createMemo, For, Show } from 'solid-js';
 import { useIsSignedIn } from '../../../public/access-facts';
+import { useSignInModal } from '../../../public/auth-modals-provider';
 import { useAccountDeviceIds } from '../use-account-device-ids';
 import { AccountDeviceMenuRow } from './account-device-menu-row';
 
@@ -24,6 +26,7 @@ export function AccountDevicesCard(
   const { t } = useLingui();
   const clipboard = useClipboard();
   const signedIn = useIsSignedIn();
+  const signIn = useSignInModal();
   const scopedAccountId = createMemo(() =>
     signedIn() ? props.accountId : null
   );
@@ -39,6 +42,8 @@ export function AccountDevicesCard(
           body={
             <Trans>Every install signed into your account shows up here.</Trans>
           }
+          action={{ label: t`Sign in`, onClick: () => signIn.open() }}
+          dataSet={{ testid: Handles.accountDevicesSignIn }}
         />
       }
     >
@@ -54,7 +59,15 @@ export function AccountDevicesCard(
       >
         <div class="box gap-5">
           <MenuSection
-            title={<Trans>Devices</Trans>}
+            title={
+              <span data-testid={Handles.accountDevicesCount}>
+                <Plural
+                  value={deviceIds().length}
+                  one="# device"
+                  other="# devices"
+                />
+              </span>
+            }
             footer={<Trans>Tap a device for details.</Trans>}
           >
             <For each={deviceIds()}>

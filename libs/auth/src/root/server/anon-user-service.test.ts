@@ -76,6 +76,32 @@ describe('AnonUserService', () => {
     expect(await anonUsers.findUserIdByDeviceId(DEVICE_ID)).toBe(next.userId);
   });
 
+  // regression: signed-out-device-stays-listed
+  test('a device leaving an account tombstones its membership there', async () => {
+    const first = await ensureAnon.execute({ deviceId: DEVICE_ID });
+    await anonUsers.clearUserAnonFlag(first.userId, adapters.clock.now);
+
+    const next = await ensureAnon.execute({ deviceId: DEVICE_ID });
+
+    expect(next.leftAccountIds).toEqual([first.userId]);
+    const rows = await db.query(sql<{ deleted_at: string | null }>`
+      SELECT deleted_at FROM auth_account_devices
+      WHERE user_id = ${first.userId} AND device_id = ${DEVICE_ID}
+    `);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.deleted_at).not.toBeNull();
+  });
+
+  test('a guest device leaves no account behind', async () => {
+    const first = await ensureAnon.execute({ deviceId: DEVICE_ID });
+    const next = await ensureAnon.execute({
+      deviceId: DEVICE_ID,
+      forceNew: true,
+    });
+    expect(next.userId).not.toBe(first.userId);
+    expect(next.leftAccountIds).toEqual([]);
+  });
+
   test('forceNew always mints a new anon user', async () => {
     const first = await ensureAnon.execute({
       deviceId: DEVICE_ID,
