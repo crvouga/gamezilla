@@ -60,6 +60,17 @@ terms:
     avoid: [identity provider, IdP]
     model: [Provider, providerOf]
 
+  - term: word
+    definition: >-
+      What a provider tells the app when it vouches for who is signing in
+      ("Apple's word for Alice"). The app signs a person in only on word it
+      can check is the provider's own and that is fresh: word too old, dated
+      ahead by more than a few minutes, or not checkable as the provider's
+      own counts as the provider failing. Word that is sound but unusually
+      written, or from a clock a little ahead, still signs in, and so does
+      word checked in a way the provider has since changed to.
+    forms: ["Apple's word", "Google's word", its word]
+
   - term: email address
     definition: >-
       The email address of an outside account, as its provider gives it to

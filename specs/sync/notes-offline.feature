@@ -25,3 +25,12 @@ Feature: Notes written offline
     When Alice's app has its data cleared
     Then Alice sees the note "Groceries" saying "milk"
     And Bob does not see the note "Groceries"
+
+  @regression:invariant-dirty-read
+  Scenario: After offline edits cross what someone else wrote meanwhile, everyone agrees on every note
+    Given Alice has written the note "Groceries" saying "milk"
+    And Alice has deleted the note "Hotel" before anyone wrote it
+    And Alice has deleted the note "Groceries"
+    And Bob has written the notes "Hotel" and "Groceries"
+    When Alice's app comes back online
+    Then Alice and Bob agree on every note
