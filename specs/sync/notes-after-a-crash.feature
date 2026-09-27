@@ -1,7 +1,7 @@
 @domain:sync
 Feature: Notes survive a crash
-  An app can crash at any moment. When it reopens, every note it had must
-  still be there, including notes that had not yet reached anyone else.
+  When the app crashes, a person wants every note it had to be there when it
+  reopens, including notes that had not yet reached anyone else.
 
   Background:
     Given Alice and Bob are in the shared space "Trip"

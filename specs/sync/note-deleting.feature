@@ -1,13 +1,13 @@
 @domain:sync
 Feature: Delete a note
-  People tidy up by deleting notes they no longer need. A deleted note must be
-  gone for everyone, and writing it again must bring it back for everyone, so
+  When a note is no longer needed, whoever owns it wants deleting it to remove
+  it for everyone, and writing it again to bring it back for everyone, so
   nobody works from a note the others no longer have.
 
   Background:
     Given Alice and Bob are in the shared space "Trip"
 
-  Rule: A note deleted by its owner disappears for everyone
+  Rule: A note deleted by whoever owns it disappears for everyone
 
     Scenario: A note deleted by the person who wrote it disappears for everyone
       Given Alice has written the note "Groceries" saying "milk"

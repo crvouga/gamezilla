@@ -1,8 +1,8 @@
 @domain:sync
 Feature: Write a note
-  A note is only useful if it is there the moment it is written, stays put,
-  and reaches the people it is shared with. Nobody should wonder whether what
-  they wrote was kept.
+  When a person writes a note, they want it there the moment it is written,
+  kept, and reaching the people it is shared with, so nobody wonders whether
+  what they wrote was kept.
 
   Rule: A note shows on its writer's device at once and is kept
 

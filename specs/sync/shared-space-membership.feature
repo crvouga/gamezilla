@@ -1,8 +1,8 @@
 @domain:sync
-Feature: Leave and rejoin a shared space
-  People come and go from shared spaces. Leaving stops new notes from
-  arriving but takes nothing away, and coming back catches up on everything
-  that was missed.
+Feature: Leave a shared space and rejoin it
+  When a person comes and goes from a shared space, they want to keep the
+  notes they had, stop getting new ones while away, and catch up on
+  everything they missed when they rejoin.
 
   Background:
     Given Alice and Bob are in the shared space "Trip"
