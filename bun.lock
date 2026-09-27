@@ -1256,6 +1256,8 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

@@ -43,10 +43,13 @@ export { assertAuthInvariants, authFingerprint } from './invariants';
 export { type AuthModel, identityKey } from './model';
 export { migrateAuthSchema, startStore } from './nodes';
 export {
+  type AccountOnRecord,
   AUTH_ARGS,
   type AuthArgs,
+  accountsOnRecord,
   arbAuthArgs,
   auth,
+  awaitingProof,
   caps,
   clientBearers,
   fabric,
@@ -74,3 +77,4 @@ export {
   requireActor,
   requireStore,
 } from './types';
+export { movedGoogleEmail } from './world-flows';

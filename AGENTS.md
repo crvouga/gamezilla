@@ -476,8 +476,10 @@ by address **only** when both addresses are provider-verified and neither is
 an Apple relay; any other address match parks a pending link the person must
 confirm (sign in to the existing account) or decline (a separate account).
 Linking from Settings needs a link ticket bound to the signed-in session. The
-reference model in `@pkgs/auth-sim` is the oracle for all of it — change the
-policy there first.
+policy is specified in `specs/sign-in/` (its features and the
+`outside-accounts.qnt` model, run by `@pkgs/auth-sim`'s `test:e2e`), and the
+reference model in `@pkgs/auth-sim` checks every sim step against it — change
+the spec first, then the reference model.
 
 Each provider's **wire** is real; its **screens** deliberately are not — they
 say `OAuth Mock` (`IDP_BRAND` in `pkgs/idp-sim/src/shared/brand.ts`),
