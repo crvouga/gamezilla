@@ -1,9 +1,9 @@
 @domain:rooms
 Feature: Shared counter
-  A room keeps one count that several people change together. Each person
-  sees their own change at once and ends up agreeing with the room, however
-  their connection comes and goes and even when an app or the room itself
-  crashes, so no change is ever lost or counted twice.
+  When several people increment one shared counter together, each wants
+  their own change to show at once and everyone to come to agree with the
+  room's count, however their connection comes and goes and even when an app
+  or the room itself crashes, so no change is ever lost or counted twice.
 
   Rule: A change shows in the room and on its author's device
 
