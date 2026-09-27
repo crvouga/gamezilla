@@ -17,8 +17,9 @@
  *   second notion of "what changed" to keep correct. The one input turbo
  *   cannot see — which commits a change adds — is exported as
  *   `CHECK_SECRETS_RANGE` (`<merge-base>..<head>`) for `check:secrets`.
- * - Plan first (`turbo-preflight.ts`): `--dry=json` asks both caches about
- *   every task (~1s). All hits → the gate already passed for these inputs, so
+ * - Plan first (`turbo-preflight.ts`): `--dry=json` asks the local cache
+ *   about every task (~4s), then the remote about the local misses only, in
+ *   parallel. All hits → the gate already passed for these inputs, so
  *   turbo is not run at all. Otherwise turbo runs only the missed task ids
  *   (plus their `dependsOn` closure, same hashes), after the closure's remote
  *   hits are prefetched in parallel into the local cache — so `--concurrency`
@@ -69,8 +70,13 @@ import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   dryRunPlan,
+  localCacheFlag,
   prefetchRemoteHits,
+  REMOTE_LOOKUP_CONCURRENCY,
   type RunPlan,
+  readsRemoteCache,
+  resolveRemoteHits,
+  wallRemoteHas,
 } from './turbo-preflight';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
@@ -498,22 +504,33 @@ const LISTED_MISSES = 25;
  * run itself fails: the real run then goes ahead unplanned — the verdict is
  * always the real run's, the plan only decides how much of it to skip.
  */
-function planOrNull(
+async function planOrNull(
   runArgs: readonly string[],
   cache: string,
   env: NodeJS.ProcessEnv
-): RunPlan | null {
+): Promise<RunPlan | null> {
   // The misses are re-run by id alone, so a caller's own turbo flags
   // (`--force`, `--continue`, …) would be dropped: plan only plain task sets.
   const flags = runArgs.filter((arg) => arg.startsWith('-'));
   if (flags.some((flag) => !flag.startsWith('--filter='))) return null;
+  // Turbo's own remote lookup is one request per task, in series; ask the
+  // local cache here and the remote about the local misses, in parallel.
+  const local = localCacheFlag(cache);
+  const askRemote = local !== null && readsRemoteCache(cache);
   let plan: RunPlan;
   try {
     plan = dryRunPlan(
-      [...runArgs, `--cache=${cache}`, '--framework-inference=false'],
+      [...runArgs, `--cache=${local ?? cache}`, '--framework-inference=false'],
       REPO_ROOT,
       env
     );
+    if (askRemote && plan.toExecute.length > 0) {
+      plan = await resolveRemoteHits(
+        plan,
+        wallRemoteHas(env),
+        REMOTE_LOOKUP_CONCURRENCY
+      );
+    }
   } catch (error) {
     console.warn(
       `turbo-ci-run: dry run failed (${String(error)}); running unplanned.`
