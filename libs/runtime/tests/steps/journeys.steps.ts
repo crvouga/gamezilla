@@ -43,7 +43,7 @@ function realBrowser(w: JourneyWorld): JourneyBrowser {
   return w.journey.browser;
 }
 
-Given('a person opens the app on a fresh device', async (w) => {
+Step('a person opens the app on a fresh device', async (w) => {
   await w.journey.open('anonymous');
 });
 
@@ -75,9 +75,18 @@ Then('their account offers to sign in again', async (w) => {
   await w.journey.act('expectSignInOffered', expectSignInOffered);
 });
 
-Step('they host a space', async (w) => {
+/** Host a space and end it when the scenario closes, unless it ended it. */
+async function hostDeferringEnd(w: JourneyWorld): Promise<void> {
   await w.journey.act('hostSpace', hostSpace);
   w.journey.defer(HOSTED_SPACE, endActiveSpace);
+}
+
+When('they host a space', async (w) => {
+  await hostDeferringEnd(w);
+});
+
+Given('they are hosting a space', async (w) => {
+  await hostDeferringEnd(w);
 });
 
 Then('the space offers games to play', async (w) => {

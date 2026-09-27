@@ -2,7 +2,6 @@
 /** `specs/health/live-updates.feature`. */
 
 import { expect } from 'bun:test';
-import { join } from 'node:path';
 import { ClientConfigKey } from '@libs/client-config/public/client-config-keys';
 import { parseClientConfigRows } from '@libs/client-config/public/parse-client-config';
 import { PubsubSecretName as Name } from '@libs/pubsub/public/secret-names';
@@ -12,28 +11,46 @@ import {
   EMQX_STOCK_DASHBOARD_PASSWORD,
 } from '@pkgs/emqx-server/ports';
 import type { HttpClient } from '@pkgs/http-client';
-import { createRepoTreeObjectStore } from '@pkgs/object-store-node-fs/repo-tree-store';
-import { createSecretAdminStore } from '@pkgs/secret-provider';
 import { awaitApiAnswered, liveRows } from './client-config.steps';
 import { eventually, Then } from './define';
-import { type LiveWorld, requireSecret } from './live-world';
+import { liveSecret } from './live-secrets';
+import type { LiveWorld } from './live-world';
 import { wallWait } from './wall-wait';
 
-const REPO_ROOT = join(import.meta.dir, '../../../..');
 /** A broker OpenTofu just created (or restarted) builds for a few minutes. */
 const BROKER_WARMUP_MS = 10 * 60 * 1000;
 const RETRY_MS = 10_000;
 
-function basicAuth(): string {
-  return `Basic ${btoa(`${requireSecret(Name.apiKey)}:${requireSecret(Name.apiSecret)}`)}`;
+/**
+ * The broker's credentials as the secret store holds them now: an apply may
+ * have replaced them (a placeholder or `regenerate`d value) since the run's
+ * env was injected.
+ */
+type Broker = {
+  readonly apiUrl: string;
+  readonly apiKey: string;
+  readonly apiSecret: string;
+};
+
+async function broker(w: LiveWorld): Promise<Broker> {
+  return {
+    apiUrl: await liveSecret(w, Name.apiUrl),
+    apiKey: await liveSecret(w, Name.apiKey),
+    apiSecret: await liveSecret(w, Name.apiSecret),
+  };
+}
+
+function basicAuth(b: Broker): string {
+  return `Basic ${btoa(`${b.apiKey}:${b.apiSecret}`)}`;
 }
 
 async function nodeStatuses(
-  http: HttpClient
+  http: HttpClient,
+  b: Broker
 ): Promise<readonly string[] | null> {
   try {
-    const res = await http.fetch(`${requireSecret(Name.apiUrl)}/api/v5/nodes`, {
-      headers: { Authorization: basicAuth(), Accept: 'application/json' },
+    const res = await http.fetch(`${b.apiUrl}/api/v5/nodes`, {
+      headers: { Authorization: basicAuth(b), Accept: 'application/json' },
     });
     if (res.status !== 200) return null;
     const nodes = (await res.json()) as ReadonlyArray<{ node_status?: string }>;
@@ -43,34 +60,13 @@ async function nodeStatuses(
   }
 }
 
-/**
- * `secrets-run` injected this process's env once, at the start of the run;
- * `apply:foundation` may have replaced the broker credentials since (a
- * placeholder or `regenerate`d value), so probe with the store's live values.
- */
-const BROKER_CREDENTIALS = 'broker-credentials-current';
-
-async function useCurrentBrokerCredentials(w: LiveWorld): Promise<void> {
-  if (w.memo.has(BROKER_CREDENTIALS)) return;
-  const store = await createSecretAdminStore({
-    repoRoot: REPO_ROOT,
-    configStore: createRepoTreeObjectStore({ rootDir: REPO_ROOT }),
-  });
-  const live = await store.exportSecrets(process.env['SECRETS_ENV']);
-  for (const name of Object.values(Name)) {
-    const value = live.get(name)?.trim() ?? '';
-    if (value.length > 0) process.env[name] = value;
-  }
-  w.memo.set(BROKER_CREDENTIALS, true);
-}
-
 /** The broker's API authenticates and every node is running. */
 Then('live updates are ready to reach people', async (w) => {
-  await useCurrentBrokerCredentials(w);
+  const b = await broker(w);
   const seen: { statuses: readonly string[] | null } = { statuses: null };
   await eventually(
     async () => {
-      seen.statuses = await nodeStatuses(w.http);
+      seen.statuses = await nodeStatuses(w.http, b);
       return (
         seen.statuses !== null &&
         seen.statuses.length > 0 &&
@@ -87,11 +83,11 @@ Then('live updates are ready to reach people', async (w) => {
 
 /** The server's publish path accepts a message. */
 Then('the app can send a live update', async (w) => {
-  await useCurrentBrokerCredentials(w);
+  const b = await broker(w);
   const pubsub = createHttpPubSubFromSecretStore({
-    apiBaseUrl: requireSecret(Name.apiUrl),
-    apiKey: requireSecret(Name.apiKey),
-    apiSecret: requireSecret(Name.apiSecret),
+    apiBaseUrl: b.apiUrl,
+    apiKey: b.apiKey,
+    apiSecret: b.apiSecret,
   });
   await pubsub.publish('health-ping', { ok: true });
 });
@@ -103,13 +99,15 @@ Then('the app can send a live update', async (w) => {
 Then(
   "people's apps are pointed at this environment's live updates",
   async (w) => {
-    await useCurrentBrokerCredentials(w);
+    const wssUrl = await liveSecret(w, Name.wssUrl);
     await awaitApiAnswered(w);
-    const wss = new URL(requireSecret(Name.wssUrl));
+    const wss = new URL(wssUrl);
     expect(wss.protocol).toBe('wss:');
-    expect(wss.hostname).toBe(new URL(requireSecret(Name.apiUrl)).hostname);
+    expect(wss.hostname).toBe(
+      new URL(await liveSecret(w, Name.apiUrl)).hostname
+    );
     const config = parseClientConfigRows(await liveRows());
-    expect(config[ClientConfigKey.emqxWssUrl]).toBe(requireSecret(Name.wssUrl));
+    expect(config[ClientConfigKey.emqxWssUrl]).toBe(wssUrl);
   }
 );
 
@@ -117,9 +115,8 @@ Then(
 Then(
   'nobody can take over live updates with the default admin password',
   async (w) => {
-    await useCurrentBrokerCredentials(w);
     const res = await w.http.fetch(
-      `${requireSecret(Name.apiUrl)}/api/v5/login`,
+      `${await liveSecret(w, Name.apiUrl)}/api/v5/login`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,13 +135,17 @@ Then(
 Then(
   'nobody can take over live updates with a publicly known password',
   async (w) => {
-    await useCurrentBrokerCredentials(w);
-    const committed = [
+    const committed: string[] = [];
+    for (const name of [
       Name.apiKey,
       Name.apiSecret,
       Name.jwtSecret,
       Name.dashboardPassword,
-    ].filter((name) => COMMITTED_EMQX_CREDENTIALS.has(requireSecret(name)));
+    ]) {
+      if (COMMITTED_EMQX_CREDENTIALS.has(await liveSecret(w, name))) {
+        committed.push(name);
+      }
+    }
     expect(committed).toEqual([]);
   }
 );

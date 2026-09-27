@@ -1,25 +1,24 @@
 /**
  * Membership lifecycle steps: what the provider does to a membership (period
- * ends, failed and recovered payments, cancel and resume, interval switches,
- * the billing portal) and what the person's synced membership then says.
- * Comparisons follow "record, then compare": a Given records the value in
- * world state and a Then compares against it.
+ * ends, failed and recovered payments, cancellation, retries given up), what
+ * the person does in the billing portal, and what their billing screen then
+ * shows (state, plan, renewal date).
  */
 
 import { expect } from 'bun:test';
 
 import {
   cancelPlus,
-  checkoutPlusAtProvider,
   observeMembership,
+  openBilling,
   resumePlus,
   switchPlusInterval,
 } from '@libs/billing/sim/billing-actions';
 import type { BillingObserveKind } from '@libs/billing/sim/billing-provider-driver';
 import {
-  type MembershipRowView,
-  membershipRow,
-  membershipRows,
+  currentPlan,
+  type MembershipShown,
+  membershipShown,
 } from '@libs/billing/sim/billing-reads';
 import {
   type Actor,
@@ -32,13 +31,54 @@ import { recall, remember } from '@libs/sim-harness/spec/world';
 
 const MONTHLY = 'subscription_monthly';
 const YEARLY = 'subscription_yearly';
-/** Provider webhooks sync to the device within a few virtual seconds. */
-const ROW_WAIT = { maxMs: 60_000, stepMs: 1_000 } as const;
-/** Long enough for a redelivered event to have reached the device. */
+const PLANS = [MONTHLY, YEARLY] as const;
+/** Provider webhooks reach the device's screen within a few virtual seconds. */
+const SHOWN_WAIT = { maxMs: 60_000, stepMs: 1_000 } as const;
+/** Long enough for a provider change's events to have reached the device. */
 const SETTLE_MS = 6_000;
 
-const periodEndKey = (actor: Actor) => `billing-period-end:${actor}`;
-const rowKey = (actor: Actor) => `billing-membership:${actor}`;
+/** Key of the renewal date the screen showed before the scenario's event. */
+const renewalKey = (actor: Actor) => `billing-renewal-before:${actor}`;
+
+/** Bring the billing screen into view if it is not already showing. */
+async function onBilling(w: SimWorld, actor: Actor): Promise<void> {
+  if ((await w.s.read(membershipShown, actor)) === null) {
+    await w.s.apply(openBilling, actor);
+  }
+}
+
+/** Wait until the actor's billing screen shows a membership matching `match`. */
+async function shownWhere(
+  w: SimWorld,
+  actor: Actor,
+  match: (shown: MembershipShown) => boolean
+): Promise<MembershipShown> {
+  await onBilling(w, actor);
+  const shown = await w.s.until((sim) => membershipShown(sim, actor), {
+    ...SHOWN_WAIT,
+    pred: (candidate) => candidate !== null && match(candidate),
+  });
+  if (shown === null) throw new Error(`${actor}'s billing screen is not open`);
+  return shown;
+}
+
+async function expectPlan(
+  w: SimWorld,
+  actor: Actor,
+  plan: (typeof PLANS)[number]
+): Promise<void> {
+  await onBilling(w, actor);
+  await w.s.until((sim) => currentPlan(sim, actor, PLANS), {
+    ...SHOWN_WAIT,
+    pred: (shown) => shown === plan,
+  });
+}
+
+/** Remember the renewal date on screen before an event that should move it. */
+async function rememberRenewal(w: SimWorld, actor: Actor): Promise<void> {
+  const shown = await shownWhere(w, actor, (s) => s.periodEndMs !== null);
+  remember(w, renewalKey(actor), shown.periodEndMs);
+}
 
 async function observe(
   w: SimWorld,
@@ -48,38 +88,21 @@ async function observe(
   await w.s.apply(observeMembership, actor, kind);
 }
 
-async function rowWhere(
-  w: SimWorld,
-  actor: Actor,
-  match: (row: MembershipRowView) => boolean
-): Promise<MembershipRowView> {
-  const row = await w.s.until((sim) => membershipRow(sim, actor), {
-    ...ROW_WAIT,
-    pred: (candidate) => candidate !== null && match(candidate),
-  });
-  if (row === null) throw new Error(`${actor} has no membership`);
-  return row;
-}
-
-async function currentRow(
-  w: SimWorld,
-  actor: Actor
-): Promise<MembershipRowView> {
-  return await rowWhere(w, actor, () => true);
-}
-
-function periodEnd(row: MembershipRowView): number {
-  return Date.parse(row.current_period_end ?? '');
-}
-
 // ------------------------------------------------------ provider lifecycle
 
 When("{actor}'s billing period ends", async (w, actor: Actor) => {
+  await rememberRenewal(w, actor);
   await observe(w, actor, 'period_end');
 });
 
-Given("{actor}'s billing period has ended", async (w, actor: Actor) => {
+Given("{actor}'s free trial has ended", async (w, actor: Actor) => {
   await observe(w, actor, 'period_end');
+  // "Has ended" is settled: the screen has left the trial behind.
+  await shownWhere(
+    w,
+    actor,
+    (shown) => shown.state !== 'trialing' && shown.state !== 'canceling'
+  );
 });
 
 When("{actor}'s payment fails", async (w, actor: Actor) => {
@@ -88,8 +111,7 @@ When("{actor}'s payment fails", async (w, actor: Actor) => {
 
 Given("{actor}'s payment has failed", async (w, actor: Actor) => {
   await observe(w, actor, 'payment_failed');
-  // "Has failed" is settled state: the delinquent row has reached the device.
-  await rowWhere(w, actor, (row) => row.status === 'delinquent');
+  await shownWhere(w, actor, (shown) => shown.state === 'delinquent');
 });
 
 When("{actor}'s payment recovers", async (w, actor: Actor) => {
@@ -104,25 +126,6 @@ When(
 );
 
 When(
-  'the provider delivers its last event for {actor} again',
-  async (w, actor: Actor) => {
-    await observe(w, actor, 'redeliver_last_event');
-  }
-);
-
-Given(
-  "{actor}'s membership is set to cancel at the period end",
-  async (w, actor: Actor) => {
-    await observe(w, actor, 'cancel_at_period_end');
-    await rowWhere(w, actor, (row) => row.cancel_at_period_end === 1);
-  }
-);
-
-When("{actor}'s membership is resumed", async (w, actor: Actor) => {
-  await observe(w, actor, 'resume');
-});
-
-When(
   "{actor}'s membership is canceled immediately",
   async (w, actor: Actor) => {
     await observe(w, actor, 'cancel_now');
@@ -133,22 +136,7 @@ Given(
   "{actor}'s membership has been canceled immediately",
   async (w, actor: Actor) => {
     await observe(w, actor, 'cancel_now');
-  }
-);
-
-When(
-  "{actor}'s membership switches to the yearly plan",
-  async (w, actor: Actor) => {
-    await observe(w, actor, 'switch_interval');
-  }
-);
-
-When(
-  '{actor} checks out Plus again with the provider',
-  async (w, actor: Actor) => {
-    // The billing screen hides Subscribe while grace still grants access, so
-    // the fresh checkout starts at the provider.
-    await w.s.apply(checkoutPlusAtProvider, actor);
+    await shownWhere(w, actor, (shown) => shown.state === 'ended');
   }
 );
 
@@ -165,7 +153,8 @@ Given(
   '{actor} has canceled the membership in the billing portal',
   async (w, actor: Actor) => {
     await w.s.apply(cancelPlus, actor);
-    await rowWhere(w, actor, (row) => row.cancel_at_period_end === 1);
+    await shownWhere(w, actor, (shown) => shown.state === 'canceling');
+    // Let the cancellation's remaining provider events land before the next act.
     await w.s.advanceTime(SETTLE_MS);
   }
 );
@@ -180,124 +169,77 @@ When(
 When(
   '{actor} switches the membership to the yearly plan in the billing portal',
   async (w, actor: Actor) => {
+    await rememberRenewal(w, actor);
     await w.s.apply(switchPlusInterval, actor, YEARLY);
   }
 );
 
-// ------------------------------------------------------ the synced membership
+// ------------------------------------------------------ what the screen shows
 
 Then("{actor}'s membership is trialing", async (w, actor: Actor) => {
-  await rowWhere(w, actor, (row) => row.status === 'trialing');
+  await shownWhere(w, actor, (shown) => shown.state === 'trialing');
 });
 
 Then("{actor}'s membership is active", async (w, actor: Actor) => {
-  await rowWhere(w, actor, (row) => row.status === 'active');
+  await shownWhere(w, actor, (shown) => shown.state === 'active');
 });
 
 Then("{actor}'s membership is delinquent", async (w, actor: Actor) => {
-  await rowWhere(w, actor, (row) => row.status === 'delinquent');
+  await shownWhere(w, actor, (shown) => shown.state === 'delinquent');
 });
 
 Then("{actor}'s membership has ended", async (w, actor: Actor) => {
-  await rowWhere(w, actor, (row) => row.status === 'ended');
+  await shownWhere(w, actor, (shown) => shown.state === 'ended');
 });
 
 Then(
   "{actor}'s membership is trialing on the monthly plan",
   async (w, actor: Actor) => {
-    await rowWhere(
-      w,
-      actor,
-      (row) => row.status === 'trialing' && row.price_key === MONTHLY
-    );
+    await shownWhere(w, actor, (shown) => shown.state === 'trialing');
+    await expectPlan(w, actor, MONTHLY);
   }
 );
 
 Then(
   "{actor}'s membership is active on the monthly plan",
   async (w, actor: Actor) => {
-    await rowWhere(
-      w,
-      actor,
-      (row) => row.status === 'active' && row.price_key === MONTHLY
-    );
+    await shownWhere(w, actor, (shown) => shown.state === 'active');
+    await expectPlan(w, actor, MONTHLY);
+  }
+);
+
+Then(
+  "{actor}'s membership is active on the yearly plan",
+  async (w, actor: Actor) => {
+    await shownWhere(w, actor, (shown) => shown.state === 'active');
+    await expectPlan(w, actor, YEARLY);
   }
 );
 
 Then("{actor}'s membership is on the yearly plan", async (w, actor: Actor) => {
-  await rowWhere(w, actor, (row) => row.price_key === YEARLY);
+  await expectPlan(w, actor, YEARLY);
 });
 
 Then(
   "{actor}'s membership is set to end at the period end",
   async (w, actor: Actor) => {
-    await rowWhere(w, actor, (row) => row.cancel_at_period_end === 1);
+    await shownWhere(w, actor, (shown) => shown.state === 'canceling');
   }
 );
 
 Then(
   "{actor}'s membership is no longer set to end at the period end",
   async (w, actor: Actor) => {
-    await rowWhere(w, actor, (row) => row.cancel_at_period_end === 0);
+    await shownWhere(w, actor, (shown) => shown.state !== 'canceling');
   }
 );
 
-Then(
-  "{actor}'s membership has a current period end",
-  async (w, actor: Actor) => {
-    expect(periodEnd(await currentRow(w, actor))).toBeGreaterThan(0);
-  }
-);
-
-Then('{actor} has two memberships', async (w, actor: Actor) => {
-  await w.s.until((sim) => membershipRows(sim, actor), {
-    ...ROW_WAIT,
-    pred: (rows) => rows.length === 2,
-  });
+Then("{actor}'s renewal date moves later", async (w, actor: Actor) => {
+  const before = recall(w, renewalKey(actor)) as number;
+  const shown = await shownWhere(
+    w,
+    actor,
+    (candidate) => (candidate.periodEndMs ?? 0) > before
+  );
+  expect(shown.periodEndMs ?? 0).toBeGreaterThan(before);
 });
-
-Then(
-  "{actor}'s newest membership is trialing on the monthly plan",
-  async (w, actor: Actor) => {
-    const rows = await w.s.read(membershipRows, actor);
-    const newest = rows.at(-1);
-    expect(newest?.status).toBe('trialing');
-    expect(newest?.price_key).toBe(MONTHLY);
-  }
-);
-
-// ------------------------------------------------------ record, then compare
-
-Given("{actor}'s current period end is recorded", async (w, actor: Actor) => {
-  remember(w, periodEndKey(actor), periodEnd(await currentRow(w, actor)));
-});
-
-Then(
-  "{actor}'s period end is earlier than the recorded one",
-  async (w, actor: Actor) => {
-    const recorded = recall(w, periodEndKey(actor)) as number;
-    expect(periodEnd(await currentRow(w, actor))).toBeLessThan(recorded);
-  }
-);
-
-Then(
-  "{actor}'s period end is later than the recorded one",
-  async (w, actor: Actor) => {
-    const recorded = recall(w, periodEndKey(actor)) as number;
-    expect(periodEnd(await currentRow(w, actor))).toBeGreaterThan(recorded);
-  }
-);
-
-Given("{actor}'s membership is recorded", async (w, actor: Actor) => {
-  remember(w, rowKey(actor), await currentRow(w, actor));
-});
-
-Then(
-  "{actor}'s membership matches the recorded one",
-  async (w, actor: Actor) => {
-    await w.s.advanceTime(SETTLE_MS);
-    expect(await currentRow(w, actor)).toEqual(
-      recall(w, rowKey(actor)) as MembershipRowView
-    );
-  }
-);

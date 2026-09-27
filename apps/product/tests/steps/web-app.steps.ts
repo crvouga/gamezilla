@@ -4,21 +4,23 @@
 import { expect } from 'bun:test';
 import { httpProbe } from '@libs/secrets/shared/http-probe';
 import { Then } from './define';
+import type { LiveWorld } from './live-world';
 
 const PROBE_TIMEOUT_MS = 15_000;
 
-/** The place a person opens → the path that serves it on www. */
-const PLACE_PATHS: Readonly<Record<string, string>> = {
-  'the app': '/',
-  'the Simulator': '/simulator',
-};
-
-Then('people can open {string} at its address', async (w, place: string) => {
-  const path = PLACE_PATHS[place];
-  expect(path, `no address known for ${place}`).toBeDefined();
+/** `path` on www answers with the app's page. */
+async function expectPageAt(w: LiveWorld, path: string): Promise<void> {
   const result = await httpProbe(`${w.origins.web}${path}`, PROBE_TIMEOUT_MS);
   expect(result.status).toBe(200);
   expect(result.body ?? '').toContain('id="root"');
+}
+
+Then('people can open the app at its address', async (w) => {
+  await expectPageAt(w, '/');
+});
+
+Then('the team can open the Simulator at its address', async (w) => {
+  await expectPageAt(w, '/simulator');
 });
 
 Then('the address without "www" leads people to the app', async (w) => {

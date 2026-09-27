@@ -4,18 +4,12 @@
 import { expect } from 'bun:test';
 import { appPostgresDbScope } from '@libs/db/public/scope';
 import { appSchema } from '@libs/runtime/root/app-schema';
-import { wallTimers } from '@pkgs/clock';
 import { planServer } from '@pkgs/db-schema/core/plan-server';
 import { readPostgresCatalog } from '@pkgs/db-schema-postgres/catalog';
 import type { PostgresSqlClient } from '@pkgs/sql-client/interface';
 import { createPgPool } from '@pkgs/sql-client-postgres/connect';
-import { pingPostgres } from '@pkgs/sql-client-postgres/ping';
 import { Then } from './define';
 import { requireSecret } from './live-world';
-
-Then('the app can look up what people saved', async () => {
-  await pingPostgres(requireSecret('DATABASE_URL'), wallTimers);
-});
 
 Then('what people saved is ready for this version of the app', async () => {
   const dbScope = appPostgresDbScope();

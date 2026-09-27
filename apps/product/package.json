@@ -91,7 +91,6 @@
     "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/s3-server": "workspace:*",
-    "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sim-console": "workspace:*",

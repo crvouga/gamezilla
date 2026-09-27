@@ -119,7 +119,7 @@ When('a person on the web completes a sign-in', async (w) => {
   w.memo.set(SIGN_IN_ANSWER, res);
 });
 
-Then('the web app receives their signed-in session', (w) => {
+Then('the web app hears whether the sign-in worked', (w) => {
   const res = w.memo.get(SIGN_IN_ANSWER) as Response;
   expect(res.status, 'the API did not answer the exchange').toBeLessThan(500);
   expect(res.headers.get('access-control-allow-origin')).toBe(w.origins.web);
