@@ -17,6 +17,7 @@ crosses each boundary. Policy:
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
 | Chess | `chess` | chess puzzles played in a space: the puzzle feed, attempts, the puzzle rating, the game log, review, watching | core |
 | Rooms | `rooms` | rooms: one authority keeping live shared state (the shared counter, the match clock), refused changes | supporting |
+| Matchmaking | `matchmaking` | matchmaking: waiting for a match, reach, matching rounds, being matched, stopping a wait, the same answer at every entrance | supporting |
 | Notes | `sync` | notes people write and share across devices and shared spaces, even offline | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting | generic |
 | Operations | `health` | the promises a live environment keeps, seen by the team | generic |
@@ -36,7 +37,7 @@ Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzl
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
 App      ──► Operations (addresses, versions), Journeys
 Chess    ──► Journeys (a game of chess, a puzzle)
-Rooms, Notes: stand alone (Notes' "shared space" is not a Spaces space)
+Rooms, Notes, Matchmaking: stand alone (Notes' "shared space" is not a Spaces space)
 ```
 
 ## Published language
@@ -54,7 +55,7 @@ context's other terms bind nobody else.
 | Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve | — |
 | App (`runtime`) | Settings, tabs, address, version of the app | — |
-| Rooms, Notes, Operations, Journeys | — | — |
+| Rooms, Matchmaking, Notes, Operations, Journeys | — | — |
 
 ## Rules of thumb
 

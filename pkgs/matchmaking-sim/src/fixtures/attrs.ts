@@ -6,7 +6,10 @@
 import { expect } from 'bun:test';
 import { Assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
-import type { MatchedStatus } from '@pkgs/matchmaking/interface';
+import type {
+  DistanceFormula,
+  MatchedStatus,
+} from '@pkgs/matchmaking/interface';
 
 export const testNs = createAttrNamespace('mmtest');
 
@@ -38,6 +41,21 @@ export const KindAttr = testNs.text('kind', (v): string => {
   }
   return v;
 });
+
+/**
+ * Accept anyone whose rating is within `points` of one's own, for as long as
+ * one waits (the reach never grows).
+ */
+export function ratingWithin(points: number): DistanceFormula {
+  return {
+    numeric: [{ tag: RatingAttr, weight: 1 }],
+    radius: {
+      baseRadius: points,
+      radiusGrowthPerSecond: 0,
+      maxRadius: points,
+    },
+  };
+}
 
 export const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

@@ -54,8 +54,8 @@ changes), not the room's refusal.
 Still open:
 
 - **Framework-level sims** (`pkgs/auth-sim`, `pkgs/db-indexes`,
-  `pkgs/matchmaking-sim`, `pkgs/room-sim`): deferred to a later wave, as
-  marked below.
+  `pkgs/room-sim`): deferred to a later wave, as marked below
+  (`pkgs/matchmaking-sim` is ported; see its section).
 - **`pkgs/sync-engine`**: ported except four files (see its section).
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
@@ -255,13 +255,23 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 |---|---|---|---|
 | `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | framework-level sim (no product UI); port in a later wave |
 
-### pkgs/matchmaking-sim (3) — framework-level sim; port in a later wave
+### pkgs/matchmaking-sim — ported (2026-09-27)
 
-| File | Goal tags | Scenarios | Notes |
-|---|---|---|---|
-| `pkgs/matchmaking-sim/tests/join-status-leave.test.ts` | — | round-trips participant data through status while waiting<br>status returns null for unknown id<br>leave removes the row<br>ready() is idempotent<br>leave on unknown id returns removed:false<br>leave on matched participant returns removed:false | framework-level sim; port in a later wave |
-| `pkgs/matchmaking-sim/tests/replicas-shared-db.test.ts` | — | join r0 / status r1 / leave r2 see the same store<br>updateFormulas on a different replica than join<br>ready() is idempotent on every replica | framework-level sim; port in a later wave |
-| `pkgs/matchmaking-sim/tests/seeded-workload.test.ts` | — | same seed yields identical match fingerprint twice | seeded-workload determinism (keep in code); framework-level sim |
+Behavior moved to the new Matchmaking context, `specs/matchmaking/`
+(`glossary.yaml`, a context-map row): `waiting-for-a-match.feature`,
+`being-matched.feature`, `entrances.feature`, and the model
+`matching.qnt` (waiting, stopping, changing reach, matching rounds and an
+entrance opening again, each landing at any of three entrances; every
+entrance must agree on everyone's standing after every step). Run by
+`@pkgs/matchmaking-sim` `test:e2e` (`specDomains: ["matchmaking"]`; steps in
+`tests/steps/`, binding in `tests/quint/matching.binding.ts`).
+
+| File | Destination |
+|---|---|
+| `join-status-leave.test.ts` (deleted) | `waiting-for-a-match.feature` (all five rules); `ready()` idempotence → `entrances.feature` "every entrance opens again" + `matching.qnt` `entranceOpensAgain` |
+| `replicas-shared-db.test.ts` (deleted) | `entrances.feature` (same waits everywhere, a change of reach counts wherever it lands, opening again); `being-matched.feature` (one wide reach alone does not make a match) |
+| `seeded-workload.test.ts` (kept) | same-seed determinism contract; its implied property (consistent pairs within reach, agreed by every entrance, under any interleaving across entrances) is `matching.qnt` |
+| `schema-drift.test.ts` (kept) | error-code contract (`MatchmakingSchemaDriftError`); no person observes it |
 
 ### pkgs/room-sim (12) — framework-level sim; port in a later wave
 
