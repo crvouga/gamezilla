@@ -67,7 +67,7 @@ terms:
       current (active), its last payment failed while the payment provider
       still retries (delinquent), or over (ended).
     forms: [membership statuses, trialing, delinquent]
-    model: [MembershipStatus]
+    model: [MembershipStatus, membershipStatus]
 
   - term: live membership
     definition: >-
@@ -188,9 +188,17 @@ terms:
   - term: billing portal
     definition: >-
       Where a Plus member manages their own membership, at the payment
-      provider: cancel it, renew it after canceling, switch Plus plans, or pay
-      with a new card. Every change there reaches their devices.
-    forms: [billing portals, portal, manage their membership]
+      provider the membership started at: cancel it, renew it after
+      canceling, switch Plus plans, or pay with a new card. Every change there
+      reaches their devices. A person's billing portal is the one of their
+      newest membership, wherever the team switches payment provider to.
+    forms:
+      - billing portals
+      - portal
+      - manage their membership
+      - billing portal is the first payment provider's
+      - billing portal is the second payment provider's
+    model: [billingPortalAt]
     avoid: [customer portal, account page, dashboard]
 
   - term: cancel
@@ -220,6 +228,7 @@ terms:
       - ended membership
       - membership ended
       - membership has ended
+      - memberships have ended
       - membership is ending
       - ends the membership
       - ends it at once
@@ -243,9 +252,51 @@ terms:
       Who takes Plus payments for the product: it runs checkout and the
       billing portal, charges renewals, and retries failed payments. It tells
       the product about each change to a membership, sometimes the same news
-      twice; hearing it again changes nothing.
-    forms: [the provider, provider, provider's, repeats its last news, repeats its last news about]
-    model: [providerRepeatsNews]
+      twice; hearing it again changes nothing. There may be more than one:
+      the team decides which one new memberships start at, and each keeps
+      serving the memberships that started there.
+    forms: [payment providers, both payment providers, the provider, provider, provider's, repeats its last news, repeats its last news about]
+    model: [PaymentProvider, providerRepeatsNews]
+
+  - term: first payment provider
+    definition: >-
+      The payment provider new memberships start at until the team switches
+      payment provider, and again once the team switches back.
+    forms: [first payment provider's]
+
+  - term: second payment provider
+    definition: >-
+      The payment provider new memberships start at once the team switches
+      payment provider away from the first payment provider.
+    forms: [second payment provider's]
+
+  - term: switch payment provider
+    definition: >-
+      The team deciding that new memberships start at the other payment
+      provider. Nothing changes for anyone's live membership: it stays at the
+      payment provider it started at, renews and ends there, and its billing
+      portal is still there. Only the next person to subscribe starts at the
+      other one. The team may switch back whenever it likes.
+    forms:
+      - switches payment provider
+      - switched payment provider
+      - switching payment provider
+      - switches back
+      - switched back
+      - switched back to the first payment provider
+      - new memberships start at
+    avoid: [migrate, migration, cut over]
+    model: [switchPaymentProvider, newMembershipsAt]
+
+  - term: news
+    definition: >-
+      What a payment provider tells the product about a change to a
+      membership there: that it started, renewed, or ended. A payment provider
+      may repeat any of its earlier news, however late and however often;
+      hearing it again changes nothing, and news from one payment provider
+      never changes a membership at the other.
+    forms: [repeats its news, repeats any of its earlier news, late news]
+    avoid: [event, webhook, notification]
 
   # --- Borrowed -----------------------------------------------------------
 
