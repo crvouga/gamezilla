@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  EXAMPLE_DST_FAULTS_HOST,
-  exampleSystem,
-} from '@pkgs/sync-engine/sim';
+import { EXAMPLE_DST_FAULTS_HOST, exampleSystem } from '@pkgs/sync-engine/sim';
 
 const TIME = { weight: 1, minMs: 0, maxMs: 40 } as const;
 

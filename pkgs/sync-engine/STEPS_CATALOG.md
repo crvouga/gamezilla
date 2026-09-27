@@ -40,7 +40,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s app says the note {string} was refused | {actor}, {string} | sync |
 | Then | {device} is still connected | {device} | sync |
 | Then | {device} shows the notes {string} and {string} | {device}, {string}, {string} | sync |
-| Then | the moment {actor}'s app says the note {string} was refused, {actor} sees it saying {string} | {actor}, {string}, {actor}, {string} | sync |
+| Then | the moment {actor}'s app says the note {string} was refused, it shows the note saying {string} | {actor}, {string}, {string} | sync |
 | Then | the note {string} is kept for everyone saying {string} | {string}, {string} | sync |
 | When | {actor} acknowledges the notice about the note {string} | {actor}, {string} | sync |
 | When | {actor} changes all {int} notes at once to say {string} | {actor}, {int}, {string} | sync |

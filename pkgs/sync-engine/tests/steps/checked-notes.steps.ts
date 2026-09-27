@@ -16,7 +16,7 @@ import {
   startMutate,
 } from '@pkgs/sync-engine/sim';
 import { SETTLE_MS } from './note-writes';
-import { app, ensureDevice, Given, Then, type SyncWorld, When } from './world';
+import { app, ensureDevice, Given, type SyncWorld, Then, When } from './world';
 
 async function writeChecked(
   w: SyncWorld,
@@ -89,11 +89,11 @@ Then(
 
 /** No waiting after the answer: the device already shows the kept note. */
 Then(
-  "the moment {actor}'s app says the note {string} was refused, {actor} sees it saying {string}",
-  async (w, actor: string, title: string, viewer: string, body: string) => {
+  "the moment {actor}'s app says the note {string} was refused, it shows the note saying {string}",
+  async (w, actor: string, title: string, body: string) => {
     await answer(w, actor);
     expect(await w.s.read(lastMutationOk, actor)).toBe(false);
-    const row = await w.s.read(liveNote, viewer, title);
+    const row = await w.s.read(liveNote, actor, title);
     expect(row).toMatchObject({ title, body, deletedAt: null });
   }
 );
