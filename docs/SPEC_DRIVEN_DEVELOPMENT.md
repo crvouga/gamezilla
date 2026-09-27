@@ -17,6 +17,7 @@ procedure; this document is the policy.
 | [`write-specs`](../.agents/skills/write-specs/SKILL.md) | spec writer | discovering and formulating new or changed behavior |
 | [`implement-specs`](../.agents/skills/implement-specs/SKILL.md) | implementer | binding scenarios to thin step definitions, and models to bindings, over the sim |
 | [`fix-specs`](../.agents/skills/fix-specs/SKILL.md) | step auditor | auditing existing specs and steps, rewriting bad BDD, and demoting non-behavior into code tests |
+| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/sim` tests into features and Quint models with a parity ledger, then deleting them |
 
 ## Layout
 
