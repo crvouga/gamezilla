@@ -14,6 +14,32 @@ inputs in its `turbo.json`; `bun run spec:check` enforces all of this. Code
 tests remain the right home for units, contracts,
 properties, model walks, and framework mechanics.
 
+## Live domains: journeys and health
+
+Two domains describe the *deployed* product rather than code under test:
+
+- `specs/journeys/` — the critical journeys. `@libs/runtime` runs them
+  against the simulated app in `bun check` (`specDomains`), and
+  `@apps/product` runs the same scenarios in a real browser against every
+  production environment (`liveDomains`) as synthetic monitoring.
+- `specs/health/` — live-resource health checks: DNS, TLS, the Workers,
+  Postgres, the bucket, the broker, traces, secrets, billing keys and
+  infrastructure drift. Only `@apps/product` runs them (`liveDomains`).
+
+`bun run health` (and `//#deploy`'s last step) is `@apps/product#health`: it
+runs every `liveDomains` feature against the environment `SECRETS_ENV` names.
+Tags choose where a scenario runs live:
+
+| Tag | Live run |
+| --- | --- |
+| `@production` | only against production environments (critical journeys, live-mode billing) |
+| `@oauth-relay` | only against the relay environment |
+| `@observability` | skipped when `OBSERVABILITY_ENABLED=0` |
+| `@browser` | needs a real browser; the simulation stops at that step as a host limit |
+
+A domain is run by at most one package through `specDomains` and at most one
+through `liveDomains`.
+
 ## Roles
 
 The spec writer edits only `.feature` files, generated step catalogs,
