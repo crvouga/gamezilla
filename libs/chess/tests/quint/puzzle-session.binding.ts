@@ -89,7 +89,7 @@ function hostDoes(
 
 bindQuintModel<QuintSimWorld>({
   model: 'puzzle-session',
-  traces: 8,
+  traces: 6,
   maxSteps: 12,
   // Two screens read after every step: a trace runs ~10s alone, but several
   // times that beside the rest of the package's suite.

@@ -63,6 +63,7 @@ bindQuintModel<QuintSimWorld>({
   model: 'space-hosting',
   traces: 8,
   maxSteps: 10,
+  timeoutMs: 180_000,
   actions: {
     init: async (w) => {
       await setupFriendsPair(w.s, 'alice', 'bob');

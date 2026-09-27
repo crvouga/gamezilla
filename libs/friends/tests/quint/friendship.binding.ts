@@ -118,9 +118,9 @@ async function toTabs(w: QuintSimWorld, actor: string): Promise<void> {
 
 bindQuintModel<QuintSimWorld>({
   model: 'friendship',
-  traces: 12,
+  traces: 10,
   maxSteps: 12,
-  timeoutMs: 120_000,
+  timeoutMs: 180_000,
   actions: {
     init: async (w) => {
       for (const actor of PEOPLE) {

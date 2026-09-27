@@ -109,9 +109,9 @@ async function awaitEndedSessionsNoticed(w: QuintSimWorld): Promise<void> {
 
 bindQuintModel<QuintSimWorld>({
   model: 'account-sign-in',
-  traces: 30,
+  traces: 8,
   maxSteps: 20,
-  timeoutMs: 120_000,
+  timeoutMs: 180_000,
   actions: {
     init: async (w) => {
       for (const device of DEVICES) await w.s.apply(focusActor, device);

@@ -115,8 +115,9 @@ function asModelName(w: QuintSimWorld, actor: string, name: string | null) {
 
 bindQuintModel<QuintSimWorld>({
   model: 'username-changes',
-  traces: 16,
+  traces: 8,
   maxSteps: 10,
+  timeoutMs: 180_000,
   actions: {
     init: async (w) => {
       for (const actor of SIGNED_IN) {

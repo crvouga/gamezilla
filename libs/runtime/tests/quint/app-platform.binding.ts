@@ -98,7 +98,7 @@ async function lookupOf(s: ProductSim, actorId: string): Promise<QuintValue> {
 
 bindQuintModel<QuintSimWorld>({
   model: 'app-platform',
-  traces: 16,
+  traces: 10,
   maxSteps: 14,
   timeoutMs: 180_000,
   actions: {

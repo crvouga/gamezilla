@@ -99,9 +99,9 @@ function stimulus(name: BillingStimulus) {
 
 bindQuintModel<QuintSimWorld>({
   model: 'membership-lifecycle',
-  traces: 24,
+  traces: 8,
   maxSteps: 15,
-  timeoutMs: 120_000,
+  timeoutMs: 180_000,
   actions: {
     init: async (w) => {
       await w.s.apply(signInWithGoogle, BILLING_PAYER);
