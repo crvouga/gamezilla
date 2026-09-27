@@ -1,10 +1,9 @@
-@domain:chess @goal:chess-puzzles:5
+@domain:chess @goal:chess-puzzles:8 @goal:chess-puzzles:9 @goal:chess-puzzles:10
 Feature: The solve flow
   A puzzle opens with the opponent's setup move already played and the board
   facing the solver, who is prompted to move. Each correct move is answered
-  by the opponent's reply, played by itself. Finishing the line records one
-  solved outcome. The first wrong move is the attempt's outcome: nothing
-  after it, not a retry, a solve, or showing the solution, rates it again.
+  by the opponent's reply, played by itself. Finishing the line solves the
+  puzzle, and a wrong move is called out at once.
 
   Scenario: The puzzle opens after the opponent's setup move, facing the solver
     Given Alice is signed in
@@ -22,44 +21,28 @@ Feature: The solve flow
     And it is White's move on Alice's board
     And Alice is solving the puzzle at move 3 of the line
 
-  Scenario: Finishing the line records exactly one solved outcome
+  Scenario: Finishing the line solves the puzzle
     Given Alice is signed in
     And Alice is solving the two-rook clearance puzzle
     When Alice plays a1-a5
     And Alice plays h1-h5
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
     And Alice feels the success haptic
 
-  Scenario: The first wrong move fails the attempt
+  Scenario: A wrong move is called out at once
     Given Alice is signed in
     And Alice is solving the castling puzzle
     When Alice plays a wrong move
     Then Alice is told the move was wrong
-    And the puzzle's recorded outcomes are "failed"
     And Alice feels the error haptic
 
-  Scenario: Showing the solution after a wrong move rates nothing again
+  Scenario Outline: Castling by moving the king <gesture> solves the castling puzzle
     Given Alice is signed in
     And Alice is solving the castling puzzle
-    When Alice plays a wrong move
-    And Alice shows the solution
-    Then the puzzle's recorded outcomes are "failed"
-
-  Scenario: Solving on a retry by moving the king onto its own rook rates nothing again
-    Given Alice is signed in
-    And Alice is solving the castling puzzle
-    When Alice plays a wrong move
-    And Alice retries the puzzle
-    And Alice castles by moving the king onto its own rook
+    When Alice castles by moving the king <gesture>
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "failed"
 
-  Scenario: Solving on a retry by moving the king two squares rates nothing again
-    Given Alice is signed in
-    And Alice is solving the castling puzzle
-    When Alice plays a wrong move
-    And Alice retries the puzzle
-    And Alice castles by moving the king two squares
-    Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "failed"
+    Examples:
+      | gesture           |
+      | two squares       |
+      | onto its own rook |

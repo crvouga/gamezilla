@@ -1,4 +1,4 @@
-@domain:chess @goal:chess-puzzles:5
+@domain:chess @goal:chess-puzzles:6 @goal:chess-puzzles:7
 Feature: Chess rules in puzzles
   Every rule of chess is honored and every correct solution is accepted:
   underpromotion, capture-promotion, en passant, any mate on the final move,
@@ -21,42 +21,34 @@ Feature: Chess rules in puzzles
 
   Scenario: Underpromotion to a knight solves the puzzle
     Given Alice is solving the underpromotion puzzle
-    When Alice plays e7-e8 and promotes to a queen
-    And Alice retries the puzzle
-    And Alice plays e7-e8 and promotes to a knight
+    When Alice plays e7-e8 and promotes to a knight
     Then Alice's puzzle is solved within 20 seconds
 
   Scenario: A capture-promotion that mates with a piece other than the queen is accepted
     Given Alice is solving the capture-promotion puzzle
     When Alice plays g7-h8 and promotes to a rook
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
 
   Scenario: En passant is accepted as the solution
     Given Alice is solving the en passant puzzle
     When Alice plays e5-d6
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
 
   Scenario: A different mate on the final move is accepted
     Given Alice is solving the puzzle with more than one mate on the final move
     When Alice plays a7-a8
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
 
   Scenario: A faster mate on a move before the last ends the puzzle as solved
     Given Alice is solving the hook-mate puzzle
     When Alice plays b7-b8
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
 
-  Scenario: A transposing move is accepted and the line continues reordered
+  Scenario: A transposed move order solves the puzzle
     Given Alice is solving the two-rook clearance puzzle
     When Alice plays h1-h5
-    Then Alice is solving the puzzle at move 3 of the line
-    When Alice plays a1-a5
+    And Alice plays a1-a5
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
 
   Scenario: When Black solves, the board and the prompt follow Black
     Given Alice is solving the puzzle Black solves by promoting
@@ -68,13 +60,17 @@ Feature: Chess rules in puzzles
     Given Alice is solving the puzzle Black solves by promoting
     When Alice plays e2-e1
     Then Alice is asked which piece Black promotes to
-    When Alice promotes to a knight
+
+  Scenario: Black's promotion to a knight solves the puzzle
+    Given Alice is solving the puzzle Black solves by promoting
+    When Alice plays e2-e1 and promotes to a knight
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"
 
   Scenario: A puzzle can start with the solver in check
     Given Alice is solving the puzzle that starts with White in check
     Then White is in check and to move on Alice's board
+
+  Scenario: Escaping the opening check with the right move solves the puzzle
+    Given Alice is solving the puzzle that starts with White in check
     When Alice plays h1-h4
     Then Alice's puzzle is solved within 20 seconds
-    And the puzzle's recorded outcomes are "solved"

@@ -11,26 +11,37 @@ Feature: Customize the puzzle feed
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: A history filter change shows everywhere once saved
+  Scenario: A new player's feed serves unseen puzzles at their seed rating
     Then Alice's feed history shows "Unseen"
+    And Alice's feed targets 1500 automatically
+
+  Scenario: A saved history filter shows on the feed
     When Alice changes the feed history to "Any" and saves the feed settings
     Then Alice's feed history shows "Any"
     And Alice has a puzzle on the board
 
-  Scenario: A rating offset moves the target in the feed settings and on the feed
-    Then Alice's feed targets 1500 automatically
-    When Alice starts editing the feed settings
-    Then Alice's feed rating offset is 0
+  Scenario: Raising the rating offset previews the new target before saving
+    Given Alice is editing the feed settings
     When Alice raises the feed rating offset by 2 steps
     Then Alice's feed rating offset is 100
     And Alice's unsaved feed settings preview a target of 1600
-    When Alice saves the feed settings
+
+  Scenario: A saved rating offset moves the feed's target
+    When Alice raises the feed rating offset by 2 steps and saves the feed settings
     Then Alice's feed targets 1600 automatically
     And Alice has a puzzle on the board
 
-  Scenario: A custom target replaces the automatic one and is still there on reopening the settings
+  Scenario: A custom target replaces the automatic one
     When Alice switches the feed to a custom target raised by 1 step and saves the feed settings
     Then Alice's feed targets a custom 1550
+
+  Scenario: Reopening the feed settings keeps the custom target
+    Given Alice has saved a custom feed target raised by 1 step
+    When Alice starts editing the feed settings
+    Then Alice's unsaved feed settings preview a target of 1550
+
+  Scenario: The feed settings show how many puzzles match the target
+    Given Alice has saved a custom feed target raised by 1 step
     When Alice starts editing the feed settings
     Then Alice's feed settings show a pool of at least one matching puzzle
 

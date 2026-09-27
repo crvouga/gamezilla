@@ -55,6 +55,8 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
   with a trailing "?" (for example "1500?").
 - **game log** — the person's history of played puzzles, each marked solved,
   failed, or abandoned, and each openable in review.
+- **retired puzzle** — a puzzle taken out of the feed: it is never served
+  again, but it stays in the game log and still opens in review.
 - **review** — stepping through a played puzzle's full line; "move N" is the
   position after the Nth move of the line.
 - **watcher** — someone in a space watching the host's puzzle. A watcher may

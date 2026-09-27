@@ -7,14 +7,7 @@ Feature: Puzzle play is a feed
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: The host solves a mate-in-one puzzle by moving a piece on the board
-    When Alice solves the puzzle
-    Then Alice's puzzle is solved
-
-  Scenario: Moving on never repeats the puzzle just played
-    When Alice solves the puzzle
-    And Alice moves on to the next puzzle
-    Then Alice is solving a different puzzle than the one before
-    When Alice solves the puzzle
-    And Alice moves on to the next puzzle
+  Scenario: Moving on after a solve serves a different puzzle at once
+    Given Alice has solved the puzzle
+    When Alice moves on to the next puzzle
     Then Alice is solving a different puzzle than the one before

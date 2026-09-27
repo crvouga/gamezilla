@@ -7,34 +7,32 @@ Feature: Retry, hint and solution
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: After a wrong move, retrying takes the move back and the puzzle can still be solved
-    When Alice plays a wrong move
-    Then Alice is told the move was wrong
+  Scenario: Retrying after a wrong move lets Alice carry on solving
+    Given Alice has played a wrong move
     When Alice retries the puzzle
-    Then Alice is solving the puzzle
-    When Alice solves the puzzle
-    Then Alice's puzzle is solved
+    Then Alice is still asked to find the next move
 
-  Scenario: A first hint highlights the piece, a second hint reveals the move, and the board stays solvable
-    Then Alice has no hint showing
+  Scenario: A first hint highlights the piece to move
     When Alice asks for a hint
     Then Alice's hint highlights the piece to move
+
+  Scenario: A second hint shows the solution move
+    Given Alice has taken a hint
     When Alice asks for another hint
     Then Alice's hint shows the solution move
+
+  Scenario: A puzzle can still be solved after both hints
+    Given Alice has taken two hints
     When Alice solves the puzzle
     Then Alice's puzzle is solved
 
-  Scenario: The solution is offered after a wrong move
-    When Alice plays a wrong move
-    And Alice asks to see the solution move
-    Then Alice's hint shows the solution move
-    When Alice retries the puzzle
-    And Alice solves the puzzle
+  Scenario: A puzzle solved after a retry is still logged as failed
+    Given Alice has played a wrong move and retried
+    When Alice solves the puzzle
     Then Alice's puzzle is solved
+    And Alice's game log records that puzzle as failed
 
-  Scenario: A wrong move, then a retry, then a solve is still logged as failed
-    When Alice plays a wrong move
-    Then Alice is told the move was wrong
-    When Alice retries the puzzle
-    And Alice solves the puzzle
-    Then Alice's game log records that puzzle as failed
+  Scenario: After a wrong move, the solution move can be shown
+    Given Alice has played a wrong move
+    When Alice asks to see the solution move
+    Then Alice's hint shows the solution move
