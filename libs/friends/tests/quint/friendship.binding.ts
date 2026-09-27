@@ -16,8 +16,9 @@ import {
 } from '@libs/friends/sim/friends-actions';
 import {
   blockPerson,
+  confirmFromProfile,
+  declineFromProfile,
   openPersonFromSearch,
-  tapFriendPill,
 } from '@libs/friends/sim/person-actions';
 import { searchUsername } from '@libs/search/sim/search-actions';
 import {
@@ -29,7 +30,6 @@ import {
 import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
 import { accountIdOf, actorLocalSql } from '@libs/sim-harness/system/identity';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
-import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 import { sql } from '@pkgs/sql';
@@ -152,7 +152,7 @@ bindQuintModel<QuintSimWorld>({
       const { actor, other } = pair(picks);
       await toTabs(w, actor);
       await w.s.apply(openPersonFromSearch, actor, other);
-      await w.s.apply(tapFriendPill, actor, Handles.friendConfirm(other));
+      await w.s.apply(confirmFromProfile, actor, other);
     },
     decline: async (w, picks) => {
       const { actor, other } = pair(picks);
@@ -163,7 +163,7 @@ bindQuintModel<QuintSimWorld>({
       const { actor, other } = pair(picks);
       await toTabs(w, actor);
       await w.s.apply(openPersonFromSearch, actor, other);
-      await w.s.apply(tapFriendPill, actor, Handles.friendDecline(other));
+      await w.s.apply(declineFromProfile, actor, other);
     },
     remove: async (w, picks) => {
       const { actor, other } = pair(picks);
