@@ -106,6 +106,7 @@ describe('catalog resolution under the shipped policy', () => {
           subscription,
           nowMs: NOW,
           graceMs: 7 * DAY,
+          confirmedAtMs: NOW,
           billingEnabled: true,
         });
         const subject = resolveSubject(DEFAULT_PERMISSION_POLICY, facts);

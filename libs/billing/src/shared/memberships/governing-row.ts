@@ -5,8 +5,10 @@
  * a membership that ended at one provider would hide a live one at another.
  */
 import {
+  type AccessMoment,
   governingMembership,
   type MembershipStanding,
+  membershipAccessLapsesAtMs,
   membershipGrantsAccess,
   readMembershipStatus,
 } from '@pkgs/billing';
@@ -37,10 +39,21 @@ export function governingRow<T extends StandingColumns>(
   return governingMembership(rows, standingOf);
 }
 
-/** Whether `row` makes its account a member at `nowMs` (grace included). */
+/**
+ * Whether `row` makes its account a member at `at.nowMs` (grace included, and
+ * only while it was confirmed with the server within grace).
+ */
 export function rowGrantsMembership(
   row: StandingColumns | null,
-  at: { readonly nowMs: number; readonly graceMs: number }
+  at: AccessMoment
 ): boolean {
   return row !== null && membershipGrantsAccess(standingOf(row), at);
+}
+
+/** When `row` stops granting with only time passing, or `null`. */
+export function rowMembershipLapsesAtMs(
+  row: StandingColumns | null,
+  at: AccessMoment
+): number | null {
+  return row === null ? null : membershipAccessLapsesAtMs(standingOf(row), at);
 }

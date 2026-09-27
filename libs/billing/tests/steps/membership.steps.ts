@@ -11,6 +11,8 @@ import {
   cancelPlus,
   observeMembership,
   openBilling,
+  payWithNewCard,
+  providerEvent,
   resumePlus,
   switchPlusInterval,
 } from '@libs/billing/sim/billing-actions';
@@ -138,7 +140,47 @@ Given(
   }
 );
 
+Given("{actor}'s billing period has ended", async (w, actor: Actor) => {
+  const before = await shownWhere(w, actor, () => true);
+  await w.s.apply(providerEvent, actor, 'run_out_period');
+  // "Has ended" is settled: the screen has moved past the period it showed.
+  await shownWhere(
+    w,
+    actor,
+    (shown) =>
+      shown.state !== before.state || shown.periodEndMs !== before.periodEndMs
+  );
+});
+
+When("{actor}'s payment is refunded", async (w, actor: Actor) => {
+  await w.s.apply(providerEvent, actor, 'refund');
+});
+
+Given("{actor}'s payment has been refunded", async (w, actor: Actor) => {
+  await w.s.apply(providerEvent, actor, 'refund');
+  await shownWhere(w, actor, (shown) => shown.state === 'ended');
+});
+
+Given("{actor}'s card has expired", async (w, actor: Actor) => {
+  await w.s.apply(providerEvent, actor, 'expire_card');
+});
+
+Given(
+  "{actor}'s renewal on the expired card has failed",
+  async (w, actor: Actor) => {
+    await observe(w, actor, 'period_end');
+    await shownWhere(w, actor, (shown) => shown.state === 'delinquent');
+  }
+);
+
 // ------------------------------------------------------ the billing portal
+
+When(
+  '{actor} pays with a new card in the billing portal',
+  async (w, actor: Actor) => {
+    await w.s.apply(payWithNewCard, actor);
+  }
+);
 
 When(
   '{actor} cancels the membership in the billing portal',

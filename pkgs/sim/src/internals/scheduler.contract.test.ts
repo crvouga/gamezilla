@@ -7,6 +7,22 @@ import { createTimers } from './timers';
 import { createTraceRecorder } from './trace';
 
 describe('Scheduler contract', () => {
+  test('skip jumps the clock and fires each overdue task once', async () => {
+    const clock = createVirtualClock(0);
+    const sched = createScheduler(clock);
+    const timers = createTimers(sched);
+    const ticks: number[] = [];
+    const late: number[] = [];
+    timers.setInterval(() => ticks.push(clock.now()), 100);
+    timers.setTimeout(() => late.push(clock.now()), 5_000);
+    await sched.skip(86_400_000);
+    expect(clock.now()).toBe(86_400_000);
+    expect(ticks).toEqual([86_400_000]);
+    expect(late).toEqual([86_400_000]);
+    await sched.runFor(100);
+    expect(ticks).toEqual([86_400_000, 86_400_100]);
+  });
+
   test('same-at tasks fire in insertion order without choiceRng', async () => {
     const clock = createVirtualClock(0);
     const sched = createScheduler(clock);

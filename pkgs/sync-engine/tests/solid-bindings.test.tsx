@@ -48,6 +48,7 @@ function createFakeEngine() {
     online,
     hasSynced: true,
     hasEverSynced: true,
+    lastSyncedAtMs: null,
     lastError: null,
   });
   const engine = {

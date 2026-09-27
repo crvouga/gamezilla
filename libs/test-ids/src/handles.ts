@@ -17,6 +17,8 @@ export const Handles = {
   tabSearch: 'tab-search',
   tabNotifications: 'tab-notifications',
   tabSpaces: 'tab-spaces',
+  /** The sim's bare home tab, in compositions where no feature owns `/`. */
+  tabSimHome: 'tab-sim-home',
 
   // spaces
   spaceCreate: 'space-create',

@@ -213,12 +213,24 @@ export const signOut = scenarioAction({
   },
 });
 
+/** A tab every composition has: Profile, or the sim's bare home. */
+const HOME_TABS = [Handles.tabProfile, Handles.tabSimHome] as const;
+
 /** Leave the Account stack so the tab shell is visible again. */
 export const returnToTabs = scenarioAction({
   name: 'returnToTabs',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.navBack).tap();
-    await ui.get(Handles.tabProfile).expect.visible();
+    await pollUntil(
+      s,
+      async () => {
+        for (const tab of HOME_TABS) {
+          if (await ui.get(tab).isVisible()) return true;
+        }
+        return null;
+      },
+      { maxMs: WAIT_MS, description: 'the tab bar' }
+    );
   },
 });

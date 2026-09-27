@@ -25,6 +25,7 @@ export const BOOT_SYNC_STATUS: SyncEngineStatus = {
   online: true,
   hasSynced: false,
   hasEverSynced: false,
+  lastSyncedAtMs: null,
   lastError: null,
 };
 

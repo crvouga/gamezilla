@@ -15,9 +15,11 @@ export type {
   PlusMembershipOffer,
 } from './offer';
 export {
+  type AccessMoment,
   governingMembership,
   isMembershipLive,
   type MembershipStanding,
+  membershipAccessLapsesAtMs,
   membershipGrantsAccess,
   outranksMembership,
   readMembershipStatus,

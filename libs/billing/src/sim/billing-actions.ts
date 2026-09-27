@@ -32,7 +32,10 @@ import {
   type BillingObserveKind,
   customerOf,
   driveProvider,
+  expireCardOnFile,
   providerCall,
+  refundLastPayment,
+  runOutBillingPeriod,
 } from './billing-provider-driver';
 import { billingButtonEnabled } from './billing-reads';
 
@@ -104,6 +107,22 @@ export const subscribeToPlus = scenarioAction({
   },
 });
 
+/**
+ * Start subscribing, then leave the provider's checkout without paying: its
+ * own back link returns to the app's billing screen.
+ */
+export const leaveCheckout = scenarioAction({
+  name: 'leaveCheckout',
+  act: async (s, actorId: string) => {
+    await pressBillingButton(s, actorId, 'subscribe');
+    const ui = await actorUi(s, actorId);
+    await ui
+      .get(MOCK_BILLING_TEST_IDS.checkoutCancel)
+      .tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
+  },
+});
+
 /** Open the provider's portal so the person can manage their plan. */
 export const managePlus = scenarioAction({
   name: 'managePlus',
@@ -155,6 +174,17 @@ export const resumePlus = scenarioAction({
   },
 });
 
+/** In the portal: pay the unpaid invoice with a new, working card. */
+export const payWithNewCard = scenarioAction({
+  name: 'payWithNewCard',
+  act: async (s, actorId: string) => {
+    await inPortal(s, actorId, [
+      MOCK_BILLING_TEST_IDS.portalPayInvoice,
+      MOCK_BILLING_TEST_IDS.portalPaymentMethod,
+    ]);
+  },
+});
+
 export const switchPlusInterval = scenarioAction({
   name: 'switchPlusInterval',
   act: async (s, actorId: string, priceKey: string) => {
@@ -179,6 +209,31 @@ export const observeMembership = scenarioAction({
     const accountId = await accountIdOf(s, actorId);
     if (accountId === null) return;
     await driveProvider(s, accountId, kind);
+    await s.session.waitForIdle();
+  },
+});
+
+/**
+ * Provider-side events a tester or the provider's support staff sets off for
+ * the actor's customer: a refund of the last payment (with the subscription
+ * canceled at once), the card on file passing its expiry, and the billing
+ * period running out for everyone (time passes for the app too). Each lets
+ * its webhooks reach the app.
+ */
+const PROVIDER_EVENTS = {
+  refund: refundLastPayment,
+  expire_card: expireCardOnFile,
+  run_out_period: runOutBillingPeriod,
+} as const;
+
+export type ProviderEvent = keyof typeof PROVIDER_EVENTS;
+
+export const providerEvent = scenarioAction({
+  name: 'providerEvent',
+  act: async (s, actorId: string, event: ProviderEvent) => {
+    const accountId = await accountIdOf(s, actorId);
+    if (accountId === null) throw new Error(`${actorId} is not signed in`);
+    await PROVIDER_EVENTS[event](s, accountId);
     await s.session.waitForIdle();
   },
 });
@@ -239,8 +294,11 @@ export const advanceBillingClock = scenarioAction({
 export const BILLING_SIM_ACTIONS = [
   openBilling,
   subscribeToPlus,
+  leaveCheckout,
   managePlus,
   cancelPlus,
+  payWithNewCard,
+  providerEvent,
   checkoutPlusAtProvider,
   resumePlus,
   switchPlusInterval,

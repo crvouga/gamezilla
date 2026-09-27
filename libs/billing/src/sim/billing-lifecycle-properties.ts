@@ -18,6 +18,7 @@ import { membershipStatusOf } from '@pkgs/billing-mock';
 import { type CheckpointAction, defineProperty } from '@pkgs/sim';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
+import { readLastSyncedAtMs } from '@pkgs/sync-engine/client';
 
 import { PLUS_MEMBERSHIP_OFFER } from '../public/offer';
 import {
@@ -206,6 +207,7 @@ export const billingTierMatchesMembership = defineProperty({
       const member = rowGrantsMembership(governing, {
         nowMs: s.session.ports.clock.now(),
         graceMs: await graceMs(local),
+        confirmedAtMs: await readLastSyncedAtMs(local),
       });
       const expected = member ? 'paid' : 'free';
       if (shown !== expected) {

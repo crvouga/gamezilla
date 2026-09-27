@@ -7,18 +7,28 @@
 import { billingCustomerLinkProvider } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
 import type { SimBillingProvider } from '@libs/sim-harness/fabric/sim-billing';
+import { letTimePass } from '@libs/sim-harness/system/actions';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import {
   MOCK_BILLING_PATHS,
   MOCK_BILLING_PROVIDER,
   MOCK_TEST_PAYMENT_METHODS,
+  type MockCustomer,
   type MockEvent,
+  type MockInvoice,
   type MockList,
   type MockSubscription,
   type MockTestPaymentMethod,
 } from '@pkgs/billing-mock';
 
 const DAY_S = 24 * 60 * 60;
+
+/** Provider statuses with nothing left to cancel. */
+const ENDED_STATUSES: ReadonlySet<string> = new Set([
+  'canceled',
+  'unpaid',
+  'incomplete_expired',
+]);
 
 /** A lifecycle transition, in the provider's test-mode vocabulary. */
 export const BILLING_OBSERVE_KINDS = [
@@ -218,4 +228,67 @@ export async function driveProvider(
   kind: BillingObserveKind
 ): Promise<void> {
   await STEPS[kind](providerCall(s), await customerOf(s, accountId), s);
+}
+
+/**
+ * The provider's support staff refunds the customer's last payment and, as
+ * the dashboard offers alongside, cancels the subscription at once.
+ */
+export async function refundLastPayment(
+  s: ProductSim,
+  accountId: string
+): Promise<void> {
+  const call = providerCall(s);
+  const customer = await customerOf(s, accountId);
+  const invoices = await call<MockList<MockInvoice>>(
+    'GET',
+    `${MOCK_BILLING_PATHS.invoices}?customer=${customer}&limit=100`
+  );
+  const paid = invoices.data.find(
+    (invoice) => invoice.status === 'paid' && invoice.amount_paid > 0
+  );
+  if (paid === undefined) throw new Error('billing: no payment to refund');
+  await call('POST', MOCK_BILLING_PATHS.refunds, { invoice: paid.id });
+  const subscription = await latestSubscription(call, customer);
+  if (!ENDED_STATUSES.has(subscription.status)) {
+    await call('DELETE', MOCK_BILLING_PATHS.subscription(subscription.id));
+  }
+}
+
+/** The customer's card on file passes its expiry date. */
+export async function expireCardOnFile(
+  s: ProductSim,
+  accountId: string
+): Promise<void> {
+  const call = providerCall(s);
+  const customer = await call<MockCustomer>(
+    'GET',
+    MOCK_BILLING_PATHS.customer(await customerOf(s, accountId))
+  );
+  const card = customer.invoice_settings.default_payment_method;
+  if (card === null) throw new Error('billing: no card on file');
+  await call('POST', MOCK_BILLING_PATHS.expirePaymentMethod(card));
+}
+
+/**
+ * Time runs on for everyone — the device, the server and the provider — to
+ * the end of the customer's current billing period, and the provider runs
+ * what fell due. Unlike a test clock, the app sees the same date the provider
+ * bills on, so what it does days after the end is what production does.
+ */
+export async function runOutBillingPeriod(
+  s: ProductSim,
+  accountId: string
+): Promise<void> {
+  const call = providerCall(s);
+  const customer = await customerOf(s, accountId);
+  const endS = periodEnd(await latestSubscription(call, customer));
+  const clock = await call<{ test_clock_frozen_time: number }>(
+    'GET',
+    MOCK_BILLING_PATHS.customer(customer)
+  );
+  const gapMs = (endS - clock.test_clock_frozen_time) * 1000;
+  if (gapMs > 0) await Promise.resolve(letTimePass.act(s, gapMs));
+  // Reading the customer's subscriptions runs what fell due at the provider.
+  await latestSubscription(call, customer);
 }

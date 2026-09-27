@@ -97,6 +97,19 @@ export async function currentPlan(
   return null;
 }
 
+/**
+ * Which notice the billing screen shows (`offline`, `delinquent`,
+ * `incomplete`, `unavailable`), or `null` for none.
+ */
+export async function billingNotice(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  const html = await actorHtml(s, actorId);
+  const tag = html === null ? null : openingTag(html, Handles.billingNotice);
+  return tag === null ? null : attribute(tag, 'data-notice');
+}
+
 export async function billingButtonVisible(
   s: ProductSim,
   actorId: string,

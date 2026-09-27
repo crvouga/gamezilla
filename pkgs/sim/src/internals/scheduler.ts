@@ -28,6 +28,13 @@ export type Scheduler = {
   /** Drop all pending Tasks and reset virtual time to `atMs`. */
   readonly reset: (atMs: number) => void;
   readonly runFor: (durationMs: number) => Promise<void>;
+  /**
+   * Suspend for `durationMs`: the clock jumps forward at once, then every Task
+   * that fell due in the gap fires once, in due order, at the landing instant —
+   * what a machine sees after sleeping. Intervals resume from the landing, so
+   * days pass in a handful of Tasks instead of one per tick.
+   */
+  readonly skip: (durationMs: number) => Promise<void>;
   /** Advances made while wall work was still in flight; see `DrainStats`. */
   readonly starvedAdvances: () => number;
   readonly runUntilQuiescent: (opts?: {
@@ -107,6 +114,14 @@ export function createScheduler(
     starvedAdvances: () => stats.starvedAdvances,
     runFor: (durationMs) =>
       withDrainGate(() => runForDuration(makeCtx(), durationMs)),
+    skip: (durationMs) =>
+      withDrainGate(async () => {
+        if (!(durationMs >= 0) || !Number.isFinite(durationMs)) {
+          throw new Error(`Scheduler.skip: bad duration ${durationMs}`);
+        }
+        clock.set(clock.now() + durationMs);
+        await runForDuration(makeCtx(), 0);
+      }),
     runUntilQuiescent: (opts) =>
       withDrainGate(() => runUntilQuiescentHeap(makeCtx(), opts)),
     runUntil: (pred, opts) =>

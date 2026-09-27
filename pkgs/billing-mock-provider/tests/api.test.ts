@@ -1,8 +1,8 @@
 /**
  * The REST surface's Stripe semantics, request by request: form encoding,
  * `Idempotency-Key`, cursor pagination, `expand[]`, the `status` filter, the
- * error envelope for unknown routes, checkout expiry, trial reminders, and
- * 3D Secure renewals.
+ * error envelope for unknown routes, checkout expiry, trial reminders,
+ * 3D Secure renewals, expired cards and refunds.
  */
 import { describe, expect, test } from 'bun:test';
 import {
@@ -27,6 +27,7 @@ import {
   SECRET_KEY,
   START_MS,
   subscribe,
+  subscriptionOf,
 } from './support/provider-rig';
 
 async function raw(
@@ -271,6 +272,80 @@ describe('lifecycle events', () => {
     expect((pay.body as { error: { code: string } }).error.code).toBe(
       'authentication_required'
     );
+  });
+
+  test('a card past its expiry declines renewals with expired_card', async () => {
+    const world = await openRig();
+    const { customerId } = await subscribe(world);
+    const customer = (
+      await world.call('GET', MOCK_BILLING_PATHS.customer(customerId))
+    ).body as MockCustomer;
+    const expire = await world.call(
+      'POST',
+      MOCK_BILLING_PATHS.expirePaymentMethod(
+        customer.invoice_settings.default_payment_method ?? ''
+      )
+    );
+    expect(expire.status).toBe(200);
+    await advanceTo(
+      world,
+      customerId,
+      periodEndS(await subscriptionOf(world, customerId))
+    );
+    expect((await subscriptionOf(world, customerId)).status).toBe('past_due');
+    const invoices = (
+      await world.call(
+        'GET',
+        `${MOCK_BILLING_PATHS.invoices}?customer=${customerId}`
+      )
+    ).body as MockList<MockInvoice>;
+    const open = invoices.data.find((invoice) => invoice.status === 'open');
+    const pay = await world.call(
+      'POST',
+      MOCK_BILLING_PATHS.invoicePay(open?.id ?? '')
+    );
+    expect(pay.status).toBe(402);
+    expect((pay.body as { error: { code: string } }).error.code).toBe(
+      'expired_card'
+    );
+  });
+
+  test('a refund pays a paid invoice back in full, once', async () => {
+    const world = await openRig();
+    const { customerId } = await subscribe(world);
+    await advanceTo(
+      world,
+      customerId,
+      periodEndS(await subscriptionOf(world, customerId))
+    );
+    const invoices = (
+      await world.call(
+        'GET',
+        `${MOCK_BILLING_PATHS.invoices}?customer=${customerId}`
+      )
+    ).body as MockList<MockInvoice>;
+    const paid = invoices.data.find(
+      (invoice) => invoice.status === 'paid' && invoice.amount_paid > 0
+    );
+    const refund = await world.call('POST', MOCK_BILLING_PATHS.refunds, {
+      invoice: paid?.id,
+    });
+    expect(refund.status).toBe(200);
+    expect(refund.body).toMatchObject({
+      object: 'refund',
+      amount: paid?.amount_paid,
+      subscription: paid?.subscription,
+    });
+    const after = (await world.call('GET', `/v1/invoices/${paid?.id ?? ''}`))
+      .body as MockInvoice;
+    expect(after.amount_refunded).toBe(paid?.amount_paid);
+    expect(await events(world, 'charge.refunded')).toHaveLength(1);
+    const again = await world.call('POST', MOCK_BILLING_PATHS.refunds, {
+      invoice: paid?.id,
+    });
+    expect(again.status).toBe(400);
+    // A refund alone leaves the subscription as it is, as on Stripe.
+    expect((await subscriptionOf(world, customerId)).status).toBe('active');
   });
 
   test('a finalized invoice is numbered and announced', async () => {

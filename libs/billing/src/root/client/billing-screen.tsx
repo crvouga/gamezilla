@@ -15,7 +15,8 @@ import { useCan, useDecision } from '@libs/permissions/public/use-can';
 import type { Decision } from '@libs/permissions/public/use-permissions';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans } from '@lingui/solid/macro';
-import { useClock } from '@pkgs/clock/solid';
+import { createTimedValue } from '@pkgs/clock/solid';
+import { useSyncEngine } from '@pkgs/sync-engine/solid';
 import { ScreenBase, useOpenExternalUrl } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX } from 'solid-js';
 
@@ -23,29 +24,38 @@ import { PLUS_MEMBERSHIP_OFFER } from '../../shared/offer/plus-membership-offer'
 import { useMyMembershipRow } from '../../use-cases/load-my-subscription/client/use-my-membership-row';
 import { useManageSubscription } from '../../use-cases/open-portal-session/client/use-manage-subscription';
 import { BillingScreenView } from './billing-screen-view';
-import { type BillingView, buildBillingView } from './billing-view-model';
+import {
+  type BillingView,
+  type BillingViewInput,
+  billingViewChangesAtMs,
+  buildBillingView,
+} from './billing-view-model';
 import { useSubscribe } from './use-subscribe';
 
 function useBillingView(subscribe: Accessor<Decision>): Accessor<BillingView> {
   const row = useMyMembershipRow();
   const currentUser = useCurrentUser();
   const { config } = useClientConfig();
-  const clock = useClock();
+  const engine = useSyncEngine();
   const unlock = useUnlock();
   const canView = useCan(PERMISSION.billingView);
   const canManage = useCan(PERMISSION.billingManage);
-  return createMemo(() =>
-    buildBillingView({
+  const input = createTimedValue(
+    (nowMs): BillingViewInput => ({
       canView: canView(),
       canSubscribe: subscribe().allowed,
       canManage: canManage(),
       subscribeUnlockLabel: unlock.label(subscribe()) ?? null,
       hasCustomer: currentUser.billingCustomerId !== null,
       row: row(),
-      nowMs: clock.now(),
+      nowMs,
       graceMs: config().billing_grace_period_ms,
-    })
+      confirmedAtMs: engine.status().lastSyncedAtMs,
+      online: engine.status().online,
+    }),
+    billingViewChangesAtMs
   );
+  return createMemo(() => buildBillingView(input()));
 }
 
 export function BillingScreen(): JSX.Element {

@@ -65,6 +65,16 @@ export function cardDeclined(): ProviderError {
   });
 }
 
+/** A charge on a card past its expiry date. */
+export function expiredCard(): ProviderError {
+  return new ProviderError({
+    type: 'card_error',
+    code: 'expired_card',
+    decline_code: 'expired_card',
+    message: 'Your card has expired.',
+  });
+}
+
 /** An off-session charge on a card that needs the customer to authenticate. */
 export function authenticationRequired(): ProviderError {
   return new ProviderError({

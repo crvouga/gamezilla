@@ -20,6 +20,7 @@ import { customerNowS, type Engine } from '../engine/context';
 import { requireCustomer } from '../engine/customers';
 import { requireInvoice } from '../engine/invoices';
 import { requirePrice } from '../engine/prices';
+import { refundInvoice } from '../engine/refunds';
 import {
   endSubscription,
   payOpenInvoice,
@@ -31,6 +32,7 @@ import {
 import {
   authenticationRequired,
   cardDeclined,
+  expiredCard,
   invalidRequest,
 } from '../errors';
 import { expandList, expandObject, expandOf } from './expand';
@@ -238,6 +240,7 @@ function invoiceRoutes(api: Hono, runner: ProviderRunner): void {
       });
       // The failed attempt is recorded before the failure is reported.
       if (outcome === 'authentication_required') throw authenticationRequired();
+      if (outcome === 'expired_card') throw expiredCard();
       if (outcome === 'declined' || outcome === 'no_payment_method') {
         throw cardDeclined();
       }
@@ -246,8 +249,21 @@ function invoiceRoutes(api: Hono, runner: ProviderRunner): void {
   );
 }
 
+function refundRoutes(api: Hono, runner: ProviderRunner): void {
+  api.post(MOCK_BILLING_PATHS.refunds, async (c) =>
+    answer(c, async () => {
+      const invoice = optionalString(await readBody(c), 'invoice');
+      if (invoice === undefined) {
+        throw invalidRequest('A refund names the paid invoice.', 'invoice');
+      }
+      return await runner.run((engine) => refundInvoice(engine, invoice));
+    })
+  );
+}
+
 export function billingRoutes(api: Hono, runner: ProviderRunner): void {
   subscriptionReads(api, runner);
   subscriptionWrites(api, runner);
   invoiceRoutes(api, runner);
+  refundRoutes(api, runner);
 }
