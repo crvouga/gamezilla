@@ -223,5 +223,20 @@
     "id": "checked-note-answer-lost-to-push-race",
     "summary": "A write that waits for the server's answer (`pendingUx: 'pending'`) could stay 'saving' forever: after the upload ack committed, recording the ack's topic push sequences raced the echoed push applying the same topic, the insert hit a UNIQUE conflict, and the ack's table-change notice (which wakes the answer) was never sent. Found porting pending-ux-answers-with-server-verdict to specs/sync/checked-notes.feature. Fixed by recording a push sequence idempotently (ON CONFLICT, then raise).",
     "regressionTest": "specs/sync/checked-notes.feature"
+  },
+  {
+    "id": "notice-lost-when-app-data-wiped",
+    "summary": "A person's unacknowledged refusal notices vanished when the app updated to a version that fetches every note again, or when its data was cleared: sync_engine_write_rejections was a cache table, wiped with the fetched rows, and nothing fetches it back. Found porting the explore walks into specs/sync/note-replication.qnt. Fixed by keeping it durable, like the unsent-edit queue.",
+    "regressionTest": "specs/sync/note-refused-edits.feature"
+  },
+  {
+    "id": "cleared-data-hides-unsent-notes",
+    "summary": "Clearing the app's data while offline hid the notes the person had written but not yet sent until the device was back online: the wipe dropped the rows and nothing re-applied the queue. Found by the note-replication model. Fixed by re-applying queued edits after any wipe of the fetched rows (cleared data, an epoch bump on open).",
+    "regressionTest": "specs/sync/notes-offline.feature"
+  },
+  {
+    "id": "garbled-live-update-blank-note",
+    "summary": "A garbled live update (fields renamed on the way) created a note on other devices with no title or text until the next refresh. Found by the note-replication model's garbled-live-updates action. Fixed by refusing a pushed image that would create a row without every column the device keeps; the row is refetched whole.",
+    "regressionTest": "specs/sync/note-writing.feature"
   }
 ]
