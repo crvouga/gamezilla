@@ -19,3 +19,4 @@ Feature: Showing the solution
   Scenario: Showing the solution counts as a fail
     When Alice shows the solution
     Then Alice's game log records that puzzle as failed
+    And Alice's stats show 1 played, 0 solved, and 0% accuracy

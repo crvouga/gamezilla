@@ -1,8 +1,10 @@
 /**
  * The daily rated-puzzle allowance as a guest meets it: puzzles start until
  * the day's limit, the puzzle on the board can still be finished, and the
- * next one is refused with an invitation rather than an error. Charging
- * (one start each, never twice) is pinned in `tests/e2e/puzzle-allowance`.
+ * next one is refused with an invitation rather than an error. Coming back
+ * to a puzzle already started is no new start (`specs/chess/puzzle-session.qnt`
+ * counts the device's starts); the ledger rules are in
+ * `libs/permissions/tests/consume-quota.test.ts`.
  */
 
 import { expect } from 'bun:test';
