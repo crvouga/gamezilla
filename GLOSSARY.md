@@ -14,6 +14,12 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
   request.
 - **person** — either a named actor or a displayed username.
 - **space** — a live room people may host, join, leave, reopen, or end.
+- **avatar** — the picture on a person's profile: a style (such as Bottts)
+  drawn from a seed. Every newcomer starts with one.
+- **sign-in method** — a way a person gets back into their account (Google or
+  Apple). An account always keeps at least one.
+- **another device / other device** — a second device signed into the same
+  person's account; each device keeps its own place.
 - **Settings** — the place a person reaches from anywhere in the app to manage
   their account and preferences.
 - **tabs** — the app's home once it has opened; Spaces is where a person lands.

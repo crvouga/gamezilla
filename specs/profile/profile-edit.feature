@@ -4,24 +4,24 @@ Feature: Edit a profile
 
   Scenario: A guest changes their username
     Given Alice is a guest
-    When Alice renames themselves to @guest_user_1
-    Then Alice's profile shows @guest_user_1
+    When Alice renames themselves to @knight_rider
+    Then Alice's profile shows @knight_rider
 
   Scenario: A signed-in person changes their username
     Given Alice is signed in
-    When Alice renames themselves to @signed_alice_1
-    Then Alice's profile shows @signed_alice_1
+    When Alice renames themselves to @alice_w
+    Then Alice's profile shows @alice_w
 
   Scenario: A guest changes and saves their avatar
     Given Alice is a guest
-    When Alice saves an avatar with seed "sim-seed-guest" and style "Bottts"
-    Then Alice's saved avatar has seed "sim-seed-guest"
+    When Alice saves an avatar with seed "sunflower" and style "Bottts"
+    Then Alice's saved avatar has seed "sunflower"
     And Alice's saved avatar uses style "Bottts"
 
   Scenario: A signed-in person changes and saves their avatar
     Given Alice is signed in
-    When Alice saves an avatar with seed "sim-seed-signed" and style "Bottts"
-    Then Alice's saved avatar has seed "sim-seed-signed"
+    When Alice saves an avatar with seed "moonbeam" and style "Bottts"
+    Then Alice's saved avatar has seed "moonbeam"
     And Alice's saved avatar uses style "Bottts"
 
   Scenario: Leaving an edited avatar without saving keeps the prior avatar

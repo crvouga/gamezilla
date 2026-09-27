@@ -1,24 +1,23 @@
 @domain:profile
 Feature: Sign in with Apple
-  Apple sign-in creates or resumes the account associated with that provider.
+  People who prefer Apple can use it to get into the product, and using the
+  same address as Google never splits one person into two accounts.
 
-  Scenario: A first Apple sign-in creates an account with Apple as its method
+  Scenario: A guest's first Apple sign-in gives them an account that signs in with Apple
     Given Alice is a guest
     When Alice signs in with Apple
-    Then Alice can sign in with Apple
+    Then Alice has a signed-in account
+    And Alice's sign-in methods are Apple
 
-  Scenario: A verified address shared by Google and Apple identifies one account
-    Given Alice is a guest
-    When Alice signs in with Google and remembers the account
-    And Alice signs out
-    And Alice signs in with Apple using the shared address
-    Then Alice is still signed into the remembered account
-    And Alice has Google and Apple sign-in methods
+  Scenario: Apple sign-in at the same address as Google opens the same account
+    Given Alice is signed in with Google
+    And Alice has signed out
+    When Alice signs in with Apple using the same address
+    Then Alice is signed into the same account
+    And Alice's sign-in methods are Google and Apple
 
-  Scenario: Hide My Email keeps Apple separate from the Google account
-    Given Alice is a guest
-    When Alice signs in with Google and remembers the account
-    And Alice signs out
-    And Alice signs in with Apple using a private address
+  Scenario: Apple sign-in with a hidden address opens a separate account
+    Given Alice is signed in with Google
+    And Alice has signed out
+    When Alice signs in with Apple and hides their address
     Then Alice is signed into a different account
-    And Alice can return to the tabs
