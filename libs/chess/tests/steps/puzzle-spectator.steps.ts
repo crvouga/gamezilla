@@ -1,12 +1,8 @@
 /**
- * Friends watching a puzzle in a space: the host drives, the watcher sees
- * every move and may suggest one, and a watcher's own move or skip of the
- * host's puzzle changes nothing.
  * People watching a puzzle in a space: the host drives, the watcher sees
- * every move and may suggest one, and someone arriving late (or coming back
- * after the connection dropped) sees the host's current board. That a
- * watcher's own command is refused is pinned in
- * `tests/e2e/watcher-command-refused`.
+ * every move and may suggest one, a watcher's own move or skip of the host's
+ * puzzle changes nothing, and someone arriving late (or coming back after the
+ * connection drops) sees the host's current board.
  */
 
 import { expect } from 'bun:test';

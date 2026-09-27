@@ -104,6 +104,16 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
 - **flag** — a side's flag falls when their bank runs out while they are to
   move; the room then ends the match and the opponent wins on time. Claiming
   a flag that has not fallen changes nothing.
+- **hosting limit** — how many spaces a person may host at once: one for a
+  guest or a free account, no limit for a Plus member. Reaching it is an
+  invitation to Plus.
+- **refund** — the provider returning a member's payment. A refunded
+  membership ends at once, with no grace.
+- **inbox** — where a signed-in person finds friend requests and notices.
+- **devices** — the list of devices signed into a person's account, reached
+  from Settings.
+- **outdated app** — a version of the app older than the product still
+  accepts; it asks the person to update.
 - **note** — a piece of writing a person keeps: a title (such as "Groceries")
   and a body (such as "milk"). Writing a note with a title that already exists
   replaces its body; writing a deleted note again brings it back.
@@ -137,13 +147,3 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
 - **notice of a refused edit** — a **notice** telling the author that their
   edit was refused. It stays until the author **acknowledges** it, and then it
   is gone.
-- **hosting limit** — how many spaces a person may host at once: one for a
-  guest or a free account, no limit for a Plus member. Reaching it is an
-  invitation to Plus.
-- **refund** — the provider returning a member's payment. A refunded
-  membership ends at once, with no grace.
-- **inbox** — where a signed-in person finds friend requests and notices.
-- **devices** — the list of devices signed into a person's account, reached
-  from Settings.
-- **outdated app** — a version of the app older than the product still
-  accepts; it asks the person to update.

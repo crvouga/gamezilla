@@ -213,5 +213,10 @@
     "id": "space-link-not-found-premature",
     "summary": "A link to a missing space said it was unavailable before anything had answered, and the same while offline. Fixed: it says the space cannot be found once known, offers the way back, and offline says spaces need a connection.",
     "regressionTest": "specs/spaces/space-links.feature"
+  },
+  {
+    "id": "ci-i18n-rewrites-committed-catalog",
+    "summary": "ci:i18n re-extracted and recompiled the committed Lingui catalogs in place, so a tc running beside it could read a half-written messages.ts and fail with \"is not a module\". Fixed: the check regenerates into .cache/ci-i18n and compares.",
+    "regressionTest": "libs/tools/scripts/ci-i18n.test.ts"
   }
 ]

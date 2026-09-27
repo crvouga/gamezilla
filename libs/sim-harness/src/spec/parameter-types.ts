@@ -16,6 +16,8 @@
  * - `{end}` — `start` or `end` of a line.
  * - `{finish}` — how a player finishes a puzzle (`solving it cleanly`,
  *   `skipping it`, …), transformed to the chess sim's name for it.
+ * - `{squares}` — chessboard squares as a list (`a2, a3 and b1`),
+ *   transformed to the squares, sorted.
  * - `{device}` — one of a person's devices (`Alice's app`, `Alice's phone`,
  *   `Alice's tablet`), transformed to `{ actor, kind }`.
  * - `{deviceKind}` — `phone` or `tablet`.
@@ -23,8 +25,6 @@
  * `@pkgs/sync-engine` cannot import this module (pkgs never import libs), so
  * its steps entry registers `{actor}` / `{device}` / `{deviceKind}` with the
  * same patterns; keep them in step.
- * - `{squares}` — chessboard squares as a list (`a2, a3 and b1`),
- *   transformed to the squares, sorted.
  */
 
 import type { ParameterTypeSpec } from '@pkgs/gherkin/registry';
