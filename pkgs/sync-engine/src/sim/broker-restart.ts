@@ -17,16 +17,22 @@ export function crashBrokerImpl(k: BootedSimKernel): void {
   k.broker.dispose();
 }
 
-/** Recreate broker, remake server pubsub, and reconnect live clients. */
+/**
+ * Recreate broker, remake server pubsub, and reconnect live clients. A client
+ * that was disconnected (its app taken offline) stays disconnected: a broker
+ * coming back does not bring an offline device online.
+ */
 export async function restartBrokerImpl(k: BootedSimKernel): Promise<void> {
-  const clients = [...k.clients.values()];
-  for (const client of clients) {
+  const live = [...k.clients.values()].filter(
+    (client) => client.connection() !== 'disconnected'
+  );
+  for (const client of live) {
     await drainDisconnect(k, client.disconnect());
   }
   k.broker.dispose();
   k.broker = createBroker(k);
   k.serverPub = k.broker.createPubSub(SERVER_PUB);
-  for (const client of clients) {
+  for (const client of live) {
     await client.connect();
   }
 }

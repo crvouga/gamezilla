@@ -154,8 +154,27 @@ export async function recordPushApplied(
   if (isLegacyWallClockCheckpoint(pushSeq)) {
     return;
   }
+  // A push applied for the same topic can insert its row between our read
+  // and our insert (an upload ack and an echoed push race). The insert then
+  // finds the row taken; read again and raise it instead, so the ack that
+  // called us still completes.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    if (await raisePushApplied(db, topic, pushSeq, clock)) return;
+  }
+  throw new Error(
+    `sync_engine_push_applied: could not record ${pushSeq} for ${topic}`
+  );
+}
+
+/** One read-then-write attempt; `false` when a racing insert won the row. */
+async function raisePushApplied(
+  db: SqlClient,
+  topic: string,
+  pushSeq: string,
+  clock: PushAppliedClock
+): Promise<boolean> {
   const prev = await readLastPushSeq(db, topic, clock);
-  if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return;
+  if (prev !== null && compareCheckpoint(pushSeq, prev) <= 0) return true;
   const ts = managedUpdatedAtIso(clock.now);
   const id = topicRowId(topic);
   // Same mockingbird-sqlite rowid-allocation workaround as touchScopeMeta: UPDATE
@@ -167,9 +186,9 @@ export async function recordPushApplied(
       deleted_at = NULL
     WHERE id = ${id}
   `);
-  if (updated.changes > 0) return;
+  if (updated.changes > 0) return true;
 
-  await db.run(sql`
+  const inserted = await db.run(sql`
     INSERT INTO sync_engine_push_applied (
       rowid, id, topic, last_push_seq, created_at, updated_at, deleted_at
     )
@@ -182,7 +201,9 @@ export async function recordPushApplied(
       ${ts},
       ${null}
     )
+    ON CONFLICT (id) DO NOTHING
   `);
+  return inserted.changes > 0;
 }
 
 /** Drop tracking for topics no longer subscribed (membership remake). */

@@ -1,4 +1,5 @@
 import type { JsonValue } from '@pkgs/sim';
+import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { mutationStatus } from '../../mutations/client/mutation-status';
@@ -164,6 +165,24 @@ export async function rows(
   const db = dbFor(s, nodeId);
   if (db === null) return [];
   return (await db.query(statement)) as JsonValue[];
+}
+
+/**
+ * Ids of the edits a client has queued and not yet heard back about, oldest
+ * first (`null` when the client is not running).
+ */
+export async function queuedEdits(
+  s: SyncSim,
+  clientId: string
+): Promise<string[] | null> {
+  const client = clientFor(s, clientId);
+  if (client === null) return null;
+  const found = await client.db.query(sql<{ id: string }>`
+    SELECT id FROM sync_engine_mutations
+    WHERE deleted_at IS NULL
+    ORDER BY seq ASC
+  `);
+  return found.map((row) => row.id);
 }
 
 /** Install identity for a client — distinct per device, stable across restart. */

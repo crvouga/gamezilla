@@ -101,7 +101,9 @@ Still open:
 
 - **Framework-level sims**: all ported (`pkgs/room-sim`, `pkgs/matchmaking-sim`,
   `pkgs/auth-sim`, `pkgs/db-indexes`; 2026-09-27).
-- **`pkgs/sync-engine`**: ported except four files (see its section).
+- **`pkgs/sync-engine`**: ported (see its section); what stays in code is a
+  contract, determinism, a budget or a framework regression, each with its
+  reason.
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
   - `puzzle-limit-upgrade`'s old title promised "open billing plans", but only
@@ -337,33 +339,56 @@ entrance must agree on everyone's standing after every step). Run by
 
 ### pkgs/sync-engine — ported (2026-09-27)
 
-The 20 scripted sim tests are gone. Person-observable claims are
-`specs/sync/*.feature` (run by `@pkgs/sync-engine` `test:e2e`, `specDomains:
-["sync"]`, goal tags carried over); stateful internals and every seed sweep are
-the package-local model `pkgs/sync-engine/tests/quint/note-replication.qnt`
-(run from the package `test` by `note-replication.quint.test.ts`); wire and
-storage claims stay contract tests. Parity:
+Every scripted sim test is gone. Person-observable claims are
+`specs/sync/*.feature`; stateful internals, every seed sweep and the explore
+walks over faults with a product rule are the model
+`specs/sync/note-replication.qnt` (binding `tests/quint/`). Both run from the
+package `test:e2e` (`specDomains: ["sync"]`), like `specs/rooms/*.qnt` in
+`@pkgs/room-sim`. Goal proofs moved with them (`goal-checks.json` lists the
+model as a `test` proof, marked `goal:<id>` in its header).
 
 | Former file | Now |
 |---|---|
 | `single-client-mutate-uploads-and-persists`, `two-client-mutual-writes-converge` | `specs/sync/note-writing.feature`; seed sweep → `note-replication.qnt` |
 | `same-actor-two-devices-converge` (works-offline:5, always-true:2) | `specs/sync/notes-across-devices.feature` |
 | `soft-delete-tombstone-propagates-and-revives` | `specs/sync/note-deleting.feature` |
-| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen` |
-| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `setNoteReplyLost` / `retryUpload`, `invNoDoubleApply` |
+| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen`, `crashWhileSaving` |
+| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `writeUnheard` / `hearBack`, `invNoDoubleApply` |
 | `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync/online-only-actions.feature` |
 | `permanent-reject-stored-peer-never-applies` | `specs/sync/note-refused-edits.feature`; model `rejections` |
 | `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature`; topic drop without remake → `tests/space-topic-scope.test.ts` |
-| `denied-query-detaches-scope-keeps-rows` | `tests/space-topic-scope.test.ts` |
-| `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `degradeLive`, `operatorEdit`) |
-| `merge-via-sim` | local-only columns → `tests/merge-local-columns.test.ts`; pending over tombstone → model + `pending-rebase.property.test.ts` |
-| `deep-pending-chain-rebases-in-seq-order` | `tests/deep-offline-queue.test.ts` |
-| `epoch-bump-wipes-cache-preserves-pending-uploads` | `tests/schema-epoch-bump.test.ts` (one seed) |
-| `fanout-row-cap-boundary-64-vs-65` | `tests/fanout-row-cap.test.ts` |
-| `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` |
-| `seeded-workload-fuzz-determinism` | `tests/exploration.test.ts` (determinism + pool faults the model does not draw) |
+| `denied-query-detaches-scope-keeps-rows` | `tests/space-topic-scope.test.ts` (contract: a denied query is not a person's action) |
+| `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `networkStalls` / `networkRecovers`, `liveUpdatesDegrade`, `teamEdit`) |
+| `merge-via-sim` | local-only columns → `tests/schema-drift.test.ts` (storage contract); pending over tombstone → model |
+| `deep-pending-chain-rebases-in-seq-order` → `deep-offline-queue` | `specs/sync/a-long-time-offline.feature` |
+| `epoch-bump-wipes-cache-preserves-pending-uploads` → `schema-epoch-bump` | `specs/sync/notes-across-app-updates.feature`; model `appUpdates` (`fresh`) |
+| `fanout-row-cap-boundary-64-vs-65` | `tests/fanout-row-cap.test.ts` (wire contract: which pushes carry row images); the person side → `note-writing.feature` › many notes at once |
+| `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` (contract: the `NO_HARD_DELETE` code; no person can hard-delete) |
+| `seeded-workload-fuzz-determinism` → `exploration` | same-seed determinism stays; walks → model actions (`clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled`, `networkStalls`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appUpdates`, `appDataDamaged` / `Cleared`, `appBackgrounded`, `signInExpires`, `secondWindow`, `connectionFlaky`, a third person); the pool slice without a product rule stays a walk (below) |
+| `pending-rebase.property` | model: offline view = merged notes + unsent edits in order (`notes`, `owners`, `unsent`), a delete the device knows is forbidden does nothing, reconnect replays against the shared notes |
+| `merge-local-columns` | duplicate of `schema-drift` › client-only column survives a full merge; deleted |
+| `note-replication.quint.test.ts` | the model runs from `test:e2e`; the runner file is gone |
+| `pending-ux-answers-with-server-verdict` | `specs/sync/checked-notes.feature` (`@regression:pending-reject-verdict-before-rollback`, `@regression:checked-note-answer-lost-to-push-race`) |
+| `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | stays: the p95 < 200 ms budget gate; the person side → `specs/sync/notes-arrive-quickly.feature` (`@goal:works-offline:7`) |
+| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | stays: a timing-exact regression of the sim's own standing-property check (framework self-test; a scenario cannot pin its seed) |
+| `schema-drift` | stays, trimmed: storage contract for columns and tables across local schema versions; what a person sees across versions → `notes-across-app-updates.feature` |
+| `space-topic-scope` | stays: live-topic scope and remake contracts |
 
-Still open in `pkgs/sync-engine/tests/`: `invariant-check-waits-for-in-flight-verdict` (regression `invariant-dirty-read`), `peer-visibility-latency-budget` (perf budget; the-bar:3, works-offline:7), `pending-ux-answers-with-server-verdict`, `schema-drift`.
+Still a walk (`tests/exploration.test.ts`): the rest of the example domain
+(folders, shared spaces, catalog inserts) and faults whose effect on unsent
+notes has no rule yet (a full device, an app that fails to open, a revoked or
+outdated sign-in, a damaged unsent edit, data cleared while edits wait, pruned
+write records, single-channel cut-outs, dropped publishes), plus the lossy
+host. Each moves into the model once its rule is decided.
+
+Open spec questions found while porting:
+
+- An app update that fetches every note again, and clearing the app's data,
+  drop the person's unacknowledged notices today; the glossary says a notice
+  stays until acknowledged. The model updates or clears only with no notice
+  waiting until this is decided.
+- A garbled live update briefly shows a note with no body before the device
+  heals (under a second in the sim).
 
 ---
 
