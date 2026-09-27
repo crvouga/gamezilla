@@ -22,6 +22,7 @@ import {
   readStatsAccuracy,
   readStatsElo,
   readStatsPlayed,
+  readStatsRatingHistory,
   readStatsRatingLabel,
   readStatsSolved,
 } from '@libs/chess/sim/chess-puzzle-ui';
@@ -39,13 +40,24 @@ import {
   cutConnection,
   otherDevice,
 } from '@libs/sim-harness/spec/steps/platform';
+import { remember } from '@libs/sim-harness/spec/world';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import {
   currentPuzzle,
   ensureStatsOpen,
+  recalled,
+  required,
   SECOND_MS,
   SETTLE_MS,
 } from './puzzle-world';
+
+/**
+ * How long another device may take to show what one device did offline,
+ * when a step names no time: the returning device finds the connection
+ * within its 30-second reachability backoff, uploads, and the other device
+ * is pushed the result.
+ */
+const CONVERGE_MS = 60_000;
 
 type Figures = {
   readonly played: number | null;
@@ -186,17 +198,27 @@ Then(
       w,
       otherDevice(actor),
       { played, solved, accuracy },
-      SETTLE_MS
+      CONVERGE_MS
     );
   }
 );
 
 // ------------------------------------------------------ stats and game log
 
+type PuzzleResult = 'solved' | 'failed';
+
+/** Memo key: how each puzzle of a played run ended, in order. */
+const resultsKey = (actor: Actor) => `puzzleResults:${actor}`;
+
 Given(
   '{actor} has solved {int} puzzles and failed {int}',
   async (w, actor: Actor, solved: number, failed: number) => {
     await w.s.apply(playPuzzleResults, actor, solved, failed);
+    // The run solves first, then fails (see `playPuzzleResults`).
+    remember(w, resultsKey(actor), [
+      ...Array.from({ length: solved }, (): PuzzleResult => 'solved'),
+      ...Array.from({ length: failed }, (): PuzzleResult => 'failed'),
+    ]);
   }
 );
 
@@ -220,6 +242,30 @@ Then(
     ...[played, solved, accuracy]: [number, number, number]
   ) => {
     await untilFigures(w, actor, { played, solved, accuracy }, SETTLE_MS);
+  }
+);
+
+Then(
+  "{actor}'s stats show their rating after each of those {int} puzzles",
+  async (w, actor: Actor, count: number) => {
+    const results = recalled<readonly PuzzleResult[]>(w, resultsKey(actor));
+    expect(results).toHaveLength(count);
+    await ensureStatsOpen(w, actor);
+    const history = await w.s.until(
+      (surf) => readStatsRatingHistory(surf, actor),
+      { maxMs: SETTLE_MS, pred: (ratings) => ratings.length === count }
+    );
+    // Oldest first: each solve raised the rating and each failure lowered
+    // it, and the last is the rating the stats show now.
+    const moves = history.map((rating, index) =>
+      rating > (history[index - 1] ?? PUZZLE_RATING_DEFAULT)
+        ? 'solved'
+        : 'failed'
+    );
+    expect(moves).toEqual([...results]);
+    expect(history.at(-1)).toBe(
+      required(await w.s.read(readStatsElo, actor), `${actor}'s rating`)
+    );
   }
 );
 

@@ -14,6 +14,8 @@
  * - `{end}` — `start` or `end` of a line.
  * - `{finish}` — how a player finishes a puzzle (`solving it cleanly`,
  *   `skipping it`, …), transformed to the chess sim's name for it.
+ * - `{squares}` — chessboard squares as a list (`a2, a3 and b1`),
+ *   transformed to the squares, sorted.
  */
 
 import type { ParameterTypeSpec } from '@pkgs/gherkin/registry';
@@ -98,5 +100,10 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
     name: 'finish',
     regexp: new RegExp(Object.keys(PUZZLE_FINISHES).join('|')),
     transformer: (text: string) => puzzleFinish(text),
+  },
+  {
+    name: 'squares',
+    regexp: /[a-h][1-8](?:(?:, | and )[a-h][1-8])*/,
+    transformer: (text: string) => text.split(/, | and /).sort(),
   },
 ];

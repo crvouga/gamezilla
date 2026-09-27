@@ -1,7 +1,9 @@
 /**
- * Friends watching a puzzle in a space: the host drives, the watcher sees
- * every move and may suggest one. That a watcher's own command is refused is
- * pinned in `tests/e2e/watcher-command-refused`.
+ * People watching a puzzle in a space: the host drives, the watcher sees
+ * every move and may suggest one, and someone arriving late (or coming back
+ * after the connection dropped) sees the host's current board. That a
+ * watcher's own command is refused is pinned in
+ * `tests/e2e/watcher-command-refused`.
  */
 
 import { expect } from 'bun:test';
@@ -13,11 +15,13 @@ import {
 import {
   isPuzzleSolved,
   type PuzzleSpectatorProbe,
+  readActivePuzzleId,
   readPuzzleDebug,
   readPuzzleDisplayFen,
   readPuzzleSpectator,
   readPuzzleStatus,
 } from '@libs/chess/sim/chess-puzzle-ui';
+import { joinSpaceFromLink } from '@libs/friends/steps/spaces.steps';
 import { focusActor } from '@libs/sim-harness';
 import {
   type Actor,
@@ -27,7 +31,7 @@ import {
   When,
 } from '@libs/sim-harness/spec/define';
 import { accountIdOf } from '@libs/sim-harness/system/identity';
-import { required, SECOND_MS, SETTLE_MS } from './puzzle-world';
+import { activePuzzle, required, SECOND_MS, SETTLE_MS } from './puzzle-world';
 
 type Suggestions = PuzzleSpectatorProbe['recommendations'];
 
@@ -55,6 +59,47 @@ async function untilOnlySuggestionBy(
   return probe?.recommendations ?? [];
 }
 
+/** Wait until `watcher` is watching the puzzle now on `host`'s board. */
+async function untilWatching(
+  w: SimWorld,
+  watcher: Actor,
+  host: Actor,
+  maxMs: number
+): Promise<void> {
+  await w.s.apply(focusActor, host);
+  const puzzle = await activePuzzle(w, host);
+  await w.s.apply(focusActor, watcher);
+  await w.s.until(
+    async (surf) => ({
+      probe: await readPuzzleSpectator(surf, watcher),
+      puzzle: await readActivePuzzleId(surf, watcher),
+    }),
+    {
+      maxMs,
+      pred: (seen) => seen.probe?.spectating === true && seen.puzzle === puzzle,
+    }
+  );
+}
+
+/** `second`'s board comes to show the position on `first`'s board. */
+async function untilBoardsAgree(
+  w: SimWorld,
+  first: Actor,
+  second: Actor,
+  maxMs: number
+): Promise<void> {
+  await w.s.apply(focusActor, first);
+  const fen = required(
+    await w.s.read(readPuzzleDisplayFen, first),
+    `${first}'s board`
+  );
+  await w.s.apply(focusActor, second);
+  await w.s.until(async (surf) => readPuzzleDisplayFen(surf, second), {
+    maxMs,
+    pred: (other) => other === fen,
+  });
+}
+
 // ---------------------------------------------------------------- watching
 
 Given("{actor} is watching {actor}'s puzzle", async (w, watcher: Actor) => {
@@ -64,6 +109,21 @@ Given("{actor} is watching {actor}'s puzzle", async (w, watcher: Actor) => {
     pred: (status) => status === 'solving',
   });
 });
+
+Given(
+  "{actor} has joined the space from the link and is watching {actor}'s puzzle",
+  async (w, watcher: Actor, host: Actor) => {
+    await joinSpaceFromLink(w, watcher);
+    await untilWatching(w, watcher, host, SETTLE_MS);
+  }
+);
+
+Then(
+  "{actor} is watching {actor}'s puzzle within {int} seconds",
+  async (w, watcher: Actor, host: Actor, seconds: number) => {
+    await untilWatching(w, watcher, host, seconds * SECOND_MS);
+  }
+);
 
 Then(
   '{actor} sees the puzzle solved within {int} seconds',
@@ -136,23 +196,31 @@ Then(
   }
 );
 
+// ------------------------------------------------------------- host moves
+
 When('{actor} plays the next move of the solution', async (w, host: Actor) => {
   await w.s.apply(focusActor, host);
   await w.s.apply(playNextSolutionMove, host);
 });
 
+Given(
+  '{actor} has played the next move of the solution',
+  async (w, host: Actor) => {
+    await w.s.apply(focusActor, host);
+    await w.s.apply(playNextSolutionMove, host);
+  }
+);
+
 Then(
   "{actor}'s and {actor}'s boards agree",
   async (w, first: Actor, second: Actor) => {
-    await w.s.apply(focusActor, first);
-    const fen = required(
-      await w.s.read(readPuzzleDisplayFen, first),
-      `${first}'s board`
-    );
-    await w.s.apply(focusActor, second);
-    await w.s.until(async (surf) => readPuzzleDisplayFen(surf, second), {
-      maxMs: SETTLE_MS,
-      pred: (other) => other === fen,
-    });
+    await untilBoardsAgree(w, first, second, SETTLE_MS);
+  }
+);
+
+Then(
+  "{actor}'s and {actor}'s boards agree within {int} seconds",
+  async (w, first: Actor, second: Actor, seconds: number) => {
+    await untilBoardsAgree(w, first, second, seconds * SECOND_MS);
   }
 );

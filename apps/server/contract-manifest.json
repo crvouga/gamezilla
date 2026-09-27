@@ -22,6 +22,7 @@
     "removeFriend",
     "removeSpaceUser",
     "renameSpace",
+    "savePuzzleFeedSettings",
     "sendFriendRequest",
     "setVisibility",
     "unblockUser",
@@ -29,6 +30,7 @@
   ],
   "queries": [
     "chessPuzzleById",
+    "chessPuzzleFeedSettings",
     "chessPuzzleInteractions",
     "chessPuzzlePool",
     "chessPuzzleProfile",

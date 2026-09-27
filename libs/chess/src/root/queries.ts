@@ -1,4 +1,5 @@
 import { chessPuzzleById } from '../use-cases/load-puzzle-by-id/shared/chess-puzzle-by-id-query';
+import { chessPuzzleFeedSettings } from '../use-cases/load-puzzle-feed-settings/shared/chess-puzzle-feed-settings-query';
 import { chessPuzzleInteractions } from '../use-cases/load-puzzle-interactions/shared/chess-puzzle-interactions-query';
 import { chessPuzzlePool } from '../use-cases/load-puzzle-pool/shared/chess-puzzle-pool-query';
 import { chessPuzzleProfile } from '../use-cases/load-puzzle-profile/shared/chess-puzzle-profile-query';
@@ -6,6 +7,7 @@ import { chessPuzzleRatingEvents } from '../use-cases/load-puzzle-rating-events/
 
 export const CHESS_QUERIES = [
   chessPuzzleProfile,
+  chessPuzzleFeedSettings,
   chessPuzzleInteractions,
   chessPuzzleRatingEvents,
   chessPuzzlePool,

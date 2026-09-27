@@ -201,3 +201,14 @@ export async function countServerWrongMoves(
   );
   return Number(rows[0]?.count ?? 0);
 }
+
+const DAY_MS = 86_400_000;
+
+/**
+ * Virtual time left until the next UTC midnight, when the day's puzzle
+ * allowance resets (the policy's `utcMidnight` boundary).
+ */
+export function readMsUntilNextUtcDay(s: ProductSim): number {
+  const now = s.sim.clock.now();
+  return DAY_MS - (now % DAY_MS);
+}
