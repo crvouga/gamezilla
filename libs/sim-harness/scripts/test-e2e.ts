@@ -52,8 +52,14 @@ const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const SPECS_DIR = join(REPO_ROOT, 'specs');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-e2e`;
-/** Per test. A live browser (`SIM_MODE=real|stack`) gets the time a person would. */
-const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
+/**
+ * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
+ * `bun check` (every package's e2e plus the Quint models at once) chess
+ * scenarios measured 60–95 s, past the old 90 s. 240 s is over twice that
+ * loaded cost, so load cannot flip a verdict; the per-task budget still
+ * bounds a hang. A live browser (`SIM_MODE=real|stack`) gets the same.
+ */
+const TIMEOUT_MS = 240_000;
 
 type Cli = {
   readonly bunArgs: string[];
