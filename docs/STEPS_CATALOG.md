@@ -11,5 +11,6 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | @libs/friends | `specs/friends/`, `specs/spaces/` | 24 | 69 | 104 | [catalog](../libs/friends/STEPS_CATALOG.md) |
 | @libs/profile | `specs/profile/` | 10 | 42 | 55 | [catalog](../libs/profile/STEPS_CATALOG.md) |
 | @libs/runtime | `specs/runtime/`, `specs/journeys/` | 7 | 22 | 46 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
+| @pkgs/auth-sim | `specs/sign-in/` | 6 | 21 | 57 | [catalog](../pkgs/auth-sim/STEPS_CATALOG.md) |
 | @pkgs/room-sim | `specs/rooms/` | 3 | 21 | 41 | [catalog](../pkgs/room-sim/STEPS_CATALOG.md) |
 | @pkgs/sync-engine | `specs/sync/` | 9 | 22 | 29 | [catalog](../pkgs/sync-engine/STEPS_CATALOG.md) |
