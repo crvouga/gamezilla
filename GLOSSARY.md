@@ -104,3 +104,36 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
 - **flag** — a side's flag falls when their bank runs out while they are to
   move; the room then ends the match and the opponent wins on time. Claiming
   a flag that has not fallen changes nothing.
+- **note** — a piece of writing a person keeps: a title (such as "Groceries")
+  and a body (such as "milk"). Writing a note with a title that already exists
+  replaces its body; writing a deleted note again brings it back.
+- **owner of a note** — whoever last wrote the note. Only the owner may delete
+  it.
+- **shared space** — a group of people who share notes. Anyone can create one,
+  join it, or leave it, even offline; every note written by someone in it
+  reaches everyone in it. Not the same as a (live) **space**.
+- **{person}'s app / phone / tablet** — one of a person's devices. A person
+  may use the app on more than one device; each one ends up with all of their
+  notes.
+- **offline / back online** — a device has no connection, then has it again.
+  What a person writes offline shows for them at once and reaches others once
+  the device is back online, with nothing for the person to do.
+- **crashes and reopens** — the app stops without warning and is opened again;
+  it still has everything it had.
+- **hear back about a save** — the word that a person's write has been kept
+  for everyone. It can get lost on the way back; the write still counts
+  exactly once.
+- **online-only action** — something that truly needs a connection (writing
+  an announcement). Tried offline it tells the person it needs a connection, and
+  it is not done later on its own.
+- **announcement** — a note that goes out to everyone in the shared space the
+  moment it is written, so it can only be written while connected. Once
+  written it shows like any other note.
+- **refused edit** — a write the person's device accepted that the rules
+  refuse once it reaches everyone else, such as deleting a note offline that
+  someone else has since written (and so now owns). It is undone on its
+  author's device and never reaches anyone else. A delete the device already
+  knows is not allowed simply does not happen, and leaves no notice.
+- **notice of a refused edit** — a **notice** telling the author that their
+  edit was refused. It stays until the author **acknowledges** it, and then it
+  is gone.

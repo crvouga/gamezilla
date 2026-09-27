@@ -14,6 +14,13 @@
  * - `{end}` — `start` or `end` of a line.
  * - `{finish}` — how a player finishes a puzzle (`solving it cleanly`,
  *   `skipping it`, …), transformed to the chess sim's name for it.
+ * - `{device}` — one of a person's devices (`Alice's app`, `Alice's phone`,
+ *   `Alice's tablet`), transformed to `{ actor, kind }`.
+ * - `{deviceKind}` — `phone` or `tablet`.
+ *
+ * `@pkgs/sync-engine` cannot import this module (pkgs never import libs), so
+ * its steps entry registers `{actor}` / `{device}` / `{deviceKind}` with the
+ * same patterns; keep them in step.
  */
 
 import type { ParameterTypeSpec } from '@pkgs/gherkin/registry';
@@ -95,6 +102,21 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
   {
     name: 'end',
     regexp: /start|end/,
+    transformer: (text: string) => text,
+  },
+  {
+    name: 'device',
+    regexp: new RegExp(
+      `(?:${Object.keys(ACTOR_IDS).join('|')})'s (?:app|phone|tablet)`
+    ),
+    transformer: (text: string) => {
+      const [name = '', kind = ''] = text.split("'s ");
+      return { actor: actorId(name), kind };
+    },
+  },
+  {
+    name: 'deviceKind',
+    regexp: /phone|tablet/,
     transformer: (text: string) => text,
   },
   {
