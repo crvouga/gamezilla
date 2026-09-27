@@ -53,21 +53,18 @@ don't add a per-tap plugin call to work around a Blink-only layout quirk,
 and don't add compositor-heavy CSS to smooth over what was actually a
 bridge-call problem.
 
-Byte / LCP / critical-path budgets live in
-[`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md) and
-[`apps/client/perf-budget.json`](apps/client/perf-budget.json). This
+The critical-path gate lives in
+[`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md). This
 command is about **runtime jank and interaction cost** across the matrix,
-not bundle size — leave those docs and the budget file alone (see
-constraints below).
+not bundle size — leave that doc alone (see constraints below).
 
 ## Non-negotiable constraints
 
 1. **Never soft-deprecate.** Delete old APIs and update every call site in
    the same change.
-2. **Never fake the budgets.** Don't satisfy critical-path/bundle-budget gates
-   with eager `import()`, disabled checks, or a loosened
-   `perf-budget.json`. If a gate looks wrong, stop and report it using the
-   failure template.
+2. **Never fake the gates.** Don't satisfy the critical-path gate with
+   eager `import()` or disabled checks. If a gate looks wrong, stop and
+   report it using the failure template.
 
 ## The load-bearing test
 

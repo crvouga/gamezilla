@@ -79,6 +79,48 @@ describe('run reporting', () => {
     expect(snaps.filter((b) => b.name === 'html').length).toBe(2);
   });
 
+  test('frames: false keeps every step and its outcome, without frames', async () => {
+    const { sys, put } = makeKv();
+    const store = new ObjectStoreImplInMemory();
+    await using s = await sys.run({
+      seed: 1,
+      report: { store, runId: 'r', testId: 't', frames: false },
+    });
+    await s.apply(put, 'x', '1');
+    await expect(
+      s.record({ kind: 'step', title: 'then it breaks' }, async () => {
+        throw new Error('broke');
+      })
+    ).rejects.toThrow('broke');
+    const report = s.report()!;
+    expect(report.steps.map((step) => [step.title, step.status])).toEqual([
+      ['put("x", "1")', 'passed'],
+      ['then it breaks', 'failed'],
+    ]);
+    expect(report.steps.flatMap((step) => step.frames)).toEqual([]);
+    expect(report.meta.status).toBe('failed');
+    expect(report.meta.error).toBe('broke');
+  });
+
+  test('a nested failure its caller handles is red, but the run passes', async () => {
+    const { sys } = makeKv();
+    await using s = await sys.run({ seed: 1, report: { frames: false } });
+    await s.record(
+      { kind: 'step', title: 'probe until it gives up' },
+      async () => {
+        await s
+          .record({ kind: 'expect', title: 'expect.visible' }, async () => {
+            throw new Error('not yet');
+          })
+          .catch(() => undefined);
+      }
+    );
+    const report = s.report()!;
+    expect(report.meta.status).toBe('passed');
+    expect(report.steps[0]?.status).toBe('passed');
+    expect(report.steps[0]?.steps[0]?.status).toBe('failed');
+  });
+
   test('record coalesces nested advanceTime into one step', async () => {
     const { sys } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });

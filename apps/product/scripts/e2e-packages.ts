@@ -31,7 +31,7 @@ export function e2ePackageDirs(): string[] {
 
 /**
  * Run `test:e2e` with `env` in every package, or — when `args` name
- * repo-relative spec paths (`libs/chess/tests/e2e/monkey.test.tsx`) —
+ * repo-relative spec paths (`libs/runtime/tests/e2e/critical-journeys.test.tsx`) —
  * only in the packages that own them, each given its own paths. Flags pass to
  * every run. The first failure's code, else 0.
  */

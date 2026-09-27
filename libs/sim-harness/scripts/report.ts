@@ -1,14 +1,22 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI: every package's e2e run → one standalone HTML report.
 /**
- * `bun run test:report [--no-run] [--open]` (repo root)
+ * `bun run test:report [--frames] [--no-run] [--open]` (repo root)
  *
- * Runs every package's `test:e2e` through turbo with `SIM_REPORT=1` (cached
- * suites restore their report buckets instead of rerunning), then folds each
- * package's bucket (`<pkg>/.cache/sim-report`, JUnit outcomes overlaid) into
- * one `sim-report/index.html` at the repo root: every subsystem's specs and
- * monkey walks, and the whole-app suite, in one report. `--no-run` builds
- * from the buckets already on disk. Exits with the suites' status.
+ * The report of the code as it is now. Every `test:e2e` run — `bun check`,
+ * CI, this script — writes its package's report bucket
+ * (`<pkg>/.cache/sim-report`: each Gherkin scenario's and Quint trace's step
+ * timeline, the traces themselves, JUnit), and turbo caches the bucket with
+ * the verdict. So this runs every `test:e2e` through `turbo-ci-run
+ * --restore-outputs` with the same flags and env as `bun check`: a suite
+ * whose code has not changed since any machine sharing the remote cache ran
+ * it restores that run's bucket instead of running again, and only changed
+ * suites run. It then folds every bucket (JUnit outcomes overlaid) into one
+ * `sim-report/index.html` at the repo root.
+ *
+ * `--frames` adds UI frames to every step (`SIM_FRAMES=1`: slower, and a
+ * separate cache entry from `bun check`'s). `--no-run` builds from the
+ * buckets already on disk. Exits with the suites' status.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -129,11 +137,19 @@ let status = 0;
 if (!args.has('--no-run')) {
   const suites = spawnSync(
     'bun',
-    ['x', 'turbo', 'run', 'test:e2e', '--continue', '--output-logs=new-only'],
+    [
+      'run',
+      join(REPO_ROOT, 'libs/tools/scripts/turbo-ci-run.ts'),
+      '--restore-outputs',
+      'test:e2e',
+    ],
     {
       cwd: REPO_ROOT,
       stdio: 'inherit',
-      env: { ...process.env, SIM_REPORT: '1' },
+      env: {
+        ...process.env,
+        ...(args.has('--frames') ? { SIM_FRAMES: '1' } : {}),
+      },
     }
   );
   status = suites.status ?? 1;

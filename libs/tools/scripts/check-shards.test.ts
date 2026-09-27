@@ -9,7 +9,7 @@ const TYPES = [
   'test',
   'test:e2e',
   'build',
-  'check:bundle-budget',
+  'check:offline-shell',
 ];
 
 function miss(taskId: string, dependencies: string[] = []): PlannedTask {

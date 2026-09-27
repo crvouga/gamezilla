@@ -11,4 +11,4 @@ import './app-shell.steps';
 import { useSimWorld } from '@libs/sim-harness/spec/world';
 import { openSim } from '../e2e/support/open-app-sim';
 
-useSimWorld((testId) => openSim(testId));
+useSimWorld(openSim);

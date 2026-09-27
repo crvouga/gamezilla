@@ -24,7 +24,6 @@ import {
   uiOp,
 } from './actions';
 import { anyActor } from './observations';
-import { PRODUCT_WALK_ACTIONS } from './pool-actions';
 import { captureSnapshot, googleOauthSignIn } from './probes';
 import { productServerActions } from './server-actions';
 import { SHELL_SCENARIO_ACTIONS } from './shell-scenario-actions';
@@ -142,7 +141,6 @@ export function defineProductSystem(composition: SimComposition) {
       captureSnapshot,
       ...productServerActions,
       ...SHELL_SCENARIO_ACTIONS,
-      ...PRODUCT_WALK_ACTIONS,
       ...(composition.actions ?? []),
     ],
     snapshots: [

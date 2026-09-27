@@ -1,16 +1,17 @@
 import { BILLING_LIFECYCLE_PROPERTIES } from '@libs/billing/sim/billing-lifecycle-properties';
-import { billingStimulus } from '@libs/billing/sim/billing-lifecycle-walk';
+import { billingStimulus } from '@libs/billing/sim/billing-lifecycle-stimuli';
 import { BILLING_SIM_SLICE } from '@libs/billing/sim/billing-sim-slice';
 import {
   type OpenSim,
+  type OpenSimOptions,
   openSim as openHarnessSim,
 } from '@libs/sim-harness/open-sim/open-sim';
 import { composeSimSlices } from '@libs/sim-harness/slices';
 import { defineProductSystem } from '@libs/sim-harness/system/define-product-system';
 
 /**
- * Billing's composition plus the lifecycle walk and its standing properties.
- * Kept out of the billing slice itself so other suites' monkeys and the
+ * Billing's composition plus the lifecycle stimuli and their standing
+ * properties. Kept out of the billing slice itself so other suites and the
  * whole-app explore do not pay for the provider reads every checkpoint makes.
  */
 const BILLING_LIFECYCLE_SYSTEM = defineProductSystem(
@@ -28,7 +29,7 @@ const BILLING_LIFECYCLE_SYSTEM = defineProductSystem(
 
 export function openLifecycleSim(
   testId: string,
-  seed: number
+  options?: OpenSimOptions
 ): Promise<OpenSim> {
-  return openHarnessSim(BILLING_LIFECYCLE_SYSTEM, testId, { seed });
+  return openHarnessSim(BILLING_LIFECYCLE_SYSTEM, testId, options);
 }

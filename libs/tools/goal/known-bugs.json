@@ -128,5 +128,10 @@
     "id": "eager-perf-sampler-bundle",
     "summary": "The disabled performance HUD eagerly bundled its browser sampler and web-vitals attribution into the client boot path, leaving the cross-platform bundle budget without enough headroom. Fixed by loading the sampler only when the HUD is enabled.",
     "regressionTest": "libs/client-app/tests/shell/create-lazy-perf-sampler.test.ts"
+  },
+  {
+    "id": "pending-reject-verdict-before-rollback",
+    "summary": "A `pendingUx: 'pending'` mutation reported the server's rejection before the device dropped its optimistic write, so the caller's next action ran against the refused write: a username refused as taken and then saved again at once was refused as 'changed recently'. Found by the username-changes Quint model. Fixed by settling a rejection only after the queries refresh.",
+    "regressionTest": "pkgs/sync-engine/tests/pending-ux-answers-with-server-verdict.test.ts"
   }
 ]

@@ -96,7 +96,7 @@ export class RunReporter {
     this.captureApply = (init.options.capture ?? 'apply') === 'apply';
     this.sourceFile = init.options.sourceFile;
     this.sourceLine = init.options.sourceLine;
-    this.snapshots = init.snapshots;
+    this.snapshots = init.options.frames === false ? [] : init.snapshots;
     this.surface = init.surface;
   }
 
@@ -203,7 +203,10 @@ export class RunReporter {
       }
       return { status: 'passed' };
     } catch (e) {
-      this.markFailed(e);
+      // The run fails when a failure escapes a top-level step. A nested
+      // step's failure its caller handled (a probe that expected to time
+      // out) stays red on the timeline, but is not the run's verdict.
+      if (prev === null) this.markFailed(e);
       if (meta.skipSnapshot !== true) {
         await this.captureOntoOpen(open).catch(() => undefined);
       }

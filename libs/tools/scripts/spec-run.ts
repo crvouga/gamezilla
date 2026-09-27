@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI entry (`bun run spec`).
 /**
- * Run Gherkin features across every package that runs `specs/<domain>/`
- * domains. A feature path (`specs/chess/puzzle-play.feature`) goes only to
- * the package whose `specDomains` lists its domain.
+ * Run specs — Gherkin features and Quint models — across every package that
+ * runs `specs/<domain>/` domains. A spec path (`specs/chess/puzzle-play.feature`,
+ * `specs/spaces/space-hosting.qnt`) goes only to the package whose
+ * `specDomains` lists its domain.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -44,7 +45,8 @@ function hasE2eScript(dir: string): boolean {
 
 function domainOfPath(arg: string): string | null {
   return (
-    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.feature$/.exec(arg)?.[1] ?? null
+    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.(?:feature|qnt)$/.exec(arg)?.[1] ??
+    null
   );
 }
 

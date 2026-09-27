@@ -129,6 +129,21 @@ function planFromTasks(tasks: readonly PlannedTask[]): RunPlan {
 }
 
 /**
+ * The plan for a run that must leave every task's outputs on disk
+ * (`turbo-ci-run --restore-outputs`): every hit only the remote holds is
+ * prefetched, not just the ones the misses depend on, so turbo restores them
+ * all from the local cache instead of looking each up remotely in series.
+ */
+export function restoreEveryHit(plan: RunPlan): RunPlan {
+  return {
+    ...plan,
+    remoteHits: plan.tasks.filter(
+      (task) => task.hit && task.source === 'REMOTE'
+    ),
+  };
+}
+
+/**
  * The `local:` part of a `--cache` flag (what the dry run asks), or `null`
  * when the local cache is off and the dry run must ask the remote itself.
  */

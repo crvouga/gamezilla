@@ -9,6 +9,7 @@ import { nodeText } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
 import { sql } from '@pkgs/sql';
+import type { SqlTx } from '@pkgs/sql-client/interface';
 
 /** Raw row shape; `cancel_at_period_end` is 0/1 on SQLite and a bool on PG. */
 type MembershipRowRaw = {
@@ -116,4 +117,58 @@ export async function serverMembershipCount(s: ProductSim): Promise<number> {
     FROM billing_subscriptions
     WHERE deleted_at IS NULL`);
   return Number(rows[0]?.n ?? 0);
+}
+
+/** One membership as a person could tell it apart: its full synced row. */
+export type MembershipRecord = {
+  readonly subscriptionId: string;
+  readonly status: string;
+  readonly priceKey: string | null;
+  readonly currentPeriodEndMs: number | null;
+  readonly cancelAtPeriodEnd: boolean;
+};
+
+type MembershipRecordRaw = MembershipRowRaw & {
+  readonly provider_subscription_id: string;
+};
+
+async function recordsIn(
+  db: SqlTx,
+  accountId: string
+): Promise<readonly MembershipRecord[]> {
+  const rows = await db.query(sql<MembershipRecordRaw>`
+    SELECT provider_subscription_id, status, price_key, current_period_end,
+      cancel_at_period_end
+    FROM billing_subscriptions
+    WHERE account_id = ${accountId} AND deleted_at IS NULL
+    ORDER BY created_at ASC, provider_subscription_id ASC`);
+  return rows.map((row) => ({
+    subscriptionId: row.provider_subscription_id,
+    status: row.status,
+    priceKey: row.price_key,
+    currentPeriodEndMs:
+      row.current_period_end === null
+        ? null
+        : Date.parse(row.current_period_end),
+    cancelAtPeriodEnd:
+      row.cancel_at_period_end === true || row.cancel_at_period_end === 1,
+  }));
+}
+
+/** Every membership the server holds for the account, oldest first. */
+export async function serverMemberships(
+  s: ProductSim,
+  accountId: string
+): Promise<readonly MembershipRecord[]> {
+  return await recordsIn(s.sim.serverSql.sqlClient, accountId);
+}
+
+/** Every membership of the account the actor's device holds, oldest first. */
+export async function deviceMemberships(
+  s: ProductSim,
+  actorId: string,
+  accountId: string
+): Promise<readonly MembershipRecord[]> {
+  const local = actorLocalSql(s, actorId);
+  return local === null ? [] : await recordsIn(local, accountId);
 }

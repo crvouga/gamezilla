@@ -6,7 +6,6 @@ import { BILLING_FEATURE } from '../root/feature';
 import { createBillingServer } from '../root/server/feature-server';
 import { BILLING_SIM_ACTIONS } from './billing-actions';
 import { billingBrowserPage } from './billing-browser-page';
-import { BILLING_WALK_ACTIONS } from './billing-walk';
 
 /**
  * Billing in a sim. The offer boots the sim's payment provider node; the
@@ -19,5 +18,5 @@ export const BILLING_SIM_SLICE: SimSlice = {
   server: (deps) => createBillingServer(deps.billing),
   browserPages: [billingBrowserPage],
   billingOffer: PLUS_MEMBERSHIP_OFFER,
-  actions: [...BILLING_SIM_ACTIONS, ...BILLING_WALK_ACTIONS],
+  actions: BILLING_SIM_ACTIONS,
 };

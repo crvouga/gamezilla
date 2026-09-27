@@ -2,7 +2,7 @@
 
 ## Hard Rules
 
-- **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally", not once. Running the app (`bun run dev`, `bun run stack`, the Simulator) is for building and debugging, never evidence. If you want to look at the app to know a change works, a check is missing: write it. If no check can reach the behavior, change the product until one can. **Exploratory tests are property-based or model-based** (`assertProperty` from `@pkgs/property` — raw `fc.assert` / `fc.sample` are banned as unseeded; `fc.commands` models; `@pkgs/sim` systems and monkeys). **Regression tests are example-based**: every bug found gets the literal failing input pinned as an example test marked `// regression: <bug-id>` and an entry in `libs/tools/goal/known-bugs.json` — a property is never the guard. Delete example tests a property subsumes unless they pin a bug or a decided value. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries, no test file outside a gate script. Tests are in-process on virtual time and must be fast. Policy and enforcement: [`docs/TESTING.md`](docs/TESTING.md).
+- **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally", not once. Running the app (`bun run dev`, `bun run stack`, the Simulator) is for building and debugging, never evidence. If you want to look at the app to know a change works, a check is missing: write it. If no check can reach the behavior, change the product until one can. **Exploratory tests are property-based or model-based** (`assertProperty` from `@pkgs/property` — raw `fc.assert` / `fc.sample` are banned as unseeded; `fc.commands` models; `@pkgs/sim` systems; Quint models in `specs/<domain>/*.qnt` for product features — no product random walks). **Regression tests are example-based**: every bug found gets the literal failing input pinned as an example test marked `// regression: <bug-id>` and an entry in `libs/tools/goal/known-bugs.json` — a property is never the guard. Delete example tests a property subsumes unless they pin a bug or a decided value. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries, no test file outside a gate script. Tests are in-process on virtual time and must be fast. Policy and enforcement: [`docs/TESTING.md`](docs/TESTING.md).
 
 - **Never leave deprecated code.** Do not add `@deprecated` markers, deprecated aliases, shim re-exports, or “kept for migration” optional fields. Delete the old API and update all call sites in the same change. Soft-deprecation / compatibility leftovers are banned.
 
@@ -123,7 +123,7 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. CI does **not** persist `.turbo` with `actions/cache` — the remote cache is the only cross-run cache. **Every run plans first** ([`turbo-preflight.ts`](libs/tools/scripts/turbo-preflight.ts)): `turbo run --dry=json` asks both caches about every task (~1s); all hits means the gate already passed for these inputs and turbo is not run at all; otherwise turbo runs **only the missed task ids** (plus their `dependsOn` closure — identical hashes; never `--only`, which drops dependency hashes and caches under the wrong keys), after that closure's remote hits are prefetched in parallel into the local cache (the remote artifact is byte-for-byte turbo's local `<hash>.tar.zst`). Without that, turbo's `--concurrency` also throttles cache restores and a 2-core runner spent ~40s restoring ~400 hits across the country before doing any work. The heartbeat that keeps a grouped-log step alive is in-process in `turbo-ci-run`, not a background shell loop. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. Env that changes a test's verdict is declared in that task's turbo `env` (`SIM_FIDELITY` / fast-check knobs on `test`, plus `SIM_MODE` / `SIM_WITH_DOM` / `SIM_REPORT` on `test:e2e`) — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` enters the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task. **Output is `errors-only`**: a task's logs print only when that task fails, so a green run shows the plan, the heartbeat and turbo's summary — never what a passing test wrote (`TURBO_OUTPUT_LOGS=full` to watch one locally). Code under test stays quiet on its own too: `crash()` never logs (the crash handler owns the failure's surface — a thrown error the runner reports, the browser overlay, the Node handler's print-then-exit), and sidecars (`@pkgs/emqx-server`) buffer their output and print it only when they die unexpectedly.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. CI does **not** persist `.turbo` with `actions/cache` — the remote cache is the only cross-run cache. **Every run plans first** ([`turbo-preflight.ts`](libs/tools/scripts/turbo-preflight.ts)): `turbo run --dry=json` asks both caches about every task (~1s); all hits means the gate already passed for these inputs and turbo is not run at all; otherwise turbo runs **only the missed task ids** (plus their `dependsOn` closure — identical hashes; never `--only`, which drops dependency hashes and caches under the wrong keys), after that closure's remote hits are prefetched in parallel into the local cache (the remote artifact is byte-for-byte turbo's local `<hash>.tar.zst`). Without that, turbo's `--concurrency` also throttles cache restores and a 2-core runner spent ~40s restoring ~400 hits across the country before doing any work. The heartbeat that keeps a grouped-log step alive is in-process in `turbo-ci-run`, not a background shell loop. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. Env that changes a test's verdict is declared in that task's turbo `env` (`SIM_FIDELITY` / fast-check knobs on `test`, plus `SIM_MODE` / `SIM_WITH_DOM` / `SIM_FRAMES` on `test:e2e`) — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` enters the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task. **Output is `errors-only`**: a task's logs print only when that task fails, so a green run shows the plan, the heartbeat and turbo's summary — never what a passing test wrote (`TURBO_OUTPUT_LOGS=full` to watch one locally). Code under test stays quiet on its own too: `crash()` never logs (the crash handler owns the failure's surface — a thrown error the runner reports, the browser overlay, the Node handler's print-then-exit), and sidecars (`@pkgs/emqx-server`) buffer their output and print it only when they die unexpectedly.
 
 **Checks are time-limited at every layer, and the limits are enforced.**
 Nothing in the gate may run unbounded:
@@ -152,9 +152,7 @@ overrides the wall clock for a single run; there is no "off".
 
 **Keep the gate fast; it is measured every run.** `turbo-ci-run` prints the
 ten slowest tasks that executed, so the CI log always says where the time
-went. `check:bundle-budget` once compressed every chunk with brotli at quality
-11 for figures `perf-budget.json` only *reports* (gzip is what it enforces) —
-146s a run, now 1.8s at quality 5; do not reintroduce that.
+went.
 
 **Every check is a cached, per-package task.** The gate's speed comes from the
 cache, not from guessing what changed: there is no affected filter and no
@@ -206,21 +204,34 @@ Rules that follow from it:
 declared dependencies are its blast radius: a change reruns every dependent's
 `tc` / `lint` / `test`. Prefer small packages, depend on `public/` ports rather
 than whole features, and never let a shell or `pkgs/` package name a feature.
-E2e lives with the feature it exercises: `libs/<feature>/tests/e2e/`, run by
-that package's `test:e2e` — every package's is the one harness runner
-`libs/sim-harness/scripts/test-e2e.ts` (`bun test --parallel`, preloading
-`@libs/sim-harness/preload`, JUnit into the package's report bucket) — against a
-composition of only the slices it needs (`composeSimSlices`, see
+E2e lives with the feature it exercises: the package's specs
+(`specs/<domain>/*.feature` and `*.qnt` for its `specDomains`) and
+`libs/<feature>/tests/e2e/`, run by that package's `test:e2e` — every
+package's is the one harness runner `libs/sim-harness/scripts/test-e2e.ts`
+(`bun test --parallel`, preloading `@libs/sim-harness/preload`, reports into
+the package's report bucket) — against a composition of only the slices it
+needs (`composeSimSlices`, see
 [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)), so a change to a
 feature it does not compose leaves it cached. **No e2e lives in `apps/`.**
-Every suite has its own monkey (`tests/e2e/monkey.test.tsx`: `runMonkey` — a
-seeded random walk over the platform's steps and the suite's feature
-`walkAction`s, every standing property checked after each step). The widest
-task is `@libs/runtime#test:e2e` (the composition root): the few
-full-composition sims (shell boot, partition, the whole-app monkey, explore)
+There are no product random walks: a feature's state machine is a Quint model
+in `specs/<domain>/`, whose drawn traces the product must follow step for
+step, every standing property checked after each step
+([`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md)). The
+widest task is `@libs/runtime#test:e2e` (the composition root): the few
+full-composition sims (shell boot, the platform model, critical journeys)
 that depend on everything, kept small on purpose. Run a subset with
-`bun run spec specs/chess/puzzle-play.feature`; one
-aggregated HTML report over every suite with `bun run test:report`.
+`bun run spec specs/chess/puzzle-play.feature` or
+`bun run spec specs/spaces/space-hosting.qnt`.
+
+**The latest test report is part of the cache.** Every `test:e2e` run writes
+each scenario's and each Quint trace's step timeline, the drawn traces and
+JUnit into `<package>/.cache/sim-report` — the task's declared `outputs` — so
+turbo stores the report with the verdict, remotely too. `bun run
+test:report` runs `turbo-ci-run --restore-outputs test:e2e` (same flags and
+env as `bun check`: every hit restores its bucket, only changed suites run)
+and folds the buckets into one `sim-report/index.html`: always the report of
+the code as it is, whoever ran it. UI frames are opt-in (`--frames`,
+`SIM_FRAMES=1`), a separate cache entry.
 
 **A green `bun check` must mean a green Check workflow.** The gate is only worth
 running if the two agree, so a check leaf's **verdict** may not depend on which
@@ -239,13 +250,13 @@ green.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/client#check:bundle-budget`, `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and the per-package `health` tasks, which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
 
 **Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). `health` is every package's `health` script, `cache: false` — deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). A package that owns a live resource (Worker, Postgres, R2 bucket, EMQX, Grafana Cloud, vendor credentials, DNS/TLS) adds `health/*.health.ts` (plain `bun:test`, `// @io-wall-ok`, secrets arrive as env via `secrets-run`; Biome treats `*.health.ts` like test files) and `"health": "bun test --timeout 60000 ./health/*.health.ts"`; plain `bun test` never picks up `.health.ts`. Probes are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica), and `@libs/infra#health` asserts live infrastructure has no drift from `libs/infra/tofu`. Secret validation lives here (`@libs/secrets#health`), not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every health probe last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against every environment.
 
 **Critical journeys are synthetic monitoring.** The user flows that must never break (app boots, Google sign-in hands off, sign in/out, host and end a space, open a chess puzzle, save a profile change, people search answers) are `CRITICAL_JOURNEYS` in `@libs/runtime/sim/critical-journeys`: each is one `@pkgs/ui-testing` `Driver` script over `data-testid`s, with the access it needs (`anonymous` / `signed-in`) set up by its runner. The same scripts run twice: in `bun check` against the full composition (`libs/runtime/tests/e2e/critical-journeys.test.tsx`, simulated Google sign-in), and in `@apps/product#health` (`apps/product/health/critical-journeys.health.ts`) in a real browser (`Bun.WebView`: WebKit on macOS, the runner's Chrome elsewhere) against the production web client and API, one fresh device per journey. A production failure saves a screenshot, the page HTML and the browser console under `apps/product/.cache/critical-journeys/<journey>/`, which the Health and Deploy workflows upload. Signed-in journeys sign in as a fixed synthetic-monitor user: the runner trades `SYNTHETIC_MONITOR_TOKEN` (registry secret, pushed to the API Worker) at the hidden `POST /api/auth/synthetic-monitor/code` for a one-time `/sso-callback?code=` URL, and the browser finishes the real sign-in path. The route answers 404 without the secret and can never mint a session for anyone else (`pkgs/auth-inhouse/src/server/synthetic-monitor.ts`). A new must-never-break flow is a new journey. It must pass in the sim first, and its writes clean up after themselves. The API also serves **readiness** at `GET /api/health/ready` (`application/health+json`, `503` when Postgres fails `SELECT 1` within 3 s) beside liveness at `GET /api/health`; `apps/server/health` probes both.
 
-Low-end device gates are **static** (critical-path test + bundle-budget; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
+Low-end device gates are **static** (the critical-path test; Slow-3G / low-end Android bar in [`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md)), and coverage is a separate opt-in report (`bun run check:coverage`). Both check and deploy go through `secrets-run` → `turbo-ci-run`, which flattens aggregators to leaf tasks so the root `check` / `deploy` scripts never re-enter Turbo.
 
 **Local → CI reuse:** run `bun run secrets:pull` then `bun check` (or `deploy:dev`) so Turbo remote creds are warm; push the same tree and the Check and Deploy workflows reuse those remote artifacts for cacheable tasks. Match `SECRETS_ENV=dev` for the Check workflow; `prd` `build` hashes separately when `VITE_*` differ. Every `bun check` task is cached; only deploy steps (`cache: false`: check:api, infra apply, migrate, deploy, health, OTA) always re-run.
 
@@ -623,14 +634,16 @@ pkgs    →  pkgs only (leaf tier: reusable, app-agnostic)
 
 ### Gherkin acceptance specifications
 
-Every acceptance scenario lives in the flat top-level tree
-`specs/<domain>/<feature>.feature` — one directory per `@domain`, no nesting.
-A package runs the domains its `package.json` lists in `specDomains` (each
-domain exactly one package; its `turbo.json` adds `$TURBO_ROOT$/specs/<domain>/**`
-to `test:e2e` inputs) through its `test:e2e` task. Feature text is owned by the spec
-writer and changes only in isolated `spec:` commits; implementers treat it as
-read-only. Step definitions live in `tests/steps/`, call deterministic sim
-actions and reads, and are catalogued in generated `STEPS_CATALOG.md` files.
+Every acceptance spec lives in the flat top-level tree `specs/<domain>/` —
+Gherkin features (`<feature>.feature`) and Quint models (`<model>.qnt`), one
+directory per `@domain`, no nesting. A package runs the domains its
+`package.json` lists in `specDomains` (each domain exactly one package; its
+`turbo.json` adds `$TURBO_ROOT$/specs/<domain>/**` to `test:e2e` inputs)
+through its `test:e2e` task. Spec text is owned by the spec writer and changes
+only in isolated `spec:` commits; implementers treat it as read-only. Step
+definitions live in `tests/steps/`, model bindings in `tests/quint/`; both
+call deterministic sim actions and reads, and steps are catalogued in
+generated `STEPS_CATALOG.md` files.
 See [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md) and
 [`GLOSSARY.md`](GLOSSARY.md). `bun run spec:check` enforces ownership-neutral
 structure and vocabulary; `bun run spec --tags '<expression>'` runs matching

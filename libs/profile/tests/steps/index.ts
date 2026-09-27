@@ -9,4 +9,4 @@ import './sign-in-methods.steps';
 import './sessions.steps';
 import './offline-sign-in.steps';
 
-useSimWorld((testId) => openSim(testId));
+useSimWorld(openSim);

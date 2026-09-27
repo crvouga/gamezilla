@@ -1,8 +1,12 @@
 // @io-wall-ok — bun:test harness: wall Node-FS report bucket + caller lookup.
 /**
- * Report bucket for sim tests. Frames + `report.json` land under the running
- * package's `.cache/sim-report/runs/latest/…`; `bun run test:report` (root)
- * folds every package's bucket into one standalone `sim-report/index.html`.
+ * Report bucket for sim tests. Every sim writes its `report.json` (each step,
+ * its outcome and error) under the running package's
+ * `.cache/sim-report/runs/latest/…` — `test:e2e` caches that bucket, so the
+ * report of the last run of this exact code is always there to render.
+ * `SIM_FRAMES=1` also captures UI frames (slower; a separate cache entry).
+ * `bun run test:report` (root) folds every package's bucket into one
+ * standalone `sim-report/index.html`.
  */
 
 import { join, relative, resolve } from 'node:path';
@@ -22,8 +26,9 @@ const SIM_REPORT_DATA_DIR = join(PACKAGE_DIR, '.cache/sim-report');
 /** One run per `bun test` invocation; the report script wipes it first. */
 export const SIM_REPORT_RUN_ID = 'latest';
 
-export function simReportEnabled(): boolean {
-  return process.env['SIM_REPORT'] !== '0';
+/** UI frames on every step — `SIM_FRAMES=1` (`bun run test:report --frames`). */
+export function simFramesEnabled(): boolean {
+  return process.env['SIM_FRAMES'] === '1';
 }
 
 let reportStore: ObjectStore | null = null;

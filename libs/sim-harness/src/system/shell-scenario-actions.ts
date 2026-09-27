@@ -9,7 +9,6 @@ import {
   signInWithProviderAs,
   signOut,
 } from './auth-actions';
-import { AUTH_WALK_ACTIONS } from './auth-walk';
 import {
   appleDeletesAccount,
   appleRevokesApp,
@@ -17,8 +16,10 @@ import {
 } from './provider-events-actions';
 import { focusActor, openAccount, openSettings } from './shell-actions';
 import {
+  awaitSignedOutScreen,
   connectSignInMethod,
   removeSignInMethod,
+  showAccountScreen,
   signOutEverywhere,
 } from './sign-in-method-actions';
 
@@ -41,10 +42,11 @@ export const SHELL_SCENARIO_ACTIONS = [
   connectSignInMethod,
   removeSignInMethod,
   signOutEverywhere,
+  showAccountScreen,
+  awaitSignedOutScreen,
   appleRevokesApp,
   appleDeletesAccount,
   seedProviderAccount,
   signOut,
   returnToTabs,
-  ...AUTH_WALK_ACTIONS,
 ];
