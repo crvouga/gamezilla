@@ -112,7 +112,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} unblocks {actor} | {actor}, {actor} | friends, spaces |
 | When | {actor} views {actor}'s request | {actor}, {actor} | friends, spaces |
 
-## Shared steps (every package)
+## Shared steps (every package that registers them)
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |

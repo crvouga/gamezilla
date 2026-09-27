@@ -54,7 +54,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | they start a chess puzzle in the space | — | runtime, journeys |
 | When | they start signing in with Google | — | runtime, journeys |
 
-## Shared steps (every package)
+## Shared steps (every package that registers them)
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |

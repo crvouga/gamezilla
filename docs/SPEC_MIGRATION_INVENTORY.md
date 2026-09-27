@@ -70,10 +70,14 @@ standing property on every step. Legacy claims already proven by
 `specs/profile/` (Google then Apple at a verified address, hidden address,
 confirm/decline a match, connect, refuse another account's Apple account, last
 method, offline sign-in, revoking Sign in with Apple, deleting a connected
-Apple account, plain Google/Apple sign-in) are not restated. Kept in code, as
-a wire-level contract: `tests/provider-protocol.contract.test.ts` (the eight
-refused provider answers, the two tolerated quirks, signing-key rotation).
-The five legacy test files and `support.ts` are deleted.
+Apple account, plain Google/Apple sign-in) are not restated. The five legacy
+test files and `support.ts` are deleted. The wire-level case table first kept
+in code (`tests/provider-protocol.contract.test.ts`) is now
+`specs/sign-in/failing-provider.feature`: the eight refused provider answers
+fail plainly and recover (two Examples tables), the two tolerated quirks and
+signing-key rotation still sign in; the sim's reference model stays a
+standing property on every step, so no invariant violation passes unnoticed.
+The contract file is deleted.
 
 (2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,

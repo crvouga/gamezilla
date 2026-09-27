@@ -186,7 +186,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {int} seconds pass | {int} | chess |
 | When | the next day begins | — | chess |
 
-## Shared steps (every package)
+## Shared steps (every package that registers them)
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |

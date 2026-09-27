@@ -62,7 +62,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | the provider gives up retrying {actor}'s payment | {actor} | billing |
 | When | the team switches payment provider | — | billing |
 
-## Shared steps (every package)
+## Shared steps (every package that registers them)
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |

@@ -63,7 +63,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} tries to use username {string} | {actor}, {string} | profile |
 | When | {actor}'s account opens on another device | {actor} | profile |
 
-## Shared steps (every package)
+## Shared steps (every package that registers them)
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |

@@ -39,29 +39,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | what people saved is ready for this version of the app | — | health, journeys |
 | When | a person on the web completes a sign-in | — | health, journeys |
 
-## Shared steps (every package)
-
-| Kind | Step | Parameters | Domain |
-| --- | --- | --- | --- |
-| Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
-| Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
-| Given | {actor} has closed and reopened the app | {actor} | shared |
-| Given | {actor} has signed out | {actor} | shared |
-| Given | {actor} is a guest | {actor} | shared |
-| Given | {actor} is also signed in on another device | {actor} | shared |
-| Given | {actor} is offline | {actor} | shared |
-| Given | {actor} is signed in | {actor} | shared |
-| Given | {actor} is signed in with Google | {actor} | shared |
-| Given | the connection has come back | — | shared |
-| Then | {actor} (still )has no account | {actor} | shared |
-| Then | {actor} has a signed-in account | {actor} | shared |
-| Then | {actor} is asked to sign in | {actor} | shared |
-| Then | {actor} is asked to sign in within {int} seconds | {actor}, {int} | shared |
-| When | {actor} closes and reopens the app | {actor} | shared |
-| When | {actor} loses the connection | {actor} | shared |
-| When | {actor} signs in with Google | {actor} | shared |
-| When | the connection comes back | — | shared |
-
 ## Steps imported from @libs/runtime
 
 | Kind | Step | Parameters | Domain |

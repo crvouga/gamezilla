@@ -23,6 +23,8 @@ import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
 export const SHARED_STEPS_DIR = 'libs/sim-harness/src/spec/steps';
 export const SPECS_DIR = 'specs';
+/** The specifier prefix a steps entry registers the shared steps with. */
+const SHARED_STEPS_IMPORT = '@libs/sim-harness/spec/steps/';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 
 export type SpecPackage = PackageSpecs & {
@@ -87,7 +89,7 @@ function readSteps(files: readonly string[]): {
   return { steps, problems };
 }
 
-/** The shared harness definitions every package sees. */
+/** The shared harness definitions, seen by packages whose steps entry imports them. */
 export function sharedSteps(): {
   readonly steps: readonly ExtractedStep[];
   readonly problems: readonly string[];
@@ -244,10 +246,12 @@ export function specPackages(): readonly SpecPackage[] {
     const models = domains.flatMap(domainModelPaths);
     const problems = [...own.problems, ...modelProblems(dir, models)];
     const imports: string[] = [];
+    let sharedSteps = false;
     if (stepsEntry !== null) {
       for (const specifier of extractStepImports(
         readFileSync(join(REPO_ROOT, stepsEntry), 'utf8')
       )) {
+        if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
         const file = resolveStepImport(specifier, byName);
         if (file === null) continue;
         if (!existsSync(join(REPO_ROOT, file))) {
@@ -272,6 +276,7 @@ export function specPackages(): readonly SpecPackage[] {
       features: readFeatures(domains),
       definitions: own.steps,
       imports,
+      sharedSteps,
       stepsEntry,
       models,
       problems,

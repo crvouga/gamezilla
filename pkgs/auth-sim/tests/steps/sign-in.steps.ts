@@ -8,6 +8,7 @@
 import { expect } from 'bun:test';
 import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
 import {
+  AUTH_FAULTS,
   accountsOnRecord,
   appleAccountDeleted,
   appleRelayForwarding,
@@ -20,6 +21,7 @@ import {
   linkProvider,
   movedGoogleEmail,
   prepareLink,
+  rotateProviderKeys,
   setOnline,
   setProviderFault,
   signedInUser,
@@ -130,9 +132,12 @@ Given('{actor} has no account yet', async (w, actor: string) => {
   expect(await signedIn(w, actor)).toBeNull();
 });
 
-When('{actor} signs in with their Google account', async (w, actor: string) => {
-  await w.s.apply(signIn, onDevice(w, actor, 'google'));
-});
+When(
+  '{actor} signs in with their {provider} account',
+  async (w, actor: string, provider: OauthProviderId) => {
+    await w.s.apply(signIn, onDevice(w, actor, provider));
+  }
+);
 
 When(
   '{actor} tries to sign in with {provider}',
@@ -300,6 +305,10 @@ Given(
     await w.s.apply(prepareLink, device(w, actor));
   }
 );
+
+Given('{actor} has signed out', async (w, actor: string) => {
+  await w.s.apply(signOut, device(w, actor));
+});
 
 Given('{actor} has signed out on that device', async (w, actor: string) => {
   await w.s.apply(signOut, device(w, actor));
@@ -479,26 +488,108 @@ Then(
 
 // --- Failing providers --------------------------------------------------------
 
+/** Each way a provider fails to vouch, as the sim's named provider fault. */
+const TOKEN_EXCHANGE_FAILS: Readonly<Record<OauthProviderId, string>> = {
+  google: 'google.token-500',
+  apple: 'apple.token-500',
+};
+
+/** Puts a named fault on the provider; an unknown name is a binding bug. */
+async function providerFault(w: SignInWorld, fault: string): Promise<void> {
+  if (AUTH_FAULTS[fault] === undefined) {
+    throw new Error(`no provider fault named "${fault}"`);
+  }
+  await w.s.apply(setProviderFault, fault);
+}
+
+async function recovers(w: SignInWorld, provider: OauthProviderId) {
+  await w.s.apply(clearProviderFaults, provider);
+}
+
 Given('Google is failing', async (w) => {
-  await w.s.apply(setProviderFault, 'google.token-500');
+  await providerFault(w, 'google.token-500');
+});
+
+Given(
+  "{provider} cannot confirm {actor}'s sign-in",
+  async (w, provider: OauthProviderId, _actor: string) => {
+    await providerFault(w, TOKEN_EXCHANGE_FAILS[provider]);
+  }
+);
+
+Given('Google does not recognise the app', async (w) => {
+  await providerFault(w, 'google.invalid-client');
+});
+
+Given('Google cannot say who {actor} is', async (w, _actor: string) => {
+  await providerFault(w, 'google.userinfo-500');
+});
+
+Given('Google refuses to say who {actor} is', async (w, _actor: string) => {
+  await providerFault(w, 'google.userinfo-401');
+});
+
+Given(
+  "Apple's word for {actor} cannot be checked as its own",
+  async (w, _actor: string) => {
+    await providerFault(w, 'apple.unknown-key');
+  }
+);
+
+Given(
+  "Apple's word for {actor} is two hours old",
+  async (w, _actor: string) => {
+    await providerFault(w, 'apple.token-stale-2h');
+  }
+);
+
+Given(
+  "Apple's word for {actor} is dated ten minutes ahead",
+  async (w, _actor: string) => {
+    await providerFault(w, 'apple.clock-ahead-10m');
+  }
+);
+
+Given('Apple writes its yes and no answers as text', async (w) => {
+  await providerFault(w, 'apple.string-booleans');
+});
+
+Given("Apple's clock is two minutes ahead", async (w) => {
+  await providerFault(w, 'apple.clock-ahead-2m');
+});
+
+Given('Apple has changed how its word is checked', async (w) => {
+  await w.s.apply(rotateProviderKeys, 'apple');
 });
 
 Given(
   '{actor} tried to sign in with Google while it was failing',
   async (w, actor: string) => {
-    await w.s.apply(setProviderFault, 'google.token-500');
+    await providerFault(w, 'google.token-500');
     await w.s.apply(signIn, onDevice(w, actor, 'google'));
     await expectTold(w, actor, AUTH_ERROR.providerFailed);
   }
 );
 
+Given(
+  '{actor} has been told signing in with {provider} failed',
+  async (w, actor: string, provider: OauthProviderId) => {
+    await w.s.apply(signIn, onDevice(w, actor, provider));
+    await expectTold(w, actor, AUTH_ERROR.providerFailed);
+  }
+);
+
 Given('Google has recovered', async (w) => {
-  await w.s.apply(clearProviderFaults, 'google');
+  await recovers(w, 'google');
+});
+
+When('{provider} recovers', async (w, provider: OauthProviderId) => {
+  await recovers(w, provider);
 });
 
 Then(
-  '{actor} is told signing in with Google failed',
-  async (w, actor: string) => {
+  '{actor} is told signing in with {provider} failed',
+  async (w, actor: string, _provider: OauthProviderId) => {
     await expectTold(w, actor, AUTH_ERROR.providerFailed);
   }
 );

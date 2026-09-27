@@ -1255,7 +1255,6 @@
         "hono": "catalog:",
       },
       "devDependencies": {
-        "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
