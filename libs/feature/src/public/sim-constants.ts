@@ -34,6 +34,28 @@ export const SIM_APPLE_KEY_ID = 'SIMKEY0001';
 /** Origin of the mock payment provider node inside a sim. */
 export const SIM_BILLING_URL = 'http://billing.sim';
 
+/**
+ * The provider id of the sim's first payment provider — the one it boots
+ * with. A sim can take on more (a switch of payment provider); each gets its
+ * own id and origin.
+ */
+export const SIM_FIRST_BILLING_PROVIDER = 'mock';
+
+/** Origin of the sim's payment provider `provider`. */
+export function simBillingOrigin(provider: string): string {
+  return provider === SIM_FIRST_BILLING_PROVIDER
+    ? SIM_BILLING_URL
+    : `http://${provider}.billing.sim`;
+}
+
+/** Whether `origin` is one of the sim's payment providers. */
+export function isSimBillingOrigin(origin: string): boolean {
+  return (
+    origin === SIM_BILLING_URL ||
+    /^http:\/\/[a-z][a-z0-9-]*\.billing\.sim$/.test(origin)
+  );
+}
+
 /** The key the sim API's billing adapter calls that provider with. */
 export const SIM_BILLING_SECRET_KEY = 'sk_test_mock_sim';
 

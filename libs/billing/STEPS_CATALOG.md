@@ -10,13 +10,17 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has been offline for {int} days | {actor}, {int} | billing |
 | Given | {actor} has canceled the membership in the billing portal | {actor} | billing |
 | Given | {actor} has subscribed to Plus | {actor} | billing |
+| Given | {actor} has subscribed to Plus at the second payment provider | {actor} | billing |
 | Given | {actor}'s billing period has ended | {actor} | billing |
 | Given | {actor}'s card has expired | {actor} | billing |
 | Given | {actor}'s free trial has ended | {actor} | billing |
 | Given | {actor}'s membership has been canceled immediately | {actor} | billing |
+| Given | {actor}'s memberships have ended at both payment providers | {actor} | billing |
 | Given | {actor}'s payment has been refunded | {actor} | billing |
 | Given | {actor}'s payment has failed | {actor} | billing |
 | Given | {actor}'s renewal on the expired card has failed | {actor} | billing |
+| Given | the team has switched back to the first payment provider | — | billing |
+| Given | the team has switched payment provider | — | billing |
 | Then | {actor} has free access | {actor} | billing |
 | Then | {actor} has free access on {actor}'s device | {actor}, {actor} | billing |
 | Then | {actor} has paid access | {actor} | billing |
@@ -26,6 +30,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is offered to manage their membership | {actor} | billing |
 | Then | {actor} is offered to subscribe | {actor} | billing |
 | Then | {actor} is told subscribing needs a connection | {actor} | billing |
+| Then | {actor}'s billing portal is the first payment provider's | {actor} | billing |
+| Then | {actor}'s billing portal is the second payment provider's | {actor} | billing |
 | Then | {actor}'s membership has ended | {actor} | billing |
 | Then | {actor}'s membership is (still )delinquent | {actor} | billing |
 | Then | {actor}'s membership is active | {actor} | billing |
@@ -52,7 +58,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor}'s payment is refunded | {actor} | billing |
 | When | {actor}'s payment recovers | {actor} | billing |
 | When | {int} days pass | {int} | billing |
+| When | the first payment provider repeats its news that {actor}'s membership ended | {actor} | billing |
 | When | the provider gives up retrying {actor}'s payment | {actor} | billing |
+| When | the team switches payment provider | — | billing |
 
 ## Shared steps (every package)
 
