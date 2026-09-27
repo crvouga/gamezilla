@@ -39,6 +39,8 @@ export type ScenarioContext = {
   readonly featureUri: string;
   readonly featureName: string;
   readonly scenarioName: string;
+  /** 1-based line of the scenario in its feature. */
+  readonly scenarioLine: number;
   readonly tags: readonly string[];
   /** Stable id for the scenario (`<feature-stem>.<scenario-slug>`). */
   readonly testId: string;
@@ -49,6 +51,12 @@ export type WorldLifecycle<W> = {
   readonly dispose: (world: W) => Promise<void>;
   /** Calls the world made so far (e.g. sim calls), newest last — for reports. */
   readonly calls?: (world: W) => readonly string[];
+  /** Run one scenario step as a labelled step of the world's report. */
+  readonly record?: <T>(
+    world: W,
+    step: { readonly keyword: string; readonly text: string },
+    fn: () => Promise<T>
+  ) => Promise<T>;
 };
 
 export type StepMatch =

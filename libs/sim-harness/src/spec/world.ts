@@ -6,6 +6,7 @@
 
 import { type ScenarioContext, setWorld } from '@pkgs/gherkin/registry';
 import type { Run } from '@pkgs/sim';
+import type { OpenSimOptions } from '../open-sim/mode';
 import type { OpenSim } from '../open-sim/open-sim';
 
 export type SimWorld = {
@@ -96,21 +97,40 @@ export function recall(w: SimWorld, key: string): unknown {
   return w.memo.get(key);
 }
 
+/** Opens the package's composition (`tests/e2e/support/open-<feature>-sim.ts`). */
+export type OpenPackageSim = (
+  testId: string,
+  options?: OpenSimOptions
+) => Promise<OpenSim>;
+
 /**
- * Register the sim world for this package's features: `openSim` is the
- * package's composition (`tests/e2e/support/open-<feature>-sim.ts`).
+ * Register the sim world for this package's features. Each scenario's report
+ * is named after the scenario and points at its feature line, and each step
+ * is one labelled report step holding the sim calls it made.
  */
-export function useSimWorld(
-  openSim: (testId: string) => Promise<OpenSim>
-): void {
+export function useSimWorld(openSim: OpenPackageSim): void {
   setWorld<SimWorld>({
     create: async (ctx) => {
       const calls: string[] = [];
-      const s = recordingRun(await openSim(ctx.testId), calls);
-      return { s, ctx, memo: new Map(), calls };
+      const opened = await openSim(ctx.testId, {
+        report: {
+          title: `${ctx.featureName}: ${ctx.scenarioName}`,
+          sourceFile: ctx.featureUri,
+          sourceLine: ctx.scenarioLine,
+        },
+      });
+      return { s: recordingRun(opened, calls), ctx, memo: new Map(), calls };
     },
     dispose: (w) => w.s[Symbol.asyncDispose](),
     calls: (w) => w.calls,
+    record: (w, step, fn) =>
+      w.s.record(
+        {
+          kind: step.keyword.trim(),
+          title: `${step.keyword.trim()} ${step.text}`,
+        },
+        fn
+      ),
   });
 }
 

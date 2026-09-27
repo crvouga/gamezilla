@@ -96,7 +96,7 @@ export class RunReporter {
     this.captureApply = (init.options.capture ?? 'apply') === 'apply';
     this.sourceFile = init.options.sourceFile;
     this.sourceLine = init.options.sourceLine;
-    this.snapshots = init.snapshots;
+    this.snapshots = init.options.frames === false ? [] : init.snapshots;
     this.surface = init.surface;
   }
 

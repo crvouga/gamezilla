@@ -1,11 +1,12 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI gate entry (`//#ci:spec-ownership`) and pre-commit check.
 /**
- * Every `.feature` file (they live in `specs/<domain>/`) belongs to the spec writer. An implementer never edits a
- * feature file, so a commit that touches one is a spec commit and nothing
- * else: its subject starts with `spec:` (or `spec(scope):`) and it changes
- * only feature files, catalogs, the glossary and docs. A commit that mixes a
- * feature change with code is refused — the roles cannot be told apart in it.
+ * Every spec — a `.feature` file or a Quint `.qnt` model (they live in
+ * `specs/<domain>/`) — belongs to the spec writer. An implementer never edits
+ * a spec, so a commit that touches one is a spec commit and nothing else: its
+ * subject starts with `spec:` (or `spec(scope):`) and it changes only specs,
+ * catalogs, the glossary and docs. A commit that mixes a spec change with
+ * code is refused — the roles cannot be told apart in it.
  *
  *   check-spec-ownership.ts             commits in PR_BASE..PR_HEAD (CI) or
  *                                       origin/main..HEAD (local)
@@ -19,17 +20,17 @@ export type Commit = {
   readonly files: readonly string[];
 };
 
-const FEATURE_FILE = /\.feature$/;
+const SPEC_FILE = /\.feature$|^specs\/[^/]+\/[^/]+\.qnt$/;
 const SPEC_SUBJECT = /^spec(\([^)]*\))?!?:/;
-/** What a spec commit may touch besides features. */
+/** What a spec commit may touch besides specs. */
 const SPEC_SIDE_FILES = [
   /(^|\/)STEPS_CATALOG\.md$/,
   /^GLOSSARY\.md$/,
   /^docs\/.*\.md$/,
 ];
 
-export function isFeatureFile(path: string): boolean {
-  return FEATURE_FILE.test(path);
+export function isSpecFile(path: string): boolean {
+  return SPEC_FILE.test(path);
 }
 
 function isSpecSideFile(path: string): boolean {
@@ -42,25 +43,27 @@ export function ownershipViolations(
 ): readonly string[] {
   const out: string[] = [];
   for (const commit of commits) {
-    const features = commit.files.filter(isFeatureFile);
+    const specs = commit.files.filter(isSpecFile);
     const other = commit.files.filter(
-      (f) => !isFeatureFile(f) && !isSpecSideFile(f)
+      (f) => !isSpecFile(f) && !isSpecSideFile(f)
     );
     const label = `${commit.sha.slice(0, 10)} "${commit.subject}"`;
-    if (features.length === 0) {
+    if (specs.length === 0) {
       if (SPEC_SUBJECT.test(commit.subject)) {
-        out.push(`${label}: a spec: commit must change a feature file`);
+        out.push(
+          `${label}: a spec: commit must change a spec (a .feature or a specs/<domain>/*.qnt)`
+        );
       }
       continue;
     }
     if (!SPEC_SUBJECT.test(commit.subject)) {
       out.push(
-        `${label}: changes ${features.join(', ')} but is not a spec commit — specs/** is the spec writer's; commit spec changes separately with a "spec:" subject`
+        `${label}: changes ${specs.join(', ')} but is not a spec commit — specs/** is the spec writer's; commit spec changes separately with a "spec:" subject`
       );
     }
     if (other.length > 0) {
       out.push(
-        `${label}: mixes feature files with ${other.join(', ')} — a spec commit changes only features, catalogs, GLOSSARY.md and docs`
+        `${label}: mixes specs with ${other.join(', ')} — a spec commit changes only specs, catalogs, GLOSSARY.md and docs`
       );
     }
   }
@@ -69,11 +72,11 @@ export function ownershipViolations(
 
 /** The index as one pseudo-commit: mixing is refused before it is committed. */
 export function stagedViolations(files: readonly string[]): readonly string[] {
-  const features = files.filter(isFeatureFile);
-  const other = files.filter((f) => !isFeatureFile(f) && !isSpecSideFile(f));
-  if (features.length > 0 && other.length > 0) {
+  const specs = files.filter(isSpecFile);
+  const other = files.filter((f) => !isSpecFile(f) && !isSpecSideFile(f));
+  if (specs.length > 0 && other.length > 0) {
     return [
-      `staged feature files (${features.join(', ')}) together with ${other.join(', ')} — commit the spec change on its own with a "spec:" subject`,
+      `staged specs (${specs.join(', ')}) together with ${other.join(', ')} — commit the spec change on its own with a "spec:" subject`,
     ];
   }
   return [];
@@ -134,5 +137,5 @@ if (import.meta.main) {
     for (const v of violations) console.error(`  ${v}`);
     process.exit(1);
   }
-  console.log('ok: feature files change only in spec commits');
+  console.log('ok: specs change only in spec commits');
 }

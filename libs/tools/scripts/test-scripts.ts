@@ -13,6 +13,10 @@
  *   is a bug to fix, not to retry.
  * - A test file no gate script reaches never runs. It reads like coverage and
  *   proves nothing.
+ * - The sim e2e runner also runs the specs (features and Quint models) of
+ *   the domains the package lists in `specDomains`, so a `test:e2e` with no
+ *   `tests/e2e/` file is fine when it runs specs; `spec:check` proves those
+ *   domains exist.
  *
  * Pure over the manifest's scripts and the package's tracked files, so it
  * runs inside the package's cached `lint`.
@@ -117,6 +121,8 @@ function filesRunBy(
 export function testScriptViolations(input: {
   readonly scripts: Readonly<Record<string, string>>;
   readonly files: readonly string[];
+  /** The manifest's `specDomains`: specs the sim e2e runner also runs. */
+  readonly specDomains?: readonly string[];
 }): readonly string[] {
   const out: string[] = [];
   const testFiles = input.files.filter(
@@ -139,7 +145,9 @@ export function testScriptViolations(input: {
       );
       continue;
     }
-    if (files.length === 0) {
+    const runsSpecs =
+      script.includes(E2E_RUNNER) && (input.specDomains ?? []).length > 0;
+    if (files.length === 0 && !runsSpecs) {
       out.push(
         `"${name}" runs no test files — delete the script, or fix its path filter`
       );

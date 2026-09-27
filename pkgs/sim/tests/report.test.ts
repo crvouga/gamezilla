@@ -79,6 +79,29 @@ describe('run reporting', () => {
     expect(snaps.filter((b) => b.name === 'html').length).toBe(2);
   });
 
+  test('frames: false keeps every step and its outcome, without frames', async () => {
+    const { sys, put } = makeKv();
+    const store = new ObjectStoreImplInMemory();
+    await using s = await sys.run({
+      seed: 1,
+      report: { store, runId: 'r', testId: 't', frames: false },
+    });
+    await s.apply(put, 'x', '1');
+    await expect(
+      s.record({ kind: 'step', title: 'then it breaks' }, async () => {
+        throw new Error('broke');
+      })
+    ).rejects.toThrow('broke');
+    const report = s.report()!;
+    expect(report.steps.map((step) => [step.title, step.status])).toEqual([
+      ['put("x", "1")', 'passed'],
+      ['then it breaks', 'failed'],
+    ]);
+    expect(report.steps.flatMap((step) => step.frames)).toEqual([]);
+    expect(report.meta.status).toBe('failed');
+    expect(report.meta.error).toBe('broke');
+  });
+
   test('record coalesces nested advanceTime into one step', async () => {
     const { sys } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });

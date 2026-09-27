@@ -21,7 +21,6 @@ import {
 
 process.env['VITE_E2E'] = '1';
 process.env['SIM_WITH_DOM'] = process.env['SIM_WITH_DOM'] ?? '1';
-process.env['SIM_REPORT'] ??= '0';
 
 // Phone viewport — `useLayoutMode` picks the compact tab bar.
 setDomWindow({ width: 390, height: 844, url: 'http://localhost:8081/' });

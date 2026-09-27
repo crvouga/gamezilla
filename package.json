@@ -62,11 +62,12 @@
     "spec:ownership": "bun run libs/tools/scripts/check-spec-ownership.ts",
     "stack": "bun run apps/product/scripts/localhost-stack/cli.ts",
     "test:pbt:random": "bun run apps/product/scripts/test-pbt-random.ts",
-    "test:report": "bun run libs/sim-harness/scripts/report.ts --open",
+    "test:report": "bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/sim-harness/scripts/report.ts --open",
     "wipe": "git clean -xfd"
   },
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "^7.29.4",
+    "adm-zip": "^0.6.1",
     "brace-expansion": "5.0.9",
     "browserslist": "4.28.8",
     "esbuild": "^0.28.1",
@@ -126,6 +127,7 @@
     "@dicebear/core": "^9.4.3",
     "@happy-dom/global-registrator": "^20.14.5",
     "@hono/zod-validator": "^0.7.6",
+    "@informalsystems/quint": "0.32.0",
     "@lingui/babel-plugin-lingui-macro": "6.6.0",
     "@lingui/cli": "6.6.0",
     "@lingui/conf": "6.6.0",

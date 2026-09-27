@@ -161,6 +161,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
     scripts?: Record<string, string>;
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
+    specDomains?: readonly string[];
   }>(`${pkg}/package.json`);
   const scripts = manifest.scripts ?? {};
   const project = tcProject(scripts['tc']);
@@ -194,7 +195,11 @@ async function lintPackage(pkg: string): Promise<boolean> {
     clean(
       pkg,
       'test scripts must run every test the package owns, once, with no escape hatch',
-      testScriptViolations({ scripts, files: pkgFiles })
+      testScriptViolations({
+        scripts,
+        files: pkgFiles,
+        specDomains: manifest.specDomains ?? [],
+      })
     ),
     clean(
       pkg,

@@ -169,6 +169,12 @@ export type RunReportOptions = {
    * `advanceTime` never opens a step (avoids poll spam).
    */
   readonly capture?: ReportCaptureMode;
+  /**
+   * Capture the registered snapshotters (UI frames, state) onto each step.
+   * Default true. False keeps the timeline — every step, its outcome and
+   * error — without the frames, which are what make a report expensive.
+   */
+  readonly frames?: boolean;
   /** Repo-relative path to the test source file when known. */
   readonly sourceFile?: string;
   /** 1-based source line of the call that opened the run, when known. */

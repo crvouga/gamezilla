@@ -8,6 +8,7 @@ import {
   prefetchArtifacts,
   readsRemoteCache,
   resolveRemoteHits,
+  restoreEveryHit,
 } from './turbo-preflight';
 
 function dryRun(tasks: readonly unknown[]): string {
@@ -109,6 +110,32 @@ describe('planFromDryRun', () => {
 
   test('rejects output that is not a dry run', () => {
     expect(() => planFromDryRun('{}')).toThrow('missing tasks array');
+  });
+});
+
+describe('restoreEveryHit', () => {
+  test('prefetches every remote hit, whether or not a miss needs it', () => {
+    const plan = restoreEveryHit(
+      planFromDryRun(
+        dryRun([
+          {
+            taskId: '@libs/a#test:e2e',
+            hash: 'eee',
+            command: 'bun run test-e2e.ts',
+            dependencies: ['@libs/a#tc'],
+            cache: { status: 'HIT', source: 'REMOTE' },
+          },
+          {
+            taskId: '@libs/a#tc',
+            hash: 'aaa',
+            command: 'tsc',
+            cache: { status: 'HIT', source: 'LOCAL' },
+          },
+        ])
+      )
+    );
+    expect(plan.toExecute).toEqual([]);
+    expect(plan.remoteHits.map((task) => task.hash)).toEqual(['eee']);
   });
 });
 

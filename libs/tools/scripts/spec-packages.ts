@@ -1,10 +1,12 @@
 /**
- * Discovery for the spec gates. Every feature lives in the flat top-level
- * tree `specs/<domain>/<feature>.feature`; a workspace package runs the
- * domains its `package.json` lists in `specDomains`. For each such package:
- * its parsed features, the step definitions its `tests/steps/**` declare
- * (read statically), and the step files of other packages its steps entry
- * imports. Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
+ * Discovery for the spec gates. Every spec lives in the flat top-level tree
+ * `specs/<domain>/` — Gherkin features (`<feature>.feature`) and Quint models
+ * (`<model>.qnt`); a workspace package runs the domains its `package.json`
+ * lists in `specDomains`. For each such package: its parsed features, the
+ * step definitions its `tests/steps/**` declare (read statically), the step
+ * files of other packages its steps entry imports, and its models with the
+ * bindings its `tests/quint/**` declare. Shared with `check-specs.ts`,
+ * `spec-catalog.ts` and `spec-run.ts`.
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
@@ -27,6 +29,8 @@ export type SpecPackage = PackageSpecs & {
   readonly dir: string;
   /** Repo-relative `tests/steps/index.ts`, or null when missing. */
   readonly stepsEntry: string | null;
+  /** Repo-relative paths of the Quint models in this package's domains. */
+  readonly models: readonly string[];
   readonly problems: readonly string[];
 };
 
@@ -84,14 +88,73 @@ export function sharedSteps(): {
   return readSteps(stepFiles(SHARED_STEPS_DIR));
 }
 
-/** Repo-relative paths of the features in `specs/<domain>/`, flat. */
-export function domainFeaturePaths(domain: string): readonly string[] {
+function domainSpecPaths(domain: string, suffix: string): readonly string[] {
   const dir = join(REPO_ROOT, SPECS_DIR, domain);
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.feature'))
+    .filter((entry) => entry.isFile() && entry.name.endsWith(suffix))
     .map((entry) => `${SPECS_DIR}/${domain}/${entry.name}`)
     .sort();
+}
+
+/** Repo-relative paths of the features in `specs/<domain>/`, flat. */
+export function domainFeaturePaths(domain: string): readonly string[] {
+  return domainSpecPaths(domain, '.feature');
+}
+
+/** Repo-relative paths of the Quint models in `specs/<domain>/`, flat. */
+export function domainModelPaths(domain: string): readonly string[] {
+  return domainSpecPaths(domain, '.qnt');
+}
+
+const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/g;
+
+/**
+ * Every model has exactly one binding in the package's `tests/quint/**`, and
+ * every binding names a model of the package's domains — read statically
+ * (`bindQuintModel({ model: '<stem>', … })`), like the step files.
+ */
+function modelProblems(
+  dir: string,
+  models: readonly string[]
+): readonly string[] {
+  const problems: string[] = [];
+  const quintDir = `${dir}/tests/quint`;
+  const bindings = new Map<string, string[]>();
+  for (const file of listFiles(join(REPO_ROOT, quintDir), '.ts')) {
+    const rel = relative(REPO_ROOT, file);
+    for (const match of readFileSync(file, 'utf8').matchAll(MODEL_BINDING)) {
+      const model = match[1] ?? '';
+      bindings.set(model, [...(bindings.get(model) ?? []), rel]);
+    }
+  }
+  if (models.length > 0 && !existsSync(join(REPO_ROOT, quintDir, 'index.ts'))) {
+    problems.push(
+      `${dir}: runs Quint models but has no tests/quint/index.ts (it imports the bindings and calls useQuintSim)`
+    );
+  }
+  const stems = new Set(
+    models.map((path) => path.replace(/^.*\//, '').replace(/\.qnt$/, ''))
+  );
+  for (const path of models) {
+    const stem = path.replace(/^.*\//, '').replace(/\.qnt$/, '');
+    const files = bindings.get(stem) ?? [];
+    if (files.length === 0) {
+      problems.push(
+        `${path}: no binding — add bindQuintModel({ model: '${stem}', … }) under ${quintDir}/`
+      );
+    } else if (files.length > 1) {
+      problems.push(`${path}: bound more than once (${files.join(', ')})`);
+    }
+  }
+  for (const [model, files] of bindings) {
+    if (!stems.has(model)) {
+      problems.push(
+        `${files.join(', ')}: binds model "${model}", which is not a specs/<domain>/${model}.qnt of this package's specDomains`
+      );
+    }
+  }
+  return problems;
 }
 
 function readFeatures(domains: readonly string[]): readonly SpecFeature[] {
@@ -159,7 +222,8 @@ export function specPackages(): readonly SpecPackage[] {
       ? entryPath
       : null;
     const own = readSteps(stepFiles(`${dir}/tests/steps`));
-    const problems = [...own.problems];
+    const models = domains.flatMap(domainModelPaths);
+    const problems = [...own.problems, ...modelProblems(dir, models)];
     const imports: string[] = [];
     if (stepsEntry !== null) {
       for (const specifier of extractStepImports(
@@ -186,6 +250,7 @@ export function specPackages(): readonly SpecPackage[] {
       definitions: own.steps,
       imports,
       stepsEntry,
+      models,
       problems,
     });
   }
@@ -193,9 +258,10 @@ export function specPackages(): readonly SpecPackage[] {
 }
 
 /**
- * The `specs/` tree is flat and fully owned: only `specs/<domain>/*.feature`,
- * every domain directory run by exactly one package, every claimed domain
- * present, and no package keeping a `features/` directory of its own.
+ * The `specs/` tree is flat and fully owned: only `specs/<domain>/*.feature`
+ * and `specs/<domain>/*.qnt`, every domain directory run by exactly one
+ * package, every claimed domain present, and no package keeping a
+ * `features/` directory of its own.
  */
 export function specsLayoutProblems(
   packages: readonly SpecPackage[]
@@ -220,9 +286,12 @@ export function specsLayoutProblems(
     for (const inner of readdirSync(join(root, entry.name), {
       withFileTypes: true,
     })) {
-      if (!inner.isFile() || !inner.name.endsWith('.feature')) {
+      if (
+        !inner.isFile() ||
+        !(inner.name.endsWith('.feature') || inner.name.endsWith('.qnt'))
+      ) {
         out.push(
-          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/<feature>.feature`
+          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/<feature>.feature and specs/<domain>/<model>.qnt`
         );
       }
     }

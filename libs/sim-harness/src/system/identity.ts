@@ -86,18 +86,29 @@ export async function serverSignInMethodsOf(
 
 /**
  * The sign-in methods as the device sees them: its synced mirror rows
- * (what the account screen renders).
+ * (what the account screen renders). The local copy outlives a session, so
+ * a device that has held several accounts keeps rows of each: pass
+ * `accountId` to read only that account's, as the account screen does.
  */
 export async function localSignInMethodsOf(
   s: ProductSim,
-  actorId: string
+  actorId: string,
+  accountId?: string
 ): Promise<string[]> {
   const local = actorLocalSql(s, actorId);
   if (local === null) return [];
-  const rows = await local.query(sql<{ readonly provider: string }>`
+  const rows = await local.query(
+    accountId === undefined
+      ? sql<{ readonly provider: string }>`
     SELECT provider FROM auth_external_accounts
     WHERE provider IN ('google', 'apple') AND deleted_at IS NULL
-    ORDER BY provider`);
+    ORDER BY provider`
+      : sql<{ readonly provider: string }>`
+    SELECT provider FROM auth_external_accounts
+    WHERE provider IN ('google', 'apple') AND deleted_at IS NULL
+      AND user_id = ${accountId}
+    ORDER BY provider`
+  );
   return rows.map((row) => row.provider);
 }
 

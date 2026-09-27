@@ -40,7 +40,7 @@ import { simNodeTimers } from './sim-actor-overrides';
 import {
   getReportStore,
   SIM_REPORT_RUN_ID,
-  simReportEnabled,
+  simFramesEnabled,
   type TestCallSite,
   testCallSite,
 } from './sim-report';
@@ -103,7 +103,8 @@ function reportTestId(testId: string, callSite: TestCallSite | null): string {
 }
 
 /**
- * Open a reported product sim. The report bucket is `.cache/sim-report`;
+ * Open a reported product sim. Every run writes its report into the
+ * package's `.cache/sim-report` (frames only with `SIM_FRAMES=1`);
  * `bun run test:report` folds every package's bucket into one HTML report.
  */
 export async function openSim(
@@ -116,22 +117,26 @@ export async function openSim(
   if (mode !== 'fast') {
     process.env['SIM_MODE'] = mode;
   }
-  const reporting = simReportEnabled();
-  const callSite = reporting ? testCallSite(new Error().stack) : null;
+  const named = options?.report;
+  const callSite: TestCallSite | null =
+    named !== undefined
+      ? {
+          sourceFile: named.sourceFile,
+          sourceLine: named.sourceLine ?? 1,
+        }
+      : testCallSite(new Error().stack);
   const s = await system.run({
     seed: options?.seed ?? 1,
     runtime: resolveHostName(options),
-    ...(reporting
-      ? {
-          report: {
-            store: getReportStore(),
-            runId: SIM_REPORT_RUN_ID,
-            testId: reportTestId(testId, callSite),
-            now: () => wallClock.now(),
-            ...(callSite ?? {}),
-          },
-        }
-      : {}),
+    report: {
+      store: getReportStore(),
+      runId: SIM_REPORT_RUN_ID,
+      testId: named !== undefined ? testId : reportTestId(testId, callSite),
+      frames: simFramesEnabled(),
+      now: () => wallClock.now(),
+      ...(named !== undefined ? { title: named.title } : {}),
+      ...(callSite ?? {}),
+    },
   });
   const surface = await pinSim(s);
   const snapshot =
@@ -149,7 +154,7 @@ export async function openSim(
   // Replace create()-default runtime with report / snapshot / HTTP extras.
   wireProductRuntime(surface, {
     ...(snapshot !== undefined ? { snapshot } : {}),
-    recorder: reporting ? { record: (meta, fn) => s.record(meta, fn) } : null,
+    recorder: { record: (meta, fn) => s.record(meta, fn) },
     onDispose: async () => {
       if (httpListener !== null) {
         await httpListener.stop();

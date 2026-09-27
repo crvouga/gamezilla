@@ -83,6 +83,7 @@ async function runScenario(run: ScenarioRun): Promise<void> {
     featureUri: options.featureUri,
     featureName: run.featureName,
     scenarioName: scenario.name,
+    scenarioLine: scenario.line,
     tags: scenario.tags,
     testId: `${slug(options.featureUri.replace(/^.*\//, '').replace(/\.feature$/, ''))}.${slug(scenario.name)}`,
   };
@@ -93,7 +94,10 @@ async function runScenario(run: ScenarioRun): Promise<void> {
       const match = matchStep(step.text);
       const callsBefore = lifecycle.calls?.(world).length ?? 0;
       try {
-        await runStep(world, match, step);
+        const run = () => runStep(world, match, step);
+        await (lifecycle.record === undefined
+          ? run()
+          : lifecycle.record(world, step, run));
         outcomes.push(outcome(step, 'passed'));
       } catch (cause) {
         if (isHostLimit(cause)) {
@@ -121,7 +125,7 @@ async function runScenario(run: ScenarioRun): Promise<void> {
             cause,
             reportHint:
               options.reportHint ??
-              'report: run with SIM_REPORT=1 for frames (<package>/.cache/sim-report)',
+              'report: bun run test:report (add --frames for UI frames)',
           }),
           { cause }
         );
