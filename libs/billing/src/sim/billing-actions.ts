@@ -34,6 +34,7 @@ import {
   driveProvider,
   providerCall,
 } from './billing-provider-driver';
+import { billingButtonEnabled } from './billing-reads';
 
 export {
   BILLING_OBSERVE_KINDS,
@@ -41,6 +42,33 @@ export {
 } from './billing-provider-driver';
 
 const WAIT_MS = 20_000;
+
+/**
+ * Press one of the billing screen's own buttons once it accepts a press. Each
+ * stays disabled on its "Opening…" face for a moment after it opened the
+ * provider's page, and a press on a disabled button does nothing, so a person
+ * back from the provider waits for it, as this does.
+ */
+async function pressBillingButton(
+  s: ProductSim,
+  actorId: string,
+  which: 'subscribe' | 'manage'
+): Promise<void> {
+  await pollUntil(
+    s,
+    async () => ((await billingButtonEnabled(s, actorId, which)) ? true : null),
+    {
+      maxMs: WAIT_MS,
+      description: `the billing ${which} button to accept a press`,
+    }
+  );
+  const ui = await actorUi(s, actorId);
+  await ui
+    .get(
+      which === 'subscribe' ? Handles.billingSubscribe : Handles.billingManage
+    )
+    .tap({ timeoutMs: WAIT_MS });
+}
 
 /** Global menu → Settings → Billing. */
 export const openBilling = scenarioAction({
@@ -62,8 +90,8 @@ export const openBilling = scenarioAction({
 export const subscribeToPlus = scenarioAction({
   name: 'subscribeToPlus',
   act: async (s, actorId: string) => {
+    await pressBillingButton(s, actorId, 'subscribe');
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.billingSubscribe).tap({ timeoutMs: WAIT_MS });
     await ui.get(MOCK_BILLING_TEST_IDS.checkoutPay).tap({ timeoutMs: WAIT_MS });
     await pollUntil(
       s,
@@ -80,8 +108,8 @@ export const subscribeToPlus = scenarioAction({
 export const managePlus = scenarioAction({
   name: 'managePlus',
   act: async (s, actorId: string) => {
+    await pressBillingButton(s, actorId, 'manage');
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.billingManage).tap({ timeoutMs: WAIT_MS });
     await ui
       .get(MOCK_BILLING_TEST_IDS.portalReturn)
       .expect.visible({ timeoutMs: WAIT_MS });
@@ -98,8 +126,8 @@ async function inPortal(
   actorId: string,
   buttons: readonly string[]
 ): Promise<void> {
+  await pressBillingButton(s, actorId, 'manage');
   const ui = await actorUi(s, actorId);
-  await ui.get(Handles.billingManage).tap({ timeoutMs: WAIT_MS });
   for (const testId of buttons) {
     await ui.get(testId).tap({ timeoutMs: WAIT_MS });
   }

@@ -34,8 +34,6 @@ const YEARLY = 'subscription_yearly';
 const PLANS = [MONTHLY, YEARLY] as const;
 /** Provider webhooks reach the device's screen within a few virtual seconds. */
 const SHOWN_WAIT = { maxMs: 60_000, stepMs: 1_000 } as const;
-/** Long enough for a provider change's events to have reached the device. */
-const SETTLE_MS = 6_000;
 
 /** Key of the renewal date the screen showed before the scenario's event. */
 const renewalKey = (actor: Actor) => `billing-renewal-before:${actor}`;
@@ -154,8 +152,6 @@ Given(
   async (w, actor: Actor) => {
     await w.s.apply(cancelPlus, actor);
     await shownWhere(w, actor, (shown) => shown.state === 'canceling');
-    // Let the cancellation's remaining provider events land before the next act.
-    await w.s.advanceTime(SETTLE_MS);
   }
 );
 

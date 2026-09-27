@@ -111,6 +111,26 @@ export async function billingButtonVisible(
   return await ui.get(handle).isVisible();
 }
 
+/**
+ * Whether the billing screen's `which` button is on screen and accepts a
+ * press. A mutation button stays disabled on its "Opening…" face for a moment
+ * after it opened the provider's page, so a person coming straight back waits
+ * for it before pressing again.
+ */
+export async function billingButtonEnabled(
+  s: ProductSim,
+  actorId: string,
+  which: 'subscribe' | 'manage'
+): Promise<boolean> {
+  const html = await actorHtml(s, actorId);
+  const handle = {
+    subscribe: Handles.billingSubscribe,
+    manage: Handles.billingManage,
+  }[which];
+  const tag = html === null ? null : openingTag(html, handle);
+  return tag !== null && !/\sdisabled(?:[\s=>]|$)/.test(tag);
+}
+
 export async function membershipRow(
   s: ProductSim,
   actorId: string
