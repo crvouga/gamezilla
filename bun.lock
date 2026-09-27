@@ -2842,7 +2842,9 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",

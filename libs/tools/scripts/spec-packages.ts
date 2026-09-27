@@ -118,7 +118,8 @@ const MODEL_BINDING = /\bmodel:\s*['"]([a-z0-9-]+)['"]/g;
 
 /**
  * Every model has exactly one binding in the package's `tests/quint/**`, and
- * every binding names a model of the package's domains — read statically
+ * every binding names a model of the package's domains or a package-local
+ * model beside it (`tests/quint/<stem>.qnt`) — read statically
  * (`bindQuintModel({ model: '<stem>', … })`), like the step files.
  */
 function modelProblems(
@@ -155,6 +156,9 @@ function modelProblems(
     }
   }
   for (const [model, files] of bindings) {
+    // A package-local model (internal invariants, run from the package's own
+    // `test` via `runQuintModel`) sits beside its binding in `tests/quint/`.
+    if (existsSync(join(REPO_ROOT, quintDir, `${model}.qnt`))) continue;
     if (!stems.has(model)) {
       problems.push(
         `${files.join(', ')}: binds model "${model}", which is not a specs/<domain>/${model}.qnt of this package's specDomains`

@@ -21,8 +21,9 @@ are history.
 Still open:
 
 - **Framework-level sims** (`pkgs/auth-sim`, `pkgs/db-indexes`,
-  `pkgs/matchmaking-sim`, `pkgs/room-sim`, `pkgs/sync-engine`): deferred to a
-  later wave, as marked below.
+  `pkgs/matchmaking-sim`, `pkgs/room-sim`): deferred to a later wave, as
+  marked below. `pkgs/sync-engine` is ported except four files (see its
+  section).
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
   - `puzzle-limit-upgrade`'s old title promised "open billing plans", but only
@@ -246,34 +247,35 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `pkgs/room-sim/tests/two-client-converge.test.ts` | — | mutual increments yield equal hashes and roster | framework-level sim; port in a later wave |
 | `pkgs/room-sim/tests/unknown-command-reject.test.ts` | — | unknown message type rejects without mutate | framework-level sim; port in a later wave |
 
-### pkgs/sync-engine (24) — framework-level sim; port in a later wave
+### pkgs/sync-engine — ported (2026-09-27)
 
-| File | Goal tags | Scenarios | Notes |
-|---|---|---|---|
-| `pkgs/sync-engine/tests/crash-restart-rehydrates-and-drains-queue.test.ts` | always-true:1 | offline queue drains after reconnect<br>restart after crash rehydrates all live notes | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/deep-pending-chain-rebases-in-seq-order.test.ts` | — | 50+ pending folders+notes rebase in seq order to server truth | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/denied-query-detaches-scope-keeps-rows.test.ts` | — | denied query detaches scope without wiping domain | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/domain-hard-delete-rejected.test.ts` | — | illegalHardDeleteNote fails with NO_HARD_DELETE; row stays live | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/epoch-bump-wipes-cache-preserves-pending-uploads.test.ts` | — | (describe title only, no per-test title) | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/fanout-row-cap-boundary-64-vs-65.test.ts` | — | exactly MAX_FANOUT_ROWS applies via images while sync held<br>MAX_FANOUT_ROWS+1 falls back to pushSeq-only; peers still converge | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/full-partition-during-write-then-heal.test.ts` | — | partition then restoreNetwork staysInSync domain state | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts` | — | refused replay of a queued delete does not trip rejected-not-pending | regression tag `invariant-dirty-read`; framework-level sim |
-| `pkgs/sync-engine/tests/leave-drops-room-topic-until-rejoin.test.ts` | — | leave drops room topic; further live does not apply until rejoin<br>endSpace drops room topic without remake | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/live-loss-dup-reorder-stays-in-sync.test.ts` | — | lossy live on bob still staysInSync after clear<br>dup live on bob staysInSync<br>reordered live on bob staysInSync<br>asymmetric: alice reliable, bob lossy+dup+reorder<br>live chaos + sync hold then release staysInSync | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/membership-revoked-mid-session-scope-denied-topics-dropped.test.ts` | — | leave drops room topic; previously hydrated domain rows retained | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/merge-via-sim.test.ts` | — | missing server keys do not null local-only columns<br>tombstone upsert removes live peer row; pending rebase wins after disconnect | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/non-mutation-server-write-without-notify-stale-until-sweep.test.ts` | — | writeNoteBody notify false heals via reconcile tick | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts` | the-bar:3, works-offline:7 | p95 peer-visible write latency stays under 200ms | perf budget; framework-level sim |
-| `pkgs/sync-engine/tests/pending-ux-answers-with-server-verdict.test.ts` | — | mutate resolves only once the server has confirmed<br>a server refusal fails the call itself, with the server's code | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/permanent-reject-stored-peer-never-applies.test.ts` | — | server reject stores write_rejection and merge restores domain | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/requires-online-fails-offline-without-queue.test.ts` | works-offline:6 | offline mutate fails with OFFLINE and does not queue | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts` | works-offline:5, always-true:2 | two devices same actor converge concurrent writes | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/schema-drift.test.ts` | — | server-added column is merged by a client after schema upgrade<br>a client-only column survives a full merge<br>stale extra-column bundle recovers when restarted on baseline<br>unknown extra table is skipped across a baseline restart | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/seeded-workload-fuzz-determinism.test.ts` | — | same seed → identical walk choices<br>seed corpus staysInSync (explore, one episode per seed)<br>three clients with longer skew/crash workload converge<br>extended corpus profile (3 clients / 36 steps) staysInSync<br>lossy faults host still settles (best-effort)<br>single mutate then fuzz-style settle | seeded-workload/fuzz determinism (keep in code); framework-level sim |
-| `pkgs/sync-engine/tests/single-client-mutate-uploads-and-persists.test.ts` | — | single client mutate uploads and is visible locally<br>title and body both persist after converge | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/soft-delete-tombstone-propagates-and-revives.test.ts` | — | delete tombstones on peer after converge<br>setNote after delete revives the row | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/two-client-mutual-writes-converge.test.ts` | — | peer sees note after expectInSync | framework-level sim; port in a later wave |
-| `pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts` | works-offline:4, always-true:3 | (describe title only, no per-test title) | framework-level sim; port in a later wave |
+The 20 scripted sim tests are gone. Person-observable claims are
+`specs/sync/*.feature` (run by `@pkgs/sync-engine` `test:e2e`, `specDomains:
+["sync"]`, goal tags carried over); stateful internals and every seed sweep are
+the package-local model `pkgs/sync-engine/tests/quint/note-replication.qnt`
+(run from the package `test` by `note-replication.quint.test.ts`); wire and
+storage claims stay contract tests. Parity:
+
+| Former file | Now |
+|---|---|
+| `single-client-mutate-uploads-and-persists`, `two-client-mutual-writes-converge` | `specs/sync/note-writing.feature`; seed sweep → `note-replication.qnt` |
+| `same-actor-two-devices-converge` (works-offline:5, always-true:2) | `specs/sync/notes-across-devices.feature` |
+| `soft-delete-tombstone-propagates-and-revives` | `specs/sync/note-deleting.feature` |
+| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen` |
+| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `setNoteReplyLost` / `retryUpload`, `invNoDoubleApply` |
+| `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync/online-only-actions.feature` |
+| `permanent-reject-stored-peer-never-applies` | `specs/sync/note-refused-edits.feature`; model `rejections` |
+| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature`; topic drop without remake → `tests/space-topic-scope.test.ts` |
+| `denied-query-detaches-scope-keeps-rows` | `tests/space-topic-scope.test.ts` |
+| `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `degradeLive`, `operatorEdit`) |
+| `merge-via-sim` | local-only columns → `tests/merge-local-columns.test.ts`; pending over tombstone → model + `pending-rebase.property.test.ts` |
+| `deep-pending-chain-rebases-in-seq-order` | `tests/deep-offline-queue.test.ts` |
+| `epoch-bump-wipes-cache-preserves-pending-uploads` | `tests/schema-epoch-bump.test.ts` (one seed) |
+| `fanout-row-cap-boundary-64-vs-65` | `tests/fanout-row-cap.test.ts` |
+| `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` |
+| `seeded-workload-fuzz-determinism` | `tests/exploration.test.ts` (determinism + pool faults the model does not draw) |
+
+Still open in `pkgs/sync-engine/tests/`: `invariant-check-waits-for-in-flight-verdict` (regression `invariant-dirty-read`), `peer-visibility-latency-budget` (perf budget; the-bar:3, works-offline:7), `pending-ux-answers-with-server-verdict`, `schema-drift`.
 
 ---
 
