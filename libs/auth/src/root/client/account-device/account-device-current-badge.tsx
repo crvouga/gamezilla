@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
@@ -15,7 +16,12 @@ export function AccountDeviceCurrentBadge(
   const isCurrent = useDeviceIsCurrent(() => props.deviceId);
   return (
     <Show when={isCurrent()}>
-      <Badge label={<Trans>This device</Trans>} intent="info" size="sm" />
+      <Badge
+        label={<Trans>This device</Trans>}
+        intent="info"
+        size="sm"
+        dataSet={{ testid: Handles.accountDeviceCurrent }}
+      />
     </Show>
   );
 }

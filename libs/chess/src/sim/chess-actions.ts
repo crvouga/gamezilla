@@ -15,6 +15,7 @@ import {
   selectFeedMode,
   selectFeedTheme,
 } from './chess-puzzle-feed-ui';
+import { readMsUntilNextUtcDay } from './chess-puzzle-ledger-data';
 import {
   type PuzzleNavControl,
   pressPuzzleNavControl,
@@ -25,6 +26,7 @@ import {
 import {
   dragPuzzleUci,
   pickPuzzlePromotion,
+  pickUpPuzzlePieceAt,
   readPuzzleBoardProbe,
   showPuzzleSolution,
   tapPuzzleUci,
@@ -124,6 +126,13 @@ export const playPuzzleMove = scenarioAction({
 export const tapPuzzleMove = scenarioAction({
   name: 'tapPuzzleMove',
   act: (s, actorId: string, uci: string) => tapPuzzleUci(s, actorId, uci),
+});
+
+/** Pick up the piece on a square to see where it can go (§3). */
+export const pickUpPuzzlePiece = scenarioAction({
+  name: 'pickUpPuzzlePiece',
+  act: (s, actorId: string, square: Square) =>
+    pickUpPuzzlePieceAt(s, actorId, square),
 });
 
 /** Choose a piece in the promotion picker (never auto-queen, §3). */
@@ -505,6 +514,38 @@ export const finishPuzzleBy = scenarioAction({
   },
 });
 
+/**
+ * The night passes: every device and the server sleep until the next UTC
+ * midnight (when the day's puzzle allowance resets), and whatever fell due
+ * meanwhile runs once on waking.
+ */
+export const sleepUntilNextUtcDay = scenarioAction({
+  name: 'sleepUntilNextUtcDay',
+  act: async (s) => {
+    await s.session.advanceTime(0);
+    await s.session.scheduler.underlying.sleep(readMsUntilNextUtcDay(s));
+    await s.session.advanceTime(0);
+  },
+});
+
+/**
+ * `perDay` puzzles solved one after another on each of `days` days, the
+ * night between days slept through, moving on after every solve.
+ */
+export const solvePuzzlesDaily = scenarioAction({
+  name: 'solvePuzzlesDaily',
+  act: async (s, actorId: string, perDay: number, days: number) => {
+    for (let day = 0; day < days; day += 1) {
+      if (day > 0) {
+        await Promise.resolve(sleepUntilNextUtcDay.act(s));
+        await tapPuzzleNext(s, actorId);
+        await settleAfterPuzzleNext(s, actorId);
+      }
+      await Promise.resolve(solvePuzzlesInARow.act(s, actorId, perDay));
+    }
+  },
+});
+
 /** Registered on every system that composes this feature. */
 export const CHESS_SIM_ACTIONS = [
   openPuzzleFromSpace,
@@ -512,6 +553,7 @@ export const CHESS_SIM_ACTIONS = [
   playUntilSolved,
   playPuzzleMove,
   tapPuzzleMove,
+  pickUpPuzzlePiece,
   choosePuzzlePromotion,
   showPuzzleSolutionLine,
   setPuzzleAutoAdvance,
@@ -552,6 +594,8 @@ export const CHESS_SIM_ACTIONS = [
   playPuzzleResults,
   finishPuzzleBy,
   showChessStatsScreen,
+  sleepUntilNextUtcDay,
+  solvePuzzlesDaily,
 ];
 
 /** Back into the space the actor is in, after the app reopened. */

@@ -13,7 +13,7 @@ import { ingestChessPuzzleCsv } from '@libs/chess/sim/chess-puzzle-data';
 import { readPuzzlePlayerId } from '@libs/chess/sim/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess/sim/chess-puzzle-solve-ui';
 import { readActivePuzzleId } from '@libs/chess/sim/chess-puzzle-ui';
-import { focusActor } from '@libs/sim-harness';
+import { backToTabs, focusActor } from '@libs/sim-harness';
 import type { Actor, SimWorld } from '@libs/sim-harness/spec/define';
 import { recall, remember } from '@libs/sim-harness/spec/world';
 import { createSpace } from '@libs/spaces/sim/space-actions';
@@ -140,6 +140,7 @@ export async function puzzleOwner(w: SimWorld, actor: Actor): Promise<string> {
 export async function enterPuzzles(w: SimWorld, actor: Actor): Promise<string> {
   await w.s.apply(focusActor, actor);
   if (!(await w.s.read(activeSpaceVisible, actor))) {
+    await w.s.apply(backToTabs, actor);
     await w.s.apply(createSpace, actor);
   }
   await w.s.apply(openPuzzleFromSpace, actor);

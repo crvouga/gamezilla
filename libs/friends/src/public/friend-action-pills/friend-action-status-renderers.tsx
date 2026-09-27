@@ -1,11 +1,12 @@
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Sounds } from '@pkgs/sounds';
-import type { Accessor, JSX } from 'solid-js';
+import { type Accessor, type JSX, Show } from 'solid-js';
 
 import {
   FRIENDS_BLOCKED,
   FRIENDS_COOLDOWN,
+  FRIENDS_NEEDS_CONNECTION,
   FRIENDS_REQUEST_EXISTS,
 } from '../../shared/friendship/friends-mutation-codes';
 import type { FriendshipStatus } from '../../shared/friendship/friends-types';
@@ -125,6 +126,7 @@ function useSendFailureLabel(): (code: string | null) => string {
     if (code === FRIENDS_COOLDOWN) return t`Try again later`;
     if (code === FRIENDS_BLOCKED) return t`Unavailable`;
     if (code === FRIENDS_REQUEST_EXISTS) return t`They already asked you`;
+    if (code === FRIENDS_NEEDS_CONNECTION) return t`Needs a connection`;
     return t`Couldn't send`;
   };
 }
@@ -138,20 +140,33 @@ function renderNone(
   const { t } = useLingui();
   const sendFailureLabel = useSendFailureLabel();
   return (
-    <SingleActionPill
-      operation={wrap(mutations.addFriend)}
-      idle={<Trans>Add Friend</Trans>}
-      loading={t`Sending…`}
-      success={t`Sent`}
-      error={sendFailureLabel(addFailureCode())}
-      sounds={{
-        success: Sounds.social.friendRequestReceived,
-        error: Sounds.feedback.error,
-      }}
-      {...(username !== undefined && username.length > 0
-        ? { testID: Handles.friendAdd(username) }
-        : {})}
-    />
+    <div class="box gap-1">
+      <SingleActionPill
+        operation={wrap(mutations.addFriend)}
+        idle={<Trans>Add Friend</Trans>}
+        loading={t`Sending…`}
+        success={t`Sent`}
+        error={sendFailureLabel(addFailureCode())}
+        sounds={{
+          success: Sounds.social.friendRequestReceived,
+          error: Sounds.feedback.error,
+        }}
+        {...(username !== undefined && username.length > 0
+          ? { testID: Handles.friendAdd(username) }
+          : {})}
+      />
+      {/* Offline, the request is not sent (nor kept for later): say why. */}
+      <Show when={addFailureCode() === FRIENDS_NEEDS_CONNECTION}>
+        <p
+          class="text textCaption text-text-secondary"
+          data-testid={Handles.friendRequestNeedsConnection}
+        >
+          <Trans>
+            Friend requests need a connection. Try again once you're online.
+          </Trans>
+        </p>
+      </Show>
+    </div>
   );
 }
 

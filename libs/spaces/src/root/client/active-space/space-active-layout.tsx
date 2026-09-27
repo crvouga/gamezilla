@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import {
   AppHeaderIsland,
   ISLAND_GAP_STEP,
@@ -22,7 +23,7 @@ function SpaceChromeTitle(props: {
   readonly variant: 'subtitle' | 'navigationTitle';
 }): JSX.Element {
   return (
-    <div class="box shrink min-w-0">
+    <div class="box shrink min-w-0" data-testid={Handles.spaceTitle}>
       <SpaceTitleText
         spaceId={props.spaceId}
         variant={props.variant}

@@ -69,24 +69,70 @@ export function isMembershipLive(status: MembershipStatus | null): boolean {
   );
 }
 
+/** When access is judged, and how much it tolerates. */
+export type AccessMoment = {
+  readonly nowMs: number;
+  /** How long access outlasts a period end, and an unconfirmed membership. */
+  readonly graceMs: number;
+  /**
+   * When the membership was last confirmed with the server (epoch ms): the
+   * server itself judges at `nowMs`; a device passes the last time the server
+   * answered it. `null` means no confirmation is on record (rows that never
+   * came from a server), which sets no limit.
+   */
+  readonly confirmedAtMs: number | null;
+};
+
+/** The instant access runs out by itself, or `null` when time alone never ends it. */
+function accessRunsOutAtMs(
+  standing: MembershipStanding,
+  at: AccessMoment
+): number | null {
+  const unconfirmedAfter =
+    at.confirmedAtMs === null ? null : at.confirmedAtMs + at.graceMs;
+  const live = standing.status === 'active' || standing.status === 'trialing';
+  const periodAfter =
+    live || standing.periodEndMs === null
+      ? null
+      : standing.periodEndMs + at.graceMs;
+  if (unconfirmedAfter === null) return periodAfter;
+  if (periodAfter === null) return unconfirmedAfter;
+  return Math.min(unconfirmedAfter, periodAfter);
+}
+
 /**
  * Whether a membership grants member access at `nowMs`: while it is active or
  * trialing, and — for a delinquent or ended one — until its period end plus
- * `graceMs` (so a member stays a member while offline). An incomplete or
- * unreadable membership grants nothing.
+ * `graceMs`. An ended one with no period end (refunded: no paid time left),
+ * an incomplete or an unreadable one grants nothing. Whatever it says, it
+ * stops granting `graceMs` after it was last confirmed: a device offline for
+ * longer falls back to free, and gets its answer back on the next sync.
  */
 export function membershipGrantsAccess(
   standing: MembershipStanding,
-  at: { readonly nowMs: number; readonly graceMs: number }
+  at: AccessMoment
 ): boolean {
-  if (standing.status === 'active' || standing.status === 'trialing') {
-    return true;
-  }
   if (standing.status === null || standing.status === 'incomplete') {
     return false;
   }
-  if (standing.periodEndMs === null) return false;
-  return at.nowMs <= standing.periodEndMs + at.graceMs;
+  const live = standing.status === 'active' || standing.status === 'trialing';
+  if (!live && standing.periodEndMs === null) return false;
+  const runsOut = accessRunsOutAtMs(standing, at);
+  return runsOut === null || at.nowMs <= runsOut;
+}
+
+/**
+ * The first instant after `at.nowMs` at which {@link membershipGrantsAccess}
+ * turns false with nothing else changing, or `null` when it grants nothing
+ * now or time alone never ends it — when a screen showing it must look again.
+ */
+export function membershipAccessLapsesAtMs(
+  standing: MembershipStanding,
+  at: AccessMoment
+): number | null {
+  if (!membershipGrantsAccess(standing, at)) return null;
+  const runsOut = accessRunsOutAtMs(standing, at);
+  return runsOut === null ? null : runsOut + 1;
 }
 
 const STATUSES: ReadonlySet<string> = new Set<MembershipStatus>(

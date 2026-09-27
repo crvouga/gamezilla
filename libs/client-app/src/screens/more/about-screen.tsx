@@ -4,6 +4,7 @@
  * come from `import.meta.env.VITE_COMMIT_*` inlined at build time.
  */
 
+import { Handles } from '@libs/test-ids';
 import { useLingui as useLinguiRuntime } from '@lingui/solid';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
@@ -90,7 +91,11 @@ export function AboutScreen(): JSX.Element {
         <div class={`box ${bodyClass} gap-5`}>
           <MenuSection title={<Trans>App</Trans>}>
             <MenuRow title={t`Name`} value={APP_NAME} />
-            <MenuRow title={t`Version`} value={APP_VERSION} />
+            <MenuRow
+              title={t`Version`}
+              value={APP_VERSION}
+              dataSet={{ testid: Handles.aboutVersion }}
+            />
             <MenuRow title={t`Platform`} value="web" />
             <MenuRow title={t`Build mode`} value={buildMode()} />
           </MenuSection>

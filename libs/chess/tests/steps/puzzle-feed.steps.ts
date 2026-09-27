@@ -25,15 +25,18 @@ import {
   setPuzzleFeedTheme,
   showChessStatsScreen,
   skipPuzzle,
+  solvePuzzlesDaily,
   solvePuzzlesInARow,
 } from '@libs/chess/sim/chess-actions';
 import {
   ingestChessPuzzleCsv,
   readLocalPuzzles,
   readServerPuzzles,
+  retireChessPuzzle,
 } from '@libs/chess/sim/chess-puzzle-data';
 import {
   type FeedHistoryFilter,
+  isFeedSignInInviteVisible,
   readFeedHistoryLabel,
   readFeedModalPool,
   readFeedModalTargetRating,
@@ -55,8 +58,12 @@ import {
   Then,
   When,
 } from '@libs/sim-harness/spec/define';
+import { otherDevice } from '@libs/sim-harness/spec/steps/platform';
 import { remember } from '@libs/sim-harness/spec/world';
+import { joinFromPrompt, openSpaceLink } from '@libs/spaces/sim/space-actions';
+import { readSpaceLink } from '@libs/spaces/sim/spaces-ui-reads';
 import {
+  FEED_POOL_IDS,
   FULL_INGEST_ROWS,
   type IngestRow,
   ingestCsv,
@@ -137,8 +144,13 @@ async function untilFirstPlayedComesRound(
 
 // ----------------------------------------------------------- the pool
 
+/** The world's feed-sized pool leaves; the three documented puzzles stay. */
+async function retireFeedPool(w: SimWorld): Promise<void> {
+  for (const id of FEED_POOL_IDS) await w.s.apply(retireChessPuzzle, id);
+}
+
 Given('the puzzle pool holds just three puzzles', async (w) => {
-  // Precondition guard: the sim seeds exactly these three.
+  await retireFeedPool(w);
   const pool = (await w.s.read(readServerPuzzles)).map((row) => row.id);
   expect(pool).toEqual([...STANDARD_PUZZLE_IDS]);
 });
@@ -167,6 +179,7 @@ Given(
       ...SELECTION_GROUPS.goodNear1500.ids,
       ...SELECTION_GROUPS.good1800To1900.ids,
       ...STANDARD_PUZZLE_IDS,
+      ...FEED_POOL_IDS,
     ]);
   }
 );
@@ -179,6 +192,9 @@ Given(
     if (valid.length !== 2 || rejected.length !== 5) {
       throw new Error('the import fixture is not two valid and five invalid');
     }
+    // The import beside the three documented puzzles, so a pass through
+    // the feed stays within a guest's day and reaches every import.
+    await retireFeedPool(w);
     await w.s.apply(ingestChessPuzzleCsv, ingestCsv(FULL_INGEST_ROWS));
     remember(
       w,
@@ -270,6 +286,22 @@ Given(
   }
 );
 
+When(
+  '{actor} solves {int} puzzles a day for {int} days',
+  async (w, actor: Actor, perDay: number, days: number) => {
+    await w.s.apply(solvePuzzlesDaily, actor, perDay, days);
+    await trackPuzzle(w, actor);
+  }
+);
+
+Given(
+  '{actor} has solved {int} puzzles a day for {int} days',
+  async (w, actor: Actor, perDay: number, days: number) => {
+    await w.s.apply(solvePuzzlesDaily, actor, perDay, days);
+    await trackPuzzle(w, actor);
+  }
+);
+
 Given(
   "{actor}'s feed has come round to a puzzle they already played",
   async (w, actor: Actor) => {
@@ -319,13 +351,25 @@ Then(
   }
 );
 
+/** Open the settings, pick the history filter labelled `label`, and save. */
+async function saveHistoryFilter(w: SimWorld, actor: Actor, label: string) {
+  await w.s.apply(openPuzzleFeedSettings, actor);
+  await w.s.apply(setPuzzleFeedHistory, actor, historyFilter(label));
+  await w.s.apply(closePuzzleFeedSettings, actor);
+  await trackPuzzle(w, actor);
+}
+
 When(
   '{actor} changes the feed history to {string} and saves the feed settings',
   async (w, actor: Actor, label: string) => {
-    await w.s.apply(openPuzzleFeedSettings, actor);
-    await w.s.apply(setPuzzleFeedHistory, actor, historyFilter(label));
-    await w.s.apply(closePuzzleFeedSettings, actor);
-    await trackPuzzle(w, actor);
+    await saveHistoryFilter(w, actor, label);
+  }
+);
+
+Given(
+  '{actor} has changed the feed history to {string} and saved the feed settings',
+  async (w, actor: Actor, label: string) => {
+    await saveHistoryFilter(w, actor, label);
   }
 );
 
@@ -343,6 +387,21 @@ Then(
   }
 );
 
+Then(
+  "{actor}'s other device's feed targets a custom {int} within {int} seconds",
+  async (w, actor: Actor, rating: number, seconds: number) => {
+    const device = otherDevice(actor);
+    // The other device looks at the feed in the space the account hosts.
+    const link = required(await w.s.read(readSpaceLink, actor), 'a space');
+    await w.s.apply(openSpaceLink, device, link);
+    await w.s.apply(joinFromPrompt, device);
+    await w.s.until(async (surf) => readFeedTargetLabel(surf, device), {
+      maxMs: seconds * SECOND_MS,
+      pred: (label) => label?.mode === 'custom' && label.rating === rating,
+    });
+  }
+);
+
 Given('{actor} is editing the feed settings', async (w, actor: Actor) => {
   await w.s.apply(openPuzzleFeedSettings, actor);
 });
@@ -350,6 +409,13 @@ Given('{actor} is editing the feed settings', async (w, actor: Actor) => {
 When('{actor} starts editing the feed settings', async (w, actor: Actor) => {
   await w.s.apply(openPuzzleFeedSettings, actor);
 });
+
+Then(
+  '{actor} is invited to sign in to customize the feed',
+  async (w, actor: Actor) => {
+    expect(await w.s.read(isFeedSignInInviteVisible, actor)).toBe(true);
+  }
+);
 
 Then(
   "{actor}'s feed rating offset is {int}",

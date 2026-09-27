@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { MutationModal, TextInput } from '@pkgs/ui';
 import { createEffect, createSignal, type JSX } from 'solid-js';
@@ -43,6 +44,9 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
       loadingLabel={<Trans>Saving…</Trans>}
       successTitle={<Trans>Space renamed</Trans>}
       errorTitle={<Trans>Couldn't rename space</Trans>}
+      stackId="rename-space"
+      submitDataSet={{ testid: Handles.spaceRenameConfirm }}
+      dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
     >
       <TextInput
         label={<Trans>Space name</Trans>}
@@ -51,6 +55,7 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
         placeholder={t`Give your space a name`}
         autofocus
         autocapitalize="words"
+        dataSet={{ testid: Handles.spaceRenameInput }}
       />
     </MutationModal>
   );

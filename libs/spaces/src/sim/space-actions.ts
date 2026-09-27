@@ -12,9 +12,13 @@ import {
   SPACE_WAIT_MS,
   showSpacesTab,
   tapChromeAction,
+  tapChromeOrOverflow,
   tapLobbyCard,
   waitActiveSpace,
+  waitForOneOf,
+  waitSpaceOutcome,
 } from './space-ui';
+import { localSpaceHostUsername } from './spaces-ui-reads';
 
 export const openSpacesTab = scenarioAction({
   name: 'openSpacesTab',
@@ -28,6 +32,29 @@ export const createSpace = scenarioAction({
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.spaceCreate).tap({ timeoutMs: SPACE_WAIT_MS });
     await waitActiveSpace(s, actorId);
+  },
+});
+
+/**
+ * Press New space and wait for what it comes to: the new space, or the
+ * Spaces screen saying why not (no connection, the hosting limit).
+ */
+export const startSpace = scenarioAction({
+  name: 'startSpace',
+  act: async (s, actorId: string) => {
+    await showSpacesTab(s, actorId);
+    const ui = await actorUi(s, actorId);
+    await ui.get(Handles.spaceCreate).tap({ timeoutMs: SPACE_WAIT_MS });
+    await waitForOneOf(
+      s,
+      actorId,
+      [
+        Handles.spaceClose,
+        Handles.spacesNeedConnection,
+        Handles.spacesHostingLimit,
+      ],
+      'a new space, or why not'
+    );
   },
 });
 
@@ -85,6 +112,20 @@ export const reenterActiveSpace = scenarioAction({
   act: reenterSpace,
 });
 
+/**
+ * Back into the live space behind `link` from the actor's lobby card. The
+ * card carries its host's username, which a guest host never chose, so it is
+ * looked up from the actor's own copy of the space.
+ */
+export const reopenLiveSpace = scenarioAction({
+  name: 'reopenLiveSpace',
+  act: async (s, actorId: string, link: string) => {
+    const host = await localSpaceHostUsername(s, actorId, link);
+    if (host === null) throw new Error(`${actorId} has no copy of ${link}`);
+    await reenterSpace(s, actorId, host);
+  },
+});
+
 export const endSpace = scenarioAction({
   name: 'endSpace',
   act: async (s, actorId: string) => {
@@ -119,16 +160,54 @@ export const openSpaceMembers = scenarioAction({
   },
 });
 
+/**
+ * Leave the space from its chrome (a host's Leave sits in the ⋯ menu, and
+ * ends the space for everyone) and confirm.
+ */
 export const leaveSpace = scenarioAction({
   name: 'leaveSpace',
   act: async (s, actorId: string) => {
-    await tapChromeAction(s, actorId, Handles.spaceLeave);
-    await confirmSpaceMutation(s, actorId, Handles.spaceLeaveConfirm);
+    await tapChromeOrOverflow(s, actorId, Handles.spaceLeave);
     const ui = await actorUi(s, actorId);
-    // Dismiss the success state when present (optional step).
+    await ui.get(Handles.spaceLeaveConfirm).tap({ timeoutMs: SPACE_WAIT_MS });
+    await ui
+      .get(Handles.spaceLeaveConfirm)
+      .expect.hidden({ timeoutMs: SPACE_WAIT_MS });
+    // The success state stays up only while the screen that asked does.
     if (await ui.get(Handles.spaceMutationDismiss).isVisible()) {
       await ui
         .get(Handles.spaceMutationDismiss)
+        .tap({ timeoutMs: SPACE_WAIT_MS });
+    }
+  },
+});
+
+/** The host renames the space from its chrome and saves. */
+export const renameSpace = scenarioAction({
+  name: 'renameSpace',
+  act: async (s, actorId: string, title: string) => {
+    await tapChromeOrOverflow(s, actorId, Handles.spaceRename);
+    const ui = await actorUi(s, actorId);
+    const input = ui.get(Handles.spaceRenameInput);
+    await input.expect.visible({ timeoutMs: SPACE_WAIT_MS });
+    await input.clear();
+    await input.input(title);
+    await confirmSpaceMutation(s, actorId, Handles.spaceRenameConfirm);
+  },
+});
+
+/**
+ * Look through the space chrome for its less common actions: open its ⋯ menu
+ * when it has one (a chrome whose actions all fit has none).
+ */
+export const openSpaceMenu = scenarioAction({
+  name: 'openSpaceMenu',
+  act: async (s, actorId: string) => {
+    await waitActiveSpace(s, actorId);
+    const ui = await actorUi(s, actorId);
+    if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
+      await ui
+        .get(Handles.spaceChromeOverflow)
         .tap({ timeoutMs: SPACE_WAIT_MS });
     }
   },
@@ -151,14 +230,27 @@ export const openSpaceLink = scenarioAction({
     // Bring the actor to the front: a parked actor's screen reads as empty,
     // and nothing carries this id, so the wait returns at once.
     await ui.get('sim-focus-probe').expect.hidden({ timeoutMs: 1 });
-    await pollUntil(
+    await waitSpaceOutcome(s, actorId, `space link ${link} opened`);
+  },
+});
+
+/**
+ * Join a space from its link the way a person does: open it, press Join when
+ * it is offered, and wait for what that comes to — the space, or a screen
+ * saying it has ended, cannot be found, or needs a connection.
+ */
+export const joinViaLink = scenarioAction({
+  name: 'joinViaLink',
+  act: async (s, actorId: string, link: string) => {
+    await Promise.resolve(openSpaceLink.act(s, actorId, link));
+    const ui = await actorUi(s, actorId);
+    if (!(await ui.get(Handles.spaceJoin).isVisible())) return;
+    await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
+    await waitForOneOf(
       s,
-      async () =>
-        (await ui.get(Handles.spaceJoin).isVisible()) ||
-        (await ui.get(Handles.spaceClose).isVisible())
-          ? true
-          : null,
-      { maxMs: SPACE_WAIT_MS, description: `space link ${link} opened` }
+      actorId,
+      [Handles.spaceClose, Handles.spaceEnded, Handles.spacesNeedConnection],
+      `joined from ${link}, or why not`
     );
   },
 });
@@ -204,6 +296,11 @@ export const reopenSpaceLink = scenarioAction({
 
 /** Registered on every system that composes this feature. */
 export const SPACES_SIM_ACTIONS = [
+  startSpace,
+  reopenLiveSpace,
+  joinViaLink,
+  renameSpace,
+  openSpaceMenu,
   closeSpaceScreen,
   reopenSpaceLink,
   openSpacesTab,

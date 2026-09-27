@@ -7,11 +7,13 @@
 import { expect } from 'bun:test';
 
 import {
+  leaveCheckout,
   openBilling,
   subscribeToPlus,
 } from '@libs/billing/sim/billing-actions';
 import {
   billingButtonVisible,
+  billingNotice,
   billingTier,
 } from '@libs/billing/sim/billing-reads';
 import {
@@ -89,6 +91,42 @@ Then('{actor} has paid access', async (w, actor: Actor) => {
   await w.s.advanceTime(SETTLE_MS);
   await expectTier(w, actor, 'paid');
 });
+
+When('{actor} leaves checkout without paying', async (w, actor: Actor) => {
+  await w.s.apply(openBilling, actor);
+  await w.s.apply(leaveCheckout, actor);
+});
+
+Then(
+  '{actor} is offered to manage their membership',
+  async (w, actor: Actor) => {
+    await w.s.until((sim) => billingButtonVisible(sim, actor, 'manage'), {
+      ...TIER_WAIT,
+      pred: (offered) => offered,
+    });
+  }
+);
+
+Then('{actor} is offered to subscribe', async (w, actor: Actor) => {
+  await w.s.until((sim) => billingButtonVisible(sim, actor, 'subscribe'), {
+    ...TIER_WAIT,
+    pred: (offered) => offered,
+  });
+});
+
+Then('{actor} is not offered to subscribe', async (w, actor: Actor) => {
+  expect(await w.s.read(billingButtonVisible, actor, 'subscribe')).toBe(false);
+});
+
+Then(
+  '{actor} is told subscribing needs a connection',
+  async (w, actor: Actor) => {
+    await w.s.until((sim) => billingNotice(sim, actor), {
+      ...TIER_WAIT,
+      pred: (notice) => notice === 'offline',
+    });
+  }
+);
 
 Then(
   '{actor} is asked to sign in before subscribing',

@@ -137,3 +137,13 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
 - **notice of a refused edit** — a **notice** telling the author that their
   edit was refused. It stays until the author **acknowledges** it, and then it
   is gone.
+- **hosting limit** — how many spaces a person may host at once: one for a
+  guest or a free account, no limit for a Plus member. Reaching it is an
+  invitation to Plus.
+- **refund** — the provider returning a member's payment. A refunded
+  membership ends at once, with no grace.
+- **inbox** — where a signed-in person finds friend requests and notices.
+- **devices** — the list of devices signed into a person's account, reached
+  from Settings.
+- **outdated app** — a version of the app older than the product still
+  accepts; it asks the person to update.

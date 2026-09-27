@@ -7,6 +7,7 @@ import {
 } from './policy';
 import { quotaWindowBounds, type WindowBounds } from './quota-window';
 import {
+  limitsOf,
   permissionsOf,
   quotasOf,
   resolveRoleClosure,
@@ -150,6 +151,38 @@ export function decideQuota(
     remaining,
     limit: grant.limit,
     ...reset,
+    policyVersion: version,
+  };
+}
+
+/**
+ * Counted-limit decision for holding one more of `limit` when `used` are held
+ * now (e.g. live spaces hosted). An undeclared or `null` cap is unlimited;
+ * reaching the cap denies with `limit_reached`, whose `unlockRef` (keyed by
+ * the limit) names the way past it.
+ */
+export function decideLimit(
+  policy: PolicyVersion,
+  subject: Subject,
+  limit: string,
+  used: number
+): Decision {
+  const cap = limitsOf(policy, subject).get(limit);
+  const version = policyVersionOf(policy);
+  if (cap === undefined || cap === null) {
+    return { allowed: true, policyVersion: version };
+  }
+  if (used + 1 > cap) {
+    return {
+      ...deny(policy, limit, 'limit_reached'),
+      remaining: 0,
+      limit: cap,
+    };
+  }
+  return {
+    allowed: true,
+    remaining: cap - used - 1,
+    limit: cap,
     policyVersion: version,
   };
 }

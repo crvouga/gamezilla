@@ -18,21 +18,44 @@ import { ChessPuzzleLoadFileSeeder } from '../root/server/seed-chess-puzzles/che
 
 const LOAD_FILE_KEY = 'chess-puzzles.sim.csv';
 
+/**
+ * A feed-sized pool on top of the three documented puzzles: 32 distinct
+ * puzzles rated 1300 to 1672 (under the 1700 a custom 1600 target may pick
+ * up to), less popular than every other fixture so a scenario's named
+ * puzzles still come first, and carrying only the `middlegame` theme so no
+ * named puzzle's theme matches them. Enough for days of play on one device.
+ */
+export const SIM_CHESS_FEED_POOL_KEY = 'chess-puzzles-pool.sim.csv';
+
+/** The feed pool's puzzle ids, `pool01` … `pool32`. */
+export const SIM_CHESS_FEED_POOL_IDS: readonly string[] = Array.from(
+  { length: 32 },
+  (_, index) => `pool${String(index + 1).padStart(2, '0')}`
+);
+
 /** Fixed seed clock so rebuild dumps stay byte-stable. */
 const SIM_CHESS_SEED_NOW_MS = 1_700_000_000_000;
 
 export async function seedSimChessPuzzles(args: {
   readonly sqlClient: SqlClient;
+  /** Which fixture under `libs/chess/fixtures/` (default: the three). */
+  readonly loadFileKey?: string;
 }): Promise<void> {
   const fixturesDir = join(import.meta.dirname, '../../fixtures');
-  const ids = createSimIds('sim-chess-puzzle-seed');
+  const loadFileKey = args.loadFileKey ?? LOAD_FILE_KEY;
+  // One id namespace per fixture, so two seeded fixtures never collide.
+  const ids = createSimIds(
+    loadFileKey === LOAD_FILE_KEY
+      ? 'sim-chess-puzzle-seed'
+      : `sim-chess-puzzle-seed:${loadFileKey}`
+  );
   const seeder = new ChessPuzzleLoadFileSeeder({
     loadFileStore: createNodeFsObjectStore({
       rootDir: fixturesDir,
       fs: wallNodeFs(),
       layout: 'tree',
     }),
-    loadFileKey: LOAD_FILE_KEY,
+    loadFileKey,
     createId: ids.createId,
     now: () => SIM_CHESS_SEED_NOW_MS,
   });

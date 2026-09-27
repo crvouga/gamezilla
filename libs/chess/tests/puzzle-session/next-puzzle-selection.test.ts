@@ -234,6 +234,7 @@ describe('computeNextPuzzleLoading', () => {
     puzzleId: 'b',
     localPuzzleTotal: 500,
     poolReady: true,
+    online: true,
   };
 
   test('settled once a candidate is picked', () => {
@@ -283,6 +284,47 @@ describe('computeNextPuzzleLoading', () => {
         fallback: empty,
         puzzleId: null,
         localPuzzleTotal: 12,
+      })
+    ).toBe(false);
+  });
+});
+
+describe('computeNextPuzzleLoading offline', () => {
+  const empty = { rows: [], isLoading: false };
+  const widened = { rows: [{ id: 'far', rating: 1300 }], isLoading: false };
+
+  // regression: puzzle-offline-band-wait
+  test('offline, an empty window falls back to what is on the device', () => {
+    // The rating crossed a band edge offline: the new bands can never
+    // download, so waiting for them froze the feed with puzzles left.
+    const offlinePastBandEdge = {
+      myId: 'user_1',
+      banded: empty,
+      fallback: widened,
+      exhausted: empty,
+      puzzleId: 'far',
+      localPuzzleTotal: 0,
+      poolReady: false,
+      online: false,
+    };
+    expect(computeNextPuzzleLoading(offlinePastBandEdge)).toBe(false);
+    // Online, the same window still waits for its bands to land.
+    expect(
+      computeNextPuzzleLoading({ ...offlinePastBandEdge, online: true })
+    ).toBe(true);
+  });
+
+  test('offline with nothing on the device settles instead of spinning', () => {
+    expect(
+      computeNextPuzzleLoading({
+        myId: 'user_1',
+        banded: empty,
+        fallback: empty,
+        exhausted: empty,
+        puzzleId: null,
+        localPuzzleTotal: 0,
+        poolReady: false,
+        online: false,
       })
     ).toBe(false);
   });
@@ -483,6 +525,7 @@ describe('§9 the window waits for its own hydrate', () => {
       exhausted: empty,
       puzzleId: 'far',
       localPuzzleTotal: 3,
+      online: true,
     };
     expect(computeNextPuzzleLoading({ ...base, poolReady: false })).toBe(true);
     expect(computeNextPuzzleLoading({ ...base, poolReady: true })).toBe(false);

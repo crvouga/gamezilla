@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 
 import {
   decide,
+  decideLimit,
   decideQuota,
   type Facts,
   factsHash,
@@ -228,6 +229,44 @@ describe('decisions: reasons, remaining, resetsAt, unlockRef', () => {
     expect(
       decideQuota(POLICY, member, 'nope', { used: 0, nowMs: noon }).reason
     ).toBe('not_granted');
+  });
+
+  test('limit: below the cap allows, at the cap denies with limit_reached', () => {
+    const limited: PermissionPolicy = {
+      version: 'l1',
+      activeFromMs: 0,
+      roles: {
+        free: { when: { auth: 'verified' }, limits: { 'rooms.hosted': 1 } },
+        paid: {
+          when: { purchase: 'annual' },
+          limits: { 'rooms.hosted': null },
+        },
+      },
+      unlockRefs: {
+        'rooms.hosted': { limit_reached: { titleKey: 'unlock.rooms' } },
+      },
+    };
+    const free = resolveSubject(limited, { auth: 'verified' });
+    expect(decideLimit(limited, free, 'rooms.hosted', 0)).toEqual({
+      allowed: true,
+      remaining: 0,
+      limit: 1,
+      policyVersion: 'l1',
+    });
+    expect(decideLimit(limited, free, 'rooms.hosted', 1)).toEqual({
+      allowed: false,
+      reason: 'limit_reached',
+      unlockRef: 'rooms.hosted#limit_reached',
+      remaining: 0,
+      limit: 1,
+      policyVersion: 'l1',
+    });
+    const paid = resolveSubject(limited, {
+      auth: 'verified',
+      purchase: 'annual',
+    });
+    expect(decideLimit(limited, paid, 'rooms.hosted', 50).allowed).toBe(true);
+    expect(decideLimit(limited, paid, 'undeclared', 50).allowed).toBe(true);
   });
 
   test('treatments come from config, default lock for grants / soft for quotas', () => {

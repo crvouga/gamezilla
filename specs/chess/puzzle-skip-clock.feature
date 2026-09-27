@@ -26,3 +26,7 @@ Feature: Puzzle clock and skipping
     Given Alice has skipped the puzzle
     When Alice moves on to the next puzzle
     Then Alice is solving a different puzzle than the one before
+
+  Scenario: Skipping a puzzle drops the rating
+    When Alice skips the puzzle
+    Then Alice's puzzle rating is below 1500

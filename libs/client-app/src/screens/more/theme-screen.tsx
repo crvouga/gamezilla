@@ -4,6 +4,7 @@
  * `ThemePreferenceProvider` (kv-backed).
  */
 
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
   CheckIcon,
@@ -80,7 +81,7 @@ function ThemeOptionRow(props: {
         </Show>
       }
       onClick={() => props.onSelect(props.option.key)}
-      dataSet={{ testid: `theme-option-${props.option.key}` }}
+      dataSet={{ testid: Handles.themeOption(props.option.key) }}
     />
   );
 }

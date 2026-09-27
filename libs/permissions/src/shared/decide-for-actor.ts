@@ -1,11 +1,16 @@
 import {
   type Decision,
   decide,
+  decideLimit,
   policyAt,
   resolveSubject,
 } from '@pkgs/permissions';
 
-import type { AppGrantKey, SpacePresenceRole } from './permission-catalog';
+import type {
+  AppGrantKey,
+  AppLimit,
+  SpacePresenceRole,
+} from './permission-catalog';
 import {
   type AccessIdentity,
   type AccessReader,
@@ -42,4 +47,25 @@ export async function decideForActor(
     resolveSpaceRoles(args.scope?.spacePresence ?? null)
   );
   return decide(policy, subject, args.key);
+}
+
+/**
+ * One counted-limit decision for `identity` holding one more of `limit` when
+ * it holds `used` now, from the same synced rows as {@link decideForActor}:
+ * the device's optimistic apply and the server replay answer alike.
+ */
+export async function decideLimitForActor(
+  db: AccessReader,
+  args: {
+    readonly identity: AccessIdentity;
+    readonly limit: AppLimit;
+    readonly used: number;
+    readonly nowMs: number;
+    readonly clientAtMs: number;
+  }
+): Promise<Decision> {
+  const access = await readAccess(db, args.identity, args.nowMs);
+  const policy = policyAt(access.policy, args.clientAtMs);
+  const subject = resolveSubject(policy, access.facts, []);
+  return decideLimit(policy, subject, args.limit, args.used);
 }

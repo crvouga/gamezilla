@@ -263,4 +263,45 @@ describe('AuthSnapshotRefresher', () => {
     expect(await readDeviceUserId(sqlClient, DEVICE_ID)).toBe(ACCOUNT_ID);
     expect(await readDevice(sqlClient, DEVICE_ID)).not.toBeNull();
   });
+
+  // regression: signed-out-device-stays-listed
+  test('signing the device into another account takes it off the first', async () => {
+    const OTHER_ACCOUNT_ID = '33333333-3333-4333-8333-333333333333';
+    for (const id of [ACCOUNT_ID, OTHER_ACCOUNT_ID]) {
+      await sqlClient.run(sql`
+        INSERT INTO auth_users (id, created_at, updated_at, is_anon)
+        VALUES (${id}, '2026-01-01T00:00:00.000Z',
+          '2026-01-01T00:00:00.000Z', false)
+      `);
+    }
+    const refresher = new AuthSnapshotRefresher(
+      sqlClient,
+      makeFakeAuthServer({ session: null })
+    );
+    const signInAs = (accountId: string) =>
+      refresher.refresh({
+        bearerToken: 'token-1',
+        accountId,
+        deviceId: DEVICE_ID,
+        deviceAttributes: DEVICE_ATTRS,
+        now: adapters.clock.now,
+        createId: adapters.createId,
+      });
+
+    expect(await signInAs(ACCOUNT_ID)).toEqual([]);
+    expect(await signInAs(OTHER_ACCOUNT_ID)).toEqual([ACCOUNT_ID]);
+
+    const rows = await sqlClient.query(sql<{
+      user_id: string;
+      deleted_at: string | null;
+    }>`
+      SELECT user_id, deleted_at FROM auth_account_devices
+      WHERE device_id = ${DEVICE_ID}
+      ORDER BY user_id
+    `);
+    expect(rows.map((row) => [row.user_id, row.deleted_at === null])).toEqual([
+      [ACCOUNT_ID, false],
+      [OTHER_ACCOUNT_ID, true],
+    ]);
+  });
 });

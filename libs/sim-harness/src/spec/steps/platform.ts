@@ -11,15 +11,18 @@ import { ActionNotEnabled } from '@pkgs/sim';
 import { partition, restartApp, restoreNetwork } from '../../system/actions';
 import {
   returnToTabs,
+  signInAsked,
   signInWithGoogle,
   signInWithGoogleAsAccount,
   signOut,
 } from '../../system/auth-actions';
-import { signedInAccountOf } from '../../system/identity';
+import { accountIdOf, signedInAccountOf } from '../../system/identity';
 import { caps } from '../../system/observations';
 import { focusActor, openAccount } from '../../system/shell-actions';
 import { type Actor, Given, Then, When } from '../define';
 import { remember, type SimWorld, signedInAccountKey } from '../world';
+
+const SECOND_MS = 1_000;
 
 /** The actor id of `actor`'s second device, signed into the same account. */
 export function otherDevice(actor: Actor): string {
@@ -86,6 +89,23 @@ Then('{actor} has a signed-in account', async (w, actor: Actor) => {
   const account = await w.s.read(signedInAccountOf, actor);
   expect(account).not.toBeNull();
 });
+
+Then('{actor} (still )has no account', async (w, actor: Actor) => {
+  expect(await w.s.read(accountIdOf, actor)).toBeNull();
+});
+
+Then('{actor} is asked to sign in', async (w, actor: Actor) => {
+  expect(await w.s.read(signInAsked, actor)).toBe(true);
+});
+
+Then(
+  '{actor} is asked to sign in within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((sim) => signInAsked(sim, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
 
 Given(
   '{actor} is also signed in on another device',

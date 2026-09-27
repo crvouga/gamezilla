@@ -4,7 +4,8 @@
  * surface-stack hosts live in `AppUiPortals` (outer shell) so `AppFrame`
  * menus work before SQLite. Banner *portal hosts* live on `AppFrame` (full
  * bleed outside the wide max-width column); this provider only mounts the
- * banner sources (`OfflineIndicator`, perf HUD, PWA update).
+ * banner sources (`OfflineIndicator`, the outdated-app prompt, perf HUD, PWA
+ * update).
  *
  * Mounts inside the identity-scoped sync tree (`sync-engine-ready-tree.tsx`),
  * after `AppLocalDatabaseProvider` (commands read the sync engine) and above
@@ -21,6 +22,7 @@
  * always-active scope.
  */
 
+import { AppUpdateRequiredBanner } from '@libs/client-app/chrome/app-update-required';
 import { OfflineIndicator } from '@libs/client-app/chrome/offline-indicator';
 import {
   CommandPalette,
@@ -69,6 +71,7 @@ export function AppUiProvider(props: {
   return (
     <>
       <OfflineIndicator />
+      <AppUpdateRequiredBanner />
       <PerfHudOverlay />
       <AppCommandRegistry>{props.children}</AppCommandRegistry>
     </>

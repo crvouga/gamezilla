@@ -125,9 +125,15 @@ function PlanNotice(props: { readonly view: BillingView }): JSX.Element {
       {(notice) => (
         <Notice
           tone={notice() === 'delinquent' ? 'error' : 'info'}
-          dataSet={{ testid: Handles.billingNotice }}
+          dataSet={{ testid: Handles.billingNotice, notice: notice() }}
         >
           <Switch>
+            <Match when={notice() === 'offline'}>
+              <Trans>
+                Subscribing needs a connection. Connect to the internet to start
+                your membership.
+              </Trans>
+            </Match>
             <Match when={notice() === 'delinquent'}>
               <Trans>
                 Your last payment didn't go through. Update your payment method
@@ -158,6 +164,9 @@ function PlanActions(props: {
   const { t } = useLingui();
   const subscribe = useMutationButton({
     operation: () => props.actions.subscribe(),
+    get disabled() {
+      return props.view.notice === 'offline';
+    },
     labels: {
       get idle() {
         return props.trialDays > 0

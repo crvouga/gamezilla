@@ -22,13 +22,14 @@
     "removeFriend",
     "removeSpaceUser",
     "renameSpace",
+    "savePuzzleFeedSettings",
     "sendFriendRequest",
-    "setVisibility",
     "unblockUser",
     "upsertPuzzleProfile"
   ],
   "queries": [
     "chessPuzzleById",
+    "chessPuzzleFeedSettings",
     "chessPuzzleInteractions",
     "chessPuzzlePool",
     "chessPuzzleProfile",
@@ -41,6 +42,7 @@
     "mySubscription",
     "notificationsActive",
     "openSpaceSessions",
+    "ownAccountDevices",
     "ownDevices",
     "ownExternalAccounts",
     "ownProfile",

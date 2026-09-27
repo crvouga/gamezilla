@@ -131,3 +131,69 @@ export async function countCompletedPuzzles(
   `);
   return Number(rows[0]?.count ?? 0);
 }
+
+/** Every puzzle start the device logged, across puzzles. */
+export async function countAllPuzzleStarts(
+  s: ProductSim,
+  actorId: string
+): Promise<number> {
+  const rows = await localSql(s, actorId).query(sql<{
+    readonly count: number;
+  }>`
+    SELECT COUNT(*) AS count FROM chess_puzzle_interactions
+    WHERE kind = 'started' AND deleted_at IS NULL
+  `);
+  return Number(rows[0]?.count ?? 0);
+}
+
+function countWrongMoves(
+  db: Pick<SqlTx, 'query'>,
+  puzzleId: string,
+  ownerId: string | null
+): Promise<{ readonly count: number }[]> {
+  return ownerId === null
+    ? db.query(sql<{ readonly count: number }>`
+        SELECT COUNT(*) AS count FROM chess_puzzle_interactions
+        WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
+      `)
+    : db.query(sql<{ readonly count: number }>`
+        SELECT COUNT(*) AS count FROM chess_puzzle_interactions
+        WHERE puzzle_id = ${puzzleId} AND owner_id = ${ownerId}
+          AND kind = 'moved' AND correct IS FALSE
+      `);
+}
+
+/** Wrong moves the device logged on one puzzle. */
+export async function countLocalWrongMoves(
+  s: ProductSim,
+  actorId: string,
+  puzzleId: string
+): Promise<number> {
+  const rows = await countWrongMoves(localSql(s, actorId), puzzleId, null);
+  return Number(rows[0]?.count ?? 0);
+}
+
+/** Wrong moves the server holds for `ownerId` on one puzzle. */
+export async function countServerWrongMoves(
+  s: ProductSim,
+  ownerId: string,
+  puzzleId: string
+): Promise<number> {
+  const rows = await countWrongMoves(
+    s.sim.serverSql.sqlClient,
+    puzzleId,
+    ownerId
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
+const DAY_MS = 86_400_000;
+
+/**
+ * Virtual time left until the next UTC midnight, when the day's puzzle
+ * allowance resets (the policy's `utcMidnight` boundary).
+ */
+export function readMsUntilNextUtcDay(s: ProductSim): number {
+  const now = s.sim.clock.now();
+  return DAY_MS - (now % DAY_MS);
+}

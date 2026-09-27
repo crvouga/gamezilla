@@ -70,14 +70,37 @@ function buildLeadingItems(args: {
   return items;
 }
 
-function hostLeaveItem(args: {
+function leaveItem(
+  leave: JSX.Element,
+  callbacks: SpaceChromeTrailingCallbacks,
+  overflow: 'never' | 'always'
+): ActionBarItem {
+  return {
+    id: 'leave-space',
+    label: leave,
+    shortLabel: leave,
+    icon: LogOutIcon,
+    onClick: callbacks.onPressLeave,
+    overflow,
+    priority: 94,
+    dataSet: { testid: Handles.spaceLeave },
+  };
+}
+
+/**
+ * A member leaves; the host may end the space, or leave it — which ends it
+ * for everyone too (the leave confirm says so), so leaving never strands
+ * people in a space nobody runs.
+ */
+function exitItems(args: {
   canEnd: boolean;
   end: JSX.Element;
   leave: JSX.Element;
   callbacks: SpaceChromeTrailingCallbacks;
-}): ActionBarItem {
-  if (args.canEnd) {
-    return {
+}): ActionBarItem[] {
+  if (!args.canEnd) return [leaveItem(args.leave, args.callbacks, 'never')];
+  return [
+    {
       id: 'end-space',
       label: args.end,
       shortLabel: args.end,
@@ -86,18 +109,9 @@ function hostLeaveItem(args: {
       overflow: 'never',
       priority: 95,
       dataSet: { testid: Handles.spaceEnd },
-    };
-  }
-  return {
-    id: 'leave-space',
-    label: args.leave,
-    shortLabel: args.leave,
-    icon: LogOutIcon,
-    onClick: args.callbacks.onPressLeave,
-    overflow: 'never',
-    priority: 95,
-    dataSet: { testid: Handles.spaceLeave },
-  };
+    },
+    leaveItem(args.leave, args.callbacks, 'always'),
+  ];
 }
 
 function buildTrailingItems(args: {
@@ -153,11 +167,12 @@ function buildTrailingItems(args: {
       onClick: callbacks.onPressRename,
       overflow: 'always',
       priority: 60,
+      dataSet: { testid: Handles.spaceRename },
     });
   }
 
   items.push(
-    hostLeaveItem({
+    ...exitItems({
       canEnd: canEndSpace,
       end: labels.end,
       leave: labels.leave,

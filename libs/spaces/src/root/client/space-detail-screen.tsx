@@ -33,7 +33,7 @@ export function SpaceDetailScreen(): JSX.Element {
 }
 
 function SpaceDetailBody(props: { readonly spaceId: string }): JSX.Element {
-  useSpaceByLink(() => props.spaceId);
+  const linkAnswered = useSpaceByLink(() => props.spaceId);
   const presence = useSpacePresence(() => props.spaceId);
 
   const joinedEnded = (): boolean => {
@@ -52,7 +52,10 @@ function SpaceDetailBody(props: { readonly spaceId: string }): JSX.Element {
         <SpaceEndedScreen spaceId={props.spaceId} />
       </Match>
       <Match when={true}>
-        <SpaceJoinPrompt spaceId={props.spaceId} />
+        <SpaceJoinPrompt
+          spaceId={props.spaceId}
+          linkAnswered={linkAnswered()}
+        />
       </Match>
     </Switch>
   );

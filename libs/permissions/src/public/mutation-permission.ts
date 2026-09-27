@@ -5,8 +5,12 @@ import {
   MutationError,
 } from '@pkgs/sync-engine/shared';
 
-import { type AccessScope, decideForActor } from '../shared/decide-for-actor';
-import type { AppGrantKey } from '../shared/permission-catalog';
+import {
+  type AccessScope,
+  decideForActor,
+  decideLimitForActor,
+} from '../shared/decide-for-actor';
+import type { AppGrantKey, AppLimit } from '../shared/permission-catalog';
 
 export type { AccessScope };
 
@@ -47,6 +51,33 @@ export async function requireInMutation(
   throw new MutationError(
     decision.reason ?? 'not_granted',
     `Permission denied: ${key}`,
+    { decision }
+  );
+}
+
+/**
+ * Throws a permanent `MutationError` (code `limit_reached`, meta = the
+ * decision) when the actor, holding `used` of `limit`, may not hold one more.
+ * Same synced rows on the optimistic apply and the server replay, so a device
+ * offline and the server give the same answer.
+ */
+export async function requireLimitInMutation(
+  ctx: MutationCtx,
+  limit: AppLimit,
+  used: number
+): Promise<void> {
+  const nowMs = (ctx.env.serverNow ?? ctx.env.now)().getTime();
+  const decision = await decideLimitForActor(ctx.tx, {
+    identity: ctx.env,
+    limit,
+    used,
+    nowMs,
+    clientAtMs: Math.min(ctx.env.now().getTime(), nowMs),
+  });
+  if (decision.allowed) return;
+  throw new MutationError(
+    decision.reason ?? 'limit_reached',
+    `Limit reached: ${limit}`,
     { decision }
   );
 }

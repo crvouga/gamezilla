@@ -12,11 +12,28 @@ export const Handles = {
   globalMenuAccount: 'global-menu-account',
   /** "Settings" row inside the global menu (→ `/more`). */
   globalMenuSettings: 'global-menu-settings',
+  /** "An update is needed" banner: the product no longer accepts this app. */
+  appUpdateRequired: 'app-update-required',
+  /** Not-found screen for an address the app does not have (`-action`: Go to Spaces). */
+  routeNotFound: 'route-not-found',
+  routeNotFoundAction: 'route-not-found-action',
+
+  // settings
+  settingsTheme: 'settings-theme',
+  settingsSound: 'settings-sound',
+  settingsAbout: 'settings-about',
+  /** Appearance picker option (`light` / `dark` / `system`). */
+  themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,
+  soundEffectsSwitch: 'sound-effects-switch',
+  /** Version row on the About screen. */
+  aboutVersion: 'about-version',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',
   tabNotifications: 'tab-notifications',
   tabSpaces: 'tab-spaces',
+  /** The sim's bare home tab, in compositions where no feature owns `/`. */
+  tabSimHome: 'tab-sim-home',
 
   // spaces
   spaceCreate: 'space-create',
@@ -45,6 +62,22 @@ export const Handles = {
   spacePresenceCount: 'space-presence-count',
   /** Close control of the space members modal. */
   spaceMembersClose: 'space-members-close',
+  /** How many live spaces the viewer hosts, on the Spaces screen. */
+  spacesHostingCount: 'spaces-hosting-count',
+  /** Spaces screen / link: this needs a connection. */
+  spacesNeedConnection: 'spaces-need-connection',
+  /** Spaces screen: the hosting limit's invitation to Plus. */
+  spacesHostingLimit: 'spaces-hosting-limit',
+  /** A space link that leads nowhere. */
+  spaceNotFound: 'space-not-found',
+  /** Its way back to Spaces (the EmptyState action of `spaceNotFound`). */
+  spaceNotFoundBack: 'space-not-found-action',
+  /** The space's name in its chrome. */
+  spaceTitle: 'space-title',
+  /** Rename action in the space chrome (host only). */
+  spaceRename: 'space-rename',
+  spaceRenameInput: 'space-rename-input',
+  spaceRenameConfirm: 'space-rename-confirm',
   /** Cancel outgoing friend request pill (scoped by username). */
   friendCancel: (username: string) => `friend-cancel-${username}`,
   /** Decline incoming friend request pill (scoped by username). */
@@ -84,6 +117,16 @@ export const Handles = {
     `account-unlink-provider-${provider}`,
   accountUnlinkConfirm: 'account-unlink-confirm',
   accountUnlinkDone: 'account-unlink-done',
+  /** The account screen's "Devices" row. */
+  accountDevices: 'account-devices',
+  /** "2 devices" above the devices list. */
+  accountDevicesCount: 'account-devices-count',
+  /** The devices screen's guest state (`-action`: Sign in). */
+  accountDevicesSignIn: 'account-devices-sign-in',
+  /** One row of the devices list, by device id. */
+  accountDevice: (deviceId: string) => `account-device-${deviceId}`,
+  /** The "This device" mark inside a device row. */
+  accountDeviceCurrent: 'account-device-current',
 
   // billing
   settingsBilling: 'settings-billing',
@@ -152,9 +195,13 @@ export const Handles = {
   searchEmpty: 'search-empty',
   /** Signed-out prompt in place of people results (`-action`: Sign in). */
   searchDenied: 'search-denied',
+  /** In place of results for a search made offline: search needs a connection. */
+  searchNeedsConnection: 'search-needs-connection',
 
   /** Add Friend pill scoped by peer username (search / friend-user). */
   friendAdd: (username: string) => `friend-add-${username}`,
+  /** Why an Add did nothing offline: friend requests need a connection. */
+  friendRequestNeedsConnection: 'friend-request-needs-connection',
   /** Confirm (accept incoming request) pill scoped by peer username. */
   friendConfirm: (username: string) => `friend-confirm-${username}`,
   /** Disabled Friends status pill scoped by peer username. */
@@ -233,6 +280,8 @@ export const Handles = {
   chessPuzzleFeedTarget: 'chess-puzzle-feed-target',
   chessPuzzleFeedPool: 'chess-puzzle-feed-pool',
   chessPuzzleFeedDone: 'chess-puzzle-feed-done',
+  /** The feed settings' sign-in invitation, shown to a guest instead. */
+  chessPuzzleFeedLocked: 'chess-puzzle-feed-locked',
   chessPuzzleActionSolution: 'chess-puzzle-action-solution',
   chessGameLogEmpty: 'chess-game-log-empty',
   /** Game-log row title ("Solved · 1275" / "Abandoned · 1275"). */
@@ -256,6 +305,9 @@ export const Handles = {
   chessStatsSolved: 'chess-stats-solved',
   chessStatsAccuracy: 'chess-stats-accuracy',
   chessStatsPlayed: 'chess-stats-played',
+  /** The i-th rating after a puzzle in the stats' rating history, oldest first. */
+  chessStatsRatingHistoryPoint: (index: number) =>
+    `chess-stats-rating-history-${index}`,
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
   /** Hidden review probe: `solveIdx|lastSolveIdx|animated|notation`. */
   chessPuzzleReviewE2e: 'chess-puzzle-review-e2e',

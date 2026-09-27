@@ -29,6 +29,11 @@ import {
 } from '../composition';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
 import {
+  createSimAppBuilds,
+  type SimAppBuild,
+  type SimAppBuilds,
+} from './sim-app-build';
+import {
   openSimBillingNode,
   SIM_BILLING_ID,
   type SimBillingProvider,
@@ -115,6 +120,8 @@ export type Sim = {
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
   bumpClientEpoch(): void;
+  /** Put a device on an outdated or the current build of the app. */
+  setAppBuild(id: string, build: SimAppBuild): void;
   /** `'lb'`, a server instance id, or a client id. */
   crash(id: string): void;
   restart(id: string): void;
@@ -255,6 +262,7 @@ type SimKernel = {
   readonly servers: SimServerNodes;
   readonly loadBalancer: SimLoadBalancer;
   readonly primaryEnv: ServerEnv;
+  readonly appBuilds: SimAppBuilds;
   readonly disposed: { value: boolean };
 };
 
@@ -377,6 +385,7 @@ async function bootSimKernel(
     servers,
     loadBalancer,
     primaryEnv: await servers.ensureEnv(SIM_PRIMARY_SERVER_ID),
+    appBuilds: createSimAppBuilds(),
     disposed,
   };
 }
@@ -489,6 +498,9 @@ function createSimHandle(kernel: SimKernel): Sim {
     clientIds: () => [...liveClients.keys()],
     bumpClientEpoch: () => {
       bumpSimClientEpoch();
+    },
+    setAppBuild: (id, build) => {
+      kernel.appBuilds.set(id, build);
     },
     crash: (id) => {
       net.crash(id);

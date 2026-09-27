@@ -29,6 +29,7 @@ import {
   attachPushIfConfigured,
   type SyncEnginePushOptions,
 } from './attach-configured-push';
+import { readLastSyncedAtMs } from './last-synced';
 import {
   clearLocalCache,
   type LocalDomainSchema,
@@ -187,7 +188,14 @@ function handleError(state: LocalEngineState, error: unknown): void {
   if (error instanceof SyncApiAuthError && error.reason === 'expired') {
     return;
   }
-  state.status.patch({ online: false, lastError: errorMessage(error) });
+  state.status.patch({
+    online: false,
+    lastError: errorMessage(error),
+    // Protocol cut: the app is outdated. Kept until a sync succeeds again.
+    ...(error instanceof SyncApiAuthError && error.reason === 'upgrade_required'
+      ? { upgradeRequired: true }
+      : {}),
+  });
 }
 
 function createUploadQueue(
@@ -212,6 +220,23 @@ function createUploadQueue(
     ...(options.waitUntilAvailable !== undefined
       ? { waitUntilAvailable: options.waitUntilAvailable }
       : {}),
+  });
+}
+
+/** Another tab / process changed the shared DB: re-run every local watch. */
+function relayExternalDbChanges(
+  options: CreateLocalSyncEngineOptions,
+  bus: ReturnType<typeof createTableChangeBus>
+): (() => void) | null {
+  if (options.subscribeExternalDbChanged === undefined) return null;
+  const externalTables = [
+    ...options.localSchema.cacheTableNames,
+    'sync_engine_mutations',
+    'sync_engine_scope_meta',
+    'sync_engine_write_rejections',
+  ] as const;
+  return options.subscribeExternalDbChanged(() => {
+    bus.emit(externalTables);
   });
 }
 
@@ -240,7 +265,9 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
         connection: 'connected',
         online: true,
         hasSynced: true,
+        lastSyncedAtMs: options.now(),
         lastError: null,
+        upgradeRequired: false,
       }),
   });
   const sessionHandles = options.sessionQueries.map((spec) =>
@@ -251,18 +278,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     if (tables.has('sync_engine_mutations')) uploadQueue.wake();
   });
   const bufferOutbound = options.push?.bufferOutboundLive === true;
-  const externalTables = [
-    ...options.localSchema.cacheTableNames,
-    'sync_engine_mutations',
-    'sync_engine_scope_meta',
-    'sync_engine_write_rejections',
-  ] as const;
-  let disposeExternalDbChanged: (() => void) | null = null;
-  if (options.subscribeExternalDbChanged !== undefined) {
-    disposeExternalDbChanged = options.subscribeExternalDbChanged(() => {
-      bus.emit(externalTables);
-    });
-  }
+  const disposeExternalDbChanged = relayExternalDbChanges(options, bus);
   const state: LocalEngineState = {
     options,
     bus,
@@ -340,6 +356,15 @@ function notifyLocalMutation(
     .catch((error) => handleError(state, error));
 }
 
+/** A restarted device remembers when the server last answered it. */
+async function seedLastSyncedAt(state: LocalEngineState): Promise<void> {
+  const stored = await readLastSyncedAtMs(state.options.db).catch(() => null);
+  if (stored === null) return;
+  const known = state.status.status.getSnapshot().lastSyncedAtMs;
+  if (known !== null && known >= stored) return;
+  state.status.patch({ lastSyncedAtMs: stored });
+}
+
 async function connectState(state: LocalEngineState): Promise<void> {
   if (state.connected) {
     state.uploadQueue.wake();
@@ -355,6 +380,7 @@ async function connectState(state: LocalEngineState): Promise<void> {
     online: true,
     lastError: null,
   });
+  await seedLastSyncedAt(state);
   if (state.options.enableMutationUpload !== false) {
     state.uploadQueue.start();
   }

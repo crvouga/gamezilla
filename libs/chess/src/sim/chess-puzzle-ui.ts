@@ -178,13 +178,15 @@ export async function openPuzzleFromChessMenu(
 /**
  * Back to the puzzle screen: from the chess choices through the puzzle
  * entry, or one step back from wherever an interruption (signing in) left
- * the actor. A pending attempt comes back as it was.
+ * the actor. A pending attempt comes back as it was. Already on the puzzle
+ * screen (say, looking at the day's limit), there is nowhere to go back to.
  */
 export async function returnToPuzzles(
   s: ProductSim,
   actorId: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) return;
   if (await ui.get(Handles.chessMenuPuzzle).isVisible()) {
     await openPuzzleFromChessMenu(s, actorId);
     return;
@@ -699,8 +701,8 @@ export async function returnToOwnSpace(
  * The stats screen, from wherever the device is: the chess choices, the
  * puzzle board, the space's game menu, a screen an interruption (signing in)
  * left open, the tabs with the space still open behind them, or the tabs
- * with no space (a device outside any space opens its own). Reading
- * stats changes nothing.
+ * with no space (a device outside any space goes into its account's live
+ * space, or opens one). Reading stats changes nothing.
  */
 export async function showChessStats(
   s: ProductSim,
@@ -728,8 +730,7 @@ export async function showChessStats(
         await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
       } else if (!createdSpace) {
         createdSpace = true;
-        await showSpacesTab(s, actorId);
-        await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+        await enterOrStartSpace(s, actorId);
       }
       return null;
     },
@@ -759,6 +760,24 @@ export async function readStatsElo(
   } catch {
     return null;
   }
+}
+
+/**
+ * The stats screen's rating after each of the latest rated puzzles, oldest
+ * first (empty before any rated puzzle).
+ */
+export async function readStatsRatingHistory(
+  s: ProductSim,
+  actorId: string
+): Promise<readonly number[]> {
+  const ui = await actorUi(s, actorId);
+  const ratings: number[] = [];
+  for (let index = 0; ; index += 1) {
+    const point = ui.get(Handles.chessStatsRatingHistoryPoint(index));
+    if (!(await point.isVisible())) break;
+    ratings.push(Number.parseInt(stripProbe(await point.text()), 10));
+  }
+  return ratings;
 }
 
 /** Raw rating chip text on the stats screen — `1500` or `1500?` (§8). */

@@ -18,6 +18,7 @@ export const CHESS_FEATURE = defineFeature({
   // of the local database warm.
   sessionQueries: [
     'chessPuzzleProfile',
+    'chessPuzzleFeedSettings',
     'chessPuzzleInteractions',
     'chessPuzzleRatingEvents',
   ],

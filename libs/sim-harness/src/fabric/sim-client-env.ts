@@ -27,6 +27,7 @@ import type { Session } from '@pkgs/sim';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import type { SimComposition, SimRoomNode } from '../composition';
 import { partitionAwareRoomTransport } from './partition-aware-room-transport';
+import { appBuildFetch, type SimAppBuilds } from './sim-app-build';
 import type { SimBillingProvider } from './sim-billing';
 import { createSimBrowser, type SimBrowser } from './sim-browser';
 import { simClientNamespace } from './sim-client-namespace';
@@ -51,6 +52,7 @@ export type SimClientEnvDeps = {
   readonly loadBalancer: SimLoadBalancer;
   readonly idps: SimIdps;
   readonly billing: SimBillingProvider | null;
+  readonly appBuilds: SimAppBuilds;
 };
 
 function hasWebLocalStorage(): boolean {
@@ -71,6 +73,11 @@ function clientSecureStorage(ns: string): ClientEnv['secureStorage'] {
   );
 }
 
+/** The client's only server HTTP: the balancer, as its app build sends it. */
+function clientServerFetch(deps: SimClientEnvDeps, id: string) {
+  return appBuildFetch(deps.appBuilds, id, deps.loadBalancer.fetchFrom(id));
+}
+
 export function makeSimClientEnv(
   deps: SimClientEnvDeps,
   args: {
@@ -81,7 +88,7 @@ export function makeSimClientEnv(
   const { session, seed, timers, net, pubSubBus, roomNode } = deps;
   const { id, clientSql } = args;
   const ns = simClientNamespace(id);
-  const serverFetch = deps.loadBalancer.fetchFrom(id);
+  const serverFetch = clientServerFetch(deps, id);
   const browserFetch = simBrowserFetch({
     idps: deps.idps,
     billing: deps.billing,

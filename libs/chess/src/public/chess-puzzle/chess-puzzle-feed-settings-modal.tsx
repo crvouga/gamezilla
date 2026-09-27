@@ -1,4 +1,8 @@
 import { useMyId } from '@libs/auth/public/use-current-user';
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useDecision } from '@libs/permissions/public/use-can';
+import { Handles } from '@libs/test-ids';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import {
@@ -276,6 +280,8 @@ export function ChessPuzzleFeedSettingsModal(
   const myId = useMyId();
   const { profileRating } = useChessPuzzleProfileRatings(myId);
   const [config, setConfig] = useChessPuzzleFeedConfig();
+  // Customizing the feed is for accounts; a guest is invited to sign in.
+  const customize = useDecision(PERMISSION.puzzlesCustomizeFeed);
   const pool = useChessPuzzleFeedPoolStats();
   const profileCaption = profileRating() > 0 ? String(profileRating()) : '—';
   const targetRating = createMemo(() =>
@@ -316,25 +322,36 @@ export function ChessPuzzleFeedSettingsModal(
       presentation="modal"
     >
       <ModalBody>
-        <div class="box gap-4">
-          <p class="text textCaption" data-testid="chess-puzzle-feed-pool">
-            {
-              <Trans>
-                {pool.matched()} matching · {pool.total()} local puzzles
-              </Trans>
-            }
-          </p>
-          <div class="box gap-1">
-            <label class="text textLabel">{t`Your rating`}</label>
-            <p class="text textBodyBold">{profileCaption}</p>
+        <Show
+          when={customize().allowed}
+          fallback={
+            <DenialSurface
+              decision={customize()}
+              variant="compact"
+              testId={Handles.chessPuzzleFeedLocked}
+            />
+          }
+        >
+          <div class="box gap-4">
+            <p class="text textCaption" data-testid="chess-puzzle-feed-pool">
+              {
+                <Trans>
+                  {pool.matched()} matching · {pool.total()} local puzzles
+                </Trans>
+              }
+            </p>
+            <div class="box gap-1">
+              <label class="text textLabel">{t`Your rating`}</label>
+              <p class="text textBodyBold">{profileCaption}</p>
+            </div>
+            <PuzzleFeedSections
+              config={config()}
+              profileCaption={profileCaption}
+              targetRating={targetRating()}
+              editors={editors}
+            />
           </div>
-          <PuzzleFeedSections
-            config={config()}
-            profileCaption={profileCaption}
-            targetRating={targetRating()}
-            editors={editors}
-          />
-        </div>
+        </Show>
       </ModalBody>
       <ModalFooter>
         <ModalButton

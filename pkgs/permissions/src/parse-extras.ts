@@ -23,6 +23,7 @@ const BOUNDARIES: ReadonlySet<string> = new Set<ResetBoundary>([
 const REASONS: ReadonlySet<string> = new Set<DenialReason>([
   'not_granted',
   'quota_exhausted',
+  'limit_reached',
   'requires_account',
   'restricted',
 ]);

@@ -166,6 +166,24 @@ export const keepSeparateAccount = scenarioAction({
 });
 
 /**
+ * The actor is being asked to sign in: the sign-in methods are on their
+ * screen. Waiting on an absent id brings the actor's phone to the front
+ * first, so a parked actor's screen does not read as empty.
+ */
+export async function signInAsked(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    await ui.get('sim-focus-probe').expect.hidden({ timeoutMs: 1 });
+    return await ui.get(Handles.authMethodGoogle).isVisible();
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Start a sign-in and walk away from it: the provider window never finishes
  * (the network is down, or the person closes it). The modal is left to show
  * whatever the app makes of that.
@@ -213,12 +231,24 @@ export const signOut = scenarioAction({
   },
 });
 
+/** A tab every composition has: Profile, or the sim's bare home. */
+const HOME_TABS = [Handles.tabProfile, Handles.tabSimHome] as const;
+
 /** Leave the Account stack so the tab shell is visible again. */
 export const returnToTabs = scenarioAction({
   name: 'returnToTabs',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.navBack).tap();
-    await ui.get(Handles.tabProfile).expect.visible();
+    await pollUntil(
+      s,
+      async () => {
+        for (const tab of HOME_TABS) {
+          if (await ui.get(tab).isVisible()) return true;
+        }
+        return null;
+      },
+      { maxMs: WAIT_MS, description: 'the tab bar' }
+    );
   },
 });

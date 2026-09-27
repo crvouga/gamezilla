@@ -11,6 +11,7 @@ import {
   choosePuzzlePromotion,
   leavePuzzleToChessMenu,
   openPuzzleFromSpaceNoWait,
+  pickUpPuzzlePiece,
   playPuzzleMove,
   playUntilSolved,
   playWrongPuzzleMove,
@@ -26,6 +27,7 @@ import {
   skipPuzzle,
 } from '@libs/chess/sim/chess-actions';
 import {
+  readPuzzleBoardDestinations,
   readPuzzleBoardPieceAt,
   readPuzzleBoardProbe,
   readPuzzleHaptics,
@@ -434,6 +436,24 @@ When(
 );
 
 When(
+  '{actor} picks up the rook on {word}',
+  async (w, actor: Actor, square: string) => {
+    await waitSolverToMove(w, actor);
+    await w.s.apply(pickUpPuzzlePiece, actor, square as Square);
+  }
+);
+
+Then(
+  "{actor}'s board shows the rook on {word} can go to {squares}",
+  async (w, actor: Actor, square: string, squares: readonly Square[]) => {
+    expect(
+      await w.s.read(readPuzzleBoardPieceAt, actor, square as Square)
+    ).toBe('wr');
+    expect(await w.s.read(readPuzzleBoardDestinations, actor)).toEqual(squares);
+  }
+);
+
+When(
   '{actor} castles by moving the king onto its own rook',
   async (w, actor: Actor) => {
     await w.s.apply(castlePuzzleKing, actor, 'ontoRook');
@@ -601,6 +621,11 @@ When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
   await trackPuzzle(w, actor);
 });
 
+Given('{actor} has moved on to the next puzzle', async (w, actor: Actor) => {
+  await w.s.apply(pressPuzzleNext, actor);
+  await trackPuzzle(w, actor);
+});
+
 When(
   '{actor} asks for the next puzzle twice in quick succession',
   async (w, actor: Actor) => {
@@ -660,10 +685,6 @@ When('{actor} returns to their space', async (w, actor: Actor) => {
 });
 
 // ------------------------------------------------------------------ account
-
-Then('{actor} (still )has no account', async (w, actor: Actor) => {
-  expect(await w.s.read(accountIdOf, actor)).toBeNull();
-});
 
 Given(
   '{actor} has since come back online and signed in with Google',

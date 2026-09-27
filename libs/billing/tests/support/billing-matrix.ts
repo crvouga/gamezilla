@@ -74,5 +74,7 @@ export function inputFor(
     row: ROW_KINDS[kind],
     nowMs: NOW,
     graceMs: 0,
+    confirmedAtMs: null,
+    online: true,
   };
 }

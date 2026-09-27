@@ -18,7 +18,6 @@ export const PERMISSION = defineCatalog({
   spacesLeave: 'spaces:leave',
   spacesRename: 'spaces:rename',
   spacesEnd: 'spaces:end',
-  spacesSetVisibility: 'spaces:set-visibility',
   spacesManageMembers: 'spaces:manage-members',
   spacesSelectGame: 'spaces:select-game',
 });

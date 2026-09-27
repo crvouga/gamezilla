@@ -1,4 +1,9 @@
-/** Device-local puzzle feed preference: which rating band(s) to sync + pick from. */
+/**
+ * A player's puzzle feed choices: which rating band(s) to sync and pick
+ * from, the history and theme filters, and the result-panel preferences. An
+ * account's choices sync to its devices (`chess_puzzle_feed_settings`); a
+ * guest plays the default feed.
+ */
 
 import {
   type ChessMoveNotation,
@@ -49,8 +54,7 @@ export type ChessPuzzleFeedHistoryFilter =
 
 /**
  * §5 result panel auto-advance after a solve: never, one second after the
- * result shows, or at once. Lives in the device-local feed prefs until the
- * settings slice moves settings to a synced table.
+ * result shows, or at once. Part of the synced feed choices.
  */
 export const CHESS_PUZZLE_AUTO_ADVANCE = [
   'off',
@@ -88,8 +92,7 @@ export type ChessPuzzleFeedConfig = {
   readonly historyFilter: ChessPuzzleFeedHistoryFilter;
   readonly autoAdvance: ChessPuzzleAutoAdvance;
   /**
-   * §7 move-list rendering. Lives beside `autoAdvance` in the device-local
-   * puzzle prefs until the settings slice moves settings to a synced table.
+   * §7 move-list rendering, synced beside `autoAdvance`.
    */
   readonly notation: ChessMoveNotation;
 };
@@ -282,4 +285,33 @@ export function chessPuzzleFeedConfigFingerprint(
     themes,
     config.historyFilter,
   ].join('|');
+}
+
+/**
+ * The synced form of a feed config: JSON with a fixed key order, so the same
+ * choices always encode to the same text on every device (DETERMINISM.md).
+ */
+export function encodeChessPuzzleFeedConfig(
+  config: ChessPuzzleFeedConfig
+): string {
+  return JSON.stringify({
+    mode: config.mode,
+    customRating: config.customRating,
+    autoOffset: config.autoOffset,
+    themes: [...config.themes],
+    historyFilter: config.historyFilter,
+    autoAdvance: config.autoAdvance,
+    notation: config.notation,
+  });
+}
+
+/** A synced feed config's text back to a config; `undefined` when malformed. */
+export function decodeChessPuzzleFeedConfig(
+  text: string
+): ChessPuzzleFeedConfig | undefined {
+  try {
+    return readChessPuzzleFeedConfig(JSON.parse(text));
+  } catch {
+    return undefined;
+  }
 }

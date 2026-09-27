@@ -102,10 +102,25 @@ export const chessPuzzleInteractions = defineTable({
   ],
 });
 
+/**
+ * An account's puzzle feed choices, one row per owner keyed by the owner id,
+ * so they survive a closed app and follow the account to its other devices.
+ * `config` is the canonical JSON text of a `ChessPuzzleFeedConfig`.
+ */
+export const chessPuzzleFeedSettings = defineTable({
+  domain: 'chess',
+  name: 'chess_puzzle_feed_settings',
+  columns: {
+    owner_id: 'text',
+    config: 'text',
+  },
+});
+
 export const CHESS_TABLES = [
   chessPuzzles,
   chessPuzzleLoad,
   chessPuzzleProfiles,
+  chessPuzzleFeedSettings,
   chessPuzzleRatingEvents,
   chessPuzzleInteractions,
 ] as const;
