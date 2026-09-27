@@ -18,6 +18,7 @@ import {
   pressPuzzleNextTwice,
   requestPuzzleHint,
   retryPuzzle,
+  returnToOwnSpace,
   returnToPuzzleScreen,
   revealPuzzleSolution,
   setPuzzleAutoAdvance,
@@ -56,20 +57,19 @@ import {
 import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
 import { remember } from '@libs/sim-harness/spec/world';
 import { accountIdOf } from '@libs/sim-harness/system/identity';
-import {
-  createSpace,
-  reenterActiveSpace,
-} from '@libs/spaces/sim/space-actions';
+import { createSpace } from '@libs/spaces/sim/space-actions';
 import type { Square } from '@pkgs/chess-board-core/types';
 import { NAMED_PUZZLES } from './puzzle-fixtures';
 import {
   activePuzzle,
+  boardBefore,
   currentPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
   previousPuzzle,
   promotionPiece,
   recalled,
+  rememberBoard,
   required,
   SECOND_MS,
   SETTLE_MS,
@@ -79,7 +79,6 @@ import {
   waitSolverToMove,
 } from './puzzle-world';
 
-const fenBeforeKey = (actor: Actor) => `fenBeforeMove:${actor}`;
 const moveKey = (actor: Actor) => `lastMove:${actor}`;
 const solvedClockKey = (actor: Actor) => `clockAtSolve:${actor}`;
 const LAST_MOVER = 'lastMover';
@@ -103,7 +102,7 @@ async function playMove(
 ): Promise<void> {
   const uci = uciOf(move);
   await waitSolverToMove(w, actor);
-  remember(w, fenBeforeKey(actor), (await boardProbe(w, actor)).fen);
+  await rememberBoard(w, actor);
   remember(w, moveKey(actor), uci);
   remember(w, LAST_MOVER, actor);
   await w.s.apply(playPuzzleMove, actor, uci);
@@ -540,9 +539,7 @@ Then(
 );
 
 Then("{actor}'s board is unchanged", async (w, actor: Actor) => {
-  expect((await boardProbe(w, actor)).fen).toBe(
-    recalled<string>(w, fenBeforeKey(actor))
-  );
+  expect((await boardProbe(w, actor)).fen).toBe(boardBefore(w, actor));
 });
 
 Then(
@@ -659,7 +656,7 @@ When('{actor} goes back to the puzzles', async (w, actor: Actor) => {
 });
 
 When('{actor} returns to their space', async (w, actor: Actor) => {
-  await w.s.apply(reenterActiveSpace, actor, actor);
+  await w.s.apply(returnToOwnSpace, actor);
 });
 
 // ------------------------------------------------------------------ account
