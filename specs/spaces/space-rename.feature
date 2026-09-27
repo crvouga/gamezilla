@@ -1,7 +1,8 @@
 @domain:spaces
 Feature: Rename a space
-  A space's name tells people what it is for. The host can rename it, and
-  everyone in the space, and every friend who can see it, sees the new name.
+  When a host wants a space's name to say what it is for, they rename the
+  space, so everyone in it and every friend whose lobby lists it sees the new
+  name.
 
   Background:
     Given Alice and Bob are friends

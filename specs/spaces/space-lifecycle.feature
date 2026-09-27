@@ -1,11 +1,11 @@
 @domain:spaces @goal:spaces:6
 Feature: Find and return to your space
-  People step away from their space and come back. An open space stays easy to
-  find and return to.
+  When a host steps out of their open space, they want to find it in their
+  lobby and return to it, so stepping out never costs them their space.
 
-  Scenario: A host returns to their live space from the lobby
+  Scenario: A host returns to their open space from the lobby
     Given Alice is signed in
     And Alice is hosting a space
     And Alice has gone back to the lobby
-    When Alice reopens their live space
+    When Alice returns to their space
     Then Alice is in the space

@@ -1,6 +1,7 @@
 @domain:spaces @goal:spaces:4
-Feature: Live presence
-  Everyone in a space sees who else is there, live.
+Feature: Presence in a space
+  When people are in a space together, each wants to see who else is there
+  as it changes, so they know who they are with.
 
   Scenario: Everyone in a space sees who is there
     Given Alice is hosting a space

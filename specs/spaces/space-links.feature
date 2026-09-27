@@ -1,8 +1,8 @@
 @domain:spaces @goal:spaces:2
 Feature: What a space's link leads to
-  A link is how most people arrive, so it always says where it leads: into a
-  live space, or clearly to a space that has ended or does not exist, never to
-  a blank or endless wait.
+  When a person follows a space link, they want to know where it leads: into
+  an open space, or plainly to a space that has ended or does not exist, so
+  they are never left with a blank or endless wait.
 
   Scenario: The link to an ended space says it has ended
     Given Alice and Bob are guests

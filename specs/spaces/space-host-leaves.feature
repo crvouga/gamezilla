@@ -1,9 +1,9 @@
 @domain:spaces @goal:spaces:5
 Feature: The host leaving ends the space
-  A space belongs to its host: when the host leaves, the space ends for
-  everyone, so nobody waits in a space nobody is running. Losing the
-  connection or closing the app is not leaving, so a host who comes back
-  finds their space as they left it.
+  When a host leaves their space, everyone in it wants the space to end, so
+  nobody waits in a space its host has left. When a host only loses the
+  connection or closes the app, they want to come back to their space as they
+  left it, because that is not leaving.
 
   Background:
     Given Alice is hosting a space that Bob joined from the link
@@ -21,6 +21,6 @@ Feature: The host leaving ends the space
 
   Scenario: A host who closes the app still hosts the space on return
     Given Alice has closed and reopened the app
-    When Alice reopens their live space
+    When Alice returns to their space
     Then Alice is in the space
     And Bob sees 2 people in the space within 20 seconds

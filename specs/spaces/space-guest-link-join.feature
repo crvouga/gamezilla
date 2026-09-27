@@ -1,6 +1,8 @@
 @domain:spaces @goal:spaces:2 @goal:social:1
 Feature: Join a space from its link
-  Anyone with a space's link can join it, including a guest with no account.
+  When someone shares a space link, anyone who has it wants to join the space,
+  even a guest with no account, so nothing stands between them and the
+  people there.
 
   Scenario: A guest with no account joins a space from its link
     Given Alice and Bob are guests

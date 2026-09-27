@@ -1,140 +1,148 @@
 // Hosting a space among friends.
 //
-// Alice and Bob are friends. Either can open a space and is then in it; step
-// out to the lobby and back into their own live space; open its member list,
-// which counts who is in the space; and end it. The other can join a live
-// space from their lobby, step out, and leave it. A lobby lists every live
-// space of the person and their friends. Ending a space takes everyone still
-// in it to the ended screen, from which they go back to the lobby.
+// Alice and Bob are friends. Either can create a space, host it and be in it;
+// step out to the lobby and return to their own open space; look at the
+// space's presence, which counts who is in it; and end the space. The other
+// can join a friend's open space from their lobby, step out, and leave it. A
+// lobby lists every open space of the person and their friends. Ending a
+// space shows everyone still in it that it has ended; from there they go
+// back to the lobby.
+//
+// What a person can observe: their whereabouts, which spaces are open, what
+// their lobby lists, and how many people the presence they are looking at
+// counts.
 module space_hosting {
   type Person = str
 
   /// Two signed-in friends.
   pure val PEOPLE: Set[Person] = Set("alice", "bob")
 
-  /// Lobby; InSpace(host): in the space `host` opened; Members(host): in it,
-  /// with its member list open; Ended: looking at a space that has ended.
-  type Place =
+  /// Lobby: in the lobby; InSpace(host): in the space `host` hosts;
+  /// ViewingPresence(host): in it, looking at who is there; Ended: looking at
+  /// a space that has ended.
+  type Whereabouts =
     | Lobby
     | InSpace(Person)
-    | Members(Person)
+    | ViewingPresence(Person)
     | Ended
 
   /// Where each person is.
-  var place: Person -> Place
-  /// The people hosting a live space.
-  var live: Set[Person]
+  var whereabouts: Person -> Whereabouts
+  /// The hosts of the open spaces.
+  var openSpaces: Set[Person]
   /// What each person's lobby lists, while they are in it: whose spaces.
-  var listed: Person -> Set[Person]
-  /// What each open member list counts: people in that space.
-  var present: Person -> int
+  var lobby: Person -> Set[Person]
+  /// What the presence each person is looking at counts: people in that space.
+  var presence: Person -> int
 
-  pure def hostOf(p: Place): Person = match p {
+  pure def hostOf(p: Whereabouts): Person = match p {
     | InSpace(h) => h
-    | Members(h) => h
+    | ViewingPresence(h) => h
     | _ => ""
   }
 
-  pure def inSpaceOf(place: Person -> Place, h: Person): Set[Person] =
-    PEOPLE.filter(p => hostOf(place.get(p)) == h)
+  pure def presenceOf(whereabouts: Person -> Whereabouts, h: Person): Set[Person] =
+    PEOPLE.filter(p => hostOf(whereabouts.get(p)) == h)
 
-  pure def listing(place: Person -> Place, live: Set[Person]): Person -> Set[Person] =
-    PEOPLE.filter(p => place.get(p) == Lobby).mapBy(_ => live)
+  pure def _listing(whereabouts: Person -> Whereabouts, openSpaces: Set[Person]): Person -> Set[Person] =
+    PEOPLE.filter(p => whereabouts.get(p) == Lobby).mapBy(_ => openSpaces)
 
-  pure def counting(place: Person -> Place): Person -> int =
+  pure def _counting(whereabouts: Person -> Whereabouts): Person -> int =
     PEOPLE
-      .filter(p => match place.get(p) { | Members(_) => true | _ => false })
-      .mapBy(p => inSpaceOf(place, hostOf(place.get(p))).size())
+      .filter(p => match whereabouts.get(p) { | ViewingPresence(_) => true | _ => false })
+      .mapBy(p => presenceOf(whereabouts, hostOf(whereabouts.get(p))).size())
 
-  action moveTo(newPlace: Person -> Place, newLive: Set[Person]): bool = all {
-    place' = newPlace,
-    live' = newLive,
-    listed' = listing(newPlace, newLive),
-    present' = counting(newPlace),
+  action _moveTo(newWhereabouts: Person -> Whereabouts, newOpenSpaces: Set[Person]): bool = all {
+    whereabouts' = newWhereabouts,
+    openSpaces' = newOpenSpaces,
+    lobby' = _listing(newWhereabouts, newOpenSpaces),
+    presence' = _counting(newWhereabouts),
   }
 
-  action init = moveTo(PEOPLE.mapBy(_ => Lobby), Set())
+  action init = _moveTo(PEOPLE.mapBy(_ => Lobby), Set())
 
-  /// Open a space: the person is in it, and it is live.
-  action create(person: Person): bool = all {
-    place.get(person) == Lobby,
-    not(live.contains(person)),
-    moveTo(place.set(person, InSpace(person)), live.union(Set(person))),
+  /// Create a space: the person hosts it and is in it, and it is open.
+  action createSpace(person: Person): bool = all {
+    whereabouts.get(person) == Lobby,
+    not(openSpaces.contains(person)),
+    _moveTo(whereabouts.set(person, InSpace(person)), openSpaces.union(Set(person))),
   }
 
-  /// Back into one's own live space from the lobby.
-  action reopen(person: Person): bool = all {
-    place.get(person) == Lobby,
-    live.contains(person),
-    moveTo(place.set(person, InSpace(person)), live),
+  /// Return from the lobby to one's own open space.
+  action returnToSpace(person: Person): bool = all {
+    whereabouts.get(person) == Lobby,
+    openSpaces.contains(person),
+    _moveTo(whereabouts.set(person, InSpace(person)), openSpaces),
   }
 
-  /// Join a friend's live space from its lobby card.
+  /// Join a friend's open space from the lobby.
   action join(person: Person, host: Person): bool = all {
-    place.get(person) == Lobby,
+    whereabouts.get(person) == Lobby,
     host != person,
-    live.contains(host),
-    moveTo(place.set(person, InSpace(host)), live),
+    openSpaces.contains(host),
+    _moveTo(whereabouts.set(person, InSpace(host)), openSpaces),
   }
 
-  /// Close the space screen, still a member: back to the lobby.
+  /// Step out to the lobby without leaving the space.
   action stepOut(person: Person): bool = all {
-    match place.get(person) { | InSpace(_) => true | _ => false },
-    moveTo(place.set(person, Lobby), live),
+    match whereabouts.get(person) { | InSpace(_) => true | _ => false },
+    _moveTo(whereabouts.set(person, Lobby), openSpaces),
   }
 
-  /// A guest leaves the space for good.
+  /// Someone who is not the host leaves the space for good.
   action leave(person: Person): bool = all {
-    match place.get(person) { | InSpace(h) => h != person | _ => false },
-    moveTo(place.set(person, Lobby), live),
+    match whereabouts.get(person) { | InSpace(h) => h != person | _ => false },
+    _moveTo(whereabouts.set(person, Lobby), openSpaces),
   }
 
-  action openMembers(person: Person): bool = all {
-    match place.get(person) { | InSpace(_) => true | _ => false },
-    moveTo(place.set(person, Members(hostOf(place.get(person)))), live),
+  /// Look at who is in the space.
+  action viewPresence(person: Person): bool = all {
+    match whereabouts.get(person) { | InSpace(_) => true | _ => false },
+    _moveTo(whereabouts.set(person, ViewingPresence(hostOf(whereabouts.get(person)))), openSpaces),
   }
 
-  action closeMembers(person: Person): bool = all {
-    match place.get(person) { | Members(_) => true | _ => false },
-    moveTo(place.set(person, InSpace(hostOf(place.get(person)))), live),
+  /// Stop looking at who is in the space, still in it.
+  action stopViewingPresence(person: Person): bool = all {
+    match whereabouts.get(person) { | ViewingPresence(_) => true | _ => false },
+    _moveTo(whereabouts.set(person, InSpace(hostOf(whereabouts.get(person)))), openSpaces),
   }
 
   /// The host ends their space: everyone in it sees that it has ended.
-  action end(person: Person): bool = all {
-    place.get(person) == InSpace(person),
-    moveTo(
-      PEOPLE.mapBy(p => if (hostOf(place.get(p)) == person) Ended else place.get(p)),
-      live.exclude(Set(person)),
+  action endSpace(person: Person): bool = all {
+    whereabouts.get(person) == InSpace(person),
+    _moveTo(
+      PEOPLE.mapBy(p => if (hostOf(whereabouts.get(p)) == person) Ended else whereabouts.get(p)),
+      openSpaces.exclude(Set(person)),
     ),
   }
 
-  /// From the ended screen back to the lobby.
-  action backToLobby(person: Person): bool = all {
-    place.get(person) == Ended,
-    moveTo(place.set(person, Lobby), live),
+  /// From a space that has ended, go back to the lobby.
+  action goBackToLobby(person: Person): bool = all {
+    whereabouts.get(person) == Ended,
+    _moveTo(whereabouts.set(person, Lobby), openSpaces),
   }
 
   action step = {
     nondet person = PEOPLE.oneOf()
     nondet host = PEOPLE.oneOf()
     any {
-      create(person),
-      reopen(person),
+      createSpace(person),
+      returnToSpace(person),
       join(person, host),
       stepOut(person),
       leave(person),
-      openMembers(person),
-      closeMembers(person),
-      end(person),
-      backToLobby(person),
+      viewPresence(person),
+      stopViewingPresence(person),
+      endSpace(person),
+      goBackToLobby(person),
     }
   }
 
-  /// Nobody is in a space that is not live.
+  /// Nobody is in a space that is not open.
   val invOnlyLiveSpaces = PEOPLE.forall(p =>
-    hostOf(place.get(p)) == "" or live.contains(hostOf(place.get(p)))
+    hostOf(whereabouts.get(p)) == "" or openSpaces.contains(hostOf(whereabouts.get(p)))
   )
 
-  /// Everyone hosting a live space was the one who opened it.
-  val invHostsAreThePeople = live.subseteq(PEOPLE)
+  /// Every open space's host is one of the people.
+  val invHostsAreThePeople = openSpaces.subseteq(PEOPLE)
 }

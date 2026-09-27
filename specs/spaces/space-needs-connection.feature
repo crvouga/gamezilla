@@ -1,7 +1,8 @@
 @domain:spaces @goal:works-offline:6
 Feature: Spaces need a connection
-  Spaces are live and shared, so they need a connection. Without one, the app
-  says so plainly instead of failing silently or waiting forever.
+  When a person has no connection and tries to create or join a space, they
+  want to be told that spaces need a connection, so they are never left
+  waiting on something that cannot happen.
 
   @regression:space-offline-create-queued
   Scenario: Creating a space without a connection says it needs one

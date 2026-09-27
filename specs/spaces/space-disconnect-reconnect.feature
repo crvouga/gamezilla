@@ -1,7 +1,8 @@
 @domain:spaces @goal:spaces:5
 Feature: Disconnect and reconnect
-  Leaving, losing connection, closing the app, and coming back all leave the
-  space in a correct state. Nobody appears twice. Nobody lingers after they have gone.
+  When people leave a space, drop out of it, close the app or come back,
+  everyone wants its presence to stay true, so nobody shows twice and nobody
+  lingers after they have gone.
 
   Background:
     Given Alice is hosting a space that Bob joined from the link
