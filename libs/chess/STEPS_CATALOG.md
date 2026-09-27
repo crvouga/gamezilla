@@ -62,7 +62,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is asked to find the next move within {int} seconds | {actor}, {int} | chess |
 | Then | {actor} is asked which piece Black promotes to | {actor} | chess |
 | Then | {actor} is asked which piece White promotes to on {word} | {actor}, {word} | chess |
-| Then | {actor} is invited to upgrade for more puzzles | {actor} | chess |
+| Then | {actor} is invited to sign in for more puzzles | {actor} | chess |
 | Then | {actor} is not shown the puzzle limit | {actor} | chess |
 | Then | {actor} is not told the feed is empty | {actor} | chess |
 | Then | {actor} is on a different puzzle than the one before within {int} seconds | {actor}, {int} | chess |

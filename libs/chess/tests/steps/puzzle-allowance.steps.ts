@@ -91,7 +91,7 @@ Then(
 );
 
 Then(
-  '{actor} is invited to upgrade for more puzzles',
+  '{actor} is invited to sign in for more puzzles',
   async (w, actor: Actor) => {
     expect(await w.s.read(isPuzzleLimitSignInOffered, actor)).toBe(true);
   }
