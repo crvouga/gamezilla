@@ -9,12 +9,40 @@ import { expect } from 'bun:test';
 import { hostLimit } from '@pkgs/gherkin/registry';
 import { ActionNotEnabled } from '@pkgs/sim';
 import { partition, restartApp, restoreNetwork } from '../../system/actions';
-import { returnToTabs, signInWithGoogle } from '../../system/auth-actions';
+import {
+  returnToTabs,
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+  signOut,
+} from '../../system/auth-actions';
 import { signedInAccountOf } from '../../system/identity';
 import { caps } from '../../system/observations';
-import { focusActor } from '../../system/shell-actions';
+import { focusActor, openAccount } from '../../system/shell-actions';
 import { type Actor, Given, Then, When } from '../define';
 import { remember, type SimWorld, signedInAccountKey } from '../world';
+
+/** The actor id of `actor`'s second device, signed into the same account. */
+export function otherDevice(actor: Actor): string {
+  return `${actor}_phone`;
+}
+
+/**
+ * Cut `actor` off from the server. A live browser (`SIM_MODE=real|stack`)
+ * cannot cut its own connection: the host lacks the `partition` capability
+ * and the action is not enabled. That is a harness limit, so the scenario
+ * ends here instead of failing.
+ */
+export async function cutConnection(w: SimWorld, actor: Actor): Promise<void> {
+  if (!(await w.s.read(caps)).includes('partition')) {
+    const refused = await w.s.apply(partition, actor).then(
+      () => null,
+      (error: unknown) => error
+    );
+    expect(refused).toBeInstanceOf(ActionNotEnabled);
+    throw hostLimit('this host cannot cut the connection');
+  }
+  await w.s.apply(partition, actor);
+}
 
 async function signIn(w: SimWorld, actor: Actor): Promise<void> {
   await w.s.apply(signInWithGoogle, actor);
@@ -59,21 +87,29 @@ Then('{actor} has a signed-in account', async (w, actor: Actor) => {
   expect(account).not.toBeNull();
 });
 
-/**
- * A live browser (`SIM_MODE=real|stack`) cannot cut its own connection: the
- * host lacks the `partition` capability and the action is not enabled. That
- * is a harness limit, so the scenario ends here instead of failing.
- */
-When('{actor} loses the connection', async (w, actor: Actor) => {
-  if (!(await w.s.read(caps)).includes('partition')) {
-    const refused = await w.s.apply(partition, actor).then(
-      () => null,
-      (error: unknown) => error
-    );
-    expect(refused).toBeInstanceOf(ActionNotEnabled);
-    throw hostLimit('this host cannot cut the connection');
+Given(
+  '{actor} is also signed in on another device',
+  async (w, actor: Actor) => {
+    await w.s.apply(signInWithGoogleAsAccount, otherDevice(actor), actor);
+    await w.s.apply(returnToTabs, otherDevice(actor));
   }
-  await w.s.apply(partition, actor);
+);
+
+Given('{actor} has signed out', async (w, actor: Actor) => {
+  await w.s.apply(openAccount, actor);
+  await w.s.apply(signOut, actor);
+});
+
+Given('{actor} is offline', async (w, actor: Actor) => {
+  await cutConnection(w, actor);
+});
+
+When('{actor} loses the connection', async (w, actor: Actor) => {
+  await cutConnection(w, actor);
+});
+
+Given('the connection has come back', async (w) => {
+  await w.s.apply(restoreNetwork);
 });
 
 When('the connection comes back', async (w) => {
