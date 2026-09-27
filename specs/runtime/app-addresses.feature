@@ -1,7 +1,8 @@
 @domain:runtime
 Feature: Addresses that lead nowhere
-  A mistyped or outdated address never leaves a person stranded: the app says
-  there is nothing there and offers the way back.
+  When a person opens an address that leads nowhere, mistyped or outdated,
+  they want to be told so and offered the way back, so they are never
+  stranded.
 
   Scenario: An address the app does not have says so and offers the way back
     When Alice opens an address the app does not have

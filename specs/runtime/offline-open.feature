@@ -1,7 +1,8 @@
 @domain:runtime @goal:works-offline:1
 Feature: The app opens without a connection
-  Once the app has been opened, it opens and works with no connection, so a
-  person on a plane or in a tunnel is never locked out.
+  When a person has no connection, on a plane or in a tunnel, they want the
+  app to open and work anyway after its first opening, so they are never
+  locked out.
 
   Scenario: The app opens without a connection after its first opening
     Given Alice has opened the app before

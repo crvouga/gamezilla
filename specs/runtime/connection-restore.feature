@@ -1,7 +1,8 @@
 @domain:runtime
 Feature: Connection restore
-  A connection that drops and comes back leaves the app ready for anything
-  that needs a connection, such as signing in.
+  When a person was cut off and the connection comes back, they want
+  everything that needs a connection, such as signing in, to work again at
+  once, so being cut off costs them nothing.
 
   Scenario: A guest can sign in once the connection comes back
     Given Alice is a guest

@@ -1,0 +1,162 @@
+# The App context's ubiquitous language (specs/runtime/). Terms other
+# contexts own are borrowed (from: <domain>); the shared kernel is
+# specs/glossary.yaml. Map: docs/CONTEXT_MAP.md.
+context: App
+purpose: >-
+  The app itself, as a person holds it: it opens, even offline, onto the
+  tabs and Settings, keeps each person's place and choices, and carries on
+  through lost connections, updates and changing capacity.
+
+terms:
+  - term: Settings
+    definition: >-
+      The place a person reaches from anywhere in the app to manage their
+      account and preferences: the theme, sounds, About, and the devices on
+      their account. Leaving it brings them back to the tab they left.
+    avoid: [options, settings page, config, configuration]
+    model: [Settings, openSettings, leaveSettings]
+    published: true
+
+  - term: tabs
+    definition: >-
+      The app's home once it has opened: Spaces, Notifications and Profile. A
+      person lands on Spaces and moves between the tabs freely.
+    forms: [tab, the tabs]
+    avoid: [home screen, tab bar, navigation bar]
+    model: [OnTab, openTab, lastTab]
+    published: true
+
+  - term: first opening
+    definition: >-
+      The first time a person opens the app on a device: they land on Spaces
+      in the tabs, as a guest. After its first opening the app opens again
+      even with no connection.
+    avoid: [first launch, first boot, install]
+    model: [opened, open]
+
+  - term: place in the app
+    definition: >-
+      Where a person is in the app right now: on one of the tabs, on Settings,
+      on people search, in the space they host, or looking at a space they
+      just ended. Each device keeps its own place, and being cut off never
+      moves anyone.
+    avoid: [screen, page, route]
+    model: [Place, place]
+
+  - term: close and reopen the app
+    definition: >-
+      A person closing the app on a device and opening it again. It still has
+      everything it had: their place in the app is back on the tabs, and their
+      preferences are as they left them.
+    forms: [closes and reopens the app, closed and reopened the app]
+    avoid: [restart, relaunch, reload]
+
+  - term: the view switches
+    definition: >-
+      A scenario turning its attention to another person's device. Every
+      person's app keeps its own place meanwhile.
+    forms: [the view switches to]
+
+  - term: cut off
+    definition: >-
+      A device losing its connection, at the person's end or somewhere on the
+      way to everyone else. Nobody is thrown out of their place in the app;
+      what needs a connection (signing in, searching, hosting or ending a
+      space) waits until they are back online. Once the connection comes
+      back, anything that needs one, such as signing in, is ready again.
+    forms: [cuts off, is cut off, cut off on the way]
+    avoid: [load balancer, dropped socket]
+    model: [offline, cutOff, cutOffOnTheWay, reconnect]
+
+  - term: serving capacity
+    definition: >-
+      How much of the app is up to serve people at once. It grows and shrinks
+      with demand but never to nothing, and people keep being served as it
+      changes without noticing.
+    forms: [capacity]
+    avoid: [server, servers, fleet, node, instance, API server]
+    model: [capacity, gainCapacity, loseCapacity]
+
+  - term: address
+    definition: >-
+      Where people reach the app. An address the app does not have leads
+      nowhere: the app says there is nothing there and offers the way back to
+      Spaces.
+    forms: [addresses, address that leads nowhere]
+    avoid: [URL, route, hostname, domain name]
+    published: true
+
+  - term: outdated app
+    definition: >-
+      A version of the app older than the product still accepts. It asks the
+      person to update the app instead of showing errors, and nothing they did
+      on it is lost.
+    forms: [outdated, older than the product accepts]
+    avoid: [stale client, old build, deprecated version]
+
+  - term: update the app
+    definition: >-
+      A person moving to a version of the app the product accepts. Everything
+      they had is still there afterwards.
+    forms: [updates the app, updating the app, asked to update]
+    avoid: [reinstall, redeploy]
+
+  - term: version of the app
+    definition: >-
+      Which release of the app a person has. They can see it in About.
+    forms: [versions of the app]
+    avoid: [build, build number]
+    published: true
+
+  - term: preference
+    definition: >-
+      A choice a person makes in Settings about how the app looks and sounds:
+      the theme, and whether sounds are on. It is kept on the device after the
+      app closes.
+    forms: [preferences, look and sound choices]
+    avoid: [config, local storage]
+
+  - term: dark theme
+    definition: >-
+      How the app looks when a person prefers it dark, instead of the light
+      theme; a preference.
+    forms: [light theme]
+    avoid: [dark mode, color scheme, skin]
+
+  - term: sounds
+    definition: The app's sound effects, which a person can turn off and on; a preference.
+    avoid: [audio, sfx]
+
+  - term: About in Settings
+    definition: The part of Settings that shows which version of the app a person has.
+
+  # Borrowed from Identity.
+  - term: guest
+    from: profile
+  - term: account
+    from: profile
+  - term: sign in
+    from: profile
+    model: [signedIn, signIn]
+  - term: username
+    from: profile
+  - term: Google
+    from: profile
+  - term: profile
+    from: profile
+
+  # Borrowed from Spaces.
+  - term: space
+    from: spaces
+    model: [InSpace]
+  - term: host
+    from: spaces
+    model: [host, hosting]
+  - term: end a space
+    from: spaces
+    model: [end, Ended]
+
+  # Borrowed from Friends.
+  - term: people search
+    from: friends
+    model: [Search, Lookup, lookup, lookUp, searchedFor, Denied, Nobody, Shows]
