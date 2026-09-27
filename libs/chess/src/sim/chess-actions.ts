@@ -1,4 +1,7 @@
-import { scenarioAction } from '@libs/sim-harness/system/actor-ui';
+import { pollUntil, scenarioAction } from '@libs/sim-harness/system/actor-ui';
+import type { ProductSim } from '@libs/sim-harness/system/sim';
+import type { Square } from '@pkgs/chess-board/chess-board-types';
+import type { ChessPuzzleTheme } from '../public/chess-puzzle-themes';
 import {
   closeFeedSettings,
   type FeedAutoAdvance,
@@ -22,6 +25,7 @@ import {
 import {
   dragPuzzleUci,
   pickPuzzlePromotion,
+  readPuzzleBoardProbe,
   showPuzzleSolution,
   tapPuzzleUci,
 } from './chess-puzzle-solve-ui';
@@ -34,11 +38,15 @@ import {
   openPuzzlePlay,
   openPuzzlePlayNoWait,
   openReviewFromGameLog,
+  pickWrongUci,
   playWrongMove,
   pressPuzzleBackToChessMenu,
   pressPuzzleHint,
   pressPuzzleRetry,
   pressPuzzleSolution,
+  readActivePuzzleId,
+  readPuzzleDebug,
+  readPuzzleDisplayFen,
   returnToPuzzles,
   settleAfterPuzzleNext,
   solvePuzzle,
@@ -311,6 +319,172 @@ export const bumpPuzzleFeedCustomRating = scenarioAction({
   },
 });
 
+const SETTLE_MS = 20_000;
+const POLL_MS = 250;
+
+/** Wait until the solver may move: the attempt is live and the board unlocked. */
+async function waitSolverCanMove(s: ProductSim, actorId: string) {
+  await pollUntil(
+    s,
+    async () =>
+      (await readPuzzleBoardProbe(s, actorId))?.interactive === true
+        ? true
+        : null,
+    { maxMs: SETTLE_MS, stepMs: POLL_MS, description: 'solver may move' }
+  );
+}
+
+/** The next move of the line, once the solver may play it. */
+async function nextSolutionUci(s: ProductSim, actorId: string) {
+  await waitSolverCanMove(s, actorId);
+  const uci = (await readPuzzleDebug(s, actorId))?.solutionUci ?? '';
+  if (uci.length < 4) throw new Error(`${actorId} has no next solution move`);
+  return uci;
+}
+
+/**
+ * Narrow the feed to `theme` (a theme only `puzzleId` carries) and wait
+ * until that puzzle is on the board and the solver may move.
+ */
+export const openPuzzleByTheme = scenarioAction({
+  name: 'openPuzzleByTheme',
+  act: async (
+    s,
+    actorId: string,
+    theme: ChessPuzzleTheme,
+    puzzleId: string
+  ) => {
+    await openFeedSettings(s, actorId);
+    await selectFeedTheme(s, actorId, theme);
+    await closeFeedSettings(s, actorId);
+    await expectPlayReady(s, actorId);
+    await pollUntil(
+      s,
+      async () =>
+        (await readActivePuzzleId(s, actorId)) === puzzleId ? true : null,
+      { maxMs: SETTLE_MS, stepMs: POLL_MS, description: `puzzle ${puzzleId}` }
+    );
+    await waitSolverCanMove(s, actorId);
+  },
+});
+
+/**
+ * Castle the way the line expects, entered either as the king's two-square
+ * step or as the king dropped onto its own rook.
+ */
+export const castlePuzzleKing = scenarioAction({
+  name: 'castlePuzzleKing',
+  act: async (s, actorId: string, entry: 'twoSquares' | 'ontoRook') => {
+    const expected = await nextSolutionUci(s, actorId);
+    const rookFile = expected[2] === 'g' ? 'h' : 'a';
+    const to =
+      entry === 'twoSquares'
+        ? expected.slice(2, 4)
+        : `${rookFile}${expected[3] ?? ''}`;
+    await dragPuzzleUci(s, actorId, `${expected.slice(0, 2)}${to}`);
+  },
+});
+
+/** The host plays the next move of the line and the board moves on. */
+export const playNextSolutionMove = scenarioAction({
+  name: 'playNextSolutionMove',
+  act: async (s, actorId: string) => {
+    const uci = await nextSolutionUci(s, actorId);
+    const before = await readPuzzleDisplayFen(s, actorId);
+    await dragPuzzleUci(s, actorId, uci);
+    await pollUntil(
+      s,
+      async () => {
+        const fen = await readPuzzleDisplayFen(s, actorId);
+        return fen !== null && fen !== before ? true : null;
+      },
+      { maxMs: SETTLE_MS, stepMs: POLL_MS, description: 'the board to move' }
+    );
+  },
+});
+
+/** A watcher suggests a legal move that is not the host's next move. */
+export const suggestNonSolutionMove = scenarioAction({
+  name: 'suggestNonSolutionMove',
+  act: async (s, actorId: string) => {
+    const solution = (await readPuzzleDebug(s, actorId))?.solutionUci ?? '';
+    const fen = await readPuzzleDisplayFen(s, actorId);
+    if (fen === null) throw new Error(`${actorId} sees no board`);
+    const uci = pickWrongUci(fen, solution);
+    await dragSuggestedMove(
+      s,
+      actorId,
+      uci.slice(0, 2) as Square,
+      uci.slice(2, 4) as Square
+    );
+  },
+});
+
+/** Solve `count` puzzles one after another, moving on between them. */
+export const solvePuzzlesInARow = scenarioAction({
+  name: 'solvePuzzlesInARow',
+  act: async (s, actorId: string, count: number) => {
+    for (let i = 0; i < count; i += 1) {
+      await solvePuzzle(s, actorId);
+      if (i < count - 1) {
+        await tapPuzzleNext(s, actorId);
+        await settleAfterPuzzleNext(s, actorId);
+      }
+    }
+  },
+});
+
+/**
+ * Play `solved` puzzles to a solve, then `failed` puzzles to a fail (a wrong
+ * move, then a skip), moving on after each one.
+ */
+export const playPuzzleResults = scenarioAction({
+  name: 'playPuzzleResults',
+  act: async (s, actorId: string, solved: number, failed: number) => {
+    for (let i = 0; i < solved + failed; i += 1) {
+      if (i < solved) {
+        await solvePuzzle(s, actorId);
+      } else {
+        await playWrongMove(s, actorId);
+        await tapPuzzleSkip(s, actorId);
+      }
+      await tapPuzzleNext(s, actorId);
+      await settleAfterPuzzleNext(s, actorId);
+    }
+  },
+});
+
+/** Ways a player finishes the puzzle on the board. */
+export type PuzzleFinish =
+  | 'clean'
+  | 'hintThenSolve'
+  | 'wrongRetrySolve'
+  | 'showSolution'
+  | 'skip';
+
+/** Finish the puzzle on the board the way `finish` names. */
+export const finishPuzzleBy = scenarioAction({
+  name: 'finishPuzzleBy',
+  act: async (s, actorId: string, finish: PuzzleFinish) => {
+    if (finish === 'hintThenSolve') {
+      await pressPuzzleHint(s, actorId);
+      await waitPuzzleHintStage(s, actorId, 'highlight');
+    }
+    if (finish === 'wrongRetrySolve') {
+      await playWrongMove(s, actorId);
+      await pressPuzzleRetry(s, actorId);
+      await waitSolverCanMove(s, actorId);
+    }
+    if (finish === 'showSolution') {
+      await showPuzzleSolution(s, actorId);
+    } else if (finish === 'skip') {
+      await tapPuzzleSkip(s, actorId);
+    } else {
+      await solvePuzzle(s, actorId);
+    }
+  },
+});
+
 /** Registered on every system that composes this feature. */
 export const CHESS_SIM_ACTIONS = [
   openPuzzleFromSpace,
@@ -349,4 +523,11 @@ export const CHESS_SIM_ACTIONS = [
   setPuzzleFeedTheme,
   bumpPuzzleFeedOffset,
   bumpPuzzleFeedCustomRating,
+  openPuzzleByTheme,
+  castlePuzzleKing,
+  playNextSolutionMove,
+  suggestNonSolutionMove,
+  solvePuzzlesInARow,
+  playPuzzleResults,
+  finishPuzzleBy,
 ];

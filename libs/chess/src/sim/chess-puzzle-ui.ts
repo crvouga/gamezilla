@@ -794,6 +794,44 @@ export async function isPuzzleLimitVisible(
   return ui.get(Handles.chessPuzzleLimit).isVisible();
 }
 
+/**
+ * The limit screen offers a way to more puzzles (its call to action), not
+ * just an error.
+ */
+export async function isPuzzleLimitUpgradeOffered(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  if (!(await isPuzzleLimitVisible(s, actorId))) return false;
+  const ui = await actorUi(s, actorId);
+  return ui.get(`${Handles.chessPuzzleLimit}-action`).isVisible();
+}
+
+/**
+ * The board well says puzzles need a connection: the empty-feed block under
+ * the offline header, not the "nothing matches your feed" one.
+ */
+export async function isPuzzleOfflineNoticeVisible(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  if (!(await isEmptyPoolVisible(s, actorId))) return false;
+  return (await readPuzzleStatusKind(s, actorId)) === 'offline';
+}
+
+/** The feed bar marks the puzzle on the board "Unrated" (a repeat). */
+export async function isPuzzleUnratedNoticeVisible(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  try {
+    const ui = await actorUi(s, actorId);
+    return await ui.get(Handles.chessPuzzleFeedUnratedLabel).isVisible();
+  } catch {
+    return false;
+  }
+}
+
 /** Primary action on the exhausted-feed block ("Include played puzzles"). */
 export async function tapEmptyPoolPrimaryAction(
   s: ProductSim,
