@@ -10,12 +10,25 @@
  * renders that hash instead of English — keep extract/compile in lockstep.
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const PO_REL = 'libs/client-app/src/i18n/locales/en/messages.po';
 const COMPILED_REL = 'libs/client-app/src/i18n/locales/en/messages.ts';
+/**
+ * Scratch catalog the check regenerates into. The committed catalogs are
+ * never rewritten: `tc` of every package that imports them runs beside this
+ * check, and a catalog half-written in place fails it ("is not a module").
+ */
+const SCRATCH_REL = '.cache/ci-i18n';
+const SCRATCH_CONFIG_REL = `${SCRATCH_REL}/lingui.config.ts`;
 function run(cmd: string, args: string[]): void {
   const result = spawnSync(cmd, args, {
     cwd: REPO_ROOT,
@@ -71,13 +84,61 @@ function assertDescriptorFieldsKept(): void {
   }
 }
 
+/**
+ * The root config with its catalog moved into the scratch directory, so
+ * extract and compile read the same sources and write nothing committed.
+ */
+export function scratchConfigSource(repoRoot: string): string {
+  return [
+    "import base from '../../lingui.config';",
+    '',
+    'export default {',
+    '  ...base,',
+    `  rootDir: ${JSON.stringify(repoRoot)},`,
+    '  catalogs: base.catalogs?.map((catalog) => ({',
+    '    ...catalog,',
+    `    path: '<rootDir>/${SCRATCH_REL}/{locale}/messages',`,
+    '  })),',
+    '};',
+    '',
+  ].join('\n');
+}
+
+function writeScratchConfig(): void {
+  const scratch = join(REPO_ROOT, SCRATCH_REL);
+  rmSync(scratch, { recursive: true, force: true });
+  mkdirSync(join(scratch, 'en'), { recursive: true });
+  copyFileSync(join(REPO_ROOT, PO_REL), join(scratch, 'en/messages.po'));
+  writeFileSync(
+    join(REPO_ROOT, SCRATCH_CONFIG_REL),
+    scratchConfigSource(REPO_ROOT)
+  );
+}
+
 function assertCatalogsFresh(): void {
   const poBefore = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
   const compiledBefore = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');
-  runWithRetries('bun', ['run', 'i18n:extract']);
-  run('bun', ['run', 'i18n:compile']);
-  const poAfter = readFileSync(join(REPO_ROOT, PO_REL), 'utf8');
-  const compiledAfter = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');
+  writeScratchConfig();
+  const config = ['--config', SCRATCH_CONFIG_REL];
+  runWithRetries('bunx', [
+    'lingui',
+    'extract',
+    '--clean',
+    '--overwrite',
+    ...config,
+  ]);
+  run('bunx', ['lingui', 'compile', '--typescript', '--strict', ...config]);
+  const scratchTs = join(REPO_ROOT, SCRATCH_REL, 'en/messages.ts');
+  run('bun', [
+    'run',
+    'libs/tools/scripts/ensure-trailing-newline.ts',
+    scratchTs,
+  ]);
+  const poAfter = readFileSync(
+    join(REPO_ROOT, SCRATCH_REL, 'en/messages.po'),
+    'utf8'
+  );
+  const compiledAfter = readFileSync(scratchTs, 'utf8');
   if (poAfter === poBefore && compiledAfter === compiledBefore) {
     console.log('[ci:i18n] catalogs match source macros');
     return;
