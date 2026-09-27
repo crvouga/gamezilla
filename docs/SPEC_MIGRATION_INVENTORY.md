@@ -364,7 +364,7 @@ model as a `test` proof, marked `goal:<id>` in its header).
 | `epoch-bump-wipes-cache-preserves-pending-uploads` → `schema-epoch-bump` | `specs/sync/notes-across-app-updates.feature`; model `appUpdates` (`fresh`) |
 | `fanout-row-cap-boundary-64-vs-65` | `tests/fanout-row-cap.test.ts` (wire contract: which pushes carry row images); the person side → `note-writing.feature` › many notes at once |
 | `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` (contract: the `NO_HARD_DELETE` code; no person can hard-delete) |
-| `seeded-workload-fuzz-determinism` → `exploration` | same-seed determinism stays; walks → model actions (`clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled`, `networkStalls`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appUpdates`, `appDataDamaged` / `Cleared`, `appBackgrounded`, `signInExpires`, `secondWindow`, `connectionFlaky`, a third person); the pool slice without a product rule stays a walk (below) |
+| `seeded-workload-fuzz-determinism` → `exploration` | every walk → model actions: a third person, `clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled` / `Lost`, `liveCutOff` / `liveRestored`, `networkStalls`, `writeWhileSavesCut`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appFailsToOpen`, `appUpdates`, `appMustUpdate`, `appDataDamaged` / `Cleared`, `unsentEditDamaged`, `writeWhileFull`, `signedOutElsewhere`, `signInExpires`, `appBackgrounded`, `secondWindow`, `connectionFlaky`, `teamTidiesUp`, `teamAddsNote`, folders (`writeFolder` / `deleteFolder`) and shared spaces (`createSpace` / `joinSpace` / `leaveSpace`). Two contracts stay (below) |
 | `pending-rebase.property` | model: offline view = merged notes + unsent edits in order (`notes`, `owners`, `unsent`), a delete the device knows is forbidden does nothing, reconnect replays against the shared notes |
 | `merge-local-columns` | duplicate of `schema-drift` › client-only column survives a full merge; deleted |
 | `note-replication.quint.test.ts` | the model runs from `test:e2e`; the runner file is gone |
@@ -374,21 +374,33 @@ model as a `test` proof, marked `goal:<id>` in its header).
 | `schema-drift` | stays, trimmed: storage contract for columns and tables across local schema versions; what a person sees across versions → `notes-across-app-updates.feature` |
 | `space-topic-scope` | stays: live-topic scope and remake contracts |
 
-Still a walk (`tests/exploration.test.ts`): the rest of the example domain
-(folders, shared spaces, catalog inserts) and faults whose effect on unsent
-notes has no rule yet (a full device, an app that fails to open, a revoked or
-outdated sign-in, a damaged unsent edit, data cleared while edits wait, pruned
-write records, single-channel cut-outs, dropped publishes), plus the lossy
-host. Each moves into the model once its rule is decided.
+Two contracts stay in `tests/exploration.test.ts`, because neither can be a
+model step:
 
-Open spec questions found while porting:
+- **Same seed, same walk.** Reproducing a run from its seed is the sim
+  framework's contract, not product behavior; a model step compares product
+  state, and this compares two runs.
+- **Sequence order on the lossy host.** That host loses, repeats and delays
+  every hop at random, so replies get lost and devices retry on backoff the
+  model never drew: no step boundary has a state the model can name (tried as
+  a model action, `everyConnectionLossy`; it diverged on most traces). The
+  test claims only the standing sequence-order property.
 
-- An app update that fetches every note again, and clearing the app's data,
-  drop the person's unacknowledged notices today; the glossary says a notice
-  stays until acknowledged. The model updates or clears only with no notice
-  waiting until this is decided.
-- A garbled live update briefly shows a note with no body before the device
-  heals (under a second in the sim).
+Found while porting, and fixed (each pinned by a `@regression` scenario and
+modeled):
+
+- A refusal notice was dropped by an app update that fetches every note
+  again, and by clearing the app's data (`notice-lost-when-app-data-wiped`):
+  notices are now kept like unsent edits.
+- Clearing the app's data offline hid the notes not yet sent until the device
+  was back online (`cleared-data-hides-unsent-notes`).
+- A garbled live update briefly showed a note with no text
+  (`garbled-live-update-blank-note`): a pushed image that would create a row
+  with fields missing is refused and the row is refetched whole.
+
+Decided with the model, for review: a person signed out elsewhere loses what
+the device kept for them, unsent edits and notices included (glossary
+"signed out elsewhere"; the notice definition says so).
 
 ---
 

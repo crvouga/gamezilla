@@ -18,3 +18,10 @@ Feature: Notes written offline
     Given Alice has written the note "Groceries" saying "milk"
     When Alice's app comes back online
     Then Bob sees the note "Groceries" saying "milk"
+
+  @regression:cleared-data-hides-unsent-notes
+  Scenario: Notes not yet sent still show after the app's data is cleared offline
+    Given Alice has written the note "Groceries" saying "milk"
+    When Alice's app has its data cleared
+    Then Alice sees the note "Groceries" saying "milk"
+    And Bob does not see the note "Groceries"

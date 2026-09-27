@@ -33,3 +33,17 @@ Feature: Refused edits
       And Bob has been refused deleting the note "Groceries"
       When Bob acknowledges the notice about the note "Groceries"
       Then Bob has no notices
+
+  Rule: A notice stays until it is acknowledged, whatever happens to the app
+
+    @regression:notice-lost-when-app-data-wiped
+    Scenario Outline: A notice of a refused edit stays when the app <change>
+      Given Alice and Bob are in the shared space "Trip"
+      And Bob has been refused deleting the note "Groceries"
+      When Bob's app <change>
+      Then Bob has a notice that deleting the note "Groceries" was refused
+
+      Examples:
+        | change                                             |
+        | updates to a version that fetches every note again |
+        | has its data cleared                               |

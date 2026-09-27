@@ -62,8 +62,9 @@ terms:
     definition: >-
       A group of people who share notes. Anyone can create one, join it, or
       leave it, even offline; every note written by someone in it reaches
-      everyone in it.
+      everyone in it. Joining a shared space that does not exist is refused.
     avoid: [space, group]
+    model: [SpaceId, Membership, members, createSpace, CreateSpace, leaveSpace, LeaveSpace]
 
   - term: join a shared space
     definition: >-
@@ -77,6 +78,7 @@ terms:
       - rejoins
       - rejoined
       - rejoining
+    model: [joinSpace, JoinSpace]
 
   - term: leave a shared space
     definition: >-
@@ -132,7 +134,9 @@ terms:
   - term: notice
     definition: >-
       A notice of a refused edit tells its author that their edit was refused.
-      It stays until the author acknowledges it, and then it is gone.
+      It stays until the author acknowledges it, and then it is gone. It
+      survives the app updating, reopening, or having its data cleared; only
+      signing the person out elsewhere takes it off the device.
     forms: [notices]
     model: [rejections]
 
@@ -156,7 +160,7 @@ terms:
       it is online and everything has settled. They take in each edit at most
       once, in the order its device made it, and refuse an edit that breaks
       the rules.
-    model: [Received, History]
+    model: [Shared, Received, History]
 
   - term: unsent
     definition: >-
@@ -168,8 +172,10 @@ terms:
   - term: folder
     definition: >-
       A named place a person files notes in. A note filed in a folder shows in
-      that folder for everyone.
+      that folder for everyone. Like a note, whoever wrote it last owns it,
+      and only they may delete it.
     forms: [folders, file, files, filed, filing]
+    model: [folders, writeFolder, WriteFolder, deleteFolder, DeleteFolder]
 
   - term: checked note
     definition: >-
@@ -235,9 +241,36 @@ terms:
 
   - term: app data
     definition: >-
-      What the app keeps on a device. If it is damaged or cleared while
-      nothing is unsent, the app gets every note back from everyone else.
-    model: [appDataDamaged, appDataCleared]
+      What the app keeps on a device. If it is damaged or cleared, the app
+      gets every note back from everyone else; unsent edits still show and
+      are sent, and notices stay. An unsent edit that is itself damaged is
+      refused, with a notice.
+    model: [appDataDamaged, appDataCleared, unsentEditDamaged]
+
+  - term: full device
+    definition: >-
+      A device with no room left to save. A note written on it is refused on
+      the spot, and the person is told; nothing else changes.
+    model: [writeWhileFull]
+
+  - term: fails to open
+    definition: >-
+      The app does not open once; opened again, it has everything it had.
+    model: [appFailsToOpen]
+
+  - term: must update
+    definition: >-
+      The app is told it is too old to keep in step and must update first.
+      Once updated it sends everything that waited on it.
+    model: [appMustUpdate]
+
+  - term: signed out elsewhere
+    definition: >-
+      The person's sign-in on a device is revoked from elsewhere, for example
+      by signing out everywhere. The device forgets everything it kept for
+      them, unsent edits and notices included, so nothing of theirs stays on
+      it; once they sign in again it shows the shared notes.
+    model: [signedOutElsewhere]
 
   - term: background
     definition: >-
@@ -266,9 +299,23 @@ terms:
   - term: live updates
     definition: >-
       How a note reaches other devices the moment it is written. Live updates
-      can be lost, repeated, reordered, garbled, or stop for a while; notes
-      still reach everyone, only later.
-    model: [liveUpdatesDegrade, liveUpdatesGarbled, liveUpdatesPause]
+      can be lost, repeated, reordered, garbled, cut off, or stop for a while;
+      notes still reach everyone, only later, and a note never shows without
+      its text.
+    model:
+      - liveUpdatesDegrade
+      - liveUpdatesGarbled
+      - liveUpdatesPause
+      - liveUpdateLost
+      - liveCutOff
+      - liveRestored
+
+  - term: cannot send
+    definition: >-
+      A device that for a while can neither send nor refresh, though live
+      updates still reach it. What the person writes meanwhile waits on the
+      device and is sent once it can send again.
+    model: [writeWhileSavesCut]
 
   - term: outage
     definition: >-
@@ -278,4 +325,4 @@ terms:
 
   - term: the team
     from: kernel
-    model: [teamEdit]
+    model: [teamEdit, teamAddsNote, teamTidiesUp]
