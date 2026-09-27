@@ -29,4 +29,4 @@ Feature: Checked notes
     Scenario: By the time a refusal is reported, the note already says what it said before
       Given Alice has written the checked note "Groceries" saying "milk"
       When Alice writes the checked note "Groceries" saying "refused"
-      Then the moment Alice's app says the note "Groceries" was refused, Alice sees it saying "milk"
+      Then the moment Alice's app says the note "Groceries" was refused, it shows the note saying "milk"
