@@ -17,11 +17,13 @@ terms:
       body (such as "milk"). A note shows at once on its writer's device and
       reaches everyone it is shared with.
     avoid: [memo, document]
+    model: [Note, Notes, notes]
 
   - term: title
     definition: >-
       A note's name, such as "Groceries". Writing a note with a title that
       already exists replaces its body.
+    model: [Title]
 
   - term: body
     definition: >-
@@ -35,6 +37,7 @@ terms:
       that already exists replaces its body and makes the writer its owner;
       writing a deleted note again brings it back for everyone.
     forms: [writes, wrote, written, writing, writer, writer's]
+    model: [Write, write]
 
   - term: delete a note
     definition: >-
@@ -47,11 +50,13 @@ terms:
       - delete the note
       - deleted note
       - deleting notes
+    model: [Delete, deleteNote]
 
   - term: owner of a note
     definition: >-
       Whoever last wrote the note. Only they may delete it.
     forms: [owns, owned]
+    model: [owners]
 
   - term: shared space
     definition: >-
@@ -90,12 +95,14 @@ terms:
       The app stops without warning. When it reopens it still has every note
       it had, including notes that had not yet reached anyone else.
     forms: [crashes, crashed]
+    model: [crashAndReopen, crashWhileSaving]
 
   - term: hear back
     definition: >-
       The app learning that a note it wrote has been kept for everyone. Word
       can get lost on the way back; the note still counts exactly once.
     forms: [hears back]
+    model: [writeUnheard, hearBack]
 
   - term: online-only action
     definition: >-
@@ -127,9 +134,148 @@ terms:
       A notice of a refused edit tells its author that their edit was refused.
       It stays until the author acknowledges it, and then it is gone.
     forms: [notices]
+    model: [rejections]
 
   - term: acknowledge
     definition: >-
       The author of a refused edit says they have seen its notice, which
       then goes away.
     forms: [acknowledges, acknowledged, acknowledging]
+
+  # --- Keeping notes in step ---------------------------------------------------
+
+  - term: edit
+    definition: >-
+      Writing or deleting a note.
+    forms: [edits]
+    model: [Edit]
+
+  - term: shared notes
+    definition: >-
+      The notes as everyone keeps them together: what every device shows once
+      it is online and everything has settled. They take in each edit at most
+      once, in the order its device made it, and refuse an edit that breaks
+      the rules.
+    model: [Received, History]
+
+  - term: unsent
+    definition: >-
+      An edit made on a device that has not yet reached the shared notes. It
+      shows on the device at once and waits there, in order, until it is
+      sent.
+    model: [Unsent, unsent]
+
+  - term: folder
+    definition: >-
+      A named place a person files notes in. A note filed in a folder shows in
+      that folder for everyone.
+    forms: [folders, file, files, filed, filing]
+
+  - term: checked note
+    definition: >-
+      A note that must pass a rule only everyone else can check before it
+      counts, such as, in these examples, that a note may not say "refused".
+      It shows on its writer's device at once and is saving until the answer
+      comes: then it is saved, or it is refused and the note goes back to what
+      it said before.
+    forms: [checked notes]
+
+  - term: saving
+    definition: >-
+      A checked note is saving while the app waits for the answer, and saved
+      once it is kept for everyone.
+    forms: [saved]
+
+  # --- What can go wrong ------------------------------------------------------
+
+  - term: connection
+    from: kernel
+    model: [online, goOffline, goOnline]
+
+  - term: slow connection
+    definition: >-
+      A connection over which everything takes a noticeable moment to arrive,
+      but nothing is lost.
+    forms: [slow connections]
+
+  - term: stalled network
+    definition: >-
+      A device's network stops carrying anything while the app still thinks
+      it is online; it recovers later. Until then what the person writes waits
+      on the device, and they see nothing new.
+    forms:
+      - stalled networks
+      - network stalls
+      - network has stalled
+      - network recovers
+    model: [networkStalls, networkRecovers]
+
+  - term: hiccup
+    definition: >-
+      A save or a refresh that fails once on the way: an error, being asked
+      to slow down, an answer cut off, garbled or lost, or a failure reported
+      after the note was in fact kept. The app tries again on its own and the
+      note counts once.
+    forms: [hiccups]
+    model: [writeThroughHiccup, refreshHiccup]
+
+  - term: flaky connection
+    definition: >-
+      A connection that delays what it carries unevenly, so it arrives out of
+      order. Nothing is lost; notes still reach everyone.
+    model: [connectionFlaky]
+
+  - term: app update
+    definition: >-
+      The app moving to another version, newer or older, including one that
+      fetches every note again. The app keeps every note it had, including
+      unsent ones, and stays in step with everyone.
+    forms: [updates, updated, version, versions, earlier version]
+    model: [appUpdates]
+
+  - term: app data
+    definition: >-
+      What the app keeps on a device. If it is damaged or cleared while
+      nothing is unsent, the app gets every note back from everyone else.
+    model: [appDataDamaged, appDataCleared]
+
+  - term: background
+    definition: >-
+      The app is in the background while the person uses something else. It
+      catches up when it comes back to the front.
+    model: [appBackgrounded]
+
+  - term: sign-in expires
+    definition: >-
+      The person's sign-in runs out. The app signs in again on its own;
+      nothing changes for the person.
+    model: [signInExpires]
+
+  - term: second window
+    definition: >-
+      Another window of the app open on the same device. It shares the
+      device's notes; the person sees the same thing in both.
+    model: [secondWindow]
+
+  - term: wrong clock
+    definition: >-
+      A device whose clock runs hours or a day ahead or behind. It changes
+      nothing about notes.
+    model: [clockIsWrong]
+
+  - term: live updates
+    definition: >-
+      How a note reaches other devices the moment it is written. Live updates
+      can be lost, repeated, reordered, garbled, or stop for a while; notes
+      still reach everyone, only later.
+    model: [liveUpdatesDegrade, liveUpdatesGarbled, liveUpdatesPause]
+
+  - term: outage
+    definition: >-
+      For a while no device can reach anyone. Once it ends, every online
+      device sends what waited on it; nothing anyone had is lost.
+    model: [outage]
+
+  - term: the team
+    from: kernel
+    model: [teamEdit]
