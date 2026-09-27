@@ -102,6 +102,25 @@ describe('run reporting', () => {
     expect(report.meta.error).toBe('broke');
   });
 
+  test('a nested failure its caller handles is red, but the run passes', async () => {
+    const { sys } = makeKv();
+    await using s = await sys.run({ seed: 1, report: { frames: false } });
+    await s.record(
+      { kind: 'step', title: 'probe until it gives up' },
+      async () => {
+        await s
+          .record({ kind: 'expect', title: 'expect.visible' }, async () => {
+            throw new Error('not yet');
+          })
+          .catch(() => undefined);
+      }
+    );
+    const report = s.report()!;
+    expect(report.meta.status).toBe('passed');
+    expect(report.steps[0]?.status).toBe('passed');
+    expect(report.steps[0]?.steps[0]?.status).toBe('failed');
+  });
+
   test('record coalesces nested advanceTime into one step', async () => {
     const { sys } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
