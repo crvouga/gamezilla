@@ -1,6 +1,6 @@
 /**
- * Standing properties of the membership lifecycle, checked after every step
- * of the lifecycle walk (`billing-lifecycle-walk.ts`):
+ * Standing properties of the membership lifecycle, checked after every
+ * lifecycle stimulus (`billing-lifecycle-stimuli.ts`):
  *
  * - the server's projection agrees with every subscription the provider holds
  *   for the payer (status, price, cancel flag);
@@ -28,14 +28,14 @@ import {
   BILLING_PAYER,
   BILLING_SECOND_DEVICE,
   billingStimulus,
-} from './billing-lifecycle-walk';
+} from './billing-lifecycle-stimuli';
 import { customerOf, providerSubscriptions } from './billing-provider-driver';
 import { billingTier } from './billing-reads';
 
 const DEFAULT_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
- * Checked after each lifecycle step; the setup before the walk (sign-in,
+ * Checked after each lifecycle stimulus; the setup before the first (sign-in,
  * spawning the second device) passes through states these do not describe.
  */
 function walkStep(action: CheckpointAction): boolean {

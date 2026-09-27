@@ -1,12 +1,15 @@
 /**
- * The membership lifecycle as a random walk. One payer (`BILLING_PAYER`) and
- * a second device signed into the same account (`BILLING_SECOND_DEVICE`); a
- * step is any stimulus the provider's current state allows — a renewal, a
- * failed or recovered charge, a cancellation, a price switch, a redelivered
- * webhook, a resubscribe — or the second device dropping off / coming back on
- * the network. Every step settles: the
- * provider is read (which runs whatever is due), then virtual time runs long
- * enough for webhooks and sync pushes to land.
+ * The membership lifecycle's stimuli, one scripted step at a time. One payer
+ * (`BILLING_PAYER`) and a second device signed into the same account
+ * (`BILLING_SECOND_DEVICE`); a stimulus is subscribing from the plans screen,
+ * anything a tester does at the provider in test mode — a renewal, a failed
+ * or recovered charge, a cancellation, a price switch, a redelivered webhook,
+ * a resubscribe — or the second device dropping off / coming back on the
+ * network. Every stimulus settles: the provider is read (which runs whatever
+ * is due), then virtual time runs long enough for webhooks and sync pushes to
+ * land. The lifecycle's standing properties
+ * (`billing-lifecycle-properties.ts`) are checked after each one; the Quint
+ * model `specs/billing/membership-lifecycle.qnt` drives them.
  *
  * Billing time moves on the provider's per-customer test clock, as in Stripe
  * test mode, not on the app's: a virtual hour of the whole app costs seconds of
@@ -18,9 +21,9 @@ import { partition, restoreNetwork } from '@libs/sim-harness/system/actions';
 import { accountIdOf } from '@libs/sim-harness/system/identity';
 import { partitioned } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
-import { defineAction, type Rng } from '@pkgs/sim';
+import { defineAction } from '@pkgs/sim';
 
-import { checkoutPlusAtProvider } from './billing-actions';
+import { checkoutPlusAtProvider, subscribeToPlus } from './billing-actions';
 import {
   BILLING_OBSERVE_KINDS,
   customerOf,
@@ -35,6 +38,7 @@ const SETTLE_STEP_MS = 5000;
 const SETTLE_STEPS = 3;
 
 export const BILLING_STIMULI = [
+  'subscribe',
   ...BILLING_OBSERVE_KINDS,
   'resubscribe',
   'second_device_offline',
@@ -42,12 +46,6 @@ export const BILLING_STIMULI = [
 ] as const;
 
 export type BillingStimulus = (typeof BILLING_STIMULI)[number];
-
-const PLUMBING: ReadonlySet<BillingStimulus> = new Set<BillingStimulus>([
-  'redeliver_last_event',
-  'second_device_offline',
-  'second_device_online',
-]);
 
 const LIVE = new Set(['trialing', 'active']);
 const ENDED = new Set(['canceled', 'unpaid', 'incomplete_expired']);
@@ -58,11 +56,16 @@ type ProviderView = {
 };
 
 async function providerView(s: ProductSim): Promise<ProviderView> {
+  const none = { status: null, cancelAtPeriodEnd: false };
   const accountId = await accountIdOf(s, BILLING_PAYER);
-  if (accountId === null) return { status: null, cancelAtPeriodEnd: false };
-  const latest = (
-    await providerSubscriptions(s, await customerOf(s, accountId))
-  )[0];
+  if (accountId === null) return none;
+  let customer: string;
+  try {
+    customer = await customerOf(s, accountId);
+  } catch {
+    return none; // Never checked out: the provider knows no customer yet.
+  }
+  const latest = (await providerSubscriptions(s, customer))[0];
   return {
     status: latest?.status ?? null,
     cancelAtPeriodEnd: latest?.cancel_at_period_end ?? false,
@@ -80,7 +83,9 @@ export async function legalStimuli(
   s: ProductSim
 ): Promise<readonly BillingStimulus[]> {
   const view = await providerView(s);
-  const out: BillingStimulus[] = ['redeliver_last_event'];
+  const out: BillingStimulus[] = [];
+  if (view.status === null) out.push('subscribe');
+  else out.push('redeliver_last_event');
   if (view.status !== null && LIVE.has(view.status)) {
     out.push('period_end', 'payment_failed', 'cancel_now', 'switch_interval');
     out.push(view.cancelAtPeriodEnd ? 'resume' : 'cancel_at_period_end');
@@ -88,7 +93,7 @@ export async function legalStimuli(
   if (view.status === 'past_due') {
     out.push('payment_recovered', 'payment_retries_exhausted', 'cancel_now');
   }
-  if (view.status === null || ENDED.has(view.status)) out.push('resubscribe');
+  if (view.status !== null && ENDED.has(view.status)) out.push('resubscribe');
   if (s.session.caps.has('partition')) {
     out.push(
       secondDeviceOffline(s) ? 'second_device_online' : 'second_device_offline'
@@ -112,8 +117,10 @@ async function stimulate(
 ): Promise<void> {
   const accountId = await accountIdOf(s, BILLING_PAYER);
   if (accountId === null)
-    throw new Error('billing walk: the payer is signed out');
-  if (stimulus === 'resubscribe') {
+    throw new Error('billing lifecycle: the payer is signed out');
+  if (stimulus === 'subscribe') {
+    await Promise.resolve(subscribeToPlus.act(s, BILLING_PAYER));
+  } else if (stimulus === 'resubscribe') {
     await Promise.resolve(checkoutPlusAtProvider.act(s, BILLING_PAYER));
   } else if (stimulus === 'second_device_offline') {
     await Promise.resolve(partition.act(s, BILLING_SECOND_DEVICE));
@@ -127,24 +134,20 @@ async function stimulate(
 }
 
 /**
- * One lifecycle step. The stimulus is drawn from what the provider's state
- * allows; replaying a step whose stimulus is no longer legal is a no-op, so a
- * shrunk or replayed walk never trips over its own precondition.
+ * One lifecycle step, scripted: `stimulus` must be one the provider's state
+ * allows right now (`legalStimuli`), or the step fails — a caller that thinks
+ * otherwise disagrees with the product about where the membership is.
  */
 export const billingStimulus = defineAction({
   name: 'billingStimulus',
-  sample: async (s: ProductSim) => {
-    // Lifecycle transitions are drawn three times as often as the plumbing
-    // (redeliveries, the network toggle), so a walk reaches deep states.
-    const pool = (await legalStimuli(s)).flatMap((stimulus) =>
-      PLUMBING.has(stimulus) ? [stimulus] : [stimulus, stimulus, stimulus]
-    );
-    return (rng: Rng): [BillingStimulus] => [
-      pool[Math.floor(rng.next() * pool.length)] ?? 'redeliver_last_event',
-    ];
-  },
+  pool: false,
   act: async (s: ProductSim, stimulus: BillingStimulus) => {
-    if (!(await legalStimuli(s)).includes(stimulus)) return;
+    const legal = await legalStimuli(s);
+    if (!legal.includes(stimulus)) {
+      throw new Error(
+        `billing lifecycle: "${stimulus}" is not possible now (possible: ${legal.join(', ')})`
+      );
+    }
     await stimulate(s, stimulus);
   },
 });
