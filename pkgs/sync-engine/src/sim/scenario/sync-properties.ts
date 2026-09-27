@@ -20,13 +20,19 @@ export const invariantsHold = defineProperty({
 });
 
 /**
- * always(quiet ∧ healed ⇒ domain-agreed). Uses the pure `inSync`
+ * always(quiet ∧ healed ∧ every device connected ⇒ domain-agreed). Uses the pure `inSync`
  * read (no restoreNetwork / recoverAll side effects).
  */
 export const staysInSync = defineProperty({
   name: 'staysInSync',
   check: async (s: SyncSim) => {
-    if (quiet(s) && partitioned(s).length === 0 && !(await inSync(s))) {
+    if (!quiet(s) || partitioned(s).length > 0) return;
+    // A device taken offline (or signed out) has not healed: it is behind
+    // by design until it reconnects.
+    for (const client of s.clients.values()) {
+      if (client.connection() === 'disconnected') return;
+    }
+    if (!(await inSync(s))) {
       throw new Error('quiet and healed but not inSync');
     }
   },
