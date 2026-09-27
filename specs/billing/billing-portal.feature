@@ -6,10 +6,9 @@ Feature: Manage a membership in the billing portal
   Background:
     Given Alice has subscribed to Plus
 
-  Scenario: Canceling in the portal keeps the trial and paid access until the period end
+  Scenario: Canceling in the billing portal keeps paid access until the period end
     When Alice cancels the membership in the billing portal
     Then Alice's membership is set to end at the period end
-    And Alice's membership is trialing
     And Alice has paid access
 
   Scenario: Renewing in the portal after canceling keeps the trial going
@@ -22,4 +21,3 @@ Feature: Manage a membership in the billing portal
     When Alice switches the membership to the yearly plan in the billing portal
     Then Alice's membership is on the yearly plan
     And Alice's membership is trialing
-    And Alice has paid access

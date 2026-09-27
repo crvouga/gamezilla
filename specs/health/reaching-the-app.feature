@@ -9,13 +9,11 @@ Feature: Reaching the app
   Scenario: Every address stays secure for at least two more weeks
     Then people reach every address of the app securely for 14 more days
 
-  Scenario Outline: People can open <place> at its address
-    Then people can open "<place>" at its address
+  Scenario: People can open the app at its address
+    Then people can open the app at its address
 
-    Examples:
-      | place         |
-      | the app       |
-      | the Simulator |
+  Scenario: The team can open the Simulator at its address
+    Then the team can open the Simulator at its address
 
   Scenario: Leaving out "www" still leads people to the app
     Then the address without "www" leads people to the app

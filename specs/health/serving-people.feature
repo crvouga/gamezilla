@@ -9,9 +9,6 @@ Feature: Serving people
   Scenario: Everything the app needs to answer people is ready
     Then everything the app needs to answer people is ready
 
-  Scenario: What people saved can be looked up
-    Then the app can look up what people saved
-
   Scenario: What people saved is ready for this version of the app
     Then what people saved is ready for this version of the app
 

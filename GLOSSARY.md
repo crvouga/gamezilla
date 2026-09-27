@@ -67,6 +67,8 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
   it and nobody signed in.
 - **the team** — the people who run the product. They observe it from outside,
   as people do, plus the records and declarations they keep for it.
+- **the Simulator** — a tool for the team, at its own address beside the app.
+  People who use the app never need it.
 - **environment** — one complete, separate copy of the product (production is
   one). "This environment" is the copy a health check is looking at; a
   **production environment** is one real people use.
