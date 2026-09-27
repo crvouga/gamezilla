@@ -127,11 +127,10 @@ export {
   clientIds,
   nodeLayout,
   nodeText,
-  oauthTokenLength,
   partitioned,
   visible,
 } from './system/observations';
-export { captureSnapshot, googleOauthSignIn } from './system/probes';
+export { captureSnapshot } from './system/probes';
 export {
   appleDeletesAccount,
   appleRevokesApp,

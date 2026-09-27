@@ -7,7 +7,7 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 
 | package | runs | kept in code |
 |---|---|---|
-| libs/profile | `specs/profile/` | `auth-oauth-port` (port mechanics) |
+| libs/profile | `specs/profile/` | — (`auth-oauth-port` retired 2026-09-27: every Google sign-in scenario walks the same port) |
 | libs/friends | `specs/friends/`, `specs/spaces/` | — |
 | libs/billing | `specs/billing/` | — |
 | libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
