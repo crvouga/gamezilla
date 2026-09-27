@@ -107,9 +107,7 @@ function StyleCombobox(props: {
         value: key,
         label: styleLabel(key),
         searchText: styleLabel(key),
-        ...(key === 'bottts'
-          ? { dataSet: { testid: Handles.profileAvatarStyleBottts } }
-          : {}),
+        dataSet: { testid: Handles.profileAvatarStyleOption(key) },
         preview: (
           <ProfileDiceBearAvatar
             config={{ style: key, seed: props.seed, options: {} }}

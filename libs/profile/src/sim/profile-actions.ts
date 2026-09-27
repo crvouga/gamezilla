@@ -4,6 +4,11 @@ import {
   scenarioAction,
 } from '@libs/sim-harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
+import {
+  STYLE_KEYS,
+  type StyleKey,
+  styleLabel,
+} from '../shared/profile/dicebear-styles';
 
 export const openProfileEdit = scenarioAction({
   name: 'openProfileEdit',
@@ -56,19 +61,25 @@ export const setAvatarSeed = scenarioAction({
   },
 });
 
+/** The style key whose picker label is `label` (e.g. "Bottts" → `bottts`). */
+function styleKeyForLabel(label: string): StyleKey {
+  const key = STYLE_KEYS.find((candidate) => styleLabel(candidate) === label);
+  if (key === undefined)
+    throw new Error(`no avatar style is labelled "${label}"`);
+  return key;
+}
+
+/** Pick the avatar style labelled `label`, searching for it by name. */
 export const setAvatarStyle = scenarioAction({
   name: 'setAvatarStyle',
-  act: async (
-    s,
-    actorId: string,
-    styleSearch: string,
-    styleOptionHandle: string
-  ) => {
+  act: async (s, actorId: string, label: string) => {
     const ui = await actorUi(s, actorId);
     await s.session.waitForIdle();
     await ui.get(Handles.profileAvatarStyle).tap();
-    await ui.get(Handles.profileAvatarStyleSearch).input(styleSearch);
-    await ui.get(styleOptionHandle).tap();
+    await ui.get(Handles.profileAvatarStyleSearch).input(label);
+    await ui
+      .get(Handles.profileAvatarStyleOption(styleKeyForLabel(label)))
+      .tap();
     await ui.get(Handles.profileAvatarStyle).expect.visible();
   },
 });

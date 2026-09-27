@@ -20,6 +20,7 @@ import {
   connectSignInMethod,
   removeSignInMethod,
   signOutEverywhere,
+  tryRemoveSignInMethod,
 } from './sign-in-method-actions';
 
 /**
@@ -40,6 +41,7 @@ export const SHELL_SCENARIO_ACTIONS = [
   keepSeparateAccount,
   connectSignInMethod,
   removeSignInMethod,
+  tryRemoveSignInMethod,
   signOutEverywhere,
   appleRevokesApp,
   appleDeletesAccount,

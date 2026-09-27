@@ -156,11 +156,16 @@ export {
 } from './system/shell-actions';
 export { SHELL_SCENARIO_ACTIONS } from './system/shell-scenario-actions';
 export {
+  accountMatchPromptShown,
   type ConnectOptions,
   connectSignInMethod,
   openAccountScreen,
   removeSignInMethod,
+  signedOutShown,
+  signInMethodRowText,
+  signInMethodsShown,
   signOutEverywhere,
+  tryRemoveSignInMethod,
 } from './system/sign-in-method-actions';
 export {
   createProductSim,

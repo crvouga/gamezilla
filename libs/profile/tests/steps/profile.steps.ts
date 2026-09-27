@@ -109,12 +109,7 @@ When(
     await w.s.apply(openProfileEdit, actor);
     await w.s.apply(openAvatarEditor, actor);
     await w.s.apply(setAvatarSeed, actor, seed);
-    await w.s.apply(
-      setAvatarStyle,
-      actor,
-      style,
-      Handles.profileAvatarStyleBottts
-    );
+    await w.s.apply(setAvatarStyle, actor, style);
     await w.s.apply(saveAvatar, actor);
     await w.s.apply(leaveAvatarEditor, actor);
   }
@@ -126,12 +121,7 @@ Given(
     await w.s.apply(openProfileEdit, actor);
     await w.s.apply(openAvatarEditor, actor);
     await w.s.apply(setAvatarSeed, actor, seed);
-    await w.s.apply(
-      setAvatarStyle,
-      actor,
-      style,
-      Handles.profileAvatarStyleBottts
-    );
+    await w.s.apply(setAvatarStyle, actor, style);
     await w.s.apply(saveAvatar, actor);
     await w.s.apply(leaveAvatarEditor, actor);
   }

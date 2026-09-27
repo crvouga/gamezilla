@@ -131,7 +131,9 @@ export const Handles = {
   profileAvatarDiscardKeep: 'profile-avatar-discard-keep',
   profileAvatarStyle: 'profile-avatar-style',
   profileAvatarStyleSearch: 'profile-avatar-style-search',
-  profileAvatarStyleBottts: 'profile-avatar-style-bottts',
+  /** One option in the avatar style picker, by style key (e.g. `bottts`). */
+  profileAvatarStyleOption: (styleKey: string) =>
+    `profile-avatar-style-${styleKey}`,
   profileAvatarTrait: 'profile-avatar-trait',
   profileFriendsStats: 'profile-friends-stats',
   /** The number in the Profile tab's friends stat row. */
