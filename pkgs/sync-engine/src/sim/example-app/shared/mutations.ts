@@ -163,20 +163,27 @@ export const pendingNote = defineMutation({
 });
 
 /**
- * Like setNote but requires connectivity — used by requires-online scenarios.
+ * Like setNote but requires connectivity — used by requires-online scenarios
+ * (an "announcement": optionally scoped to a space, like `setSpaceNote`).
  */
 export const requiresOnlineNote = defineMutation({
   name: 'requiresOnlineNote',
   args: z.object({
     id: z.string(),
     body: z.string(),
+    title: z.string().optional(),
+    spaceId: z.string().optional(),
   }),
   requiresOnline: true,
-  async run({ tx, env }, { id, body }) {
+  async run({ tx, env }, { id, body, title, spaceId }) {
     await tx.run(sql`
-      INSERT INTO notes (id, folder_id, title, body, owner_id)
-      VALUES (${id}, ${null}, ${''}, ${body}, ${env.actorId})
+      INSERT INTO notes (id, folder_id, space_id, title, body, owner_id)
+      VALUES (
+        ${id}, ${null}, ${spaceId ?? null}, ${title ?? ''}, ${body}, ${env.actorId}
+      )
       ON CONFLICT (id) DO UPDATE SET
+        space_id = excluded.space_id,
+        title = excluded.title,
         body = excluded.body,
         owner_id = excluded.owner_id,
         deleted_at = NULL

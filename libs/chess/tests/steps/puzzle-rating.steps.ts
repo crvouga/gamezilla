@@ -10,6 +10,7 @@ import {
   PUZZLE_PROVISIONAL_RD,
   PUZZLE_RATING_DEFAULT,
   PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+  PUZZLE_RATING_RD_MIN,
 } from '@libs/chess/public/chess-puzzle-rating';
 import {
   finishPuzzleBy,
@@ -122,6 +123,18 @@ Given(
   }
 );
 
+Given(
+  "{actor}'s puzzle rating has settled at {int}",
+  async (w, actor: Actor, rating: number) => {
+    // As settled as a rating gets: the deviation at its floor.
+    await w.s.apply(seedPuzzleRating, actor, {
+      rating,
+      ratingDeviation: PUZZLE_RATING_RD_MIN,
+      volatilityMicros: PUZZLE_RATING_DEFAULT_VOLATILITY_MICROS,
+    });
+  }
+);
+
 Then(
   "{actor}'s stats show their rating without the {string}",
   async (w, actor: Actor, marker: string) => {
@@ -147,6 +160,22 @@ Then(
   async (w, actor: Actor, rating: number) => {
     await ensureStatsOpen(w, actor);
     expect(await w.s.read(readStatsElo, actor)).toBeLessThan(rating);
+  }
+);
+
+Then(
+  "{actor}'s puzzle rating is the same as {actor}'s",
+  async (w, actor: Actor, other: Actor) => {
+    await ensureStatsOpen(w, other);
+    const rating = required(
+      await w.s.read(readStatsElo, other),
+      `${other}'s puzzle rating`
+    );
+    await ensureStatsOpen(w, actor);
+    await w.s.until((surf) => readStatsElo(surf, actor), {
+      maxMs: SETTLE_MS,
+      pred: (shown) => shown === rating,
+    });
   }
 );
 

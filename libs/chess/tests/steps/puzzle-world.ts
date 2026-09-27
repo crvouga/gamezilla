@@ -147,6 +147,24 @@ export async function enterPuzzles(w: SimWorld, actor: Actor): Promise<string> {
   return trackPuzzle(w, actor);
 }
 
+// ------------------------------------------------------- the board before
+
+const boardBeforeKey = (actor: Actor) => `boardBefore:${actor}`;
+
+/** Note the position on the actor's board, for "the board is unchanged". */
+export async function rememberBoard(w: SimWorld, actor: Actor): Promise<void> {
+  const probe = required(
+    await w.s.read(readPuzzleBoardProbe, actor),
+    `${actor}'s board`
+  );
+  remember(w, boardBeforeKey(actor), probe.fen);
+}
+
+/** The position {@link rememberBoard} noted on the actor's board. */
+export function boardBefore(w: SimWorld, actor: Actor): string {
+  return recalled<string>(w, boardBeforeKey(actor));
+}
+
 /** The solver may move: the attempt is live and the board unlocked. */
 export async function waitSolverToMove(
   w: SimWorld,

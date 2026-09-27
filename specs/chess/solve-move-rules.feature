@@ -18,6 +18,7 @@ Feature: Who may move, and when
     When Alice tries the illegal move a1-a8
     Then Alice's board is unchanged
     And Alice is still asked to find the next move
+    And Alice's puzzle rating is 1500
 
   Scenario: Pieces cannot be moved after a wrong move until a retry
     When Alice plays a wrong move

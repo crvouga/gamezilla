@@ -1,0 +1,88 @@
+/**
+ * The world a `specs/sync/` scenario runs in: one `exampleSystem` run, with
+ * each person's devices added the first time a step names them. A device in
+ * a shared-space scenario hydrates the person's space memberships; any other
+ * hydrates every note.
+ */
+
+import { setWorld, stepsFor } from '@pkgs/gherkin/registry';
+import type { Run } from '@pkgs/sim';
+import {
+  addClient,
+  exampleSystem,
+  SPACE_MEMBERSHIP_SESSION,
+  type SyncSim,
+} from '@pkgs/sync-engine/sim';
+
+export type Device = { readonly actor: string; readonly kind: string };
+
+export type SyncWorld = {
+  readonly s: Run<SyncSim>;
+  /** Devices already added (sim client ids). */
+  readonly devices: Set<string>;
+  /** The shared space each person is in, by actor. */
+  readonly spaceOf: Map<string, string>;
+  /** Devices currently offline. */
+  readonly offline: OfflineDevices;
+};
+
+/** Offline devices, by client id. */
+export class OfflineDevices {
+  private readonly ids = new Set<string>();
+  has(device: Device): boolean {
+    return this.ids.has(clientId(device));
+  }
+  set(device: Device, isOffline: boolean): void {
+    if (isOffline) this.ids.add(clientId(device));
+    else this.ids.delete(clientId(device));
+  }
+}
+
+export const { Given, When, Then } = stepsFor<SyncWorld>();
+
+/** `Alice's app` is client `alice`; `Alice's phone` is `alice-phone`. */
+export function clientId(device: Device): string {
+  return device.kind === 'app'
+    ? device.actor
+    : `${device.actor}-${device.kind}`;
+}
+
+export const app = (actor: string): Device => ({ actor, kind: 'app' });
+
+/** The device's sim client, added on first use. */
+export async function ensureDevice(
+  w: SyncWorld,
+  device: Device,
+  scopedToSpaces = false
+): Promise<string> {
+  const id = clientId(device);
+  if (!w.devices.has(id)) {
+    w.devices.add(id);
+    await w.s.apply(addClient, {
+      id,
+      actorId: device.actor,
+      ...(scopedToSpaces ? { sessionQuery: SPACE_MEMBERSHIP_SESSION } : {}),
+    });
+  }
+  return id;
+}
+
+export function useSyncWorld(): void {
+  setWorld<SyncWorld>({
+    create: async () => ({
+      s: await exampleSystem.run({ seed: 1, args: { clientCount: 0 } }),
+      devices: new Set(),
+      spaceOf: new Map(),
+      offline: new OfflineDevices(),
+    }),
+    dispose: (w) => w.s[Symbol.asyncDispose](),
+    record: (w, step, fn) =>
+      w.s.record(
+        {
+          kind: step.keyword.trim(),
+          title: `${step.keyword.trim()} ${step.text}`,
+        },
+        fn
+      ),
+  });
+}

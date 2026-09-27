@@ -34,6 +34,7 @@ import {
 import {
   suggestPuzzleMove as dragSuggestedMove,
   expectPlayReady,
+  isPuzzleSummaryNextVisible,
   leaveChessStats,
   openChessStats,
   openPuzzleFromChessMenu,
@@ -50,6 +51,7 @@ import {
   readActivePuzzleId,
   readPuzzleDebug,
   readPuzzleDisplayFen,
+  returnToOwnSpace as reenterOwnSpace,
   returnToPuzzles,
   settleAfterPuzzleNext,
   showChessStats,
@@ -147,14 +149,18 @@ export const showPuzzleSolutionLine = scenarioAction({
 });
 
 /**
- * Both "Next puzzle" surfaces pressed back to back (§34 fast double input):
- * the result panel's CTA and the action bar's button. The second press is
+ * "Next puzzle" pressed twice back to back (§34 fast double input): the
+ * result panel's CTA when it shows (after a solve), else the action bar's
+ * button, then the action bar's button again. The second press is
  * best-effort — by then the chrome may already be gone.
  */
 export const pressPuzzleNextTwice = scenarioAction({
   name: 'pressPuzzleNextTwice',
   act: async (s, actorId: string) => {
-    await tapPuzzleSummaryNext(s, actorId);
+    const first = (await isPuzzleSummaryNextVisible(s, actorId))
+      ? tapPuzzleSummaryNext
+      : tapPuzzleNext;
+    await first(s, actorId);
     try {
       await tapPuzzleNext(s, actorId);
     } catch {
@@ -591,3 +597,9 @@ export const CHESS_SIM_ACTIONS = [
   sleepUntilNextUtcDay,
   solvePuzzlesDaily,
 ];
+
+/** Back into the space the actor is in, after the app reopened. */
+export const returnToOwnSpace = scenarioAction({
+  name: 'returnToOwnSpace',
+  act: reenterOwnSpace,
+});

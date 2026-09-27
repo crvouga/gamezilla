@@ -19,7 +19,7 @@ function noteIds(count: number): string[] {
   );
 }
 
-describe('fanout row cap boundary 64 vs 65', () => {
+describe('fanout row cap', () => {
   test('exactly MAX_FANOUT_ROWS applies via images while sync held', async () => {
     await using s = await exampleSystem.run({
       seed: 808,

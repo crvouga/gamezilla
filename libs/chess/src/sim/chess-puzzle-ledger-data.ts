@@ -1,9 +1,9 @@
 /**
  * Puzzle bookkeeping reads and fixtures for scenarios: who owns a device's
  * puzzle progress, the rated-start allowance ledger (`puzzle.rated.solve`
- * starts, on the device and on the server), and the interaction log's
- * starts, completions and wrong moves. Fixtures write earlier history
- * directly so a scenario need not drive twenty boards through the UI.
+ * starts on the device), and the interaction log's completions. Fixtures
+ * write earlier history directly so a scenario need not drive twenty boards
+ * through the UI.
  */
 
 import { scenarioAction } from '@libs/sim-harness/system/actor-ui';
@@ -58,21 +58,6 @@ export function readLocalPuzzleStartLedger(
     SELECT id, owner_id, idempotency_key, consumed_at
     FROM permissions_quota_ledger
     WHERE quota = ${PUZZLE_START_QUOTA} AND deleted_at IS NULL
-    ORDER BY consumed_at ASC, id ASC
-  `);
-}
-
-/** Rated puzzle starts the server has recorded for `ownerId`, oldest first. */
-export function readServerPuzzleStartLedger(
-  s: ProductSim,
-  ownerId: string
-): Promise<PuzzleStartLedgerRow[]> {
-  return s.sim.serverSql.sqlClient.query(sql<PuzzleStartLedgerRow>`
-    SELECT id, owner_id, idempotency_key, consumed_at
-    FROM permissions_quota_ledger
-    WHERE owner_id = ${ownerId}
-      AND quota = ${PUZZLE_START_QUOTA}
-      AND deleted_at IS NULL
     ORDER BY consumed_at ASC, id ASC
   `);
 }

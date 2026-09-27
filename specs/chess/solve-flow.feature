@@ -3,7 +3,8 @@ Feature: The solve flow
   A puzzle opens with the opponent's setup move already played and the board
   facing the solver, who is prompted to move. Each correct move is answered
   by the opponent's reply, played by itself. Finishing the line solves the
-  puzzle, and a wrong move is called out at once.
+  puzzle, and a wrong move is called out at once and stays the attempt's
+  outcome, however the puzzle is solved afterwards.
 
   Scenario: The puzzle opens after the opponent's setup move, facing the solver
     Given Alice is signed in
@@ -41,6 +42,20 @@ Feature: The solve flow
     And Alice is solving the castling puzzle
     When Alice castles by moving the king <gesture>
     Then Alice's puzzle is solved within 20 seconds
+
+    Examples:
+      | gesture           |
+      | two squares       |
+      | onto its own rook |
+
+  Scenario Outline: A retry solved by castling <gesture> is still logged as failed
+    Given Alice is signed in
+    And Alice is solving the castling puzzle
+    And Alice has played a wrong move and retried
+    When Alice castles by moving the king <gesture>
+    Then Alice's puzzle is solved within 20 seconds
+    And Alice's game log records that puzzle as failed
+    And Alice's stats show 1 played, 0 solved, and 0% accuracy
 
     Examples:
       | gesture           |

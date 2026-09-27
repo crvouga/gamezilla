@@ -155,6 +155,15 @@ export async function pressPuzzleSummaryNext(
   await ui.get(Handles.chessPuzzleSummaryNext).tap({ timeoutMs: WAIT_MS });
 }
 
+/** The result panel's "Next puzzle" is showing (after a solve). */
+export async function isPuzzleSummaryNextVisible(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.chessPuzzleSummaryNext).isVisible();
+}
+
 /** Re-open the puzzle board from the chess main menu (already inside chess). */
 export async function openPuzzleFromChessMenu(
   s: ProductSim,
@@ -477,17 +486,6 @@ export async function readPuzzleStatusKind(
   return probe?.statusKind ?? null;
 }
 
-/** §9 half-window the pick used, from the pick-status probe. */
-export async function readPuzzleSelectionWindow(
-  s: ProductSim,
-  actorId: string
-): Promise<number | null> {
-  const raw = await readPickStatusField(s, actorId, 'window');
-  if (raw === undefined) return null;
-  const n = Number.parseInt(raw, 10);
-  return Number.isFinite(n) ? n : null;
-}
-
 /** Where the served puzzle came from: `unseen` / `widened` / `exhausted`. */
 export async function readPuzzlePickSource(
   s: ProductSim,
@@ -692,6 +690,31 @@ async function enterOrStartSpace(
     return;
   }
   await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+}
+
+/**
+ * Back into the one space the actor is in, from wherever the app opened
+ * (the space itself, or the tabs with the space open behind them), through
+ * its lobby card. Works for a guest too, whose card carries a username the
+ * scenario never chose.
+ */
+export async function returnToOwnSpace(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui
+    .get(Handles.statusCurrentUser)
+    .expect.visible({ timeoutMs: WAIT_MS });
+  if (!(await ui.get(Handles.spaceClose).isVisible())) {
+    const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
+      maxMs: WAIT_MS,
+      stepMs: POLL_MS,
+      description: `${actorId}'s own space card`,
+    });
+    await ui.get(card).tap({ timeoutMs: WAIT_MS });
+  }
+  await waitActiveSpace(s, actorId);
 }
 
 /**
