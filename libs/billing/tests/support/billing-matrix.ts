@@ -55,8 +55,8 @@ export function row(
 
 /**
  * The shipped policy's decisions: a guest is denied subscribe with a sign-in
- * unlock and may not manage; an account may manage, and subscribe while not
- * a member; billing off denies view and subscribe to everyone.
+ * unlock and may not manage; an account may manage and subscribe; billing
+ * off denies view and subscribe to everyone.
  */
 export function inputFor(
   caller: Caller,
@@ -67,7 +67,7 @@ export function inputFor(
   const account = caller === 'account';
   return {
     canView: billingEnabled,
-    canSubscribe: billingEnabled && account && !MEMBER_KINDS.has(kind),
+    canSubscribe: billingEnabled && account,
     canManage: account,
     subscribeUnlockLabel: account ? null : UNLOCK_LABEL,
     hasCustomer,

@@ -124,6 +124,14 @@ describe('billing view: grace', () => {
     expect(buildBillingView({ ...input, graceMs: 2 * DAY }).tier).toBe('free');
   });
 
+  test('an ended membership in grace is paid and offered a new checkout', () => {
+    const input = inputFor('account', 'ended', true, true);
+    const view = buildBillingView({ ...input, graceMs: 4 * DAY });
+    expect(view.tier).toBe('paid');
+    expect(view.state).toBe('ended');
+    expect(view.primary).toBe('subscribe');
+  });
+
   test('every member row reads as paid', () => {
     for (const kind of MEMBER_KINDS) {
       expect(buildBillingView(inputFor('account', kind, true, true)).tier).toBe(
@@ -238,12 +246,40 @@ describe('billing view: properties over arbitrary rows', () => {
     );
   });
 
-  test('a paying member is never offered a second checkout', () => {
+  test('a live membership is never offered a second checkout', () => {
     assertProperty(
-      'a paying member is never offered a second checkout',
+      'a live membership is never offered a second checkout',
       fc.property(arbInput, (input) => {
         const view = buildBillingView(input);
-        if (view.tier === 'paid') expect(view.primary).toBe('none');
+        const live = ['trialing', 'active', 'canceling', 'delinquent'];
+        if (live.includes(view.state)) expect(view.primary).toBe('none');
+      }),
+      FC
+    );
+  });
+
+  test('a paying member is offered a checkout only once their membership ended', () => {
+    assertProperty(
+      'a paying member is offered a checkout only once their membership ended',
+      fc.property(arbInput, (input) => {
+        const view = buildBillingView(input);
+        if (view.tier === 'paid' && view.primary !== 'none') {
+          expect(view.state).toBe('ended');
+        }
+      }),
+      FC
+    );
+  });
+
+  test('an ended membership may always start again', () => {
+    assertProperty(
+      'an ended membership may always start again',
+      fc.property(arbInput, (input) => {
+        const view = buildBillingView(input);
+        if (view.state !== 'ended' || !input.canView || !input.canSubscribe) {
+          return;
+        }
+        expect(view.primary).toBe('subscribe');
       }),
       FC
     );

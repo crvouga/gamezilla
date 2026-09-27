@@ -62,7 +62,7 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
     }
   });
 
-  test('paid never hits a usage limit but is not offered an upgrade', () => {
+  test('paid never hits a usage limit and may start a new membership', () => {
     expect(ratedFor(ROLE.planGuest, 1_000_000).allowed).toBe(false);
     expect(ratedFor(ROLE.planFree, 1_000_000)).toEqual({
       allowed: true,
@@ -73,7 +73,10 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
       policyVersion: DEFAULT_PERMISSION_POLICY.version ?? '0',
     });
     expect(allows(ROLE.planPaid, PERMISSION.billingManage)).toBe(true);
-    expect(allows(ROLE.planPaid, PERMISSION.billingSubscribe)).toBe(false);
+    // Paid access outlives an ended membership (grace); starting a new one
+    // must not wait for grace to run out. A live membership is never offered
+    // a second checkout — the billing screen and checkout route refuse it.
+    expect(allows(ROLE.planPaid, PERMISSION.billingSubscribe)).toBe(true);
   });
 
   test('a host role inherits the member role', () => {

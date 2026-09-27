@@ -84,6 +84,11 @@ function StatusLine(props: {
       class="text textBody text-text-secondary"
       data-testid={Handles.billingStatus}
       data-state={props.view.state}
+      data-period-end={
+        props.view.periodEndMs === null
+          ? undefined
+          : new Date(props.view.periodEndMs).toISOString()
+      }
     >
       <Switch>
         <Match when={props.view.state === 'trialing'}>

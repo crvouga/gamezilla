@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-21.1';
+export const PERMISSION_POLICY_VERSION = '2026-09-26.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -78,8 +78,11 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
  * practice is unlimited. The only limit is the anonymous rated-puzzle quota;
  * because quotas merge to the maximum, `puzzle.rated.solve` lives on the
  * fact-matched roles (anonymous: 20/day, accounts: unlimited), never on the
- * baseline. Plan roles are listed explicitly — no inheritance — so the paid
- * role can lack `billing:subscribe`; their `when` predicates are exclusive.
+ * baseline. Plan roles are listed explicitly — no inheritance — and their
+ * `when` predicates are exclusive. Both may `billing:subscribe`: a paid
+ * account whose membership ended keeps paid access through grace and may
+ * start again at once; the billing screen and the checkout route never offer
+ * a second checkout while a membership is live.
  *
  * Restrictions carry what used to be feature code: account-only actions deny
  * anonymous subjects with `requires_account`, and the membership offer is off
@@ -124,7 +127,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     },
     [ROLE.planPaid]: {
       when: { auth: 'verified', membership: 'active' },
-      permissions: ACCOUNT_PERMISSIONS,
+      permissions: [...ACCOUNT_PERMISSIONS, PERMISSION.billingSubscribe],
       limits: { [LIMIT.hostedSpaces]: null },
       quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
     },

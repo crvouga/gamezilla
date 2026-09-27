@@ -65,6 +65,19 @@ function present(testId: string): boolean {
   return screen.queryByTestId(testId) !== null;
 }
 
+/** The status line's date and the current plan, as machine-readable marks. */
+function expectMarkers(view: BillingView, status: HTMLElement): void {
+  expect(status.getAttribute('data-period-end')).toBe(
+    view.periodEndMs === null ? null : new Date(view.periodEndMs).toISOString()
+  );
+  for (const key of ['subscription_monthly', 'subscription_yearly']) {
+    const price = screen.queryByTestId(Handles.billingPrice(key));
+    expect(price?.getAttribute('aria-current') ?? null).toBe(
+      view.showPricing && view.priceKey === key ? 'true' : null
+    );
+  }
+}
+
 describe('billing screen: every caller × row × switch × customer', () => {
   for (const caller of CALLERS) {
     for (const kind of KINDS) {
@@ -91,6 +104,7 @@ describe('billing screen: every caller × row × switch × customer', () => {
             expect(present(Handles.billingBenefits)).toBe(view.showPricing);
             const status = screen.getByTestId(Handles.billingStatus);
             expect(status.getAttribute('data-state')).toBe(view.state);
+            expectMarkers(view, status);
             expect(status.textContent?.length ?? 0).toBeGreaterThan(0);
             cleanup();
           });
@@ -106,6 +120,23 @@ describe('billing screen: copy and actions', () => {
     expect(screen.getByTestId(Handles.billingStatus).textContent).toBe(
       'Free trial · ends 2026-10-01 (10 days left)'
     );
+    cleanup();
+  });
+
+  test('the plan the membership is on is marked as the current one', () => {
+    const input = inputFor('account', 'active', true, true);
+    const row = { ...input.row, price_key: 'subscription_yearly' };
+    renderView(buildBillingView({ ...input, row: row as typeof input.row }));
+    expect(
+      screen
+        .getByTestId(Handles.billingPrice('subscription_yearly'))
+        .getAttribute('aria-current')
+    ).toBe('true');
+    expect(
+      screen
+        .getByTestId(Handles.billingPrice('subscription_monthly'))
+        .getAttribute('aria-current')
+    ).toBeNull();
     cleanup();
   });
 

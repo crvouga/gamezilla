@@ -158,8 +158,8 @@ export const observeMembership = scenarioAction({
 /**
  * Start and pay a fresh checkout for the actor's customer at the provider —
  * the session the app's own checkout would create, paid through the hosted
- * page's API. Used where the billing screen deliberately hides Subscribe (an
- * ended membership still inside grace).
+ * page's API. The lifecycle walk's `resubscribe` stimulus: a provider-side
+ * step that works whatever screen the payer is on.
  */
 export const checkoutPlusAtProvider = scenarioAction({
   name: 'checkoutPlusAtProvider',

@@ -1,11 +1,12 @@
 /**
- * Reads for the billing scenarios: the on-screen tier, which billing button is
- * offered, and the projection rows on the actor's client and the server.
+ * Reads for the billing scenarios: what the billing screen shows (tier,
+ * membership state and date, current plan, which button is offered), and the
+ * projection rows on the actor's client and the server for code tests.
  */
 
 import { actorUi } from '@libs/sim-harness/system/actor-ui';
 import { actorLocalSql } from '@libs/sim-harness/system/identity';
-import { nodeText } from '@libs/sim-harness/system/observations';
+import { actorHtml, nodeText } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
 import { sql } from '@pkgs/sql';
@@ -45,6 +46,54 @@ export async function billingTier(
   actorId: string
 ): Promise<string | null> {
   return await nodeText(s, actorId, [Handles.billingTier]);
+}
+
+/** The opening tag of the element with `testId` in `html`, or `null`. */
+function openingTag(html: string, testId: string): string | null {
+  const match = new RegExp(`<[^>]*\\sdata-testid="${testId}"[^>]*>`).exec(html);
+  return match?.[0] ?? null;
+}
+
+function attribute(tag: string, name: string): string | null {
+  return new RegExp(`\\s${name}="([^"]*)"`).exec(tag)?.[1] ?? null;
+}
+
+/** The membership as the billing screen shows it. */
+export type MembershipShown = {
+  /** `none` | `incomplete` | `trialing` | `active` | `canceling` | `delinquent` | `ended`. */
+  readonly state: string;
+  /** The date the status line names (trial end, renewal, access end), in ms. */
+  readonly periodEndMs: number | null;
+};
+
+/** The billing screen's status line, or `null` while it is not on screen. */
+export async function membershipShown(
+  s: ProductSim,
+  actorId: string
+): Promise<MembershipShown | null> {
+  const html = await actorHtml(s, actorId);
+  const tag = html === null ? null : openingTag(html, Handles.billingStatus);
+  if (tag === null) return null;
+  const end = attribute(tag, 'data-period-end');
+  return {
+    state: attribute(tag, 'data-state') ?? 'none',
+    periodEndMs: end === null ? null : Date.parse(end),
+  };
+}
+
+/** The offer price the billing screen marks as the current plan, if any. */
+export async function currentPlan(
+  s: ProductSim,
+  actorId: string,
+  priceKeys: readonly string[]
+): Promise<string | null> {
+  const html = await actorHtml(s, actorId);
+  if (html === null) return null;
+  for (const key of priceKeys) {
+    const tag = openingTag(html, Handles.billingPrice(key));
+    if (tag !== null && attribute(tag, 'aria-current') === 'true') return key;
+  }
+  return null;
 }
 
 export async function billingButtonVisible(
