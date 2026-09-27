@@ -11,7 +11,11 @@ import {
   type QuintBinding,
   setQuintWorld,
 } from '@pkgs/quint/registry';
-import { replayTrace, untakenActions } from '@pkgs/quint/replay';
+import {
+  replayTrace,
+  replayTraceTwice,
+  untakenActions,
+} from '@pkgs/quint/replay';
 import { simulate } from '@pkgs/quint/simulate';
 
 type Door = { state: string; lastBy: string; steps: string[] };
@@ -42,6 +46,7 @@ const binding: QuintBinding<Door> = {
     },
   },
   observe: async (d) => ({ state: d.state, lastBy: d.lastBy }),
+  fingerprint: async (d) => `${d.state}:${d.lastBy}`,
 };
 
 setQuintWorld<Door>({
@@ -134,6 +139,45 @@ describe('a product that disagrees with the model', () => {
         binding: partial as QuintBinding<unknown>,
       })
     ).rejects.toThrow('no binding for Quint action "lock"');
+  });
+
+  test('a world whose end state depends on more than the trace fails the replay-twice check', async () => {
+    if (withLock === undefined) return;
+    let opened = 0;
+    const leaky: QuintBinding<Door> = {
+      ...binding,
+      fingerprint: async (d) => `${d.state}:${String(opened)}`,
+    };
+    const args = {
+      ctx: {
+        packageName: '@pkgs/quint',
+        specUri: 'door.qnt',
+        model: 'door',
+        trace: 1,
+        seed: '0x2a',
+        testId: 'door.trace-1',
+        title: 'door · trace 1',
+      },
+      trace: withLock,
+      world: {
+        create: async () => {
+          opened += 1;
+          return { state: 'closed', lastBy: '', steps: [] };
+        },
+        dispose: async () => {},
+      },
+    };
+    await expect(
+      replayTraceTwice({ ...args, binding: leaky as QuintBinding<unknown> })
+    ).rejects.toThrow('replayed twice ended in different states');
+    const sound: QuintBinding<Door> = {
+      ...binding,
+      fingerprint: async (d) => `${d.state}:${d.lastBy}`,
+    };
+    await replayTraceTwice({
+      ...args,
+      binding: sound as QuintBinding<unknown>,
+    });
   });
 
   test('a bound action no trace takes is reported', () => {

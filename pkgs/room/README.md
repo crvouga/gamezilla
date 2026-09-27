@@ -533,10 +533,12 @@ after every step).
 | `shared-counter.qnt` | Model: increments / decrements across offline, stalled networks, app crash and restart, room restart, resent command ids and session take-over (exactly once), unknown and malformed messages |
 | `match-clock.qnt` | Model: start / move / claim flag / wait on the room clock; status, turn, both banks, winner, what each device shows |
 
-Code tests in `pkgs/room-sim/tests/`: `determinism.test.ts` (same seed
-twice, counter and match clock), `malformed-messages.test.ts` (non-Message
-payload refused, unknown kind ignored), `standalone-room.test.ts`
-(`openLoopbackRoom`).
+Same seed twice: each model's binding gives a `fingerprint` (room and
+device hashes), and the Quint runner replays its longest trace twice and
+requires the same end state. The wire side of malformed messages
+(non-Message payload refused, unknown kind ignored) is
+`pkgs/room/tests/room-server.contract.test.ts`. Code tests in
+`pkgs/room-sim/tests/`: `standalone-room.test.ts` (`openLoopbackRoom`).
 
 ### Module kit sim (`/room/sim` kit)
 

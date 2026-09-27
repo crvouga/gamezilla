@@ -24,27 +24,27 @@ function testEnv() {
   };
 }
 
+const setNoteBody = defineMutation({
+  name: 'publicApiSetNote',
+  args: z.object({ id: z.string(), body: z.string() }),
+  async run({ tx, env: e }, { id, body }) {
+    await tx.run(sql`
+        INSERT INTO notes (id, folder_id, title, body, owner_id)
+        VALUES (${id}, ${null}, ${''}, ${body}, ${e.actorId})
+        ON CONFLICT (id) DO UPDATE SET
+          body = excluded.body,
+          owner_id = excluded.owner_id,
+          deleted_at = NULL
+      `);
+  },
+});
+
 describe('public API: defineMutation + wrapMutationDb', () => {
   test('managed-column inject + RETURNING capture on upsert', async () => {
     const db = SqlClientImplMockingbirdSqlite.open();
     await db.connect();
     await migrateLocalSchema(db, exampleLocalSchema);
     const env = testEnv();
-
-    const setNoteBody = defineMutation({
-      name: 'publicApiSetNote',
-      args: z.object({ id: z.string(), body: z.string() }),
-      async run({ tx, env: e }, { id, body }) {
-        await tx.run(sql`
-          INSERT INTO notes (id, folder_id, title, body, owner_id)
-          VALUES (${id}, ${null}, ${''}, ${body}, ${e.actorId})
-          ON CONFLICT (id) DO UPDATE SET
-            body = excluded.body,
-            owner_id = excluded.owner_id,
-            deleted_at = NULL
-        `);
-      },
-    });
 
     const wrapped = wrapMutationDb(db, env);
     await setNoteBody.run({ tx: wrapped.tx, env }, { id: 'n1', body: 'hello' });
@@ -89,17 +89,25 @@ describe('public API: defineMutation + wrapMutationDb', () => {
     expect(tomb[0]?.deleted_at).toBe(now);
   });
 
-  test('domain hard DELETE throws NO_HARD_DELETE', async () => {
+  test('domain hard DELETE throws NO_HARD_DELETE and the row stays live', async () => {
     const db = SqlClientImplMockingbirdSqlite.open();
     await db.connect();
     await migrateLocalSchema(db, exampleLocalSchema);
     const env = testEnv();
     const wrapped = wrapMutationDb(db, env);
+    await setNoteBody.run(
+      { tx: wrapped.tx, env },
+      { id: 'n1', body: 'keep-me' }
+    );
 
     await expect(
       wrapped.tx.run(sql`DELETE FROM notes WHERE id = ${'n1'}`)
     ).rejects.toMatchObject({
       code: 'NO_HARD_DELETE',
     } satisfies Partial<MutationError>);
+    const live = await db.query(sql<{ body: string }>`
+      SELECT body FROM notes WHERE id = ${'n1'} AND deleted_at IS NULL
+    `);
+    expect(live).toEqual([{ body: 'keep-me' }]);
   });
 });

@@ -74,6 +74,13 @@ export type QuintBinding<W> = {
    * the variables it leaves out are the model's own bookkeeping.
    */
   readonly observe: (world: W) => Promise<Readonly<Record<string, QuintValue>>>;
+  /**
+   * The world's whole end state as one string (state hashes, say), finer
+   * than {@link observe}. When given, the runner replays the longest trace
+   * twice, each in a fresh world, and requires the same fingerprint: a run
+   * is a function of its seed and the trace.
+   */
+  readonly fingerprint?: (world: W) => Promise<string>;
 };
 
 export const DEFAULT_TRACES = 4;

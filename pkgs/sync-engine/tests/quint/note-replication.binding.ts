@@ -496,4 +496,11 @@ bindQuintModel<NoteWorld>({
       unsent,
     };
   },
+  fingerprint: async (w) => {
+    const nodes: Record<string, unknown> = {};
+    for (const node of ['server', ...PEOPLE]) {
+      nodes[node] = await w.s.read(liveNotes, node).catch(() => 'closed');
+    }
+    return JSON.stringify(nodes);
+  },
 });

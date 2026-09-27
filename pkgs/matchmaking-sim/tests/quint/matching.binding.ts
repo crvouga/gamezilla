@@ -9,6 +9,7 @@ import type { StatusResult } from '@pkgs/matchmaking/interface';
 import {
   join,
   leave,
+  matchFingerprint,
   matchmaking,
   NameAttr,
   participantIds,
@@ -141,4 +142,5 @@ bindQuintModel<MatchmakingTraceWorld>({
     }
     return { standing };
   },
+  fingerprint: (w) => matchFingerprint(traceMatchmaking(w)),
 });

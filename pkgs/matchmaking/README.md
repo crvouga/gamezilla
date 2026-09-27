@@ -112,8 +112,9 @@ The acceptance behavior (waiting, stopping, being matched, the same answer
 at every replica) is the Matchmaking context in `specs/matchmaking/`
 (Gherkin features plus the `matching.qnt` model), run by
 `@pkgs/matchmaking-sim`'s `test:e2e` through `tests/steps/` and
-`tests/quint/`. The package `test` keeps the same-seed determinism and
-schema-drift contracts.
+`tests/quint/`; the runner also replays the model's longest trace twice and
+requires the same match fingerprint (same seed, same outcome). The package
+`test` keeps the schema-drift contract.
 
 ```bash
 bun run --filter @pkgs/matchmaking test

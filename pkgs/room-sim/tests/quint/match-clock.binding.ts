@@ -23,7 +23,7 @@ import {
   roomEpoch,
   StartMatch,
 } from '@pkgs/room-sim';
-import { type RoomTraceWorld, traceRoom } from './world';
+import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
 
 const SIDES = ['white', 'black'] as const;
 type Side = (typeof SIDES)[number];
@@ -98,4 +98,5 @@ bindQuintModel<RoomTraceWorld>({
       matchShown: await s.read(matchShown),
     };
   },
+  fingerprint: roomFingerprint,
 });

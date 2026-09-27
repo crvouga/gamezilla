@@ -123,6 +123,15 @@ describe('room server: invalid commands are refused', () => {
     expect(rig.storage.dedup.get('bad')?.kind).toBe('rejected');
     expect(rig.storage.entries).toHaveLength(0);
   });
+
+  test('a frame of unknown kind is ignored: no answer, nothing logged', async () => {
+    const rig = await serverWith(['alice']);
+    const before = connection(rig, 'alice').frames.length;
+    await send(rig, 'alice', { v: WIRE_VERSION, kind: 'nope' });
+    expect(connection(rig, 'alice').frames).toHaveLength(before);
+    expect(rig.storage.entries).toHaveLength(0);
+    expect(rig.server.getCommittedState()[MOVES_KEY]).toBe(0);
+  });
 });
 
 describe('room server: connections are answered', () => {

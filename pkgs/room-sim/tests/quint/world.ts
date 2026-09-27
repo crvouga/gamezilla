@@ -9,7 +9,7 @@
  */
 
 import { setQuintWorld, type TraceContext } from '@pkgs/quint/registry';
-import type { RoomSim } from '@pkgs/room-sim';
+import { clientHash, type RoomSim, serverHash } from '@pkgs/room-sim';
 import type { Run } from '@pkgs/sim';
 
 export type RoomTraceWorld = {
@@ -24,6 +24,15 @@ const SETTLE_STEP_MS = 25;
 export function traceRoom(w: RoomTraceWorld): Run<RoomSim> {
   if (w.sim === null) throw new Error('no room — the binding init opens one');
   return w.sim;
+}
+
+/** The room's and every running device's state hash: a replay's end state. */
+export async function roomFingerprint(w: RoomTraceWorld): Promise<string> {
+  const s = traceRoom(w);
+  return JSON.stringify({
+    room: await s.read(serverHash),
+    devices: await s.read(clientHash),
+  });
 }
 
 export function useRoomTraceWorld(): void {

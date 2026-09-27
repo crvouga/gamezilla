@@ -80,6 +80,10 @@ Rules:
   so a model's verdict is cached like a property's. There are no product
   random walks outside a model — the model is what makes a walk's verdict
   mean more than "nothing crashed".
+- Same seed twice is a model check, not a hand-written test: a binding that
+  gives a `fingerprint` (a hash of the world's whole end state) has its
+  longest trace replayed twice, in fresh worlds, and the two fingerprints
+  must agree. The room, matchmaking, index-tuning and sync bindings give one.
 - Hunt beyond the pinned seed with `bun run test:pbt:random` (`PBT_RANDOM=1`).
   That is exploration, not the gate: whatever it finds is pinned as a
   regression test before it is fixed.

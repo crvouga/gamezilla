@@ -1,11 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  daysPass,
-  declare,
-  indexTuningSystem,
-  tune,
-  tunedIndexNames,
-} from '@pkgs/db-indexes/sim';
 import { assertProperty } from '@pkgs/property';
 import fc from 'fast-check';
 import { compareNames } from '../src/core/compare';
@@ -134,24 +127,5 @@ describe('analyzer determinism PBT', () => {
       clock,
     });
     expect(canonicalizePlan(a)).toBe(canonicalizePlan(b));
-  });
-});
-
-describe('index tuning replay', () => {
-  // Same seed twice → the same tuned indexes: the sim's replay contract.
-  test('same seed twice ends with the same tuned indexes', async () => {
-    async function once(seed: number): Promise<string[]> {
-      await using s = await indexTuningSystem.run({ seed });
-      await s.apply(declare, ['notesByAuthor', 'notesByOwner']);
-      await s.apply(tune);
-      await s.apply(declare, ['notesByOwner']);
-      await s.apply(tune);
-      await s.apply(daysPass, 2);
-      await s.apply(tune);
-      return await s.read(tunedIndexNames);
-    }
-    const a = await once(42);
-    expect(a).toHaveLength(1);
-    expect(await once(42)).toEqual(a);
   });
 });

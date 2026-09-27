@@ -31,7 +31,7 @@ import {
   serverRestart,
   takeOver,
 } from '@pkgs/room-sim';
-import { type RoomTraceWorld, traceRoom } from './world';
+import { type RoomTraceWorld, roomFingerprint, traceRoom } from './world';
 
 const PEOPLE = ['alice', 'bob'] as const;
 
@@ -150,4 +150,5 @@ bindQuintModel<RoomTraceWorld>({
     const roomCount = counterValue(await readServer(s));
     return { roomCount, ...(await s.read(observed)) };
   },
+  fingerprint: roomFingerprint,
 });

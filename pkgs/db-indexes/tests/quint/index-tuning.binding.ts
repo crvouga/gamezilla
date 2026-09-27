@@ -14,6 +14,7 @@ import {
   retiringLookups,
   teamIndexKept,
   tune,
+  tunedIndexNames,
   tunedLookups,
   use,
   usesByLookup,
@@ -78,4 +79,6 @@ bindQuintModel<TuningTraceWorld>({
       teamIndex: await s.read(teamIndexKept),
     };
   },
+  fingerprint: async (w) =>
+    JSON.stringify(await traceTuning(w).read(tunedIndexNames)),
 });

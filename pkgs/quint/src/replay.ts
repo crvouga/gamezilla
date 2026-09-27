@@ -151,7 +151,12 @@ async function checkState(
   return names;
 }
 
-export async function replayTrace(args: ReplayArgs): Promise<void> {
+/**
+ * Replay one trace in a fresh world, checking the model's state after every
+ * step. Returns the binding's fingerprint of the end state (`null` without
+ * one).
+ */
+export async function replayTrace(args: ReplayArgs): Promise<string | null> {
   const { ctx, trace, world, binding } = args;
   const w = await world.create(ctx);
   let at = 0;
@@ -177,6 +182,9 @@ export async function replayTrace(args: ReplayArgs): Promise<void> {
       };
       await (world.record === undefined ? run() : world.record(w, meta, run));
     }
+    return binding.fingerprint === undefined
+      ? null
+      : await binding.fingerprint(w);
   } catch (cause) {
     throw new Error(
       formatTraceFailure({
@@ -190,6 +198,21 @@ export async function replayTrace(args: ReplayArgs): Promise<void> {
     );
   } finally {
     await world.dispose(w);
+  }
+}
+
+/**
+ * Replay one trace twice, each in a fresh world, and require the binding's
+ * fingerprint of the end state to agree: the same seed and trace must end
+ * in the same state.
+ */
+export async function replayTraceTwice(args: ReplayArgs): Promise<void> {
+  const once = await replayTrace(args);
+  const twice = await replayTrace(args);
+  if (once !== twice) {
+    throw new Error(
+      `${args.binding.model}: trace ${String(args.ctx.trace)} replayed twice ended in different states — the run depends on more than its seed and trace\n  once:  ${String(once)}\n  twice: ${String(twice)}`
+    );
   }
 }
 
