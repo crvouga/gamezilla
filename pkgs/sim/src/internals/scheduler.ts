@@ -6,6 +6,7 @@ import {
   runForDuration,
   runUntilPred,
   runUntilQuiescentHeap,
+  sleepForDuration,
   type Task,
   type TaskBody,
 } from './scheduler-core';
@@ -29,12 +30,10 @@ export type Scheduler = {
   readonly reset: (atMs: number) => void;
   readonly runFor: (durationMs: number) => Promise<void>;
   /**
-   * Suspend for `durationMs`: the clock jumps forward at once, then every Task
-   * that fell due in the gap fires once, in due order, at the landing instant —
-   * what a machine sees after sleeping. Intervals resume from the landing, so
-   * days pass in a handful of Tasks instead of one per tick.
+   * Jump `durationMs` with nothing running meanwhile; every Task that fell
+   * due fires once on waking (see `sleepForDuration`).
    */
-  readonly skip: (durationMs: number) => Promise<void>;
+  readonly sleep: (durationMs: number) => Promise<void>;
   /** Advances made while wall work was still in flight; see `DrainStats`. */
   readonly starvedAdvances: () => number;
   readonly runUntilQuiescent: (opts?: {
@@ -82,12 +81,7 @@ export function createScheduler(
     }
     const taskId = seq++;
     pushTask(heap, { at, id: taskId, run, label });
-    trace?.record({
-      type: 'task_create',
-      taskId,
-      at,
-      label,
-    });
+    trace?.record({ type: 'task_create', taskId, at, label });
   };
 
   const withDrainGate = async <T>(fn: () => Promise<T>): Promise<T> => {
@@ -114,14 +108,8 @@ export function createScheduler(
     starvedAdvances: () => stats.starvedAdvances,
     runFor: (durationMs) =>
       withDrainGate(() => runForDuration(makeCtx(), durationMs)),
-    skip: (durationMs) =>
-      withDrainGate(async () => {
-        if (!(durationMs >= 0) || !Number.isFinite(durationMs)) {
-          throw new Error(`Scheduler.skip: bad duration ${durationMs}`);
-        }
-        clock.set(clock.now() + durationMs);
-        await runForDuration(makeCtx(), 0);
-      }),
+    sleep: (durationMs) =>
+      withDrainGate(() => sleepForDuration(makeCtx(), durationMs)),
     runUntilQuiescent: (opts) =>
       withDrainGate(() => runUntilQuiescentHeap(makeCtx(), opts)),
     runUntil: (pred, opts) =>

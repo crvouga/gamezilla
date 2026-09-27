@@ -7,22 +7,29 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} has changed the feed history to {string} and saved the feed settings | {actor}, {string} | chess |
 | Given | {actor} has finished the puzzle offline by {finish} | {actor}, {finish} | chess |
+| Given | {actor} has joined the space from the link and is watching {actor}'s puzzle | {actor}, {actor} | chess |
 | Given | {actor} has left the puzzle for the chess choices | {actor} | chess |
 | Given | {actor} has limited the feed to the {string} theme and it is empty | {actor}, {string} | chess |
+| Given | {actor} has moved on to the next puzzle | {actor} | chess |
 | Given | {actor} has opened puzzles in their space | {actor} | chess |
+| Given | {actor} has played {int} puzzles today | {actor}, {int} | chess |
 | Given | {actor} has played a wrong move | {actor} | chess |
 | Given | {actor} has played a wrong move and retried | {actor} | chess |
 | Given | {actor} has played a wrong move and skipped the puzzle | {actor} | chess |
+| Given | {actor} has played the next move of the solution | {actor} | chess |
 | Given | {actor} has puzzles set to advance 1 second after a solve | {actor} | chess |
 | Given | {actor} has saved a custom feed target raised by {int} step(s) | {actor}, {int} | chess |
 | Given | {actor} has shown the solution | {actor} | chess |
 | Given | {actor} has since come back online and signed in with Google | {actor} | chess |
 | Given | {actor} has skipped the puzzle | {actor} | chess |
+| Given | {actor} has solved {int} puzzles a day for {int} days | {actor}, {int}, {int} | chess |
 | Given | {actor} has solved {int} puzzles and failed {int} | {actor}, {int}, {int} | chess |
 | Given | {actor} has solved {int} puzzles in a row | {actor}, {int} | chess |
 | Given | {actor} has solved a puzzle while offline | {actor} | chess |
 | Given | {actor} has solved the puzzle | {actor} | chess |
+| Given | {actor} has solved the twentieth puzzle of the day | {actor} | chess |
 | Given | {actor} has suggested a move that {actor} can see | {actor}, {actor} | chess |
 | Given | {actor} has taken a hint | {actor} | chess |
 | Given | {actor} has taken two hints | {actor} | chess |
@@ -62,6 +69,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is asked which piece Black promotes to | {actor} | chess |
 | Then | {actor} is asked which piece White promotes to on {word} | {actor}, {word} | chess |
 | Then | {actor} is invited to sign in for more puzzles | {actor} | chess |
+| Then | {actor} is invited to sign in to customize the feed | {actor} | chess |
 | Then | {actor} is not shown the puzzle limit | {actor} | chess |
 | Then | {actor} is not told the feed is empty | {actor} | chess |
 | Then | {actor} is on a different puzzle than the one before within {int} seconds | {actor}, {int} | chess |
@@ -78,15 +86,18 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is told the feed is empty within {int} seconds | {actor}, {int} | chess |
 | Then | {actor} is told the move was wrong | {actor} | chess |
 | Then | {actor} is told the move was wrong within {int} seconds | {actor}, {int} | chess |
+| Then | {actor} is watching {actor}'s puzzle within {int} seconds | {actor}, {actor}, {int} | chess |
 | Then | {actor} is watching the puzzle and cannot move pieces | {actor} | chess |
 | Then | {actor} sees no suggestions within {int} seconds | {actor}, {int} | chess |
 | Then | {actor} sees the puzzle solved within {int} seconds | {actor}, {int} | chess |
 | Then | {actor}'s and {actor}'s boards agree | {actor}, {actor} | chess |
+| Then | {actor}'s and {actor}'s boards agree within {int} seconds | {actor}, {actor}, {int} | chess |
 | Then | {actor}'s board faces {word} | {actor}, {word} | chess |
 | Then | {actor}'s board is at move {int} of the line within {int} seconds | {actor}, {int}, {int} | chess |
 | Then | {actor}'s board is unchanged | {actor} | chess |
 | Then | {actor}'s board reaches checkmate at move {int} of the line within {int} seconds | {actor}, {int}, {int} | chess |
 | Then | {actor}'s board shows {word} as the last move | {actor}, {word} | chess |
+| Then | {actor}'s board shows the rook on {word} can go to {squares} | {actor}, {word}, {squares} | chess |
 | Then | {actor}'s feed comes round to the first puzzle they played within {int} seconds | {actor}, {int} | chess |
 | Then | {actor}'s feed history shows {string} | {actor}, {string} | chess |
 | Then | {actor}'s feed rating offset is {int} | {actor}, {int} | chess |
@@ -99,6 +110,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s hint shows the solution move | {actor} | chess |
 | Then | {actor}'s other device shows {int} played, {int} solved, and {int}% accuracy | {actor}, {int}, {int}, {int} | chess |
 | Then | {actor}'s other device shows the same puzzle rating within {int} seconds | {actor}, {int} | chess |
+| Then | {actor}'s other device's feed targets a custom {int} within {int} seconds | {actor}, {int}, {int} | chess |
 | Then | {actor}'s puzzle clock has not moved since the solve | {actor} | chess |
 | Then | {actor}'s puzzle clock shows at least {int} seconds | {actor}, {int} | chess |
 | Then | {actor}'s puzzle is not solved | {actor} | chess |
@@ -115,6 +127,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s review lists the moves {string} | {actor}, {string} | chess |
 | Then | {actor}'s stats show {int} played, {int} solved, and {int}% accuracy | {actor}, {int}, {int}, {int} | chess |
 | Then | {actor}'s stats show a rating of {string} | {actor}, {string} | chess |
+| Then | {actor}'s stats show their rating after each of those {int} puzzles | {actor}, {int} | chess |
 | Then | {actor}'s stats show their rating without the {string} | {actor}, {string} | chess |
 | Then | {actor}'s unsaved feed settings preview a target of {int} | {actor}, {int} | chess |
 | Then | {word} is in check and to move on {actor}'s board | {word}, {actor} | chess |
@@ -145,6 +158,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} opens the puzzle's review from their game log | {actor} | chess |
 | When | {actor} opens their stats | {actor} | chess |
 | When | {actor} picks chess for the space | {actor} | chess |
+| When | {actor} picks up the rook on {word} | {actor}, {word} | chess |
 | When | {actor} plays {word} | {actor}, {word} | chess |
 | When | {actor} plays {word} and promotes to a {word} | {actor}, {word}, {word} | chess |
 | When | {actor} plays a wrong move | {actor} | chess |
@@ -156,6 +170,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} returns to their space | {actor} | chess |
 | When | {actor} shows the solution | {actor} | chess |
 | When | {actor} skips the puzzle | {actor} | chess |
+| When | {actor} solves {int} puzzles a day for {int} days | {actor}, {int}, {int} | chess |
 | When | {actor} solves {int} puzzles in a row | {actor}, {int} | chess |
 | When | {actor} solves the puzzle | {actor} | chess |
 | When | {actor} starts editing the feed settings | {actor} | chess |
@@ -166,6 +181,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} tries the illegal move {word} | {actor}, {word} | chess |
 | When | {actor} tries to move the opponent's piece {word} | {actor}, {word} | chess |
 | When | {int} seconds pass | {int} | chess |
+| When | the next day begins | — | chess |
 
 ## Shared steps (every package)
 
@@ -189,6 +205,24 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} loses the connection | {actor} | shared |
 | When | {actor} signs in with Google | {actor} | shared |
 | When | the connection comes back | — | shared |
+
+## Steps imported from @libs/billing
+
+| Kind | Step | Parameters | Domain |
+| --- | --- | --- | --- |
+| Given | {actor} has subscribed to Plus | {actor} | billing |
+| Then | {actor} has free access | {actor} | billing |
+| Then | {actor} has free access on {actor}'s device | {actor}, {actor} | billing |
+| Then | {actor} has paid access | {actor} | billing |
+| Then | {actor} is asked to sign in before subscribing | {actor} | billing |
+| Then | {actor} is not offered to subscribe | {actor} | billing |
+| Then | {actor} is offered to manage their membership | {actor} | billing |
+| Then | {actor} is offered to subscribe | {actor} | billing |
+| Then | {actor} is told subscribing needs a connection | {actor} | billing |
+| When | {actor} leaves checkout without paying | {actor} | billing |
+| When | {actor} signs in with Google on {actor}'s device | {actor}, {actor} | billing |
+| When | {actor} subscribes to Plus | {actor} | billing |
+| When | {actor} views the billing plans | {actor} | billing |
 
 ## Steps imported from @libs/friends
 

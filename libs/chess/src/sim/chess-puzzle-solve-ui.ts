@@ -9,8 +9,12 @@ import { actorLocalSql } from '@libs/sim-harness/system/identity';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { Handles } from '@libs/test-ids';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
-import type { ChessBoardProbe } from '@pkgs/chess-board-core/probe';
-import { chessBoardPromotionTestId } from '@pkgs/chess-board-core/probe';
+import {
+  type ChessBoardProbe,
+  chessBoardLayerTestId,
+  chessBoardPromotionTestId,
+  parseChessBoardPaint,
+} from '@pkgs/chess-board-core/probe';
 import type { Square } from '@pkgs/chess-board-core/types';
 import type { RecordingHaptics } from '@pkgs/device/haptics';
 import { sql } from '@pkgs/sql';
@@ -106,6 +110,37 @@ export async function tapPuzzleUci(
   const board = await puzzleBoard(s, actorId);
   await board.tapSquare(squares.from);
   await board.tapSquare(squares.to);
+}
+
+/** Pick up the piece on `square` (tap it) without moving it. */
+export async function pickUpPuzzlePieceAt(
+  s: ProductSim,
+  actorId: string,
+  square: Square
+): Promise<void> {
+  const board = await puzzleBoard(s, actorId);
+  await board.tapSquare(square);
+}
+
+/**
+ * The squares the board marks as where the picked-up piece can go (a dot on
+ * an empty square, a ring on a capture), sorted.
+ */
+export async function readPuzzleBoardDestinations(
+  s: ProductSim,
+  actorId: string
+): Promise<readonly Square[]> {
+  const ui = await actorUi(s, actorId);
+  const layer = ui.get(
+    chessBoardLayerTestId(Handles.chessPuzzleBoard, 'squares')
+  );
+  const paint = parseChessBoardPaint(await layer.text());
+  return paint
+    .flatMap((token) => {
+      const match = /^(?:dot|ring)@([a-h][1-8])$/.exec(token);
+      return match?.[1] === undefined ? [] : [match[1] as Square];
+    })
+    .sort();
 }
 
 /** The promotion picker's pending move, or null when it is closed. */

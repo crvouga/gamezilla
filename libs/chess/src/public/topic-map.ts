@@ -7,6 +7,11 @@ export const CHESS_TOPIC_MAP = {
       return [`user:${ctx.actorId}`];
     },
   },
+  chess_puzzle_feed_settings: {
+    topics(_row, ctx) {
+      return [`user:${ctx.actorId}`];
+    },
+  },
   chess_puzzle_rating_events: {
     topics(_row, ctx) {
       return [`user:${ctx.actorId}`];

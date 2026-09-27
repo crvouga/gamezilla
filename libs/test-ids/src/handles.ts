@@ -260,6 +260,8 @@ export const Handles = {
   chessPuzzleFeedTarget: 'chess-puzzle-feed-target',
   chessPuzzleFeedPool: 'chess-puzzle-feed-pool',
   chessPuzzleFeedDone: 'chess-puzzle-feed-done',
+  /** The feed settings' sign-in invitation, shown to a guest instead. */
+  chessPuzzleFeedLocked: 'chess-puzzle-feed-locked',
   chessPuzzleActionSolution: 'chess-puzzle-action-solution',
   chessGameLogEmpty: 'chess-game-log-empty',
   /** Game-log row title ("Solved · 1275" / "Abandoned · 1275"). */
@@ -283,6 +285,9 @@ export const Handles = {
   chessStatsSolved: 'chess-stats-solved',
   chessStatsAccuracy: 'chess-stats-accuracy',
   chessStatsPlayed: 'chess-stats-played',
+  /** The i-th rating after a puzzle in the stats' rating history, oldest first. */
+  chessStatsRatingHistoryPoint: (index: number) =>
+    `chess-stats-rating-history-${index}`,
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
   /** Hidden review probe: `solveIdx|lastSolveIdx|animated|notation`. */
   chessPuzzleReviewE2e: 'chess-puzzle-review-e2e',

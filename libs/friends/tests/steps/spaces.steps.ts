@@ -140,9 +140,17 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ joining
 
-When('{actor} joins the space from the link', async (w, actor: Actor) => {
+/** `actor` opens the shared space link and joins from its prompt. */
+export async function joinSpaceFromLink(
+  w: SimWorld,
+  actor: Actor
+): Promise<void> {
   await w.s.apply(openSpaceLink, actor, recall(w, SPACE_LINK) as string);
   await w.s.apply(joinFromPrompt, actor);
+}
+
+When('{actor} joins the space from the link', async (w, actor: Actor) => {
+  await joinSpaceFromLink(w, actor);
 });
 
 When('{actor} opens the space link again', async (w, actor: Actor) => {

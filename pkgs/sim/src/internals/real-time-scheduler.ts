@@ -3,10 +3,10 @@ import type { VirtualClock } from './clock';
 import type { TaskBody, Scheduler as VirtualScheduler } from './scheduler';
 import type { Scheduler } from './scheduler-api';
 
-/** Wall time cannot jump; the `virtualTime` capability gates callers. */
-function cannotSkip(): Promise<void> {
+/** Wall time passes at its own pace: it cannot jump ahead of the work. */
+function cannotSleep(): Promise<void> {
   return Promise.reject(
-    new Error('wall scheduler: time cannot skip ahead on the wall clock')
+    new Error('a wall-clock scheduler cannot sleep through time')
   );
 }
 
@@ -64,7 +64,6 @@ export function createWallScheduler(opts?: {
       await new Promise<void>((r) => setTimeout(r, Math.max(0, durationMs)));
       nowMs = Date.now();
     },
-    skip: cannotSkip,
     async runUntilQuiescent() {
       await new Promise<void>((r) => setTimeout(r, settleMs));
       nowMs = Date.now();
@@ -74,6 +73,7 @@ export function createWallScheduler(opts?: {
       nowMs = Date.now();
       return true;
     },
+    sleep: cannotSleep,
     // Wall time cannot run ahead of the work it is waiting for, so nothing
     // here is ever a starved advance.
     starvedAdvances: () => 0,

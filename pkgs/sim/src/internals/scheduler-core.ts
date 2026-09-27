@@ -257,6 +257,22 @@ export async function runForDuration(
   }
 }
 
+/**
+ * Time passes while nothing runs — a device asleep overnight, a closed
+ * laptop: the work due now settles, the clock jumps `durationMs`, and every
+ * Task that fell due meanwhile fires once at the far end, in due order. An
+ * interval fires once on waking, not once per period it slept through, so a
+ * day passes in the Tasks it takes to wake rather than a day of ticks.
+ */
+export async function sleepForDuration(
+  ctx: DrainContext,
+  durationMs: number
+): Promise<void> {
+  await runForDuration(ctx, 0);
+  ctx.clock.set(ctx.clock.now() + Math.max(0, durationMs));
+  await runForDuration(ctx, 0);
+}
+
 export async function runUntilQuiescentHeap(
   ctx: DrainContext,
   opts?: { readonly maxSteps?: number; readonly maxVirtualMs?: number }

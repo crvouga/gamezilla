@@ -74,7 +74,7 @@ export const letTimePass = defineAction({
       const left = end - s.session.ports.clock.now();
       if (left <= TIME_PASS_SETTLE_MS) break;
       const hop = Math.min(TIME_PASS_HOP_MS, left - TIME_PASS_SETTLE_MS);
-      await s.session.scheduler.underlying.skip(hop);
+      await s.session.scheduler.underlying.sleep(hop);
       await s.session.advanceTime(TIME_PASS_SETTLE_MS);
     }
     const left = end - s.session.ports.clock.now();

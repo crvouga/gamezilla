@@ -1778,6 +1778,10 @@ msgstr "Random"
 msgid "Randomize"
 msgstr "Randomize"
 
+#: libs/chess/src/public/chess-puzzle/chess-rating-history.tsx
+msgid "Rating after each puzzle"
+msgstr "Rating after each puzzle"
+
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-feed-settings-modal.tsx
 msgid "Rating offset"
 msgstr "Rating offset"
@@ -2348,6 +2352,10 @@ msgstr "Style"
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Subscribe"
 msgstr "Subscribe"
+
+#: libs/billing/src/root/client/billing-plan-card.tsx
+msgid "Subscribing needs a connection. Connect to the internet to start your membership."
+msgstr "Subscribing needs a connection. Connect to the internet to start your membership."
 
 #: libs/chess/src/public/chess-puzzle/chess-puzzle-recommendation-legend.tsx
 msgid "Suggested"

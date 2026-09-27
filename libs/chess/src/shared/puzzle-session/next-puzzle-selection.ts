@@ -390,9 +390,12 @@ export function computeNextPuzzleLoading(args: {
   localPuzzleTotal: number;
   /** The pool subscription finished its first hydrate for the current bands. */
   poolReady: boolean;
+  /** The device is connected; offline, no pool is on its way. */
+  online: boolean;
 }): boolean {
-  const { myId, banded, fallback, puzzleId, localPuzzleTotal, poolReady } =
-    args;
+  const { myId, banded, fallback, puzzleId, localPuzzleTotal } = args;
+  // Offline, nothing more will download: what is on the device is the pool.
+  const poolReady = args.poolReady || !args.online;
   if (myId.length === 0) return true;
   if (banded.isLoading) return true;
   if (banded.rows.length === 0 && fallback.isLoading) return true;

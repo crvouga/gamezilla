@@ -6,6 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
+import { SIM_CHESS_FEED_POOL_IDS } from '@libs/chess/sim/seed-sim-chess-puzzles';
 import {
   SIM_CHESS_FIXTURES_DIR,
   SIM_CHESS_PUZZLE_IDS,
@@ -20,6 +21,9 @@ function fixtureCsv(name: string): string {
 export const STANDARD_PUZZLE_IDS: readonly string[] = [
   ...SIM_CHESS_PUZZLE_IDS,
 ].sort();
+
+/** The feed-sized pool the scenarios' world seeds beside the three. */
+export const FEED_POOL_IDS: readonly string[] = SIM_CHESS_FEED_POOL_IDS;
 
 /** Fourteen puzzles clustered on the 1500 seed rating. */
 export const RATING_CSV = fixtureCsv('chess-puzzles-rating.sim.csv');
