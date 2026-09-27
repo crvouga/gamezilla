@@ -34,8 +34,8 @@ const SLOW = {
   healProbability: 0,
 } as const;
 
-/** "Within a second", checked every few milliseconds of the run's clock. */
-const SECOND_MS = 1_000;
+/** "Within a quarter of a second", checked every few milliseconds of the run's clock. */
+const QUARTER_SECOND_MS = 250;
 const QUICK_STEP_MS = 5;
 
 Given('{actor} and {actor} use the app', async (w, a: string, b: string) => {
@@ -55,10 +55,10 @@ Given(
 );
 
 Then(
-  '{actor} sees the note {string} within a second',
+  '{actor} sees the note {string} within a quarter of a second',
   async (w, actor: string, title: string) => {
     const row = await w.s.until((s) => liveNote(s, actor, title), {
-      maxMs: SECOND_MS,
+      maxMs: QUARTER_SECOND_MS,
       stepMs: QUICK_STEP_MS,
       pred: (r) => r !== null && r.deletedAt === null,
     });

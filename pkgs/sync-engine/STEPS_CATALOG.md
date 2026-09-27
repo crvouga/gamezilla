@@ -34,7 +34,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} sees all {int} notes, each in its folder | {actor}, {int} | sync |
 | Then | {actor} sees the note {string} at once | {actor}, {string} | sync |
 | Then | {actor} sees the note {string} once | {actor}, {string} | sync |
-| Then | {actor} sees the note {string} within a second | {actor}, {string} | sync |
+| Then | {actor} sees the note {string} within a quarter of a second | {actor}, {string} | sync |
 | Then | {actor}'s app says the note {string} is saved | {actor}, {string} | sync |
 | Then | {actor}'s app says the note {string} is still saving | {actor}, {string} | sync |
 | Then | {actor}'s app says the note {string} was refused | {actor}, {string} | sync |

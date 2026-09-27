@@ -163,7 +163,7 @@ async function writeConfirmed(w: NoteWorld, p: Picks): Promise<void> {
 
 bindQuintModel<NoteWorld>({
   model: 'note-replication',
-  traces: 32,
+  traces: 64,
   maxSteps: 16,
   actions: {
     init: async (w) => {
