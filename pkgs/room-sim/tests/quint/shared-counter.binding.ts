@@ -1,7 +1,7 @@
 /**
  * `specs/rooms/shared-counter.qnt` against the counter room: each model action through the
  * room sim actions on Alice's or Bob's device, and the model's state read
- * back from the room, each running device, and each device's link.
+ * back from the room, each running device, and each device's state.
  */
 
 import { asKeyword } from '@pkgs/keyword';
@@ -39,27 +39,27 @@ function person(picks: Picks): string {
   return String(picks['person']);
 }
 
-function link(s: RoomSim, id: string): QuintValue {
+function deviceStateOf(s: RoomSim, id: string): QuintValue {
   const device = s.kit.clients.get(id);
   if (device === undefined || device.isCrashed()) return variant('Crashed');
-  if (s.kit.net(id).state() === 'hold') return variant('Paused');
+  if (s.kit.net(id).state() === 'hold') return variant('Stalled');
   return variant(device.isConnected() ? 'Online' : 'Offline');
 }
 
 function observed(s: RoomSim): {
-  readonly views: Map<string, number>;
-  readonly links: Map<string, QuintValue>;
+  readonly shownCount: Map<string, number>;
+  readonly deviceState: Map<string, QuintValue>;
 } {
-  const views = new Map<string, number>();
-  const links = new Map<string, QuintValue>();
+  const shownCount = new Map<string, number>();
+  const deviceState = new Map<string, QuintValue>();
   for (const id of PEOPLE) {
-    links.set(id, link(s, id));
+    deviceState.set(id, deviceStateOf(s, id));
     const device = s.kit.clients.get(id);
     if (device !== undefined && !device.isCrashed()) {
-      views.set(id, counterValue(device.snapshot() as RoomState));
+      shownCount.set(id, counterValue(device.snapshot() as RoomState));
     }
   }
-  return { views, links };
+  return { shownCount, deviceState };
 }
 
 async function send(
@@ -95,46 +95,46 @@ bindQuintModel<RoomTraceWorld>({
         payload: Decrement({}),
       });
     },
-    disconnect: async (w, picks) => {
+    goOffline: async (w, picks) => {
       await traceRoom(w).apply(disconnect, person(picks));
     },
-    connect: async (w, picks) => {
+    reconnect: async (w, picks) => {
       await traceRoom(w).apply(connect, person(picks));
     },
-    pauseNetwork: async (w, picks) => {
+    networkStalls: async (w, picks) => {
       await traceRoom(w).apply(pauseNetwork, person(picks));
     },
-    resumeNetwork: async (w, picks) => {
+    networkRecovers: async (w, picks) => {
       await traceRoom(w).apply(resumeNetwork, person(picks));
     },
-    crash: async (w, picks) => {
+    appCrashes: async (w, picks) => {
       await traceRoom(w).apply(crash, person(picks));
     },
-    restart: async (w, picks) => {
+    appRestarts: async (w, picks) => {
       await traceRoom(w).apply(restart, person(picks));
     },
     roomRestarts: async (w) => {
       await traceRoom(w).apply(serverCrash);
       await traceRoom(w).apply(serverRestart);
     },
-    sendCommand: async (w, picks) => {
+    resend: async (w, picks) => {
       const ts = await traceRoom(w).read(clock);
       await send(
         w,
         person(picks),
-        commandWire({ id: String(picks['id']), ts, payload: Increment({}) })
+        commandWire({ id: String(picks['change']), ts, payload: Increment({}) })
       );
     },
     takeOver: async (w, picks) => {
       await traceRoom(w).apply(takeOver, person(picks));
     },
-    sendUnknownCommand: async (w, picks) => {
+    makeInvalidChange: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
         clientId: person(picks),
         payload: { type: asKeyword('space-counter-cmd/nope'), payload: {} },
       });
     },
-    sendMalformedFrame: async (w, picks) => {
+    sendGarbledChange: async (w, picks) => {
       const ts = await traceRoom(w).read(clock);
       await send(w, person(picks), {
         v: 1,
@@ -147,7 +147,7 @@ bindQuintModel<RoomTraceWorld>({
   },
   observe: async (w) => {
     const s = traceRoom(w);
-    const room = counterValue(await readServer(s));
-    return { room, ...(await s.read(observed)) };
+    const roomCount = counterValue(await readServer(s));
+    return { roomCount, ...(await s.read(observed)) };
   },
 });

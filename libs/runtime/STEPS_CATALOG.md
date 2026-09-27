@@ -33,7 +33,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | Plus is offered at its monthly and yearly prices | — | runtime, journeys |
 | Then | the app finishes booting into the tabs | — | runtime, journeys |
 | Then | the next puzzle is ready to play | — | runtime, journeys |
-| Then | the search settles on no results | — | runtime, journeys |
+| Then | the search finishes with no results | — | runtime, journeys |
 | Then | the space offers games to play | — | runtime, journeys |
 | Then | the space shows it has ended | — | runtime, journeys |
 | Then | their account offers to sign in again | — | runtime, journeys |
@@ -104,7 +104,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 ## Features
 
 - `specs/runtime/app-addresses.feature` — Addresses that lead nowhere (2 scenarios)
-- `specs/runtime/app-shell.feature` — App shell (3 scenarios)
+- `specs/runtime/app-shell.feature` — The tabs and Settings (3 scenarios)
 - `specs/runtime/app-updates.feature` — An app too old for the product (2 scenarios)
 - `specs/runtime/connection-restore.feature` — Connection restore (1 scenarios)
 - `specs/runtime/offline-open.feature` — The app opens without a connection (2 scenarios)

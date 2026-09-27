@@ -113,7 +113,7 @@ Then(
 
 /** The broker dashboard refuses the stock admin login. */
 Then(
-  'nobody can take over live updates with the default admin password',
+  'nobody can take over live updates with the default password',
   async (w) => {
     const res = await w.http.fetch(
       `${await liveSecret(w, Name.apiUrl)}/api/v5/login`,

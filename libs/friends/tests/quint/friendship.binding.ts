@@ -1,7 +1,7 @@
 /**
  * `specs/friends/friendship.qnt` against the friends composition: each Quint
  * action through the friends sim actions (search, the inbox, another
- * person's profile), and what each person sees of each other person read off
+ * person's profile), and each person's friendship status with each other person read off
  * their device's synced copy — the rows the profile pills, the inbox, the
  * friends list and search render from.
  */
@@ -57,15 +57,19 @@ type Rows = {
   readonly blocks: ReadonlySet<string>;
   /** `low:high` account pairs. */
   readonly friendships: ReadonlySet<string>;
-  /** `from>to` account pairs of waiting requests. */
-  readonly pending: ReadonlySet<string>;
+  /** `from>to` account pairs of waiting friend requests. */
+  readonly friendRequests: ReadonlySet<string>;
 };
 
 /** The friends rows on `actorId`'s device. */
 async function localRows(s: ProductSim, actorId: string): Promise<Rows> {
   const local = actorLocalSql(s, actorId);
   if (local === null) {
-    return { blocks: new Set(), friendships: new Set(), pending: new Set() };
+    return {
+      blocks: new Set(),
+      friendships: new Set(),
+      friendRequests: new Set(),
+    };
   }
   const blocks = await local.query(sql<{
     readonly blocker_id: string;
@@ -88,23 +92,26 @@ async function localRows(s: ProductSim, actorId: string): Promise<Rows> {
     friendships: new Set(
       friendships.map((r) => `${r.user_low}:${r.user_high}`)
     ),
-    pending: new Set(pending.map((r) => `${r.from_user_id}>${r.to_user_id}`)),
+    friendRequests: new Set(
+      pending.map((r) => `${r.from_user_id}>${r.to_user_id}`)
+    ),
   };
 }
 
 /**
- * What `me` sees of `them`, by the precedence the product renders: their
+ * `me`'s friendship status with `them`, by the precedence the product renders: their
  * profile's pill (Unblock, Friends, Requested, Confirm / Delete, Add), and
  * search leaving out someone who blocked `me`.
  */
-function tieOf(rows: Rows, me: string, them: string): QuintValue {
+function friendshipStatusOf(rows: Rows, me: string, them: string): QuintValue {
   const [low, high] = me < them ? [me, them] : [them, me];
   if (rows.blocks.has(`${me}>${them}`)) return variant('Blocking');
   if (rows.blocks.has(`${them}>${me}`)) return variant('Hidden');
-  if (rows.friendships.has(`${low}:${high}`)) return variant('Friends');
-  if (rows.pending.has(`${me}>${them}`)) return variant('Requested');
-  if (rows.pending.has(`${them}>${me}`)) return variant('Asked');
-  return variant('Unrelated');
+  if (rows.friendships.has(`${low}:${high}`)) return variant('Friend');
+  if (rows.friendRequests.has(`${me}>${them}`)) return variant('RequestSent');
+  if (rows.friendRequests.has(`${them}>${me}`))
+    return variant('RequestReceived');
+  return variant('Stranger');
 }
 
 /**
@@ -148,7 +155,7 @@ bindQuintModel<QuintSimWorld>({
       await toTabs(w, actor);
       await w.s.apply(acceptFriendRequest, actor, other);
     },
-    confirm: async (w, picks) => {
+    acceptFromProfile: async (w, picks) => {
       const { actor, other } = pair(picks);
       await toTabs(w, actor);
       await w.s.apply(openPersonFromSearch, actor, other);
@@ -159,7 +166,7 @@ bindQuintModel<QuintSimWorld>({
       await toTabs(w, actor);
       await w.s.apply(declineFriendRequest, actor, other);
     },
-    turnDown: async (w, picks) => {
+    declineFromProfile: async (w, picks) => {
       const { actor, other } = pair(picks);
       await toTabs(w, actor);
       await w.s.apply(openPersonFromSearch, actor, other);
@@ -183,17 +190,20 @@ bindQuintModel<QuintSimWorld>({
     },
   },
   observe: async (w) => {
-    const sees = new Map<QuintValue, QuintValue>();
+    const friendshipStatus = new Map<QuintValue, QuintValue>();
     for (const actor of PEOPLE) {
       const rows = await w.quiet.read(localRows, actor);
       const me = accountOf(w, actor);
-      const ties = new Map<QuintValue, QuintValue>();
+      const statuses = new Map<QuintValue, QuintValue>();
       for (const other of PEOPLE) {
         if (other !== actor)
-          ties.set(other, tieOf(rows, me, accountOf(w, other)));
+          statuses.set(
+            other,
+            friendshipStatusOf(rows, me, accountOf(w, other))
+          );
       }
-      sees.set(actor, ties);
+      friendshipStatus.set(actor, statuses);
     }
-    return { sees };
+    return { friendshipStatus };
   },
 });

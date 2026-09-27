@@ -1,10 +1,11 @@
 /**
  * `specs/profile/account-sign-in.qnt` against the profile composition: Alice
  * on two devices (actors `alice` and `bob`), signing in with her three
- * provider accounts, managing the account's sign-in methods, signing out
- * here or everywhere, and losing the connection. The model's state is read
- * back from the server (who each device is signed in as, each account's
- * methods) and from each device's synced copy (the methods it shows).
+ * outside accounts, connecting and removing the account's sign-in methods,
+ * signing out here or everywhere, and losing the connection. The model's
+ * state is read back as everyone else knows it (the account each device is
+ * signed in to, each account's sign-in methods) and from each device (the
+ * sign-in methods it shows).
  */
 
 import {
@@ -35,37 +36,37 @@ import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 
 const DEVICES = ['alice', 'bob'] as const;
 
-/** Whose provider accounts every device signs in with. */
+/** Whose outside accounts every device signs in with. */
 const PERSON = 'alice';
 
-type Identity = 'google' | 'appleShared' | 'appleHidden';
-type OauthProviderId = 'google' | 'apple';
+type OutsideAccount = 'google' | 'appleShared' | 'appleHidden';
+type SignInMethod = 'google' | 'apple';
 
 function pick(picks: Picks, name: string): string {
   return String(picks[name]);
 }
 
-function identityOf(picks: Picks): Identity {
-  const identity = pick(picks, 'identity');
+function outsideAccountOf(picks: Picks): OutsideAccount {
+  const outsideAccount = pick(picks, 'identity');
   if (
-    identity !== 'google' &&
-    identity !== 'appleShared' &&
-    identity !== 'appleHidden'
+    outsideAccount !== 'google' &&
+    outsideAccount !== 'appleShared' &&
+    outsideAccount !== 'appleHidden'
   ) {
-    throw new Error(`unknown provider account ${identity}`);
+    throw new Error(`unknown outside account ${outsideAccount}`);
   }
-  return identity;
+  return outsideAccount;
 }
 
-function providerOf(identity: Identity): OauthProviderId {
-  return identity === 'google' ? 'google' : 'apple';
+function signInMethodOf(outsideAccount: OutsideAccount): SignInMethod {
+  return outsideAccount === 'google' ? 'google' : 'apple';
 }
 
-function providerPick(picks: Picks): OauthProviderId {
+function signInMethodPick(picks: Picks): SignInMethod {
   return pick(picks, 'provider') === 'apple' ? 'apple' : 'google';
 }
 
-/** App account ids, numbered in the order the model creates them. */
+/** Account ids, numbered in the order the model starts them. */
 function accountKey(id: string): string {
   return `account:${id}`;
 }
@@ -95,11 +96,11 @@ function isOffline(s: ProductSim, device: string): boolean {
 }
 
 /**
- * Online devices whose session has ended (signed out everywhere, or back
- * from offline after that) are given the time to show "Sign in" again, so
- * the next step starts from the screen the model says they show.
+ * Online devices that were signed out everywhere (or are back online after
+ * that) are given the time to show "Sign in" again, so the next step starts
+ * from what the model says they show.
  */
-async function awaitEndedSessionsNoticed(w: QuintSimWorld): Promise<void> {
+async function awaitSignedOutEverywhereShown(w: QuintSimWorld): Promise<void> {
   for (const device of DEVICES) {
     if (await w.s.read(isOffline, device)) continue;
     if ((await w.s.read(signedInAccountOf, device)) !== null) continue;
@@ -118,33 +119,35 @@ bindQuintModel<QuintSimWorld>({
     },
     signIn: async (w, picks) => {
       const device = pick(picks, 'device');
-      const identity = identityOf(picks);
+      const outsideAccount = outsideAccountOf(picks);
       const email =
-        identity === 'google'
+        outsideAccount === 'google'
           ? await w.s.read(actorEmail, PERSON)
           : await w.s.read(
               actorAppleEmail,
               PERSON,
-              identity === 'appleShared' ? 'gmail' : 'icloud'
+              outsideAccount === 'appleShared' ? 'gmail' : 'icloud'
             );
       await w.s.apply(focusActor, device);
       await w.s.apply(signInWithProviderAs, device, {
-        provider: providerOf(identity),
+        provider: signInMethodOf(outsideAccount),
         email,
-        ...(identity === 'google'
+        ...(outsideAccount === 'google'
           ? {}
-          : { emailChoice: identity === 'appleHidden' ? 'hide' : 'share' }),
+          : {
+              emailChoice: outsideAccount === 'appleHidden' ? 'hide' : 'share',
+            }),
       });
       const account = await w.s.read(signedInAccountOf, device);
       if (account === null) {
-        throw new Error(`${device} is not signed in after ${identity}`);
+        throw new Error(`${device} is not signed in after ${outsideAccount}`);
       }
       remember(w, account);
     },
     abandonSignIn: async (w, picks) => {
       const device = pick(picks, 'device');
       await w.s.apply(focusActor, device);
-      await w.s.apply(abandonSignIn, device, providerPick(picks));
+      await w.s.apply(abandonSignIn, device, signInMethodPick(picks));
     },
     signOut: async (w, picks) => {
       const device = pick(picks, 'device');
@@ -152,60 +155,65 @@ bindQuintModel<QuintSimWorld>({
       await w.s.apply(showAccountScreen, device);
       await w.s.apply(signOut, device);
     },
-    connect: async (w, picks) => {
+    connectSignInMethod: async (w, picks) => {
       const device = pick(picks, 'device');
-      const identity = identityOf(picks);
+      const outsideAccount = outsideAccountOf(picks);
       await w.s.apply(focusActor, device);
-      await w.s.apply(connectSignInMethod, device, providerOf(identity), {
-        asActor: PERSON,
-        ...(identity === 'google'
-          ? {}
-          : {
-              account: identity === 'appleShared' ? 'gmail' : 'icloud',
-              hideEmail: identity === 'appleHidden',
-            }),
-      });
+      await w.s.apply(
+        connectSignInMethod,
+        device,
+        signInMethodOf(outsideAccount),
+        {
+          asActor: PERSON,
+          ...(outsideAccount === 'google'
+            ? {}
+            : {
+                account: outsideAccount === 'appleShared' ? 'gmail' : 'icloud',
+                hideEmail: outsideAccount === 'appleHidden',
+              }),
+        }
+      );
     },
-    remove: async (w, picks) => {
+    removeSignInMethod: async (w, picks) => {
       const device = pick(picks, 'device');
       await w.s.apply(focusActor, device);
-      await w.s.apply(removeSignInMethod, device, providerPick(picks));
+      await w.s.apply(removeSignInMethod, device, signInMethodPick(picks));
     },
     signOutEverywhere: async (w, picks) => {
       const device = pick(picks, 'device');
       await w.s.apply(focusActor, device);
       await w.s.apply(signOutEverywhere, device);
-      await awaitEndedSessionsNoticed(w);
+      await awaitSignedOutEverywhereShown(w);
     },
     loseConnection: async (w, picks) => {
       await w.s.apply(partition, pick(picks, 'device'));
     },
     reconnect: async (w) => {
       await w.s.apply(restoreNetwork);
-      await awaitEndedSessionsNoticed(w);
+      await awaitSignedOutEverywhereShown(w);
     },
   },
   observe: async (w) => {
     const account = new Map<QuintValue, QuintValue>();
-    const shown = new Map<QuintValue, QuintValue>();
+    const signInMethodsShown = new Map<QuintValue, QuintValue>();
     for (const device of DEVICES) {
       const id = await w.quiet.read(signedInAccountOf, device);
       if (id === null) continue;
       account.set(device, accountName(w, id));
-      shown.set(
+      signInMethodsShown.set(
         device,
         new Set<QuintValue>(
           await w.quiet.read(localSignInMethodsOf, device, id)
         )
       );
     }
-    const methods = new Map<QuintValue, QuintValue>();
+    const signInMethods = new Map<QuintValue, QuintValue>();
     for (const [id, name] of knownAccounts(w)) {
-      methods.set(
+      signInMethods.set(
         name,
         new Set<QuintValue>(await w.quiet.read(serverSignInMethodsOf, id))
       );
     }
-    return { account, methods, shown };
+    return { account, signInMethods, signInMethodsShown };
   },
 });

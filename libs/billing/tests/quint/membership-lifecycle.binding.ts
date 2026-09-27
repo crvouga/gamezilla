@@ -2,10 +2,11 @@
  * `specs/billing/membership-lifecycle.qnt` against billing's lifecycle
  * composition (`tests/e2e/support/open-billing-lifecycle-sim.ts`): every
  * model action is one `billingStimulus`, so the lifecycle's standing
- * properties are checked after each (among them, that every online device
- * holds the server's rows to the last column); the model's state is read back
- * from the server's membership rows, the second device's own copy, the
- * network, and the tier each device shows.
+ * properties are checked after each (among them, that every connected device
+ * knows every detail of every membership); the model's state is read back
+ * from the memberships her computer knows (the server's rows), the ones her
+ * phone knows (its own copy), whether her phone has a connection, and the
+ * access each device shows.
  */
 
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
@@ -41,7 +42,7 @@ import { bindQuintModel } from '@pkgs/quint/registry';
 
 const DEVICES = [BILLING_PAYER, BILLING_SECOND_DEVICE] as const;
 
-function intervalOf(priceKey: string | null): string {
+function planOf(priceKey: string | null): string {
   const spec = Object.values(PLUS_MEMBERSHIP_OFFER.prices).find(
     (price) => price.key === priceKey
   );
@@ -55,8 +56,8 @@ function modelled(records: readonly MembershipRecord[]): QuintValue {
       i,
       {
         status: record.status,
-        interval: intervalOf(record.priceKey),
-        cancelAtPeriodEnd: record.cancelAtPeriodEnd,
+        plan: planOf(record.priceKey),
+        endsAtPeriodEnd: record.cancelAtPeriodEnd,
       },
     ])
   );
@@ -80,7 +81,7 @@ function inServerOrder(
   return [...device].sort((a, b) => rank(a) - rank(b));
 }
 
-async function shownTier(s: ProductSim, actorId: string): Promise<string> {
+async function accessShownOn(s: ProductSim, actorId: string): Promise<string> {
   await bringToFront(s, actorId);
   return (await billingTier(s, actorId)) ?? 'nothing shown';
 }
@@ -123,14 +124,14 @@ bindQuintModel<QuintSimWorld>({
     paymentFailed: stimulus('payment_failed'),
     paymentRecovered: stimulus('payment_recovered'),
     paymentRetriesExhausted: stimulus('payment_retries_exhausted'),
-    cancelAtPeriodEnd: stimulus('cancel_at_period_end'),
-    resume: stimulus('resume'),
-    cancelNow: stimulus('cancel_now'),
-    switchInterval: stimulus('switch_interval'),
-    redeliverLastEvent: stimulus('redeliver_last_event'),
+    cancel: stimulus('cancel_at_period_end'),
+    renewInBillingPortal: stimulus('resume'),
+    cancelImmediately: stimulus('cancel_now'),
+    switchPlan: stimulus('switch_interval'),
+    providerRepeatsNews: stimulus('redeliver_last_event'),
     resubscribe: stimulus('resubscribe'),
-    secondDeviceOffline: stimulus('second_device_offline'),
-    secondDeviceOnline: stimulus('second_device_online'),
+    _phoneGoesOffline: stimulus('second_device_offline'),
+    _phoneBackOnline: stimulus('second_device_online'),
   },
   observe: async (w) => {
     const accountId = await w.quiet.read(accountIdOf, BILLING_PAYER);
@@ -141,15 +142,15 @@ bindQuintModel<QuintSimWorld>({
       BILLING_SECOND_DEVICE,
       accountId
     );
-    const tier = new Map<QuintValue, QuintValue>();
+    const accessOn = new Map<QuintValue, QuintValue>();
     for (const device of DEVICES) {
-      tier.set(device, await w.quiet.read(shownTier, device));
+      accessOn.set(device, await w.quiet.read(accessShownOn, device));
     }
     return {
       memberships: modelled(server),
-      phoneMemberships: modelled(inServerOrder(phone, server)),
-      phoneOnline: await w.quiet.read(phoneOnline),
-      tier,
+      membershipsOnPhone: modelled(inServerOrder(phone, server)),
+      _phoneOnline: await w.quiet.read(phoneOnline),
+      accessOn,
     };
   },
 });

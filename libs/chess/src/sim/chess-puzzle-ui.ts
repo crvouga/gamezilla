@@ -1,7 +1,6 @@
 import { actorUi, pollUntil } from '@libs/sim-harness/system/actor-ui';
-import { actorHtml } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
-import { showSpacesTab, waitActiveSpace } from '@libs/spaces/sim/space-ui';
+import { ownSpaceCard, waitActiveSpace } from '@libs/spaces/sim/space-ui';
 import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
@@ -659,19 +658,6 @@ export async function openChessStats(
   await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
 }
 
-/** The lobby card of the one space the actor is in, from the Spaces tab. */
-async function ownSpaceCard(
-  s: ProductSim,
-  actorId: string
-): Promise<string | null> {
-  await showSpacesTab(s, actorId);
-  const html = await actorHtml(s, actorId);
-  const cards = [
-    ...(html ?? '').matchAll(/data-testid="(space-card-[^"]+)"/g),
-  ].map((match) => match[1] ?? '');
-  return cards.length === 1 ? (cards[0] ?? null) : null;
-}
-
 /**
  * Into a space to reach the game menu: the account's live space when its
  * lobby lists one (a free account hosts one at a time, so another device of
@@ -690,31 +676,6 @@ async function enterOrStartSpace(
     return;
   }
   await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
-}
-
-/**
- * Back into the one space the actor is in, from wherever the app opened
- * (the space itself, or the tabs with the space open behind them), through
- * its lobby card. Works for a guest too, whose card carries a username the
- * scenario never chose.
- */
-export async function returnToOwnSpace(
-  s: ProductSim,
-  actorId: string
-): Promise<void> {
-  const ui = await actorUi(s, actorId);
-  await ui
-    .get(Handles.statusCurrentUser)
-    .expect.visible({ timeoutMs: WAIT_MS });
-  if (!(await ui.get(Handles.spaceClose).isVisible())) {
-    const card = await pollUntil(s, () => ownSpaceCard(s, actorId), {
-      maxMs: WAIT_MS,
-      stepMs: POLL_MS,
-      description: `${actorId}'s own space card`,
-    });
-    await ui.get(card).tap({ timeoutMs: WAIT_MS });
-  }
-  await waitActiveSpace(s, actorId);
 }
 
 /**

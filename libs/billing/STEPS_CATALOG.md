@@ -87,7 +87,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/billing/expired-card.feature` — An expired card (2 scenarios)
 - `specs/billing/grace-ends.feature` — When paid access runs out (5 scenarios)
 - `specs/billing/membership-cancellation.feature` — Cancel and subscribe again (4 scenarios)
-- `specs/billing/membership-interval-switch.feature` — Switch billing interval (1 scenarios)
+- `specs/billing/membership-interval-switch.feature` — Switch Plus plans (1 scenarios)
 - `specs/billing/membership-renewal.feature` — Trial and renewal (2 scenarios)
 - `specs/billing/payment-failures.feature` — Failed payments (4 scenarios)
 - `specs/billing/refunds.feature` — Refunds (3 scenarios)

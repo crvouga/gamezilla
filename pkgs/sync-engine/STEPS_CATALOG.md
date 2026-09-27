@@ -70,4 +70,4 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/sync/notes-offline.feature` — Notes written offline (2 scenarios)
 - `specs/sync/notes-saved-once.feature` — Notes count once (2 scenarios)
 - `specs/sync/online-only-actions.feature` — Online-only actions (3 scenarios)
-- `specs/sync/shared-space-membership.feature` — Leave and rejoin a shared space (3 scenarios)
+- `specs/sync/shared-space-membership.feature` — Leave a shared space and rejoin it (3 scenarios)

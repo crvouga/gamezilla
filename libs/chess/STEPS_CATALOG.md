@@ -169,7 +169,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} raises the feed rating offset by {int} step(s) | {actor}, {int} | chess |
 | When | {actor} raises the feed rating offset by {int} step(s) and saves the feed settings | {actor}, {int} | chess |
 | When | {actor} retries the puzzle | {actor} | chess |
-| When | {actor} returns to their space | {actor} | chess |
 | When | {actor} shows the solution | {actor} | chess |
 | When | {actor} skips the puzzle | {actor} | chess |
 | When | {actor} solves {int} puzzles a day for {int} days | {actor}, {int}, {int} | chess |
@@ -247,6 +246,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} has searched for {string} | {actor}, {string} | friends |
 | Given | {actor} has sent {actor} a friend request | {actor}, {actor} | friends |
 | Given | {actor} has sent {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
+| Given | {actor} is a Plus member | {actor} | friends |
 | Given | {actor} is hosting a space | {actor} | friends |
 | Given | {actor} is hosting a space that {actor} joined from the link | {actor}, {actor} | friends |
 | Given | {actor} is hosting a space that {actor} joined from the lobby | {actor}, {actor} | friends |
@@ -256,10 +256,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is viewing their inbox | {actor} | friends |
 | Given | {actor}'s friends list shows {actor} as live | {actor}, {actor} | friends |
 | Then | {actor} can ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends |
+| Then | {actor} can cancel the request to {actor} | {actor}, {actor} | friends |
 | Then | {actor} can rename the space | {actor} | friends |
 | Then | {actor} can search for people | {actor} | friends |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends |
-| Then | {actor} can withdraw the request to {actor} | {actor}, {actor} | friends |
 | Then | {actor} cannot rename the space | {actor} | friends |
 | Then | {actor} hosts {int} space(s) | {actor}, {int} | friends |
 | Then | {actor} is in the space | {actor} | friends |
@@ -268,8 +268,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is not invited to get Plus | {actor} | friends |
 | Then | {actor} is not offered to join | {actor} | friends |
 | Then | {actor} is offered the way back to Spaces | {actor} | friends |
-| Then | {actor} is offered to confirm {actor}'s request | {actor}, {actor} | friends |
-| Then | {actor} is offered to confirm {actor}'s request within {int} seconds | {actor}, {actor}, {int} | friends |
+| Then | {actor} is offered to accept {actor}'s request | {actor}, {actor} | friends |
+| Then | {actor} is offered to accept {actor}'s request within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor} is shown {actor}'s profile | {actor}, {actor} | friends |
 | Then | {actor} is told friend requests need a connection within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} is told search needs an account | {actor} | friends |
@@ -278,9 +278,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is told they have no friends yet within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} sees {actor} as a friend | {actor}, {actor} | friends |
 | Then | {actor} sees {int} people/person in the space within {int} seconds | {actor}, {int}, {int} | friends |
+| Then | {actor} sees {person} appear in their friends list within {int} seconds | {actor}, {person}, {int} | friends |
 | Then | {actor} sees the space has ended within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} sees the space is called {string} within {int} seconds | {actor}, {string}, {int} | friends |
-| Then | {actor} watches {person} appear in their friends list within {int} seconds | {actor}, {person}, {int} | friends |
 | Then | {actor}'s friend count is {int} | {actor}, {int} | friends |
 | Then | {actor}'s friends list does not show {person} | {actor}, {person} | friends |
 | Then | {actor}'s friends list shows {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends |
@@ -297,13 +297,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s request to {actor} is refused with {string} | {actor}, {actor}, {string} | friends |
 | Then | {person} is gone from {actor}'s open friends list | {person}, {actor} | friends |
 | When | {actor} accepts {actor}'s friend request | {actor}, {actor} | friends |
+| When | {actor} accepts {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} asks {actor} again | {actor}, {actor} | friends |
 | When | {actor} blocks {actor} | {actor}, {actor} | friends |
 | When | {actor} blocks {actor} from their request | {actor}, {actor} | friends |
 | When | {actor} cancels the friend request to {actor} | {actor}, {actor} | friends |
 | When | {actor} chooses to find friends | {actor} | friends |
 | When | {actor} chooses to sign in from search | {actor} | friends |
-| When | {actor} confirms {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} creates a space | {actor} | friends |
 | When | {actor} creates another space | {actor} | friends |
 | When | {actor} declines {actor}'s friend request | {actor}, {actor} | friends |
@@ -322,7 +322,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} opens their inbox | {actor} | friends |
 | When | {actor} removes {actor} | {actor}, {actor} | friends |
 | When | {actor} renames the space to {string} | {actor}, {string} | friends |
-| When | {actor} reopens their live space | {actor} | friends |
+| When | {actor} returns to their space | {actor} | friends |
 | When | {actor} sends {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} starts removing {actor} but keeps them | {actor}, {actor} | friends |
 | When | {actor} unblocks {actor} | {actor}, {actor} | friends |
@@ -361,7 +361,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/chess/puzzle-feed.feature` — Customize the puzzle feed (8 scenarios)
 - `specs/chess/puzzle-guest-carryover.feature` — Guest puzzle progress carries over (3 scenarios)
 - `specs/chess/puzzle-guest-play.feature` — Puzzles without an account (1 scenarios)
-- `specs/chess/puzzle-ingest.feature` — Puzzle ingest (1 scenarios)
+- `specs/chess/puzzle-ingest.feature` — Puzzle import (1 scenarios)
 - `specs/chess/puzzle-late-watcher.feature` — Arriving while a puzzle is under way (3 scenarios)
 - `specs/chess/puzzle-limit-upgrade.feature` — The daily puzzle limit is an invitation (1 scenarios)
 - `specs/chess/puzzle-limits-by-kind.feature` — The puzzle limit holds everywhere, and only for guests (5 scenarios)
@@ -374,7 +374,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/chess/puzzle-review.feature` — Reviewing a puzzle's line (12 scenarios)
 - `specs/chess/puzzle-selection.feature` — Choosing the next puzzle (3 scenarios)
 - `specs/chess/puzzle-skip-clock.feature` — Puzzle clock and skipping (5 scenarios)
-- `specs/chess/puzzle-solve-session.feature` — A puzzle attempt survives leaving and restarting (5 scenarios)
+- `specs/chess/puzzle-solve-session.feature` — A puzzle attempt survives leaving the puzzle and closing the app (5 scenarios)
 - `specs/chess/puzzle-spectator.feature` — Friends watch a puzzle (8 scenarios)
 - `specs/chess/puzzle-stats-summary.feature` — Rating, puzzles solved, and accuracy (3 scenarios)
 - `specs/chess/puzzle-stats.feature` — Puzzle stats and game log (4 scenarios)

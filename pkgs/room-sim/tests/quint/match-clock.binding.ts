@@ -25,20 +25,20 @@ import {
 } from '@pkgs/room-sim';
 import { type RoomTraceWorld, traceRoom } from './world';
 
-const SEATS = ['white', 'black'] as const;
-type Seat = (typeof SEATS)[number];
+const SIDES = ['white', 'black'] as const;
+type Side = (typeof SIDES)[number];
 
-function seat(picks: Picks, name = 'seat'): Seat {
-  return String(picks[name]) as Seat;
+function side(picks: Picks, name = 'seat'): Side {
+  return String(picks[name]) as Side;
 }
 
 function whole(picks: Picks, name: string): number {
   return Number(picks[name]);
 }
 
-function seen(s: RoomSim): Map<string, string> {
+function matchShown(s: RoomSim): Map<string, string> {
   return new Map(
-    SEATS.map((id) => [
+    SIDES.map((id) => [
       id,
       matchClockStatus(s.kit.clients.get(id)?.snapshot() as RoomState),
     ])
@@ -56,14 +56,14 @@ bindQuintModel<RoomTraceWorld>({
         seed: w.ctx.testId,
         runtime: roomEpoch(10_000),
       });
-      for (const id of SEATS) {
+      for (const id of SIDES) {
         await w.sim.apply(addClient, { id, identity: id });
       }
       await expectInSync(w.sim);
     },
-    start: async (w, picks) => {
+    startMatch: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
-        clientId: seat(picks),
+        clientId: side(picks),
         payload: StartMatch({
           whiteMs: whole(picks, 'white'),
           blackMs: whole(picks, 'black'),
@@ -72,17 +72,17 @@ bindQuintModel<RoomTraceWorld>({
     },
     move: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
-        clientId: seat(picks),
+        clientId: side(picks),
         payload: Move({}),
       });
     },
     claimFlag: async (w, picks) => {
       await traceRoom(w).apply(dispatch, {
-        clientId: seat(picks),
-        payload: FlagFall({ seat: seat(picks, 'flagged') }),
+        clientId: side(picks),
+        payload: FlagFall({ seat: side(picks, 'flagged') }),
       });
     },
-    wait: async (w, picks) => {
+    clockRuns: async (w, picks) => {
       await traceRoom(w).advanceTime(whole(picks, 'ms'));
     },
   },
@@ -90,12 +90,12 @@ bindQuintModel<RoomTraceWorld>({
     const s = traceRoom(w);
     const server = await readServer(s);
     return {
-      status: matchClockStatus(server),
-      turn: matchClockTurn(server),
-      whiteMs: matchClockWhiteMs(server),
-      blackMs: matchClockBlackMs(server),
+      matchStatus: matchClockStatus(server),
+      sideToMove: matchClockTurn(server),
+      whiteBank: matchClockWhiteMs(server),
+      blackBank: matchClockBlackMs(server),
       winner: matchClockWinner(server) ?? '',
-      seen: await s.read(seen),
+      matchShown: await s.read(matchShown),
     };
   },
 });

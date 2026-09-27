@@ -6,7 +6,11 @@
 
 import { expect } from 'bun:test';
 
-import { focusActor } from '@libs/sim-harness';
+import {
+  openBilling,
+  subscribeToPlus,
+} from '@libs/billing/sim/billing-actions';
+import { focusActor, signInWithGoogle } from '@libs/sim-harness';
 import {
   type Actor,
   Given,
@@ -29,9 +33,9 @@ import {
   openSpaceMenu,
   openSpacesTab,
   renameSpace,
-  reopenLiveSpace,
   reopenSpaceLink,
   returnToLobby,
+  returnToOwnSpace,
   startSpace,
 } from '@libs/spaces/sim/space-actions';
 import {
@@ -102,6 +106,13 @@ const PRESENCE_SETTLES_MS = 20 * SECOND_MS;
 
 // ------------------------------------------------------------------- host
 
+// A Plus membership lifts the hosting limit.
+Given('{actor} is a Plus member', async (w, actor: Actor) => {
+  await w.s.apply(signInWithGoogle, actor);
+  await w.s.apply(openBilling, actor);
+  await w.s.apply(subscribeToPlus, actor);
+});
+
 Given('{actor} is hosting a space', async (w, actor: Actor) => {
   await hostSpace(w, actor);
 });
@@ -155,8 +166,8 @@ Given('{actor} has gone back to the lobby', async (w, actor: Actor) => {
   await w.s.apply(returnToLobby, actor);
 });
 
-When('{actor} reopens their live space', async (w, actor: Actor) => {
-  await w.s.apply(reopenLiveSpace, actor, recall(w, SPACE_LINK) as string);
+When('{actor} returns to their space', async (w, actor: Actor) => {
+  await w.s.apply(returnToOwnSpace, actor);
 });
 
 Then(

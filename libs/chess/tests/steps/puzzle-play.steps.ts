@@ -19,7 +19,6 @@ import {
   pressPuzzleNextTwice,
   requestPuzzleHint,
   retryPuzzle,
-  returnToOwnSpace,
   returnToPuzzleScreen,
   revealPuzzleSolution,
   setPuzzleAutoAdvance,
@@ -677,10 +676,6 @@ Given(
 
 When('{actor} goes back to the puzzles', async (w, actor: Actor) => {
   await w.s.apply(returnToPuzzleScreen, actor);
-});
-
-When('{actor} returns to their space', async (w, actor: Actor) => {
-  await w.s.apply(returnToOwnSpace, actor);
 });
 
 // ------------------------------------------------------------------ account

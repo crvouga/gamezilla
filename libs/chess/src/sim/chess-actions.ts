@@ -51,7 +51,6 @@ import {
   readActivePuzzleId,
   readPuzzleDebug,
   readPuzzleDisplayFen,
-  returnToOwnSpace as reenterOwnSpace,
   returnToPuzzles,
   settleAfterPuzzleNext,
   showChessStats,
@@ -599,7 +598,4 @@ export const CHESS_SIM_ACTIONS = [
 ];
 
 /** Back into the space the actor is in, after the app reopened. */
-export const returnToOwnSpace = scenarioAction({
-  name: 'returnToOwnSpace',
-  act: reenterOwnSpace,
-});
+export { returnToOwnSpace } from '@libs/spaces/sim/space-actions';
