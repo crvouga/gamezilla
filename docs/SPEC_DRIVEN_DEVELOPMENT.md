@@ -78,6 +78,7 @@ terms:
       host ends it or leaves.
     avoid: [room, lobby room, session]  # synonyms people reach for
     model: [Place, place]                # the Quint names this term is
+    published: true                      # other contexts may borrow it
   - term: host
     definition: The person whose space it is.
     forms: [hosts, hosting, hosted]      # inflections (plurals are implied)
@@ -101,6 +102,10 @@ terms:
 - Definitions say what the product does, never how it is built: "a draw
   offer lapses when the opponent moves" belongs; "a draw offer is stored
   until the next move event" does not.
+- `published: true` puts a term in the context's published language: other
+  contexts may borrow it, and must borrow it to use it. A context's other
+  terms are its own business — "move" in Chess binds no other context's
+  prose — and cannot be borrowed.
 - A term enters the glossary in the same `spec:` commit that first uses it.
   The language leads the specs without having to be finished up front.
 - The shared kernel stays small: a term belongs there only when every
@@ -115,8 +120,10 @@ terms:
   lender, is defined twice, redefines a kernel term, or borrows a term its
   lender does not define;
 - a feature's prose (name, story, rules, scenario names, steps; not example
-  tables) uses a synonym a glossary says to `avoid`;
-- a feature uses a term another context defines without borrowing it —
+  tables, quoted text or outline placeholders) uses a synonym a glossary
+  says to `avoid`;
+- a feature uses a term another context publishes without borrowing it, or a
+  glossary borrows a term its lender does not publish —
   rephrase in this context's language, borrow it, or define this context's
   own meaning;
 - a Quint spec declares a product-facing name — a type, a variant, a `var`,

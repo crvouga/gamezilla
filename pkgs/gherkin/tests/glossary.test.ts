@@ -34,10 +34,17 @@ const PLAY = glossary('play', {
   context: 'Play',
   purpose: 'Games between two players.',
   terms: [
-    { term: 'game', definition: 'One contest.', model: ['Game', 'games'] },
+    {
+      term: 'game',
+      definition: 'One contest.',
+      model: ['Game', 'games'],
+      published: true,
+    },
+    { term: 'clock', definition: 'Time left.' },
     {
       term: 'flag',
       definition: "A clock reaching zero on the player's move.",
+      published: true,
       avoid: ['timeout'],
       model: 'flag',
     },
@@ -191,6 +198,43 @@ describe('ubiquitous language', () => {
     expect(checkLanguage(input({ features }))).toEqual([
       'specs/play/ending.feature:2: "user" — say "person" (the glossary avoids "user")',
       'specs/play/ending.feature:3: "timeout" — say "flag" (the glossary avoids "timeout")',
+    ]);
+  });
+
+  test('internal terms and quoted example data bind nobody else', () => {
+    const features = [
+      prose(
+        'specs/ratings/clock.feature',
+        `Feature: Ratings on the clock
+  Scenario: A rating named "Flag day"
+    Then the rating shows "Flag day"
+`
+      ),
+    ];
+    expect(checkLanguage(input({ features }))).toEqual([]);
+  });
+
+  test('only a published term can be borrowed', () => {
+    const ratings = glossary('ratings', {
+      context: 'Ratings',
+      purpose: 'How strong each player is.',
+      terms: [
+        { term: 'rating', definition: 'A strength number.', model: 'ratings' },
+        { term: 'game', from: 'play', model: 'ratedGames' },
+        { term: 'clock', from: 'play' },
+      ],
+    });
+    expect(
+      checkLanguage(
+        input({
+          glossaries: new Map([
+            ['play', PLAY],
+            ['ratings', ratings],
+          ]),
+        })
+      )
+    ).toEqual([
+      'specs/ratings/glossary.yaml: "clock" borrows from play, which does not publish it (published: true there)',
     ]);
   });
 

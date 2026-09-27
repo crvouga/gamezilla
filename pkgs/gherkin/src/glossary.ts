@@ -5,7 +5,8 @@
  * things only in its own context's language:
  *
  * - a feature never uses a term a glossary says to avoid, nor a term another
- *   context defines unless its glossary borrows it (`from: <domain>`);
+ *   context publishes (`published: true`) unless its glossary borrows it
+ *   (`from: <domain>`) — only published terms can be borrowed;
  * - a Quint spec's product-facing names (types, variants, variables,
  *   actions, definitions) are the `model` names of its glossary's terms, or
  *   the published language of an upstream context it imports — only another
@@ -31,6 +32,12 @@ export type GlossaryTerm = {
    * term too: the lender's model names never cross the boundary.
    */
   readonly model: readonly string[];
+  /**
+   * Part of the context's published language: other contexts may borrow it,
+   * and may not use it unborrowed. A context's other terms are its own
+   * business and constrain nobody else.
+   */
+  readonly published: boolean;
 };
 
 export type Glossary = {
@@ -91,6 +98,7 @@ const TERM_KEYS = new Set([
   'forms',
   'avoid',
   'model',
+  'published',
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -141,7 +149,14 @@ function parseTerm(
     forms: strings(raw['forms'], `${at}: forms`, problems),
     avoid: strings(raw['avoid'], `${at}: avoid`, problems),
     model: strings(raw['model'], `${at}: model`, problems),
+    published: raw['published'] === true,
   };
+  if (raw['published'] !== undefined && typeof raw['published'] !== 'boolean') {
+    problems.push(`${at}: "published" is true or false`);
+  }
+  if (parsed.published && parsed.from !== null) {
+    problems.push(`${at}: only the owning context publishes a term`);
+  }
   if (parsed.from !== null) {
     if (parsed.definition !== null || parsed.source !== null) {
       problems.push(
@@ -270,36 +285,55 @@ function phrasesOf(term: GlossaryTerm): readonly string[] {
   return [term.term, ...term.forms];
 }
 
+/** Why `term`, borrowed by `domain`, cannot be borrowed; null when it can. */
+function lendingProblem(
+  term: GlossaryTerm,
+  domain: string,
+  input: LanguageInput
+): string | null {
+  const from = term.from ?? '';
+  if (from === domain) return 'borrows from itself';
+  if (!input.glossaries.has(from)) {
+    return `borrows from "${from}", which is not a specs/<domain>/`;
+  }
+  const owner = ownerTerm(term, input.glossaries);
+  if (owner === null) {
+    return `borrows from ${from}, whose glossary does not define it`;
+  }
+  if (!owner.published) {
+    return `borrows from ${from}, which does not publish it (published: true there)`;
+  }
+  return null;
+}
+
+/** Why a context's `term` clashes with the shared kernel; null when it doesn't. */
+function kernelProblem(
+  term: GlossaryTerm,
+  kernelTerms: ReadonlySet<string>,
+  kernelUri: string
+): string | null {
+  const shared = kernelTerms.has(term.term.toLowerCase());
+  if (term.from === KERNEL) {
+    return shared ? null : `is not a shared-kernel term (${kernelUri})`;
+  }
+  return shared
+    ? `is a shared-kernel term (${kernelUri}); drop it, or write "from: kernel" to name it in this context's models`
+    : null;
+}
+
 function checkBorrowing(input: LanguageInput, errors: string[]): void {
   const kernelTerms = new Set(
     input.kernel.terms.map((t) => t.term.toLowerCase())
   );
   for (const [domain, glossary] of input.glossaries) {
     for (const term of glossary.terms) {
-      if (term.from === KERNEL) {
-        if (!kernelTerms.has(term.term.toLowerCase())) {
-          errors.push(
-            `${glossary.uri}: "${term.term}" is not a shared-kernel term (${input.kernel.uri})`
-          );
-        }
-        continue;
-      }
-      if (kernelTerms.has(term.term.toLowerCase())) {
-        errors.push(
-          `${glossary.uri}: "${term.term}" is a shared-kernel term (${input.kernel.uri}); drop it, or write "from: kernel" to name it in this context's models`
-        );
-      }
-      if (term.from === null) continue;
-      if (term.from === domain) {
-        errors.push(`${glossary.uri}: "${term.term}" borrows from itself`);
-      } else if (!input.glossaries.has(term.from)) {
-        errors.push(
-          `${glossary.uri}: "${term.term}" borrows from "${term.from}", which is not a specs/<domain>/`
-        );
-      } else if (ownerTerm(term, input.glossaries) === null) {
-        errors.push(
-          `${glossary.uri}: "${term.term}" borrows from ${term.from}, whose glossary does not define it`
-        );
+      const problem =
+        kernelProblem(term, kernelTerms, input.kernel.uri) ??
+        (term.from === null || term.from === KERNEL
+          ? null
+          : lendingProblem(term, domain, input));
+      if (problem !== null) {
+        errors.push(`${glossary.uri}: "${term.term}" ${problem}`);
       }
     }
   }
@@ -347,7 +381,7 @@ function foreignTerms(
     if (other === domain) continue;
     out.set(
       other,
-      glossary.terms.filter((t) => t.from === null)
+      glossary.terms.filter((t) => t.published)
     );
   }
   return out;
@@ -513,7 +547,11 @@ export function featureProse(source: string): readonly ProseLine[] {
     }
     if (inDocString || trimmed === '') return;
     if (/^[@#|]/.test(trimmed)) return;
-    const text = trimmed.replace(KEYWORD, '');
+    // Quoted text and outline placeholders are example data, not language.
+    const text = trimmed
+      .replace(KEYWORD, '')
+      .replace(/"[^"]*"|“[^”]*”|<[^>]*>/g, (m) => ' '.repeat(m.length))
+      .trim();
     if (text !== '') out.push({ line: index + 1, text });
   });
   return out;
