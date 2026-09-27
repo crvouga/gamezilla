@@ -11,7 +11,7 @@ import {
   setNote,
 } from '@pkgs/sync-engine/sim';
 
-describe('domain hard delete rejected', () => {
+describe('hard delete refused', () => {
   test('illegalHardDeleteNote fails with NO_HARD_DELETE; row stays live', async () => {
     await using s = await exampleSystem.run({
       seed: 60,

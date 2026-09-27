@@ -1,11 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import {
-  addClient,
   EXAMPLE_DST_FAULTS_HOST,
   exampleSystem,
-  expectInSync,
-  mutate,
-  setNote,
   walkThenInSync,
 } from '@pkgs/sync-engine/sim';
 
@@ -18,7 +14,13 @@ async function walkChoices(seed: number, steps: number): Promise<string> {
   return JSON.stringify(w.steps);
 }
 
-describe('seeded workload fuzz determinism', () => {
+/**
+ * Framework contracts for the explore pool: a seed replays the same walk, and
+ * walks over the whole fault pool (skew, storage pressure, broker crashes, …
+ * — faults `note-replication.qnt` does not model) keep the standing
+ * properties and converge.
+ */
+describe('explore pool', () => {
   test('same seed → identical walk choices', async () => {
     expect(await walkChoices(123, 12)).toBe(await walkChoices(123, 12));
   });
@@ -81,15 +83,4 @@ describe('seeded workload fuzz determinism', () => {
     },
     { timeout: 60_000 }
   );
-
-  test('single mutate then fuzz-style settle', async () => {
-    await using s = await exampleSystem.run({
-      seed: 88,
-      args: { clientCount: 0 },
-    });
-
-    await s.apply(addClient, 'alice');
-    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'ok' });
-    await expectInSync(s);
-  });
 });

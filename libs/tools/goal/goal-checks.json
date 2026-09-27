@@ -187,12 +187,16 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-outcome-sync.feature"
       },
       {
         "kind": "spec",
-        "path": "specs/chess/puzzle-outcome-sync.feature"
+        "path": "specs/sync/notes-saved-once.feature"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
       }
     ]
   },
@@ -200,12 +204,12 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       },
       {
         "kind": "spec",
-        "path": "specs/chess/puzzle-guest-carryover.feature"
+        "path": "specs/sync/notes-across-devices.feature"
       }
     ]
   },
@@ -213,8 +217,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/requires-online-fails-offline-without-queue.test.ts"
+        "kind": "spec",
+        "path": "specs/sync/online-only-actions.feature"
       }
     ]
   },
@@ -563,12 +567,16 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/crash-restart-rehydrates-and-drains-queue.test.ts"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       },
       {
         "kind": "spec",
-        "path": "specs/chess/puzzle-guest-carryover.feature"
+        "path": "specs/sync/notes-offline.feature"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/sync/notes-after-a-crash.feature"
       }
     ]
   },
@@ -576,12 +584,16 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/same-actor-two-devices-converge.test.ts"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-guest-carryover.feature"
       },
       {
         "kind": "spec",
-        "path": "specs/chess/puzzle-guest-carryover.feature"
+        "path": "specs/sync/notes-across-devices.feature"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
       }
     ]
   },
@@ -589,12 +601,16 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/upload-response-lost-retry-does-not-double-apply.test.ts"
+        "kind": "spec",
+        "path": "specs/chess/puzzle-outcome-sync.feature"
       },
       {
         "kind": "spec",
-        "path": "specs/chess/puzzle-outcome-sync.feature"
+        "path": "specs/sync/notes-saved-once.feature"
+      },
+      {
+        "kind": "test",
+        "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
       }
     ]
   },
