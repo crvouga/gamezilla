@@ -235,9 +235,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
 | Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
+| Given | {actor} has signed out | {actor} | shared |
 | Given | {actor} is a guest | {actor} | shared |
+| Given | {actor} is also signed in on another device | {actor} | shared |
+| Given | {actor} is offline | {actor} | shared |
 | Given | {actor} is signed in | {actor} | shared |
 | Given | {actor} is signed in with Google | {actor} | shared |
+| Given | the connection has come back | — | shared |
 | Then | {actor} has a signed-in account | {actor} | shared |
 | When | {actor} closes and reopens the app | {actor} | shared |
 | When | {actor} loses the connection | {actor} | shared |
@@ -249,11 +253,26 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
 | Given | {actor} and {actor} are friends | {actor}, {actor} | friends |
+| Given | {actor} has accepted {actor}'s friend request | {actor}, {actor} | friends |
+| Given | {actor} has blocked {actor} | {actor}, {actor} | friends |
+| Given | {actor} has closed and reopened the app | {actor} | friends |
+| Given | {actor} has come back to the space after closing the app | {actor} | friends |
+| Given | {actor} has declined {actor}'s friend request | {actor}, {actor} | friends |
+| Given | {actor} has ended the space | {actor} | friends |
+| Given | {actor} has gone back to the lobby | {actor} | friends |
+| Given | {actor} has lost the connection long enough to drop out of the space | {actor} | friends |
+| Given | {actor} has opened {actor}'s profile from their request | {actor}, {actor} | friends |
+| Given | {actor} has renamed themselves to {username} | {actor}, {username} | friends |
+| Given | {actor} has searched for {string} | {actor}, {string} | friends |
 | Given | {actor} has sent {actor} a friend request | {actor}, {actor} | friends |
 | Given | {actor} has sent {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
+| Given | {actor} is hosting a space | {actor} | friends |
 | Given | {actor} is hosting a space that {actor} joined from the link | {actor}, {actor} | friends |
 | Given | {actor} is hosting a space that {actor} joined from the lobby | {actor}, {actor} | friends |
+| Given | {actor} is viewing {actor}'s profile | {actor}, {actor} | friends |
+| Given | {actor} is viewing their empty friends list | {actor} | friends |
 | Given | {actor} is viewing their friends list with {person} in it | {actor}, {person} | friends |
+| Given | {actor}'s friends list shows {actor} as live | {actor}, {actor} | friends |
 | Then | {actor} can ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor} can search for people | {actor} | friends |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends |
@@ -270,17 +289,15 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is told search needs an account | {actor} | friends |
 | Then | {actor} is told they have no friends yet within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} sees {actor} as a friend | {actor}, {actor} | friends |
-| Then | {actor} sees {actor} as a friend within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor} sees {int} people/person in the space within {int} seconds | {actor}, {int}, {int} | friends |
 | Then | {actor} sees the space has ended within {int} seconds | {actor}, {int} | friends |
 | Then | {actor} watches {person} appear in their friends list within {int} seconds | {actor}, {person}, {int} | friends |
 | Then | {actor}'s friend count is {int} | {actor}, {int} | friends |
-| Then | {actor}'s friends list badges {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends |
-| Then | {actor}'s friends list does not badge {actor} as live | {actor}, {actor} | friends |
 | Then | {actor}'s friends list does not show {person} | {actor}, {person} | friends |
+| Then | {actor}'s friends list shows {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor}'s friends list shows {person} | {actor}, {person} | friends |
 | Then | {actor}'s friends list shows {person} within {int} seconds | {actor}, {person}, {int} | friends |
-| Then | {actor}'s friends list stops badging {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends |
+| Then | {actor}'s friends list stops showing {actor} as live within {int} seconds | {actor}, {actor}, {int} | friends |
 | Then | {actor}'s friends list stops showing {person} within {int} seconds | {actor}, {person}, {int} | friends |
 | Then | {actor}'s inbox does not show a friend request from {actor} | {actor}, {actor} | friends |
 | Then | {actor}'s inbox stops showing the friend request from {actor} within {int} seconds | {actor}, {actor}, {int} | friends |
@@ -293,13 +310,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} blocks {actor} | {actor}, {actor} | friends |
 | When | {actor} blocks {actor} from their request | {actor}, {actor} | friends |
 | When | {actor} cancels the friend request to {actor} | {actor}, {actor} | friends |
+| When | {actor} chooses to find friends | {actor} | friends |
+| When | {actor} chooses to sign in from search | {actor} | friends |
 | When | {actor} confirms {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} creates a space | {actor} | friends |
 | When | {actor} declines {actor}'s friend request | {actor}, {actor} | friends |
 | When | {actor} declines {actor}'s request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} ends the space | {actor} | friends |
-| When | {actor} follows the find-friends prompt | {actor} | friends |
-| When | {actor} follows the sign-in prompt from search | {actor} | friends |
 | When | {actor} goes back to the lobby | {actor} | friends |
 | When | {actor} joins {actor}'s space from the lobby | {actor}, {actor} | friends |
 | When | {actor} joins {actor}'s space from their friends list | {actor}, {actor} | friends |
@@ -311,11 +328,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} opens their friends list | {actor} | friends |
 | When | {actor} removes {actor} | {actor}, {actor} | friends |
 | When | {actor} reopens their live space | {actor} | friends |
-| When | {actor} returns to their space and ends it | {actor} | friends |
-| When | {actor} sends {actor} a friend request | {actor}, {actor} | friends |
 | When | {actor} sends {actor} a friend request from {actor}'s profile | {actor}, {actor}, {actor} | friends |
 | When | {actor} starts removing {actor} but keeps them | {actor}, {actor} | friends |
-| When | {actor} steps out of the space | {actor} | friends |
 | When | {actor} unblocks {actor} | {actor}, {actor} | friends |
 | When | {actor} views {actor}'s request | {actor}, {actor} | friends |
 

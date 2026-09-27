@@ -5,15 +5,18 @@
 
 import { expect } from 'bun:test';
 
+import { searchUntilAddOffered } from '@libs/friends/sim/friends-actions';
+import { addFriendOffered } from '@libs/friends/sim/friends-ui-reads';
 import {
-  addFriendOffered,
-  handleVisible,
-} from '@libs/friends/sim/friends-ui-reads';
-import { searchUsername } from '@libs/search/sim/search-actions';
-import { searchResultVisible } from '@libs/search/sim/search-ui-reads';
+  searchUntilNobody,
+  searchUsername,
+} from '@libs/search/sim/search-actions';
+import {
+  searchResultVisible,
+  searchShowsNobody,
+} from '@libs/search/sim/search-ui-reads';
 import { backToTabs } from '@libs/sim-harness';
 import { type Actor, Then, When } from '@libs/sim-harness/spec/define';
-import { Handles } from '@libs/test-ids';
 
 const SECOND_MS = 1_000;
 
@@ -37,20 +40,16 @@ Then(
 );
 
 Then("{actor}'s search shows nobody", async (w, actor: Actor) => {
-  expect(await w.s.read(handleVisible, actor, Handles.searchEmpty)).toBe(true);
+  expect(await w.s.read(searchShowsNobody, actor)).toBe(true);
 });
 
+// A search result is a snapshot: the observer searches again until the
+// change reaches them (the sim action fails after the promised time).
 Then(
   "{actor}'s search for {string} shows nobody within {int} seconds",
   async (w, actor: Actor, text: string, seconds: number) => {
     await w.s.apply(backToTabs, actor);
-    await w.s.until(
-      async (surf) => {
-        await Promise.resolve(searchUsername.act(surf, actor, text));
-        return handleVisible(surf, actor, Handles.searchEmpty);
-      },
-      { maxMs: seconds * SECOND_MS }
-    );
+    await w.s.apply(searchUntilNobody, actor, text, seconds * SECOND_MS);
   }
 );
 
@@ -65,12 +64,6 @@ Then(
   "{actor}'s search offers to add {actor} again within {int} seconds",
   async (w, actor: Actor, other: Actor, seconds: number) => {
     await w.s.apply(backToTabs, actor);
-    await w.s.until(
-      async (surf) => {
-        await Promise.resolve(searchUsername.act(surf, actor, other));
-        return addFriendOffered(surf, actor, other);
-      },
-      { maxMs: seconds * SECOND_MS }
-    );
+    await w.s.apply(searchUntilAddOffered, actor, other, seconds * SECOND_MS);
   }
 );

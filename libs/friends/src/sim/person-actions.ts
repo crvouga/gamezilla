@@ -110,14 +110,6 @@ export const askAgainFromSearch = scenarioAction({
   },
 });
 
-/** @deprecated Removed once steps use the named actions above. */
-export const tapFriendPill = scenarioAction({
-  name: 'tapFriendPill',
-  act: async (s, actorId: string, pillHandle: string) => {
-    await tapPill(s, actorId, pillHandle);
-  },
-});
-
 /** A guest's people search: follow its Sign in prompt. */
 export const followSearchSignIn = scenarioAction({
   name: 'followSearchSignIn',
@@ -177,7 +169,6 @@ export const PERSON_SIM_ACTIONS = [
   askAgainFromSearch,
   followSearchSignIn,
   followFindFriends,
-  tapFriendPill,
   blockPerson,
   keepFriend,
 ];
