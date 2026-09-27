@@ -1,6 +1,8 @@
 @domain:friends @goal:social:3
 Feature: People search
-  Typing a username finds that person and settles: no eternal "Searching…".
+  When a person wants to find someone, they want people search to find them
+  by the start of their username, in any letter case, and to always give an
+  answer, so they never wait forever on "Searching…".
 
   Background:
     Given Alice and Bob are signed in

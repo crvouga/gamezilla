@@ -1,7 +1,8 @@
 @domain:friends @goal:social:5
 Feature: Remove a friend
-  People choose who they stay connected to. Removing a friend ends it for both
-  people at once, and backing out at the last moment keeps the friendship.
+  When a person no longer wants someone as a friend, they want to remove
+  them, ending the friendship for both at once, so neither still counts the
+  other as a friend. Backing out at the last moment keeps the friendship.
 
   Background:
     Given Alice and Bob are friends
