@@ -95,6 +95,8 @@ function browsing(target: LiveTarget): Browsing {
     get browser() {
       return device === null ? null : journeyBrowser(device, target);
     },
+    // The deployed bundle is a production build: no puzzle answers on the page.
+    showsPuzzleAnswers: false,
     open: async (access) => {
       const opened = await openDevice(target);
       device = opened;

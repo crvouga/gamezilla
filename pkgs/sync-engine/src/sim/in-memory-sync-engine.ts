@@ -186,6 +186,7 @@ export async function createInMemorySyncEngine(
         online: true,
         hasSynced: true,
         lastError: null,
+        upgradeRequired: false,
       });
     },
     disconnect: async () => {
@@ -206,6 +207,7 @@ export async function createInMemorySyncEngine(
         online: true,
         hasSynced: false,
         lastError: null,
+        upgradeRequired: false,
       });
     },
     waitForFirstSync: async () => {
@@ -214,6 +216,7 @@ export async function createInMemorySyncEngine(
         online: true,
         hasSynced: true,
         lastError: null,
+        upgradeRequired: false,
       });
     },
     refreshQueries: async () => undefined,

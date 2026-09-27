@@ -25,12 +25,12 @@ const THUMB_TRAVEL = TRACK_WIDTH - THUMB - THUMB_INSET * 2;
 
 export function Switch(props: SwitchProps): JSX.Element {
   return (
-    <div
-      class="box flex-row items-center gap-2 shrink-0"
-      {...dataAttrs({ component: 'Switch', ...props.dataSet })}
-    >
+    <div class="box flex-row items-center gap-2 shrink-0">
+      {/* The identifiers name the control a person presses, so a driver that
+          taps by test id toggles it (the wrapper would swallow the click). */}
       <button
         class="clickable flex-row items-center justify-center min-h-11 bg-transparent shrink-0"
+        {...dataAttrs({ component: 'Switch', ...props.dataSet })}
         type="button"
         style={{
           width: `${TRACK_WIDTH}px`,

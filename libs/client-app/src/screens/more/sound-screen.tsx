@@ -1,6 +1,7 @@
 /** @jsxImportSource solid-js */
 /** `/more/sound` — in-app sound effects mute toggle (`@pkgs/sounds/solid`). */
 
+import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { useSoundsPreference } from '@pkgs/sounds/solid';
 import {
@@ -53,7 +54,7 @@ export function SoundSettingsScreen(): JSX.Element {
                   value={!muted()}
                   onValueChange={(on) => setMuted(!on)}
                   aria-label={t`Sound effects`}
-                  dataSet={{ testid: 'sound-effects-switch' }}
+                  dataSet={{ testid: Handles.soundEffectsSwitch }}
                 />
               }
             />

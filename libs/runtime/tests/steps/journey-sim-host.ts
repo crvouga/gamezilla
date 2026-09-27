@@ -34,6 +34,8 @@ export function simJourneyHost(w: SimWorld): JourneyHost {
   return {
     runId: 'sim',
     browser: null,
+    // The sim runs the test build: the puzzle board carries its answers.
+    showsPuzzleAnswers: true,
     open: async (access) => {
       if (access === 'anonymous') {
         await w.s.apply(spawnActor, ACTOR);

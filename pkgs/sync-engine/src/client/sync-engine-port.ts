@@ -95,7 +95,7 @@ export type SyncEngine = {
   ) => SubscribeQueriesHandle;
   /**
    * Provides a subscription to sync status changes.
-   * Snapshot shape: `{ connection, online, hasSynced, hasEverSynced, lastError }`.
+   * Snapshot shape: `{ connection, online, hasSynced, hasEverSynced, lastError, upgradeRequired }`.
    */
   readonly status: SyncStatusSubscription;
   /**

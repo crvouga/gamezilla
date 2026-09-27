@@ -5,6 +5,7 @@
  * the tab bar behave exactly as they will for the ported screen.
  */
 
+import { Handles } from '@libs/test-ids';
 import { Trans } from '@lingui/solid/macro';
 import {
   EmptyState,
@@ -62,7 +63,8 @@ export function RouteStub(props: RouteStubProps): JSX.Element {
             onClick: () => router.replace('/'),
           }}
           dataSet={{
-            testid: props.notFound === true ? 'route-not-found' : 'route-stub',
+            testid:
+              props.notFound === true ? Handles.routeNotFound : 'route-stub',
           }}
         />
       )}

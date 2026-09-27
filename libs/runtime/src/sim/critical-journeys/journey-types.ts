@@ -37,6 +37,12 @@ export type JourneyHost = {
   readonly runId: string;
   /** Present only when the host drives a real browser. */
   readonly browser: JourneyBrowser | null;
+  /**
+   * The app build under test shows its puzzles' answers to the driver (test
+   * builds only). Production never ships them, so a journey that solves a
+   * puzzle stops there as a host limit.
+   */
+  readonly showsPuzzleAnswers: boolean;
   /** Open the app on a fresh device in `access`; ends on the tab shell. */
   open(access: JourneyAccess): Promise<void>;
   /** Run `gestures` against the open app. */

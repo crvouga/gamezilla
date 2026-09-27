@@ -12,6 +12,21 @@ export const Handles = {
   globalMenuAccount: 'global-menu-account',
   /** "Settings" row inside the global menu (→ `/more`). */
   globalMenuSettings: 'global-menu-settings',
+  /** "An update is needed" banner: the product no longer accepts this app. */
+  appUpdateRequired: 'app-update-required',
+  /** Not-found screen for an address the app does not have (`-action`: Go to Spaces). */
+  routeNotFound: 'route-not-found',
+  routeNotFoundAction: 'route-not-found-action',
+
+  // settings
+  settingsTheme: 'settings-theme',
+  settingsSound: 'settings-sound',
+  settingsAbout: 'settings-about',
+  /** Appearance picker option (`light` / `dark` / `system`). */
+  themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,
+  soundEffectsSwitch: 'sound-effects-switch',
+  /** Version row on the About screen. */
+  aboutVersion: 'about-version',
   navBack: 'nav-back',
   tabProfile: 'tab-profile',
   tabSearch: 'tab-search',

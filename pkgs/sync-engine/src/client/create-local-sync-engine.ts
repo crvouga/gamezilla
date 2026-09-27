@@ -187,7 +187,14 @@ function handleError(state: LocalEngineState, error: unknown): void {
   if (error instanceof SyncApiAuthError && error.reason === 'expired') {
     return;
   }
-  state.status.patch({ online: false, lastError: errorMessage(error) });
+  state.status.patch({
+    online: false,
+    lastError: errorMessage(error),
+    // Protocol cut: the app is outdated. Kept until a sync succeeds again.
+    ...(error instanceof SyncApiAuthError && error.reason === 'upgrade_required'
+      ? { upgradeRequired: true }
+      : {}),
+  });
 }
 
 function createUploadQueue(
@@ -241,6 +248,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
         online: true,
         hasSynced: true,
         lastError: null,
+        upgradeRequired: false,
       }),
   });
   const sessionHandles = options.sessionQueries.map((spec) =>

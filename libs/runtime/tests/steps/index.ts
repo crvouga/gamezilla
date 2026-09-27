@@ -7,8 +7,11 @@
  */
 
 import '@libs/sim-harness/spec/steps/platform';
+import '@libs/profile/steps/profile.steps';
+import './app-lifecycle.steps';
 import './app-shell.steps';
 import './journeys.steps';
+import './settings.steps';
 
 import { useSimWorld } from '@libs/sim-harness/spec/world';
 import { openSim } from '../e2e/support/open-app-sim';

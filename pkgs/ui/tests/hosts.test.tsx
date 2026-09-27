@@ -66,6 +66,25 @@ describe('Switch', () => {
     expect(el.className).toMatch(/min-h-11/);
     expect(track?.className).toMatch(/bg-tint/);
   });
+
+  // regression: ui-switch-testid-on-wrapper — the test id sat on a wrapper
+  // around the toggle, so tapping the switch by its id changed nothing.
+  test('its test id names the toggle a person presses', () => {
+    const [on, setOn] = createSignal(true);
+    renderUi(() => (
+      <Switch
+        value={on()}
+        onValueChange={setOn}
+        aria-label="Sound"
+        dataSet={{ testid: 'sound-switch' }}
+      />
+    ));
+    fireEvent.click(screen.getByTestId('sound-switch'));
+    expect(screen.getByRole('switch', { name: 'Sound' })).toHaveAttribute(
+      'aria-checked',
+      'false'
+    );
+  });
 });
 
 describe('Checkbox', () => {

@@ -30,6 +30,10 @@ export {
   startGoogleSignIn,
 } from './critical-journeys/anonymous-gestures';
 export {
+  expectPlusPrices,
+  viewBillingPlans,
+} from './critical-journeys/billing-gestures';
+export {
   atTabShell,
   confirmSignedIn,
   endActiveSpace,
@@ -42,6 +46,10 @@ export type {
   JourneyHost,
   JourneyWorld,
 } from './critical-journeys/journey-types';
+export {
+  expectNextPuzzleReady,
+  solveChessPuzzle,
+} from './critical-journeys/puzzle-gestures';
 export {
   expectGamesOffered,
   expectPuzzlePlayable,
