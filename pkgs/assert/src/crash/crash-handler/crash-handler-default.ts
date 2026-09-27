@@ -12,7 +12,10 @@ export class FallbackCrashHandler implements CrashHandler {
 
   crash(message: string, context?: Record<string, unknown>): void {
     // Tiger: non-Error throw object is intentional (filtered by crash dispatch).
-    // uncatchable assertion envelope, not a string
-    throw { ...UNCATCHABLE_ERROR, message, context };
+    // uncatchable assertion envelope, not a string. It carries the stack so
+    // whoever reports it (the test runner, an error boundary) has the trace —
+    // `crash()` itself never logs.
+    const { stack } = new Error(message);
+    throw { ...UNCATCHABLE_ERROR, message, context, stack };
   }
 }

@@ -1,22 +1,21 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
 import { spaceUserEntityId } from '../../../shared/space/participation/participation-ids';
 import {
-  accountId,
-  requireHost,
+  requireSpacePermission,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
 export const addSpaceUserMutation = defineMutation({
   name: 'addSpaceUser',
   args: spaceIdArgs.extend({ userId: z.string().min(1) }),
   async run({ tx, env }, { spaceId, userId }) {
-    await requireHost(
-      tx,
-      env,
+    await requireSpacePermission(tx, env, {
       spaceId,
-      'Only the host can manage space users.'
-    );
+      permission: PERMISSION.spacesManageMembers,
+      message: 'Only the host can manage space users.',
+    });
     if (userId === env.accountId) {
       throw new MutationError(
         'SPACE_INVALID_INPUT',
@@ -29,7 +28,7 @@ export const addSpaceUserMutation = defineMutation({
       INSERT INTO spaces_users (
         id, space_id, user_id, created_at, created_by_account_id, deleted_at
       )
-      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${accountId(env)}, ${null})
+      VALUES (${id}, ${spaceId}, ${userId}, ${now}, ${env.accountId}, ${null})
       ON CONFLICT (id) DO UPDATE SET
         deleted_at = NULL,
         created_at = excluded.created_at,

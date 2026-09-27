@@ -29,7 +29,7 @@ const DEMO_ACTIONS: readonly OverflowMenuAction[] = [
 function AvatarDisc(props: { size: number; iconSize: number }): JSX.Element {
   return (
     <div
-      class="box rounded-[9999px] bg-tint items-center justify-center"
+      class="box rounded-full bg-tint items-center justify-center"
       style={{ width: cssPx(props.size), height: cssPx(props.size) }}
     >
       <UserIcon size={props.iconSize} color="onPrimary" />

@@ -2,7 +2,7 @@ import {
   type AppAuthContext,
   buildAppAuthContext,
 } from '@libs/auth/public/auth-context';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';

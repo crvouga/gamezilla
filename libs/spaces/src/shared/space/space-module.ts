@@ -20,7 +20,7 @@ import {
   counterEventReducer,
   counterEvtNs,
 } from './counter';
-import type { GameDefinition } from './game';
+import type { GameCommandContext, GameDefinition } from './game';
 import {
   createGamesCommandRouter,
   createGamesEventReducer,
@@ -56,7 +56,11 @@ function assertUniqueGameIds(games: readonly GameDefinition[]): void {
 }
 
 function buildCommandRouter(games: readonly GameDefinition[]) {
-  return createComposedMessageRouter<RoomState, string, HandleResult>([
+  return createComposedMessageRouter<
+    RoomState,
+    GameCommandContext,
+    HandleResult
+  >([
     { namespace: spaceLogCmdNs, router: spaceLogCommandRouter },
     { namespace: spaceMembersCmdNs, router: spaceMembersCommandRouter },
     { namespace: counterCmdNs, router: counterCommandRouter },
@@ -128,11 +132,15 @@ export function createSpaceModule(
           reason: 'not a message envelope',
         });
       }
-      return commandRouter.dispatch(state, identity, msg, (_s, _c, m) =>
-        reject({
-          type: ROOM_ERROR_TYPE.invalidCommand,
-          reason: String(m.type),
-        })
+      return commandRouter.dispatch(
+        state,
+        { identity, ts: command.ts },
+        msg,
+        (_s, _c, m) =>
+          reject({
+            type: ROOM_ERROR_TYPE.invalidCommand,
+            reason: String(m.type),
+          })
       );
     },
 

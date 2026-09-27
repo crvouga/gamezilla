@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import {
   type ActionBarItem,
   actionBarBudgetWidth,
@@ -10,7 +11,6 @@ import {
   screenBaseActionToActionBarItem,
 } from '@pkgs/ui/components/action-bar';
 import type { IconComponent } from '@pkgs/ui/components/icons';
-import { describe, expect, test } from 'vitest';
 
 const Icon = (() => null) as unknown as IconComponent;
 

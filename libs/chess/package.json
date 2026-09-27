@@ -10,18 +10,34 @@
     "./root/*": [
       "./src/root/*.ts",
       "./src/root/*.tsx"
+    ],
+    "./sim/*": [
+      "./src/sim/*.ts",
+      "./src/sim/*.tsx"
     ]
   },
   "scripts": {
     "export:puzzles-load": "bun run scripts/export-chess-puzzles-load.ts",
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "seed:puzzles": "bun run scripts/seed-chess-puzzles.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests --path-ignore-patterns='**/*.test.tsx' && vitest run --passWithNoTests"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --path-ignore-patterns='tests/e2e/**'",
+    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts",
+    "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
+  "specDomains": [
+    "chess"
+  ],
   "dependencies": {
     "@libs/auth": "workspace:*",
+    "@libs/billing": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/infra": "workspace:*",
+    "@libs/permissions": "workspace:*",
+    "@libs/profile": "workspace:*",
+    "@libs/sim-harness": "workspace:*",
     "@libs/spaces": "workspace:*",
+    "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
     "@pkgs/assert": "workspace:*",
@@ -29,18 +45,22 @@
     "@pkgs/attribute": "workspace:*",
     "@pkgs/chess-board": "workspace:*",
     "@pkgs/chess-board-core": "workspace:*",
+    "@pkgs/chess-rules": "workspace:*",
     "@pkgs/clock": "workspace:*",
+    "@pkgs/collab": "workspace:*",
     "@pkgs/database-url-policy": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
+    "@pkgs/device": "workspace:*",
+    "@pkgs/glicko2": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "@pkgs/i18n": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/message": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-sim": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
@@ -53,6 +73,7 @@
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
+    "@pkgs/ui-testing": "workspace:*",
     "@pkgs/uuid": "workspace:*",
     "chess.js": "catalog:",
     "csv-parse": "catalog:",
@@ -62,15 +83,17 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/vitest-solid": "workspace:*",
-    "@solidjs/testing-library": "catalog:",
-    "@testing-library/jest-dom": "catalog:",
+    "@libs/friends": "workspace:*",
+    "@libs/notifications": "workspace:*",
+    "@libs/search": "workspace:*",
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",
-    "happy-dom": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
   }
 }

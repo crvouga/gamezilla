@@ -91,6 +91,7 @@ export function useSyncEngine(): SyncEngineApi {
     pendingMutationCount: () => engine.pendingMutationCount(),
     wakeUploads: engine.wakeUploads,
     notifyLocalMutation: engine.notifyLocalMutation,
+    registerMutationDrain: engine.registerMutationDrain,
     ensurePush: engine.ensurePush,
     status,
     getStatus: () => engine.status.getSnapshot(),

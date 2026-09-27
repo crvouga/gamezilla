@@ -2,6 +2,7 @@
 /** Promotion picker stacked on the destination file. */
 
 import { Trans } from '@lingui/solid/macro';
+import { chessBoardPromotionTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   BoardTheme,
@@ -9,108 +10,127 @@ import type {
   PieceColor,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { For, type JSX } from 'solid-js';
+import { For, type JSX, Show } from 'solid-js';
 
-import { pieceImageUri } from './piece-images';
+import styles from './chess-board.module.css';
 
 type PromotionKind = NonNullable<Move['promotion']>;
 const ORDERED: readonly PromotionKind[] = ['q', 'r', 'b', 'n'];
 
 export type ChessBoardPromotionProps = {
+  readonly boardTestId: string;
   readonly color: PieceColor;
   readonly to: Square;
   readonly orientation: BoardOrientation;
   readonly theme: BoardTheme;
-  readonly boardPx: number;
   readonly onPick: (p: PromotionKind) => void;
   readonly onCancel: () => void;
 };
 
+/** One square of the painted board, never below a 44px touch target. */
+const CELL = 'max(12.5%, 44px)';
+
+type StackLayout = {
+  readonly style: JSX.CSSProperties;
+  readonly kinds: readonly PromotionKind[];
+  /** Stacking up from the bottom edge: the cancel chip goes on top. */
+  readonly cancelFirst: boolean;
+};
+
+/**
+ * The stack sits on the promotion file, the queen on the promotion square,
+ * growing away from the board edge. Percentages resolve against the host's
+ * content box (the painted board), so no pixel measurement is involved.
+ */
 function stackLayout(args: {
   to: Square;
   color: PieceColor;
   orientation: BoardOrientation;
-  boardPx: number;
-}): {
-  left: number;
-  top: number;
-  cell: number;
-  kinds: readonly PromotionKind[];
-} {
-  const fileCell = args.boardPx / 8;
-  const cell = Math.max(fileCell, 44);
+}): StackLayout {
   const file = args.to.charCodeAt(0) - 97;
   const rank = args.to.charCodeAt(1) - 49;
   const col = args.orientation === 'white' ? file : 7 - file;
   const row = args.orientation === 'white' ? 7 - rank : rank;
   const fromTop =
     args.orientation === 'white' ? args.color === 'w' : args.color === 'b';
+  const left = `clamp(0px, calc(${col} * 12.5% + (12.5% - ${CELL}) / 2), calc(100% - ${CELL}))`;
+  const style: JSX.CSSProperties = fromTop
+    ? { left, top: `${row * 12.5}%`, width: CELL }
+    : { left, bottom: `${(7 - row) * 12.5}%`, width: CELL };
   return {
-    left: col * fileCell + (fileCell - cell) / 2,
-    top: fromTop ? row * fileCell : Math.max(0, row * fileCell - cell * 3),
-    cell,
+    style,
     kinds: fromTop ? ORDERED : [...ORDERED].reverse(),
+    cancelFirst: !fromTop,
   };
 }
 
+function CancelChip(props: {
+  readonly boardTestId: string;
+  readonly theme: BoardTheme;
+  readonly onCancel: () => void;
+}): JSX.Element {
+  return (
+    <button
+      class="clickable clickableTint items-center justify-center font-bold w-full"
+      style={{
+        'background-color': props.theme.promotion.cancel,
+        color: props.theme.promotion.ink,
+        'aspect-ratio': '1 / 0.45',
+      }}
+      type="button"
+      aria-label="Cancel promotion"
+      data-testid={chessBoardPromotionTestId(props.boardTestId, 'cancel')}
+      onClick={() => props.onCancel()}
+    >
+      <Trans>✕</Trans>
+    </button>
+  );
+}
+
 function PromotionStack(props: {
-  readonly layout: ReturnType<typeof stackLayout>;
+  readonly boardTestId: string;
+  readonly layout: StackLayout;
   readonly color: PieceColor;
   readonly theme: BoardTheme;
   readonly onPick: (p: PromotionKind) => void;
   readonly onCancel: () => void;
 }): JSX.Element {
+  const cancel = () => (
+    <CancelChip
+      boardTestId={props.boardTestId}
+      theme={props.theme}
+      onCancel={props.onCancel}
+    />
+  );
   return (
     <div
       class="box absolute flex-col"
       role="presentation"
-      style={{
-        left: `${props.layout.left}px`,
-        top: `${props.layout.top}px`,
-        width: `${props.layout.cell}px`,
-      }}
+      style={props.layout.style}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => {
         if (e.key === 'Escape') props.onCancel();
       }}
     >
+      <Show when={props.layout.cancelFirst}>{cancel()}</Show>
       <For each={[...props.layout.kinds]}>
         {(kind) => (
           <button
-            class="clickable clickableTint p-0"
-            style={{
-              'background-color': props.theme.promotion.surface,
-              width: `${props.layout.cell}px`,
-              height: `${props.layout.cell}px`,
-            }}
+            class="clickable clickableTint p-0 w-full aspect-square"
+            style={{ 'background-color': props.theme.promotion.surface }}
             type="button"
             aria-label={kind}
+            data-testid={chessBoardPromotionTestId(props.boardTestId, kind)}
             onClick={() => props.onPick(kind)}
           >
-            <img
-              src={pieceImageUri(props.color, kind)}
-              alt=""
-              width={props.layout.cell}
-              height={props.layout.cell}
-              draggable={false}
+            <span
+              class={`${styles['piece']} ${styles['promotionPiece']}`}
+              data-piece={`${props.color}${kind}`}
             />
           </button>
         )}
       </For>
-      <button
-        class="clickable clickableTint items-center justify-center font-bold"
-        style={{
-          'background-color': props.theme.promotion.cancel,
-          color: props.theme.promotion.ink,
-          width: `${props.layout.cell}px`,
-          height: `${props.layout.cell * 0.45}px`,
-        }}
-        type="button"
-        aria-label="Cancel promotion"
-        onClick={() => props.onCancel()}
-      >
-        <Trans>✕</Trans>
-      </button>
+      <Show when={!props.layout.cancelFirst}>{cancel()}</Show>
     </div>
   );
 }
@@ -123,20 +143,26 @@ export function ChessBoardPromotion(
       to: props.to,
       color: props.color,
       orientation: props.orientation,
-      boardPx: props.boardPx,
     });
   return (
     <div
-      class="box absolute inset-[0]"
+      class={`box absolute inset-0 ${styles['promotion']}`}
       style={{ 'background-color': props.theme.promotion.backdrop }}
       data-component="ChessBoardPromotion"
       role="presentation"
+      // The picker is modal: board gestures under it must not start a drag,
+      // select a square or capture the pointer away from these buttons. The
+      // board listens natively on its host, so these must be native too
+      // (delegated handlers would run after the host's).
+      on:pointerdown={(e) => e.stopPropagation()}
+      on:contextmenu={(e) => e.preventDefault()}
       onClick={() => props.onCancel()}
       onKeyDown={(e) => {
         if (e.key === 'Escape') props.onCancel();
       }}
     >
       <PromotionStack
+        boardTestId={props.boardTestId}
         layout={layout()}
         color={props.color}
         theme={props.theme}

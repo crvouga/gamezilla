@@ -1,5 +1,4 @@
 export type FriendsErrorCode =
-  | 'FRIENDS_NOT_SIGNED_IN'
   | 'FRIENDS_SELF'
   | 'FRIENDS_ALREADY_FRIENDS'
   | 'FRIENDS_REQUEST_EXISTS'
@@ -9,7 +8,6 @@ export type FriendsErrorCode =
   | 'FRIENDS_FORBIDDEN';
 
 const STATUS_BY_CODE: Record<FriendsErrorCode, number> = {
-  FRIENDS_NOT_SIGNED_IN: 401,
   FRIENDS_SELF: 400,
   FRIENDS_ALREADY_FRIENDS: 409,
   FRIENDS_REQUEST_EXISTS: 409,

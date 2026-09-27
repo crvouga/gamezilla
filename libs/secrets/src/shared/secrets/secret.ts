@@ -1,20 +1,19 @@
 /**
- * Single source of truth for every managed secret the app needs.
- * Registry lives in {@link ./registry}; anything not listed there is an orphan
- * and will be purged on provision (`check:secrets` allows orphans).
+ * Every secret the app needs. Registry lives in {@link ./registry}.
+ *
+ * A secret is either entered by a person (`bun run secrets:seed`) or written
+ * by OpenTofu (`managedBy: 'tofu'` — generated once or derived from a
+ * resource; see `libs/infra/tofu/stacks/foundation/secrets.json`).
  */
 
-export type SecretsEnv = 'dev' | 'prd';
+import type { EnvFile } from '@libs/infra/public/env-file';
+import { envFile } from '@libs/infra/public/envs';
 
 export type SecretInput = {
-  readonly env: SecretsEnv;
+  /** The environment the value is for (production-ness is its `protection`). */
+  readonly env: EnvFile;
   readonly secretValue: string;
   /** All values already fetched for this env — for cross-secret checks. */
-  readonly secrets: ReadonlyMap<string, string>;
-};
-
-export type SecretSeedInput = {
-  readonly env: SecretsEnv;
   readonly secrets: ReadonlyMap<string, string>;
 };
 
@@ -24,16 +23,12 @@ export type SecretConfig = {
   readonly optional?: boolean;
   /** Include in wrangler secret bulk + `.dev.vars` worker payload. */
   readonly pushToApiWorker?: boolean;
-  /** When provisioning under `prd`, mirror this value into secrets env `dev`. */
-  readonly mirrorToDev?: boolean;
   /**
-   * When true, `seed` runs independently in every {@link SECRETS_ENVS} env if
-   * the secret is missing there (setup + provision). Prefer over `mirrorToDev`
-   * when each env should have its own value (e.g. signing secrets).
+   * `tofu`: written by `@libs/infra#apply:foundation` (never by a person);
+   * `bun run secrets:seed` skips it unless named explicitly.
    */
-  readonly seedInAllEnvs?: boolean;
+  readonly managedBy?: 'tofu';
   validate(input: SecretInput): Promise<void>;
-  seed?(input: SecretSeedInput): Promise<string>;
 };
 
 export class Secret {
@@ -41,22 +36,16 @@ export class Secret {
   readonly hint: string;
   readonly optional: boolean;
   readonly pushToApiWorker: boolean;
-  readonly mirrorToDev: boolean;
-  readonly seedInAllEnvs: boolean;
+  readonly managedBy: 'tofu' | null;
   readonly validate: (input: SecretInput) => Promise<void>;
-  readonly seed?: (input: SecretSeedInput) => Promise<string>;
 
   constructor(config: SecretConfig) {
     this.name = config.name;
     this.hint = config.hint;
     this.optional = config.optional === true;
     this.pushToApiWorker = config.pushToApiWorker === true;
-    this.mirrorToDev = config.mirrorToDev === true;
-    this.seedInAllEnvs = config.seedInAllEnvs === true;
+    this.managedBy = config.managedBy ?? null;
     this.validate = config.validate.bind(config);
-    if (config.seed !== undefined) {
-      this.seed = config.seed.bind(config);
-    }
   }
 }
 
@@ -101,16 +90,10 @@ export function requireHttpsUrl(value: string, label?: string): void {
   }
 }
 
-export const SECRETS_ENVS: readonly SecretsEnv[] = ['dev', 'prd'] as const;
-
-export function isSecretsEnv(value: string): value is SecretsEnv {
-  return value === 'dev' || value === 'prd';
-}
-
-export function activeSecretsEnv(): SecretsEnv {
-  const raw = (process.env['SECRETS_ENV'] ?? 'dev').trim();
-  if (isSecretsEnv(raw)) return raw;
-  throw new Error(
-    `SECRETS_ENV must be "dev" or "prd", got ${JSON.stringify(raw)}`
-  );
+/**
+ * The environment `SECRETS_ENV` names (default `dev`). Any environment with a
+ * `libs/infra/tofu/envs/<env>.tfvars.json` is valid; anything else throws.
+ */
+export function activeEnvFile(): EnvFile {
+  return envFile((process.env['SECRETS_ENV'] ?? 'dev').trim());
 }

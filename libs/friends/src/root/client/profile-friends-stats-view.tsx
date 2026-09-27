@@ -17,13 +17,13 @@ export function ProfileFriendsStats(): JSX.Element {
 
   return (
     <button
-      class="clickable clickableTint self-stretch flex-row items-center justify-between gap-3 py-1 rounded-[10px]"
+      class="clickable clickableTint self-stretch flex-row items-center justify-between gap-3 py-1 rounded-md"
       data-testid={Handles.profileFriendsStats}
       type="button"
       onClick={() => navigate(FriendsProfileRoute.Friends)}
     >
       <div class="box flex-row items-baseline gap-2">
-        <h3 class="text textHeading">
+        <h3 class="text textHeading" data-testid={Handles.profileFriendsCount}>
           {String(friendsState.friends().length)}
         </h3>
         <p class="text text-text-secondary">

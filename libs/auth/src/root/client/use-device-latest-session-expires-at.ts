@@ -1,12 +1,9 @@
 import { createSecureStorageItem } from '@pkgs/secure-storage/solid';
 import type { Accessor } from 'solid-js';
 import { createMemo } from 'solid-js';
-
+import { useHasAuthSession } from '../../public/access-facts';
 import { SESSION_EXPIRES_AT_KEY } from '../../public/auth-storage-keys';
-import {
-  useHasAuthSession,
-  useMyDeviceId,
-} from '../../public/use-current-user';
+import { useMyDeviceId } from '../../public/use-current-user';
 
 /**
  * ISO expiry of the auth provider session for the current install, or `null`

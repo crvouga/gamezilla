@@ -1,11 +1,5 @@
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
-
 export type PubsubEmqxSecretValidateInput = {
   readonly secretValue: string;
-};
-
-export type PubsubEmqxSecretSeedInput = {
-  readonly secrets: ReadonlyMap<string, string>;
 };
 
 export type PubsubEmqxSecretDef = {
@@ -13,14 +7,8 @@ export type PubsubEmqxSecretDef = {
   readonly hint: string;
   readonly optional?: boolean;
   readonly pushToApiWorker?: boolean;
-  readonly mirrorToDev?: boolean;
   validate(input: PubsubEmqxSecretValidateInput): Promise<void>;
-  seed?(input: PubsubEmqxSecretSeedInput): Promise<string>;
 };
-
-function emqxHostname(): string {
-  return PRODUCT_CONFIG.emqx.hostname;
-}
 
 function requireNonEmpty(value: string, label: string): void {
   if (value.trim().length === 0) {
@@ -68,78 +56,52 @@ async function validateNonEmpty(
   requireNonEmpty(input.secretValue, name);
 }
 
-async function seedApiUrl(_input: PubsubEmqxSecretSeedInput): Promise<string> {
-  return `https://${emqxHostname()}`;
-}
-
-async function seedWssUrl(_input: PubsubEmqxSecretSeedInput): Promise<string> {
-  return `wss://${emqxHostname()}/mqtt`;
-}
-
-async function seedApiKey(_input: PubsubEmqxSecretSeedInput): Promise<string> {
-  return 'pubsub-test';
-}
-
-async function seedApiSecret(
-  _input: PubsubEmqxSecretSeedInput
-): Promise<string> {
-  return 'pubsub-test-secret';
-}
-
-async function seedJwtSecret(
-  _input: PubsubEmqxSecretSeedInput
-): Promise<string> {
-  return 'local-emqx-jwt-secret-change-me';
-}
-
 /**
- * Secret definitions for the infra registry. Callers wrap these with their
- * `Secret` class (`@libs/secrets`).
+ * Secret definitions for the registry. Callers wrap these with their
+ * `Secret` class (`@libs/secrets`). Every value is written per environment by
+ * OpenTofu (`libs/infra/tofu/modules/pubsub` + `secrets`).
  */
 export const pubsubEmqxSecretDefs: readonly PubsubEmqxSecretDef[] = [
   {
     name: 'EMQX_API_URL',
-    hint: `https://${emqxHostname()} — EMQX HTTP API (via Caddy)`,
+    hint: 'https://<broker host> — EMQX HTTP API (via Caddy)',
     optional: true,
     pushToApiWorker: true,
-    mirrorToDev: true,
     validate: validateEmqxApiUrl,
-    seed: seedApiUrl,
   },
   {
     name: 'EMQX_WSS_URL',
-    hint: `wss://${emqxHostname()}/mqtt`,
+    hint: 'wss://<broker host>/mqtt — the API Worker materializes it into synced client_config',
     optional: true,
-    pushToApiWorker: false,
-    mirrorToDev: true,
+    pushToApiWorker: true,
     validate: validateEmqxWssUrl,
-    seed: seedWssUrl,
   },
   {
     name: 'EMQX_API_KEY',
     hint: 'EMQX dashboard API key (Basic auth username)',
     optional: true,
     pushToApiWorker: true,
-    mirrorToDev: true,
     validate: (i) => validateNonEmpty('EMQX_API_KEY', i),
-    seed: seedApiKey,
   },
   {
     name: 'EMQX_API_SECRET',
     hint: 'EMQX dashboard API secret (Basic auth password)',
     optional: true,
     pushToApiWorker: true,
-    mirrorToDev: true,
     validate: (i) => validateNonEmpty('EMQX_API_SECRET', i),
-    seed: seedApiSecret,
   },
   {
     name: 'EMQX_JWT_SECRET',
     hint: 'HMAC secret shared with EMQX JWT authenticator (MQTT password = JWT)',
     optional: true,
     pushToApiWorker: true,
-    mirrorToDev: true,
     validate: (i) => validateNonEmpty('EMQX_JWT_SECRET', i),
-    seed: seedJwtSecret,
+  },
+  {
+    name: 'EMQX_DASHBOARD_PASSWORD',
+    hint: 'EMQX dashboard `admin` password; set on every broker boot. Never on a Worker.',
+    optional: true,
+    pushToApiWorker: false,
+    validate: (i) => validateNonEmpty('EMQX_DASHBOARD_PASSWORD', i),
   },
 ];

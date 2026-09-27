@@ -12,6 +12,8 @@ export type SpaceCardOpenLinkProps = {
   spaceId: string;
   children: JSX.Element;
   accessibilityLabelOverride?: string;
+  /** Test id override; `null` renders none, `undefined` derives from the host. */
+  testId?: string | null;
 };
 
 export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
@@ -27,14 +29,15 @@ export function SpaceCardOpenLink(props: SpaceCardOpenLinkProps): JSX.Element {
       ? t`Open current space ${resolvedTitle()}`
       : t`Open space ${resolvedTitle()}`;
   });
+  const testId = createMemo<string | null>(() => {
+    if (props.testId !== undefined) return props.testId;
+    const host = hostUsername();
+    return host !== null ? Handles.spaceCard(host) : null;
+  });
   return (
     <button
       class="clickable clickableTint"
-      {...dataAttrs(
-        hostUsername() !== null
-          ? { testid: Handles.spaceCard(hostUsername() ?? '') }
-          : undefined
-      )}
+      {...dataAttrs(testId() !== null ? { testid: testId() ?? '' } : undefined)}
       type="button"
       onClick={() => openSpaceDetail(router, props.spaceId)}
       aria-label={accessibilityLabel()}

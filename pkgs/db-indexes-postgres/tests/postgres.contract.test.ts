@@ -1,14 +1,44 @@
-import { describe, expect, test } from 'bun:test';
+// goal:the-bar:5 — Postgres live differential runs against real PG via
+// embedded postgres or externally supplied DATABASE_URL.
+
+import { afterAll, describe, expect, test } from 'bun:test';
+import { randomUUID } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fingerprintSql } from '@pkgs/db-indexes/core/fingerprint';
 import { reconcileIndexes } from '@pkgs/db-indexes/core/reconcile';
 import { createSimClock, SimDb } from '@pkgs/db-indexes/sim';
+import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
+import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
+import { openPgClient } from '@pkgs/sql-client-postgres/connect';
 
-/**
- * Postgres live differential — requires DATABASE_URL (embedded or secrets-run).
- * When unset, only the export + SimDb repair scenario runs.
- */
-const DATABASE_URL = process.env['DATABASE_URL'] ?? '';
-const HAS_DB = DATABASE_URL.length > 0;
+const REMOTE_DB_TIMEOUT_MS = 30_000;
+const TEST_SCHEMA = 'db_indexes_contract';
+
+let DATABASE_URL = process.env['DATABASE_URL'] ?? '';
+let stopPg: (() => Promise<void>) | undefined;
+
+// When no DATABASE_URL is supplied, start embedded Postgres automatically.
+if (!DATABASE_URL) {
+  const pg = await startEmbeddedPostgres({
+    dataDir: join(tmpdir(), `pg-idx-contract-${randomUUID()}`),
+  });
+  DATABASE_URL = pg.url;
+  stopPg = () => pg.stop();
+}
+
+afterAll(async () => {
+  await stopPg?.();
+});
+
+function stmt(sql: string) {
+  return {
+    index: 0,
+    sql,
+    fingerprint: fingerprintSql(sql),
+    weight: 1,
+  };
+}
 
 describe('postgres port contract', () => {
   test('createPostgresPort is exported', async () => {
@@ -30,14 +60,7 @@ describe('postgres port contract', () => {
         {
           name: 'q',
           hydrates: ['notes'],
-          statements: [
-            {
-              index: 0,
-              sql,
-              fingerprint: fingerprintSql(sql),
-              weight: 1,
-            },
-          ],
+          statements: [stmt(sql)],
         },
       ],
     };
@@ -89,14 +112,7 @@ describe('postgres port contract', () => {
           {
             name: 'q',
             hydrates: ['notes'],
-            statements: [
-              {
-                index: 0,
-                sql,
-                fingerprint: fingerprintSql(sql),
-                weight: 1,
-              },
-            ],
+            statements: [stmt(sql)],
           },
         ],
       },
@@ -115,11 +131,28 @@ describe('postgres port contract', () => {
   });
 });
 
-describe.skipIf(!HAS_DB)('postgres live differential', () => {
-  test('skipped without DATABASE_URL; with URL runs createPostgresPort smoke', async () => {
-    // Live hypopg differential is CD-gated; document presence of URL.
-    expect(HAS_DB).toBe(true);
-    const { createPostgresPort } = await import('@pkgs/db-indexes-postgres');
-    expect(typeof createPostgresPort).toBe('function');
-  });
+describe('postgres live differential', () => {
+  test(
+    'createPostgresPort round-trip with real DATABASE_URL',
+    async () => {
+      const { createPostgresPort } = await import('@pkgs/db-indexes-postgres');
+      const clock = createSimClock(0);
+      const dbScope = createPostgresDbScope(TEST_SCHEMA);
+      const opened = await openPgClient({
+        connectionString: DATABASE_URL,
+        dbScope,
+        ensureSchema: true,
+      });
+      try {
+        const port = createPostgresPort(opened.sqlClient, { clock });
+        const tables = await port.introspectTables();
+        expect(Array.isArray(tables)).toBe(true);
+        const indexes = await port.introspectIndexes();
+        expect(Array.isArray(indexes)).toBe(true);
+      } finally {
+        await opened.sqlClient.disconnect();
+      }
+    },
+    REMOTE_DB_TIMEOUT_MS
+  );
 });

@@ -4,7 +4,7 @@
  * run via {@link unsafe} (function bodies contain `;`).
  *
  * `LANGUAGE sql` over `#>` / `jsonb_set` / `jsonb_each` — works on real
- * Postgres and `@crvouga/postgres-mem` (no PL/pgSQL / jsonpath).
+ * Postgres and `@crvouga/mockingbird-service-postgres` (no PL/pgSQL / jsonpath).
  *
  * Common call shapes match SQLite (`json_extract(col, '$.a')`). Postgres
  * type-name collisions (`json`) and VARIADIC quirks are avoided.
@@ -330,7 +330,7 @@ $fn$
 ];
 
 /**
- * `json_valid` needs PL/pgSQL `EXCEPTION` on real Postgres. postgres-mem has
+ * `json_valid` needs PL/pgSQL `EXCEPTION` on real Postgres. mockingbird-postgres has
  * no PL/pgSQL — use this `LANGUAGE sql` stand-in (invalid JSON may throw at
  * call sites instead of returning false).
  */
@@ -347,8 +347,8 @@ AS $fn$
 $fn$
 `.trim();
 
-/** Statements safe to `exec` on `@crvouga/postgres-mem` (no PL/pgSQL). */
-export function sqliteJsonInstallStatementsForPostgresMem(): readonly string[] {
+/** Statements safe to `exec` on `@crvouga/mockingbird-service-postgres` (no PL/pgSQL). */
+export function sqliteJsonInstallStatementsForMockingbirdPostgres(): readonly string[] {
   return SQLITE_JSON_INSTALL_STATEMENTS.map((statement) =>
     statement.includes('LANGUAGE plpgsql') &&
     statement.includes('json_valid(p_text text)')

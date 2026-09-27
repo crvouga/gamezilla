@@ -1,24 +1,31 @@
 import { describe, expect, test } from 'bun:test';
-import { wallClock } from '@pkgs/clock';
+import { createSimClock } from '@pkgs/clock';
 import { jwtVerify } from 'jose';
 
 import { mintPubSubToken } from './mint-pubsub-token';
 
+/** 2026-01-01T00:00:00Z — a fixed instant so the verdict never reads the wall. */
+const START_MS = 1_767_225_600_000;
+const TOKEN_TTL_SEC = 15 * 60;
+
 describe('mintPubSubToken', () => {
-  test('embeds subscribe+publish ACL for user and rooms', async () => {
+  test('embeds subscribe+publish ACL for the actor and whatever features granted', async () => {
     const secret = 'test-secret';
+    const { clock } = createSimClock({ startMs: START_MS });
     const { token, expiresAt } = await mintPubSubToken({
       secret,
       actorId: 'actor1',
-      spaceIds: ['space_a', 'space_b'],
-      now: wallClock.now,
+      featureTopics: ['room:space_a', 'room:space_b'],
+      now: clock.now,
     });
     const { payload } = await jwtVerify(
       token,
-      new TextEncoder().encode(secret)
+      new TextEncoder().encode(secret),
+      { currentDate: new Date(clock.now()) }
     );
     expect(payload.sub).toBe('actor1');
-    expect(expiresAt).toBeGreaterThan(Math.floor(wallClock.now() / 1000));
+    expect(expiresAt).toBe(START_MS / 1000 + TOKEN_TTL_SEC);
+    expect(payload.exp).toBe(expiresAt);
     const acl = payload['acl'] as Array<{
       permission: string;
       action: string;

@@ -107,7 +107,7 @@ export type ResolveInfisicalAccessTokenOptions = {
 
 /**
  * Resolves a bearer token for Infisical write API / CLI calls during scripts/CI.
- * Prefers explicit tokens, then GitHub Actions OIDC (deploy pipeline).
+ * Prefers explicit tokens, then GitHub Actions OIDC (CI workflows).
  */
 export async function resolveInfisicalAccessTokenForWrites(
   options: ResolveInfisicalAccessTokenOptions

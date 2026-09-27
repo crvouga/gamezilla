@@ -1,9 +1,10 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
+import { Show } from 'solid-js';
+import { useSpaceCan } from '../../../public/use-space-can';
 import type { RequestEndSpaceOptions } from '../end-space/end-space-modal-provider';
 import type { RequestLeaveSpaceOptions } from '../leave-space/leave-space-modal-provider';
-import { useCurrentSpaceRole } from '../use-current-space-role';
 
 export type SpaceEndOrLeaveButtonProps = {
   spaceId: string;
@@ -23,11 +24,10 @@ export type SpaceEndOrLeaveButtonProps = {
 export function SpaceEndOrLeaveButton(
   props: SpaceEndOrLeaveButtonProps
 ): JSX.Element {
-  const role = useCurrentSpaceRole(props.spaceId);
-  const isHost = createMemo(() => role() === 'host');
+  const canEndSpace = useSpaceCan(() => props.spaceId, PERMISSION.spacesEnd);
   const { t } = useLingui();
   const onPress = (): void => {
-    if (isHost()) {
+    if (canEndSpace()) {
       props.requestEndSpace(props.spaceId);
       return;
     }
@@ -40,11 +40,11 @@ export function SpaceEndOrLeaveButton(
       type="button"
       onClick={onPress}
       role="button"
-      aria-label={isHost() ? t`End space` : t`Leave space`}
+      aria-label={canEndSpace() ? t`End space` : t`Leave space`}
     >
       <p class="text textCaption text-on-primary font-semibold">
         {
-          <Show when={isHost()} fallback={<Trans>Leave</Trans>}>
+          <Show when={canEndSpace()} fallback={<Trans>Leave</Trans>}>
             <Trans>End</Trans>
           </Show>
         }

@@ -1,0 +1,10 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "accessibilityElementsHidden",
+  $body <: contains bubble `<$name accessibilityElementsHidden=$value />` as $el where {
+    register_diagnostic(span=$el, message="Do not use accessibilityElementsHidden; prefer the inert attribute.", severity="error")
+  }
+}

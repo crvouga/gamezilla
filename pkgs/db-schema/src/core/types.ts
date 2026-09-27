@@ -4,9 +4,8 @@ import type { DialectSql } from './dialect-sql';
  * Closed column type token set. Tokens are DDL mapping contracts between
  * Postgres and SQLite — not TypeScript value types.
  *
- * Product domain tables should keep the original six
- * (`uuid|text|integer|boolean|timestamp|json`) until sync cell-codec is
- * proven for the rest. New tokens are legal in this package and its tests.
+ * Product domain tables are restricted to {@link PRODUCT_COLUMN_TYPES} (the
+ * original six) by `assertProductSchema`; infra schemas may use every token.
  */
 export type ColumnType =
   | 'uuid'
@@ -45,6 +44,10 @@ export const PRODUCT_COLUMN_TYPES: readonly ColumnType[] = [
   'json',
 ] as const;
 
+export const PRODUCT_COLUMN_TYPE_SET: ReadonlySet<string> = new Set(
+  PRODUCT_COLUMN_TYPES
+);
+
 /** Engine-owned implicit columns created on every table. */
 export const MANAGED_IMPLICIT_COLUMNS = {
   id: 'text',
@@ -76,9 +79,6 @@ export type PhysicalIdent = string & {
   readonly __brand: 'PhysicalIdent';
 };
 
-/** @deprecated Use {@link SchemaIdent} — kept as alias for operation types. */
-export type ValidatedIdent = SchemaIdent;
-
 /** Package-owned index name (`ix_<table>_<hash>`). */
 export type PackagePrefixedIndexName = string & {
   readonly __brand: 'PackagePrefixedIndexName';
@@ -88,18 +88,8 @@ export type BackfillSpec =
   | { readonly from: string }
   | { readonly sql: DialectSql };
 
-export type ForeignKeyRef = {
-  readonly table: string;
-  readonly column: string;
-};
-
-export type GeneratedSpec = {
-  readonly expr: DialectSql;
-  readonly stored: boolean;
-};
-
 /**
- * Declared column with lifecycle + portable-object metadata.
+ * Declared column with lifecycle metadata.
  * Snapshot still projects only {@link ColumnType} for wire stability.
  */
 export type DeclaredColumn = {
@@ -107,60 +97,70 @@ export type DeclaredColumn = {
   readonly renamedFrom?: string;
   readonly widenedFrom?: string;
   readonly backfill?: BackfillSpec;
-  readonly references?: ForeignKeyRef;
-  readonly generated?: GeneratedSpec;
   /** Physical override for Postgres (still participates in drift). */
   readonly physicalPostgres?: string;
   /** Physical override for SQLite. */
   readonly physicalSqlite?: string;
-  /** Named enum type reference (portable TEXT+CHECK by default). */
-  readonly enumName?: string;
-  /** Array of a logical scalar type (Postgres native; SQLite JSON TEXT). */
-  readonly arrayOf?: ColumnType;
 };
 
 export type DeclaredTable = Readonly<Record<string, DeclaredColumn>>;
 
 export type DeclaredTables = Readonly<Record<string, DeclaredTable>>;
 
+/**
+ * A column removed from `columns` whose frozen shape old clients still read.
+ * The server must keep the column present with exactly this logical type
+ * forever; the client may drop it on a row-preserving rebuild.
+ */
+export type RetiredColumn = {
+  readonly name: string;
+  readonly type: ColumnType;
+  readonly note: string;
+};
+
+/**
+ * A table removed from the schema whose existence old clients still depend on.
+ * The server must keep the table present; undeclared tables are never dropped.
+ */
+export type RetiredTable = {
+  readonly domain: string;
+  readonly name: string;
+  readonly note: string;
+};
+
 /** `[table, ...columns]` */
 export type IndexDef = readonly [string, ...string[]];
-
-/** `[table, note]` or `[table, column, note]` */
-export type DeprecationDef =
-  | readonly [string, string]
-  | readonly [string, string, string];
-
-export type CheckDef = {
-  readonly name: string;
-  readonly table: string;
-  readonly sql: DialectSql;
-};
-
-export type DeclaredView = {
-  readonly domain: string;
-  readonly name: string;
-  readonly sql: DialectSql;
-};
-
-export type DeclaredEnum = {
-  readonly domain: string;
-  readonly name: string;
-  readonly values: readonly string[];
-  /** When true and dialect supports it, use CREATE TYPE AS ENUM. */
-  readonly nativePostgres?: boolean;
-};
 
 export type Snapshot = {
   readonly tables: {
     readonly [table: string]: { readonly [column: string]: ColumnType };
   };
+  readonly retiredColumns: {
+    readonly [table: string]: {
+      readonly [column: string]: {
+        readonly type: ColumnType;
+        readonly note: string;
+      };
+    };
+  };
+  /**
+   * Declared engine-specific type overrides, projected so the evolution gate
+   * can flag a newly narrowed column. Absent keys mean no override.
+   */
+  readonly physicalOverrides: {
+    readonly [table: string]: {
+      readonly [column: string]: {
+        readonly postgres?: string;
+        readonly sqlite?: string;
+      };
+    };
+  };
+  readonly retiredTables: readonly {
+    readonly name: string;
+    readonly note: string;
+  }[];
   readonly indexes: readonly IndexDef[];
   readonly uniqueIndexes: readonly IndexDef[];
-  readonly deprecations: readonly DeprecationDef[];
-  readonly checks: readonly CheckDef[];
-  readonly views: readonly DeclaredView[];
-  readonly enums: readonly DeclaredEnum[];
 };
 
 /**
@@ -171,18 +171,10 @@ export type ReadonlyDeclaredSchema = {
   readonly tables: DeclaredTables;
   readonly indexes: readonly IndexDef[];
   readonly uniqueIndexes: readonly IndexDef[];
-  readonly deprecations: readonly DeprecationDef[];
-  readonly checks: readonly CheckDef[];
-  readonly views: readonly DeclaredView[];
-  readonly enums: readonly DeclaredEnum[];
-  /** Tables that appear in a 2-tuple deprecation. */
-  readonly deprecatedTables: ReadonlySet<string>;
-  /** `table.column` keys for 3-tuple deprecations. */
-  readonly deprecatedColumns: ReadonlySet<string>;
-  /** Deprecated view names. */
-  readonly deprecatedViews: ReadonlySet<string>;
-  /** Deprecated enum names. */
-  readonly deprecatedEnums: ReadonlySet<string>;
+  /** `"<table>.<column>"` → tombstone. */
+  readonly retiredColumns: ReadonlyMap<string, RetiredColumn>;
+  /** table name → tombstone. */
+  readonly retiredTables: ReadonlyMap<string, RetiredTable>;
 };
 
 export type Schema = {
@@ -198,6 +190,11 @@ export type IntrospectedColumn = {
   readonly name: string;
   /** Logical token when known (Postgres); physical for SQLite. */
   readonly type: ColumnType | SqlitePhysicalType | string;
+  /**
+   * Physical engine type used for drift comparison. Postgres: canonical
+   * `udt_name` (`bigint`, `int4`, `varchar`, …). SQLite: STRICT affinity.
+   */
+  readonly physical: string;
   readonly nullable: boolean;
   readonly isPrimaryKey: boolean;
 };
@@ -211,28 +208,8 @@ export type IntrospectedIndex = {
   readonly name: string;
   readonly table: string;
   readonly columns: readonly string[];
-};
-
-export type IntrospectedCheck = {
-  readonly name: string;
-  readonly table: string;
-};
-
-export type IntrospectedForeignKey = {
-  readonly name: string;
-  readonly table: string;
-  readonly column: string;
-  readonly refTable: string;
-  readonly refColumn: string;
-};
-
-export type IntrospectedView = {
-  readonly name: string;
-};
-
-export type IntrospectedEnum = {
-  readonly name: string;
-  readonly values: readonly string[];
+  /** Engine reports the index as not usable (Postgres `indisvalid = false`). */
+  readonly invalid?: boolean;
 };
 
 export type IntrospectedCatalog = {
@@ -241,10 +218,6 @@ export type IntrospectedCatalog = {
   readonly indexes: readonly IntrospectedIndex[];
   /** All table names in scope (PG: schema; SQLite: whole DB). */
   readonly allTableNames: ReadonlySet<string>;
-  readonly checks?: readonly IntrospectedCheck[];
-  readonly foreignKeys?: readonly IntrospectedForeignKey[];
-  readonly views?: readonly IntrospectedView[];
-  readonly enums?: readonly IntrospectedEnum[];
 };
 
 export type DriftError = {

@@ -1,9 +1,10 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { createSimClock } from '@pkgs/clock/sim-clock';
 import { ClockProvider, useClock, useTimers } from '@pkgs/clock/solid';
 import { render, screen } from '@solidjs/testing-library';
 import { createSignal, onCleanup } from 'solid-js';
-import { describe, expect, test } from 'vitest';
 
 describe('ClockProvider (solid)', () => {
   test('exposes injected clock and timers', () => {

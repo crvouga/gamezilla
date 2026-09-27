@@ -8,7 +8,8 @@ export type LiveSpaceIdRow = {
 };
 
 /**
- * Shared lobby live ids: host of the space, spaces_users ACL, or a friend's live space.
+ * Shared lobby live ids: host of the space, spaces_users ACL, a friend's live
+ * space, or a live friend who is a member of the space.
  */
 export function sharedLiveSpaceIdsSql(args: {
   readonly memberId: string;
@@ -28,6 +29,12 @@ export function sharedLiveSpaceIdsSql(args: {
         )
         OR host_account_id IN (SELECT friend_id FROM (${friendIds}))
         OR host_member_id IN (SELECT friend_id FROM (${friendIds}))
+        OR id IN (
+          SELECT space_id
+          FROM spaces_users
+          WHERE deleted_at IS NULL
+            AND user_id IN (SELECT friend_id FROM (${friendIds}))
+        )
       )
     ORDER BY created_at DESC
   `;

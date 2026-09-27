@@ -1,7 +1,10 @@
 /**
- * Process-wide Postgres + MinIO + EMQX for `openSim` mode `real`.
- * Default `test` never calls this.
+ * Process-wide Postgres + S3rver + EMQX for `openSim` mode `real`, registered
+ * with the sim harness by `real-stack-preload.ts` (`test:max` preloads it into
+ * every package's e2e run). Default `test:e2e` never calls this.
  */
+
+import { bootLocalStack } from '@apps/server/scripts/boot-local-stack';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -9,27 +12,14 @@ import {
   EMQX_JWT_SECRET,
   EMQX_WS_PORT,
 } from '@pkgs/emqx-server';
-import {
-  MINIO_BUCKET,
-  MINIO_ENDPOINT,
-  MINIO_REGION,
-  MINIO_ROOT_PASSWORD,
-  MINIO_ROOT_USER,
-} from '@pkgs/minio-server';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-embedded/ports';
-
-import { bootLocalStack } from '../../../../../tools/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 
-function applyEnv(): void {
+function applyEnv(s3: Readonly<Record<string, string>>): void {
   process.env['DATABASE_URL'] = LOCAL_DATABASE_URL;
   process.env['SIM_API_DATABASE_URL'] = LOCAL_DATABASE_URL;
-  process.env['S3_ENDPOINT'] = MINIO_ENDPOINT;
-  process.env['S3_BUCKET'] = MINIO_BUCKET;
-  process.env['S3_REGION'] = MINIO_REGION;
-  process.env['S3_ACCESS_KEY_ID'] = MINIO_ROOT_USER;
-  process.env['S3_SECRET_ACCESS_KEY'] = MINIO_ROOT_PASSWORD;
+  for (const [name, value] of Object.entries(s3)) process.env[name] = value;
   process.env['EMQX_JWT_SECRET'] = EMQX_JWT_SECRET;
   process.env['EMQX_API_KEY'] = EMQX_API_KEY;
   process.env['EMQX_API_SECRET'] = EMQX_API_SECRET;
@@ -40,8 +30,8 @@ function applyEnv(): void {
 /** Boot sidecars once per Jest/Bun process. Does not stop them (CI job teardown). */
 export function ensureMaxFidelityStack(): Promise<void> {
   started ??= (async () => {
-    await bootLocalStack();
-    applyEnv();
+    const stack = await bootLocalStack();
+    applyEnv(stack.s3);
   })();
   return started;
 }

@@ -13,6 +13,7 @@ import type { SimFaultOptions } from './faults';
 import type { SyncNetwork } from './network';
 import type { SimPubSubBroker } from './pubsub-bridge';
 import type { SimServer } from './server';
+import type { SimServerNode } from './server-cluster';
 import type { SimClient, SimClientDbBundle } from './sim-client';
 
 export type ClientMeta = {
@@ -97,6 +98,7 @@ export type BootedSimKernel = {
   readonly timers: Timers;
   readonly network: SyncNetwork;
   server: SimServer;
+  serverNodes: readonly SimServerNode[];
   broker: SimPubSubBroker;
   readonly clients: Map<string, SimClient>;
   readonly metas: Map<string, ClientMeta>;

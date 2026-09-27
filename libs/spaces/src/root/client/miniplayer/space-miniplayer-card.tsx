@@ -38,18 +38,18 @@ export function SpaceMiniplayerCard(
     <Show when={live()}>
       <SpaceCardGradientBox
         dataSet={{ testid: Handles.spaceMiniplayer }}
-        class="overflow-hidden flex-row items-center gap-2 min-h-[72px]"
+        class="overflow-hidden flex-row items-center gap-2 min-h-18"
         style={{ 'border-radius': `${props.borderRadius}px` }}
       >
         <MiniplayerOpenSpacePressable spaceId={props.spaceId}>
-          <div class="box p-3 flex-row items-center gap-3 flex-1 min-w-[0] self-stretch">
+          <div class="box p-3 flex-row items-center gap-3 flex-1 min-w-0 self-stretch">
             <SpaceHostAvatar spaceId={props.spaceId} size={40} vividBackdrop />
-            <div class="box flex-1 min-w-[0] gap-0.5">
+            <div class="box flex-1 min-w-0 gap-0.5">
               <MiniplayerSpaceTitle
                 spaceId={props.spaceId}
                 class="text-on-primary"
               />
-              <div class="box flex-row items-center gap-1.5 min-w-[0]">
+              <div class="box flex-row items-center gap-1.5 min-w-0">
                 <MiniplayerHostNameLine
                   spaceId={props.spaceId}
                   class="text-on-primary"

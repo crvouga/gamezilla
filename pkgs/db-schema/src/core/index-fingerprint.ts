@@ -69,8 +69,3 @@ export function asPhysicalIdent(name: string): PhysicalIdent {
 export function rebuildOldTableIdent(table: string): PhysicalIdent {
   return asPhysicalIdent(`_old_${table}`);
 }
-
-/** @deprecated Prefer {@link asSchemaIdent}. */
-export function asValidatedIdent(name: string): SchemaIdent {
-  return asSchemaIdent(name);
-}

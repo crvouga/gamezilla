@@ -6,14 +6,14 @@ import { sqlite } from '@pkgs/db-schema-sqlite/driver';
 import { raw } from '@pkgs/sql';
 import { readPostgresCatalog } from '../src/catalog';
 import { postgres } from '../src/driver';
-import { createPostgresMemTestClient } from '../src/test/postgres-mem-test-client';
+import { createMockingbirdPostgresTestClient } from '../src/test/mockingbird-postgres-test-client';
 
 describe('db-schema roundtrip PBT pins', () => {
   test('sqlite: apply then re-plan is empty', async () => {
-    const { SqlClientImplSqliteMem } = await import(
-      '@pkgs/sql-client-sqlite/impl-sqlite-mem'
+    const { SqlClientImplMockingbirdSqlite } = await import(
+      '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite'
     );
-    const client = SqlClientImplSqliteMem.open();
+    const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
     try {
       const schema = registerTables([
@@ -25,7 +25,7 @@ describe('db-schema roundtrip PBT pins', () => {
         }),
       ]);
       await sqlite(schema, client).reconcile();
-      const catalog = await readSqliteCatalog(client, schema._declared);
+      const catalog = await readSqliteCatalog(client);
       const plan = planClient(schema._declared, catalog);
       expect(plan.ok).toBe(true);
       if (!plan.ok) return;
@@ -36,7 +36,7 @@ describe('db-schema roundtrip PBT pins', () => {
   });
 
   test('postgres: apply then re-plan is empty', async () => {
-    const harness = await createPostgresMemTestClient('roundtrip');
+    const harness = await createMockingbirdPostgresTestClient('roundtrip');
     try {
       const schema = registerTables([
         defineTable({
@@ -67,10 +67,10 @@ describe('db-schema roundtrip PBT pins', () => {
 
 describe('db-schema data-loss pins', () => {
   test('sqlite rebuild preserves row ids and live columns', async () => {
-    const { SqlClientImplSqliteMem } = await import(
-      '@pkgs/sql-client-sqlite/impl-sqlite-mem'
+    const { SqlClientImplMockingbirdSqlite } = await import(
+      '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite'
     );
-    const client = SqlClientImplSqliteMem.open();
+    const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
     try {
       const v1 = registerTables([
@@ -91,7 +91,7 @@ describe('db-schema data-loss pins', () => {
           name: 'notes',
           columns: { body: 'text' },
           indexes: ['body'],
-          deprecations: [['extra', 'unused']],
+          retiredColumns: [{ name: 'extra', type: 'text', note: 'unused' }],
         }),
       ]);
       await sqlite(v2, client).reconcile();
@@ -99,7 +99,7 @@ describe('db-schema data-loss pins', () => {
         raw(`SELECT id, body FROM notes ORDER BY id`)
       );
       expect(rows).toEqual([{ id: 'a', body: 'hello' }]);
-      const catalog = await readSqliteCatalog(client, v2._declared);
+      const catalog = await readSqliteCatalog(client);
       expect(catalog.indexes.some((ix) => ix.name.startsWith('ix_'))).toBe(
         true
       );
@@ -109,10 +109,10 @@ describe('db-schema data-loss pins', () => {
   });
 
   test('renamedFrom copies values without data loss', async () => {
-    const { SqlClientImplSqliteMem } = await import(
-      '@pkgs/sql-client-sqlite/impl-sqlite-mem'
+    const { SqlClientImplMockingbirdSqlite } = await import(
+      '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite'
     );
-    const client = SqlClientImplSqliteMem.open();
+    const client = SqlClientImplMockingbirdSqlite.open();
     await client.connect();
     try {
       const v1 = registerTables([
@@ -133,7 +133,7 @@ describe('db-schema data-loss pins', () => {
           columns: {
             display_name: { type: 'text', renamedFrom: 'name' },
           },
-          deprecations: [['name', 'renamed']],
+          retiredColumns: [{ name: 'name', type: 'text', note: 'renamed' }],
         }),
       ]);
       await sqlite(v2, client).reconcile();

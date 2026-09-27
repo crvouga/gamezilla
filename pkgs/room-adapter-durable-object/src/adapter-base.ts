@@ -1,4 +1,9 @@
 import { Assert } from '@pkgs/assert';
+import {
+  ATTR,
+  type Span,
+  serializeTraceContext,
+} from '@pkgs/observability/worker';
 
 import {
   parseRoomModuleName,
@@ -16,6 +21,11 @@ import {
   WS_CLOSE_SESSION_LOST,
   type WsMeta,
 } from './hibernation-restore';
+import {
+  observeRoomError,
+  observeRoomMessage,
+  observeRoomUpgrade,
+} from './observability';
 import { writeRoomSocketAttachment } from './socket-attachment';
 import { roomDoKeyNs } from './storage-keys';
 import {
@@ -95,6 +105,7 @@ export class RoomDurableObjectAdapterBase<
   private readonly alarmHub: DoAlarmHub;
   private readonly wsMeta = new WeakMap<WebSocket, WsMeta<Identity>>();
   private restored = false;
+  private readonly telemetry;
 
   constructor(
     ctx: DurableObjectInstanceState,
@@ -105,6 +116,7 @@ export class RoomDurableObjectAdapterBase<
     this._env = env;
     this.config = config;
     this.alarmHub = new DoAlarmHub(ctx.storage);
+    this.telemetry = config.telemetry(env);
   }
 
   /** Cloudflare DO alarm callback — injects due scheduled commands. */
@@ -133,8 +145,27 @@ export class RoomDurableObjectAdapterBase<
   }
 
   async fetch(request: Request): Promise<Response> {
-    await this.ensureRestored();
     const url = new URL(request.url);
+    try {
+      return await observeRoomUpgrade(
+        request,
+        {
+          moduleName: url.searchParams.get('module')?.trim() ?? '',
+          topic: url.searchParams.get('topic')?.trim() ?? '',
+        },
+        (span) => this.handleUpgrade(request, url, span)
+      );
+    } finally {
+      this.flushTelemetry();
+    }
+  }
+
+  private async handleUpgrade(
+    request: Request,
+    url: URL,
+    span: Span
+  ): Promise<Response> {
+    await this.ensureRestored();
     const topic = url.searchParams.get('topic')?.trim() ?? '';
     if (topic.length === 0) return errorResponse(400, 'missing topic');
     const moduleName = this.parseModuleQuery(url);
@@ -144,6 +175,7 @@ export class RoomDurableObjectAdapterBase<
     }
     const auth = this.parseUpgradeIdentity(request);
     if (auth instanceof Response) return auth;
+    span.setAttribute(ATTR.USER_ID, auth.identityRaw);
     const server = await this.getOrCreateServer(topic, moduleName);
     return this.acceptUpgrade({
       server,
@@ -177,18 +209,44 @@ export class RoomDurableObjectAdapterBase<
     ws: WebSocket,
     message: string | ArrayBuffer
   ): Promise<void> {
-    await this.ensureRestored();
-    const routed = this.routeSocket(ws);
-    if (routed === null) return;
-    const { server, meta } = routed;
-    const text =
-      typeof message === 'string' ? message : new TextDecoder().decode(message);
-    const parsed = parseJsonOrNull(text);
-    if (parsed === null) {
-      ws.close(WS_CLOSE.invalidFrame, 'invalid JSON frame');
-      return;
+    try {
+      await this.ensureRestored();
+      const routed = this.routeSocket(ws);
+      if (routed === null) return;
+      const { server, meta } = routed;
+      const text =
+        typeof message === 'string' ? message : utf8Decoder.decode(message);
+      await observeRoomMessage(
+        meta,
+        utf8Encoder.encode(text).byteLength,
+        async (span) => {
+          const parsed = parseJsonOrNull(text);
+          if (parsed === null) {
+            span.setAttribute(ATTR.APP_ROOM_OUTCOME, 'invalid_frame');
+            ws.close(WS_CLOSE.invalidFrame, 'invalid JSON frame');
+            return;
+          }
+          await server.handleClientMessage(meta.id, meta.identity, parsed);
+          span.setAttribute(ATTR.APP_ROOM_OUTCOME, 'accepted');
+        }
+      );
+    } finally {
+      this.flushTelemetry();
     }
-    await server.handleClientMessage(meta.id, meta.identity, parsed);
+  }
+
+  async webSocketError(ws: WebSocket, error: unknown): Promise<void> {
+    try {
+      await this.ensureRestored();
+      const routed = this.routeSocket(ws);
+      if (routed === null) return;
+      const { server, meta } = routed;
+      await observeRoomError(meta, error, () => {
+        server.unregisterConnection(meta.id);
+      });
+    } finally {
+      this.flushTelemetry();
+    }
   }
 
   webSocketClose(ws: WebSocket): void {
@@ -318,13 +376,23 @@ export class RoomDurableObjectAdapterBase<
     this.supersedeActorSession(server, identityRaw, clientId);
     const [client, serverWs] = newWebSocketPair();
     const connId = this.config.createId();
-    this.wsMeta.set(serverWs, { id: connId, identity, clientId, moduleName });
+    const traceparent = serializeTraceContext() ?? null;
+    this.wsMeta.set(serverWs, {
+      id: connId,
+      identity,
+      identityRaw,
+      clientId,
+      moduleName,
+      topic,
+      traceparent,
+    });
     writeRoomSocketAttachment(serverWs, {
       connId,
       identityRaw,
       clientId,
       moduleName,
       topic,
+      traceparent,
     });
     server.registerConnection(connId, (msg) => sendJson(serverWs, msg), {
       id: identityRaw,
@@ -335,6 +403,10 @@ export class RoomDurableObjectAdapterBase<
       status: 101,
       webSocket: client,
     } as WebSocketUpgradeResponseInit);
+  }
+
+  private flushTelemetry(): void {
+    this.telemetry.flushWith(this.ctx.waitUntil.bind(this.ctx));
   }
 
   /**
@@ -362,6 +434,9 @@ export class RoomDurableObjectAdapterBase<
   }
 }
 
+const utf8Decoder = new TextDecoder();
+const utf8Encoder = new TextEncoder();
+
 function parseJsonOrNull(text: string): unknown {
   try {
     return JSON.parse(text) as unknown;
@@ -371,12 +446,30 @@ function parseJsonOrNull(text: string): unknown {
 }
 
 /**
+ * One serialization per broadcast: {@link RoomServer} fans out a single frame
+ * object to every connection, so the JSON text is memoized per object and
+ * N sockets cost one `JSON.stringify`.
+ */
+const frameJson = new WeakMap<object, string>();
+
+function serializeFrame(payload: unknown): string {
+  if (typeof payload !== 'object' || payload === null) {
+    return JSON.stringify(payload);
+  }
+  const cached = frameJson.get(payload);
+  if (cached !== undefined) return cached;
+  const text = JSON.stringify(payload);
+  frameJson.set(payload, text);
+  return text;
+}
+
+/**
  * Best-effort JSON broadcast to a connected socket. A throw here means the
  * peer is mid-close; the matching `webSocketClose` will unregister cleanly.
  */
 function sendJson(ws: WebSocket, payload: unknown): void {
   try {
-    ws.send(JSON.stringify(payload));
+    ws.send(serializeFrame(payload));
   } catch {
     // socket is closing
   }

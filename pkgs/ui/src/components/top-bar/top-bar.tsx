@@ -46,7 +46,7 @@ const ALIGN_CLASS: Record<TopBarCenterAlign, string> = {
 // `> *` rule re-enables children) rather than inline `pointer-events:none`,
 // which children would inherit.
 const SIDE_SLOT_CLASS =
-  'boxNone flex-1 flex-row items-center gap-2 min-w-0 z-[3]';
+  'boxNone flex-1 flex-row items-center gap-2 min-w-0 z-3';
 
 type SlotsProps = Pick<
   TopBarProps,
@@ -76,7 +76,7 @@ function FlexLayout(props: SlotsProps): JSX.Element {
           Cap trailing so ActionBar still gets a measurable width budget while
           the center title/event-log keeps at least half the row on narrow hosts.
         */}
-        <div class="box flex-1 min-w-0 max-w-[50%] self-stretch flex-row items-center justify-end gap-2">
+        <div class="box flex-1 min-w-0 max-w-1/2 self-stretch flex-row items-center justify-end gap-2">
           {props.trailing}
         </div>
       </Show>
@@ -90,7 +90,7 @@ function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
       <div class={`box justify-start ${SIDE_SLOT_CLASS}`}>{props.leading}</div>
       <div class={`box justify-end ${SIDE_SLOT_CLASS}`}>{props.trailing}</div>
       <div
-        class="box absolute inset-0 flex-row items-center justify-center z-[2] px-12"
+        class="box absolute inset-0 flex-row items-center justify-center z-2 px-12"
         classList={{ boxNone: true }}
       >
         <div class="box min-w-0 max-w-full">{props.center}</div>

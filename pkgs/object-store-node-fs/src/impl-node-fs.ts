@@ -9,12 +9,17 @@ import type { NodeFs } from './node-fs';
 const META_SUFFIX = '.meta.json';
 const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 
-/** Same-directory tmp names so `rename` is atomic on POSIX. */
+/**
+ * Same-directory tmp names so `rename` is atomic on POSIX. The pid keeps them
+ * unique across processes: `bun test --parallel` workers write the same key
+ * (a migrated sim seed) at once, and a per-process counter alone collides —
+ * one worker's `rename` moves the other's tmp away and it fails `ENOENT`.
+ */
 let tmpSeq = 0;
 
 function nextTmpPath(dest: string): string {
   tmpSeq += 1;
-  return `${dest}.${String(tmpSeq)}.tmp`;
+  return `${dest}.${String(process.pid)}.${String(tmpSeq)}.tmp`;
 }
 
 export type ObjectStoreFsLayout = 'sidecar' | 'tree';

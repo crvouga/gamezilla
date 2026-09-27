@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["@testing-library/jest-dom/vitest"]
+    "types": ["bun", "@pkgs/bun-test-solid/jest-dom"]
   },
   "include": [
     "../ts-reset/src/index.ts",

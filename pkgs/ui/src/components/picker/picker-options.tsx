@@ -132,9 +132,7 @@ function DefaultOptionRow<T extends PickerValue>(props: {
 }
 
 function OptionSeparator(): JSX.Element {
-  return (
-    <div class="box border-b border-border ml-[16px]" aria-hidden="true" />
-  );
+  return <div class="box border-b border-border ml-4" aria-hidden="true" />;
 }
 
 /** Custom rows get the listbox semantics from a focusable shell. */

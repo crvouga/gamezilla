@@ -18,6 +18,11 @@ export type MutationBatchItem = {
   readonly clientId: string;
   readonly seq: number;
   readonly createdAt: string;
+  readonly originTraceparent: string | null;
+  readonly correlation?: {
+    readonly sessionId: string;
+    readonly buildSha: string;
+  };
 };
 
 export type MutationsBatchBody = {
@@ -81,13 +86,43 @@ function parseMutationItem(value: unknown): MutationBatchItem | null {
   const clientId = value['clientId'];
   const seq = value['seq'];
   const createdAt = value['createdAt'];
+  const originTraceparent = value['originTraceparent'];
+  const correlation = value['correlation'];
   if (typeof id !== 'string' || id.length < 1) return null;
   if (typeof name !== 'string' || name.length < 1) return null;
   if (typeof args !== 'string') return null;
   if (typeof clientId !== 'string' || clientId.length < 1) return null;
   if (typeof seq !== 'number' || !Number.isInteger(seq) || seq < 0) return null;
   if (typeof createdAt !== 'string' || createdAt.length < 1) return null;
-  return { id, name, args, clientId, seq, createdAt };
+  if (originTraceparent !== null && typeof originTraceparent !== 'string') {
+    return null;
+  }
+  if (correlation !== undefined) {
+    if (!isPlainObject(correlation)) return null;
+    const sessionId = correlation['sessionId'];
+    const buildSha = correlation['buildSha'];
+    if (
+      typeof sessionId !== 'string' ||
+      sessionId.length < 1 ||
+      sessionId.length > 128 ||
+      typeof buildSha !== 'string' ||
+      buildSha.length < 1 ||
+      buildSha.length > 128
+    ) {
+      return null;
+    }
+    return {
+      id,
+      name,
+      args,
+      clientId,
+      seq,
+      createdAt,
+      originTraceparent,
+      correlation: { sessionId, buildSha },
+    };
+  }
+  return { id, name, args, clientId, seq, createdAt, originTraceparent };
 }
 
 /** Parse POST /mutations body. Returns null on invalid shape or oversize batch. */

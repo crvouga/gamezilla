@@ -30,7 +30,7 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
 
   return (
     <div class="box flex-1 bg-background">
-      <div class="box flex-1 min-h-[0]">
+      <div class="box flex-1 min-h-0">
         <ActiveSpaceBody
           spaceId={props.spaceId}
           onRequestEnd={() => requestEndSpace(props.spaceId)}

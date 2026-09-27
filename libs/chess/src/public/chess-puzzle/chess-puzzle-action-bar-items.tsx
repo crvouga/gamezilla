@@ -3,6 +3,7 @@ import {
   type BottomActionBarItem,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronsRightIcon,
   type IconComponent,
   LightbulbIcon,
   RotateCcwIcon,
@@ -26,6 +27,7 @@ export type ChessPuzzleActionBarModel = {
   onBack: () => void;
   onForward: () => void;
   onRetry: () => void;
+  onSkip: () => void;
   onNext: () => void;
 };
 
@@ -50,7 +52,7 @@ function mapHintSlot(
 }
 
 function mapNavAction(args: {
-  id: 'back' | 'forward' | 'next' | 'retry' | 'solution';
+  id: 'back' | 'forward' | 'next' | 'retry' | 'solution' | 'skip';
   label: JSX.Element;
   icon: IconComponent;
   disabled: boolean;
@@ -71,6 +73,15 @@ function mapSlot(
   slot: ChessPuzzleActionBarSlot,
   p: ChessPuzzleActionBarModel
 ): BottomActionBarItem {
+  if (slot.id === 'skip') {
+    return mapNavAction({
+      id: 'skip',
+      label: <Trans>Skip</Trans>,
+      icon: ChevronsRightIcon,
+      disabled: slot.disabled,
+      onPress: p.onSkip,
+    });
+  }
   if (slot.id === 'hint') return mapHintSlot(slot, p.onHint);
   if (slot.id === 'solution') {
     return mapNavAction({

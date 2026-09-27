@@ -1,9 +1,9 @@
 /**
- * Smoke fixtures for every edge-case catalog id.
+ * Basic fixtures for every edge-case catalog id.
  * Assert light contracts; deeper proofs live in transform-cases / sx-mapping.
  */
 
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test } from 'bun:test';
 import { checkCompleteness } from '../completeness-gate';
 import { mapSxRecord } from '../sx-mapping';
 import { transformFile } from '../transform';
@@ -83,7 +83,7 @@ function expectTransformFixture(fixture: TransformFixture): void {
   expectHFixture(fixture, result.text);
   expectIFixture(fixture, result.text);
 }
-describe('catalog smoke fixtures', () => {
+describe('catalog basic fixtures', () => {
   test('COVERED_IDS matches fixture table', () => {
     expect(COVERED_IDS.size).toBe(CATALOG_FIXTURES.length);
   });

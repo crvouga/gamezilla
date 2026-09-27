@@ -1,0 +1,16 @@
+language js
+
+// Conservative by file: leaf-span files stay I/O-free. This avoids pretending
+// `using` creates active context across an instrumented child operation.
+file($body) where {
+  $body <: includes "using ",
+  $body <: includes "startSpan(",
+  $body <: contains bubble JsCallExpression() as $io where {
+    $io <: or {
+      `$receiver.fetch($args)`,
+      `$receiver.query($args)`,
+      `$receiver.run($args)`
+    },
+    register_diagnostic(span=$io, message="This I/O is inside a using startSpan scope; use withSpan so child instrumentation gets active context.", severity="error")
+  }
+}

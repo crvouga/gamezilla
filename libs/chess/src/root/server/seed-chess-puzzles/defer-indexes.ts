@@ -3,8 +3,9 @@
  * inserts do not maintain btrees on managed Postgres tiers with tight
  * storage caps.
  *
- * Unique indexes must stay — seed uses `ON CONFLICT (id)` and the
- * table PK is managed text `id`.
+ * Unique indexes must stay — the seed dedupes on `id` (PK) and
+ * `position_key` (§23). Dropped declared `ix_*` indexes (rating, popularity)
+ * come back on the next `db:migrate` schema reconcile.
  */
 import type { Logger } from '@pkgs/logger';
 import { raw, sql } from '@pkgs/sql';
@@ -20,7 +21,7 @@ export class PuzzleSnapshotIndexDeferral {
   async dropIndexes(): Promise<void> {
     const table = 'chess_puzzles';
     // Only non-unique secondary indexes. Unique indexes (ux_*) and the PK
-    // remain so ON CONFLICT (id) keeps working.
+    // remain so ON CONFLICT keeps deduping ids and position keys.
     const rows = await this.db.query(sql<{ indexname: string }>`
       SELECT i.relname AS indexname
       FROM pg_index x

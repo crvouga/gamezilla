@@ -1,8 +1,11 @@
 /**
  * Multi-actor session over one shared `document.body`. Each actor is a Solid
- * component; only the focused actor's tree is mounted (in its own
- * `div[data-actor]` under the session host). Parked actors dispose their
- * Solid root but keep their last non-blank snapshot HTML for reports.
+ * component rendered into its own `div[data-actor]`. Every actor's root stays
+ * alive — people use their apps at the same time, so a parked actor keeps its
+ * room connections, subscriptions and screen state — but only the focused
+ * actor's container is attached under the session host, so queries, taps and
+ * layout see one phone at a time. Parked actors keep their last non-blank
+ * snapshot HTML for reports.
  */
 
 import type { JSX } from 'solid-js';
@@ -26,7 +29,7 @@ export type MultiAppSolidDomSessionOptions = {
   readonly document?: Document | undefined;
   /** Called once before an actor is mounted as the active tree. */
   readonly onActorFocus?: ((actorId: string) => void) | undefined;
-  /** Called once after the previous actor is unmounted from the DOM. */
+  /** Called once after the previous actor is detached from the DOM. */
   readonly onActorBlur?: ((actorId: string) => void) | undefined;
   /** Layout synthesis for coordinate gestures on unmeasured hosts. */
   readonly layoutProvider?: LayoutProvider | undefined;
@@ -42,7 +45,7 @@ export type MultiAppSolidDomSession = {
   mountActor(actorId: string, component: () => JSX.Element): FocusedRenderedApp;
   /** Remove one actor without tearing down siblings. */
   unmountActor(actorId: string): void;
-  /** Unmount the active actor from the DOM without dropping registration. */
+  /** Detach the active actor from the DOM; its app keeps running. */
   clearFocus(): void;
   /**
    * Snapshot every registered actor. The active actor is captured in place;
@@ -62,17 +65,17 @@ type ActorRecord = {
   readonly facade: FocusedRenderedApp;
 };
 
-type ActiveMount = { readonly id: string; readonly mount: SolidMount };
-
 type FocusMode = 'activate' | 'snapshot';
 
 class SessionCore {
   readonly actors = new Map<string, ActorRecord>();
   readonly snapshotCache = new Map<string, string>();
+  /** Live Solid roots, attached or parked. */
+  private readonly mounts = new Map<string, SolidMount>();
   readonly document: Document;
   readonly user: UserEvent;
   private host: HTMLElement | null = null;
-  private active: ActiveMount | undefined;
+  private active: string | undefined;
 
   constructor(readonly options: MultiAppSolidDomSessionOptions) {
     this.document = options.document ?? document;
@@ -80,11 +83,13 @@ class SessionCore {
   }
 
   activeId(): string | undefined {
-    return this.active?.id;
+    return this.active;
   }
 
   containerOf(actorId: string): HTMLElement | null {
-    return this.active?.id === actorId ? this.active.mount.container : null;
+    return this.active === actorId
+      ? (this.mounts.get(actorId)?.container ?? null)
+      : null;
   }
 
   requireActor(actorId: string): ActorRecord {
@@ -97,27 +102,41 @@ class SessionCore {
 
   focus(actorId: string, mode: FocusMode): void {
     const record = this.requireActor(actorId);
-    if (this.active?.id === actorId) return;
+    if (this.active === actorId) return;
     if (this.active !== undefined) {
-      const blurred = this.active.id;
+      const blurred = this.active;
       if (mode === 'activate') {
         this.cacheSnapshot(blurred);
         this.options.onActorBlur?.(blurred);
       }
-      this.unmountActive();
+      this.detachActive();
     }
     if (mode === 'activate') this.options.onActorFocus?.(actorId);
-    this.mountActive(actorId, record);
+    this.attach(actorId, record);
   }
 
-  remountActive(actorId: string, record: ActorRecord): void {
-    this.unmountActive();
-    this.mountActive(actorId, record);
+  /** A new component for a live actor: dispose its root and render afresh. */
+  remount(actorId: string, record: ActorRecord): void {
+    const onScreen = this.active === actorId;
+    this.disposeActor(actorId);
+    if (onScreen) this.attach(actorId, record);
   }
 
-  unmountActive(): void {
-    this.active?.mount.dispose();
+  /** Take the active actor off screen; its root keeps running. */
+  detachActive(): void {
+    if (this.active === undefined) return;
+    this.mounts.get(this.active)?.container.remove();
     this.active = undefined;
+  }
+
+  disposeActor(actorId: string): void {
+    this.mounts.get(actorId)?.dispose();
+    this.mounts.delete(actorId);
+    if (this.active === actorId) this.active = undefined;
+  }
+
+  disposeAll(): void {
+    for (const actorId of [...this.mounts.keys()]) this.disposeActor(actorId);
   }
 
   /** Cache the active actor's HTML unless the live tree is a blank shell. */
@@ -152,14 +171,19 @@ class SessionCore {
     return host;
   }
 
-  private mountActive(actorId: string, record: ActorRecord): void {
-    const mount = mountSolidRoot(
-      record.component,
-      this.document,
-      this.ensureHost(),
-      actorId
-    );
-    this.active = { id: actorId, mount };
+  /** Put the actor on screen: reattach its live root, or render it the first time. */
+  private attach(actorId: string, record: ActorRecord): void {
+    const host = this.ensureHost();
+    const parked = this.mounts.get(actorId);
+    if (parked === undefined) {
+      this.mounts.set(
+        actorId,
+        mountSolidRoot(record.component, this.document, host, actorId)
+      );
+    } else {
+      host.appendChild(parked.container);
+    }
+    this.active = actorId;
   }
 }
 
@@ -212,8 +236,8 @@ export function createMultiAppSolidDomSession(
       const existing = core.actors.get(actorId);
       if (existing !== undefined) {
         existing.component = component;
-        if (core.activeId() === actorId) core.remountActive(actorId, existing);
-        else core.focus(actorId, 'activate');
+        core.remount(actorId, existing);
+        core.focus(actorId, 'activate');
         return existing.facade;
       }
       const record: ActorRecord = {
@@ -229,20 +253,20 @@ export function createMultiAppSolidDomSession(
     unmountActor(actorId) {
       if (!core.actors.delete(actorId)) return;
       core.snapshotCache.delete(actorId);
-      if (core.activeId() === actorId) core.unmountActive();
+      core.disposeActor(actorId);
       core.removeHostIfEmpty();
     },
     clearFocus() {
       const active = core.activeId();
       if (active === undefined) return;
       core.cacheSnapshot(active);
-      core.unmountActive();
+      core.detachActive();
     },
     snapshotAllActors: (snapshotOptions = {}) =>
       Promise.resolve(snapshotAll(core, snapshotOptions)),
     activeActorId: () => core.activeId(),
     dispose() {
-      core.unmountActive();
+      core.disposeAll();
       core.actors.clear();
       core.snapshotCache.clear();
       core.removeHostIfEmpty();

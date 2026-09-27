@@ -10,6 +10,7 @@ export const chessPuzzleProfile = defineQuery({
         owner_id,
         rating,
         rating_deviation,
+        volatility_micros,
         last_interaction_at,
         deleted_at
       FROM chess_puzzle_profiles

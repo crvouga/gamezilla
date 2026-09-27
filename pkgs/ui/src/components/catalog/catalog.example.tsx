@@ -21,7 +21,7 @@ export default function CatalogExample(): JSX.Element {
         {'Index (search + grouped list)'}
       </label>
       <div class="card">
-        <div class="box h-[320px]">
+        <div class="box h-80">
           <CatalogList items={DEMO_ITEMS} onSelect={setSelectedId} />
         </div>
       </div>
@@ -32,7 +32,7 @@ export default function CatalogExample(): JSX.Element {
         {'Detail (prev / next bottom bar)'}
       </label>
       <div class="card">
-        <div class="box h-[240px]">
+        <div class="box h-60">
           <CatalogDetail
             items={DEMO_ITEMS}
             currentId={currentId()}

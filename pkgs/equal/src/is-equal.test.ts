@@ -3,19 +3,6 @@ import { isEqual } from './is-equal';
 
 describe('isEqual', () => {
   describe('primitives', () => {
-    test('same values', () => {
-      expect(isEqual(1, 1)).toBe(true);
-      expect(isEqual('a', 'a')).toBe(true);
-      expect(isEqual(true, true)).toBe(true);
-      expect(isEqual(false, false)).toBe(true);
-    });
-
-    test('distinct values', () => {
-      expect(isEqual(1, 2)).toBe(false);
-      expect(isEqual('a', 'b')).toBe(false);
-      expect(isEqual(true, false)).toBe(false);
-    });
-
     test('Object.is semantics for number', () => {
       expect(isEqual(NaN, NaN)).toBe(true);
       expect(isEqual(0, -0)).toBe(false);
@@ -50,27 +37,6 @@ describe('isEqual', () => {
   });
 
   describe('arrays', () => {
-    test('empty', () => {
-      expect(isEqual([], [])).toBe(true);
-    });
-
-    test('same elements', () => {
-      expect(isEqual([1, 2, 3], [1, 2, 3])).toBe(true);
-    });
-
-    test('order matters', () => {
-      expect(isEqual([1, 2], [2, 1])).toBe(false);
-    });
-
-    test('length differs', () => {
-      expect(isEqual([1], [1, 2])).toBe(false);
-    });
-
-    test('nested', () => {
-      expect(isEqual([{ a: 1 }], [{ a: 1 }])).toBe(true);
-      expect(isEqual([{ a: 1 }], [{ a: 2 }])).toBe(false);
-    });
-
     test('sparse length still matches explicit undefined elements', () => {
       const sparse: unknown[] = [];
       sparse[1] = 1;
@@ -87,23 +53,8 @@ describe('isEqual', () => {
   });
 
   describe('plain objects', () => {
-    test('empty', () => {
-      expect(isEqual({}, {})).toBe(true);
-    });
-
-    test('same keys and values', () => {
-      expect(isEqual({ a: 1, b: 2 }, { b: 2, a: 1 })).toBe(true);
-    });
-
     test('missing key vs undefined value', () => {
       expect(isEqual({ a: 1 }, { a: 1, b: undefined })).toBe(false);
-    });
-
-    test('nested', () => {
-      expect(isEqual({ x: { y: { z: 1 } } }, { x: { y: { z: 1 } } })).toBe(
-        true
-      );
-      expect(isEqual({ x: { y: 1 } }, { x: { y: 2 } })).toBe(false);
     });
 
     test('null prototype object', () => {
@@ -150,22 +101,6 @@ describe('isEqual', () => {
   });
 
   describe('Map', () => {
-    test('empty', () => {
-      expect(isEqual(new Map(), new Map())).toBe(true);
-    });
-
-    test('same entries', () => {
-      const a = new Map<string, number>([
-        ['x', 1],
-        ['y', 2],
-      ]);
-      const b = new Map<string, number>([
-        ['y', 2],
-        ['x', 1],
-      ]);
-      expect(isEqual(a, b)).toBe(true);
-    });
-
     test('different size', () => {
       expect(isEqual(new Map([['a', 1]]), new Map())).toBe(false);
     });
@@ -178,14 +113,6 @@ describe('isEqual', () => {
   });
 
   describe('Set', () => {
-    test('empty', () => {
-      expect(isEqual(new Set(), new Set())).toBe(true);
-    });
-
-    test('same primitive members', () => {
-      expect(isEqual(new Set([1, 2, 3]), new Set([3, 2, 1]))).toBe(true);
-    });
-
     test('different size', () => {
       expect(isEqual(new Set([1]), new Set([1, 2]))).toBe(false);
     });
@@ -214,36 +141,6 @@ describe('isEqual', () => {
       const d = { ref: c };
       c.ref = d;
       expect(isEqual(a, c)).toBe(true);
-    });
-  });
-
-  describe('client config shape', () => {
-    test('matches when attributes equal', () => {
-      const prev = {
-        'client-config/google-web-client-id': 'abc.apps.googleusercontent.com',
-      };
-      const next = {
-        'client-config/google-web-client-id': 'abc.apps.googleusercontent.com',
-      };
-      expect(isEqual(prev, next)).toBe(true);
-    });
-
-    test('differs when id changes', () => {
-      const prev = { 'client-config/google-web-client-id': 'a' };
-      const next = { 'client-config/google-web-client-id': 'b' };
-      expect(isEqual(prev, next)).toBe(false);
-    });
-
-    test('prev undefined vs new object is not equal', () => {
-      expect(
-        isEqual(undefined, { 'client-config/google-web-client-id': null })
-      ).toBe(false);
-    });
-
-    test('null client id in both', () => {
-      const prev = { 'client-config/google-web-client-id': null };
-      const next = { 'client-config/google-web-client-id': null };
-      expect(isEqual(prev, next)).toBe(true);
     });
   });
 

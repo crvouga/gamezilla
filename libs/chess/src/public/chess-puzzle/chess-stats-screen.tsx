@@ -14,10 +14,10 @@ import {
   SetChessSelectedReviewPuzzle,
 } from '../chess-main-menu';
 import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
-import { ChessEloSparkline } from './chess-elo-sparkline';
 import { ChessGameLog } from './chess-game-log';
-import { ChessPuzzleEloChip } from './chess-puzzle-elo-chip';
+import { ChessPuzzleRatingChip } from './chess-puzzle-rating-chip';
 import { ChessPuzzleStatsCards } from './chess-puzzle-stats-cards';
+import { ChessRatingSparkline } from './chess-rating-sparkline';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
 export function ChessStatsScreen(): JSX.Element {
@@ -46,18 +46,19 @@ export function ChessStatsScreen(): JSX.Element {
         dataSet={{ screen: 'chess-stats' }}
       >
         <div
-          class="box gap-4 p-4 pb-8 self-center w-[100%]"
+          class="box gap-4 p-4 pb-8 self-center w-full"
           style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
         >
           <MainMenuScreenHeader title={<Trans>Puzzle stats</Trans>} />
           <div class="box items-center gap-2">
-            <ChessPuzzleEloChip
-              elo={history.stats().currentElo}
+            <ChessPuzzleRatingChip
+              rating={history.stats().currentRating}
+              provisional={history.stats().provisional}
               variant="primary"
               testID="chess-stats-elo"
             />
-            <ChessEloSparkline
-              series={history.stats().eloSeries}
+            <ChessRatingSparkline
+              series={history.stats().ratingSeries}
               testID="chess-stats-sparkline"
             />
           </div>

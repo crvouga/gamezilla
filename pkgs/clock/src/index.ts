@@ -1,4 +1,10 @@
 // @io-wall-ok
+
+export {
+  createSettableClock,
+  type SettableClock,
+  type SettableClockState,
+} from './settable-clock';
 export {
   type CreateSimClockArgs,
   createSimClock,

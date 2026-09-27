@@ -13,7 +13,7 @@ export function SearchRecentQueries(props: {
   return (
     <Show when={props.queries.length > 0}>
       <div class="box gap-1">
-        <div class="box flex-row items-center justify-between min-h-[32px]">
+        <div class="box flex-row items-center justify-between min-h-8">
           <label class="text textLabel text-text-secondary">
             {<Trans>Recent</Trans>}
           </label>

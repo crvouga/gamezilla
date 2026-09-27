@@ -39,7 +39,7 @@ export function SpaceMemberTileRail(
           />
           <UserProfileAvatar profileId={props.profileId} size={AVATAR_SIZE} />
         </div>
-        <div class="box flex-1 min-w-[0] gap-1">
+        <div class="box flex-1 min-w-0 gap-1">
           <UserUsername
             profileId={props.profileId}
             withAt={false}

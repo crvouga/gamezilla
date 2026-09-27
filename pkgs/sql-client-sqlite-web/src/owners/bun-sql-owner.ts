@@ -45,6 +45,8 @@ export function createBunSqlOwner(args: {
       }
       client = null;
     },
+    // In-process: nothing outlives the page.
+    release: () => undefined,
     resetStore: async () => {
       if (client !== null) {
         try {

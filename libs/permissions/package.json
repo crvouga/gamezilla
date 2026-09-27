@@ -1,0 +1,46 @@
+{
+  "name": "@libs/permissions",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./public/*": [
+      "./src/public/*.ts",
+      "./src/public/*.tsx"
+    ],
+    "./root/*": [
+      "./src/root/*.ts",
+      "./src/root/*.tsx"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/client-config": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@pkgs/billing": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/db-schema": "workspace:*",
+    "@pkgs/permissions": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "solid-js": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "fast-check": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -19,6 +19,7 @@ export type PuzzleSessionStartDecision =
   | { readonly kind: 'start' };
 
 export type PuzzleSessionStartInput = {
+  readonly canDrive?: boolean;
   readonly identityReady: boolean;
   /** 0 means the screen has not armed a placement yet. */
   readonly startNonce: number;
@@ -56,6 +57,7 @@ export function shouldDeferPuzzleAttemptPlacement(input: {
 export function decidePuzzleSessionStart(
   input: PuzzleSessionStartInput
 ): PuzzleSessionStartDecision {
+  if (input.canDrive === false) return { kind: 'skip' };
   if (!input.identityReady) return { kind: 'skip' };
   if (input.startNonce === 0) return { kind: 'skip' };
   if (input.startNonce === input.lastStartedNonce) return { kind: 'skip' };
@@ -73,6 +75,8 @@ export function decidePuzzleSessionStart(
 }
 
 export type PuzzleHostReclaimInput = {
+  /** True only for the space host. */
+  readonly canDrive?: boolean;
   readonly memberId: string;
   readonly roomStatus: ChessPuzzlePlayStatus;
   readonly hostIdentity: string | null;
@@ -89,6 +93,7 @@ export type PuzzleHostReclaimInput = {
 export function shouldReclaimPuzzleHost(
   input: PuzzleHostReclaimInput
 ): boolean {
+  if (input.canDrive === false) return false;
   if (input.memberId.length === 0) return false;
   if (input.roomStatus === CHESS_PUZZLE_PLAY_STATUS.idle) return false;
   if (input.hostIdentity === null || input.hostIdentity === input.memberId) {

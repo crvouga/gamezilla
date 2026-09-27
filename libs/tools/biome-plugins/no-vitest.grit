@@ -1,0 +1,14 @@
+language js
+
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: or {
+    includes "vitest",
+    includes "jest"
+  },
+  $body <: contains bubble `import $mod from $src` where {
+    $src <: r"^['\"](?:vitest|@vitest/.*|@jest/globals|jest)(?:/.*)?['\"]$",
+    register_diagnostic(span=$src, message="bun test is the only test runner — import from 'bun:test'; DOM tests preload @pkgs/bun-test-solid/preload.", severity="error")
+  }
+}

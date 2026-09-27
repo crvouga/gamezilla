@@ -2,6 +2,7 @@ export {
   type HtmlReportBlob,
   type HtmlReportBundle,
   type HtmlReportTest,
+  mergeRunBundles,
   readRunBundle,
 } from './bundle';
 export {

@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { PreparedStatement, SqlClient } from '@pkgs/sql-client/interface';
 import { applySqliteConnectionPragmas } from '@pkgs/sql-client-sqlite/connection-pragmas';
 import {
@@ -27,6 +28,8 @@ export type OwnerRuntime = {
   readonly dbName: string;
   open: () => Promise<void>;
   close: () => Promise<void>;
+  /** Drop the store's handles synchronously ({@link SqlOwner.release}). */
+  release: () => void;
   getClient: () => SqlClient;
   handleRequest: (request: RpcRequest) => Promise<RpcResponse>;
   onChanged: (listener: (notify: DbChangedNotify) => void) => () => void;
@@ -37,12 +40,23 @@ export type OwnerRuntime = {
 export type CreateOwnerRuntimeArgs = {
   readonly dbName: string;
   readonly timers: Timers;
+  /** Receives open-retry warnings. */
+  readonly logger: Logger;
   /** Override backing owner (tests / DST). Default: dedicated WASM worker. */
   readonly createOwner?: (args: { readonly dbName: string }) => SqlOwner;
   /** Post-open migrate (sync-engine). Wipe-worthy failures recover in-process. */
   readonly migrate?: (client: SqlClient) => Promise<void>;
   readonly sqliteWorkerUrl?: string;
 };
+
+/**
+ * Owner-runtime factory as a transport sees it: the client closes over every
+ * other {@link CreateOwnerRuntimeArgs} field (logger, migrate, owner).
+ */
+export type TransportOwnerRuntimeFactory = (args: {
+  readonly dbName: string;
+  readonly timers: Timers;
+}) => OwnerRuntime;
 
 function txError(code: string, message: string): Error {
   const error = new Error(message);
@@ -105,6 +119,7 @@ function importClientBytes(
 class OwnerRuntimeImpl implements OwnerRuntime {
   readonly dbName: string;
   private readonly timers: Timers;
+  private readonly logger: Logger;
   private readonly owner: SqlOwner;
   private readonly migrate: ((client: SqlClient) => Promise<void>) | undefined;
   private client: SqlClient | null = null;
@@ -125,6 +140,7 @@ class OwnerRuntimeImpl implements OwnerRuntime {
   constructor(args: CreateOwnerRuntimeArgs) {
     this.dbName = args.dbName;
     this.timers = args.timers;
+    this.logger = args.logger;
     this.migrate = args.migrate;
     this.owner =
       args.createOwner?.({ dbName: args.dbName }) ??
@@ -179,6 +195,7 @@ class OwnerRuntimeImpl implements OwnerRuntime {
       dbName: this.dbName,
       owner: this.owner,
       timers: this.timers,
+      logger: this.logger,
       migrate: async (client) => {
         await applySqliteConnectionPragmas(client);
         await this.migrate?.(client);
@@ -244,6 +261,22 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.client = null;
     this.openPromise = null;
     await this.owner.close();
+  }
+
+  release(): void {
+    const tx = this.activeTx;
+    if (tx !== null) {
+      if (tx.idleTimerId !== null) this.timers.clearTimeout(tx.idleTimerId);
+      this.activeTx = null;
+      this.txGate = null;
+      tx.rejectGate(
+        txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted: owner released')
+      );
+    }
+    this.stmts.clear();
+    this.client = null;
+    this.openPromise = null;
+    this.owner.release();
   }
 
   getClient(): SqlClient {

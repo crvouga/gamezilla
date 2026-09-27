@@ -5,7 +5,11 @@ export {
   genFaultSchedule,
   toSimFaults,
 } from './faults';
-export { genManifest, genSmallManifest } from './manifest';
+export {
+  genManifest,
+  genSchemaWithManifest,
+  genSmallManifest,
+} from './manifest';
 export { type GenSchema, type GenTable, genSchema } from './schema';
 export {
   astToAccessPath,

@@ -85,7 +85,7 @@ async function touchScopeMeta(
   now: () => Date
 ): Promise<void> {
   const nowIso = now().toISOString();
-  // UPDATE-first: sqlite-mem may allocate a stale rowid before ON CONFLICT
+  // UPDATE-first: mockingbird-sqlite may allocate a stale rowid before ON CONFLICT
   // runs (UNIQUE on sync_engine_scope_meta.rowid). Skip allocate when the
   // row already exists (including soft-deleted). Fresh inserts pick
   // MAX(rowid)+1 explicitly so allocation does not consult the stale cache.

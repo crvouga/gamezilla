@@ -1,9 +1,9 @@
+import { describe, expect, test } from 'bun:test';
 import {
   buildPaginationWindow,
   type PaginationWindowItem,
   paginationWindowItemKey,
 } from '@pkgs/ui/components/pagination-controls';
-import { describe, expect, test } from 'vitest';
 
 const pages = (items: readonly PaginationWindowItem[]) =>
   items.map((i) => (i.type === 'page' ? i.pageIndex : `…${i.id}`));

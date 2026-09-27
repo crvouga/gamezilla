@@ -1,3 +1,4 @@
+import { describe, expect, test } from 'bun:test';
 import {
   type CatalogItem,
   filterCatalogItems,
@@ -5,7 +6,6 @@ import {
   groupCatalogItems,
   resolveCatalogNeighbor,
 } from '@pkgs/ui/components/catalog';
-import { describe, expect, test } from 'vitest';
 
 const ITEMS: readonly CatalogItem[] = [
   { id: 'btn', label: 'Button', category: 'Inputs' },
@@ -17,7 +17,7 @@ const ITEMS: readonly CatalogItem[] = [
 describe('filterCatalogItems', () => {
   test('blank query returns a copy of everything', () => {
     const out = filterCatalogItems(ITEMS, '   ');
-    expect(out).toEqual(ITEMS);
+    expect(out).toEqual([...ITEMS]);
     expect(out).not.toBe(ITEMS);
   });
 

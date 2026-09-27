@@ -327,7 +327,7 @@ function ClientLiveColumns(props: {
                 when={layout.multiClientColumns}
                 fallback={
                   <div
-                    class="box flex-1 min-w-[0] min-h-[0] flex-col"
+                    class="box flex-1 min-w-0 min-h-0 flex-col"
                     style={{ display: visible() ? 'flex' : 'none' }}
                   >
                     {body()}

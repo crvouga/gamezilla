@@ -77,10 +77,10 @@ export function ClientProductSimulatorPanel(props: {
 
   return (
     <div
-      class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-surface"
+      class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-surface"
       data-debuggerClient={props.actor.address}
     >
-      <div class="box flex-1 min-h-[0] overflow-hidden relative bg-surface">
+      <div class="box flex-1 min-h-0 overflow-hidden relative bg-surface">
         <Show when={productKey()} keyed>
           {(_key: string) => <ActorView actor={props.actor} />}
         </Show>
@@ -101,9 +101,9 @@ export function ServerProductSimulatorPanel(props: {
   const pane = () => resolvePane(props.pane, 'server');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'db') }}
       >
         <SqlNotebookPane
@@ -117,13 +117,13 @@ export function ServerProductSimulatorPanel(props: {
         />
       </div>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'events') }}
       >
         <ProductSimulatorLogsPane logs={props.node.logs} />
       </div>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'commands') }}
       >
         <ProductSimulatorCommandsPane session={props.session} />
@@ -140,9 +140,9 @@ export function LoadBalancerProductSimulatorPanel(props: {
   const pane = () => resolvePane(props.pane, 'lb');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'routes') }}
       >
         <ProductSimulatorLoadBalancerPane
@@ -151,7 +151,7 @@ export function LoadBalancerProductSimulatorPanel(props: {
         />
       </div>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'events') }}
       >
         <ProductSimulatorLogsPane logs={props.loadBalancer.logs} />
@@ -168,15 +168,15 @@ export function PubSubProductSimulatorPanel(props: {
   const pane = () => resolvePane(props.pane, 'events');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'events') }}
       >
         <ProductSimulatorLogsPane logs={props.pubsub.logs} />
       </div>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'topics') }}
       >
         <ProductSimulatorPubSubTopicsPane
@@ -196,9 +196,9 @@ export function RoomProductSimulatorPanel(props: {
   const pane = () => resolvePane(props.pane, 'room');
   const tab = () => pane().view;
   return (
-    <div class="box flex-1 min-w-[0] min-h-[0] overflow-hidden flex-col bg-background">
+    <div class="box flex-1 min-w-0 min-h-0 overflow-hidden flex-col bg-background">
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'db') }}
       >
         <ProductSimulatorRoomDbPane
@@ -207,7 +207,7 @@ export function RoomProductSimulatorPanel(props: {
         />
       </div>
       <div
-        class="box flex-1 min-h-[0] min-w-[0] bg-background"
+        class="box flex-1 min-h-0 min-w-0 bg-background"
         style={{ display: hiddenWhen(tab() === 'events') }}
       >
         <ProductSimulatorLogsPane logs={props.room.logs} />

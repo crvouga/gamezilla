@@ -1,3 +1,5 @@
+import type { Logger } from '@pkgs/logger';
+
 export const PAYLOAD_MAX_BYTES = 32 * 1024;
 
 export function encodePayload(data: unknown): string {
@@ -19,11 +21,11 @@ export function encodePayload(data: unknown): string {
   return encoded;
 }
 
-export function decodePayload(raw: string): unknown {
+export function decodePayload(raw: string, logger: Logger): unknown {
   try {
     return JSON.parse(raw) as unknown;
   } catch {
-    console.warn('[pubsub] malformed payload dropped');
+    logger.warn('malformed payload dropped');
     return undefined;
   }
 }

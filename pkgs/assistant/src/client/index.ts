@@ -1,14 +1,14 @@
+export type { CreateAssistantDialogueTreeRendererDeps } from './create-dialogue-tree-renderer';
+export { createAssistantDialogueTreeRenderer } from './create-dialogue-tree-renderer';
 export {
   type AssistantSpeakingUpdate,
   emitAssistantSpeakingMessage,
   subscribeAssistantSpeaking,
-} from './_internal/assistant-speaking-bridge';
-export { createNoopRenderer } from './_internal/noop-renderer';
+} from './internal/assistant-speaking-bridge';
+export { createNoopRenderer } from './internal/noop-renderer';
 export {
   SpeakingAvatarAssistant,
   type SpeakingAvatarAssistantProps,
-} from './_internal/speaking-avatar-assistant';
-export { createSystemClock } from './_internal/system-clock';
-export { useAssistant } from './_internal/use-assistant';
-export type { CreateAssistantDialogueTreeRendererDeps } from './create-dialogue-tree-renderer';
-export { createAssistantDialogueTreeRenderer } from './create-dialogue-tree-renderer';
+} from './internal/speaking-avatar-assistant';
+export { createSystemClock } from './internal/system-clock';
+export { useAssistant } from './internal/use-assistant';

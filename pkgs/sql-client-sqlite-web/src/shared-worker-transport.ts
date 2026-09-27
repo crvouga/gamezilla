@@ -1,6 +1,9 @@
 import type { Timers } from '@pkgs/clock';
 import { OPEN_DATABASE_TIMEOUT_MS } from './open-retry';
-import type { createOwnerRuntime, OwnerRuntime } from './owner-runtime';
+import type {
+  OwnerRuntime,
+  TransportOwnerRuntimeFactory,
+} from './owner-runtime';
 import {
   awaitRpcResponse,
   type BrokerToTabMessage,
@@ -23,6 +26,12 @@ import { workerScriptLoadError } from './worker-script-load-error';
 export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;
   disconnect: () => Promise<void>;
+  /**
+   * The page is being discarded or frozen: free the store's handles and tell
+   * the broker synchronously, because the async
+   * {@link WebSqlTransport.disconnect} never finishes in time.
+   */
+  leaveOnUnload: () => void;
   request: <O extends RpcOp>(
     op: O,
     payload: RpcRequest<O>['payload'],
@@ -38,7 +47,7 @@ class SharedWorkerTransport implements WebSqlTransport {
   private readonly timers: Timers;
   private readonly workerUrl: string;
   private readonly protocolVersion: number;
-  private readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  private readonly createOwnerRuntimeFn: TransportOwnerRuntimeFactory;
   private readonly nextId = createRpcIdFactory('sw');
   private readonly pending = new Map<string, PendingRpc>();
   private readonly changeListeners = new Set<
@@ -56,7 +65,7 @@ class SharedWorkerTransport implements WebSqlTransport {
     readonly dbName: string;
     readonly timers: Timers;
     readonly workerUrl: string;
-    readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+    readonly createOwnerRuntimeFn: TransportOwnerRuntimeFactory;
     readonly protocolVersion?: number;
   }) {
     this.dbName = args.dbName;
@@ -240,6 +249,21 @@ class SharedWorkerTransport implements WebSqlTransport {
     this.role = null;
   }
 
+  leaveOnUnload(): void {
+    if (!this.connected) return;
+    this.unsubOwnerChanged?.();
+    this.unsubOwnerChanged = null;
+    this.ownerRuntime?.release();
+    this.ownerRuntime = null;
+    if (this.role === 'owner') this.role = 'proxy';
+    this.post({
+      id: this.nextId(),
+      dbName: this.dbName,
+      op: 'disconnect',
+      payload: {},
+    });
+  }
+
   async request<O extends RpcOp>(
     op: O,
     payload: RpcRequest<O>['payload'],
@@ -299,7 +323,7 @@ export function createSharedWorkerTransport(args: {
   readonly dbName: string;
   readonly timers: Timers;
   readonly workerUrl: string;
-  readonly createOwnerRuntimeFn: typeof createOwnerRuntime;
+  readonly createOwnerRuntimeFn: TransportOwnerRuntimeFactory;
   readonly protocolVersion?: number;
 }): WebSqlTransport {
   return new SharedWorkerTransport(args);

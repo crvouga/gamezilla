@@ -1,0 +1,8 @@
+Gamezilla production error
+
+Trace: {{ trace_id }}
+Start: bun obs trace {{ trace_id }} --source prod
+Fallback: bun obs errors --since 15m --source prod
+
+The query credential must be a dedicated read-only traces token. Never place
+the Collector ingest token or a Grafana administrator token in this alert.

@@ -1,170 +1,163 @@
 /** @jsxImportSource solid-js */
 /**
- * Piece layer: stable-id rows slide via CSS `transform`; the capture ghost
- * fades at the vacated square; the dragged piece is an imperative ghost
- * (rAF transform) while the source square stays faintly visible.
+ * Piece layer: one HTML box per piece, placed by `transform` through the
+ * {@link PieceAnimator}. Rows keep their identity across plies
+ * (`createPieceRowsTracker`), so `<For>` keeps each piece's node and a move
+ * only re-places the pieces whose square changed — everything else is
+ * untouched. Ghosts (capture, premove) are static boxes; a dragged piece
+ * stays here faded while its avatar follows the pointer (`piece-drag.ts`).
  */
 
 import type { CaptureGhost } from '@pkgs/chess-board-core/capture-ghost';
 import type { ChessPieceRow } from '@pkgs/chess-board-core/piece-rows';
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   PieceCode,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  For,
+  type JSX,
+  on,
+  Show,
+} from 'solid-js';
 
-import { BOARD_UNITS, CELL_UNITS, squareOrigin } from './board-units';
+import type { MotionPolicy } from './board-motion';
+import { cellTransform } from './board-units';
 import styles from './chess-board.module.css';
 import { bumpChessBoardRender } from './dev/render-counts';
-import type { DragGhostController } from './drag-ghost-controller';
-import { PIECE_IMAGE_URIS } from './piece-images';
+import { HtmlPaintToken } from './paint-token';
+import type { PieceAnimator } from './piece-animator';
 
-export type ChessBoardPiecesProps = {
-  readonly orientation: BoardOrientation;
-  readonly rows: Accessor<readonly ChessPieceRow[]>;
-  readonly captureGhost: Accessor<CaptureGhost | null>;
-  readonly snapSquare: Accessor<Square | null>;
-  readonly dragFrom: Accessor<Square | null>;
-  readonly dragGhost: DragGhostController;
-  readonly animated: Accessor<boolean>;
-  readonly premoveTo: Square | null;
-  readonly premoveCode: PieceCode | null;
+export type PremoveGhost = {
+  readonly to: Square;
+  readonly code: PieceCode;
 };
 
-function pieceTransform(square: Square, orientation: BoardOrientation): string {
-  const { x, y } = squareOrigin(square, orientation);
-  return `translate(${x} ${y})`;
-}
-
-function PieceImage(props: {
-  readonly code: PieceCode;
-  readonly opacity?: number | undefined;
-  readonly class?: string | undefined;
-}): JSX.Element {
-  return (
-    <image
-      href={PIECE_IMAGE_URIS[props.code]}
-      width={CELL_UNITS}
-      height={CELL_UNITS}
-      opacity={props.opacity ?? 1}
-      class={props.class}
-      style={{ 'pointer-events': 'none' }}
-    />
-  );
-}
-
-function DragGhostLayer(props: {
-  readonly dragFrom: Accessor<Square | null>;
+export type ChessBoardPiecesProps = {
+  readonly boardTestId: string;
+  readonly orientation: Accessor<BoardOrientation>;
   readonly rows: Accessor<readonly ChessPieceRow[]>;
-  readonly dragGhost: DragGhostController;
+  readonly captureGhost: Accessor<CaptureGhost | null>;
+  readonly premoveGhosts: Accessor<readonly PremoveGhost[]>;
+  readonly animator: PieceAnimator;
+  readonly motion: Accessor<MotionPolicy>;
+};
+
+const PIECE_CLASS = `${styles['cell']} ${styles['piece']}`;
+
+function Piece(props: {
+  readonly row: ChessPieceRow;
+  readonly rows: Accessor<readonly ChessPieceRow[]>;
+  readonly orientation: Accessor<BoardOrientation>;
+  readonly animator: PieceAnimator;
+  readonly motion: Accessor<MotionPolicy>;
 }): JSX.Element {
-  const dragCode = createMemo((): PieceCode | null => {
-    const from = props.dragFrom();
-    if (from === null) return null;
-    const row = props.rows().find((r) => r.square === from);
-    return row?.code ?? null;
+  let el: HTMLDivElement | undefined;
+  // The tracker reuses (mutates) a surviving row so `<For>` keeps its node;
+  // `rows()` is the signal that a row moved / promoted. The memos narrow it
+  // to *this* piece, so an unmoved piece does no work on a move.
+  const square = createMemo(() => {
+    props.rows();
+    return props.row.square;
   });
+  const code = createMemo(() => {
+    props.rows();
+    return props.row.code;
+  });
+  const orientation = () => props.orientation();
+  createEffect(
+    on([square, orientation], ([sq, o], prev) => {
+      const node = el;
+      if (node === undefined) return;
+      const policy = props.motion();
+      // Flipping the board re-seats every piece at once: no slide.
+      const slide = prev?.[1] === o && policy.slides;
+      props.animator.place(node, cellTransform(sq, o), {
+        slide,
+        durationMs: policy.durationMs,
+      });
+    })
+  );
   return (
-    <g
-      class={styles['dragGhost']}
-      ref={(el) => props.dragGhost.setElement(el)}
-      style={{ visibility: 'hidden' }}
+    <div
+      ref={el}
+      class={PIECE_CLASS}
+      data-piece={code()}
+      data-piece-square={square()}
     >
-      <Show when={dragCode()}>{(code) => <PieceImage code={code()} />}</Show>
-    </g>
+      <HtmlPaintToken kind="piece" detail={code()} at={square()} />
+    </div>
   );
 }
 
-function PieceRow(props: {
-  readonly row: ChessPieceRow;
+function StaticPiece(props: {
+  readonly class: string;
+  readonly code: PieceCode;
+  readonly square: Square;
   readonly orientation: BoardOrientation;
-  readonly dragFrom: Accessor<Square | null>;
-  readonly snapSquare: Accessor<Square | null>;
-  readonly animated: Accessor<boolean>;
+  readonly token: 'capture-ghost' | 'premove-ghost';
 }): JSX.Element {
-  const dragging = () => props.dragFrom() === props.row.square;
-  const className = () => {
-    if (
-      dragging() ||
-      !props.animated() ||
-      props.snapSquare() === props.row.square
-    ) {
-      return '';
-    }
-    return styles['pieceAnimated'] ?? '';
-  };
   return (
-    <>
-      <Show when={dragging()}>
-        <g
-          class={styles['dragOriginGhost']}
-          transform={pieceTransform(props.row.square, props.orientation)}
-        >
-          <PieceImage code={props.row.code} opacity={0.35} />
-        </g>
-      </Show>
-      <g
-        transform={pieceTransform(props.row.square, props.orientation)}
-        class={className()}
-        style={{ visibility: dragging() ? 'hidden' : undefined }}
-      >
-        <PieceImage code={props.row.code} />
-      </g>
-    </>
+    <div
+      class={`${PIECE_CLASS} ${props.class}`}
+      data-piece={props.code}
+      style={{ transform: cellTransform(props.square, props.orientation) }}
+    >
+      <HtmlPaintToken
+        kind={props.token}
+        detail={props.code}
+        at={props.square}
+      />
+    </div>
   );
 }
 
 export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
   bumpChessBoardRender('pieces');
   return (
-    <svg
-      class={`${styles['layer']} ${styles['svgLayer']}`}
-      viewBox={`0 0 ${BOARD_UNITS} ${BOARD_UNITS}`}
+    <div
+      class={styles['contents']}
       aria-hidden="true"
+      data-testid={chessBoardLayerTestId(props.boardTestId, 'pieces')}
     >
       <Show when={props.captureGhost()}>
         {(ghost) => (
-          <g
-            class={styles['captureGhost']}
-            transform={pieceTransform(ghost().square, props.orientation)}
-          >
-            <PieceImage code={ghost().code} />
-          </g>
+          <StaticPiece
+            class={styles['captureGhost'] ?? ''}
+            code={ghost().code}
+            square={ghost().square}
+            orientation={props.orientation()}
+            token="capture-ghost"
+          />
         )}
       </Show>
-      <Show
-        when={
-          props.premoveTo !== null && props.premoveCode !== null
-            ? { to: props.premoveTo, code: props.premoveCode }
-            : null
-        }
-      >
-        {(premove) => (
-          <g
-            class={styles['premoveGhost']}
-            transform={pieceTransform(premove().to, props.orientation)}
-          >
-            <PieceImage code={premove().code} opacity={0.4} />
-          </g>
-        )}
-      </Show>
-      <For each={props.rows()}>
-        {(row) => (
-          <PieceRow
-            row={row}
-            orientation={props.orientation}
-            dragFrom={props.dragFrom}
-            snapSquare={props.snapSquare}
-            animated={props.animated}
+      <For each={props.premoveGhosts()}>
+        {(ghost) => (
+          <StaticPiece
+            class={styles['premoveGhost'] ?? ''}
+            code={ghost.code}
+            square={ghost.to}
+            orientation={props.orientation()}
+            token="premove-ghost"
           />
         )}
       </For>
-      <DragGhostLayer
-        dragFrom={props.dragFrom}
-        rows={props.rows}
-        dragGhost={props.dragGhost}
-      />
-    </svg>
+      <For each={props.rows()}>
+        {(row) => (
+          <Piece
+            row={row}
+            rows={props.rows}
+            orientation={props.orientation}
+            animator={props.animator}
+            motion={props.motion}
+          />
+        )}
+      </For>
+    </div>
   );
 }

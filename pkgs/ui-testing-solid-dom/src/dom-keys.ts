@@ -10,6 +10,8 @@ export const DRIVER_KEY_TO_USER_EVENT: Record<DriverKey, string> = {
   arrowDown: '{ArrowDown}',
   arrowLeft: '{ArrowLeft}',
   arrowRight: '{ArrowRight}',
+  home: '{Home}',
+  end: '{End}',
   space: '[Space]',
   delete: '{Delete}',
 };

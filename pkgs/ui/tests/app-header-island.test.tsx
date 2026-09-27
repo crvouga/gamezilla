@@ -1,10 +1,11 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import { AppFrame, AppFrameChromeProvider } from '@pkgs/ui';
 import { AppHeaderIsland } from '@pkgs/ui/components/app-header-island';
 import { HouseIcon, SettingsIcon } from '@pkgs/ui/components/icons';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test, vi } from 'vitest';
 import { mustQuery, renderUi } from './support/render';
 
 const WIDE = { width: 1280, height: 900 };
@@ -12,8 +13,8 @@ const WIDE = { width: 1280, height: 900 };
 describe('AppHeaderIsland', () => {
   test('renders leading, tabs (aria-selected) and explicit trailing', async () => {
     const user = userEvent.setup();
-    const onHome = vi.fn();
-    const onSettings = vi.fn();
+    const onHome = mock();
+    const onSettings = mock();
     renderUi(
       () => (
         <AppHeaderIsland

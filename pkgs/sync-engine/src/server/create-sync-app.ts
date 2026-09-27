@@ -3,7 +3,11 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { Hono } from 'hono';
 
-import type { MutationRegistry } from '../mutations/core/types';
+import type {
+  MutationAuthorize,
+  MutationRegistry,
+} from '../mutations/core/types';
+import { FRAMEWORK_MUTATIONS } from '../mutations/shared/acknowledge-write-rejection';
 import { withFrameworkMutations } from '../mutations/shared/with-framework-mutations';
 import type { AuthErrorBody, QueryRegistry } from '../queries/core/types';
 import { createMonotonicCheckpoint } from '../shared/commit-checkpoint';
@@ -33,10 +37,27 @@ export type CreateSyncAppDeps = {
   readonly topicMap?: TopicMap;
   /**
    * When true, query hard-limit clips throw instead of silently truncating.
-   * Product API sets this when SECRETS_ENV=dev; sim sets true.
+   * Product API sets this outside production; sim sets true.
    */
   readonly strictQueryLimits?: boolean;
+  /**
+   * Server guard run inside replay before every product mutation body (the
+   * framework's own bookkeeping mutations skip it). Throw `MutationError` to
+   * reject.
+   */
+  readonly authorizeMutation?: MutationAuthorize;
 };
+
+const FRAMEWORK_MUTATION_NAMES: ReadonlySet<string> = new Set(
+  FRAMEWORK_MUTATIONS.map((m) => m.name)
+);
+
+function productOnly(authorize: MutationAuthorize): MutationAuthorize {
+  return async (ctx) => {
+    if (FRAMEWORK_MUTATION_NAMES.has(ctx.name)) return;
+    await authorize(ctx);
+  };
+}
 
 /**
  * Single Hono app for sync: `POST /query` (batch body), `POST /mutations`.
@@ -67,6 +88,9 @@ export function createSyncApp(deps: CreateSyncAppDeps) {
     ...(deps.pubsub !== undefined ? { pubsub: deps.pubsub } : {}),
     ...(deps.rowImageFanout === true ? { rowImageFanout: true } : {}),
     ...(topicMap !== undefined ? { topicMap } : {}),
+    ...(deps.authorizeMutation !== undefined
+      ? { authorize: productOnly(deps.authorizeMutation) }
+      : {}),
   });
   return app;
 }

@@ -19,6 +19,12 @@ export type ChessPuzzleFeedState = {
    * "nothing to play".
    */
   readonly poolReady: Accessor<boolean>;
+  /**
+   * True once the persisted feed config read has settled. Labels whose width
+   * depends on that record wait for this so the default cannot paint and
+   * then jump to the saved filters.
+   */
+  readonly configReady: Accessor<boolean>;
 };
 
 export const ChessPuzzleFeedContext =

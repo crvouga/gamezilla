@@ -1,6 +1,6 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { createContext, createSignal, type JSX, useContext } from 'solid-js';
-
-import { useCurrentSpaceRole } from '../use-current-space-role';
+import { useSpaceCan } from '../../../public/use-space-can';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useLeaveSpace } from './use-leave-space';
 
@@ -34,7 +34,7 @@ export function LeaveSpaceModalProvider(props: {
   const [pending, setPending] = createSignal<PendingLeave | null>(null);
   const leaveSpace = useLeaveSpace();
   const spaceId = () => pending()?.spaceId ?? '';
-  const role = useCurrentSpaceRole(spaceId);
+  const canEndSpace = useSpaceCan(spaceId, PERMISSION.spacesEnd);
 
   const requestLeaveSpace = (
     nextSpaceId: string,
@@ -57,7 +57,7 @@ export function LeaveSpaceModalProvider(props: {
         visible={pending() !== null}
         onClose={() => setPending(() => null)}
         operation={() => leaveSpace(spaceId())}
-        asHost={role() === 'host'}
+        asHost={canEndSpace()}
         onSuccess={() => pending()?.onSuccess?.()}
       />
     </Ctx.Provider>

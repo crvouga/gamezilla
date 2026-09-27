@@ -1,5 +1,4 @@
 import { spawnSync } from 'node:child_process';
-import { StripeSecretKeys } from '@pkgs/billing-stripe';
 import type { ObjectStore } from '@pkgs/object-store/interface';
 import { which } from '@pkgs/os/command';
 import { resolveSecretsScope } from '@pkgs/secrets-config';
@@ -9,6 +8,8 @@ import {
   readSecretsCacheMap,
   readSecretsCacheMeta,
   type SecretsCacheEnv,
+  type SecretsEnvs,
+  secretsCacheRelPath,
   writeSecretsCacheMap,
   writeSecretsCacheMeta,
 } from '../local-secrets-cache';
@@ -110,7 +111,6 @@ function runWithInjectedEnv(repoRoot: string, childArgs: string[]): number {
 const INJECTED_SECRET_MARKERS = [
   'DATABASE_URL',
   'CLOUDFLARE_API_TOKEN',
-  StripeSecretKeys.secretKey,
 ] as const;
 
 function hasInjectedSecrets(): boolean {
@@ -120,18 +120,14 @@ function hasInjectedSecrets(): boolean {
   });
 }
 
-function asCacheEnv(env: string): SecretsCacheEnv | null {
-  if (env === 'dev' || env === 'prd') return env;
-  return null;
-}
-
-async function runFromDevCache(args: {
+async function runFromCache(args: {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
   readonly childArgs: string[];
+  readonly env: SecretsCacheEnv;
   readonly nowMs: number;
 }): Promise<number | null> {
-  const cached = await readSecretsCacheMap(args.configStore, 'dev');
+  const cached = await readSecretsCacheMap(args.configStore, args.env);
   if (cached === null) return null;
 
   const meta = await readSecretsCacheMeta(args.configStore);
@@ -142,7 +138,7 @@ async function runFromDevCache(args: {
     );
   } else {
     process.stderr.write(
-      'secrets-run: using local secrets cache (.cache/secrets/dev.json); ' +
+      `secrets-run: using local secrets cache (${secretsCacheRelPath(args.env)}); ` +
         'skipping Infisical.\n'
     );
   }
@@ -154,12 +150,14 @@ async function runFromDevCache(args: {
   );
 }
 
-async function bootstrapDevCache(args: {
+async function bootstrapCache(args: {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
   readonly childArgs: string[];
   readonly workspaceId: string;
   readonly domain: string;
+  readonly env: SecretsCacheEnv;
+  readonly allEnvs: readonly SecretsCacheEnv[];
   readonly nowIso: string;
 }): Promise<number | null> {
   if (!which(INFISICAL_CLI_BIN)) return null;
@@ -171,8 +169,9 @@ async function bootstrapDevCache(args: {
   };
 
   if (
-    !canFetchInfisicalSecrets({ ...baseCoords, env: 'dev' }) ||
-    !canFetchInfisicalSecrets({ ...baseCoords, env: 'prd' })
+    !args.allEnvs.every((env) =>
+      canFetchInfisicalSecrets({ ...baseCoords, env })
+    )
   ) {
     return null;
   }
@@ -181,9 +180,8 @@ async function bootstrapDevCache(args: {
     'secrets-run: no local secrets cache; bootstrapping from Infisical…\n'
   );
 
-  const envs: SecretsCacheEnv[] = ['dev', 'prd'];
   const maps = new Map<SecretsCacheEnv, ReadonlyMap<string, string>>();
-  for (const env of envs) {
+  for (const env of args.allEnvs) {
     const map = exportInfisicalSecretsMap({ ...baseCoords, env });
     await writeSecretsCacheMap(args.configStore, env, map);
     maps.set(env, map);
@@ -191,20 +189,20 @@ async function bootstrapDevCache(args: {
   await writeSecretsCacheMeta(args.configStore, {
     pulledAt: args.nowIso,
     projectId: args.workspaceId,
-    envs,
+    envs: args.allEnvs,
   });
-  chmodLocalSecretsCacheFiles(args.repoRoot);
+  chmodLocalSecretsCacheFiles(args.repoRoot, args.allEnvs);
 
-  const devMap = maps.get('dev');
-  if (devMap === undefined) return null;
+  const activeMap = maps.get(args.env);
+  if (activeMap === undefined) return null;
 
   process.stderr.write(
-    'secrets-run: wrote .cache/secrets/; using cached dev secrets.\n'
+    `secrets-run: wrote .cache/secrets/; using cached ${args.env} secrets.\n`
   );
   return runWithEnv(
     args.repoRoot,
     args.childArgs,
-    mergeSecretsIntoEnv(prepareChildEnv(), devMap)
+    mergeSecretsIntoEnv(prepareChildEnv(), activeMap)
   );
 }
 
@@ -212,6 +210,8 @@ export type RunWithInfisicalSecretsOptions = {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
   readonly childArgs: readonly string[];
+  /** Which environments exist and which are production (caller decides). */
+  readonly envs: SecretsEnvs;
   /** Injected wall clock (ms) for cache stale checks. */
   readonly nowMs: number;
   /** Injected wall clock ISO for cache meta `pulledAt`. */
@@ -231,31 +231,22 @@ function runCiInjected(repoRoot: string, childArgs: string[]): number {
   return runWithInjectedEnv(repoRoot, childArgs);
 }
 
-async function runDevOfflineFirst(args: {
+/** Non-production: prefer `.cache/secrets/<env>.json`, bootstrap it once, else local env. */
+async function runOfflineFirst(args: {
   readonly repoRoot: string;
   readonly configStore: ObjectStore;
   readonly childArgs: string[];
   readonly workspaceId: string;
   readonly domain: string;
+  readonly env: SecretsCacheEnv;
+  readonly allEnvs: readonly SecretsCacheEnv[];
   readonly nowMs: number;
   readonly nowIso: string;
 }): Promise<number> {
-  const fromCache = await runFromDevCache({
-    repoRoot: args.repoRoot,
-    configStore: args.configStore,
-    childArgs: args.childArgs,
-    nowMs: args.nowMs,
-  });
+  const fromCache = await runFromCache(args);
   if (fromCache !== null) return fromCache;
 
-  const bootstrapped = await bootstrapDevCache({
-    repoRoot: args.repoRoot,
-    configStore: args.configStore,
-    childArgs: args.childArgs,
-    workspaceId: args.workspaceId,
-    domain: args.domain,
-    nowIso: args.nowIso,
-  });
+  const bootstrapped = await bootstrapCache(args);
   if (bootstrapped !== null) return bootstrapped;
 
   process.stderr.write(
@@ -265,7 +256,8 @@ async function runDevOfflineFirst(args: {
   return runWithInjectedEnv(args.repoRoot, args.childArgs);
 }
 
-function runPrdInfisicalFirst(args: {
+/** Production: never from the local cache — injected env or the Infisical CLI. */
+function runInfisicalFirst(args: {
   readonly repoRoot: string;
   readonly env: string;
   readonly workspaceId: string;
@@ -291,6 +283,31 @@ function runPrdInfisicalFirst(args: {
   return runWithInfisicalCli({ ...coords, childArgs: args.childArgs });
 }
 
+function forceLocalSecrets(): boolean {
+  const raw = process.env['LOCAL_SECRETS']?.trim().toLowerCase();
+  return raw === '1' || raw === 'true';
+}
+
+/** Rejects an environment the caller does not know; warns on production. */
+function checkScopeEnv(
+  env: string,
+  envs: SecretsEnvs,
+  args: readonly string[]
+): boolean {
+  if (!envs.all.includes(env)) {
+    console.error(
+      `secrets-run: unknown secrets env ${JSON.stringify(env)} (known: ${envs.all.join(', ')})`
+    );
+    return false;
+  }
+  if (envs.production.includes(env) && !args.some((a) => a.includes('infra'))) {
+    process.stderr.write(
+      `secrets-run: warning — SECRETS_ENV=${env} injects production secrets; use only for \`bun run infra\` / deploy.\n`
+    );
+  }
+  return true;
+}
+
 /**
  * Run a command with secrets injected (CI env, local cache, or Infisical CLI).
  */
@@ -300,8 +317,8 @@ export async function runWithInfisicalSecrets(
   const { repoRoot, childArgs, nowMs, nowIso } = options;
   if (childArgs.length === 0) {
     console.error(
-      'usage: bun run tools/scripts/secrets-run.ts -- <command> [args…]\n' +
-        'example: bun run tools/scripts/secrets-run.ts -- turbo dev --ui=tui'
+      'usage: bun run libs/secrets/src/scripts/secrets-run.ts -- <command> [args…]\n' +
+        'example: bun run libs/secrets/src/scripts/secrets-run.ts -- turbo dev --ui=tui'
     );
     return 1;
   }
@@ -314,43 +331,34 @@ export async function runWithInfisicalSecrets(
   process.stderr.write(
     `secrets-run: projectId=${scope.projectId} env=${scope.env} endpoint=${endpoint}\n`
   );
-  if (scope.env === 'prd' && !args.some((a) => a.includes('infra'))) {
-    process.stderr.write(
-      'secrets-run: warning — SECRETS_ENV=prd injects production secrets; use only for `bun run infra` / deploy.\n'
-    );
-  }
+  if (!checkScopeEnv(scope.env, options.envs, args)) return 1;
 
   const isCi =
     process.env['GITHUB_ACTIONS'] === 'true' || process.env['CI'] === 'true';
   if (isCi) return runCiInjected(repoRoot, args);
 
-  const forceLocal =
-    process.env['LOCAL_SECRETS']?.trim() === '1' ||
-    process.env['LOCAL_SECRETS']?.trim().toLowerCase() === 'true';
-  if (forceLocal) {
+  if (forceLocalSecrets()) {
     process.stderr.write(
       'secrets-run: LOCAL_SECRETS=1 — skipping Infisical; using process env / local setup seeds.\n'
     );
     return runWithInjectedEnv(repoRoot, args);
   }
 
-  if (asCacheEnv(scope.env) === 'dev') {
-    return runDevOfflineFirst({
-      repoRoot,
-      configStore: options.configStore,
-      childArgs: args,
-      workspaceId: scope.projectId,
-      domain: endpoint,
-      nowMs,
-      nowIso,
-    });
-  }
-
-  return runPrdInfisicalFirst({
+  const coords = {
     repoRoot,
-    env: scope.env,
+    childArgs: args,
     workspaceId: scope.projectId,
     domain: endpoint,
-    childArgs: args,
+    env: scope.env,
+  };
+  if (options.envs.production.includes(scope.env)) {
+    return runInfisicalFirst(coords);
+  }
+  return runOfflineFirst({
+    ...coords,
+    configStore: options.configStore,
+    allEnvs: options.envs.all,
+    nowMs,
+    nowIso,
   });
 }

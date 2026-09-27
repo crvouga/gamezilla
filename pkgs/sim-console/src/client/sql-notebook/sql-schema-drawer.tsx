@@ -10,16 +10,14 @@ export function SqlSchemaDrawer(props: {
 }): JSX.Element {
   const { schema, onInsertTable, onInsertColumn } = props;
   return (
-    <div class="box border-t border-outline bg-surface max-h-[220px] overflow-hidden">
+    <div class="box border-t border-outline bg-surface max-h-55 overflow-hidden">
       <Collapsible title="Schema" defaultOpen={false}>
-        <div class="box px-2 pb-2 gap-1 max-h-[180px] overflow-scroll">
+        <div class="box px-2 pb-2 gap-1 max-h-45 overflow-scroll">
           <Show when={schema.status() === 'loading'}>
-            <p class="text text-text-secondary text-[12px]">
-              {'Loading schema…'}
-            </p>
+            <p class="text text-text-secondary text-xs">{'Loading schema…'}</p>
           </Show>
           <Show when={schema.status() === 'error'}>
-            <p class="text text-destructive text-[12px]">
+            <p class="text text-destructive text-xs">
               {schema.error() ?? 'Schema error'}
             </p>
           </Show>
@@ -37,9 +35,7 @@ export function SqlSchemaDrawer(props: {
           <Show
             when={schema.status() === 'ready' && schema.tables().length === 0}
           >
-            <p class="text text-text-secondary text-[12px]">
-              {'No tables yet.'}
-            </p>
+            <p class="text text-text-secondary text-xs">{'No tables yet.'}</p>
           </Show>
         </div>
       </Collapsible>
@@ -61,10 +57,10 @@ function TableBlock(props: {
         type="button"
         onClick={() => props.onInsertTable(props.name)}
       >
-        <code class="text textMono text-[12px] text-tint font-semibold">
+        <code class="text textMono text-xs text-tint font-semibold">
           {props.name}
         </code>
-        <p class="text text-[10px] text-text-secondary">{props.type}</p>
+        <p class="text text-micro text-text-secondary">{props.type}</p>
       </button>
       <div class="box pl-3 gap-0.5">
         <For each={props.columns()}>

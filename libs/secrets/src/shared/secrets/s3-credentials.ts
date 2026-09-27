@@ -3,13 +3,11 @@ import {
   ListObjectsV2Command,
   S3Client,
 } from '@aws-sdk/client-s3';
-import { seedObjectStoreS3ForEnv } from '../s3-secret-seed';
 import {
   requireHttpsUrl,
   requireNonEmpty,
   Secret,
   type SecretInput,
-  type SecretSeedInput,
 } from './secret';
 
 async function probeAppKeyAccess(input: SecretInput): Promise<void> {
@@ -56,20 +54,12 @@ async function validateS3NonEmpty(
   requireNonEmpty(input.secretValue, label);
 }
 
-async function seedS3Field(
-  input: SecretSeedInput,
-  field: keyof Awaited<ReturnType<typeof seedObjectStoreS3ForEnv>>
-): Promise<string> {
-  const seeded = await seedObjectStoreS3ForEnv(input.env, input.secrets);
-  return seeded[field];
-}
-
 export const S3_ACCESS_KEY_ID = new Secret({
   name: 'S3_ACCESS_KEY_ID',
   hint: 'S3-compatible access key ID (R2 API token id) for the API Worker object store',
   pushToApiWorker: true,
   validate: probeAppKeyAccess,
-  seed: (input) => seedS3Field(input, 'accessKeyId'),
+  managedBy: 'tofu',
 });
 
 export const S3_SECRET_ACCESS_KEY = new Secret({
@@ -77,7 +67,7 @@ export const S3_SECRET_ACCESS_KEY = new Secret({
   hint: 'S3-compatible secret access key (SHA-256 of R2 API token value)',
   pushToApiWorker: true,
   validate: (input) => validateS3NonEmpty(input, 'S3_SECRET_ACCESS_KEY'),
-  seed: (input) => seedS3Field(input, 'secretAccessKey'),
+  managedBy: 'tofu',
 });
 
 export const S3_BUCKET = new Secret({
@@ -85,7 +75,7 @@ export const S3_BUCKET = new Secret({
   hint: 'S3-compatible object storage bucket name',
   pushToApiWorker: true,
   validate: (input) => validateS3NonEmpty(input, 'S3_BUCKET'),
-  seed: (input) => seedS3Field(input, 'bucket'),
+  managedBy: 'tofu',
 });
 
 export const S3_ENDPOINT = new Secret({
@@ -95,7 +85,7 @@ export const S3_ENDPOINT = new Secret({
   validate: async (input) => {
     requireHttpsUrl(input.secretValue, 'S3_ENDPOINT');
   },
-  seed: (input) => seedS3Field(input, 'endpoint'),
+  managedBy: 'tofu',
 });
 
 export const S3_REGION = new Secret({
@@ -103,5 +93,5 @@ export const S3_REGION = new Secret({
   hint: 'S3-compatible region slug — use auto for Cloudflare R2',
   pushToApiWorker: true,
   validate: (input) => validateS3NonEmpty(input, 'S3_REGION'),
-  seed: (input) => seedS3Field(input, 'region'),
+  managedBy: 'tofu',
 });

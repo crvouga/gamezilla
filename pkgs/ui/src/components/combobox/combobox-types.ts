@@ -70,6 +70,8 @@ type ComboboxSharedProps<T extends ComboboxValue> = {
   triggerDataSet?: ComponentDataSet | undefined;
   /** DOM `data-*` identifiers for the surface search input. */
   searchDataSet?: ComponentDataSet | undefined;
+  /** DOM `data-*` identifiers for the multi-select `Done` footer button. */
+  doneDataSet?: ComponentDataSet | undefined;
 };
 
 export type ComboboxSingleProps<T extends ComboboxValue = string> =

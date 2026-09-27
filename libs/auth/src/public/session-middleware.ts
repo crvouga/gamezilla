@@ -1,19 +1,16 @@
 import {
   type AppAuthContext,
   type AppClientContext,
-  appAuth,
   buildAppAuthContext,
 } from '@libs/auth/public/auth-context';
 import { assert } from '@pkgs/assert';
-import type { AuthServerPort } from '@pkgs/auth/server/auth-server-port';
+import type { AuthServerPort } from '@pkgs/auth/server';
 import type { Clock } from '@pkgs/clock';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { CreateId } from '@pkgs/uuid';
 import { assertDeviceId } from '../shared/auth/device-id';
 import { AnonUserService } from './anon-user-service';
 import { BearerAuthResolver } from './bearer-resolve';
-import type { AuthContext } from './types';
-import { UnauthorizedError } from './unauthorized-error';
 
 export type { AuthContext } from './types';
 
@@ -95,29 +92,5 @@ export class SessionAuth {
       (await buildAnonAppAuthContext(sql, anonRaw, this.time)) ??
       UNAUTH_CLIENT_CONTEXT
     );
-  }
-
-  /**
-   * Same as {@link resolveAuthContext} but throws 401 when there is no
-   * valid session + device header.
-   */
-  async requireAuthContext(
-    sql: SqlClient,
-    request: Request
-  ): Promise<AuthContext> {
-    const header = request.headers.get('Authorization');
-    if (header === null || !header.startsWith('Bearer ')) {
-      throw new UnauthorizedError('Missing bearer token');
-    }
-    const anonRaw = request.headers.get(ANON_ID_HEADER)?.trim() ?? '';
-    if (anonRaw.length === 0) {
-      throw new UnauthorizedError('Missing x-anon-id for device binding');
-    }
-    const ctx = await this.resolveAuthContext(sql, request);
-    const auth = appAuth(ctx);
-    if (auth === null || auth.accountId === null || auth.isAnon) {
-      throw new UnauthorizedError('Invalid or expired session');
-    }
-    return ctx as AuthContext;
   }
 }

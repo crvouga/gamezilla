@@ -33,8 +33,6 @@ yarn-error.*
 .turbo/
 /out
 
-# ESLint FS cache (lint:eslint --cache)
-.eslintcache
 
 # Jest transform cache (pinned under package `.cache/jest`, not OS /tmp)
 **/.jest-cache/
@@ -42,7 +40,7 @@ product/test/.cache/
 pkgs/ui-testing/.cache/
 pkgs/simulation/.cache/
 
-# dependency-cruiser HTML (bun run deps:graph)
+# Package dependency graph HTML (bun run deps:graph)
 tmp/package-deps-graph.html
 
 # Lichess puzzle CSV cache (seed:puzzles)
@@ -53,8 +51,6 @@ apps/api/.cache/
 apps/emqx/.cache/
 apps/emqx/data/
 apps/postgres/data/
-apps/minio/data/
-apps/minio/.cache/
 
 # Legacy local PostgreSQL cluster paths (kept ignored so old checkouts don't dirty the tree)
 pkgs/postgres/.postgres/
@@ -72,6 +68,9 @@ apps/client/ios/
 apps/client/android/
 
 .cursor/debug*.log
+
+# Local deploy / script logs
+*.log
 
 # DuckDB inspect UI local database
 .local/
@@ -93,18 +92,20 @@ apps/client/android/
 /actionlint
 # Turborepo
 .turbo
+# Platform cache key written by libs/tools/scripts/turbo-ci-run.ts (Turbo's hash has
+# no OS notion; the scoped test:contract leaves hash this file).
+turbo-platform-key.json
 
 
 # Check artifacts (reports, traces, videos)
 /check/
 **/test-results/
 **/blob-report/
-# Standalone sim test report artifact (bun run test:product:report)
-apps/product/sim-report/
+# Aggregated e2e report over every package (bun run test:report)
+/sim-report/
 
 /.data/
 **/.data/
-# Lighthouse CI artifacts (generated configs + LHRs)
-apps/client/.lighthouseci/
-apps/client/lighthouserc.ab.json
-apps/client/lighthouserc.fast.json
+
+# OpenTofu: the bootstrap stack's first-run local backend (libs/infra/scripts/bootstrap-backend.ts)
+libs/infra/tofu/stacks/*/*_override.tf

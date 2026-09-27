@@ -4,15 +4,15 @@
  * board-unit SVG layer.
  */
 
+import { chessBoardLayerTestId } from '@pkgs/chess-board-core/probe';
 import type {
   BoardOrientation,
   BoardTheme,
   CellFeedback,
   Square,
 } from '@pkgs/chess-board-core/types';
-import { For, type JSX, Show } from 'solid-js';
-
-import { fmtUnits } from './board-units';
+import { createMemo, For, type JSX, Show } from 'solid-js';
+import { BOARD_VIEW_BOX, fmtUnits } from './board-units';
 import styles from './chess-board.module.css';
 import {
   BADGE_FONT_SIZE,
@@ -24,8 +24,10 @@ import {
   glyphStyle,
   TEXT_GLYPH,
 } from './feedback-badge';
+import { PaintToken } from './paint-token';
 
 export type ChessBoardFeedbackProps = {
+  readonly boardTestId: string;
   readonly orientation: BoardOrientation;
   readonly theme: BoardTheme;
   readonly cellFeedback: Partial<Record<Square, CellFeedback>> | undefined;
@@ -47,6 +49,11 @@ function FeedbackMark(props: {
       opacity={opacity()}
       transform={`translate(${fmtUnits(props.badge.cx)} ${fmtUnits(props.badge.cy)})`}
     >
+      <PaintToken
+        kind="feedback"
+        detail={props.badge.feedback.kind}
+        at={props.badge.square}
+      />
       <circle
         r={BADGE_RADIUS}
         fill={color()}
@@ -94,16 +101,23 @@ function FeedbackMark(props: {
 export function ChessBoardFeedback(
   props: ChessBoardFeedbackProps
 ): JSX.Element {
-  const badges = () => feedbackBadges(props.cellFeedback, props.orientation);
+  const badges = createMemo(() =>
+    feedbackBadges(props.cellFeedback, props.orientation)
+  );
+  // No badges, no layer: an empty full-board SVG above the pieces would
+  // still be composited over every sliding piece.
   return (
-    <svg
-      class={`${styles['layer']} ${styles['svgLayer']}`}
-      viewBox="0 0 800 800"
-      aria-hidden="true"
-    >
-      <For each={[...badges()]}>
-        {(badge) => <FeedbackMark badge={badge} theme={props.theme} />}
-      </For>
-    </svg>
+    <Show when={badges().length > 0}>
+      <svg
+        class={`${styles['layer']} ${styles['svgLayer']} ${styles['feedback']}`}
+        viewBox={BOARD_VIEW_BOX}
+        aria-hidden="true"
+        data-testid={chessBoardLayerTestId(props.boardTestId, 'feedback')}
+      >
+        <For each={[...badges()]}>
+          {(badge) => <FeedbackMark badge={badge} theme={props.theme} />}
+        </For>
+      </svg>
+    </Show>
   );
 }

@@ -44,7 +44,7 @@ function makeKv() {
         capture: (s: Kv) => {
           const map: Record<string, string> = {};
           for (const id of s.clients) {
-            map[id] = `<html><body>${id}:${s.values.x ?? ''}</body></html>`;
+            map[id] = `<html><body>${id}:${s.values['x'] ?? ''}</body></html>`;
           }
           return map;
         },
@@ -79,6 +79,48 @@ describe('run reporting', () => {
     expect(snaps.filter((b) => b.name === 'html').length).toBe(2);
   });
 
+  test('frames: false keeps every step and its outcome, without frames', async () => {
+    const { sys, put } = makeKv();
+    const store = new ObjectStoreImplInMemory();
+    await using s = await sys.run({
+      seed: 1,
+      report: { store, runId: 'r', testId: 't', frames: false },
+    });
+    await s.apply(put, 'x', '1');
+    await expect(
+      s.record({ kind: 'step', title: 'then it breaks' }, async () => {
+        throw new Error('broke');
+      })
+    ).rejects.toThrow('broke');
+    const report = s.report()!;
+    expect(report.steps.map((step) => [step.title, step.status])).toEqual([
+      ['put("x", "1")', 'passed'],
+      ['then it breaks', 'failed'],
+    ]);
+    expect(report.steps.flatMap((step) => step.frames)).toEqual([]);
+    expect(report.meta.status).toBe('failed');
+    expect(report.meta.error).toBe('broke');
+  });
+
+  test('a nested failure its caller handles is red, but the run passes', async () => {
+    const { sys } = makeKv();
+    await using s = await sys.run({ seed: 1, report: { frames: false } });
+    await s.record(
+      { kind: 'step', title: 'probe until it gives up' },
+      async () => {
+        await s
+          .record({ kind: 'expect', title: 'expect.visible' }, async () => {
+            throw new Error('not yet');
+          })
+          .catch(() => undefined);
+      }
+    );
+    const report = s.report()!;
+    expect(report.meta.status).toBe('passed');
+    expect(report.steps[0]?.status).toBe('passed');
+    expect(report.steps[0]?.steps[0]?.status).toBe('failed');
+  });
+
   test('record coalesces nested advanceTime into one step', async () => {
     const { sys } = makeKv();
     await using s = await sys.run({ seed: 1, report: true });
@@ -110,6 +152,29 @@ describe('run reporting', () => {
     expect(outer.steps.map((c) => c.title)).toEqual(['tap', 'put("x", "1")']);
     expect(outer.steps[0]!.selector).toBe('x');
     expect(outer.steps[1]!.kind).toBe('apply');
+  });
+
+  test('press hit lands only on the pre-action frame, even when unchanged', async () => {
+    const { sys, put } = makeKv();
+    await using s = await sys.run({ seed: 1, report: true });
+    await s.apply(put, 'x', '1');
+    const hit = { path: ['home', 'ok'], point: { xRatio: 0.5, yRatio: 0.5 } };
+    await s.record(
+      { kind: 'ui', title: 'tap', hit, snapshotBefore: true },
+      async () => {
+        await s.apply(put, 'x', '2');
+      }
+    );
+    const report = s.report()!;
+    const tap = report.steps[1]!;
+    // UI did not change since the last apply, yet the press keeps its frame.
+    expect(tap.frames[0]!.hit).toEqual(hit);
+    expect(tap.frames[0]!.snapshots).toEqual(
+      report.steps[0]!.frames.at(-1)!.snapshots
+    );
+    const after = tap.steps[0]!.frames;
+    expect(after.length).toBeGreaterThan(0);
+    expect(after.every((f) => f.hit === undefined)).toBe(true);
   });
 
   test('describe names the apply step; failures mark the run', async () => {

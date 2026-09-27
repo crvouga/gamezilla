@@ -11,18 +11,14 @@
     ]
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "setup": "bun run scripts/setup.ts",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
-    "test": "bun test --pass-with-no-tests"
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
-    "@pkgs/assert": "workspace:*",
-    "@pkgs/async": "workspace:*",
     "@pkgs/clock": "workspace:*",
     "@pkgs/http-client": "workspace:*",
-    "gql.tada": "catalog:",
-    "graphql": "catalog:",
+    "@pkgs/os": "workspace:*",
     "picocolors": "catalog:"
   },
   "devDependencies": {

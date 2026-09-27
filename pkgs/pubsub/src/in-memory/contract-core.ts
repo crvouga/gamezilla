@@ -1,6 +1,12 @@
 import { expect, test } from 'bun:test';
 
-import { collect, expectRejects, waitMs, waitUntil } from './contract-helpers';
+import {
+  awaitSubscriptionLive,
+  collect,
+  expectRejects,
+  waitMs,
+  waitUntil,
+} from './contract-helpers';
 import type { PubSubContractEnv } from './contract-types';
 import { InMemoryPubSub } from './in-memory';
 
@@ -102,10 +108,19 @@ function registerFanoutTests(env: () => PubSubContractEnv): void {
     const b = await make();
     const aa = collect(a, 'fan');
     const bb = collect(b, 'fan');
+    // `b` hears `a` only once its own SUBSCRIBE has landed. Each barrier's
+    // probe may still echo to the other instance later, so assert on `hi`.
+    await awaitSubscriptionLive(a, 'fan', aa.items);
+    await awaitSubscriptionLive(b, 'fan', bb.items);
     await a.publish('fan', 'hi');
-    await waitUntil(() => aa.items.length === 1 && bb.items.length === 1);
-    expect(aa.items).toEqual(['hi']);
-    expect(bb.items).toEqual(['hi']);
+    const hi = (items: unknown[]): unknown[] =>
+      items.filter((item) => item === 'hi');
+    await waitUntil(
+      () => hi(aa.items).length === 1 && hi(bb.items).length === 1,
+      5000
+    );
+    expect(hi(aa.items)).toEqual(['hi']);
+    expect(hi(bb.items)).toEqual(['hi']);
     aa.unsub();
     bb.unsub();
     a.close();

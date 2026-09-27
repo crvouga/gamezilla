@@ -6,6 +6,7 @@
 
 import type { Component } from 'solid-js';
 import {
+  AppleBrandLogo,
   type BrandIconSvgProps,
   DevIdpBrandLogo,
   GoogleBrandLogo,
@@ -15,6 +16,7 @@ export type BrandIconComponent = Component<BrandIconSvgProps>;
 
 export const BRAND_ICON_REGISTRY = {
   google: GoogleBrandLogo,
+  apple: AppleBrandLogo,
   dev: DevIdpBrandLogo,
 } as const satisfies Record<string, BrandIconComponent>;
 

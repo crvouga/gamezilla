@@ -1,4 +1,5 @@
 import type { Timers } from '@pkgs/clock';
+import type { Logger } from '@pkgs/logger';
 import type { Sql, Value } from '@pkgs/sql';
 import type {
   PreparedStatement,
@@ -9,6 +10,7 @@ import { createLeaderTransport } from './db-host-leader';
 import {
   type CreateOwnerRuntimeArgs,
   createOwnerRuntime,
+  type TransportOwnerRuntimeFactory,
 } from './owner-runtime';
 import {
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
@@ -24,6 +26,8 @@ import type { SqlOwner } from './sql-owner';
 
 export type WebSqlClientOptions = {
   readonly timers: Timers;
+  /** Receives open-retry warnings from the owner runtime. */
+  readonly logger: Logger;
   /** Absolute URL of the SharedWorker script (default `/sql-workers/db-host-shared-worker.js`). */
   readonly sharedWorkerUrl?: string;
   /** Force leader-election path (tests / no SharedWorker). */
@@ -55,15 +59,13 @@ function newTabId(): string {
 
 function buildOwnerRuntimeFactory(
   options: WebSqlClientOptions
-): (args: {
-  readonly dbName: string;
-  readonly timers: Timers;
-}) => ReturnType<typeof createOwnerRuntime> {
+): TransportOwnerRuntimeFactory {
   const base = options.createOwnerRuntime ?? createOwnerRuntime;
   return (args) => {
     const ownerArgs: CreateOwnerRuntimeArgs = {
       dbName: args.dbName,
       timers: args.timers,
+      logger: options.logger,
       ...(options.createOwner !== undefined
         ? { createOwner: options.createOwner }
         : {}),
@@ -110,6 +112,7 @@ function pickTransport(
   return {
     connect: () => leader.connect(),
     disconnect: () => leader.disconnect(),
+    leaveOnUnload: () => leader.leaveOnUnload(),
     request: (op, payload, opts) => leader.request(op, payload, opts),
     onChanged: (listener) => leader.onChanged(listener),
     isOwner: () => leader.isOwner(),
@@ -148,10 +151,44 @@ function attachWipeChannelLifecycle(client: WebSqlClient): void {
   };
 }
 
-function attachLifecycle(client: WebSqlClient): void {
+type PageLifecycleTarget = {
+  addEventListener(
+    type: 'pagehide' | 'pageshow',
+    listener: (event: { readonly persisted: boolean }) => void
+  ): void;
+};
+
+/**
+ * On `pagehide`, leave synchronously, then disconnect. The async
+ * `disconnect()` never settles in time: a discarded page is gone, and a page
+ * kept in the back/forward cache is frozen still holding the OPFS handles.
+ * Either way the next page in this tab would wait on a dead owner (~15s of
+ * locked-handle retries, then "did not become ready"). A page restored from
+ * the back/forward cache has lost its database under a live app, so it
+ * reloads.
+ */
+export function releaseOnPageHide(
+  target: PageLifecycleTarget,
+  client: Pick<WebSqlClient, 'disconnect'>,
+  transport: Pick<WebSqlTransport, 'leaveOnUnload'>,
+  reload: () => void
+): void {
+  target.addEventListener('pagehide', () => {
+    transport.leaveOnUnload();
+    void client.disconnect();
+  });
+  target.addEventListener('pageshow', (event) => {
+    if (event.persisted) reload();
+  });
+}
+
+function attachLifecycle(
+  client: WebSqlClient,
+  transport: WebSqlTransport
+): void {
   if (typeof window !== 'undefined') {
-    window.addEventListener('pagehide', () => {
-      void client.disconnect();
+    releaseOnPageHide(window, client, transport, () => {
+      window.location.reload();
     });
     attachWipeChannelLifecycle(client);
   }
@@ -326,6 +363,6 @@ export function createWebSqlClient(
     },
   };
 
-  attachLifecycle(client);
+  attachLifecycle(client, transport);
   return client;
 }

@@ -1,9 +1,4 @@
-import { PRODUCT_CONFIG } from '@libs/db/public/product-config';
 import { requireNonEmpty, Secret, type SecretInput } from './secret';
-
-function productionApiPublicOrigin(): string {
-  return `https://api.${PRODUCT_CONFIG.domain}`;
-}
 
 async function validateApiOrigin(
   input: SecretInput,
@@ -28,20 +23,16 @@ async function validateApiOrigin(
 export const API_URL = new Secret({
   name: 'API_URL',
   hint: 'Public origin of the API Worker (https://api.…), no path',
-  // Seeded on provision when absent; optional so check:secrets does not fail
-  // before the first `infra provision` writes the derived default.
-  optional: true,
+  managedBy: 'tofu',
   pushToApiWorker: true,
   validate: (input) => validateApiOrigin(input, 'API_URL'),
-  seed: async () => productionApiPublicOrigin(),
 });
 
 export const VITE_API_URL = new Secret({
   name: 'VITE_API_URL',
-  hint: 'Client-facing API origin (mirrors API_URL in production)',
-  optional: true,
+  hint: 'Client-facing API origin (mirrors API_URL)',
+  managedBy: 'tofu',
   validate: (input) => validateApiOrigin(input, 'VITE_API_URL'),
-  seed: async () => productionApiPublicOrigin(),
 });
 
 export const LOCAL_PREVIEW_API_ORIGIN = new Secret({

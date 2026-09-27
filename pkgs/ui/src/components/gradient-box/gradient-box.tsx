@@ -85,7 +85,7 @@ export function GradientBox(props: GradientBoxProps): JSX.Element {
       {...componentDataAttrs('GradientBox', local.dataSet)}
       {...rest}
     >
-      {/* eslint-disable-next-line solid/reactivity -- OnColorProvider reads `value` inside a memo */}
+      {/* oxlint-disable-next-line solid/reactivity -- OnColorProvider reads `value` inside a memo */}
       <OnColorProvider value={onColor()}>{local.children}</OnColorProvider>
     </div>
   );

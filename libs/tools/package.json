@@ -1,0 +1,27 @@
+{
+  "name": "@libs/tools",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check:actionlint": "bun run scripts/check-actionlint.ts",
+    "check:secrets": "bun run scripts/check-secrets.ts",
+    "install:cli": "mise install",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test scripts/*.test.ts"
+  },
+  "dependencies": {
+    "@libs/secrets": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/os": "workspace:*"
+  },
+  "devDependencies": {
+    "@libs/sim-harness": "workspace:*",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/equal": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
+    "@pkgs/property": "workspace:*",
+    "fast-check": "catalog:",
+    "wrangler": "catalog:"
+  }
+}

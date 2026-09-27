@@ -31,7 +31,7 @@ JWT ACL grants subscribe **and** publish on the actor's topic set (`user:{self}`
 membership `room:*`, `system:client_config`). Clients publish mutation fanout on
 those topics; server pushes still use the HTTP publish API.
 
-Fallback local install: `brew install emqx` (or EMQX 5.x tarball). CI daemon packaging is intentionally not wired yet.
+Local broker: `@pkgs/emqx-server` runs the EMQX release pinned in the repo's `mise.toml` (`mise install`).
 
 ## Offline session behavior
 
@@ -56,6 +56,9 @@ const bus = createEmqxPubSub({
     username: 'device',
     password: await fetchJwt(),
   }),
+  timers, // injected @pkgs/clock Timers
+  random, // injected RNG for reconnect jitter
+  logger, // injected @pkgs/logger Logger
   keepaliveSec: 30,
 });
 
@@ -99,7 +102,7 @@ export EMQX_TEST_API_KEY=...
 export EMQX_TEST_API_SECRET=...
 export EMQX_TEST_MQTT_USER=...
 export EMQX_TEST_MQTT_PASS=...
-bun run --filter @pkgs/pubsub-emqx test:broker
+bun run --filter @pkgs/pubsub-emqx test:contract
 ```
 
 `disruptTransport` uses `DELETE /api/v5/clients/{clientid}` to exercise reconnect + session resume / re-SUBSCRIBE.

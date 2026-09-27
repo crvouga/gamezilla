@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import { useRouter } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
@@ -21,6 +22,7 @@ export function FriendLiveSpaceBadge(
         <button
           class="clickable clickableTint"
           type="button"
+          data-testid={Handles.friendLiveSpace(props.hostAccountId)}
           onClick={() => openSpaceDetail(router, space)}
         >
           <div class="box px-1">

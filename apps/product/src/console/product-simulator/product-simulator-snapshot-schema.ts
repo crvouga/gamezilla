@@ -1,7 +1,7 @@
 /**
  * Zod schemas for product-simulator ObjectStore snapshots.
  * Server/client SQL blobs are opaque `mixed-pgmm-sqlm` JSON envelopes
- * (postgres-mem PGMM + sqlite-mem SQLM).
+ * (mockingbird-postgres PGMM + mockingbird-sqlite SQLM).
  */
 
 import { z } from 'zod';
@@ -65,7 +65,7 @@ export const productSimulatorSnapshotIndexSchema = z.object({
   snapshots: z.array(productSimulatorSnapshotInfoSchema),
 });
 
-/** sqlite-mem exportDatabaseBytes payload (SQLM envelope). */
+/** mockingbird-sqlite exportDatabaseBytes payload (SQLM envelope). */
 function hasSqlmMagic(bytes: Uint8Array): boolean {
   return (
     bytes.length >= 4 &&
@@ -76,7 +76,7 @@ function hasSqlmMagic(bytes: Uint8Array): boolean {
   );
 }
 
-/** postgres-mem exportDatabaseBytes payload (PGMM envelope). */
+/** mockingbird-postgres exportDatabaseBytes payload (PGMM envelope). */
 function hasPgmmMagic(bytes: Uint8Array): boolean {
   return (
     bytes.length >= 4 &&
@@ -103,9 +103,9 @@ function b64HasMagic(
   }
 }
 
-export const productSimulatorSqliteMemDumpSchema = z.object({
+export const productSimulatorMockingbirdSqliteDumpSchema = z.object({
   v: z.literal(1),
-  kind: z.literal('sqlite-mem'),
+  kind: z.literal('mockingbird-sqlite'),
   userVersion: z.number().int(),
   sqlmB64: z
     .string()
@@ -113,9 +113,9 @@ export const productSimulatorSqliteMemDumpSchema = z.object({
     .refine((b64) => b64HasMagic(b64, hasSqlmMagic)),
 });
 
-export const productSimulatorPostgresMemDumpSchema = z.object({
+export const productSimulatorMockingbirdPostgresDumpSchema = z.object({
   v: z.literal(1),
-  kind: z.literal('postgres-mem'),
+  kind: z.literal('mockingbird-postgres'),
   pgmmB64: z
     .string()
     .min(1)
@@ -131,11 +131,11 @@ export const productSimulatorClientKvDumpSchema = z.record(
 export type ProductSimulatorSnapshotIndex = z.infer<
   typeof productSimulatorSnapshotIndexSchema
 >;
-export type ProductSimulatorSqliteMemDump = z.infer<
-  typeof productSimulatorSqliteMemDumpSchema
+export type ProductSimulatorMockingbirdSqliteDump = z.infer<
+  typeof productSimulatorMockingbirdSqliteDumpSchema
 >;
-export type ProductSimulatorPostgresMemDump = z.infer<
-  typeof productSimulatorPostgresMemDumpSchema
+export type ProductSimulatorMockingbirdPostgresDump = z.infer<
+  typeof productSimulatorMockingbirdPostgresDumpSchema
 >;
 export type ProductSimulatorSnapshotManifestParsed = z.infer<
   typeof productSimulatorSnapshotManifestSchema

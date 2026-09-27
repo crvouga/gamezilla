@@ -63,6 +63,7 @@ export function partitionScreenBaseActions(
       loading: action.loading ?? false,
       disabled: action.disabled ?? false,
       overflow: action.overflow,
+      dataSet: action.dataSet,
     });
   });
   return { iconItems, textActions };

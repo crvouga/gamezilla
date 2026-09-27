@@ -53,6 +53,12 @@ export type KvStateOptions<T> = {
   readonly codec: KvStateCodec<T>;
   /** When `false`, behaves like `createSignal` even if a provider is mounted. */
   readonly persist?: boolean;
+  /**
+   * Fires once the persisted read has settled (value applied, missing, or
+   * failed). With no Kv provider it fires on a microtask. Not called after
+   * unmount.
+   */
+  readonly onHydrated?: () => void;
 };
 
 export type KvStateSetter<T> = (next: T | ((prev: T) => T)) => void;
@@ -98,6 +104,9 @@ export function createKvState<T>(
   const [value, setValueRaw] = createSignal<T>(defaultValue);
   let generation = 0;
   let cancelled = false;
+  const notifyHydrated = (): void => {
+    if (!cancelled) options.onHydrated?.();
+  };
   onCleanup(() => {
     cancelled = true;
   });
@@ -117,7 +126,10 @@ export function createKvState<T>(
           key,
           error: error instanceof Error ? error.message : String(error),
         });
-      });
+      })
+      .finally(notifyHydrated);
+  } else {
+    queueMicrotask(notifyHydrated);
   }
 
   const setValue: KvStateSetter<T> = (updater) => {

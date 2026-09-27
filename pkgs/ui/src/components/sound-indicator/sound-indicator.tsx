@@ -66,7 +66,7 @@ export function SoundIndicator(props: SoundIndicatorProps): JSX.Element {
   };
   return (
     <span
-      class="box inline-flex rounded-[9999px] items-center justify-center"
+      class="box inline-flex rounded-full items-center justify-center"
       {...dataAttrs({ component: 'SoundIndicator', ...props.dataSet })}
       style={{
         'background-color': backgroundColor(),

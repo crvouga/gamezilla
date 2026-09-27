@@ -1,16 +1,18 @@
-import type { Clock } from '@pkgs/clock';
 import type { MutationClient } from '@pkgs/sync-engine/client';
 import type { CreateId } from '@pkgs/uuid';
 import { appendPuzzleInteractionMutation } from '../../use-cases/append-puzzle-interaction/shared/append-puzzle-interaction-mutation';
-import { upsertPuzzleProfileMutation } from '../../use-cases/upsert-puzzle-profile/shared/upsert-puzzle-profile-mutation';
-import { isPlayClosed } from '../chess-puzzle-derive';
-import type { ChessPuzzleInteractionRow } from '../chess-puzzle-interaction-entities';
+import { ratePuzzleAttemptMutation } from '../../use-cases/rate-puzzle-attempt/shared/rate-puzzle-attempt-mutation';
 import {
-  PUZZLE_PROFILE_RD_STUB,
-  projectPuzzleEloFromInteractions,
-} from '../chess-puzzle-rating';
+  deriveOutcomeScore,
+  hasPlayOutcome,
+  sliceCurrentPlay,
+} from '../chess-puzzle-derive';
+import type {
+  ChessPuzzleInteractionRow,
+  ChessPuzzleOutcomeKind,
+} from '../chess-puzzle-interaction-entities';
+import { puzzleScorePermille } from '../chess-puzzle-rating';
 import type { AppendPuzzleInteractionInput } from '../writes/append-puzzle-interaction-write';
-import type { UpsertPuzzleProfileInput } from '../writes/upsert-puzzle-profile-write';
 
 function mutationRejected(
   mutation: string,
@@ -25,9 +27,16 @@ function mutationRejected(
   );
 }
 
-function nowIso(clock: Clock): string {
-  return new Date(clock.now()).toISOString();
-}
+export type FinalizePlayInput = {
+  readonly ownerId: string;
+  readonly puzzleId: string;
+  readonly puzzleRating: number;
+  readonly puzzleRatingDeviation: number;
+  readonly solveIdx: number;
+  readonly interactions: readonly ChessPuzzleInteractionRow[];
+  readonly terminalKind: ChessPuzzleOutcomeKind;
+  readonly wrongMove: boolean;
+};
 
 export class ChessPuzzleInteractionDb {
   constructor(
@@ -48,32 +57,36 @@ export class ChessPuzzleInteractionDb {
     }
   }
 
-  async #upsertPuzzleProfile(args: UpsertPuzzleProfileInput): Promise<void> {
+  /**
+   * §8: the attempt, not a rating. `ratePuzzleAttempt` derives the new
+   * profile inside the transaction, so the optimistic local value and the
+   * server's authoritative one come from the same definition.
+   */
+  async #rateAttempt(args: {
+    ownerId: string;
+    puzzleId: string;
+    puzzleRating: number;
+    puzzleRatingDeviation: number;
+    outcome: ChessPuzzleOutcomeKind;
+    scorePermille: number;
+  }): Promise<void> {
     const result = await this.mutationClient.mutate(
-      upsertPuzzleProfileMutation,
+      ratePuzzleAttemptMutation,
       args
     );
     if (!result.ok) {
-      throw mutationRejected('upsertPuzzleProfile', result.failures);
+      throw mutationRejected('ratePuzzleAttempt', result.failures);
     }
   }
 
   /**
-   * Append terminal attempt fact, then upsert profile cache from a full
-   * history Elo fold (formula is the source of truth).
+   * Append the play's rated outcome (at most once per play), then hand the
+   * attempt to the rating mutation. A repeat attempt on an already-rated
+   * puzzle still records the outcome row; the mutation leaves the rating
+   * alone (§8 / §9 exhausted pool).
    */
-  async finalizePlayWithProfile(args: {
-    ownerId: string;
-    puzzleId: string;
-    puzzleRating: number;
-    solveIdx: number;
-    interactions: readonly ChessPuzzleInteractionRow[];
-    allInteractions: readonly ChessPuzzleInteractionRow[];
-    terminalKind: 'solved' | 'abandoned';
-    clock: Clock;
-  }): Promise<void> {
-    if (isPlayClosed(args.interactions, args.puzzleId)) return;
-    const at = nowIso(args.clock);
+  async finalizeRatedAttempt(args: FinalizePlayInput): Promise<void> {
+    if (hasPlayOutcome(args.interactions, args.puzzleId)) return;
     const terminal: ChessPuzzleInteractionRow = {
       puzzleId: args.puzzleId,
       kind: args.terminalKind,
@@ -81,7 +94,7 @@ export class ChessPuzzleInteractionDb {
       uci: null,
       correct: null,
       puzzleRating: args.puzzleRating,
-      at,
+      at: '',
     };
     await this.appendRow({
       ownerId: args.ownerId,
@@ -90,15 +103,20 @@ export class ChessPuzzleInteractionDb {
       kind: args.terminalKind,
       solveIdx: args.solveIdx,
     });
-    const projected = projectPuzzleEloFromInteractions([
-      ...args.allInteractions,
-      terminal,
-    ]);
-    await this.#upsertPuzzleProfile({
+    await this.#rateAttempt({
       ownerId: args.ownerId,
-      rating: projected.rating,
-      ratingDeviation: PUZZLE_PROFILE_RD_STUB,
-      lastInteractionAt: at,
+      puzzleId: args.puzzleId,
+      puzzleRating: args.puzzleRating,
+      puzzleRatingDeviation: args.puzzleRatingDeviation,
+      outcome: args.terminalKind,
+      scorePermille: puzzleScorePermille(
+        args.wrongMove
+          ? 0.5
+          : deriveOutcomeScore([
+              ...sliceCurrentPlay(args.interactions, args.puzzleId),
+              terminal,
+            ])
+      ),
     });
   }
 }

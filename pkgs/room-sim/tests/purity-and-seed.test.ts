@@ -7,7 +7,7 @@ import {
 } from '@pkgs/room-sim';
 
 describe('kit: purity and seed (M-F01)', () => {
-  test('TestCounterModule passes conformance smoke', async () => {
+  test('TestCounterModule passes the conformance suite', async () => {
     await runModuleConformance({
       seed: process.env['SIM_SEED'] ?? '42',
       module: TestCounterModule,

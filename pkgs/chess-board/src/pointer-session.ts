@@ -1,10 +1,14 @@
 /**
  * Pointer → {@link BoardInteraction} adapter. One primary-button press /
- * release pair is a "session": pressing one of the mover's pieces starts a
- * press; moving past the pointer-type drag threshold promotes to a drag;
- * releasing on the same square without crossing the threshold taps (select /
- * deselect); releasing elsewhere after a drag drops. Pressing anything else
- * is a plain tap that resolves on release.
+ * release pair is a "session":
+ *
+ * - Pressing a piece the person may move picks it up *at once* (a drag from
+ *   the first event — the piece jumps under the pointer on `pointerdown`,
+ *   not after the first move).
+ * - Until the pointer travels past the pointer-type threshold, the release
+ *   still counts as a tap on the pressed square (select / deselect): finger
+ *   jitter across a square edge never drops a piece on a neighbour.
+ * - Pressing anything else is a plain tap that resolves on release.
  *
  * Pure: the DOM layer maps pointer coordinates to squares / pixels and calls
  * `down` / `move` / `up` / `cancel`.
@@ -13,9 +17,9 @@
 import type { BoardInteraction } from '@pkgs/chess-board-core/interaction';
 import type { Square } from '@pkgs/chess-board-core/types';
 
-/** Mouse / pen: pixels of movement before an owned press becomes a drag. */
+/** Mouse / pen: pixels of travel before a release counts as a drop. */
 export const MOUSE_DRAG_THRESHOLD_PX = 4;
-/** Touch: larger threshold to avoid accidental drags. */
+/** Touch: larger, fingers wobble. */
 export const TOUCH_DRAG_THRESHOLD_PX = 8;
 
 export type PointerSessionState =
@@ -24,15 +28,15 @@ export type PointerSessionState =
       readonly kind: 'drag';
       readonly from: Square;
       readonly wasSelected: boolean;
+      /** Travelled past the threshold: a release is a drop. */
+      readonly moved: boolean;
+      readonly startX: number;
+      readonly startY: number;
+      readonly threshold: number;
     }
   | {
       readonly kind: 'press';
       readonly square: Square;
-      readonly wasSelected: boolean;
-      readonly owns: boolean;
-      readonly startX: number;
-      readonly startY: number;
-      readonly threshold: number;
     };
 
 export type PointerSessionInteraction = Pick<
@@ -42,17 +46,17 @@ export type PointerSessionInteraction = Pick<
 
 export type PointerSession = {
   readonly state: () => PointerSessionState;
-  /** Primary button pressed over `square` (null when outside the board). */
+  /**
+   * Primary button pressed over `square` (null when outside the board).
+   * Picks the piece up when it may move.
+   */
   readonly down: (
     square: Square | null,
     clientX?: number,
     clientY?: number,
     pointerType?: string
   ) => void;
-  /**
-   * Pointer moved. When a press on an owned piece exceeds the drag threshold,
-   * promotes to a drag and returns true.
-   */
+  /** Pointer moved. Returns true the first time a drag passes its threshold. */
   readonly move: (clientX: number, clientY: number) => boolean;
   /** Primary button released over `square` (null when outside the board). */
   readonly up: (square: Square | null) => void;
@@ -61,12 +65,6 @@ export type PointerSession = {
 };
 
 const IDLE: PointerSessionState = { kind: 'idle' };
-
-function dist(ax: number, ay: number, bx: number, by: number): number {
-  const dx = ax - bx;
-  const dy = ay - by;
-  return Math.hypot(dx, dy);
-}
 
 function thresholdForPointer(pointerType: string | undefined): number {
   return pointerType === 'touch'
@@ -82,8 +80,8 @@ function finishDrag(
 ): void {
   if (to === null || to === from) {
     interaction.cancelDrag();
-    // Tapping the already-selected piece deselects (the drag start cleared
-    // the selection, so only re-select when it was not selected before).
+    // Tapping the already-selected piece deselects (the pick-up cleared the
+    // selection, so only re-select when it was not selected before).
     if (!wasSelected) interaction.tap(from);
     return;
   }
@@ -95,37 +93,6 @@ export function createPointerSession(
 ): PointerSession {
   let state: PointerSessionState = IDLE;
 
-  const promoteToDrag = (): boolean => {
-    if (state.kind !== 'press' || !state.owns) return false;
-    const { square, wasSelected } = state;
-    if (!interaction.beginDrag(square)) {
-      state = IDLE;
-      return false;
-    }
-    state = { kind: 'drag', from: square, wasSelected };
-    return true;
-  };
-
-  const downPress = (
-    square: Square,
-    clientX: number,
-    clientY: number,
-    pointerType: string | undefined
-  ): void => {
-    const wasSelected = interaction.getSnapshot().selected === square;
-    const threshold = thresholdForPointer(pointerType);
-    const owns = interaction.canDrag(square);
-    state = {
-      kind: 'press',
-      square,
-      wasSelected,
-      owns,
-      startX: clientX,
-      startY: clientY,
-      threshold,
-    };
-  };
-
   return {
     state: () => state,
     down(square, clientX = 0, clientY = 0, pointerType) {
@@ -133,22 +100,34 @@ export function createPointerSession(
         state = IDLE;
         return;
       }
-      downPress(square, clientX, clientY, pointerType);
+      const wasSelected = interaction.getSnapshot().selected === square;
+      if (interaction.canDrag(square) && interaction.beginDrag(square)) {
+        state = {
+          kind: 'drag',
+          from: square,
+          wasSelected,
+          moved: false,
+          startX: clientX,
+          startY: clientY,
+          threshold: thresholdForPointer(pointerType),
+        };
+        return;
+      }
+      state = { kind: 'press', square };
     },
     move(clientX, clientY) {
-      if (state.kind !== 'press' || !state.owns) return false;
-      if (
-        dist(state.startX, state.startY, clientX, clientY) < state.threshold
-      ) {
-        return false;
-      }
-      return promoteToDrag();
+      if (state.kind !== 'drag' || state.moved) return false;
+      const travel = Math.hypot(clientX - state.startX, clientY - state.startY);
+      if (travel < state.threshold) return false;
+      state = { ...state, moved: true };
+      return true;
     },
     up(square) {
       const current = state;
       state = IDLE;
       if (current.kind === 'drag') {
-        finishDrag(interaction, current.from, current.wasSelected, square);
+        const to = current.moved ? square : current.from;
+        finishDrag(interaction, current.from, current.wasSelected, to);
         return;
       }
       if (current.kind === 'press' && square === current.square) {

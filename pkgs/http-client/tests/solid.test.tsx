@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, test } from 'bun:test';
 import { createAlwaysAvailableOrigin } from '@pkgs/http-client/origin-availability';
 import {
   createOriginAvailabilitySnapshot,
@@ -8,7 +10,6 @@ import {
 } from '@pkgs/http-client/solid';
 import type { HttpClient } from '@pkgs/http-client/types';
 import { render, screen } from '@solidjs/testing-library';
-import { describe, expect, test } from 'vitest';
 
 describe('http-client solid bindings', () => {
   test('provides the injected client', () => {

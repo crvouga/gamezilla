@@ -3,14 +3,13 @@ import { execFileSync } from 'node:child_process';
 import { renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
+import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/public/local-api-origin';
 import {
   assertTigerPolicyForResolvedApiOrigin,
   DEFAULT_LOCAL_PREVIEW_API_ORIGIN,
   PRODUCTION_API_HTTP_HOSTNAMES,
   productionApiUrlTigerExceptionEnabled,
-} from '@apps/client/config/api-servers';
-import { normalizeLoopbackOriginToLocalhost } from '@libs/auth/public/local-api-origin';
+} from '@libs/client-app/config/api-servers';
 import { assert } from '@pkgs/assert';
 import { assertCommitDateIso, COMMIT_HASH_HEX_REGEX } from '@pkgs/git';
 import { createScriptSecretStore, type SecretStore } from '@pkgs/secret-store';

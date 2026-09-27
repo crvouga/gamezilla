@@ -1,4 +1,3 @@
-import { assert } from '@pkgs/assert';
 import { createAttrNamespace } from '@pkgs/attribute';
 import type { Keyword } from '@pkgs/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv/interface';
@@ -6,125 +5,68 @@ import { isMessageEnvelope } from '@pkgs/message';
 
 import type { LogEntry } from '../../../../types';
 import type { ClientRoomStorage, QueuedCommand } from '../../../core/storage';
+import {
+  type CommittedLogBlobs,
+  type CommittedLogManifest,
+  createSegmentedCommittedLog,
+  type SegmentedCommittedLog,
+} from '../../../storage/segmented-committed-log';
+import { committedSegmentKeyword } from './keys';
 
 const Committed = createAttrNamespace('room', 'client', 'committed');
 const Queue = createAttrNamespace('room', 'client', 'queue');
 
-function parseNonNegativeInt(v: unknown): number {
-  assert.ok(
-    typeof v === 'number' && Number.isFinite(v) && v >= 0,
-    'room client committed: last-seq must be a non-negative finite number',
-    { v }
-  );
-  return Math.floor(v);
+function isNonNegativeInt(v: unknown): v is number {
+  return typeof v === 'number' && Number.isInteger(v) && v >= 0;
 }
 
-function parseLogEntryArray(v: unknown): LogEntry[] {
-  assert.ok(
-    Array.isArray(v),
-    'room client committed: entries must be an array',
-    {
-      v,
-    }
-  );
-  const out: LogEntry[] = [];
-  for (const item of v) {
-    assert.ok(
-      item !== null && typeof item === 'object',
-      'room client committed: each entry must be an object',
-      { item }
-    );
-    const o = item as Record<string, unknown>;
-    assert.ok(
-      typeof o['seq'] === 'number' && Number.isFinite(o['seq']),
-      'room client committed: entry.seq must be a finite number',
-      { o }
-    );
-    assert.ok(
-      isMessageEnvelope(o['event']),
-      'room client committed: entry.event must be a message envelope',
-      { o }
-    );
-    out.push({
-      seq: Math.floor(o['seq']),
-      event: o['event'],
-    });
-  }
-  return out;
-}
-
-function parseQueuedCommandArray(v: unknown): QueuedCommand[] {
-  assert.ok(Array.isArray(v), 'room client queue: commands must be an array', {
-    v,
-  });
-  const out: QueuedCommand[] = [];
-  for (const item of v) {
-    assert.ok(
-      item !== null && typeof item === 'object',
-      'room client queue: each command must be an object',
-      { item }
-    );
-    const o = item as Record<string, unknown>;
-    assert.ok(
-      typeof o['id'] === 'string' && o['id'].length > 0,
-      'room client queue: command.id must be a non-empty string',
-      { o }
-    );
-    assert.ok(
-      typeof o['ts'] === 'number' && Number.isFinite(o['ts']),
-      'room client queue: command.ts must be a finite number',
-      { o }
-    );
-    assert.ok(
-      isMessageEnvelope(o['payload']),
-      'room client queue: command.payload must be a message envelope',
-      { o }
-    );
-    out.push({
-      id: o['id'],
-      ts: o['ts'],
-      payload: o['payload'],
-    });
-  }
-  return out;
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === 'number' && Number.isFinite(v);
 }
 
 const RoomStorageAttr = {
-  lastSeq: Committed.integer('last-seq', parseNonNegativeInt),
-  entries: Committed.array('entries', parseLogEntryArray),
-  commands: Queue.array('commands', parseQueuedCommandArray),
+  lastSeq: Committed.integer('last-seq', (v): number =>
+    isNonNegativeInt(v) ? v : 0
+  ),
+  segments: Committed.integer('segments', (v): number =>
+    isNonNegativeInt(v) ? v : 0
+  ),
+  entries: Committed.array('entries', (v): LogEntry[] =>
+    Array.isArray(v) ? (v as LogEntry[]) : []
+  ),
+  commands: Queue.array('commands', (v): QueuedCommand[] =>
+    Array.isArray(v) ? (v as QueuedCommand[]) : []
+  ),
 } as const;
 
 const LAST_SEQ_KEY = RoomStorageAttr.lastSeq.key;
+const SEGMENTS_KEY = RoomStorageAttr.segments.key;
 const ENTRIES_KEY = RoomStorageAttr.entries.key;
 const COMMANDS_KEY = RoomStorageAttr.commands.key;
 
 /** Soft parse — never calls Tiger crash asserts (those exit the process). */
-function softLoadCommitted(
-  raw: KvRecord
-): { lastSeq: number; entries: LogEntry[] } | null {
-  const lastSeqRaw = raw[LAST_SEQ_KEY];
+function softManifest(raw: KvRecord): CommittedLogManifest | null {
+  const lastSeq = raw[LAST_SEQ_KEY];
+  const segments = raw[SEGMENTS_KEY];
+  if (!isNonNegativeInt(lastSeq) || !isNonNegativeInt(segments)) return null;
+  return { lastSeq, segments };
+}
+
+function softEntries(raw: KvRecord): LogEntry[] | null {
   const entriesRaw = raw[ENTRIES_KEY];
-  if (
-    typeof lastSeqRaw !== 'number' ||
-    !Number.isFinite(lastSeqRaw) ||
-    lastSeqRaw < 0 ||
-    !Array.isArray(entriesRaw)
-  ) {
-    return null;
-  }
+  if (!Array.isArray(entriesRaw)) return null;
   const entries: LogEntry[] = [];
   for (const item of entriesRaw) {
     if (item === null || typeof item !== 'object') return null;
     const o = item as Record<string, unknown>;
-    if (typeof o['seq'] !== 'number' || !Number.isFinite(o['seq'])) return null;
+    if (!isFiniteNumber(o['seq'])) return null;
     if (!isMessageEnvelope(o['event'])) return null;
-    entries.push({ seq: Math.floor(o['seq']), event: o['event'] });
+    entries.push(o as unknown as LogEntry);
   }
-  return { lastSeq: Math.floor(lastSeqRaw), entries };
+  return entries;
 }
 
-function softLoadQueued(raw: KvRecord): QueuedCommand[] | null {
+function softQueued(raw: KvRecord): QueuedCommand[] | null {
   const commandsRaw = raw[COMMANDS_KEY];
   if (!Array.isArray(commandsRaw)) return null;
   const out: QueuedCommand[] = [];
@@ -132,72 +74,89 @@ function softLoadQueued(raw: KvRecord): QueuedCommand[] | null {
     if (item === null || typeof item !== 'object') return null;
     const o = item as Record<string, unknown>;
     if (typeof o['id'] !== 'string' || o['id'].length === 0) return null;
-    if (typeof o['ts'] !== 'number' || !Number.isFinite(o['ts'])) return null;
+    if (!isFiniteNumber(o['ts'])) return null;
     if (!isMessageEnvelope(o['payload'])) return null;
     out.push({ id: o['id'], ts: o['ts'], payload: o['payload'] });
   }
   return out;
 }
 
+function kvCommittedLogBlobs(kv: Kv, committedKey: Keyword): CommittedLogBlobs {
+  const segmentKey = (i: number): Keyword =>
+    committedSegmentKeyword(committedKey, i);
+  return {
+    readManifest: async () => {
+      const raw = await kv.get(committedKey);
+      if (raw === null) return null;
+      const parsed = softManifest(raw);
+      if (parsed === null) await kv.zap(committedKey);
+      return parsed;
+    },
+    writeManifest: (manifest) =>
+      kv.put(committedKey, {
+        ...RoomStorageAttr.lastSeq(manifest.lastSeq),
+        ...RoomStorageAttr.segments(manifest.segments),
+      }),
+    removeManifest: () => kv.zap(committedKey),
+    readSegment: async (i) => {
+      const raw = await kv.get(segmentKey(i));
+      return raw === null ? null : softEntries(raw);
+    },
+    writeSegment: (i, entries) =>
+      kv.put(segmentKey(i), { ...RoomStorageAttr.entries(entries) }),
+    removeSegment: (i) => kv.zap(segmentKey(i)),
+  };
+}
+
 /**
  * Async {@link Kv}-backed room cache + outbound queue.
  *
- * Use a non-secure client {@link Kv} (e.g. the web `@pkgs/kv-web` backend):
- * committed-log + queue blobs grow past the secure-store's
- * 2048 UTF-8 byte per-value cap as soon as a few entries accumulate. None of
- * this data is sensitive — it's a recovery cache for replay-on-reconnect.
+ * The committed log lives in fixed-size segment records hanging off
+ * `committedKey` (the manifest), so appends never rewrite history. Use a
+ * non-secure client {@link Kv} (e.g. the web `@pkgs/kv-web` backend): even a
+ * single segment outgrows the secure-store's 2048 UTF-8 byte per-value cap.
+ * None of this data is sensitive — it's a recovery cache for
+ * replay-on-reconnect.
  */
 export class KeyValueClientRoomStorage implements ClientRoomStorage {
+  private readonly log: SegmentedCommittedLog;
+
   constructor(
     private readonly kv: Kv,
-    private readonly committedKey: Keyword,
+    committedKey: Keyword,
     private readonly queueKey: Keyword
-  ) {}
-
-  async loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {
-    const raw = await this.kv.get(this.committedKey);
-    if (raw === null) {
-      return { lastSeq: 0, entries: [] };
-    }
-    const parsed = softLoadCommitted(raw);
-    if (parsed !== null) return parsed;
-    // Local cache is a recovery aid only — wipe unreadable blobs so RoomClient.open
-    // can resync from the server instead of failing the whole session.
-    await this.kv.zap(this.committedKey);
-    return { lastSeq: 0, entries: [] };
+  ) {
+    this.log = createSegmentedCommittedLog(
+      kvCommittedLogBlobs(kv, committedKey)
+    );
   }
 
-  async saveCommitted(lastSeq: number, entries: LogEntry[]): Promise<void> {
-    await this.kv.put(this.committedKey, {
-      ...RoomStorageAttr.lastSeq(lastSeq),
-      ...RoomStorageAttr.entries(entries),
-    });
+  loadCommitted(): Promise<{ lastSeq: number; entries: LogEntry[] }> {
+    return this.log.loadCommitted();
+  }
+
+  appendCommitted(entries: readonly LogEntry[]): Promise<void> {
+    return this.log.appendCommitted(entries);
+  }
+
+  resetCommitted(): Promise<void> {
+    return this.log.resetCommitted();
   }
 
   async loadQueued(): Promise<QueuedCommand[]> {
     const raw = await this.kv.get(this.queueKey);
-    if (raw === null) {
-      return [];
-    }
-    const parsed = softLoadQueued(raw);
+    if (raw === null) return [];
+    const parsed = softQueued(raw);
     if (parsed !== null) return parsed;
+    // Local cache is a recovery aid only — wipe unreadable blobs so RoomClient.open
+    // can resync from the server instead of failing the whole session.
     await this.kv.zap(this.queueKey);
     return [];
   }
 
-  async appendQueued(cmd: QueuedCommand): Promise<void> {
-    const cur = await this.loadQueued();
-    cur.push(cmd);
+  async saveQueued(queue: readonly QueuedCommand[]): Promise<void> {
     await this.kv.put(this.queueKey, {
-      ...RoomStorageAttr.commands(cur),
-    });
-  }
-
-  async removeQueued(id: string): Promise<void> {
-    const cur = await this.loadQueued();
-    const next = cur.filter((c) => c.id !== id);
-    await this.kv.put(this.queueKey, {
-      ...RoomStorageAttr.commands(next),
+      ...RoomStorageAttr.commands(queue),
     });
   }
 }

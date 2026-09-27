@@ -1,5 +1,5 @@
 import type { SqlClient } from '@pkgs/sql-client/interface';
-import { SqlClientImplSqliteMem } from '@pkgs/sql-client-sqlite/impl-sqlite-mem';
+import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import type { SqlOwner } from '../sql-owner';
 
 /**
@@ -48,7 +48,7 @@ export function createSimOpfsSqlOwner(args: {
   readonly dbName: string;
   readonly store: SimOpfsStore;
 }): SqlOwner {
-  let client: SqlClientImplSqliteMem | null = null;
+  let client: SqlClientImplMockingbirdSqlite | null = null;
   const { dbName, store } = args;
 
   function associate(): void {
@@ -88,7 +88,7 @@ export function createSimOpfsSqlOwner(args: {
         }
         throw error;
       }
-      client = SqlClientImplSqliteMem.open();
+      client = SqlClientImplMockingbirdSqlite.open();
       await client.connect();
       if (store.image !== null) {
         client.importDatabaseBytes(store.image);
@@ -105,6 +105,10 @@ export function createSimOpfsSqlOwner(args: {
       client = null;
       // Simulates iframe teardown: release this path's association but leave
       // other junk files (fillPool leftovers) until resetStore.
+      store.paths.delete(dbName);
+    },
+    release: () => {
+      client = null;
       store.paths.delete(dbName);
     },
     resetStore: async () => {
@@ -124,5 +128,5 @@ export function createSimOpfsSqlOwner(args: {
 }
 
 export function isSimOpfsSqlClient(client: SqlClient): boolean {
-  return client instanceof SqlClientImplSqliteMem;
+  return client instanceof SqlClientImplMockingbirdSqlite;
 }

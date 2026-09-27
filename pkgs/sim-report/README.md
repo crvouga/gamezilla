@@ -28,6 +28,24 @@ Rebuild the viewer bundle after UI changes:
 bun run --filter @pkgs/sim-report build
 ```
 
+The viewer is keyboard-first: `Ctrl/Cmd-K` opens a searchable command palette,
+`←` / `→` step frames, `↑` / `↓` jump between steps, `N` / `Shift+N` cycle
+failures, `Home` / `End` and `Space` (play) cover the rest. The timeline is a
+native range control with coalesced drag updates and failure / press markers;
+the URL hash follows on a trailing debounce.
+
+Each client panel keeps **one** sandboxed (`allow-same-origin`, no scripts)
+iframe for the whole session: `frameCss` and fonts load once, and every frame
+swaps the parsed snapshot DOM in place (`lib/snapshot-surface.ts`), so
+scrubbing never flashes. Panels are keyed by actor id; a client without a
+snapshot in the current frame shows its latest earlier one, dimmed.
+
+Press highlights come from `ReportFrame.hit`, set only on the frame captured
+right before a UI step acts. The viewer resolves `hit.path` against that
+snapshot with the driver's chained first-match semantics and draws a single
+overlay from real layout; if the target is absent it says so instead of
+guessing.
+
 ### Embed in an app
 
 ```ts

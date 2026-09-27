@@ -1,15 +1,16 @@
 /** @jsxImportSource solid-js */
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { DenialSurface } from '@libs/permissions/public/denial-surface';
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { useDecision } from '@libs/permissions/public/use-can';
+import { useLingui } from '@lingui/solid/macro';
 import {
   BellIcon,
   Button,
   CheckIcon,
-  EmptyState,
   ScreenBase,
   useMutationButton,
 } from '@pkgs/ui';
 import { type JSX, Show } from 'solid-js';
-import { useNotificationsShell } from '../../public/notifications-provider-registry';
 import { useNotifications } from '../../public/use-notifications';
 import { useNotificationsActions } from '../../public/use-notifications-actions';
 import type { NotificationFilter } from '../../shared/notifications/notification';
@@ -20,27 +21,18 @@ export type NotificationsScreenProps = {
   readonly initialFilter?: NotificationFilter | undefined;
 };
 
-function NotificationsSignedInGate(props: {
+function NotificationsPermissionGate(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
-  const { t } = useLingui();
-  const shell = useNotificationsShell();
+  const decision = useDecision(PERMISSION.notificationsReceive);
   return (
     <Show
-      when={shell.isSignedIn}
+      when={decision().allowed}
       fallback={
-        <EmptyState
-          variant="compact"
+        <DenialSurface
+          decision={decision()}
           icon={BellIcon}
-          title={<Trans>Sign in to see notifications</Trans>}
-          body={
-            <Trans>Friend requests and space invites will land here.</Trans>
-          }
-          action={
-            shell.onSignIn !== undefined
-              ? { label: t`Sign in`, onClick: () => shell.onSignIn?.() }
-              : undefined
-          }
+          variant="compact"
         />
       }
     >
@@ -82,9 +74,9 @@ function NotificationsScreenBody(props: {
     inbox.interactions().some((item) => item.isUnread);
 
   return (
-    <div class="box flex-1 min-h-[0] gap-2">
+    <div class="box flex-1 min-h-0 gap-2">
       <div class="box flex-row items-center justify-between gap-3">
-        <div class="box flex-1 min-w-[0]">
+        <div class="box flex-1 min-w-0">
           <NotificationsFilterBar
             filter={inbox.filter()}
             onFilterChange={inbox.setFilter}
@@ -121,9 +113,9 @@ export function NotificationsScreen(
       breadcrumbs={[{ name: t`Notifications` }]}
       content={(body) => (
         <div class={`box ${body.bodyClass}`}>
-          <NotificationsSignedInGate>
+          <NotificationsPermissionGate>
             <NotificationsScreenBody initialFilter={props.initialFilter} />
-          </NotificationsSignedInGate>
+          </NotificationsPermissionGate>
         </div>
       )}
     />

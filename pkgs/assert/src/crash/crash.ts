@@ -30,19 +30,19 @@ function dispatchCrash(
   new FallbackCrashHandler().crash(message, context);
 }
 
+/**
+ * Fails an invariant by handing it to the first matching {@link CrashHandler}.
+ *
+ * Never logs on its own: the handler owns the failure's surface (a thrown
+ * error the caller or test runner reports, a fatal overlay, a process exit
+ * that prints first). Logging here as well would print every expected
+ * failure — `expect(() => …).toThrow()` included — into test output.
+ */
 export function crash(
   condition: boolean,
   message: string,
   context?: Record<string, unknown>
 ): asserts condition {
   if (condition) return;
-
-  log(message, context);
   dispatchCrash(message, context);
-}
-
-function log(message: string, context?: Record<string, unknown>) {
-  console.error('[ASSERT]', message);
-  if (context !== undefined) console.error('[CONTEXT]', context);
-  console.error(new Error().stack);
 }

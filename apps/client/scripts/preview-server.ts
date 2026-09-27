@@ -12,6 +12,13 @@ import { file } from 'bun';
 import { previewStackReadyResponse } from './preview-stack-ready';
 import { applySqliteWebIsolationHeadersToFetch } from './sqlite-web-headers.js';
 
+const CALLBACK_COOP = 'same-origin-allow-popups';
+
+function applyCallbackHeaders(headers: Headers): void {
+  applySqliteWebIsolationHeadersToFetch(headers);
+  headers.set('Cross-Origin-Opener-Policy', CALLBACK_COOP);
+}
+
 const DIST_DIR = join(import.meta.dir, '..', 'dist');
 const INDEX_HTML = join(DIST_DIR, 'index.html');
 
@@ -37,9 +44,13 @@ function resolveStaticPath(pathname: string): string {
   return join(DIST_DIR, safe);
 }
 
-function withIsolation(res: Response): Response {
+function withIsolation(res: Response, pathname: string): Response {
   const headers = new Headers(res.headers);
-  applySqliteWebIsolationHeadersToFetch(headers);
+  if (pathname === '/sso-callback') {
+    applyCallbackHeaders(headers);
+  } else {
+    applySqliteWebIsolationHeadersToFetch(headers);
+  }
   return new Response(res.body, { status: res.status, headers });
 }
 
@@ -64,7 +75,8 @@ async function proxyApi(req: Request): Promise<Response> {
     new Response(upstream.body, {
       status: upstream.status,
       headers: upstream.headers,
-    })
+    }),
+    inbound.pathname
   );
 }
 
@@ -76,7 +88,11 @@ async function serveStatic(pathname: string): Promise<Response> {
   const candidate = file(diskPath);
   const body = (await candidate.exists()) ? candidate : indexFile;
   const headers = new Headers();
-  applySqliteWebIsolationHeadersToFetch(headers);
+  if (pathname === '/sso-callback') {
+    applyCallbackHeaders(headers);
+  } else {
+    applySqliteWebIsolationHeadersToFetch(headers);
+  }
   return new Response(body, { headers });
 }
 

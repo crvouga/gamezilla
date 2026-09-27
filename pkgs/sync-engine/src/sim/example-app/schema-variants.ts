@@ -1,6 +1,5 @@
-import { SCHEMA_EPOCH } from '@pkgs/sync-engine/sim';
-
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
+import { SCHEMA_EPOCH } from '../../queries/client/local-schema';
 import type { RestartClientOpts } from '../sim-lifecycle';
 import {
   exampleLocalSchemaExtraColumn,

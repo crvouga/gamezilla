@@ -1,14 +1,17 @@
+import { useMyId } from '@libs/auth/public/use-current-user';
+import type { Decision } from '@libs/permissions/public/use-permissions';
 import { t } from '@lingui/core/macro';
 import { SpeakingAvatarAssistant } from '@pkgs/assistant/client';
-import { SmartChessBoard } from '@pkgs/chess-board/smart-chess-board';
-import type { Move } from '@pkgs/chess-board/smart-chess-board-types';
-import { SpeakingAvatar, useLayoutMode } from '@pkgs/ui';
+import { ChessBoard } from '@pkgs/chess-board/chess-board';
+import type { Move } from '@pkgs/chess-board/chess-board-types';
+import { SpeakingAvatar, SpectatorIndicator, useLayoutMode } from '@pkgs/ui';
 import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
 
 import type { HintStage } from '../../shared/puzzle-session/hint-stage';
 import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
+import { ChessPuzzleClock } from './chess-puzzle-clock';
 import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
 import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
@@ -16,6 +19,7 @@ import {
   type PuzzlePlayBoardChrome,
   PuzzlePlayLayout,
 } from './chess-puzzle-play-layout';
+import { ChessPuzzleRecommendationLegend } from './chess-puzzle-recommendation-legend';
 import { ChessPuzzleStatusHeader } from './chess-puzzle-status-header';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import type { SolveStatus } from './use-chess-puzzle-solver';
@@ -41,25 +45,28 @@ function PuzzleBoardSlot(props: {
   size: number;
   displayFen: Accessor<string | null>;
   layoutKey: Accessor<number>;
+  recommendBump: Accessor<number>;
   orientation: Accessor<'white' | 'black'>;
   status: Accessor<SolveStatus>;
   atFrontier: Accessor<boolean>;
   opponentAnimating: Accessor<boolean>;
+  spectator: Accessor<boolean>;
   onMove: (m: Move) => void;
   cellFeedback: PuzzlePlayerChromeModel['cellFeedback'];
   cellHighlights: PuzzlePlayerChromeModel['cellHighlights'];
   arrows: PuzzlePlayerChromeModel['arrows'];
+  recommendationArrows: PuzzlePlayerChromeModel['recommendationArrows'];
 }): JSX.Element {
   return (
     <Show
       when={props.displayFen() !== null && props.displayFen()!.length > 0}
       fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
     >
-      <SmartChessBoard
+      <ChessBoard
         dataSet={{ testid: 'chess-puzzle-board' }}
         size={props.size}
         fen={props.displayFen() ?? ''}
-        fenSyncKey={props.layoutKey()}
+        fenSyncKey={props.layoutKey() + props.recommendBump()}
         orientation={props.orientation()}
         interactive={
           props.status() === 'solving' &&
@@ -67,14 +74,74 @@ function PuzzleBoardSlot(props: {
           !props.opponentAnimating()
         }
         onMove={props.onMove}
+        // §3: never auto-queen in puzzles — underpromotion puzzles exist.
+        autoPromoteQueen={false}
         showCoordinates
         highlightLastMove
         highlightLegalMoves
         cellFeedback={props.cellFeedback()}
         cellHighlights={props.cellHighlights()}
-        arrows={props.arrows()}
+        arrows={[...props.arrows(), ...props.recommendationArrows()]}
       />
     </Show>
+  );
+}
+
+function PuzzlePlayerBoardSlot(props: {
+  size: number;
+  p: PuzzlePlayerChromeModel;
+}): JSX.Element {
+  const p = props.p;
+  return (
+    <PuzzleBoardSlot
+      size={props.size}
+      displayFen={p.displayFen}
+      layoutKey={p.layoutKey}
+      recommendBump={p.recommendBump}
+      orientation={p.orientation}
+      status={p.status}
+      atFrontier={p.atFrontier}
+      opponentAnimating={p.opponentAnimating}
+      spectator={p.isSpectator}
+      onMove={(m) => (p.isSpectator() ? p.onRecommendMove(m) : p.onMove(m))}
+      cellFeedback={p.cellFeedback}
+      cellHighlights={p.cellHighlights}
+      arrows={p.arrows}
+      recommendationArrows={p.recommendationArrows}
+    />
+  );
+}
+
+function PuzzlePlayerE2eHints(props: {
+  p: PuzzlePlayerChromeModel;
+}): JSX.Element {
+  const p = props.p;
+  const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
+  return (
+    <ChessPuzzleE2EHints
+      orientation={p.orientation}
+      status={p.status}
+      solveIdx={p.solveIdx}
+      moves={p.movesStr}
+      interactive={() =>
+        !p.isSpectator() &&
+        p.status() === 'solving' &&
+        p.atFrontier() &&
+        !p.opponentAnimating()
+      }
+      solutionUci={p.solutionUci}
+      expectedFromSquare={p.expectedFromSquare}
+      expectedToSquare={p.expectedToSquare}
+      hintStage={p.hintStage}
+      displayFen={p.displayFen}
+      spectating={p.isSpectator}
+      spaceRole={p.spaceRole}
+      statusKind={statusKind}
+      clockElapsedMs={p.clockElapsedMs}
+      puzzleRating={p.rating}
+      themes={p.themes}
+      recommendations={p.recommendationProbe}
+    />
   );
 }
 
@@ -83,35 +150,45 @@ function PuzzlePlayerChrome(props: {
   onFeedConfigApplied: () => void;
 }): JSX.Element {
   const p = props.model;
+  const myId = useMyId();
   const avatarSize = usePuzzleAvatarSize();
+  const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
   return (
     <PuzzlePlayLayout
       backToRoot={p.backToRoot}
       puzzleId={p.puzzleId()}
       puzzleRating={p.rating()}
+      spectator={p.isSpectator}
       assistant={
         <SpeakingAvatarAssistant
           assistant={p.assistant()}
-          header={<ChessPuzzleStatusHeader kind={p.statusKind()} />}
+          header={
+            <ChessPuzzleStatusHeader
+              kind={statusKind()}
+              sideToMove={p.orientation()}
+              trailing={
+                <>
+                  <ChessPuzzleClock elapsedMs={p.clockElapsedMs} />
+                  <Show when={p.isSpectator()}>
+                    <SpectatorIndicator />
+                  </Show>
+                </>
+              }
+            />
+          }
           numberOfLines={2}
           avatarSize={avatarSize()}
         />
       }
-      boardSlot={(size) => (
-        <PuzzleBoardSlot
-          size={size}
-          displayFen={p.displayFen}
-          layoutKey={p.layoutKey}
-          orientation={p.orientation}
-          status={p.status}
-          atFrontier={p.atFrontier}
-          opponentAnimating={p.opponentAnimating}
-          onMove={p.onMove}
-          cellFeedback={p.cellFeedback}
-          cellHighlights={p.cellHighlights}
-          arrows={p.arrows}
+      recommendationLegend={
+        <ChessPuzzleRecommendationLegend
+          entries={p.recommendationEntries}
+          colorFor={p.recommendationColorFor}
+          myId={myId()}
+          onClearMine={p.onClearMyRecommendation}
         />
-      )}
+      }
+      boardSlot={(size) => <PuzzlePlayerBoardSlot size={size} p={p} />}
       status={p.status}
       hintStage={p.hintStage}
       canGoBack={p.canGoBack}
@@ -121,25 +198,11 @@ function PuzzlePlayerChrome(props: {
       onBack={p.onBack}
       onForward={p.onForward}
       onRetry={p.onRetry}
+      onSkip={p.onSkip}
       onNext={p.onNext}
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={p.completion}
-      e2eHints={
-        <ChessPuzzleE2EHints
-          orientation={p.orientation}
-          status={p.status}
-          solveIdx={p.solveIdx}
-          moves={p.movesStr}
-          interactive={() =>
-            p.status() === 'solving' && p.atFrontier() && !p.opponentAnimating()
-          }
-          solutionUci={p.solutionUci}
-          expectedFromSquare={p.expectedFromSquare}
-          expectedToSquare={p.expectedToSquare}
-          hintStage={p.hintStage}
-          displayFen={p.displayFen}
-        />
-      }
+      e2eHints={<PuzzlePlayerE2eHints p={p} />}
     />
   );
 }
@@ -168,8 +231,8 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
     />
   );
 }
-
 type ShellPickState = Exclude<PuzzlePickState, 'ready'>;
+type ShellBoardPickState = Exclude<ShellPickState, 'loading'>;
 
 function shellHeaderKind(state: ShellPickState): ChessPuzzleStatusKind {
   return state;
@@ -181,43 +244,49 @@ function shellCoachLine(state: ShellPickState): string {
       return '';
     case 'offline':
       return t`I can't fetch puzzles without a connection. Come back online and we'll pick up here.`;
+    case 'limited':
+      return t`That's all the puzzles for now. The board opens again when your allowance resets.`;
     case 'empty':
       return t`You've cleared everything in your feed. Widen the filters and let's keep going.`;
+    case 'waiting':
+      return t`Waiting for the host to start a puzzle.`;
   }
 }
 
 function ShellBoardSlot(props: {
   size: number;
   chrome: PuzzlePlayBoardChrome;
-  pickState: ShellPickState;
+  pickState: ShellBoardPickState;
   includeAllPuzzles: () => void;
+  startDenial: Decision | null;
 }): JSX.Element {
   const [config] = useChessPuzzleFeedConfig();
   return (
-    <Show
-      when={props.pickState !== 'loading'}
-      fallback={<ChessPuzzleBoardLoadingState size={props.size} />}
-    >
-      <ChessPuzzleEmptyPoolState
-        kind={props.pickState === 'offline' ? 'offline' : 'empty'}
-        size={props.size}
-        config={config()}
-        onIncludeAllPuzzles={props.includeAllPuzzles}
-        onOpenFeedSettings={props.chrome.openFeedSettings}
-      />
-    </Show>
+    <ChessPuzzleEmptyPoolState
+      kind={props.pickState}
+      size={props.size}
+      config={config()}
+      onIncludeAllPuzzles={props.includeAllPuzzles}
+      onOpenFeedSettings={props.chrome.openFeedSettings}
+      denial={props.startDenial}
+    />
   );
 }
 
-/** Play chrome without a placed puzzle: loading, offline, or exhausted feed. */
+/** Play chrome without a placed puzzle: loading, offline, limited or empty. */
 function PuzzlePlayShell(props: {
   backToChessRoot: () => void;
   pickState: Accessor<ShellPickState>;
   e2eLoadingStatus: JSX.Element;
   onFeedConfigApplied: () => void;
   includeAllPuzzles: () => void;
+  startDenial: Accessor<Decision | null>;
 }): JSX.Element {
   const avatarSize = usePuzzleAvatarSize();
+  const boardKind = createMemo<ShellBoardPickState | null>(() => {
+    const state = props.pickState();
+    return state === 'loading' ? null : state;
+  });
   return (
     <PuzzlePlayLayout
       backToRoot={props.backToChessRoot}
@@ -236,12 +305,21 @@ function PuzzlePlayShell(props: {
         />
       }
       boardSlot={(size, chrome) => (
-        <ShellBoardSlot
-          size={size}
-          chrome={chrome}
-          pickState={props.pickState()}
-          includeAllPuzzles={props.includeAllPuzzles}
-        />
+        <Show
+          when={boardKind()}
+          keyed
+          fallback={<ChessPuzzleBoardLoadingState size={size} />}
+        >
+          {(kind) => (
+            <ShellBoardSlot
+              size={size}
+              chrome={chrome}
+              pickState={kind}
+              includeAllPuzzles={props.includeAllPuzzles}
+              startDenial={props.startDenial()}
+            />
+          )}
+        </Show>
       )}
       status={() => LOADING_SHELL_STATUS}
       hintStage={() => LOADING_SHELL_HINT_STAGE}
@@ -252,9 +330,11 @@ function PuzzlePlayShell(props: {
       onBack={noop}
       onForward={noop}
       onRetry={noop}
+      onSkip={noop}
       onNext={noop}
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={() => null}
+      spectator={() => false}
     />
   );
 }
@@ -271,6 +351,7 @@ export function PuzzlePlayScreen(): JSX.Element {
     reselectActivePuzzleFromFeed,
     includeAllPuzzles,
     e2eLoadingStatus,
+    startDenial,
   } = usePuzzlePlayScreenState();
 
   const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus()} />;
@@ -281,7 +362,7 @@ export function PuzzlePlayScreen(): JSX.Element {
 
   return (
     <div
-      class="box flex-1 min-h-[0] self-stretch"
+      class="box flex-1 min-h-0 self-stretch"
       data-testid="chess-puzzle-play-screen"
     >
       <Show
@@ -293,6 +374,7 @@ export function PuzzlePlayScreen(): JSX.Element {
             e2eLoadingStatus={e2ePickStatus}
             onFeedConfigApplied={reselectActivePuzzleFromFeed}
             includeAllPuzzles={includeAllPuzzles}
+            startDenial={startDenial}
           />
         }
       >

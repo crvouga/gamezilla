@@ -1,0 +1,380 @@
+/* Component paint. One class + data-face / data-status. Colors are tokens. */
+
+@layer components {
+  .themeHost {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    overflow: clip;
+    overflow-anchor: none;
+    font-family: var(--ui-font-sans);
+    color: var(--ui-color-text);
+    background-color: var(--ui-color-background);
+    background-image: radial-gradient(
+      120% 70% at 100% -20%,
+      var(--ui-color-tint-subtle),
+      transparent 60%
+    );
+  }
+
+  ::selection {
+    background: var(--ui-color-tint-muted);
+    color: var(--ui-color-text);
+  }
+
+  .text.appLogo {
+    font-family: var(--ui-font-display);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--ui-color-tint);
+  }
+
+  .btn,
+  .fab {
+    border-style: solid;
+    border-width: 0;
+    border-color: transparent;
+    background: transparent;
+    color: var(--ui-color-tint);
+    font-family: var(--ui-font-display);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    --ui-on-fg: var(--ui-color-tint);
+    --ui-on-fg-muted: var(--ui-color-tint);
+    --ui-on-icon: var(--ui-color-tint);
+    transition: transform var(--ui-duration-fast) var(--ui-easing-playful);
+  }
+
+  .btn:not(:disabled):active,
+  .fab:not(:disabled):active {
+    transform: scale(0.98);
+  }
+
+  .btn .text,
+  .fab .text,
+  .chip .text,
+  .badge .text {
+    color: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+  }
+
+  .btn[data-size="sm"] {
+    min-height: 36px;
+    padding: 6px 14px;
+    border-radius: var(--ui-radius-md);
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  .btn[data-size="md"] {
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: var(--ui-radius-lg);
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .btn[data-size="lg"] {
+    min-height: 52px;
+    padding: 12px 22px;
+    border-radius: var(--ui-radius-xl);
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 800;
+  }
+
+  .fab {
+    height: 56px;
+    min-height: 56px;
+    border-radius: var(--ui-radius-full);
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  .fab[data-extended="true"] {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .btn[data-face="primary"],
+  .fab[data-face="primary"] {
+    background: var(--ui-color-tint-active);
+    color: var(--ui-color-on-primary);
+    --ui-on-fg: var(--ui-color-on-primary);
+    --ui-on-fg-muted: var(--ui-color-on-primary);
+    --ui-on-icon: var(--ui-color-on-primary);
+  }
+
+  .btn[data-face="primary"] .text,
+  .fab[data-face="primary"] .text {
+    color: var(--ui-color-on-primary);
+  }
+
+  .btn[data-face="danger"],
+  .fab[data-face="danger"] {
+    background: var(--ui-color-destructive);
+    color: var(--ui-color-on-destructive);
+    --ui-on-fg: var(--ui-color-on-destructive);
+    --ui-on-fg-muted: var(--ui-color-on-destructive);
+    --ui-on-icon: var(--ui-color-on-destructive);
+  }
+
+  .btn[data-face="success"],
+  .fab[data-face="success"] {
+    background: var(--ui-color-success);
+    color: var(--ui-color-on-success);
+    --ui-on-fg: var(--ui-color-on-success);
+    --ui-on-fg-muted: var(--ui-color-on-success);
+    --ui-on-icon: var(--ui-color-on-success);
+  }
+
+  .btn[data-face="neutral"],
+  .fab[data-face="neutral"] {
+    background: var(--ui-color-surface-elevated);
+    color: var(--ui-color-text);
+    --ui-on-fg: var(--ui-color-text);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+    --ui-on-icon: var(--ui-color-icon);
+  }
+
+  .btn[data-face="neutral"] {
+    border-width: 1px;
+    border-color: var(--ui-color-outline);
+  }
+
+  .btn[data-face="primary-outline"] {
+    background: transparent;
+    border-width: 1px;
+    border-color: var(--ui-color-tint);
+    color: var(--ui-color-tint);
+  }
+
+  .btn[data-face="danger-outline"] {
+    background: transparent;
+    border-width: 1px;
+    border-color: var(--ui-color-destructive);
+    color: var(--ui-color-destructive);
+    --ui-on-fg: var(--ui-color-destructive);
+    --ui-on-icon: var(--ui-color-destructive);
+    --ui-on-fg-muted: var(--ui-color-destructive);
+  }
+
+  .btn[data-face="success-outline"] {
+    background: transparent;
+    border-width: 1px;
+    border-color: var(--ui-color-success);
+    color: var(--ui-color-success);
+    --ui-on-fg: var(--ui-color-success);
+    --ui-on-icon: var(--ui-color-success);
+    --ui-on-fg-muted: var(--ui-color-success);
+  }
+
+  .btn[data-face="neutral-outline"] {
+    background: transparent;
+    border-width: 1px;
+    border-color: var(--ui-color-outline);
+    color: var(--ui-color-text);
+    --ui-on-fg: var(--ui-color-text);
+    --ui-on-icon: var(--ui-color-icon);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+  }
+
+  .btn[data-face="primary-ghost"] {
+    color: var(--ui-color-tint);
+  }
+
+  .btn[data-face="danger-ghost"] {
+    color: var(--ui-color-destructive);
+    --ui-on-fg: var(--ui-color-destructive);
+    --ui-on-icon: var(--ui-color-destructive);
+    --ui-on-fg-muted: var(--ui-color-destructive);
+  }
+
+  .btn[data-face="success-ghost"] {
+    color: var(--ui-color-success);
+    --ui-on-fg: var(--ui-color-success);
+    --ui-on-icon: var(--ui-color-success);
+    --ui-on-fg-muted: var(--ui-color-success);
+  }
+
+  .btn[data-face="neutral-ghost"] {
+    color: var(--ui-color-text);
+    --ui-on-fg: var(--ui-color-text);
+    --ui-on-icon: var(--ui-color-icon);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+  }
+
+  .btn[data-face="disabled"],
+  .fab[data-face="disabled"] {
+    background: var(--ui-color-disabled);
+    color: var(--ui-color-text-secondary);
+    --ui-on-fg: var(--ui-color-text-secondary);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+    --ui-on-icon: var(--ui-color-text-secondary);
+  }
+
+  .btn[data-face="disabled-outline"],
+  .btn[data-face="disabled-ghost"] {
+    background: transparent;
+    color: var(--ui-color-text-secondary);
+    --ui-on-fg: var(--ui-color-text-secondary);
+    --ui-on-fg-muted: var(--ui-color-text-secondary);
+    --ui-on-icon: var(--ui-color-text-secondary);
+  }
+
+  .btn[data-face="disabled-outline"] {
+    border-width: 1px;
+    border-color: var(--ui-color-border);
+  }
+
+  .btn[data-face="feedback-success"],
+  .fab[data-face="feedback-success"] {
+    background: var(--ui-color-success);
+    color: var(--ui-color-on-success);
+    border-color: transparent;
+    --ui-on-fg: var(--ui-color-on-success);
+    --ui-on-fg-muted: var(--ui-color-on-success);
+    --ui-on-icon: var(--ui-color-on-success);
+  }
+
+  .btn[data-face="feedback-error"],
+  .fab[data-face="feedback-error"] {
+    background: var(--ui-color-destructive-active);
+    color: var(--ui-color-on-destructive);
+    border-color: transparent;
+    --ui-on-fg: var(--ui-color-on-destructive);
+    --ui-on-fg-muted: var(--ui-color-on-destructive);
+    --ui-on-icon: var(--ui-color-on-destructive);
+  }
+
+  .chip {
+    height: 32px;
+    min-width: 56px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-radius: var(--ui-radius-full);
+    border: 1px solid var(--ui-color-border);
+    background: var(--ui-color-surface);
+    color: var(--ui-color-text);
+    font-family: var(--ui-font-display);
+    font-size: var(--ui-font-size-sm);
+    font-weight: 600;
+    line-height: var(--ui-leading-sm);
+  }
+
+  .chip[aria-pressed="true"],
+  .chip[aria-checked="true"] {
+    border-color: var(--ui-color-tint);
+    background: var(--ui-color-tint-highlight);
+    color: var(--ui-color-tint);
+  }
+
+  .chip:disabled {
+    opacity: 0.5;
+  }
+
+  .badge {
+    border-radius: var(--ui-radius-full);
+    padding: 3px 8px;
+    background: var(--ui-color-tint-subtle);
+    color: var(--ui-color-tint);
+    font-family: var(--ui-font-display);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 14px;
+  }
+
+  .badge[data-size="sm"] {
+    padding: 2px 6px;
+    min-width: 18px;
+    min-height: 18px;
+    font-size: 11px;
+    line-height: 13px;
+  }
+
+  .badge[data-intent="neutral"][data-tone="subtle"] {
+    background: var(--ui-color-surface-muted);
+    color: var(--ui-color-text-secondary);
+  }
+
+  .badge[data-intent="neutral"][data-tone="solid"] {
+    background: var(--ui-color-text);
+    color: var(--ui-color-background);
+  }
+
+  .badge[data-intent="brand"][data-tone="solid"] {
+    background: var(--ui-color-tint-active);
+    color: var(--ui-color-on-primary);
+  }
+
+  .badge[data-intent="success"][data-tone="subtle"] {
+    background: var(--ui-color-success-surface);
+    color: var(--ui-color-success);
+  }
+
+  .badge[data-intent="success"][data-tone="solid"] {
+    background: var(--ui-color-success);
+    color: var(--ui-color-on-success);
+  }
+
+  .badge[data-intent="warning"][data-tone="subtle"] {
+    background: var(--ui-color-warning-surface);
+    color: var(--ui-color-warning);
+  }
+
+  .badge[data-intent="warning"][data-tone="solid"] {
+    background: var(--ui-color-warning);
+    color: var(--ui-color-on-warning);
+  }
+
+  .badge[data-intent="destructive"][data-tone="subtle"] {
+    background: var(--ui-color-destructive-surface);
+    color: var(--ui-color-destructive);
+  }
+
+  .badge[data-intent="destructive"][data-tone="solid"] {
+    background: var(--ui-color-destructive-active);
+    color: var(--ui-color-on-destructive);
+  }
+
+  .badge[data-intent="info"][data-tone="subtle"] {
+    background: var(--ui-color-info-surface);
+    color: var(--ui-color-info);
+  }
+
+  .badge[data-intent="info"][data-tone="solid"] {
+    background: var(--ui-color-info);
+    color: var(--ui-color-on-info);
+  }
+
+  .statusDot[data-status="online"] {
+    background: var(--ui-color-success);
+  }
+
+  .statusDot[data-status="offline"] {
+    background: var(--ui-color-destructive);
+  }
+
+  .statusDot[data-status="warning"] {
+    background: var(--ui-color-warning);
+  }
+
+  .statusDot[data-status="pending"] {
+    background: var(--ui-color-info);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn,
+    .fab {
+      transition: none;
+    }
+
+    .btn:active,
+    .fab:active {
+      transform: none;
+    }
+  }
+}

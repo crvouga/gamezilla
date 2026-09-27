@@ -1,12 +1,16 @@
-import { classifyDelta, desiredColumns, findColumn } from './compatibility';
+import { resolveBackfillSql } from './backfill';
+import {
+  classifyDelta,
+  desiredColumns,
+  findColumn,
+  retiredColumnsOf,
+} from './compatibility';
 import { POSTGRES_CAPS } from './dialect-caps';
-import { resolveDialectSql } from './dialect-sql';
 import {
   asPackageIndexName,
   asSchemaIdent,
   fingerprintForIndexDef,
 } from './index-fingerprint';
-import { resolveBackfillSql } from './lifecycle';
 import type {
   CreateTableColumn,
   PlanServerResult,
@@ -23,6 +27,11 @@ import {
   MANAGED_IMPLICIT_COLUMNS,
 } from './types';
 
+export type PlanServerOptions = {
+  /** Restrict the plan to table DDL or index DDL (default `all`). */
+  readonly operations?: 'all' | 'table' | 'index';
+};
+
 function createTableColumns(
   declared: ReadonlyDeclaredSchema,
   table: string
@@ -38,6 +47,16 @@ function createTableColumns(
   for (const [name, col] of Object.entries(declared.tables[table]!)) {
     columns.push(toCreateColumn(name, col));
   }
+  // Tombstoned columns are still materialized: that is what guarantees an
+  // older client can always read them from a fresh database.
+  for (const retired of retiredColumnsOf(declared, table)) {
+    if (retired.name in declared.tables[table]!) continue;
+    columns.push({
+      name: asSchemaIdent(retired.name),
+      type: retired.type,
+      isPrimaryKey: false,
+    });
+  }
   return columns;
 }
 
@@ -52,36 +71,25 @@ function toCreateColumn(name: string, col: DeclaredColumn): CreateTableColumn {
     ...(col.physicalSqlite !== undefined
       ? { physicalSqlite: col.physicalSqlite }
       : {}),
-    ...(col.generated !== undefined
-      ? {
-          generatedExpr: resolveDialectSql(col.generated.expr, 'postgres'),
-          generatedStored: col.generated.stored,
-        }
-      : {}),
-    ...(col.references !== undefined
-      ? {
-          references: {
-            table: asSchemaIdent(col.references.table),
-            column: asSchemaIdent(col.references.column),
-          },
-        }
-      : {}),
   };
 }
 
-function planIndexOps(
+export function planIndexOperations(
   declared: ReadonlyDeclaredSchema,
   catalog: IntrospectedCatalog
 ): ServerOperation[] {
-  const ops: ServerOperation[] = [];
+  const creates: ServerOperation[] = [];
+  const drops: ServerOperation[] = [];
   const desiredIndexNames = new Set<string>();
 
   const pushCreate = (def: IndexDef, unique: boolean): void => {
     const name = fingerprintForIndexDef(def, unique);
     desiredIndexNames.add(name);
-    if (catalog.indexes.some((ix) => ix.name === name)) return;
+    if (catalog.indexes.some((ix) => ix.name === name && ix.invalid !== true)) {
+      return;
+    }
     const [table, ...columns] = def;
-    ops.push({
+    creates.push({
       kind: 'create_index',
       name,
       table: asSchemaIdent(table),
@@ -99,10 +107,17 @@ function planIndexOps(
 
   for (const ix of catalog.indexes) {
     const branded = asPackageIndexName(ix.name);
-    if (!branded || desiredIndexNames.has(branded)) continue;
-    ops.push({ kind: 'drop_index', name: branded });
+    if (!branded) continue;
+    if (ix.invalid === true) {
+      drops.push({ kind: 'drop_index', name: branded });
+      continue;
+    }
+    if (desiredIndexNames.has(branded)) continue;
+    drops.push({ kind: 'drop_index', name: branded });
   }
-  return ops;
+  // Drops before creates: an invalid index still occupies its name, so it must
+  // be removed before `CREATE INDEX` can take the name back.
+  return [...drops, ...creates];
 }
 
 function planColumnAdds(
@@ -142,141 +157,23 @@ function planColumnAdds(
         });
       }
     }
-  }
-  return ops;
-}
-
-function planChecksAndFks(
-  declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): ServerOperation[] {
-  const ops: ServerOperation[] = [];
-  const existingChecks = new Set(
-    (catalog.checks ?? []).map((c) => `${c.table}.${c.name}`)
-  );
-  for (const check of declared.checks) {
-    if (existingChecks.has(`${check.table}.${check.name}`)) continue;
-    const expr =
-      typeof check.sql === 'string'
-        ? check.sql
-        : (check.sql.postgres ?? check.sql.sql);
-    ops.push({
-      kind: 'add_check',
-      name: asSchemaIdent(check.name),
-      table: asSchemaIdent(check.table),
-      expression: expr,
-    });
-  }
-  const existingFks = new Set(
-    (catalog.foreignKeys ?? []).map(
-      (f) => `${f.table}.${f.column}->${f.refTable}.${f.refColumn}`
-    )
-  );
-  for (const [tableName, cols] of Object.entries(declared.tables)) {
-    for (const [colName, col] of Object.entries(cols)) {
-      if (col.references === undefined) continue;
-      const key = `${tableName}.${colName}->${col.references.table}.${col.references.column}`;
-      if (existingFks.has(key)) continue;
+    for (const retired of retiredColumnsOf(declared, tableName)) {
+      if (findColumn(existing, retired.name)) continue;
       ops.push({
-        kind: 'add_foreign_key',
-        name: asSchemaIdent(`fk_${tableName}_${colName}`.slice(0, 63)),
+        kind: 'add_column',
         table: asSchemaIdent(tableName),
-        column: asSchemaIdent(colName),
-        refTable: asSchemaIdent(col.references.table),
-        refColumn: asSchemaIdent(col.references.column),
+        column: asSchemaIdent(retired.name),
+        type: retired.type,
       });
     }
   }
   return ops;
-}
-
-function planViews(
-  declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): ServerOperation[] {
-  const ops: ServerOperation[] = [];
-  const existingViews = new Set((catalog.views ?? []).map((v) => v.name));
-  for (const view of declared.views) {
-    if (declared.deprecatedViews.has(view.name)) continue;
-    const expr =
-      typeof view.sql === 'string'
-        ? view.sql
-        : (view.sql.postgres ?? view.sql.sql);
-    ops.push({
-      kind: existingViews.has(view.name) ? 'replace_view' : 'create_view',
-      name: asSchemaIdent(view.name),
-      expression: expr,
-    });
-  }
-  return ops;
-}
-
-function planEnums(
-  declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): ServerOperation[] {
-  const ops: ServerOperation[] = [];
-  const existingEnums = new Map(
-    (catalog.enums ?? []).map((e) => [e.name, e.values] as const)
-  );
-  for (const en of declared.enums) {
-    if (declared.deprecatedEnums.has(en.name)) continue;
-    const existing = existingEnums.get(en.name);
-    if (!existing) {
-      ops.push({
-        kind: 'create_enum',
-        name: asSchemaIdent(en.name),
-        values: en.values,
-        nativePostgres: en.nativePostgres === true,
-      });
-      continue;
-    }
-    for (const value of en.values) {
-      if (existing.includes(value)) continue;
-      ops.push({
-        kind: 'add_enum_value',
-        name: asSchemaIdent(en.name),
-        value,
-      });
-    }
-  }
-  return ops;
-}
-
-function planViewsAndEnums(
-  declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): ServerOperation[] {
-  return [...planViews(declared, catalog), ...planEnums(declared, catalog)];
-}
-
-function enumRemovalDrift(
-  declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
-): import('./types').DriftError[] {
-  const drift: import('./types').DriftError[] = [];
-  const existingEnums = new Map(
-    (catalog.enums ?? []).map((e) => [e.name, e.values] as const)
-  );
-  for (const en of declared.enums) {
-    if (en.nativePostgres !== true) continue;
-    const existing = existingEnums.get(en.name);
-    if (!existing) continue;
-    for (const old of existing) {
-      if (!en.values.includes(old)) {
-        drift.push({
-          path: en.name,
-          message: `cannot remove enum value '${old}' on Postgres (expand-only)`,
-        });
-      }
-    }
-  }
-  return drift;
 }
 
 export function planServer(
   declared: ReadonlyDeclaredSchema,
-  catalog: IntrospectedCatalog
+  catalog: IntrospectedCatalog,
+  options?: PlanServerOptions
 ): PlanServerResult {
   const classified = classifyDelta({
     declared,
@@ -284,16 +181,13 @@ export function planServer(
     caps: POSTGRES_CAPS,
     mode: 'postgres',
   });
-  const enumDrift = enumRemovalDrift(declared, catalog);
-  const drift = [...classified.drift, ...enumDrift];
-  if (drift.length > 0) {
-    return { ok: false, drift };
+  if (classified.drift.length > 0) {
+    return { ok: false, drift: classified.drift };
   }
+  const which = options?.operations ?? 'all';
   const operations: ServerOperation[] = [
-    ...planColumnAdds(declared, catalog),
-    ...planChecksAndFks(declared, catalog),
-    ...planViewsAndEnums(declared, catalog),
-    ...planIndexOps(declared, catalog),
+    ...(which === 'index' ? [] : planColumnAdds(declared, catalog)),
+    ...(which === 'table' ? [] : planIndexOperations(declared, catalog)),
   ];
   return { ok: true, operations };
 }

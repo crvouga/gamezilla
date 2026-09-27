@@ -1,0 +1,13 @@
+language js
+
+file($body) where {
+  $body <: includes "observability",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:@pkgs/observability-impl-local-file(?:/[^'\"]*)?|@pkgs/observability/(?:src|client|server|shared|port|impl-noop|impl-logger)(?:/[^'\"]*)?|@pkgs/observability/(?:browser|core|node|query|worker)/src(?:/[^'\"]*)?)['\"]$",
+    register_diagnostic(span=$src, message="Import only public @pkgs/observability runtime entrypoints; deep src imports are forbidden.", severity="error")
+  }
+}

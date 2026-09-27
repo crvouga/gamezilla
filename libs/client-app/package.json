@@ -1,0 +1,111 @@
+{
+  "name": "@libs/client-app",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./shell/*": [
+      "./src/shell/*.ts",
+      "./src/shell/*.tsx",
+      "./src/shell/*/index.ts"
+    ],
+    "./routes/*": [
+      "./src/routes/*.ts",
+      "./src/routes/*.tsx",
+      "./src/routes/*/index.ts"
+    ],
+    "./chrome/*": [
+      "./src/chrome/*.ts",
+      "./src/chrome/*.tsx",
+      "./src/chrome/*/index.ts"
+    ],
+    "./screens/*": [
+      "./src/screens/*.ts",
+      "./src/screens/*.tsx",
+      "./src/screens/*/index.ts"
+    ],
+    "./config/*": [
+      "./src/config/*.ts",
+      "./src/config/*.tsx",
+      "./src/config/*/index.ts"
+    ],
+    "./device/*": [
+      "./src/device/*.ts",
+      "./src/device/*.tsx",
+      "./src/device/*/index.ts"
+    ],
+    "./i18n/*": [
+      "./src/i18n/*.ts",
+      "./src/i18n/*.tsx",
+      "./src/i18n/*/index.ts"
+    ],
+    "./sync/*": [
+      "./src/sync/*.ts",
+      "./src/sync/*.tsx",
+      "./src/sync/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
+  },
+  "dependencies": {
+    "@libs/auth": "workspace:*",
+    "@libs/client-config": "workspace:*",
+    "@libs/feature": "workspace:*",
+    "@libs/permissions": "workspace:*",
+    "@libs/test-ids": "workspace:*",
+    "@lingui/core": "catalog:",
+    "@lingui/solid": "catalog:",
+    "@pkgs/assert": "workspace:*",
+    "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
+    "@pkgs/browser": "workspace:*",
+    "@pkgs/clock": "workspace:*",
+    "@pkgs/device": "workspace:*",
+    "@pkgs/git": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/keyword": "workspace:*",
+    "@pkgs/kv": "workspace:*",
+    "@pkgs/kv-web": "workspace:*",
+    "@pkgs/llm": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
+    "@pkgs/object-store-opfs": "workspace:*",
+    "@pkgs/observability": "workspace:*",
+    "@pkgs/pubsub": "workspace:*",
+    "@pkgs/pubsub-aedes": "workspace:*",
+    "@pkgs/pubsub-emqx": "workspace:*",
+    "@pkgs/room": "workspace:*",
+    "@pkgs/secure-storage": "workspace:*",
+    "@pkgs/secure-storage-web": "workspace:*",
+    "@pkgs/sim-console": "workspace:*",
+    "@pkgs/solid-context": "workspace:*",
+    "@pkgs/sounds": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "@pkgs/sql-client-sqlite-web": "workspace:*",
+    "@pkgs/sync-engine": "workspace:*",
+    "@pkgs/tts": "workspace:*",
+    "@pkgs/ui": "workspace:*",
+    "@pkgs/uuid": "workspace:*",
+    "@solidjs/router": "catalog:",
+    "@tanstack/solid-virtual": "catalog:",
+    "buffer": "catalog:",
+    "make-plural": "catalog:",
+    "solid-js": "catalog:",
+    "web-vitals": "catalog:",
+    "workbox-window": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@lingui/babel-plugin-lingui-macro": "catalog:",
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

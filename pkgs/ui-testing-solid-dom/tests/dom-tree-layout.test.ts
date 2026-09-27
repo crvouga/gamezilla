@@ -1,5 +1,5 @@
+import { describe, expect, test } from 'bun:test';
 import { Window } from 'happy-dom';
-import { describe, expect, test } from 'vitest';
 import { layoutDomTree } from '../src/dom-tree-layout';
 
 describe('layoutDomTree', () => {

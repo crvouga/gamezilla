@@ -1,7 +1,7 @@
 import fc from 'fast-check';
 import { fingerprintSql } from '../../src/core/fingerprint';
 import type { WorkloadManifest, WorkloadQuery } from '../../src/core/types';
-import type { GenSchema } from './schema';
+import { type GenSchema, genSchema } from './schema';
 import { genStatement } from './statement-ast';
 
 function perturbSql(sql: string, kind: 0 | 1 | 2): string {
@@ -77,3 +77,11 @@ export function genSmallManifest(
       return { version: 1 as const, queries };
     });
 }
+
+/** A schema with a small manifest over it — one arbitrary, so both shrink together. */
+export const genSchemaWithManifest: fc.Arbitrary<{
+  readonly schema: GenSchema;
+  readonly manifest: WorkloadManifest;
+}> = genSchema.chain((schema) =>
+  genSmallManifest(schema).map((manifest) => ({ schema, manifest }))
+);

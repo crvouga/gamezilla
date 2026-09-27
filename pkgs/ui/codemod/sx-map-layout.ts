@@ -4,7 +4,7 @@
  *
  * Exactness notes:
  * - Raw lengths (`width`, `top`, `flexBasis`, …) are NOT scaled: numbers
- *   mean px. They map to arbitrary values (`w-[5px]`), never to the spacing
+ *   mean px. They map to arbitrary values (`-1.25`), never to the spacing
  *   scale. Strings pass through with spaces escaped as `_`.
  * - `flex` keeps the Yoga contract: `0`/`-1` → `0 1 auto` (NOT bare CSS
  *   `flex:0`, which collapses in column parents); `1` → `flex-1`

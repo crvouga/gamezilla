@@ -47,6 +47,7 @@ export {
   isSnapshot,
   matchJunitCase,
   mediaExtension,
+  mergeRunBundles,
   mintRunId,
   parseJunit,
   RUNS_INDEX_KEY,

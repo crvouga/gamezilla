@@ -5,6 +5,7 @@ import { defineContext } from '@pkgs/solid-context/define-context';
 import type { JSX, ParentProps } from 'solid-js';
 
 import type { ClipboardPort } from './clipboard';
+import type { HapticsPort } from './haptics';
 
 const ClipboardContext = defineContext<ClipboardPort>('Clipboard');
 
@@ -17,4 +18,18 @@ export const ClipboardProvider: (props: ClipboardProviderProps) => JSX.Element =
 
 export function useClipboard(): ClipboardPort {
   return ClipboardContext.use();
+}
+
+const HapticsContext = defineContext<HapticsPort>('Haptics');
+
+export type HapticsProviderProps = ParentProps<{
+  readonly value: HapticsPort;
+}>;
+
+export const HapticsProvider: (props: HapticsProviderProps) => JSX.Element =
+  HapticsContext.Provider;
+
+/** Injected haptic feedback (vibration on devices, recording in sims). */
+export function useHaptics(): HapticsPort {
+  return HapticsContext.use();
 }

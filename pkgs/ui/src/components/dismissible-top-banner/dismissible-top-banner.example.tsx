@@ -21,7 +21,7 @@ export default function DismissibleBannerExample(): JSX.Element {
 
   return (
     <DismissibleBannerPortalProvider>
-      <ExampleRoot class="flex-1 min-h-[360px]">
+      <ExampleRoot class="flex-1 min-h-90">
         <p class="text textCaption">
           {
             'Banner UI portals into in-flow top/bottom slots. Product apps host the portal on AppFrame so the sheet full-bleeds while content stays on the max-width column. This example mounts its own provider so the banner stays inside the preview.'

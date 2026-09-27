@@ -24,5 +24,18 @@ export const EMQX_JWT_SECRET = 'local-emqx-jwt-secret-change-me';
 export const EMQX_DASHBOARD_USER = 'admin';
 export const EMQX_DASHBOARD_PASS = 'public12';
 
-/** Pinned open-source EMQX release for tarball fallback. */
-export const EMQX_VERSION = '5.8.6';
+/** EMQX's stock dashboard password on a fresh node. */
+export const EMQX_STOCK_DASHBOARD_PASSWORD = 'public';
+
+/**
+ * Broker credentials committed to git for the local sidecar. They are public,
+ * so no deployed broker may run on them: provisioning replaces any stored
+ * value found here and the broker health check fails on one.
+ */
+export const COMMITTED_EMQX_CREDENTIALS: ReadonlySet<string> = new Set([
+  EMQX_API_KEY,
+  EMQX_API_SECRET,
+  EMQX_JWT_SECRET,
+  EMQX_DASHBOARD_PASS,
+  EMQX_STOCK_DASHBOARD_PASSWORD,
+]);

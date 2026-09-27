@@ -1,5 +1,3 @@
-import { useSignInModal } from '@libs/auth/public/auth-modals-provider';
-import { useIsSignedIn } from '@libs/auth/public/use-current-user';
 import { Handles } from '@libs/test-ids';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import {
@@ -33,36 +31,20 @@ function sortCurrentSpacesFirst(
 function SpacesEmptyState(props: {
   readonly onCreateSpace: () => void;
 }): JSX.Element {
-  const canCreateSpace = useIsSignedIn();
-  const { open: openSignInModal } = useSignInModal();
   return (
-    <Show
-      when={canCreateSpace()}
-      fallback={
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={<Trans>No spaces yet</Trans>}
-          body={
-            <Trans>Sign in to start a space or join one from a friend.</Trans>
-          }
-          action={{ label: <Trans>Sign in</Trans>, onClick: openSignInModal }}
-        />
+    <EmptyState
+      icon={Gamepad2Icon}
+      title={<Trans>No spaces yet</Trans>}
+      body={
+        <Trans>
+          Start a space to play with friends. Spaces you join show up here.
+        </Trans>
       }
-    >
-      <EmptyState
-        icon={Gamepad2Icon}
-        title={<Trans>No spaces yet</Trans>}
-        body={
-          <Trans>
-            Start a space to play with friends. Spaces you join show up here.
-          </Trans>
-        }
-        action={{
-          label: <Trans>Start a space</Trans>,
-          onClick: props.onCreateSpace,
-        }}
-      />
-    </Show>
+      action={{
+        label: <Trans>Start a space</Trans>,
+        onClick: props.onCreateSpace,
+      }}
+    />
   );
 }
 
@@ -81,7 +63,7 @@ function SpacesList(props: {
       fallback={<SpacesEmptyState onCreateSpace={props.onCreateSpace} />}
     >
       <ScreenBodyScrollView
-        contentClass="grid items-start gap-3 pb-[24px]"
+        contentClass="grid items-start gap-3 pb-6"
         contentStyle={{ 'grid-template-columns': 'minmax(0, 1fr)' }}
       >
         <For each={orderedIds()}>
@@ -93,7 +75,6 @@ function SpacesList(props: {
 }
 
 export function SpacesScreen(): JSX.Element {
-  const canCreateSpace = useIsSignedIn();
   const router = useRouter();
   const createSpace = useCreateSpace();
   const { t } = useLingui();
@@ -115,7 +96,6 @@ export function SpacesScreen(): JSX.Element {
       operation: startSpace,
       successHoldMs: 0,
       icon: PlusIcon,
-      disabled: !canCreateSpace(),
       dataSet: { testid: Handles.spaceCreate },
     };
   });

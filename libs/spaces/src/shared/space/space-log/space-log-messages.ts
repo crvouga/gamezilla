@@ -6,6 +6,7 @@ import {
 } from '@pkgs/message';
 import { type HandleResult, ROOM_ERROR_TYPE, type RoomState } from '@pkgs/room';
 
+import type { GameCommandContext } from '../game';
 import type { SpaceVisibility } from '../space-visibility';
 
 function isNonEmptyString(v: unknown): v is string {
@@ -76,11 +77,13 @@ export const SpaceEnded = spaceLogEvtNs('ended', validateEmptyPayload);
  */
 export const spaceLogCommandRouter: MessageRouter<
   RoomState,
-  string,
+  GameCommandContext,
   HandleResult
-> = createMessageRouter<RoomState, string, HandleResult>(spaceLogCmdNs)
-  .on(AnnounceMemberJoined, (_state, identity, cmd) => {
-    if (cmd.payload.memberId !== identity) {
+> = createMessageRouter<RoomState, GameCommandContext, HandleResult>(
+  spaceLogCmdNs
+)
+  .on(AnnounceMemberJoined, (_state, ctx, cmd) => {
+    if (cmd.payload.memberId !== ctx.identity) {
       return {
         ok: false,
         error: {
@@ -94,8 +97,8 @@ export const spaceLogCommandRouter: MessageRouter<
       events: [MemberJoined({ memberId: cmd.payload.memberId })],
     };
   })
-  .on(AnnounceMemberLeft, (_state, identity, cmd) => {
-    if (cmd.payload.memberId !== identity) {
+  .on(AnnounceMemberLeft, (_state, ctx, cmd) => {
+    if (cmd.payload.memberId !== ctx.identity) {
       return {
         ok: false,
         error: {

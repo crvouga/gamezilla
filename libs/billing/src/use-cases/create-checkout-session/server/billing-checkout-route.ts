@@ -1,158 +1,107 @@
 import { zValidator } from '@hono/zod-validator';
-import { EXTERNAL_ACCOUNT_PROVIDER_BILLING } from '@libs/auth/public/external-account-providers';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
-import type { Billing } from '@pkgs/billing';
-import { createLogger, type Logger } from '@pkgs/logger';
-import type { SqlClient } from '@pkgs/sql-client/interface';
+import {
+  isMembershipLive,
+  type MembershipBilling,
+  readMembershipStatus,
+} from '@pkgs/billing';
 import type { Context } from 'hono';
 import { Hono } from 'hono';
-import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
-import { CATALOG_PRICE_KEYS } from '../../../shared/catalog/catalog-spec';
 
-export type BillingAuthContext = {
-  readonly accountId: string;
-  readonly deviceId: string;
-};
-
-export type BillingRequireAuth = (
-  sql: SqlClient,
-  request: Request
-) => Promise<BillingAuthContext>;
+import { CustomerLinks } from '../../../shared/memberships/customer-links';
+import { MembershipRepository } from '../../../shared/memberships/membership-repository';
+import {
+  type BillingRouteDeps,
+  billingNotConfigured,
+} from '../../../shared/routes/billing-route-deps';
 
 const checkoutBodySchema = z.object({
-  priceKey: z.enum(CATALOG_PRICE_KEYS),
-  successUrl: z.url(),
-  cancelUrl: z.url(),
-});
-
-const portalBodySchema = z.object({
   returnUrl: z.url(),
 });
 
 type CheckoutValidated = z.infer<typeof checkoutBodySchema>;
-type PortalValidated = z.infer<typeof portalBodySchema>;
 
-async function readBillingCustomerId(
-  sql: SqlClient,
-  accountId: string
-): Promise<string | null> {
-  return new ExternalAccountRepository(sql).readExternalAccountId(
-    accountId,
-    EXTERNAL_ACCOUNT_PROVIDER_BILLING
-  );
-}
-
+/**
+ * Starts a membership at the provider new checkouts go to. An account that
+ * is already a member — at any provider — manages that membership instead:
+ * two live memberships would bill one person twice.
+ */
 async function handleBillingCheckout(
   c: Context,
   body: CheckoutValidated,
-  args: {
-    readonly sql: SqlClient;
-    readonly requireAuth: BillingRequireAuth;
-    readonly log: Logger;
-  }
+  deps: BillingRouteDeps & { readonly provider: MembershipBilling }
 ): Promise<Response> {
-  const { sql, requireAuth, log } = args;
-  await requireAuth(sql, c.req.raw);
-
-  // Catalog price → provider price id previously came from entity_store.
-  // Fail closed until billing rewires onto `@pkgs/entity-store`.
-  log.error(
-    'checkout: catalog price lookup unavailable — entity_store dump removed; rewire onto @pkgs/entity-store',
-    { priceKey: body.priceKey }
+  const sql = deps.getSqlClient();
+  const auth = await deps.requireAuth(sql, c.req.raw);
+  const governing = await new MembershipRepository(sql).governing(
+    auth.accountId
   );
-  return c.json(
-    {
-      error:
-        'Billing checkout is temporarily unavailable (catalog price lookup not wired)',
-    },
-    503
-  );
-}
-
-async function handleBillingPortal(
-  c: Context,
-  body: PortalValidated,
-  args: {
-    readonly sql: SqlClient;
-    readonly billing: Billing;
-    readonly requireAuth: BillingRequireAuth;
-    readonly log: Logger;
+  if (
+    governing !== null &&
+    isMembershipLive(readMembershipStatus(governing.status))
+  ) {
+    return c.json({ error: 'This account already has a membership' }, 409);
   }
-): Promise<Response> {
-  const { sql, billing, requireAuth, log } = args;
-  const auth = await requireAuth(sql, c.req.raw);
-  const customerId = await readBillingCustomerId(sql, auth.accountId);
-
-  if (customerId === null) {
-    throw new HTTPException(404, {
-      message: 'No billing customer for this account',
-    });
-  }
-
-  const portal = await billing.createPortalSession({
-    customerId,
+  const { provider } = deps;
+  const links = new CustomerLinks(sql);
+  const existing = await links.customerOf(auth.accountId, provider.provider);
+  const checkout = await provider.startCheckout({
+    accountId: auth.accountId,
+    customerId: existing,
+    email: await new ExternalAccountRepository(sql).readAccountEmail(
+      auth.accountId
+    ),
     returnUrl: body.returnUrl,
   });
-
-  if (portal.url.length === 0) {
-    log.error('portal: billing returned empty portal.url', {
-      portalId: portal.id,
-    });
-    return c.json({ error: 'Billing portal URL missing' }, 502);
+  if (existing === null) {
+    const owner = await sql.transaction((tx) =>
+      new CustomerLinks(tx).link({
+        accountId: auth.accountId,
+        provider: provider.provider,
+        customerId: checkout.customerId,
+        now: () => deps.clock.now(),
+        createId: deps.createId,
+      })
+    );
+    if (owner !== auth.accountId) {
+      // The provider answered with a customer another account holds: paying
+      // through it would credit that account.
+      deps.log.error('billing checkout: customer belongs to another account', {
+        provider: provider.provider,
+      });
+      return c.json(
+        { error: 'Billing customer belongs to another account' },
+        409
+      );
+    }
+    // The customer link is a synced DOMAIN row (the client reads it to decide
+    // whether a portal session is possible), so it needs its own push.
+    await deps.notifyUser(auth.accountId, 'billing:customer', [
+      'auth_external_accounts',
+    ]);
   }
-
-  return c.json({ url: portal.url }, 200);
+  if (checkout.url.length === 0) {
+    return c.json({ error: 'Billing checkout URL missing' }, 502);
+  }
+  return c.json({ url: checkout.url }, 200);
 }
 
 export class BillingCheckoutRoutes {
-  private readonly log: Logger;
-
-  constructor(
-    private readonly getSqlClient: () => SqlClient,
-    private readonly billing: Billing | null,
-    private readonly requireAuth: BillingRequireAuth,
-    now: () => number
-  ) {
-    this.log = createLogger({ name: 'billing:checkout', now });
-  }
+  constructor(private readonly deps: BillingRouteDeps) {}
 
   build(): Hono {
-    const { getSqlClient, billing, requireAuth, log } = this;
-
-    return new Hono()
-      .post(
-        '/billing/checkout',
-        zValidator('json', checkoutBodySchema),
-        async (c) => {
-          if (billing === null) {
-            return c.json({ error: 'Billing is not configured' }, 503);
-          }
-          const body = c.req.valid('json');
-          const sql = getSqlClient();
-          return handleBillingCheckout(c, body, {
-            sql,
-            requireAuth,
-            log,
-          });
-        }
-      )
-      .post(
-        '/billing/portal',
-        zValidator('json', portalBodySchema),
-        async (c) => {
-          if (billing === null) {
-            return c.json({ error: 'Billing is not configured' }, 503);
-          }
-          const body = c.req.valid('json');
-          const sql = getSqlClient();
-          return handleBillingPortal(c, body, {
-            sql,
-            billing,
-            requireAuth,
-            log,
-          });
-        }
-      );
+    const deps = this.deps;
+    return new Hono().post(
+      '/billing/checkout',
+      zValidator('json', checkoutBodySchema),
+      async (c) => {
+        if (deps.billing === null) return billingNotConfigured(c);
+        return await handleBillingCheckout(c, c.req.valid('json'), {
+          ...deps,
+          provider: deps.billing.checkout,
+        });
+      }
+    );
   }
 }

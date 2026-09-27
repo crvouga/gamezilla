@@ -7,19 +7,3 @@ export type OsFs = {
   readonly readdirSync: (absolutePath: string) => string[];
   readonly rmrfSync: (absolutePath: string) => void;
 };
-
-export const missingOsFs: OsFs = {
-  pathExists: () => false,
-  mkdirpSync: (absolutePath) => {
-    throw new Error(`OsFs.mkdirpSync not injected for ${absolutePath}`);
-  },
-  chmodSync: (absolutePath) => {
-    throw new Error(`OsFs.chmodSync not injected for ${absolutePath}`);
-  },
-  readdirSync: (absolutePath) => {
-    throw new Error(`OsFs.readdirSync not injected for ${absolutePath}`);
-  },
-  rmrfSync: (absolutePath) => {
-    throw new Error(`OsFs.rmrfSync not injected for ${absolutePath}`);
-  },
-};

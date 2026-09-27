@@ -19,7 +19,7 @@ import {
   SetChessSelectedReviewPuzzle,
 } from '../chess-main-menu';
 import type { ChessPuzzleGameLogEntry } from '../chess-puzzle-stats';
-import { usePuzzleEntity } from './chess-puzzle-play-queries';
+import { useReviewPuzzleEntity } from './chess-puzzle-play-queries';
 import { ChessPuzzleReviewBoard } from './chess-puzzle-review-board';
 import { useChessPuzzleHistory } from './use-chess-puzzle-history';
 
@@ -30,6 +30,9 @@ function ReviewTitle(props: {
   const puzzleRating = props.entry.puzzleRating;
   if (props.entry.outcome === 'solved') {
     return <Trans>Solved · {puzzleRating}</Trans>;
+  }
+  if (props.entry.outcome === 'failed') {
+    return <Trans>Failed · {puzzleRating}</Trans>;
   }
   return <Trans>Abandoned · {puzzleRating}</Trans>;
 }
@@ -56,7 +59,7 @@ function findLogEntry(
 }
 
 function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
-  const entity = usePuzzleEntity(() => props.puzzleId);
+  const entity = useReviewPuzzleEntity(() => props.puzzleId);
   const history = useChessPuzzleHistory();
   const entry = createMemo(() =>
     findLogEntry(history.gameLog(), props.puzzleId)
@@ -69,7 +72,7 @@ function ChessPuzzleReviewBody(props: { puzzleId: string }): JSX.Element {
       dataSet={{ screen: 'chess-stats-review' }}
     >
       <div
-        class="box gap-4 p-4 pb-8 self-center w-[100%] min-w-[0]"
+        class="box gap-4 p-4 pb-8 self-center w-full min-w-0"
         style={{ 'max-width': `${MAIN_MENU_SCREEN_MAX_WIDTH}px` }}
       >
         <MainMenuScreenHeader
@@ -111,7 +114,7 @@ export function ChessPuzzleReviewScreen(): JSX.Element {
   };
 
   return (
-    <div class="box flex-1 min-h-[0] min-w-[0] self-stretch overflow-hidden">
+    <div class="box flex-1 min-h-0 min-w-0 self-stretch overflow-hidden">
       <DefineBackButton onPress={backToStats} />
       <Show
         when={puzzleId() !== null}

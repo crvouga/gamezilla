@@ -26,15 +26,12 @@ export type SpaceAccessInput = {
 
 /**
  * Decides whether a viewer may open a live space.
- * Public requires a signed-in account; private requires spaces_users ACL.
+ * Public is open to anyone; private requires the spaces_users ACL.
  * Space owners (member / creating device / host account) may always reopen.
  */
 export function decideSpaceJoinAccess(
   input: SpaceAccessInput
 ): SpaceAccessDecision {
-  if (input.viewerAccountId === null || input.viewerAccountId.length === 0) {
-    return { allowed: false, code: 'SPACE_NOT_SIGNED_IN' };
-  }
   return decideJoin({
     visibility: input.visibility,
     hostId: input.hostId,

@@ -1,4 +1,5 @@
 export {
+  COMMITTED_EMQX_CREDENTIALS,
   EMQX_API_KEY,
   EMQX_API_SECRET,
   EMQX_DASHBOARD_PASS,
@@ -9,7 +10,11 @@ export {
   EMQX_MQTT_PASS,
   EMQX_MQTT_PORT,
   EMQX_MQTT_USER,
-  EMQX_VERSION,
+  EMQX_STOCK_DASHBOARD_PASSWORD,
   EMQX_WS_PORT,
 } from './ports';
-export { type EmqxServerHandle, startEmqxServer } from './start';
+export {
+  type EmqxServerHandle,
+  type StartEmqxServerOptions,
+  startEmqxServer,
+} from './start';

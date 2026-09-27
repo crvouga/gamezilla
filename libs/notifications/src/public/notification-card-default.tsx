@@ -153,7 +153,7 @@ function InteractionRowText(props: {
     )
   );
   return (
-    <div class="box flex-1 min-w-[0] gap-1">
+    <div class="box flex-1 min-w-0 gap-1">
       <p
         class="text line-clamp-3"
         classList={{
@@ -291,7 +291,7 @@ export function NotificationCardDefault(
       >
         {(press) => (
           <button
-            class="clickable clickableTint flex-1 min-w-[0]"
+            class="clickable clickableTint flex-1 min-w-0"
             type="button"
             onClick={press}
           >

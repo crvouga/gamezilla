@@ -6,14 +6,8 @@ preview_urls = false
 # Assets-only Worker: no `main` script → Cloudflare serves static files with
 # zero Worker compute. SPA fallback rewrites unknown paths to index.html.
 # Super-app: `/` = wall client, `/simulator` = Simulator.
-# No `name` under `[env.production]` → wrangler publishes as
-# `gamezilla-client-production` (must match `PRODUCT_CONFIG.cloudflare.clientWorker`).
-[env.production]
-routes = [
-  { pattern = "gamezilla.app", custom_domain = true },
-  { pattern = "www.gamezilla.app", custom_domain = true },
-]
-
-[env.production.assets]
+# Env-agnostic: the deployed name comes from libs/infra (render-wrangler) and
+# the apex / www hostnames from the OpenTofu edge stack.
+[assets]
 directory = "./dist"
 not_found_handling = "single-page-application"

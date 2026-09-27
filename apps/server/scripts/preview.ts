@@ -3,7 +3,7 @@
  */
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
-import { migratePostgresApp } from '../src/db/migrate';
+import { migratePostgresApp } from '@libs/runtime/root/server/migrate';
 
 const API_DIR = join(import.meta.dirname, '..');
 

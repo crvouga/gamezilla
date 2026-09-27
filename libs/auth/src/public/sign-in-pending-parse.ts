@@ -12,7 +12,7 @@ import { SIGN_IN_PENDING_KEY } from './auth-storage-keys';
 export const SIGN_IN_PENDING_TTL_MS = 30 * 60 * 1000;
 
 /** Fallback when no safe return path was stored (or it was the callback itself). */
-export const SIGN_IN_RETURN_FALLBACK_HREF = '/(tabs)';
+export const SIGN_IN_RETURN_FALLBACK_HREF = '/';
 
 export type SignInPending = {
   readonly startedAt: Date;

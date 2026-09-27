@@ -3,47 +3,33 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./client/*": [
-      "./src/client/*.ts",
-      "./src/client/*.tsx"
-    ],
-    "./server/*": [
-      "./src/server/*.ts",
-      "./src/server/*.tsx"
-    ],
-    "./shared/*": [
-      "./src/shared/*.ts"
-    ],
-    "./port/*": [
-      "./src/port/*.ts"
-    ],
-    "./impl-noop/*": [
-      "./src/impl-noop/*.ts"
-    ],
-    "./impl-logger/*": [
-      "./src/impl-logger/*.ts"
-    ],
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*/index.ts"
-    ]
+    "./browser": "./src/browser/index.ts",
+    "./core": "./src/core/index.ts",
+    "./node": "./src/node/index.ts",
+    "./query": "./src/query/index.ts",
+    "./worker": "./src/worker/index.ts"
   },
   "scripts": {
-    "lint": "bunx biome check --error-on-warnings .",
-    "tc": "tsc --noEmit -p ./tsconfig.tc.json",
+    "check:collector-configs": "bun run scripts/validate-collector-configs.ts",
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/async-local": "workspace:*",
-    "@pkgs/clock": "workspace:*",
-    "@pkgs/logger": "workspace:*",
-    "@pkgs/solid-context": "workspace:*",
-    "@pkgs/uuid": "workspace:*",
-    "hono": "catalog:",
-    "solid-js": "catalog:"
+    "@opentelemetry/api": "catalog:",
+    "@opentelemetry/context-async-hooks": "catalog:",
+    "@opentelemetry/exporter-trace-otlp-http": "catalog:",
+    "@opentelemetry/instrumentation": "catalog:",
+    "@opentelemetry/instrumentation-fetch": "catalog:",
+    "@opentelemetry/resources": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@opentelemetry/sdk-trace-node": "catalog:",
+    "@opentelemetry/sdk-trace-web": "catalog:",
+    "@opentelemetry/semantic-conventions": "catalog:",
+    "@pkgs/object-store": "workspace:*"
   },
   "devDependencies": {
+    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

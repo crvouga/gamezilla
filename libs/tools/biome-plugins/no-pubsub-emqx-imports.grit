@@ -1,0 +1,17 @@
+language js
+
+// @pkgs/pubsub-emqx (the EMQX transport) is wired only by composition roots:
+// the package itself, the sync shells and the pubsub infra lib (biome.json
+// `includes`). Matches every import / export-from source, import() and
+// require() specifier.
+file($body) where {
+  $body <: includes "@pkgs/pubsub-emqx",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]@pkgs/pubsub-emqx(?:/[^'\"]*)?['\"]$",
+    register_diagnostic(span=$src, message="@pkgs/pubsub-emqx only from pkgs/pubsub-emqx, the sync shells, or libs/pubsub server wiring.", severity="error")
+  }
+}

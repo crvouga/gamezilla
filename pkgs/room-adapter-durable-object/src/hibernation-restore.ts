@@ -23,7 +23,10 @@ export type WsMeta<Identity> = {
   readonly id: string;
   readonly identity: Identity;
   readonly clientId: string;
+  readonly identityRaw: string;
   readonly moduleName: RoomModuleName;
+  readonly topic: string;
+  readonly traceparent: string | null;
 };
 
 type RestoreDeps<
@@ -87,7 +90,15 @@ async function attachRestoredSocket<
     'RoomServer topic drifted while restoring hibernated socket',
     { existing: server.topic, requested: topic, moduleName }
   );
-  deps.wsMeta.set(ws, { id: connId, identity, clientId, moduleName });
+  deps.wsMeta.set(ws, {
+    id: connId,
+    identity,
+    identityRaw,
+    clientId,
+    moduleName,
+    topic,
+    traceparent: attachment.traceparent,
+  });
   if (!server.hasConnection(connId)) {
     // Suppress per-connection roster broadcasts during restore; the caller
     // emits a single snapshot once every socket is re-attached.

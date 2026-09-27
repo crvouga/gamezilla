@@ -85,7 +85,7 @@ export function SqlCell(props: SqlCellRenderProps): JSX.Element {
 
   return (
     <div
-      class="box border rounded-[10px] overflow-hidden bg-surface"
+      class="box border rounded-md overflow-hidden bg-surface"
       style={{
         'border-color': props.focused()
           ? colorVar('tint')

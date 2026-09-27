@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   FadeSwitch,
   FocusTrap,
@@ -15,13 +17,12 @@ import {
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, type JSX } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 describe('FocusTrap', () => {
   test('autofocuses, wraps Tab, restores focus, escapes innermost', async () => {
     const user = userEvent.setup();
-    const onEscape = vi.fn();
+    const onEscape = mock();
     const [open, setOpen] = createSignal(true);
     renderUi(() => (
       <>
@@ -79,7 +80,7 @@ describe('keyboard shortcuts', () => {
 
   test('document listener respects scope gate', async () => {
     const user = userEvent.setup();
-    const onKey = vi.fn();
+    const onKey = mock();
     const [active, setActive] = createSignal(false);
     renderUi(() => (
       <KeyboardShortcutScope active={active()}>

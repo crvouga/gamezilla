@@ -35,26 +35,54 @@ export const fontSize = {
   '4xl': 36,
 } as const;
 
+/**
+ * Unitless ratios. `tokens.css` emits them unitless. The sx codemod still
+ * appends `px` (`leading-[1.25px]`) — that quirk stays so old snapshots match.
+ */
 export const lineHeight = {
   tight: 1.25,
   normal: 1.5,
   relaxed: 1.75,
 } as const;
 
+/** Per-step leading in px. Paired with `fontSize` as `--ui-leading-*`. */
+export const fontLeading = {
+  xs: 18,
+  sm: 22,
+  base: 26,
+  lg: 24,
+  xl: 28,
+  '2xl': 34,
+  '3xl': 38,
+  '4xl': 44,
+} as const;
+
 /**
- * Industry-standard radius scale -- sharp, confident silhouettes. The legacy
- * `sm` / `md` / `lg` keys keep working but resolve to tighter values; the
- * inserted `xs` and `2xl` keys round out the scale.
+ * Chunky game radii. Controls and cards read as toys, not a dashboard.
+ * `xs` is the tightest squircle (close buttons, inline chips); `lg` / `xl`
+ * are cards and primary buttons; `full` is pills.
  */
 export const borderRadius = {
   none: 0,
-  xs: 4,
-  sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
-  '2xl': 28,
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 22,
+  xl: 28,
+  '2xl': 40,
   full: 9999,
+} as const;
+
+/**
+ * Named distances on top of the 4px grid. Page insets and stacks should
+ * use these (`--ui-space-page`, …) so density is one edit.
+ */
+export const spaceRole = {
+  hairline: 1,
+  inline: spacing[2],
+  stack: spacing[3],
+  section: spacing[6],
+  page: spacing[5],
 } as const;
 
 export type BorderRadiusKey = keyof typeof borderRadius;

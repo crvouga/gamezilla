@@ -37,7 +37,7 @@ export function Header(props: { nav: ReportNav }) {
           ← Tests
         </button>
       </Show>
-      <a href="#/">
+      <a href="#/" aria-label="Back to report tests">
         <h1>{report.data.title}</h1>
       </a>
       <span class="sr-meta">
@@ -87,10 +87,16 @@ export function Header(props: { nav: ReportNav }) {
           }}
         />
       </Show>
+      <Show when={!isList()}>
+        <span class="sr-keys">
+          ← → frames · ↑ ↓ steps · N failures · Space play
+        </span>
+      </Show>
       <button
         type="button"
         class="sr-navbtn"
         title="Keyboard shortcuts"
+        aria-label="Open keyboard shortcuts"
         onClick={() => props.nav.toggleHelp()}
       >
         ?

@@ -6,8 +6,8 @@
  * the balancer rotation.
  */
 
-import type { Sim } from '@apps/product/sim/fabric/create-sim';
-import type { SimLoadBalancerRoute } from '@apps/product/sim/fabric/sim-load-balancer';
+import type { Sim } from '@libs/sim-harness/fabric/create-sim';
+import type { SimLoadBalancerRoute } from '@libs/sim-harness/fabric/sim-load-balancer';
 import {
   createProductSimulatorLogBuffer,
   type ProductSimulatorLoadBalancerNode,

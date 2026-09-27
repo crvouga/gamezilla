@@ -6,12 +6,17 @@ export const clientConfig = defineTable({
   columns: {
     value: 'json',
   },
-  deprecations: [
-    ['enabled', 'unused — use *_enabled / null scalar rows'],
-    [
-      'google_web_client_id',
-      'unused column — value lives in row id=google_web_client_id',
-    ],
+  retiredColumns: [
+    {
+      name: 'enabled',
+      type: 'boolean',
+      note: 'unused — use *_enabled / null scalar rows',
+    },
+    {
+      name: 'google_web_client_id',
+      type: 'text',
+      note: 'unused column — value lives in row id=google_web_client_id',
+    },
   ],
 });
 

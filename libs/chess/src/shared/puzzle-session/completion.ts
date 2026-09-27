@@ -1,15 +1,18 @@
 import {
   deriveCurrentStreak,
+  playOutcome,
   sliceCurrentPlay,
 } from '../chess/chess-puzzle-derive';
 import {
-  CHESS_PUZZLE_INTERACTION_KIND,
-  type ChessPuzzleInteractionKind,
   type ChessPuzzleInteractionRow,
+  type ChessPuzzleOutcomeKind,
+  isOutcomeKind,
 } from '../chess/chess-puzzle-interaction-entities';
-import { projectPuzzleEloFromInteractions } from '../chess/chess-puzzle-rating';
+import { PUZZLE_RATING_DEFAULT } from '../chess/chess-puzzle-rating';
+import type { ChessPuzzleRatingEvent } from '../chess/chess-puzzle-rating-event';
+import { compareCodeUnit } from '../chess/code-unit-compare';
 
-export type PuzzleCompletionOutcome = 'solved' | 'abandoned';
+export type PuzzleCompletionOutcome = ChessPuzzleOutcomeKind;
 
 export type PuzzleCompletion = {
   readonly outcome: PuzzleCompletionOutcome;
@@ -18,77 +21,76 @@ export type PuzzleCompletion = {
   readonly delta: number;
   readonly streak: number;
   readonly puzzleRating: number;
+  /**
+   * False when the puzzle had already moved this player's rating (§8 repeat
+   * attempt, §9 exhausted-pool re-serve): the result panel shows no delta.
+   */
+  readonly rated: boolean;
 };
 
-function isTerminalKind(kind: ChessPuzzleInteractionKind): boolean {
-  return (
-    kind === CHESS_PUZZLE_INTERACTION_KIND.solved ||
-    kind === CHESS_PUZZLE_INTERACTION_KIND.abandoned
-  );
+/** Whether `terminal` is the first outcome this puzzle ever had for the player. */
+function isFirstOutcome(
+  interactions: readonly ChessPuzzleInteractionRow[],
+  puzzleId: string,
+  terminal: ChessPuzzleInteractionRow
+): boolean {
+  const outcomes = interactions
+    .filter((r) => r.puzzleId === puzzleId && isOutcomeKind(r.kind))
+    .sort((a, b) => compareCodeUnit(a.at, b.at));
+  const first = outcomes[0];
+  return first !== undefined && first.at === terminal.at;
 }
 
-function terminalFromPlay(
-  play: readonly ChessPuzzleInteractionRow[]
-): ChessPuzzleInteractionRow | null {
-  for (let i = play.length - 1; i >= 0; i -= 1) {
-    const row = play[i];
-    if (row !== undefined && isTerminalKind(row.kind)) return row;
-  }
-  return null;
-}
-
-function interactionKey(row: ChessPuzzleInteractionRow): string {
-  return `${row.puzzleId}|${row.kind}|${row.at}|${row.solveIdx}`;
-}
-
-/** Merge per-puzzle rows into all-history so projection sees the open play. */
-function mergeInteractionHistory(
-  all: readonly ChessPuzzleInteractionRow[],
-  extra: readonly ChessPuzzleInteractionRow[]
-): ChessPuzzleInteractionRow[] {
-  const keys = new Set(all.map(interactionKey));
-  const out = [...all];
-  for (const row of extra) {
-    const key = interactionKey(row);
-    if (keys.has(key)) continue;
-    keys.add(key);
-    out.push(row);
-  }
-  return out;
-}
+export type PuzzleCompletionInput = {
+  /** Interaction rows for this puzzle. */
+  readonly interactions: readonly ChessPuzzleInteractionRow[];
+  readonly puzzleId: string;
+  /** Every interaction row (streak spans puzzles). */
+  readonly allInteractions: readonly ChessPuzzleInteractionRow[];
+  /** Synced §8 rating ledger. */
+  readonly ratingEvents: readonly ChessPuzzleRatingEvent[];
+  /** Current profile rating, for the unrated case. */
+  readonly profileRating: number;
+};
 
 /**
  * Completion summary for the current play of `puzzleId`, or null while the
- * play has no terminal interaction. Elo before/after come from the formula
- * projection over attempt facts (not stored columns).
+ * play has no outcome yet. The rating numbers come from the §8 ledger row
+ * the rating mutation wrote — never from a client-side recomputation.
  */
-export function derivePuzzleCompletion(args: {
-  interactions: readonly ChessPuzzleInteractionRow[];
-  puzzleId: string;
-  allInteractions: readonly ChessPuzzleInteractionRow[];
-}): PuzzleCompletion | null {
+export function derivePuzzleCompletion(
+  args: PuzzleCompletionInput
+): PuzzleCompletion | null {
   const play = sliceCurrentPlay(args.interactions, args.puzzleId);
-  const terminal = terminalFromPlay(play);
+  const terminal = playOutcome(play);
   if (terminal === null) return null;
 
-  const history = mergeInteractionHistory(
-    args.allInteractions,
-    args.interactions
-  );
-  const projected = projectPuzzleEloFromInteractions(history);
-  const entry =
-    projected.entries.find(
-      (e) => e.puzzleId === args.puzzleId && e.at === terminal.at
-    ) ??
-    [...projected.entries].reverse().find((e) => e.puzzleId === args.puzzleId);
-  if (entry === undefined) return null;
+  const event = args.ratingEvents.find((e) => e.puzzleId === args.puzzleId);
+  const rated =
+    event !== undefined &&
+    isFirstOutcome(args.interactions, args.puzzleId, terminal);
+  const rating =
+    args.profileRating > 0 ? args.profileRating : PUZZLE_RATING_DEFAULT;
+  const streak = deriveCurrentStreak(args.allInteractions);
 
+  if (!rated) {
+    return {
+      outcome: terminal.kind as PuzzleCompletionOutcome,
+      ratingBefore: rating,
+      ratingAfter: rating,
+      delta: 0,
+      streak,
+      puzzleRating: terminal.puzzleRating,
+      rated: false,
+    };
+  }
   return {
-    outcome: entry.outcome,
-    ratingBefore: entry.ratingBefore,
-    ratingAfter: entry.ratingAfter,
-    delta: entry.delta,
-    streak: deriveCurrentStreak(history),
-    puzzleRating: entry.puzzleRating,
+    outcome: terminal.kind as PuzzleCompletionOutcome,
+    ratingBefore: event.ratingBefore,
+    ratingAfter: event.ratingAfter,
+    delta: event.ratingAfter - event.ratingBefore,
+    streak,
+    puzzleRating: terminal.puzzleRating,
+    rated: true,
   };
 }

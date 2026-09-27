@@ -12,6 +12,10 @@ import {
   normalizeUsername,
   validateUsername,
 } from '../../../shared/profile/username';
+import {
+  USERNAME_NORM_UNIQUE_INDEX,
+  USERNAME_TAKEN_CONSTRAINT_ERROR,
+} from '../../../shared/profile/username-column';
 import { generateRandomUsername } from '../../../shared/profile/username-generator';
 
 const PROFILE_SEED_USERNAME_ATTEMPTS = 8;
@@ -33,6 +37,11 @@ function usernameFailure(error: ReturnType<typeof validateUsername>): never {
       throw new MutationError(
         'USERNAME_INVALID_FORMAT',
         'Username can only use letters, numbers, and underscores.'
+      );
+    case 'blocked':
+      throw new MutationError(
+        'USERNAME_BLOCKED',
+        'That username is not allowed.'
       );
     default:
       throw new MutationError('INVALID_USERNAME', 'Username is invalid.');
@@ -104,6 +113,9 @@ export const claimUsernameMutation = defineMutation({
   args: z.object({ username: z.string() }),
   pendingUx: 'pending',
   requiresOnline: true,
+  constraintErrors: {
+    [USERNAME_NORM_UNIQUE_INDEX]: USERNAME_TAKEN_CONSTRAINT_ERROR,
+  },
   async run({ tx, env }, { username: rawUsername }) {
     const username = normalizeUsername(rawUsername).toLowerCase();
     const validationError = validateUsername(username);

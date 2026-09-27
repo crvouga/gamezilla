@@ -1,7 +1,14 @@
 import type { HtmlReportTest } from '@pkgs/sim';
 
 import type { FlatFrame } from '../lib/frames';
-import { actorIds, frameHasUi, selectedFrame, testFrames } from '../lib/frames';
+import {
+  actorIds,
+  frameHasUi,
+  neighborFailure,
+  neighborStepFrame,
+  selectedFrame,
+  testFrames,
+} from '../lib/frames';
 import {
   type Route,
   showAside,
@@ -14,6 +21,8 @@ import type { ReportData } from '../types';
 export type KeyNavHandlers = {
   toggleHelp: () => void;
   showHelp: () => boolean;
+  showPalette: () => boolean;
+  togglePalette: () => void;
   stopPlay: () => void;
   navigate: (route: Route) => void;
   goFrame: (frame: FlatFrame | null, node?: string) => void;
@@ -52,6 +61,24 @@ function scrubKeys(
     e.preventDefault();
     h.togglePlay();
   }
+}
+
+/** ↑/↓ jump between steps, N / Shift+N between failures. */
+function jumpKeys(
+  e: KeyboardEvent,
+  frames: FlatFrame[],
+  sel: FlatFrame | null,
+  h: KeyNavHandlers
+): void {
+  const idx = sel ? sel.index : -1;
+  let target: FlatFrame | null = null;
+  if (e.key === 'ArrowDown') target = neighborStepFrame(frames, idx, 1);
+  else if (e.key === 'ArrowUp') target = neighborStepFrame(frames, idx, -1);
+  else if (e.key === 'n') target = neighborFailure(frames, idx, 1);
+  else if (e.key === 'N') target = neighborFailure(frames, idx, -1);
+  else return;
+  e.preventDefault();
+  if (target) h.goFrame(target);
 }
 
 function neighborKeys(
@@ -118,8 +145,29 @@ export function onReportKeyDown(
   data: ReportData,
   h: KeyNavHandlers
 ): void {
-  const tag = (e.target as HTMLElement | null)?.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    h.togglePalette();
+    return;
+  }
+  if (e.key === 'Escape' && h.showPalette()) {
+    e.preventDefault();
+    h.togglePalette();
+    return;
+  }
+  if (h.showPalette()) return;
+  const target = e.target as HTMLElement | null;
+  const tag = target?.tagName;
+  if (
+    tag === 'INPUT' ||
+    tag === 'TEXTAREA' ||
+    tag === 'SELECT' ||
+    tag === 'BUTTON' ||
+    tag === 'A' ||
+    target?.isContentEditable
+  ) {
+    return;
+  }
   if (e.key === '?' || (e.shiftKey && e.key === '/')) {
     h.toggleHelp();
     return;
@@ -141,5 +189,6 @@ export function onReportKeyDown(
   const frames = testFrames(test);
   const sel = selectedFrame(frames, r);
   scrubKeys(e, frames, sel, h);
+  jumpKeys(e, frames, sel, h);
   viewKeys(e, { data, test, sel, route: r, h });
 }

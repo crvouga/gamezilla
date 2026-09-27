@@ -1,24 +1,21 @@
 import { useLingui } from '@lingui/solid/macro';
+import type { OauthProviderId } from '@pkgs/auth/shared';
 import { ModalButton } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 import { SignInModalBody } from './sign-in-modal-body';
 
 export function SignInIdleBody(props: {
   methodsLoading?: boolean | undefined;
-  googleAvailable: boolean;
-  devOauthAvailable: boolean;
+  providers: readonly OauthProviderId[];
   signInUnavailableReason: string | null;
-  onPressGoogle: () => void;
-  onPressDev: () => void;
+  onPress: (provider: OauthProviderId) => void;
 }): JSX.Element {
   return (
     <SignInModalBody
       methodsLoading={props.methodsLoading}
-      googleAvailable={props.googleAvailable}
-      devOauthAvailable={props.devOauthAvailable}
+      providers={props.providers}
       signInUnavailableReason={props.signInUnavailableReason}
-      onPressGoogle={props.onPressGoogle}
-      onPressDev={props.onPressDev}
+      onPress={props.onPress}
     />
   );
 }

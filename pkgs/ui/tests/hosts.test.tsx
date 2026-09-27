@@ -1,4 +1,6 @@
 /** @jsxImportSource solid-js */
+
+import { describe, expect, mock, test } from 'bun:test';
 import {
   Checkbox,
   ContentEdgePaddingProvider,
@@ -10,12 +12,11 @@ import {
 } from '@pkgs/ui';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
-import { describe, expect, test, vi } from 'vitest';
 import { cssOf, renderUi } from './support/render';
 
 describe('Clickable', () => {
   test('renders a real button with tint feedback and forwards clicks', () => {
-    const onClick = vi.fn();
+    const onClick = mock();
     renderUi(() => (
       <button
         class="clickable clickableTint p-2"
@@ -62,14 +63,14 @@ describe('Switch', () => {
     expect(track?.className).toMatch(/bg-disabled/);
     fireEvent.click(el);
     expect(el).toHaveAttribute('aria-checked', 'true');
-    expect(el.className).toMatch(/min-h-\[44px\]/);
+    expect(el.className).toMatch(/min-h-11/);
     expect(track?.className).toMatch(/bg-tint/);
   });
 });
 
 describe('Checkbox', () => {
   test('tri-state aria + toggling semantics', () => {
-    const onToggle = vi.fn();
+    const onToggle = mock();
     renderUi(() => (
       <Checkbox
         checked={false}
@@ -88,7 +89,7 @@ describe('Checkbox', () => {
 describe('TextInput', () => {
   test('controlled value, label, error and submit', () => {
     const [value, setValue] = createSignal('');
-    const onSubmit = vi.fn();
+    const onSubmit = mock();
     renderUi(() => (
       <TextInput
         value={value()}

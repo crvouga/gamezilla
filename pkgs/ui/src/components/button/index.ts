@@ -1,10 +1,14 @@
 export { Button, type ButtonProps } from './button';
 export {
   type ButtonFace,
+  type ButtonFaceName,
   type ButtonFeedback,
   type ButtonIntent,
+  type ButtonRenderInput,
   type ButtonVariant,
+  buttonFaceName,
   buttonForegroundColor,
+  buttonInteraction,
   MUTATION_FEEDBACK_ICONS,
   resolveButtonRender,
 } from './button-face';

@@ -5,7 +5,7 @@ import type {
 } from '@pkgs/room';
 /**
  * Minimal server surface for in-process loopback. {@link RoomServer} satisfies
- * this without a client→server import (depcruise `client-not-server`).
+ * this without a client→server import (the `import-client-not-server` Biome rule).
  */
 export type LoopbackRoomHost = {
   registerConnection(
@@ -98,7 +98,7 @@ export class LoopbackRoomTransport implements ClientTransport {
 
   /** Server → client (broadcast or unicast). */
   deliverToClient(payload: unknown): void {
-    for (const h of [...this.handlers]) {
+    for (const h of this.handlers) {
       h(payload);
     }
   }

@@ -4,22 +4,27 @@ import { createQuery } from '@pkgs/sync-engine/solid';
 import { type Accessor, createMemo } from 'solid-js';
 
 /**
- * Returns the live space id hosted by `hostAccountId` when that space is
- * already synced to this client (friend-hosted live spaces).
+ * Returns a live space id when this friend is already visible to the client:
+ * the space they host, or one they are a seated member of.
  */
 export function useFriendLiveSpaceId(
-  hostAccountId: string | Accessor<string>
+  friendUserId: string | Accessor<string>
 ): Accessor<string | null> {
   const query = createQuery(() => {
-    const host =
-      typeof hostAccountId === 'string' ? hostAccountId : hostAccountId();
+    const friend =
+      typeof friendUserId === 'string' ? friendUserId : friendUserId();
     return sql<{ readonly id: string }>`
       SELECT id
       FROM spaces
       WHERE ended_at IS NULL
         AND (
-          host_account_id = ${host}
-          OR host_member_id = ${host}
+          host_account_id = ${friend}
+          OR host_member_id = ${friend}
+          OR id IN (
+            SELECT space_id
+            FROM spaces_users
+            WHERE user_id = ${friend} AND deleted_at IS NULL
+          )
         )
       ORDER BY created_at DESC
       LIMIT 1

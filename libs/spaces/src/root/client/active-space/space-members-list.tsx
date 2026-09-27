@@ -67,7 +67,7 @@ function SpaceMembersSeatRow(props: {
       }}
     >
       <UserProfileAvatar profileId={props.profileId} size={ROW_AVATAR_SIZE} />
-      <div class="box flex-1 min-w-[0] gap-0">
+      <div class="box flex-1 min-w-0 gap-0">
         <UserUsername
           profileId={props.profileId}
           withAt={false}

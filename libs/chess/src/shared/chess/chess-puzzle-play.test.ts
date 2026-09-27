@@ -1,19 +1,26 @@
+// goal:chess-puzzles:6
+// goal:chess-puzzles:7
+// goal:always-true:8
 import { describe, expect, test } from 'bun:test';
 import { ChessModule } from '@libs/chess/public/chess-module';
 import {
   CHESS_PUZZLE_PLAY_STATUS,
   ChessPuzzlePlayAttr,
   ClearChessPuzzlePlay,
+  ClearChessPuzzleRecommendation,
   ReclaimChessPuzzlePlay,
+  RecommendChessPuzzleMove,
   RequestChessPuzzleHint,
   ResetChessPuzzlePlay,
   RevealChessPuzzleSolution,
   SeekChessPuzzlePlay,
+  SkipChessPuzzlePlay,
   StartChessPuzzlePlay,
   StepBackChessPuzzlePlay,
   StepForwardChessPuzzlePlay,
   SubmitChessPuzzleMove,
 } from '@libs/chess/public/chess-puzzle-play';
+import { CHESS_PUZZLE_MAX_RECOMMENDATIONS } from '@libs/chess/public/puzzle-session';
 import { ROOM_ERROR_TYPE, type RoomCommand, type RoomState } from '@pkgs/room';
 
 const HOST = 'host-1';
@@ -207,7 +214,7 @@ describe('chess puzzle play FSM — Submit', () => {
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(4);
   });
 
-  test('wrong move applies the move, flips to wrong, captures previous fen', () => {
+  test('wrong move is not applied (the piece returns) and flips to wrong', () => {
     let state = startValid(ChessModule.initialState());
     const before = ChessPuzzlePlayAttr.layoutKey.from(state);
     const beforeFen = ChessPuzzlePlayAttr.displayFen.from(state);
@@ -228,10 +235,8 @@ describe('chess puzzle play FSM — Submit', () => {
       CHESS_PUZZLE_PLAY_STATUS.wrong
     );
     expect(ChessPuzzlePlayAttr.layoutKey.from(state)).toBe(before + 1);
-    // Board now reflects the wrong move so the player can see what they did.
-    expect(ChessPuzzlePlayAttr.displayFen.from(state)).not.toBe(beforeFen);
-    // Pre-move fen is captured so Retry can revert just that ply.
-    expect(ChessPuzzlePlayAttr.previousDisplayFen.from(state)).toBe(beforeFen);
+    // §5: the piece returns — the board keeps the position it moved from.
+    expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(beforeFen);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(1);
     expect(ChessPuzzlePlayAttr.wrongFromSquare.from(state)).toBe('h1');
     expect(ChessPuzzlePlayAttr.wrongToSquare.from(state)).toBe('h2');
@@ -456,7 +461,6 @@ describe('chess puzzle play FSM — Reset', () => {
       fenAfterFirstCorrect
     );
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
-    expect(ChessPuzzlePlayAttr.previousDisplayFen.from(state)).toBeNull();
   });
 
   test('host reset returns to post-opening state and bumps layoutKey', () => {
@@ -721,5 +725,217 @@ describe('chess puzzle play FSM — StepBack / StepForward', () => {
     state = reduceAll(state, seekBack.events);
     expect(ChessPuzzlePlayAttr.solveIdx.from(state)).toBe(3);
     expect(ChessPuzzlePlayAttr.displayFen.from(state)).toBe(afterFirst);
+  });
+});
+
+describe('chess puzzle play FSM — clock', () => {
+  test('start stamps the server time and solving keeps it running', () => {
+    const state = startValid(ChessModule.initialState());
+    expect(ChessPuzzlePlayAttr.startedAtMs.from(state)).toBe(1);
+    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+  });
+
+  test('a wrong move keeps the clock running; retry does not reset it', () => {
+    let state = startValid(ChessModule.initialState());
+    const wrong = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1d1' })),
+      HOST
+    );
+    if (!wrong.ok) throw new Error('wrong move rejected');
+    state = reduceAll(state, wrong.events);
+    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+
+    const retry = ChessModule.handle(
+      state,
+      cmd(ResetChessPuzzlePlay({}), 500),
+      HOST
+    );
+    if (!retry.ok) throw new Error('retry rejected');
+    state = reduceAll(state, retry.events);
+    expect(ChessPuzzlePlayAttr.startedAtMs.from(state)).toBe(1);
+    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+  });
+
+  test('solving the last ply freezes the clock at the commit time', () => {
+    let state = startValid(ChessModule.initialState());
+    const tokens = ['e1f2', 'f2e3'];
+    for (const [index, uci] of tokens.entries()) {
+      const res = ChessModule.handle(
+        state,
+        cmd(SubmitChessPuzzleMove({ uci }), 10 + index),
+        HOST
+      );
+      if (!res.ok) throw new Error(`move ${uci} rejected`);
+      state = reduceAll(state, res.events);
+    }
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.solved
+    );
+    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBe(11);
+  });
+
+  test('clear resets both anchors', () => {
+    let state = startValid(ChessModule.initialState());
+    const cleared = ChessModule.handle(
+      state,
+      cmd(ClearChessPuzzlePlay({})),
+      HOST
+    );
+    if (!cleared.ok) throw new Error('clear rejected');
+    state = reduceAll(state, cleared.events);
+    expect(ChessPuzzlePlayAttr.startedAtMs.from(state)).toBeNull();
+    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBeNull();
+  });
+});
+
+describe('chess puzzle play FSM — skip', () => {
+  test('the host skips a live attempt and it becomes terminal', () => {
+    let state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(
+      state,
+      cmd(SkipChessPuzzlePlay({}), 42),
+      HOST
+    );
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    state = reduceAll(state, res.events);
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.skipped
+    );
+    expect(ChessPuzzlePlayAttr.endedAtMs.from(state)).toBe(42);
+  });
+
+  test('a guest cannot skip', () => {
+    const state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(state, cmd(SkipChessPuzzlePlay({})), GUEST);
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.error.type).toBe(ROOM_ERROR_TYPE.unauthorized);
+  });
+
+  test('skipping a solved puzzle is a conflict', () => {
+    let state = startValid(ChessModule.initialState());
+    for (const uci of ['e1f2', 'f2e3']) {
+      const solved = ChessModule.handle(
+        state,
+        cmd(SubmitChessPuzzleMove({ uci })),
+        HOST
+      );
+      if (!solved.ok) throw new Error(`move ${uci} rejected`);
+      state = reduceAll(state, solved.events);
+    }
+    expect(ChessPuzzlePlayAttr.status.from(state)).toBe(
+      CHESS_PUZZLE_PLAY_STATUS.solved
+    );
+    const res = ChessModule.handle(state, cmd(SkipChessPuzzlePlay({})), HOST);
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.error.type).toBe(ROOM_ERROR_TYPE.conflict);
+  });
+});
+
+describe('chess puzzle play FSM — guest permissions', () => {
+  test('a guest is denied every control command and the state is untouched', () => {
+    const state = startValid(ChessModule.initialState());
+    const before = JSON.stringify(state);
+    const commands = [
+      RequestChessPuzzleHint({}),
+      RevealChessPuzzleSolution({}),
+      StepBackChessPuzzlePlay({}),
+      StepForwardChessPuzzlePlay({}),
+      SeekChessPuzzlePlay({ solveIdx: 1 }),
+      ResetChessPuzzlePlay({}),
+      ClearChessPuzzlePlay({}),
+      SkipChessPuzzlePlay({}),
+    ];
+    for (const payload of commands) {
+      const res = ChessModule.handle(state, cmd(payload), GUEST);
+      expect(res.ok).toBe(false);
+      expect(JSON.stringify(state)).toBe(before);
+    }
+  });
+});
+
+describe('chess puzzle play FSM — spectator recommendations', () => {
+  test('a guest may suggest for the live position', () => {
+    let state = startValid(ChessModule.initialState());
+    const res = ChessModule.handle(
+      state,
+      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      GUEST
+    );
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    state = reduceAll(state, res.events);
+    expect(ChessPuzzlePlayAttr.recommendations.from(state)).toEqual({
+      [GUEST]: { from: 'e1', to: 'f2', seq: 1 },
+    });
+  });
+
+  test('suggestions are rejected while not solving, and clearable by their author', () => {
+    const idle = ChessModule.initialState();
+    const rejected = ChessModule.handle(
+      idle,
+      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      GUEST
+    );
+    expect(rejected.ok).toBe(false);
+    if (rejected.ok) return;
+    expect(rejected.error.type).toBe(ROOM_ERROR_TYPE.conflict);
+
+    let state = startValid(ChessModule.initialState());
+    const add = ChessModule.handle(
+      state,
+      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      GUEST
+    );
+    if (!add.ok) throw new Error('suggest rejected');
+    state = reduceAll(state, add.events);
+    const cleared = ChessModule.handle(
+      state,
+      cmd(ClearChessPuzzleRecommendation({})),
+      GUEST
+    );
+    expect(cleared.ok).toBe(true);
+    if (!cleared.ok) return;
+    state = reduceAll(state, cleared.events);
+    expect(ChessPuzzlePlayAttr.recommendations.from(state)).toEqual({});
+  });
+
+  test('the cap evicts the oldest suggester', () => {
+    let state = startValid(ChessModule.initialState());
+    for (let i = 0; i < CHESS_PUZZLE_MAX_RECOMMENDATIONS + 1; i += 1) {
+      const res = ChessModule.handle(
+        state,
+        cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+        `guest-${i}`
+      );
+      if (!res.ok) throw new Error('suggest rejected');
+      state = reduceAll(state, res.events);
+    }
+    const map = ChessPuzzlePlayAttr.recommendations.from(state);
+    expect(Object.keys(map)).toHaveLength(CHESS_PUZZLE_MAX_RECOMMENDATIONS);
+    expect(map['guest-0']).toBeUndefined();
+  });
+
+  test('the host moving on clears every suggestion', () => {
+    let state = startValid(ChessModule.initialState());
+    const add = ChessModule.handle(
+      state,
+      cmd(RecommendChessPuzzleMove({ from: 'e1', to: 'f2' })),
+      GUEST
+    );
+    if (!add.ok) throw new Error('suggest rejected');
+    state = reduceAll(state, add.events);
+
+    const move = ChessModule.handle(
+      state,
+      cmd(SubmitChessPuzzleMove({ uci: 'e1f2' })),
+      HOST
+    );
+    if (!move.ok) throw new Error('move rejected');
+    state = reduceAll(state, move.events);
+    expect(ChessPuzzlePlayAttr.recommendations.from(state)).toEqual({});
   });
 });

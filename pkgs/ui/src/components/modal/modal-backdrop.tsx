@@ -33,7 +33,7 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
   };
   return (
     <div
-      class="box flex-1 w-[100%] h-[100%]"
+      class="box flex-1 w-full h-full"
       {...dataAttrs({ component: 'ModalBackdrop', ...props.dataSet })}
     >
       <div
@@ -43,7 +43,7 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
         onClick={onScrimClick}
       />
       <div
-        class="box flex-1 w-[100%] h-[100%] justify-center items-center"
+        class="box flex-1 w-full h-full justify-center items-center"
         classList={{ boxNone: true }}
         style={{ padding: cssGap(MODAL_CONTENT_MARGIN_STEP) }}
       >

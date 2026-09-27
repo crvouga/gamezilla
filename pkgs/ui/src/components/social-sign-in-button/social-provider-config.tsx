@@ -9,13 +9,14 @@
  * that vendor's design rules — only do so when a guideline changes upstream.
  *
  * @see https://developers.google.com/identity/branding-guidelines (Google)
+ * @see https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple (Apple)
  */
 
 import type { MessageDescriptor } from '@lingui/core';
 import { msg } from '@lingui/core/macro';
 import type { BrandIconName } from '../brand-icon';
 
-export type SocialSignInProvider = 'google' | 'dev';
+export type SocialSignInProvider = 'google' | 'apple' | 'dev';
 
 export type SocialSignInButtonTheme = 'light' | 'dark' | 'neutral';
 
@@ -64,6 +65,27 @@ const GOOGLE_SPEC: SocialProviderSpec = {
 };
 
 /**
+ * "Sign in with Apple" (Apple HIG): white-on-black, black-on-white, or
+ * black-on-white with an outline; the mark takes the label's color.
+ *
+ * @see https://developer.apple.com/design/human-interface-guidelines/sign-in-with-apple
+ */
+const APPLE_SPEC: SocialProviderSpec = {
+  brandIcon: 'apple',
+  themes: {
+    light: { fill: '#FFFFFF', stroke: '#000000', font: '#000000' },
+    dark: { fill: '#000000', stroke: null, font: '#FFFFFF' },
+    neutral: { fill: '#FFFFFF', stroke: null, font: '#000000' },
+  },
+  defaultLabels: {
+    signIn: msg`Sign in with Apple`,
+    signUp: msg`Sign up with Apple`,
+    continue: msg`Continue with Apple`,
+  },
+  loadingLabel: msg`Signing in…`,
+};
+
+/**
  * In-repo "Dev IdP" branding spec. Mirrors Google's button layout so the
  * dev account chooser feels like a real social IdP entry point, but uses
  * an in-house palette (indigo / cyan flask) so it can never be confused
@@ -86,5 +108,6 @@ const DEV_SPEC: SocialProviderSpec = {
 
 export const SOCIAL_PROVIDER_SPECS = {
   google: GOOGLE_SPEC,
+  apple: APPLE_SPEC,
   dev: DEV_SPEC,
 } as const satisfies Record<SocialSignInProvider, SocialProviderSpec>;

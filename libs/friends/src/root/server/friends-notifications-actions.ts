@@ -1,3 +1,4 @@
+import { accountSyncActor } from '@libs/auth/public/auth-context';
 import type { Clock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
@@ -27,10 +28,7 @@ export class FriendsNotificationsActionHandler {
 
   private mutationEnv(args: FriendsNotificationsActionArgs): MutationEnv {
     return {
-      actorId: args.actorId,
-      deviceId: args.deviceId,
-      accountId: args.actorId,
-      isAnon: false,
+      ...accountSyncActor({ accountId: args.actorId, deviceId: args.deviceId }),
       now: () => new Date(this.time.clock.now()),
       createId: this.time.createId,
     };

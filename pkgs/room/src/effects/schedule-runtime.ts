@@ -37,6 +37,21 @@ export class ScheduleRuntime {
     );
   }
 
+  /** Earliest pending entry without sorting (O(n), no allocation). */
+  private earliest(): PendingSchedule | undefined {
+    let best: PendingSchedule | undefined;
+    for (const e of this.pending.values()) {
+      if (
+        best === undefined ||
+        e.at < best.at ||
+        (e.at === best.at && e.id < best.id)
+      ) {
+        best = e;
+      }
+    }
+    return best;
+  }
+
   get(id: string): PendingSchedule | undefined {
     return this.pending.get(id);
   }
@@ -73,7 +88,7 @@ export class ScheduleRuntime {
   }
 
   async rearm(): Promise<void> {
-    const next = this.list()[0];
+    const next = this.earliest();
     const at = next === undefined ? null : next.at;
     if (at === this.armedAt) return;
     this.armedAt = at;
@@ -81,7 +96,7 @@ export class ScheduleRuntime {
   }
 
   earliestAt(): number | null {
-    return this.list()[0]?.at ?? null;
+    return this.earliest()?.at ?? null;
   }
 }
 

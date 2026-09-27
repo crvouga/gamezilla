@@ -6,7 +6,7 @@ export const chessSoundUrls = {
   check: new URL('../assets/gameplay/chess/check-2.mp3', import.meta.url).href,
   castle: new URL('../assets/gameplay/chess/castling-2.mp3', import.meta.url)
     .href,
-  promote: new URL('../assets/gameplay/chess/ui_unlock.mp3', import.meta.url)
+  promote: new URL('../assets/gameplay/chess/ui-unlock.mp3', import.meta.url)
     .href,
   illegal: new URL(
     '../assets/gameplay/chess/navigation-cancel.mp3',

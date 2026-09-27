@@ -24,12 +24,7 @@ import {
   type ChessPieceRow,
   createPieceRowsTracker,
 } from '@pkgs/chess-board-core/piece-rows';
-import type {
-  Move,
-  PieceColor,
-  Position,
-  Square,
-} from '@pkgs/chess-board-core/types';
+import type { Move, PieceColor, Position } from '@pkgs/chess-board-core/types';
 import type { Timers } from '@pkgs/clock/types';
 import { createSubscriptionSignal } from '@pkgs/solid-context/subscription-signal';
 import {
@@ -46,11 +41,13 @@ export type ChessBoardModelArgs = {
   readonly fen: Accessor<string | undefined>;
   readonly fenSyncKey: Accessor<number | undefined>;
   readonly interactive: Accessor<boolean>;
-  /** Slide animation active (prop + motion preference). */
+  /** Pieces slide (motion policy); the capture ghost only covers a slide. */
   readonly animated: Accessor<boolean>;
   /** Slide duration; capture SFX and the ghost follow it. */
-  readonly moveDurationMs: number;
+  readonly moveDurationMs: Accessor<number>;
   readonly onMove: (move: Move) => void;
+  /** A gesture tried an illegal move (after the illegal sound). */
+  readonly onIllegal: () => void;
   readonly sounds: ChessMoveSoundPlayer;
   readonly timers: Timers;
   readonly premoves: Accessor<boolean>;
@@ -65,12 +62,6 @@ export type ChessBoardModel = {
   readonly actions: BoardInteraction;
   readonly rows: Accessor<readonly ChessPieceRow[]>;
   readonly captureGhost: Accessor<CaptureGhost | null>;
-  /**
-   * Destination of the last pointer drop: that piece renders without a slide
-   * (it is already under the pointer). Cleared on the next position change.
-   */
-  readonly snapSquare: Accessor<Square | null>;
-  readonly markSnap: (square: Square) => void;
 };
 
 function createExternalFenSync(
@@ -131,7 +122,7 @@ function createCaptureGhost(
         setGhost(next);
         handle = args.timers.setTimeout(() => {
           setGhost(null);
-        }, args.moveDurationMs);
+        }, args.moveDurationMs());
       }
     )
   );
@@ -147,7 +138,7 @@ export function createChessBoardModel(
     scheduler.apply(move, post, {
       captureDelayMs:
         args.animated() && move.captured !== undefined
-          ? args.moveDurationMs
+          ? args.moveDurationMs()
           : 0,
     });
   };
@@ -159,7 +150,10 @@ export function createChessBoardModel(
         playMove(result.move, result);
         args.onMove(result.move);
       },
-      onIllegal: () => args.sounds.playIllegal(),
+      onIllegal: () => {
+        args.sounds.playIllegal();
+        args.onIllegal();
+      },
     },
     args.interactive()
   );
@@ -190,22 +184,11 @@ export function createChessBoardModel(
     return tracker.next(snapshot.position, snapshot.lastMove);
   });
 
-  const [snapSquare, setSnapSquare] = createSignal<Square | null>(null);
-  createEffect(
-    on(
-      () => game().position,
-      () => setSnapSquare(null),
-      { defer: true }
-    )
-  );
-
   return {
     game,
     interaction,
     actions,
     rows,
     captureGhost: createCaptureGhost(args, game),
-    snapSquare,
-    markSnap: setSnapSquare,
   };
 }

@@ -43,6 +43,7 @@ export function ChipGroup<K extends string = string>(
             <div class="box flex-row items-center gap-1">
               {opt.icon}
               <Chip
+                // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- Chip sets aria-checked from `selected` when role is radio
                 role="radio"
                 label={opt.label}
                 selected={opt.key === props.selected}

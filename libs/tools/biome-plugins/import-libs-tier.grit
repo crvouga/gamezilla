@@ -1,0 +1,19 @@
+language js
+
+// libs/ may not import apps/: apps compose libs, not the reverse.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "apps/",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"](?:@apps/|(?:\.\./)+apps/)[^'\"]*['\"]$",
+    register_diagnostic(span=$src, message="libs/ must not import apps/ (tier boundary). Apps compose libs; not the reverse.", severity="error")
+  }
+}

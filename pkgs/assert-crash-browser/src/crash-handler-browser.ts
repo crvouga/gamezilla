@@ -129,6 +129,8 @@ export class BrowserCrashHandler implements CrashHandler {
     return isBrowser();
   }
   crash(message: string, context?: Record<string, unknown>): void {
+    // The overlay is the terminal surface, so the devtools trace goes with it.
+    console.error('Assertion failed:', message, context, new Error().stack);
     crashBrowser(message, this.timers, context);
   }
 }
