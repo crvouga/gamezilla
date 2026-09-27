@@ -55,15 +55,17 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
   suggest a move but never drives the puzzle and is never rated for it.
 - **puzzle start** — one unit of the daily rated-puzzle allowance, used when a
   rated puzzle starts.
-- **critical journey** — a flow that must never break (`specs/journeys/`). It
-  runs against the simulated app on every change and, as synthetic
-  monitoring, in a real browser against each production environment.
-- **fresh device** — a browser or simulated device that never visited the
-  app: no storage, no session carried over from an earlier scenario.
-- **synthetic monitor** — the one fixed account production journeys sign in
-  as; it is never a real person.
-- **environment** — one deployment (`dev`, `prd`, …) the health checks
-  (`specs/health/`) probe: its Workers, database, bucket, broker, secrets and
-  infrastructure. "This environment" is the one the run's `SECRETS_ENV` names.
-- **the relay** — the environment whose API receives every environment's
-  Google callbacks and forwards each to the environment that started it.
+- **critical journey** — a flow people rely on most, which must never break
+  anywhere people use the app (`specs/journeys/`).
+- **fresh device** — a device that has never opened the app: nothing saved on
+  it and nobody signed in.
+- **the team** — the people who run the product. They observe it from outside,
+  as people do, plus the records and declarations they keep for it.
+- **environment** — one complete, separate copy of the product (production is
+  one). "This environment" is the copy a health check is looking at; a
+  **production environment** is one real people use.
+- **live updates** — what happens in a space reaching everyone in it as it
+  happens.
+- **Google sign-in's way back** — where Google sends a person once they have
+  signed in: always back to the app they started from, in the environment they
+  started in.
