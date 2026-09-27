@@ -40,6 +40,7 @@ import {
   createLocalSyncStatusStore,
   type LocalSyncStatusStore,
 } from './local-sync-status';
+import { reapplyPendingAfterWipe } from './merge';
 import {
   MutationUploadQueue,
   type MutationUploadResult,
@@ -441,6 +442,7 @@ async function clearState(
     'sync_engine_scope_meta',
     'sync_engine_write_rejections',
   ]);
+  await reapplyPendingAfterWipe(mergeDeps(state));
   if (reconnect) await connectState(state);
 }
 
@@ -497,7 +499,7 @@ export async function createLocalSyncEngine(
     ...options,
     mutationRegistry: withFrameworkMutations(options.mutationRegistry),
   };
-  await migrateLocalSchema(merged.db, merged.localSchema, {
+  const wiped = await migrateLocalSchema(merged.db, merged.localSchema, {
     ...(merged.schemaEpoch !== undefined
       ? { schemaEpoch: merged.schemaEpoch }
       : {}),
@@ -505,5 +507,7 @@ export async function createLocalSyncEngine(
       ? { onLocalMigratePhase: merged.onLocalMigratePhase }
       : {}),
   });
-  return toEngine(createState(merged));
+  const state = createState(merged);
+  if (wiped) await reapplyPendingAfterWipe(mergeDeps(state));
+  return toEngine(state);
 }

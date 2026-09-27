@@ -172,12 +172,16 @@ export type MigrateLocalSchemaOptions = {
   ) => void | Promise<void>;
 };
 
-/** Runs additive migrations and applies an epoch-triggered CACHE-only wipe. */
+/**
+ * Runs additive migrations and applies an epoch-triggered CACHE-only wipe.
+ * Resolves `true` when the CACHE tables were (re)created empty, so the
+ * caller re-applies queued writes the device still shows.
+ */
 export async function migrateLocalSchema(
   db: SqlClient,
   schema: LocalDomainSchema,
   options?: MigrateLocalSchemaOptions
-): Promise<void> {
+): Promise<boolean> {
   const epoch = options?.schemaEpoch ?? SCHEMA_EPOCH;
   const targetVersion = getLocalSchemaTargetVersion(epoch);
   const onPhase = options?.onLocalMigratePhase;
@@ -196,9 +200,10 @@ export async function migrateLocalSchema(
       await onPhase?.('afterEnsure');
       await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
       await onPhase?.('done');
-      return;
+      return true;
     }
-    if (previousEpoch < epoch) {
+    const wiped = previousEpoch < epoch;
+    if (wiped) {
       await dropCacheTables(db, schema);
       await onPhase?.('afterCacheWipe');
       await createCurrentSchema(db, schema);
@@ -213,6 +218,7 @@ export async function migrateLocalSchema(
 
     await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
     await onPhase?.('done');
+    return wiped;
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(
