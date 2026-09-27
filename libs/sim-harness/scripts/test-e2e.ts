@@ -7,20 +7,23 @@
  *   "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
  *
  * It wipes the package's report bucket (`.cache/sim-report`), turns every
- * feature of the domains the package's `specDomains` lists
- * (`specs/<domain>/*.feature` at the repo root) into a `bun test` stub under
- * `.cache/spec/`, runs
- * `bun test --parallel` over those stubs plus `tests/e2e` (or the paths
- * given) with a JUnit report written into the bucket, and exits with the
- * runner's status. With `SIM_REPORT=1` the sims also record frames there;
- * `bun run test:report` (root) folds every package's bucket into one HTML
- * report.
+ * spec of the domains the package's `specDomains` lists into a `bun test`
+ * stub under `.cache/spec/` — each Gherkin feature (`specs/<domain>/*.feature`,
+ * run through `tests/steps/index.ts`) and each Quint model
+ * (`specs/<domain>/*.qnt`, its traces replayed through `tests/quint/index.ts`)
+ * — runs `bun test --parallel` over those stubs plus `tests/e2e` (or the
+ * paths given) with a JUnit report written into the bucket, and exits with
+ * the runner's status. Every sim writes its step timeline into the bucket and
+ * every model its traces, and turbo caches the bucket with the verdict, so
+ * `bun run test:report` (root) renders the last run of this exact code;
+ * `SIM_FRAMES=1` adds UI frames.
  *
- *   test:e2e                                   everything
- *   test:e2e specs/friends/friend-remove.feature   one feature (repo-relative)
- *   test:e2e -t 'ends the friendship'          scenarios by name
- *   test:e2e --tags '@goal:social:5'           scenarios by tag expression
- *   test:e2e tests/e2e/monkey.test.tsx         one code test
+ *   test:e2e                                        everything
+ *   test:e2e specs/friends/friend-remove.feature    one feature (repo-relative)
+ *   test:e2e specs/spaces/space-hosting.qnt         one model
+ *   test:e2e -t 'ends the friendship'               scenarios by name
+ *   test:e2e --tags '@goal:social:5'                scenarios by tag expression
+ *   test:e2e tests/e2e/critical-journeys.test.tsx   one code test
  */
 
 import { spawnSync } from 'node:child_process';
@@ -35,6 +38,7 @@ import {
 import { join, relative, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock';
 import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
+import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
 import { parseJunit } from '@pkgs/sim';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
 
@@ -43,6 +47,7 @@ const REPORT_DIR = join(PACKAGE_DIR, '.cache/sim-report');
 const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec');
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
+const QUINT_ENTRY = join(PACKAGE_DIR, 'tests/quint/index.ts');
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const SPECS_DIR = join(REPO_ROOT, 'specs');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
@@ -52,7 +57,8 @@ const TIMEOUT_MS = process.env['SIM_MODE'] === undefined ? 90_000 : 180_000;
 
 type Cli = {
   readonly bunArgs: string[];
-  readonly featurePaths: string[];
+  /** `.feature` and `.qnt` paths, as given. */
+  readonly specPaths: string[];
   readonly testPaths: string[];
   readonly tags: string | undefined;
 };
@@ -60,12 +66,12 @@ type Cli = {
 /**
  * `--tags` is ours; everything else passes through to `bun test` in order
  * (`-t name`, `--timeout 1000` keep their values). The default scope (every
- * feature + `tests/e2e`) applies only when nothing names a feature or test
- * path, so a narrowed run never widens.
+ * spec + `tests/e2e`) applies only when nothing names a spec or test path, so
+ * a narrowed run never widens.
  */
 function parseCli(argv: readonly string[]): Cli {
   const bunArgs: string[] = [];
-  const featurePaths: string[] = [];
+  const specPaths: string[] = [];
   const testPaths: string[] = [];
   let tags: string | undefined;
   for (let i = 0; i < argv.length; i++) {
@@ -74,15 +80,15 @@ function parseCli(argv: readonly string[]): Cli {
       tags = argv[++i];
     } else if (arg.startsWith('--tags=')) {
       tags = arg.slice('--tags='.length);
-    } else if (arg.endsWith('.feature')) {
-      featurePaths.push(arg);
+    } else if (arg.endsWith('.feature') || arg.endsWith('.qnt')) {
+      specPaths.push(arg);
     } else if (arg.startsWith('tests/') || /\.test\.[cm]?[jt]sx?$/.test(arg)) {
       testPaths.push(arg);
     } else {
       bunArgs.push(arg);
     }
   }
-  return { bunArgs, featurePaths, testPaths, tags };
+  return { bunArgs, specPaths, testPaths, tags };
 }
 
 /** The `specs/<domain>/` directories this package runs (`specDomains`). */
@@ -95,29 +101,29 @@ function specDomains(): readonly string[] {
   return manifest.specDomains ?? [];
 }
 
-/** Absolute paths of every feature in this package's domains (flat). */
-function listFeatures(): readonly string[] {
+/** Absolute paths of every spec (`.feature`, `.qnt`) in this package's domains (flat). */
+function listSpecs(): readonly string[] {
   return specDomains().flatMap((domain) => {
     const dir = join(SPECS_DIR, domain);
     if (!existsSync(dir)) return [];
-    return [...new Bun.Glob('*.feature').scanSync({ cwd: dir })]
+    return [...new Bun.Glob('*.{feature,qnt}').scanSync({ cwd: dir })]
       .sort()
       .map((file) => join(dir, file));
   });
 }
 
-/** Absolute feature paths to run: the ones named, else all. */
-function selectFeatures(cli: Cli): readonly string[] {
-  const all = listFeatures();
-  if (cli.featurePaths.length === 0) {
+/** Absolute spec paths to run: the ones named, else all. */
+function selectSpecs(cli: Cli): readonly string[] {
+  const all = listSpecs();
+  if (cli.specPaths.length === 0) {
     return cli.testPaths.length === 0 ? all : [];
   }
-  return cli.featurePaths.map((given) => {
+  return cli.specPaths.map((given) => {
     const candidates = [resolve(REPO_ROOT, given), resolve(PACKAGE_DIR, given)];
     const abs = candidates.find((path) => all.includes(path));
     if (abs === undefined) {
       console.error(
-        `test-e2e: ${given} is not a feature of ${TEST_PACKAGE_NAME}'s specDomains (${specDomains().join(', ')})`
+        `test-e2e: ${given} is not a spec of ${TEST_PACKAGE_NAME}'s specDomains (${specDomains().join(', ')})`
       );
       process.exit(1);
     }
@@ -125,19 +131,38 @@ function selectFeatures(cli: Cli): readonly string[] {
   });
 }
 
-/** Write the stubs for `features` and return their `bun test` paths. */
-function writeStubs(features: readonly string[]): readonly string[] {
+function requireEntry(entry: string, what: string): void {
+  if (existsSync(entry)) return;
+  console.error(
+    `test-e2e: ${relative(PACKAGE_DIR, entry)} is missing — a package whose specDomains hold ${what}`
+  );
+  process.exit(1);
+}
+
+/** Write the stubs for `specs` and return their `bun test` paths. */
+function writeStubs(specs: readonly string[]): readonly string[] {
   rmSync(SPEC_STUB_DIR, { recursive: true, force: true });
-  if (features.length === 0) return [];
-  if (!existsSync(STEPS_ENTRY)) {
-    console.error(
-      `test-e2e: ${relative(PACKAGE_DIR, STEPS_ENTRY)} is missing — a package with specDomains needs a steps entry that imports its step definitions and calls useSimWorld()`
-    );
-    process.exit(1);
-  }
+  if (specs.length === 0) return [];
   mkdirSync(SPEC_STUB_DIR, { recursive: true });
-  const bridge = Bun.resolveSync('@pkgs/gherkin/bun-test', import.meta.dir);
+  const features = specs.filter((path) => path.endsWith('.feature'));
+  const models = specs.filter((path) => path.endsWith('.qnt'));
+  if (features.length > 0) {
+    requireEntry(
+      STEPS_ENTRY,
+      'features needs a steps entry that imports its step definitions and calls useSimWorld()'
+    );
+  }
+  if (models.length > 0) {
+    requireEntry(
+      QUINT_ENTRY,
+      'Quint models needs a quint entry that imports its model bindings and calls useQuintSim()'
+    );
+  }
   const out: string[] = [];
+  const gherkinBridge = Bun.resolveSync(
+    '@pkgs/gherkin/bun-test',
+    import.meta.dir
+  );
   for (const featurePath of features) {
     const featureUri = relative(REPO_ROOT, featurePath);
     const file = join(SPEC_STUB_DIR, stubFileName(featureUri));
@@ -148,7 +173,24 @@ function writeStubs(features: readonly string[]): readonly string[] {
         featurePath,
         featureUri,
         stepsEntry: STEPS_ENTRY,
-        bridge,
+        bridge: gherkinBridge,
+      })
+    );
+    out.push(`./${relative(PACKAGE_DIR, file)}`);
+  }
+  const quintBridge = Bun.resolveSync('@pkgs/quint/bun-test', import.meta.dir);
+  for (const specPath of models) {
+    const specUri = relative(REPO_ROOT, specPath);
+    const file = join(SPEC_STUB_DIR, modelStubFileName(specUri));
+    writeFileSync(
+      file,
+      modelStubSource({
+        packageName: TEST_PACKAGE_NAME,
+        specPath,
+        specUri,
+        quintEntry: QUINT_ENTRY,
+        bridge: quintBridge,
+        reportDir: REPORT_DIR,
       })
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);
@@ -171,18 +213,18 @@ const HARNESS_PRELOAD = Bun.resolveSync(
 );
 
 const cli = parseCli(process.argv.slice(2));
-const stubs = writeStubs(selectFeatures(cli));
+rmSync(REPORT_DIR, { recursive: true, force: true });
+mkdirSync(REPORT_DIR, { recursive: true });
+
+const stubs = writeStubs(selectSpecs(cli));
 const scope =
-  cli.featurePaths.length === 0 && cli.testPaths.length === 0
+  cli.specPaths.length === 0 && cli.testPaths.length === 0
     ? [...stubs, 'tests/e2e']
     : [...stubs, ...cli.testPaths];
 if (scope.length === 0) {
   console.error('test-e2e: nothing to run');
   process.exit(1);
 }
-
-rmSync(REPORT_DIR, { recursive: true, force: true });
-mkdirSync(REPORT_DIR, { recursive: true });
 
 const result = spawnSync(
   'bun',

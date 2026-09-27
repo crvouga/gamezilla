@@ -68,6 +68,7 @@
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",

@@ -1,15 +1,15 @@
 // @io-wall-ok — static analysis over the source tree (scripts/**).
 /**
  * Ban third-party <script src> in apps/client/index.html unless allowlisted
- * in perf-budget.json thirdParty.indexHtmlScriptAllowlist. Asserted by this
- * package's tests.
+ * in `INDEX_HTML_SCRIPT_ALLOWLIST`. Asserted by this package's tests.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { loadPerfBudget } from './perf-budget';
-
 const CLIENT_DIR = join(import.meta.dirname, '..');
+
+/** Third-party `<script src>` URLs index.html may load. None today. */
+const INDEX_HTML_SCRIPT_ALLOWLIST: readonly string[] = [];
 
 export function collectExternalScriptSrcs(html: string): string[] {
   const out: string[] = [];
@@ -30,11 +30,10 @@ export function collectExternalScriptSrcs(html: string): string[] {
 
 /**
  * Third-party `<script src>` in the shipped index.html that
- * perf-budget.json `thirdParty.indexHtmlScriptAllowlist` does not allow.
+ * `INDEX_HTML_SCRIPT_ALLOWLIST` does not allow.
  */
 export function bannedIndexHtmlScripts(): string[] {
-  const budget = loadPerfBudget(join(CLIENT_DIR, 'perf-budget.json'));
   const html = readFileSync(join(CLIENT_DIR, 'index.html'), 'utf8');
-  const allow = new Set(budget.thirdParty.indexHtmlScriptAllowlist);
+  const allow = new Set(INDEX_HTML_SCRIPT_ALLOWLIST);
   return collectExternalScriptSrcs(html).filter((src) => !allow.has(src));
 }

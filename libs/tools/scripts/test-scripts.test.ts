@@ -62,6 +62,16 @@ describe('testScriptViolations', () => {
     ).toEqual([]);
   });
 
+  test('the harness runner with no e2e file still runs the package specs', () => {
+    const scripts = { 'test:e2e': E2E };
+    expect(
+      testScriptViolations({ scripts, files: [], specDomains: ['friends'] })
+    ).toEqual([]);
+    expect(testScriptViolations({ scripts, files: [] }).join('\n')).toContain(
+      '"test:e2e" runs no test files'
+    );
+  });
+
   test('a file every gate script ignores is an orphan', () => {
     expect(
       testScriptViolations({

@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CI gate entry (`bun run spec:check`, `//#ci:specs`).
 /**
- * The spec gate: every `specs/<domain>/*.feature` scenario binds to exactly one step
+ * The spec gate: every `specs/<domain>/*.qnt` Quint model has exactly one
+ * binding, every `specs/<domain>/*.feature` scenario binds to exactly one step
  * definition, no definition is unused or pending, every scenario carries its
  * `@domain` and known `@goal`s, every goal a feature proves is tagged there,
  * step text says intent (no UI mechanics, implementation words or narrator),
@@ -118,6 +119,7 @@ const scenarios = packages.reduce(
   (n, pkg) => n + pkg.features.reduce((m, f) => m + f.scenarios.length, 0),
   0
 );
+const models = packages.reduce((n, pkg) => n + pkg.models.length, 0);
 console.log(
-  `ok: ${String(packages.length)} packages, ${String(scenarios)} scenarios, ${String(allDefinitions.length)} step definitions, ${String(uniqueSoft.length)} wording warnings`
+  `ok: ${String(packages.length)} packages, ${String(scenarios)} scenarios, ${String(models)} Quint models, ${String(allDefinitions.length)} step definitions, ${String(uniqueSoft.length)} wording warnings`
 );

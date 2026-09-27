@@ -13,16 +13,13 @@ import { type ProductSim, productExtra } from './sim';
 const DEFAULT_STEP_MS = 100;
 const ACTOR_READY_MAX_MS = 15_000;
 
-/**
- * Scenario pin. Default `pool: false` (scripted `s.apply` only). Pass
- * `pool: true` with `enabled` / `sample` to also join explore / randomActions.
- */
+/** Scenario action: applied by name from a script (`s.apply`), never drawn at random. */
 export function scenarioAction<const A extends unknown[] = []>(
   def: ActionDef<ProductSim, A>
 ): Action<ProductSim, A> {
   return defineAction<ProductSim, A>({
     ...def,
-    pool: def.pool === true,
+    pool: false,
   });
 }
 

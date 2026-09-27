@@ -43,6 +43,12 @@
  *   finishes. Both live in `check-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
+ * - `--restore-outputs` (`bun run test:report`): leave every task's cached
+ *   outputs on disk. A plain run skips turbo when everything hit, which is
+ *   right for a verdict but restores nothing; this mode prefetches every
+ *   remote hit, runs turbo over the whole set (hits restore their outputs,
+ *   misses run) and `--continue`s past a failing task so every suite
+ *   reports.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -76,6 +82,7 @@ import {
   type RunPlan,
   readsRemoteCache,
   resolveRemoteHits,
+  restoreEveryHit,
   wallRemoteHas,
 } from './turbo-preflight';
 
@@ -390,9 +397,10 @@ async function main(): Promise<void> {
   ] as const;
 
   const planShardsOnly = process.argv.includes(PLAN_SHARDS_FLAG);
+  const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
   const rawTaskArgs = process.argv
     .slice(2)
-    .filter((arg) => arg !== PLAN_SHARDS_FLAG);
+    .filter((arg) => arg !== PLAN_SHARDS_FLAG && arg !== RESTORE_OUTPUTS_FLAG);
   if (rawTaskArgs.length === 0) {
     console.error(
       'usage: bun run libs/tools/scripts/turbo-ci-run.ts <turbo run args…>'
@@ -425,18 +433,18 @@ async function main(): Promise<void> {
     ...rootExcludeFiltersFor(taskArgs),
     ...runModeFlags(mode),
   ];
-  const plan = await timed('plan', () => planOrNull(fullRunArgs, cache, env));
-  if (planShardsOnly) writeShardPlanAndExit(plan, taskArgs);
-  if (plan !== null && plan.toExecute.length === 0) {
+  const planned = await timed('plan', () =>
+    planOrNull(fullRunArgs, cache, env)
+  );
+  if (planShardsOnly) writeShardPlanAndExit(planned, taskArgs);
+  const plan = restoreOutputs && planned ? restoreEveryHit(planned) : planned;
+  if (plan !== null && plan.toExecute.length === 0 && !restoreOutputs) {
     exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
   if (plan !== null && plan.remoteHits.length > 0) {
     await timed('prefetch', () => prefetchRemoteHits(plan, REPO_ROOT, env));
   }
-  const runArgs =
-    plan === null
-      ? fullRunArgs
-      : ['run', ...plan.toExecute.map((task) => task.taskId)];
+  const runArgs = turboRunArgs(fullRunArgs, plan, restoreOutputs);
 
   const stopHeartbeat = startHeartbeat();
   const status = await timed('turbo', () =>
@@ -449,7 +457,23 @@ async function main(): Promise<void> {
   exitWithDurations(finalExitCode({ status, slowRunner, ran: true }));
 }
 
+/**
+ * What turbo runs once the plan is in: only the misses (their `dependsOn`
+ * closure comes along with the same hashes), or — restoring outputs — the
+ * whole set, so every hit restores its outputs, continuing past a failure.
+ */
+function turboRunArgs(
+  fullRunArgs: readonly string[],
+  plan: RunPlan | null,
+  restoreOutputs: boolean
+): string[] {
+  if (restoreOutputs) return [...fullRunArgs, '--continue'];
+  if (plan === null) return [...fullRunArgs];
+  return ['run', ...plan.toExecute.map((task) => task.taskId)];
+}
+
 const PLAN_SHARDS_FLAG = '--plan-shards';
+const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
 const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
 
 /**

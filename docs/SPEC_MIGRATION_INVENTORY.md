@@ -7,11 +7,16 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 
 | package | runs | kept in code |
 |---|---|---|
-| libs/profile | `specs/profile/` | `auth-monkey`, `monkey`, `auth-oauth-port` (port mechanics) |
-| libs/friends | `specs/friends/`, `specs/spaces/` | `monkey` |
-| libs/billing | `specs/billing/` | `monkey`, `lifecycle-walk` |
-| libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | `monkey` |
-| libs/runtime | `specs/runtime/`, `specs/journeys/` | `explore`, `monkey` |
+| libs/profile | `specs/profile/` | `auth-oauth-port` (port mechanics) |
+| libs/friends | `specs/friends/`, `specs/spaces/` | — |
+| libs/billing | `specs/billing/` | — |
+| libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
+| libs/runtime | `specs/runtime/`, `specs/journeys/` | — |
+
+(2026-09-26, later) The random walks each package kept in code — `monkey`,
+`auth-monkey`, `lifecycle-walk`, `explore` — are replaced by Quint models in
+`specs/<domain>/*.qnt`, so the rows below that say "keep in code" for them
+are history.
 
 Still open:
 

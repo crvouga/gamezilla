@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids';
 import type { ElementLayout } from '@pkgs/ui-testing';
 import { ElementNotFoundError } from '@pkgs/ui-testing';
 import type { Actor } from '@pkgs/ui-testing/explore';
@@ -40,6 +41,20 @@ export function actorIds(s: ProductSim): string[] {
 
 export function partitioned(s: ProductSim): string[] {
   return s.session.network.partitions().map(([a, b]) => `${a}|${b}`);
+}
+
+/**
+ * Bring `actorId`'s app to the front, so snapshot reads (`visible`,
+ * `nodeText`) see its screen: only one phone is on screen at a time, and a
+ * parked actor's reads as empty. Records no gesture and waits for nothing.
+ */
+export async function bringToFront(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  await nodeAt(s, actorId, [Handles.statusCurrentUser])
+    ?.layout()
+    .catch(() => null);
 }
 
 /** Is the node at `path` currently on screen? Snapshot read, no waiting. */

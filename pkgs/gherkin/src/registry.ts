@@ -39,6 +39,8 @@ export type ScenarioContext = {
   readonly featureUri: string;
   readonly featureName: string;
   readonly scenarioName: string;
+  /** 1-based line of the scenario in its feature. */
+  readonly scenarioLine: number;
   readonly tags: readonly string[];
   /** Stable id for the scenario (`<feature-stem>.<scenario-slug>`). */
   readonly testId: string;
@@ -54,6 +56,12 @@ export type WorldLifecycle<W> = {
    * {@link dispose} cleans up. Its own failure never hides the step's.
    */
   readonly failed?: (world: W, cause: unknown) => Promise<void>;
+  /** Run one scenario step as a labelled step of the world's report. */
+  readonly record?: <T>(
+    world: W,
+    step: { readonly keyword: string; readonly text: string },
+    fn: () => Promise<T>
+  ) => Promise<T>;
 };
 
 export type StepMatch =

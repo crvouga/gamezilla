@@ -86,6 +86,7 @@
     "@libs/test-ids": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/kv": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",

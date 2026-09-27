@@ -100,12 +100,6 @@ export {
   signOut,
 } from './system/auth-actions';
 export {
-  AUTH_WALK_ACTIONS,
-  walkManageSignInMethods,
-  walkSignInOrOut,
-  walkSignOutEverywhere,
-} from './system/auth-walk';
-export {
   defineProductSystem,
   globalActionMenuAlwaysVisible,
   noErrorBoundaryAnyActor,
@@ -137,7 +131,6 @@ export {
   partitioned,
   visible,
 } from './system/observations';
-export { PRODUCT_POOL_ACTIONS } from './system/pool-actions';
 export { captureSnapshot, googleOauthSignIn } from './system/probes';
 export {
   appleDeletesAccount,

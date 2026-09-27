@@ -1,16 +1,18 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  isFeatureFile,
+  isSpecFile,
   ownershipViolations,
   stagedViolations,
 } from './check-spec-ownership';
 
 describe('spec ownership', () => {
-  test('recognizes every Gherkin file, wherever it is', () => {
-    expect(isFeatureFile('specs/friends/friend-remove.feature')).toBe(true);
-    expect(isFeatureFile('libs/friends/features/remove.feature')).toBe(true);
-    expect(isFeatureFile('specs/README.md')).toBe(false);
+  test('recognizes every Gherkin file, wherever it is, and every model', () => {
+    expect(isSpecFile('specs/friends/friend-remove.feature')).toBe(true);
+    expect(isSpecFile('libs/friends/features/remove.feature')).toBe(true);
+    expect(isSpecFile('specs/spaces/space-hosting.qnt')).toBe(true);
+    expect(isSpecFile('pkgs/quint/tests/fixtures/door.qnt')).toBe(false);
+    expect(isSpecFile('specs/README.md')).toBe(false);
   });
 
   test('requires feature-only spec commits', () => {

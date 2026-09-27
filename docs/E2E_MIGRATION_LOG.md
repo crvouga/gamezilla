@@ -9,9 +9,9 @@ may move, merge or split, but it may not quietly disappear.
 > slice from its `./sim` surface; each suite boots only the slices it needs
 > ([`libs/sim-harness/README.md`](../libs/sim-harness/README.md)). Every spec
 > runs in a feature's own `test:e2e`, the full-composition few in the
-> composition root's (`libs/runtime/tests/e2e`), and every suite has its own
-> monkey (`tests/e2e/monkey.test.tsx`). `bun run test:report` renders one
-> report over all of them.
+> composition root's (`libs/runtime/tests/e2e`); the suites' random walks are
+> now Quint models in `specs/<domain>/*.qnt`. `bun run test:report` renders
+> one report over all of them.
 
 A suite's home is the lowest package that may depend on every feature it
 composes (turbo rejects cycles). Three features read another's tables or

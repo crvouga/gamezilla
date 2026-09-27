@@ -639,6 +639,17 @@ export async function pressPuzzleBackToChessMenu(
   await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
 }
 
+/** Chrome back arrow from the chess choices → the space's game menu. */
+export async function pressChessMenuBackToGameMenu(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(Handles.chessMenuPuzzle).expect.visible({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+  await ui.get(Handles.gameMenuChess).expect.visible({ timeoutMs: WAIT_MS });
+}
+
 export async function openChessStats(
   s: ProductSim,
   actorId: string

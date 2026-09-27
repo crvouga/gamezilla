@@ -62,7 +62,7 @@ behavior.
 | --- | --- | --- |
 | **Property** | Pure functions and algebra: round-trips, idempotence, invariants, metamorphic relations, agreement with a simple oracle. | `assertProperty` from `@pkgs/property` |
 | **Model-based** | Anything with state: a reference model runs beside the real thing under generated command sequences, and they must agree after every step. | `fc.commands` + `fc.modelRun` inside `assertProperty`; `defineSystem` / `system.explore` in `@pkgs/sim` |
-| **Simulation / monkey** | Whole subsystems: seeded random walks over user actions and faults (offline, restart, duplicate delivery), every standing property checked after each step. | `@pkgs/sim` systems, `runMonkey` in each suite's `tests/e2e/monkey.test.tsx` |
+| **Product model (Quint)** | A product feature end to end: a [Quint](https://quint-lang.org/) model in `specs/<domain>/*.qnt` states what each user action and fault does to what people see; Quint draws the walks and the product sim must agree with the model after every step, every standing property holding too. | `@pkgs/quint`, a binding per model in the package's `tests/quint/` ([`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md)) |
 
 Rules:
 
@@ -76,6 +76,10 @@ Rules:
 - State what must hold, not what one run did. A property that restates the
   implementation proves nothing — compare against a model, an inverse, or a
   relation between two runs.
+- Quint models follow the same seed policy: traces are drawn from `FC_SEED`,
+  so a model's verdict is cached like a property's. There are no product
+  random walks outside a model — the model is what makes a walk's verdict
+  mean more than "nothing crashed".
 - Hunt beyond the pinned seed with `bun run test:pbt:random` (`PBT_RANDOM=1`).
   That is exploration, not the gate: whatever it finds is pinned as a
   regression test before it is fixed.

@@ -65,3 +65,17 @@ export const backToTabs = scenarioAction({
     await ui.get(Handles.tabProfile).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
+
+/**
+ * Tap a tab (`Handles.tab*`) from wherever the tab bar is reachable: back to
+ * the tab bar first when a stack screen (Settings, an ended space) hides it.
+ */
+export const openTab = scenarioAction({
+  name: 'openTab',
+  act: async (s, actorId: string, tabTestId: string) => {
+    const ui = await actorUi(s, actorId);
+    await Promise.resolve(backToTabs.act(s, actorId));
+    await ui.get(tabTestId).tap({ timeoutMs: WAIT_MS });
+    await s.session.waitForIdle();
+  },
+});

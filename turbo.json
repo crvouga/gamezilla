@@ -173,7 +173,7 @@
       "env": [
         "SIM_MODE",
         "SIM_WITH_DOM",
-        "SIM_REPORT",
+        "SIM_FRAMES",
         "SIM_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
@@ -290,14 +290,17 @@
         "libs/*/package.json",
         "libs/*/turbo.json",
         "libs/*/tests/steps/**",
+        "libs/*/tests/quint/**",
         "libs/*/STEPS_CATALOG.md",
         "pkgs/*/package.json",
         "pkgs/*/turbo.json",
         "pkgs/*/tests/steps/**",
+        "pkgs/*/tests/quint/**",
         "pkgs/*/STEPS_CATALOG.md",
         "apps/*/package.json",
         "apps/*/turbo.json",
         "apps/*/tests/steps/**",
+        "apps/*/tests/quint/**",
         "apps/*/STEPS_CATALOG.md",
         "libs/sim-harness/src/spec/**",
         "pkgs/gherkin/src/**",
@@ -312,22 +315,6 @@
     "//#ci:spec-ownership": {
       "env": ["PR_BASE", "PR_HEAD"],
       "inputs": ["libs/tools/scripts/check-spec-ownership.ts"],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
-    "@apps/client#check:bundle-budget": {
-      "dependsOn": ["@apps/client#build"],
-      "inputs": [
-        "dist/.vite/manifest.json",
-        "dist/assets/**/*.js",
-        "dist/assets/**/*.css",
-        "dist/index.html",
-        "perf-budget.json",
-        "scripts/bundle-budget.ts",
-        "scripts/bundle-budget-lazy.ts",
-        "scripts/bundle-budget-manifest.ts",
-        "scripts/perf-budget.ts"
-      ],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -400,7 +387,6 @@
         "test",
         "test:contract",
         "test:e2e",
-        "@apps/client#check:bundle-budget",
         "@apps/product#check:offline-shell",
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",

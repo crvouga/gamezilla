@@ -14,7 +14,4 @@ import { useSimWorld } from '@libs/sim-harness/spec/world';
 import { openSim } from '../e2e/support/open-app-sim';
 import { simJourneyHost } from './journey-sim-host';
 
-useSimWorld(
-  (testId) => openSim(testId),
-  (w) => ({ journey: simJourneyHost(w) })
-);
+useSimWorld(openSim, (w) => ({ journey: simJourneyHost(w) }));

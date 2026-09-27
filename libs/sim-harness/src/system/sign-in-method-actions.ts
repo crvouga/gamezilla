@@ -36,6 +36,39 @@ export async function openAccountScreen(
   });
 }
 
+/** Go to the account screen from wherever the actor is (a no-op there). */
+export const showAccountScreen = scenarioAction({
+  name: 'showAccountScreen',
+  act: async (s, actorId: string) => {
+    await openAccountScreen(s, await actorUi(s, actorId));
+  },
+});
+
+/** How long a device may take to notice its session ended elsewhere. */
+const SESSION_NOTICE_MS = 180_000;
+
+/**
+ * Wait on the account screen until the device offers "Sign in": a device
+ * whose session ended elsewhere (signed out of every device) shows it once
+ * it hears about it.
+ */
+export const awaitSignedOutScreen = scenarioAction({
+  name: 'awaitSignedOutScreen',
+  act: async (s, actorId: string) => {
+    const ui = await actorUi(s, actorId);
+    await openAccountScreen(s, ui);
+    await pollUntil(
+      s,
+      async () =>
+        (await ui.get(Handles.accountSignIn).isVisible()) ? true : null,
+      {
+        maxMs: SESSION_NOTICE_MS,
+        description: 'the account screen offers Sign in',
+      }
+    );
+  },
+});
+
 export type ConnectOptions = {
   /** Apple: which of the person's Apple Accounts (default: iCloud). */
   readonly account?: AppleAccountKind;
@@ -73,6 +106,13 @@ export const connectSignInMethod = scenarioAction({
     await ui
       .get(Handles.accountLinkProvider(provider))
       .tap({ timeoutMs: WAIT_MS });
+    // Without a link ticket minted ahead, the app mints one before it opens
+    // the provider's window: wait for the window, as a person would.
+    await pollUntil(
+      s,
+      () => Promise.resolve(s.sim.browser(actorId).tab() !== null || null),
+      { maxMs: WAIT_MS, description: `the ${provider} window` }
+    );
     await completeProviderSignIn({
       s,
       ui,
@@ -87,7 +127,10 @@ export const connectSignInMethod = scenarioAction({
   },
 });
 
-/** "Remove" on a provider row, confirmed in the modal. */
+/**
+ * "Remove" on a provider row, confirmed in the modal, and its "Removed" face
+ * dismissed — left up, it covers the account screen.
+ */
 export const removeSignInMethod = scenarioAction({
   name: 'removeSignInMethod',
   act: async (s, actorId: string, provider: OauthProviderId) => {
@@ -97,6 +140,7 @@ export const removeSignInMethod = scenarioAction({
       .get(Handles.accountUnlinkProvider(provider))
       .tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.accountUnlinkConfirm).tap({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.accountUnlinkDone).tap({ timeoutMs: WAIT_MS });
   },
 });
 

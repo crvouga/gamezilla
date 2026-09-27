@@ -1,9 +1,10 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI entry (`bun run spec`).
 /**
- * Run Gherkin features across every package that runs `specs/<domain>/`
- * domains against the sim. A feature path (`specs/chess/puzzle-play.feature`)
- * goes only to the package whose `specDomains` lists its domain. Live domains
+ * Run specs — Gherkin features and Quint models — across every package that
+ * runs `specs/<domain>/` domains against the sim. A spec path
+ * (`specs/chess/puzzle-play.feature`, `specs/spaces/space-hosting.qnt`) goes
+ * only to the package whose `specDomains` lists its domain. Live domains
  * (`liveDomains`) run through `bun run health`, never here.
  */
 
@@ -45,7 +46,8 @@ function hasE2eScript(dir: string): boolean {
 
 function domainOfPath(arg: string): string | null {
   return (
-    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.feature$/.exec(arg)?.[1] ?? null
+    /^(?:\.\/)?specs\/([a-z0-9-]+)\/[^/]+\.(?:feature|qnt)$/.exec(arg)?.[1] ??
+    null
   );
 }
 

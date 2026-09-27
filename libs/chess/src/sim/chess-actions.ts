@@ -40,6 +40,7 @@ import {
   openReviewFromGameLog,
   pickWrongUci,
   playWrongMove,
+  pressChessMenuBackToGameMenu,
   pressPuzzleBackToChessMenu,
   pressPuzzleHint,
   pressPuzzleRetry,
@@ -207,6 +208,12 @@ export const revealPuzzleSolution = scenarioAction({
 export const leavePuzzleToChessMenu = scenarioAction({
   name: 'leavePuzzleToChessMenu',
   act: pressPuzzleBackToChessMenu,
+});
+
+/** Chrome back arrow from the chess choices → the space's game menu. */
+export const leaveChessMenuToGameMenu = scenarioAction({
+  name: 'leaveChessMenuToGameMenu',
+  act: pressChessMenuBackToGameMenu,
 });
 
 export const openChessStatsScreen = scenarioAction({
@@ -513,6 +520,7 @@ export const CHESS_SIM_ACTIONS = [
   revealPuzzleSolution,
   leaveChessStatsScreen,
   leavePuzzleToChessMenu,
+  leaveChessMenuToGameMenu,
   openChessStatsScreen,
   openPuzzleReview,
   pressPuzzleReviewNav,

@@ -61,6 +61,7 @@
     "@libs/billing": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
     "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@pkgs/sim": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",

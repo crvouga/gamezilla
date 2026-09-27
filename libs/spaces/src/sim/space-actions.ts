@@ -52,6 +52,34 @@ export const joinFromPrompt = scenarioAction({
   },
 });
 
+/**
+ * Into a live space from its lobby card: through the join prompt the first
+ * time, straight in for someone already seated.
+ */
+export const joinFromLobby = scenarioAction({
+  name: 'joinFromLobby',
+  act: async (s, actorId: string, hostUsername: string) => {
+    await tapLobbyCard(s, actorId, hostUsername, false);
+    const ui = await actorUi(s, actorId);
+    await pollUntil(
+      s,
+      async () =>
+        (await ui.get(Handles.spaceJoin).isVisible()) ||
+        (await ui.get(Handles.spaceClose).isVisible())
+          ? true
+          : null,
+      {
+        maxMs: SPACE_WAIT_MS,
+        description: `${hostUsername}'s space or its join prompt`,
+      }
+    );
+    if (await ui.get(Handles.spaceJoin).isVisible()) {
+      await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
+    }
+    await waitActiveSpace(s, actorId);
+  },
+});
+
 export const reenterActiveSpace = scenarioAction({
   name: 'reenterActiveSpace',
   act: reenterSpace,
@@ -183,6 +211,7 @@ export const SPACES_SIM_ACTIONS = [
   returnToLobby,
   openLobbyCard,
   joinFromPrompt,
+  joinFromLobby,
   reenterActiveSpace,
   endSpace,
   selectChessGame,

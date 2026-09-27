@@ -48,6 +48,7 @@
     "@pkgs/outbox": "workspace:*",
     "@pkgs/postgres-embedded": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-memory": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
