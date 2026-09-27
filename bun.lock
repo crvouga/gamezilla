@@ -2354,6 +2354,7 @@
       },
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@solidjs/testing-library": "catalog:",
         "@types/bun": "catalog:",
@@ -2440,7 +2441,9 @@
         "@pkgs/uuid": "workspace:*",
       },
       "devDependencies": {
+        "@pkgs/gherkin": "workspace:*",
         "@pkgs/keyword": "workspace:*",
+        "@pkgs/quint": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "fast-check": "catalog:",

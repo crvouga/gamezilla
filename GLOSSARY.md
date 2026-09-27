@@ -79,6 +79,31 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
 - **Google sign-in's way back** — where Google sends a person once they have
   signed in: always back to the app they started from, in the environment they
   started in.
+- **room** — a shared place that several people's devices join, where one
+  authority, the room itself, keeps the live state everyone sees. A room can
+  crash (it is then down) and restart (it is up again with what it had).
+- **shared counter** — a room holding one count that anyone in it can
+  increment or decrement; "everyone agrees on a count of N" means the room and
+  every device in it show N.
+- **ownership room** — a room anyone may claim while nobody has, becoming its
+  owner; only the owner may bump it, raising its bump count. It can be set to
+  turn a named person away, refusing every change they make, even a claim.
+- **refused** — a change the room will not accept, reported to its sender:
+  "invalid" when the room does not understand it, "not allowed" when the room
+  turns the sender away. A refused change alters nothing.
+- **waiting change** — a change a person made that has not reached the room
+  yet (they are offline, their network has stalled, or their app crashed); it
+  already shows on their own device.
+- **stalled network** — a person's network stops carrying anything in either
+  direction while they are still in the room; it **recovers** later. Unlike
+  being offline, the person's device does not know it is cut off.
+- **match clock** — the room's own clock in a timed match between White and
+  Black; it runs down only the bank of the side to move.
+- **bank** — the time a side has left in a timed match, in ms. A move keeps
+  what is left of it and passes the clock to the opponent.
+- **flag** — a side's flag falls when their bank runs out while they are to
+  move; the room then ends the match and the opponent wins on time. Claiming
+  a flag that has not fallen changes nothing.
 - **hosting limit** — how many spaces a person may host at once: one for a
   guest or a free account, no limit for a Plus member. Reaching it is an
   invitation to Plus.

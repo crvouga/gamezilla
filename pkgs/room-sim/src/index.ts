@@ -90,6 +90,7 @@ export {
   domainOp,
   injectFromServer,
   injectToServer,
+  inSync,
   lastRejection,
   logSeq,
   partition,
