@@ -26,8 +26,9 @@ Feature: End account sessions
     When Alice deletes their Apple account
     Then Alice is signed out within 150 seconds
 
+  @regression:apple-delete-stale-sign-in-methods
   Scenario: Deleting a connected Apple account leaves Google as the only way in
     Given Alice has connected Apple to their Google account
     When Alice deletes their Apple account
     Then Alice is still signed into the same account
-    And Alice's sign-in methods are Google within 60 seconds
+    And Alice's sign-in methods are Google within 20 seconds
