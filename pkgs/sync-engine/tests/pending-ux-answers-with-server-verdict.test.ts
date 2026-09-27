@@ -60,4 +60,29 @@ describe('pendingUx pending answers with the server verdict', () => {
     expect(await s.read(lastMutationOk, 'alice')).toBe(false);
     expect(await s.read(lastMutationFailures, 'alice')).toContain('REFUSED');
   });
+
+  // regression: pending-reject-verdict-before-rollback — found by the
+  // username-changes Quint model (specs/profile/username-changes.qnt).
+  test('by the time a refusal is reported, the device holds the server’s row again', async () => {
+    await using s = await exampleSystem.run({
+      seed: 522,
+      args: { clientCount: 0 },
+    });
+    await s.apply(addClient, { id: 'alice' });
+    await s.apply(startMutate, 'alice', pendingNote, {
+      id: 'n1',
+      body: 'kept',
+    });
+    await expectInSync(s);
+    await untilExample(s, (s) => lastMutationSettled(s, 'alice'));
+
+    await s.apply(startMutate, 'alice', pendingNote, {
+      id: 'n1',
+      body: 'refused',
+    });
+    await untilExample(s, (s) => lastMutationSettled(s, 'alice'));
+    expect(await s.read(lastMutationOk, 'alice')).toBe(false);
+    // What the caller acts on next: the refused body must already be gone.
+    expect((await s.read(liveNote, 'alice', 'n1'))?.body).toBe('kept');
+  });
 });

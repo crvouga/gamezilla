@@ -7,8 +7,23 @@ import { type MutationVerdict, mutationVerdict } from './mutation-status';
  * Settle on the server's verdict for `mutationId`: re-check whenever its
  * queue row or its rejection changes (the upload queue writes one of them
  * when a verdict lands). Backs `pendingUx: 'pending'` mutations.
+ *
+ * A rejection settles only once the device holds the server's rows again.
+ * The local apply's optimistic write outlives its rejection until the next
+ * merge, and a caller told "rejected" acts next on what the device shows:
+ * a retry checked locally against that write (a cooldown it started, a
+ * value it claimed) was refused for a write the server had just refused.
  */
-export function awaitMutationVerdict(
+export async function awaitMutationVerdict(
+  engine: Pick<SyncEngine, 'db' | 'watch' | 'refreshQueries'>,
+  mutationId: string
+): Promise<MutationVerdict> {
+  const verdict = await serverVerdict(engine, mutationId);
+  if (verdict.status === 'rejected') await engine.refreshQueries();
+  return verdict;
+}
+
+function serverVerdict(
   engine: Pick<SyncEngine, 'db' | 'watch'>,
   mutationId: string
 ): Promise<MutationVerdict> {
