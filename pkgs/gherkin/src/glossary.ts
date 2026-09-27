@@ -222,9 +222,14 @@ function escape(phrase: string): string {
   return phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
 }
 
-/** `phrase` as a whole word or words, plural allowed, any case. */
+/**
+ * `phrase` as a whole word or words, plural allowed. A capitalized phrase is
+ * a name ("Plus", "Settings", "About") and matches only as written; any
+ * other matches in any case ("Friend requests" at a sentence's start).
+ */
 function phrasePattern(phrase: string): RegExp {
-  return new RegExp(`(?<![\\w-])${escape(phrase)}(?:s|es)?(?![\\w-])`, 'gi');
+  const flags = /^\p{Lu}/u.test(phrase) ? 'gu' : 'giu';
+  return new RegExp(`(?<![\\w-])${escape(phrase)}(?:s|es)?(?![\\w-])`, flags);
 }
 
 type Vocabulary = {

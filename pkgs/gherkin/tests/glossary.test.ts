@@ -194,6 +194,35 @@ describe('ubiquitous language', () => {
     ]);
   });
 
+  test('a capitalized term is a name and matches only as written', () => {
+    const app = glossary('app', {
+      context: 'App',
+      purpose: 'The app itself.',
+      terms: [{ term: 'About', definition: 'Where the app says what it is.' }],
+    });
+    const features = [
+      prose(
+        'specs/play/about.feature',
+        `Feature: A game about time
+  Scenario: A flag is about time
+    Then the game ends
+`
+      ),
+    ];
+    expect(
+      checkLanguage(
+        input({
+          glossaries: new Map([
+            ['play', PLAY],
+            ['ratings', RATINGS],
+            ['app', app],
+          ]),
+          features,
+        })
+      )
+    ).toEqual([]);
+  });
+
   test("another context's term must be borrowed", () => {
     const features = [
       prose(
