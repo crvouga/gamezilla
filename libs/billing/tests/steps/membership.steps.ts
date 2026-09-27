@@ -124,6 +124,13 @@ When(
 );
 
 When(
+  "the provider repeats its last news about {actor}'s membership",
+  async (w, actor: Actor) => {
+    await observe(w, actor, 'redeliver_last_event');
+  }
+);
+
+When(
   "{actor}'s membership is canceled immediately",
   async (w, actor: Actor) => {
     await observe(w, actor, 'cancel_now');
@@ -180,7 +187,7 @@ Then("{actor}'s membership is active", async (w, actor: Actor) => {
   await shownWhere(w, actor, (shown) => shown.state === 'active');
 });
 
-Then("{actor}'s membership is delinquent", async (w, actor: Actor) => {
+Then("{actor}'s membership is (still )delinquent", async (w, actor: Actor) => {
   await shownWhere(w, actor, (shown) => shown.state === 'delinquent');
 });
 

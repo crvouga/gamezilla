@@ -3,7 +3,8 @@ Feature: Puzzle rating
   Each player has a running puzzle rating that moves after every rated
   puzzle, online or offline, so they can see how they are doing. A new
   player starts at 1500 with a "?" until the rating settles. Every device
-  shows the same rating, and a puzzle moves it at most once, ever.
+  shows the same rating, and a puzzle moves it at most once, ever. A wrong
+  move earns half credit, just like a hint.
 
   Scenario: The "?" leaves the rating once it settles
     Given Alice is signed in
@@ -44,3 +45,14 @@ Feature: Puzzle rating
     And Alice has solved 2 puzzles in a row
     When Alice's account opens on another device
     Then Alice's other device shows the same puzzle rating within 30 seconds
+
+  @regression:puzzle-wrong-move-half-credit
+  Scenario: A wrong move costs the same as a hint
+    Given Alice and Bob are signed in
+    And Alice is solving the hook-mate puzzle
+    And Bob is solving the hook-mate puzzle
+    And Bob has taken a hint
+    When Alice plays a wrong move
+    And Bob solves the puzzle
+    Then Alice's puzzle rating is below 1500
+    And Bob's puzzle rating is the same as Alice's

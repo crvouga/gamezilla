@@ -2,8 +2,8 @@
  * A space member sends a host-only puzzle command straight to the space
  * room, over a connection of their own identity, the way a modified client
  * would. The watcher's UI never offers these (a watcher's drag is a
- * suggestion), so this is how a scenario proves the room itself refuses them:
- * the host alone drives the puzzle (§12, always-true:7).
+ * suggestion), so this is how a scenario proves that a watcher's command
+ * changes nothing: the host alone drives the puzzle (§12, always-true:7).
  */
 
 import { pollUntil, scenarioAction } from '@libs/sim-harness/system/actor-ui';
@@ -30,20 +30,9 @@ const POLL_MS = 100;
 export type HostPuzzleCommand = 'move' | 'skip';
 
 /** What the room answered a member's command: refused (with why) or applied. */
-export type PuzzleCommandOutcome =
+type PuzzleCommandOutcome =
   | { readonly kind: 'refused'; readonly error: RoomError }
   | { readonly kind: 'applied' };
-
-const outcomes = new WeakMap<object, Map<string, PuzzleCommandOutcome>>();
-
-function outcomesOf(s: ProductSim): Map<string, PuzzleCommandOutcome> {
-  let map = outcomes.get(s.sim);
-  if (map === undefined) {
-    map = new Map();
-    outcomes.set(s.sim, map);
-  }
-  return map;
-}
 
 async function commandPayload(
   s: ProductSim,
@@ -68,7 +57,7 @@ function spaceIdOfLink(link: string | null, hostId: string): string {
 
 /**
  * `actorId` sends `command` for the puzzle `hostId` is playing, then waits
- * for the room's answer. Read it with {@link readPuzzleCommandOutcome}.
+ * for the room's answer (refused or applied) before returning.
  */
 export const attemptHostPuzzleCommand = scenarioAction({
   name: 'attemptHostPuzzleCommand',
@@ -107,16 +96,11 @@ export const attemptHostPuzzleCommand = scenarioAction({
         ts: s.sim.clock.now(),
         payload,
       });
-      const outcome = await pollUntil(
-        s,
-        () => Promise.resolve(answerTo(frames, commandId)),
-        {
-          maxMs: WAIT_MS,
-          stepMs: POLL_MS,
-          description: `room answer to ${actorId}'s ${command}`,
-        }
-      );
-      outcomesOf(s).set(actorId, outcome);
+      await pollUntil(s, () => Promise.resolve(answerTo(frames, commandId)), {
+        maxMs: WAIT_MS,
+        stepMs: POLL_MS,
+        description: `room answer to ${actorId}'s ${command}`,
+      });
     } finally {
       unsubscribe();
       transport.destroy();
@@ -145,12 +129,4 @@ function answerTo(
     }
   }
   return null;
-}
-
-/** The room's answer to `actorId`'s last {@link attemptHostPuzzleCommand}. */
-export function readPuzzleCommandOutcome(
-  s: ProductSim,
-  actorId: string
-): Promise<PuzzleCommandOutcome | null> {
-  return Promise.resolve(outcomesOf(s).get(actorId) ?? null);
 }

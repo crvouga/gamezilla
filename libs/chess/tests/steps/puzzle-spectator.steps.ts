@@ -1,7 +1,7 @@
 /**
  * Friends watching a puzzle in a space: the host drives, the watcher sees
- * every move and may suggest one. That a watcher's own command is refused is
- * pinned in `tests/e2e/watcher-command-refused`.
+ * every move and may suggest one, and a watcher's own move or skip of the
+ * host's puzzle changes nothing.
  */
 
 import { expect } from 'bun:test';
@@ -10,6 +10,10 @@ import {
   playNextSolutionMove,
   suggestNonSolutionMove,
 } from '@libs/chess/sim/chess-actions';
+import {
+  attemptHostPuzzleCommand,
+  type HostPuzzleCommand,
+} from '@libs/chess/sim/chess-puzzle-room-probe';
 import {
   isPuzzleSolved,
   type PuzzleSpectatorProbe,
@@ -27,7 +31,7 @@ import {
   When,
 } from '@libs/sim-harness/spec/define';
 import { accountIdOf } from '@libs/sim-harness/system/identity';
-import { required, SECOND_MS, SETTLE_MS } from './puzzle-world';
+import { rememberBoard, required, SECOND_MS, SETTLE_MS } from './puzzle-world';
 
 type Suggestions = PuzzleSpectatorProbe['recommendations'];
 
@@ -92,6 +96,38 @@ Then(
     expect(probe.role).toBe('guest');
     expect(probe.spectating).toBe(true);
     expect((await w.s.read(readPuzzleDebug, actor))?.interactive).toBe(false);
+  }
+);
+
+// ------------------------------------------- driving is the host's alone
+
+/**
+ * The watcher sends the host-only command for the host's puzzle, the way a
+ * modified app would (a watcher's own app never offers it), and the room
+ * answers. The host's board is noted first, for "the board is unchanged".
+ */
+async function watcherAttempts(
+  w: SimWorld,
+  watcher: Actor,
+  host: Actor,
+  command: HostPuzzleCommand
+): Promise<void> {
+  await w.s.apply(focusActor, host);
+  await rememberBoard(w, host);
+  await w.s.apply(attemptHostPuzzleCommand, watcher, host, command);
+}
+
+When(
+  "{actor} tries to play the next move of {actor}'s puzzle",
+  async (w, watcher: Actor, host: Actor) => {
+    await watcherAttempts(w, watcher, host, 'move');
+  }
+);
+
+When(
+  "{actor} tries to skip {actor}'s puzzle",
+  async (w, watcher: Actor, host: Actor) => {
+    await watcherAttempts(w, watcher, host, 'skip');
   }
 );
 

@@ -1,9 +1,9 @@
 /**
  * Puzzle bookkeeping reads and fixtures for scenarios: who owns a device's
  * puzzle progress, the rated-start allowance ledger (`puzzle.rated.solve`
- * starts, on the device and on the server), and the interaction log's
- * starts, completions and wrong moves. Fixtures write earlier history
- * directly so a scenario need not drive twenty boards through the UI.
+ * starts on the device), and the interaction log's completions. Fixtures
+ * write earlier history directly so a scenario need not drive twenty boards
+ * through the UI.
  */
 
 import { scenarioAction } from '@libs/sim-harness/system/actor-ui';
@@ -58,21 +58,6 @@ export function readLocalPuzzleStartLedger(
     SELECT id, owner_id, idempotency_key, consumed_at
     FROM permissions_quota_ledger
     WHERE quota = ${PUZZLE_START_QUOTA} AND deleted_at IS NULL
-    ORDER BY consumed_at ASC, id ASC
-  `);
-}
-
-/** Rated puzzle starts the server has recorded for `ownerId`, oldest first. */
-export function readServerPuzzleStartLedger(
-  s: ProductSim,
-  ownerId: string
-): Promise<PuzzleStartLedgerRow[]> {
-  return s.sim.serverSql.sqlClient.query(sql<PuzzleStartLedgerRow>`
-    SELECT id, owner_id, idempotency_key, consumed_at
-    FROM permissions_quota_ledger
-    WHERE owner_id = ${ownerId}
-      AND quota = ${PUZZLE_START_QUOTA}
-      AND deleted_at IS NULL
     ORDER BY consumed_at ASC, id ASC
   `);
 }
@@ -144,60 +129,5 @@ export async function countCompletedPuzzles(
     WHERE kind IN (${COMPLETED_KINDS[0]}, ${COMPLETED_KINDS[1]}, ${COMPLETED_KINDS[2]})
       AND deleted_at IS NULL
   `);
-  return Number(rows[0]?.count ?? 0);
-}
-
-/** Every puzzle start the device logged, across puzzles. */
-export async function countAllPuzzleStarts(
-  s: ProductSim,
-  actorId: string
-): Promise<number> {
-  const rows = await localSql(s, actorId).query(sql<{
-    readonly count: number;
-  }>`
-    SELECT COUNT(*) AS count FROM chess_puzzle_interactions
-    WHERE kind = 'started' AND deleted_at IS NULL
-  `);
-  return Number(rows[0]?.count ?? 0);
-}
-
-function countWrongMoves(
-  db: Pick<SqlTx, 'query'>,
-  puzzleId: string,
-  ownerId: string | null
-): Promise<{ readonly count: number }[]> {
-  return ownerId === null
-    ? db.query(sql<{ readonly count: number }>`
-        SELECT COUNT(*) AS count FROM chess_puzzle_interactions
-        WHERE puzzle_id = ${puzzleId} AND kind = 'moved' AND correct IS FALSE
-      `)
-    : db.query(sql<{ readonly count: number }>`
-        SELECT COUNT(*) AS count FROM chess_puzzle_interactions
-        WHERE puzzle_id = ${puzzleId} AND owner_id = ${ownerId}
-          AND kind = 'moved' AND correct IS FALSE
-      `);
-}
-
-/** Wrong moves the device logged on one puzzle. */
-export async function countLocalWrongMoves(
-  s: ProductSim,
-  actorId: string,
-  puzzleId: string
-): Promise<number> {
-  const rows = await countWrongMoves(localSql(s, actorId), puzzleId, null);
-  return Number(rows[0]?.count ?? 0);
-}
-
-/** Wrong moves the server holds for `ownerId` on one puzzle. */
-export async function countServerWrongMoves(
-  s: ProductSim,
-  ownerId: string,
-  puzzleId: string
-): Promise<number> {
-  const rows = await countWrongMoves(
-    s.sim.serverSql.sqlClient,
-    puzzleId,
-    ownerId
-  );
   return Number(rows[0]?.count ?? 0);
 }
