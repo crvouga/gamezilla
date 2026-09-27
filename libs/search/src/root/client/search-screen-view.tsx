@@ -25,11 +25,23 @@ const FIELD_ICON_SIZE = 18;
 function SearchResults(props: {
   query: string;
   searching: boolean;
+  needsConnection: boolean;
   results: readonly UserSearchResult[];
 }): JSX.Element {
   const { t } = useLingui();
   return (
     <Switch>
+      <Match when={props.needsConnection && props.results.length === 0}>
+        <EmptyState
+          variant="compact"
+          icon={SearchIcon}
+          title={<Trans>Search needs a connection</Trans>}
+          body={
+            <Trans>You're offline. Search again once you're back online.</Trans>
+          }
+          dataSet={{ testid: Handles.searchNeedsConnection }}
+        />
+      </Match>
       <Match when={props.searching && props.results.length === 0}>
         <LoadingState
           variant="compact"
@@ -121,6 +133,7 @@ function SearchScreenBody(): JSX.Element {
         <SearchResults
           query={trimmed()}
           searching={state.searching}
+          needsConnection={state.needsConnection}
           results={state.results}
         />
       </Show>

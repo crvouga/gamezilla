@@ -63,3 +63,11 @@ export async function peopleSearchOpen(
 ): Promise<boolean> {
   return await shown(s, actorId, Handles.searchInput);
 }
+
+/** Search says it needs a connection, in place of results (focuses the actor). */
+export async function searchNeedsConnection(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await shown(s, actorId, Handles.searchNeedsConnection);
+}

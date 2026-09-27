@@ -191,3 +191,11 @@ export async function friendsEmptyShown(
 ): Promise<boolean> {
   return await handleVisible(s, actorId, Handles.friendsEmpty);
 }
+
+/** The app says friend requests need a connection (focuses the actor). */
+export async function friendRequestNeedsConnection(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  return await handleVisible(s, actorId, Handles.friendRequestNeedsConnection);
+}

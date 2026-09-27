@@ -195,9 +195,13 @@ export const Handles = {
   /** Notifications friend-request summary card (fromUsername). */
   notificationsFriendRequestCard: (fromUsername: string) =>
     `notifications-friend-request-card-${fromUsername}`,
+  /** In place of results for a search made offline: search needs a connection. */
+  searchNeedsConnection: 'search-needs-connection',
   /** Notifications Accept for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestAccept: (fromUsername: string) =>
     `notifications-friend-request-accept-${fromUsername}`,
+  /** Why an Add did nothing offline: friend requests need a connection. */
+  friendRequestNeedsConnection: 'friend-request-needs-connection',
   /** Notifications Decline for an incoming friend-request modal (fromUsername). */
   notificationsFriendRequestDecline: (fromUsername: string) =>
     `notifications-friend-request-decline-${fromUsername}`,
