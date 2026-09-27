@@ -9,7 +9,11 @@
  * every scenario ends in an outcome with its context first, and the catalogs
  * are current, and no scenario has a BDD smell (`@pkgs/gherkin/smells`: a
  * long script, several events, acting after a Then outside journeys,
- * architecture words, a feature without a why). Near-duplicate wording is a
+ * architecture words, a feature without a why), and every spec speaks its
+ * bounded context's ubiquitous language (`spec-glossary.ts`: no avoided
+ * synonym, no other context's term unless borrowed, every Quint name a
+ * glossary term, cross-context imports only of published events).
+ * Near-duplicate wording is a
  * warning; `--strict-duplicates` makes it fail.
  *
  * Static: it parses features and reads `tests/steps/**` as text, so it runs
@@ -25,6 +29,7 @@ import { specSmells } from '@pkgs/gherkin/smells';
 import type { GoalChecks } from '../goal/goal-manifest';
 import { parseGoalMarkdown } from '../goal/goal-statements';
 import { catalogDrift } from './spec-catalog';
+import { languageProblems } from './spec-glossary';
 import {
   externalSteps,
   REPO_ROOT,
@@ -78,6 +83,7 @@ const errors: string[] = [
     goalSpecProofs,
   }),
   ...catalogDrift(packages, shared.steps),
+  ...languageProblems(),
 ];
 
 const allDefinitions = [

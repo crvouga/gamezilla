@@ -24,8 +24,11 @@ procedure; this document is the policy.
 Specs live in one flat top-level tree:
 
 ```text
+specs/glossary.yaml                The shared kernel: terms every context may use
+specs/<domain>/glossary.yaml       The context's ubiquitous language
 specs/<domain>/<feature>.feature   Gherkin: concrete scenarios
 specs/<domain>/<model>.qnt         Quint: a feature's state under any sequence of actions
+specs/<domain>/events.qnt          Quint: the facts the context publishes to others
 ```
 
 One directory per domain, no subdirectories, and every scenario tagged with
@@ -34,8 +37,102 @@ its `package.json` `specDomains` (for example `@libs/friends` runs `friends`
 and `spaces`) and adds `$TURBO_ROOT$/specs/<domain>/**` to its `test:e2e`
 inputs in its `turbo.json`. Step definitions live in that package's
 `tests/steps/` and are listed in generated `STEPS_CATALOG.md` files
-([index](STEPS_CATALOG.md)); product terms are in
-[`GLOSSARY.md`](../GLOSSARY.md).
+([index](STEPS_CATALOG.md)); product terms are in each context's
+`glossary.yaml`.
+
+## Bounded contexts and ubiquitous language
+
+Specs follow domain-driven design. Every `specs/<domain>/` is a **bounded
+context**: one model of one part of the product, with its own **ubiquitous
+language**. Every spec in the context — feature text, Quint names, the
+feature's story — is written only in that language. Agents and ports cannot
+misread a spec whose every word is defined.
+
+| DDD concept | Where it lives |
+| --- | --- |
+| Bounded context | `specs/<domain>/` |
+| Ubiquitous language | `specs/<domain>/glossary.yaml` |
+| Shared kernel | `specs/glossary.yaml` (person, device, the app, connection, the team) |
+| Aggregate and its invariants | `specs/<domain>/<aggregate>.qnt`: its actions are the commands, its `inv*` vals the invariants |
+| Commands and domain events | Gherkin `When` (a command) and `Then` (what happened); past-tense Quint event types |
+| Published language | `specs/<domain>/events.qnt`: `module events`, types and values only |
+| Context integration | Gherkin in the consuming context, in borrowed terms; its Quint imports only `../<upstream>/events` |
+
+Keep everything in product terms: "aggregate", "command" and "event" are
+modeling ideas here, never classes, repositories or message queues.
+
+### The glossary
+
+```yaml
+# specs/spaces/glossary.yaml
+context: Spaces
+purpose: >-
+  Live places people host and join to play together.
+terms:
+  - term: space
+    definition: >-
+      A live place one person hosts and others join. It is open until its
+      host ends it or leaves.
+    avoid: [room, lobby room, session]  # synonyms people reach for
+    model: [Place, place]                # the Quint names this term is
+  - term: host
+    definition: The person whose space it is.
+    forms: [hosts, hosting, hosted]      # inflections (plurals are implied)
+    model: [host, hostOf]
+  - term: Plus member
+    from: billing                        # borrowed: billing defines it
+  - term: checkmate
+    source: FIDE Laws of Chess, Article 5.1.1
+```
+
+- A term has a `definition`, an outside `source` (chess rules come from the
+  FIDE Laws of Chess and are cited, not redefined), or `from: <domain>`, which
+  borrows the upstream context's definition, `avoid` and `model` and makes the
+  dependency visible.
+- Definitions say what the product does, never how it is built: "a draw
+  offer lapses when the opponent moves" belongs; "a draw offer is stored
+  until the next move event" does not.
+- A term enters the glossary in the same `spec:` commit that first uses it.
+  The language leads the specs without having to be finished up front.
+- The shared kernel stays small: a term belongs there only when every
+  context means exactly the same thing by it.
+
+### What the gate enforces
+
+`bun run spec:check` (`libs/tools/scripts/spec-glossary.ts`,
+`@pkgs/gherkin/glossary`) fails when:
+
+- a context has no `glossary.yaml`, or a term has no definition, source or
+  lender, is defined twice, redefines a kernel term, or borrows a term its
+  lender does not define;
+- a feature's prose (name, story, rules, scenario names, steps; not example
+  tables) uses a synonym a glossary says to `avoid`;
+- a feature uses a term another context defines without borrowing it —
+  rephrase in this context's language, borrow it, or define this context's
+  own meaning;
+- a Quint spec declares a product-facing name — a type, a variant, a `var`,
+  an `action`, a `val` or a `def` — that is not a `model` name of a term in
+  its vocabulary (own, borrowed, kernel) or of an imported `events` module.
+  Exempt: `init` and `step`, `inv*` invariants, `SCREAMING_CASE` example
+  data and bounds, and model helpers prefixed `_` (checking machinery a
+  reader should not take as product vocabulary);
+- a Quint spec imports anything but `./events` or `../<domain>/events`, or
+  an `events.qnt` declares state or actions;
+- a glossary names a `model` no Quint spec in its context declares.
+
+What the gate cannot see — a word used but never defined, or used in a
+different sense than its definition — is the spec reviewer's job
+(`fix-specs`): read the diff beside the glossary and flag every term used
+but not defined. An undefined term becomes a glossary addition the person
+approves, so the language grows deliberately rather than by accident.
+
+### Stories and rules
+
+A feature's description is its story, in the context's language. Prefer a
+job story, which names the situation rather than a persona: "When a game is
+heading for a draw, a player wants to end it by agreement, so both players
+can move on." `Rule:` lines may use EARS phrasing ("While a draw offer is
+pending, when the opponent moves, the offer lapses").
 
 ## What belongs in a spec
 
@@ -68,8 +165,9 @@ replaces the product random walks ("monkeys") the suites used to run: Quint
 draws the walks from the model, and the product must agree with the model
 after every step — not merely avoid crashing.
 
-A model is a module named after its file in snake_case
-(`space-hosting.qnt` → `module space_hosting`), with:
+A model is an aggregate: a module named after its file in snake_case
+(`space-hosting.qnt` → `module space_hosting`), every product-facing name
+in its context's ubiquitous language, with:
 
 - a header comment in plain product language: who is in it, what they can do,
   what they see;
@@ -98,6 +196,8 @@ The gate (`bun run spec:check`) fails on:
 - a narrator ("I", "my", "the user") instead of a named person or role
 - a scenario with no `Then`, or a `Given` after the scenario has acted
 - stale step catalogs
+- a word outside the context's ubiquitous language (see
+  [the glossary rules](#what-the-gate-enforces))
 - a BDD smell (`@pkgs/gherkin/smells`):
   - a scenario with more than 8 steps, or more than 3 `When`s
   - a scenario that acts again after a `Then`, outside `specs/journeys/`
@@ -117,7 +217,7 @@ why the capability matters.
 ## Roles
 
 - **Spec writer** (`write-specs`). Edits only specs (`.feature` and `.qnt`
-  files), `GLOSSARY.md`, and docs. Never reads implementation, step
+  files, and the contexts' `glossary.yaml`), and docs. Never reads implementation, step
   definitions, bindings, or sim code. Describes behavior, not what the code
   happens to do. Asks when the behavior is unclear. A spec commit starts with
   `spec:` and contains no implementation files.
@@ -217,7 +317,8 @@ entry).
 
 1. **Discover** (`write-specs`): rules, one concrete example per rule, open
    questions answered by a person, not guessed.
-2. **Formulate**: read the catalogs and `GLOSSARY.md`, write the scenarios or
+2. **Formulate**: read the catalogs and the context's `glossary.yaml`, add
+   any new term to it, write the scenarios or
    a model in `specs/<domain>/`, and run `bun run spec:check` (undefined steps
    and unbound models are the handoff; nothing else may fail). A new domain
    needs an implementer to claim it in some package's `specDomains`. Commit

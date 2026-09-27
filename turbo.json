@@ -280,7 +280,7 @@
       "outputLogs": "errors-only"
     },
     "//#ci:specs": {
-      "dependsOn": ["@libs/tools#tc", "@pkgs/gherkin#tc"],
+      "dependsOn": ["@libs/tools#tc", "@pkgs/gherkin#tc", "@pkgs/quint#tc"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!apps/**",
@@ -304,7 +304,9 @@
         "apps/*/STEPS_CATALOG.md",
         "libs/sim-harness/src/spec/**",
         "pkgs/gherkin/src/**",
+        "pkgs/quint/src/names.ts",
         "libs/tools/scripts/check-specs.ts",
+        "libs/tools/scripts/spec-glossary.ts",
         "libs/tools/scripts/spec-catalog.ts",
         "libs/tools/scripts/spec-packages.ts",
         "libs/tools/goal/**"
