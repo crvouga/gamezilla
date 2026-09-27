@@ -43,7 +43,6 @@ import {
 } from '@libs/chess/sim/chess-puzzle-ui';
 import {
   focusActor,
-  restartApp,
   restoreNetwork,
   signInWithGoogle,
 } from '@libs/sim-harness';
