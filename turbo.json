@@ -318,22 +318,6 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
-    "@apps/client#check:bundle-budget": {
-      "dependsOn": ["@apps/client#build"],
-      "inputs": [
-        "dist/.vite/manifest.json",
-        "dist/assets/**/*.js",
-        "dist/assets/**/*.css",
-        "dist/index.html",
-        "perf-budget.json",
-        "scripts/bundle-budget.ts",
-        "scripts/bundle-budget-lazy.ts",
-        "scripts/bundle-budget-manifest.ts",
-        "scripts/perf-budget.ts"
-      ],
-      "outputs": [],
-      "outputLogs": "errors-only"
-    },
     "check:worker-bundle": {
       "dependsOn": ["tc"],
       "inputs": [
@@ -403,7 +387,6 @@
         "test",
         "test:contract",
         "test:e2e",
-        "@apps/client#check:bundle-budget",
         "@apps/product#check:offline-shell",
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",

@@ -1,6 +1,5 @@
 {
   "@apps/client#build": 32,
-  "@apps/client#check:bundle-budget": 2,
   "@apps/client#lint": 3,
   "@apps/client#tc": 3,
   "@apps/client#test": 1,

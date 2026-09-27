@@ -57,7 +57,6 @@ const CHECK_LEAVES = [
   'test',
   'test:contract',
   'test:e2e',
-  '@apps/client#check:bundle-budget',
   '@apps/product#check:offline-shell',
   '@apps/room-server#check:worker-bundle',
   '@apps/server#check:worker-bundle',

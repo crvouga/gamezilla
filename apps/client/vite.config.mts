@@ -86,8 +86,8 @@ export default defineConfig(({ mode }) => {
       cssCodeSplit: true,
       assetsInlineLimit: 0,
       // node-sql-parser is one atomic browser module (~2.4 MB raw / ~428 KB
-      // gzip); it cannot be split further. Its compressed size is covered by
-      // the lazy bundle budgets below this raw-size reporter threshold.
+      // gzip); it cannot be split further, so keep Vite's raw-size warning
+      // above it.
       chunkSizeWarningLimit: 2600,
       // Do not inject <link rel="modulepreload"> for dynamic-import targets into
       // index.html. Vite's default preloads the sync-engine / mutations /

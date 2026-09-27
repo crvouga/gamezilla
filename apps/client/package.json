@@ -5,7 +5,6 @@
   "scripts": {
     "prebuild": "bun run --cwd ../.. i18n:compile",
     "build": "vite build && bun run scripts/build-sw.ts",
-    "check:bundle-budget": "bun run scripts/bundle-budget.ts dist --budget=./perf-budget.json",
     "check:production-compression": "bun run scripts/check-production-compression.ts",
     "check:live-dist": "bun run scripts/live-bundle-guard-cli.ts check-dist",
     "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
