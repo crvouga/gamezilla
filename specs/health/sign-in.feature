@@ -1,7 +1,7 @@
 @domain:health
 Feature: Signing in
-  People can sign in with Google in every environment and land back in the
-  app they started from.
+  When a person signs in with Google in any environment, they want to land
+  back in the app they started from, so signing in never strands them.
 
   Scenario: People are offered Google sign-in and not Apple sign-in
     Then people are offered Google sign-in and not Apple sign-in
@@ -12,9 +12,9 @@ Feature: Signing in
   Scenario: Google agrees to send people back after they sign in
     Then Google agrees to send people back to the app after they sign in
 
-  Scenario: The web app hears back when a person finishes signing in
+  Scenario: The app on the web hears back when a person finishes signing in
     When a person on the web completes a sign-in
-    Then the web app hears whether the sign-in worked
+    Then the app on the web hears whether the sign-in worked
 
   @oauth-relay
   Scenario: Google sign-ins started in another environment return to it
