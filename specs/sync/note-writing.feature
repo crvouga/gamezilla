@@ -33,8 +33,9 @@ Feature: Write a note
 
     @regression:garbled-live-update-blank-note
     Scenario: A garbled live update never shows a note without its text
-      Given Alice and Bob are in the shared space "Trip"
-      And the next live update will arrive garbled
+      Given Alice and Bob have slow connections
+      And live updates have stopped for a while and started again
+      And the next live update to Bob will arrive garbled
       When Alice writes the note "Groceries" saying "milk"
       Then Bob never sees the note "Groceries" without its text
       And Bob sees the note "Groceries" saying "milk"
