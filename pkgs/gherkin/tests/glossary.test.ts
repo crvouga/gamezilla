@@ -226,6 +226,34 @@ describe('ubiquitous language', () => {
     ]);
   });
 
+  test('a context names a kernel term in its own models with from: kernel', () => {
+    const ratings = glossary('ratings', {
+      context: 'Ratings',
+      purpose: 'How strong each player is.',
+      terms: [
+        { term: 'rating', definition: 'A strength number.', model: 'ratings' },
+        { term: 'game', from: 'play', model: 'ratedGames' },
+        { term: 'person', from: 'kernel', model: 'rated' },
+      ],
+    });
+    const model = quint('specs/ratings/updates.qnt', [
+      ['var', 'ratings'],
+      ['var', 'ratedGames'],
+      ['var', 'rated'],
+    ]);
+    expect(
+      checkLanguage(
+        input({
+          glossaries: new Map([
+            ['play', PLAY],
+            ['ratings', ratings],
+          ]),
+          quint: [PLAY_MODEL, PLAY_EVENTS, model],
+        })
+      )
+    ).toEqual([]);
+  });
+
   test('only published events cross a context boundary', () => {
     const peeking = quint(
       'specs/ratings/updates.qnt',

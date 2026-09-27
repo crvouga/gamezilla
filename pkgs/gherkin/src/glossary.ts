@@ -74,6 +74,12 @@ export type LanguageInput = {
   readonly quint: readonly QuintSpecNames[];
 };
 
+/**
+ * `from: kernel` names a shared-kernel term in a context's own models: the
+ * term stays the kernel's, the `model` names are the context's.
+ */
+export const KERNEL = 'kernel';
+
 /** The published language a context offers other contexts. */
 export const EVENTS_MODULE = 'events';
 
@@ -229,10 +235,11 @@ type Vocabulary = {
 
 function ownerTerm(
   term: GlossaryTerm,
-  glossaries: ReadonlyMap<string, Glossary>
+  glossaries: ReadonlyMap<string, Glossary>,
+  kernel?: Glossary
 ): GlossaryTerm | null {
   if (term.from === null) return term;
-  const owner = glossaries.get(term.from);
+  const owner = term.from === KERNEL ? kernel : glossaries.get(term.from);
   return (
     owner?.terms.find(
       (t) => t.term.toLowerCase() === term.term.toLowerCase() && t.from === null
@@ -264,9 +271,17 @@ function checkBorrowing(input: LanguageInput, errors: string[]): void {
   );
   for (const [domain, glossary] of input.glossaries) {
     for (const term of glossary.terms) {
+      if (term.from === KERNEL) {
+        if (!kernelTerms.has(term.term.toLowerCase())) {
+          errors.push(
+            `${glossary.uri}: "${term.term}" is not a shared-kernel term (${input.kernel.uri})`
+          );
+        }
+        continue;
+      }
       if (kernelTerms.has(term.term.toLowerCase())) {
         errors.push(
-          `${glossary.uri}: "${term.term}" is a shared-kernel term (${input.kernel.uri}); drop it here`
+          `${glossary.uri}: "${term.term}" is a shared-kernel term (${input.kernel.uri}); drop it, or write "from: kernel" to name it in this context's models`
         );
       }
       if (term.from === null) continue;

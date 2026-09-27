@@ -95,6 +95,9 @@ terms:
   dependency visible. A borrowed term's `model` names are this context's own:
   the lender's Quint names never cross the boundary; only its published
   `events.qnt` does.
+- A kernel term is never redefined, but `from: kernel` gives it this
+  context's own `model` names (`- term: connection`, `from: kernel`,
+  `model: [phoneOnline]`).
 - Definitions say what the product does, never how it is built: "a draw
   offer lapses when the opponent moves" belongs; "a draw offer is stored
   until the next move event" does not.
