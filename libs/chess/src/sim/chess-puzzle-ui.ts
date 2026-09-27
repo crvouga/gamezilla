@@ -873,7 +873,7 @@ export async function isPuzzleLimitSignInOffered(
   const ui = await actorUi(s, actorId);
   const action = ui.get(`${Handles.chessPuzzleLimit}-action`);
   if (!(await action.isVisible())) return false;
-  return (await action.text()).trim() === 'Sign in';
+  return (await action.text())?.trim() === 'Sign in';
 }
 
 /**
