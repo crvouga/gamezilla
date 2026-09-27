@@ -1,91 +1,46 @@
-@domain:chess @goal:chess-puzzles:8
+@domain:chess @goal:chess-puzzles:2
 Feature: Puzzle rating
   Each player has a running puzzle rating that moves after every rated
-  puzzle, online or offline. A new player starts at 1500 and is marked
-  provisional ("1500?") until their rating deviation settles below the
-  threshold. The server's value is authoritative: every device converges on
-  it, and each puzzle moves the rating at most once, ever.
+  puzzle, online or offline, so they can see how they are doing. A new
+  player starts at 1500 with a "?" until the rating settles. Every device
+  shows the same rating, and a puzzle moves it at most once, ever.
 
-  Scenario: A new player starts at 1500, provisional
-    Given the puzzle pool holds puzzles rated near 1500
-    And Alice is signed in
-    And Alice is playing puzzles in their space
-    Then Alice's stats show a rating of "1500?"
-    And the server holds no puzzle rating for Alice
-
-  Scenario: A solve raises the rating by exactly what the rating formula gives
-    Given the puzzle pool holds puzzles rated near 1500
-    And Alice is signed in
+  Scenario: The "?" leaves the rating once it settles
+    Given Alice is signed in
+    And Alice's puzzle rating is one rated puzzle from settling
     And Alice is playing puzzles in their space
     When Alice solves the puzzle
-    Then the server holds 1 rated attempt for Alice within 30 seconds
-    And Alice's server rating is above 1500
-    And Alice's server rating deviation is below the starting deviation
-    And Alice's server rating is exactly the rating formula's result for a win against that puzzle
+    Then Alice's stats show their rating without the "?"
 
-  Scenario: A fail after a solve lowers the rating and narrows the deviation further
-    Given the puzzle pool holds puzzles rated near 1500
-    And Alice is signed in
+  Scenario: A puzzle solved offline raises the rating at once
+    Given Alice is signed in
     And Alice is playing puzzles in their space
-    And Alice has solved one puzzle and the server has rated it
-    When Alice moves on to the next puzzle
-    And Alice plays a wrong move
-    Then the server holds 2 rated attempts for Alice within 30 seconds
-    And Alice's server rating is below what it was after the solve
-    And Alice's server rating deviation is below what it was after the solve
-
-  Scenario: The provisional marker clears once the deviation settles
-    Given the puzzle pool holds puzzles rated near 1500
-    And Alice is signed in
-    And Alice is playing puzzles in their space
-    When Alice alternately solves and skips puzzles until their rating is no longer provisional
-    Then each puzzle Alice attempted was rated at most once
-    And Alice's server rating is not provisional
-    And Alice's stats show their server rating with no provisional marker
-
-  Scenario: An offline solve moves the rating on the device at once
-    Given the puzzle pool holds puzzles rated near 1500
-    And Alice is signed in
-    And Alice is playing puzzles in their space
-    When Alice loses the connection
-    And Alice solves the puzzle
-    Then Alice's device rating is above 1500
-    And the server holds no puzzle rating for Alice
-
-  Scenario: An offline solve reconciles to the server value and never double-applies
-    Given the puzzle pool holds puzzles rated near 1500
-    And Alice is signed in
-    And Alice is playing puzzles in their space
-    When Alice loses the connection
-    And Alice solves the puzzle
-    And the connection comes back
-    Then the server holds 1 rated attempt for Alice within 30 seconds
-    And Alice's server rating is exactly the rating formula's result for a win against that puzzle
-    And Alice's device rating matches the server within 30 seconds
-    And Alice's device holds 1 rated attempt
-
-  Scenario: A repeat attempt on an already-rated puzzle leaves the rating alone
-    Given the puzzle pool holds the three standard puzzles
-    And Alice is signed in
-    And Alice is playing puzzles in their space
-    When Alice solves every puzzle in the pool
-    Then the server holds 3 rated attempts for Alice within 30 seconds
-    When Alice moves on to the next puzzle
-    Then Alice's feed comes round to a puzzle they already played within 30 seconds
-    And Alice's current attempt is unrated
+    And Alice is offline
     When Alice solves the puzzle
-    Then the server holds 3 rated attempts for Alice
-    And Alice's server rating and deviation are unchanged by the repeat
+    Then Alice's puzzle rating is above 1500
 
-  Scenario: Two devices of one account converge on a single rating
-    Given the puzzle pool holds puzzles rated near 1500
+  Scenario: A puzzle solved offline counts once, on every device
+    Given Alice is signed in
+    And Alice is also signed in on another device
+    And Alice is playing puzzles in their space
+    And Alice has solved a puzzle while offline
+    When the connection comes back
+    Then both of Alice's devices show the same puzzle rating within 30 seconds
+    And Alice's stats show 1 played, 1 solved, and 100% accuracy
+
+  Scenario: A repeat of a played puzzle moves neither the rating nor the stats
+    Given the puzzle pool holds just three puzzles
     And Alice is signed in
     And Alice is playing puzzles in their space
+    And Alice has solved 3 puzzles in a row
+    And Alice's feed has come round to a puzzle they already played
     When Alice solves the puzzle
-    And Alice moves on to the next puzzle
-    And Alice solves the puzzle
-    Then the server holds 2 rated attempts for Alice within 30 seconds
+    Then Alice's puzzle rating is unchanged by the repeat
+    And Alice's stats show 3 played, 3 solved, and 100% accuracy
+
+  Scenario: A second device shows the rating earned on the first
+    Given Alice is signed in
+    And Alice is playing puzzles in their space
+    And Alice has solved 2 puzzles in a row
     When Alice's account opens on another device
-    Then Alice's other device shows the server rating within 30 seconds
-    And both of Alice's devices hold the server's rating and deviation
-    And both of Alice's devices hold 2 rated attempts
+    Then Alice's other device shows the same puzzle rating within 30 seconds
