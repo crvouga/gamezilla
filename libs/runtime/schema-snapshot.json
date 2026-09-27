@@ -1,7 +1,11 @@
 {
-  "release": 5,
+  "release": 6,
   "snapshot": {
     "tables": {
+      "auth_account_devices": {
+        "device_id": "text",
+        "user_id": "text"
+      },
       "auth_devices": {
         "account_id": "text",
         "app_build_number": "text",
@@ -34,6 +38,10 @@
         "provider": "text",
         "provider_subscription_id": "text",
         "status": "text"
+      },
+      "chess_puzzle_feed_settings": {
+        "config": "text",
+        "owner_id": "text"
       },
       "chess_puzzle_interactions": {
         "at": "timestamp",
@@ -197,6 +205,7 @@
       ["permissions_quota_ledger", "owner_id", "quota", "consumed_at"]
     ],
     "uniqueIndexes": [
+      ["auth_account_devices", "user_id", "device_id"],
       ["auth_external_accounts", "provider", "external_id"],
       ["auth_external_accounts", "user_id", "provider"],
       ["billing_subscriptions", "provider", "provider_subscription_id"],
