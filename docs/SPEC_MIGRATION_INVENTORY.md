@@ -7,7 +7,7 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 
 | package | runs | kept in code |
 |---|---|---|
-| libs/profile | `specs/profile/` | `auth-oauth-port` (port mechanics) |
+| libs/profile | `specs/profile/` | — (`auth-oauth-port` retired 2026-09-27: every Google sign-in scenario walks the same port) |
 | libs/friends | `specs/friends/`, `specs/spaces/` | — |
 | libs/billing | `specs/billing/` | — |
 | libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
@@ -30,6 +30,16 @@ MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
 `purity-and-seed`. `pkgs/room` still runs `tests/room-server.feature` and
 `tests/room-client.feature` beside its tests (engine wire behavior, not yet
 demoted to contract tests).
+
+(2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
+`puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,
+`puzzle-selection-window`, `watcher-command-refused` in
+`libs/chess/tests/e2e/`) are replaced by scenarios in `specs/chess/`, actions
+in `specs/chess/puzzle-session.qnt` (Next twice at once, closing and
+reopening the app), and code tests in `libs/chess/tests/puzzle-session/`;
+`libs/chess/tests/e2e/` keeps only the sim composition (`support/`). The
+watcher-refusal scenarios now assert what the host and watcher see (nothing
+changes), not the room's refusal.
 
 Still open:
 

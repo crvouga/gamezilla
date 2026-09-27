@@ -21,3 +21,9 @@ Feature: Failed payments
     Given Alice's payment has failed
     When the provider gives up retrying Alice's payment
     Then Alice's membership has ended
+
+  Scenario: The provider repeating its news of a failed payment changes nothing
+    Given Alice's payment has failed
+    When the provider repeats its last news about Alice's membership
+    Then Alice has paid access
+    And Alice's membership is still delinquent

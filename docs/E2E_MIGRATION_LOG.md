@@ -90,7 +90,7 @@ feature that hosts a signed-in screen.
 | Spec | Covers | Home |
 | --- | --- | --- |
 | `auth-login-logout` | first login, then logout on the account screen | `libs/profile/tests/e2e/auth-login-logout` |
-| `auth-oauth-port` | Google sign-in through the in-process `openAuthSession` seam | `libs/profile/tests/e2e/auth-oauth-port` |
+| `auth-oauth-port` | Google sign-in through the in-process `openAuthSession` seam | `specs/profile/sign-in.feature` (every Google sign-in walks the port) |
 | `auth-guest-progress-carryover` | a guest's username and avatar survive signing in with Google | `libs/profile/tests/e2e/auth-guest-progress-carryover` |
 | `profile-edit` | guest and signed-in username + avatar edits | `libs/profile/tests/e2e/edit` |
 | `search-people` | people search settles and shows bob's result row | `libs/friends/tests/e2e/search-people` |

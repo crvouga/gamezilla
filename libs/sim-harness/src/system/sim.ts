@@ -32,7 +32,6 @@ export type ProductRuntime = {
  * Written by an action, read back by the matching read function.
  */
 export type ProductProbes = {
-  oauthTokenLength: number | null;
   snapshot: SimSystemSnapshot | null;
 };
 
@@ -65,7 +64,7 @@ export function createProductSim(session: Session, sim: Sim): ProductSim {
     session,
     sim,
     actors,
-    probes: { oauthTokenLength: null, snapshot: null },
+    probes: { snapshot: null },
     runtime,
   };
 }

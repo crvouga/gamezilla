@@ -13,8 +13,10 @@ import {
   playUntilSolved,
   playWrongPuzzleMove,
   pressPuzzleNext,
+  pressPuzzleNextTwice,
   reopenPuzzleFromChessMenu,
   retryPuzzle,
+  returnToOwnSpace,
   showPuzzleSolutionLine,
   skipPuzzle,
 } from '@libs/chess/sim/chess-actions';
@@ -23,7 +25,7 @@ import {
   readActivePuzzleId,
   readPuzzleStatus,
 } from '@libs/chess/sim/chess-puzzle-ui';
-import { focusActor } from '@libs/sim-harness';
+import { focusActor, restartApp } from '@libs/sim-harness';
 import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
 import { bringToFront, visible } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
@@ -116,6 +118,14 @@ bindQuintModel<QuintSimWorld>({
     skip: hostDoes((w) => w.s.apply(skipPuzzle, HOST)),
     retry: hostDoes((w) => w.s.apply(retryPuzzle, HOST)),
     moveOn: hostDoes((w) => w.s.apply(pressPuzzleNext, HOST), true),
+    moveOnTwiceAtOnce: hostDoes(
+      (w) => w.s.apply(pressPuzzleNextTwice, HOST),
+      true
+    ),
+    reopenApp: hostDoes(async (w) => {
+      await w.s.apply(restartApp, HOST);
+      await w.s.apply(returnToOwnSpace, HOST);
+    }),
   },
   observe: async (w) => {
     const screen = new Map<QuintValue, QuintValue>();
