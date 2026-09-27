@@ -15,26 +15,47 @@ import {
   openFriendLiveSpace,
   openFriendsList,
   removeFriend,
+  searchUntilAddOffered,
   unblockFriend,
 } from '@libs/friends/sim/friends-actions';
 import {
+  addFriendLabel,
+  askOffered,
+  confirmOffered,
   friendLiveBadgeVisible,
   friendRequestCardVisible,
   friendRowVisible,
-  handleText,
-  handleVisible,
+  friendStatusShown,
+  friendsEmptyShown,
+  personProfileShown,
   readFriendsCount,
+  signInAsked,
+  unblockOffered,
+  withdrawOffered,
 } from '@libs/friends/sim/friends-ui-reads';
 import {
+  askAgainFromSearch,
   blockPerson,
+  confirmFromProfile,
+  declineFromProfile,
+  followFindFriends,
+  followSearchSignIn,
   keepFriend,
   openAcceptedNotification,
   openPersonFromSearch,
-  tapFriendPill,
+  sendRequestFromProfile,
   viewProfileFromRequest,
 } from '@libs/friends/sim/person-actions';
 import { setupFriendsPair } from '@libs/friends/sim/setup-friends-pair';
+import {
+  openProfileEdit,
+  setUsername,
+} from '@libs/profile/sim/profile-actions';
 import { searchUsername } from '@libs/search/sim/search-actions';
+import {
+  peopleSearchOpen,
+  searchNeedsAccount,
+} from '@libs/search/sim/search-ui-reads';
 import { backToTabs, focusActor, returnToTabs } from '@libs/sim-harness';
 import {
   type Actor,
@@ -46,10 +67,10 @@ import {
 import { accountIdOf } from '@libs/sim-harness/system/identity';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
 import { joinFromPrompt } from '@libs/spaces/sim/space-actions';
-import { Handles } from '@libs/test-ids';
 
 const SECOND_MS = 1_000;
-const prompt = (handle: string): string => `${handle}-action`;
+/** How long a decline takes to reach the person who asked. */
+const DECLINE_REACHES_MS = 15_000;
 
 function sameActor(expected: Actor, given: Actor, step: string): void {
   if (expected !== given) {
@@ -83,16 +104,25 @@ Given(
   async (w, from: Actor, to: Actor, whose: Actor) => {
     sameActor(to, whose, 'has sent … from profile');
     await w.s.apply(openPersonFromSearch, from, to);
-    await w.s.apply(tapFriendPill, from, Handles.friendAdd(to));
+    await w.s.apply(sendRequestFromProfile, from, to);
     await w.s.until((surf) => friendRequestCardVisible(surf, to, from));
   }
 );
 
-When(
-  '{actor} sends {actor} a friend request',
-  async (w, from: Actor, to: Actor) => {
-    await w.s.apply(searchUsername, from, to);
-    await w.s.apply(addFriend, from, to);
+Given(
+  "{actor} has accepted {actor}'s friend request",
+  async (w, actor: Actor, from: Actor) => {
+    await w.s.until((surf) => friendRequestCardVisible(surf, actor, from));
+    await w.s.apply(acceptFriendRequest, actor, from);
+  }
+);
+
+Given(
+  "{actor} has declined {actor}'s friend request",
+  async (w, actor: Actor, from: Actor) => {
+    await w.s.apply(declineFriendRequest, actor, from);
+    await w.s.apply(backToTabs, from);
+    await w.s.apply(searchUntilAddOffered, from, actor, DECLINE_REACHES_MS);
   }
 );
 
@@ -100,7 +130,7 @@ When(
   "{actor} sends {actor} a friend request from {actor}'s profile",
   async (w, from: Actor, to: Actor, whose: Actor) => {
     sameActor(to, whose, 'sends … from profile');
-    await w.s.apply(tapFriendPill, from, Handles.friendAdd(to));
+    await w.s.apply(sendRequestFromProfile, from, to);
   }
 );
 
@@ -128,20 +158,26 @@ When(
 
 When('{actor} asks {actor} again', async (w, actor: Actor, other: Actor) => {
   await w.s.apply(backToTabs, actor);
-  await w.s.apply(searchUsername, actor, other);
-  await w.s.apply(tapFriendPill, actor, Handles.friendAdd(other));
+  await w.s.apply(askAgainFromSearch, actor, other);
 });
 
 Then(
   "{actor}'s request to {actor} is refused with {string}",
   async (w, actor: Actor, other: Actor, reason: string) => {
-    expect(await w.s.read(handleText, actor, Handles.friendAdd(other))).toBe(
-      reason
-    );
+    expect(await w.s.read(addFriendLabel, actor, other)).toBe(reason);
   }
 );
 
 // ------------------------------------------------------------ friends list
+
+// A rename other people then look for (profile owns the act of renaming).
+Given(
+  '{actor} has renamed themselves to {username}',
+  async (w, actor: Actor, username: string) => {
+    await w.s.apply(openProfileEdit, actor);
+    await w.s.apply(setUsername, actor, username);
+  }
+);
 
 When('{actor} opens their friends list', async (w, actor: Actor) => {
   await w.s.apply(openFriendsList, actor);
@@ -170,7 +206,6 @@ Then(
     await w.s.until((surf) => friendRowVisible(surf, actor, person), {
       maxMs: seconds * SECOND_MS,
     });
-    expect(await w.s.read(friendRowVisible, actor, person)).toBe(true);
   }
 );
 
@@ -250,12 +285,24 @@ When('{actor} looks up {actor}', async (w, actor: Actor, other: Actor) => {
   await w.s.apply(openPersonFromSearch, actor, other);
 });
 
+Given(
+  "{actor} is viewing {actor}'s profile",
+  async (w, actor: Actor, other: Actor) => {
+    await w.s.apply(openPersonFromSearch, actor, other);
+  }
+);
+
+Given(
+  "{actor} has opened {actor}'s profile from their request",
+  async (w, actor: Actor, from: Actor) => {
+    await w.s.apply(viewProfileFromRequest, actor, from);
+  }
+);
+
 Then(
   "{actor} is shown {actor}'s profile",
   async (w, actor: Actor, other: Actor) => {
-    expect(await w.s.read(handleText, actor, Handles.friendUserUsername)).toBe(
-      `@${other}`
-    );
+    expect(await w.s.read(personProfileShown, actor)).toBe(`@${other}`);
   }
 );
 
@@ -270,7 +317,7 @@ When(
   "{actor} confirms {actor}'s request from {actor}'s profile",
   async (w, actor: Actor, from: Actor, whose: Actor) => {
     sameActor(from, whose, 'confirms … from profile');
-    await w.s.apply(tapFriendPill, actor, Handles.friendConfirm(from));
+    await w.s.apply(confirmFromProfile, actor, from);
   }
 );
 
@@ -278,55 +325,37 @@ When(
   "{actor} declines {actor}'s request from {actor}'s profile",
   async (w, actor: Actor, from: Actor, whose: Actor) => {
     sameActor(from, whose, 'declines … from profile');
-    await w.s.apply(tapFriendPill, actor, Handles.friendDecline(from));
+    await w.s.apply(declineFromProfile, actor, from);
   }
 );
 
 Then(
   '{actor} sees {actor} as a friend',
   async (w, actor: Actor, other: Actor) => {
-    expect(
-      await w.s.read(handleVisible, actor, Handles.friendStatusFriends(other))
-    ).toBe(true);
-  }
-);
-
-Then(
-  '{actor} sees {actor} as a friend within {int} seconds',
-  async (w, actor: Actor, other: Actor, seconds: number) => {
-    await w.s.apply(focusActor, actor);
-    await w.s.until(
-      (surf) => handleVisible(surf, actor, Handles.friendStatusFriends(other)),
-      { maxMs: seconds * SECOND_MS }
-    );
+    expect(await w.s.read(friendStatusShown, actor, other)).toBe(true);
   }
 );
 
 Then(
   "{actor} is offered to confirm {actor}'s request",
   async (w, actor: Actor, from: Actor) => {
-    expect(
-      await w.s.read(handleVisible, actor, Handles.friendConfirm(from))
-    ).toBe(true);
+    expect(await w.s.read(confirmOffered, actor, from)).toBe(true);
   }
 );
 
 Then(
   "{actor} is offered to confirm {actor}'s request within {int} seconds",
   async (w, actor: Actor, from: Actor, seconds: number) => {
-    await w.s.until(
-      (surf) => handleVisible(surf, actor, Handles.friendConfirm(from)),
-      { maxMs: seconds * SECOND_MS }
-    );
+    await w.s.until((surf) => confirmOffered(surf, actor, from), {
+      maxMs: seconds * SECOND_MS,
+    });
   }
 );
 
 Then(
   '{actor} can withdraw the request to {actor}',
   async (w, actor: Actor, to: Actor) => {
-    expect(await w.s.read(handleVisible, actor, Handles.friendCancel(to))).toBe(
-      true
-    );
+    expect(await w.s.read(withdrawOffered, actor, to)).toBe(true);
   }
 );
 
@@ -334,12 +363,9 @@ Then(
   '{actor} can ask {actor} again within {int} seconds',
   async (w, actor: Actor, other: Actor, seconds: number) => {
     await w.s.apply(focusActor, actor);
-    await w.s.until(
-      (surf) => handleVisible(surf, actor, Handles.friendAdd(other)),
-      {
-        maxMs: seconds * SECOND_MS,
-      }
-    );
+    await w.s.until((surf) => askOffered(surf, actor, other), {
+      maxMs: seconds * SECOND_MS,
+    });
   }
 );
 
@@ -360,9 +386,17 @@ When(
 
 // ------------------------------------------------------------------- block
 
-When('{actor} blocks {actor}', async (w, actor: Actor, other: Actor) => {
+async function block(w: SimWorld, actor: Actor, other: Actor): Promise<void> {
   await w.s.apply(blockFriend, actor, other);
   await w.s.apply(returnToTabs, actor);
+}
+
+When('{actor} blocks {actor}', async (w, actor: Actor, other: Actor) => {
+  await block(w, actor, other);
+});
+
+Given('{actor} has blocked {actor}', async (w, actor: Actor, other: Actor) => {
+  await block(w, actor, other);
 });
 
 When(
@@ -379,88 +413,104 @@ When('{actor} unblocks {actor}', async (w, actor: Actor, other: Actor) => {
 });
 
 Then('{actor} can unblock {actor}', async (w, actor: Actor, other: Actor) => {
-  expect(
-    await w.s.read(handleVisible, actor, Handles.friendUnblock(other))
-  ).toBe(true);
+  expect(await w.s.read(unblockOffered, actor, other)).toBe(true);
 });
 
 // ------------------------------------------------------------------- gates
 
 Then('{actor} is told search needs an account', async (w, actor: Actor) => {
-  expect(await w.s.read(handleVisible, actor, Handles.searchDenied)).toBe(true);
+  expect(await w.s.read(searchNeedsAccount, actor)).toBe(true);
 });
 
-When(
-  '{actor} follows the sign-in prompt from search',
-  async (w, actor: Actor) => {
-    await w.s.apply(tapFriendPill, actor, prompt(Handles.searchDenied));
+Given(
+  '{actor} has searched for {string}',
+  async (w, actor: Actor, text: string) => {
+    await w.s.apply(backToTabs, actor);
+    await w.s.apply(searchUsername, actor, text);
   }
 );
 
+When('{actor} chooses to sign in from search', async (w, actor: Actor) => {
+  await w.s.apply(followSearchSignIn, actor);
+});
+
 Then('{actor} is asked to sign in', async (w, actor: Actor) => {
-  expect(await w.s.read(handleVisible, actor, Handles.authMethodGoogle)).toBe(
-    true
-  );
+  expect(await w.s.read(signInAsked, actor)).toBe(true);
 });
 
 Then(
   '{actor} is asked to sign in within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
-    await w.s.until(
-      (surf) => handleVisible(surf, actor, Handles.authMethodGoogle),
-      {
-        maxMs: seconds * SECOND_MS,
-      }
-    );
+    await w.s.until((surf) => signInAsked(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
   }
 );
 
 Then(
   '{actor} is told they have no friends yet within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
-    await w.s.until(
-      (surf) => handleVisible(surf, actor, Handles.friendsEmpty),
-      {
-        maxMs: seconds * SECOND_MS,
-      }
-    );
+    await w.s.until((surf) => friendsEmptyShown(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
   }
 );
 
-When('{actor} follows the find-friends prompt', async (w, actor: Actor) => {
-  await w.s.apply(tapFriendPill, actor, prompt(Handles.friendsEmpty));
+Given(
+  '{actor} is viewing their empty friends list',
+  async (w, actor: Actor) => {
+    await w.s.apply(openFriendsList, actor);
+    await w.s.until((surf) => friendsEmptyShown(surf, actor));
+  }
+);
+
+When('{actor} chooses to find friends', async (w, actor: Actor) => {
+  await w.s.apply(followFindFriends, actor);
 });
 
 Then('{actor} can search for people', async (w, actor: Actor) => {
-  expect(await w.s.read(handleVisible, actor, Handles.searchInput)).toBe(true);
+  expect(await w.s.read(peopleSearchOpen, actor)).toBe(true);
 });
 
 // -------------------------------------------------------------- live badge
 
-Then(
-  "{actor}'s friends list does not badge {actor} as live",
+/** Bring `actor`'s friends list up and wait until it shows `host` as live. */
+async function untilShownLive(
+  w: SimWorld,
+  actor: Actor,
+  host: Actor,
+  maxMs?: number
+): Promise<void> {
+  const hostId = await accountId(w, host);
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(openFriendsList, actor);
+  await w.s.until(
+    (surf: ProductSim) => friendLiveBadgeVisible(surf, actor, hostId),
+    maxMs === undefined ? undefined : { maxMs }
+  );
+}
+
+Given(
+  "{actor}'s friends list shows {actor} as live",
   async (w, actor: Actor, host: Actor) => {
-    const hostId = await accountId(w, host);
-    expect(await w.s.read(friendLiveBadgeVisible, actor, hostId)).toBe(false);
+    await untilShownLive(w, actor, host);
   }
 );
 
 Then(
-  "{actor}'s friends list badges {actor} as live within {int} seconds",
+  "{actor}'s friends list shows {actor} as live within {int} seconds",
   async (w, actor: Actor, host: Actor, seconds: number) => {
     const hostId = await accountId(w, host);
     await w.s.apply(focusActor, actor);
     await w.s.until(
       (surf: ProductSim) => friendLiveBadgeVisible(surf, actor, hostId),
-      {
-        maxMs: seconds * SECOND_MS,
-      }
+      { maxMs: seconds * SECOND_MS }
     );
   }
 );
 
 Then(
-  "{actor}'s friends list stops badging {actor} as live within {int} seconds",
+  "{actor}'s friends list stops showing {actor} as live within {int} seconds",
   async (w, actor: Actor, host: Actor, seconds: number) => {
     const hostId = await accountId(w, host);
     await w.s.apply(focusActor, actor);
@@ -478,8 +528,8 @@ Then(
 When(
   "{actor} joins {actor}'s space from their friends list",
   async (w, actor: Actor, host: Actor) => {
-    const hostId = await accountId(w, host);
-    await w.s.apply(openFriendLiveSpace, actor, hostId);
+    await untilShownLive(w, actor, host);
+    await w.s.apply(openFriendLiveSpace, actor, await accountId(w, host));
     await w.s.apply(joinFromPrompt, actor);
   }
 );

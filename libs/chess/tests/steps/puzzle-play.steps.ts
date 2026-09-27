@@ -7,14 +7,14 @@
 import { expect } from 'bun:test';
 
 import {
+  castlePuzzleKing,
   choosePuzzlePromotion,
   leavePuzzleToChessMenu,
-  openPuzzleFromSpace,
+  openPuzzleFromSpaceNoWait,
   playPuzzleMove,
   playUntilSolved,
   playWrongPuzzleMove,
   pressPuzzleNext,
-  pressPuzzleNextNoWait,
   pressPuzzleNextTwice,
   requestPuzzleHint,
   retryPuzzle,
@@ -25,42 +25,54 @@ import {
   skipPuzzle,
 } from '@libs/chess/sim/chess-actions';
 import {
-  countPuzzleStarts,
+  readPuzzleBoardPieceAt,
   readPuzzleBoardProbe,
   readPuzzleHaptics,
-  readPuzzleInteractions,
-  readPuzzleOutcomes,
   readPuzzlePromotionPending,
   readPuzzlePrompt,
 } from '@libs/chess/sim/chess-puzzle-solve-ui';
 import {
+  isPuzzleOfflineNoticeVisible,
   isPuzzleSolved,
   readActivePuzzleId,
-  readNextPuzzleId,
   readPuzzleDebug,
   readPuzzleHintStage,
   readPuzzleSpectator,
   readPuzzleStatus,
   readPuzzleStatusKind,
 } from '@libs/chess/sim/chess-puzzle-ui';
-import { focusActor } from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
+import {
+  focusActor,
+  restoreNetwork,
+  signInWithGoogle,
+} from '@libs/sim-harness';
+import {
+  type Actor,
+  Given,
+  type SimWorld,
+  Then,
+  When,
+} from '@libs/sim-harness/spec/define';
+import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
 import { remember } from '@libs/sim-harness/spec/world';
 import { accountIdOf } from '@libs/sim-harness/system/identity';
-import { reenterActiveSpace } from '@libs/spaces/sim/space-actions';
-import { Chess } from 'chess.js';
+import {
+  createSpace,
+  reenterActiveSpace,
+} from '@libs/spaces/sim/space-actions';
+import type { Square } from '@pkgs/chess-board-core/types';
 import { NAMED_PUZZLES } from './puzzle-fixtures';
 import {
   activePuzzle,
   currentPuzzle,
   enterNamedPuzzle,
   enterPuzzles,
-  lastPlayer,
   previousPuzzle,
   promotionPiece,
   recalled,
   required,
   SECOND_MS,
+  SETTLE_MS,
   sideOf,
   trackPuzzle,
   uciOf,
@@ -70,14 +82,13 @@ import {
 const fenBeforeKey = (actor: Actor) => `fenBeforeMove:${actor}`;
 const moveKey = (actor: Actor) => `lastMove:${actor}`;
 const solvedClockKey = (actor: Actor) => `clockAtSolve:${actor}`;
-const clockKey = (actor: Actor) => `clock:${actor}`;
 const LAST_MOVER = 'lastMover';
 
-function lastMover(w: Parameters<typeof trackPuzzle>[0]): Actor {
+function lastMover(w: SimWorld): Actor {
   return recalled<Actor>(w, LAST_MOVER);
 }
 
-async function boardProbe(w: Parameters<typeof trackPuzzle>[0], actor: Actor) {
+async function boardProbe(w: SimWorld, actor: Actor) {
   return required(
     await w.s.read(readPuzzleBoardProbe, actor),
     `${actor}'s board`
@@ -86,7 +97,7 @@ async function boardProbe(w: Parameters<typeof trackPuzzle>[0], actor: Actor) {
 
 /** Move once the solver may, remembering the position the move started from. */
 async function playMove(
-  w: Parameters<typeof trackPuzzle>[0],
+  w: SimWorld,
   actor: Actor,
   move: string
 ): Promise<void> {
@@ -98,19 +109,6 @@ async function playMove(
   await w.s.apply(playPuzzleMove, actor, uci);
 }
 
-/** Try a move the board should not take; the solver may otherwise move. */
-async function tryMove(
-  w: Parameters<typeof trackPuzzle>[0],
-  actor: Actor,
-  move: string
-): Promise<void> {
-  await playMove(w, actor, move);
-}
-
-function outcomesOf(text: string): string[] {
-  return text.split(',').map((outcome) => outcome.trim());
-}
-
 // ------------------------------------------------------------ on the board
 
 Given('{actor} is playing puzzles in their space', async (w, actor: Actor) => {
@@ -118,9 +116,34 @@ Given('{actor} is playing puzzles in their space', async (w, actor: Actor) => {
 });
 
 When('{actor} opens puzzles in their space', async (w, actor: Actor) => {
-  await w.s.apply(openPuzzleFromSpace, actor);
-  await trackPuzzle(w, actor);
+  // The board may not come (offline, empty): the Then steps wait for it.
+  await w.s.apply(openPuzzleFromSpaceNoWait, actor);
 });
+
+Given('{actor} has opened puzzles in their space', async (w, actor: Actor) => {
+  await w.s.apply(openPuzzleFromSpaceNoWait, actor);
+  // Precondition guard: offline, the screen settles on its notice.
+  await w.s.until((surf) => isPuzzleOfflineNoticeVisible(surf, actor), {
+    maxMs: SETTLE_MS,
+  });
+});
+
+Given(
+  '{actor} went offline before any puzzles reached their device',
+  async (w, actor: Actor) => {
+    await w.s.apply(createSpace, actor);
+    await cutConnection(w, actor);
+  }
+);
+
+Then(
+  '{actor} is told puzzles need a connection within {int} seconds',
+  async (w, actor: Actor, seconds: number) => {
+    await w.s.until((surf) => isPuzzleOfflineNoticeVisible(surf, actor), {
+      maxMs: seconds * SECOND_MS,
+    });
+  }
+);
 
 Given(
   '{actor} is solving the four-move mate-in-two puzzle',
@@ -204,11 +227,20 @@ Then('{actor} has no puzzle on the board', async (w, actor: Actor) => {
 
 // ------------------------------------------------------------------ solving
 
-When('{actor} solves the puzzle', async (w, actor: Actor) => {
+/** Solve the puzzle, noting the clock at the solve for later steps. */
+async function solve(w: SimWorld, actor: Actor): Promise<void> {
   await w.s.apply(focusActor, actor);
   await w.s.apply(playUntilSolved, actor);
   const probe = await w.s.read(readPuzzleSpectator, actor);
   remember(w, solvedClockKey(actor), probe?.clockMs ?? null);
+}
+
+When('{actor} solves the puzzle', async (w, actor: Actor) => {
+  await solve(w, actor);
+});
+
+Given('{actor} has solved the puzzle', async (w, actor: Actor) => {
+  await solve(w, actor);
 });
 
 Then("{actor}'s puzzle is solved", async (w, actor: Actor) => {
@@ -232,6 +264,27 @@ When('{actor} plays a wrong move', async (w, actor: Actor) => {
   await w.s.apply(playWrongPuzzleMove, actor);
 });
 
+Given('{actor} has played a wrong move', async (w, actor: Actor) => {
+  await w.s.apply(playWrongPuzzleMove, actor);
+});
+
+Given(
+  '{actor} has played a wrong move and retried',
+  async (w, actor: Actor) => {
+    await w.s.apply(playWrongPuzzleMove, actor);
+    await w.s.apply(retryPuzzle, actor);
+    await waitSolverToMove(w, actor);
+  }
+);
+
+Given(
+  '{actor} has played a wrong move and skipped the puzzle',
+  async (w, actor: Actor) => {
+    await w.s.apply(playWrongPuzzleMove, actor);
+    await w.s.apply(skipPuzzle, actor);
+  }
+);
+
 Then('{actor} is told the move was wrong', async (w, actor: Actor) => {
   expect(await w.s.read(readPuzzleStatus, actor)).toBe('wrong');
 });
@@ -251,13 +304,16 @@ When('{actor} retries the puzzle', async (w, actor: Actor) => {
   await waitSolverToMove(w, actor);
 });
 
-Then('{actor} is (still )solving the puzzle', async (w, actor: Actor) => {
-  await w.s.apply(focusActor, actor);
-  expect(await w.s.read(readPuzzleStatus, actor)).toBe('solving');
-});
+Then(
+  '{actor} is (still )asked to find the next move',
+  async (w, actor: Actor) => {
+    await w.s.apply(focusActor, actor);
+    expect(await w.s.read(readPuzzleStatus, actor)).toBe('solving');
+  }
+);
 
 Then(
-  '{actor} is solving the puzzle within {int} seconds',
+  '{actor} is asked to find the next move within {int} seconds',
   async (w, actor: Actor, seconds: number) => {
     await w.s.until(async (surf) => readPuzzleStatus(surf, actor), {
       maxMs: seconds * SECOND_MS,
@@ -272,12 +328,17 @@ Then('{actor} cannot move pieces', async (w, actor: Actor) => {
 
 // -------------------------------------------------------------------- hints
 
-Then('{actor} has no hint showing', async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleHintStage, actor)).toBe('none');
-});
-
 When('{actor} asks for a hint', async (w, actor: Actor) => {
   await w.s.apply(requestPuzzleHint, actor);
+});
+
+Given('{actor} has taken a hint', async (w, actor: Actor) => {
+  await w.s.apply(requestPuzzleHint, actor);
+});
+
+Given('{actor} has taken two hints', async (w, actor: Actor) => {
+  await w.s.apply(requestPuzzleHint, actor);
+  await w.s.apply(revealPuzzleSolution, actor, 'hint');
 });
 
 When('{actor} asks for another hint', async (w, actor: Actor) => {
@@ -298,6 +359,14 @@ Then("{actor}'s hint shows the solution move", async (w, actor: Actor) => {
 
 When('{actor} shows the solution', async (w, actor: Actor) => {
   await w.s.apply(showPuzzleSolutionLine, actor);
+});
+
+Given('{actor} has shown the solution', async (w, actor: Actor) => {
+  await w.s.apply(showPuzzleSolutionLine, actor);
+  await w.s.until(async (surf) => readPuzzleDebug(surf, actor), {
+    maxMs: SETTLE_MS,
+    pred: (debug) => debug?.status === 'revealed',
+  });
 });
 
 Then(
@@ -351,48 +420,31 @@ When(
   }
 );
 
-When('{actor} promotes to a {word}', async (w, actor: Actor, piece: string) => {
-  await w.s.apply(choosePuzzlePromotion, actor, promotionPiece(piece));
-});
-
 When(
   "{actor} tries to move the opponent's piece {word}",
   async (w, actor: Actor, move: string) => {
-    await tryMove(w, actor, move);
+    await playMove(w, actor, move);
   }
 );
 
 When(
   '{actor} tries the illegal move {word}',
   async (w, actor: Actor, move: string) => {
-    await tryMove(w, actor, move);
+    await playMove(w, actor, move);
   }
 );
 
 When(
   '{actor} castles by moving the king onto its own rook',
   async (w, actor: Actor) => {
-    await waitSolverToMove(w, actor);
-    const expected = required(
-      await w.s.read(readPuzzleDebug, actor),
-      'puzzle debug'
-    ).solutionUci;
-    // The castle the line expects, entered as king-takes-own-rook.
-    const rookFile = expected[2] === 'g' ? 'h' : 'a';
-    const uci = `${expected.slice(0, 2)}${rookFile}${expected[3] ?? ''}`;
-    await playMove(w, actor, `${uci.slice(0, 2)}-${uci.slice(2, 4)}`);
+    await w.s.apply(castlePuzzleKing, actor, 'ontoRook');
   }
 );
 
 When(
   '{actor} castles by moving the king two squares',
   async (w, actor: Actor) => {
-    await waitSolverToMove(w, actor);
-    const expected = required(
-      await w.s.read(readPuzzleDebug, actor),
-      'puzzle debug'
-    ).solutionUci;
-    await playMove(w, actor, `${expected.slice(0, 2)}-${expected.slice(2, 4)}`);
+    await w.s.apply(castlePuzzleKing, actor, 'twoSquares');
   }
 );
 
@@ -460,15 +512,20 @@ Then(
 
 Then('the opponent replies {word} by itself', async (w, reply: string) => {
   const actor = lastMover(w);
-  await waitSolverToMove(w, actor);
-  const replyUci = uciOf(reply);
-  // The position the solver's move and then the reply reach.
-  const chess = new Chess(recalled<string>(w, fenBeforeKey(actor)));
-  const played = recalled<string>(w, moveKey(actor));
-  chess.move({ from: played.slice(0, 2), to: played.slice(2, 4) });
-  chess.move({ from: replyUci.slice(0, 2), to: replyUci.slice(2, 4) });
-  const probe = await boardProbe(w, actor);
-  expect(probe.fen.split(' ')[0]).toBe(chess.fen().split(' ')[0]);
+  const uci = uciOf(reply);
+  const from = uci.slice(0, 2) as Square;
+  const to = uci.slice(2, 4) as Square;
+  // The reply plays itself: its piece leaves one square for the other.
+  await w.s.until(
+    async (surf) => ({
+      from: await readPuzzleBoardPieceAt(surf, actor, from),
+      to: await readPuzzleBoardPieceAt(surf, actor, to),
+    }),
+    {
+      maxMs: SETTLE_MS,
+      pred: (squares) => squares.from === null && squares.to !== null,
+    }
+  );
 });
 
 Then(
@@ -495,42 +552,13 @@ Then(
   }
 );
 
-// ------------------------------------------------------- recorded outcomes
-
-Then(
-  "the puzzle's recorded outcomes are (still ){string}",
-  async (w, outcomes: string) => {
-    const actor = lastPlayer(w);
-    expect(
-      await w.s.read(readPuzzleOutcomes, actor, currentPuzzle(w, actor))
-    ).toEqual(outcomesOf(outcomes));
-  }
-);
-
-Then('the puzzle has no recorded outcome', async (w) => {
-  const actor = lastPlayer(w);
-  expect(
-    await w.s.read(readPuzzleOutcomes, actor, currentPuzzle(w, actor))
-  ).toEqual([]);
-});
-
-Then('the only thing recorded for the puzzle is that it started', async (w) => {
-  const actor = lastPlayer(w);
-  expect(
-    await w.s.read(readPuzzleInteractions, actor, currentPuzzle(w, actor))
-  ).toEqual([{ kind: 'started', uci: null, correct: null }]);
-});
-
-Then('the puzzle has been started once', async (w) => {
-  const actor = lastPlayer(w);
-  expect(
-    await w.s.read(countPuzzleStarts, actor, currentPuzzle(w, actor))
-  ).toBe(1);
-});
-
 // ------------------------------------------------------ skipping and clock
 
 When('{actor} skips the puzzle', async (w, actor: Actor) => {
+  await w.s.apply(skipPuzzle, actor);
+});
+
+Given('{actor} has skipped the puzzle', async (w, actor: Actor) => {
   await w.s.apply(skipPuzzle, actor);
 });
 
@@ -539,22 +567,11 @@ Then("{actor}'s puzzle is skipped", async (w, actor: Actor) => {
   expect(await w.s.read(readPuzzleStatusKind, actor)).toBe('skipped');
 });
 
-Then("{actor}'s puzzle is not skipped", async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleStatusKind, actor)).not.toBe('skipped');
-});
-
-Then("{actor}'s puzzle has started", async (w, actor: Actor) => {
-  expect(await w.s.read(readPuzzleStatusKind, actor)).toBe('started');
-});
-
 When('{int} seconds pass', async (w, seconds: number) => {
   await w.s.advanceTime(seconds * SECOND_MS);
 });
 
-async function readClock(
-  w: Parameters<typeof trackPuzzle>[0],
-  actor: Actor
-): Promise<number> {
+async function readClock(w: SimWorld, actor: Actor): Promise<number> {
   const probe = await w.s.read(readPuzzleSpectator, actor);
   return required(probe?.clockMs, `${actor}'s puzzle clock`);
 }
@@ -564,15 +581,8 @@ Then(
   async (w, actor: Actor, seconds: number) => {
     const clock = await readClock(w, actor);
     expect(clock).toBeGreaterThanOrEqual(seconds * SECOND_MS);
-    remember(w, clockKey(actor), clock);
   }
 );
-
-Then("{actor}'s puzzle clock has moved on", async (w, actor: Actor) => {
-  const clock = await readClock(w, actor);
-  expect(clock).toBeGreaterThan(recalled<number>(w, clockKey(actor)));
-  remember(w, clockKey(actor), clock);
-});
 
 Then(
   "{actor}'s puzzle clock has not moved since the solve",
@@ -593,13 +603,6 @@ When('{actor} moves on to the next puzzle', async (w, actor: Actor) => {
   await w.s.apply(pressPuzzleNext, actor);
   await trackPuzzle(w, actor);
 });
-
-When(
-  '{actor} moves on to the next puzzle without waiting for it',
-  async (w, actor: Actor) => {
-    await w.s.apply(pressPuzzleNextNoWait, actor);
-  }
-);
 
 When(
   '{actor} asks for the next puzzle twice in quick succession',
@@ -636,37 +639,16 @@ Then('{actor} is on the same puzzle as before', async (w, actor: Actor) => {
   );
 });
 
-Then('{actor} is still on the same puzzle', async (w, actor: Actor) => {
-  expect(await w.s.read(readActivePuzzleId, actor)).toBe(
-    currentPuzzle(w, actor)
-  );
-});
-
-Then(
-  "{actor}'s next puzzle is already chosen and differs from the current one",
+Given(
+  '{actor} has puzzles set to advance 1 second after a solve',
   async (w, actor: Actor) => {
-    const next = required(
-      await w.s.read(readNextPuzzleId, actor),
-      'a chosen next puzzle'
-    );
-    expect(next).not.toBe(currentPuzzle(w, actor));
-  }
-);
-
-When(
-  '{actor} sets puzzles to advance {int} second(s) after a solve',
-  async (w, actor: Actor, seconds: number) => {
-    if (seconds !== 1) {
-      throw new Error(`auto-advance offers 1 second, not ${String(seconds)}`);
-    }
     await w.s.apply(setPuzzleAutoAdvance, actor, 'after1s');
   }
 );
-
 // ------------------------------------------------ leaving and coming back
 
-When(
-  '{actor} leaves the puzzle for the chess choices',
+Given(
+  '{actor} has left the puzzle for the chess choices',
   async (w, actor: Actor) => {
     await w.s.apply(leavePuzzleToChessMenu, actor);
   }
@@ -685,3 +667,11 @@ When('{actor} returns to their space', async (w, actor: Actor) => {
 Then('{actor} (still )has no account', async (w, actor: Actor) => {
   expect(await w.s.read(accountIdOf, actor)).toBeNull();
 });
+
+Given(
+  '{actor} has since come back online and signed in with Google',
+  async (w, actor: Actor) => {
+    await w.s.apply(restoreNetwork);
+    await w.s.apply(signInWithGoogle, actor);
+  }
+);

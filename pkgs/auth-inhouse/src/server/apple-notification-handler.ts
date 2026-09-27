@@ -10,6 +10,10 @@
  * - `account-delete` — the Apple Account is gone for good: its identity is
  *   removed; a user left with no identity is signed out everywhere.
  * - `email-disabled` / `email-enabled` — relay forwarding switched off / on.
+ *
+ * Every event but `consent-revoked` changes the user's identities, so once it
+ * commits the product is told (`onUserChanged`) and pushes the new sign-in
+ * methods to the user's devices.
  */
 
 import type { Context } from 'hono';
@@ -24,10 +28,14 @@ import {
 } from './providers/apple-notifications';
 import { syncUserProfile } from './user-profile-sync';
 
+type ApplyResult =
+  | { readonly result: 'applied'; readonly changedUserId: string | null }
+  | { readonly result: 'replayed' | 'unknown_identity' };
+
 async function apply(
   ctx: AuthAppCtx,
   event: AppleNotification
-): Promise<'applied' | 'replayed' | 'unknown_identity'> {
+): Promise<ApplyResult> {
   return await ctx.deps.getSql().transaction(async (tx) => {
     const { clock, createId, secret } = ctx.deps;
     const identities = new IdentityRepository(tx, clock, createId);
@@ -38,12 +46,14 @@ async function apply(
       type: event.type,
       providerUserId: event.sub,
     });
-    if (seen) return 'replayed';
+    if (seen) return { result: 'replayed' };
     const identity = await identities.find(IDP_PROVIDER_APPLE, event.sub);
-    if (identity === null) return 'unknown_identity';
+    if (identity === null) return { result: 'unknown_identity' };
     if (event.type === 'consent-revoked') {
       await users.deleteSessionsForUser(identity.userId);
-    } else if (event.type === 'account-delete') {
+      return { result: 'applied', changedUserId: null };
+    }
+    if (event.type === 'account-delete') {
       await identities.removeIdentity(IDP_PROVIDER_APPLE, event.sub);
       const left = await identities.listForUser(identity.userId);
       if (left.length === 0) await users.deleteSessionsForUser(identity.userId);
@@ -56,7 +66,7 @@ async function apply(
         event.type === 'email-enabled'
       );
     }
-    return 'applied';
+    return { result: 'applied', changedUserId: identity.userId };
   });
 }
 
@@ -80,8 +90,11 @@ export async function handleAppleNotification(
   } catch {
     return c.json({ error: 'invalid_signature' }, 401);
   }
-  const result = await apply(ctx, event);
+  const applied = await apply(ctx, event);
+  if (applied.result === 'applied' && applied.changedUserId !== null) {
+    await ctx.deps.onUserChanged?.(applied.changedUserId);
+  }
   // Apple retries non-2xx deliveries; an identity we never linked is not a
   // failure worth retrying.
-  return c.json({ ok: true, result }, 200);
+  return c.json({ ok: true, result: applied.result }, 200);
 }

@@ -9,7 +9,7 @@ import type { DenialReason } from '@pkgs/permissions';
 const COPY: Readonly<Record<string, () => string>> = {
   'unlock.rated.limit.title': () => t`You've hit today's puzzle limit`,
   'unlock.rated.limit.body': () =>
-    t`Upgrade for unlimited puzzles, or come back tomorrow.`,
+    t`Sign in free for unlimited puzzles, or come back tomorrow.`,
   'unlock.account.title': () => t`Sign in to continue`,
   'unlock.friends.title': () => t`Sign in to add friends`,
   'unlock.friends.body': () =>

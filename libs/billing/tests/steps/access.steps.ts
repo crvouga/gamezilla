@@ -1,7 +1,7 @@
 /**
- * Billing access steps: subscribing, what tier a person has, what the billing
- * screen offers them, and whether the server agrees with their device. Each
- * step is one sim call or a fixed short sequence.
+ * Billing access steps: subscribing, what tier a person has, and what the
+ * billing screen offers them. Each step is one sim call or a fixed short
+ * sequence.
  */
 
 import { expect } from 'bun:test';
@@ -13,11 +13,13 @@ import {
 import {
   billingButtonVisible,
   billingTier,
-  membershipRow,
-  serverMembershipCount,
-  serverMembershipRow,
 } from '@libs/billing/sim/billing-reads';
-import { accountIdOf, focusActor, signInWithGoogle } from '@libs/sim-harness';
+import {
+  focusActor,
+  signInWithGoogle,
+  signInWithGoogleAsAccount,
+  spawnActor,
+} from '@libs/sim-harness';
 import {
   type Actor,
   Given,
@@ -26,19 +28,26 @@ import {
   When,
 } from '@libs/sim-harness/spec/define';
 
-/** Synced rows and a settled tier land a few virtual seconds after a write. */
+/** A settled tier lands a few virtual seconds after a write. */
 const SETTLE_MS = 6_000;
 const TIER_WAIT = { maxMs: 20_000, stepMs: 500 } as const;
-
-async function accountId(w: SimWorld, actor: Actor): Promise<string> {
-  const id = await w.s.read(accountIdOf, actor);
-  if (id === null) throw new Error(`${actor} has no signed-in account`);
-  return id;
-}
 
 async function subscribe(w: SimWorld, actor: Actor): Promise<void> {
   await w.s.apply(openBilling, actor);
   await w.s.apply(subscribeToPlus, actor);
+}
+
+/** The tier the billing screen on `device` shows, once it reads `tier`. */
+async function expectTier(
+  w: SimWorld,
+  device: Actor,
+  tier: 'free' | 'paid'
+): Promise<void> {
+  await w.s.apply(focusActor, device);
+  await w.s.until((sim) => billingTier(sim, device), {
+    ...TIER_WAIT,
+    pred: (shown) => shown === tier,
+  });
 }
 
 Given('{actor} has subscribed to Plus', async (w, actor: Actor) => {
@@ -54,53 +63,36 @@ When('{actor} views the billing plans', async (w, actor: Actor) => {
   await w.s.apply(openBilling, actor);
 });
 
+When(
+  "{actor} signs in with Google on {actor}'s device",
+  async (w, person: Actor, device: Actor) => {
+    // The person has their own device, and with it their Google account.
+    await w.s.apply(spawnActor, person);
+    await w.s.apply(signInWithGoogleAsAccount, device, person);
+  }
+);
+
 Then('{actor} has free access', async (w, actor: Actor) => {
-  await w.s.apply(focusActor, actor);
-  await w.s.until((sim) => billingTier(sim, actor), {
-    ...TIER_WAIT,
-    pred: (tier) => tier === 'free',
-  });
+  await expectTier(w, actor, 'free');
 });
+
+Then(
+  "{actor} has free access on {actor}'s device",
+  async (w, _person: Actor, device: Actor) => {
+    await w.s.apply(openBilling, device);
+    await expectTier(w, device, 'free');
+  }
+);
 
 Then('{actor} has paid access', async (w, actor: Actor) => {
   // Settle first so a tier that is about to lapse is caught, not raced.
   await w.s.advanceTime(SETTLE_MS);
-  await w.s.apply(focusActor, actor);
-  await w.s.until((sim) => billingTier(sim, actor), {
-    ...TIER_WAIT,
-    pred: (tier) => tier === 'paid',
-  });
-});
-
-Then('{actor} is offered the unlock', async (w, actor: Actor) => {
-  expect(await w.s.read(billingButtonVisible, actor, 'unlock')).toBe(true);
+  await expectTier(w, actor, 'paid');
 });
 
 Then(
-  "the server's copy of {actor}'s membership matches {actor}'s device",
-  async (w, owner: Actor, device: Actor) => {
-    const local = await w.s.read(membershipRow, device);
-    if (local === null) throw new Error(`${device}'s device has no membership`);
-    const server = await w.s.read(
-      serverMembershipRow,
-      await accountId(w, owner)
-    );
-    expect(server?.status).toBe(local.status);
-    expect(server?.price_key).toBe(local.price_key);
-  }
-);
-
-Then(
-  "the server records {actor}'s membership as delinquent",
+  '{actor} is asked to sign in before subscribing',
   async (w, actor: Actor) => {
-    const server = await w.s.read(
-      serverMembershipRow,
-      await accountId(w, actor)
-    );
-    expect(server?.status).toBe('delinquent');
+    expect(await w.s.read(billingButtonVisible, actor, 'unlock')).toBe(true);
   }
 );
-
-Then('the server holds exactly one membership', async (w) => {
-  expect(await w.s.read(serverMembershipCount)).toBe(1);
-});

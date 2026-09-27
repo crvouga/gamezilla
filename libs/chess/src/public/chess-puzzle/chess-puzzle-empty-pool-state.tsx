@@ -39,7 +39,7 @@ function OfflineBlock(): JSX.Element {
           will appear here.
         </Trans>
       }
-      dataSet={{ testid: 'chess-puzzle-empty-pool' }}
+      dataSet={{ testid: 'chess-puzzle-offline' }}
     />
   );
 }

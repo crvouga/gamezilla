@@ -161,3 +161,86 @@ export const signOutEverywhere = scenarioAction({
     if (await done.isVisible()) await done.tap({ timeoutMs: WAIT_MS });
   },
 });
+
+/**
+ * "Remove" on a provider row, the way a person tries it: if the app asks to
+ * confirm, confirm. For the account's only method the app never asks, so
+ * nothing is removed.
+ */
+export const tryRemoveSignInMethod = scenarioAction({
+  name: 'tryRemoveSignInMethod',
+  act: async (s, actorId: string, provider: OauthProviderId) => {
+    const ui = await actorUi(s, actorId);
+    await openAccountScreen(s, ui);
+    await ui
+      .get(Handles.accountUnlinkProvider(provider))
+      .tap({ timeoutMs: WAIT_MS });
+    const confirm = ui.get(Handles.accountUnlinkConfirm);
+    const asked = await pollUntil(
+      s,
+      async () => ((await confirm.isVisible()) ? true : null),
+      { maxMs: 2_000, description: 'the remove confirmation' }
+    ).catch(() => false);
+    if (asked) await confirm.tap({ timeoutMs: WAIT_MS });
+  },
+});
+
+const SHOWN_PROVIDERS: readonly OauthProviderId[] = ['apple', 'google'];
+
+/**
+ * The sign-in methods the account screen lists as connected (each has a
+ * "Remove"), sorted; `[]` when the screen shows the person signed out, and
+ * `null` while the screen cannot be reached.
+ */
+export async function signInMethodsShown(
+  s: ProductSim,
+  actorId: string
+): Promise<string[] | null> {
+  const ui = await actorUi(s, actorId);
+  try {
+    await openAccountScreen(s, ui);
+  } catch {
+    return null;
+  }
+  const shown: string[] = [];
+  for (const provider of SHOWN_PROVIDERS) {
+    if (await ui.get(Handles.accountUnlinkProvider(provider)).isVisible()) {
+      shown.push(provider);
+    }
+  }
+  return shown;
+}
+
+/** True when the actor's account screen offers "Sign in": signed out. */
+export async function signedOutShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  if (await ui.get(Handles.accountSignIn).isVisible()) return true;
+  try {
+    await openAccountScreen(s, ui);
+  } catch {
+    return false;
+  }
+  return ui.get(Handles.accountSignIn).isVisible();
+}
+
+/** The text a provider's row shows on the account screen, errors included. */
+export async function signInMethodRowText(
+  s: ProductSim,
+  actorId: string,
+  provider: OauthProviderId
+): Promise<string> {
+  const ui = await actorUi(s, actorId);
+  return (await ui.get(Handles.accountSignInMethod(provider)).text()) ?? '';
+}
+
+/** True while the app asks the actor to prove an address match. */
+export async function accountMatchPromptShown(
+  s: ProductSim,
+  actorId: string
+): Promise<boolean> {
+  const ui = await actorUi(s, actorId);
+  return ui.get(Handles.authLinkRequired).isVisible();
+}

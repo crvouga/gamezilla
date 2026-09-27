@@ -1,7 +1,7 @@
 @domain:billing @goal:guest-free-and-paid:9
 Feature: Trial and renewal
   A Plus trial turns into an active membership at the period end, and each
-  renewal moves the period end forward without interrupting paid access.
+  renewal moves the renewal date on without interrupting paid access.
 
   Background:
     Given Alice has subscribed to Plus
@@ -11,10 +11,8 @@ Feature: Trial and renewal
     Then Alice's membership is active on the monthly plan
     And Alice has paid access
 
-  Scenario: A renewal moves the period end forward and stays paid
-    Given Alice's membership is trialing
-    And Alice's current period end is recorded
+  Scenario: A monthly renewal moves the renewal date on and stays paid
+    Given Alice's free trial has ended
     When Alice's billing period ends
-    Then Alice's membership is active
-    And Alice's period end is later than the recorded one
+    Then Alice's renewal date moves later
     And Alice has paid access

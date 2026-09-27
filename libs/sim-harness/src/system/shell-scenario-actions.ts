@@ -21,6 +21,7 @@ import {
   removeSignInMethod,
   showAccountScreen,
   signOutEverywhere,
+  tryRemoveSignInMethod,
 } from './sign-in-method-actions';
 
 /**
@@ -41,6 +42,7 @@ export const SHELL_SCENARIO_ACTIONS = [
   keepSeparateAccount,
   connectSignInMethod,
   removeSignInMethod,
+  tryRemoveSignInMethod,
   signOutEverywhere,
   showAccountScreen,
   awaitSignedOutScreen,

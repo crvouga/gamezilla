@@ -14,6 +14,12 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
   request.
 - **person** — either a named actor or a displayed username.
 - **space** — a live room people may host, join, leave, reopen, or end.
+- **avatar** — the picture on a person's profile: a style (such as Bottts)
+  drawn from a seed. Every newcomer starts with one.
+- **sign-in method** — a way a person gets back into their account (Google or
+  Apple). An account always keeps at least one.
+- **another device / other device** — a second device signed into the same
+  person's account; each device keeps its own place.
 - **Settings** — the place a person reaches from anywhere in the app to manage
   their account and preferences.
 - **tabs** — the app's home once it has opened; Spaces is where a person lands.
@@ -49,9 +55,27 @@ observable outcome over controls such as buttons, dialogs, taps, or navigation.
   with a trailing "?" (for example "1500?").
 - **game log** — the person's history of played puzzles, each marked solved,
   failed, or abandoned, and each openable in review.
+- **retired puzzle** — a puzzle taken out of the feed: it is never served
+  again, but it stays in the game log and still opens in review.
 - **review** — stepping through a played puzzle's full line; "move N" is the
   position after the Nth move of the line.
 - **watcher** — someone in a space watching the host's puzzle. A watcher may
   suggest a move but never drives the puzzle and is never rated for it.
 - **puzzle start** — one unit of the daily rated-puzzle allowance, used when a
   rated puzzle starts.
+- **critical journey** — a flow people rely on most, which must never break
+  anywhere people use the app (`specs/journeys/`).
+- **fresh device** — a device that has never opened the app: nothing saved on
+  it and nobody signed in.
+- **the team** — the people who run the product. They observe it from outside,
+  as people do, plus the records and declarations they keep for it.
+- **the Simulator** — a tool for the team, at its own address beside the app.
+  People who use the app never need it.
+- **environment** — one complete, separate copy of the product (production is
+  one). "This environment" is the copy a health check is looking at; a
+  **production environment** is one real people use.
+- **live updates** — what happens in a space reaching everyone in it as it
+  happens.
+- **Google sign-in's way back** — where Google sends a person once they have
+  signed in: always back to the app they started from, in the environment they
+  started in.

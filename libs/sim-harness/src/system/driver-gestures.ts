@@ -1,7 +1,8 @@
 /**
  * Wall-time-tolerant gestures over a bare {@link Driver}: no sim, no session.
  * Scenario actions use them on pumped virtual time; the production critical
- * journeys (`@libs/runtime/sim/critical-journeys`) use them on a real browser.
+ * journeys (`specs/journeys/`, `@libs/runtime/sim/critical-journeys`) use them
+ * on a real browser.
  */
 
 import { Handles } from '@libs/test-ids';

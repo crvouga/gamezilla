@@ -1,176 +1,139 @@
-/** Account linking and removal steps. */
-
-import { expect } from 'bun:test';
+/** Connecting, removing, and proving sign-in methods. */
 
 import {
+  accountMatchPromptShown,
   confirmAccountLink,
   connectSignInMethod,
   keepSeparateAccount,
-  localSignInMethodsOf,
+  openAccount,
   removeSignInMethod,
   seedProviderAccount,
   signedInAccountOf,
+  signInMethodRowText,
   signInWithApple,
   signInWithProviderAs,
+  signOut,
+  tryRemoveSignInMethod,
 } from '@libs/sim-harness';
 import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
 import {
-  recall,
   remember,
+  type SimWorld,
   signedInAccountKey,
 } from '@libs/sim-harness/spec/world';
-import { Handles } from '@libs/test-ids';
 
-const earlierAppleKey = (actor: Actor) => `earlier-apple-account:${actor}`;
+/** An address Google holds for Alice but never verified; Apple shares it. */
 const UNVERIFIED = 'uma@unverified.test';
+const UNVERIFIED_HANDLE = 'uma';
+const PROMPT_WAIT_MS = 20_000;
+const ALREADY_LINKED = 'already signs in to a different account';
+
+async function signInWithGoogleUnverified(
+  w: SimWorld,
+  actor: Actor
+): Promise<void> {
+  await w.s.apply(seedProviderAccount, 'google', {
+    handle: UNVERIFIED_HANDLE,
+    email: UNVERIFIED,
+    emailVerified: false,
+  });
+  await w.s.apply(seedProviderAccount, 'apple', {
+    handle: UNVERIFIED_HANDLE,
+    email: UNVERIFIED,
+  });
+  await w.s.apply(signInWithProviderAs, actor, {
+    provider: 'google',
+    email: UNVERIFIED,
+  });
+  const account = await w.s.read(signedInAccountOf, actor);
+  if (account === null) throw new Error(`${actor} did not sign in`);
+  remember(w, signedInAccountKey(actor), account);
+}
+
+async function signInWithAppleUnverified(
+  w: SimWorld,
+  actor: Actor
+): Promise<void> {
+  await w.s.apply(signInWithProviderAs, actor, {
+    provider: 'apple',
+    email: UNVERIFIED,
+  });
+}
 
 Given(
-  '{actor} has signed in with their private Apple address',
+  "{actor}'s Apple account already signs into a separate account",
   async (w, actor: Actor) => {
     await w.s.apply(signInWithApple, actor, { account: 'icloud' });
-    const account = await w.s.read(signedInAccountOf, actor);
-    if (account === null)
-      throw new Error(`${actor} did not sign in with Apple`);
-    remember(w, earlierAppleKey(actor), account);
+    await w.s.apply(openAccount, actor);
+    await w.s.apply(signOut, actor);
   }
 );
 
-When(
-  '{actor} connects Apple with a private address',
+Given(
+  '{actor} has an account they sign into with Google at an unverified address',
   async (w, actor: Actor) => {
-    await w.s.apply(connectSignInMethod, actor, 'apple', { hideEmail: true });
+    await signInWithGoogleUnverified(w, actor);
   }
 );
 
-When(
-  '{actor} signs in with their private Apple address',
+Given(
+  '{actor} is being asked to prove an unverified address match',
   async (w, actor: Actor) => {
-    await w.s.apply(signInWithApple, actor, { account: 'icloud' });
+    await signInWithGoogleUnverified(w, actor);
+    await w.s.apply(openAccount, actor);
+    await w.s.apply(signOut, actor);
+    await signInWithAppleUnverified(w, actor);
+    await w.s.until((sim) => accountMatchPromptShown(sim, actor), {
+      pred: (shown) => shown,
+      maxMs: PROMPT_WAIT_MS,
+    });
   }
 );
+
+When('{actor} connects Apple', async (w, actor: Actor) => {
+  await w.s.apply(connectSignInMethod, actor, 'apple');
+});
 
 When('{actor} removes Apple from their account', async (w, actor: Actor) => {
   await w.s.apply(removeSignInMethod, actor, 'apple');
 });
 
-Then('{actor} has only Google as a sign-in method', async (w, actor: Actor) => {
-  await w.s.until((sim) => localSignInMethodsOf(sim, actor), {
-    pred: (methods) => methods.join(',') === 'google',
-    maxMs: 20_000,
-  });
-});
-
 When('{actor} tries to remove Google', async (w, actor: Actor) => {
-  const confirmed = await w.s.read(async (sim) => {
-    const ui = sim.actors.get(actor)?.ui;
-    if (ui === undefined) return false;
-    await ui.get(Handles.accountUnlinkProvider('google')).tap();
-    return await ui.get(Handles.accountUnlinkConfirm).isVisible();
-  });
-  remember(w, `remove-confirmed:${actor}`, confirmed);
+  await w.s.apply(tryRemoveSignInMethod, actor, 'google');
 });
 
-Then(
-  "{actor}'s only sign-in method remains connected",
-  async (w, actor: Actor) => {
-    expect(recall(w, `remove-confirmed:${actor}`)).toBe(false);
-    expect(await w.s.read(localSignInMethodsOf, actor)).toEqual(['google']);
-  }
-);
-
-When(
-  '{actor} tries to connect the Apple account they used earlier',
-  async (w, actor: Actor) => {
-    await w.s.apply(connectSignInMethod, actor, 'apple', { account: 'icloud' });
-  }
-);
-
-Then(
-  '{actor} is told that Apple account belongs to another account',
-  async (w, actor: Actor) => {
-    const message = await w.s.until(
-      async (sim) =>
-        (await sim.actors
-          .get(actor)
-          ?.ui.get(Handles.accountSignInMethod('apple'))
-          .text()) ?? '',
-      {
-        pred: (text) =>
-          text.includes('already signs in to a different account'),
-        maxMs: 20_000,
-      }
-    );
-    expect(message).toContain('already signs in to a different account');
-  }
-);
-
-Given(
-  '{actor} has matching unverified Google and Apple addresses',
-  async (w) => {
-    await w.s.apply(seedProviderAccount, 'google', {
-      handle: 'uma',
-      email: UNVERIFIED,
-      emailVerified: false,
-    });
-    await w.s.apply(seedProviderAccount, 'apple', {
-      handle: 'uma',
-      email: UNVERIFIED,
-    });
-  }
-);
-
-When(
-  '{actor} signs in with Google at the unverified address',
-  async (w, actor: Actor) => {
-    await w.s.apply(signInWithProviderAs, actor, {
-      provider: 'google',
-      email: UNVERIFIED,
-    });
-    const account = await w.s.read(signedInAccountOf, actor);
-    if (account === null) throw new Error(`${actor} did not sign in`);
-    remember(w, signedInAccountKey(actor), account);
-  }
-);
-
-When(
-  '{actor} signs in with Apple at the unverified address',
-  async (w, actor: Actor) => {
-    await w.s.apply(signInWithProviderAs, actor, {
-      provider: 'apple',
-      email: UNVERIFIED,
-    });
-  }
-);
-
-Then('{actor} is asked to prove the account match', async (w, actor: Actor) => {
-  await w.s.until(
-    async (sim) =>
-      sim.actors.get(actor)?.ui.get(Handles.authLinkRequired).isVisible() ??
-      false,
-    { pred: (shown) => shown, maxMs: 20_000 }
-  );
-  expect(await w.s.read(signedInAccountOf, actor)).toBeNull();
+When('{actor} tries to connect that Apple account', async (w, actor: Actor) => {
+  await w.s.apply(connectSignInMethod, actor, 'apple', { account: 'icloud' });
 });
+
+When(
+  '{actor} signs in with Apple at the same address',
+  async (w, actor: Actor) => {
+    await signInWithAppleUnverified(w, actor);
+  }
+);
 
 When('{actor} confirms the match with Google', async (w, actor: Actor) => {
   await w.s.apply(confirmAccountLink, actor, 'google', UNVERIFIED);
 });
 
+When('{actor} keeps the accounts separate', async (w, actor: Actor) => {
+  await w.s.apply(keepSeparateAccount, actor);
+});
+
 Then(
-  '{actor} is signed into the remembered account',
+  '{actor} is told that Apple account belongs to another account',
   async (w, actor: Actor) => {
-    expect(await w.s.read(signedInAccountOf, actor)).toBe(
-      recall(w, signedInAccountKey(actor)) as string | null
-    );
+    await w.s.until((sim) => signInMethodRowText(sim, actor, 'apple'), {
+      pred: (text) => text.includes(ALREADY_LINKED),
+      maxMs: PROMPT_WAIT_MS,
+    });
   }
 );
 
-When('{actor} remembers the signed-in account', async (w, actor: Actor) => {
-  const account = await w.s.read(signedInAccountOf, actor);
-  if (account === null) throw new Error(`${actor} is not signed in`);
-  remember(w, signedInAccountKey(actor), account);
-});
-
-When('{actor} keeps the accounts separate', async (w, actor: Actor) => {
-  await w.s.apply(keepSeparateAccount, actor);
+Then('{actor} is asked to prove the account match', async (w, actor: Actor) => {
+  await w.s.until((sim) => accountMatchPromptShown(sim, actor), {
+    pred: (shown) => shown,
+    maxMs: PROMPT_WAIT_MS,
+  });
 });

@@ -17,6 +17,7 @@ import {
   createSubject,
   type Decision,
   decideQuota,
+  resolveUnlockRef,
 } from '@pkgs/permissions';
 
 const NOON = Date.UTC(2026, 8, 19, 12);
@@ -62,7 +63,18 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
     }
   });
 
-  test('paid never hits a usage limit but is not offered an upgrade', () => {
+  test('a guest at the rated limit is invited to sign in, not to pay', () => {
+    // Only guests have a rated quota and a free account is unlimited, so the
+    // way past the limit is a free sign-in, with tomorrow's reset as the
+    // alternative.
+    const denied = ratedFor(ROLE.planGuest, 1_000_000);
+    expect(denied.reason).toBe('quota_exhausted');
+    expect(
+      resolveUnlockRef(DEFAULT_PERMISSION_POLICY, denied.unlockRef ?? '')
+    ).toMatchObject({ ctaTarget: 'signup', secondaryCta: 'wait_for_reset' });
+  });
+
+  test('paid never hits a usage limit and may start a new membership', () => {
     expect(ratedFor(ROLE.planGuest, 1_000_000).allowed).toBe(false);
     expect(ratedFor(ROLE.planFree, 1_000_000)).toEqual({
       allowed: true,
@@ -73,7 +85,10 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
       policyVersion: DEFAULT_PERMISSION_POLICY.version ?? '0',
     });
     expect(allows(ROLE.planPaid, PERMISSION.billingManage)).toBe(true);
-    expect(allows(ROLE.planPaid, PERMISSION.billingSubscribe)).toBe(false);
+    // Paid access outlives an ended membership (grace); starting a new one
+    // must not wait for grace to run out. A live membership is never offered
+    // a second checkout — the billing screen and checkout route refuse it.
+    expect(allows(ROLE.planPaid, PERMISSION.billingSubscribe)).toBe(true);
   });
 
   test('a host role inherits the member role', () => {

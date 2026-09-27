@@ -131,7 +131,9 @@ export const Handles = {
   profileAvatarDiscardKeep: 'profile-avatar-discard-keep',
   profileAvatarStyle: 'profile-avatar-style',
   profileAvatarStyleSearch: 'profile-avatar-style-search',
-  profileAvatarStyleBottts: 'profile-avatar-style-bottts',
+  /** One option in the avatar style picker, by style key (e.g. `bottts`). */
+  profileAvatarStyleOption: (styleKey: string) =>
+    `profile-avatar-style-${styleKey}`,
   profileAvatarTrait: 'profile-avatar-trait',
   profileFriendsStats: 'profile-friends-stats',
   /** The number in the Profile tab's friends stat row. */
@@ -268,6 +270,10 @@ export const Handles = {
   /** Career game-log row scoped by puzzle id. */
   chessGameLogRow: (puzzleId: string) => `chess-game-log-row-${puzzleId}`,
   chessPuzzleLimit: 'chess-puzzle-limit',
+  /** The board well's "You're offline" notice (no puzzles on the device). */
+  chessPuzzleOffline: 'chess-puzzle-offline',
+  /** The feed bar's "Unrated" label on a repeat of an already-rated puzzle. */
+  chessPuzzleFeedUnratedLabel: 'chess-puzzle-feed-unrated-label',
 } as const;
 
 export type Handle = {

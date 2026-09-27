@@ -1,7 +1,10 @@
 @domain:profile @goal:social:3
 Feature: Profile defaults
+  Everyone gets a name and a face the moment they arrive, so they can play
+  and be found without setting anything up.
 
-  Scenario: A first-time guest gets a distinct username and avatar
-    Given Alice and Bob are guests
-    Then each has their own generated username
-    And Alice has a generated avatar seed
+  Scenario: Every newcomer gets a username and avatar of their own
+    Given Alice and Bob are on fresh devices
+    When Alice and Bob open the app
+    Then Alice and Bob have different usernames
+    And Alice already has an avatar

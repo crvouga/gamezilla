@@ -1,12 +1,14 @@
 /**
- * Shapes shared by every critical journey and both of its runners: the sim
- * proof in `bun check` and the production health probe.
+ * The host a critical journey (`specs/journeys/`) runs on. The same step
+ * definitions (`libs/runtime/tests/steps/journeys.steps.ts`) drive the
+ * simulated app in `bun check` and a real browser against production
+ * (`@apps/product#health`); each runner supplies a {@link JourneyHost}.
  */
 
 import type { HttpClient } from '@pkgs/http-client';
 import type { Driver } from '@pkgs/ui-testing';
 
-/** The state a runner puts the app in before {@link CriticalJourney.run}. */
+/** The state a host puts a fresh device in before the journey starts. */
 export type JourneyAccess = 'anonymous' | 'signed-in';
 
 /**
@@ -27,27 +29,26 @@ export type JourneyBrowser = {
   ): Promise<string>;
 };
 
-export type JourneyContext = {
-  /** The app, driven by `data-testid` as a person would use it. */
-  readonly ui: Driver;
+/** Gestures against the app, driven by `data-testid` as a person would. */
+export type JourneyGestures = (ui: Driver) => Promise<void>;
+
+export type JourneyHost = {
   /** Unique per run: seeds values a journey writes, so runs never collide. */
   readonly runId: string;
-  /** Present only when the runner drives a real browser. */
+  /** Present only when the host drives a real browser. */
   readonly browser: JourneyBrowser | null;
+  /** Open the app on a fresh device in `access`; ends on the tab shell. */
+  open(access: JourneyAccess): Promise<void>;
+  /** Run `gestures` against the open app. */
+  act(name: string, gestures: JourneyGestures): Promise<void>;
+  /**
+   * Undo a write when the scenario ends, also when a later step fails (a
+   * live space left behind blocks the next run). {@link settle} drops it
+   * once a step did the undo itself.
+   */
+  defer(key: string, cleanup: JourneyGestures): void;
+  settle(key: string): void;
 };
 
-/** A user flow that must never break. */
-export type CriticalJourney = {
-  /** Stable kebab-case id: report names and alert titles. */
-  readonly id: string;
-  /** What a person accomplishes, in one sentence. */
-  readonly title: string;
-  readonly access: JourneyAccess;
-  /** Needs {@link JourneyContext.browser} (leaves the app for a real IdP). */
-  readonly requiresBrowser: boolean;
-  /**
-   * Starts on the tab shell in {@link access}; throws on the first broken step.
-   * Journeys that write clean up after themselves, even when they fail.
-   */
-  run(ctx: JourneyContext): Promise<void>;
-};
+/** The world the journey steps need: every host's world carries one. */
+export type JourneyWorld = { readonly journey: JourneyHost };

@@ -4,10 +4,6 @@ Feature: The host chooses what the space plays
   everyone in the space is taken to it without doing anything.
 
   Scenario: The host picks chess and everyone in the space is taken to it
-    Given Alice is a guest
-    And Bob is a guest
-    When Alice creates a space
-    Then Alice has a link to the space
-    When Bob joins the space from the link
-    And Alice picks chess for the space
+    Given Alice is hosting a space that Bob joined from the link
+    When Alice picks chess for the space
     Then Bob is taken to chess within 15 seconds

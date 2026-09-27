@@ -4,13 +4,51 @@ import {
   scenarioAction,
 } from '@libs/sim-harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
+import {
+  STYLE_KEYS,
+  type StyleKey,
+  styleLabel,
+} from '../shared/profile/dicebear-styles';
 
+type ActorUi = Awaited<ReturnType<typeof actorUi>>;
+
+export const NAV_WAIT_MS = 2_000;
+/** Screens deep a profile or account stack goes before the Profile tab. */
+const MAX_BACK_STEPS = 4;
+
+/**
+ * Back out to the Profile tab from wherever the actor is: the username or
+ * avatar editor, Edit profile, the account screen, or another tab. Leaves
+ * unsaved drafts unsaved.
+ */
+export async function backToProfileTab(ui: ActorUi): Promise<void> {
+  for (let step = 0; step < MAX_BACK_STEPS; step += 1) {
+    if (await ui.get(Handles.profileEdit).isVisible()) return;
+    if (await ui.get(Handles.profileUsernameCancel).isVisible()) {
+      await ui
+        .get(Handles.profileUsernameCancel)
+        .tap({ timeoutMs: NAV_WAIT_MS });
+    } else if (await ui.get(Handles.tabProfile).isVisible()) {
+      await ui.get(Handles.tabProfile).tap({ timeoutMs: NAV_WAIT_MS });
+    } else if (await ui.get(Handles.navBack).isVisible()) {
+      await ui.get(Handles.navBack).tap({ timeoutMs: NAV_WAIT_MS });
+    } else {
+      // Nothing to back out of yet: wait for the tabs, as a person would.
+      await ui.get(Handles.tabProfile).tap();
+    }
+  }
+  await ui.get(Handles.profileEdit).expect.visible();
+}
+
+/** Open Edit profile from wherever the actor is (a no-op when it is open). */
 export const openProfileEdit = scenarioAction({
   name: 'openProfileEdit',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.tabProfile).tap();
-    await ui.get(Handles.profileEdit).tap();
+    if (!(await ui.get(Handles.profileEditUsername).isVisible())) {
+      await backToProfileTab(ui);
+      await ui.get(Handles.profileEdit).tap();
+    }
     await ui.get(Handles.profileEditUsername).expect.visible();
     await ui.get(Handles.profileEditAvatar).expect.visible();
   },
@@ -56,19 +94,25 @@ export const setAvatarSeed = scenarioAction({
   },
 });
 
+/** The style key whose picker label is `label` (e.g. "Bottts" → `bottts`). */
+function styleKeyForLabel(label: string): StyleKey {
+  const key = STYLE_KEYS.find((candidate) => styleLabel(candidate) === label);
+  if (key === undefined)
+    throw new Error(`no avatar style is labelled "${label}"`);
+  return key;
+}
+
+/** Pick the avatar style labelled `label`, searching for it by name. */
 export const setAvatarStyle = scenarioAction({
   name: 'setAvatarStyle',
-  act: async (
-    s,
-    actorId: string,
-    styleSearch: string,
-    styleOptionHandle: string
-  ) => {
+  act: async (s, actorId: string, label: string) => {
     const ui = await actorUi(s, actorId);
     await s.session.waitForIdle();
     await ui.get(Handles.profileAvatarStyle).tap();
-    await ui.get(Handles.profileAvatarStyleSearch).input(styleSearch);
-    await ui.get(styleOptionHandle).tap();
+    await ui.get(Handles.profileAvatarStyleSearch).input(label);
+    await ui
+      .get(Handles.profileAvatarStyleOption(styleKeyForLabel(label)))
+      .tap();
     await ui.get(Handles.profileAvatarStyle).expect.visible();
   },
 });

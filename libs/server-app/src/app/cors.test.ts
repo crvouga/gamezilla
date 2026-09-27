@@ -1,3 +1,4 @@
+// regression: auth-responses-missing-cors — a raw handler Response must carry CORS
 import { describe, expect, test } from 'bun:test';
 import { Hono } from 'hono';
 import { apiCors } from './cors';
@@ -26,6 +27,33 @@ describe('apiCors', () => {
     );
     expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
     expect(res.headers.get('Vary')).toBe('Origin');
+  });
+
+  test('reflects Origin on a raw Response (auth service handler.fetch)', async () => {
+    const app = new Hono().use('*', apiCors);
+    app.all(
+      '/api/auth/*',
+      () =>
+        new Response(JSON.stringify({ token: 't' }), {
+          headers: {
+            'content-type': 'application/json',
+            'set-auth-token': 't',
+          },
+        })
+    );
+    const res = await app.request('http://sim.local/api/auth/session', {
+      method: 'POST',
+      headers: { origin: 'https://www.example.app' },
+    });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ token: 't' });
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe(
+      'https://www.example.app'
+    );
+    expect(res.headers.get('Access-Control-Allow-Credentials')).toBe('true');
+    expect(res.headers.get('Access-Control-Expose-Headers')).toContain(
+      'set-auth-token'
+    );
   });
 
   test('answers OPTIONS with 204 and CORS headers', async () => {

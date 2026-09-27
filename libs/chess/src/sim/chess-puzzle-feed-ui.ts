@@ -140,13 +140,21 @@ export async function readFeedOffsetValue(
   return Number.isFinite(n) ? n : null;
 }
 
-/** "Target rating: 1300" caption inside the modal → 1300. */
+/**
+ * The target the modal shows: the custom rating stepper's value in custom
+ * mode, else the "Target rating: 1300" caption under the offset → 1300.
+ */
 export async function readFeedModalTargetRating(
   s: ProductSim,
   actorId: string
 ): Promise<number | null> {
   const ui = await actorUi(s, actorId);
-  const raw = stripProbe(await ui.get(Handles.chessPuzzleFeedTarget).text());
+  const custom = ui.get(Handles.chessPuzzleFeedCustomRatingValue);
+  const raw = stripProbe(
+    await ((await custom.isVisible())
+      ? custom.text()
+      : ui.get(Handles.chessPuzzleFeedTarget).text())
+  );
   const match = /(\d{3,4})\s*$/.exec(raw);
   return match?.[1] !== undefined ? Number.parseInt(match[1], 10) : null;
 }

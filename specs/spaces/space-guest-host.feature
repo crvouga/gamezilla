@@ -9,6 +9,6 @@ Feature: A guest can host
 
   Scenario: A guest host can end their own space
     Given Alice is a guest
-    When Alice creates a space
-    And Alice ends the space
+    And Alice is hosting a space
+    When Alice ends the space
     Then Alice is not in a space

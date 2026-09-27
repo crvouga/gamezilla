@@ -37,6 +37,7 @@ function PriceTile(props: {
         'border-border bg-surface': !props.current,
       }}
       data-testid={Handles.billingPrice(props.price.key)}
+      aria-current={props.current ? 'true' : undefined}
     >
       <div class="box flex-row items-center justify-between gap-2">
         <p class="text textLabel text-text-secondary">

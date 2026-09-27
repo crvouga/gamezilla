@@ -16,82 +16,78 @@ import {
   typeUsernameDraft,
 } from '@libs/profile/sim/profile-actions';
 import {
-  avatarTraitVisible,
-  readAvatarSeed,
-  readAvatarStyleLabel,
   readProfileTabUsername,
-  readUsername,
+  readProfileUsernameShown,
+  readSavedAvatar,
   readUsernameSaveFace,
 } from '@libs/profile/sim/profile-ui-reads';
 import {
   focusActor,
-  openAccount,
   returnToTabs,
   signInWithGoogleAsAccount,
-  signOut,
 } from '@libs/sim-harness';
 import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
-import { recall, remember } from '@libs/sim-harness/spec/world';
-import { Handles } from '@libs/test-ids';
+import { otherDevice } from '@libs/sim-harness/spec/steps/platform';
+import type { SimWorld } from '@libs/sim-harness/spec/world';
 
-const loadedUsernameKey = (actor: Actor) => `loaded-username:${actor}`;
+const SECOND_MS = 1_000;
 
-Given('{actor} is editing their profile', async (w, actor: Actor) => {
+async function saveAvatarAs(
+  w: SimWorld,
+  actor: Actor,
+  seed: string,
+  style: string
+): Promise<void> {
   await w.s.apply(openProfileEdit, actor);
-});
+  await w.s.apply(openAvatarEditor, actor);
+  await w.s.apply(setAvatarSeed, actor, seed);
+  await w.s.apply(setAvatarStyle, actor, style);
+  await w.s.apply(saveAvatar, actor);
+  await w.s.apply(leaveAvatarEditor, actor);
+}
 
-When('{actor} signs out', async (w, actor: Actor) => {
-  await w.s.apply(openAccount, actor);
-  await w.s.apply(signOut, actor);
-});
+// Setup, from any screen with the tabs: open Edit profile, then submit.
+async function tryUsername(
+  w: SimWorld,
+  actor: string,
+  username: string
+): Promise<void> {
+  await w.s.apply(openProfileEdit, actor);
+  await w.s.apply(submitUsername, actor, username);
+}
 
-Then('{actor} can sign in again', async (w, actor: Actor) => {
-  const visible = await w.s.read(async (sim) => {
-    const ui = sim.actors.get(actor)?.ui;
-    return ui === undefined
-      ? false
-      : await ui.get(Handles.accountSignIn).isVisible();
-  });
-  expect(visible).toBe(true);
-});
-
-When('{actor} returns to the tabs', async (w, actor: Actor) => {
-  await w.s.apply(returnToTabs, actor);
-});
-
-When("{actor}'s account opens on another device", async (w, actor: Actor) => {
-  await w.s.apply(signInWithGoogleAsAccount, 'alice_phone', actor);
-  await w.s.apply(returnToTabs, 'alice_phone');
-});
-
-Then(
-  "{actor}'s phone shows username {string}",
-  async (w, actor: Actor, username: string) => {
-    const phone = `${actor}_phone`;
-    await w.s.until((sim) => readProfileTabUsername(sim, phone), {
-      pred: (actual) => actual === username,
-    });
+Given(
+  '{actor} and {actor} are on fresh devices',
+  async (w, first: Actor, second: Actor) => {
+    const opened = await w.s.read(
+      (sim) => sim.actors.has(first) || sim.actors.has(second)
+    );
+    if (opened) throw new Error(`${first} or ${second} already opened the app`);
   }
 );
 
 When(
-  "{actor}'s phone changes username to {string}",
-  async (w, actor: Actor, username: string) => {
-    const phone = `${actor}_phone`;
-    await w.s.apply(openProfileEdit, phone);
-    await w.s.apply(submitUsername, phone, username);
-    await w.s.apply(leaveUsernameEditor, phone);
+  '{actor} and {actor} open the app',
+  async (w, first: Actor, second: Actor) => {
+    await w.s.apply(focusActor, first);
+    await w.s.apply(focusActor, second);
   }
 );
 
-Then(
-  "{actor} sees the phone's username {string}",
+When("{actor}'s account opens on another device", async (w, actor: Actor) => {
+  await w.s.apply(signInWithGoogleAsAccount, otherDevice(actor), actor);
+  await w.s.apply(returnToTabs, otherDevice(actor));
+});
+
+Given(
+  "{actor}'s username is {username}",
   async (w, actor: Actor, username: string) => {
-    await w.s.apply(focusActor, actor);
-    await w.s.until((sim) => readProfileTabUsername(sim, actor), {
-      pred: (actual) => actual === username,
-      maxMs: 15_000,
-    });
+    await tryUsername(w, actor, username);
+    const face = await w.s.read(readUsernameSaveFace, actor);
+    if (face !== 'Saved') {
+      throw new Error(`${actor} could not take @${username}: ${face}`);
+    }
+    await w.s.apply(leaveUsernameEditor, actor);
   }
 );
 
@@ -104,36 +100,40 @@ When(
 );
 
 When(
+  '{actor} renames themselves to {username} on their other device',
+  async (w, actor: Actor, username: string) => {
+    await w.s.apply(openProfileEdit, otherDevice(actor));
+    await w.s.apply(setUsername, otherDevice(actor), username);
+  }
+);
+
+When(
+  '{actor} tries to use username {string}',
+  async (w, actor: Actor, username: string) => {
+    await tryUsername(w, actor, username);
+  }
+);
+
+When(
+  '{actor} starts renaming themselves to {username} and leaves without saving',
+  async (w, actor: Actor, username: string) => {
+    await w.s.apply(openProfileEdit, actor);
+    await w.s.apply(typeUsernameDraft, actor, username);
+    await w.s.apply(leaveUsernameEditor, actor);
+  }
+);
+
+When(
   '{actor} saves an avatar with seed {string} and style {string}',
   async (w, actor: Actor, seed: string, style: string) => {
-    await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(openAvatarEditor, actor);
-    await w.s.apply(setAvatarSeed, actor, seed);
-    await w.s.apply(
-      setAvatarStyle,
-      actor,
-      style,
-      Handles.profileAvatarStyleBottts
-    );
-    await w.s.apply(saveAvatar, actor);
-    await w.s.apply(leaveAvatarEditor, actor);
+    await saveAvatarAs(w, actor, seed, style);
   }
 );
 
 Given(
   '{actor} has saved an avatar with seed {string} and style {string}',
   async (w, actor: Actor, seed: string, style: string) => {
-    await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(openAvatarEditor, actor);
-    await w.s.apply(setAvatarSeed, actor, seed);
-    await w.s.apply(
-      setAvatarStyle,
-      actor,
-      style,
-      Handles.profileAvatarStyleBottts
-    );
-    await w.s.apply(saveAvatar, actor);
-    await w.s.apply(leaveAvatarEditor, actor);
+    await saveAvatarAs(w, actor, seed, style);
   }
 );
 
@@ -147,67 +147,31 @@ When(
 );
 
 Then(
-  "{actor}'s saved avatar has seed {string}",
-  async (w, actor: Actor, seed: string) => {
-    await w.s.apply(openAvatarEditor, actor);
-    await w.s.until((sim) => readAvatarSeed(sim, actor), {
-      pred: (actual) => actual === seed,
+  "{actor}'s profile shows {username}",
+  async (w, actor: Actor, username: string) => {
+    await w.s.until((sim) => readProfileUsernameShown(sim, actor), {
+      pred: (shown) => shown === username,
     });
   }
 );
 
 Then(
-  "{actor}'s saved avatar uses style {string}",
-  async (w, actor: Actor, style: string) => {
-    expect(await w.s.read(readAvatarStyleLabel, actor)).toContain(style);
-    expect(await w.s.read(avatarTraitVisible, actor)).toBe(true);
-  }
-);
-
-Then(
-  "{actor}'s saved profile avatar has seed {string}",
-  async (w, actor: Actor, seed: string) => {
-    await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(openAvatarEditor, actor);
-    await w.s.until((sim) => readAvatarSeed(sim, actor), {
-      pred: (actual) => actual === seed,
+  "{actor}'s profile shows {username} within {int} seconds",
+  async (w, actor: Actor, username: string, seconds: number) => {
+    await w.s.apply(focusActor, actor);
+    await w.s.until((sim) => readProfileUsernameShown(sim, actor), {
+      pred: (shown) => shown === username,
+      maxMs: seconds * SECOND_MS,
     });
   }
 );
 
-Given("{actor}'s current username is recorded", async (w, actor: Actor) => {
-  const username = await w.s.until(
-    (sim) => readProfileTabUsername(sim, actor),
-    {
-      pred: (value) => value !== null,
-    }
-  );
-  remember(w, loadedUsernameKey(actor), username);
-  await w.s.apply(openProfileEdit, actor);
-});
-
-When(
-  '{actor} tries to use username {string}',
+Then(
+  "{actor}'s other device shows {username}",
   async (w, actor: Actor, username: string) => {
-    await w.s.apply(submitUsername, actor, username);
-  }
-);
-
-When(
-  '{actor} drafts username {string} and cancels',
-  async (w, actor: Actor, username: string) => {
-    await w.s.apply(typeUsernameDraft, actor, username);
-    await w.s.apply(leaveUsernameEditor, actor);
-  }
-);
-
-Given(
-  '{actor} has claimed username {string}',
-  async (w, actor: Actor, username: string) => {
-    await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(submitUsername, actor, username);
-    expect(await w.s.read(readUsernameSaveFace, actor)).toBe('Saved');
-    await w.s.apply(leaveUsernameEditor, actor);
+    await w.s.until((sim) => readProfileTabUsername(sim, otherDevice(actor)), {
+      pred: (shown) => shown === username,
+    });
   }
 );
 
@@ -218,62 +182,42 @@ Then(
   }
 );
 
-Then("{actor}'s username change is saved", async (w, actor: Actor) => {
-  expect(await w.s.read(readUsernameSaveFace, actor)).toBe('Saved');
-  await w.s.apply(leaveUsernameEditor, actor);
-});
-
 Then(
-  "{actor}'s profile shows {username}",
-  async (w, actor: Actor, username: string) => {
-    await w.s.until((sim) => readUsername(sim, actor), {
-      pred: (actual) => actual === username,
+  "{actor}'s saved avatar has seed {string}",
+  async (w, actor: Actor, seed: string) => {
+    await w.s.until((sim) => readSavedAvatar(sim, actor), {
+      pred: (avatar) => avatar?.seed === seed,
     });
   }
 );
 
 Then(
-  "{actor}'s profile shows username {string}",
-  async (w, actor: Actor, username: string) => {
-    await w.s.until((sim) => readProfileTabUsername(sim, actor), {
-      pred: (actual) => actual === username,
-    });
+  "{actor}'s saved avatar uses style {string}",
+  async (w, actor: Actor, style: string) => {
+    const avatar = await w.s.read(readSavedAvatar, actor);
+    expect(avatar?.styleLabel).toContain(style);
+    expect(avatar?.traitShown).toBe(true);
   }
 );
-
-Then("{actor}'s profile keeps the loaded username", async (w, actor: Actor) => {
-  const expected = recall(w, loadedUsernameKey(actor));
-  await w.s.apply(leaveUsernameEditor, actor);
-  await w.s.until((sim) => readProfileTabUsername(sim, actor), {
-    pred: (actual) => actual === expected,
-  });
-});
 
 Then(
-  "{actor}'s profile still shows the loaded username",
-  async (w, actor: Actor) => {
-    const expected = recall(w, loadedUsernameKey(actor));
-    await w.s.until((sim) => readProfileTabUsername(sim, actor), {
-      pred: (actual) => actual === expected,
-    });
+  '{actor} and {actor} have different usernames',
+  async (w, first: Actor, second: Actor) => {
+    const firstName = await w.s.until(
+      (sim) => readProfileUsernameShown(sim, first),
+      { pred: (shown) => shown !== null && shown !== '' }
+    );
+    const secondName = await w.s.until(
+      (sim) => readProfileUsernameShown(sim, second),
+      { pred: (shown) => shown !== null && shown !== '' }
+    );
+    expect(firstName).not.toBe(secondName);
   }
 );
 
-Then('each has their own generated username', async (w) => {
-  const usernamePattern = /^[a-z0-9_]{3,32}$/i;
-  const first = await w.s.until((sim) => readProfileTabUsername(sim, 'alice'), {
-    pred: (value) => value !== null,
+Then('{actor} already has an avatar', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
+  await w.s.until((sim) => readSavedAvatar(sim, actor), {
+    pred: (avatar) => avatar !== null && (avatar.seed ?? '') !== '',
   });
-  const second = await w.s.until((sim) => readProfileTabUsername(sim, 'bob'), {
-    pred: (value) => value !== null,
-  });
-  expect(first).toMatch(usernamePattern);
-  expect(second).toMatch(usernamePattern);
-  expect(first).not.toBe(second);
-});
-
-Then('{actor} has a generated avatar seed', async (w, actor: Actor) => {
-  await w.s.apply(openProfileEdit, actor);
-  await w.s.apply(openAvatarEditor, actor);
-  expect(await w.s.read(readAvatarSeed, actor)).not.toBe('');
 });

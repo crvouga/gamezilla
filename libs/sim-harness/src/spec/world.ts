@@ -106,9 +106,14 @@ export type OpenPackageSim = (
 /**
  * Register the sim world for this package's features. Each scenario's report
  * is named after the scenario and points at its feature line, and each step
- * is one labelled report step holding the sim calls it made.
+ * is one labelled report step holding the sim calls it made. `extend` adds
+ * what steps shared with a non-sim host need (e.g. the critical journeys'
+ * `journey` host) to every scenario's world.
  */
-export function useSimWorld(openSim: OpenPackageSim): void {
+export function useSimWorld(
+  openSim: OpenPackageSim,
+  extend: (world: SimWorld) => object = () => ({})
+): void {
   setWorld<SimWorld>({
     create: async (ctx) => {
       const calls: string[] = [];
@@ -119,7 +124,13 @@ export function useSimWorld(openSim: OpenPackageSim): void {
           sourceLine: ctx.scenarioLine,
         },
       });
-      return { s: recordingRun(opened, calls), ctx, memo: new Map(), calls };
+      const world: SimWorld = {
+        s: recordingRun(opened, calls),
+        ctx,
+        memo: new Map(),
+        calls,
+      };
+      return { ...world, ...extend(world) };
     },
     dispose: (w) => w.s[Symbol.asyncDispose](),
     calls: (w) => w.calls,

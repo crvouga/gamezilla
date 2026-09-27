@@ -1,4 +1,9 @@
-import { actorUi, scenarioAction } from '@libs/sim-harness/system/actor-ui';
+import { searchUsername } from '@libs/search/sim/search-actions';
+import {
+  actorUi,
+  pollUntil,
+  scenarioAction,
+} from '@libs/sim-harness/system/actor-ui';
 import { Handles } from '@libs/test-ids';
 
 const WAIT_MS = 10_000;
@@ -174,7 +179,29 @@ export const openFriendLiveSpace = scenarioAction({
   },
 });
 
+/**
+ * Search for `username` again and again until their row offers Add — what a
+ * person does after a decline or cancel reaches them. Fails after `maxMs`.
+ */
+export const searchUntilAddOffered = scenarioAction({
+  name: 'searchUntilAddOffered',
+  act: async (s, actorId: string, username: string, maxMs: number) => {
+    const ui = await actorUi(s, actorId);
+    await pollUntil(
+      s,
+      async () => {
+        await Promise.resolve(searchUsername.act(s, actorId, username));
+        return (await ui.get(Handles.friendAdd(username)).isVisible())
+          ? true
+          : null;
+      },
+      { maxMs, description: `search offers to add ${username}` }
+    );
+  },
+});
+
 export const FRIENDS_SIM_ACTIONS = [
+  searchUntilAddOffered,
   openFriendLiveSpace,
   addFriend,
   acceptFriendRequest,

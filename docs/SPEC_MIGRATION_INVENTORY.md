@@ -11,7 +11,7 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 | libs/friends | `specs/friends/`, `specs/spaces/` | — |
 | libs/billing | `specs/billing/` | — |
 | libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
-| libs/runtime | `specs/runtime/` | `critical-journeys` (proves the production health-probe journey list) |
+| libs/runtime | `specs/runtime/`, `specs/journeys/` | — |
 
 (2026-09-26, later) The random walks each package kept in code — `monkey`,
 `auth-monkey`, `lifecycle-walk`, `explore` — are replaced by Quint models in
@@ -197,11 +197,10 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `libs/profile/tests/e2e/monkey.test.tsx` | — | a random walk through profile and sign-in holds every standing property | monkey/explore walk (keep in code) |
 | `libs/profile/tests/e2e/username-rules.test.tsx` | social:3,4 | a refused name says why and changes nothing; a good one is kept lower-case<br>a draft left with Cancel is not saved<br>a username belongs to one person, whatever the letter case | first title multi-behavior — split |
 
-### libs/runtime (5)
+### libs/runtime (4)
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `libs/runtime/tests/e2e/critical-journeys.test.tsx` | — | only the Google hand-off is browser-only<br>${journey.id}: ${journey.title} | templated title enumerates the full critical-journey catalog — port each generated journey as its own scenario, sourced from the journey list itself |
 | `libs/runtime/tests/e2e/explore.test.tsx` | — | explore episodes over defineAction pool hold properties | monkey/explore walk (keep in code) |
 | `libs/runtime/tests/e2e/monkey.test.tsx` | — | a random walk over every feature holds every standing property | monkey/explore walk (keep in code) |
 | `libs/runtime/tests/e2e/shell-boot.test.tsx` | — | two actors boot into the tab shell, open Settings, switch focus | multi-behavior test — split (boot / open Settings / switch focus) |

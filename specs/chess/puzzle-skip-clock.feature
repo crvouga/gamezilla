@@ -8,14 +8,12 @@ Feature: Puzzle clock and skipping
     Given Alice is signed in
     And Alice is playing puzzles in their space
 
-  Scenario: The clock runs while solving and stops on a solve
-    Then Alice's puzzle has started
+  Scenario: The puzzle clock runs while Alice is solving
     When 65 seconds pass
     Then Alice's puzzle clock shows at least 60 seconds
-    When 5 seconds pass
-    Then Alice's puzzle clock has moved on
-    When Alice solves the puzzle
-    Then Alice's puzzle is solved
+
+  Scenario: The puzzle clock stops on a solve
+    Given Alice has solved the puzzle
     When 30 seconds pass
     Then Alice's puzzle clock has not moved since the solve
 
@@ -25,6 +23,6 @@ Feature: Puzzle clock and skipping
     And Alice's game log records that puzzle as abandoned
 
   Scenario: Moving on after a skip starts a fresh puzzle
-    When Alice skips the puzzle
-    And Alice moves on to the next puzzle
-    Then Alice's puzzle is not skipped
+    Given Alice has skipped the puzzle
+    When Alice moves on to the next puzzle
+    Then Alice is solving a different puzzle than the one before

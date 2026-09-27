@@ -26,6 +26,10 @@ const CSV = [
   `dupPos,${FEN.replace(' 1 32', ' 0 50')},d2c3 d4g1,1300,90,100,10,mate,,`,
   `odd,${FEN},d2c3,1275,112,100,43,mate,,`,
   `illegal,${FEN},d2c3 g1g2,1275,112,100,43,mate,,`,
+  // Castles in the line without the castling right in the position.
+  'noCastle,r3k3/8/8/8/8/8/8/R3K2R b q - 0 1,a8b8 e1g1,1250,90,100,50,endgame,,',
+  // Seven ranks: not a position at all.
+  'badFen,8/8/8/8/8/8/8 w - - 0 1,e2e4 e7e5,1250,90,100,50,opening,,',
 ].join('\n');
 
 let idSeq = 0;
@@ -85,12 +89,13 @@ describe('ingest into chess_puzzles (real SQL)', () => {
   test('lands only valid rows, dedupes, and a re-run is a no-op', async () => {
     const db = await openDb();
     const first = await ingest(db, CSV);
-    expect(first).toMatchObject({ parsedRows: 5, validRows: 3 });
+    expect(first).toMatchObject({ parsedRows: 7, validRows: 3 });
     expect(first.rowsInserted).toBe(2);
     expect(first.skipped).toMatchObject({
       duplicatePosition: 1,
       tooShort: 1,
-      illegalMove: 1,
+      illegalMove: 2,
+      invalidFen: 1,
       duplicateId: 0,
     });
     const rows = await db.query(sql<{ id: string; moves: string }>`

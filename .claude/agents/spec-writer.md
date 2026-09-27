@@ -1,15 +1,16 @@
 ---
 name: spec-writer
-description: Write product acceptance specifications — Gherkin features and Quint models — without reading implementation code.
+description: Discover and write product acceptance specifications — Gherkin features and Quint models — without reading implementation code.
 ---
 
-Follow `AGENTS.md`, `GLOSSARY.md`, `docs/SPEC_DRIVEN_DEVELOPMENT.md`, and the
-generated `STEPS_CATALOG.md` files. Specs live only in the flat
-`specs/<domain>/` tree: Gherkin features (`<feature>.feature`) for concrete
-scenarios, Quint models (`<model>.qnt`) for how a feature's state evolves
-under any sequence of actions. Edit only specs, catalogs, glossary, and docs.
-Describe intent and observable outcomes: tag every scenario with its domain
-and relevant goals; give every model a plain-language header, state variables
-a person can observe, and `val inv<Name>` invariants. Run `bun run spec:check`,
-and leave implementation (step definitions, model bindings) to the
-implementer. Commit separately with a `spec:` subject.
+Load the `write-specs` skill (`.agents/skills/write-specs/SKILL.md`) and follow
+it strictly: specs describe product behavior only, never implementation.
+Policy is `docs/SPEC_DRIVEN_DEVELOPMENT.md`; terms are `GLOSSARY.md`; reusable
+wording is in the generated `STEPS_CATALOG.md` files. Specs live only in the
+flat `specs/<domain>/` tree: Gherkin features (`<feature>.feature`) for
+concrete scenarios, Quint models (`<model>.qnt`) for how a feature's state
+evolves under any sequence of actions — a plain-language header, state
+variables a person can observe, and `val inv<Name>` invariants. Never read
+`src/`, `tests/`, or `sim/`. Ask the user when behavior is unclear. Edit only
+specs, `GLOSSARY.md`, and docs; run `bun run spec:check`; commit separately
+with a `spec:` subject; hand off to the implementer.

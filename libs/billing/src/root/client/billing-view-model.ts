@@ -100,10 +100,13 @@ function primaryOf(
   state: MembershipState,
   tier: BillingTier
 ): BillingPrimaryAction {
-  if (!input.canView || tier === 'paid') return 'none';
-  // A delinquent member fixes their card in the portal; a second checkout
-  // would start a second subscription.
-  const open = state === 'none' || state === 'incomplete' || state === 'ended';
+  if (!input.canView) return 'none';
+  // A live or delinquent member manages it in the portal; a second checkout
+  // would start a second subscription. An ended membership can start again at
+  // once, even while its grace still grants paid access.
+  const open =
+    state === 'ended' ||
+    (tier === 'free' && (state === 'none' || state === 'incomplete'));
   if (!open) return 'none';
   if (input.canSubscribe) return 'subscribe';
   return input.subscribeUnlockLabel === null ? 'none' : 'unlock';

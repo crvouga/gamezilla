@@ -2,9 +2,10 @@
 // @io-wall-ok — CLI entry (`bun run spec`).
 /**
  * Run specs — Gherkin features and Quint models — across every package that
- * runs `specs/<domain>/` domains. A spec path (`specs/chess/puzzle-play.feature`,
- * `specs/spaces/space-hosting.qnt`) goes only to the package whose
- * `specDomains` lists its domain.
+ * runs `specs/<domain>/` domains against the sim. A spec path
+ * (`specs/chess/puzzle-play.feature`, `specs/spaces/space-hosting.qnt`) goes
+ * only to the package whose `specDomains` lists its domain. Live domains
+ * (`liveDomains`) run through `bun run health`, never here.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -51,7 +52,7 @@ function domainOfPath(arg: string): string | null {
 }
 
 const cli = parseCli(process.argv.slice(2));
-const discovered = specPackages();
+const discovered = specPackages().filter((pkg) => pkg.specDomains.length > 0);
 const featureDomains = new Set(
   cli.runnerArgs.flatMap((arg) => {
     const domain = domainOfPath(arg);
@@ -62,7 +63,7 @@ const selected = discovered.filter(
   (pkg) =>
     (cli.packages.size === 0 || cli.packages.has(pkg.name)) &&
     (featureDomains.size === 0 ||
-      pkg.domains.some((domain) => featureDomains.has(domain)))
+      pkg.specDomains.some((domain) => featureDomains.has(domain)))
 );
 const known = new Set(discovered.map((pkg) => pkg.name));
 const unknown = [...cli.packages].filter((name) => !known.has(name));
@@ -80,7 +81,7 @@ for (const pkg of selected) {
   console.log(`spec: ${pkg.name}`);
   const args = cli.runnerArgs.filter((arg) => {
     const domain = domainOfPath(arg);
-    return domain === null || pkg.domains.includes(domain);
+    return domain === null || pkg.specDomains.includes(domain);
   });
   const result = spawnSync(
     'bun',

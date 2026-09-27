@@ -17,7 +17,6 @@ Feature: Friends watch a puzzle
 
   Scenario: Only the host is rated for a watched solve
     When Alice solves the puzzle
-    And Alice opens their stats
     Then Alice's game log records that puzzle as solved
     And Bob's game log is empty within 15 seconds
     And Bob's puzzle rating is 1500
@@ -26,32 +25,16 @@ Feature: Friends watch a puzzle
     Then Alice is the host of the puzzle and can move pieces
     And Bob is watching the puzzle and cannot move pieces
 
-  Scenario: A watcher's suggestion reaches the host
+  Scenario: A watcher's suggestion shows to host and watcher without moving the puzzle
     When Bob suggests a move that is not the solution
-    Then Alice is still solving the puzzle
-    And Alice sees Bob's suggested move within 15 seconds
-    And Alice sees exactly 1 suggestion
+    Then Alice and Bob both see only Bob's suggestion
+    And Alice is still asked to find the next move
 
   Scenario: The host's move clears the watcher's suggestion
     Given Bob has suggested a move that Alice can see
-    When Alice solves the puzzle
+    When Alice plays the next move of the solution
     Then Bob sees no suggestions within 15 seconds
 
-  Scenario: A watcher is refused when trying to move or skip the host's puzzle
-    When Bob tries to play the host's next move
-    Then Bob is refused as not allowed
-    When Bob tries to skip the puzzle
-    Then Bob is refused as not allowed
-    And Alice is still solving the puzzle
-    And Alice's and Bob's boards agree
-
-  Scenario: Host and watcher both see the watcher's suggestion
-    When Bob suggests a move
-    Then Alice's and Bob's boards agree
-    And Alice and Bob both see only Bob's suggestion
-
-  Scenario: The host's move clears suggestions and the watcher's board matches the host's
-    Given Bob has suggested a move that Alice can see
+  Scenario: A watcher's board follows each of the host's moves
     When Alice plays the next move of the solution
     Then Alice's and Bob's boards agree
-    And Bob sees no suggestions

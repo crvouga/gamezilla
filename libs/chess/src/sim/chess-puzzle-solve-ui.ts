@@ -14,6 +14,7 @@ import { chessBoardPromotionTestId } from '@pkgs/chess-board-core/probe';
 import type { Square } from '@pkgs/chess-board-core/types';
 import type { RecordingHaptics } from '@pkgs/device/haptics';
 import { sql } from '@pkgs/sql';
+import { Chess } from 'chess.js';
 import { readPuzzleStatus } from './chess-puzzle-ui';
 
 const WAIT_MS = 15_000;
@@ -54,6 +55,18 @@ export async function readPuzzleBoardFen(
   actorId: string
 ): Promise<string | null> {
   return (await readPuzzleBoardProbe(s, actorId))?.fen ?? null;
+}
+
+/** The piece on `square` of the puzzle board (`wp`, `bk`, …), or null. */
+export async function readPuzzleBoardPieceAt(
+  s: ProductSim,
+  actorId: string,
+  square: Square
+): Promise<string | null> {
+  const fen = await readPuzzleBoardFen(s, actorId);
+  if (fen === null) return null;
+  const piece = new Chess(fen).get(square);
+  return piece ? `${piece.color}${piece.type}` : null;
 }
 
 /** True while the board accepts solver input (unlocked, solver to move). */

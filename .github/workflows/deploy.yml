@@ -13,12 +13,12 @@ run-name: "Deploy · ${{ github.event_name == 'push' && 'push' || 'manual' }}"
 #                  from a job with no secrets and publishes the env lists.
 #   deploy:<env>   one job per `protection: "standard"` env, in parallel: the
 #                  full replica's OpenTofu foundation apply → migrations → the
-#                  three Workers → OpenTofu edge apply → billing sync → every
-#                  `health` task.
+#                  three Workers → OpenTofu edge apply → billing sync →
+#                  `@apps/product#health` (specs/health/, specs/journeys/).
 #   deploy:<env>   then one job per `protection: "production"` env (GitHub
 #                  environment `production`), the same chain. Runs only when
 #                  every standard env deployed, so every change has run in a
-#                  real environment first. `health` probes Workers, DNS/TLS,
+#                  real environment first. `health` checks Workers, DNS/TLS,
 #                  Postgres, R2, EMQX, Grafana Cloud, vendor credentials and
 #                  OpenTofu drift; the Health workflow
 #                  (.github/workflows/health.yml) runs the same probes hourly.
@@ -210,7 +210,7 @@ jobs:
         id: deploy
         run: bun run deploy
 
-      # The deploy ends with every `health` task, the critical journeys too.
+      # The deploy ends with `@apps/product#health`, the critical journeys too.
       - name: Upload critical journey evidence
         if: failure()
         uses: actions/upload-artifact@v6

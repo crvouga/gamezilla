@@ -49,13 +49,18 @@ export async function createAuthProvider(args: {
   readonly clock: Clock;
   readonly createId: CreateId;
   readonly http: HttpClient;
+  /** The built service told the product a user's sign-in methods changed. */
+  readonly onUserChanged: (
+    auth: AuthProvider,
+    externalUserId: string
+  ) => Promise<void>;
 }): Promise<AuthProvider> {
   const { secretStore } = args;
   const apiOrigin = await resolveApiOrigin(secretStore, args.apiUrlOverride);
   const webClientOrigin =
     (await readOptional(secretStore, WEB_CLIENT_ORIGIN_BINDING)) ??
     resolveWebClientOrigin(apiOrigin);
-  return await args.module.create({
+  const auth: AuthProvider = await args.module.create({
     readSecret: (name) => readOptional(secretStore, name),
     isProduction: args.protection === 'production',
     apiOrigin,
@@ -65,5 +70,8 @@ export async function createAuthProvider(args: {
     createId: args.createId,
     http: args.http,
     getSql: () => requireRequestStore().sqlClient,
+    // Only ever called while serving a request, long after `auth` is built.
+    onUserChanged: (externalUserId) => args.onUserChanged(auth, externalUserId),
   });
+  return auth;
 }

@@ -1,22 +1,26 @@
 @domain:profile
 Feature: Sign-in while offline
-  Sign-in cannot complete without a connection, and local sign-out takes effect
-  immediately even before the server can be reached.
+  Signing in needs a connection, but signing out never waits for one: a
+  device is signed out the moment its owner asks.
 
-  Scenario: An unfinished sign-in can succeed after reconnecting
+  Scenario: A sign-in abandoned offline does not block signing in once back online
     Given Alice is a guest
-    When Alice loses the connection
-    And Alice abandons Apple sign-in while offline
-    Then Alice is signed out
-    When the connection comes back
-    And Alice signs in with Apple
+    And Alice is offline
+    And Alice has abandoned signing in with Apple
+    And the connection has come back
+    When Alice signs in with Apple
     Then Alice has a signed-in account
 
-  Scenario: Signing out offline signs this device out
+  Scenario: Signing out works without a connection
     Given Alice is signed in with Google
-    When Alice loses the connection
-    And Alice signs out
-    Then Alice can sign in again
-    When the connection comes back
-    And Alice signs in with Google
-    Then Alice has a signed-in account
+    And Alice is offline
+    When Alice signs out
+    Then Alice is signed out
+
+  Scenario: After signing out offline, Alice can sign back in once online
+    Given Alice is signed in with Google
+    And Alice is offline
+    And Alice has signed out
+    And the connection has come back
+    When Alice signs in with Google
+    Then Alice is signed into the same account

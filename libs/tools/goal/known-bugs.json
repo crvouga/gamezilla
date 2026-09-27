@@ -2,12 +2,12 @@
   {
     "id": "puzzle-wrong-move-half-credit",
     "summary": "Wrong moves scored zero instead of the agreed half credit; the recorder also read the move before its reactive row was available. Fixed using the board transition and guarded through offline replay.",
-    "regressionTest": "specs/chess/puzzle-outcome-sync.feature"
+    "regressionTest": "libs/chess/tests/e2e/puzzle-outcome-score.test.tsx"
   },
   {
     "id": "puzzle-profile-volatility-sync",
     "summary": "The profile snapshot omitted Glicko volatility, leaving another device with incomplete rating state. Fixed by syncing volatility_micros and comparing complete profiles after guest sign-in.",
-    "regressionTest": "specs/chess/puzzle-guest-carryover.feature"
+    "regressionTest": "libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx"
   },
   {
     "id": "sql-int8-rows-bigint",
@@ -130,8 +130,18 @@
     "regressionTest": "libs/client-app/tests/shell/create-lazy-perf-sampler.test.ts"
   },
   {
+    "id": "auth-responses-missing-cors",
+    "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The sim is same-origin, so bun check could not see it. Fixed by writing the CORS headers onto the final response after next().",
+    "regressionTest": "libs/server-app/src/app/cors.test.ts"
+  },
+  {
     "id": "pending-reject-verdict-before-rollback",
     "summary": "A `pendingUx: 'pending'` mutation reported the server's rejection before the device dropped its optimistic write, so the caller's next action ran against the refused write: a username refused as taken and then saved again at once was refused as 'changed recently'. Found by the username-changes Quint model. Fixed by settling a rejection only after the queries refresh.",
     "regressionTest": "pkgs/sync-engine/tests/pending-ux-answers-with-server-verdict.test.ts"
+  },
+  {
+    "id": "apple-delete-stale-sign-in-methods",
+    "summary": "After Apple deleted a connected Apple account, the person's devices kept listing Apple as a sign-in method until they signed in again or removed a method themselves: the IdP removed the identity on Apple's notification, but the product mirrors sign-in methods into the synced auth_external_accounts only on /identity/refresh, which a device runs for its own sign-ins. Fixed by the auth service telling the product (AuthProviderEnv.onUserChanged) once a notification changes a user's identities; the product re-mirrors them and pushes the user's topic.",
+    "regressionTest": "libs/profile/tests/e2e/apple-delete-sign-in-methods.test.ts"
   }
 ]

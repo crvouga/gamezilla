@@ -103,9 +103,20 @@ describe('client-critical-path-imports', () => {
   });
 });
 
-test('the shipped client keeps heavy modules off the critical path', () => {
-  const found = criticalPathViolations().map(
-    (v) => `${v.fromRel} → ${v.specifier} (${v.reason})`
-  );
-  expect(found).toEqual([]);
-});
+/**
+ * Walks the real client import graph from disk: ~3 s idle, and several times
+ * that under a loaded `bun check`, past Bun's default 5 s. The timeout is ten
+ * times the idle cost so load cannot flip the verdict.
+ */
+const CRITICAL_PATH_WALK_TIMEOUT_MS = 30_000;
+
+test(
+  'the shipped client keeps heavy modules off the critical path',
+  () => {
+    const found = criticalPathViolations().map(
+      (v) => `${v.fromRel} → ${v.specifier} (${v.reason})`
+    );
+    expect(found).toEqual([]);
+  },
+  CRITICAL_PATH_WALK_TIMEOUT_MS
+);

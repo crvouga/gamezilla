@@ -107,6 +107,11 @@ async function runScenario(run: ScenarioRun): Promise<void> {
           );
           return;
         }
+        await lifecycle.failed?.(world, cause).catch((error: unknown) => {
+          console.warn(
+            `${options.featureUri}:${String(step.line)} ${scenario.name}: capturing failure evidence failed: ${String(error)}`
+          );
+        });
         const failing = outcome(step, 'failed');
         const rest = scenario.steps
           .slice(index + 1)

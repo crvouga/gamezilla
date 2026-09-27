@@ -13,39 +13,57 @@ import type { MiddlewareHandler } from 'hono';
  * `c.header()` after. On some runtimes, `Response.body` is undefined, so Hono’s
  * `c.res` setter / finalized `c.header()` recreate the response as
  * `new Response(undefined, …)` — status 200 with an empty body
- * (`auth/anon/ensure empty/non-object body`). Set headers only via `c.header()`
- * before finalize, and mutate `c.res.headers` in place afterward.
+ * (`auth/anon/ensure empty/non-object body`).
+ *
+ * Headers go onto the final response **after** `next()`, in place. Headers
+ * prepared with `c.header()` before `next()` are dropped when a handler
+ * returns a raw `Response` (the auth service's `handler.fetch`): production
+ * `POST /api/auth/session` then carried no `Access-Control-Allow-Origin`, and
+ * every browser sign-in silently failed.
  */
 const EXPOSE_HEADERS = 'set-auth-token, traceparent';
 const ALLOW_METHODS = 'GET,HEAD,PUT,POST,DELETE,PATCH';
 
+function writeCorsHeaders(headers: Headers, origin: string | undefined): void {
+  if (origin !== undefined && origin.length > 0) {
+    headers.set('Access-Control-Allow-Origin', origin);
+    headers.append('Vary', 'Origin');
+  }
+  headers.set('Access-Control-Allow-Credentials', 'true');
+  headers.set('Access-Control-Expose-Headers', EXPOSE_HEADERS);
+}
+
 export const apiCors: MiddlewareHandler = async (c, next) => {
   const origin = c.req.header('origin');
-  if (origin != null && origin.length > 0) {
-    c.header('Access-Control-Allow-Origin', origin);
-  }
-  c.header('Access-Control-Allow-Credentials', 'true');
-  c.header('Access-Control-Expose-Headers', EXPOSE_HEADERS);
 
   if (c.req.method === 'OPTIONS') {
-    c.header('Vary', 'Origin');
-    c.header('Access-Control-Allow-Methods', ALLOW_METHODS);
+    const headers = new Headers();
+    writeCorsHeaders(headers, origin);
+    headers.set('Access-Control-Allow-Methods', ALLOW_METHODS);
     const requestHeaders = c.req.header('Access-Control-Request-Headers');
     if (requestHeaders != null && requestHeaders.length > 0) {
-      c.header('Access-Control-Allow-Headers', requestHeaders);
-      c.header('Vary', 'Access-Control-Request-Headers', { append: true });
+      headers.set('Access-Control-Allow-Headers', requestHeaders);
+      headers.append('Vary', 'Access-Control-Request-Headers');
     }
-    return c.body(null, 204);
+    return new Response(null, { status: 204, headers });
   }
 
   await next();
 
-  if (origin != null && origin.length > 0) {
-    try {
-      c.res.headers.append('Vary', 'Origin');
-    } catch {
-      // Immutable responses (e.g. 101) — skip.
-    }
+  if (c.res.status === 101) return;
+  try {
+    writeCorsHeaders(c.res.headers, origin);
+  } catch {
+    // Immutable headers (a proxied `fetch()` response): copy onto a new one.
+    const res = c.res;
+    const headers = new Headers(res.headers);
+    writeCorsHeaders(headers, origin);
+    c.res = undefined;
+    c.res = new Response(res.body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers,
+    });
   }
   return;
 };

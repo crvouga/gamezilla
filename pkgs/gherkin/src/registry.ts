@@ -51,6 +51,11 @@ export type WorldLifecycle<W> = {
   readonly dispose: (world: W) => Promise<void>;
   /** Calls the world made so far (e.g. sim calls), newest last — for reports. */
   readonly calls?: (world: W) => readonly string[];
+  /**
+   * A step failed: capture evidence (a screenshot, the page) before
+   * {@link dispose} cleans up. Its own failure never hides the step's.
+   */
+  readonly failed?: (world: W, cause: unknown) => Promise<void>;
   /** Run one scenario step as a labelled step of the world's report. */
   readonly record?: <T>(
     world: W,

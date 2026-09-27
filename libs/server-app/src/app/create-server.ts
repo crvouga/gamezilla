@@ -2,6 +2,7 @@ import { isLocalApiOrigin } from '@libs/auth/public/local-api-origin';
 import type { AuthContext } from '@libs/auth/public/types';
 import { UnauthorizedError } from '@libs/auth/public/unauthorized-error';
 import { AuthApiRoutes } from '@libs/auth/root/server/auth-routes';
+import { ChangedAuthUserResync } from '@libs/auth/root/server/changed-auth-user-resync';
 import { DEFAULT_BILLING_GRACE_PERIOD_MS } from '@libs/client-config/public/client-config-defaults';
 import type { DesiredClientConfig } from '@libs/client-config/root/server/ensure-client-config-materialized';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
@@ -34,7 +35,10 @@ import { ApiSecretName } from '../config/secret-names';
 import { resolveWebClientOrigin } from '../config/web-client-origin';
 import { createHealthApp } from '../health/route';
 import { createMatchmakingSubApp } from '../matchmaking/route';
-import { apiRequestAsyncLocalStorage } from '../request-scope';
+import {
+  apiRequestAsyncLocalStorage,
+  requireRequestStore,
+} from '../request-scope';
 import { createRoomApp } from '../room/route';
 import { notifyUserChannels } from '../sync/notify-user-channels';
 import {
@@ -458,6 +462,25 @@ export type CreateServerArgs = {
 };
 
 /**
+ * The auth service changed a user's sign-in methods without the product
+ * asking: mirror them again and push them to the user's devices now, rather
+ * than when a device next signs in.
+ */
+async function pushChangedAuthUser(
+  auth: AuthProvider,
+  externalUserId: string
+): Promise<void> {
+  const store = requireRequestStore();
+  const accountId = await new ChangedAuthUserResync(
+    store.sqlClient,
+    auth.server,
+    { now: () => store.clock.now(), createId: store.createId }
+  ).resync(externalUserId);
+  if (accountId === null) return;
+  await notifyUserChannels([accountId], 'auth-user-changed');
+}
+
+/**
  * Composes the server app from mounted sub-apps (`app.route()`).
  *
  * The shell owns the platform routes — health, auth, sync, pubsub tokens,
@@ -483,6 +506,7 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
       clock: env.clock,
       createId: env.createId,
       http: { fetch: env.fetch },
+      onUserChanged: pushChangedAuthUser,
     }),
     createTtsAppForServer(env),
     createLlmAppForServer(env),

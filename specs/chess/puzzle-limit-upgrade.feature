@@ -1,11 +1,10 @@
 @domain:chess @goal:guest-free-and-paid:6
 Feature: The daily puzzle limit is an invitation
-  Hitting a limit is a clear invitation to upgrade, never an error. Twenty
-  puzzles completed earlier do not interrupt the puzzle already on the board.
+  Hitting a limit is a clear invitation to upgrade, never an error. For a
+  guest the upgrade is a free account, which has no daily limit.
 
-  Scenario: A guest with twenty completed puzzles keeps the puzzle on the board
-    Given Alice is a guest
-    And Alice is playing puzzles in their space
-    When twenty earlier completed puzzles are added to Alice's history
-    Then Alice's history shows 20 completed puzzles
-    And Alice is not shown the puzzle limit
+  Scenario: A guest at the daily limit is invited to sign in, never shown an error
+    Given Alice is a guest who has finished today's last allowed puzzle
+    When Alice asks for another puzzle
+    Then Alice is shown the puzzle limit within 15 seconds
+    And Alice is invited to sign in for more puzzles

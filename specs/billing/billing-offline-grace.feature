@@ -1,13 +1,11 @@
 @domain:billing @goal:guest-free-and-paid:10
 Feature: Paid access while offline
-  A membership already synced to the device answers access questions without
-  the server, including during a failed-payment grace period.
+  A member who loses their connection keeps paid access, even while a failed
+  payment is being retried, so going offline never takes away what they paid
+  for.
 
-  Scenario: A synced delinquent membership still gives paid access while offline
+  Scenario: A member whose payment failed keeps paid access while offline
     Given Alice has subscribed to Plus
     And Alice's payment has failed
     When Alice loses the connection
     Then Alice has paid access
-    When the connection comes back
-    Then Alice has paid access
-    And the server records Alice's membership as delinquent

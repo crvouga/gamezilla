@@ -11,7 +11,6 @@
     "check:worker-bundle": "bun run ../../libs/tools/scripts/check-worker-bundle.ts",
     "contract:write": "bun run scripts/contract-manifest.ts",
     "deploy": "bun run scripts/deploy.ts",
-    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "preview": "bun run scripts/preview.ts",
@@ -62,7 +61,6 @@
   },
   "devDependencies": {
     "@libs/games": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
     "@pkgs/os": "workspace:*",
     "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",

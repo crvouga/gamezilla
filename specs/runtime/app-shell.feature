@@ -5,24 +5,19 @@ Feature: App shell
   app stays where they left it.
 
   @goal:social:1
-  Scenario: Two people open the app and land on the tabs
+  Scenario: A person who opens the app lands on Spaces
     When Alice opens the app
     Then Alice sees the tabs
-    When Bob opens the app
-    Then Bob sees the tabs
-    And only Alice and Bob are using the app
+    And Alice is on Spaces
 
-  Scenario: A person can open Settings from the tabs
-    Given Alice and Bob are guests
+  Scenario: A guest can open Settings
+    Given Bob is a guest
     When Bob opens Settings
     Then Bob is on Settings
 
-  Scenario: Switching between people keeps each person's place
+  Scenario: Each person's app keeps its own place
     Given Alice and Bob are guests
-    And Bob opens Settings
+    And Bob has opened Settings
     When the view switches to Alice's device
-    Then Alice sees the tabs
-    And Alice is on Spaces
-    And Alice is not on Settings
-    When the view switches to Bob's device
-    Then Bob is on Settings
+    Then Alice is on Spaces
+    And Bob is still on Settings

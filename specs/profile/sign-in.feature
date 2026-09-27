@@ -1,36 +1,37 @@
 @domain:profile @goal:social:1
 Feature: Sign in and out
-  A person can connect an account and later sign out on this device.
+  A person can connect an account and later sign out on this device, and
+  their profile goes with the account wherever they sign in.
 
   @goal:social:2 @goal:always-true:10
-  Scenario: A guest keeps profile changes when signing in
+  Scenario: A guest keeps their profile when signing in
     Given Alice is a guest
-    When Alice renames themselves to @guest_keeps_1
-    And Alice saves an avatar with seed "carried-seed" and style "Bottts"
-    And Alice returns to the tabs
-    And Alice signs in with Google
-    And Alice returns to the tabs
-    Then Alice's profile shows username "guest_keeps_1"
-    And Alice's saved profile avatar has seed "carried-seed"
-
-  Scenario: A first sign-in can be followed by sign-out
-    Given Alice is a guest
+    And Alice's username is @alice_guest
+    And Alice has saved an avatar with seed "harbor" and style "Bottts"
     When Alice signs in with Google
-    And Alice signs out
-    Then Alice can sign in again
+    Then Alice's profile shows @alice_guest
+    And Alice's saved avatar has seed "harbor"
 
-  Scenario: Signing out and back in restores the account's profile
-    Given Alice is signed in
-    When Alice renames themselves to @alice_account
-    And Alice signs out
-    And Alice signs in with Google
-    And Alice returns to the tabs
-    Then Alice's profile shows username "alice_account"
+  Scenario: Signing out leaves this device signed out
+    Given Alice is signed in with Google
+    When Alice signs out
+    Then Alice is signed out
 
-  Scenario: The same account shares profile edits across devices
+  Scenario: Signing back in brings back the account's profile
+    Given Alice is signed in with Google
+    And Alice's username is @alice_account
+    And Alice has signed out
+    When Alice signs in with Google
+    Then Alice's profile shows @alice_account
+
+  Scenario: A new device shows the account's current username
     Given Alice is signed in
-    When Alice renames themselves to @alice_laptop
-    And Alice's account opens on another device
-    Then Alice's phone shows username "alice_laptop"
-    When Alice's phone changes username to "alice_phone_1"
-    Then Alice sees the phone's username "alice_phone_1"
+    And Alice's username is @alice_laptop
+    When Alice's account opens on another device
+    Then Alice's other device shows @alice_laptop
+
+  Scenario: A username change on one device reaches the other
+    Given Alice is signed in
+    And Alice is also signed in on another device
+    When Alice renames themselves to @alice_second on their other device
+    Then Alice's profile shows @alice_second within 15 seconds

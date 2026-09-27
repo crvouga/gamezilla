@@ -66,13 +66,63 @@ export const openAcceptedNotification = scenarioAction({
   },
 });
 
-/** Tap a pill (Add, Requested, Confirm, Delete, Unblock) and let it settle. */
-export const tapFriendPill = scenarioAction({
-  name: 'tapFriendPill',
-  act: async (s, actorId: string, pillHandle: string) => {
-    const ui = await actorUi(s, actorId);
-    await ui.get(pillHandle).tap({ timeoutMs: WAIT_MS });
-    await s.session.waitForIdle();
+/** Tap one of the friend pills on the screen and let the answer settle. */
+async function tapPill(
+  s: Surface,
+  actorId: string,
+  pill: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  await ui.get(pill).tap({ timeoutMs: WAIT_MS });
+  await s.session.waitForIdle();
+}
+
+/** On `username`'s profile (or a search row for them): Add. */
+export const sendRequestFromProfile = scenarioAction({
+  name: 'sendRequestFromProfile',
+  act: async (s, actorId: string, username: string) => {
+    await tapPill(s, actorId, Handles.friendAdd(username));
+  },
+});
+
+/** On the asker's profile: Confirm their incoming request. */
+export const confirmFromProfile = scenarioAction({
+  name: 'confirmFromProfile',
+  act: async (s, actorId: string, fromUsername: string) => {
+    await tapPill(s, actorId, Handles.friendConfirm(fromUsername));
+  },
+});
+
+/** On the asker's profile: Delete (decline) their incoming request. */
+export const declineFromProfile = scenarioAction({
+  name: 'declineFromProfile',
+  act: async (s, actorId: string, fromUsername: string) => {
+    await tapPill(s, actorId, Handles.friendDecline(fromUsername));
+  },
+});
+
+/** Search for `username` and ask them again from their result row's Add. */
+export const askAgainFromSearch = scenarioAction({
+  name: 'askAgainFromSearch',
+  act: async (s, actorId: string, username: string) => {
+    await Promise.resolve(searchUsername.act(s, actorId, username));
+    await tapPill(s, actorId, Handles.friendAdd(username));
+  },
+});
+
+/** A guest's people search: follow its Sign in prompt. */
+export const followSearchSignIn = scenarioAction({
+  name: 'followSearchSignIn',
+  act: async (s, actorId: string) => {
+    await tapPill(s, actorId, `${Handles.searchDenied}-action`);
+  },
+});
+
+/** An empty friends list: follow its Find friends prompt. */
+export const followFindFriends = scenarioAction({
+  name: 'followFindFriends',
+  act: async (s, actorId: string) => {
+    await tapPill(s, actorId, `${Handles.friendsEmpty}-action`);
   },
 });
 
@@ -113,7 +163,12 @@ export const PERSON_SIM_ACTIONS = [
   openPersonFromSearch,
   viewProfileFromRequest,
   openAcceptedNotification,
-  tapFriendPill,
+  sendRequestFromProfile,
+  confirmFromProfile,
+  declineFromProfile,
+  askAgainFromSearch,
+  followSearchSignIn,
+  followFindFriends,
   blockPerson,
   keepFriend,
 ];

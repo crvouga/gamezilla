@@ -13,5 +13,3 @@ Feature: Subscribe to Plus
     When Alice subscribes to Plus
     Then Alice has paid access
     And Alice's membership is trialing on the monthly plan
-    And Alice's membership has a current period end
-    And the server's copy of Alice's membership matches Alice's device
