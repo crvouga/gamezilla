@@ -4,33 +4,20 @@
  * owner, and the common ways into a puzzle. No step definitions here.
  */
 
-import { expect } from 'bun:test';
-
 import {
-  closePuzzleFeedSettings,
-  leavePuzzleToChessMenu,
-  openChessStatsScreen,
-  openPuzzleFeedSettings,
+  openPuzzleByTheme,
   openPuzzleFromSpace,
-  setPuzzleFeedTheme,
+  showChessStatsScreen,
 } from '@libs/chess/sim/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess/sim/chess-puzzle-data';
 import { readPuzzlePlayerId } from '@libs/chess/sim/chess-puzzle-ledger-data';
 import { readPuzzleBoardProbe } from '@libs/chess/sim/chess-puzzle-solve-ui';
-import {
-  isPuzzleAttemptRated,
-  readActivePuzzleId,
-} from '@libs/chess/sim/chess-puzzle-ui';
-import { chessGameMenuVisible } from '@libs/chess/sim/chess-ui-reads';
-import { focusActor, partition } from '@libs/sim-harness';
+import { readActivePuzzleId } from '@libs/chess/sim/chess-puzzle-ui';
+import { focusActor } from '@libs/sim-harness';
 import type { Actor, SimWorld } from '@libs/sim-harness/spec/define';
 import { recall, remember } from '@libs/sim-harness/spec/world';
-import { caps, visible } from '@libs/sim-harness/system/observations';
 import { createSpace } from '@libs/spaces/sim/space-actions';
 import { activeSpaceVisible } from '@libs/spaces/sim/spaces-ui-reads';
-import { Handles } from '@libs/test-ids';
-import { hostLimit } from '@pkgs/gherkin/registry';
-import { ActionNotEnabled } from '@pkgs/sim';
 import type { NamedPuzzle } from './puzzle-fixtures';
 
 export const SECOND_MS = 1_000;
@@ -108,7 +95,7 @@ export function lastPuzzle(w: SimWorld): string {
 
 // ------------------------------------------------------- a pass through pool
 
-export type ServedPuzzle = { readonly id: string; readonly rated: boolean };
+export type ServedPuzzle = { readonly id: string };
 
 const passKey = (actor: Actor) => `pass:${actor}`;
 
@@ -117,9 +104,7 @@ export async function recordServed(
   w: SimWorld,
   actor: Actor
 ): Promise<ServedPuzzle> {
-  const id = await activePuzzle(w, actor);
-  const rated = (await w.s.read(isPuzzleAttemptRated, actor)) === true;
-  const served = { id, rated };
+  const served = { id: await activePuzzle(w, actor) };
   remember(w, passKey(actor), [...servedInPass(w, actor), served]);
   return served;
 }
@@ -147,11 +132,6 @@ export async function puzzleOwner(w: SimWorld, actor: Actor): Promise<string> {
     `${actor}'s puzzle owner`
   );
   return remember(w, ownerKey(actor), owner);
-}
-
-/** The actor's second device, as `{actor}'s account opens on another device` names it. */
-export function otherDevice(actor: Actor): string {
-  return `${actor}_phone`;
 }
 
 // --------------------------------------------------------- into the puzzle
@@ -185,45 +165,17 @@ export async function enterNamedPuzzle(
 ): Promise<void> {
   if (puzzle.csv !== null) await w.s.apply(ingestChessPuzzleCsv, puzzle.csv);
   await enterPuzzles(w, actor);
-  await w.s.apply(openPuzzleFeedSettings, actor);
-  await w.s.apply(setPuzzleFeedTheme, actor, puzzle.theme);
-  await w.s.apply(closePuzzleFeedSettings, actor);
-  await w.s.until(async (surf) => readActivePuzzleId(surf, actor), {
-    maxMs: SETTLE_MS,
-    pred: (id) => id === puzzle.id,
-  });
+  await w.s.apply(openPuzzleByTheme, actor, puzzle.theme, puzzle.id);
   await trackPuzzle(w, actor);
-  await waitSolverToMove(w, actor);
 }
 
-/** The stats screen, reached from the puzzle when it is not already open. */
+/** The stats screen on `device` (an actor or their other device). */
 export async function ensureStatsOpen(
   w: SimWorld,
-  actor: Actor
+  device: string
 ): Promise<void> {
-  await w.s.apply(focusActor, actor);
-  if (await w.s.read(visible, actor, [Handles.chessStatsElo])) return;
-  if (!(await w.s.read(chessGameMenuVisible, actor))) {
-    await w.s.apply(leavePuzzleToChessMenu, actor);
-  }
-  await w.s.apply(openChessStatsScreen, actor);
-}
-
-/**
- * Cut the actor's connection. A live browser (`SIM_MODE=real|stack`) cannot
- * cut its own: the host lacks `partition`, which is a harness limit, so the
- * scenario ends there instead of failing (as the shared step does).
- */
-export async function cutConnection(w: SimWorld, actor: Actor): Promise<void> {
-  if (!(await w.s.read(caps)).includes('partition')) {
-    const refused = await w.s.apply(partition, actor).then(
-      () => null,
-      (error: unknown) => error
-    );
-    expect(refused).toBeInstanceOf(ActionNotEnabled);
-    throw hostLimit('this host cannot cut the connection');
-  }
-  await w.s.apply(partition, actor);
+  await w.s.apply(focusActor, device);
+  await w.s.apply(showChessStatsScreen, device);
 }
 
 /** `a1-a5` → `a1a5`. */

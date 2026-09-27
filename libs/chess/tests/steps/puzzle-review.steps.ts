@@ -38,26 +38,16 @@ import { remember } from '@libs/sim-harness/spec/world';
 import {
   currentPuzzle,
   ensureStatsOpen,
-  lastPuzzle,
+  lastPlayer,
   recalled,
   required,
-  SECOND_MS,
+  SETTLE_MS,
 } from './puzzle-world';
 
 const reviewedKey = (actor: Actor) => `reviewedLine:${actor}`;
 
 type Direction = 'back' | 'forward';
 type End = 'start' | 'end';
-
-function direction(word: string): Direction {
-  if (word === 'back' || word === 'forward') return word;
-  throw new Error(`not a direction: ${word} (back or forward)`);
-}
-
-function end(word: string): End {
-  if (word === 'start' || word === 'end') return word;
-  throw new Error(`not an end: ${word} (start or end)`);
-}
 
 /** Open the current puzzle's review from the game log. */
 async function openReview(w: SimWorld, actor: Actor): Promise<void> {
@@ -112,20 +102,17 @@ When(
 );
 
 Given(
-  '{actor} has solved the puzzle and is reviewing it',
-  async (w, actor: Actor) => {
+  '{actor} is reviewing the solved puzzle at move {int}',
+  async (w, actor: Actor, move: number) => {
     await w.s.apply(playUntilSolved, actor);
     await openReview(w, actor);
+    // The review opens on the last move; any other is chosen from the list.
+    const last = recalled<LocalPuzzleRow>(w, reviewedKey(actor)).moves.split(
+      ' '
+    ).length;
+    if (move !== last) await w.s.apply(tapPuzzleReviewMove, actor, move - 1);
   }
 );
-
-Then('{actor} is reviewing that puzzle', async (w, actor: Actor) => {
-  const row = recalled<LocalPuzzleRow>(w, reviewedKey(actor));
-  const lineLength = row.moves.split(' ').length;
-  expect(await w.s.read(readPuzzleReviewFen, actor)).toBe(
-    positionAt(row, lineLength)
-  );
-});
 
 Then(
   "{actor}'s review is at move {int} of {int}, reached with animation",
@@ -151,39 +138,39 @@ Then(
 );
 
 When(
-  '{actor} steps {word} one move in the review',
-  async (w, actor: Actor, way: string) => {
-    await w.s.apply(pressPuzzleReviewNav, actor, direction(way));
+  '{actor} steps {direction} one move in the review',
+  async (w, actor: Actor, way: Direction) => {
+    await w.s.apply(pressPuzzleReviewNav, actor, way);
   }
 );
 
 When(
-  '{actor} steps {word} one move in the review with the keyboard',
-  async (w, actor: Actor, way: string) => {
-    const key = direction(way) === 'back' ? 'arrowLeft' : 'arrowRight';
+  '{actor} steps {direction} one move in the review with the keyboard',
+  async (w, actor: Actor, way: Direction) => {
+    const key = way === 'back' ? 'arrowLeft' : 'arrowRight';
     await w.s.apply(pressPuzzleReviewArrow, actor, key);
   }
 );
 
 When(
-  '{actor} jumps to the {word} of the review',
-  async (w, actor: Actor, which: string) => {
-    await w.s.apply(pressPuzzleReviewNav, actor, end(which));
+  '{actor} jumps to the {end} of the review',
+  async (w, actor: Actor, which: End) => {
+    await w.s.apply(pressPuzzleReviewNav, actor, which);
   }
 );
 
 When(
-  '{actor} jumps to the {word} of the review with the keyboard',
-  async (w, actor: Actor, which: string) => {
-    const key = end(which) === 'start' ? 'home' : 'end';
+  '{actor} jumps to the {end} of the review with the keyboard',
+  async (w, actor: Actor, which: End) => {
+    const key = which === 'start' ? 'home' : 'end';
     await w.s.apply(pressPuzzleReviewArrow, actor, key);
   }
 );
 
 When(
-  '{actor} jumps to the {word} of the revealed line',
-  async (w, actor: Actor, which: string) => {
-    await w.s.apply(pressPuzzleReviewNav, actor, end(which));
+  '{actor} jumps to the {end} of the revealed line',
+  async (w, actor: Actor, which: End) => {
+    await w.s.apply(pressPuzzleReviewNav, actor, which);
   }
 );
 
@@ -195,23 +182,19 @@ When(
 );
 
 When(
-  '{actor} flicks the review {word} one move',
-  async (w, actor: Actor, way: string) => {
-    await w.s.apply(swipePuzzleReview, actor, direction(way));
+  '{actor} flicks the review {direction} one move',
+  async (w, actor: Actor, way: Direction) => {
+    await w.s.apply(swipePuzzleReview, actor, way);
   }
 );
 
-When('the puzzle is retired from the pool', async (w) => {
-  await w.s.apply(retireChessPuzzle, lastPuzzle(w));
+Given('the puzzle has since been retired', async (w) => {
+  const actor = lastPlayer(w);
+  const puzzle = currentPuzzle(w, actor);
+  await w.s.apply(retireChessPuzzle, puzzle);
+  // Precondition guard: the retirement has reached the player's device.
+  await w.s.until((surf) => readLocalPuzzleRow(surf, actor, puzzle), {
+    maxMs: SETTLE_MS,
+    pred: (row) => row?.deleted === true,
+  });
 });
-
-Then(
-  "{actor}'s device knows the puzzle is retired within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    const puzzle = currentPuzzle(w, actor);
-    await w.s.until((surf) => readLocalPuzzleRow(surf, actor, puzzle), {
-      maxMs: seconds * SECOND_MS,
-      pred: (row) => row?.deleted === true,
-    });
-  }
-);

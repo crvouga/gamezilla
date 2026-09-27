@@ -49,6 +49,7 @@ import {
   readPuzzleDisplayFen,
   returnToPuzzles,
   settleAfterPuzzleNext,
+  showChessStats,
   solvePuzzle,
   tapEmptyPoolPrimaryAction,
   pressPuzzleNext as tapPuzzleNext,
@@ -211,6 +212,12 @@ export const leavePuzzleToChessMenu = scenarioAction({
 export const openChessStatsScreen = scenarioAction({
   name: 'openChessStatsScreen',
   act: openChessStats,
+});
+
+/** The stats screen from wherever the device is (see {@link showChessStats}). */
+export const showChessStatsScreen = scenarioAction({
+  name: 'showChessStatsScreen',
+  act: showChessStats,
 });
 
 /** Back out of the stats screen to the chess main menu. */
@@ -530,4 +537,5 @@ export const CHESS_SIM_ACTIONS = [
   solvePuzzlesInARow,
   playPuzzleResults,
   finishPuzzleBy,
+  showChessStatsScreen,
 ];

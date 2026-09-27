@@ -373,7 +373,6 @@
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
-        "@pkgs/gherkin": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",

@@ -1,6 +1,7 @@
 import { actorUi, pollUntil } from '@libs/sim-harness/system/actor-ui';
+import { actorHtml } from '@libs/sim-harness/system/observations';
 import type { ProductSim } from '@libs/sim-harness/system/sim';
-import { waitActiveSpace } from '@libs/spaces/sim/space-ui';
+import { showSpacesTab, waitActiveSpace } from '@libs/spaces/sim/space-ui';
 import { Handles } from '@libs/test-ids';
 import type { Square } from '@pkgs/chess-board/chess-board-types';
 import { ChessBoardFlows } from '@pkgs/chess-board-core/flows';
@@ -647,6 +648,61 @@ export async function openChessStats(
   await ui.get(Handles.chessStatsElo).expect.visible({ timeoutMs: WAIT_MS });
 }
 
+/** The lobby card of the one space the actor is in, from the Spaces tab. */
+async function ownSpaceCard(
+  s: ProductSim,
+  actorId: string
+): Promise<string | null> {
+  await showSpacesTab(s, actorId);
+  const html = await actorHtml(s, actorId);
+  const cards = [
+    ...(html ?? '').matchAll(/data-testid="(space-card-[^"]+)"/g),
+  ].map((match) => match[1] ?? '');
+  return cards.length === 1 ? (cards[0] ?? null) : null;
+}
+
+/**
+ * The stats screen, from wherever the device is: the chess choices, the
+ * puzzle board, the space's game menu, a screen an interruption (signing in)
+ * left open, the tabs with the space still open behind them, or the tabs
+ * with no space (a device outside any space opens its own). Reading
+ * stats changes nothing.
+ */
+export async function showChessStats(
+  s: ProductSim,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  let createdSpace = false;
+  await pollUntil(
+    s,
+    async () => {
+      if (await ui.get(Handles.chessStatsElo).isVisible()) return true;
+      if (await ui.get(Handles.chessMenuStats).isVisible()) {
+        await openChessStats(s, actorId);
+      } else if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible()) {
+        await pressPuzzleBackToChessMenu(s, actorId);
+      } else if (await ui.get(Handles.gameMenuChess).isVisible()) {
+        await ui.get(Handles.gameMenuChess).tap({ timeoutMs: WAIT_MS });
+      } else if (await ui.get(Handles.spaceClose).isVisible()) {
+        // In a space whose game is still coming up: wait for it.
+      } else if (await ui.get(Handles.spaceMiniplayer).isVisible()) {
+        // The space is still open behind the tabs: back in through its card.
+        const card = await ownSpaceCard(s, actorId);
+        if (card !== null) await ui.get(card).tap({ timeoutMs: WAIT_MS });
+      } else if (await ui.get(Handles.navBack).isVisible()) {
+        await ui.get(Handles.navBack).tap({ timeoutMs: WAIT_MS });
+      } else if (!createdSpace) {
+        createdSpace = true;
+        await showSpacesTab(s, actorId);
+        await ui.get(Handles.spaceCreate).tap({ timeoutMs: WAIT_MS });
+      }
+      return null;
+    },
+    { maxMs: WAIT_MS * 2, stepMs: POLL_MS, description: 'the stats screen' }
+  );
+}
+
 /** Back arrow on the stats screen → chess main menu. */
 export async function leaveChessStats(
   s: ProductSim,
@@ -808,15 +864,17 @@ export async function isPuzzleLimitUpgradeOffered(
 }
 
 /**
- * The board well says puzzles need a connection: the empty-feed block under
- * the offline header, not the "nothing matches your feed" one.
+ * The board well says puzzles need a connection ("You're offline"), not
+ * that nothing matches the feed.
  */
 export async function isPuzzleOfflineNoticeVisible(
   s: ProductSim,
   actorId: string
 ): Promise<boolean> {
-  if (!(await isEmptyPoolVisible(s, actorId))) return false;
-  return (await readPuzzleStatusKind(s, actorId)) === 'offline';
+  const ui = await actorUi(s, actorId);
+  const frame = ui.get(Handles.chessPuzzleBoardFrame);
+  if (await frame.isVisible()) await frame.layout();
+  return ui.get(Handles.chessPuzzleOffline).isVisible();
 }
 
 /** The feed bar marks the puzzle on the board "Unrated" (a repeat). */

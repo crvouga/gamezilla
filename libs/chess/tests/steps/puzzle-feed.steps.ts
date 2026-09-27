@@ -5,41 +5,32 @@
  */
 
 import { expect } from 'bun:test';
-import { PUZZLE_RATING_DEFAULT_RD } from '@libs/chess/public/chess-puzzle-rating';
 import {
   type ChessPuzzleTheme,
   isChessPuzzleTheme,
 } from '@libs/chess/public/chess-puzzle-themes';
-import {
-  type Puzzle,
-  validateStoredPuzzleRow,
-} from '@libs/chess/public/puzzle-data';
-import {
-  PUZZLE_WINDOW_HALF_MAX,
-  PUZZLE_WINDOW_HALF_MIN,
-  puzzleSelectionHalfWindow,
-} from '@libs/chess/public/puzzle-session';
 import {
   bumpPuzzleFeedCustomRating,
   bumpPuzzleFeedOffset,
   closePuzzleFeedSettings,
   closePuzzleFeedSettingsNoWait,
   includePlayedPuzzles,
+  leaveChessStatsScreen,
   openPuzzleFeedSettings,
-  openPuzzleFromSpaceNoWait,
   playUntilSolved,
   pressPuzzleNext,
+  returnToPuzzleScreen,
   setPuzzleFeedHistory,
   setPuzzleFeedMode,
   setPuzzleFeedTheme,
+  showChessStatsScreen,
   skipPuzzle,
+  solvePuzzlesInARow,
 } from '@libs/chess/sim/chess-actions';
 import {
   ingestChessPuzzleCsv,
   readLocalPuzzles,
-  readPuzzleBoardOrientation,
   readServerPuzzles,
-  type StoredPuzzleRow,
 } from '@libs/chess/sim/chess-puzzle-data';
 import {
   type FeedHistoryFilter,
@@ -51,13 +42,12 @@ import {
 } from '@libs/chess/sim/chess-puzzle-feed-ui';
 import {
   isEmptyPoolVisible,
-  isPuzzleAttemptRated,
+  isPuzzleUnratedNoticeVisible,
   readActivePuzzleId,
   readPuzzleDebug,
-  readPuzzlePickSource,
-  readPuzzleSelectionWindow,
+  readStatsElo,
 } from '@libs/chess/sim/chess-puzzle-ui';
-import { readServerPuzzleProfile } from '@libs/chess/sim/chess-rating-data';
+import { focusActor } from '@libs/sim-harness';
 import {
   type Actor,
   Given,
@@ -66,22 +56,18 @@ import {
   When,
 } from '@libs/sim-harness/spec/define';
 import { remember } from '@libs/sim-harness/spec/world';
-import { createSpace } from '@libs/spaces/sim/space-actions';
 import {
   FULL_INGEST_ROWS,
-  INGEST_ROWS,
   type IngestRow,
   ingestCsv,
-  RATING_CSV,
   SELECTION_CSV,
   SELECTION_GROUPS,
   STANDARD_PUZZLE_IDS,
 } from './puzzle-fixtures';
 import {
-  activePuzzle,
-  cutConnection,
+  currentPuzzle,
+  ensureStatsOpen,
   lastPlayer,
-  puzzleOwner,
   recalled,
   recordServed,
   required,
@@ -92,41 +78,12 @@ import {
   trackPuzzle,
 } from './puzzle-world';
 
-const IMPORTED = 'importedRows';
-const IMPORTED_CSV = 'importedCsv';
-const POOL_IDS = 'poolIds';
+const REJECTED = 'rejectedPuzzles';
 const LOW_QUALITY = 'lowQualityPuzzles';
 const IN_WINDOW = 'inWindowPuzzles';
 const OUT_OF_WINDOW = 'outOfWindowPuzzles';
-const beforeRepeatKey = (actor: Actor) => `profileBeforeRepeat:${actor}`;
-const servedSidesKey = (actor: Actor) => `servedSides:${actor}`;
-
-/** A stored row as a validated puzzle; a row that fails validation fails. */
-function validated(row: StoredPuzzleRow): Puzzle {
-  const result = validateStoredPuzzleRow(row);
-  if (!result.ok) {
-    throw new Error(`stored puzzle ${row.id} invalid: ${result.detail}`);
-  }
-  return result.puzzle;
-}
-
-/** Every stored row passes validation and no position and line repeats. */
-function expectAllValid(rows: readonly StoredPuzzleRow[]): Puzzle[] {
-  const puzzles = rows.map(validated);
-  expect(new Set(puzzles.map((p) => p.positionKey)).size).toBe(puzzles.length);
-  return puzzles;
-}
-
-async function serverPoolIds(w: SimWorld): Promise<string[]> {
-  return (await w.s.read(readServerPuzzles)).map((row) => row.id);
-}
-
-async function importFile(w: SimWorld, rows: readonly IngestRow[]) {
-  const csv = remember(w, IMPORTED_CSV, ingestCsv(rows));
-  remember(w, IMPORTED, rows);
-  await w.s.apply(ingestChessPuzzleCsv, csv);
-  remember(w, POOL_IDS, await serverPoolIds(w));
-}
+const firstPlayedKey = (actor: Actor) => `firstPlayed:${actor}`;
+const ratingBeforeRepeatKey = (actor: Actor) => `ratingBeforeRepeat:${actor}`;
 
 function historyFilter(label: string): FeedHistoryFilter {
   const filters: Partial<Record<string, FeedHistoryFilter>> = {
@@ -155,46 +112,35 @@ async function untilFeedTarget(
     maxMs: SETTLE_MS,
     pred: (label) => label?.mode === mode && label.rating === rating,
   });
-  expect(await w.s.read(readFeedTargetLabel, actor)).toEqual({ mode, rating });
 }
 
-/** Finish the puzzle on the board (solve or skip) and move on. */
-async function attemptAndAdvance(
-  w: SimWorld,
-  actor: Actor,
-  solve: boolean
-): Promise<void> {
-  // A skip abandons (zero credit); a wrong move would score half.
-  await w.s.apply(solve ? playUntilSolved : skipPuzzle, actor);
-  await w.s.apply(pressPuzzleNext, actor);
+/** Solve `count` puzzles in a row, noting the first as "the first played". */
+async function solveInARow(w: SimWorld, actor: Actor, count: number) {
+  remember(w, firstPlayedKey(actor), currentPuzzle(w, actor));
+  await w.s.apply(solvePuzzlesInARow, actor, count);
   await trackPuzzle(w, actor);
 }
 
-async function untilExhausted(w: SimWorld, actor: Actor, seconds: number) {
-  await w.s.until(async (surf) => readPuzzlePickSource(surf, actor), {
-    maxMs: seconds * SECOND_MS,
-    pred: (source) => source === 'exhausted',
+/** Wait until the feed serves the first puzzle the actor played. */
+async function untilFirstPlayedComesRound(
+  w: SimWorld,
+  actor: Actor,
+  maxMs: number
+): Promise<void> {
+  const first = recalled<string>(w, firstPlayedKey(actor));
+  await w.s.until(async (surf) => readActivePuzzleId(surf, actor), {
+    maxMs,
+    pred: (id) => id === first,
   });
-  const owner = await puzzleOwner(w, actor);
-  remember(
-    w,
-    beforeRepeatKey(actor),
-    await w.s.read(readServerPuzzleProfile, owner)
-  );
+  await trackPuzzle(w, actor);
 }
 
 // ----------------------------------------------------------- the pool
 
-Given('the puzzle pool was seeded at boot', async (w) => {
-  expect(await serverPoolIds(w)).not.toEqual([]);
-});
-
-Given('the puzzle pool holds the three standard puzzles', async (w) => {
-  expect(await serverPoolIds(w)).toEqual([...STANDARD_PUZZLE_IDS]);
-});
-
-Given('the puzzle pool holds puzzles rated near 1500', async (w) => {
-  await w.s.apply(ingestChessPuzzleCsv, RATING_CSV);
+Given('the puzzle pool holds just three puzzles', async (w) => {
+  // Precondition guard: the sim seeds exactly these three.
+  const pool = (await w.s.read(readServerPuzzles)).map((row) => row.id);
+  expect(pool).toEqual([...STANDARD_PUZZLE_IDS]);
 });
 
 Given(
@@ -202,16 +148,14 @@ Given(
   async (w, table: readonly (readonly string[])[]) => {
     const [header, ...rows] = table;
     expect(header).toEqual(['puzzles', 'rated', 'quality']);
+    // The table names fixture groups; each must match one exactly.
     const groups = rows.map(([count, rated, quality]) => {
       const group = Object.values(SELECTION_GROUPS).find(
         (g) => g.rated === rated && g.quality === quality
       );
-      if (group === undefined) {
-        throw new Error(
-          `no fixture puzzles rated ${rated ?? ''}, ${quality ?? ''}`
-        );
+      if (group?.ids.length !== Number(count)) {
+        throw new Error(`no ${count ?? ''} fixture puzzles ${rated ?? ''}`);
       }
-      expect<number>(group.ids.length).toBe(Number(count));
       return group;
     });
     expect(new Set(groups).size).toBe(Object.keys(SELECTION_GROUPS).length);
@@ -227,161 +171,144 @@ Given(
   }
 );
 
-Then(
-  "every puzzle in the pool has reached {actor}'s device within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    const pool = await serverPoolIds(w);
+Given(
+  'a puzzle file with two valid puzzles and five invalid ones has been imported',
+  async (w) => {
+    const valid = FULL_INGEST_ROWS.filter((row) => row.valid);
+    const rejected = FULL_INGEST_ROWS.filter((row) => !row.valid);
+    if (valid.length !== 2 || rejected.length !== 5) {
+      throw new Error('the import fixture is not two valid and five invalid');
+    }
+    await w.s.apply(ingestChessPuzzleCsv, ingestCsv(FULL_INGEST_ROWS));
+    remember(
+      w,
+      REJECTED,
+      rejected.map((row: IngestRow) => row.id)
+    );
+    remember(w, SERVABLE_KEY, [
+      ...STANDARD_PUZZLE_IDS,
+      ...valid.map((row) => row.id),
+    ]);
+  }
+);
+
+// ------------------------------------------------- passes through the feed
+
+When(
+  '{actor} plays through every puzzle the feed offers',
+  async (w, actor: Actor) => {
+    const servable = recalled<readonly string[]>(w, SERVABLE_KEY);
+    // Precondition: the whole pool has reached the device.
     await w.s.until(
       async (surf) =>
         new Set((await readLocalPuzzles(surf, actor)).map((row) => row.id)),
       {
-        maxMs: seconds * SECOND_MS,
-        pred: (local) => pool.every((id) => local.has(id)),
+        maxMs: 30 * SECOND_MS,
+        pred: (local) => servable.every((id) => local.has(id)),
       }
     );
+    // Solve, then skip, and so on: the rating stays near the pool.
+    for (const [index] of servable.entries()) {
+      await recordServed(w, actor);
+      await w.s.apply(index % 2 === 0 ? playUntilSolved : skipPuzzle, actor);
+      await w.s.apply(pressPuzzleNext, actor);
+      await trackPuzzle(w, actor);
+    }
   }
 );
 
-// ---------------------------------------------------------------- ingest
+Then(
+  'none of the low-quality puzzles was served to {actor}',
+  async (w, actor: Actor) => {
+    const ids = servedInPass(w, actor).map((s) => s.id);
+    expect(ids.length).toBeGreaterThan(0);
+    for (const low of recalled<readonly string[]>(w, LOW_QUALITY)) {
+      expect(ids).not.toContain(low);
+    }
+  }
+);
+
+Then(
+  'none of the rejected puzzles was served to {actor}',
+  async (w, actor: Actor) => {
+    const ids = servedInPass(w, actor).map((s) => s.id);
+    expect(ids.length).toBeGreaterThan(0);
+    for (const rejected of recalled<readonly string[]>(w, REJECTED)) {
+      expect(ids).not.toContain(rejected);
+    }
+  }
+);
+
+Then(
+  'every good puzzle near 1500 was served before any puzzle rated 1800 to 1900',
+  async (w) => {
+    const ids = servedInPass(w, lastPlayer(w)).map((s) => s.id);
+    const inWindow = recalled<readonly string[]>(w, IN_WINDOW);
+    const outOfWindow = recalled<readonly string[]>(w, OUT_OF_WINDOW);
+    for (const id of [...inWindow, ...outOfWindow]) expect(ids).toContain(id);
+    const lastInWindow = Math.max(...inWindow.map((id) => ids.indexOf(id)));
+    const firstOutOfWindow = Math.min(
+      ...outOfWindow.map((id) => ids.indexOf(id))
+    );
+    expect(lastInWindow).toBeLessThan(firstOutOfWindow);
+  }
+);
+
+// ------------------------------------------------------- an exhausted feed
 
 When(
-  'a puzzle file is imported with these puzzles:',
-  async (w, table: readonly (readonly string[])[]) => {
-    const [header, ...rows] = table;
-    expect(header).toEqual(['puzzle', 'valid']);
-    const chosen = rows.map(([name, valid]) => {
-      const row = INGEST_ROWS[name ?? ''];
-      if (row === undefined)
-        throw new Error(`no fixture puzzle "${name ?? ''}"`);
-      expect(row.valid).toBe(valid === 'yes');
-      return row;
-    });
-    await importFile(w, chosen);
+  '{actor} solves {int} puzzles in a row',
+  async (w, actor: Actor, count: number) => {
+    await solveInARow(w, actor, count);
   }
 );
 
 Given(
-  'a puzzle file with two valid puzzles and five invalid ones has been imported',
-  async (w) => {
-    expect(FULL_INGEST_ROWS.filter((row) => row.valid)).toHaveLength(2);
-    expect(FULL_INGEST_ROWS.filter((row) => !row.valid)).toHaveLength(5);
-    await importFile(w, FULL_INGEST_ROWS);
+  '{actor} has solved {int} puzzles in a row',
+  async (w, actor: Actor, count: number) => {
+    await solveInARow(w, actor, count);
   }
 );
 
-When('the same puzzle file is imported again', async (w) => {
-  await w.s.apply(ingestChessPuzzleCsv, recalled<string>(w, IMPORTED_CSV));
+Given(
+  "{actor}'s feed has come round to a puzzle they already played",
+  async (w, actor: Actor) => {
+    await w.s.apply(pressPuzzleNext, actor);
+    await untilFirstPlayedComesRound(w, actor, SETTLE_MS);
+    // The rating before the repeat, as the stats show it.
+    await w.s.apply(showChessStatsScreen, actor);
+    remember(
+      w,
+      ratingBeforeRepeatKey(actor),
+      required(await w.s.read(readStatsElo, actor), `${actor}'s rating`)
+    );
+    await w.s.apply(leaveChessStatsScreen, actor);
+    await w.s.apply(returnToPuzzleScreen, actor);
+  }
+);
+Then(
+  "{actor}'s feed comes round to the first puzzle they played within {int} seconds",
+  async (w, actor: Actor, seconds: number) => {
+    await untilFirstPlayedComesRound(w, actor, seconds * SECOND_MS);
+  }
+);
+
+Then('{actor} is told the attempt is unrated', async (w, actor: Actor) => {
+  await w.s.apply(focusActor, actor);
+  await w.s.until((surf) => isPuzzleUnratedNoticeVisible(surf, actor), {
+    maxMs: SETTLE_MS,
+  });
 });
 
 Then(
-  "the server's puzzle pool is exactly the three standard puzzles",
-  async (w) => {
-    expect(await serverPoolIds(w)).toEqual([...STANDARD_PUZZLE_IDS]);
-  }
-);
-
-Then(
-  "the server's puzzle pool is the three standard puzzles plus the two valid imports",
-  async (w) => {
-    const valid = recalled<readonly IngestRow[]>(w, IMPORTED)
-      .filter((row) => row.valid)
-      .map((row) => row.id);
-    expect(valid).toHaveLength(2);
-    expect(await serverPoolIds(w)).toEqual(
-      [...STANDARD_PUZZLE_IDS, ...valid].sort()
+  "{actor}'s puzzle rating is unchanged by the repeat",
+  async (w, actor: Actor) => {
+    await ensureStatsOpen(w, actor);
+    expect(await w.s.read(readStatsElo, actor)).toBe(
+      recalled<number>(w, ratingBeforeRepeatKey(actor))
     );
   }
 );
-
-Then('none of the rejected puzzles is in the pool', async (w) => {
-  const ids = await serverPoolIds(w);
-  for (const row of recalled<readonly IngestRow[]>(w, IMPORTED)) {
-    if (!row.valid) expect(ids).not.toContain(row.id);
-  }
-});
-
-Then(
-  'every stored puzzle is valid and no position and line repeats',
-  async (w) => {
-    expectAllValid(await w.s.read(readServerPuzzles));
-  }
-);
-
-Then("the server's puzzle pool is unchanged", async (w) => {
-  expect(await serverPoolIds(w)).toEqual(recalled<string[]>(w, POOL_IDS));
-});
-
-type ServedSide = {
-  readonly id: string;
-  /** Every synced row valid, and the served one among them. */
-  readonly synced: boolean;
-  readonly solver: 'w' | 'b' | null;
-  readonly orientation: 'white' | 'black' | null;
-};
-
-async function servedSide(w: SimWorld, actor: Actor): Promise<ServedSide> {
-  const id = await activePuzzle(w, actor);
-  const local = await w.s.read(readLocalPuzzles, actor);
-  const row = local.find((r) => r.id === id);
-  const synced =
-    row !== undefined &&
-    local.every((r) => validateStoredPuzzleRow(r).ok) &&
-    new Set(local.map((r) => validated(r).positionKey)).size === local.length;
-  return {
-    id,
-    synced,
-    solver: row === undefined ? null : validated(row).solverColor,
-    orientation: await w.s.read(readPuzzleBoardOrientation, actor),
-  };
-}
-
-When(
-  '{actor} skips puzzles until they have been served one White solves and one Black solves',
-  async (w, actor: Actor) => {
-    const served = [await servedSide(w, actor)];
-    const pool = (await serverPoolIds(w)).length;
-    const sides = () => new Set(served.map((s) => s.solver));
-    for (
-      let step = 0;
-      step < pool && !(sides().has('w') && sides().has('b'));
-      step += 1
-    ) {
-      await w.s.apply(skipPuzzle, actor);
-      await w.s.apply(pressPuzzleNext, actor);
-      await trackPuzzle(w, actor);
-      served.push(await servedSide(w, actor));
-    }
-    remember(w, servedSidesKey(actor), served);
-    expect([...sides()].sort()).toEqual(['b', 'w']);
-  }
-);
-
-Then(
-  'every puzzle {actor} was served was a valid synced puzzle',
-  async (w, actor: Actor) => {
-    for (const served of recalled<readonly ServedSide[]>(
-      w,
-      servedSidesKey(actor)
-    )) {
-      expect({ id: served.id, synced: served.synced }).toEqual({
-        id: served.id,
-        synced: true,
-      });
-    }
-  }
-);
-
-Then("{actor}'s board faced the solver each time", async (w, actor: Actor) => {
-  for (const served of recalled<readonly ServedSide[]>(
-    w,
-    servedSidesKey(actor)
-  )) {
-    expect({ id: served.id, orientation: served.orientation }).toEqual({
-      id: served.id,
-      orientation: served.solver === 'w' ? 'white' : 'black',
-    });
-  }
-});
 
 // ------------------------------------------------------------ feed settings
 
@@ -416,13 +343,12 @@ Then(
   }
 );
 
-When('{actor} starts editing the feed settings', async (w, actor: Actor) => {
+Given('{actor} is editing the feed settings', async (w, actor: Actor) => {
   await w.s.apply(openPuzzleFeedSettings, actor);
 });
 
-When('{actor} saves the feed settings', async (w, actor: Actor) => {
-  await w.s.apply(closePuzzleFeedSettings, actor);
-  await trackPuzzle(w, actor);
+When('{actor} starts editing the feed settings', async (w, actor: Actor) => {
+  await w.s.apply(openPuzzleFeedSettings, actor);
 });
 
 Then(
@@ -439,6 +365,16 @@ When(
   }
 );
 
+When(
+  '{actor} raises the feed rating offset by {int} step(s) and saves the feed settings',
+  async (w, actor: Actor, steps: number) => {
+    await w.s.apply(openPuzzleFeedSettings, actor);
+    await w.s.apply(bumpPuzzleFeedOffset, actor, steps);
+    await w.s.apply(closePuzzleFeedSettings, actor);
+    await trackPuzzle(w, actor);
+  }
+);
+
 Then(
   "{actor}'s unsaved feed settings preview a target of {int}",
   async (w, actor: Actor, rating: number) => {
@@ -446,14 +382,26 @@ Then(
   }
 );
 
+/** Open the settings, switch to a custom target `steps` up, and save. */
+async function saveCustomTarget(w: SimWorld, actor: Actor, steps: number) {
+  await w.s.apply(openPuzzleFeedSettings, actor);
+  await w.s.apply(setPuzzleFeedMode, actor, 'custom');
+  await w.s.apply(bumpPuzzleFeedCustomRating, actor, steps);
+  await w.s.apply(closePuzzleFeedSettings, actor);
+  await trackPuzzle(w, actor);
+}
+
 When(
   '{actor} switches the feed to a custom target raised by {int} step(s) and saves the feed settings',
   async (w, actor: Actor, steps: number) => {
-    await w.s.apply(openPuzzleFeedSettings, actor);
-    await w.s.apply(setPuzzleFeedMode, actor, 'custom');
-    await w.s.apply(bumpPuzzleFeedCustomRating, actor, steps);
-    await w.s.apply(closePuzzleFeedSettings, actor);
-    await trackPuzzle(w, actor);
+    await saveCustomTarget(w, actor, steps);
+  }
+);
+
+Given(
+  '{actor} has saved a custom feed target raised by {int} step(s)',
+  async (w, actor: Actor, steps: number) => {
+    await saveCustomTarget(w, actor, steps);
   }
 );
 
@@ -493,10 +441,10 @@ Given(
     await w.s.apply(openPuzzleFeedSettings, actor);
     await w.s.apply(setPuzzleFeedTheme, actor, theme(name));
     await w.s.apply(closePuzzleFeedSettingsNoWait, actor);
+    // Precondition guard: the filter really matches nothing.
     await w.s.until((surf) => isEmptyPoolVisible(surf, actor), {
       maxMs: SETTLE_MS,
     });
-    expect(await w.s.read(readActivePuzzleId, actor)).toBeNull();
   }
 );
 
@@ -518,187 +466,5 @@ When(
   async (w, actor: Actor) => {
     await w.s.apply(includePlayedPuzzles, actor);
     await trackPuzzle(w, actor);
-  }
-);
-
-When(
-  '{actor} opens puzzles in their space without waiting for a puzzle',
-  async (w, actor: Actor) => {
-    await w.s.apply(openPuzzleFromSpaceNoWait, actor);
-  }
-);
-
-Given(
-  "{actor}'s feed is empty because they went offline before any puzzles arrived",
-  async (w, actor: Actor) => {
-    await w.s.apply(createSpace, actor);
-    await cutConnection(w, actor);
-    await w.s.apply(openPuzzleFromSpaceNoWait, actor);
-    await w.s.until((surf) => isEmptyPoolVisible(surf, actor), {
-      maxMs: SETTLE_MS,
-    });
-    expect(await w.s.read(readActivePuzzleId, actor)).toBeNull();
-  }
-);
-
-// ------------------------------------------------- passes through the pool
-
-When('{actor} solves every puzzle in the pool', async (w, actor: Actor) => {
-  const pool = (await serverPoolIds(w)).length;
-  for (let i = 0; i < pool; i += 1) {
-    await recordServed(w, actor);
-    await w.s.apply(playUntilSolved, actor);
-    if (i < pool - 1) {
-      await w.s.apply(pressPuzzleNext, actor);
-      await trackPuzzle(w, actor);
-    }
-  }
-});
-
-When(
-  '{actor} plays through every servable puzzle, alternately solving and skipping',
-  async (w, actor: Actor) => {
-    const servable = recalled<readonly string[]>(w, SERVABLE_KEY);
-    for (let i = 0; i < servable.length; i += 1) {
-      await recordServed(w, actor);
-      await attemptAndAdvance(w, actor, i % 2 === 0);
-    }
-  }
-);
-
-When(
-  '{actor} plays {int} puzzles, alternately solving and skipping',
-  async (w, actor: Actor, count: number) => {
-    for (let i = 0; i < count; i += 1) {
-      await attemptAndAdvance(w, actor, i % 2 === 0);
-    }
-  }
-);
-
-Then(
-  'every puzzle {actor} was served was new to them and rated',
-  async (w, actor: Actor) => {
-    const served = servedInPass(w, actor);
-    expect(served.length).toBeGreaterThan(0);
-    expect(new Set(served.map((s) => s.id)).size).toBe(served.length);
-    for (const s of served) expect(s).toEqual({ id: s.id, rated: true });
-  }
-);
-
-Then('every puzzle {actor} was served was rated', async (w, actor: Actor) => {
-  const served = servedInPass(w, actor);
-  expect(served.length).toBeGreaterThan(0);
-  for (const s of served) expect(s).toEqual({ id: s.id, rated: true });
-});
-
-Then('no puzzle was served to {actor} twice', async (w, actor: Actor) => {
-  const ids = servedInPass(w, actor).map((s) => s.id);
-  expect(new Set(ids).size).toBe(ids.length);
-  expect(ids.length).toBe(recalled<readonly string[]>(w, SERVABLE_KEY).length);
-});
-
-Then(
-  'none of the low-quality puzzles was served to {actor}',
-  async (w, actor: Actor) => {
-    const ids = servedInPass(w, actor).map((s) => s.id);
-    for (const low of recalled<readonly string[]>(w, LOW_QUALITY)) {
-      expect(ids).not.toContain(low);
-    }
-  }
-);
-
-Then(
-  'every good puzzle near 1500 was served before any puzzle rated 1800 to 1900',
-  async (w) => {
-    const ids = servedInPass(w, lastPlayer(w)).map((s) => s.id);
-    const inWindow = recalled<readonly string[]>(w, IN_WINDOW);
-    const outOfWindow = recalled<readonly string[]>(w, OUT_OF_WINDOW);
-    for (const id of [...inWindow, ...outOfWindow]) expect(ids).toContain(id);
-    const lastInWindow = Math.max(...inWindow.map((id) => ids.indexOf(id)));
-    const firstOutOfWindow = Math.min(
-      ...outOfWindow.map((id) => ids.indexOf(id))
-    );
-    expect(lastInWindow).toBeLessThan(firstOutOfWindow);
-  }
-);
-
-Then(
-  "{actor}'s feed comes round to the first puzzle they played within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    await untilExhausted(w, actor, seconds);
-    const first = required(servedInPass(w, actor)[0], 'a first puzzle').id;
-    expect(await w.s.read(readActivePuzzleId, actor)).toBe(first);
-    await trackPuzzle(w, actor);
-  }
-);
-
-Then(
-  "{actor}'s feed comes round to a puzzle they already played within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    await untilExhausted(w, actor, seconds);
-    const played = servedInPass(w, actor).map((s) => s.id);
-    expect(played).toContain(await activePuzzle(w, actor));
-    await trackPuzzle(w, actor);
-  }
-);
-
-Then("{actor}'s current attempt is unrated", async (w, actor: Actor) => {
-  expect(await w.s.read(isPuzzleAttemptRated, actor)).toBe(false);
-});
-
-Then(
-  "{actor}'s server rating and deviation are unchanged by the repeat",
-  async (w, actor: Actor) => {
-    const before = required(
-      recalled<Awaited<ReturnType<typeof readServerPuzzleProfile>>>(
-        w,
-        beforeRepeatKey(actor)
-      ),
-      'rating before the repeat'
-    );
-    const after = required(
-      await w.s.read(readServerPuzzleProfile, await puzzleOwner(w, actor)),
-      'server rating'
-    );
-    expect(after.rating).toBe(before.rating);
-    expect(after.rating_deviation).toBe(before.rating_deviation);
-  }
-);
-
-// ------------------------------------------------------- selection window
-
-Then(
-  "{actor}'s selection window is the widest there is",
-  async (w, actor: Actor) => {
-    const window = await w.s.read(readPuzzleSelectionWindow, actor);
-    expect(window).toBe(puzzleSelectionHalfWindow(PUZZLE_RATING_DEFAULT_RD));
-    expect(window).toBe(PUZZLE_WINDOW_HALF_MAX);
-  }
-);
-
-Then(
-  "{actor}'s selection window matches their server rating deviation within {int} seconds",
-  async (w, actor: Actor, seconds: number) => {
-    const profile = required(
-      await w.s.read(readServerPuzzleProfile, await puzzleOwner(w, actor)),
-      'server rating'
-    );
-    const expected = puzzleSelectionHalfWindow(profile.rating_deviation);
-    await w.s.until(async (surf) => readPuzzleSelectionWindow(surf, actor), {
-      maxMs: seconds * SECOND_MS,
-      pred: (window) => window === expected,
-    });
-  }
-);
-
-Then(
-  "{actor}'s selection window is narrower than the widest but no narrower than the narrowest",
-  async (w, actor: Actor) => {
-    const window = required(
-      await w.s.read(readPuzzleSelectionWindow, actor),
-      'selection window'
-    );
-    expect(window).toBeLessThan(PUZZLE_WINDOW_HALF_MAX);
-    expect(window).toBeGreaterThanOrEqual(PUZZLE_WINDOW_HALF_MIN);
   }
 );

@@ -10,6 +10,10 @@
  * - `{methods}` — the ways a person signs in (`Google`, `Apple`, or
  *   `Google and Apple`), transformed to the sorted provider ids
  *   (`['apple', 'google']`).
+ * - `{direction}` — `back` or `forward`, one step through a line.
+ * - `{end}` — `start` or `end` of a line.
+ * - `{finish}` — how a player finishes a puzzle (`solving it cleanly`,
+ *   `skipping it`, …), transformed to the chess sim's name for it.
  */
 
 import type { ParameterTypeSpec } from '@pkgs/gherkin/registry';
@@ -32,6 +36,26 @@ export function actorId(name: string): Actor {
     );
   }
   return id;
+}
+
+/** How a scenario says a puzzle was finished, and the chess sim's name for it. */
+export const PUZZLE_FINISHES = {
+  'solving it cleanly': 'clean',
+  'taking a hint, then solving it': 'hintThenSolve',
+  'playing a wrong move, retrying, then solving it': 'wrongRetrySolve',
+  'showing the solution': 'showSolution',
+  'skipping it': 'skip',
+} as const;
+
+export type PuzzleFinishName =
+  (typeof PUZZLE_FINISHES)[keyof typeof PUZZLE_FINISHES];
+
+export function puzzleFinish(text: string): PuzzleFinishName {
+  const finish = (PUZZLE_FINISHES as Partial<Record<string, PuzzleFinishName>>)[
+    text
+  ];
+  if (finish === undefined) throw new Error(`no way to finish by "${text}"`);
+  return finish;
 }
 
 export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
@@ -59,5 +83,20 @@ export const SPEC_PARAMETER_TYPES: readonly ParameterTypeSpec[] = [
         .split(' and ')
         .map((name) => name.toLowerCase())
         .sort(),
+  },
+  {
+    name: 'direction',
+    regexp: /back|forward/,
+    transformer: (text: string) => text,
+  },
+  {
+    name: 'end',
+    regexp: /start|end/,
+    transformer: (text: string) => text,
+  },
+  {
+    name: 'finish',
+    regexp: new RegExp(Object.keys(PUZZLE_FINISHES).join('|')),
+    transformer: (text: string) => puzzleFinish(text),
   },
 ];
