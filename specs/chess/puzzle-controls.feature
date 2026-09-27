@@ -31,6 +31,13 @@ Feature: Retry, hint and solution
     When Alice solves the puzzle
     Then Alice's puzzle is solved
     And Alice's game log records that puzzle as failed
+    And Alice's stats show 1 played, 0 solved, and 0% accuracy
+
+  Scenario: Showing the solution after a wrong move still counts one failed puzzle
+    Given Alice has played a wrong move
+    When Alice shows the solution
+    Then Alice's game log records that puzzle as failed
+    And Alice's stats show 1 played, 0 solved, and 0% accuracy
 
   Scenario: After a wrong move, the solution move can be shown
     Given Alice has played a wrong move

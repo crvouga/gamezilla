@@ -1,9 +1,10 @@
 @domain:chess @goal:chess-puzzles:12 @goal:always-true:7
 Feature: Friends watch a puzzle
   People in a space see the host's board and moves live. Only the host
-  drives the puzzle and only the host is rated for it; a watcher may
-  suggest a move, the host sees the suggestion, and the host's next move
-  clears it. Every watcher's board matches the host's.
+  drives the puzzle and only the host is rated for it: a watcher trying to
+  move or skip it changes nothing. A watcher may suggest a move, the host
+  sees the suggestion, and the host's next move clears it. Every watcher's
+  board matches the host's.
 
   Background:
     Given Alice and Bob are friends
@@ -38,3 +39,14 @@ Feature: Friends watch a puzzle
   Scenario: A watcher's board follows each of the host's moves
     When Alice plays the next move of the solution
     Then Alice's and Bob's boards agree
+
+  Scenario Outline: A watcher trying to <attempt> the host's puzzle changes nothing
+    When Bob tries to <attempt> Alice's puzzle
+    Then Alice's board is unchanged
+    And Alice is still asked to find the next move
+    And Alice's and Bob's boards agree
+
+    Examples:
+      | attempt               |
+      | play the next move of |
+      | skip                  |
