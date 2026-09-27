@@ -5,7 +5,10 @@
  * effect reaches the app only as a signed webhook.
  */
 
-import { SIM_SERVER_URL } from '@libs/feature/public/sim-constants';
+import {
+  SIM_FIRST_BILLING_PROVIDER,
+  SIM_SERVER_URL,
+} from '@libs/feature/public/sim-constants';
 import {
   actorUi,
   pollUntil,
@@ -30,11 +33,14 @@ import {
 import { PLUS_MEMBERSHIP_OFFER } from '../public/offer';
 import {
   type BillingObserveKind,
+  billingProviders,
   customerOf,
   driveProvider,
+  type EarlierNews,
   expireCardOnFile,
   providerCall,
   refundLastPayment,
+  repeatEarlierNews,
   runOutBillingPeriod,
 } from './billing-provider-driver';
 import { billingButtonEnabled } from './billing-reads';
@@ -42,6 +48,7 @@ import { billingButtonEnabled } from './billing-reads';
 export {
   BILLING_OBSERVE_KINDS,
   type BillingObserveKind,
+  type EarlierNews,
 } from './billing-provider-driver';
 
 const WAIT_MS = 20_000;
@@ -249,7 +256,8 @@ export const checkoutPlusAtProvider = scenarioAction({
   act: async (s, actorId: string) => {
     const accountId = await accountIdOf(s, actorId);
     if (accountId === null) return;
-    const call = providerCall(s);
+    const provider = billingProviders(s).checkout();
+    const call = providerCall(provider);
     const spec =
       PLUS_MEMBERSHIP_OFFER.prices[PLUS_MEMBERSHIP_OFFER.defaultPriceKey];
     const prices = await call<MockList<MockPrice>>(
@@ -262,7 +270,7 @@ export const checkoutPlusAtProvider = scenarioAction({
       MOCK_BILLING_PATHS.checkoutSessions,
       {
         mode: 'subscription',
-        customer: await customerOf(s, accountId),
+        customer: await customerOf(s, accountId, provider),
         line_items: [{ price, quantity: 1 }],
         success_url: `${SIM_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
         cancel_url: `${SIM_SERVER_URL}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
@@ -276,6 +284,41 @@ export const checkoutPlusAtProvider = scenarioAction({
       price,
       paymentMethod: MOCK_TEST_PAYMENT_METHODS.visa,
     });
+    await s.session.waitForIdle();
+  },
+});
+
+/**
+ * The sim's payment providers, by the id the app knows each by. The first is
+ * the one every sim boots with; the second boots the first time the team
+ * switches payment provider to it.
+ */
+export const FIRST_PAYMENT_PROVIDER = SIM_FIRST_BILLING_PROVIDER;
+export const SECOND_PAYMENT_PROVIDER = 'mock-second';
+
+/**
+ * The team switches payment provider: new checkouts go to provider
+ * `providerId` from now on, while every earlier provider keeps serving its
+ * members. Switching back names the first provider.
+ */
+export const switchPaymentProvider = scenarioAction({
+  name: 'switchPaymentProvider',
+  act: async (s, providerId: string) => {
+    await billingProviders(s).switchCheckout(providerId);
+  },
+});
+
+/**
+ * Provider `providerId` delivers again news it already sent about the
+ * actor's memberships there — late, and as it was then — and it reaches the
+ * app.
+ */
+export const repeatProviderNews = scenarioAction({
+  name: 'repeatProviderNews',
+  act: async (s, actorId: string, providerId: string, news: EarlierNews) => {
+    const accountId = await accountIdOf(s, actorId);
+    if (accountId === null) throw new Error(`${actorId} is not signed in`);
+    await repeatEarlierNews(s, accountId, providerId, news);
     await s.session.waitForIdle();
   },
 });
@@ -303,5 +346,7 @@ export const BILLING_SIM_ACTIONS = [
   resumePlus,
   switchPlusInterval,
   observeMembership,
+  switchPaymentProvider,
+  repeatProviderNews,
   advanceBillingClock,
 ];

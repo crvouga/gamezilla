@@ -28,6 +28,7 @@ import {
   BILLING_OBSERVE_KINDS,
   customerOf,
   driveProvider,
+  membershipProviderOf,
   providerSubscriptions,
 } from './billing-provider-driver';
 
@@ -59,13 +60,14 @@ async function providerView(s: ProductSim): Promise<ProviderView> {
   const none = { status: null, cancelAtPeriodEnd: false };
   const accountId = await accountIdOf(s, BILLING_PAYER);
   if (accountId === null) return none;
+  const provider = await membershipProviderOf(s, accountId);
   let customer: string;
   try {
-    customer = await customerOf(s, accountId);
+    customer = await customerOf(s, accountId, provider);
   } catch {
     return none; // Never checked out: the provider knows no customer yet.
   }
-  const latest = (await providerSubscriptions(s, customer))[0];
+  const latest = (await providerSubscriptions(customer, provider))[0];
   return {
     status: latest?.status ?? null,
     cancelAtPeriodEnd: latest?.cancel_at_period_end ?? false,
