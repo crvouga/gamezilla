@@ -1,9 +1,10 @@
 @domain:profile
 Feature: Sign-in while offline
-  Signing in needs a connection, but signing out never waits for one: a
-  device is signed out the moment its owner asks.
+  When a person is offline, they still want to sign out of their device at
+  once, so nobody else stays in their account; signing in can wait until the
+  connection comes back.
 
-  Scenario: A sign-in abandoned offline does not block signing in once back online
+  Scenario: Abandoning signing in offline does not stop signing in once back online
     Given Alice is a guest
     And Alice is offline
     And Alice has abandoned signing in with Apple

@@ -1,8 +1,8 @@
 @domain:profile
-Feature: End account sessions
-  When a device is lost or an Apple account is closed, the person's devices
-  are signed out so nobody else stays in their account, and their other ways
-  in keep working.
+Feature: Sign out everywhere
+  When a device is lost or an Apple account stops signing in, a person wants
+  their devices signed out, so nobody else stays in their account, and their
+  other sign-in methods keep working.
 
   Scenario: Signing out everywhere signs Alice out on their other device too
     Given Alice is signed in with Google
@@ -21,13 +21,13 @@ Feature: End account sessions
     When Alice signs in with Apple
     Then Alice is signed into the same account
 
-  Scenario: Deleting the Apple account that is Alice's only way in signs Alice out
+  Scenario: Deleting the Apple account that is Alice's only sign-in method signs Alice out
     Given Alice is signed in with Apple
     When Alice deletes their Apple account
     Then Alice is signed out within 150 seconds
 
   @regression:apple-delete-stale-sign-in-methods
-  Scenario: Deleting a connected Apple account leaves Google as the only way in
+  Scenario: Deleting a connected Apple account makes Google the only sign-in method
     Given Alice has connected Apple to their Google account
     When Alice deletes their Apple account
     Then Alice is still signed into the same account

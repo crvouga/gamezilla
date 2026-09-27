@@ -1,7 +1,8 @@
 @domain:profile
 Feature: Sign in with Apple
-  People who prefer Apple can use it to get into the product, and using the
-  same address as Google never splits one person into two accounts.
+  When a person prefers Apple, they want to sign in with their Apple
+  account, so an Apple account at the same address as their Google account
+  never splits them into two accounts.
 
   Scenario: A guest's first Apple sign-in gives them an account that signs in with Apple
     Given Alice is a guest
