@@ -112,8 +112,7 @@ function pickTransport(
   return {
     connect: () => leader.connect(),
     disconnect: () => leader.disconnect(),
-    // The Web Lock is released with the page.
-    leaveOnUnload: () => undefined,
+    leaveOnUnload: () => leader.leaveOnUnload(),
     request: (op, payload, opts) => leader.request(op, payload, opts),
     onChanged: (listener) => leader.onChanged(listener),
     isOwner: () => leader.isOwner(),
@@ -152,27 +151,34 @@ function attachWipeChannelLifecycle(client: WebSqlClient): void {
   };
 }
 
-type PageHideTarget = {
+type PageLifecycleTarget = {
   addEventListener(
-    type: 'pagehide',
+    type: 'pagehide' | 'pageshow',
     listener: (event: { readonly persisted: boolean }) => void
   ): void;
 };
 
 /**
- * On `pagehide`, disconnect. A page that is discarded (not kept in the
- * back/forward cache) is gone before `disconnect()` settles, so its broker
- * slot is released synchronously first — otherwise the next page in this tab
- * proxies to the dead owner until the heartbeat reaper evicts it.
+ * On `pagehide`, leave synchronously, then disconnect. The async
+ * `disconnect()` never settles in time: a discarded page is gone, and a page
+ * kept in the back/forward cache is frozen still holding the OPFS handles.
+ * Either way the next page in this tab would wait on a dead owner (~15s of
+ * locked-handle retries, then "did not become ready"). A page restored from
+ * the back/forward cache has lost its database under a live app, so it
+ * reloads.
  */
 export function releaseOnPageHide(
-  target: PageHideTarget,
+  target: PageLifecycleTarget,
   client: Pick<WebSqlClient, 'disconnect'>,
-  transport: Pick<WebSqlTransport, 'leaveOnUnload'>
+  transport: Pick<WebSqlTransport, 'leaveOnUnload'>,
+  reload: () => void
 ): void {
-  target.addEventListener('pagehide', (event) => {
-    if (!event.persisted) transport.leaveOnUnload();
+  target.addEventListener('pagehide', () => {
+    transport.leaveOnUnload();
     void client.disconnect();
+  });
+  target.addEventListener('pageshow', (event) => {
+    if (event.persisted) reload();
   });
 }
 
@@ -181,7 +187,9 @@ function attachLifecycle(
   transport: WebSqlTransport
 ): void {
   if (typeof window !== 'undefined') {
-    releaseOnPageHide(window, client, transport);
+    releaseOnPageHide(window, client, transport, () => {
+      window.location.reload();
+    });
     attachWipeChannelLifecycle(client);
   }
 }

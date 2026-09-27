@@ -22,6 +22,8 @@ import {
 export type LeaderTransport = {
   connect: () => Promise<ConnectResult>;
   disconnect: () => Promise<void>;
+  /** The page is going away: free the store and the owner lock now. */
+  leaveOnUnload: () => void;
   request: <O extends RpcOp>(
     op: O,
     payload: RpcRequest<O>['payload'],
@@ -255,6 +257,16 @@ class LeaderTransportImpl implements LeaderTransport {
     return () => {
       this.changeListeners.delete(listener);
     };
+  }
+
+  leaveOnUnload(): void {
+    this.unsubOwnerChanged?.();
+    this.unsubOwnerChanged = null;
+    this.ownerRuntime?.release();
+    this.ownerRuntime = null;
+    this.releaseLock?.();
+    this.releaseLock = null;
+    this.role = null;
   }
 
   isOwner(): boolean {

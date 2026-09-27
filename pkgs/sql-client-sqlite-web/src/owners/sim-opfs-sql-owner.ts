@@ -107,6 +107,10 @@ export function createSimOpfsSqlOwner(args: {
       // other junk files (fillPool leftovers) until resetStore.
       store.paths.delete(dbName);
     },
+    release: () => {
+      client = null;
+      store.paths.delete(dbName);
+    },
     resetStore: async () => {
       if (client !== null) {
         try {

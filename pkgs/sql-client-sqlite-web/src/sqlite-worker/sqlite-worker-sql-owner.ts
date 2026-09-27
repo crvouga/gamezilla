@@ -95,6 +95,14 @@ class SqliteWorkerSqlOwnerImpl implements SqliteWorkerSqlOwner {
     this.terminate(live);
   }
 
+  release(): void {
+    const live = this.live;
+    if (live === null) return;
+    this.live = null;
+    this.openInfo = null;
+    this.terminate(live);
+  }
+
   async resetStore(): Promise<void> {
     await this.close();
     // A fresh worker owns the VFS long enough to wipe it, then dies with it.
