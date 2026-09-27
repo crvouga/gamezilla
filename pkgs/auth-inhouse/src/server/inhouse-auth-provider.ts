@@ -40,6 +40,7 @@ async function createInhouseAuthProvider(
       clientWebOrigins: env.clientOrigins,
     }),
     providers: config.providers,
+    onUserChanged: env.onUserChanged,
     ...(config.callbackRelay === undefined
       ? {}
       : { callbackRelay: config.callbackRelay }),

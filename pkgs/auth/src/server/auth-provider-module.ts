@@ -37,6 +37,14 @@ export type AuthProviderEnv = {
    * tables beside the product's reads it; a hosted service ignores it.
    */
   readonly getSql: () => SqlClient;
+  /**
+   * The service changed a user's sign-in methods on its own, with no request
+   * from the product: a provider deleted a linked account, or switched its
+   * email forwarding. The product re-reads the user
+   * ({@link AuthServerPort.getUser}) and pushes the change to their devices,
+   * which would otherwise keep showing the old methods.
+   */
+  readonly onUserChanged: (externalUserId: string) => Promise<void>;
 };
 
 /**

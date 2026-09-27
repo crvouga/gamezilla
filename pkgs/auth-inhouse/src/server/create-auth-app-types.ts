@@ -30,6 +30,11 @@ export type CreateAuthAppDeps = {
   readonly callbackRelay?: OauthCallbackRelay;
   /** Hidden synthetic-monitor sign-in; absent → its route answers 404. */
   readonly syntheticMonitor?: SyntheticMonitorConfig;
+  /**
+   * Called after the IdP changed a user's identities without the user asking
+   * (a provider notification); absent → nobody is told.
+   */
+  readonly onUserChanged?: (userId: string) => Promise<void>;
 };
 
 /** What every handler gets: the deps plus the providers built from them once. */

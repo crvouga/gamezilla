@@ -49,6 +49,7 @@ async function openInhouseHarness(): Promise<AuthServerContractHarness> {
       fetch: () => Promise.reject(new Error('contract: no outbound HTTP')),
     },
     getSql: () => sqlClient,
+    onUserChanged: () => Promise.resolve(),
   });
   const repo = new IdpRepository(sqlClient, clock, createId, SECRET);
   return {
