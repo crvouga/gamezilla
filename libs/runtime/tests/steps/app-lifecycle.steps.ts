@@ -13,15 +13,19 @@ import {
   updateApp,
   updateRequested,
 } from '@libs/runtime/sim/app-lifecycle';
-import { onScreen, spawnActor } from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
+import { spawnActor } from '@libs/sim-harness';
+import {
+  type Actor,
+  Given,
+  type SimWorld,
+  Then,
+  When,
+} from '@libs/sim-harness/spec/define';
 import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
 
 const SECOND_MS = 1_000;
 /** An address no screen of the app answers. */
 const UNKNOWN_ADDRESS = '/no-such-place';
-/** `data-screen` id of Spaces. */
-const SPACES = 'spaces';
 
 Given('{actor} has opened the app before', async (w, actor: Actor) => {
   await w.s.apply(spawnActor, actor);
@@ -34,6 +38,15 @@ When(
   }
 );
 
+Given(
+  '{actor} has opened an address the app does not have',
+  async (w, actor: Actor) => {
+    await w.s.apply(openAddress, actor, UNKNOWN_ADDRESS);
+    // Precondition: the dead end is on screen before the scenario acts.
+    await w.s.until((sim) => notFoundShown(sim, actor));
+  }
+);
+
 Then(
   '{actor} is told there is nothing at that address',
   async (w, actor: Actor) => {
@@ -41,20 +54,32 @@ Then(
   }
 );
 
-Then('{actor} can go back to Spaces', async (w, actor: Actor) => {
+Then('{actor} is offered the way back to Spaces', async (w, actor: Actor) => {
   await w.s.until((sim) => notFoundWayBackOffered(sim, actor));
-  // The way back is only proven by taking it.
-  await w.s.apply(followNotFoundWayBack, actor);
-  await w.s.until((sim) => onScreen(sim, actor, SPACES));
 });
+
+When('{actor} takes the way back to Spaces', async (w, actor: Actor) => {
+  await w.s.apply(followNotFoundWayBack, actor);
+});
+
+/** Away from the product while it moved on: the app has not heard yet. */
+async function outdateWhileAway(w: SimWorld, actor: Actor): Promise<void> {
+  await w.s.apply(spawnActor, actor);
+  await cutConnection(w, actor);
+  await w.s.apply(leaveAppOutdated, actor);
+}
+
+Given(
+  "{actor}'s app became outdated while {actor} was offline",
+  async (w, actor: Actor, _same: Actor) => {
+    await outdateWhileAway(w, actor);
+  }
+);
 
 Given(
   "{actor}'s app is older than the product accepts",
   async (w, actor: Actor) => {
-    // Away from the product while it moved on: the app has not heard yet.
-    await w.s.apply(spawnActor, actor);
-    await cutConnection(w, actor);
-    await w.s.apply(leaveAppOutdated, actor);
+    await outdateWhileAway(w, actor);
   }
 );
 

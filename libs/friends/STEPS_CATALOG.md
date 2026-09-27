@@ -31,7 +31,6 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is viewing their inbox | {actor} | friends, spaces |
 | Given | {actor}'s friends list shows {actor} as live | {actor}, {actor} | friends, spaces |
 | Then | {actor} can ask {actor} again within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
-| Then | {actor} can go back to Spaces | {actor} | friends, spaces |
 | Then | {actor} can rename the space | {actor} | friends, spaces |
 | Then | {actor} can search for people | {actor} | friends, spaces |
 | Then | {actor} can unblock {actor} | {actor}, {actor} | friends, spaces |
@@ -43,6 +42,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor} is not in a space | {actor} | friends, spaces |
 | Then | {actor} is not invited to get Plus | {actor} | friends, spaces |
 | Then | {actor} is not offered to join | {actor} | friends, spaces |
+| Then | {actor} is offered the way back to Spaces | {actor} | friends, spaces |
 | Then | {actor} is offered to confirm {actor}'s request | {actor}, {actor} | friends, spaces |
 | Then | {actor} is offered to confirm {actor}'s request within {int} seconds | {actor}, {actor}, {int} | friends, spaces |
 | Then | {actor} is shown {actor}'s profile | {actor}, {actor} | friends, spaces |

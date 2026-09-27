@@ -229,7 +229,7 @@ Then(
   }
 );
 
-Then('{actor} can go back to Spaces', async (w, actor: Actor) => {
+Then('{actor} is offered the way back to Spaces', async (w, actor: Actor) => {
   expect(await w.s.read(backToSpacesOffered, actor)).toBe(true);
 });
 
