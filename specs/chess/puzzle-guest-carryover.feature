@@ -5,13 +5,14 @@ Feature: Guest puzzle progress carries over
   reaches their other devices exactly once.
 
   @goal:always-true:1
-  Scenario: A guest's offline solve is still there after reopening the app
+  Scenario: A guest's offline solve survives the app closing before the connection comes back
     Given Alice is a guest
     And Alice is playing puzzles in their space
     And Alice has solved a puzzle while offline
-    When Alice closes and reopens the app
+    And Alice has closed and reopened the app
+    When the connection comes back
     Then Alice's game log records that puzzle as solved
-    And Alice's puzzle rating is above 1500
+    And Alice's stats show 1 played, 1 solved, and 100% accuracy
 
   @goal:social:2 @goal:always-true:10
   Scenario: Signing in keeps what a guest played offline
