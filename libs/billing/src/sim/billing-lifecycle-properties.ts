@@ -30,7 +30,7 @@ import {
   BILLING_SECOND_DEVICE,
   billingStimulus,
 } from './billing-lifecycle-stimuli';
-import { customerOf, providerSubscriptions } from './billing-provider-driver';
+import { subscriptionsEverywhere } from './billing-provider-driver';
 import { billingTier } from './billing-reads';
 
 const DEFAULT_GRACE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -109,13 +109,9 @@ export const billingServerAgreesWithProvider = defineProperty({
     const accountId = await payerAccount(s);
     if (accountId === null || s.sim.billing === null) return;
     const server = await rowsIn(s.sim.serverSql.sqlClient, accountId);
-    let customer: string;
-    try {
-      customer = await customerOf(s, accountId);
-    } catch {
-      return; // Never checked out: nothing at the provider to agree with.
-    }
-    for (const sub of await providerSubscriptions(s, customer)) {
+    // Never checked out anywhere: nothing at a provider to agree with.
+    const everywhere = await subscriptionsEverywhere(s, accountId);
+    for (const sub of everywhere.flatMap((at) => at.subscriptions)) {
       const row = server.find((r) => r.provider_subscription_id === sub.id);
       const expected = {
         status: membershipStatusOf(sub.status),

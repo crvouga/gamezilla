@@ -12,6 +12,8 @@ import { Handles } from '@libs/test-ids';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
+import { MembershipRepository } from '../shared/memberships/membership-repository';
+
 /** Raw row shape; `cancel_at_period_end` is 0/1 on SQLite and a bool on PG. */
 type MembershipRowRaw = {
   readonly status: string;
@@ -253,4 +255,46 @@ export async function deviceMemberships(
 ): Promise<readonly MembershipRecord[]> {
   const local = actorLocalSql(s, actorId);
   return local === null ? [] : await recordsIn(local, accountId);
+}
+
+/**
+ * The provider whose page the actor's browser shows (a hosted checkout or
+ * billing portal), by the id the app knows it by; `null` while the actor is
+ * in the app or on some other page.
+ */
+export function providerPageShown(
+  s: ProductSim,
+  actorId: string
+): string | null {
+  const address = s.sim.browser(actorId).address();
+  if (address === null) return null;
+  return s.sim.billing?.at(address)?.id ?? null;
+}
+
+/** The provider new checkouts go to, by id. */
+export function checkoutProvider(s: ProductSim): string {
+  const providers = s.sim.billing;
+  if (providers === null) throw new Error('billing: no payment provider');
+  return providers.checkout().id;
+}
+
+/** The membership that governs an account's access, as the server holds it. */
+export type GoverningMembership = {
+  /** The provider holding it. */
+  readonly provider: string;
+  readonly status: string | null;
+};
+
+/**
+ * The account's governing membership — a live one wherever it is, else its
+ * newest — or `null` before it ever subscribed.
+ */
+export async function governingMembership(
+  s: ProductSim,
+  accountId: string
+): Promise<GoverningMembership | null> {
+  const row = await new MembershipRepository(
+    s.sim.serverSql.sqlClient
+  ).governing(accountId);
+  return row === null ? null : { provider: row.provider, status: row.status };
 }

@@ -50,6 +50,12 @@ export type MockMembershipBillingOptions = {
   readonly offer: PlusMembershipOffer;
   readonly now: () => number;
   readonly fetch: MockBillingFetch;
+  /**
+   * The id the app knows this provider by (its callback path, its customer
+   * links). Defaults to {@link MOCK_BILLING_PROVIDER}; a deployment running
+   * two mock providers side by side gives the second its own.
+   */
+  readonly provider?: string;
 };
 
 /** The subscription events whose state we project. */
@@ -113,9 +119,11 @@ function toMembership(
 }
 
 export class MockMembershipBilling implements MembershipBilling {
-  readonly provider = MOCK_BILLING_PROVIDER;
+  readonly provider: string;
 
-  constructor(private readonly options: MockMembershipBillingOptions) {}
+  constructor(private readonly options: MockMembershipBillingOptions) {
+    this.provider = options.provider ?? MOCK_BILLING_PROVIDER;
+  }
 
   private async call<T>(
     method: 'GET' | 'POST',

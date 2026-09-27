@@ -8,6 +8,7 @@
 import '@libs/sim-harness/spec/steps/platform';
 import './access.steps';
 import './membership.steps';
+import './provider-switch.steps';
 import './time.steps';
 
 import { useSimWorld } from '@libs/sim-harness/spec/world';

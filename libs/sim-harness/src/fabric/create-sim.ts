@@ -34,9 +34,8 @@ import {
   type SimAppBuilds,
 } from './sim-app-build';
 import {
-  openSimBillingNode,
-  SIM_BILLING_ID,
-  type SimBillingProvider,
+  openSimBillingProviders,
+  type SimBillingProviders,
   simMembershipBilling,
 } from './sim-billing';
 import type { SimBrowser } from './sim-browser';
@@ -104,8 +103,8 @@ export type Sim = {
   readonly loadBalancer: SimLoadBalancer;
   /** The simulated Google and Apple the product signs in against. */
   readonly idps: SimIdps;
-  /** The payment provider node, when the composition sells something. */
-  readonly billing: SimBillingProvider | null;
+  /** The payment providers, when the composition sells something. */
+  readonly billing: SimBillingProviders | null;
   /** Auth directory entry + env; the account row is written on first use. */
   client(id: string): Promise<ClientEnv>;
   /** The actor's web browser (sign-in window, billing pages). */
@@ -251,8 +250,7 @@ type SimKernel = {
   readonly composition: SimComposition;
   readonly idps: SimIdps;
   readonly idpSqls: readonly SimSql[];
-  readonly billing: SimBillingProvider | null;
-  readonly billingSql: SimSql | null;
+  readonly billing: SimBillingProviders | null;
   readonly seed: bigint;
   readonly timers: Timers;
   readonly net: ReturnType<typeof createSimNet>;
@@ -329,15 +327,14 @@ async function bootSimKernel(
   const idps = idpNodes.idps;
   const serverSql = await openServerSql(session, opts);
   const shared = buildSharedServerServices(serverSql, appleKeys);
-  const billingNode = await openSimBillingNode({
+  const billing = await openSimBillingProviders({
     offer: composition.billingOffer,
     clock: session.ports.clock,
     timers,
     createId: session.ports.createId,
     // Webhooks go through the balancer, like any caller's.
-    toApi: () => loadBalancer.fetchFrom(SIM_BILLING_ID),
+    toApi: (node) => loadBalancer.fetchFrom(node),
   });
-  const billing = billingNode?.provider ?? null;
   const roomNode =
     composition.roomNode?.(buildRoomServerEnv({ session, seed, timers })) ??
     noRoomNode(composition.name);
@@ -375,7 +372,6 @@ async function bootSimKernel(
     idps,
     idpSqls: idpNodes.sqls,
     billing,
-    billingSql: billingNode?.sql ?? null,
     seed,
     timers,
     net,
@@ -408,7 +404,7 @@ async function disposeSim(args: {
   for (const handle of args.clientSql.values()) await handle.disconnect();
   args.clientSql.clear();
   for (const handle of kernel.idpSqls) await handle.disconnect();
-  await kernel.billingSql?.disconnect();
+  await kernel.billing?.dispose();
   await kernel.serverSql.disconnect();
 }
 
