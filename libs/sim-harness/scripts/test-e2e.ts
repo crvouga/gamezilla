@@ -112,7 +112,9 @@ function listSpecs(): readonly string[] {
   return specDomains().flatMap((domain) => {
     const dir = join(SPECS_DIR, domain);
     if (!existsSync(dir)) return [];
+    // `events.qnt` is a context's published language (types only), not a model.
     return [...new Bun.Glob('*.{feature,qnt}').scanSync({ cwd: dir })]
+      .filter((file) => file !== 'events.qnt')
       .sort()
       .map((file) => join(dir, file));
   });
