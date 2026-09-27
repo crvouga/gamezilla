@@ -5,7 +5,7 @@ Feature: Keeping sign-in methods straight
   never lets them, or anyone else, into the wrong account.
 
   Scenario: A second Google account cannot be connected
-    Given Alice is signed in with Google
+    Given Alice is signed in with their Google account
     When Alice tries to connect a second Google account
     Then Alice is told the account already has Google
     And Alice's sign-in methods are still Google
@@ -17,8 +17,8 @@ Feature: Keeping sign-in methods straight
     Then Alice's other device is signed into a different account
 
   Scenario: Connecting Apple offline changes no sign-in method
-    Given Alice is signed in with Google
-    And Alice is offline
+    Given Alice is signed in with their Google account
+    And Alice's device has lost its connection
     When Alice tries to connect Apple
     Then Alice is told connecting failed
     And Alice's sign-in methods are still Google

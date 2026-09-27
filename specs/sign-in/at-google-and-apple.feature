@@ -19,7 +19,7 @@ Feature: What people do at Google and Apple
   Scenario: A new Google email address keeps Bob's account
     Given Bob has an account they sign into with Google
     And Bob has changed the email address of their Google account
-    When Bob signs in with Google
+    When Bob signs in with their Google account
     Then Bob is signed into the same account
     And Bob's Google sign-in method shows their new email address
 

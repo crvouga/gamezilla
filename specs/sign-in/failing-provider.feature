@@ -13,5 +13,5 @@ Feature: When Google or Apple is failing
   Scenario: Once Google recovers, Alice can sign in
     Given Alice tried to sign in with Google while it was failing
     And Google has recovered
-    When Alice signs in with Google
-    Then Alice is signed in
+    When Alice signs in with their Google account
+    Then Alice is signed into a new account
