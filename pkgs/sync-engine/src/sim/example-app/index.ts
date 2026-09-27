@@ -37,6 +37,7 @@ export {
   lastMutationOk,
   lastMutationSettled,
   mutate,
+  mutateWhileFull,
   net,
   netHeld,
   netSet,
@@ -153,6 +154,8 @@ export {
   readLiveNoteIds,
   readNoteTombstoneAt,
   readProfileUsernameAt,
+  type SpaceMemberRow,
+  spaceMembers,
   type TagRow,
 } from './reads';
 export {

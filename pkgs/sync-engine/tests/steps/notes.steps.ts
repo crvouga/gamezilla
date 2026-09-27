@@ -5,9 +5,13 @@
 
 import { expect } from 'bun:test';
 import {
+  brokerCrash,
+  brokerRestart,
   lastMutationFailures,
   liveNote,
   liveNotes,
+  NOTES_ALL_TOPIC,
+  pubsubFault,
 } from '@pkgs/sync-engine/sim';
 import {
   removeNote,
@@ -20,6 +24,10 @@ import { app, Given, Then, When } from './world';
 
 /** How long "does not see" holds once things have settled. */
 const QUIET_MS = 3_000;
+/** How long live updates stop for. */
+const PAUSE_MS = 500;
+/** How often "never without its text" looks: finer than a live update. */
+const BLANK_POLL_MS = 5;
 
 When(
   '{actor} writes the note {string} saying {string}',
@@ -120,5 +128,37 @@ Then(
     });
     const rows = await w.s.read(liveNotes, actor);
     expect(rows.filter((row) => row.id === title)).toHaveLength(1);
+  }
+);
+
+Given('live updates have stopped for a while and started again', async (w) => {
+  await w.s.apply(brokerCrash);
+  await w.s.advanceTime(PAUSE_MS);
+  await w.s.apply(brokerRestart);
+});
+
+/**
+ * The next live update on the channel every device hears loses its note's
+ * text and title on the way (Bob's device hears it; the writer does not).
+ */
+Given(
+  'the next live update to {actor} will arrive garbled',
+  (w, _actor: string) =>
+    w.s.apply(pubsubFault, {
+      kind: 'corruptPubsubPayload',
+      variant: 'flipField',
+      topic: NOTES_ALL_TOPIC,
+    })
+);
+
+/** Checked often on the run's clock while the note arrives. */
+Then(
+  '{actor} never sees the note {string} without its text',
+  async (w, actor: string, title: string) => {
+    await w.s.never((s) => liveNote(s, actor, title), {
+      forMs: QUIET_MS,
+      stepMs: BLANK_POLL_MS,
+      pred: (row) => row !== null && (row.body === null || row.body === ''),
+    });
   }
 );

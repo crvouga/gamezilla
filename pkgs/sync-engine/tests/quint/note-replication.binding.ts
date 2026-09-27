@@ -2,7 +2,7 @@
  * Binds `specs/sync/note-replication.qnt` to `exampleSystem`: each model
  * action is one or a few `s.apply` calls with the values Quint drew, and
  * `observe` reads the model's observable variables (`notes`, `owners`,
- * `rejections`, `unsent`) back out of the sim.
+ * `folders`, `members`, `rejections`, `unsent`) back out of the sim.
  */
 
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
@@ -18,17 +18,25 @@ import {
   connect,
   crash,
   crashAt,
+  createSpace,
+  deleteFolder,
   deleteNote,
   disconnect,
+  failNextOpen,
   foreground,
   httpFault,
+  joinSpace,
   lastMutationId,
+  leaveSpace,
+  liveFolders,
   liveNotes,
   mutate,
+  mutateWhileFull,
   netSet,
   nudge,
   outcome,
   partition,
+  publishFault,
   pubsubFault,
   queuedEdits,
   rejections,
@@ -36,8 +44,11 @@ import {
   restartWithSchema,
   resumeNetwork,
   serverOp,
+  serverPrune,
+  setFolder,
   setNote,
   skewClock,
+  spaceMembers,
   tamperLocalStorage,
 } from '@pkgs/sync-engine/sim';
 import type { NoteWorld } from './note-world';
@@ -50,6 +61,15 @@ const RETRY_MAX_MS = 120_000;
 /** How long an armed crash may take to fire once its save starts. */
 const CRASH_MAX_MS = 15_000;
 const DAY_MS = 86_400_000;
+/** How long an app takes to find out it was signed out elsewhere. */
+const REVOKE_NOTICE_MS = 5_000;
+
+/** How long a device cannot send in `writeWhileSavesCut`. */
+const CUT_MS = 3_000;
+/** Everything the shared notes keep about edits, however recent. */
+const PRUNE_ALL_MS = -1_000_000;
+/** The team's own notes are owned by the seed account. */
+const TEAM_OWNER = 'seed';
 
 const LOSSY_LIVE = {
   dropProbability: 0.4,
@@ -131,8 +151,48 @@ async function liveNotesOf(w: NoteWorld, node: string) {
   const rows = await w.s.read(liveNotes, node);
   return {
     bodies: new Map(rows.map((row) => [row.id, row.body])),
+    owners: new Map(
+      rows.map((row) => [
+        row.id,
+        row.ownerId === TEAM_OWNER ? 'team' : row.ownerId,
+      ])
+    ),
+  };
+}
+
+async function liveFoldersOf(w: NoteWorld, node: string) {
+  const rows = await w.s.read(liveFolders, node);
+  return {
+    names: new Map(rows.map((row) => [row.id, row.title])),
     owners: new Map(rows.map((row) => [row.id, row.ownerId])),
   };
+}
+
+/** Owners of live notes and folders (their ids never clash). */
+function ownersOf(
+  notes: Map<string, string>,
+  folders: Map<string, string>
+): Map<string, string> {
+  return new Map([...notes, ...folders]);
+}
+
+/** Each live shared space → who is in it, as the shared notes keep it. */
+async function membersOf(w: NoteWorld) {
+  const out = new Map<string, Set<string>>();
+  for (const row of await w.s.read(spaceMembers, 'server')) {
+    const set = out.get(row.spaceId) ?? new Set<string>();
+    if (row.userId !== null) set.add(row.userId);
+    out.set(row.spaceId, set);
+  }
+  return out;
+}
+
+/** Wait until the person's device has sent everything it holds. */
+async function drained(w: NoteWorld, person: string): Promise<void> {
+  await w.s.until((s) => queuedEdits(s, person), {
+    maxMs: RETRY_MAX_MS,
+    pred: (ids) => ids?.length === 0,
+  });
 }
 
 /**
@@ -163,8 +223,8 @@ async function writeConfirmed(w: NoteWorld, p: Picks): Promise<void> {
 
 bindQuintModel<NoteWorld>({
   model: 'note-replication',
-  traces: 64,
-  maxSteps: 16,
+  traces: 128,
+  maxSteps: 24,
   actions: {
     init: async (w) => {
       for (const person of PEOPLE) await w.s.apply(addClient, person);
@@ -177,6 +237,37 @@ bindQuintModel<NoteWorld>({
     deleteNote: (w, p) =>
       w.s.apply(mutate, pick(p, 'person'), deleteNote, {
         id: pick(p, 'title'),
+      }),
+    writeFolder: (w, p) =>
+      w.s.apply(mutate, pick(p, 'person'), setFolder, {
+        id: pick(p, 'folder'),
+        title: pick(p, 'body'),
+      }),
+    deleteFolder: (w, p) =>
+      w.s.apply(mutate, pick(p, 'person'), deleteFolder, {
+        id: pick(p, 'folder'),
+      }),
+    createSpace: (w, p) =>
+      w.s.apply(mutate, pick(p, 'person'), createSpace, {
+        id: pick(p, 'space'),
+        title: '',
+      }),
+    joinSpace: (w, p) =>
+      w.s.apply(mutate, pick(p, 'person'), joinSpace, {
+        spaceId: pick(p, 'space'),
+      }),
+    leaveSpace: (w, p) =>
+      w.s.apply(mutate, pick(p, 'person'), leaveSpace, {
+        spaceId: pick(p, 'space'),
+      }),
+    writeWhileFull: (w, p) =>
+      w.s.apply(mutateWhileFull, pick(p, 'person'), {
+        pressure:
+          pick(p, 'fullness') === 'full'
+            ? 'sqliteFull'
+            : 'tornTxnAfterStatement',
+        mutation: setNote,
+        args: { id: pick(p, 'title'), body: pick(p, 'body') },
       }),
     writeUnheard: async (w, p) => {
       const person = pick(p, 'person');
@@ -223,10 +314,32 @@ bindQuintModel<NoteWorld>({
       for (const id of windowsOf(w, p)) {
         await w.s.apply(resumeNetwork, id, 'all');
       }
-      await w.s.until((s) => queuedEdits(s, pick(p, 'person')), {
-        maxMs: RETRY_MAX_MS,
-        pred: (ids) => ids?.length === 0,
+      await drained(w, pick(p, 'person'));
+    },
+    writeWhileSavesCut: async (w, p) => {
+      const person = pick(p, 'person');
+      for (const id of windowsOf(w, p)) {
+        await w.s.apply(partition, id, 'sync');
+      }
+      await w.s.apply(mutate, person, setNote, {
+        id: pick(p, 'title'),
+        body: pick(p, 'body'),
       });
+      await w.s.advanceTime(CUT_MS);
+      for (const id of windowsOf(w, p)) {
+        await w.s.apply(resumeNetwork, id, 'sync');
+      }
+      await drained(w, person);
+    },
+    liveCutOff: async (w, p) => {
+      for (const id of windowsOf(w, p)) {
+        await w.s.apply(partition, id, 'live');
+      }
+    },
+    liveRestored: async (w, p) => {
+      for (const id of windowsOf(w, p)) {
+        await w.s.apply(resumeNetwork, id, 'live');
+      }
     },
     crashAndReopen: async (w, p) => {
       // A crash keeps the device's on-disk database.
@@ -263,6 +376,48 @@ bindQuintModel<NoteWorld>({
     },
     appDataCleared: (w, p) =>
       w.s.apply(clearLocalData, pick(p, 'person'), 'cleared'),
+    appFailsToOpen: async (w, p) => {
+      const person = pick(p, 'person');
+      await w.s.apply(crash, person);
+      await w.s.apply(failNextOpen, person);
+      await w.s
+        .apply(restart, person, { preserveLocalDb: true })
+        .catch((error: unknown) => {
+          if (!String(error).includes('fail next open')) throw error;
+        });
+      await w.s.apply(restart, person, { preserveLocalDb: true });
+    },
+    // The app is told to update, updates and reopens (the restart signs it
+    // in as the new version).
+    appMustUpdate: async (w, p) => {
+      const person = pick(p, 'person');
+      await w.s.apply(auth, person, 'upgrade_required');
+      await w.s.apply(restart, person, { preserveLocalDb: true });
+      await drained(w, person);
+    },
+    unsentEditDamaged: async (w, p) => {
+      const person = pick(p, 'person');
+      await w.s.apply(tamperLocalStorage, person, 'corruptQueuedArgs');
+      await w.s.apply(restart, person, { preserveLocalDb: true });
+      await drained(w, person);
+    },
+    // Signed out elsewhere: the app finds out on its next request and wipes
+    // what it kept; the person then signs back in (the app reopens).
+    signedOutElsewhere: async (w, p) => {
+      const person = pick(p, 'person');
+      await w.s.apply(auth, person, 'revoked');
+      await w.s.apply(connect, person);
+      await w.s.apply(nudge, person).catch(() => undefined);
+      await w.s.advanceTime(REVOKE_NOTICE_MS);
+      await w.s.apply(restart, person, { preserveLocalDb: true });
+    },
+    liveUpdateLost: (w) => w.s.apply(publishFault, 'next'),
+    teamTidiesUp: (w) => w.s.apply(serverPrune, PRUNE_ALL_MS),
+    teamAddsNote: (w, p) =>
+      w.s.apply(serverOp, 'insertCatalogNoteSilent', {
+        noteId: pick(p, 'title'),
+        body: pick(p, 'body'),
+      }),
     clockIsWrong: (w, p) => w.s.apply(skewClock, pick(p, 'person'), DAY_MS),
     liveUpdatesDegrade: async (w, p) => {
       await w.s.apply(netSet, pick(p, 'person'), 'live', LOSSY_LIVE);
@@ -315,17 +470,30 @@ bindQuintModel<NoteWorld>({
   },
   observe: async (w) => {
     const shared = await liveNotesOf(w, 'server');
+    const sharedFolders = await liveFoldersOf(w, 'server');
     const notes = new Map([[SHARED, shared.bodies]]);
-    const owners = new Map([[SHARED, shared.owners]]);
+    const owners = new Map([
+      [SHARED, ownersOf(shared.owners, sharedFolders.owners)],
+    ]);
+    const folders = new Map([[SHARED, sharedFolders.names]]);
     const refused = new Map<string, number>();
     const unsent = new Map<string, number>();
     for (const person of PEOPLE) {
       const device = await liveNotesOf(w, person);
+      const deviceFolders = await liveFoldersOf(w, person);
       notes.set(person, device.bodies);
-      owners.set(person, device.owners);
+      owners.set(person, ownersOf(device.owners, deviceFolders.owners));
+      folders.set(person, deviceFolders.names);
       refused.set(person, (await w.s.read(rejections, person)).length);
       unsent.set(person, await unsentOf(w, person));
     }
-    return { notes, owners, rejections: refused, unsent };
+    return {
+      notes,
+      owners,
+      folders,
+      members: await membersOf(w),
+      rejections: refused,
+      unsent,
+    };
   },
 });

@@ -40,6 +40,7 @@ export {
   foreground,
   httpFault,
   mutate,
+  mutateWhileFull,
   net,
   netSet,
   nudge,

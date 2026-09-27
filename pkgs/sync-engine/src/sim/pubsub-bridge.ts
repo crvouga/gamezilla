@@ -73,7 +73,7 @@ function wireDataForDelivery(args: {
   readonly data: unknown;
 }): unknown | null {
   if (args.faults?.shouldDropTopic(args.topic)) return null;
-  const corruption = args.faults?.takePubsubCorruption();
+  const corruption = args.faults?.takePubsubCorruption(args.topic);
   if (corruption !== undefined && args.rng !== undefined) {
     return corruptUnknownPayload(args.data, corruption, args.rng);
   }

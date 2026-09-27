@@ -130,6 +130,34 @@ export async function liveFolders(
   );
 }
 
+export type SpaceMemberRow = {
+  readonly spaceId: string;
+  readonly userId: string | null;
+};
+
+/**
+ * Each live space on `nodeId` with its live members, ordered by space then
+ * member (`userId` is null for a space nobody is in).
+ */
+export async function spaceMembers(
+  s: SyncSim,
+  nodeId: string
+): Promise<SpaceMemberRow[]> {
+  return rows<SpaceMemberRow>(
+    s,
+    'spaceMembers',
+    nodeId,
+    sql<SpaceMemberRow>`
+      SELECT sp.id AS "spaceId", su.user_id AS "userId"
+      FROM spaces sp
+      LEFT JOIN spaces_users su
+        ON su.space_id = sp.id AND su.deleted_at IS NULL
+      WHERE sp.deleted_at IS NULL
+      ORDER BY sp.id ASC, su.user_id ASC
+    `
+  );
+}
+
 export type TagRow = {
   readonly id: string;
   readonly label: string;

@@ -83,7 +83,9 @@ export type EdgeFaultController = {
   readonly takePublishFault: () => boolean;
   readonly armPubsubFault: (fault: SimPubsubFault) => void;
   readonly clearPubsubFaults: () => void;
-  readonly takePubsubCorruption: () => SimCorruptionVariant | undefined;
+  readonly takePubsubCorruption: (
+    topic: Topic
+  ) => SimCorruptionVariant | undefined;
   readonly shouldDropTopic: (topic: Topic) => boolean;
   readonly duplicatePublishCount: () => number;
 };
@@ -161,7 +163,7 @@ export function createBoundaryFaultController(): EdgeFaultController {
     clearPubsubFaults() {
       pubsub.clear();
     },
-    takePubsubCorruption: () => pubsub.takeCorruption(),
+    takePubsubCorruption: (topic) => pubsub.takeCorruption(topic),
     shouldDropTopic: (topic) => pubsub.shouldDropTopic(topic),
     duplicatePublishCount: () => pubsub.duplicatePublishCount(),
   };
