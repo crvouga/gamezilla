@@ -14,6 +14,12 @@ export type SqlOwner = {
    * access-handle release). Does not delete durable bytes by itself.
    */
   close: () => Promise<void>;
+  /**
+   * Drop held handles now, without a graceful close: the page is being
+   * discarded or frozen into the back/forward cache, so no async close would
+   * finish before the next page needs the store.
+   */
+  release: () => void;
   /** Wipe the backing store for this DB (and pool directory when applicable). */
   resetStore: () => Promise<void>;
 };

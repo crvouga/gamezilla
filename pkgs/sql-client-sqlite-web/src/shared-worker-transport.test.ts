@@ -56,11 +56,12 @@ function installSharedWorker(): void {
   (globalThis as { SharedWorker?: unknown }).SharedWorker = FakeSharedWorker;
 }
 
-function stubOwnerRuntime(dbName: string): OwnerRuntime {
+function stubOwnerRuntime(dbName: string, onRelease: () => void): OwnerRuntime {
   return {
     dbName,
     open: async () => undefined,
     close: async () => undefined,
+    release: onRelease,
     getClient: () => {
       throw new Error('not used');
     },
@@ -76,26 +77,38 @@ function stubOwnerRuntime(dbName: string): OwnerRuntime {
 }
 
 function openPage() {
+  let storeReleased = false;
   const transport = createSharedWorkerTransport({
     dbName: 'app',
     timers: parkedTimers,
     workerUrl: '/db-host-shared-worker.js',
-    createOwnerRuntimeFn: ({ dbName }) => stubOwnerRuntime(dbName),
+    createOwnerRuntimeFn: ({ dbName }) =>
+      stubOwnerRuntime(dbName, () => {
+        storeReleased = true;
+      }),
   });
-  let onPageHide: ((event: { persisted: boolean }) => void) | null = null;
+  const listeners = new Map<string, (event: { persisted: boolean }) => void>();
+  let reloads = 0;
   releaseOnPageHide(
     {
-      addEventListener: (_type, listener) => {
-        onPageHide = listener;
+      addEventListener: (type, listener) => {
+        listeners.set(type, listener);
       },
     },
-    // A discarded page never gets to run its async disconnect.
+    // A discarded or frozen page never finishes its async disconnect.
     { disconnect: () => new Promise<void>(() => undefined) },
-    transport
+    transport,
+    () => {
+      reloads += 1;
+    }
   );
   return {
     connect: (): Promise<ConnectResult> => transport.connect(),
-    pageHide: (persisted: boolean) => onPageHide?.({ persisted }),
+    pageHide: () => listeners.get('pagehide')?.({ persisted: true }),
+    pageShow: (persisted: boolean) =>
+      listeners.get('pageshow')?.({ persisted }),
+    storeReleased: () => storeReleased,
+    reloads: () => reloads,
   };
 }
 
@@ -105,28 +118,28 @@ describe('shared-worker transport across page loads', () => {
   });
 
   // regression: sqlite-web-navigation-dead-owner — a same-tab navigation
-  // (the sign-in callback, any reload) left the discarded page as the
-  // broker's owner, so the next page proxied to it and boot hung ~20s
-  // until the heartbeat reaper evicted it.
+  // (the sign-in callback, any reload) left the previous page owning the
+  // store: discarded, or frozen in the back/forward cache still holding its
+  // OPFS handles. The next page waited on the dead owner and boot hung.
   test('the next page in the tab owns the database at once', async () => {
     installSharedWorker();
     const first = openPage();
     expect((await first.connect()).role).toBe('owner');
 
-    first.pageHide(false);
+    first.pageHide();
     const next = openPage();
 
     expect((await next.connect()).role).toBe('owner');
+    expect(first.storeReleased()).toBe(true);
   });
 
-  test('a page kept in the back/forward cache keeps its ownership', async () => {
-    installSharedWorker();
-    const first = openPage();
-    expect((await first.connect()).role).toBe('owner');
+  test('a page restored from the back/forward cache reloads', () => {
+    const page = openPage();
 
-    first.pageHide(true);
-    const other = openPage();
+    page.pageShow(false);
+    expect(page.reloads()).toBe(0);
 
-    expect((await other.connect()).role).toBe('proxy');
+    page.pageShow(true);
+    expect(page.reloads()).toBe(1);
   });
 });

@@ -27,9 +27,9 @@ export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;
   disconnect: () => Promise<void>;
   /**
-   * The page is being discarded: tell the broker synchronously, because the
-   * async {@link WebSqlTransport.disconnect} never reaches it once the page
-   * is gone. The owner's OPFS handles are released when its worker dies.
+   * The page is being discarded or frozen: free the store's handles and tell
+   * the broker synchronously, because the async
+   * {@link WebSqlTransport.disconnect} never finishes in time.
    */
   leaveOnUnload: () => void;
   request: <O extends RpcOp>(
@@ -251,6 +251,11 @@ class SharedWorkerTransport implements WebSqlTransport {
 
   leaveOnUnload(): void {
     if (!this.connected) return;
+    this.unsubOwnerChanged?.();
+    this.unsubOwnerChanged = null;
+    this.ownerRuntime?.release();
+    this.ownerRuntime = null;
+    if (this.role === 'owner') this.role = 'proxy';
     this.post({
       id: this.nextId(),
       dbName: this.dbName,

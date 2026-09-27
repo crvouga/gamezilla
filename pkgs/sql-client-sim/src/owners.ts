@@ -38,6 +38,7 @@ function memoryBackedOwner(store: SimOpfsStore): SqlOwner {
       return client;
     },
     close: () => inner.close(),
+    release: () => inner.release(),
     resetStore: async () => {
       store.image = null;
       store.corrupt = false;
@@ -59,6 +60,7 @@ export function createTabOwner(state: SqlClientWebState): SqlOwner {
   return {
     open: () => inner.open(),
     close: () => inner.close(),
+    release: () => inner.release(),
     resetStore: async () => {
       state.wipes += 1;
       state.expected.clear();

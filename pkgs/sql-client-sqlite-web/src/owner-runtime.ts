@@ -28,6 +28,8 @@ export type OwnerRuntime = {
   readonly dbName: string;
   open: () => Promise<void>;
   close: () => Promise<void>;
+  /** Drop the store's handles synchronously ({@link SqlOwner.release}). */
+  release: () => void;
   getClient: () => SqlClient;
   handleRequest: (request: RpcRequest) => Promise<RpcResponse>;
   onChanged: (listener: (notify: DbChangedNotify) => void) => () => void;
@@ -259,6 +261,22 @@ class OwnerRuntimeImpl implements OwnerRuntime {
     this.client = null;
     this.openPromise = null;
     await this.owner.close();
+  }
+
+  release(): void {
+    const tx = this.activeTx;
+    if (tx !== null) {
+      if (tx.idleTimerId !== null) this.timers.clearTimeout(tx.idleTimerId);
+      this.activeTx = null;
+      this.txGate = null;
+      tx.rejectGate(
+        txError(RPC_ERROR_TX_ABORTED, 'Transaction aborted: owner released')
+      );
+    }
+    this.stmts.clear();
+    this.client = null;
+    this.openPromise = null;
+    this.owner.release();
   }
 
   getClient(): SqlClient {
