@@ -338,7 +338,7 @@ describe('lifecycle events', () => {
     });
     const after = (await world.call('GET', `/v1/invoices/${paid?.id ?? ''}`))
       .body as MockInvoice;
-    expect(after.amount_refunded).toBe(paid?.amount_paid);
+    expect(after.amount_refunded).toBe(paid?.amount_paid ?? Number.NaN);
     expect(await events(world, 'charge.refunded')).toHaveLength(1);
     const again = await world.call('POST', MOCK_BILLING_PATHS.refunds, {
       invoice: paid?.id,

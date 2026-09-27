@@ -223,6 +223,23 @@ function createUploadQueue(
   });
 }
 
+/** Another tab / process changed the shared DB: re-run every local watch. */
+function relayExternalDbChanges(
+  options: CreateLocalSyncEngineOptions,
+  bus: ReturnType<typeof createTableChangeBus>
+): (() => void) | null {
+  if (options.subscribeExternalDbChanged === undefined) return null;
+  const externalTables = [
+    ...options.localSchema.cacheTableNames,
+    'sync_engine_mutations',
+    'sync_engine_scope_meta',
+    'sync_engine_write_rejections',
+  ] as const;
+  return options.subscribeExternalDbChanged(() => {
+    bus.emit(externalTables);
+  });
+}
+
 function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
   const bus = createTableChangeBus();
   const appDb = createTableChangeSqlClient(options.db, bus);
@@ -261,18 +278,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
     if (tables.has('sync_engine_mutations')) uploadQueue.wake();
   });
   const bufferOutbound = options.push?.bufferOutboundLive === true;
-  const externalTables = [
-    ...options.localSchema.cacheTableNames,
-    'sync_engine_mutations',
-    'sync_engine_scope_meta',
-    'sync_engine_write_rejections',
-  ] as const;
-  let disposeExternalDbChanged: (() => void) | null = null;
-  if (options.subscribeExternalDbChanged !== undefined) {
-    disposeExternalDbChanged = options.subscribeExternalDbChanged(() => {
-      bus.emit(externalTables);
-    });
-  }
+  const disposeExternalDbChanged = relayExternalDbChanges(options, bus);
   const state: LocalEngineState = {
     options,
     bus,

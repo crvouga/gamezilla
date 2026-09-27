@@ -201,6 +201,7 @@ export async function createInMemorySyncEngine(
         online: INITIAL_SYNC_STATUS.online,
         hasSynced: INITIAL_SYNC_STATUS.hasSynced,
         lastError: INITIAL_SYNC_STATUS.lastError,
+        upgradeRequired: INITIAL_SYNC_STATUS.upgradeRequired,
       });
     },
     clearLocalData: async () => {
