@@ -63,7 +63,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor} is signed in | {actor} | shared |
 | Given | {actor} is signed in with Google | {actor} | shared |
 | Given | the connection has come back | — | shared |
+| Then | {actor} (still )has no account | {actor} | shared |
 | Then | {actor} has a signed-in account | {actor} | shared |
+| Then | {actor} is asked to sign in | {actor} | shared |
+| Then | {actor} is asked to sign in within {int} seconds | {actor}, {int} | shared |
 | When | {actor} closes and reopens the app | {actor} | shared |
 | When | {actor} loses the connection | {actor} | shared |
 | When | {actor} signs in with Google | {actor} | shared |
