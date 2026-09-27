@@ -2049,6 +2049,10 @@ msgid "Sign in"
 msgstr "Sign in"
 
 #: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
+msgid "Sign in free for unlimited puzzles, or come back tomorrow."
+msgstr "Sign in free for unlimited puzzles, or come back tomorrow."
+
+#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
 msgid "Sign in to add friends"
 msgstr "Sign in to add friends"
 
@@ -2587,10 +2591,6 @@ msgstr "Unseen"
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Update payment method"
 msgstr "Update payment method"
-
-#: libs/permissions/src/use-cases/decide-access/client/unlock-copy.tsx
-msgid "Upgrade for unlimited puzzles, or come back tomorrow."
-msgstr "Upgrade for unlimited puzzles, or come back tomorrow."
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Use dark theme"

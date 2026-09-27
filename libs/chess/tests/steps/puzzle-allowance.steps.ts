@@ -14,7 +14,7 @@ import {
 } from '@libs/chess/sim/chess-actions';
 import { useUpPuzzleStartsToday } from '@libs/chess/sim/chess-puzzle-ledger-data';
 import {
-  isPuzzleLimitUpgradeOffered,
+  isPuzzleLimitSignInOffered,
   isPuzzleLimitVisible,
 } from '@libs/chess/sim/chess-puzzle-ui';
 import {
@@ -93,6 +93,6 @@ Then(
 Then(
   '{actor} is invited to upgrade for more puzzles',
   async (w, actor: Actor) => {
-    expect(await w.s.read(isPuzzleLimitUpgradeOffered, actor)).toBe(true);
+    expect(await w.s.read(isPuzzleLimitSignInOffered, actor)).toBe(true);
   }
 );

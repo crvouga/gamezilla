@@ -17,6 +17,7 @@ import {
   createSubject,
   type Decision,
   decideQuota,
+  resolveUnlockRef,
 } from '@pkgs/permissions';
 
 const NOON = Date.UTC(2026, 8, 19, 12);
@@ -60,6 +61,17 @@ describe('DEFAULT_PERMISSION_POLICY', () => {
     ]) {
       expect(allows(ROLE.planFree, permission)).toBe(true);
     }
+  });
+
+  test('a guest at the rated limit is invited to sign in, not to pay', () => {
+    // Only guests have a rated quota and a free account is unlimited, so the
+    // way past the limit is a free sign-in, with tomorrow's reset as the
+    // alternative.
+    const denied = ratedFor(ROLE.planGuest, 1_000_000);
+    expect(denied.reason).toBe('quota_exhausted');
+    expect(
+      resolveUnlockRef(DEFAULT_PERMISSION_POLICY, denied.unlockRef ?? '')
+    ).toMatchObject({ ctaTarget: 'signup', secondaryCta: 'wait_for_reset' });
   });
 
   test('paid never hits a usage limit and may start a new membership', () => {

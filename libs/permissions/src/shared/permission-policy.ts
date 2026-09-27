@@ -15,7 +15,7 @@ import {
 } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-09-26.1';
+export const PERMISSION_POLICY_VERSION = '2026-09-26.2';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -193,7 +193,9 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       quota_exhausted: {
         titleKey: 'unlock.rated.limit.title',
         bodyKey: 'unlock.rated.limit.body',
-        ctaTarget: 'billing',
+        // Only guests have a rated quota, and a free account is unlimited:
+        // signing in, not a plan, is what lifts the limit.
+        ctaTarget: 'signup',
         secondaryCta: 'wait_for_reset',
       },
     },

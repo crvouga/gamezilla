@@ -851,16 +851,18 @@ export async function isPuzzleLimitVisible(
 }
 
 /**
- * The limit screen offers a way to more puzzles (its call to action), not
- * just an error.
+ * The limit screen invites the person to sign in for more puzzles (its call
+ * to action reads "Sign in"), not just an error.
  */
-export async function isPuzzleLimitUpgradeOffered(
+export async function isPuzzleLimitSignInOffered(
   s: ProductSim,
   actorId: string
 ): Promise<boolean> {
   if (!(await isPuzzleLimitVisible(s, actorId))) return false;
   const ui = await actorUi(s, actorId);
-  return ui.get(`${Handles.chessPuzzleLimit}-action`).isVisible();
+  const action = ui.get(`${Handles.chessPuzzleLimit}-action`);
+  if (!(await action.isVisible())) return false;
+  return (await action.text()).trim() === 'Sign in';
 }
 
 /**
