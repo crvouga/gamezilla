@@ -40,6 +40,8 @@
  * - Time limits: the run is killed at a hard wall-clock deadline, and every
  *   task that executed is checked against its per-task budget once the run
  *   finishes. Both live in `check-budget.ts`.
+ * - Durations: every exit prints the run's wall time and each phase's share
+ *   (plan, prefetch, turbo), cache-hit-only runs included.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -313,6 +315,46 @@ function requireRemoteCredsForDeploy(hasRemote: boolean, mode: RunMode): void {
   process.exit(1);
 }
 
+/** Each phase's wall time, in the order the phases ran. */
+export type PhaseDurations = readonly (readonly [phase: string, ms: number])[];
+
+function formatSeconds(ms: number): string {
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
+/** `turbo-ci-run: finished in 9.1s (plan 1.2s, prefetch 0.3s, turbo 7.6s)` */
+export function formatDurations(
+  totalMs: number,
+  phases: PhaseDurations
+): string {
+  const parts = phases.map(([phase, ms]) => `${phase} ${formatSeconds(ms)}`);
+  return (
+    `turbo-ci-run: finished in ${formatSeconds(totalMs)}` +
+    (parts.length > 0 ? ` (${parts.join(', ')})` : '')
+  );
+}
+
+const STARTED = process.hrtime.bigint();
+const phases: [phase: string, ms: number][] = [];
+
+function msSince(start: bigint): number {
+  return Number((process.hrtime.bigint() - start) / 1_000_000n);
+}
+
+async function timed<T>(phase: string, run: () => T | Promise<T>): Promise<T> {
+  const start = process.hrtime.bigint();
+  try {
+    return await run();
+  } finally {
+    phases.push([phase, msSince(start)]);
+  }
+}
+
+function exitWithDurations(code: number): never {
+  console.log(formatDurations(msSince(STARTED), phases));
+  process.exit(code);
+}
+
 async function main(): Promise<void> {
   const env = turboChildEnv();
   writePlatformCacheKey();
@@ -376,26 +418,28 @@ async function main(): Promise<void> {
     ...rootExcludeFiltersFor(taskArgs),
     ...runModeFlags(mode),
   ];
-  const plan = planOrNull(fullRunArgs, cache, env);
+  const plan = await timed('plan', () => planOrNull(fullRunArgs, cache, env));
   if (planShardsOnly) writeShardPlanAndExit(plan, taskArgs);
   if (plan !== null && plan.toExecute.length === 0) {
-    process.exit(finalExitCode({ status: 0, slowRunner, ran: false }));
+    exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
-  if (plan !== null) await prefetchRemoteHits(plan, REPO_ROOT, env);
+  if (plan !== null && plan.remoteHits.length > 0) {
+    await timed('prefetch', () => prefetchRemoteHits(plan, REPO_ROOT, env));
+  }
   const runArgs =
     plan === null
       ? fullRunArgs
       : ['run', ...plan.toExecute.map((task) => task.taskId)];
 
   const stopHeartbeat = startHeartbeat();
-  const status = await runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, {
-    deadlineSeconds,
-  });
+  const status = await timed('turbo', () =>
+    runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, { deadlineSeconds })
+  );
   stopHeartbeat();
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  process.exit(finalExitCode({ status, slowRunner, ran: true }));
+  exitWithDurations(finalExitCode({ status, slowRunner, ran: true }));
 }
 
 const PLAN_SHARDS_FLAG = '--plan-shards';

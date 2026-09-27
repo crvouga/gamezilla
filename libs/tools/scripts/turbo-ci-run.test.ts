@@ -6,6 +6,7 @@ import {
 } from '@libs/secrets/shared/secrets/turbo-token';
 import {
   flattenCheckAggregators,
+  formatDurations,
   hasRemoteCreds,
   resolveCacheFlag,
   resolveRunMode,
@@ -134,5 +135,23 @@ describe('turbo-ci-run run mode', () => {
     expect(resolveRunMode(['lint', 'tc'])).toBe('plain');
     expect(resolveRunMode(['constructor'])).toBe('plain');
     expect(runModeFlags('plain')).toEqual([]);
+  });
+});
+
+describe('turbo-ci-run durations', () => {
+  test('prints the total and each phase in seconds', () => {
+    expect(
+      formatDurations(9_140, [
+        ['plan', 1_210],
+        ['prefetch', 300],
+        ['turbo', 7_630],
+      ])
+    ).toBe(
+      'turbo-ci-run: finished in 9.1s (plan 1.2s, prefetch 0.3s, turbo 7.6s)'
+    );
+  });
+
+  test('a run with no timed phases prints the total alone', () => {
+    expect(formatDurations(450, [])).toBe('turbo-ci-run: finished in 0.5s');
   });
 });
