@@ -58,6 +58,23 @@ remaining scenario-named suites there test pure functions or storage
 (view models, plan resolvers, policies, decision tables, SQL) and stay code
 tests.
 
+(2026-09-27) `pkgs/auth-sim` runs the new `sign-in` domain (`specDomains`;
+a bounded context that borrows Identity's published terms, see
+`docs/CONTEXT_MAP.md`): `specs/sign-in/address-match.feature`,
+`sign-in-methods.feature`, `copied-sign-in.feature`, `sign-in-ends.feature`,
+`at-google-and-apple.feature`, `failing-provider.feature`, and the Quint model
+`specs/sign-in/outside-accounts.qnt`, which replaces the random walk (16 seeds
+x 150 steps, the Postgres fabric, `explore`): 40 traces of up to 30 steps,
+even traces on Postgres, with the sim's reference model still checked as a
+standing property on every step. Legacy claims already proven by
+`specs/profile/` (Google then Apple at a verified address, hidden address,
+confirm/decline a match, connect, refuse another account's Apple account, last
+method, offline sign-in, revoking Sign in with Apple, deleting a connected
+Apple account, plain Google/Apple sign-in) are not restated. Kept in code, as
+a wire-level contract: `tests/provider-protocol.contract.test.ts` (the eight
+refused provider answers, the two tolerated quirks, signing-key rotation).
+The five legacy test files and `support.ts` are deleted.
+
 (2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,
 `puzzle-selection-window`, `watcher-command-refused` in
@@ -70,9 +87,9 @@ changes), not the room's refusal.
 
 Still open:
 
-- **Framework-level sims** (`pkgs/auth-sim`, `pkgs/db-indexes`,
-  `pkgs/room-sim`): deferred to a later wave, as marked below
-  (`pkgs/matchmaking-sim` is ported; see its section).
+- **Framework-level sims** (`pkgs/db-indexes`): deferred to a later wave,
+  as marked below (`pkgs/room-sim`, `pkgs/matchmaking-sim` and
+  `pkgs/auth-sim` are ported).
 - **`pkgs/sync-engine`**: ported except four files (see its section).
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
@@ -257,7 +274,7 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `libs/runtime/tests/e2e/shell-boot.test.tsx` | — | two actors boot into the tab shell, open Settings, switch focus | multi-behavior test — split (boot / open Settings / switch focus) |
 | `libs/runtime/tests/e2e/topology-partition.test.tsx` | — | partition alice–server then restoreNetwork still allows sign-up | |
 
-### pkgs/auth-sim (4) — framework-level sim (no product UI); port in a later wave
+### pkgs/auth-sim (4) — ported 2026-09-27 to `specs/sign-in/` (see Status)
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
