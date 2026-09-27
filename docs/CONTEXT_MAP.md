@@ -30,58 +30,37 @@ downstream context never redefines an upstream term and never imports an
 upstream model — only its `events.qnt`.
 
 ```text
-Identity ──► Billing, Spaces, Friends, Chess, App, Notes, Operations, Journeys
+Identity ──► Billing, Spaces, Friends, Chess, App, Operations, Journeys
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Operations, Journeys
-Spaces   ──► Friends (a friend is live), Chess (a space plays a puzzle), App, Operations, Journeys
-Friends  ──► Spaces (a friend's open space in the lobby), Journeys
-App      ──► Identity (Settings, where devices are), every context's "the app"
+Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Operations, Journeys
+Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
+App      ──► Operations (addresses, versions), Journeys
+Chess    ──► Journeys (a game of chess, a puzzle)
 Rooms, Notes: stand alone (Notes' "shared space" is not a Spaces space)
 ```
 
 ## Published language
 
-The terms and events each upstream context offers. A downstream glossary
-borrows exactly these spellings.
+A context's published language is the terms its glossary marks
+`published: true`, plus its `events.qnt`. Only those cross a boundary: a
+downstream glossary borrows them with exactly these spellings, and a
+context's other terms bind nobody else.
 
-### Identity (`profile`)
-
-- Terms: **guest**, **account**, **sign in** (forms: signs in, signed in,
-  signing in), **sign out** (forms: signs out, signed out), **sign-in
-  method**, **username**, **avatar**, **profile**.
-- `specs/profile/events.qnt` — `type IdentityEvent`: `SignedIn`,
-  `SignedOut`, `UsernameChanged`.
-
-### Billing (`billing`)
-
-- Terms: **Plus**, **Plus member** (forms: Plus members), **free account**
-  (a signed-in person without Plus), **paid access**.
-- `specs/billing/events.qnt` — `type BillingEvent`: `PaidAccessStarted`,
-  `PaidAccessEnded`.
-
-### Spaces (`spaces`)
-
-- Terms: **space**, **host** (forms: hosts, hosting, hosted), **join**
-  (forms: joins, joined), **leave** (forms: leaves, left), **end a space**
-  (forms: ends the space, ended), **open space**, **lobby**, **space link**,
-  **hosting limit**.
-- `specs/spaces/events.qnt` — `type SpaceEvent`: `SpaceOpened`,
-  `PersonJoined`, `PersonLeft`, `SpaceEnded`.
-
-### Friends (`friends`)
-
-- Terms: **friend** (forms: friends), **friends list**.
-- `specs/friends/events.qnt` — `type FriendshipEvent`: `BecameFriends`,
-  `FriendshipEnded`.
-
-### App (`runtime`)
-
-- Terms: **Settings**, **tabs**.
+| Context | Published terms | `events.qnt` |
+| --- | --- | --- |
+| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged` |
+| Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
+| Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
+| Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
+| Chess (`chess`) | game, chess, board, puzzle, solve | — |
+| App (`runtime`) | Settings, tabs, address, version of the app | — |
+| Rooms, Notes, Operations, Journeys | — | — |
 
 ## Rules of thumb
 
-- A term is a product concept, not a common English word: define "open
-  space", never "open"; "puzzle feed", never "feed" alone unless the
-  context means only that.
+- A published term is a product concept, not a common English word: publish
+  "open space", never "open". An internal term may be a plain word ("move"
+  in Chess): it constrains only its own context.
 - The same word may mean different things in different contexts ("notice",
   "member", "move"): each defines its own, and neither borrows the other's.
 - Events are past-tense facts the upstream context already decided
