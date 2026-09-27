@@ -112,6 +112,8 @@ function pickTransport(
   return {
     connect: () => leader.connect(),
     disconnect: () => leader.disconnect(),
+    // The Web Lock is released with the page.
+    leaveOnUnload: () => undefined,
     request: (op, payload, opts) => leader.request(op, payload, opts),
     onChanged: (listener) => leader.onChanged(listener),
     isOwner: () => leader.isOwner(),
@@ -150,11 +152,36 @@ function attachWipeChannelLifecycle(client: WebSqlClient): void {
   };
 }
 
-function attachLifecycle(client: WebSqlClient): void {
+type PageHideTarget = {
+  addEventListener(
+    type: 'pagehide',
+    listener: (event: { readonly persisted: boolean }) => void
+  ): void;
+};
+
+/**
+ * On `pagehide`, disconnect. A page that is discarded (not kept in the
+ * back/forward cache) is gone before `disconnect()` settles, so its broker
+ * slot is released synchronously first — otherwise the next page in this tab
+ * proxies to the dead owner until the heartbeat reaper evicts it.
+ */
+export function releaseOnPageHide(
+  target: PageHideTarget,
+  client: Pick<WebSqlClient, 'disconnect'>,
+  transport: Pick<WebSqlTransport, 'leaveOnUnload'>
+): void {
+  target.addEventListener('pagehide', (event) => {
+    if (!event.persisted) transport.leaveOnUnload();
+    void client.disconnect();
+  });
+}
+
+function attachLifecycle(
+  client: WebSqlClient,
+  transport: WebSqlTransport
+): void {
   if (typeof window !== 'undefined') {
-    window.addEventListener('pagehide', () => {
-      void client.disconnect();
-    });
+    releaseOnPageHide(window, client, transport);
     attachWipeChannelLifecycle(client);
   }
 }
@@ -328,6 +355,6 @@ export function createWebSqlClient(
     },
   };
 
-  attachLifecycle(client);
+  attachLifecycle(client, transport);
   return client;
 }

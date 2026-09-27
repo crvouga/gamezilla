@@ -26,6 +26,12 @@ import { workerScriptLoadError } from './worker-script-load-error';
 export type WebSqlTransport = {
   connect: () => Promise<ConnectResult>;
   disconnect: () => Promise<void>;
+  /**
+   * The page is being discarded: tell the broker synchronously, because the
+   * async {@link WebSqlTransport.disconnect} never reaches it once the page
+   * is gone. The owner's OPFS handles are released when its worker dies.
+   */
+  leaveOnUnload: () => void;
   request: <O extends RpcOp>(
     op: O,
     payload: RpcRequest<O>['payload'],
@@ -241,6 +247,16 @@ class SharedWorkerTransport implements WebSqlTransport {
     }
     this.worker = null;
     this.role = null;
+  }
+
+  leaveOnUnload(): void {
+    if (!this.connected) return;
+    this.post({
+      id: this.nextId(),
+      dbName: this.dbName,
+      op: 'disconnect',
+      payload: {},
+    });
   }
 
   async request<O extends RpcOp>(

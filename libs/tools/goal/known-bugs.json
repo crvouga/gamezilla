@@ -143,5 +143,10 @@
     "id": "apple-delete-stale-sign-in-methods",
     "summary": "After Apple deleted a connected Apple account, the person's devices kept listing Apple as a sign-in method until they signed in again or removed a method themselves: the IdP removed the identity on Apple's notification, but the product mirrors sign-in methods into the synced auth_external_accounts only on /identity/refresh, which a device runs for its own sign-ins. Fixed by the auth service telling the product (AuthProviderEnv.onUserChanged) once a notification changes a user's identities; the product re-mirrors them and pushes the user's topic.",
     "regressionTest": "libs/profile/tests/e2e/apple-delete-sign-in-methods.test.ts"
+  },
+  {
+    "id": "sqlite-web-navigation-dead-owner",
+    "summary": "A page discarded by a same-tab navigation (the sign-in callback, a reload) could leave before its async disconnect told the SharedWorker broker, so the next page proxied to the dead database owner and boot hung ~20s on \"Starting…\" until the heartbeat reaper evicted it. Fixed by leaving the broker synchronously on pagehide.",
+    "regressionTest": "pkgs/sql-client-sqlite-web/src/shared-worker-transport.test.ts"
   }
 ]
