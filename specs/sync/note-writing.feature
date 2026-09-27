@@ -21,3 +21,10 @@ Feature: Write a note
       Given Alice and Bob are in the shared space "Trip"
       When Alice writes the note "Groceries" saying "milk"
       Then Bob sees the note "Groceries" saying "milk"
+
+  Rule: A change to many notes at once reaches everyone
+
+    Scenario: A change to 100 notes at once reaches everyone
+      Given Alice has written 100 notes that have reached Bob
+      When Alice changes all 100 notes at once to say "done"
+      Then Bob sees all 100 notes saying "done"

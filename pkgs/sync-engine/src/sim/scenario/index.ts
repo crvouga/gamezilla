@@ -93,6 +93,7 @@ export {
   pendingEventCount,
   postOutcome,
   pubsubRemakeCount,
+  queuedEdits,
   quiet,
   rejections,
   rows,

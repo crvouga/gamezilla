@@ -2,7 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { defineAction } from '@pkgs/sim';
 import {
   addClient,
-  connection,
   exampleLocalSchemaExtraColumn,
   exampleMutationRegistry,
   exampleQueryRegistry,
@@ -56,6 +55,12 @@ const upgradeClientWithColor = defineAction({
   },
 });
 
+/**
+ * Storage contract across local schema versions: which columns and tables a
+ * merge or a restart on another version keeps. What a person sees across an
+ * update (every note kept, still connected) is
+ * `specs/sync/notes-across-app-updates.feature`.
+ */
 describe('schema drift on the real merge path', () => {
   test('server-added column is merged by a client after schema upgrade', async () => {
     await using s = await exampleSystem.run({
@@ -137,13 +142,9 @@ describe('schema drift on the real merge path', () => {
 
     await s.apply(restartWithSchema, 'alice', 'baseline');
 
-    expect(await s.read(lastError, 'alice')).toBeNull();
-    expect(await s.read(connection, 'alice')).toBe('connected');
-    expect((await s.read(liveNote, 'alice', 'n1'))?.body).toBe('written-v2');
     expect(await s.read(noteColor, 'alice', 'n1')).toEqual([
       { color: 'green' },
     ]);
-    await expectInSync(s);
   });
 
   test('unknown extra table is skipped across a baseline restart', async () => {
@@ -163,12 +164,5 @@ describe('schema drift on the real merge path', () => {
     expect(await s.read(localTable, 'alice', 'tags')).toHaveLength(1);
     await s.apply(restartWithSchema, 'alice', 'baseline');
     expect(await s.read(localTable, 'alice', 'tags')).toHaveLength(1);
-
-    expect(await s.read(lastError, 'alice')).toBeNull();
-    expect(await s.read(connection, 'alice')).toBe('connected');
-    expect((await s.read(liveNote, 'alice', 'n1'))?.body).toBe(
-      'before-table-upgrade'
-    );
-    await expectInSync(s);
   });
 });

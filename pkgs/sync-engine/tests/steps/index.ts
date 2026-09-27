@@ -8,6 +8,9 @@ import './notes.steps';
 import './devices.steps';
 import './spaces.steps';
 import './notices.steps';
+import './checked-notes.steps';
+import './many-notes.steps';
+import './app-updates.steps';
 
 import { useSyncWorld } from './world';
 

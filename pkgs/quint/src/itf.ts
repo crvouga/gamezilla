@@ -110,6 +110,10 @@ function isUnit(value: QuintValue): boolean {
  * values are equal exactly when they render the same.
  */
 export function renderQuint(value: QuintValue): string {
+  // Quint has no null; a product read can still return one (a missing
+  // field). It renders as itself, so it differs from every model value.
+  const raw: unknown = value;
+  if (raw === null || raw === undefined) return String(raw);
   if (typeof value === 'string') return JSON.stringify(value);
   if (typeof value === 'boolean' || typeof value === 'number') {
     return String(value);

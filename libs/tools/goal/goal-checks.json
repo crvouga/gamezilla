@@ -216,7 +216,7 @@
       },
       {
         "kind": "test",
-        "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
+        "path": "specs/sync/note-replication.qnt"
       },
       {
         "kind": "spec",
@@ -268,6 +268,10 @@
       {
         "kind": "test",
         "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
+      },
+      {
+        "kind": "spec",
+        "path": "specs/sync/notes-arrive-quickly.feature"
       }
     ]
   },
@@ -773,7 +777,7 @@
       },
       {
         "kind": "test",
-        "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
+        "path": "specs/sync/note-replication.qnt"
       }
     ]
   },
@@ -790,7 +794,7 @@
       },
       {
         "kind": "test",
-        "path": "pkgs/sync-engine/tests/note-replication.quint.test.ts"
+        "path": "specs/sync/note-replication.qnt"
       }
     ]
   },

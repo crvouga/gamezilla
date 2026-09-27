@@ -55,6 +55,7 @@ export {
   publishFault,
   pubsubFault,
   pubsubRemakeCount,
+  queuedEdits,
   quiet,
   recoverAll,
   rejections,
@@ -249,5 +250,4 @@ export {
   type UntilExampleOpts,
   untilExample,
 } from './until';
-export { type WalkThenInSyncOpts, walkThenInSync } from './walk-in-sync';
 export { writeNoteBody } from './write-note-body';
