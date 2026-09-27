@@ -83,7 +83,8 @@ const REPO_ROOT = join(import.meta.dirname, '../../..');
 const CHECK_AGGREGATOR = '//#check';
 const DEPLOY_AGGREGATOR = '//#deploy';
 /**
- * The per-package live-resource probes. Deliberately no `//#health` root
+ * The live health checks and critical journeys (`@apps/product#health`,
+ * `specs/health/` + `specs/journeys/`). Deliberately no `//#health` root
  * task: the root `health` script would make a bare `health` dependency
  * resolve to that root task itself, a cycle turbo refuses to plan.
  */

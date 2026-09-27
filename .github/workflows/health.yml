@@ -5,8 +5,9 @@ name: Health
 #   <Workflow> · <trigger>
 run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manual' }}"
 
-# Health: is the deployment good? Live-resource health between deploys: `bun run health` runs every package's
-# `health` task (turbo `health` with `--only`, so nothing is deployed) against
+# Health: is the deployment good? Live-resource health between deploys: `bun run health` runs
+# `@apps/product#health` (turbo `health` with `--only`, so nothing is deployed):
+# every Gherkin scenario in specs/health/ and specs/journeys/ against
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
 # vendor credentials, the Workers, DNS and TLS — plus the critical user
 # journeys, driven in a real browser (the runner's preinstalled Chrome)
@@ -18,8 +19,8 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # (health:matrix reads them — libs/infra/scripts/workflow-env-matrix.ts — from
 # a job with no secrets); adding an env file needs no edit here. Envs with
 # `protection: "production"` run in the GitHub `production` environment and
-# keep their critical-journey evidence on failure. Prd-only probes skip
-# themselves elsewhere.
+# keep their critical-journey evidence on failure. `@production` scenarios
+# skip themselves elsewhere.
 
 permissions:
   contents: read
@@ -87,7 +88,7 @@ jobs:
       - name: health:${{ matrix.env }}
         run: bun run health
 
-      # Critical journeys (apps/product/health/critical-journeys.health.ts)
+      # Critical journeys (specs/journeys/, apps/product/tests/steps/live-world.ts)
       # save a screenshot, the page HTML and the browser console per failure.
       - name: Upload critical journey evidence
         if: failure() && contains(fromJSON(needs.health-matrix.outputs.production), matrix.env)

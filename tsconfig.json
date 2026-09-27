@@ -2,8 +2,6 @@
   "extends": "./tsconfig.base.json",
   "include": [
     "pkgs/ts-reset/src/index.ts",
-    "apps/*/health/**/*.ts",
-    "libs/*/health/**/*.ts",
     "apps/server/src/**/*.ts",
     "apps/server/src/**/*.d.ts",
     "apps/server/tests/**/*.ts",
@@ -234,7 +232,6 @@
     "pkgs/database-url-policy/src/**/*.ts",
     "libs/runtime/src/**/*.ts",
     "libs/db/src/**/*.ts",
-    "libs/object-store/src/**/*.ts",
     "libs/observability/src/**/*.ts",
     "libs/observability/tests/**/*.ts",
     "libs/pubsub/src/**/*.ts",

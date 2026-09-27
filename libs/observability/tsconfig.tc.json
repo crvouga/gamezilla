@@ -3,8 +3,7 @@
   "include": [
     "../../pkgs/ts-reset/src/index.ts",
     "./src/**/*.ts",
-    "./tests/**/*.ts",
-    "./health/**/*.ts"
+    "./tests/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

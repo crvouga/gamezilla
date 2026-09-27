@@ -1,7 +1,9 @@
 /**
  * Discovery for the spec gates. Every feature lives in the flat top-level
  * tree `specs/<domain>/<feature>.feature`; a workspace package runs the
- * domains its `package.json` lists in `specDomains`. For each such package:
+ * domains its `package.json` lists in `specDomains` (against the sim, in its
+ * `test:e2e`) and in `liveDomains` (against a deployed environment, in its
+ * `health`). For each such package:
  * its parsed features, the step definitions its `tests/steps/**` declare
  * (read statically), and the step files of other packages its steps entry
  * imports. Shared with `check-specs.ts`, `spec-catalog.ts` and `spec-run.ts`.
@@ -25,6 +27,10 @@ const TIERS = ['apps', 'libs', 'pkgs'] as const;
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */
   readonly dir: string;
+  /** Domains run against the sim (`test:e2e`). */
+  readonly specDomains: readonly string[];
+  /** Domains run against a deployed environment (`health`). */
+  readonly liveDomains: readonly string[];
   /** Repo-relative `tests/steps/index.ts`, or null when missing. */
   readonly stepsEntry: string | null;
   readonly problems: readonly string[];
@@ -33,8 +39,10 @@ export type SpecPackage = PackageSpecs & {
 type Manifest = {
   readonly name?: string;
   readonly exports?: Record<string, unknown>;
-  /** The `specs/<domain>/` directories this package runs. */
+  /** The `specs/<domain>/` directories this package runs against the sim. */
   readonly specDomains?: readonly string[];
+  /** The `specs/<domain>/` directories this package runs against a deployment. */
+  readonly liveDomains?: readonly string[];
 };
 
 function listFiles(dir: string, suffix: string, out: string[] = []): string[] {
@@ -140,7 +148,7 @@ function readManifest(dir: string): Manifest {
   ) as Manifest;
 }
 
-/** Every package that runs spec domains (`specDomains`), in path order. */
+/** Every package that runs spec domains (`specDomains` / `liveDomains`), in path order. */
 export function specPackages(): readonly SpecPackage[] {
   const dirs = packageDirs();
   const byName = new Map<string, string>();
@@ -151,7 +159,9 @@ export function specPackages(): readonly SpecPackage[] {
   const out: SpecPackage[] = [];
   for (const dir of dirs) {
     const manifest = readManifest(dir);
-    const domains = manifest.specDomains ?? [];
+    const specDomains = manifest.specDomains ?? [];
+    const liveDomains = manifest.liveDomains ?? [];
+    const domains = [...new Set([...specDomains, ...liveDomains])];
     if (domains.length === 0) continue;
     const name = manifest.name ?? dir;
     const entryPath = `${dir}/tests/steps/index.ts`;
@@ -176,12 +186,16 @@ export function specPackages(): readonly SpecPackage[] {
         imports.push(file);
       }
     } else {
-      problems.push(`${dir}: runs specDomains but has no tests/steps/index.ts`);
+      problems.push(
+        `${dir}: runs spec domains but has no tests/steps/index.ts`
+      );
     }
     out.push({
       name,
       dir,
       domains,
+      specDomains,
+      liveDomains,
       features: readFeatures(domains),
       definitions: own.steps,
       imports,
@@ -192,22 +206,33 @@ export function specPackages(): readonly SpecPackage[] {
   return out;
 }
 
+function runnersBy(
+  packages: readonly SpecPackage[],
+  domainsOf: (pkg: SpecPackage) => readonly string[]
+): Map<string, string[]> {
+  const runners = new Map<string, string[]>();
+  for (const pkg of packages) {
+    for (const domain of domainsOf(pkg)) {
+      runners.set(domain, [...(runners.get(domain) ?? []), pkg.name]);
+    }
+  }
+  return runners;
+}
+
 /**
  * The `specs/` tree is flat and fully owned: only `specs/<domain>/*.feature`,
- * every domain directory run by exactly one package, every claimed domain
- * present, and no package keeping a `features/` directory of its own.
+ * every domain directory run by some package — by at most one against the
+ * sim (`specDomains`) and at most one live (`liveDomains`) — every claimed
+ * domain present, and no package keeping a `features/` directory of its own.
  */
 export function specsLayoutProblems(
   packages: readonly SpecPackage[]
 ): readonly string[] {
   const out: string[] = [];
   const root = join(REPO_ROOT, SPECS_DIR);
-  const runners = new Map<string, string[]>();
-  for (const pkg of packages) {
-    for (const domain of pkg.domains) {
-      runners.set(domain, [...(runners.get(domain) ?? []), pkg.name]);
-    }
-  }
+  const runners = runnersBy(packages, (pkg) => pkg.domains);
+  const simRunners = runnersBy(packages, (pkg) => pkg.specDomains);
+  const liveRunners = runnersBy(packages, (pkg) => pkg.liveDomains);
   const present = existsSync(root)
     ? readdirSync(root, { withFileTypes: true })
     : [];
@@ -226,13 +251,21 @@ export function specsLayoutProblems(
         );
       }
     }
-    const owners = runners.get(entry.name) ?? [];
-    if (owners.length === 0) {
+    if ((runners.get(entry.name) ?? []).length === 0) {
       out.push(
-        `${path}/: no package lists "${entry.name}" in its package.json specDomains`
+        `${path}/: no package lists "${entry.name}" in its package.json specDomains or liveDomains`
       );
-    } else if (owners.length > 1) {
-      out.push(`${path}/: run by several packages (${owners.join(', ')})`);
+    }
+    for (const [field, byDomain] of [
+      ['specDomains', simRunners],
+      ['liveDomains', liveRunners],
+    ] as const) {
+      const owners = byDomain.get(entry.name) ?? [];
+      if (owners.length > 1) {
+        out.push(
+          `${path}/: run by several packages' ${field} (${owners.join(', ')})`
+        );
+      }
     }
   }
   const names = new Set(
@@ -241,7 +274,7 @@ export function specsLayoutProblems(
   for (const [domain, owners] of runners) {
     if (!names.has(domain)) {
       out.push(
-        `${owners.join(', ')}: specDomains lists "${domain}" but ${SPECS_DIR}/${domain}/ does not exist`
+        `${owners.join(', ')}: lists "${domain}" but ${SPECS_DIR}/${domain}/ does not exist`
       );
     }
   }
@@ -254,7 +287,7 @@ export function specsLayoutProblems(
           }
         ).tasks?.['test:e2e']?.inputs ?? [])
       : [];
-    for (const domain of pkg.domains) {
+    for (const domain of pkg.specDomains) {
       const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/**`;
       if (!inputs.includes(input)) {
         out.push(

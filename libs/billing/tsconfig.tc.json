@@ -8,8 +8,7 @@
     "./src/**/*.d.ts",
     "./scripts/**/*.ts",
     "./tests/**/*.ts",
-    "./tests/**/*.tsx",
-    "./health/**/*.ts"
+    "./tests/**/*.tsx"
   ],
   "exclude": ["node_modules"]
 }

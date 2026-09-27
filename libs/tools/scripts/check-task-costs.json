@@ -48,8 +48,6 @@
   "@libs/games#test": 1,
   "@libs/notifications#lint": 4,
   "@libs/notifications#tc": 2,
-  "@libs/object-store#lint": 3,
-  "@libs/object-store#tc": 1,
   "@libs/observability#lint": 3,
   "@libs/observability#tc": 1,
   "@libs/observability#test": 1,

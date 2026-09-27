@@ -1,7 +1,7 @@
 /**
- * Steps the critical journeys share. Everything here is a bare {@link Driver}
- * gesture — no sim, no session — so the same step runs on pumped virtual
- * time in `bun check` and on a real browser against production.
+ * Gestures the critical journeys share. Everything here is a bare
+ * {@link Driver} gesture — no sim, no session — so the same step runs on
+ * pumped virtual time in `bun check` and on a real browser against production.
  */
 
 import {
@@ -59,7 +59,8 @@ export async function openTab(ui: Driver, tab: string): Promise<void> {
   await tap(ui, tab);
 }
 
-async function endActiveSpace(ui: Driver): Promise<void> {
+/** End the space the person is in and see it ended. */
+export async function endActiveSpace(ui: Driver): Promise<void> {
   await tap(ui, Handles.spaceEnd);
   await tap(ui, Handles.spaceEndConfirm);
   await ui
@@ -72,28 +73,9 @@ async function endActiveSpace(ui: Driver): Promise<void> {
   await expectVisible(ui, Handles.spaceEnded);
 }
 
-/**
- * Host a space, run `body` inside it, then end it — also when `body` fails,
- * so a broken run never leaves a live space behind (free accounts may host
- * one at a time). The first failure wins.
- */
-export async function withHostedSpace(
-  ui: Driver,
-  body: () => Promise<void>
-): Promise<void> {
+/** Host a space from the Spaces tab; ends inside it. */
+export async function hostSpace(ui: Driver): Promise<void> {
   await openTab(ui, Handles.tabSpaces);
   await tap(ui, Handles.spaceCreate);
   await expectVisible(ui, Handles.spaceClose);
-  let failure: unknown = null;
-  try {
-    await body();
-  } catch (error) {
-    failure = error;
-  }
-  try {
-    await endActiveSpace(ui);
-  } catch (error) {
-    failure ??= error;
-  }
-  if (failure !== null) throw failure;
 }

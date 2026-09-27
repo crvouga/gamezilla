@@ -46,7 +46,6 @@
       "@libs/notifications": ["./libs/notifications/src/public/index.ts"],
       "@libs/notifications/*": ["./libs/notifications/src/*"],
       "@libs/permissions/*": ["./libs/permissions/src/*"],
-      "@libs/object-store/shared/*": ["./libs/object-store/src/shared/*.ts"],
       "@libs/observability/public/*": ["./libs/observability/src/public/*.ts"],
       "@libs/observability/server/*": ["./libs/observability/src/server/*.ts"],
       "@libs/profile/*": ["./libs/profile/src/*"],

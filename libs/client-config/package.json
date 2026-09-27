@@ -14,13 +14,11 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
-    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test src"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
-    "@libs/db": "workspace:*",
     "@libs/feature": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
@@ -28,13 +26,11 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/equal": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
     "@pkgs/object-store": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "hono": "catalog:",

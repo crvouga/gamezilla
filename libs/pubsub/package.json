@@ -15,7 +15,6 @@
     ]
   },
   "scripts": {
-    "health": "bun test --timeout 900000 ./health/*.health.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test"
@@ -24,12 +23,8 @@
     "@libs/client-config": "workspace:*",
     "@libs/feature": "workspace:*",
     "@pkgs/clock": "workspace:*",
-    "@pkgs/emqx-server": "workspace:*",
-    "@pkgs/http-client": "workspace:*",
-    "@pkgs/object-store-node-fs": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
     "@pkgs/pubsub-emqx": "workspace:*",
-    "@pkgs/secret-provider": "workspace:*",
     "@pkgs/secret-store": "workspace:*",
     "jose": "catalog:"
   },

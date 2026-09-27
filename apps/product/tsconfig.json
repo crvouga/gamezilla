@@ -7,7 +7,6 @@
     "./src/**/*.ts",
     "./src/**/*.tsx",
     "./scripts/**/*.ts",
-    "./health/**/*.ts",
     "./tests/**/*.ts",
     "./vite.config.mts"
   ],

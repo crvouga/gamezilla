@@ -99,15 +99,19 @@ export function recall(w: SimWorld, key: string): unknown {
 /**
  * Register the sim world for this package's features: `openSim` is the
  * package's composition (`tests/e2e/support/open-<feature>-sim.ts`).
+ * `extend` adds what steps shared with a non-sim host need (e.g. the
+ * critical journeys' `journey` host) to every scenario's world.
  */
 export function useSimWorld(
-  openSim: (testId: string) => Promise<OpenSim>
+  openSim: (testId: string) => Promise<OpenSim>,
+  extend: (world: SimWorld) => object = () => ({})
 ): void {
   setWorld<SimWorld>({
     create: async (ctx) => {
       const calls: string[] = [];
       const s = recordingRun(await openSim(ctx.testId), calls);
-      return { s, ctx, memo: new Map(), calls };
+      const world: SimWorld = { s, ctx, memo: new Map(), calls };
+      return { ...world, ...extend(world) };
     },
     dispose: (w) => w.s[Symbol.asyncDispose](),
     calls: (w) => w.calls,

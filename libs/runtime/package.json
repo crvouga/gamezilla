@@ -22,7 +22,8 @@
     "./sim/*": [
       "./src/sim/*.ts",
       "./src/sim/*.tsx"
-    ]
+    ],
+    "./steps/*": "./tests/steps/*.ts"
   },
   "scripts": {
     "check:schema-evolution": "bun run scripts/check-schema-evolution.ts",
@@ -30,13 +31,13 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "migrate": "bun run scripts/migrate-cli.ts --wait",
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
-    "health": "bun test --timeout 60000 ./health/*.health.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
   "specDomains": [
-    "runtime"
+    "runtime",
+    "journeys"
   ],
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -66,6 +67,7 @@
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
     "@pkgs/logger": "workspace:*",

@@ -187,16 +187,16 @@ The chicken-and-egg problems and how each is broken:
 | State needs a bucket; the bucket is a resource | The bootstrap stack's first apply uses a local backend, creates the bucket and its credential, writes the credential to the shared secrets environment, then migrates its own state into the bucket (`scripts/bootstrap-backend.ts`). Detected by `TOFU_STATE_ACCESS_KEY_ID` being absent. |
 | State is encrypted; the key cannot come from state | `TOFU_STATE_PASSPHRASE` is a human secret, seeded before anything runs. |
 | CI authenticates to Infisical with the identity the bootstrap stack manages | Bootstrap is applied by a person with their own credentials, never by CI. It creates a new OIDC identity (the provider cannot import an existing OIDC binding) and repoints `SECRETS_IDENTITY_ID`; runs in flight keep using the old identity, which a person deletes afterwards. |
-| Generated secrets already exist | A stored value wins over the generator, so adopting never rotates `AUTH_SECRET` or broker credentials. Two exceptions are minted fresh: `secrets.regenerate` lists names whose value was copied from another environment (dev's broker credentials came from prd), and `stacks/foundation/secrets.json` `placeholders` lists the values committed to git for local sidecars (the EMQX sidecar's keys), which are public and must never reach a deployed broker. `@libs/pubsub#health` re-reads the store before probing, so a rotation lands in the same deploy. |
+| Generated secrets already exist | A stored value wins over the generator, so adopting never rotates `AUTH_SECRET` or broker credentials. Two exceptions are minted fresh: `secrets.regenerate` lists names whose value was copied from another environment (dev's broker credentials came from prd), and `stacks/foundation/secrets.json` `placeholders` lists the values committed to git for local sidecars (the EMQX sidecar's keys), which are public and must never reach a deployed broker. `specs/health/realtime-broker.feature` re-reads the store before probing, so a rotation lands in the same deploy. |
 | Secrets OpenTofu writes already exist | Imported (`imports.foundation.secrets`), so the first apply updates rather than colliding with "already exists". |
 | Custom domains need their Worker | Edge runs after the Worker deploys; wrangler (with no `routes`) never touches existing custom domains in between. |
-| A new broker / stack takes minutes to come up | The EMQX and Grafana health probes poll through a warm-up window. |
+| A new broker / stack takes minutes to come up | The broker and traces health checks (`specs/health/`) poll through a warm-up window. |
 
 Health checks for the human-managed settings (`bun health`, every
-environment, hourly): `apps/server/health/google-oauth.health.ts` asks Google
+environment, hourly): `specs/health/google-oauth.feature` asks Google
 whether it accepts the one shared OAuth callback and, if not, names the exact
 redirect URI to add, and production's API health proves it relays each other
-environment's callbacks; `@libs/infra#health` plans every stack and fails on
+environment's callbacks; `specs/health/infrastructure.feature` plans every stack and fails on
 drift or on a missing / inactive Grafana stack.
 
 Runbook:
