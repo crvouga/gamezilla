@@ -7,7 +7,7 @@ Features live in `specs/<domain>/<feature>.feature`. One catalog per package tha
 | --- | --- | --- | --- | --- | --- |
 | @apps/product | `specs/health/`, `specs/journeys/` | 11 | 36 | 31 | [catalog](../apps/product/STEPS_CATALOG.md) |
 | @libs/billing | `specs/billing/` | 12 | 32 | 31 | [catalog](../libs/billing/STEPS_CATALOG.md) |
-| @libs/chess | `specs/chess/` | 29 | 122 | 159 | [catalog](../libs/chess/STEPS_CATALOG.md) |
-| @libs/friends | `specs/friends/`, `specs/spaces/` | 24 | 69 | 83 | [catalog](../libs/friends/STEPS_CATALOG.md) |
-| @libs/profile | `specs/profile/` | 10 | 42 | 55 | [catalog](../libs/profile/STEPS_CATALOG.md) |
-| @libs/runtime | `specs/runtime/`, `specs/journeys/` | 7 | 21 | 25 | [catalog](../libs/runtime/STEPS_CATALOG.md) |
+| @libs/chess | `specs/chess/` | 29 | 122 | 160 | [catalog](../libs/chess/STEPS_CATALOG.md) |
+| @libs/friends | `specs/friends/`, `specs/spaces/` | 24 | 69 | 85 | [catalog](../libs/friends/STEPS_CATALOG.md) |
+| @libs/profile | `specs/profile/` | 10 | 42 | 49 | [catalog](../libs/profile/STEPS_CATALOG.md) |
+| @libs/runtime | `specs/runtime/`, `specs/journeys/` | 7 | 21 | 43 | [catalog](../libs/runtime/STEPS_CATALOG.md) |

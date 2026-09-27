@@ -106,14 +106,14 @@ function usePreferencesGroup(): Accessor<SettingsGroup> {
         value: themeValue(),
         icon: PaintbrushIcon,
         href: '/more/theme',
-        testid: 'settings-theme',
+        testid: Handles.settingsTheme,
       },
       {
         title: t`Sound`,
         value: muted() ? t`Muted` : t`On`,
         icon: muted() ? VolumeXIcon : Volume2Icon,
         href: '/more/sound',
-        testid: 'settings-sound',
+        testid: Handles.settingsSound,
       },
       {
         title: t`Performance`,
@@ -168,7 +168,7 @@ function useAboutGroup(): Accessor<SettingsGroup> {
         value: APP_VERSION,
         icon: InfoIcon,
         href: '/more/about',
-        testid: 'settings-about',
+        testid: Handles.settingsAbout,
       },
       {
         title: t`UI components`,

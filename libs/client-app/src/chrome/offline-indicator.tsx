@@ -9,14 +9,19 @@ import { Trans, useLingui } from '@lingui/solid/macro';
 import { DismissibleBanner } from '@pkgs/ui';
 import { createEffect, createSignal, type JSX, on } from 'solid-js';
 
+import { useSyncStatus } from '../shell/sync/sync-status-context';
 import { createConnectivity } from './use-connectivity';
 
 export function OfflineIndicator(): JSX.Element {
   const { t } = useLingui();
   const connectivity = createConnectivity();
+  const syncStatus = useSyncStatus();
   // Browser offline (and sync blips while offline) are normal — never banner.
+  // An outdated app is asked to update instead (`AppUpdateRequiredBanner`).
   const problem = (): boolean =>
-    connectivity.online() && connectivity.syncError();
+    connectivity.online() &&
+    connectivity.syncError() &&
+    !syncStatus().upgradeRequired;
   const [dismissed, setDismissed] = createSignal(false);
   // Re-arm only after recovery so intermittent sync errors don't re-show
   // a banner the user already dismissed.

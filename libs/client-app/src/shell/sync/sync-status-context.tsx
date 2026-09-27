@@ -26,6 +26,7 @@ export const BOOT_SYNC_STATUS: SyncEngineStatus = {
   hasSynced: false,
   hasEverSynced: false,
   lastError: null,
+  upgradeRequired: false,
 };
 
 const SyncStatusContext =

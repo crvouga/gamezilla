@@ -2510,6 +2510,10 @@ msgstr "This space has ended"
 msgid "This tab"
 msgstr "This tab"
 
+#: libs/client-app/src/chrome/app-update-required.tsx
+msgid "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
+msgstr "This version of the app is out of date. Update it to keep playing with others — everything you did is kept."
+
 #: libs/chess/src/public/chess-settings/chess-settings-developer-screen.tsx
 msgid "Tools for debugging and exploring the UI."
 msgstr "Tools for debugging and exploring the UI."
@@ -2593,9 +2597,17 @@ msgstr "Unrated · already played"
 msgid "Unseen"
 msgstr "Unseen"
 
+#: libs/client-app/src/chrome/app-update-required.tsx
+msgid "Update"
+msgstr "Update"
+
 #: libs/billing/src/root/client/billing-plan-card.tsx
 msgid "Update payment method"
 msgstr "Update payment method"
+
+#: libs/client-app/src/chrome/app-update-required.tsx
+msgid "Update the app"
+msgstr "Update the app"
 
 #: libs/client-app/src/shell/commands/app-commands.tsx
 msgid "Use dark theme"

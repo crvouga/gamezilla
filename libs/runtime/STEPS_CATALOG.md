@@ -7,29 +7,47 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} has chosen the dark theme | {actor} | runtime, journeys |
 | Given | {actor} has opened Settings | {actor} | runtime, journeys |
+| Given | {actor} has opened the app before | {actor} | runtime, journeys |
+| Given | {actor} has turned sounds off | {actor} | runtime, journeys |
+| Given | {actor}'s app is older than the product accepts | {actor} | runtime, journeys |
 | Given | a person is signed in on a fresh device | — | runtime, journeys |
 | Given | they are hosting a space | — | runtime, journeys |
+| Given | they have started a chess puzzle in the space | — | runtime, journeys |
 | Step | a person opens the app on a fresh device | — | runtime, journeys |
+| Then | {actor} can go back to Spaces | {actor} | runtime, journeys |
 | Then | {actor} is (still )on Settings | {actor} | runtime, journeys |
+| Then | {actor} is asked to update the app within {int} seconds | {actor}, {int} | runtime, journeys |
 | Then | {actor} is on Spaces | {actor} | runtime, journeys |
+| Then | {actor} is shown the version of the app they have | {actor} | runtime, journeys |
+| Then | {actor} is told there is nothing at that address | {actor} | runtime, journeys |
 | Then | {actor} sees the tabs | {actor} | runtime, journeys |
+| Then | {actor}'s app is dark | {actor} | runtime, journeys |
+| Then | {actor}'s sounds are off | {actor} | runtime, journeys |
 | Then | a puzzle board is laid out and ready to play | — | runtime, journeys |
 | Then | editing their avatar again shows the new one | — | runtime, journeys |
 | Then | Google is asked to sign them in and send them back to the app | — | runtime, journeys |
+| Then | Plus is offered at its monthly and yearly prices | — | runtime, journeys |
 | Then | the app finishes booting into the tabs | — | runtime, journeys |
+| Then | the next puzzle is ready to play | — | runtime, journeys |
 | Then | the search settles on no results | — | runtime, journeys |
 | Then | the space offers games to play | — | runtime, journeys |
 | Then | the space shows it has ended | — | runtime, journeys |
 | Then | their account offers to sign in again | — | runtime, journeys |
+| When | {actor} opens About in Settings | {actor} | runtime, journeys |
+| When | {actor} opens an address the app does not have | {actor} | runtime, journeys |
 | When | {actor} opens Settings | {actor} | runtime, journeys |
 | When | {actor} opens the app | {actor} | runtime, journeys |
+| When | {actor} updates the app | {actor} | runtime, journeys |
 | When | the view switches to {actor}'s device | {actor} | runtime, journeys |
 | When | they end the space | — | runtime, journeys |
 | When | they host a space | — | runtime, journeys |
+| When | they look at the billing plans | — | runtime, journeys |
 | When | they save a new avatar | — | runtime, journeys |
 | When | they search for people with a name nobody has | — | runtime, journeys |
 | When | they sign out of their account | — | runtime, journeys |
+| When | they solve the puzzle | — | runtime, journeys |
 | When | they start a chess puzzle in the space | — | runtime, journeys |
 | When | they start signing in with Google | — | runtime, journeys |
 
@@ -55,6 +73,30 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} loses the connection | {actor} | shared |
 | When | {actor} signs in with Google | {actor} | shared |
 | When | the connection comes back | — | shared |
+
+## Steps imported from @libs/profile
+
+| Kind | Step | Parameters | Domain |
+| --- | --- | --- | --- |
+| Given | {actor} and {actor} are on fresh devices | {actor}, {actor} | profile |
+| Given | {actor} has saved an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
+| Given | {actor}'s username is {username} | {actor}, {username} | profile |
+| Then | {actor} already has an avatar | {actor} | profile |
+| Then | {actor} and {actor} have different usernames | {actor}, {actor} | profile |
+| Then | {actor}'s other device shows {username} | {actor}, {username} | profile |
+| Then | {actor}'s profile shows {username} | {actor}, {username} | profile |
+| Then | {actor}'s profile shows {username} within {int} seconds | {actor}, {username}, {int} | profile |
+| Then | {actor}'s saved avatar has seed {string} | {actor}, {string} | profile |
+| Then | {actor}'s saved avatar uses style {string} | {actor}, {string} | profile |
+| Then | {actor}'s username change is refused with {string} | {actor}, {string} | profile |
+| When | {actor} and {actor} open the app | {actor}, {actor} | profile |
+| When | {actor} changes the avatar seed to {string} and leaves without saving | {actor}, {string} | profile |
+| When | {actor} renames themselves to {username} | {actor}, {username} | profile |
+| When | {actor} renames themselves to {username} on their other device | {actor}, {username} | profile |
+| When | {actor} saves an avatar with seed {string} and style {string} | {actor}, {string}, {string} | profile |
+| When | {actor} starts renaming themselves to {username} and leaves without saving | {actor}, {username} | profile |
+| When | {actor} tries to use username {string} | {actor}, {string} | profile |
+| When | {actor}'s account opens on another device | {actor} | profile |
 
 ## Features
 

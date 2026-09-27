@@ -11,6 +11,12 @@ export type SyncEngineStatus = {
   /** Latches true after the first successful sync; never resets on reconnect. */
   readonly hasEverSynced: boolean;
   readonly lastError: string | null;
+  /**
+   * The product no longer accepts this app's version (`upgrade_required`):
+   * nothing syncs until the app is updated. Local data is kept. Clears on the
+   * next successful sync.
+   */
+  readonly upgradeRequired: boolean;
 };
 
 export const INITIAL_SYNC_STATUS: SyncEngineStatus = {
@@ -19,6 +25,7 @@ export const INITIAL_SYNC_STATUS: SyncEngineStatus = {
   hasSynced: false,
   hasEverSynced: false,
   lastError: null,
+  upgradeRequired: false,
 };
 
 export type SyncStatusListener = (status: SyncEngineStatus) => void;
