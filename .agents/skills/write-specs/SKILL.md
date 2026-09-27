@@ -78,7 +78,7 @@ implementation detail. For example, "Google sign-in", "Apple sign-in" and
 "Plus" are fine.
 
 `bun run spec:check` rejects UI mechanics, the common implementation words,
-and narrators. It warns on architecture words such as "server". Words it
+and narrators, and fails on architecture words such as "server". Words it
 misses are still your responsibility.
 
 ## 4. Shape of a good feature
@@ -114,7 +114,7 @@ Feature: Block and unblock
   fails").
 - **Then**: the observable outcome. Say what people see or can now do, never
   what the system stored. Every scenario has at least one `Then`.
-- **Brief**: 3–5 steps is the target. The gate warns above 8 steps or 3
+- **Brief**: 3–5 steps is the target. The gate fails above 8 steps or 3
   `When`s. A `When … Then … When … Then` chain is usually several rules, so
   split it. Only `specs/journeys/` may chain, because there the journey is the
   behavior. A step that must happen first belongs in `Given` as a fact.
@@ -194,9 +194,9 @@ test, not a spec. Tell the user rather than disguise it.
    behavioral phrase, and `fix-specs` retires the old one.
 3. **Write** one feature per capability in `specs/<domain>/`.
 4. **Self-review** against the checklist, line by line.
-5. **Run** `bun run spec:check --smells`. Undefined steps for new wording
-   are the implementer's handoff. Every other error, and every smell in the
-   lines you touched, is yours to fix.
+5. **Run** `bun run spec:check`. Undefined steps for new wording are the
+   implementer's handoff. Every other error, including every smell, is
+   yours to fix.
 6. **Commit** the feature-only change with a `spec:` subject. Hand off to
    the implementer (`implement-specs`), including any exhaustive cases you
    left to code tests.

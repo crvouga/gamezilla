@@ -1,6 +1,6 @@
 ---
 name: fix-specs
-description: Audit and repair bad BDD in specs/ and tests/steps/ — leaky or imperative wording, script-like or multi-rule scenarios, fat step definitions — and demote scenarios that are not product behavior into the right code test (property, model, contract, example regression) without losing goal proofs or regression guards. Use for spec reviews, cleanup, `spec:check --smells` debt, or when a scenario tests internals.
+description: Audit and repair bad BDD in specs/ and tests/steps/ — leaky or imperative wording, script-like or multi-rule scenarios, fat step definitions — and demote scenarios that are not product behavior into the right code test (property, model, contract, example regression) without losing goal proofs or regression guards. Use for spec reviews, cleanup, spec:check smell failures, or when a scenario tests internals.
 ---
 
 # Fix specs
@@ -22,8 +22,7 @@ Scope to what you were asked for (one feature, one domain, or all of
 `specs/`). Collect:
 
 ```sh
-bun run spec:check --smells     # hard errors + every smell with file:line
-bun run spec:check --strict-duplicates   # near-duplicate step wording
+bun run spec:check --strict-duplicates   # errors, smells, near-duplicate wording
 ```
 
 Then read each in-scope feature and its step definitions and record every
@@ -121,8 +120,7 @@ Rules for the replacement:
 3. **Implementation commit (rebind):** move step bodies to the new wording,
    delete now-unused definitions, fix step smells per `implement-specs`, and
    run `bun run spec:catalog`.
-4. **Verify:** `bun run spec:check --smells` shows no smells in the files you
-   touched, the focused `bun run spec --package <workspace>` is green, then
+4. **Verify:** `bun run spec:check --strict-duplicates` is clean, the focused `bun run spec --package <workspace>` is green, then
    `bun run spec:ownership` (feature files only in `spec:` commits), then
    `bun check`. For live domains, also run `bun health` (read-only, every
    live feature against dev), and report any failure you didn't cause.
@@ -170,5 +168,6 @@ first commit, and the `@goal`/`@regression` ties move with them.
 
 End with a table covering every scenario you touched: the file and scenario,
 the outcome (keep / rewrite / split / demote / delete), where it went, and
-the goal or regression ties moved. Also list the smell count before and
-after (`spec:check` summary line), plus open questions for the user.
+the goal or regression ties moved. Also list the smells and near-duplicate
+warnings before and after (`bun run spec:check --strict-duplicates`), plus
+open questions for the user.

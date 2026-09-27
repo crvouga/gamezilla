@@ -68,17 +68,16 @@ The gate (`bun run spec:check`) fails on:
 - a narrator ("I", "my", "the user") instead of a named person or role
 - a scenario with no `Then`, or a `Given` after the scenario has acted
 - stale step catalogs
+- a BDD smell (`@pkgs/gherkin/smells`):
+  - a scenario with more than 8 steps, or more than 3 `When`s
+  - a scenario that acts again after a `Then`, outside `specs/journeys/`
+  - a step naming architecture ("server", "client", "backend", "sim")
+  - a feature with no description
 
-It warns (`bun run spec:check --smells` lists them, `--strict-smells`
-fails on them) when:
-
-- a scenario has more than 8 steps, or more than 3 `When`s
-- a scenario acts again after a `Then` outside `specs/journeys/`
-- a step names architecture ("server", "client", "backend", "sim")
-- a feature has no description
-
-Smells are debt. New and changed scenarios add none, and `fix-specs` pays the
-debt down.
+It warns on near-duplicate step wording (`--strict-duplicates` fails on it).
+The smell thresholds are judgment calls made strict so the specs stay clean;
+if one blocks a scenario that really is one rule, restate earlier steps as
+`Given` facts before reaching for a longer scenario.
 
 Style the gate can't check (the skills cover it): declarative intent rather than
 procedure, one rule per scenario, `Given` as facts rather than actions,
@@ -164,7 +163,7 @@ bun run spec specs/friends/friend-block.feature
 bun run spec --package @libs/friends -t 'ends the friendship'
 bun run spec:catalog
 bun run spec:check
-bun run spec:check --smells
+bun run spec:check --strict-duplicates
 bun run spec:ownership
 ```
 
