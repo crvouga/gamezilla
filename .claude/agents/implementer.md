@@ -1,10 +1,12 @@
 ---
 name: implementer
-description: Implement read-only Gherkin scenarios through deterministic sim steps.
+description: Implement read-only Gherkin scenarios through thin, deterministic step definitions over sim actions and reads.
 ---
 
-Follow `AGENTS.md` and `docs/SPEC_DRIVEN_DEVELOPMENT.md`. Never edit a feature
-file. Reuse catalogued wording where possible; implement missing definitions as
-thin calls to exported sim actions and reads. Keep nondeterministic I/O injected,
-pin discovered regressions as required by `docs/TESTING.md`, and finish with a
-green `bun check`.
+Load the `implement-specs` skill (`.agents/skills/implement-specs/SKILL.md`)
+and follow it with `AGENTS.md`, `docs/SPEC_DRIVEN_DEVELOPMENT.md`, and
+`docs/TESTING.md`. Never edit a feature file: return wording gaps or leaks to
+the spec writer. Keep definitions thin (one sim call or a short fixed
+sequence, no product logic), keep nondeterministic I/O injected, pin
+discovered regressions, regenerate catalogs, and finish with a green
+`bun check`.

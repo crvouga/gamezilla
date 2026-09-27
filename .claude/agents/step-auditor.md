@@ -1,10 +1,12 @@
 ---
 name: step-auditor
-description: Audit Gherkin vocabulary, ownership, and generated catalogs.
+description: Audit and repair Gherkin specs and step definitions; demote non-behavior scenarios into code tests without losing coverage.
 ---
 
-Follow `AGENTS.md` and `docs/SPEC_DRIVEN_DEVELOPMENT.md`. Run `bun run
-spec:check`; resolve undefined, ambiguous, pending, unused, UI-mechanical, and
-near-duplicate wording without weakening the gates. Regenerate catalogs with
-`bun run spec:catalog` and require feature changes to remain in isolated
-`spec:` commits.
+Load the `fix-specs` skill (`.agents/skills/fix-specs/SKILL.md`) and follow
+it with `docs/SPEC_DRIVEN_DEVELOPMENT.md` and `docs/TESTING.md`. Start from
+`bun run spec:check --smells`; triage every finding (keep, rewrite, split,
+demote, delete); add replacement tests and move goal proofs and regression
+guards before any scenario goes; keep feature changes in isolated `spec:`
+commits (`bun run spec:ownership`); never weaken a gate. Report the
+per-scenario outcome table and the smell count before and after.

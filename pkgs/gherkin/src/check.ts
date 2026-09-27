@@ -1,10 +1,12 @@
 /**
  * The spec check, pure over parsed features and statically extracted step
  * definitions. Fails on: undefined / ambiguous / pending steps, unused
- * definitions, UI mechanics or implementation words in step text, missing or foreign `@domain`,
- * unknown `@goal`, a goal proven by a feature that no scenario tags, and
- * duplicate scenario names. Near-duplicate wording is `similarity.ts`,
- * reported separately as a warning.
+ * definitions, UI mechanics or implementation words in step text, a narrator
+ * ("I", "the user") instead of a named person, a scenario with no outcome, a
+ * `Given` after the scenario has acted, missing or foreign `@domain`, unknown
+ * `@goal`, a goal proven by a feature that no scenario tags, and duplicate
+ * scenario names. Near-duplicate wording (`similarity.ts`) and softer BDD
+ * smells (`smells.ts`) are reported separately as warnings.
  */
 
 import {
@@ -132,6 +134,12 @@ export const IMPLEMENTATION_WORDS = [
   'workers',
   'wss',
 ] as const;
+
+/**
+ * A narrator instead of a person. Scenarios name who acts — a persona
+ * ("Alice") or a role ("a guest") — never "I" or an anonymous "the user".
+ */
+const NARRATOR = /\b(I|I'm|I've|me|my|mine)\b|\bthe users?\b/;
 
 const IMPLEMENTATION = new RegExp(
   `\\b(${IMPLEMENTATION_WORDS.join('|')})\\b`,
@@ -264,9 +272,33 @@ function checkScenarioTags(
   }
 }
 
+function checkScenarioShape(feature: SpecFeature, errors: string[]): void {
+  for (const scenario of feature.scenarios) {
+    const where = `${feature.uri}:${String(scenario.line)}: scenario "${scenario.name}"`;
+    if (!scenario.steps.some((step) => step.type === 'Outcome')) {
+      errors.push(`${where} has no Then; every scenario states an outcome`);
+    }
+    let acted = false;
+    for (const step of scenario.steps) {
+      if (step.type === 'Action' || step.type === 'Outcome') acted = true;
+      else if (step.type === 'Context' && acted) {
+        errors.push(
+          `${feature.uri}:${String(step.line)}: Given "${step.text}" comes after the scenario acted; context goes first (or split the scenario)`
+        );
+      }
+    }
+  }
+}
+
 function checkStepWording(feature: SpecFeature, errors: string[]): void {
   for (const scenario of feature.scenarios) {
     for (const step of scenario.steps) {
+      const narrator = NARRATOR.exec(step.text);
+      if (narrator !== null) {
+        errors.push(
+          `${feature.uri}:${String(step.line)}: step "${step.text}" is narrated ("${narrator[0]}"); name the person (Alice, a guest) instead`
+        );
+      }
       const hit = MECHANICS.exec(step.text);
       if (hit !== null) {
         errors.push(
@@ -331,6 +363,7 @@ export function checkSpecs(input: SpecCheckInput): readonly string[] {
       checkScenarioSteps({ compiled, errors, feature, pkg, used });
       checkScenarioTags(pkg, feature, input, errors);
       checkStepWording(feature, errors);
+      checkScenarioShape(feature, errors);
     }
   }
   checkGoalProofs(input, errors);

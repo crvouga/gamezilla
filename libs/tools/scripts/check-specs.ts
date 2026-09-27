@@ -4,9 +4,12 @@
  * The spec gate: every `specs/<domain>/*.feature` scenario binds to exactly one step
  * definition, no definition is unused or pending, every scenario carries its
  * `@domain` and known `@goal`s, every goal a feature proves is tagged there,
- * step text says intent (no UI mechanics), and the catalogs are current.
- * Near-duplicate wording is reported as a warning (`--strict-duplicates`
- * makes it fail).
+ * step text says intent (no UI mechanics, implementation words or narrator),
+ * every scenario ends in an outcome with its context first, and the catalogs
+ * are current. Near-duplicate wording and BDD smells (`@pkgs/gherkin/smells`:
+ * long scripts, several events, acting after a Then outside journeys,
+ * architecture words, features without a why) are warnings;
+ * `--strict-duplicates` / `--strict-smells` make them fail.
  *
  * Static: it parses features and reads `tests/steps/**` as text, so it runs
  * in well under a second and needs no sim.
@@ -17,6 +20,7 @@ import { SPEC_PARAMETER_TYPES } from '@libs/sim-harness/spec/parameter-types';
 import { checkSpecs } from '@pkgs/gherkin/check';
 import { parameterTypeRegistryFrom } from '@pkgs/gherkin/registry';
 import { nearDuplicates } from '@pkgs/gherkin/similarity';
+import { specSmells } from '@pkgs/gherkin/smells';
 import type { GoalChecks } from '../goal/goal-manifest';
 import { parseGoalMarkdown } from '../goal/goal-statements';
 import { catalogDrift } from './spec-catalog';
@@ -29,6 +33,17 @@ import {
 } from './spec-packages';
 
 const strictDuplicates = process.argv.includes('--strict-duplicates');
+const strictSmells = process.argv.includes('--strict-smells');
+/** Smells are many until the specs are cleaned up; list them only on request. */
+const listSmells = strictSmells || process.argv.includes('--smells');
+
+/** The thresholds `docs/SPEC_DRIVEN_DEVELOPMENT.md` states for a brief scenario. */
+const SMELLS = {
+  maxSteps: 8,
+  maxActions: 3,
+  journeyDomains: new Set(['journeys']),
+  suspectWords: ['server', 'servers', 'backend', 'client', 'clients', 'sim'],
+} as const;
 
 const parameterTypes = parameterTypeRegistryFrom(SPEC_PARAMETER_TYPES);
 
@@ -83,13 +98,23 @@ const duplicates = nearDuplicates(
 
 const hard = errors;
 const uniqueSoft = [...new Set(duplicates)];
+const smells = specSmells(
+  packages.flatMap((pkg) => pkg.features),
+  SMELLS
+);
 
 for (const warning of uniqueSoft) console.warn(`warning: ${warning}`);
-if (hard.length > 0 || (strictDuplicates && uniqueSoft.length > 0)) {
+if (listSmells) for (const smell of smells) console.warn(`smell: ${smell}`);
+if (
+  hard.length > 0 ||
+  (strictDuplicates && uniqueSoft.length > 0) ||
+  (strictSmells && smells.length > 0)
+) {
   console.error('spec check failed:');
   for (const error of hard) console.error(`  ${error}`);
   if (strictDuplicates)
     for (const error of uniqueSoft) console.error(`  ${error}`);
+  if (strictSmells) for (const smell of smells) console.error(`  ${smell}`);
   process.exit(1);
 }
 
@@ -98,5 +123,5 @@ const scenarios = packages.reduce(
   0
 );
 console.log(
-  `ok: ${String(packages.length)} packages, ${String(scenarios)} scenarios, ${String(allDefinitions.length)} step definitions, ${String(uniqueSoft.length)} wording warnings`
+  `ok: ${String(packages.length)} packages, ${String(scenarios)} scenarios, ${String(allDefinitions.length)} step definitions, ${String(uniqueSoft.length)} wording warnings, ${String(smells.length)} smells${listSmells || smells.length === 0 ? '' : ' (list: bun run spec:check --smells)'}`
 );
