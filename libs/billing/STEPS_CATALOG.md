@@ -7,15 +7,25 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
+| Given | {actor} has been offline for {int} days | {actor}, {int} | billing |
 | Given | {actor} has canceled the membership in the billing portal | {actor} | billing |
 | Given | {actor} has subscribed to Plus | {actor} | billing |
+| Given | {actor}'s billing period has ended | {actor} | billing |
+| Given | {actor}'s card has expired | {actor} | billing |
 | Given | {actor}'s free trial has ended | {actor} | billing |
 | Given | {actor}'s membership has been canceled immediately | {actor} | billing |
+| Given | {actor}'s payment has been refunded | {actor} | billing |
 | Given | {actor}'s payment has failed | {actor} | billing |
+| Given | {actor}'s renewal on the expired card has failed | {actor} | billing |
 | Then | {actor} has free access | {actor} | billing |
 | Then | {actor} has free access on {actor}'s device | {actor}, {actor} | billing |
 | Then | {actor} has paid access | {actor} | billing |
+| Then | {actor} has paid access within {int} seconds | {actor}, {int} | billing |
 | Then | {actor} is asked to sign in before subscribing | {actor} | billing |
+| Then | {actor} is not offered to subscribe | {actor} | billing |
+| Then | {actor} is offered to manage their membership | {actor} | billing |
+| Then | {actor} is offered to subscribe | {actor} | billing |
+| Then | {actor} is told subscribing needs a connection | {actor} | billing |
 | Then | {actor}'s membership has ended | {actor} | billing |
 | Then | {actor}'s membership is active | {actor} | billing |
 | Then | {actor}'s membership is active on the monthly plan | {actor} | billing |
@@ -26,8 +36,11 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | {actor}'s membership is set to end at the period end | {actor} | billing |
 | Then | {actor}'s membership is trialing | {actor} | billing |
 | Then | {actor}'s membership is trialing on the monthly plan | {actor} | billing |
+| Then | {actor}'s other device has paid access within {int} seconds | {actor}, {int} | billing |
 | Then | {actor}'s renewal date moves later | {actor} | billing |
 | When | {actor} cancels the membership in the billing portal | {actor} | billing |
+| When | {actor} leaves checkout without paying | {actor} | billing |
+| When | {actor} pays with a new card in the billing portal | {actor} | billing |
 | When | {actor} renews the membership in the billing portal | {actor} | billing |
 | When | {actor} signs in with Google on {actor}'s device | {actor}, {actor} | billing |
 | When | {actor} subscribes to Plus | {actor} | billing |
@@ -36,7 +49,9 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor}'s billing period ends | {actor} | billing |
 | When | {actor}'s membership is canceled immediately | {actor} | billing |
 | When | {actor}'s payment fails | {actor} | billing |
+| When | {actor}'s payment is refunded | {actor} | billing |
 | When | {actor}'s payment recovers | {actor} | billing |
+| When | {int} days pass | {int} | billing |
 | When | the provider gives up retrying {actor}'s payment | {actor} | billing |
 
 ## Shared steps (every package)

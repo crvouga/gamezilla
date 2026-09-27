@@ -31,6 +31,7 @@ export {
   setMutationCorrelationIdentity,
   setPendingInteractionCorrelation,
 } from './interaction-correlation';
+export { readLastSyncedAtMs } from './last-synced';
 export type { LocalDomainSchema } from './local-schema-migrate';
 export {
   clearLocalCache,

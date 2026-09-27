@@ -6,6 +6,7 @@ import type { MembershipStatus } from './membership';
 import {
   governingMembership,
   type MembershipStanding,
+  membershipAccessLapsesAtMs,
   membershipGrantsAccess,
   outranksMembership,
   readMembershipStatus,
@@ -91,7 +92,7 @@ describe('readMembershipStatus', () => {
 });
 
 describe('membershipGrantsAccess', () => {
-  const at = { nowMs: 1_000, graceMs: 100 };
+  const at = { nowMs: 1_000, graceMs: 100, confirmedAtMs: null };
 
   test('active and trialing grant whatever the period says', () => {
     for (const status of ['active', 'trialing'] as const) {
@@ -114,6 +115,67 @@ describe('membershipGrantsAccess', () => {
         false
       );
     }
+  });
+
+  test('nothing grants once the membership went unconfirmed past grace', () => {
+    for (const status of [
+      'active',
+      'trialing',
+      'delinquent',
+      'ended',
+    ] as const) {
+      const standing = { status, periodEndMs: 1_000 };
+      expect(
+        membershipGrantsAccess(standing, { ...at, confirmedAtMs: 900 })
+      ).toBe(true);
+      expect(
+        membershipGrantsAccess(standing, { ...at, confirmedAtMs: 899 })
+      ).toBe(false);
+    }
+  });
+
+  test('access lapses at the earlier of period end and confirmation, plus grace', () => {
+    expect(
+      membershipAccessLapsesAtMs(
+        { status: 'trialing', periodEndMs: 5_000 },
+        { ...at, confirmedAtMs: 950 }
+      )
+    ).toBe(1_051);
+    expect(
+      membershipAccessLapsesAtMs(
+        { status: 'ended', periodEndMs: 920 },
+        { ...at, confirmedAtMs: 1_000 }
+      )
+    ).toBe(1_021);
+    expect(
+      membershipAccessLapsesAtMs({ status: 'active', periodEndMs: 920 }, at)
+    ).toBeNull();
+    expect(
+      membershipAccessLapsesAtMs({ status: 'ended', periodEndMs: null }, at)
+    ).toBeNull();
+  });
+
+  test('lapse time agrees with the access answer', () => {
+    assertProperty(
+      'lapse time agrees with the access answer',
+      fc.property(
+        standing,
+        fc.integer({ min: 0, max: 2_000 }),
+        fc.option(fc.integer({ min: 0, max: 2_000 }), { nil: null }),
+        (s, nowMs, confirmedAtMs) => {
+          const moment = { nowMs, graceMs: 100, confirmedAtMs };
+          const lapses = membershipAccessLapsesAtMs(s, moment);
+          if (lapses === null) return;
+          expect(membershipGrantsAccess(s, moment)).toBe(true);
+          expect(
+            membershipGrantsAccess(s, { ...moment, nowMs: lapses - 1 })
+          ).toBe(true);
+          expect(membershipGrantsAccess(s, { ...moment, nowMs: lapses })).toBe(
+            false
+          );
+        }
+      )
+    );
   });
 
   test('incomplete and unreadable never grant', () => {

@@ -98,6 +98,8 @@ export async function readAccess(
       subscription: governingSubscription(subscriptions),
       nowMs,
       graceMs: config.billing_grace_period_ms,
+      // Judged as the server judges: the rows are as confirmed as they get.
+      confirmedAtMs: nowMs,
       billingEnabled: config.billing_enabled,
     }),
   };

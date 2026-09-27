@@ -128,6 +128,7 @@ export async function createInvoice(
     amount_due: Math.max(0, net),
     amount_paid: 0,
     amount_remaining: Math.max(0, net),
+    amount_refunded: 0,
     attempt_count: 0,
     next_payment_attempt: null,
     period_start: args.periodStartS,

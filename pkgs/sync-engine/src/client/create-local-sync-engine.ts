@@ -29,6 +29,7 @@ import {
   attachPushIfConfigured,
   type SyncEnginePushOptions,
 } from './attach-configured-push';
+import { readLastSyncedAtMs } from './last-synced';
 import {
   clearLocalCache,
   type LocalDomainSchema,
@@ -247,6 +248,7 @@ function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
         connection: 'connected',
         online: true,
         hasSynced: true,
+        lastSyncedAtMs: options.now(),
         lastError: null,
         upgradeRequired: false,
       }),
@@ -348,6 +350,15 @@ function notifyLocalMutation(
     .catch((error) => handleError(state, error));
 }
 
+/** A restarted device remembers when the server last answered it. */
+async function seedLastSyncedAt(state: LocalEngineState): Promise<void> {
+  const stored = await readLastSyncedAtMs(state.options.db).catch(() => null);
+  if (stored === null) return;
+  const known = state.status.status.getSnapshot().lastSyncedAtMs;
+  if (known !== null && known >= stored) return;
+  state.status.patch({ lastSyncedAtMs: stored });
+}
+
 async function connectState(state: LocalEngineState): Promise<void> {
   if (state.connected) {
     state.uploadQueue.wake();
@@ -363,6 +374,7 @@ async function connectState(state: LocalEngineState): Promise<void> {
     online: true,
     lastError: null,
   });
+  await seedLastSyncedAt(state);
   if (state.options.enableMutationUpload !== false) {
     state.uploadQueue.start();
   }

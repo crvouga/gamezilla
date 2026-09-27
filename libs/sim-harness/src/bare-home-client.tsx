@@ -12,6 +12,7 @@
 
 import type { FeatureClient } from '@libs/feature/public/client';
 import { defineFeatureClient } from '@libs/feature/public/client';
+import { Handles } from '@libs/test-ids';
 import { HouseIcon, ScreenBase } from '@pkgs/ui';
 import type { JSX } from 'solid-js';
 
@@ -41,7 +42,7 @@ export const BARE_HOME_CLIENT = defineFeatureClient({
       order: 0,
       label: () => 'Home',
       Icon: HouseIcon,
-      testID: 'tab-sim-home',
+      testID: Handles.tabSimHome,
     },
   ],
 });

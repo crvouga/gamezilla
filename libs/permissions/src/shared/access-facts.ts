@@ -1,6 +1,9 @@
 import {
+  type AccessMoment,
   governingMembership,
+  type MembershipStanding,
   type MembershipStatus,
+  membershipAccessLapsesAtMs,
   membershipGrantsAccess,
   readMembershipStatus,
 } from '@pkgs/billing';
@@ -75,31 +78,53 @@ export type AccessInputs = {
   readonly subscription: SubscriptionSnapshot | null;
   readonly nowMs: number;
   readonly graceMs: number;
+  /**
+   * When the membership was last confirmed with the server: `nowMs` on the
+   * server, the last sync on a device (`null`: no confirmation on record).
+   */
+  readonly confirmedAtMs: number | null;
   /** The deployment has a membership provider (`billing_enabled`). */
   readonly billingEnabled: boolean;
 };
+
+function standingOf(subscription: SubscriptionSnapshot): MembershipStanding {
+  return {
+    status: subscription.status,
+    periodEndMs: subscription.currentPeriodEndMs,
+  };
+}
+
+function momentOf(inputs: AccessInputs): AccessMoment {
+  return {
+    nowMs: inputs.nowMs,
+    graceMs: inputs.graceMs,
+    confirmedAtMs: inputs.confirmedAtMs,
+  };
+}
 
 /**
  * Raw inputs → the `Facts` the policy's predicates read. `auth` is
  * `anonymous` | `verified`; `membership` is `active` while the governing
  * membership grants access (`membershipGrantsAccess`: grace keeps a member a
- * member while offline); `billing` is `on` | `off`.
+ * member through a lapse and while offline, up to `graceMs` without
+ * confirming it); `billing` is `on` | `off`.
  */
 export function resolveAccessFacts(inputs: AccessInputs): Facts {
   const subscription = inputs.subscription;
   const member =
     inputs.signedIn &&
     subscription !== null &&
-    membershipGrantsAccess(
-      {
-        status: subscription.status,
-        periodEndMs: subscription.currentPeriodEndMs,
-      },
-      { nowMs: inputs.nowMs, graceMs: inputs.graceMs }
-    );
+    membershipGrantsAccess(standingOf(subscription), momentOf(inputs));
   return {
     auth: inputs.signedIn ? 'verified' : 'anonymous',
     membership: member ? 'active' : 'none',
     billing: inputs.billingEnabled ? 'on' : 'off',
   };
+}
+
+/** When the facts would change with only time passing, or `null`. */
+export function accessFactsChangeAtMs(inputs: AccessInputs): number | null {
+  const subscription = inputs.subscription;
+  if (!inputs.signedIn || subscription === null) return null;
+  return membershipAccessLapsesAtMs(standingOf(subscription), momentOf(inputs));
 }

@@ -176,6 +176,7 @@ describe('membership state space', () => {
         }),
         nowMs: NOW,
         graceMs: c.grace,
+        confirmedAtMs: NOW,
         billingEnabled: true,
       };
       const role = expectedRole(c);

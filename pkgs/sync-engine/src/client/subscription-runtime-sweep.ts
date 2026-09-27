@@ -2,6 +2,7 @@ import { HttpNetworkError } from '@pkgs/http-client';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRequestItem } from '../protocol';
 import type { QueryRegistry, QueryResponse } from '../queries/core/types';
+import { stampScopeConfirmed } from './last-synced';
 import { computeLocalScopeHash } from './local-scope-hash';
 import { applyFullMerge, detachScope, type MergeApplierDeps } from './merge';
 import { postQueryBatch } from './post-query-batch';
@@ -99,6 +100,11 @@ async function handleSweepResponse(
   if (response.status === 'not_modified') {
     const healed = await healNotModifiedIfDrifted(ctx, entry, response);
     if (healed) return true;
+    await stampScopeConfirmed(
+      ctx.db,
+      entry.scope,
+      ctx.getMergeDeps().env.now()
+    );
     markSweepFirst(entry);
     ctx.onSynced();
     return true;

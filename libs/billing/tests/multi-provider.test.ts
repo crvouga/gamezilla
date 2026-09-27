@@ -245,6 +245,7 @@ class World {
       subscription: governingSubscription(rows),
       nowMs: NOW + 30 * DAY,
       graceMs: GRACE_MS,
+      confirmedAtMs: NOW + 30 * DAY,
       billingEnabled: true,
     });
   }

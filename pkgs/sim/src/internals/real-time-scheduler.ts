@@ -3,6 +3,13 @@ import type { VirtualClock } from './clock';
 import type { TaskBody, Scheduler as VirtualScheduler } from './scheduler';
 import type { Scheduler } from './scheduler-api';
 
+/** Wall time cannot jump; the `virtualTime` capability gates callers. */
+function cannotSkip(): Promise<void> {
+  return Promise.reject(
+    new Error('wall scheduler: time cannot skip ahead on the wall clock')
+  );
+}
+
 /**
  * Wall-clock scheduler. `advance(ms)` waits real time; `waitForIdle` yields briefly.
  */
@@ -57,6 +64,7 @@ export function createWallScheduler(opts?: {
       await new Promise<void>((r) => setTimeout(r, Math.max(0, durationMs)));
       nowMs = Date.now();
     },
+    skip: cannotSkip,
     async runUntilQuiescent() {
       await new Promise<void>((r) => setTimeout(r, settleMs));
       nowMs = Date.now();

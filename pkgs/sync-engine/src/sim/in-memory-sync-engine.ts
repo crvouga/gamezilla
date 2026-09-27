@@ -31,18 +31,23 @@ import {
 
 function createStatusStore(): {
   readonly status: SyncStatusSubscription;
-  setStatus: (next: Omit<SyncEngineStatus, 'hasEverSynced'>) => void;
+  setStatus: (
+    next: Omit<SyncEngineStatus, 'hasEverSynced' | 'lastSyncedAtMs'>
+  ) => void;
   resetEverSynced: () => void;
 } {
   let status: SyncEngineStatus = { ...INITIAL_SYNC_STATUS };
   let hasEverSynced = false;
   const listeners = new Set<(s: SyncEngineStatus) => void>();
 
-  const publish = (next: Omit<SyncEngineStatus, 'hasEverSynced'>): void => {
+  const publish = (
+    next: Omit<SyncEngineStatus, 'hasEverSynced' | 'lastSyncedAtMs'>
+  ): void => {
     if (next.hasSynced) {
       hasEverSynced = true;
     }
-    status = { ...next, hasEverSynced };
+    // No server answers an in-memory engine, so nothing confirms its rows.
+    status = { ...next, hasEverSynced, lastSyncedAtMs: null };
     for (const listener of listeners) {
       listener(status);
     }
@@ -192,8 +197,10 @@ export async function createInMemorySyncEngine(
     disconnect: async () => {
       await db.disconnect();
       setStatus({
-        ...INITIAL_SYNC_STATUS,
         connection: 'disconnected',
+        online: INITIAL_SYNC_STATUS.online,
+        hasSynced: INITIAL_SYNC_STATUS.hasSynced,
+        lastError: INITIAL_SYNC_STATUS.lastError,
       });
     },
     clearLocalData: async () => {

@@ -54,6 +54,8 @@ const TEST_CARDS: Readonly<Record<MockTestPaymentMethod, TestCard>> = {
 export type ChargeOutcome =
   | 'succeeded'
   | 'declined'
+  /** The card on file is past its expiry date. */
+  | 'expired_card'
   | 'authentication_required'
   | 'no_payment_method';
 
@@ -180,6 +182,33 @@ export async function adjustBalance(
   });
 }
 
+/**
+ * Test helper: the card passes its expiry date. Its expiry becomes the month
+ * before the customer's clock, as a card left on file for years ends up.
+ */
+export async function expirePaymentMethod(
+  engine: Engine,
+  paymentMethodId: string
+): Promise<MockPaymentMethod> {
+  const method = await engine.db.get<MockPaymentMethod>(
+    paymentMethodId,
+    'payment_method'
+  );
+  if (method === null) throw resourceMissing('payment_method', paymentMethodId);
+  const now = new Date((await customerNowS(engine, method.customer)) * 1000);
+  const month = now.getUTCMonth(); // 0-based: the previous month, 1-based
+  const expired: MockPaymentMethod = {
+    ...method,
+    card: {
+      ...method.card,
+      exp_month: month === 0 ? 12 : month,
+      exp_year: month === 0 ? now.getUTCFullYear() - 1 : now.getUTCFullYear(),
+    },
+  };
+  await engine.db.put(expired, method.customer);
+  return expired;
+}
+
 export async function defaultPaymentMethod(
   engine: Engine,
   customerId: string
@@ -191,6 +220,12 @@ export async function defaultPaymentMethod(
     : await engine.db.get<MockPaymentMethod>(id, 'payment_method');
 }
 
+/** The first instant (unix seconds) the card no longer pays: after its expiry month. */
+function cardExpiresAtS(card: MockCard): number {
+  // `exp_month` is 1-based, so it is also the next month's 0-based index.
+  return Date.UTC(card.exp_year, card.exp_month, 1) / 1000;
+}
+
 /** What charging the customer's default card does right now. */
 export async function charge(
   engine: Engine,
@@ -199,6 +234,8 @@ export async function charge(
 ): Promise<ChargeOutcome> {
   const method = await defaultPaymentMethod(engine, customerId);
   if (method === null) return 'no_payment_method';
+  const nowS = await customerNowS(engine, customerId);
+  if (nowS >= cardExpiresAtS(method.card)) return 'expired_card';
   const behaviour = behaviourOf(method.card);
   if (behaviour === 'succeeds') return 'succeeded';
   if (behaviour === 'requires_authentication') {
