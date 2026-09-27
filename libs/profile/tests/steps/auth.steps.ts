@@ -96,12 +96,28 @@ Then('{actor} is signed into a different account', async (w, actor: Actor) => {
   expect(account).not.toBe(recall(w, signedInAccountKey(actor)) as string);
 });
 
+async function signInMethodsWithin(
+  w: SimWorld,
+  actor: Actor,
+  methods: readonly string[],
+  maxMs: number
+): Promise<void> {
+  await w.s.until((sim) => signInMethodsShown(sim, actor), {
+    pred: (shown) => shown?.join(',') === methods.join(','),
+    maxMs,
+  });
+}
+
 Then(
   "{actor}'s sign-in methods are (still ){methods}",
   async (w, actor: Actor, methods: readonly string[]) => {
-    await w.s.until((sim) => signInMethodsShown(sim, actor), {
-      pred: (shown) => shown?.join(',') === methods.join(','),
-      maxMs: METHODS_WAIT_MS,
-    });
+    await signInMethodsWithin(w, actor, methods, METHODS_WAIT_MS);
+  }
+);
+
+Then(
+  "{actor}'s sign-in methods are {methods} within {int} seconds",
+  async (w, actor: Actor, methods: readonly string[], seconds: number) => {
+    await signInMethodsWithin(w, actor, methods, seconds * SECOND_MS);
   }
 );

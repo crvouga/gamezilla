@@ -67,10 +67,6 @@ When(
   }
 );
 
-Given('{actor} has deleted their Apple account', async (w, actor: Actor) => {
-  await w.s.apply(appleDeletesAccount, actor, APPLE_ACCOUNT);
-});
-
 When('{actor} deletes their Apple account', async (w, actor: Actor) => {
   await w.s.apply(appleDeletesAccount, actor, APPLE_ACCOUNT);
 });
