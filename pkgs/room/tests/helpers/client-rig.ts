@@ -12,10 +12,10 @@ import {
   type RoomState,
   WIRE_VERSION,
 } from '@pkgs/room';
-import { CursorModule, Moved } from '../helpers/cursor-module';
-import { FakeTransport } from '../helpers/fake-transport';
-import { CountingClientStorage } from '../helpers/memory-storage';
-import { testPorts } from '../helpers/ports';
+import { CursorModule, Moved } from './cursor-module';
+import { FakeTransport } from './fake-transport';
+import { CountingClientStorage } from './memory-storage';
+import { testPorts } from './ports';
 
 export const ACTOR = { id: 'alice', clientId: 'tab' } as const;
 

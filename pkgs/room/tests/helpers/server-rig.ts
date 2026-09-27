@@ -7,9 +7,9 @@
 import type { Message } from '@pkgs/message';
 import { ROOM_WIRE_KIND, type RoomState, WIRE_VERSION } from '@pkgs/room';
 import { RoomServer } from '@pkgs/room/server';
-import { CountingRoomStorage } from '../helpers/counting-room-storage';
-import { CursorModule, Move } from '../helpers/cursor-module';
-import { testPorts } from '../helpers/ports';
+import { CountingRoomStorage } from './counting-room-storage';
+import { CursorModule, Move } from './cursor-module';
+import { testPorts } from './ports';
 
 export type Connection = {
   readonly id: string;

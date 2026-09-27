@@ -81,6 +81,7 @@ async function offline(w: RoomWorld, id: string): Promise<void> {
 }
 
 Given("{actor}'s device is offline", offline);
+When("{actor}'s device goes offline", offline);
 
 async function reconnect(w: RoomWorld, id: string): Promise<void> {
   await room(w).apply(connect, id);
@@ -148,6 +149,10 @@ Then(
     expect([...(await room(w).read(roster))].sort()).toEqual([a, b].sort());
   }
 );
+
+Then('the room shows only {actor} present', async (w, id: string) => {
+  expect(await room(w).read(roster)).toEqual([id]);
+});
 
 Then('the room has accepted {int} change(s)', async (w, count: number) => {
   expect(await room(w).read(logSeq)).toBe(count);

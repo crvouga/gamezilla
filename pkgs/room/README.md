@@ -527,6 +527,7 @@ after every step).
 | Spec | Covers |
 |------|--------|
 | `shared-counter.feature` | A change reaches the room and the device; two people's changes all count and both are present; an offline change shows only on its author's device, then reaches everyone; a stalled network sees nothing new, then catches up; a waiting change survives an app crash; a crashed room is down and comes back with its count; a crash right after a confirmed change recovers |
+| `presence.feature` | Someone whose device goes offline is no longer present; someone who reconnects is present again |
 | `refusals.feature` | A change the room does not understand is refused as invalid, nothing waits, nothing changes; a person the room turns away is refused as not allowed |
 | `match-clock.feature` | Flag falls on the room clock; a move passes the clock; a stalled or offline player can neither move after nor beat the flag; an early flag claim does not end the match |
 | `shared-counter.qnt` | Model: increments / decrements across offline, stalled networks, app crash and restart, room restart, resent command ids and session take-over (exactly once), unknown and malformed messages |
@@ -598,8 +599,8 @@ payload refused, unknown kind ignored), `standalone-room.test.ts`
 
 | File | Kind | Asserts / use case |
 |------|------|--------------------|
-| `room-client.feature` | Gherkin (fake transport) | Welcome flushes offline queue; own-echo skips rebase + keeps snapshot ref; foreign commit rebases; `getLog` copy-on-read; append-only coalesced persistence, no ghost row; reject / stale welcome / gap; hydrate + corrupt-cache wipe; rate limit; event-driven `untilSynced` |
-| `room-server.feature` | Gherkin | One shared frame object per broadcast; cached tip (no `getLastSeq` per command); dedup replay; envelope / unknown reject; ping / capped welcome; `injectCommand` actor; hydrate + roster |
+| `room-client.contract.test.ts` | Contract (fake transport) | Welcome flushes offline queue; own-echo skips rebase + keeps snapshot ref; foreign commit rebases; `getLog` copy-on-read; append-only coalesced persistence, no ghost row; reject / stale welcome / gap; hydrate + corrupt-cache wipe; rate limit; event-driven `untilSynced` |
+| `room-server.contract.test.ts` | Contract (recording connections) | One shared frame object per broadcast; cached tip (no `getLastSeq` per command); dedup replay; envelope / unknown reject; ping / capped welcome; `injectCommand` actor; hydrate + roster |
 | `key-value-storage.test.ts` | Unit | Segmented `Kv` log: multi-segment append + reload, reset, corrupt segment / queue wipe |
 | `room-adapter-web/tests/client-storage.test.ts` | Unit | Segmented `localStorage` log: tail-only writes, legacy blob + corrupt segment cleared |
 | `room-adapter-memory/tests/client-storage.test.ts` | Unit | Append / reset / queue snapshot isolation |
