@@ -21,20 +21,20 @@ Feature: Index tuning
   Rule: A tuned index no declared lookup needs retires before it is removed
 
     Scenario: A tuned index no declared lookup needs starts retiring and stays
-      Given the notes-by-author lookup has a tuned index
+      Given the notes-by-author lookup has been given a tuned index
       And the team no longer declares any lookup
       When tuning runs
       Then the notes-by-author index is retiring
       And the notes-by-author index is still there
 
     Scenario: An unused retiring index is removed once its retirement window has passed
-      Given the notes-by-author index is retiring
+      Given the notes-by-author index has started retiring
       And the retirement window has passed
       When tuning runs
       Then the notes-by-author index is gone
 
     Scenario: Declaring a lookup again stops its index retiring
-      Given the notes-by-author index is retiring
+      Given the notes-by-author index has started retiring
       And the team declares the notes-by-author lookup
       When tuning runs
       Then the notes-by-author index is not retiring
@@ -42,7 +42,7 @@ Feature: Index tuning
   Rule: A retiring index that is still used is kept
 
     Scenario: A retiring index used during its retirement window is kept
-      Given the notes-by-author index is retiring
+      Given the notes-by-author index has started retiring
       And the notes-by-author index has been used since it began retiring
       And the retirement window has passed
       When tuning runs
