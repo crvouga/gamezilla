@@ -1,0 +1,11 @@
+{
+  "setup": [
+    "./libs/tools/workspace/setup.sh"
+  ],
+  "teardown": [
+    "./libs/tools/workspace/teardown.sh"
+  ],
+  "run": [
+    "./libs/tools/workspace/run.sh"
+  ]
+}

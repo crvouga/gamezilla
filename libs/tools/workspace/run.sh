@@ -5,9 +5,10 @@
 # `?simulator` redirects to `/simulator` (see src/console/main.tsx), so the entry
 # URL below lands in the simulator even from a launcher that only opens `/`.
 set -euo pipefail
-cd "${SUPERSET_WORKSPACE_PATH:-$(git rev-parse --show-toplevel)}"
-# shellcheck source=./port.sh
-. ./.superset/port.sh
+# shellcheck source=libs/tools/workspace/lib.sh
+. "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+# shellcheck source=libs/tools/workspace/port.sh
+. "$(dirname "${BASH_SOURCE[0]}")/port.sh"
 
 echo "==> simulator on http://localhost:${VITE_PORT}/?simulator"
 exec bun run --silent dev

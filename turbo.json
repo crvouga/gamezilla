@@ -425,6 +425,16 @@
       "outputs": [],
       "outputLogs": "errors-only"
     },
+    "//#ci:workspace-lifecycle": {
+      "inputs": [
+        ".superset/config.json",
+        ".super.engineering/config.json",
+        "libs/tools/workspace/*.sh",
+        "libs/tools/scripts/sync-workspace-lifecycle.ts"
+      ],
+      "outputs": [],
+      "outputLogs": "errors-only"
+    },
     "//#ci:goals": {
       "dependsOn": ["@libs/tools#tc"],
       "inputs": ["$TURBO_DEFAULT$", "!apps/**", "!libs/**", "!pkgs/**"],
@@ -533,6 +543,7 @@
         "//#ci:audit",
         "//#ci:i18n",
         "//#ci:agent-commands",
+        "//#ci:workspace-lifecycle",
         "//#ci:goals",
         "//#ci:specs",
         "//#ci:spec-ownership",

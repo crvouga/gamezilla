@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Per-workspace port block so parallel Superset workspaces can run `dev` (and
+# Per-workspace port block so parallel workspaces can run `dev` (and
 # their sidecars) at once. apps/product pins 5173 with strictPort, and the
 # embedded Postgres sidecar takes `POSTGRES_PORT`, so every workspace needs its
 # own block of ports rather than one.
@@ -18,13 +18,13 @@
 # machine-wide singletons: only one workspace at a time may bind them.
 #
 # Override by exporting VITE_PORT before launching (no probing is done then).
-SUPERSET_PORT_RANGE_START=5200
-SUPERSET_PORT_RANGE_SIZE=300
-SUPERSET_PORT_BLOCK=4
+WORKSPACE_PORT_RANGE_START=5200
+WORKSPACE_PORT_RANGE_SIZE=300
+WORKSPACE_PORT_BLOCK=4
 # Number of whole blocks that fit in the range.
-SUPERSET_PORT_BLOCK_COUNT=$((SUPERSET_PORT_RANGE_SIZE / SUPERSET_PORT_BLOCK))
+WORKSPACE_PORT_BLOCK_COUNT=$((WORKSPACE_PORT_RANGE_SIZE / WORKSPACE_PORT_BLOCK))
 
-superset_port_is_free() {
+workspace_port_is_free() {
   local port="$1"
   # lsof sees both IPv4 and IPv6 listeners; /dev/tcp is the portable fallback.
   if command -v lsof >/dev/null 2>&1; then
@@ -41,51 +41,51 @@ superset_port_is_free() {
   return 0
 }
 
-superset_block_is_free() {
+workspace_block_is_free() {
   local base="$1"
   local offset
-  for offset in $(seq 0 $((SUPERSET_PORT_BLOCK - 1))); do
-    if ! superset_port_is_free $((base + offset)); then
+  for offset in $(seq 0 $((WORKSPACE_PORT_BLOCK - 1))); do
+    if ! workspace_port_is_free $((base + offset)); then
       return 1
     fi
   done
   return 0
 }
 
-# Seed from the workspace ID, which Superset always exports and which is unique
-# per workspace. (There is no SUPERSET_WORKSPACE_NAME: seeding from it meant
-# every workspace hashed the literal "root" and collided on one block.)
-# Fall back to the worktree path, then the checkout root, for plain shells.
-name="${SUPERSET_WORKSPACE_ID:-${SUPERSET_WORKSPACE_PATH:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}}"
+# Seed from the worktree path: unique per workspace under every orchestrator,
+# and stable across restarts. (Tool-specific names are not: seeding from a
+# workspace name once made every workspace hash the literal "root" and collide
+# on one block.) lib.sh exports WORKSPACE_PATH; a plain shell falls back to git.
+name="${WORKSPACE_PATH:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
 sum="$(printf '%s' "$name" | cksum | cut -d' ' -f1)"
 # The hashed block this workspace prefers, regardless of what is free right now.
 # Teardown needs it to reclaim listeners that probing would have skipped past.
-export SUPERSET_PORT_BASE_PREFERRED=$((SUPERSET_PORT_RANGE_START + (sum % SUPERSET_PORT_BLOCK_COUNT) * SUPERSET_PORT_BLOCK))
+export WORKSPACE_PORT_BASE_PREFERRED=$((WORKSPACE_PORT_RANGE_START + (sum % WORKSPACE_PORT_BLOCK_COUNT) * WORKSPACE_PORT_BLOCK))
 
 if [ -n "${VITE_PORT:-}" ]; then
   # Caller pinned the web port; derive the rest of the block from it.
-  export SUPERSET_PORT_BASE="$VITE_PORT"
+  export WORKSPACE_PORT_BASE="$VITE_PORT"
 else
-  offset=$((sum % SUPERSET_PORT_BLOCK_COUNT))
-  for i in $(seq 0 $((SUPERSET_PORT_BLOCK_COUNT - 1))); do
-    candidate=$((SUPERSET_PORT_RANGE_START + ((offset + i) % SUPERSET_PORT_BLOCK_COUNT) * SUPERSET_PORT_BLOCK))
-    if superset_block_is_free "$candidate"; then
-      SUPERSET_PORT_BASE="$candidate"
+  offset=$((sum % WORKSPACE_PORT_BLOCK_COUNT))
+  for i in $(seq 0 $((WORKSPACE_PORT_BLOCK_COUNT - 1))); do
+    candidate=$((WORKSPACE_PORT_RANGE_START + ((offset + i) % WORKSPACE_PORT_BLOCK_COUNT) * WORKSPACE_PORT_BLOCK))
+    if workspace_block_is_free "$candidate"; then
+      WORKSPACE_PORT_BASE="$candidate"
       break
     fi
   done
-  if [ -z "${SUPERSET_PORT_BASE:-}" ]; then
-    echo "!!! no free port block in ${SUPERSET_PORT_RANGE_START}-$((SUPERSET_PORT_RANGE_START + SUPERSET_PORT_RANGE_SIZE - 1)); run 'bun run kill' or export VITE_PORT" >&2
-    SUPERSET_PORT_BASE="$SUPERSET_PORT_BASE_PREFERRED"
+  if [ -z "${WORKSPACE_PORT_BASE:-}" ]; then
+    echo "!!! no free port block in ${WORKSPACE_PORT_RANGE_START}-$((WORKSPACE_PORT_RANGE_START + WORKSPACE_PORT_RANGE_SIZE - 1)); run 'bun run kill' or export VITE_PORT" >&2
+    WORKSPACE_PORT_BASE="$WORKSPACE_PORT_BASE_PREFERRED"
   fi
-  if [ "$SUPERSET_PORT_BASE" -ne "$SUPERSET_PORT_BASE_PREFERRED" ]; then
-    echo "==> port block $SUPERSET_PORT_BASE_PREFERRED busy; using $SUPERSET_PORT_BASE" >&2
+  if [ "$WORKSPACE_PORT_BASE" -ne "$WORKSPACE_PORT_BASE_PREFERRED" ]; then
+    echo "==> port block $WORKSPACE_PORT_BASE_PREFERRED busy; using $WORKSPACE_PORT_BASE" >&2
   fi
 fi
 
-export SUPERSET_PORT_BASE
-export VITE_PORT="$SUPERSET_PORT_BASE"
+export WORKSPACE_PORT_BASE
+export VITE_PORT="$WORKSPACE_PORT_BASE"
 # Teardown reclaims this one too: probing may have skipped past it.
-export VITE_PORT_PREFERRED="$SUPERSET_PORT_BASE_PREFERRED"
+export VITE_PORT_PREFERRED="$WORKSPACE_PORT_BASE_PREFERRED"
 export PREVIEW_PORT="$VITE_PORT"
-export POSTGRES_PORT=$((SUPERSET_PORT_BASE + 1))
+export POSTGRES_PORT=$((WORKSPACE_PORT_BASE + 1))
