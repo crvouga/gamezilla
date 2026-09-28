@@ -17,13 +17,28 @@ export type StubInput = {
   readonly bridge: string;
   /** Scenario names the host cannot run (`RunFeatureOptions.skip`). */
   readonly skip?: readonly string[] | undefined;
+  /** One slice of the feature's scenarios (`RunFeatureOptions.slice`). */
+  readonly slice?: StubSlice | undefined;
 };
 
-export function stubFileName(featureUri: string): string {
+export type StubSlice = { readonly index: number; readonly count: number };
+
+/** `-s<k>of<n>` for a slice, so every slice of a spec gets its own file. */
+export function sliceSuffix(slice: StubSlice | undefined): string {
+  return slice === undefined
+    ? ''
+    : `-s${String(slice.index)}of${String(slice.count)}`;
+}
+
+export function stubFileName(featureUri: string, slice?: StubSlice): string {
   return `${featureUri
     .replace(/^specs\//, '')
     .replace(/\.feature$/, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')}.feature.test.ts`;
+    .replace(/[^a-zA-Z0-9]+/g, '-')}${sliceSuffix(slice)}.feature.test.ts`;
+}
+
+function sliceOption(slice: StubSlice | undefined): string {
+  return slice === undefined ? '' : `, slice: ${JSON.stringify(slice)}`;
 }
 
 function skipOption(skip: readonly string[] | undefined): string {
@@ -40,7 +55,7 @@ export function stubSource(input: StubInput): string {
     `import { runFeature } from ${q(input.bridge)};`,
     '',
     `const source = await Bun.file(${q(input.featurePath)}).text();`,
-    `runFeature(source, { packageName: ${q(input.packageName)}, featureUri: ${q(input.featureUri)}${skipOption(input.skip)} });`,
+    `runFeature(source, { packageName: ${q(input.packageName)}, featureUri: ${q(input.featureUri)}${skipOption(input.skip)}${sliceOption(input.slice)} });`,
     '',
   ].join('\n');
 }
