@@ -21,26 +21,46 @@ const PKG_DIR = join(import.meta.dirname, '..');
 const CACHE = join(PKG_DIR, '.cache/tofu');
 mkdirSync(join(CACHE, 'plugins'), { recursive: true });
 
-function step(
+/** One tool run; the checks are independent, so they run concurrently. */
+async function step(
   label: string,
   cmd: readonly string[],
   env: Record<string, string> = {}
-): boolean {
+): Promise<boolean> {
   const [bin = '', ...rest] = cmd;
-  const result = Bun.spawnSync([...pinnedTool(bin), ...rest], {
+  const child = Bun.spawn([...pinnedTool(bin), ...rest], {
     cwd: PKG_DIR,
     env: { ...process.env, TF_IN_AUTOMATION: '1', TF_INPUT: '0', ...env },
     stdout: 'pipe',
     stderr: 'pipe',
   });
-  if (result.exitCode === 0) return true;
-  console.error(
-    `✗ ${label}\n${result.stdout.toString()}${result.stderr.toString()}`
-  );
+  const [stdout, stderr, exitCode] = await Promise.all([
+    new Response(child.stdout).text(),
+    new Response(child.stderr).text(),
+    child.exited,
+  ]);
+  if (exitCode === 0) return true;
+  console.error(`✗ ${label}\n${stdout}${stderr}`);
   return false;
 }
 
-const results = [
+async function stackOk(stack: string): Promise<boolean> {
+  const env = {
+    TF_DATA_DIR: join(CACHE, 'lint', stack),
+    TF_PLUGIN_CACHE_DIR: join(CACHE, 'plugins'),
+  };
+  const chdir = `-chdir=tofu/stacks/${stack}`;
+  return (
+    (await step(
+      `tofu init (${stack})`,
+      ['tofu', chdir, 'init', '-backend=false', '-lockfile=readonly'],
+      env
+    )) &&
+    (await step(`tofu validate (${stack})`, ['tofu', chdir, 'validate'], env))
+  );
+}
+
+const results = await Promise.all([
   step('tofu fmt -check (run `tofu fmt -recursive libs/infra/tofu`)', [
     'tofu',
     'fmt',
@@ -58,20 +78,12 @@ const results = [
     '--chdir',
     'tofu',
   ]),
-];
-for (const stack of STACKS) {
-  const env = {
-    TF_DATA_DIR: join(CACHE, 'lint', stack),
-    TF_PLUGIN_CACHE_DIR: join(CACHE, 'plugins'),
-  };
-  const chdir = `-chdir=tofu/stacks/${stack}`;
-  results.push(
-    step(
-      `tofu init (${stack})`,
-      ['tofu', chdir, 'init', '-backend=false', '-lockfile=readonly'],
-      env
-    ) && step(`tofu validate (${stack})`, ['tofu', chdir, 'validate'], env)
-  );
-}
+  // Stacks init one after another: they share the provider cache.
+  (async () => {
+    let ok = true;
+    for (const stack of STACKS) ok = (await stackOk(stack)) && ok;
+    return ok;
+  })(),
+]);
 if (results.includes(false)) process.exit(1);
 console.log('tofu: fmt, validate, tflint and policy tests pass');

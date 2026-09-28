@@ -7,13 +7,30 @@ export type ToolResult = {
   readonly stderr: string;
 };
 
+const resolved = new Map<string, readonly string[]>();
+
 /**
- * tofu / conftest run through `mise exec`, so the versions pinned in
- * `mise.toml` are the ones used — whether or not mise is activated in the
- * calling shell (a bare `tofu` is not on PATH there), installing on first use.
+ * tofu / conftest at the versions pinned in `mise.toml`, whether or not mise
+ * is activated in the calling shell (a bare `tofu` is not on PATH there).
+ * The binary is resolved once with `mise which` — `mise exec` per call costs
+ * ~1 s of startup; until the tool is installed, `mise exec` installs it on
+ * first use.
  */
 export function pinnedTool(bin: string): string[] {
-  return ['mise', 'exec', '--', bin];
+  let cmd = resolved.get(bin);
+  if (cmd === undefined) {
+    const which = Bun.spawnSync(['mise', 'which', bin], {
+      stdout: 'pipe',
+      stderr: 'ignore',
+    });
+    const path = which.stdout.toString().trim();
+    cmd =
+      which.exitCode === 0 && path.length > 0
+        ? [path]
+        : ['mise', 'exec', '--', bin];
+    resolved.set(bin, cmd);
+  }
+  return [...cmd];
 }
 
 export function spawnTool(
