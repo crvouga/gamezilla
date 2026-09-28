@@ -1,3 +1,5 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
+import { queryRequires } from '@libs/permissions/public/query-permission';
 import {
   USER_SEARCH_MAX_RESULTS,
   USER_SEARCH_RATE_LIMIT,
@@ -38,6 +40,9 @@ export const searchProfiles = defineQuery({
   sampleParams: { query: 'a' },
   limit: USER_SEARCH_MAX_RESULTS,
   entryChannel: false,
+  // Only callers the permission system lets search people get results
+  // (guests are asked to make an account first).
+  authorize: queryRequires(PERMISSION.peopleSearch),
   async run(ctx, { query }) {
     const viewerId = ctx.env.actorId;
     if (viewerId.length === 0) {
