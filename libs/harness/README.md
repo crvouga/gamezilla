@@ -167,9 +167,8 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
 
 **Reports** — every harness writes its `report.json` (Gherkin and Quint
 steps, the harness calls and UI ops under them, outcomes, drawn traces) into
-`<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; `bun check`
-folds every part it ran into its report (`src/scenario-report.ts`; `bun
-check:report` opens it, `--restore` restores every cached part)
+`<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; `bun run
+test:report` folds every bucket into one `harness-report/index.html`
 ([`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md#reports)). Failed JUnit
 testcases also become `test.failure` spans under
 `.cache/harness-report/traces/` for `bun obs test`

@@ -141,9 +141,7 @@ async function runScenario(run: ScenarioRun): Promise<void> {
             definition: definitionText(match, step),
             calls: (lifecycle.calls?.(world) ?? []).slice(callsBefore),
             cause,
-            reportHint:
-              options.reportHint ??
-              'report: bun run test:report (add --frames for UI frames)',
+            reportHint: options.reportHint ?? 'report: bun run test:report',
           }),
           { cause }
         );

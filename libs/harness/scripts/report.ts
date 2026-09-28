@@ -1,0 +1,228 @@
+#!/usr/bin/env bun
+// @io-wall-ok — CLI: every package's spec run → one standalone HTML report.
+/**
+ * `bun run test:report [--no-frames] [--no-run] [--open]` (repo root)
+ *
+ * The one report of every spec suite: each Gherkin scenario's and Quint
+ * trace's step timeline with its snapshots, from every package that has a
+ * spec suite, explorable together in `harness-report/index.html`.
+ *
+ * It aggregates the reports the checks already produce and nothing else.
+ * `bun check` runs each suite in parts (`test:spec:<k>`), and every part
+ * writes its own report bucket (`<pkg>/.cache/harness-report/part-<k>`: step
+ * timelines, the traces themselves, JUnit) that turbo caches with the
+ * verdict. A package whose suite records no harness timeline yields no report
+ * and is left out, and `bun check` itself writes none. So this runs every
+ * part through `turbo-ci-run --restore-outputs`: a part whose code has not
+ * changed since any machine sharing the remote cache ran it restores that
+ * run's bucket instead of running again, and only changed parts run. It then
+ * folds every bucket (JUnit outcomes overlaid) into the one report. With
+ * `--no-run`, a package whose unsplit `test:spec` (bucket `all`) ran after its
+ * parts shows that run.
+ *
+ * Snapshots (UI frames on every step) exist only when the suites ran with
+ * `HARNESS_FRAMES=1`, a cache entry of its own that `bun check` never fills,
+ * so a run with snapshots is the default here and takes the first time (about
+ * five minutes cold); `--no-frames` skips them and reuses `bun check`'s cache
+ * entries. `--no-run` builds from the buckets already on disk. Exits with the
+ * suites' status.
+ */
+
+import { spawnSync } from 'node:child_process';
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import {
+  applyJunitOutcomes,
+  type HtmlReportBundle,
+  mergeRunBundles,
+  parseJunit,
+  readRunBundle,
+} from '@pkgs/harness';
+import { HTML_REPORT_KEY, renderHtmlReport } from '@pkgs/harness-report';
+import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
+import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
+import { run } from '@pkgs/os';
+
+const REPO_ROOT = resolve(import.meta.dirname, '../../..');
+const OUT_DIR = join(REPO_ROOT, 'harness-report');
+const BUCKET_ROOT = '.cache/harness-report';
+/** Every part task `bun check` can run (`MAX_SPEC_PARTS` in spec-packages.ts). */
+const SPEC_PART_TASKS = Array.from({ length: 6 }, (_, k) => `test:spec:${k}`);
+const RUN_ID = 'latest';
+
+const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
+const UI_CSS = [
+  join(REPO_ROOT, 'pkgs/ui/src/theme/tokens.css'),
+  join(REPO_ROOT, 'pkgs/ui/src/components/hosts.css'),
+];
+
+type PackageManifest = { readonly scripts?: Record<string, string> };
+
+/** Repo-relative dirs of every package with a spec suite. */
+function specPackageDirs(): string[] {
+  const dirs: string[] = [];
+  for (const tier of ['apps', 'libs', 'pkgs']) {
+    for (const name of readdirSync(join(REPO_ROOT, tier))) {
+      const manifest = join(REPO_ROOT, tier, name, 'package.json');
+      if (!existsSync(manifest)) continue;
+      const pkg = JSON.parse(readFileSync(manifest, 'utf8')) as PackageManifest;
+      if (pkg.scripts?.['test:spec'] !== undefined)
+        dirs.push(`${tier}/${name}`);
+    }
+  }
+  return dirs.sort();
+}
+
+function listModuleCss(dir: string, out: string[]): void {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name !== 'node_modules') listModuleCss(path, out);
+    } else if (entry.name.endsWith('.module.css')) {
+      out.push(path);
+    }
+  }
+}
+
+/**
+ * Stylesheet set for iframe `srcdoc` frames, matching the product mount
+ * (tokens + hosts + Tailwind) plus every `pkgs/` CSS module: bun's harness Babel
+ * plugin exports unhashed local class names, so the raw module CSS applies.
+ */
+function compileFrameCss(): string {
+  const tmp = mkdtempSync(join(tmpdir(), 'harness-report-css-'));
+  try {
+    const out = join(tmp, 'tailwind.css');
+    run(
+      'bunx',
+      [
+        '--no-install',
+        '@tailwindcss/cli',
+        '-i',
+        join(TAILWIND_DIR, 'src/tailwind.css'),
+        '-o',
+        out,
+      ],
+      { cwd: TAILWIND_DIR }
+    );
+    const modules: string[] = [];
+    for (const name of readdirSync(join(REPO_ROOT, 'pkgs')).sort()) {
+      const src = join(REPO_ROOT, 'pkgs', name, 'src');
+      if (existsSync(src)) listModuleCss(src, modules);
+    }
+    return [
+      readFileSync(out, 'utf8'),
+      ...UI_CSS.map((p) => readFileSync(p, 'utf8')),
+      ...modules.map(
+        (p) =>
+          `/* ${p.slice(REPO_ROOT.length + 1)} */\n${readFileSync(p, 'utf8')}`
+      ),
+    ].join('\n');
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
+function junitMtime(bucket: string): number {
+  const junit = join(bucket, 'junit.xml');
+  return existsSync(junit) ? statSync(junit).mtimeMs : -1;
+}
+
+/** The package's latest run: its parts, or the unsplit `all` if newer. */
+function latestBuckets(dir: string): string[] {
+  const root = join(REPO_ROOT, dir, BUCKET_ROOT);
+  if (!existsSync(root)) return [];
+  const parts = readdirSync(root)
+    .filter((name) => /^part-\d+$/.test(name))
+    .map((name) => join(root, name))
+    .sort();
+  const all = join(root, 'all');
+  const partsTime = Math.max(-1, ...parts.map(junitMtime));
+  return junitMtime(all) > partsTime ? [all] : parts;
+}
+
+async function readBucket(bucket: string): Promise<HtmlReportBundle> {
+  const store = createNodeFsObjectStore({
+    rootDir: bucket,
+    fs: wallNodeFs(),
+    layout: 'tree',
+  });
+  const bundle = await readRunBundle(store, RUN_ID);
+  const junit = join(bucket, 'junit.xml');
+  return existsSync(junit)
+    ? applyJunitOutcomes(bundle, parseJunit(readFileSync(junit, 'utf8')))
+    : bundle;
+}
+
+const args = new Set(process.argv.slice(2));
+let status = 0;
+if (!args.has('--no-run')) {
+  const suites = spawnSync(
+    'bun',
+    [
+      'run',
+      join(REPO_ROOT, 'libs/tools/scripts/turbo-ci-run.ts'),
+      '--restore-outputs',
+      ...SPEC_PART_TASKS,
+    ],
+    {
+      cwd: REPO_ROOT,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        ...(args.has('--no-frames') ? {} : { HARNESS_FRAMES: '1' }),
+        // A cold run with frames outlasts the laptop's ten-minute gate deadline.
+        CHECK_DEADLINE_SECONDS: process.env['CHECK_DEADLINE_SECONDS'] ?? '3600',
+      },
+    }
+  );
+  status = suites.status ?? 1;
+}
+
+const runs: { label: string; bundle: HtmlReportBundle }[] = [];
+for (const dir of specPackageDirs()) {
+  for (const bucket of latestBuckets(dir)) {
+    runs.push({ label: dir, bundle: await readBucket(bucket) });
+  }
+}
+const bundle = mergeRunBundles(RUN_ID, runs);
+const html = renderHtmlReport(bundle, {
+  title: 'spec report — every suite, with snapshots',
+  frameCss: compileFrameCss(),
+  // Every snapshot of every test: pooled and gzipped, not one huge JSON.
+  pooled: true,
+});
+const out = createNodeFsObjectStore({
+  rootDir: OUT_DIR,
+  fs: wallNodeFs(),
+  layout: 'tree',
+});
+await out.put(HTML_REPORT_KEY, new TextEncoder().encode(html), 'text/html');
+
+const indexPath = join(OUT_DIR, HTML_REPORT_KEY);
+for (const r of runs) {
+  process.stdout.write(
+    `[harness-report] ${r.label}: ${String(r.bundle.tests.length)} harness(s), ${r.bundle.status}\n`
+  );
+}
+const noReport = specPackageDirs().filter(
+  (dir) => !runs.some((r) => r.label === dir && r.bundle.tests.length > 0)
+);
+if (noReport.length > 0) {
+  process.stdout.write(
+    `[harness-report] no report to aggregate: ${noReport.join(', ')}\n`
+  );
+}
+process.stdout.write(
+  `[harness-report] ${bundle.status} · ${String(bundle.tests.length)} harness(s) → ${indexPath}\n`
+);
+if (args.has('--open')) run('open', [indexPath]);
+process.exit(status);

@@ -37,9 +37,6 @@ jobs:
   #   check:shard  one runner per shard runs its task ids through turbo
   #   check        the one required check: green only if the plan and every
   #                shard are green
-  #   check:report fold the plan's and every shard's report fragment into the
-  #                one HTML report (libs/tools/scripts/check-report.ts) and
-  #                link it from the run summary; never part of the verdict
   check-plan:
     name: check:plan
     runs-on: ubuntu-latest
@@ -70,17 +67,7 @@ jobs:
       - name: plan
         env:
           SHARD_PLAN_PATH: ${{ runner.temp }}/shard-plan.txt
-        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards "--report-fragment=${RUNNER_TEMP}/check-report/plan.json" check
-
-      # Every gate task with its turbo hash and cache status: the report's
-      # task set, so a task no shard reached still shows as not run.
-      - name: Upload report fragment
-        uses: actions/upload-artifact@v6
-        with:
-          name: check-report-plan
-          path: ${{ runner.temp }}/check-report/plan.json
-          if-no-files-found: ignore
-          retention-days: 1
+        run: bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --plan-shards check
 
       - name: Upload shard plan
         uses: actions/upload-artifact@v6
@@ -128,7 +115,6 @@ jobs:
       PR_BASE: ${{ github.event.pull_request.base.sha }}
       PR_HEAD: ${{ github.event.pull_request.head.sha }}
       SHARD_TASKS: ${{ join(fromJSON(needs.check-matrix.outputs.assignment)[matrix.shard], ' ') }}
-      SHARD: ${{ matrix.shard }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -151,17 +137,7 @@ jobs:
         timeout-minutes: 25
         run: |
           # shellcheck disable=SC2086 # one word per task id
-          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts "--report-fragment=${RUNNER_TEMP}/check-report/shard-${SHARD}.json" $SHARD_TASKS
-
-      # What this shard ran: outcomes, failing logs, scenario results.
-      - name: Upload report fragment
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: check-report-shard-${{ matrix.shard }}
-          path: ${{ runner.temp }}/check-report/shard-${{ matrix.shard }}.json
-          if-no-files-found: ignore
-          retention-days: 1
+          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts $SHARD_TASKS
 
       - name: Upload queryable trace artifacts
         if: always()
@@ -216,53 +192,3 @@ jobs:
           test "$PLAN" = success
           test "$MATRIX" = success
           test "$SHARDS" = success || { test "$SHARDS" = skipped && test "$SHARD_COUNT" = '[]'; }
-
-  # The one HTML report of this run, linked from the run summary (the PR's
-  # Checks tab): its id is the gate fingerprint, the same `bun check` prints
-  # for the same inputs. Reporting only, so not a required check: a red
-  # report job never blocks a merge, and the verdict never waits on it.
-  check-report:
-    name: check:report
-    needs: [check-plan, check-shard]
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - uses: ./.github/actions/setup
-
-      - name: Download report fragments
-        uses: actions/download-artifact@v7
-        with:
-          pattern: check-report-*
-          path: ${{ runner.temp }}/check-report
-
-      - name: merge
-        id: merge
-        env:
-          ORIGIN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: bun run libs/tools/scripts/check-report.ts --merge "${RUNNER_TEMP}/check-report" --out-dir "${RUNNER_TEMP}/check-report-html" --origin "$ORIGIN" >> "$GITHUB_OUTPUT"
-
-      # One unzipped file, so the artifact link opens the report itself.
-      - name: Upload report
-        id: upload
-        uses: actions/upload-artifact@v7
-        with:
-          path: ${{ steps.merge.outputs.path }}
-          archive: false
-          retention-days: 30
-
-      - name: Link report
-        env:
-          REPORT_ID: ${{ steps.merge.outputs.id }}
-          VERDICT: ${{ steps.merge.outputs.verdict }}
-          URL: ${{ steps.upload.outputs.artifact-url }}
-        run: |
-          echo "::notice title=bun check report (${VERDICT})::${URL}"
-          {
-            echo "## bun check report · \`${VERDICT}\`"
-            echo ""
-            echo "[check-report-${REPORT_ID}.html](${URL}) — report \`${REPORT_ID}\` (the gate fingerprint; \`bun check\` over the same inputs writes the same id)."
-          } >> "$GITHUB_STEP_SUMMARY"
