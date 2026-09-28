@@ -18,8 +18,11 @@
   "devDependencies": {
     "@libs/harness": "workspace:*",
     "@pkgs/assert": "workspace:*",
+    "@pkgs/conformance": "workspace:*",
+    "@pkgs/dmn": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
+    "@pkgs/openslo": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "fast-check": "catalog:",

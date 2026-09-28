@@ -320,6 +320,7 @@
         "@pkgs/billing-stripe": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -390,6 +391,7 @@
         "@libs/notifications": "workspace:*",
         "@libs/search": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
@@ -576,7 +578,9 @@
       },
       "devDependencies": {
         "@libs/billing": "workspace:*",
+        "@pkgs/alloy": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
@@ -758,6 +762,7 @@
       },
       "devDependencies": {
         "@pkgs/db-schema-sqlite": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/sql-client-sqlite": "workspace:*",
         "@types/bun": "catalog:",
@@ -797,6 +802,7 @@
       },
       "devDependencies": {
         "@libs/billing": "workspace:*",
+        "@pkgs/alloy": "workspace:*",
         "@pkgs/db-schema-sqlite": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
@@ -1078,8 +1084,11 @@
       "devDependencies": {
         "@libs/harness": "workspace:*",
         "@pkgs/assert": "workspace:*",
+        "@pkgs/conformance": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/equal": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "fast-check": "catalog:",
@@ -2919,6 +2928,7 @@
       "devDependencies": {
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/property": "workspace:*",
         "@pkgs/quint": "workspace:*",
         "@solidjs/testing-library": "catalog:",

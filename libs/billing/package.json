@@ -68,6 +68,7 @@
     "@pkgs/billing-stripe": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/dmn": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

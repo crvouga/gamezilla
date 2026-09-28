@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/dmn": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@types/bun": "catalog:",
