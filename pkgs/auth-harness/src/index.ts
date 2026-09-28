@@ -1,7 +1,9 @@
 /**
- * Test / harness host seam for the in-house IdP (`@pkgs/auth-inhouse`): the auth app, a Google-flavored and
- * an Apple-flavored mock provider, devices running the production client
- * port, and a reference model every step is checked against.
+ * Test / harness host seam for the in-house IdP (`@pkgs/auth-inhouse`): its
+ * one example app (the auth app as a relying party of a Google-flavored and
+ * an Apple-flavored mock provider, `src/example-app/`), devices running the
+ * production client port, and a reference model every step is checked
+ * against.
  * Import from `@pkgs/auth-harness` only — not for product apps/libs.
  */
 
@@ -36,9 +38,13 @@ export {
 export {
   APPLE_CLIENT_ID,
   APPLE_DIRECTORY,
+  AUTH_SYSTEM_BASE_URL,
+  AUTH_SYSTEM_SECRET,
+  AUTH_SYSTEM_TRUSTED_ORIGINS,
   DIRECTORIES,
+  EXAMPLE_APP_NAME,
   GOOGLE_DIRECTORY,
-} from './idp-node';
+} from './example-app';
 export { assertAuthInvariants, authFingerprint } from './invariants';
 export { type AuthModel, identityKey } from './model';
 export { migrateAuthSchema, startStore } from './nodes';
@@ -67,9 +73,6 @@ export {
   type ActorOutcome,
   type ActorState,
   AUTH_FABRICS,
-  AUTH_SYSTEM_BASE_URL,
-  AUTH_SYSTEM_SECRET,
-  AUTH_SYSTEM_TRUSTED_ORIGINS,
   type AuthFabric,
   type AuthStore,
   type AuthSurface,

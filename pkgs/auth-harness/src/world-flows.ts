@@ -9,7 +9,7 @@ import { IDP_DEFAULT_FAULTS, type IdpFaults } from '@pkgs/idp-mock/shared';
 import { sql } from '@pkgs/sql';
 
 import { violate } from './checks';
-import { APPLE_CLIENT_ID } from './idp-node';
+import { APPLE_CLIENT_ID } from './example-app';
 import { endUserSessions, identitiesOf, identityKey } from './model';
 import type { AuthSurface } from './types';
 

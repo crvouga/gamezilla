@@ -3,12 +3,8 @@
 import { hashAuthSecret } from '@pkgs/auth-inhouse/shared';
 import { sql } from '@pkgs/sql';
 
-import {
-  type ActorOutcome,
-  type ActorState,
-  AUTH_SYSTEM_SECRET,
-  type AuthSurface,
-} from './types';
+import { AUTH_SYSTEM_SECRET } from './example-app';
+import type { ActorOutcome, ActorState, AuthSurface } from './types';
 
 export function violate(s: AuthSurface, message: string): void {
   s.violations.push(message);

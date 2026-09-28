@@ -16,18 +16,6 @@ export const AUTH_FABRICS: readonly AuthFabric[] = [
   'mockingbird-postgres',
 ];
 
-export const AUTH_SYSTEM_BASE_URL = 'http://auth.test';
-/** Where the auth app is mounted, as in production (`/api/auth/*`). */
-export const AUTH_SYSTEM_PATH_PREFIX = '/api';
-export const AUTH_SYSTEM_SECRET = 'auth-system-secret-0123456789abcdef';
-export const AUTH_SYSTEM_CALLBACK_URL = 'gamezilla://sso-callback';
-export const AUTH_SYSTEM_TRUSTED_ORIGINS: readonly string[] = [
-  AUTH_SYSTEM_BASE_URL,
-  'gamezilla://',
-  'http://localhost:5173',
-  'http://callback.test',
-];
-
 /** What a person does on the provider's screens during one round trip. */
 export type ProviderAnswers = {
   /** A directory address on that provider. */

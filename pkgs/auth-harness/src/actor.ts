@@ -18,13 +18,8 @@ import {
 import type { Session } from '@pkgs/harness';
 import { IDP_PASSWORD } from '@pkgs/idp-mock/shared';
 
-import {
-  type ActorOutcome,
-  type ActorState,
-  AUTH_SYSTEM_BASE_URL,
-  AUTH_SYSTEM_CALLBACK_URL,
-  type AuthStore,
-} from './types';
+import { AUTH_SYSTEM_BASE_URL, AUTH_SYSTEM_CALLBACK_URL } from './example-app';
+import type { ActorOutcome, ActorState, AuthStore } from './types';
 
 /** What a browser throws when the network is gone. */
 export const OFFLINE_ERROR = 'Failed to fetch (offline)';

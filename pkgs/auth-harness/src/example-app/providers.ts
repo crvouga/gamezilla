@@ -1,46 +1,36 @@
 /**
- * The identity-provider nodes of the auth simulation: one Google-flavored
- * and one Apple-flavored mock, each on its own origin with its own SQLite
- * directory, sessions, grants and faults. The auth app reaches them only
- * over HTTP, and the Apple node reaches back only over HTTP (its
- * server-to-server notifications), so the production code paths are the
- * ones exercised.
+ * The example app's providers: one Google-flavored and one Apple-flavored
+ * mock, each on its own origin with its own SQLite directory, sessions,
+ * grants and faults, with the example app registered as their one client.
+ * The example app reaches them only over HTTP, and the Apple node reaches
+ * back only over HTTP (its server-to-server notifications), so the
+ * production code paths are the ones exercised.
  */
 
-import type { AppleProviderConfig } from '@pkgs/auth-inhouse/server';
 import type { Ports } from '@pkgs/harness';
 import type { HttpClient } from '@pkgs/http-client';
 import {
-  type AppleClientKeys,
-  createAppleClientKeys,
   createIdpMockApp,
   createIdpSigningKeys,
   type IdpMock,
   type IdpSigningKeys,
   IdpStore,
 } from '@pkgs/idp-mock/server';
-import {
-  appleEndpoints,
-  type IdpAccountDraft,
-  type IdpProviderKind,
-} from '@pkgs/idp-mock/shared';
+import type { IdpAccountDraft, IdpProviderKind } from '@pkgs/idp-mock/shared';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
-import { AUTH_SYSTEM_BASE_URL, AUTH_SYSTEM_PATH_PREFIX } from './types';
-
-const API = `${AUTH_SYSTEM_BASE_URL}${AUTH_SYSTEM_PATH_PREFIX}`;
-
-export const GOOGLE_ORIGIN = 'http://google.idp.test';
-export const APPLE_ORIGIN = 'http://apple.idp.test';
-export const IDP_ORIGINS: Readonly<Record<IdpProviderKind, string>> = {
-  google: GOOGLE_ORIGIN,
-  apple: APPLE_ORIGIN,
-};
-export const GOOGLE_CLIENT_ID = 'auth-harness.apps.googleusercontent.com';
-export const GOOGLE_CLIENT_SECRET = 'auth-harness-client-secret';
-export const APPLE_CLIENT_ID = 'test.auth-harness.signin';
-export const APPLE_TEAM_ID = 'TEAMSIM001';
-export const APPLE_KEY_ID = 'KEYSIM0001';
+import {
+  APPLE_CLIENT_ID,
+  APPLE_KEY_ID,
+  APPLE_ORIGIN,
+  APPLE_TEAM_ID,
+  EXAMPLE_APP_API,
+  EXAMPLE_APP_NAME,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+  GOOGLE_ORIGIN,
+  sharedAppleKeys,
+} from './relying-party';
 
 /**
  * Who exists where. `chris`, `wendy`, `uma` and `vic` hold both a Google and
@@ -72,32 +62,13 @@ export const DIRECTORIES: Readonly<
 
 /**
  * Key generation is the costliest part of a boot and no scenario is about
- * it: one RS256 pair per provider flavor and one ES256 relying-party key per
- * process, shared by every run.
+ * it: one RS256 pair per provider flavor per process, shared by every run.
  */
 let signingKeys: Promise<IdpSigningKeys> | null = null;
-let appleKeys: Promise<AppleClientKeys> | null = null;
 
 function sharedSigningKeys(): Promise<IdpSigningKeys> {
   signingKeys ??= createIdpSigningKeys();
   return signingKeys;
-}
-
-function sharedAppleKeys(): Promise<AppleClientKeys> {
-  appleKeys ??= createAppleClientKeys();
-  return appleKeys;
-}
-
-export async function appleRelyingPartyConfig(): Promise<AppleProviderConfig> {
-  const keys = await sharedAppleKeys();
-  return {
-    clientId: APPLE_CLIENT_ID,
-    teamId: APPLE_TEAM_ID,
-    keyId: APPLE_KEY_ID,
-    privateJwk: keys.privateJwk,
-    endpoints: appleEndpoints(APPLE_ORIGIN),
-    issuer: APPLE_ORIGIN,
-  };
 }
 
 async function openStore(
@@ -128,8 +99,8 @@ export async function startIdpNodes(args: {
       {
         clientId: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
-        redirectUris: [`${API}/auth/callback/google`],
-        appName: 'Auth Simulation',
+        redirectUris: [`${EXAMPLE_APP_API}/auth/callback/google`],
+        appName: EXAMPLE_APP_NAME,
       },
     ],
     accounts: GOOGLE_DIRECTORY,
@@ -142,13 +113,13 @@ export async function startIdpNodes(args: {
       {
         clientId: APPLE_CLIENT_ID,
         clientSecret: '',
-        redirectUris: [`${API}/auth/callback/apple`],
-        appName: 'Auth Simulation',
+        redirectUris: [`${EXAMPLE_APP_API}/auth/callback/apple`],
+        appName: EXAMPLE_APP_NAME,
         apple: {
           teamId: APPLE_TEAM_ID,
           keyId: APPLE_KEY_ID,
           publicJwk: { ...apple.publicJwk },
-          notificationUrl: `${API}/auth/apple/notifications`,
+          notificationUrl: `${EXAMPLE_APP_API}/auth/apple/notifications`,
         },
       },
     ],

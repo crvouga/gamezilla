@@ -11,7 +11,7 @@ import fc from 'fast-check';
 import { AUTH_ACTIONS } from './actions';
 import { startActor } from './actor';
 import { sessionUserOf } from './checks';
-import { DIRECTORIES } from './idp-node';
+import { DIRECTORIES } from './example-app';
 import { authFingerprint, authInvariantViolations } from './invariants';
 import { createAuthModel } from './model';
 import { startStore } from './nodes';

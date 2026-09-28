@@ -12,7 +12,11 @@ import {
 } from '@pkgs/auth/shared';
 import type { IdpEmailChoice, IdpFaults } from '@pkgs/idp-mock/shared';
 
-import { APPLE_CLIENT_ID, APPLE_TEAM_ID, GOOGLE_CLIENT_ID } from './idp-node';
+import {
+  APPLE_CLIENT_ID,
+  APPLE_TEAM_ID,
+  GOOGLE_CLIENT_ID,
+} from './example-app';
 import type { SeenIdentity } from './model';
 import type { AuthStore, ProviderAnswers } from './types';
 

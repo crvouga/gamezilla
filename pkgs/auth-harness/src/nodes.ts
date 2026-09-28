@@ -1,36 +1,26 @@
 import {
   AuthPostgresDatabaseMigration,
   AuthSqliteDatabaseMigration,
-  createAuthApp,
   createAuthServerAdapter,
 } from '@pkgs/auth-inhouse/server';
-import type { Ports, Session } from '@pkgs/harness';
-import type { HttpClient } from '@pkgs/http-client';
-import { idpEndpoints } from '@pkgs/idp-mock/shared';
+import type { Session } from '@pkgs/harness';
 import { createNoopLogger } from '@pkgs/logger';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
-import { Hono } from 'hono';
+import type { Hono } from 'hono';
 
 import {
   APPLE_CLIENT_ID,
-  appleRelyingPartyConfig,
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  GOOGLE_ORIGIN,
-  idpForUrl,
-  startIdpNodes,
-} from './idp-node';
-import {
   AUTH_SYSTEM_BASE_URL,
   AUTH_SYSTEM_PATH_PREFIX,
   AUTH_SYSTEM_SECRET,
-  AUTH_SYSTEM_TRUSTED_ORIGINS,
-  type AuthFabric,
-  type AuthStore,
-} from './types';
+  buildExampleApp,
+  idpForUrl,
+  startIdpNodes,
+} from './example-app';
+import type { AuthFabric, AuthStore } from './types';
 
 function openSql(fabric: AuthFabric, seed: number): SqlClient {
   return fabric === 'mockingbird-sqlite'
@@ -52,33 +42,6 @@ export async function migrateAuthSchema(
     skipAdvisoryLock: true,
     alreadyInTransaction: false,
   }).migrate({ sqlClient, logger });
-}
-
-/** Mounted under `/api`, as the product's API worker mounts it. */
-async function buildAuthApp(
-  sql: SqlClient,
-  ports: Ports,
-  egress: HttpClient
-): Promise<Hono> {
-  const authApp = createAuthApp({
-    getSql: () => sql,
-    clock: ports.clock,
-    createId: ports.createId,
-    http: egress,
-    secret: AUTH_SYSTEM_SECRET,
-    baseURL: AUTH_SYSTEM_BASE_URL,
-    publicPathPrefix: AUTH_SYSTEM_PATH_PREFIX,
-    trustedOrigins: AUTH_SYSTEM_TRUSTED_ORIGINS,
-    providers: {
-      google: {
-        clientId: GOOGLE_CLIENT_ID,
-        clientSecret: GOOGLE_CLIENT_SECRET,
-        endpoints: idpEndpoints(GOOGLE_ORIGIN),
-      },
-      apple: await appleRelyingPartyConfig(),
-    },
-  });
-  return new Hono().route(AUTH_SYSTEM_PATH_PREFIX, authApp);
 }
 
 export async function startStore(
@@ -108,7 +71,7 @@ export async function startStore(
       : await idp.app.fetch(new Request(url, init));
   };
   // The auth app's own egress reaches the providers, and only them.
-  app = await buildAuthApp(sql, ports, {
+  app = await buildExampleApp(sql, ports, {
     async fetch(input, init) {
       const url = String(input);
       const idp = idpForUrl(idps, url);
