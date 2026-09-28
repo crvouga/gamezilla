@@ -101,14 +101,24 @@ framework contract) and the `HarnessDb` adapter contract (`harness-db.test.ts`);
 `harness-db.test.ts`'s fixpoint and plan-determinism examples are deleted as
 subsumed by the `idempotence` and `determinism` properties.
 
+(2026-09-27, later) The `index-tuning` context is removed from `specs/`:
+index tuning is technical, so it has no specs (A0 in
+[`SPEC_STANDARDS.md`](SPEC_STANDARDS.md)). Every guard moved first (P4) to
+`pkgs/db-indexes/tests/index-tuning.property.test.ts`, a model-based property
+over the same tuning harness: a reference model of the feature's rules and
+the Quint model's invariants must agree with the harness after every step,
+and the same sequence replays to the same end state (the Quint runner's
+`fingerprint` replay). The package's `tests/steps/`, `tests/quint/`,
+`specDomains` and `test:e2e` are gone.
+
 Still open:
 
 - **Framework-level harnesses**: all ported (`pkgs/room-harness`, `pkgs/matchmaking-harness`,
   `pkgs/auth-harness`, `pkgs/db-indexes`; 2026-09-27). Final sweep (2026-09-27):
   the same-seed determinism tests (`room-harness/determinism`,
-  `matchmaking-harness/seeded-workload`, `db-indexes` tuning replay) are the Quint
-  runner's replay check (a binding's `fingerprint`, longest trace replayed
-  twice); `room-harness/malformed-messages` is the room-server wire contract. The
+  `matchmaking-harness/seeded-workload`) are the Quint runner's replay check (a
+  binding's `fingerprint`, longest trace replayed twice); the `db-indexes`
+  tuning replay is part of `index-tuning.property.test.ts`; `room-harness/malformed-messages` is the room-server wire contract. The
   one harness-scripted test left outside `specs/` is
   `pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts`
   (a timing-exact regression of the harness's own checker).
@@ -311,7 +321,7 @@ Note: 4 files carry kind `harness` but are framework/mechanics tests, not produc
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | ported 2026-09-27 to `specs/index-tuning/` (replay pin stays in `determinism.test.ts`) |
+| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | ported 2026-09-27 to `specs/index-tuning/`, then demoted to `tests/index-tuning.property.test.ts` (index tuning is technical: no specs) |
 
 ### pkgs/matchmaking-harness — ported (2026-09-27)
 
@@ -468,7 +478,7 @@ the device kept for them, unsent edits and notices included (glossary
 | pkgs/chess-board, chess-board-core, chess-rules | 30 | Chess engine/board mechanics (move destinations, game-status agreement with chess.js, move-sound scheduling, board rendering) — implementation detail exercised via the libs/chess e2e specs in Section A. |
 | pkgs/clock / device / secure-storage / secure-storage-web / secret-provider / secret-store / secret-string / secrets-config / database-url-policy | 19 | Injected-port unit tests for wall adapters and secret handling. |
 | pkgs/collab | 1 | Utility unit test. |
-| pkgs/db-indexes | 8 | Index-declaration invariant checks (naming, ownership, idempotence, determinism) — DB-index framework's own correctness tests (scenario/regressions.test.ts is the one harness scenario, in Section A). |
+| pkgs/db-indexes | 8 | Index-declaration invariant checks (naming, ownership, idempotence, determinism) — DB-index framework's own correctness tests (scenario/regressions.test.ts is the one harness scenario, in Section A; its successor is the model-based `index-tuning.property.test.ts`). |
 | pkgs/db-indexes-postgres / db-indexes-sqlite | 4 | Port-level index-engine adapters. |
 | pkgs/db-migrate / db-schema / db-schema-postgres / db-schema-sqlite | 19 | Schema/migration engine's own DDL-emission unit tests — framework mechanics, not product scenarios. |
 | pkgs/distributed-lock / entity-store / glicko2 / outbox / property / solid-context / sounds / sql-map / static-file-server / word-filter | 11 | Agnostic utility unit tests. |
