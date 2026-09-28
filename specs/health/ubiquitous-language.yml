@@ -46,12 +46,12 @@ terms:
     forms: [releases, unfinished release]
     avoid: [deploy, deployment, rollout]
 
-  - term: the Simulator
+  - term: the testing tool
     definition: >-
       A tool for the team, at its own address beside the app. People who use
       the app never need it.
-    forms: [Simulator]
-    avoid: [sim, dev tools]
+    forms: [testing tool]
+    avoid: [sim, Simulator, harness, dev tools]
 
   - term: reach the app securely
     definition: >-
