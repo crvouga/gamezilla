@@ -40,9 +40,9 @@ export function buildCheckHealPromptBody(
 ): string {
   if (failures.length === 0) return '';
   const lines = [
-    '# Fix `bun check` failures',
+    '# Fix `bun check:local` failures',
     '',
-    'The `bun check` gates failed when run locally via `bun run check:heal`.',
+    'The `bun check:local` gates failed when run locally via `bun run check:heal`.',
     '',
     'For each failing step below, identify the root cause from the captured output and fix it — do not just suppress the rule. Prefer fixing all failures together when they share a root cause. After fixing, re-run `bun run check:heal` (or `bun run check`) to verify.',
     '',

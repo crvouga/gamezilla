@@ -1,13 +1,13 @@
 /**
- * Hard time limits for the `bun check` / `bun run deploy` gate.
+ * Hard time limits for the `bun check:local` / `bun run deploy` gate.
  *
  * Two limits, both enforced by `turbo-ci-run.ts` so every surface that runs
- * the gate (local `bun check`, the Check workflow, the Deploy workflow) gets them:
+ * the gate (`bun check:local`, the Check workflow, the Deploy workflow) gets them:
  *
  * 1. A wall-clock **deadline** on the whole turbo run. Before it, one wedged
  *    task took the run with it — `@apps/product#test` once ran 2104s as a
  *    single `bun test` over 46 harness suites before the OS killed it (exit 137),
- *    and a local `bun check` had no way to notice. The deadline kills the
+ *    and a local run had no way to notice. The deadline kills the
  *    turbo process group and fails loudly instead.
  * 2. A per-task **budget**, read back from turbo's `--summarize` run summary
  *    once the run finishes. Only tasks that actually executed are measured, so

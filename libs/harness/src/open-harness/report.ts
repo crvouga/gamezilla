@@ -5,8 +5,8 @@
  * `.cache/harness-report/<part>/runs/latest/…` — `test:spec` caches that bucket, so the
  * report of the last run of this exact code is always there to render.
  * `HARNESS_FRAMES=1` also captures UI frames (slower; a separate cache entry).
- * `bun run test:report` (root) folds every package's bucket into one
- * standalone `harness-report/index.html`.
+ * The `bun check` report (`bun check:report`) folds every package's bucket
+ * into its scenario section (`../scenario-report.ts`).
  */
 
 import { join, relative, resolve } from 'node:path';

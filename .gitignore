@@ -101,8 +101,6 @@ turbo-platform-key.json
 /check/
 **/test-results/
 **/blob-report/
-# Aggregated spec report over every package (bun run test:report)
-/harness-report/
 
 /.data/
 **/.data/

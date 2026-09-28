@@ -8,7 +8,7 @@ Get all three workflows green, and do it in **one pull request** on the current 
 
 | Workflow | What red means | Where it runs |
 | --- | --- | --- |
-| **Check** (`.github/workflows/check.yml`) | the code is bad | every PR — `bun check` |
+| **Check** (`.github/workflows/check.yml`) | the code is bad | every PR — `bun check` dispatches it |
 | **Deploy** (`.github/workflows/deploy.yml`) | shipping `main` fails | push to `main` — `bun run deploy`, every standard env then production |
 | **Health** (`.github/workflows/health.yml`) | the live deployment is bad | hourly — `bun health` for every env |
 
@@ -52,7 +52,7 @@ shows it fixed afterwards:
 
 | Failure in | Reproduce with |
 | --- | --- |
-| Check (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check` |
+| Check (any shard) | `bun run --filter <pkg> <task>` for the failing task, then `bun check:local` |
 | Deploy, a gate leaf | the same leaf. `//#deploy` runs every `//#check` leaf first |
 | Deploy, a deploy step (build, wrangler, migrate) | that package's script with `SECRETS_ENV=dev`, using the dry-run form where one exists (e.g. `wrangler deploy --dry-run`) |
 | Health | `bun health` (dev), `bun health:prd` (read-only probes) |
@@ -78,8 +78,8 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the deploy part".
 
 ```bash
-bun check                       # the whole gate, locally, before every push
-bun run git-sync --message "fix(scope): …"
+bun check --message "fix(scope): …"   # git-sync, then the whole gate on GitHub
+# bun check:local                    # the same gate on this machine, when you need it
 ```
 
 Then run `/pr-ready`. It opens or updates the PR, syncs with `main`, and drives Check green.

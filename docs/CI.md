@@ -7,6 +7,20 @@ never mutates); `bun health` checks the **live deployments** (`dev`;
 
 ## `bun check`
 
+**`bun check` runs in the cloud.** It is
+[`check-remote.ts`](../libs/tools/scripts/check-remote.ts): it
+[`/git-sync`](../.agents/commands/git-sync.md)s the branch (commits a dirty
+tree with `--message`, merges `origin/main`, pushes), dispatches the Check
+workflow ([below](#workflows)) on that commit, streams it, and exits with the
+run's verdict — so the gate spends GitHub's runners, not the laptop's. Ctrl-C
+cancels the run. It needs `gh` (in `mise.toml`) signed in, and refuses on
+`main`. **`bun check:local`** runs the same gate on this machine (the
+`turbo-ci-run` below, warm-cached, with the secrets cache from
+`bun run secrets:pull`): reach for it when offline, when you want the local
+[check report](#the-check-report), or to debug one failure — `bun run
+--filter <pkg> <task>` is cheaper still. Both run the same `//#check` leaf
+set, so the verdict is the same.
+
 `//#check` depends on every package's `tc`, `lint`, `test`, `test:contract`
 and the parts of its `test:spec` (`test:spec:<k>`, below); the root leaves (`//#lint:root`, syncpack, audit, i18n,
 agent-commands, workspace-lifecycle, goals); `@apps/product#check:offline-shell` (every file the
@@ -65,7 +79,7 @@ opt-in report.
   `@libs/runtime#test:spec`, stays small on purpose.
 - **A spec suite runs in parts.** One suite is one process, and on a 2-core
   runner the biggest took ten minutes while every other shard idled. So
-  `bun check` never runs `test:spec` (that stays the whole suite, for local
+  the gate never runs `test:spec` (that stays the whole suite, for local
   runs); it runs `test:spec:0` … `test:spec:<specParts - 1>`, each
   `test-spec.ts --part k/n`, which the sharder spreads like any other task.
   The split is weighed from the spec files alone (scenarios, outline rows, a
@@ -75,8 +89,37 @@ opt-in report.
   past ~2 min on CI.
 - **The report is cached with the verdict.** Each part writes
   `<package>/.cache/harness-report/part-<k>` as its turbo `outputs` (an
-  unsplit run writes `all`); `bun run test:report` restores or reruns every
-  part and folds them into one `harness-report/index.html`.
+  unsplit run writes `all`), which the check report reads.
+
+## The check report
+
+Every `bun check:local` writes one standalone HTML file over the whole gate
+([`check-report/`](../libs/tools/scripts/check-report/)): the verdict, every
+failed task with its log tail, every failed scenario with its failure, what
+`specs/` holds per context (features, scenarios, Quint models, which
+packages run it), each spec suite's parts, the spec gate's output
+(`//#ci:specs` near-duplicate warnings included), the scenario timelines of
+the spec parts that ran, and every task with its status, time and turbo
+hash. `bun check:report` opens the last local one; `bun check:report <id|sha>`
+an earlier one; `--list` lists them.
+
+- **Its id is the gate fingerprint:** a hash over every task's turbo hash,
+  so the same inputs name the same report on any machine, and a rerun
+  rewrites it instead of piling up copies. Reports live in
+  `.cache/check-report/<id>/`; `latest` names the last.
+- **It shows only what the run touched.** A task the plan found cached is a
+  cached pass; its log and scenario bucket on disk (if any) are an earlier
+  run's, so the report shows neither. `bun check:report --restore` reruns
+  the gate with `turbo-ci-run --restore-outputs` — every hit restores its
+  outputs, so every log and scenario is fresh — and opens the full report;
+  add `--frames` for UI frames (`HARNESS_FRAMES=1`, a separate cache entry).
+- **It is never the verdict.** A report that cannot be written warns; the
+  run's exit status is turbo's.
+- **On CI** `check:plan` and every `check:shard` pass
+  `--report-fragment=<path>` and upload what they saw; the `check:report`
+  job merges the fragments (`check-report.ts --merge`), uploads one unzipped
+  `check-report-<id>.html` artifact, and links it from the run summary and a
+  notice on the PR's Checks tab. It is not a required check.
 
 ## `turbo-ci-run`
 
@@ -120,7 +163,7 @@ tasks so the root scripts never re-enter turbo.
 gitignored `.cache/secrets/`; `secrets-run` prefers it for `SECRETS_ENV=dev`
 (warns after 24 h) and bootstraps it once when missing. CI injects secrets via
 secrets-auth; `prd` and deploy stay Infisical-first. Run `secrets:pull` then
-`bun check` locally and CI reuses the same remote cache entries.
+`bun check:local` and CI reuses the same remote cache entries.
 
 ## Workflows
 
@@ -128,11 +171,14 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
 
 | Workflow | File | Question |
 | --- | --- | --- |
-| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check`, every PR) |
+| **Check** | `.github/workflows/check.yml` | Is the code good? (`bun check`, every PR; `bun check` dispatches it by hand) |
 | **Deploy** | `.github/workflows/deploy.yml` | Ship `main` (`bun run deploy`) |
 | **Health** | `.github/workflows/health.yml` | Is the deployment good? (`bun health`, hourly) |
 
-1. **Check** runs the `//#check` leaf set with `SECRETS_ENV=dev`, sharded:
+1. **Check** runs on every PR to `main` and on `workflow_dispatch` (what
+   `bun check` fires); it never runs on a push to `main`, which only moves
+   through a merged PR that already passed it. It runs the `//#check` leaf
+   set with `SECRETS_ENV=dev`, sharded:
    `check:plan` dry-runs the gate, `check:matrix` (no secrets — the runner
    drops outputs holding a masked value) publishes the split from
    [`check-shards.ts`](../libs/tools/scripts/check-shards.ts), balanced by
@@ -143,7 +189,9 @@ Exactly three, on GitHub-hosted `ubuntu-latest`; never add a fourth.
    `bun run libs/tools/scripts/check-shards.ts --harvest <run id>` — costs
    are CI seconds, never a laptop's.
    A new check goes into `//#check` in `turbo.json`, preferably as a test or
-   lint rule in its package; never a new job.
+   lint rule in its package; never a new job. `check:report` (not required)
+   merges the plan's and shards' report fragments into the one HTML report
+   ([above](#the-check-report)).
 2. **Deploy** (`deploy:matrix` reads `libs/infra/tofu/envs/*.tfvars.json`
    through [`workflow-env-matrix.ts`](../libs/infra/scripts/workflow-env-matrix.ts)
    and guards that the commit came from a merged PR) runs one `deploy:<env>`

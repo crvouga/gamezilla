@@ -661,7 +661,6 @@
       },
       "devDependencies": {
         "@pkgs/harness-report": "workspace:*",
-        "@pkgs/os": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",

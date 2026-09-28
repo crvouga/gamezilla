@@ -43,12 +43,17 @@
  *   finishes. Both live in `check-budget.ts`.
  * - Durations: every exit prints the run's wall time and each phase's share
  *   (plan, prefetch, turbo), cache-hit-only runs included.
- * - `--restore-outputs` (`bun run test:report`): leave every task's cached
+ * - `--restore-outputs` (`bun check:report --restore`): leave every task's cached
  *   outputs on disk. A plain run skips turbo when everything hit, which is
  *   right for a verdict but restores nothing; this mode prefetches every
  *   remote hit, runs turbo over the whole set (hits restore their outputs,
  *   misses run) and `--continue`s past a failing task so every suite
  *   reports.
+ * - Report: a `check` run renders one standalone HTML report of the whole
+ *   gate into `.cache/check-report/<fingerprint>/` (`bun check:report` opens
+ *   it; `check-report/` has the rest). `--report-fragment=<path>` writes the
+ *   run's raw fragment instead, which is how CI's plan and shards hand their
+ *   parts to the `check:report` job that merges them.
  */
 import { type ChildProcess, spawn } from 'node:child_process';
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
@@ -66,6 +71,8 @@ import {
   resolveRunDeadlineSeconds,
   slowestExecuted,
 } from './check-budget';
+import { reportRun } from './check-report/run';
+import { runSummaryNames } from './check-report/summaries';
 import {
   formatShardPlan,
   planShards,
@@ -369,6 +376,64 @@ function exitWithDurations(code: number): never {
   process.exit(code);
 }
 
+/** The turbo flags every run passes, and a one-line summary of them. */
+function turboCiFlags(cache: string): {
+  readonly flags: readonly string[];
+  readonly summary: string;
+} {
+  const concurrency = resolveConcurrency();
+  const outputLogs = process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
+  const logOrder =
+    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
+  const ui = resolveUi();
+  return {
+    flags: [
+      `--concurrency=${concurrency}`,
+      `--cache-workers=${String(CACHE_WORKERS)}`,
+      `--cache=${cache}`,
+      '--framework-inference=false',
+      '--summarize',
+      `--output-logs=${outputLogs}`,
+      `--log-order=${logOrder}`,
+      ...(ui !== undefined ? [`--ui=${ui}`] : []),
+    ],
+    summary:
+      `cache=${cache} concurrency=${concurrency} log-order=${logOrder}` +
+      (ui !== undefined ? ` ui=${ui}` : ''),
+  };
+}
+
+type Cli = {
+  readonly planShardsOnly: boolean;
+  readonly restoreOutputs: boolean;
+  readonly fragmentPath: string | null;
+  /** What is left for turbo: task names and turbo's own flags. */
+  readonly rawTaskArgs: readonly string[];
+};
+
+function parseCli(argv: readonly string[]): Cli {
+  const rawTaskArgs = argv
+    .slice(2)
+    .filter(
+      (arg) =>
+        arg !== PLAN_SHARDS_FLAG &&
+        arg !== RESTORE_OUTPUTS_FLAG &&
+        !arg.startsWith(REPORT_FRAGMENT_FLAG)
+    );
+  if (rawTaskArgs.length === 0) {
+    console.error(
+      'usage: bun run libs/tools/scripts/turbo-ci-run.ts <turbo run args…>'
+    );
+    process.exit(1);
+  }
+  return {
+    planShardsOnly: argv.includes(PLAN_SHARDS_FLAG),
+    restoreOutputs: argv.includes(RESTORE_OUTPUTS_FLAG),
+    fragmentPath: reportFragmentPath(argv),
+    rawTaskArgs,
+  };
+}
+
 async function main(): Promise<void> {
   const env = turboChildEnv();
   writePlatformCacheKey();
@@ -378,35 +443,9 @@ async function main(): Promise<void> {
   warnLocalCacheOnly(remote);
 
   const cache = resolveCacheFlag(env, remote);
-  const concurrency = resolveConcurrency();
-  const TURBO_OUTPUT_LOGS =
-    process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
-  const TURBO_LOG_ORDER =
-    process.env['TURBO_LOG_ORDER']?.trim() || (inCi() ? 'grouped' : 'auto');
-  const ui = resolveUi();
-
-  const TURBO_CI_FLAGS = [
-    `--concurrency=${concurrency}`,
-    `--cache-workers=${String(CACHE_WORKERS)}`,
-    `--cache=${cache}`,
-    '--framework-inference=false',
-    '--summarize',
-    `--output-logs=${TURBO_OUTPUT_LOGS}`,
-    `--log-order=${TURBO_LOG_ORDER}`,
-    ...(ui !== undefined ? [`--ui=${ui}`] : []),
-  ] as const;
-
-  const planShardsOnly = process.argv.includes(PLAN_SHARDS_FLAG);
-  const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
-  const rawTaskArgs = process.argv
-    .slice(2)
-    .filter((arg) => arg !== PLAN_SHARDS_FLAG && arg !== RESTORE_OUTPUTS_FLAG);
-  if (rawTaskArgs.length === 0) {
-    console.error(
-      'usage: bun run libs/tools/scripts/turbo-ci-run.ts <turbo run args…>'
-    );
-    process.exit(1);
-  }
+  const turbo = turboCiFlags(cache);
+  const { planShardsOnly, restoreOutputs, fragmentPath, rawTaskArgs } =
+    parseCli(process.argv);
 
   const mode = resolveRunMode(rawTaskArgs);
   requireRemoteCredsForDeploy(remote, mode);
@@ -420,8 +459,7 @@ async function main(): Promise<void> {
   });
 
   console.log(
-    `turbo-ci-run: cache=${cache} concurrency=${concurrency} log-order=${TURBO_LOG_ORDER} deadline=${String(deadlineSeconds)}s` +
-      (ui !== undefined ? ` ui=${ui}` : '') +
+    `turbo-ci-run: ${turbo.summary} deadline=${String(deadlineSeconds)}s` +
       (remote
         ? ` (remote creds present; api=${env['TURBO_API'] ?? DEFAULT_TURBO_API})`
         : ' (local cache only)')
@@ -436,25 +474,62 @@ async function main(): Promise<void> {
   const planned = await timed('plan', () =>
     planOrNull(fullRunArgs, cache, env)
   );
-  if (planShardsOnly) writeShardPlanAndExit(planned, taskArgs);
+  const report = (
+    summariesBefore: ReadonlySet<string> | null,
+    exitCode: number | null
+  ) =>
+    reportRun({
+      repoRoot: REPO_ROOT,
+      plan: planned?.tasks ?? null,
+      summariesBefore,
+      exitCode,
+      fragmentPath,
+      render: mode === 'plain' && requestsCheck(rawTaskArgs),
+      frames: process.env['HARNESS_FRAMES'] === '1',
+    });
+  if (planShardsOnly) {
+    await report(null, null);
+    writeShardPlanAndExit(planned, taskArgs);
+  }
   const plan = restoreOutputs && planned ? restoreEveryHit(planned) : planned;
   if (plan !== null && plan.toExecute.length === 0 && !restoreOutputs) {
-    exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
+    const code = finalExitCode({ status: 0, slowRunner, ran: false });
+    await report(null, code);
+    exitWithDurations(code);
   }
   if (plan !== null && plan.remoteHits.length > 0) {
     await timed('prefetch', () => prefetchRemoteHits(plan, REPO_ROOT, env));
   }
   const runArgs = turboRunArgs(fullRunArgs, plan, restoreOutputs);
 
+  const summariesBefore = runSummaryNames(REPO_ROOT);
   const stopHeartbeat = startHeartbeat();
   const status = await timed('turbo', () =>
-    runTurbo([...runArgs, ...TURBO_CI_FLAGS], env, { deadlineSeconds })
+    runTurbo([...runArgs, ...turbo.flags], env, { deadlineSeconds })
   );
   stopHeartbeat();
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  exitWithDurations(finalExitCode({ status, slowRunner, ran: true }));
+  const code = finalExitCode({ status, slowRunner, ran: true });
+  await timed('report', () => report(summariesBefore, code));
+  exitWithDurations(code);
+}
+
+/** Whether the command line asks for the `bun check` gate. */
+export function requestsCheck(rawTaskArgs: readonly string[]): boolean {
+  return rawTaskArgs.some(
+    (arg) =>
+      Object.hasOwn(AGGREGATOR_ALIASES, arg) &&
+      AGGREGATOR_ALIASES[arg] === CHECK_AGGREGATOR
+  );
+}
+
+/** `--report-fragment=<path>`: where to write this run's report fragment. */
+export function reportFragmentPath(argv: readonly string[]): string | null {
+  const arg = argv.find((a) => a.startsWith(REPORT_FRAGMENT_FLAG));
+  const path = arg?.slice(REPORT_FRAGMENT_FLAG.length) ?? '';
+  return path === '' ? null : path;
 }
 
 /**
@@ -474,6 +549,7 @@ function turboRunArgs(
 
 const PLAN_SHARDS_FLAG = '--plan-shards';
 const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
+const REPORT_FRAGMENT_FLAG = '--report-fragment=';
 const SHARD_PLAN_PATH_ENV = 'SHARD_PLAN_PATH';
 
 /**
