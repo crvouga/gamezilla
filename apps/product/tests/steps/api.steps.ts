@@ -5,9 +5,9 @@ import { expect } from 'bun:test';
 import { resolve4, resolve6 } from 'node:dns/promises';
 import { connect } from 'node:tls';
 import {
+  authRelayOrigin,
   envHostnames,
   envOrigins,
-  oauthRelayEnv,
 } from '@libs/infra/public/env-file';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import { httpProbe } from '@libs/secrets/shared/http-probe';
@@ -17,7 +17,6 @@ import { Then, WARMUP_MS, When } from './define';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const GOOGLE_CALLBACK_PATH = '/api/auth/callback/google';
-const RELAY = oauthRelayEnv(Object.values(ENV_FILES));
 const SIGN_IN_ANSWER = 'sign-in-answer';
 
 async function addresses(host: string): Promise<string[]> {
@@ -152,7 +151,7 @@ Then(
     const authorize = new URL(result.location ?? '');
     expect(authorize.hostname).toBe('accounts.google.com');
     expect(authorize.searchParams.get('redirect_uri')).toBe(
-      `${envOrigins(RELAY).api}${GOOGLE_CALLBACK_PATH}`
+      `${authRelayOrigin()}${GOOGLE_CALLBACK_PATH}`
     );
     expect(
       authorize.searchParams.get('state')?.startsWith(`${w.env.env}.`)
@@ -161,9 +160,9 @@ Then(
 );
 
 /**
- * Only the relay's own deploy runs this (`HOST_LIMITS` in
- * `scripts/health.ts`): a replica deploys before the relay learns about it,
- * so its own health must not depend on the relay.
+ * The relay (`apps/auth-relay`) is global and redeploys in the Deploy
+ * workflow's fleet job, before any environment, so every environment can
+ * prove it forwards each other environment's callbacks home.
  */
 Then(
   'Google sign-ins started in any other environment return to that environment',
@@ -172,7 +171,7 @@ Then(
     for (const other of others) {
       const query = `?state=${other.env}.health&code=health`;
       const result = await httpProbe(
-        `${w.origins.api}${GOOGLE_CALLBACK_PATH}${query}`,
+        `${authRelayOrigin()}${GOOGLE_CALLBACK_PATH}${query}`,
         15_000
       );
       expect(result.status, `relay to ${other.env}`).toBe(302);

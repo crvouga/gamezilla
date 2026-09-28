@@ -961,6 +961,7 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/auth/src/**/*.{ts,tsx}",
         "!**/libs/runtime/src/root/server/app-auth-provider.ts",
+        "!**/apps/auth-relay/src/worker.ts",
         "!**/libs/client-app/src/shell/wall-client-env.ts",
         "!**/libs/client-app/src/shell/auth-client-storage.ts",
         "!**/apps/product/**",

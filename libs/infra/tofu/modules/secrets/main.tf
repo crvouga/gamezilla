@@ -6,7 +6,8 @@
 #               already in the store wins over the generator, so adopting an
 #               existing environment never rotates it — unless the stored
 #               value is a `placeholder` (committed to git, hence public),
-#               which is replaced by the generator. STATEFUL.
+#               which is replaced by the generator. Protected by the plan
+#               policy: only a standard environment's teardown deletes them.
 #   derived   — outputs of other resources (tokens, URLs); rewritten whenever
 #               their producer changes.
 #
@@ -93,10 +94,6 @@ resource "random_password" "generated" {
 
   length  = 43
   special = false
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 locals {

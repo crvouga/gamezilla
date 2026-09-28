@@ -3,13 +3,17 @@
 # project's root branch; every other environment gets its own branch of it,
 # created here — so a new replica starts as a copy of production's data and
 # needs no console step. OpenTofu also owns each branch's read-write endpoint
-# and derives DATABASE_URL from them. Inside the branch, OpenTofu owns only
+# and derives DATABASE_URL from them, plus the Hyperdrive config the API
+# Worker connects through. Inside the branch, OpenTofu owns only
 # database-level configuration (extensions); tables are the app's migrations.
 #
-# Neon resources are never deletable (libs/infra/policy/stateful.rego).
+# Neon resources are deleted only by tearing down a whole standard
+# environment (`bun run infra:destroy`); libs/infra/policy/stateful.rego
+# refuses it for production and in every ordinary apply.
 
 terraform {
   required_providers {
+    cloudflare = { source = "cloudflare/cloudflare" }
     neon       = { source = "kislerdm/neon" }
     postgresql = { source = "cyrilgdn/postgresql" }
   }
@@ -34,6 +38,15 @@ variable "branch_name" {
   type = string
 }
 
+variable "account_id" {
+  type        = string
+  description = "Cloudflare account the Hyperdrive config lives in (the Workers' account)."
+}
+
+variable "hyperdrive_name" {
+  type = string
+}
+
 locals {
   # The role and database every branch inherits from the root at creation.
   role     = "neondb_owner"
@@ -46,10 +59,6 @@ resource "neon_branch" "this" {
   project_id = var.neon_project_id
   parent_id  = var.root_branch_id
   name       = var.branch_name
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 locals {
@@ -63,10 +72,6 @@ resource "neon_endpoint" "this" {
   autoscaling_limit_min_cu = 0.25
   autoscaling_limit_max_cu = 8
   suspend_timeout_seconds  = 0
-
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 data "neon_branch_role_password" "owner" {
@@ -84,8 +89,37 @@ resource "postgresql_extension" "pg_stat_statements" {
   name = "pg_stat_statements"
 }
 
+# Hyperdrive: the API Worker's connection to the branch. It keeps warm
+# connections to the direct (unpooled) endpoint next to the database and
+# pools them for every Worker isolate, so a request never pays a TLS + auth
+# handshake to Neon. Query caching is off: sync hydration must read its own
+# writes, and a cached `SELECT` would serve a snapshot from before them.
+# Stateless: replacing it only changes the id the next Worker deploy binds.
+resource "cloudflare_hyperdrive_config" "this" {
+  account_id = var.account_id
+  name       = var.hyperdrive_name
+
+  origin = {
+    scheme   = "postgres"
+    host     = neon_endpoint.this.host
+    port     = 5432
+    database = local.database
+    user     = local.role
+    password = data.neon_branch_role_password.owner.password
+  }
+
+  caching = {
+    disabled = true
+  }
+}
+
+output "hyperdrive_id" {
+  description = "Bound into the API Worker as HYPERDRIVE (wrangler render)."
+  value       = cloudflare_hyperdrive_config.this.id
+}
+
 output "database_url" {
-  description = "What the Workers connect with: the pooled host."
+  description = "Migrations, tooling and the non-production URL policy connect with this: the pooled host. Workers go through Hyperdrive."
   value       = "postgresql://${local.role}:${data.neon_branch_role_password.owner.password}@${neon_endpoint.this.host_pooling}/${local.database}?sslmode=require&channel_binding=require"
   sensitive   = true
 }

@@ -15,6 +15,7 @@ import { BILLING_VENDOR_SECRETS } from './billing-vendor-secrets';
 import { CLOUDFLARE_ACCOUNT_ID } from './cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from './cf-api-token';
 import { DATABASE_URL } from './db-url';
+import { HYPERDRIVE_ID } from './hyperdrive-id';
 import {
   GITHUB_ADMIN_TOKEN,
   NEON_API_KEY,
@@ -59,6 +60,7 @@ export const SECRETS: readonly Secret[] = [
   CLOUDFLARE_API_TOKEN,
   CLOUDFLARE_ACCOUNT_ID,
   DATABASE_URL,
+  HYPERDRIVE_ID,
   AUTH_SECRET,
   SYNTHETIC_MONITOR_TOKEN,
   WEB_CLIENT_GOOGLE_CLIENT_ID,

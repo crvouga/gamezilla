@@ -26,6 +26,22 @@
         "typescript": "catalog:",
       },
     },
+    "apps/auth-relay": {
+      "name": "@apps/auth-relay",
+      "version": "0.0.0",
+      "dependencies": {
+        "@libs/infra": "workspace:*",
+        "@libs/secrets": "workspace:*",
+        "@pkgs/auth-inhouse": "workspace:*",
+        "hono": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+        "wrangler": "catalog:",
+      },
+    },
     "apps/client": {
       "name": "@apps/client",
       "version": "1.0.0",
@@ -3204,6 +3220,8 @@
 
     "@apideck/better-ajv-errors": ["@apideck/better-ajv-errors@0.3.7", "", { "dependencies": { "jsonpointer": "^5.0.1", "leven": "^3.1.0" }, "peerDependencies": { "ajv": ">=8" } }, "sha512-TajUJwGWbDwkCx/CZi7tRE8PVB7simCvKJfHUsSdvps+aTM/PDPP4gkLmKnc+x3CE//y9i/nj74GqdL/hwk7Iw=="],
 
+    "@apps/auth-relay": ["@apps/auth-relay@workspace:apps/auth-relay"],
+
     "@apps/client": ["@apps/client@workspace:apps/client"],
 
     "@apps/product": ["@apps/product@workspace:apps/product"],
@@ -3980,7 +3998,7 @@
 
     "@parcel/watcher-linux-x64-glibc": ["@parcel/watcher-linux-x64-glibc@2.5.1", "", { "os": "linux", "cpu": "x64" }, "sha512-GcESn8NZySmfwlTsIur+49yDqSny2IhPeZfXunQi48DMugKeZ7uy1FX83pO0X22sHntJ4Ub+9k34XQCX+oHt2A=="],
 
-    "@parcel/watcher-linux-x64-musl": ["@parcel/watcher-linux-x64-musl@2.5.1", "", { "os": "linux", "cpu": "x64" }, "sha512-n0TestQbatQ3bXhcH2D1XIAANAcTZkQICBPVaxMeaCVBtOpBZpWJuf7LwyWPSBDITb7In8mqQgJ7gH8CILCURXg=="],
+    "@parcel/watcher-linux-x64-musl": ["@parcel/watcher-linux-x64-musl@2.5.1", "", { "os": "linux", "cpu": "x64" }, ""],
 
     "@parcel/watcher-win32-arm64": ["@parcel/watcher-win32-arm64@2.5.1", "", { "os": "win32", "cpu": "arm64" }, "sha512-RFzklRvmc3PkjKjry3hLF9wD7ppR4AKcWNzH7kXR7GUe0Igb3Nz8fyPwtZCSquGrhU5HhUNDr/mKBqj7tqA2Vw=="],
 

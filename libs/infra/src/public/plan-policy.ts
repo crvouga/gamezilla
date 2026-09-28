@@ -12,6 +12,11 @@ export type PlanJson = {
     readonly change: { readonly actions: readonly string[] };
   }[];
   readonly variables?: Record<string, { readonly value: unknown }>;
+  /**
+   * Set only on a deliberate teardown (`bun run infra:destroy`): the torn
+   * down environment's env-file protection. Not part of `tofu show` output.
+   */
+  readonly teardown?: { readonly protection: 'production' | 'standard' };
 };
 
 export type ConftestRunner = (input: {

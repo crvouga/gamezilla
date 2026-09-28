@@ -17,6 +17,7 @@ import type { ApiWorkerEnv } from '@libs/server-app/config/env';
 import {
   assertSecretsEnvBinding,
   ConfigurationError,
+  postgresConnectionString,
   readBillingProviderBinding,
   readDeploymentProtection,
   readOptionalApiUrlOverride,
@@ -280,7 +281,10 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
           : (
               await secretStore.getRequired(ApiSecretName.dbUrl)
             ).readSecretValue();
-      const opened = await openRequestDb(url, dbScope);
+      const opened = await openRequestDb(
+        postgresConnectionString(env, url),
+        dbScope
+      );
       return opened.sqlClient;
     },
     events: null,
@@ -421,7 +425,10 @@ async function drainOutboxOnCron(env: ApiWorkerEnv): Promise<void> {
       secretsEnv,
     });
   }
-  const opened = await openRequestDb(dbUrl, appPostgresDbScope());
+  const opened = await openRequestDb(
+    postgresConnectionString(env, dbUrl),
+    appPostgresDbScope()
+  );
   try {
     const processed = await drainAndNotifyOutbox({
       db: wrapSqlClientForObservability(opened.sqlClient),

@@ -5,5 +5,6 @@
   "bucket": "{project}-{suffix}",
   "s3_token": "{project}-s3-{suffix}",
   "traces_write_policy": "{project}-{suffix}-traces-write",
-  "traces_read_policy": "{project}-{suffix}-traces-read"
+  "traces_read_policy": "{project}-{suffix}-traces-read",
+  "hyperdrive": "{project}-db-{suffix}"
 }

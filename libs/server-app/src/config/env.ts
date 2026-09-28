@@ -10,6 +10,11 @@ export type RoomNamespace = {
   get(id: object): { fetch: (request: Request) => Promise<Response> };
 };
 
+/** The part of Cloudflare's `Hyperdrive` binding the Worker reads. */
+export type HyperdriveBinding = {
+  readonly connectionString: string;
+};
+
 export type ApiWorkerEnv = {
   /** The secrets environment's name (`dev`, `prd`, …) — a label only. */
   SECRETS_ENV?: string;
@@ -47,7 +52,13 @@ export type ApiWorkerEnv = {
   DEPLOYMENT_PROTECTION?: string;
   BUILD_SHA?: string;
   ROOM?: RoomNamespace;
-  [key: string]: string | RoomNamespace | undefined;
+  /**
+   * Hyperdrive in front of the environment's Postgres (rendered by
+   * `@libs/infra/public/wrangler` from OpenTofu's config id). Absent in
+   * `wrangler dev` and the localhost stack, which connect directly.
+   */
+  HYPERDRIVE?: HyperdriveBinding;
+  [key: string]: string | RoomNamespace | HyperdriveBinding | undefined;
 };
 
 export class ConfigurationError extends Error {
@@ -142,6 +153,20 @@ export function readOptionalDatabaseUrlOverride(
   env: ApiWorkerEnv
 ): string | null {
   return readOptionalBinding(env.DATABASE_URL);
+}
+
+/**
+ * What the Worker opens Postgres with: Hyperdrive's pooled local connection
+ * when bound, else `databaseUrl` itself. `databaseUrl` stays the database's
+ * identity — the non-production URL policy always checks it, never the
+ * Hyperdrive address.
+ */
+export function postgresConnectionString(
+  env: ApiWorkerEnv,
+  databaseUrl: string
+): string {
+  const viaHyperdrive = env.HYPERDRIVE?.connectionString.trim() ?? '';
+  return viaHyperdrive.length > 0 ? viaHyperdrive : databaseUrl;
 }
 
 export function workerEnvToSecretRecord(

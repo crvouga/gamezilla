@@ -6,21 +6,19 @@ import { type Environment, HOST_LIMITS, hostSkips } from './health';
 
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
-const PRODUCTION_RELAY: Environment = {
+const PRODUCTION: Environment = {
   production: true,
-  relay: true,
   observability: true,
 };
 const STANDARD: Environment = {
   production: false,
-  relay: false,
   observability: true,
 };
 
 describe('health host limits', () => {
-  test('a production relay environment runs every scenario', () => {
+  test('a production environment runs every scenario', () => {
     for (const limit of HOST_LIMITS) {
-      expect(hostSkips(PRODUCTION_RELAY, limit.feature)).toEqual({
+      expect(hostSkips(PRODUCTION, limit.feature)).toEqual({
         wholeFeature: false,
         scenarios: [],
       });
@@ -42,13 +40,17 @@ describe('health host limits', () => {
     });
   });
 
-  test('relay and request-record scenarios follow the environment', () => {
-    expect(
-      hostSkips(STANDARD, 'specs/health/sign-in.feature').scenarios
-    ).toEqual(['Google sign-ins started in another environment return to it']);
+  test('every environment proves the OAuth relay returns sign-ins home', () => {
+    expect(hostSkips(STANDARD, 'specs/health/sign-in.feature')).toEqual({
+      wholeFeature: false,
+      scenarios: [],
+    });
+  });
+
+  test('request-record scenarios follow the environment', () => {
     expect(
       hostSkips(
-        { ...PRODUCTION_RELAY, observability: false },
+        { ...PRODUCTION, observability: false },
         'specs/health/request-records.feature'
       ).wholeFeature
     ).toBe(true);

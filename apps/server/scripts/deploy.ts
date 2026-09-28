@@ -2,7 +2,7 @@
 // @io-wall-ok — deploy CLI entry.
 /**
  * Ships the API Worker's code to the environment in `SECRETS_ENV`. The
- * infrastructure it runs on (secrets, bucket, broker, hostname) is
+ * infrastructure it runs on (secrets, bucket, broker, Hyperdrive, hostname) is
  * `libs/infra/tofu`, applied before and after this step by the deploy chain.
  */
 import { join } from 'node:path';
@@ -38,8 +38,23 @@ async function workerSecrets(): Promise<Record<string, string>> {
   return payload;
 }
 
+/** OpenTofu's Hyperdrive config for this env (foundation writes the id). */
+function hyperdriveId(): string {
+  const id = (process.env['HYPERDRIVE_ID'] ?? '').trim();
+  assert.nonEmptyString(
+    id,
+    `Worker deploy: missing HYPERDRIVE_ID in secrets env \`${activeEnvFile().env}\` (run @libs/infra#apply:foundation)`
+  );
+  return id;
+}
+
 const secrets = await workerSecrets();
-deployWorker({ appDir: join(import.meta.dirname, '..'), role: 'api', secrets });
+deployWorker({
+  appDir: join(import.meta.dirname, '..'),
+  role: 'api',
+  secrets,
+  resources: { hyperdriveId: hyperdriveId() },
+});
 ok(
   'API Worker',
   `deployed to ${activeEnvFile().env} with ${String(Object.keys(secrets).length)} secrets`

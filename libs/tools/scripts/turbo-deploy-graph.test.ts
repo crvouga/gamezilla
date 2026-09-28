@@ -58,6 +58,7 @@ const CHECK_LEAVES = [
   'test:contract',
   'test:spec',
   '@apps/product#check:offline-shell',
+  '@apps/auth-relay#check:worker-bundle',
   '@apps/room-server#check:worker-bundle',
   '@apps/server#check:worker-bundle',
   '@libs/runtime#check:schema-evolution',

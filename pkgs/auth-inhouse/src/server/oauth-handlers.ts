@@ -22,7 +22,6 @@ import { repo } from './auth-route-handlers';
 import type { AuthAppCtx } from './create-auth-app-types';
 import { IdentityLinker, type LinkOutcome } from './identity-linker';
 import type { OauthStateRow } from './idp-repository';
-import { relayTarget } from './oauth-callback-relay';
 import { PendingLinkRepository } from './pending-link-repository';
 import type {
   OauthProviderAdapter,
@@ -205,15 +204,6 @@ export async function handleOauthCallback(
   if ('error' in provider)
     return c.json({ error: provider.error }, provider.status);
   const params = await callbackParams(c);
-  const forward = relayTarget({
-    relay: ctx.deps.callbackRelay,
-    state: params['state'] ?? '',
-    requestUrl: c.req.url,
-  });
-  // 307 keeps a `form_post` callback a POST with its body.
-  if (forward !== null) {
-    return c.redirect(forward, c.req.method === 'POST' ? 307 : 302);
-  }
   const r = repo(ctx.deps);
   const oauthState = await r.findOauthStateByState(params['state'] ?? '');
   if (oauthState === null || oauthState.provider !== provider.id) {

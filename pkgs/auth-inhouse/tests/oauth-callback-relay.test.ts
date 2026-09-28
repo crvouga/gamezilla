@@ -3,7 +3,9 @@ import { createInProcessOpenAuthSession } from '@pkgs/auth-inhouse/client';
 import {
   AuthSqliteDatabaseMigration,
   createAuthApp,
+  createOauthCallbackRelayApp,
   type OauthCallbackRelay,
+  parseRelayTargets,
 } from '@pkgs/auth-inhouse/server';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse/shared';
 import { createHarnessClock } from '@pkgs/clock';
@@ -19,12 +21,13 @@ import { Hono } from 'hono';
 
 /**
  * Two deployments of the IdP share one provider registration: the provider
- * knows only the relay deployment's callback. A sign-in launched on the other
- * deployment must still finish there, through the relay.
+ * knows only the relay's callback. A sign-in launched on either deployment
+ * must finish there, through the relay.
  */
 const SIGNING_KEYS = createIdpSigningKeys();
 
-const RELAY_API = 'https://api.example.test';
+const RELAY_ORIGIN = 'https://auth.example.test';
+const PRD_API = 'https://api.example.test';
 const DEV_API = 'https://api-dev.example.test';
 const DEV_WEB = 'https://www-dev.example.test';
 const IDP_URL = 'https://accounts.idp.test';
@@ -34,7 +37,7 @@ const CLIENT_ID = 'cid.apps.googleusercontent.com';
 const CLIENT_SECRET = 'csecret';
 const START_MS = 1_767_225_600_000;
 const ACCOUNT = { email: 'alice@gmail.com', password: IDP_PASSWORD };
-const REGISTERED_CALLBACK = `${RELAY_API}${PREFIX}/auth/callback/google`;
+const REGISTERED_CALLBACK = `${RELAY_ORIGIN}${PREFIX}/auth/callback/google`;
 
 type Wire = (
   input: string | URL | Request,
@@ -46,17 +49,13 @@ type Deployment = {
   readonly relay: OauthCallbackRelay;
 };
 
-const RELAY: Deployment = {
-  origin: RELAY_API,
-  relay: {
-    callbackOrigin: RELAY_API,
-    stateTag: 'prd',
-    forwardTo: { dev: DEV_API },
-  },
+const PRD: Deployment = {
+  origin: PRD_API,
+  relay: { callbackOrigin: RELAY_ORIGIN, stateTag: 'prd' },
 };
 const DEV: Deployment = {
   origin: DEV_API,
-  relay: { callbackOrigin: RELAY_API, stateTag: 'dev', forwardTo: {} },
+  relay: { callbackOrigin: RELAY_ORIGIN, stateTag: 'dev' },
 };
 
 function hrefOf(input: string | URL | Request): string {
@@ -136,7 +135,19 @@ async function bootFleet(): Promise<{ readonly wire: Wire }> {
     if (host === undefined) throw new Error(`no route to ${href}`);
     return await host.request(request);
   };
-  hosts.set(RELAY_API, await bootDeployment(RELAY, wire, 1));
+  const relay = new Hono();
+  relay.route(
+    '/',
+    createOauthCallbackRelayApp({
+      forwardTo: parseRelayTargets(
+        JSON.stringify({ prd: PRD_API, dev: DEV_API }),
+        'OAUTH_RELAY_TARGETS'
+      ),
+      publicPathPrefix: PREFIX,
+    })
+  );
+  hosts.set(RELAY_ORIGIN, relay);
+  hosts.set(PRD_API, await bootDeployment(PRD, wire, 1));
   hosts.set(DEV_API, await bootDeployment(DEV, wire, 2));
   return { wire };
 }
@@ -168,7 +179,7 @@ describe('oauth callback relay (black-box)', () => {
     const code = new URL(appUrl).searchParams.get('code') ?? '';
     expect(code.length).toBeGreaterThan(0);
 
-    // The exchange code belongs to the launching deployment, not the relay.
+    // The exchange code belongs to the launching deployment.
     const session = await wire(`${DEV_API}${PREFIX}/auth/session`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -212,13 +223,33 @@ describe('oauth callback relay (black-box)', () => {
     expect(res.headers.get('location')).toBeNull();
   });
 
-  test('a deployment keeps callbacks tagged with its own name', async () => {
+  test('an untagged state is never forwarded', async () => {
+    const { wire } = await bootFleet();
+    const res = await wire(`${REGISTERED_CALLBACK}?code=abc&state=s1`, {
+      redirect: 'manual',
+    });
+    expect(res.status).toBe(400);
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  test('every deployment, production included, returns through the relay', async () => {
     const { wire } = await bootFleet();
     const res = await wire(`${REGISTERED_CALLBACK}?code=abc&state=prd.s1`, {
       redirect: 'manual',
     });
-    // Handled locally: no such state here.
-    expect(res.status).toBe(400);
-    expect(res.headers.get('location')).toBeNull();
+    expect(res.status).toBe(302);
+    expect(res.headers.get('location')).toBe(
+      `${PRD_API}${PREFIX}/auth/callback/google?code=abc&state=prd.s1`
+    );
+  });
+
+  test('the relay refuses a target map that is not tag → http(s) origin', () => {
+    expect(() => parseRelayTargets('[]', 'T')).toThrow(/JSON object/);
+    expect(() => parseRelayTargets('{"Bad":"https://x.test"}', 'T')).toThrow(
+      /bad entry/
+    );
+    expect(() => parseRelayTargets('{"dev":"ftp://x.test"}', 'T')).toThrow(
+      /http\(s\)/
+    );
   });
 });
