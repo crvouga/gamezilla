@@ -25,9 +25,6 @@
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts",
     "validate:puzzles": "bun run scripts/validate-chess-puzzles.ts"
   },
-  "specDomains": [
-    "chess"
-  ],
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/billing": "workspace:*",
@@ -93,5 +90,8 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "specDomains": [
+    "chess"
+  ]
 }

@@ -15,9 +15,6 @@
     "test": "bun test tests",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
-  "specDomains": [
-    "rooms"
-  ],
   "dependencies": {
     "@pkgs/attribute": "workspace:*",
     "@pkgs/clock": "workspace:*",
@@ -36,5 +33,8 @@
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "specDomains": [
+    "rooms"
+  ]
 }

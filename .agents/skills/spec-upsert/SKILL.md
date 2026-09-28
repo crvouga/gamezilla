@@ -1,241 +1,255 @@
 ---
-name: write-specs
-description: Discover and write Gherkin acceptance specs in specs/<domain>/*.feature with strict behavior-driven development — product behavior only, no implementation details. Use for any new or changed .feature file, scenario, health check, or critical journey. To audit or clean up existing specs, use fix-specs; to bind steps, use implement-specs.
+name: spec-upsert
+description: Write or change Gherkin features and Quint models in specs/<domain>/ — product behavior only, in the bounded context's ubiquitous language, checked against docs/SPEC_STANDARDS.md and a per-aggregate coverage map. Use for any new or changed .feature or .qnt file, scenario, health check, or critical journey. To audit existing specs use spec-audit; to bind steps use spec-implement.
 ---
 
-# Write specs (strict BDD)
+# Spec upsert
 
-A spec is an executable example of **what the product does for the people
-who use it**. How the product does it belongs in step definitions, sim
-actions, and code, never in `specs/`. Feature text is the product's
-contract. It must still be true, word for word, after any rewrite of the
-implementation.
-
-Policy, gates, and where non-behavior goes:
+You write the product's contract: what people can do and what they observe,
+as concrete examples in the context's own words. Every rule you are held to
+is in [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md), cited
+below by ID (A1, B5, C2 …). Read it once before you start. Policy:
 [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
-Terms: the bounded context's ubiquitous language,
-`specs/<domain>/glossary.yaml`, plus the shared kernel `specs/glossary.yaml`
-([bounded contexts](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md#bounded-contexts-and-ubiquitous-language)).
 
-## Role boundaries (hard)
+## Hard rules
 
-- Never read `src/`, `tests/`, `sim/`, or infra code while writing specs.
-  Describe the behavior the product should have, not what the code happens
-  to do. If you don't know the behavior, ask the user. Never reverse-engineer
-  it.
-- Edit only `specs/**/*.feature`, `specs/**/*.qnt`, `specs/**/glossary.yaml`,
-  and docs. Catalogs are generated.
-- Commit feature changes alone, with a `spec:` subject. The implementer
-  binds them in a separate commit and never rewords them.
+- **Never touch implementation or step definitions.** Edit only
+  `specs/**/*.feature`, `specs/**/*.qnt`, `specs/**/ubiquitous-language.yml`
+  and docs (P1). Never read `src/`, `tests/`, `sim/` or infra: describe the
+  behavior the product should have, not what the code does.
+- **Never guess.** Stop and ask the person when you don't know: the
+  behavior itself, which context owns it, a boundary value, what a person
+  sees on refusal, or a new term's meaning.
+- **Never invent vocabulary** (A3). A new term waits for the person's yes.
+- **Never declare done with a blocking finding** from `spec-audit`.
 
-## 1. Discover before you write (Example Mapping)
+## Inputs you need from the person
 
-Before any Gherkin, lay out, in chat or notes:
+1. The behavior, in their words: who does what, and what should happen.
+2. Its boundaries: when it must *not* happen, and what the person is told
+   then.
+3. Any concrete values the rule turns on (limits, durations, plans).
 
-- **Story**: the capability, in one sentence from the person's side.
-- **Rules**: each rule the capability obeys ("a blocked person cannot find
-  the blocker").
-- **Examples**: one concrete example per rule. This is the main case, plus
-  each boundary that could go the other way.
-- **Questions**: anything nobody can answer yet. Ask the user. Never guess.
+If any is missing and the existing specs don't answer it, ask before step 3.
 
-Too many rules means the story is too big: split the feature. A rule with no
-example isn't understood yet. An example that illustrates no rule is noise.
+## Procedure
 
-Then decide, per rule, **whether it is behavior at all**. See "What belongs
-in a spec" in the policy doc. A formula's exact output, a validation table,
-a sync invariant, a storage row, or a wire shape is a code test. Write a
-Gherkin scenario for the rule a person experiences. If exhaustive cases are
-needed, note them for the implementer as a property or model test instead of
-writing an outline with 20 rows.
+### 1. Load the context
 
-## 2. The two tests every line must pass
+1. Pick the bounded context from [`docs/CONTEXT_MAP.md`](../../../docs/CONTEXT_MAP.md)
+   ("Owns" column). A behavior that reacts to another context's event
+   belongs to the **downstream** context (A4). Unsure → ask.
+2. Read `specs/<domain>/ubiquitous-language.yml`, every glossary it borrows
+   from, and `specs/ubiquitous-language.yml`.
+3. Read the context's Quint models (`*.qnt`) and `events.qnt`: they are its
+   aggregates, commands, invariants and events (standard, "Terms").
+4. List the context's existing features (`ls specs/<domain>`) and read the
+   ones on the same aggregate. Open the package's step catalog from
+   [`docs/STEPS_CATALOG.md`](../../../docs/STEPS_CATALOG.md): those phrasings
+   are the vocabulary you reuse (B14).
 
-1. **The swap test.** Would this wording change if the implementation
-   changed? Examples: another database, host, broker, IaC tool, or trace
-   store; a native screen instead of a web page; a voice command instead of
-   a button. If yes, the line states an implementation detail. Rewrite it.
-2. **The observer test.** Who would notice this outcome, and how? Every
-   `Then` must be something a person (Alice, a guest, a member, a watcher)
-   can see or experience. The other allowed observer is the team, from
-   outside the product. Internal state, stored rows, config values, tokens,
-   and wiring between components are not observable behavior.
+### 2. Map the behavior (Example Mapping, then coverage)
 
-A line that fails either test is wrong, even when it is accurate.
+Write this in your reply before any Gherkin:
 
-## 3. Never write these in a feature file
-
-| Category | Examples | Say instead |
-| --- | --- | --- |
-| Vendors & tech | Postgres, SQL, table, column, migration, Worker, Durable Object, R2, bucket, EMQX, MQTT, WSS, Grafana, Tempo, OTLP, OpenTofu, Stripe, WebKit | the capability: "their progress is kept", "live updates reach them", "payments are taken" |
-| Protocols & transport | DNS, TLS, certificate, HTTP, status code, CORS, endpoint, API, route, URL path, JSON, cookie, header, redirect, callback, OAuth, WebSocket | "people reach the app at its address, securely", "signing in on the web works" |
-| Internals & architecture | server, client, backend, cache, service worker, KV, queue, config key, env var, secret, token, credentials, schema, feature flag, "holds N rows" | the effect on a person: "Alice's rating is the same on both devices", "the app opens offline" |
-| Code & tests | function or module names, `data-testid`, file paths, the sim, mocks, fixtures, the synthetic-monitor account | leave these to step definitions and the live world |
-| UI mechanics | tap, click, press, button, modal, dialog, field, type into, scroll, navigate to `/x` | the intent: "Alice blocks Bob", "Bob opens Settings" |
-| Where it runs | "in the simulation", "in a real browser", "on every deploy", "hourly" | tags (`@production`, `@browser`, …) and docs |
-| Narrator | I, me, my, "the user" | a persona (Alice, Bob) or a glossary role (a guest, a member) |
-
-A name a person sees in the product is product vocabulary, not an
-implementation detail. For example, "Google sign-in", "Apple sign-in" and
-"Plus" are fine.
-
-`bun run spec:check` rejects UI mechanics, the common implementation words,
-and narrators, and fails on architecture words such as "server". Words it
-misses are still your responsibility.
-
-## 4. Shape of a good feature
-
-```gherkin
-@domain:friends @goal:social:5
-Feature: Block and unblock
-  Blocking ends a friendship and hides you from the person blocked;
-  unblocking lets you start over.
-
-  Rule: A blocked person cannot reach the blocker
-
-    Scenario: A blocked person cannot find the blocker
-      Given Alice and Bob are friends
-      And Alice has blocked Bob
-      When Bob searches for "alice"
-      Then Bob's search does not show Alice
+```text
+Context:    <domain>                 Aggregate: <model>.qnt
+Story:      When <situation>, <who> wants <motivation>, so <outcome>.   (B2)
+Commands:   <model action> = "<glossary term>"  …
+Invariants: <inv name> — <in product words>  …
+Events:     <events.qnt variant>  …
+Rules:
+  R1 <rule>          + <example that lets it happen>
+                     − <example that stops it, with the reason people see>
+  R2 …
+Questions:  <anything you could not answer from the specs>   → ask, then stop
+Not behavior: <cases that are formulas, tables, internals> → code test (B17)
 ```
 
-- **Feature**: a capability named in product words. The description says
-  *why it matters to people*, in one to three sentences, and never how it
-  works or runs.
-- **Rule**: groups the scenarios that illustrate one business rule. Use it
-  once a feature has more than one rule.
-- **Scenario**: one rule shown by one concrete example. Name it for the
-  outcome ("A repeat of a played puzzle is unrated"), not the procedure
-  ("Test puzzle replay"). Scenario names are unique within the domain.
-- **Given**: the world before the event, as facts in the present or perfect
-  tense ("Alice has blocked Bob"). It is not a list of actions that built
-  that world. Context always comes first.
-- **When**: the one event under test. It's a person's intent or something
-  that happens to them ("the connection comes back", "the provider's renewal
-  fails").
-- **Then**: the observable outcome. Say what people see or can now do, never
-  what the system stored. Every scenario has at least one `Then`.
-- **Brief**: 3–5 steps is the target. The gate fails above 8 steps or 3
-  `When`s. A `When … Then … When … Then` chain is usually several rules, so
-  split it. Only `specs/journeys/` may chain, because there the journey is the
-  behavior. A step that must happen first belongs in `Given` as a fact.
-- **Background**: at most ~4 lines of shared, meaningful context. Never use
-  it for plumbing. If scenarios need different context, use separate `Rule`s
-  or features.
-- **Scenario Outline**: use it when one rule holds across a few meaningful
-  values (plans, statuses, boundary ratings). Every column must change the
-  outcome. A big table is a property test in disguise.
-- **Data tables and doc strings**: use them only when the shape of the data
-  is the point (a list of people in a space). Never use them to feed
-  fixtures.
-- **Time**: say it only when it's a promise people feel ("within 5 seconds",
-  "after 7 days"). Never state a mechanism (a retry schedule, a TTL, a
-  warm-up window).
+- Each rule needs a `+` and a `−` example (B4), or a stated
+  `No counter-example: <why>`.
+- A rule with no example isn't understood yet. An example that illustrates no
+  rule is noise. More than about five rules → split the feature.
+- A command, invariant or status this behavior needs but the model lacks is
+  a model change in the same `spec:` commit (C6): add the action or `inv`,
+  every product-facing name a glossary `model` name.
 
-Apply BRIEF (Rose & Nagy): **B**usiness language, **R**eal data,
-**I**ntention revealing, **E**ssential, **F**ocused, **B**rief.
+### 3. Resolve every word (A1–A6)
 
-- **Business language**: the context's ubiquitous language, exactly — its
-  `glossary.yaml` terms, the terms it borrows (`from: <domain>`), and the
-  shared kernel. If you need a new product term, add it to the context's
-  glossary in the same `spec:` commit; if another context already owns it,
-  borrow it rather than redefine it. Never add a technical term. Every Quint
-  type, variant, variable, action and definition is a term's `model` name
-  (or a `_`-prefixed model helper).
-- **Real data**: concrete values that expose the rule ("1500?", "the yearly
-  plan"). No placeholder values ("test user 123"), and no dependence on
-  specific production records.
-- **Intention revealing**: "Alice signs in with Google", not the steps of
-  signing in.
-- **Essential**: cut every detail the rule doesn't need. A required but
-  irrelevant value is the step definition's default.
-- **Focused**: the scenario fails for exactly one reason, the rule it names.
+Underline each domain word in your map. For each, find its glossary entry
+(own, borrowed, kernel) or a `forms` entry. For any word with no entry:
 
-## 5. Live domains: `specs/health/` and `specs/journeys/`
+1. Rephrase with an existing term if one means it.
+2. Otherwise propose it and **stop until the person confirms**:
 
-These run against deployments. That makes it tempting to describe the
-deployment. Don't. They describe **the promises the live product keeps**, as
-seen from outside.
+   ```yaml
+   - term: <term>
+     definition: >-
+       <what it is to a person, never how it is built>
+     forms: [<inflections used>]
+     avoid: [<synonyms people reach for>]
+     model: [<Quint name, if any>]
+   ```
 
-- **Journeys** are must-never-break flows written as a person experiences
-  them. The feature description says why the flow matters, never how it runs.
-- **Health** scenarios name a capability that must work right now in this
-  environment. For every check, ask *"what would a person, or the team,
-  notice if this broke?"* and write that. The team is a legitimate observer
-  for promises like "nobody has changed the environment by hand" or "the
-  team can look up what a request did".
+3. A term another context owns: borrow it (`from: <domain>`) if that
+   context publishes it; if it doesn't, ask the person — never redefine it.
 
-| Mechanism wording (wrong) | Behavior wording (right) |
-| --- | --- |
-| Every host resolves in DNS and has a TLS certificate valid for 14 more days | People reach every address of the app securely for 14 more days |
-| The database has every table and column the app declares | What people saved is ready for this version of the app |
-| The broker's API authenticates and every node runs | Live updates are ready to reach people |
-| The room Worker hosts the room Durable Object namespace | Live spaces can run in this environment |
-| Every billing key is in this environment's mode | Payments in this environment are real exactly when it is a production environment |
+### 4. Draft
 
-If no person or team member could ever notice a check, it's a gate or a code
-test, not a spec. Tell the user rather than disguise it.
+Write one feature per capability in `specs/<domain>/<capability>.feature`,
+one `Rule:` per rule from step 2, one scenario per example. Reuse catalogued
+phrasings verbatim (B14).
 
-## 6. Tags
+### 5. Self-check — fill this in and show it before writing files
 
-- `@domain:<dir>` on every scenario, matching its directory. Put it on the
-  feature line so every scenario inherits it.
-- `@goal:<section>:<n>` on each scenario that proves a `docs/GOAL.md`
-  statement.
-- `@regression:<bug-id>` on the scenario that pins an observable bug, with
-  its `known-bugs.json` entry.
-- Live-run tags (`@production`, `@oauth-relay`, `@observability`,
-  `@browser`) select where a scenario runs. They don't describe behavior.
-- No other tags. In particular, no work-tracking tags like `@wip` or
-  `@todo`.
+```text
+Feature: specs/<domain>/<file>.feature
+[ ] A1 every domain word resolves       — words checked: <list, or "all in glossary">
+[ ] A2 no avoid-list synonym
+[ ] A3 new terms confirmed by the person — <terms, or "none">
+[ ] A4 foreign terms borrowed + published — <terms, or "none">
+[ ] A5 no technical vocabulary
+[ ] A6 every actor from the cast or a glossary role
+[ ] B1 title is a capability            [ ] B2 description is one job story
+[ ] B3 every scenario under a Rule      [ ] B4 each Rule has + and − (or No counter-example)
+[ ] B5 exactly one When per scenario    [ ] B6 Givens are facts
+[ ] B7 When is one command/event        [ ] B8 Thens observable; refusals give a reason
+[ ] B9 declarative; quotes are data     [ ] B10 titles state outcomes
+[ ] B11 Background used by all          [ ] B12 outlines: business dimension, boundaries, ≤ 6 rows
+[ ] B13 plausible data                  [ ] B14 phrasings reused — new: <list, with why none fits>
+[ ] B15 known tags only                 [ ] B16 ≤ 5 steps (8 hard)
+[ ] B17 behavior only — demoted: <list, or "none">
+[ ] D1 nothing would change under a rewrite
+Coverage map (C1–C6) for <model>: <table>, gaps left: <list, or "none">
+```
 
-## 7. Workflow
+A box you cannot tick is a finding: fix the draft and redo the box. A
+coverage gap you are not closing now is listed, not hidden.
 
-1. **Discover** (§1) and resolve open questions with the user.
-2. **Check the vocabulary.** Read the context's `glossary.yaml` (and the
-   kernel's) and
-   [`docs/STEPS_CATALOG.md`](../../../docs/STEPS_CATALOG.md) (it links each
-   package's catalog). Reuse a phrase only when it passes both tests. A
-   catalogued phrase that leaks implementation isn't vocabulary: write the
-   behavioral phrase, and `fix-specs` retires the old one.
-3. **Write** one feature per capability in `specs/<domain>/`.
-4. **Self-review** against the checklist, line by line.
-5. **Run** `bun run spec:check`. Undefined steps for new wording are the
-   implementer's handoff. Every other error, including every smell, is
-   yours to fix.
-6. **Commit** the feature-only change with a `spec:` subject. Hand off to
-   the implementer (`implement-specs`), including any exhaustive cases you
-   left to code tests.
+### 6. Write and check
 
-## Review checklist
+1. Write the feature, model and glossary changes.
+2. Run `bun run spec:check`. Undefined steps and unbound models are the
+   implementer's handoff. Every other error is yours.
+3. Run `spec-audit` in report-only mode on the touched files and the
+   aggregate's coverage map. Fix every blocking finding, then re-run until
+   it passes. A warning you keep gets a one-line answer in the commit body.
 
-- [ ] Every step passes the swap test: no vendor, protocol, storage,
-      architecture, code, UI-mechanic, harness, or narrator word.
-- [ ] Every `Then` is observable by a person, or by the team from outside.
-- [ ] The feature description says why the capability matters, not how it
-      works or runs.
-- [ ] Each scenario illustrates exactly one rule, and its name states that
-      rule's outcome.
-- [ ] `Given` states facts and comes first. `When` is one event. `Then` is an
-      outcome.
-- [ ] Each scenario has 3–5 steps (never over 8). Only journeys chain
-      `When`/`Then`.
-- [ ] Data is concrete and essential. Outlines vary only values that change
-      the outcome.
-- [ ] Every term is in the context's glossary (own, borrowed, or kernel), no
-      `avoid` synonym appears, and any new product term was added there.
-- [ ] Tags: `@domain` everywhere, `@goal` on each goal proven, `@regression`
-      with its bug entry.
-- [ ] Non-behavior (formulas, invariants, storage, wire, wiring) went to code
-      tests, not to Gherkin.
+### 7. Commit and hand off
 
-## Sources
+Commit only `specs/**` and docs, subject `spec(<domain>): …` (P1). Hand off
+to `spec-implement` with: the scenarios added or reworded, new phrasings,
+cases left to code tests (B17), and the coverage gaps still open.
 
-- Cucumber: [Writing better Gherkin](https://cucumber.io/docs/bdd/better-gherkin/)
-  and the [Gherkin reference](https://cucumber.io/docs/gherkin/reference/).
-- Seb Rose: [Keep your scenarios BRIEF](https://cucumber.io/blog/bdd/keep-your-scenarios-brief/).
-- Matt Wynne: [Example Mapping](https://cucumber.io/blog/bdd/example-mapping-introduction/).
-- Gáspár Nagy: [Clean up bad BDD scenarios](https://gasparnagy.com/2019/05/clean-up-bad-bdd-scenarios/).
-- Rose & Nagy: [*The BDD Books: Discovery* and *Formulation*](https://bddbooks.com/).
-- Dan North: [What's in a Story?](https://dannorth.net/blog/whats-in-a-story/).
+## Examples from this repo
+
+### Several rules in one prose paragraph (B2, B3, B4, B5)
+
+Before — `specs/chess/puzzle-quota.feature`: the rules live in the
+description, there is no `Rule:`, and one scenario has two `When`s:
+
+```gherkin
+Feature: The daily rated puzzle allowance
+  When a guest reaches the daily puzzle limit, they want to finish the puzzle
+  on the board and know how to carry on. A guest may start 20 rated puzzles a
+  day. Reaching the limit mid-puzzle lets that puzzle finish; …
+
+  Scenario: Signing in lifts the limit and a puzzle is ready again
+    Given Alice is a guest who has been shown today's puzzle limit
+    When Alice signs in with Google
+    And Alice goes back to the puzzles
+    Then Alice has a puzzle on the board within 30 seconds
+```
+
+After:
+
+```gherkin
+Feature: The daily rated puzzle allowance
+  When a guest reaches the daily puzzle limit, they want to finish the puzzle
+  on the board and know how to carry on, so the limit never costs them a
+  puzzle they started.
+
+  Rule: A guest starts at most 20 rated puzzles a day
+
+    Scenario: A guest's twentieth puzzle of the day still starts
+      Given Alice is a guest who has played 19 puzzles today
+      When Alice moves on to the next puzzle
+      Then Alice has a puzzle on the board
+
+    Scenario: A guest's next puzzle past the limit does not start
+      Given Alice is a guest who has finished today's last allowed puzzle
+      When Alice asks for another puzzle
+      Then Alice is shown the puzzle limit within 15 seconds
+      And Alice has no puzzle on the board
+
+  Rule: Signing in lifts the daily puzzle limit
+    No counter-example: a guest who has not signed in is the first rule's refusal.
+
+    Scenario: A guest who signs in at the limit gets a puzzle again
+      Given Alice is a guest who has been shown today's puzzle limit
+      And Alice has signed in with Google
+      When Alice goes back to the puzzles
+      Then Alice has a puzzle on the board within 30 seconds
+```
+
+The boundary is on both sides (19 → starts, the 20th finished → refused),
+and the sign-in became a fact, leaving one `When`.
+
+### Internals and two events (A5, B5, B8)
+
+Before — `specs/sync/shared-space-membership.feature`:
+
+```gherkin
+Scenario: Leaving stops new notes reaching someone whose app cannot send, without their app reconnecting
+  Given Bob's app cannot send
+  When Bob leaves the shared space "Trip"
+  And Alice writes the note "Tickets" saying "gate 4"
+  Then Bob does not see the note "Tickets"
+  And Bob's app is still connected
+```
+
+"cannot send" and "still connected" describe the transport, and Alice's
+write is a second event. After:
+
+```gherkin
+Scenario: Notes written after someone leaves a shared space never reach them
+  Given Alice and Bob are in the shared space "Trip"
+  And Bob has left the shared space "Trip"
+  When Alice writes the note "Tickets" saying "gate 4"
+  Then Bob does not see the note "Tickets"
+```
+
+"Leaving doesn't force a reconnect" is not something a person observes: it
+goes to a code test (B17), named in the handoff.
+
+### App copy and a missing event (B7, B9)
+
+Before — `specs/chess/solve-flow.feature` has no `When` and quotes the
+app's prompt:
+
+```gherkin
+Scenario: The puzzle opens after the opponent's setup move, facing the solver
+  Given Alice is signed in
+  And Alice is solving the two-rook clearance puzzle
+  Then Alice's board faces White
+  And Alice is prompted "Your turn — find the best move for White"
+```
+
+After:
+
+```gherkin
+Scenario: A puzzle opens after the opponent's setup move, facing the solver
+  Given Alice is signed in
+  When Alice opens the two-rook clearance puzzle
+  Then Alice's board faces White
+  And Alice is prompted to find the best move for White
+```
+
+### A technical table (B12)
+
+`specs/sign-in/failing-provider.feature` runs eight rows of provider
+failure modes ("Apple's word for Alice is dated ten minutes ahead") through
+two outlines. The failure mode is not a business dimension: the rule is
+"while a provider is failing, signing in fails plainly and changes nothing".
+Keep one scenario per provider for that rule; the eight failure modes become
+a code-level table, named in the handoff.

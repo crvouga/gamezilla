@@ -1,6 +1,6 @@
 /**
- * Reads every bounded context's ubiquitous language (`specs/glossary.yaml`,
- * the shared kernel, and `specs/<domain>/glossary.yaml`) with the prose of
+ * Reads every bounded context's ubiquitous language (`specs/ubiquitous-language.yml`,
+ * the shared kernel, and `specs/<domain>/ubiquitous-language.yml`) with the prose of
  * its features and the names of its Quint specs, and holds the specs to it
  * (`@pkgs/gherkin/glossary`). Part of `check-specs.ts`.
  */
@@ -18,7 +18,7 @@ import {
 import { quintNames } from '@pkgs/quint/names';
 import { REPO_ROOT, SPECS_DIR } from './spec-packages';
 
-export const GLOSSARY_FILE = 'glossary.yaml';
+export const GLOSSARY_FILE = 'ubiquitous-language.yml';
 export const KERNEL_GLOSSARY = `${SPECS_DIR}/${GLOSSARY_FILE}`;
 
 function readGlossary(

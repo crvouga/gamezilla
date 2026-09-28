@@ -1,7 +1,7 @@
 /**
  * The names a Quint spec declares, read statically so the glossary gate can
  * hold every product-facing identifier to the bounded context's ubiquitous
- * language (`specs/<domain>/glossary.yaml`).
+ * language (`specs/<domain>/ubiquitous-language.yml`).
  *
  * Only top-level declarations count — the module's own two-space-indented
  * `type` / `var` / `const` / `val` / `def` / `action` lines and the variants

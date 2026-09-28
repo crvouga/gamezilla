@@ -10,7 +10,9 @@ import {
 
 function glossary(domain: string | null, data: unknown): Glossary {
   const uri =
-    domain === null ? 'specs/glossary.yaml' : `specs/${domain}/glossary.yaml`;
+    domain === null
+      ? 'specs/ubiquitous-language.yml'
+      : `specs/${domain}/ubiquitous-language.yml`;
   const parsed = parseGlossary(data, uri, domain);
   expect(parsed.problems).toEqual([]);
   return parsed.glossary;
@@ -141,11 +143,11 @@ describe('glossary files', () => {
   test('a term needs a definition, an outside source, or a lender', () => {
     const parsed = parseGlossary(
       { context: 'X', purpose: 'Y', terms: [{ term: 'widget' }] },
-      'specs/x/glossary.yaml',
+      'specs/x/ubiquitous-language.yml',
       'x'
     );
     expect(parsed.problems).toEqual([
-      'specs/x/glossary.yaml: terms[0] (widget): needs a "definition", an outside "source", or "from: <domain>"',
+      'specs/x/ubiquitous-language.yml: terms[0] (widget): needs a "definition", an outside "source", or "from: <domain>"',
     ]);
   });
 
@@ -158,7 +160,7 @@ describe('glossary files', () => {
           { term: 'game', from: 'play', definition: 'Mine.', avoid: 'g' },
         ],
       },
-      'specs/x/glossary.yaml',
+      'specs/x/ubiquitous-language.yml',
       'x'
     );
     expect(parsed.problems).toHaveLength(2);
@@ -234,7 +236,7 @@ describe('ubiquitous language', () => {
         })
       )
     ).toEqual([
-      'specs/ratings/glossary.yaml: "clock" borrows from play, which does not publish it (published: true there)',
+      'specs/ratings/ubiquitous-language.yml: "clock" borrows from play, which does not publish it (published: true there)',
     ]);
   });
 
@@ -278,7 +280,7 @@ describe('ubiquitous language', () => {
       ),
     ];
     expect(checkLanguage(input({ features }))).toEqual([
-      'specs/ratings/flags.feature:2: "flag" is play\'s term; borrow it in specs/ratings/glossary.yaml (term: flag, from: play) or define this context\'s own',
+      'specs/ratings/flags.feature:2: "flag" is play\'s term; borrow it in specs/ratings/ubiquitous-language.yml (term: flag, from: play) or define this context\'s own',
     ]);
   });
 
@@ -291,11 +293,11 @@ describe('ubiquitous language', () => {
     expect(
       checkLanguage(input({ quint: [stray, PLAY_EVENTS, RATINGS_MODEL] }))
     ).toEqual([
-      'specs/play/game.qnt:3: action "finish" is not in the ubiquitous language — list it as a term\'s "model" in specs/play/glossary.yaml, or prefix a model helper with "_"',
-      'specs/play/game.qnt:4: var "status" is not in the ubiquitous language — list it as a term\'s "model" in specs/play/glossary.yaml, or prefix a model helper with "_"',
-      'specs/play/glossary.yaml: "game" names model "Game", which no Quint spec in specs/play/ declares',
-      'specs/play/glossary.yaml: "game" names model "games", which no Quint spec in specs/play/ declares',
-      'specs/play/glossary.yaml: "flag" names model "flag", which no Quint spec in specs/play/ declares',
+      'specs/play/game.qnt:3: action "finish" is not in the ubiquitous language — list it as a term\'s "model" in specs/play/ubiquitous-language.yml, or prefix a model helper with "_"',
+      'specs/play/game.qnt:4: var "status" is not in the ubiquitous language — list it as a term\'s "model" in specs/play/ubiquitous-language.yml, or prefix a model helper with "_"',
+      'specs/play/ubiquitous-language.yml: "game" names model "Game", which no Quint spec in specs/play/ declares',
+      'specs/play/ubiquitous-language.yml: "game" names model "games", which no Quint spec in specs/play/ declares',
+      'specs/play/ubiquitous-language.yml: "flag" names model "flag", which no Quint spec in specs/play/ declares',
     ]);
   });
 

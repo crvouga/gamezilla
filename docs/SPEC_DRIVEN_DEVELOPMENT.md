@@ -10,13 +10,16 @@ is a code test under [`docs/TESTING.md`](TESTING.md).
 ## Skills
 
 Every agent working on specs loads the matching skill. The skills are the
-procedure; this document is the policy.
+procedure, this document is the policy, and every rule a spec, a step
+definition or a spec commit must follow is in one place:
+[`SPEC_STANDARDS.md`](SPEC_STANDARDS.md). The skills cite its rule IDs and
+never restate them.
 
 | Skill | Role | Use for |
 | --- | --- | --- |
-| [`write-specs`](../.agents/skills/write-specs/SKILL.md) | spec writer | discovering and formulating new or changed behavior |
-| [`implement-specs`](../.agents/skills/implement-specs/SKILL.md) | implementer | binding scenarios to thin step definitions, and models to bindings, over the sim |
-| [`fix-specs`](../.agents/skills/fix-specs/SKILL.md) | step auditor | auditing existing specs and steps, rewriting bad BDD, and demoting non-behavior into code tests |
+| [`spec-upsert`](../.agents/skills/spec-upsert/SKILL.md) | spec writer | discovering and writing new or changed behavior, with a coverage map of the aggregate it touches |
+| [`spec-implement`](../.agents/skills/spec-implement/SKILL.md) | implementer | red first, then thin step definitions and model bindings over the sim, then the product change; demotions to code tests |
+| [`spec-audit`](../.agents/skills/spec-audit/SKILL.md) | spec auditor | checking specs and steps against the standard: findings with evidence, coverage maps, a pass/fail verdict, safe mechanical fixes |
 | [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/sim` tests into features and Quint models with a parity ledger, then deleting them |
 
 ## Layout
@@ -24,8 +27,8 @@ procedure; this document is the policy.
 Specs live in one flat top-level tree:
 
 ```text
-specs/glossary.yaml                The shared kernel: terms every context may use
-specs/<domain>/glossary.yaml       The context's ubiquitous language
+specs/ubiquitous-language.yml                The shared kernel: terms every context may use
+specs/<domain>/ubiquitous-language.yml       The context's ubiquitous language
 specs/<domain>/<feature>.feature   Gherkin: concrete scenarios
 specs/<domain>/<model>.qnt         Quint: a feature's state under any sequence of actions
 specs/<domain>/events.qnt          Quint: the facts the context publishes to others
@@ -38,7 +41,7 @@ and `spaces`) and adds `$TURBO_ROOT$/specs/<domain>/**` to its `test:e2e`
 inputs in its `turbo.json`. Step definitions live in that package's
 `tests/steps/` and are listed in generated `STEPS_CATALOG.md` files
 ([index](STEPS_CATALOG.md)); product terms are in each context's
-`glossary.yaml`.
+`ubiquitous-language.yml`.
 
 ## Bounded contexts and ubiquitous language
 
@@ -51,8 +54,8 @@ misread a spec whose every word is defined.
 | DDD concept | Where it lives |
 | --- | --- |
 | Bounded context | `specs/<domain>/` |
-| Ubiquitous language | `specs/<domain>/glossary.yaml` |
-| Shared kernel | `specs/glossary.yaml` (person, device, the app, connection, the team) |
+| Ubiquitous language | `specs/<domain>/ubiquitous-language.yml` |
+| Shared kernel | `specs/ubiquitous-language.yml` (person, device, the app, connection, the team) |
 | Aggregate and its invariants | `specs/<domain>/<aggregate>.qnt`: its actions are the commands, its `inv*` vals the invariants |
 | Commands and domain events | Gherkin `When` (a command) and `Then` (what happened); past-tense Quint event types |
 | Published language | `specs/<domain>/events.qnt`: `module events`, types and values only |
@@ -67,7 +70,7 @@ modeling ideas here, never classes, repositories or message queues.
 ### The glossary
 
 ```yaml
-# specs/spaces/glossary.yaml
+# specs/spaces/ubiquitous-language.yml
 context: Spaces
 purpose: >-
   Live places people host and join to play together.
@@ -116,7 +119,7 @@ terms:
 `bun run spec:check` (`libs/tools/scripts/spec-glossary.ts`,
 `@pkgs/gherkin/glossary`) fails when:
 
-- a context has no `glossary.yaml`, or a term has no definition, source or
+- a context has no `ubiquitous-language.yml`, or a term has no definition, source or
   lender, is defined twice, redefines a kernel term, or borrows a term its
   lender does not define;
 - a feature's prose (name, story, rules, scenario names, steps; not example
@@ -138,17 +141,17 @@ terms:
 
 What the gate cannot see — a word used but never defined, or used in a
 different sense than its definition — is the spec reviewer's job
-(`fix-specs`): read the diff beside the glossary and flag every term used
+(`spec-audit`): read the diff beside the glossary and flag every term used
 but not defined. An undefined term becomes a glossary addition the person
 approves, so the language grows deliberately rather than by accident.
 
 ### Stories and rules
 
-A feature's description is its story, in the context's language. Prefer a
-job story, which names the situation rather than a persona: "When a game is
-heading for a draw, a player wants to end it by agreement, so both players
-can move on." `Rule:` lines may use EARS phrasing ("While a draw offer is
-pending, when the opponent moves, the offer lapses").
+A feature's description is one job story, in the context's language: "When
+a game is heading for a draw, a player wants to end it by agreement, so both
+players can move on." Every scenario sits under a `Rule:`, which may use EARS
+phrasing ("While a draw offer is pending, when the opponent moves, the offer
+lapses"). The rules are B2 and B3 in [`SPEC_STANDARDS.md`](SPEC_STANDARDS.md).
 
 ## What belongs in a spec
 
@@ -198,9 +201,12 @@ Quint reads `x' = a and b` as `(x' = a) and b`: bracket an assignment's
 right-hand side. An `init` that can never hold draws empty traces, which the
 runner refuses. `next` is a Quint builtin, so an action cannot be called that.
 
-## Rules for a feature file
+## What the gate automates
 
-The gate (`bun run spec:check`) fails on:
+The rules are [`SPEC_STANDARDS.md`](SPEC_STANDARDS.md); `spec-audit` checks
+all of them. The gate (`bun run spec:check`) automates the subset below, with
+looser thresholds in places (it allows up to three `When`s; the standard
+allows one). It fails on:
 
 - undefined, ambiguous, pending, or unused steps; a duplicate scenario name
 - a missing or foreign `@domain`, an unknown `@goal`, or a goal proven by a
@@ -225,19 +231,16 @@ The smell thresholds are judgment calls made strict so the specs stay clean;
 if one blocks a scenario that really is one rule, restate earlier steps as
 `Given` facts before reaching for a longer scenario.
 
-Style the gate can't check (the skills cover it): declarative intent rather than
-procedure, one rule per scenario, `Given` as facts rather than actions,
-essential and concrete data, glossary terms, feature descriptions that say
-why the capability matters.
+Everything else in the standard is checked by `spec-audit`.
 
 ## Roles
 
-- **Spec writer** (`write-specs`). Edits only specs (`.feature` and `.qnt`
-  files, and the contexts' `glossary.yaml`), and docs. Never reads implementation, step
+- **Spec writer** (`spec-upsert`). Edits only specs (`.feature` and `.qnt`
+  files, and the contexts' `ubiquitous-language.yml`), and docs. Never reads implementation, step
   definitions, bindings, or sim code. Describes behavior, not what the code
   happens to do. Asks when the behavior is unclear. A spec commit starts with
   `spec:` and contains no implementation files.
-- **Implementer** (`implement-specs`). Treats specs as read-only. Adds or
+- **Implementer** (`spec-implement`). Treats specs as read-only. Adds or
   reuses thin, typed step definitions over exported sim actions and reads
   until the scenarios pass. For a model they write its binding,
   `tests/quint/<model>.binding.ts`: one entry per model action (`init`
@@ -248,11 +251,11 @@ why the capability matters.
   pinned regression, `docs/TESTING.md`), a wrong or ambiguous model goes back
   to the spec writer. Returns missing or ambiguous wording to the spec writer
   instead of changing it, and never weakens a spec to pass.
-- **Step auditor** (`fix-specs`). Owns vocabulary and spec quality: undefined,
-  ambiguous, unused, UI-mechanical, leaky, and near-duplicate steps; smells;
-  unbound models; and scenarios that should be code tests. Rewrites go
-  through spec commits; demotions keep every goal proof and regression guard
-  intact.
+- **Spec auditor** (`spec-audit`). Checks specs, steps and bindings against
+  the standard and reports each finding with its rule ID and evidence, a
+  coverage map per aggregate, and a verdict. Fixes only casing, tags and
+  exact-duplicate phrasings itself; rewrites go to the spec writer, demotions
+  to the implementer (P4 keeps every goal proof and regression guard).
 
 ## How a model runs
 
@@ -331,21 +334,23 @@ entry).
 
 ## Workflow
 
-1. **Discover** (`write-specs`): rules, one concrete example per rule, open
+1. **Discover** (`spec-upsert`): rules, one concrete example per rule, open
    questions answered by a person, not guessed.
-2. **Formulate**: read the catalogs and the context's `glossary.yaml`, add
-   any new term to it, write the scenarios or
-   a model in `specs/<domain>/`, and run `bun run spec:check` (undefined steps
-   and unbound models are the handoff; nothing else may fail). A new domain
-   needs an implementer to claim it in some package's `specDomains`. Commit
-   with a `spec:` subject.
-3. **Automate** (`implement-specs`): bind steps or the model's binding, then
-   run `bun run spec --package <workspace>` and `bun run spec:catalog`.
+2. **Formulate**: read the catalogs and the context's `ubiquitous-language.yml`
+   (a new term waits for a person's yes), write the scenarios or a model in
+   `specs/<domain>/`, fill in the self-check, run `bun run spec:check`
+   (undefined steps and unbound models are the handoff; nothing else may
+   fail) and `spec-audit` until it passes. A new domain needs an implementer
+   to claim it in some package's `specDomains`. Commit with a `spec:` subject.
+3. **Automate** (`spec-implement`): show each new scenario failing, bind
+   steps or the model's binding, make the product pass, then run the whole
+   context (`bun run spec --package <workspace>`) and `bun run spec:catalog`.
 4. **Gate**: `bun run spec:ownership` (specs change only in `spec:`
    commits), then `bun check`.
 
-To clean up existing specs, run `fix-specs`: audit, triage, rewrite through
-`spec:` commits, demote to code tests, rebind.
+To clean up existing specs, run `spec-audit`: it reports and triages; the
+spec writer rewrites through `spec:` commits, and the implementer demotes to
+code tests and rebinds.
 
 Useful commands:
 

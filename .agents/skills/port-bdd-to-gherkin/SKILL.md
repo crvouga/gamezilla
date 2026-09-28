@@ -1,6 +1,6 @@
 ---
 name: port-bdd-to-gherkin
-description: Port legacy behavior tests written directly against the bespoke `@pkgs/sim` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates write-specs, implement-specs, and fix-specs with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite sim / e2e / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-sim`, `@pkgs/matchmaking-sim`, `@pkgs/auth-sim`, `@pkgs/db-indexes`, a product lib), or the whole repo.
+description: Port legacy behavior tests written directly against the bespoke `@pkgs/sim` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite sim / e2e / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-sim`, `@pkgs/matchmaking-sim`, `@pkgs/auth-sim`, `@pkgs/db-indexes`, a product lib), or the whole repo.
 ---
 
 # Port legacy sim tests to Gherkin + Quint
@@ -26,9 +26,9 @@ top of three role skills. Load each one when its phase starts:
 
 | Phase | Skill |
 | --- | --- |
-| Word features and models | `write-specs` |
-| Bind steps and model bindings over the sim | `implement-specs` |
-| Audit the result, and demote non-behavior | `fix-specs` |
+| Word features and models | `spec-upsert` |
+| Bind steps and model bindings over the sim | `spec-implement` |
+| Audit the result, and demote non-behavior | `spec-audit` |
 
 Status and remaining scope: [`docs/SPEC_MIGRATION_INVENTORY.md`](../../../docs/SPEC_MIGRATION_INVENTORY.md).
 Product packages (Section A) and the framework-level sims
@@ -92,10 +92,10 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
 
 ## 3. Specs first: a spec-only `spec:` commit
 
-The `write-specs` role must not read implementation or tests. **You** read
+The `spec-upsert` role must not read implementation or tests. **You** read
 the legacy code, and the spec writer gets only the ledger's claim column,
 the glossary, and the step catalogs. When fanning out, give that job to a
-separate agent with exactly those inputs, and let it load `write-specs`.
+separate agent with exactly those inputs, and let it load `spec-upsert`.
 Work from the claims, never from the legacy code: a line-by-line port
 reproduces the imperative script that BDD exists to remove.
 
@@ -105,7 +105,7 @@ and docs alone, with a `spec:` subject.
 
 ## 4. Implement
 
-Load `implement-specs`. Steps and bindings are thin calls to exported sim
+Load `spec-implement`. Steps and bindings are thin calls to exported sim
 actions and reads (`w.s.apply` / `w.s.read` / `w.s.until`). A missing
 stimulus becomes a `defineAction` or read in the package's `src/sim/`,
 exported via `./sim`. Package-local World openers and DSLs that wrap
@@ -125,7 +125,7 @@ pass.**
    dual-running, no "kept for migration" copies (AGENTS.md). Update the
    package `test*` scripts, the turbo inputs, the READMEs that named the old
    files, and `docs/SPEC_MIGRATION_INVENTORY.md`.
-4. Load `fix-specs` and audit the new features and steps. Then run
+4. Load `spec-audit` and audit the new features and steps. Then run
    `bun run spec:catalog`, `bun run spec:check`, the package's `tc` / `test`,
    and `bun check`. Show the output, and never claim green without it.
 
@@ -133,8 +133,8 @@ pass.**
 
 Use one worktree per package, in this order: `sync-engine` → `room-sim` →
 `matchmaking-sim` → `auth-sim` → `db-indexes`. In each worktree the porter
-writes the ledger, then a `write-specs` agent, then an `implement-specs`
-agent, then a `fix-specs` agent. Port one package end to end, deleting its
+writes the ledger, then a `spec-upsert` agent, then a `spec-implement`
+agent, then a `spec-audit` agent. Port one package end to end, deleting its
 legacy tests, before starting the next.
 
 ## Done when

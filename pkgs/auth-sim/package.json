@@ -14,9 +14,6 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
-  "specDomains": [
-    "sign-in"
-  ],
   "dependencies": {
     "@pkgs/auth": "workspace:*",
     "@pkgs/auth-inhouse": "workspace:*",
@@ -37,5 +34,8 @@
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
-  }
+  },
+  "specDomains": [
+    "sign-in"
+  ]
 }

@@ -26,9 +26,9 @@
   "scripts": {
     "prebuild": "bun run --cwd ../.. i18n:compile",
     "build": "vite build && bun run scripts/build-sw.ts",
-    "check:offline-shell": "bun run scripts/check-offline-shell.ts",
     "check:live-dist": "bun run scripts/live-bundle-guard-cli.ts check-dist",
     "check:live-env": "bun run scripts/live-bundle-guard-cli.ts check-env",
+    "check:offline-shell": "bun run scripts/check-offline-shell.ts",
     "deploy": "bun run scripts/deploy.ts",
     "predev": "bun run --silent setup",
     "dev": "vite",
@@ -43,10 +43,6 @@
     "test:max": "bun ./scripts/test-max.ts",
     "test:stack": "bun run scripts/test-stack.ts"
   },
-  "liveDomains": [
-    "health",
-    "journeys"
-  ],
   "dependencies": {
     "@apps/client": "workspace:*",
     "@apps/server": "workspace:*",
@@ -127,5 +123,9 @@
     "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:",
     "wrangler": "catalog:"
-  }
+  },
+  "liveDomains": [
+    "health",
+    "journeys"
+  ]
 }

@@ -300,8 +300,8 @@ function runnersBy(
 
 /**
  * The `specs/` tree is flat and fully owned: the shared kernel's
- * `specs/glossary.yaml`, and in each bounded context only its
- * `glossary.yaml`, `*.feature` and `*.qnt`; every domain directory run by some package — by
+ * `specs/ubiquitous-language.yml`, and in each bounded context only its
+ * `ubiquitous-language.yml`, `*.feature` and `*.qnt`; every domain directory run by some package — by
  * at most one against the sim (`specDomains`) and at most one live
  * (`liveDomains`) — every claimed domain present, and no package keeping a
  * `features/` directory of its own.
@@ -320,9 +320,9 @@ export function specsLayoutProblems(
   for (const entry of present) {
     const path = `${SPECS_DIR}/${entry.name}`;
     if (!entry.isDirectory()) {
-      if (entry.name !== 'glossary.yaml') {
+      if (entry.name !== 'ubiquitous-language.yml') {
         out.push(
-          `${path}: only specs/<domain>/ directories and the shared kernel's specs/glossary.yaml belong in specs/`
+          `${path}: only specs/<domain>/ directories and the shared kernel's specs/ubiquitous-language.yml belong in specs/`
         );
       }
       continue;
@@ -335,11 +335,11 @@ export function specsLayoutProblems(
         !(
           inner.name.endsWith('.feature') ||
           inner.name.endsWith('.qnt') ||
-          inner.name === 'glossary.yaml'
+          inner.name === 'ubiquitous-language.yml'
         )
       ) {
         out.push(
-          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/glossary.yaml, <feature>.feature and <model>.qnt`
+          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/ubiquitous-language.yml, <feature>.feature and <model>.qnt`
         );
       }
     }

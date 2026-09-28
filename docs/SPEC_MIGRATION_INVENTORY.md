@@ -316,7 +316,7 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 ### pkgs/matchmaking-sim — ported (2026-09-27)
 
 Behavior moved to the new Matchmaking context, `specs/matchmaking/`
-(`glossary.yaml`, a context-map row): `waiting-for-a-match.feature`,
+(`ubiquitous-language.yml`, a context-map row): `waiting-for-a-match.feature`,
 `being-matched.feature`, `entrances.feature`, and the model
 `matching.qnt` (waiting, stopping, changing reach, matching rounds and an
 entrance opening again, each landing at any of three entrances; every

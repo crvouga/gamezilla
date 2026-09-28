@@ -1,8 +1,8 @@
 # Context map
 
 Every `specs/<domain>/` is a bounded context with its own ubiquitous
-language (`specs/<domain>/glossary.yaml`); the few terms every context
-shares are the kernel, `specs/glossary.yaml`. This map says which context
+language (`specs/<domain>/ubiquitous-language.yml`); the few terms every context
+shares are the kernel, `specs/ubiquitous-language.yml`. This map says which context
 owns which concept, which way the contexts depend on each other, and what
 crosses each boundary. Policy:
 [`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md#bounded-contexts-and-ubiquitous-language).

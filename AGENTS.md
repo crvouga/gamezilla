@@ -647,15 +647,15 @@ definitions live in `tests/steps/`, model bindings in `tests/quint/`; both
 call deterministic sim actions and reads, and steps are catalogued in
 generated `STEPS_CATALOG.md` files.
 See [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md) and
-each bounded context's ubiquitous language (`specs/<domain>/glossary.yaml`,
-shared kernel `specs/glossary.yaml`; domain-driven design — every spec word
+each bounded context's ubiquitous language (`specs/<domain>/ubiquitous-language.yml`,
+shared kernel `specs/ubiquitous-language.yml`; domain-driven design — every spec word
 and Quint name is a glossary term, contexts integrate only through borrowed
 terms and published `events.qnt`). Strict BDD, product behavior only, no
 implementation details: specs are written with the
-[`write-specs`](.agents/skills/write-specs/SKILL.md) skill, bound with
-[`implement-specs`](.agents/skills/implement-specs/SKILL.md), and audited,
-repaired or demoted to code tests with
-[`fix-specs`](.agents/skills/fix-specs/SKILL.md). `bun run spec:check` enforces ownership-neutral
+[`spec-upsert`](.agents/skills/spec-upsert/SKILL.md) skill, bound with
+[`spec-implement`](.agents/skills/spec-implement/SKILL.md), and audited with
+[`spec-audit`](.agents/skills/spec-audit/SKILL.md), all against the one rulebook
+[`docs/SPEC_STANDARDS.md`](docs/SPEC_STANDARDS.md). `bun run spec:check` enforces ownership-neutral
 structure and vocabulary; `bun run spec --tags '<expression>'` runs matching
 scenarios across packages. The release decision remains only `bun check`.
 

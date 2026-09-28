@@ -20,8 +20,8 @@
     "@pkgs/assert": "workspace:*",
     "@pkgs/equal": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
-    "@pkgs/quint": "workspace:*",
     "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "fast-check": "catalog:",
     "wrangler": "catalog:"
   }

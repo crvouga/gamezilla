@@ -17,9 +17,6 @@
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
     "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
   },
-  "specDomains": [
-    "sync"
-  ],
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
@@ -46,15 +43,18 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/gherkin": "workspace:*",
-    "@pkgs/quint": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
     "zod": "catalog:"
-  }
+  },
+  "specDomains": [
+    "sync"
+  ]
 }

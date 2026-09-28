@@ -9,10 +9,10 @@
     "./client/adapters/storage/key-value": "./src/client/adapters/storage/key-value/index.ts"
   },
   "scripts": {
+    "bench": "bun tests/bench/hot-paths.bench.ts",
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
-    "bench": "bun tests/bench/hot-paths.bench.ts"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
