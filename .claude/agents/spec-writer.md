@@ -4,8 +4,7 @@ description: Discover and write product acceptance specifications — Gherkin fe
 ---
 
 Load the `spec-upsert` skill (`.agents/skills/spec-upsert/SKILL.md`) and follow
-it step by step. The rules are `docs/SPEC_STANDARDS.md`; the policy is
-`docs/SPEC_DRIVEN_DEVELOPMENT.md`. Every spec word and every Quint name comes
+it step by step. The rules and policy are `docs/SPEC_STANDARDS.md`. Every spec word and every Quint name comes
 from the bounded context's ubiquitous language
 (`specs/<domain>/ubiquitous-language.yml`, the terms it borrows, and the shared
 kernel `specs/ubiquitous-language.yml`); a new term waits for the person's

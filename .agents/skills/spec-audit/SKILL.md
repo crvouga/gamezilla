@@ -110,7 +110,7 @@ For each Quint model in scope (skip `specs/health/`, `specs/journeys/`):
    can still attempt it (illegal; standard C4). C4 needs a scenario per legal
    row and a refusal per illegal row. (J — cite the guard's line in the
    `.qnt`.)
-5. **Policies**: from `docs/CONTEXT_MAP.md` "Relationships", for each
+5. **Policies**: from the context map's relationships (`docs/SPEC_STANDARDS.md` § Context map), for each
    relationship where this context is downstream, list the upstream's
    `events.qnt` variants it implies. C5 needs a scenario here whose `When`
    is that event, or whose `Given` states it as a fact, and whose `Then` is

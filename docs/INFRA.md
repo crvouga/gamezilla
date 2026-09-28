@@ -132,6 +132,23 @@ secret, and unknown keys in the store are left alone.
 | The Neon project (and its root branch), the Cloudflare zone, shared secrets, `TOFU_STATE_PASSPHRASE` | a person, once | Must never be created (or rotated) by code; asserted instead. |
 | The Google OAuth client and its ONE redirect URI (the production API's callback) | a person, once | Google's console has no API. Every environment sends that callback and tags its OAuth state; production forwards to the owner (`@pkgs/auth-inhouse` `oauth-callback-relay.ts`), so a new environment needs no console edit. |
 
+## Object storage
+
+Blob storage (the TTS audio cache, …) is S3-compatible through
+`@pkgs/object-store-s3`. The API Worker reads `S3_ACCESS_KEY_ID` /
+`S3_SECRET_ACCESS_KEY` / `S3_BUCKET` / `S3_ENDPOINT` / `S3_REGION` at boot and
+injects a store that always prefixes keys with the product namespace
+(`PRODUCT_CONFIG.objectStore.namespace`, e.g. `gamezilla/`) before any feature
+prefix; the transport rejects any key outside it. Without S3 secrets the
+Worker falls back to an in-memory store. Each environment's R2 bucket and
+bucket-scoped credential come from `modules/object-store` (endpoint
+`https://<accountid>.r2.cloudflarestorage.com`, region `auto`). Worker
+secrets upload with the version (`wrangler deploy --secrets-file`), which
+never removes old names: after renaming a Worker secret, delete the stale
+binding once. Every secret the app needs is declared in
+`libs/secrets/src/shared/secrets/registry.ts`; `bun health` validates each
+one live.
+
 ## Commands
 
 ```sh
@@ -169,7 +186,7 @@ are in the environment.
    `"production"` env; Health probes every env hourly.
 
 To rehearse before merging: `bun run infra:fleet`, then
-`SECRETS_ENV=<env> bun run deploy` (see AGENTS.md). There is no destroy path
+`SECRETS_ENV=<env> bun run deploy` ([CI.md](CI.md#workflows)). There is no destroy path
 yet: Neon branches, buckets and brokers carry `prevent_destroy`.
 
 ## First deployment (adopting what already exists)
@@ -212,17 +229,3 @@ Runbook:
    (and `plan:edge`, and `SECRETS_ENV=dev`). Expect imports and updates, **0 to destroy**; the policy
    gate refuses anything else anyway.
 4. Merge. The Deploy workflow applies every standard env (dev, a new replica) and then prd.
-
-Bootstrap adopts the shared Grafana stack (`shortawning2091`, the org's one free-plan stack); the first prd apply creates prd's
-trace tokens and a new S3 credential
-(Workers pick it up in the same deploy; the old token keeps working until a
-person deletes it) and re-sends the broker's Railway variables with their
-current values, which redeploys the broker once (MQTT clients reconnect).
-
-Leftovers from the imperative era, safe to delete by hand once prd is on
-OpenTofu: account tokens `gamezilla-s3-prd`, `gamezilla-s3-dev`,
-`gamezilla-r2-teardown-gamezilla-development`; the TXT record
-`_cf-probe.gamezilla.app`; the unattached `emqx-volume-*` volumes and extra
-`*.up.railway.app` service domains in the Railway project; the old
-`github-actions-gamezilla` Infisical identity.
-

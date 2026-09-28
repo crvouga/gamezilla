@@ -19,7 +19,7 @@ This skill moves each such test to its proper home: a Gherkin scenario, a
 Quint model, or (when it isn't behavior) a code test. Then it deletes the
 legacy file. The harness stays the engine, and only the test's surface changes.
 
-The policy lives in [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
+The policy lives in [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md).
 Its "What belongs in a spec" table decides every destination, and
 `bun run spec:check` enforces it. This skill is the **porting procedure** on
 top of three role skills. Load each one when its phase starts:

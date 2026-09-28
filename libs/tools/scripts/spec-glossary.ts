@@ -29,7 +29,7 @@ function readGlossary(
   const path = join(REPO_ROOT, uri);
   if (!existsSync(path)) {
     problems.push(
-      `${uri}: missing — every bounded context declares its ubiquitous language (docs/SPEC_DRIVEN_DEVELOPMENT.md)`
+      `${uri}: missing — every bounded context declares its ubiquitous language (docs/SPEC_STANDARDS.md)`
     );
     return { uri, domain, context: '', purpose: '', terms: [] };
   }

@@ -36,7 +36,7 @@ describe('spec ownership', () => {
           files: [
             'specs/friends/friend-remove.feature',
             'libs/friends/STEPS_CATALOG.md',
-            'docs/SPEC_DRIVEN_DEVELOPMENT.md',
+            'docs/SPEC_STANDARDS.md',
           ],
           sha: '1234567890abcdef',
           subject: 'spec(friends): remove friends',

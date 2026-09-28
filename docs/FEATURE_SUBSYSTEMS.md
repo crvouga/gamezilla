@@ -159,8 +159,7 @@ suite (`@libs/runtime#test:spec`) is small — shell boot, the platform's Quint
 model, critical journeys — and is the only spec that reruns for every feature.
 
 Measured with `turbo run test:spec --filter=...<pkg> --dry=json` (the spec
-tasks in a package's dependents). Before the split, every row was "all 46
-specs, one task".
+tasks in a package's dependents).
 
 | Touch | Spec suites that rerun |
 | --- | --- |

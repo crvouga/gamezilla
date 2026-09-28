@@ -1,14 +1,22 @@
 # Spec standard
 
-The one rulebook for Gherkin features and Quint models in `specs/`. The three
-spec skills — [`spec-upsert`](../.agents/skills/spec-upsert/SKILL.md) (write),
-[`spec-implement`](../.agents/skills/spec-implement/SKILL.md) (bind) and
-[`spec-audit`](../.agents/skills/spec-audit/SKILL.md) (check) — cite these
-rules by ID and never restate them. Change a rule here, and only here.
+Product acceptance behavior lives in specs: Gherkin features and Quint
+models. A spec is the product's contract in the product's language — what
+people can do and what they observe — and never says how the product is
+built, so it stays true through any rewrite. Everything else (units,
+algorithms, wire shapes, storage, performance) is a code test under
+[`TESTING.md`](TESTING.md).
 
-Policy (layout, roles, how specs run, what belongs in a spec at all) is
-[`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md); the context map is
-[`CONTEXT_MAP.md`](CONTEXT_MAP.md).
+This is the one rulebook for specs, step definitions and spec commits. The
+skills are the procedure; they cite these rule IDs and never restate them.
+Change a rule here, and only here.
+
+| Skill | Role | Use for |
+| --- | --- | --- |
+| [`spec-upsert`](../.agents/skills/spec-upsert/SKILL.md) | spec writer | discovering and writing new or changed behavior, with a coverage map of the aggregate it touches |
+| [`spec-implement`](../.agents/skills/spec-implement/SKILL.md) | implementer | red first, then thin step definitions and model bindings over the harness, then the product change; demotions to code tests |
+| [`spec-audit`](../.agents/skills/spec-audit/SKILL.md) | spec auditor | checking specs and steps against this standard: findings with evidence, coverage maps, a verdict, safe mechanical fixes |
+| [`port-bdd-to-gherkin`](../.agents/skills/port-bdd-to-gherkin/SKILL.md) | porter | moving legacy `@pkgs/harness` tests into features and Quint models with a parity ledger, then deleting them |
 
 Every rule has an ID, a **severity**, and a one-line **why**. Before deleting
 or softening a rule, answer its why.
@@ -16,6 +24,206 @@ or softening a rule, answer its why.
 - **Blocking**: the spec is wrong. Audit fails; nobody may wave it through.
 - **Warning**: probably wrong. Audit passes, but the report lists it and the
   writer either fixes it or answers it in the `spec:` commit body.
+
+## Layout
+
+```text
+specs/ubiquitous-language.yml              the shared kernel: terms every context may use
+specs/<domain>/ubiquitous-language.yml     the context's ubiquitous language
+specs/<domain>/<feature>.feature           Gherkin: concrete scenarios
+specs/<domain>/<model>.qnt                 Quint: a feature's state under any sequence of actions
+specs/<domain>/events.qnt                  Quint: the facts the context publishes to others
+```
+
+One directory per domain, no subdirectories, every feature tagged with its
+directory's `@domain`. The package whose steps run a domain lists it in its
+`package.json` `specDomains` (each domain in exactly one package) and adds
+`$TURBO_ROOT$/specs/<domain>/**` to its `test:spec` inputs. Step definitions
+live in that package's `tests/steps/`, model bindings in `tests/quint/`, and
+the steps are listed in generated `STEPS_CATALOG.md` files
+([index](STEPS_CATALOG.md)).
+
+## Bounded contexts
+
+Every `specs/<domain>/` is a bounded context with its own ubiquitous
+language; every word of its specs — feature text, story, Quint names — comes
+from that language. "Aggregate", "command" and "event" are modeling ideas
+here, never classes or queues.
+
+| DDD concept | Where it lives |
+| --- | --- |
+| Bounded context | `specs/<domain>/` |
+| Ubiquitous language | `specs/<domain>/ubiquitous-language.yml` |
+| Shared kernel | `specs/ubiquitous-language.yml` (person, device, the app, connection, the team) |
+| Aggregate and its invariants | `specs/<domain>/<aggregate>.qnt`: its actions are the commands, its `inv*` vals the invariants |
+| Commands and domain events | Gherkin `When` (a command) and `Then` (what happened); past-tense Quint event types |
+| Published language | the terms a glossary marks `published: true`, plus `specs/<domain>/events.qnt` (`module events`, types and values only) |
+| Context integration | Gherkin in the consuming context, in borrowed terms; its Quint imports only `../<upstream>/events` |
+
+### The glossary
+
+```yaml
+# specs/spaces/ubiquitous-language.yml
+context: Spaces
+purpose: >-
+  Live places people host and join to play together.
+terms:
+  - term: space
+    definition: >-
+      A live place one person hosts and others join. It is open until its
+      host ends it or leaves.
+    avoid: [room, lobby room, session]  # synonyms people reach for
+    model: [Place, place]                # the Quint names this term is
+    published: true                      # other contexts may borrow it
+  - term: host
+    definition: The person whose space it is.
+    forms: [hosts, hosting, hosted]      # inflections (plurals are implied)
+    model: [host, hostOf]
+  - term: Plus member
+    from: billing                        # borrowed: billing defines it
+    model: [unlimited]                   # this context's own Quint name for it
+  - term: checkmate
+    source: FIDE Laws of Chess, Article 5.1.1
+```
+
+- A term has a `definition`, an outside `source`, or `from: <domain>`, which
+  borrows the lender's definition and `avoid`. A borrowed term's `model` names
+  are this context's own: the lender's Quint names never cross the boundary.
+- A kernel term is never redefined, but `from: kernel` gives it this
+  context's own `model` names.
+- Definitions say what the product does, never how it is built.
+- Only `published: true` terms may be borrowed, and a context must borrow a
+  published term to use it. Its other terms bind no other context.
+- The kernel stays small: a term belongs there only when every context means
+  exactly the same thing by it.
+
+### Context map
+
+| Context | `specs/` | Owns | Kind |
+| --- | --- | --- | --- |
+| Identity | `profile` | who a person is to the product: guests, accounts, signing in and out, sign-in methods, usernames, avatars, profiles, the devices on an account | supporting |
+| Billing | `billing` | Plus: memberships, trials, renewals, paid access, grace, refunds, the billing portal | generic (the provider does the paying) |
+| Spaces | `spaces` | live spaces: hosting, joining, leaving, ending, links, the lobby, presence, the hosting limit | core |
+| Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
+| Chess | `chess` | chess puzzles played in a space: the puzzle feed, attempts, the puzzle rating, the game log, review, watching | core |
+| Auth | `auth` | how outside accounts at Google and Apple get people into accounts: matching and confirming accounts, connecting and removing sign-in methods, stolen sign-ins, how long a sign-in lasts, Google or Apple having trouble | generic (Google and Apple say who is signing in) |
+| Room | `room` | the room framework's example game room: a tally friends keep together, owning the room and turning someone away, a timed match, who is present | supporting |
+| Matchmaking | `matchmaking` | waiting for a match, one wait at a time, rating ranges, pairing people up, being matched, stopping a wait | supporting |
+| Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
+| App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting | generic |
+| Operations | `health` | the promises a live environment keeps, seen by the team | generic |
+| Journeys | `journeys` | the critical journeys across every context | — |
+
+Relationships — upstream contexts publish; downstream contexts borrow their
+terms and import only their `events.qnt`:
+
+```text
+Identity ──► Billing, Spaces, Friends, Chess, App, Operations, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
+Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Operations, Journeys
+Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Operations, Journeys
+Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
+App      ──► Operations (addresses, versions), Journeys
+Chess    ──► Journeys (a game of chess, a puzzle)
+Room, Sync engine, Matchmaking: stand alone (Sync engine's "shared space" is not a Spaces space)
+```
+
+Published language:
+
+| Context | Published terms | `events.qnt` |
+| --- | --- | --- |
+| Identity (`profile`) | guest, account, sign in, sign out, sign-in method, username, avatar, profile, rename themselves, Google, Apple | `IdentityEvent`: `SignedIn`, `SignedOut`, `UsernameChanged` |
+| Billing (`billing`) | Plus, Plus member, free account, paid access, billing plans | `BillingEvent`: `PaidAccessStarted`, `PaidAccessEnded` |
+| Spaces (`spaces`) | space, host, join, leave, create a space, end a space, open space, return to a space, lobby, space link, hosting limit | `SpaceEvent`: `SpaceOpened`, `PersonJoined`, `PersonLeft`, `SpaceEnded` |
+| Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
+| Chess (`chess`) | game, chess, board, puzzle, solve | — |
+| App (`runtime`) | Settings, tabs, address, version of the app | — |
+| Auth, Room, Matchmaking, Sync engine, Operations, Journeys | — | — |
+
+- Publish product concepts, not common words: "open space", never "open".
+- The same word may mean different things in different contexts ("notice",
+  "member", "move"); each defines its own.
+- Events are past-tense facts the upstream already decided
+  (`PaidAccessEnded`), never requests.
+
+## What belongs in a spec
+
+A scenario earns its place when a person, or the team running the product,
+could observe the outcome from outside (A0). Every behavior test is a spec: a
+test that acts as a person would and checks what they see is a scenario or a
+Quint model, never a `*.test.ts`.
+
+| The check is about… | Home |
+| --- | --- |
+| What a person can do and see: flows, rules, permissions, what persists, offline behavior, what other people see and when | **Gherkin scenario** |
+| A promise the team observes about a live environment | **Gherkin in `specs/health/`** |
+| A flow that must never break anywhere people use the app | **Gherkin in `specs/journeys/`** |
+| How a feature's observable state evolves under any sequence of actions | **Quint model** |
+| A pure computation: formula, parser, validation table, ordering | **property test** (`assertProperty`) |
+| Stateful internals: sync, convergence, exactly-once, idempotence, fault recovery | **model-based property test** |
+| Storage rows, wire formats, request shapes, which component calls which | **contract test** through the package's reads |
+| One literal case that must never change (a bug's input, a decided value) | **example regression test**, or a `@regression:<id>` scenario when the bug was observable |
+| Timing, load, bundle size, budgets | **gate script** |
+
+When one idea has both a behavior and exhaustive cases, keep one scenario for
+the rule people see and put the case table in a property test.
+
+## Quint models
+
+A feature pins examples; a [Quint](https://quint-lang.org/) model states the
+rules — what each action does to what a person can observe, from any state it
+is allowed in. Quint draws the walks from the model, and the product must
+agree with it after every step; there are no product random walks outside a
+model.
+
+A model is an aggregate: a module named after its file in snake_case
+(`space-hosting.qnt` → `module space_hosting`) with
+
+- a header comment in plain product language: who is in it, what they can
+  do, what they see;
+- state variables a person can observe (a derived observable is a variable
+  every action updates through one helper);
+- `action init` and `action step`, the step choosing among the actions, with
+  `nondet` arguments named for the action's arguments;
+- invariants as `val inv<Name>`.
+
+Quint reads `x' = a and b` as `(x' = a) and b`: bracket an assignment's
+right-hand side. An `init` that can never hold draws empty traces, which the
+runner refuses. `next` is a builtin, so no action may be called that.
+
+How a model runs in the package's `test:spec`:
+
+1. Quint draws traces (`quint run --mbt`, bundled, no network) from the
+   property seed `FC_SEED` (default `424242`), so the verdict is a function of
+   the code; `PBT_RANDOM=1` explores other seeds. A model that breaks its own
+   invariant fails here.
+2. Each trace is one test: a fresh harness, every step's action through the
+   binding (`tests/quint/<model>.binding.ts`: one entry per action, `init`
+   included, plus `observe`, which reads the model's variables back without
+   acting), then the product's state must equal the model's, re-read on
+   virtual time for up to 15 s. Every action is an `s.apply`, so the system's
+   standing properties hold after every step too.
+3. One more test fails when no trace takes some bound action.
+
+A failure prints the step, the differing variables, the harness calls and the
+whole trace; drawn traces are in `<package>/.cache/harness-report/quint/<model>/`.
+
+## Live domains
+
+`specs/journeys/` (critical journeys) and `specs/health/` (the promises a
+live environment keeps) describe the deployed product. `@libs/runtime` runs
+the journeys against the simulated app in `bun check`; `@apps/product` runs
+both live (`liveDomains`) in its `health` task
+([`CI.md`](CI.md#health-and-critical-journeys)). Which resource keeps a health
+promise is the step definitions' business. A domain is run by at most one
+package through `specDomains` and at most one through `liveDomains`. Tags
+choose where a live scenario runs (B15):
+
+| Tag | Live run |
+| --- | --- |
+| `@production` | only against production environments |
+| `@oauth-relay` | only against the relay environment |
+| `@observability` | skipped when `OBSERVABILITY_ENABLED=0` |
+| `@browser` | needs a real browser; the simulation stops at that step as a host limit |
 
 ## Terms this standard uses
 
@@ -30,7 +238,7 @@ or softening a rule, answer its why.
 | Model-only | A world event or invariant no person can observe on its own (fault injection, bookkeeping such as bounds). The model's traces cover it; it needs no scenario, and B17 forbids one |
 | Invariant | A model's `val inv<Name>` |
 | Domain event | A variant of a type in `specs/<domain>/events.qnt` |
-| Policy | A reaction in a downstream context to an upstream domain event, per the context map's relationships |
+| Policy | A reaction in a downstream context to an upstream domain event, per the [context map](#context-map)'s relationships |
 | Cast | The named people step definitions know: Alice, Bob, Carol, Dave, Eve (and White and Black at a chess board) |
 | Refusal | A `Then` saying the `When`'s command did not take effect or is not allowed. The closed list of markers: "refused", "cannot", "can't", "no longer can", "is not offered", "is told", "fails"/"failed", "not allowed", "still" (the state is unchanged). Anything else is not a refusal — "stops showing", "does not show", "is signed out" are usually the command's effect |
 
@@ -278,7 +486,7 @@ coverage map (C) derives them from the Quint model and the `Rule:`.
 A rule nobody outside the code could observe — a formula's exact output, a
 validation table, a sync invariant, a stored row, a wire shape — is not a
 scenario. It goes to the home "What belongs in a spec" gives it
-([policy](SPEC_DRIVEN_DEVELOPMENT.md#what-belongs-in-a-spec)).
+([what belongs in a spec](#what-belongs-in-a-spec)).
 *Why: a spec that tests internals breaks on refactors and still says nothing
 about the product.*
 
@@ -441,3 +649,77 @@ moves to `goal-checks.json` as a `test` proof and its `@regression` to an
 example test marked `// regression: <id>`, in the commit before the `spec:`
 commit that removes it.
 *Why: cleaning up specs must never quietly drop coverage.*
+
+## The gate
+
+`bun run spec:check` automates a subset of these rules, some with looser
+thresholds (it allows up to three `When`s; B5 allows one); `spec-audit`
+checks the rest. It fails on:
+
+- undefined, ambiguous, pending or unused steps; a duplicate scenario name;
+  stale step catalogs
+- a missing or foreign `@domain`, an unknown `@goal`, or a goal proven by a
+  feature where no scenario is tagged with it
+- UI mechanics or implementation words in step text (`IMPLEMENTATION_WORDS`
+  in `@pkgs/gherkin`), or a narrator ("I", "my", "the user")
+- a scenario with no `Then`, or a `Given` after it has acted
+- a BDD smell (`@pkgs/gherkin/smells`): more than 8 steps or 3 `When`s,
+  acting after a `Then` outside `specs/journeys/`, a step naming architecture,
+  a feature with no description
+- the glossary (`libs/tools/scripts/spec-glossary.ts`, `@pkgs/gherkin/glossary`):
+  a context without `ubiquitous-language.yml`; a term with no definition,
+  source or lender, defined twice, redefining a kernel term, or borrowing
+  what its lender does not publish; feature prose (not example tables,
+  quoted text or placeholders) using an `avoid` word or another context's
+  published term without borrowing it; a Quint type, variant, `var`,
+  `action`, `val` or `def` that is not a `model` name of a term in its
+  vocabulary or an imported `events` module (exempt: `init`, `step`, `inv*`,
+  `SCREAMING_CASE` data and bounds, `_`-prefixed helpers); a Quint import
+  other than `./events` or `../<domain>/events`; an `events.qnt` with state
+  or actions; a glossary `model` no Quint spec in its context declares.
+
+It warns on near-duplicate step wording (`--strict-duplicates` fails on it).
+When a smell blocks what really is one rule, restate earlier steps as `Given`
+facts before reaching for a longer scenario. A word used but never defined,
+or used in another sense, is the auditor's to catch (A1, A3).
+
+## Workflow
+
+1. **Discover** (`spec-upsert`): rules, one concrete example per rule, open
+   questions answered by a person, not guessed.
+2. **Formulate**: read the catalogs and the glossary, write scenarios or a
+   model, run `bun run spec:check` (undefined steps and unbound models are the
+   handoff; nothing else may fail) and `spec-audit` until it passes. A new
+   domain needs a package to claim it in `specDomains`. Commit with a `spec:`
+   subject (P1).
+3. **Automate** (`spec-implement`): see each new scenario fail (P3), bind
+   steps or the model, make the product pass, run the context
+   (`bun run spec --package <workspace>`) and `bun run spec:catalog`. When the
+   product disagrees with a model, a wrong product is a bug (fix it with a
+   pinned regression); a wrong or ambiguous model goes back to the spec
+   writer (P2).
+4. **Gate**: `bun run spec:ownership`, then `bun check`.
+
+`@goal:<section>:<n>` proofs are listed in `libs/tools/goal/goal-checks.json`
+as `spec` proofs; `@regression:<bug-id>` scenarios have a
+`libs/tools/goal/known-bugs.json` entry pointing at the feature.
+
+```sh
+bun run spec --tags '@goal:social:5'
+bun run spec specs/friends/friend-block.feature
+bun run spec specs/spaces/space-hosting.qnt
+bun run spec --package @libs/friends -t 'ends the friendship'
+bun run spec:catalog
+bun run spec:check [--strict-duplicates]
+bun run spec:ownership
+bun run test:report
+```
+
+Every `test:spec` run writes its package's report bucket
+(`<package>/.cache/harness-report`: step timelines with the harness calls
+under each step, drawn traces, JUnit), cached by turbo with the verdict.
+`bun run test:report` restores or reruns every bucket and folds them into one
+`harness-report/index.html`; `--frames` adds UI frames. A feature failure
+names the feature line, the matching definition, the completed steps and the
+failing step's harness calls. The runner's Bun stubs in `.cache/spec/` are
+never committed.

@@ -35,15 +35,15 @@ Inventory today: **none** in `index.html`. New tags need an allowlist entry + si
 
 ## Perf HUD
 
-In-app perf HUD (`apps/client/src/shell/perf/`) is diagnostic-only (shows `heapMb` when enabled).
+In-app perf HUD (`libs/client-app/src/shell/perf/`) is diagnostic-only (shows `heapMb` when enabled).
 
 ## Known product hot spot
 
 Shell cold load keeps mutation hubs, DiceBear, SQLite WASM, and game-plugins **off** the entry graph:
 
 - Vite `build.modulePreload` does not inject HTML preloads for dynamic-import targets
-- [`ProductApp`](../apps/client/src/shell/product-app.tsx) paints `AppFrame` outside SQLite boot
-- [`TabsLayout`](../apps/client/src/routes/tabs-layout.tsx) lazy-loads `SpaceMiniplayer`
+- [`ProductApp`](../libs/client-app/src/shell/product-app.tsx) paints `AppFrame` outside SQLite boot
+- [`TabsLayout`](../libs/client-app/src/routes/tabs-layout.tsx) lazy-loads `SpaceMiniplayer`
 - [`AppGamesProvider`](../libs/spaces/src/root/client/app/games-provider.tsx) wraps the sync ready tree (empty bootstrap always; game-plugins, injected by `@libs/runtime`, only under `/space/*`) so open-room slots see `SpaceModuleProvider`
 - Sync-engine Solid bridges + leave/end modals live in `sync-engine-ready-tree.tsx` (lazy with the engine)
 - [`DeviceAvatar`](../libs/profile/src/public/device-avatar.tsx) lazy-loads DiceBear only when a config exists
@@ -59,12 +59,3 @@ bun run --filter @apps/client test
 ```
 
 Optional treemap: `ANALYZE=1 bun run --filter @apps/client build` → `apps/client/dist/.stats.html`.
-
-## Still out of scope
-
-| Item | Eventual path |
-| --- | --- |
-| Real Android device lab | Weekly sample on 2 GB Android Go |
-| WebPageTest | Optional monthly filmstrips vs production — not a merge gate |
-| RUM / CrUX | After first-party RUM exists; alert on p75 — never replace lab gates |
-| Capacitor / desktop perf | Non-targets |

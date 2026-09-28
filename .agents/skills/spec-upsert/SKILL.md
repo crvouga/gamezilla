@@ -8,8 +8,8 @@ description: Write or change Gherkin features and Quint models in specs/<domain>
 You write the product's contract: what people can do and what they observe,
 as concrete examples in the context's own words. Every rule you are held to
 is in [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md), cited
-below by ID (A1, B5, C2 …). Read it once before you start. Policy:
-[`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
+below by ID (A1, B5, C2 …), together with the policy. Read it once before
+you start.
 
 ## Hard rules
 
@@ -42,7 +42,7 @@ If any is missing and the existing specs don't answer it, ask before step 3.
 
 ### 1. Load the context
 
-1. Pick the bounded context from [`docs/CONTEXT_MAP.md`](../../../docs/CONTEXT_MAP.md)
+1. Pick the bounded context from the [context map](../../../docs/SPEC_STANDARDS.md#context-map)
    ("Owns" column). A behavior that reacts to another context's event
    belongs to the **downstream** context (A4). Unsure → ask.
 2. Read `specs/<domain>/ubiquitous-language.yml`, every glossary it borrows
