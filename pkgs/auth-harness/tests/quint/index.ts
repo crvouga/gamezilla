@@ -4,6 +4,7 @@
  */
 
 import './outside-accounts.binding';
+import './private-apple-email.binding';
 
 import { useSignInTraceWorld } from './world';
 

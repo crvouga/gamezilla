@@ -3,10 +3,11 @@
  * devices, handed out to people the first time a step names them, plus the
  * account each person was last seen signed into.
  *
- * Each person's outside accounts are fixed entries of the providers'
- * directories: Alice has a Google and an Apple account at different
+ * Each person's outside accounts are fixed entries of the example app's
+ * provider directories: Alice has a Google and an Apple account at different
  * addresses, Bob a Google account, Carol a Google account and an Apple
- * account at one unverified address, Dave an Apple account.
+ * account at one unverified address, Dave an Apple account, and Eve a Google
+ * and an Apple account at one verified address.
  */
 
 import type { OauthProviderId } from '@pkgs/auth/shared';
@@ -32,16 +33,18 @@ const OUTSIDE_ACCOUNTS: Readonly<
     alice: 'alice@gmail.com',
     bob: 'bob@gmail.com',
     carol: 'uma@unverified.test',
+    eve: 'chris@gmail.com',
   },
   apple: {
     alice: 'alice@icloud.com',
     carol: 'uma@unverified.test',
     dave: 'dan@icloud.com',
+    eve: 'chris@gmail.com',
   },
 };
 
 /** A Google account nobody in the scenarios holds. */
-export const SECOND_GOOGLE_ACCOUNT = 'chris@gmail.com';
+export const SECOND_GOOGLE_ACCOUNT = 'wendy@workspace.test';
 
 export type SignInWorld = {
   readonly ctx: ScenarioContext;

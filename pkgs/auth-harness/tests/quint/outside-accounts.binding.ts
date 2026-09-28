@@ -1,5 +1,5 @@
 /**
- * `specs/auth/outside-accounts.qnt` against the auth harness: three devices
+ * `specs/auth/outside-accounts.qnt` against the example app: three devices
  * (phone, laptop, tablet) and five directory entries (Chris's Google and
  * Apple accounts at one verified address, Uma's at one unverified address,
  * Dan's Apple account), each model action through the harness's actions, and
@@ -51,13 +51,13 @@ const OUTSIDE_ACCOUNTS: Readonly<
   appleDan: { provider: 'apple', email: 'dan@icloud.com' },
 };
 
-/** A fault that stops each provider vouching for anyone. */
-const FAILURE: Readonly<Record<OauthProviderId, string>> = {
+/** A fault that stops each provider telling the app who signs in. */
+const TROUBLE: Readonly<Record<OauthProviderId, string>> = {
   google: 'google.token-500',
   apple: 'apple.token-500',
 };
 
-const PROOF_LAPSE_MS = 11 * 60 * 1000;
+const CHANCE_TO_CONFIRM_LAPSE_MS = 11 * 60 * 1000;
 
 function deviceOf(picks: Picks, name = 'device'): string {
   const id = DEVICES[String(picks[name])];
@@ -113,7 +113,7 @@ bindQuintModel<SignInTraceWorld>({
     signIn: async (w, picks) => {
       await traceAuth(w).apply(signIn, withOutsideAccount(picks));
     },
-    proveMatch: async (w, picks) => {
+    confirmMatchingAccount: async (w, picks) => {
       await traceAuth(w).apply(confirmPendingLink, withOutsideAccount(picks));
     },
     keepSeparate: async (w, picks) => {
@@ -134,7 +134,7 @@ bindQuintModel<SignInTraceWorld>({
     signOutEverywhere: async (w, picks) => {
       await traceAuth(w).apply(signOutEverywhere, deviceOf(picks));
     },
-    copySignIn: async (w, picks) => {
+    stealSignIn: async (w, picks) => {
       await traceAuth(w).apply(stealBearer, {
         from: deviceOf(picks),
         to: deviceOf(picks, 'other'),
@@ -152,10 +152,10 @@ bindQuintModel<SignInTraceWorld>({
         online: true,
       });
     },
-    providerFails: async (w, picks) => {
-      await traceAuth(w).apply(setProviderFault, FAILURE[providerOf(picks)]);
+    troubleStarts: async (w, picks) => {
+      await traceAuth(w).apply(setProviderFault, TROUBLE[providerOf(picks)]);
     },
-    providerRecovers: async (w, picks) => {
+    troubleEnds: async (w, picks) => {
       await traceAuth(w).apply(clearProviderFaults, providerOf(picks));
     },
     stopUsingSignInWithApple: async (w, picks) => {
@@ -170,8 +170,8 @@ bindQuintModel<SignInTraceWorld>({
         outsideAccountOf(picks).email
       );
     },
-    proofsLapse: async (w) => {
-      await traceAuth(w).apply(advanceClock, PROOF_LAPSE_MS);
+    chanceToConfirmLapses: async (w) => {
+      await traceAuth(w).apply(advanceClock, CHANCE_TO_CONFIRM_LAPSE_MS);
     },
     signInsLapse: async (w) => {
       await traceAuth(w).apply(advanceClock, AUTH_SESSION_TTL_MS + 1);
@@ -192,17 +192,17 @@ bindQuintModel<SignInTraceWorld>({
       );
     }
     const signedInto = new Map<QuintValue, QuintValue>();
-    const askedToProve = new Set<QuintValue>();
+    const askedToConfirm = new Set<QuintValue>();
     for (const [name, id] of Object.entries(DEVICES)) {
       const user = await s.read(signedInUser, id);
       if (user !== null) signedInto.set(name, accountNumber(w, user));
-      if (await s.read(awaitingProof, id)) askedToProve.add(name);
+      if (await s.read(awaitingProof, id)) askedToConfirm.add(name);
     }
     return {
       signedInto,
       signInMethods,
       accountCount: accounts.length,
-      askedToProve,
+      askedToConfirm,
     };
   },
 });

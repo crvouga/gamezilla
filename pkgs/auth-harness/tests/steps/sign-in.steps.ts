@@ -1,27 +1,27 @@
 /**
- * Steps for `specs/auth/`: people signing in, proving address matches,
- * managing sign-in methods, copying sign-ins, time passing, and what
- * happens at Google and Apple — each a harness action on the auth system, each
+ * Steps for `specs/auth/`: people signing in, confirming matching accounts,
+ * managing sign-in methods, stolen sign-ins, time passing, and what happens
+ * at Google and Apple — each a harness action on the example app, each
  * outcome a read of what the device was told or is signed into.
  */
 
 import { expect } from 'bun:test';
 import { AUTH_ERROR, type OauthProviderId } from '@pkgs/auth/shared';
 import {
-  AUTH_FAULTS,
   accountsOnRecord,
   appleAccountDeleted,
+  appleConsentRevoked,
   appleRelayForwarding,
   awaitingProof,
   clearProviderFaults,
   confirmPendingLink,
+  declinePendingLink,
   googleEmailChanged,
   identitiesOf,
   lastOutcome,
   linkProvider,
   movedGoogleEmail,
   prepareLink,
-  rotateProviderKeys,
   setOnline,
   setProviderFault,
   signedInUser,
@@ -86,13 +86,20 @@ async function expectTold(
 }
 
 /** Carol has a Google account at an unverified address, and signs in with Apple there. */
-async function askToProve(w: SignInWorld, actor: string): Promise<void> {
+async function askToConfirm(w: SignInWorld, actor: string): Promise<void> {
   await signInAs(w, actor, 'google');
   await w.s.apply(signOut, device(w, actor));
   await w.s.apply(signIn, onDevice(w, actor, 'apple'));
   if (!(await w.s.read(awaitingProof, device(w, actor)))) {
-    throw new Error(`${actor} was not asked to prove an address match`);
+    throw new Error(`${actor} was not asked to confirm a matching account`);
   }
+}
+
+/** The providers of the account the person was last seen signed into. */
+async function methodsOf(w: SignInWorld, actor: string): Promise<string[]> {
+  const accounts = await w.s.read(accountsOnRecord);
+  const mine = accounts.find((row) => row.id === accountOf(w, actor));
+  return (mine?.methods ?? []).map((row) => row.provider).sort();
 }
 
 async function signedIn(w: SignInWorld, actor: string, nth = 1) {
@@ -229,29 +236,32 @@ Then('{actor} is told signing in was cancelled', async (w, actor: string) => {
   await expectTold(w, actor, AUTH_ERROR.cancelled);
 });
 
-// --- Address matches ---------------------------------------------------------
+// --- Matching accounts -------------------------------------------------------
 
 Given(
-  '{actor} is being asked to prove an address match with Google',
+  '{actor} is being asked to confirm the matching account with Google',
   async (w, actor: string) => {
-    await askToProve(w, actor);
+    await askToConfirm(w, actor);
   }
 );
 
 Given(
-  '{actor} was asked to prove an address match with Google {int} minutes ago',
+  '{actor} was asked to confirm the matching account with Google {int} minutes ago',
   async (w, actor: string, minutes: number) => {
-    await askToProve(w, actor);
+    await askToConfirm(w, actor);
     await w.s.advanceTime(minutes * MINUTE_MS);
   }
 );
 
-When('{actor} proves the match with Google', async (w, actor: string) => {
-  await w.s.apply(confirmPendingLink, onDevice(w, actor, 'google'));
-});
+When(
+  '{actor} confirms the matching account with Google',
+  async (w, actor: string) => {
+    await w.s.apply(confirmPendingLink, onDevice(w, actor, 'google'));
+  }
+);
 
 When(
-  "{actor} proves the match with {actor}'s Google account",
+  "{actor} confirms the matching account with {actor}'s Google account",
   async (w, actor: string, owner: string) => {
     await w.s.apply(confirmPendingLink, {
       clientId: device(w, actor),
@@ -261,15 +271,28 @@ When(
   }
 );
 
+When('{actor} keeps the accounts separate', async (w, actor: string) => {
+  await w.s.apply(declinePendingLink, device(w, actor));
+});
+
 Then(
-  '{actor} is told the match could not be proven',
+  '{actor} is told to confirm the matching account first',
+  async (w, actor: string) => {
+    expect((await w.s.read(lastOutcome, device(w, actor)))?.kind).toBe(
+      'link_required'
+    );
+  }
+);
+
+Then(
+  '{actor} is told the matching account could not be confirmed',
   async (w, actor: string) => {
     await expectTold(w, actor, AUTH_ERROR.linkMismatch);
   }
 );
 
 Then(
-  '{actor} is told the address match has lapsed',
+  '{actor} is told the chance to confirm has lapsed',
   async (w, actor: string) => {
     await expectTold(w, actor, AUTH_ERROR.expired);
   }
@@ -305,10 +328,6 @@ Given(
     await w.s.apply(prepareLink, device(w, actor));
   }
 );
-
-Given('{actor} has signed out', async (w, actor: string) => {
-  await w.s.apply(signOut, device(w, actor));
-});
 
 Given('{actor} has signed out on that device', async (w, actor: string) => {
   await w.s.apply(signOut, device(w, actor));
@@ -370,28 +389,64 @@ Then('{actor} is told connecting failed', async (w, actor: string) => {
   expect((await w.s.read(lastOutcome, device(w, actor)))?.kind).toBe('failed');
 });
 
-Then("{actor}'s sign-in methods are still Google", async (w, actor: string) => {
-  const accounts = await w.s.read(accountsOnRecord);
-  const mine = accounts.find((row) => row.id === accountOf(w, actor));
-  expect(mine?.methods.map((row) => row.provider)).toEqual(['google']);
+Then(
+  "{actor}'s sign-in methods are (still )Google",
+  async (w, actor: string) => {
+    expect(await methodsOf(w, actor)).toEqual(['google']);
+  }
+);
+
+Then(
+  "{actor}'s sign-in methods are Google and Apple",
+  async (w, actor: string) => {
+    expect(await methodsOf(w, actor)).toEqual(['apple', 'google']);
+  }
+);
+
+When('{actor} removes Apple from their account', async (w, actor: string) => {
+  await w.s.apply(unlinkProvider, {
+    clientId: device(w, actor),
+    provider: 'apple',
+  });
 });
 
-// --- Connection and copied sign-ins ------------------------------------------
+When(
+  '{actor} tries to remove Google from their account',
+  async (w, actor: string) => {
+    await w.s.apply(unlinkProvider, {
+      clientId: device(w, actor),
+      provider: 'google',
+    });
+  }
+);
+
+Then(
+  '{actor} is told the last sign-in method cannot be removed',
+  async (w, actor: string) => {
+    await expectTold(w, actor, AUTH_ERROR.lastIdentity);
+  }
+);
+
+// --- Connection and stolen sign-ins -------------------------------------------
 
 Given("{actor}'s device has lost its connection", async (w, actor: string) => {
   await w.s.apply(setOnline, { clientId: device(w, actor), online: false });
 });
 
-async function copySignIn(w: SignInWorld, thief: string, victim: string) {
+Given("{actor}'s device is back online", async (w, actor: string) => {
+  await w.s.apply(setOnline, { clientId: device(w, actor), online: true });
+});
+
+async function stealSignIn(w: SignInWorld, thief: string, victim: string) {
   await w.s.apply(stealBearer, {
     from: device(w, victim),
     to: device(w, thief),
   });
 }
 
-Given("{actor} has copied {actor}'s sign-in", copySignIn);
+Given("{actor} has stolen {actor}'s sign-in", stealSignIn);
 
-When("{actor} copies {actor}'s sign-in", copySignIn);
+When("{actor} steals {actor}'s sign-in", stealSignIn);
 
 When('{actor} signs out', async (w, actor: string) => {
   await w.s.apply(signOut, device(w, actor));
@@ -420,6 +475,25 @@ Given('{actor} has deleted their Apple account', async (w, actor: string) => {
   await signInAs(w, actor, 'apple');
   await w.s.apply(appleAccountDeleted, emailOf(actor, 'apple'));
 });
+
+When('{actor} deletes their Apple account', async (w, actor: string) => {
+  await w.s.apply(appleAccountDeleted, emailOf(actor, 'apple'));
+});
+
+When('{actor} stops using Sign in with Apple', async (w, actor: string) => {
+  await w.s.apply(appleConsentRevoked, emailOf(actor, 'apple'));
+});
+
+Given(
+  '{actor} has stopped using Sign in with Apple',
+  async (w, actor: string) => {
+    await signInAs(w, actor, 'apple');
+    await w.s.apply(appleConsentRevoked, emailOf(actor, 'apple'));
+    if ((await signedIn(w, actor)) !== null) {
+      throw new Error(`setup: ${actor} is still signed in`);
+    }
+  }
+);
 
 Given(
   '{actor} has changed the email address of their Google account',
@@ -486,105 +560,29 @@ Then(
   }
 );
 
-// --- Failing providers --------------------------------------------------------
+// --- Google or Apple having trouble -----------------------------------------
 
-/** Each way a provider fails to vouch, as the harness's named provider fault. */
-const TOKEN_EXCHANGE_FAILS: Readonly<Record<OauthProviderId, string>> = {
+/** The provider fault that stops each provider telling the app who signs in. */
+const TROUBLE: Readonly<Record<OauthProviderId, string>> = {
   google: 'google.token-500',
   apple: 'apple.token-500',
 };
 
-/** Puts a named fault on the provider; an unknown name is a binding bug. */
-async function providerFault(w: SignInWorld, fault: string): Promise<void> {
-  if (AUTH_FAULTS[fault] === undefined) {
-    throw new Error(`no provider fault named "${fault}"`);
-  }
-  await w.s.apply(setProviderFault, fault);
-}
-
-async function recovers(w: SignInWorld, provider: OauthProviderId) {
-  await w.s.apply(clearProviderFaults, provider);
-}
-
-Given('Google is failing', async (w) => {
-  await providerFault(w, 'google.token-500');
+Given('{provider} is having trouble', async (w, provider: OauthProviderId) => {
+  await w.s.apply(setProviderFault, TROUBLE[provider]);
 });
 
 Given(
-  "{provider} cannot confirm {actor}'s sign-in",
-  async (w, provider: OauthProviderId, _actor: string) => {
-    await providerFault(w, TOKEN_EXCHANGE_FAILS[provider]);
-  }
-);
-
-Given('Google does not recognise the app', async (w) => {
-  await providerFault(w, 'google.invalid-client');
-});
-
-Given('Google cannot say who {actor} is', async (w, _actor: string) => {
-  await providerFault(w, 'google.userinfo-500');
-});
-
-Given('Google refuses to say who {actor} is', async (w, _actor: string) => {
-  await providerFault(w, 'google.userinfo-401');
-});
-
-Given(
-  "Apple's word for {actor} cannot be checked as its own",
-  async (w, _actor: string) => {
-    await providerFault(w, 'apple.unknown-key');
-  }
-);
-
-Given(
-  "Apple's word for {actor} is two hours old",
-  async (w, _actor: string) => {
-    await providerFault(w, 'apple.token-stale-2h');
-  }
-);
-
-Given(
-  "Apple's word for {actor} is dated ten minutes ahead",
-  async (w, _actor: string) => {
-    await providerFault(w, 'apple.clock-ahead-10m');
-  }
-);
-
-Given('Apple writes its yes and no answers as text', async (w) => {
-  await providerFault(w, 'apple.string-booleans');
-});
-
-Given("Apple's clock is two minutes ahead", async (w) => {
-  await providerFault(w, 'apple.clock-ahead-2m');
-});
-
-Given('Apple has changed how its word is checked', async (w) => {
-  await w.s.apply(rotateProviderKeys, 'apple');
-});
-
-Given(
-  '{actor} tried to sign in with Google while it was failing',
-  async (w, actor: string) => {
-    await providerFault(w, 'google.token-500');
-    await w.s.apply(signIn, onDevice(w, actor, 'google'));
-    await expectTold(w, actor, AUTH_ERROR.providerFailed);
-  }
-);
-
-Given(
-  '{actor} has been told signing in with {provider} failed',
+  '{actor} tried to sign in with {provider} while it was having trouble',
   async (w, actor: string, provider: OauthProviderId) => {
+    await w.s.apply(setProviderFault, TROUBLE[provider]);
     await w.s.apply(signIn, onDevice(w, actor, provider));
     await expectTold(w, actor, AUTH_ERROR.providerFailed);
   }
 );
 
-Given('Google has recovered', async (w) => {
-  await recovers(w, 'google');
-});
-
-When('{provider} recovers', async (w, provider: OauthProviderId) => {
-  await recovers(w, provider);
+Given('{provider} has recovered', async (w, provider: OauthProviderId) => {
+  await w.s.apply(clearProviderFaults, provider);
 });
 
 Then(
