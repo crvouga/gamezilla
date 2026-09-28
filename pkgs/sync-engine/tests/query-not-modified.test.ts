@@ -53,6 +53,21 @@ const snapshotQuery = defineQuery({
   },
 });
 
+/**
+ * The same row as a Postgres driver returns it (`Date`) and as the client
+ * holds it after the wire (ISO string).
+ */
+const timestampQuery = defineQuery({
+  name: 'publicApiTimestamp',
+  limit: 100,
+  params: z.object({ as: z.enum(['date', 'iso']) }),
+  async run(_ctx, params) {
+    const iso = '2026-09-28T04:04:33.306Z';
+    const createdAt = params.as === 'date' ? new Date(iso) : iso;
+    return { notes: [{ id: 'a', created_at: createdAt, deleted_at: null }] };
+  },
+});
+
 async function postQuery(
   app: ReturnType<typeof createSyncApp>,
   body: unknown
@@ -81,7 +96,7 @@ describe('public API: createSyncApp query not_modified', () => {
         isAnon: false,
       }),
       getSql: () => db,
-      queries: queryRegistry([snapshotQuery]),
+      queries: queryRegistry([snapshotQuery, timestampQuery]),
       mutations: mutationRegistry([]),
       now: () => 1_700_000_000_000,
       createId: () => 'id-1',
@@ -118,5 +133,42 @@ describe('public API: createSyncApp query not_modified', () => {
       ],
     });
     expect(reordered.json.responses[0]?.status).toBe('not_modified');
+  });
+
+  test('a Date column hashes as its wire value, so the client stays in sync', async () => {
+    const db = SqlClientImplMockingbirdSqlite.open();
+    await db.connect();
+    let cp = 0;
+    const app = createSyncApp({
+      resolveAuth: async () => ({
+        actorId: 'actor',
+        deviceId: 'device',
+        accountId: 'acct',
+        isAnon: false,
+      }),
+      getSql: () => db,
+      queries: queryRegistry([snapshotQuery, timestampQuery]),
+      mutations: mutationRegistry([]),
+      now: () => 1_700_000_000_000,
+      createId: () => 'id-1',
+      nextCheckpoint: () => String(++cp),
+    });
+
+    const asIso = await postQuery(app, {
+      queries: [{ name: 'publicApiTimestamp', params: { as: 'iso' } }],
+    });
+    const iso = asIso.json.responses[0];
+    if (iso?.status !== 'ok') throw new Error('expected ok');
+
+    const asDate = await postQuery(app, {
+      queries: [
+        {
+          name: 'publicApiTimestamp',
+          params: { as: 'date' },
+          lastHash: iso.hash,
+        },
+      ],
+    });
+    expect(asDate.json.responses[0]?.status).toBe('not_modified');
   });
 });

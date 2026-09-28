@@ -35,6 +35,10 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/kv-postgres#test:contract': 600,
   '@pkgs/object-store-s3#test:contract': 600,
   '@pkgs/pubsub-emqx#test:contract': 600,
+  // 30 spec files, ~1040 CPU-seconds of scenarios (the puzzle-attempt Quint
+  // model alone ~210 s): 256 s on the laptop's 12 cores, but CPU-bound on
+  // CI's 2 — 629 s and 719 s measured there, past 300 × 2.
+  '@libs/chess#test:e2e': 400,
   // Every specs/health/ and specs/journeys/ scenario, one feature file per
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the
