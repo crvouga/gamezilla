@@ -36,6 +36,20 @@ variable "github" {
   type = any
 }
 
+variable "auth_relay" {
+  type        = any
+  description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
+}
+
+variable "railway" {
+  type = object({
+    workspace_id = string
+    project_id   = string
+    service_id   = string
+  })
+  description = "The one broker project and its shared `emqx` service (owned by the fleet stack); each environment is a Railway environment of it."
+}
+
 variable "global_imports" {
   type    = any
   default = {}
@@ -82,13 +96,6 @@ variable "hosts" {
   })
 }
 
-variable "railway" {
-  type = object({
-    workspace_id = string
-    project_name = string
-  })
-}
-
 variable "billing" {
   type        = any
   description = "Read by TypeScript only: rendered into the API Worker (BILLING_PROVIDER)."
@@ -112,15 +119,14 @@ variable "secrets" {
 variable "imports" {
   type = object({
     foundation = optional(object({
-      r2_bucket         = optional(string)
-      railway_project   = optional(string)
-      railway_service   = optional(string)
-      railway_domain    = optional(string)
-      broker_dns        = optional(string)
-      broker_dns_verify = optional(string)
-      neon_branch       = optional(string)
-      neon_endpoint     = optional(string)
-      secrets           = optional(list(string), [])
+      r2_bucket           = optional(string)
+      railway_environment = optional(string)
+      railway_domain      = optional(string)
+      broker_dns          = optional(string)
+      broker_dns_verify   = optional(string)
+      neon_branch         = optional(string)
+      neon_endpoint       = optional(string)
+      secrets             = optional(list(string), [])
     }), {})
     edge = optional(any)
   })

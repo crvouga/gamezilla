@@ -59,6 +59,7 @@ const PROTECTED: ReadonlySet<string> = new Set([
   'neon_endpoint',
   'postgresql_extension',
   'random_password',
+  'railway_environment',
   'railway_project',
   'railway_service',
 ]);
@@ -92,10 +93,21 @@ const arbChange: fc.Arbitrary<Change> = fc.record({
 
 const deletes = (c: Change): boolean => c.change.actions.includes('delete');
 
+type Teardown = 'production' | 'standard' | null;
+
 /** Independent model of policy/stateful.rego. */
-function modelDenies(changes: readonly Change[], protection: string): boolean {
+function modelDenies(
+  changes: readonly Change[],
+  protection: string,
+  teardown: Teardown
+): boolean {
+  if (teardown === 'production') return true;
   const managed = changes.filter((c) => c.mode === 'managed');
-  if (managed.some((c) => deletes(c) && !DELETABLE.has(c.type))) return true;
+  if (
+    teardown !== 'standard' &&
+    managed.some((c) => deletes(c) && !DELETABLE.has(c.type))
+  )
+    return true;
   if (protection !== 'production') return false;
   return [...new Set(managed.map((c) => c.type))].some((type) => {
     const all = managed.filter((c) => c.type === type);
@@ -111,22 +123,28 @@ describe('policy/stateful.rego', () => {
       fc.property(
         fc.array(arbChange, { maxLength: 8 }),
         fc.constantFrom('production', 'standard'),
-        (changes, protection) => {
+        fc.constantFrom<Teardown>(null, 'standard', 'production'),
+        (changes, protection, teardown) => {
           const verdict = evaluatePlanPolicy(
             {
               resource_changes: changes,
               variables: { protection: { value: protection } },
+              ...(teardown === null
+                ? {}
+                : { teardown: { protection: teardown } }),
             },
             POLICY,
             conftest
           );
-          expect(!verdict.allowed).toBe(modelDenies(changes, protection));
+          expect(!verdict.allowed).toBe(
+            modelDenies(changes, protection, teardown)
+          );
         }
       )
     );
   }, 120_000);
 
-  test('never allows deleting or replacing a protected type', () => {
+  test('never allows deleting or replacing a protected type outside a standard teardown', () => {
     assertProperty(
       'protected types are never deleted',
       fc.property(

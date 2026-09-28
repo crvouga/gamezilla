@@ -13,20 +13,24 @@ TypeScript.
 libs/infra/
   tofu/
     global.tfvars.json  what every environment shares: project, state bucket,
-                        secrets project, repository (+ its required checks)
+                        secrets project, repository (+ its required checks),
+                        the Railway broker project + service ids
     modules/        env-agnostic building blocks (variables in, outputs out)
       state/          the state bucket + its credential (stateful)
       ci-identity/    GitHub Actions' Infisical OIDC machine identity
       repository/     GitHub repo settings, `main` protection, Actions variables
       naming/         physical names — patterns.json, shared with TypeScript
       object-store/   R2 bucket (stateful) + bucket-scoped S3 credential
-      pubsub/         Railway project + EMQX service/volume (stateful), variables,
-                      custom domain, Cloudflare DNS
+      pubsub-project/ the ONE Railway project + shared EMQX service/volume
+                      (stateful, global)
+      pubsub/         the env's Railway environment of that project (stateful),
+                      broker variables, custom domain, Cloudflare DNS
       trace-stack/    the ONE Grafana Cloud stack (stateful; free plan = 1 stack)
       observability/  per-env access policies + tokens on that stack
       database/       Neon: the env's branch of the one project (production
                       runs on the root branch) + its read-write endpoint →
-                      DATABASE_URL, and the pg_stat_statements extension
+                      DATABASE_URL, the Hyperdrive config the API Worker
+                      connects through, and the pg_stat_statements extension
       secrets/        Infisical: asserts human secrets, keeps generated ones,
                       writes derived ones
       edge/           public hostnames → Workers (custom domains)
@@ -34,14 +38,18 @@ libs/infra/
       bootstrap/      global, applied by a person: state, the shared secrets
                       environment, CI identity, repository
       fleet/          global, applied by Deploy: every env file's secrets
-                      environment + its import of the shared one
+                      environment + its import of the shared one, the
+                      OAuth relay's hostname (auth.<zone>), and the Railway
+                      broker project + service every env shares
       foundation/     everything before Worker code ships (+ secrets.json)
       edge/           custom domains, after the Workers exist
     envs/
       prd.tfvars.json the ONLY env-specific values
       dev.tfvars.json
   policy/stateful.rego  plan gate (conftest)
-  scripts/tofu.ts       the only way tofu runs: plan | apply | drift
+  scripts/tofu.ts       the only way tofu runs: plan | apply | drift | destroy
+  scripts/destroy-env.ts  tears one standard environment down (infra:destroy)
+apps/auth-relay/        the global OAuth callback relay Worker (auth.<zone>)
 ```
 
 Modules and stacks never name an environment. Every stack reads
@@ -52,7 +60,8 @@ ids and the ids of pre-existing resources to adopt (`imports`).
 ## Deploy chain
 
 ```
-@libs/infra#apply:foundation  → @libs/runtime#migrate
+deploy:fleet   @apps/auth-relay#deploy → @libs/infra#apply:fleet   (global, once)
+deploy:<env>   @libs/infra#apply:foundation  → @libs/runtime#migrate
   → @apps/room-server#deploy → @apps/server#deploy → @apps/product#deploy
   → @libs/infra#apply:edge → @libs/billing#billing:sync → health
 ```
@@ -63,21 +72,29 @@ migrations reliably. `wrangler.toml` is env-agnostic; `@libs/infra/public/wrangl
 renders it per environment (name, DO `script_name`) and refuses any
 `deleted_classes`. Hostnames are the edge stack's, never wrangler's.
 
-## Stateful resources can never be destroyed
+## Environments are cattle; data is never lost by accident
 
-Four independent layers:
+Every environment is rebuilt from its env file alone, and a
+`protection: "standard"` one can be torn down completely on purpose. What
+can never happen is losing data *by accident* — through an ordinary apply, a
+broken config, or anything touching production. Four independent layers:
 
-1. `lifecycle { prevent_destroy = true }` on every stateful resource (R2
-   bucket, Railway project and service/volume, Grafana stack, generated
-   secrets).
+1. **Global** stateful resources (state bucket and credential, the Grafana
+   stack, the repository, the shared secrets environment, the Railway broker
+   project and its service) carry
+   `lifecycle { prevent_destroy = true }`: no environment's teardown can
+   reach them.
 2. **Plan policy** — `scripts/tofu.ts` plans to a file, runs
    `policy/stateful.rego` on `tofu show -json`, and applies *that saved plan*
    only if nothing is denied. Deletion is **allow-listed**: only credential,
-   DNS, routing and derived-secret types may ever be deleted or replaced;
-   any other type — including ones added later — is protected by default. In
-   `protection: production` environments a plan deleting most of a type's
-   instances is refused (mass-delete brake). There is no `destroy` command.
-3. **Forget, never destroy** — to stop managing a stateful resource, use a
+   DNS, routing, connection-config and derived-secret types may be deleted
+   or replaced by an ordinary apply; any other type — including ones added
+   later — is protected by default. In `protection: production` environments
+   a plan deleting most of a type's instances is refused (mass-delete brake).
+   The only way past it is a teardown (below), and the policy refuses every
+   production teardown.
+3. **Forget, never destroy** — to stop managing a stateful resource without
+   tearing the environment down, use a
    `removed { from = … lifecycle { destroy = false } }` block.
 4. **Assert-only** for what code must not create: the Neon project and its
    branches (one project, one branch per environment; the `database` module
@@ -88,9 +105,32 @@ Before every apply the encrypted state object is copied to
 `backups/<stack>/<env>/<timestamp>.tfstate` in the state bucket.
 
 `libs/infra/tests` pins all of it: the policy matches an independent model on
-generated plans, every resource type in `tofu/modules` is classified as
-deletable or protected, env files never share a stateful identity, and the
+generated plans (teardowns included), every resource type in `tofu/modules`
+is classified as deletable or protected, env files never share a stateful
+identity, a standard env file adopts nothing (so it can be rebuilt), and the
 secrets OpenTofu writes are exactly the registry's `managedBy: 'tofu'` ones.
+
+## Tearing an environment down
+
+```sh
+bun run infra:destroy -- --env <env> --confirm <env>
+```
+
+`scripts/destroy-env.ts` refuses any env whose file says `protection:
+"production"`, then runs the deploy in reverse, each step through
+`scripts/tofu.ts destroy` (plan → policy with `teardown` → state backup →
+apply that plan): edge custom domains → `wrangler delete` the api, web and
+room Workers → empty the bucket → foundation (Neon branch and endpoint,
+Hyperdrive, bucket, the env's Railway environment — its broker instance and
+volume — trace tokens, secrets) → the env's fleet entries
+(its secrets environment and shared import). A failed step is resumed by
+rerunning.
+
+The env file stays: the next Deploy (or `bun run infra:fleet &&
+SECRETS_ENV=<env> bun run deploy`) rebuilds the environment from nothing, its
+database a fresh branch of production's. To retire it, delete its env file and
+`envs.ts` entry in a PR — deleting the file alone deletes nothing (the fleet
+plan's secrets-environment delete is refused by the policy).
 
 ## State
 
@@ -111,7 +151,7 @@ stack touches:
 | shared | a person, once, in the `shared` environment (`bun run secrets:seed`) | Google OAuth client, provider API tokens, `TOFU_STATE_PASSPHRASE` |
 | human | a person, per environment (asserted present) | none today |
 | generated | OpenTofu once; an existing value wins unless it is a committed placeholder (`secrets.json` `placeholders`) | `AUTH_SECRET`, EMQX credentials |
-| derived | OpenTofu, from resource outputs | `DATABASE_URL`, `S3_*`, `API_URL`, `OBSERVABILITY_*` |
+| derived | OpenTofu, from resource outputs | `DATABASE_URL`, `HYPERDRIVE_ID`, `S3_*`, `API_URL`, `OBSERVABILITY_*` |
 
 Account-wide credentials live once in the `shared` Infisical environment
 (created by bootstrap); the fleet stack gives every environment an import of
@@ -130,7 +170,49 @@ secret, and unknown keys in the store are left alone.
 | Postgres tables | `@libs/runtime#migrate` | Application schema, versioned with the code. |
 | Billing catalog (Stripe/Paddle products, prices, webhooks) | `@libs/billing#billing:sync` | Paddle has no provider, and the offer is product data the code reads. |
 | The Neon project (and its root branch), the Cloudflare zone, shared secrets, `TOFU_STATE_PASSPHRASE` | a person, once | Must never be created (or rotated) by code; asserted instead. |
-| The Google OAuth client and its ONE redirect URI (the production API's callback) | a person, once | Google's console has no API. Every environment sends that callback and tags its OAuth state; production forwards to the owner (`@pkgs/auth-inhouse` `oauth-callback-relay.ts`), so a new environment needs no console edit. |
+| The Google OAuth client and its ONE redirect URI (`https://auth.gamezilla.app/api/auth/callback/google`) | a person, once | Google's console has no API. Every environment sends that callback and tags its OAuth state with its name; the global relay Worker (`apps/auth-relay`, hostname from the fleet stack) forwards each callback to its environment, so a new environment needs no console edit and no environment depends on another. |
+
+## Postgres through Hyperdrive
+
+The API Worker never dials Neon itself. `modules/database` creates one
+Cloudflare Hyperdrive config per environment on the branch's direct
+(unpooled) endpoint and writes its id to the secrets store as `HYPERDRIVE_ID`;
+`@apps/server#deploy` renders it into the Worker as the `HYPERDRIVE` binding
+(`@libs/infra/public/wrangler`), and the Worker opens Postgres on
+`env.HYPERDRIVE.connectionString` (`postgresConnectionString` in
+`@libs/server-app/config/env`). Hyperdrive keeps warm, pooled connections next
+to the database, so a request skips the TLS and auth handshake. Query caching
+is **off**: sync hydration must read its own writes. `DATABASE_URL` stays the
+database's identity — migrations and tooling connect with it, and the
+non-production URL policy always checks it. `wrangler dev` and the localhost
+stack have no binding and connect directly.
+
+## MQTT broker (Railway)
+
+One Railway project (`global.tfvars.json` `railway.project_id`) runs every
+environment's EMQX broker. The fleet stack owns the project and its one
+`emqx` service (`modules/pubsub-project`: source repo, root directory,
+region, volume), always adopting them by the ids in the global file. Each
+environment is a **Railway environment** of that project, named after its
+env file's `suffix` — production is the project's default `production`
+environment — created by its foundation stack (`modules/pubsub`) along with
+the service's variables (its broker credentials) and custom domain in that
+environment. A Railway environment that is not a fork gets an instance of
+every service, with its own volume, and Railway keeps each instance's build
+and region in step with the service, so a change to the shared service
+reaches every environment at once.
+
+Environments share the service's configuration, never its data: variables,
+volume contents and hostnames are per Railway environment. Tearing a
+standard environment down deletes only its Railway environment.
+
+Environments used to own a Railway project each. The foundation stack now
+forgets those (`removed`, never a delete); production's project became the
+shared one. A standard environment that had its own project (dev's
+`gamezilla-dev`) moves on its next deploy: its broker variables and custom
+domain are replaced into its new Railway environment of the shared project,
+and the old project, no longer managed, is deleted once by hand in the
+Railway dashboard after that deploy is healthy.
 
 ## Object storage
 
@@ -158,6 +240,7 @@ bun run --filter @libs/infra plan:foundation   # SECRETS_ENV picks the env
 bun run --filter @libs/infra plan:edge
 bun run --filter @libs/infra apply:foundation  # deploy runs these; CI only
 bun run --filter @libs/infra health            # drift: live == declared
+bun run infra:destroy -- --env <env> --confirm <env>   # standard envs only
 ```
 
 Run through `secrets-run` (the root `deploy` does) so provider credentials
@@ -167,35 +250,40 @@ are in the environment.
 
 1. Create `libs/infra/tofu/envs/<env>.tfvars.json` (copy `dev`, drop its
    `imports`): a new `env`, `display_name` and `suffix`, `protection:
-   "standard"`, hostnames one level under the zone (Universal SSL), a new
-   Railway project name. Register it in `libs/infra/src/public/envs.ts`.
+   "standard"`, hostnames one level under the zone (Universal SSL). Register
+   it in `libs/infra/src/public/envs.ts`.
 2. Merge. Nothing else — no console, no seeding:
    - `deploy:fleet` creates the env's Infisical environment and its import of
      the shared credentials;
    - `deploy:<env>` (foundation) creates its Neon branch of production's
      root branch (a copy of production's data) and endpoint, derives
-     `DATABASE_URL`, mints its generated secrets, R2 bucket, broker and trace
+     `DATABASE_URL`, mints its generated secrets, R2 bucket, its Railway
+     environment of the broker project (named after its `suffix`) and trace
      tokens, then migrates, ships the Workers, binds the hostnames and runs
      `health`;
-   - Google sign-in works immediately: the env's Workers are rendered with
-     the shared OAuth callback and their own state tag, and production learns
-     the new env on its next deploy (the same run).
+   - Google sign-in works immediately: `deploy:fleet` redeploys the OAuth
+     relay with the new env as a target before any env deploys, and the
+     env's API Worker is rendered with the relay's callback and its own state
+     tag.
    No workflow edit: Deploy and Health read the env files
    (`scripts/workflow-env-matrix.ts`). Deploy runs every `protection:
    "standard"` env in parallel, then — only if all succeeded — every
    `"production"` env; Health probes every env hourly.
 
 To rehearse before merging: `bun run infra:fleet`, then
-`SECRETS_ENV=<env> bun run deploy` ([CI.md](CI.md#workflows)). There is no destroy path
-yet: Neon branches, buckets and brokers carry `prevent_destroy`.
+`SECRETS_ENV=<env> bun run deploy` ([CI.md](CI.md#workflows)). Tear it down
+again with `bun run infra:destroy` ([above](#tearing-an-environment-down)).
 
 ## First deployment (adopting what already exists)
 
 Everything that existed before OpenTofu is **adopted, never recreated**: the
 env files' `imports` (and `global.tfvars.json` `global_imports`) name every
-existing bucket, Railway project/service/domain, DNS record, custom domain,
+existing bucket, Railway project/service/environment/domain, DNS record, custom domain,
 Infisical environment, GitHub setting and stored secret. An `import` of a
-resource already in state is a no-op, so those entries may stay.
+resource already in state is a no-op; once a standard env's first apply has
+adopted everything, delete its `imports` — a stale id would break its rebuild
+after a teardown (`tests/env-files.test.ts` requires standard envs to have
+none).
 
 The chicken-and-egg problems and how each is broken:
 
@@ -212,8 +300,8 @@ The chicken-and-egg problems and how each is broken:
 Health checks for the human-managed settings (`bun health`, every
 environment, hourly): `specs/health/sign-in.feature` asks Google
 whether it accepts the one shared OAuth callback and, if not, names the exact
-redirect URI to add, and production's API health proves it relays each other
-environment's callbacks; `specs/health/declared-environment.feature` plans every stack and fails on
+redirect URI to add, and every environment proves the relay returns each
+other environment's callbacks home; `specs/health/declared-environment.feature` plans every stack and fails on
 drift or on a missing / inactive Grafana stack.
 
 Runbook:

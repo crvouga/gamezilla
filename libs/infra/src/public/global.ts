@@ -1,12 +1,18 @@
 /**
  * `tofu/global.tfvars.json`: what is the same for every environment — the
- * project slug, where state lives, the secrets project and the repository.
+ * project slug, where state lives, the secrets project, the repository and
+ * the one OAuth callback relay every environment signs in through, and the
+ * one Railway project every environment's broker runs in.
  * Every stack reads it as its first `-var-file`.
  */
 import { z } from 'zod';
 import raw from '../../tofu/global.tfvars.json';
 
 const id = z.string().min(1);
+const slug = z.string().regex(/^[a-z0-9][a-z0-9-]*$/);
+const hostname = z
+  .string()
+  .regex(/^(?=.{1,253}$)([a-z0-9-]+\.)+[a-z]{2,}$/, 'must be a lowercase FQDN');
 
 export const globalFileSchema = z
   .object({
@@ -29,6 +35,28 @@ export const globalFileSchema = z
       .strict(),
     github: z
       .object({ owner: id, repo: id, required_checks: z.array(id).min(1) })
+      .strict(),
+    /**
+     * The Worker at `hostname` owning the one OAuth callback registered with
+     * Google: every environment sends it as `redirect_uri` and it forwards
+     * each callback to the environment that started the sign-in
+     * (`apps/auth-relay`, `@pkgs/auth-inhouse` `oauth-callback-relay.ts`).
+     */
+    auth_relay: z
+      .object({
+        account_id: id,
+        zone_name: hostname,
+        hostname,
+        worker: slug,
+      })
+      .strict(),
+    /**
+     * The one Railway project every environment's MQTT broker runs in and
+     * its shared `emqx` service (fleet stack). Each environment is a Railway
+     * environment of it named after the env file's `suffix`.
+     */
+    railway: z
+      .object({ workspace_id: id, project_id: id, service_id: id })
       .strict(),
     global_imports: z
       .object({

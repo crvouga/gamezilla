@@ -4,7 +4,6 @@
 
 locals {
   secret_names = jsondecode(file("${path.module}/secrets.json"))
-  github_repo  = "${var.github.owner}/${var.github.repo}"
 }
 
 module "names" {
@@ -46,6 +45,7 @@ module "secrets" {
   derived_names = local.secret_names.derived
   derived = {
     DATABASE_URL                  = module.database.database_url
+    HYPERDRIVE_ID                 = module.database.hyperdrive_id
     API_URL                       = "https://${var.hosts.api}"
     VITE_API_URL                  = "https://${var.hosts.api}"
     S3_BUCKET                     = module.object_store.bucket
@@ -64,15 +64,17 @@ module "secrets" {
   }
 }
 
+# This environment's Railway environment of the one broker project (the
+# fleet stack owns the project and the service); named after the suffix, so
+# production's is the project's default `production` environment.
 module "pubsub" {
-  source         = "../../modules/pubsub"
-  project_name   = var.railway.project_name
-  workspace_id   = var.railway.workspace_id
-  github_repo    = local.github_repo
-  root_directory = "libs/pubsub/emqx-deploy"
-  hostname       = var.hosts.broker
-  zone_id        = data.cloudflare_zone.this.zone_id
-  zone_name      = var.cloudflare.zone_name
+  source           = "../../modules/pubsub"
+  project_id       = var.railway.project_id
+  service_id       = var.railway.service_id
+  environment_name = var.suffix
+  hostname         = var.hosts.broker
+  zone_id          = data.cloudflare_zone.this.zone_id
+  zone_name        = var.cloudflare.zone_name
   credentials = {
     api_key            = module.secrets.generated["EMQX_API_KEY"]
     api_secret         = module.secrets.generated["EMQX_API_SECRET"]
@@ -87,4 +89,6 @@ module "database" {
   root_branch_id  = var.neon_project.root_branch_id
   production      = var.protection == "production"
   branch_name     = var.suffix
+  account_id      = var.cloudflare.account_id
+  hyperdrive_name = module.names.hyperdrive
 }

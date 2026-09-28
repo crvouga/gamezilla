@@ -6,7 +6,8 @@
  *   bootstrap   global, by a person: state bucket, shared secrets
  *               environment, CI identity, repo
  *   fleet       global, by CI: every env file's secrets environment and its
- *               import of the shared one
+ *               import of the shared one; the OAuth relay's hostname;
+ *               the Railway project and broker service every env shares
  *   foundation  per environment, before Worker code ships
  *   edge        per environment, after Worker code ships
  */
@@ -108,6 +109,37 @@ export function planArgs(paths: TofuPaths, target: Target): readonly string[] {
   ];
 }
 
+/**
+ * A plan that deletes everything the stack manages — or only `resources`
+ * (addresses) when given: the fleet stack tears down one environment's
+ * entries, never its neighbours'.
+ */
+export function destroyPlanArgs(
+  paths: TofuPaths,
+  target: Target,
+  resources: readonly string[] = []
+): readonly string[] {
+  return [
+    chdir(paths, target),
+    'plan',
+    '-destroy',
+    '-input=false',
+    '-detailed-exitcode',
+    ...varFileArgs(paths, target),
+    ...resources.map((address) => `-target=${address}`),
+    `-out=${planFilePath(paths, target)}`,
+  ];
+}
+
+/** The fleet stack's resources for one environment (`stacks/fleet`). */
+export function fleetEnvResources(env: string): readonly string[] {
+  const key = JSON.stringify(env);
+  return [
+    `infisical_secret_import.shared[${key}]`,
+    `infisical_project_environment.this[${key}]`,
+  ];
+}
+
 export function showArgs(paths: TofuPaths, target: Target): readonly string[] {
   return [chdir(paths, target), 'show', '-json', planFilePath(paths, target)];
 }
@@ -156,6 +188,8 @@ export const CREDENTIAL_ENV: Readonly<
   },
   fleet: {
     TF_VAR_state_passphrase: 'TOFU_STATE_PASSPHRASE',
+    CLOUDFLARE_API_TOKEN: 'CLOUDFLARE_API_TOKEN',
+    RAILWAY_TOKEN: 'RAILWAY_TOKEN',
     ...STATE_CREDENTIALS,
   },
   // The state credential is optional here: bootstrap creates it.

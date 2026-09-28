@@ -32,6 +32,24 @@ variable "github" {
   type = any
 }
 
+variable "auth_relay" {
+  type = object({
+    account_id = string
+    zone_name  = string
+    hostname   = string
+    worker     = string
+  })
+}
+
+variable "railway" {
+  type = object({
+    workspace_id = string
+    project_id   = string
+    service_id   = string
+  })
+  description = "The one broker project and its shared `emqx` service."
+}
+
 variable "global_imports" {
   type = object({
     infisical_environments = optional(map(string), {})

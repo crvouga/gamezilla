@@ -27,6 +27,16 @@ variable "github" {
   type = any
 }
 
+variable "auth_relay" {
+  type        = any
+  description = "Read by the fleet stack and TypeScript (apps/auth-relay)."
+}
+
+variable "railway" {
+  type        = any
+  description = "Read by the fleet and foundation stacks."
+}
+
 variable "global_imports" {
   type    = any
   default = {}
@@ -69,10 +79,6 @@ variable "hosts" {
     api    = string
     broker = string
   })
-}
-
-variable "railway" {
-  type = any
 }
 
 variable "billing" {
