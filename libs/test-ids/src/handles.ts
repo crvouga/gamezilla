@@ -139,6 +139,10 @@ export const Handles = {
   billingNotice: 'billing-notice',
   billingPricing: 'billing-pricing',
   billingPrice: (priceKey: string) => `billing-price-${priceKey}`,
+  /** Inside a price: its amount, its terms line, and its saving badge. */
+  billingPriceAmount: 'billing-price-amount',
+  billingPriceTerms: 'billing-price-terms',
+  billingPriceSaving: 'billing-price-saving',
   billingBenefits: 'billing-benefits',
 
   // sign-in modal

@@ -8,6 +8,7 @@
 import '@libs/harness/spec/steps/platform';
 import './access.steps';
 import './membership.steps';
+import './plans.steps';
 import './provider-switch.steps';
 import './time.steps';
 

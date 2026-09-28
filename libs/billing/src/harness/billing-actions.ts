@@ -41,6 +41,7 @@ import {
   providerCall,
   refundLastPayment,
   repeatEarlierNews,
+  runBillingPeriodOn,
   runOutBillingPeriod,
 } from './billing-provider-driver';
 import { billingButtonEnabled } from './billing-reads';
@@ -245,6 +246,22 @@ export const providerEvent = scenarioAction({
   },
 });
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Days go by for everyone — the device, the server and the provider — until
+ * the actor's free trial has `days` days left, and that reaches the app.
+ */
+export const runFreeTrialToDaysLeft = scenarioAction({
+  name: 'runFreeTrialToDaysLeft',
+  act: async (s, actorId: string, days: number) => {
+    const accountId = await accountIdOf(s, actorId);
+    if (accountId === null) throw new Error(`${actorId} is not signed in`);
+    await runBillingPeriodOn(s, accountId, days * DAY_MS);
+    await s.session.waitForIdle();
+  },
+});
+
 /**
  * Start and pay a fresh checkout for the actor's customer at the provider —
  * the session the app's own checkout would create, paid through the hosted
@@ -342,6 +359,7 @@ export const BILLING_HARNESS_ACTIONS = [
   cancelPlus,
   payWithNewCard,
   providerEvent,
+  runFreeTrialToDaysLeft,
   checkoutPlusAtProvider,
   resumePlus,
   switchPlusInterval,

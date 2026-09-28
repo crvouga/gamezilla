@@ -352,13 +352,15 @@ export async function expireCardOnFile(
 
 /**
  * Time runs on for everyone — the device, the server and the provider — to
- * the end of the customer's current billing period, and the provider runs
- * what fell due. Unlike a test clock, the app sees the same date the provider
- * bills on, so what it does days after the end is what production does.
+ * `leftMs` before the end of the customer's current billing period, and the
+ * provider runs what fell due. Unlike a test clock, the app sees the same
+ * date the provider bills on, so what it does days after the end is what
+ * production does.
  */
-export async function runOutBillingPeriod(
+export async function runBillingPeriodOn(
   s: ProductHarness,
-  accountId: string
+  accountId: string,
+  leftMs: number
 ): Promise<void> {
   const { call, customer } = await atMembershipProvider(s, accountId);
   const endS = periodEnd(await latestSubscription(call, customer));
@@ -366,10 +368,28 @@ export async function runOutBillingPeriod(
     'GET',
     MOCK_BILLING_PATHS.customer(customer)
   );
-  const gapMs = (endS - clock.test_clock_frozen_time) * 1000;
+  const gapMs = (endS - clock.test_clock_frozen_time) * 1000 - leftMs;
   if (gapMs > 0) await Promise.resolve(letTimePass.act(s, gapMs));
   // Reading the customer's subscriptions runs what fell due at the provider.
   await latestSubscription(call, customer);
+}
+
+/** Time runs on for everyone to the end of the current billing period. */
+export async function runOutBillingPeriod(
+  s: ProductHarness,
+  accountId: string
+): Promise<void> {
+  await runBillingPeriodOn(s, accountId, 0);
+}
+
+/** When the provider ends the customer's free trial, in ms, or `null`. */
+export async function providerTrialEndMs(
+  s: ProductHarness,
+  accountId: string
+): Promise<number | null> {
+  const { call, customer } = await atMembershipProvider(s, accountId);
+  const { trial_end } = await latestSubscription(call, customer);
+  return trial_end === null ? null : trial_end * 1000;
 }
 
 /** Which earlier news a provider repeats about a customer's memberships. */
