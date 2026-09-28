@@ -1,7 +1,10 @@
 // @io-wall-ok
 import { spawn } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { connect } from 'node:net';
 import { join } from 'node:path';
+import type { Clock, Timers } from '@pkgs/clock';
+import type { HttpClient } from '@pkgs/http-client';
 import { resolveEmqxBin } from './emqx-bin';
 import {
   EMQX_API_KEY,
@@ -24,6 +27,10 @@ export type EmqxServerHandle = {
 };
 
 export type StartEmqxServerOptions = {
+  /** Wall clock, timers and HTTP from the process entry: boot readiness polls. */
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly http: HttpClient;
   readonly mqttPort?: number;
   readonly wsPort?: number;
   readonly dashboardPort?: number;
@@ -36,6 +43,9 @@ const APP_DIR = join(import.meta.dirname, '..');
 /** Tail of broker output kept for the report when it dies unexpectedly. */
 const OUTPUT_TAIL_BYTES = 64 * 1024;
 const DEFAULT_DATA_DIR = join(APP_DIR, 'data');
+/** A cold broker boots in ~3 s; this only bounds a broken one. */
+const READY_TIMEOUT_MS = 60_000;
+const READY_POLL_MS = 100;
 
 /** Seed the config + bootstrap files a fresh data directory needs. */
 export function ensureEmqxDataDir(dataDir: string): void {
@@ -69,6 +79,10 @@ function listenerEnv(args: {
     EMQX_LISTENERS__TCP__DEFAULT__BIND: `0.0.0.0:${String(args.mqttPort)}`,
     EMQX_LISTENERS__WS__DEFAULT__BIND: `0.0.0.0:${String(args.wsPort)}`,
     EMQX_DASHBOARD__LISTENERS__HTTP__BIND: `0.0.0.0:${String(args.dashboardPort)}`,
+    // Unused locally, and on by default on fixed ports (8883 / 8084) that a
+    // second broker on the host would fail to bind.
+    EMQX_LISTENERS__SSL__DEFAULT__ENABLE: 'false',
+    EMQX_LISTENERS__WSS__DEFAULT__ENABLE: 'false',
   };
 }
 
@@ -85,13 +99,72 @@ function authEnv(dataDir: string): Record<string, string> {
   };
 }
 
+function tcpAccepts(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = connect({ port, host: '127.0.0.1' });
+    socket.once('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    socket.once('error', () => resolve(false));
+  });
+}
+
+/** This node (not another broker on the port) serves the API and MQTT. */
+async function brokerReady(args: {
+  readonly http: HttpClient;
+  readonly nodeName: string;
+  readonly mqttPort: number;
+  readonly dashboardPort: number;
+}): Promise<boolean> {
+  try {
+    const res = await args.http.fetch(
+      `http://127.0.0.1:${String(args.dashboardPort)}/api/v5/status`
+    );
+    const body = await res.text();
+    if (!res.ok || !body.includes(args.nodeName)) return false;
+  } catch {
+    return false;
+  }
+  return tcpAccepts(args.mqttPort);
+}
+
+async function waitUntilReady(args: {
+  readonly clock: Clock;
+  readonly timers: Timers;
+  readonly http: HttpClient;
+  readonly nodeName: string;
+  readonly mqttPort: number;
+  readonly dashboardPort: number;
+  readonly exited: () => boolean;
+  readonly tail: () => string;
+}): Promise<void> {
+  const deadline = args.clock.now() + READY_TIMEOUT_MS;
+  while (!(await brokerReady(args))) {
+    if (args.exited() || args.clock.now() > deadline) {
+      throw new Error(
+        `[emqx] ${args.nodeName} not ready on mqtt:${String(args.mqttPort)} api:${String(args.dashboardPort)}; last output:\n${args.tail()}`
+      );
+    }
+    await new Promise<void>((resolve) => {
+      args.timers.setTimeout(resolve, READY_POLL_MS);
+    });
+  }
+}
+
+/**
+ * Boot a broker and resolve once it accepts MQTT and answers its HTTP API as
+ * `nodeName` — so a stale broker still holding the port is never mistaken for
+ * this one.
+ */
 export async function startEmqxServer(
-  options?: StartEmqxServerOptions
+  options: StartEmqxServerOptions
 ): Promise<EmqxServerHandle> {
-  const dataDir = options?.dataDir ?? DEFAULT_DATA_DIR;
-  const mqttPort = options?.mqttPort ?? EMQX_MQTT_PORT;
-  const wsPort = options?.wsPort ?? EMQX_WS_PORT;
-  const dashboardPort = options?.dashboardPort ?? EMQX_DASHBOARD_PORT;
+  const dataDir = options.dataDir ?? DEFAULT_DATA_DIR;
+  const mqttPort = options.mqttPort ?? EMQX_MQTT_PORT;
+  const wsPort = options.wsPort ?? EMQX_WS_PORT;
+  const dashboardPort = options.dashboardPort ?? EMQX_DASHBOARD_PORT;
+  const nodeName = options.nodeName ?? 'emqx@127.0.0.1';
   ensureEmqxDataDir(dataDir);
   const bin = resolveEmqxBin();
   // Drop ambient EMQX_AUTHENTICATION_* from secrets-run so Infisical JWT
@@ -113,7 +186,7 @@ export async function startEmqxServer(
       ...cleanEnv,
       EMQX_NODE__DATA_DIR: dataDir,
       EMQX_NODE__ETC_DIR: join(dataDir, 'etc'),
-      EMQX_NODE__NAME: options?.nodeName ?? 'emqx@127.0.0.1',
+      EMQX_NODE__NAME: nodeName,
       EMQX_NODE__COOKIE: 'emqx_local',
       EMQX_API_KEY__BOOTSTRAP_FILE: join(dataDir, 'api-keys.bootstrap'),
       EMQX_DASHBOARD__DEFAULT_USERNAME: EMQX_DASHBOARD_USER,
@@ -140,6 +213,23 @@ export async function startEmqxServer(
       `[emqx] exited unexpectedly (code=${String(code)} signal=${String(signal)}); last output:\n${tail}\n`
     );
   });
+
+  try {
+    await waitUntilReady({
+      clock: options.clock,
+      timers: options.timers,
+      http: options.http,
+      nodeName,
+      mqttPort,
+      dashboardPort,
+      exited: () => emqx.exitCode !== null || emqx.signalCode !== null,
+      tail: () => tail,
+    });
+  } catch (error) {
+    stopping = true;
+    emqx.kill('SIGTERM');
+    throw error;
+  }
 
   return {
     dashboardPort,

@@ -11,6 +11,7 @@ import {
   EMQX_API_SECRET,
   EMQX_MQTT_PASS,
   EMQX_MQTT_USER,
+  isolatedEmqxPorts,
   startEmqxServer,
 } from '@pkgs/emqx-server';
 import { createGlobalHttpClient } from '@pkgs/http-client';
@@ -19,10 +20,13 @@ import {
   type PubSubContractEnv,
   runPubSubContractTests,
 } from '@pkgs/pubsub/in-memory/contract';
-import { createEmqxHttpPubSub } from './create-emqx-http-pubsub';
-import { createEmqxPubSub, EMQX_PUBSUB_QOS } from './create-emqx-pubsub';
-import { getEmqxClientId } from './emqx-client-id';
-import { randomClientIdSuffix } from './reconnect-backoff';
+import { createEmqxHttpPubSub } from '@pkgs/pubsub-emqx/create-emqx-http-pubsub';
+import {
+  createEmqxPubSub,
+  EMQX_PUBSUB_QOS,
+} from '@pkgs/pubsub-emqx/create-emqx-pubsub';
+import { getEmqxClientId } from '@pkgs/pubsub-emqx/emqx-client-id';
+import { randomClientIdSuffix } from '@pkgs/pubsub-emqx/reconnect-backoff';
 
 let WSS_URL = process.env['EMQX_TEST_URL'] ?? '';
 let API_URL = process.env['EMQX_TEST_API_URL'] ?? '';
@@ -32,30 +36,21 @@ const MQTT_USER = process.env['EMQX_TEST_MQTT_USER'] ?? EMQX_MQTT_USER;
 const MQTT_PASS = process.env['EMQX_TEST_MQTT_PASS'] ?? EMQX_MQTT_PASS;
 let stopEmqx: (() => void) | undefined;
 
-// When no EMQX test URL is supplied, start the broker locally.
+// When no EMQX test URL is supplied, start a broker of our own: its own
+// ports and node name, so it never collides with a dev stack or another
+// worktree's run. `startEmqxServer` resolves once it serves MQTT and its API.
 if (!WSS_URL || !API_URL) {
   const dataDir = join(tmpdir(), `emqx-contract-${randomUUID()}`);
-  const broker = await startEmqxServer({ dataDir });
+  const broker = await startEmqxServer({
+    clock: wallClock,
+    timers: wallTimers,
+    http: createGlobalHttpClient(),
+    dataDir,
+    ...(await isolatedEmqxPorts(process.pid)),
+  });
   WSS_URL = `mqtt://127.0.0.1:${broker.mqttPort}`;
   API_URL = `http://127.0.0.1:${broker.dashboardPort}`;
   stopEmqx = () => broker.stop();
-
-  // startEmqxServer returns before listeners bind; wait for the HTTP API.
-  const readyDeadline = wallClock.now() + 60_000;
-  while (wallClock.now() < readyDeadline) {
-    try {
-      const res = await createGlobalHttpClient().fetch(
-        `${API_URL}/api/v5/status`,
-        { signal: AbortSignal.timeout(1_000) }
-      );
-      if (res.ok || res.status === 401 || res.status === 404) break;
-    } catch {
-      // still booting
-    }
-    await new Promise<void>((resolve) => {
-      wallTimers.setTimeout(resolve, 250);
-    });
-  }
 }
 
 const http = createGlobalHttpClient();
