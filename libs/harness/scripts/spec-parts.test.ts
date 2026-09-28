@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'bun:test';
-import { MODEL_WEIGHT, partOf, specWeight } from './spec-parts';
+import {
+  MODEL_SLICES,
+  MODEL_WEIGHT,
+  partOf,
+  SLICE_SCENARIOS,
+  type SpecUnit,
+  specUnits,
+  specWeight,
+} from './spec-parts';
 
 describe('specWeight', () => {
   test('counts scenarios and outline example rows', () => {
@@ -25,26 +33,58 @@ describe('specWeight', () => {
   });
 });
 
-describe('partOf', () => {
-  const specs = [
-    { path: 'a', weight: 10 },
-    { path: 'b', weight: 6 },
-    { path: 'c', weight: 5 },
-    { path: 'd', weight: 1 },
-  ];
+describe('specUnits', () => {
+  const scenarios = (n: number): string =>
+    [
+      'Feature: f',
+      ...Array.from({ length: n }, (_, i) => `  Scenario: s${String(i)}`),
+    ].join('\n');
 
-  test('every spec lands in exactly one part', () => {
-    const parts = [0, 1, 2].map((index) => partOf(specs, { index, count: 3 }));
-    expect(parts.flat().sort()).toEqual(['a', 'b', 'c', 'd']);
+  test('a short feature is one file', () => {
+    expect(specUnits('a.feature', scenarios(SLICE_SCENARIOS))).toEqual([
+      { path: 'a.feature', weight: SLICE_SCENARIOS },
+    ]);
+  });
+
+  test('a long feature is sliced; the slices cover its weight', () => {
+    const units = specUnits('a.feature', scenarios(SLICE_SCENARIOS * 2 + 1));
+    expect(units.map((u) => u.slice)).toEqual([
+      { index: 0, count: 3 },
+      { index: 1, count: 3 },
+      { index: 2, count: 3 },
+    ]);
+    expect(units.reduce((sum, u) => sum + u.weight, 0)).toBe(
+      SLICE_SCENARIOS * 2 + 1
+    );
+  });
+
+  test('a model spreads its traces over MODEL_SLICES files', () => {
+    expect(specUnits('m.qnt', '')).toHaveLength(MODEL_SLICES);
+  });
+});
+
+describe('partOf', () => {
+  const unit = (path: string, weight: number): SpecUnit => ({ path, weight });
+  const units = [unit('a', 10), unit('b', 6), unit('c', 5), unit('d', 1)];
+  const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
+
+  test('every unit lands in exactly one part', () => {
+    const parts = [0, 1, 2].map((index) => partOf(units, { index, count: 3 }));
+    expect(paths(parts.flat()).sort()).toEqual(['a', 'b', 'c', 'd']);
   });
 
   test('heaviest first onto the lightest part; part 0 carries tests/harness', () => {
-    expect(partOf(specs, { index: 0, count: 2 })).toEqual(['b', 'c']);
-    expect(partOf(specs, { index: 1, count: 2 })).toEqual(['a', 'd']);
+    expect(paths(partOf(units, { index: 0, count: 2 }))).toEqual(['b', 'c']);
+    expect(paths(partOf(units, { index: 1, count: 2 }))).toEqual(['a', 'd']);
   });
 
-  test('more parts than specs leaves parts empty', () => {
-    expect(partOf(specs.slice(0, 1), { index: 0, count: 2 })).toEqual([]);
-    expect(partOf(specs.slice(0, 1), { index: 1, count: 2 })).toEqual(['a']);
+  test('slices of one spec are distinct units', () => {
+    const sliced: SpecUnit[] = [0, 1].map((index) => ({
+      path: 'a',
+      slice: { index, count: 2 },
+      weight: 5,
+    }));
+    const parts = [0, 1].map((index) => partOf(sliced, { index, count: 2 }));
+    expect(parts.map((p) => p.map((u) => u.slice?.index))).toEqual([[1], [0]]);
   });
 });

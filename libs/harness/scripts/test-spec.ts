@@ -50,7 +50,7 @@ import { stubFileName, stubSource } from '@pkgs/gherkin/stubs';
 import { parseJunit } from '@pkgs/harness';
 import { modelStubFileName, modelStubSource } from '@pkgs/quint/stubs';
 import { testFailureSpans } from '../src/observability/test-failure-spans';
-import { type Part, partOf, specWeight } from './spec-parts';
+import { type Part, partOf, type SpecUnit, specUnits } from './spec-parts';
 
 const PACKAGE_DIR = process.cwd();
 const STEPS_ENTRY = join(PACKAGE_DIR, 'tests/steps/index.ts');
@@ -147,21 +147,22 @@ function listSpecs(): readonly string[] {
   });
 }
 
-/** Absolute spec paths to run: the ones named, else all (or one part). */
-function selectSpecs(cli: Cli): readonly string[] {
+/** The test files of `specs` (absolute paths), long specs sliced. */
+function unitsOf(specs: readonly string[]): readonly SpecUnit[] {
+  return specs.flatMap((path) => specUnits(path, readFileSync(path, 'utf8')));
+}
+
+/** Test files to run: the specs named, else all (or one part's share). */
+function selectSpecs(cli: Cli): readonly SpecUnit[] {
   const all = listSpecs();
-  if (cli.part !== undefined) {
-    return partOf(
-      all.map((path) => ({
-        path,
-        weight: specWeight(path, readFileSync(path, 'utf8')),
-      })),
-      cli.part
-    );
-  }
+  if (cli.part !== undefined) return partOf(unitsOf(all), cli.part);
   if (cli.specPaths.length === 0) {
-    return cli.testPaths.length === 0 ? all : [];
+    return cli.testPaths.length === 0 ? unitsOf(all) : [];
   }
+  return unitsOf(namedSpecs(cli, all));
+}
+
+function namedSpecs(cli: Cli, all: readonly string[]): readonly string[] {
   return cli.specPaths.map((given) => {
     const candidates = [resolve(REPO_ROOT, given), resolve(PACKAGE_DIR, given)];
     const abs = candidates.find((path) => all.includes(path));
@@ -183,13 +184,13 @@ function requireEntry(entry: string, what: string): void {
   process.exit(1);
 }
 
-/** Write the stubs for `specs` and return their `bun test` paths. */
-function writeStubs(specs: readonly string[]): readonly string[] {
+/** Write the stubs for `units` and return their `bun test` paths. */
+function writeStubs(units: readonly SpecUnit[]): readonly string[] {
   rmSync(SPEC_STUB_DIR, { recursive: true, force: true });
-  if (specs.length === 0) return [];
+  if (units.length === 0) return [];
   mkdirSync(SPEC_STUB_DIR, { recursive: true });
-  const features = specs.filter((path) => path.endsWith('.feature'));
-  const models = specs.filter((path) => path.endsWith('.qnt'));
+  const features = units.filter((unit) => unit.path.endsWith('.feature'));
+  const models = units.filter((unit) => unit.path.endsWith('.qnt'));
   if (features.length > 0) {
     requireEntry(
       STEPS_ENTRY,
@@ -207,9 +208,9 @@ function writeStubs(specs: readonly string[]): readonly string[] {
     '@pkgs/gherkin/bun-test',
     import.meta.dir
   );
-  for (const featurePath of features) {
+  for (const { path: featurePath, slice } of features) {
     const featureUri = relative(REPO_ROOT, featurePath);
-    const file = join(SPEC_STUB_DIR, stubFileName(featureUri));
+    const file = join(SPEC_STUB_DIR, stubFileName(featureUri, slice));
     writeFileSync(
       file,
       stubSource({
@@ -218,14 +219,15 @@ function writeStubs(specs: readonly string[]): readonly string[] {
         featureUri,
         stepsEntry: STEPS_ENTRY,
         bridge: gherkinBridge,
+        slice,
       })
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);
   }
   const quintBridge = Bun.resolveSync('@pkgs/quint/bun-test', import.meta.dir);
-  for (const specPath of models) {
+  for (const { path: specPath, slice } of models) {
     const specUri = relative(REPO_ROOT, specPath);
-    const file = join(SPEC_STUB_DIR, modelStubFileName(specUri));
+    const file = join(SPEC_STUB_DIR, modelStubFileName(specUri, slice));
     writeFileSync(
       file,
       modelStubSource({
@@ -235,6 +237,7 @@ function writeStubs(specs: readonly string[]): readonly string[] {
         quintEntry: QUINT_ENTRY,
         bridge: quintBridge,
         reportDir: REPORT_DIR,
+        slice,
       })
     );
     out.push(`./${relative(PACKAGE_DIR, file)}`);
