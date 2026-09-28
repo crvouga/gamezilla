@@ -6,6 +6,7 @@
  */
 
 import { BILLING_TABLES } from '@libs/billing/public/schema';
+import type { HarnessRoomGateway } from '@libs/harness/composition';
 import {
   countInput,
   DMN_INPUT,
@@ -16,7 +17,6 @@ import {
   type ServerCase,
   type ServerOperation,
 } from '@libs/permissions/root/conformance/server';
-import type { HarnessRoomGateway } from '@libs/harness/composition';
 import { createInProcessRoomNode } from '@libs/spaces/harness/in-process-room-node';
 import { answerOfRoomCommand } from '@libs/spaces/harness/room-command-probe';
 import { SelectGame } from '@libs/spaces/public/games';

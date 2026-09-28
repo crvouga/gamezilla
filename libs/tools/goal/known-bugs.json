@@ -293,5 +293,10 @@
     "id": "a11y-menu-label-not-in-name",
     "summary": "Menu rows were named by their label alone (\"Theme\" for a row showing \"Theme System\") and the Connectivity row by its status alone (\"Online\"), so a listener did not hear the visible label (ACT 2ee8b8, WCAG 2.5.3). Fixed: a row's name comes from what it shows unless an aria-label is authored; the Connectivity row authors none.",
     "regressionTest": "pkgs/ui/tests/floating-menu.test.tsx"
+  },
+  {
+    "id": "space-game-choice-unguarded",
+    "summary": "The space room's select-game command was accepted from anyone connected (the room route is open to anyone and no command gate existed), so a joined member or someone not in the space could make the game choice; only the host (spaces:select-game) may. Fixed: the room gateway decides the actor's space grants through the permission layer at upgrade, strips any client-supplied grants, and the room refuses SelectGame without them. Found by the space-roles decision table.",
+    "regressionTest": "libs/spaces/tests/space-game-choice.test.ts"
   }
 ]

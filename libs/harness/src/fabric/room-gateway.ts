@@ -17,9 +17,7 @@ export function harnessRoomGateway(args: {
   let grants: ReturnType<typeof composeRoomGrants> | null = null;
   return {
     roomGrants: ({ topic, actor }) => {
-      grants ??= composeRoomGrants(
-        args.composition.servers({ billing: null })
-      );
+      grants ??= composeRoomGrants(args.composition.servers({ billing: null }));
       return grants({
         db: args.serverSql.sqlClient,
         topic,

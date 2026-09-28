@@ -14,14 +14,16 @@ export type { AccessScope };
  * or a gateway deciding before it admits a connection): the same synced rows
  * and policy the mutation replay reads, judged at the server's `nowMs`, plus
  * `scope`'s roles — e.g. their presence in the space the action targets.
+ *
+ * `actor` is who the request resolved to: the install, and the account when
+ * a bearer resolved one (signed in, as the session guard judges it).
  */
 export function decideOnServer(
   db: Pick<SqlClient, 'query'>,
   args: {
-    readonly identity: {
-      readonly actorId: string;
+    readonly actor: {
+      readonly deviceId: string;
       readonly accountId: string | null;
-      readonly isAnon: boolean;
     };
     readonly key: AppGrantKey;
     readonly nowMs: number;
@@ -29,7 +31,11 @@ export function decideOnServer(
   }
 ): Promise<Decision> {
   return decideForActor(db, {
-    identity: args.identity,
+    identity: {
+      actorId: args.actor.deviceId,
+      accountId: args.actor.accountId,
+      isAnon: args.actor.accountId === null,
+    },
     key: args.key,
     nowMs: args.nowMs,
     clientAtMs: args.nowMs,

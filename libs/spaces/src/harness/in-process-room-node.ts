@@ -94,7 +94,7 @@ function createTopicEntry(
     module,
     storage,
     clock: env.clock,
-    authorize: async (i, t, c, g) => { const v = await authorizeSpaceRoomCommand(i, t, c, g); if (!v.ok) console.log('DEBUG-REFUSED', i, t, JSON.stringify(g), env.clock.now()); return v; },
+    authorize: authorizeSpaceRoomCommand,
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -162,14 +162,13 @@ function buildLoopbackTransport(
   return withReadyGate(transport, async () => {
     await entry.ready;
     // Every open asks the client for its session token first, as the web
-    // transport's URL factory does (the client waits there for its own
-    // writes to reach the server before it lets the socket open).
+    // transport's URL factory does (a host whose space was just created waits
+    // there for it to reach the server before the socket opens).
     await args.getSessionToken();
     grants = await gateway.roomGrants({
       topic: entry.server.topic,
       actor: actorOf(args),
     });
-    console.log('DEBUG-ADMIT', entry.server.topic, args.identity, JSON.stringify(grants), env.clock.now());
   });
 }
 
@@ -214,11 +213,10 @@ export function createInProcessRoomNode(
     env,
     createTransport: (args) => {
       if (disposed) throw new Error('RoomServerApp: disposed');
-      return buildLoopbackTransport(
-        env,
-        getOrCreate(`space:${args.spaceId}`),
-        { args, gateway }
-      );
+      return buildLoopbackTransport(env, getOrCreate(`space:${args.spaceId}`), {
+        args,
+        gateway,
+      });
     },
     listTopics: () => [...topics.keys()],
     inspect(topic) {

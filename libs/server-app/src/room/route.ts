@@ -1,6 +1,6 @@
 import { BearerAuthResolver } from '@libs/auth/public/bearer-resolve';
-import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
 import { ANON_ID_HEADER } from '@libs/auth/public/session-middleware';
+import type { ComposedFeatureServers } from '@libs/feature/public/compose-server';
 import { injectRequestHeaders } from '@pkgs/observability/worker';
 import { isUuid } from '@pkgs/uuid';
 import type { Context } from 'hono';

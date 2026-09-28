@@ -14,10 +14,7 @@
 import type { ClientEnv, ServerHttp } from '@libs/client-app/shell/client-env';
 import type { FeatureClient } from '@libs/feature/public/client';
 import type { ComposedFeatures } from '@libs/feature/public/compose';
-import type {
-  FeatureServer,
-  RoomGrantsCtx,
-} from '@libs/feature/public/server';
+import type { FeatureServer, RoomGrantsCtx } from '@libs/feature/public/server';
 import type { EnvTime } from '@libs/feature/public/sync';
 import type { MembershipProviders, PlusMembershipOffer } from '@pkgs/billing';
 import type { CatalogAction, CatalogProperty } from '@pkgs/harness';

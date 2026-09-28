@@ -25,8 +25,11 @@ import {
   type CreateSpaceRoomResult,
   SpaceRoomFactory,
 } from './create-space-room';
-import { ownUploadsSettled } from './own-uploads-settled';
 import { useCreateRoomTransport } from './room-transport-factory';
+import {
+  hostingLanded,
+  useSpaceHostingsInFlight,
+} from './space-hostings-in-flight';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -236,7 +239,8 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const timers = useTimers();
   const createId = useCreateId();
   const random = useRandom();
-  const uploads = useSyncEngineInstance();
+  const engine = useSyncEngineInstance();
+  const hostings = useSpaceHostingsInFlight();
   const connectedKeyRef = { current: null as string | null };
   const openingKeyRef = { current: null as string | null };
 
@@ -258,11 +262,16 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   });
 
   // Fresh bearer on every socket open; falls back to the ambient token when
-  // refresh is unavailable (offline) or times out. Opens only after this
-  // device's writes reached the server: the gateway admits the socket with
-  // the grants the server's rows give (see `ownUploadsSettled`).
+  // refresh is unavailable (offline) or times out. A space this device just
+  // created opens only once its creation reached the server: the gateway
+  // admits the socket with the grants the server's rows give.
   const getSessionToken = async (): Promise<string | null> => {
-    await ownUploadsSettled(uploads, timers);
+    const spaceId = untrack(() => bootstrap())?.spaceId ?? '';
+    const creation = hostings?.get(spaceId) ?? null;
+    if (creation !== null) {
+      await hostingLanded(engine, { mutationId: creation, timers });
+      hostings?.forget(spaceId);
+    }
     let fresh: string | null = null;
     try {
       fresh = await raceFreshToken(timers, getFreshToken);

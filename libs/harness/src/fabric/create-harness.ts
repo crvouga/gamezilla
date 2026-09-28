@@ -44,7 +44,6 @@ import {
 } from './billing';
 import type { HarnessBrowser } from './browser';
 import { makeHarnessClientEnv } from './client-env';
-import { harnessRoomGateway } from './room-gateway';
 import { bumpHarnessClientEpoch } from './client-namespace';
 import {
   addHarnessIdpAccounts,
@@ -60,6 +59,7 @@ import {
   type HarnessLoadBalancer,
 } from './load-balancer';
 import { createHarnessNet } from './net';
+import { harnessRoomGateway } from './room-gateway';
 import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,

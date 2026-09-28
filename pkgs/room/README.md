@@ -303,7 +303,7 @@ replays are idempotent.
 | `ClientTransport` | connect / sendJson / subscribe / lifecycle handlers |
 | `ClientRoomStorage` | `loadCommitted` / `appendCommitted` / `resetCommitted` + `loadQueued` / `saveQueued` (queue snapshot). Every call is O(what changed); adapters use `createSegmentedCommittedLog` over a `CommittedLogBlobs` port |
 | `RoomStorage` | append/load log, lastSeq, command dedup |
-| `RoomAuth` | upgrade auth; optional per-command `authorize` |
+| `RoomAuth` | upgrade auth; optional per-command `authorize` (handed the connection's grants) |
 | `RoomEffectHandler[]` | post-ok side effects (Schedule, custom) |
 | `clock` / `timers` / `createId` | all nondeterministic I/O, injected |
 
@@ -397,6 +397,15 @@ When proposing a change, check:
 
 - Auth at upgrade (401/403 before game frames).
 - Optional authorize per topic/command (also applies to `injectCommand`).
+- Connection grants: the host in front of the room (an API gateway) decides
+  what the connecting actor may do and hands it over at upgrade
+  (`ROOM_GRANTS_HEADER`, `encodeRoomGrants` / `decodeRoomGrants`; it must
+  replace any client-supplied value). `registerConnection(…, { grants })`
+  keeps them for the life of the connection (never broadcast, persisted in
+  the DO socket attachment across hibernation) and passes them to
+  `authorize(identity, topic, command, grants)` with every command the
+  connection sends; injected commands carry none. Grants are opaque strings
+  to the room — the product decides their meaning and when they go stale.
 - Never trust client-only validation for integrity; server runs `module.handle`.
 - Dedup by `commandId` limits replay amplification.
 - Scheduler identity is a known system actor; modules decide whether to accept

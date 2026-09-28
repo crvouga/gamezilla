@@ -34,15 +34,10 @@ export async function spaceRoomGrants(
   const spaceId = spaceIdOf(ctx.topic);
   if (spaceId === null) return [];
   const presence = await storedSpacePresence(ctx.db, spaceId, ctx.actor);
-  const identity = {
-    actorId: ctx.actor.deviceId,
-    accountId: ctx.actor.accountId,
-    isAnon: ctx.actor.accountId === null,
-  };
   const granted: string[] = [];
   for (const key of SPACE_ROOM_GRANT_KEYS) {
     const decision = await decideOnServer(ctx.db, {
-      identity,
+      actor: ctx.actor,
       key,
       nowMs: ctx.nowMs,
       scope: { spacePresence: presence },
