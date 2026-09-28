@@ -109,3 +109,6 @@ turbo-platform-key.json
 
 # OpenTofu: the bootstrap stack's first-run local backend (libs/infra/scripts/bootstrap-backend.ts)
 libs/infra/tofu/stacks/*/*_override.tf
+
+# Per-package Biome scan scope (libs/tools/scripts/biome-scope.ts)
+/.biome-scope.*.json

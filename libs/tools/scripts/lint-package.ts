@@ -18,13 +18,25 @@
  * belong to no package: root config files, editor and agent settings.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import type { GoalChecks, KnownBug } from '../goal/goal-manifest';
 import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
 import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
+import {
+  dependencyClosure,
+  scopedBiomeConfig,
+  type WorkspacePackage,
+  workspaceDeps,
+} from './biome-scope';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
@@ -159,14 +171,78 @@ function wordsOk(pkg: string, paths: readonly string[]): boolean {
   );
 }
 
-async function lintPackage(pkg: string): Promise<boolean> {
-  const files = listFiles(['--', pkg]);
-  const tools = [run('biome', ['check', '--error-on-warnings', pkg])];
+/** Every workspace package by name, with its declared workspace deps. */
+function workspacePackages(): ReadonlyMap<string, WorkspacePackage> {
+  const packages = new Map<string, WorkspacePackage>();
+  for (const tier of ['apps', 'libs', 'pkgs']) {
+    for (const name of readdirSync(join(REPO_ROOT, tier))) {
+      const dir = `${tier}/${name}`;
+      const manifest = readText(join(REPO_ROOT, dir, 'package.json'));
+      if (manifest === null) continue;
+      const parsed = JSON.parse(manifest) as {
+        name?: string;
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+      };
+      if (parsed.name === undefined) continue;
+      packages.set(parsed.name, { dir, deps: workspaceDeps(parsed) });
+    }
+  }
+  return packages;
+}
+
+/**
+ * `biome check` over `targets`, scanning only the packages in `keep`
+ * (`biome-scope.ts`). The scoped config is written beside `biome.json`
+ * (gitignored) and removed afterwards.
+ */
+async function biomeOk(
+  scope: string,
+  keep: (
+    packages: ReadonlyMap<string, WorkspacePackage>
+  ) => ReadonlySet<string>,
+  targets: readonly string[]
+): Promise<boolean> {
+  const packages = workspacePackages();
+  const config = scopedBiomeConfig(
+    readJson('biome.json'),
+    [...packages.values()].map((p) => p.dir),
+    keep(packages)
+  );
+  const configPath = join(REPO_ROOT, `.biome-scope.${scope}.json`);
+  writeFileSync(configPath, JSON.stringify(config));
+  try {
+    return await run('biome', [
+      'check',
+      '--error-on-warnings',
+      `--config-path=${configPath}`,
+      ...targets,
+    ]);
+  } finally {
+    rmSync(configPath, { force: true });
+  }
+}
+
+/** Biome and, over the Solid scope, oxlint — run concurrently. */
+function externalTools(pkg: string): Promise<boolean>[] {
+  const tools = [
+    biomeOk(
+      pkg.replaceAll('/', '-'),
+      (packages) => dependencyClosure(packages, pkg),
+      [pkg]
+    ),
+  ];
   const solid = solidTargets(pkg);
   if (solid.length > 0) {
     // Type-aware rules run through oxlint-tsgolint (`options.typeAware`).
     tools.push(run('oxlint', ['--deny-warnings', ...solid]));
   }
+  return tools;
+}
+
+async function lintPackage(pkg: string): Promise<boolean> {
+  const files = listFiles(['--', pkg]);
+  const tools = externalTools(pkg);
   const pkgFiles = (files ?? []).map((path) => path.slice(pkg.length + 1));
   const sources = pkgFiles
     .filter((path) => /\.tsx?$/.test(path))
@@ -244,13 +320,12 @@ function lintRoot(): Promise<boolean> {
   if (all === null) return Promise.resolve(false);
   const files = all.filter((path) => !PACKAGE_TIER.test(path));
   const ok = namingOk(files) && wordsOk('(root)', files);
-  return run('biome', [
-    'check',
-    '--error-on-warnings',
-    '--files-ignore-unknown=true',
-    '--no-errors-on-unmatched',
-    ...files,
-  ]).then((biomeOk) => biomeOk && ok);
+  // Root config imports only `libs/tools` (`lingui.config.ts`).
+  return biomeOk(
+    'root',
+    (packages) => dependencyClosure(packages, 'libs/tools'),
+    ['--files-ignore-unknown=true', '--no-errors-on-unmatched', ...files]
+  ).then((biome) => biome && ok);
 }
 
 const pkg = relative(REPO_ROOT, process.cwd());
