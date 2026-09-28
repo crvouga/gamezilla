@@ -1,4 +1,4 @@
-@domain:rooms
+@domain:room
 Feature: Shared counter
   When several people increment one shared counter together, each wants
   their own change to show at once and everyone to come to agree with the

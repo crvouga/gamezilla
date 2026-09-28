@@ -18,11 +18,11 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 `specs/<domain>/*.qnt`, so the rows below that say "keep in code" for them
 are history.
 
-(2026-09-27) `pkgs/room-harness` runs the `rooms` domain (`specDomains`):
-`specs/rooms/shared-counter.feature`, `refusals.feature`, `match-clock.feature`,
-and the Quint models `specs/rooms/shared-counter.qnt` (convergence across
+(2026-09-27) `pkgs/room-harness` runs the `room` domain (`specDomains`):
+`specs/room/shared-counter.feature`, `refusals.feature`, `match-clock.feature`,
+and the Quint models `specs/room/shared-counter.qnt` (convergence across
 offline, stalled networks, crashes and room restarts; exactly-once on resent
-and taken-over commands) and `specs/rooms/match-clock.qnt`. Its legacy
+and taken-over commands) and `specs/room/match-clock.qnt`. Its legacy
 scenario tests are deleted. Kept in code, as framework contracts:
 `determinism.test.ts` (same seed twice, was seeded-workload-determinism and
 MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
@@ -31,15 +31,15 @@ MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
 and `tests/room-client.feature` (and their `tests/steps/` runner) are gone:
 the one room rule they held that no rooms spec already stated, that someone
 whose device goes offline is no longer present, is
-`specs/rooms/presence.feature`; everything else was wire frames, log
+`specs/room/presence.feature`; everything else was wire frames, log
 sequence numbers, frame and snapshot identity, device storage batches, the
 outbound queue bound and `untilSynced`, and is now contract tests in
 `pkgs/room/tests/room-server.contract.test.ts` and
 `room-client.contract.test.ts`, claim for claim. Nothing in `pkgs/room`,
 `pkgs/room-adapter-*` or `pkgs/room-harness` drives a harness script or a feature
-outside `specs/rooms/` any more; `malformed-messages.test.ts` stays a
+outside `specs/room/` any more; `malformed-messages.test.ts` stays a
 wire-frame contract (its one observable claim, that something garbled
-changes nothing, is `sendGarbledChange` in `specs/rooms/shared-counter.qnt`).
+changes nothing, is `sendGarbledChange` in `specs/room/shared-counter.qnt`).
 
 (2026-09-27) `libs/billing/tests/multi-provider.test.ts` (two providers
 at once) is ported: what a person sees when the team switches payment
@@ -58,12 +58,12 @@ remaining scenario-named suites there test pure functions or storage
 (view models, plan resolvers, policies, decision tables, SQL) and stay code
 tests.
 
-(2026-09-27) `pkgs/auth-harness` runs the new `sign-in` domain (`specDomains`;
+(2026-09-27) `pkgs/auth-harness` runs the new `auth` domain (`specDomains`;
 a bounded context that borrows Identity's published terms, see
-`docs/CONTEXT_MAP.md`): `specs/sign-in/address-match.feature`,
+`docs/CONTEXT_MAP.md`): `specs/auth/address-match.feature`,
 `sign-in-methods.feature`, `copied-sign-in.feature`, `sign-in-ends.feature`,
 `at-google-and-apple.feature`, `failing-provider.feature`, and the Quint model
-`specs/sign-in/outside-accounts.qnt`, which replaces the random walk (16 seeds
+`specs/auth/outside-accounts.qnt`, which replaces the random walk (16 seeds
 x 150 steps, the Postgres fabric, `explore`): 40 traces of up to 30 steps,
 even traces on Postgres, with the harness's reference model still checked as a
 standing property on every step. Legacy claims already proven by
@@ -73,7 +73,7 @@ method, offline sign-in, revoking Sign in with Apple, deleting a connected
 Apple account, plain Google/Apple sign-in) are not restated. The five legacy
 test files and `support.ts` are deleted. The wire-level case table first kept
 in code (`tests/provider-protocol.contract.test.ts`) is now
-`specs/sign-in/failing-provider.feature`: the eight refused provider answers
+`specs/auth/failing-provider.feature`: the eight refused provider answers
 fail plainly and recover (two Examples tables), the two tolerated quirks and
 signing-key rotation still sign in; the harness's reference model stays a
 standing property on every step, so no invariant violation passes unnoticed.
@@ -298,7 +298,7 @@ Note: 4 files carry kind `harness` but are framework/mechanics tests, not produc
 | `libs/runtime/tests/e2e/shell-boot.test.tsx` | — | two actors boot into the tab shell, open Settings, switch focus | multi-behavior test — split (boot / open Settings / switch focus) |
 | `libs/runtime/tests/e2e/topology-partition.test.tsx` | — | partition alice–server then restoreNetwork still allows sign-up | |
 
-### pkgs/auth-harness (4) — ported 2026-09-27 to `specs/sign-in/` (see Status)
+### pkgs/auth-harness (4) — ported 2026-09-27 to `specs/auth/` (see Status)
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
@@ -351,38 +351,38 @@ entrance must agree on everyone's standing after every step). Run by
 ### pkgs/sync-engine — ported (2026-09-27)
 
 Every scripted harness test is gone. Person-observable claims are
-`specs/sync/*.feature`; stateful internals, every seed sweep and the explore
+`specs/sync-engine/*.feature`; stateful internals, every seed sweep and the explore
 walks over faults with a product rule are the model
-`specs/sync/note-replication.qnt` (binding `tests/quint/`). Both run from the
-package `test:e2e` (`specDomains: ["sync"]`), like `specs/rooms/*.qnt` in
+`specs/sync-engine/note-replication.qnt` (binding `tests/quint/`). Both run from the
+package `test:e2e` (`specDomains: ["sync-engine"]`), like `specs/room/*.qnt` in
 `@pkgs/room-harness`. Goal proofs moved with them (`goal-checks.json` lists the
 model as a `test` proof, marked `goal:<id>` in its header).
 
 | Former file | Now |
 |---|---|
-| `single-client-mutate-uploads-and-persists`, `two-client-mutual-writes-converge` | `specs/sync/note-writing.feature`; seed sweep → `note-replication.qnt` |
-| `same-actor-two-devices-converge` (works-offline:5, always-true:2) | `specs/sync/notes-across-devices.feature` |
-| `soft-delete-tombstone-propagates-and-revives` | `specs/sync/note-deleting.feature` |
-| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen`, `crashWhileSaving` |
-| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `writeUnheard` / `hearBack`, `invNoDoubleApply` |
-| `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync/online-only-actions.feature` |
-| `permanent-reject-stored-peer-never-applies` | `specs/sync/note-refused-edits.feature`; model `rejections` |
-| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature` (leaving or a space ending without the app reconnecting, also once the app cannot send) |
-| `denied-query-detaches-scope-keeps-rows` | `specs/sync/shared-space-membership.feature` › opening / closing a shared space someone is not in |
+| `single-client-mutate-uploads-and-persists`, `two-client-mutual-writes-converge` | `specs/sync-engine/note-writing.feature`; seed sweep → `note-replication.qnt` |
+| `same-actor-two-devices-converge` (works-offline:5, always-true:2) | `specs/sync-engine/notes-across-devices.feature` |
+| `soft-delete-tombstone-propagates-and-revives` | `specs/sync-engine/note-deleting.feature` |
+| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync-engine/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen`, `crashWhileSaving` |
+| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync-engine/notes-saved-once.feature`; model `writeUnheard` / `hearBack`, `invNoDoubleApply` |
+| `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync-engine/online-only-actions.feature` |
+| `permanent-reject-stored-peer-never-applies` | `specs/sync-engine/note-refused-edits.feature`; model `rejections` |
+| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync-engine/shared-space-membership.feature` (leaving or a space ending without the app reconnecting, also once the app cannot send) |
+| `denied-query-detaches-scope-keeps-rows` | `specs/sync-engine/shared-space-membership.feature` › opening / closing a shared space someone is not in |
 | `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `networkStalls` / `networkRecovers`, `liveUpdatesDegrade`, `teamEdit`) |
-| `merge-via-harness` | local-only columns → `specs/sync/notes-across-app-updates.feature` › colours and tags; pending over tombstone → model |
-| `deep-pending-chain-rebases-in-seq-order` → `deep-offline-queue` | `specs/sync/a-long-time-offline.feature` |
-| `epoch-bump-wipes-cache-preserves-pending-uploads` → `schema-epoch-bump` | `specs/sync/notes-across-app-updates.feature`; model `appUpdates` (`fresh`) |
-| `fanout-row-cap-boundary-64-vs-65` | `specs/sync/note-writing.feature` › 64 notes reach someone who cannot send, 65 reach everyone once |
+| `merge-via-harness` | local-only columns → `specs/sync-engine/notes-across-app-updates.feature` › colours and tags; pending over tombstone → model |
+| `deep-pending-chain-rebases-in-seq-order` → `deep-offline-queue` | `specs/sync-engine/a-long-time-offline.feature` |
+| `epoch-bump-wipes-cache-preserves-pending-uploads` → `schema-epoch-bump` | `specs/sync-engine/notes-across-app-updates.feature`; model `appUpdates` (`fresh`) |
+| `fanout-row-cap-boundary-64-vs-65` | `specs/sync-engine/note-writing.feature` › 64 notes reach someone who cannot send, 65 reach everyone once |
 | `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` (contract: the `NO_HARD_DELETE` code; no person can hard-delete) |
 | `seeded-workload-fuzz-determinism` → `exploration` | every walk → model actions: a third person, `clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled` / `Lost`, `liveCutOff` / `liveRestored`, `networkStalls`, `writeWhileSavesCut`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appFailsToOpen`, `appUpdates`, `appMustUpdate`, `appDataDamaged` / `Cleared`, `unsentEditDamaged`, `writeWhileFull`, `signedOutElsewhere`, `signInExpires`, `appBackgrounded`, `secondWindow`, `connectionFlaky`, `teamTidiesUp`, `teamAddsNote`, folders (`writeFolder` / `deleteFolder`) and shared spaces (`createSpace` / `joinSpace` / `leaveSpace`); same seed, same walk → `pkgs/harness/tests/explore.test.ts`; the lossy host → `note-writing.feature` › live updates lost, repeated and delayed |
 | `pending-rebase.property` | model: offline view = merged notes + unsent edits in order (`notes`, `owners`, `unsent`), a delete the device knows is forbidden does nothing, reconnect replays against the shared notes |
 | `merge-local-columns` | duplicate of `schema-drift` › client-only column survives a full merge; deleted |
 | `note-replication.quint.test.ts` | the model runs from `test:e2e`; the runner file is gone |
-| `pending-ux-answers-with-server-verdict` | `specs/sync/checked-notes.feature` (`@regression:pending-reject-verdict-before-rollback`, `@regression:checked-note-answer-lost-to-push-race`) |
-| `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | `specs/sync/notes-arrive-quickly.feature` › at least 19 of 20 notes within a fifth of a second (`@goal:the-bar:3 @goal:works-offline:7`) |
-| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | stays: a timing-exact regression of the harness's own standing-property check (framework self-test). `specs/sync/notes-offline.feature` states the crossing offline edits, but no scenario world reproduces the dirty read, so the guard stays in code |
-| `schema-drift` | `specs/sync/notes-across-app-updates.feature` › colours and tags across versions |
+| `pending-ux-answers-with-server-verdict` | `specs/sync-engine/checked-notes.feature` (`@regression:pending-reject-verdict-before-rollback`, `@regression:checked-note-answer-lost-to-push-race`) |
+| `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | `specs/sync-engine/notes-arrive-quickly.feature` › at least 19 of 20 notes within a fifth of a second (`@goal:the-bar:3 @goal:works-offline:7`) |
+| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | stays: a timing-exact regression of the harness's own standing-property check (framework self-test). `specs/sync-engine/notes-offline.feature` states the crossing offline edits, but no scenario world reproduces the dirty read, so the guard stays in code |
+| `schema-drift` | `specs/sync-engine/notes-across-app-updates.feature` › colours and tags across versions |
 | `space-topic-scope` | `shared-space-membership.feature` (leave, end, a space someone is not in); deleted |
 
 Found while porting, and fixed (each pinned by a `@regression` scenario and

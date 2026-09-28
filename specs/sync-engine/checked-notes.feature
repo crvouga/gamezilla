@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Checked notes
   When a note must pass a rule only everyone else can check, such as a note
   that may not say "refused", its writer wants the app to say it is saving

@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Notes across app updates
   When the app updates, or goes back to an earlier version, a person wants
   every note it had still to be there, including notes not yet sent, and to

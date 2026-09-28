@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Write a note
   When a person writes a note, they want it there the moment it is written,
   kept, and reaching the people it is shared with, so nobody wonders whether

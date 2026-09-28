@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Delete a note
   When a note is no longer needed, whoever owns it wants deleting it to remove
   it for everyone, and writing it again to bring it back for everyone, so

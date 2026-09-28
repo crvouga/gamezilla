@@ -1,4 +1,4 @@
-@domain:sign-in
+@domain:auth
 Feature: What people do at Google and Apple
   People manage their outside accounts at Google and Apple, not in the app.
   They want the app to keep up with what they choose there, so their

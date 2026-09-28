@@ -1,9 +1,9 @@
-# The ubiquitous language of Rooms: one room keeping the live state several
-# people share. Rooms stands alone (docs/CONTEXT_MAP.md): it borrows nothing
+# The ubiquitous language of Room: one room keeping the live state several
+# people share. Room stands alone (docs/CONTEXT_MAP.md): it borrows nothing
 # from another context. A few words here ("move", "opponent", "match",
 # "refused", "accept", "end the match") are also another context's terms;
 # in a room they mean what is defined below.
-context: Rooms
+context: Room
 purpose: >-
   One room keeps the live state several people share, such as a shared
   counter or a match clock, so everyone comes to agree on it however their

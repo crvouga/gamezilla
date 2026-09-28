@@ -1,4 +1,4 @@
-@domain:rooms
+@domain:room
 Feature: Refused changes
   When someone makes a change the room does not understand, or the room turns
   them away, everyone in the room wants what they share to stay as it was, and

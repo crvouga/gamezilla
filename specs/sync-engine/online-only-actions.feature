@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Online-only actions
   When a person tries an online-only action offline, such as writing an
   announcement, they want to be told it needs a connection, not to have it

@@ -1,4 +1,4 @@
-@domain:sign-in
+@domain:auth
 Feature: Copied sign-ins
   When someone copies a person's sign-in onto their own device, the person
   wants signing out, or connecting a sign-in method, to shut the copy out,

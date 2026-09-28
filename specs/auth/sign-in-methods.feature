@@ -1,4 +1,4 @@
-@domain:sign-in
+@domain:auth
 Feature: Keeping sign-in methods straight
   When a person connects or removes a sign-in method, they want each outside
   account to get into exactly one account, so managing their sign-in methods

@@ -1,8 +1,8 @@
-# The ubiquitous language of Notes (specs/sync/): notes people write and
-# share across devices and shared spaces, even offline. Notes stands alone
+# The ubiquitous language of Sync engine (specs/sync-engine/): notes people write and
+# share across devices and shared spaces, even offline. Sync engine stands alone
 # (docs/CONTEXT_MAP.md): it borrows nothing from another context. A shared
 # space is not a Spaces space, and a notice here is not a Friends notice.
-context: Notes
+context: Sync engine
 purpose: >-
   Notes people write and share, on every device they use and with everyone in
   a shared space, that show at once, survive the app crashing and being

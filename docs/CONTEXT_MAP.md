@@ -16,11 +16,11 @@ crosses each boundary. Policy:
 | Spaces | `spaces` | live spaces: hosting, joining, leaving, ending, links, the lobby, presence, the hosting limit | core |
 | Friends | `friends` | friendships: friend requests, the inbox, blocking, people search, the friends list | supporting |
 | Chess | `chess` | chess puzzles played in a space: the puzzle feed, attempts, the puzzle rating, the game log, review, watching | core |
-| Sign-in | `sign-in` | how outside accounts at Google and Apple get people into accounts, for any app on this sign-in: address matches and proving them, connecting and removing sign-in methods, copied sign-ins, how long a sign-in lasts, failing providers, what people do at Google and Apple | generic (Google and Apple vouch for people) |
-| Rooms | `rooms` | rooms: one authority keeping live shared state (the shared counter, the match clock), refused changes | supporting |
+| Auth | `auth` | how outside accounts at Google and Apple get people into accounts, for any app on this sign-in: address matches and proving them, connecting and removing sign-in methods, copied sign-ins, how long a sign-in lasts, failing providers, what people do at Google and Apple | generic (Google and Apple vouch for people) |
+| Room | `room` | rooms: one authority keeping live shared state (the shared counter, the match clock), refused changes | supporting |
 | Matchmaking | `matchmaking` | matchmaking: waiting for a match, reach, matching rounds, being matched, stopping a wait, the same answer at every entrance | supporting |
 | Index tuning | `index-tuning` | keeping declared lookups fast on their own: tuned indexes, retiring them, the team's own indexes | generic |
-| Notes | `sync` | notes people write and share across devices and shared spaces, even offline | supporting |
+| Sync engine | `sync-engine` | notes people write and share across devices and shared spaces, even offline | supporting |
 | App | `runtime` | the app itself: opening it, tabs, Settings, addresses, updates, reconnecting | generic |
 | Operations | `health` | the promises a live environment keeps, seen by the team | generic |
 | Journeys | `journeys` | the critical journeys across every context | — |
@@ -33,13 +33,13 @@ downstream context never redefines an upstream term and never imports an
 upstream model — only its `events.qnt`.
 
 ```text
-Identity ──► Billing, Spaces, Friends, Chess, App, Operations, Journeys, Sign-in (account, sign in, sign out, sign-in method, Google, Apple)
+Identity ──► Billing, Spaces, Friends, Chess, App, Operations, Journeys, Auth (account, sign in, sign out, sign-in method, Google, Apple)
 Billing  ──► Spaces (the hosting limit), Chess (the daily puzzle limit), Operations, Journeys
 Spaces   ──► Friends (a friend's open space), Chess (a space plays a puzzle), App, Operations, Journeys
 Friends  ──► Spaces (a friend's space in the lobby), Chess (friends watch), App (people search), Journeys
 App      ──► Operations (addresses, versions), Journeys
 Chess    ──► Journeys (a game of chess, a puzzle)
-Rooms, Notes, Matchmaking, Index tuning: stand alone (Notes' "shared space" is not a Spaces space)
+Room, Sync engine, Matchmaking, Index tuning: stand alone (Sync engine's "shared space" is not a Spaces space)
 ```
 
 ## Published language
@@ -57,7 +57,7 @@ context's other terms bind nobody else.
 | Friends (`friends`) | friend, friends list, people search | `FriendshipEvent`: `BecameFriends`, `FriendshipEnded` |
 | Chess (`chess`) | game, chess, board, puzzle, solve | — |
 | App (`runtime`) | Settings, tabs, address, version of the app | — |
-| Sign-in, Rooms, Matchmaking, Notes, Index tuning, Operations, Journeys | — | — |
+| Auth, Room, Matchmaking, Sync engine, Index tuning, Operations, Journeys | — | — |
 
 ## Rules of thumb
 

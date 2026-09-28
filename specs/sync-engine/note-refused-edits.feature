@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Refused edits
   When something a person did to a note offline breaks the rules by the time
   it reaches everyone else, such as deleting a note someone else has since

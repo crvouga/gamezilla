@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: A long time offline
   When a person works offline for a long time, filing many notes in folders
   they make as they go, they want all of it to reach everyone once they are

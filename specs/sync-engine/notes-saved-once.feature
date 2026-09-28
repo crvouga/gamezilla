@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Notes count once
   When the app does not hear back about a note it wrote, a person wants the
   note still to reach everyone and never to show twice to anybody.

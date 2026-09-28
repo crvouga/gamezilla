@@ -1,4 +1,4 @@
-@domain:sign-in
+@domain:auth
 Feature: How long a sign-in lasts
   A person wants to stay signed in without thinking about it, but not
   forever, and wants signing out everywhere to reach only their own

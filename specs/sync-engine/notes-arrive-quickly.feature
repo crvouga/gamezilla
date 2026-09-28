@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Notes arrive quickly
   When a person writes a note, the people it is shared with want it on their
   devices so quickly that they never notice any wait, even over slow

@@ -1,4 +1,4 @@
-@domain:sign-in
+@domain:auth
 Feature: Proving an address match
   When a person signs in with a new outside account at the same unverified
   email address as an account they already have, they want to prove the

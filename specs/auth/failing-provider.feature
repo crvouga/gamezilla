@@ -1,4 +1,4 @@
-@domain:sign-in
+@domain:auth
 Feature: When Google or Apple is failing
   When Google or Apple cannot vouch for who is signing in, a person wants
   signing in to fail plainly and change nothing, so they can simply sign in

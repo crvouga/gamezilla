@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Leave a shared space and rejoin it
   When a person comes and goes from a shared space, they want to keep the
   notes they had, stop getting new ones while away, and catch up on

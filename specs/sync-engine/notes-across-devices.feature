@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Notes across devices
   When a person writes notes on whichever device is at hand, even one that is
   offline, they want every device they use to have all of their notes once

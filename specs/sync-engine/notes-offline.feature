@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Notes written offline
   When a person writes notes offline, they want them to show at once and to
   reach everyone else once they are back online, with nothing for them to

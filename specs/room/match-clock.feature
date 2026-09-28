@@ -1,4 +1,4 @@
-@domain:rooms
+@domain:room
 Feature: Match clock
   When White and Black play a timed match, each wants the room's own match
   clock to run down the bank of the side to move and to end the match the

@@ -1,4 +1,4 @@
-@domain:sync
+@domain:sync-engine
 Feature: Notes survive a crash
   When the app crashes, a person wants every note it had to be there when it
   reopens, including notes that had not yet reached anyone else.

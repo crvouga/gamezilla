@@ -1,4 +1,4 @@
-@domain:rooms
+@domain:room
 Feature: Presence
   When several people share a room, each wants the room to show who is in it
   right now, so nobody mistakes someone who has dropped out for someone still
