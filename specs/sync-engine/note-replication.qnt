@@ -170,16 +170,23 @@ module note_replication {
     | LeaveSpace(s) => { ...k, members: k.members.exclude(Set({ space: s, person: actor })) }
   }
 
-  /** The queue's edit ids, oldest first. */
-  pure def _inOrder(queue: Unsent): List[int] =
-    range(0, queue.keys().fold(0, (hi, mid) => if (mid + 1 > hi) mid + 1 else hi))
-      .select(mid => queue.keys().contains(mid))
+  /** The oldest of some edit ids (-1 when there are none). */
+  pure def _oldest(mids: Set[int]): int =
+    mids.fold(-1, (lo, mid) => if (lo == -1 or mid < lo) mid else lo)
 
-  /** A device's view: the merged copy with its own queue replayed on top. */
+  /**
+   * A device's view: the merged copy with its own queue replayed on top,
+   * oldest edit first (each round replays the oldest edit not yet replayed).
+   */
   pure def _rebase(k: Shared, actor: Person, queue: Unsent): Shared =
-    _inOrder(queue).foldl(k, (acc, mid) =>
-      if (_allowed(acc, actor, queue.get(mid), false)) _apply(acc, actor, queue.get(mid))
-      else acc)
+    queue.keys().fold({ k: k, left: queue.keys() }, (acc, _) => {
+      val mid = _oldest(acc.left)
+      val edit = queue.get(mid)
+      {
+        k: if (_allowed(acc.k, actor, edit, false)) _apply(acc.k, actor, edit) else acc.k,
+        left: acc.left.exclude(Set(mid)),
+      }
+    }).k
 
   pure def _live(kept: Notes): Title -> str =
     kept.keys().filter(t => not(kept.get(t).deleted)).mapBy(t => kept.get(t).body)
@@ -222,13 +229,20 @@ module note_replication {
       log: _logged(st.log, { person: person, mid: mid, edit: edit, refused: true }),
     }
 
+  /** A device sends its queue, oldest edit first. */
   pure def _drain(
     st: { k: Shared, log: History },
     damaged: Set[int],
     person: Person,
     queue: Unsent
   ): { k: Shared, log: History } =
-    _inOrder(queue).foldl(st, (acc, mid) => _takeIn(acc, damaged, person, mid, queue.get(mid)))
+    queue.keys().fold({ st: st, left: queue.keys() }, (acc, _) => {
+      val mid = _oldest(acc.left)
+      {
+        st: _takeIn(acc.st, damaged, person, mid, queue.get(mid)),
+        left: acc.left.exclude(Set(mid)),
+      }
+    }).st
 
   // ------------------------------------------------ settling
 
@@ -552,7 +566,7 @@ module note_replication {
     _plain(person),
     not(_book.windows.contains(person)),
     not(_nothingUnsent(person)),
-    val oldest = _inOrder(_pending.get(person))[0]
+    val oldest = _oldest(_pending.get(person).keys())
     _settle(_shared, _taken, _pending, online.set(person, true), _snapshot,
       { ..._book, damaged: _book.damaged.union(Set(oldest)) }, Set(person), Set(person)),
   }
@@ -769,14 +783,21 @@ module note_replication {
       (i < j and _at(i).person == _at(j).person) implies _at(i).mid < _at(j).mid))
 
   /**
+   * The edit ids in `mids` are exactly every id made so far: all of them
+   * are made, and there are as many as were made.
+   */
+  def _everyEdit(mids: Set[int]): bool =
+    mids.forall(mid => 0 <= mid and mid < _book.nextMid) and mids.size() == _book.nextMid
+
+  /**
    * Nothing is lost: every edit is taken in, still queued, or was dropped
    * because its author was signed out elsewhere.
    */
   val invNoLostWrites: bool = {
-    val done = _processed(_taken)
-    0.to(_book.nextMid - 1).forall(mid =>
-      done.contains(mid) or _book.discarded.contains(mid)
-        or PEOPLE.exists(p => _pending.get(p).keys().contains(mid)))
+    val kept = _processed(_taken)
+      .union(_book.discarded)
+      .union(PEOPLE.map(p => _pending.get(p).keys()).flatten())
+    _everyEdit(kept.filter(mid => 0 <= mid and mid < _book.nextMid))
   }
 
   /** Deletion is kept: a written note is never forgotten by the shared notes. */
@@ -814,6 +835,6 @@ module note_replication {
   val invHealConverges: bool = {
     val healed = PEOPLE.fold({ k: _shared, log: _taken }, (st, p) =>
       _drain(st, _book.damaged, p, _pending.get(p)))
-    _processed(healed.log).union(_book.discarded) == 0.to(_book.nextMid - 1)
+    _everyEdit(_processed(healed.log).union(_book.discarded))
   }
 }
