@@ -175,6 +175,7 @@ Tests run constantly, so a slow test is a defect.
 
 | Rule | Gate |
 | --- | --- |
+| No test under `tests/e2e/`; one `example-app` per package | `libs/tools/scripts/behavior-tests.ts` (`lint`) |
 | No skipped, focused, todo, conditional or expected-failure tests | `libs/tools/biome-plugins/no-skipped-tests.grit` (`lint`) |
 | Properties run only on the pinned seed | `libs/tools/biome-plugins/no-unpinned-property.grit` (`lint`) |
 | Tests never touch wall time, real timers or unseeded randomness | `libs/tools/biome-plugins/no-wall-time-in-tests.grit` (`lint`) |

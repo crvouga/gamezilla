@@ -23,6 +23,7 @@ import { join, relative, resolve } from 'node:path';
 import type { GoalChecks, KnownBug } from '../goal/goal-manifest';
 import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
+import { behaviorTestViolations } from './behavior-tests';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
@@ -200,6 +201,11 @@ async function lintPackage(pkg: string): Promise<boolean> {
         files: pkgFiles,
         specDomains: manifest.specDomains ?? [],
       })
+    ),
+    clean(
+      pkg,
+      'behavior tests are specs, and a package has one example app (docs/TESTING.md § 4)',
+      behaviorTestViolations({ files: pkgFiles })
     ),
     clean(
       pkg,
