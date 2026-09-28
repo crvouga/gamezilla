@@ -1,3 +1,11 @@
+/**
+ * Storage contract of the web SQL client across browser tabs, driven through
+ * a toy key-value store: one tab owns the store, a full connection pool, a
+ * damaged store or a schema epoch bump still leaves a usable cache, and a
+ * closed owner hands over. This is the adapter's port contract, not product
+ * behavior — nothing here is a person's view of the app — so it stays a code
+ * test (the random walk included) rather than a spec.
+ */
 import { describe, expect, test } from 'bun:test';
 import {
   bumpEpoch,
@@ -11,7 +19,7 @@ import {
   put,
   sqlClientWeb,
   tabIdList,
-} from './system';
+} from '@pkgs/sql-client-harness/system';
 
 describe('sql-client web multi-tab system PBT', () => {
   test('check explores tabs, pool exhaustion, corruption, epochs', async () => {
