@@ -1,34 +1,23 @@
 #!/usr/bin/env bun
 // @io-wall-ok — CLI: every package's spec run → one standalone HTML report.
 /**
- * `bun run test:report [--no-frames] [--no-run] [--open]` (repo root)
+ * `bun run libs/harness/scripts/report.ts` — fold every spec part's report
+ * bucket on disk into one standalone `harness-report/index.html`.
  *
- * The one report of every spec suite: each Gherkin scenario's and Quint
- * trace's step timeline with its snapshots, from every package that has a
- * spec suite, explorable together in `harness-report/index.html`.
+ * This is the aggregation step of `bun check:report`, and it runs in CI (the
+ * Report workflow's publish job), never on a laptop: the shards' buckets
+ * (`<pkg>/.cache/harness-report/part-<k>`: step timelines, the traces
+ * themselves, JUnit) are downloaded into the checkout and this folds them
+ * (JUnit outcomes overlaid) into the one report, each scenario's and Quint
+ * trace's step timeline with its snapshots. A package whose suite records no
+ * harness timeline yields no report and is named as left out. With an unsplit
+ * `test:spec` (bucket `all`) newer than the parts, that run is shown instead.
+ * Exits 1 when no bucket was found.
  *
- * It aggregates the reports the checks already produce and nothing else.
- * `bun check` runs each suite in parts (`test:spec:<k>`), and every part
- * writes its own report bucket (`<pkg>/.cache/harness-report/part-<k>`: step
- * timelines, the traces themselves, JUnit) that turbo caches with the
- * verdict. A package whose suite records no harness timeline yields no report
- * and is left out, and `bun check` itself writes none. So this runs every
- * part through `turbo-ci-run --restore-outputs`: a part whose code has not
- * changed since any machine sharing the remote cache ran it restores that
- * run's bucket instead of running again, and only changed parts run. It then
- * folds every bucket (JUnit outcomes overlaid) into the one report. With
- * `--no-run`, a package whose unsplit `test:spec` (bucket `all`) ran after its
- * parts shows that run.
- *
- * Snapshots (UI frames on every step) exist only when the suites ran with
- * `HARNESS_FRAMES=1`, a cache entry of its own that `bun check` never fills,
- * so a run with snapshots is the default here and takes the first time (about
- * five minutes cold); `--no-frames` skips them and reuses `bun check`'s cache
- * entries. `--no-run` builds from the buckets already on disk. Exits with the
- * suites' status.
+ * `bun check:report` (`libs/tools/scripts/report-remote.ts`) dispatches that
+ * workflow and opens the published report.
  */
 
-import { spawnSync } from 'node:child_process';
 import {
   existsSync,
   mkdtempSync,
@@ -54,8 +43,6 @@ import { run } from '@pkgs/os';
 const REPO_ROOT = resolve(import.meta.dirname, '../../..');
 const OUT_DIR = join(REPO_ROOT, 'harness-report');
 const BUCKET_ROOT = '.cache/harness-report';
-/** Every part task `bun check` can run (`MAX_SPEC_PARTS` in spec-packages.ts). */
-const SPEC_PART_TASKS = Array.from({ length: 6 }, (_, k) => `test:spec:${k}`);
 const RUN_ID = 'latest';
 
 const TAILWIND_DIR = join(REPO_ROOT, 'pkgs/tailwind');
@@ -162,31 +149,6 @@ async function readBucket(bucket: string): Promise<HtmlReportBundle> {
     : bundle;
 }
 
-const args = new Set(process.argv.slice(2));
-let status = 0;
-if (!args.has('--no-run')) {
-  const suites = spawnSync(
-    'bun',
-    [
-      'run',
-      join(REPO_ROOT, 'libs/tools/scripts/turbo-ci-run.ts'),
-      '--restore-outputs',
-      ...SPEC_PART_TASKS,
-    ],
-    {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        ...(args.has('--no-frames') ? {} : { HARNESS_FRAMES: '1' }),
-        // A cold run with frames outlasts the laptop's ten-minute gate deadline.
-        CHECK_DEADLINE_SECONDS: process.env['CHECK_DEADLINE_SECONDS'] ?? '3600',
-      },
-    }
-  );
-  status = suites.status ?? 1;
-}
-
 const runs: { label: string; bundle: HtmlReportBundle }[] = [];
 for (const dir of specPackageDirs()) {
   for (const bucket of latestBuckets(dir)) {
@@ -195,7 +157,7 @@ for (const dir of specPackageDirs()) {
 }
 const bundle = mergeRunBundles(RUN_ID, runs);
 const html = renderHtmlReport(bundle, {
-  title: 'spec report — every suite, with snapshots',
+  title: 'spec report — every suite',
   frameCss: compileFrameCss(),
   // Every snapshot of every test: pooled and gzipped, not one huge JSON.
   pooled: true,
@@ -224,5 +186,4 @@ if (noReport.length > 0) {
 process.stdout.write(
   `[harness-report] ${bundle.status} · ${String(bundle.tests.length)} harness(s) → ${indexPath}\n`
 );
-if (args.has('--open')) run('open', [indexPath]);
-process.exit(status);
+process.exit(runs.some((r) => r.bundle.tests.length > 0) ? 0 : 1);

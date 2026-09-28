@@ -1,0 +1,166 @@
+name: Report
+
+# Run title, identical shape in every workflow (enforced by
+# libs/tools/scripts/workflow-run-names.test.ts):
+#   <Workflow> · <trigger>
+run-name: "Report · ${{ 'manual' }}"
+
+# Report: what does every spec do? `bun check:report` dispatches this instead
+# of running the suites on a laptop. It runs every spec part with UI snapshots
+# (`HARNESS_FRAMES=1`; a cache entry of its own that Check never fills, so the
+# first run of a commit is cold), folds the parts' report buckets into one
+# `index.html` (libs/harness/scripts/report.ts) and publishes it to the reports
+# bucket under the commit's sha (libs/tools/scripts/report-key.ts):
+#
+#   https://<reports hostname>/<sha>/<frames|no-frames>/index.html
+#
+# The bucket and hostname are declared in libs/infra/tofu/global.tfvars.json
+# (`reports`) and provisioned by the fleet stack.
+#
+#   report:matrix   one shard per spec part, from a job with no secrets
+#   report:shard    shard k runs `test:spec:<k>` of every package (cache hits
+#                   restore their buckets, misses run) and uploads the buckets
+#   report:publish  fold the buckets, upload the report, then fail if a shard did
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      frames:
+        description: UI snapshots on every step; off gives step timelines only
+        type: boolean
+        default: true
+
+env:
+  TURBO_UI: stream
+
+concurrency:
+  group: report-${{ github.sha }}-${{ inputs.frames }}
+  cancel-in-progress: true
+
+jobs:
+  report-matrix:
+    name: report:matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      parts: ${{ steps.parts.outputs.parts }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - name: parts
+        id: parts
+        run: bun run libs/tools/scripts/report-matrix.ts >> "$GITHUB_OUTPUT"
+
+  report-shard:
+    name: report:shard
+    needs: report-matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      # One red shard should not hide another's report.
+      fail-fast: false
+      matrix:
+        part: ${{ fromJSON(needs.report-matrix.outputs.parts) }}
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      FRAMES: ${{ inputs.frames }}
+      PART: ${{ matrix.part }}
+      # A cold run with snapshots outlasts the Check gate's deadline.
+      CHECK_DEADLINE_SECONDS: 2400
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: suites
+        timeout-minutes: 40
+        run: |
+          # Snapshots are an env value of their own in every part's cache key,
+          # so unset (not empty) when off: that reuses Check's cache entries.
+          if [ "$FRAMES" = "true" ]; then export HARNESS_FRAMES=1; fi
+          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/turbo-ci-run.ts --restore-outputs "test:spec:${PART}"
+
+      - name: Pack report buckets
+        if: always()
+        run: |
+          # One archive, so the publish job gets the buckets at their repo paths
+          # whatever subset of packages produced one.
+          find apps libs pkgs -maxdepth 4 -type d -path "*/.cache/harness-report/part-${PART}" -not -path '*/node_modules/*' -print0 \
+            | xargs -0 --no-run-if-empty tar czf "buckets-${PART}.tgz"
+          ls -l buckets-*.tgz || true
+
+      - name: Upload report buckets
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: report-part-${{ matrix.part }}
+          path: buckets-${{ matrix.part }}.tgz
+          if-no-files-found: ignore
+          retention-days: 1
+
+  report-publish:
+    name: report:publish
+    needs: [report-matrix, report-shard]
+    if: always() && needs.report-matrix.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SECRETS_ENV: dev
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+      FRAMES: ${{ inputs.frames }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      - uses: ./.github/actions/secrets-auth
+        with:
+          identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          project-id: ${{ vars.SECRETS_PROJECT_ID }}
+          environment: dev
+
+      - name: Download report buckets
+        uses: actions/download-artifact@v7
+        with:
+          pattern: report-part-*
+          merge-multiple: true
+
+      - name: Unpack report buckets
+        run: |
+          for archive in buckets-*.tgz; do
+            [ -e "$archive" ] && tar xzf "$archive"
+          done
+
+      - name: build
+        run: bun run libs/harness/scripts/report.ts
+
+      - name: publish
+        run: |
+          flag=""
+          if [ "$FRAMES" != "true" ]; then flag="--no-frames"; fi
+          # shellcheck disable=SC2086 # empty or one flag
+          bun run libs/secrets/src/scripts/secrets-run.ts -- bun run libs/tools/scripts/report-publish.ts $flag
+
+      # The report is published even when a suite is red; the run still is.
+      - name: verdict
+        env:
+          SHARDS: ${{ needs.report-shard.result }}
+        run: test "$SHARDS" = success

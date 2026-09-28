@@ -23,7 +23,7 @@ describe('hash', () => {
   });
 
   test('an aggregated report id with slashes survives the round trip', () => {
-    // `bun run test:report` prefixes ids with the package (`libs/chess/…`).
+    // `bun run check:report` prefixes ids with the package (`libs/chess/…`).
     const hash = buildHash({
       view: 'test',
       testId: 'libs/chess/monkey.monkey',
