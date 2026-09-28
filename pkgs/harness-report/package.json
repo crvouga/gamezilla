@@ -15,8 +15,8 @@
     "test": "bun test"
   },
   "dependencies": {
-    "@pkgs/object-store": "workspace:*",
     "@pkgs/harness": "workspace:*",
+    "@pkgs/object-store": "workspace:*",
     "solid-js": "catalog:"
   },
   "devDependencies": {

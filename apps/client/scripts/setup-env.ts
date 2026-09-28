@@ -207,7 +207,7 @@ async function main(): Promise<void> {
 
   const commitHash = resolveViteCommitHash();
   const commitDate = resolveViteCommitDate();
-  const e2eFlag = trimStringOrNull(process.env['VITE_E2E']);
+  const testHooksFlag = trimStringOrNull(process.env['VITE_TEST_HOOKS']);
 
   // Runtime knobs (EMQX / observability backend) come from synced
   // `client_config`, not build env — do not write them here.
@@ -215,8 +215,8 @@ async function main(): Promise<void> {
     `VITE_API_URL=${JSON.stringify(origin)}\n` +
     `VITE_COMMIT_HASH=${JSON.stringify(commitHash)}\n` +
     `VITE_COMMIT_DATE=${JSON.stringify(commitDate)}\n`;
-  if (e2eFlag !== null) {
-    body += `VITE_E2E=${JSON.stringify(e2eFlag)}\n`;
+  if (testHooksFlag !== null) {
+    body += `VITE_TEST_HOOKS=${JSON.stringify(testHooksFlag)}\n`;
   }
   writeFileSync(tmpPath, body, { encoding: 'utf8' });
   renameSync(tmpPath, outPath);

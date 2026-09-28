@@ -32,8 +32,8 @@
     "migrate": "bun run scripts/migrate-cli.ts --wait",
     "schema:snapshot": "bun run scripts/schema-snapshot.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload --path-ignore-patterns='tests/harness/**'",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts"
   },
   "dependencies": {
     "@libs/auth": "workspace:*",
@@ -45,12 +45,12 @@
     "@libs/feature": "workspace:*",
     "@libs/friends": "workspace:*",
     "@libs/games": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/infra": "workspace:*",
     "@libs/notifications": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
     "@libs/search": "workspace:*",
-    "@libs/harness": "workspace:*",
     "@libs/spaces": "workspace:*",
     "@pkgs/assert": "workspace:*",
     "@pkgs/auth": "workspace:*",
@@ -82,10 +82,10 @@
   "devDependencies": {
     "@libs/test-ids": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/quint": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
-    "@pkgs/harness": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@solidjs/router": "catalog:",

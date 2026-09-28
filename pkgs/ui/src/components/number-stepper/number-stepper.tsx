@@ -31,7 +31,7 @@ export function stepValue(
   return Math.min(max, Math.max(min, value + delta));
 }
 
-/** Child DOM ids derived from the stepper's `dataSet.testid` (E2E). */
+/** Child DOM ids derived from the stepper's `dataSet.testid` (spec). */
 export function stepperPartTestId(
   testId: string | undefined,
   part: 'decrease' | 'increase' | 'value'

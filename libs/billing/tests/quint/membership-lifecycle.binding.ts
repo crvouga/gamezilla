@@ -1,6 +1,6 @@
 /**
  * `specs/billing/membership-lifecycle.qnt` against billing's lifecycle
- * composition (`tests/e2e/support/open-billing-lifecycle-harness.ts`): every
+ * composition (`tests/harness/open-billing-lifecycle-harness.ts`): every
  * model action is one `billingStimulus`, so the lifecycle's standing
  * properties are checked after each (among them, that every connected device
  * knows every detail of every membership); the model's state is read back

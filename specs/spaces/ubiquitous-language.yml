@@ -1,7 +1,7 @@
-# The ubiquitous language of Spaces: every word the specs in specs/spaces/
-# use for live spaces. Other contexts borrow the published terms (space, host,
-# join, leave, end a space, open space, lobby, space link, hosting limit) with
-# `from: spaces`; see docs/CONTEXT_MAP.md.
+# The ubiquitous language of Spaces: every word its specs use for live spaces.
+# Other contexts borrow the published terms (space, host, join, leave, end a
+# space, open space, lobby, space link, hosting limit) with `from: spaces`;
+# see the context map.
 context: Spaces
 purpose: >-
   Live places a person hosts and friends or anyone with the link join, so

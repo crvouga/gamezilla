@@ -7,6 +7,6 @@
 import './app-platform.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
-import { openHarness } from '../e2e/support/open-app-harness';
+import { openHarness } from '../harness/open-app-harness';
 
 useQuintHarness(openHarness);

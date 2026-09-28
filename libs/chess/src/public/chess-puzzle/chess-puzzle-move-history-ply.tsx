@@ -5,7 +5,7 @@ import {
   formatSanNotation,
 } from '../../shared/chess/chess-puzzle-notation';
 import type { PuzzleHistoryPly } from '../chess-puzzle-move-history';
-import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
+import { CHESS_PUZZLE_TEST_ENABLED } from './chess-puzzle-test-enabled';
 
 type HistoryPlyChipProps = {
   ply: PuzzleHistoryPly;
@@ -79,7 +79,7 @@ function SelectedPlyProbe(props: {
   ply: PuzzleHistoryPly;
   selected: boolean;
 }): JSX.Element {
-  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
+  if (!CHESS_PUZZLE_TEST_ENABLED) return <></>;
   return (
     <Show when={props.selected}>
       <span

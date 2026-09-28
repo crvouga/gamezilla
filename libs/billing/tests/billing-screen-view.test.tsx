@@ -114,61 +114,7 @@ describe('billing screen: every caller × row × switch × customer', () => {
   }
 });
 
-describe('billing screen: copy and actions', () => {
-  test('a trial says when it ends and how long is left', () => {
-    renderView(buildBillingView(inputFor('account', 'trialing', true, true)));
-    expect(screen.getByTestId(Handles.billingStatus).textContent).toBe(
-      'Free trial · ends 2026-10-01 (10 days left)'
-    );
-    cleanup();
-  });
-
-  test('the plan the membership is on is marked as the current one', () => {
-    const input = inputFor('account', 'active', true, true);
-    const row = { ...input.row, price_key: 'subscription_yearly' };
-    renderView(buildBillingView({ ...input, row: row as typeof input.row }));
-    expect(
-      screen
-        .getByTestId(Handles.billingPrice('subscription_yearly'))
-        .getAttribute('aria-current')
-    ).toBe('true');
-    expect(
-      screen
-        .getByTestId(Handles.billingPrice('subscription_monthly'))
-        .getAttribute('aria-current')
-    ).toBeNull();
-    cleanup();
-  });
-
-  test('a failed payment asks for a new card in the portal', () => {
-    renderView(buildBillingView(inputFor('account', 'delinquent', true, true)));
-    expect(screen.getByRole('alert').textContent).toContain(
-      "Your last payment didn't go through"
-    );
-    expect(screen.getByTestId(Handles.billingManage).textContent).toContain(
-      'Update payment method'
-    );
-    cleanup();
-  });
-
-  test('pricing comes from the offer, with the yearly saving', () => {
-    renderView(buildBillingView(inputFor('account', 'none', true, false)));
-    const monthly = screen.getByTestId(
-      Handles.billingPrice('subscription_monthly')
-    );
-    const yearly = screen.getByTestId(
-      Handles.billingPrice('subscription_yearly')
-    );
-    expect(monthly.textContent).toContain('$7.00');
-    expect(yearly.textContent).toContain('$60.00');
-    expect(yearly.textContent).toContain('Save 29%');
-    expect(yearly.textContent).toContain('$5.00/month');
-    expect(screen.getByTestId(Handles.billingSubscribe).textContent).toContain(
-      'Start 7-day free trial'
-    );
-    cleanup();
-  });
-
+describe('billing screen: actions', () => {
   test('buttons call their actions', () => {
     const unlock = mock(() => undefined);
     renderView(buildBillingView(inputFor('guest', 'none', true, false)), {

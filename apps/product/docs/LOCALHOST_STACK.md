@@ -13,6 +13,7 @@ browser ──► web (vite preview, /api proxied)
                    │  so a room always lands on one instance
                    ▼
      Postgres · S3rver · Aedes MQTT · simulated Google + Apple (own origins, own state)
+```
 
 Everything is real: the production Worker handler runs unchanged on Bun (only
 the listener and the `ROOM` binding are local), instances share one Postgres /
@@ -30,7 +31,7 @@ bun run stack --api-nodes 4                # a bigger fleet
 bun run stack --instance alpha             # a named, reusable data directory
 bun run stack --no-mqtt --no-s3         # faster boot, less fidelity
 bun run stack --no-web                     # API tier only
-bun run stack --frozen-web --e2e           # no HMR, test probes on (what test runs use)
+bun run stack --frozen-web --test-hooks           # no HMR, test probes on (what test runs use)
 
 bun run stack --idp-state memory                                   # default: IdP forgets on exit
 bun run stack --idp-state instance --keep-data --instance alpha    # IdP survives restarts of `alpha`

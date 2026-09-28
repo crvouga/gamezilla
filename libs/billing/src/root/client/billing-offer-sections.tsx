@@ -55,13 +55,19 @@ function PriceTile(props: {
             <Badge
               size="sm"
               intent="success"
+              dataSet={{ testid: Handles.billingPriceSaving }}
               label={<Trans>Save {percent()}%</Trans>}
             />
           )}
         </Show>
       </div>
-      <p class="text textHeading">{amount()}</p>
-      <p class="text textCaption text-text-secondary">
+      <p class="text textHeading" data-testid={Handles.billingPriceAmount}>
+        {amount()}
+      </p>
+      <p
+        class="text textCaption text-text-secondary"
+        data-testid={Handles.billingPriceTerms}
+      >
         <Switch>
           <Match when={props.price.interval === 'month'}>
             <Trans>per month</Trans>

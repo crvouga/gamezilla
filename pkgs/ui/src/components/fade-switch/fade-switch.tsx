@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
  * `FadeSwitch` -- instant swap when `stateKey` changes (no animated fade; the
- * key is kept for API parity and as a `data-state-key` hook for E2E).
+ * key is kept for API parity and as a `data-state-key` hook for spec).
  */
 
 import type { JSX } from 'solid-js';

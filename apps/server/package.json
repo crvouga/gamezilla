@@ -42,6 +42,7 @@
     "@pkgs/clock": "workspace:*",
     "@pkgs/db-migrate": "workspace:*",
     "@pkgs/emqx-server": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
     "@pkgs/llm": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/object-store-node-fs": "workspace:*",

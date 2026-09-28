@@ -1,6 +1,6 @@
 ---
 name: port-bdd-to-gherkin
-description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / e2e / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
+description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / spec / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
 ---
 
 # Port legacy harness tests to Gherkin + Quint
@@ -19,7 +19,7 @@ This skill moves each such test to its proper home: a Gherkin scenario, a
 Quint model, or (when it isn't behavior) a code test. Then it deletes the
 legacy file. The harness stays the engine, and only the test's surface changes.
 
-The policy lives in [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
+The policy lives in [`docs/SPEC_STANDARDS.md`](../../../docs/SPEC_STANDARDS.md).
 Its "What belongs in a spec" table decides every destination, and
 `bun run spec:check` enforces it. This skill is the **porting procedure** on
 top of three role skills. Load each one when its phase starts:
@@ -30,11 +30,10 @@ top of three role skills. Load each one when its phase starts:
 | Bind steps and model bindings over the harness | `spec-implement` |
 | Audit the result, and demote non-behavior | `spec-audit` |
 
-Status and remaining scope: [`docs/SPEC_MIGRATION_INVENTORY.md`](../../../docs/SPEC_MIGRATION_INVENTORY.md).
-Product packages (Section A) and the framework-level harnesses
+The product packages and the framework-level harnesses
 (`pkgs/sync-engine`, `pkgs/room-harness`, `pkgs/matchmaking-harness`,
 `pkgs/auth-harness`, `pkgs/db-indexes`) are ported. Use this skill for any new
-legacy test that turns up, and update that doc as you port.
+legacy test that turns up.
 
 ## 1. Inventory
 
@@ -83,7 +82,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
   like every other `.feature` and `.qnt`: no Gherkin or Quint lives outside
   `specs/`. Its names come from the context's glossary, its binding is
   `tests/quint/<model>.binding.ts` in the package, and the package's
-  `test:e2e` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-harness`.
+  `test:spec` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-harness`.
   This is the "model-based property test" the policy asks for. Its variables
   are the package's public observables (a person's notes on a device, a
   room's count, who is matched), not queues or epochs.
@@ -123,16 +122,17 @@ pass.**
    still passes proves nothing, so fix the step or the binding.
 3. Delete the ported legacy files **in the same change**. No `.skip`, no
    dual-running, no "kept for migration" copies (AGENTS.md). Update the
-   package `test*` scripts, the turbo inputs, the READMEs that named the old
-   files, and `docs/SPEC_MIGRATION_INVENTORY.md`.
+   package `test*` scripts, the turbo inputs and the READMEs that named the
+   old files.
 4. Load `spec-audit` and audit the new features and steps. Then run
    `bun run spec:catalog`, `bun run spec:check`, the package's `tc` / `test`,
    and `bun check`. Show the output, and never claim green without it.
 
 ## Fan-out for a whole wave
 
-Use one worktree per package, in this order: `sync-engine` → `room-harness` →
-`matchmaking-harness` → `auth-harness` → `db-indexes`. In each worktree the porter
+Work on the current branch and worktree — never a new one (AGENTS.md). Take
+the packages in this order: `sync-engine` → `room-harness` →
+`matchmaking-harness` → `auth-harness` → `db-indexes`. For each package the porter
 writes the ledger, then a `spec-upsert` agent, then a `spec-implement`
 agent, then a `spec-audit` agent. Port one package end to end, deleting its
 legacy tests, before starting the next.

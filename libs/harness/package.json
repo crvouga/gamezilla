@@ -36,6 +36,8 @@
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/entity-store": "workspace:*",
     "@pkgs/gherkin": "workspace:*",
+    "@pkgs/harness": "workspace:*",
+    "@pkgs/harness-console": "workspace:*",
     "@pkgs/idp-mock": "workspace:*",
     "@pkgs/kv": "workspace:*",
     "@pkgs/kv-postgres": "workspace:*",
@@ -54,12 +56,10 @@
     "@pkgs/secret-store": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/secure-storage-web": "workspace:*",
-    "@pkgs/harness": "workspace:*",
-    "@pkgs/harness-console": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
-    "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-harness": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",
     "@pkgs/sync-engine": "workspace:*",
     "@pkgs/tts": "workspace:*",
@@ -73,8 +73,8 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/os": "workspace:*",
     "@pkgs/harness-report": "workspace:*",
+    "@pkgs/os": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"

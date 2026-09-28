@@ -17,10 +17,10 @@ afterAll(() => {
   rmSync(ROOT, { recursive: true, force: true });
 });
 
-test('an ordinary failing e2e is queryable by its exact test name', () => {
+test('an ordinary failing spec is queryable by its exact test name', () => {
   const fixture = join(ROOT, 'failure.test.ts');
   const artifactDir = join(ROOT, '.cache/harness-report/traces');
-  const runner = join(import.meta.dir, '../scripts/test-e2e.ts');
+  const runner = join(import.meta.dir, '../scripts/test-spec.ts');
   const obsCli = join(
     import.meta.dir,
     '../../../pkgs/observability-cli/src/cli-io.ts'
@@ -35,7 +35,7 @@ test('an ordinary failing e2e is queryable by its exact test name', () => {
   );
   const run = spawnSync('bun', ['run', runner, fixture], {
     cwd: ROOT,
-    env: { ...process.env, npm_package_name: '@fixtures/failing-e2e' },
+    env: { ...process.env, npm_package_name: '@fixtures/failing-spec' },
     encoding: 'utf8',
   });
   expect(run.status).not.toBe(0);

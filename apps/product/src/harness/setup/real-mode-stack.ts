@@ -1,7 +1,7 @@
 /**
  * Process-wide Postgres + S3rver + EMQX for `openHarness` mode `real`, registered
  * with the harness harness by `real-stack-preload.ts` (`test:max` preloads it into
- * every package's e2e run). Default `test:e2e` never calls this.
+ * every package's spec run). Default `test:spec` never calls this.
  */
 
 import { bootLocalStack } from '@apps/server/scripts/boot-local-stack';

@@ -2,7 +2,7 @@
 
 import '@libs/harness/spec/steps/platform';
 import { useHarnessWorld } from '@libs/harness/spec/world';
-import { openHarness } from '../e2e/support/open-profile-harness';
+import { openHarness } from '../harness/open-profile-harness';
 import './profile.steps';
 import './auth.steps';
 import './sign-in-methods.steps';

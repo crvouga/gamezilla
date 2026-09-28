@@ -1,5 +1,5 @@
 /**
- * Tiger Style (see repo `LLM.md`): attribute tags for the sync entity store — keys validated
+ * Tiger Style (see the repo `README.md`): attribute tags for the sync entity store — keys validated
  * via {@link @pkgs/keyword}; never accept silently malformed attribute keys.
  *
  * Every attribute declares an explicit {@link DataType} so the SQL / wire

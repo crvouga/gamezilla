@@ -32,7 +32,7 @@ data: {"frame":"end"}
 - Per-item `error` frames do not abort the stream — sibling work units still emit `result` (or `error`) frames.
 - The first `error` is the canonical failure surfaced to the client; subsequent errors are still observable via the eager `onErrorFrame` hook.
 
-The negotiated content type is `text/event-stream` (exported as `EVENT_STREAM_CONTENT_TYPE`). Each indexed frame is one SSE `data:` event so browser DevTools can parse the stream. Servers that fall back to flat JSON when the client does not advertise streaming support are encouraged but out of scope for this package.
+The negotiated content type is `text/event-stream` (exported as `EVENT_STREAM_CONTENT_TYPE`). Each indexed frame is one SSE `data:` event so browser DevTools can parse the stream. A flat-JSON fallback for clients that do not advertise streaming is the caller's job.
 
 ## Layout
 
@@ -40,8 +40,7 @@ The negotiated content type is `text/event-stream` (exported as `EVENT_STREAM_CO
 pkgs/ndjson/src/
 ├── shared/  # frame types, codec, streaming line decoder
 ├── client/  # IndexedNdjsonCollector, collectIndexedNdjsonStream, accept-header
-├── server/  # streamParallelIndexed, encodeNdjsonReadableStream
-└── README.md
+└── server/  # streamParallelIndexed, encodeNdjsonReadableStream
 ```
 
 | Import                | Purpose                                                                                                                             |

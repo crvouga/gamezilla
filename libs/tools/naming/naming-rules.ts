@@ -24,15 +24,7 @@ export const NAMING_EXEMPT = {
     '__mocks__',
   ]),
   /** Path prefixes skipped entirely (tool-managed content). */
-  prefixes: [
-    '.superset/attachments/',
-    // Chess puzzle MVP spec + its tracking docs: paths fixed by the
-    // implementation goal that references them by name.
-    'docs/chess-puzzle-mvp.md',
-    'docs/chess-puzzle-mvp-progress.md',
-    'docs/overnight-decisions.md',
-    'docs/overnight-remaining.md',
-  ],
+  prefixes: ['.superset/attachments/'],
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [
     '.agents/commands/',

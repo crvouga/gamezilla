@@ -33,7 +33,7 @@ export type MainMenuScreenProps = {
   /** Below the list (e.g. secondary actions). */
   footer?: JSX.Element | undefined;
   /**
-   * Stable screen identifier rendered as `data-screen` on the root (dev/e2e).
+   * Stable screen identifier rendered as `data-screen` on the root (dev/spec).
    * Prefer setting this for every top-level menu screen.
    */
   screenId?: string | undefined;

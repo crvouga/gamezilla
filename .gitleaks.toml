@@ -4,16 +4,6 @@ title = "gamezilla gitleaks config"
 [extend]
 useDefault = true
 
-# False positive: the prose "typed tokens, parent/child scoping" in docs/LLM.md
-# trips the default `generic-api-key` rule because "tokens" is a keyword and
-# "parent/child" looks high-entropy enough to score as a value. docs/LLM.md is
-# documentation only -- real secrets live in Vault, not in markdown.
-[[allowlists]]
-description = "DI documentation prose in docs/LLM.md"
-paths = ['''(?:^|/)docs/LLM\.md$''']
-regexes = ['''typed tokens,\s+parent/child\s+scoping''']
-regexTarget = "line"
-
 # False positive: OpenTofu adoption ids in the environment files. A Cloudflare
 # import id is `<32-hex account id>/<hex resource id>` — public identifiers,
 # not credentials — and the `"api"` custom-domain key makes the default

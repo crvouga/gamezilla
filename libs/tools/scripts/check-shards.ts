@@ -62,7 +62,7 @@ function taskName(taskId: string): string {
   return taskId.slice(taskId.indexOf('#') + 1);
 }
 
-/** Median measured cost per task name (`lint`, `test:e2e`, …). */
+/** Median measured cost per task name (`lint`, `test:spec`, …). */
 function typeMedians(costs: TaskCosts): Map<string, number> {
   const byType = new Map<string, number[]>();
   for (const [id, seconds] of Object.entries(costs)) {

@@ -1,7 +1,7 @@
 /**
  * `specs/spaces/space-hosting.qnt` against the friends composition (the
  * lowest one that composes spaces soundly — see
- * `tests/e2e/support/open-friends-harness.ts`): each Quint action through the
+ * `tests/harness/open-friends-harness.ts`): each Quint action through the
  * spaces harness actions, and the model's state read back off each person's
  * screen.
  */

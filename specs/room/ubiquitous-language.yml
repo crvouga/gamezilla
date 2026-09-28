@@ -1,8 +1,8 @@
-# The ubiquitous language of Room: a game room people share on their
-# phones, keeping a tally together and playing timed matches. Room stands
-# alone (docs/CONTEXT_MAP.md): it borrows nothing from another context. A
-# few words here ("move", "opponent", "match", "owner") are also another
-# context's terms; in a room they mean what is defined below.
+# The ubiquitous language of Room: a game room people share on their phones,
+# keeping a tally together and playing timed matches. Room stands alone (see
+# the context map): it borrows nothing from another context. A few words here
+# ("move", "opponent", "match", "owner") are also another context's terms; in
+# a room they mean what is defined below.
 context: Room
 purpose: >-
   A game room people open on their phones to keep a tally together and to

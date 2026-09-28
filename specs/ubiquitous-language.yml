@@ -1,7 +1,7 @@
-# The shared kernel: the few terms every bounded context in specs/ may use
-# without borrowing them. Keep it small — a term belongs here only when every
+# The shared kernel: the few terms every bounded context may use without
+# borrowing them. Keep it small — a term belongs here only when every
 # context means exactly the same thing by it. Anything one context owns lives
-# in that context's specs/<domain>/ubiquitous-language.yml, and other contexts borrow it
+# in that context's own ubiquitous language, and other contexts borrow it
 # from there (from: <domain>).
 context: Shared kernel
 purpose: >-

@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 /**
- * Promotion overlay + E2E probe for {@link ChessBoardView}. The probe (a
- * chess.js parse + JSON of the whole board state) exists only in dev / E2E
+ * Promotion overlay + test probe for {@link ChessBoardView}. The probe (a
+ * chess.js parse + JSON of the whole board state) exists only in dev / test
  * builds, so production pays nothing for it.
  */
 

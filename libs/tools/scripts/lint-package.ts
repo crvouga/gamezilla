@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — lint CLI entry root (scripts/**).
 /**
- * Lint one package: path naming, Biome (which also carries the import-boundary
+ * Lint one package: path naming, banned words (`banned-words.ts`), Biome (which also carries the import-boundary
  * rules), the Solid oxlint scope, the package-boundary rules, the `tc` scope
  * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`), the spawned-CLI
  * rule (`spawned-clis.ts`) and the goal proofs that live in it, over that
@@ -18,12 +18,25 @@
  * belong to no package: root config files, editor and agent settings.
  */
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import type { GoalChecks, KnownBug } from '../goal/goal-manifest';
 import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
+import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
+import {
+  dependencyClosure,
+  scopedBiomeConfig,
+  type WorkspacePackage,
+  workspaceDeps,
+} from './biome-scope';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
 import { spawnedCliViolations } from './spawned-clis';
@@ -143,14 +156,122 @@ function clean(
   return false;
 }
 
+/** No banned word in `paths` (repo-relative) or in their text. */
+function wordsOk(pkg: string, paths: readonly string[]): boolean {
+  return clean(
+    pkg,
+    'banned words — the repo says spec, harness or test hooks (libs/tools/scripts/banned-words.ts)',
+    bannedWordViolations({
+      paths,
+      files: paths.filter(isWordedFile).map((path) => ({
+        path,
+        text: readFileSync(join(REPO_ROOT, path), 'utf8'),
+      })),
+    })
+  );
+}
+
+/** Every workspace package by name, with its declared workspace deps. */
+function workspacePackages(): ReadonlyMap<string, WorkspacePackage> {
+  const packages = new Map<string, WorkspacePackage>();
+  for (const tier of ['apps', 'libs', 'pkgs']) {
+    for (const name of readdirSync(join(REPO_ROOT, tier))) {
+      const dir = `${tier}/${name}`;
+      const manifest = readText(join(REPO_ROOT, dir, 'package.json'));
+      if (manifest === null) continue;
+      const parsed = JSON.parse(manifest) as {
+        name?: string;
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+      };
+      if (parsed.name === undefined) continue;
+      packages.set(parsed.name, { dir, deps: workspaceDeps(parsed) });
+    }
+  }
+  return packages;
+}
+
+/**
+ * `biome check` over `targets`, scanning only the packages in `keep`
+ * (`biome-scope.ts`). The scoped config is written beside `biome.json`
+ * (gitignored) and removed afterwards.
+ */
+async function biomeOk(
+  scope: string,
+  keep: (
+    packages: ReadonlyMap<string, WorkspacePackage>
+  ) => ReadonlySet<string>,
+  targets: readonly string[]
+): Promise<boolean> {
+  const packages = workspacePackages();
+  const config = scopedBiomeConfig(
+    readJson('biome.json'),
+    [...packages.values()].map((p) => p.dir),
+    keep(packages)
+  );
+  const configPath = join(REPO_ROOT, `.biome-scope.${scope}.json`);
+  writeFileSync(configPath, JSON.stringify(config));
+  try {
+    return await run('biome', [
+      'check',
+      '--error-on-warnings',
+      `--config-path=${configPath}`,
+      ...targets,
+    ]);
+  } finally {
+    rmSync(configPath, { force: true });
+  }
+}
+
+/** Biome and, over the Solid scope, oxlint — run concurrently. */
+function externalTools(pkg: string): Promise<boolean>[] {
+  const tools = [
+    biomeOk(
+      pkg.replaceAll('/', '-'),
+      (packages) => dependencyClosure(packages, pkg),
+      [pkg]
+    ),
+  ];
+  const solid = solidTargets(pkg);
+  if (solid.length > 0) tools.push(oxlintOk(pkg, solid));
+  return tools;
+}
+
+/**
+ * oxlint over the package's Solid scope. Type-aware rules run through
+ * oxlint-tsgolint (`options.typeAware`), which types each file with the
+ * nearest `tsconfig.json` / `jsconfig.json` — for a package that is the root
+ * mega-project, ~3 s of CPU to load the whole repo for a handful of files.
+ * A `jsconfig.json` extending the package's own `tc` project (the program
+ * that type-checks these files) is written beside it for the run (gitignored)
+ * and removed afterwards; Bun reads the same compiler options from it.
+ */
+async function oxlintOk(
+  pkg: string,
+  targets: readonly string[]
+): Promise<boolean> {
+  const dir = join(REPO_ROOT, pkg);
+  const manifest = readJson<{ scripts?: Record<string, string> }>(
+    `${pkg}/package.json`
+  );
+  const project = tcProject(manifest.scripts?.['tc']);
+  const local =
+    project === null || existsSync(join(dir, 'tsconfig.json'))
+      ? null
+      : join(dir, 'jsconfig.json');
+  if (local !== null) {
+    writeFileSync(local, JSON.stringify({ extends: `./${project}` }));
+  }
+  try {
+    return await run('oxlint', ['--deny-warnings', ...targets]);
+  } finally {
+    if (local !== null) rmSync(local, { force: true });
+  }
+}
+
 async function lintPackage(pkg: string): Promise<boolean> {
   const files = listFiles(['--', pkg]);
-  const tools = [run('biome', ['check', '--error-on-warnings', pkg])];
-  const solid = solidTargets(pkg);
-  if (solid.length > 0) {
-    // Type-aware rules run through oxlint-tsgolint (`options.typeAware`).
-    tools.push(run('oxlint', ['--deny-warnings', ...solid]));
-  }
+  const tools = externalTools(pkg);
   const pkgFiles = (files ?? []).map((path) => path.slice(pkg.length + 1));
   const sources = pkgFiles
     .filter((path) => /\.tsx?$/.test(path))
@@ -168,6 +289,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
   const project = tcProject(scripts['tc']);
   const results = [
     files !== null && namingOk(files),
+    wordsOk(pkg, files ?? []),
     goalProofsOk(pkg),
     clean(
       pkg,
@@ -226,14 +348,13 @@ function lintRoot(): Promise<boolean> {
   const all = listFiles([]);
   if (all === null) return Promise.resolve(false);
   const files = all.filter((path) => !PACKAGE_TIER.test(path));
-  const ok = namingOk(files);
-  return run('biome', [
-    'check',
-    '--error-on-warnings',
-    '--files-ignore-unknown=true',
-    '--no-errors-on-unmatched',
-    ...files,
-  ]).then((biomeOk) => biomeOk && ok);
+  const ok = namingOk(files) && wordsOk('(root)', files);
+  // Root config imports only `libs/tools` (`lingui.config.ts`).
+  return biomeOk(
+    'root',
+    (packages) => dependencyClosure(packages, 'libs/tools'),
+    ['--files-ignore-unknown=true', '--no-errors-on-unmatched', ...files]
+  ).then((biome) => biome && ok);
 }
 
 const pkg = relative(REPO_ROOT, process.cwd());

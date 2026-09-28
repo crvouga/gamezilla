@@ -6,7 +6,9 @@
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { wallClock, wallTimers } from '@pkgs/clock';
 import { startEmqxServer } from '@pkgs/emqx-server';
+import { createGlobalHttpClient } from '@pkgs/http-client';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
 import {
   S3_ACCESS_KEY_ID,
@@ -29,7 +31,11 @@ export async function bootLocalStack(): Promise<LocalStackHandle> {
   const s3 = await startS3Server({
     directory: mkdtempSync(join(tmpdir(), 's3-')),
   });
-  const emqx = await startEmqxServer();
+  const emqx = await startEmqxServer({
+    clock: wallClock,
+    timers: wallTimers,
+    http: createGlobalHttpClient(),
+  });
   await runLocalMigrate();
   await runLocalSeed();
   return {

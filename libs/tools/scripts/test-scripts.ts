@@ -2,7 +2,7 @@
 /**
  * The rules a package's test scripts obey, run by lint-package.ts.
  *
- * `bun check` runs a package's `test`, `test:contract` and `test:e2e` scripts
+ * `bun check` runs a package's `test`, `test:contract` and `test:spec` scripts
  * (and deploy's `check:api` runs `test:integration`). A green check is only
  * worth something if those scripts ran every test the package owns, every
  * time, the same way:
@@ -13,9 +13,9 @@
  *   is a bug to fix, not to retry.
  * - A test file no gate script reaches never runs. It reads like coverage and
  *   proves nothing.
- * - The harness e2e runner also runs the specs (features and Quint models) of
- *   the domains the package lists in `specDomains`, so a `test:e2e` with no
- *   `tests/e2e/` file is fine when it runs specs; `spec:check` proves those
+ * - The harness spec runner also runs the specs (features and Quint models) of
+ *   the domains the package lists in `specDomains`, so a `test:spec` with no
+ *   `tests/harness/` file is fine when it runs specs; `spec:check` proves those
  *   domains exist.
  *
  * Pure over the manifest's scripts and the package's tracked files, so it
@@ -26,13 +26,13 @@
 export const GATE_TEST_SCRIPTS = [
   'test',
   'test:contract',
-  'test:e2e',
+  'test:spec',
   'test:integration',
 ] as const;
 
-/** The one harness runner every package's `test:e2e` uses. */
-const E2E_RUNNER = 'libs/harness/scripts/test-e2e.ts';
-const E2E_DIR = 'tests/e2e/';
+/** The one harness runner every package's `test:spec` uses. */
+const SPEC_RUNNER = 'libs/harness/scripts/test-spec.ts';
+const HARNESS_DIR = 'tests/harness/';
 
 const BANNED_FLAGS: readonly { readonly flag: string; readonly why: string }[] =
   [
@@ -101,8 +101,8 @@ function filesRunBy(
   script: string,
   testFiles: readonly string[]
 ): readonly string[] | null {
-  if (script.includes(E2E_RUNNER)) {
-    return testFiles.filter((file) => file.startsWith(E2E_DIR));
+  if (script.includes(SPEC_RUNNER)) {
+    return testFiles.filter((file) => file.startsWith(HARNESS_DIR));
   }
   const parsed = parseBunTest(script);
   if (parsed === null) return null;
@@ -121,7 +121,7 @@ function filesRunBy(
 export function testScriptViolations(input: {
   readonly scripts: Readonly<Record<string, string>>;
   readonly files: readonly string[];
-  /** The manifest's `specDomains`: specs the harness e2e runner also runs. */
+  /** The manifest's `specDomains`: specs the harness spec runner also runs. */
   readonly specDomains?: readonly string[];
 }): readonly string[] {
   const out: string[] = [];
@@ -141,12 +141,12 @@ export function testScriptViolations(input: {
     const files = filesRunBy(script, testFiles);
     if (files === null) {
       out.push(
-        `"${name}" is not \`bun test …\` or the harness e2e runner, so which tests it runs cannot be checked`
+        `"${name}" is not \`bun test …\` or the harness spec runner, so which tests it runs cannot be checked`
       );
       continue;
     }
     const runsSpecs =
-      script.includes(E2E_RUNNER) && (input.specDomains ?? []).length > 0;
+      script.includes(SPEC_RUNNER) && (input.specDomains ?? []).length > 0;
     if (files.length === 0 && !runsSpecs) {
       out.push(
         `"${name}" runs no test files — delete the script, or fix its path filter`

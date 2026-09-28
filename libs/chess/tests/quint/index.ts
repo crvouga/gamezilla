@@ -7,6 +7,6 @@
 import './puzzle-attempt.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
-import { openHarness } from '../e2e/support/open-chess-harness';
+import { openHarness } from '../harness/open-chess-harness';
 
 useQuintHarness(openHarness);

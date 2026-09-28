@@ -1,6 +1,6 @@
-# The ubiquitous language of Billing: Plus and the memberships that pay for it.
-# Upstream of Spaces, Chess, Operations and Journeys, which borrow Plus, Plus
-# member, free account and paid access (docs/CONTEXT_MAP.md).
+# The ubiquitous language of Billing: Plus and the memberships that pay for
+# it. Upstream of Spaces, Chess, Operations and Journeys, which borrow Plus,
+# Plus member, free account and paid access (see the context map).
 context: Billing
 purpose: >-
   A signed-in person can pay for Plus, keeps exactly the paid access they paid
@@ -112,11 +112,17 @@ terms:
     avoid: [billing interval, interval, billing cycle]
     model: [Plan, switchPlan]
 
+  - term: current plan
+    definition: >-
+      The Plus plan a Plus member's newest membership is on, as the billing
+      plans mark it. The other Plus plan is not marked.
+    forms: [current plans]
+
   - term: free trial
     definition: >-
       The first billing period of a new membership, which is not charged.
       When it ends the membership becomes active on its first paid renewal.
-    forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended]
+    forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended, free trial ends, days left in the free trial]
 
   - term: billing period
     definition: >-

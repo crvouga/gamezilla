@@ -23,8 +23,8 @@ import {
   ChessPuzzlePlayAttr,
   ClearChessPuzzlePlay,
 } from '../chess-puzzle-play';
-import type { ChessPuzzleE2ELoadingStatusProps } from './chess-puzzle-e2e-loading-status';
 import { useChessPuzzleFeedState } from './chess-puzzle-feed-context';
+import type { ChessPuzzleTestLoadingStatusProps } from './chess-puzzle-test-loading-status';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import { useIsPuzzleAlreadyRated } from './use-chess-puzzle-rating-events';
 import { useNextPuzzleId } from './use-next-puzzle-id';
@@ -44,7 +44,7 @@ export type PuzzlePlayScreenModel = {
   reselectActivePuzzleFromFeed: () => void;
   /** Drop history / theme filters, then re-pick from the widened feed. */
   includeAllPuzzles: () => void;
-  e2eLoadingStatus: Accessor<ChessPuzzleE2ELoadingStatusProps>;
+  testLoadingStatus: Accessor<ChessPuzzleTestLoadingStatusProps>;
   /** Why the last start was denied (renders the denial surface). */
   startDenial: Accessor<Decision | null>;
 };
@@ -187,19 +187,21 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
   const alreadyRated = useIsPuzzleAlreadyRated(
     () => placement.activePuzzleId() ?? ''
   );
-  const e2eLoadingStatus = createMemo<ChessPuzzleE2ELoadingStatusProps>(() => ({
-    myId: myId(),
-    nextId: next.puzzleId(),
-    activePuzzleId: placement.activePuzzleId(),
-    pickState: pickState(),
-    bandedCount: next.bandedCount(),
-    fallbackCount: next.fallbackCount(),
-    poolReady: poolReady(),
-    loading: next.loading(),
-    halfWindow: next.halfWindow(),
-    source: next.source(),
-    rated: !alreadyRated(),
-  }));
+  const testLoadingStatus = createMemo<ChessPuzzleTestLoadingStatusProps>(
+    () => ({
+      myId: myId(),
+      nextId: next.puzzleId(),
+      activePuzzleId: placement.activePuzzleId(),
+      pickState: pickState(),
+      bandedCount: next.bandedCount(),
+      fallbackCount: next.fallbackCount(),
+      poolReady: poolReady(),
+      loading: next.loading(),
+      halfWindow: next.halfWindow(),
+      source: next.source(),
+      rated: !alreadyRated(),
+    })
+  );
 
   return {
     backToChessRoot,
@@ -214,7 +216,7 @@ export function usePuzzlePlayScreenState(): PuzzlePlayScreenModel {
     onRequestNext: placement.onRequestNext,
     reselectActivePuzzleFromFeed,
     includeAllPuzzles,
-    e2eLoadingStatus,
+    testLoadingStatus,
     startDenial: gate.denial,
   };
 }

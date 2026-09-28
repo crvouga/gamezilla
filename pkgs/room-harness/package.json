@@ -13,14 +13,14 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
-    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts"
   },
   "dependencies": {
     "@pkgs/clock": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/property": "workspace:*",
     "@pkgs/room": "workspace:*",
     "@pkgs/room-adapter-memory": "workspace:*",
-    "@pkgs/harness": "workspace:*",
     "@pkgs/uuid": "workspace:*"
   },
   "devDependencies": {

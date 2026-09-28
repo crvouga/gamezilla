@@ -38,21 +38,21 @@ export async function isPuzzleSolved(
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessPuzzleSummary).isVisible()) return true;
   try {
-    const debug = stripProbe(await ui.get(Handles.chessPuzzleE2eDebug).text());
+    const debug = stripProbe(await ui.get(Handles.chessPuzzleTestDebug).text());
     return debug.startsWith('solved|');
   } catch {
     return false;
   }
 }
 
-async function readE2eField(
+async function readTestField(
   s: ProductHarness,
   actorId: string,
   index: number
 ): Promise<string | undefined> {
   try {
     const ui = await actorUi(s, actorId);
-    const raw = stripProbe(await ui.get(Handles.chessPuzzleE2eDebug).text());
+    const raw = stripProbe(await ui.get(Handles.chessPuzzleTestDebug).text());
     return raw.split('|')[index];
   } catch {
     return undefined;
@@ -68,7 +68,7 @@ async function waitUntilInteractiveOrSolved(
       s,
       async () => {
         if (await isPuzzleSolved(s, actorId)) return true;
-        return (await readE2eField(s, actorId, 1)) === '1' ? true : null;
+        return (await readTestField(s, actorId, 1)) === '1' ? true : null;
       },
       {
         maxMs: INTERACTIVE_MS,
@@ -355,7 +355,7 @@ export async function settleAfterPuzzleNext(
 }
 
 /** `status|interactive|solveIdx|moves|solution|hintStage|rating|themes` probe. */
-export type PuzzleE2eDebug = {
+export type PuzzleTestDebug = {
   readonly status: string;
   readonly interactive: boolean;
   readonly solveIdx: number;
@@ -369,10 +369,10 @@ export type PuzzleE2eDebug = {
 export async function readPuzzleDebug(
   s: ProductHarness,
   actorId: string
-): Promise<PuzzleE2eDebug | null> {
+): Promise<PuzzleTestDebug | null> {
   try {
     const ui = await actorUi(s, actorId);
-    const raw = stripProbe(await ui.get(Handles.chessPuzzleE2eDebug).text());
+    const raw = stripProbe(await ui.get(Handles.chessPuzzleTestDebug).text());
     const parts = raw.split('|');
     if (parts.length < 6) return null;
     const puzzleRating = Number.parseInt(parts[6] ?? '', 10);
@@ -465,7 +465,7 @@ export async function readPuzzleSpectator(
   try {
     const ui = await actorUi(s, actorId);
     const raw = stripProbe(
-      await ui.get(Handles.chessPuzzleE2eSpectator).text()
+      await ui.get(Handles.chessPuzzleTestSpectator).text()
     );
     const fields: Record<string, string> = {};
     for (const part of raw.split(' ')) {
@@ -549,7 +549,7 @@ async function readDisplayFen(
   return pollUntil(
     s,
     async () => {
-      const fen = stripProbe(await ui.get(Handles.chessPuzzleE2eFen).text());
+      const fen = stripProbe(await ui.get(Handles.chessPuzzleTestFen).text());
       return fen.length > 0 ? fen : null;
     },
     { maxMs: WAIT_MS, stepMs: POLL_MS, description: 'display fen' }

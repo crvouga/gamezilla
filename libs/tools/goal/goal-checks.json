@@ -64,7 +64,7 @@
       },
       {
         "kind": "test",
-        "path": "pkgs/pubsub-emqx/src/emqx.contract.test.ts"
+        "path": "pkgs/pubsub-emqx/tests/emqx.contract.test.ts"
       },
       {
         "kind": "test",

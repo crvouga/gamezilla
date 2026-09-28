@@ -6,7 +6,7 @@ import { puzzleNavIntentFromKey } from '../../shared/puzzle-session/puzzle-nav';
 import { ChessPuzzleBoardFrame } from './chess-puzzle-board-frame';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleMoveHistory } from './chess-puzzle-move-history';
-import { ChessPuzzleReviewE2E } from './chess-puzzle-review-e2e';
+import { ChessPuzzleReviewTest } from './chess-puzzle-review-test';
 import { puzzleSwipeHandlers } from './puzzle-swipe-handlers';
 import { useChessPuzzleFeedConfig } from './use-chess-puzzle-feed-config';
 import {
@@ -89,7 +89,7 @@ export function ChessPuzzleReviewBoard(props: {
           onNavigate: model.onNavigate,
         }}
       />
-      <ChessPuzzleReviewE2E
+      <ChessPuzzleReviewTest
         solveIdx={model.solveIdx}
         lastSolveIdx={model.lastSolveIdx}
         animated={model.animated}

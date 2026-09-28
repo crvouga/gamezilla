@@ -40,32 +40,6 @@ function run(cmd: string, args: string[]): void {
   }
 }
 
-/**
- * Lingui extract uses worker threads that occasionally fail to init under
- * heavy turbo concurrency ("Did not receive an init message from worker").
- * Retry a few times before failing the gate.
- */
-function runWithRetries(cmd: string, args: string[], attempts = 5): void {
-  let lastStatus = 1;
-  for (let i = 1; i <= attempts; i++) {
-    const result = spawnSync(cmd, args, {
-      cwd: REPO_ROOT,
-      stdio: 'inherit',
-      env: process.env,
-    });
-    lastStatus = result.status ?? 1;
-    if (lastStatus === 0) return;
-    if (i < attempts) {
-      const backoffMs = 2000 * i;
-      console.error(
-        `[ci:i18n] ${cmd} ${args.join(' ')} failed (attempt ${String(i)}/${String(attempts)}); retrying in ${String(backoffMs)}ms…`
-      );
-      Bun.sleepSync(backoffMs);
-    }
-  }
-  process.exit(lastStatus);
-}
-
 const BABEL_CONFIG_RELS = [
   'apps/client/vite.config.mts',
   'pkgs/bun-test-solid/src/babel.config.cjs',
@@ -120,11 +94,16 @@ function assertCatalogsFresh(): void {
   const compiledBefore = readFileSync(join(REPO_ROOT, COMPILED_REL), 'utf8');
   writeScratchConfig();
   const config = ['--config', SCRATCH_CONFIG_REL];
-  runWithRetries('bunx', [
+  // One process, no worker pool: the pool costs ~2.5x the CPU for a few
+  // hundred ms of wall, and under a loaded `bun check` its workers failed to
+  // init ("Did not receive an init message from worker").
+  run('bunx', [
     'lingui',
     'extract',
     '--clean',
     '--overwrite',
+    '--workers',
+    '1',
     ...config,
   ]);
   run('bunx', ['lingui', 'compile', '--typescript', '--strict', ...config]);

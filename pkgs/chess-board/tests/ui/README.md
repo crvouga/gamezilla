@@ -27,7 +27,7 @@ Only what a driver can read by test id:
   status, selection, legal targets, last move, open promotion, premove queue,
   keyboard cursor.
 - **Paint tokens** (`<board>-layer-{squares,pieces,shapes,arrows,feedback}`):
-  in E2E builds every painted node carries an invisible `⟦kind:detail@at⟧`
+  in test builds every painted node carries an invisible `⟦kind:detail@at⟧`
   token, so a layer's text is what is actually drawn (`piece:wp@e4`,
   `selected@e2`, `dot@e3`, `arrow:primary@e2-e4`, …). `BoardPage.expectConsistent`
   asserts painted pieces and overlays match the probe.

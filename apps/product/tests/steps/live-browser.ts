@@ -16,7 +16,7 @@ import { writeUtf8 } from '@pkgs/object-store/helpers';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs/wall-node-fs';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview';
-import { resolveE2eBrowser } from '@pkgs/ui-testing-bun-webview/e2e-browser';
+import { resolveTestBrowser } from '@pkgs/ui-testing-bun-webview/test-browser';
 
 const POPUP_POLL_MS = 250;
 /** Phone-sized: the layout most people use. */
@@ -63,7 +63,7 @@ export async function openDevice(target: LiveTarget): Promise<Device> {
   });
   // Chrome keeps one profile per process (the first view's directory), so
   // wipe both origins: every scenario starts as a device that never visited.
-  if (resolveE2eBrowser().engine === 'chrome') {
+  if (resolveTestBrowser().engine === 'chrome') {
     await view.navigate('about:blank');
     for (const origin of [target.webOrigin, target.apiOrigin]) {
       await view.cdp('Storage.clearDataForOrigin', {

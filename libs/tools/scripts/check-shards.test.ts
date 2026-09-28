@@ -7,7 +7,7 @@ const TYPES = [
   'tc',
   'lint',
   'test',
-  'test:e2e',
+  'test:spec',
   'build',
   'check:offline-shell',
 ];
@@ -92,7 +92,7 @@ describe('planShards', () => {
   });
 
   test('heavy tasks spread across shards instead of stacking', () => {
-    const misses = ['a', 'b', 'c', 'd'].map((p) => miss(`@p/${p}#test:e2e`));
+    const misses = ['a', 'b', 'c', 'd'].map((p) => miss(`@p/${p}#test:spec`));
     const costs = Object.fromEntries(misses.map((m) => [m.taskId, 100]));
     const plan = planShards({ toExecute: misses }, costs, 4);
     expect(plan.shards).toHaveLength(4);

@@ -11,9 +11,14 @@ import { assertProperty, fc } from '@pkgs/property';
 const PKG = join(import.meta.dirname, '..');
 const POLICY = join(PKG, 'policy');
 
+// The conftest pinned in mise.toml, whether or not mise is on PATH. Resolved
+// once: `mise exec` per property run costs ~1 s of mise startup each.
+const CONFTEST = Bun.spawnSync(['mise', 'which', 'conftest'])
+  .stdout.toString()
+  .trim();
+
 const conftest: ConftestRunner = ({ args, stdin }) => {
-  // The conftest pinned in mise.toml, whether or not mise is on PATH.
-  const r = Bun.spawnSync(['mise', 'exec', '--', 'conftest', ...args], {
+  const r = Bun.spawnSync([CONFTEST, ...args], {
     stdin: Buffer.from(stdin),
     stdout: 'pipe',
     stderr: 'pipe',

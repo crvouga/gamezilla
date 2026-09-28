@@ -3,8 +3,8 @@
 Model-based testing with [Quint](https://quint-lang.org/): draw traces from a
 model, replay each one against the real thing, and require the real thing to
 be in the model's state after every step. Product models live in
-`specs/<domain>/*.qnt` and run in their package's `test:e2e`
-([`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md));
+`specs/<domain>/*.qnt` and run in their package's `test:spec`
+([`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md));
 this package knows nothing about the product.
 
 | Module | What it does |
@@ -13,7 +13,7 @@ this package knows nothing about the product.
 | `itf` | The Informal Trace Format decoded into JS values (`Map`, `Set`, tuples as arrays, variants as `{ tag, value }`); `renderQuint` prints a value as Quint would, sorted, and is what equality compares. |
 | `registry` | `setQuintWorld` (what a trace runs in: create, dispose, and optionally `settle` on the world's own clock and `record` each step in its report) and `bindQuintModel` (one action per Quint action, `init` included, and `observe`, which reads the model's variables back). |
 | `replay` | One trace against a world and a binding; a divergence names the step, the variables that differ and the world calls the step made. `untakenActions` finds bound actions no trace took. |
-| `bun-test` / `stubs` | One `describe` per model, one `test` per trace, one that fails when a bound action is never taken; the generated stub the e2e runner writes per model. |
+| `bun-test` / `stubs` | One `describe` per model, one `test` per trace, one that fails when a bound action is never taken; the generated stub the spec runner writes per model. |
 
 ```ts
 bindQuintModel<Door>({

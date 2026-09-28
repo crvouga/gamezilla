@@ -14,6 +14,6 @@ import './search.steps';
 import './spaces.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
-import { openHarness } from '../e2e/support/open-friends-harness';
+import { openHarness } from '../harness/open-friends-harness';
 
 useHarnessWorld(openHarness);

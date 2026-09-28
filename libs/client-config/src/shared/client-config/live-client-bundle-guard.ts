@@ -88,7 +88,7 @@ export class LiveBundleGuard {
       assert.defined(source, `${label}: bundle disappeared during scan`, {
         file,
       });
-      // Dev/E2E `data-src` path markers must not ship in live bundles.
+      // Dev/spec `data-src` path markers must not ship in live bundles.
       assert.ok(
         !source.includes('data-src') && !/"src":"[^"]+\.tsx?:\d+"/.test(source),
         `${label}: live bundle still contains data-src markers`,

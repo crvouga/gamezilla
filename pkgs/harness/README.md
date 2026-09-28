@@ -42,7 +42,6 @@ Runtime supplies those. Root policy: [`docs/DETERMINISM.md`](../../docs/DETERMIN
 | Import | Contents |
 | --- | --- |
 | `@pkgs/harness` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `readRunBundle`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
-| `@pkgs/harness-report` | Solid+Vite report viewer (`HarnessReportApp`, `<harness-report>` web component) + `writeHtmlReport` / `renderHtmlReport` standalone HTML artifacts |
 | `@pkgs/harness/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/harness/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` (`assertProperty` and JSON arbs live in the leaf `@pkgs/property`) |
 
@@ -183,14 +182,12 @@ element. The HTML file embeds every frame — no server, no console tab.
 - **Do** keep `S` as data. Reads = functions; stimuli = actions.
 - **Do** put defaults on `args` and samplers on `sample`.
 - **Do** wait with `s.until` / `s.never`; advance with `s.advanceTime`.
-- **Do** put package tests in `tests/` (sibling of `src/`), black-box against
-  package `exports`. Colocate `module.test.ts` only next to public entrypoint
-  modules. Harness code lives in `src/harness/` and is exported as `./harness`.
 - **Don't** add package-local World openers or kit DSLs around `defineSystem` /
   `run` / `explore`.
 - **Don't** put `Session` / `Runtime` in product `ClientEnv` / `ServerEnv` —
   unpack ports at the composition root.
 - **Don't** import `@pkgs/harness/internals` from product or harness kits.
 - **Don't** read `process.env` for seeds.
-- **Don't** revive `Host` / `defineHost` — a host is a named `defineRuntime` entry on `defineSystem`.
-  Product hosts (`in-process`, `bun-webview`, …) live in `@apps/product/harness`, not here.
+- **Don't** define hosts here: a host is a named `defineRuntime` entry on
+  `defineSystem`; product hosts (`in-process`, `bun-webview`) live in
+  `@libs/harness`.

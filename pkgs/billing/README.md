@@ -75,8 +75,7 @@ data; reconciling it onto a vendor is a function in the vendor package
 
 `MembershipStatus` is `incomplete | trialing | active | delinquent | ended`.
 Every adapter maps its provider's states onto exactly these once; nothing
-downstream — `@pkgs/entitlements`' `resolveTier`, the client, the projection
-row — ever sees a vendor state such as `past_due`.
+downstream — permissions, the client, the projection row — ever sees a vendor state such as `past_due`.
 
 ## The contract
 

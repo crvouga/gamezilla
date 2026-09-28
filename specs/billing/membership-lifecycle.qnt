@@ -74,22 +74,22 @@ module membership_lifecycle {
 
   pure def _max(a: int, b: int): int = if (a > b) a else b
 
-  /// Every step goes through here: her memberships become `rows`, and the
+  /// Every step goes through here: her memberships become `updated`, and the
   /// phone keeps up while it has a connection. (Period ends are left out:
   /// that a connected device knows every detail of every membership is a
   /// standing property the product is checked against after every step.)
   action _moveTo(
-    rows: int -> Membership,
+    updated: int -> Membership,
     online: bool,
     newCredit: int,
     declines: bool,
   ): bool = {
-    val held = if (online) rows else membershipsOnPhone
+    val held = if (online) updated else membershipsOnPhone
     all {
-      memberships' = rows,
+      memberships' = updated,
       _phoneOnline' = online,
       membershipsOnPhone' = held,
-      accessOn' = DEVICES.mapBy(d => if (d == PHONE) _accessFrom(held) else _accessFrom(rows)),
+      accessOn' = DEVICES.mapBy(d => if (d == PHONE) _accessFrom(held) else _accessFrom(updated)),
       credit' = newCredit,
       cardDeclines' = declines,
     }

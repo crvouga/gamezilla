@@ -60,8 +60,8 @@ export type PuzzlePlayLayoutProps = {
   completion: Accessor<PuzzleCompletion | null>;
   spectator: Accessor<boolean>;
   recommendationLegend?: JSX.Element;
-  e2eHints?: JSX.Element;
-  e2eLoadingStatus?: JSX.Element;
+  testHints?: JSX.Element;
+  testLoadingStatus?: JSX.Element;
 };
 
 function puzzleRatingOrUndef(rating: number | undefined): number | undefined {
@@ -212,10 +212,10 @@ export function PuzzlePlayLayout(props: PuzzlePlayLayoutProps): JSX.Element {
       data-screen="chess-puzzle-play"
     >
       <DefineBackButton onPress={props.backToRoot} />
-      {props.e2eLoadingStatus}
+      {props.testLoadingStatus}
       <PuzzlePlayStack layout={props} openFeedSettings={openFeedSettings} />
       <CelebrationLayer completion={props.completion} onNext={props.onNext} />
-      {props.e2eHints}
+      {props.testHints}
       <ChessPuzzleFeedSettingsModal
         visible={feedSettingsOpen()}
         onClose={closeFeedSettings}

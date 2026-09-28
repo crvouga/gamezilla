@@ -12,6 +12,7 @@ export {
   resolveDataDir,
   wipeClusterData,
 } from './cluster';
+export { freePostgresPort } from './free-port';
 export {
   databaseUrlFor,
   LOCAL_DATABASE_URL,

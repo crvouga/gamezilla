@@ -5,7 +5,7 @@
  *
  * - A test that acts as a person would and checks what they see is a
  *   scenario or a Quint model in `specs/<domain>/`, bound through the
- *   package's harness. `tests/e2e/` holds only the harness composition
+ *   package's harness. `tests/harness/` holds only the harness composition
  *   (`support/`), so a `*.test.ts(x)` there is a behavior test that escaped
  *   the specs.
  * - A package tests itself through one kitchen-sink fixture app named
@@ -14,11 +14,17 @@
  *   `example-app` directory. A test that needs a variation configures the
  *   one app instead of forking it.
  *
- * Pure over the package's tracked files, so it runs inside the package's
- * cached `lint`.
+ * - In a package that runs specs (`specDomains`), a random walk over the
+ *   harness (`.explore(`, `randomActions(`) in a test is a behavior model
+ *   that escaped the specs: it is a Quint model in `specs/<domain>/`,
+ *   replayed through `tests/quint/` (`randomWalkViolations`, run by
+ *   `check-specs.ts`).
+ *
+ * Pure over the package's tracked files (and, for random walks, their
+ * text), so it runs inside the package's cached `lint` and the spec gate.
  */
 
-const E2E_TEST = /(^|\/)tests\/e2e\/(.+\/)?[^/]+\.test\.tsx?$/;
+const HARNESS_TEST = /(^|\/)tests\/harness\/(.+\/)?[^/]+\.test\.tsx?$/;
 const FIXTURE_APP_DIR = /^example-/;
 const EXAMPLE_APP = 'example-app';
 
@@ -47,10 +53,10 @@ export function behaviorTestViolations(input: {
 }): readonly string[] {
   const files = input.files.filter((file) => !file.startsWith('node_modules/'));
   const out: string[] = [];
-  const e2eTests = files.filter((file) => E2E_TEST.test(file));
-  if (e2eTests.length > 0) {
+  const harnessTests = files.filter((file) => HARNESS_TEST.test(file));
+  if (harnessTests.length > 0) {
     out.push(
-      `test files under tests/e2e/ — a behavior test is a scenario or Quint model in specs/<domain>/, bound through the harness; tests/e2e/ holds only support/:\n    ${e2eTests.join('\n    ')}`
+      `test files under tests/harness/ — a behavior test is a scenario or Quint model in specs/<domain>/, bound through the harness; tests/harness/ holds only support/:\n    ${harnessTests.join('\n    ')}`
     );
   }
   const fixtureApps = directories(files).filter((dir) =>
@@ -71,4 +77,29 @@ export function behaviorTestViolations(input: {
     );
   }
   return out;
+}
+
+const TEST_FILE = /\.test\.tsx?$/;
+const MODEL_REPLAY = /(^|\/)tests\/quint\//;
+const RANDOM_WALK = /\.explore\(|\brandomActions\(/;
+
+/**
+ * Every test file (repo-relative `path`) of a spec package that walks the
+ * harness at random outside `tests/quint/`. Empty when every walk is a
+ * Quint model.
+ */
+export function randomWalkViolations(
+  files: readonly { readonly path: string; readonly text: string }[]
+): readonly string[] {
+  return files
+    .filter(
+      (file) =>
+        TEST_FILE.test(file.path) &&
+        !MODEL_REPLAY.test(file.path) &&
+        RANDOM_WALK.test(file.text)
+    )
+    .map(
+      (file) =>
+        `${file.path}: a random walk (explore / randomActions) in a spec package's test — a behavior walk is a Quint model in specs/<domain>/, replayed through tests/quint/`
+    );
 }

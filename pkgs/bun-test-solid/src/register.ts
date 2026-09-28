@@ -50,7 +50,7 @@ const LINGUI_ACTIVATE =
 /**
  * Babel output keyed by source + config, shared across processes and
  * `--parallel` workers. Babel dominates cold start; the key covers every input
- * (`babel.config.cjs` caches on `NODE_ENV` / `VITE_E2E`), so a stale hit is
+ * (`babel.config.cjs` caches on `NODE_ENV` / `VITE_TEST_HOOKS`), so a stale hit is
  * impossible and the directory is safe to delete at any time.
  */
 const CACHE_DIR = join(
@@ -75,7 +75,7 @@ const CACHE_SALT = [
     readFileSync(require.resolve(`${name}/package.json`), 'utf8')
   ),
   process.env.NODE_ENV ?? '',
-  process.env['VITE_E2E'] ?? '',
+  process.env['VITE_TEST_HOOKS'] ?? '',
 ].join('\0');
 
 function cachedTransform(path: string, source: string): string {

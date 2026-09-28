@@ -13,14 +13,14 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --parallel=1 --timeout 120000 tests",
-    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts"
   },
   "dependencies": {
     "@pkgs/assert": "workspace:*",
     "@pkgs/attribute": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/matchmaking": "workspace:*",
     "@pkgs/matchmaking-sql": "workspace:*",
-    "@pkgs/harness": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
     "@pkgs/sql-client-postgres": "workspace:*",
     "@pkgs/sql-client-sqlite": "workspace:*",

@@ -1,7 +1,7 @@
 /**
  * Spaces steps (`specs/spaces/`), hosted here because friends is the lowest
  * package whose harness composes spaces with everything it needs (see
- * tests/e2e/support/open-friends-harness.ts). Chess reuses them.
+ * tests/harness/open-friends-harness.ts). Chess reuses them.
  */
 
 import { expect } from 'bun:test';

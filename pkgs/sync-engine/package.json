@@ -15,7 +15,7 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
-    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts"
   },
   "dependencies": {
     "@noble/hashes": "catalog:",
@@ -26,12 +26,12 @@
     "@pkgs/db-schema": "workspace:*",
     "@pkgs/db-schema-postgres": "workspace:*",
     "@pkgs/db-schema-sqlite": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/http-client": "workspace:*",
     "@pkgs/logger": "workspace:*",
     "@pkgs/observability": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
-    "@pkgs/harness": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",

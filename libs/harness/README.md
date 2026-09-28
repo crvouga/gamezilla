@@ -7,21 +7,21 @@ feature. A **composition** says which features a harness runs; the harness folds
 it with the same `composeFeatures` / `createClient` / `createServer` production
 uses.
 
-## Where an e2e goes
+## Where a spec goes
 
-A feature's e2e lives in that feature: the specs of the package's
+A feature's spec lives in that feature: the specs of the package's
 `specDomains` (`specs/<domain>/*.feature`, `*.qnt`) and
-`libs/<feature>/tests/e2e/`, run by the package's `test:e2e`, against a
+`libs/<feature>/tests/harness/`, run by the package's `test:spec`, against a
 composition of only the slices it needs. A change to a feature the suite does
 not compose leaves it cached.
 
 | Suite | Composes | Why it is where it is |
 | --- | --- | --- |
-| `libs/chess/tests/e2e` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
-| `libs/friends/tests/e2e` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
-| `libs/profile/tests/e2e` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
-| `libs/billing/tests/e2e` | billing | the membership lifecycle through the payment provider node |
-| `libs/runtime/tests/e2e` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
+| `libs/chess/tests/harness` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
+| `libs/friends/tests/harness` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
+| `libs/profile/tests/harness` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
+| `libs/billing/tests/harness` | billing | the membership lifecycle through the payment provider node |
+| `libs/runtime/tests/harness` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
 
 There are no product random walks. A feature's state machine is a Quint model
 (`specs/<domain>/<model>.qnt`) and its binding (`tests/quint/<model>.binding.ts`,
@@ -30,7 +30,7 @@ registered with `useQuintHarness(openHarness)` from `@libs/harness/quint/world` 
 the binding's harness actions, and the product's state, read back by the
 binding's `observe`, must equal the model's after every step — with every
 standing property checked, since each action is an `s.apply`. See
-[`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
+[`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md).
 
 The package graph decides a suite's home: turbo rejects dependency cycles, so a
 suite lives in a package that may depend on every feature it composes. Two
@@ -40,7 +40,7 @@ is in every composition and spaces' and search's flows run in friends. Each is a
 be declared ([`docs/FEATURE_SUBSYSTEMS.md`](../../docs/FEATURE_SUBSYSTEMS.md)).
 
 ```ts
-// libs/<feature>/tests/e2e/support/open-<feature>-harness.ts
+// libs/<feature>/tests/harness/open-<feature>-harness.ts
 const SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [PROFILE_HARNESS_SLICE, FRIENDS_HARNESS_SLICE, BILLING_HARNESS_SLICE])
 );
@@ -52,8 +52,8 @@ Each feature exports its slice (manifest, client, server, actions, reads,
 properties, seeds, room host, browser pages) from `@libs/<feature>/harness/*`.
 `composeHarnessSlices` adds the platform (auth, client-config, permissions) and
 folds in production's order. Run one package's suite with
-`bun run --filter @libs/chess test:e2e`, one file with
-`bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`.
+`bun run --filter @libs/chess test:spec`, one spec with
+`bun run spec specs/chess/puzzle-play.feature`.
 
 ## Hosts
 
@@ -113,7 +113,7 @@ product libs. ProductHarness web may still load SQLite WASM from
 `apps/product/public/generated/`.
 
 **Billing** — a composition that sells something (`billingOffer` on its
-slice) gets a **payment provider node** (`fabric/harness-billing.ts`,
+slice) gets a **payment provider node** (`fabric/billing.ts`,
 `@pkgs/billing-mock-provider`) at `HARNESS_BILLING_URL`, with its own SQLite state,
 the way it gets the simulated Google. Every API instance holds the production
 adapter to it (`MockMembershipBilling`, registered in its
@@ -140,8 +140,7 @@ grace-window rule itself is unit-proven in `@libs/permissions`.
 
 **System snapshots** — `openHarness(id, { snapshot: '<id>' })` restores a
 committed fixture from the running package's `fixtures/snapshots/<id>.json`
-(portable logical dump: server/client SQL rows + client KV + rooms + clock). No
-suite uses one yet. A stale `localSchemaVersion` fails restore.
+(portable logical dump: server/client SQL rows + client KV + rooms + clock). A stale `localSchemaVersion` fails restore.
 
 **Host details**
 
@@ -162,44 +161,19 @@ suite uses one yet. A stale `localSchemaVersion` fails restore.
   `listenHarnessHttpServer` binds Hono on `127.0.0.1:8787` and enforces createHarnessNet
   crash/partition (actor id via `x-harness-actor`). Tests drive `Bun.WebView`;
   product-harness embeds the web origin URL. `HARNESS_MODE=real` boots sidecars via
-  `ensureMaxFidelityStack` (real Postgres + S3rver/EMQX), serves web web
-  (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
+  `ensureMaxFidelityStack` (real Postgres + S3rver/EMQX), serves the web client
+  (`apps/product/scripts/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 
-**Reports** — standalone HTML, Playwright-trace style:
+**Reports** — every harness writes its `report.json` (Gherkin and Quint
+steps, the harness calls and UI ops under them, outcomes, drawn traces) into
+`<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; `bun run
+test:report` folds every bucket into one `harness-report/index.html`
+([`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md#reports)). Failed JUnit
+testcases also become `test.failure` spans under
+`.cache/harness-report/traces/` for `bun obs test`
+([`docs/OBSERVABILITY.md`](../../docs/OBSERVABILITY.md)). Capture is owned by
+the packages: `defineProductSystem` declares `defineSnapshot`s (`html` per
+actor, `topology`), `openHarness` wraps each actor's driver in
+`recordingDriver`, and `TestViewportProvider` sizes the 390×844 actor frame.
 
-- Every harness writes its `report.json` into the package's bucket
-  (`<pkg>/.cache/harness-report`): each Gherkin step and Quint trace step as a
-  labelled step with the harness calls and UI ops under it, its outcome and
-  error. Quint models also leave their drawn traces
-  (`quint/<model>/*.itf.json`). `test:e2e` declares the bucket as its turbo
-  `outputs`, so the report is cached (remotely too) with the verdict.
-- `bun run test:report` (repo root) runs every package's `test:e2e` through
-  `turbo-ci-run --restore-outputs` — the same hashes as `bun check`, so a
-  suite that ran for this code anywhere restores its bucket and only changed
-  suites run — then folds every bucket (its JUnit outcomes overlaid) into one
-  **`harness-report/index.html`** and opens it: every subsystem's scenarios and
-  model traces in one self-contained viewer — tests grouped by file, step
-  tree with press hits, multi-client phone panels, scrubber + filmstrip, view
-  controls, keyboard shortcuts (`?`). `--frames` (`HARNESS_FRAMES=1`) also
-  captures UI frames on every step: slower, and its own cache entry.
-  `--no-run` renders the buckets already on disk.
-- Report ids are namespaced by spec, and the bundle is read from the per-test
-  `report.json` files, so parallel workers never clobber or drop each
-  other's runs. After Bun exits, the runner also turns every failed JUnit
-  testcase into a deterministic `test.failure` span under
-  `.cache/harness-report/traces/`; this is why `bun obs test '<exact test name>'`
-  can recover an ordinary failing assertion without rerunning it. The
-  post-run correlation is intentional: Bun preload hooks do not expose a
-  stable current-test identity for parallel tests.
-- Capture is owned by the packages: `defineProductSystem` declares `defineSnapshot`s
-  (`html` per actor via `Driver.snapshotHtml`, `topology`), `openHarness` wraps each
-  actor's driver in `recordingDriver` so `tap` / `input` / `expect.*` are steps,
-  and test-body assertions land via the JUnit overlay (`s.fail(err)` records a
-  harness failure explicitly when needed). Frame CSS is Tailwind + `@pkgs/ui`
-  tokens/hosts + every `*.module.css` under `pkgs/*/src`
-  (harness Babel leaves class names unhashed). `TestViewportProvider` feeds
-  `ThemeProvider.fixedLayout` so modal sizes match the 390×844 actor frame.
-
-Do not use a local Wrangler + API Worker stack for manual feature work. That is
-CI / production, not `bun dev`.

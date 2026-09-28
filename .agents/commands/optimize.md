@@ -54,7 +54,7 @@ and don't add compositor-heavy CSS to smooth over what was actually a
 bridge-call problem.
 
 The critical-path gate lives in
-[`docs/LOW_END_ANDROID_PERF.md`](docs/LOW_END_ANDROID_PERF.md). This
+[`docs/LOW_END_ANDROID_PERF.md`](../../docs/LOW_END_ANDROID_PERF.md). This
 command is about **runtime jank and interaction cost** across the matrix,
 not bundle size — leave that doc alone (see constraints below).
 

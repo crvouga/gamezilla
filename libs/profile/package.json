@@ -20,8 +20,8 @@
   "scripts": {
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
-    "test": "bun test --path-ignore-patterns='tests/e2e/**'",
-    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+    "test": "bun test --path-ignore-patterns='tests/harness/**'",
+    "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts"
   },
   "dependencies": {
     "@dicebear/collection": "catalog:",

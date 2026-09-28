@@ -8,16 +8,8 @@ Application-agnostic **topic pub/sub port**. One interface (`PubSub`) for every 
 - **Payloads**: opaque JSON-serializable values, ≤32KB serialized, moved through shared `encodePayload` / `decodePayload`. Malformed inbound frames are dropped with a warn, never thrown.
 - **Topics**: `/^[a-z0-9_-]+(:[A-Za-z0-9_-]+)*$/`, ≤128 chars. **No wildcards** in the port API (`+`, `#`, `*`) and no `/` — MQTT hierarchy/wildcards are rejected so every adapter (including future DO) can implement the same topic space.
 
-### Product topic helpers (Gamezilla)
-
-Entity-scoped, coarse names for the sync push layer live in
-`@libs/runtime/public/sync-topics` (`userTopic`, `roomTopic`, `userChannels`) —
-not in `@pkgs/sync-engine` or this package:
-
-- `user:{actorId}` — actor-scoped boot / membership list invalidation
-- `room:{spaceId}` — space/room membership invalidation (product entity is a space)
-
-Over-nudging is fine (`not_modified` absorbs it). Under-nudging is a latency bug, not a correctness bug. Topics are produced from `defineTopicMap` (mutation capture + held-row projection) ∪ query `entryChannel` / host `defaultEntryChannel`.
+Topic names are the consumer's; over-nudging is fine, under-nudging is a
+latency bug, not a correctness bug.
 
 - Consumers own repair. `onStatus` signals transport health; when a session expired or the offline queue overflowed, domain sync (not this port) is the catch-up path.
 - **`publish`** resolving means **ACCEPTED** by the transport, never DELIVERED.

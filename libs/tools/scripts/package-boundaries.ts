@@ -48,7 +48,7 @@ const COMPOSITION_ROOT = '@libs/runtime';
 
 /**
  * Packages that must stay composable from any subset of features: the app
- * shells, and the harness a feature's own e2e boots them through.
+ * shells, and the harness a feature's own spec boots them through.
  */
 const SHELLS = [
   '@libs/client-app',
@@ -63,7 +63,7 @@ type Rule = {
 
 const SHELL_RULE: Rule = {
   forbidden: new Set([...FEATURES, COMPOSITION_ROOT]),
-  why: "the shell is what a feature's own e2e boots; naming a feature here puts every feature in every feature's build graph. Contribute through the FeatureClient / FeatureServer fold instead, or declare a port the composition root fills.",
+  why: "the shell is what a feature's own spec boots; naming a feature here puts every feature in every feature's build graph. Contribute through the FeatureClient / FeatureServer fold instead, or declare a port the composition root fills.",
 };
 
 const FEATURE_RULE: Rule = {

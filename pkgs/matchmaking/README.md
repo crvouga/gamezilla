@@ -86,7 +86,7 @@ pkgs/matchmaking-harness/
 The acceptance behavior (waiting, stopping, changing one's range, being
 matched) is the Matchmaking context in `specs/matchmaking/` (Gherkin
 features plus the `matching.qnt` model), run by
-`@pkgs/matchmaking-harness`'s `test:e2e`; the runner also replays the
+`@pkgs/matchmaking-harness`'s `test:spec`; the runner also replays the
 model's longest trace twice and requires the same match fingerprint (same
 seed, same outcome).
 

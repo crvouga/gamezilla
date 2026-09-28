@@ -40,7 +40,7 @@ function turboCiRunTaskArgs(script: string): string[] {
 /**
  * `//#check` is the whole check surface. Everything a package can check about
  * itself rides in its own `tc` / `lint` / `test` / `test:contract` /
- * `test:e2e`, so it caches per package; root leaves are only the checks whose
+ * `test:spec`, so it caches per package; root leaves are only the checks whose
  * subject belongs to no package.
  */
 const CHECK_LEAVES = [
@@ -56,7 +56,7 @@ const CHECK_LEAVES = [
   'lint',
   'test',
   'test:contract',
-  'test:e2e',
+  'test:spec',
   '@apps/product#check:offline-shell',
   '@apps/room-server#check:worker-bundle',
   '@apps/server#check:worker-bundle',
@@ -156,7 +156,7 @@ describe('turbo check/deploy graph invariants', () => {
       'lint',
       'test',
       'test:contract',
-      'test:e2e',
+      'test:spec',
       'check:worker-bundle',
     ]) {
       expect(tasks[task]?.inputs?.[0], task).toBe('$TURBO_DEFAULT$');

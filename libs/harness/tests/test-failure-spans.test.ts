@@ -8,13 +8,13 @@ const OPTIONS = {
   completedAtMs: 1_800_000_000_000,
   environment: 'ci' as const,
   packageName: '@libs/example',
-  serviceName: 'example-e2e',
+  serviceName: 'example-spec',
 };
 
 test('failed JUnit cases become deterministic exact-name traces', () => {
   const cases = [
     {
-      file: 'tests/e2e/example.test.ts',
+      file: 'tests/harness/example.test.ts',
       name: 'offline edits converge',
       line: 12,
       status: 'failed' as const,
@@ -28,21 +28,21 @@ test('failed JUnit cases become deterministic exact-name traces', () => {
   expect(first[0]?.status).toBe('error');
   expect(first[0]?.attributes[ATTR.APP_TEST_ID]).toBe('offline edits converge');
   expect(first[0]?.attributes[ATTR.APP_TEST_FILE]).toBe(
-    'tests/e2e/example.test.ts'
+    'tests/harness/example.test.ts'
   );
 });
 
 test('passed and skipped JUnit cases do not create failure traces', () => {
   const cases = [
     {
-      file: 'tests/e2e/example.test.ts',
+      file: 'tests/harness/example.test.ts',
       name: 'passes',
       line: 1,
       status: 'passed' as const,
       failure: null,
     },
     {
-      file: 'tests/e2e/example.test.ts',
+      file: 'tests/harness/example.test.ts',
       name: 'skips',
       line: 2,
       status: 'skipped' as const,

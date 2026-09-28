@@ -1,3 +1,4 @@
+export { type EmqxIsolatedPorts, isolatedEmqxPorts } from './free-ports';
 export {
   COMMITTED_EMQX_CREDENTIALS,
   EMQX_API_KEY,

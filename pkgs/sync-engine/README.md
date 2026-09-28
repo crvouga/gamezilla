@@ -2,14 +2,8 @@
 
 Local-first sync between **client SQLite** and **server Postgres**.
 
-**How to use this file:** A blank agent (or human) with *only* this README
-should be able to (1) explain the system correctly, (2) review PRs against
-invariants, and (3) discuss design / recommend improvements without inventing
-history. Prefer this doc over training data or old chat transcripts.
-
-Related: root [`AGENTS.md`](../../AGENTS.md). This file is the single design
-doc for `@pkgs/sync-engine` (system + deterministic harness + scenario catalog) —
-load it alone for design discussion.
+The single design doc for this package: read it before reviewing or
+proposing changes. Repo hard rules: [`AGENTS.md`](../../AGENTS.md).
 
 ---
 
@@ -54,7 +48,7 @@ When recommending changes, optimize in this order unless the user overrides:
    special cases beat micro-optimized latency.
 3. **Local-first UX** — optimistic apply is instant; UI reads SQLite only.
 4. **Operability** — CI gates catch policy drift; deterministic harness catches
-   races; four public entrypoints only.
+   races; five public entrypoints only.
 5. **Efficiency** — hash/`not_modified`, push table filtering, coalesce,
    single-flight merge, row-image fanout. Secondary to 1–4.
 
@@ -118,56 +112,31 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 
 | Import | Role |
 |--------|------|
-| `@pkgs/sync-engine/client` | Web engine, Solid hooks, HTTP client |
-| `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
-| `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v3**, opaque migrate |
-| `@pkgs/sync-engine/harness` | In-memory engine + harness controls (`SCHEMA_EPOCH`, controllable lifecycle) |
-| `@pkgs/sync-engine/solid` | Solid bindings: `SyncEngineProvider`, `createQuery`, `useSyncEngine`, `MutationClientProvider` / `useMutationClient` |
+| `@pkgs/sync-engine/client` | Engine (`createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`), status and lifecycle types, `SyncEngine.mutationOutcome` / `listRejections` / `pendingMutationCount` |
+| `@pkgs/sync-engine/server` | `createSyncApp` (`POST /query`, `POST /mutations`), `notifyChannels({ pubsub, sql, topics, … })` (allocates pushSeqs, then fire-and-forget publish), `isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts` |
+| `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, `MutationError`, `LIVE_ROW_SQL`, `softDeleteById`, `defineTopicMap`, protocol v3 types + `MAX_*`, opaque framework migrate, `assertChannelExhaustiveness`, `assertDomainTablesAvoidFrameworkNames` |
+| `@pkgs/sync-engine/harness` | `createInMemorySyncEngine`, `SCHEMA_EPOCH`, `createControllableLifecycle`, `withFrameworkMutations` (escape hatch), the example app and `exampleSystem` |
+| `@pkgs/sync-engine/solid` | `SyncEngineProvider`, `createQuery`, `useSyncEngine`, `MutationClientProvider` / `useMutationClient` (hook-only importers may use `./solid/mutation-client`) |
 
-Full contract map, cutover runbook, authoring drift close-out, and refactor-freedom
-checklist: [`docs/CONTRACTS.md`](./docs/CONTRACTS.md). Checked-in API reports:
-[`api-reports/`](./api-reports/).
+Checked-in symbol lists: [`api-reports/`](./api-reports/); the wire shape
+hash is `api-reports/protocol-v2.sha256`. To change a freeze deliberately,
+change the surface, rewrite the report, and review it in the PR.
 
 ### Contract classes (what you may depend on)
 
 | Class | Promise | Examples |
 |-------|---------|----------|
 | **Code API** | Five entrypoints; coordinated monorepo refactors OK | `createLocalSyncEngine`, hooks, `createSyncApp`, `notifyChannels` |
-| **Wire protocol** | Cross-version freeze (`src/protocol/v2.ts`); shape changes need a version bump | `QueryResponse`, mutation batch, `PushMessage`, `MAX_*`, `upgrade_required` |
+| **Wire protocol** | Cross-version freeze (`src/protocol/v2.ts`, `SYNC_PROTOCOL_VERSION = 3`); shape changes need a version bump | `QueryResponse`, mutation batch, `PushMessage`, `MAX_*`, `upgrade_required` |
 | **Local domain SQL** | Deliberate local-first contract | Domain tables, `deleted_at`, `LIVE_ROW_SQL`, `useQuery` |
-| **Extension** | Domain plug-in vocabulary | `defineQuery` / `defineMutation`, `defineTopicMap`, `MutationEnv` |
-| **Runtime wiring** | Injected ports | `postQueries`/`postMutations` (protocol-derived), pubsub, auth, SQL, lifecycle |
-| **Internal** | Free to change; must not leak | Framework tables, merge/upload, seq alloc, hash algorithms, epoch |
+| **Extension** | Domain plug-in vocabulary | `defineQuery` / `defineMutation`, `defineTopicMap`, `entryChannel`, `MutationEnv`, `constraintErrors`, `pendingUx`, `requiresOnline` |
+| **Runtime wiring** | Injected ports | `postQueries` / `postMutations`, pubsub, auth, SQL, lifecycle, `sessionQueries`, `rowImageFanout` |
+| **Internal** | Free to change; must not leak | Framework tables, merge/upload, seq alloc, hash algorithms (the wire promises opaque equality only), epoch |
 
-**Do not depend on:** framework table names/shapes (`sync_engine_mutations`, `sync_engine_write_rejections`, …),
-`SCHEMA_EPOCH` (except via `/harness`), DDL text, `allocateTopicPushSeq`, or deep
-`@pkgs/sync-engine/src/...` imports. Use `mutationOutcome` / `listRejections` /
-`pendingMutationCount` instead of SQL on framework tables.
-
-### Notable public symbols
-
-**client:** `createLocalSyncEngine`, `createSyncHttpClient`, `createSyncEnginePool`,
-`SyncEngineProvider`, `useSyncEngine`, `useSyncEngineInstance`, `useQuery`,
-`MutationClientProvider`, `useMutationClient`, `SyncEnginePaintGateContext`,
-`AppLifecycle` **types**, status types, `SyncEngine.mutationOutcome` /
-`listRejections` / `pendingMutationCount`. Optional create opts `schemaEpoch` /
-`onLocalMigratePhase` for harness (constants live on `/harness`).
-
-**server:** `createSyncApp`, `notifyChannels({ pubsub, sql, topics, … })` (await
-while `sql` is connected; allocates pushSeqs then fire-and-forgets publish),
-`isAuthErrorBody`, `SyncAppAuth`, `pruneMutationArtifacts`.
-
-**shared:** `defineQuery`, `defineMutation`, registries, `MutationError`,
-`LIVE_ROW_SQL`, `softDeleteById`, framework schema migrate helpers (opaque),
-protocol types + `MAX_*` + `SYNC_PROTOCOL_VERSION`,
-`defineTopicMap`, `assertChannelExhaustiveness`, `assertDomainTablesAvoidFrameworkNames`.
-
-**test:** `createInMemorySyncEngine`, `SCHEMA_EPOCH`, `createControllableLifecycle`,
-`withFrameworkMutations` (escape hatch; factories already merge).
-
-**Not public:** `merge.ts`, `SubscriptionRuntime`, `MutationUploadQueue`, `attachPush`,
-`allocateTopicPushSeq*`, `FRAMEWORK_*` DDL/constants, `publishPushMessages`,
-`runQuery`, `replayMutation`, anything under `src/harness/`.
+**Do not depend on:** framework table names/shapes, `SCHEMA_EPOCH` (except
+via `/harness`), DDL text, `allocateTopicPushSeq*`, `publishPushMessages`,
+`runQuery`, `replayMutation`, or deep `src/` imports. Use `mutationOutcome` /
+`listRejections` / `pendingMutationCount` instead of SQL on framework tables.
 
 ### Refactor-freedom (acceptance for internals rewrites)
 
@@ -178,15 +147,12 @@ These must be possible with zero edits outside `pkgs/sync-engine/src/`:
 3. Swap pubsub transport behind the pubsub port.
 4. Change coalescing, batching, retry/backoff, single-flight (wire `MAX_*` bounds still frozen).
 5. Change `SCHEMA_EPOCH` mechanics or cache-wipe strategy.
-6. Change content-hash / scope-hash **algorithms** (opaque equality only on the wire).
-7. Add a push optimization without new required host wiring.
+6. Change content-hash / scope-hash **algorithms**.
+7. Add a push optimization (optional fields on `PushMessage`) without new required host wiring.
 
-### CI (encapsulation)
-
-```bash
-bun run lint  # no-sync-engine-framework-leak / no-sync-engine-terminology plugins
-bun run --filter @pkgs/sync-engine test
-```
+Biome plugins `no-sync-engine-framework-leak.grit`,
+`no-sync-engine-terminology.grit` and `no-legacy-writes.grit` guard this in
+every package's `lint`.
 
 ---
 
@@ -194,7 +160,7 @@ bun run --filter @pkgs/sync-engine test
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│ apps/client                                                  │
+│ client host (libs/client-app)                                │
 │  createAppLocalSyncEngine → createLocalSyncEngine            │
 │  sessionQueries + MQTT pushes (rowImageFanout: true)         │
 │  useQuery / useMutationClient / SyncEnginePaintGateContext   │
@@ -202,7 +168,7 @@ bun run --filter @pkgs/sync-engine test
                             │ POST /api/query, POST /api/mutations
                             │ MQTT pushes (EMQX)
 ┌───────────────────────────▼─────────────────────────────────┐
-│ apps/server  createSyncApp (package mounts /query, /mutations)  │
+│ API host (libs/server-app)  createSyncApp (/query, /mutations)│
 │  runQuery / processMutationsBatch / notifyChannels           │
 │  Postgres (domain + sync_engine_mutations_applied + sync_engine_write_rejections)   │
 │  product opts rowImageFanout: true                           │
@@ -313,7 +279,7 @@ Rules:
 
 `createLocalSyncEngine` owns:
 1. Local schema migrate (framework + domain via `@pkgs/db-schema-sqlite`;
-   `SCHEMA_EPOCH = 11`)
+   `SCHEMA_EPOCH`)
 2. `SubscriptionRuntime` — coalesce → `POST /query` → merge
 3. `MutationUploadQueue` — drain `sync_engine_mutations` → `POST /mutations`
 4. Optional `attachPush` — MQTT topics from held-row topic-map ∪ entryChannel
@@ -390,14 +356,11 @@ When off, pushes are wake+refetch only (still correct). When on, contiguous
 `seq` = `COALESCE(MAX(seq),0)+1` inside the mutate transaction. Server
 idempotency is by **mutation id**, so seq restarts are harmless.
 
-**Deleted on purpose (do not resurrect without a design review):**
-`_row_scopes`, `_upload_state`, `_peer_applied`, `_peer_mutations`,
-per-topic applied-seq cache (replaced by `sync_engine_push_applied`), full write-epoch /
-`status` / `acked_epoch` barriers, MQTT mutation fanout payloads. Ack-then-stale-merge
-flicker is addressed by sync `bumpGenerations` on upload ack (not a write-epoch).
+There is no `_row_scopes`, no peer mutation log and no write-epoch barrier
+(see [Locked decisions](#locked-require-explicit-user-buy-in-to-reverse)).
 
-`SCHEMA_EPOCH` (currently **7**) bumps wipe **cache** tables and drop retired
-tables; durable `sync_engine_mutations` survive epoch wipe semantics carefully (see
+`SCHEMA_EPOCH` (`queries/client/local-schema.ts`) bumps wipe **cache** tables
+and drop retired tables; durable `sync_engine_mutations` survive epoch wipe semantics carefully (see
 `local-schema-migrate.ts`).
 
 Domain tables come from the host’s `LocalDomainSchema.domainSchema` (e.g.
@@ -602,7 +565,7 @@ soft-ack + generation fence); see
 - No `_row_scopes` / absence-as-delete
 - No full write-epoch / `acked_epoch` barrier (flicker fix: sync
   `bumpGenerations` on upload ack; ack still deletes the queue row)
-- Four public package entrypoints
+- Five public package entrypoints
 - Mutations-only domain writes; tiny REST exception list
 - Hard query `limit` required
 - pkgs tier cannot import libs/apps
@@ -614,7 +577,6 @@ soft-ack + generation fence); see
 - Incremental/delta protocol *if* full snapshots become a measured bottleneck
 - Server-side tombstone windows / “deleted since checkpoint” for huge tables
 - Clearing stale locals that left a scope without soft-delete (product policy)
-- Delete dead `process-upload-with-mutations.ts` (removed; legacy CRUD upload)
 
 ### Explicitly rejected for now
 
@@ -636,37 +598,32 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
 2. **Stale live rows outside soft-delete** — if a row leaves a query result
    without `deleted_at` set, it stays live locally. Mitigate with better
    query design (always tombstone membership edges) or accept + filter in UI.
-3. **~~Ack-then-stale-merge flicker~~ (fixed)** — on applied ack, synchronously
-   `bumpGenerations` so in-flight pre-replay query sweeps are dropped before
-   they can apply without a pending rebase shield. Queue row is still deleted
-   on ack (no write-epoch). Post-ack `wakeAll` is intentionally not wired
-   (disturbs concurrent multi-writer settle in harness).
-4. **Full snapshot cost** — large catalog / interactions payloads.
+3. **Full snapshot cost** — large catalog / interactions payloads.
    `not_modified` helps when unchanged; first fetch / rating band change is
    heavy. Deltas are a last resort after measuring.
-5. **Membership topic sync** — incremental subscribe/unsubscribe (no MQTT
+4. **Membership topic sync** — incremental subscribe/unsubscribe (no MQTT
    remake). Waits for pending `sync_engine_mutations` drain; tiny subscribe-race window
    healed by `wakeAll`; true dispose still closes with sessionExpiry 0.
-6. **Product paint is local-open** — `waitForFirstSync` still waits on all
+5. **Product paint is local-open** — `waitForFirstSync` still waits on all
    session queries for harness/`subscribeQueries`. Product `paintReady` is an
    identity-match context set once the local engine is mounted, not after
    first-sync.
-7. **Rebase swallows errors** — pending mutation that fails against new
+6. **Rebase swallows errors** — pending mutation that fails against new
    server state stays queued until upload reject; UI may look “stuck”
    optimistic. Product should watch `sync_engine_write_rejections`.
-8. **Inbox `active` filter vs tombstones** — inbox may filter `active = true`
+7. **Inbox `active` filter vs tombstones** — inbox may filter `active = true`
    (not a `deleted_at` predicate); remaining product staleness risk if rows
    are soft-deleted without clearing `active`.
-9. **Prune retention window** — `pruneMutationArtifacts` prunes acknowledged
-    `sync_engine_write_rejections` only; applied mutation ids stay in
+8. **Prune retention window** — `pruneMutationArtifacts` prunes acknowledged
+   `sync_engine_write_rejections` only; applied mutation ids stay in
     `sync_engine_mutations_applied` so late retries remain idempotent (pinned by
     `late-retry-after-prune-idempotent`).
-10. **Server DDL before client writers** — mixed app versions are safe for
+9. **Server DDL before client writers** — mixed app versions are safe for
     **reads** via column-intersect merge (extra server columns ignored; local-only
     columns not clobbered). Clients that **write** a new column/table before the
     server has migrated that DDL will fail upload (infra retry / no wipe). Ship
     server migrate first; pinned by `client-ahead-column-mutation-no-wipe`.
-11. **Malformed mutation `args` JSON** — permanent `INVALID_ARGS` reject (not an
+10. **Malformed mutation `args` JSON** — permanent `INVALID_ARGS` reject (not an
     infra retry storm).
 
 ---
@@ -712,12 +669,13 @@ single-flight (it does) — mainly HTTP/server load then.
 
 - **Domain schema:** `@libs/runtime` `defineTable` / `registerTables` / `appSchema`; local reconcile via
   `@pkgs/db-schema-sqlite`; Postgres migrate separate.
-- **Framework local:** package-local `syncEngineLocalSchema` via `applySqliteSchema`; `SCHEMA_EPOCH` (= 12)
+- **Framework local:** package-local `syncEngineLocalSchema` via `applySqliteSchema`; `SCHEMA_EPOCH`
   in `queries/client/local-schema.ts`.
 - **Framework server:** `syncEngineServerSchema` via `SyncEngineDatabaseMigration` (cutover + Postgres reconcile).
 - **Query/mutation wire names:** breaking changes ship as a new `name`
   (e.g. `joinSpaceV2`). Protocol cutover for clients is `upgrade_required`
-  (no wipe) + pending-queue preserve-and-drain — see CONTRACTS cutover runbook.
+  (no wipe) + pending-queue preserve-and-drain. No dual handlers for old
+  wire versions.
 - **Cache clear:** `clearLocalData({ reason: 'cache' })` drops cache tables and
   recreates schema; durable `sync_engine_mutations` policy follows migrate helpers.
   `{ reason: 'revoked' }` is the auth-wipe path.
@@ -728,24 +686,18 @@ single-flight (it does) — mainly HTTP/server load then.
 
 ```text
 pkgs/sync-engine/src/
-  client/           # engine, merge, subscriptions, push, Solid, HTTP, pool
-  mutations/
-    core/           # defineMutation, types, registry
-    client/         # createMutationClient, mutation-status
-    server/         # replay, batch, prune, dead legacy upload classifier
-    shared/         # wrapMutationDb, soft-delete, framework mutations
-  queries/
-    core/           # defineQuery, types, registry
-    server/         # runQuery
-    client/         # local-schema, sql-watch, table-change-bus
-    shared/         # hash/canonical, bounds, tiger invariant names
+  client/           # engine, merge, subscriptions, push, HTTP, pool
+  solid/            # Solid bindings
+  mutations/        # defineMutation, client queue, server replay
+  queries/          # defineQuery, runQuery, local schema, sql-watch, bounds
+  protocol/         # frozen wire shapes
+  sql-ast/          # AST capture (write sets, tombstone rules)
   server/           # createSyncApp, routes, notifyChannels
   shared/           # framework DDL, channel exhaustiveness, push types
-  harness/              # deterministic multi-client simulation (not public)
-  test/             # in-memory engine
-  tests/
-    scenarios/      # black-box correctness (~140 files)
-    harness/        # harness kernel self-tests
+  harness/          # deterministic multi-client simulation + example app
+tests/
+  *.test.ts         # contracts and properties
+  steps/, quint/    # specs/sync-engine bindings
 ```
 
 ---
@@ -761,415 +713,55 @@ pkgs/sync-engine/src/
 | `SyncEnginePaintGateContext` | Product sets identity-match gate |
 | `createSyncEnginePool` | Multi-identity engine pool (account switch) |
 
-Mutation UX (product/`@pkgs/ui-rn`, not this package): destructive →
-`MutationModal`; light → `useMutationButton`. Don’t `router.back()` from
-mutation `onSuccess` — stay and let SQLite drive UI.
+Mutation UX is the product's (see `AGENTS.md` § "Mutation UX").
 
 ---
 
-## Testing & CI
+## Testing
 
-```bash
-bun run --filter @pkgs/sync-engine tc
-bun run --filter @pkgs/sync-engine test
-bun run lint
-```
+Policy: [`docs/TESTING.md`](../../docs/TESTING.md); spec rules:
+[`docs/SPEC_STANDARDS.md`](../../docs/SPEC_STANDARDS.md).
 
 | Suite | Path | Role |
 |-------|------|------|
-| Behavior (Gherkin) | `specs/sync-engine/*.feature` | What people observe on the example domain (writes reach everyone quickly, survive offline / crashes / lost replies / app updates, writes that wait for an answer, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/harness` |
-| Model (Quint) | `specs/sync-engine/note-replication.qnt` | Replication rules for the example domain under any interleaving of edits, offline, stalled networks, cut-off saves or live updates, lost replies + retries, save and refresh hiccups, a full device, crashes (also mid-save), failed opens, app updates (also forced), damaged or cleared app data, damaged unsent edits, signing out elsewhere, wrong clocks, lossy / garbled / lost / paused live updates, outages, a second window, and the team's silent edits, inserts and tidying, for three people; binding in `tests/quint/`, traces drawn from `FC_SEED` |
-| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (hard delete, mutation authorization, not-modified queries, managed columns, topic maps), and one framework regression: the harness's standing check reads only committed upload verdicts (`invariant-check-waits-for-in-flight-verdict`, timing-exact, not reproducible from a scenario) |
-| Public unit helper | `@pkgs/sync-engine/harness` | `createInMemorySyncEngine` (no full kit surface) |
-
-Specs policy: [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
-When the product and `note-replication.qnt` disagree, the failing trace prints
-the step, the differing variables (model vs product) and the harness calls; decide
-which is wrong — never loosen `observe`.
+| Behavior (Gherkin) | `specs/sync-engine/*.feature` | What people observe on the example app; steps in `tests/steps/` over `@pkgs/sync-engine/harness` ([`STEPS_CATALOG.md`](./STEPS_CATALOG.md)) |
+| Model (Quint) | `specs/sync-engine/note-replication.qnt` | Replication rules under any interleaving of edits, offline, network and storage faults, crashes, app updates and server-side writes; binding in `tests/quint/` |
+| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (hard delete, mutation authorization, not-modified queries, managed columns, topic maps) |
 
 ```bash
-bun run --filter @pkgs/sync-engine test       # contracts
-bun run --filter @pkgs/sync-engine test:e2e   # specs/sync-engine features and the Quint model
-bun run spec specs/sync-engine/note-writing.feature
+bun run --filter @pkgs/sync-engine test        # contracts
+bun run --filter @pkgs/sync-engine test:spec   # features + the Quint model
 bun run spec specs/sync-engine/note-replication.qnt
 ```
 
-| Pool action layer | Actions (`pool.*` in `harness/scenario/sync-actions.ts`) |
-|-------------------|------------------------------------------------------|
-| Domain (injected `SyncApp`) | `domain` — one `DomainOp` drawn from `app.domainOpArbs` |
-| Server OOB (injected `SyncApp`) | `server` — one `ServerOp` drawn from `app.serverOpArbs` |
-| Connectivity triad | `online`, `offline`, `connect`, `disconnect`, `background`, `foreground` |
-| Network | `partition`, `restoreNetwork`, `hold`, `release`, `setFaults` |
-| Boundary faults | `armHttpFault`, `armCrashAt`, `publishFault`, `auth`, `protocolCut` |
-| Lifecycle / storage | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew`, `tamperLocalStorage`, `armStoragePressure`, `addPeerEngine` |
-
-App fixtures (e.g. example) supply `domainOpArbs` and `serverOpArbs` under
-`src/harness/example-app/` — the system kernel has no app nouns. Every pool
-action has a `sample`, so `explore` walks the whole catalog and slice PBTs pick
-subsets by name (`actions: ['domain', 'offline', 'restoreNetwork']`).
-
-`queries/shared/tiger-invariants.ts` lists harness-checked invariants; see
-[Tiger Style](#tiger-style-safety--bounds) for the full error/bound matrix.
+When the product and the model disagree, the failing trace prints the step,
+the differing variables and the harness calls; decide which is wrong — never
+loosen `observe`.
 
 ### Deterministic harness
 
-TigerBeetle-style deterministic simulation in `src/harness/` (exported as
-`@pkgs/sync-engine/harness`). **One seed → identical timeline.** Systems are
-**owned by `@pkgs/harness`**:
-`exampleSystem` (a `defineSystem` over `createSyncHarness`) declares the
-broker/server/client topology, args, action pool, and model, and tests drive it
-with `exampleSystem.explore(...)` / `.replay(...)` / `.run(...)` + `s.apply` /
-`s.read`; fuzz is a seeded `s.randomActions` over the pool. Assert **live domain
-rows only** — never framework tables or private modules.
+`src/harness/` (exported as `./harness`) is a `@pkgs/harness` system,
+`exampleSystem`, over the one example app (`src/harness/example-app/`). One
+seed gives one timeline: a seeded RNG drives a virtual clock, scheduler and
+network (delay, loss, reorder, replay, partition) between a harness server
+(`:memory:` SQLite + framework DDL), a pubsub broker and real
+`createLocalSyncEngine` clients. Not simulated: disk bitflips, real EMQX, the
+Worker runtime; the harness server uses the SQLite dialect.
 
-```text
-seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
-  │                         │
-  └──► VirtualClock ──► Scheduler ──► timers + delayed deliveries
-                                    │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-              HTTP bridge     PubSub broker    Harness server
-                    │               │         (:memory: SQLite)
-                    └───────┬───────┘
-                            ▼
-              Real createLocalSyncEngine + :memory: SQLite clients
-```
+The action pool (`harness/scenario/`) covers domain and server-side writes,
+the connectivity triad, network faults, boundary crash arms, HTTP / publish
+faults, crashes, restarts, cache clears, clock skew and storage pressure.
+Tests assert live domain rows only — never framework tables.
 
-| Boundary | Implementation |
-|----------|----------------|
-| Time | `s.advanceTime` / `s.until` / `s.never` over Runtime virtual clock + scheduler |
-| Wall clocks | `s.apply(skewClock, id, ms)` / `s.read(nodeNow, id)` |
-| Timers | `createTimers` implements the production `Timers` port |
-| RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
-| Network | `s.apply(net, nodeId, traffic, state)` — hold / down / fault profiles |
-| HTTP | `createHarnessHttpClient` / `bindHarnessHttpServer` over the mesh (`sync` traffic) |
-| PubSub | `createHarnessPubSubBroker` delayed fanout over the same mesh (`live` traffic) |
-| Server | Bun `:memory:` SQLite + framework DDL + schema reconcile |
-| Clients | Bun `:memory:` SQLite + real `createLocalSyncEngine` |
+**Connectivity triad (do not conflate):**
 
-**Not simulated:** disk bitflips, real EMQX, Cloudflare Worker runtime. Harness
-server uses SQLite dialect; production server is Postgres.
-
-Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
-`await using` / `using` (`AsyncDisposable` / `Disposable`). No custom test
-runner. Failures from `expectInSync` / `s.until` / `s.never` / property
-asserts embed `seed=<hex>` and virtual `now=` for replay.
-
-**Five concepts:**
-
-1. **Time** — `s.advanceTime(ms)`,
-   `s.until(read, { maxMs?, pred? })` (positive wait; wrap args in a
-   zero-arg read),
-   `s.never(read, { forMs })` (fail if the predicate holds within the
-   window). Thin example helpers `untilExample` / `neverExample` only set default
-   `stepMs`. All scheduler-driven — never wall-clock.
-2. **Network** — `s.apply(net, nodeId, traffic, state)` /
-   `hold` / `release` / `partition` / `restoreNetwork`; settle neutralizes
-   outstanding net effects.
-3. **Node** — `s.apply(crash, id)` / `crashAt` / `restart` /
-   `auth` / `skewClock` (and related fault pins). Server id is `'server'`.
-4. **Client** — `s.apply(mutate, id, mutation, args)`, connectivity triad
-   (below), `subscribe`, `outcome` / `rejections` reads, `nudge`
-   (rare; needs `// nudge:` comment).
-5. **Revive + observe** — `expectInSync(run)` (or `recoverAll` + `s.until(inSync)`) clears holds/partitions/faults, forces
-   online/foreground/connect, wakes uploads + refreshes, diffs each client vs
-   server (differential oracle). Does **not** absorb negative-timing windows —
-   use `s.never` / `neverExample` for those.
-
-#### Connectivity triad (do not conflate)
-
-| API | Layer | Use when |
+| Action | Layer | Use when |
 |-----|-------|----------|
-| `s.apply(online, id, false\|true)` | AppLifecycle intent | `requiresOnline` gate; queue-while-offline that still allows engine session |
-| `s.apply(disconnect, id)` / `connect` | Engine session | Stop/start upload runtime + push attach (auth revoke / upload-stop) |
-| `s.apply(net, id, traffic, state)` | Network reality | Partition, hold sync/live, packet loss |
+| `online` | AppLifecycle intent | `requiresOnline` gate; queue while offline |
+| `disconnect` / `connect` | Engine session | Stop/start upload runtime + push attach |
+| `net` (`sync` / `live` / `all` traffic) | Network reality | Partition, hold, packet loss |
 
-#### Quick start
-
-```ts
-import { describe, expect, test } from 'bun:test';
-import {
-  exampleSystem,
-  addClient,
-  expectInSync,
-  liveNote,
-  mutate,
-  setNote,
-} from '../apps/example';
-
-describe('example', () => {
-  test('mutate staysInSync', async () => {
-    await using s = await exampleSystem.run({
-      seed: 42,
-      args: { clientCount: 0 },
-    });
-    await s.apply(addClient, 'alice');
-    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'hi' });
-    await expectInSync(s);
-    expect(await s.read(liveNote, 'alice', 'n1')).toMatchObject({
-      body: 'hi',
-    });
-  });
-});
-```
-
-PBT / system pins (`exampleSystem.explore` / `s.apply(pool.*)` / `exampleSystem.replay`):
-
-```ts
-import { gen } from '@pkgs/harness/fast-check';
-import { arbSyncArgs, EXAMPLE_DST_FAULTS_HOST, exampleSystem, pool } from '@pkgs/sync-engine/harness';
-
-// Runtime, action pool, and properties are registered on the system.
-await exampleSystem.explore({
-  args: gen(arbSyncArgs()),
-  episodes: 12,
-  steps: 14,
-});
-
-// Slice PBT over a few pool actions on the lossy runtime.
-await exampleSystem.explore({
-  runtime: EXAMPLE_DST_FAULTS_HOST,
-  actions: ['domain', 'offline', 'online', 'restoreNetwork'],
-  episodes: 8,
-  steps: 12,
-});
-
-// Scripted pin — the same pool actions, applied by hand.
-await using s = await exampleSystem.run({ seed: 42, args: { clientCount: 2 } });
-await s.apply(pool.domain, {
-  clientId: 'c0',
-  mutation: 'setNote',
-  args: { id: 'n0', body: 'x', title: '' },
-});
-await s.apply(pool.restoreNetwork);
-```
-
-Scoped hold + latency budget + negative window:
-
-```ts
-{
-  await s.apply(pauseNetwork, 'bob', 'sync');
-  const t0 = await s.read(nodeNow, 'bob');
-  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await s.never((s) => liveNote(s, 'bob', 'n1'), {
-    forMs: 200,
-    pred: (n) => n != null && n.deletedAt == null,
-  });
-  await s.apply(resumeNetwork, 'bob', 'sync');
-  await s.until((s) => liveNote(s, 'bob', 'n1'), {
-    pred: (n) => n != null && n.deletedAt == null,
-  });
-  const at = await s.read(nodeNow, 'bob');
-  expect(at - t0).toBeLessThan(200);
-}
-await expectInSync(s);
-```
-
-Lightweight clock/timers without a full kit:
-
-```ts
-import { createHarnessTestDriver } from './test-driver';
-const harness = createHarnessTestDriver();
-await harness.runFor(150);
-```
-
-#### Traffic classes
-
-| Traffic | Intent |
-|---------|--------|
-| `live` | Realtime peer updates (pushes / fanout) |
-| `sync` | Pull / request-response hydration |
-| `all` | Both |
-
-```ts
-await s.apply(net, 'bob', 'sync', 'hold');
-await s.apply(net, 'bob', 'live', 'down');
-await s.apply(net, 'bob', 'live', { dropProbability: 1 });
-```
-
-**Live is unreliable by design.** Named tests assert domain convergence after
-settle, not push ordering. Prefer `hold` on `sync` to script push↔query races.
-
-#### Clock skew
-
-```ts
-await s.apply(skewClock, 'alice', -60_000);
-await s.apply(skewClock, 'server', 60_000);
-await s.read(nodeNow, 'alice'); // base + skew
-```
-
-#### Args
-
-**System open** — `exampleSystem.run({ seed, args })`. `args` is a partial
-overlay on the system defaults; the registered `virtual` host supplies the clock
-and network:
-
-| Arg | Default | Meaning |
-|------|---------|---------|
-| `seed` | required | Root RNG seed (`number \| bigint \| string`) |
-| `args.clientCount` | `2` | Booted `c0..` clients (`0` for scripted pins that `addClient`) |
-| `args.rowImageFanout` | `true` | Live pushes apply row images when `true` (kit/`!== false` semantics) |
-| `args.liveResendOnReconnect` | `false` | Buffer last topics while peer closed; flush on re-subscribe |
-| `args.bufferOutboundLive` | `false` | Queue optimistic fanout while push detached |
-| `args.sessionQuery` | pack default | Override the hydration query (e.g. the large catalog) |
-| host network | reliable | Register a second host with `syncVirtual(toKernelFaults({ … }))` |
-
-Custom faults: `networkDefaults: toKernelFaults({ ...RELIABLE_FAULTS, latencyMeanMs: 30 })`.
-
-**Network faults** (`HarnessFaultOptions` in `faults.ts`):
-`latencyMeanMs` / `latencyJitterMs`, `dropProbability`,
-`packetReplayProbability`, `reorderWindow`, plus unused partition probability
-fields for fuzz profiles.
-
-**Client / node lifecycle:** `addClient`, `node(id).crash` / `restart` /
-`auth`, plus the connectivity triad above. Use
-`sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios.
-`pubsubRemakeCount()` / `subscribedTopics()` for membership asserts.
-`isSchedulerQuiescent()` / `pendingEventCount()` observe the harness timer heap
-(scheduler is on the run session).
-
-**Boundary crash arms** (`node(id).crash({ at })` returns Disposable):
-
-| Event | Boundary |
-|-------|----------|
-| `afterNextSyncResponseDelivered` | Sync HTTP reply delivered to client RPC |
-| `afterNextMutateResolved` | After `mutate()` resolves |
-| `afterNextMutationsPostAccepted` | Mutations handler finished; before response sent |
-| `onNextTimerTickWhileSyncUndelivered` | Next timer tick (use with sync hold) |
-| `onNextEngineOpenAfterCacheWipe` | Local migrate after cache wipe |
-
-**HTTP / publish faults:** `node(id).httpFault(fault)`,
-`node('server').publishFault(count)` — both `Disposable`.
-
-**Server ops:** `server.pruneArtifacts(olderThanMs)`,
-`server.notifyFanout({ topics, tables, label })`. Domain fixture
-`writeNoteBody(server, { id, body, notify? })` (`notify: false` pins the
-non-mutation path; reconcile tick heals).
-
-**Demoted / internal (lab + harness; CI-banned in scenarios):** raw kit
-handles, `getSyncEngine` (except account-switch pool), `postMutations` (except
-duplicate-mutation-id). Prefer observations (`liveNote`, `rows`, `outcome`) and
-pin actions.
-
-**Fuzz / replay** — a seeded `s.randomActions` over the pool (or an `actions:` slice),
-then `expectInSync`; the same seed must reproduce identical `w.choices`:
-
-```ts
-await using s = await exampleSystem.run({ seed: 42, args: { clientCount: 3 } });
-const w = await s.randomActions({ steps: 40, time: { weight: 1, minMs: 0, maxMs: 40 } });
-await expectInSync(s);
-```
-
-`explore` failures carry a shrunk `Recording`; replay with `exampleSystem.replay(repro)`.
-
-#### Scenario-writing guide (patterns, not primitives)
-
-Keep these as snippets — do **not** promote into API members:
-
-**Warm baseline**
-
-```ts
-await s.apply(mutate, 'alice', setNote, { id: 'warm', body: 'w' });
-await expectInSync(s);
-```
-
-**Offline queue (AppLifecycle)**
-
-```ts
-await s.apply(online, 'alice', false);
-await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
-await s.never((s) => liveNote(s, 'server', 'n1'), {
-  forMs: 50,
-  pred: (n) => n != null && n.deletedAt == null,
-});
-await s.apply(online, 'alice', true);
-await expectInSync(s);
-```
-
-**Engine offline queue (session stop)**
-
-```ts
-await s.apply(disconnect, 'alice');
-await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'queued' });
-await s.apply(connect, 'alice');
-await expectInSync(s);
-```
-
-**Sync hold race**
-
-```ts
-{
-  await s.apply(pauseNetwork, 'bob', 'sync');
-  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await s.never((s) => liveNote(s, 'bob', 'n1'), {
-    forMs: 300,
-    pred: (n) => n != null && n.deletedAt == null,
-  });
-  await s.apply(resumeNetwork, 'bob', 'sync');
-}
-await expectInSync(s);
-```
-
-**Partition restoreNetwork**
-
-```ts
-{
-  await s.apply(partition, 'bob');
-  await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'x' });
-  await s.apply(restoreNetwork);
-}
-await expectInSync(s);
-```
-
-**Crash + preserve DB**
-
-```ts
-await s.apply(crash, 'bob');
-await s.apply(restart, 'bob', { preserveLocalDb: true });
-await expectInSync(s);
-```
-
-**Subscribe scope**
-
-```ts
-await s.apply(subscribe, 'alice', 'notesDenied', {});
-// … asserts …
-await s.apply(unsubscribe, 'alice', 'notesDenied', {});
-```
-
-**Flicker window** (keep explicit ms; do not absorb into settle)
-
-```ts
-for (let i = 0; i < 8; i += 1) {
-  await s.advanceTime(25);
-  expect(await s.read(liveNote, 'alice', 'n1')).toMatchObject({
-    body: 'optimistic',
-  });
-}
-```
-
-**Heal-by-refetch pin**
-
-```ts
-// nudge: reason under test
-await s.apply(nudge, 'bob');
-```
-
-#### Harness layout
-
-```text
-src/harness/                             # exported as `@pkgs/sync-engine/harness`
-  …                                  # harness (rng, network, bridges, server, …)
-  scenario/                          # boot (runtime + S), pool + pin actions, reads
-  example-app/                       # example fixture
-
-tests/                               # black-box against package exports
-  …                                  # scenario pins + harness
-```
-
-Full per-file scenario catalog: [Scenario catalog](#scenario-catalog) at the
-bottom of this README.
+Live traffic is unreliable by design: assert convergence, not push order.
 
 ---
 
@@ -1189,9 +781,8 @@ bottom of this README.
    `ok` / `not_modified` / `denied`).
 8. No feature REST for sync-scoped data (tiny exception list in `AGENTS.md`).
 9. No deep public imports — five entrypoints only.
-10. No dependency patches; no biome size-rule disables for app code.
-11. No pkgs → libs/apps imports.
-12. Actor identity comes from session auth only (never trust client-supplied
+10. No pkgs → libs/apps imports.
+11. Actor identity comes from session auth only (never trust client-supplied
     actor for authorization).
 
 ---
@@ -1214,8 +805,8 @@ Agents recommending changes should answer:
 9. **Does a scenario already cover it?** Prefer extending harness over new
    production flags.
 
-Good proposals usually: prune policy, CI for query tombstone contract, delete
-dead legacy upload path, measure snapshot sizes, improve rejection UX.
+Good proposals usually: prune policy, CI for query tombstone contract,
+measure snapshot sizes, improve rejection UX.
 Suspicious proposals usually: restore peer fanout, restore `_row_scopes`, add
 delta mode “for completeness,” raise in-flight polls without evidence.
 
@@ -1271,23 +862,9 @@ Three distinct monotonic sequences — do not conflate them:
 
 ---
 
-## Related docs
+## Related code
 
-- Root [`AGENTS.md`](../../AGENTS.md) — monorepo hard rules
-- Product defs: `libs/<feature>/src/shared/{queries,mutations}/`
-- Product client wiring: `apps/client/src/sync/create-local-sync-engine.ts`
-- Product API wiring: `apps/server/src/sync/sync-app.ts`
-- Topics: `libs/runtime/src/root/sync-topics.ts`
-- Schema: `libs/runtime/src/root/app-schema.ts`
-
----
-
-## Scenario catalog
-
-Behavior lives in [`specs/sync-engine/`](../../specs/sync-engine/) (one feature per
-capability, steps listed in [`STEPS_CATALOG.md`](./STEPS_CATALOG.md)); the
-replication rules in [`specs/sync-engine/note-replication.qnt`](../../specs/sync-engine/note-replication.qnt)
-(invariants `invNoDoubleApply`, `invInOrderPerPerson`, `invNoLostWrites`,
-`invTombstonesKept`, `invOnlyForbiddenRefused`, `invOnlineAgree`,
-`invRetryIsDuplicate`, `invHealConverges`); contracts under `tests/`.
-Porting history: [`docs/SPEC_MIGRATION_INVENTORY.md`](../../docs/SPEC_MIGRATION_INVENTORY.md).
+- Client host wiring: `libs/client-app/src/shell/sync/create-local-sync-engine.ts`
+- API host wiring: `libs/server-app/src/sync/sync-app.ts`
+- Topic helpers: `libs/feature/src/public/sync.ts`
+- Domain schema: `libs/runtime/src/root/app-schema.ts`

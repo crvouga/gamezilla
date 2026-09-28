@@ -1,13 +1,13 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/property';
-import { behaviorTestViolations } from './behavior-tests';
+import { behaviorTestViolations, randomWalkViolations } from './behavior-tests';
 
 function violations(files: readonly string[]): string {
   return behaviorTestViolations({ files }).join('\n');
 }
 
 describe('behaviorTestViolations', () => {
-  test('harness support under tests/e2e and one example app are clean', () => {
+  test('harness support under tests/harness and one example app are clean', () => {
     expect(
       behaviorTestViolations({
         files: [
@@ -15,28 +15,28 @@ describe('behaviorTestViolations', () => {
           'src/harness/example-app/example-app.ts',
           'src/harness/example-app/schema.ts',
           'tests/a.test.ts',
-          'tests/e2e/support/open-x-harness.ts',
+          'tests/harness/open-x-harness.ts',
           'tests/steps/x.steps.ts',
         ],
       })
     ).toEqual([]);
   });
 
-  test('a test file under tests/e2e is reported, however deep', () => {
+  test('a test file under tests/harness is reported, however deep', () => {
     const errors = violations([
-      'tests/e2e/flow.test.ts',
-      'tests/e2e/nested/ui.test.tsx',
-      'src/feature/tests/e2e/inner.test.ts',
+      'tests/harness/flow.test.ts',
+      'tests/harness/nested/ui.test.tsx',
+      'src/feature/tests/harness/inner.test.ts',
     ]);
-    expect(errors).toContain('tests/e2e/flow.test.ts');
-    expect(errors).toContain('tests/e2e/nested/ui.test.tsx');
-    expect(errors).toContain('src/feature/tests/e2e/inner.test.ts');
+    expect(errors).toContain('tests/harness/flow.test.ts');
+    expect(errors).toContain('tests/harness/nested/ui.test.tsx');
+    expect(errors).toContain('src/feature/tests/harness/inner.test.ts');
   });
 
-  test('a test file merely named e2e is not under tests/e2e', () => {
+  test('a test file merely named harness is not under tests/harness', () => {
     expect(
       behaviorTestViolations({
-        files: ['tests/e2e.test.ts', 'tests/e2e-support.test.ts'],
+        files: ['tests/harness.test.ts', 'tests/harness-support.test.ts'],
       })
     ).toEqual([]);
   });
@@ -75,7 +75,7 @@ describe('behaviorTestViolations', () => {
     expect(
       behaviorTestViolations({
         files: [
-          'node_modules/x/tests/e2e/a.test.ts',
+          'node_modules/x/tests/harness/a.test.ts',
           'node_modules/x/example-y/a.ts',
         ],
       })
@@ -86,7 +86,13 @@ describe('behaviorTestViolations', () => {
   const dir = fc.array(
     fc.oneof(
       segment,
-      fc.constantFrom('tests', 'e2e', 'support', 'example-app', 'example-kv')
+      fc.constantFrom(
+        'tests',
+        'harness',
+        'support',
+        'example-app',
+        'example-kv'
+      )
     ),
     { maxLength: 4 }
   );
@@ -94,7 +100,7 @@ describe('behaviorTestViolations', () => {
     .tuple(dir, segment, fc.constantFrom('.ts', '.test.ts', '.test.tsx'))
     .map(([parts, name, ext]) => [...parts, `${name}${ext}`].join('/'));
 
-  test('property: clean iff no e2e test, no forked app and at most one example-app', () => {
+  test('property: clean iff no harness test, no forked app and at most one example-app', () => {
     assertProperty(
       'behavior test shape',
       fc.property(fc.uniqueArray(file, { maxLength: 10 }), (files) => {
@@ -107,20 +113,50 @@ describe('behaviorTestViolations', () => {
           })
         );
         const base = (d: string) => d.split('/').at(-1) ?? '';
-        const e2e = files.some((f) => {
+        const harnessTest = files.some((f) => {
           const parts = f.split('/').slice(0, -1);
           return (
             /\.test\.tsx?$/.test(f) &&
-            parts.some((p, i) => p === 'tests' && parts[i + 1] === 'e2e')
+            parts.some((p, i) => p === 'tests' && parts[i + 1] === 'harness')
           );
         });
         const forked = [...dirs].some(
           (d) => base(d).startsWith('example-') && base(d) !== 'example-app'
         );
         const apps = [...dirs].filter((d) => base(d) === 'example-app').length;
-        const clean = !e2e && !forked && apps <= 1;
+        const clean = !harnessTest && !forked && apps <= 1;
         expect(behaviorTestViolations({ files }).length === 0).toBe(clean);
       })
     );
+  });
+});
+
+describe('randomWalkViolations', () => {
+  test('a random walk in a spec package test is reported', () => {
+    const errors = randomWalkViolations([
+      {
+        path: 'pkgs/x/tests/walk.test.ts',
+        text: 'await app.explore({ seed: 1 })',
+      },
+      {
+        path: 'pkgs/x/src/y.test.tsx',
+        text: 'await s.randomActions({ steps: 4 })',
+      },
+    ]).join('\n');
+    expect(errors).toContain('pkgs/x/tests/walk.test.ts');
+    expect(errors).toContain('pkgs/x/src/y.test.tsx');
+  });
+
+  test('Quint replays, non-test files and pinned examples are clean', () => {
+    expect(
+      randomWalkViolations([
+        { path: 'pkgs/x/tests/quint/model.test.ts', text: 'x.explore(' },
+        { path: 'pkgs/x/src/harness/system.ts', text: 'randomActions(' },
+        {
+          path: 'pkgs/x/tests/replicas.test.ts',
+          text: 'await s.apply(join, {}); // explore the replicas',
+        },
+      ])
+    ).toEqual([]);
   });
 });

@@ -10,7 +10,7 @@ describe('tcScopeViolations', () => {
       tcScopeViolations({
         tcScript: TC,
         tsconfigText: '{ "include": ["./src/**/*.ts", "./tests"] }',
-        files: ['src/a.ts', 'tests/e2e/b.test.tsx', 'README.md'],
+        files: ['src/a.ts', 'tests/harness/b.test.tsx', 'README.md'],
       })
     ).toEqual([]);
   });

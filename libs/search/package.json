@@ -27,9 +27,9 @@
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/keyword": "workspace:*",
     "@pkgs/kv": "workspace:*",
-    "@pkgs/harness": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/ui": "workspace:*",
     "solid-js": "catalog:"

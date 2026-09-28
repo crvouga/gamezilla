@@ -8,6 +8,6 @@ import './account-sign-in.binding';
 import './username-changes.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
-import { openHarness } from '../e2e/support/open-profile-harness';
+import { openHarness } from '../harness/open-profile-harness';
 
 useQuintHarness(openHarness);

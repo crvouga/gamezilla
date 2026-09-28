@@ -1,5 +1,5 @@
 /**
- * Semantic DST / E2E handles shared by product UI (`testID={Handles.*}`) and
+ * Semantic DST / spec handles shared by product UI (`testID={Handles.*}`) and
  * `@apps/product/harness` scenario actions (`Driver` testIds). Add a handle here when a
  * control must be uniquely addressable without copy or index hacks.
  */
@@ -139,6 +139,10 @@ export const Handles = {
   billingNotice: 'billing-notice',
   billingPricing: 'billing-pricing',
   billingPrice: (priceKey: string) => `billing-price-${priceKey}`,
+  /** Inside a price: its amount, its terms line, and its saving badge. */
+  billingPriceAmount: 'billing-price-amount',
+  billingPriceTerms: 'billing-price-terms',
+  billingPriceSaving: 'billing-price-saving',
   billingBenefits: 'billing-benefits',
 
   // sign-in modal
@@ -237,11 +241,11 @@ export const Handles = {
   chessPuzzleBoard: 'chess-puzzle-board',
   chessPuzzleBoardElo: 'chess-puzzle-board-elo',
   chessPuzzleExpectedUci: 'chess-puzzle-expected-uci',
-  chessPuzzleE2eDebug: 'chess-puzzle-e2e-debug',
+  chessPuzzleTestDebug: 'chess-puzzle-test-debug',
   /** Hidden probe: current display FEN (drivers derive legal wrong moves). */
   /** Hidden probe: `spectating=0|1 role=… kind=… clock=… recs=…`. */
-  chessPuzzleE2eSpectator: 'chess-puzzle-e2e-spectator',
-  chessPuzzleE2eFen: 'chess-puzzle-e2e-fen',
+  chessPuzzleTestSpectator: 'chess-puzzle-test-spectator',
+  chessPuzzleTestFen: 'chess-puzzle-test-fen',
   /** Hidden probe: board orientation (`white` / `black`) = solver colour. */
   chessPuzzleBoardOrientation: 'chess-puzzle-board-orientation',
   /** Hidden probe: `active=<id>`, `pick=<nextId>`, `loading=0|1` pick status. */
@@ -310,8 +314,8 @@ export const Handles = {
     `chess-stats-rating-history-${index}`,
   chessPuzzleReviewBoard: 'chess-puzzle-review-board',
   /** Hidden review probe: `solveIdx|lastSolveIdx|animated|notation`. */
-  chessPuzzleReviewE2e: 'chess-puzzle-review-e2e',
-  chessPuzzleReviewE2eFen: 'chess-puzzle-review-e2e-fen',
+  chessPuzzleReviewTest: 'chess-puzzle-review-test',
+  chessPuzzleReviewTestFen: 'chess-puzzle-review-test-fen',
   /** §7 move-list scrub controls (`start` / `back` / `forward` / `end`). */
   chessPuzzleMoveNav: (intent: 'start' | 'back' | 'forward' | 'end') =>
     `chess-puzzle-move-nav-${intent}`,

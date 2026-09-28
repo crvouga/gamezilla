@@ -21,7 +21,7 @@ const SCAN_DIRS = [
   'src/harness',
 ] as const;
 
-const SCAN_FILES = ['README.md', 'docs/CONTRACTS.md'] as const;
+const SCAN_FILES = ['README.md'] as const;
 
 /** Word / phrase denylist — keep tight; false positives waste review time. */
 const DENY: readonly { readonly re: RegExp; readonly label: string }[] = [

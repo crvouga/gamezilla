@@ -131,7 +131,7 @@ export async function readRunBundle(
 }
 
 /**
- * Fold several runs into one bundle — one report over every package's e2e
+ * Fold several runs into one bundle — one report over every package's spec
  * suite. Each test id is prefixed with its run's label (`libs/chess`), since
  * two packages may both name a test `monkey`.
  */

@@ -37,11 +37,11 @@ function parseCli(argv: readonly string[]): Cli {
   return { packages, runnerArgs };
 }
 
-function hasE2eScript(dir: string): boolean {
+function hasSpecScript(dir: string): boolean {
   const manifest = JSON.parse(
     readFileSync(join(REPO_ROOT, dir, 'package.json'), 'utf8')
   ) as { readonly scripts?: Readonly<Record<string, string>> };
-  return manifest.scripts?.['test:e2e'] !== undefined;
+  return manifest.scripts?.['test:spec'] !== undefined;
 }
 
 function domainOfPath(arg: string): string | null {
@@ -75,8 +75,8 @@ if (unknown.length > 0) {
 if (selected.length === 0) throw new Error('no spec packages selected');
 
 for (const pkg of selected) {
-  if (!hasE2eScript(pkg.dir)) {
-    throw new Error(`${pkg.name} runs specDomains but has no test:e2e script`);
+  if (!hasSpecScript(pkg.dir)) {
+    throw new Error(`${pkg.name} runs specDomains but has no test:spec script`);
   }
   console.log(`spec: ${pkg.name}`);
   const args = cli.runnerArgs.filter((arg) => {
@@ -85,7 +85,7 @@ for (const pkg of selected) {
   });
   const result = spawnSync(
     'bun',
-    ['run', '--filter', pkg.name, 'test:e2e', ...args],
+    ['run', '--filter', pkg.name, 'test:spec', ...args],
     { cwd: REPO_ROOT, env: process.env, stdio: 'inherit' }
   );
   if (result.status !== 0) process.exit(result.status ?? 1);

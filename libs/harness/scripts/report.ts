@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CLI: every package's e2e run → one standalone HTML report.
+// @io-wall-ok — CLI: every package's spec run → one standalone HTML report.
 /**
  * `bun run test:report [--frames] [--no-run] [--open]` (repo root)
  *
- * The report of the code as it is now. Every `test:e2e` run — `bun check`,
+ * The report of the code as it is now. Every `test:spec` run — `bun check`,
  * CI, this script — writes its package's report bucket
  * (`<pkg>/.cache/harness-report`: each Gherkin scenario's and Quint trace's step
  * timeline, the traces themselves, JUnit), and turbo caches the bucket with
- * the verdict. So this runs every `test:e2e` through `turbo-ci-run
+ * the verdict. So this runs every `test:spec` through `turbo-ci-run
  * --restore-outputs` with the same flags and env as `bun check`: a suite
  * whose code has not changed since any machine sharing the remote cache ran
  * it restores that run's bucket instead of running again, and only changed
@@ -54,15 +54,16 @@ const UI_CSS = [
 
 type PackageManifest = { readonly scripts?: Record<string, string> };
 
-/** Repo-relative dirs of every package with an e2e suite. */
-function e2ePackageDirs(): string[] {
+/** Repo-relative dirs of every package with a spec suite. */
+function specPackageDirs(): string[] {
   const dirs: string[] = [];
   for (const tier of ['apps', 'libs', 'pkgs']) {
     for (const name of readdirSync(join(REPO_ROOT, tier))) {
       const manifest = join(REPO_ROOT, tier, name, 'package.json');
       if (!existsSync(manifest)) continue;
       const pkg = JSON.parse(readFileSync(manifest, 'utf8')) as PackageManifest;
-      if (pkg.scripts?.['test:e2e'] !== undefined) dirs.push(`${tier}/${name}`);
+      if (pkg.scripts?.['test:spec'] !== undefined)
+        dirs.push(`${tier}/${name}`);
     }
   }
   return dirs.sort();
@@ -141,7 +142,7 @@ if (!args.has('--no-run')) {
       'run',
       join(REPO_ROOT, 'libs/tools/scripts/turbo-ci-run.ts'),
       '--restore-outputs',
-      'test:e2e',
+      'test:spec',
     ],
     {
       cwd: REPO_ROOT,
@@ -156,12 +157,12 @@ if (!args.has('--no-run')) {
 }
 
 const runs: { label: string; bundle: HtmlReportBundle }[] = [];
-for (const dir of e2ePackageDirs()) {
+for (const dir of specPackageDirs()) {
   runs.push({ label: dir, bundle: await readPackageBundle(dir) });
 }
 const bundle = mergeRunBundles(RUN_ID, runs);
 const html = renderHtmlReport(bundle, {
-  title: 'E2E report — every subsystem',
+  title: 'spec report — every subsystem',
   frameCss: compileFrameCss(),
 });
 const out = createNodeFsObjectStore({

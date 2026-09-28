@@ -2,7 +2,7 @@
  * The full composition: every feature the product ships, folded exactly as
  * production folds them. The product harness and the full-composition
  * suites (`libs/runtime`: shell boot, the platform model, critical journeys)
- * run this; a feature's own e2e runs its slice from its own package.
+ * run this; a feature's own spec runs its slice from its own package.
  */
 
 import { BILLING_HARNESS_ACTIONS } from '@libs/billing/harness/billing-actions';

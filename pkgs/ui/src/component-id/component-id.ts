@@ -1,10 +1,10 @@
 /**
  * DOM component identifiers.
  *
- * Every host renders `data-component="<Name>"` in development and E2E builds
+ * Every host renders `data-component="<Name>"` in development and test builds
  * so the inspector can locate design-system nodes. `import.meta.env.DEV`
  * folds to `false` in production, so `data-component` never ships to end
- * users unless `VITE_E2E=1`.
+ * users unless `VITE_TEST_HOOKS=1`.
  *
  * Call-site identifiers (`dataSet={{ testid }}`) always ship: production
  * synthetic journeys drive the real bundle by `data-testid`, so a host must
@@ -20,10 +20,10 @@ export type ComponentDataSet = Record<string, string>;
 
 export type ComponentDataAttrs = Record<`data-${string}`, string>;
 
-const env = import.meta.env as { DEV?: boolean; VITE_E2E?: string };
+const env = import.meta.env as { DEV?: boolean; VITE_TEST_HOOKS?: string };
 
 export const COMPONENT_IDS_ENABLED: boolean =
-  env.DEV === true || env.VITE_E2E === '1';
+  env.DEV === true || env.VITE_TEST_HOOKS === '1';
 
 /**
  * `data-*` attribute fragment with `component: name` merged under any

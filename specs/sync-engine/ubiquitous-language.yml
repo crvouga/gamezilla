@@ -1,7 +1,7 @@
-# The ubiquitous language of Sync engine (specs/sync-engine/): notes people write and
-# share across devices and shared spaces, even offline. Sync engine stands alone
-# (docs/CONTEXT_MAP.md): it borrows nothing from another context. A shared
-# space is not a Spaces space, and a notice here is not a Friends notice.
+# The ubiquitous language of Sync engine: notes people write and share across
+# devices and shared spaces, even offline. Sync engine stands alone (see the
+# context map): it borrows nothing from another context. A shared space is not
+# a Spaces space, and a notice here is not a Friends notice.
 context: Sync engine
 purpose: >-
   Notes people write and share, on every device they use and with everyone in

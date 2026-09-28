@@ -3,7 +3,6 @@ Feature: Payments
   When people pay for Plus, the team wants real payments taken only in a
   production environment, so no other environment ever takes real money.
 
-  @production
   Scenario: People can pay for Plus in production
     Then people can pay for Plus
 

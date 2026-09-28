@@ -1,6 +1,6 @@
 // @io-wall-ok — bun:test preload; product harness env, viewport and log noise
 /**
- * bun:test preload for harness e2e suites, after `@pkgs/bun-test-solid/preload`
+ * bun:test preload for harness spec suites, after `@pkgs/bun-test-solid/preload`
  * (Solid compile, happy-dom `document` — Solid trees render into it via
  * `MultiAppSolidDomSession` — and the Lingui pin): harness env, a phone
  * viewport, and quieter logs.
@@ -19,7 +19,7 @@ import {
   type NodeTelemetry,
 } from '@pkgs/observability/node';
 
-process.env['VITE_E2E'] = '1';
+process.env['VITE_TEST_HOOKS'] = '1';
 process.env['HARNESS_WITH_DOM'] = process.env['HARNESS_WITH_DOM'] ?? '1';
 
 // Phone viewport — `useLayoutMode` picks the compact tab bar.
@@ -55,7 +55,7 @@ function createArtifactTelemetry(): NodeTelemetry | undefined {
     layout: 'tree',
   });
   return createNodeTelemetry({
-    serviceName: process.env['OBS_TEST_SERVICE'] ?? 'harness-e2e',
+    serviceName: process.env['OBS_TEST_SERVICE'] ?? 'harness-spec',
     serviceVersion: process.env['GITHUB_SHA'] ?? 'local',
     environment: process.env['GITHUB_ACTIONS'] === 'true' ? 'ci' : 'test',
     buildSha: process.env['GITHUB_SHA'] ?? 'local',

@@ -1,4 +1,4 @@
-@domain:journeys @production
+@domain:journeys
 Feature: Critical journeys
   When a person reaches for what they rely on most (opening the app, signing
   in and out, hosting a space, solving a puzzle, searching for people, seeing
@@ -9,7 +9,6 @@ Feature: Critical journeys
     When a person opens the app on a fresh device
     Then the app gets past its opening screen onto the tabs
 
-  @browser
   Scenario: Signing in with Google hands the person to Google with the way back
     Given a person opens the app on a fresh device
     When they start signing in with Google

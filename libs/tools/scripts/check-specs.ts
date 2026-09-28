@@ -12,7 +12,11 @@
  * architecture words, a feature without a why), and every spec speaks its
  * bounded context's ubiquitous language (`spec-glossary.ts`: no avoided
  * synonym, no other context's term unless borrowed, every Quint name a
- * glossary term, cross-context imports only of published events).
+ * glossary term, cross-context imports only of published events), and
+ * nothing in specs/ points at code (`spec-decoupling.ts`, D1: no file path,
+ * workspace package, source file, or tag outside the traceability allow-list),
+ * and no spec package walks its harness at random outside a Quint replay
+ * (`behavior-tests.ts`).
  * Near-duplicate wording is a
  * warning; `--strict-duplicates` makes it fail.
  *
@@ -28,11 +32,14 @@ import { nearDuplicates } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import type { GoalChecks } from '../goal/goal-manifest';
 import { parseGoalMarkdown } from '../goal/goal-statements';
+import { randomWalkViolations } from './behavior-tests';
 import { catalogDrift } from './spec-catalog';
+import { decouplingProblems } from './spec-decoupling';
 import { languageProblems } from './spec-glossary';
 import {
   externalSteps,
   REPO_ROOT,
+  SPECS_DIR,
   sharedSteps,
   specPackages,
   specsLayoutProblems,
@@ -40,7 +47,7 @@ import {
 
 const strictDuplicates = process.argv.includes('--strict-duplicates');
 
-/** The thresholds `docs/SPEC_DRIVEN_DEVELOPMENT.md` states for a brief scenario. */
+/** The thresholds `docs/SPEC_STANDARDS.md` (§ The gate) states for a brief scenario. */
 const SMELLS = {
   maxSteps: 8,
   maxActions: 3,
@@ -91,6 +98,28 @@ const errors: string[] = [
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(),
+  ...randomWalkViolations(
+    packages.flatMap((pkg) =>
+      ['src', 'tests'].flatMap((root) =>
+        [
+          ...new Bun.Glob(`${root}/**/*.test.{ts,tsx}`).scanSync({
+            cwd: join(REPO_ROOT, pkg.dir),
+          }),
+        ].map((file) => ({
+          path: `${pkg.dir}/${file}`,
+          text: readFileSync(join(REPO_ROOT, pkg.dir, file), 'utf8'),
+        }))
+      )
+    )
+  ),
+  ...decouplingProblems(
+    [...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) })]
+      .sort()
+      .map((file) => ({
+        path: `${SPECS_DIR}/${file}`,
+        text: readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8'),
+      }))
+  ),
 ];
 
 const allDefinitions = [

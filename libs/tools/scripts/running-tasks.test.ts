@@ -7,10 +7,10 @@ import { formatRunningTasks, parsePs, runningTasks } from './running-tasks';
 const PS = `
     1     0 10-02:00:00 /sbin/launchd
    50     1    20:05 bun run libs/tools/scripts/turbo-ci-run.ts check
-  100    50    20:00 node /repo/node_modules/.bin/turbo run @libs/chess#test:e2e @apps/client#build
-  101   100    19:59 /repo/node_modules/turbo-linux-64/bin/turbo run @libs/chess#test:e2e @apps/client#build
-  200   101    18:40 bun run test:e2e
-  201   200    18:39 bun test --parallel tests/e2e
+  100    50    20:00 node /repo/node_modules/.bin/turbo run @libs/chess#test:spec @apps/client#build
+  101   100    19:59 /repo/node_modules/turbo-linux-64/bin/turbo run @libs/chess#test:spec @apps/client#build
+  200   101    18:40 bun run test:spec
+  201   200    18:39 bun test --parallel tests/harness
   300   101    01:12 bun run build
   400     1    05:00 /usr/bin/unrelated turbo run elsewhere
 `;
@@ -19,7 +19,7 @@ describe('running-tasks', () => {
   // regression: check-deadline-kill-silent
   test('names the children of the turbo binary, not their workers or strangers', () => {
     expect(runningTasks(parsePs(PS), 100)).toEqual([
-      { pid: 200, elapsed: '18:40', command: 'bun run test:e2e' },
+      { pid: 200, elapsed: '18:40', command: 'bun run test:spec' },
       { pid: 300, elapsed: '01:12', command: 'bun run build' },
     ]);
   });

@@ -21,7 +21,7 @@ export type DenialSurfaceProps = {
   /** The surface's glyph; defaults to a clock (quota) or a key. */
   readonly icon?: IconComponent | undefined;
   readonly variant?: 'fill' | 'compact' | undefined;
-  /** `data-testid` for E2E / harness handles; the CTA is `<testId>-action`. */
+  /** `data-testid` for spec / harness handles; the CTA is `<testId>-action`. */
   readonly testId?: string;
 };
 

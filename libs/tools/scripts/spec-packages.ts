@@ -2,7 +2,7 @@
  * Discovery for the spec gates. Every spec lives in the flat top-level tree
  * `specs/<domain>/` — Gherkin features (`<feature>.feature`) and Quint models
  * (`<model>.qnt`); a workspace package runs the domains its `package.json`
- * lists in `specDomains` (against the harness, in its `test:e2e`) and in
+ * lists in `specDomains` (against the harness, in its `test:spec`) and in
  * `liveDomains` (against a deployed environment, in its `health`). For each
  * such package: its parsed features, the step definitions its `tests/steps/**`
  * declare (read statically), the step files of other packages its steps entry
@@ -30,7 +30,7 @@ const TIERS = ['apps', 'libs', 'pkgs'] as const;
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */
   readonly dir: string;
-  /** Domains run against the harness (`test:e2e`). */
+  /** Domains run against the harness (`test:spec`). */
   readonly specDomains: readonly string[];
   /** Domains run against a deployed environment (`health`). */
   readonly liveDomains: readonly string[];
@@ -377,13 +377,13 @@ export function specsLayoutProblems(
           JSON.parse(readFileSync(turbo, 'utf8')) as {
             readonly tasks?: Record<string, { readonly inputs?: string[] }>;
           }
-        ).tasks?.['test:e2e']?.inputs ?? [])
+        ).tasks?.['test:spec']?.inputs ?? [])
       : [];
     for (const domain of pkg.specDomains) {
       const input = `$TURBO_ROOT$/${SPECS_DIR}/${domain}/**`;
       if (!inputs.includes(input)) {
         out.push(
-          `${pkg.dir}/turbo.json: test:e2e inputs must include "${input}" so a spec change re-runs ${pkg.name}`
+          `${pkg.dir}/turbo.json: test:spec inputs must include "${input}" so a spec change re-runs ${pkg.name}`
         );
       }
     }

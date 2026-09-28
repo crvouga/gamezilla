@@ -1,7 +1,6 @@
 # The ubiquitous language of Matchmaking: people waiting to be paired with
-# someone close to their rating. Matchmaking stands alone
-# (docs/CONTEXT_MAP.md): it borrows nothing from another context, and
-# publishes nothing yet.
+# someone close to their rating. Matchmaking stands alone (see the context
+# map): it borrows nothing from another context, and publishes nothing yet.
 context: Matchmaking
 purpose: >-
   People wait for a match and are paired with someone they accept who

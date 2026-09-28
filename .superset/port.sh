@@ -14,7 +14,7 @@
 #   +0 VITE_PORT / PREVIEW_PORT     +1 POSTGRES_PORT
 #   +2, +3 stay slack: the object-store and MQTT sidecars take OS-assigned ports.
 #
-# EMQX (1883 / 8083 / 18083) and the e2e harness / wrangler preview ports stay
+# EMQX (1883 / 8083 / 18083) and the spec harness / wrangler preview ports stay
 # machine-wide singletons: only one workspace at a time may bind them.
 #
 # Override by exporting VITE_PORT before launching (no probing is done then).

@@ -58,8 +58,20 @@
     "kill": {
       "cache": false
     },
+    "src": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "$TURBO_ROOT$/pkgs/ts-reset/src/**"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
     "tc": {
-      "dependsOn": ["^tc"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -68,66 +80,120 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "@pkgs/auth#src": {
+      "dependsOn": [
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
+      ]
+    },
     "@pkgs/auth#tc": {
       "dependsOn": [
-        "@pkgs/clock#tc",
-        "@pkgs/db-migrate#tc",
-        "@pkgs/http-client#tc",
-        "@pkgs/sql-client#tc",
-        "@pkgs/uuid#tc"
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
+      ]
+    },
+    "@pkgs/auth-inhouse#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/auth#src",
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/db-schema#src",
+        "@pkgs/db-schema-postgres#src",
+        "@pkgs/db-schema-sqlite#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
       ]
     },
     "@pkgs/auth-inhouse#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/auth#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/db-migrate#tc",
-        "@pkgs/db-schema#tc",
-        "@pkgs/db-schema-postgres#tc",
-        "@pkgs/db-schema-sqlite#tc",
-        "@pkgs/http-client#tc",
-        "@pkgs/sql#tc",
-        "@pkgs/sql-client#tc",
-        "@pkgs/uuid#tc"
+        "@pkgs/assert#src",
+        "@pkgs/auth#src",
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/db-schema#src",
+        "@pkgs/db-schema-postgres#src",
+        "@pkgs/db-schema-sqlite#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
+      ]
+    },
+    "@pkgs/matchmaking#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/http-client#src",
+        "@pkgs/keyword#src",
+        "@pkgs/logger#src"
       ]
     },
     "@pkgs/matchmaking#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/attribute#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/http-client#tc",
-        "@pkgs/keyword#tc",
-        "@pkgs/logger#tc"
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/http-client#src",
+        "@pkgs/keyword#src",
+        "@pkgs/logger#src"
+      ]
+    },
+    "@pkgs/room#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/keyword#src",
+        "@pkgs/kv#src",
+        "@pkgs/message#src",
+        "@pkgs/uuid#src"
       ]
     },
     "@pkgs/room#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/attribute#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/keyword#tc",
-        "@pkgs/kv#tc",
-        "@pkgs/message#tc",
-        "@pkgs/uuid#tc"
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/keyword#src",
+        "@pkgs/kv#src",
+        "@pkgs/message#src",
+        "@pkgs/uuid#src"
+      ]
+    },
+    "@pkgs/sql-client-sqlite#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/clock#src",
+        "@pkgs/logger#src",
+        "@pkgs/object-store#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src"
       ]
     },
     "@pkgs/sql-client-sqlite#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/logger#tc",
-        "@pkgs/object-store#tc",
-        "@pkgs/sql#tc",
-        "@pkgs/sql-client#tc"
+        "@pkgs/assert#src",
+        "@pkgs/clock#src",
+        "@pkgs/logger#src",
+        "@pkgs/object-store#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src"
       ]
     },
     "lint": {
       "dependsOn": ["tc"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "!**/*.md",
         "$TURBO_ROOT$/biome.json",
         "$TURBO_ROOT$/libs/tools/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
@@ -138,6 +204,8 @@
         "$TURBO_ROOT$/pkgs/ui/src/components/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/banned-words.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
         "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",
@@ -167,7 +235,7 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "test:e2e": {
+    "test:spec": {
       "dependsOn": ["tc"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "env": [
@@ -184,7 +252,11 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": ["VITE_API_URL", "VITE_E2E", "VITE_ALLOW_PRODUCTION_API_URL"],
+      "env": [
+        "VITE_API_URL",
+        "VITE_TEST_HOOKS",
+        "VITE_ALLOW_PRODUCTION_API_URL"
+      ],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
@@ -196,6 +268,10 @@
         "public/**",
         "!public/sql-workers/**",
         "!public/generated/**",
+        "!dist/**",
+        "!.cache/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
         "tsconfig.json",
         "tsconfig.tc.json",
         "babel.config.js"
@@ -388,7 +464,7 @@
         "lint",
         "test",
         "test:contract",
-        "test:e2e",
+        "test:spec",
         "@apps/product#check:offline-shell",
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",
@@ -470,6 +546,7 @@
         "$TURBO_ROOT$/pkgs/ui/src/components/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
         "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/test-scripts.ts",

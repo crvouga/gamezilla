@@ -77,7 +77,7 @@ data "neon_branch_role_password" "owner" {
   depends_on = [neon_endpoint.this]
 }
 
-# Slow-query statistics (`bun obs`, docs/adr/0001_OBSERVABILITY.md). Neon
+# Slow-query statistics (`bun obs`, docs/OBSERVABILITY.md). Neon
 # preloads the library; the extension must exist in the app database.
 # CREATE EXTENSION IF NOT EXISTS — adopting an existing one is a no-op.
 resource "postgresql_extension" "pg_stat_statements" {

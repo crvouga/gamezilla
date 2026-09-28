@@ -8,6 +8,6 @@ import './friendship.binding';
 import './space-hosting.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
-import { openHarness } from '../e2e/support/open-friends-harness';
+import { openHarness } from '../harness/open-friends-harness';
 
 useQuintHarness(openHarness);

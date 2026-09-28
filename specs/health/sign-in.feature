@@ -16,6 +16,5 @@ Feature: Signing in
     When a person on the web finishes signing in
     Then the app on the web knows whether they are signed in
 
-  @oauth-relay
   Scenario: Google sign-ins started in another environment return to it
     Then Google sign-ins started in any other environment return to that environment

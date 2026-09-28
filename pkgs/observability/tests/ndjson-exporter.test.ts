@@ -43,7 +43,7 @@ function memoryStore(): ObjectStore {
 test('node artifact exporter flushes queryable NDJSON', async () => {
   const store = memoryStore();
   const runtime = createNodeTelemetry({
-    serviceName: 'e2e-fixture',
+    serviceName: 'spec-fixture',
     serviceVersion: 'sha',
     environment: 'ci',
     buildSha: 'sha',

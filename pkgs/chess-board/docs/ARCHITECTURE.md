@@ -58,7 +58,7 @@ size — so a resize rewrites nothing and every motion is a `transform`.
   (`createPieceRowsTracker`), so `<For>` keeps every node and only the moved
   pieces' transforms change.
 - **Production pays nothing for testing.** The probe (a chess.js parse + JSON
-  of the board) renders only when `COMPONENT_IDS_ENABLED` (dev / E2E
+  of the board) renders only when `COMPONENT_IDS_ENABLED` (dev / test
   builds); in production the paint tokens are a no-op component chosen at
   load (not even a `<Show>`).
 
@@ -143,4 +143,4 @@ environment that logs every slide.
 - `@pkgs/chess-board-core` `game-status.test.ts` / `destinations.test.ts` —
   status and destinations equal chess.js's public answers on random games,
   at one move generation (counted).
-- `libs/chess` e2e — puzzles played through the board.
+- `libs/chess` spec — puzzles played through the board.
