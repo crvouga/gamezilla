@@ -1,3 +1,4 @@
+import { PERMISSION } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
 import { defineMutation, MutationError } from '@pkgs/sync-engine/shared';
 import { z } from 'zod';
@@ -9,12 +10,18 @@ import {
   getSpaceHost,
   isHost,
   memberId,
+  requireSpacePermission,
   spaceIdArgs,
 } from '../../../shared/space/space-mutation-helpers';
 export const leaveSpaceMutation = defineMutation({
   name: 'leaveSpace',
   args: spaceIdArgs.extend({ endIfLastSeat: z.boolean().optional() }),
   async run({ tx, env }, { spaceId, endIfLastSeat }) {
+    await requireSpacePermission(tx, env, {
+      spaceId,
+      permission: PERMISSION.spacesLeave,
+      message: 'You are not in this space.',
+    });
     const row = await getSpaceHost(tx, spaceId);
     if (isHost(env, row) || endIfLastSeat === true) {
       if (!isHost(env, row) && endIfLastSeat === true) {
