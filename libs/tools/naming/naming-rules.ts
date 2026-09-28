@@ -24,9 +24,7 @@ export const NAMING_EXEMPT = {
     '__mocks__',
   ]),
   /** Path prefixes skipped entirely (tool-managed content). */
-  prefixes: [
-    '.superset/attachments/',
-  ],
+  prefixes: ['.superset/attachments/'],
   /** Markdown under these prefixes is a command id, so it stays kebab-case. */
   kebabMarkdownPrefixes: [
     '.agents/commands/',
