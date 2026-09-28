@@ -58,8 +58,20 @@
     "kill": {
       "cache": false
     },
+    "src": {
+      "dependsOn": ["^src"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "$TURBO_ROOT$/pkgs/ts-reset/src/**"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": []
+    },
     "tc": {
-      "dependsOn": ["^tc"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -68,59 +80,114 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
+    "@pkgs/auth#src": {
+      "dependsOn": [
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
+      ]
+    },
     "@pkgs/auth#tc": {
       "dependsOn": [
-        "@pkgs/clock#tc",
-        "@pkgs/db-migrate#tc",
-        "@pkgs/http-client#tc",
-        "@pkgs/sql-client#tc",
-        "@pkgs/uuid#tc"
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
+      ]
+    },
+    "@pkgs/auth-inhouse#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/auth#src",
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/db-schema#src",
+        "@pkgs/db-schema-postgres#src",
+        "@pkgs/db-schema-sqlite#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
       ]
     },
     "@pkgs/auth-inhouse#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/auth#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/db-migrate#tc",
-        "@pkgs/db-schema#tc",
-        "@pkgs/db-schema-postgres#tc",
-        "@pkgs/db-schema-sqlite#tc",
-        "@pkgs/http-client#tc",
-        "@pkgs/sql#tc",
-        "@pkgs/sql-client#tc",
-        "@pkgs/uuid#tc"
+        "@pkgs/assert#src",
+        "@pkgs/auth#src",
+        "@pkgs/clock#src",
+        "@pkgs/db-migrate#src",
+        "@pkgs/db-schema#src",
+        "@pkgs/db-schema-postgres#src",
+        "@pkgs/db-schema-sqlite#src",
+        "@pkgs/http-client#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src",
+        "@pkgs/uuid#src"
+      ]
+    },
+    "@pkgs/matchmaking#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/http-client#src",
+        "@pkgs/keyword#src",
+        "@pkgs/logger#src"
       ]
     },
     "@pkgs/matchmaking#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/attribute#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/http-client#tc",
-        "@pkgs/keyword#tc",
-        "@pkgs/logger#tc"
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/http-client#src",
+        "@pkgs/keyword#src",
+        "@pkgs/logger#src"
+      ]
+    },
+    "@pkgs/room#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/keyword#src",
+        "@pkgs/kv#src",
+        "@pkgs/message#src",
+        "@pkgs/uuid#src"
       ]
     },
     "@pkgs/room#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/attribute#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/keyword#tc",
-        "@pkgs/kv#tc",
-        "@pkgs/message#tc",
-        "@pkgs/uuid#tc"
+        "@pkgs/assert#src",
+        "@pkgs/attribute#src",
+        "@pkgs/clock#src",
+        "@pkgs/keyword#src",
+        "@pkgs/kv#src",
+        "@pkgs/message#src",
+        "@pkgs/uuid#src"
+      ]
+    },
+    "@pkgs/sql-client-sqlite#src": {
+      "dependsOn": [
+        "@pkgs/assert#src",
+        "@pkgs/clock#src",
+        "@pkgs/logger#src",
+        "@pkgs/object-store#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src"
       ]
     },
     "@pkgs/sql-client-sqlite#tc": {
       "dependsOn": [
-        "@pkgs/assert#tc",
-        "@pkgs/clock#tc",
-        "@pkgs/logger#tc",
-        "@pkgs/object-store#tc",
-        "@pkgs/sql#tc",
-        "@pkgs/sql-client#tc"
+        "@pkgs/assert#src",
+        "@pkgs/clock#src",
+        "@pkgs/logger#src",
+        "@pkgs/object-store#src",
+        "@pkgs/sql#src",
+        "@pkgs/sql-client#src"
       ]
     },
     "lint": {
@@ -203,6 +270,8 @@
         "!public/generated/**",
         "!dist/**",
         "!.cache/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
         "tsconfig.json",
         "tsconfig.tc.json",
         "babel.config.js"
