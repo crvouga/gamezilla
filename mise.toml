@@ -20,6 +20,25 @@ duckdb = "1.5.5"
 opentofu = "1.12.6"
 conftest = "0.70.1"
 tflint = "0.64.0"
+# Executable specs (specs/README.md): the JVM that runs Alloy (structural
+# invariants, `.als`) and Apalache (Quint model checking, `quint verify`).
+java = "temurin-21.0.12+8.0.LTS"
+
+# Alloy 6: checks `specs/<context>/*.als` and audits stored snapshots against
+# them (`@pkgs/alloy`). A single jar; `mise where http:alloy` holds `alloy.jar`.
+[tools."http:alloy"]
+version = "6.2.0"
+url = "https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v{{version}}/org.alloytools.alloy.dist.jar"
+bin = "alloy.jar"
+checksum = "sha256:6b8c1cb5bc93bedfc7c61435c4e1ab6e688a242dc702a394628d9a9801edb78d"
+
+# Apalache: the model checker behind `quint verify` (`@pkgs/quint`). Keep the
+# version equal to the Apalache the pinned Quint expects (its
+# DEFAULT_APALACHE_VERSION_TAG), so Quint never downloads one itself.
+[tools."http:apalache"]
+version = "0.56.1"
+url = "https://github.com/apalache-mc/apalache/releases/download/v{{version}}/apalache-{{version}}.tgz"
+checksum = "sha256:a61c07569d7195ddc589f01037fa10fafef4fb0796af2f1c9cb45226375dfbfc"
 
 # Local MQTT broker for `@pkgs/emqx-server` (fidelity-max harnesses, test:contract).
 # Keep in step with the production image in libs/pubsub/emqx-deploy/Dockerfile.

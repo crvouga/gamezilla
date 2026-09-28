@@ -128,6 +128,7 @@
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/object-store-opfs": "workspace:*",
         "@pkgs/object-store-s3": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/polyfill": "workspace:*",
         "@pkgs/postgres-embedded": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
@@ -611,6 +612,7 @@
         "@libs/permissions": "workspace:*",
         "@libs/server-app": "workspace:*",
         "@libs/test-ids": "workspace:*",
+        "@pkgs/alloy": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/auth": "workspace:*",
         "@pkgs/auth-inhouse": "workspace:*",
@@ -619,8 +621,10 @@
         "@pkgs/billing-mock-provider": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/clock": "workspace:*",
+        "@pkgs/conformance": "workspace:*",
         "@pkgs/db-migrate": "workspace:*",
         "@pkgs/db-schema-postgres": "workspace:*",
+        "@pkgs/dmn": "workspace:*",
         "@pkgs/entity-store": "workspace:*",
         "@pkgs/gherkin": "workspace:*",
         "@pkgs/harness": "workspace:*",
@@ -634,6 +638,7 @@
         "@pkgs/object-store": "workspace:*",
         "@pkgs/object-store-node-fs": "workspace:*",
         "@pkgs/observability": "workspace:*",
+        "@pkgs/openslo": "workspace:*",
         "@pkgs/outbox": "workspace:*",
         "@pkgs/postgres-embedded": "workspace:*",
         "@pkgs/pubsub": "workspace:*",
@@ -1117,6 +1122,19 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/alloy": {
+      "name": "@pkgs/alloy",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/conformance": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/assert": {
       "name": "@pkgs/assert",
       "version": "0.0.0",
@@ -1538,6 +1556,16 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/conformance": {
+      "name": "@pkgs/conformance",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/database-url-policy": {
       "name": "@pkgs/database-url-policy",
       "version": "0.0.0",
@@ -1698,6 +1726,19 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/dmn": {
+      "name": "@pkgs/dmn",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/conformance": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/emqx-server": {
       "name": "@pkgs/emqx-server",
       "version": "0.0.0",
@@ -1753,6 +1794,7 @@
         "@cucumber/gherkin": "catalog:",
         "@cucumber/messages": "catalog:",
         "@cucumber/tag-expressions": "catalog:",
+        "@pkgs/conformance": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -2246,6 +2288,19 @@
         "@pkgs/observability": "workspace:*",
       },
       "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/openslo": {
+      "name": "@pkgs/openslo",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/conformance": "workspace:*",
+      },
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
@@ -4008,6 +4063,8 @@
 
     "@pkgs/aedes-server": ["@pkgs/aedes-server@workspace:pkgs/aedes-server"],
 
+    "@pkgs/alloy": ["@pkgs/alloy@workspace:pkgs/alloy"],
+
     "@pkgs/assert": ["@pkgs/assert@workspace:pkgs/assert"],
 
     "@pkgs/assert-crash-browser": ["@pkgs/assert-crash-browser@workspace:pkgs/assert-crash-browser"],
@@ -4058,6 +4115,8 @@
 
     "@pkgs/colors": ["@pkgs/colors@workspace:pkgs/colors"],
 
+    "@pkgs/conformance": ["@pkgs/conformance@workspace:pkgs/conformance"],
+
     "@pkgs/database-url-policy": ["@pkgs/database-url-policy@workspace:pkgs/database-url-policy"],
 
     "@pkgs/db-indexes": ["@pkgs/db-indexes@workspace:pkgs/db-indexes"],
@@ -4077,6 +4136,8 @@
     "@pkgs/device": ["@pkgs/device@workspace:pkgs/device"],
 
     "@pkgs/distributed-lock": ["@pkgs/distributed-lock@workspace:pkgs/distributed-lock"],
+
+    "@pkgs/dmn": ["@pkgs/dmn@workspace:pkgs/dmn"],
 
     "@pkgs/emqx-server": ["@pkgs/emqx-server@workspace:pkgs/emqx-server"],
 
@@ -4143,6 +4204,8 @@
     "@pkgs/observability-cli": ["@pkgs/observability-cli@workspace:pkgs/observability-cli"],
 
     "@pkgs/observability-mcp": ["@pkgs/observability-mcp@workspace:pkgs/observability-mcp"],
+
+    "@pkgs/openslo": ["@pkgs/openslo@workspace:pkgs/openslo"],
 
     "@pkgs/os": ["@pkgs/os@workspace:pkgs/os"],
 
