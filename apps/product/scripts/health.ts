@@ -7,10 +7,10 @@
  * critical journeys in a real browser. The last step of every deploy and the
  * Health workflow's schedule.
  *
- * The environment picks the scenarios (tags):
- *   @production     only against production environments
- *   @oauth-relay    only against the relay environment
- *   @observability  not with OBSERVABILITY_ENABLED=0
+ * The environment picks the scenarios: `HOST_LIMITS` names the features and
+ * scenarios an environment cannot run. Specs never say where they run
+ * (docs/SPEC_STANDARDS.md D1), so that knowledge lives here, beside the
+ * bindings.
  *
  *   health                                     everything
  *   health specs/health/sign-in.feature        one feature (repo-relative)
@@ -89,25 +89,77 @@ function selectFeatures(cli: Cli): readonly string[] {
   });
 }
 
-/** The tag expression this environment runs: what it cannot run is excluded. */
-export function environmentTags(args: {
+/** What an environment offers that some scenarios need. */
+export type Environment = {
   readonly production: boolean;
   readonly relay: boolean;
   readonly observability: boolean;
-}): readonly string[] {
-  return [
-    ...(args.production ? [] : ['not @production']),
-    ...(args.relay ? [] : ['not @oauth-relay']),
-    ...(args.observability ? [] : ['not @observability']),
-  ];
+};
+
+/**
+ * A feature (or one scenario of it) only an environment with `needs` can run.
+ * Keyed by the feature's repo-relative path and the scenario's name; a test
+ * checks every entry still names a real feature and scenario.
+ */
+export type HostLimit = {
+  readonly feature: string;
+  readonly scenario?: string;
+  readonly needs: keyof Environment;
+  readonly why: string;
+};
+
+export const HOST_LIMITS: readonly HostLimit[] = [
+  {
+    feature: 'specs/journeys/critical-journeys.feature',
+    needs: 'production',
+    why: 'the critical journeys drive a real browser against the production web app',
+  },
+  {
+    feature: 'specs/health/payments.feature',
+    scenario: 'People can pay for Plus in production',
+    needs: 'production',
+    why: 'only production takes real payments',
+  },
+  {
+    feature: 'specs/health/sign-in.feature',
+    scenario: 'Google sign-ins started in another environment return to it',
+    needs: 'relay',
+    why: 'the relay is probed from its own deploy: a replica deploys before the relay learns about it',
+  },
+  {
+    feature: 'specs/health/request-records.feature',
+    needs: 'observability',
+    why: 'with OBSERVABILITY_ENABLED=0 the environment keeps no request records',
+  },
+];
+
+/** What `env` cannot run in `featureUri`: the whole feature, or some scenarios. */
+export function hostSkips(
+  env: Environment,
+  featureUri: string
+): { readonly wholeFeature: boolean; readonly scenarios: readonly string[] } {
+  const limits = HOST_LIMITS.filter(
+    (limit) => limit.feature === featureUri && !env[limit.needs]
+  );
+  return {
+    wholeFeature: limits.some((limit) => limit.scenario === undefined),
+    scenarios: limits.flatMap((limit) =>
+      limit.scenario === undefined ? [] : [limit.scenario]
+    ),
+  };
 }
 
-function writeStubs(features: readonly string[]): readonly string[] {
+function writeStubs(
+  env: Environment,
+  features: readonly string[]
+): readonly string[] {
   rmSync(STUB_DIR, { recursive: true, force: true });
   mkdirSync(STUB_DIR, { recursive: true });
   const bridge = Bun.resolveSync('@pkgs/gherkin/bun-test', import.meta.dir);
-  return features.map((featurePath) => {
+  return features.flatMap((featurePath) => {
     const featureUri = relative(REPO_ROOT, featurePath);
+    const skips = hostSkips(env, featureUri);
+    if (skips.wholeFeature) return [];
     const file = join(STUB_DIR, stubFileName(featureUri));
     writeFileSync(
       file,
@@ -117,26 +169,29 @@ function writeStubs(features: readonly string[]): readonly string[] {
         featureUri,
         stepsEntry: STEPS_ENTRY,
         bridge,
+        skip: skips.scenarios,
       })
     );
-    return `./${relative(PACKAGE_DIR, file)}`;
+    return [`./${relative(PACKAGE_DIR, file)}`];
   });
 }
 
 if (import.meta.main) {
   const cli = parseCli(process.argv.slice(2));
   const env = envFile(process.env['SECRETS_ENV']?.trim() || 'dev');
-  const tags = [
-    ...environmentTags({
-      production: isProductionEnv(env),
-      relay: oauthRelayEnv(Object.values(ENV_FILES)).env === env.env,
-      observability:
-        (process.env['OBSERVABILITY_ENABLED'] ?? '').trim() !== '0',
-    }),
-    ...(cli.tags === undefined ? [] : [`(${cli.tags})`]),
-  ].join(' and ');
-  console.log(`health: ${env.env}${tags.length > 0 ? ` — ${tags}` : ''}`);
-  const stubs = writeStubs(selectFeatures(cli));
+  const offers: Environment = {
+    production: isProductionEnv(env),
+    relay: oauthRelayEnv(Object.values(ENV_FILES)).env === env.env,
+    observability: (process.env['OBSERVABILITY_ENABLED'] ?? '').trim() !== '0',
+  };
+  const tags = cli.tags ?? '';
+  const missing = (Object.keys(offers) as (keyof Environment)[]).filter(
+    (need) => !offers[need]
+  );
+  console.log(
+    `health: ${env.env}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
+  );
+  const stubs = writeStubs(offers, selectFeatures(cli));
   if (stubs.length === 0) {
     console.error('health: nothing to run');
     process.exit(1);

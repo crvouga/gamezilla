@@ -28,6 +28,11 @@ export type RunFeatureOptions = {
   readonly featureUri: string;
   /** Tag expression; scenarios outside it are not registered. */
   readonly tags?: string | undefined;
+  /**
+   * Scenario names this host cannot run; they are not registered. The host
+   * decides this beside its bindings — a spec never names where it runs.
+   */
+  readonly skip?: readonly string[] | undefined;
   /** Per-scenario timeout; default is `bun test --timeout`. */
   readonly timeoutMs?: number | undefined;
   readonly reportHint?: string | undefined;
@@ -145,9 +150,10 @@ async function runScenario(run: ScenarioRun): Promise<void> {
 export function runFeature(source: string, options: RunFeatureOptions): void {
   const feature = parseFeature(source, options.featureUri);
   const selected = tagFilter(options.tags ?? process.env['SPEC_TAGS']);
+  const skipped = new Set(options.skip ?? []);
   describe(feature.name, () => {
     for (const scenario of feature.scenarios) {
-      if (!selected(scenario.tags)) continue;
+      if (!selected(scenario.tags) || skipped.has(scenario.name)) continue;
       const body = () =>
         runScenario({ options, featureName: feature.name, scenario });
       if (options.timeoutMs === undefined) {

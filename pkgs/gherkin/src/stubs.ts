@@ -15,6 +15,8 @@ export type StubInput = {
   readonly stepsEntry: string;
   /** Absolute path of the bun:test bridge module (`@pkgs/gherkin/bun-test`). */
   readonly bridge: string;
+  /** Scenario names the host cannot run (`RunFeatureOptions.skip`). */
+  readonly skip?: readonly string[] | undefined;
 };
 
 export function stubFileName(featureUri: string): string {
@@ -22,6 +24,12 @@ export function stubFileName(featureUri: string): string {
     .replace(/^specs\//, '')
     .replace(/\.feature$/, '')
     .replace(/[^a-zA-Z0-9]+/g, '-')}.feature.test.ts`;
+}
+
+function skipOption(skip: readonly string[] | undefined): string {
+  return skip === undefined || skip.length === 0
+    ? ''
+    : `, skip: ${JSON.stringify(skip)}`;
 }
 
 export function stubSource(input: StubInput): string {
@@ -32,7 +40,7 @@ export function stubSource(input: StubInput): string {
     `import { runFeature } from ${q(input.bridge)};`,
     '',
     `const source = await Bun.file(${q(input.featurePath)}).text();`,
-    `runFeature(source, { packageName: ${q(input.packageName)}, featureUri: ${q(input.featureUri)} });`,
+    `runFeature(source, { packageName: ${q(input.packageName)}, featureUri: ${q(input.featureUri)}${skipOption(input.skip)} });`,
     '',
   ].join('\n');
 }

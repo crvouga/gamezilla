@@ -161,9 +161,9 @@ Then(
 );
 
 /**
- * The relay is probed from its own deploy (`@oauth-relay`): a replica
- * deploys before the relay learns about it, so its own health must not
- * depend on the relay.
+ * Only the relay's own deploy runs this (`HOST_LIMITS` in
+ * `scripts/health.ts`): a replica deploys before the relay learns about it,
+ * so its own health must not depend on the relay.
  */
 Then(
   'Google sign-ins started in any other environment return to that environment',

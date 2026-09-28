@@ -310,5 +310,16 @@ describe('tags and catalogs', () => {
     });
     expect(source).toContain('import { runFeature }');
     expect(source).toContain('specs/friends/remove.feature');
+    expect(source).not.toContain('skip');
+    expect(
+      stubSource({
+        bridge: '/repo/pkgs/gherkin/src/bun-test.ts',
+        featurePath: '/repo/specs/friends/remove.feature',
+        featureUri: 'specs/friends/remove.feature',
+        packageName: '@libs/friends',
+        stepsEntry: '/repo/libs/friends/tests/steps/index.ts',
+        skip: ['Alice removes Bob'],
+      })
+    ).toContain('skip: ["Alice removes Bob"]');
   });
 });

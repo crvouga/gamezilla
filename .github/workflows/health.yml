@@ -19,8 +19,8 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # (health:matrix reads them — libs/infra/scripts/workflow-env-matrix.ts — from
 # a job with no secrets); adding an env file needs no edit here. Envs with
 # `protection: "production"` run in the GitHub `production` environment and
-# keep their critical-journey evidence on failure. `@production` scenarios
-# skip themselves elsewhere.
+# keep their critical-journey evidence on failure. Scenarios only production
+# can run (`HOST_LIMITS` in apps/product/scripts/health.ts) skip elsewhere.
 
 permissions:
   contents: read
