@@ -114,6 +114,32 @@ terms:
   - term: About in Settings
     definition: The part of Settings that shows which version of the app a person has.
 
+  - term: control
+    definition: >-
+      Anything in the app a person acts on to do something, such as going to
+      one of the tabs, opening Settings or turning sounds off. Every control
+      says what it does, to someone listening to the app too.
+    forms: [controls]
+    avoid: [button, widget, element, link text, field]
+
+  - term: listen to the app
+    definition: >-
+      Use the app by hearing it read aloud instead of seeing it, as people who
+      cannot see it do. They hear what every control does and what every
+      picture that means something shows.
+    forms: [is listening to the app, listening to the app, listens to the app, hears, hear]
+    avoid: [screen reader, assistive technology, accessible name, alt text, label]
+
+  - term: keyboard
+    definition: >-
+      The keys a person can use the app with instead of a mouse or touch.
+      Using the keyboard alone, a person moves from one control to the next,
+      in the order the controls are shown, and acts on the one their keyboard
+      is on. It never gets stuck anywhere, and whatever takes it gives it back
+      where it was.
+    forms: [keyboard's, keyboard alone, the keyboard alone]
+    avoid: [focus, focused, focus ring, focus trap, tab key, tabbing, tab order, keyboard navigation]
+
   # Borrowed from Identity.
   - term: guest
     from: profile
@@ -127,6 +153,8 @@ terms:
   - term: Google
     from: profile
   - term: profile
+    from: profile
+  - term: avatar
     from: profile
 
   # Borrowed from Spaces.

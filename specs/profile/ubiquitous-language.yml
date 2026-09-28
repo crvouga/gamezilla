@@ -28,7 +28,7 @@ terms:
       account, unless it is an address match for one they already have.
     forms: [accounts, account's]
     avoid: [user account, login, app account]
-    model: [account, accountOf, accountCount]
+    model: [account, accountOf, accountCount, Account]
     published: true
 
   - term: sign in
@@ -76,6 +76,7 @@ terms:
       seed. Every newcomer starts with one of their own.
     forms: [avatars, avatar's]
     avoid: [profile picture, profile photo, profile image]
+    model: [Avatar, avatar]
     published: true
 
   - term: profile
@@ -84,6 +85,7 @@ terms:
       with their account to every device they sign in on.
     forms: [profiles, profile's]
     avoid: [user profile]
+    model: [Profile, profile]
     published: true
 
   # Signing in and out
@@ -142,6 +144,7 @@ terms:
       A person's own account with Google, outside the app. Signing in with
       Google uses it.
     forms: [Google accounts]
+    model: [GoogleAccount]
 
   - term: Apple account
     definition: >-
@@ -150,6 +153,7 @@ terms:
       stop using Sign in with Apple for the app, or delete it; either of the
       last two signs them out of the app.
     forms: [Apple accounts]
+    model: [AppleAccount]
 
   - term: Sign in with Apple
     definition: >-
