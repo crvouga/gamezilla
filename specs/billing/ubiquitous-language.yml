@@ -112,11 +112,17 @@ terms:
     avoid: [billing interval, interval, billing cycle]
     model: [Plan, switchPlan]
 
+  - term: current plan
+    definition: >-
+      The Plus plan a Plus member's newest membership is on, as the billing
+      plans mark it. The other Plus plan is not marked.
+    forms: [current plans]
+
   - term: free trial
     definition: >-
       The first billing period of a new membership, which is not charged.
       When it ends the membership becomes active on its first paid renewal.
-    forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended]
+    forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended, free trial ends, days left in the free trial]
 
   - term: billing period
     definition: >-
