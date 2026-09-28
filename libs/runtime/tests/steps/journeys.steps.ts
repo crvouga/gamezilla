@@ -1,7 +1,7 @@
 /**
  * Critical journey steps (`specs/journeys/`). Written once against the
  * world's {@link JourneyHost}, so the same definitions drive the simulated
- * app here (`@libs/runtime#test:e2e`) and a real browser against production
+ * app here (`@libs/runtime#test:spec`) and a real browser against production
  * (`@apps/product#health` imports this file).
  */
 

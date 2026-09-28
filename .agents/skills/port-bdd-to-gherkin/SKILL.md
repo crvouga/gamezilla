@@ -1,6 +1,6 @@
 ---
 name: port-bdd-to-gherkin
-description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / e2e / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
+description: Port legacy behavior tests written directly against the bespoke `@pkgs/harness` API (`system.run` + `s.apply` / `s.read` / `s.until`, `test.each` seed sweeps, `randomActions` / `explore` walks) into Gherkin features and Quint models, then delete them. Orchestrates spec-upsert, spec-implement, and spec-audit with a parity ledger so no legacy claim is lost. Use when asked to port, migrate, or rewrite harness / spec / behavior tests to Gherkin, `.feature` files, Quint, or specs, for one file, a package (`@pkgs/sync-engine`, `@pkgs/room-harness`, `@pkgs/matchmaking-harness`, `@pkgs/auth-harness`, `@pkgs/db-indexes`, a product lib), or the whole repo.
 ---
 
 # Port legacy harness tests to Gherkin + Quint
@@ -83,7 +83,7 @@ Every legacy claim lands somewhere, or is dropped with a stated reason.
   like every other `.feature` and `.qnt`: no Gherkin or Quint lives outside
   `specs/`. Its names come from the context's glossary, its binding is
   `tests/quint/<model>.binding.ts` in the package, and the package's
-  `test:e2e` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-harness`.
+  `test:spec` runs it as it runs `specs/room/*.qnt` for `@pkgs/room-harness`.
   This is the "model-based property test" the policy asks for. Its variables
   are the package's public observables (a person's notes on a device, a
   room's count, who is matched), not queues or epochs.

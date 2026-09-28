@@ -67,7 +67,7 @@ export function chessBoardLayerTestId(
 }
 
 /**
- * What a painted node shows, in E2E builds only: each node carries an
+ * What a painted node shows, in test builds only: each node carries an
  * unpainted text token so a driver reads the painted board as text.
  */
 export type ChessBoardPaintKind =

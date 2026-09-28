@@ -1,9 +1,9 @@
 import type { Accessor, JSX } from 'solid-js';
 
 import type { ChessMoveNotation } from '../../shared/chess/chess-puzzle-notation';
-import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
+import { CHESS_PUZZLE_TEST_ENABLED } from './chess-puzzle-test-enabled';
 
-export type ChessPuzzleReviewE2EProps = {
+export type ChessPuzzleReviewTestProps = {
   solveIdx: Accessor<number>;
   lastSolveIdx: Accessor<number>;
   /** §7: whether the seek that produced this position animated or snapped. */
@@ -17,10 +17,10 @@ export type ChessPuzzleReviewE2EProps = {
  * `<solveIdx>|<lastSolveIdx>|<animated 0|1>|<notation>` plus the position
  * FEN, so a scenario can assert the scrub without reading pixels.
  */
-export function ChessPuzzleReviewE2E(
-  props: ChessPuzzleReviewE2EProps
+export function ChessPuzzleReviewTest(
+  props: ChessPuzzleReviewTestProps
 ): JSX.Element {
-  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
+  if (!CHESS_PUZZLE_TEST_ENABLED) return <></>;
   const hintStyle = {
     position: 'absolute' as const,
     width: '1px',
@@ -32,12 +32,12 @@ export function ChessPuzzleReviewE2E(
       <p
         class="text"
         style={hintStyle}
-        data-testid="chess-puzzle-review-e2e"
+        data-testid="chess-puzzle-review-test"
       >{`${props.solveIdx()}|${props.lastSolveIdx()}|${props.animated() ? '1' : '0'}|${props.notation()}`}</p>
       <p
         class="text"
         style={hintStyle}
-        data-testid="chess-puzzle-review-e2e-fen"
+        data-testid="chess-puzzle-review-test-fen"
       >
         {props.displayFen()}
       </p>

@@ -529,7 +529,6 @@
         "!**/scripts/**",
         "!**/libs/secrets/src/shared/**",
         "!**/public/**",
-        "!**/e2e/public/**",
         "!**/apps/server/src/server.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
@@ -600,7 +599,6 @@
         "!**/scripts/**",
         "!**/libs/secrets/src/shared/**",
         "!**/public/**",
-        "!**/e2e/public/**",
         "!**/apps/server/src/server.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
@@ -682,7 +680,7 @@
       "path": "./libs/tools/biome-plugins/no-dst-raw-selectors.grit",
       "includes": [
         "**/libs/harness/src/open-harness/**/*.{ts,tsx}",
-        "**/libs/*/tests/e2e/support/**/*.{ts,tsx}"
+        "**/libs/*/tests/harness/**/*.{ts,tsx}"
       ]
     },
     {
@@ -720,7 +718,6 @@
         "!**/pkgs/db-schema-postgres/src/emit.ts",
         "!**/pkgs/db-schema-sqlite/src/emit.ts",
         "!**/pkgs/sql-client/src/agnostic-sql.test.ts",
-        "!**/pkgs/sql-client/e2e/harness/memory-sql.ts",
         "!**/pkgs/sql-client/tests/helpers/generators/program.ts",
         "!**/pkgs/**/cutover-migration.ts",
         "!**/dist/**",
@@ -856,8 +853,7 @@
         "**/pkgs/**/*.{ts,tsx}",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -874,8 +870,7 @@
         "**/apps/client/**/*.{ts,tsx}",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -908,8 +903,7 @@
         "!**/libs/pubsub/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -925,8 +919,7 @@
         "!**/src/harness/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -975,8 +968,7 @@
         "!**/src/harness/**",
         "!**/scripts/**",
         "!**/*.test.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -990,8 +982,7 @@
         "!**/apps/product/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -1003,8 +994,7 @@
         "!**/apps/product/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -1018,8 +1008,7 @@
         "!**/pkgs/harness/src/fast-check/**",
         "!**/*.test.{ts,tsx}",
         "!**/*.spec.{ts,tsx}",
-        "!**/tests/**",
-        "!**/e2e/**"
+        "!**/tests/**"
       ]
     },
     {
@@ -1255,7 +1244,6 @@
     {
       "includes": [
         "**/scripts/**",
-        "**/e2e/**",
         "**/*.bench.ts",
         "**/*.bench.tsx",
         "pkgs/logger/src/**",
@@ -1314,7 +1302,7 @@
       }
     },
     {
-      "includes": ["**/libs/*/tests/e2e/**"],
+      "includes": ["**/libs/*/tests/harness/**"],
       "linter": {
         "rules": {
           "style": {

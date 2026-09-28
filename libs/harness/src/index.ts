@@ -1,6 +1,6 @@
 /**
  * @libs/harness — the simulation fabric and product System, generic over
- * a {@link HarnessComposition}. A feature's e2e opens its own slice; the product
+ * a {@link HarnessComposition}. A feature's spec opens its own slice; the product
  * opens all of it. Hosts are registered runtimes: `in-process`, `bun-webview`.
  *
  * Isomorphism: fabric + `in-process` + system/actions must run under web

@@ -119,9 +119,9 @@ describe('restoreEveryHit', () => {
       planFromDryRun(
         dryRun([
           {
-            taskId: '@libs/a#test:e2e',
+            taskId: '@libs/a#test:spec',
             hash: 'eee',
-            command: 'bun run test-e2e.ts',
+            command: 'bun run test-spec.ts',
             dependencies: ['@libs/a#tc'],
             cache: { status: 'HIT', source: 'REMOTE' },
           },

@@ -35,7 +35,7 @@ test is gone. Dashboards and metrics are not part of this decision.
 - PostgreSQL monitoring: the `pg_stat_statements` extension is an OpenTofu
   resource (`libs/infra/tofu/modules/database`); server settings such as
   `auto_explain` are the managed provider's (Neon does not permit `ALTER SYSTEM`). Provider statement-log access is not assumed by agent tooling.
-- CI/e2e: one Bun-based simulation harness, package-owned e2e suites, GitHub
+- CI/spec: one Bun-based simulation harness, package-owned spec suites, GitHub
   Actions artifacts, and no Playwright runner. The design therefore integrates
   with the existing recording driver/test harness instead of introducing a
   second test runner.
@@ -174,7 +174,7 @@ logs without pulling the browser SDK/core into initial JavaScript.
 | Runtime composition | `apps/client/src/main.tsx` | Registers the browser provider at the browser entrypoint. |
 | Runtime composition | `apps/server/src/server.ts` | Registers and flushes the API Worker provider and observes Worker fetch/scheduled entrypoints. |
 | Runtime composition | `apps/room-server/src/room.ts` | Registers and flushes the independent room Worker provider. |
-| Runtime composition | `libs/harness/src/preload.ts` | Registers the Node provider and NDJSON exporter at the e2e process entrypoint. |
+| Runtime composition | `libs/harness/src/preload.ts` | Registers the Node provider and NDJSON exporter at the spec process entrypoint. |
 | Client interaction/route/error | `libs/client-app/src/shell/observability/browser-boundaries.ts` | Owns delegated interaction, route, and browser/Solid error spans. |
 | Client interaction/route/error | `libs/client-app/src/shell/observability/browser-identity.ts` | Owns browser identity and the `window.__obs` correlation surface without coupling auth to an SDK. |
 | Client interaction/route/error | `libs/client-app/src/shell/wall-client-env.ts` | Joins an interaction to the injected HTTP client at the wall-network composition boundary. |

@@ -167,7 +167,7 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "test:e2e": {
+    "test:spec": {
       "dependsOn": ["tc"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "env": [
@@ -184,7 +184,11 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "env": ["VITE_API_URL", "VITE_E2E", "VITE_ALLOW_PRODUCTION_API_URL"],
+      "env": [
+        "VITE_API_URL",
+        "VITE_TEST_HOOKS",
+        "VITE_ALLOW_PRODUCTION_API_URL"
+      ],
       "inputs": [
         "**/*.ts",
         "**/*.tsx",
@@ -388,7 +392,7 @@
         "lint",
         "test",
         "test:contract",
-        "test:e2e",
+        "test:spec",
         "@apps/product#check:offline-shell",
         "@apps/room-server#check:worker-bundle",
         "@apps/server#check:worker-bundle",

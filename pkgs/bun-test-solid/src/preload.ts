@@ -17,8 +17,8 @@ import * as linguiCore from '@lingui/core';
 import * as linguiSolid from '@lingui/solid';
 
 // `import.meta.env` is `process.env` under Bun: keep `@pkgs/ui` DOM identifiers
-// (`data-component` / `data-screen`) on, as Vite dev and E2E builds do.
-process.env['VITE_E2E'] = process.env['VITE_E2E'] ?? '1';
+// (`data-component` / `data-screen`) on, as Vite dev and test builds do.
+process.env['VITE_TEST_HOOKS'] = process.env['VITE_TEST_HOOKS'] ?? '1';
 
 // Pin Lingui to this process's singletons. bun's content-addressed install
 // can resolve `@lingui/core` / `@lingui/solid` to distinct copies per

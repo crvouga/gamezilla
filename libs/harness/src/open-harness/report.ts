@@ -2,7 +2,7 @@
 /**
  * Report bucket for harness tests. Every harness writes its `report.json` (each step,
  * its outcome and error) under the running package's
- * `.cache/harness-report/runs/latest/…` — `test:e2e` caches that bucket, so the
+ * `.cache/harness-report/runs/latest/…` — `test:spec` caches that bucket, so the
  * report of the last run of this exact code is always there to render.
  * `HARNESS_FRAMES=1` also captures UI frames (slower; a separate cache entry).
  * `bun run test:report` (root) folds every package's bucket into one

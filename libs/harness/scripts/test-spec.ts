@@ -1,29 +1,29 @@
 #!/usr/bin/env bun
-// @io-wall-ok — CLI: one package's e2e suite (`test:e2e`), run from its root.
+// @io-wall-ok — CLI: one package's spec suite (`test:spec`), run from its root.
 /**
- * Every package's `test:e2e` is this script, so every subsystem suite runs
+ * Every package's `test:spec` is this script, so every subsystem suite runs
  * under the same compile contract, preloads, timeout and reporting:
  *
- *   "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+ *   "test:spec": "bun run ../../libs/harness/scripts/test-spec.ts"
  *
  * It wipes the package's report bucket (`.cache/harness-report`), turns every
  * spec of the domains the package's `specDomains` lists into a `bun test`
  * stub under `.cache/spec/` — each Gherkin feature (`specs/<domain>/*.feature`,
  * run through `tests/steps/index.ts`) and each Quint model
  * (`specs/<domain>/*.qnt`, its traces replayed through `tests/quint/index.ts`)
- * — runs `bun test --parallel` over those stubs plus `tests/e2e` (or the
+ * — runs `bun test --parallel` over those stubs plus `tests/harness` (or the
  * paths given) with a JUnit report written into the bucket, and exits with
  * the runner's status. Every harness writes its step timeline into the bucket and
  * every model its traces, and turbo caches the bucket with the verdict, so
  * `bun run test:report` (root) renders the last run of this exact code;
  * `HARNESS_FRAMES=1` adds UI frames.
  *
- *   test:e2e                                        everything
- *   test:e2e specs/friends/friend-remove.feature    one feature (repo-relative)
- *   test:e2e specs/spaces/space-hosting.qnt         one model
- *   test:e2e -t 'ends the friendship'               scenarios by name
- *   test:e2e --tags '@goal:social:5'                scenarios by tag expression
- *   test:e2e tests/e2e/critical-journeys.test.tsx   one code test
+ *   test:spec                                        everything
+ *   test:spec specs/friends/friend-remove.feature    one feature (repo-relative)
+ *   test:spec specs/spaces/space-hosting.qnt         one model
+ *   test:spec -t 'ends the friendship'               scenarios by name
+ *   test:spec --tags '@goal:social:5'                scenarios by tag expression
+ *   test:spec tests/harness/critical-journeys.test.tsx   one code test
  */
 
 import { spawnSync } from 'node:child_process';
@@ -51,10 +51,10 @@ const QUINT_ENTRY = join(PACKAGE_DIR, 'tests/quint/index.ts');
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const SPECS_DIR = join(REPO_ROOT, 'specs');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
-const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-e2e`;
+const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 /**
  * Per test, a wall clock. A scenario costs 2–5 s idle, but under a full
- * `bun check` (every package's e2e plus the Quint models at once) chess
+ * `bun check` (every package's spec plus the Quint models at once) chess
  * scenarios measured 60–95 s, past the old 90 s. 240 s is over twice that
  * loaded cost, so load cannot flip a verdict; the per-task budget still
  * bounds a hang. A live browser (`HARNESS_MODE=real|stack`) gets the same.
@@ -72,7 +72,7 @@ type Cli = {
 /**
  * `--tags` is ours; everything else passes through to `bun test` in order
  * (`-t name`, `--timeout 1000` keep their values). The default scope (every
- * spec + `tests/e2e`) applies only when nothing names a spec or test path, so
+ * spec + `tests/harness`) applies only when nothing names a spec or test path, so
  * a narrowed run never widens.
  */
 function parseCli(argv: readonly string[]): Cli {
@@ -131,7 +131,7 @@ function selectSpecs(cli: Cli): readonly string[] {
     const abs = candidates.find((path) => all.includes(path));
     if (abs === undefined) {
       console.error(
-        `test-e2e: ${given} is not a spec of ${TEST_PACKAGE_NAME}'s specDomains (${specDomains().join(', ')})`
+        `test-spec: ${given} is not a spec of ${TEST_PACKAGE_NAME}'s specDomains (${specDomains().join(', ')})`
       );
       process.exit(1);
     }
@@ -142,7 +142,7 @@ function selectSpecs(cli: Cli): readonly string[] {
 function requireEntry(entry: string, what: string): void {
   if (existsSync(entry)) return;
   console.error(
-    `test-e2e: ${relative(PACKAGE_DIR, entry)} is missing — a package whose specDomains hold ${what}`
+    `test-spec: ${relative(PACKAGE_DIR, entry)} is missing — a package whose specDomains hold ${what}`
   );
   process.exit(1);
 }
@@ -224,10 +224,10 @@ mkdirSync(REPORT_DIR, { recursive: true });
 const stubs = writeStubs(selectSpecs(cli));
 const scope =
   cli.specPaths.length === 0 && cli.testPaths.length === 0
-    ? [...stubs, 'tests/e2e']
+    ? [...stubs, 'tests/harness']
     : [...stubs, ...cli.testPaths];
 if (scope.length === 0) {
-  console.error('test-e2e: nothing to run');
+  console.error('test-spec: nothing to run');
   process.exit(1);
 }
 

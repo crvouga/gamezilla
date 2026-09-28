@@ -55,7 +55,7 @@ export function segmentIndicatorCss(
   return { width, left };
 }
 
-/** Per-segment DOM id derived from the group's `dataSet.testid` (E2E). */
+/** Per-segment DOM id derived from the group's `dataSet.testid` (spec). */
 export function segmentTestId(
   groupTestId: string | undefined,
   key: string

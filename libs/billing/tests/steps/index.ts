@@ -12,6 +12,6 @@ import './provider-switch.steps';
 import './time.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
-import { openHarness } from '../e2e/support/open-billing-harness';
+import { openHarness } from '../harness/open-billing-harness';
 
 useHarnessWorld(openHarness);

@@ -53,7 +53,7 @@ shell instead of a second one written for tests.
 
 ## Where a new test goes
 
-- **It exercises one feature** → `libs/<feature>/tests/e2e/`, black-box
+- **It exercises one feature** → `libs/<feature>/tests/harness/`, black-box
   against the package's exports, booting a composition of only the slices it
   needs (`composeHarnessSlices` + `defineProductSystem` from `@libs/harness`).
   The actions, reads and slice it drives live in that feature's `./harness`
@@ -62,7 +62,7 @@ shell instead of a second one written for tests.
 - **It spans features** (a friend joining a space, a puzzle limit opening the
   billing screen) → the full-composition layer. Do not stretch a subsystem
   test across a boundary; that is what makes every test depend on everything.
-- **It is not an e2e at all** (validating a fixture, checking a static
+- **It is not a spec at all** (validating a fixture, checking a static
   policy) → next to the thing it checks, as an ordinary test.
 
 The full-composition layer boots the real app composition and is about a tenth
@@ -147,22 +147,22 @@ them, and turbo does not rerun the reader when the owner's schema changes.
 
 | Reader | Reads | Consequence today | Fix |
 | --- | --- | --- | --- |
-| `permissions` (`use-access-facts.ts`, `read-access.ts`) | billing's `billing_subscriptions` | every harness composes billing; a billing change reruns every feature's e2e | a membership-facts port billing fills (it must stay inside the mutation transaction, so the port goes through the mutation env) |
-| `spaces` (`friendship-sql.ts`, `actor-visible-spaces-sql.ts`, `use-is-friend-of-host-local.ts`, `topic-map.ts`) | friends' `friends_friendships` | spaces cannot run without friends, so its e2e lives in `libs/friends`, and chess composes friends | a friendship port friends fills, or the friendship schema in a package below spaces |
+| `permissions` (`use-access-facts.ts`, `read-access.ts`) | billing's `billing_subscriptions` | every harness composes billing; a billing change reruns every feature's spec | a membership-facts port billing fills (it must stay inside the mutation transaction, so the port goes through the mutation env) |
+| `spaces` (`friendship-sql.ts`, `actor-visible-spaces-sql.ts`, `use-is-friend-of-host-local.ts`, `topic-map.ts`) | friends' `friends_friendships` | spaces cannot run without friends, so its spec lives in `libs/friends`, and chess composes friends | a friendship port friends fills, or the friendship schema in a package below spaces |
 | `search` (people search) | friends' `searchProfiles` sync query and `friends_blocks` | search cannot run without friends, so search-people lives in `libs/friends` | the search query in search, with block filtering behind a port friends fills |
 
 ## What reruns
 
-A change reruns its package's checks and its dependents'; an e2e suite reruns
+A change reruns its package's checks and its dependents'; a spec suite reruns
 when anything in its composition's closure changes. The full-composition
-suite (`@libs/runtime#test:e2e`) is small — shell boot, the platform's Quint
-model, critical journeys — and is the only e2e that reruns for every feature.
+suite (`@libs/runtime#test:spec`) is small — shell boot, the platform's Quint
+model, critical journeys — and is the only spec that reruns for every feature.
 
-Measured with `turbo run test:e2e --filter=...<pkg> --dry=json` (the e2e
+Measured with `turbo run test:spec --filter=...<pkg> --dry=json` (the spec
 tasks in a package's dependents). Before the split, every row was "all 46
 specs, one task".
 
-| Touch | E2e suites that rerun |
+| Touch | Spec suites that rerun |
 | --- | --- |
 | `@libs/chess`, `@pkgs/chess-board` | chess, product |
 | `@libs/runtime` (the composition root) | product |

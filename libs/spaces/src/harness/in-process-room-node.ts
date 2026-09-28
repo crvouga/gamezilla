@@ -4,7 +4,7 @@
  * {@link LoopbackRoomTransport} — no browser WebSocket / Durable Object.
  *
  * The games a space can host are an argument: the product passes its whole
- * registry, a feature's e2e passes the games it composes (or none).
+ * registry, a feature's spec passes the games it composes (or none).
  */
 
 import type { EnvTime } from '@libs/feature/public/sync';

@@ -7,7 +7,7 @@ Browser tabs share one OPFS SQLite database per `dbName` without fighting exclus
 
 Exactly **one dedicated sqlite-wasm worker** owns the OPFS SyncAccessHandle
 pool. The product Window never imports `@sqlite.org/sqlite-wasm` directly.
-Peers never call `sqlite3_open_v2` on the Window. E2e covers the same owner
+Peers never call `sqlite3_open_v2` on the Window. Browser tests cover the same owner
 via a disposable iframe (`sql-host.html`) that remounts to force handle release.
 
 ### SharedWorker path (default)
@@ -73,7 +73,7 @@ destroying the document that loaded the SQLite module does.
 Product web therefore:
 
 1. Loads the web SQLite **only** inside a dedicated module worker
-   (`/sql-workers/sqlite-worker.js`); e2e also covers the disposable iframe
+   (`/sql-workers/sqlite-worker.js`); browser tests also cover the disposable iframe
    host (`/sql-workers/sql-host.html`) that owns the same worker
 2. On pool / corrupt / migrate / schema-epoch failure: peers drop owners via
    BroadcastChannel → force-release SharedWorker → terminate owner worker →

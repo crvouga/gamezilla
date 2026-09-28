@@ -1,9 +1,9 @@
 import type { Accessor, JSX } from 'solid-js';
 
 import { uciToSquares } from '../chess-puzzle-fsm';
-import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
+import { CHESS_PUZZLE_TEST_ENABLED } from './chess-puzzle-test-enabled';
 
-export type ChessPuzzleE2EHintsProps = {
+export type ChessPuzzleTestHintsProps = {
   orientation: Accessor<'white' | 'black'>;
   status: Accessor<string>;
   solveIdx: Accessor<number>;
@@ -34,7 +34,7 @@ function buildUci(from: string | null, to: string | null): string | null {
   return `${from}${to}`;
 }
 
-function resolveSolutionUci(props: ChessPuzzleE2EHintsProps): string | null {
+function resolveSolutionUci(props: ChessPuzzleTestHintsProps): string | null {
   const solution = (props.solutionUci() ?? '').trim().toLowerCase();
   if (solution.length >= 4 && uciToSquares(solution) !== null) {
     return solution;
@@ -42,7 +42,7 @@ function resolveSolutionUci(props: ChessPuzzleE2EHintsProps): string | null {
   return buildUci(props.expectedFromSquare(), props.expectedToSquare());
 }
 
-function spectatorProbe(props: ChessPuzzleE2EHintsProps): string {
+function spectatorProbe(props: ChessPuzzleTestHintsProps): string {
   return [
     `spectating=${props.spectating() ? '1' : '0'}`,
     `role=${props.spaceRole()}`,
@@ -52,10 +52,10 @@ function spectatorProbe(props: ChessPuzzleE2EHintsProps): string {
   ].join(' ');
 }
 
-export function ChessPuzzleE2EHints(
-  props: ChessPuzzleE2EHintsProps
+export function ChessPuzzleTestHints(
+  props: ChessPuzzleTestHintsProps
 ): JSX.Element {
-  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
+  if (!CHESS_PUZZLE_TEST_ENABLED) return <></>;
   const resolved = (): string | null => resolveSolutionUci(props);
   const uci = (): string | null => (props.interactive() ? resolved() : null);
   const hintStyle = {
@@ -79,15 +79,15 @@ export function ChessPuzzleE2EHints(
       <p
         class="text"
         style={hintStyle}
-        data-testid="chess-puzzle-e2e-debug"
+        data-testid="chess-puzzle-test-debug"
       >{`${props.status()}|${props.interactive() ? '1' : '0'}|${props.solveIdx()}|${props.moves()}|${resolved() ?? ''}|${props.hintStage()}|${props.puzzleRating()}|${props.themes().join(',')}`}</p>
-      <p class="text" style={hintStyle} data-testid="chess-puzzle-e2e-fen">
+      <p class="text" style={hintStyle} data-testid="chess-puzzle-test-fen">
         {props.displayFen() ?? ''}
       </p>
       <p
         class="text"
         style={hintStyle}
-        data-testid="chess-puzzle-e2e-spectator"
+        data-testid="chess-puzzle-test-spectator"
       >
         {spectatorProbe(props)}
       </p>

@@ -9,6 +9,6 @@ import './membership-lifecycle.binding';
 import './payment-provider-switch.binding';
 
 import { useQuintHarness } from '@libs/harness/quint/world';
-import { openLifecycleHarness } from '../e2e/support/open-billing-lifecycle-harness';
+import { openLifecycleHarness } from '../harness/open-billing-lifecycle-harness';
 
 useQuintHarness(openLifecycleHarness);

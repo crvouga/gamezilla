@@ -37,7 +37,7 @@ specs/<domain>/events.qnt          Quint: the facts the context publishes to oth
 One directory per domain, no subdirectories, and every scenario tagged with
 that directory's `@domain`. The package whose steps run a domain lists it in
 its `package.json` `specDomains` (for example `@libs/friends` runs `friends`
-and `spaces`) and adds `$TURBO_ROOT$/specs/<domain>/**` to its `test:e2e`
+and `spaces`) and adds `$TURBO_ROOT$/specs/<domain>/**` to its `test:spec`
 inputs in its `turbo.json`. Step definitions live in that package's
 `tests/steps/` and are listed in generated `STEPS_CATALOG.md` files
 ([index](STEPS_CATALOG.md)); product terms are in each context's
@@ -177,7 +177,7 @@ contracts, wire shapes, storage, budgets.
 | A pure computation: formula, parser, validation table, ordering, math | **property test** (`assertProperty`) |
 | How a feature's observable state evolves under any sequence of actions | **Quint model** (`specs/<domain>/<model>.qnt`) |
 | Stateful internals across sequences: sync, convergence, exactly-once, idempotence, fault recovery | **model-based property test** |
-| Storage rows, wire formats, request shapes, which component calls which | **contract or e2e test** asserting through the package's reads |
+| Storage rows, wire formats, request shapes, which component calls which | **contract or spec test** asserting through the package's reads |
 | One literal case that must never change (a bug's input, a decided value) | **example regression test**, or a `@regression:<id>` scenario when the bug was observable behavior |
 | Timing, load, bundle size, budgets | **gate script** |
 
@@ -269,7 +269,7 @@ Everything else in the standard is checked by `spec-audit`.
 
 ## How a model runs
 
-The package's `test:e2e` turns each model into one bun test file:
+The package's `test:spec` turns each model into one bun test file:
 
 1. Quint draws traces from the model (`quint run --mbt` on its bundled
    TypeScript backend — no download, no network). The seed is the property
@@ -333,7 +333,7 @@ through `liveDomains`.
 
 ## Reports
 
-Every `test:e2e` run writes its package's report bucket
+Every `test:spec` run writes its package's report bucket
 (`<package>/.cache/harness-report`): each scenario's and each trace's step
 timeline — Gherkin steps and Quint trace steps, with the harness calls under them
 — the drawn traces, and JUnit. Turbo caches the bucket with the verdict, so
@@ -378,7 +378,7 @@ bun run spec:ownership
 bun run test:report
 ```
 
-The package e2e runner generates temporary Bun test stubs in `.cache/spec/`.
+The package spec runner generates temporary Bun test stubs in `.cache/spec/`.
 Those files are never committed. A feature failure identifies the feature
 line, matching definition, completed-step ledger, and harness calls made by the
 failing step; a model failure, the trace step, the diverging variables, and

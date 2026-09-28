@@ -4,7 +4,7 @@
 
 - **We never test manually. Ever.** A green `bun check` is the whole release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally", not once. Running the app (`bun run dev`, `bun run stack`, the Harness) is for building and debugging, never evidence. If you want to look at the app to know a change works, a check is missing: write it. If no check can reach the behavior, change the product until one can. **Exploratory tests are property-based or model-based** (`assertProperty` from `@pkgs/property` — raw `fc.assert` / `fc.sample` are banned as unseeded; `fc.commands` models; `@pkgs/harness` systems; Quint models in `specs/<domain>/*.qnt` for product features — no product random walks). **Regression tests are example-based**: every bug found gets the literal failing input pinned as an example test marked `// regression: <bug-id>` and an entry in `libs/tools/goal/known-bugs.json` — a property is never the guard. Delete example tests a property subsumes unless they pin a bug or a decided value. No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries, no test file outside a gate script. Tests are in-process on virtual time and must be fast. Policy and enforcement: [`docs/TESTING.md`](docs/TESTING.md).
 
-- **Specs are for business readers.** Every line in `specs/` must be understood by a non-technical business person (A0 in [`docs/SPEC_STANDARDS.md`](docs/SPEC_STANDARDS.md)); every behavior and e2e test is a spec; each framework package tests through one kitchen-sink example app ([`docs/TESTING.md`](docs/TESTING.md) § "One example app per package").
+- **Specs are for business readers.** Every line in `specs/` must be understood by a non-technical business person (A0 in [`docs/SPEC_STANDARDS.md`](docs/SPEC_STANDARDS.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app ([`docs/TESTING.md`](docs/TESTING.md) § "One example app per package").
 
 - **Never leave deprecated code.** Do not add `@deprecated` markers, deprecated aliases, shim re-exports, or “kept for migration” optional fields. Delete the old API and update all call sites in the same change. Soft-deprecation / compatibility leftovers are banned.
 
@@ -61,7 +61,7 @@ the first debugging surface in local development, CI, and production:
   `bun obs find <identifier>`.
 - Slow behavior → `bun obs slow`; unexplained write →
   `bun obs mutation <mutation-id>`.
-- Failing e2e → `bun obs test '<test name>' --source <downloaded-artifact>`.
+- Failing spec → `bun obs test '<test name>' --source <downloaded-artifact>`.
 - Production alert → run the literal `bun obs … --source prod` command in the alert.
 
 Examples:
@@ -95,7 +95,7 @@ Solid components run once; reactivity is tracking, not re-render. Product UI fre
 ```
 pkgs/ui/src/
   index.ts              # public API -- `export * from './components'` + theme/explorer/web helpers
-  component-id/         # DOM identifiers (`componentDataSet`) for web inspector / E2E
+  component-id/         # DOM identifiers (`componentDataSet`) for web inspector / tests
   components/           # one folder per component (button/, text/, modal/, ...)
   theme/                # design tokens + `useTheme` hook
   navigation/           # app router + href helpers
@@ -110,7 +110,7 @@ pkgs/ui/src/
 3. Style with `class` / `classList` / `style` on HTML elements — never `sx`, and never class-merge helpers (`joinClass` / `cn` / `clsx`). Composed components set `data-*` via `dataAttrs({ component: '<PascalName>', ... })` on the root (see `pkgs/ui/src/component-id/`).
 4. `bun run --filter @pkgs/ui tc` and root `bun run lint` verify it wires up.
 
-**DOM identifiers:** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`VITE_E2E` keeps them on for browser E2E). Call-site test ids (`dataSet={{ testid }}` → `data-testid`) are **not** stripped: the production synthetic journeys (`@apps/product#health`) drive the real bundle by `data-testid`, so every host ships them in every build.
+**DOM identifiers:** On web, every `@pkgs/ui` host exposes `data-component="<Name>"`. `ScreenBase` requires `screenId` and renders `data-screen`. These are stripped from production web bundles (`VITE_TEST_HOOKS` keeps them on for browser tests). Call-site test ids (`dataSet={{ testid }}` → `data-testid`) are **not** stripped: the production synthetic journeys (`@apps/product#health`) drive the real bundle by `data-testid`, so every host ships them in every build.
 
 ### Mutation UX
 
@@ -127,7 +127,7 @@ Centered modals (`ModalContent`, `ResponsiveSurface`, `ConfirmationModal`, `Muta
 
 ## CI / Turbo cache
 
-GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. CI does **not** persist `.turbo` with `actions/cache` — the remote cache is the only cross-run cache. **Every run plans first** ([`turbo-preflight.ts`](libs/tools/scripts/turbo-preflight.ts)): `turbo run --dry=json` asks both caches about every task (~1s); all hits means the gate already passed for these inputs and turbo is not run at all; otherwise turbo runs **only the missed task ids** (plus their `dependsOn` closure — identical hashes; never `--only`, which drops dependency hashes and caches under the wrong keys), after that closure's remote hits are prefetched in parallel into the local cache (the remote artifact is byte-for-byte turbo's local `<hash>.tar.zst`). Without that, turbo's `--concurrency` also throttles cache restores and a 2-core runner spent ~40s restoring ~400 hits across the country before doing any work. The heartbeat that keeps a grouped-log step alive is in-process in `turbo-ci-run`, not a background shell loop. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. Env that changes a test's verdict is declared in that task's turbo `env` (`HARNESS_FIDELITY` / fast-check knobs on `test`, plus `HARNESS_MODE` / `HARNESS_WITH_DOM` / `HARNESS_FRAMES` on `test:e2e`) — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` enters the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task. **Output is `errors-only`**: a task's logs print only when that task fails, so a green run shows the plan, the heartbeat and turbo's summary — never what a passing test wrote (`TURBO_OUTPUT_LOGS=full` to watch one locally). Code under test stays quiet on its own too: `crash()` never logs (the crash handler owns the failure's surface — a thrown error the runner reports, the browser overlay, the Node handler's print-then-exit), and sidecars (`@pkgs/emqx-server`) buffer their output and print it only when they die unexpectedly.
+GitHub Actions runs checks with `SECRETS_ENV=dev`. Turbo caching is **local + remote** when `TURBO_TOKEN` is present (`TURBO_TEAM` is the code constant `local`): `libs/tools/scripts/turbo-ci-run.ts` passes `--cache=local:rw,remote:rw` against the self-hosted cache at `https://turborepo.chrisvouga.dev` (`TURBO_API`, injected via secrets-auth / `secrets-run`). A missing token is a hard error in CI. CI does **not** persist `.turbo` with `actions/cache` — the remote cache is the only cross-run cache. **Every run plans first** ([`turbo-preflight.ts`](libs/tools/scripts/turbo-preflight.ts)): `turbo run --dry=json` asks both caches about every task (~1s); all hits means the gate already passed for these inputs and turbo is not run at all; otherwise turbo runs **only the missed task ids** (plus their `dependsOn` closure — identical hashes; never `--only`, which drops dependency hashes and caches under the wrong keys), after that closure's remote hits are prefetched in parallel into the local cache (the remote artifact is byte-for-byte turbo's local `<hash>.tar.zst`). Without that, turbo's `--concurrency` also throttles cache restores and a 2-core runner spent ~40s restoring ~400 hits across the country before doing any work. The heartbeat that keeps a grouped-log step alive is in-process in `turbo-ci-run`, not a background shell loop. Platform-scoped leaves (`test:contract`) also hash `turbo-platform-key.json`, which `libs/tools/scripts/turbo-ci-run.ts` rewrites on every run with `{platform, arch, bun}`: Turborepo's hash ignores the OS, so without it a macOS result satisfies a Linux run and macOS-only harnesses silently stop running there. Env that changes a test's verdict is declared in that task's turbo `env` (`HARNESS_FIDELITY` / fast-check knobs on `test`, plus `HARNESS_MODE` / `HARNESS_WITH_DOM` / `HARNESS_FRAMES` on `test:spec`) — a fidelity-max result must never be served to a mem-fabric run. Framework inference is off (`--framework-inference=false`) so only explicit `turbo.json` `env` enters the hash. `TURBO_CACHE` may tighten modes but cannot drop remote when creds are present. Only real secrets live in Infisical: `secrets-auth` masks every stored value in the job log, so a low-entropy config value (`1`, `local`, `auto`) shreds unrelated output — Turbo knobs (`TURBO_TEAM`, `TURBO_CACHE`, `TURBO_LOG_ORDER`, telemetry off) are code defaults in `turbo-ci-run`. CI log order is `grouped`: one collapsible `::group::` per task. **Output is `errors-only`**: a task's logs print only when that task fails, so a green run shows the plan, the heartbeat and turbo's summary — never what a passing test wrote (`TURBO_OUTPUT_LOGS=full` to watch one locally). Code under test stays quiet on its own too: `crash()` never logs (the crash handler owns the failure's surface — a thrown error the runner reports, the browser overlay, the Node handler's print-then-exit), and sidecars (`@pkgs/emqx-server`) buffer their output and print it only when they die unexpectedly.
 
 **Checks are time-limited at every layer, and the limits are enforced.**
 Nothing in the gate may run unbounded:
@@ -161,7 +161,7 @@ went.
 **Every check is a cached, per-package task.** The gate's speed comes from the
 cache, not from guessing what changed: there is no affected filter and no
 changed-files lint. A package's checks live in its own tasks — `tc`, `lint`,
-`test`, `test:contract`, `test:e2e` — and each hashes the package's whole
+`test`, `test:contract`, `test:spec` — and each hashes the package's whole
 tracked tree (`$TURBO_DEFAULT$`) plus, through `dependsOn: ["tc"]` → `^tc`,
 every package it depends on. An unchanged package is a cache hit on every
 machine that shares the remote cache, and a change reruns exactly its package
@@ -208,30 +208,30 @@ Rules that follow from it:
 declared dependencies are its blast radius: a change reruns every dependent's
 `tc` / `lint` / `test`. Prefer small packages, depend on `public/` ports rather
 than whole features, and never let a shell or `pkgs/` package name a feature.
-E2e lives with the feature it exercises: the package's specs
+A spec suite lives with the feature it exercises: the package's specs
 (`specs/<domain>/*.feature` and `*.qnt` for its `specDomains`) and
-`libs/<feature>/tests/e2e/`, run by that package's `test:e2e` — every
-package's is the one harness runner `libs/harness/scripts/test-e2e.ts`
+`libs/<feature>/tests/harness/`, run by that package's `test:spec` — every
+package's is the one harness runner `libs/harness/scripts/test-spec.ts`
 (`bun test --parallel`, preloading `@libs/harness/preload`, reports into
 the package's report bucket) — against a composition of only the slices it
 needs (`composeHarnessSlices`, see
 [`docs/FEATURE_SUBSYSTEMS.md`](docs/FEATURE_SUBSYSTEMS.md)), so a change to a
-feature it does not compose leaves it cached. **No e2e lives in `apps/`.**
+feature it does not compose leaves it cached. **No spec lives in `apps/`.**
 There are no product random walks: a feature's state machine is a Quint model
 in `specs/<domain>/`, whose drawn traces the product must follow step for
 step, every standing property checked after each step
 ([`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md)). The
-widest task is `@libs/runtime#test:e2e` (the composition root): the few
+widest task is `@libs/runtime#test:spec` (the composition root): the few
 full-composition harnesses (shell boot, the platform model, critical journeys)
 that depend on everything, kept small on purpose. Run a subset with
 `bun run spec specs/chess/puzzle-play.feature` or
 `bun run spec specs/spaces/space-hosting.qnt`.
 
-**The latest test report is part of the cache.** Every `test:e2e` run writes
+**The latest test report is part of the cache.** Every `test:spec` run writes
 each scenario's and each Quint trace's step timeline, the drawn traces and
 JUnit into `<package>/.cache/harness-report` — the task's declared `outputs` — so
 turbo stores the report with the verdict, remotely too. `bun run
-test:report` runs `turbo-ci-run --restore-outputs test:e2e` (same flags and
+test:report` runs `turbo-ci-run --restore-outputs test:spec` (same flags and
 env as `bun check`: every hit restores its bucket, only changed suites run)
 and folds the buckets into one `harness-report/index.html`: always the report of
 the code as it is, whoever ran it. UI frames are opt-in (`--frames`,
@@ -254,7 +254,7 @@ green.
 
 **Offline-first local secrets:** `bun run secrets:pull` exports Infisical `dev`+`prd` into gitignored `.cache/secrets/` (JSON maps + meta). `bun check` goes through `secrets-run`, which for `SECRETS_ENV=dev` prefers that cache and does **not** call Infisical when present (warns if older than 24h). Missing cache bootstraps once from Infisical when available. CI still injects secrets via secrets-auth (no disk cache required). `SECRETS_ENV=prd` / deploy stay Infisical-first. Without Turbo creds, `turbo-ci-run` uses `local:rw` so check still runs.
 
-**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:e2e`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and `@apps/product#health` (every `specs/health/` and `specs/journeys/` scenario, live), which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
+**One check surface:** `bun check` is the whole gate — `//#check` depends on the per-package `tc`, `lint`, `test`, `test:contract` and `test:spec`, the root leaves (`//#lint:root`, syncpack, audit, i18n, agent-commands, goals), `@apps/product#check:offline-shell` (every file the wall client can load is in the service worker's precache, under budget — built from the real `dist/`), each Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload limit — nothing else in the gate bundles a Worker), `@libs/runtime#check:schema-evolution`, `@libs/tools#check:actionlint` and `@libs/tools#check:secrets` (gitleaks over the commits the change adds — the only secret scan; no GitHub App checks run on PRs). A package's static checks are ordinary tests in that package (the client critical path, the append-only contract manifest, feature table boundaries, the billing offer). **A `//#check` leaf verifies; it never mutates the outside world.** The billing offer is validated as a value and touches no provider — reconciling it onto Stripe is `billing:sync`, on deploy. A gate leaf that writes to a vendor needs vendor credentials, which is how the gate ends up green on one machine and red on another. The Check workflow and the Deploy workflow run that same set. `//#deploy` is `//#check` plus `@apps/server#check:api` (live probe) and `@apps/product#health` (every `specs/health/` and `specs/journeys/` scenario, live), which pull `@libs/infra#apply:foundation` → migrate → room deploy → API deploy → product deploy → `@libs/infra#apply:edge` → billing sync before they run.
 
 **Two commands:** `bun check` checks the *code* before it ships (every task cached; verifies, never mutates); `bun health` checks the *live deployment(s)* (`bun health` = secrets env `dev`, `bun health:prd` = production). **Every health check and critical journey is Gherkin:** `specs/health/*.feature` (DNS/TLS, the Workers, Postgres + schema, client config, R2, EMQX, Grafana Cloud, secrets, billing keys, the Google OAuth client, infrastructure drift) and `specs/journeys/*.feature`. `@apps/product` runs both through `liveDomains` in its `health` task (`apps/product/scripts/health.ts`, `cache: false`): one live world per scenario (`apps/product/tests/steps/live-world.ts`), step definitions in `apps/product/tests/steps/*.steps.ts` (`// @io-wall-ok`, secrets arrive as env via `secrets-run`). Tags pick where a scenario runs live — `@production`, `@oauth-relay`, `@observability` (see [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](docs/SPEC_DRIVEN_DEVELOPMENT.md)). There is deliberately no `//#health` root task: with a root `health` script, a bare `health` dependency would resolve to that root task itself, a cycle turbo refuses to plan (`turbo-deploy-graph.test.ts` fails `bun check` on any root-task cycle). Checks are read-only (self-cleaning round-trips at most) and assert *configured correctly*, not just *up*; they read the environment's hosts and names from `@libs/infra/public/envs` (every environment is a full replica). Secret validation lives here, not in `bun check` — a revoked vendor key is a live-deployment problem, not a code problem. The `health` task's `dependsOn` is the deploy chain, so deploy runs every check last; standalone `bun health` passes turbo `--only` (via `turbo-ci-run`) and deploys nothing. The Health workflow (`.github/workflows/health.yml`) runs it hourly against every environment. A new live resource adds a scenario to `specs/health/` (spec commit) and its step definition.
 
@@ -431,7 +431,7 @@ per-machine extras belong in the gitignored `.superset/config.local.json`.
 
 ## Local development
 
-**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Harness at `/harness` — flat sibling screens linked only through their command palettes (`Open Harness` / `Exit harness`), no tab bar or console chrome; default SQL fabric for harnesses is **mockingbird-postgres** server + **mockingbird-sqlite** clients). Harness test reports are one standalone HTML artifact over every package's e2e suite (`bun run test:report` → `harness-report/index.html`, rendered by `@pkgs/harness-report`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
+**Manual work is the product super-app.** `bun run dev` starts **`@apps/product`** (wall client at `/`, Harness at `/harness` — flat sibling screens linked only through their command palettes (`Open Harness` / `Exit harness`), no tab bar or console chrome; default SQL fabric for harnesses is **mockingbird-postgres** server + **mockingbird-sqlite** clients). Harness test reports are one standalone HTML artifact over every package's spec suite (`bun run test:report` → `harness-report/index.html`, rendered by `@pkgs/harness-report`), never a console tab or a report server. It does **not** start Wrangler, real Postgres, S3rver, or MQTT. Standalone client remains available (`bun run dev:client` → `@apps/client` only).
 
 **Highest-fidelity local run** — `bun run stack` runs the whole product in the foreground
 loopback: embedded Postgres, S3rver, Aedes MQTT, **simulated Google and Apple IdPs, each on
@@ -481,7 +481,7 @@ an Apple relay; any other address match parks a pending link the person must
 confirm (sign in to the existing account) or decline (a separate account).
 Linking from Settings needs a link ticket bound to the signed-in session. The
 policy is specified in `specs/auth/` (its features and the
-`outside-accounts.qnt` model, run by `@pkgs/auth-harness`'s `test:e2e`), and the
+`outside-accounts.qnt` model, run by `@pkgs/auth-harness`'s `test:spec`), and the
 reference model in `@pkgs/auth-harness` checks every harness step against it — change
 the spec first, then the reference model.
 
@@ -585,15 +585,15 @@ Feature-specific scripts (seeders, dev refreshers, migration runners) live in `<
 
 ### Current feature packages
 
-- `@apps/product` — www super-app (`/` wall client, `/harness` Harness) and the live-browser runners (`test:max`, `test:stack`, which run every package's e2e on the `bun-webview` host; `HARNESS_MODE=real` sidecars are registered through `src/harness/setup/real-stack-preload.ts`). It owns no e2e. The full composition (`APP_COMPOSITION` / `APP_SYSTEM`: every feature, the production migrate) lives in `@libs/runtime/harness/app-composition`, and its suites in `libs/runtime/tests/e2e`. Console and test call `APP_SYSTEM.run({ runtime })` only; neither owns a parallel boot.
-- `@libs/harness` — the harness fabric (`createHarness`, SQL engines, net/fetch, snapshots), hosts (`in-process`, `bun-webview`), `openHarness`, and `defineProductSystem` / `composeHarnessSlices`, generic over a `HarnessComposition`. A shell: it may not depend on a feature. Features export their slices from `@libs/<feature>/harness/*`; their e2e lives in `libs/<feature>/tests/e2e/` ([`libs/harness/README.md`](libs/harness/README.md)).
+- `@apps/product` — www super-app (`/` wall client, `/harness` Harness) and the live-browser runners (`test:max`, `test:stack`, which run every package's spec on the `bun-webview` host; `HARNESS_MODE=real` sidecars are registered through `src/harness/setup/real-stack-preload.ts`). It owns no spec. The full composition (`APP_COMPOSITION` / `APP_SYSTEM`: every feature, the production migrate) lives in `@libs/runtime/harness/app-composition`, and its suites in `libs/runtime/tests/harness`. Console and test call `APP_SYSTEM.run({ runtime })` only; neither owns a parallel boot.
+- `@libs/harness` — the harness fabric (`createHarness`, SQL engines, net/fetch, snapshots), hosts (`in-process`, `bun-webview`), `openHarness`, and `defineProductSystem` / `composeHarnessSlices`, generic over a `HarnessComposition`. A shell: it may not depend on a feature. Features export their slices from `@libs/<feature>/harness/*`; their spec lives in `libs/<feature>/tests/harness/` ([`libs/harness/README.md`](libs/harness/README.md)).
 
 - `@libs/runtime` — product composition hub: `defineTable` tables from feature libs composed via `registerTables` in `root/app-schema.ts`; sync topic map in `root/app-topic-map.ts`; Postgres migrate runner in `server/run-postgres-migrations.ts`. **`@libs/runtime` is the sole lib allowed to import other `@libs/*`.** Framework tables (`sync_engine_*`, outbox, kv, …) are owned by their packages via package-local `defineTable` schemas + `*DatabaseMigration` (not in `appSchema`). Domain mutations validate and apply their own authorized SQL against declared table names.
 
 - `@libs/auth` — sign-in flows, sessions, devices, account-scoped local SQLite; maps the auth service's users onto product accounts (`auth_external_accounts`) through the `@pkgs/auth` port only.
 - `@pkgs/auth` — the auth abstraction: client / server ports, the `AuthProviderModule` composition roots build, and the `@pkgs/auth/contract` suite every adapter passes. `@pkgs/auth-inhouse` — the in-house IdP, one adapter behind it ([`pkgs/auth/README.md`](pkgs/auth/README.md)).
-- `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`. Every harness that composes chess seeds puzzles on boot (Node: `libs/chess/fixtures/chess-puzzles.harness.csv`, 3 documented puzzles; web / product-harness: the inline 50-row fixture in `libs/chess/src/harness/`), so `bun run dev` and scenario tests never need a manual seed. Feed config is one shared signal per chess surface (`ChessPuzzleFeedProvider`); the pool syncs per rating band around the effective rating (`chessPuzzlePoolRangesForRating`). Puzzle scenarios: `bun run --filter @libs/chess test:e2e`.
-- `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, observability backend) live here — not in `VITE_*` build-time env (API URL / commit provenance / E2E / Watchman stay build-time env).
+- `@libs/chess` — chess board UI, puzzle play / picker, settings. The chess puzzle seeding script lives in `libs/chess/scripts/seed-chess-puzzles.ts` (run via `bun run chess:puzzles:seed`); it assumes the schema has already been migrated by `bun run db:migrate`. Every harness that composes chess seeds puzzles on boot (Node: `libs/chess/fixtures/chess-puzzles.harness.csv`, 3 documented puzzles; web / product-harness: the inline 50-row fixture in `libs/chess/src/harness/`), so `bun run dev` and scenario tests never need a manual seed. Feed config is one shared signal per chess surface (`ChessPuzzleFeedProvider`); the pool syncs per rating band around the effective rating (`chessPuzzlePoolRangesForRating`). Puzzle scenarios: `bun run --filter @libs/chess test:spec`.
+- `@libs/client-config` — synced runtime config (`client_config` key/value scalar rows). Worker materializes from secrets via `EnsureClientConfigMaterialized` (no HTTP); clients read local SQLite via `useClientConfig`. Client runtime knobs (EMQX WSS URL, observability backend) live here — not in `VITE_*` build-time env (API URL / commit provenance / spec / Watchman stay build-time env).
 - `@libs/profile` — public profile, dicebear avatar editor, username generator (vertical slices: ensure-local, patch-avatar, ensure-online, set-username).
 - `@libs/spaces` — spaces / lobby / multiplayer plumbing, game dispatch via `space-module.ts` (lifecycle mutations as vertical slices: create/join/leave/end/rename).
 - `@libs/billing` — billing checkout/portal/callback routes and the offer, over the `@pkgs/billing` membership port only. Providers (`@pkgs/billing-stripe`, `@pkgs/billing-paddle`, `@pkgs/billing-mock`) each export one `MembershipProviderModule`; `@pkgs/billing-providers` is the single list composition roots iterate (API boot, `billing:sync`, secret registry) — never name a provider elsewhere (Biome `import-billing-vendor.grit`). Several may run at once (`BILLING_PROVIDER` picks where new checkouts go); every provider secret is optional.
@@ -644,8 +644,8 @@ Every acceptance spec lives in the flat top-level tree `specs/<domain>/` —
 Gherkin features (`<feature>.feature`) and Quint models (`<model>.qnt`), one
 directory per `@domain`, no nesting. A package runs the domains its
 `package.json` lists in `specDomains` (each domain exactly one package; its
-`turbo.json` adds `$TURBO_ROOT$/specs/<domain>/**` to `test:e2e` inputs)
-through its `test:e2e` task. Spec text is owned by the spec writer and changes
+`turbo.json` adds `$TURBO_ROOT$/specs/<domain>/**` to `test:spec` inputs)
+through its `test:spec` task. Spec text is owned by the spec writer and changes
 only in isolated `spec:` commits; implementers treat it as read-only. Step
 definitions live in `tests/steps/`, model bindings in `tests/quint/`; both
 call deterministic harness actions and reads, and steps are catalogued in

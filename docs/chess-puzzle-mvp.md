@@ -86,16 +86,16 @@ These rules are inherited by every checklist item below. An item is not done unt
 - [ ] **Dependency direction is enforced** (dependency-cruiser / eslint boundaries / build-graph rules): slices → kernel; slices never import each other's internals; `permissions` is the only importer of `billing` and account facts; `coach` reads other slices' events, never their state.
 - [ ] **Slice contract = public package:** each slice exposes `@app/<slice>-contract` (types, events, action names, API schema) separately from `@app/<slice>` (implementation), so consumers depend on the contract and the impl can change without invalidating their caches.
 - [ ] **Cross-slice communication** is through the typed event bus and contracts, replayable in the harness. No direct calls into another slice's store.
-- [ ] **Each slice ships its own harness scenarios** (`<slice>/harness/*.scenario.ts`) and fixtures; the e2e suite is the union of all slices' scenarios plus a small set of whole-app journeys in `harness`.
+- [ ] **Each slice ships its own harness scenarios** (`<slice>/harness/*.scenario.ts`) and fixtures; the spec suite is the union of all slices' scenarios plus a small set of whole-app journeys in `harness`.
 - [ ] Platform shells (`app-ios`, `app-android`, `app-web`, `api`, `workers`) are thin composition roots that wire slices together; they contain no feature logic.
 
 ### 0.3 Monorepo, partitioning and caching
 
-- [ ] **Every task is cacheable and hermetic:** build, typecheck, lint, unit, harness, e2e, codegen and storybook/snapshots declare exact inputs and outputs so the task runner (Turborepo) can cache and skip them. No task reads undeclared files or the network; anything nondeterministic (timestamps, absolute paths, env) is excluded from inputs/outputs.
+- [ ] **Every task is cacheable and hermetic:** build, typecheck, lint, unit, harness, spec, codegen and storybook/snapshots declare exact inputs and outputs so the task runner (Turborepo) can cache and skip them. No task reads undeclared files or the network; anything nondeterministic (timestamps, absolute paths, env) is excluded from inputs/outputs.
 - [ ] **Partition for cache hit rate:** many small packages beat few large ones; contracts are separate from implementations (§0.2); generated code (action catalog constants, API clients, line-pool bundles, localization tables) is its own package so its consumers only rebuild when the generated output changes.
 - [ ] **Test tasks are sharded per slice** and, for the largest slices, per scenario group; a change in one slice re-runs that slice's tests and its dependents' contract tests only. Whole-app journeys run on the `harness` package and are gated behind `affected` detection.
 - [ ] **Remote cache** is on for local and CI; CI runs `--filter=...[origin/main]` (affected only) with the full graph on main. Cache misses on unchanged packages are treated as bugs (fix the input globs).
-- [ ] **Harness-time, not wall-time:** e2e tests advance the simulated clock, so a "24-hour quota window" test runs in milliseconds; wall-clock sleeps are banned in tests.
+- [ ] **Harness-time, not wall-time:** spec tests advance the simulated clock, so a "24-hour quota window" test runs in milliseconds; wall-clock sleeps are banned in tests.
 - [ ] **Budgets:** affected-only CI ≤ 5 min p50; full graph ≤ 15 min; local `turbo run test --filter=<slice>` on a warm cache ≤ 10 s. Tracked in CI and regressed like any other metric.
 - [ ] **Codegen is checked in and verified**, not regenerated on every run: a task diff-checks generated output so downstream caches stay stable.
 - [ ] **Persistent, watch-mode dev loops** per slice (`turbo watch`) so a slice's tests re-run on save without rebuilding the world.

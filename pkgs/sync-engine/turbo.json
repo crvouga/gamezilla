@@ -2,7 +2,7 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "test:e2e": {
+    "test:spec": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sync-engine/**"]
     }
   }

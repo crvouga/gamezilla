@@ -5,7 +5,7 @@
  *
  * - A test that acts as a person would and checks what they see is a
  *   scenario or a Quint model in `specs/<domain>/`, bound through the
- *   package's harness. `tests/e2e/` holds only the harness composition
+ *   package's harness. `tests/harness/` holds only the harness composition
  *   (`support/`), so a `*.test.ts(x)` there is a behavior test that escaped
  *   the specs.
  * - A package tests itself through one kitchen-sink fixture app named
@@ -18,7 +18,7 @@
  * cached `lint`.
  */
 
-const E2E_TEST = /(^|\/)tests\/e2e\/(.+\/)?[^/]+\.test\.tsx?$/;
+const HARNESS_TEST = /(^|\/)tests\/harness\/(.+\/)?[^/]+\.test\.tsx?$/;
 const FIXTURE_APP_DIR = /^example-/;
 const EXAMPLE_APP = 'example-app';
 
@@ -47,10 +47,10 @@ export function behaviorTestViolations(input: {
 }): readonly string[] {
   const files = input.files.filter((file) => !file.startsWith('node_modules/'));
   const out: string[] = [];
-  const e2eTests = files.filter((file) => E2E_TEST.test(file));
-  if (e2eTests.length > 0) {
+  const harnessTests = files.filter((file) => HARNESS_TEST.test(file));
+  if (harnessTests.length > 0) {
     out.push(
-      `test files under tests/e2e/ — a behavior test is a scenario or Quint model in specs/<domain>/, bound through the harness; tests/e2e/ holds only support/:\n    ${e2eTests.join('\n    ')}`
+      `test files under tests/harness/ — a behavior test is a scenario or Quint model in specs/<domain>/, bound through the harness; tests/harness/ holds only support/:\n    ${harnessTests.join('\n    ')}`
     );
   }
   const fixtureApps = directories(files).filter((dir) =>

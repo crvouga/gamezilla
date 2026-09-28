@@ -16,7 +16,7 @@ const linguiConfig = getConfig({
 
 module.exports = function (api) {
   api.cache(
-    () => `${process.env.NODE_ENV ?? ''}:${process.env.VITE_E2E ?? ''}`
+    () => `${process.env.NODE_ENV ?? ''}:${process.env.VITE_TEST_HOOKS ?? ''}`
   );
   return {
     presets: [

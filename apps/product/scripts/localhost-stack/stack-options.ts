@@ -22,8 +22,8 @@ export type StackOptions = {
    * edits in the working tree cannot reload a browser mid-run (test runs).
    */
   readonly frozenWeb: boolean;
-  /** Build the web app with its test-only probes on (`VITE_E2E=1`). */
-  readonly e2eHooks: boolean;
+  /** Build the web app with its test-only probes on (`VITE_TEST_HOOKS=1`). */
+  readonly testHooks: boolean;
   /** Reuse a data directory (and its Postgres cluster) instead of a fresh one. */
   readonly keepData: boolean;
   /**
@@ -102,7 +102,7 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
     observabilityBackend: parseObservabilityBackend(argv),
     withWeb: !flag(argv, 'no-web'),
     frozenWeb: flag(argv, 'frozen-web'),
-    e2eHooks: flag(argv, 'e2e'),
+    testHooks: flag(argv, 'test-hooks'),
     keepData: flag(argv, 'keep-data'),
     idpStateMode: idpState.mode,
     idpStatePath: idpState.path,

@@ -80,7 +80,7 @@ function EmptyStateIcon(props: {
   );
 }
 
-/** `<root testid>-action` so E2E can tap the primary action (undefined otherwise). */
+/** `<root testid>-action` so spec can tap the primary action (undefined otherwise). */
 export function emptyStateActionDataSet(
   dataSet: ComponentDataSet | undefined
 ): ComponentDataSet | undefined {

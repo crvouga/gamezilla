@@ -1,6 +1,6 @@
 ---
 name: debug-trace
-description: Debug runtime, sync, request, database, production, or e2e failures from observability traces before adding logs or rerunning.
+description: Debug runtime, sync, request, database, production, or spec failures from observability traces before adding logs or rerunning.
 ---
 
 # Debug trace
@@ -10,7 +10,7 @@ Use the repository `obs` CLI before adding logging or rerunning a failure.
 1. Select the narrowest entry command:
    - Just happened, no identifier: `bun obs last`.
    - Any supplied identifier: `bun obs find <identifier>`.
-   - Failing e2e: `bun obs test '<test name>' --source <artifact-dir>`.
+   - Failing spec: `bun obs test '<test name>' --source <artifact-dir>`.
    - Unexplained write: `bun obs mutation <mutation-id>`.
    - Slow behavior: `bun obs slow`.
    - Production alert: run the exact command carried by the alert.

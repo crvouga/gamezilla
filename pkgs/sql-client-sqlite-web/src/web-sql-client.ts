@@ -33,7 +33,7 @@ export type WebSqlClientOptions = {
   /** Force leader-election path (tests / no SharedWorker). */
   readonly forceLeaderElection?: boolean;
   readonly tabId?: string;
-  /** Override owner runtime factory (e2e harness / tests / DST). */
+  /** Override owner runtime factory (spec harness / tests / DST). */
   readonly createOwnerRuntime?: typeof createOwnerRuntime;
   /** Override {@link SqlOwner} factory passed into the default owner runtime. */
   readonly createOwner?: (args: { readonly dbName: string }) => SqlOwner;

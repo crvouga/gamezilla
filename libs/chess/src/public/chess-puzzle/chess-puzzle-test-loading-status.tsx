@@ -1,9 +1,9 @@
 import type { JSX } from 'solid-js';
 import type { PuzzlePickSource } from '../../shared/puzzle-session/next-puzzle-selection';
 import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
-import { CHESS_PUZZLE_E2E_ENABLED } from './chess-puzzle-e2e-enabled';
+import { CHESS_PUZZLE_TEST_ENABLED } from './chess-puzzle-test-enabled';
 
-export type ChessPuzzleE2ELoadingStatusProps = {
+export type ChessPuzzleTestLoadingStatusProps = {
   myId: string;
   nextId: string | null;
   activePuzzleId: string | null;
@@ -20,7 +20,7 @@ export type ChessPuzzleE2ELoadingStatusProps = {
   rated: boolean;
 };
 
-function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
+function pickStatusLabel(props: ChessPuzzleTestLoadingStatusProps): string {
   return [
     `pick=${props.nextId ?? 'null'}`,
     `pickState=${props.pickState}`,
@@ -35,10 +35,10 @@ function pickStatusLabel(props: ChessPuzzleE2ELoadingStatusProps): string {
   ].join(' ');
 }
 
-export function ChessPuzzleE2ELoadingStatus(
-  props: ChessPuzzleE2ELoadingStatusProps
+export function ChessPuzzleTestLoadingStatus(
+  props: ChessPuzzleTestLoadingStatusProps
 ): JSX.Element {
-  if (!CHESS_PUZZLE_E2E_ENABLED) return <></>;
+  if (!CHESS_PUZZLE_TEST_ENABLED) return <></>;
   return (
     <p
       class="text absolute w-0.25 h-0.25 opacity-0"

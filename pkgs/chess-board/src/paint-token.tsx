@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 /**
- * E2E paint tokens: unpainted text naming what their parent node paints, so
+ * Test paint tokens: unpainted text naming what their parent node paints, so
  * a UI driver reads a layer's text as the painted board. `PaintToken` sits
  * in SVG (a zero-size `<text>` — `<title>` would be `display: none`, i.e.
  * not user-visible text); `HtmlPaintToken` sits in an HTML cell. Omitted

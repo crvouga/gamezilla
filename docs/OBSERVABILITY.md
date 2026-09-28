@@ -136,12 +136,12 @@ targets are intentionally not stored in this repository. Production deployment f
 closed when the Collector URL or write token is absent. Set
 `OBSERVABILITY_ENABLED=0` only as the explicit emergency kill switch.
 
-The Bun harness writes each package's e2e spans to
+The Bun harness writes each package's spec spans to
 `.cache/harness-report/traces/spans.ndjson` and force-flushes after every test with
 a two-second ceiling, including failed tests. The Check workflow uploads those files as the
 `observability-traces-<run-id>` artifact and prints download/query commands in
 the failure summary. Bun's hooks do not currently expose a stable full test ID
-to preloads. The shared e2e runner therefore treats JUnit as the authoritative
+to preloads. The shared spec runner therefore treats JUnit as the authoritative
 identity map and appends a deterministic `test.failure` trace after the run for
 every failed testcase. Its exact testcase name is `app.test.id`, with package,
 file, and line correlation. Consequently an ordinary test-body assertion is

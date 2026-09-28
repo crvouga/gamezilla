@@ -18,8 +18,11 @@ export async function discoverPbtTests(repoRoot: string): Promise<string[]> {
       cwd: join(repoRoot, base),
       onlyFiles: true,
     })) {
-      // Skip contract/e2e-shaped paths; PBT lives in unit/scenario suites.
-      if (rel.includes('/e2e/') || /\.contract\.test\.tsx?$/.test(rel)) {
+      // Skip harness and contract paths; PBT lives in unit/scenario suites.
+      if (
+        rel.includes('/tests/harness/') ||
+        /\.contract\.test\.tsx?$/.test(rel)
+      ) {
         continue;
       }
       const abs = join(repoRoot, base, rel);

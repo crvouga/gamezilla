@@ -26,7 +26,7 @@ export type CoverageSummary = {
 export type ReportMeta = {
   readonly secretsEnv: string;
   readonly ranPackages: number;
-  /** Packages with no `bun test` segment (e2e-only, …). */
+  /** Packages with no `bun test` segment (spec-only, …). */
   readonly skipped: readonly string[];
   /** `name (exit N)` for every package whose tests exited non-zero. */
   readonly failed: readonly string[];

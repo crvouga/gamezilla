@@ -12,8 +12,8 @@ import type { PuzzlePickState } from '../../shared/puzzle-session/pick-state';
 import type { ChessPuzzleStatusKind } from '../../shared/puzzle-session/status-kind';
 import { ChessPuzzleBoardLoadingState } from './chess-puzzle-board-loading-state';
 import { ChessPuzzleClock } from './chess-puzzle-clock';
-import { ChessPuzzleE2EHints } from './chess-puzzle-e2e-hints';
-import { ChessPuzzleE2ELoadingStatus } from './chess-puzzle-e2e-loading-status';
+import { ChessPuzzleTestHints } from './chess-puzzle-test-hints';
+import { ChessPuzzleTestLoadingStatus } from './chess-puzzle-test-loading-status';
 import { ChessPuzzleEmptyPoolState } from './chess-puzzle-empty-pool-state';
 import {
   type PuzzlePlayBoardChrome,
@@ -112,13 +112,13 @@ function PuzzlePlayerBoardSlot(props: {
   );
 }
 
-function PuzzlePlayerE2eHints(props: {
+function PuzzlePlayerTestHints(props: {
   p: PuzzlePlayerChromeModel;
 }): JSX.Element {
   const p = props.p;
   const statusKind = (): ChessPuzzleStatusKind => p.statusKind();
   return (
-    <ChessPuzzleE2EHints
+    <ChessPuzzleTestHints
       orientation={p.orientation}
       status={p.status}
       solveIdx={p.solveIdx}
@@ -202,7 +202,7 @@ function PuzzlePlayerChrome(props: {
       onNext={p.onNext}
       onFeedConfigApplied={props.onFeedConfigApplied}
       completion={p.completion}
-      e2eHints={<PuzzlePlayerE2eHints p={p} />}
+      testHints={<PuzzlePlayerTestHints p={p} />}
     />
   );
 }
@@ -277,7 +277,7 @@ function ShellBoardSlot(props: {
 function PuzzlePlayShell(props: {
   backToChessRoot: () => void;
   pickState: Accessor<ShellPickState>;
-  e2eLoadingStatus: JSX.Element;
+  testLoadingStatus: JSX.Element;
   onFeedConfigApplied: () => void;
   includeAllPuzzles: () => void;
   startDenial: Accessor<Decision | null>;
@@ -290,7 +290,7 @@ function PuzzlePlayShell(props: {
   return (
     <PuzzlePlayLayout
       backToRoot={props.backToChessRoot}
-      e2eLoadingStatus={props.e2eLoadingStatus}
+      testLoadingStatus={props.testLoadingStatus}
       assistant={
         <SpeakingAvatar
           message={shellCoachLine(props.pickState())}
@@ -350,11 +350,13 @@ export function PuzzlePlayScreen(): JSX.Element {
     onRequestNext,
     reselectActivePuzzleFromFeed,
     includeAllPuzzles,
-    e2eLoadingStatus,
+    testLoadingStatus,
     startDenial,
   } = usePuzzlePlayScreenState();
 
-  const e2ePickStatus = <ChessPuzzleE2ELoadingStatus {...e2eLoadingStatus()} />;
+  const testPickStatus = (
+    <ChessPuzzleTestLoadingStatus {...testLoadingStatus()} />
+  );
   const shellState = createMemo<ShellPickState>(() => {
     const state = pickState();
     return state === 'ready' ? 'loading' : state;
@@ -371,14 +373,14 @@ export function PuzzlePlayScreen(): JSX.Element {
           <PuzzlePlayShell
             backToChessRoot={backToChessRoot}
             pickState={shellState}
-            e2eLoadingStatus={e2ePickStatus}
+            testLoadingStatus={testPickStatus}
             onFeedConfigApplied={reselectActivePuzzleFromFeed}
             includeAllPuzzles={includeAllPuzzles}
             startDenial={startDenial}
           />
         }
       >
-        {e2ePickStatus}
+        {testPickStatus}
         <PuzzlePlayer
           puzzleId={activePuzzleId()!}
           playGeneration={attemptSeed()}

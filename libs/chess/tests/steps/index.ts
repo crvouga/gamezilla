@@ -21,6 +21,6 @@ import './puzzle-spectator.steps';
 import './space-game.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
-import { openSpecHarness } from '../e2e/support/open-chess-harness';
+import { openSpecHarness } from '../harness/open-chess-harness';
 
 useHarnessWorld(openSpecHarness);

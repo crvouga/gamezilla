@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @io-wall-ok — lint CLI entry root (scripts/**).
 /**
- * Lint one package: path naming, Biome (which also carries the import-boundary
+ * Lint one package: path naming, banned words (`banned-words.ts`), Biome (which also carries the import-boundary
  * rules), the Solid oxlint scope, the package-boundary rules, the `tc` scope
  * (`tc-scope.ts`), the test-script rules (`test-scripts.ts`), the spawned-CLI
  * rule (`spawned-clis.ts`) and the goal proofs that live in it, over that
@@ -23,6 +23,7 @@ import { join, relative, resolve } from 'node:path';
 import type { GoalChecks, KnownBug } from '../goal/goal-manifest';
 import { validateProofFiles } from '../goal/goal-manifest';
 import { findNamingViolations } from '../naming/naming-rules';
+import { bannedWordViolations, isWordedFile } from './banned-words';
 import { behaviorTestViolations } from './behavior-tests';
 import { macrosOutsideCatalog } from './lingui-scope';
 import { packageBoundaryViolations } from './package-boundaries';
@@ -143,6 +144,21 @@ function clean(
   return false;
 }
 
+/** No banned word in `paths` (repo-relative) or in their text. */
+function wordsOk(pkg: string, paths: readonly string[]): boolean {
+  return clean(
+    pkg,
+    'banned words — the repo says spec, harness or test hooks (libs/tools/scripts/banned-words.ts)',
+    bannedWordViolations({
+      paths,
+      files: paths.filter(isWordedFile).map((path) => ({
+        path,
+        text: readFileSync(join(REPO_ROOT, path), 'utf8'),
+      })),
+    })
+  );
+}
+
 async function lintPackage(pkg: string): Promise<boolean> {
   const files = listFiles(['--', pkg]);
   const tools = [run('biome', ['check', '--error-on-warnings', pkg])];
@@ -168,6 +184,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
   const project = tcProject(scripts['tc']);
   const results = [
     files !== null && namingOk(files),
+    wordsOk(pkg, files ?? []),
     goalProofsOk(pkg),
     clean(
       pkg,
@@ -226,7 +243,7 @@ function lintRoot(): Promise<boolean> {
   const all = listFiles([]);
   if (all === null) return Promise.resolve(false);
   const files = all.filter((path) => !PACKAGE_TIER.test(path));
-  const ok = namingOk(files);
+  const ok = namingOk(files) && wordsOk('(root)', files);
   return run('biome', [
     'check',
     '--error-on-warnings',

@@ -31,7 +31,7 @@ Nobody verifies anything by hand: not before a merge, not before a release, not
 ## 2. `bun check` is the release decision
 
 `bun check` is the one command. It runs every package's `tc`, `lint`, `test`,
-`test:contract` and `test:e2e`, plus the root leaves, and the Check and Deploy
+`test:contract` and `test:spec`, plus the root leaves, and the Check and Deploy
 workflows run exactly that set. Its verdict must be:
 
 - **Complete** — every test the repo owns runs. No skips, no `.only`, no
@@ -114,24 +114,24 @@ property subsumes an example that is neither, delete the example.
 - Package tests live in `<pkg>/tests/` and import only the package's
   `exports` ([`AGENTS.md`](../AGENTS.md) § "Test layout"). `bun test` is the
   only runner.
-- E2e harness composition lives with the feature it exercises
-  (`libs/<feature>/tests/e2e/support/`) and composes only the slices it
+- Harness composition lives with the feature it exercises
+  (`libs/<feature>/tests/harness/`) and composes only the slices it
   needs, so an unrelated change leaves it cached.
-  No e2e lives in `apps/`; the full-composition suite in `@libs/runtime` stays
+  No spec lives in `apps/`; the full-composition suite in `@libs/runtime` stays
   small on purpose.
 - A package's test scripts obey `libs/tools/scripts/test-scripts.ts`, run in
   its `lint`: every tracked test file is reached by a gate script (`test`,
-  `test:contract`, `test:e2e`, or deploy's `test:integration`), no script runs
+  `test:contract`, `test:spec`, or deploy's `test:integration`), no script runs
   zero files, and none uses `--pass-with-no-tests`, `--rerun-each` or
   `--retry`. A package with no tests has no `test` script.
 - Contract suites (`test:contract`) run each port's shared suite against the
   real engine (Postgres, S3, EMQX) — the sidecars boot themselves; nothing
   skips when a service is absent.
 - **Behavior tests are specs.** A test that acts as a person would and checks
-  what they see — every e2e and every BDD-shaped test — is a scenario or a
+  what they see — every behavior test — is a scenario or a
   Quint model in `specs/<domain>/`
   ([`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md)), bound through
-  the package's harness. No `*.test.ts` lives under `tests/e2e/`; that
+  the package's harness. No `*.test.ts` lives under `tests/harness/`; that
   directory holds only the harness composition (`support/`).
 
 ### One example app per package
@@ -165,7 +165,7 @@ Tests run constantly, so a slow test is a defect.
 - Keep a unit or property file well under a second. Prefer fewer, sharper
   properties over high run counts; raise `numRuns` only for a property whose
   input space needs it, and say why beside it.
-- Split subsystems so each e2e suite composes little and caches independently.
+- Split subsystems so each spec suite composes little and caches independently.
   A change should rerun the tests of what it touched and nothing else.
 - Every task has an enforced budget (`libs/tools/scripts/check-budget.ts`), and
   every run prints the ten slowest tasks. Make the task faster before raising
@@ -175,7 +175,7 @@ Tests run constantly, so a slow test is a defect.
 
 | Rule | Gate |
 | --- | --- |
-| No test under `tests/e2e/`; one `example-app` per package | `libs/tools/scripts/behavior-tests.ts` (`lint`) |
+| No test under `tests/harness/`; one `example-app` per package | `libs/tools/scripts/behavior-tests.ts` (`lint`) |
 | No skipped, focused, todo, conditional or expected-failure tests | `libs/tools/biome-plugins/no-skipped-tests.grit` (`lint`) |
 | Properties run only on the pinned seed | `libs/tools/biome-plugins/no-unpinned-property.grit` (`lint`) |
 | Tests never touch wall time, real timers or unseeded randomness | `libs/tools/biome-plugins/no-wall-time-in-tests.grit` (`lint`) |

@@ -1,6 +1,6 @@
-// @io-wall-ok — e2e runner composition root: probes the host for a browser.
+// @io-wall-ok — spec runner composition root: probes the host for a browser.
 /**
- * Which real browser engine an e2e runner can drive through `Bun.WebView`.
+ * Which real browser engine a spec runner can drive through `Bun.WebView`.
  *
  * macOS ships WebKit (WKWebView). Elsewhere `Bun.WebView` drives an installed
  * Chrome-family browser over CDP. In CI a missing browser is an error, never a
@@ -12,10 +12,10 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-export type E2eEngine = 'webkit' | 'chrome';
+export type TestEngine = 'webkit' | 'chrome';
 
-export type E2eBrowser =
-  | { readonly engine: E2eEngine }
+export type TestBrowser =
+  | { readonly engine: TestEngine }
   | { readonly engine: null; readonly reason: string };
 
 /** Same executable names `Bun.WebView` searches on `$PATH`. */
@@ -64,16 +64,16 @@ export function chromeVersion(path: string): string | null {
 }
 
 /**
- * The engine to run browser e2e on: WebKit on macOS, else an installed
+ * The engine to run browser spec on: WebKit on macOS, else an installed
  * Chrome. Throws in CI (`CI` set) when no browser is available.
  */
-export function resolveE2eBrowser(): E2eBrowser {
+export function resolveTestBrowser(): TestBrowser {
   if (process.platform === 'darwin') return { engine: 'webkit' };
   if (findChrome() !== null) return { engine: 'chrome' };
   const reason =
     'no Chrome-family browser found (set BUN_CHROME_PATH or install google-chrome)';
   if (process.env['CI'] !== undefined && process.env['CI'] !== '') {
-    throw new Error(`e2e: ${reason}; CI must run browser tests in a browser`);
+    throw new Error(`spec: ${reason}; CI must run browser tests in a browser`);
   }
   return { engine: null, reason };
 }

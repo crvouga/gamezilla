@@ -46,7 +46,7 @@ import {
 ## Architecture
 
 ```
-Consumer (app / e2e package)
+Consumer (app / spec package)
   ├── page objects (LoginPage, …)  — live in the consumer
   ├── AppHarness                   — createRoot / mount / setup / teardown
   └── createDriver({ kind, … })

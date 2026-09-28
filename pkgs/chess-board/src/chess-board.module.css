@@ -338,7 +338,7 @@
 /* -- test / a11y plumbing ------------------------------------------------ */
 
 /* Visually hidden probe: must stay in the accessibility/visibility tree so the
-   E2E driver can read its text; screen readers skip it via the parent's
+   test driver can read its text; screen readers skip it via the parent's
    aria-hidden layer. */
 .probe {
   position: absolute;
@@ -352,7 +352,7 @@
   pointer-events: none;
 }
 
-/* E2E paint token inside an HTML cell: readable text, zero paint. */
+/* Test paint token inside an HTML cell: readable text, zero paint. */
 .token {
   position: absolute;
   width: 0;

@@ -14,7 +14,7 @@ import './journeys.steps';
 import './settings.steps';
 
 import { useHarnessWorld } from '@libs/harness/spec/world';
-import { openHarness } from '../e2e/support/open-app-harness';
+import { openHarness } from '../harness/open-app-harness';
 import { harnessJourneyHost } from './journey-harness-host';
 
 useHarnessWorld(openHarness, (w) => ({ journey: harnessJourneyHost(w) }));

@@ -97,7 +97,7 @@ export function recall(w: HarnessWorld, key: string): unknown {
   return w.memo.get(key);
 }
 
-/** Opens the package's composition (`tests/e2e/support/open-<feature>-harness.ts`). */
+/** Opens the package's composition (`tests/harness/open-<feature>-harness.ts`). */
 export type OpenPackageHarness = (
   testId: string,
   options?: OpenHarnessOptions

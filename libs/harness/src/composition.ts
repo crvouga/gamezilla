@@ -6,8 +6,8 @@
  * load balancer, the simulated IdP, the SQL engines — and nothing about any
  * feature. A composition names the features, and the same `composeFeatures` /
  * `createClient` / `createServer` folds production runs boot them. A feature's
- * own e2e passes its slice; the product passes all of it. That is what lets a
- * feature's e2e live in the feature and stay cached while other features
+ * own spec passes its slice; the product passes all of it. That is what lets a
+ * feature's spec live in the feature and stay cached while other features
  * change.
  */
 

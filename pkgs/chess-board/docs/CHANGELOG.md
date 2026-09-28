@@ -57,7 +57,7 @@
   translucent washes and coordinates.
 - Fixed: arrows ignored a flip; Windows right-drags drew nothing; a second
   finger could steer / drop a drag.
-- The probe and paint tokens are dev / E2E only.
+- The probe and paint tokens are dev / test only.
 - `SmartChessBoard` is now `ChessBoard`. The old `ChessBoard` (a "controlled"
   wrapper whose `movable.dests`, `position`, `lastMove`, `check` and premove
   callbacks were ignored) is gone, as are unused modules (WAAPI runner,

@@ -534,7 +534,7 @@ here when you add coverage. Paths are under `pkgs/room/src/` unless noted.
 
 ### Room specs (`specs/room/`, run by `@pkgs/room-harness`)
 
-`@pkgs/room-harness` claims the `room` spec domain: its `test:e2e` runs the
+`@pkgs/room-harness` claims the `room` spec domain: its `test:spec` runs the
 features through `tests/steps/` and replays the models' traces through
 `tests/quint/` (seeded by `FC_SEED`; the harness must reach the model's state
 after every step). The specs describe the example game room in business

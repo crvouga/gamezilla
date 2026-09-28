@@ -9,7 +9,7 @@
  * The shell names no feature. Routes, tabs, docks and providers all come from
  * the `features` fold, so booting one bounded context and booting all of them
  * is the same code path with a different argument — which is what lets a
- * feature's own e2e run the real shell.
+ * feature's own spec run the real shell.
  */
 
 import type { FeatureClient } from '@libs/feature/public/client';

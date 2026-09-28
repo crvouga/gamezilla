@@ -4,7 +4,7 @@
  * `data-testid`) — run twice:
  *
  * - **in `bun check`**, against the full composition in the in-process harness
- *   (`@libs/runtime#test:e2e`), so a renamed test id or a broken flow fails
+ *   (`@libs/runtime#test:spec`), so a renamed test id or a broken flow fails
  *   the gate before it ships; and
  * - **against production**, in a real browser on the real web bundle
  *   (`@apps/product#health`), on every deploy and on the Health workflow's

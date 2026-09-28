@@ -138,14 +138,14 @@ describe('observability debugging gym', () => {
     expect(output).not.toContain('mutation.apply');
   });
 
-  test('failing e2e is discoverable by the fixture-injected test ID', async () => {
+  test('failing spec is discoverable by the fixture-injected test ID', async () => {
     const output = await obs('test', GYM_TEST_ID, '--last-failure');
     expect(output).toContain(`app.test.id=${GYM_TEST_ID}`);
     expect(output).toContain('expected synced title, received stale title');
     expect(output).toContain('offline-edits.test.tsx:144');
 
     const trace = await (await fixtureStore()).getTrace(GYM_IDS.failingTest);
-    if (trace === null) throw new Error('failing e2e fixture trace missing');
+    if (trace === null) throw new Error('failing spec fixture trace missing');
     expect(() =>
       assertTraceHasSpan(trace, { name: 'test.run', status: 'error' })
     ).not.toThrow();

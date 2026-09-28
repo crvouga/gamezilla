@@ -24,9 +24,9 @@
   "dependencies": {
     "@libs/auth": "workspace:*",
     "@libs/feature": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/server-app": "workspace:*",
-    "@libs/harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@lingui/core": "catalog:",
     "@lingui/solid": "catalog:",

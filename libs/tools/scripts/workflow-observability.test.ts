@@ -17,7 +17,7 @@ test('renders exact test, trace, and span commands from failure artifacts', () =
       statusMessage: 'replicas differed',
       attributes: {
         'app.test.id': 'offline edits converge',
-        'app.test.file': 'tests/e2e/offline.test.ts',
+        'app.test.file': 'tests/harness/offline.test.ts',
         'app.test.package': '@libs/sync',
       },
     })

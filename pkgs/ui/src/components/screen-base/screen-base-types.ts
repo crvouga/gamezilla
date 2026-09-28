@@ -68,7 +68,7 @@ export type ScreenBasePrimaryAction = {
 export type ScreenBaseSurface = 'island' | 'canvas';
 
 export type ScreenBaseProps = {
-  /** Stable screen identifier for DOM `data-screen` (E2E / dev tooling). */
+  /** Stable screen identifier for DOM `data-screen` (spec / dev tooling). */
   screenId: string;
   /**
    * Navigation trail for the header: the last item supplies the centered

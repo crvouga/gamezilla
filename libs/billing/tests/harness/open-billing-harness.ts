@@ -12,7 +12,7 @@ import { defineProductSystem } from '@libs/harness/system/define-product-system'
  * billing screen and the payment provider node's hosted pages come from the platform
  * slices plus billing's own (the harness lands on its bare home screen, since
  * nothing here owns `/`). No profile, spaces or games: profile devDepends on
- * billing for its own e2e, and a change anywhere else leaves this cached.
+ * billing for its own spec, and a change anywhere else leaves this cached.
  */
 const BILLING_SYSTEM = defineProductSystem(
   composeHarnessSlices('billing', [BILLING_HARNESS_SLICE])

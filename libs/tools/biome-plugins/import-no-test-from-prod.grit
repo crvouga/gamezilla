@@ -10,15 +10,14 @@ file($body) where {
   $body <: or {
     includes ".test",
     includes ".spec",
-    includes "/tests/",
-    includes "/e2e/"
+    includes "/tests/"
   },
   $body <: contains bubble or {
     JsModuleSource() as $src,
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"][^'\"]*(?:\.test|\.spec|/tests/|/e2e/)[^'\"]*['\"]$",
-    register_diagnostic(span=$src, message="Production code must not import test code (*.test / *.spec / tests/ / e2e/).", severity="error")
+    $src <: r"^['\"][^'\"]*(?:\.test|\.spec|/tests/)[^'\"]*['\"]$",
+    register_diagnostic(span=$src, message="Production code must not import test code (*.test / *.spec / tests/).", severity="error")
   }
 }

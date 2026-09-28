@@ -7,21 +7,21 @@ feature. A **composition** says which features a harness runs; the harness folds
 it with the same `composeFeatures` / `createClient` / `createServer` production
 uses.
 
-## Where an e2e goes
+## Where a spec goes
 
-A feature's e2e lives in that feature: the specs of the package's
+A feature's spec lives in that feature: the specs of the package's
 `specDomains` (`specs/<domain>/*.feature`, `*.qnt`) and
-`libs/<feature>/tests/e2e/`, run by the package's `test:e2e`, against a
+`libs/<feature>/tests/harness/`, run by the package's `test:spec`, against a
 composition of only the slices it needs. A change to a feature the suite does
 not compose leaves it cached.
 
 | Suite | Composes | Why it is where it is |
 | --- | --- | --- |
-| `libs/chess/tests/e2e` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
-| `libs/friends/tests/e2e` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
-| `libs/profile/tests/e2e` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
-| `libs/billing/tests/e2e` | billing | the membership lifecycle through the payment provider node |
-| `libs/runtime/tests/e2e` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
+| `libs/chess/tests/harness` | profile, spaces (chess only), chess, friends, notifications, search, billing | chess puzzles, a host picking the game, friends watching a puzzle live |
+| `libs/friends/tests/harness` | profile, spaces (no games), friends, notifications, search, billing | friend flows, spaces flows and people search (both read friends' tables) |
+| `libs/profile/tests/harness` | profile, billing | profile editing, and auth (platform, so it runs in the lowest feature) |
+| `libs/billing/tests/harness` | billing | the membership lifecycle through the payment provider node |
+| `libs/runtime/tests/harness` | everything (`APP_COMPOSITION`) | shell boot, the platform model, critical journeys — small on purpose |
 
 There are no product random walks. A feature's state machine is a Quint model
 (`specs/<domain>/<model>.qnt`) and its binding (`tests/quint/<model>.binding.ts`,
@@ -40,7 +40,7 @@ is in every composition and spaces' and search's flows run in friends. Each is a
 be declared ([`docs/FEATURE_SUBSYSTEMS.md`](../../docs/FEATURE_SUBSYSTEMS.md)).
 
 ```ts
-// libs/<feature>/tests/e2e/support/open-<feature>-harness.ts
+// libs/<feature>/tests/harness/open-<feature>-harness.ts
 const SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [PROFILE_HARNESS_SLICE, FRIENDS_HARNESS_SLICE, BILLING_HARNESS_SLICE])
 );
@@ -52,8 +52,8 @@ Each feature exports its slice (manifest, client, server, actions, reads,
 properties, seeds, room host, browser pages) from `@libs/<feature>/harness/*`.
 `composeHarnessSlices` adds the platform (auth, client-config, permissions) and
 folds in production's order. Run one package's suite with
-`bun run --filter @libs/chess test:e2e`, one file with
-`bun run --filter @libs/chess test:e2e tests/e2e/puzzle-play.test.tsx`.
+`bun run --filter @libs/chess test:spec`, one file with
+`bun run --filter @libs/chess test:spec tests/harness/puzzle-play.test.tsx`.
 
 ## Hosts
 
@@ -163,7 +163,7 @@ suite uses one yet. A stale `localSchemaVersion` fails restore.
   crash/partition (actor id via `x-harness-actor`). Tests drive `Bun.WebView`;
   product-harness embeds the web origin URL. `HARNESS_MODE=real` boots sidecars via
   `ensureMaxFidelityStack` (real Postgres + S3rver/EMQX), serves web web
-  (`e2e/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
+  (`scripts/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 
 **Reports** — standalone HTML, Playwright-trace style:
@@ -172,9 +172,9 @@ suite uses one yet. A stale `localSchemaVersion` fails restore.
   (`<pkg>/.cache/harness-report`): each Gherkin step and Quint trace step as a
   labelled step with the harness calls and UI ops under it, its outcome and
   error. Quint models also leave their drawn traces
-  (`quint/<model>/*.itf.json`). `test:e2e` declares the bucket as its turbo
+  (`quint/<model>/*.itf.json`). `test:spec` declares the bucket as its turbo
   `outputs`, so the report is cached (remotely too) with the verdict.
-- `bun run test:report` (repo root) runs every package's `test:e2e` through
+- `bun run test:report` (repo root) runs every package's `test:spec` through
   `turbo-ci-run --restore-outputs` — the same hashes as `bun check`, so a
   suite that ran for this code anywhere restores its bucket and only changed
   suites run — then folds every bucket (its JUnit outcomes overlaid) into one

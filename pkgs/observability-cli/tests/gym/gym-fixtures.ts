@@ -309,7 +309,7 @@ function recordFailingTest(tracer: OtelTracer): void {
       attributes: {
         [ATTR.APP_TEST_ID]: GYM_TEST_ID,
         [ATTR.CODE_FILE_PATH]:
-          'libs/spaces/tests/e2e/offline-edits.test.tsx:144',
+          'libs/spaces/tests/harness/offline-edits.test.tsx:144',
       },
     },
     (span) => {
@@ -367,7 +367,7 @@ export async function createGymFixtures(): Promise<
     ],
     ['no-op.ndjson', GYM_IDS.noOp, ['6000000000000001'], recordNoOp],
     [
-      'failing-e2e.ndjson',
+      'failing-spec.ndjson',
       GYM_IDS.failingTest,
       ['7000000000000001'],
       recordFailingTest,

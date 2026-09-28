@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/property';
 import { testScriptViolations } from './test-scripts';
 
-const E2E = 'bun run ../../libs/harness/scripts/test-e2e.ts';
+const spec = 'bun run ../../libs/harness/scripts/test-spec.ts';
 
 describe('testScriptViolations', () => {
   test('a plain `bun test` over tests/ is clean', () => {
@@ -19,17 +19,17 @@ describe('testScriptViolations', () => {
       scripts: {
         test: 'bun test --pass-with-no-tests',
         'test:contract': 'bun test --rerun-each 3 tests/a.contract.test.ts',
-        'test:e2e': `${E2E} --retry 2`,
+        'test:spec': `${spec} --retry 2`,
       },
       files: [
         'tests/a.test.ts',
         'tests/a.contract.test.ts',
-        'tests/e2e/x.test.ts',
+        'tests/harness/x.test.ts',
       ],
     }).join('\n');
     expect(errors).toContain('"test" uses --pass-with-no-tests');
     expect(errors).toContain('"test:contract" uses --rerun-each');
-    expect(errors).toContain('"test:e2e" uses --retry');
+    expect(errors).toContain('"test:spec" uses --retry');
   });
 
   test('a gate script that matches no file is reported', () => {
@@ -50,25 +50,25 @@ describe('testScriptViolations', () => {
     ).toContain('cannot be checked');
   });
 
-  test('e2e split: test ignores tests/e2e, the harness runner picks it up', () => {
+  test('spec split: test ignores tests/harness, the harness runner picks it up', () => {
     expect(
       testScriptViolations({
         scripts: {
-          test: "bun test --path-ignore-patterns='tests/e2e/**'",
-          'test:e2e': E2E,
+          test: "bun test --path-ignore-patterns='tests/harness/**'",
+          'test:spec': spec,
         },
-        files: ['tests/a.test.ts', 'tests/e2e/b.test.tsx'],
+        files: ['tests/a.test.ts', 'tests/harness/b.test.tsx'],
       })
     ).toEqual([]);
   });
 
-  test('the harness runner with no e2e file still runs the package specs', () => {
-    const scripts = { 'test:e2e': E2E };
+  test('the harness runner with no spec file still runs the package specs', () => {
+    const scripts = { 'test:spec': spec };
     expect(
       testScriptViolations({ scripts, files: [], specDomains: ['friends'] })
     ).toEqual([]);
     expect(testScriptViolations({ scripts, files: [] }).join('\n')).toContain(
-      '"test:e2e" runs no test files'
+      '"test:spec" runs no test files'
     );
   });
 
@@ -85,7 +85,7 @@ describe('testScriptViolations', () => {
   const segment = fc.stringMatching(/^f[a-z0-9-]{0,6}$/);
   const testFile = fc
     .tuple(
-      fc.constantFrom('tests', 'src', 'tests/e2e', 'scripts'),
+      fc.constantFrom('tests', 'src', 'tests/harness', 'scripts'),
       segment,
       fc.constantFrom('.test.ts', '.test.tsx', '.contract.test.ts')
     )
@@ -98,13 +98,13 @@ describe('testScriptViolations', () => {
         fc.uniqueArray(testFile, { minLength: 1, maxLength: 12 }),
         fc.subarray(['tests', 'src', 'scripts']),
         fc.boolean(),
-        (files, dirs, withE2e) => {
+        (files, dirs, withTest) => {
           const scripts: Record<string, string> = {};
           if (dirs.length > 0) {
             scripts['test'] =
-              `bun test --path-ignore-patterns='tests/e2e/**' ${dirs.join(' ')}`;
+              `bun test --path-ignore-patterns='tests/harness/**' ${dirs.join(' ')}`;
           }
-          if (withE2e) scripts['test:e2e'] = E2E;
+          if (withTest) scripts['test:spec'] = spec;
           const listed = new Set(
             testScriptViolations({ scripts, files })
               .join('\n')
@@ -112,8 +112,8 @@ describe('testScriptViolations', () => {
               .map((line) => line.trim())
           );
           for (const file of files) {
-            const reached = file.startsWith('tests/e2e/')
-              ? withE2e
+            const reached = file.startsWith('tests/harness/')
+              ? withTest
               : dirs.some((dir) => file.startsWith(`${dir}/`));
             expect(listed.has(file)).toBe(!reached);
           }

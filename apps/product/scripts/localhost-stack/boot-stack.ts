@@ -160,7 +160,7 @@ async function startWeb(args: {
   readonly origin: string;
   readonly apiOrigin: string;
   readonly frozen: boolean;
-  readonly e2eHooks: boolean;
+  readonly testHooks: boolean;
 }): Promise<ChildProcess> {
   const child = spawn('bun', PRODUCT_DEV_ARGS, {
     cwd: REPO_ROOT,
@@ -171,7 +171,7 @@ async function startWeb(args: {
       VITE_API_URL: args.apiOrigin,
       VITE_LOCAL_PREVIEW_API_ORIGIN: args.apiOrigin,
       ...(args.frozen ? { PRODUCT_DEV_FROZEN: '1' } : {}),
-      ...(args.e2eHooks ? { VITE_E2E: '1' } : {}),
+      ...(args.testHooks ? { VITE_TEST_HOOKS: '1' } : {}),
     },
   });
   await waitForHttp(`${args.origin}/harness`);
@@ -404,7 +404,7 @@ export async function bootLocalhostStack(
           origin: webOrigin,
           apiOrigin,
           frozen: options.frozenWeb,
-          e2eHooks: options.e2eHooks,
+          testHooks: options.testHooks,
         });
 
   const manifest: StackManifest = {

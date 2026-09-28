@@ -32,7 +32,7 @@ export async function readPuzzleReviewProbe(
 ): Promise<PuzzleReviewProbe | null> {
   try {
     const ui = await actorUi(s, actorId);
-    const raw = stripProbe(await ui.get(Handles.chessPuzzleReviewE2e).text());
+    const raw = stripProbe(await ui.get(Handles.chessPuzzleReviewTest).text());
     const parts = raw.split('|');
     if (parts.length < 4) return null;
     const solveIdx = Number.parseInt(parts[0] ?? '', 10);
@@ -57,7 +57,7 @@ export async function readPuzzleReviewFen(
   actorId: string
 ): Promise<string> {
   const ui = await actorUi(s, actorId);
-  return stripProbe(await ui.get(Handles.chessPuzzleReviewE2eFen).text());
+  return stripProbe(await ui.get(Handles.chessPuzzleReviewTestFen).text());
 }
 
 /** The SAN (or figurine) labels the move list is rendering, in order. */

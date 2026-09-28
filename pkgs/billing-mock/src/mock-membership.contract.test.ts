@@ -2,7 +2,7 @@
  * The mock adapter against the shared membership contract, over a fake of the
  * mock wire that answers from memory — the same shape of harness Stripe's
  * adapter runs under. The real provider is exercised end to end by
- * `@pkgs/billing-mock-provider` and the billing e2e suites.
+ * `@pkgs/billing-mock-provider` and the billing spec suites.
  */
 import {
   CONTRACT_ENDED_AT_MS,

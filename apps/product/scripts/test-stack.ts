@@ -3,7 +3,7 @@
 // @io-wall-ok — boots a localhost stack, runs the harness suite against it, tears down.
 
 /**
- * The highest-fidelity product run available locally: every package's e2e
+ * The highest-fidelity product run available locally: every package's spec
  * suite, against one stack.
  *
  * Nothing is stubbed at the process boundary: real Postgres, real object
@@ -13,7 +13,7 @@
  */
 
 import { join } from 'node:path';
-import { runE2ePackages } from './e2e-packages';
+import { runSpecSuites } from './spec-suites';
 import { bootLocalhostStack } from './localhost-stack/boot-stack';
 import { removeManifest } from './localhost-stack/manifest';
 import { parseStackOptions } from './localhost-stack/stack-options';
@@ -24,13 +24,13 @@ const testPaths = argv.filter((arg) => /\.test\.[cm]?[jt]sx?$/.test(arg));
 
 // Tests drive live browsers: the web app must not hot-reload under them, and
 // the scenarios read the app's test-only probes.
-const options = parseStackOptions([...argv, '--frozen-web', '--e2e']);
+const options = parseStackOptions([...argv, '--frozen-web', '--test-hooks']);
 const stack = await bootLocalhostStack(options);
 process.stdout.write(`[stack] ${stack.manifestPath}\n`);
 
 let code = 1;
 try {
-  code = runE2ePackages(
+  code = runSpecSuites(
     {
       ...process.env,
       HARNESS_MODE: 'stack',

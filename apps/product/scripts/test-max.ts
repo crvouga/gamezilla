@@ -1,5 +1,5 @@
-// @io-wall-ok — real-mode bun-webview: serve the web bundle, then every e2e suite
-import { runE2ePackages } from './e2e-packages';
+// @io-wall-ok — real-mode bun-webview: serve the web bundle, then every spec suite
+import { runSpecSuites } from './spec-suites';
 
 process.env['HARNESS_MODE'] = 'real';
 process.env['VITE_API_URL'] =
@@ -36,7 +36,7 @@ const web = Bun.spawn(['bun', './scripts/serve-max-web.ts'], {
 let code = 1;
 try {
   await waitForHttp(origin);
-  code = runE2ePackages(
+  code = runSpecSuites(
     {
       ...process.env,
       HARNESS_PRELOAD: `${pkgRoot}/src/harness/setup/real-stack-preload.ts`,

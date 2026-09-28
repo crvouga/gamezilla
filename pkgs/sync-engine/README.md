@@ -789,7 +789,7 @@ which is wrong — never loosen `observe`.
 
 ```bash
 bun run --filter @pkgs/sync-engine test       # contracts
-bun run --filter @pkgs/sync-engine test:e2e   # specs/sync-engine features and the Quint model
+bun run --filter @pkgs/sync-engine test:spec   # specs/sync-engine features and the Quint model
 bun run spec specs/sync-engine/note-writing.feature
 bun run spec specs/sync-engine/note-replication.qnt
 ```
