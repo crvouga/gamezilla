@@ -1,7 +1,7 @@
-# The ubiquitous language of the Chess context (specs/chess/): chess puzzles
-# played in a space. Chess rules are cited from the FIDE Laws of Chess, not
-# redefined. Terms other contexts own are borrowed (from: <domain>) with the
-# spelling docs/CONTEXT_MAP.md publishes.
+# The ubiquitous language of the Chess context: chess puzzles played in a
+# space. Chess rules are cited from the FIDE Laws of Chess, not redefined.
+# Terms other contexts own are borrowed (from: <domain>) with the spelling the
+# context map publishes.
 context: Chess
 purpose: >-
   An endless feed of chess puzzles a person solves in their space, with

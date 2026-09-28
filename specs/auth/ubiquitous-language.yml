@@ -1,9 +1,9 @@
 # The ubiquitous language of Auth: how the outside accounts people already
 # have at Google and Apple get them into accounts, whatever those companies
 # do. It is the capability any app built on this product's sign-in has;
-# Identity (specs/profile/) is this product's use of it. Auth borrows
-# Identity's published terms (account, sign in, sign out, sign-in method,
-# Google, Apple) and publishes none of its own; see docs/CONTEXT_MAP.md.
+# Identity is this product's use of it. Auth borrows Identity's published
+# terms (account, sign in, sign out, sign-in method, Google, Apple) and
+# publishes none of its own; see the context map.
 context: Auth
 purpose: >-
   People get into their accounts with the outside accounts they already have

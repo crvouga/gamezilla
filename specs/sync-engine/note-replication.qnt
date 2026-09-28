@@ -28,8 +28,7 @@
 // in the shared notes without telling anyone.
 //
 // Each step is one action followed by everything settling — what a person
-// sees after a quiet moment. The binding is
-// `pkgs/sync-engine/tests/quint/note-replication.binding.ts`.
+// sees after a quiet moment.
 module note_replication {
   type Person = str
   type Title = str
@@ -135,11 +134,11 @@ module note_replication {
 
   // ------------------------------------------------ rules
 
-  pure def _isLive(rows: Notes, title: Title): bool =
-    rows.keys().contains(title) and not(rows.get(title).deleted)
+  pure def _isLive(kept: Notes, title: Title): bool =
+    kept.keys().contains(title) and not(kept.get(title).deleted)
 
-  pure def _ownerMayDelete(rows: Notes, actor: Person, title: Title): bool =
-    not(_isLive(rows, title)) or rows.get(title).owner == actor
+  pure def _ownerMayDelete(kept: Notes, actor: Person, title: Title): bool =
+    not(_isLive(kept, title)) or kept.get(title).owner == actor
 
   /**
    * What a copy allows. Only the owner may delete; joining needs the space
@@ -152,11 +151,11 @@ module note_replication {
     | _ => true
   }
 
-  pure def _deleted(rows: Notes, title: Title): Notes =
-    if (_isLive(rows, title)) rows.set(title, { ...rows.get(title), deleted: true })
-    else rows
+  pure def _deleted(kept: Notes, title: Title): Notes =
+    if (_isLive(kept, title)) kept.set(title, { ...kept.get(title), deleted: true })
+    else kept
 
-  /** Writing takes ownership and brings a row back; deleting keeps the deletion. */
+  /** Writing takes ownership and brings a note back; deleting keeps the deletion. */
   pure def _apply(k: Shared, actor: Person, edit: Edit): Shared = match edit {
     | Write(w) => { ...k, notes: k.notes.put(w.title, { body: w.body, deleted: false, owner: actor }) }
     | Delete(title) => { ...k, notes: _deleted(k.notes, title) }
@@ -182,11 +181,11 @@ module note_replication {
       if (_allowed(acc, actor, queue.get(mid), false)) _apply(acc, actor, queue.get(mid))
       else acc)
 
-  pure def _live(rows: Notes): Title -> str =
-    rows.keys().filter(t => not(rows.get(t).deleted)).mapBy(t => rows.get(t).body)
+  pure def _live(kept: Notes): Title -> str =
+    kept.keys().filter(t => not(kept.get(t).deleted)).mapBy(t => kept.get(t).body)
 
-  pure def _owners(rows: Notes): Title -> Person =
-    rows.keys().filter(t => not(rows.get(t).deleted)).mapBy(t => rows.get(t).owner)
+  pure def _owners(kept: Notes): Title -> Person =
+    kept.keys().filter(t => not(kept.get(t).deleted)).mapBy(t => kept.get(t).owner)
 
   /** Owners of live notes and folders (their ids never clash). */
   pure def _ownersOf(k: Shared): Title -> Person = {
@@ -522,7 +521,7 @@ module note_replication {
   }
 
   /**
-   * The app is told it must update before it may sync, updates and reopens:
+   * The app is told it must update before it may send or receive notes, updates and reopens:
    * what waited on it is sent then.
    */
   action appMustUpdate(person: Person): bool = all {

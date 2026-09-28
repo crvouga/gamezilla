@@ -1,7 +1,7 @@
-# The ubiquitous language of Identity: every word the specs in specs/profile/
-# use for who a person is to the product. Other contexts borrow the published
-# terms (guest, account, sign in, sign out, sign-in method, username, avatar,
-# profile) with `from: profile`; see docs/CONTEXT_MAP.md.
+# The ubiquitous language of Identity: every word its specs use for who a
+# person is to the product. Other contexts borrow the published terms (guest,
+# account, sign in, sign out, sign-in method, username, avatar, profile) with
+# `from: profile`; see the context map.
 context: Identity
 purpose: >-
   Who a person is to the product: a guest with a username and avatar from

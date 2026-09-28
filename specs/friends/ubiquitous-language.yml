@@ -1,7 +1,7 @@
 # The ubiquitous language of the Friends context: every word its features,
 # stories and Quint models use for friendships. Terms other contexts own are
-# borrowed (from: <domain>) with the spelling their context publishes
-# (docs/CONTEXT_MAP.md); the shared kernel is specs/ubiquitous-language.yml.
+# borrowed (from: <domain>) with the spelling their context publishes (see the
+# context map); the shared kernel needs no borrowing.
 #
 # Terms are product phrases ("accept a friend request", "live friend") rather
 # than bare words ("accept", "live"), so the same everyday word stays free for

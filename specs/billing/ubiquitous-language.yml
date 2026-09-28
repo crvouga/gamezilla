@@ -1,6 +1,6 @@
-# The ubiquitous language of Billing: Plus and the memberships that pay for it.
-# Upstream of Spaces, Chess, Operations and Journeys, which borrow Plus, Plus
-# member, free account and paid access (docs/CONTEXT_MAP.md).
+# The ubiquitous language of Billing: Plus and the memberships that pay for
+# it. Upstream of Spaces, Chess, Operations and Journeys, which borrow Plus,
+# Plus member, free account and paid access (see the context map).
 context: Billing
 purpose: >-
   A signed-in person can pay for Plus, keeps exactly the paid access they paid

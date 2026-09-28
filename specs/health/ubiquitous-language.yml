@@ -1,7 +1,7 @@
-# The Operations context's ubiquitous language (specs/health/): the promises
-# a live environment keeps, as the team sees them from outside. Terms other
-# contexts own are borrowed (from: <domain>); the shared kernel is
-# specs/ubiquitous-language.yml. Map: docs/CONTEXT_MAP.md.
+# The Operations context's ubiquitous language: the promises a live
+# environment keeps, as the team sees them from outside. Terms other contexts
+# own are borrowed (from: <domain>); the shared kernel needs no borrowing. See
+# the context map.
 context: Operations
 purpose: >-
   The promises every live environment keeps right now — people reach the app

@@ -1,4 +1,4 @@
-@domain:health @observability
+@domain:health
 Feature: Finding out what happened
   When someone runs into trouble, the team wants to find out what happened,
   so they can put it right.
