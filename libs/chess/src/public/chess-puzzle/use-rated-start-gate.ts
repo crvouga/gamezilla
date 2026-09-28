@@ -4,6 +4,8 @@ import { usePermissions } from '@libs/permissions/public/use-permissions';
 import { useClock, useTimers } from '@pkgs/clock/solid';
 import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
+import { ratedStartKey } from '../../shared/chess/rated-start-key';
+
 /** Consumes the rated-puzzle quota when a puzzle is started (§22.4). */
 export type RatedStartGate = {
   /** The denial that blocked the last start, until a retry clears it. */
@@ -11,10 +13,6 @@ export type RatedStartGate = {
   /** Consume for starting `puzzleId`; resolves whether it may start. */
   readonly start: (puzzleId: string) => Promise<boolean>;
 };
-
-function utcDay(ms: number): string {
-  return new Date(ms).toISOString().slice(0, 10);
-}
 
 /**
  * Rated puzzles are charged when started, never when finished, so a puzzle on
@@ -50,7 +48,7 @@ export function useRatedStartGate(onRetry: () => void): RatedStartGate {
   }, true);
 
   const start = async (puzzleId: string): Promise<boolean> => {
-    const key = `${ACTION.puzzleRatedSolve}:${puzzleId}:${utcDay(clock.now())}`;
+    const key = ratedStartKey(puzzleId, clock.now());
     const decision = await permissions.consume(ACTION.puzzleRatedSolve, key);
     if (decision.allowed) {
       setDenial(null);

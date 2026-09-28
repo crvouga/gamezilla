@@ -4,7 +4,7 @@
  * with a second attempt on a puzzle that already moved the rating.
  */
 import { describe, expect, test } from 'bun:test';
-
+import { BILLING_TABLES } from '@libs/billing/public/schema';
 import {
   applyPuzzleAttemptRating,
   DEFAULT_PUZZLE_RATING_STATE,
@@ -15,6 +15,7 @@ import {
   ratePuzzleAttemptMutation,
   upsertPuzzleProfileMutation,
 } from '@libs/chess/root/mutations';
+import { uniqueTables } from '@libs/permissions/root/conformance/world';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
@@ -35,12 +36,20 @@ function env(atMs: number): MutationEnv {
   };
 }
 
+/**
+ * With the permission tables: a rated result checks the owner's daily puzzle
+ * allowance, which for this signed-in owner is unlimited (no start charge).
+ */
 async function openDb(): Promise<SqlClient> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
-  await applySqliteSchema(db, registerTables([...CHESS_TABLES]), {
-    ownership: 'declared-only',
-  });
+  await applySqliteSchema(
+    db,
+    registerTables(uniqueTables([...BILLING_TABLES, ...CHESS_TABLES])),
+    {
+      ownership: 'declared-only',
+    }
+  );
   return db;
 }
 

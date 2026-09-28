@@ -1,4 +1,5 @@
 import type { Decision } from '@pkgs/permissions';
+import { sql } from '@pkgs/sql';
 import {
   type MutationDb,
   type MutationEnv,
@@ -10,7 +11,12 @@ import {
   decideForActor,
   decideLimitForActor,
 } from '../shared/decide-for-actor';
-import type { AppGrantKey, AppLimit } from '../shared/permission-catalog';
+import type {
+  AppGrantKey,
+  AppLimit,
+  AppQuota,
+} from '../shared/permission-catalog';
+import { evaluateQuota } from '../use-cases/consume-quota/shared/evaluate-quota';
 
 export type { AccessScope };
 
@@ -79,5 +85,74 @@ export async function requireLimitInMutation(
     decision.reason ?? 'limit_reached',
     `Limit reached: ${limit}`,
     { decision }
+  );
+}
+
+/**
+ * Refusal code for a limited quota's result whose action was never charged:
+ * the client skipped (or lost) the consume that should have preceded it.
+ */
+export const QUOTA_NOT_CHARGED = 'quota_not_charged';
+
+type KeyRow = { readonly idempotency_key: unknown };
+
+/**
+ * Whether the actor holds a live charge of `quota` whose idempotency key
+ * starts with `keyPrefix`. Filtered in code: a SQL `LIKE` would read `_` and
+ * `%` in ids as wildcards.
+ */
+async function hasCharge(
+  ctx: MutationCtx,
+  args: { readonly quota: AppQuota; readonly keyPrefix: string }
+): Promise<boolean> {
+  const rows = await ctx.tx.query<KeyRow>(sql<KeyRow>`
+    SELECT idempotency_key FROM permissions_quota_ledger
+    WHERE owner_id = ${ctx.env.actorId}
+      AND quota = ${args.quota}
+      AND deleted_at IS NULL
+  `);
+  return rows.some(
+    (row) =>
+      typeof row.idempotency_key === 'string' &&
+      row.idempotency_key.startsWith(args.keyPrefix)
+  );
+}
+
+/**
+ * Guards the result of a quota-charged action (a rated puzzle's result, whose
+ * start consumed the quota): passes when the actor's quota is unlimited, or
+ * when a charge keyed `keyPrefix…` exists (on any day: an action started
+ * before its window reset still finishes). Otherwise throws a permanent
+ * `MutationError`: the quota decision's reason (meta = the decision) when one
+ * more is refused now, else {@link QUOTA_NOT_CHARGED}.
+ *
+ * Charges nothing itself: the window of a charge is the server's clock, which
+ * only the replay's authorize hook sees (`consumeQuota`); a presence check
+ * does not depend on the clock.
+ */
+export async function requireChargedInMutation(
+  ctx: MutationCtx,
+  args: { readonly quota: AppQuota; readonly keyPrefix: string }
+): Promise<void> {
+  const nowMs = (ctx.env.serverNow ?? ctx.env.now)().getTime();
+  const decision = await evaluateQuota(ctx.tx, {
+    identity: ctx.env,
+    quota: args.quota,
+    nowMs,
+    clientAtMs: Math.min(ctx.env.now().getTime(), nowMs),
+    amount: 1,
+  });
+  if (decision.allowed && decision.limit === undefined) return;
+  if (await hasCharge(ctx, args)) return;
+  if (!decision.allowed) {
+    throw new MutationError(
+      decision.reason ?? 'not_granted',
+      `Quota ${args.quota} denied.`,
+      { decision }
+    );
+  }
+  throw new MutationError(
+    QUOTA_NOT_CHARGED,
+    `Quota ${args.quota} was not charged for this result.`
   );
 }
