@@ -111,6 +111,24 @@ export async function matched(
   return false;
 }
 
+/** Stable digest of every aliased participant's match outcome. */
+export async function matchFingerprint(s: MatchmakingHarness): Promise<string> {
+  const parts: string[] = [];
+  for (const id of s.refs.values()) {
+    const st = await s.mm.status(id);
+    if (st?.status !== 'matched') {
+      parts.push(`${id}:waiting`);
+      continue;
+    }
+    const peers = st.peers
+      .map((x) => x.participantId)
+      .sort()
+      .join(',');
+    parts.push(`${id}:${st.matchId}:${peers}`);
+  }
+  return parts.sort().join('|');
+}
+
 export const replicasAgree = defineProperty({
   name: 'replicasAgree',
   check: async (s: MatchmakingHarness) => {

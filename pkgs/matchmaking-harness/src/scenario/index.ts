@@ -36,6 +36,7 @@ export {
   lastTickAll,
   lastUpdate,
   matched,
+  matchFingerprint,
   participantIds,
   replicaIds,
   replicasAgree,

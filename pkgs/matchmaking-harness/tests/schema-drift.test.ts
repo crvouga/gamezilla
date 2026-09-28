@@ -1,18 +1,39 @@
 /**
- * Schema-drift fault: remigrate with a new schema makes join throw the
+ * Schema-drift contract: once the example app is remigrated under another
+ * schema version, a replica still on the old one refuses to join with the
  * public MatchmakingSchemaDriftError.
  */
 
 import { Database } from 'bun:sqlite';
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test';
-import { MatchmakingSchemaDriftError } from '@pkgs/matchmaking/interface';
 import {
+  type MatchmakingSchema,
+  MatchmakingSchemaDriftError,
+} from '@pkgs/matchmaking/interface';
+import {
+  exampleAppSchema,
   RatingAttr,
+  ratingWithin,
   registerTestCrashHandler,
 } from '@pkgs/matchmaking-harness';
 import { MatchmakingImplSql } from '@pkgs/matchmaking-sql';
+import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { createHarnessAdapters } from '@pkgs/uuid';
+
+async function bootExampleApp(
+  sqlClient: SqlClient,
+  schema: MatchmakingSchema
+): Promise<MatchmakingImplSql> {
+  const adapters = createHarnessAdapters({ seed: 1 });
+  const mm = new MatchmakingImplSql({
+    sqlClient,
+    schema,
+    tuning: { now: adapters.clock.now, createId: adapters.createId },
+  });
+  await mm.ready();
+  return mm;
+}
 
 describe('MatchmakingImplSql - schema drift', () => {
   let dispose: () => void;
@@ -26,25 +47,19 @@ describe('MatchmakingImplSql - schema drift', () => {
   test('join throws MatchmakingSchemaDriftError after remigrate with new schema', async () => {
     const db = new Database(':memory:');
     const sqlClient = new SqlClientImplBunSqlite(db);
-    const harness = createHarnessAdapters({ seed: 1 });
     try {
-      const mm = new MatchmakingImplSql({
+      const byRegion = await bootExampleApp(
         sqlClient,
-        schema: { partitionKeys: ['mmtest/region'] },
-        tuning: { now: harness.clock.now, createId: harness.createId },
-      });
-      await mm.ready();
-
-      const mm2 = new MatchmakingImplSql({
+        exampleAppSchema({ partitionBy: 'region' })
+      );
+      await bootExampleApp(
         sqlClient,
-        schema: { partitionKeys: ['mmtest/mode'] },
-        tuning: { now: harness.clock.now, createId: harness.createId },
-      });
-      await mm2.ready();
+        exampleAppSchema({ partitionBy: 'mode' })
+      );
       await expect(
-        mm.join({
+        byRegion.join({
           data: { ...RatingAttr(1500) },
-          formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
+          formulas: [ratingWithin(50)],
         })
       ).rejects.toBeInstanceOf(MatchmakingSchemaDriftError);
     } finally {

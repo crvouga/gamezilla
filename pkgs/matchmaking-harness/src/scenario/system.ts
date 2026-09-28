@@ -13,6 +13,7 @@ import type {
 import fc from 'fast-check';
 import type { MatchmakingHarnessBackend } from '../api';
 import type { ReplicaBootConfig } from '../boot-replica';
+import { exampleAppSchema } from '../example-app';
 import { MATCHMAKING_ACTIONS } from './actions';
 import { buildMatchmakingHarness, type MatchmakingHarness } from './facade';
 import { startReplica, startStore } from './node-kinds';
@@ -43,7 +44,7 @@ export const matchmaking = defineSystem<MatchmakingHarness, MatchmakingArgs>({
   args: {
     replicas: 1,
     backend: 'sqlite',
-    schema: {},
+    schema: exampleAppSchema(),
     radius: undefined,
     tuning: {},
   } satisfies MatchmakingArgs,
@@ -52,7 +53,7 @@ export const matchmaking = defineSystem<MatchmakingHarness, MatchmakingArgs>({
       fc.record({
         replicas: fc.integer({ min: 1, max: 3 }),
         backend: fc.constant<MatchmakingHarnessBackend>('sqlite'),
-        schema: fc.constant<MatchmakingSchema>({}),
+        schema: fc.constant<MatchmakingSchema>(exampleAppSchema()),
         radius: fc.constant<RadiusOptions | undefined>(undefined),
         tuning: fc.constant<Partial<MatchmakingTuning>>({}),
       })

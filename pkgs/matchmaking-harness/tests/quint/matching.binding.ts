@@ -142,5 +142,5 @@ bindQuintModel<MatchmakingTraceWorld>({
     }
     return { standing };
   },
-  fingerprint: (w) => matchFingerprint(traceMatchmaking(w)),
+  fingerprint: (w) => traceMatchmaking(w).read(matchFingerprint),
 });

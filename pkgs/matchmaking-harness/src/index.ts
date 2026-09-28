@@ -1,5 +1,7 @@
 /**
- * Test / harness host seam for `@pkgs/matchmaking`.
+ * Test / harness host seam for `@pkgs/matchmaking`: the one example app
+ * every test drives, and the matchmaking system that boots it behind
+ * replicas sharing one store.
  * Import from `@pkgs/matchmaking-harness` only — not for product apps/libs.
  */
 
@@ -8,22 +10,17 @@ export type {
   HarnessReplica,
   MatchmakingHarnessBackend,
 } from './api';
+export { registerTestCrashHandler } from './crash-handler';
 export {
-  assertMatchInvariants,
-  assertStatusAgreesAcrossReplicas,
-  expectMatched,
-  KindAttr,
-  type MatchmakingScript,
-  matchFingerprint,
+  type ExamplePartition,
+  exampleAppSchema,
+  exampleNs,
+  ModeAttr,
   NameAttr,
   RatingAttr,
   RegionAttr,
   ratingWithin,
-  registerTestCrashHandler,
-  SkillAttr,
-  testNs,
-  UUID_REGEX,
-} from './fixtures';
+} from './example-app';
 export {
   HARNESS_AUTH_HEADERS,
   harnessRequireAuth,
@@ -34,6 +31,7 @@ export {
   leave,
   type MatchmakingArgs,
   type MatchmakingHarness,
+  matchFingerprint,
   matchmaking,
   participantIds,
   ready,
