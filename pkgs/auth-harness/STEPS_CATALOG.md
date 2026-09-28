@@ -59,8 +59,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {actor} deletes their Apple account | {actor} | auth |
 | When | {actor} keeps the accounts separate | {actor} | auth |
 | When | {actor} removes Apple from their account | {actor} | auth |
-| When | {actor} signs in with Apple and hides their email address | {actor} | auth |
 | When | {actor} signs in with Apple on another device | {actor} | auth |
+| When | {actor} signs in with Apple, hiding their email address | {actor} | auth |
 | When | {actor} signs in with their {provider} account | {actor}, {provider} | auth |
 | When | {actor} signs out | {actor} | auth |
 | When | {actor} signs out everywhere | {actor} | auth |

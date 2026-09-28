@@ -171,7 +171,7 @@ When(
 );
 
 When(
-  '{actor} signs in with Apple and hides their email address',
+  '{actor} signs in with Apple, hiding their email address',
   async (w, actor: string) => {
     await w.s.apply(
       signIn,
