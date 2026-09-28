@@ -53,7 +53,7 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 | A2 | block | M. Any `avoid` entry of the context's language, whole-word, in the same prose. J: any other stand-in for an existing term — cite both words. | yes |
 | A3 | block | M. Diff the glossary against the base branch: every added term must be named in the `spec:` commit body as confirmed by the person. | — |
 | A4 | block | M. A term defined in another context used without a `from:` borrow, or borrowed but not `published: true` there; a `.qnt` import other than `./events` / `../<d>/events`. | yes |
-| A5 | block | M. Case-insensitive whole-word search of all prose for the A5 list, after removing glossary terms that contain the word ("friend request" is not HTTP). | partly |
+| A5 | block | M. Case-insensitive whole-word search of all prose for the A5 list, after removing glossary terms that contain the word ("friend request" is not HTTP). J: drop plain-English idioms ("in a row"). | partly |
 | A6 | block | M. Each step's subject is a cast name, `I`/`me`/`my`, `the user`, `the system`, or a glossary term. Flag the middle three, and any subject that is none of these. | partly |
 | B1 | warn | J. Title is a capability phrase, not "Tests …", a file or component name. | — |
 | B2 | block | M. The description's first sentence matches `When …, … want(s) …, so …`. No description at all is also B2. | partly |
@@ -67,14 +67,14 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 | B10 | block | M. Title starts with "Test", "Case", "Check", contains "should", or has no verb. Unique per context. | uniqueness |
 | B11 | block | M. Background has a non-`Given` step or more than 4 steps. J: a scenario that never relies on a Background step — cite it. Warn when every scenario of a rule repeats the same `Given`. | — |
 | B12 | block | M. Outline with more than 6 rows. J: the varied column is not a business dimension (gesture, error kind, technical failure); an ordered dimension without both sides of its boundary. | — |
-| B13 | block | M. Values matching `foo|bar|baz|lorem|xxx|test|user\d|^\d{3}$|seed` or a person not in the cast. | — |
+| B13 | block | M. Values matching `foo|bar|baz|lorem|test|user\d|seed`, a run of one repeated letter, or `123`/`1234` or a person not in the cast. | — |
 | B14 | block | M. Every near-duplicate `spec:check --strict-duplicates` reports. J: two step phrasings in the context with one meaning — cite both definitions. | warns |
 | B15 | block | M. Any tag not in the B15 table; a live-run tag outside `specs/health/` and `specs/journeys/`; a `@domain` that isn't the directory. | domain, goal |
 | B16 | warn/block | M. Steps per scenario (Background included): > 5 warn, > 8 block. | > 8 |
 | B17 | block | J. A scenario whose outcome only code could observe: exact formula output, validation table, stored state, wire shape, internal counts, transport state. Cite the step and the home the policy table gives it. | — |
 | C1–C6 | block | § Coverage map. | — |
 | D1 | block | M. File paths, package names, code identifiers in `.feature`/`.qnt` prose. | — |
-| D2 | block | M. In `tests/steps/**` of a sim package: imports other than the D2 allow-list; `data-testid`, CSS selectors, `querySelector`, `page.`, `fetch(`, SQL. | — |
+| D2 | block | M. In `tests/steps/**` of a sim package: imports other than the D2 allow-list (`node:*` included); `data-testid`, CSS selectors, `querySelector`, `page.`, `fetch(`, SQL. J: a public-entry import used for more than types and decided constants. | — |
 | D3 | block | M. Step bodies with `if`/`switch`/`for`/`while`/`.map(` over product values, `expect` in a `Given`/`When`, a step invoking another step's text. J: confirm it is product logic, not a precondition guard. | — |
 | D4 | block | M. More than one world/registration entry per package; anything under `specs/` naming a `tests/` file. | — |
 | D5 | block | M. `setTimeout`, `sleep`, `Date.now`, `new Date(` in sim steps; skipped, pending or retried steps. | pending |

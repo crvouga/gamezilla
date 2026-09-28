@@ -183,7 +183,9 @@ error code, or a technical failure mode is not a business dimension.
 
 **B13 · Plausible domain data.** *Blocking.*
 Names from the cast, amounts, dates and text a real person would use. Never
-foo, bar, baz, test, lorem, xxx, `user1`, `123`, or seed values.
+foo, bar, baz, test, lorem, a run of one letter (`xxxx`), `user1`, `123`,
+or seed values. A number is fine when the rule turns on it (100% accuracy,
+20 puzzles).
 *Why: placeholder data hides which values matter to the rule.*
 
 **B14 · Reuse phrasings; never coin a second one.** *Blocking.*
@@ -289,8 +291,10 @@ or code identifiers appear in specs.
 A step definition for a sim domain (`specDomains`) calls only exported
 actions and reads of a package's `sim/` (`@libs/<pkg>/sim/…`,
 `@pkgs/<pkg>/sim…`, `@pkgs/<name>-sim`), the harness (`@libs/sim-harness…`,
-`@pkgs/sim`, `@pkgs/gherkin…`), the package's own step helpers, and
-`@libs/<pkg>/public` types and decided constants. No selectors, test IDs,
+`@pkgs/sim`, `@pkgs/gherkin…`), the package's own step helpers, another
+package's exported `steps/`, and types and decided constants from a package's
+public entry point (`@libs/<pkg>/public/…`, a `@pkgs/<pkg>` root,
+`/shared` or `/interface` export). No selectors, test IDs,
 DOM, HTTP, SQL or storage clients, and no `src/`, `server/`, `client/` or
 `use-cases/` imports. Live domains bind through `apps/product/tests/steps/`
 (the live world), marked `// @io-wall-ok`.
