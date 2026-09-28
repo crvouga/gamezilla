@@ -114,8 +114,9 @@ property subsumes an example that is neither, delete the example.
 - Package tests live in `<pkg>/tests/` and import only the package's
   `exports` ([`AGENTS.md`](../AGENTS.md) § "Test layout"). `bun test` is the
   only runner.
-- E2e lives with the feature it exercises (`libs/<feature>/tests/e2e/`) and
-  composes only the slices it needs, so an unrelated change leaves it cached.
+- E2e harness composition lives with the feature it exercises
+  (`libs/<feature>/tests/e2e/support/`) and composes only the slices it
+  needs, so an unrelated change leaves it cached.
   No e2e lives in `apps/`; the full-composition suite in `@libs/runtime` stays
   small on purpose.
 - A package's test scripts obey `libs/tools/scripts/test-scripts.ts`, run in
@@ -126,6 +127,25 @@ property subsumes an example that is neither, delete the example.
 - Contract suites (`test:contract`) run each port's shared suite against the
   real engine (Postgres, S3, EMQX) — the sidecars boot themselves; nothing
   skips when a service is absent.
+- **Behavior tests are specs.** A test that acts as a person would and checks
+  what they see — every e2e and every BDD-shaped test — is a scenario or a
+  Quint model in `specs/<domain>/`
+  ([`SPEC_DRIVEN_DEVELOPMENT.md`](SPEC_DRIVEN_DEVELOPMENT.md)), bound through
+  the package's harness. No `*.test.ts` lives under `tests/e2e/`; that
+  directory holds only the harness composition (`support/`).
+
+### One example app per package
+
+A framework package (`@pkgs/sync-engine`, `@pkgs/room`, `@pkgs/matchmaking`,
+…) is tested through **one** example app: a single kitchen-sink app that uses
+every capability the package offers, in `src/harness/example-app/` (or
+`tests/example-app/` for a package with no harness). Never a counter app, a
+notes app and a clock app side by side: every test, property, model and spec
+of the package drives the same app, so a new capability grows that app
+instead of adding another. A test that needs a variation (another schema
+version, a hostile peer) configures the example app; it does not fork it.
+The package's spec context describes that app's behavior in business words,
+never the package's mechanics.
 
 ## 5. Fast
 

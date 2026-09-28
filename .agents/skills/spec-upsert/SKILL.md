@@ -13,6 +13,12 @@ below by ID (A1, B5, C2 …). Read it once before you start. Policy:
 
 ## Hard rules
 
+- **A business person reads every line (A0).** No technical concept, in
+  any words: no servers, crashes of anything but the person's own app,
+  networks, messages, retries, caches, indexes, timings under a second.
+  Before writing, say each rule as you would to a product owner; if you
+  cannot without a technical idea, it is not a spec — name it in the handoff
+  as a code test. A context whose subject is technical gets no specs.
 - **Never touch implementation or step definitions.** Edit only
   `specs/**/*.feature`, `specs/**/*.qnt`, `specs/**/ubiquitous-language.yml`
   and docs (P1). Never read `src/`, `tests/`, `harness/` or infra: describe the
@@ -109,6 +115,7 @@ Feature: specs/<domain>/<file>.feature
 [ ] A2 no avoid-list synonym
 [ ] A3 new terms confirmed by the person — <terms, or "none">
 [ ] A4 foreign terms borrowed + published — <terms, or "none">
+[ ] A0 a business person understands every line — read aloud: <yes, or the lines rewritten>
 [ ] A5 no technical vocabulary
 [ ] A6 every actor from the cast or a glossary role
 [ ] B1 title is a capability            [ ] B2 description is one job story

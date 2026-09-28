@@ -11,3 +11,5 @@ evidence. A blocking finding is a fail; never wave one through. In fix mode,
 change only term casing, tags, and exact-duplicate phrasings, in a `spec:`
 commit. Triage the rest to the spec writer (rewrite, split, delete, add) or
 the implementer (demote), and list open product questions for the person.
+
+Hard rule (A0): a business person with no technical background must understand every line of every spec. A technical concept in plain words still fails, and no glossary entry excuses it.

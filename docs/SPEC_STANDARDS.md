@@ -36,6 +36,33 @@ or softening a rule, answer its why.
 
 ## A. Language — the ubiquitous language is law
 
+**A0 · A business person understands every line.** *Blocking. Hard rule: no
+exceptions, no glossary override.*
+Hand the feature, the context's glossary and the model's header comment to a
+product owner who has never seen the code or studied software. They must
+understand every line, with nothing to look up, and recognise every scenario
+as something a person does with the product or sees in it. The test is about
+concepts, not only words: a technical idea in plain words still fails.
+Fails: servers, rooms or services crashing, restarting or being down; a
+network that stalls; messages that are garbled, resent, delivered twice or
+out of order; retries, queues, caches, indexes, lookups, "live updates",
+"catching up", "the app fetches"; timings a person cannot notice (anything
+under a second, anything in ms); versions, schemas, protocols, sessions,
+keys, providers' error cases. Passes: what a person does and sees — "Alice's
+phone is offline", "Alice closes the app and opens it again", "Bob sees
+Alice's note within a few seconds", "Alice is told signing in with Google
+failed".
+When the rule behind a technical case is something people see, state that
+rule and let the Quint model or a code test carry the technical cases (a
+fault an operator injects is a `_`-prefixed model helper, never glossary
+vocabulary). When a context's whole subject is technical, it has no specs:
+its guards are property, model-based and contract tests in its package (P4).
+A glossary term is held to A0 too; defining a technical word does not make
+it plain.
+*Why: the spec is the one description of the product the business can read
+and sign off; a line they cannot read is a line nobody outside engineering
+agreed to.*
+
 **A1 · Every domain word resolves to the language.** *Blocking.*
 Every domain noun, verb, state and event in a feature's prose (title,
 description, `Rule:` lines, scenario titles, steps) is a term of the
@@ -95,9 +122,10 @@ identifiers (ID, UUID, key, hash), code (class, method, function, module,
 file path, framework or vendor names), architecture (server, client,
 backend, service, worker, queue, harness), or UI mechanics (screen, page, view,
 widget, button, link text, field, form, modal, dialog, click, tap, press,
-swipe, scroll, type into, navigate). The only exception: a glossary term or form
-that names something people see in the product ("Settings", "tabs",
-"billing portal", "space link", "reconnects").
+swipe, scroll, type into, navigate), or testing (harness, sim, mock, fake,
+stub, fixture, seed). The only exception: a glossary term or form that names
+something people see in the product ("Settings", "tabs", "billing portal",
+"space link"), and it still passes A0.
 *Why: feature text must still be true, word for word, after any rewrite of
 the implementation.*
 

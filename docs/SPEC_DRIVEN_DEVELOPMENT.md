@@ -158,7 +158,16 @@ lapses"). The rules are B2 and B3 in [`SPEC_STANDARDS.md`](SPEC_STANDARDS.md).
 
 A scenario earns its place when **a person, or the team running the product,
 could observe the outcome from outside**, and the example is one the product
-owner would recognize as a rule of the product.
+owner would recognize as a rule of the product. Every line must be readable
+by a business person with no technical background (A0 in
+[`SPEC_STANDARDS.md`](SPEC_STANDARDS.md)): a behavior that can only be said
+in technical terms is not a spec.
+
+Every behavior test, and every end-to-end test, is a spec. A test that drives
+the product or a package's example app as someone using it would (acts, then
+checks what they see) is a scenario here or a Quint model, never a
+`*.test.ts`. Code tests are for what no person observes: properties,
+contracts, wire shapes, storage, budgets.
 
 | The check is about… | Home |
 | --- | --- |

@@ -13,3 +13,5 @@ confirmation. Never read `src/`, `tests/`, or `harness/`, and ask the person whe
 behavior is unclear. Show the filled-in self-check and the aggregate's
 coverage map, run `spec-audit` until it passes, commit only specs and docs with
 a `spec:` subject, and hand off to the implementer.
+
+Hard rule (A0): a business person with no technical background must understand every line of every spec. A technical concept in plain words still fails, and no glossary entry excuses it.

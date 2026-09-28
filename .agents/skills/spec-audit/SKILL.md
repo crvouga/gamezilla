@@ -52,6 +52,7 @@ M = mechanical (do exactly this); J = judgement (cite the evidence named).
 
 | ID | Sev | How | Gate |
 | --- | --- | --- | --- |
+| A0 | block | J, per line of every feature, glossary definition and `.qnt` header comment: would a product owner with no technical background understand it and recognise it as something people do or see? Flag technical concepts even in plain words (a room or service crashing or restarting, a network stalling, garbled or resent messages, retries, caches, indexes, live updates, catching up, sub-second timings, versions, protocols). M: the A5 list, `ms`, `millisecond`. No glossary term excuses it. Triage: rewrite to the rule people see, or demote. | partly |
 | A1 | block | M: build the set of every term and form in **all** glossaries; any prose word in that set must resolve in this context's language (own, borrowed with the lender's forms, kernel), allowing slots and split terms (standard A1). J: other nouns naming something the product keeps or shows. Cite the word, the line, and the glossaries searched. Report a glossary gap (a short name missing from `forms`) once per term, not per use. | — |
 | A2 | block | M. Any `avoid` entry of **this** context's language, whole-word, in the same prose. J: any other stand-in for an existing term — cite both words. | yes |
 | A3 | block | M. Diff the glossary against the base branch: every added term must be named in the `spec:` commit body as confirmed by the person. | — |
