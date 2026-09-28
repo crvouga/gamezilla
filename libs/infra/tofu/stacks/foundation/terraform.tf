@@ -14,6 +14,7 @@ terraform {
     neon       = { source = "kislerdm/neon", version = "~> 0.18" }
     infisical  = { source = "infisical/infisical", version = "~> 0.19" }
     random     = { source = "hashicorp/random", version = "~> 3.9" }
+    http       = { source = "hashicorp/http", version = "~> 3.5" }
     postgresql = { source = "cyrilgdn/postgresql", version = "~> 1.25" }
   }
 

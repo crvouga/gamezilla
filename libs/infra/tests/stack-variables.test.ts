@@ -3,7 +3,11 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { ENV_FILES } from '@libs/infra/public/envs';
 import { GLOBAL } from '@libs/infra/public/global';
-import { GLOBAL_STACKS, STACKS } from '@libs/infra/public/tofu-command';
+import {
+  CREDENTIAL_ENV,
+  GLOBAL_STACKS,
+  STACKS,
+} from '@libs/infra/public/tofu-command';
 
 /**
  * `tofu validate` never sees variable values, so a stack that still requires
@@ -14,8 +18,16 @@ import { GLOBAL_STACKS, STACKS } from '@libs/infra/public/tofu-command';
  */
 const STACKS_DIR = join(import.meta.dirname, '../tofu/stacks');
 
-/** `TF_VAR_*` that `scripts/tofu.ts` / `tofu-command.ts` export. */
-const FROM_WRAPPER = new Set(['state_passphrase', 'infisical_token']);
+/**
+ * `TF_VAR_*` that `scripts/tofu.ts` / `tofu-command.ts` export: the stack's
+ * credential mapping, plus the Infisical token `tofu.ts` mints itself.
+ */
+function fromWrapper(stack: (typeof STACKS)[number]): Set<string> {
+  const names = Object.keys(CREDENTIAL_ENV[stack])
+    .filter((key) => key.startsWith('TF_VAR_'))
+    .map((key) => key.slice('TF_VAR_'.length));
+  return new Set([...names, 'infisical_token']);
+}
 
 function requiredVariables(stack: string): string[] {
   const hcl = readFileSync(join(STACKS_DIR, stack, 'variables.tf'), 'utf8');
@@ -38,7 +50,7 @@ describe('stack variables', () => {
         }));
     for (const { label, keys } of files) {
       test(`${stack} (${label}): every required variable is set`, () => {
-        const supplied = new Set([...keys, ...FROM_WRAPPER]);
+        const supplied = new Set([...keys, ...fromWrapper(stack)]);
         const missing = requiredVariables(stack).filter(
           (name) => !supplied.has(name)
         );
