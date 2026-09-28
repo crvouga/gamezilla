@@ -26,6 +26,10 @@ import { createSecureStorageStore } from '@pkgs/secure-storage/secure-storage-st
 import { createNamespacedWebSecureStorage } from '@pkgs/secure-storage-web';
 import { createSeededCreateId, createSeededRng } from '@pkgs/uuid';
 import type { HarnessComposition, HarnessRoomNode } from '../composition';
+import {
+  accountReadyDelayFetch,
+  type HarnessAccountReadyDelays,
+} from './account-ready-delay';
 import { appBuildFetch, type HarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
 import { createHarnessBrowser, type HarnessBrowser } from './browser';
@@ -53,6 +57,7 @@ export type HarnessClientEnvDeps = {
   readonly idps: HarnessIdps;
   readonly billing: HarnessBillingProviders | null;
   readonly appBuilds: HarnessAppBuilds;
+  readonly accountReadyDelays: HarnessAccountReadyDelays;
 };
 
 function hasWebLocalStorage(): boolean {
@@ -73,9 +78,17 @@ function clientSecureStorage(ns: string): ClientEnv['secureStorage'] {
   );
 }
 
-/** The client's only server HTTP: the balancer, as its app build sends it. */
+/**
+ * The client's only server HTTP: the balancer, as its app build sends it,
+ * answered as slowly as the device's account-ready delay says.
+ */
 function clientServerFetch(deps: HarnessClientEnvDeps, id: string) {
-  return appBuildFetch(deps.appBuilds, id, deps.loadBalancer.fetchFrom(id));
+  return accountReadyDelayFetch({
+    delays: deps.accountReadyDelays,
+    clientId: id,
+    timers: deps.timers,
+    inner: appBuildFetch(deps.appBuilds, id, deps.loadBalancer.fetchFrom(id)),
+  });
 }
 
 export function makeHarnessClientEnv(

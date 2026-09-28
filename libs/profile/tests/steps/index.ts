@@ -9,5 +9,6 @@ import './sign-in-methods.steps';
 import './sessions.steps';
 import './abandoned-sign-in.steps';
 import './devices.steps';
+import './finish-signing-in.steps';
 
 useHarnessWorld(openHarness);

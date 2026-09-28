@@ -29,6 +29,10 @@ import {
 } from '../composition';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
 import {
+  createHarnessAccountReadyDelays,
+  type HarnessAccountReadyDelays,
+} from './account-ready-delay';
+import {
   createHarnessAppBuilds,
   type HarnessAppBuild,
   type HarnessAppBuilds,
@@ -121,6 +125,11 @@ export type Harness = {
   bumpClientEpoch(): void;
   /** Put a device on an outdated or the current build of the app. */
   setAppBuild(id: string, build: HarnessAppBuild): void;
+  /**
+   * Hold a device's account-ready answer after sign-in (`/identity/refresh`)
+   * for `delayMs` of harness time, as production's takes seconds. `0` clears.
+   */
+  setAccountReadyDelay(id: string, delayMs: number): void;
   /** `'lb'`, a server instance id, or a client id. */
   crash(id: string): void;
   restart(id: string): void;
@@ -261,6 +270,7 @@ type HarnessKernel = {
   readonly loadBalancer: HarnessLoadBalancer;
   readonly primaryEnv: ServerEnv;
   readonly appBuilds: HarnessAppBuilds;
+  readonly accountReadyDelays: HarnessAccountReadyDelays;
   readonly disposed: { value: boolean };
 };
 
@@ -388,6 +398,7 @@ async function bootHarnessKernel(
     loadBalancer,
     primaryEnv: await servers.ensureEnv(HARNESS_PRIMARY_SERVER_ID),
     appBuilds: createHarnessAppBuilds(),
+    accountReadyDelays: createHarnessAccountReadyDelays(),
     disposed,
   };
 }
@@ -503,6 +514,9 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     },
     setAppBuild: (id, build) => {
       kernel.appBuilds.set(id, build);
+    },
+    setAccountReadyDelay: (id, delayMs) => {
+      kernel.accountReadyDelays.set(id, delayMs);
     },
     crash: (id) => {
       net.crash(id);
