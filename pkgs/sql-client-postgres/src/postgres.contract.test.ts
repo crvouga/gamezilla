@@ -4,7 +4,10 @@ import { afterAll, describe, expect, test } from 'bun:test';
 import { randomUUID } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
+import {
+  freePostgresPort,
+  startEmbeddedPostgres,
+} from '@pkgs/postgres-embedded';
 import { raw } from '@pkgs/sql';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import {
@@ -24,6 +27,7 @@ let stopPg: (() => Promise<void>) | undefined;
 
 if (databaseUrl.length === 0) {
   const pg = await startEmbeddedPostgres({
+    port: await freePostgresPort(),
     dataDir: join(tmpdir(), `pg-contract-${randomUUID()}`),
   });
   databaseUrl = pg.url;

@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { defineTable, registerTables } from '@pkgs/db-schema';
 import { defineSchema } from '@pkgs/db-schema/core/define-schema';
+import { freePostgresPort } from '@pkgs/postgres-embedded/free-port';
 import { databaseUrlFor } from '@pkgs/postgres-embedded/ports';
 import { startEmbeddedPostgres } from '@pkgs/postgres-embedded/start';
 import { raw } from '@pkgs/sql';
@@ -23,7 +24,10 @@ describe('postgres legacy NOT NULL/int4 reconcile (contract)', () => {
   const testSchema = `contract_${randomUUID().replace(/-/g, '_')}`;
   const dataDir = join(tmpdir(), `pg-reconcile-contract-${randomUUID()}`);
   beforeAll(async () => {
-    const pg = await startEmbeddedPostgres({ dataDir, port: 15433 });
+    const pg = await startEmbeddedPostgres({
+      dataDir,
+      port: await freePostgresPort(),
+    });
     const url = databaseUrlFor(pg.port);
     const dbScope = createPostgresDbScope(testSchema);
     const opened = await openPgClient({

@@ -8,7 +8,10 @@ import { join } from 'node:path';
 import { fingerprintSql } from '@pkgs/db-indexes/core/fingerprint';
 import { reconcileIndexes } from '@pkgs/db-indexes/core/reconcile';
 import { createHarnessClock, HarnessDb } from '@pkgs/db-indexes/harness';
-import { startEmbeddedPostgres } from '@pkgs/postgres-embedded';
+import {
+  freePostgresPort,
+  startEmbeddedPostgres,
+} from '@pkgs/postgres-embedded';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { openPgClient } from '@pkgs/sql-client-postgres/connect';
 
@@ -21,6 +24,7 @@ let stopPg: (() => Promise<void>) | undefined;
 // When no DATABASE_URL is supplied, start embedded Postgres automatically.
 if (!DATABASE_URL) {
   const pg = await startEmbeddedPostgres({
+    port: await freePostgresPort(),
     dataDir: join(tmpdir(), `pg-idx-contract-${randomUUID()}`),
   });
   DATABASE_URL = pg.url;
