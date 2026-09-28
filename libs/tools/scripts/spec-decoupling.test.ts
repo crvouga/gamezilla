@@ -1,0 +1,80 @@
+import { describe, expect, test } from 'bun:test';
+import { decouplingProblems } from './spec-decoupling';
+
+function problems(path: string, text: string): readonly string[] {
+  return decouplingProblems([{ path, text }]);
+}
+
+describe('decouplingProblems (D1)', () => {
+  test('product words, traceability tags, usernames and Quint imports are clean', () => {
+    expect(
+      problems(
+        'specs/friends/friend-remove.feature',
+        [
+          '@domain:friends @goal:social:5',
+          'Feature: Removing a friend',
+          '  @regression:friend-request-offline-queued',
+          '  Scenario: Alice removes Bob',
+          "    Given Alice's username is @alice_guest",
+          '    When Alice removes Bob, e.g. from 3.7.5.1 of the rules',
+          '    Then Bob is no longer on the friends list',
+        ].join('\n')
+      )
+    ).toEqual([]);
+    expect(
+      problems(
+        'specs/friends/friendship.qnt',
+        'import events.* from "./events"\nimport spaces.* from "../spaces/events"'
+      )
+    ).toEqual([]);
+  });
+
+  test('a host or runner tag is reported, on the feature or a scenario', () => {
+    const errors = problems(
+      'specs/health/payments.feature',
+      '@domain:health @production\nFeature: Payments\n  @oauth-relay\n  Scenario: x'
+    ).join('\n');
+    expect(errors).toContain('payments.feature:1: D1 tag @production');
+    expect(errors).toContain('payments.feature:3: D1 tag @oauth-relay');
+    expect(errors).not.toContain('@domain:health');
+  });
+
+  test('tags are only read from tag lines, and not in Quint or glossaries', () => {
+    expect(
+      problems('specs/a/b.qnt', '  /// @browser is not a Quint tag')
+    ).toEqual([]);
+  });
+
+  test('a file path in a Quint comment is reported once', () => {
+    const errors = problems(
+      'specs/sync-engine/note-replication.qnt',
+      '// sees after a quiet moment. The binding is\n// `pkgs/sync-engine/tests/quint/note-replication.binding.ts`.'
+    );
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain(
+      'note-replication.qnt:2: D1 names a repo directory'
+    );
+  });
+
+  test('workspace packages, doc paths and source file names are reported', () => {
+    const errors = problems(
+      'specs/room/ubiquitous-language.yml',
+      [
+        '# bound in @pkgs/room-harness',
+        '# see docs/SPEC_STANDARDS.md',
+        '# the kernel is ubiquitous-language.yml',
+        '# written in room.steps.ts',
+      ].join('\n')
+    ).join('\n');
+    expect(errors).toContain(
+      ':1: D1 names a workspace package "@pkgs/room-harness"'
+    );
+    expect(errors).toContain(
+      ':2: D1 names a repo directory "docs/SPEC_STANDARDS.md"'
+    );
+    expect(errors).toContain(
+      ':3: D1 names a source file "ubiquitous-language.yml"'
+    );
+    expect(errors).toContain(':4: D1 names a source file "room.steps.ts"');
+  });
+});

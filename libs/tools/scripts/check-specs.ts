@@ -12,7 +12,9 @@
  * architecture words, a feature without a why), and every spec speaks its
  * bounded context's ubiquitous language (`spec-glossary.ts`: no avoided
  * synonym, no other context's term unless borrowed, every Quint name a
- * glossary term, cross-context imports only of published events).
+ * glossary term, cross-context imports only of published events), and
+ * nothing in specs/ points at code (`spec-decoupling.ts`, D1: no file path,
+ * workspace package, source file, or tag outside the traceability allow-list).
  * Near-duplicate wording is a
  * warning; `--strict-duplicates` makes it fail.
  *
@@ -29,10 +31,12 @@ import { specSmells } from '@pkgs/gherkin/smells';
 import type { GoalChecks } from '../goal/goal-manifest';
 import { parseGoalMarkdown } from '../goal/goal-statements';
 import { catalogDrift } from './spec-catalog';
+import { decouplingProblems } from './spec-decoupling';
 import { languageProblems } from './spec-glossary';
 import {
   externalSteps,
   REPO_ROOT,
+  SPECS_DIR,
   sharedSteps,
   specPackages,
   specsLayoutProblems,
@@ -91,6 +95,14 @@ const errors: string[] = [
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(),
+  ...decouplingProblems(
+    [...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) })]
+      .sort()
+      .map((file) => ({
+        path: `${SPECS_DIR}/${file}`,
+        text: readFileSync(join(REPO_ROOT, SPECS_DIR, file), 'utf8'),
+      }))
+  ),
 ];
 
 const allDefinitions = [
