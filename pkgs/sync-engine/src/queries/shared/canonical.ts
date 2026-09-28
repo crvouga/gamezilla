@@ -6,9 +6,17 @@ export function canonicalJson(value: unknown): string {
   return JSON.stringify(sortValue(value));
 }
 
+/** A value with `toJSON` (a driver's `Date`) hashes as it goes on the wire. */
+function hasToJson(value: object): value is { toJSON(): unknown } {
+  return typeof (value as { toJSON?: unknown }).toJSON === 'function';
+}
+
 function sortValue(value: unknown): unknown {
   if (value === undefined) return null;
   if (value === null || typeof value !== 'object') return value;
+  // Without this a `Date` has no own keys and hashes as `{}`, while the client
+  // hashes the ISO string it received — the scope never reads as in sync.
+  if (hasToJson(value)) return sortValue(value.toJSON());
   if (Array.isArray(value)) return value.map(sortValue);
   const obj = value as Record<string, unknown>;
   const keys = Object.keys(obj).sort();
