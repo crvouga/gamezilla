@@ -1,0 +1,88 @@
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: note-delivered
+  displayName: Note delivered
+spec:
+  description: A saved note reaches every open device of its space.
+  ratioMetric:
+    counter: true
+    good:
+      metricSource:
+        type: product
+        spec:
+          event: note shown on every open device
+    total:
+      metricSource:
+        type: product
+        spec:
+          event: note saved
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: note-delivery-time
+spec:
+  thresholdMetric:
+    metricSource:
+      type: product
+      spec:
+        sample: milliseconds from save to the last open device showing the note
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: note-delivery-success
+  displayName: Notes are delivered
+spec:
+  description: Almost every saved note reaches every open device.
+  service: sync-engine
+  indicatorRef: note-delivered
+  timeWindow:
+    - duration: 28d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: 99% of notes delivered
+      target: 0.99
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: note-delivery-latency
+spec:
+  service: sync-engine
+  indicatorRef: note-delivery-time
+  timeWindow:
+    - duration: 1d
+      isRolling: true
+  budgetingMethod: Occurrences
+  objectives:
+    - displayName: p95 under 200 ms
+      op: lt
+      value: 200
+      target: 0.95
+    - displayName: p99 under 500 ms
+      op: lt
+      value: 500
+      targetPercent: 99
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: note-delivery-hourly
+spec:
+  service: sync-engine
+  indicatorRef: note-delivered
+  timeWindow:
+    - duration: 1w
+      isRolling: false
+      calendar:
+        startTime: '2026-01-05 00:00:00'
+        timeZone: UTC
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: every hour this week delivers
+      target: 1
+      timeSliceTarget: 0.8
+      timeSliceWindow: 1h
