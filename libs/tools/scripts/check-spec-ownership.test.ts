@@ -15,6 +15,7 @@ describe('spec ownership', () => {
     expect(isSpecFile('specs/README.md')).toBe(false);
     expect(isSpecFile('specs/ubiquitous-language.yml')).toBe(true);
     expect(isSpecFile('specs/billing/ubiquitous-language.yml')).toBe(true);
+    expect(isSpecFile('specs/billing/glossary.yaml')).toBe(true);
     expect(isSpecFile('specs/billing/events.qnt')).toBe(true);
     expect(isSpecFile('libs/billing/ubiquitous-language.yml')).toBe(false);
   });
