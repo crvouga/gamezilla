@@ -48,8 +48,7 @@ Feature: Notes across app updates
         | tag    | "shopping" | tags notes           | tagged "shopping"  |
 
   Rule: People on different versions keep in step, and nothing a newer version adds is lost
-
-    Scenario: A colour the team gives a note reaches Alice once Alice's app updates to the version with colours
+    Scenario: A colour the team gives a note reaches Alice once her app updates to the version with colours
       Given Alice's app is on a version without colours
       And Alice has written the note "Groceries" saying "milk"
       And the team has given the note "Groceries" the colour green
