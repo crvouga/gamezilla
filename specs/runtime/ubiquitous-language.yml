@@ -1,6 +1,6 @@
 # The App context's ubiquitous language (specs/runtime/). Terms other
 # contexts own are borrowed (from: <domain>); the shared kernel is
-# specs/glossary.yaml. Map: docs/CONTEXT_MAP.md.
+# specs/ubiquitous-language.yml. Map: docs/CONTEXT_MAP.md.
 context: App
 purpose: >-
   The app itself, as a person holds it: it opens, even offline, onto the

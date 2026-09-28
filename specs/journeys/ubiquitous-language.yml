@@ -1,6 +1,6 @@
 # The Journeys context's ubiquitous language (specs/journeys/): the critical
 # journeys across every context, told in the terms those contexts publish
-# (from: <domain>). The shared kernel is specs/glossary.yaml. Map:
+# (from: <domain>). The shared kernel is specs/ubiquitous-language.yml. Map:
 # docs/CONTEXT_MAP.md.
 context: Journeys
 purpose: >-
