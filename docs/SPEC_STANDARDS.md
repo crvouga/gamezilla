@@ -29,7 +29,7 @@ or softening a rule, answer its why.
 | Domain event | A variant of a type in `specs/<domain>/events.qnt` |
 | Policy | A reaction in a downstream context to an upstream domain event, per the context map's relationships |
 | Cast | The named people step definitions know: Alice, Bob, Carol, Dave, Eve (and White and Black at a chess board) |
-| Refusal | A `Then` saying something did not happen or is not allowed: "is refused", "cannot", "is told … failed", "does not", "stops", "no longer" |
+| Refusal | A `Then` saying the `When`'s command did not take effect or is not allowed. Markers: "refused", "cannot", "can't", "no longer can", "is told", "fails"/"failed", "not allowed", "still" (the state is unchanged). "stops showing" or "does not show" alone is not a refusal: it is often the command's effect |
 
 ## A. Language — the ubiquitous language is law
 
@@ -38,7 +38,8 @@ Every domain noun, verb, state and event in a feature's prose (title,
 description, `Rule:` lines, scenario titles, steps) is a term of the
 context's language or one of that term's `forms`, spelled and cased exactly.
 A regular plural (`+s`/`+es`) is implied; any other inflection must be listed
-in `forms`. Not domain words: cast names, numbers and durations, quoted
+in `forms`. A term's `someone`/`something` slot matches any cast name or
+term in that place ("Alice looks up Bob" is *look someone up*). Not domain words: cast names, numbers and durations, quoted
 example values, and plain English that names no product concept (sees, is
 shown, can, still, again, within, stops).
 *Why: a word nobody defined is read a different way by every agent and every
