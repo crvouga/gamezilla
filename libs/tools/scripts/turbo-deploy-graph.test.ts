@@ -57,6 +57,7 @@ const CHECK_LEAVES = [
   '//#ci:audit',
   '//#ci:i18n',
   '//#ci:agent-commands',
+  '//#ci:workspace-lifecycle',
   '//#ci:goals',
   '//#ci:specs',
   '//#ci:spec-ownership',

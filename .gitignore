@@ -116,3 +116,6 @@ libs/infra/tofu/stacks/*/*_override.tf
 /apps/*/jsconfig.json
 /libs/*/jsconfig.json
 /pkgs/*/jsconfig.json
+
+# Per-machine orchestrator overrides (committed hooks live in libs/tools/workspace)
+/.superset/config.local.json

@@ -9,7 +9,7 @@ never mutates); `bun health` checks the **live deployments** (`dev`;
 
 `//#check` depends on every package's `tc`, `lint`, `test`, `test:contract`
 and the parts of its `test:spec` (`test:spec:<k>`, below); the root leaves (`//#lint:root`, syncpack, audit, i18n,
-agent-commands, goals); `@apps/product#check:offline-shell` (every file the
+agent-commands, workspace-lifecycle, goals); `@apps/product#check:offline-shell` (every file the
 wall client can load is precached, under budget, from the real `dist/`); each
 Worker's `check:worker-bundle` (`wrangler deploy --dry-run` under the upload
 limit); `@libs/runtime#check:schema-evolution`; `@libs/tools#check:actionlint`;

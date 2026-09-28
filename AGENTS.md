@@ -119,14 +119,21 @@ Exactly three workflows: Check, Deploy, Health. Rehearse anything touching
 deploy, infra, secrets, Workers or `health` with `bun run deploy:dev` before
 merging. Details: [`docs/CI.md`](docs/CI.md).
 
-## Superset workspaces
+## Workspaces
 
-Each workspace is a git worktree set up by `.superset/setup.sh` (`bun
-install`, `.cache/secrets`, `apps/*/.env.local`), torn down by
-`.superset/teardown.sh` and run by `.superset/run.sh`; per-machine extras go
-in the gitignored `.superset/config.local.json`.
+Each workspace is a git worktree created by an agent orchestrator (Superset,
+super.engineering, …). All of them run the same lifecycle hooks from
+`libs/tools/workspace/`: `setup.sh` (`bun install`, `.cache/secrets`,
+`apps/*/.env.local`), `teardown.sh` and `run.sh`. The hooks derive paths from
+git, never from a tool's env vars. `bun run workspace:sync` projects them into
+every orchestrator's config (`.superset/config.json`,
+`.super.engineering/config.json`); never edit those, and
+`//#ci:workspace-lifecycle` fails on drift. A new orchestrator is one entry in
+`ORCHESTRATORS` in `libs/tools/scripts/sync-workspace-lifecycle.ts`.
+Per-machine extras go in the gitignored `.superset/config.local.json` or
+super.engineering's app project settings.
 
-- **Ports.** `source .superset/port.sh` before booting a sidecar
+- **Ports.** `source libs/tools/workspace/port.sh` before booting a sidecar
   (`@pkgs/postgres-embedded`); the Run pane does it. EMQX
   (`1883` / `8083` / `18083`) and the wrangler preview (`8788`) are
   machine-wide: one workspace at a time may bind them.
