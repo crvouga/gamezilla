@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="access-decisions" name="What each kind of person may do" namespace="https://gamezilla.dev/decisions">
+  <decision id="access" name="May this person do this?">
+    <description>Guests play puzzles and host and join spaces; everything social, the puzzle feed, matches and paying need an account. Free accounts and Plus members may do all of it. While payments are not offered, nobody sees the billing plans or subscribes.</description>
+    <decisionTable id="access-table" hitPolicy="UNIQUE">
+      <input id="who" label="who is asking">
+        <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="who-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="capability" label="what they want to do">
+        <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
+        <inputValues id="capability-values"><text>"keep a friends list","use people search","get notifications","see the billing plans","subscribe","use the billing portal","wait for a match","play puzzles","customize the puzzle feed","create a space","join a space"</text></inputValues>
+      </input>
+      <input id="payments" label="payments are offered">
+        <inputExpression id="payments-expression" typeRef="string"><text>payments are offered</text></inputExpression>
+        <inputValues id="payments-values"><text>"yes","no"</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","needs an account","not offered"</text></outputValues>
+      </output>
+      <rule id="guest-needs-an-account">
+        <description>A guest is asked to make an account before anything social, the puzzle feed, a match or paying.</description>
+        <inputEntry id="guest-needs-an-account-in-1"><text>"guest"</text></inputEntry>
+        <inputEntry id="guest-needs-an-account-in-2"><text>"keep a friends list","use people search","get notifications","use the billing portal","wait for a match","customize the puzzle feed","subscribe"</text></inputEntry>
+        <inputEntry id="guest-needs-an-account-in-3"><text>-</text></inputEntry>
+        <outputEntry id="guest-needs-an-account-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="guest-needs-an-account-out-2"><text>"needs an account"</text></outputEntry>
+      </rule>
+      <rule id="guest-plays-and-hosts">
+        <description>A guest plays puzzles and creates and joins spaces.</description>
+        <inputEntry id="guest-plays-and-hosts-in-1"><text>"guest"</text></inputEntry>
+        <inputEntry id="guest-plays-and-hosts-in-2"><text>"play puzzles","create a space","join a space"</text></inputEntry>
+        <inputEntry id="guest-plays-and-hosts-in-3"><text>-</text></inputEntry>
+        <outputEntry id="guest-plays-and-hosts-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="guest-plays-and-hosts-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="guest-sees-plans">
+        <description>A guest sees the billing plans while payments are offered.</description>
+        <inputEntry id="guest-sees-plans-in-1"><text>"guest"</text></inputEntry>
+        <inputEntry id="guest-sees-plans-in-2"><text>"see the billing plans"</text></inputEntry>
+        <inputEntry id="guest-sees-plans-in-3"><text>"yes"</text></inputEntry>
+        <outputEntry id="guest-sees-plans-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="guest-sees-plans-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="guest-no-plans-without-payments">
+        <description>Nobody sees the billing plans while payments are not offered.</description>
+        <inputEntry id="guest-no-plans-without-payments-in-1"><text>"guest"</text></inputEntry>
+        <inputEntry id="guest-no-plans-without-payments-in-2"><text>"see the billing plans"</text></inputEntry>
+        <inputEntry id="guest-no-plans-without-payments-in-3"><text>"no"</text></inputEntry>
+        <outputEntry id="guest-no-plans-without-payments-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="guest-no-plans-without-payments-out-2"><text>"not offered"</text></outputEntry>
+      </rule>
+      <rule id="accounts-do-everything">
+        <description>Free accounts and Plus members may do everything else.</description>
+        <inputEntry id="accounts-do-everything-in-1"><text>"free account","Plus member"</text></inputEntry>
+        <inputEntry id="accounts-do-everything-in-2"><text>"keep a friends list","use people search","get notifications","use the billing portal","wait for a match","customize the puzzle feed","play puzzles","create a space","join a space"</text></inputEntry>
+        <inputEntry id="accounts-do-everything-in-3"><text>-</text></inputEntry>
+        <outputEntry id="accounts-do-everything-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="accounts-do-everything-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="accounts-pay-while-offered">
+        <description>Accounts see the billing plans and subscribe while payments are offered.</description>
+        <inputEntry id="accounts-pay-while-offered-in-1"><text>"free account","Plus member"</text></inputEntry>
+        <inputEntry id="accounts-pay-while-offered-in-2"><text>"see the billing plans","subscribe"</text></inputEntry>
+        <inputEntry id="accounts-pay-while-offered-in-3"><text>"yes"</text></inputEntry>
+        <outputEntry id="accounts-pay-while-offered-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="accounts-pay-while-offered-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="accounts-no-payments">
+        <description>Nobody sees the billing plans or subscribes while payments are not offered.</description>
+        <inputEntry id="accounts-no-payments-in-1"><text>"free account","Plus member"</text></inputEntry>
+        <inputEntry id="accounts-no-payments-in-2"><text>"see the billing plans","subscribe"</text></inputEntry>
+        <inputEntry id="accounts-no-payments-in-3"><text>"no"</text></inputEntry>
+        <outputEntry id="accounts-no-payments-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="accounts-no-payments-out-2"><text>"not offered"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>

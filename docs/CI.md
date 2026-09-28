@@ -228,7 +228,7 @@ Deploy also refuses a commit with no PR and re-runs the whole gate first.
 ## Health and critical journeys
 
 Every health check and critical journey is Gherkin
-([`SPEC_STANDARDS.md`](SPEC_STANDARDS.md#live-domains)): `specs/health/`
+([`specs/README.md`](../specs/README.md#live-domains)): `specs/health/`
 (DNS/TLS, the Workers, Postgres + schema, client config, R2, EMQX, Grafana
 Cloud, secrets, billing keys, the Google OAuth client, infrastructure drift)
 and `specs/journeys/`. `@apps/product`'s `health` task

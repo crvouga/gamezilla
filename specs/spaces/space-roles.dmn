@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="space-role-decisions" name="What each person in a space may do" namespace="https://gamezilla.dev/decisions">
+  <decision id="space-roles" name="May this person do this in the space?">
+    <description>The host of a space may do everything in it; someone who joined may leave it; someone who is not in a space may do nothing in it. Being a guest, a free account or a Plus member changes none of this.</description>
+    <decisionTable id="space-roles-table" hitPolicy="UNIQUE">
+      <input id="who" label="who is asking">
+        <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
+        <inputValues id="who-values"><text>"guest","free account","Plus member"</text></inputValues>
+      </input>
+      <input id="place" label="their place in the space">
+        <inputExpression id="place-expression" typeRef="string"><text>their place in the space</text></inputExpression>
+        <inputValues id="place-values"><text>"host","joined","not in it"</text></inputValues>
+      </input>
+      <input id="capability" label="what they want to do">
+        <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
+        <inputValues id="capability-values"><text>"leave the space","rename a space","end a space","manage who is in the space","make the game choice"</text></inputValues>
+      </input>
+      <output id="answer" name="answer" typeRef="string">
+        <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
+      </output>
+      <output id="reason" name="reason" typeRef="string">
+        <outputValues id="reason-values"><text>"none","only the host","not in the space"</text></outputValues>
+      </output>
+      <rule id="host-does-everything">
+        <description>The host may leave, rename, end and manage the space and make the game choice.</description>
+        <inputEntry id="host-does-everything-in-1"><text>-</text></inputEntry>
+        <inputEntry id="host-does-everything-in-2"><text>"host"</text></inputEntry>
+        <inputEntry id="host-does-everything-in-3"><text>"leave the space","rename a space","end a space","manage who is in the space","make the game choice"</text></inputEntry>
+        <outputEntry id="host-does-everything-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="host-does-everything-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="joined-may-leave">
+        <description>Someone who joined may leave the space.</description>
+        <inputEntry id="joined-may-leave-in-1"><text>-</text></inputEntry>
+        <inputEntry id="joined-may-leave-in-2"><text>"joined"</text></inputEntry>
+        <inputEntry id="joined-may-leave-in-3"><text>"leave the space"</text></inputEntry>
+        <outputEntry id="joined-may-leave-out-1"><text>"yes"</text></outputEntry>
+        <outputEntry id="joined-may-leave-out-2"><text>"none"</text></outputEntry>
+      </rule>
+      <rule id="joined-not-host">
+        <description>Only the host renames, ends or manages the space or makes the game choice.</description>
+        <inputEntry id="joined-not-host-in-1"><text>-</text></inputEntry>
+        <inputEntry id="joined-not-host-in-2"><text>"joined"</text></inputEntry>
+        <inputEntry id="joined-not-host-in-3"><text>"rename a space","end a space","manage who is in the space","make the game choice"</text></inputEntry>
+        <outputEntry id="joined-not-host-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="joined-not-host-out-2"><text>"only the host"</text></outputEntry>
+      </rule>
+      <rule id="outsider-nothing">
+        <description>Someone who is not in the space may do nothing in it.</description>
+        <inputEntry id="outsider-nothing-in-1"><text>-</text></inputEntry>
+        <inputEntry id="outsider-nothing-in-2"><text>"not in it"</text></inputEntry>
+        <inputEntry id="outsider-nothing-in-3"><text>"leave the space","rename a space","end a space","manage who is in the space","make the game choice"</text></inputEntry>
+        <outputEntry id="outsider-nothing-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="outsider-nothing-out-2"><text>"not in the space"</text></outputEntry>
+      </rule>
+    </decisionTable>
+  </decision>
+</definitions>
