@@ -70,6 +70,27 @@ export class AccountDeviceMembership {
     return [...left].sort();
   }
 
+  /**
+   * No device is signed into `accountId` any more (it has no sign-in method
+   * left, so every session of it ended): tombstone every live membership at
+   * once, instead of waiting for each device to come back as a guest. Returns
+   * the devices that left.
+   */
+  async endAll(accountId: string): Promise<readonly string[]> {
+    const rows = await this.tx.query(sql<{
+      readonly id: string;
+      readonly device_id: string;
+    }>`
+      SELECT id, device_id
+      FROM auth_account_devices
+      WHERE user_id = ${accountId} AND deleted_at IS NULL
+      ORDER BY id
+    `);
+    const now = managedUpdatedAtIso(this.time.now);
+    for (const row of rows) await this.setDeleted(row.id, now);
+    return rows.map((row) => row.device_id);
+  }
+
   private async rowsFor(deviceId: string): Promise<readonly MembershipRow[]> {
     return await this.tx.query(sql<MembershipRow>`
       SELECT id, user_id, deleted_at
