@@ -35,7 +35,7 @@ async function scriptBindings(
     .result.bindings;
 }
 
-Then('live spaces can run in this environment', async (w) => {
+Then('spaces can open in this environment', async (w) => {
   const bindings = await scriptBindings(w.http, workerName(w.env, 'room'));
   expect(bindings).toContainEqual(
     expect.objectContaining({
@@ -46,7 +46,7 @@ Then('live spaces can run in this environment', async (w) => {
   );
 });
 
-Then('the app can reach the live spaces', async (w) => {
+Then('the app can take people into a space', async (w) => {
   const bindings = await scriptBindings(w.http, workerName(w.env, 'api'));
   expect(bindings).toContainEqual(
     expect.objectContaining({

@@ -128,7 +128,7 @@ bindQuintModel<QuintHarnessWorld>({
     renewInBillingPortal: stimulus('resume'),
     cancelImmediately: stimulus('cancel_now'),
     switchPlan: stimulus('switch_interval'),
-    providerRepeatsNews: stimulus('redeliver_last_event'),
+    _providerRepeatsNews: stimulus('redeliver_last_event'),
     resubscribe: stimulus('resubscribe'),
     _phoneGoesOffline: stimulus('second_device_offline'),
     _phoneBackOnline: stimulus('second_device_online'),

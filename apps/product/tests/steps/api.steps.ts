@@ -109,7 +109,7 @@ Then('everything the app needs to answer people is ready', async (w) => {
  * code is refused, but the refusal must still be readable cross-origin — a
  * missing `Access-Control-Allow-Origin` silently breaks every sign-in.
  */
-When('a person on the web completes a sign-in', async (w) => {
+When('a person on the web finishes signing in', async (w) => {
   const res = await w.http.fetch(`${w.origins.api}/api/auth/session`, {
     method: 'POST',
     headers: { origin: w.origins.web, 'content-type': 'application/json' },
@@ -119,7 +119,7 @@ When('a person on the web completes a sign-in', async (w) => {
   w.memo.set(SIGN_IN_ANSWER, res);
 });
 
-Then('the app on the web hears whether the sign-in worked', (w) => {
+Then('the app on the web knows whether they are signed in', (w) => {
   const res = w.memo.get(SIGN_IN_ANSWER) as Response;
   expect(res.status, 'the API did not answer the exchange').toBeLessThan(500);
   expect(res.headers.get('access-control-allow-origin')).toBe(w.origins.web);

@@ -2,7 +2,8 @@
  * `specs/runtime/app-platform.qnt` against the full production composition:
  * people opening the app, moving between tabs and Settings, signing in,
  * searching for each other and hosting spaces, while they are cut off and
- * reconnect and the app's serving capacity grows and shrinks. Every step also
+ * reconnect and the machines the app runs on come and go (`_capacity`,
+ * `_gainCapacity`, `_loseCapacity`, `_cutOffOnTheWay`). Every step also
  * checks the composition's standing properties (no error boundary, the global
  * menu reachable, search never hangs, …). The model's state is read back off
  * each person's place in the app, their account and the app's capacity.
@@ -156,16 +157,16 @@ bindQuintModel<QuintHarnessWorld>({
     cutOff: async (w, picks) => {
       await w.s.apply(partition, pick(picks, 'person'));
     },
-    cutOffOnTheWay: async (w, picks) => {
+    _cutOffOnTheWay: async (w, picks) => {
       await w.s.apply(cutOffOnTheWay, pick(picks, 'person'));
     },
     reconnect: async (w) => {
       await w.s.apply(restoreNetwork);
     },
-    gainCapacity: async (w) => {
+    _gainCapacity: async (w) => {
       await w.s.apply(gainCapacityPart);
     },
-    loseCapacity: async (w, picks) => {
+    _loseCapacity: async (w, picks) => {
       const parts = await w.s.read(capacityParts);
       const part = parts[Number(picks['part'])];
       if (part === undefined)
@@ -189,7 +190,7 @@ bindQuintModel<QuintHarnessWorld>({
         signedIn.add(actor);
       }
     }
-    const capacity = (await w.quiet.read(capacityParts)).length;
-    return { opened, place, signedIn, lookup, capacity };
+    const _capacity = (await w.quiet.read(capacityParts)).length;
+    return { opened, place, signedIn, lookup, _capacity };
   },
 });

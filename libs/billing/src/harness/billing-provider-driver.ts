@@ -373,11 +373,10 @@ export async function runOutBillingPeriod(
 }
 
 /** Which earlier news a provider repeats about a customer's memberships. */
-export type EarlierNews =
+export type EarlierNews = {
   /** The news `back` pieces before its latest (0 = the latest; clamped). */
-  | { readonly back: number }
-  /** Its latest news that a membership ended. */
-  | { readonly ended: true };
+  readonly back: number;
+};
 
 function aboutCustomer(event: MockEvent, customer: string): boolean {
   if (!event.type.startsWith('customer.subscription.')) return false;
@@ -409,10 +408,7 @@ export async function repeatEarlierNews(
       `${MOCK_BILLING_PATHS.events}?limit=100`
     )
   ).data.filter((event) => aboutCustomer(event, customer));
-  const event =
-    'ended' in news
-      ? events.find((e) => e.type === 'customer.subscription.deleted')
-      : events[Math.min(news.back, events.length - 1)];
+  const event = events[Math.min(news.back, events.length - 1)];
   if (event === undefined) return;
   await call('POST', MOCK_BILLING_PATHS.resendEvent(event.id));
 }

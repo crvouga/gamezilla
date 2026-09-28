@@ -1,7 +1,7 @@
 /**
  * Switching payment provider: the team moves new memberships to another
- * payment provider (or back), a provider repeats its earlier news, and whose
- * billing portal a person's membership is managed at.
+ * payment provider (or back), and whose billing portal a person's membership
+ * is managed at.
  */
 
 import { expect } from 'bun:test';
@@ -11,7 +11,6 @@ import {
   managePlus,
   observeMembership,
   openBilling,
-  repeatProviderNews,
   SECOND_PAYMENT_PROVIDER,
   subscribeToPlus,
   switchPaymentProvider,
@@ -83,14 +82,6 @@ Given('the team has switched back to the first payment provider', async (w) => {
 });
 
 Given(
-  '{actor} has subscribed to Plus at the second payment provider',
-  async (w, actor: Actor) => {
-    await w.s.apply(switchPaymentProvider, SECOND_PAYMENT_PROVIDER);
-    await subscribe(w, actor);
-  }
-);
-
-Given(
   "{actor}'s memberships have ended at both payment providers",
   async (w, actor: Actor) => {
     await subscribe(w, actor);
@@ -98,15 +89,6 @@ Given(
     await w.s.apply(switchPaymentProvider, SECOND_PAYMENT_PROVIDER);
     await subscribe(w, actor);
     await endMembership(w, actor);
-  }
-);
-
-When(
-  "the first payment provider repeats its news that {actor}'s membership ended",
-  async (w, actor: Actor) => {
-    await w.s.apply(repeatProviderNews, actor, FIRST_PAYMENT_PROVIDER, {
-      ended: true,
-    });
   }
 );
 

@@ -119,7 +119,7 @@ When("{actor}'s payment recovers", async (w, actor: Actor) => {
 });
 
 When(
-  "the provider gives up retrying {actor}'s payment",
+  "the payment provider gives up on {actor}'s payment",
   async (w, actor: Actor) => {
     await observe(w, actor, 'payment_retries_exhausted');
   }

@@ -10,7 +10,7 @@ import { Then } from './define';
 import { requireSecret } from './live-world';
 
 Then(
-  "this environment keeps its files apart from every other environment's",
+  "this environment keeps its uploads apart from every other environment's",
   (w) => {
     expect(requireSecret(S3SecretName.bucket)).toBe(
       envResourceNames(w.env).bucket
@@ -19,7 +19,7 @@ Then(
 );
 
 /** The app's key writes, reads back and deletes a file under its root prefix. */
-Then('the app can keep a file, read it back and remove it', async (w) => {
+Then('the app can keep an upload, show it again and remove it', async (w) => {
   const store = createS3ObjectStore({
     accessKeyId: requireSecret(S3SecretName.accessKeyId),
     secretAccessKey: requireSecret(S3SecretName.secretAccessKey),

@@ -187,29 +187,26 @@ Given(
   }
 );
 
-Given(
-  'a puzzle file with two valid puzzles and five invalid ones has been imported',
-  async (w) => {
-    const valid = FULL_INGEST_ROWS.filter((row) => row.valid);
-    const rejected = FULL_INGEST_ROWS.filter((row) => !row.valid);
-    if (valid.length !== 2 || rejected.length !== 5) {
-      throw new Error('the import fixture is not two valid and five invalid');
-    }
-    // The import beside the three documented puzzles, so a pass through
-    // the feed stays within a guest's day and reaches every import.
-    await retireFeedPool(w);
-    await w.s.apply(ingestChessPuzzleCsv, ingestCsv(FULL_INGEST_ROWS));
-    remember(
-      w,
-      REJECTED,
-      rejected.map((row: IngestRow) => row.id)
-    );
-    remember(w, SERVABLE_KEY, [
-      ...STANDARD_PUZZLE_IDS,
-      ...valid.map((row) => row.id),
-    ]);
+Given('the team has added seven puzzles, five of them broken', async (w) => {
+  const valid = FULL_INGEST_ROWS.filter((row) => row.valid);
+  const rejected = FULL_INGEST_ROWS.filter((row) => !row.valid);
+  if (valid.length !== 2 || rejected.length !== 5) {
+    throw new Error('the added puzzles are not two good and five broken');
   }
-);
+  // The import beside the three documented puzzles, so a pass through
+  // the feed stays within a guest's day and reaches every import.
+  await retireFeedPool(w);
+  await w.s.apply(ingestChessPuzzleCsv, ingestCsv(FULL_INGEST_ROWS));
+  remember(
+    w,
+    REJECTED,
+    rejected.map((row: IngestRow) => row.id)
+  );
+  remember(w, SERVABLE_KEY, [
+    ...STANDARD_PUZZLE_IDS,
+    ...valid.map((row) => row.id),
+  ]);
+});
 
 // ------------------------------------------------- passes through the feed
 
@@ -248,7 +245,7 @@ Then(
 );
 
 Then(
-  'none of the rejected puzzles was served to {actor}',
+  'none of the broken puzzles was served to {actor}',
   async (w, actor: Actor) => {
     const ids = servedInPass(w, actor).map((s) => s.id);
     expect(ids.length).toBeGreaterThan(0);

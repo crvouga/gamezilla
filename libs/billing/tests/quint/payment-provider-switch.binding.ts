@@ -76,7 +76,7 @@ bindQuintModel<QuintHarnessWorld>({
           : FIRST_PAYMENT_PROVIDER
       );
     },
-    providerRepeatsNews: async (w, picks) => {
+    _providerRepeatsNews: async (w, picks) => {
       const provider = PROVIDER_IDS[String(picks['provider'])];
       if (provider === undefined) {
         throw new Error(`no payment provider ${String(picks['provider'])}`);

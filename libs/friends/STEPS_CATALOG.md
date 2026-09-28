@@ -191,7 +191,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/friends/people-search.feature` — People search (5 scenarios)
 - `specs/friends/social-needs-connection.feature` — Friends need a connection (2 scenarios)
 - `specs/spaces/space-create.feature` — Create a space (1 scenarios)
-- `specs/spaces/space-disconnect-reconnect.feature` — Disconnect and reconnect (5 scenarios)
+- `specs/spaces/space-disconnect-reconnect.feature` — Losing the connection in a space (5 scenarios)
 - `specs/spaces/space-end.feature` — End a space (1 scenarios)
 - `specs/spaces/space-friend-join.feature` — A friend joins from the lobby (1 scenarios)
 - `specs/spaces/space-guest-host.feature` — A guest can host (2 scenarios)

@@ -26,7 +26,7 @@ function foundationSecret(name: string): string {
 }
 
 /** The Workers send traces to the Grafana OTLP gateway, with a write token it accepts. */
-Then('the app can record what each request did', async (w) => {
+Then('the app leaves a trail of what it does for people', async (w) => {
   const url = new URL(foundationSecret(Name.collectorUrl));
   expect(url.protocol).toBe('https:');
   expect(url.pathname).toEndWith('/otlp/v1/traces');
@@ -44,16 +44,19 @@ Then('the app can record what each request did', async (w) => {
 });
 
 /** The agents' read token can query Tempo. */
-Then('the team can look up what a request did', async (w) => {
-  const ok = await eventually(
-    () =>
-      probeQuery(
-        w.http,
-        foundationSecret(Name.tempoUrl),
-        foundationSecret(Name.tempoUser),
-        foundationSecret(Name.tempoToken)
-      ),
-    { maxWaitMs: TOKEN_WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
-  );
-  expect(ok, 'Tempo rejected the read token').toBe(true);
-});
+Then(
+  'the team can follow the trail of what the app did for someone',
+  async (w) => {
+    const ok = await eventually(
+      () =>
+        probeQuery(
+          w.http,
+          foundationSecret(Name.tempoUrl),
+          foundationSecret(Name.tempoUser),
+          foundationSecret(Name.tempoToken)
+        ),
+      { maxWaitMs: TOKEN_WARMUP_MS, retryMs: RETRY_MS, ...wallWait }
+    );
+    expect(ok, 'Tempo rejected the read token').toBe(true);
+  }
+);

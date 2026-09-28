@@ -62,7 +62,7 @@ Given('a person is signed in on a fresh device', async (w) => {
   await w.journey.open('signed-in');
 });
 
-Then('the app finishes booting into the tabs', async (w) => {
+Then('the app gets past its opening screen onto the tabs', async (w) => {
   await w.journey.act('appBooted', appBooted);
 });
 
