@@ -4,6 +4,7 @@ import {
   IDP_PASSWORD,
   IDP_TEST_IDS,
 } from '@pkgs/idp-mock/shared';
+import { GOOGLE_CLIENT } from './example-app';
 import {
   createIdpFixture,
   formBody,
@@ -11,18 +12,17 @@ import {
   requestIdOf,
   submitIdentifier,
   submitPassword,
-  TEST_CLIENT,
 } from './harness';
 import { createJWKSSet, jwtVerify } from './verify';
 
-const REDIRECT_URI = TEST_CLIENT.redirectUris[0] ?? '';
+const REDIRECT_URI = GOOGLE_CLIENT.redirectUris[0] ?? '';
 const VERIFIER = 'a'.repeat(64);
 /** S256 challenge for VERIFIER, computed by the relying-party side. */
 const CHALLENGE = '_-BU_nrgy23GXDr5th1SCfQ5hR20PQulmXM33xVGaOs';
 
 function authorizeUrl(overrides: Record<string, string> = {}): string {
   const params = new URLSearchParams({
-    client_id: TEST_CLIENT.clientId,
+    client_id: GOOGLE_CLIENT.clientId,
     redirect_uri: REDIRECT_URI,
     response_type: 'code',
     scope: 'openid email profile',
@@ -78,8 +78,8 @@ async function exchange(
   return await idpFetch(
     '/token',
     formBody({
-      client_id: TEST_CLIENT.clientId,
-      client_secret: TEST_CLIENT.clientSecret,
+      client_id: GOOGLE_CLIENT.clientId,
+      client_secret: GOOGLE_CLIENT.clientSecret,
       code,
       code_verifier: VERIFIER,
       grant_type: 'authorization_code',
@@ -131,12 +131,12 @@ describe('simulated google idp', () => {
       createJWKSSet(certs as { keys: unknown[] }),
       {
         issuer: 'https://idp.test',
-        audience: TEST_CLIENT.clientId,
+        audience: GOOGLE_CLIENT.clientId,
         currentDate: new Date(Date.parse('2024-06-01T00:10:00.000Z')),
       }
     );
     expect(verified.payload['email']).toBe('alice@gmail.com');
-    expect(verified.payload['azp']).toBe(TEST_CLIENT.clientId);
+    expect(verified.payload['azp']).toBe(GOOGLE_CLIENT.clientId);
     expect(typeof verified.payload['at_hash']).toBe('string');
   });
 

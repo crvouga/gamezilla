@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { idpSubOf } from '@pkgs/idp-mock/shared';
 import { decodeJwt } from 'jose';
-
+import { GOOGLE_CLIENT } from './example-app';
 import {
   authorizeUrl,
   codeOf,
@@ -9,7 +9,6 @@ import {
   exchangeBody,
   type IdpFixture,
   signInWithPassword,
-  TEST_CLIENT,
 } from './harness';
 import { createJWKSSet, jwtVerify } from './verify';
 
@@ -88,7 +87,7 @@ describe('google-flavored quirks relying parties must survive', () => {
     expect(certs.keys).toHaveLength(2);
     const jwks = createJWKSSet(certs);
     const options = {
-      audience: TEST_CLIENT.clientId,
+      audience: GOOGLE_CLIENT.clientId,
       currentDate: new Date(fixture.clock.now()),
     };
     await jwtVerify(before['id_token'] ?? '', jwks, options);
@@ -105,13 +104,13 @@ describe('google-flavored quirks relying parties must survive', () => {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         sub: idpSubOf('bob@gmail.com'),
-        clientId: TEST_CLIENT.clientId,
+        clientId: GOOGLE_CLIENT.clientId,
       }),
     });
     expect(
       await fixture.store.hasGrant(
         idpSubOf('bob@gmail.com'),
-        TEST_CLIENT.clientId,
+        GOOGLE_CLIENT.clientId,
         ['openid']
       )
     ).toBe(false);

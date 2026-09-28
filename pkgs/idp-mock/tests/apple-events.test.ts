@@ -2,8 +2,6 @@ import { describe, expect, test } from 'bun:test';
 import { appleSubOf } from '@pkgs/idp-mock/shared';
 
 import {
-  APPLE_CLIENT_ID,
-  APPLE_NOTIFICATION_URL,
   type AppleFixture,
   appleAuthorizeUrl,
   appleConsent,
@@ -11,6 +9,7 @@ import {
   createAppleFixture,
   formPostFields,
 } from './apple-harness';
+import { APPLE_CLIENT_ID, APPLE_NOTIFICATION_URL } from './example-app';
 import { createJWKSSet, jwtVerify } from './verify';
 
 const ALICE = appleSubOf('alice@icloud.com');

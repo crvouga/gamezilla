@@ -1,4 +1,7 @@
-/** Shared fixture: an IdP wired to a virtual clock and a seeded id stream. */
+/**
+ * Shared fixture: an IdP wired to a virtual clock and a seeded id stream,
+ * with the example app (`./example-app`) as its client.
+ */
 
 import type { HttpClient } from '@pkgs/http-client';
 import {
@@ -22,12 +25,7 @@ import {
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 
-export const TEST_CLIENT: IdpClient = {
-  clientId: 'test-client.apps.googleusercontent.com',
-  clientSecret: 'test-client-secret',
-  redirectUris: ['https://app.test/api/auth/callback/google'],
-  appName: 'Test App',
-};
+import { GOOGLE_CLIENT } from './example-app';
 
 /** A clock a test can move, because every TTL here is time-based. */
 export type TestClock = {
@@ -103,7 +101,7 @@ export async function openIdpFixture(
   });
   const idp = await createIdpMockApp({
     store,
-    clients: args.clients ?? [TEST_CLIENT],
+    clients: args.clients ?? [GOOGLE_CLIENT],
     accounts: args.accounts ?? defaultAccountsFor(provider),
     issuer: 'https://idp.test',
     ...(args.http === undefined ? {} : { http: args.http }),
@@ -185,8 +183,8 @@ export function hiddenFieldsOf(html: string): Record<string, string> {
 /** One `/o/oauth2/v2/auth` URL with the fixture client's own redirect URI. */
 export function authorizeUrl(overrides: Record<string, string> = {}): string {
   const params = new URLSearchParams({
-    client_id: TEST_CLIENT.clientId,
-    redirect_uri: TEST_CLIENT.redirectUris[0] ?? '',
+    client_id: GOOGLE_CLIENT.clientId,
+    redirect_uri: GOOGLE_CLIENT.redirectUris[0] ?? '',
     response_type: 'code',
     scope: 'openid email profile',
     state: 'state-123',
@@ -291,11 +289,11 @@ export function exchangeBody(args: {
   readonly extra?: Record<string, string>;
 }): RequestInit {
   return formBody({
-    client_id: TEST_CLIENT.clientId,
-    client_secret: TEST_CLIENT.clientSecret,
+    client_id: GOOGLE_CLIENT.clientId,
+    client_secret: GOOGLE_CLIENT.clientSecret,
     code: args.code,
     grant_type: 'authorization_code',
-    redirect_uri: args.redirectUri ?? TEST_CLIENT.redirectUris[0] ?? '',
+    redirect_uri: args.redirectUri ?? GOOGLE_CLIENT.redirectUris[0] ?? '',
     ...args.extra,
   });
 }

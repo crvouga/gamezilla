@@ -19,7 +19,7 @@ import {
   IDP_PASSWORD,
 } from '@pkgs/idp-mock/shared';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-
+import { GOOGLE_CLIENT } from './example-app';
 import {
   allowConsent,
   authorizeUrl,
@@ -33,7 +33,6 @@ import {
   openIdpFixture,
   requestIdOf,
   signInWithPassword,
-  TEST_CLIENT,
 } from './harness';
 
 type Json = Record<string, unknown>;
@@ -247,7 +246,7 @@ describe('idp expiry + reset', () => {
     expect(state['grants']).toEqual([]);
     expect(state['pendingAuthRequests']).toBe(0);
     expect(state['liveAccessTokens']).toBe(0);
-    expect(state['clients']).toEqual([TEST_CLIENT.clientId]);
+    expect(state['clients']).toEqual([GOOGLE_CLIENT.clientId]);
     const accounts = state['accounts'] as readonly { readonly email: string }[];
     expect(accounts.map((a) => a.email)).toContain('alice@gmail.com');
   });

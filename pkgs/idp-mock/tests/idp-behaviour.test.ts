@@ -4,7 +4,7 @@ import {
   IDP_PASSWORD,
   IDP_TEST_IDS,
 } from '@pkgs/idp-mock/shared';
-
+import { GOOGLE_CLIENT } from './example-app';
 import {
   createIdpFixture,
   formBody,
@@ -13,14 +13,13 @@ import {
   requestIdOf,
   submitIdentifier,
   submitPassword,
-  TEST_CLIENT,
 } from './harness';
 
-const REDIRECT_URI = TEST_CLIENT.redirectUris[0] ?? '';
+const REDIRECT_URI = GOOGLE_CLIENT.redirectUris[0] ?? '';
 
 function authorizeUrl(overrides: Record<string, string> = {}): string {
   return `/o/oauth2/v2/auth?${new URLSearchParams({
-    client_id: TEST_CLIENT.clientId,
+    client_id: GOOGLE_CLIENT.clientId,
     redirect_uri: REDIRECT_URI,
     response_type: 'code',
     scope: 'openid email profile',
@@ -193,8 +192,8 @@ describe('idp faults', () => {
       await browser.fetch(
         '/token',
         formBody({
-          client_id: TEST_CLIENT.clientId,
-          client_secret: TEST_CLIENT.clientSecret,
+          client_id: GOOGLE_CLIENT.clientId,
+          client_secret: GOOGLE_CLIENT.clientSecret,
           code,
           grant_type: 'authorization_code',
           redirect_uri: REDIRECT_URI,
@@ -206,8 +205,8 @@ describe('idp faults', () => {
     const refreshed = await browser.fetch(
       '/token',
       formBody({
-        client_id: TEST_CLIENT.clientId,
-        client_secret: TEST_CLIENT.clientSecret,
+        client_id: GOOGLE_CLIENT.clientId,
+        client_secret: GOOGLE_CLIENT.clientSecret,
         refresh_token: first['refresh_token'] ?? '',
         grant_type: 'refresh_token',
       })

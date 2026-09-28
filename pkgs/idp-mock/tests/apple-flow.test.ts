@@ -3,8 +3,6 @@ import { IDP_TEST_IDS } from '@pkgs/idp-mock/shared';
 import { decodeJwt } from 'jose';
 
 import {
-  APPLE_CLIENT_ID,
-  APPLE_REDIRECT_URI,
   type AppleFixture,
   appleAuthorizeUrl,
   appleConsent,
@@ -14,6 +12,7 @@ import {
   formPostAction,
   formPostFields,
 } from './apple-harness';
+import { APPLE_CLIENT_ID, APPLE_REDIRECT_URI } from './example-app';
 import { createJWKSSet, jwtVerify } from './verify';
 
 const APPLE_SUB = /^\d{6}\.[0-9a-f]{32}\.\d{4}$/;

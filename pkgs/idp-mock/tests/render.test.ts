@@ -19,7 +19,7 @@ import {
   type IdpAccount,
   type IdpScreenState,
 } from '@pkgs/idp-mock/shared';
-
+import { EXAMPLE_APP_NAME } from './example-app';
 import { createIdpFixture, screenStateOf } from './harness';
 
 const ACCOUNT: IdpAccount = {
@@ -38,7 +38,7 @@ const STATES: readonly IdpScreenState[] = [
   {
     kind: 'identifier',
     requestId: 'req-1',
-    appName: 'Test App',
+    appName: EXAMPLE_APP_NAME,
     email: '',
     error: null,
     accounts: [ACCOUNT],
@@ -46,7 +46,7 @@ const STATES: readonly IdpScreenState[] = [
   {
     kind: 'password',
     requestId: 'req-1',
-    appName: 'Test App',
+    appName: EXAMPLE_APP_NAME,
     account: ACCOUNT,
     error: null,
     hasPasskey: false,
@@ -54,13 +54,13 @@ const STATES: readonly IdpScreenState[] = [
   {
     kind: 'chooser',
     requestId: 'req-1',
-    appName: 'Test App',
+    appName: EXAMPLE_APP_NAME,
     accounts: [ACCOUNT],
   },
   {
     kind: 'create-account',
     requestId: 'req-1',
-    appName: 'Test App',
+    appName: EXAMPLE_APP_NAME,
     name: '',
     email: '',
     error: null,
@@ -68,7 +68,7 @@ const STATES: readonly IdpScreenState[] = [
   {
     kind: 'consent',
     requestId: 'req-1',
-    appName: 'Test App',
+    appName: EXAMPLE_APP_NAME,
     account: ACCOUNT,
     scopes: ['openid', 'email', 'profile'],
     apple: null,
