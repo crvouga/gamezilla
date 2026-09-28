@@ -296,7 +296,7 @@
   "@pkgs/pubsub-emqx#lint": 2,
   "@pkgs/pubsub-emqx#tc": 1,
   "@pkgs/pubsub-emqx#test": 1,
-  "@pkgs/pubsub-emqx#test:contract": 33,
+  "@pkgs/pubsub-emqx#test:contract": 8,
   "@pkgs/pubsub-mqtt#lint": 3,
   "@pkgs/pubsub-mqtt#tc": 1,
   "@pkgs/pubsub-mqtt#test": 1,
