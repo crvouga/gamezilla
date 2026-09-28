@@ -42,7 +42,10 @@ type Job = {
   readonly conclusion: string | null;
   readonly completed_at: string | null;
 };
-type RunsPage = { readonly total_count: number; readonly workflow_runs: readonly Run[] };
+type RunsPage = {
+  readonly total_count: number;
+  readonly workflow_runs: readonly Run[];
+};
 type JobsPage = { readonly total_count: number; readonly jobs: readonly Job[] };
 
 async function getJson<T>(source: GitHubSource, path: string): Promise<T> {
@@ -75,7 +78,10 @@ async function allPages<P, T>(input: {
   }
 }
 
-function healthRuns(source: GitHubSource, sinceMs: number): Promise<readonly Run[]> {
+function healthRuns(
+  source: GitHubSource,
+  sinceMs: number
+): Promise<readonly Run[]> {
   const created = encodeURIComponent(`>=${new Date(sinceMs).toISOString()}`);
   const base = `/repos/${source.repository}/actions/workflows/${HEALTH_WORKFLOW_FILE}/runs?created=${created}&per_page=${String(PER_PAGE)}`;
   return allPages<RunsPage, Run>({

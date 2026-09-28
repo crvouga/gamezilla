@@ -96,15 +96,22 @@ type Mapping = Readonly<Record<string, unknown>>;
 type At = { readonly path: string; readonly issues: string[] };
 
 function at(parent: At, key: string | number): At {
-  const part = typeof key === 'number' ? `[${String(key)}]` : key;
+  const path =
+    typeof key === 'number'
+      ? `${parent.path}[${String(key)}]`
+      : parent.path === ''
+        ? key
+        : `${parent.path}.${key}`;
   return {
-    path: parent.path === '' ? part : `${parent.path}.${part}`,
+    path,
     issues: parent.issues,
   };
 }
 
 function report(where: At, message: string): void {
-  where.issues.push(`${where.path === '' ? 'the manifest' : where.path}: ${message}`);
+  where.issues.push(
+    `${where.path === '' ? 'the manifest' : where.path}: ${message}`
+  );
 }
 
 function isMapping(value: unknown): value is Mapping {
@@ -180,7 +187,10 @@ function records<T extends { readonly id: string }>(
     const entry = mapping(here, item, keys);
     if (entry !== null) out.push(read(entry, here));
   }
-  unique(where, out.map((entry) => entry.id));
+  unique(
+    where,
+    out.map((entry) => entry.id)
+  );
   return out;
 }
 
@@ -190,17 +200,27 @@ function known<T extends string>(
   allowed: readonly T[]
 ): value is T {
   if ((allowed as readonly string[]).includes(value)) return true;
-  report(where, `"${value}" is not one of ${allowed.map((a) => `"${a}"`).join(', ')}`);
+  report(
+    where,
+    `"${value}" is not one of ${allowed.map((a) => `"${a}"`).join(', ')}`
+  );
   return false;
 }
 
-function inContexts(where: At, context: string, contexts: readonly string[]): void {
+function inContexts(
+  where: At,
+  context: string,
+  contexts: readonly string[]
+): void {
   if (context !== '' && !contexts.includes(context)) {
     report(where, `"${context}" is not one of product.contexts`);
   }
 }
 
-function readProduct(where: At, value: unknown): ConformanceManifest['product'] {
+function readProduct(
+  where: At,
+  value: unknown
+): ConformanceManifest['product'] {
   const product = mapping(where, value, [
     'contexts',
     'tiers',
@@ -252,7 +272,10 @@ function readConformance(
   for (const kind of CONFORMANCE_KINDS) {
     const level = conformance?.[kind];
     if (level !== undefined && level !== 'required') {
-      report(at(where, kind), `must be "required", not ${JSON.stringify(level)}`);
+      report(
+        at(where, kind),
+        `must be "required", not ${JSON.stringify(level)}`
+      );
     }
   }
   return Object.fromEntries(

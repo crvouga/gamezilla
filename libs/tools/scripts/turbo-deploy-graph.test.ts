@@ -60,6 +60,7 @@ const CHECK_LEAVES = [
   '//#ci:workspace-lifecycle',
   '//#ci:goals',
   '//#ci:specs',
+  '//#ci:conformance',
   '//#ci:spec-ownership',
   'tc',
   'lint',

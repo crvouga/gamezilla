@@ -21,6 +21,13 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # `protection: "production"` run in the GitHub `production` environment and
 # keep their critical-journey evidence on failure. Scenarios only production
 # can run (`HOST_LIMITS` in apps/product/scripts/health.ts) skip elsewhere.
+#
+# Then health:objectives checks each environment's service level objectives
+# (specs/health/*.openslo.yaml, `health:objectives` in @apps/product), such as
+# "at least 99 in every 100 of the team's checks find the app answering":
+# measured over the last 28 days of the health:<env> jobs above, read back
+# from the Actions API (hence `actions: read`). Objectives never run inside
+# `health`, which gates every deploy: a bad month must not block a fix.
 
 permissions:
   contents: read
@@ -99,3 +106,33 @@ jobs:
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 14
+
+  # One job for every env, not a matrix: a per-env job would be named
+  # health:<env>, the very checks the availability objective counts. Runs
+  # after the checks (whatever their result) so this run's checks count too.
+  health-objectives:
+    name: health:objectives
+    needs: [health-matrix, health-env]
+    if: ${{ !cancelled() && needs.health-matrix.outputs.all != '[]' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      actions: read
+    env:
+      ENVS: ${{ needs.health-matrix.outputs.all }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup
+
+      # Every env is checked even when one misses its objectives.
+      - name: health:objectives
+        run: |
+          status=0
+          for env in $(jq -r '.[]' <<< "$ENVS"); do
+            SECRETS_ENV="$env" bun run --filter @apps/product health:objectives || status=1
+          done
+          exit "$status"

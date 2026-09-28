@@ -896,6 +896,7 @@
       },
       "devDependencies": {
         "@libs/test-ids": "workspace:*",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/bun-test-solid": "workspace:*",
         "@pkgs/harness": "workspace:*",
         "@pkgs/kv": "workspace:*",
@@ -1113,6 +1114,17 @@
       },
       "devDependencies": {
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/a11y": {
+      "name": "@pkgs/a11y",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@pkgs/property": "workspace:*",
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "happy-dom": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3016,6 +3028,7 @@
         "@dicebear/core": "catalog:",
         "@lingui/core": "catalog:",
         "@lingui/solid": "catalog:",
+        "@pkgs/a11y": "workspace:*",
         "@pkgs/assert": "workspace:*",
         "@pkgs/async": "workspace:*",
         "@pkgs/clock": "workspace:*",
@@ -4070,6 +4083,8 @@
     "@parcel/watcher-win32-ia32": ["@parcel/watcher-win32-ia32@2.5.1", "", { "os": "win32", "cpu": "ia32" }, "sha512-c2KkcVN+NJmuA7CGlaGD1qJh1cLfDnQsHjE89E60vUEMlqduHGCdCLJCID5geFVM0dOtA3ZiIO8BoEQmzQVfpQ=="],
 
     "@parcel/watcher-win32-x64": ["@parcel/watcher-win32-x64@2.5.1", "", { "os": "win32", "cpu": "x64" }, "sha512-9lHBdJITeNR++EvSQVUcaZoWupyHfXe1jZvGZ06O/5MflPcuPLtEphScIBL+AiCWBO46tDSHzWyD0uDmmZqsgA=="],
+
+    "@pkgs/a11y": ["@pkgs/a11y@workspace:pkgs/a11y"],
 
     "@pkgs/aedes-server": ["@pkgs/aedes-server@workspace:pkgs/aedes-server"],
 
