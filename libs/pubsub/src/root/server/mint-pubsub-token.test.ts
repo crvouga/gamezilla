@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import { jwtVerify } from 'jose';
 
 import { mintPubSubToken } from './mint-pubsub-token';
@@ -11,7 +11,7 @@ const TOKEN_TTL_SEC = 15 * 60;
 describe('mintPubSubToken', () => {
   test('embeds subscribe+publish ACL for the actor and whatever features granted', async () => {
     const secret = 'test-secret';
-    const { clock } = createSimClock({ startMs: START_MS });
+    const { clock } = createHarnessClock({ startMs: START_MS });
     const { token, expiresAt } = await mintPubSubToken({
       secret,
       actorId: 'actor1',

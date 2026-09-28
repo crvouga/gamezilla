@@ -10,11 +10,11 @@ import { expect } from 'bun:test';
 import {
   playNextSolutionMove,
   suggestNonSolutionMove,
-} from '@libs/chess/sim/chess-actions';
+} from '@libs/chess/harness/chess-actions';
 import {
   attemptHostPuzzleCommand,
   type HostPuzzleCommand,
-} from '@libs/chess/sim/chess-puzzle-room-probe';
+} from '@libs/chess/harness/chess-puzzle-room-probe';
 import {
   isPuzzleSolved,
   type PuzzleSpectatorProbe,
@@ -23,17 +23,17 @@ import {
   readPuzzleDisplayFen,
   readPuzzleSpectator,
   readPuzzleStatus,
-} from '@libs/chess/sim/chess-puzzle-ui';
+} from '@libs/chess/harness/chess-puzzle-ui';
 import { joinSpaceFromLink } from '@libs/friends/steps/spaces.steps';
-import { focusActor } from '@libs/sim-harness';
+import { focusActor } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { accountIdOf } from '@libs/sim-harness/system/identity';
+} from '@libs/harness/spec/define';
+import { accountIdOf } from '@libs/harness/system/identity';
 import {
   activePuzzle,
   rememberBoard,
@@ -44,7 +44,7 @@ import {
 
 type Suggestions = PuzzleSpectatorProbe['recommendations'];
 
-async function spectatorProbe(w: SimWorld, actor: Actor) {
+async function spectatorProbe(w: HarnessWorld, actor: Actor) {
   await w.s.apply(focusActor, actor);
   return required(
     await w.s.read(readPuzzleSpectator, actor),
@@ -54,7 +54,7 @@ async function spectatorProbe(w: SimWorld, actor: Actor) {
 
 /** Wait until `actor` sees exactly one suggestion, and it is `watcher`'s. */
 async function untilOnlySuggestionBy(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   watcher: Actor
 ): Promise<Suggestions> {
@@ -70,7 +70,7 @@ async function untilOnlySuggestionBy(
 
 /** Wait until `watcher` is watching the puzzle now on `host`'s board. */
 async function untilWatching(
-  w: SimWorld,
+  w: HarnessWorld,
   watcher: Actor,
   host: Actor,
   maxMs: number
@@ -92,7 +92,7 @@ async function untilWatching(
 
 /** `second`'s board comes to show the position on `first`'s board. */
 async function untilBoardsAgree(
-  w: SimWorld,
+  w: HarnessWorld,
   first: Actor,
   second: Actor,
   maxMs: number
@@ -172,7 +172,7 @@ Then(
  * answers. The host's board is noted first, for "the board is unchanged".
  */
 async function watcherAttempts(
-  w: SimWorld,
+  w: HarnessWorld,
   watcher: Actor,
   host: Actor,
   command: HostPuzzleCommand

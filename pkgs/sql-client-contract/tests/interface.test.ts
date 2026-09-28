@@ -8,9 +8,9 @@ import { SqlClientWithPubSub } from '@pkgs/sql-client/impl-with-pub-sub';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 type ClientFactory = () => Promise<SqlClient>;
 

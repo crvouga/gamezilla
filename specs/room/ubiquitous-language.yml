@@ -1,0 +1,209 @@
+# The ubiquitous language of Room: a game room people share on their
+# phones, keeping a tally together and playing timed matches. Room stands
+# alone (docs/CONTEXT_MAP.md): it borrows nothing from another context. A
+# few words here ("move", "opponent", "match", "owner") are also another
+# context's terms; in a room they mean what is defined below.
+context: Room
+purpose: >-
+  A game room people open on their phones to keep a tally together and to
+  play a timed match, where everyone sees the same tally and the same match
+  even after being offline for a while or having their app close
+  unexpectedly.
+
+terms:
+  # --- The room -----------------------------------------------------------------
+
+  - term: room
+    definition: >-
+      A game room people are in together, each on their own phone. It keeps
+      one tally and one timed match, and everyone in it sees the same ones.
+      It may have an owner.
+    avoid: [server, channel, session, lobby]
+
+  - term: everyone
+    definition: >-
+      Every person in the room: "everyone sees a tally of 3" means each of
+      them sees 3.
+
+  - term: present
+    definition: >-
+      In the room right now, as the room shows it: everyone whose phone is
+      online in it. Someone who goes offline is no longer shown present until
+      they are back online.
+    forms: [presence]
+
+  - term: device
+    from: kernel
+    model: [PhoneState, phoneState]
+
+  - term: connection
+    from: kernel
+    model: [Online, Offline, goOffline, comeBackOnline]
+
+  - term: the app
+    from: kernel
+    model: [AppClosed, closeUnexpectedly, reopenApp]
+
+  - term: closed unexpectedly
+    definition: >-
+      A person's app stopped without them closing it, for example when their
+      phone ran out of battery. Until they reopen it, it shows nothing; what
+      they changed in it is kept and reaches everyone once they reopen it.
+    forms: [closes unexpectedly, has closed unexpectedly]
+
+  # --- The tally ----------------------------------------------------------------
+
+  - term: tally
+    definition: >-
+      The one number everyone in the room keeps together. It starts at 0 and
+      anyone in the room can add one to it or take one off it. Each person's
+      app shows the tally; while they are offline it shows the tally they
+      last saw plus their own changes since. No change is ever lost or
+      counted twice.
+    forms: [tallies]
+    model: [tally, shownTally]
+
+  - term: add one
+    definition: Raise the tally by one.
+    forms: [adds one, added one, adding one]
+    model: [addOne]
+
+  - term: take one off
+    definition: Lower the tally by one.
+    forms: [takes one off, took one off, taken one off, taking one off]
+    model: [takeOne]
+
+  - term: change
+    definition: >-
+      Adding one to or taking one off the tally. A change shows at once in
+      the app of whoever made it. Made while offline, it waits on their phone
+      and reaches everyone once they are back online.
+    forms: [changes, changed]
+
+  # --- Owning the room ----------------------------------------------------------
+
+  - term: owner
+    definition: >-
+      The person who owns the room: the first person to claim it. Nobody can
+      take the room from its owner, and only the owner can turn someone away.
+    forms: [owns, owned, own, owners]
+    model: [owner]
+
+  - term: claim the room
+    definition: >-
+      Ask to become the owner of a room nobody owns yet. Someone who claims a
+      room that already has an owner is told so, and nothing changes.
+    forms: [claims the room, claimed the room, claiming the room, claimer]
+    model: [claim]
+
+  - term: turn someone away
+    definition: >-
+      The owner stops someone from changing anything in the room. Every
+      change they try afterwards is refused and they are told they have been
+      turned away; everyone else carries on as before. Only the owner can
+      turn someone away, and never themselves.
+    forms:
+      - turns someone away
+      - has turned someone away
+      - turned away
+      - turning someone away
+    model: [turnAway, turnedAway]
+
+  # --- The timed match ----------------------------------------------------------
+
+  - term: timed match
+    definition: >-
+      A match between White and Black in the room, each with their own time.
+      It has not started until someone starts it, is playing while the match
+      clock runs, and is over once a player runs out of time; nothing changes
+      it after that. White and Black both see the match as it stands.
+    forms: [match, matches, the match, a match]
+    model: [matchStatus, matchShown]
+
+  - term: White and Black
+    definition: >-
+      The two players of a match. White moves first.
+    forms: [player, players]
+    model: [Player]
+
+  - term: start a match
+    definition: >-
+      Either player starts a match that has not started yet, saying how many
+      seconds each of them has; White is then to move. A match that is
+      playing or over cannot be started again.
+    forms: [starts a match, started a match, starting a match]
+    model: [startMatch]
+
+  - term: match clock
+    definition: >-
+      The clock of a match. It runs down only the time of the player to move,
+      whatever anyone's phone shows or claims.
+    forms: [clock]
+
+  - term: time left
+    definition: >-
+      How many of their seconds a player has left: "White has 7 seconds
+      left". It runs down only while that player is to move.
+    forms: [seconds left, second left]
+    model: [timeLeft]
+
+  - term: seconds pass
+    definition: >-
+      Time goes by for everyone in the room: "When 6 seconds pass".
+    forms: [seconds have passed, second passes]
+    model: [timePasses]
+
+  - term: player to move
+    definition: >-
+      The player whose time the match clock is running down. Only they can
+      move.
+    forms: [to move]
+    model: [playerToMove]
+
+  - term: move
+    definition: >-
+      The player to move makes their move: they keep the time they have
+      left, and their opponent is to move. A move out of turn, before the
+      match starts, or once the player's time has run out does not count,
+      and the player is told it came too late when their time had run out.
+    forms: [moves, moved, mover]
+    model: [move]
+
+  - term: opponent
+    definition: >-
+      The other player of the match: Black to White, White to Black.
+    forms: [opponent's]
+    model: [opponent]
+
+  - term: run out of time
+    definition: >-
+      A player runs out of time the moment their time left reaches 0 while
+      they are to move. The match is over at once and their opponent wins on
+      time.
+    forms:
+      - runs out of time
+      - ran out of time
+      - has run out of time
+      - running out of time
+      - time runs out
+      - time has run out
+
+  - term: claim someone has run out of time
+    definition: >-
+      Tell the room the opponent has run out of time. The match clock alone
+      decides: a claim before the opponent's time has run out changes
+      nothing.
+    forms:
+      - claims someone has run out of time
+      - has claimed someone has run out of time
+      - claiming the opponent has run out of time
+      - early claim
+    model: [claimOutOfTime]
+
+  - term: win on time
+    definition: >-
+      The result when the opponent runs out of time: the match is over, the
+      player who ran out of time loses on time, and White and Black both see
+      who won.
+    forms: [wins on time, won on time, loses on time]
+    model: [winner]

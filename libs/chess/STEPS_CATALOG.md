@@ -55,10 +55,10 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Given | {actor}'s feed has come round to a puzzle they already played | {actor} | chess |
 | Given | {actor}'s puzzle rating has settled at {int} | {actor}, {int} | chess |
 | Given | {actor}'s puzzle rating is one rated puzzle from settling | {actor} | chess |
-| Given | a puzzle file with two valid puzzles and five invalid ones has been imported | — | chess |
 | Given | the puzzle has since been retired | — | chess |
 | Given | the puzzle pool also holds: | — | chess |
 | Given | the puzzle pool holds just three puzzles | — | chess |
+| Given | the team has added seven puzzles, five of them broken | — | chess |
 | Then | {actor} and {actor} both see only {actor}'s suggestion | {actor}, {actor}, {actor} | chess |
 | Then | {actor} cannot move pieces | {actor} | chess |
 | Then | {actor} feels the {word} haptic | {actor}, {word} | chess |
@@ -136,8 +136,8 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | both of {actor}'s devices show the same puzzle rating within {int} seconds | {actor}, {int} | chess |
 | Then | every good puzzle near 1500 was served before any puzzle rated 1800 to 1900 | — | chess |
 | Then | it is {word}'s move on {actor}'s board | {word}, {actor} | chess |
+| Then | none of the broken puzzles was served to {actor} | {actor} | chess |
 | Then | none of the low-quality puzzles was served to {actor} | {actor} | chess |
-| Then | none of the rejected puzzles was served to {actor} | {actor} | chess |
 | Then | the opponent replies {word} by itself | {word} | chess |
 | When | {actor} asks for a hint | {actor} | chess |
 | When | {actor} asks for another hint | {actor} | chess |
@@ -186,7 +186,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | When | {int} seconds pass | {int} | chess |
 | When | the next day begins | — | chess |
 
-## Shared steps (every package)
+## Shared steps (every package that registers them)
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
@@ -362,7 +362,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 - `specs/chess/puzzle-feed.feature` — Customize the puzzle feed (8 scenarios)
 - `specs/chess/puzzle-guest-carryover.feature` — Guest puzzle progress carries over (3 scenarios)
 - `specs/chess/puzzle-guest-play.feature` — Puzzles without an account (1 scenarios)
-- `specs/chess/puzzle-ingest.feature` — Puzzle import (1 scenarios)
+- `specs/chess/puzzle-ingest.feature` — Only puzzles that can be solved (1 scenarios)
 - `specs/chess/puzzle-late-watcher.feature` — Arriving while a puzzle is under way (3 scenarios)
 - `specs/chess/puzzle-limit-upgrade.feature` — The daily puzzle limit is an invitation (1 scenarios)
 - `specs/chess/puzzle-limits-by-kind.feature` — The puzzle limit holds everywhere, and only for guests (5 scenarios)

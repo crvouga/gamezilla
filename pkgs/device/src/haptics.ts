@@ -24,7 +24,7 @@ export type RecordingHaptics = HapticsPort & {
   readonly clear: () => void;
 };
 
-/** Test / sim port that records every call in order. */
+/** Test / harness port that records every call in order. */
 export function createRecordingHaptics(): RecordingHaptics {
   const calls: HapticKind[] = [];
   return {

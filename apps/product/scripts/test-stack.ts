@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-// @io-wall-ok — boots a localhost stack, runs the sim suite against it, tears down.
+// @io-wall-ok — boots a localhost stack, runs the harness suite against it, tears down.
 
 /**
  * The highest-fidelity product run available locally: every package's e2e
@@ -33,8 +33,8 @@ try {
   code = runE2ePackages(
     {
       ...process.env,
-      SIM_MODE: 'stack',
-      SIM_WITH_DOM: '0',
+      HARNESS_MODE: 'stack',
+      HARNESS_WITH_DOM: '0',
       LOCALHOST_STACK_MANIFEST: stack.manifestPath,
     },
     testPaths

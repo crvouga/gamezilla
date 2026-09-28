@@ -6,14 +6,7 @@ import {
   createWorkerTelemetry,
   type WorkerTelemetry,
 } from '@pkgs/observability/worker';
-import {
-  assertRoomModuleName,
-  ROOM_ERROR_TYPE,
-  type RoomCommandPayload,
-  type RoomEvent,
-  type RoomModule,
-  type RoomState,
-} from '@pkgs/room';
+import { gameRoomModule } from '@pkgs/room/harness';
 import {
   createDurableObjectAdapter,
   type DurableObjectInstanceState,
@@ -83,22 +76,6 @@ function createTestState(sockets: WebSocket[]): {
   };
 }
 
-const TEST_MODULE: RoomModule<
-  RoomState,
-  RoomCommandPayload,
-  RoomEvent,
-  string
-> = {
-  name: assertRoomModuleName('test-room'),
-  initialState: () => ({}),
-  handle: () => ({
-    ok: false,
-    error: { type: ROOM_ERROR_TYPE.invalidCommand, reason: 'test' },
-  }),
-  reduce: (state) => state,
-  hash: () => 'test-hash',
-};
-
 let telemetry: WorkerTelemetry | null = null;
 
 afterEach(async () => {
@@ -123,7 +100,7 @@ describe('room Durable Object observability', () => {
     const socket = createHibernatedSocket(closed);
     const testState = createTestState([socket]);
     const RoomObject = createDurableObjectAdapter({
-      modules: [TEST_MODULE],
+      modules: [gameRoomModule],
       clock: { now: () => 1 },
       createId: () => 'generated-id',
       telemetry: () => telemetry!,
@@ -174,7 +151,7 @@ function createHibernatedSocket(
     connId: 'connection-1',
     identityRaw: 'user-1',
     clientId: 'client-1',
-    moduleName: 'test-room',
+    moduleName: gameRoomModule.name,
     topic: 'topic-1',
     traceparent: `00-${CONNECTION_TRACE_ID}-1111111111111111-01`,
   };

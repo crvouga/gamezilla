@@ -17,7 +17,7 @@ browser, emulator, IPC, or HTTP server.
   it as the element's `getBoundingClientRect` — pass a `layoutProvider` to
   override.
 - `wait(...)` is runtime-native: a `MutationObserver` on `document.body` plus
-  an injected `pump` (the sim's `runFor(0)`) between checks, bounded by
+  an injected `pump` (the harness's `runFor(0)`) between checks, bounded by
   `timeoutMs` on an injected `Clock`. No `setTimeout` polling.
 - `snapshotHtml()` serializes the actor container + body-level portal nodes
   into a standalone `<!DOCTYPE html>` document (`isBlankSnapshotHtml` filters
@@ -26,13 +26,13 @@ browser, emulator, IPC, or HTTP server.
 ## Single app
 
 ```ts
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom';
 
-const sim = createSimClock();
+const harness = createHarnessClock();
 const driver = createSolidDomDriver({
-  clock: sim.clock,
-  pump: async () => sim.clock.advance(0),
+  clock: harness.clock,
+  pump: async () => harness.clock.advance(0),
   harness: { createRoot: () => () => <App /> },
 });
 await driver.launch();
@@ -41,7 +41,7 @@ await driver.get('welcome').expect.text('Welcome');
 await driver.close();
 ```
 
-## Multi-actor session (sim hosts)
+## Multi-actor session (harness hosts)
 
 One `document.body`; each actor is a Solid component mounted into its own
 `div[data-actor="<id>"]` under the session host. Only the focused actor is
@@ -60,7 +60,7 @@ const session = createMultiAppSolidDomSession({
 
 const driver = createSolidDomDriver({
   clock,                 // wall, or a virtual clock `runFor` advances
-  pump: () => runFor(0), // drains sim work between wait checks
+  pump: () => runFor(0), // drains harness work between wait checks
   harness: {
     mount: async () => {
       const app = session.mountActor(actorId, () => <ClientApp embedded />);

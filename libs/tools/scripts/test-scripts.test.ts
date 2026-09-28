@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/property';
 import { testScriptViolations } from './test-scripts';
 
-const E2E = 'bun run ../../libs/sim-harness/scripts/test-e2e.ts';
+const E2E = 'bun run ../../libs/harness/scripts/test-e2e.ts';
 
 describe('testScriptViolations', () => {
   test('a plain `bun test` over tests/ is clean', () => {

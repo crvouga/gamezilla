@@ -33,7 +33,7 @@ async function resolveRequestDatabaseUrl(
   return (await secretStore.getRequired(ApiSecretName.dbUrl)).readSecretValue();
 }
 
-/** Per middleware-instance latch (not process-global) for multi-app sims. */
+/** Per middleware-instance latch (not process-global) for multi-app harnesses. */
 type PolicyLatch = { checked: boolean };
 
 /** Every non-production deployment refuses a production-looking database. */

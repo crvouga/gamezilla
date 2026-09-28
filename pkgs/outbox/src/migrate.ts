@@ -13,7 +13,7 @@ import {
 import { OutboxCutoverMigration } from './cutover-migration';
 import { outboxSchema } from './schema/tables';
 
-/** Apply outbox defineTable schema to SQLite (client / sim). */
+/** Apply outbox defineTable schema to SQLite (client / harness). */
 export async function migrateOutbox(sqlClient: SqlClient): Promise<void> {
   await applySqliteSchema(sqlClient, outboxSchema, {
     ownership: 'declared-only',

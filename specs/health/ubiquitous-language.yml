@@ -1,0 +1,182 @@
+# The Operations context's ubiquitous language (specs/health/): the promises
+# a live environment keeps, as the team sees them from outside. Terms other
+# contexts own are borrowed (from: <domain>); the shared kernel is
+# specs/ubiquitous-language.yml. Map: docs/CONTEXT_MAP.md.
+context: Operations
+purpose: >-
+  The promises every live environment keeps right now — people reach the app
+  securely, it answers them, they see each other play within moments, and
+  payments are real only in production — seen by the team from outside.
+
+terms:
+  - term: environment
+    definition: >-
+      One complete, separate copy of the product; production is one. "This
+      environment" is the copy a health check is looking at.
+    forms: [environments, environment's, this environment]
+    avoid: [deployment, stage, stack, instance]
+
+  - term: production environment
+    definition: >-
+      An environment real people use, and the only kind that takes real
+      payments.
+    forms: [production environments, production]
+    avoid: [prod, live environment]
+
+  - term: the team's plan
+    definition: >-
+      What the team has written down that an environment should have and how
+      it is set up. An environment that differs from it has been changed by
+      hand, lost something by accident, or is part-way through a release.
+    forms: [as the team planned it, as the team planned them, planned it]
+    avoid: [declared environment, infrastructure, config drift, IaC]
+
+  - term: changed by hand
+    definition: >-
+      Changed by someone directly, outside the team's plan for the
+      environment.
+    forms: [change made by hand]
+    avoid: [manual edit, click-ops]
+
+  - term: release
+    definition: >-
+      The team putting out a new edition of the app in an environment. An
+      unfinished release is one that got only part of the way.
+    forms: [releases, unfinished release]
+    avoid: [deploy, deployment, rollout]
+
+  - term: the testing tool
+    definition: >-
+      A tool for the team, at its own address beside the app. People who use
+      the app never need it.
+    forms: [testing tool]
+    avoid: [sim, Simulator, harness, dev tools]
+
+  - term: reach the app securely
+    definition: >-
+      People's devices can trust that an address really is the app, and
+      nobody else can read what passes between them. The team checks it will
+      still hold two weeks from now.
+    forms: [reach every address of the app securely, reach it securely, stays secure]
+    avoid: [TLS, SSL, certificate, HTTPS]
+
+  - term: answer people
+    definition: >-
+      The app responding, right now in this environment, to what people do in
+      it, with everything it needs to do so in place.
+    forms: [answers people]
+    avoid: [uptime, health endpoint, ping]
+
+  - term: what people saved
+    definition: >-
+      Everything people have kept in the app, such as their accounts and
+      progress. It must be ready for the app as it is now.
+    avoid: [database, schema, tables, migration, data store]
+
+  - term: setting the app needs
+    definition: >-
+      Something the team gives the app for this environment so it can run
+      there, such as its access to an outside service. The app is given every
+      one it needs.
+    forms: [every setting it needs]
+    avoid: [secret, env var, environment variable, config key]
+
+  - term: outside service
+    definition: >-
+      A service another company runs that the app relies on to do its job,
+      such as Google for signing in or the company that takes payments. The
+      team gives the app what it needs to use each one, and each must still
+      let the app use it.
+    forms: [outside services]
+    avoid: [vendor, third party, integration]
+
+  - term: lets the app use it
+    definition: >-
+      An outside service still working for the app: the company has not
+      withdrawn the app's use of it, and it has not run out.
+    forms: [still lets the app use it]
+    avoid: [accepts the app, credentials valid, token valid]
+
+  - term: what happens in a space
+    definition: >-
+      What people do in a space, such as joining, leaving and moving pieces,
+      as everyone else in it sees it within moments. This environment's app
+      passes it on, and people's apps follow what happens in this
+      environment's spaces, never another's.
+    forms: [what happens in this environment's spaces, pass on what happens in a space]
+    avoid: [live updates, broker, pub/sub, websocket, push channel]
+
+  - term: listen in on spaces
+    definition: >-
+      Someone outside the team secretly seeing, or disturbing, what happens in
+      people's spaces. Nobody can, not even with a well-known password.
+    forms: [listen in, listen in on spaces or disturb them]
+
+  - term: well-known password
+    definition: >-
+      A password anyone could try: the one something came with from its
+      maker (the default password), or one published anywhere.
+    forms: [well-known passwords, default password, publicly known password]
+
+  - term: real payments
+    definition: >-
+      Money people actually pay. Only a production environment takes real
+      payments; every other environment only pretends to.
+    forms: [real money, payments in this environment are real, payments are real]
+    avoid: [live mode, test mode]
+
+  - term: upload
+    definition: >-
+      Something a person puts in the app for it to keep, such as a picture.
+      The app can keep one, show it again and remove it, and each
+      environment's uploads stay apart from every other environment's.
+    forms: [uploads, uploaded]
+    avoid: [stored file, file, bucket, blob, object storage]
+
+  - term: trail
+    definition: >-
+      What the app writes down, each time someone uses it, about what it did
+      for them. People never see it; when someone runs into trouble, the team
+      follows the trail to find out what happened.
+    forms: [trails, leaves a trail, follow the trail]
+    avoid: [request record, trace, traces, span, telemetry, logs]
+
+  - term: run into trouble
+    definition: >-
+      Something going wrong for a person in the app, such as an error or
+      something not working as it should.
+    forms: [runs into trouble, ran into trouble]
+
+  - term: way back to the app
+    definition: >-
+      Where Google sends a person once they have signed in: always back to the
+      app they started from, in the environment they started in.
+
+  - term: on the web
+    definition: >-
+      Using the app at its address rather than as an app installed on a
+      device.
+
+  # Borrowed from App.
+  - term: address
+    from: runtime
+
+  # Borrowed from Identity.
+  - term: sign in
+    from: profile
+  - term: Google
+    from: profile
+  - term: Apple
+    from: profile
+
+  # Borrowed from Billing.
+  - term: Plus
+    from: billing
+
+  # Borrowed from Spaces.
+  - term: space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: join
+    from: spaces

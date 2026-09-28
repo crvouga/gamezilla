@@ -3,7 +3,7 @@
  * explore walks and recordings. `performUiOp` is the single interpreter.
  */
 
-import type { JsonValue } from '@pkgs/sim';
+import type { JsonValue } from '@pkgs/harness';
 
 import type { DriverKey } from '../core/keys';
 import type {

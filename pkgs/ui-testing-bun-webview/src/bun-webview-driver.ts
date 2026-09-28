@@ -13,7 +13,7 @@ import { BunWebviewPopups, type PopupViewOptions } from './bun-webview-popups';
 export type BunWebviewDriverOptions = {
   readonly view: BunWebView;
   readonly baseUrl?: string;
-  /** When set, wraps `window.fetch` to send `x-sim-actor` for createSimNet partition. */
+  /** When set, wraps `window.fetch` to send `x-harness-actor` for createHarnessNet partition. */
   readonly actorId?: string;
   /** How popup windows are created (share the page's data store). */
   readonly popupOptions?: PopupViewOptions;
@@ -67,7 +67,7 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
         var orig = window.fetch.bind(window);
         window.fetch = function(input, init) {
           var headers = new Headers(init && init.headers ? init.headers : undefined);
-          headers.set('x-sim-actor', id);
+          headers.set('x-harness-actor', id);
           return orig(input, Object.assign({}, init || {}, { headers: headers }));
         };
       })()`

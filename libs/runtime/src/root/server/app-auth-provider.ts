@@ -3,7 +3,7 @@
  * chosen. The API Worker builds it and the migrate runner applies its schema;
  * everything else holds it only as the `@pkgs/auth` port. Moving to another
  * service (Clerk, Firebase Auth, WorkOS, Cognito, Better Auth, …) is a new
- * adapter package, this line, and the client adapter the wall and sim
+ * adapter package, this line, and the client adapter the wall and harness
  * `ClientEnv`s build.
  */
 import type { AuthProviderModule } from '@pkgs/auth/server';

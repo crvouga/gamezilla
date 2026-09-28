@@ -7,8 +7,8 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 
 import {
   ENTRY_HTML,
+  HARNESS_BOOT_SOURCE,
   type OfflineShellInput,
-  SIMULATOR_BOOT_SOURCE,
   URL_LOADED_DIRS,
   VITE_MANIFEST,
 } from './sw-policy';
@@ -67,7 +67,7 @@ export async function readDistGraph(
     files,
     chunkSources,
     indexHtml: await requireUtf8(store, ENTRY_HTML),
-    excludedRoots: [manifestChunkFor(manifest, SIMULATOR_BOOT_SOURCE)],
+    excludedRoots: [manifestChunkFor(manifest, HARNESS_BOOT_SOURCE)],
     extraRoots: keys.filter(
       (key) =>
         URL_LOADED_DIRS.some((dir) => key.startsWith(dir)) && !isDotfile(key)

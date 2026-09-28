@@ -24,13 +24,13 @@ import {
   signInWithProviderAs,
   signOut,
   signOutEverywhere,
-} from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
+} from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
 import {
   awaitSignedOutScreen,
   showAccountScreen,
-} from '@libs/sim-harness/system/sign-in-method-actions';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+} from '@libs/harness/system/sign-in-method-actions';
 import type { QuintValue } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 
@@ -71,12 +71,12 @@ function accountKey(id: string): string {
   return `account:${id}`;
 }
 
-function accountName(w: QuintSimWorld, id: string): QuintValue {
+function accountName(w: QuintHarnessWorld, id: string): QuintValue {
   const name = w.memo.get(accountKey(id));
   return typeof name === 'number' ? name : `unknown account ${id}`;
 }
 
-function knownAccounts(w: QuintSimWorld): readonly [string, number][] {
+function knownAccounts(w: QuintHarnessWorld): readonly [string, number][] {
   const out: [string, number][] = [];
   for (const [key, name] of w.memo) {
     if (key.startsWith('account:') && typeof name === 'number') {
@@ -86,12 +86,12 @@ function knownAccounts(w: QuintSimWorld): readonly [string, number][] {
   return out;
 }
 
-function remember(w: QuintSimWorld, id: string): void {
+function remember(w: QuintHarnessWorld, id: string): void {
   if (w.memo.has(accountKey(id))) return;
   w.memo.set(accountKey(id), knownAccounts(w).length + 1);
 }
 
-function isOffline(s: ProductSim, device: string): boolean {
+function isOffline(s: ProductHarness, device: string): boolean {
   return partitioned(s).some((pair) => pair.split('|').includes(device));
 }
 
@@ -100,7 +100,9 @@ function isOffline(s: ProductSim, device: string): boolean {
  * that) are given the time to show "Sign in" again, so the next step starts
  * from what the model says they show.
  */
-async function awaitSignedOutEverywhereShown(w: QuintSimWorld): Promise<void> {
+async function awaitSignedOutEverywhereShown(
+  w: QuintHarnessWorld
+): Promise<void> {
   for (const device of DEVICES) {
     if (await w.s.read(isOffline, device)) continue;
     if ((await w.s.read(signedInAccountOf, device)) !== null) continue;
@@ -108,7 +110,7 @@ async function awaitSignedOutEverywhereShown(w: QuintSimWorld): Promise<void> {
   }
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'account-sign-in',
   traces: 8,
   maxSteps: 20,

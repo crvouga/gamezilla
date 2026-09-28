@@ -7,7 +7,7 @@ import {
   paddlePriceBody,
   reconcilePaddleOffer,
 } from '@pkgs/billing-paddle';
-import { FakePaddle } from '@pkgs/billing-paddle/sim';
+import { FakePaddle } from '@pkgs/billing-paddle/harness';
 import { createNoopLogger } from '@pkgs/logger';
 
 const log = createNoopLogger();

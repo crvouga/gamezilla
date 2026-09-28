@@ -47,7 +47,7 @@
   --color-perf-accent: #93c5fd;
   --color-system-canvas: Canvas;
   --color-system-text: CanvasText;
-  --z-index-sim-browser: 2147483000;
+  --z-index-harness-browser: 2147483000;
   --color-background: var(--ui-color-background);
   --color-surface: var(--ui-color-surface);
   --color-surface-sunken: var(--ui-color-surface-sunken);

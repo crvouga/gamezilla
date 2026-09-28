@@ -2,7 +2,7 @@
  * Discovery for the spec gates. Every spec lives in the flat top-level tree
  * `specs/<domain>/` — Gherkin features (`<feature>.feature`) and Quint models
  * (`<model>.qnt`); a workspace package runs the domains its `package.json`
- * lists in `specDomains` (against the sim, in its `test:e2e`) and in
+ * lists in `specDomains` (against the harness, in its `test:e2e`) and in
  * `liveDomains` (against a deployed environment, in its `health`). For each
  * such package: its parsed features, the step definitions its `tests/steps/**`
  * declare (read statically), the step files of other packages its steps entry
@@ -21,14 +21,16 @@ import {
 import { parseFeature, type SpecFeature } from '@pkgs/gherkin/parse';
 
 export const REPO_ROOT = resolve(import.meta.dir, '../../..');
-export const SHARED_STEPS_DIR = 'libs/sim-harness/src/spec/steps';
+export const SHARED_STEPS_DIR = 'libs/harness/src/spec/steps';
 export const SPECS_DIR = 'specs';
+/** The specifier prefix a steps entry registers the shared steps with. */
+const SHARED_STEPS_IMPORT = '@libs/harness/spec/steps/';
 const TIERS = ['apps', 'libs', 'pkgs'] as const;
 
 export type SpecPackage = PackageSpecs & {
   /** Repo-relative package directory. */
   readonly dir: string;
-  /** Domains run against the sim (`test:e2e`). */
+  /** Domains run against the harness (`test:e2e`). */
   readonly specDomains: readonly string[];
   /** Domains run against a deployed environment (`health`). */
   readonly liveDomains: readonly string[];
@@ -42,7 +44,7 @@ export type SpecPackage = PackageSpecs & {
 type Manifest = {
   readonly name?: string;
   readonly exports?: Record<string, unknown>;
-  /** The `specs/<domain>/` directories this package runs against the sim. */
+  /** The `specs/<domain>/` directories this package runs against the harness. */
   readonly specDomains?: readonly string[];
   /** The `specs/<domain>/` directories this package runs against a deployment. */
   readonly liveDomains?: readonly string[];
@@ -87,7 +89,7 @@ function readSteps(files: readonly string[]): {
   return { steps, problems };
 }
 
-/** The shared harness definitions every package sees. */
+/** The shared harness definitions, seen by packages whose steps entry imports them. */
 export function sharedSteps(): {
   readonly steps: readonly ExtractedStep[];
   readonly problems: readonly string[];
@@ -144,7 +146,7 @@ function modelProblems(
   }
   if (models.length > 0 && !existsSync(join(REPO_ROOT, quintDir, 'index.ts'))) {
     problems.push(
-      `${dir}: runs Quint models but has no tests/quint/index.ts (it imports the bindings and calls useQuintSim)`
+      `${dir}: runs Quint models but has no tests/quint/index.ts (it imports the bindings and calls useQuintHarness)`
     );
   }
   const stems = new Set(
@@ -244,10 +246,12 @@ export function specPackages(): readonly SpecPackage[] {
     const models = domains.flatMap(domainModelPaths);
     const problems = [...own.problems, ...modelProblems(dir, models)];
     const imports: string[] = [];
+    let sharedSteps = false;
     if (stepsEntry !== null) {
       for (const specifier of extractStepImports(
         readFileSync(join(REPO_ROOT, stepsEntry), 'utf8')
       )) {
+        if (specifier.startsWith(SHARED_STEPS_IMPORT)) sharedSteps = true;
         const file = resolveStepImport(specifier, byName);
         if (file === null) continue;
         if (!existsSync(join(REPO_ROOT, file))) {
@@ -272,6 +276,7 @@ export function specPackages(): readonly SpecPackage[] {
       features: readFeatures(domains),
       definitions: own.steps,
       imports,
+      sharedSteps,
       stepsEntry,
       models,
       problems,
@@ -295,9 +300,9 @@ function runnersBy(
 
 /**
  * The `specs/` tree is flat and fully owned: the shared kernel's
- * `specs/glossary.yaml`, and in each bounded context only its
- * `glossary.yaml`, `*.feature` and `*.qnt`; every domain directory run by some package — by
- * at most one against the sim (`specDomains`) and at most one live
+ * `specs/ubiquitous-language.yml`, and in each bounded context only its
+ * `ubiquitous-language.yml`, `*.feature` and `*.qnt`; every domain directory run by some package — by
+ * at most one against the harness (`specDomains`) and at most one live
  * (`liveDomains`) — every claimed domain present, and no package keeping a
  * `features/` directory of its own.
  */
@@ -307,7 +312,7 @@ export function specsLayoutProblems(
   const out: string[] = [];
   const root = join(REPO_ROOT, SPECS_DIR);
   const runners = runnersBy(packages, (pkg) => pkg.domains);
-  const simRunners = runnersBy(packages, (pkg) => pkg.specDomains);
+  const harnessRunners = runnersBy(packages, (pkg) => pkg.specDomains);
   const liveRunners = runnersBy(packages, (pkg) => pkg.liveDomains);
   const present = existsSync(root)
     ? readdirSync(root, { withFileTypes: true })
@@ -315,9 +320,9 @@ export function specsLayoutProblems(
   for (const entry of present) {
     const path = `${SPECS_DIR}/${entry.name}`;
     if (!entry.isDirectory()) {
-      if (entry.name !== 'glossary.yaml') {
+      if (entry.name !== 'ubiquitous-language.yml') {
         out.push(
-          `${path}: only specs/<domain>/ directories and the shared kernel's specs/glossary.yaml belong in specs/`
+          `${path}: only specs/<domain>/ directories and the shared kernel's specs/ubiquitous-language.yml belong in specs/`
         );
       }
       continue;
@@ -330,11 +335,11 @@ export function specsLayoutProblems(
         !(
           inner.name.endsWith('.feature') ||
           inner.name.endsWith('.qnt') ||
-          inner.name === 'glossary.yaml'
+          inner.name === 'ubiquitous-language.yml'
         )
       ) {
         out.push(
-          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/glossary.yaml, <feature>.feature and <model>.qnt`
+          `${path}/${inner.name}: specs/ is flat — only specs/<domain>/ubiquitous-language.yml, <feature>.feature and <model>.qnt`
         );
       }
     }
@@ -344,7 +349,7 @@ export function specsLayoutProblems(
       );
     }
     for (const [field, byDomain] of [
-      ['specDomains', simRunners],
+      ['specDomains', harnessRunners],
       ['liveDomains', liveRunners],
     ] as const) {
       const owners = byDomain.get(entry.name) ?? [];

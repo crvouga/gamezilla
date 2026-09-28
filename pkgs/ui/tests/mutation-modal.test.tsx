@@ -47,7 +47,7 @@ describe('MutationModal', () => {
     const onClose = mock();
     const onSuccess = mock();
     const phases: string[] = [];
-    // Resolves on the injected sim timers so the phase flip is clock-driven.
+    // Resolves on the injected harness timers so the phase flip is clock-driven.
     const r = mount({
       operation: () =>
         new Promise<void>((resolve) => {

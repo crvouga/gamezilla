@@ -1,35 +1,35 @@
 /**
- * The puzzles chess scenarios name, mapped to the fixtures the sim seeds or
- * the steps ingest (`libs/chess/fixtures/*.sim.csv`). No step definitions.
+ * The puzzles chess scenarios name, mapped to the fixtures the harness seeds or
+ * the steps ingest (`libs/chess/fixtures/*.harness.csv`). No step definitions.
  */
 
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
-import { SIM_CHESS_FEED_POOL_IDS } from '@libs/chess/sim/seed-sim-chess-puzzles';
 import {
-  SIM_CHESS_FIXTURES_DIR,
-  SIM_CHESS_PUZZLE_IDS,
-  SIM_CHESS_PUZZLE_MATE_IN_2,
-} from '@libs/chess/sim/sim-chess-puzzles';
+  HARNESS_CHESS_FIXTURES_DIR,
+  HARNESS_CHESS_PUZZLE_IDS,
+  HARNESS_CHESS_PUZZLE_MATE_IN_2,
+} from '@libs/chess/harness/chess-puzzles';
+import { HARNESS_CHESS_FEED_POOL_IDS } from '@libs/chess/harness/seed-harness-chess-puzzles';
+import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
 
 function fixtureCsv(name: string): string {
-  return readFileSync(join(SIM_CHESS_FIXTURES_DIR, name), 'utf8');
+  return readFileSync(join(HARNESS_CHESS_FIXTURES_DIR, name), 'utf8');
 }
 
-/** The three puzzles every chess sim seeds at boot, in id order. */
+/** The three puzzles every chess harness seeds at boot, in id order. */
 export const STANDARD_PUZZLE_IDS: readonly string[] = [
-  ...SIM_CHESS_PUZZLE_IDS,
+  ...HARNESS_CHESS_PUZZLE_IDS,
 ].sort();
 
 /** The feed-sized pool the scenarios' world seeds beside the three. */
-export const FEED_POOL_IDS: readonly string[] = SIM_CHESS_FEED_POOL_IDS;
+export const FEED_POOL_IDS: readonly string[] = HARNESS_CHESS_FEED_POOL_IDS;
 
 /** Fourteen puzzles clustered on the 1500 seed rating. */
-export const RATING_CSV = fixtureCsv('chess-puzzles-rating.sim.csv');
+export const RATING_CSV = fixtureCsv('chess-puzzles-rating.harness.csv');
 
 /** One puzzle per motif, each with a theme no other seeded puzzle carries. */
-export const MOTIF_CSV = fixtureCsv('chess-puzzles-motifs.sim.csv');
+export const MOTIF_CSV = fixtureCsv('chess-puzzles-motifs.harness.csv');
 
 export type NamedPuzzle = {
   readonly id: string;
@@ -50,17 +50,17 @@ export const NAMED_PUZZLES = {
   whiteInCheck: { id: 'solveCK1', theme: 'defensiveMove', csv: MOTIF_CSV },
   /** Kh4 g5+ Kg3 Rg2#: a four-move line. */
   fourMoveMateInTwo: {
-    id: SIM_CHESS_PUZZLE_MATE_IN_2.id,
+    id: HARNESS_CHESS_PUZZLE_MATE_IN_2.id,
     theme: 'mateIn2',
     csv: null,
   },
 } as const satisfies Record<string, NamedPuzzle>;
 
 /**
- * `fixtures/chess-puzzles-selection.sim.csv`, by the rows a scenario's
+ * `fixtures/chess-puzzles-selection.harness.csv`, by the rows a scenario's
  * "the puzzle pool also holds" table describes.
  */
-export const SELECTION_CSV = fixtureCsv('chess-puzzles-selection.sim.csv');
+export const SELECTION_CSV = fixtureCsv('chess-puzzles-selection.harness.csv');
 
 export type SelectionGroup = {
   readonly rated: string;

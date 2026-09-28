@@ -1,18 +1,18 @@
 @domain:health
-Feature: Live updates
-  When something happens in a space, everyone in it wants to see it as it
-  happens, so live updates must be ready in every environment, and nobody
-  outside the team may take them over.
+Feature: Seeing each other play
+  When people are in a space together, each wants to see what the others do
+  within moments, in every environment, so they can play together, and
+  nobody outside the team may listen in or disturb them.
 
-  Scenario: Live updates are ready to reach people
-    Then live updates are ready to reach people
+  Scenario: What happens in a space can reach everyone in it
+    Then what happens in a space can reach everyone in it
 
-  Scenario: The app can send a live update
-    Then the app can send a live update
+  Scenario: The app can pass on what happens in a space
+    Then the app can pass on what happens in a space
 
-  Scenario: People's apps receive this environment's live updates
-    Then people's apps are pointed at this environment's live updates
+  Scenario: People's apps follow this environment's spaces
+    Then people's apps follow what happens in this environment's spaces
 
-  Scenario: Nobody can take over live updates with a well-known password
-    Then nobody can take over live updates with the default password
-    And nobody can take over live updates with a publicly known password
+  Scenario: Nobody can listen in on spaces with a well-known password
+    Then nobody can listen in on spaces or disturb them with the default password
+    And nobody can listen in on spaces or disturb them with a publicly known password

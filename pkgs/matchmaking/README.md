@@ -53,64 +53,46 @@ const { participantId } = await mm.join({
 | `@pkgs/matchmaking-sql` | `MatchmakingImplSql`, `MatchmakingDatabaseMigration` |
 | `@pkgs/matchmaking/wire` | `FormulaWire` types for HTTP / RPC |
 | `@pkgs/matchmaking/client` | `MatchmakingClient` |
-| `@pkgs/matchmaking-sim` | Framework sim (`matchmaking` system + actions / reads, fixtures) |
+| `@pkgs/matchmaking-harness` | The example app and the framework harness (`matchmaking` system + actions / reads) |
 
 Anything outside these entrypoints is internal.
 
 ## Testing
 
-All tests live under `tests/`. Deterministic scenarios use a seeded
-`@pkgs/sim` system that boots **N Matchmaking replicas sharing one DB** —
-the horizontal-scale composition root. Tests only ever `run` a system and
-drive it with `apply` / `read`; there is no direct access to `S` internals.
+`@pkgs/matchmaking` is tested through **one example app**
+(`pkgs/matchmaking-harness/src/example-app/`): a lobby where named people
+wait for a rated match. It declares its own attributes (`RatingAttr`,
+`NameAttr`, and `RegionAttr` / `ModeAttr` to partition by), the formula
+people accept each other with (`ratingWithin`) and its schema
+(`exampleAppSchema`). Every test, model and spec drives that app; a test that
+needs a variation (another schema version) configures it rather than
+declaring its own attributes.
+
+The deterministic harness is a seeded `@pkgs/harness` system that boots **N
+replicas of the example app sharing one DB** — the horizontal-scale
+composition root. Tests only ever `run` the system and drive it with
+`apply` / `read`, and assert only port observables — never SQL tables or
+claim columns.
 
 ```text
-pkgs/matchmaking-sim/
-  src/                            # exported as `@pkgs/matchmaking-sim`
-    scenario/                     # matchmaking system + node kinds
-pkgs/matchmaking/
-  tests/                          # black-box against package exports
+pkgs/matchmaking-harness/
+  src/example-app/   # the one example app
+  src/scenario/      # the matchmaking system, its actions and reads
+  tests/             # contract tests (schema drift, replicas, unknown waits)
+  tests/steps/       # step definitions for specs/matchmaking/*.feature
+  tests/quint/       # the binding for specs/matchmaking/matching.qnt
 ```
 
-```ts
-import {
-  join,
-  matchmaking,
-  RatingAttr,
-  statusOf,
-  tickAllWith,
-} from '@pkgs/matchmaking-sim';
-
-await using s = await matchmaking.run({
-  seed: 3,
-  // backend: 'postgres' — required for concurrent tickAll claim races
-  args: { replicas: 3 },
-});
-
-await s.apply(join, {
-  ref: 'a',
-  replicaId: 'r0',
-  input: {
-    data: RatingAttr(1000),
-    formulas: [{ numeric: [{ tag: RatingAttr, weight: 1 }] }],
-  },
-});
-await s.apply(tickAllWith, { maxPassesPerPartition: 4 });
-expect(await s.read(statusOf, 'a')).not.toBeNull();
-```
-
-| Concept | API |
-|---------|-----|
-| Time | `s.advanceTime`; radius waits via `stepTime` + `s.read(matched, …)` |
-| Replicas | `addReplica`, `tick` / `tickAll` / `tickAllWith` actions |
-| Port | `join` / `leave` / `ready` / `updateFormulas` / `httpRequest` actions; `statusOf` / `statuses` / `lastTick` / `lastHttp` reads |
-
-Scenarios assert only port observables — never SQL tables or claim
-columns. CI: `bun run --filter @pkgs/matchmaking test`.
+The acceptance behavior (waiting, stopping, changing one's range, being
+matched) is the Matchmaking context in `specs/matchmaking/` (Gherkin
+features plus the `matching.qnt` model), run by
+`@pkgs/matchmaking-harness`'s `test:e2e`; the runner also replays the
+model's longest trace twice and requires the same match fingerprint (same
+seed, same outcome).
 
 ```bash
-bun run --filter @pkgs/matchmaking test
-bun run --filter @pkgs/matchmaking-sim test
+bun run --filter @pkgs/matchmaking-harness test
+bun run spec --package @pkgs/matchmaking-harness
 ```
 
 Hosts drive pairing via `Matchmaking.tick()` / `POST /tick`. Concurrent

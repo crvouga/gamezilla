@@ -3,7 +3,8 @@ Feature: Failed payments
   When a Plus member's payment fails, they want to keep paid access while it
   is put right, so a card problem never cuts them off at once: the membership
   is delinquent within grace, a recovered payment makes it active again, and
-  the membership ends only after the last retry.
+  the membership ends only once the payment provider gives up on the
+  payment.
 
   Background:
     Given Alice has subscribed to Plus
@@ -19,7 +20,7 @@ Feature: Failed payments
     Then Alice's membership is active
     And Alice has paid access
 
-  Scenario: A renewal that keeps failing ends after the last retry
+  Scenario: A payment the payment provider gives up on ends the membership
     Given Alice's payment has failed
-    When the provider gives up retrying Alice's payment
+    When the payment provider gives up on Alice's payment
     Then Alice's membership has ended

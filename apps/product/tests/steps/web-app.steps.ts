@@ -19,8 +19,8 @@ Then('people can open the app at its address', async (w) => {
   await expectPageAt(w, '/');
 });
 
-Then('the team can open the Simulator at its address', async (w) => {
-  await expectPageAt(w, '/simulator');
+Then('the team can open the testing tool at its address', async (w) => {
+  await expectPageAt(w, '/harness');
 });
 
 Then('the address without "www" leads people to the app', async (w) => {

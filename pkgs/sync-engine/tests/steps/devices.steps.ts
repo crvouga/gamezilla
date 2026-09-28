@@ -5,14 +5,16 @@
 
 import { expect } from 'bun:test';
 import {
+  clearLocalData,
   connect,
   crash,
   disconnect,
   httpFault,
   liveNotes,
+  net,
   online,
   restart,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { settledWrite, writeNote } from './note-writes';
 import { type Device, ensureDevice, Given, Then, When } from './world';
 
@@ -34,6 +36,15 @@ Given('{device} is offline', async (w, device: Device) => {
   w.offline.set(device, true);
 });
 
+/**
+ * Cannot send: its requests to the server go nowhere (held, not refused),
+ * while live updates still reach it.
+ */
+Given('{device} cannot send', async (w, device: Device) => {
+  const id = await ensureDevice(w, device);
+  await w.s.apply(net, id, 'sync', 'hold');
+});
+
 When('{device} comes back online', async (w, device: Device) => {
   const id = await ensureDevice(w, device);
   await w.s.apply(connect, id);
@@ -53,6 +64,11 @@ Given(
 When('{device} closes and reopens', async (w, device: Device) => {
   const id = await ensureDevice(w, device);
   await w.s.apply(restart, id, { preserveLocalDb: true });
+});
+
+When('{device} has its data cleared', async (w, device: Device) => {
+  const id = await ensureDevice(w, device);
+  await w.s.apply(clearLocalData, id, 'cleared');
 });
 
 When('{device} crashes and reopens', async (w, device: Device) => {

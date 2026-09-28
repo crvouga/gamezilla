@@ -188,7 +188,7 @@ export type SqliteWebAssetsOptions = {
   sqlWorkersDir: string;
   /**
    * Emitted under the app's `publicDir`, e.g. `public/generated/sqlite-wasm`.
-   * Only needed by apps that load sqlite-wasm directly (the simulator); omit
+   * Only needed by apps that load sqlite-wasm directly (the harness); omit
    * to skip the copy entirely.
    */
   sqliteWasmDir?: string;

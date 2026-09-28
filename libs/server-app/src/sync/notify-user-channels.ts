@@ -8,7 +8,7 @@ export type NotifyUserChannelsOptions = {
   /**
    * When true, publish on the request timers after allocate (avoids re-entering
    * an open Hono/mockingbird-postgres request). Prefer false for OOB paths that already
-   * finished their write txn — DST sims need the push before the next tick.
+   * finished their write txn — DST harnesses need the push before the next tick.
    */
   readonly deferPublish?: boolean;
 };

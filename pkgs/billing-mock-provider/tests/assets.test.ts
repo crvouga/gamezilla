@@ -1,7 +1,7 @@
 /**
  * Staleness guard for the embedded hosted pages: the generated module must be
  * exactly what the generator produces, or the provider would serve a bundle
- * nobody built (mirrors `@pkgs/idp-sim` `assets.test.ts`).
+ * nobody built (mirrors `@pkgs/idp-mock` `assets.test.ts`).
  */
 
 import { describe, expect, test } from 'bun:test';

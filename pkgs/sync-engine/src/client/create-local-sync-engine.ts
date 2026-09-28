@@ -29,6 +29,7 @@ import {
   attachPushIfConfigured,
   type SyncEnginePushOptions,
 } from './attach-configured-push';
+import type { CreateId, Timers } from './harness-ports';
 import { readLastSyncedAtMs } from './last-synced';
 import {
   clearLocalCache,
@@ -40,6 +41,7 @@ import {
   createLocalSyncStatusStore,
   type LocalSyncStatusStore,
 } from './local-sync-status';
+import { reapplyPendingAfterWipe } from './merge';
 import {
   MutationUploadQueue,
   type MutationUploadResult,
@@ -52,7 +54,6 @@ import {
   publishOptimisticFanout,
 } from './optimistic-fanout';
 import { createSharedWatchRegistry } from './shared-watch-registry';
-import type { CreateId, Timers } from './sim-ports';
 import { createSubscribeQueries } from './subscribe-queries';
 import {
   type QueryRequest,
@@ -89,19 +90,19 @@ export type CreateLocalSyncEngineOptions = {
    */
   readonly push?: SyncEnginePushOptions;
   readonly lifecycle?: AppLifecycle;
-  /** Required nondeterminism ports (wall or sim). */
+  /** Required nondeterminism ports (wall or harness). */
   readonly now: () => number;
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly random?: () => number;
   /**
    * Safety-net refetch interval for missed notify / lost push
-   * (default 30s). `<= 0` disables. Sim uses a shorter interval.
+   * (default 30s). `<= 0` disables. Harness uses a shorter interval.
    */
   readonly reconcileIntervalMs?: number;
   /**
    * Override local schema epoch (default {@link SCHEMA_EPOCH}).
-   * Used by the deterministic sim for epoch-bump scenarios.
+   * Used by the deterministic harness for epoch-bump scenarios.
    */
   readonly schemaEpoch?: number;
   /**
@@ -110,7 +111,7 @@ export type CreateLocalSyncEngineOptions = {
    */
   readonly waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
   /**
-   * Boundary hook during local migrate (sim crash / fault injection).
+   * Boundary hook during local migrate (harness crash / fault injection).
    * Phases: before → afterCacheWipe → afterEnsure → done.
    */
   readonly onLocalMigratePhase?: (
@@ -149,7 +150,7 @@ type LocalEngineState = {
   refreshTopics: (() => void) | null;
   disposeExternalDbChanged: (() => void) | null;
   pushPubSub: PubSub | null;
-  /** In-flight local mutation work (MutationClientProvider / sim clients). */
+  /** In-flight local mutation work (MutationClientProvider / harness clients). */
   readonly mutationDrains: Set<() => Promise<void>>;
 };
 
@@ -368,7 +369,7 @@ async function seedLastSyncedAt(state: LocalEngineState): Promise<void> {
 async function connectState(state: LocalEngineState): Promise<void> {
   if (state.connected) {
     state.uploadQueue.wake();
-    // Identity may have switched while this engine stayed open (product-simulator
+    // Identity may have switched while this engine stayed open (product-harness
     // fixed DB name). Remake entryChannel topics before waking queries.
     state.refreshTopics?.();
     state.runtime.wakeAll();
@@ -441,6 +442,7 @@ async function clearState(
     'sync_engine_scope_meta',
     'sync_engine_write_rejections',
   ]);
+  await reapplyPendingAfterWipe(mergeDeps(state));
   if (reconnect) await connectState(state);
 }
 
@@ -497,7 +499,7 @@ export async function createLocalSyncEngine(
     ...options,
     mutationRegistry: withFrameworkMutations(options.mutationRegistry),
   };
-  await migrateLocalSchema(merged.db, merged.localSchema, {
+  const wiped = await migrateLocalSchema(merged.db, merged.localSchema, {
     ...(merged.schemaEpoch !== undefined
       ? { schemaEpoch: merged.schemaEpoch }
       : {}),
@@ -505,5 +507,7 @@ export async function createLocalSyncEngine(
       ? { onLocalMigratePhase: merged.onLocalMigratePhase }
       : {}),
   });
-  return toEngine(createState(merged));
+  const state = createState(merged);
+  if (wiped) await reapplyPendingAfterWipe(mergeDeps(state));
+  return toEngine(state);
 }

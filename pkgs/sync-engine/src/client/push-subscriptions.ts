@@ -4,8 +4,8 @@ import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { QueryRegistry, QueryRow } from '../queries/core/types';
 import type { PushMessage, QueryChannelsCtx } from '../shared/push-payload';
 import { subscribeTables, type TopicMap } from '../shared/topic-map';
+import type { Timers } from './harness-ports';
 import type { MergeApplierDeps } from './merge';
-import type { Timers } from './sim-ports';
 import type { SubscriptionRuntime } from './subscription-runtime';
 
 export type AttachPushOptions = {

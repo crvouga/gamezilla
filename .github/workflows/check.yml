@@ -146,7 +146,7 @@ jobs:
           name: observability-traces-${{ github.run_id }}-shard-${{ matrix.shard }}
           # E2e suites live only in libs/*; keep upload-artifact out of the
           # repository-wide ** walk (node_modules makes that path pathological).
-          path: 'libs/*/.cache/sim-report/traces/*.ndjson'
+          path: 'libs/*/.cache/harness-report/traces/*.ndjson'
           if-no-files-found: ignore
           include-hidden-files: true
           retention-days: 7

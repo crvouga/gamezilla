@@ -37,7 +37,7 @@ import { DevicePortsProvider } from './device-ports-context';
 
 function AppTheme(props: { readonly children: JSX.Element }): JSX.Element {
   const { preference } = useThemePreference();
-  // Sims wrap the app in TestViewportProvider (happy-dom has no layout). Real
+  // Harnesses wrap the app in TestViewportProvider (happy-dom has no layout). Real
   // clients leave it unset so ThemeProvider measures via ResizeObserver.
   const testViewport = useTestViewport();
   return (

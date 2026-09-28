@@ -71,7 +71,7 @@ export const DEPLOYMENT_PROTECTION_BINDING = 'DEPLOYMENT_PROTECTION';
 /**
  * Whether this deployment is production — the one question every
  * production-only runtime branch asks. Deployed Workers carry their env
- * file's `protection`; local runs (wrangler dev, the localhost stack, sims)
+ * file's `protection`; local runs (wrangler dev, the localhost stack, harnesses)
  * carry none and are `standard`.
  */
 export type DeploymentProtection = 'production' | 'standard';

@@ -1,7 +1,7 @@
 /**
  * AWS SDK v3 request handler that sends every S3 call through an injected
  * {@link HttpClient} — the wall client in the Worker, a mockingbird S3 fetch
- * handler in tests / sims. Replaces the SDK's implicit global transport.
+ * handler in tests / harnesses. Replaces the SDK's implicit global transport.
  */
 
 import type { S3ClientConfig } from '@aws-sdk/client-s3';

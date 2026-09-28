@@ -32,7 +32,7 @@ export class SqlClientImplBetterSqlite implements SqlClient {
     return new SqlClientImplBetterSqlite(new BetterSqlite3(databasePath));
   }
 
-  /** Ephemeral in-memory DB (sim / Jest clients). */
+  /** Ephemeral in-memory DB (harness / Jest clients). */
   static openMemory(): SqlClientImplBetterSqlite {
     return new SqlClientImplBetterSqlite(new BetterSqlite3(':memory:'));
   }

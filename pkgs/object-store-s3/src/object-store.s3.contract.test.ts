@@ -14,7 +14,7 @@ import {
   S3_SECRET_ACCESS_KEY,
   startS3Server,
 } from '@pkgs/s3-server';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 import { createS3ObjectStore } from './impl-s3';
 
 const endpoint = process.env['S3_ENDPOINT']?.trim() ?? '';
@@ -55,7 +55,7 @@ if (!endpoint) {
 }
 
 describe('ObjectStore S3-compatible (contract)', () => {
-  const adapters = createSimAdapters({ seed: 1 });
+  const adapters = createHarnessAdapters({ seed: 1 });
   const prefix = normalizeObjectStoreRootPrefix(
     `dst-contract/${adapters.createId()}/`
   );

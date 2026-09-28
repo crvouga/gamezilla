@@ -8,7 +8,7 @@
  * online, and a lazy chunk never opened online is simply absent offline. So
  * the policy is one rule: **precache every file the wall client can load**
  * (`index.html`, its whole static + lazy module graph, the URL-loaded SQL
- * workers) and nothing the simulator alone reaches. `build-sw.ts` applies it
+ * workers) and nothing the harness alone reaches. `build-sw.ts` applies it
  * to Workbox's manifest; `check-offline-shell.ts` re-derives it from the
  * emitted `dist/sw.js` and fails on any gap or on {@link PRECACHE_BUDGET_BYTES}.
  *
@@ -25,19 +25,19 @@
  * - the entry: `index.html` `<script src>`, `modulepreload` and stylesheet
  *   links.
  *
- * The simulator (`/simulator`) is a dev surface booted by one lazy chunk,
+ * The harness (`/harness`) is a dev surface booted by one lazy chunk,
  * identified by its *source* path through Vite's manifest (not by a chunk-name
- * glob). That chunk is never entered, so what only the simulator reaches
- * (in-browser Postgres, sim seeds, the sim console) stays out of first-install
+ * glob). That chunk is never entered, so what only the harness reaches
+ * (in-browser Postgres, harness seeds, the harness console) stays out of first-install
  * precache, while anything the wall client also reaches is still required.
  */
 
 /** Vite's build manifest (source module → emitted chunk), `build.manifest`. */
 export const VITE_MANIFEST = '.vite/manifest.json';
 
-/** The `/simulator` boot; its exclusive subgraph is not part of the wall client. */
-export const SIMULATOR_BOOT_SOURCE =
-  'src/console/product-simulator/boot-product-simulator.ts';
+/** The `/harness` boot; its exclusive subgraph is not part of the wall client. */
+export const HARNESS_BOOT_SOURCE =
+  'src/console/product-harness/boot-product-harness.ts';
 
 /** Public dirs the wall client loads by URL (`new Worker('/sql-workers/…')`). */
 export const URL_LOADED_DIRS: readonly string[] = ['sql-workers/'];
@@ -94,7 +94,7 @@ export type OfflineShellInput = {
   readonly chunkSources: ReadonlyMap<string, string>;
   readonly indexHtml: string;
   readonly swSource: string;
-  /** Chunks whose subgraph is not part of the wall client (the simulator). */
+  /** Chunks whose subgraph is not part of the wall client (the harness). */
   readonly excludedRoots: readonly string[];
   /** Files the wall client loads by URL rather than by import (workers). */
   readonly extraRoots: readonly string[];

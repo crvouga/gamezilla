@@ -11,9 +11,9 @@
       "./src/root/*.ts",
       "./src/root/*.tsx"
     ],
-    "./sim/*": [
-      "./src/sim/*.ts",
-      "./src/sim/*.tsx"
+    "./harness/*": [
+      "./src/harness/*.ts",
+      "./src/harness/*.tsx"
     ]
   },
   "scripts": {
@@ -27,7 +27,7 @@
     "@libs/feature": "workspace:*",
     "@libs/permissions": "workspace:*",
     "@libs/profile": "workspace:*",
-    "@libs/sim-harness": "workspace:*",
+    "@libs/harness": "workspace:*",
     "@libs/test-ids": "workspace:*",
     "@libs/user-search": "workspace:*",
     "@lingui/core": "catalog:",

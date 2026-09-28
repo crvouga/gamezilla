@@ -61,7 +61,7 @@ async function nodeStatuses(
 }
 
 /** The broker's API authenticates and every node is running. */
-Then('live updates are ready to reach people', async (w) => {
+Then('what happens in a space can reach everyone in it', async (w) => {
   const b = await broker(w);
   const seen: { statuses: readonly string[] | null } = { statuses: null };
   await eventually(
@@ -82,7 +82,7 @@ Then('live updates are ready to reach people', async (w) => {
 });
 
 /** The server's publish path accepts a message. */
-Then('the app can send a live update', async (w) => {
+Then('the app can pass on what happens in a space', async (w) => {
   const b = await broker(w);
   const pubsub = createHttpPubSubFromSecretStore({
     apiBaseUrl: b.apiUrl,
@@ -97,7 +97,7 @@ Then('the app can send a live update', async (w) => {
  * points at the broker's host.
  */
 Then(
-  "people's apps are pointed at this environment's live updates",
+  "people's apps follow what happens in this environment's spaces",
   async (w) => {
     const wssUrl = await liveSecret(w, Name.wssUrl);
     await awaitApiAnswered(w);
@@ -113,7 +113,7 @@ Then(
 
 /** The broker dashboard refuses the stock admin login. */
 Then(
-  'nobody can take over live updates with the default password',
+  'nobody can listen in on spaces or disturb them with the default password',
   async (w) => {
     const res = await w.http.fetch(
       `${await liveSecret(w, Name.apiUrl)}/api/v5/login`,
@@ -133,7 +133,7 @@ Then(
 
 /** No broker credential is one of the committed public credentials. */
 Then(
-  'nobody can take over live updates with a publicly known password',
+  'nobody can listen in on spaces or disturb them with a publicly known password',
   async (w) => {
     const committed: string[] = [];
     for (const name of [

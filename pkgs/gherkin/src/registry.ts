@@ -49,7 +49,7 @@ export type ScenarioContext = {
 export type WorldLifecycle<W> = {
   readonly create: (ctx: ScenarioContext) => Promise<W>;
   readonly dispose: (world: W) => Promise<void>;
-  /** Calls the world made so far (e.g. sim calls), newest last — for reports. */
+  /** Calls the world made so far (e.g. harness calls), newest last — for reports. */
   readonly calls?: (world: W) => readonly string[];
   /**
    * A step failed: capture evidence (a screenshot, the page) before
@@ -223,7 +223,7 @@ export function worldLifecycle(): WorldLifecycle<unknown> {
   const world = registry().world;
   if (world === null) {
     throw new Error(
-      'gherkin: no world — the steps entry must call setWorld() (or the harness useSimWorld())'
+      'gherkin: no world — the steps entry must call setWorld() (or the harness useHarnessWorld())'
     );
   }
   return world;

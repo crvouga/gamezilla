@@ -1,6 +1,6 @@
 /**
  * Billing access steps: subscribing, what tier a person has, and what the
- * billing screen offers them. Each step is one sim call or a fixed short
+ * billing screen offers them. Each step is one harness call or a fixed short
  * sequence.
  */
 
@@ -10,43 +10,43 @@ import {
   leaveCheckout,
   openBilling,
   subscribeToPlus,
-} from '@libs/billing/sim/billing-actions';
+} from '@libs/billing/harness/billing-actions';
 import {
   billingButtonVisible,
   billingNotice,
   billingTier,
-} from '@libs/billing/sim/billing-reads';
+} from '@libs/billing/harness/billing-reads';
 import {
   focusActor,
   signInWithGoogle,
   signInWithGoogleAsAccount,
   spawnActor,
-} from '@libs/sim-harness';
+} from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
+} from '@libs/harness/spec/define';
 
 /** A settled tier lands a few virtual seconds after a write. */
 const SETTLE_MS = 6_000;
 const TIER_WAIT = { maxMs: 20_000, stepMs: 500 } as const;
 
-async function subscribe(w: SimWorld, actor: Actor): Promise<void> {
+async function subscribe(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(openBilling, actor);
   await w.s.apply(subscribeToPlus, actor);
 }
 
 /** The tier the billing screen on `device` shows, once it reads `tier`. */
 async function expectTier(
-  w: SimWorld,
+  w: HarnessWorld,
   device: Actor,
   tier: 'free' | 'paid'
 ): Promise<void> {
   await w.s.apply(focusActor, device);
-  await w.s.until((sim) => billingTier(sim, device), {
+  await w.s.until((harness) => billingTier(harness, device), {
     ...TIER_WAIT,
     pred: (shown) => shown === tier,
   });
@@ -100,18 +100,24 @@ When('{actor} leaves checkout without paying', async (w, actor: Actor) => {
 Then(
   '{actor} is offered to manage their membership',
   async (w, actor: Actor) => {
-    await w.s.until((sim) => billingButtonVisible(sim, actor, 'manage'), {
-      ...TIER_WAIT,
-      pred: (offered) => offered,
-    });
+    await w.s.until(
+      (harness) => billingButtonVisible(harness, actor, 'manage'),
+      {
+        ...TIER_WAIT,
+        pred: (offered) => offered,
+      }
+    );
   }
 );
 
 Then('{actor} is offered to subscribe', async (w, actor: Actor) => {
-  await w.s.until((sim) => billingButtonVisible(sim, actor, 'subscribe'), {
-    ...TIER_WAIT,
-    pred: (offered) => offered,
-  });
+  await w.s.until(
+    (harness) => billingButtonVisible(harness, actor, 'subscribe'),
+    {
+      ...TIER_WAIT,
+      pred: (offered) => offered,
+    }
+  );
 });
 
 Then('{actor} is not offered to subscribe', async (w, actor: Actor) => {
@@ -121,7 +127,7 @@ Then('{actor} is not offered to subscribe', async (w, actor: Actor) => {
 Then(
   '{actor} is told subscribing needs a connection',
   async (w, actor: Actor) => {
-    await w.s.until((sim) => billingNotice(sim, actor), {
+    await w.s.until((harness) => billingNotice(harness, actor), {
       ...TIER_WAIT,
       pred: (notice) => notice === 'offline',
     });

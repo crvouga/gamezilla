@@ -63,7 +63,7 @@ export function createBillingSubApp(
 /**
  * Billing needs the membership provider the host configured, so it is a
  * factory rather than a constant: the composition root hands it every
- * configured provider — in production and in a sim alike.
+ * configured provider — in production and in a harness alike.
  */
 export function createBillingServer(billing: MembershipProviders | null) {
   return defineFeatureServer({

@@ -40,7 +40,7 @@ const REPO_ROOT = join(import.meta.dir, '../../../..');
 const AUTH_SECRET = 'localhost-stack-auth-secret-0123456789';
 const BILLING_SECRET_KEY = 'sk_test_mock_localhost_stack';
 const BILLING_WEBHOOK_SECRET = 'whsec_mock_localhost_stack';
-/** Product super-app serves both `/` and the always-available `/simulator`. */
+/** Product super-app serves both `/` and the always-available `/harness`. */
 const PRODUCT_DEV_ARGS = [
   'run',
   '--cwd',
@@ -174,7 +174,7 @@ async function startWeb(args: {
       ...(args.e2eHooks ? { VITE_E2E: '1' } : {}),
     },
   });
-  await waitForHttp(`${args.origin}/simulator`);
+  await waitForHttp(`${args.origin}/harness`);
   return child;
 }
 
@@ -366,7 +366,7 @@ export async function bootLocalhostStack(
   const billingOrigin = loopback(billingReservation.port);
 
   // Infra and the simulated providers boot independently; the product Vite
-  // server starts after the API origin is available and serves `/simulator`.
+  // server starts after the API origin is available and serves `/harness`.
   const { infra, idps } = await bootInfraAndIdps({
     options,
     dataDir,

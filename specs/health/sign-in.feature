@@ -12,9 +12,9 @@ Feature: Signing in
   Scenario: Google agrees to send people back after they sign in
     Then Google agrees to send people back to the app after they sign in
 
-  Scenario: The app on the web hears back when a person finishes signing in
-    When a person on the web completes a sign-in
-    Then the app on the web hears whether the sign-in worked
+  Scenario: A person finishing signing in on the web knows whether it worked
+    When a person on the web finishes signing in
+    Then the app on the web knows whether they are signed in
 
   @oauth-relay
   Scenario: Google sign-ins started in another environment return to it

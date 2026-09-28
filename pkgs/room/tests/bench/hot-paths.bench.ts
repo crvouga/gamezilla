@@ -10,9 +10,9 @@
  */
 import type { Message } from '@pkgs/message';
 import * as current from '@pkgs/room';
+import { AddOne, gameRoomModule, TallyChanged } from '@pkgs/room/harness';
 import * as currentServer from '@pkgs/room/server';
 import { oldMemoryClientStorage } from '../helpers/bench-old-client-storage';
-import { CursorModule, Move, Moved } from '../helpers/cursor-module';
 import { FakeTransport } from '../helpers/fake-transport';
 import { MemoryRoomStorage } from '../helpers/memory-room-storage';
 import { CountingClientStorage } from '../helpers/memory-storage';
@@ -145,7 +145,7 @@ type AnyServer = currentServer.RoomServer<
 
 async function openClient(
   e: Engine,
-  opts: { connected: boolean; module?: typeof CursorModule }
+  opts: { connected: boolean; module?: typeof gameRoomModule }
 ): Promise<{ room: AnyClient; transport: FakeTransport }> {
   const ports = testPorts();
   const transport = new FakeTransport();
@@ -156,7 +156,7 @@ async function openClient(
     string
   >({
     topic: 'bench',
-    module: opts.module ?? CursorModule,
+    module: opts.module ?? gameRoomModule,
     storage: e.clientStorage() as current.ClientRoomStorage,
     transport,
     identity: 'alice',
@@ -176,8 +176,9 @@ async function openClient(
   return { room, transport };
 }
 
-function movedEntry(seq: number, id: string, x: number) {
-  return { seq, event: Moved({ id, x, y: seq }), actor: ACTOR, ts: seq };
+function tallyEntry(seq: number, person: string, by: number) {
+  const actor = { id: person, clientId: person };
+  return { seq, event: TallyChanged({ by }), actor, ts: seq };
 }
 
 /** Wire a client transport straight into a RoomServer (no network). */
@@ -186,7 +187,7 @@ async function loopback(e: Engine, connections: number) {
   const storage = new MemoryRoomStorage();
   const server: AnyServer = new e.RoomServer({
     topic: 'bench',
-    module: CursorModule,
+    module: gameRoomModule,
     storage,
     clock: ports.clock,
   });
@@ -215,7 +216,7 @@ async function loopback(e: Engine, connections: number) {
     string
   >({
     topic: 'bench',
-    module: CursorModule,
+    module: gameRoomModule,
     storage: e.clientStorage() as current.ClientRoomStorage,
     transport,
     identity: 'alice',
@@ -265,7 +266,7 @@ await scenario(
           opened = await openClient(e, { connected: false });
           n = 0;
         }
-        opened.room.dispatch(Move({ x: n, y: 1 }));
+        opened.room.dispatch(AddOne({}));
         n += 1;
       },
     };
@@ -277,11 +278,10 @@ await scenario(
   engines,
   async (e) => {
     const lb = await loopback(e, 1);
-    let x = 0;
     return {
       iters: 4_000,
       run: async () => {
-        lb.room.dispatch(Move({ x: x++, y: 0 }));
+        lb.room.dispatch(AddOne({}));
         await lb.flush();
       },
     };
@@ -293,11 +293,10 @@ await scenario(
   engines,
   async (e) => {
     const lb = await loopback(e, 8);
-    let x = 0;
     return {
       iters: 4_000,
       run: async () => {
-        lb.room.dispatch(Move({ x: x++, y: 0 }));
+        lb.room.dispatch(AddOne({}));
         await lb.flush();
         lb.sinks.length = 0;
       },
@@ -310,7 +309,7 @@ await scenario(
   engines,
   async (e) => {
     const { room, transport } = await openClient(e, { connected: true });
-    for (let i = 0; i < 4; i++) room.dispatch(Move({ x: i, y: 0 }));
+    for (let i = 0; i < 4; i++) room.dispatch(AddOne({}));
     let seq = 0;
     return {
       iters: 8_000,
@@ -319,7 +318,7 @@ await scenario(
         transport.deliver({
           v: current.WIRE_VERSION,
           kind: 'committed',
-          entries: [movedEntry(seq, 'bob', seq)],
+          entries: [tallyEntry(seq, 'bob', seq)],
         });
         await room.flushIo();
       },
@@ -333,7 +332,7 @@ await scenario(
   async (e) => {
     const { room, transport } = await openClient(e, { connected: true });
     const warm: unknown[] = [];
-    for (let s = 1; s <= 5_000; s++) warm.push(movedEntry(s, 'bob', s));
+    for (let s = 1; s <= 5_000; s++) warm.push(tallyEntry(s, 'bob', s));
     for (let i = 0; i < 5_000; i += 500) {
       transport.deliver({
         v: current.WIRE_VERSION,
@@ -351,7 +350,7 @@ await scenario(
         transport.deliver({
           v: current.WIRE_VERSION,
           kind: 'committed',
-          entries: [movedEntry(seq, 'bob', seq)],
+          entries: [tallyEntry(seq, 'bob', seq)],
         });
         await room.flushIo();
       },
@@ -362,7 +361,7 @@ await scenario(
 await scenario('welcome apply, 512 entries', engines, async (e) => {
   const entries: unknown[] = [];
   for (let s = 1; s <= 512; s++)
-    entries.push(movedEntry(s, `p${String(s % 8)}`, s));
+    entries.push(tallyEntry(s, `p${String(s % 8)}`, s));
   let opened = await openClient(e, { connected: false });
   return {
     iters: 300,

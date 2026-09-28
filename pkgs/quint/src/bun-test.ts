@@ -18,7 +18,12 @@ import {
   quintWorld,
   type TraceContext,
 } from './registry';
-import { describeStep, replayTrace, untakenActions } from './replay';
+import {
+  describeStep,
+  replayTrace,
+  replayTraceTwice,
+  untakenActions,
+} from './replay';
 import { simulate } from './simulate';
 
 export type RunModelOptions = {
@@ -56,6 +61,16 @@ export function runQuintModel(options: RunModelOptions): void {
       return;
     }
     const { binding, drawn } = prepared;
+    const longestTrace = (traces: typeof drawn.traces) => {
+      let at = 0;
+      for (const [i, trace] of traces.entries()) {
+        if (trace.states.length > traces[at]!.states.length) at = i;
+      }
+      return {
+        trace: traces[at]!,
+        ctx: traceContext(options, model, drawn.seed, at + 1),
+      };
+    };
     writeSummary(outDir, options, drawn);
 
     test(`takes every bound action (${String(drawn.traces.length)} traces, seed ${drawn.seed})`, () => {
@@ -67,18 +82,23 @@ export function runQuintModel(options: RunModelOptions): void {
       }
     });
 
+    if (binding.fingerprint !== undefined && drawn.traces.length > 0) {
+      const longest = longestTrace(drawn.traces);
+      const replayTwice = () =>
+        replayTraceTwice({
+          ctx: longest.ctx,
+          trace: longest.trace,
+          world: quintWorld(),
+          binding,
+        });
+      const name = `trace ${String(longest.ctx.trace)} replays to the same end state`;
+      if (binding.timeoutMs === undefined) test(name, replayTwice);
+      else test(name, replayTwice, binding.timeoutMs * 2);
+    }
+
     for (const [i, trace] of drawn.traces.entries()) {
       const n = i + 1;
-      const title = `${model} · trace ${String(n)}`;
-      const ctx: TraceContext = {
-        packageName: options.packageName,
-        specUri: options.specUri,
-        model,
-        trace: n,
-        seed: drawn.seed,
-        testId: `${model}.trace-${String(n)}`,
-        title,
-      };
+      const ctx = traceContext(options, model, drawn.seed, n);
       const body = () =>
         replayTrace({ ctx, trace, world: quintWorld(), binding });
       const name = `trace ${String(n)} (${String(trace.states.length - 1)} steps)`;
@@ -86,6 +106,23 @@ export function runQuintModel(options: RunModelOptions): void {
       else test(name, body, binding.timeoutMs);
     }
   });
+}
+
+function traceContext(
+  options: RunModelOptions,
+  model: string,
+  seed: string,
+  n: number
+): TraceContext {
+  return {
+    packageName: options.packageName,
+    specUri: options.specUri,
+    model,
+    trace: n,
+    seed,
+    testId: `${model}.trace-${String(n)}`,
+    title: `${model} · trace ${String(n)}`,
+  };
 }
 
 function writeSummary(

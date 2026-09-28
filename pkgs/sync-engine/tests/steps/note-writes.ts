@@ -10,7 +10,7 @@ import {
   requiresOnlineNote,
   setNote,
   setSpaceNote,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { type Device, ensureDevice, type SyncWorld } from './world';
 
 /** How long a person would wait for a note to reach them. */

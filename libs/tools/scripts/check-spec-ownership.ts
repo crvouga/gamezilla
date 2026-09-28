@@ -2,8 +2,9 @@
 // @io-wall-ok — CI gate entry (`//#ci:spec-ownership`) and pre-commit check.
 /**
  * Every spec — a `.feature` file, a Quint `.qnt` spec, or a bounded
- * context's ubiquitous language (`specs/glossary.yaml`,
- * `specs/<domain>/glossary.yaml`) — belongs to the spec writer. An implementer never edits
+ * context's ubiquitous language (`specs/ubiquitous-language.yml`,
+ * `specs/<domain>/ubiquitous-language.yml`, or `glossary.yaml` under its
+ * earlier name, which commits made before the rename still carry) — belongs to the spec writer. An implementer never edits
  * a spec, so a commit that touches one is a spec commit and nothing else: its
  * subject starts with `spec:` (or `spec(scope):`) and it changes only specs,
  * catalogs and docs. A commit that mixes a spec change with
@@ -22,7 +23,7 @@ export type Commit = {
 };
 
 const SPEC_FILE =
-  /\.feature$|^specs\/[^/]+\/[^/]+\.qnt$|^specs\/(?:[^/]+\/)?glossary\.yaml$/;
+  /\.feature$|^specs\/[^/]+\/[^/]+\.qnt$|^specs\/(?:[^/]+\/)?(?:ubiquitous-language\.yml|glossary\.yaml)$/;
 const SPEC_SUBJECT = /^spec(\([^)]*\))?!?:/;
 /** What a spec commit may touch besides specs. */
 const SPEC_SIDE_FILES = [/(^|\/)STEPS_CATALOG\.md$/, /^docs\/.*\.md$/];

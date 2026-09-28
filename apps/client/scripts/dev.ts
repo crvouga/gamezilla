@@ -1,5 +1,5 @@
 // @io-wall-ok
-/** Product web app only; the simulator console lives in @apps/product. */
+/** Product web app only; the harness console lives in @apps/product. */
 import { join } from 'node:path';
 import { run } from '@pkgs/os';
 

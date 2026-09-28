@@ -6,13 +6,13 @@ import {
   type OauthCallbackRelay,
 } from '@pkgs/auth-inhouse/server';
 import { oauthClientCallbackUrl } from '@pkgs/auth-inhouse/shared';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import {
+  createIdpMockApp,
   createIdpSigningKeys,
-  createIdpSimApp,
   IdpStore,
-} from '@pkgs/idp-sim/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-sim/shared';
+} from '@pkgs/idp-mock/server';
+import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-mock/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
 import { Hono } from 'hono';
@@ -75,7 +75,7 @@ async function bootDeployment(
     logger: createNoopLogger(),
   });
   let nextId = 0;
-  const { clock } = createSimClock({ startMs: START_MS });
+  const { clock } = createHarnessClock({ startMs: START_MS });
   const app = new Hono();
   app.route(
     PREFIX,
@@ -102,9 +102,9 @@ async function bootDeployment(
 }
 
 async function bootFleet(): Promise<{ readonly wire: Wire }> {
-  const { clock } = createSimClock({ startMs: START_MS });
+  const { clock } = createHarnessClock({ startMs: START_MS });
   let nextIdpId = 0;
-  const idp = await createIdpSimApp({
+  const idp = await createIdpMockApp({
     store: await IdpStore.open({
       provider: 'google',
       sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 9 }),

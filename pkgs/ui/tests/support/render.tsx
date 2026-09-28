@@ -2,7 +2,7 @@
 
 import { setupI18n } from '@lingui/core';
 import { I18nProvider } from '@lingui/solid';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { ThemeProvider } from '@pkgs/ui';
 import { render } from '@solidjs/testing-library';
@@ -15,15 +15,15 @@ type RenderOptions = {
 };
 
 /**
- * Mounts `ui` under Lingui `I18nProvider` (en, source strings) + `ThemeProvider` + sim `ClockProvider` (virtual timers,
+ * Mounts `ui` under Lingui `I18nProvider` (en, source strings) + `ThemeProvider` + harness `ClockProvider` (virtual timers,
  * so nothing in the design system touches wall time in tests).
  */
 export function renderUi(ui: () => JSX.Element, options: RenderOptions = {}) {
-  const sim = createSimClock();
+  const harness = createHarnessClock();
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   const result = render(() => (
     <I18nProvider i18n={i18n}>
-      <ClockProvider clock={sim.clock} timers={sim.timers}>
+      <ClockProvider clock={harness.clock} timers={harness.timers}>
         <ThemeProvider
           colorScheme={options.colorScheme ?? 'light'}
           fixedLayout={{
@@ -36,7 +36,7 @@ export function renderUi(ui: () => JSX.Element, options: RenderOptions = {}) {
       </ClockProvider>
     </I18nProvider>
   ));
-  return { ...result, clock: sim.clock, timers: sim.timers };
+  return { ...result, clock: harness.clock, timers: harness.timers };
 }
 
 /** Inline style attribute with whitespace removed, e.g. `padding:8px;`. */

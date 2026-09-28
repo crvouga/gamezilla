@@ -25,7 +25,7 @@ function ProfileEntityBootstrap(): JSX.Element {
     // React to the IdP session too: sign-in upgrades the anonymous user in
     // place (same `users.id`), so `myId` alone never flips post-sign-in and
     // the signup-username handoff would only ever be consumed by luck.
-    // Hosts without secure storage (sims) skip this reactivity and still
+    // Hosts without secure storage (harnesses) skip this reactivity and still
     // work because the mutation itself handles both paths.
     externalUserItem.value();
     void new ProfileEnsurer(mutationClient).ensure().catch(() => {

@@ -7,60 +7,37 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 
 | Kind | Step | Parameters | Domain |
 | --- | --- | --- | --- |
-| Then | every service the app relies on still accepts it | — | health, journeys |
+| Then | every outside service the app relies on still lets the app use it | — | health, journeys |
 | Then | everything the app needs to answer people is ready | — | health, journeys |
 | Then | Google agrees to send people back to the app after they sign in | — | health, journeys |
 | Then | Google sign-ins started in any other environment return to that environment | — | health, journeys |
-| Then | live spaces can run in this environment | — | health, journeys |
-| Then | live updates are ready to reach people | — | health, journeys |
-| Then | nobody can take over live updates with a publicly known password | — | health, journeys |
-| Then | nobody can take over live updates with the default password | — | health, journeys |
+| Then | nobody can listen in on spaces or disturb them with a publicly known password | — | health, journeys |
+| Then | nobody can listen in on spaces or disturb them with the default password | — | health, journeys |
 | Then | payments in this environment are real exactly when it is a production environment | — | health, journeys |
 | Then | people are offered Google sign-in and not Apple sign-in | — | health, journeys |
 | Then | people can find the app at every one of its addresses | — | health, journeys |
 | Then | people can open the app at its address | — | health, journeys |
 | Then | people can pay for Plus | — | health, journeys |
 | Then | people reach every address of the app securely for {int} more days | {int} | health, journeys |
-| Then | people's apps are pointed at this environment's live updates | — | health, journeys |
+| Then | people's apps follow what happens in this environment's spaces | — | health, journeys |
+| Then | spaces can open in this environment | — | health, journeys |
 | Then | starting a Google sign-in hands the person to Google with the way back to the app | — | health, journeys |
 | Then | the address without "www" leads people to the app | — | health, journeys |
 | Then | the app answers people | — | health, journeys |
-| Then | the app can keep a file, read it back and remove it | — | health, journeys |
-| Then | the app can reach the live spaces | — | health, journeys |
-| Then | the app can record what each request did | — | health, journeys |
-| Then | the app can send a live update | — | health, journeys |
-| Then | the app has access to every service it relies on | — | health, journeys |
+| Then | the app can keep an upload, show it again and remove it | — | health, journeys |
+| Then | the app can pass on what happens in a space | — | health, journeys |
+| Then | the app can take people into a space | — | health, journeys |
+| Then | the app has what it needs to use every outside service it relies on | — | health, journeys |
 | Then | the app is given every setting it needs | — | health, journeys |
-| Then | the app on the web hears whether the sign-in worked | — | health, journeys |
-| Then | the team can look up what a request did | — | health, journeys |
-| Then | the team can open the Simulator at its address | — | health, journeys |
-| Then | this environment is exactly as the team declared it | — | health, journeys |
-| Then | this environment keeps its files apart from every other environment's | — | health, journeys |
-| Then | what people saved is ready for this version of the app | — | health, journeys |
-| When | a person on the web completes a sign-in | — | health, journeys |
-
-## Shared steps (every package)
-
-| Kind | Step | Parameters | Domain |
-| --- | --- | --- | --- |
-| Given | {actor} and {actor} are guests | {actor}, {actor} | shared |
-| Given | {actor} and {actor} are signed in | {actor}, {actor} | shared |
-| Given | {actor} has closed and reopened the app | {actor} | shared |
-| Given | {actor} has signed out | {actor} | shared |
-| Given | {actor} is a guest | {actor} | shared |
-| Given | {actor} is also signed in on another device | {actor} | shared |
-| Given | {actor} is offline | {actor} | shared |
-| Given | {actor} is signed in | {actor} | shared |
-| Given | {actor} is signed in with Google | {actor} | shared |
-| Given | the connection has come back | — | shared |
-| Then | {actor} (still )has no account | {actor} | shared |
-| Then | {actor} has a signed-in account | {actor} | shared |
-| Then | {actor} is asked to sign in | {actor} | shared |
-| Then | {actor} is asked to sign in within {int} seconds | {actor}, {int} | shared |
-| When | {actor} closes and reopens the app | {actor} | shared |
-| When | {actor} loses the connection | {actor} | shared |
-| When | {actor} signs in with Google | {actor} | shared |
-| When | the connection comes back | — | shared |
+| Then | the app leaves a trail of what it does for people | — | health, journeys |
+| Then | the app on the web knows whether they are signed in | — | health, journeys |
+| Then | the team can follow the trail of what the app did for someone | — | health, journeys |
+| Then | the team can open the testing tool at its address | — | health, journeys |
+| Then | this environment is exactly as the team planned it | — | health, journeys |
+| Then | this environment keeps its uploads apart from every other environment's | — | health, journeys |
+| Then | what happens in a space can reach everyone in it | — | health, journeys |
+| Then | what people saved is ready for the app as it is now | — | health, journeys |
+| When | a person on the web finishes signing in | — | health, journeys |
 
 ## Steps imported from @libs/runtime
 
@@ -74,7 +51,7 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 | Then | editing their avatar again shows the new one | — | runtime |
 | Then | Google is asked to sign them in and send them back to the app | — | runtime |
 | Then | Plus is offered at its monthly and yearly prices | — | runtime |
-| Then | the app finishes booting into the tabs | — | runtime |
+| Then | the app gets past its opening screen onto the tabs | — | runtime |
 | Then | the next puzzle is ready to play | — | runtime |
 | Then | the search finishes with no results | — | runtime |
 | Then | the space offers games to play | — | runtime |
@@ -93,13 +70,13 @@ Tag every scenario with the `@domain` of its `specs/<domain>/` directory (`@doma
 ## Features
 
 - `specs/health/connected-services.feature` — Outside services (1 scenarios)
-- `specs/health/declared-environment.feature` — Declared environment (1 scenarios)
-- `specs/health/live-updates.feature` — Live updates (4 scenarios)
+- `specs/health/declared-environment.feature` — Environments stay as the team planned them (1 scenarios)
+- `specs/health/live-updates.feature` — Seeing each other play (4 scenarios)
 - `specs/health/payments.feature` — Payments (2 scenarios)
 - `specs/health/reaching-the-app.feature` — Reaching the app (5 scenarios)
-- `specs/health/request-records.feature` — Request records (2 scenarios)
+- `specs/health/request-records.feature` — Finding out what happened (2 scenarios)
 - `specs/health/serving-people.feature` — Serving people (4 scenarios)
 - `specs/health/sign-in.feature` — Signing in (5 scenarios)
-- `specs/health/spaces.feature` — Live spaces (1 scenarios)
-- `specs/health/stored-files.feature` — Stored files (2 scenarios)
+- `specs/health/spaces.feature` — Spaces (1 scenarios)
+- `specs/health/stored-files.feature` — Keeping what people upload (2 scenarios)
 - `specs/journeys/critical-journeys.feature` — Critical journeys (9 scenarios)

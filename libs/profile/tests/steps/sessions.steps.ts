@@ -9,19 +9,19 @@ import {
   signInWithApple,
   signInWithGoogle,
   signOutEverywhere,
-} from '@libs/sim-harness';
-import { type Actor, Given, When } from '@libs/sim-harness/spec/define';
+} from '@libs/harness';
+import { type Actor, Given, When } from '@libs/harness/spec/define';
 import {
+  type HarnessWorld,
   remember,
-  type SimWorld,
   signedInAccountKey,
-} from '@libs/sim-harness/spec/world';
+} from '@libs/harness/spec/world';
 
 /** The Apple Account these scenarios sign in with: not linked to Google. */
 const APPLE_ACCOUNT = 'icloud';
 const SIGNED_OUT_WAIT_MS = 150_000;
 
-async function rememberAccount(w: SimWorld, actor: Actor): Promise<void> {
+async function rememberAccount(w: HarnessWorld, actor: Actor): Promise<void> {
   const account = await w.s.read(signedInAccountOf, actor);
   if (account === null) throw new Error(`${actor} did not sign in`);
   remember(w, signedInAccountKey(actor), account);
@@ -38,7 +38,7 @@ Given(
     await w.s.apply(signInWithApple, actor, { account: APPLE_ACCOUNT });
     await rememberAccount(w, actor);
     await w.s.apply(appleRevokesApp, actor, APPLE_ACCOUNT);
-    await w.s.until((sim) => signedOutShown(sim, actor), {
+    await w.s.until((harness) => signedOutShown(harness, actor), {
       pred: (signedOut) => signedOut,
       maxMs: SIGNED_OUT_WAIT_MS,
     });

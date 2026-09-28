@@ -17,7 +17,7 @@ import {
   parseChessBoardPaint,
 } from '@pkgs/chess-board-core/probe';
 import type { Square } from '@pkgs/chess-board-core/types';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import type {
   AudioPlaybackPort,
@@ -97,7 +97,7 @@ export function centerOf(square: Square): { x: number; y: number } {
 }
 
 export function mountBoard(props: Partial<ChessBoardProps> = {}) {
-  const { clock, timers } = createSimClock();
+  const { clock, timers } = createHarnessClock();
   const [orientation, setOrientation] = createSignal<'white' | 'black'>(
     props.orientation ?? 'white'
   );

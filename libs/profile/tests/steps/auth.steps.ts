@@ -13,25 +13,25 @@ import {
   signInMethodsShown,
   signInWithApple,
   signOut,
-} from '@libs/sim-harness';
-import { type Actor, Then, When } from '@libs/sim-harness/spec/define';
-import { otherDevice } from '@libs/sim-harness/spec/steps/platform';
+} from '@libs/harness';
+import { type Actor, Then, When } from '@libs/harness/spec/define';
+import { otherDevice } from '@libs/harness/spec/steps/platform';
 import {
+  type HarnessWorld,
   recall,
-  type SimWorld,
   signedInAccountKey,
-} from '@libs/sim-harness/spec/world';
+} from '@libs/harness/spec/world';
 
 const SECOND_MS = 1_000;
 const METHODS_WAIT_MS = 20_000;
 
 async function signedOutWithin(
-  w: SimWorld,
+  w: HarnessWorld,
   device: string,
   seconds: number
 ): Promise<void> {
   await w.s.apply(focusActor, device);
-  await w.s.until((sim) => signedOutShown(sim, device), {
+  await w.s.until((harness) => signedOutShown(harness, device), {
     pred: (signedOut) => signedOut,
     maxMs: seconds * SECOND_MS,
   });
@@ -97,12 +97,12 @@ Then('{actor} is signed into a different account', async (w, actor: Actor) => {
 });
 
 async function signInMethodsWithin(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   methods: readonly string[],
   maxMs: number
 ): Promise<void> {
-  await w.s.until((sim) => signInMethodsShown(sim, actor), {
+  await w.s.until((harness) => signInMethodsShown(harness, actor), {
     pred: (shown) => shown?.join(',') === methods.join(','),
     maxMs,
   });

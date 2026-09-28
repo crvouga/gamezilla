@@ -5,7 +5,7 @@ import { join, relative } from 'node:path';
 /**
  * `@pkgs/sync-engine` must stay product-agnostic. Fail if runtime / docs
  * mention host-domain vocabulary (table names, product features, monorepo).
- * The example domain under `src/sim/example-app/` is exempt — it models a domain on purpose.
+ * The example domain under `src/harness/example-app/` is exempt — it models a domain on purpose.
  */
 
 const PKG_ROOT = join(import.meta.dir, '..');
@@ -18,7 +18,7 @@ const SCAN_DIRS = [
   'src/mutations',
   'src/protocol',
   'src/sql-ast',
-  'src/sim',
+  'src/harness',
 ] as const;
 
 const SCAN_FILES = ['README.md', 'docs/CONTRACTS.md'] as const;
@@ -47,7 +47,7 @@ const DENY: readonly { readonly re: RegExp; readonly label: string }[] = [
   { re: /\bINTO profile\b/i, label: 'INTO profile' },
 ];
 
-const SKIP_LINE = /\.(?:sim\.)?(?:pbt\.)?test\.tsx?/;
+const SKIP_LINE = /\.(?:harness\.)?(?:pbt\.)?test\.tsx?/;
 
 function walkFiles(dir: string): string[] {
   const out: string[] = [];

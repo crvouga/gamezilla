@@ -1,6 +1,6 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { EventEmitter } from 'node:events';
-import { createSimClock, type SimClockBundle } from '@pkgs/clock';
+import { createHarnessClock, type HarnessClockBundle } from '@pkgs/clock';
 import { createNoopLogger, type Logger } from '@pkgs/logger';
 import type { PubSub } from '@pkgs/pubsub/interface';
 import type { IClientOptions, MqttClient } from 'mqtt';
@@ -76,21 +76,21 @@ async function flushMicrotasks(): Promise<void> {
  * client lives in-process, so no wall time is ever needed.
  */
 async function waitUntil(
-  sim: SimClockBundle,
+  harness: HarnessClockBundle,
   pred: () => boolean
 ): Promise<void> {
   for (let step = 0; step < SETTLE_STEPS; step += 1) {
     await flushMicrotasks();
     if (pred()) return;
-    sim.clock.advance(1);
+    harness.clock.advance(1);
   }
-  throw new Error(`waitUntil timed out at t=${sim.clock.now()}ms`);
+  throw new Error(`waitUntil timed out at t=${harness.clock.now()}ms`);
 }
 
 type BootResult = {
   ps: PubSub;
   lastOpts: IClientOptions | null;
-  sim: SimClockBundle;
+  harness: HarnessClockBundle;
 };
 
 async function boot(
@@ -98,12 +98,12 @@ async function boot(
   extra?: Partial<Parameters<typeof createMqttPubSub>[0]>
 ): Promise<BootResult> {
   let lastOpts: IClientOptions | null = null;
-  const sim = createSimClock();
+  const harness = createHarnessClock();
   const ps = createMqttPubSub({
     url: 'ws://x/mqtt',
     auth: async () => ({ username: 'u', password: 'p' }),
     clientIdPrefix: 'device-1',
-    timers: sim.timers,
+    timers: harness.timers,
     random: () => 0,
     logger: createNoopLogger(),
     connectFn: (_url: string, opts: IClientOptions) => {
@@ -112,10 +112,10 @@ async function boot(
     },
     ...extra,
   });
-  await waitUntil(sim, () => fake.listenerCount('connect') > 0);
+  await waitUntil(harness, () => fake.listenerCount('connect') > 0);
   fake.simulateConnect();
-  await waitUntil(sim, () => ps.status() === 'connected');
-  return { ps, lastOpts, sim };
+  await waitUntil(harness, () => ps.status() === 'connected');
+  return { ps, lastOpts, harness };
 }
 
 describe('createMqttPubSub', () => {
@@ -162,7 +162,7 @@ describe('createMqttPubSub', () => {
     const fakes: FakeMqttClient[] = [];
     let authCalls = 0;
     const optsList: IClientOptions[] = [];
-    const sim = createSimClock();
+    const harness = createHarnessClock();
     const ps = createMqttPubSub({
       url: 'ws://x/mqtt',
       auth: async () => {
@@ -170,7 +170,7 @@ describe('createMqttPubSub', () => {
         return { username: 'u', password: `p-${authCalls}` };
       },
       clientIdPrefix: 'stable-id',
-      timers: sim.timers,
+      timers: harness.timers,
       random: () => 0,
       logger: createNoopLogger(),
       reconnect: { baseMs: 1, maxMs: 1 },
@@ -183,7 +183,7 @@ describe('createMqttPubSub', () => {
       },
     });
     ps.subscribe('keep', () => undefined);
-    await waitUntil(sim, () => ps.status() === 'connected');
+    await waitUntil(harness, () => ps.status() === 'connected');
     expect(authCalls).toBe(1);
     expect(optsList[0]).toMatchObject({
       clientId: 'stable-id',
@@ -194,7 +194,7 @@ describe('createMqttPubSub', () => {
     ]);
 
     fakes[0]?.emit('close');
-    await waitUntil(sim, () => optsList.length >= 2);
+    await waitUntil(harness, () => optsList.length >= 2);
     expect(authCalls).toBe(2);
     expect(optsList[1]).toMatchObject({
       clientId: 'stable-id',

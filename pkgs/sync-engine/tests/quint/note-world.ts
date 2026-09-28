@@ -1,17 +1,19 @@
 /**
- * The world a `note-replication.qnt` trace runs in: one `exampleSystem` run
+ * The world a `specs/sync-engine/note-replication.qnt` trace runs in: one `exampleSystem` run
  * per trace, observed on its virtual clock so asynchronous convergence gets
  * the time a person would give it.
  */
 
+import type { Run } from '@pkgs/harness';
 import { setQuintWorld } from '@pkgs/quint/registry';
-import type { Run } from '@pkgs/sim';
-import { exampleSystem, type SyncSim } from '@pkgs/sync-engine/sim';
+import { exampleSystem, type SyncHarness } from '@pkgs/sync-engine/harness';
 
 export type NoteWorld = {
-  readonly s: Run<SyncSim>;
+  readonly s: Run<SyncHarness>;
   /** Mutation ids whose confirmation was dropped, by person. */
   readonly owed: Map<string, string>;
+  /** People with a second window of the app open on their device. */
+  readonly windows: Set<string>;
 };
 
 /** How long the product may take to reach the model's state after a step. */
@@ -26,6 +28,7 @@ export function useNoteWorld(): void {
         args: { clientCount: 0 },
       }),
       owed: new Map(),
+      windows: new Set(),
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),
     record: (w, meta, fn) =>

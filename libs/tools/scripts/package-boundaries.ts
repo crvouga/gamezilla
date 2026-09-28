@@ -48,12 +48,12 @@ const COMPOSITION_ROOT = '@libs/runtime';
 
 /**
  * Packages that must stay composable from any subset of features: the app
- * shells, and the sim harness a feature's own e2e boots them through.
+ * shells, and the harness a feature's own e2e boots them through.
  */
 const SHELLS = [
   '@libs/client-app',
   '@libs/server-app',
-  '@libs/sim-harness',
+  '@libs/harness',
 ] as const;
 
 type Rule = {

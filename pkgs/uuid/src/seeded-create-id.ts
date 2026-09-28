@@ -15,7 +15,7 @@ export function createSeededCreateId(random: Random): CreateId {
   };
 }
 
-export type SimIds = {
+export type HarnessIds = {
   readonly seed: bigint;
   readonly rng: SeededRng;
   readonly random: Random;
@@ -23,7 +23,7 @@ export type SimIds = {
 };
 
 /** Seeded ids + random for simulation (independent forks of the root seed). */
-export function createSimIds(seed: number | bigint | string): SimIds {
+export function createHarnessIds(seed: number | bigint | string): HarnessIds {
   const rng = createSeededRng(seed);
   return {
     seed: rng.seed,

@@ -3,18 +3,18 @@
  * (`specDomains`): registers the world (the full app
  * composition) and every step definition its features may use — the shared
  * platform steps and this package's own. The critical journeys' steps run
- * on {@link simJourneyHost} here and on a real browser in `@apps/product`.
+ * on {@link harnessJourneyHost} here and on a real browser in `@apps/product`.
  */
 
-import '@libs/sim-harness/spec/steps/platform';
+import '@libs/harness/spec/steps/platform';
 import '@libs/profile/steps/profile.steps';
 import './app-lifecycle.steps';
 import './app-shell.steps';
 import './journeys.steps';
 import './settings.steps';
 
-import { useSimWorld } from '@libs/sim-harness/spec/world';
-import { openSim } from '../e2e/support/open-app-sim';
-import { simJourneyHost } from './journey-sim-host';
+import { useHarnessWorld } from '@libs/harness/spec/world';
+import { openHarness } from '../e2e/support/open-app-harness';
+import { harnessJourneyHost } from './journey-harness-host';
 
-useSimWorld(openSim, (w) => ({ journey: simJourneyHost(w) }));
+useHarnessWorld(openHarness, (w) => ({ journey: harnessJourneyHost(w) }));

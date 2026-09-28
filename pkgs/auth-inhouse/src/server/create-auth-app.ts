@@ -26,7 +26,7 @@ export type { CreateAuthAppDeps, CreateAuthAppProviders };
 
 /**
  * Application-agnostic IdP Hono app. Runtime mounts with `.route('/', app)`.
- * All I/O is injected — safe for Workers, Node tests, and in-process sim.
+ * All I/O is injected — safe for Workers, Node tests, and in-process harness.
  */
 export function createAuthApp(deps: CreateAuthAppDeps): Hono {
   const ctx: AuthAppCtx = {

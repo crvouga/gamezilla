@@ -1,0 +1,289 @@
+# The ubiquitous language of Identity: every word the specs in specs/profile/
+# use for who a person is to the product. Other contexts borrow the published
+# terms (guest, account, sign in, sign out, sign-in method, username, avatar,
+# profile) with `from: profile`; see docs/CONTEXT_MAP.md.
+context: Identity
+purpose: >-
+  Who a person is to the product: a guest with a username and avatar from
+  the moment they arrive, and an account they can sign in to on any device
+  with Google or Apple, and never lose their way back into.
+
+terms:
+  # Published language
+
+  - term: guest
+    definition: >-
+      A person using the app without an account. A guest already has a
+      username, an avatar and a profile of their own, and keeps them when
+      they sign in.
+    forms: [guests, guest's]
+    avoid: [anonymous user, logged-out user]
+    published: true
+
+  - term: account
+    definition: >-
+      Who a person is to the product once they have signed in: their profile,
+      their sign-in methods, and every device signed into it. A person's first
+      sign in with an outside account nothing signs into yet starts a new
+      account, unless it is an address match for one they already have.
+    forms: [accounts, account's]
+    avoid: [user account, login, app account]
+    model: [account, accountOf, accountCount]
+    published: true
+
+  - term: sign in
+    definition: >-
+      Get into an account on a device with one of its sign-in methods. Signing
+      in needs a connection. A guest who signs in keeps their profile; a
+      person signing back in gets their account's profile back.
+    forms: [signs in, signed in, signing in, sign-in, sign-ins, signed-in]
+    avoid: [log in, logs in, logged in, logging in, sign up, signs up, register]
+    model: [signIn, signedIn, showsSignedIn, SignedIn]
+    published: true
+
+  - term: sign out
+    definition: >-
+      Leave an account on one device. It happens at once, with or without a
+      connection; the person's other devices stay signed in.
+    forms: [signs out, signed out, signing out]
+    avoid: [log out, logs out, logged out, logout]
+    model: [signOut, SignedOut]
+    published: true
+
+  - term: sign-in method
+    definition: >-
+      A way a person gets into their account: Google or Apple, each through
+      one outside account. An account has at most one of each, and always
+      keeps at least one.
+    forms: [sign-in methods]
+    avoid: [way in, ways in, way to sign in, login method, auth method]
+    model: [SignInMethod, signInMethods, signInMethodsShown, signInMethodOf]
+    published: true
+
+  - term: username
+    definition: >-
+      The name a person goes by, shown as @name: unique regardless of letter
+      case, saved in lowercase, and the same on every device of theirs and
+      for everyone else. Every newcomer gets one of their own.
+    forms: [usernames, username's]
+    avoid: [handle, display name, nickname, screen name]
+    model: [username, usernameOnDevice, Username]
+    published: true
+
+  - term: avatar
+    definition: >-
+      The picture on a person's profile: an avatar style drawn from an avatar
+      seed. Every newcomer starts with one of their own.
+    forms: [avatars, avatar's]
+    avoid: [profile picture, profile photo, profile image]
+    published: true
+
+  - term: profile
+    definition: >-
+      How a person shows up to everyone: their username and avatar. It goes
+      with their account to every device they sign in on.
+    forms: [profiles, profile's]
+    avoid: [user profile]
+    published: true
+
+  # Signing in and out
+
+  - term: sign out everywhere
+    definition: >-
+      Sign an account out on every device at once, for when a device is lost.
+      A device that is offline shows it once it is back online.
+    forms: [signs out everywhere, signed out everywhere]
+    avoid: [end sessions, revoke sessions, log out everywhere]
+    model: [signOutEverywhere]
+
+  - term: abandon signing in
+    definition: >-
+      Start signing in and change one's mind, or give up on it offline. The
+      person stays exactly as they were, and can sign in whenever they are
+      ready.
+    forms: [abandons signing in, abandoned signing in, abandoning signing in]
+    avoid: [cancel sign-in]
+    model: [abandonSignIn]
+
+  - term: the devices on an account
+    definition: >-
+      The list of every device signed into a person's account, which they can
+      open to see where they are signed in; it marks the device they are
+      using. A device that signs out leaves it. A guest looking for it is
+      asked to sign in.
+    forms: [their devices, devices on their account]
+    avoid: [sessions, active sessions]
+
+  # Outside accounts
+
+  - term: Google
+    definition: >-
+      One of the two sign-in methods: signing in with a Google account.
+    forms: [Google's, Google sign-in]
+    published: true
+
+  - term: Apple
+    definition: >-
+      One of the two sign-in methods: signing in with an Apple account.
+    forms: [Apple's, Apple sign-in]
+    published: true
+
+  - term: outside account
+    definition: >-
+      A person's own account with Google or with Apple, which the app does not
+      run: their Google account or their Apple account. Each signs into at
+      most one account in the app.
+    forms: [outside accounts]
+    avoid: [identity, provider account, third-party account, external account]
+    model: [OutsideAccount, signsInto]
+
+  - term: Google account
+    definition: >-
+      A person's own account with Google, outside the app. Signing in with
+      Google uses it.
+    forms: [Google accounts]
+
+  - term: Apple account
+    definition: >-
+      A person's own account with Apple, outside the app. Signing in with
+      Apple uses it. At Apple, a person can hide its address from the app,
+      stop using Sign in with Apple for the app, or delete it; either of the
+      last two signs them out of the app.
+    forms: [Apple accounts]
+
+  - term: Sign in with Apple
+    definition: >-
+      Apple's own name for signing in with an Apple account. A person who
+      stops using it for the app is signed out, and signing in with Apple
+      later still gets them into the same account.
+
+  - term: connect a sign-in method
+    definition: >-
+      While signed in, add the sign-in method the account is missing by
+      signing in with an outside account ("Alice connects Apple"). An outside
+      account that already signs into another account cannot be connected,
+      and the person is told it belongs to another account.
+    forms: [connects Apple, connected Apple, connect that Apple account, connects Google]
+    avoid: [link an account, linked account]
+    model: [connectSignInMethod]
+
+  - term: remove a sign-in method
+    definition: >-
+      Take one of an account's two sign-in methods off it. The last one
+      cannot be removed.
+    forms: [removes Apple, remove Apple, remove Google, removes Google, can be removed, cannot be removed]
+    avoid: [unlink]
+    model: [removeSignInMethod]
+
+  - term: the same address
+    definition: >-
+      Two outside accounts, one with Google and one with Apple, with one email
+      address. Google or Apple tells the app whether an address is verified.
+    forms: [same address]
+    avoid: [same email]
+    model: [sameAddress]
+
+  - term: hidden address
+    definition: >-
+      An Apple account's address the person chose to hide from the app. It
+      matches no other outside account.
+    forms: [hides their address, hide their address]
+
+  - term: unverified address
+    definition: >-
+      An address Google or Apple has not confirmed belongs to the person.
+    forms: [unverified addresses]
+
+  - term: address match
+    definition: >-
+      A new outside account at the same verified address as the outside
+      account of an existing account that has no sign-in method from the
+      same company yet. It joins that account instead of starting a new one.
+      At an unverified address the person is first asked to prove the match
+      by confirming it with the other sign-in method; keeping the accounts
+      separate starts a new account.
+    forms: [address matches, account match, confirms the match, asked to prove the account match, asked to prove an unverified address match]
+    model: [addressMatch]
+
+  # Usernames and avatars
+
+  - term: newcomer
+    definition: >-
+      A person opening the app for the first time, on a fresh device. They
+      arrive as a guest with a username and avatar of their own.
+    forms: [newcomers]
+
+  - term: rename themselves
+    definition: >-
+      Change one's own username ("Alice renames themselves to @alice_w").
+    forms: [renames themselves, renamed themselves, renaming themselves, rename oneself]
+    model: [rename, renameTwice]
+    published: true
+
+  - term: username change
+    definition: >-
+      A person saving a new username for themselves. It is saved, or refused;
+      saving the username a person already has is simply saved. Once the
+      result shows, they can right away make another one.
+    forms: [username changes]
+    model: [UsernameChangeResult, lastUsernameChange, NoUsernameChange, UsernameSaved, UsernameChanged]
+
+  - term: refused username change
+    definition: >-
+      A username change that is not saved. The person is told why: it is too
+      short, too long, uses more than letters, numbers and _, is not allowed,
+      is taken by someone else in any letter case, comes moments after their
+      last change, or was tried offline (a username change needs a
+      connection). It leaves the username as it was and does not count as a
+      change.
+    forms: [refused username changes, username change is refused, username change refused]
+    avoid: [rejected, invalid username]
+    model: [UsernameTaken, ChangedRecently, RefusedOffline]
+
+  - term: draft
+    definition: >-
+      A change to a profile a person has started but not saved. Leaving
+      without saving drops it, and the profile keeps what was saved.
+    forms: [drafts]
+    avoid: [unsaved changes]
+
+  - term: avatar seed
+    definition: >-
+      The word an avatar is drawn from ("seed" for short); the same seed and
+      avatar style always draw the same avatar.
+    forms: [avatar seeds, seed, seeds]
+
+  - term: avatar style
+    definition: >-
+      The look an avatar is drawn in, such as Bottts ("style" for short).
+    forms: [avatar styles, style, styles]
+
+  # What Identity tells other contexts
+
+  - term: identity event
+    definition: >-
+      Something that happened to who a person is, which the rest of the
+      product hears about: a person signed in, signed out, or changed their
+      username.
+    forms: [identity events]
+    model: [IdentityEvent]
+
+  - term: lose the connection
+    definition: >-
+      A person's device goes offline for a while, until the connection comes
+      back. Offline, they can still sign out; signing in, connecting or
+      removing a sign-in method, and a username change need a connection.
+      Once back online, the device shows what everyone else sees again.
+    forms: [loses the connection, lost the connection, loses their connection]
+    model: [offline, loseConnection, reconnect, connectionReturns]
+
+  - term: asked to sign in
+    definition: >-
+      Told that what a guest wants needs an account, and offered to sign in.
+    forms: [is asked to sign in]
+
+  - term: leave without saving
+    definition: >-
+      Stop editing a profile without saving the draft. The draft is dropped
+      and the profile keeps what was saved.
+    forms: [leaves without saving, leaving without saving, left without saving]

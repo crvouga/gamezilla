@@ -57,7 +57,7 @@ one new checkouts go to; members of the other keep being served there.
 ## Tests
 
 - `tests/paddle-membership.contract.test.ts` — the shared membership contract
-  over `FakePaddle` (`@pkgs/billing-paddle/sim`), an in-memory Paddle origin
+  over `FakePaddle` (`@pkgs/billing-paddle/harness`), an in-memory Paddle origin
   with Paddle's envelopes, errors, pagination and webhook signatures.
 - `tests/paddle-membership.test.ts` — signatures (property-based), checkout
   links, customer reuse, pagination, auth failures.

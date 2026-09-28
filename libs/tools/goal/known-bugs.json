@@ -11,7 +11,7 @@
   },
   {
     "id": "sql-int8-rows-bigint",
-    "summary": "mockingbird-postgres returned bigint for domain integer (physical bigint) columns, so the product simulator's hydrate died with `Cannot convert BigInt to number`. Fixed by normalizing int8 values through decimal text.",
+    "summary": "mockingbird-postgres returned bigint for domain integer (physical bigint) columns, so the product harness's hydrate died with `Cannot convert BigInt to number`. Fixed by normalizing int8 values through decimal text.",
     "regressionTest": "pkgs/sql-client-contract/tests/bug-bigint-int8.test.ts"
   },
   {
@@ -56,7 +56,7 @@
   },
   {
     "id": "invariant-dirty-read",
-    "summary": "The sync-engine sim's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
+    "summary": "The sync-engine harness's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
     "regressionTest": "pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts"
   },
   {
@@ -122,7 +122,7 @@
   {
     "id": "signed-in-health-before-tab-shell",
     "summary": "Production signed-in health journeys left the initial app route immediately after document navigation, so Chrome could retain its aborted lazy import as a pending promise and return from auth to a tab shell with an empty body. Fixed by waiting for the initial tab shell before starting hosted sign-in.",
-    "regressionTest": "apps/product/src/sim/prepare-critical-journey-access.test.ts"
+    "regressionTest": "apps/product/src/harness/prepare-critical-journey-access.test.ts"
   },
   {
     "id": "eager-perf-sampler-bundle",
@@ -131,13 +131,13 @@
   },
   {
     "id": "auth-responses-missing-cors",
-    "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The sim is same-origin, so bun check could not see it. Fixed by writing the CORS headers onto the final response after next().",
+    "summary": "Every browser sign-in on the deployed web app failed silently: apiCors set its headers with c.header() before next(), and Hono drops those when a handler returns a raw Response, which the auth service's handler.fetch does. POST /api/auth/session therefore reached www without Access-Control-Allow-Origin, the code exchange was blocked, and the Health workflow's signed-in journeys never passed. The harness is same-origin, so bun check could not see it. Fixed by writing the CORS headers onto the final response after next().",
     "regressionTest": "libs/server-app/src/app/cors.test.ts"
   },
   {
     "id": "pending-reject-verdict-before-rollback",
     "summary": "A `pendingUx: 'pending'` mutation reported the server's rejection before the device dropped its optimistic write, so the caller's next action ran against the refused write: a username refused as taken and then saved again at once was refused as 'changed recently'. Found by the username-changes Quint model. Fixed by settling a rejection only after the queries refresh.",
-    "regressionTest": "pkgs/sync-engine/tests/pending-ux-answers-with-server-verdict.test.ts"
+    "regressionTest": "specs/sync-engine/checked-notes.feature"
   },
   {
     "id": "apple-delete-stale-sign-in-methods",
@@ -218,5 +218,25 @@
     "id": "ci-i18n-rewrites-committed-catalog",
     "summary": "ci:i18n re-extracted and recompiled the committed Lingui catalogs in place, so a tc running beside it could read a half-written messages.ts and fail with \"is not a module\". Fixed: the check regenerates into .cache/ci-i18n and compares.",
     "regressionTest": "libs/tools/scripts/ci-i18n.test.ts"
+  },
+  {
+    "id": "checked-note-answer-lost-to-push-race",
+    "summary": "A write that waits for the server's answer (`pendingUx: 'pending'`) could stay 'saving' forever: after the upload ack committed, recording the ack's topic push sequences raced the echoed push applying the same topic, the insert hit a UNIQUE conflict, and the ack's table-change notice (which wakes the answer) was never sent. Found porting pending-ux-answers-with-server-verdict to specs/sync-engine/checked-notes.feature. Fixed by recording a push sequence idempotently (ON CONFLICT, then raise).",
+    "regressionTest": "specs/sync-engine/checked-notes.feature"
+  },
+  {
+    "id": "notice-lost-when-app-data-wiped",
+    "summary": "A person's unacknowledged refusal notices vanished when the app updated to a version that fetches every note again, or when its data was cleared: sync_engine_write_rejections was a cache table, wiped with the fetched rows, and nothing fetches it back. Found porting the explore walks into specs/sync-engine/note-replication.qnt. Fixed by keeping it durable, like the unsent-edit queue.",
+    "regressionTest": "specs/sync-engine/note-refused-edits.feature"
+  },
+  {
+    "id": "cleared-data-hides-unsent-notes",
+    "summary": "Clearing the app's data while offline hid the notes the person had written but not yet sent until the device was back online: the wipe dropped the rows and nothing re-applied the queue. Found by the note-replication model. Fixed by re-applying queued edits after any wipe of the fetched rows (cleared data, an epoch bump on open).",
+    "regressionTest": "specs/sync-engine/notes-offline.feature"
+  },
+  {
+    "id": "garbled-live-update-blank-note",
+    "summary": "A garbled live update (fields renamed on the way) created a note on other devices with no title or text until the next refresh. Found by the note-replication model's garbled-live-updates action. Fixed by refusing a pushed image that would create a row without every column the device keeps; the row is refetched whole.",
+    "regressionTest": "specs/sync-engine/note-writing.feature"
   }
 ]

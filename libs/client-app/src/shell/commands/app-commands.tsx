@@ -44,8 +44,8 @@ const NAV_TARGETS: readonly {
   { href: '/ui', title: 'UI explorer' },
 ];
 
-/** Super-app Simulator screen (`apps/product`), a sibling of the app. */
-const SIMULATOR_PATH = '/simulator';
+/** Super-app Harness screen (`apps/product`), a sibling of the app. */
+const HARNESS_PATH = '/harness';
 
 function NavigationCommands(): JSX.Element {
   const { t } = useLingui();
@@ -63,15 +63,15 @@ function NavigationCommands(): JSX.Element {
       })
     ),
     {
-      id: `nav:${SIMULATOR_PATH}`,
-      title: t`Open Simulator`,
+      id: `nav:${HARNESS_PATH}`,
+      title: t`Open Harness`,
       category: t`Navigation`,
       icon: MonitorPlayIcon,
-      keywords: [t`simulator`, t`sim`, t`dev`, t`debug`],
-      // Embedded actors already live inside the simulator.
+      keywords: [t`harness`, t`harness`, t`dev`, t`debug`],
+      // Embedded actors already live inside the harness.
       visible: !embedded,
       run: () => {
-        window.location.assign(SIMULATOR_PATH);
+        window.location.assign(HARNESS_PATH);
       },
     },
   ]);

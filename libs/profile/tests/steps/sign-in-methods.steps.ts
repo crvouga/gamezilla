@@ -14,13 +14,13 @@ import {
   signInWithProviderAs,
   signOut,
   tryRemoveSignInMethod,
-} from '@libs/sim-harness';
-import { type Actor, Given, Then, When } from '@libs/sim-harness/spec/define';
+} from '@libs/harness';
+import { type Actor, Given, Then, When } from '@libs/harness/spec/define';
 import {
+  type HarnessWorld,
   remember,
-  type SimWorld,
   signedInAccountKey,
-} from '@libs/sim-harness/spec/world';
+} from '@libs/harness/spec/world';
 
 /** An address Google holds for Alice but never verified; Apple shares it. */
 const UNVERIFIED = 'uma@unverified.test';
@@ -29,7 +29,7 @@ const PROMPT_WAIT_MS = 20_000;
 const ALREADY_LINKED = 'already signs in to a different account';
 
 async function signInWithGoogleUnverified(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor
 ): Promise<void> {
   await w.s.apply(seedProviderAccount, 'google', {
@@ -51,7 +51,7 @@ async function signInWithGoogleUnverified(
 }
 
 async function signInWithAppleUnverified(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor
 ): Promise<void> {
   await w.s.apply(signInWithProviderAs, actor, {
@@ -83,7 +83,7 @@ Given(
     await w.s.apply(openAccount, actor);
     await w.s.apply(signOut, actor);
     await signInWithAppleUnverified(w, actor);
-    await w.s.until((sim) => accountMatchPromptShown(sim, actor), {
+    await w.s.until((harness) => accountMatchPromptShown(harness, actor), {
       pred: (shown) => shown,
       maxMs: PROMPT_WAIT_MS,
     });
@@ -124,7 +124,7 @@ When('{actor} keeps the accounts separate', async (w, actor: Actor) => {
 Then(
   '{actor} is told that Apple account belongs to another account',
   async (w, actor: Actor) => {
-    await w.s.until((sim) => signInMethodRowText(sim, actor, 'apple'), {
+    await w.s.until((harness) => signInMethodRowText(harness, actor, 'apple'), {
       pred: (text) => text.includes(ALREADY_LINKED),
       maxMs: PROMPT_WAIT_MS,
     });
@@ -132,7 +132,7 @@ Then(
 );
 
 Then('{actor} is asked to prove the account match', async (w, actor: Actor) => {
-  await w.s.until((sim) => accountMatchPromptShown(sim, actor), {
+  await w.s.until((harness) => accountMatchPromptShown(harness, actor), {
     pred: (shown) => shown,
     maxMs: PROMPT_WAIT_MS,
   });

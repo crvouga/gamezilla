@@ -293,7 +293,7 @@ describe('shortcuts', () => {
           <SurfaceStackProvider>
             <CommandRegistryProvider>
               <RegisterCommand
-                id="sim-theme"
+                id="harness-theme"
                 title="Use dark theme"
                 run={() => {}}
               />

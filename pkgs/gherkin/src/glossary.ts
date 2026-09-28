@@ -1,7 +1,7 @@
 /**
  * The ubiquitous language of each bounded context. Every `specs/<domain>/` is
- * one bounded context and declares its language in `glossary.yaml`; the
- * shared kernel every context may speak is `specs/glossary.yaml`. A spec says
+ * one bounded context and declares its language in `ubiquitous-language.yml`; the
+ * shared kernel every context may speak is `specs/ubiquitous-language.yml`. A spec says
  * things only in its own context's language:
  *
  * - a feature never uses a term a glossary says to avoid, nor a term another
@@ -176,7 +176,7 @@ function parseTerm(
   return parsed;
 }
 
-/** Validate a parsed `glossary.yaml`. */
+/** Validate a parsed `ubiquitous-language.yml`. */
 export function parseGlossary(
   data: unknown,
   uri: string,
@@ -415,7 +415,7 @@ function checkFeature(
           .find((match) => match !== null);
         if (found === undefined || found === null) continue;
         errors.push(
-          `${where}: "${found[0].trim()}" is ${owner}'s term; borrow it in specs/${feature.domain}/glossary.yaml (term: ${term.term}, from: ${owner}) or define this context's own`
+          `${where}: "${found[0].trim()}" is ${owner}'s term; borrow it in specs/${feature.domain}/ubiquitous-language.yml (term: ${term.term}, from: ${owner}) or define this context's own`
         );
       }
     }
@@ -480,7 +480,7 @@ function checkQuintSpec(
     if (exemptName(declared.name, declared.kind)) continue;
     if (!allowed.has(declared.name)) {
       errors.push(
-        `${where}: ${declared.kind} "${declared.name}" is not in the ubiquitous language — list it as a term's "model" in specs/${spec.domain}/glossary.yaml, or prefix a model helper with "_"`
+        `${where}: ${declared.kind} "${declared.name}" is not in the ubiquitous language — list it as a term's "model" in specs/${spec.domain}/ubiquitous-language.yml, or prefix a model helper with "_"`
       );
     }
   }

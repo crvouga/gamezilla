@@ -24,7 +24,7 @@ import {
   setPuzzleAutoAdvance,
   showPuzzleSolutionLine,
   skipPuzzle,
-} from '@libs/chess/sim/chess-actions';
+} from '@libs/chess/harness/chess-actions';
 import {
   readPuzzleBoardDestinations,
   readPuzzleBoardPieceAt,
@@ -32,7 +32,7 @@ import {
   readPuzzleHaptics,
   readPuzzlePromotionPending,
   readPuzzlePrompt,
-} from '@libs/chess/sim/chess-puzzle-solve-ui';
+} from '@libs/chess/harness/chess-puzzle-solve-ui';
 import {
   isPuzzleOfflineNoticeVisible,
   isPuzzleSolved,
@@ -42,22 +42,18 @@ import {
   readPuzzleSpectator,
   readPuzzleStatus,
   readPuzzleStatusKind,
-} from '@libs/chess/sim/chess-puzzle-ui';
-import {
-  focusActor,
-  restoreNetwork,
-  signInWithGoogle,
-} from '@libs/sim-harness';
+} from '@libs/chess/harness/chess-puzzle-ui';
+import { focusActor, restoreNetwork, signInWithGoogle } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
-import { remember } from '@libs/sim-harness/spec/world';
-import { createSpace } from '@libs/spaces/sim/space-actions';
+} from '@libs/harness/spec/define';
+import { cutConnection } from '@libs/harness/spec/steps/platform';
+import { remember } from '@libs/harness/spec/world';
+import { createSpace } from '@libs/spaces/harness/space-actions';
 import type { Square } from '@pkgs/chess-board-core/types';
 import { NAMED_PUZZLES } from './puzzle-fixtures';
 import {
@@ -83,11 +79,11 @@ const moveKey = (actor: Actor) => `lastMove:${actor}`;
 const solvedClockKey = (actor: Actor) => `clockAtSolve:${actor}`;
 const LAST_MOVER = 'lastMover';
 
-function lastMover(w: SimWorld): Actor {
+function lastMover(w: HarnessWorld): Actor {
   return recalled<Actor>(w, LAST_MOVER);
 }
 
-async function boardProbe(w: SimWorld, actor: Actor) {
+async function boardProbe(w: HarnessWorld, actor: Actor) {
   return required(
     await w.s.read(readPuzzleBoardProbe, actor),
     `${actor}'s board`
@@ -96,7 +92,7 @@ async function boardProbe(w: SimWorld, actor: Actor) {
 
 /** Move once the solver may, remembering the position the move started from. */
 async function playMove(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   move: string
 ): Promise<void> {
@@ -227,7 +223,7 @@ Then('{actor} has no puzzle on the board', async (w, actor: Actor) => {
 // ------------------------------------------------------------------ solving
 
 /** Solve the puzzle, noting the clock at the solve for later steps. */
-async function solve(w: SimWorld, actor: Actor): Promise<void> {
+async function solve(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(focusActor, actor);
   await w.s.apply(playUntilSolved, actor);
   const probe = await w.s.read(readPuzzleSpectator, actor);
@@ -586,7 +582,7 @@ When('{int} seconds pass', async (w, seconds: number) => {
   await w.s.advanceTime(seconds * SECOND_MS);
 });
 
-async function readClock(w: SimWorld, actor: Actor): Promise<number> {
+async function readClock(w: HarnessWorld, actor: Actor): Promise<number> {
   const probe = await w.s.read(readPuzzleSpectator, actor);
   return required(probe?.clockMs, `${actor}'s puzzle clock`);
 }

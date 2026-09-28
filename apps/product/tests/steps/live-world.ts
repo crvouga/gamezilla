@@ -7,7 +7,7 @@
  * run and the device closes.
  */
 
-import { prepareCriticalJourneyAccess } from '@apps/product/sim/prepare-critical-journey-access';
+import { prepareCriticalJourneyAccess } from '@apps/product/harness/prepare-critical-journey-access';
 import {
   type EnvFile,
   type EnvOrigins,
@@ -20,7 +20,7 @@ import {
   type JourneyGestures,
   type JourneyHost,
   type JourneyWorld,
-} from '@libs/runtime/sim/critical-journeys';
+} from '@libs/runtime/harness/critical-journeys';
 import { requestSyntheticMonitorRedirect } from '@pkgs/auth-inhouse/shared';
 import { wallClock } from '@pkgs/clock';
 import { type ScenarioContext, setWorld } from '@pkgs/gherkin/registry';

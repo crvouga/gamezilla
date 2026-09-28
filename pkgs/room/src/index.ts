@@ -13,7 +13,7 @@
  * - `@pkgs/room/client/adapters/storage/key-value` - async KV storage.
  *
  * Solid bindings: `@pkgs/room/solid`. Server: `@pkgs/room/server`.
- * Test helpers: `@pkgs/room-sim`.
+ * Test helpers: `@pkgs/room-harness`.
  *
  * Adding a new transport (WebRTC, SSE, …) or storage backend (SQLite,
  * IndexedDB, …) means dropping a new `@pkgs/room-adapter-*` package —

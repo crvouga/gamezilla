@@ -65,9 +65,9 @@ export type CreateAppLocalSyncEngineArgs = {
   readonly random: Random;
   /** Product mutation registry (loaded by the pool with this module). */
   readonly mutationRegistry: MutationRegistry;
-  /** Sim override; defaults to the OPFS broker client. */
+  /** Harness override; defaults to the OPFS broker client. */
   readonly openSqlClient?: OpenSqlClient | undefined;
-  /** Sim override; defaults to EMQX from client_config URL. */
+  /** Harness override; defaults to EMQX from client_config URL. */
   readonly createPubSub?: (() => PubSub) | undefined;
   readonly waitUntilAvailable?:
     | ((signal?: AbortSignal | null) => Promise<void>)
@@ -158,10 +158,10 @@ async function openAppLocalDb(
 ): Promise<SqlClient> {
   if (
     args.openSqlClient === undefined &&
-    args.databaseName.startsWith('sim_')
+    args.databaseName.startsWith('harness_')
   ) {
     throw new Error(
-      `createAppLocalSyncEngine: refusing OPFS open for sim database "${args.databaseName}" — inject openSqlClient`
+      `createAppLocalSyncEngine: refusing OPFS open for harness database "${args.databaseName}" — inject openSqlClient`
     );
   }
   if (args.openSqlClient !== undefined) {
@@ -240,7 +240,7 @@ function buildEngine(
     timers: args.timers,
     createId: args.createId,
     enableMutationUpload: isOwner,
-    // Injected openSqlClient marks sim/product-simulator — use the short reconcile
+    // Injected openSqlClient marks harness/product-harness — use the short reconcile
     // safety net so missed OOB notifies heal inside DST wait budgets.
     ...(args.openSqlClient !== undefined ? { reconcileIntervalMs: 500 } : {}),
     ...(args.waitUntilAvailable !== undefined
@@ -255,7 +255,7 @@ function buildEngine(
 export async function createAppLocalSyncEngine(
   args: CreateAppLocalSyncEngineArgs
 ): Promise<SyncEngine> {
-  // Injected openSqlClient = sim/product-simulator isolated DB — never share OPFS, so
+  // Injected openSqlClient = harness/product-harness isolated DB — never share OPFS, so
   // skip Web Locks (a prior engine's unreleased lock would make reload a
   // permanent non-owner with no upload/push).
   // The fold arrives with this module, not with the entry chunk.

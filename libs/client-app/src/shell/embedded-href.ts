@@ -1,5 +1,5 @@
 /**
- * Persist the embedded MemoryRouter location in client Kv so simulator
+ * Persist the embedded MemoryRouter location in client Kv so harness
  * remounts / snapshot restores reopen on the same path.
  */
 

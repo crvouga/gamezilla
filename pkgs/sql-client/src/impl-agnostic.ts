@@ -1,6 +1,6 @@
 /**
  * SqlClient decorator that refuses non-portable (vendor) SQL before delegating.
- * Use in dual-engine tests and sim so SQLite-shaped SQL is the dialect of record.
+ * Use in dual-engine tests and harness so SQLite-shaped SQL is the dialect of record.
  *
  * Compat install must run against {@link getUnderlyingSqlClient} — shim DDL is
  * intentionally vendor SQL.

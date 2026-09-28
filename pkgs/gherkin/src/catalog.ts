@@ -12,6 +12,8 @@ export type CatalogPackage = {
   readonly definitions: readonly ExtractedStep[];
   readonly imports: readonly string[];
   readonly features: readonly SpecFeature[];
+  /** False when the package does not register the shared steps. */
+  readonly sharedSteps?: boolean;
 };
 
 export const CATALOG_HEADER =
@@ -54,7 +56,10 @@ function definitionRows(
     );
 }
 
-/** The package catalog: own steps, shared steps, imported steps, features. */
+/**
+ * The package catalog: own steps, shared steps (when the package registers
+ * them), imported steps, features.
+ */
 export function renderPackageCatalog(
   pkg: CatalogPackage,
   shared: readonly ExtractedStep[],
@@ -82,11 +87,15 @@ export function renderPackageCatalog(
     `## Steps of ${pkg.name}`,
     '',
     table(definitionRows(pkg.definitions, pkg.domains.join(', '))),
-    '',
-    '## Shared steps (every package)',
-    '',
-    table(definitionRows(shared, 'shared')),
   ];
+  if (pkg.sharedSteps !== false) {
+    sections.push(
+      '',
+      '## Shared steps (every package that registers them)',
+      '',
+      table(definitionRows(shared, 'shared'))
+    );
+  }
   for (const [name, definitions] of imported) {
     sections.push(
       '',
@@ -117,7 +126,7 @@ export function renderCatalogIndex<P extends CatalogPackage>(
     CATALOG_HEADER,
     '# Step catalogs',
     '',
-    "Features live in `specs/<domain>/<feature>.feature`. One catalog per package that runs spec domains (its `specDomains` against the sim, its `liveDomains` against a deployment). Spec writers read these and their context's `specs/<domain>/glossary.yaml`; they never read `src/` or `tests/`.",
+    "Features live in `specs/<domain>/<feature>.feature`. One catalog per package that runs spec domains (its `specDomains` against the harness, its `liveDomains` against a deployment). Spec writers read these and their context's `specs/<domain>/ubiquitous-language.yml`; they never read `src/` or `tests/`.",
     '',
     '| Package | Runs | Features | Scenarios | Own steps | Catalog |',
     '| --- | --- | --- | --- | --- | --- |',

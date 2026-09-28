@@ -30,11 +30,17 @@ export type PackageSpecs = {
   readonly definitions: readonly ExtractedStep[];
   /** Step files of other packages this package's steps entry imports. */
   readonly imports: readonly string[];
+  /**
+   * False when the package's steps entry does not register the shared
+   * harness steps (a `pkgs/*` package never imports `libs/`), so they are not
+   * defined for it at run time. Absent means true.
+   */
+  readonly sharedSteps?: boolean;
 };
 
 export type SpecCheckInput = {
   readonly packages: readonly PackageSpecs[];
-  /** Definitions every package sees (the shared harness). */
+  /** The shared harness definitions, seen by packages that register them. */
   readonly shared: readonly ExtractedStep[];
   /** Definitions in imported step files whose owner is not a spec package. */
   readonly external?: readonly ExtractedStep[];
@@ -181,7 +187,7 @@ function compileAll(
 
 function visibleTo(pkg: PackageSpecs, compiled: Compiled): boolean {
   return (
-    compiled.owner === 'shared' ||
+    (compiled.owner === 'shared' && pkg.sharedSteps !== false) ||
     compiled.owner === pkg.name ||
     pkg.imports.includes(compiled.step.file)
   );

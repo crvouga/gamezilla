@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { RecordStepMeta } from '@pkgs/sim';
+import type { RecordStepMeta } from '@pkgs/harness';
 import {
   type Driver,
   type DriverNode,

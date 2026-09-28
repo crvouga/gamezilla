@@ -4,7 +4,7 @@ import { ExampleRoot } from '../explorer/example-root';
 import { SegmentedControl } from './segmented-control';
 
 export default function SegmentedControlExample(): JSX.Element {
-  const [mode, setMode] = createSignal('simulator');
+  const [mode, setMode] = createSignal('harness');
   const [size, setSize] = createSignal('md');
 
   return (
@@ -12,7 +12,7 @@ export default function SegmentedControlExample(): JSX.Element {
       <div class="box flex-col gap-4">
         <SegmentedControl
           segments={[
-            { key: 'simulator', label: 'Simulator' },
+            { key: 'harness', label: 'Harness' },
             { key: 'inspector', label: 'Inspector' },
             { key: 'docs', label: 'Docs' },
           ]}

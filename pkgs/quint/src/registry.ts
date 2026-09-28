@@ -1,6 +1,6 @@
 /**
  * How a package runs its Quint models against the product: one world (what a
- * trace runs in — for product models, a sim) and one binding per model (what
+ * trace runs in — for product models, a harness) and one binding per model (what
  * each Quint action does in that world, and how to read the model's state
  * back out of it). Module-global, like the Gherkin registry, filled by the
  * `tests/quint/**` modules a package's quint entry imports.
@@ -46,7 +46,7 @@ export type QuintWorld<W> = {
     meta: TraceStepMeta,
     fn: () => Promise<T>
   ) => Promise<T>;
-  /** Calls the world made so far (e.g. sim calls), newest last. */
+  /** Calls the world made so far (e.g. harness calls), newest last. */
   readonly calls?: (world: W) => readonly string[];
 };
 
@@ -74,6 +74,13 @@ export type QuintBinding<W> = {
    * the variables it leaves out are the model's own bookkeeping.
    */
   readonly observe: (world: W) => Promise<Readonly<Record<string, QuintValue>>>;
+  /**
+   * The world's whole end state as one string (state hashes, say), finer
+   * than {@link observe}. When given, the runner replays the longest trace
+   * twice, each in a fresh world, and requires the same fingerprint: a run
+   * is a function of its seed and the trace.
+   */
+  readonly fingerprint?: (world: W) => Promise<string>;
 };
 
 export const DEFAULT_TRACES = 4;
@@ -100,7 +107,7 @@ export function quintWorld(): QuintWorld<unknown> {
   const world = registry().world;
   if (world === null) {
     throw new Error(
-      'quint: no world registered — the package quint entry (tests/quint/index.ts) must call setQuintWorld (for sims: useQuintSim)'
+      'quint: no world registered — the package quint entry (tests/quint/index.ts) must call setQuintWorld (for harnesses: useQuintHarness)'
     );
   }
   return world;

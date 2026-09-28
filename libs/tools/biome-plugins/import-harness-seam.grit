@@ -1,0 +1,20 @@
+language js
+
+// A package's src/harness/** is harness-only: outside harness and tests, only its index entry may be imported.
+// Matches every static import / export-from source, dynamic import() and
+// require() specifier. Ported from dependency-cruiser, which had silently
+// cruised 0 modules per package.
+// Perf: a whole-file substring test gates the tree walk. Every match must
+// contain one of these tokens, so files without them are skipped for ~free.
+file($body) where {
+  $body <: includes "harness/",
+  $body <: contains bubble or {
+    JsModuleSource() as $src,
+    JsImportCallExpression() as $call where { $call <: `import($src)` },
+    JsCallExpression() as $call where { $call <: `require($src)` }
+  } where {
+    $src <: r"^['\"]\.{1,2}/(?:[^'\"]*/)?harness/[^'\"]+['\"]$",
+    not $src <: r".*/harness/index['\"]$",
+    register_diagnostic(span=$src, message="src/harness/** is harness-only: import it from src/harness/**, tests, or the package ./harness export — not by deep relative path from product code.", severity="error")
+  }
+}

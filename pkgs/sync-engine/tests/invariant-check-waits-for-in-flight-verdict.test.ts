@@ -10,11 +10,11 @@ import {
   mutate,
   setNote,
   untilExample,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 
 /**
  * regression: invariant-dirty-read — found by pending-rebase.property.test.ts.
- * The sim's framework-invariant check read the client DB with a bare query
+ * The harness's framework-invariant check read the client DB with a bare query
  * while the upload-verdict transaction was half-applied (rejection row
  * stored, queue row not yet acked), so a refused replay of alice's queued
  * delete reported "rejected mutation still pending". The check now reads

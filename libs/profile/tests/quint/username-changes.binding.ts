@@ -12,23 +12,23 @@
  * connection waits until the device has noticed, as a person would.
  */
 
-import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile/public/username';
-import {
-  leaveUsernameEditor,
-  openProfileEdit,
-  submitUsername,
-} from '@libs/profile/sim/profile-actions';
-import { readUsernameSaveFace } from '@libs/profile/sim/profile-ui-reads';
 import {
   focusActor,
   partition,
   restoreNetwork,
   returnToTabs,
   signInWithGoogle,
-} from '@libs/sim-harness';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
-import { accountIdOf, actorLocalSql } from '@libs/sim-harness/system/identity';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
+} from '@libs/harness';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { accountIdOf, actorLocalSql } from '@libs/harness/system/identity';
+import {
+  leaveUsernameEditor,
+  openProfileEdit,
+  submitUsername,
+} from '@libs/profile/harness/profile-actions';
+import { readUsernameSaveFace } from '@libs/profile/harness/profile-ui-reads';
+import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile/public/username';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
 import { sql } from '@pkgs/sql';
@@ -57,7 +57,7 @@ function person(picks: Picks): string {
   return String(picks['person']);
 }
 
-function profileIdOf(w: QuintSimWorld, actor: string): string {
+function profileIdOf(w: QuintHarnessWorld, actor: string): string {
   const id = w.memo.get(profileIdKey(actor));
   if (typeof id !== 'string') throw new Error(`no profile id for ${actor}`);
   return id;
@@ -65,7 +65,7 @@ function profileIdOf(w: QuintSimWorld, actor: string): string {
 
 /** The device's own profile rows (a device holds only its own). */
 async function localProfileIds(
-  s: ProductSim,
+  s: ProductHarness,
   actor: string
 ): Promise<string[]> {
   const db = actorLocalSql(s, actor);
@@ -76,7 +76,7 @@ async function localProfileIds(
 }
 
 async function usernameOnDevice(
-  s: ProductSim,
+  s: ProductHarness,
   actor: string,
   profileId: string
 ): Promise<string | null> {
@@ -89,10 +89,10 @@ async function usernameOnDevice(
 }
 
 async function username(
-  s: ProductSim,
+  s: ProductHarness,
   profileId: string
 ): Promise<string | null> {
-  const rows = await s.sim.serverSql.sqlClient.query(sql<{
+  const rows = await s.harness.serverSql.sqlClient.query(sql<{
     readonly username: string;
   }>`
     SELECT username FROM profile
@@ -101,7 +101,7 @@ async function username(
 }
 
 /** Save `typed` on a fresh username screen; keep the result it shows. */
-async function save(w: QuintSimWorld, actor: string, typed: string) {
+async function save(w: QuintHarnessWorld, actor: string, typed: string) {
   await w.s.apply(focusActor, actor);
   await w.s.apply(openProfileEdit, actor);
   await w.s.apply(submitUsername, actor, typed);
@@ -110,12 +110,16 @@ async function save(w: QuintSimWorld, actor: string, typed: string) {
   await w.s.apply(leaveUsernameEditor, actor);
 }
 
-function asModelUsername(w: QuintSimWorld, actor: string, name: string | null) {
+function asModelUsername(
+  w: QuintHarnessWorld,
+  actor: string,
+  name: string | null
+) {
   if (name === null) return '(no profile)';
   return name === w.memo.get(generatedKey(actor)) ? 'generated' : name;
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'username-changes',
   traces: 8,
   maxSteps: 10,
@@ -131,13 +135,13 @@ bindQuintModel<QuintSimWorld>({
       }
       await w.s.apply(focusActor, GUEST);
       const [guestId] = await w.s.until(
-        (s: ProductSim) => localProfileIds(s, GUEST),
+        (s: ProductHarness) => localProfileIds(s, GUEST),
         { pred: (ids) => ids.length === 1 }
       );
       if (guestId === undefined) throw new Error(`${GUEST} has no profile`);
       w.memo.set(profileIdKey(GUEST), guestId);
       const generated = await w.s.until(
-        (s: ProductSim) => username(s, guestId),
+        (s: ProductHarness) => username(s, guestId),
         { pred: (name) => name !== null }
       );
       w.memo.set(generatedKey(GUEST), generated);

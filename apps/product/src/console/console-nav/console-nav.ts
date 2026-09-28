@@ -1,8 +1,8 @@
 /**
- * Pure simulator navigation codec (no wall I/O).
+ * Pure harness navigation codec (no wall I/O).
  *
  * URL search keys:
- * - simulator: kind, instance, cv (id:view,…); legacy trailing `:table` ignored
+ * - harness: kind, instance, cv (id:view,…); legacy trailing `:table` ignored
  *
  * Defaults are omitted from the built search. Legacy `host=console` is
  * ignored. Legacy top-level `view` applies to the focused instance (or the
@@ -13,34 +13,34 @@ import {
   type DebuggerViewId,
   defaultViewForKind,
   VIEWS_BY_KIND,
-} from '@pkgs/sim-console/shared/debugger-views';
+} from '@pkgs/harness-console/shared/debugger-views';
 import {
-  coerceSimChromeKind,
-  type SimChromeKind,
-} from '@pkgs/sim-console/shared/sim-node';
+  coerceHarnessChromeKind,
+  type HarnessChromeKind,
+} from '@pkgs/harness-console/shared/node';
 
-export type ConsoleKind = SimChromeKind;
+export type ConsoleKind = HarnessChromeKind;
 export type ConsoleView = DebuggerViewId;
 
 export type PaneNav = {
   readonly view: ConsoleView;
 };
 
-export type SimulatorNav = {
+export type HarnessNav = {
   readonly kind: ConsoleKind;
   readonly instance: string;
   readonly panes: Readonly<Record<string, PaneNav>>;
 };
 
 export type ConsoleNavState = {
-  readonly simulator: SimulatorNav;
+  readonly harness: HarnessNav;
 };
 
 export type PaneNavPatch = {
   readonly view?: string;
 };
 
-export type SimulatorNavPatch = {
+export type HarnessNavPatch = {
   readonly kind?: ConsoleKind;
   readonly instance?: string;
   readonly panes?: Readonly<Record<string, PaneNavPatch>>;
@@ -49,23 +49,23 @@ export type SimulatorNavPatch = {
 };
 
 export type ConsoleNavPatch = {
-  readonly simulator?: SimulatorNavPatch;
+  readonly harness?: HarnessNavPatch;
   /**
-   * Flat legacy patches — applied onto `simulator`.
+   * Flat legacy patches — applied onto `harness`.
    */
   readonly kind?: ConsoleKind;
   readonly instance?: string;
   readonly view?: string;
 };
 
-export const DEFAULT_SIMULATOR_NAV: SimulatorNav = {
+export const DEFAULT_HARNESS_NAV: HarnessNav = {
   kind: 'client',
   instance: '',
   panes: {},
 };
 
 export const DEFAULT_CONSOLE_NAV: ConsoleNavState = {
-  simulator: DEFAULT_SIMULATOR_NAV,
+  harness: DEFAULT_HARNESS_NAV,
 };
 
 /** Legacy section / report-tab keys are dropped on rewrite. */
@@ -104,7 +104,7 @@ export function coerceView(kind: ConsoleKind, view: string): ConsoleView {
 }
 
 export function coerceKind(kindRaw: string | null | undefined): ConsoleKind {
-  return coerceSimChromeKind(kindRaw);
+  return coerceHarnessChromeKind(kindRaw);
 }
 
 /** Stable pane key for singleton kinds (server / events). */
@@ -114,15 +114,15 @@ export function singletonPaneKey(kind: ConsoleKind): string | null {
 }
 
 export function resolvePaneNav(
-  simulator: SimulatorNav,
+  harness: HarnessNav,
   paneId: string,
-  kind: ConsoleKind = simulator.kind
+  kind: ConsoleKind = harness.kind
 ): PaneNav {
-  const direct = simulator.panes[paneId];
+  const direct = harness.panes[paneId];
   if (direct !== undefined) return coercePaneForKind(kind, direct);
   const singleton = singletonPaneKey(kind);
   if (singleton !== null && singleton !== paneId) {
-    const byKind = simulator.panes[singleton];
+    const byKind = harness.panes[singleton];
     if (byKind !== undefined) return coercePaneForKind(kind, byKind);
   }
   return { view: defaultViewForKind(kind) };
@@ -132,18 +132,18 @@ export function applyConsoleNavPatch(
   current: ConsoleNavState,
   patch: ConsoleNavPatch
 ): ConsoleNavState {
-  const simulatorPatch: SimulatorNavPatch = {
-    ...(patch.simulator ?? {}),
+  const harnessPatch: HarnessNavPatch = {
+    ...(patch.harness ?? {}),
     ...(patch.kind !== undefined ? { kind: patch.kind } : {}),
     ...(patch.instance !== undefined ? { instance: patch.instance } : {}),
     ...(patch.view !== undefined
       ? {
           pane: {
             id: focusedPaneId(
-              patch.kind ?? patch.simulator?.kind ?? current.simulator.kind,
+              patch.kind ?? patch.harness?.kind ?? current.harness.kind,
               patch.instance !== undefined
                 ? patch.instance
-                : (patch.simulator?.instance ?? current.simulator.instance)
+                : (patch.harness?.instance ?? current.harness.instance)
             ),
             patch: { view: patch.view },
           },
@@ -151,7 +151,7 @@ export function applyConsoleNavPatch(
       : {}),
   };
   return {
-    simulator: applySimulatorNavPatch(current.simulator, simulatorPatch),
+    harness: applyHarnessNavPatch(current.harness, harnessPatch),
   };
 }
 
@@ -182,7 +182,7 @@ export function parseConsoleNav(search: string): ConsoleNavState {
     }
   }
   return {
-    simulator: {
+    harness: {
       kind,
       instance,
       panes,
@@ -203,12 +203,12 @@ export function buildConsoleSearch(
   );
   for (const key of CHROME_KEYS) params.delete(key);
 
-  const { simulator } = state;
-  if (simulator.kind !== 'client') params.set('kind', simulator.kind);
-  if (simulator.instance.length > 0) {
-    params.set('instance', simulator.instance);
+  const { harness } = state;
+  if (harness.kind !== 'client') params.set('kind', harness.kind);
+  if (harness.instance.length > 0) {
+    params.set('instance', harness.instance);
   }
-  const cv = buildPaneMap(simulator);
+  const cv = buildPaneMap(harness);
   if (cv.length > 0) params.set('cv', cv);
 
   const qs = params.toString();
@@ -219,10 +219,10 @@ export function consoleNavEqual(
   a: ConsoleNavState,
   b: ConsoleNavState
 ): boolean {
-  return simulatorEqual(a.simulator, b.simulator);
+  return harnessEqual(a.harness, b.harness);
 }
 
-function simulatorEqual(a: SimulatorNav, b: SimulatorNav): boolean {
+function harnessEqual(a: HarnessNav, b: HarnessNav): boolean {
   if (a.kind !== b.kind || a.instance !== b.instance) return false;
   const aKeys = Object.keys(a.panes).sort();
   const bKeys = Object.keys(b.panes).sort();
@@ -237,10 +237,10 @@ function simulatorEqual(a: SimulatorNav, b: SimulatorNav): boolean {
   return true;
 }
 
-function applySimulatorNavPatch(
-  current: SimulatorNav,
-  patch: SimulatorNavPatch
-): SimulatorNav {
+function applyHarnessNavPatch(
+  current: HarnessNav,
+  patch: HarnessNavPatch
+): HarnessNav {
   const kind = patch.kind ?? current.kind;
   const instanceRaw =
     patch.instance !== undefined ? patch.instance : current.instance;
@@ -336,14 +336,14 @@ function coerceLooseView(
   return coerceView(impliedPaneKind(paneId, chromeKind), viewRaw);
 }
 
-function buildPaneMap(simulator: SimulatorNav): string {
+function buildPaneMap(harness: HarnessNav): string {
   const entries: string[] = [];
-  const keys = Object.keys(simulator.panes).sort();
+  const keys = Object.keys(harness.panes).sort();
   for (const id of keys) {
-    const pane = simulator.panes[id]!;
+    const pane = harness.panes[id]!;
     // Mirror parse coercion: a pane whose view equals its implied-kind
     // default is dropped on parse, so omit it here too.
-    if (pane.view === defaultViewForKind(impliedPaneKind(id, simulator.kind)))
+    if (pane.view === defaultViewForKind(impliedPaneKind(id, harness.kind)))
       continue;
     entries.push(`${encodeURIComponent(id)}:${encodeURIComponent(pane.view)}`);
   }

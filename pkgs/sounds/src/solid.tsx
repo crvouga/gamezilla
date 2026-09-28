@@ -3,7 +3,7 @@
  * Solid bindings for `@pkgs/sounds`: audio playback port context, per-player
  * status signals, the persisted sounds preference, and the `SoundEngine`
  * provider. Ports are always injected (web adapter at the composition root,
- * in-memory port in sims) — there is no lazy wall default.
+ * in-memory port in harnesses) — there is no lazy wall default.
  */
 import { asKeyword } from '@pkgs/keyword/keyword';
 import { booleanKvCodec, jsonKvCodec } from '@pkgs/kv/kv-state-codec';

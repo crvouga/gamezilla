@@ -186,6 +186,55 @@ export async function upsertRowsIntersect(args: {
   return true;
 }
 
+/** Columns a merge fills itself when an image leaves them out. */
+const FILLED_COLUMNS = new Set(['id', 'created_at', 'updated_at']);
+
+/** A pushed row image that would create a row with columns missing. */
+export class IncompleteRowImageError extends Error {
+  override readonly name = 'IncompleteRowImageError';
+}
+
+/**
+ * A pushed image of a row the device does not hold yet must carry every
+ * column the device keeps for that table: inserting it otherwise would show
+ * a row with empty fields (a garbled push that renamed `body` would show a
+ * note with no text). Such a push is refused, and the caller refetches the
+ * row whole. Images of rows the device holds may be partial: missing columns
+ * keep their value (a device-only column survives).
+ */
+export async function assertCompleteNewRowImages(
+  tx: SqlClient,
+  table: string,
+  rows: readonly QueryRow[]
+): Promise<void> {
+  const cols = await tableColumns(tx, table);
+  if (cols.length === 0) return;
+  const required = cols.filter((c) => !FILLED_COLUMNS.has(c));
+  const ids = rows.map((row) => row['id']).filter(isValidRowId);
+  if (ids.length === 0) return;
+  const held = new Set<string>();
+  for (let offset = 0; offset < ids.length; offset += MAX_SQLITE_VARS) {
+    const chunk = ids.slice(offset, offset + MAX_SQLITE_VARS);
+    const found = await tx.query(sql<{ id: string }>`
+      SELECT id FROM ${ident(table)}
+      WHERE id IN (${join(chunk.map((id) => sql`${id}`))})
+    `);
+    for (const row of found) held.add(row.id);
+  }
+  for (const row of rows) {
+    const id = row['id'];
+    if (!isValidRowId(id) || held.has(id)) continue;
+    const missing = required.filter(
+      (c) => !Object.prototype.hasOwnProperty.call(row, c)
+    );
+    if (missing.length > 0) {
+      throw new IncompleteRowImageError(
+        `${table} ${id}: new row image lacks ${missing.join(', ')}`
+      );
+    }
+  }
+}
+
 export async function mergeTable(args: {
   readonly tx: SqlClient;
   readonly table: string;

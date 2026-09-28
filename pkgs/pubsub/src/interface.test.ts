@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { type Clock, createSimClock, type Timers } from '@pkgs/clock';
+import { type Clock, createHarnessClock, type Timers } from '@pkgs/clock';
 import { createNoopLogger, type Logger } from '@pkgs/logger';
 import {
   createInMemoryBus,
@@ -21,8 +21,8 @@ async function flushMicrotasks(): Promise<void> {
  * the contract's `waitMs` / `waitUntil` run on virtual time, never the wall.
  * The in-memory bus delivers synchronously, so nothing is outrun.
  */
-function selfAdvancingSimClock(): { clock: Clock; timers: Timers } {
-  const sim = createSimClock();
+function selfAdvancingHarnessClock(): { clock: Clock; timers: Timers } {
+  const harness = createHarnessClock();
   let pumping = false;
   const pump = async (): Promise<void> => {
     if (pumping) return;
@@ -30,20 +30,20 @@ function selfAdvancingSimClock(): { clock: Clock; timers: Timers } {
     try {
       for (;;) {
         await flushMicrotasks();
-        const due = sim.clock.nextDueAt();
+        const due = harness.clock.nextDueAt();
         if (due === null) return;
-        sim.clock.set(Math.max(due, sim.clock.now()));
+        harness.clock.set(Math.max(due, harness.clock.now()));
       }
     } finally {
       pumping = false;
     }
   };
   return {
-    clock: sim.clock,
+    clock: harness.clock,
     timers: {
-      ...sim.timers,
+      ...harness.timers,
       setTimeout: (fn, ms) => {
-        const handle = sim.timers.setTimeout(fn, ms);
+        const handle = harness.timers.setTimeout(fn, ms);
         void pump();
         return handle;
       },
@@ -63,7 +63,7 @@ runPubSubContractTests(
         }
         subscriber.deliverRawForTest(topic, 'not-json{{{');
       },
-      ...selfAdvancingSimClock(),
+      ...selfAdvancingHarnessClock(),
       teardown: async () => undefined,
     };
   },

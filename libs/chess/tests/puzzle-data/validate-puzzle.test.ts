@@ -43,12 +43,12 @@ function check(cells: Cells): PuzzleRejectionReason | 'ok' {
   return reasonOf(validateLichessPuzzleRow(lichess(cells)));
 }
 
-/** White to move ⇒ Black solves (Lichess mate-in-1, sim fixture `007hv`). */
+/** White to move ⇒ Black solves (Lichess mate-in-1, harness fixture `007hv`). */
 const BLACK_SOLVES = {
   fen: '6k1/5p1p/1p4p1/p1bN1p2/2Pq1P2/1P5P/1P1Q2P1/7K w - - 1 32',
   moves: 'd2c3 d4g1',
 };
-/** Black to move ⇒ White solves (sim web fixture `001KR`). */
+/** Black to move ⇒ White solves (harness web fixture `001KR`). */
 const WHITE_SOLVES = {
   fen: '6Qk/p1p3pp/4N3/1p6/2q1r1n1/2B5/PP4PP/3R1R1K b - - 0 28',
   moves: 'h8g8 f1f8',

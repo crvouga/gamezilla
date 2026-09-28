@@ -62,7 +62,7 @@ export async function notifyChannels(
   }
 }
 
-/** Publish with pre-allocated pushSeqs (mutation replay txn / sim internals). */
+/** Publish with pre-allocated pushSeqs (mutation replay txn / harness internals). */
 export function publishPushMessages(options: {
   readonly pubsub: PubSub;
   readonly pushSeqs: ReadonlyMap<Topic, string>;

@@ -10,7 +10,7 @@ import {
   disconnect,
   mutate,
   rejections,
-} from '@pkgs/sync-engine/sim';
+} from '@pkgs/sync-engine/harness';
 import { removeNote, SETTLE_MS, settledWrite, writeNote } from './note-writes';
 import { app, ensureDevice, Given, Then, When } from './world';
 

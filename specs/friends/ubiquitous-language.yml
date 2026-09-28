@@ -1,0 +1,216 @@
+# The ubiquitous language of the Friends context: every word its features,
+# stories and Quint models use for friendships. Terms other contexts own are
+# borrowed (from: <domain>) with the spelling their context publishes
+# (docs/CONTEXT_MAP.md); the shared kernel is specs/ubiquitous-language.yml.
+#
+# Terms are product phrases ("accept a friend request", "live friend") rather
+# than bare words ("accept", "live"), so the same everyday word stays free for
+# other contexts to use in their own sense. "notice", "refused" and "cancel"
+# are bare on purpose: other contexts have their own, unrelated meanings for
+# them, and each context defines its own.
+context: Friends
+purpose: >-
+  Signed-in people find each other, become friends by asking and accepting,
+  and choose who stays their friend and who cannot reach them at all.
+
+terms:
+  # --- Friendship -----------------------------------------------------------
+
+  - term: friend
+    definition: >-
+      Someone a person is in a friendship with. Being friends is always
+      mutual: when Alice is Bob's friend, Bob is Alice's.
+    forms: [friends, friend's, friends']
+    avoid: [buddy, follower]
+    model: [Friend]
+    published: true
+
+  - term: friendship
+    definition: >-
+      Two people being each other's friends. It starts when one accepts the
+      other's friend request, and ends, for both at once, when either removes
+      or blocks the other.
+    forms: [friendships]
+    model: [friendships, FriendshipEvent, BecameFriends, FriendshipEnded]
+
+  - term: stranger
+    definition: >-
+      Someone a person has nothing with yet: not a friend, no friend request
+      either way, and no block between them. Either can ask the other to be
+      friends.
+    forms: [strangers]
+    model: [Stranger]
+
+  - term: friendship status
+    definition: >-
+      Where one person stands with another, as they see it: a stranger, a
+      friend, a friend request they sent, one they received, someone they
+      blocked, or nobody at all (hidden by a block).
+    model: [FriendshipStatus, friendshipStatus]
+
+  - term: friends list
+    definition: >-
+      A signed-in person's friends, one entry per friendship, each showing
+      the friend's current username and whether they are a live friend. With
+      no friends yet it says so and leads to people search.
+    forms: [friends lists, friends list's]
+    avoid: [friend list, contact list, contacts, buddy list]
+    published: true
+
+  - term: friend count
+    definition: The number of friends a person has, as the app shows it.
+    forms: [friend counts]
+
+  - term: live friend
+    definition: >-
+      A friend who is in an open space right now. Their entry in the friends
+      list shows them as live (their live mark) and takes the person into
+      that space; the mark goes once the space ends.
+    forms: [live friends, live friend's, live mark]
+    avoid: [live space badge, live badge]
+
+  # --- Friend requests ------------------------------------------------------
+
+  - term: friend request
+    definition: >-
+      One person asking another to be their friend, from people search or
+      the other's profile. It needs a connection. It waits in the inbox of
+      the person asked until they accept or decline it, or the asker cancels
+      it. "Request" for short.
+    forms: [friend requests]
+    avoid: [invite, invitation, friend invite]
+    model: [ask, friendRequests, RequestSent, RequestReceived]
+
+  - term: asker
+    definition: >-
+      The person who sent a friend request. The other is "the person asked";
+      sending one is "asking" them.
+    forms: [askers, asker's]
+    avoid: [add, adds, add friend, requester, sender]
+
+  - term: accept a friend request
+    definition: >-
+      Say yes to a friend request, from the inbox or from the asker's
+      profile. The two become friends at once, and the asker gets a notice.
+    forms: [accepts a friend request, accepted a friend request, accepting a friend request]
+    avoid: [confirm, confirms, confirmed, confirming, approve]
+    model: [accept, acceptFromProfile]
+
+  - term: decline a friend request
+    definition: >-
+      Say no to a friend request, from the inbox or from the asker's
+      profile. The request goes away and nobody becomes friends; asking the
+      same person again within a day is refused.
+    forms: [declines a friend request, declined a friend request, declining a friend request]
+    avoid: [turn down, turns down, turned down, turning down, reject, rejects, rejected]
+    model: [decline, declineFromProfile, declined]
+
+  - term: cancel
+    definition: >-
+      The asker takes back a friend request they sent before it is
+      answered. It is gone from the inbox of the person asked, and the asker
+      can ask again.
+    forms: [cancels, cancelled, cancelling]
+    avoid: [withdraw, withdraws, withdrawn, retract, unsend]
+    model: [cancel]
+
+  - term: refused
+    definition: >-
+      A friend request that is not sent, because the person asked declined
+      the asker within the last day. The asker is told to try again later,
+      and nothing reaches the person asked.
+    forms: [refuse, refuses]
+
+  # --- Ending and blocking --------------------------------------------------
+
+  - term: remove a friend
+    definition: >-
+      End a friendship. It ends for both people at once. A person who backs
+      out before confirming the removal keeps the friend.
+    forms: [removes a friend, removed a friend, removing a friend]
+    avoid: [unfriend, unfriends, delete a friend]
+    model: [remove]
+
+  - term: block someone
+    definition: >-
+      Cut someone off, from their profile or their request: any friendship
+      or friend request between them ends, and the blocked person can no
+      longer find the blocker. The blocked person is not told. The blocker
+      can still find them and unblock.
+    forms: [blocks someone, blocked someone, blocker, blocker's, blocked person, blocked people]
+    model: [block, blocks, Blocking]
+
+  - term: hidden by a block
+    definition: >-
+      What a blocked person sees of the blocker: nobody. People search does
+      not find the blocker, and nothing says why.
+    model: [Hidden]
+
+  - term: unblock
+    definition: >-
+      Undo a block. The two are strangers again, and either can ask the
+      other to be friends.
+    forms: [unblocks, unblocked, unblocking]
+    model: [unblock]
+
+  # --- Finding people and hearing back --------------------------------------
+
+  - term: people search
+    definition: >-
+      Finding another signed-in person by the start of their username, in
+      any letter case. It never shows the person searching, nor a blocker,
+      and it gives an answer ("nobody" at worst) rather than searching
+      forever. "Search" for short. It needs an account and a connection.
+    forms: [people searches]
+    avoid: [user search, user lookup, directory]
+    published: true
+
+  - term: look someone up
+    definition: >-
+      Open another person's profile from people search, to decide about
+      them there: ask, accept, decline, cancel, block or unblock.
+    forms: [looks someone up, looked someone up, looking someone up]
+
+  - term: inbox
+    definition: >-
+      Where a signed-in person finds the friend requests waiting for them
+      and notices about their own requests. A guest who opens it is asked to
+      sign in instead.
+    forms: [inboxes]
+    avoid: [notifications, notification center, activity feed]
+
+  - term: notice
+    definition: >-
+      An inbox item telling a person how one of their friend requests
+      turned out, such as that it was accepted. Opening it shows the other
+      person's profile. Not a friend request itself.
+    forms: [notices]
+    avoid: [notification, alert]
+
+  # --- Borrowed -------------------------------------------------------------
+
+  - term: guest
+    from: profile
+  - term: account
+    from: profile
+  - term: sign in
+    from: profile
+  - term: username
+    from: profile
+  - term: profile
+    from: profile
+  - term: rename themselves
+    from: profile
+
+  - term: space
+    from: spaces
+  - term: create a space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: join
+    from: spaces
+  - term: end a space
+    from: spaces
+  - term: open space
+    from: spaces

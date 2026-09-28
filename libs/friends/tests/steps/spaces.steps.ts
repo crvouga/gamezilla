@@ -1,7 +1,7 @@
 /**
  * Spaces steps (`specs/spaces/`), hosted here because friends is the lowest
- * package whose sim composes spaces with everything it needs (see
- * tests/e2e/support/open-friends-sim.ts). Chess reuses them.
+ * package whose harness composes spaces with everything it needs (see
+ * tests/e2e/support/open-friends-harness.ts). Chess reuses them.
  */
 
 import { expect } from 'bun:test';
@@ -9,18 +9,18 @@ import { expect } from 'bun:test';
 import {
   openBilling,
   subscribeToPlus,
-} from '@libs/billing/sim/billing-actions';
-import { focusActor, signInWithGoogle } from '@libs/sim-harness';
+} from '@libs/billing/harness/billing-actions';
+import { focusActor, signInWithGoogle } from '@libs/harness';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { cutConnection } from '@libs/sim-harness/spec/steps/platform';
-import { recall, remember } from '@libs/sim-harness/spec/world';
-import { letTimePass, restartApp } from '@libs/sim-harness/system/actions';
+} from '@libs/harness/spec/define';
+import { cutConnection } from '@libs/harness/spec/steps/platform';
+import { recall, remember } from '@libs/harness/spec/world';
+import { letTimePass, restartApp } from '@libs/harness/system/actions';
 import {
   closeSpaceMembers,
   createSpace,
@@ -37,7 +37,7 @@ import {
   returnToLobby,
   returnToOwnSpace,
   startSpace,
-} from '@libs/spaces/sim/space-actions';
+} from '@libs/spaces/harness/space-actions';
 import {
   activeSpaceVisible,
   backToSpacesOffered,
@@ -53,7 +53,7 @@ import {
   spaceNotFoundShown,
   spacesNeedConnectionShown,
   spaceTitleShown,
-} from '@libs/spaces/sim/spaces-ui-reads';
+} from '@libs/spaces/harness/spaces-ui-reads';
 
 const SECOND_MS = 1_000;
 const MINUTE_MS = 60 * SECOND_MS;
@@ -64,7 +64,7 @@ const SPACE_HOST = 'spaceHost';
 
 /** Into `host`'s live space from `actor`'s lobby card, once it lists it. */
 async function joinHostFromLobby(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   host: Actor
 ): Promise<void> {
@@ -73,7 +73,7 @@ async function joinHostFromLobby(
   await w.s.apply(joinFromLobby, actor, host);
 }
 
-async function shareLink(w: SimWorld, host: Actor): Promise<string> {
+async function shareLink(w: HarnessWorld, host: Actor): Promise<string> {
   const link = await w.s.read(readSpaceLink, host);
   if (link === null) throw new Error(`${host} is not in a space`);
   remember(w, SPACE_HOST, host);
@@ -82,7 +82,7 @@ async function shareLink(w: SimWorld, host: Actor): Promise<string> {
 
 /** Open `actor`'s members sheet until it counts `count` people. */
 async function untilPresence(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   count: number,
   maxMs: number
@@ -96,7 +96,7 @@ async function untilPresence(
 }
 
 /** `host` creates a space; its link is kept for anyone who joins from it. */
-async function hostSpace(w: SimWorld, host: Actor): Promise<void> {
+async function hostSpace(w: HarnessWorld, host: Actor): Promise<void> {
   await w.s.apply(focusActor, host);
   await w.s.apply(createSpace, host);
   await shareLink(w, host);
@@ -203,7 +203,7 @@ Given('{actor} has ended the space', async (w, actor: Actor) => {
 
 /** `actor` opens the shared space link and joins when it offers to. */
 export async function joinSpaceFromLink(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor
 ): Promise<void> {
   await w.s.apply(joinViaLink, actor, recall(w, SPACE_LINK) as string);

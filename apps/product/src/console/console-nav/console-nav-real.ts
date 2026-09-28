@@ -3,8 +3,8 @@ import type { ConsoleNavState } from './console-nav';
 
 export type ConsoleNavHistoryMode = 'push' | 'replace';
 
-/** Simulator screen route (the app is `/`). */
-export const SIMULATOR_PATH = '/simulator';
+/** Harness screen route (the app is `/`). */
+export const HARNESS_PATH = '/harness';
 
 export function readConsoleNavSearch(): string {
   return window.location.search;
@@ -15,7 +15,7 @@ export function writeConsoleNavUrl(
   state: ConsoleNavState,
   mode: ConsoleNavHistoryMode
 ): void {
-  const url = `${SIMULATOR_PATH}${search}${window.location.hash}`;
+  const url = `${HARNESS_PATH}${search}${window.location.hash}`;
   const historyState = { ...window.history.state, consoleNav: state };
   if (mode === 'replace') window.history.replaceState(historyState, '', url);
   else window.history.pushState(historyState, '', url);

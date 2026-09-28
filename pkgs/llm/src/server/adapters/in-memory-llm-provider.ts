@@ -16,7 +16,7 @@ export type InMemoryLlmProviderOptions = {
 };
 
 /**
- * Test / sim {@link LlmProvider}. Deterministic structured results with knobs
+ * Test / harness {@link LlmProvider}. Deterministic structured results with knobs
  * for scripted replies and one-shot failures.
  */
 export class InMemoryLlmProvider implements LlmProvider {

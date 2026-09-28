@@ -57,6 +57,12 @@ describe('itf values', () => {
     );
   });
 
+  test('a missing product value renders, and differs from every model value', () => {
+    const observed = new Map([['n1', null as unknown as QuintValue]]);
+    expect(renderQuint(observed)).toBe('Map("n1" -> null)');
+    expect(quintEqual(observed, new Map([['n1', 'null']]))).toBe(false);
+  });
+
   test('a bigint beyond the safe range stays a bigint', () => {
     const huge = decodeItfValue({ '#bigint': '123456789012345678901234' });
     expect(typeof huge).toBe('bigint');

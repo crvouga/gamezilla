@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { fingerprintSql } from '@pkgs/db-indexes';
-import { createSimClock, SimDb } from '@pkgs/db-indexes/sim';
+import { createHarnessClock, HarnessDb } from '@pkgs/db-indexes/harness';
 import { createLogger } from '@pkgs/logger';
 import { runMigrateIndexReconcile } from './run-migrate-index-reconcile';
 
@@ -25,8 +25,8 @@ function manifestFor(sql: string) {
 
 describe('runMigrateIndexReconcile', () => {
   test('creates desired owned indexes on empty tables', async () => {
-    const clock = createSimClock(0);
-    const db = new SimDb({
+    const clock = createHarnessClock(0);
+    const db = new HarnessDb({
       clock,
       tables: [{ name: 'notes', estimatedRows: 0 }],
       defaultImprovement: 1,
@@ -45,8 +45,8 @@ describe('runMigrateIndexReconcile', () => {
   });
 
   test('throws when execute returns failed', async () => {
-    const clock = createSimClock(0);
-    const db = new SimDb({
+    const clock = createHarnessClock(0);
+    const db = new HarnessDb({
       clock,
       tables: [{ name: 'notes', estimatedRows: 0 }],
       defaultImprovement: 1,

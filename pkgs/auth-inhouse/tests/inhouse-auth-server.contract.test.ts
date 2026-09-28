@@ -13,11 +13,11 @@ import {
   INHOUSE_AUTH_PROVIDER,
   INHOUSE_AUTH_SECRET,
 } from '@pkgs/auth-inhouse/server';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
-import { createSimIds } from '@pkgs/uuid';
+import { createHarnessIds } from '@pkgs/uuid';
 
 const SECRET = 'contract-secret-contract-secret-contract';
 const SESSION_LIFETIME_MS = 365 * 24 * 60 * 60 * 1000;
@@ -35,8 +35,8 @@ async function openInhouseHarness(): Promise<AuthServerContractHarness> {
     dbScope: createPostgresDbScope('public'),
   });
   await migration?.migrate({ sqlClient, logger: createNoopLogger() });
-  const { clock } = createSimClock({ startMs: Date.UTC(2026, 0, 1) });
-  const { createId } = createSimIds(1);
+  const { clock } = createHarnessClock({ startMs: Date.UTC(2026, 0, 1) });
+  const { createId } = createHarnessIds(1);
   const provider = await INHOUSE_AUTH_PROVIDER.create({
     readSecret: (name) => Promise.resolve(SECRETS[name] ?? null),
     isProduction: false,

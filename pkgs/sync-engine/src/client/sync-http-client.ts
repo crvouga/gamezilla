@@ -1,12 +1,12 @@
 import { SYNC_PROTOCOL_HEADER, SYNC_PROTOCOL_VERSION } from '../protocol';
 import type { QueryResponse } from '../queries/core/types';
+import type { Timers } from './harness-ports';
 import type {
   MutationUploadResult,
   MutationUploadRow,
 } from './mutation-upload-queue';
 import { postQueryBatch } from './post-query-batch';
 import { validateWireQueryBatch } from './query-wire-validation';
-import type { Timers } from './sim-ports';
 import type { QueryRequest } from './subscription-runtime';
 import { SyncHttpRateLimitError } from './sync-http-rate-limit-error';
 

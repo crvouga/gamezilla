@@ -2,8 +2,8 @@
 /**
  * Product client root — `ClientEnvProvider` is applied by `createClient`.
  * Rendered as the router `root`, so `props.children` is the route outlet.
- * Production and sims mount the same component; embedded hosts (multi-App
- * product-simulator) get a `MemoryRouter` from `createClient` instead of the URL.
+ * Production and harnesses mount the same component; embedded hosts (multi-App
+ * product-harness) get a `MemoryRouter` from `createClient` instead of the URL.
  *
  * Paint order (low-end Android): fonts gate → AppFrame chrome → session/SQLite.
  * Sync boot may still show {@link BootLoadingShell} inside the frame; it must
@@ -31,7 +31,7 @@ import { RootErrorBoundary } from './root-error-boundary';
 import { SyncStatusRoot } from './sync/sync-status-context';
 
 export type ProductAppProps = {
-  /** Multi-App product-simulator: in-memory router, no document-level shortcuts. */
+  /** Multi-App product-harness: in-memory router, no document-level shortcuts. */
   readonly embedded: boolean;
   /** Router outlet. */
   readonly children: JSX.Element;

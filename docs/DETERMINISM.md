@@ -13,24 +13,24 @@ game/social state must match bit-for-bit across clients and runs.
 ## What injected ports cover
 
 Inject clock, timers, ids, RNG, and HTTP from a composition root
-(`createClient(env)` / `createServer(env)` / `createSim` via harness-only
-`virtualTimeRuntime()` / `Session` from `@pkgs/sim` / wall adapters at process entry):
+(`createClient(env)` / `createServer(env)` / `createHarness` via harness-only
+`virtualTimeRuntime()` / `Session` from `@pkgs/harness` / wall adapters at process entry):
 
 | Port | Use |
 | --- | --- |
-| `clock` / `timers` (`@pkgs/clock` types; sim uses `@pkgs/sim/internals` virtual clock + scheduler) | Time and scheduling |
+| `clock` / `timers` (`@pkgs/clock` types; harness uses `@pkgs/harness/internals` virtual clock + scheduler) | Time and scheduling |
 | `createId` (`@pkgs/uuid`) | UUIDs / ids |
 | `random` (`@pkgs/uuid`) | RNG |
 | HTTP (`@pkgs/http-client`) | Network |
 
 **`Session` / Runtime are harness-only.** Product `ClientEnv` / `ServerEnv` receive unpacked
 ports — never a Session. Shared simulation mechanics live in
-`@pkgs/sim`. **Systems are framework-owned:** packages declare
+`@pkgs/harness`. **Systems are framework-owned:** packages declare
 `defineSystem` / `defineAction` / `defineProperty` (topology via
 `session.fork`; reads are plain functions of `S`; converge as
 actions/properties); tests call `system.run` / `system.explore` /
-`system.replay` from `@pkgs/sim` — not package-local World openers. See
-[`pkgs/sim/README.md`](../pkgs/sim/README.md).
+`system.replay` from `@pkgs/harness` — not package-local World openers. See
+[`pkgs/harness/README.md`](../pkgs/harness/README.md).
 
 Domain and game-logic code take required `clock` / `createId` (or `now` slices).
 Never default to wall implementations inside libraries. Never construct an `Io` bag.
@@ -109,7 +109,7 @@ Beyond bare I/O:
 - [ ] `RoomModule.hash` covers full synced state
 - [ ] No `localeCompare` / `Intl` in `**/shared/**` game or sync paths
 - [ ] Mutations take time/ids from `env` / args, not wall APIs
-- [ ] Added or updated `*.sim.test.ts` when changing reduce/merge behavior
+- [ ] Added or updated `*.harness.test.ts` when changing reduce/merge behavior
 - [ ] `bun run lint` (hard-determinism plugins) passes
 
 ## Scaffolding
@@ -118,7 +118,7 @@ Beyond bare I/O:
 bun run scaffold:game -- <kebab-name>
 ```
 
-Creates a game package with required `hash(state)`, sim/unit test skeletons,
+Creates a game package with required `hash(state)`, harness/unit test skeletons,
 and no wall globals. Register the game in spaces afterward (script prints
 steps).
 
@@ -128,5 +128,5 @@ steps).
 git config core.hooksPath libs/tools/githooks
 ```
 
-Runs hard-determinism + sim tests when staged paths touch room / shared game /
+Runs hard-determinism + harness tests when staged paths touch room / shared game /
 sync-engine. CI remains authoritative.

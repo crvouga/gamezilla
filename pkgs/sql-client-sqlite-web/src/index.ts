@@ -3,14 +3,14 @@ export {
   createOwnerRuntime,
   type OwnerRuntime,
 } from './owner-runtime';
-export { createMemorySqlOwner } from './owners/memory-sql-owner';
 export {
-  corruptSimOpfsStore,
-  createSimOpfsSqlOwner,
-  createSimOpfsStore,
-  fillSimOpfsPool,
-  type SimOpfsStore,
-} from './owners/sim-opfs-sql-owner';
+  corruptHarnessOpfsStore,
+  createHarnessOpfsSqlOwner,
+  createHarnessOpfsStore,
+  fillHarnessOpfsPool,
+  type HarnessOpfsStore,
+} from './owners/harness-opfs-sql-owner';
+export { createMemorySqlOwner } from './owners/memory-sql-owner';
 export {
   DEFAULT_DB_HOST_SHARED_WORKER_URL,
   forceReleaseSharedWorkerOwners,

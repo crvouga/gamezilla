@@ -38,7 +38,7 @@ function assignableUsername(args: {
  * Runs before the unique index on `profile.username_norm` is created:
  * clears empty norms, resolves duplicate usernames (oldest row wins), and
  * renames usernames the content filter refuses. A database without a `profile`
- * table yet (fresh install / sim seed) is skipped.
+ * table yet (fresh install / harness seed) is skipped.
  */
 export class ProfileUsernameIntegrityMigration implements DatabaseMigration {
   private async readProfiles(

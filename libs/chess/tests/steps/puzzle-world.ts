@@ -8,16 +8,16 @@ import {
   openPuzzleByTheme,
   openPuzzleFromSpace,
   showChessStatsScreen,
-} from '@libs/chess/sim/chess-actions';
-import { ingestChessPuzzleCsv } from '@libs/chess/sim/chess-puzzle-data';
-import { readPuzzlePlayerId } from '@libs/chess/sim/chess-puzzle-ledger-data';
-import { readPuzzleBoardProbe } from '@libs/chess/sim/chess-puzzle-solve-ui';
-import { readActivePuzzleId } from '@libs/chess/sim/chess-puzzle-ui';
-import { backToTabs, focusActor } from '@libs/sim-harness';
-import type { Actor, SimWorld } from '@libs/sim-harness/spec/define';
-import { recall, remember } from '@libs/sim-harness/spec/world';
-import { createSpace } from '@libs/spaces/sim/space-actions';
-import { activeSpaceVisible } from '@libs/spaces/sim/spaces-ui-reads';
+} from '@libs/chess/harness/chess-actions';
+import { ingestChessPuzzleCsv } from '@libs/chess/harness/chess-puzzle-data';
+import { readPuzzlePlayerId } from '@libs/chess/harness/chess-puzzle-ledger-data';
+import { readPuzzleBoardProbe } from '@libs/chess/harness/chess-puzzle-solve-ui';
+import { readActivePuzzleId } from '@libs/chess/harness/chess-puzzle-ui';
+import { backToTabs, focusActor } from '@libs/harness';
+import type { Actor, HarnessWorld } from '@libs/harness/spec/define';
+import { recall, remember } from '@libs/harness/spec/world';
+import { createSpace } from '@libs/spaces/harness/space-actions';
+import { activeSpaceVisible } from '@libs/spaces/harness/spaces-ui-reads';
 import type { NamedPuzzle } from './puzzle-fixtures';
 
 export const SECOND_MS = 1_000;
@@ -33,11 +33,11 @@ export function required<T>(value: T | null | undefined, what: string): T {
   return value;
 }
 
-export function recalled<T>(w: SimWorld, key: string): T {
+export function recalled<T>(w: HarnessWorld, key: string): T {
   return recall(w, key) as T;
 }
 
-export function recalledOr<T>(w: SimWorld, key: string, fallback: T): T {
+export function recalledOr<T>(w: HarnessWorld, key: string, fallback: T): T {
   return w.memo.has(key) ? (w.memo.get(key) as T) : fallback;
 }
 
@@ -49,7 +49,10 @@ const LAST_PUZZLE = 'lastPuzzle';
 const LAST_PLAYER = 'lastPlayer';
 
 /** The puzzle on the actor's board right now; fails when there is none. */
-export async function activePuzzle(w: SimWorld, actor: Actor): Promise<string> {
+export async function activePuzzle(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<string> {
   return required(
     await w.s.read(readActivePuzzleId, actor),
     `a puzzle on ${actor}'s board`
@@ -60,7 +63,10 @@ export async function activePuzzle(w: SimWorld, actor: Actor): Promise<string> {
  * Note the puzzle now on the actor's board as "that puzzle", and the one it
  * replaced as "the one before".
  */
-export async function trackPuzzle(w: SimWorld, actor: Actor): Promise<string> {
+export async function trackPuzzle(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<string> {
   const id = await activePuzzle(w, actor);
   remember(
     w,
@@ -74,22 +80,22 @@ export async function trackPuzzle(w: SimWorld, actor: Actor): Promise<string> {
 }
 
 /** "That puzzle": the one the actor was last seen on. */
-export function currentPuzzle(w: SimWorld, actor: Actor): string {
+export function currentPuzzle(w: HarnessWorld, actor: Actor): string {
   return recalled<string>(w, currentKey(actor));
 }
 
 /** "The one before": the puzzle the last move-on replaced. */
-export function previousPuzzle(w: SimWorld, actor: Actor): string | null {
+export function previousPuzzle(w: HarnessWorld, actor: Actor): string | null {
   return recalledOr<string | null>(w, previousKey(actor), null);
 }
 
 /** Whose puzzle a step means when it names no one: the last one tracked. */
-export function lastPlayer(w: SimWorld): Actor {
+export function lastPlayer(w: HarnessWorld): Actor {
   return recalled<Actor>(w, LAST_PLAYER);
 }
 
 /** The puzzle a step names without naming whose it is. */
-export function lastPuzzle(w: SimWorld): string {
+export function lastPuzzle(w: HarnessWorld): string {
   return recalled<string>(w, LAST_PUZZLE);
 }
 
@@ -101,7 +107,7 @@ const passKey = (actor: Actor) => `pass:${actor}`;
 
 /** Record the puzzle on the board as served in the current pass. */
 export async function recordServed(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor
 ): Promise<ServedPuzzle> {
   const served = { id: await activePuzzle(w, actor) };
@@ -111,7 +117,7 @@ export async function recordServed(
 
 /** The puzzles the actor was served while passing through the pool. */
 export function servedInPass(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor
 ): readonly ServedPuzzle[] {
   return recalledOr<readonly ServedPuzzle[]>(w, passKey(actor), []);
@@ -125,7 +131,10 @@ const ownerKey = (actor: Actor) => `puzzleOwner:${actor}`;
  * Whose puzzle progress the actor's device records, fixed the first time a
  * step asks (a guest's device owner stays the answer after sign-in).
  */
-export async function puzzleOwner(w: SimWorld, actor: Actor): Promise<string> {
+export async function puzzleOwner(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<string> {
   if (w.memo.has(ownerKey(actor))) return recalled<string>(w, ownerKey(actor));
   const owner = required(
     await w.s.read(readPuzzlePlayerId, actor),
@@ -137,7 +146,10 @@ export async function puzzleOwner(w: SimWorld, actor: Actor): Promise<string> {
 // --------------------------------------------------------- into the puzzle
 
 /** Open puzzles in the actor's space, creating one when they have none. */
-export async function enterPuzzles(w: SimWorld, actor: Actor): Promise<string> {
+export async function enterPuzzles(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<string> {
   await w.s.apply(focusActor, actor);
   if (!(await w.s.read(activeSpaceVisible, actor))) {
     await w.s.apply(backToTabs, actor);
@@ -152,7 +164,10 @@ export async function enterPuzzles(w: SimWorld, actor: Actor): Promise<string> {
 const boardBeforeKey = (actor: Actor) => `boardBefore:${actor}`;
 
 /** Note the position on the actor's board, for "the board is unchanged". */
-export async function rememberBoard(w: SimWorld, actor: Actor): Promise<void> {
+export async function rememberBoard(
+  w: HarnessWorld,
+  actor: Actor
+): Promise<void> {
   const probe = required(
     await w.s.read(readPuzzleBoardProbe, actor),
     `${actor}'s board`
@@ -161,13 +176,13 @@ export async function rememberBoard(w: SimWorld, actor: Actor): Promise<void> {
 }
 
 /** The position {@link rememberBoard} noted on the actor's board. */
-export function boardBefore(w: SimWorld, actor: Actor): string {
+export function boardBefore(w: HarnessWorld, actor: Actor): string {
   return recalled<string>(w, boardBeforeKey(actor));
 }
 
 /** The solver may move: the attempt is live and the board unlocked. */
 export async function waitSolverToMove(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor
 ): Promise<void> {
   await w.s.until(async (surf) => readPuzzleBoardProbe(surf, actor), {
@@ -178,7 +193,7 @@ export async function waitSolverToMove(
 
 /** Serve exactly `puzzle`: seed it when needed and narrow the feed to it. */
 export async function enterNamedPuzzle(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   puzzle: NamedPuzzle
 ): Promise<void> {
@@ -190,7 +205,7 @@ export async function enterNamedPuzzle(
 
 /** The stats screen on `device` (an actor or their other device). */
 export async function ensureStatsOpen(
-  w: SimWorld,
+  w: HarnessWorld,
   device: string
 ): Promise<void> {
   await w.s.apply(focusActor, device);

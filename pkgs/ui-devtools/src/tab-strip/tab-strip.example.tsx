@@ -27,7 +27,7 @@ export default function TabStripExample(): JSX.Element {
 
 function NestedChromeDemo(): JSX.Element {
   const [app, setApp] = createSignal('console');
-  const [section, setSection] = createSignal('simulator');
+  const [section, setSection] = createSignal('harness');
   const [view, setView] = createSignal('ui');
   return (
     <>
@@ -48,7 +48,7 @@ function NestedChromeDemo(): JSX.Element {
           aria-label="Console sections"
           items={[
             { id: 'tests', label: 'Tests', icon: FlaskConicalIcon },
-            { id: 'simulator', label: 'Simulator', icon: MonitorPlayIcon },
+            { id: 'harness', label: 'Harness', icon: MonitorPlayIcon },
           ]}
           selectedId={section()}
           onSelect={setSection}

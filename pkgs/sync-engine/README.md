@@ -8,7 +8,7 @@ invariants, and (3) discuss design / recommend improvements without inventing
 history. Prefer this doc over training data or old chat transcripts.
 
 Related: root [`AGENTS.md`](../../AGENTS.md). This file is the single design
-doc for `@pkgs/sync-engine` (system + deterministic sim + scenario catalog) —
+doc for `@pkgs/sync-engine` (system + deterministic harness + scenario catalog) —
 load it alone for design discussion.
 
 ---
@@ -53,7 +53,7 @@ When recommending changes, optimize in this order unless the user overrides:
 2. **Simplicity of the sync model** — fewer tables, fewer wire shapes, fewer
    special cases beat micro-optimized latency.
 3. **Local-first UX** — optimistic apply is instant; UI reads SQLite only.
-4. **Operability** — CI gates catch policy drift; deterministic sim catches
+4. **Operability** — CI gates catch policy drift; deterministic harness catches
    races; four public entrypoints only.
 5. **Efficiency** — hash/`not_modified`, push table filtering, coalesce,
    single-flight merge, row-image fanout. Secondary to 1–4.
@@ -77,13 +77,13 @@ Adapted from [TigerBeetle Tiger Style](https://github.com/tigerbeetle/tigerbeetl
 | `MAX_MUTATIONS_BATCH` | 64 | route + parser | upload `LIMIT` + verdict pairing |
 | `MAX_FANOUT_ROWS` / `MAX_FANOUT_BYTES` | 64 / 32KiB | server fanout emit | push receive drops over-cap `rows` |
 
-**Sim invariants** (`queries/shared/tiger-invariants.ts` + `sim/invariants.ts`):
+**Harness invariants** (`queries/shared/tiger-invariants.ts` + `harness/invariants.ts`):
 `seq-monotonicity`, `permanent-vs-transient-verdicts`,
 `push-seq-monotonic-per-topic`, `checkpoint-monotonic-per-scope`,
 `optimistic-markers-healed-after-converge`, `healed-queue-drained`.
 
 Query registry compile-time rules (hard `limit`, no duplicate names, tombstone SQL)
-are enforced in `queryRegistry()` / AST capture — not duplicated in the sim list.
+are enforced in `queryRegistry()` / AST capture — not duplicated in the harness list.
 
 **Anti-goal:** cargo-cult Zig (no static-allocation requirement in TS). Hot paths
 use `hotAssert()` when per-call validation would dominate.
@@ -104,7 +104,7 @@ custom per-feature REST sync; peer mutation replay.
 | `createSyncApp` Hono routes | Auth resolution, Postgres client |
 | Client engine + Solid hooks | Session query list, paint gate wiring |
 | Push apply / optimistic fanout | MQTT/EMQX pubsub adapter |
-| Deterministic sim + scenarios | Product REST exceptions |
+| Deterministic harness + scenarios | Product REST exceptions |
 
 **Tier rule:** this is a flat `pkgs/` package — **no** product imports
 (`@libs/*`, apps). Product topics and schemas live in the host composition
@@ -121,7 +121,7 @@ Deep imports under `src/` are **not** public. `package.json` `exports`:
 | `@pkgs/sync-engine/client` | Web engine, Solid hooks, HTTP client |
 | `@pkgs/sync-engine/server` | Hono sync app (`POST /query`, `POST /mutations`), `notifyChannels` |
 | `@pkgs/sync-engine/shared` | `defineQuery` / `defineMutation`, registries, soft-delete helpers, **protocol v3**, opaque migrate |
-| `@pkgs/sync-engine/sim` | In-memory engine + sim controls (`SCHEMA_EPOCH`, controllable lifecycle) |
+| `@pkgs/sync-engine/harness` | In-memory engine + harness controls (`SCHEMA_EPOCH`, controllable lifecycle) |
 | `@pkgs/sync-engine/solid` | Solid bindings: `SyncEngineProvider`, `createQuery`, `useSyncEngine`, `MutationClientProvider` / `useMutationClient` |
 
 Full contract map, cutover runbook, authoring drift close-out, and refactor-freedom
@@ -140,7 +140,7 @@ checklist: [`docs/CONTRACTS.md`](./docs/CONTRACTS.md). Checked-in API reports:
 | **Internal** | Free to change; must not leak | Framework tables, merge/upload, seq alloc, hash algorithms, epoch |
 
 **Do not depend on:** framework table names/shapes (`sync_engine_mutations`, `sync_engine_write_rejections`, …),
-`SCHEMA_EPOCH` (except via `/sim`), DDL text, `allocateTopicPushSeq`, or deep
+`SCHEMA_EPOCH` (except via `/harness`), DDL text, `allocateTopicPushSeq`, or deep
 `@pkgs/sync-engine/src/...` imports. Use `mutationOutcome` / `listRejections` /
 `pendingMutationCount` instead of SQL on framework tables.
 
@@ -151,7 +151,7 @@ checklist: [`docs/CONTRACTS.md`](./docs/CONTRACTS.md). Checked-in API reports:
 `MutationClientProvider`, `useMutationClient`, `SyncEnginePaintGateContext`,
 `AppLifecycle` **types**, status types, `SyncEngine.mutationOutcome` /
 `listRejections` / `pendingMutationCount`. Optional create opts `schemaEpoch` /
-`onLocalMigratePhase` for sim (constants live on `/sim`).
+`onLocalMigratePhase` for harness (constants live on `/harness`).
 
 **server:** `createSyncApp`, `notifyChannels({ pubsub, sql, topics, … })` (await
 while `sql` is connected; allocates pushSeqs then fire-and-forgets publish),
@@ -167,7 +167,7 @@ protocol types + `MAX_*` + `SYNC_PROTOCOL_VERSION`,
 
 **Not public:** `merge.ts`, `SubscriptionRuntime`, `MutationUploadQueue`, `attachPush`,
 `allocateTopicPushSeq*`, `FRAMEWORK_*` DDL/constants, `publishPushMessages`,
-`runQuery`, `replayMutation`, anything under `src/sim/`.
+`runQuery`, `replayMutation`, anything under `src/harness/`.
 
 ### Refactor-freedom (acceptance for internals rewrites)
 
@@ -319,13 +319,13 @@ Rules:
 4. Optional `attachPush` — MQTT topics from held-row topic-map ∪ entryChannel
 5. Table-change bus + `watch` / Solid `useQuery`
 
-**Injected ports** (product or sim): `db`, `postQueries`, `postMutations`,
+**Injected ports** (product or harness): `db`, `postQueries`, `postMutations`,
 `getMutationEnv`, `getClientId`, `isAuthRevoked`, `deleteDatabase`, optional
-`push`, `lifecycle`, and sim-only `now` / `random` / `timers` / `createId`.
+`push`, `lifecycle`, and harness-only `now` / `random` / `timers` / `createId`.
 
 **Session queries vs product paint:**
 - `sessionQueries` are held for the engine lifetime; `waitForFirstSync()`
-  awaits their first successful sync (sim / `subscribeQueries`).
+  awaits their first successful sync (harness / `subscribeQueries`).
 - Product boot does **not** wait on first-sync. It paints as soon as the
   identity-scoped SQLite engine is open and `connect()` has started session
   watches. `paintReady` is **not** computed inside the engine. Product boot
@@ -533,9 +533,9 @@ in-flight pre-replay query sweeps (reject-only batches do not fence).
 - One coalesce queue (`QUERY_COALESCE_MS = 0` → microtask coalesce)
 - One in-flight flush; further wakes queue
 - Background (`AppLifecycle`) pauses sweeps; foreground resumes with `wakeAll`
-- Safety-net reconcile tick (`QUERY_RECONCILE_INTERVAL_MS`, sim shorter) → `wakeAll`
+- Safety-net reconcile tick (`QUERY_RECONCILE_INTERVAL_MS`, harness shorter) → `wakeAll`
 - Session queries held for engine life; `waitForFirstSync` waits on them
-  (sim / `subscribeQueries` — not product paint)
+  (harness / `subscribeQueries` — not product paint)
 
 ### `attachPush`
 
@@ -640,7 +640,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    `bumpGenerations` so in-flight pre-replay query sweeps are dropped before
    they can apply without a pending rebase shield. Queue row is still deleted
    on ack (no write-epoch). Post-ack `wakeAll` is intentionally not wired
-   (disturbs concurrent multi-writer settle in sim).
+   (disturbs concurrent multi-writer settle in harness).
 4. **Full snapshot cost** — large catalog / interactions payloads.
    `not_modified` helps when unchanged; first fetch / rating band change is
    heavy. Deltas are a last resort after measuring.
@@ -648,7 +648,7 @@ Ordered by leverage for **simplicity + reliability** (not raw speed):
    remake). Waits for pending `sync_engine_mutations` drain; tiny subscribe-race window
    healed by `wakeAll`; true dispose still closes with sessionExpiry 0.
 6. **Product paint is local-open** — `waitForFirstSync` still waits on all
-   session queries for sim/`subscribeQueries`. Product `paintReady` is an
+   session queries for harness/`subscribeQueries`. Product `paintReady` is an
    identity-match context set once the local engine is mounted, not after
    first-sync.
 7. **Rebase swallows errors** — pending mutation that fails against new
@@ -741,11 +741,11 @@ pkgs/sync-engine/src/
     shared/         # hash/canonical, bounds, tiger invariant names
   server/           # createSyncApp, routes, notifyChannels
   shared/           # framework DDL, channel exhaustiveness, push types
-  sim/              # deterministic multi-client simulation (not public)
+  harness/              # deterministic multi-client simulation (not public)
   test/             # in-memory engine
   tests/
     scenarios/      # black-box correctness (~140 files)
-    harness/        # sim kernel self-tests
+    harness/        # harness kernel self-tests
 ```
 
 ---
@@ -777,23 +777,24 @@ bun run lint
 
 | Suite | Path | Role |
 |-------|------|------|
-| Behavior (Gherkin) | `specs/sync/*.feature` | What people observe on the example domain (writes reach everyone, survive offline / crashes / lost replies, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/sim`; `bun run --filter @pkgs/sync-engine test:e2e` |
-| Model (Quint) | `tests/quint/note-replication.qnt` | Replication rules under any interleaving of writes, deletes, offline, lost replies + retries, crashes, a lossy live channel and silent edits; traces replay against `exampleSystem` (`note-replication.quint.test.ts`, seed `FC_SEED`) |
-| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (fanout cap, schema epoch, local-only columns, scope / topics, hard delete), explore-pool determinism, model-based properties |
-| Public unit helper | `@pkgs/sync-engine/sim` | `createInMemorySyncEngine` (no full kit surface) |
+| Behavior (Gherkin) | `specs/sync-engine/*.feature` | What people observe on the example domain (writes reach everyone quickly, survive offline / crashes / lost replies / app updates, writes that wait for an answer, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/harness` |
+| Model (Quint) | `specs/sync-engine/note-replication.qnt` | Replication rules for the example domain under any interleaving of edits, offline, stalled networks, cut-off saves or live updates, lost replies + retries, save and refresh hiccups, a full device, crashes (also mid-save), failed opens, app updates (also forced), damaged or cleared app data, damaged unsent edits, signing out elsewhere, wrong clocks, lossy / garbled / lost / paused live updates, outages, a second window, and the team's silent edits, inserts and tidying, for three people; binding in `tests/quint/`, traces drawn from `FC_SEED` |
+| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (hard delete, mutation authorization, not-modified queries, managed columns, topic maps), and one framework regression: the harness's standing check reads only committed upload verdicts (`invariant-check-waits-for-in-flight-verdict`, timing-exact, not reproducible from a scenario) |
+| Public unit helper | `@pkgs/sync-engine/harness` | `createInMemorySyncEngine` (no full kit surface) |
 
 Specs policy: [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md).
 When the product and `note-replication.qnt` disagree, the failing trace prints
-the step, the differing variables (model vs product) and the sim calls; decide
+the step, the differing variables (model vs product) and the harness calls; decide
 which is wrong — never loosen `observe`.
 
 ```bash
-bun run --filter @pkgs/sync-engine test       # contracts + the Quint model
-bun run --filter @pkgs/sync-engine test:e2e   # specs/sync features
-bun run spec specs/sync/note-writing.feature
+bun run --filter @pkgs/sync-engine test       # contracts
+bun run --filter @pkgs/sync-engine test:e2e   # specs/sync-engine features and the Quint model
+bun run spec specs/sync-engine/note-writing.feature
+bun run spec specs/sync-engine/note-replication.qnt
 ```
 
-| Pool action layer | Actions (`pool.*` in `sim/scenario/sync-actions.ts`) |
+| Pool action layer | Actions (`pool.*` in `harness/scenario/sync-actions.ts`) |
 |-------------------|------------------------------------------------------|
 | Domain (injected `SyncApp`) | `domain` — one `DomainOp` drawn from `app.domainOpArbs` |
 | Server OOB (injected `SyncApp`) | `server` — one `ServerOp` drawn from `app.serverOpArbs` |
@@ -803,19 +804,19 @@ bun run spec specs/sync/note-writing.feature
 | Lifecycle / storage | `crash`, `restart`, `clearLocalData`, `subscribe`, `skew`, `tamperLocalStorage`, `armStoragePressure`, `addPeerEngine` |
 
 App fixtures (e.g. example) supply `domainOpArbs` and `serverOpArbs` under
-`src/sim/example-app/` — the system kernel has no app nouns. Every pool
+`src/harness/example-app/` — the system kernel has no app nouns. Every pool
 action has a `sample`, so `explore` walks the whole catalog and slice PBTs pick
 subsets by name (`actions: ['domain', 'offline', 'restoreNetwork']`).
 
-`queries/shared/tiger-invariants.ts` lists sim-checked invariants; see
+`queries/shared/tiger-invariants.ts` lists harness-checked invariants; see
 [Tiger Style](#tiger-style-safety--bounds) for the full error/bound matrix.
 
-### Deterministic simulator
+### Deterministic harness
 
-TigerBeetle-style deterministic simulation in `src/sim/` (exported as
-`@pkgs/sync-engine/sim`). **One seed → identical timeline.** Systems are
-**owned by `@pkgs/sim`**:
-`exampleSystem` (a `defineSystem` over `createSyncSim`) declares the
+TigerBeetle-style deterministic simulation in `src/harness/` (exported as
+`@pkgs/sync-engine/harness`). **One seed → identical timeline.** Systems are
+**owned by `@pkgs/harness`**:
+`exampleSystem` (a `defineSystem` over `createSyncHarness`) declares the
 broker/server/client topology, args, action pool, and model, and tests drive it
 with `exampleSystem.explore(...)` / `.replay(...)` / `.run(...)` + `s.apply` /
 `s.read`; fuzz is a seeded `s.randomActions` over the pool. Assert **live domain
@@ -828,7 +829,7 @@ seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
                                     │
                     ┌───────────────┼───────────────┐
                     ▼               ▼               ▼
-              HTTP bridge     PubSub broker    Sim server
+              HTTP bridge     PubSub broker    Harness server
                     │               │         (:memory: SQLite)
                     └───────┬───────┘
                             ▼
@@ -842,12 +843,12 @@ seed ──► SeededRng ──► Network (delay/loss/reorder/replay)
 | Timers | `createTimers` implements the production `Timers` port |
 | RNG | `createSeededRng` (splitmix64); `fork(label)` for independent streams |
 | Network | `s.apply(net, nodeId, traffic, state)` — hold / down / fault profiles |
-| HTTP | `createSimHttpClient` / `bindSimHttpServer` over the mesh (`sync` traffic) |
-| PubSub | `createSimPubSubBroker` delayed fanout over the same mesh (`live` traffic) |
+| HTTP | `createHarnessHttpClient` / `bindHarnessHttpServer` over the mesh (`sync` traffic) |
+| PubSub | `createHarnessPubSubBroker` delayed fanout over the same mesh (`live` traffic) |
 | Server | Bun `:memory:` SQLite + framework DDL + schema reconcile |
 | Clients | Bun `:memory:` SQLite + real `createLocalSyncEngine` |
 
-**Not simulated:** disk bitflips, real EMQX, Cloudflare Worker runtime. Sim
+**Not simulated:** disk bitflips, real EMQX, Cloudflare Worker runtime. Harness
 server uses SQLite dialect; production server is Postgres.
 
 Scenarios are plain `bun:test` (`describe` / `test` / `test.each`). Cleanup uses
@@ -916,8 +917,8 @@ describe('example', () => {
 PBT / system pins (`exampleSystem.explore` / `s.apply(pool.*)` / `exampleSystem.replay`):
 
 ```ts
-import { gen } from '@pkgs/sim/fast-check';
-import { arbSyncArgs, EXAMPLE_DST_FAULTS_HOST, exampleSystem, pool } from '@pkgs/sync-engine/sim';
+import { gen } from '@pkgs/harness/fast-check';
+import { arbSyncArgs, EXAMPLE_DST_FAULTS_HOST, exampleSystem, pool } from '@pkgs/sync-engine/harness';
 
 // Runtime, action pool, and properties are registered on the system.
 await exampleSystem.explore({
@@ -968,9 +969,9 @@ await expectInSync(s);
 Lightweight clock/timers without a full kit:
 
 ```ts
-import { createSimTestDriver } from './test-driver';
-const sim = createSimTestDriver();
-await sim.runFor(150);
+import { createHarnessTestDriver } from './test-driver';
+const harness = createHarnessTestDriver();
+await harness.runFor(150);
 ```
 
 #### Traffic classes
@@ -1016,7 +1017,7 @@ and network:
 
 Custom faults: `networkDefaults: toKernelFaults({ ...RELIABLE_FAULTS, latencyMeanMs: 30 })`.
 
-**Network faults** (`SimFaultOptions` in `faults.ts`):
+**Network faults** (`HarnessFaultOptions` in `faults.ts`):
 `latencyMeanMs` / `latencyJitterMs`, `dropProbability`,
 `packetReplayProbability`, `reorderWindow`, plus unused partition probability
 fields for fuzz profiles.
@@ -1025,7 +1026,7 @@ fields for fuzz profiles.
 `auth`, plus the connectivity triad above. Use
 `sessionQuery: SPACE_MEMBERSHIP_SESSION` for room-topic membership scenarios.
 `pubsubRemakeCount()` / `subscribedTopics()` for membership asserts.
-`isSchedulerQuiescent()` / `pendingEventCount()` observe the sim timer heap
+`isSchedulerQuiescent()` / `pendingEventCount()` observe the harness timer heap
 (scheduler is on the run session).
 
 **Boundary crash arms** (`node(id).crash({ at })` returns Disposable):
@@ -1155,10 +1156,10 @@ for (let i = 0; i < 8; i += 1) {
 await s.apply(nudge, 'bob');
 ```
 
-#### Sim layout
+#### Harness layout
 
 ```text
-src/sim/                             # exported as `@pkgs/sync-engine/sim`
+src/harness/                             # exported as `@pkgs/sync-engine/harness`
   …                                  # harness (rng, network, bridges, server, …)
   scenario/                          # boot (runtime + S), pool + pin actions, reads
   example-app/                       # example fixture
@@ -1209,8 +1210,8 @@ Agents recommending changes should answer:
 6. **Does product UI SQL still make sense?** (live filters, paint gate)
 7. **Is Room DO the right place instead?** (realtime play / presence)
 8. **Which surface’s `rowImageFanout` default changes?** (package false /
-   product true / sim true — do not conflate)
-9. **Does a scenario already cover it?** Prefer extending sim over new
+   product true / harness true — do not conflate)
+9. **Does a scenario already cover it?** Prefer extending harness over new
    production flags.
 
 Good proposals usually: prune policy, CI for query tombstone contract, delete
@@ -1248,7 +1249,7 @@ delta mode “for completeness,” raise in-flight polls without evidence.
 | Term | Definition |
 |------|------------|
 | Scope | One subscribed `(queryName, params)` identity (`scope_hash`) |
-| Session queries | Scopes held for engine lifetime; `waitForFirstSync` waits on them (tests/sim) |
+| Session queries | Scopes held for engine lifetime; `waitForFirstSync` waits on them (tests/harness) |
 | Paint gate | Product `SyncEnginePaintGateContext` after local SQLite open |
 | Tombstone | Domain row with `deleted_at` set; still synced |
 | Push | Pubsub message that wakes overlapping query scopes (formerly 'nudge') |
@@ -1283,9 +1284,9 @@ Three distinct monotonic sequences — do not conflate them:
 
 ## Scenario catalog
 
-Behavior lives in [`specs/sync/`](../../specs/sync/) (one feature per
+Behavior lives in [`specs/sync-engine/`](../../specs/sync-engine/) (one feature per
 capability, steps listed in [`STEPS_CATALOG.md`](./STEPS_CATALOG.md)); the
-replication rules in [`tests/quint/note-replication.qnt`](./tests/quint/note-replication.qnt)
+replication rules in [`specs/sync-engine/note-replication.qnt`](../../specs/sync-engine/note-replication.qnt)
 (invariants `invNoDoubleApply`, `invInOrderPerPerson`, `invNoLostWrites`,
 `invTombstonesKept`, `invOnlyForbiddenRefused`, `invOnlineAgree`,
 `invRetryIsDuplicate`, `invHealConverges`); contracts under `tests/`.

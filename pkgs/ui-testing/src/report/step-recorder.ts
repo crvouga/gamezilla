@@ -1,7 +1,7 @@
-import type { RecordStepMeta } from '@pkgs/sim';
+import type { RecordStepMeta } from '@pkgs/harness';
 
 /**
- * Where UI steps land. `Run.record` from `@pkgs/sim` satisfies this; a
+ * Where UI steps land. `Run.record` from `@pkgs/harness` satisfies this; a
  * harness passes the run's recorder into {@link recordingDriver}.
  */
 export type StepRecorder = {

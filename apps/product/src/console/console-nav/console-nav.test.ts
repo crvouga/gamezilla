@@ -4,7 +4,7 @@ import {
   buildConsoleSearch,
   coerceView,
   DEFAULT_CONSOLE_NAV,
-  DEFAULT_SIMULATOR_NAV,
+  DEFAULT_HARNESS_NAV,
   parseConsoleNav,
   resolvePaneNav,
 } from '@apps/product/console-nav/console-nav';
@@ -15,11 +15,11 @@ describe('parseConsoleNav', () => {
     expect(parseConsoleNav('?')).toEqual(DEFAULT_CONSOLE_NAV);
   });
 
-  test('parses simulator chrome into nested slice', () => {
+  test('parses harness chrome into nested slice', () => {
     expect(
-      parseConsoleNav('?section=simulator&kind=server&view=commands')
+      parseConsoleNav('?section=harness&kind=server&view=commands')
     ).toEqual({
-      simulator: {
+      harness: {
         kind: 'server',
         instance: '',
         panes: { server: { view: 'commands' } },
@@ -31,7 +31,7 @@ describe('parseConsoleNav', () => {
     // Legacy client `db`/`logs` panes coerce to client's only view (`ui`),
     // drop out of the pane map as defaults, and no longer seed the instance.
     expect(parseConsoleNav('?kind=client&cv=alice:db,bob:logs')).toEqual({
-      simulator: {
+      harness: {
         kind: 'client',
         instance: '',
         panes: {},
@@ -41,16 +41,16 @@ describe('parseConsoleNav', () => {
 
   test('cv with legacy table segment is ignored', () => {
     const state = parseConsoleNav(
-      '?section=simulator&cv=alice:db:auth_devices,bob:ui'
+      '?section=harness&cv=alice:db:auth_devices,bob:ui'
     );
     // Chrome kind defaults to client: both entries coerce to client's only
     // view (`ui`) and drop out of the pane map as defaults.
-    expect(state.simulator.panes).toEqual({});
+    expect(state.harness.panes).toEqual({});
   });
 
   test('instance query wins over first cv id', () => {
     expect(parseConsoleNav('?kind=client&instance=bob&cv=alice:db')).toEqual({
-      simulator: {
+      harness: {
         kind: 'client',
         instance: 'bob',
         // Legacy client `db` pane coerces to `ui` (client's only view) and
@@ -62,18 +62,17 @@ describe('parseConsoleNav', () => {
 
   test('aliases html/sqlite/logs views', () => {
     expect(
-      resolvePaneNav(parseConsoleNav('?kind=client&view=html').simulator, '')
-        .view
+      resolvePaneNav(parseConsoleNav('?kind=client&view=html').harness, '').view
     ).toBe('ui');
     expect(
       resolvePaneNav(
-        parseConsoleNav('?kind=server&view=sqlite').simulator,
+        parseConsoleNav('?kind=server&view=sqlite').harness,
         'server'
       ).view
     ).toBe('db');
     expect(
       resolvePaneNav(
-        parseConsoleNav('?kind=events&view=logs').simulator,
+        parseConsoleNav('?kind=events&view=logs').harness,
         'events'
       ).view
     ).toBe('events');
@@ -83,33 +82,31 @@ describe('parseConsoleNav', () => {
     // Client nodes only have a `ui` view now: legacy `alice:db` / `bob:logs`
     // coerce to `ui` and are omitted as defaults.
     const client = parseConsoleNav('?kind=client&cv=alice:db,bob:logs');
-    expect(client.simulator.panes).toEqual({});
+    expect(client.harness.panes).toEqual({});
     // Under room chrome the implied kind for non-singleton panes is room, so
     // a legal non-default room view survives; instance seeds from first id.
     const room = parseConsoleNav('?kind=room&cv=alice:events');
-    expect(room.simulator.panes['alice']).toEqual({ view: 'events' });
-    expect(room.simulator.instance).toBe('alice');
+    expect(room.harness.panes['alice']).toEqual({ view: 'events' });
+    expect(room.harness.instance).toBe('alice');
   });
 
   test('ignores unknown enum values', () => {
     expect(parseConsoleNav('?section=x&kind=y&view=z')).toEqual({
-      simulator: DEFAULT_SIMULATOR_NAV,
+      harness: DEFAULT_HARNESS_NAV,
     });
   });
 
   test('coerces illegal view for kind to default (omitted from panes)', () => {
     expect(parseConsoleNav('?kind=server&view=ui')).toEqual({
-      simulator: {
+      harness: {
         kind: 'server',
         instance: '',
         panes: {},
       },
     });
     expect(
-      resolvePaneNav(
-        parseConsoleNav('?kind=server&view=ui').simulator,
-        'server'
-      ).view
+      resolvePaneNav(parseConsoleNav('?kind=server&view=ui').harness, 'server')
+        .view
     ).toBe('db');
   });
 
@@ -117,13 +114,13 @@ describe('parseConsoleNav', () => {
     const state = parseConsoleNav(
       '?section=tests&kind=server&bucket=local&run=latest&test=auth&frame=3&node=alice&rview=ui'
     );
-    expect(state.simulator.kind).toBe('server');
+    expect(state.harness.kind).toBe('server');
     expect(buildConsoleSearch(state)).toBe('?kind=server');
   });
 
   test('preserves unrelated query keys on round-trip', () => {
     const state = parseConsoleNav(
-      '?section=simulator&kind=pubsub&view=topics&resetDb=1'
+      '?section=harness&kind=pubsub&view=topics&resetDb=1'
     );
     expect(buildConsoleSearch(state, '?resetDb=1&junk=2')).toBe(
       '?resetDb=1&junk=2&kind=events&cv=events%3Atopics'
@@ -140,8 +137,8 @@ describe('parseConsoleNav', () => {
   });
 
   test('ignores legacy host query', () => {
-    expect(parseConsoleNav('?host=console&section=simulator')).toEqual({
-      simulator: DEFAULT_SIMULATOR_NAV,
+    expect(parseConsoleNav('?host=console&section=harness')).toEqual({
+      harness: DEFAULT_HARNESS_NAV,
     });
   });
 });
@@ -154,7 +151,7 @@ describe('buildConsoleSearch', () => {
   test('omits default section/kind with empty panes', () => {
     expect(
       buildConsoleSearch({
-        simulator: DEFAULT_SIMULATOR_NAV,
+        harness: DEFAULT_HARNESS_NAV,
       })
     ).toBe('');
   });
@@ -163,14 +160,14 @@ describe('buildConsoleSearch', () => {
     expect(
       buildConsoleSearch(
         DEFAULT_CONSOLE_NAV,
-        '?host=console&section=simulator&cv=alice:db&instance=bob&bucket=local&x=1'
+        '?host=console&section=harness&cv=alice:db&instance=bob&bucket=local&x=1'
       )
     ).toBe('?x=1');
   });
 
-  test('round-trips simulator chrome', () => {
+  test('round-trips harness chrome', () => {
     const state = applyConsoleNavPatch(DEFAULT_CONSOLE_NAV, {
-      simulator: {
+      harness: {
         kind: 'server',
         instance: '',
         panes: { server: { view: 'commands' } },
@@ -190,19 +187,19 @@ describe('coerceView / applyConsoleNavPatch', () => {
   });
 
   test('legacy kind=api/pubsub map to server/events', () => {
-    expect(parseConsoleNav('?kind=api&view=commands').simulator).toEqual({
+    expect(parseConsoleNav('?kind=api&view=commands').harness).toEqual({
       kind: 'server',
       instance: '',
       panes: { server: { view: 'commands' } },
     });
-    expect(parseConsoleNav('?kind=pubsub&view=topics').simulator).toEqual({
+    expect(parseConsoleNav('?kind=pubsub&view=topics').harness).toEqual({
       kind: 'events',
       instance: '',
       panes: { events: { view: 'topics' } },
     });
     expect(
       buildConsoleSearch({
-        simulator: {
+        harness: {
           kind: 'server',
           instance: '',
           panes: { server: { view: 'commands' } },
@@ -212,7 +209,7 @@ describe('coerceView / applyConsoleNavPatch', () => {
   });
 
   test('legacy kind=actor maps to room', () => {
-    expect(parseConsoleNav('?kind=actor').simulator).toEqual({
+    expect(parseConsoleNav('?kind=actor').harness).toEqual({
       kind: 'room',
       instance: '',
       panes: {},
@@ -222,7 +219,7 @@ describe('coerceView / applyConsoleNavPatch', () => {
   test('kind change clears singleton instance and keeps panes', () => {
     const next = applyConsoleNavPatch(
       {
-        simulator: {
+        harness: {
           kind: 'client',
           instance: 'alice',
           panes: { alice: { view: 'ui' } },
@@ -230,18 +227,18 @@ describe('coerceView / applyConsoleNavPatch', () => {
       },
       { kind: 'server' }
     );
-    expect(next.simulator).toEqual({
+    expect(next.harness).toEqual({
       kind: 'server',
       instance: '',
       panes: { alice: { view: 'ui' } },
     });
-    expect(resolvePaneNav(next.simulator, 'server').view).toBe('db');
+    expect(resolvePaneNav(next.harness, 'server').view).toBe('db');
   });
 
   test('explicit view wins when legal for new kind', () => {
     const next = applyConsoleNavPatch(
       {
-        simulator: {
+        harness: {
           kind: 'client',
           instance: '',
           panes: {},
@@ -249,25 +246,25 @@ describe('coerceView / applyConsoleNavPatch', () => {
       },
       { kind: 'server', view: 'logs' }
     );
-    expect(resolvePaneNav(next.simulator, 'server').view).toBe('events');
+    expect(resolvePaneNav(next.harness, 'server').view).toBe('events');
   });
 
   test('pane patch updates only that node', () => {
     const next = applyConsoleNavPatch(
       {
-        simulator: {
+        harness: {
           kind: 'server',
           instance: '',
           panes: {},
         },
       },
       {
-        simulator: {
+        harness: {
           pane: { id: 'server', patch: { view: 'db' } },
         },
       }
     );
-    expect(resolvePaneNav(next.simulator, 'server').view).toBe('db');
+    expect(resolvePaneNav(next.harness, 'server').view).toBe('db');
   });
 
   test('client panes coerce to the ui default (no db/events tabs)', () => {

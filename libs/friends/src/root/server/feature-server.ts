@@ -49,7 +49,7 @@ function registerFriendsInboxActions(): void {
       createId: store.createId,
     });
     // OOB domain writes bypass mutation-replay fanout. Publish synchronously
-    // (same as outbox-drain) so DST sim timers need not advance for peers to
+    // (same as outbox-drain) so DST harness timers need not advance for peers to
     // refetch friendships / requests. Omit `tables` so every active scope wakes.
     await notifyUserChannels(
       result.userIds,

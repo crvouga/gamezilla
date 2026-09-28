@@ -7,9 +7,9 @@ import { warnPush } from '../shared/is-pubsub-closed-error';
 import type { QueryChannelsCtx } from '../shared/push-payload';
 import type { TopicMap } from '../shared/topic-map';
 import { attachPush } from './attach-push';
+import type { Timers } from './harness-ports';
 import type { MergeApplierDeps } from './merge';
 import type { OutboundLiveBuffer } from './optimistic-fanout';
-import type { Timers } from './sim-ports';
 import type { SubscriptionRuntime } from './subscription-runtime';
 
 export type SyncEnginePushOptions = {

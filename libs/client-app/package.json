@@ -79,7 +79,7 @@
     "@pkgs/room": "workspace:*",
     "@pkgs/secure-storage": "workspace:*",
     "@pkgs/secure-storage-web": "workspace:*",
-    "@pkgs/sim-console": "workspace:*",
+    "@pkgs/harness-console": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sounds": "workspace:*",
     "@pkgs/sql": "workspace:*",

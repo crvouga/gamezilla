@@ -12,7 +12,7 @@ const TOFU_SCRIPT = join(
 const STACKS = ['foundation', 'edge'] as const;
 
 /** Every stack plans no changes and passes the stateful policy. */
-Then('this environment is exactly as the team declared it', () => {
+Then('this environment is exactly as the team planned it', () => {
   for (const stack of STACKS) {
     const result = Bun.spawnSync(
       ['bun', 'run', TOFU_SCRIPT, 'drift', '--stack', stack],

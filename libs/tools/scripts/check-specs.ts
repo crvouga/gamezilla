@@ -17,11 +17,11 @@
  * warning; `--strict-duplicates` makes it fail.
  *
  * Static: it parses features and reads `tests/steps/**` as text, so it runs
- * in well under a second and needs no sim.
+ * in well under a second and needs no harness.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { SPEC_PARAMETER_TYPES } from '@libs/sim-harness/spec/parameter-types';
+import { SPEC_PARAMETER_TYPES } from '@libs/harness/spec/parameter-types';
 import { checkSpecs } from '@pkgs/gherkin/check';
 import { parameterTypeRegistryFrom } from '@pkgs/gherkin/registry';
 import { nearDuplicates } from '@pkgs/gherkin/similarity';
@@ -45,7 +45,14 @@ const SMELLS = {
   maxSteps: 8,
   maxActions: 3,
   journeyDomains: new Set(['journeys']),
-  suspectWords: ['server', 'servers', 'backend', 'client', 'clients', 'sim'],
+  suspectWords: [
+    'server',
+    'servers',
+    'backend',
+    'client',
+    'clients',
+    'harness',
+  ],
 } as const;
 
 const parameterTypes = parameterTypeRegistryFrom(SPEC_PARAMETER_TYPES);

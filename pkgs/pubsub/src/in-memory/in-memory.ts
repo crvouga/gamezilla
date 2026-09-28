@@ -10,7 +10,7 @@ type Handler = (data: unknown) => void;
 /** Default offline session queue depth (EMQX-like mqueue bound). */
 export const IN_MEMORY_PUBSUB_MAX_BUFFER = 256;
 
-/** Shared wire for multi-instance in-memory pubsub (sims + contract tests). */
+/** Shared wire for multi-instance in-memory pubsub (harnesses + contract tests). */
 export type InMemoryBus = {
   publish(topic: Topic, encoded: string, source: InMemoryPubSub): void;
   register(instance: InMemoryPubSub): void;
@@ -154,7 +154,7 @@ export class InMemoryPubSub implements PubSub {
     return [...this.handlers.keys()];
   }
 
-  /** Test / product-simulator hook: subscriber counts per topic. */
+  /** Test / product-harness hook: subscriber counts per topic. */
   topicStatsForTest(): readonly {
     readonly topic: Topic;
     readonly subscriberCount: number;

@@ -1,7 +1,7 @@
 .cache/
 public/generated/
-# Standalone sim test report (bun run test:report)
-sim-report/
+# Standalone harness test report (bun run test:report)
+harness-report/
 
 # @pkgs/sql-client-sqlite-web build:web-workers outputs
 public/sql-workers/**/*.js

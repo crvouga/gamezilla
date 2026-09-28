@@ -3,7 +3,7 @@ import type { SecureStorage } from './interface';
 
 /**
  * In-memory {@link SecureStorage} for simulations and tests. Each instance owns
- * an isolated `Map`, so per-actor sims never leak values through globals.
+ * an isolated `Map`, so per-actor harnesses never leak values through globals.
  * Wrapped with `wrapSecureStorage` so key/value validation matches native.
  */
 export function createInMemorySecureStorage(): SecureStorage {

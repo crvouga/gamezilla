@@ -93,7 +93,7 @@
             "61dd9ce0-8367-4c0f-93d7-854e9c907f95",
             "idp",
             "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
-            "{\"email\": \"alice@sim.local\"}"
+            "{\"email\": \"alice@harness.local\"}"
           ],
           [
             "idp:QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
@@ -103,7 +103,7 @@
             "65c5519b-f249-4f32-9406-cc740c243833",
             "idp",
             "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
-            "{\"email\": \"bob@sim.local\"}"
+            "{\"email\": \"bob@harness.local\"}"
           ]
         ]
       },
@@ -630,7 +630,7 @@
             "2024-06-01 00:00:01.2+00",
             "2024-06-01 00:00:01.2+00",
             null,
-            "alice@sim.local",
+            "alice@harness.local",
             "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
             null
           ],
@@ -639,7 +639,7 @@
             "2024-06-01 00:00:02.4+00",
             "2024-06-01 00:00:02.4+00",
             null,
-            "bob@sim.local",
+            "bob@harness.local",
             "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
             null
           ]
@@ -795,7 +795,7 @@
                 null,
                 "RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
                 "idp:RczYFbjL9uDNp1MrlqEddJbVKio7lHe2",
-                "{\"email\": \"alice@sim.local\"}",
+                "{\"email\": \"alice@harness.local\"}",
                 "idp",
                 "2024-06-01T00:00:02.200Z",
                 "61dd9ce0-8367-4c0f-93d7-854e9c907f95"
@@ -1349,7 +1349,7 @@
                 null,
                 "QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
                 "idp:QbaS4HkXi7QeD7dh98xgawk2tz4cf6Iz",
-                "{\"email\": \"bob@sim.local\"}",
+                "{\"email\": \"bob@harness.local\"}",
                 "idp",
                 "2024-06-01T00:00:03.500Z",
                 "65c5519b-f249-4f32-9406-cc740c243833"

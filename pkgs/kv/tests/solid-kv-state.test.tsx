@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { asKeyword } from '@pkgs/keyword/keyword';
 import type { Kv, KvRecord } from '@pkgs/kv/interface';
@@ -51,7 +51,7 @@ function Flag(): JSX.Element {
 }
 
 function withClock(children: () => JSX.Element): JSX.Element {
-  const { clock, timers } = createSimClock();
+  const { clock, timers } = createHarnessClock();
   return (
     <ClockProvider clock={clock} timers={timers}>
       {children()}

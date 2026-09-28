@@ -40,7 +40,7 @@ export const EMPTY_PERF_SNAPSHOT: PerfSnapshot = {
   heapMb: null,
 };
 
-/** No-op sampler for sim / hosts without a frame loop / tests. */
+/** No-op sampler for harness / hosts without a frame loop / tests. */
 export function createNoopPerfSampler(): PerfSampler {
   return {
     start: () => undefined,

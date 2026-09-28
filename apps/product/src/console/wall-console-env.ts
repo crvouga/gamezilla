@@ -9,7 +9,7 @@ import type { ConsoleEnv } from './root-app';
 export function wallConsoleEnv(): ConsoleEnv {
   const http = createGlobalHttpClient();
   const snapshotStore = createBrowserObjectStore({
-    baseDir: 'product-simulator-snapshots',
+    baseDir: 'product-harness-snapshots',
   });
   return {
     i18n,
@@ -19,11 +19,11 @@ export function wallConsoleEnv(): ConsoleEnv {
       clock: wallClock,
       timers: wallTimers,
       fetch: http.fetch,
-      async bootProductSimulator(options) {
-        const { bootProductSimulatorSession } = await import(
-          './product-simulator/boot-product-simulator'
+      async bootProductHarness(options) {
+        const { bootProductHarnessSession } = await import(
+          './product-harness/boot-product-harness'
         );
-        return bootProductSimulatorSession(
+        return bootProductHarnessSession(
           { clock: wallClock, timers: wallTimers, snapshotStore },
           options
         );

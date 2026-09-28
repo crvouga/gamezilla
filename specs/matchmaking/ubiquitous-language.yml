@@ -1,0 +1,104 @@
+# The ubiquitous language of Matchmaking: people waiting to be paired with
+# someone close to their rating. Matchmaking stands alone
+# (docs/CONTEXT_MAP.md): it borrows nothing from another context, and
+# publishes nothing yet.
+context: Matchmaking
+purpose: >-
+  People wait for a match and are paired with someone they accept who
+  accepts them back, and nobody loses a match they already have.
+
+terms:
+  - term: matchmaking
+    definition: >-
+      Finding each person who is waiting someone to be paired with: someone
+      close enough to their rating whom they accept and who accepts them.
+
+  - term: wait for a match
+    definition: >-
+      A person asks to be matched and waits, with their details, until
+      matchmaking pairs them up. A person waits for one match at a time:
+      asking again while waiting, they are told they are already waiting.
+      Once matched, or once they stop waiting, they may wait for a match
+      again.
+    forms:
+      - waits for a match
+      - waiting for a match
+      - waited for a match
+      - waiting
+      - waits
+      - wait
+    avoid: [queue, join the queue, ticket, participant, enqueue]
+    model: [waitForMatch, Waiting]
+
+  - term: details
+    definition: >-
+      What a person waits with: their rating and their name. A person
+      waiting sees their details shown back to them.
+
+  - term: rating
+    definition: >-
+      A number saying how strong a person is. People are matched with others
+      whose rating is close to theirs.
+    forms: [ratings, points]
+
+  - term: rating range
+    definition: >-
+      How far from their own rating a person accepts someone, in rating
+      points: "within 5 points" is a narrow range, "within 200 points" a
+      wide one.
+    forms: [range, ranges, narrow range, wide range]
+    avoid: [reach, radius, formula]
+    model: [RatingRange, Narrow, Wide]
+
+  - term: accept
+    definition: >-
+      A person accepts someone whose rating is within their range. Two
+      people are matched only when each accepts the other; one wide range
+      alone is not enough.
+    forms: [accepts, accepting, accepted, accept each other]
+
+  - term: change their range
+    definition: >-
+      A person who is waiting widens or narrows their range, and sees the
+      change counted; it counts from the next time matchmaking pairs people
+      up. A person who is matched, or who is not waiting, is told their
+      change did not count.
+    forms: [widens, widen, widened, narrows, narrowed, change]
+    model: [changeRange]
+
+  - term: pair people up
+    definition: >-
+      Every so often, on its own, matchmaking looks at everyone waiting and
+      pairs up each two people who accept each other.
+    forms: [pairs people up, paired people up]
+    avoid: [matching round, round, tick]
+    model: [pairUp]
+
+  - term: matched
+    definition: >-
+      Paired with one other person by matchmaking. Each of the two is then
+      matched with the other, and stays matched.
+    forms: [match, matches, matched with, matched with each other]
+    model: [Matched]
+
+  - term: stop waiting
+    definition: >-
+      A person who is waiting gives up their wait and is no longer waiting;
+      they see they stopped waiting. A person who is matched, or who is
+      not waiting, has nothing to stop and is told so; a matched person
+      stays matched.
+    forms: [stops waiting, stopped waiting, stopping]
+    avoid: [leave the queue, dequeue, cancel]
+    model: [stopWaiting]
+
+  - term: not waiting
+    definition: >-
+      A person with no wait: they never waited for a match, or they stopped
+      waiting.
+    model: [NotWaiting]
+
+  - term: standing
+    definition: >-
+      Where a person stands with matchmaking: not waiting, waiting, or
+      matched with someone.
+    model: [Standing, standing]

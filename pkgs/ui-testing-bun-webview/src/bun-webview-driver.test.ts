@@ -1,10 +1,10 @@
 import { describe, expect, it, mock } from 'bun:test';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import { BunWebviewDriver } from './bun-webview-driver';
 import type { BunWebView } from './bun-webview-host';
 
 /** Popup-load timeouts only; the fake view settles first, so none fire. */
-const timers = createSimClock().timers;
+const timers = createHarnessClock().timers;
 
 type PointerCounts = { down: number; up: number };
 

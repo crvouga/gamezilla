@@ -1,6 +1,6 @@
 /**
  * Injectable room transport factory. Production defaults to WebSocket;
- * `@libs/sim` injects loopback.
+ * `@libs/harness` injects loopback.
  */
 import type { Timers } from '@pkgs/clock';
 import type { ClientTransport } from '@pkgs/room';

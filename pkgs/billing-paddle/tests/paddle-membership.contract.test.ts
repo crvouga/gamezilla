@@ -1,6 +1,6 @@
 /**
  * The Paddle adapter against the shared membership contract, over the fake
- * Paddle REST origin (`@pkgs/billing-paddle/sim`): request encoding, the
+ * Paddle REST origin (`@pkgs/billing-paddle/harness`): request encoding, the
  * envelope, error codes and Paddle's webhook signatures, end to end.
  */
 import {
@@ -18,7 +18,7 @@ import { PaddleMembershipBilling } from '@pkgs/billing-paddle';
 import {
   FakePaddle,
   type FakePaddleSubscription,
-} from '@pkgs/billing-paddle/sim';
+} from '@pkgs/billing-paddle/harness';
 
 type Shape = Omit<
   FakePaddleSubscription,

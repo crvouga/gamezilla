@@ -1,13 +1,15 @@
 /**
- * The app over two real providers at once: the production Stripe and Paddle
- * adapters, each against its fake REST origin, behind the real billing routes
- * and a real SQLite database. Nothing here is a stub of the app — only the
- * vendors are faked, at their wire.
+ * The billing routes over two real providers at once: the production Stripe
+ * and Paddle adapters, each against its fake REST origin, behind the real
+ * billing routes and a real SQLite database. Only the vendors are faked, at
+ * their wire.
  *
- * It walks the life a deployment goes through when it changes provider:
- * members at the old one keep renewing, cancelling and managing their
- * membership there while new people start at the new one; a person who left
- * one provider can join through the other; and the app can switch back.
+ * These are the wire and storage contracts of running two providers: which
+ * callback path verifies which provider's deliveries, where a checkout mints
+ * a customer, which customer links a provider's news is matched against, and
+ * that the server refuses a second membership even when a stale screen asks.
+ * What a person sees when the team switches payment provider is specified in
+ * `specs/billing/payment-provider-switch.feature` and `.qnt`.
  */
 import { describe, expect, test } from 'bun:test';
 import { ExternalAccountRepository } from '@libs/auth/public/external-account-repository';
@@ -16,37 +18,29 @@ import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing/public/offer';
 import { BILLING_TABLES } from '@libs/billing/public/schema';
 import { BillingApp } from '@libs/billing/root/server/billing-app';
 import {
-  governingSubscription,
-  ROLE,
-  resolvePlanRole,
-  type SubscriptionRow,
-} from '@libs/permissions/root/access-model';
-import {
   createMembershipProviders,
   type MembershipBilling,
 } from '@pkgs/billing';
 import { PaddleMembershipBilling } from '@pkgs/billing-paddle';
-import { FakePaddle } from '@pkgs/billing-paddle/sim';
+import { FakePaddle } from '@pkgs/billing-paddle/harness';
 import { createStripeMembershipBilling } from '@pkgs/billing-stripe';
-import { FakeStripe } from '@pkgs/billing-stripe/sim';
+import { FakeStripe } from '@pkgs/billing-stripe/harness';
 import { registerTables } from '@pkgs/db-schema';
 import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { createNoopLogger } from '@pkgs/logger';
-import { assertProperty } from '@pkgs/property';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite/impl-mockingbird-sqlite';
-import fc from 'fast-check';
 import { Hono } from 'hono';
 
 const NOW = Date.parse('2026-09-21T12:00:00.000Z');
 const DAY = 86_400_000;
-const GRACE_MS = 3 * DAY;
 const RETURN = 'https://app.test/more/billing';
 
 type ProviderId = 'stripe' | 'paddle';
 
-class World {
+/** Two fake vendors, their production adapters, and the routes over both. */
+class TwoProviders {
   readonly stripe = new FakeStripe();
   readonly paddle = new FakePaddle();
   readonly adapters: Readonly<Record<ProviderId, MembershipBilling>>;
@@ -76,7 +70,7 @@ class World {
     };
   }
 
-  /** The API as configured right now: both providers, one taking checkouts. */
+  /** The API as configured right now: `configured`, one taking checkouts. */
   private app(configured: readonly ProviderId[]): Hono {
     const inner = new BillingApp({
       getSqlClient: () => this.db,
@@ -111,18 +105,19 @@ class World {
     });
   }
 
-  async post(
-    route: 'checkout' | 'portal',
-    accountId: string,
-    configured: readonly ProviderId[] = ['stripe', 'paddle']
-  ): Promise<{ readonly status: number; readonly url: string | null }> {
-    const res = await this.app(configured).request(`/billing/${route}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', 'x-account': accountId },
-      body: JSON.stringify({ returnUrl: RETURN }),
-    });
-    const body = (await res.json()) as { url?: string };
-    return { status: res.status, url: body.url ?? null };
+  async checkout(accountId: string): Promise<number> {
+    const res = await this.app(['stripe', 'paddle']).request(
+      '/billing/checkout',
+      {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-account': accountId,
+        },
+        body: JSON.stringify({ returnUrl: RETURN }),
+      }
+    );
+    return res.status;
   }
 
   async deliver(
@@ -144,6 +139,13 @@ class World {
     return rows[0]?.external_id ?? null;
   }
 
+  async membershipRows(accountId: string): Promise<number> {
+    const rows = await this.db.query(sql<{ provider: string }>`
+      SELECT provider FROM billing_subscriptions
+      WHERE account_id = ${accountId} AND deleted_at IS NULL`);
+    return rows.length;
+  }
+
   /** The provider completes a checkout and says so. */
   async joinAt(
     provider: ProviderId,
@@ -155,7 +157,7 @@ class World {
     this.seq += 1;
     const id = `sub_${provider}_${String(this.seq)}`;
     this.set(provider, id, customer, status);
-    expect(await this.announce(provider, id, 'changed')).toBe(200);
+    expect(await this.announce(provider, id)).toBe(200);
     return id;
   }
 
@@ -212,14 +214,10 @@ class World {
         });
   }
 
-  async announce(
-    provider: ProviderId,
-    id: string,
-    kind: 'changed' | 'ended'
-  ): Promise<number> {
+  async announce(provider: ProviderId, id: string): Promise<number> {
     return await this.deliver(
       provider,
-      await this.delivery(provider, id, kind)
+      await this.delivery(provider, id, 'changed')
     );
   }
 
@@ -230,205 +228,91 @@ class World {
         : this.paddle.subscription(id)?.customerId;
     if (customer === undefined) throw new Error(`no ${provider} ${id}`);
     this.set(provider, id, customer, 'ended');
-    expect(await this.announce(provider, id, 'ended')).toBe(200);
-  }
-
-  /** What the account's access resolves to, from its synced rows. */
-  async role(accountId: string): Promise<string> {
-    const rows = await this.db.query(sql<SubscriptionRow>`
-      SELECT status, current_period_end, cancel_at_period_end
-      FROM billing_subscriptions
-      WHERE account_id = ${accountId} AND deleted_at IS NULL
-      ORDER BY updated_at DESC`);
-    return resolvePlanRole({
-      signedIn: true,
-      subscription: governingSubscription(rows),
-      nowMs: NOW + 30 * DAY,
-      graceMs: GRACE_MS,
-      confirmedAtMs: NOW + 30 * DAY,
-      billingEnabled: true,
-    });
+    const ended = await this.delivery(provider, id, 'ended');
+    expect(await this.deliver(provider, ended)).toBe(200);
   }
 }
 
-async function openWorld(): Promise<World> {
+async function openTwoProviders(): Promise<TwoProviders> {
   const db = SqlClientImplMockingbirdSqlite.open();
   await db.connect();
   await applySqliteSchema(
     db,
     registerTables([...AUTH_TABLES, ...BILLING_TABLES]),
-    {
-      ownership: 'declared-only',
-    }
+    { ownership: 'declared-only' }
   );
-  const world = new World(db);
-  for (const account of ['ada', 'bo', 'cy']) await world.signUp(account);
-  return world;
+  const two = new TwoProviders(db);
+  for (const account of ['ada', 'bo']) await two.signUp(account);
+  return two;
 }
 
-describe('two providers at once', () => {
-  test('a member at the old provider keeps it; new people start at the new one', async () => {
-    const world = await openWorld();
-    expect((await world.post('checkout', 'ada')).status).toBe(200);
-    const adaAtStripe = await world.joinAt('stripe', 'ada');
-    expect(await world.role('ada')).toBe(ROLE.planPaid);
-
-    world.checkoutAt = 'paddle';
-    // Bo starts at Paddle, with a Paddle customer minted from the email.
-    const bo = await world.post('checkout', 'bo');
-    expect(bo.status).toBe(200);
-    expect(bo.url).toContain('_ptxn=txn_');
-    expect(await world.customerOf('bo', 'paddle')).not.toBeNull();
-    expect(await world.customerOf('bo', 'stripe')).toBeNull();
-    await world.joinAt('paddle', 'bo');
-    expect(await world.role('bo')).toBe(ROLE.planPaid);
-
-    // Ada is still a Stripe member: no second membership, her portal is
-    // Stripe's, and Stripe's callbacks still reach her.
-    expect((await world.post('checkout', 'ada')).status).toBe(409);
-    expect(world.paddle.transactions).toHaveLength(1);
-    const portal = await world.post('portal', 'ada');
-    expect(portal.url).toContain('billing.stripe.test');
-    await world.end('stripe', adaAtStripe);
-    expect(await world.role('ada')).toBe(ROLE.planFree);
+describe('checkout across providers', () => {
+  test('a checkout mints a customer only at the provider taking checkouts', async () => {
+    const two = await openTwoProviders();
+    two.checkoutAt = 'paddle';
+    expect(await two.checkout('bo')).toBe(200);
+    expect(await two.customerOf('bo', 'paddle')).not.toBeNull();
+    expect(await two.customerOf('bo', 'stripe')).toBeNull();
   });
 
-  test('switch, then switch back: each provider keeps its own customer', async () => {
-    const world = await openWorld();
-    await world.post('checkout', 'ada');
-    const stripeCustomer = await world.customerOf('ada', 'stripe');
-    if (stripeCustomer === null) throw new Error('ada has no Stripe customer');
-    await world.end('stripe', await world.joinAt('stripe', 'ada', 'active'));
+  test('a second checkout is refused while a membership is live at another provider', async () => {
+    const two = await openTwoProviders();
+    await two.checkout('ada');
+    await two.joinAt('stripe', 'ada');
+    two.checkoutAt = 'paddle';
+    expect(await two.checkout('ada')).toBe(409);
+    expect(two.paddle.transactions).toHaveLength(0);
+  });
 
-    world.checkoutAt = 'paddle';
-    expect((await world.post('checkout', 'ada')).status).toBe(200);
-    const atPaddle = await world.joinAt('paddle', 'ada', 'active');
-    expect(await world.role('ada')).toBe(ROLE.planPaid);
-    expect((await world.post('portal', 'ada')).url).toContain(
-      'customer-portal.paddle.test'
-    );
-    await world.end('paddle', atPaddle);
-    expect(await world.role('ada')).toBe(ROLE.planFree);
-
-    world.checkoutAt = 'stripe';
-    expect((await world.post('checkout', 'ada')).status).toBe(200);
-    // The Stripe customer from before is reused, never a Paddle id.
-    expect(await world.customerOf('ada', 'stripe')).toBe(stripeCustomer);
-    expect(world.stripe.customers.size).toBe(1);
-    expect(world.stripe.checkouts.map((c) => c.customer)).toEqual([
-      stripeCustomer,
-      stripeCustomer,
+  test('a person checking out again at a provider is the same customer there', async () => {
+    const two = await openTwoProviders();
+    await two.checkout('ada');
+    const atStripe = await two.customerOf('ada', 'stripe');
+    if (atStripe === null) throw new Error('ada has no Stripe customer');
+    await two.end('stripe', await two.joinAt('stripe', 'ada', 'active'));
+    two.checkoutAt = 'paddle';
+    await two.checkout('ada');
+    await two.end('paddle', await two.joinAt('paddle', 'ada', 'active'));
+    two.checkoutAt = 'stripe';
+    expect(await two.checkout('ada')).toBe(200);
+    expect(await two.customerOf('ada', 'stripe')).toBe(atStripe);
+    expect(two.stripe.customers.size).toBe(1);
+    expect(two.stripe.checkouts.map((c) => c.customer)).toEqual([
+      atStripe,
+      atStripe,
     ]);
-    await world.joinAt('stripe', 'ada');
-    expect(await world.role('ada')).toBe(ROLE.planPaid);
-  });
-
-  test('a late ended callback from the old provider never hides the new membership', async () => {
-    const world = await openWorld();
-    await world.post('checkout', 'ada');
-    const atStripe = await world.joinAt('stripe', 'ada');
-    const late = await world.delivery('stripe', atStripe, 'ended');
-    await world.end('stripe', atStripe);
-    world.checkoutAt = 'paddle';
-    await world.post('checkout', 'ada');
-    await world.joinAt('paddle', 'ada');
-    // Stripe redelivers its deletion after the Paddle membership began.
-    expect(await world.deliver('stripe', late)).toBe(200);
-    expect(await world.role('ada')).toBe(ROLE.planPaid);
-    expect((await world.post('portal', 'ada')).url).toContain(
-      'customer-portal.paddle.test'
-    );
-  });
-
-  test('the old provider can be dropped from checkout and still serve its members', async () => {
-    const world = await openWorld();
-    await world.post('checkout', 'ada');
-    const atStripe = await world.joinAt('stripe', 'ada');
-    world.checkoutAt = 'paddle';
-    // A renewal at Stripe while Paddle takes checkouts.
-    expect(await world.announce('stripe', atStripe, 'changed')).toBe(200);
-    expect(await world.role('ada')).toBe(ROLE.planPaid);
   });
 });
 
 describe('deliveries reach only their own provider', () => {
   test('a delivery posted to another provider’s path is unverified', async () => {
-    const world = await openWorld();
-    await world.post('checkout', 'ada');
-    const id = await world.joinAt('stripe', 'ada');
-    const stripeDelivery = await world.delivery('stripe', id, 'changed');
-    expect(await world.deliver('paddle', stripeDelivery)).toBe(400);
+    const two = await openTwoProviders();
+    await two.checkout('ada');
+    const id = await two.joinAt('stripe', 'ada');
+    const stripeDelivery = await two.delivery('stripe', id, 'changed');
+    expect(await two.deliver('paddle', stripeDelivery)).toBe(400);
   });
 
   test('a provider that is not configured has no callback route', async () => {
-    const world = await openWorld();
-    const delivery = world.paddle.webhook({
+    const two = await openTwoProviders();
+    const delivery = two.paddle.webhook({
       eventType: 'subscription.updated',
       subscriptionId: 'sub_x',
       timestampS: NOW / 1000,
     });
-    expect(await world.deliver('paddle', delivery, ['stripe'])).toBe(404);
-    expect(await world.deliver('mystery', delivery)).toBe(404);
+    expect(await two.deliver('paddle', delivery, ['stripe'])).toBe(404);
+    expect(await two.deliver('mystery', delivery)).toBe(404);
   });
 
   test('a customer id is only looked up among its own provider’s customers', async () => {
-    const world = await openWorld();
-    await world.post('checkout', 'ada');
-    const adaAtStripe = await world.customerOf('ada', 'stripe');
+    const two = await openTwoProviders();
+    await two.checkout('ada');
+    const adaAtStripe = await two.customerOf('ada', 'stripe');
     if (adaAtStripe === null) throw new Error('ada has no Stripe customer');
     // Paddle reports a subscription whose customer id happens to equal
     // Ada's Stripe customer id. It is not Ada's.
-    world.set('paddle', 'sub_collide', adaAtStripe, 'active');
-    expect(await world.announce('paddle', 'sub_collide', 'changed')).toBe(200);
-    expect(await world.role('ada')).toBe(ROLE.planFree);
+    two.set('paddle', 'sub_collide', adaAtStripe, 'active');
+    expect(await two.announce('paddle', 'sub_collide')).toBe(200);
+    expect(await two.membershipRows('ada')).toBe(0);
   });
-});
-
-describe('delivery order', () => {
-  test('any interleaving of both providers’ deliveries lands on the same access', async () => {
-    await assertProperty(
-      'any interleaving of both providers’ deliveries lands on the same access',
-      fc.asyncProperty(
-        fc.array(fc.nat({ max: 3 }), { minLength: 1, maxLength: 8 }),
-        async (order) => {
-          const world = await openWorld();
-          await world.post('checkout', 'ada');
-          const atStripe = await world.joinAt('stripe', 'ada');
-          const deliveries = [
-            await world.delivery('stripe', atStripe, 'changed'),
-            await world.delivery('stripe', atStripe, 'ended'),
-          ];
-          await world.end('stripe', atStripe);
-          world.checkoutAt = 'paddle';
-          await world.post('checkout', 'ada');
-          const atPaddle = await world.joinAt('paddle', 'ada');
-          deliveries.push(
-            await world.delivery('paddle', atPaddle, 'changed'),
-            world.paddle.webhook({
-              eventType: 'subscription.activated',
-              subscriptionId: atPaddle,
-              timestampS: NOW / 1000,
-            })
-          );
-          const paths: readonly ProviderId[] = [
-            'stripe',
-            'stripe',
-            'paddle',
-            'paddle',
-          ];
-          for (const index of order) {
-            const delivery = deliveries[index];
-            if (delivery === undefined) continue;
-            expect(
-              await world.deliver(paths[index] ?? 'stripe', delivery)
-            ).toBe(200);
-          }
-          expect(await world.role('ada')).toBe(ROLE.planPaid);
-        }
-      ),
-      { numRuns: 25 }
-    );
-    // Each run boots a world; bun's 5 s default is a wall-clock verdict on a
-    // loaded runner. The task budget still bounds it.
-  }, 30_000);
 });

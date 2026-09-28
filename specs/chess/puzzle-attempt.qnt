@@ -27,7 +27,7 @@
 // is played through is unrated and uses none, and going back to a puzzle
 // (after leaving it or closing the app) is no start at all. So a guest here
 // uses at most three puzzle starts, and never reaches the daily puzzle limit
-// — the limit itself (`puzzle-quota.feature`) is out of this model's reach.
+// — the limit itself is shown by its own examples, not by this model.
 module puzzle_attempt {
   type Person = str
 

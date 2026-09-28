@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'bun:test';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 
 import {
   clearAllSpaceOpenSessions,
@@ -8,7 +8,7 @@ import {
   SpaceOpenSessionStore,
 } from '../../../public/room/space-open-session-store';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 afterEach(() => {
   clearAllSpaceOpenSessions();
@@ -48,7 +48,7 @@ describe('space-open-session-store', () => {
     expect(a).not.toBe(b);
   });
 
-  it('isolates clientIds across install ids (product-simulator multi-actor)', () => {
+  it('isolates clientIds across install ids (product-harness multi-actor)', () => {
     const alice = new SpaceOpenSessionStore(adapters.createId).getOrCreate(
       'space-1',
       'alice-device'

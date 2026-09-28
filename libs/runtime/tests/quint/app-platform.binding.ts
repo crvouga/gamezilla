@@ -2,44 +2,45 @@
  * `specs/runtime/app-platform.qnt` against the full production composition:
  * people opening the app, moving between tabs and Settings, signing in,
  * searching for each other and hosting spaces, while they are cut off and
- * reconnect and the app's serving capacity grows and shrinks. Every step also
+ * reconnect and the machines the app runs on come and go (`_capacity`,
+ * `_gainCapacity`, `_loseCapacity`, `_cutOffOnTheWay`). Every step also
  * checks the composition's standing properties (no error boundary, the global
  * menu reachable, search never hangs, …). The model's state is read back off
  * each person's place in the app, their account and the app's capacity.
  */
 
-import { searchUsername } from '@libs/search/sim/search-actions';
-import type { QuintSimWorld } from '@libs/sim-harness/quint/world';
+import type { QuintHarnessWorld } from '@libs/harness/quint/world';
 import {
   partition,
   restoreNetwork,
   spawnActor,
-} from '@libs/sim-harness/system/actions';
+} from '@libs/harness/system/actions';
 import {
   returnToTabs,
   signInWithGoogle,
-} from '@libs/sim-harness/system/auth-actions';
-import { signedInAccountOf } from '@libs/sim-harness/system/identity';
+} from '@libs/harness/system/auth-actions';
+import type { ProductHarness } from '@libs/harness/system/harness';
+import { signedInAccountOf } from '@libs/harness/system/identity';
 import {
   actorIds,
   bringToFront,
   serverIds as capacityParts,
   visible,
-} from '@libs/sim-harness/system/observations';
+} from '@libs/harness/system/observations';
 import {
   partitionLoadBalancer as cutOffOnTheWay,
   spawnServerNode as gainCapacityPart,
   dropServerNode as loseCapacityPart,
-} from '@libs/sim-harness/system/server-actions';
+} from '@libs/harness/system/server-actions';
 import {
   backToTabs,
   focusActor,
   openSettings,
   openTab,
-} from '@libs/sim-harness/system/shell-actions';
-import type { ProductSim } from '@libs/sim-harness/system/sim';
-import { onScreen } from '@libs/sim-harness/system/ui-reads';
-import { createSpace, endSpace } from '@libs/spaces/sim/space-actions';
+} from '@libs/harness/system/shell-actions';
+import { onScreen } from '@libs/harness/system/ui-reads';
+import { searchUsername } from '@libs/search/harness/search-actions';
+import { createSpace, endSpace } from '@libs/spaces/harness/space-actions';
 import { Handles } from '@libs/test-ids';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
@@ -66,7 +67,7 @@ function pick(picks: Picks, name: string): string {
 type Place = 'Ended' | 'InSpace' | 'Settings' | 'Search' | Tab | 'Elsewhere';
 
 /** The actor's place in the app, most specific first (stack screens keep the tab below mounted). */
-async function placeOf(s: ProductSim, actorId: string): Promise<Place> {
+async function placeOf(s: ProductHarness, actorId: string): Promise<Place> {
   await bringToFront(s, actorId);
   if (await visible(s, actorId, [Handles.spaceEnded])) return 'Ended';
   if (await visible(s, actorId, [Handles.spaceClose])) return 'InSpace';
@@ -78,7 +79,10 @@ async function placeOf(s: ProductSim, actorId: string): Promise<Place> {
   return 'Elsewhere';
 }
 
-async function lookupOf(s: ProductSim, actorId: string): Promise<QuintValue> {
+async function lookupOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<QuintValue> {
   if (await visible(s, actorId, [Handles.searchDenied])) {
     return variant('Denied');
   }
@@ -96,7 +100,7 @@ async function lookupOf(s: ProductSim, actorId: string): Promise<QuintValue> {
     : variant('Unsettled', shown.join(','));
 }
 
-bindQuintModel<QuintSimWorld>({
+bindQuintModel<QuintHarnessWorld>({
   model: 'app-platform',
   traces: 10,
   maxSteps: 14,
@@ -153,16 +157,16 @@ bindQuintModel<QuintSimWorld>({
     cutOff: async (w, picks) => {
       await w.s.apply(partition, pick(picks, 'person'));
     },
-    cutOffOnTheWay: async (w, picks) => {
+    _cutOffOnTheWay: async (w, picks) => {
       await w.s.apply(cutOffOnTheWay, pick(picks, 'person'));
     },
     reconnect: async (w) => {
       await w.s.apply(restoreNetwork);
     },
-    gainCapacity: async (w) => {
+    _gainCapacity: async (w) => {
       await w.s.apply(gainCapacityPart);
     },
-    loseCapacity: async (w, picks) => {
+    _loseCapacity: async (w, picks) => {
       const parts = await w.s.read(capacityParts);
       const part = parts[Number(picks['part'])];
       if (part === undefined)
@@ -186,7 +190,7 @@ bindQuintModel<QuintSimWorld>({
         signedIn.add(actor);
       }
     }
-    const capacity = (await w.quiet.read(capacityParts)).length;
-    return { opened, place, signedIn, lookup, capacity };
+    const _capacity = (await w.quiet.read(capacityParts)).length;
+    return { opened, place, signedIn, lookup, _capacity };
   },
 });

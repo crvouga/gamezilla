@@ -8,13 +8,10 @@
 // People search finds people with an account by username, never the searcher
 // themselves, and asks a guest to sign in instead.
 //
-// Meanwhile the world moves underneath them: a device can be cut off, at the
-// person's end or somewhere on the way, until the connection comes back, and
-// the app's serving capacity grows and shrinks, never to nothing and at most
-// three. Being cut off never throws anyone out of their place in the app;
-// what needs a connection (signing in, searching, hosting and ending a space)
-// waits until they are back _online, and the app keeps serving people however
-// its capacity changes.
+// Meanwhile a device can be cut off until the connection comes back. Being cut
+// off never throws anyone out of their place in the app; what needs a
+// connection (signing in, searching, hosting and ending a space) waits until
+// they are back online.
 module app_platform {
   type Person = str
 
@@ -23,6 +20,7 @@ module app_platform {
   /// The tabs a person moves between.
   pure val TABS: Set[str] = Set("spaces", "notifications", "profile")
 
+  /// Checking machinery: the most machines the team runs the app on here.
   pure val MAX_CAPACITY: int = 3
 
   /// Where a person is in the app. OnTab(tab): on one of the tabs; Settings: on
@@ -49,9 +47,9 @@ module app_platform {
   var signedIn: Set[Person]
   /// What each person on people search sees.
   var lookup: Person -> Lookup
-  /// How much serving capacity the app has, in parts: at least one, at most
-  /// MAX_CAPACITY.
-  var capacity: int
+  /// Checking machinery: how many machines the team runs the app on, at least
+  /// one and at most MAX_CAPACITY. Nobody using the app can tell.
+  var _capacity: int
 
   // Bookkeeping, not shown to anyone.
   /// The tab a person left for Settings.
@@ -88,7 +86,7 @@ module app_platform {
     place' = newPlace,
     signedIn' = newSignedIn,
     lookup' = _looking(newPlace, newSearchedFor, newSignedIn),
-    capacity' = newCapacity,
+    _capacity' = newCapacity,
     lastTab' = newLastTab,
     searchedFor' = newSearchedFor,
     hosting' = newHosting,
@@ -97,10 +95,10 @@ module app_platform {
 
   /// A person's place in the app changes; nothing else does.
   action _show(person: Person, s: Place): bool =
-    _moveTo(opened, place.set(person, s), signedIn, capacity, lastTab, searchedFor, hosting, offline)
+    _moveTo(opened, place.set(person, s), signedIn, _capacity, lastTab, searchedFor, hosting, offline)
 
   /// Alice has signed in on her device and Bob is using the app as a guest;
-  /// the app has one part of serving capacity.
+  /// the team runs the app on one machine.
   action init = _moveTo(
     Set("alice", "bob"),
     Map("alice" -> OnTab("spaces"), "bob" -> OnTab("spaces")),
@@ -131,7 +129,7 @@ module app_platform {
     _moveTo(
       opened.union(Set(person)),
       place.put(person, OnTab("spaces")),
-      signedIn, capacity, lastTab, searchedFor, hosting, offline,
+      signedIn, _capacity, lastTab, searchedFor, hosting, offline,
     ),
   }
 
@@ -146,7 +144,7 @@ module app_platform {
     opened.contains(person),
     _onTab(place.get(person)),
     _moveTo(
-      opened, place.set(person, Settings), signedIn, capacity,
+      opened, place.set(person, Settings), signedIn, _capacity,
       lastTab.put(person, _tabOf(place.get(person))), searchedFor, hosting, offline,
     ),
   }
@@ -166,7 +164,7 @@ module app_platform {
     // Search results are what the search found when it ran.
     place.keys().forall(p => place.get(p) == Search implies searchedFor.get(p) != person),
     _moveTo(
-      opened, place, signedIn.union(Set(person)), capacity, lastTab, searchedFor,
+      opened, place, signedIn.union(Set(person)), _capacity, lastTab, searchedFor,
       hosting, offline,
     ),
   }
@@ -176,7 +174,7 @@ module app_platform {
     _online(person),
     _onTab(place.get(person)) or place.get(person) == Search,
     _moveTo(
-      opened, place.set(person, Search), signedIn, capacity, lastTab,
+      opened, place.set(person, Search), signedIn, _capacity, lastTab,
       searchedFor.put(person, other), hosting, offline,
     ),
   }
@@ -187,7 +185,7 @@ module app_platform {
     not(hosting.contains(person)),
     place.get(person) != InSpace,
     _moveTo(
-      opened, place.set(person, InSpace), signedIn, capacity, lastTab, searchedFor,
+      opened, place.set(person, InSpace), signedIn, _capacity, lastTab, searchedFor,
       hosting.union(Set(person)), offline,
     ),
   }
@@ -197,7 +195,7 @@ module app_platform {
     _online(person),
     place.get(person) == InSpace,
     _moveTo(
-      opened, place.set(person, Ended), signedIn, capacity, lastTab, searchedFor,
+      opened, place.set(person, Ended), signedIn, _capacity, lastTab, searchedFor,
       hosting.exclude(Set(person)), offline,
     ),
   }
@@ -206,16 +204,18 @@ module app_platform {
   action cutOff(person: Person): bool = all {
     _online(person),
     _moveTo(
-      opened, place, signedIn, capacity, lastTab, searchedFor, hosting,
+      opened, place, signedIn, _capacity, lastTab, searchedFor, hosting,
       offline.union(Set(person)),
     ),
   }
 
-  /// The person's connection is cut somewhere on the way to everyone else.
-  action cutOffOnTheWay(person: Person): bool = all {
+  /// Checking machinery: the person's connection is cut somewhere between
+  /// their device and the machines the app runs on, rather than at their end.
+  /// To the person it is the same as being cut off.
+  action _cutOffOnTheWay(person: Person): bool = all {
     _online(person),
     _moveTo(
-      opened, place, signedIn, capacity, lastTab, searchedFor, hosting,
+      opened, place, signedIn, _capacity, lastTab, searchedFor, hosting,
       offline.union(Set(person)),
     ),
   }
@@ -223,21 +223,22 @@ module app_platform {
   /// Every connection comes back.
   action reconnect: bool = all {
     offline != Set(),
-    _moveTo(opened, place, signedIn, capacity, lastTab, searchedFor, hosting, Set()),
+    _moveTo(opened, place, signedIn, _capacity, lastTab, searchedFor, hosting, Set()),
   }
 
-  /// The app gains a part of serving capacity. People keep being served.
-  action gainCapacity: bool = all {
-    capacity < MAX_CAPACITY,
-    _moveTo(opened, place, signedIn, capacity + 1, lastTab, searchedFor, hosting, offline),
+  /// Checking machinery: the team starts the app on one more machine. Nobody
+  /// using the app notices.
+  action _gainCapacity: bool = all {
+    _capacity < MAX_CAPACITY,
+    _moveTo(opened, place, signedIn, _capacity + 1, lastTab, searchedFor, hosting, offline),
   }
 
-  /// The app loses its `part`-th part of serving capacity; never the last one.
-  /// People keep being served.
-  action loseCapacity(part: int): bool = all {
-    capacity > 1,
-    part < capacity,
-    _moveTo(opened, place, signedIn, capacity - 1, lastTab, searchedFor, hosting, offline),
+  /// Checking machinery: the `part`-th machine the app runs on stops; never
+  /// the last one. Nobody using the app notices.
+  action _loseCapacity(part: int): bool = all {
+    _capacity > 1,
+    part < _capacity,
+    _moveTo(opened, place, signedIn, _capacity - 1, lastTab, searchedFor, hosting, offline),
   }
 
   /// What a person does on their device.
@@ -252,13 +253,14 @@ module app_platform {
     end(person),
   }
 
-  /// What happens to people's connections and the app's capacity underneath them.
+  /// What happens to people's connections, and to the machines the app runs
+  /// on, underneath them.
   action _worldStep(person: Person, part: int): bool = any {
     cutOff(person),
-    cutOffOnTheWay(person),
+    _cutOffOnTheWay(person),
     reconnect,
-    gainCapacity,
-    loseCapacity(part),
+    _gainCapacity,
+    _loseCapacity(part),
   }
 
   /// People act three times as often as the world moves under them.
@@ -275,8 +277,9 @@ module app_platform {
     }
   }
 
-  /// The app always has some serving capacity, and never more than MAX_CAPACITY.
-  val invCapacityInBounds = capacity >= 1 and capacity <= MAX_CAPACITY
+  /// Checking machinery: the app always runs on at least one machine, and
+  /// never more than MAX_CAPACITY.
+  val invCapacityInBounds = _capacity >= 1 and _capacity <= MAX_CAPACITY
 
   /// Only people who opened the app have a place, an account or a connection.
   val invOnlyOpened = and {

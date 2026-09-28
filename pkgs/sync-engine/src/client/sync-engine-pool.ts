@@ -14,7 +14,7 @@ export type SyncEnginePool = {
 export type CreateSyncEnginePoolOptions = {
   /**
    * Distinct globalThis key so hosts don't collide and the pool survives HMR /
-   * re-imports. Omit for an isolated in-process pool (sims/tests) that is never
+   * re-imports. Omit for an isolated in-process pool (harnesses/tests) that is never
    * stored on `globalThis`.
    */
   readonly globalKey?: string;
@@ -76,7 +76,7 @@ export type SyncEnginePoolApi = {
 
 /**
  * Identity-keyed sync-engine pool. Stored on `globalThis` when `globalKey` is
- * set; otherwise isolated to this closure (sims/tests own their own pool).
+ * set; otherwise isolated to this closure (harnesses/tests own their own pool).
  */
 export function createSyncEnginePool(
   options: CreateSyncEnginePoolOptions = {}
@@ -152,7 +152,7 @@ export function createSyncEnginePool(
       for (const engine of engines) {
         // Soft-stop sync first, then close SQLite — same order as
         // deactivatePrevious. Web OPFS is single-session; leaving handles
-        // open blocks the next open (Console product-simulator, tab remount).
+        // open blocks the next open (Console product-harness, tab remount).
         await engine.disconnect();
         await engine.db.disconnect();
       }

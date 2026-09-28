@@ -11,7 +11,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres/connect';
 import { Then } from './define';
 import { requireSecret } from './live-world';
 
-Then('what people saved is ready for this version of the app', async () => {
+Then('what people saved is ready for the app as it is now', async () => {
   const dbScope = appPostgresDbScope();
   const { pool, sqlClient } = createPgPool({
     connectionString: requireSecret('DATABASE_URL'),

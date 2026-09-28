@@ -12,7 +12,7 @@ const DEFAULT_CONTENT_TYPE = 'application/octet-stream';
 /**
  * Same-directory tmp names so `rename` is atomic on POSIX. The pid keeps them
  * unique across processes: `bun test --parallel` workers write the same key
- * (a migrated sim seed) at once, and a per-process counter alone collides —
+ * (a migrated harness seed) at once, and a per-process counter alone collides —
  * one worker's `rename` moves the other's tmp away and it fails `ENOENT`.
  */
 let tmpSeq = 0;

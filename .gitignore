@@ -102,7 +102,7 @@ turbo-platform-key.json
 **/test-results/
 **/blob-report/
 # Aggregated e2e report over every package (bun run test:report)
-/sim-report/
+/harness-report/
 
 /.data/
 **/.data/

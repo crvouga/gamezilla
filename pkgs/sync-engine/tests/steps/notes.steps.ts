@@ -5,10 +5,18 @@
 
 import { expect } from 'bun:test';
 import {
+  brokerCrash,
+  brokerRestart,
+  DST_FAULTS,
+  goesBack,
   lastMutationFailures,
   liveNote,
   liveNotes,
-} from '@pkgs/sync-engine/sim';
+  NOTES_ALL_TOPIC,
+  netSet,
+  noteBodies,
+  pubsubFault,
+} from '@pkgs/sync-engine/harness';
 import {
   removeNote,
   SETTLE_MS,
@@ -16,10 +24,16 @@ import {
   writeAnnouncement,
   writeNote,
 } from './note-writes';
-import { app, Given, Then, When } from './world';
+import { app, ensureDevice, Given, type SyncWorld, Then, When } from './world';
 
 /** How long "does not see" holds once things have settled. */
 const QUIET_MS = 3_000;
+/** How long live updates stop for. */
+const PAUSE_MS = 500;
+/** How often "never without its text" looks: finer than a live update. */
+const BLANK_POLL_MS = 5;
+/** How many notes each person writes, one right after another, when they keep writing. */
+const KEEP_WRITING_ROUNDS = 10;
 
 When(
   '{actor} writes the note {string} saying {string}',
@@ -39,11 +53,42 @@ When('{actor} deletes the note {string}', (w, actor: string, title: string) =>
   removeNote(w, app(actor), title)
 );
 
+async function hasDeleted(w: SyncWorld, actor: string, title: string) {
+  await removeNote(w, app(actor), title);
+  await settledWrite(w, app(actor), { title, deleted: true });
+}
+
 Given(
   '{actor} has deleted the note {string}',
-  async (w, actor: string, title: string) => {
-    await removeNote(w, app(actor), title);
-    await settledWrite(w, app(actor), { title, deleted: true });
+  (w, actor: string, title: string) => hasDeleted(w, actor, title)
+);
+
+Given(
+  '{actor} has deleted the note {string} before anyone wrote it',
+  (w, actor: string, title: string) => hasDeleted(w, actor, title)
+);
+
+Given(
+  '{actor} has written the notes {string} and {string}',
+  async (w, actor: string, first: string, second: string) => {
+    for (const title of [first, second]) {
+      await writeNote(w, app(actor), { title, body: '' });
+      await settledWrite(w, app(actor), { title, deleted: false });
+    }
+  }
+);
+
+Then(
+  '{actor} and {actor} agree on every note',
+  async (w, a: string, b: string) => {
+    const [mine, theirs] = await w.s.until(
+      async (s) => [await liveNotes(s, a), await liveNotes(s, b)] as const,
+      {
+        maxMs: SETTLE_MS,
+        pred: ([x, y]) => JSON.stringify(x) === JSON.stringify(y),
+      }
+    );
+    expect(mine).toEqual(theirs);
   }
 );
 
@@ -120,5 +165,84 @@ Then(
     });
     const rows = await w.s.read(liveNotes, actor);
     expect(rows.filter((row) => row.id === title)).toHaveLength(1);
+  }
+);
+
+Given('live updates have stopped for a while and started again', async (w) => {
+  await w.s.apply(brokerCrash);
+  await w.s.advanceTime(PAUSE_MS);
+  await w.s.apply(brokerRestart);
+});
+
+/**
+ * The next live update on the channel every device hears loses its note's
+ * text and title on the way (Bob's device hears it; the writer does not).
+ */
+Given(
+  'the next live update to {actor} will arrive garbled',
+  (w, _actor: string) =>
+    w.s.apply(pubsubFault, {
+      kind: 'corruptPubsubPayload',
+      variant: 'flipField',
+      topic: NOTES_ALL_TOPIC,
+    })
+);
+
+/** Checked often on the run's clock while the note arrives. */
+Then(
+  '{actor} never sees the note {string} without its text',
+  async (w, actor: string, title: string) => {
+    await w.s.never((s) => liveNote(s, actor, title), {
+      forMs: QUIET_MS,
+      stepMs: BLANK_POLL_MS,
+      pred: (row) => row !== null && (row.body === null || row.body === ''),
+    });
+  }
+);
+
+/** Only live updates suffer: fetching what was missed still works. */
+Given(
+  'live updates to {actor} and {actor} are lost, repeated and delayed at random',
+  async (w, a: string, b: string) => {
+    for (const actor of [a, b]) {
+      const id = await ensureDevice(w, app(actor));
+      await w.s.apply(netSet, id, 'live', DST_FAULTS);
+    }
+  }
+);
+
+/**
+ * Each person keeps rewriting a note of their own, so every body a note
+ * shows is newer than the last one it showed.
+ */
+When(
+  '{actor} and {actor} keep writing notes',
+  async (w, a: string, b: string) => {
+    for (let round = 1; round <= KEEP_WRITING_ROUNDS; round += 1) {
+      for (const actor of [a, b]) {
+        await writeNote(w, app(actor), {
+          title: `${actor}-note`,
+          body: `${actor} ${String(round)}`,
+        });
+      }
+    }
+  }
+);
+
+Then(
+  'neither {actor} nor {actor} ever sees a note go back to what it said before',
+  async (w, a: string, b: string) => {
+    const watch = goesBack();
+    await w.s
+      .never((s) => noteBodies(s, [a, b]), {
+        forMs: QUIET_MS,
+        stepMs: BLANK_POLL_MS,
+        pred: watch,
+      })
+      .catch((error: unknown) => {
+        throw new Error(`${String(watch.wentBack())}: ${String(error)}`);
+      });
+    // Not vacuous: the notes did move on while watched.
+    expect(watch.changes()).toBeGreaterThan(0);
   }
 );

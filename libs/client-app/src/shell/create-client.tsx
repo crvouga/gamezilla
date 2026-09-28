@@ -1,6 +1,6 @@
 /** @jsxImportSource solid-js */
 /**
- * The only client constructor — wall (`main.tsx`) and sims pass different
+ * The only client constructor — wall (`main.tsx`) and harnesses pass different
  * `ClientEnv` implementations and different feature sets. `App` owns the
  * router: the browser `Router` (URL is the source of truth) or, when
  * `embedded`, a `MemoryRouter` so several product Apps can share one page (or
@@ -38,7 +38,7 @@ import {
 } from './sync/sync-engine-pool';
 
 export type ClientAppProps = {
-  /** Multi-App product-simulator / tests: in-memory router, no document shortcuts. */
+  /** Multi-App product-harness / tests: in-memory router, no document shortcuts. */
   readonly embedded?: boolean | undefined;
   /** Embedded only: externally owned history (tests drive navigation). */
   readonly history?: MemoryHistory | undefined;

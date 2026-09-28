@@ -1,7 +1,7 @@
 /**
  * Network reachability port. The browser adapter
  * ({@link ./web-network-state.ts}) derives it from `navigator.onLine` +
- * `online` / `offline` events; sims use {@link createInMemoryNetworkStatePort}.
+ * `online` / `offline` events; harnesses use {@link createInMemoryNetworkStatePort}.
  */
 
 export type NetworkStateType =
@@ -54,7 +54,7 @@ export type InMemoryNetworkStatePort = NetworkStatePort & {
   readonly emit: (next: NetworkState) => void;
 };
 
-/** Sim / test {@link NetworkStatePort} with force-state knobs. */
+/** Harness / test {@link NetworkStatePort} with force-state knobs. */
 export function createInMemoryNetworkStatePort(
   initial: NetworkState = networkStateWifi()
 ): InMemoryNetworkStatePort {

@@ -6,12 +6,12 @@ import { applySqliteSchema } from '@pkgs/db-schema-sqlite';
 import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 
 import { AUTH_TABLES } from '../../public/schema';
 import { AuthSnapshotRefresher } from './refresh-auth-snapshot';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 const PRIMARY_AUTH_PROVIDER = 'idp';
 

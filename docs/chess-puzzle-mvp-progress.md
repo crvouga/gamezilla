@@ -1,7 +1,7 @@
 # Chess puzzle Phase 1 MVP — progress
 
 Phase 1 `P0` items of [`chess-puzzle-mvp.md`](chess-puzzle-mvp.md), in the order
-§37 gives. A box is ticked only when the slice's seeded sim scenarios pass and
+§37 gives. A box is ticked only when the slice's seeded harness scenarios pass and
 `turbo run typecheck lint test --filter=...[origin/main]` exits 0; the commit
 hash is the slice commit. Assumptions: [`overnight-decisions.md`](overnight-decisions.md).
 
@@ -46,7 +46,7 @@ Kernel: `@pkgs/permissions` (extended). Policy: `@libs/permissions`. Tests:
 `bun run --filter @pkgs/permissions test`, `bun run --filter @libs/permissions test`,
 `bun run --filter @pkgs/sync-engine test` (authorize hook),
 `apps/server/tests/mutation-actions-contract.test.ts`,
-`libs/tools/scripts/tier-vocabulary.test.ts`, product sims
+`libs/tools/scripts/tier-vocabulary.test.ts`, product harnesses
 `libs/chess/tests/e2e/puzzle-quota.test.tsx` (in `@libs/chess` `test:e2e`). Decisions D12–D26.
 
 - [x] §22.1 One entry point — `can`/`decide`, `consume`/`decideQuota` (`@pkgs/permissions`); client `usePermissions()`, server `authorizeAppMutation` + `requirePermission`
@@ -95,19 +95,19 @@ validator: `@libs/chess/public/puzzle-data`. Ingest: `root/server/seed-chess-puz
 (`puzzle-ingest.ts`, `fast-path.ts`). Job: `root/server/validate-chess-puzzles/`,
 `bun run --filter @libs/chess validate:puzzles`. Tests:
 `bun run --filter @pkgs/chess-rules test`, `bun run --filter @libs/chess test`
-(`tests/puzzle-data/*`), product sims `libs/chess/tests/e2e/puzzle-ingest.test.tsx`
+(`tests/puzzle-data/*`), product harnesses `libs/chess/tests/e2e/puzzle-ingest.test.tsx`
 + `chess-puzzle-fixtures.test.ts` (in `@libs/chess` `test:e2e`). Decisions D27–D34.
 
 - [x] §4 Fields id, fen, moves[] (UCI), rating, ratingDeviation, themes[], plays, popularity, sourceGameUrl, openingTags[] — `Puzzle` (`puzzle-validation.ts`); physical form = existing `chess_puzzles` columns + `position_key` (D27)
 - [x] §4 Lichess convention (FEN before the setup move; user plays moves[1], [3], …; line ends on a user move) — `validatePuzzleFields` (`oddLength` / `tooShort`); `validate-puzzle.test.ts`, seeded property test `validate-puzzle.property.test.ts`
-- [x] §4 Solver colour = inverted FEN side to move — `solverColor`; product sim asserts the served board orientation for a White-to-solve and a Black-to-solve puzzle (`chess-puzzle-ingest.test.tsx`)
+- [x] §4 Solver colour = inverted FEN side to move — `solverColor`; product harness asserts the served board orientation for a White-to-solve and a Black-to-solve puzzle (`chess-puzzle-ingest.test.tsx`)
 - [x] §4 Seeded from the Lichess CC0 DB — existing streaming seed (`seed:puzzles`), now validating + deduping (D31)
 - [x] §23 Parse CSV (PuzzleId, FEN, Moves, Rating, RatingDeviation, Popularity, NbPlays, Themes, GameUrl, OpeningTags) — `validateLichessPuzzleRow`; load-file seeder accepts the Lichess header too
 - [x] §23 Load to DB — `PuzzleSeedFastPath.insertPuzzleTableRows` (all seed paths); `puzzle-ingest-sql.test.ts`, `chess-puzzle-ingest.test.tsx`
 - [x] §23 Indexes on rating, themes, opening, popularity — declared `ix` rating / popularity + `ux` position_key via `defineTable`; themes / opening not indexed (client-only JSON filters in Phase 1, D28); `puzzle-ingest-sql.test.ts`
 - [x] §23 Validation: every move legal, line ends on solver move, FEN valid, no duplicates by position hash + solution — `validatePuzzleFields` + `fenConsistencyError` + `partitionPuzzleBatch` (D29, D30); per-reason counts in the seed reporter
 - [x] §35 Full-database validation job — `validate:puzzles` (DB or CSV, exit 1 on invalid); run over every checked-in fixture CSV (`validate-chess-puzzles-job.test.ts`, `chess-puzzle-fixtures.test.ts`); one unreferenced fixture fixed (D33)
-- [x] §34 Castling rights in FEN wrong/missing — wrong rights → `invalidFen`, castling without the right → `illegalMove` (`validate-puzzle.test.ts`, product ingest sim)
+- [x] §34 Castling rights in FEN wrong/missing — wrong rights → `invalidFen`, castling without the right → `illegalMove` (`validate-puzzle.test.ts`, product ingest harness)
 - [x] §34 En passant as the solution; en passant illegal due to a pin — `validate-puzzle.test.ts`
 - [x] §34 Promotion / underpromotion / capture-promotion lines — `validate-puzzle.test.ts` (solve-time input is slice 4)
 - [x] §34 Puzzle where solver is Black: orientation flipped — `chess-puzzle-ingest.test.tsx`
@@ -123,24 +123,24 @@ Room FSM: `libs/chess/src/shared/chess/` (`chess-puzzle-move-judge.ts`,
 `@pkgs/chess-rules` (`castlingFromRookInput`, `castlingRookTargets`,
 `isSamePosition`), `@pkgs/chess-board-core` (king-onto-rook castling),
 `@pkgs/device` + `ClientEnv` (haptics port), `@pkgs/ui` Combobox
-(`doneDataSet`), `@apps/product` sim runtime (`restartActor`). Tests:
+(`doneDataSet`), `@apps/product` harness runtime (`restartActor`). Tests:
 `bun run --filter @pkgs/chess-rules test`,
 `bun run --filter @pkgs/chess-board-core test`,
 `bun run --filter @libs/chess test` (`tests/puzzle-session/move-judge.test.ts`,
 `outcome.test.ts`, `opponent-stager.test.ts`, `action-bar-plan.test.ts`),
-product sims `libs/chess/tests/e2e/puzzle-solve-flow.test.tsx` +
+product harnesses `libs/chess/tests/e2e/puzzle-solve-flow.test.tsx` +
 `chess-puzzle-solve-session.test.tsx` (both in `@libs/chess` `test:e2e`). Fixtures:
-`apps/product/fixtures/chess-puzzles-motifs.sim.csv` (validated by the §35
+`apps/product/fixtures/chess-puzzles-motifs.harness.csv` (validated by the §35
 job test). Decisions D36–D48.
 
 - [x] §5 Next puzzle already in memory when the previous ends (prefetch) — local-pool pick (`useNextPuzzleId`); the pick-status probe carries the next id before the current resolves, and Next transitions with the network partitioned (`chess-puzzle-solve-session.test.tsx`)
 - [x] §5 Pre-setup position, ~500 ms pause, then the opponent's setup move animates with last-move highlight — `PUZZLE_OPENING_PREVIEW_MS` + opponent stager (`opponent-stager.test.ts`); the served board shows the setup move played (`chess-puzzle-solve-flow.test.tsx`)
 - [x] §5 Orientation set before first paint (no visible flip) — solver renders nothing until the room holds this puzzle (`use-chess-puzzle-solver.ts`); orientation asserted for a White- and a Black-solver puzzle
 - [x] §5 Prompt "Your turn — find the best move for White/Black" — `ChessPuzzleStatusHeader`; asserted for both colours
-- [x] §5 Compare the user move after normalizing castling notation and promotion piece — `judgePuzzleMove` (`move-judge.test.ts`); castling entered both ways and an underpromotion vs queen in the sims
+- [x] §5 Compare the user move after normalizing castling notation and promotion piece — `judgePuzzleMove` (`move-judge.test.ts`); castling entered both ways and an underpromotion vs queen in the harnesses
 - [x] §5 Correct + line continues → opponent reply auto-plays after ~400 ms, input re-enabled — `PUZZLE_REPLY_PREVIEW_MS` (`opponent-stager.test.ts`, product clean-solve scenario)
-- [x] §5 Correct final move → success state, sound, haptic, result panel — `usePuzzleStatusFeedback` + `useHaptics` + summary card (haptics asserted in the sim)
-- [x] §5 Final-move mate rule: any checkmating move counts — `judgePuzzleMove` `via: 'mate'`; sim plays the other mate
+- [x] §5 Correct final move → success state, sound, haptic, result panel — `usePuzzleStatusFeedback` + `useHaptics` + summary card (haptics asserted in the harness)
+- [x] §5 Final-move mate rule: any checkmating move counts — `judgePuzzleMove` `via: 'mate'`; harness plays the other mate
 - [x] §5 Wrong move → red feedback, the piece returns, the puzzle is marked failed once, rating updates immediately — D36/D37; `failed` row written on the transition (`chess-puzzle-solve-flow.test.tsx`, `chess-puzzle-stats.test.tsx`)
 - [x] §5 Rating is affected only by the first outcome — one outcome row per play + projection guard (`outcome.test.ts`); retry-then-solve keeps the loss (`chess-puzzle-controls.test.tsx`)
 - [x] §5 Result panel: solved/failed, animated rating delta, new rating — `ChessPuzzleCelebrationOverlay` (titles per outcome, existing Elo animation)
@@ -149,7 +149,7 @@ job test). Decisions D36–D48.
 - [x] §6 "Show solution" plays the remaining line then enters review; counts as a fail if unresolved — `ShowChessPuzzleSolution` → `revealed` (D40); `chess-puzzle-solve-flow.test.tsx`
 - [x] §3 Only the side to move is interactive; input locked during the opponent animation and after the puzzle ends — board `interactive` gate (`opponentAnimating`, D47); opponent-piece drag ignored, locked in `wrong` and after the end
 - [x] §3 Promotion picker, never auto-queen in puzzles — `autoPromoteQueen={false}`; picker asserted for a White and a Black solver
-- [x] §3 Castling accepted via king-two-squares and king-onto-own-rook — kernel + board input (D44); both entered in the sim
+- [x] §3 Castling accepted via king-two-squares and king-onto-own-rook — kernel + board input (D44); both entered in the harness
 - [x] §3 Drop on an illegal square snaps back: no penalty, no wrong move — router rejects with `invalidCommand`; asserted with the interaction log unchanged
 - [x] §34 Underpromotion is the solution (auto-queen ignored) / promotion with capture / promotion mate across piece choice — motif fixtures `solveUP1`, `solveCAP1`
 - [x] §34 En passant as the solution — `solveEP1`
@@ -174,9 +174,9 @@ Query: `use-cases/load-puzzle-rating-events/shared/`. Tables:
 Tests: `bun run --filter @pkgs/glicko2 test`,
 `bun run --filter @libs/chess test`
 (`tests/puzzle-session/rating.test.ts`, `rate-puzzle-attempt.test.ts`,
-`completion.test.ts`), product sim
+`completion.test.ts`), product harness
 `libs/chess/tests/e2e/puzzle-rating.test.tsx` (in `@libs/chess` `test:e2e`).
-Fixture: `apps/product/fixtures/chess-puzzles-rating.sim.csv`. Decisions
+Fixture: `apps/product/fixtures/chess-puzzles-rating.harness.csv`. Decisions
 D50–D56, D61, D62.
 
 - [x] §8 Glicko-2 for the player and the puzzle side of the pairing; each attempt is a game (solve = win, fail = loss) — `@pkgs/glicko2` + `applyPuzzleAttemptRating`; the published worked example and seeded properties in `pkgs/glicko2/tests/glicko2.test.ts`, the puzzle wrapper in `libs/chess/tests/puzzle-session/rating.test.ts`
@@ -194,17 +194,17 @@ Kernel: `libs/chess/src/shared/puzzle-session/next-puzzle-selection.ts`
 `pickNextPuzzle`). Client: `use-next-puzzle-id.ts`,
 `use-puzzle-candidates-query.ts`. Tests:
 `bun run --filter @libs/chess test`
-(`tests/puzzle-session/next-puzzle-selection.test.ts`), product sims
+(`tests/puzzle-session/next-puzzle-selection.test.ts`), product harnesses
 `libs/chess/tests/e2e/puzzle-selection.test.tsx` and the rewritten
 `chess-puzzle-exhaust.test.tsx` (both in `@libs/chess` `test:e2e`). Fixture:
-`apps/product/fixtures/chess-puzzles-selection.sim.csv`. Decisions D57–D60,
+`apps/product/fixtures/chess-puzzles-selection.harness.csv`. Decisions D57–D60,
 D62.
 
 - [x] §9 Puzzles within a window around the user's rating (±100–200, widening with RD) — `puzzleSelectionHalfWindow` (D57); unit + monotonicity tests, and the product scenario reads the live half-window off the pick probe ("the window widens with RD and narrows as the rating settles")
 - [x] §9 Never serve a puzzle already attempted in rated mode, until pool exhaustion, then oldest-first and unrated — `buildExhaustedPuzzleCandidatesSql` + `pickNextPuzzle` (D59); "no repeat while unseen puzzles remain…" and "pool exhaustion serves the oldest attempt first, unrated"; the attempt is unrated through the §8 ledger, not a separate flag (D52)
 - [x] §9 Quality filter: exclude puzzles below a popularity / play-count threshold — `PUZZLE_MIN_POPULARITY` / `PUZZLE_MIN_PLAYS` on every candidate read (D58; the corpus has no report column); low-quality fixture rows are never served in any phase
 - [x] §10.1 / §10.2 The existing feed knobs (difficulty offset, custom rating, theme filter, history filter) keep working on top of the P0 default — `chess-puzzle-feed.test.tsx`, `chess-puzzle-exhaust.test.tsx`
-- [x] §34 User exhausts the puzzle pool / rating at extremes where few puzzles exist — the widening step serves unseen puzzles outside the window (the sim fixture sits ~300 points below the seed rating), then the exhausted step keeps the feed alive
+- [x] §34 User exhausts the puzzle pool / rating at extremes where few puzzles exist — the widening step serves unseen puzzles outside the window (the harness fixture sits ~300 points below the seed rating), then the exhausted step keeps the feed alive
 - [ ] §9 P1/P2 rows (difficulty presets, target success rate tuning, balance, weakness weighting, prefetch batches, server-side seen set, tilt detection, session shaping, power-user filters) — out of this slice
 
 ### Slice 7 — Review (§7)
@@ -221,17 +221,17 @@ UI: `public/chess-puzzle/chess-puzzle-move-history{,-nav,-ply,-bar}.tsx`,
 `pkgs/ui-testing-solid-dom/tests/dom-keys.test.ts`). Tests:
 `bun run --filter @libs/chess test`
 (`tests/puzzle-session/puzzle-nav.test.ts`, `move-notation.test.ts`), product
-sim `libs/chess/tests/e2e/puzzle-review.test.tsx` (in `@libs/chess` `test:e2e`).
+harness `libs/chess/tests/e2e/puzzle-review.test.tsx` (in `@libs/chess` `test:e2e`).
 Decisions D64–D68, D70, D71.
 
 - [x] §7 Move list with tappable moves — `ChessPuzzleMoveHistory` + `HistoryPlyChip`; a ply tap seeks in `chess-puzzle-review.test.tsx` ("buttons, the move list and the ends scrub the solved line")
-- [x] §7 SAN / figurine option — `formatSanNotation` driven by `ChessPuzzleFeedConfig.notation` (defaults to SAN letters, D66); `move-notation.test.ts` + the SAN labels asserted in the review sim
+- [x] §7 SAN / figurine option — `formatSanNotation` driven by `ChessPuzzleFeedConfig.notation` (defaults to SAN letters, D66); `move-notation.test.ts` + the SAN labels asserted in the review harness
 - [x] §7 Current move highlighted — the `selected` branch of `HistoryPlyChip`, asserted at every scrub step through its own marker (D71)
 - [x] §7 Scrubbing forward / back with buttons — `ChessPuzzleMoveNav` step controls on review, the existing action-bar Back / Forward on play
 - [x] §7 Scrubbing with swipe — `puzzleNavIntentFromSwipe` + `puzzleSwipeHandlers` over the review board ("a horizontal swipe scrubs one ply at a time")
 - [x] §7 Scrubbing with arrow keys — `useDocumentShortcuts` + `puzzleNavIntentFromKey`, review surface only (D64); "arrow keys step and Home / End jump"
 - [x] §7 Jump to start / end — `resolvePuzzleNavTarget`; jump buttons flank the move list on both the review screen and the play move bar
-- [x] §7 Board animates on single steps, snaps on jumps — `isPuzzleSeekAnimated` → `SmartChessBoard animations` (D65); asserted at every step of the review sim
+- [x] §7 Board animates on single steps, snaps on jumps — `isPuzzleSeekAnimated` → `SmartChessBoard animations` (D65); asserted at every step of the review harness
 - [x] §7 Review after a failed attempt and after "Show solution" both scrub the full line — "review after a failed attempt still scrubs the whole line", "the revealed state scrubs the full line in place"
 - [x] §34 Puzzle retired / edited after being prefetched — review reads the row tombstone included (`useReviewPuzzleEntity`, D68); "a retired puzzle still opens in review from the game log"
 - [ ] §7 P1 / P2 rows (play-it-out variations, engine analysis + eval bar, refutation lines, source game, copy FEN / PGN, play on vs computer, threats, opening explorer, comments, theme voting) — out of this slice

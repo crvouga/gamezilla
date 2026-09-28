@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimClock, type SimClockBundle } from '@pkgs/clock';
+import { createHarnessClock, type HarnessClockBundle } from '@pkgs/clock';
 import {
+  createIdpMockApp,
   createIdpSigningKeys,
-  createIdpSimApp,
   IdpStore,
-} from '@pkgs/idp-sim/server';
-import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-sim/shared';
+} from '@pkgs/idp-mock/server';
+import { IDP_PASSWORD, idpEndpoints } from '@pkgs/idp-mock/shared';
 import { createNoopLogger } from '@pkgs/logger';
 import { createPostgresDbScope } from '@pkgs/sql-client/postgres-db-scope';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
@@ -24,12 +24,12 @@ import { createAuthApp } from '../src/server/create-auth-app';
  */
 const SIGNING_KEYS = createIdpSigningKeys();
 
-const BASE_URL = 'http://sim.local';
-const IDP_URL = 'http://idp.sim';
+const BASE_URL = 'http://harness.local';
+const IDP_URL = 'http://idp.harness';
 const CALLBACK = 'gamezilla://sso-callback';
 const SECRET = 'auth-system-secret-0123456789abcdef';
-const CLIENT_ID = 'sim.apps.googleusercontent.com';
-const CLIENT_SECRET = 'sim-google-client-secret';
+const CLIENT_ID = 'harness.apps.googleusercontent.com';
+const CLIENT_SECRET = 'harness-google-client-secret';
 /** 2026-01-01T00:00:00Z — every node shares one virtual clock. */
 const START_MS = 1_767_225_600_000;
 const REDIRECT_URI = `${BASE_URL}/api/auth/callback/google`;
@@ -45,9 +45,9 @@ type WireFetch = (
  */
 async function bootNodes(): Promise<{
   readonly wire: WireFetch;
-  readonly sim: SimClockBundle;
+  readonly harness: HarnessClockBundle;
 }> {
-  const sim = createSimClock({ startMs: START_MS });
+  const harness = createHarnessClock({ startMs: START_MS });
   const sqlClient = SqlClientImplMockingbirdPostgres.open({ seed: 1 });
   await new AuthPostgresDatabaseMigration({
     dbScope: createPostgresDbScope('public'),
@@ -59,11 +59,11 @@ async function bootNodes(): Promise<{
   const idpStore = await IdpStore.open({
     provider: 'google',
     sqlClient: SqlClientImplMockingbirdSqlite.open({ seed: 2 }),
-    clock: sim.clock,
+    clock: harness.clock,
     createId: () => `idp-${(nextId += 1)}`,
     createKeys: () => SIGNING_KEYS,
   });
-  const idp = await createIdpSimApp({
+  const idp = await createIdpMockApp({
     store: idpStore,
     issuer: IDP_URL,
     clients: [
@@ -88,7 +88,7 @@ async function bootNodes(): Promise<{
 
   const authApp = createAuthApp({
     getSql: () => sqlClient,
-    clock: sim.clock,
+    clock: harness.clock,
     createId: () => `id-${(nextId += 1)}`,
     http: { fetch: (input, requestInit) => wire(input, requestInit) },
     secret: SECRET,
@@ -106,19 +106,19 @@ async function bootNodes(): Promise<{
   const app = new Hono();
   app.route('/api', authApp);
 
-  return { wire, sim };
+  return { wire, harness };
 }
 
-describe('createInProcessOpenAuthSession / sim parity', () => {
+describe('createInProcessOpenAuthSession / harness parity', () => {
   test('walks the provider screens and exchanges a session', async () => {
-    const { wire, sim } = await bootNodes();
+    const { wire, harness } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
       account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...sim,
+      ...harness,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,
@@ -132,14 +132,14 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
   });
 
   test('a wrong password never reaches a session', async () => {
-    const { wire, sim } = await bootNodes();
+    const { wire, harness } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
       account: { email: 'alice@gmail.com', password: 'wrong' },
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...sim,
+      ...harness,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,
@@ -151,7 +151,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
   });
 
   test('denying consent on the provider returns the app to an error', async () => {
-    const { wire, sim } = await bootNodes();
+    const { wire, harness } = await bootNodes();
     const openAuthSession = createInProcessOpenAuthSession({
       fetch: wire,
       account: { email: 'alice@gmail.com', password: IDP_PASSWORD },
@@ -159,7 +159,7 @@ describe('createInProcessOpenAuthSession / sim parity', () => {
     });
     const port = createInhouseAuthClient({
       baseURL: BASE_URL,
-      ...sim,
+      ...harness,
       fetch: wire,
       storage: createInMemoryAuthClientStorage(),
       openAuthSession,

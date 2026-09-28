@@ -1,0 +1,490 @@
+# The ubiquitous language of the Chess context (specs/chess/): chess puzzles
+# played in a space. Chess rules are cited from the FIDE Laws of Chess, not
+# redefined. Terms other contexts own are borrowed (from: <domain>) with the
+# spelling docs/CONTEXT_MAP.md publishes.
+context: Chess
+purpose: >-
+  An endless feed of chess puzzles a person solves in their space, with
+  friends watching, that keeps an honest puzzle rating and a game log of every
+  puzzle played, online or offline.
+
+terms:
+  # --- Borrowed -------------------------------------------------------------
+
+  - term: guest
+    from: profile
+  - term: account
+    from: profile
+  - term: sign in
+    from: profile
+  - term: Plus
+    from: billing
+  - term: Plus member
+    from: billing
+  - term: free account
+    from: billing
+  - term: space
+    from: spaces
+  - term: host
+    from: spaces
+  - term: join
+    from: spaces
+  - term: space link
+    from: spaces
+  - term: lobby
+    from: spaces
+  - term: return to a space
+    from: spaces
+  - term: friend
+    from: friends
+  - term: Google
+    from: profile
+
+  # The shared kernel's "the app", named in this context's model.
+  - term: the app
+    from: kernel
+    model: [reopenApp]
+
+  # --- Where a person is in a space ------------------------------------------
+
+  - term: game
+    definition: >-
+      Something a space plays together, chosen by its host; everyone in the
+      space is taken to it without doing anything. Chess is one.
+    published: true
+
+  - term: chess
+    definition: >-
+      The game whose puzzles this context is about. In a space, chess offers
+      its chess choices; playing puzzles is one of them.
+    published: true
+
+  - term: space view
+    definition: >-
+      What a person in a space is looking at: the space's game choice, the
+      chess choices, or the board. What a space plays belongs to the space,
+      so everyone in it has the host's view.
+    avoid: [screen, menu, page]
+    model: [View, view]
+
+  - term: game choice
+    definition: >-
+      Where a space's host picks the game the space plays, and where everyone
+      in the space starts.
+    model: [GameChoice, backToGameChoice]
+
+  - term: chess choices
+    definition: >-
+      Chess's own starting point in a space, between the game choice and the
+      board; a solver steps back here from the board and goes back to the
+      puzzles from here.
+    model: [ChessChoices]
+
+  - term: board
+    definition: >-
+      The chessboard a puzzle is played on, as each person in the space sees
+      it. It faces the solver's side, shows the last move, and shows the
+      puzzle's state; a watcher's board agrees with the host's.
+    model: [Board]
+    published: true
+
+  - term: play puzzles
+    definition: >-
+      Solve puzzles from the puzzle feed on the board in a space. A person
+      opens puzzles from the game choice, and goes back to the puzzles from
+      the chess choices, finding any unfinished puzzle as they left it.
+    forms:
+      - plays puzzles
+      - playing puzzles
+      - open puzzles
+      - opens puzzles
+      - opened puzzles
+      - go back to the puzzles
+      - goes back to the puzzles
+    model: [openPuzzles, goBackToPuzzles]
+
+  - term: leave the puzzle
+    definition: >-
+      Step back from the board to the chess choices. An unfinished puzzle
+      waits, as it was, for the solver to go back to the puzzles; a finished
+      one does not, and going back starts the next puzzle.
+    forms: [leaves the puzzle, left the puzzle, leaving the puzzle]
+    model: [leavePuzzle]
+
+  # --- Puzzles and the feed --------------------------------------------------
+
+  - term: puzzle
+    definition: >-
+      A chess position with one line to find, played on the board. Each
+      puzzle has a rating of its own, which is how hard it is.
+    avoid: [problem, exercise]
+    model: [puzzle]
+    published: true
+
+  - term: puzzle pool
+    definition: >-
+      Every puzzle that can be served. The puzzle feed chooses from it.
+    forms: [pool]
+
+  - term: add puzzles
+    definition: >-
+      The team putting new puzzles into the puzzle pool. Only good puzzles
+      get in; broken ones are turned away.
+    forms: [adds puzzles, added puzzles, has added, the team added]
+    avoid: [import, ingest, puzzle file]
+
+  - term: broken puzzle
+    definition: >-
+      A puzzle the team adds that cannot go in the pool: its line holds an
+      illegal move, castles without the right to, or ends on the opponent's
+      move; it starts from a position that could never happen in chess; or it
+      copies a puzzle already in the pool. It never reaches anyone.
+    forms: [broken puzzles, broken]
+    avoid: [rejected puzzle, invalid puzzle, malformed]
+
+  - term: low-quality puzzle
+    definition: >-
+      A puzzle below the quality bar: too unpopular or too rarely played. The
+      puzzle feed never serves one.
+    forms: [quality bar, low-quality]
+
+  - term: retired puzzle
+    definition: >-
+      A puzzle taken out of the puzzle feed. It is never served again, but it
+      stays in the game log and still opens in review.
+    forms: [retired]
+
+  - term: puzzle feed
+    definition: >-
+      The endless run of puzzles a solver plays in their space: finish one and
+      the next is ready at once, never the one just played. It serves unplayed
+      puzzles near the feed target first; once every puzzle is played it comes
+      round to the one attempted longest ago, unrated.
+    forms: [feed, feed's]
+    avoid: [queue, playlist]
+
+  - term: feed settings
+    definition: >-
+      A solver's choices for their puzzle feed: the history filter, a puzzle
+      theme, and the feed target. Only a person with an account can change
+      them; saved choices stick after the app closes and follow the person to
+      their other devices.
+    forms: [feed choices, unsaved feed settings]
+
+  - term: history filter
+    definition: >-
+      Which puzzles the feed may serve by whether the solver has played them:
+      "Unseen" (the default) or "Any".
+    forms: [feed history]
+
+  - term: puzzle theme
+    definition: >-
+      A kind of puzzle, such as "zugzwang". Limiting the feed to a theme no
+      puzzle fits empties the feed.
+    forms: [theme, theme filter]
+
+  - term: feed target
+    definition: >-
+      The rating the puzzle feed serves puzzles near. It is automatic (the
+      puzzle rating plus the rating offset) or custom (a fixed rating).
+    forms:
+      - target
+      - feed targets
+      - automatic target
+      - custom target
+      - custom feed target
+    avoid: [difficulty]
+
+  - term: rating offset
+    definition: >-
+      How far above or below the puzzle rating an automatic feed target sits,
+      in steps of 50.
+    forms: [feed rating offset]
+
+  - term: rating window
+    definition: >-
+      The ratings around the feed target the feed serves from first. Once the
+      puzzle rating has settled, the feed stays within 100 of it while it has
+      puzzles there.
+    avoid: [band]
+
+  # --- Solving ---------------------------------------------------------------
+
+  - term: solver
+    definition: >-
+      The person solving the puzzle on the board: the host, when a space has
+      watchers. The board faces the solver's side.
+    avoid: [player, puzzler]
+
+  - term: attempt
+    definition: >-
+      One play of one puzzle, from its start until it is solved, failed or
+      abandoned. The first wrong move is the attempt's outcome, and a retry
+      continues the same attempt. Leaving the puzzle or closing the app does
+      not end it.
+    avoid: [session]
+
+  - term: puzzle state
+    definition: >-
+      Where the puzzle on a board stands, as the board tells it: being solved
+      (the solver is asked to find the next move), a wrong move played,
+      solved, skipped, or its solution shown.
+    model: [puzzleState]
+
+  - term: line
+    definition: >-
+      A puzzle's whole sequence of moves, from the opponent's setup move to
+      its end. "Move N of the line" is the position after its Nth move.
+
+  - term: setup move
+    definition: >-
+      The opponent's first move of the line, already played when the puzzle
+      opens.
+
+  - term: opponent
+    definition: >-
+      The side the solver plays against. Its setup move and its replies play
+      by themselves.
+
+  - term: prompt
+    definition: >-
+      What the board asks the solver, such as "Your turn — find the best move
+      for White". While the puzzle is being solved, the solver is asked to
+      find the next move.
+    forms: [prompted, asked to find the next move]
+
+  - term: solution
+    definition: >-
+      The solver's moves in the line. Every correct way to finish counts:
+      another mate on the final move, a faster mate, or the same moves in
+      another order.
+
+  - term: solution move
+    definition: The next move of the solution, from where the board stands.
+    forms: [asks to see the solution move, asked to see the solution move]
+
+  - term: solve
+    definition: >-
+      Finish a puzzle's line with the solution. A solved puzzle is over, and
+      its pieces can no longer be moved.
+    forms: [solves, solved, solving]
+    model: [solve]
+    published: true
+
+  - term: wrong move
+    definition: >-
+      A legal move that is not the solution. The solver is told at once, the
+      attempt is failed from then on, and pieces cannot be moved until a
+      retry. It earns half credit, like a hint.
+    forms: [wrong]
+    avoid: [mistake, blunder]
+    model: [playWrongMove]
+
+  - term: hint
+    definition: >-
+      Help while solving: the first highlights the piece to move, the second
+      shows the solution move. A puzzle solved after a hint earns half credit.
+    forms: [asks for a hint, asks for another hint, asked for a hint]
+
+  - term: half credit
+    definition: >-
+      What a hint or a wrong move earns toward the puzzle rating: less than a
+      clean solve, and the same for either.
+
+  - term: retry the puzzle
+    definition: >-
+      Play the same puzzle again from its start after a wrong move, a solve or
+      a shown solution. It continues the same attempt, so its outcome does not
+      change.
+    forms: [retries the puzzle, retried the puzzle, retrying the puzzle]
+    model: [retry]
+
+  - term: show the solution
+    definition: >-
+      Have the rest of the line play out on the board (the revealed
+      solution). The puzzle is over and the attempt is failed.
+    forms:
+      - shows the solution
+      - shown the solution
+      - showing the solution
+      - shown solution
+      - revealed
+      - revealed solution
+      - revealed line
+    model: [showSolution]
+
+  - term: skip
+    definition: >-
+      Give up on a puzzle being solved. It is over, and the attempt is
+      abandoned.
+    forms: [skips, skipped, skipping]
+    model: [skip]
+
+  - term: failed attempt
+    definition: >-
+      An attempt's outcome once a wrong move was played or the solution was
+      shown, however the puzzle ends afterwards.
+    avoid: [loss]
+
+  - term: puzzle is over
+    definition: >-
+      A puzzle is over once it is solved, skipped or its solution shown. Its
+      pieces can no longer be moved, and the host may move on.
+    model: [isOver]
+
+  - term: abandoned attempt
+    definition: An attempt's outcome when the puzzle was skipped.
+
+  - term: move on
+    definition: >-
+      Go from a puzzle that is over to the next puzzle in the feed, never the
+      one just played. Only the host is offered it; asking twice at once
+      still moves on one puzzle, and it works offline.
+    forms:
+      - moves on
+      - moved on
+      - moving on
+      - asks for another puzzle
+      - asks for the next puzzle
+      - asking for the next puzzle
+    model: [moveOn, moveOnTwiceAtOnce, moveOnOffered]
+
+  - term: auto-advance
+    definition: >-
+      A solver's setting to move on by itself a set time after a solve.
+    forms: [advance]
+
+  - term: puzzle clock
+    definition: >-
+      How long the current attempt has run. It runs while the puzzle is being
+      solved and stops when the puzzle is over.
+    forms: [clock]
+
+  - term: haptic
+    definition: >-
+      A buzz the solver feels from their device: the success haptic on a
+      solve, the error haptic on a wrong move.
+
+  # --- Watching --------------------------------------------------------------
+
+  - term: watcher
+    definition: >-
+      Someone in a space watching the host's puzzle. Their board agrees with
+      the host's, even after arriving mid-puzzle or losing the connection. A
+      watcher may make a suggestion but never drives the puzzle and is never
+      rated for it.
+    forms: [watch, watches, watched, watching]
+    avoid: [spectator, viewer, observer]
+
+  - term: suggestion
+    definition: >-
+      A move a watcher proposes. The host and every watcher see it; it does
+      not move the puzzle, and the host's next move clears it.
+    forms: [suggest, suggests, suggested]
+
+  # --- Rating, stats and the game log ------------------------------------------
+
+  - term: puzzle rating
+    definition: >-
+      A solver's running rating, moved by every rated attempt, online or
+      offline. Every device shows the same one. A new solver starts at the
+      seed rating, provisional.
+    forms: [rating]
+    avoid: [score, elo]
+
+  - term: seed rating
+    definition: The puzzle rating every solver starts at, 1500.
+
+  - term: provisional
+    definition: >-
+      A puzzle rating that has not yet settled, shown with a trailing "?"
+      (for example "1500?").
+
+  - term: settle
+    definition: >-
+      A puzzle rating settles once enough rated attempts have been played; it
+      then loses its "?".
+    forms: [settles, settled, settling]
+
+  - term: rated attempt
+    definition: >-
+      An attempt that moves the puzzle rating: a solver's first attempt at a
+      puzzle, ever. A repeat of an already-played puzzle is unrated, and a
+      watcher is never rated.
+    forms: [rated, unrated, rated puzzle]
+
+  - term: stats
+    definition: >-
+      A solver's puzzle rating, puzzles played and solved, accuracy, and how
+      the rating moved over time. They count each puzzle's rated attempt
+      only.
+    avoid: [statistics, scoreboard]
+
+  - term: accuracy
+    definition: The share of rated attempts solved, as a whole percentage.
+
+  - term: game log
+    definition: >-
+      A solver's list of every puzzle they played, each recorded as solved,
+      failed or abandoned, and each opening in review.
+    avoid: [puzzle history]
+
+  - term: review
+    definition: >-
+      Stepping through a played puzzle's whole line from the game log. It
+      opens on the final position; stepping one move animates and jumping
+      snaps straight to a position. The current move is highlighted in the
+      review's move list, in algebraic notation.
+    forms: [reviews, reviewing, reviewed]
+    avoid: [replay, analysis]
+
+  # --- The daily puzzle limit --------------------------------------------------
+
+  - term: daily puzzle limit
+    definition: >-
+      The 20 rated puzzles a guest may start in a day; free accounts and Plus
+      members have none. A puzzle under way when it is reached can still be
+      finished; the next does not start, and the guest is invited to sign in.
+      It holds the same offline, and a new day brings a fresh allowance.
+    forms: [puzzle limit, daily limit, limit, allowance, daily allowance]
+    avoid: [quota, cap]
+
+  - term: puzzle start
+    definition: >-
+      One use of a guest's daily puzzle limit, spent when a rated puzzle first
+      starts. Going back to a puzzle already started spends none.
+    model: [puzzleStarts]
+
+  # --- Chess rules (FIDE) ------------------------------------------------------
+
+  - term: move
+    source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
+    forms: [moved, moving]
+  - term: piece
+    source: FIDE Laws of Chess, Article 2.2
+  - term: to move
+    source: FIDE Laws of Chess, Article 1.1 (having the move)
+  - term: illegal move
+    source: FIDE Laws of Chess, Article 3.10
+  - term: check
+    source: FIDE Laws of Chess, Article 3.9
+  - term: checkmate
+    source: FIDE Laws of Chess, Article 5.1.1
+    forms: [mate]
+  - term: mate in two
+    definition: >-
+      A puzzle whose solver checkmates on their second move.
+  - term: castling
+    source: FIDE Laws of Chess, Article 3.8.2
+    forms: [castle, castles]
+  - term: en passant
+    source: FIDE Laws of Chess, Article 3.7.3.1
+  - term: promotion
+    source: FIDE Laws of Chess, Article 3.7.5.1
+    forms: [promote, promotes, promoting, asks which piece, asked which piece]
+  - term: underpromotion
+    source: FIDE Laws of Chess, Article 3.7.5.1 (promotion to a piece other than a queen)
+  - term: capture-promotion
+    source: FIDE Laws of Chess, Articles 3.7.5.1 and 3.1 (a promotion that captures)
+  - term: algebraic notation
+    source: FIDE Laws of Chess, Appendix C

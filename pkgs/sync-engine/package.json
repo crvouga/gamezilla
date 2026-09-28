@@ -7,7 +7,7 @@
     "./client": "./src/client/index.ts",
     "./server": "./src/server/index.ts",
     "./shared": "./src/shared/index.ts",
-    "./sim": "./src/sim/index.ts",
+    "./harness": "./src/harness/index.ts",
     "./solid": "./src/solid/index.ts",
     "./solid/mutation-client": "./src/solid/mutation-client-context.tsx"
   },
@@ -15,11 +15,8 @@
     "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload",
-    "test:e2e": "bun run ../../libs/sim-harness/scripts/test-e2e.ts"
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
   },
-  "specDomains": [
-    "sync"
-  ],
   "dependencies": {
     "@noble/hashes": "catalog:",
     "@pkgs/assert": "workspace:*",
@@ -34,7 +31,7 @@
     "@pkgs/observability": "workspace:*",
     "@pkgs/outbox": "workspace:*",
     "@pkgs/pubsub": "workspace:*",
-    "@pkgs/sim": "workspace:*",
+    "@pkgs/harness": "workspace:*",
     "@pkgs/solid-context": "workspace:*",
     "@pkgs/sql": "workspace:*",
     "@pkgs/sql-client": "workspace:*",
@@ -46,15 +43,18 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/gherkin": "workspace:*",
-    "@pkgs/quint": "workspace:*",
     "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
     "@pkgs/property": "workspace:*",
+    "@pkgs/quint": "workspace:*",
     "@solidjs/testing-library": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "typescript": "catalog:",
     "zod": "catalog:"
-  }
+  },
+  "specDomains": [
+    "sync-engine"
+  ]
 }

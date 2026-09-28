@@ -1,7 +1,7 @@
 /**
  * The Stripe adapter against the shared membership contract. The real Stripe
  * SDK runs end to end — request encoding, response parsing, webhook signature
- * verification — over the fake Stripe REST origin (`@pkgs/billing-stripe/sim`).
+ * verification — over the fake Stripe REST origin (`@pkgs/billing-stripe/harness`).
  */
 import {
   CONTRACT_ENDED_AT_MS,
@@ -15,7 +15,7 @@ import {
   type MembershipBillingContractHarness,
 } from '@pkgs/billing/membership-billing-contract';
 
-import { FakeStripe, type FakeStripeSubscription } from './sim';
+import { FakeStripe, type FakeStripeSubscription } from './harness';
 import { createStripeMembershipBilling } from './stripe-membership';
 
 const STRIPE_STATUS: Readonly<Record<ContractSituation, string>> = {

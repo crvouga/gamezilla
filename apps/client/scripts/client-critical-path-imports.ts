@@ -14,7 +14,7 @@ const TSCONFIG_REL = 'tsconfig.base.json';
 const DENY_SPECIFIER_PREFIXES = [
   '@libs/chess',
   '@libs/games/game-plugins.client',
-  '@pkgs/sim-console',
+  '@pkgs/harness-console',
   '@sqlite.org/sqlite-wasm',
 ] as const;
 
@@ -66,7 +66,7 @@ export function isDeniedResolvedPath(absPath: string): boolean {
     norm.includes('/sql-workers/') ||
     norm.includes('/libs/chess/') ||
     norm.includes('game-plugins.client') ||
-    norm.includes('/pkgs/sim-console/') ||
+    norm.includes('/pkgs/harness-console/') ||
     norm.includes('sqlite-wasm')
   );
 }

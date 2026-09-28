@@ -7,10 +7,10 @@ import {
   KeyValueClientRoomStorage,
   keyValueRoomClientKeywords,
 } from '@pkgs/room/client/adapters/storage/key-value';
-import { Moved } from './helpers/cursor-module';
+import { AddOne, TallyChanged } from '@pkgs/room/harness';
 
 function entry(seq: number): LogEntry {
-  return { seq, event: Moved({ id: 'a', x: seq, y: 0 }), ts: seq };
+  return { seq, event: TallyChanged({ by: seq }), ts: seq };
 }
 
 function range(from: number, to: number): LogEntry[] {
@@ -88,9 +88,7 @@ describe('KeyValueClientRoomStorage (segmented)', () => {
     });
     expect(await fresh.loadQueued()).toEqual([]);
     expect(await kv.get(keys.queue)).toBeNull();
-    const queue = [
-      { id: 'q1', ts: 1, payload: Moved({ id: 'a', x: 1, y: 1 }) },
-    ];
+    const queue = [{ id: 'q1', ts: 1, payload: AddOne({}) }];
     await fresh.saveQueued(queue);
     expect(await fresh.loadQueued()).toEqual(queue);
     await fresh.saveQueued([]);

@@ -32,7 +32,7 @@ const BOOT_STUCK_MS = 15_000;
 /**
  * Open SQLite once fonts have released the paint latch. No extra delay: with
  * the shell entry kept free of mutation/WASM graphs, first paint settles
- * before worker fetches without waiting here (sims + LHCI).
+ * before worker fetches without waiting here (harnesses + LHCI).
  */
 function useMayOpenDbAfterPaint(): Accessor<boolean> {
   const latch = useLocalPaintLatch();

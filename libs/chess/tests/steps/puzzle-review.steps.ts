@@ -5,8 +5,6 @@
  */
 
 import { expect } from 'bun:test';
-
-import { fenAtSolveIdx } from '@libs/chess/public/chess-puzzle-step';
 import {
   openPuzzleReview,
   playUntilSolved,
@@ -14,27 +12,28 @@ import {
   pressPuzzleReviewNav,
   swipePuzzleReview,
   tapPuzzleReviewMove,
-} from '@libs/chess/sim/chess-actions';
+} from '@libs/chess/harness/chess-actions';
 import {
   type LocalPuzzleRow,
   readLocalPuzzleRow,
   retireChessPuzzle,
-} from '@libs/chess/sim/chess-puzzle-data';
+} from '@libs/chess/harness/chess-puzzle-data';
 import {
   readPuzzleReviewFen,
   readPuzzleReviewMoveLabels,
   readPuzzleReviewProbe,
   readSelectedMoveLabel,
   waitPuzzleReviewReady,
-} from '@libs/chess/sim/chess-puzzle-review-ui';
+} from '@libs/chess/harness/chess-puzzle-review-ui';
+import { fenAtSolveIdx } from '@libs/chess/public/chess-puzzle-step';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { remember } from '@libs/sim-harness/spec/world';
+} from '@libs/harness/spec/define';
+import { remember } from '@libs/harness/spec/world';
 import {
   currentPuzzle,
   ensureStatsOpen,
@@ -50,7 +49,7 @@ type Direction = 'back' | 'forward';
 type End = 'start' | 'end';
 
 /** Open the current puzzle's review from the game log. */
-async function openReview(w: SimWorld, actor: Actor): Promise<void> {
+async function openReview(w: HarnessWorld, actor: Actor): Promise<void> {
   const puzzle = currentPuzzle(w, actor);
   const row = required(
     await w.s.read(readLocalPuzzleRow, actor, puzzle),
@@ -71,7 +70,7 @@ function positionAt(row: LocalPuzzleRow, move: number): string {
 }
 
 async function expectReviewAt(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   at: { move: number; of: number; animated: boolean }
 ): Promise<void> {

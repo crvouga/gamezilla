@@ -16,7 +16,7 @@ export class SqlClientImplBunSqlite implements SqlClient {
     return new SqlClientImplBunSqlite(db);
   }
 
-  /** Ephemeral in-memory DB for Bun-hosted sim clients. */
+  /** Ephemeral in-memory DB for Bun-hosted harness clients. */
   static openMemory(): SqlClientImplBunSqlite {
     return new SqlClientImplBunSqlite(new Database(':memory:'));
   }

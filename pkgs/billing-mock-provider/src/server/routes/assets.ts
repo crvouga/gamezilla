@@ -1,6 +1,6 @@
 /**
  * The hosted pages' shell and built files. The SPA is embedded in the server
- * bundle, so every host — Bun, an in-process sim node — serves identical
+ * bundle, so every host — Bun, an in-process harness node — serves identical
  * files without a filesystem.
  */
 import { createStaticFileHandler } from '@pkgs/static-file-server/static-file-server';

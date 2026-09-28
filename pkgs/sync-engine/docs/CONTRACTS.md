@@ -10,7 +10,7 @@ authoritative contract map + redesign target. Runtime docs stay in
 |------|----------|
 | **A — content/scope hash algorithms** | **Internal.** Wire promises opaque string equality for `lastHash`/`hash` / `not_modified` only. Algorithm changes may cause temporary cache misses across mixed versions, not incorrect merges. |
 | **B — CI framework table names** | Opaque `assertDomainTablesAvoidFrameworkNames(names)` on `/shared`. Unexport `FRAMEWORK_*` constants. Channel CI merges framework mutations inside `assertChannelExhaustiveness`. |
-| **C — product/test seam** | Expand `/test` for epoch, controllable lifecycle, `withFrameworkMutations` (CI escape), prune. Sim should prefer public + `/test` seams; deep `src/` imports are an in-package debt to shrink. |
+| **C — product/test seam** | Expand `/test` for epoch, controllable lifecycle, `withFrameworkMutations` (CI escape), prune. Harness should prefer public + `/test` seams; deep `src/` imports are an in-package debt to shrink. |
 
 ---
 
@@ -38,11 +38,11 @@ Domain tables from host schema; managed `deleted_at`; UI filters live rows (`del
 
 ### Extension contract
 
-`defineQuery` / `defineMutation`, registries, `MutationEnv` / `MutationError`, `defineTopicMap`, `entryChannel?` (or `false` for reconcile-only), `constraintErrors`, `pendingUx`, `requiresOnline`. Write sets and wake topics are derived from AST capture + topic map — no authoring `hydrates` / `declaredWrites` / `affectedRows` / `invalidates`. Query `limit` defaults to `DEFAULT_QUERY_LIMIT` (2000); sim + `SECRETS_ENV=dev` set `strictQueryLimits` so clipping a **default** budget throws `QueryLimitExceeded` (explicit budgets still truncate-and-serve).
+`defineQuery` / `defineMutation`, registries, `MutationEnv` / `MutationError`, `defineTopicMap`, `entryChannel?` (or `false` for reconcile-only), `constraintErrors`, `pendingUx`, `requiresOnline`. Write sets and wake topics are derived from AST capture + topic map — no authoring `hydrates` / `declaredWrites` / `affectedRows` / `invalidates`. Query `limit` defaults to `DEFAULT_QUERY_LIMIT` (2000); harness + `SECRETS_ENV=dev` set `strictQueryLimits` so clipping a **default** budget throws `QueryLimitExceeded` (explicit budgets still truncate-and-serve).
 
 ### Runtime wiring / ports
 
-`postQueries` / `postMutations` (aliases of protocol types), pubsub, auth, SQL clients, lifecycle, `sessionQueries`, `rowImageFanout`, sim `now`/`timers`/`createId`, opaque server migrate.
+`postQueries` / `postMutations` (aliases of protocol types), pubsub, auth, SQL clients, lifecycle, `sessionQueries`, `rowImageFanout`, harness `now`/`timers`/`createId`, opaque server migrate.
 
 ### Internal
 
@@ -54,7 +54,7 @@ Framework table names/shapes/DDL text, merge/rebase/upload/subscription, `alloca
 
 | Leak | Replacement |
 |------|-------------|
-| Sim/raw `sync_engine_write_rejections` / `sync_engine_mutations` reads | `SyncEngine.mutationOutcome` / `listRejections` / `pendingMutationCount` (sim `outcome`/`rejections` built on these) |
+| Harness/raw `sync_engine_write_rejections` / `sync_engine_mutations` reads | `SyncEngine.mutationOutcome` / `listRejections` / `pendingMutationCount` (harness `outcome`/`rejections` built on these) |
 | `SCHEMA_EPOCH` on `/client` | `/test` only; create option `schemaEpoch` remains host wiring |
 | `FRAMEWORK_*` DDL/name exports | Opaque `applyFrameworkServerDdl` + `assertDomainTablesAvoidFrameworkNames` |
 | `allocateTopicPushSeq(s)` public | Folded into `notifyChannels({ sql, topics, … })` |
@@ -149,7 +149,7 @@ export function pruneMutationArtifacts(db, olderThanMs, now?): Promise<void>;
 export type SyncAppAuth = { actorId; deviceId; accountId; isAnon };
 ```
 
-### `@pkgs/sync-engine/sim`
+### `@pkgs/sync-engine/harness`
 
 ```ts
 export function createInMemorySyncEngine(options): Promise<SyncEngine>;
@@ -189,14 +189,14 @@ Checked-in symbol lists: [`api-reports/`](../api-reports/).
 | tools channel / table CI | Opaque asserts — done | Yes |
 | Epoch scenarios | Import `SCHEMA_EPOCH` from `/test` — done | Yes |
 | Domain packs registries | Drop manual `withFrameworkMutations` — done | Yes |
-| Sim `outcome`/`rejections` | Via engine APIs — done | Yes |
-| Sim deep-imports of merge/replay/… | **Not mechanical** — gradual move onto `/test` host helpers in a follow-up |
+| Harness `outcome`/`rejections` | Via engine APIs — done | Yes |
+| Harness deep-imports of merge/replay/… | **Not mechanical** — gradual move onto `/test` host helpers in a follow-up |
 
 ---
 
 ## 6. Refactor-freedom checklist
 
-Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (after remaining sim deep-import cleanup):
+Internal change possible with **zero** edits outside `pkgs/sync-engine/src/` (after remaining harness deep-import cleanup):
 
 | Change | Guaranteeing contract |
 |--------|----------------------|

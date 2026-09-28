@@ -152,7 +152,7 @@
     "test": {
       "dependsOn": ["tc"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
-      "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
@@ -163,7 +163,7 @@
         "!**/*.md",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     },
@@ -171,16 +171,16 @@
       "dependsOn": ["tc"],
       "inputs": ["$TURBO_DEFAULT$", "!**/*.md"],
       "env": [
-        "SIM_MODE",
-        "SIM_WITH_DOM",
-        "SIM_FRAMES",
-        "SIM_FIDELITY",
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FRAMES",
+        "HARNESS_FIDELITY",
         "PBT_NUM_RUNS",
         "PBT_RANDOM",
         "FC_SEED"
       ],
       "outputLogs": "errors-only",
-      "outputs": [".cache/sim-report/**"]
+      "outputs": [".cache/harness-report/**"]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -302,7 +302,7 @@
         "apps/*/tests/steps/**",
         "apps/*/tests/quint/**",
         "apps/*/STEPS_CATALOG.md",
-        "libs/sim-harness/src/spec/**",
+        "libs/harness/src/spec/**",
         "pkgs/gherkin/src/**",
         "pkgs/quint/src/names.ts",
         "libs/tools/scripts/check-specs.ts",
@@ -490,7 +490,7 @@
         "$TURBO_ROOT$/mise.toml",
         "$TURBO_ROOT$/.github/workflows/**"
       ],
-      "env": ["SIM_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
+      "env": ["HARNESS_FIDELITY", "PBT_NUM_RUNS", "PBT_RANDOM", "FC_SEED"],
       "outputLogs": "errors-only",
       "outputs": []
     }

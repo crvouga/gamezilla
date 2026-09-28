@@ -5,7 +5,7 @@
  */
 // regression: grace-end-never-reached-open-screen
 import { describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock';
+import { createHarnessClock } from '@pkgs/clock';
 import { ClockProvider, createTimedValue } from '@pkgs/clock/solid';
 import { render } from '@solidjs/testing-library';
 import type { Accessor } from 'solid-js';
@@ -14,7 +14,7 @@ const LAPSE_MS = 1_000;
 
 describe('createTimedValue', () => {
   test('a value that lapses at a known instant updates then, without a nudge', () => {
-    const { clock, timers } = createSimClock({ startMs: 0 });
+    const { clock, timers } = createHarnessClock({ startMs: 0 });
     let read: Accessor<string> = () => 'unset';
     function Probe() {
       read = createTimedValue(

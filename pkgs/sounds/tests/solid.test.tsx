@@ -1,7 +1,7 @@
 /** @jsxImportSource solid-js */
 
 import { describe, expect, test } from 'bun:test';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds/audio-playback/in-memory-audio-playback-port';
 import { resolveWebAudioSource } from '@pkgs/sounds/audio-playback/web-audio-playback-port';
@@ -18,7 +18,7 @@ import { render, screen } from '@solidjs/testing-library';
 import type { JSX } from 'solid-js';
 
 function Shell(props: { readonly children: JSX.Element }): JSX.Element {
-  const { clock, timers } = createSimClock();
+  const { clock, timers } = createHarnessClock();
   return (
     <ClockProvider clock={clock} timers={timers}>
       {props.children}

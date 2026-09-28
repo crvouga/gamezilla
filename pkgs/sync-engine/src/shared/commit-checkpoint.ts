@@ -8,7 +8,7 @@ export function formatCheckpoint(nowMs: number, seq: number): string {
 
 export type MonotonicCheckpointOpts = {
   /**
-   * High-water mark from a prior allocator (e.g. before sim server remake).
+   * High-water mark from a prior allocator (e.g. before harness server remake).
    * Ensures new checkpoints stay strictly above anything clients already stored
    * while the previous process ran with a fast/skewed clock.
    */
@@ -24,7 +24,7 @@ export type MonotonicCheckpoint = {
 /**
  * Allocate strictly increasing query checkpoints.
  *
- * Wall clock can jump backwards (NTP, sim `skewClock(-60_000)`). Embedding
+ * Wall clock can jump backwards (NTP, harness `skewClock(-60_000)`). Embedding
  * `now()` alone would then emit a checkpoint ≤ the client's `last_checkpoint`,
  * and merge would drop every snapshot as stale forever.
  *

@@ -9,8 +9,8 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 |---|---|---|
 | libs/profile | `specs/profile/` | — (`auth-oauth-port` retired 2026-09-27: every Google sign-in scenario walks the same port) |
 | libs/friends | `specs/friends/`, `specs/spaces/` | — |
-| libs/billing | `specs/billing/` | — |
-| libs/chess | `specs/chess/` (incl. `puzzle-spectator.sim.test.ts`) | — |
+| libs/billing | `specs/billing/` | `multi-provider.test.ts` (wire and storage contracts of two providers) |
+| libs/chess | `specs/chess/` (incl. `puzzle-spectator.harness.test.ts`) | — |
 | libs/runtime | `specs/runtime/`, `specs/journeys/` | — |
 
 (2026-09-26, later) The random walks each package kept in code — `monkey`,
@@ -18,35 +18,143 @@ flat `specs/<domain>/` tree, and its ported `tests/e2e` files are deleted:
 `specs/<domain>/*.qnt`, so the rows below that say "keep in code" for them
 are history.
 
-(2026-09-27) `pkgs/room-sim` runs the `rooms` domain (`specDomains`):
-`specs/rooms/shared-counter.feature`, `refusals.feature`, `match-clock.feature`,
-and the Quint models `specs/rooms/shared-counter.qnt` (convergence across
+(2026-09-27) `pkgs/room-harness` runs the `room` domain (`specDomains`):
+`specs/room/shared-counter.feature`, `refusals.feature`, `match-clock.feature`,
+and the Quint models `specs/room/shared-counter.qnt` (convergence across
 offline, stalled networks, crashes and room restarts; exactly-once on resent
-and taken-over commands) and `specs/rooms/match-clock.qnt`. Its legacy
+and taken-over commands) and `specs/room/match-clock.qnt`. Its legacy
 scenario tests are deleted. Kept in code, as framework contracts:
 `determinism.test.ts` (same seed twice, was seeded-workload-determinism and
 MC-06), `malformed-messages.test.ts` (wire frames), `standalone-room.test.ts`
 (the loopback host seam, was `room.test.ts`), `hash-canonicality`,
-`purity-and-seed`. `pkgs/room` still runs `tests/room-server.feature` and
-`tests/room-client.feature` beside its tests (engine wire behavior, not yet
-demoted to contract tests).
+`purity-and-seed`. `pkgs/room`'s package-local `tests/room-server.feature`
+and `tests/room-client.feature` (and their `tests/steps/` runner) are gone:
+the one room rule they held that no rooms spec already stated, that someone
+whose device goes offline is no longer present, is
+`specs/room/presence.feature`; everything else was wire frames, log
+sequence numbers, frame and snapshot identity, device storage batches, the
+outbound queue bound and `untilSynced`, and is now contract tests in
+`pkgs/room/tests/room-server.contract.test.ts` and
+`room-client.contract.test.ts`, claim for claim. Nothing in `pkgs/room`,
+`pkgs/room-adapter-*` or `pkgs/room-harness` drives a harness script or a feature
+outside `specs/room/` any more; `malformed-messages.test.ts` stays a
+wire-frame contract (its one observable claim, that something garbled
+changes nothing, is `sendGarbledChange` in `specs/room/shared-counter.qnt`).
 
-(2026-09-27) The last hand-written chess sim tests (`puzzle-allowance`,
+(2026-09-27, later) `specs/room/` describes the room framework's one
+example app, a game room, in business words (A0): `tally.feature` +
+`tally.qnt`, `ownership.feature` + `ownership.qnt`, `match-clock.feature` +
+`match-clock.qnt`, `presence.feature`. `shared-counter.*` and
+`refusals.feature` are gone. Their technical cases are `_`-prefixed faults
+in `specs/room/tally.qnt` (`_networkStalls` / `_networkRecovers`,
+`_roomRestarts`, `_resend`, `_takeOver`, `_makeInvalidChange`,
+`_sendGarbledChange`, `_appClosesAsChangeLands`) and code tests: the
+authorize hook in `pkgs/room/tests/room-server.contract.test.ts`, the
+room-restart fault in `pkgs/room-harness/tests/room-restart.test.ts`, an
+unknown command refused before it waits in
+`pkgs/room-harness/tests/standalone-room.test.ts`.
+
+(2026-09-27) `libs/billing/tests/multi-provider.test.ts` (two providers
+at once) is ported: what a person sees when the team switches payment
+provider, and back, is `specs/billing/payment-provider-switch.feature`, and
+its "any interleaving of both providers' news" property is the Quint model
+`specs/billing/payment-provider-switch.qnt`. The harness can switch payment
+provider (`switchPaymentProvider`, a second mock provider node beside the
+first). The file keeps only wire and storage contracts: a delivery on another
+provider's path is unverified, an unconfigured provider has no callback
+route, a customer id is matched only among its own provider's customers,
+a checkout mints a customer only at the checkout provider and reuses it on
+return, and a second checkout is refused while a membership is live at
+another provider. A sweep of `libs/` and `apps/` finds no other
+harness-scripted test (`s.apply(`, `.run(`, `explore(`, `randomActions`); the
+remaining scenario-named suites there test pure functions or storage
+(view models, plan resolvers, policies, decision tables, SQL) and stay code
+tests.
+
+(2026-09-27) `pkgs/auth-harness` runs the new `auth` domain (`specDomains`;
+a bounded context that borrows Identity's published terms, see
+`docs/CONTEXT_MAP.md`): `specs/auth/matching-accounts.feature` (was
+`address-match.feature`), `sign-in-methods.feature`, `stolen-sign-ins.feature`
+(was `copied-sign-in.feature`), `sign-in-ends.feature`,
+`at-google-and-apple.feature`, `provider-trouble.feature` (was
+`failing-provider.feature`), the Quint model
+`specs/auth/private-apple-email.qnt`, and the Quint model
+`specs/auth/outside-accounts.qnt`, which replaces the random walk (16 seeds
+x 150 steps, the Postgres fabric, `explore`): 40 traces of up to 30 steps,
+even traces on Postgres, with the harness's reference model still checked as a
+standing property on every step. Legacy claims already proven by
+`specs/profile/` (Google then Apple at a verified address, hidden address,
+confirm/decline a match, connect, refuse another account's Apple account, last
+method, offline sign-in, revoking Sign in with Apple, deleting a connected
+Apple account, plain Google/Apple sign-in) are not restated. The five legacy
+test files and `support.ts` are deleted. The wire-level case table first kept
+in code (`tests/provider-protocol.contract.test.ts`) is now
+`specs/auth/failing-provider.feature`: the eight refused provider answers
+fail plainly and recover (two Examples tables), the two tolerated quirks and
+signing-key rotation still sign in; the harness's reference model stays a
+standing property on every step, so no invariant violation passes unnoticed.
+The contract file is deleted.
+
+(2026-09-27, later) The auth context was held to A0 (a business reader
+understands every line): the eight provider failure modes ("Apple's word for
+Alice is two hours old", "Google does not recognise the app", …), the two
+tolerated quirks and signing-key rotation are technical cases, so they moved
+back to a code test, `pkgs/auth-harness/tests/provider-failures.test.ts`
+(landed before the spec change, seen failing, P4), and
+`provider-trouble.feature` states the rule people see — while Google or
+Apple is having trouble, signing in with it fails plainly and changes
+nothing, and works again once it recovers — one scenario per provider. The
+language also moved to plain product words: "address match" / "prove the
+match" became "matching account" / "confirm the matching account", "copied
+sign-in" became "stolen sign-in", "failing provider" became "having
+trouble", and "word" (a provider's id_token) left the language.
+
+(2026-09-27) The last hand-written chess harness tests (`puzzle-allowance`,
 `puzzle-attempt-once`, `puzzle-guest-carryover`, `puzzle-outcome-score`,
 `puzzle-selection-window`, `watcher-command-refused` in
 `libs/chess/tests/e2e/`) are replaced by scenarios in `specs/chess/`, actions
 in `specs/chess/puzzle-session.qnt` (Next twice at once, closing and
 reopening the app), and code tests in `libs/chess/tests/puzzle-session/`;
-`libs/chess/tests/e2e/` keeps only the sim composition (`support/`). The
+`libs/chess/tests/e2e/` keeps only the harness composition (`support/`). The
 watcher-refusal scenarios now assert what the host and watcher see (nothing
 changes), not the room's refusal.
 
+(2026-09-27) `pkgs/db-indexes` runs the `index-tuning` domain
+(`specDomains`): `specs/index-tuning/index-tuning.feature` (declared lookups
+get a tuned index, tuning again changes nothing, unneeded indexes retire before
+removal, a used retiring index is kept, the team's own index is never touched)
+and the Quint model `specs/index-tuning/index-tuning.qnt`, which replaces the
+known-seed `explore` corpus. The tuning harness moved from `tests/scenario/` to
+`src/harness/index-tuning-system.ts` (`@pkgs/db-indexes/harness`); `tests/scenario/`
+is deleted. Kept in code: the same-seed replay pin (`determinism.test.ts`,
+framework contract) and the `HarnessDb` adapter contract (`harness-db.test.ts`);
+`harness-db.test.ts`'s fixpoint and plan-determinism examples are deleted as
+subsumed by the `idempotence` and `determinism` properties.
+
+(2026-09-27, later) The `index-tuning` context is removed from `specs/`:
+index tuning is technical, so it has no specs (A0 in
+[`SPEC_STANDARDS.md`](SPEC_STANDARDS.md)). Every guard moved first (P4) to
+`pkgs/db-indexes/tests/index-tuning.property.test.ts`, a model-based property
+over the same tuning harness: a reference model of the feature's rules and
+the Quint model's invariants must agree with the harness after every step,
+and the same sequence replays to the same end state (the Quint runner's
+`fingerprint` replay). The package's `tests/steps/`, `tests/quint/`,
+`specDomains` and `test:e2e` are gone.
+
 Still open:
 
-- **Framework-level sims** (`pkgs/auth-sim`, `pkgs/db-indexes`,
-  `pkgs/matchmaking-sim`, `pkgs/room-sim`): deferred to a later wave, as
-  marked below.
-- **`pkgs/sync-engine`**: ported except four files (see its section).
+- **Framework-level harnesses**: all ported (`pkgs/room-harness`, `pkgs/matchmaking-harness`,
+  `pkgs/auth-harness`, `pkgs/db-indexes`; 2026-09-27). Final sweep (2026-09-27):
+  the same-seed determinism tests (`room-harness/determinism`,
+  `matchmaking-harness/seeded-workload`) are the Quint runner's replay check (a
+  binding's `fingerprint`, longest trace replayed twice); the `db-indexes`
+  tuning replay is part of `index-tuning.property.test.ts`; `room-harness/malformed-messages` is the room-server wire contract. The
+  one harness-scripted test left outside `specs/` is
+  `pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts`
+  (a timing-exact regression of the harness's own checker).
+- **`pkgs/sync-engine`**: ported (see its section); what stays in code is a
+  contract, determinism, a budget or a framework regression, each with its
+  reason.
 - **Section B:** candidates only; none ported.
 - **Open spec questions:**
   - `puzzle-limit-upgrade`'s old title promised "open billing plans", but only
@@ -74,7 +182,7 @@ Source: `inventory.jsonl` (581 test files). Repo root: `corner-prose`.
 |---|---|
 | unit | 416 |
 | e2e | 64 |
-| sim | 53 |
+| harness | 53 |
 | property | 32 |
 | contract | 16 |
 
@@ -89,21 +197,21 @@ Source: `inventory.jsonl` (581 test files). Repo root: `corner-prose`.
 | libs/billing | 15 | pkgs/async-local | 1 | pkgs/permissions | 7 |
 | libs/chess | 49 | pkgs/attribute | 1 | pkgs/property | 1 |
 | libs/client-app | 5 | pkgs/auth-inhouse | 9 | pkgs/pubsub | 2 |
-| libs/client-config | 2 | pkgs/auth-sim | 5 | pkgs/pubsub-emqx | 3 |
+| libs/client-config | 2 | pkgs/auth-harness | 5 | pkgs/pubsub-emqx | 3 |
 | libs/feature | 1 | pkgs/billing | 3 | pkgs/pubsub-mqtt | 1 |
 | libs/friends | 19 | pkgs/billing-mock | 2 | pkgs/room | 2 |
 | libs/games | 1 | pkgs/billing-mock-provider | 5 | pkgs/room-adapter-durable-object | 1 |
 | libs/observability | 1 | pkgs/billing-paddle | 3 | pkgs/room-adapter-memory | 3 |
-| libs/permissions | 7 | pkgs/billing-providers | 1 | pkgs/room-sim | 15 |
+| libs/permissions | 7 | pkgs/billing-providers | 1 | pkgs/room-harness | 15 |
 | libs/profile | 18 | pkgs/billing-stripe | 5 | pkgs/secret-provider | 2 |
 | libs/pubsub | 2 | pkgs/chess-board | 12 | pkgs/secret-store | 3 |
 | libs/runtime | 10 | pkgs/chess-board-core | 13 | pkgs/secret-string | 1 |
 | libs/server-app | 4 | pkgs/chess-rules | 5 | pkgs/secrets-config | 1 |
-| libs/sim-harness | 5 | pkgs/clock | 3 | pkgs/secure-storage | 2 |
+| libs/harness | 5 | pkgs/clock | 3 | pkgs/secure-storage | 2 |
 | libs/spaces | 11 | pkgs/collab | 1 | pkgs/secure-storage-web | 2 |
-| libs/tools | 21 | pkgs/colors | 1 | pkgs/sim | 7 |
-| | | pkgs/database-url-policy | 1 | pkgs/sim-console | 8 |
-| | | pkgs/db-indexes | 9 | pkgs/sim-report | 3 |
+| libs/tools | 21 | pkgs/colors | 1 | pkgs/harness | 7 |
+| | | pkgs/database-url-policy | 1 | pkgs/harness-console | 8 |
+| | | pkgs/db-indexes | 9 | pkgs/harness-report | 3 |
 | | | pkgs/db-indexes-postgres | 3 | pkgs/solid-context | 1 |
 | | | pkgs/db-indexes-sqlite | 1 | pkgs/sounds | 2 |
 | | | pkgs/db-migrate | 2 | pkgs/sql | 3 |
@@ -111,12 +219,12 @@ Source: `inventory.jsonl` (581 test files). Repo root: `corner-prose`.
 | | | pkgs/db-schema-postgres | 8 | pkgs/sql-client | 1 |
 | | | pkgs/db-schema-sqlite | 6 | pkgs/sql-client-contract | 10 |
 | | | pkgs/device | 3 | pkgs/sql-client-postgres | 6 |
-| | | pkgs/distributed-lock | 1 | pkgs/sql-client-sim | 1 |
+| | | pkgs/distributed-lock | 1 | pkgs/sql-client-harness | 1 |
 | | | pkgs/entity-store | 1 | pkgs/sql-client-sqlite | 1 |
 | | | pkgs/equal | 2 | pkgs/sql-client-sqlite-web | 5 |
 | | | pkgs/glicko2 | 1 | pkgs/sql-map | 1 |
 | | | pkgs/http-client | 3 | pkgs/static-file-server | 1 |
-| | | pkgs/idp-sim | 11 | pkgs/sync-engine | 33 |
+| | | pkgs/idp-mock | 11 | pkgs/sync-engine | 33 |
 | | | pkgs/invariants | 1 | pkgs/tailwind | 1 |
 | | | pkgs/keyword | 2 | pkgs/task-dag | 1 |
 | | | pkgs/kv | 3 | pkgs/tts | 7 |
@@ -133,11 +241,11 @@ Source: `inventory.jsonl` (581 test files). Repo root: `corner-prose`.
 
 **Headline for this report:** 109 files to port (Section A) · 22 candidate files (Section B) · 450 files stay in code (Section C).
 
-Note: 4 files carry kind `sim` but are framework/mechanics tests, not product scenarios, and are treated as Section C despite the kind tag: `pkgs/sim/src/run/restart-monitor.test.ts`, `pkgs/sim/tests/explore.test.ts`, `pkgs/sim/tests/report.test.ts`, `pkgs/sim-report/tests/html-report.test.ts` (the sim/report framework's own tests), plus `pkgs/chess-board-core/{destinations,game-status,move-sound}.test.ts` (chess engine mechanics/scheduling, not user scenarios) and `pkgs/sql-client-sim/src/sql-client-web.test.ts` (a port property/fault-injection suite). These are listed and reasoned in Section C.
+Note: 4 files carry kind `harness` but are framework/mechanics tests, not product scenarios, and are treated as Section C despite the kind tag: `pkgs/harness/tests/property-lifecycle.test.ts`, `pkgs/harness/tests/explore.test.ts`, `pkgs/harness/tests/report.test.ts`, `pkgs/harness-report/tests/html-report.test.ts` (the harness/report framework's own tests), plus `pkgs/chess-board-core/{destinations,game-status,move-sound}.test.ts` (chess engine mechanics/scheduling, not user scenarios) and `pkgs/sql-client-harness/src/sql-client-web.test.ts` (a port property/fault-injection suite). These are listed and reasoned in Section C.
 
 ---
 
-## 2. Section A — Acceptance / e2e / sim tests (must port to Gherkin)
+## 2. Section A — Acceptance / e2e / harness tests (must port to Gherkin)
 
 109 files total.
 
@@ -156,7 +264,7 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `libs/chess/src/sim/puzzle-spectator.sim.test.ts` | — | describe: chess room sim: host drives, guest spectates<br>a guest cannot drive and both clients converge on host truth | |
+| `libs/chess/src/harness/puzzle-spectator.harness.test.ts` | — | describe: chess room harness: host drives, guest spectates<br>a guest cannot drive and both clients converge on host truth | |
 | `libs/chess/tests/e2e/monkey.test.tsx` | — | a random walk through puzzles holds every standing property | monkey/explore walk (keep in code) |
 | `libs/chess/tests/e2e/puzzle-controls.test.tsx` | chess-puzzles:9 | wrong move → Retry reverts the ply → solve<br>hint highlights, second hint reveals the solution, board stays solvable<br>Solution is offered after a wrong move<br>a wrong move then Retry then solve still logs as Failed | |
 | `libs/chess/tests/e2e/puzzle-exhaust.test.tsx` | chess-puzzles:5 | after every unseen puzzle is solved, the oldest attempt comes round again, unrated<br>a theme filter that matches nothing shows the empty state; widening recovers | |
@@ -230,75 +338,114 @@ Note: 4 files carry kind `sim` but are framework/mechanics tests, not product sc
 | `libs/runtime/tests/e2e/shell-boot.test.tsx` | — | two actors boot into the tab shell, open Settings, switch focus | multi-behavior test — split (boot / open Settings / switch focus) |
 | `libs/runtime/tests/e2e/topology-partition.test.tsx` | — | partition alice–server then restoreNetwork still allows sign-up | |
 
-### pkgs/auth-sim (4) — framework-level sim (no product UI); port in a later wave
+### pkgs/auth-harness (4) — ported 2026-09-27 to `specs/auth/` (see Status)
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `pkgs/auth-sim/tests/linking.test.ts` | — | a verified address shared by Google and Apple is one account<br>Apple first, Google second: still one account<br>Hide My Email never links by address<br>an unverified match must be proven: confirm links it<br>an unverified match can be declined: a separate account<br>proving with the wrong account discards the pending link<br>a pending link expires<br>link Apple to a Google account, then sign in with either<br>an identity that belongs to someone else cannot be linked<br>a link ticket minted for one session never serves another<br>one identity per provider<br>unlink: never the last method; the unlinked one starts fresh | framework-level sim (no product UI); port in a later wave |
-| `pkgs/auth-sim/tests/network-and-sessions.test.ts` | — | signing in offline fails cleanly; back online it works<br>signing out offline forgets the device; the server session survives<br>linking or unlinking offline changes nothing<br>sessions expire after their TTL<br>sign out everywhere ends every device of the account<br>a stolen bearer works until its session is revoked<br>linking retires the old session and keeps the account | framework-level sim; port in a later wave |
-| `pkgs/auth-sim/tests/provider-behaviour.test.ts` | — | revoking the app at Apple signs the account out everywhere<br>deleting the Apple Account: the only way in is gone, so is the session<br>deleting the Apple Account keeps a session that has Google too<br>relay forwarding switched off at Apple is recorded<br>a changed Google address keeps the account and updates the identity<br>${fault}: sign-in fails, nothing changes, and recovers<br>${fault}: tolerated<br>a denied consent is a cancellation<br>key rotation: the relying party refetches the JWKS | framework-level sim; port in a later wave |
-| `pkgs/auth-sim/tests/sign-in.test.ts` | — | google: launch → provider screens → callback → session<br>apple: form_post callback, hidden email, session | framework-level sim; port in a later wave |
+| `pkgs/auth-harness/tests/linking.test.ts` | — | a verified address shared by Google and Apple is one account<br>Apple first, Google second: still one account<br>Hide My Email never links by address<br>an unverified match must be proven: confirm links it<br>an unverified match can be declined: a separate account<br>proving with the wrong account discards the pending link<br>a pending link expires<br>link Apple to a Google account, then sign in with either<br>an identity that belongs to someone else cannot be linked<br>a link ticket minted for one session never serves another<br>one identity per provider<br>unlink: never the last method; the unlinked one starts fresh | framework-level harness (no product UI); port in a later wave |
+| `pkgs/auth-harness/tests/network-and-sessions.test.ts` | — | signing in offline fails cleanly; back online it works<br>signing out offline forgets the device; the server session survives<br>linking or unlinking offline changes nothing<br>sessions expire after their TTL<br>sign out everywhere ends every device of the account<br>a stolen bearer works until its session is revoked<br>linking retires the old session and keeps the account | framework-level harness; port in a later wave |
+| `pkgs/auth-harness/tests/provider-behaviour.test.ts` | — | revoking the app at Apple signs the account out everywhere<br>deleting the Apple Account: the only way in is gone, so is the session<br>deleting the Apple Account keeps a session that has Google too<br>relay forwarding switched off at Apple is recorded<br>a changed Google address keeps the account and updates the identity<br>${fault}: sign-in fails, nothing changes, and recovers<br>${fault}: tolerated<br>a denied consent is a cancellation<br>key rotation: the relying party refetches the JWKS | framework-level harness; port in a later wave |
+| `pkgs/auth-harness/tests/sign-in.test.ts` | — | google: launch → provider screens → callback → session<br>apple: form_post callback, hidden email, session | framework-level harness; port in a later wave |
 
-### pkgs/db-indexes (1) — framework-level sim; port in a later wave
-
-| File | Goal tags | Scenarios | Notes |
-|---|---|---|---|
-| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | framework-level sim (no product UI); port in a later wave |
-
-### pkgs/matchmaking-sim (3) — framework-level sim; port in a later wave
+### pkgs/db-indexes (1) — framework-level harness; ported 2026-09-27
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `pkgs/matchmaking-sim/tests/join-status-leave.test.ts` | — | round-trips participant data through status while waiting<br>status returns null for unknown id<br>leave removes the row<br>ready() is idempotent<br>leave on unknown id returns removed:false<br>leave on matched participant returns removed:false | framework-level sim; port in a later wave |
-| `pkgs/matchmaking-sim/tests/replicas-shared-db.test.ts` | — | join r0 / status r1 / leave r2 see the same store<br>updateFormulas on a different replica than join<br>ready() is idempotent on every replica | framework-level sim; port in a later wave |
-| `pkgs/matchmaking-sim/tests/seeded-workload.test.ts` | — | same seed yields identical match fingerprint twice | seeded-workload determinism (keep in code); framework-level sim |
+| `pkgs/db-indexes/tests/scenario/regressions.test.ts` | — | seed replay is byte-identical on owned count<br>fixpoint after enough fault-free runs<br>usage since deprecation never drops | ported 2026-09-27 to `specs/index-tuning/`, then demoted to `tests/index-tuning.property.test.ts` (index tuning is technical: no specs) |
 
-### pkgs/room-sim (12) — framework-level sim; port in a later wave
+### pkgs/matchmaking-harness — ported (2026-09-27)
+
+Behavior moved to the new Matchmaking context, `specs/matchmaking/`
+(`ubiquitous-language.yml`, a context-map row): `waiting-for-a-match.feature`,
+`being-matched.feature`, and the model `matching.qnt` (waiting, stopping,
+changing one's range and matchmaking pairing people up). Run by
+`@pkgs/matchmaking-harness` `test:e2e` (`specDomains: ["matchmaking"]`; steps in
+`tests/steps/`, binding in `tests/quint/matching.binding.ts`, which spreads
+the trace's requests over three replicas and requires every replica to agree
+on everyone's standing after every step).
+
+On 2026-09-27 the context was held to A0 (a business reader understands
+every line): "entrances" (replicas), "an entrance opening again" (a replica
+restart), "reach" and "matching rounds" left the language. Which replica
+serves a request, a replica booting again, and asking after or stopping a
+wait by an id nobody joined with are contract tests in
+`@pkgs/matchmaking-harness` (`tests/replicas.test.ts`,
+`tests/unknown-wait.test.ts`).
+
+| File | Destination |
+|---|---|
+| `join-status-leave.test.ts` (deleted) | `waiting-for-a-match.feature`; `ready()` idempotence and unknown ids → `tests/replicas.test.ts`, `tests/unknown-wait.test.ts` |
+| `replicas-shared-db.test.ts` (deleted) | `tests/replicas.test.ts` (same waits at every replica, a change counts wherever it lands, booting again); `being-matched.feature` (one wide range alone does not make a match) |
+| `schema-drift.test.ts` (kept) | error-code contract (`MatchmakingSchemaDriftError`); no person observes it |
+
+### pkgs/room-harness (12) — framework-level harness; port in a later wave
 
 | File | Goal tags | Scenarios | Notes |
 |---|---|---|---|
-| `pkgs/room-sim/tests/authorize-reject.test.ts` | — | authorize hook denies without mutating | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/command-id-replay-dedup.test.ts` | — | same commandId applies once across reconnect storm | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/crash-restart.test.ts` | — | client crash keeps local queue; restart + settle staysInSync<br>server crash + restart hydrates log and staysInSync<br>boundary afterNextCommitted crashes client; settle restores<br>checkInvariants passes on healthy run | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/malformed-frame-reject.test.ts` | — | non-Message command payload rejects without mutate<br>unknown wire kind is ignored without mutate | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/match-clock-schedule.test.ts` | — | MC-01: runFor past flag → server FlagFall terminal; clients converge<br>MC-02: move before flag cancels; opponent clock active<br>MC-03: lagging held client cannot move after server flag<br>MC-04: early client FlagFall rejected; server still flags at at<br>MC-05: soft disconnect during tick; reconnect after flag<br>MC-06: seeded clock workload ×2 identical serverHash | framework-level sim; MC-06 is a seeded-workload determinism case (keep in code) |
-| `pkgs/room-sim/tests/offline-dispatch-then-sync.test.ts` | — | optimistic increment flushes after reconnect | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/partition-then-heal.test.ts` | — | held peer never sees write until restoreNetwork + converge | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/seeded-workload-determinism.test.ts` | — | same seed yields identical multi-client hash twice | monkey/explore walk (keep in code); framework-level sim |
-| `pkgs/room-sim/tests/session-takeover-sim.test.ts` | — | take-over mid-command does not double-apply | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/single-client-increment.test.ts` | — | increment staysInSync to server hash | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/two-client-converge.test.ts` | — | mutual increments yield equal hashes and roster | framework-level sim; port in a later wave |
-| `pkgs/room-sim/tests/unknown-command-reject.test.ts` | — | unknown message type rejects without mutate | framework-level sim; port in a later wave |
+| `pkgs/room-harness/tests/authorize-reject.test.ts` | — | authorize hook denies without mutating | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/command-id-replay-dedup.test.ts` | — | same commandId applies once across reconnect storm | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/crash-restart.test.ts` | — | client crash keeps local queue; restart + settle staysInSync<br>server crash + restart hydrates log and staysInSync<br>boundary afterNextCommitted crashes client; settle restores<br>checkInvariants passes on healthy run | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/malformed-frame-reject.test.ts` | — | non-Message command payload rejects without mutate<br>unknown wire kind is ignored without mutate | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/match-clock-schedule.test.ts` | — | MC-01: runFor past flag → server FlagFall terminal; clients converge<br>MC-02: move before flag cancels; opponent clock active<br>MC-03: lagging held client cannot move after server flag<br>MC-04: early client FlagFall rejected; server still flags at at<br>MC-05: soft disconnect during tick; reconnect after flag<br>MC-06: seeded clock workload ×2 identical serverHash | framework-level harness; MC-06 is a seeded-workload determinism case (keep in code) |
+| `pkgs/room-harness/tests/offline-dispatch-then-sync.test.ts` | — | optimistic increment flushes after reconnect | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/partition-then-heal.test.ts` | — | held peer never sees write until restoreNetwork + converge | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/seeded-workload-determinism.test.ts` | — | same seed yields identical multi-client hash twice | monkey/explore walk (keep in code); framework-level harness |
+| `pkgs/room-harness/tests/session-takeover-harness.test.ts` | — | take-over mid-command does not double-apply | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/single-client-increment.test.ts` | — | increment staysInSync to server hash | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/two-client-converge.test.ts` | — | mutual increments yield equal hashes and roster | framework-level harness; port in a later wave |
+| `pkgs/room-harness/tests/unknown-command-reject.test.ts` | — | unknown message type rejects without mutate | framework-level harness; port in a later wave |
 
 ### pkgs/sync-engine — ported (2026-09-27)
 
-The 20 scripted sim tests are gone. Person-observable claims are
-`specs/sync/*.feature` (run by `@pkgs/sync-engine` `test:e2e`, `specDomains:
-["sync"]`, goal tags carried over); stateful internals and every seed sweep are
-the package-local model `pkgs/sync-engine/tests/quint/note-replication.qnt`
-(run from the package `test` by `note-replication.quint.test.ts`); wire and
-storage claims stay contract tests. Parity:
+Every scripted harness test is gone. Person-observable claims are
+`specs/sync-engine/*.feature`; stateful internals, every seed sweep and the explore
+walks over faults with a product rule are the model
+`specs/sync-engine/note-replication.qnt` (binding `tests/quint/`). Both run from the
+package `test:e2e` (`specDomains: ["sync-engine"]`), like `specs/room/*.qnt` in
+`@pkgs/room-harness`. Goal proofs moved with them (`goal-checks.json` lists the
+model as a `test` proof, marked `goal:<id>` in its header).
 
 | Former file | Now |
 |---|---|
-| `single-client-mutate-uploads-and-persists`, `two-client-mutual-writes-converge` | `specs/sync/note-writing.feature`; seed sweep → `note-replication.qnt` |
-| `same-actor-two-devices-converge` (works-offline:5, always-true:2) | `specs/sync/notes-across-devices.feature` |
-| `soft-delete-tombstone-propagates-and-revives` | `specs/sync/note-deleting.feature` |
-| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen` |
-| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `setNoteReplyLost` / `retryUpload`, `invNoDoubleApply` |
-| `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync/online-only-actions.feature` |
-| `permanent-reject-stored-peer-never-applies` | `specs/sync/note-refused-edits.feature`; model `rejections` |
-| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature`; topic drop without remake → `tests/space-topic-scope.test.ts` |
-| `denied-query-detaches-scope-keeps-rows` | `tests/space-topic-scope.test.ts` |
-| `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `degradeLive`, `operatorEdit`) |
-| `merge-via-sim` | local-only columns → `tests/merge-local-columns.test.ts`; pending over tombstone → model + `pending-rebase.property.test.ts` |
-| `deep-pending-chain-rebases-in-seq-order` | `tests/deep-offline-queue.test.ts` |
-| `epoch-bump-wipes-cache-preserves-pending-uploads` | `tests/schema-epoch-bump.test.ts` (one seed) |
-| `fanout-row-cap-boundary-64-vs-65` | `tests/fanout-row-cap.test.ts` |
-| `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` |
-| `seeded-workload-fuzz-determinism` | `tests/exploration.test.ts` (determinism + pool faults the model does not draw) |
+| `single-client-mutate-uploads-and-persists`, `two-client-mutual-writes-converge` | `specs/sync-engine/note-writing.feature`; seed sweep → `note-replication.qnt` |
+| `same-actor-two-devices-converge` (works-offline:5, always-true:2) | `specs/sync-engine/notes-across-devices.feature` |
+| `soft-delete-tombstone-propagates-and-revives` | `specs/sync-engine/note-deleting.feature` |
+| `crash-restart-rehydrates-and-drains-queue` (always-true:1) | `specs/sync-engine/notes-offline.feature`, `notes-after-a-crash.feature`; model `crashAndReopen`, `crashWhileSaving` |
+| `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync-engine/notes-saved-once.feature`; model `writeUnheard` / `hearBack`, `invNoDoubleApply` |
+| `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync-engine/online-only-actions.feature` |
+| `permanent-reject-stored-peer-never-applies` | `specs/sync-engine/note-refused-edits.feature`; model `rejections` |
+| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync-engine/shared-space-membership.feature` (leaving or a space ending without the app reconnecting, also once the app cannot send) |
+| `denied-query-detaches-scope-keeps-rows` | `specs/sync-engine/shared-space-membership.feature` › opening / closing a shared space someone is not in |
+| `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `networkStalls` / `networkRecovers`, `liveUpdatesDegrade`, `teamEdit`) |
+| `merge-via-harness` | local-only columns → `specs/sync-engine/notes-across-app-updates.feature` › colours and tags; pending over tombstone → model |
+| `deep-pending-chain-rebases-in-seq-order` → `deep-offline-queue` | `specs/sync-engine/a-long-time-offline.feature` |
+| `epoch-bump-wipes-cache-preserves-pending-uploads` → `schema-epoch-bump` | `specs/sync-engine/notes-across-app-updates.feature`; model `appUpdates` (`fresh`) |
+| `fanout-row-cap-boundary-64-vs-65` | `specs/sync-engine/note-writing.feature` › 64 notes reach someone who cannot send, 65 reach everyone once |
+| `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` (contract: the `NO_HARD_DELETE` code; no person can hard-delete) |
+| `seeded-workload-fuzz-determinism` → `exploration` | every walk → model actions: a third person, `clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled` / `Lost`, `liveCutOff` / `liveRestored`, `networkStalls`, `writeWhileSavesCut`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appFailsToOpen`, `appUpdates`, `appMustUpdate`, `appDataDamaged` / `Cleared`, `unsentEditDamaged`, `writeWhileFull`, `signedOutElsewhere`, `signInExpires`, `appBackgrounded`, `secondWindow`, `connectionFlaky`, `teamTidiesUp`, `teamAddsNote`, folders (`writeFolder` / `deleteFolder`) and shared spaces (`createSpace` / `joinSpace` / `leaveSpace`); same seed, same walk → `pkgs/harness/tests/explore.test.ts`; the lossy host → `note-writing.feature` › live updates lost, repeated and delayed |
+| `pending-rebase.property` | model: offline view = merged notes + unsent edits in order (`notes`, `owners`, `unsent`), a delete the device knows is forbidden does nothing, reconnect replays against the shared notes |
+| `merge-local-columns` | duplicate of `schema-drift` › client-only column survives a full merge; deleted |
+| `note-replication.quint.test.ts` | the model runs from `test:e2e`; the runner file is gone |
+| `pending-ux-answers-with-server-verdict` | `specs/sync-engine/checked-notes.feature` (`@regression:pending-reject-verdict-before-rollback`, `@regression:checked-note-answer-lost-to-push-race`) |
+| `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | `specs/sync-engine/notes-arrive-quickly.feature` › at least 19 of 20 notes within a fifth of a second (`@goal:the-bar:3 @goal:works-offline:7`) |
+| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | stays: a timing-exact regression of the harness's own standing-property check (framework self-test). `specs/sync-engine/notes-offline.feature` states the crossing offline edits, but no scenario world reproduces the dirty read, so the guard stays in code |
+| `schema-drift` | `specs/sync-engine/notes-across-app-updates.feature` › colours and tags across versions |
+| `space-topic-scope` | `shared-space-membership.feature` (leave, end, a space someone is not in); deleted |
 
-Still open in `pkgs/sync-engine/tests/`: `invariant-check-waits-for-in-flight-verdict` (regression `invariant-dirty-read`), `peer-visibility-latency-budget` (perf budget; the-bar:3, works-offline:7), `pending-ux-answers-with-server-verdict`, `schema-drift`.
+Found while porting, and fixed (each pinned by a `@regression` scenario and
+modeled):
+
+- A refusal notice was dropped by an app update that fetches every note
+  again, and by clearing the app's data (`notice-lost-when-app-data-wiped`):
+  notices are now kept like unsent edits.
+- Clearing the app's data offline hid the notes not yet sent until the device
+  was back online (`cleared-data-hides-unsent-notes`).
+- A garbled live update briefly showed a note with no text
+  (`garbled-live-update-blank-note`): a pushed image that would create a row
+  with fields missing is refused and the row is refetched whole.
+Decided with the model, for review: a person signed out elsewhere loses what
+the device kept for them, unsent edits and notices included (glossary
+"signed out elsewhere"; the notice definition says so).
 
 ---
 
@@ -340,7 +487,7 @@ Still open in `pkgs/sync-engine/tests/`: `invariant-check-waits-for-in-flight-ve
 | Package | Count | Reason |
 |---|---|---|
 | apps/client | 3 | Build/bundle-budget tooling checks (critical-path imports, perf gates) — CI tooling, not product behavior. |
-| apps/product | 5 | Product-composition/scenario harness scaffolding (sim host wiring), not user-facing scenarios themselves. |
+| apps/product | 5 | Product-composition/scenario harness scaffolding (harness host wiring), not user-facing scenarios themselves. |
 | apps/server | 3 | Server wiring/implementation unit tests. |
 | libs/auth | 11 | Client/server plumbing units (token refresh, bearer resolution, session capability) — mechanism, not user story; not selected for B. |
 | libs/billing | 5 | View-model/screen-view rendering units and deployment reconciliation (sync-billing-offer) — implementation detail, not selected for B. |
@@ -355,7 +502,7 @@ Still open in `pkgs/sync-engine/tests/`: `invariant-check-waits-for-in-flight-ve
 | libs/pubsub | 2 | Token-minting/credential-rotation mechanism, not user-facing. |
 | libs/runtime | 4 | App-schema/query wiring and feature-boundary composition checks (migrate-legacy-integer-width moved to B). |
 | libs/server-app | 4 | Server framework plumbing (CORS, fetch serving, provider resolution). |
-| libs/sim-harness | 5 | Harness-only test-infra units (host compile, observability artifact, transport plumbing). |
+| libs/harness | 5 | Harness-only test-infra units (host compile, observability artifact, transport plumbing). |
 | libs/spaces | 8 | Layout/format/session-store pure-function units (behavior-facing ones moved to B). |
 | libs/tools | 21 | Repo CI/tooling scripts (goal-tag lint, naming, budgets, turbo graph, secrets scan, i18n) — meta-tooling, not product behavior. |
 | pkgs/aedes-server | 1 | MQTT broker adapter unit. |
@@ -363,29 +510,29 @@ Still open in `pkgs/sync-engine/tests/`: `invariant-check-waits-for-in-flight-ve
 | pkgs/assistant | 2 | Agnostic utility units. |
 | pkgs/async / async-local / ndjson | 9 | Async/stream primitive unit tests. |
 | pkgs/auth-inhouse | 9 | In-house OAuth/OIDC mechanism units (token/JWKS handling), a port implementation, not product scenarios. |
-| pkgs/auth-sim | 1 | `random-walk.test.ts` — monkey/explore walk (keep in code). |
+| pkgs/auth-harness | 1 | `random-walk.test.ts` — monkey/explore walk (keep in code). |
 | pkgs/billing, billing-mock, billing-mock-provider, billing-paddle, billing-providers, billing-stripe | 19 | Billing provider port/adapter/contract tests against vendor APIs — port-level, not product scenarios. |
 | pkgs/chess-board, chess-board-core, chess-rules | 30 | Chess engine/board mechanics (move destinations, game-status agreement with chess.js, move-sound scheduling, board rendering) — implementation detail exercised via the libs/chess e2e specs in Section A. |
 | pkgs/clock / device / secure-storage / secure-storage-web / secret-provider / secret-store / secret-string / secrets-config / database-url-policy | 19 | Injected-port unit tests for wall adapters and secret handling. |
 | pkgs/collab | 1 | Utility unit test. |
-| pkgs/db-indexes | 8 | Index-declaration invariant checks (naming, ownership, idempotence, determinism) — DB-index framework's own correctness tests (scenario/regressions.test.ts is the one sim scenario, in Section A). |
+| pkgs/db-indexes | 8 | Index-declaration invariant checks (naming, ownership, idempotence, determinism) — DB-index framework's own correctness tests (scenario/regressions.test.ts is the one harness scenario, in Section A; its successor is the model-based `index-tuning.property.test.ts`). |
 | pkgs/db-indexes-postgres / db-indexes-sqlite | 4 | Port-level index-engine adapters. |
 | pkgs/db-migrate / db-schema / db-schema-postgres / db-schema-sqlite | 19 | Schema/migration engine's own DDL-emission unit tests — framework mechanics, not product scenarios. |
 | pkgs/distributed-lock / entity-store / glicko2 / outbox / property / solid-context / sounds / sql-map / static-file-server / word-filter | 11 | Agnostic utility unit tests. |
 | pkgs/http-client / kv / kv-postgres / kv-web | 8 | Injected-port unit tests. |
-| pkgs/idp-sim | 11 | IdP test-double mechanics (Apple/Google flow simulation, page rendering) — sim-fixture framework, not product scenarios. |
+| pkgs/idp-mock | 11 | IdP test-double mechanics (Apple/Google flow simulation, page rendering) — harness-fixture framework, not product scenarios. |
 | pkgs/llm | 2 | LLM port unit tests. |
 | pkgs/object-store, object-store-node-fs, object-store-opfs, object-store-s3 | 8 | Object-store port/adapter unit + contract tests. |
 | pkgs/observability, observability-cli, observability-mcp | 11 | Observability tooling unit tests. |
 | pkgs/permissions | 7 | Policy-engine's own unit/property tests (parse, decision, evaluate, quota-window) — the product-facing rules built on top are in libs/permissions (Section B); `evaluate-cost.property.test.ts` is a property test (excluded per instructions). |
 | pkgs/pubsub, pubsub-emqx, pubsub-mqtt | 6 | Pub/sub port/adapter + contract tests against the broker. |
 | pkgs/room, room-adapter-durable-object, room-adapter-memory | 6 | Room-port adapter unit tests. |
-| pkgs/room-sim | 3 | `hash-canonicality.test.ts`, `purity-and-seed.test.ts`, `room.test.ts` — room-sim framework's own determinism/purity unit tests (the sim scenarios are in Section A, framework-level). |
+| pkgs/room-harness | 3 | `hash-canonicality.test.ts`, `purity-and-seed.test.ts`, `room.test.ts` — room-harness framework's own determinism/purity unit tests (the harness scenarios are in Section A, framework-level). |
 | pkgs/secret-* (see above) | — | (counted above) |
-| pkgs/sim | 7 | The sim framework's own tests (explore/randomActions engine, report/recording engine, restart-monitor) — explicitly framework-internal, not a product scenario. |
-| pkgs/sim-console | 8 | Dev console UI units (SQL notebook, node selection) — dev tooling, not product behavior. |
-| pkgs/sim-report | 3 | The HTML report writer's own tests — framework-internal. |
-| pkgs/sql, sql-cli, sql-client, sql-client-contract, sql-client-postgres, sql-client-sim, sql-client-sqlite, sql-client-sqlite-web | 27 | SQL-client port/contract/property tests against engines, plus a multi-tab fault-injection property suite (`sql-client-sim`) — port-level, not product scenarios. |
+| pkgs/harness | 7 | The harness framework's own tests (explore/randomActions engine, report/recording engine, property lifecycle) — explicitly framework-internal, not a product scenario. |
+| pkgs/harness-console | 8 | Dev console UI units (SQL notebook, node selection) — dev tooling, not product behavior. |
+| pkgs/harness-report | 3 | The HTML report writer's own tests — framework-internal. |
+| pkgs/sql, sql-cli, sql-client, sql-client-contract, sql-client-postgres, sql-client-harness, sql-client-sqlite, sql-client-sqlite-web | 27 | SQL-client port/contract/property tests against engines, plus a multi-tab fault-injection property suite (`sql-client-harness`) — port-level, not product scenarios. |
 | pkgs/sync-engine | 9 | Sync-engine's own unit/property tests (`define-wrap-mutate`, `engine-watch`, `no-product-vocabulary`, `query-not-modified`, `server-authorize-mutation`, `solid-bindings`, plus 3 `.property.test.ts` files) — framework mechanics/properties, excluded per instructions (product-facing scenarios are in Section A). |
 | pkgs/task-dag | — | (counted above) |
 | pkgs/tts | 7 | TTS provider port unit tests. |
@@ -440,7 +587,7 @@ Every distinct `goal:<section>:<n>` tag found, with carrying files. Known statem
 | room-to-grow:2 | libs/games/tests/game-plugin-contract.test.ts |
 | room-to-grow:3 | pkgs/permissions/tests/evaluate.test.ts |
 | room-to-grow:4 | pkgs/billing/src/membership.contract.test.ts |
-| room-to-grow:5 | libs/sim-harness/tests/hosts-compile.test.ts |
+| room-to-grow:5 | libs/harness/tests/hosts-compile.test.ts |
 | social:1 | libs/chess/tests/e2e/puzzle-guest-play.test.tsx; libs/friends/tests/e2e/gates.test.tsx; libs/friends/tests/e2e/space-guest-link-join.test.tsx; libs/profile/tests/e2e/auth-login-logout.test.tsx |
 | social:2 | libs/auth/src/root/server/anon-user-service.test.ts; libs/chess/tests/e2e/puzzle-guest-carryover.test.tsx; libs/profile/tests/e2e/account.test.tsx; libs/profile/tests/e2e/auth-guest-progress-carryover.test.tsx |
 | social:3 | libs/friends/tests/e2e/profile-changes.test.tsx; libs/profile/tests/e2e/account.test.tsx; libs/profile/tests/e2e/defaults.test.tsx; libs/profile/tests/e2e/username-rules.test.tsx; libs/profile/tests/username-integrity.test.ts |

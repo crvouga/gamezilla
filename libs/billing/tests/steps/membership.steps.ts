@@ -15,21 +15,21 @@ import {
   providerEvent,
   resumePlus,
   switchPlusInterval,
-} from '@libs/billing/sim/billing-actions';
-import type { BillingObserveKind } from '@libs/billing/sim/billing-provider-driver';
+} from '@libs/billing/harness/billing-actions';
+import type { BillingObserveKind } from '@libs/billing/harness/billing-provider-driver';
 import {
   currentPlan,
   type MembershipShown,
   membershipShown,
-} from '@libs/billing/sim/billing-reads';
+} from '@libs/billing/harness/billing-reads';
 import {
   type Actor,
   Given,
-  type SimWorld,
+  type HarnessWorld,
   Then,
   When,
-} from '@libs/sim-harness/spec/define';
-import { recall, remember } from '@libs/sim-harness/spec/world';
+} from '@libs/harness/spec/define';
+import { recall, remember } from '@libs/harness/spec/world';
 
 const MONTHLY = 'subscription_monthly';
 const YEARLY = 'subscription_yearly';
@@ -41,7 +41,7 @@ const SHOWN_WAIT = { maxMs: 60_000, stepMs: 1_000 } as const;
 const renewalKey = (actor: Actor) => `billing-renewal-before:${actor}`;
 
 /** Bring the billing screen into view if it is not already showing. */
-async function onBilling(w: SimWorld, actor: Actor): Promise<void> {
+async function onBilling(w: HarnessWorld, actor: Actor): Promise<void> {
   if ((await w.s.read(membershipShown, actor)) === null) {
     await w.s.apply(openBilling, actor);
   }
@@ -49,12 +49,12 @@ async function onBilling(w: SimWorld, actor: Actor): Promise<void> {
 
 /** Wait until the actor's billing screen shows a membership matching `match`. */
 async function shownWhere(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   match: (shown: MembershipShown) => boolean
 ): Promise<MembershipShown> {
   await onBilling(w, actor);
-  const shown = await w.s.until((sim) => membershipShown(sim, actor), {
+  const shown = await w.s.until((harness) => membershipShown(harness, actor), {
     ...SHOWN_WAIT,
     pred: (candidate) => candidate !== null && match(candidate),
   });
@@ -63,25 +63,25 @@ async function shownWhere(
 }
 
 async function expectPlan(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   plan: (typeof PLANS)[number]
 ): Promise<void> {
   await onBilling(w, actor);
-  await w.s.until((sim) => currentPlan(sim, actor, PLANS), {
+  await w.s.until((harness) => currentPlan(harness, actor, PLANS), {
     ...SHOWN_WAIT,
     pred: (shown) => shown === plan,
   });
 }
 
 /** Remember the renewal date on screen before an event that should move it. */
-async function rememberRenewal(w: SimWorld, actor: Actor): Promise<void> {
+async function rememberRenewal(w: HarnessWorld, actor: Actor): Promise<void> {
   const shown = await shownWhere(w, actor, (s) => s.periodEndMs !== null);
   remember(w, renewalKey(actor), shown.periodEndMs);
 }
 
 async function observe(
-  w: SimWorld,
+  w: HarnessWorld,
   actor: Actor,
   kind: BillingObserveKind
 ): Promise<void> {
@@ -119,7 +119,7 @@ When("{actor}'s payment recovers", async (w, actor: Actor) => {
 });
 
 When(
-  "the provider gives up retrying {actor}'s payment",
+  "the payment provider gives up on {actor}'s payment",
   async (w, actor: Actor) => {
     await observe(w, actor, 'payment_retries_exhausted');
   }

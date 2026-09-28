@@ -1,12 +1,12 @@
 /**
  * Quint entry for the `specs/<domain>/*.qnt` models this package runs
- * (`specDomains`): registers the world (this package's sim composition) and
+ * (`specDomains`): registers the world (this package's harness composition) and
  * every model's binding.
  */
 
 import './puzzle-attempt.binding';
 
-import { useQuintSim } from '@libs/sim-harness/quint/world';
-import { openSim } from '../e2e/support/open-chess-sim';
+import { useQuintHarness } from '@libs/harness/quint/world';
+import { openHarness } from '../e2e/support/open-chess-harness';
 
-useQuintSim(openSim);
+useQuintHarness(openHarness);

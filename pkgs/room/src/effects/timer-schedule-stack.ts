@@ -25,7 +25,7 @@ export function createTimerScheduleStack(args: {
   readonly timers: Timers;
   readonly createId: CreateId;
   readonly topic: string;
-  /** Optional: serialize wake work (e.g. sim serverQueue.enqueue). */
+  /** Optional: serialize wake work (e.g. harness serverQueue.enqueue). */
   readonly enqueueWake?: (work: () => Promise<void>) => void;
 }): TimerScheduleStack & {
   readonly bindInject: (

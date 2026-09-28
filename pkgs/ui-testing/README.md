@@ -181,13 +181,13 @@ await driver.get('app-root').expect.visible();
 | `snapshotHtml` | DOM → HTML | `documentElement.outerHTML` |
 
 `DriverNode.wait` is host-native for speed: Solid DOM uses a constructor
-`pump` (sim virtual clock) instead of `findBy` / wall 50ms sleeps. Public options
+`pump` (harness virtual clock) instead of `findBy` / wall 50ms sleeps. Public options
 are only `timeoutMs` / `description` — no shared poll interval.
 
 ## Reporting (`@pkgs/ui-testing/report`)
 
 Reporting is first-class: a harness wraps each actor's driver and every
-user-intent op becomes a `@pkgs/sim` report step with its selector and press
+user-intent op becomes a `@pkgs/harness` report step with its selector and press
 `hit` (testId path + layout rect / tap point). UI steps snapshot before the
 gesture so the HTML viewer can overlay the pressed element.
 
@@ -207,7 +207,7 @@ the data form of an op for explore walks and recordings.
 `Driver.snapshotHtml(options?)` / optional `RenderedApp.snapshotHtml(options?)`
 produce a readable HTML preview of the current UI (Solid DOM serializes the
 live document plus body-level portals). Systems expose it through
-`defineSnapshot({ media: 'html' })`; `@pkgs/sim-report` `writeHtmlReport` renders the
+`defineSnapshot({ media: 'html' })`; `@pkgs/harness-report` `writeHtmlReport` renders the
 frames into one standalone `index.html`.
 
 ## Adding a future driver (Maestro, Appium, Cypress, …)

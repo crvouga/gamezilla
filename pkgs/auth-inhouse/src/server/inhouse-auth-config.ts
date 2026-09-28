@@ -29,7 +29,7 @@ export const INHOUSE_AUTH_SECRET = {
   googleClientSecret: 'WEB_CLIENT_GOOGLE_CLIENT_SECRET',
   /**
    * Origin of the OpenID provider to treat as Google. Unset means real
-   * Google; sims and the localhost stack point it at a simulated provider.
+   * Google; harnesses and the localhost stack point it at a simulated provider.
    */
   googleIdpOrigin: 'GOOGLE_IDP_ORIGIN',
   /**

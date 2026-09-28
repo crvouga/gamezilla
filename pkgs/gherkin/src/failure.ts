@@ -76,5 +76,5 @@ export function undefinedStepSnippet(keyword: string, text: string): string {
     ? keyword[0]?.toUpperCase() + keyword.slice(1).toLowerCase()
     : 'Step';
   const escaped = text.replace(/'/g, "\\'");
-  return `${kind}('${escaped}', async (w) => {\n  // one sim call, then assert (Then)\n});`;
+  return `${kind}('${escaped}', async (w) => {\n  // one harness call, then assert (Then)\n});`;
 }

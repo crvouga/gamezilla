@@ -1,27 +1,31 @@
 /**
- * The world a `specs/sync/` scenario runs in: one `exampleSystem` run, with
+ * The world a `specs/sync-engine/` scenario runs in: one `exampleSystem` run, with
  * each person's devices added the first time a step names them. A device in
  * a shared-space scenario hydrates the person's space memberships; any other
  * hydrates every note.
  */
 
 import { setWorld, stepsFor } from '@pkgs/gherkin/registry';
-import type { Run } from '@pkgs/sim';
+import type { Run } from '@pkgs/harness';
 import {
   addClient,
   exampleSystem,
   SPACE_MEMBERSHIP_SESSION,
-  type SyncSim,
-} from '@pkgs/sync-engine/sim';
+  type SyncHarness,
+} from '@pkgs/sync-engine/harness';
 
 export type Device = { readonly actor: string; readonly kind: string };
 
 export type SyncWorld = {
-  readonly s: Run<SyncSim>;
-  /** Devices already added (sim client ids). */
+  readonly s: Run<SyncHarness>;
+  /** Devices already added (harness client ids). */
   readonly devices: Set<string>;
   /** The shared space each person is in, by actor. */
   readonly spaceOf: Map<string, string>;
+  /** Who started each shared space (the one who can end it), by space. */
+  readonly hostOf: Map<string, string>;
+  /** How long each note took to reach a person, in order, by actor. */
+  readonly arrivalsMs: Map<string, number[]>;
   /** Devices currently offline. */
   readonly offline: OfflineDevices;
 };
@@ -49,7 +53,7 @@ export function clientId(device: Device): string {
 
 export const app = (actor: string): Device => ({ actor, kind: 'app' });
 
-/** The device's sim client, added on first use. */
+/** The device's harness client, added on first use. */
 export async function ensureDevice(
   w: SyncWorld,
   device: Device,
@@ -73,6 +77,8 @@ export function useSyncWorld(): void {
       s: await exampleSystem.run({ seed: 1, args: { clientCount: 0 } }),
       devices: new Set(),
       spaceOf: new Map(),
+      hostOf: new Map(),
+      arrivalsMs: new Map(),
       offline: new OfflineDevices(),
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),

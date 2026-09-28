@@ -8,7 +8,10 @@ import { Handles } from '@libs/test-ids';
 import { createMemoryHistory } from '@solidjs/router';
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
 
-import { type SimClientEnv, simClientEnv } from './support/sim-client-env';
+import {
+  type HarnessClientEnv,
+  harnessClientEnv,
+} from './support/harness-client-env';
 
 const BOOT_TIMEOUT_MS = 15_000;
 const TAB_HANDLES = [
@@ -57,18 +60,18 @@ function stubHostSize(size: { width: number; height: number }): () => void {
  * design, so it stays small and is never skipped.
  */
 describe('app composition', () => {
-  let sim: SimClientEnv | null = null;
+  let harness: HarnessClientEnv | null = null;
   let restoreHostSize: (() => void) | null = null;
   afterEach(async () => {
     restoreHostSize?.();
     restoreHostSize = null;
-    await sim?.dispose();
-    sim = null;
+    await harness?.dispose();
+    harness = null;
   });
 
   it('boots through the paint gate into the tabbed Spaces screen and routes', async () => {
-    sim = await simClientEnv({ seed: 7 });
-    const client = createClient(sim.env, {
+    harness = await harnessClientEnv({ seed: 7 });
+    const client = createClient(harness.env, {
       features: APP_FEATURE_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
@@ -82,8 +85,8 @@ describe('app composition', () => {
 
     // Identity + local mockingbird-sqlite engine boot are promise-driven; virtual
     // time advances anything the engine scheduled on the injected timers.
-    await sim.session.advanceTime(1_000);
-    await sim.session.waitForIdle();
+    await harness.session.advanceTime(1_000);
+    await harness.session.waitForIdle();
     await waitForScreen('spaces');
     expect(bootChromeNode()).toBeNull();
 
@@ -107,23 +110,23 @@ describe('app composition', () => {
     await waitForScreen('not-found');
     expect(screen.getByTestId('route-not-found')).toBeInTheDocument();
 
-    expect(sim.requests).toContain('/api/identity/anon/ensure');
+    expect(harness.requests).toContain('/api/identity/anon/ensure');
     view.unmount();
     await client.close();
   }, 30_000);
 
   it('paints the wide header island without crashing on notifications chrome', async () => {
     restoreHostSize = stubHostSize({ width: 1280, height: 900 });
-    sim = await simClientEnv({ seed: 11 });
-    const client = createClient(sim.env, {
+    harness = await harnessClientEnv({ seed: 11 });
+    const client = createClient(harness.env, {
       features: APP_FEATURE_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
     const history = createMemoryHistory();
 
     const view = render(() => <client.App embedded history={history} />);
-    await sim.session.advanceTime(1_000);
-    await sim.session.waitForIdle();
+    await harness.session.advanceTime(1_000);
+    await harness.session.waitForIdle();
     await waitForScreen('spaces');
 
     expect(screen.queryByText('App crashed!')).toBeNull();
@@ -142,15 +145,15 @@ describe('app composition', () => {
   }, 30_000);
 
   it('opens the account menu without a surface-stack crash', async () => {
-    sim = await simClientEnv({ seed: 13 });
-    const client = createClient(sim.env, {
+    harness = await harnessClientEnv({ seed: 13 });
+    const client = createClient(harness.env, {
       features: APP_FEATURE_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
     const history = createMemoryHistory();
     const view = render(() => <client.App embedded history={history} />);
-    await sim.session.advanceTime(1_000);
-    await sim.session.waitForIdle();
+    await harness.session.advanceTime(1_000);
+    await harness.session.waitForIdle();
     await waitForScreen('spaces');
 
     fireEvent.click(screen.getByTestId(Handles.statusCurrentUser));

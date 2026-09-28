@@ -1,6 +1,6 @@
 /**
  * In-memory {@link OpfsDirHandle} tree. Used by contract tests and by the
- * in-process sim host where no real OPFS exists.
+ * in-process harness host where no real OPFS exists.
  */
 
 import { notFoundError, type OpfsDirHandle, type OpfsFileHandle } from './opfs';

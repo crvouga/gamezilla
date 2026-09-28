@@ -4,7 +4,7 @@ import { Trans } from '@lingui/solid/macro';
 import {
   NotebookStoreProvider,
   SqlNotebookPane,
-} from '@pkgs/sim-console/client/sql-notebook';
+} from '@pkgs/harness-console/client/sql-notebook';
 import { useSqlClient } from '@pkgs/sql-client/solid';
 import { ScreenBase } from '@pkgs/ui';
 import type { JSX } from 'solid-js';

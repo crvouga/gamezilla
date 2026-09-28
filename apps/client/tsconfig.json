@@ -94,8 +94,10 @@
       "@pkgs/llm/*": ["../../pkgs/llm/src/*"],
       "@pkgs/logger": ["../../pkgs/logger/src/index.ts"],
       "@pkgs/logger/*": ["../../pkgs/logger/src/*"],
-      "@pkgs/matchmaking-sim": ["../../pkgs/matchmaking-sim/src/index.ts"],
-      "@pkgs/matchmaking-sim/*": ["../../pkgs/matchmaking-sim/src/*"],
+      "@pkgs/matchmaking-harness": [
+        "../../pkgs/matchmaking-harness/src/index.ts"
+      ],
+      "@pkgs/matchmaking-harness/*": ["../../pkgs/matchmaking-harness/src/*"],
       "@pkgs/matchmaking-sql": ["../../pkgs/matchmaking-sql/src/index.ts"],
       "@pkgs/matchmaking-sql/*": ["../../pkgs/matchmaking-sql/src/*"],
       "@pkgs/matchmaking/client": [
@@ -130,8 +132,8 @@
       "@pkgs/room-adapter-memory/*": ["../../pkgs/room-adapter-memory/src/*"],
       "@pkgs/room-adapter-web": ["../../pkgs/room-adapter-web/src/index.ts"],
       "@pkgs/room-adapter-web/*": ["../../pkgs/room-adapter-web/src/*"],
-      "@pkgs/room-sim": ["../../pkgs/room-sim/src/index.ts"],
-      "@pkgs/room-sim/*": ["../../pkgs/room-sim/src/*"],
+      "@pkgs/room-harness": ["../../pkgs/room-harness/src/index.ts"],
+      "@pkgs/room-harness/*": ["../../pkgs/room-harness/src/*"],
       "@pkgs/room/*": ["../../pkgs/room/src/*"],
       "@pkgs/room/server": ["../../pkgs/room/src/server.ts"],
       "@pkgs/secret-provider": ["../../pkgs/secret-provider/src/index.ts"],

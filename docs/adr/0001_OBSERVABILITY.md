@@ -174,7 +174,7 @@ logs without pulling the browser SDK/core into initial JavaScript.
 | Runtime composition | `apps/client/src/main.tsx` | Registers the browser provider at the browser entrypoint. |
 | Runtime composition | `apps/server/src/server.ts` | Registers and flushes the API Worker provider and observes Worker fetch/scheduled entrypoints. |
 | Runtime composition | `apps/room-server/src/room.ts` | Registers and flushes the independent room Worker provider. |
-| Runtime composition | `libs/sim-harness/src/preload.ts` | Registers the Node provider and NDJSON exporter at the e2e process entrypoint. |
+| Runtime composition | `libs/harness/src/preload.ts` | Registers the Node provider and NDJSON exporter at the e2e process entrypoint. |
 | Client interaction/route/error | `libs/client-app/src/shell/observability/browser-boundaries.ts` | Owns delegated interaction, route, and browser/Solid error spans. |
 | Client interaction/route/error | `libs/client-app/src/shell/observability/browser-identity.ts` | Owns browser identity and the `window.__obs` correlation surface without coupling auth to an SDK. |
 | Client interaction/route/error | `libs/client-app/src/shell/wall-client-env.ts` | Joins an interaction to the injected HTTP client at the wall-network composition boundary. |
@@ -190,7 +190,7 @@ logs without pulling the browser SDK/core into initial JavaScript.
 | Sync/mutation | `pkgs/sync-engine/src/server/sync-app-mutations-route.ts` | Stamps authenticated device/user facts on the active upload request span. |
 | Sync/mutation | `pkgs/sync-engine/src/shared/mutation-observability.ts` | Centralizes the offline-origin OTel link used by upload and replay. |
 | Correlated log sink | `pkgs/logger/src/logger.ts` | Uses the provider-installed log-event callback to bridge the existing logger to the active real OTel span without a runtime package dependency. |
-| Test failure sink | `libs/sim-harness/src/observability/test-failure-spans.ts` | Converts failed Bun/JUnit cases into exact `app.test.id` artifact traces after the test process exits. |
+| Test failure sink | `libs/harness/src/observability/test-failure-spans.ts` | Converts failed Bun/JUnit cases into exact `app.test.id` artifact traces after the test process exits. |
 
 The package export map exposes only `browser`, `core`, `node`, `query`, and
 `worker`; there is no root or wildcard export. A package-local contract test

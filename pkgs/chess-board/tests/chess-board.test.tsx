@@ -9,7 +9,7 @@ import {
   chessBoardSquareTestId,
   DEFAULT_CHESS_BOARD_TEST_ID,
 } from '@pkgs/chess-board-core/probe';
-import { createSimClock } from '@pkgs/clock/sim-clock';
+import { createHarnessClock } from '@pkgs/clock/harness-clock';
 import { ClockProvider } from '@pkgs/clock/solid';
 import { AudioPlaybackProvider } from '@pkgs/sounds/solid';
 import { ThemeProvider } from '@pkgs/ui/theme/theme-context';
@@ -19,7 +19,7 @@ import { noopAudio } from './support/board-fixture';
 
 describe('ChessBoard', () => {
   it('mounts squares and a probe', () => {
-    const { clock, timers } = createSimClock();
+    const { clock, timers } = createHarnessClock();
     renderWithI18n(() => (
       <ClockProvider clock={clock} timers={timers}>
         <ThemeProvider colorScheme="light">

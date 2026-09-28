@@ -1,12 +1,12 @@
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword/keyword';
 import { KvImplInMemory } from '@pkgs/kv/impl-in-memory';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 import { DefaultLockIdentityProvider } from './default-lock-identity-provider';
 import { DistributedLockImplKv } from './impl-kv';
 import { LockHeldError } from './interface';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 export function runDistributedLockContractTests(
   factory: () =>

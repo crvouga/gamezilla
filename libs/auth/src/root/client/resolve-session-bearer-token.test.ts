@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test';
-import { createSimAdapters } from '@pkgs/uuid';
+import { createHarnessAdapters } from '@pkgs/uuid';
 
 import { SessionBearerTokenResolver } from './resolve-session-bearer-token';
 
-const adapters = createSimAdapters({ seed: 1 });
+const adapters = createHarnessAdapters({ seed: 1 });
 
 describe('SessionBearerTokenResolver', () => {
   test('returns cached bearer without minting', async () => {

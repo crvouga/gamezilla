@@ -13,7 +13,11 @@ import { wrapMutationDb } from '../mutations/shared/wrap-mutation-db';
 import type { TableChangeBus } from '../queries/client/table-change-bus';
 import type { QueryRow } from '../queries/core/types';
 import { parseStandardSchema } from '../shared/standard-schema';
-import { isValidTableName, mergeTable } from './merge-upsert';
+import {
+  assertCompleteNewRowImages,
+  isValidTableName,
+  mergeTable,
+} from './merge-upsert';
 import {
   clearOptimisticPeerRows,
   healOptimisticPeerOrphans,
@@ -177,6 +181,23 @@ async function rebasePending(
   }
 }
 
+/**
+ * After the CACHE tables were wiped (cleared data, an epoch bump), show the
+ * device's queued writes again: re-apply them on the empty tables, as a merge
+ * would, so what the person wrote and has not sent yet never disappears.
+ */
+export async function reapplyPendingAfterWipe(
+  deps: MergeApplierDeps
+): Promise<void> {
+  await withMergeSingleFlight(deps.db, async () => {
+    const changed = new Set<string>();
+    await deps.db.transaction(async (tx) => {
+      await rebasePending(tx, deps, changed);
+    });
+    if (changed.size > 0) deps.bus.emit([...changed]);
+  });
+}
+
 async function runMerge(
   deps: MergeApplierDeps,
   input: MergeFullInput
@@ -276,6 +297,7 @@ export async function applyRowImages(
         opts?.optimistic === true ? await loadLiveRowIds(tx, filtered) : {};
       for (const [table, rows] of Object.entries(filtered)) {
         if (rows.length === 0) continue;
+        await assertCompleteNewRowImages(tx, table, rows);
         // Skip unknown tables (empty PRAGMA); skip bad ids. Do not
         // blanket-catch SQL errors (that would commit a partial table).
         const ok = await mergeTable({

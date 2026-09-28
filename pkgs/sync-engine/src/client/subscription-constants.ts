@@ -3,9 +3,9 @@ export const QUERY_COALESCE_MS = 0;
 
 /**
  * Safety-net refetch interval for missed `notifyChannels` / lost push.
- * Product default; sim overrides to a shorter interval. `<= 0` disables.
+ * Product default; harness overrides to a shorter interval. `<= 0` disables.
  */
 export const QUERY_RECONCILE_INTERVAL_MS = 30_000;
 
-/** Sim default — short enough for default `until` budget (2s). */
-export const SIM_QUERY_RECONCILE_INTERVAL_MS = 500;
+/** Harness default — short enough for default `until` budget (2s). */
+export const HARNESS_QUERY_RECONCILE_INTERVAL_MS = 500;

@@ -36,13 +36,13 @@ through this port and never learns which service is behind it.
   product `users.id` (`auth_external_accounts`), upgrading the install's
   anonymous user on first sign-in. It mirrors `getUser().identities` into
   synced rows for the account screen. None of this depends on the service.
-- **Client.** The wall and sim `ClientEnv`s supply
+- **Client.** The wall and harness `ClientEnv`s supply
   `createAuthClient: () => AuthClientPort`. `AppAuthProvider` puts it in
   context; every hook and screen talks to the port.
 
 Product code importing an adapter package or a vendor SDK fails `lint`
 (`libs/tools/biome-plugins/import-auth-vendor.grit`). Only composition roots,
-sims, scripts and tests may.
+harnesses, scripts and tests may.
 
 ## Adding another service (Clerk, Firebase Auth, WorkOS, Cognito, Better Auth)
 

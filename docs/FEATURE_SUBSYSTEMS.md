@@ -29,7 +29,7 @@ declare. It imports no feature, and a check keeps it that way.
 apps/            entry points: a browser bundle, a Worker, the product console
   client           index.html, main.tsx, Vite, the service worker, bundle gates
   server           the Worker handler, wrangler, deploy and preview scripts
-  product          the super-app: wall client, Simulator, sim fabric, harness
+  product          the super-app: wall client, Harness, harness fabric, harness
 
 libs/
   feature          the manifest algebra and the three folds. Knows no feature.
@@ -42,7 +42,7 @@ libs/
   spaces  chess  friends  profile  billing  notifications  search
                    the bounded contexts
 
-pkgs/            project-agnostic: sim, sync-engine, ui, sql, room, …
+pkgs/            project-agnostic: harness, sync-engine, ui, sql, room, …
 ```
 
 `client-app` and `server-app` are shells, not applications: they take the
@@ -55,9 +55,9 @@ shell instead of a second one written for tests.
 
 - **It exercises one feature** → `libs/<feature>/tests/e2e/`, black-box
   against the package's exports, booting a composition of only the slices it
-  needs (`composeSimSlices` + `defineProductSystem` from `@libs/sim-harness`).
-  The actions, reads and slice it drives live in that feature's `./sim`
-  surface (`libs/<feature>/src/sim/`). The suite's home is the lowest package
+  needs (`composeHarnessSlices` + `defineProductSystem` from `@libs/harness`).
+  The actions, reads and slice it drives live in that feature's `./harness`
+  surface (`libs/<feature>/src/harness/`). The suite's home is the lowest package
   that may depend on every feature it composes — turbo rejects cycles.
 - **It spans features** (a friend joining a space, a puzzle limit opening the
   billing screen) → the full-composition layer. Do not stretch a subsystem
@@ -127,7 +127,7 @@ rather than implicit. Prefer a port.
 | A shell may not depend on a feature or the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | A feature may not depend on the composition root | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | Tier pyramid, `shared/` purity, client/server split | Biome `import-*.grit` rules, in each package's `lint` |
-| The sim harness may not depend on a feature | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
+| The harness may not depend on a feature | that package's `lint` (`libs/tools/scripts/package-boundaries.ts`) |
 | A package declares no workspace dependency it does not use | that package's `lint` (`libs/tools/scripts/unused-dependencies.ts`) |
 | A package imports only what its `package.json` declares | Biome `noUndeclaredDependencies`, in each package's `lint` |
 
@@ -140,14 +140,14 @@ manifest, whether or not a file imports it.
 
 ## Hidden table reads (debt)
 
-A subsystem sim fails loudly when a feature reads a table its composition does
+A subsystem harness fails loudly when a feature reads a table its composition does
 not declare, which is how these three surfaced. They bypass the manifest, so
 `feature-boundaries.test.ts` (which checks `defineQuery` reads) does not see
 them, and turbo does not rerun the reader when the owner's schema changes.
 
 | Reader | Reads | Consequence today | Fix |
 | --- | --- | --- | --- |
-| `permissions` (`use-access-facts.ts`, `read-access.ts`) | billing's `billing_subscriptions` | every sim composes billing; a billing change reruns every feature's e2e | a membership-facts port billing fills (it must stay inside the mutation transaction, so the port goes through the mutation env) |
+| `permissions` (`use-access-facts.ts`, `read-access.ts`) | billing's `billing_subscriptions` | every harness composes billing; a billing change reruns every feature's e2e | a membership-facts port billing fills (it must stay inside the mutation transaction, so the port goes through the mutation env) |
 | `spaces` (`friendship-sql.ts`, `actor-visible-spaces-sql.ts`, `use-is-friend-of-host-local.ts`, `topic-map.ts`) | friends' `friends_friendships` | spaces cannot run without friends, so its e2e lives in `libs/friends`, and chess composes friends | a friendship port friends fills, or the friendship schema in a package below spaces |
 | `search` (people search) | friends' `searchProfiles` sync query and `friends_blocks` | search cannot run without friends, so search-people lives in `libs/friends` | the search query in search, with block filtering behind a port friends fills |
 
@@ -169,4 +169,4 @@ specs, one task".
 | `@libs/friends`, `@libs/spaces`, `@libs/search`, `@libs/notifications` | chess, friends, product |
 | `@libs/profile` | chess, friends, profile, product |
 | `@libs/billing` | all (hidden read above) |
-| `@libs/sim-harness`, a shell, `@pkgs/ui`, `@pkgs/sync-engine` | all — correct by design |
+| `@libs/harness`, a shell, `@pkgs/ui`, `@pkgs/sync-engine` | all — correct by design |

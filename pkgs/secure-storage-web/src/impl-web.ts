@@ -31,7 +31,7 @@ export function createWebSecureStorage(): SecureStorage {
 
 /**
  * Like {@link createWebSecureStorage}, but every physical key is prefixed with
- * `namespace.` so multiple in-process actors (product-simulator Alice/Bob) isolate
+ * `namespace.` so multiple in-process actors (product-harness Alice/Bob) isolate
  * device ids and similar secrets.
  */
 export function createNamespacedWebSecureStorage(

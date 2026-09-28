@@ -1,0 +1,43 @@
+{
+  "name": "@pkgs/auth-harness",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": [
+      "./src/*.ts",
+      "./src/*/index.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test --conditions=browser --conditions=development --preload @pkgs/bun-test-solid/preload tests",
+    "test:e2e": "bun run ../../libs/harness/scripts/test-e2e.ts"
+  },
+  "dependencies": {
+    "@pkgs/auth": "workspace:*",
+    "@pkgs/auth-inhouse": "workspace:*",
+    "@pkgs/http-client": "workspace:*",
+    "@pkgs/idp-mock": "workspace:*",
+    "@pkgs/logger": "workspace:*",
+    "@pkgs/harness": "workspace:*",
+    "@pkgs/sql": "workspace:*",
+    "@pkgs/sql-client": "workspace:*",
+    "@pkgs/sql-client-postgres": "workspace:*",
+    "@pkgs/sql-client-sqlite": "workspace:*",
+    "fast-check": "catalog:",
+    "hono": "catalog:"
+  },
+  "devDependencies": {
+    "@pkgs/bun-test-solid": "workspace:*",
+    "@pkgs/gherkin": "workspace:*",
+    "@pkgs/quint": "workspace:*",
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "specDomains": [
+    "auth"
+  ]
+}

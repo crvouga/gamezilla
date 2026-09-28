@@ -23,7 +23,7 @@ export type ClockProviderProps = ParentProps<ClockContextValue>;
 
 /**
  * Injects {@link Clock} + {@link Timers} for the Solid tree.
- * Both are required — construct wall/sim clocks at a composition root.
+ * Both are required — construct wall/harness clocks at a composition root.
  */
 export function ClockProvider(props: ClockProviderProps): JSX.Element {
   // Services are stable handles; the props object itself is the context value.

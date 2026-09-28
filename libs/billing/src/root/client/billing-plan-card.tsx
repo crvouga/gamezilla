@@ -42,7 +42,7 @@ const TIER_INTENT: Record<BillingTier, BadgeIntent> = {
 
 /**
  * The tier as a chip. Its text is the tier id itself (`free` / `paid`,
- * capitalized by CSS) — the value sims and tests read back.
+ * capitalized by CSS) — the value harnesses and tests read back.
  */
 function TierChip(props: { readonly tier: BillingTier }): JSX.Element {
   return (
