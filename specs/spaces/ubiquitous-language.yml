@@ -35,7 +35,7 @@ terms:
       friend's space, from the lobby. A person who joins is in the space.
     forms: [joins, joined, joining]
     avoid: [enter the space]
-    model: [join, PersonJoined]
+    model: [join, PersonJoined, joined]
     published: true
 
   - term: leave
@@ -69,8 +69,9 @@ terms:
 
   - term: lobby
     definition: >-
-      Where a person finds spaces: it lists their own open spaces and every
-      open space of their friends, each of which they can return to or join.
+      Where a person finds spaces: it lists every open space they host or
+      have joined, and every open space a friend of theirs hosts or has
+      joined, each of which they can return to or join.
     forms: [lobby's, lobbies]
     avoid: [space list, dashboard]
     model: [Lobby, lobby, _listing]

@@ -2,8 +2,10 @@
 //
 // A space is hosted by one person. It is open until its host ends it or
 // leaves, and then it has ended. The presence of a space is who is in it
-// right now. A person's lobby lists their own open spaces and every open
-// space of their friends. Being friends is always mutual.
+// right now; the people who joined a space are everyone who came into it and
+// has not left it, whether or not they are in it right now. A person's lobby
+// lists every open space they host or joined, and every open space a friend
+// of theirs hosts or joined. Being friends is always mutual.
 //
 // What this does not say: a host may step out of their open space, so the
 // host of an open space is not always in it; how many spaces a person may
@@ -20,7 +22,9 @@ abstract sig Space {
   // the one person whose space it is
   host: one Person,
   // who is in the space right now
-  presence: set Person
+  presence: set Person,
+  // who came into the space and has not left it
+  joined: set Person
 }
 
 // a space that has not ended
@@ -39,9 +43,9 @@ fact InOneSpaceAtATime {
   all p: Person | lone presence.p
 }
 
-// A lobby lists exactly the person's own open spaces and their friends' open spaces.
+// A lobby lists exactly the open spaces the person or a friend of theirs hosts or joined.
 fact LobbyListsOwnAndFriendsOpenSpaces {
-  all p: Person | p.lobby = OpenSpace & host.(p + p.friend)
+  all p: Person | p.lobby = OpenSpace & (host + joined).(p + p.friend)
 }
 
 // Friends are always friends both ways, and nobody is their own friend.
@@ -67,6 +71,12 @@ assert FriendsFindEachOthersOpenSpaces {
   all p: Person, s: OpenSpace | s.host in p.friend implies s in p.lobby
 }
 check FriendsFindEachOthersOpenSpaces for 5
+
+// A person finds every open space they joined in their own lobby.
+assert JoinersFindTheirOpenSpaces {
+  all s: OpenSpace, p: s.joined | s in p.lobby
+}
+check JoinersFindTheirOpenSpaces for 5
 
 // A space that has ended is in nobody's lobby.
 assert EndedSpacesLeaveEveryLobby {
