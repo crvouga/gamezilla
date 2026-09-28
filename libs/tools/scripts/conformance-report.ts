@@ -86,7 +86,11 @@ function reportBuckets(): readonly string[] {
     ...subdirs(join(REPO_ROOT, '.cache/harness-report')),
     ...['apps', 'libs', 'pkgs'].flatMap((tier) =>
       subdirs(join(REPO_ROOT, tier)).flatMap((pkg) => [
-        ...subdirs(join(pkg, '.cache/harness-report')),
+        // Only the gate's buckets (`test:spec:<k>`); an ad-hoc `bun run spec`
+        // writes `all/`, from whatever implementation was on disk then.
+        ...subdirs(join(pkg, '.cache/harness-report')).filter((bucket) =>
+          /\/part-\d+$/.test(bucket)
+        ),
         ...withEvidence(join(pkg, '.cache/health-report'), 2),
       ])
     ),
