@@ -257,8 +257,12 @@ module account_sign_in {
     }
   }
 
-  /// No account ever loses its last sign-in method.
-  val invLastMethodStays = _accounts(accountCount).forall(a => signInMethods.get(a).size() > 0)
+  /// No account ever loses its last sign-in method (so Alice never has more
+  /// accounts than outside accounts).
+  val invLastMethodStays = and {
+    accountCount <= MAX_ACCOUNTS,
+    _accounts(accountCount).forall(a => signInMethods.get(a).size() > 0),
+  }
 
   /// An account has at most one outside account per sign-in method.
   val invOnePerSignInMethod = _accounts(accountCount).forall(a =>
@@ -266,9 +270,6 @@ module account_sign_in {
       OUTSIDE_ACCOUNTS.filter(i => signsInto.get(i) == a and signInMethodOf(i) == p).size() <= 1
     )
   )
-
-  /// Alice never has more accounts than outside accounts.
-  val invAtMostOneAccountPerOutsideAccount = accountCount <= MAX_ACCOUNTS
 
   /// Devices are signed in only to accounts that exist.
   val invRealAccounts = account.keys().forall(d =>
