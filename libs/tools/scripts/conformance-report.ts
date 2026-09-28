@@ -81,12 +81,16 @@ function withEvidence(dir: string, depth: number): readonly string[] {
 
 /** Every report bucket in the repository that may hold evidence. */
 function reportBuckets(): readonly string[] {
-  return ['apps', 'libs', 'pkgs'].flatMap((tier) =>
-    subdirs(join(REPO_ROOT, tier)).flatMap((pkg) => [
-      ...subdirs(join(pkg, '.cache/harness-report')),
-      ...withEvidence(join(pkg, '.cache/health-report'), 2),
-    ])
-  );
+  return [
+    // Root gates that record evidence (`//#ci:models`).
+    ...subdirs(join(REPO_ROOT, '.cache/harness-report')),
+    ...['apps', 'libs', 'pkgs'].flatMap((tier) =>
+      subdirs(join(REPO_ROOT, tier)).flatMap((pkg) => [
+        ...subdirs(join(pkg, '.cache/harness-report')),
+        ...withEvidence(join(pkg, '.cache/health-report'), 2),
+      ])
+    ),
+  ];
 }
 
 function git(args: readonly string[]): string {

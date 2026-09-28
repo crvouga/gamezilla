@@ -8,6 +8,7 @@
  *   id               layer            decided by
  *   typecheck        specification    `quint typecheck`
  *   verify           specification    Apalache, every invariant up to the bound
+ *                                     (recorded by the models gate, `//#ci:models`)
  *   simulate         specification    every invariant held while drawing traces
  *   trace:<n>        implementation   the product agreed with trace n
  *   bound-actions    completeness     the traces took every bound action

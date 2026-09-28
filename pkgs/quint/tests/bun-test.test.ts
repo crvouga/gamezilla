@@ -92,7 +92,6 @@ describe('evidence of the model run', () => {
     );
     expect(layers).toEqual({
       typecheck: 'specification',
-      verify: 'specification',
       simulate: 'specification',
       'bound-actions': 'completeness',
       determinism: 'implementation',
@@ -100,9 +99,6 @@ describe('evidence of the model run', () => {
     });
     expect(byId.has('trace:1')).toBe(true);
     expect([...byId.values()].filter((o) => o.status !== 'pass')).toEqual([]);
-    expect(byId.get('verify')?.detail).toBe(
-      'invKnownState hold in every state within 4 steps'
-    );
   });
 });
 

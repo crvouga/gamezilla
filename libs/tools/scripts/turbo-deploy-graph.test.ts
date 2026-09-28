@@ -61,6 +61,7 @@ const CHECK_LEAVES = [
   '//#ci:goals',
   '//#ci:specs',
   '//#ci:conformance',
+  '//#ci:models',
   '//#ci:spec-ownership',
   'tc',
   'lint',

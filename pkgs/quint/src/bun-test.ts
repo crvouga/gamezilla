@@ -1,8 +1,7 @@
 /**
  * Run a Quint model under `bun test`: one `describe` per model with, before
- * any trace reaches the product, a test that the model type checks and one
- * that Apalache model-checks every invariant up to the binding's
- * `verifySteps`; then one `test` per trace Quint draws from it, one that
+ * any trace reaches the product, a test that the model type checks; then one
+ * `test` per trace Quint draws from it, one that
  * fails when the traces never take a bound action, and (with a fingerprint)
  * one that a trace replayed twice ends the same. Every decided obligation is
  * recorded as evidence in the report bucket (`./model-evidence`). The
@@ -41,7 +40,7 @@ export type RunModelOptions = {
   readonly specUri: string;
   /**
    * The package's report bucket; traces land in `quint/<model>/`, the model
-   * check in `quint/<model>.verify/`, evidence in `evidence/`.
+   * evidence in `evidence/`.
    */
   readonly reportDir: string;
   /**
@@ -80,12 +79,7 @@ export function runQuintModel(options: RunModelOptions): void {
   describe(options.specUri, () => {
     const binding = boundModel(model);
     if (slice.index === 0) {
-      registerModelChecks({
-        specPath: options.specPath,
-        binding: binding instanceof Error ? null : binding,
-        outDir: join(options.reportDir, 'quint', `${model}.verify`),
-        record,
-      });
+      registerModelChecks({ specPath: options.specPath, record });
     }
     let drawn: Drawn;
     try {

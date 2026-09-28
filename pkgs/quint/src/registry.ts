@@ -67,8 +67,9 @@ export type QuintBinding<W> = {
    * actions and the sizes of the sets they draw from: at 4 steps most
    * product models check in 4–35 s, but one with ~35 transitions took 7 s at
    * 2 steps, 39 s at 3 and over 10 minutes at 4. Lower it for such a model
-   * (the check is killed after 240 s, or the binding's `timeoutMs` if
-   * longer); raise it where a violation needs a longer run to show.
+   * (the check is killed after 240 s); raise it where a violation needs a
+   * longer run to show. The models gate (`//#ci:models`) reads it from the
+   * binding's text, so write it as a number literal.
    */
   readonly verifySteps?: number;
   /** Per-trace test timeout. Default: the runner's. */
