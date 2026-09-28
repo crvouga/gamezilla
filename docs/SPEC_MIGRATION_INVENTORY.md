@@ -340,18 +340,25 @@ Note: 4 files carry kind `harness` but are framework/mechanics tests, not produc
 
 Behavior moved to the new Matchmaking context, `specs/matchmaking/`
 (`ubiquitous-language.yml`, a context-map row): `waiting-for-a-match.feature`,
-`being-matched.feature`, `entrances.feature`, and the model
-`matching.qnt` (waiting, stopping, changing reach, matching rounds and an
-entrance opening again, each landing at any of three entrances; every
-entrance must agree on everyone's standing after every step). Run by
+`being-matched.feature`, and the model `matching.qnt` (waiting, stopping,
+changing one's range and matchmaking pairing people up). Run by
 `@pkgs/matchmaking-harness` `test:e2e` (`specDomains: ["matchmaking"]`; steps in
-`tests/steps/`, binding in `tests/quint/matching.binding.ts`).
+`tests/steps/`, binding in `tests/quint/matching.binding.ts`, which spreads
+the trace's requests over three replicas and requires every replica to agree
+on everyone's standing after every step).
+
+On 2026-09-27 the context was held to A0 (a business reader understands
+every line): "entrances" (replicas), "an entrance opening again" (a replica
+restart), "reach" and "matching rounds" left the language. Which replica
+serves a request, a replica booting again, and asking after or stopping a
+wait by an id nobody joined with are contract tests in
+`@pkgs/matchmaking-harness` (`tests/replicas.test.ts`,
+`tests/unknown-wait.test.ts`).
 
 | File | Destination |
 |---|---|
-| `join-status-leave.test.ts` (deleted) | `waiting-for-a-match.feature` (all five rules); `ready()` idempotence → `entrances.feature` "every entrance opens again" + `matching.qnt` `entranceOpensAgain` |
-| `replicas-shared-db.test.ts` (deleted) | `entrances.feature` (same waits everywhere, a change of reach counts wherever it lands, opening again); `being-matched.feature` (one wide reach alone does not make a match) |
-| `seeded-workload.test.ts` (kept) | same-seed determinism contract; its implied property (consistent pairs within reach, agreed by every entrance, under any interleaving across entrances) is `matching.qnt` |
+| `join-status-leave.test.ts` (deleted) | `waiting-for-a-match.feature`; `ready()` idempotence and unknown ids → `tests/replicas.test.ts`, `tests/unknown-wait.test.ts` |
+| `replicas-shared-db.test.ts` (deleted) | `tests/replicas.test.ts` (same waits at every replica, a change counts wherever it lands, booting again); `being-matched.feature` (one wide range alone does not make a match) |
 | `schema-drift.test.ts` (kept) | error-code contract (`MatchmakingSchemaDriftError`); no person observes it |
 
 ### pkgs/room-harness (12) — framework-level harness; port in a later wave

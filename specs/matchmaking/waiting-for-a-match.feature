@@ -1,41 +1,45 @@
 @domain:matchmaking
 Feature: Waiting for a match
-  When a person wants someone to play, they wait for a match, see where they
-  stand while they wait, and can stop waiting until they are matched, so
-  nobody is kept waiting against their will and nobody loses a match they
-  already have.
+  When a person wants someone to play, they want to wait for a match, see
+  where they stand and stop waiting until they are matched, so nobody is
+  kept waiting against their will and nobody loses a match they already
+  have.
 
-  Rule: A person waiting sees they are waiting, with the details they waited with
+  Rule: A person waits for one match at a time
 
-    Scenario: Alice's wait shows her rating and name
+    Scenario: Alice's wait shows her name and rating
       When Alice waits for a match with a rating of 1500
       Then Alice is waiting
       And Alice's wait shows her name and a rating of 1500
 
-  Rule: Nothing is known of a wait nobody started
+    Scenario: Once matched, Alice can wait for a match again
+      Given Alice has been matched with Bob
+      When Alice waits for a match with a rating of 1500
+      Then Alice is waiting
+      And Alice's wait shows her name and a rating of 1500
 
-    Scenario: Asking after a wait nobody started finds nothing
-      When someone asks after a wait nobody started
-      Then nothing is found
+    Scenario: Alice cannot wait a second time while she is waiting
+      Given Alice is waiting with a rating of 1000, accepting anyone within 200 points
+      When Alice waits for a match with a rating of 1500
+      Then Alice is told she is already waiting
+      And Alice's wait shows her name and a rating of 1000
 
-  Rule: A person waiting can stop waiting
+  Rule: A person can stop waiting until they are matched
 
     Scenario: Alice stops waiting and is no longer waiting
       Given Alice is waiting for a match
       When Alice stops waiting
-      Then Alice is told she stopped waiting
+      Then Alice sees she stopped waiting
       And Alice is not waiting for a match
-
-  Rule: Stopping a wait nobody started changes nothing
-
-    Scenario: Stopping a wait nobody started has nothing to stop
-      When someone stops a wait nobody started
-      Then they are told there was nothing to stop
-
-  Rule: A matched person stays matched
 
     Scenario: Alice cannot stop waiting once she is matched with Bob
       Given Alice has been matched with Bob
       When Alice stops waiting
       Then Alice is told there was nothing to stop
       And Alice is matched with Bob
+
+    Scenario: Alice has nothing to stop once she has stopped waiting
+      Given Alice has stopped waiting
+      When Alice stops waiting
+      Then Alice is told there was nothing to stop
+      And Alice is not waiting for a match
