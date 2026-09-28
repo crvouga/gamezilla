@@ -85,7 +85,8 @@ bus.close();
 
 ## Broker contract tests
 
-`bun run --filter @pkgs/pubsub-emqx test:contract` boots `@pkgs/emqx-server`
+`bun run --filter @pkgs/pubsub-emqx test:contract`
+(`tests/emqx.contract.test.ts`) boots `@pkgs/emqx-server` on isolated ports
 and runs the `@pkgs/pubsub` contract suite against it (`EMQX_TEST_*` env
 points it at another broker). `disruptTransport` uses
 `DELETE /api/v5/clients/{clientid}` to exercise reconnect + session resume /

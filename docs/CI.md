@@ -28,7 +28,10 @@ opt-in report.
   by `turbo-ci-run`, named, and the run exits non-zero.
 - **Every check is a cached, per-package task.** There is no affected filter.
   A package's tasks hash its whole tracked tree (`$TURBO_DEFAULT$`) and,
-  through `dependsOn: ["tc"]` → `^tc`, every package it depends on.
+  through `tc` → `^src`, the source of every package it depends on. `src`
+  is a script-less task hashing a package minus its `*.test.ts(x)`, so a
+  test edit reruns only that package, while a source edit reruns every
+  dependent.
   `turbo-deploy-graph.test.ts` fails if a task `bun check` reaches is
   `cache: false`, if a package task enumerates its inputs, or if a root task
   forms a cycle.
@@ -38,8 +41,11 @@ opt-in report.
     package is a declared dependency.
   - `lint` is one script for every package: naming, Biome (import
     boundaries included), the Solid oxlint scope, package-boundary rules and
-    the package's `GOAL.md` proofs, run from the repo root. Type-aware oxlint
-    needs every Solid-scope file in some `tsconfig.json`.
+    the package's `GOAL.md` proofs and banned words, run from the repo root.
+    Biome runs on a temporary gitignored `.biome-scope.*.json` that excludes
+    every package outside the package's dependency closure (whole-repo
+    indexing was the cost), and type-aware oxlint on a temporary gitignored
+    `<pkg>/jsconfig.json` extending `tsconfig.tc.json`.
   - `tc` is incremental (`.cache/tc.tsbuildinfo`, gitignored).
   - Root `//#` leaves are only for subjects in no package, each with explicit
     inputs. Explicit globs ignore `.gitignore`, so a broad root input uses

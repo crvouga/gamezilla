@@ -194,7 +194,6 @@
       "dependsOn": ["tc"],
       "inputs": [
         "$TURBO_DEFAULT$",
-        "!**/*.md",
         "$TURBO_ROOT$/biome.json",
         "$TURBO_ROOT$/libs/tools/biome-plugins/**",
         "$TURBO_ROOT$/oxlint.config.mts",
@@ -205,6 +204,7 @@
         "$TURBO_ROOT$/pkgs/ui/src/components/hosts.css",
         "$TURBO_ROOT$/libs/tools/port/*.json",
         "$TURBO_ROOT$/libs/tools/scripts/lint-package.ts",
+        "$TURBO_ROOT$/libs/tools/scripts/banned-words.ts",
         "$TURBO_ROOT$/libs/tools/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools/scripts/package-boundaries.ts",
         "$TURBO_ROOT$/libs/tools/scripts/tc-scope.ts",
