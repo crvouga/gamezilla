@@ -104,7 +104,14 @@ subsumed by the `idempotence` and `determinism` properties.
 Still open:
 
 - **Framework-level sims**: all ported (`pkgs/room-sim`, `pkgs/matchmaking-sim`,
-  `pkgs/auth-sim`, `pkgs/db-indexes`; 2026-09-27).
+  `pkgs/auth-sim`, `pkgs/db-indexes`; 2026-09-27). Final sweep (2026-09-27):
+  the same-seed determinism tests (`room-sim/determinism`,
+  `matchmaking-sim/seeded-workload`, `db-indexes` tuning replay) are the Quint
+  runner's replay check (a binding's `fingerprint`, longest trace replayed
+  twice); `room-sim/malformed-messages` is the room-server wire contract. The
+  one sim-scripted test left outside `specs/` is
+  `pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts`
+  (a timing-exact regression of the sim's own checker).
 - **`pkgs/sync-engine`**: ported (see its section); what stays in code is a
   contract, determinism, a budget or a framework regression, each with its
   reason.
@@ -360,7 +367,7 @@ model as a `test` proof, marked `goal:<id>` in its header).
 | `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `writeUnheard` / `hearBack`, `invNoDoubleApply` |
 | `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync/online-only-actions.feature` |
 | `permanent-reject-stored-peer-never-applies` | `specs/sync/note-refused-edits.feature`; model `rejections` |
-| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature` (leaving or a space ending without the app reconnecting); leave-then-cannot-send → `tests/space-topic-scope.test.ts` until the feature's cannot-send leave scenario is reworded |
+| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature` (leaving or a space ending without the app reconnecting, also once the app cannot send) |
 | `denied-query-detaches-scope-keeps-rows` | `specs/sync/shared-space-membership.feature` › opening / closing a shared space someone is not in |
 | `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `networkStalls` / `networkRecovers`, `liveUpdatesDegrade`, `teamEdit`) |
 | `merge-via-sim` | local-only columns → `specs/sync/notes-across-app-updates.feature` › colours and tags; pending over tombstone → model |
@@ -374,9 +381,9 @@ model as a `test` proof, marked `goal:<id>` in its header).
 | `note-replication.quint.test.ts` | the model runs from `test:e2e`; the runner file is gone |
 | `pending-ux-answers-with-server-verdict` | `specs/sync/checked-notes.feature` (`@regression:pending-reject-verdict-before-rollback`, `@regression:checked-note-answer-lost-to-push-race`) |
 | `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | `specs/sync/notes-arrive-quickly.feature` › at least 19 of 20 notes within a fifth of a second (`@goal:the-bar:3 @goal:works-offline:7`) |
-| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | `specs/sync/notes-offline.feature` › `@regression:invariant-dirty-read` (the scenario's world does not reproduce the timing-exact dirty read; the standing invariant check runs on every step) |
+| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | stays: a timing-exact regression of the sim's own standing-property check (framework self-test). `specs/sync/notes-offline.feature` states the crossing offline edits, but no scenario world reproduces the dirty read, so the guard stays in code |
 | `schema-drift` | `specs/sync/notes-across-app-updates.feature` › colours and tags across versions |
-| `space-topic-scope` | ending a space and denied scopes → `shared-space-membership.feature`; stays, trimmed to leave-then-cannot-send until that scenario is reworded |
+| `space-topic-scope` | `shared-space-membership.feature` (leave, end, a space someone is not in); deleted |
 
 Found while porting, and fixed (each pinned by a `@regression` scenario and
 modeled):
