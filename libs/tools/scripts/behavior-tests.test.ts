@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { assertProperty, fc } from '@pkgs/property';
-import { behaviorTestViolations } from './behavior-tests';
+import { behaviorTestViolations, randomWalkViolations } from './behavior-tests';
 
 function violations(files: readonly string[]): string {
   return behaviorTestViolations({ files }).join('\n');
@@ -128,5 +128,35 @@ describe('behaviorTestViolations', () => {
         expect(behaviorTestViolations({ files }).length === 0).toBe(clean);
       })
     );
+  });
+});
+
+describe('randomWalkViolations', () => {
+  test('a random walk in a spec package test is reported', () => {
+    const errors = randomWalkViolations([
+      {
+        path: 'pkgs/x/tests/walk.test.ts',
+        text: 'await app.explore({ seed: 1 })',
+      },
+      {
+        path: 'pkgs/x/src/y.test.tsx',
+        text: 'await s.randomActions({ steps: 4 })',
+      },
+    ]).join('\n');
+    expect(errors).toContain('pkgs/x/tests/walk.test.ts');
+    expect(errors).toContain('pkgs/x/src/y.test.tsx');
+  });
+
+  test('Quint replays, non-test files and pinned examples are clean', () => {
+    expect(
+      randomWalkViolations([
+        { path: 'pkgs/x/tests/quint/model.test.ts', text: 'x.explore(' },
+        { path: 'pkgs/x/src/harness/system.ts', text: 'randomActions(' },
+        {
+          path: 'pkgs/x/tests/replicas.test.ts',
+          text: 'await s.apply(join, {}); // explore the replicas',
+        },
+      ])
+    ).toEqual([]);
   });
 });

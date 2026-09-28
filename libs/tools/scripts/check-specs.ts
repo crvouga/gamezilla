@@ -14,7 +14,9 @@
  * synonym, no other context's term unless borrowed, every Quint name a
  * glossary term, cross-context imports only of published events), and
  * nothing in specs/ points at code (`spec-decoupling.ts`, D1: no file path,
- * workspace package, source file, or tag outside the traceability allow-list).
+ * workspace package, source file, or tag outside the traceability allow-list),
+ * and no spec package walks its harness at random outside a Quint replay
+ * (`behavior-tests.ts`).
  * Near-duplicate wording is a
  * warning; `--strict-duplicates` makes it fail.
  *
@@ -30,6 +32,7 @@ import { nearDuplicates } from '@pkgs/gherkin/similarity';
 import { specSmells } from '@pkgs/gherkin/smells';
 import type { GoalChecks } from '../goal/goal-manifest';
 import { parseGoalMarkdown } from '../goal/goal-statements';
+import { randomWalkViolations } from './behavior-tests';
 import { catalogDrift } from './spec-catalog';
 import { decouplingProblems } from './spec-decoupling';
 import { languageProblems } from './spec-glossary';
@@ -95,6 +98,20 @@ const errors: string[] = [
   }),
   ...catalogDrift(packages, shared.steps),
   ...languageProblems(),
+  ...randomWalkViolations(
+    packages.flatMap((pkg) =>
+      ['src', 'tests'].flatMap((root) =>
+        [
+          ...new Bun.Glob(`${root}/**/*.test.{ts,tsx}`).scanSync({
+            cwd: join(REPO_ROOT, pkg.dir),
+          }),
+        ].map((file) => ({
+          path: `${pkg.dir}/${file}`,
+          text: readFileSync(join(REPO_ROOT, pkg.dir, file), 'utf8'),
+        }))
+      )
+    )
+  ),
   ...decouplingProblems(
     [...new Bun.Glob('**/*').scanSync({ cwd: join(REPO_ROOT, SPECS_DIR) })]
       .sort()

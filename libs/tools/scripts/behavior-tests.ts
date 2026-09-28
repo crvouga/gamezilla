@@ -14,8 +14,14 @@
  *   `example-app` directory. A test that needs a variation configures the
  *   one app instead of forking it.
  *
- * Pure over the package's tracked files, so it runs inside the package's
- * cached `lint`.
+ * - In a package that runs specs (`specDomains`), a random walk over the
+ *   harness (`.explore(`, `randomActions(`) in a test is a behavior model
+ *   that escaped the specs: it is a Quint model in `specs/<domain>/`,
+ *   replayed through `tests/quint/` (`randomWalkViolations`, run by
+ *   `check-specs.ts`).
+ *
+ * Pure over the package's tracked files (and, for random walks, their
+ * text), so it runs inside the package's cached `lint` and the spec gate.
  */
 
 const HARNESS_TEST = /(^|\/)tests\/harness\/(.+\/)?[^/]+\.test\.tsx?$/;
@@ -71,4 +77,29 @@ export function behaviorTestViolations(input: {
     );
   }
   return out;
+}
+
+const TEST_FILE = /\.test\.tsx?$/;
+const MODEL_REPLAY = /(^|\/)tests\/quint\//;
+const RANDOM_WALK = /\.explore\(|\brandomActions\(/;
+
+/**
+ * Every test file (repo-relative `path`) of a spec package that walks the
+ * harness at random outside `tests/quint/`. Empty when every walk is a
+ * Quint model.
+ */
+export function randomWalkViolations(
+  files: readonly { readonly path: string; readonly text: string }[]
+): readonly string[] {
+  return files
+    .filter(
+      (file) =>
+        TEST_FILE.test(file.path) &&
+        !MODEL_REPLAY.test(file.path) &&
+        RANDOM_WALK.test(file.text)
+    )
+    .map(
+      (file) =>
+        `${file.path}: a random walk (explore / randomActions) in a spec package's test — a behavior walk is a Quint model in specs/<domain>/, replayed through tests/quint/`
+    );
 }
