@@ -25,7 +25,7 @@ const FIND_RUN_ATTEMPTS = 30;
 const FIND_RUN_INTERVAL_MS = 2000;
 const FAILED_LOG_LINES = 200;
 
-class CheckRemoteError extends Error {}
+export class CheckRemoteError extends Error {}
 
 type Run = {
   readonly code: number;
@@ -42,7 +42,7 @@ function run(cmd: readonly string[]): Run {
   };
 }
 
-function must(cmd: readonly string[]): string {
+export function must(cmd: readonly string[]): string {
   const result = run(cmd);
   if (result.code !== 0) {
     throw new CheckRemoteError(
@@ -69,13 +69,13 @@ export function findNewRun(
   );
 }
 
-function listDispatchRuns(branch: string): ListedRun[] {
+function listDispatchRuns(workflow: string, branch: string): ListedRun[] {
   const out = must([
     'gh',
     'run',
     'list',
     '--workflow',
-    WORKFLOW,
+    workflow,
     '--branch',
     branch,
     '--event',
@@ -89,7 +89,7 @@ function listDispatchRuns(branch: string): ListedRun[] {
 }
 
 /** `/git-sync` the branch so the run checks out exactly the local HEAD. */
-function syncBranch(argv: readonly string[]): {
+export function syncBranch(argv: readonly string[]): {
   readonly branch: string;
   readonly sha: string;
 } {
@@ -106,32 +106,34 @@ function syncBranch(argv: readonly string[]): {
 }
 
 async function waitForRun(
+  workflow: string,
   branch: string,
   sha: string,
   knownIds: ReadonlySet<number>
 ): Promise<number> {
   for (let attempt = 0; attempt < FIND_RUN_ATTEMPTS; attempt += 1) {
-    const found = findNewRun(listDispatchRuns(branch), knownIds, sha);
+    const found = findNewRun(listDispatchRuns(workflow, branch), knownIds, sha);
     if (found !== undefined) return found.databaseId;
     await Bun.sleep(FIND_RUN_INTERVAL_MS);
   }
   throw new CheckRemoteError(
-    `dispatched ${WORKFLOW} but no run for ${sha.slice(0, 9)} appeared; see ` +
-      `\`gh run list --workflow ${WORKFLOW} --branch ${branch}\`.`
+    `dispatched ${workflow} but no run for ${sha.slice(0, 9)} appeared; see ` +
+      `\`gh run list --workflow ${workflow} --branch ${branch}\`.`
   );
 }
 
-function cancelRun(runId: number): void {
-  console.error(`\ncheck: cancelling run ${String(runId)} on GitHub…`);
+function cancelRun(label: string, runId: number): void {
+  console.error(`\n${label}: cancelling run ${String(runId)} on GitHub…`);
   const result = run(['gh', 'run', 'cancel', String(runId)]);
   console.error(
     result.code === 0
-      ? 'check: cancelled.'
-      : `check: cancel failed: ${result.err || result.out}`
+      ? `${label}: cancelled.`
+      : `${label}: cancel failed: ${result.err || result.out}`
   );
 }
 
 type WatchState = {
+  readonly label: string;
   runId: number | null;
   watcher: ChildProcess | null;
   readonly lookup: () => number | null;
@@ -148,7 +150,7 @@ function cancelOnSignals(state: WatchState): void {
     handled = true;
     state.watcher?.kill('SIGTERM');
     const runId = state.runId ?? state.lookup();
-    if (runId !== null) cancelRun(runId);
+    if (runId !== null) cancelRun(state.label, runId);
     process.exit(signal === 'SIGINT' ? 130 : 143);
   };
   for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
@@ -156,31 +158,55 @@ function cancelOnSignals(state: WatchState): void {
   }
 }
 
-function printFailedLog(runId: number): void {
+function printFailedLog(label: string, runId: number): void {
   const result = run(['gh', 'run', 'view', String(runId), '--log-failed']);
   const lines = result.out.split('\n');
   console.error(
-    `\ncheck: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
+    `\n${label}: last ${String(Math.min(lines.length, FAILED_LOG_LINES))} failed-step log lines:`
   );
   console.error(lines.slice(-FAILED_LOG_LINES).join('\n'));
 }
 
-async function main(): Promise<number> {
-  const { branch, sha } = syncBranch(process.argv.slice(2));
-  const knownIds = new Set(listDispatchRuns(branch).map((r) => r.databaseId));
+export type RunWorkflowOptions = {
+  readonly workflow: string;
+  /** Log prefix, e.g. `check`. */
+  readonly label: string;
+  readonly branch: string;
+  readonly sha: string;
+  /** `workflow_dispatch` inputs (`gh workflow run -f key=value`). */
+  readonly inputs?: Readonly<Record<string, string>>;
+};
+
+/**
+ * Dispatch `workflow` on `branch`, block until its run finishes and return the
+ * run's exit code and URL. Ctrl-C / SIGTERM / SIGHUP cancel the run first.
+ */
+export async function runWorkflow(
+  options: RunWorkflowOptions
+): Promise<{ readonly code: number; readonly url: string }> {
+  const { workflow, label, branch, sha } = options;
+  const knownIds = new Set(
+    listDispatchRuns(workflow, branch).map((r) => r.databaseId)
+  );
   const state: WatchState = {
+    label,
     runId: null,
     watcher: null,
     lookup: () =>
-      findNewRun(listDispatchRuns(branch), knownIds, sha)?.databaseId ?? null,
+      findNewRun(listDispatchRuns(workflow, branch), knownIds, sha)
+        ?.databaseId ?? null,
   };
   cancelOnSignals(state);
 
-  must(['gh', 'workflow', 'run', WORKFLOW, '--ref', branch]);
+  const inputs = Object.entries(options.inputs ?? {}).flatMap(([k, v]) => [
+    '-f',
+    `${k}=${v}`,
+  ]);
+  must(['gh', 'workflow', 'run', workflow, '--ref', branch, ...inputs]);
   console.log(
-    `check: dispatched ${WORKFLOW} on ${branch} @ ${sha.slice(0, 9)}`
+    `${label}: dispatched ${workflow} on ${branch} @ ${sha.slice(0, 9)}`
   );
-  state.runId = await waitForRun(branch, sha, knownIds);
+  state.runId = await waitForRun(workflow, branch, sha, knownIds);
   const url = must([
     'gh',
     'run',
@@ -191,7 +217,7 @@ async function main(): Promise<number> {
     '--jq',
     '.url',
   ]);
-  console.log(`check: ${url}`);
+  console.log(`${label}: ${url}`);
 
   // Own process group: the terminal's Ctrl-C reaches only this script, which
   // cancels the run before the watcher goes away.
@@ -204,8 +230,19 @@ async function main(): Promise<number> {
   const code = await new Promise<number>((resolve) => {
     watcher.on('close', (exitCode) => resolve(exitCode ?? 1));
   });
-  if (code !== 0) printFailedLog(state.runId);
-  console.log(`check: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+  if (code !== 0) printFailedLog(label, state.runId);
+  console.log(`${label}: ${code === 0 ? 'passed' : 'failed'} — ${url}`);
+  return { code, url };
+}
+
+async function main(): Promise<number> {
+  const { branch, sha } = syncBranch(process.argv.slice(2));
+  const { code } = await runWorkflow({
+    workflow: WORKFLOW,
+    label: 'check',
+    branch,
+    sha,
+  });
   return code;
 }
 
