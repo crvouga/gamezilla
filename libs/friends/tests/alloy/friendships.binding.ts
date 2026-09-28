@@ -1,30 +1,34 @@
 /**
  * `specs/friends/friendships.als` against what the product stores: the
- * server's database and every device's own copy, read back after each
- * scripted friendships scenario, and after every step of a few traces Quint
- * draws from `specs/friends/friendship.qnt` (see `friendships-projection.ts`).
+ * server's database and every device's own copy, read after every step of
+ * one trace of `specs/friends/friendship.qnt`: of the traces Quint draws, the
+ * one passing through every situation a fact of the structure is about (see
+ * `friendship-walk-score.ts`, and `friendships-projection.ts`). Both adapters
+ * read the same run.
  */
 
 import '../quint/friendship.binding';
 
+import { quintWalk } from '@libs/harness/alloy/quint-walk';
+import {
+  captureWorlds,
+  sharedWorlds,
+} from '@libs/harness/alloy/snapshot-worlds';
 import { bindStructure } from '@pkgs/alloy/registry';
 
 import { openHarness } from '../harness/open-friends-harness';
-import { FRIENDSHIP_SCENARIOS } from './friends-scenarios';
+import { friendshipWalkScore } from './friendship-walk-score';
 import { projectFriendships } from './friendships-projection';
-import { quintWalks } from './snapshot-quint-walks';
-import { captureWorlds, once } from './snapshot-worlds';
 
-const worlds = once(() =>
+const worlds = sharedWorlds('friendships', () =>
   captureWorlds(
     openHarness,
     [
-      ...FRIENDSHIP_SCENARIOS,
-      ...quintWalks({
+      quintWalk({
         packageName: '@libs/friends',
         specUri: 'specs/friends/friendship.qnt',
-        traces: 2,
-        maxSteps: 6,
+        maxSteps: 8,
+        score: friendshipWalkScore,
       }),
     ],
     projectFriendships

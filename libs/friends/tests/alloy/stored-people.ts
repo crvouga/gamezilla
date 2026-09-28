@@ -5,10 +5,9 @@
  * user row, but knows its friends and the hosts of spaces it sees by id).
  */
 
+import type { Names } from '@libs/harness/alloy/snapshot-worlds';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-
-import type { Names } from './snapshot-worlds';
 
 export type Pair = readonly [string, string];
 

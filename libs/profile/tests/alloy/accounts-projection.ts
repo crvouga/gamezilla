@@ -20,10 +20,9 @@
  *   ("live while it is signed in there, tombstoned when it leaves").
  */
 
+import type { Names, Store, World } from '@libs/harness/alloy/snapshot-worlds';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-
-import type { Names, Store, World } from './snapshot-worlds';
 
 type Pair = readonly [string, string];
 

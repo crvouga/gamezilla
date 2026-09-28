@@ -1,6 +1,7 @@
 /**
- * How this package's structure bindings get their snapshots: each scripted
- * scenario opens a fresh harness (the profile composition, on virtual time),
+ * How a package's structure bindings (`tests/alloy/*.binding.ts`) get their
+ * snapshots: each scenario opens a fresh harness (the package's composition,
+ * on virtual time),
  * plays what people do through harness actions, and then reads what the
  * product stored — the server's Postgres-dialect database and every device's
  * own SQLite — through a projection into the model's atoms and relations.
@@ -13,12 +14,12 @@
  */
 
 import { DEVICE_ID_KEY } from '@libs/auth/public/auth-storage-keys';
-import type { OpenHarness } from '@libs/harness/open-harness/open-harness';
-import type { ProductHarness } from '@libs/harness/system/harness';
-import { accountIdOf, actorLocalSql } from '@libs/harness/system/identity';
 import type { Snapshot } from '@pkgs/alloy/snapshot';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
+import type { OpenHarness } from '../open-harness/open-harness';
+import type { ProductHarness } from '../system/harness';
+import { accountIdOf, actorLocalSql } from '../system/identity';
 
 /** Stored id → the name a report shows for it. */
 export type Names = (id: string) => string;
@@ -165,11 +166,28 @@ export async function captureWorlds(
   return { server, device };
 }
 
-/** One capture shared by a binding's adapters (server and device). */
-export function once<T>(load: () => Promise<T>): () => Promise<T> {
-  let pending: Promise<T> | null = null;
+type WorldsRegistry = Map<string, Promise<StoredWorlds>>;
+
+const WORLDS_KEY = Symbol.for('harness.alloy.stored-worlds');
+
+/**
+ * A structure's stored worlds, built once and shared by all its adapters: the
+ * server-database and device-database adapters read the same runs, so the
+ * scenarios play once per structure (per process), never once per adapter.
+ */
+export function sharedWorlds(
+  structure: string,
+  build: () => Promise<StoredWorlds>
+): () => Promise<StoredWorlds> {
   return () => {
-    pending ??= load();
+    const host = globalThis as { [WORLDS_KEY]?: WorldsRegistry };
+    host[WORLDS_KEY] ??= new Map();
+    const registry = host[WORLDS_KEY];
+    let pending = registry.get(structure);
+    if (pending === undefined) {
+      pending = build();
+      registry.set(structure, pending);
+    }
     return pending;
   };
 }

@@ -1,33 +1,45 @@
 /**
  * `specs/profile/accounts.als` against what the product stores: the server's
- * database and every device's own copy, read back during and after each
- * scripted accounts scenario, and after every step of a few traces Quint
- * draws from `specs/profile/account-sign-in.qnt` and
- * `specs/profile/username-changes.qnt` (see `accounts-projection.ts`).
+ * database and every device's own copy, read after every step of the trace
+ * of `specs/profile/account-sign-in.qnt` Quint draws that takes the most of
+ * the actions that change sign-in methods and devices, and during one
+ * scripted run with what that model cannot draw: renames, and an only Apple
+ * account deleted at Apple (see `accounts-scenarios.ts` and
+ * `accounts-projection.ts`). Both adapters read the same runs.
  */
 
 import '../quint/account-sign-in.binding';
-import '../quint/username-changes.binding';
 
+import { quintWalk, reaches } from '@libs/harness/alloy/quint-walk';
+import {
+  captureWorlds,
+  sharedWorlds,
+} from '@libs/harness/alloy/snapshot-worlds';
 import { bindStructure } from '@pkgs/alloy/registry';
 
 import { openHarness } from '../harness/open-profile-harness';
 import { projectAccounts } from './accounts-projection';
-import { ACCOUNTS_SCENARIOS } from './accounts-scenarios';
-import { quintWalks } from './snapshot-quint-walks';
-import { captureWorlds, once } from './snapshot-worlds';
+import { ACCOUNTS_SCENARIO } from './accounts-scenarios';
 
-const WALKS = { packageName: '@libs/profile', traces: 2, maxSteps: 6 };
+/** The actions that change an account's sign-in methods and devices. */
+const STRESSED = [
+  'signIn',
+  'connectSignInMethod',
+  'removeSignInMethod',
+  'signOut',
+  'signOutEverywhere',
+] as const;
 
-const worlds = once(() =>
+const worlds = sharedWorlds('accounts', () =>
   captureWorlds(
     openHarness,
     [
-      ...ACCOUNTS_SCENARIOS,
-      ...quintWalks({ ...WALKS, specUri: 'specs/profile/account-sign-in.qnt' }),
-      ...quintWalks({
-        ...WALKS,
-        specUri: 'specs/profile/username-changes.qnt',
+      ACCOUNTS_SCENARIO,
+      quintWalk({
+        packageName: '@libs/profile',
+        specUri: 'specs/profile/account-sign-in.qnt',
+        maxSteps: 8,
+        score: (trace) => reaches(trace, STRESSED) * 100 + trace.states.length,
       }),
     ],
     projectAccounts

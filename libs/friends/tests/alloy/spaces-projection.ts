@@ -23,12 +23,11 @@
  *   device, for everyone it knows of, from its own copy of the rows.
  */
 
+import type { Names, World } from '@libs/harness/alloy/snapshot-worlds';
 import { sharedLiveSpaceIdsSql } from '@libs/spaces/root/client/my-live-space-seat-sql';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-
 import { friendsRows } from './friendships-projection';
-import type { Names, World } from './snapshot-worlds';
 import {
   bothWays,
   named,

@@ -11,10 +11,9 @@
  * - `blocks`: a live block, blocker → blocked.
  */
 
+import type { Names, World } from '@libs/harness/alloy/snapshot-worlds';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
-
-import type { Names, World } from './snapshot-worlds';
 import {
   bothWays,
   named,
