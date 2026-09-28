@@ -22,7 +22,7 @@ import {
   type RoomModule,
   type RoomState,
 } from '@pkgs/room';
-import { RoomServer } from '@pkgs/room/server';
+import { RoomServer, type RoomServerConfig } from '@pkgs/room/server';
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory';
 import type { CreateId } from '@pkgs/uuid';
 
@@ -32,6 +32,8 @@ export type BunRoomSocketData = {
   readonly moduleName: string;
   readonly connId: string;
   readonly actor: RoomActor;
+  /** Grants the gateway admitted the connection with. */
+  readonly grants: readonly string[];
 };
 
 type AnyModule = RoomModule<RoomState, RoomCommandPayload, RoomEvent, string>;
@@ -42,6 +44,13 @@ export type BunRoomHostDeps = {
   readonly clock: Clock;
   readonly timers: Timers;
   readonly createId: CreateId;
+  /** Per-command gate for every hosted room (see `RoomServerConfig`). */
+  readonly authorize?: RoomServerConfig<
+    RoomState,
+    RoomCommandPayload,
+    RoomEvent,
+    string
+  >['authorize'];
 };
 
 export type BunRoomHost = {
@@ -51,6 +60,8 @@ export type BunRoomHost = {
     readonly moduleName: string;
     readonly actorId: string;
     readonly clientId: string;
+    /** Decided by the gateway in front of this host; none when absent. */
+    readonly grants?: readonly string[];
   }): BunRoomSocketData | null;
   open(data: BunRoomSocketData, send: (raw: string) => void): Promise<void>;
   message(data: BunRoomSocketData, raw: string): Promise<void>;
@@ -85,6 +96,7 @@ function createEntry(
     module,
     storage: new InMemoryRoomStorage(),
     clock: deps.clock,
+    ...(deps.authorize === undefined ? {} : { authorize: deps.authorize }),
     effectHandlers: [schedule.handler],
   });
   schedule.bindInject((cmd) =>
@@ -127,6 +139,7 @@ export function createBunRoomHost(deps: BunRoomHostDeps): BunRoomHost {
         moduleName: args.moduleName,
         connId: deps.createId(),
         actor: { id: args.actorId, clientId: args.clientId },
+        grants: args.grants ?? [],
       };
     },
     async open(data, send) {
@@ -144,7 +157,8 @@ export function createBunRoomHost(deps: BunRoomHostDeps): BunRoomHost {
       entry.server.registerConnection(
         data.connId,
         (payload) => send(JSON.stringify(payload)),
-        data.actor
+        data.actor,
+        { grants: data.grants }
       );
     },
     async message(data, raw) {

@@ -16,13 +16,17 @@ import {
   type ServerCase,
   type ServerOperation,
 } from '@libs/permissions/root/conformance/server';
+import type { HarnessRoomGateway } from '@libs/harness/composition';
+import { createInProcessRoomNode } from '@libs/spaces/harness/in-process-room-node';
+import { answerOfRoomCommand } from '@libs/spaces/harness/room-command-probe';
 import { SelectGame } from '@libs/spaces/public/games';
-import { composeSpaceRoomModule } from '@libs/spaces/public/load-game-plugins';
 import {
   spaceOpenSessionEntityId,
   spaceUserEntityId,
 } from '@libs/spaces/public/participation/participation-ids';
 import { SPACES_TABLES } from '@libs/spaces/public/schema';
+import { SPACES_SERVER } from '@libs/spaces/root/server/feature-server';
+import { createHarnessClock } from '@pkgs/clock';
 import { sql } from '@pkgs/sql';
 
 /** Everything the spaces operations read and write, plus memberships. */
@@ -116,18 +120,43 @@ export async function seedPlaceInSpaceOnDevice(c: ServerCase): Promise<void> {
 }
 
 /**
- * Choosing the space's game: the space room's own command handler, sent the
- * choice by the person's room identity.
+ * Choosing the space's game: the person's device connects to the space's
+ * room and sends the choice. The room node admits the connection with the
+ * grants the room gateway decides for them from the case's server database
+ * (spaces' `roomGrants`: their presence in the space, through the permission
+ * system), and the room's gate refuses a choice made without the grant.
  */
-export const chooseGame: ServerOperation = (c) => {
-  const room = composeSpaceRoomModule([], () => c.nowMs);
-  const result = room.handle(
-    room.initialState(),
-    { id: 'choose-game', ts: c.nowMs, payload: SelectGame({ game: null }) },
-    memberIdOf(c)
+export const chooseGame: ServerOperation = async (c) => {
+  const { clock, timers } = createHarnessClock({ startMs: c.nowMs });
+  let ids = 0;
+  const gateway: HarnessRoomGateway = {
+    roomGrants: ({ topic, actor }) =>
+      SPACES_SERVER.roomGrants?.({ db: c.db, topic, actor, nowMs: c.nowMs }) ??
+      Promise.resolve([]),
+  };
+  const node = createInProcessRoomNode(
+    {
+      clock,
+      timers,
+      createId: () => `room-id-${String(++ids)}`,
+      random: () => 0.5,
+      seed: 1n,
+    },
+    { games: [], gateway }
   );
-  if (!result.ok) {
-    return Promise.reject(new OperationRefused(result.error.type));
+  try {
+    const answer = await answerOfRoomCommand(node, {
+      spaceId: SPACE_ID,
+      identity: memberIdOf(c),
+      installId: c.env.deviceId,
+      payload: SelectGame({ game: null }),
+      nowMs: c.nowMs,
+      timers,
+    });
+    if (answer.kind === 'rejected') {
+      throw new OperationRefused(answer.error.type);
+    }
+  } finally {
+    node.dispose();
   }
-  return Promise.resolve();
 };

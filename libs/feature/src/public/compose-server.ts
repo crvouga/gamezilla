@@ -17,6 +17,7 @@ import type {
   FeatureServer,
   FeatureServerCtx,
   PubSubTopicCtx,
+  RoomGrantsCtx,
 } from './server';
 
 export type ComposedFeatureServers = {
@@ -27,7 +28,24 @@ export type ComposedFeatureServers = {
   readonly outboxConsumers: OutboxConsumerRegistry;
   /** Every topic the composed features grant this actor, deduped and sorted. */
   readonly pubsubTopics: (ctx: PubSubTopicCtx) => Promise<readonly Topic[]>;
+  /** Every grant the composed features give the actor in a room, sorted. */
+  readonly roomGrants: (ctx: RoomGrantsCtx) => Promise<readonly string[]>;
 };
+
+/**
+ * Every grant `servers` give the actor in a room, deduped and sorted — the
+ * room gateway's one question, answerable without mounting anything.
+ */
+export function composeRoomGrants(
+  servers: readonly FeatureServer[]
+): (ctx: RoomGrantsCtx) => Promise<readonly string[]> {
+  return async (ctx) => {
+    const granted = await Promise.all(
+      servers.map(async (s) => (s.roomGrants ? await s.roomGrants(ctx) : []))
+    );
+    return [...new Set(granted.flat())].sort();
+  };
+}
 
 export function composeFeatureServers(
   servers: readonly FeatureServer[]
@@ -58,5 +76,6 @@ export function composeFeatureServers(
       // Sorted so an ACL is a function of the actor, not of feature order.
       return [...new Set(granted.flat())].sort();
     },
+    roomGrants: composeRoomGrants(servers),
   };
 }

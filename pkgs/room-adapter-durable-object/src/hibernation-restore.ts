@@ -106,7 +106,7 @@ async function attachRestoredSocket<
       connId,
       (msg) => deps.sendJson(ws, msg),
       { id: identityRaw, clientId },
-      { silent: true }
+      { silent: true, grants: attachment.grants }
     );
   }
 }

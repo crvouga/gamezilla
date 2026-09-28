@@ -9,6 +9,7 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room';
+import { useSyncEngineInstance } from '@pkgs/sync-engine/solid';
 import type { CreateId, Random } from '@pkgs/uuid/create-id';
 import { useCreateId, useRandom } from '@pkgs/uuid/solid';
 import {
@@ -24,6 +25,7 @@ import {
   type CreateSpaceRoomResult,
   SpaceRoomFactory,
 } from './create-space-room';
+import { ownUploadsSettled } from './own-uploads-settled';
 import { useCreateRoomTransport } from './room-transport-factory';
 import type { SpaceRoomConnectionBootstrap } from './space-room-connection-bootstrap';
 
@@ -234,6 +236,7 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   const timers = useTimers();
   const createId = useCreateId();
   const random = useRandom();
+  const uploads = useSyncEngineInstance();
   const connectedKeyRef = { current: null as string | null };
   const openingKeyRef = { current: null as string | null };
 
@@ -255,8 +258,11 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   });
 
   // Fresh bearer on every socket open; falls back to the ambient token when
-  // refresh is unavailable (offline) or times out.
+  // refresh is unavailable (offline) or times out. Opens only after this
+  // device's writes reached the server: the gateway admits the socket with
+  // the grants the server's rows give (see `ownUploadsSettled`).
   const getSessionToken = async (): Promise<string | null> => {
+    await ownUploadsSettled(uploads, timers);
     let fresh: string | null = null;
     try {
       fresh = await raceFreshToken(timers, getFreshToken);

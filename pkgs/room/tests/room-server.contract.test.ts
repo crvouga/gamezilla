@@ -248,3 +248,43 @@ describe('room server: the authorize hook', () => {
     expect(rig.storage.entries).toHaveLength(0);
   });
 });
+
+describe('room server: grants the connection was admitted with', () => {
+  const tallyKeepers: StartServerOpts = {
+    authorize: async (_identity, _topic, _command, grants) =>
+      grants.includes('tally')
+        ? { ok: true }
+        : { ok: false, reason: 'not a tally keeper' },
+  };
+
+  test('reach the authorize hook with every command the connection sends', async () => {
+    const rig = await startServer(tallyKeepers);
+    connectPerson(rig, 'alice', ['tally']);
+    connectPerson(rig, 'bob');
+    await sendAddOne(rig, 'alice', 'a1');
+    await sendAddOne(rig, 'bob', 'b1');
+    expect(logSeqs(rig)).toEqual([1]);
+    expect(
+      framesOfKind(connection(rig, 'bob').frames, 'rejected')
+    ).toHaveLength(1);
+  });
+
+  test('are never broadcast in the roster', async () => {
+    const rig = await startServer(tallyKeepers);
+    connectPerson(rig, 'alice', ['tally']);
+    expect(rig.server.getRoster()).toEqual([
+      { id: 'alice', clientId: 'alice' },
+    ]);
+  });
+
+  test('an injected command carries none', async () => {
+    const rig = await startServer(tallyKeepers);
+    connectPerson(rig, 'alice', ['tally']);
+    await rig.server.injectCommand({
+      id: 'i1',
+      payload: AddOne({}),
+      identity: 'alice',
+    });
+    expect(rig.storage.entries).toHaveLength(0);
+  });
+});

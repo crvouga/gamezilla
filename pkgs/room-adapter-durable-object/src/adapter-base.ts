@@ -12,7 +12,7 @@ import {
   type RoomModuleName,
   type RoomState,
 } from '@pkgs/room';
-import { RoomServer } from '@pkgs/room/server';
+import { decodeRoomGrants, RoomServer } from '@pkgs/room/server';
 
 import type { ResolvedAdapterConfig } from './adapter-base-types';
 import { DoAlarmHub, openDoModuleSchedule } from './do-schedule';
@@ -66,6 +66,7 @@ type AcceptUpgradeArgs<
   identity: Identity;
   identityRaw: string;
   clientId: string;
+  grants: readonly string[];
   moduleName: RoomModuleName;
   topic: string;
 };
@@ -182,6 +183,7 @@ export class RoomDurableObjectAdapterBase<
       identity: auth.identity,
       identityRaw: auth.identityRaw,
       clientId: this.resolveClientId(request),
+      grants: decodeRoomGrants(request.headers.get(this.config.grantsHeader)),
       moduleName,
       topic,
     });
@@ -353,6 +355,9 @@ export class RoomDurableObjectAdapterBase<
       module: moduleImpl,
       storage,
       clock: this.config.clock,
+      ...(this.config.authorize === undefined
+        ? {}
+        : { authorize: this.config.authorize }),
       effectHandlers: [schedule.handler, ...this.config.effectHandlers],
     });
     await server.hydrateFromStorage();
@@ -373,6 +378,7 @@ export class RoomDurableObjectAdapterBase<
 
   private acceptUpgrade(args: AcceptUpgradeArgs<S, C, E, Identity>): Response {
     const { server, identity, identityRaw, clientId, moduleName, topic } = args;
+    const { grants } = args;
     this.supersedeActorSession(server, identityRaw, clientId);
     const [client, serverWs] = newWebSocketPair();
     const connId = this.config.createId();
@@ -393,11 +399,14 @@ export class RoomDurableObjectAdapterBase<
       moduleName,
       topic,
       traceparent,
+      grants,
     });
-    server.registerConnection(connId, (msg) => sendJson(serverWs, msg), {
-      id: identityRaw,
-      clientId,
-    });
+    server.registerConnection(
+      connId,
+      (msg) => sendJson(serverWs, msg),
+      { id: identityRaw, clientId },
+      { grants }
+    );
     this.ctx.acceptWebSocket(serverWs, [connId, moduleName]);
     return new Response(null, {
       status: 101,

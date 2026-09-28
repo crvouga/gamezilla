@@ -9,7 +9,11 @@ import {
   type RoomModuleName,
   type RoomState,
 } from '@pkgs/room';
-import type { RoomStorage } from '@pkgs/room/server';
+import {
+  ROOM_GRANTS_HEADER,
+  type RoomServerConfig,
+  type RoomStorage,
+} from '@pkgs/room/server';
 import type { CreateId } from '@pkgs/uuid';
 
 import {
@@ -58,6 +62,18 @@ export type CreateDurableObjectAdapterOptions<
    * `Identity` is `string`).
    */
   parseIdentity?: (raw: string) => Identity | null;
+  /**
+   * HTTP header carrying the grants the route layer decided for this
+   * connection (comma-separated; see `encodeRoomGrants`). The route layer
+   * must set it and strip any client-supplied value. Defaults to
+   * `x-actor-grants`; absent means no grants.
+   */
+  grantsHeader?: string;
+  /**
+   * Per-command gate for every hosted room, handed the connection's grants
+   * (see `RoomServerConfig.authorize`). No gate when omitted.
+   */
+  authorize?: RoomServerConfig<S, C, E, Identity>['authorize'];
   /**
    * Override storage construction (mainly for tests / alternative
    * persistence). Defaults to {@link DurableObjectRoomStorage} backed by
@@ -116,6 +132,7 @@ function resolveOptions<
     modulesByName,
     identityHeader: options.identityHeader ?? DEFAULT_IDENTITY_HEADER,
     clientIdHeader: options.clientIdHeader ?? DEFAULT_CLIENT_ID_HEADER,
+    grantsHeader: options.grantsHeader ?? ROOM_GRANTS_HEADER,
     parseIdentity: options.parseIdentity ?? defaultParseIdentity<Identity>,
     createStorage:
       options.createStorage ??
@@ -123,6 +140,7 @@ function resolveOptions<
         new DurableObjectRoomStorage(state.storage, moduleName)),
     clock: options.clock,
     createId: options.createId,
+    authorize: options.authorize,
     effectHandlers: options.effectHandlers ?? [],
     telemetry: options.telemetry,
   };

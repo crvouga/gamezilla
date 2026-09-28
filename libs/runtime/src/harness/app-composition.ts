@@ -38,7 +38,8 @@ export const APP_COMPOSITION: HarnessComposition = {
     await migrateHarnessPostgres(args);
   },
   migrateFingerprint: 'libs/runtime PostgresMigrationRunner',
-  roomNode: (env) => createInProcessRoomNode(env, GAME_DEFINITIONS),
+  roomNode: (env, gateway) =>
+    createInProcessRoomNode(env, { games: GAME_DEFINITIONS, gateway }),
   seedServer: seedChessPuzzlesForHarness,
   browserPages: [billingBrowserPage],
   billingOffer: PLUS_MEMBERSHIP_OFFER,

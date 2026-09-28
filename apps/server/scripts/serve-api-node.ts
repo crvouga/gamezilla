@@ -17,10 +17,13 @@
 import { GAME_DEFINITIONS } from '@libs/games/game-plugins';
 import type { ApiWorkerEnv, RoomNamespace } from '@libs/server-app/config/env';
 import { composeRoomModules } from '@libs/spaces/public/load-game-plugins';
+import { authorizeSpaceRoomCommand } from '@libs/spaces/public/space-room-authorize';
 import { wallClock, wallTimers } from '@pkgs/clock';
 import {
   type BunRoomSocketData,
   createBunRoomHost,
+  decodeRoomGrants,
+  ROOM_GRANTS_HEADER,
 } from '@pkgs/room-adapter-bun';
 import workerHandler from '../src/server';
 
@@ -31,6 +34,7 @@ const UPGRADE_HEADER = 'x-bun-room-upgrade';
 
 const rooms = createBunRoomHost({
   modules: composeRoomModules(GAME_DEFINITIONS, () => wallClock.now()),
+  authorize: authorizeSpaceRoomCommand,
   clock: wallClock,
   timers: wallTimers,
   createId: () => crypto.randomUUID(),
@@ -49,6 +53,8 @@ function answerRoomUpgrade(topic: string, request: Request): Response {
     moduleName: url.searchParams.get('module') ?? '',
     actorId: request.headers.get('x-actor-id') ?? '',
     clientId: request.headers.get('x-actor-client-id') ?? crypto.randomUUID(),
+    // Set by the API room gateway, which replaces any client-supplied value.
+    grants: decodeRoomGrants(request.headers.get(ROOM_GRANTS_HEADER)),
   });
   if (data === null || ticket.length === 0) {
     return new Response('unknown room module', { status: 400 });

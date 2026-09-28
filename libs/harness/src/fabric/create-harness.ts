@@ -44,6 +44,7 @@ import {
 } from './billing';
 import type { HarnessBrowser } from './browser';
 import { makeHarnessClientEnv } from './client-env';
+import { harnessRoomGateway } from './room-gateway';
 import { bumpHarnessClientEpoch } from './client-namespace';
 import {
   addHarnessIdpAccounts,
@@ -352,8 +353,10 @@ async function bootHarnessKernel(
     toApi: (node) => loadBalancer.fetchFrom(node),
   });
   const roomNode =
-    composition.roomNode?.(buildRoomServerEnv({ session, seed, timers })) ??
-    noRoomNode(composition.name);
+    composition.roomNode?.(
+      buildRoomServerEnv({ session, seed, timers }),
+      harnessRoomGateway({ composition, serverSql, clock: session.ports.clock })
+    ) ?? noRoomNode(composition.name);
   const disposed = { value: false };
   const servers = createHarnessServerNodes({
     composition,

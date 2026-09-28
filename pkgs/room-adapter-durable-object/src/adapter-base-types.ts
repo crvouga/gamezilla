@@ -7,7 +7,7 @@ import type {
   RoomModuleName,
   RoomState,
 } from '@pkgs/room';
-import type { RoomStorage } from '@pkgs/room/server';
+import type { RoomServerConfig, RoomStorage } from '@pkgs/room/server';
 import type { CreateId } from '@pkgs/uuid';
 import type {
   DurableObjectInstanceState,
@@ -29,6 +29,8 @@ export type ResolvedAdapterConfig<
   modulesByName: ReadonlyMap<RoomModuleName, RoomModule<S, C, E, Identity>>;
   identityHeader: string;
   clientIdHeader: string;
+  /** Header the gateway puts the connection's grants in. */
+  grantsHeader: string;
   parseIdentity: (raw: string) => Identity | null;
   createStorage: (
     state: DurableObjectInstanceState,
@@ -37,6 +39,8 @@ export type ResolvedAdapterConfig<
   ) => RoomStorage;
   clock: Clock;
   createId: CreateId;
+  /** Per-command gate handed to every {@link RoomServer}; none when absent. */
+  authorize: RoomServerConfig<S, C, E, Identity>['authorize'];
   /** Extra effect handlers composed after the built-in DO Schedule handler. */
   effectHandlers: readonly RoomEffectHandler[];
   telemetry: (env: Env) => DurableObjectTelemetry;

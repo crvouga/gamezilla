@@ -22,6 +22,7 @@ export interface RoomAuth<Identity> {
   authorize?(
     identity: Identity,
     topic: string,
-    command: unknown
+    command: unknown,
+    grants: readonly string[]
   ): Promise<{ ok: true } | { ok: false; reason: string }>;
 }

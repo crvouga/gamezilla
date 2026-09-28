@@ -10,6 +10,7 @@ import { defineFeatureServer } from '@libs/feature/public/server';
 import { roomTopic } from '../../public/room/space-room-topic';
 
 import { MySpaceIdsLoader } from './load-my-space-ids-sql';
+import { spaceRoomGrants } from './space-room-grants';
 
 export const SPACES_SERVER = defineFeatureServer({
   name: 'spaces',
@@ -17,4 +18,5 @@ export const SPACES_SERVER = defineFeatureServer({
     const spaceIds = await new MySpaceIdsLoader(ctx.db).load(ctx.actorId);
     return spaceIds.map((id) => roomTopic(id));
   },
+  roomGrants: spaceRoomGrants,
 });

@@ -27,7 +27,8 @@ export function spacesHarnessSlice(registry: {
         }),
     }),
     server: () => SPACES_SERVER,
-    roomNode: (env) => createInProcessRoomNode(env, registry.games),
+    roomNode: (env, gateway) =>
+      createInProcessRoomNode(env, { games: registry.games, gateway }),
     actions: SPACES_HARNESS_ACTIONS,
   };
 }

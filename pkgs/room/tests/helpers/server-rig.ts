@@ -54,12 +54,18 @@ export async function startServer(
   };
 }
 
-export function connectPerson(rig: ServerRig, person: string): Connection {
+/** Connect `person`, admitted with `grants` (none by default). */
+export function connectPerson(
+  rig: ServerRig,
+  person: string,
+  grants: readonly string[] = []
+): Connection {
   const connection: Connection = { id: person, frames: [] };
   rig.server.registerConnection(
     person,
     (frame) => connection.frames.push(frame),
-    { id: person, clientId: person }
+    { id: person, clientId: person },
+    { grants }
   );
   rig.connections.set(person, connection);
   return connection;

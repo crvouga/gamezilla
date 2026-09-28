@@ -1,8 +1,5 @@
 import { decideInMutation } from '@libs/permissions/public/mutation-permission';
-import type {
-  AppPermission,
-  SpacePresenceRole,
-} from '@libs/permissions/public/permission-catalog';
+import type { AppPermission } from '@libs/permissions/public/permission-catalog';
 import { sql } from '@pkgs/sql';
 import {
   type MutationDb,
@@ -13,9 +10,9 @@ import { z } from 'zod';
 import {
   resolveSpaceMemberId,
   spaceOpenSessionEntityId,
-  spaceUserEntityId,
 } from './participation/participation-ids';
 import { isSpaceHostActor } from './participation/space-participation-policy';
+import { storedSpacePresence } from './stored-space-presence';
 
 type SpaceHostRow = {
   readonly host_id: string | null;
@@ -73,33 +70,6 @@ export function isHost(env: MutationEnv, row: SpaceHostRow): boolean {
   });
 }
 
-async function isSpaceMember(
-  tx: MutationDb,
-  env: MutationEnv,
-  spaceId: string
-): Promise<boolean> {
-  const rows = await tx.query(sql<{ readonly id: string }>`
-    SELECT id FROM spaces_users
-    WHERE id = ${spaceUserEntityId(spaceId, memberId(env))}
-      AND deleted_at IS NULL
-    LIMIT 1
-  `);
-  return rows.length > 0;
-}
-
-/**
- * The actor's presence role in the space: its host, someone who joined it
- * (a live `spaces_users` row), or nobody in it (`null`, holding no space role).
- */
-async function spacePresenceOf(
-  tx: MutationDb,
-  env: MutationEnv,
-  spaceId: string
-): Promise<SpacePresenceRole | null> {
-  if (isHost(env, await getSpaceHost(tx, spaceId))) return 'host';
-  return (await isSpaceMember(tx, env, spaceId)) ? 'guest' : null;
-}
-
 export async function requireSpacePermission(
   tx: MutationDb,
   env: MutationEnv,
@@ -109,8 +79,13 @@ export async function requireSpacePermission(
     readonly message: string;
   }
 ): Promise<void> {
+  await getSpaceHost(tx, args.spaceId);
   const decision = await decideInMutation({ tx, env }, args.permission, {
-    spacePresence: await spacePresenceOf(tx, env, args.spaceId),
+    spacePresence: await storedSpacePresence(tx, args.spaceId, {
+      memberId: memberId(env),
+      accountId: env.accountId,
+      deviceId: env.deviceId,
+    }),
   });
   if (!decision.allowed) {
     throw new MutationError('SPACE_PERMISSION_DENIED', args.message);
