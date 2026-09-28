@@ -6,7 +6,7 @@ import { makeProductHarnessRoomNode } from '@apps/product/product-harness/produc
 import type { Client } from '@libs/client-app/shell/create-client';
 import type { HarnessRoomNode } from '@libs/harness/composition';
 import type { Harness } from '@libs/harness/fabric/create-harness';
-import type { HarnessSql } from '@libs/harness/fabric/harness-sql';
+import type { HarnessSql } from '@libs/harness/fabric/sql';
 import type {
   createProductHarnessLogBuffer,
   ProductHarnessActor,

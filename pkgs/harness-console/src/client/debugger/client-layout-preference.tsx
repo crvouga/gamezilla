@@ -5,7 +5,7 @@
 
 import { createContext, createSignal, type JSX, useContext } from 'solid-js';
 
-import type { ClientLayoutMode } from './harness-console-layout';
+import type { ClientLayoutMode } from './layout';
 
 type ClientLayoutPreferenceValue = {
   readonly preference: ClientLayoutMode;

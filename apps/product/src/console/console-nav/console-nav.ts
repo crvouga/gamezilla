@@ -17,7 +17,7 @@ import {
 import {
   coerceHarnessChromeKind,
   type HarnessChromeKind,
-} from '@pkgs/harness-console/shared/harness-node';
+} from '@pkgs/harness-console/shared/node';
 
 export type ConsoleKind = HarnessChromeKind;
 export type ConsoleView = DebuggerViewId;

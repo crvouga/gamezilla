@@ -11,14 +11,14 @@ import {
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import type { MutationRegistry } from '../../mutations/core/types';
 import type { QueryRegistry } from '../../queries/core/types';
+import type { SyncHarnessRuntime } from '../api';
+import { bootHarnessInfra, bootHarnessServer } from '../boot';
 import type { SyncBootDeps } from '../boot-deps';
 import type { HarnessSessionQuery } from '../domain-pack';
+import { buildKitFacade } from '../facade';
 import { RELIABLE_FAULTS } from '../faults';
-import type { SyncHarnessRuntime } from '../harness-api';
-import { bootHarnessInfra, bootHarnessServer } from '../harness-boot';
-import { buildKitFacade } from '../harness-facade';
-import type { HarnessClientOpts } from '../harness-types';
 import { toKernelFaults, wrapHarnessNetwork } from '../network';
+import type { HarnessClientOpts } from '../types';
 import type { SyncApp } from './app';
 import type { SyncArgs } from './args';
 import {

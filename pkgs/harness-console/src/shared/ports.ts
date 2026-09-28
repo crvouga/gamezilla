@@ -7,13 +7,13 @@ import type { ObjectStore } from '@pkgs/object-store/interface';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import type { Component as SolidComponent } from 'solid-js';
 
-import type { HarnessCheckpoint } from './harness-checkpoint';
+import type { HarnessCheckpoint } from './checkpoint';
 
 export type {
   HarnessCheckpoint,
   HarnessCheckpointRoomDump,
   HarnessCheckpointSqlFormat,
-} from './harness-checkpoint';
+} from './checkpoint';
 
 export type ProductHarnessLogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -189,7 +189,7 @@ export type ProductHarnessSnapshotManifest = {
   readonly downAddresses: readonly string[];
   readonly evictedAddresses: readonly string[];
   readonly sqlFormat?:
-    | import('./harness-checkpoint').HarnessCheckpointSqlFormat
+    | import('./checkpoint').HarnessCheckpointSqlFormat
     | undefined;
   readonly keys: {
     readonly serverSql: string;

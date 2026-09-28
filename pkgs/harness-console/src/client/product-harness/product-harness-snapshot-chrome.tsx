@@ -20,7 +20,7 @@ import type {
   ProductHarnessSession,
   ProductHarnessSnapshotInfo,
 } from '../../shared/ports';
-import type { ClientLayoutMode } from '../debugger/harness-console-layout';
+import type { ClientLayoutMode } from '../debugger/layout';
 import {
   useClientLayoutPreference,
   useHarnessConsoleLayout,

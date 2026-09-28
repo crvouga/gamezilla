@@ -1,6 +1,6 @@
-import type { BootedHarnessKernel } from './harness-types';
 import { createHarnessPubSubBroker } from './pubsub-bridge';
 import { BROKER, SERVER_PUB } from './traffic';
+import type { BootedHarnessKernel } from './types';
 
 function createBroker(k: BootedHarnessKernel) {
   return createHarnessPubSubBroker({

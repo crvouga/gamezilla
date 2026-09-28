@@ -13,7 +13,7 @@ import type {
   InMemoryClientStorage,
   InMemoryRoomStorage,
 } from '@pkgs/room-adapter-memory';
-import type { HarnessLoopbackRoomTransport } from './harness-loopback-transport';
+import type { HarnessLoopbackRoomTransport } from './loopback-transport';
 import type { HarnessRoomNetwork } from './network';
 import type { SerialQueue } from './serial-queue';
 

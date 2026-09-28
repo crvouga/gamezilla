@@ -13,6 +13,7 @@ import type {
 import type { QueryRegistry } from '../queries/core/types';
 import type { QueryChannelsCtx } from '../shared/push-payload';
 import type { TopicMap } from '../shared/topic-map';
+import type { HarnessClient, HarnessClientLifecycle } from './client';
 import {
   createEngineFromParts,
   createMutationSide,
@@ -21,22 +22,21 @@ import {
 import { decorateHarnessClient } from './decorate-harness-client';
 import type { HarnessPushChannels } from './domain-pack';
 import type { EdgeFaultController } from './edge-faults';
-import type { HarnessClient, HarnessClientLifecycle } from './harness-client';
 import type { HarnessHttpClient } from './http-bridge';
 import { createSerialSqlClient } from './serial-sql';
 import type { HarnessServer, HarnessServerAuth } from './server';
 
-export type {
-  HarnessAuthControl,
-  HarnessAuthStatus,
-} from './client-factory-parts';
 export type {
   HarnessClient,
   HarnessClientDbBundle,
   HarnessClientLifecycle,
   HarnessRejection,
   HarnessSubscription,
-} from './harness-client';
+} from './client';
+export type {
+  HarnessAuthControl,
+  HarnessAuthStatus,
+} from './client-factory-parts';
 
 export type BuildHarnessClientArgs = {
   readonly id: string;

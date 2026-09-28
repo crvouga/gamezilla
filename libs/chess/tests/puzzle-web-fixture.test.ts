@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { HARNESS_CHESS_PUZZLES_WEB_CSV } from '@libs/chess/harness/harness-chess-puzzles-web-fixture';
+import { HARNESS_CHESS_PUZZLES_WEB_CSV } from '@libs/chess/harness/chess-puzzles-web-fixture';
 
 import { parseHarnessChessPuzzleCsv } from '@libs/chess/harness/seed-harness-chess-puzzles-web';
 import { PuzzleValidationReport } from '@libs/chess/root/server/validate-chess-puzzles/puzzle-validation-report';

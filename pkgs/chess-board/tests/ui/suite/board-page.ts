@@ -28,7 +28,7 @@ import {
   HARNESS_BOARD_TEST_ID,
   HarnessIds,
   type HarnessToggle,
-} from '../harness/harness-config';
+} from '../harness/config';
 import type { ChessBoardHost } from './board-host';
 
 export type BoardPaint = Readonly<

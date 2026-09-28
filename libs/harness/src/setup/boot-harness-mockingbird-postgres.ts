@@ -13,7 +13,7 @@ import {
 } from '@pkgs/sql-client-harness/boot-harness-mockingbird-postgres';
 import type { HarnessComposition } from '../composition';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
-import { harnessPostgresSeedFingerprintSource } from './harness-postgres-seed-fingerprint';
+import { harnessPostgresSeedFingerprintSource } from './postgres-seed-fingerprint';
 
 const REPO_ROOT = join(__dirname, '../../../..');
 

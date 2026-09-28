@@ -3,10 +3,7 @@
  * URL aliases: html → ui, sqlite → db, logs → events.
  */
 
-import {
-  coerceHarnessChromeKind,
-  type HarnessChromeKind,
-} from './harness-node';
+import { coerceHarnessChromeKind, type HarnessChromeKind } from './node';
 
 export const DEBUGGER_VIEW_IDS = [
   'ui',

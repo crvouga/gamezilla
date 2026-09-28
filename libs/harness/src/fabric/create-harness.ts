@@ -32,15 +32,15 @@ import {
   createHarnessAppBuilds,
   type HarnessAppBuild,
   type HarnessAppBuilds,
-} from './harness-app-build';
+} from './app-build';
 import {
   type HarnessBillingProviders,
   harnessMembershipBilling,
   openHarnessBillingProviders,
-} from './harness-billing';
-import type { HarnessBrowser } from './harness-browser';
-import { makeHarnessClientEnv } from './harness-client-env';
-import { bumpHarnessClientEpoch } from './harness-client-namespace';
+} from './billing';
+import type { HarnessBrowser } from './browser';
+import { makeHarnessClientEnv } from './client-env';
+import { bumpHarnessClientEpoch } from './client-namespace';
 import {
   addHarnessIdpAccounts,
   createHarnessIdps,
@@ -49,25 +49,25 @@ import {
   harnessAppleClientKeys,
   harnessIdpFetchFrom,
   harnessIdpSecrets,
-} from './harness-idp';
+} from './idp';
 import {
   createHarnessLoadBalancer,
   type HarnessLoadBalancer,
-} from './harness-load-balancer';
-import { createHarnessNet } from './harness-net';
+} from './load-balancer';
+import { createHarnessNet } from './net';
 import {
   createHarnessServerNodes,
   HARNESS_PRIMARY_SERVER_ID,
   type HarnessServerNodes,
   type Server,
-} from './harness-server-nodes';
+} from './server-nodes';
 import {
   type HarnessSql,
   openFreshHarnessClientSql,
   openFreshHarnessServerSql,
   openHarnessServerSqlFromSeedBytes,
   sharedSqlClient,
-} from './harness-sql';
+} from './sql';
 
 /** Placeholder DATABASE_URL for secret-store / config (no TCP listener). */
 const HARNESS_MOCKINGBIRD_POSTGRES_DATABASE_URL =

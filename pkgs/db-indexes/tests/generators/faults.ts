@@ -1,5 +1,5 @@
 import fc from 'fast-check';
-import type { HarnessFault } from '../../src/harness/harness-db';
+import type { HarnessFault } from '../../src/harness/db';
 
 export type FaultScheduleItem = {
   readonly kind:

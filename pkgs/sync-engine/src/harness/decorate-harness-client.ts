@@ -2,7 +2,7 @@ import type {
   HarnessClient,
   HarnessRejection,
   HarnessSubscription,
-} from './harness-client';
+} from './client';
 import type { HarnessHttpClient } from './http-bridge';
 
 /** Promise brand used by sync client.outcome() — polled by {@link waitUntil}. */

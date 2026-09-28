@@ -10,14 +10,13 @@ import {
   InMemoryClientStorage,
   InMemoryRoomStorage,
 } from '@pkgs/room-adapter-memory';
-import { createRoomEdgeFaultController } from './edge-faults';
 import type {
   OpenRoomHarnessArgs,
   RoomHarnessAuthorize,
   RoomHarnessClient,
   RoomHarnessRuntime,
   RoomHarnessRuntimeDeps,
-} from './harness-api';
+} from './api';
 import {
   attachClient,
   buildRoomHarnessClient,
@@ -27,8 +26,9 @@ import {
   restartClient,
   softDisconnectClient,
   softReconnectClient,
-} from './harness-clients';
-import { assembleRoomHarnessRuntime } from './harness-facade';
+} from './clients';
+import { createRoomEdgeFaultController } from './edge-faults';
+import { assembleRoomHarnessRuntime } from './facade';
 import { checkRoomInvariants } from './invariants';
 import {
   type HarnessRoomNetwork,

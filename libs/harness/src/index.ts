@@ -15,14 +15,14 @@ export {
   noRoomNode,
 } from './composition';
 export {
+  bumpHarnessClientEpoch,
+  harnessClientNamespace,
+} from './fabric/client-namespace';
+export {
   type CreateHarnessOptions,
   createHarness,
   type Harness,
 } from './fabric/create-harness';
-export {
-  bumpHarnessClientEpoch,
-  harnessClientNamespace,
-} from './fabric/harness-client-namespace';
 export {
   createHarnessLoadBalancer,
   HARNESS_LOAD_BALANCER_ID,
@@ -30,11 +30,11 @@ export {
   type HarnessLoadBalancerBackendStat,
   type HarnessLoadBalancerRoute,
   type HarnessLoadBalancerSnapshot,
-} from './fabric/harness-load-balancer';
+} from './fabric/load-balancer';
 export {
   HARNESS_PRIMARY_SERVER_ID,
   type Server,
-} from './fabric/harness-server-nodes';
+} from './fabric/server-nodes';
 export {
   type HarnessSql,
   handleBoundSqlClient,
@@ -42,12 +42,12 @@ export {
   openFreshHarnessServerSql,
   openHarnessServerSqlFromSeedBytes,
   sharedSqlClient,
-} from './fabric/harness-sql';
+} from './fabric/sql';
 export {
   type HarnessSqlBackend,
   resolveHarnessSqlBackend,
-} from './fabric/harness-sql-backend';
-export { getHarnessSqlEngines } from './fabric/harness-sql-engines';
+} from './fabric/sql-backend';
+export { getHarnessSqlEngines } from './fabric/sql-engines';
 export {
   captureSystemSnapshot,
   restoreSystemSnapshot,

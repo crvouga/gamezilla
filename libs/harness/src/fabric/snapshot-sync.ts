@@ -6,7 +6,7 @@ import type { Client } from '@libs/client-app/shell/create-client';
 import type { Clock } from '@pkgs/clock';
 import type { Session } from '@pkgs/harness';
 import { sql } from '@pkgs/sql';
-import type { HarnessSql } from './harness-sql';
+import type { HarnessSql } from './sql';
 
 type UnderlyingScheduler = Session['scheduler']['underlying'];
 

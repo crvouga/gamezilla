@@ -1,7 +1,7 @@
 import { defineAction } from '@pkgs/harness';
 import { describeUiOp, performUiOp, type UiOp } from '@pkgs/ui-testing';
 
-import { HARNESS_PRIMARY_SERVER_ID } from '../fabric/harness-server-nodes';
+import { HARNESS_PRIMARY_SERVER_ID } from '../fabric/server-nodes';
 import { ensureActor } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { caps, clientIds, partitioned } from './observations';

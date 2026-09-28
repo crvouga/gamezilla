@@ -1,5 +1,5 @@
 import type { Session } from '@pkgs/harness';
-import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/harness-system-snapshot';
+import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { Driver } from '@pkgs/ui-testing';
 import type { Harness } from '../fabric/create-harness';

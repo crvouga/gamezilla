@@ -7,7 +7,7 @@
 
 import type { Driver } from '@pkgs/ui-testing';
 
-import type { HarnessConfig } from '../harness/harness-config';
+import type { HarnessConfig } from '../harness/config';
 
 export type ChessBoardHost = {
   readonly name: string;

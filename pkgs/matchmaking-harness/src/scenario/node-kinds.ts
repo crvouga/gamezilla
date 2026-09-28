@@ -1,6 +1,6 @@
 import { asSeededRng, type Session } from '@pkgs/harness';
+import type { MatchmakingHarnessBackend } from '../api';
 import { bootReplicaOnStore, type ReplicaBootConfig } from '../boot-replica';
-import type { MatchmakingHarnessBackend } from '../harness-api';
 import { type HarnessStore, openHarnessStore } from '../store';
 
 export type MmStore = { readonly store: HarnessStore };

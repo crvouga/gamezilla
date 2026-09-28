@@ -9,7 +9,7 @@ import {
   HARNESS_CHESS_FIXTURES_DIR,
   HARNESS_CHESS_PUZZLE_IDS,
   HARNESS_CHESS_PUZZLE_MATE_IN_2,
-} from '@libs/chess/harness/harness-chess-puzzles';
+} from '@libs/chess/harness/chess-puzzles';
 import { HARNESS_CHESS_FEED_POOL_IDS } from '@libs/chess/harness/seed-harness-chess-puzzles';
 import type { ChessPuzzleTheme } from '@libs/chess/public/chess-puzzle-themes';
 

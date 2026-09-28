@@ -7,7 +7,7 @@
  */
 
 import type { Harness } from '@libs/harness/fabric/create-harness';
-import type { HarnessLoadBalancerRoute } from '@libs/harness/fabric/harness-load-balancer';
+import type { HarnessLoadBalancerRoute } from '@libs/harness/fabric/load-balancer';
 import {
   createProductHarnessLogBuffer,
   type ProductHarnessLoadBalancerNode,

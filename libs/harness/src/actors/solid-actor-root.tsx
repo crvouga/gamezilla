@@ -17,9 +17,9 @@ import type {
 import { TestViewportProvider } from '@pkgs/ui';
 import type { MemoryHistory } from '@solidjs/router';
 import type { Component, JSX } from 'solid-js';
-import type { HarnessBrowser } from '../fabric/harness-browser';
+import type { HarnessBrowser } from '../fabric/browser';
 
-import { HarnessBrowserSheet } from './harness-browser-sheet';
+import { HarnessBrowserSheet } from './browser-sheet';
 
 const ACTOR_VIEWPORT = { width: 390, height: 844 } as const;
 

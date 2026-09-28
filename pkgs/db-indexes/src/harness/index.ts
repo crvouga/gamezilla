@@ -1,5 +1,5 @@
-export { createHarnessClock } from './harness-clock';
-export { HarnessCrashError } from './harness-crash-error';
+export { createHarnessClock } from './clock';
+export { HarnessCrashError } from './crash-error';
 export {
   HarnessDb,
   type HarnessDbOptions,
@@ -7,7 +7,7 @@ export {
   type HarnessFaultKind,
   type HarnessIndexSeed,
   type HarnessTableSeed,
-} from './harness-db';
+} from './db';
 export {
   daysPass,
   declare,

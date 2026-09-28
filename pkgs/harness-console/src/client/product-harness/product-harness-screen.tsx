@@ -18,7 +18,7 @@ import {
   onCleanup,
   Switch,
 } from 'solid-js';
-import type { HarnessChromeKind } from '../../shared/harness-node';
+import type { HarnessChromeKind } from '../../shared/node';
 import type {
   ProductHarnessActor,
   ProductHarnessPaletteCommand,
@@ -52,7 +52,7 @@ import { ProductHarnessTopologyChrome } from './product-harness-topology-chrome'
 import { selectUnifiedNode } from './select-unified-node';
 import type { ProductHarnessSessionState } from './use-product-harness-session';
 
-export type { HarnessChromeKind as ProductHarnessKindId } from '../../shared/harness-node';
+export type { HarnessChromeKind as ProductHarnessKindId } from '../../shared/node';
 
 export function ProductHarnessScreen(props: {
   readonly state: ProductHarnessSessionState;

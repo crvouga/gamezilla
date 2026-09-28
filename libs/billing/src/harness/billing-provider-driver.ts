@@ -9,7 +9,7 @@ import { ExternalAccountRepository } from '@libs/auth/public/external-account-re
 import type {
   HarnessBillingProvider,
   HarnessBillingProviders,
-} from '@libs/harness/fabric/harness-billing';
+} from '@libs/harness/fabric/billing';
 import { letTimePass } from '@libs/harness/system/actions';
 import type { ProductHarness } from '@libs/harness/system/harness';
 import {

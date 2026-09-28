@@ -1,7 +1,7 @@
 /** Shared helpers for the scripted-pin action modules. */
 
 import type { Mutation } from '../../mutations/core/types';
-import type { HarnessClient, HarnessSubscription } from '../harness-client';
+import type { HarnessClient, HarnessSubscription } from '../client';
 import type { SyncHarness } from './system';
 
 /** Virtual-time slice between scripted chaos steps. */

@@ -5,7 +5,7 @@ import {
   type HarnessSql,
   openHarnessServerSqlFromSeedBytes,
   sharedSqlClient,
-} from '../fabric/harness-sql';
+} from '../fabric/sql';
 import type { ProductExtra } from './ports';
 import { ensureRealStack } from './real-stack';
 

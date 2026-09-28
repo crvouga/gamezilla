@@ -8,6 +8,7 @@ export {
   LoopbackRoomTransport,
   type LoopbackRoomTransportArgs,
 } from '@pkgs/room-adapter-memory';
+export type { RoomHarnessClient } from './api';
 export {
   AuthzFixtureModule,
   authzCount,
@@ -42,7 +43,6 @@ export { deadlineSystem } from './example-deadline/system';
 export { matchClockApp } from './example-match-clock/app';
 export { matchClockSystem } from './example-match-clock/system';
 export { expectInSync } from './expect-in-sync';
-export type { RoomHarnessClient } from './harness-api';
 export {
   FlagFall,
   MatchClockFixtureModule,

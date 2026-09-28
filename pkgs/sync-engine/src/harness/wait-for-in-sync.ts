@@ -1,9 +1,9 @@
 import type { VirtualScheduler } from '@pkgs/harness';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { reconcileOptimisticPeerMarkers } from '../client/optimistic-peer-rows';
+import type { HarnessClient } from './client';
 import type { HarnessDomainPack } from './domain-pack';
 import { RELIABLE_FAULTS } from './faults';
-import type { HarnessClient } from './harness-client';
 import {
   checkPostInSyncInvariants,
   type InvariantViolation,

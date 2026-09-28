@@ -17,8 +17,8 @@ import {
   HARNESS_NODE_LABELS,
   type HarnessChromeKind,
   type HarnessNodeKind,
-} from '../shared/harness-node';
-import { harnessNodeIcon } from './harness-node-chrome';
+} from '../shared/node';
+import { harnessNodeIcon } from './node-chrome';
 
 export type PaneNavValue = {
   readonly view: DebuggerViewId;

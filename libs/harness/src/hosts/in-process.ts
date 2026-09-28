@@ -8,9 +8,9 @@ import {
   type HarnessSql,
   openFreshHarnessServerSql,
   openHarnessServerSqlFromSeedBytes,
-} from '../fabric/harness-sql';
+} from '../fabric/sql';
 import { compositionMigratePostgres } from '../migrate/migrate-composition';
-import { createSerializedRunFor } from '../setup/harness-wait-pump';
+import { createSerializedRunFor } from '../setup/wait-pump';
 import { loadSolidDomSessionFactory } from './in-process-dom';
 import { HARNESS_START_MS, type ProductExtra } from './ports';
 

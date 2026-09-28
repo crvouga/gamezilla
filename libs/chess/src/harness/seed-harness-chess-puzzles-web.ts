@@ -12,7 +12,7 @@ import { PuzzleSeedFastPath } from '../root/server/seed-chess-puzzles/fast-path'
 import { PuzzleIngestTally } from '../root/server/seed-chess-puzzles/puzzle-ingest';
 import type { PuzzleTableRow } from '../root/server/seed-chess-puzzles/row';
 
-import { HARNESS_CHESS_PUZZLES_WEB_CSV } from './harness-chess-puzzles-web-fixture';
+import { HARNESS_CHESS_PUZZLES_WEB_CSV } from './chess-puzzles-web-fixture';
 
 const BATCH_SIZE = 50;
 

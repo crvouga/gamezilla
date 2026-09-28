@@ -14,8 +14,8 @@ import {
   restoreCheckpointRooms,
   restoreCheckpointServers,
 } from '@libs/harness/fabric/checkpoint-state';
-import { getHarnessSqlEngines } from '@libs/harness/fabric/harness-sql-engines';
 import { awaitProductHarnessMutationDrain } from '@libs/harness/fabric/snapshot-sync';
+import { getHarnessSqlEngines } from '@libs/harness/fabric/sql-engines';
 import type { HarnessCheckpoint } from '@pkgs/harness-console/client';
 import { getLocalSchemaTargetVersion } from '@pkgs/sync-engine/client';
 

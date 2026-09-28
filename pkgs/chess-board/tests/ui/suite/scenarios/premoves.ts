@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import type { HarnessConfig } from '../../harness/harness-config';
+import type { HarnessConfig } from '../../harness/config';
 import type { ChessBoardHost } from '../board-host';
 import { openBoard } from '../board-page';
 import { FEN, play } from '../oracle';

@@ -3,7 +3,7 @@
  * host UI. `openHarness` may replace this with a recording-aware wrapper.
  */
 
-import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/harness-system-snapshot';
+import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
 import type { StepRecorder } from '@pkgs/ui-testing';
 
 import {

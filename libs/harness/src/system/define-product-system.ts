@@ -13,7 +13,7 @@ import { createHarness } from '../fabric/create-harness';
 import { bunWebviewRuntime } from '../hosts/bun-webview';
 import { inProcessRuntime } from '../hosts/in-process';
 import type { ProductExtra, ProductUi } from '../hosts/ports';
-import { harnessReportTopology } from '../setup/harness-report-topology';
+import { harnessReportTopology } from '../setup/report-topology';
 import { wireProductRuntime } from '../setup/wire-product-runtime';
 import {
   partition,

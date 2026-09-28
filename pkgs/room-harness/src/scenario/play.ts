@@ -1,4 +1,4 @@
-import type { RoomHarnessRuntime } from '../harness-api';
+import type { RoomHarnessRuntime } from '../api';
 
 /** Restart crashed clients / server so settle is meaningful. */
 export async function prepareClientsForInSync(

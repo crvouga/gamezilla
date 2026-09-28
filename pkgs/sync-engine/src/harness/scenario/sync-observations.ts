@@ -3,7 +3,7 @@ import { sql } from '@pkgs/sql';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 
 import { mutationStatus } from '../../mutations/client/mutation-status';
-import type { HarnessClient } from '../harness-client';
+import type { HarnessClient } from '../client';
 import { isClosedDatabaseError } from '../invariants';
 import { checkDomainInSync } from '../wait-for-in-sync';
 import type { SyncHarness } from './system';

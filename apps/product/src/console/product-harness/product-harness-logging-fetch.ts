@@ -1,8 +1,5 @@
 import type { ServerHttp } from '@libs/client-app/shell/client-env';
-import {
-  requestMethod,
-  requestPath,
-} from '@libs/harness/fabric/harness-http-request';
+import { requestMethod, requestPath } from '@libs/harness/fabric/http-request';
 import type { ProductHarnessLogBuffer } from '@pkgs/harness-console/client';
 
 /**

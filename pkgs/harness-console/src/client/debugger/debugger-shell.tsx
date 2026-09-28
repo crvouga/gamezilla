@@ -4,7 +4,7 @@ import type { DebuggerViewId } from '../../shared/debugger-views';
 import {
   coerceHarnessChromeKind,
   type HarnessChromeKind,
-} from '../../shared/harness-node';
+} from '../../shared/node';
 import {
   DEBUGGER_KIND_TABS,
   debuggerInstanceTabItem,

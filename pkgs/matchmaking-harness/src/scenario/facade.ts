@@ -10,14 +10,14 @@ import type {
 } from '@pkgs/matchmaking/interface';
 import type { SeededRng } from '@pkgs/uuid';
 import type { Hono } from 'hono';
+import type { HarnessReplica, MatchmakingHarnessRuntime } from '../api';
 import { bootReplicaOnStore, type ReplicaBootConfig } from '../boot-replica';
-import type { HarnessReplica, MatchmakingHarnessRuntime } from '../harness-api';
 import {
   buildHarnessReplica,
   joinOnReplica,
   type ReplicaOps,
   resolveReplica,
-} from '../harness-handles';
+} from '../handles';
 import type { MmReplicaBoot } from './node-kinds';
 
 /** Last result of each write action — read back through observations. */

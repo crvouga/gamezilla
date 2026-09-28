@@ -7,7 +7,7 @@ import { SqlClientImplAgnostic } from '@pkgs/sql-client/impl-agnostic';
 import type { SqlClient } from '@pkgs/sql-client/interface';
 import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres/impl-mockingbird-postgres';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite/impl-bun-sqlite';
-import type { MatchmakingHarnessBackend } from './harness-api';
+import type { MatchmakingHarnessBackend } from './api';
 
 export type HarnessStore = {
   readonly backend: MatchmakingHarnessBackend;

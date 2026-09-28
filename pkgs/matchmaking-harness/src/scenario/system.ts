@@ -11,8 +11,8 @@ import type {
   RadiusOptions,
 } from '@pkgs/matchmaking/interface';
 import fc from 'fast-check';
+import type { MatchmakingHarnessBackend } from '../api';
 import type { ReplicaBootConfig } from '../boot-replica';
-import type { MatchmakingHarnessBackend } from '../harness-api';
 import { MATCHMAKING_ACTIONS } from './actions';
 import { buildMatchmakingHarness, type MatchmakingHarness } from './facade';
 import { startReplica, startStore } from './node-kinds';

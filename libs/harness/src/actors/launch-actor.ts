@@ -3,7 +3,7 @@
  */
 
 import { wallClock, wallTimers } from '@pkgs/clock';
-import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/harness-system-snapshot';
+import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 import type { Driver, StepRecorder } from '@pkgs/ui-testing';
 import { recordingDriver } from '@pkgs/ui-testing';
@@ -15,7 +15,7 @@ import {
 import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
 import type { Harness, HarnessActor, ProductUi } from '..';
 import { harnessClientNamespace } from '..';
-import { createHarnessWaitPump } from '../setup/harness-wait-pump';
+import { createHarnessWaitPump } from '../setup/wait-pump';
 import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import { solidActorRoot } from './solid-actor-root';
 import { webviewLocalSql } from './webview-local-sql';

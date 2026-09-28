@@ -1,4 +1,4 @@
-import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/harness-system-snapshot';
+import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
 
 import { capturedSnapshot, captureSnapshot } from '..';
 import type { OpenHarness } from './open-harness';

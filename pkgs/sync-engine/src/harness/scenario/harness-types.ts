@@ -1,13 +1,13 @@
-import type { HarnessClient } from '../harness-client';
-import type { HarnessNode } from '../harness-node';
-import type { AddClientArgs } from '../harness-types';
+import type { HarnessClient } from '../client';
 import type { HarnessNet } from '../net-effect';
 import type { SyncNetwork } from '../network';
+import type { HarnessNode } from '../node';
 import type { SeededRng } from '../rng';
 import type { HarnessServer } from '../server';
 import type { LocalStorageTamper } from '../storage-faults';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { HarnessTraffic } from '../traffic';
+import type { AddClientArgs } from '../types';
 
 /**
  * Scripted-pin / dispatch surface — domain ops over the live sync surface.

@@ -6,11 +6,11 @@ import type {
   MutationRegistry,
 } from '../../mutations/core/types';
 import type { QueryRegistry } from '../../queries/core/types';
+import type { SyncHarnessRuntime } from '../api';
+import type { HarnessInfra } from '../boot';
+import type { HarnessSubscription } from '../client';
 import type { HarnessSessionQuery } from '../domain-pack';
-import type { SyncHarnessRuntime } from '../harness-api';
-import type { HarnessInfra } from '../harness-boot';
-import type { HarnessSubscription } from '../harness-client';
-import type { BootedHarnessKernel, HarnessClientOpts } from '../harness-types';
+import type { BootedHarnessKernel, HarnessClientOpts } from '../types';
 import type { SyncApp } from './app';
 import type { SyncHarnessBase } from './harness-types';
 

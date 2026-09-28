@@ -10,8 +10,8 @@ import {
   type SolidDomDriver,
 } from '@pkgs/ui-testing-solid-dom';
 
-import { ChessBoardHarnessApp } from '../harness/harness-app';
-import type { HarnessConfig } from '../harness/harness-config';
+import { ChessBoardHarnessApp } from '../harness/app';
+import type { HarnessConfig } from '../harness/config';
 import type { ChessBoardHost } from '../suite/board-host';
 
 /** Let queued microtasks (sound `play()` after `await seekTo`) run. */

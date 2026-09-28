@@ -9,9 +9,9 @@ import { defineAction } from '@pkgs/harness';
 import { unsafe } from '@pkgs/sql';
 
 import type { Mutation } from '../../mutations/core/types';
-import { pumpInSync } from '../harness-pump';
-import type { AddClientArgs } from '../harness-types';
+import { pumpInSync } from '../pump';
 import type { StoragePressureKind } from '../storage-pressure';
+import type { AddClientArgs } from '../types';
 import { prepareClientsForInSync, resetClockSkews } from './pool-support';
 import {
   driveToSettled,

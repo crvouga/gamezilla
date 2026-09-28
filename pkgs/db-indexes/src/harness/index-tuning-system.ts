@@ -20,8 +20,8 @@ import { fingerprintSql } from '../core/fingerprint';
 import { isOwnedName } from '../core/naming';
 import { reconcileIndexes } from '../core/reconcile';
 import type { ReconcileReport, WorkloadManifest } from '../core/types';
-import { createHarnessClock } from './harness-clock';
-import { HarnessDb } from './harness-db';
+import { createHarnessClock } from './clock';
+import { HarnessDb } from './db';
 import { checkInvariantsAsync } from './invariants';
 
 /** A lookup the team can declare, by the notes field it finds them by. */

@@ -6,7 +6,7 @@ import type { Client } from '@libs/client-app/shell/create-client';
 import type {
   HarnessSystemSnapshot,
   HarnessSystemSnapshotClientSlice,
-} from '@pkgs/harness-console/shared/harness-system-snapshot';
+} from '@pkgs/harness-console/shared/system-snapshot';
 import { dumpData, loadData } from '@pkgs/sql-client/sql-data-snapshot';
 import type {
   SqlDataDump,
@@ -24,13 +24,13 @@ import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,
 } from './client-durable';
+import { harnessClientNamespace } from './client-namespace';
 import type { Harness } from './create-harness';
-import { harnessClientNamespace } from './harness-client-namespace';
-import { type HarnessSql, openFreshHarnessClientSql } from './harness-sql';
 import {
   awaitProductHarnessMutationDrain,
   reconcileServerProfilesFromClients,
 } from './snapshot-sync';
+import { type HarnessSql, openFreshHarnessClientSql } from './sql';
 
 export type SystemSnapshotCtx = {
   readonly harness: Harness;

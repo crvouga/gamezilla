@@ -40,14 +40,14 @@ import { installProductHarnessStickyAutosave } from '@apps/product/product-harne
 import type { Client } from '@libs/client-app/shell/create-client';
 import { readEmbeddedHref } from '@libs/client-app/shell/embedded-href';
 import { harnessActorApp } from '@libs/harness/actors/solid-actor-root';
+import type { HarnessBrowser } from '@libs/harness/fabric/browser';
 import { clearProductHarnessClientDurable } from '@libs/harness/fabric/client-durable';
+import { harnessClientNamespace } from '@libs/harness/fabric/client-namespace';
 import type { Harness } from '@libs/harness/fabric/create-harness';
-import type { HarnessBrowser } from '@libs/harness/fabric/harness-browser';
-import { harnessClientNamespace } from '@libs/harness/fabric/harness-client-namespace';
 import {
   nextHarnessNodeId,
   normalizeHarnessNodeId,
-} from '@libs/harness/fabric/harness-node-name';
+} from '@libs/harness/fabric/node-name';
 import {
   createProductHarnessLogBuffer,
   type ProductHarnessActor,

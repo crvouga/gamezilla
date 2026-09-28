@@ -5,7 +5,7 @@ import type {
   RoomState,
 } from '@pkgs/room';
 import type fc from 'fast-check';
-import type { RoomHarnessAuthorize } from '../harness-api';
+import type { RoomHarnessAuthorize } from '../api';
 
 import type { DomainOp } from './actions';
 

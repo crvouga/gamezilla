@@ -10,7 +10,7 @@ import type {
   HarnessHttpFault,
   HarnessPubsubFault,
 } from '../edge-faults';
-import type { RestartClientOpts } from '../harness-lifecycle';
+import type { RestartClientOpts } from '../lifecycle';
 import type { NetState } from '../net-effect';
 import type { StoragePressureKind } from '../storage-pressure';
 import type { HarnessTraffic } from '../traffic';

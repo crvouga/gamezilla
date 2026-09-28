@@ -1,6 +1,6 @@
 import { unsafe } from '@pkgs/sql';
 
-import type { BootedHarnessKernel } from './harness-types';
+import type { BootedHarnessKernel } from './types';
 
 export type LocalStorageTamper =
   | 'corruptCheckpoint'

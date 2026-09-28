@@ -5,7 +5,7 @@
  */
 
 import { isStorageFullError } from '../../client/storage-full-error';
-import { peerClientIdsSharingRawDb } from '../harness-lifecycle';
+import { peerClientIdsSharingRawDb } from '../lifecycle';
 import type { SyncHarnessBase } from './harness-types';
 import type { SyncHarness } from './system';
 

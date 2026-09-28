@@ -18,11 +18,11 @@ import {
   dumpProductHarnessClientDurable,
   restoreProductHarnessClientDurable,
 } from './client-durable';
+import { harnessClientNamespace } from './client-namespace';
 import type { Harness } from './create-harness';
-import { harnessClientNamespace } from './harness-client-namespace';
-import { HARNESS_PRIMARY_SERVER_ID } from './harness-server-nodes';
-import { type HarnessSql, openFreshHarnessClientSql } from './harness-sql';
+import { HARNESS_PRIMARY_SERVER_ID } from './server-nodes';
 import { reconcileServerProfilesFromClients } from './snapshot-sync';
+import { type HarnessSql, openFreshHarnessClientSql } from './sql';
 
 export type CheckpointSessionMaps = {
   readonly clients: {

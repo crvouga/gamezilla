@@ -1,5 +1,5 @@
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom';
-import type { HarnessSql } from '../fabric/harness-sql';
+import type { HarnessSql } from '../fabric/sql';
 
 export const HARNESS_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
 

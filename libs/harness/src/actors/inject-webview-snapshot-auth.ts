@@ -4,7 +4,7 @@
  */
 
 import { AUTH_BEARER_STORAGE_KEY } from '@pkgs/auth-inhouse/client';
-import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/harness-system-snapshot';
+import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
 
 export async function injectWebViewSnapshotAuth(args: {
   readonly view: {

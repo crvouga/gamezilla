@@ -5,7 +5,7 @@
 
 import type { Client } from '@libs/client-app/shell/create-client';
 import { defineAction } from '@pkgs/harness';
-import type { HarnessSql } from '../fabric/harness-sql';
+import type { HarnessSql } from '../fabric/sql';
 import {
   captureSystemSnapshot,
   type SystemSnapshotCtx,

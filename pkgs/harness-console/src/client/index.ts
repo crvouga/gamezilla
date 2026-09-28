@@ -1,7 +1,7 @@
 export type {
   HarnessChromeKind,
   HarnessChromeKind as ProductHarnessKindId,
-} from '../shared/harness-node';
+} from '../shared/node';
 export type {
   BootProductHarnessOptions,
   HarnessCheckpoint,
@@ -28,7 +28,7 @@ export type {
   ProductHarnessSqlNode,
 } from '../shared/ports';
 export { createProductHarnessLogBuffer } from '../shared/product-harness-log-buffer';
-export { HarnessConsoleApp } from './harness-console-app';
+export { HarnessConsoleApp } from './app';
 export { ProductHarnessLogsPane } from './product-harness/product-harness-logs-pane';
 export { NotebookStoreProvider } from './sql-notebook/notebook-store-context';
 export { SqlNotebookPane } from './sql-notebook/sql-notebook-pane';

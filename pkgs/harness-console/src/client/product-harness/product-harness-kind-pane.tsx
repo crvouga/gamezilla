@@ -6,7 +6,7 @@ import {
   defaultViewForKind,
   viewsForKind,
 } from '../../shared/debugger-views';
-import type { HarnessChromeKind } from '../../shared/harness-node';
+import type { HarnessChromeKind } from '../../shared/node';
 import type {
   ProductHarnessActor,
   ProductHarnessRoomNode,

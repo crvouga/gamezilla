@@ -7,7 +7,7 @@ import type { Client } from '@libs/client-app/shell/create-client';
 import { wallClock } from '@pkgs/clock';
 import type { Run } from '@pkgs/harness';
 import { defineAction } from '@pkgs/harness';
-import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/harness-system-snapshot';
+import type { HarnessSystemSnapshot } from '@pkgs/harness-console/shared/system-snapshot';
 import type {
   Harness,
   HarnessActor,
@@ -26,15 +26,7 @@ import {
 } from '..';
 
 import { wireProductRuntime } from '../setup/wire-product-runtime';
-import { harnessNodeTimers } from './harness-actor-overrides';
-import {
-  getReportStore,
-  HARNESS_REPORT_RUN_ID,
-  harnessFramesEnabled,
-  type TestCallSite,
-  testCallSite,
-} from './harness-report';
-import { readHarnessSystemSnapshot } from './harness-snapshot-fixture';
+import { harnessNodeTimers } from './actor-overrides';
 import {
   type HarnessMode,
   isLiveBrowserMode,
@@ -45,6 +37,14 @@ import {
   clearNodeLocalStoragePolyfill,
   ensureNodeLocalStoragePolyfill,
 } from './node-local-storage-polyfill';
+import {
+  getReportStore,
+  HARNESS_REPORT_RUN_ID,
+  harnessFramesEnabled,
+  type TestCallSite,
+  testCallSite,
+} from './report';
+import { readHarnessSystemSnapshot } from './snapshot-fixture';
 
 export type { HarnessActor };
 export type OpenHarness = Run<ProductHarness>;

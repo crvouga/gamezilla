@@ -1,7 +1,7 @@
 import { assert } from '@pkgs/assert';
 import { isOwnedName } from '../core/naming';
 import type { IndexInfo, OwnedMeta, UsageInfo } from '../core/types';
-import type { HarnessDb } from './harness-db';
+import type { HarnessDb } from './db';
 
 export type InvariantViolation = {
   readonly id: string;

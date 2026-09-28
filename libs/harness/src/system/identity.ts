@@ -10,7 +10,7 @@ import { hashAuthSecret } from '@pkgs/auth-inhouse/shared';
 import { sql } from '@pkgs/sql';
 import type { SqlTx } from '@pkgs/sql-client/interface';
 
-import { harnessIdpEmail } from '../fabric/harness-idp';
+import { harnessIdpEmail } from '../fabric/idp';
 import { type ProductHarness, productExtra } from './harness';
 
 /** The Google address the person behind `actorId` signs in with. */

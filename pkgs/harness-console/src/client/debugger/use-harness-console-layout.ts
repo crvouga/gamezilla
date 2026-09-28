@@ -4,7 +4,7 @@ import { useClientLayoutPreference } from './client-layout-preference';
 import {
   type HarnessConsoleLayout,
   harnessConsoleLayoutFromBreakpoint,
-} from './harness-console-layout';
+} from './layout';
 
 export {
   ClientLayoutPreferenceProvider,
@@ -13,11 +13,11 @@ export {
 export type {
   ClientLayoutMode,
   HarnessConsoleLayout,
-} from './harness-console-layout';
+} from './layout';
 export {
   harnessConsoleLayoutFromBreakpoint,
   showDebuggerInstanceTabs,
-} from './harness-console-layout';
+} from './layout';
 
 export function useHarnessConsoleLayout(): HarnessConsoleLayout {
   const preference = useClientLayoutPreference();

@@ -1,6 +1,6 @@
 import type { LocalDomainSchema } from '../../client/local-schema-migrate';
 import { SCHEMA_EPOCH } from '../../queries/client/local-schema';
-import type { RestartClientOpts } from '../harness-lifecycle';
+import type { RestartClientOpts } from '../lifecycle';
 import {
   exampleLocalSchemaExtraColumn,
   exampleLocalSchemaExtraTable,
