@@ -22,6 +22,10 @@ export type SyncWorld = {
   readonly devices: Set<string>;
   /** The shared space each person is in, by actor. */
   readonly spaceOf: Map<string, string>;
+  /** Who started each shared space (the one who can end it), by space. */
+  readonly hostOf: Map<string, string>;
+  /** How long each note took to reach a person, in order, by actor. */
+  readonly arrivalsMs: Map<string, number[]>;
   /** Devices currently offline. */
   readonly offline: OfflineDevices;
 };
@@ -73,6 +77,8 @@ export function useSyncWorld(): void {
       s: await exampleSystem.run({ seed: 1, args: { clientCount: 0 } }),
       devices: new Set(),
       spaceOf: new Map(),
+      hostOf: new Map(),
+      arrivalsMs: new Map(),
       offline: new OfflineDevices(),
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),

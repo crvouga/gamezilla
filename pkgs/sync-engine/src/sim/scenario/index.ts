@@ -86,6 +86,7 @@ export {
   lastMutationId,
   lastMutationOk,
   lastMutationSettled,
+  liveReconnects,
   netHeld,
   nodeNow,
   outcome,

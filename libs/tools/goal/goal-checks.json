@@ -21,8 +21,8 @@
     "status": "proven",
     "proofs": [
       {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
+        "kind": "spec",
+        "path": "specs/sync/notes-arrive-quickly.feature"
       }
     ]
   },
@@ -265,10 +265,6 @@
   "works-offline:7": {
     "status": "proven",
     "proofs": [
-      {
-        "kind": "test",
-        "path": "pkgs/sync-engine/tests/peer-visibility-latency-budget.test.ts"
-      },
       {
         "kind": "spec",
         "path": "specs/sync/notes-arrive-quickly.feature"

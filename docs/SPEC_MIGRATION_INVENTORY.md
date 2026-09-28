@@ -360,35 +360,23 @@ model as a `test` proof, marked `goal:<id>` in its header).
 | `upload-response-lost-retry-does-not-double-apply` (works-offline:4, always-true:3) | `specs/sync/notes-saved-once.feature`; model `writeUnheard` / `hearBack`, `invNoDoubleApply` |
 | `requires-online-fails-offline-without-queue` (works-offline:6) | `specs/sync/online-only-actions.feature` |
 | `permanent-reject-stored-peer-never-applies` | `specs/sync/note-refused-edits.feature`; model `rejections` |
-| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature`; topic drop without remake → `tests/space-topic-scope.test.ts` |
-| `denied-query-detaches-scope-keeps-rows` | `tests/space-topic-scope.test.ts` (contract: a denied query is not a person's action) |
+| `leave-drops-room-topic-until-rejoin`, `membership-revoked-mid-session-…` | `specs/sync/shared-space-membership.feature` (leaving or a space ending without the app reconnecting); leave-then-cannot-send → `tests/space-topic-scope.test.ts` until the feature's cannot-send leave scenario is reworded |
+| `denied-query-detaches-scope-keeps-rows` | `specs/sync/shared-space-membership.feature` › opening / closing a shared space someone is not in |
 | `full-partition-during-write-then-heal`, `live-loss-dup-reorder-stays-in-sync`, `non-mutation-server-write-without-notify-…` | `note-replication.qnt` (`goOffline` / `goOnline`, `networkStalls` / `networkRecovers`, `liveUpdatesDegrade`, `teamEdit`) |
-| `merge-via-sim` | local-only columns → `tests/schema-drift.test.ts` (storage contract); pending over tombstone → model |
+| `merge-via-sim` | local-only columns → `specs/sync/notes-across-app-updates.feature` › colours and tags; pending over tombstone → model |
 | `deep-pending-chain-rebases-in-seq-order` → `deep-offline-queue` | `specs/sync/a-long-time-offline.feature` |
 | `epoch-bump-wipes-cache-preserves-pending-uploads` → `schema-epoch-bump` | `specs/sync/notes-across-app-updates.feature`; model `appUpdates` (`fresh`) |
-| `fanout-row-cap-boundary-64-vs-65` | `tests/fanout-row-cap.test.ts` (wire contract: which pushes carry row images); the person side → `note-writing.feature` › many notes at once |
+| `fanout-row-cap-boundary-64-vs-65` | `specs/sync/note-writing.feature` › 64 notes reach someone who cannot send, 65 reach everyone once |
 | `domain-hard-delete-rejected` | `tests/hard-delete-refused.test.ts` (contract: the `NO_HARD_DELETE` code; no person can hard-delete) |
-| `seeded-workload-fuzz-determinism` → `exploration` | every walk → model actions: a third person, `clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled` / `Lost`, `liveCutOff` / `liveRestored`, `networkStalls`, `writeWhileSavesCut`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appFailsToOpen`, `appUpdates`, `appMustUpdate`, `appDataDamaged` / `Cleared`, `unsentEditDamaged`, `writeWhileFull`, `signedOutElsewhere`, `signInExpires`, `appBackgrounded`, `secondWindow`, `connectionFlaky`, `teamTidiesUp`, `teamAddsNote`, folders (`writeFolder` / `deleteFolder`) and shared spaces (`createSpace` / `joinSpace` / `leaveSpace`). Two contracts stay (below) |
+| `seeded-workload-fuzz-determinism` → `exploration` | every walk → model actions: a third person, `clockIsWrong`, `outage`, `liveUpdatesPause` / `Garbled` / `Lost`, `liveCutOff` / `liveRestored`, `networkStalls`, `writeWhileSavesCut`, `writeThroughHiccup`, `refreshHiccup`, `crashWhileSaving`, `appFailsToOpen`, `appUpdates`, `appMustUpdate`, `appDataDamaged` / `Cleared`, `unsentEditDamaged`, `writeWhileFull`, `signedOutElsewhere`, `signInExpires`, `appBackgrounded`, `secondWindow`, `connectionFlaky`, `teamTidiesUp`, `teamAddsNote`, folders (`writeFolder` / `deleteFolder`) and shared spaces (`createSpace` / `joinSpace` / `leaveSpace`); same seed, same walk → `pkgs/sim/tests/explore.test.ts`; the lossy host → `note-writing.feature` › live updates lost, repeated and delayed |
 | `pending-rebase.property` | model: offline view = merged notes + unsent edits in order (`notes`, `owners`, `unsent`), a delete the device knows is forbidden does nothing, reconnect replays against the shared notes |
 | `merge-local-columns` | duplicate of `schema-drift` › client-only column survives a full merge; deleted |
 | `note-replication.quint.test.ts` | the model runs from `test:e2e`; the runner file is gone |
 | `pending-ux-answers-with-server-verdict` | `specs/sync/checked-notes.feature` (`@regression:pending-reject-verdict-before-rollback`, `@regression:checked-note-answer-lost-to-push-race`) |
-| `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | stays: the p95 < 200 ms budget gate; the person side → `specs/sync/notes-arrive-quickly.feature` (`@goal:works-offline:7`) |
-| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | stays: a timing-exact regression of the sim's own standing-property check (framework self-test; a scenario cannot pin its seed) |
-| `schema-drift` | stays, trimmed: storage contract for columns and tables across local schema versions; what a person sees across versions → `notes-across-app-updates.feature` |
-| `space-topic-scope` | stays: live-topic scope and remake contracts |
-
-Two contracts stay in `tests/exploration.test.ts`, because neither can be a
-model step:
-
-- **Same seed, same walk.** Reproducing a run from its seed is the sim
-  framework's contract, not product behavior; a model step compares product
-  state, and this compares two runs.
-- **Sequence order on the lossy host.** That host loses, repeats and delays
-  every hop at random, so replies get lost and devices retry on backoff the
-  model never drew: no step boundary has a state the model can name (tried as
-  a model action, `everyConnectionLossy`; it diverged on most traces). The
-  test claims only the standing sequence-order property.
+| `peer-visibility-latency-budget` (the-bar:3, works-offline:7) | `specs/sync/notes-arrive-quickly.feature` › at least 19 of 20 notes within a fifth of a second (`@goal:the-bar:3 @goal:works-offline:7`) |
+| `invariant-check-waits-for-in-flight-verdict` (`invariant-dirty-read`) | `specs/sync/notes-offline.feature` › `@regression:invariant-dirty-read` (the scenario's world does not reproduce the timing-exact dirty read; the standing invariant check runs on every step) |
+| `schema-drift` | `specs/sync/notes-across-app-updates.feature` › colours and tags across versions |
+| `space-topic-scope` | ending a space and denied scopes → `shared-space-membership.feature`; stays, trimmed to leave-then-cannot-send until that scenario is reworded |
 
 Found while porting, and fixed (each pinned by a `@regression` scenario and
 modeled):

@@ -123,6 +123,20 @@ export function pubsubRemakeCount(s: SyncSim, clientId: string): number {
   return clientFor(s, clientId)?.pubsubRemakeCount() ?? 0;
 }
 
+/**
+ * Live connections an app opens to start with: the client builds one, and
+ * attaching live updates remakes it once on the first bind.
+ */
+const OPENING_LIVE_CONNECTIONS = 2;
+
+/**
+ * Times the app has remade its live connection since it opened (0 while it
+ * has stayed connected throughout; a restart opens a new app).
+ */
+export function liveReconnects(s: SyncSim, clientId: string): number {
+  return Math.max(0, pubsubRemakeCount(s, clientId) - OPENING_LIVE_CONNECTIONS);
+}
+
 /** Sync status connection string for a client. */
 export function connection(s: SyncSim, clientId: string): string | null {
   return clientFor(s, clientId)?.connection() ?? null;

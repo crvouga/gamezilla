@@ -464,3 +464,48 @@ export async function readProfileUsernameAt(
   const username = found[0]?.username;
   return typeof username === 'string' && username.length > 0 ? username : null;
 }
+
+/** Every live note's body on each of `nodeIds`, keyed `node/noteId`. */
+export async function noteBodies(
+  s: SyncSim,
+  nodeIds: readonly string[]
+): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  for (const nodeId of nodeIds) {
+    for (const note of await liveNotes(s, nodeId)) {
+      out[`${nodeId}/${note.id}`] = note.body;
+    }
+  }
+  return out;
+}
+
+/**
+ * A fresh watcher for `s.never((s) => noteBodies(…), { pred: goesBack() })`:
+ * true once any key shows a body it showed before and has since moved away
+ * from. `changes()` counts the moves it saw, so a caller can tell a watch
+ * that saw nothing arrive from one that saw every note move forward;
+ * `wentBack()` says which note went back, and to what.
+ */
+export function goesBack(): ((seen: Record<string, string>) => boolean) & {
+  readonly changes: () => number;
+  readonly wentBack: () => string | null;
+} {
+  const history = new Map<string, string[]>();
+  let moves = 0;
+  let back: string | null = null;
+  const pred = (seen: Record<string, string>): boolean => {
+    for (const [key, body] of Object.entries(seen)) {
+      const shown = history.get(key) ?? [];
+      const last = shown[shown.length - 1];
+      if (last === body) continue;
+      if (shown.includes(body)) {
+        back = `${key} went back from "${String(last)}" to "${body}"`;
+        return true;
+      }
+      if (last !== undefined) moves += 1;
+      history.set(key, [...shown, body]);
+    }
+    return false;
+  };
+  return Object.assign(pred, { changes: () => moves, wentBack: () => back });
+}

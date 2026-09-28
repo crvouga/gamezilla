@@ -5,13 +5,18 @@
 
 import {
   createSpace,
+  endSpace,
   hasTopic,
   joinSpace,
   lacksTopic,
   leaveSpace,
   mutate,
+  notesDeniedQuery,
+  nudge,
   roomTopic,
+  subscribe,
   subscribedTopics,
+  unsubscribe,
 } from '@pkgs/sync-engine/sim';
 import { SETTLE_MS } from './note-writes';
 import { app, ensureDevice, Given, type SyncWorld, When } from './world';
@@ -47,6 +52,7 @@ Given(
     await ensureDevice(w, app(guest), true);
     await w.s.apply(mutate, hostId, createSpace, { id: space, title: space });
     w.spaceOf.set(host, space);
+    w.hostOf.set(space, host);
     await subscribed(w, host, space, true);
     await join(w, guest, space);
     await subscribed(w, guest, space, true);
@@ -69,4 +75,39 @@ When(
 When(
   '{actor} leaves the shared space {string}',
   (w, actor: string, space: string) => leave(w, actor, space)
+);
+
+/** Only the person who started a shared space can end it. */
+When('the shared space {string} ends', async (w, space: string) => {
+  const host = w.hostOf.get(space);
+  if (host === undefined) throw new Error(`nobody started "${space}"`);
+  await w.s.apply(mutate, host, endSpace, { spaceId: space });
+});
+
+/**
+ * Opening a shared space the person is not in asks for notes the server
+ * refuses them (the denied query); the space's name picks nothing else.
+ */
+async function openNotIn(w: SyncWorld, actor: string): Promise<void> {
+  const id = await ensureDevice(w, app(actor), true);
+  await w.s.apply(subscribe, id, notesDeniedQuery.name, {});
+}
+
+When(
+  '{actor} opens the shared space {string}, which they are not in',
+  (w, actor: string, _space: string) => openNotIn(w, actor)
+);
+
+Given(
+  '{actor} has opened the shared space {string}, which they are not in',
+  (w, actor: string, _space: string) => openNotIn(w, actor)
+);
+
+When(
+  '{actor} closes the shared space {string} and their app catches up',
+  async (w, actor: string, _space: string) => {
+    const id = await ensureDevice(w, app(actor), true);
+    await w.s.apply(unsubscribe, id, notesDeniedQuery.name);
+    await w.s.apply(nudge, id);
+  }
 );

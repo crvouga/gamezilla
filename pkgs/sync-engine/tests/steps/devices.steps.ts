@@ -11,6 +11,7 @@ import {
   disconnect,
   httpFault,
   liveNotes,
+  net,
   online,
   restart,
 } from '@pkgs/sync-engine/sim';
@@ -33,6 +34,15 @@ Given('{device} is offline', async (w, device: Device) => {
   await w.s.apply(online, id, false);
   await w.s.apply(disconnect, id);
   w.offline.set(device, true);
+});
+
+/**
+ * Cannot send: its requests to the server go nowhere (held, not refused),
+ * while live updates still reach it.
+ */
+Given('{device} cannot send', async (w, device: Device) => {
+  const id = await ensureDevice(w, device);
+  await w.s.apply(net, id, 'sync', 'hold');
 });
 
 When('{device} comes back online', async (w, device: Device) => {

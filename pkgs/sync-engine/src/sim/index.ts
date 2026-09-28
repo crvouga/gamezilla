@@ -18,7 +18,7 @@ export type { SimDomainPack, SimSessionQuery } from './domain-pack';
 export { emptySimPushChannels } from './domain-pack';
 export type { SimHttpFault } from './edge-faults';
 export * from './example-app';
-export { RELIABLE_FAULTS } from './faults';
+export { DST_FAULTS, RELIABLE_FAULTS } from './faults';
 export {
   createInMemorySyncEngine,
   type InMemorySyncEngineOptions,

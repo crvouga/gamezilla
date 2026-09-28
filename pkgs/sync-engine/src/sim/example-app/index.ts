@@ -36,6 +36,7 @@ export {
   lastMutationId,
   lastMutationOk,
   lastMutationSettled,
+  liveReconnects,
   mutate,
   mutateWhileFull,
   net,
@@ -110,6 +111,7 @@ export { exampleDomainPack } from './domain-pack';
 export { expectInSync } from './expect-in-sync';
 export { insertCatalogNote } from './insert-catalog-note';
 export { createSimMembershipChannels } from './membership-channels';
+export { colourNote, noteTags, tagNote } from './note-details';
 export {
   type PoolActivation,
   poolActivate,
@@ -129,6 +131,7 @@ export {
   expectOpenSessionAt,
   expectSpaceNotLiveAt,
   type FolderRow,
+  goesBack,
   hasLocalTable,
   hasTopic,
   isNoteLiveAt,
@@ -144,6 +147,7 @@ export {
   liveTags,
   localTable,
   type NoteRow,
+  noteBodies,
   noteBodyIs,
   noteColor,
   noteColumns,

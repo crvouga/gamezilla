@@ -97,3 +97,11 @@ Then(
     );
   }
 );
+
+Then(
+  '{actor} sees exactly {int} notes',
+  async (w, actor: string, count: number) => {
+    const id = await ensureDevice(w, app(actor));
+    expect(await w.s.read(liveNotes, id)).toHaveLength(count);
+  }
+);

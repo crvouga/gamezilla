@@ -57,7 +57,7 @@
   {
     "id": "invariant-dirty-read",
     "summary": "The sync-engine sim's invariant check read client databases outside a transaction, saw an upload verdict half-applied, and raised a false permanent-vs-transient failure. Fixed by reading inside a transaction.",
-    "regressionTest": "pkgs/sync-engine/tests/invariant-check-waits-for-in-flight-verdict.test.ts"
+    "regressionTest": "specs/sync/notes-offline.feature"
   },
   {
     "id": "worker-compat-date-ahead-of-workerd",

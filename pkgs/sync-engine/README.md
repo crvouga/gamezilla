@@ -779,7 +779,7 @@ bun run lint
 |-------|------|------|
 | Behavior (Gherkin) | `specs/sync/*.feature` | What people observe on the example domain (writes reach everyone quickly, survive offline / crashes / lost replies / app updates, writes that wait for an answer, refusals, membership scopes); steps in `tests/steps/` over `@pkgs/sync-engine/sim` |
 | Model (Quint) | `specs/sync/note-replication.qnt` | Replication rules for the example domain under any interleaving of edits, offline, stalled networks, cut-off saves or live updates, lost replies + retries, save and refresh hiccups, a full device, crashes (also mid-save), failed opens, app updates (also forced), damaged or cleared app data, damaged unsent edits, signing out elsewhere, wrong clocks, lossy / garbled / lost / paused live updates, outages, a second window, and the team's silent edits, inserts and tidying, for three people; binding in `tests/quint/`, traces drawn from `FC_SEED` |
-| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (fanout cap, schema drift, scope / topics, hard delete), explore-pool determinism and lossy-host sequence order (the two claims a model step cannot state), the peer-visibility budget, the invariant-check regression |
+| Contract / property | `tests/*.test.ts`, `tests/*.property.test.ts` | Wire and storage contracts (hard delete, mutation authorization, not-modified queries, managed columns, topic maps), leaving a space drops its live topic without reconnecting (`space-topic-scope`, until its cannot-send scenario is reworded) |
 | Public unit helper | `@pkgs/sync-engine/sim` | `createInMemorySyncEngine` (no full kit surface) |
 
 Specs policy: [`docs/SPEC_DRIVEN_DEVELOPMENT.md`](../../docs/SPEC_DRIVEN_DEVELOPMENT.md).

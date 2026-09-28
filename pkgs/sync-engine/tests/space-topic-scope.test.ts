@@ -2,11 +2,9 @@ import { describe, expect, test } from 'bun:test';
 import {
   addClient,
   createSpace,
-  endSpace,
   exampleSystem,
   expectInSync,
   expectLiveNoteAt,
-  expectNotesAgree,
   hasTopic,
   joinSpace,
   lacksTopic,
@@ -15,25 +13,24 @@ import {
   mutate,
   neverExample,
   noteLive,
-  nudge,
   pauseNetwork,
   pubsubRemakeCount,
   resumeNetwork,
   roomTopic,
   SPACE_MEMBERSHIP_SESSION,
-  setNote,
   setSpaceNote,
-  subscribe,
   subscribedTopics,
-  unsubscribe,
   untilExample,
 } from '@pkgs/sync-engine/sim';
 
 /**
- * Scope contracts: leaving or ending a space drops its live topic without
- * reconnecting the live channel, and a refused (denied) query detaches its
- * scope without wiping rows already held. The person-visible side (leave /
- * rejoin) is `specs/sync/shared-space-membership.feature`.
+ * Leaving a space drops its live topic without reconnecting the live
+ * channel, once the leave has reached the server. Kept until
+ * `specs/sync/shared-space-membership.feature`'s "Leaving stops new notes
+ * reaching someone whose app cannot send" says the leave was sent before the
+ * app lost the ability to send (as written, the leave never reaches the
+ * server, and the app keeps the topic until its queued edits drain). Ending
+ * a space and opening one the person is not in are that feature's scenarios.
  */
 describe('space topic scope', () => {
   test('leave drops room topic; further live does not apply until rejoin', async () => {
@@ -94,54 +91,5 @@ describe('space topic scope', () => {
     await s.apply(mutate, 'alice', joinSpace, { spaceId: 'end-room' });
     await expectInSync(s);
     await expectLiveNoteAt(s, 'alice', 'after-leave', { body: 'miss-me' });
-  });
-
-  test('endSpace drops room topic without remake', async () => {
-    await using s = await exampleSystem.run({
-      seed: 807,
-      args: { clientCount: 0 },
-    });
-
-    await s.apply(addClient, {
-      id: 'alice',
-      sessionQuery: SPACE_MEMBERSHIP_SESSION,
-    });
-    await s.apply(mutate, 'alice', createSpace, { id: 'ended', title: 'X' });
-    await expectInSync(s);
-    await untilExample(s, (s) => subscribedTopics(s, 'alice'), {
-      pred: hasTopic(roomTopic('ended')),
-    });
-    const remakes = await s.read(pubsubRemakeCount, 'alice');
-
-    await s.apply(mutate, 'alice', endSpace, { spaceId: 'ended' });
-    await untilExample(s, (s) => subscribedTopics(s, 'alice'), {
-      pred: lacksTopic(roomTopic('ended')),
-    });
-    expect(await s.read(subscribedTopics, 'alice')).not.toContain(
-      roomTopic('ended')
-    );
-    expect(await s.read(pubsubRemakeCount, 'alice')).toBe(remakes);
-    await expectInSync(s);
-  });
-
-  test('denied query detaches scope without wiping domain', async () => {
-    await using s = await exampleSystem.run({
-      seed: 512,
-      args: { clientCount: 0 },
-    });
-
-    await s.apply(addClient, 'alice');
-    await s.apply(mutate, 'alice', setNote, { id: 'n1', body: 'keep-me' });
-    await expectInSync(s);
-    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep-me' });
-
-    await s.apply(subscribe, 'alice', 'notesDenied', {});
-    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep-me' });
-    await expectNotesAgree(s, 'alice');
-    await s.apply(unsubscribe, 'alice', 'notesDenied');
-
-    // Refresh after denied-scope unsubscribe must keep the row.
-    await s.apply(nudge, 'alice');
-    await expectLiveNoteAt(s, 'alice', 'n1', { body: 'keep-me' });
   });
 });
