@@ -243,5 +243,10 @@
     "id": "garbled-live-update-blank-note",
     "summary": "A garbled live update (fields renamed on the way) created a note on other devices with no title or text until the next refresh. Found by the note-replication model's garbled-live-updates action. Fixed by refusing a pushed image that would create a row without every column the device keeps; the row is refetched whole.",
     "regressionTest": "specs/sync-engine/note-writing.feature"
+  },
+  {
+    "id": "sign-in-refresh-race",
+    "summary": "Signing in saved the new session before the server had bound its account, so the app showed the person signed in while it still ran on the device's guest data; when the account arrived seconds later the app rebuilt under it and dropped what they had done meanwhile (a space hosted, a search typed), failing the production critical journeys. Fixed by keeping a new sign-in pending until its account is bound, then saving account and session together, with the sign-in modal on \"Signing in…\" until then.",
+    "regressionTest": "libs/auth/src/root/client/auth-bridge-refresh.test.ts"
   }
 ]

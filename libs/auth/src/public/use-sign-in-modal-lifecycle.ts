@@ -85,11 +85,13 @@ function useResumePendingEffect(args: {
   });
 }
 
-function isLocalOrBaSignedIn(args: {
-  authState: AuthSessionState;
-  localToken: string | null;
-}): boolean {
-  return isAuthSessionSignedIn(args.authState) || args.localToken !== null;
+/**
+ * Signed in on this device: the session is saved, which happens only once
+ * the account is ready. The provider saying yes is not enough — until the
+ * account is ready the device is still the guest it was.
+ */
+function isSignedInHere(localToken: string | null): boolean {
+  return localToken !== null;
 }
 
 function resolveSignInOutcome(args: {
@@ -101,11 +103,13 @@ function resolveSignInOutcome(args: {
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): void {
-  if (isLocalOrBaSignedIn(args)) {
+  if (isSignedInHere(args.localToken)) {
     args.setAwaitingCallback(false);
     args.setPhase('success');
     return;
   }
+  // The provider said yes; keep "Signing in…" while the account gets ready.
+  if (isAuthSessionSignedIn(args.authState)) return;
   const err = authSessionError(args.authState);
   if (err !== null) {
     args.setAwaitingCallback(false);
@@ -147,7 +151,7 @@ function useSignInOutcomeEffect(args: {
     // OAuth return: never leave the provider picker up once the session exists.
     if (
       args.resumePending() &&
-      isLocalOrBaSignedIn({ authState, localToken }) &&
+      isSignedInHere(localToken) &&
       args.phase() !== 'success'
     ) {
       args.setAwaitingCallback(false);
@@ -199,9 +203,9 @@ function createSignInStart(args: {
     }
     // Native AuthSession: runner only resolves after SSO finalize. Web
     // same-tab redirect never reaches here (`location.assign` + waitUntilUnload).
+    // Stay loading until the account is ready; the outcome effect decides.
     args.startInFlightRef.current = false;
-    args.setAwaitingCallback(false);
-    args.setPhase('success');
+    args.setAwaitingCallback(true);
   };
 }
 

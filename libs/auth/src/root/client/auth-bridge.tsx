@@ -99,12 +99,8 @@ async function handleBaSignedIn(args: {
     deps.log.warn('signed in but bearer token unavailable');
     return;
   }
-  await new SessionCapabilityStore(deps.store).write({
-    token,
-    expiresAt,
-    externalUserId,
-  });
   if (deps.lastSyncedTokenRef.current === token) return;
+  // The token becomes the session only once its account is ready.
   await new AuthBridgeRefresh(deps).runRefresh({
     token,
     expiresAt,
@@ -287,6 +283,7 @@ export function AuthBridge(props: ParentProps): JSX.Element {
   const lastSyncedTokenRef = { current: null as string | null };
   const inFlightRef = { current: false };
   const pendingTokenRef = { current: null as string | null };
+  const signingInTokenRef = { current: null as string | null };
 
   const expiresAt = createMemo(
     () =>
@@ -309,6 +306,7 @@ export function AuthBridge(props: ParentProps): JSX.Element {
     lastSyncedTokenRef,
     inFlightRef,
     pendingTokenRef,
+    signingInTokenRef,
     ...(originAvailability?.kind === 'health'
       ? {
           waitUntilAvailable: (signal?: AbortSignal | null) =>

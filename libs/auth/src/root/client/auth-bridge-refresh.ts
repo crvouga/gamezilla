@@ -33,6 +33,12 @@ export type AuthBridgeRefreshDeps = {
   lastSyncedTokenRef: { current: string | null };
   inFlightRef: { current: boolean };
   pendingTokenRef: { current: string | null };
+  /**
+   * The token of a sign-in whose account is not ready yet. It is not the
+   * session until `/identity/refresh` binds its account: the device stays
+   * the guest it was, and shows it, until then.
+   */
+  signingInTokenRef: { current: string | null };
   waitUntilAvailable?: (signal?: AbortSignal | null) => Promise<void>;
 };
 
@@ -55,14 +61,19 @@ export class AuthBridgeRefresh {
     readonly externalUserId: string | null;
   }): Promise<void> {
     const { token, accountId, expiresAt, externalUserId } = args;
+    if (this.wantedToken() !== token) return;
+    this.deps.signingInTokenRef.current = null;
     const session = this.session();
-    if (session.readToken() !== token) return;
-    await session.write({ token, expiresAt, externalUserId });
-    await writeSecureStorageItem(
-      this.deps.store,
-      LAST_LOCAL_ACCOUNT_ID_KEY,
-      accountId
-    );
+    // Both flip in memory in this tick, the account first: nothing ever shows
+    // the sign-in over the guest's data, or the guest's data as signed in.
+    await Promise.all([
+      writeSecureStorageItem(
+        this.deps.store,
+        LAST_LOCAL_ACCOUNT_ID_KEY,
+        accountId
+      ),
+      session.write({ token, expiresAt, externalUserId }),
+    ]);
     if (session.readToken() !== token) {
       await writeSecureStorageItem(
         this.deps.store,
@@ -82,6 +93,9 @@ export class AuthBridgeRefresh {
   }): Promise<void> {
     const { token, force, expiresAt, externalUserId } = args;
     if (!force && this.deps.lastSyncedTokenRef.current === token) return;
+    if (this.session().readToken() !== token) {
+      this.deps.signingInTokenRef.current = token;
+    }
     if (this.deps.inFlightRef.current) {
       this.deps.pendingTokenRef.current = token;
       return;
@@ -89,18 +103,10 @@ export class AuthBridgeRefresh {
     this.deps.inFlightRef.current = true;
     this.deps.pendingTokenRef.current = null;
     try {
-      const session = this.session();
-      await session.write({ token, expiresAt, externalUserId });
-      const { accountId } = await refreshAuth({
-        apiUrl: this.deps.apiUrl,
-        bearerToken: token,
-        deviceId: this.deps.deviceId,
-        fetchFn: this.deps.fetchFn,
-        deviceSnapshot: collectDeviceSnapshot(),
-      });
-      const currentToken = session.readToken();
-      if (currentToken !== token) {
-        this.discardStaleRefresh(currentToken);
+      const accountId = await this.refreshAccountId(token);
+      if (accountId === null) return;
+      if (this.wantedToken() !== token) {
+        this.discardStaleRefresh(this.wantedToken());
         return;
       }
       await this.applyRefreshSuccess({
@@ -154,6 +160,7 @@ export class AuthBridgeRefresh {
   }): Promise<void> {
     this.deps.lastSyncedTokenRef.current = null;
     this.deps.pendingTokenRef.current = null;
+    this.deps.signingInTokenRef.current = null;
     try {
       await this.session().clear();
     } catch (e) {
@@ -183,7 +190,7 @@ export class AuthBridgeRefresh {
   }): Promise<void> {
     try {
       const userId = await this.ensureAnonUserWithRetries(args.localId);
-      if (!shouldBindAnonUserAfterEnsure(this.session().readToken())) {
+      if (!shouldBindAnonUserAfterEnsure(this.wantedToken())) {
         this.deps.log.info('anon ensure discarded; session token present');
         return;
       }
@@ -205,6 +212,43 @@ export class AuthBridgeRefresh {
       this.deps.log.error('auth/anon/ensure failed', {
         error: e instanceof Error ? e.message : String(e),
       });
+    }
+  }
+
+  /**
+   * The token the device wants as its session: a sign-in still finishing,
+   * else the saved one. A refresh for any other token is stale.
+   */
+  private wantedToken(): string | null {
+    return this.deps.signingInTokenRef.current ?? this.session().readToken();
+  }
+
+  /**
+   * `/identity/refresh` for `token`. A sign-in still finishing waits out a
+   * lost connection and tries again, so it is never silently dropped;
+   * `null` when a sign-out or a newer sign-in replaced it meanwhile.
+   */
+  private async refreshAccountId(token: string): Promise<string | null> {
+    while (true) {
+      try {
+        const { accountId } = await refreshAuth({
+          apiUrl: this.deps.apiUrl,
+          bearerToken: token,
+          deviceId: this.deps.deviceId,
+          fetchFn: this.deps.fetchFn,
+          deviceSnapshot: collectDeviceSnapshot(),
+        });
+        return accountId;
+      } catch (e) {
+        const waitUntilAvailable = this.deps.waitUntilAvailable;
+        const retry =
+          e instanceof HttpNetworkError &&
+          waitUntilAvailable !== undefined &&
+          this.deps.signingInTokenRef.current === token;
+        if (!retry) throw e;
+        await waitUntilAvailable();
+        if (this.wantedToken() !== token) return null;
+      }
     }
   }
 
