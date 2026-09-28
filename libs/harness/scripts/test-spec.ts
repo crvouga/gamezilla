@@ -298,6 +298,7 @@ const result = spawnSync(
     '--timeout',
     String(TIMEOUT_MS),
     '--parallel',
+    '--no-isolate',
     '--reporter=junit',
     `--reporter-outfile=${JUNIT_PATH}`,
     ...cli.bunArgs,

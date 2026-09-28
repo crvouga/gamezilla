@@ -330,6 +330,20 @@ export async function pressPuzzleNext(
 }
 
 /**
+ * Tap the action bar's Next only if it is on screen right now — the second
+ * press of a fast double input. Waiting for it would burn the whole budget
+ * whenever the first press already took the chrome away.
+ */
+export async function pressPuzzleNextIfVisible(
+  s: ProductHarness,
+  actorId: string
+): Promise<void> {
+  const ui = await actorUi(s, actorId);
+  const next = ui.get(Handles.chessPuzzleActionNext);
+  if (await next.isVisible()) await next.tap({ timeoutMs: WAIT_MS });
+}
+
+/**
  * Wait until pick-status reports a non-null active id with loading cleared.
  * Does not assert difference — that is the standing property's job.
  */
