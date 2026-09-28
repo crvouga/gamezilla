@@ -12,14 +12,19 @@ export type {
 } from './api';
 export { registerTestCrashHandler } from './crash-handler';
 export {
+  changeRange,
   type ExamplePartition,
   exampleAppSchema,
   exampleNs,
+  lastWait,
   ModeAttr,
   NameAttr,
   RatingAttr,
   RegionAttr,
   ratingWithin,
+  stopWaiting,
+  type WaitForMatchSpec,
+  waitForMatch,
 } from './example-app';
 export {
   HARNESS_AUTH_HEADERS,

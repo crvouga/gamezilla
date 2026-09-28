@@ -27,6 +27,8 @@ export type MatchmakingLastResults = {
   leave: LeaveResult | null;
   update: UpdateFormulasResult | null;
   http: { readonly status: number; readonly body: JsonValue } | null;
+  /** How the example app answered the last person asking to wait. */
+  wait: 'waiting' | 'alreadyWaiting' | null;
 };
 
 export type MatchmakingHarness = MatchmakingHarnessRuntime & {
@@ -74,6 +76,7 @@ export function buildMatchmakingHarness(args: {
       leave: null,
       update: null,
       http: null,
+      wait: null,
     },
     ports: {
       rng,

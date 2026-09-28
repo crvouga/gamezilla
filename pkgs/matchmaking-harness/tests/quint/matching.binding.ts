@@ -1,24 +1,21 @@
 /**
- * `specs/matchmaking/matching.qnt` against matchmaking behind three entrances:
- * each model action through the matchmaking harness actions at the entrance the
- * trace drew, and each person's standing read back from every entrance (all
- * three must agree).
+ * `specs/matchmaking/matching.qnt` against the example app's lobby behind
+ * three replicas sharing one store: each model action through the lobby's
+ * actions, landing at the replicas in turn (which replica serves a request
+ * is nobody's choice, so the trace does not draw it), and each person's
+ * standing read back from every replica (all three must agree).
  */
 
 import type { StatusResult } from '@pkgs/matchmaking/interface';
 import {
-  join,
-  leave,
+  changeRange,
   matchFingerprint,
   matchmaking,
-  NameAttr,
   participantIds,
-  RatingAttr,
-  ratingWithin,
-  ready,
   statusAcrossReplicas,
+  stopWaiting,
   tick,
-  updateFormulas,
+  waitForMatch,
 } from '@pkgs/matchmaking-harness';
 import { type QuintValue, variant } from '@pkgs/quint/itf';
 import { bindQuintModel, type Picks } from '@pkgs/quint/registry';
@@ -31,29 +28,29 @@ const RATING: Readonly<Record<string, number>> = {
   carol: 1500,
   dave: 1550,
 };
-/** The model's reaches, in rating points. */
-const REACH_POINTS: Readonly<Record<string, number>> = {
+/** The model's rating ranges, in rating points. */
+const RANGE_POINTS: Readonly<Record<string, number>> = {
   Narrow: 5,
   Wide: 200,
 };
-const ENTRANCE_COUNT = 3;
-/** A wait nobody ever started. */
-const NOBODY = '00000000-0000-0000-0000-000000000000';
+const REPLICA_COUNT = 3;
 
 function person(picks: Picks): string {
   return String(picks['person']);
 }
 
-function reachPoints(picks: Picks): number {
-  const tag = (picks['reach'] as { readonly tag: string }).tag;
-  const points = REACH_POINTS[tag];
-  if (points === undefined) throw new Error(`unknown reach ${tag}`);
+function rangePoints(picks: Picks): number {
+  const tag = (picks['ratingRange'] as { readonly tag: string }).tag;
+  const points = RANGE_POINTS[tag];
+  if (points === undefined) throw new Error(`unknown range ${tag}`);
   return points;
 }
 
-/** The entrance the trace drew (the model numbers them from 1). */
-function at(picks: Picks): string {
-  return `r${String(Number(picks['entrance']) - 1)}`;
+/** The next replica in turn. */
+function nextReplica(w: MatchmakingTraceWorld): string {
+  const at = w.requests % REPLICA_COUNT;
+  w.requests += 1;
+  return `r${String(at)}`;
 }
 
 async function standingOf(
@@ -70,7 +67,7 @@ async function standingOf(
   const views = Object.values(seen).map((one) => JSON.stringify(one));
   if (new Set(views).size !== 1) {
     throw new Error(
-      `entrances disagree on ${who}'s standing: ${JSON.stringify(seen)}`
+      `replicas disagree on ${who}'s standing: ${JSON.stringify(seen)}`
     );
   }
   const one = Object.values(seen)[0] ?? null;
@@ -93,46 +90,36 @@ bindQuintModel<MatchmakingTraceWorld>({
     init: async (w) => {
       w.harness = await matchmaking.run({
         seed: w.ctx.testId,
-        args: { replicas: ENTRANCE_COUNT },
+        args: { replicas: REPLICA_COUNT },
       });
     },
     waitForMatch: async (w, picks) => {
       const s = traceMatchmaking(w);
       const who = person(picks);
-      await s.apply(join, {
-        ref: who,
-        input: {
-          data: { ...RatingAttr(RATING[who]!), ...NameAttr(who) },
-          formulas: [ratingWithin(reachPoints(picks))],
-        },
-        replicaId: at(picks),
+      await s.apply(waitForMatch, {
+        person: who,
+        rating: RATING[who]!,
+        range: rangePoints(picks),
+        replicaId: nextReplica(w),
       });
-      const id = (await s.read(participantIds))[who]!;
-      w.waitedBy.set(id, who);
+      const id = (await s.read(participantIds))[who];
+      if (id !== undefined) w.waitedBy.set(id, who);
     },
     stopWaiting: async (w, picks) => {
-      const s = traceMatchmaking(w);
-      const who = person(picks);
-      const waited = (await s.read(participantIds))[who] !== undefined;
-      await s.apply(
-        leave,
-        waited
-          ? { ref: who, replicaId: at(picks) }
-          : { participantId: NOBODY, replicaId: at(picks) }
-      );
-    },
-    changeReach: async (w, picks) => {
-      await traceMatchmaking(w).apply(updateFormulas, {
-        ref: person(picks),
-        formulas: [ratingWithin(reachPoints(picks))],
-        replicaId: at(picks),
+      await traceMatchmaking(w).apply(stopWaiting, {
+        person: person(picks),
+        replicaId: nextReplica(w),
       });
     },
-    matchingRound: async (w, picks) => {
-      await traceMatchmaking(w).apply(tick, { replicaId: at(picks) });
+    changeRange: async (w, picks) => {
+      await traceMatchmaking(w).apply(changeRange, {
+        person: person(picks),
+        range: rangePoints(picks),
+        replicaId: nextReplica(w),
+      });
     },
-    entranceOpensAgain: async (w, picks) => {
-      await traceMatchmaking(w).apply(ready, { replicaId: at(picks) });
+    pairUp: async (w) => {
+      await traceMatchmaking(w).apply(tick, { replicaId: nextReplica(w) });
     },
   },
   observe: async (w) => {

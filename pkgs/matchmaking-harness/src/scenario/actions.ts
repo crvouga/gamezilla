@@ -6,6 +6,7 @@ import type {
   TickOptions,
 } from '@pkgs/matchmaking/interface';
 import fc from 'fast-check';
+import { LOBBY_ACTIONS } from '../example-app/lobby';
 import type { MatchmakingHarness } from './facade';
 import { HARNESS_AUTH_HEADERS, harnessRequireAuth } from './http';
 import { asJson, caps } from './observations';
@@ -191,4 +192,5 @@ export const MATCHMAKING_ACTIONS = [
   addReplica,
   joinsDuringTick,
   httpRequest,
+  ...LOBBY_ACTIONS,
 ] as const;
