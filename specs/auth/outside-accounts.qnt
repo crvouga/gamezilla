@@ -147,7 +147,7 @@ module outside_accounts {
     _update(_held.put(device, n), _live.put(n, a), n, methods, accounts, proofs, outside, offline)
   }
 
-  /// A successful round trip with Apple lets the app use that Apple account again.
+  /// Signing in with an Apple account again lets the app use it again.
   pure def _allowed(outside: { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] }, o: OutsideAccount): { trouble: Set[Provider], deleted: Set[OutsideAccount], stopped: Set[OutsideAccount] } =
     outside.with("stopped", outside.stopped.exclude(Set(o)))
 

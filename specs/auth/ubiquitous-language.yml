@@ -214,7 +214,7 @@ terms:
     definition: >-
       At their first sign-in with Apple, choose to keep one's email address
       from the app; the app gets a private Apple email address instead.
-    forms: [hides their email address, hid their email address, hidden email address]
+    forms: [hides their email address, hid their email address, hiding their email address, hidden email address]
     model: [signInWithApple]
 
   - term: private Apple email address

@@ -64,7 +64,7 @@ Feature: What people do at Google and Apple
 
     Scenario: A hidden email address shows as a private Apple email address
       Given Dave has no account yet
-      When Dave signs in with Apple and hides their email address
+      When Dave signs in with Apple, hiding their email address
       Then Dave's Apple sign-in method shows a private Apple email address
 
     Scenario: Apple stopping mail forwarding shows on Dave's Apple sign-in method
