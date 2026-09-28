@@ -50,6 +50,12 @@ variable "railway" {
   description = "The one broker project and its shared `emqx` service (owned by the fleet stack); each environment is a Railway environment of it."
 }
 
+variable "railway_token" {
+  type        = string
+  sensitive   = true
+  description = "Railway API token (TF_VAR_railway_token from RAILWAY_TOKEN): the pubsub module reads the project's environment ids with it."
+}
+
 variable "global_imports" {
   type    = any
   default = {}

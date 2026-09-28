@@ -65,13 +65,16 @@ module "secrets" {
 }
 
 # This environment's Railway environment of the one broker project (the
-# fleet stack owns the project and the service); named after the suffix, so
-# production's is the project's default `production` environment.
+# fleet stack owns the project and the service); named after the suffix.
+# Production's is the project's default `production` environment; every other
+# environment is a duplicate of it (modules/pubsub explains why).
 module "pubsub" {
   source           = "../../modules/pubsub"
   project_id       = var.railway.project_id
   service_id       = var.railway.service_id
   environment_name = var.suffix
+  clone_from       = var.protection == "production" ? null : "production"
+  railway_token    = var.railway_token
   hostname         = var.hosts.broker
   zone_id          = data.cloudflare_zone.this.zone_id
   zone_name        = var.cloudflare.zone_name
