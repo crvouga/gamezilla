@@ -57,7 +57,9 @@ export function resolveApalache(
       ? fromEnv
       : miseWhere('http:apalache', import.meta.dir);
   if (home === null) {
-    return { error: `quint verify: Apalache is not installed — ${INSTALL_HINT}` };
+    return {
+      error: `quint verify: Apalache is not installed — ${INSTALL_HINT}`,
+    };
   }
   if (!existsSync(executable(home))) {
     return {
@@ -131,7 +133,8 @@ export async function freePort(): Promise<number> {
     server.once('error', reject);
     server.listen(0, '127.0.0.1', () => {
       const address = server.address();
-      const port = typeof address === 'object' && address !== null ? address.port : 0;
+      const port =
+        typeof address === 'object' && address !== null ? address.port : 0;
       server.close(() => {
         if (port === 0) reject(new Error('quint verify: no free port'));
         else resolve(port);

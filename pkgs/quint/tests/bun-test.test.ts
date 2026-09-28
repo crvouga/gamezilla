@@ -4,7 +4,9 @@
  */
 
 import { describe, expect, test } from 'bun:test';
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { readEvidence } from '@pkgs/conformance/evidence-store';
 import { runQuintModel } from '@pkgs/quint/bun-test';
 import {
   bindQuintModel,
@@ -61,12 +63,47 @@ bindQuintModel(binding);
 
 const FIXTURE = join(import.meta.dir, 'fixtures/door.qnt');
 const OUT = join(import.meta.dir, '../.cache/test-traces');
+const SPEC_URI = 'pkgs/quint/tests/fixtures/door.qnt';
+
+// Evidence merges across runs of the same model text; start from none.
+rmSync(join(OUT, 'evidence'), { recursive: true, force: true });
 
 runQuintModel({
   packageName: '@pkgs/quint',
   specPath: FIXTURE,
-  specUri: 'pkgs/quint/tests/fixtures/door.qnt',
+  specUri: SPEC_URI,
   reportDir: OUT,
+});
+
+// Registered after the model's tests, so it runs once they have decided.
+describe('evidence of the model run', () => {
+  test('records every obligation the run decided, each passing', () => {
+    const { records, malformed } = readEvidence(OUT);
+    expect(malformed).toEqual([]);
+    const door = records.find((r) => r.specUri === SPEC_URI);
+    expect(door).toMatchObject({
+      kind: 'dynamics',
+      packageName: '@pkgs/quint',
+      specSha256: expect.stringMatching(/^[0-9a-f]{64}$/),
+    });
+    const byId = new Map(door?.obligations.map((o) => [o.id, o]));
+    const layers = Object.fromEntries(
+      [...byId].map(([id, o]) => [id.replace(/:\d+$/, ':n'), o.layer])
+    );
+    expect(layers).toEqual({
+      typecheck: 'specification',
+      verify: 'specification',
+      simulate: 'specification',
+      'bound-actions': 'completeness',
+      determinism: 'implementation',
+      'trace:n': 'implementation',
+    });
+    expect(byId.has('trace:1')).toBe(true);
+    expect([...byId.values()].filter((o) => o.status !== 'pass')).toEqual([]);
+    expect(byId.get('verify')?.detail).toBe(
+      'invKnownState hold in every state within 4 steps'
+    );
+  });
 });
 
 describe('a product that disagrees with the model', () => {

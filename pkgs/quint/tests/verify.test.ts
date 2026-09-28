@@ -1,0 +1,114 @@
+import { describe, expect, test } from 'bun:test';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { APALACHE_VERSION, resolveApalache } from '@pkgs/quint/apalache';
+import { verify } from '@pkgs/quint/verify';
+
+const FIXTURES = join(import.meta.dir, 'fixtures');
+const OUT = join(import.meta.dir, '../.cache/test-verify');
+
+/**
+ * A check starts a JVM (Apalache): ~4 s idle on the door, far more under a
+ * loaded gate. A limit near that would let machine load decide the verdict.
+ */
+const CHECK_TIMEOUT_MS = 120_000;
+
+describe('verify', () => {
+  test(
+    'a model whose invariant holds in every state within the bound passes',
+    async () => {
+      const outDir = join(OUT, 'door');
+      const result = await verify({
+        specPath: join(FIXTURES, 'door.qnt'),
+        invariants: ['invKnownState'],
+        maxSteps: 4,
+        outDir,
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result).toMatchObject({ ok: true });
+      // Apalache worked in the check's own directory, not the caller's.
+      expect(existsSync(join(outDir, '_apalache-out'))).toBe(true);
+      expect(existsSync(join(import.meta.dir, '../_apalache-out'))).toBe(false);
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test(
+    'an invariant the model breaks is refuted with a counterexample',
+    async () => {
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-broken.qnt'),
+        invariants: ['invNeverOpen'],
+        maxSteps: 4,
+        outDir: join(OUT, 'broken'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.output).toContain('invNeverOpen');
+      expect(result.output).toContain('found a counterexample');
+      expect(result.output).toContain('[State 1] { state: "open" }');
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test(
+    'a model Apalache cannot encode fails with its reason, not its log',
+    async () => {
+      const result = await verify({
+        specPath: join(FIXTURES, 'door-unbounded.qnt'),
+        invariants: ['invCountsFromOne'],
+        maxSteps: 2,
+        outDir: join(OUT, 'unbounded'),
+        timeoutMs: CHECK_TIMEOUT_MS,
+      });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.output).toContain('Expected a constant integer');
+      expect(result.output).not.toMatch(/ I@\d/);
+    },
+    CHECK_TIMEOUT_MS
+  );
+
+  test('a model with no invariant fails without running the checker', async () => {
+    const result = await verify({
+      specPath: join(FIXTURES, 'door.qnt'),
+      invariants: [],
+      maxSteps: 4,
+      outDir: join(OUT, 'none'),
+      timeoutMs: CHECK_TIMEOUT_MS,
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.output).toContain('proves nothing');
+  });
+});
+
+describe('the pinned Apalache', () => {
+  test('is the release the pinned Quint expects, so Quint never fetches its own', () => {
+    const quintApalache = readFileSync(
+      Bun.resolveSync(
+        '@informalsystems/quint/dist/src/apalache.js',
+        import.meta.dir
+      ),
+      'utf8'
+    );
+    expect(quintApalache).toContain(
+      `DEFAULT_APALACHE_VERSION_TAG = '${APALACHE_VERSION}'`
+    );
+  });
+
+  test('a missing install says how to get it', () => {
+    const missing = resolveApalache({ APALACHE_HOME: join(OUT, 'no-such') });
+    expect(missing).toEqual({
+      error: expect.stringContaining('mise install'),
+    });
+  });
+
+  test('APALACHE_HOME, when set, is where it is looked for', () => {
+    const pinned = resolveApalache({});
+    expect('home' in pinned).toBe(true);
+    if (!('home' in pinned)) return;
+    expect(resolveApalache({ APALACHE_HOME: pinned.home })).toEqual(pinned);
+  });
+});
